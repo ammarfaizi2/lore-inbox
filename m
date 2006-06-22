@@ -1,51 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161207AbWFVTAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161203AbWFVTCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161207AbWFVTAK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 15:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbWFVTAJ
+	id S1161203AbWFVTCX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 15:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161204AbWFVTCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 15:00:09 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:10216 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1161199AbWFVTAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 15:00:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=EzlXx+JujHAa+zxIexRkwpq4hElsbzcZ496SNheyU4d36yg6dLN2ABLohfg81G0c1eJsn+Ij0qde3dy2xlBD3F/7r8TInWIyBLdytWIT1ZECCYoMXFEnV1BVVVYu2BgcOIX1nGNpIWh3/tpGTSpmuxfnRYrXgJvIdX/kzI6sHAg=
-Message-ID: <449AE8B5.4@gmail.com>
-Date: Thu, 22 Jun 2006 13:00:05 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [ patch -mm1 10/11 ] gpio-patchset-fixups: extern to header
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 22 Jun 2006 15:02:23 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:59601
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1161203AbWFVTCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 15:02:22 -0400
+Subject: [PATCH][RFC] kill TTY_DONT_FLIP
+From: Paul Fulghum <paulkf@microgate.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain
+Date: Thu, 22 Jun 2006 14:02:08 -0500
+Message-Id: <1151002928.15500.21.camel@amdx2.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff.19-fix-extern-decl
+Kill TTY_DONT_FLIP flag, which is set in n_tty read_chan().
+This flag is only used by the N_TTY line discipline. It was added
+in the 2.1.X development series. Its original purpose seems
+to be protecting the N_TTY read buffer state (tty->read_tail, etc)
+from conflicting access by read_chan (reads from N_TTY read buffer)
+and the flip buffer code (writes to N_TTY read buffer
+via n_tty_receive_buf).
 
-Clean up the remaining bogus extern declaration, which is already in the 
-corresponding header.
+The spin lock tty->read_lock was subsequently added to
+protect the N_TTY read buffer. After reviewing the
+tty code, I see no other state that is protected
+by TTY_DONT_FLIP.
 
-Signed-off-by:   Jim Cromie <jim.cromie@gmail.com>
+The current implementation of TTY_DONT_FLIP does not ensure
+mutual exclusion of the code in question on
+an SMP machine. Some drivers which feed the line discipline
+directly do not honor this flag anyways and contain comments like
+'FIXME: what to do with TTY_DONT_FLIP?'
 
----
+My understanding is that TTY_DONT_FLIP is a
+leftover currently serving no useful purpose and
+should be eliminated as in this patch. I've been
+running the patch on an SMP machine while exercising
+multiple serial ports with no problems.
 
-diff -ruNp -X dontdiff -X exclude-diffs 17-mm-pre0/drivers/char/pc8736x_gpio.c 19-extern/drivers/char/pc8736x_gpio.c
---- 17-mm-pre0/drivers/char/pc8736x_gpio.c	2006-06-20 20:42:39.000000000 -0600
-+++ 19-extern/drivers/char/pc8736x_gpio.c	2006-06-21 09:48:22.000000000 -0600
-@@ -212,8 +212,6 @@ static void pc8736x_gpio_change(unsigned
- 	pc8736x_gpio_set(index, !pc8736x_gpio_current(index));
+--- a/include/linux/tty.h	2006-06-22 10:56:12.000000000 -0500
++++ b/include/linux/tty.h	2006-06-22 12:10:10.000000000 -0500
+@@ -260,7 +260,6 @@ struct tty_struct {
+ #define TTY_DO_WRITE_WAKEUP 	5	/* Call write_wakeup after queuing new */
+ #define TTY_PUSH 		6	/* n_tty private */
+ #define TTY_CLOSING 		7	/* ->close() in progress */
+-#define TTY_DONT_FLIP 		8	/* Defer buffer flip */
+ #define TTY_LDISC 		9	/* Line discipline attached */
+ #define TTY_HW_COOK_OUT 	14	/* Hardware can do output cooking */
+ #define TTY_HW_COOK_IN 		15	/* Hardware can do input cooking */
+--- a/drivers/char/n_tty.c	2006-06-17 20:49:35.000000000 -0500
++++ b/drivers/char/n_tty.c	2006-06-22 12:06:02.000000000 -0500
+@@ -1132,7 +1132,7 @@ static inline int input_available_p(stru
+  *	buffer, and once to drain the space from the (physical) beginning of
+  *	the buffer to head pointer.
+  *
+- *	Called under the tty->atomic_read_lock sem and with TTY_DONT_FLIP set
++ *	Called under the tty->atomic_read_lock sem
+  *
+  */
+  
+@@ -1271,7 +1271,6 @@ do_it_again:
+ 	}
+ 
+ 	add_wait_queue(&tty->read_wait, &wait);
+-	set_bit(TTY_DONT_FLIP, &tty->flags);
+ 	while (nr) {
+ 		/* First test for status change. */
+ 		if (tty->packet && tty->link->ctrl_status) {
+@@ -1315,9 +1314,7 @@ do_it_again:
+ 				break;
+ 			}
+ 			n_tty_set_room(tty);
+-			clear_bit(TTY_DONT_FLIP, &tty->flags);
+ 			timeout = schedule_timeout(timeout);
+-			set_bit(TTY_DONT_FLIP, &tty->flags);
+ 			continue;
+ 		}
+ 		__set_current_state(TASK_RUNNING);
+@@ -1394,7 +1391,6 @@ do_it_again:
+ 		if (time)
+ 			timeout = time;
+ 	}
+-	clear_bit(TTY_DONT_FLIP, &tty->flags);
+ 	mutex_unlock(&tty->atomic_read_lock);
+ 	remove_wait_queue(&tty->read_wait, &wait);
+ 
+--- a/drivers/char/tty_io.c	2006-06-22 10:56:12.000000000 -0500
++++ b/drivers/char/tty_io.c	2006-06-22 12:13:14.000000000 -0500
+@@ -784,11 +784,8 @@ restart:
+ 	}
+ 
+ 	clear_bit(TTY_LDISC, &tty->flags);
+-	clear_bit(TTY_DONT_FLIP, &tty->flags);
+-	if (o_tty) {
++	if (o_tty)
+ 		clear_bit(TTY_LDISC, &o_tty->flags);
+-		clear_bit(TTY_DONT_FLIP, &o_tty->flags);
+-	}
+ 	spin_unlock_irqrestore(&tty_ldisc_lock, flags);
+ 
+ 	/*
+@@ -1955,7 +1952,6 @@ static void release_dev(struct file * fi
+ 	 * race with the set_ldisc code path.
+ 	 */
+ 	clear_bit(TTY_LDISC, &tty->flags);
+-	clear_bit(TTY_DONT_FLIP, &tty->flags);
+ 	cancel_delayed_work(&tty->buf.work);
+ 
+ 	/*
+@@ -2785,13 +2781,6 @@ static void flush_to_ldisc(void *private
+ 	if (disc == NULL)	/*  !TTY_LDISC */
+ 		return;
+ 
+-	if (test_bit(TTY_DONT_FLIP, &tty->flags)) {
+-		/*
+-		 * Do it after the next timer tick:
+-		 */
+-		schedule_delayed_work(&tty->buf.work, 1);
+-		goto out;
+-	}
+ 	spin_lock_irqsave(&tty->buf.lock, flags);
+ 	while((tbuf = tty->buf.head) != NULL) {
+ 		while ((count = tbuf->commit - tbuf->read) != 0) {
+@@ -2810,7 +2799,7 @@ static void flush_to_ldisc(void *private
+ 		tty_buffer_free(tty, tbuf);
+ 	}
+ 	spin_unlock_irqrestore(&tty->buf.lock, flags);
+-out:
++
+ 	tty_ldisc_deref(disc);
  }
  
--extern void nsc_gpio_dump(struct nsc_gpio_ops *amp, unsigned iminor);
+--- a/drivers/char/pty.c	2006-06-17 20:49:35.000000000 -0500
++++ b/drivers/char/pty.c	2006-06-22 12:14:10.000000000 -0500
+@@ -101,7 +101,7 @@ static void pty_unthrottle(struct tty_st
+  *
+  * FIXME: Our pty_write method is called with our ldisc lock held but
+  * not our partners. We can't just take the other one blindly without
+- * risking deadlocks.  There is also the small matter of TTY_DONT_FLIP
++ * risking deadlocks.
+  */
+ static int pty_write(struct tty_struct * tty, const unsigned char *buf, int count)
+ {
+--- a/drivers/char/mxser.c	2006-06-17 20:49:35.000000000 -0500
++++ b/drivers/char/mxser.c	2006-06-22 12:15:06.000000000 -0500
+@@ -953,7 +953,6 @@ static int mxser_open(struct tty_struct 
+ 
+ 	info->session = current->signal->session;
+ 	info->pgrp = process_group(current);
+-	clear_bit(TTY_DONT_FLIP, &tty->flags);
+ 
+ 	//status = mxser_get_msr(info->base, 0, info->port);
+ 	//mxser_check_modem_status(info, status);
+--- a/drivers/serial/crisv10.c	2006-06-17 20:49:35.000000000 -0500
++++ b/drivers/serial/crisv10.c	2006-06-22 12:17:12.000000000 -0500
+@@ -2573,12 +2573,6 @@ static void flush_to_flip_buffer(struct 
+ 
+ 	DFLIP(
+ 	  if (1) {
 -
- static struct nsc_gpio_ops pc8736x_access = {
- 	.owner		= THIS_MODULE,
- 	.gpio_config	= pc8736x_gpio_configure,
+-		  if (test_bit(TTY_DONT_FLIP, &tty->flags)) {
+-			  DEBUG_LOG(info->line, "*** TTY_DONT_FLIP set flip.count %i ***\n", tty->flip.count);
+-			  DEBUG_LOG(info->line, "*** recv_cnt %i\n", info->recv_cnt);
+-		  } else {
+-		  }
+ 		  DEBUG_LOG(info->line, "*** rxtot %i\n", info->icount.rx);
+ 		  DEBUG_LOG(info->line, "ldisc %lu\n", tty->ldisc.chars_in_buffer(tty));
+ 		  DEBUG_LOG(info->line, "room  %lu\n", tty->ldisc.receive_room(tty));
+--- a/drivers/serial/jsm/jsm_tty.c	2006-06-17 20:49:35.000000000 -0500
++++ b/drivers/serial/jsm/jsm_tty.c	2006-06-22 12:19:14.000000000 -0500
+@@ -589,13 +589,6 @@ void jsm_input(struct jsm_channel *ch)
+ 	ld = tty_ldisc_ref(tp);
+ 
+ 	/*
+-	 * If the DONT_FLIP flag is on, don't flush our buffer, and act
+-	 * like the ld doesn't have any space to put the data right now.
+-	 */
+-	if (test_bit(TTY_DONT_FLIP, &tp->flags))
+-		len = 0;
+-
+-	/*
+ 	 * If we were unable to get a reference to the ld,
+ 	 * don't flush our buffer, and act like the ld doesn't
+ 	 * have any space to put the data right now.
+--- a/drivers/usb/serial/ir-usb.c	2006-06-17 20:49:35.000000000 -0500
++++ b/drivers/usb/serial/ir-usb.c	2006-06-22 12:20:51.000000000 -0500
+@@ -453,8 +453,7 @@ static void ir_read_bulk_callback (struc
+ 			tty = port->tty;
+ 
+ 			/*
+-			 *	FIXME: must not do this in IRQ context,
+-			 *	must honour TTY_DONT_FLIP
++			 *	FIXME: must not do this in IRQ context
+ 			 */
+ 			tty->ldisc.receive_buf(
+ 				tty,
+--- a/net/bluetooth/rfcomm/tty.c	2006-06-17 20:49:35.000000000 -0500
++++ b/net/bluetooth/rfcomm/tty.c	2006-06-22 12:24:30.000000000 -0500
+@@ -480,12 +480,8 @@ static void rfcomm_dev_data_ready(struct
+ 
+ 	BT_DBG("dlc %p tty %p len %d", dlc, tty, skb->len);
+ 
+-	if (test_bit(TTY_DONT_FLIP, &tty->flags)) {
+-		tty_buffer_request_room(tty, skb->len);
+-		tty_insert_flip_string(tty, skb->data, skb->len);
+-		tty_flip_buffer_push(tty);
+-	} else
+-		tty->ldisc.receive_buf(tty, skb->data, NULL, skb->len);
++	tty_insert_flip_string(tty, skb->data, skb->len);
++	tty_flip_buffer_push(tty);
+ 
+ 	kfree_skb(skb);
+ }
 
 

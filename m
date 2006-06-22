@@ -1,38 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWFVVC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWFVVDf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964950AbWFVVC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWFVVC7
+	id S964909AbWFVVDf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWFVVDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:02:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2709 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750877AbWFVVC6 (ORCPT
+	Thu, 22 Jun 2006 17:03:35 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:33664 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S964909AbWFVVDe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:02:58 -0400
-Date: Thu, 22 Jun 2006 14:02:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Petr Baudis <pasky@suse.cz>
-cc: Junio C Hamano <junkio@cox.net>,
-       Johannes Schindelin <Johannes.Schindelin@gmx.de>,
-       Git Mailing List <git@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What's in git.git and announcing v1.4.1-rc1
-In-Reply-To: <20060622205859.GF21864@pasky.or.cz>
-Message-ID: <Pine.LNX.4.64.0606221402140.6483@g5.osdl.org>
-References: <7v8xnpj7hg.fsf@assigned-by-dhcp.cox.net>
- <Pine.LNX.4.64.0606221301500.5498@g5.osdl.org> <20060622205859.GF21864@pasky.or.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Jun 2006 17:03:34 -0400
+Date: Thu, 22 Jun 2006 16:59:28 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] x86-64 build fix
+Message-ID: <20060622205928.GA23801@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+As of last night, I still needed the Kconfig patch below to
+successfully build allmodconfig on x86-64.  I believe Andrew has the
+patch with a proper description and attribution, so I would prefer
+that he send it...
 
-On Thu, 22 Jun 2006, Petr Baudis wrote:
-> 
-> Isn't manually numbering the enum choices somewhat pointless, though?
-> (Actually makes it more difficult to do changes in it later.)
+	Jeff
 
-Yeah, I just mindlessly followed Johannes' original scheme. 
 
-		Linus
+
+
+diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
+index 408d44a..7d3bc5a 100644
+--- a/arch/x86_64/Kconfig
++++ b/arch/x86_64/Kconfig
+@@ -389,6 +389,7 @@ config GART_IOMMU
+ 	bool "K8 GART IOMMU support"
+ 	default y
+ 	select SWIOTLB
++	select AGP
+ 	depends on PCI
+ 	help
+ 	  Support for hardware IOMMU in AMD's Opteron/Athlon64 Processors
+@@ -401,11 +402,9 @@ config GART_IOMMU
+   	  northbridge and a software emulation used on other systems without
+ 	  hardware IOMMU.  If unsure, say Y.
+ 
+-# need this always enabled with GART_IOMMU for the VIA workaround
++# need this always selected by GART_IOMMU for the VIA workaround
+ config SWIOTLB
+ 	bool
+-	default y
+-	depends on GART_IOMMU
+ 
+ config X86_MCE
+ 	bool "Machine check support" if EMBEDDED
+diff --git a/drivers/char/agp/Kconfig b/drivers/char/agp/Kconfig
+index 7c88c06..46685a5 100644
+--- a/drivers/char/agp/Kconfig
++++ b/drivers/char/agp/Kconfig
+@@ -1,7 +1,6 @@
+ config AGP
+-	tristate "/dev/agpgart (AGP Support)" if !GART_IOMMU
++	tristate "/dev/agpgart (AGP Support)"
+ 	depends on ALPHA || IA64 || PPC || X86
+-	default y if GART_IOMMU
+ 	---help---
+ 	  AGP (Accelerated Graphics Port) is a bus system mainly used to
+ 	  connect graphics cards to the rest of the system.

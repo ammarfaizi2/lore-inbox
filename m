@@ -1,107 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWFVGcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030610AbWFVGdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWFVGcO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 02:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWFVGcO
+	id S1030610AbWFVGdN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 02:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030616AbWFVGdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 02:32:14 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:55020 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932267AbWFVGcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 02:32:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TsRICdt6aW11nehVwZDiKItzwX4/4u/X+DfepS4vb24QXuIeXgTHINkApt8g4npwEXviHR6yoP7XU/WB10GflUd6G/RFLo//C21jLBFKbb+iXr0dTfYFnfUzCBk9/nVwQl2XeQ0gD2wqtlS6r4WxfzFBAkTiB/T6UGaf455EMrE=
-Message-ID: <69304d110606212332t3781bbf6g28ce33cca79a8bb0@mail.gmail.com>
-Date: Thu, 22 Jun 2006 08:32:12 +0200
-From: "Antonio Vargas" <windenntw@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: CONFIG_VGACON_SOFT_SCROLLBACK crashes 2.6.17
-Cc: "Al Boldi" <a1426z@gawab.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4499E89F.6030509@gmail.com>
+	Thu, 22 Jun 2006 02:33:13 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.192.83]:19349 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1030610AbWFVGdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 02:33:12 -0400
+Message-ID: <449A39A6.7060209@namesys.com>
+Date: Wed, 21 Jun 2006 23:33:10 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>, vs <vs@thebsh.namesys.com>
+CC: Nick Orlov <bugfixer@list.ru>, linux-kernel@vger.kernel.org,
+       Jeff Mahoney <jeffm@suse.com>, reiserfs-dev@namesys.com
+Subject: Re: bitmap loading related reiserfs changes in 2.6.17-mm1 are broken
+References: <20060622032733.GA5158@nickolas.homeunix.com> <20060621204303.47facd01.akpm@osdl.org>
+In-Reply-To: <20060621204303.47facd01.akpm@osdl.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200606211715.58773.a1426z@gawab.com> <44996332.5090408@gmail.com>
-	 <200606220005.32446.a1426z@gawab.com> <4499E89F.6030509@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/22/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> Al Boldi wrote:
-> > Antonino A. Daplas wrote:
-> >> Al Boldi wrote:
-> >>> Enabling CONFIG_VGACON_SOFT_SCROLLBACK causes random fatal system
-> >>> freezes.
-> >>>
-> >>> Especially, ping 10.1 -A easily causes a complete system hang during
-> >>> scroll.
-> >>>
-> >>> Is there an easy way to fix this, other than disabling the option?
-> >> I can't duplicate your problem. Did it ever work before?
-> >
-> > This option did not exist before 2.6.17.
->
-> I meant if you tried any of the -rc kernels.
->
-> Anyway, can you try the patch below.  It's a debugging patch and
-> it will slow down the console.
->
-> If the system hang disappears, remove the line
->
->     while (i--);
->
-> in include/linux/vt_buffer.h.  This line is introduced by
-> the patch below.
->
-> Let me know at what point it worked, or whether it worked at all.
->
-> >
-> >> Can you send me you kernel config?
-> >
-> > Attached below.
-> >
-> > BTW, is there any chance to patch your savagefb to support VIA/S3 UniChrome?
-> >
->
-> If someone posts a patch to lkml or fbdev-devel, why not?  But a separate
-> driver is probably better as the 2 are very different.
->
-> Tony
->
-> diff --git a/include/linux/vt_buffer.h b/include/linux/vt_buffer.h
-> index 057db7d..e9b6064 100644
-> --- a/include/linux/vt_buffer.h
-> +++ b/include/linux/vt_buffer.h
-> @@ -20,11 +20,21 @@ #endif
->
->  #ifndef VT_BUF_HAVE_RW
->  #define scr_writew(val, addr) (*(addr) = (val))
-> -#define scr_readw(addr) (*(addr))
-> -#define scr_memcpyw(d, s, c) memcpy(d, s, c)
-> -#define scr_memmovew(d, s, c) memmove(d, s, c)
-> -#define VT_BUF_HAVE_MEMCPYW
-> -#define VT_BUF_HAVE_MEMMOVEW
-> +//#define scr_readw(addr) (*(addr))
-> +
-> +static inline u16 scr_readw(volatile const u16 *addr)
-> +{
-> +    int i = 10000;
-> +    u16 val = *addr;
-> +
-> +    while (i--);
-> +    return val;
-> +}
-> +
-> +//#define scr_memcpyw(d, s, c) memcpy(d, s, c)
-> +//#define scr_memmovew(d, s, c) memmove(d, s, c)
-> +#undef VT_BUF_HAVE_MEMCPYW
-> +#undef VT_BUF_HAVE_MEMMOVEW
->  #endif
->
->  #ifndef VT_BUF_HAVE_MEMSETW
+Andrew Morton wrote:
 
-Antonino, is this while(i--) a cpu busy-wait loop??? This would have
-different timings on different cpu kinds... maybe a short usleep()?
+>It would really help if Chris or one of the namesys developers could take
+>the time to review and test these patches closely, please.
+>  
+>
+Chris's code also has QA problems.  Because I don't control their
+salaries, they both just basically ignore the QA process that the rest
+of Namesys uses, and have exactly the results one would expect.  I no
+longer encourage non-Namesys companies to pay our developers directly 
+--- because of this experience.
+
+That QA process is: everyone must get their patch reviewed and tested by
+a second developer before sending it in.  Elena is not qualified to
+review the code, but she is able to run a standard suite of tests (one
+of which is gcc....) in addition to whatever special test is required
+for the patch.   I review the design aspects of the patches, but leave
+to others to find most of the coding errors.
+
+Everyone once in a while someone strays from it, and I complain
+privately about it.  The percentage of time that it is a mistake to
+stray from it is remarkably high.....
+
+Unfortunately, there is both real user demand for the
+on-demand-bitmap-loading, and a proper qa of it is non-trivial.  I
+propose that vs look at it next week.  vs, please ack.  Chris, if you
+are available, please take a look as well.
+
+Jeff has done a lot of good work in optimizing V3 bitmap related code,
+and I would like to thank him for that.  It did a lot for our
+performance.  Chris's work on the journaling code was also very
+important and I am very grateful for it.  A better QA methodology could
+have dramatically reduced the number of bugs in that code though.
+
+Hans
+
+

@@ -1,80 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWFVQuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWFVQux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWFVQuy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 12:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWFVQuy
+	id S932127AbWFVQux (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 12:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWFVQux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 12:50:54 -0400
-Received: from mx27.mail.ru ([194.67.23.63]:1130 "EHLO mx27.mail.ru")
-	by vger.kernel.org with ESMTP id S1751485AbWFVQux (ORCPT
+	Thu, 22 Jun 2006 12:50:53 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:2775 "EHLO calculon.skynet.ie")
+	by vger.kernel.org with ESMTP id S1751226AbWFVQux (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 22 Jun 2006 12:50:53 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATA driver patch for 2.6.17
-Date: Thu, 22 Jun 2006 20:50:33 +0400
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <1150740947.2871.42.camel@localhost.localdomain> <e79a9e$2kt$1@sea.gmane.org> <1150925002.15275.128.camel@localhost.localdomain>
-In-Reply-To: <1150925002.15275.128.camel@localhost.localdomain>
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606222050.34248.arvidjaar@mail.ru>
+Date: Thu, 22 Jun 2006 17:50:50 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Franck <vagabon.xyz@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm1
+In-Reply-To: <20060622161447.GC999@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0606221743040.5869@skynet.skynet.ie>
+References: <20060621034857.35cfe36f.akpm@osdl.org> <449AB01A.5000608@innova-card.com>
+ <Pine.LNX.4.64.0606221617420.5869@skynet.skynet.ie> <449ABC3E.5070609@innova-card.com>
+ <Pine.LNX.4.64.0606221649070.5869@skynet.skynet.ie>
+ <20060622161447.GC999@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 22 Jun 2006, Russell King wrote:
 
-On Thursday 22 June 2006 01:23, Alan Cox wrote:
-> Ar Maw, 2006-06-20 am 21:12 +0400, ysgrifennodd Andrey Borzenkov:
-> > Running vanilla 2.6.17 + ide1 patch on ALi M5229 does not find CD-ROM.
-> > Notice "ata2: command 0xa0 timeout" below.
+> On Thu, Jun 22, 2006 at 04:54:06PM +0100, Mel Gorman wrote:
+>> On Thu, 22 Jun 2006, Franck Bui-Huu wrote:
+>>> It's the default value (see memory_model.h). It means that pfn start
+>>> for node 0 is 0, therefore your physical memory address starts at 0.
+>>
+>> I know, but what I'm getting at is that ARCH_PFN_OFFSET may be unnecessary
+>> with flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch applied.
+>> ARCH_PFN_OFFSET is used as
+>>
+>> #define page_to_pfn(page)       ((unsigned long)((page) - mem_map) + \
+>>                                  ARCH_PFN_OFFSET)
+>>
+>> because it knew that the map may not start at PFN 0. With
+>> flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch, the map will
+>> start at PFN 0 even if physical memory does not start until later.
 >
-> Not sure immediately but does the following help
+> Doesn't that result in a massive array of struct pages if your memory
+> starts a 3GB physical and has 4K pages?
+
+No, I should have been clear. The size of the map remains the same but 
+mem_map does not point directly to NODE_DATA(0)->node_mem_map when the PFN 
+of node 0 is not 0. Instead mem_map points to
+
+NODE_DATA(0)->node_mem_map - NODE_DATA(0)->node_start_pfn
+
+The relevant bit of code is
+
+ 	map = alloc_remap(pgdat->node_id, size);
+ 	if (!map)
+ 		map = alloc_bootmem_node(pgdat, size);
+ 	pgdat->node_mem_map = map + (pgdat->node_start_pfn - start);
+
+ 	/*
+ 	 * With FLATMEM the global mem_map is used.  This is assumed
+ 	 * to be based at pfn 0 such that 'pfn = page* - mem_map'
+ 	 * is true. Adjust map relative to node_mem_map to
+ 	 * maintain this relationship.
+ 	 */
+ 	map -= pgdat->node_start_pfn;
+
+and later
+
+ 	if (pgdat == NODE_DATA(0))
+ 		mem_map = map;
+
+So memory is wasted and ARCH_PFN_OFFSET isn't needed in the case where it 
+is working around NODE_DATA(0)->node_start_pfn != 0
+
+> If you have only 32MB in that
+> scenario, and that was correct, you'd gobble 25MB of that just to
+> store that array.  Ouch.
 >
 
-Not really. AFAIK lowest nibble bit has meaning only in DMA mode anyway.
+It would be a kick in the shins all right if that was the case.
 
-Anything else I could try to help pinpoint the problem?
-
-> --- ../libata-devo/drivers/scsi/pata_ali.c	2006-06-20 11:50:15.000000000
-> +0100 +++ drivers/scsi/pata_ali.c	2006-06-21 21:42:27.458542280 +0100
-> @@ -181,11 +181,12 @@
->  	u8 fifo;
->  	int shift = 4 * adev->devno;
->
-> -	/* Bits 3:2 (7:6 for slave) control the PIO. 00 is off 01
-> -	   is on. The FIFO must not be used for ATAPI. We preserve
-> -	   BIOS set thresholds */
-> +	/* ATA - FIFO on set nibble to 0x05, ATAPI - FIFO off, set nibble to
-> +	   0x00. Not all the docs agree but the behaviour we now use is the
-> +	   one stated in the BIOS Programming Guide */
-> +
->  	pci_read_config_byte(pdev, pio_fifo, &fifo);
-> -	fifo &= ~(0x0C << shift);
-> +	fifo &= ~(0x0F << shift);
->  	if (on)
->  		fifo |= (on << shift);
->  	pci_write_config_byte(pdev, pio_fifo, fifo);
-> @@ -261,10 +262,10 @@
->
->  	/* PIO FIFO is only permitted on ATA disk */
->  	if (adev->class != ATA_DEV_ATA)
-> -		ali_fifo_control(ap, adev, 0);
-> +		ali_fifo_control(ap, adev, 0x00);
->  	ali_program_modes(ap, adev, &t, 0);
->  	if (adev->class == ATA_DEV_ATA)
-> -		ali_fifo_control(ap, adev, 0x04);
-> +		ali_fifo_control(ap, adev, 0x05);
->
->  }
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQFEmspZR6LMutpd94wRApEgAJ4q7AQM09lZ/uTnSPJIM296LYnF9QCgp63W
-5lygD8TmjYh+1QwOGTWbQkg=
-=SDOQ
------END PGP SIGNATURE-----
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

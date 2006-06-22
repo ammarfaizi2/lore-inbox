@@ -1,142 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWFVAcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWFVAju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWFVAcr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 20:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWFVAcq
+	id S1751535AbWFVAju (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 20:39:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWFVAju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 20:32:46 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:30404 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S932154AbWFVAcp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 20:32:45 -0400
-Date: Wed, 21 Jun 2006 17:32:14 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-cc: Jeff Gold <jgold@mazunetworks.com>, Mark Lord <lkml@rtr.ca>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Serial Console and Slow SCSI Disk Access?
-In-Reply-To: <44979F99.1090807@aitel.hist.no>
-Message-ID: <Pine.LNX.4.63.0606211729360.6305@qynat.qvtvafvgr.pbz>
-References: <448DDC7F.4030308@mazunetworks.com> <448DDF1D.5020108@rtr.ca> 
- <448DE4F1.9000407@mazunetworks.com> <4496492A.1030907@aitel.hist.no> 
- <4496BF65.30108@mazunetworks.com> <44979F99.1090807@aitel.hist.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 21 Jun 2006 20:39:50 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:35049 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750719AbWFVAjt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 20:39:49 -0400
+Subject: Re: [PATCH 00/11] Task watchers:  Introduction
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
+In-Reply-To: <4499D097.5030604@bigpond.net.au>
+References: <1150242721.21787.138.camel@stark>
+	 <4498DC23.2010400@bigpond.net.au> <1150876292.21787.911.camel@stark>
+	 <44992EAA.6060805@bigpond.net.au>  <44993079.40300@bigpond.net.au>
+	 <1150925387.21787.1056.camel@stark>  <4499D097.5030604@bigpond.net.au>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 17:32:17 -0700
+Message-Id: <1150936337.21787.1114.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006, Helge Hafting wrote:
+On Thu, 2006-06-22 at 09:04 +1000, Peter Williams wrote:
+> Matt Helsley wrote:
+> > On Wed, 2006-06-21 at 21:41 +1000, Peter Williams wrote:
+> >> Peter Williams wrote:
+> >>> Matt Helsley wrote:
+> >>>> On Wed, 2006-06-21 at 15:41 +1000, Peter Williams wrote:
+> >>>>> On a related note, I can't see where the new task's notify field gets 
+> >>>>> initialized during fork.
+> >>>> It's initialized in kernel/sys.c:notify_per_task_watchers(), which calls
+> >>>> RAW_INIT_NOTIFIER_HEAD(&task->notify) in response to WATCH_TASK_INIT.
+> >>> I think that's too late.  It needs to be done at the start of 
+> >>> notify_watchers() before any other watchers are called for the new task.
+> > 
+> > 	I don't see why you think it's too late. It needs to be initialized
+> > before it's used. Waiting until notify_per_task_watchers() is called
+> > with WATCH_TASK_INIT does this.
+> 
+> I probably didn't understand the code well enough.  I'm still learning 
+> how it all hangs together :-).
+> 
+> > 
+> >> On second thoughts, it would simpler just before the WATCH_TASK_INIT 
+> >> call in copy_process() in fork.c.  It can be done unconditionally there.
+> >>
+> >> Peter
+> > 
+> > 	That would work. It would not simplify the control flow of the code.
+> > The branch for WATCH_TASK_INIT in notify_per_task_watchers() is
+> > unavoidable; we need to call the parent task's chain in that case since
+> > we know the child task's is empty.
+> > 
+> > 	It is also counter to one goal of the patches -- reducing the "clutter"
+> > in these paths. Arguably task watchers is the same kind of clutter that
+> > existed before. However, it is a means of factoring such clutter into
+> > fewer instances (ideally one) of the pattern.
+> 
+> Maybe a few comments in the code to help reviewers such as me learn how 
+> it works more quickly would be worthwhile.
 
-> Jeff Gold wrote:
->> Helge Hafting wrote:
->>> With nothing attached, any write to the serial device might go
->>> through a lengthy timeout because of flow control.  [...] But I can't
->>> see why it'd make scsi disks slower. The scsi host adapter initialization 
->>> writes some messages of course, but there should be no
->>> more console accesses during a hdparm test run.
->> 
->> This makes sense to me.  When I attach a serial cable and use that to login 
->> (I've got agetty running), hdparm produces no console messages that I can 
->> see using minicom.  Still, the disk throughput is around 1.5 MB/sec for 
->> some reason.  When I disable the serial console in grub.conf and reboot I 
->> get over 70 MB/sec again.
->> 
->> A combination of out-of-tree patches (mainly network related but also one 
->> to disable PM_TIMERS) seem to eliminate the issue even with the serial 
->> console enabled, at least for the moment.  That means I no longer have a 
->> problem, but the whole thing is mysterious to me.
-> I can see one possibility, that I didn't think of yesterday.
-> Do the scsi host adapter share its interrupt with the serial line?
-> (Boot a kernel that has the problem, and when scsi is slow, do a
-> cat /proc/interrupts
-> If the scsi and the serial driver share an interrupt, then that is the source
-> of the problem.
->
-> Linux can share interrupts without big performance problems - IF both of
-> the hardware drivers are written with interrupt sharing in mind.  Many
-> linux drivers are, but some are not.  So check if interrupt sharing is 
-> happening,
-> and if so, contact the maintainers of your scsi driver and your serial
-> port driver.  Ask them if such sharing is ok or not.  If you don't
-> understand the /proc/interrupt listing, just send it to the
-> maintainers so they can have a look.
->
-> Shared interrupts are to some extent set up by the bios, and to some
-> extent by linux.  So different kernel versions (or booting with a different
-> set of drivers loaded, or a different distribution) may make a difference.
->
-> You can often get a pci device to use a different interrupt by moving it
-> to another slot.  That tends to solve interrupt sharing problems. I assume
-> your scsi adapter is pci.
->
+Good point. I'll keep this in mind as I consider the multi-chain
+approach suggested by Andrew -- I suspect improvments in my commenting
+will be even more critical there.
 
-I ran into a similar problem (extremely slow scsi performance), but hadn't 
-reported it as I made a lot of changes at the same time (moved from 2.6.7 to 
-2.6.12.3 as well as enabling the serial console). but with this report I wanted 
-to chime in with a weak 'me-too'. I haven't rebooted without the serial console 
-yet to confirm this, but I will do so shortly, and try 2.6.17 to see if it has a 
-similar problem or not.
+> BTW as a former user of PAGG, I think there are ideas in the PAGG 
+> implementation that you should look at.  In particular:
+> 
+> 1. The use of an array of function pointers (one for each hook) can cut 
+> down on the overhead.  The notifier_block only needs to contain a 
+> pointer to the array so there's no increase in the size of that 
+> structure.  Within the array a null pointer would mean "don't bother 
+> calling".  Only one real array needs to exist even for per task as 
+> they're all using the same functions (just separate data).  It removes 
+> the need for a switch statement in the client's function as well as 
+> saving on unnecessary function calls.
 
-David Lang
+	I don't think having an explicit array of function pointers is likely
+to be as fast as a switch statement (or a simple branch) generated by
+the compiler.
 
-# cat /proc/interrupts
-            CPU0       CPU1
-   0:  458865186      29148    IO-APIC-edge  timer
-   1:        216          7    IO-APIC-edge  i8042
-   3:         78          1    IO-APIC-edge  serial
-   4:         76          1    IO-APIC-edge  serial
-   8:          8          1    IO-APIC-edge  rtc
-   9:          0          0   IO-APIC-level  acpi
-  12:         84         10    IO-APIC-edge  i8042
-  14:        332         10    IO-APIC-edge  ide0
-  24:    4426414          1   IO-APIC-level  eth2
-  26:  426930991          1   IO-APIC-level  eth0
-  27:      17795  365692411   IO-APIC-level  eth1
-  29:     553120         87   IO-APIC-level  ioc0
-NMI:          0          0
-LOC:  458903065  458904855
-ERR:          0
-MIS:          0
+	It doesn't save unecessary function calls unless I modify the core
+notifier block structure. Otherwise I still need to stuff a generic
+function into .notifier_call and from there get the pointer to the array
+to make the next call. So it adds more pointer indirection but does not
+reduce the number of intermediate function calls.
 
-# lspci
-0000:00:06.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8111 PCI (rev 07)
-0000:00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-8111 LPC (rev 05)
-0000:00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-8111 IDE (rev 03)
-0000:00:07.2 SMBus: Advanced Micro Devices [AMD] AMD-8111 SMBus 2.0 (rev 02)
-0000:00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-8111 ACPI (rev 05)
-0000:00:0a.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge (rev 
-12)
-0000:00:0a.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC (rev 01)
-0000:00:0b.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge (rev 
-12)
-0000:00:0b.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC (rev 01)
-0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:19.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:19.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:19.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:19.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:01:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b)
-0000:01:00.1 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b)
-0000:01:06.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-0000:02:02.0 PCI bridge: IBM PCI-X to PCI-X Bridge (rev 02)
-0000:02:03.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5702X 
-Gigabit Ethernet (rev 02)
-0000:02:04.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5702X 
-Gigabit Ethernet (rev 02)
-0000:03:04.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet 
-Controller (rev 01)
-0000:03:04.1 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet 
-Controller (rev 01)
-0000:03:06.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet 
-Controller (rev 01)
-0000:03:06.1 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet 
-Controller (rev 01)
-0000:04:01.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X 
-Fusion-MPT Dual Ultra320 SCSI (rev 07)
+	As far as the multi-chain approach is concerned, I'm still leaning
+towards registering a single function with a mask describing what it
+wants to be notified of.
 
+> 2. A helper mechanism to allow a client that's being loaded as a module 
+> to visit all existing tasks and do whatever initialization it needs to 
+> do.  Without this every client would have to implement such a mechanism 
+> themselves (and it's not pretty).
 
+	Interesting idea. It should resemble existing macros. Something like:
+	register_task_watcher(&my_nb, &unnoticed);
+	for_each_unnoticed_task(unnoticed)
+		...
+
+> Peter
 

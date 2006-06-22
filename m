@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWFVIeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWFVIfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbWFVIeL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 04:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWFVIeK
+	id S932464AbWFVIfI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 04:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWFVIfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 04:34:10 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:53395 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S932387AbWFVIeJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 04:34:09 -0400
-Date: Thu, 22 Jun 2006 10:34:05 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [SCSI] audit drivers for incorrect max_id use
-In-Reply-To: <200606211859.k5LIxxUh027415@hera.kernel.org>
-Message-ID: <Pine.LNX.4.62.0606221033160.23155@pademelon.sonytel.be>
-References: <200606211859.k5LIxxUh027415@hera.kernel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Jun 2006 04:35:07 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30885
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932409AbWFVIfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 04:35:05 -0400
+Date: Thu, 22 Jun 2006 01:34:40 -0700 (PDT)
+Message-Id: <20060622.013440.97293561.davem@davemloft.net>
+To: herbert@gondor.apana.org.au
+Cc: alan@lxorguk.ukuu.org.uk, snakebyte@gmx.de, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, netdev@vger.kernel.org
+Subject: Re: Memory corruption in 8390.c ?
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060622083037.GB26083@gondor.apana.org.au>
+References: <20060622023029.GA6156@gondor.apana.org.au>
+	<20060622.012609.25474139.davem@davemloft.net>
+	<20060622083037.GB26083@gondor.apana.org.au>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006, Linux Kernel Mailing List wrote:
-> [SCSI] audit drivers for incorrect max_id use
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Thu, 22 Jun 2006 18:30:37 +1000
+
+> On Thu, Jun 22, 2006 at 01:26:09AM -0700, David Miller wrote:
+> >
+> > Want me to let this cook in 2.6.18 for a while before sending
+> > it off to -stable?
 > 
-> max_id now means the maximum number of ids on the bus, which means it
-> is one greater than the largest possible id number.
+> You know I'm never one to push anything quickly so absolutely yes :)
 
-IMHO that's confusing.
-
-Shouldn't it be renamed to max_num_ids?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Ok, applied to net-2.6.18 for now :)

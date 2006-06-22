@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932725AbWFUXqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWFVAMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932725AbWFUXqI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 19:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbWFUXqH
+	id S1751484AbWFVAMc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 20:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWFVAMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 19:46:07 -0400
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:4159 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP id S932725AbWFUXqG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 19:46:06 -0400
-Message-ID: <4499DA12.10909@watson.ibm.com>
-Date: Wed, 21 Jun 2006 19:45:22 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Wed, 21 Jun 2006 20:12:32 -0400
+Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:43268 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S1751484AbWFVAMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 20:12:31 -0400
+From: "Matt LaPlante" <laplam@rpi.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Unify CONFIG_LBD and CONFIG_LSF handling
+Date: Wed, 21 Jun 2006 20:11:49 -0400
+Message-ID: <000501c69590$7535fee0$fe01a8c0@cyberdogt42>
 MIME-Version: 1.0
-To: Jay Lan <jlan@engr.sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com> <20060609042129.ae97018c.akpm@osdl.org> <4489EE7C.3080007@watson.ibm.com> <449999D1.7000403@engr.sgi.com> <44999A98.8030406@engr.sgi.com> <44999F5A.2080809@watson.ibm.com> <4499D7CD.1020303@engr.sgi.com>
-In-Reply-To: <4499D7CD.1020303@engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+thread-index: AcaUgnebHZmEK9N7QwWnIJ6L5jyC3ABDdreQ
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+In-Reply-To: <1150819141.2891.214.camel@laptopd505.fenrus.org>
+X-Spam-Processed: mail.cyberdogtech.com, Wed, 21 Jun 2006 20:11:57 -0400
+	(not processed: message from trusted or authenticated source)
+X-Return-Path: laplam@rpi.edu
+X-Envelope-From: laplam@rpi.edu
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Wed, 21 Jun 2006 20:11:59 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan wrote:
-
+> -----Original Message-----
+> From: Arjan van de Ven [mailto:arjan@infradead.org]
+> Sent: Tuesday, June 20, 2006 11:59 AM
+> To: Roman Zippel
+> Cc: Matthew Wilcox; Linus Torvalds; linux-kernel@vger.kernel.org;
+> webmaster@cyberdogtech.com
+> Subject: Re: [PATCH] Unify CONFIG_LBD and CONFIG_LSF handling
 > 
-> Shailabh and me now eye on the lock patch that fixed an exit race
-> crash i reported. The global lock was held too long in scanning threads.
-> Shailabh is working on a new patch.
-
-To clarify further,
-
-when I ran the same benchmark as Jay (same set of patches, on a 2.6.17 kernel)
-on a uniprocessor, I see the same kind of low differential between
-tgid stat sending on and off as I was seeing before.
-
-Using /usr/bin/time ./mkthread 1000 10
-		yes	no	%Ovhd
-system		1.63	1.55	+5%
-elapsed		1.96	1.88	+4%
-
-(similar differences whether data is written to file or not, only
-total times change)
-
-Since his system is an SMP, one suspect is the
-lock hold time of taskstats_exit_mutex. Since the fill_tgid() is done
-within this mutex which serializes all task exits, and there'll be contention on the
-SMP, its possible the fill_tgid's overhead is exacerbating the locking.
-
-So I'm trying to see if a patch that uses only per-task locking will help.
-Will work it out and post when patch is stable or if it helps.
-
---Shailabh
-
 > 
-> - jay
+> > > Or is that too verbose?
+> >
+> > How likely is it that someone who doesn't understand the question needs
+> > this option? I think N is a safe answer here.
 > 
+> N is not the safe answer; Y is. If you set it to N you can't read all
+> your files (if there is a big one) etc etc.
+> The safe-but-a-bit-slower answer really is Y.
+> 
+
+So should default be changed to Y?  It's currently N for kconfig, despite
+the recommendation to the contrary.
+
 

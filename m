@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbWFVJK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbWFVJMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161011AbWFVJK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 05:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWFVJKX
+	id S1161017AbWFVJMp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 05:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbWFVJMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 05:10:23 -0400
-Received: from www.osadl.org ([213.239.205.134]:64989 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161011AbWFVJJy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 05:09:54 -0400
-Message-Id: <20060622082812.492564000@cruncher.tec.linutronix.de>
-References: <20060622082758.669511000@cruncher.tec.linutronix.de>
-Date: Thu, 22 Jun 2006 09:08:38 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: [patch 1/3] Drop tasklist lock in do_sched_setscheduler
-Content-Disposition: inline;
-	filename=drop-tasklist-lock-in-do-sched-setscheduler.patch
+	Thu, 22 Jun 2006 05:12:45 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:32262 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1161015AbWFVJMo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 05:12:44 -0400
+Date: Thu, 22 Jun 2006 19:12:29 +1000
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, snakebyte@gmx.de,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       davem@davemloft.net
+Subject: Re: Memory corruption in 8390.c ? (was Re: Possible leaks in network drivers)
+Message-ID: <20060622091229.GA28488@gondor.apana.org.au>
+References: <1150909982.15275.100.camel@localhost.localdomain> <E1FtDU0-0005nd-00@gondolin.me.apana.org.au> <20060622023029.GA6156@gondor.apana.org.au> <449A533E.4090201@pobox.com> <20060622082931.GA26083@gondor.apana.org.au> <449A5B83.4090104@pobox.com> <20060622090227.GA28367@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060622090227.GA28367@gondor.apana.org.au>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 22, 2006 at 07:02:27PM +1000, herbert wrote:
+>
+> > >cassini.c
+> > >starfire.c
+> > >yellowfin.c
+> > 
+> > That doesn't really invalidate the point :)  These drivers are still 
+> > only padding very small packets.
+> 
+> Hmm, at least cassini pads it to 255 for gigabit...
 
-There is no need to hold tasklist_lock across the setscheduler call, when we
-pin the task structure with get_task_struct(). Interrupts are disabled in 
-setscheduler anyway and the permission checks do not need interrupts disabled.
+The one in starfire looks especially dodgy.  It supports SG and also
+requires the whole length to be a multiple of 4 if the firmware is
+broken.  The question is do they really intend this or do they want
+each fragment to terminate on a 4-byte boundary.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- kernel/sched.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.17-mm/kernel/sched.c
-===================================================================
---- linux-2.6.17-mm.orig/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
-+++ linux-2.6.17-mm/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
-@@ -4140,8 +4140,10 @@
- 		read_unlock_irq(&tasklist_lock);
- 		return -ESRCH;
- 	}
--	retval = sched_setscheduler(p, policy, &lparam);
-+	get_task_struct(p);
- 	read_unlock_irq(&tasklist_lock);
-+	retval = sched_setscheduler(p, policy, &lparam);
-+	put_task_struct(p);
- 	return retval;
- }
- 
-
---
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,149 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030497AbWFVBxr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbWFVBy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030497AbWFVBxr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 21:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030499AbWFVBx2
+	id S1030499AbWFVBy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 21:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWFVBy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 21:53:28 -0400
-Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:4710 "EHLO
-	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1030497AbWFVBxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 21:53:11 -0400
-From: Peter Williams <pwil3058@bigpond.net.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Con Kolivas <kernel@kolivas.org>, Sam Vilain <sam@vilain.net>,
-       Peter Williams <pwil3058@bigpond.net.au>, Srivatsa <vatsa@in.ibm.com>,
-       Balbir Singh <bsingharora@gmail.com>, Kirill Korotaev <dev@openvz.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>, Kingsley Cheung <kingsley@aurema.com>,
-       CKRM <ckrm-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-Date: Thu, 22 Jun 2006 11:53:09 +1000
-Message-Id: <20060622015309.14498.46692.sendpatchset@heathwren.pw.nest>
-In-Reply-To: <20060622015237.14498.37712.sendpatchset@heathwren.pw.nest>
-References: <20060622015237.14498.37712.sendpatchset@heathwren.pw.nest>
-Subject: [PATCH 3/4] sched: Add procfs interface for CPU rate soft caps
+	Wed, 21 Jun 2006 21:54:58 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:38293 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030499AbWFVBy5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 21:54:57 -0400
+Subject: [RFC] patch [1/1]  convert i386 summit subarch to use SRAT data
+	for apicid_to_node
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-SQNwSJ2oEDCnIKvv2cbW"
+Organization: Linux Technology Center IBM
+Date: Wed, 21 Jun 2006 18:54:55 -0700
+Message-Id: <1150941296.10001.25.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements a procfs interface for soft CPU rate caps.
-Via files of the form /proc/<tgid>/task/<pid>/cpu_rate_cap.
 
-Signed-off-by: Peter Williams <pwil3058@bigpond.net.au>
- fs/proc/base.c      |   59 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- kernel/Kconfig.caps |    5 ++++
- 2 files changed, 64 insertions(+)
+--=-SQNwSJ2oEDCnIKvv2cbW
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Index: MM-2.6.17-mm1/fs/proc/base.c
-===================================================================
---- MM-2.6.17-mm1.orig/fs/proc/base.c	2006-06-22 09:27:19.000000000 +1000
-+++ MM-2.6.17-mm1/fs/proc/base.c	2006-06-22 10:40:18.000000000 +1000
-@@ -168,6 +168,9 @@ enum pid_directory_inos {
- #ifdef CONFIG_CPUSETS
- 	PROC_TID_CPUSET,
- #endif
-+#ifdef CONFIG_CPU_RATE_CAPS
-+	PROC_TID_CPU_RATE_CAP,
-+#endif
- #ifdef CONFIG_SECURITY
- 	PROC_TID_ATTR,
- 	PROC_TID_ATTR_CURRENT,
-@@ -282,6 +285,9 @@ static struct pid_entry tid_base_stuff[]
- #ifdef CONFIG_AUDITSYSCALL
- 	E(PROC_TID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
- #endif
-+#ifdef CONFIG_CPU_RATE_CAPS
-+	E(PROC_TID_CPU_RATE_CAP,  "cpu_rate_cap",   S_IFREG|S_IRUGO|S_IWUSR),
-+#endif
- 	{0,0,NULL,0}
- };
+Hello All,
+  This patch converts the i386 summit subarch apicid_to_node to use node
+information provided by the SRAT.  The current way of obtaining the
+nodeid 
+
+ static inline int apicid_to_node(int logical_apicid)
+ { 
+   return logical_apicid >> 5;
+ }
+
+is just not correct for all summit systems/bios.  Assuming the apicid
+matches the Linux node number require a leap of faith that the bios lay-
+ed out the apicids a set way.  Modern summit HW does not layout its bios
+in the manner for various reasons and is unable to boot i386 numa.
+
+  The best way to get the correct apicid to node information is from the
+SRAT table.  It lays out what apicid belongs to what node.  I use this
+information to create a table for use at run time. 
+
+  The attached patch was built against 2.6.17-rc2 but applies and runs
+against 2.6.17 just fine.  It only changes the summit subarch although
+since a global data structure is created it might make sense to change
+all the subarches.  All comments welcome. 
+
+Signed-off-by:  Keith Mannthey <kmannth@us.ibm.com>
+
+
+--=-SQNwSJ2oEDCnIKvv2cbW
+Content-Disposition: attachment; filename=patch-2.6.17-rc2-git6-apicid_to_node_v1.patch
+Content-Type: text/x-patch; name=patch-2.6.17-rc2-git6-apicid_to_node_v1.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -urN linux-2.6.17-rc2-git6.orig/arch/i386/kernel/smpboot.c linux-2.6.17-rc2-git6/arch/i386/kernel/smpboot.c
+--- linux-2.6.17-rc2-git6.orig/arch/i386/kernel/smpboot.c	2006-04-25 15:14:30.000000000 -0600
++++ linux-2.6.17-rc2-git6/arch/i386/kernel/smpboot.c	2006-04-25 12:02:45.000000000 -0600
+@@ -108,6 +108,8 @@
+ 			{ [0 ... NR_CPUS-1] = 0xff };
+ EXPORT_SYMBOL(x86_cpu_to_apicid);
  
-@@ -1041,6 +1047,54 @@ static struct file_operations proc_secco
- };
- #endif /* CONFIG_SECCOMP */
++u8 apicid_2_node[MAX_APICID] = { [0 ... MAX_APICID-1] = 0 };
++
+ /*
+  * Trampoline 80x86 program as an array.
+  */
+@@ -640,7 +642,7 @@
+ 	int apicid = logical_smp_processor_id();
  
-+#ifdef CONFIG_CPU_RATE_CAPS
-+static ssize_t cpu_rate_cap_read(struct file * file, char * buf,
-+			size_t count, loff_t *ppos)
-+{
-+	struct task_struct *task = get_proc_task(file->f_dentry->d_inode);
-+	char buffer[64];
-+	size_t len;
-+	unsigned int cppt = get_cpu_rate_cap(task);
+ 	cpu_2_logical_apicid[cpu] = apicid;
+-	map_cpu_to_node(cpu, apicid_to_node(apicid));
++	map_cpu_to_node(cpu, apicid_to_node(hard_smp_processor_id()));
+ }
+ 
+ static void unmap_cpu_to_logical_apicid(int cpu)
+@@ -943,6 +945,7 @@
+ 
+ 	irq_ctx_init(cpu);
+ 
++	x86_cpu_to_apicid[cpu] = apicid;
+ 	/*
+ 	 * This grunge runs the startup process for
+ 	 * the targeted processor.
+diff -urN linux-2.6.17-rc2-git6.orig/arch/i386/kernel/srat.c linux-2.6.17-rc2-git6/arch/i386/kernel/srat.c
+--- linux-2.6.17-rc2-git6.orig/arch/i386/kernel/srat.c	2006-03-19 22:53:29.000000000 -0700
++++ linux-2.6.17-rc2-git6/arch/i386/kernel/srat.c	2006-04-25 11:56:45.000000000 -0600
+@@ -58,6 +58,8 @@
+ static int num_memory_chunks;		/* total number of memory chunks */
+ static int zholes_size_init;
+ static unsigned long zholes_size[MAX_NUMNODES * MAX_NR_ZONES];
++static u8 apicid_to_pxm[MAX_APICID] = { [0 ... MAX_APICID-1] = 0 };
++extern u8 apicid_2_node[];
+ 
+ extern void * boot_ioremap(unsigned long, unsigned long);
+ 
+@@ -73,6 +75,8 @@
+ 	/* mark this node as "seen" in node bitmap */
+ 	BMAP_SET(pxm_bitmap, cpu_affinity->proximity_domain);
+ 
++	apicid_to_pxm[cpu_affinity->apic_id] = cpu_affinity->proximity_domain;
 +
-+	if (*ppos)
-+		return 0;
-+	*ppos = len = sprintf(buffer, "%u\n", cppt);
-+	if (copy_to_user(buf, buffer, len))
-+		return -EFAULT;
-+
-+	return len;
-+}
-+
-+static ssize_t cpu_rate_cap_write(struct file * file, const char * buf,
-+			 size_t count, loff_t *ppos)
-+{
-+	struct task_struct *task = get_proc_task(file->f_dentry->d_inode);
-+	char buffer[128] = "";
-+	char *endptr = NULL;
-+	unsigned long hcppt;
-+	int res;
-+
-+
-+	if ((count > 63) || *ppos)
-+		return -EFBIG;
-+	if (copy_from_user(buffer, buf, count))
-+		return -EFAULT;
-+	hcppt = simple_strtoul(buffer, &endptr, 0);
-+	if ((endptr == buffer) || (hcppt == ULONG_MAX))
-+		return -EINVAL;
-+
-+	if ((res = set_cpu_rate_cap(task, hcppt)) != 0)
-+		return res;
-+
-+	return count;
-+}
-+
-+struct file_operations proc_cpu_rate_cap_operations = {
-+	read:		cpu_rate_cap_read,
-+	write:		cpu_rate_cap_write,
-+};
-+#endif
-+
- static void *proc_pid_follow_link(struct dentry *dentry, struct nameidata *nd)
+ 	printk("CPU 0x%02X in proximity domain 0x%02X\n",
+ 		cpu_affinity->apic_id, cpu_affinity->proximity_domain);
+ }
+@@ -298,6 +302,10 @@
+ 	printk("Number of logical nodes in system = %d\n", num_online_nodes());
+ 	printk("Number of memory chunks in system = %d\n", num_memory_chunks);
+ 
++	for (i = 0; i < MAX_APICID; i++) {
++		apicid_2_node[i] = pxm_to_nid_map[apicid_to_pxm[i]];
++	}
++	
+ 	for (j = 0; j < num_memory_chunks; j++){
+ 		struct node_memory_chunk_s * chunk = &node_memory_chunk[j];
+ 		printk("chunk %d nid %d start_pfn %08lx end_pfn %08lx\n",
+diff -urN linux-2.6.17-rc2-git6.orig/include/asm-i386/mach-summit/mach_apic.h linux-2.6.17-rc2-git6/include/asm-i386/mach-summit/mach_apic.h
+--- linux-2.6.17-rc2-git6.orig/include/asm-i386/mach-summit/mach_apic.h	2006-03-19 22:53:29.000000000 -0700
++++ linux-2.6.17-rc2-git6/include/asm-i386/mach-summit/mach_apic.h	2006-04-25 11:56:45.000000000 -0600
+@@ -43,6 +43,7 @@
+ 
+ extern u8 bios_cpu_apicid[];
+ extern u8 cpu_2_logical_apicid[];
++extern u8 apicid_2_node[];
+ 
+ static inline void init_apic_ldr(void)
  {
- 	struct inode *inode = dentry->d_inode;
-@@ -1803,6 +1857,11 @@ static struct dentry *proc_pident_lookup
- 			inode->i_fop = &proc_loginuid_operations;
- 			break;
- #endif
-+#ifdef CONFIG_CPU_RATE_CAPS
-+		case PROC_TID_CPU_RATE_CAP:
-+			inode->i_fop = &proc_cpu_rate_cap_operations;
-+			break;
-+#endif
- 		default:
- 			printk("procfs: impossible type (%d)",p->type);
- 			iput(inode);
-Index: MM-2.6.17-mm1/kernel/Kconfig.caps
-===================================================================
---- MM-2.6.17-mm1.orig/kernel/Kconfig.caps	2006-06-22 10:29:46.000000000 +1000
-+++ MM-2.6.17-mm1/kernel/Kconfig.caps	2006-06-22 10:48:54.000000000 +1000
-@@ -11,6 +11,11 @@ config CPU_RATE_CAPS
- 	  allocated a soft CPU rate cap will be limited to that rate of CPU
- 	  usage unless there is spare CPU resources available after the needs
- 	  of uncapped tasks are met.
-+	  Task soft caps can be set/got via the procfs file system using
-+	  files of the form /proc/<tgid>/task/<pid>/cpu_rate_cap in parts
-+	  per thousand.  Minimum soft cap is 0 and effectively places the
-+	  task in the background.  Maximum soft cap is 1000 and means
-+	  unlimited.
+@@ -86,7 +87,7 @@
  
- config CPU_RATE_HARD_CAPS
- 	bool "Support CPU rate hard caps"
+ static inline int apicid_to_node(int logical_apicid)
+ {
+-	return logical_apicid >> 5;          /* 2 clusterids per CEC */
++	return apicid_2_node[logical_apicid];
+ }
+ 
+ /* Mapping from cpu number to logical apicid */
 
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+--=-SQNwSJ2oEDCnIKvv2cbW--
 
-"Learning, n. The kind of ignorance distinguishing the studious."
- -- Ambrose Bierce

@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161163AbWFVQRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWFVQTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161163AbWFVQRN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 12:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWFVQRN
+	id S1030301AbWFVQTI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 12:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWFVQTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 12:17:13 -0400
-Received: from xenotime.net ([66.160.160.81]:37510 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030301AbWFVQRM (ORCPT
+	Thu, 22 Jun 2006 12:19:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50335 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030301AbWFVQTG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 12:17:12 -0400
-Date: Thu, 22 Jun 2006 09:19:58 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: danial_thom@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Measuring tools - top and interrupts
-Message-Id: <20060622091958.ac824e60.rdunlap@xenotime.net>
-In-Reply-To: <20060622152621.92347.qmail@web33301.mail.mud.yahoo.com>
-References: <20060622152621.92347.qmail@web33301.mail.mud.yahoo.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jun 2006 12:19:06 -0400
+Date: Thu, 22 Jun 2006 09:18:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrew Morton <akpm@osdl.org>, Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       alesan@manoweb.com, linux-kernel@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH] cardbus: revert IO window limit
+In-Reply-To: <1150976158.15275.148.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0606220917080.5498@g5.osdl.org>
+References: <Pine.LNX.4.58.0606220947250.15059@sbz-30.cs.Helsinki.FI> 
+ <20060622001104.9e42fc54.akpm@osdl.org> <1150976158.15275.148.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006 08:26:21 -0700 (PDT) Danial Thom wrote:
 
-> Running 2.6.17, it seems that top is reporting
-> 100% idle with a network load of about 75K pps
-> (bridged) , which seems unlikely. Is it possible
-> that system load accounting is turned off by some
-> tunning knob?
+
+On Thu, 22 Jun 2006, Alan Cox wrote:
+>
+> Ar Iau, 2006-06-22 am 00:11 -0700, ysgrifennodd Andrew Morton:
+> > There is something bad happening in there.  Presumably, this patch will
+> > break the ThinkPad 600x series machines again though.
+> > 
 > 
-> Is there something that shows the current
-> interrupts/second in LINUX (such as systat in
-> 'BSD)?
+> Possibly not - remember Linus fixed the "hidden resources" problem with
+> the PIIX bridge chips.
 
-You can use/modify http://www.xenotime.net/linux/scripts/sysalive.pl
-for interrupts/second (it already does that).
+Right. The IBM thinkpad probably works (well, at least _that_ one: 
+there's tons of different Thinkpads, they have different cardbus 
+controllers, and at least one of them has some other problem).
 
----
-~Randy
+However, changing the IO window size just hides the problem on the machine 
+that breaks this time around, and we should really fix _that_, rather than 
+hide it (because otherwise it will break again when we do something else 
+unrelated that just happens to change the order we do things in).
+
+		Linus

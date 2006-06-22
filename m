@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbWFVVYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWFVVZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030405AbWFVVYG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWFVVYG
+	id S932112AbWFVVZK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWFVVZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:24:06 -0400
-Received: from [80.96.155.2] ([80.96.155.2]:25814 "EHLO aladin.ro")
-	by vger.kernel.org with ESMTP id S1030405AbWFVVYF (ORCPT
+	Thu, 22 Jun 2006 17:25:10 -0400
+Received: from main.gmane.org ([80.91.229.2]:33182 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932112AbWFVVZI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:24:05 -0400
-Message-ID: <449B355C.2080805@aladin.ro>
-Date: Fri, 23 Jun 2006 00:27:08 +0000
-From: Eduard-Gabriel Munteanu <maxdamage@aladin.ro>
-User-Agent: Mozilla Thunderbird 1.0.5 (X11/20050719)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Olivier Galibert <galibert@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Is the x86-64 kernel size limit real?
-References: <20060622204627.GA47994@dspnet.fr.eu.org>
-In-Reply-To: <20060622204627.GA47994@dspnet.fr.eu.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jun 2006 17:25:08 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jakub Narebski <jnareb@gmail.com>
+Subject: Re: What's in git.git and announcing v1.4.1-rc1
+Followup-To: gmane.comp.version-control.git
+Date: Thu, 22 Jun 2006 23:24:06 +0200
+Organization: At home
+Message-ID: <e7f1pk$l1q$1@sea.gmane.org>
+References: <7v8xnpj7hg.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.64.0606221301500.5498@g5.osdl.org> <20060622205859.GF21864@pasky.or.cz> <Pine.LNX.4.64.0606221402140.6483@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 193.0.122.19
+User-Agent: KNode/0.7.7
+Cc: git@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-*This message was transferred with a trial version of CommuniGate(r) Pro*
-Olivier Galibert wrote:
+Linus Torvalds wrote:
 
 > 
-> which shows two things:
-> 1- a8f5034540195307362d071a8b387226b410469f should have a x86-64 version
-> 2- the limit looks entirely artificial
 > 
-> So, is removing the limit prone to bite me?
+> On Thu, 22 Jun 2006, Petr Baudis wrote:
+>> 
+>> Isn't manually numbering the enum choices somewhat pointless, though?
+>> (Actually makes it more difficult to do changes in it later.)
 > 
->   OG.
+> Yeah, I just mindlessly followed Johannes' original scheme. 
 
-The build system merely tries to warn you it's not going to fit on a 
-floppy disk. "bzImage" means "Big zImage", not "bz2-compressed Image", 
-so unless you're building a floppy disk, don't use zImage.
+You might want to start at 0, just in case...
+
+-- 
+Jakub Narebski
+Warsaw, Poland
+ShadeHawk on #git
 

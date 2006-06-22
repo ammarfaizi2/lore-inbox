@@ -1,44 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWFVE4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030608AbWFVFAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932228AbWFVE4e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 00:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932796AbWFVE4e
+	id S1030608AbWFVFAB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 01:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932797AbWFVFAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 00:56:34 -0400
-Received: from thunk.org ([69.25.196.29]:55200 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932228AbWFVE4d (ORCPT
+	Thu, 22 Jun 2006 01:00:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24785 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932796AbWFVFAA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 00:56:33 -0400
-Date: Wed, 21 Jun 2006 23:11:27 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH 8/8] inode-diet: Fix size of i_blkbits, i_version, and i_dnotify_mask
-Message-ID: <20060622031127.GA11224@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-References: <20060621125146.508341000@candygram.thunk.org> <20060621125218.183987000@candygram.thunk.org> <200606212335.00176.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200606212335.00176.arnd@arndb.de>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Thu, 22 Jun 2006 01:00:00 -0400
+Date: Wed, 21 Jun 2006 21:59:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: michal.k.k.piotrowski@gmail.com, mingo@elte.hu, arjan@linux.intel.com,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       robert.moore@intel.com
+Subject: Re: 2.6.17-mm1 - possible recursive locking detected
+Message-Id: <20060621215946.5d27e1f1.akpm@osdl.org>
+In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6CF0CF1@hdsmsx411.amr.corp.intel.com>
+References: <CFF307C98FEABE47A452B27C06B85BB6CF0CF1@hdsmsx411.amr.corp.intel.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 11:34:59PM +0200, Arnd Bergmann wrote:
-> Am Wednesday 21 June 2006 14:51 schrieb Theodore Tso:
-> >         umode_t                 i_mode;
-> > +       unsigned short          i_blkbits;
-> >         unsigned int            i_nlink;
+On Thu, 22 Jun 2006 00:28:56 -0400
+"Brown, Len" <len.brown@intel.com> wrote:
+
+> >It looks like an ACPI problem.
 > 
-> umode_t is 32 on some platforms, e.g. powerpc64, so you don't get
-> optimal packing there.
+> Thanks for the note, and the .config, I reproduced it here.
+> 
+> CONFIG_LOCKDEP complains about this sequence:
+> 
+> ...
+> 	<presumed previous acquire/release acpi_gbl_hardware_lock>
+> ...
+> acpi_ev_gpe_detect()
+> 	spin_lock_irqsave(acpi_gbl_gpe_lock,)
+> 
+> 	spin_lock_irqsave(acpi_gbl_hardware_lock,) <stack trace is on
+> this acquire>
+> 	spin_lock_irqrestore(acpi_gbl_hardware_lock,)
+> 
+> 	...
+> 
+> 	spin_lock_irqrestore(acpi_gbl_gpe_lock)
+> 
+> It complains about this only the 1st time, even though
+> this same code sequence runs for every (subsequent) ACPI interrupt.
+> 
+> The intent of the arrangement is that acpi_gbl_hardware_lock is for very
+> small critical sections around RMW hardware register access.
+> It can be acquired with or without other locks held, but
+> nothing else is acquired when it is held.
+> 
+> Nothing jumps out at me as incorrect above, so 
+> at this point it looks like a CONFIG_LOCKDEP artifact --
+> but lets ask the experts:-)
 
-True, but it's no worse than before.  
+Yes, lockdep uses the callsite of spin_lock_init() to detect the "type" of
+a lock.
 
-						- Ted
+But the ACPI obfuscation layers use the same spin_lock_init() site to
+initialise two not-the-same locks, so lockdep decides those two locks are
+of the same "type" and gets confused.
+
+We had earlier decided to remove that ACPI code which kmallocs a single
+spinlock.  When that's done, lockdep will become unconfused.
+
+AFACIT it's all used for just two statically allocated locks anwyay.

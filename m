@@ -1,75 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161020AbWFVJ2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbWFVJ2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161020AbWFVJ2X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 05:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWFVJ2X
+	id S1161023AbWFVJ2l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 05:28:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbWFVJ2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 05:28:23 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:10192 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1161020AbWFVJ2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 05:28:22 -0400
-Message-ID: <449A629F.9000401@linux.intel.com>
-Date: Thu, 22 Jun 2006 11:27:59 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 22 Jun 2006 05:28:41 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:28533 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161023AbWFVJ2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 05:28:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=ishR7ITCgmh2SLjzjyCXbeg3h9L2iq4tbe3TjPHEJdMYMdVpruPr4IjSzWZ3tpO72jSgn3QoCTeW5X/bjZevMYRSvvS597wVZ46AkLKhL46s2X7KENRjJEtkNU83REe3gVvVj7pS/dpeUbd1RI+RkYJrovHNdbATQyn2OFOV7PU=
+Date: Thu, 22 Jun 2006 11:28:42 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+cc: Thomas Gleixner <tglx@linutronix.de>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       Esben Nielsen <nielsen.esben@gogglemail.com>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+In-Reply-To: <20060621183042.GB1693@elte.hu>
+Message-ID: <Pine.LNX.4.64.0606220035420.10077@localhost.localdomain>
+References: <1150816429.6780.222.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
+ <Pine.LNX.4.58.0606201229310.729@gandalf.stny.rr.com>
+ <Pine.LNX.4.64.0606201903030.11643@localhost.localdomain>
+ <1150824092.6780.255.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0606202217160.11643@localhost.localdomain>
+ <Pine.LNX.4.58.0606210418160.29673@gandalf.stny.rr.com>
+ <Pine.LNX.4.64.0606211204220.10723@localhost.localdomain>
+ <Pine.LNX.4.64.0606211638560.6572@localhost.localdomain>
+ <1150907165.25491.4.camel@localhost.localdomain> <20060621183042.GB1693@elte.hu>
 MIME-Version: 1.0
-To: Rajesh Shah <rajesh.shah@intel.com>
-CC: Andi Kleen <ak@suse.de>, Brice Goglin <brice@myri.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] PCI extended conf space when MMCONFIG disabled because
- of e820
-References: <44907A8E.1080308@myri.com> <4491029D.4060002@linux.intel.com> <20060621151942.A17228@unix-os.sc.intel.com> <200606220032.19388.ak@suse.de> <20060621171536.A17560@unix-os.sc.intel.com>
-In-Reply-To: <20060621171536.A17560@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajesh Shah wrote:
-> On Thu, Jun 22, 2006 at 12:32:19AM +0200, Andi Kleen wrote:
->> On Thursday 22 June 2006 00:19, Rajesh Shah wrote:
->>> On Wed, Jun 14, 2006 at 11:47:57PM -0700, Arjan van de Ven wrote:
->>>>> We need to improve this "mmconfig disabled" anyhow. Having the extended
->>>>> config space unavailable on lots of machines is also far from a viable
->>>>> solution :)
->>>> it's unlikely to be many machines though.
->>>>
->>> I just noticed today - this check killed PCI Express on 3 of the 4
->>> machines I normally use for testing.
->> What do you mean with killed PCI Express? PCI Express should
->> work even without extended config space, except error handling.
->>
-> Yes, I meant it killed extended config space. Note that we are
-> about to send out code that enables PCI Express error handling,
-> so this will become more visible now.
-> 
->> You're saying that you have lots of machines where the mmconfig
->> aperture is not fully reserved in e820?
->>
-> Yes, I saw this in 3 out of 4 systems I checked. I'll go check
-> some more systems too.
-> 
->> Is it partially reserved (not for all busses) or not at all?
->>
-> The MMCFG resources are not listed at all in the BIOS provided
-> memory map.
-> 
->> If someone does a patch to double check it against the ACPI name space
->> I'm not opposed to let it overrule the e820 heuristic.
->>
->> The point of this code is to pragmatically detect BIOS with obviously 
->> broken setups. It's not about standards lawyering.
->>
-> Oh I agree with you that booting is more important. My point with
-> the spec statement was that most BIOS developers may not even know
-> they are doing something "wrong" by not listing these resources in
-> the int15 E820 table, since the document they normally refer to
-> doesn't say so. I suspect there are many more systems out there
-> which do the same thing and will fail the check, but we never notice
-> since most users don't try to ever access the extended space today.
+On Wed, 21 Jun 2006, Ingo Molnar wrote:
 
-well... it's sort of common sense though.. if you want non-ACPI OSes to 
-work properly (like the older 2.4 based distros...)
+>
+> * Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+>> On Wed, 2006-06-21 at 16:43 +0100, Esben Nielsen wrote:
+>>> What about the patch below. It compiles and my UP labtop runs fine, but I
+>>> haven't otherwise tested it.  My labtop runs RTExec without hichups
+>>> until now.
+>>
+>> NAK, it puts the burden into the lock path and also does a remove /
+>> add which results in walking the chain twice.
+>>
+>> Find an version against the code in -mm below. Not too much tested
+>> yet.
+>
+> i like this one - it does the prio fixup where it should be done.
 
+I disagree. I think the work should be done by the task which is blocked.
+I can't see the work belongs to the one calling setschedule() - especially 
+if that is in interrupt context.
 
+A good principle in real-time system programming is to push at most work 
+as possible to as low a priority as possible while still meeting the required 
+deadlines. If you don't, you unneedingly increase the latency associated 
+with the higher priority.
+
+Let us say you the increase the priority of a task with setscheduler():
+The espected latency can never be better than the one associated with the 
+current task, nor can it be better than the target priority. Therefore the 
+job of fixing the priorities should be done in the lowest priority of
+current's priority and the target priority.
+
+Let us say you the decrease the priority of a task with setscheduler():
+You need to boost tasks out of the high priority with the latency 
+associated with that priority, but the overall latency can never be 
+expected to be higher that the priority of at which setscheduler() is 
+running. Therefore the job of fixing the priorities should be donee in the 
+lowest priority of the current priority and the previous priority of the 
+target task.
+
+Neither of the patches by Thomas and me does it optimal in all cases.
+
+Esben
+
+>
+> 	Ingo
+>

@@ -1,73 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWFVQ6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751575AbWFVRCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWFVQ6J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 12:58:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWFVQ6J
+	id S1751575AbWFVRCI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 13:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWFVRCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 12:58:09 -0400
-Received: from web33303.mail.mud.yahoo.com ([68.142.206.118]:17775 "HELO
-	web33303.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751226AbWFVQ6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 12:58:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=oqHzTLEsF9uWwzpRArRBDUHHX9Yk9ObI6+lNfWf0U13LwTt7Rl8XjT3HAA8BAh6Khm15U+SNAiaxiLvGTAQtmtoD+6P1YTNmuBuGfPvOqNEFICVdkWBnkCc9jYw6Rccbd+nMlX1iO0dGi9DAqwofHAZQ/A6yvsgCI87ydzIHiDY=  ;
-Message-ID: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
-Date: Thu, 22 Jun 2006 09:58:08 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: Measuring tools - top and interrupts
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20060622162141.GC14682@harddisk-recovery.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 22 Jun 2006 13:02:08 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:58327 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751441AbWFVRCG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 13:02:06 -0400
+Subject: Re: [RFC][PATCH 03/20] Add vfsmount writer count
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       herbert@13thfloor.at
+In-Reply-To: <20060620212000.GV27946@ftp.linux.org.uk>
+References: <20060616231213.D4C5D6AF@localhost.localdomain>
+	 <20060616231215.09D54036@localhost.localdomain>
+	 <20060618183320.GZ27946@ftp.linux.org.uk>
+	 <1150736536.10515.52.camel@localhost.localdomain>
+	 <20060620212000.GV27946@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Thu, 22 Jun 2006 10:01:48 -0700
+Message-Id: <1150995708.10515.183.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- Erik Mouw <erik@harddisk-recovery.com> wrote:
-
-> On Thu, Jun 22, 2006 at 08:26:21AM -0700,
-> Danial Thom wrote:
-> > Running 2.6.17, it seems that top is
-> reporting
-> > 100% idle with a network load of about 75K
-> pps
-> > (bridged) , which seems unlikely. Is it
-> possible
-> > that system load accounting is turned off by
-> some
-> > tunning knob?
+On Tue, 2006-06-20 at 22:20 +0100, Al Viro wrote:
+> On Mon, Jun 19, 2006 at 10:02:16AM -0700, Dave Hansen wrote:
+> > Very true.  How about this to fix it?
+> > 
+> > --- lxc/fs//open.c~C8.1-fix-faccesat    2006-06-19 09:59:41.000000000 -0700
+> > +++ lxc-dave/fs//open.c 2006-06-19 10:01:25.000000000 -0700
+> > @@ -546,8 +546,12 @@ asmlinkage long sys_faccessat(int dfd, c
+> >            special_file(nd.dentry->d_inode->i_mode))
+> >                 goto out_path_release;
+> > 
+> > -       if(__mnt_is_readonly(nd.mnt) || IS_RDONLY(nd.dentry->d_inode))
+> > -               res = -EROFS;
+> > +       res = mnt_want_write(nd.mnt);
+> > +       if (!res) {
+> > +               mnt_drop_write(nd.mnt);
+> > +               if(IS_RDONLY(nd.dentry->d_inode))
+> > +                       res = -EROFS;
+> > +       }
 > 
-> 75K packets/s isn't too hard for modern NICs,
-> especially when using
-> NAPI.
+> So access() can make remount r/o fail?  Uh-oh...
 
-Well thats just a ridiculous answer, so why
-bother? 
+Good point.  Thanks for catching that.
 
-You polling guys just crack me up. There isn't
-much less work to be done with polling. The only
-reason you THINK its less work is because the
-measuring tools don't work properly. You still
-have to process the same number of packets when
-you poll, and you have polls instead of
-interrupts. Since you can control the # of
-interrupts with most cards, there is zero
-advantage to polling, and more negatives.
+There are probably two solutions here: rework the atomics to always give
+a consistent view, even during mnt_make_readonly() calls, or keep the
+mnt_make_readonly() side from executing.
 
-And 75K pps may not be "much", but its still at
-least 10% of what the system can handle, so it
-should measure around a 10% load. 2.4 measures
-about 12% load. So the only conclusion is that
-load accounting is broken in 2.6.
+We're already protecting this mnt_make_readonly() from races with itself
+with a write on the mnt->mnt_sb->s_umount semaphore.  We should be able
+to use a read lock on the same semaphore to exclude the
+mnt_make_readonly() callers.
 
-DT
+Thoughts?
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+diff -puN include/linux/mount.h~C-D8-actually-add-flags include/linux/mount.h
+--- robind/include/linux/mount.h~C-D8-actually-add-flags        2006-06-20 14:11:15.000000000 -0700
++++ robind-dave/include/linux/mount.h   2006-06-20 16:01:11.000000000 -0700
+@@ -91,6 +91,25 @@ static inline int __mnt_is_readonly(stru
+        return (atomic_read(&mnt->mnt_writers) == 0);
+ }
+
++/*
++ * This needs to get a consistent look at mnt_writers.
++ * Without the lock, it can race against mnt_make_readonly()
++ * and mistake a temporarily decremented mnt_writers
++ * for a real read-only mount.
++ *
++ * Note: this is never suitable if you need to perform any
++ * write *operations* on the mount, only as a snapshot.
++ */
++static inline int mnt_is_readonly(struct vfsmount *mnt)
++{
++       int ret;
++
++       down_read(&mnt->mnt_sb->s_umount);
++       ret = __mnt_is_readonly(mnt);
++       up_read(&mnt->mnt_sb->s_umount);
++       return ret;
++}
++
+ static inline int mnt_want_write(struct vfsmount *mnt)
+ {
+        int ret = 0;
+--- lxc/fs/open.c~C8.1-fix-faccesat     2006-06-22 09:43:01.000000000 -0700
++++ lxc-dave/fs/open.c  2006-06-22 09:43:01.000000000 -0700
+@@ -546,8 +546,12 @@ asmlinkage long sys_faccessat(int dfd, c
+           special_file(nd.dentry->d_inode->i_mode))
+                goto out_path_release;
+
+-       if(__mnt_is_readonly(nd.mnt) || IS_RDONLY(nd.dentry->d_inode))
++       if(mnt_is_readonly(nd.mnt) || IS_RDONLY(nd.dentry->d_inode))
+                res = -EROFS;
+
+ out_path_release:
+        path_release(&nd);
+
+
+-- Dave
+

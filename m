@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932675AbWFVXek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932700AbWFVXfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932675AbWFVXek (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 19:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWFVXek
+	id S932700AbWFVXfv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 19:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWFVXfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 19:34:40 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:41187 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932675AbWFVXej
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 19:34:39 -0400
-Date: Thu, 22 Jun 2006 16:35:12 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com, johnstul@us.ibm.com,
-       tytso@us.ibm.com, dvhltc@us.ibm.com
-Subject: [PATCH -rt] NUMA-Q fix to __cache_free and reap_alien
-Message-ID: <20060622233512.GA2792@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
+	Thu, 22 Jun 2006 19:35:51 -0400
+Received: from colin.muc.de ([193.149.48.1]:41225 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S932700AbWFVXfu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 19:35:50 -0400
+Date: 23 Jun 2006 01:35:49 +0200
+Date: Fri, 23 Jun 2006 01:35:49 +0200
+From: Andi Kleen <ak@muc.de>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86-64 build fix
+Message-ID: <20060622233549.GA55538@muc.de>
+References: <20060622205928.GA23801@havoc.gtf.org> <20060622142430.3219f352.akpm@osdl.org> <20060622223919.GB50270@muc.de> <20060622155943.27c98d61.akpm@osdl.org> <449B268E.4000808@garzik.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <449B268E.4000808@garzik.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Jun 22, 2006 at 07:23:58PM -0400, Jeff Garzik wrote:
+> Andrew Morton wrote:
+> >I don't think Jeff has sent us an example .config, but I hit this a few
+> >times too, before we fixed it.  I think this was all triggered by a Kconfig
+> >change in the AGP tree, so you wouldn't have seen it, but -mm did.
+> 
+> 'make allmodconfig' on x86-64.  You can create this .config yourself :)
+> 
+> I think the tree suffers [sometimes due to me :(] when 'allyesconfig' 
+> and 'allmodconfig' stop working.
 
-The attached patch (no doubt quite crudely) fixes a couple of compiler
-errors on NUMA-Q machines.  With these fixes, 2.6.17-rt1 builds, boots,
-and runs kernelbench and LTP on NUMA-Q.
+Yes, but they work in 2.6.17 right? 
+And nothing should have changed since 2.6.17 so far.
 
-Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
----
+But apparently something did. What was it?
 
- slab.c |   11 ++++++-----
- 1 files changed, 6 insertions(+), 5 deletions(-)
-
-diff -urpNa -X dontdiff linux-2.6.17-rt1/mm/slab.c linux-2.6.17-rt1-alienfix/mm/slab.c
---- linux-2.6.17-rt1/mm/slab.c	2006-06-22 14:12:08.000000000 -0700
-+++ linux-2.6.17-rt1-alienfix/mm/slab.c	2006-06-22 14:45:56.000000000 -0700
-@@ -1058,13 +1058,14 @@ static void
- reap_alien(struct kmem_cache *cachep, struct kmem_list3 *l3, int *this_cpu)
- {
- 	int node = per_cpu(reap_node, *this_cpu);
-+	unsigned long flags;
- 
- 	if (l3->alien) {
- 		struct array_cache *ac = l3->alien[node];
- 
--		if (ac && ac->avail && spin_trylock_irq(&ac->lock)) {
-+		if (ac && ac->avail && spin_trylock_irqsave(&ac->lock, flags)) {
- 			__drain_alien_cache(cachep, ac, node, this_cpu);
--			spin_unlock_irq(&ac->lock);
-+			spin_unlock_irqrestore(&ac->lock, flags);
- 		}
- 	}
- }
-@@ -3242,15 +3243,15 @@ __cache_free(struct kmem_cache *cachep, 
- 				spin_lock(&alien->lock);
- 				if (unlikely(alien->avail == alien->limit)) {
- 					STATS_INC_ACOVERFLOW(cachep);
--					__drain_alien_cache(cachep,
--							    alien, nodeid);
-+					__drain_alien_cache(cachep, alien,
-+							    nodeid, this_cpu);
- 				}
- 				alien->entry[alien->avail++] = objp;
- 				spin_unlock(&alien->lock);
- 			} else {
- 				spin_lock(&(cachep->nodelists[nodeid])->
- 					  list_lock);
--				free_block(cachep, &objp, 1, nodeid);
-+				free_block(cachep, &objp, 1, nodeid, this_cpu);
- 				spin_unlock(&(cachep->nodelists[nodeid])->
- 					    list_lock);
- 			}
+-Andi

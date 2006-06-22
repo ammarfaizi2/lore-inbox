@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1030476AbWFVBFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1030435AbWFVWxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030476AbWFVBFD (ORCPT <rfc822;akpm@zip.com.au>);
-	Wed, 21 Jun 2006 21:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbWFVBFD
+	id S1030435AbWFVWxb (ORCPT <rfc822;akpm@zip.com.au>);
+	Thu, 22 Jun 2006 18:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbWFVWxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 21:05:03 -0400
-Received: from smtp3.netcabo.pt ([212.113.174.30]:29079 "EHLO
-	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1030476AbWFVBFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 21:05:01 -0400
+	Thu, 22 Jun 2006 18:53:31 -0400
+Received: from smtp1.netcabo.pt ([212.113.174.28]:48086 "EHLO
+	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S1030435AbWFVWxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 18:53:30 -0400
 X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AWYmAGOFmUSBToRGgjU
+X-IronPort-Anti-Spam-Result: AUchABW6mkREgQuEUIJGgkw
 X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(213.22.222.3):SA:1(10.7/5.0):. Processed in 6.907074 secs Process 14763)
+X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(213.22.222.44):SA:1(8.7/5.0):. Processed in 3.88917 secs Process 21769)
 Subject: Re: how I know if a interrupt is ioapic_edge_type or 
 	ioapic_level_type? [Was Re: [Fwd: Re: [Linux-usb-users] Fwd: Re:
 	2.6.17-rc6-mm2 - USB issues]]
@@ -23,106 +23,99 @@ Cc: kernel@agotnes.com, akpm@osdl.org, linux-acpi@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
         linux-usb-devel@lists.sourceforge.net, stern@rowland.harvard.edu,
         cw@f00f.org, vsu@altlinux.ru
-In-Reply-To: <20060621174754.159bb1d0.rdunlap@xenotime.net>
+In-Reply-To: <20060622142902.5c8f8e67.rdunlap@xenotime.net>
 References: <44953B4B.9040108@agotnes.com> <4497DA3F.80302@agotnes.com>
 	 <20060620044003.4287426d.akpm@osdl.org> <4499245C.8040207@agotnes.com>
 	 <1150936606.2855.21.camel@localhost.portugal>
 	 <20060621174754.159bb1d0.rdunlap@xenotime.net>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-3yHTPJvuCUr57C0748qm"
-Date: Thu, 22 Jun 2006 02:04:48 +0100
-Message-Id: <1150938288.3221.2.camel@localhost.portugal>
+	 <1150938288.3221.2.camel@localhost.portugal>
+	 <20060621210817.74b6b2bc.rdunlap@xenotime.net>
+	 <1150977386.2859.34.camel@localhost.localdomain>
+	 <20060622142902.5c8f8e67.rdunlap@xenotime.net>
+Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-22ndrzz8d8MQ57YFI5Iv"
+Date: Thu, 22 Jun 2006 23:46:38 +0100
+Message-Id: <1151016398.3022.4.camel@localhost.portugal>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-X-OriginalArrivalTime: 22 Jun 2006 01:04:59.0005 (UTC) FILETIME=[E1F332D0:01C69597]
+X-OriginalArrivalTime: 22 Jun 2006 22:53:28.0492 (UTC) FILETIME=[AD4036C0:01C6964E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-3yHTPJvuCUr57C0748qm
+--=-22ndrzz8d8MQ57YFI5Iv
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: quoted-printable
 
-who no, how sorry! I am a little tired=20
-
-On Wed, 2006-06-21 at 17:47 -0700, Randy.Dunlap wrote:=20
-> On Thu, 22 Jun 2006 01:36:46 +0100 Sergio Monteiro Basto wrote:
+On Thu, 2006-06-22 at 14:29 -0700, Randy.Dunlap wrote:
+> On Thu, 22 Jun 2006 12:56:25 +0100 Sergio Monteiro Basto wrote:
 >=20
-> > who I do know if a interrupt is ioapic_edge_type or ioapic_edge_type ?=20
->=20
-> Do you mean how they are configured in a running kernel?
-
-yes, I want to know in=20
-linux-2.6.13/drivers/pci/quirks.c
-when I am going quirk the PCI_VIA irq, if this irq is in
-IO-APIC-something or is in XT-PIC , to decide if I quirk the interrupt
-or not=20
-
-
->=20
-> cat /proc/interrupts ::
->=20
->            CPU0       CPU1      =20
->   0:   12412944   12407808    IO-APIC-edge  timer
->   1:     122673     124208    IO-APIC-edge  i8042
->   7:          0          0    IO-APIC-edge  parport0
->   9:          0          0   IO-APIC-level  acpi
->  12:    1141950    1138138    IO-APIC-edge  i8042
->  14:    1107749    1109102    IO-APIC-edge  ide0
->  58:     451498          0         PCI-MSI  eth0
->  66:     530689     495356         PCI-MSI  libata
->  74:          0          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb6
->  82:         31          3   IO-APIC-level  ohci_hcd:usb2, ohci_hcd:usb3,=
- ohci_hcd:usb4, ohci_hcd:usb5
->  90:        561        492   IO-APIC-level  HDA Intel
-> 169:          3          0   IO-APIC-level  ohci1394
-> 177:          0          0   IO-APIC-level  uhci_hcd:usb8
-> 185:          0          0   IO-APIC-level  uhci_hcd:usb7
-> 193:          0          0   IO-APIC-level  uhci_hcd:usb9
->=20
->=20
-> or how they should be configured in case you are not sure?
-> See a hardware spec. for that.
->=20
->=20
-> > On Wed, 2006-06-21 at 20:50 +1000, Johny wrote:
-> > > Success :)
+> > On Wed, 2006-06-21 at 21:08 -0700, Randy.Dunlap wrote:
 > > >=20
-> > > I simply made the change=20
-> > > manually, based on your and others' inputs (it seemed the simpler
-> > > option).
-> > >=20
-> > > Both kernels now boot, and all USB devices are recognised correctly.
-> > >=20
+> > > If you have a specific issue/problem, it would probably be
+> > > better just to focus on that.=20
 > >=20
-> > > I run in XT_PIC mode for interrupts.
-> > >=20
+> > on linux-2.6.17/drivers/pci/quirks.c=09
 > >=20
-> > Hi, thanks for your positive test on "my" theory.
+> >   * we must mask the PCI_INTERRUPT_LINE value versus 0xf to get
+> >   * interrupts delivered properly.
+> >   */
 > >=20
-> > Here it goes the link that I talked about on last email=20
-> > http://lkml.org/lkml/2005/8/18/92 (you can read the previous messages o=
-n
-> > this thread)=20
+> >  static void quirk_via_irq(struct pci_dev *dev)
+> >  {
+> >  	u8 irq, new_irq;
 > >=20
-> > The patch of this link doesn't compile (at least for me), but have a
-> > simple idea, which is just quirk the VIA_PCIs if they are in XT_PIC mod=
-e
-> > and I think that is the way of this quirks should go.
-> >=20
-> > So someone help me out and do a patch that recognize if the interrupt i=
-s
-> > in XT-PIC mode or not ?=20
-> >=20
-> > Thanks, =20
-> > --=20
-> > S=E9rgio M. B.
-> >=20
+> > I want here put something like:  if ( dev->irq !=3D XT-PIC) return and =
+don't quirk this dev.
+> >  	else=20
+>=20
+> I don't think the interrupt device mode is known by this code (AFAICT
+> with a quick look).  The function is only called for certain VIA chipsets=
+.
+>=20
+> Do you want the quirk for any particular hardware device?
+> You might be able to look at the function's <dev> parameter
+> to decide on using the quirk or not.
 >=20
 >=20
-> ---
-> ~Randy
+> > 	new_irq =3D dev->irq & 0xf;
+> >  	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
 
---=-3yHTPJvuCUr57C0748qm
+yap, in my opinion this function should back to=20
+
+--- orig/drivers/pci/quirks.c	2006-06-21 20:25:41.000000000 +1000
++++ linux-2.6.17-rc6-mm2/drivers/pci/quirks.c	2006-06-21 20:25:08.000000000=
+ +1000
+@@ -662,13 +662,7 @@
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
+ }
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_0, qu=
+irk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, qu=
+irk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, qu=
+irk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_3, qu=
+irk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686, quir=
+k_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4, qu=
+irk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, qu=
+irk_via_irq);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
+=20
+ /*
+  * VIA VT82C598 has its device ID settable and many BIOSes
+
+
+But do you know or not ? how I know if dev->irq is XT-pic ?=20
+
+
+--=20
+S=E9rgio M. B.
+
+--=-22ndrzz8d8MQ57YFI5Iv
 Content-Type: application/x-pkcs7-signature; name=smime.p7s
 Content-Disposition: attachment; filename=smime.p7s
 Content-Transfer-Encoding: base64
@@ -159,13 +152,13 @@ C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
 0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
 c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
 dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjA2MjIwMTA0NDRaMCMGCSqGSIb3DQEJBDEWBBRS1l5Lx8U41qfSyTVvDjVg
-IAHgADANBgkqhkiG9w0BAQEFAASCAQAls3OwFayV6UBj2SUwzhVzf8faJpO8PND0c3Dj3IbVmpKu
-PJFiNmNUWyiB3wmyzjWPVT0I+6ICOB6d5n/Z8gLWaW058qvCoFC9GacuW0qP7DuKc4cxq8daNpc3
-1h9S/VD/ZCqk84g1yCR8uBSGW93u3OoS/vyz1Y1ivOHcT+kIbGmsrdXK5wAKLVs1TdWp5PHJwCG9
-QBqg1ra8nETInEcpsZI4NKIfFJ8MiZetDjFLePP8Oeh7TVQAukyVQG6VsayzqbH/bAUDlposanwB
-B2NbwI3cp+8xRKrMA609QGVj8ASQDjD3AISSHXXfpkdUlNpedem66/CQuEcnWkwFvYRrAAAAAAAA
+SIb3DQEJBTEPFw0wNjA2MjIyMjQ2MjZaMCMGCSqGSIb3DQEJBDEWBBQqPhhHf4Ei/abxA6stKSO3
+lvhviDANBgkqhkiG9w0BAQEFAASCAQAtZ7+lcLT+687zF6cv5k42ShP7SRORC+2/FO88+z0rtkjb
+HNv6bWkIG87Kgar0GIDEIbLgfaSXj9ZJ3NFZXf4g6mYgBIs92mptvsqJzoPTmCM95FPN1z8/1bXO
+132P+1oEZIPXKVDlTOblYIL8BK0Xm786V97LB9fSmbjr1bxrHym+rYHxp2cNIUG6YxED/1VFGNyg
+cYsEm7H91bkn02Bf19HcLI1POHD0beQfepsDt6DWUovUhHdKnP+K6M3Sg0t1t46STuly4KNypBEu
+nJaAftgvQpBa5oy2ns5lQMRnBPg7072SsF2bZaQn+cHqtvlSUzSzEhZ+M6dD3tw72mpjAAAAAAAA
 
 
 
---=-3yHTPJvuCUr57C0748qm--
+--=-22ndrzz8d8MQ57YFI5Iv--

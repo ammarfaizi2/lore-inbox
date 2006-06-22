@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWFVGID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWFVGHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWFVGID (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 02:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751645AbWFVGIB
+	id S1751638AbWFVGHt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 02:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWFVGHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 02:08:01 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:14516 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750885AbWFVGIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 02:08:00 -0400
-Date: Wed, 21 Jun 2006 23:07:37 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, hugh@veritas.com, dhowells@redhat.com,
-       christoph@lameter.com, mbligh@google.com, npiggin@suse.de,
-       torvalds@osdl.org
-Subject: Re: [PATCH 1/6] mm: tracking shared dirty pages
-In-Reply-To: <20060621225639.4c8bad93.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0606212305240.25441@schroedinger.engr.sgi.com>
-References: <20060619175243.24655.76005.sendpatchset@lappy>
- <20060619175253.24655.96323.sendpatchset@lappy> <20060621225639.4c8bad93.akpm@osdl.org>
+	Thu, 22 Jun 2006 02:07:49 -0400
+Received: from mail.gmx.de ([213.165.64.21]:48091 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750817AbWFVGHs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 02:07:48 -0400
+X-Authenticated: #9962044
+From: marvin <marvin24@gmx.de>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: Using libata for ICH5 PATA
+Date: Thu, 22 Jun 2006 08:07:34 +0200
+User-Agent: KMail/1.9.1
+References: <20060622004811.0009937c@werewolf.auna.net> <4499E524.4060206@garzik.org>
+In-Reply-To: <4499E524.4060206@garzik.org>
+Cc: linux-kernel@vger.kernel.org,
+       "J.A. =?utf-8?q?Magall=C3=B3n?=" <jamagallon@ono.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200606220807.34373.marvin24@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006, Andrew Morton wrote:
+Le Thursday 22 June 2006 02:32, vous avez écrit :
+> J.A. Magallón wrote:
+> > What do I need to let libata drive the ICH5 pata ?
+>
+> Probably just ATA_ENABLE_PATA at the top of include/linux/libata.h.
 
-> Performance testing is critical here.  I think some was done, but I don't
-> reall what tests were performed, nor do I remember the results.  Without such
-> info it's not possible to make a go/no-go decision.
+which doesn't work:
 
-Tests did show that there was no performance regression for the usual 
-tests. That is to be expected since the patch should only modify the 
-behavior of shared writable mapping. The use of those is rare in typical 
-benchmarks.
+CC [M]  drivers/scsi/ata_piix.o
+drivers/scsi/ata_piix.c:190: error: ‘ich5_pata’ undeclared here (not in a 
+function)
+make[2]: *** [drivers/scsi/ata_piix.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
+
+
+marc

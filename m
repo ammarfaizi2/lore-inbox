@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWFVI3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWFVI3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbWFVI3n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 04:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWFVI3n
+	id S964912AbWFVI3x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 04:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWFVI3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 04:29:43 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:55044 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932346AbWFVI3m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 04:29:42 -0400
-Date: Thu, 22 Jun 2006 18:29:31 +1000
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, snakebyte@gmx.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: Memory corruption in 8390.c ? (was Re: Possible leaks in network drivers)
-Message-ID: <20060622082931.GA26083@gondor.apana.org.au>
-References: <1150909982.15275.100.camel@localhost.localdomain> <E1FtDU0-0005nd-00@gondolin.me.apana.org.au> <20060622023029.GA6156@gondor.apana.org.au> <449A533E.4090201@pobox.com>
+	Thu, 22 Jun 2006 04:29:53 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40971 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964912AbWFVI3w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 04:29:52 -0400
+Date: Thu, 22 Jun 2006 09:29:40 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, gregkh@suse.de,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: Serial-Core: USB-Serial port current issues.
+Message-ID: <20060622082939.GA25212@flint.arm.linux.org.uk>
+Mail-Followup-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>,
+	Pete Zaitcev <zaitcev@redhat.com>, gregkh@suse.de,
+	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+	linux-usb-devel@lists.sourceforge.net
+References: <20060613192829.3f4b7c34@home.brethil> <20060614152809.GA17432@flint.arm.linux.org.uk> <20060620161134.20c1316e@doriath.conectiva> <20060620193233.15224308.zaitcev@redhat.com> <20060621133500.18e82511@doriath.conectiva> <20060621164336.GD24265@flint.arm.linux.org.uk> <20060621181513.235fc23c@doriath.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <449A533E.4090201@pobox.com>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <20060621181513.235fc23c@doriath.conectiva>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 04:22:22AM -0400, Jeff Garzik wrote:
+On Wed, Jun 21, 2006 at 06:15:13PM -0300, Luiz Fernando N. Capitulino wrote:
+> On Wed, 21 Jun 2006 17:43:36 +0100
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 > 
-> >it if needed.  Actually, someone should sift through every instance of
-> >skb_pad on a non-linear skb as they do not fit the reasons why this was
-> >originally created.
+> | In the uart_update_mctrl() case, the purpose of the locking is to
+> | prevent two concurrent changes to the modem control state resulting
+> | in an inconsistency between the hardware and the software state.  If
+> | it's provable that it is always called from process context (and
+> | it isn't called from a lock_kernel()-section or the lock_kernel()
+> | section doesn't mind a rescheduling point being introduced there),
+> | there's no problem converting that to a mutex.
 > 
-> Non-linear skbs smaller than ETH_ZLEN seem unlikely.
+>  Ok, then I can submit my debug patch to answer these questions.
+> 
+>  might_sleep() can catch the lock_kernel()-section case right?
+> 
+> | With get_mctrl(), the situation is slightly more complicated, because
+> | we need to atomically update tty->hw_stopped in some circumstances
+> | (that may also be modified from irq context.)  Therefore, to give
+> | the driver a consistent locking picture, the spinlock is _always_
+> | held.
+> 
+>  Is it too bad (wrong?) to only protect the tty->hw_stopped update
+> by the spinlock? Then the call to get_mctrl() could be protected by
+> a mutex, or is it messy?
 
-When I was grepping it seems that a few drivers were using it with
-a length other than ETH_ZLEN.  I've just done another grep and here
-are the potential suspects:
+Consider this scenario with what you're proposing:
 
-cassini.c
-starfire.c
-yellowfin.c
+	thread				irq
 
-Also, the skb_pad in drivers/s390/net/claw.c didn't check for errors
-at all.
+	take mutex
+	get_mctrl
+					cts changes state
+					take port lock
+					mctrl state read
+					tty->hw_stopped changed state
+					release port lock
+	releaes mutex
+	take port lock
+	update tty->hw_stopped
+	release port lock
 
-Cheers,
+Now, tty->hw_stopped does not reflect the hardware state, which will be
+buggy and can cause a loss of transmission.
+
+I'm not sure what to suggest on this one since for USB drivers you do
+need to be able to sleep in this method... but for UARTs you must not.
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

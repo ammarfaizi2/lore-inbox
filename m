@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbWFVKDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbWFVKCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161031AbWFVKDU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 06:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161032AbWFVKDU
+	id S1161028AbWFVKCo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 06:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161030AbWFVKCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 06:03:20 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41231 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161031AbWFVKDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 06:03:19 -0400
-Date: Thu, 22 Jun 2006 12:03:18 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Anssi Hannula <anssi.hannula@gmail.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
-Subject: [-mm patch] #if 0 drivers/usb/input/hid-core.c:hid_find_field_by_usage()
-Message-ID: <20060622100318.GY9111@stusta.de>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 22 Jun 2006 06:02:44 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38047 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161028AbWFVKCn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 06:02:43 -0400
+Date: Thu, 22 Jun 2006 11:56:18 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: bert hubert <bert.hubert@netherlabs.nl>,
+       Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Daniel Jacobowitz <drow@false.org>, Alexandre Oliva <aoliva@redhat.com>
+Subject: Re: [PATCH] utrace: new modular infrastructure for user debug/tracing
+Message-ID: <20060622095618.GA1051@elte.hu>
+References: <20060619105011.31953180049@magilla.sf.frob.com> <20060620073234.GA29317@outpost.ds9a.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <20060620073234.GA29317@outpost.ds9a.nl>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch #if 0's the no longer used hid_find_field_by_usage().
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+* bert hubert <bert.hubert@netherlabs.nl> wrote:
 
----
+> On Mon, Jun 19, 2006 at 03:50:11AM -0700, Roland McGrath wrote:
+> > I have been working on for a while, and imagining for much longer,
+> > replacing ptrace from the ground up.  This is what I've come up with so
+> > far, and I'm looking for some reactions on the direction.  What I'm
+> 
+> Roland,
+> 
+> Is this what has elsewhere been referred to as 'ptrace-ng'?
 
- drivers/usb/input/hid-core.c |    3 ++-
- drivers/usb/input/hid.h      |    1 -
- 2 files changed, 2 insertions(+), 2 deletions(-)
+i think you must mean my mail on lkml calling it ptrace-ng, so yes.
 
---- linux-2.6.17-mm1-full/drivers/usb/input/hid.h.old	2006-06-22 01:20:25.000000000 +0200
-+++ linux-2.6.17-mm1-full/drivers/usb/input/hid.h	2006-06-22 01:20:33.000000000 +0200
-@@ -519,7 +519,6 @@
- int hid_set_field(struct hid_field *, unsigned, __s32);
- void hid_submit_report(struct hid_device *, struct hid_report *, unsigned char dir);
- void hid_init_reports(struct hid_device *hid);
--struct hid_field *hid_find_field_by_usage(struct hid_device *hid, __u32 wanted_usage, int type);
- int hid_wait_io(struct hid_device* hid);
- 
- 
---- linux-2.6.17-mm1-full/drivers/usb/input/hid-core.c.old	2006-06-22 01:20:41.000000000 +0200
-+++ linux-2.6.17-mm1-full/drivers/usb/input/hid-core.c	2006-06-22 01:21:00.000000000 +0200
-@@ -1108,7 +1108,7 @@
- /*
-  * Find a report field with a specified HID usage.
-  */
--
-+#if 0
- struct hid_field *hid_find_field_by_usage(struct hid_device *hid, __u32 wanted_usage, int type)
- {
- 	struct hid_report *report;
-@@ -1120,6 +1120,7 @@
- 				return report->field[i];
- 	return NULL;
- }
-+#endif  /*  0  */
- 
- static int hid_submit_out(struct hid_device *hid)
- {
-
+	Ingo

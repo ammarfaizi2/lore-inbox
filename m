@@ -1,129 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWFVXhp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932713AbWFVXkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932672AbWFVXhp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 19:37:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWFVXhp
+	id S932713AbWFVXkp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 19:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbWFVXkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 19:37:45 -0400
-Received: from web33314.mail.mud.yahoo.com ([68.142.206.129]:11109 "HELO
-	web33314.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932672AbWFVXhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 19:37:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=aHD4sAXpqyfRWrzw0oTIvJeYjtmMen1nKXP2rZiVUKLfMhYTIpuFkmgjyc1U8TghcfCOoObbOjo+Pu0qttOM/EVusdm9DijrzYl3H+oqbiUs31ajEXil4hZJJUVX7txn+SzNobanJst77rBodf4svLb62SShs0/ZSa7e9YdexF8=  ;
-Message-ID: <20060622233744.99206.qmail@web33314.mail.mud.yahoo.com>
-Date: Thu, 22 Jun 2006 16:37:44 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: Measuring tools - top and interrupts
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060622173128.GD14682@harddisk-recovery.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 22 Jun 2006 19:40:45 -0400
+Received: from ns1.suse.de ([195.135.220.2]:32689 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932713AbWFVXko (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 19:40:44 -0400
+Date: Thu, 22 Jun 2006 16:40:40 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.17
+Message-ID: <20060622234040.GB30143@suse.de>
+References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606221546120.6483@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606221546120.6483@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- Erik Mouw <erik@harddisk-recovery.com> wrote:
-
-> On Thu, Jun 22, 2006 at 09:58:08AM -0700,
-> Danial Thom wrote:
-> > --- Erik Mouw <erik@harddisk-recovery.com>
-> wrote:
-> > > 75K packets/s isn't too hard for modern
-> NICs,
-> > > especially when using
-> > > NAPI.
-> > 
-> > Well thats just a ridiculous answer, so why
-> > bother? 
-> > 
-> > You polling guys just crack me up. There
-> isn't
-> > much less work to be done with polling. The
-> only
-> > reason you THINK its less work is because the
-> > measuring tools don't work properly. You
-> still
-> > have to process the same number of packets
-> when
-> > you poll, and you have polls instead of
-> > interrupts. Since you can control the # of
-> > interrupts with most cards, there is zero
-> > advantage to polling, and more negatives.
+On Thu, Jun 22, 2006 at 04:11:26PM -0700, Linus Torvalds wrote:
 > 
-> There certainly is less work to be done with
-> polling. Less IRQs means
-> less expensive context switches, which means a
-> lower system load. See
-> Documentation/NAPI_HOWTO.txt for information
-> and a link to the Linux
-> NAPI paper.
 > 
-> > And 75K pps may not be "much", but its still
-> at
-> > least 10% of what the system can handle, so
-> it
-> > should measure around a 10% load. 2.4
-> measures
-> > about 12% load. So the only conclusion is
-> that
-> > load accounting is broken in 2.6.
+> On Wed, 21 Jun 2006, Greg KH wrote:
+> >
+> > Here are a lot of USB patches for 2.6.17.  They do the following:
 > 
-> Network traffic is usually IO bound, not CPU
-> bound. The load figures
-> top shows tell something about the amount of
-> work the CPU has to do,
-> not about how busy your PCI bus (or whatever
-> bus the NIC lives on) is.
+> I think these may be responsible for:
 > 
-> IIRC the networking layer in 2.6 differs quite
-> a lot from 2.4, so the
-> load average figures can be quite misleading.
+> 	Bluetooth: L2CAP ver 2.8
+> 	Bluetooth: L2CAP socket layer initialized
+> 	Bluetooth: HIDP (Human Interface Emulation) ver 1.1
+> 	Bluetooth: RFCOMM socket layer initialized
+> 	Bluetooth: RFCOMM TTY layer initialized
+> 	Bluetooth: RFCOMM ver 1.7
+> 	BUG: unable to handle kernel paging request at virtual address 5a5a5a5a
+> 	 printing eip:
+> 	c02a58f8
+> 	*pde = 00000000
+> 	Oops: 0000 [#1]
+> 	SMP 
+> 	Modules linked in: rfcomm hidp l2cap hci_usb bluetooth ip_conntrack_netbios_ns ipt_REJECT iptable_filter ip_tables ip6table_filter ip6_tables cpufreq_ondemand lp pcspkr intel_agp agpgart
+> 	CPU:    0
+> 	EIP:    0060:[<c02a58f8>]    Not tainted VLI
+> 	EFLAGS: 00210206   (2.6.17-gd588fcbe #211) 
+> 	EIP is at usbdev_open+0xb4/0x1ec
+> 	eax: 0bd00005   ebx: 5a5a5a5a   ecx: 5a5a58d2   edx: dd991e4c
+> 	esi: de020bdc   edi: c712da68   ebp: c6eeaee8   esp: c6eeaeac
+> 	ds: 007b   es: 007b   ss: 0068
+> 	Process hid2hci (pid: 3719, threadinfo=c6eea000 task=ddfb8570)
+> 	Stack: c854dc28 dd22cd70 00000000 00000005 c6eeaed4 c016bd39 c6eeaf3c 00000001 
+> 	       c6eea000 00000000 dd22cd70 c6eeaee8 00000000 c050b8a0 dd22cd70 c6eeaf04 
+> 	       c01678a4 c854dc28 c6eeaf04 c854dc28 dd22cd70 00000000 c6eeaf20 c015e424 
+> 	Call Trace:
+> 	 <c0103c46> show_stack_log_lvl+0x85/0x8f  <c0103dc3> show_registers+0x13b/0x1af
+> 	 <c0103fac> die+0x175/0x285  <c011a86d> do_page_fault+0x428/0x522
+> 	 <c0103777> error_code+0x4f/0x54  <c01678a4> chrdev_open+0x11a/0x171
+> 	 <c015e424> __dentry_open+0xc8/0x1ab  <c015e575> nameidata_to_filp+0x1c/0x2e
+> 	 <c015e5b5> do_filp_open+0x2e/0x35  <c015e5fc> do_sys_open+0x40/0xba
+> 	 <c015e6a2> sys_open+0x16/0x18  <c0102c0f> sysenter_past_esp+0x54/0x75
+> 	Code: 00 8b 35 cc 77 61 c0 8b 8e 9c 00 00 00 81 e9 88 01 00 00 eb 16 8b 45 d0 0d 00 00 d0 0b 39 81 94 01 00 00 74 81 8d 8b 78 
+> 	fe ff ff <8b> 99 88 01 00 00 0f 18 03 90 8d 91 88 01 00 00 8d 86 9c 00 00 
+> 	EIP: [<c02a58f8>] usbdev_open+0xb4/0x1ec SS:ESP 0068:c6eeaeac
+> 
+> where that 5a5a5a5a is possibly/probably due to SLAB debugging (it's the 
+> "POISON_INUSE" pattern)
+> 
+> It might have happened before too, of course, I just haven't seen it 
+> before (even though I've had SLAB debugging on all the time on that 
+> machine).
+> 
+> It seems to actually be from usbdev_lookup_minor(), which has been inlined 
+> (damn compiler), and it's the "node.next" access in the
+> 
+> 	list_for_each_entry(device, &usb_device_class->devices, node) {
+> 
+> loop.
+> 
+> Any ideas? 
 
-I'm sorry, but you're being an idiot if you think
-that 16K interrupts per second and forwarding 75K
-pps generate no cpu load. Its just that simple.
-It also means that you've never profiled a kernel
-because you don't understand where the loads are
-generated. You've probably been on too many lists
-with too many people who have no idea what
-they're talking about.
+I saw this once when debugging the usb code, but could never reproduce
+it, so I attributed it to an incomplete build at the time, as a reboot
+fixed it.
 
-The NAPI paper is complete rubbish because its
-based on a principle which no longer exists: that
-is the assumption that you'll get an interrupt
-for every packet. Not only is that hardly ever
-the case, modern controllers (such as Intel's
-GigE controllers) can precisely mitigate the
-interrupts in hardware. You *could* tune this on
-the fly, but there is really no reason to,
-because at low interrupt loads cpu overhead is
-not a concern and lower latencies are preferred.
-You'll never get an interrupt for consecutive
-packets, and since packets usually arrive in
-bursts, the mitigation model works even better
-than if they arrived randomly.
+Is this easy to trigger for you?
 
-With simple tuning the controller is more
-efficient with hardware interrupts. None of the
-arguments in the NAPI paper hold true when using
-a modern GigE controller. 
+thanks,
 
-Of course you folks could never really know that,
-because the tools to measure things don't work,
-and you all seem to be using systems that are so
-kludged up that you don't even know what you're
-measuring.
-
-DT
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+greg k-h

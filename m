@@ -1,98 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932562AbWFVRHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWFVRKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932562AbWFVRHe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 13:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWFVRHe
+	id S932567AbWFVRKr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 13:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWFVRKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 13:07:34 -0400
-Received: from 220-136-216-136.dynamic.hinet.net ([220.136.216.136]:56326 "HELO
-	lynchburg.net") by vger.kernel.org with SMTP id S932559AbWFVRHc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 13:07:32 -0400
-Message-ID: <BFC4B8F8.8EBE04B@lynchburg.net>
-Date: Thu, 22 Jun 2006 17:05:57 +0000
-Reply-To: "timtownsendus2002" <CoreycJGraybto@lynchburg.net>
-From: "tioppolo" <CoreycJGraybto@lynchburg.net>
-User-Agent: Mozilla/5.0 (Macintosh; U; PPC; en-US; rv:1.3.1) Gecko/20030701
-X-Accept-Language: en-us
+	Thu, 22 Jun 2006 13:10:47 -0400
+Received: from web33314.mail.mud.yahoo.com ([68.142.206.129]:21931 "HELO
+	web33314.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751826AbWFVRKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 13:10:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=Cjwh7doi8G4/WG+BeAAi5vISddEO8v1Vo6PvE8tB9l9uyAgI2UdAWb507FEP3appYxR1A+6ay5yQZeTHwUH8BoNaNP17dOfA5jxFOJZf/3buKkPqEvKNy9cQBW403qXiyLv4fMLCCbM8NLUR+oNmjWVmw9ThlTByd8OlF+PB0gU=  ;
+Message-ID: <20060622171045.28489.qmail@web33314.mail.mud.yahoo.com>
+Date: Thu, 22 Jun 2006 10:10:45 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: Dropping Packets in 2.6.17
+To: =?ISO-8859-1?Q?=20=22P=E1draig=22?= Brady <P@draigBrady.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <449AB69C.6090207@draigBrady.com>
 MIME-Version: 1.0
-To: "Sharolyn" <linux-hams@vger.kernel.org>,
-       "Sharilyn Barber" <linux-ipx@vger.kernel.org>,
-       "tivoli" <linux-kernel@vger.kernel.org>,
-       "Shaquana V Parker" <linux-laptop@vger.kernel.org>,
-       "Shantay" <linux-net@vger.kernel.org>,
-       "See Gray" <linux-ppp@vger.kernel.org>,
-       "tj7424" <linux-raid@vger.kernel.org>,
-       "Rozanne K Brown" <linux-scsi@vger.kernel.org>
-Subject: Investment Idea
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The energy sector is hot and growing. Keep your monitors on DPER for
-substantial long-term profits. 
 
 
-Deep Earth Resources, Inc (DPER.PK) 
+--- Pádraig Brady <P@draigBrady.com> wrote:
 
-Current: 
-6/21/2006 2:21pm (ET)
-Last Trade: 	0.0085
-Day High: 	0.0085
-Day Low: 	0.007
-Net Change: 	0.00
-Volume: 	422850
+> Danial Thom wrote:
+> > 
+> > --- Pádraig Brady <P@draigBrady.com> wrote:
+> > 
+> >>For reference with 2.4.20 on a dual 3.4GHz
+> xeon
+> >>and 2 x e1000 cards, I was able to capture,
+> >>classify and do statistical calculations
+> >>on 625Kpps per interface (1.3 million pps).
+> > 
+> > Unfortunately I can do that much with FreeBSD
+> 4.x
+> > with 1 2.0Ghz opteron, so its not a very
+> > compelling case to have to spend twice as
+> much on
+> > hardware to use LINUX. However 2.4 seemed
+> much
+> > better than 2.6 in this regard. 2.6 wants to
+> drop
+> > a lot more packets. The goal of using 2.6 is
+> to
+> > utilize DP better, but it obviously has to
+> > perform better than a UP Freebsd box.
+> 
+> NC.
+> 
+> > What ITR setting are using for the e1000
+> driver?
+> 
+> I didn't use ITR, I used NAPI.
+> 
 
-Goals:
-Short Term: 0.009
-Long Term: 0.016
+If thats the case then your "system" would have
+the same problem that I'm encountering, since
+polling results in buckets of packets being
+dropped with heavy userland activity.
 
-Deep Earth Resources major Focuses:
-    * Oil and Gas Exploration and Production
-    * Mining
-    * Midstream (gathering, processing, transmission and storage) Refining
-    * Oilfield Services
-    * Power Generation and Energy Infrastructure
-    * Alternative Power
-    * Energy Technologies
-    * International Energy Opportunities in all sub-sectors
+Since you can control exactly how many interrupts
+are generated and how often, there should be no
+advantage to polling,  unless LINUX interrupt
+processing is badly broken, which seems like a
+strong possibility.
 
-The firm is an experienced partner to entrepreneurs starting new companies,
-including those exploring for hydrocarbons, and has financed growth
-investments and buy-out opportunities. Even in times of volatile commodity
-prices, regulatory change and technological displacement, Deep Earth
-Resources has remained committed to the sector. The firm has also developed
-the Line of Equity, a multi-year funding commitment that enables management
-teams to take advantage of opportunities and focus on operations. We believe
-our scale, scope and steadfast approach to investing allow us to continue to
-be the leading source of private equity capital for exceptional management
-teams in the energy and natural resources sectors.
+This should work quite naturally without having
+to use kludges like polling, enormous receive
+rings or memory cheating. 
 
+DT
 
-With each share being sold for as little as 0.007.  This is a great
-opportunity to make a great profit off a small investment.
-
-
-Deep Earth Resources, is a leading player in the international venture
-capital arena. This unique VC spans the continents to the benefit of its
-investors and portfolio companies.Deep Earth Resources is focused on
-creating a network of strategic business alliances and corporate
-partnerships in order to identify and capitalize on emerging market
-opportunities. The Company's plan involves acquiring both majority and
-minority interests in various business operations in the commodities market
-that will prove beneficial to the Company's bottom line and shareholder
-value.
-
-Deep Earth Resources will establish a global network of business
-relationships and strategic partners. This network will provide unparalleled
-opportunities for companies by facilitating potential growth and leveraging
-strategic partnerships throughout the world. 
-
-
--Where are the guards? -Showing them the way. Praying at the porcelain
-altar There was an accident, Lord Chin. Press into service I said after you!
-Prick up your ears
-
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

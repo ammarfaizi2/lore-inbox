@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161081AbWFVLzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161088AbWFVL4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161081AbWFVLzT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 07:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbWFVLzT
+	id S1161088AbWFVL4d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 07:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161089AbWFVL4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 07:55:19 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:29410 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161089AbWFVLzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 07:55:18 -0400
-Subject: Re: Dropping Packets in 2.6.17
-From: Arjan van de Ven <arjan@infradead.org>
-To: danial_thom@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060622113147.3496.qmail@web33304.mail.mud.yahoo.com>
-References: <20060622113147.3496.qmail@web33304.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 22 Jun 2006 13:55:16 +0200
-Message-Id: <1150977316.3120.26.camel@laptopd505.fenrus.org>
+	Thu, 22 Jun 2006 07:56:33 -0400
+Received: from relay4.ptmail.sapo.pt ([212.55.154.24]:54744 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S1161088AbWFVL4c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 07:56:32 -0400
+X-AntiVirus: PTMail-AV 0.3-0.88.2
+Subject: Re: how I know if a interrupt is ioapic_edge_type or 
+	ioapic_level_type? [Was Re: [Fwd: Re: [Linux-usb-users] Fwd: Re:
+	2.6.17-rc6-mm2 - USB issues]]
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: kernel@agotnes.com, akpm@osdl.org, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
+       linux-usb-devel@lists.sourceforge.net, stern@rowland.harvard.edu,
+       cw@f00f.org, vsu@altlinux.ru
+In-Reply-To: <20060621210817.74b6b2bc.rdunlap@xenotime.net>
+References: <44953B4B.9040108@agotnes.com> <4497DA3F.80302@agotnes.com>
+	 <20060620044003.4287426d.akpm@osdl.org> <4499245C.8040207@agotnes.com>
+	 <1150936606.2855.21.camel@localhost.portugal>
+	 <20060621174754.159bb1d0.rdunlap@xenotime.net>
+	 <1150938288.3221.2.camel@localhost.portugal>
+	 <20060621210817.74b6b2bc.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=utf-8
+Date: Thu, 22 Jun 2006 12:56:25 +0100
+Message-Id: <1150977386.2859.34.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-22 at 04:31 -0700, Danial Thom wrote:
-> I'm trying to make a case for using linux as a
-> network appliance, but I can't find any
-> combination of settings that will keep it from
-> dropping packets at an unacceptably high rate.
-> The test system is a 1.8Ghz Opteron with intel
-> gigE cards running 2.6.17. I'm passing about 70K
-> pps through the box, which is a light load, but
-> userland activities (such as building a kernel)
-> cause it to lose packets, even with backlog set
-> to 20000. I had the same problem with 2.6.12 and
-> abandoned the effort. Has anything been done
-> since to give priority to networking? You can't
-> have a network appliance drop packets when some
-> application is gathering stats or a user is
-> looking at a graph. What tunings are available?
+On Wed, 2006-06-21 at 21:08 -0700, Randy.Dunlap wrote:
+> 
+> If you have a specific issue/problem, it would probably be
+> better just to focus on that. 
 
-Hi Danial,
+on linux-2.6.17/drivers/pci/quirks.c	
 
-the most likely tunable that will help you is
+  * we must mask the PCI_INTERRUPT_LINE value versus 0xf to get
+  * interrupts delivered properly.
+  */
 
-/proc/sys/vm/min_free_kbytes
+ static void quirk_via_irq(struct pci_dev *dev)
+ {
+ 	u8 irq, new_irq;
 
-For the router kind of device that one usually needs bumping a bit;
-without the bumping the VM doesn't see enough "normal" activity to tune
-it's emergency/interrupt handling buffers (and most networking
-allocations happen in interrupt context), and then ends up failing
-allocations in interrupt context, which leads to dropped packets.
+I want here put something like:  if ( dev->irq != XT-PIC) return and don't quirk this dev.
+ 	else 
 
-Greetings,
-   Arjan van de Ven
+	new_irq = dev->irq & 0xf;
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
+ 
+
+--
+Sérgio M. B.
 

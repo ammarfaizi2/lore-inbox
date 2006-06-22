@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932647AbWFVV1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932650AbWFVV1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932647AbWFVV1S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbWFVV1R
+	id S932650AbWFVV1J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbWFVV1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:27:17 -0400
-Received: from 1wt.eu ([62.212.114.60]:12553 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S932647AbWFVV1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:27:16 -0400
-Date: Thu, 22 Jun 2006 23:24:00 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.4.33-rc1] updated patch kit for gcc-4.1.1
-Message-ID: <20060622212400.GA2388@1wt.eu>
-References: <200606172052.k5HKq5IX002958@harpo.it.uu.se> <20060617213824.GE13255@w.ods.org> <20060622164138.GI9111@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060622164138.GI9111@stusta.de>
-User-Agent: Mutt/1.5.11
+	Thu, 22 Jun 2006 17:27:09 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:43126 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932645AbWFVV1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 17:27:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=BoYldoS0kmmt3q+iRMvb9PfrMdm7vj31ezYxEzgeThI6t3pAAyoHmA+WbjSs/cOB72DN2js40Z1aUTFxSZn/BJ9zDZLZnYJC6LXnTvep/XJw3cs4n96r/oJQAtH/uGRpTTXculzO/L87/Uns3iRI5+SmhsV/HiTZe3cx8qW50HU=
+Message-ID: <449B0B19.9000901@gmail.com>
+Date: Thu, 22 Jun 2006 23:26:26 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Mattia Dongili <malattia@linux.it>, Jiri Slaby <jirislaby@gmail.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       linux-pm@osdl.org, pavel@suse.cz
+Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
+References: <20060622202952.GA14135@kroah.com>
+In-Reply-To: <20060622202952.GA14135@kroah.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
-
-On Thu, Jun 22, 2006 at 06:41:38PM +0200, Adrian Bunk wrote:
-> On Sat, Jun 17, 2006 at 11:38:24PM +0200, Willy Tarreau wrote:
-> > Hi Mikael,
-> > 
-> > On Sat, Jun 17, 2006 at 10:52:05PM +0200, Mikael Pettersson wrote:
-> > > An updated patch kit allowing gcc-4.1.1 to compile the 2.4.33-rc1 kernel is now available:
-> > > <http://user.it.uu.se/~mikpe/linux/patches/2.4/patch-gcc4-fixes-v15-2.4.33-rc1>
-> > > 
-> > > Changes since the previously announced version of the patch kit
-> > > <http://marc.theaimsgroup.com/?l=linux-kernel&m=114149697417107&w=2>:
-> > > 
-> > > - Merged the fixes for gcc-4.1 into the baseline patch kit for gcc-4.0.
-> > > - I previously reported that gcc-4.1.0 built ppc32 kernels that oopsed
-> > >   in shrink_dcache_parent(). gcc-4.1.1 fixed this issue.
-> > > - The architectures known to work in kernel 2.4.33-rc1 + this patch kit
-> > >   with gcc-4.1.1 and gcc-4.0.3 are i386, x86-64, and ppc32.
-> > 
-> > Thanks for still maintaining this patchset. I sometimes have coworkers
-> > complain that they cannot build 2.4 anymore because they have let their
-> > distro automatically upgarde gcc to 4.x. I will be able to point your
+Greg KH napsal(a):
+> Mattai and Jiri, can you try the patch below to see if it fixes the USB
+> suspend problem you are seeing with 2.6.17-mm1?
 > 
-> Which distribution does both support kernel 2.4 and no longer ship a 
-> compiler capable of compiling kernel 2.4?
+> David, we really should not be caring about what the children of a USB
+> device is doing here, as who knows what type of "device" might hang off
+> of a struct usb_device.  This patch is just a band-aid around this area,
+> until Alan's patches fix up everything "properly" :)
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -----------------------------
+> Subject: USB: get USB suspend to work again
+> 
+> Yeah, it's a hack, but it is only temporary until Alan's patches
+> reworking this area make it in.  We really should not care what devices
+> below us are doing, especially when we do not really know what type of
+> devices they are.  This patch relies on the fact that the endpoint
+> devices do not have a driver assigned to us.
+> 
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> ---
+>  drivers/usb/core/usb.c |    2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> --- gregkh-2.6.orig/drivers/usb/core/usb.c
+> +++ gregkh-2.6/drivers/usb/core/usb.c
+> @@ -991,6 +991,8 @@ void usb_buffer_unmap_sg (struct usb_dev
+>  
+>  static int verify_suspended(struct device *dev, void *unused)
+>  {
+> +	if (dev->driver == NULL)
+> +		return 0;
+>  	return (dev->power.power_state.event == PM_EVENT_ON) ? -EBUSY : 0;
+>  }
+>  
 
-It's not that they no longer ship it, it's that when they're not careful
-enough about their updates an rely on the "testing" tree, they get their
-compiler automatically upgraded to 4.0. At least from what I've been told,
-since I don't use this distro myself. They always have the option to reinstall
-an older one but it's not intuitive to them at first glance. Fortunately,
-there's a clear error message now.
+Yeah, it works just fine.
 
-Regards,
-Willy
+regards,
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E
 

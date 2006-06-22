@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030643AbWFVQiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWFVQlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030643AbWFVQiN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 12:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030645AbWFVQiN
+	id S932153AbWFVQlk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 12:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbWFVQlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 12:38:13 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:41885 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030643AbWFVQiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 12:38:13 -0400
-Date: Thu, 22 Jun 2006 09:37:39 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       David Miller <davem@davemloft.net>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 6/6] mm: remove some update_mmu_cache() calls
-In-Reply-To: <Pine.LNX.4.64.0606221646000.4977@blonde.wat.veritas.com>
-Message-ID: <Pine.LNX.4.64.0606220935130.28760@schroedinger.engr.sgi.com>
-References: <20060619175243.24655.76005.sendpatchset@lappy>
- <20060619175347.24655.67680.sendpatchset@lappy>
- <Pine.LNX.4.64.0606221646000.4977@blonde.wat.veritas.com>
+	Thu, 22 Jun 2006 12:41:40 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11283 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932153AbWFVQlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 12:41:40 -0400
+Date: Thu, 22 Jun 2006 18:41:38 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.4.33-rc1] updated patch kit for gcc-4.1.1
+Message-ID: <20060622164138.GI9111@stusta.de>
+References: <200606172052.k5HKq5IX002958@harpo.it.uu.se> <20060617213824.GE13255@w.ods.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060617213824.GE13255@w.ods.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006, Hugh Dickins wrote:
+On Sat, Jun 17, 2006 at 11:38:24PM +0200, Willy Tarreau wrote:
+> Hi Mikael,
+> 
+> On Sat, Jun 17, 2006 at 10:52:05PM +0200, Mikael Pettersson wrote:
+> > An updated patch kit allowing gcc-4.1.1 to compile the 2.4.33-rc1 kernel is now available:
+> > <http://user.it.uu.se/~mikpe/linux/patches/2.4/patch-gcc4-fixes-v15-2.4.33-rc1>
+> > 
+> > Changes since the previously announced version of the patch kit
+> > <http://marc.theaimsgroup.com/?l=linux-kernel&m=114149697417107&w=2>:
+> > 
+> > - Merged the fixes for gcc-4.1 into the baseline patch kit for gcc-4.0.
+> > - I previously reported that gcc-4.1.0 built ppc32 kernels that oopsed
+> >   in shrink_dcache_parent(). gcc-4.1.1 fixed this issue.
+> > - The architectures known to work in kernel 2.4.33-rc1 + this patch kit
+> >   with gcc-4.1.1 and gcc-4.0.3 are i386, x86-64, and ppc32.
+> 
+> Thanks for still maintaining this patchset. I sometimes have coworkers
+> complain that they cannot build 2.4 anymore because they have let their
+> distro automatically upgarde gcc to 4.x. I will be able to point your
 
-> The answer I expect is that update_mmu_cache is essential there in
-> do_wp_page (reuse case) and handle_pte_fault, on at least some if
-> not all of those arches which implement it.  That without those
-> lines, they'll fault and refault endlessly, since the "MMU cache"
-> has not been updated with the write permission.
+Which distribution does both support kernel 2.4 and no longer ship a 
+compiler capable of compiling kernel 2.4?
 
-Yes a likely scenario.
- 
-> But omitted from mprotect, since that's dealing with a batch of
-> pages, perhaps none of which will be faulted in the near future:
-> a waste of resources to update for all those entries.
+> site to them. I was also thinking about updating my page on "linux
+> kernel useful patches" with this last update, but noticed you still have
+> a "patch-more-gcc4-fixes" file. Is it absolutely needed or just a cleanup ?
+> 
+> > /Mikael
+> 
+> Regards,
+> Willy
 
-So we intentially allow mprotect to be racy?
+cu
+Adrian
 
-> But now I wonder, why does do_wp_page reuse case flush_cache_page?
+-- 
 
-Some arches may have virtual caches?
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

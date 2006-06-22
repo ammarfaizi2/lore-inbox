@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751828AbWFVPxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751827AbWFVPyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751828AbWFVPxU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 11:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWFVPxU
+	id S1751827AbWFVPyK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 11:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751832AbWFVPyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 11:53:20 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:42971 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751827AbWFVPxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 11:53:19 -0400
-Date: Thu, 22 Jun 2006 17:53:17 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Nathan Lynch <ntl@pobox.com>
+	Thu, 22 Jun 2006 11:54:10 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:35793 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1751827AbWFVPyI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 11:54:08 -0400
+Date: Thu, 22 Jun 2006 16:54:06 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Franck <vagabon.xyz@gmail.com>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 6/6] cpu_relax(): ptrace.c coding style fix
-Message-ID: <20060622155317.GA9746@rhlx01.fht-esslingen.de>
-References: <20060621210046.GF22516@rhlx01.fht-esslingen.de> <20060622143223.GK16029@localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060622143223.GK16029@localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+Subject: Re: 2.6.17-mm1
+In-Reply-To: <449ABC3E.5070609@innova-card.com>
+Message-ID: <Pine.LNX.4.64.0606221649070.5869@skynet.skynet.ie>
+References: <20060621034857.35cfe36f.akpm@osdl.org> <449AB01A.5000608@innova-card.com>
+ <Pine.LNX.4.64.0606221617420.5869@skynet.skynet.ie> <449ABC3E.5070609@innova-card.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 09:32:23AM -0500, Nathan Lynch wrote:
-> Andreas Mohr wrote:
-> > 
-> > Fix existing cpu_relax() loop to have proper kernel style.
-> > 
-> 
-> ...
-> 
-> > @@ -182,9 +182,8 @@
-> >  	if (!write_trylock(&tasklist_lock)) {
-> >  		local_irq_enable();
-> >  		task_unlock(task);
-> > -		do {
-> > +		while (!write_can_lock(&tasklist_lock))
-> >  			cpu_relax();
-> > -		} while (!write_can_lock(&tasklist_lock));
-> 
-> This is a change in behavior, not just style.  (And there is nothing
-> wrong with the current style.)
+On Thu, 22 Jun 2006, Franck Bui-Huu wrote:
 
-Ick, right, this could cause the new state to be visible in the 2nd iteration
-only.
+> Mel Gorman wrote:
+>> On Thu, 22 Jun 2006, Franck Bui-Huu wrote:
+>>>
+>>> Should ARCH_PFN_OFFSET macro be used instead in order to make pfn/page
+>>> convertions work when node 0 start offset do not start at 0 ?
+>>>
+>>
+>> What happens if you have ARCH_PFN_OFFSET as
+>>
+>> #define ARCH_PFN_OFFSET (0UL)
+>>
+>> ?
+>
+> It's the default value (see memory_model.h). It means that pfn start
+> for node 0 is 0, therefore your physical memory address starts at 0.
+>
 
-Thanks! Discard this change please.
+I know, but what I'm getting at is that ARCH_PFN_OFFSET may be unnecessary 
+with flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch applied. 
+ARCH_PFN_OFFSET is used as
 
-Andreas Mohr
+#define page_to_pfn(page)       ((unsigned long)((page) - mem_map) + \
+                                  ARCH_PFN_OFFSET)
+
+because it knew that the map may not start at PFN 0. With 
+flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch, the map will 
+start at PFN 0 even if physical memory does not start until later.
+
+>>
+>> What arch is this?
+>>
+>
+> well I'm working on MIPS, but you can take a look at ARM that does the
+> same thing better...
+>
+>>> My physical memory start at 0x20000000. So node 0 starts at an offset
+>>> different from 0. I setup ARCH_PFN_OFFSET this way
+>>>
+>>>     #define ARCH_PFN_OFFSET    (0x20000000 << PAGE_SHIFT)
+>>>
+>>
+>> If physical memory starts at 0x20000000, why is the PFN not
+>> 0x20000000 >> PAGE_SHIFT ?
+>>
+>
+> It is a typo...
+>
+
+ok
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

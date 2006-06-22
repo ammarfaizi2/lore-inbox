@@ -1,69 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030587AbWFVDIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030590AbWFVDJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030587AbWFVDIL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 23:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030588AbWFVDIL
+	id S1030590AbWFVDJg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 23:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030588AbWFVDJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 23:08:11 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:42237 "EHLO
+	Wed, 21 Jun 2006 23:09:36 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:45310 "EHLO
 	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1030587AbWFVDIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 23:08:10 -0400
-Message-ID: <449A0967.2020701@ak.jp.nec.com>
-Date: Thu, 22 Jun 2006 12:07:19 +0900
+	id S1030590AbWFVDJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 23:09:35 -0400
+Message-ID: <449A09E2.1030607@ak.jp.nec.com>
+Date: Thu, 22 Jun 2006 12:09:22 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
 Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, linux-kernel@vger.kernel.org
 Subject: Re: Add pacct_struct to fix some pacct bugs.
-References: <449794BB.8010108@ak.jp.nec.com> <20060619234212.b95e5734.akpm@osdl.org> <4497A34C.2000104@ak.jp.nec.com>
-In-Reply-To: <4497A34C.2000104@ak.jp.nec.com>
+References: <449794BB.8010108@ak.jp.nec.com> <20060619234212.b95e5734.akpm@osdl.org> <4497A34C.2000104@ak.jp.nec.com> <449A0967.2020701@ak.jp.nec.com>
+In-Reply-To: <449A0967.2020701@ak.jp.nec.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The seriese of patches fixes some process accounting bugs.
-
-[PATCH 1/3] two phase process accounting
-[PATCH 2/3] avoidance to refer the last thread as a representation
-             of the process
-[PATCH 3/3] none-delayed process accounting accumulation
-
-* background of the patch.1
-
-     The pacct facility need an i/o operation when an accounting record
-     is generated. There is a possibility to wake OOM killer up.
-     If OOM killer is activated, it kills some processes to make them
-     release process memory regions.
-     But acct_process() is called in the killed processes context
-     before calling exit_mm(), so those processes cannot release
-     own memory. In the results, any processes stop in this point and
-     it finally cause a system stall.
-
-     ---- in kernel/exit.c : do_exit() ------------
-             group_dead = atomic_dec_and_test(&tsk->signal->live);
-             if (group_dead) {
-                     hrtimer_cancel(&tsk->signal->real_timer);
-                     exit_itimers(tsk->signal);
-                     acct_process(code);
-             }
-                :
-            - snip -
-                :
-             exit_mm(tsk);
-     ----------------------------------------------
-
-     This patch separates generating an accounting record facility
-     into two-phase.
-     In the first one, acct_collect() calculate vitual memory size
-     of the process and stores it into pacct_struct before exit_mm().
-     Then, acct_process() generates an accounting record and write
-     it into medium.
-
-
-* background of the patch.2
+     [PACCT] avoidance to refer the last thread as a representation of the process
 
      When pacct facility generate an 'ac_flag' field in accounting record,
      it refers a task_struct of the thread which died last in the process.
@@ -101,137 +62,233 @@ The seriese of patches fixes some process accounting bugs.
      - AFORK flag is marked if only group leader thread satisfy
        the condition.
 
+     Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
 
-* background of the patch.3
+diff --git a/include/linux/acct.h b/include/linux/acct.h
+index 6753687..879d441 100644
+--- a/include/linux/acct.h
++++ b/include/linux/acct.h
+@@ -122,20 +122,20 @@ struct acct_v3
+  struct vfsmount;
+  struct super_block;
+  extern void acct_auto_close_mnt(struct vfsmount *m);
+  extern void acct_auto_close(struct super_block *sb);
+  extern void acct_init_pacct(struct pacct_struct *pacct);
+-extern void acct_collect();
+-extern void acct_process(long exitcode);
++extern void acct_collect(long exitcode, int group_dead);
++extern void acct_process(void);
+  extern void acct_update_integrals(struct task_struct *tsk);
+  extern void acct_clear_integrals(struct task_struct *tsk);
+  #else
+  #define acct_auto_close_mnt(x)	do { } while (0)
+  #define acct_auto_close(x)	do { } while (0)
+  #define acct_init_pacct(x)	do { } while (0)
+-#define acct_collect()		do { } while (0)
+-#define acct_process(x)		do { } while (0)
++#define acct_collect(x,y)	do { } while (0)
++#define acct_process()		do { } while (0)
+  #define acct_update_integrals(x)		do { } while (0)
+  #define acct_clear_integrals(task)	do { } while (0)
+  #endif
 
-     In current 2.6.17 implementation, signal_struct refered from task_struct
-     is used for per-process data structure. The pacct facility also uses it
-     as a per-process data structure to store stime, utime, minflt, majflt.
-     But those members are saved in __exit_signal(). It's too late.
+  /*
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 918fdda..6905ac0 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -357,10 +357,12 @@ struct sighand_struct {
+  	struct k_sigaction	action[_NSIG];
+  	spinlock_t		siglock;
+  };
 
-     For example, if some threads exits at same time, pacct facility has
-     a possibility to drop accountings for a part of those threads.
-     (see, the following 'The results of original 2.6.17 kernel')
-     I think accounting information should be completely collected into
-     the per-process data structure before writing out an accounting record.
+  struct pacct_struct {
++	int			ac_flag;
++	long			ac_exitcode;
+  	unsigned long		ac_mem;
+  };
 
-     This patch fixes this matter. Accumulation of stime, utime, minflt
-     and majflt are done before generating accounting record.
+  /*
+   * NOTE! "signal_struct" does not have it's own
+diff --git a/kernel/acct.c b/kernel/acct.c
+index f1a4e12..7111fe7 100644
+--- a/kernel/acct.c
++++ b/kernel/acct.c
+@@ -73,11 +73,11 @@ int acct_parm[3] = {4, 2, 30};
+  #define ACCT_TIMEOUT	(acct_parm[2])	/* foo second timeout between checks */
+
+  /*
+   * External references and all of the globals.
+   */
+-static void do_acct_process(long, struct file *);
++static void do_acct_process(struct file *);
+
+  /*
+   * This structure is used so that all the data protected by lock
+   * can be placed in the same cache line as the lock.  This primes
+   * the cache line to have the data after getting the lock.
+@@ -194,11 +194,11 @@ static void acct_file_reopen(struct file
+  		add_timer(&acct_globals.timer);
+  	}
+  	if (old_acct) {
+  		mnt_unpin(old_acct->f_vfsmnt);
+  		spin_unlock(&acct_globals.lock);
+-		do_acct_process(0, old_acct);
++		do_acct_process(old_acct);
+  		filp_close(old_acct, NULL);
+  		spin_lock(&acct_globals.lock);
+  	}
+  }
+
+@@ -417,11 +417,11 @@ static u32 encode_float(u64 value)
+   */
+
+  /*
+   *  do_acct_process does all actual work. Caller holds the reference to file.
+   */
+-static void do_acct_process(long exitcode, struct file *file)
++static void do_acct_process(struct file *file)
+  {
+  	struct pacct_struct *pacct = &current->signal->pacct;
+  	acct_t ac;
+  	mm_segment_t fs;
+  	unsigned long flim;
+@@ -494,30 +494,22 @@ static void do_acct_process(long exitcod
+  	read_lock(&tasklist_lock);	/* pin current->signal */
+  	ac.ac_tty = current->signal->tty ?
+  		old_encode_dev(tty_devnum(current->signal->tty)) : 0;
+  	read_unlock(&tasklist_lock);
+
+-	ac.ac_flag = 0;
+-	if (current->flags & PF_FORKNOEXEC)
+-		ac.ac_flag |= AFORK;
+-	if (current->flags & PF_SUPERPRIV)
+-		ac.ac_flag |= ASU;
+-	if (current->flags & PF_DUMPCORE)
+-		ac.ac_flag |= ACORE;
+-	if (current->flags & PF_SIGNALED)
+-		ac.ac_flag |= AXSIG;
+  	spin_lock(&current->sighand->siglock);
++	ac.ac_flag = pacct->ac_flag;
+  	ac.ac_mem = encode_comp_t(pacct->ac_mem);
++	ac.ac_exitcode = pacct->ac_exitcode;
+  	spin_unlock(&current->sighand->siglock);
+  	ac.ac_io = encode_comp_t(0 /* current->io_usage */);	/* %% */
+  	ac.ac_rw = encode_comp_t(ac.ac_io / 1024);
+  	ac.ac_minflt = encode_comp_t(current->signal->min_flt +
+  				     current->min_flt);
+  	ac.ac_majflt = encode_comp_t(current->signal->maj_flt +
+  				     current->maj_flt);
+  	ac.ac_swaps = encode_comp_t(0);
+-	ac.ac_exitcode = exitcode;
+
+  	/*
+           * Kernel segment override to datasegment and write it
+           * to the accounting file.
+           */
+@@ -542,17 +534,19 @@ void acct_init_pacct(struct pacct_struct
+  	memset(pacct, 0, sizeof(struct pacct_struct));
+  }
+
+  /**
+   * acct_collect - collect accounting information into pacct_struct
++ * @exitcode: task exit code
++ * @group_dead: not 0, if this thread is the last one in the process.
+   */
+-void acct_collect(void)
++void acct_collect(long exitcode, int group_dead)
+  {
+  	struct pacct_struct *pacct = &current->signal->pacct;
+  	unsigned long vsize = 0;
+
+-	if (current->mm) {
++	if (group_dead && current->mm) {
+  		struct vm_area_struct *vma;
+  		down_read(&current->mm->mmap_sem);
+  		vma = current->mm->mmap;
+  		while (vma) {
+  			vsize += vma->vm_end - vma->vm_start;
+@@ -560,21 +554,33 @@ void acct_collect(void)
+  		}
+  		up_read(&current->mm->mmap_sem);
+  	}
+
+  	spin_lock(&current->sighand->siglock);
+-	pacct->ac_mem = vsize / 1024;
++	if (group_dead)
++		pacct->ac_mem = vsize / 1024;
++	if (thread_group_leader(current)) {
++		pacct->ac_exitcode = exitcode;
++		if (current->flags & PF_FORKNOEXEC)
++			pacct->ac_flag |= AFORK;
++	}
++	if (current->flags & PF_SUPERPRIV)
++		pacct->ac_flag |= ASU;
++	if (current->flags & PF_DUMPCORE)
++		pacct->ac_flag |= ACORE;
++	if (current->flags & PF_SIGNALED)
++		pacct->ac_flag |= AXSIG;
+  	spin_unlock(&current->sighand->siglock);
+  }
+
+  /**
+   * acct_process - now just a wrapper around do_acct_process
+   * @exitcode: task exit code
+   *
+   * handles process accounting for an exiting task
+   */
+-void acct_process(long exitcode)
++void acct_process()
+  {
+  	struct file *file = NULL;
+
+  	/*
+  	 * accelerate the common fastpath:
+@@ -589,11 +595,11 @@ void acct_process(long exitcode)
+  		return;
+  	}
+  	get_file(file);
+  	spin_unlock(&acct_globals.lock);
+
+-	do_acct_process(exitcode, file);
++	do_acct_process(file);
+  	fput(file);
+  }
 
 
-* accounting results
+  /**
+diff --git a/kernel/exit.c b/kernel/exit.c
+index 54bdbd9..9d395c7 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -893,12 +893,12 @@ fastcall NORET_TYPE void do_exit(long co
+  	}
+  	group_dead = atomic_dec_and_test(&tsk->signal->live);
+  	if (group_dead) {
+   		hrtimer_cancel(&tsk->signal->real_timer);
+  		exit_itimers(tsk->signal);
+-		acct_collect();
+  	}
++	acct_collect(code, group_dead);
+  	if (unlikely(tsk->robust_list))
+  		exit_robust_list(tsk);
+  #ifdef CONFIG_COMPAT
+  	if (unlikely(tsk->compat_robust_list))
+  		compat_exit_robust_list(tsk);
+@@ -906,11 +906,11 @@ fastcall NORET_TYPE void do_exit(long co
+  	if (unlikely(tsk->audit_context))
+  		audit_free(tsk);
+  	exit_mm(tsk);
 
-[in original 2.6.17 cases]
+  	if (group_dead)
+-		acct_process(code);
++		acct_process();
+  	exit_sem(tsk);
+  	__exit_files(tsk);
+  	__exit_fs(tsk);
+  	exit_namespace(tsk);
+  	exit_thread();
 
-# accton acct.log
-# time -p ./bugacct
-real 10.07
-user 5.96
-sys 0.10
-# time -p ./raceacct 4
-real 6.92
-user 27.22
-sys 0.00
-# time -p ./raceacct 4
-real 7.71
-user 30.14
-sys 0.00
-# time -p ./raceacct 4
-real 6.94
-user 27.21
-sys 0.00
-# time -p ./raceacct 4
-real 6.25
-user 24.42
-sys 0.00
-# time -p ./raceacct 4
-real 6.92
-user 27.22
-sys 0.00
-
--- accounting results --------
-FLAG    BTIME  ETIME  UTIME  STIME     MEM  MINFLT MAJFLT      COMM
--P-- 13:41:16      5       0     0    3072     110      0    accton
-F--- 13:41:35   1006     596     9  143232    8200      0   bugacct *
-F--- 13:41:53    692    2032     0   28528      38      0  raceacct *
----- 13:42:10    771    3014     0   28528     170      0  raceacct
-F--- 13:42:19    694    2027     0   28528       8      0  raceacct *
-F--- 13:42:26    625    1832     0   28528      40      0  raceacct *
----- 13:45:40    692    2722     0   28528     171      0  raceacct
-
-'P' means this process used root privilege operations.
-'F' means this process didn't execve() after fork().
-
-=> bugacct used root privilege operation, but pacct facility droped it.
-=> In raceacct, some threads exit on same time. pacct facility often drops
-    a part of utime, stime, minflt and majflt.
-=> When group leader thread didn't die last in raceacct, incorrent flag 'F'
-    is set.
-
-
-[in patched 2.6.17-kg cases]
-
-# touch acct.log
-# accton acct.log
-# time -p ./bugacct
-real 10.07
-user 5.97
-sys 0.09
-# time -p ./raceacct 4
-real 7.11
-user 27.76
-sys 0.00
-# time -p ./raceacct 4
-real 6.93
-user 27.18
-sys 0.00
-# time -p ./raceacct 4
-real 7.11
-user 27.76
-sys 0.00
-# time -p ./raceacct 4
-real 7.12
-user 27.77
-sys 0.00
-# time -p ./raceacct 4
-real 6.92
-user 27.17
-sys 0.00
-
--- accounting results --------
-FLAG    BTIME  ETIME  UTIME  STIME     MEM  MINFLT MAJFLT      COMM
--P-- 13:24:01      0      0      0    3072     111      0    accton
--P-- 13:24:05   1007    597      8  143232    8360      0   bugacct
----- 13:24:35    711   2776      0   28528     171      0  raceacct
----- 13:24:44    693   2718      0   28528     172      0  raceacct
----- 13:24:51    711   2776      0   28528     172      0  raceacct
----- 13:25:05    712   2777      0   28528     174      0  raceacct
----- 13:25:14    692   2717      0   28528     171      0  raceacct
-
-I hope your any comments. Thanks,
-
-KaiGai Kohei wrote:
- >>> Hi, I noticed three problems in pacct facility.
- >>>
- >>> 1. Pacct facility has a possibility to write incorrect ac_flag
- >>>    in multi-threading cases.
- >>> 2. There is a possibility to be waken up OOM Killer from
- >>>    pacct facility. It will cause system stall.
- >>> 3. If several threads are killed at same time, There is
- >>>    a possibility not to pick up a part of those accountings.
- >>>
- >>> The attached patch will resolve those matters.
- >>> Any comments please. Thanks,
- >>
- >> Thanks, but you have three quite distinct bugs here, and three quite
- >> distinct descriptions and, I think, three quite distinct fixes.
- >>
- >> Would it be possible for you to prepare three patches?
- >
- > It may be possible. Please wait for a while to separate it into
- > three-part and to confirm its correct behavior.
- >
- > Thanks,
 -- 
 Open Source Software Promotion Center, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>

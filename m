@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161060AbWFVKuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWFVKwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161060AbWFVKuH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 06:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161061AbWFVKuH
+	id S1751424AbWFVKwj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 06:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbWFVKwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 06:50:07 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:58178 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161060AbWFVKuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 06:50:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=mst7ST63HZc42YX450GfKiyGiB+qFzd5HDDi6Re18Gj4j5JZ5pOzrPFts5OWLhZnC7S4hEogbGBX/dFzI1+EZFli1BsFBs9hvBBmRuauX+P8UNt2Cmx+coXja7dnhSclPgmAdMbY76bVjoi1khYzsAXqSJPB9ePxAKY0ITF8Y3Y=
-Message-ID: <449A75D6.7010200@gmail.com>
-Date: Thu, 22 Jun 2006 18:49:58 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Edgar Hucek <hostmaster@ed-soft.at>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/1] New Framebuffer for Intel based Macs [try #3]
-References: <4499A25A.1020508@ed-soft.at>
-In-Reply-To: <4499A25A.1020508@ed-soft.at>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jun 2006 06:52:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60322 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751527AbWFVKwi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 06:52:38 -0400
+Date: Thu, 22 Jun 2006 06:50:52 -0400
+From: Alan Cox <alan@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, alan@redhat.com,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       linux-ide@vger.kernel.org
+Subject: Re: [-mm patch] make drivers/scsi/pata_pcmcia.c:pcmcia_remove_one() static
+Message-ID: <20060622105052.GB14243@devserv.devel.redhat.com>
+References: <20060621034857.35cfe36f.akpm@osdl.org> <20060621232012.GT9111@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060621232012.GT9111@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edgar Hucek wrote:
-> This patch add a new framebuffer driver for the Intel Based macs.
-> This framebuffer is needed when booting from EFI to get something
-> out the box   ;) 
-> [try #2] Removed unused and untested code in this version of the patch.
-> [try #3] Just cleanup to meet the coding guideline.
+On Thu, Jun 22, 2006 at 01:20:12AM +0200, Adrian Bunk wrote:
+> On Wed, Jun 21, 2006 at 03:48:57AM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.17-rc6-mm2:
+> >...
+> >  git-libata-all.patch
+> >...
+> >  git trees
+> >...
 > 
-> Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
-Acked-by: Antonino Daplas <adaplas@pol.net>
+> This patch makes a needlessly global function static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I'll pick this up if Andrew or Linus doesn't.
+Acked-by: Alan Cox <alan@redhat.com>
 
-Tony
+> 
+> --- linux-2.6.17-mm1-full/drivers/scsi/pata_pcmcia.c.old	2006-06-22 00:43:23.000000000 +0200
+> +++ linux-2.6.17-mm1-full/drivers/scsi/pata_pcmcia.c	2006-06-22 00:43:33.000000000 +0200
+> @@ -294,7 +294,7 @@
+>   *	cleanup. Also called on module unload for any active devices.
+>   */
+>  
+> -void pcmcia_remove_one(struct pcmcia_device *pdev)
+> +static void pcmcia_remove_one(struct pcmcia_device *pdev)
+>  {
+>  	struct ata_pcmcia_info *info = pdev->priv;
+>  	struct device *dev = &pdev->dev;
 
-> +#define	DEFAULT_FB_MEM	1024*1024*16
-
-nitpick: parenthesis around the value?
-
-
-> +
-> +static struct platform_device imacfb_device = {
-> +	.name	= "imacfb",
-> +};
-
-You might update this sometime in the future to use
-platform_device_alloc().
+-- 
+--
+	In Ximian did mad Miguel a mighty mail client decree
+	Where Nat the crazy hacker ran
+	Through sourcecode measureless to man
+	And never coredump free
 

@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161190AbWFVTF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751876AbWFVTHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161190AbWFVTF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 15:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbWFVTF2
+	id S1751876AbWFVTHp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 15:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbWFVTHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 15:05:28 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63379 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1161190AbWFVTF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 15:05:27 -0400
-Date: Thu, 22 Jun 2006 19:47:10 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
-Message-ID: <20060622174710.GC2959@openzaurus.ucw.cz>
-References: <20060619191543.GA17187@rhlx01.fht-esslingen.de> <Pine.LNX.4.61.0606191542050.4926@chaos.analogic.com> <20060619202354.GD26759@redhat.com> <20060619222528.GC1648@openzaurus.ucw.cz> <20060619224130.GA17134@redhat.com>
-Mime-Version: 1.0
+	Thu, 22 Jun 2006 15:07:45 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:54035 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751876AbWFVTHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 15:07:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=UL0HS2ILIniBCmOI6rdDDm1Tp8ghbgfcT20/gDFGPIvxzYIMsZnTrEcdLWSuXPwh8iOjb9VGTaMTvYT1yE3l6RjziJibGN0oGZiB0XiDitXmGL7O6VyB80wa3Kp61aRu2UOZwCzKQK4GL2LLDo1UihLvzGvTlmBAVXD3/Z64ho8=
+Date: Thu, 22 Jun 2006 21:07:41 +0200
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       linux-pm@osdl.org, stern@rowland.harvard.edu
+Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
+Message-ID: <20060622190741.GC2539@slug>
+References: <20060621034857.35cfe36f.akpm@osdl.org> <4499BE99.6010508@gmail.com> <20060621221445.GB3798@inferi.kami.home> <20060622061905.GD15834@kroah.com> <20060622004648.f1912e34.akpm@osdl.org> <20060622160403.GB2539@slug> <20060622092506.da2a8bf4.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060619224130.GA17134@redhat.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20060622092506.da2a8bf4.akpm@osdl.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
->  > > Another anecdote: Upon fan failure, I once had an athlon MP *completely shatter*
->  > > (as in broke in two pieces) under extreme heat.
->  > > 
->  > > This _does_ happen.
->  > 
->  > If it happens to you... you needed a new cpu anyway. Anything non-historical
->  > *has* thermal protection.
+On Thu, Jun 22, 2006 at 09:25:06AM -0700, Andrew Morton wrote:
+> On Thu, 22 Jun 2006 18:04:03 +0200
+> Frederik Deweerdt <deweerdt@free.fr> wrote:
+> > 2.6.17: oops
+> > 2.6.17.1: oops
 > 
-> That's the single dumbest thing I've read today.
-
-Sorry to upset you.
-
-> newsflash: you don't get to dictate when I (or anyone else) buys new hardware.
-> Before its accident, that box happily was my home firewall for 3 years, and
-> its replacement is actually an /older/ box.  I didn't "need a new cpu" at all.
+> 2.6.17 wasn't supposed to oops.  Do you have details on this?
 > 
+No, sorry I didn't have a serial cable handy. I'll post the 
+.config and the oops tomorrow.
 
-Yep, it is bad... broken machines die. And while proposed patches
-probably will not hurt, I do not think they will help, and I do not think
-anyone will ever *test* them.
-
->  > BTW I doubt those old athlons can be saved by cli; hlt . (Someone willing to try if old
->  > athlon can run cli; hlt code w/o heatsink?).
-> 
-> you snipped the important part of my mail.
-> 
-> "cpu_relax() and friends aren't going to save a box"
-> 
-> We have two completely different things being discussed in this thread.
-> 
-> 1. Fan failure, and the possibility to keep running.
-> IMO, there's nothing we can do here, and nor should we try.
-
-Agreed... so you  know that proposed patch would probably not prevent your old
-box from self-destructing?
-
-> 2. Situations where we forcibly lock up and spin the CPU in a tight loop,
-> producing heat.  Given there are CPUs that benefit from cpu_relax()
-> in such places, adding them so that they don't unnecessarily sit there
-> sucking power until someone gets to the datacenter to investigate
-> can only be a good thing.
-
-Are you sure that cpu_relax actually does somenthing on pre-pentium-4 machines?
-
->  > And no, we probably do not want to enter C2 or C3 from doublefault handler.
-> 
-> I didn't see that being proposed.
-
-Good. 
-			Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+Regards,
+Frederik

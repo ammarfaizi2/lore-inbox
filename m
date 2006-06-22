@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWFVAMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbWFVANP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbWFVAMc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 20:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWFVAMc
+	id S1751529AbWFVANP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 20:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWFVANP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 20:12:32 -0400
-Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:43268 "EHLO
-	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
-	id S1751484AbWFVAMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 20:12:31 -0400
-From: "Matt LaPlante" <laplam@rpi.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] Unify CONFIG_LBD and CONFIG_LSF handling
-Date: Wed, 21 Jun 2006 20:11:49 -0400
-Message-ID: <000501c69590$7535fee0$fe01a8c0@cyberdogt42>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 21 Jun 2006 20:13:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:18381 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751498AbWFVANO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 20:13:14 -0400
+Date: Wed, 21 Jun 2006 17:12:52 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm1 : two PF flags with the same value
+Message-Id: <20060621171252.d14e511e.pj@sgi.com>
+In-Reply-To: <4499D8C4.5040304@bigpond.net.au>
+References: <20060621034857.35cfe36f.akpm@osdl.org>
+	<4499D8C4.5040304@bigpond.net.au>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-thread-index: AcaUgnebHZmEK9N7QwWnIJ6L5jyC3ABDdreQ
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-In-Reply-To: <1150819141.2891.214.camel@laptopd505.fenrus.org>
-X-Spam-Processed: mail.cyberdogtech.com, Wed, 21 Jun 2006 20:11:57 -0400
-	(not processed: message from trusted or authenticated source)
-X-Return-Path: laplam@rpi.edu
-X-Envelope-From: laplam@rpi.edu
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: mail.cyberdogtech.com, Wed, 21 Jun 2006 20:11:59 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Arjan van de Ven [mailto:arjan@infradead.org]
-> Sent: Tuesday, June 20, 2006 11:59 AM
-> To: Roman Zippel
-> Cc: Matthew Wilcox; Linus Torvalds; linux-kernel@vger.kernel.org;
-> webmaster@cyberdogtech.com
-> Subject: Re: [PATCH] Unify CONFIG_LBD and CONFIG_LSF handling
-> 
-> 
-> > > Or is that too verbose?
-> >
-> > How likely is it that someone who doesn't understand the question needs
-> > this option? I think N is a safe answer here.
-> 
-> N is not the safe answer; Y is. If you set it to N you can't read all
-> your files (if there is a big one) etc etc.
-> The safe-but-a-bit-slower answer really is Y.
-> 
+> #define PF_SPREAD_SLAB	0x02000000	/* Spread some slab caches over cpuset */
+> ...
+> #define PF_MUTEX_TESTER	0x02000000	/* Thread belongs to the rt mutex 
 
-So should default be changed to Y?  It's currently N for kconfig, despite
-the recommendation to the contrary.
+Thanks for noticing, Peter.
 
+> ahem.   Will fix, thanks.
 
+Good - thanks, Andrew.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

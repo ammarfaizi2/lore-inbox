@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161153AbWFVOi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbWFVOmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161153AbWFVOi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 10:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWFVOi4
+	id S1161146AbWFVOmj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 10:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751804AbWFVOmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 10:38:56 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:57538 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751113AbWFVOiz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 10:38:55 -0400
-Date: Thu, 22 Jun 2006 16:35:44 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Linux/m68k <linux-m68k@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: m68k patch queue
-Message-ID: <Pine.LNX.4.64.0606221216130.12900@scrub.home>
+	Thu, 22 Jun 2006 10:42:39 -0400
+Received: from mail.gmx.net ([213.165.64.21]:65205 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751267AbWFVOmi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 10:42:38 -0400
+X-Authenticated: #9962044
+From: marvin24@gmx.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Using libata for ICH5 PATA
+Date: Thu, 22 Jun 2006 16:42:30 +0200
+User-Agent: KMail/1.9.3
+References: <20060622004811.0009937c@werewolf.auna.net> <200606220807.34373.marvin24@gmx.de> <1150987404.15275.167.camel@localhost.localdomain>
+In-Reply-To: <1150987404.15275.167.camel@localhost.localdomain>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200606221642.31639.marvin24@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Am Thursday 22 June 2006 16:43 schrieben Sie:
+> Ar Iau, 2006-06-22 am 08:07 +0200, ysgrifennodd marvin:
+> > Le Thursday 22 June 2006 02:32, vous avez écrit :
+> > > J.A. Magallón wrote:
+> > > > What do I need to let libata drive the ICH5 pata ?
+> > >
+> > > Probably just ATA_ENABLE_PATA at the top of include/linux/libata.h.
+> >
+> > which doesn't work:
+> >
+> > CC [M]  drivers/scsi/ata_piix.o
+> > drivers/scsi/ata_piix.c:190: error: ‘ich5_pata’ undeclared here (not
+> > in a
+>
+> Already fixed and sent to Jeff. Change ich5_pata pata_ich_133
 
-For anyone interested at http://www.xs4all.nl/~zippel/m68k/ is my current 
-patch queue for 2.6.18, one for current git and one for -mm.
+you probably mean ich_pata_133
 
-Most of the patches are m68k specific and so shouldn't be a big problem.
-Below are the patches which cause a conflict in -mm and where I'd 
-aprreciate feedback the most.
+it compiles now 
 
-One larger merge I finally like to get finished are the thread_info 
-changes, most direct accesses to thread_info are gone by now, but a few 
-sneaked back in:
+thanks 
 
-- 0021-M68K-wrap-thread_info-access-in-mutex.txt
-
-The mutex code is in a constant flux and the simplest fix is to do just do
-s/\(\w*\)->thread_info/task_thread_info(\1)/ with kernel/mutex*c before 
-the following patches are applied.
-Ingo, could you please do this also in your tree/patches?
-
-
-- 0023-M68K-Rename-thread_info.txt
-- 0024-M68K-Rename-alloc-free-_thread_info.txt
-
-There is only a minor conflict with pi-futex-rt-mutex-core.patch, so it's 
-not really a problem.
-
-
-The last part in the queue is a major cleanup of the m68k irq code, which 
-gets it a lot closer to the generic irq code (although it's still a bit 
-different) and results in a nice reduction of duplicated source. There is 
-only one conflict here:
-
-- 0031-M68K-convert-generic-irq-code-to-irq-controller.txt
-
-This one conflicts with adjust-handle_irr_event-return-type.patch and I'm 
-not sure about its status, especially since it's still without any 
-response to the comments. Anyway, here I'd prefer to just drop the m68k 
-specific part from it.
-
-
-bye, Roman
-
+marc

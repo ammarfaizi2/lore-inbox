@@ -1,95 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751819AbWFVTK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751878AbWFVTK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751819AbWFVTK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 15:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWFVTK0
+	id S1751878AbWFVTK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 15:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751879AbWFVTK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 15:10:26 -0400
-Received: from ns.suse.de ([195.135.220.2]:17297 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751819AbWFVTKZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 15:10:25 -0400
-Date: Thu, 22 Jun 2006 12:07:19 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       linux-pm@osdl.org
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-Message-ID: <20060622190719.GA7369@kroah.com>
-References: <20060622004648.f1912e34.akpm@osdl.org> <Pine.LNX.4.44L0.0606221144190.8121-100000@iolanthe.rowland.org> <20060622184649.GA6768@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060622184649.GA6768@kroah.com>
-User-Agent: Mutt/1.5.11
+	Thu, 22 Jun 2006 15:10:28 -0400
+Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:5835 "EHLO
+	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751878AbWFVTK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 15:10:27 -0400
+Date: Thu, 22 Jun 2006 15:10:24 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+       David Quigley <dpquigl@tycho.nsa.gov>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH 2/3] SELinux: add security_task_movememory calls to mm
+ code
+In-Reply-To: <20060622123102.GF27074@sergelap.austin.ibm.com>
+Message-ID: <Pine.LNX.4.64.0606221504370.21897@d.namei>
+References: <Pine.LNX.4.64.0606211517170.11782@d.namei>
+ <Pine.LNX.4.64.0606211730540.12872@d.namei> <Pine.LNX.4.64.0606211734480.12872@d.namei>
+ <20060622123102.GF27074@sergelap.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 11:46:49AM -0700, Greg KH wrote:
-> On Thu, Jun 22, 2006 at 11:51:18AM -0400, Alan Stern wrote:
-> > On Thu, 22 Jun 2006, Andrew Morton wrote:
-> > 
-> > > On Wed, 21 Jun 2006 23:19:05 -0700
-> > > Greg KH <greg@kroah.com> wrote:
-> > > 
-> > > > > I have the same problems also with suspend to disk. BTW I can't resume
-> > > > > from disk since 2.6.17-rc5-mm1, but I'll try to be more precise
-> > > > > tomorrow, as it seems removing the usb stuff makes it do some more steps
-> > > > > toward resumimg (eg: with usb modules this laptop immediately reboots
-> > > > > after reading all pages, without them I can reach "resuming device.."
-> > > > > stage).
-> > > > 
-> > > > Removing uhci-hcd causes all USB devices to be removed from the system.
-> > > > 
-> > > > Alan, you've been working in the "generic usb" section lately, any ideas
-> > > > why we can't suspend that kind of device now?
-> > 
-> > See below...
-> > 
-> > > My laptop has the same problem.
-> > 
-> > > Shrinking memory... done (0 pages freed)
-> > > hci_usb 3-1:1.1: no suspend for driver hci_usb?
-> > > hci_usb 3-1:1.0: no suspend for driver hci_usb?
-> > >  usbdev3.2_ep00: not suspended
-> > > usb_generic_suspend(): verify_suspended+0x0/0x3c() returns -16
-> > > suspend_device(): usb_generic_suspend+0x0/0x134() returns -16
-> > > Could not suspend device 3-1: error -16
-> > > hci_usb 3-1:1.0: no resume for driver hci_usb?
-> > > hci_usb 3-1:1.1: no resume for driver hci_usb?
-> > > Some devices failed to suspend
-> > > Restarting tasks... done
-> > > 
-> > > 
-> > > What's a usbdev3.2_ep00?
-> > 
-> > Evidently the regression was caused by Greg's patch making endpoints into 
-> > real struct devices.  usbdev3.2_ep00 is the device corresponding to 
-> > endpoint 0 on device 2 of USB bus 3.
-> > 
-> > Is it really true that this patch has been sitting in -mm for several
-> > months (as stated in the cover message to Linus for the new batch of
-> > changes for 2.6.17 sent in yesterday)?
-> 
-> Ugh, no, you are right, the endpoint change was not in for that long,
-> sorry.  I thought it did make at least one -mm though.
-> 
-> > There are several possible ways to fix this.  One is to add suspend and 
-> > resume routines to the endpoint-device driver.  Another is to change the 
-> > code that checks for the children being suspended, to make it check only 
-> > for child USB devices and not child endpoints.
-> 
-> I think it needs to check for _USB_ devices, not just any old device
-> that could possibly be attached to the main USB device (as this one is.)
-> What's to stop any other struct device to bind here and cause the same
-> problem?
+On Thu, 22 Jun 2006, Serge E. Hallyn wrote:
 
-Ok, the problem is in verify_suspended(), we are not detecting what type
-of device this is.
+> sorry if I'm being dense - what is actually being protected against
+> here?  The only thing I can think of is one process causing performance
+> degradation to another by moving it's memory further from it's cpu on a
+> NUMA machine.
 
-Alan, what are you trying to check for here?  What "bogus requests" were
-you seeing from sysfs that you are trying to filter out?
+This is a privileged operation, which currently relies only on uid (i.e. 
+traditional Unix DAC), and capability checking.
 
-thanks,
+SELinux introduces Mandatory Access Control (MAC) based upon all 
+security-relevant attributes of tasks and objects, not just uid/capability 
+checks.  Theoretically, all processes could run with euid==0 under SELinux 
+(in fact, Russell Coker's 'play box' does something similar by giving out 
+the root password to everyone, although SELinux is designed to complement 
+DAC, not replace it).
 
-greg k-h
+Any privileged operations with DAC controls also need corresponding MAC 
+controls, which is what this patch implements.
+
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

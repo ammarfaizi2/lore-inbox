@@ -1,136 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWFVSEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbWFVSI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbWFVSEA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 14:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbWFVSEA
+	id S932624AbWFVSI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 14:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWFVSI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 14:04:00 -0400
-Received: from muan.mtu.ru ([195.34.34.229]:60170 "EHLO muan.mtu.ru")
-	by vger.kernel.org with ESMTP id S932341AbWFVSD7 (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 14:03:59 -0400
-Subject: [RFC] [PATCH] generic_file_buffered_write - deadlock on vectored
-	write?
-From: "Vladimir V. Saveliev" <vs@namesys.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <Linux-Kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-1mw3QmWx7ypl9z6L/q1u"
-Date: Thu, 22 Jun 2006 21:59:01 +0400
-Message-Id: <1150999141.6414.39.camel@tribesman.namesys.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Thu, 22 Jun 2006 14:08:57 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:13482 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932624AbWFVSI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 14:08:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=NXrbeAIEqM8w63UrRHTDKFl6KlIeFOYJAyTpgljbtLYO9/r+J7j0tVF30Z4zkU9JBtM0nnlSNfzmy3If2evjdLiYgMlrpQsHc/0Nda3rZRudKj5wuRDwiNuE+jJbV/ljfTGmT/XVvpW31f5avlbIpm2acPx+y6UfYafIaRs7z9s=
+Message-ID: <449ADCB2.4000006@gmail.com>
+Date: Fri, 23 Jun 2006 02:08:50 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Al Boldi <a1426z@gawab.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_VGACON_SOFT_SCROLLBACK crashes 2.6.17
+References: <200606211715.58773.a1426z@gawab.com> <200606220005.32446.a1426z@gawab.com> <4499E89F.6030509@gmail.com> <200606222036.45081.a1426z@gawab.com>
+In-Reply-To: <200606222036.45081.a1426z@gawab.com>
+Content-Type: text/plain; charset=windows-1256
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Al Boldi wrote:
+> Antonino A. Daplas wrote:
+>> Al Boldi wrote:
+>>> Antonino A. Daplas wrote:
+>>>> Al Boldi wrote:
+> 
+>> Anyway, can you try the patch below.  It's a debugging patch and
+>> it will slow down the console.
+> 
+> Yes, that did the trick, although it screws-up concurrent console access.
+> 
+> What is surprising though, is that SOFT_SCROLLBACK is supposed to slow the 
+> console down.  It actually looks that it speeds things up, albeit at higher 
+> CPU cost, by buffering screen updates.
+> 
+> This maybe hardware related.  This machine has an onboard VIA/S3 UniChrome 
+> chip, so I am thinking the CPU is dumping too fast for the chip to sync.
+> 
 
---=-1mw3QmWx7ypl9z6L/q1u
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+That's what I thought too. But adding delays to the screen accessors is not
+the correct fix. The screen buffer accessors, scr_readw() and scr_writew()
+make assumptions that are not correct in all cases, that the screenbuffer
+is either in system RAM or video RAM, never in both. (vgacon's screenbuffer
+is video RAM while the rest of the console drivers have it in system RAM.
+But you can have vgacon and fbcon compiled at the same time, for example, and
+this basically screws up the screen accessors, especially in non-x86 archs.)
 
-Hello
+So a revamp of vgacon may be necessary, by placing the screen buffer in
+system RAM. This will entail a lot of work, so the revamp will take some
+time.
 
-Preparing a patch for "batched" write we found a suspicious place in
-generic_file_buffered_write. The attached patch contains detailed
-description. Please, take a look.
+>> If the system hang disappears, remove the line
+>>
+>>     while (i--);
+> 
+> Hangs again.
 
---=-1mw3QmWx7ypl9z6L/q1u
-Content-Disposition: attachment; filename=writev-deadlock-fix.patch
-Content-Type: text/x-patch; name=writev-deadlock-fix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+I was hoping that's it's the memcpy() that's buggy when the source/destination
+is video RAM.  That would be an easy fix, but it seems I'm out of luck here.
 
+> 
+>>> BTW, is there any chance to patch your savagefb to support VIA/S3
+>>> UniChrome?
+>> If someone posts a patch to lkml or fbdev-devel, why not?  But a separate
+>> driver is probably better as the 2 are very different.
+> 
+> VIA has a separate driver, couldn't this be merged with mainline?
 
-generic_file_buffered_write prefaults in user pages in order to avoid deadlock
-on copying from the same page as write goes to.
+Sure, as long as it's GPL-compatible, properly written, and correctly
+Signed-off.
 
-However, it looks like there is a problem when write is vectored:
-fault_in_pages_readable brings in current segment or its part (maxlen).
-OTOH, filemap_copy_from_user_iovec is called to copy number of bytes (bytes) which
-may exceed current segment, so filemap_copy_from_user_iovec switches 
-to the next segment which is not brought in yet. Pagefault is generated.
-That causes the deadlock if pagefault is for the same page write goes to:
-page being written is locked and not uptodate,
-pagefault will deadlock trying to lock locked page.
-
-If the above is unclear, 
-the following program illustrates that:
-
-#include <stdio.h>
-#include <sys/uio.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-
-char buf0[2048];
-char *buf1;
-
-int main(int argc, char **argv)
-{
-	int fd;
-	struct iovec vec[2];
-
-	vec[0].iov_base = buf0;
-	vec[0].iov_len = 2048;
-
-	fd = open(argv[1], O_RDWR);
-	if (fd == -1) {
-		printf("failed to open \"%s\": %s\n", argv[1], strerror(errno));
-		return 0;
-	}
-	buf1 = mmap(NULL, 4096, PROT_READ, MAP_SHARED, fd, 0);
-	if (buf1 == (char *)MAP_FAILED) {
-		printf("failed to mmap \"%s\": %s\n", argv[1], strerror(errno));
-		return 0;
-	}
-	vec[1].iov_base = buf1;
-	vec[1].iov_len = 2048;
-
-	if (writev(fd, vec, 2) != 4096) {
-		printf("failed to writev \"%s\": %s\n", argv[1], strerror(errno));
-		return 0;
-	}
-
-	munmap(buf1, 4096);
-	close(fd);
-	
-	return 0;
-}
-
-The proposed fix is to never write to a page from more than one segment. 
-
-
-
-
-diff -puN mm/filemap.c~writev-deadlock-fix mm/filemap.c
---- linux-2.6.17-rc6-mm1/mm/filemap.c~writev-deadlock-fix	2006-06-22 21:12:51.000000000 +0400
-+++ linux-2.6.17-rc6-mm1-root/mm/filemap.c	2006-06-22 21:15:44.000000000 +0400
-@@ -2103,8 +2103,9 @@ generic_file_buffered_write(struct kiocb
- 		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
- 		index = pos >> PAGE_CACHE_SHIFT;
- 		bytes = PAGE_CACHE_SIZE - offset;
--		if (bytes > count)
--			bytes = count;
-+		maxlen = cur_iov->iov_len - iov_base;
-+		if (bytes > maxlen)
-+			bytes = maxlen;
- 
- 		/*
- 		 * Bring in the user page that we will copy from _first_.
-@@ -2112,10 +2113,7 @@ generic_file_buffered_write(struct kiocb
- 		 * same page as we're writing to, without it being marked
- 		 * up-to-date.
- 		 */
--		maxlen = cur_iov->iov_len - iov_base;
--		if (maxlen > bytes)
--			maxlen = bytes;
--		fault_in_pages_readable(buf, maxlen);
-+		fault_in_pages_readable(buf, bytes);
- 
- 		page = __grab_cache_page(mapping,index,&cached_page,&lru_pvec);
- 		if (!page) {
-
-_
-
---=-1mw3QmWx7ypl9z6L/q1u--
-
+Tony

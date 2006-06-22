@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWFVREU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWFVREy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWFVREU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 13:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbWFVREU
+	id S932550AbWFVREy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 13:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbWFVREy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 13:04:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42895 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932168AbWFVRET (ORCPT
+	Thu, 22 Jun 2006 13:04:54 -0400
+Received: from rune.pobox.com ([208.210.124.79]:25235 "EHLO rune.pobox.com")
+	by vger.kernel.org with ESMTP id S932550AbWFVREw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 13:04:19 -0400
-Message-ID: <449ACCC4.8010105@redhat.com>
-Date: Thu, 22 Jun 2006 13:00:52 -0400
-From: William Cohen <wcohen@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: eranian@hpl.hp.com
-CC: Christoph Hellwig <hch@infradead.org>,
-       "Frank Ch. Eigler" <fche@redhat.com>, linux-kernel@vger.kernel.org,
-       systemtap@sources.redhat.com, perfmon@napali.hpl.hp.com
-Subject: Re: [perfmon] Re: [PATCH 9/16] 2.6.17-rc6 perfmon2 patch for review:
- kernel-level API support (kapi)
-References: <200606150907.k5F97coF008178@frankl.hpl.hp.com> <20060616135014.GB12657@infradead.org> <20060616140234.GI10034@frankl.hpl.hp.com> <y0mhd2lumz7.fsf@ton.toronto.redhat.com> <20060616154519.GA28931@infradead.org> <20060622121259.GF30281@frankl.hpl.hp.com>
-In-Reply-To: <20060622121259.GF30281@frankl.hpl.hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jun 2006 13:04:52 -0400
+Date: Thu, 22 Jun 2006 12:04:31 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, clameter@sgi.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, ashok.raj@intel.com,
+       pavel@ucw.cz, ak@suse.de, nickpiggin@yahoo.com.au, mingo@elte.hu
+Subject: Re: [PATCH] stop on cpu lost
+Message-ID: <20060622170431.GM16029@localdomain>
+References: <20060620125159.72b0de15.kamezawa.hiroyu@jp.fujitsu.com> <20060621225609.db34df34.akpm@osdl.org> <20060622150848.GL16029@localdomain> <20060622084513.4717835e.rdunlap@xenotime.net> <Pine.LNX.4.64.0606220844430.28341@schroedinger.engr.sgi.com> <20060623010550.0e26a46e.kamezawa.hiroyu@jp.fujitsu.com> <20060622092422.256d6692.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060622092422.256d6692.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Eranian wrote:
-> Christoph,
+Randy.Dunlap wrote:
+> On Fri, 23 Jun 2006 01:05:50 +0900 KAMEZAWA Hiroyuki wrote:
 > 
-> On Fri, Jun 16, 2006 at 04:45:19PM +0100, Christoph Hellwig wrote:
+> > On Thu, 22 Jun 2006 08:45:55 -0700 (PDT)
+> > Christoph Lameter <clameter@sgi.com> wrote:
+> > 
+> > > On Thu, 22 Jun 2006, Randy.Dunlap wrote:
+> > > 
+> > > > Sounds much better than just killing the process.
+> > > 
+> > > Right and having active interrupts or devices using that processor should 
+> > > also stop offlining a processor.
+> > > 
+> > > So just remove everything from a processor before offlining. If you cannot 
+> > > remove all users then the processor cannot be offlined.
+> > > 
+> > Hm..
+> > Then, there is several ways to manage this sitation.
+> > 
+> > 1. migrate all even if it's not allowed by users
+> > 2. kill mis-configured tasks.
 > 
->>On Fri, Jun 16, 2006 at 11:41:32AM -0400, Frank Ch. Eigler wrote:
->>
->>>Whether one uses systemtap, raw kprobes, or some specialized
->>>tracing/stats-collecting patch surely forthcoming, kernel-level APIs
->>>would be needed to perform fine-grained kernel-scope measurements
->>>using these counters.
->>
-> You do not need to be in the kernel to measure kernel level
-> execution. Monitoring is statistical by nature, this is not about capturing
-> execution traces. All PMU models have the capability to filter on privilege
-> levels so you can distinguish user from kernel.
+> I would claim that the tasks are not misconfigured,
+> but that the admin misconfigured the hardware (CPU).
 > 
-> To measure certain functions of the kernel, some PMU models provide a
-> way to restrict monitoring to a range of contiguous code addresses, e.g.
-> Itanium 2. 
-
-The filtering on privilege level is too coarse. For example want to 
-start event counting on entry into a kernel function and stop when 
-exiting the function. The itanium hw is not ideal for this application. 
-The children functions may not be contiguous with the starting function. 
-  Other kinds of predication based on state information, e.g. particular 
-process or thread could be very useful.
-
-> The case of systemtap is different. I think they would like to start/stop
-> monitoring on certain systemtap events, e.g., a function is called, a
-> threshold is met. Start and stop would be triggered from a systemtap
-> callback which is implemented by a kernel module, if I understand
-> the architecture. In the scenario, the monitoring session would have
-> to be created and controlled from the kernel. One could envision an
-> architecture, where monitoring would be controlled from user level 
-> with systemtap making upcalls  but I do not think this is possible given
-> that the instrumentation points can be very low level.
+> > 3. stop ...
+> > 4. cancel cpu-hot-removal.
+> > 
+> > I just don't like "1". 
 > 
-> Another usage for a kernel-level monitoring API that I know about is 
-> people who want to explore how to use the performance monitoring
-> (and profiles) to guide the scheduler. A thread profile can tell the cache
-> hit rates, stalls, bus bandwidth utilization, whether it uses flops and so on.
-> This could be useful to to find the best placement for threads and avoid co-scheduling
-> threads that trash each other's micro-architectural state or saturate the memory bus.
-> In this scenario, one could envision a kernel thread controlling monitoring
-> and processing profiles for the scheduler. But, to concur with you Christoph,
-> I think this could be achieved from user level and the valuable information
-> may be passed to the scheduler via a specific system call for instance.
+> I like it better than 2.
+> 
+> > I discussed this problem with my colleagues before sending patch,
+> > one said "4" seems regular way but another said "4" is bad.
+> > 
+> > I sent a patch for "4" in the first place but Andi Kleen said it's bad.
+> > As he said, I'm handling the problem for which I can't find a good answer :(
+> > 
+> > my point is that "1" is bad.
+> 
+> Sounds like we are getting nowhere.  The sysctl knob might
+> have to be the answer.
 
-One probably could configure the performance monitoring hardware from 
-userspace. However, for micro-measurement in the kernel it seems like 
-the pmu reads in kernel space would still be required.
+I don't like having the kernel forcibly kill or stop tasks for this
+case, regardless of whether the behavior is configurable.  What I
+originally meant to suggest was a sysctl knob which will control
+whether the offline will fail in this situation.  But I'm still more
+inclined to leave the kernel's handling of this as it stands, since
+this is policy that can be implemented in userspace.
 
--Will
+We need to preserve the current behavior as the default, in any case.
+

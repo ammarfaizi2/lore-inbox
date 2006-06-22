@@ -1,76 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161007AbWFVIPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWFVIUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161007AbWFVIPm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 04:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbWFVIPm
+	id S964850AbWFVIUL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 04:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWFVIUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 04:15:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51119 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161007AbWFVIPl (ORCPT
+	Thu, 22 Jun 2006 04:20:11 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:35265 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964850AbWFVIUJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 04:15:41 -0400
-Message-ID: <449A51A2.4080601@redhat.com>
-Date: Thu, 22 Jun 2006 10:15:30 +0200
-From: Milan Broz <mbroz@redhat.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
+	Thu, 22 Jun 2006 04:20:09 -0400
+Date: Thu, 22 Jun 2006 10:15:10 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
-CC: Alasdair G Kergon <agk@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/15] dm: support ioctls on mapped devices
-References: <20060621193121.GP4521@agk.surrey.redhat.com> <20060621205206.35ecdbf8.akpm@osdl.org>
-In-Reply-To: <20060621205206.35ecdbf8.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+Subject: [patch] lock validator: clean up IRQ entry/exit
+Message-ID: <20060622081510.GA25138@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 21 Jun 2006 20:31:21 +0100
-> Alasdair G Kergon <agk@redhat.com> wrote:
-> 
->> From: Milan Broz <mbroz@redhat.com>
->>  
->> Extend the core device-mapper infrastructure to accept arbitrary ioctls
->> on a mapped device provided that it has exactly one target and it is 
->> capable of supporting ioctls.
-> 
-> I don't understand that.  We're taking an ioctl against a dm device and
-> we're passing it through to an underlying device?  Or something else?
+Subject: lock validator: clean up IRQ entry/exit
+From: Ingo Molnar <mingo@elte.hu>
 
-Solving this situation: logical volume (say /dev/mapper/lv1) mapped in dm 
-to single device (/dev/sda):
+preparation for the resurrection of handling NMIs under the lock 
+validator:
 
-If there is need to send ioctl you must know that /dev/mapper/lv1
-is mapped to /dev/sda (and use /dev/sda for ioctl).
-This is dm work -  so send ioctl to /dev/mapper/lv1 directly
-and let dm decide what to do.
+- introduce __irq_exit() as a no-softirqs variant of IRQ exit
+- make NMI exit use __irq_exit()
+- make the locking API self-tests use irq_enter/__irq_exit.
 
-This is supported only for single mapping. If there are more than one target
-it will return -ENOTTY.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ include/linux/hardirq.h |   23 ++++++++++++++++-------
+ lib/locking-selftest.c  |    4 ++--
+ 2 files changed, 18 insertions(+), 9 deletions(-)
 
->> [We can't use unlocked_ioctl because we need 'inode': 'file' might be NULL.
->> Is it worth changing this?]
-> 
-> It _should_ be possible to use unlocked_ioctl() - unlocked_ioctl() would be
-> pretty useless if someone was passing it a NULL file*.  More details?
-
-yes, 
-(I prefer change block code to not pass NULL and use unlocked_ioctl,
-- Alasdair ?)
-
-see
-
-drivers/char/raw.c:
-126: return blkdev_ioctl(bdev->bd_inode, *NULL*, command, arg);
-
-and block/ioctl.c: [file = NULL here]
-206: if (disk->fops->unlocked_ioctl)
-207:	return disk->fops->unlocked_ioctl(*file*, cmd, arg);
-
-
--- 
-Milan Broz
-mbroz@redhat.com
-
-
-
+Index: linux/include/linux/hardirq.h
+===================================================================
+--- linux.orig/include/linux/hardirq.h
++++ linux/include/linux/hardirq.h
+@@ -86,13 +86,6 @@ extern void synchronize_irq(unsigned int
+ # define synchronize_irq(irq)	barrier()
+ #endif
+ 
+-#define nmi_enter()		irq_enter()
+-#define nmi_exit()					\
+-	do {						\
+-		sub_preempt_count(HARDIRQ_OFFSET);	\
+-		trace_hardirq_exit();			\
+-	} while (0)
+-
+ struct task_struct;
+ 
+ #ifndef CONFIG_VIRT_CPU_ACCOUNTING
+@@ -114,6 +107,22 @@ static inline void account_system_vtime(
+ 		trace_hardirq_enter();			\
+ 	} while (0)
+ 
++/*
++ * Exit irq context without processing softirqs:
++ */
++#define __irq_exit()					\
++	do {						\
++		trace_hardirq_exit();			\
++		account_system_vtime(current);		\
++		sub_preempt_count(HARDIRQ_OFFSET);	\
++	} while (0)
++
++/*
++ * Exit irq context and process softirqs if needed:
++ */
+ extern void irq_exit(void);
+ 
++#define nmi_enter()		irq_enter()
++#define nmi_exit()		__irq_exit()
++
+ #endif /* LINUX_HARDIRQ_H */
+Index: linux/lib/locking-selftest.c
+===================================================================
+--- linux.orig/lib/locking-selftest.c
++++ linux/lib/locking-selftest.c
+@@ -144,11 +144,11 @@ static void init_shared_types(void)
+ 
+ #define HARDIRQ_ENTER()				\
+ 	local_irq_disable();			\
+-	nmi_enter();				\
++	irq_enter();				\
+ 	WARN_ON(!in_irq());
+ 
+ #define HARDIRQ_EXIT()				\
+-	nmi_exit();				\
++	__irq_exit();				\
+ 	local_irq_enable();
+ 
+ #define SOFTIRQ_DISABLE		local_bh_disable

@@ -1,122 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751887AbWFVTSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751889AbWFVTVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751887AbWFVTSL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 15:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751889AbWFVTSK
+	id S1751889AbWFVTVx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 15:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751891AbWFVTVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 15:18:10 -0400
-Received: from sbz-30.cs.helsinki.fi ([128.214.9.98]:42894 "EHLO
-	sbz-30.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751887AbWFVTSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 15:18:09 -0400
-Date: Thu, 22 Jun 2006 22:18:07 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Christoph Lameter <clameter@sgi.com>
-cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@kvack.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Theodore Tso <tytso@mit.edu>,
-       Dave Chinner <dgc@sgi.com>, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC 1/4] slab freeing consolidation
-In-Reply-To: <20060619184656.23130.69473.sendpatchset@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0606222211370.5385@sbz-30.cs.Helsinki.FI>
-References: <20060619184651.23130.62875.sendpatchset@schroedinger.engr.sgi.com>
- <20060619184656.23130.69473.sendpatchset@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Jun 2006 15:21:53 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:42632 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751889AbWFVTVw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 15:21:52 -0400
+Subject: Re: [RFC] patch [1/1]  convert i386 summit subarch to use
+	SRAT	data for apicid_to_node
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Dave Jones <davej@redhat.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <449A3A70.5000906@mbligh.org>
+References: <1150941296.10001.25.camel@keithlap>
+	 <20060622022414.GB4449@redhat.com> <1150948551.10001.62.camel@keithlap>
+	 <449A3A70.5000906@mbligh.org>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 22 Jun 2006 12:21:49 -0700
+Message-Id: <1151004109.5880.29.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI,
+On Wed, 2006-06-21 at 23:36 -0700, Martin J. Bligh wrote:
+> keith mannthey wrote:
+> > On Wed, 2006-06-21 at 22:24 -0400, Dave Jones wrote:
+> > 
+> >>On Wed, Jun 21, 2006 at 06:54:55PM -0700, keith mannthey wrote:
+> >> > Hello All,
+> >> >   This patch converts the i386 summit subarch apicid_to_node to use node
+> >> > information provided by the SRAT.  The current way of obtaining the
+> >> > nodeid 
+> >> > 
+> >> >  static inline int apicid_to_node(int logical_apicid)
+> >> >  { 
+> >> >    return logical_apicid >> 5;
+> >> >  }
+> >> > 
+> >> > is just not correct for all summit systems/bios.  Assuming the apicid
+> >> > matches the Linux node number require a leap of faith that the bios lay-
+> >> > ed out the apicids a set way.  Modern summit HW does not layout its bios
+> >> > in the manner for various reasons and is unable to boot i386 numa.
+> >> > 
+> >> >   The best way to get the correct apicid to node information is from the
+> >> > SRAT table. 
+> >>
+> >>Do all summit's have SRAT tables ?
+> >>I was under the impression the early ones were around before
+> >>the invention of SRAT.
+> > 
+> > 
+> > That is a good point.  Let me check into the x440 (1st gen).  x445 x460
+> > (2nd,3rd gen) uses SRAT for sure (these patches have been tested on
+> > these systems).  
+> > 
+> > The x440 lists an srat but maybe it is using some special bios area.  I
+> > will build a test kernel give it a whirl.  
+> 
+> I'm pretty sure they all had SRAT tables - the test machine we use 
+> regularly for test.kernel.org (elm3b67) does. The NUMA-Q (x430) doesn't,
+> but that's a separate subarch.
 
-On Mon, 19 Jun 2006, Christoph Lameter wrote:
-> Add a new function drop_freelist that removes slabs with objects
-> that are already free and use that in various places.
+Tested ontop of x440 just fine it does use the SRAT.  It doesn't do
+anything NUMA-Q like :)
 
-I think you mean drain_freelist().  Anyway, looks good.  Some 
-minor comments below.
+Thanks,
+keith mannthey <kmannth@us.ibm.com>
+Linux Technology Center IBM
 
-> -static int __node_shrink(struct kmem_cache *cachep, int node)
-> +/*
-> + * Remove slabs from the list of free slabs.
-> + * Specify the number of slabs to drain in tofree.
-> + *
-> + * Returns the actual number of slabs released.
-> + */
-> +static int long drain_freelist(struct kmem_cache *cachep,
-> +		struct kmem_list3 *l3, int tofree)
-
-I have been trying to slowly kill the 'p' prefix so I'd appreciate if you 
-could just call the parameter 'cache'.  Also, l3 could be 'lists'.
-
-> +	nr_freed = 0;
-> +	while (nr_freed < tofree && !list_empty(&l3->slabs_free)) {
->  
-> -		p = l3->slabs_free.prev;
-> -		if (p == &l3->slabs_free)
-> -			break;
-> +		spin_lock_irq(&l3->list_lock);
-> +		p = l3->slabs_free.next;
-> +		if (p == &(l3->slabs_free)) {
-
-Please drop the redundant parenthesis.
-
-> +			spin_unlock_irq(&l3->list_lock);
-> +			return nr_freed;
-> +		}
-
-Goto to the bottom would be nicer than return here, maybe.
-
->  
-> -		slabp = list_entry(l3->slabs_free.prev, struct slab, list);
-> +		slabp = list_entry(p, struct slab, list);
->  #if DEBUG
->  		BUG_ON(slabp->inuse);
->  #endif
->  		list_del(&slabp->list);
-> -
-> +		/*
-> +		 * Safe to drop the lock. The slab is no longer linked
-> +		 * to the cache.
-> +		 */
->  		l3->free_objects -= cachep->num;
->  		spin_unlock_irq(&l3->list_lock);
->  		slab_destroy(cachep, slabp);
-> -		spin_lock_irq(&l3->list_lock);
-> -	}
-> -	ret = !list_empty(&l3->slabs_full) || !list_empty(&l3->slabs_partial);
-> -	return ret;
-> +		nr_freed ++;
-
-Redundant whitespace.
-
-> +	};
-
-Redundant semicolon.
-
-> +		else {
-> +			int x;
-
-nr_freed, would be better.
-
->  
-> -			slabp = list_entry(p, struct slab, list);
-> -			BUG_ON(slabp->inuse);
-> -			list_del(&slabp->list);
-> -			STATS_INC_REAPED(searchp);
-> -
-> -			/*
-> -			 * Safe to drop the lock. The slab is no longer linked
-> -			 * to the cache. searchp cannot disappear, we hold
-> -			 * cache_chain_lock
-> -			 */
-> -			l3->free_objects -= searchp->num;
-> -			spin_unlock_irq(&l3->list_lock);
-> -			slab_destroy(searchp, slabp);
-> -		} while (--tofree > 0);
-> +			x = drain_freelist(searchp, l3, (l3->free_limit +
-> +				5 * searchp->num - 1) / (5 * searchp->num));
-> +			STATS_ADD_REAPED(searchp, x);
-
-Maybe extract a local variable 'to_free' for readability.
-
-						Pekka

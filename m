@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWFVMza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWFVM7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbWFVMza (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 08:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751786AbWFVMza
+	id S1030203AbWFVM7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 08:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWFVM7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 08:55:30 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:54479 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751783AbWFVMz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 08:55:29 -0400
-Subject: Re: Memory corruption in 8390.c ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: David Miller <davem@davemloft.net>, herbert@gondor.apana.org.au,
-       snakebyte@gmx.de, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       netdev@vger.kernel.org
-In-Reply-To: <1150976016.3120.19.camel@laptopd505.fenrus.org>
-References: <20060622023029.GA6156@gondor.apana.org.au>
-	 <20060622.012609.25474139.davem@davemloft.net>
-	 <20060622083037.GB26083@gondor.apana.org.au>
-	 <20060622.013440.97293561.davem@davemloft.net>
-	 <1150976063.15275.146.camel@localhost.localdomain>
-	 <1150976016.3120.19.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 22 Jun 2006 14:10:43 +0100
-Message-Id: <1150981843.15275.163.camel@localhost.localdomain>
+	Thu, 22 Jun 2006 08:59:25 -0400
+Received: from ns1.ptt.yu ([212.62.32.1]:47517 "EHLO ns1.ptt.yu")
+	by vger.kernel.org with ESMTP id S1030203AbWFVM7Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 08:59:24 -0400
+Date: Thu, 22 Jun 2006 14:58:50 +0200
+From: Predrag Ivanovic <predivan@ptt.yu>
+To: v4l-dvb-maintainer@linuxtv.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.6.17]drivers/media/video/bt8xx/bttvp.h has wrong include
+ line
+Message-Id: <20060622145850.0cf87d8a.predivan@ptt.yu>
+Reply-To: predivan@ptt.yu
+Organization: Random Violence
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.16; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-06-22 am 13:33 +0200, ysgrifennodd Arjan van de Ven:
-> > The 8390 change (corrected version) also makes 8390.c faster so should
-> > be applied anyway, 
-> 
-> 8390 is such a race monster that a few cycles matter a lot! :-)
 
-There are generic 8390 clones for 100Mbit. I'm not suggesting its a good
-idea but people did it.
-
-Alan
-
+Hi.
+Trivial patch, really.
+Fixes include line in bttvp.h(btcx-risc.h is in parent dir).
+------
+--- bttvp.h	2006-06-19 16:48:46.000000000 +0200
++++ bttvp.h.new	2006-06-19 16:49:54.000000000 +0200
+@@ -48,7 +48,7 @@
+ 
+ #include "bt848.h"
+ #include "bttv.h"
+-#include "btcx-risc.h"
++#include "../btcx-risc.h"
+ 
+ #ifdef __KERNEL__
+ 
+-----------
+Pedja 
+-- 
+ Recent studies suggest that running /usr/bin/coffee from cron at regular
+ intervals can be more effective at enhancing uptime than launching a big
+ coffeed process at startup.

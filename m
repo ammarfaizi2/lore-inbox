@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWFVIfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751771AbWFVIpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbWFVIfa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 04:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWFVIfa
+	id S1751771AbWFVIpX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 04:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWFVIpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 04:35:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12558 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932454AbWFVIf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 04:35:29 -0400
-Date: Thu, 22 Jun 2006 09:35:16 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu
-Subject: Re: [patch 1/2] genirq: allow usage of no_irq_chip
-Message-ID: <20060622083516.GB25212@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-	mingo@elte.hu
-References: <20060610085428.366868000@cruncher.tec.linutronix.de> <20060610085435.487020000@cruncher.tec.linutronix.de> <20060621161236.e868284d.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 22 Jun 2006 04:45:23 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60942 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751770AbWFVIpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 04:45:22 -0400
+Date: Thu, 22 Jun 2006 10:45:21 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, netdev@vger.kernel.org
+Subject: Re: [-mm patch] drivers/net/ni5010.c: fix compile error
+Message-ID: <20060622084521.GX9111@stusta.de>
+References: <20060621034857.35cfe36f.akpm@osdl.org> <20060621151057.GF9111@stusta.de> <20060622081316.GA24980@rhlx01.fht-esslingen.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060621161236.e868284d.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060622081316.GA24980@rhlx01.fht-esslingen.de>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 04:12:36PM -0700, Andrew Morton wrote:
-> On Sat, 10 Jun 2006 10:15:11 -0000
-> Thomas Gleixner <tglx@linutronix.de> wrote:
-> > Some dumb interrupt hardware has no way to ack/mask.... Instead of creating a
-> > seperate chip structure we allow to reuse the already existing no_irq_chip
+On Thu, Jun 22, 2006 at 10:13:16AM +0200, Andreas Mohr wrote:
+> Hi,
 > 
-> This is the patch which causes powerpc to crash.  In a quite ugly manner:
-> early oops, falls into xmon, keeps oopsing from within xmon.  No serial
-> port, too early for netconsole.
+> On Wed, Jun 21, 2006 at 05:10:57PM +0200, Adrian Bunk wrote:
+> > On Wed, Jun 21, 2006 at 03:48:57AM -0700, Andrew Morton wrote:
+> > >...
+> > > Changes since 2.6.17-rc6-mm2:
+> > >...
+> > > +ni5010-netcard-cleanup.patch
+> > > 
+> > >  netdev cleanup
+> > >...
+> > 
+> > This patch fixes the following compile error with CONFIG_NI5010=y:
 > 
-> I'll drop it.
+> Doh, thanks!
+> (that should teach me to do non-module runs, too)
 
-Note that dropping it makes the genirq stuff buggy on ARM, so this
-needs to be resolved before it can go anywhere near Linus' tree.
+And change the driver to no longer use Space.c?  ;-)
+
+> Andreas Mohr
+
+cu
+Adrian
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

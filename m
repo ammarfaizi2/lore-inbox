@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161077AbWFVLbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161080AbWFVLdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161077AbWFVLbt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 07:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161080AbWFVLbt
+	id S1161080AbWFVLdr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 07:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161082AbWFVLdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 07:31:49 -0400
-Received: from web33304.mail.mud.yahoo.com ([68.142.206.119]:6511 "HELO
-	web33304.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161077AbWFVLbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 07:31:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=os+5WKM0BXxfj5C/0Bz3vi51Aqasx6ufWtQWuEjuDv6SMcYgHybFVdF779Q5qjuTi0JtAmm51FQt3yF2pwPBpCJ5ccVfDOPlSFTq/7gx0iDoZV3PkdZhMtrxo+BqgzKUgK4LL8M60LUHxJ15u3t8ojtJNYbE4XSooAxCNdNL/UE=  ;
-Message-ID: <20060622113147.3496.qmail@web33304.mail.mud.yahoo.com>
-Date: Thu, 22 Jun 2006 04:31:47 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Dropping Packets in 2.6.17
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 22 Jun 2006 07:33:47 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:60804 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161078AbWFVLdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 07:33:46 -0400
+Subject: Re: Memory corruption in 8390.c ?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Miller <davem@davemloft.net>, herbert@gondor.apana.org.au,
+       snakebyte@gmx.de, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       netdev@vger.kernel.org
+In-Reply-To: <1150976063.15275.146.camel@localhost.localdomain>
+References: <20060622023029.GA6156@gondor.apana.org.au>
+	 <20060622.012609.25474139.davem@davemloft.net>
+	 <20060622083037.GB26083@gondor.apana.org.au>
+	 <20060622.013440.97293561.davem@davemloft.net>
+	 <1150976063.15275.146.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 22 Jun 2006 13:33:36 +0200
+Message-Id: <1150976016.3120.19.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to make a case for using linux as a
-network appliance, but I can't find any
-combination of settings that will keep it from
-dropping packets at an unacceptably high rate.
-The test system is a 1.8Ghz Opteron with intel
-gigE cards running 2.6.17. I'm passing about 70K
-pps through the box, which is a light load, but
-userland activities (such as building a kernel)
-cause it to lose packets, even with backlog set
-to 20000. I had the same problem with 2.6.12 and
-abandoned the effort. Has anything been done
-since to give priority to networking? You can't
-have a network appliance drop packets when some
-application is gathering stats or a user is
-looking at a graph. What tunings are available?
+On Thu, 2006-06-22 at 12:34 +0100, Alan Cox wrote:
+> Ar Iau, 2006-06-22 am 01:34 -0700, ysgrifennodd David Miller:
+> > From: Herbert Xu <herbert@gondor.apana.org.au>
+> > Date: Thu, 22 Jun 2006 18:30:37 +1000
+> > 
+> > > On Thu, Jun 22, 2006 at 01:26:09AM -0700, David Miller wrote:
+> > > >
+> > > > Want me to let this cook in 2.6.18 for a while before sending
+> > > > it off to -stable?
+> > > 
+> > > You know I'm never one to push anything quickly so absolutely yes :)
+> > 
+> > Ok, applied to net-2.6.18 for now :)
+> 
+> The 8390 change (corrected version) also makes 8390.c faster so should
+> be applied anyway, 
 
-DT
+8390 is such a race monster that a few cycles matter a lot! :-)
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

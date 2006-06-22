@@ -1,113 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbWFVXKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbWFVXLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030452AbWFVXKi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 19:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030460AbWFVXKi
+	id S1030440AbWFVXLd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 19:11:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbWFVXLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 19:10:38 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:14268 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030452AbWFVXKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 19:10:37 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=BeCi0AiYBIwxl/CUGUvhQCkoaychnT9QyzgLqNk+MsjQ1pOdkfy7Rza3or4c+mGdH
-	hQ3GWG+4Dc+x9cIhA5+Gw==
-Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Andi Kleen <ak@suse.de>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-In-Reply-To: <200606230014.17067.ak@suse.de>
-References: <200606210329_MC3-1-C305-E008@compuserve.com>
-	 <200606221008.41873.ak@suse.de>
-	 <1151010387.14536.39.camel@galaxy.corp.google.com>
-	 <200606230014.17067.ak@suse.de>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Thu, 22 Jun 2006 16:10:03 -0700
-Message-Id: <1151017804.14536.98.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jun 2006 19:11:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16828 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932668AbWFVXLc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 19:11:32 -0400
+Date: Thu, 22 Jun 2006 16:11:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <gregkh@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.17
+In-Reply-To: <20060621220656.GA10652@kroah.com>
+Message-ID: <Pine.LNX.4.64.0606221546120.6483@g5.osdl.org>
+References: <20060621220656.GA10652@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-23 at 00:14 +0200, Andi Kleen wrote:
-> > Would sgdt not be sufficient?  I agree that we will have to end up
-> > giving RO access to user for the gdt page.
-> 
-> I meant exporting the GDT page
-> 
 
-Yes indeed.  That shouldn't be an issue though.
 
-> > I agree that we should not overload a single call (though cpu, package
-> > and node numbers do belong in one category IMO).  We can have multiple
-> > calls if that is required as long as there is an efficient mechanism to
-> > provide that information.
-> 
-> The current mechanism doesn't scale to much more calls, but I guess
-> i'll have to do a vDSO sooner or later.
->  
-> > Why maintain that extra logic in user space when kernel can easily give
-> > that information.
-> 
-> It already does.
->  
+On Wed, 21 Jun 2006, Greg KH wrote:
+>
+> Here are a lot of USB patches for 2.6.17.  They do the following:
 
-I'm missing your point here.  How and where?
+I think these may be responsible for:
 
-> > > I've been pondering to put some more information about that
-> > > in the ELF aux vector, but exporting might work too. I suppose
-> > > exporting would require the vDSO first to give a sane interface.
-> > > 
-> > Can you please tell me what more information you are thinking of putting
-> > in aux vector?
-> 
-> One proposal (not fully fleshed out was) number of siblings / sockets / nodes 
-> I don't think bitmaps would work well there (and if someone really needs
-> those they can read cpuinfo again) 
-> 
+	Bluetooth: L2CAP ver 2.8
+	Bluetooth: L2CAP socket layer initialized
+	Bluetooth: HIDP (Human Interface Emulation) ver 1.1
+	Bluetooth: RFCOMM socket layer initialized
+	Bluetooth: RFCOMM TTY layer initialized
+	Bluetooth: RFCOMM ver 1.7
+	BUG: unable to handle kernel paging request at virtual address 5a5a5a5a
+	 printing eip:
+	c02a58f8
+	*pde = 00000000
+	Oops: 0000 [#1]
+	SMP 
+	Modules linked in: rfcomm hidp l2cap hci_usb bluetooth ip_conntrack_netbios_ns ipt_REJECT iptable_filter ip_tables ip6table_filter ip6_tables cpufreq_ondemand lp pcspkr intel_agp agpgart
+	CPU:    0
+	EIP:    0060:[<c02a58f8>]    Not tainted VLI
+	EFLAGS: 00210206   (2.6.17-gd588fcbe #211) 
+	EIP is at usbdev_open+0xb4/0x1ec
+	eax: 0bd00005   ebx: 5a5a5a5a   ecx: 5a5a58d2   edx: dd991e4c
+	esi: de020bdc   edi: c712da68   ebp: c6eeaee8   esp: c6eeaeac
+	ds: 007b   es: 007b   ss: 0068
+	Process hid2hci (pid: 3719, threadinfo=c6eea000 task=ddfb8570)
+	Stack: c854dc28 dd22cd70 00000000 00000005 c6eeaed4 c016bd39 c6eeaf3c 00000001 
+	       c6eea000 00000000 dd22cd70 c6eeaee8 00000000 c050b8a0 dd22cd70 c6eeaf04 
+	       c01678a4 c854dc28 c6eeaf04 c854dc28 dd22cd70 00000000 c6eeaf20 c015e424 
+	Call Trace:
+	 <c0103c46> show_stack_log_lvl+0x85/0x8f  <c0103dc3> show_registers+0x13b/0x1af
+	 <c0103fac> die+0x175/0x285  <c011a86d> do_page_fault+0x428/0x522
+	 <c0103777> error_code+0x4f/0x54  <c01678a4> chrdev_open+0x11a/0x171
+	 <c015e424> __dentry_open+0xc8/0x1ab  <c015e575> nameidata_to_filp+0x1c/0x2e
+	 <c015e5b5> do_filp_open+0x2e/0x35  <c015e5fc> do_sys_open+0x40/0xba
+	 <c015e6a2> sys_open+0x16/0x18  <c0102c0f> sysenter_past_esp+0x54/0x75
+	Code: 00 8b 35 cc 77 61 c0 8b 8e 9c 00 00 00 81 e9 88 01 00 00 eb 16 8b 45 d0 0d 00 00 d0 0b 39 81 94 01 00 00 74 81 8d 8b 78 
+	fe ff ff <8b> 99 88 01 00 00 0f 18 03 90 8d 91 88 01 00 00 8d 86 9c 00 00 
+	EIP: [<c02a58f8>] usbdev_open+0xb4/0x1ec SS:ESP 0068:c6eeaeac
 
-This is exactly the point, why do that expensive /proc operation when
-you can do a quick vsyscall and get all of that information.  I'm not
-sure if Aux is the right direction.
+where that 5a5a5a5a is possibly/probably due to SLAB debugging (it's the 
+"POISON_INUSE" pattern)
 
-> This is mostly for OpenMP and tuning of a few functions (e.g. on AMD
-> the memory latencies varies with the number of nodes so some functions
-> can be tuned in different ways based on that) 
-> 
-> > You are absolutely right that the mechanism I'm proposing makes sense
-> > only if we have more fields AND if any of those fields are dynamically
-> > changing.  But this is a generic mechanism that could be extended to
-> > share any user visible information in efficient way.  Once we have this
-> > in place then information like whole cpuinfo, percpu interrupts etc. can
-> > be retrieved easily.
-> 
-> The problem with exposing too much is that it might be a nightmare
-> to guarantee a stable ABI for this. At least it would
-> constrain the kernel internally. Probably less is better here. 
-> 
+It might have happened before too, of course, I just haven't seen it 
+before (even though I've had SLAB debugging on all the time on that 
+machine).
 
-There will be (in all probability) requests to include as much as
-possible, but I think that should be manageable with sensible API.
+It seems to actually be from usbdev_lookup_minor(), which has been inlined 
+(damn compiler), and it's the "node.next" access in the
 
-> Also I'm still not sure why user space should care about interrupts?
-> 
-Okay. I just cooked that example for some monitoring process to find out
-the interrupts /sec on that CPU.  But as you mentioned above sibling,
-sockets, nodes, flags, and even other characteristics like current
-p-state are all important information that will help applications
-sitting in user land (even if some of them will be used only couple of
-times in the life of a process).
+	list_for_each_entry(device, &usb_device_class->devices, node) {
 
-Side note: I don't want to delay the vgetcpu call into mainline because
-of this discussion (as long as there is no cpuid and tcache in that
-call).
+loop.
 
--rohit
+Any ideas? 
 
+			Linus

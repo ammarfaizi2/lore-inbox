@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030509AbWFVCYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030529AbWFVC2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030509AbWFVCYS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 22:24:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbWFVCYS
+	id S1030529AbWFVC2G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 22:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030526AbWFVC2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 22:24:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47831 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030509AbWFVCYR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 22:24:17 -0400
-Date: Wed, 21 Jun 2006 22:24:14 -0400
-From: Dave Jones <davej@redhat.com>
-To: keith mannthey <kmannth@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] patch [1/1]  convert i386 summit subarch to use SRAT data for apicid_to_node
-Message-ID: <20060622022414.GB4449@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	keith mannthey <kmannth@us.ibm.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <1150941296.10001.25.camel@keithlap>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150941296.10001.25.camel@keithlap>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 21 Jun 2006 22:28:06 -0400
+Received: from [221.0.176.117] ([221.0.176.117]:7670 "EHLO
+	KAIYANZHAO.oazo51.org") by vger.kernel.org with ESMTP
+	id S1030531AbWFVC2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 22:28:05 -0400
+Message-ID: <93306283200546.57FCBCC212@91HB1HT>
+From: "Hubert" <HelenaMartinezne@archaeologist.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Just added Tired of being left behind ?
+Date: Thu, 22 Jun 2006 10:27:40 +0800
+MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: gbKGsv4RdJVoIkCTC4EGieof00WunmNCLckh
+Content-Type: text/plain;
+        charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 06:54:55PM -0700, keith mannthey wrote:
- > Hello All,
- >   This patch converts the i386 summit subarch apicid_to_node to use node
- > information provided by the SRAT.  The current way of obtaining the
- > nodeid 
- > 
- >  static inline int apicid_to_node(int logical_apicid)
- >  { 
- >    return logical_apicid >> 5;
- >  }
- > 
- > is just not correct for all summit systems/bios.  Assuming the apicid
- > matches the Linux node number require a leap of faith that the bios lay-
- > ed out the apicids a set way.  Modern summit HW does not layout its bios
- > in the manner for various reasons and is unable to boot i386 numa.
- > 
- >   The best way to get the correct apicid to node information is from the
- > SRAT table. 
+Do you have life experience?
 
-Do all summit's have SRAT tables ?
-I was under the impression the early ones were around before
-the invention of SRAT.
+F ast Trac k D egree Prog ram
 
-		Dave
+Obtain the degr ee you deserve, based on your present knowledge and life
+experience. A prosperous future, money earning power, and the Admiration of all.
 
--- 
-http://www.codemonkey.org.uk
+Deg rees from an Established, Pres tigious, Leading Institution.
+Your degre e will show exactly what you really can do.
+
+Get the Job, Promotion, Business Opportunity and Social Advancement you Desire!
+Eliminates classrooms and traveling.
+
+Achieve your B achelors, M asters, MB A, or Ph D
+in the field of your expertise.
+
+Professional and affordable! Call now - your Grad uation is a phone call away.
+
+Please call:
+  1-206-600-6825 
+Calls returned promptly
+
+
+A wise man will hear, and will increase learning; and a man of understanding shall attain unto wise counsels. When yuh buy ah dutty calico yuh gat fuh wear am till it tear. Experience is a great servant Be kind to people on the way up, you may need them when you are on your way down Moon ah run till daylight ketch am. Many people know how to say nothing; few know when One years seeding means seven years weeding
+
+
+
+
+

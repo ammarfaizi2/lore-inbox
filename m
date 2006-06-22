@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbWFVIaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWFVIeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161010AbWFVIaz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 04:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWFVIaz
+	id S932387AbWFVIeL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 04:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWFVIeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 04:30:55 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:60164 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S964950AbWFVIax
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 04:30:53 -0400
-Date: Thu, 22 Jun 2006 18:30:37 +1000
-To: David Miller <davem@davemloft.net>
-Cc: alan@lxorguk.ukuu.org.uk, snakebyte@gmx.de, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, netdev@vger.kernel.org
-Subject: Re: Memory corruption in 8390.c ?
-Message-ID: <20060622083037.GB26083@gondor.apana.org.au>
-References: <1150909982.15275.100.camel@localhost.localdomain> <E1FtDU0-0005nd-00@gondolin.me.apana.org.au> <20060622023029.GA6156@gondor.apana.org.au> <20060622.012609.25474139.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060622.012609.25474139.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Thu, 22 Jun 2006 04:34:10 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:53395 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S932387AbWFVIeJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 04:34:09 -0400
+Date: Thu, 22 Jun 2006 10:34:05 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [SCSI] audit drivers for incorrect max_id use
+In-Reply-To: <200606211859.k5LIxxUh027415@hera.kernel.org>
+Message-ID: <Pine.LNX.4.62.0606221033160.23155@pademelon.sonytel.be>
+References: <200606211859.k5LIxxUh027415@hera.kernel.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 01:26:09AM -0700, David Miller wrote:
->
-> Want me to let this cook in 2.6.18 for a while before sending
-> it off to -stable?
+On Wed, 21 Jun 2006, Linux Kernel Mailing List wrote:
+> [SCSI] audit drivers for incorrect max_id use
+> 
+> max_id now means the maximum number of ids on the bus, which means it
+> is one greater than the largest possible id number.
 
-You know I'm never one to push anything quickly so absolutely yes :)
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+IMHO that's confusing.
+
+Shouldn't it be renamed to max_num_ids?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

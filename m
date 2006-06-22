@@ -1,101 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161091AbWFVL7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161103AbWFVMAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161091AbWFVL7f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 07:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbWFVL7f
+	id S1161103AbWFVMAS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 08:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbWFVMAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 07:59:35 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:9918 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161091AbWFVL7e (ORCPT
+	Thu, 22 Jun 2006 08:00:18 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:45358 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1161102AbWFVMAQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 07:59:34 -0400
-Date: Thu, 22 Jun 2006 06:59:07 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Sonny Rao <sonny@burdell.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, anton@samba.org
-Subject: Re: Possible bug in do_execve()
-Message-ID: <20060622115907.GD27074@sergelap.austin.ibm.com>
-References: <20060620022506.GA3673@kevlar.burdell.org> <20060621184129.GB16576@sergelap.austin.ibm.com> <20060621185508.GA9234@kevlar.burdell.org> <20060621190910.GC16576@sergelap.austin.ibm.com> <20060621192726.GA10052@kevlar.burdell.org> <20060621194250.GD16576@sergelap.austin.ibm.com> <20060621201258.GB10052@kevlar.burdell.org>
-Mime-Version: 1.0
+	Thu, 22 Jun 2006 08:00:16 -0400
+Date: Thu, 22 Jun 2006 14:00:14 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Miller <davem@davemloft.net>,
+       herbert@gondor.apana.org.au, snakebyte@gmx.de,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@vger.kernel.org
+Subject: Re: Memory corruption in 8390.c ?
+Message-ID: <20060622120014.GA13681@harddisk-recovery.com>
+References: <20060622023029.GA6156@gondor.apana.org.au> <20060622.012609.25474139.davem@davemloft.net> <20060622083037.GB26083@gondor.apana.org.au> <20060622.013440.97293561.davem@davemloft.net> <1150976063.15275.146.camel@localhost.localdomain> <1150976016.3120.19.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060621201258.GB10052@kevlar.burdell.org>
+In-Reply-To: <1150976016.3120.19.camel@laptopd505.fenrus.org>
+Organization: Harddisk-recovery.com
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Sonny Rao (sonny@burdell.org):
-> > > It seems to assume that mm->context is valid before doing a check.
-> > > 
-> > > Since I don't have a sparc64 box, I can't check to see if this
-> > > actually breaks things or not.
-> > 
-> > So we can either go through all arch's and make sure destroy_context is
-> > safe for invalid context, or split mmput() and destroy_context()...
-> > 
-> > The former seems easier, but the latter seems more robust in the face of
-> > future code changes I guess.
+On Thu, Jun 22, 2006 at 01:33:36PM +0200, Arjan van de Ven wrote:
+> On Thu, 2006-06-22 at 12:34 +0100, Alan Cox wrote:
+> > The 8390 change (corrected version) also makes 8390.c faster so should
+> > be applied anyway, 
 > 
-> Yes, the former does seem easier, and perhaps easiest is to do that
-> and document what the pre-conditions are so future developers at least
-> have a clue.
+> 8390 is such a race monster that a few cycles matter a lot! :-)
 
-Hmm, but document it where, since there is no single destroy_context()
-definition?  At the mmput() and __mmdrop() definitions in kernel/fork.c?
+It sure is. Back in the old days I could saturate a 10 Mbit ethernet
+segment using a Western Digital 8003 (the 8 bit ISA card) in a 386DX40
+(running Linux 1.0, 1.2, and 1.3).
 
-(like so: ?)
 
--serge
+Erik
 
-From: Serge E. Hallyn <hallyn@sergelap.(none)>
-Date: Wed, 21 Jun 2006 13:37:27 -0500
-Subject: [PATCH] powerpc: check for proper mm->context before destroying
-
-arch/powerpc/mm/mmu_context_64.c:destroy_context() can be called
-from __mmput() in do_execve() if init_new_context() failed.  This
-can result in idr_remove() being called for an invalid context.
-
-So, don't call idr_remove if there is no context.
-
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
-
----
-
- arch/powerpc/mm/mmu_context_64.c |    3 +++
- kernel/fork.c                    |    4 ++++
- 2 files changed, 7 insertions(+), 0 deletions(-)
-
-d4fdebfda2170615db87f5aaf45b8478e223824a
-diff --git a/arch/powerpc/mm/mmu_context_64.c b/arch/powerpc/mm/mmu_context_64.c
-index 714a84d..552d590 100644
---- a/arch/powerpc/mm/mmu_context_64.c
-+++ b/arch/powerpc/mm/mmu_context_64.c
-@@ -55,6 +55,9 @@ again:
- 
- void destroy_context(struct mm_struct *mm)
- {
-+	if (mm->context.id == NO_CONTEXT)
-+		return;
-+
- 	spin_lock(&mmu_context_lock);
- 	idr_remove(&mmu_context_idr, mm->context.id);
- 	spin_unlock(&mmu_context_lock);
-diff --git a/kernel/fork.c b/kernel/fork.c
-index ac8100e..0fe51aa 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -354,6 +354,10 @@ struct mm_struct * mm_alloc(void)
-  * Called when the last reference to the mm
-  * is dropped: either by a lazy thread or by
-  * mmput. Free the page directory and the mm.
-+ *
-+ * Arch-specific destroy_context() implementations
-+ * should be aware that this can be called when
-+ * the mm->context initialization has failed.
-  */
- void fastcall __mmdrop(struct mm_struct *mm)
- {
 -- 
-1.3.3
-
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

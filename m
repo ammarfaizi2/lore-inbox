@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932731AbWFVXve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161461AbWFVXxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932731AbWFVXve (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 19:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932732AbWFVXve
+	id S1161461AbWFVXxE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 19:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161464AbWFVXxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 19:51:34 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:56036 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932731AbWFVXvd (ORCPT
+	Thu, 22 Jun 2006 19:53:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:61156 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161461AbWFVXxD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 19:51:33 -0400
-Date: Thu, 22 Jun 2006 16:51:12 -0700
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Mattia Dongili <malattia@linux.it>, Jiri Slaby <jirislaby@gmail.com>,
-       Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-pm@osdl.org, pavel@suse.cz
-Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
-Message-ID: <20060622235112.GA30484@kroah.com>
-References: <20060622202952.GA14135@kroah.com> <200606221624.03182.david-b@pacbell.net>
+	Thu, 22 Jun 2006 19:53:03 -0400
+Date: Thu, 22 Jun 2006 16:52:59 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.17
+Message-ID: <20060622235259.GA30639@suse.de>
+References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606221546120.6483@g5.osdl.org> <20060622234040.GB30143@suse.de> <Pine.LNX.4.64.0606221646200.6483@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200606221624.03182.david-b@pacbell.net>
+In-Reply-To: <Pine.LNX.4.64.0606221646200.6483@g5.osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 04:24:02PM -0700, David Brownell wrote:
-> On Thursday 22 June 2006 1:29 pm, Greg KH wrote:
-> > 
-> > David, we really should not be caring about what the children of a USB
-> > device is doing here, as who knows what type of "device" might hang off
-> > of a struct usb_device. 
+On Thu, Jun 22, 2006 at 04:48:43PM -0700, Linus Torvalds wrote:
 > 
-> Should be _only_ interfaces; everything else descends from an interface.
-
-Not anymore, and who knows what might hang off a USB device in the
-future.  We can't necessarily control our children like this, as some
-other subsystem might want to use a usb_device as a parent, and there's
-nothing wrong with that.
-
-> There was previously an invariant that the interfaces were marked
-> as quiescent unless the interface (a) had a driver, and (b) that
-> driver was not suspended.  Evidently that has been lost.  This patch
-> may be insufficient; ISTR other places relying on that invariant.
 > 
-> And yes, we _should_ care about whether or not any interface is
-> still active, until the pm core code starts to pay attention to
-> the driver model tree at all times ... even outside of system-wide
-> suspend transitions.  Today, the pm core code doesn't even use
-> that tree directly, and all runtime state changes (like selective
-> suspend with USB) completely bypass that pm tree.
+> On Thu, 22 Jun 2006, Greg KH wrote:
+> >
+> > I saw this once when debugging the usb code, but could never reproduce
+> > it, so I attributed it to an incomplete build at the time, as a reboot
+> > fixed it.
+> 
+> I'm pretty sure the build was good, but it may well be timing-related.
+> 
+> > Is this easy to trigger for you?
+> 
+> No. I've never seen it before on this machine (and it's that Mac Mini that 
+> I've been rebooting several times a day for the last week), so if it's an 
+> old bug, it's definitely not repeatable. I was thinking it would be 
+> something new..
 
-Hm, ok, yes, we should care about interfaces, but we need some way to
-only walk them, not anything else that might be attached to us...
+I would think it's something new too, as I did change that very line
+that oopsed.  That's why I found it odd that I couldn't reproduce it
+anymore.
 
-thanks,
+> I'll let you know if I can repro it.
+
+Thanks, that would help out a lot.
 
 greg k-h

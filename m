@@ -1,38 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbWFVK7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161063AbWFVLAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161056AbWFVK7n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 06:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbWFVK7m
+	id S1161063AbWFVLAL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 07:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161064AbWFVLAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 06:59:42 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:20404 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1161056AbWFVK7m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 06:59:42 -0400
-Date: Thu, 22 Jun 2006 11:59:28 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Pete Popov <ppopov@embeddedalley.com>
-Cc: Jean Delvare <khali@linux-fr.org>, linux-mips@linux-mips.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: i2c-algo-ite and i2c-ite planned for removal
-Message-ID: <20060622105928.GA4032@linux-mips.org>
-References: <20060615225723.012c82be.khali@linux-fr.org> <1150406598.1193.73.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Thu, 22 Jun 2006 07:00:10 -0400
+Received: from fc-cn.com ([218.25.172.144]:20486 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S1161063AbWFVLAI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 07:00:08 -0400
+Date: Thu, 22 Jun 2006 16:29:12 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, rusty@rustcorp.com.au
+Subject: [patch] cleanup: kthread workqueue rename
+Message-ID: <20060622082912.GA6334@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1150406598.1193.73.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 16, 2006 at 12:23:17AM +0300, Pete Popov wrote:
+cleanup: rename kthread helper_wq to kthread_wq.
 
-> For historical correctness, this driver was once upon a time usable,
-> though it was a few years ago. It was written by MV for some ref board
-> that had the ITE chip and it did work. That ref board is no longer
-> around so it's probably safe to nuke the driver. 
+Signed-off-by: Qi Yong <qiyong@freeforge.net>
+---
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index c5f3c66..3184c94 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -19,7 +19,7 @@ #include <asm/semaphore.h>
+  * We dont want to execute off keventd since it might
+  * hold a semaphore our callers hold too:
+  */
+-static struct workqueue_struct *helper_wq;
++static struct workqueue_struct *kthread_wq;
+ 
+ struct kthread_create_info
+ {
+@@ -138,10 +138,10 @@ struct task_struct *kthread_create(int (
+ 	/*
+ 	 * The workqueue needs to start up first:
+ 	 */
+-	if (!helper_wq)
++	if (!kthread_wq)
+ 		work.func(work.data);
+ 	else {
+-		queue_work(helper_wq, &work);
++		queue_work(kthread_wq, &work);
+ 		wait_for_completion(&create.done);
+ 	}
+ 	if (!IS_ERR(create.result)) {
+@@ -203,12 +203,12 @@ int kthread_stop_sem(struct task_struct 
+ }
+ EXPORT_SYMBOL(kthread_stop_sem);
+ 
+-static __init int helper_init(void)
++static __init int kthread_init(void)
+ {
+-	helper_wq = create_singlethread_workqueue("kthread");
+-	BUG_ON(!helper_wq);
++	kthread_wq = create_singlethread_workqueue("kthread");
++	BUG_ON(!kthread_wq);
+ 
+ 	return 0;
+ }
+-core_initcall(helper_init);
++core_initcall(kthread_init);
+ 
 
-Not quite true; the board support for that board is still around and it's
-on my to-be-nuked list for after 2.6.18.
-
-  Ralf
+-- 
+Coywolf Qi Hunt

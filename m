@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751788AbWFVPwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751828AbWFVPxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751788AbWFVPwc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 11:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751650AbWFVPwc
+	id S1751828AbWFVPxU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 11:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWFVPxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 11:52:32 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45586 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751377AbWFVPwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 11:52:31 -0400
-Date: Thu, 22 Jun 2006 17:52:30 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.17-mm1: kernel/lockdep.c: write-only variables
-Message-ID: <20060622155230.GG9111@stusta.de>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 22 Jun 2006 11:53:20 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:42971 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1751827AbWFVPxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 11:53:19 -0400
+Date: Thu, 22 Jun 2006 17:53:17 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 6/6] cpu_relax(): ptrace.c coding style fix
+Message-ID: <20060622155317.GA9746@rhlx01.fht-esslingen.de>
+References: <20060621210046.GF22516@rhlx01.fht-esslingen.de> <20060622143223.GK16029@localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <20060622143223.GK16029@localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following variables in kernel/lockdep.c are write-only:
-  nr_hardirq_read_safe_locks
-  nr_hardirq_read_unsafe_locks
-  nr_hardirq_safe_locks
-  nr_hardirq_unsafe_locks
-  nr_softirq_read_safe_locks
-  nr_softirq_read_unsafe_locks
-  nr_softirq_safe_locks
-  nr_softirq_unsafe_locks
+On Thu, Jun 22, 2006 at 09:32:23AM -0500, Nathan Lynch wrote:
+> Andreas Mohr wrote:
+> > 
+> > Fix existing cpu_relax() loop to have proper kernel style.
+> > 
+> 
+> ...
+> 
+> > @@ -182,9 +182,8 @@
+> >  	if (!write_trylock(&tasklist_lock)) {
+> >  		local_irq_enable();
+> >  		task_unlock(task);
+> > -		do {
+> > +		while (!write_can_lock(&tasklist_lock))
+> >  			cpu_relax();
+> > -		} while (!write_can_lock(&tasklist_lock));
+> 
+> This is a change in behavior, not just style.  (And there is nothing
+> wrong with the current style.)
 
-Is a usage pending or should they be removed?
+Ick, right, this could cause the new state to be visible in the 2nd iteration
+only.
 
-cu
-Adrian
+Thanks! Discard this change please.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Andreas Mohr

@@ -1,78 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161123AbWFVQVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161165AbWFVQWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161123AbWFVQVh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 12:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030643AbWFVQVh
+	id S1161165AbWFVQWh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 12:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161167AbWFVQWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 12:21:37 -0400
-Received: from xenotime.net ([66.160.160.81]:37001 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030624AbWFVQVg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 12:21:36 -0400
-Date: Thu, 22 Jun 2006 09:24:22 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: clameter@sgi.com, ntl@pobox.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, ashok.raj@intel.com, pavel@ucw.cz,
-       ak@suse.de, nickpiggin@yahoo.com.au, mingo@elte.hu
-Subject: Re: [PATCH] stop on cpu lost
-Message-Id: <20060622092422.256d6692.rdunlap@xenotime.net>
-In-Reply-To: <20060623010550.0e26a46e.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060620125159.72b0de15.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060621225609.db34df34.akpm@osdl.org>
-	<20060622150848.GL16029@localdomain>
-	<20060622084513.4717835e.rdunlap@xenotime.net>
-	<Pine.LNX.4.64.0606220844430.28341@schroedinger.engr.sgi.com>
-	<20060623010550.0e26a46e.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jun 2006 12:22:36 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:35613 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1161165AbWFVQWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 12:22:35 -0400
+X-IronPort-AV: i="4.06,166,1149490800"; 
+   d="scan'208"; a="1830694733:sNHT34124664"
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [GIT PULL] please pull infiniband.git
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 22 Jun 2006 09:22:33 -0700
+Message-ID: <aday7vpkvna.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 22 Jun 2006 16:22:33.0974 (UTC) FILETIME=[1144C960:01C69618]
+Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 01:05:50 +0900 KAMEZAWA Hiroyuki wrote:
+Linus, please pull from
 
-> On Thu, 22 Jun 2006 08:45:55 -0700 (PDT)
-> Christoph Lameter <clameter@sgi.com> wrote:
-> 
-> > On Thu, 22 Jun 2006, Randy.Dunlap wrote:
-> > 
-> > > Sounds much better than just killing the process.
-> > 
-> > Right and having active interrupts or devices using that processor should 
-> > also stop offlining a processor.
-> > 
-> > So just remove everything from a processor before offlining. If you cannot 
-> > remove all users then the processor cannot be offlined.
-> > 
-> Hm..
-> Then, there is several ways to manage this sitation.
-> 
-> 1. migrate all even if it's not allowed by users
-> 2. kill mis-configured tasks.
+    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
-I would claim that the tasks are not misconfigured,
-but that the admin misconfigured the hardware (CPU).
+This tree is also available from kernel.org mirrors at:
 
-> 3. stop ...
-> 4. cancel cpu-hot-removal.
-> 
-> I just don't like "1". 
+    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
-I like it better than 2.
+This is mostly merging the new iSER (iSCSI over RDMA transport) initiator:
 
-> I discussed this problem with my colleagues before sending patch,
-> one said "4" seems regular way but another said "4" is bad.
-> 
-> I sent a patch for "4" in the first place but Andi Kleen said it's bad.
-> As he said, I'm handling the problem for which I can't find a good answer :(
-> 
-> my point is that "1" is bad.
+Krishna Kumar:
+      IB/uverbs: Don't free wr list when it's known to be empty
 
-Sounds like we are getting nowhere.  The sysctl knob might
-have to be the answer.
+Or Gerlitz:
+      IB/iser: iSCSI iSER transport provider header file
+      IB/iser: iSCSI iSER transport provider high level code
+      IB/iser: iSER initiator iSCSI PDU and TX/RX
+      IB/iser: iSER RDMA CM (CMA) and IB verbs interaction
+      IB/iser: iSER handling of memory for RDMA
+      IB/iser: iSER Kconfig and Makefile
 
----
-~Randy
+Roland Dreier:
+      IB/uverbs: Remove unnecessary list_del()s
+
+ drivers/infiniband/Kconfig                   |    2 
+ drivers/infiniband/Makefile                  |    1 
+ drivers/infiniband/core/uverbs_cmd.c         |    2 
+ drivers/infiniband/core/uverbs_main.c        |    6 
+ drivers/infiniband/ulp/iser/Kconfig          |   11 
+ drivers/infiniband/ulp/iser/Makefile         |    4 
+ drivers/infiniband/ulp/iser/iscsi_iser.c     |  790 +++++++++++++++++++++++++
+ drivers/infiniband/ulp/iser/iscsi_iser.h     |  354 +++++++++++
+ drivers/infiniband/ulp/iser/iser_initiator.c |  738 +++++++++++++++++++++++
+ drivers/infiniband/ulp/iser/iser_memory.c    |  401 +++++++++++++
+ drivers/infiniband/ulp/iser/iser_verbs.c     |  827 ++++++++++++++++++++++++++
+ drivers/scsi/Makefile                        |    1 
+ 12 files changed, 3130 insertions(+), 7 deletions(-)
+ create mode 100644 drivers/infiniband/ulp/iser/Kconfig
+ create mode 100644 drivers/infiniband/ulp/iser/Makefile
+ create mode 100644 drivers/infiniband/ulp/iser/iscsi_iser.c
+ create mode 100644 drivers/infiniband/ulp/iser/iscsi_iser.h
+ create mode 100644 drivers/infiniband/ulp/iser/iser_initiator.c
+ create mode 100644 drivers/infiniband/ulp/iser/iser_memory.c
+ create mode 100644 drivers/infiniband/ulp/iser/iser_verbs.c

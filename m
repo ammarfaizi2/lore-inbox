@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030396AbWFVUZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161324AbWFVU0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030396AbWFVUZb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 16:25:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbWFVUZb
+	id S1161324AbWFVU0O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 16:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161329AbWFVU0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 16:25:31 -0400
-Received: from rtr.ca ([64.26.128.89]:46984 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1030396AbWFVUZa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 16:25:30 -0400
-Message-ID: <449AFCB8.4030608@rtr.ca>
-Date: Thu, 22 Jun 2006 16:25:28 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Thu, 22 Jun 2006 16:26:14 -0400
+Received: from silver.veritas.com ([143.127.12.111]:54800 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1161324AbWFVU0M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 16:26:12 -0400
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.06,166,1149490800"; 
+   d="scan'208"; a="39478665:sNHT1187321172"
+Date: Thu, 22 Jun 2006 21:25:52 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Pavel Machek <pavel@suse.cz>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, clameter@sgi.com,
+       ntl@pobox.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ashok.raj@intel.com, ak@suse.de, mingo@elte.hu
+Subject: Re: [PATCH] stop on cpu lost
+In-Reply-To: <449AF61C.9040807@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0606222117530.26444@blonde.wat.veritas.com>
+References: <20060620125159.72b0de15.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060621225609.db34df34.akpm@osdl.org> <20060622150848.GL16029@localdomain>
+ <20060622084513.4717835e.rdunlap@xenotime.net>
+ <Pine.LNX.4.64.0606220844430.28341@schroedinger.engr.sgi.com>
+ <20060623010550.0e26a46e.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060622092422.256d6692.rdunlap@xenotime.net> <20060622182231.GC4193@elf.ucw.cz>
+ <Pine.LNX.4.64.0606221938410.17581@blonde.wat.veritas.com>
+ <449AEF29.9070300@yahoo.com.au> <Pine.LNX.4.64.0606222030290.23611@blonde.wat.veritas.com>
+ <449AF61C.9040807@yahoo.com.au>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: js@linuxtv.org, pavel@ucw.cz, p.lundkvist@telia.com,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl
-Subject: Re: [PATCH] Page writeback broken after resume: wb_timer lost
-References: <20060520130326.GA6092@localhost>	<20060520103728.6f3b3798.akpm@osdl.org>	<20060520225018.GC8490@elf.ucw.cz>	<20060520171244.4399bc54.akpm@osdl.org>	<20060616212410.GA6821@linuxtv.org>	<4496C5AC.3030809@rtr.ca>	<4498BF51.5090204@rtr.ca>	<20060620205415.d808ace9.akpm@osdl.org>	<4498C6CF.3080206@rtr.ca> <20060620211905.c7307b9f.akpm@osdl.org>
-In-Reply-To: <20060620211905.c7307b9f.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 22 Jun 2006 20:26:10.0786 (UTC) FILETIME=[19914C20:01C6963A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->
-> Is that after a suspend/resume, or does it happen after a reboot?
+On Fri, 23 Jun 2006, Nick Piggin wrote:
+> > >Hugh Dickins wrote:
+> > >
+> > > >I'd expect tasks bound to the unplugged cpu simply not to be run
+> > > >until "that" cpu is plugged back in.
+> > 
+> > I wasn't meaning "kill -9" for the swsusp case, but for the general
+> > unplug cpu case.  We have a number of homeless tasks, which the admin
+> > might want to run again when "the" cpu is plugged back in; or might
+> > want to kill off without having to plug a cpu back in.
+> 
+> Possible maybe... I presumed that would lead to a nightmare of
+> resource deadlocks (think mutexes).
 
-Definitely after a suspend/resume (RAM).
-It's been too long for me to remember about after a reboot.
+Yes, that's what I've naively overlooked - thanks.
 
-> Are you sure all the dirty memory doesn't get autocleaned after 30-60
-> seconds?
+But _maybe_ there's still a case for allowing such tasks to run
+_in_kernel_ on a wrong cpu, to release resources, and to be killed.
 
-No, it does not get autocleaned (without this patch) after 30-60 *minutes*,
-let alone 30-60 seconds.  Nor with or without laptop-mode enabled/disabled.
-Nor anything else suggested.  Except for this patch.
-
-Cheers
+Hugh

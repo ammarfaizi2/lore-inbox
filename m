@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751813AbWFVPJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751817AbWFVPRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751813AbWFVPJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 11:09:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWFVPJJ
+	id S1751817AbWFVPRj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 11:17:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751821AbWFVPRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 11:09:09 -0400
-Received: from rune.pobox.com ([208.210.124.79]:16013 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S1751813AbWFVPJH (ORCPT
+	Thu, 22 Jun 2006 11:17:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34968 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751817AbWFVPRi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 11:09:07 -0400
-Date: Thu, 22 Jun 2006 10:08:48 -0500
-From: Nathan Lynch <ntl@pobox.com>
+	Thu, 22 Jun 2006 11:17:38 -0400
+Date: Thu, 22 Jun 2006 16:17:21 +0100
+From: Alasdair G Kergon <agk@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, ashok.raj@intel.com, pavel@ucw.cz,
-       clameter@sgi.com, ak@suse.de, nickpiggin@yahoo.com.au, mingo@elte.hu
-Subject: Re: [PATCH] stop on cpu lost
-Message-ID: <20060622150848.GL16029@localdomain>
-References: <20060620125159.72b0de15.kamezawa.hiroyu@jp.fujitsu.com> <20060621225609.db34df34.akpm@osdl.org>
+Cc: Milan Broz <mbroz@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/15] dm: support ioctls on mapped devices
+Message-ID: <20060622151721.GT19222@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, Milan Broz <mbroz@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <20060621193121.GP4521@agk.surrey.redhat.com> <20060621205206.35ecdbf8.akpm@osdl.org> <449A51A2.4080601@redhat.com> <20060622012957.97697208.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060621225609.db34df34.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060622012957.97697208.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
-> > 
-> > Now, when a task loses all of its allowed cpus because of cpu hot removal,
-> > it will be foreced to migrate to not-allowed cpus.
-> > 
-> > In this case, the task is not properly reconfigurated by a user before
-> > cpu-hot-removal. Here, the task (and system) is in a unexpeced wrong state.
-> > This migration is maybe one of realistic workarounds. But sometimes it will be
-> > harmfull.
-> > (stealing other cpu time, making bugs in thread controllers, do some unexpected
-> >  execution...)
-> > 
-> > This patch adds sysctl "sigstop_on_cpu_lost". When sigstop_on_cpu_lost==1,
-> > a task which losts is cpu will be stopped by SIGSTOP.
-> > Depends on system management policy, mis-configurated applications are stopped.
-> > 
-> 
-> Well that's a pretty unpleasant patch, isn't it?
-> 
-> But I guess it's policy, and if we cannot think of anything better then we'll
-> have to do it this way :(
+On Thu, Jun 22, 2006 at 01:29:57AM -0700, Andrew Morton wrote:
+> OK.  I do think dm needs to remember /dev/sda's file* to get this right
+> though.  That's where the ->ioctl methods are.
 
-I tend to favor not changing the kernel to handle this case.  We're
-already making a best effort attempt to handle conflicting directives
-from the admin.  This is a policy that can be implemented in userspace
-without much trouble.
+> Oh dear.  raw_open() doesn't have a file* for the device.
+ 
+Similar with device-mapper: in normal usage dm only sees major:minor.
 
-If we really want to keep the admin shooting himself in the foot,
-wouldn't it be preferable to fail the offline operation if there are
-user tasks exclusively bound to the cpu?
+Yes, the filp dm passes along is incorrect:
 
-While we're on the subject, what if there are interrupts bound to the
-cpu you want to offline?  Should we consider handling that case
-differently as well?
+- return blkdev_driver_ioctl(bdev->bd_inode, filp, bdev->bd_disk, cmd, arg);
++ return blkdev_driver_ioctl(bdev->bd_inode, NULL, bdev->bd_disk, cmd, arg);
 
+But should unlocked_ioctl become ?
+
+- long (*unlocked_ioctl) (struct file *, unsigned, unsigned long);
++ long (*unlocked_ioctl) (struct inode *, struct file *, unsigned, unsigned long);
+
+so it can be used for block devices?
+
+See also block/scsi_ioctl.c:201 verify_command()  [scsi_cmd_ioctl]
+         * file can be NULL from ioctl_by_bdev()...
+
+Or should we be working towards eliminating interfaces that use device numbers?
+
+Alasdair
+-- 
+agk@redhat.com

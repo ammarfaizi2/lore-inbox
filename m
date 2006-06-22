@@ -1,88 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWFVSt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161178AbWFVSua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbWFVSt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 14:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWFVSt5
+	id S1161178AbWFVSua (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 14:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161175AbWFVSu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 14:49:57 -0400
-Received: from ns2.suse.de ([195.135.220.15]:4547 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932240AbWFVSt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 14:49:56 -0400
-Date: Thu, 22 Jun 2006 11:46:49 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       linux-pm@osdl.org
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-Message-ID: <20060622184649.GA6768@kroah.com>
-References: <20060622004648.f1912e34.akpm@osdl.org> <Pine.LNX.4.44L0.0606221144190.8121-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0606221144190.8121-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.5.11
+	Thu, 22 Jun 2006 14:50:29 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:24479 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1161178AbWFVSu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 14:50:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=KH3/cuh5PM60Q596ykKNyKR7Zr0NzFXmCNeo5z8tyUyMHarkFV4h6aM6LoaHo16LzNoRWbR3Q9cXKltx8b6dkRaS/Op/tb45d7weUTRra4EdR6dc8yN4jBejWtZ0q2XpKrGu0MsXjpA0M8TaX8LDrDQfOV2uIcTkK5TORpP6awU=
+Message-ID: <449AE670.8080909@gmail.com>
+Date: Thu, 22 Jun 2006 12:50:24 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: [ patch -mm1 02/11 ] gpio-patchset-fixups: ENOMEM on device_add failure
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 11:51:18AM -0400, Alan Stern wrote:
-> On Thu, 22 Jun 2006, Andrew Morton wrote:
-> 
-> > On Wed, 21 Jun 2006 23:19:05 -0700
-> > Greg KH <greg@kroah.com> wrote:
-> > 
-> > > > I have the same problems also with suspend to disk. BTW I can't resume
-> > > > from disk since 2.6.17-rc5-mm1, but I'll try to be more precise
-> > > > tomorrow, as it seems removing the usb stuff makes it do some more steps
-> > > > toward resumimg (eg: with usb modules this laptop immediately reboots
-> > > > after reading all pages, without them I can reach "resuming device.."
-> > > > stage).
-> > > 
-> > > Removing uhci-hcd causes all USB devices to be removed from the system.
-> > > 
-> > > Alan, you've been working in the "generic usb" section lately, any ideas
-> > > why we can't suspend that kind of device now?
-> 
-> See below...
-> 
-> > My laptop has the same problem.
-> 
-> > Shrinking memory... done (0 pages freed)
-> > hci_usb 3-1:1.1: no suspend for driver hci_usb?
-> > hci_usb 3-1:1.0: no suspend for driver hci_usb?
-> >  usbdev3.2_ep00: not suspended
-> > usb_generic_suspend(): verify_suspended+0x0/0x3c() returns -16
-> > suspend_device(): usb_generic_suspend+0x0/0x134() returns -16
-> > Could not suspend device 3-1: error -16
-> > hci_usb 3-1:1.0: no resume for driver hci_usb?
-> > hci_usb 3-1:1.1: no resume for driver hci_usb?
-> > Some devices failed to suspend
-> > Restarting tasks... done
-> > 
-> > 
-> > What's a usbdev3.2_ep00?
-> 
-> Evidently the regression was caused by Greg's patch making endpoints into 
-> real struct devices.  usbdev3.2_ep00 is the device corresponding to 
-> endpoint 0 on device 2 of USB bus 3.
-> 
-> Is it really true that this patch has been sitting in -mm for several
-> months (as stated in the cover message to Linus for the new batch of
-> changes for 2.6.17 sent in yesterday)?
 
-Ugh, no, you are right, the endpoint change was not in for that long,
-sorry.  I thought it did make at least one -mm though.
+If platform_device_alloc fails, return -ENOMEM, not ENODEV.
 
-> There are several possible ways to fix this.  One is to add suspend and 
-> resume routines to the endpoint-device driver.  Another is to change the 
-> code that checks for the children being suspended, to make it check only 
-> for child USB devices and not child endpoints.
+Signed-off-by:   Jim Cromie <jim.cromie@gmail.com>
 
-I think it needs to check for _USB_ devices, not just any old device
-that could possibly be attached to the main USB device (as this one is.)
-What's to stop any other struct device to bind here and cause the same
-problem?
 
-thanks,
+diff -ruNp -X dontdiff -X exclude-diffs aa-1/drivers/char/scx200_gpio.c aa-2/drivers/char/scx200_gpio.c
+--- aa-1/drivers/char/scx200_gpio.c	2006-06-22 09:29:24.000000000 -0600
++++ aa-2/drivers/char/scx200_gpio.c	2006-06-22 09:43:16.000000000 -0600
+@@ -87,7 +87,7 @@ static int __init scx200_gpio_init(void)
+ 	/* support dev_dbg() with pdev->dev */
+ 	pdev = platform_device_alloc(DEVNAME, 0);
+ 	if (!pdev)
+-		return -ENODEV;
++		return -ENOMEM;
+ 
+ 	rc = platform_device_add(pdev);
+ 	if (rc)
 
-greg k-h
+

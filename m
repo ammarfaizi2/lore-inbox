@@ -1,78 +1,128 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1030467AbWFVAhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1030476AbWFVBFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030467AbWFVAhK (ORCPT <rfc822;akpm@zip.com.au>);
-	Wed, 21 Jun 2006 20:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030463AbWFVAhK
+	id S1030476AbWFVBFD (ORCPT <rfc822;akpm@zip.com.au>);
+	Wed, 21 Jun 2006 21:05:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbWFVBFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 20:37:10 -0400
-Received: from smtp1.netcabo.pt ([212.113.174.28]:13212 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1030469AbWFVAhI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 20:37:08 -0400
+	Wed, 21 Jun 2006 21:05:03 -0400
+Received: from smtp3.netcabo.pt ([212.113.174.30]:29079 "EHLO
+	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S1030476AbWFVBFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 21:05:01 -0400
 X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AWYmALF9mUSBToRGgjU
+X-IronPort-Anti-Spam-Result: AWYmAGOFmUSBToRGgjU
 X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(213.22.222.3):SA:1(13.9/5.0):. Processed in 12.849663 secs Process 14569)
-Subject: who I do know if a interrupt is ioapic_edge_type or 
+X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(213.22.222.3):SA:1(10.7/5.0):. Processed in 6.907074 secs Process 14763)
+Subject: Re: how I know if a interrupt is ioapic_edge_type or 
 	ioapic_level_type? [Was Re: [Fwd: Re: [Linux-usb-users] Fwd: Re:
 	2.6.17-rc6-mm2 - USB issues]]
 From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
 Reply-To: sergio@sergiomb.no-ip.org
-To: Johny <kernel@agotnes.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-acpi@vger.kernel.org,
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: kernel@agotnes.com, akpm@osdl.org, linux-acpi@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
         linux-usb-devel@lists.sourceforge.net, stern@rowland.harvard.edu,
-        Chris Wedgwood <cw@f00f.org>, vsu@altlinux.ru
-In-Reply-To: <4499245C.8040207@agotnes.com>
-References: <44953B4B.9040108@agotnes.com>	<4497DA3F.80302@agotnes.com>
-	 <20060620044003.4287426d.akpm@osdl.org>  <4499245C.8040207@agotnes.com>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-qwdcODCZdPSo1fW86WTM"
-Date: Thu, 22 Jun 2006 01:36:46 +0100
-Message-Id: <1150936606.2855.21.camel@localhost.portugal>
+        cw@f00f.org, vsu@altlinux.ru
+In-Reply-To: <20060621174754.159bb1d0.rdunlap@xenotime.net>
+References: <44953B4B.9040108@agotnes.com> <4497DA3F.80302@agotnes.com>
+	 <20060620044003.4287426d.akpm@osdl.org> <4499245C.8040207@agotnes.com>
+	 <1150936606.2855.21.camel@localhost.portugal>
+	 <20060621174754.159bb1d0.rdunlap@xenotime.net>
+Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-3yHTPJvuCUr57C0748qm"
+Date: Thu, 22 Jun 2006 02:04:48 +0100
+Message-Id: <1150938288.3221.2.camel@localhost.portugal>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-X-OriginalArrivalTime: 22 Jun 2006 00:37:06.0109 (UTC) FILETIME=[FCD386D0:01C69593]
+X-OriginalArrivalTime: 22 Jun 2006 01:04:59.0005 (UTC) FILETIME=[E1F332D0:01C69597]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-qwdcODCZdPSo1fW86WTM
+--=-3yHTPJvuCUr57C0748qm
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: quoted-printable
 
-who I do know if a interrupt is ioapic_edge_type or ioapic_edge_type ?=20
+who no, how sorry! I am a little tired=20
 
-On Wed, 2006-06-21 at 20:50 +1000, Johny wrote:
-> Success :)
+On Wed, 2006-06-21 at 17:47 -0700, Randy.Dunlap wrote:=20
+> On Thu, 22 Jun 2006 01:36:46 +0100 Sergio Monteiro Basto wrote:
 >=20
-> I simply made the change=20
-> manually, based on your and others' inputs (it seemed the simpler
-> option).
+> > who I do know if a interrupt is ioapic_edge_type or ioapic_edge_type ?=20
 >=20
-> Both kernels now boot, and all USB devices are recognised correctly.
+> Do you mean how they are configured in a running kernel?
+
+yes, I want to know in=20
+linux-2.6.13/drivers/pci/quirks.c
+when I am going quirk the PCI_VIA irq, if this irq is in
+IO-APIC-something or is in XT-PIC , to decide if I quirk the interrupt
+or not=20
+
+
 >=20
-
-> I run in XT_PIC mode for interrupts.
+> cat /proc/interrupts ::
 >=20
+>            CPU0       CPU1      =20
+>   0:   12412944   12407808    IO-APIC-edge  timer
+>   1:     122673     124208    IO-APIC-edge  i8042
+>   7:          0          0    IO-APIC-edge  parport0
+>   9:          0          0   IO-APIC-level  acpi
+>  12:    1141950    1138138    IO-APIC-edge  i8042
+>  14:    1107749    1109102    IO-APIC-edge  ide0
+>  58:     451498          0         PCI-MSI  eth0
+>  66:     530689     495356         PCI-MSI  libata
+>  74:          0          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb6
+>  82:         31          3   IO-APIC-level  ohci_hcd:usb2, ohci_hcd:usb3,=
+ ohci_hcd:usb4, ohci_hcd:usb5
+>  90:        561        492   IO-APIC-level  HDA Intel
+> 169:          3          0   IO-APIC-level  ohci1394
+> 177:          0          0   IO-APIC-level  uhci_hcd:usb8
+> 185:          0          0   IO-APIC-level  uhci_hcd:usb7
+> 193:          0          0   IO-APIC-level  uhci_hcd:usb9
+>=20
+>=20
+> or how they should be configured in case you are not sure?
+> See a hardware spec. for that.
+>=20
+>=20
+> > On Wed, 2006-06-21 at 20:50 +1000, Johny wrote:
+> > > Success :)
+> > >=20
+> > > I simply made the change=20
+> > > manually, based on your and others' inputs (it seemed the simpler
+> > > option).
+> > >=20
+> > > Both kernels now boot, and all USB devices are recognised correctly.
+> > >=20
+> >=20
+> > > I run in XT_PIC mode for interrupts.
+> > >=20
+> >=20
+> > Hi, thanks for your positive test on "my" theory.
+> >=20
+> > Here it goes the link that I talked about on last email=20
+> > http://lkml.org/lkml/2005/8/18/92 (you can read the previous messages o=
+n
+> > this thread)=20
+> >=20
+> > The patch of this link doesn't compile (at least for me), but have a
+> > simple idea, which is just quirk the VIA_PCIs if they are in XT_PIC mod=
+e
+> > and I think that is the way of this quirks should go.
+> >=20
+> > So someone help me out and do a patch that recognize if the interrupt i=
+s
+> > in XT-PIC mode or not ?=20
+> >=20
+> > Thanks, =20
+> > --=20
+> > S=E9rgio M. B.
+> >=20
+>=20
+>=20
+> ---
+> ~Randy
 
-Hi, thanks for your positive test on "my" theory.
-
-Here it goes the link that I talked about on last email=20
-http://lkml.org/lkml/2005/8/18/92 (you can read the previous messages on
-this thread)=20
-
-The patch of this link doesn't compile (at least for me), but have a
-simple idea, which is just quirk the VIA_PCIs if they are in XT_PIC mode
-and I think that is the way of this quirks should go.
-
-So someone help me out and do a patch that recognize if the interrupt is
-in XT-PIC mode or not ?=20
-
-Thanks, =20
---=20
-S=E9rgio M. B.
-
---=-qwdcODCZdPSo1fW86WTM
+--=-3yHTPJvuCUr57C0748qm
 Content-Type: application/x-pkcs7-signature; name=smime.p7s
 Content-Disposition: attachment; filename=smime.p7s
 Content-Transfer-Encoding: base64
@@ -109,13 +159,13 @@ C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
 0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
 c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
 dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjA2MjIwMDM2MzlaMCMGCSqGSIb3DQEJBDEWBBQzt3z7OSrygfNfBcbIBUr0
-vi48uTANBgkqhkiG9w0BAQEFAASCAQAr9rR+ijN3aoTbp1yMBi9O51oN7GbDtDEbYw6vrrqQYO8h
-aE6sU/Mm9+F2/gBZfgHxQ4SAKog6tEL2CIxeKm9cznk8zcYS+hzPs4h38Ev2BA+WlVGFsq3fiY2c
-yPcq3qikU/Kuhj/0ZC5XumRE/aU2rrtMhCA+HPYP5VtCVwkEcQVg4a0YEKGlQSXpvckM8NnyC/2v
-x6dJbirBpb9k1P5hNaWoAdjNFlDXfG9xG4kHWzQu2hwqyXrFKRKwkHOC7JlcBMwNY1iEh1BCUwPf
-OOMUCyP+3igMVA3oQ6LEd2WffVulS6dL8NgaePlifI4CRuEXovbfU+JNXsfEad/knU7QAAAAAAAA
+SIb3DQEJBTEPFw0wNjA2MjIwMTA0NDRaMCMGCSqGSIb3DQEJBDEWBBRS1l5Lx8U41qfSyTVvDjVg
+IAHgADANBgkqhkiG9w0BAQEFAASCAQAls3OwFayV6UBj2SUwzhVzf8faJpO8PND0c3Dj3IbVmpKu
+PJFiNmNUWyiB3wmyzjWPVT0I+6ICOB6d5n/Z8gLWaW058qvCoFC9GacuW0qP7DuKc4cxq8daNpc3
+1h9S/VD/ZCqk84g1yCR8uBSGW93u3OoS/vyz1Y1ivOHcT+kIbGmsrdXK5wAKLVs1TdWp5PHJwCG9
+QBqg1ra8nETInEcpsZI4NKIfFJ8MiZetDjFLePP8Oeh7TVQAukyVQG6VsayzqbH/bAUDlposanwB
+B2NbwI3cp+8xRKrMA609QGVj8ASQDjD3AISSHXXfpkdUlNpedem66/CQuEcnWkwFvYRrAAAAAAAA
 
 
 
---=-qwdcODCZdPSo1fW86WTM--
+--=-3yHTPJvuCUr57C0748qm--

@@ -1,66 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932666AbWFVWqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWFVWsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932666AbWFVWqw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 18:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWFVWqw
+	id S1750992AbWFVWsA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 18:48:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbWFVWsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 18:46:52 -0400
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:43415 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750779AbWFVWqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 18:46:51 -0400
-Message-ID: <449B1DD9.9060903@bigpond.net.au>
-Date: Fri, 23 Jun 2006 08:46:49 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 22 Jun 2006 18:48:00 -0400
+Received: from web33315.mail.mud.yahoo.com ([68.142.206.130]:19349 "HELO
+	web33315.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750992AbWFVWr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 18:47:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=0ESDXiwZp7X51vIXtUPdYOUq1dBK4c3hCnxiRzstPPvur9IraViB9dL345FkybqrIUGzBsRLW7IRpPGZr+uNPT9NgtyZpBqqoBBxvFtFl1uSdy+aDzRy8yplS0CZHvFFYpOFJJuPBNVG8AQ6P9UfGaZlRBAntojKy2Qd7aMpC24=  ;
+Message-ID: <20060622224759.25253.qmail@web33315.mail.mud.yahoo.com>
+Date: Thu, 22 Jun 2006 15:47:59 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: Measuring tools - top and interrupts
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060622175724.GA28913@electric-eye.fr.zoreil.com>
 MIME-Version: 1.0
-To: sekharan@us.ibm.com
-CC: Matt Helsley <matthltc@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>, John T Kohl <jtk@us.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Jes Sorensen <jes@sgi.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       LSE-Tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] [PATCH 00/11] Task watchers:  Introduction
-References: <1150242721.21787.138.camel@stark>	 <4498DC23.2010400@bigpond.net.au> <1150876292.21787.911.camel@stark>	 <44992EAA.6060805@bigpond.net.au> <44993079.40300@bigpond.net.au>	 <1150925387.21787.1056.camel@stark> <4499D097.5030604@bigpond.net.au>	 <1150936337.21787.1114.camel@stark> <4499EE29.9020703@bigpond.net.au>	 <1150947965.21787.1228.camel@stark>  <449A1C0D.7030906@bigpond.net.au>	 <1150954621.21787.1272.camel@stark>  <449A38BE.9070606@bigpond.net.au> <1151006016.26136.16.camel@linuxchandra>
-In-Reply-To: <1151006016.26136.16.camel@linuxchandra>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 22 Jun 2006 22:46:50 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra Seetharaman wrote:
-> On Thu, 2006-06-22 at 16:29 +1000, Peter Williams wrote:
-> 
->> Peter
->> PS A year or so ago the CKRM folks promised to have a look at using PAGG 
->> instead of inventing their own but I doubt that they ever did.
-> 
-> I think it was about 2 years back. We weren't going to re-invent after
-> that point, we had a full implementation at that time.
-> 
-> If i remember correct, we concluded that some design constraints and
-> additional overhead were the reasons for not proceeding in that
-> direction.
-> 
-> BTW, if i remember correct, PAGG folks also promised to look at CKRM to
-> see if they could use CKRM instead.
 
-I don't recall them promising that but I (personally) looked at CKRM and 
-decided that its equivalent functionality was unsuitable as it only 
-allowed one client (unlike PAGG and task watchers).  CKRM at that stage 
-was one big amorphous lump and trying to use sub components wasn't easy 
-as they had been designed to meet CKRM's needs only rather than 
-providing some generally useful functionality.
 
-I'm pleased to say that (unless I'm mistaken) that last bit is no longer 
-true and CKRM is moving towards providing low level functionality that 
-may be generally useful rather than just meeting CKRM's needs.
+--- Francois Romieu <romieu@fr.zoreil.com> wrote:
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+> Danial Thom <danial_thom@yahoo.com> :
+> [bull removed]
+> 
+> You have been told twice in this thread to use
+> vmstat.
+> 
+> Read again and shut up until you can provide a
+> sensible bug report,
+> thank you.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+vmstat gives the same #s as top, and it doesn't
+break down the interrupts, so its not the answer
+to the question "is there something similar to
+systat". Plus its clear that the guy who gave the
+answer doesn't know what he's talking about,
+since he's actually trying to explain away the
+problem as being normal. 
+
+Here's a sensible bug report. Bridging 75K pps.
+vmstat output:
+
+ 0  0      0 425424   9984  40496    0    0     0
+    0 16238    12  0  0 100  0
+ 0  0      0 425424   9984  40496    0    0     0
+    0 16227    16  0  0 100  0
+ 0  0      0 425424   9984  40496    0    0     0
+    0 16244     9  0  0 100  0
+
+Over 16,000 interrupts per second and 100% idle. 
+
+netstat:
+
+eth2   1500   0       5      0      0      468886
+     0      0      0 BMRU
+eth3   1500   473201      0   5680      0       5
+     0      0      0 BMRU
+
+the system is perpetually 100% idle but its
+dropping packets due to excessive backlog.
+
+DT
+
+
+> 
+> -- 
+> Ueimor
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to
+> majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at 
+> http://www.tux.org/lkml/
+> 
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

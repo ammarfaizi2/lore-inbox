@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932757AbWFVDzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932761AbWFVD4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932757AbWFVDzy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 23:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbWFVDzy
+	id S932761AbWFVD4c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 23:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbWFVD4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 23:55:54 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:28879 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751292AbWFVDzx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 23:55:53 -0400
-Subject: Re: [RFC] patch [1/1]  convert i386 summit subarch to use SRAT
-	data for apicid_to_node
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: Dave Jones <davej@redhat.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060622022414.GB4449@redhat.com>
-References: <1150941296.10001.25.camel@keithlap>
-	 <20060622022414.GB4449@redhat.com>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Wed, 21 Jun 2006 20:55:51 -0700
-Message-Id: <1150948551.10001.62.camel@keithlap>
+	Wed, 21 Jun 2006 23:56:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15552 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751292AbWFVD4b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 23:56:31 -0400
+Date: Wed, 21 Jun 2006 20:56:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alasdair G Kergon <agk@redhat.com>
+Cc: linux-kernel@vger.kernel.org, mbroz@redhat.com
+Subject: Re: [PATCH 02/15] dm linear: support ioctls
+Message-Id: <20060621205619.e7c583bc.akpm@osdl.org>
+In-Reply-To: <20060621193308.GQ4521@agk.surrey.redhat.com>
+References: <20060621193308.GQ4521@agk.surrey.redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-21 at 22:24 -0400, Dave Jones wrote:
-> On Wed, Jun 21, 2006 at 06:54:55PM -0700, keith mannthey wrote:
->  > Hello All,
->  >   This patch converts the i386 summit subarch apicid_to_node to use node
->  > information provided by the SRAT.  The current way of obtaining the
->  > nodeid 
->  > 
->  >  static inline int apicid_to_node(int logical_apicid)
->  >  { 
->  >    return logical_apicid >> 5;
->  >  }
->  > 
->  > is just not correct for all summit systems/bios.  Assuming the apicid
->  > matches the Linux node number require a leap of faith that the bios lay-
->  > ed out the apicids a set way.  Modern summit HW does not layout its bios
->  > in the manner for various reasons and is unable to boot i386 numa.
->  > 
->  >   The best way to get the correct apicid to node information is from the
->  > SRAT table. 
+On Wed, 21 Jun 2006 20:33:08 +0100
+Alasdair G Kergon <agk@redhat.com> wrote:
+
+> From: Milan Broz <mbroz@redhat.com>
 > 
-> Do all summit's have SRAT tables ?
-> I was under the impression the early ones were around before
-> the invention of SRAT.
-
-That is a good point.  Let me check into the x440 (1st gen).  x445 x460
-(2nd,3rd gen) uses SRAT for sure (these patches have been tested on
-these systems).  
-
-The x440 lists an srat but maybe it is using some special bios area.  I
-will build a test kernel give it a whirl.  
-
-
-> 		Dave
+> When an ioctl is performed on a device with a linear target, simply
+> pass it on to the underlying block device.
 > 
--- 
-keith mannthey <kmannth@us.ibm.com>
-Linux Technology Center IBM
+> Note that the ioctl will pass through the filtering in blkdev_ioctl()
+> twice.
+>  
+> Signed-off-by: Milan Broz <mbroz@redhat.com>
+> Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+> 
+> Index: linux-2.6.17/drivers/md/dm-linear.c
+> ===================================================================
+> --- linux-2.6.17.orig/drivers/md/dm-linear.c	2006-06-21 17:45:16.000000000 +0100
+> +++ linux-2.6.17/drivers/md/dm-linear.c	2006-06-21 18:32:07.000000000 +0100
+> @@ -96,14 +96,25 @@ static int linear_status(struct dm_targe
+>  	return 0;
+>  }
+>  
+> +static int linear_ioctl(struct dm_target *ti, struct inode *inode,
+> +			struct file *filp, unsigned int cmd,
+> +			unsigned long arg)
+> +{
+> +	struct linear_c *lc = (struct linear_c *) ti->private;
+> +	struct block_device *bdev = lc->dev->bdev;
+> +
+> +	return blkdev_ioctl(bdev->bd_inode, filp, cmd, arg);
+> +}
 
+but, but..  the blockdev's driver may have decided to use a different ioctl
+handler.
+
+We should go through file_operations.ioctl/unlocked_ioctl.

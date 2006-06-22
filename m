@@ -1,47 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751659AbWFVGPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751706AbWFVG3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751659AbWFVGPa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 02:15:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751664AbWFVGPa
+	id S1751706AbWFVG3W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 02:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751707AbWFVG3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 02:15:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18659 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751659AbWFVGP3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 02:15:29 -0400
-Date: Wed, 21 Jun 2006 23:15:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: a.p.zijlstra@chello.nl, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       hugh@veritas.com, dhowells@redhat.com, christoph@lameter.com,
-       mbligh@google.com, npiggin@suse.de, torvalds@osdl.org
-Subject: Re: [PATCH 1/6] mm: tracking shared dirty pages
-Message-Id: <20060621231500.7d00dba4.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606212305240.25441@schroedinger.engr.sgi.com>
-References: <20060619175243.24655.76005.sendpatchset@lappy>
-	<20060619175253.24655.96323.sendpatchset@lappy>
-	<20060621225639.4c8bad93.akpm@osdl.org>
-	<Pine.LNX.4.64.0606212305240.25441@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 22 Jun 2006 02:29:22 -0400
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:22700 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751705AbWFVG3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 02:29:21 -0400
+Message-ID: <449A38BE.9070606@bigpond.net.au>
+Date: Thu, 22 Jun 2006 16:29:18 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Matt Helsley <matthltc@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, Shailabh Nagar <nagar@watson.ibm.com>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       John T Kohl <jtk@us.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
+       Jes Sorensen <jes@sgi.com>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       LSE-Tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] [PATCH 00/11] Task watchers:  Introduction
+References: <1150242721.21787.138.camel@stark>	 <4498DC23.2010400@bigpond.net.au> <1150876292.21787.911.camel@stark>	 <44992EAA.6060805@bigpond.net.au> <44993079.40300@bigpond.net.au>	 <1150925387.21787.1056.camel@stark> <4499D097.5030604@bigpond.net.au>	 <1150936337.21787.1114.camel@stark> <4499EE29.9020703@bigpond.net.au>	 <1150947965.21787.1228.camel@stark>  <449A1C0D.7030906@bigpond.net.au> <1150954621.21787.1272.camel@stark>
+In-Reply-To: <1150954621.21787.1272.camel@stark>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 22 Jun 2006 06:29:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006 23:07:37 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
-
-> On Wed, 21 Jun 2006, Andrew Morton wrote:
+Matt Helsley wrote:
+> On Thu, 2006-06-22 at 14:26 +1000, Peter Williams wrote:
 > 
-> > Performance testing is critical here.  I think some was done, but I don't
-> > reall what tests were performed, nor do I remember the results.  Without such
-> > info it's not possible to make a go/no-go decision.
+> <snip>
 > 
-> Tests did show that there was no performance regression for the usual 
-> tests. That is to be expected since the patch should only modify the 
-> behavior of shared writable mapping. The use of those is rare in typical 
-> benchmarks.
+>>>>>> BTW as a former user of PAGG, I think there are ideas in the PAGG 
+>>>>>> implementation that you should look at.  In particular:
+>>>>>>
+>>>>>> 1. The use of an array of function pointers (one for each hook) can cut 
+>>>>>> down on the overhead.  The notifier_block only needs to contain a 
+>>>>>> pointer to the array so there's no increase in the size of that 
+>>>>>> structure.  Within the array a null pointer would mean "don't bother 
+>>>>>> calling".  Only one real array needs to exist even for per task as 
+>>>>>> they're all using the same functions (just separate data).  It removes 
+>>>>>> the need for a switch statement in the client's function as well as 
+>>>>>> saving on unnecessary function calls.
+>>>>> 	I don't think having an explicit array of function pointers is likely
+>>>>> to be as fast as a switch statement (or a simple branch) generated by
+>>>>> the compiler.
+>>>> With the array there's no need for any switch or branching.  You know 
+>>>> exactly which function in the array to use in each hook.
+>>> 	I don't forsee enough of a difference to make this worth arguing about.
+>>> You're welcome to benchmark and compare arrays vs. switches/branches on
+>>> a variety of archs, SMP boxen, NUMA boxen, etc. and post the results.
+>>> I'm going to focus on other issues for now.
+>>>
+>>>>> 	It doesn't save unecessary function calls unless I modify the core
+>>>>> notifier block structure. Otherwise I still need to stuff a generic
+>>>>> function into .notifier_call and from there get the pointer to the array
+>>>>> to make the next call. So it adds more pointer indirection but does not
+>>>>> reduce the number of intermediate function calls.
+>>>> There comes a point when trying to reuse existing code is less cost 
+>>>> effective than starting over.
+>>> Write my own notifier chains just to avoid a function call? I don't
+>>> think that's sufficient justification for implementing my own.
+>> Can't help thinking why the easier option of adding setuid and setgid 
+>> hooks to PAGG and then including PAGG wasn't adopted.
+> 
+> 	Task watchers is not intended to group tasks. It's intended to factor a
+> common pattern out of these paths in a way useful to existing parts of
+> the kernel, proposed changes, and modules.
+> 
+> 	Your goal of grouping tasks seems like it could use task watchers. That
+> does not mean that every task watcher needs to manage groups of tasks.
 
-Of course.  In this case one should prepare an artificial microbenchmark so
-we can understand the worst case.
+The same is true of PAGG (in spite of the implication in its name). 
+It's really just a general task tracking and call back mechanism (with 
+an ability to store per task data in a way that is easy to find from a 
+call back -- just like per task watchers) and grouping is just one of 
+things it can be used for.  A lot of work went into making it safe and 
+relatively easy to use from modules.  It's a pity to see all that work 
+go to waste.
+
+Admittedly, it didn't have hooks for setuid and setgid but that would 
+have been easy to fix.  Easier than getting task watchers to the same 
+level of maturity and ease of use.  Of course, the ease of use issues 
+won't bite until somebody tries to do something substantial with task 
+watchers from a loadable module as (once you get the hang of them) task 
+watchers are quite easy to use from inside the kernel.
+
+A lot of work went to make the call back mechanisms in PAGG efficient as 
+well but (like you) I don't think that's a very big issue as the hooks 
+aren't on a busy path.
+
+Peter
+PS A year or so ago the CKRM folks promised to have a look at using PAGG 
+instead of inventing their own but I doubt that they ever did.
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

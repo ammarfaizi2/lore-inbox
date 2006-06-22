@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbWFVJCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbWFVJCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932519AbWFVJCG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 05:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWFVJCG
+	id S932536AbWFVJCz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 05:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbWFVJCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 05:02:06 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:60587 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932519AbWFVJCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 05:02:04 -0400
-Date: Thu, 22 Jun 2006 10:57:06 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch] lock validator: rtmutex unlock order annotation
-Message-ID: <20060622085706.GA29136@elte.hu>
+	Thu, 22 Jun 2006 05:02:55 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:14854 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932527AbWFVJCy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 05:02:54 -0400
+Date: Thu, 22 Jun 2006 19:02:27 +1000
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, snakebyte@gmx.de,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       davem@davemloft.net
+Subject: Re: Memory corruption in 8390.c ? (was Re: Possible leaks in network drivers)
+Message-ID: <20060622090227.GA28367@gondor.apana.org.au>
+References: <1150909982.15275.100.camel@localhost.localdomain> <E1FtDU0-0005nd-00@gondolin.me.apana.org.au> <20060622023029.GA6156@gondor.apana.org.au> <449A533E.4090201@pobox.com> <20060622082931.GA26083@gondor.apana.org.au> <449A5B83.4090104@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5049]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <449A5B83.4090104@pobox.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: lock validator: rtmutex unlock order annotation
-From: Ingo Molnar <mingo@elte.hu>
+On Thu, Jun 22, 2006 at 04:57:39AM -0400, Jeff Garzik wrote:
+>
+> >>Non-linear skbs smaller than ETH_ZLEN seem unlikely.
+> >
+> >When I was grepping it seems that a few drivers were using it with
+> >a length other than ETH_ZLEN.  I've just done another grep and here
+> >are the potential suspects:
+> >
+> >cassini.c
+> >starfire.c
+> >yellowfin.c
+> 
+> That doesn't really invalidate the point :)  These drivers are still 
+> only padding very small packets.
 
-rtmutex.c does a tricky piece of 'lock chain' logic spiced with trylock,
-which has one particular codepath where we intentionally release the
-locks in a different order as acquired. Annotate this for the lock
-validator to not complain if CONFIG_DEBUG_NON_NESTED_UNLOCKS=y.
+Hmm, at least cassini pads it to 255 for gigabit...
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/rtmutex.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-Index: linux/kernel/rtmutex.c
-===================================================================
---- linux.orig/kernel/rtmutex.c
-+++ linux/kernel/rtmutex.c
-@@ -243,7 +243,8 @@ static int rt_mutex_adjust_prio_chain(ta
- 	plist_add(&waiter->list_entry, &lock->wait_list);
- 
- 	/* Release the task */
--	spin_unlock_irqrestore(&task->pi_lock, flags);
-+	spin_unlock_non_nested(&task->pi_lock);
-+	local_irq_restore(flags);
- 	put_task_struct(task);
- 
- 	/* Grab the next task */
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

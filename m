@@ -1,85 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWFVNIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030633AbWFVNKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030251AbWFVNIT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 09:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030625AbWFVNIT
+	id S1030633AbWFVNKt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 09:10:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030631AbWFVNKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 09:08:19 -0400
-Received: from sun-email.corp.avocent.com ([65.217.42.16]:905 "EHLO
-	sun-email.corp.avocent.com") by vger.kernel.org with ESMTP
-	id S1030251AbWFVNIS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 09:08:18 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [RFC][PATCH 2/13] SST driver: PCI ids
-Date: Thu, 22 Jun 2006 09:08:18 -0400
-Message-ID: <4821D5B6CD3C1B4880E6E94C6E70913E01B710F6@sun-email.corp.avocent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC][PATCH 2/13] SST driver: PCI ids
-Thread-Index: AcaV/O2rPb08YpOKQjOzGn/u113K7w==
-From: "Straub, Michael" <Michael.Straub@avocent.com>
-To: <linux-kernel@vger.kernel.org>
+	Thu, 22 Jun 2006 09:10:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:24233 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030630AbWFVNKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 09:10:47 -0400
+Subject: Re: Memory corruption in 8390.c ?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: davem@davemloft.net, snakebyte@gmx.de, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, netdev@vger.kernel.org
+In-Reply-To: <E1FtNNQ-0001QW-00@gondolin.me.apana.org.au>
+References: <E1FtNNQ-0001QW-00@gondolin.me.apana.org.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 22 Jun 2006 14:25:34 +0100
+Message-Id: <1150982734.15275.166.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds Equinox multi-port serial (SST) driver.
+Ar Iau, 2006-06-22 am 21:29 +1000, ysgrifennodd Herbert Xu:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > 
+> > The 8390 change (corrected version) also makes 8390.c faster so should
+> > be applied anyway, and the orinoco one fixes some code that isn't even
+> > needed and someone forgot to remove long ago. Otherwise the skb_padto
+> 
+> Yeah I agree totally.  However, I haven't actually seen the fixed 8390
+> version being posted yet or at least not to netdev :)
 
-Part 2: Adds Equinox specific vendor id and SST specific device ids to
-PCI
-id table.
+Ah the resounding clang of a subtle hint ;)
 
-Signed-off-by: Mike Straub <michael.straub@avocent.com>
+Signed-off-by: Alan Cox <alan@redhat.com>
 
----
- pci_ids.h |   30 ++++++++++++++++++++++++++++++
- 1 files changed, 30 insertions(+)
+- Return 8390.c to the old way of handling short packets (which is also
+faster)
 
-diff -Naurp -X dontdiff linux-2.6.17/include/linux/pci_ids.h
-linux-2.6.17.eqnx/include/linux/pci_ids.h
---- linux-2.6.17/include/linux/pci_ids.h	2006-06-17
-21:49:35.000000000 -0400
-+++ linux-2.6.17.eqnx/include/linux/pci_ids.h	2006-06-20
-09:49:55.000000000 -0400
-@@ -1347,6 +1347,36 @@
- #define PCI_VENDOR_ID_ZIATECH		0x1138
- #define PCI_DEVICE_ID_ZIATECH_5550_HC	0x5550
-  
-+#define PCI_VENDOR_ID_EQNX		0x113f
-+#define PCI_DEVICE_ID_EQNX_SST64P	0x0808
-+#define PCI_DEVICE_ID_EQNX_SST128P	0x1010
-+#define PCI_DEVICE_ID_EQNX_SST8PRJ	0x8814
-+#define PCI_DEVICE_ID_EQNX_SST8PRJ2	0x9014
-+#define PCI_DEVICE_ID_EQNX_SST64PHP	0x0868
-+#define PCI_DEVICE_ID_EQNX_SST128PHP	0x1070
-+#define PCI_DEVICE_ID_EQNX_SST4P	0x8888
-+#define PCI_DEVICE_ID_EQNX_SST4PRJ	0x888C
-+#define PCI_DEVICE_ID_EQNX_SST8P	0x9090
-+#define PCI_DEVICE_ID_EQNX_SST8PRJ3	0x9094
-+#define PCI_DEVICE_ID_EQNX_SSTMM8P	0x9898
-+#define PCI_DEVICE_ID_EQNX_SSTMM4P	0x989C
-+#define PCI_DEVICE_ID_EQNX_SST4PC8	0x88A0
-+#define PCI_DEVICE_ID_EQNX_SST4PC4	0x88A4
-+#define PCI_DEVICE_ID_EQNX_SST2P	0x88A8
-+#define PCI_DEVICE_ID_EQNX_SST4PC0	0x88AC
-+#define PCI_DEVICE_ID_EQNX_SST8PC8	0x90B0
-+#define PCI_DEVICE_ID_EQNX_SST8PC4	0x90B4
-+#define PCI_DEVICE_ID_EQNX_SST4PLP	0x88B8
-+#define PCI_DEVICE_ID_EQNX_SST8PC0	0x90BC
-+#define PCI_DEVICE_ID_EQNX_SST16PDB	0x80C0
-+#define PCI_DEVICE_ID_EQNX_SST16PRJ	0x80C4
-+#define PCI_DEVICE_ID_EQNX_SST16PNP	0x80C8
-+#define PCI_DEVICE_ID_EQNX_SST16PDB9	0x80D0
-+#define PCI_DEVICE_ID_EQNX_SST8PDB	0x80D4
-+#define PCI_DEVICE_ID_EQNX_SST4PPWR	0x88EC
-+#define PCI_DEVICE_ID_EQNX_SST8PHP	0x90F0
-+#define PCI_DEVICE_ID_EQNX_SST8PPWR	0x90F4
-+#define PCI_DEVICE_ID_EQNX_SST4PULP	0x88FC
+- Remove the skb_padto from orinoco. This got left in when the padding bad 
+write patch was added and is actually not needed. This is fixing a merge
+error way back when.
+
+- Wavelan can also use the stack based buffer trick if you want
+
+
+
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/8390.c linux-2.6.17/drivers/net/8390.c
+--- linux.vanilla-2.6.17/drivers/net/8390.c	2006-06-19 17:17:32.000000000 +0100
++++ linux-2.6.17/drivers/net/8390.c	2006-06-21 21:23:12.000000000 +0100
+@@ -275,12 +275,14 @@
+ 	struct ei_device *ei_local = (struct ei_device *) netdev_priv(dev);
+ 	int send_length = skb->len, output_page;
+ 	unsigned long flags;
++	char buf[ETH_ZLEN];
++	char *data = skb->data;
  
+ 	if (skb->len < ETH_ZLEN) {
+-		skb = skb_padto(skb, ETH_ZLEN);
+-		if (skb == NULL)
+-			return 0;
++		memset(buf, 0, ETH_ZLEN);	/* more efficient than doing just the needed bits */
++		memcpy(buf, data, skb->len);
+ 		send_length = ETH_ZLEN;
++		data = buf;
+ 	}
  
- #define PCI_VENDOR_ID_SYSKONNECT	0x1148
+ 	/* Mask interrupts from the ethercard. 
+@@ -347,7 +349,7 @@
+ 	 * trigger the send later, upon receiving a Tx done interrupt.
+ 	 */
+ 	 
+-	ei_block_output(dev, send_length, skb->data, output_page);
++	ei_block_output(dev, send_length, data, output_page);
+ 		
+ 	if (! ei_local->txing) 
+ 	{
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/wireless/orinoco.c linux-2.6.17/drivers/net/wireless/orinoco.c
+--- linux.vanilla-2.6.17/drivers/net/wireless/orinoco.c	2006-06-19 17:29:48.000000000 +0100
++++ linux-2.6.17/drivers/net/wireless/orinoco.c	2006-06-21 18:19:02.000000000 +0100
+@@ -491,11 +491,8 @@
+ 	}
+ 
+ 	/* Length of the packet body */
+-	/* FIXME: what if the skb is smaller than this? */
++	/* A shorter data_len will be padded by hermes_bap_pwrite_pad */
+ 	len = max_t(int, ALIGN(skb->len, 2), ETH_ZLEN);
+-	skb = skb_padto(skb, len);
+-	if (skb == NULL)
+-		goto fail;
+ 	len -= ETH_HLEN;
+ 
+ 	eh = (struct ethhdr *)skb->data;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/wireless/wavelan.c linux-2.6.17/drivers/net/wireless/wavelan.c
+--- linux.vanilla-2.6.17/drivers/net/wireless/wavelan.c	2006-06-19 17:29:48.000000000 +0100
++++ linux-2.6.17/drivers/net/wireless/wavelan.c	2006-06-21 18:32:47.000000000 +0100
+@@ -2903,6 +2903,7 @@
+ {
+ 	net_local *lp = (net_local *) dev->priv;
+ 	unsigned long flags;
++	char data[ETH_ZLEN];
+ 
+ #ifdef DEBUG_TX_TRACE
+ 	printk(KERN_DEBUG "%s: ->wavelan_packet_xmit(0x%X)\n", dev->name,
+@@ -2937,15 +2938,16 @@
+ 	 * able to detect collisions, therefore in theory we don't really
+ 	 * need to pad. Jean II */
+ 	if (skb->len < ETH_ZLEN) {
+-		skb = skb_padto(skb, ETH_ZLEN);
+-		if (skb == NULL)
+-			return 0;
++		memset(data, 0, ETH_ZLEN);
++		memcpy(data, skb->data, skb->len);
++		/* Write packet on the card */
++		if(wv_packet_write(dev, data, ETH_ZLEN))
++			return 1;	/* We failed */
+ 	}
+-
+-	/* Write packet on the card */
+-	if(wv_packet_write(dev, skb->data, skb->len))
++	else if(wv_packet_write(dev, skb->data, skb->len))
+ 		return 1;	/* We failed */
+ 
++
+ 	dev_kfree_skb(skb);
+ 
+ #ifdef DEBUG_TX_TRACE
+

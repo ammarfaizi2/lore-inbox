@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWFVOuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751651AbWFVOvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWFVOuh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 10:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWFVOug
+	id S1751651AbWFVOvy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 10:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751808AbWFVOvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 10:50:36 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:6027 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1751113AbWFVOug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 10:50:36 -0400
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Laurent Riffard <laurent.riffard@free.fr>,
-       Kernel development list <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: 2.6.17-rc6-mm1/pktcdvd - BUG: possible circular locking
-References: <448875D1.5080905@free.fr> <448D84C0.1070400@linux.intel.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 22 Jun 2006 16:50:28 +0200
-In-Reply-To: <448D84C0.1070400@linux.intel.com>
-Message-ID: <m3sllxtfbf.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Jun 2006 10:51:54 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:61389 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751651AbWFVOvy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 10:51:54 -0400
+Subject: Re: [PATCH] fix and optimize clock source update
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0606221308200.17704@scrub.home>
+References: <Pine.LNX.4.64.0606211434020.904@scrub.home>
+	 <1150923519.2690.14.camel@leatherman>
+	 <Pine.LNX.4.64.0606212320450.12900@scrub.home>
+	 <20060621145104.b13af6aa.akpm@osdl.org>
+	 <Pine.LNX.4.64.0606221308200.17704@scrub.home>
+Content-Type: text/plain
+Date: Thu, 22 Jun 2006 07:51:48 -0700
+Message-Id: <1150987909.2670.3.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@linux.intel.com> writes:
+On Thu, 2006-06-22 at 13:19 +0200, Roman Zippel wrote:
+> This fixes the clock source updates in update_wall_time() to correctly
+> track the time coming in via current_tick_length(). Optimize the fast
+> paths to be as short as possible to keep the overhead low.
+> 
+> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+> 
 
-> Laurent Riffard wrote:
-> > Hello,
-> > This BUG happened while pktcdvd service was starting. Basically, the
-> > 2 following commands were issued:
-> > - modprobe ptkcdvd
-> > - pktsetup dvd /dev/dvd
-> 
-> This appears to be a real bug:
-> 
-> A normal pkt dvd block dev open takes the
-> bdev_mutex in the regular block device open path, which takes
-> ctl_mutex in the pkt_open function which gets called then from
-> the block layer.
-> 
-> HOWEVER the IOCTL path does it the other way around:
-> 
->                  mutex_lock(&ctl_mutex);
->                  ret = pkt_setup_dev(&ctrl_cmd);
->                  mutex_unlock(&ctl_mutex);
-> 
-> where pkt_setup_dev in term calls pkt_new_dev which
-> calls blkdev_get(), which takes the bdev_mutex.
-> 
-> Looks very much like a AB-BA deadlock to me...
+Thanks Roman!
 
-I don't understand how this could deadlock. If the device is already
-setup, pkt_new_dev() returns before calling blkdev_get(). If the
-device is not already setup, the block device doesn't exist yet so
-there can not be another caller in the pkt_open() path.
+The inconsistencies at clocksource change are resolved. I'm having a
+real spotty time getting my airo card to work w/ 2.6.17-mm1, so I'll run
+more tests w/ ntp later today when I'm wired.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+ACKed-by: John Stultz <johnstul@us.ibm.com>
+
+thanks again,
+-john
+

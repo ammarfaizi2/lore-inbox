@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932660AbWFVWjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932664AbWFVWpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932660AbWFVWjU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 18:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWFVWjU
+	id S932664AbWFVWpz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 18:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWFVWpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 18:39:20 -0400
-Received: from colin.muc.de ([193.149.48.1]:19975 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932660AbWFVWjU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 18:39:20 -0400
-Date: 23 Jun 2006 00:39:19 +0200
-Date: Fri, 23 Jun 2006 00:39:19 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jeff@garzik.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86-64 build fix
-Message-ID: <20060622223919.GB50270@muc.de>
-References: <20060622205928.GA23801@havoc.gtf.org> <20060622142430.3219f352.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060622142430.3219f352.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 22 Jun 2006 18:45:55 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:58601 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750779AbWFVWpy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 18:45:54 -0400
+Message-ID: <449B1D95.4090705@zytor.com>
+Date: Thu, 22 Jun 2006 15:45:41 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is the x86-64 kernel size limit real?
+References: <20060622204627.GA47994@dspnet.fr.eu.org> <e7f2jq$r17$1@terminus.zytor.com> <20060622220057.GB52945@dspnet.fr.eu.org>
+In-Reply-To: <20060622220057.GB52945@dspnet.fr.eu.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 02:24:30PM -0700, Andrew Morton wrote:
-> Jeff Garzik <jeff@garzik.org> wrote:
-> >
-> > As of last night, I still needed the Kconfig patch below to
-> > successfully build allmodconfig on x86-64.  I believe Andrew has the
-> > patch with a proper description and attribution, so I would prefer
-> > that he send it...
+Olivier Galibert wrote:
+> On Thu, Jun 22, 2006 at 02:38:02PM -0700, H. Peter Anvin wrote:
+>> It turns out x86-64, unlike i386, does still have a hardcoded limit,
+>> but the limit in build.c is wrong:
+>>
+>> kernel/head.S:
+>>         /* 40MB kernel mapping. The kernel code cannot be bigger than that.
+>>            When you change this change KERNEL_TEXT_SIZE in page.h too. */
+>>         /* (2^48-(2*1024*1024*1024)-((2^39)*511)-((2^30)*510)) = 0 */
+>>
+>> So this should be replaced by KERNEL_TEXT_SIZE in page.h, or better,
+>> this should be done dynamically in x86-64 too.
 > 
-> It was transferred from the -mm-only stuff and into the x86_64 tree, so
-> Andi owns it now.
+> Interesting.  KERNEL_TEXT_SIZE wouldn't work though, since that's the
+> decompressed size while the 4Mb limit is on the compressed size.  As a
+> datapoint, though, the uncompressed image is 15.7Mb, for a 4.5Mb
+> compressed image.
 > 
-> I'll steal it back and will send it to Linus.
 
-It's in my pile to eventually send, but so far nobody was able to explain
-to me why it is suddenly needed at all, so  I wasn't feeling
-very comfortable with it.
+Oh, right.  In fact, the 4 MB "limit" for i386 was actually an 8 MB uncompressed limit, 
+with a 2:1 ratio assumed... not very accurate.
 
--Andi
+The limit should be removed from the boot tools; since we're talking uncompressed limits 
+those should be tested in the linker script if anywhere.
+
+	-hpa
+

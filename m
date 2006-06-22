@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbWFVNdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWFVNjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161119AbWFVNdn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 09:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbWFVNdn
+	id S1750947AbWFVNjB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 09:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751619AbWFVNjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 09:33:43 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:10955 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161119AbWFVNdm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 09:33:42 -0400
-Date: Thu, 22 Jun 2006 09:33:05 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Esben Nielsen <nielsen.esben@googlemail.com>,
-       Esben Nielsen <nielsen.esben@gogglemail.com>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
-In-Reply-To: <1150959972.25491.40.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0606220930490.15236@gandalf.stny.rr.com>
-References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
-  <1150816429.6780.222.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain> 
- <Pine.LNX.4.58.0606201229310.729@gandalf.stny.rr.com> 
- <Pine.LNX.4.64.0606201903030.11643@localhost.localdomain> 
- <1150824092.6780.255.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0606202217160.11643@localhost.localdomain> 
- <Pine.LNX.4.58.0606210418160.29673@gandalf.stny.rr.com> 
- <Pine.LNX.4.64.0606211204220.10723@localhost.localdomain> 
- <Pine.LNX.4.64.0606211638560.6572@localhost.localdomain> 
- <1150907165.25491.4.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0606212226291.7939@localhost.localdomain> 
- <1150922007.25491.24.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0606212341410.10077@localhost.localdomain>
- <1150959972.25491.40.camel@localhost.localdomain>
+	Thu, 22 Jun 2006 09:39:01 -0400
+Received: from yzordderrex.netnoteinc.com ([212.17.35.167]:44779 "EHLO
+	yzordderrex.lincor.com") by vger.kernel.org with ESMTP
+	id S1750947AbWFVNjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 09:39:01 -0400
+Message-ID: <449A9ADC.9070800@draigBrady.com>
+Date: Thu, 22 Jun 2006 14:27:56 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: danial_thom@yahoo.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Dropping Packets in 2.6.17
+References: <20060622113147.3496.qmail@web33304.mail.mud.yahoo.com>
+In-Reply-To: <20060622113147.3496.qmail@web33304.mail.mud.yahoo.com>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Danial Thom wrote:
+> I'm trying to make a case for using linux as a
+> network appliance, but I can't find any
+> combination of settings that will keep it from
+> dropping packets at an unacceptably high rate.
+> The test system is a 1.8Ghz Opteron with intel
+> gigE cards running 2.6.17. I'm passing about 70K
+> pps through the box, which is a light load, but
+> userland activities (such as building a kernel)
+> cause it to lose packets, even with backlog set
+> to 20000. I had the same problem with 2.6.12 and
+> abandoned the effort. Has anything been done
+> since to give priority to networking? You can't
+> have a network appliance drop packets when some
+> application is gathering stats or a user is
+> looking at a graph. What tunings are available?
 
-On Thu, 22 Jun 2006, Thomas Gleixner wrote:
+For reference with 2.4.20 on a dual 3.4GHz xeon
+and 2 x e1000 cards, I was able to capture, classify
+and do sophisticated statistical calculations on
+625Kpps per interface (1.3 million packets per second).
+The bottleneck at this point was memory bandwidth.
+Allowing some drops the average rate went up to the
+PCI bottleneck of about 850kpps/port.
+Classification and Computation was done in userspace.
 
-> On Thu, 2006-06-22 at 00:35 +0100, Esben Nielsen wrote:
-> > On Wed, 21 Jun 2006, Thomas Gleixner wrote:
-> >
-> > > On Wed, 2006-06-21 at 22:29 +0100, Esben Nielsen wrote:
-> > >>> Find an version against the code in -mm below. Not too much tested yet.
-> > >>
-> > >> What if setscheduler is called from interrup context as in the hrt timers?
-> > >
-> > > It simply gets stuff going, nothing else.
-> > >
-> > What I mean is that we will then do the full priority inheritance boost
-> > with interrupts off.
->
-> Only in the case when its called from IRQ context.
->
+Note there is a max interrupt rate of around 80K/s
+on x86 at least (not sure about opteron), so make
+sure you're using NAPI. /proc/interrupts will
+show your interrupt rate.
 
-Uh, Thomas, we can't call rt_mutex_adjust_prio_chain from interrupt
-context.  It grabs the wait_lock, which is documented not to be
-called by interrupts.  So this can easily deadlock the system.
+If the packets go to userspace, make sure you're using
+CONFIG_PACKET_MMAP
 
--- Steve
-
+Pádraig.

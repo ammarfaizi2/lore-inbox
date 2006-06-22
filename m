@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751889AbWFVTVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751886AbWFVTWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751889AbWFVTVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 15:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751891AbWFVTVx
+	id S1751886AbWFVTWv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 15:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751892AbWFVTWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 15:21:53 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:42632 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751889AbWFVTVw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 15:21:52 -0400
-Subject: Re: [RFC] patch [1/1]  convert i386 summit subarch to use
-	SRAT	data for apicid_to_node
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Dave Jones <davej@redhat.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <449A3A70.5000906@mbligh.org>
-References: <1150941296.10001.25.camel@keithlap>
-	 <20060622022414.GB4449@redhat.com> <1150948551.10001.62.camel@keithlap>
-	 <449A3A70.5000906@mbligh.org>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Thu, 22 Jun 2006 12:21:49 -0700
-Message-Id: <1151004109.5880.29.camel@keithlap>
+	Thu, 22 Jun 2006 15:22:51 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:30080 "EHLO
+	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
+	id S1751886AbWFVTWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 15:22:50 -0400
+Date: Thu, 22 Jun 2006 12:21:31 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: James Morris <jmorris@namei.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+       Eric Paris <eparis@redhat.com>, David Quigley <dpquigl@tycho.nsa.gov>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH 2/3] SELinux: add security_task_movememory calls to mm code
+Message-ID: <20060622192131.GW22737@sequoia.sous-sol.org>
+References: <Pine.LNX.4.64.0606211517170.11782@d.namei> <Pine.LNX.4.64.0606211730540.12872@d.namei> <Pine.LNX.4.64.0606211734480.12872@d.namei> <20060622123102.GF27074@sergelap.austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060622123102.GF27074@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-21 at 23:36 -0700, Martin J. Bligh wrote:
-> keith mannthey wrote:
-> > On Wed, 2006-06-21 at 22:24 -0400, Dave Jones wrote:
-> > 
-> >>On Wed, Jun 21, 2006 at 06:54:55PM -0700, keith mannthey wrote:
-> >> > Hello All,
-> >> >   This patch converts the i386 summit subarch apicid_to_node to use node
-> >> > information provided by the SRAT.  The current way of obtaining the
-> >> > nodeid 
-> >> > 
-> >> >  static inline int apicid_to_node(int logical_apicid)
-> >> >  { 
-> >> >    return logical_apicid >> 5;
-> >> >  }
-> >> > 
-> >> > is just not correct for all summit systems/bios.  Assuming the apicid
-> >> > matches the Linux node number require a leap of faith that the bios lay-
-> >> > ed out the apicids a set way.  Modern summit HW does not layout its bios
-> >> > in the manner for various reasons and is unable to boot i386 numa.
-> >> > 
-> >> >   The best way to get the correct apicid to node information is from the
-> >> > SRAT table. 
-> >>
-> >>Do all summit's have SRAT tables ?
-> >>I was under the impression the early ones were around before
-> >>the invention of SRAT.
-> > 
-> > 
-> > That is a good point.  Let me check into the x440 (1st gen).  x445 x460
-> > (2nd,3rd gen) uses SRAT for sure (these patches have been tested on
-> > these systems).  
-> > 
-> > The x440 lists an srat but maybe it is using some special bios area.  I
-> > will build a test kernel give it a whirl.  
-> 
-> I'm pretty sure they all had SRAT tables - the test machine we use 
-> regularly for test.kernel.org (elm3b67) does. The NUMA-Q (x430) doesn't,
-> but that's a separate subarch.
+* Serge E. Hallyn (serue@us.ibm.com) wrote:
+> sorry if I'm being dense - what is actually being protected against
+> here?  The only thing I can think of is one process causing performance
+> degradation to another by moving it's memory further from it's cpu on a
+> NUMA machine.
 
-Tested ontop of x440 just fine it does use the SRAT.  It doesn't do
-anything NUMA-Q like :)
+There's been a short series of patches (plus a short doc from James) to
+deal with code that's already doing uid/euid capable() checks w/out a
+corresponding LSM hook.  IOW, it's already been recognized as security
+sensitive and has DAC check w/out corresponding MAC check.  It's a small
+issue with relatively minor security impacts, but is completing
+mediation.
 
-Thanks,
-keith mannthey <kmannth@us.ibm.com>
-Linux Technology Center IBM
-
+thanks,
+-chris

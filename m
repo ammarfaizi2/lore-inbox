@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932718AbWFVXl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932728AbWFVXst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932718AbWFVXl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 19:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWFVXl4
+	id S932728AbWFVXst (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 19:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbWFVXst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 19:41:56 -0400
-Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:53111 "HELO
-	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932718AbWFVXlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 19:41:55 -0400
-Date: Thu, 22 Jun 2006 15:54:05 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, kernel@agotnes.com, akpm@osdl.org,
-       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-usb-users@lists.sourceforge.net,
-       linux-usb-devel@lists.sourceforge.net, stern@rowland.harvard.edu,
-       vsu@altlinux.ru
-Subject: Re: how I know if a interrupt is ioapic_edge_type or ioapic_level_type? [Was Re: [Fwd: Re: [Linux-usb-users] Fwd: Re: 2.6.17-rc6-mm2 - USB issues]]
-Message-ID: <20060622225405.GA5840@tuatara.stupidest.org>
-References: <4497DA3F.80302@agotnes.com> <20060620044003.4287426d.akpm@osdl.org> <4499245C.8040207@agotnes.com> <1150936606.2855.21.camel@localhost.portugal> <20060621174754.159bb1d0.rdunlap@xenotime.net> <1150938288.3221.2.camel@localhost.portugal> <20060621210817.74b6b2bc.rdunlap@xenotime.net> <1150977386.2859.34.camel@localhost.localdomain> <20060622142902.5c8f8e67.rdunlap@xenotime.net> <1151016398.3022.4.camel@localhost.portugal>
+	Thu, 22 Jun 2006 19:48:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61129 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932707AbWFVXss (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 19:48:48 -0400
+Date: Thu, 22 Jun 2006 16:48:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <gregkh@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.17
+In-Reply-To: <20060622234040.GB30143@suse.de>
+Message-ID: <Pine.LNX.4.64.0606221646200.6483@g5.osdl.org>
+References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606221546120.6483@g5.osdl.org>
+ <20060622234040.GB30143@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151016398.3022.4.camel@localhost.portugal>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 11:46:38PM +0100, Sergio Monteiro Basto wrote:
-
-> yap, in my opinion this function should back to
-
-> +DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
 
 
-this is *obviousyl* wrong, it should never have been merged like that
-and there are reports and complaints this causes problems for some
-people
+On Thu, 22 Jun 2006, Greg KH wrote:
+>
+> I saw this once when debugging the usb code, but could never reproduce
+> it, so I attributed it to an incomplete build at the time, as a reboot
+> fixed it.
 
-we should first attempt to get all the IDs (some are clearly missing
-still, patch coming up to address that) and where that fails perhaps
-have a kernel command-line parameter to be overly aggressive as a
-stop-gap until we van figure out the proper solution
+I'm pretty sure the build was good, but it may well be timing-related.
 
-i'd also like to figure out why the quirk is needed/fails when people
-are using ACPI for interrupt routing as presumbly that must work as
-windows relies on it
+> Is this easy to trigger for you?
+
+No. I've never seen it before on this machine (and it's that Mac Mini that 
+I've been rebooting several times a day for the last week), so if it's an 
+old bug, it's definitely not repeatable. I was thinking it would be 
+something new..
+
+I'll let you know if I can repro it.
+
+		Linus

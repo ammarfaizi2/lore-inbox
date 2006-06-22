@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161461AbWFVXxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWFVX5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161461AbWFVXxE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 19:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161464AbWFVXxE
+	id S1750914AbWFVX5g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 19:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWFVX5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 19:53:04 -0400
-Received: from mx2.suse.de ([195.135.220.15]:61156 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161461AbWFVXxD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 19:53:03 -0400
-Date: Thu, 22 Jun 2006 16:52:59 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] USB patches for 2.6.17
-Message-ID: <20060622235259.GA30639@suse.de>
-References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606221546120.6483@g5.osdl.org> <20060622234040.GB30143@suse.de> <Pine.LNX.4.64.0606221646200.6483@g5.osdl.org>
+	Thu, 22 Jun 2006 19:57:36 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:14302 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750901AbWFVX5f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 19:57:35 -0400
+Date: Fri, 23 Jun 2006 01:53:56 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Danial Thom <danial_thom@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Measuring tools - top and interrupts
+Message-ID: <20060622235356.GA31168@electric-eye.fr.zoreil.com>
+References: <20060622175724.GA28913@electric-eye.fr.zoreil.com> <20060622224759.25253.qmail@web33315.mail.mud.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606221646200.6483@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060622224759.25253.qmail@web33315.mail.mud.yahoo.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 04:48:43PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 22 Jun 2006, Greg KH wrote:
-> >
-> > I saw this once when debugging the usb code, but could never reproduce
-> > it, so I attributed it to an incomplete build at the time, as a reboot
-> > fixed it.
-> 
-> I'm pretty sure the build was good, but it may well be timing-related.
-> 
-> > Is this easy to trigger for you?
-> 
-> No. I've never seen it before on this machine (and it's that Mac Mini that 
-> I've been rebooting several times a day for the last week), so if it's an 
-> old bug, it's definitely not repeatable. I was thinking it would be 
-> something new..
+Danial Thom <danial_thom@yahoo.com> :
+[...]
+> systat". Plus its clear that the guy who gave the
+> answer doesn't know what he's talking about,
+> since he's actually trying to explain away the
+> problem as being normal. 
 
-I would think it's something new too, as I did change that very line
-that oopsed.  That's why I found it odd that I couldn't reproduce it
-anymore.
+"75 kpps means 10% of the max load" was quite fun too.
 
-> I'll let you know if I can repro it.
+[...]
+> the system is perpetually 100% idle but its
+> dropping packets due to excessive backlog.
 
-Thanks, that would help out a lot.
+No difference when you renice ksoftirqd to a strongly
+negative value ?
 
-greg k-h
+-- 
+Ueimor

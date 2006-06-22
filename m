@@ -1,87 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbWFVVeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030407AbWFVViW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030411AbWFVVeq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbWFVVep
+	id S1030407AbWFVViW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:38:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbWFVViW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:34:45 -0400
-Received: from thunk.org ([69.25.196.29]:38308 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030411AbWFVVeo (ORCPT
+	Thu, 22 Jun 2006 17:38:22 -0400
+Received: from hera.kernel.org ([140.211.167.34]:5258 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1030407AbWFVViV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:34:44 -0400
-Date: Thu, 22 Jun 2006 17:34:43 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.17-mm1: UML failing w/o SKAS enabled
-Message-ID: <20060622213443.GA22303@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060621034857.35cfe36f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="vtzGhvizbBRQ85DL"
-Content-Disposition: inline
-In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Thu, 22 Jun 2006 17:38:21 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Is the x86-64 kernel size limit real?
+Date: Thu, 22 Jun 2006 14:38:02 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e7f2jq$r17$1@terminus.zytor.com>
+References: <20060622204627.GA47994@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1151012283 27689 127.0.0.1 (22 Jun 2006 21:38:02 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Thu, 22 Jun 2006 21:38:02 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <20060622204627.GA47994@dspnet.fr.eu.org>
+By author:    Olivier Galibert <galibert@pobox.com>
+In newsgroup: linux.dev.kernel
+>
+> I get bitched at by the build process because the kernel I get is
+> around 4.5Mb compressed.  i386 does not have that limitation.
+> Interestingly, a diff between the two build.c gives:
+> 
+> --- ../../../i386/boot/tools/build.c	2006-06-22 20:19:33.000000000 +0200
+> +++ build.c	2006-06-22 20:19:33.000000000 +0200
+> @@ -70,8 +70,7 @@
+>  
+>  int main(int argc, char ** argv)
+>  {
+> -	unsigned int i, sz, setup_sectors;
+> -	int c;
+> +	unsigned int i, c, sz, setup_sectors;
+>  	u32 sys_size;
+>  	byte major_root, minor_root;
+>  	struct stat sb;
+> @@ -150,8 +149,10 @@
+>  	sz = sb.st_size;
+>  	fprintf (stderr, "System is %d kB\n", sz/1024);
+>  	sys_size = (sz + 15) / 16;
+> -	if (!is_big_kernel && sys_size > DEF_SYSSIZE)
+> -		die("System is too big. Try using bzImage or modules.");
+> +	/* 0x40000*16 = 4.0 MB, reasonable estimate for the current maximum */
+> +	if (sys_size > (is_big_kernel ? 0x40000 : DEF_SYSSIZE))
+> +		die("System is too big. Try using %smodules.",
+> +			is_big_kernel ? "" : "bzImage or ");
+>  	while (sz > 0) {
+>  		int l, n;
+>  
+> 
+> which shows two things:
+> 1- a8f5034540195307362d071a8b387226b410469f should have a x86-64 version
+> 2- the limit looks entirely artificial
+> 
+> So, is removing the limit prone to bite me?
+> 
 
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It turns out x86-64, unlike i386, does still have a hardcoded limit,
+but the limit in build.c is wrong:
 
-When I tried compiling 2.6.17-mm1 without SKAS support, it failed to
-link:
+kernel/head.S:
+        /* 40MB kernel mapping. The kernel code cannot be bigger than that.
+           When you change this change KERNEL_TEXT_SIZE in page.h too. */
+        /* (2^48-(2*1024*1024*1024)-((2^39)*511)-((2^30)*510)) = 0 */
 
-arch/um/sys-i386/built-in.o: In function `__setup_host_supports_tls':tls.c:(.init.text+0x14): undefined reference to `check_host_supports_tls'
-collect2: ld returned 1 exit status
+So this should be replaced by KERNEL_TEXT_SIZE in page.h, or better,
+this should be done dynamically in x86-64 too.
 
-This can fixed be addressed with the attached patch, but it the
-resulting kernel still doesn't boot:
+	-hpa
 
-<tytso@candygram>       {/usr/projects/uml/linux-2.6.17-mm1}
-35% ./linux
-Checking that ptrace can change system call numbers...OK
-Checking syscall emulation patch for ptrace...OK
-Checking advanced syscall emulation patch for ptrace...OK
-Checking for tmpfs mount on /dev/shm...OK
-Checking PROT_EXEC mmap in /dev/shm/...OK
-UML running in TT mode
-tracing thread pid = 25812
-Checking that ptrace can change system call numbers...OK
-Checking syscall emulation patch for ptrace...OK
-Checking advanced syscall emulation patch for ptrace...OK
-
-<tytso@candygram>       {/usr/projects/uml/linux-2.6.17-mm1}
-36%
-
-If anyone has any suggestions, I'd appreciate them.
-
-							- Ted
-
-
-
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=fix-uml-no-skas
-
-Index: linux-2.6.17-mm1/arch/um/os-Linux/sys-i386/Makefile
-===================================================================
---- linux-2.6.17-mm1.orig/arch/um/os-Linux/sys-i386/Makefile	2006-06-17 21:49:35.000000000 -0400
-+++ linux-2.6.17-mm1/arch/um/os-Linux/sys-i386/Makefile	2006-06-22 17:28:59.000000000 -0400
-@@ -3,7 +3,8 @@
- # Licensed under the GPL
- #
- 
--obj-$(CONFIG_MODE_SKAS) = registers.o tls.o
-+obj-$(CONFIG_MODE_SKAS) = registers.o
-+obj-y = tls.o
- 
- USER_OBJS := $(obj-y)
- 
-
---vtzGhvizbBRQ85DL--

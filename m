@@ -1,46 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWFVDwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932757AbWFVDzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWFVDwP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 23:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbWFVDwP
+	id S932757AbWFVDzy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 23:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbWFVDzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 23:52:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56510 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751292AbWFVDwP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 23:52:15 -0400
-Date: Wed, 21 Jun 2006 20:52:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alasdair G Kergon <agk@redhat.com>
-Cc: linux-kernel@vger.kernel.org, mbroz@redhat.com
-Subject: Re: [PATCH 01/15] dm: support ioctls on mapped devices
-Message-Id: <20060621205206.35ecdbf8.akpm@osdl.org>
-In-Reply-To: <20060621193121.GP4521@agk.surrey.redhat.com>
-References: <20060621193121.GP4521@agk.surrey.redhat.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 21 Jun 2006 23:55:54 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:28879 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751292AbWFVDzx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 23:55:53 -0400
+Subject: Re: [RFC] patch [1/1]  convert i386 summit subarch to use SRAT
+	data for apicid_to_node
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: Dave Jones <davej@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060622022414.GB4449@redhat.com>
+References: <1150941296.10001.25.camel@keithlap>
+	 <20060622022414.GB4449@redhat.com>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Wed, 21 Jun 2006 20:55:51 -0700
+Message-Id: <1150948551.10001.62.camel@keithlap>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006 20:31:21 +0100
-Alasdair G Kergon <agk@redhat.com> wrote:
+On Wed, 2006-06-21 at 22:24 -0400, Dave Jones wrote:
+> On Wed, Jun 21, 2006 at 06:54:55PM -0700, keith mannthey wrote:
+>  > Hello All,
+>  >   This patch converts the i386 summit subarch apicid_to_node to use node
+>  > information provided by the SRAT.  The current way of obtaining the
+>  > nodeid 
+>  > 
+>  >  static inline int apicid_to_node(int logical_apicid)
+>  >  { 
+>  >    return logical_apicid >> 5;
+>  >  }
+>  > 
+>  > is just not correct for all summit systems/bios.  Assuming the apicid
+>  > matches the Linux node number require a leap of faith that the bios lay-
+>  > ed out the apicids a set way.  Modern summit HW does not layout its bios
+>  > in the manner for various reasons and is unable to boot i386 numa.
+>  > 
+>  >   The best way to get the correct apicid to node information is from the
+>  > SRAT table. 
+> 
+> Do all summit's have SRAT tables ?
+> I was under the impression the early ones were around before
+> the invention of SRAT.
 
-> From: Milan Broz <mbroz@redhat.com>
->  
-> Extend the core device-mapper infrastructure to accept arbitrary ioctls
-> on a mapped device provided that it has exactly one target and it is 
-> capable of supporting ioctls.
+That is a good point.  Let me check into the x440 (1st gen).  x445 x460
+(2nd,3rd gen) uses SRAT for sure (these patches have been tested on
+these systems).  
 
-I don't understand that.  We're taking an ioctl against a dm device and
-we're passing it through to an underlying device?  Or something else?
+The x440 lists an srat but maybe it is using some special bios area.  I
+will build a test kernel give it a whirl.  
 
-Care to flesh this out a bit?
 
-> [We can't use unlocked_ioctl because we need 'inode': 'file' might be NULL.
-> Is it worth changing this?]
-
-It _should_ be possible to use unlocked_ioctl() - unlocked_ioctl() would be
-pretty useless if someone was passing it a NULL file*.  More details?
+> 		Dave
+> 
+-- 
+keith mannthey <kmannth@us.ibm.com>
+Linux Technology Center IBM
 

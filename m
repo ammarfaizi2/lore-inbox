@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161115AbWFVNZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbWFVN0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161115AbWFVNZr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 09:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161117AbWFVNZr
+	id S1161120AbWFVN0w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 09:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWFVN0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 09:25:47 -0400
-Received: from sun-email.corp.avocent.com ([65.217.42.16]:46223 "EHLO
+	Thu, 22 Jun 2006 09:26:52 -0400
+Received: from sun-email.corp.avocent.com ([65.217.42.16]:6032 "EHLO
 	sun-email.corp.avocent.com") by vger.kernel.org with ESMTP
-	id S1161115AbWFVNZp convert rfc822-to-8bit (ORCPT
+	id S1161120AbWFVN0u convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 09:25:45 -0400
+	Thu, 22 Jun 2006 09:26:50 -0400
 X-MimeOLE: Produced By Microsoft Exchange V6.5
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Subject: [RFC][PATCH 12/13] Equinox SST driver: sysfs support
-Date: Thu, 22 Jun 2006 09:25:44 -0400
-Message-ID: <4821D5B6CD3C1B4880E6E94C6E70913E01B71115@sun-email.corp.avocent.com>
+Subject: [RFC][PATCH 13/13] Equinox SST driver: miscellaneous routines
+Date: Thu, 22 Jun 2006 09:26:49 -0400
+Message-ID: <4821D5B6CD3C1B4880E6E94C6E70913E01B71117@sun-email.corp.avocent.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC][PATCH 12/13] Equinox SST driver: sysfs support
-Thread-Index: AcaV/11CyVwseC7mRGeU30ar3Jm7eA==
+Thread-Topic: [RFC][PATCH 13/13] Equinox SST driver: miscellaneous routines
+Thread-Index: AcaV/4QABbvbF6tIQ0eaGo4iaD/I/A==
 From: "Straub, Michael" <Michael.Straub@avocent.com>
 To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,30 +30,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Adds Equinox multi-port serial (SST) driver.
 
-Part 12: new source file: drivers/char/eqnx/sst_sysfs.c.  Adds new sysfs
-attribute files at both the board level and the TTY level.  These are
-used
-for status and diagnostic information.  Note that there are some binary
-TTY
-sysfs files.  This information is used by diagnostic utilities.  The
-previous
-version of the driver provided this same information via ioctls, using a
-unique character device.
+Part 13: new source file: drivers/char/eqnx/sst_misc.c.  Provides
+general
+support routines used throughout the driver source.
 
 Signed-off-by: Mike Straub <michael.straub@avocent.com>
 
 ---
- sst_sysfs.c | 1379
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 1379 insertions(+)
+ sst_misc.c |  758
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 758 insertions(+)
 
-diff -Naurp -X dontdiff linux-2.6.17/drivers/char/eqnx/sst_sysfs.c
-linux-2.6.17.eqnx/drivers/char/eqnx/sst_sysfs.c
---- linux-2.6.17/drivers/char/eqnx/sst_sysfs.c	1969-12-31
+diff -Naurp -X dontdiff linux-2.6.17/drivers/char/eqnx/sst_misc.c
+linux-2.6.17.eqnx/drivers/char/eqnx/sst_misc.c
+--- linux-2.6.17/drivers/char/eqnx/sst_misc.c	1969-12-31
 19:00:00.000000000 -0500
-+++ linux-2.6.17.eqnx/drivers/char/eqnx/sst_sysfs.c	2006-06-20
-09:50:15.000000000 -0400
-@@ -0,0 +1,1379 @@
++++ linux-2.6.17.eqnx/drivers/char/eqnx/sst_misc.c	2006-06-20
+09:50:17.000000000 -0400
+@@ -0,0 +1,758 @@
 +/*
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -86,10 +80,7 @@ boards
 + */
 +
 +/*
-+ * sysfs routines.
-+ * provides diagnostic and some control functions at board and tty
-level.
-+ * each file is described below.
++ * miscellaneous support routines - used by more than 1 module
 + */
 +
 +#include <linux/config.h>
@@ -99,14 +90,10 @@ level.
 +#define MODVERSIONS	1
 +#endif
 +
-+#include <linux/module.h>
 +#include <linux/sched.h>
-+#include <linux/sysfs.h>
 +#include <linux/tty.h>
-+#include <linux/serial.h>
 +#include <linux/spinlock.h>
 +#include <linux/device.h>
-+#include <linux/kernel.h>
 +
 +#include "icp.h"
 +#include "eqnx_def.h"
@@ -118,7 +105,43 @@ level.
 */
 +/**********************************************************************
 *****/
-+struct datascope eqnx_dscope[2];
++
++/* baud rate table */
++static u32 icpbaud_tbl[] = { 0, 50, 75, 110, 134, 150, 200, 300,
++	600, 1200, 1800, 2400, 4800, 9600, 19200, 38400,
++	57600, 115200, 230400, 460800, 921600
++};
++
++/*
++ * SSP64 table to assign the transmit Q low water mark based on
++ * baud rate. It is based on (#chars per 40 milliseconds/64) plus some
+slop.
++ */
++static int ssp64_lowat[] = { 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+2, 4,
++	8, 14, 20, 40, 80
++};
++
++/*
++ * SSP4 table to assign the transmit Q low water mark based on
++ * baud rate. It is based on (#chars per 10 milliseconds/64) plus some
+slop.
++ */
++static int ssp4_lowat[] = { 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+2, 2,
++	2, 3, 5, 8, 12
++};
++
++/**********************************************************************
+*****/
++/* module function declarations
+*/
++/**********************************************************************
+*****/
++
++static void megajam(struct mpchan *);
++void eqnx_frame_wait(struct mpchan *, int);
++void eqnx_chnl_sync(struct mpchan *);
 +
 +/**********************************************************************
 *****/
@@ -126,1374 +149,698 @@ level.
 */
 +/**********************************************************************
 *****/
-+extern struct mpdev eqnx_dev[MAXSSP];
++
 +extern struct mpchan *eqnx_chan;
-+extern int eqnx_nssps;
 +
-+extern u8 eqnx_get_signal_state(struct mpchan *);
-+extern void eqnx_frame_wait(struct mpchan *, int);
-+extern int eqnx_write_room(struct tty_struct *);
-+
-+/**********************************************************************
-***
-+ *
-+ * board-level sysfs functions
-+ *
-+
-************************************************************************
-*/
++extern int SSTMINOR(unsigned int, unsigned int);
 +
 +/*
-+ * The following attribute files are provided in the device directory:
++ * eqnx_modem(d, cmd)
 + *
-+ * board_number = internal board number
-+ * name = SST board name
-+ * driver_version = version number for eqnx driver
-+ * asic = ASIC type
-+ * port_count = total number of ports
-+ * flags = relevant board flags
-+ * status = alive, state and fail value
-+ * lmx_count = count of LMXs
-+ * lmx_index = index of LMX to get info from
-+ * lmx_status = active, id and chan state
-+ * lmx_rmt_status = remote active, remote id
-+ */
-+
-+/*
-+ * locate_mpd_by_dev(d)
-+ * return the board structure (mpd) from device pointer
++ * Set outbound control signals, as device is opened or closed.
++ * Return state of inbound DCD signal.
 + *
-+ * d	= device pointer
++ * d	= device index
++ * cmd	= one of TURNON or TURNOFF
++ *
++ * mpdev (board-level) lock ** MUST ** be held.
 + */
-+static struct mpdev *locate_mpd_by_dev(struct device *d)
++int eqnx_modem(int d, int cmd)
 +{
-+	int i;
-+	struct mpdev *mpd = NULL;
-+
-+	for (i = 0; i < eqnx_nssps; i++) {
-+		if (eqnx_dev[i].dev == d)
-+			mpd = &eqnx_dev[i];
-+	}
-+
-+	return mpd;
-+}
-+
-+/*
-+ * show_board_number(d, attr, buf)
-+ * return SST internal board number
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_board_number(struct device *d, struct
-device_attribute
-+				 *attr, char *buf)
-+{
-+	struct mpdev *mpd;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", ((int) (mpd - eqnx_dev)) + 1);
-+}
-+
-+static DEVICE_ATTR(board_number, S_IRUGO, show_board_number, NULL);
-+
-+/*
-+ * show_name(d, attr, buf)
-+ * return SST board name
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_name(struct device *d, struct device_attribute
-*attr,
-+			 char *buf)
-+{
-+	struct mpdev *mpd;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "%s\n", mpd->mpd_board_def->name);
-+}
-+
-+static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
-+
-+/*
-+ * show_driver_version(d, attr, buf)
-+ * return eqnx driver version
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_driver_version(struct device *d,
-+				   struct device_attribute *attr, char
-*buf)
-+{
-+	return sprintf(buf, "%s\n", VERSNUM);
-+}
-+
-+static DEVICE_ATTR(driver_version, S_IRUGO, show_driver_version, NULL);
-+
-+/*
-+ * show_asic(d, attr, buf)
-+ * return ASIC type
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_asic(struct device *d, struct device_attribute
-*attr,
-+			 char *buf)
-+{
-+	struct mpdev *mpd;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", mpd->mpd_board_def->asic);
-+}
-+
-+static DEVICE_ATTR(asic, S_IRUGO, show_asic, NULL);
-+
-+/*
-+ * show_port_count(d, attr, buf)
-+ * return total port count
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_port_count(struct device *d, struct
-device_attribute *attr,
-+			       char *buf)
-+{
-+	struct mpdev *mpd;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n",
-mpd->mpd_board_def->number_of_ports);
-+}
-+
-+static DEVICE_ATTR(port_count, S_IRUGO, show_port_count, NULL);
-+
-+/*
-+ * show_flags(d, attr, buf)
-+ * return board flags
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_flags(struct device *d, struct device_attribute
-*attr,
-+			  char *buf)
-+{
-+	struct mpdev *mpd;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", mpd->mpd_board_def->flags);
-+}
-+
-+static DEVICE_ATTR(flags, S_IRUGO, show_flags, NULL);
-+
-+/*
-+ * show_status(d, attr, buf)
-+ * return board status: alive, state and fail
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_status(struct device *d, struct device_attribute
-*attr,
-+			   char *buf)
-+{
-+	struct mpdev *mpd;
-+	unsigned int status;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	status = mpd->mpd_alive;
-+	status |= ((mpd->mpd_cnfg_state << 8) & 0xff00);
-+	status |= ((mpd->mpd_cnfg_fail << 16) & 0xff0000);
-+	return sprintf(buf, "0x%x\n", status);
-+}
-+
-+static DEVICE_ATTR(status, S_IRUGO, show_status, NULL);
-+
-+/*
-+ * show_lmx_count(d, attr, buf)
-+ * return total lmx count
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_lmx_count(struct device *d, struct device_attribute
-*attr,
-+			      char *buf)
-+{
-+	struct mpdev *mpd;
-+	int count;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	if (mpd->mpd_board_def->asic == SSP4)
-+		count = 1;
-+	else
-+		count = mpd->mpd_board_def->number_of_asics * MAXLMX;
-+
-+	return sprintf(buf, "0x%x\n", count);
-+}
-+
-+static DEVICE_ATTR(lmx_count, S_IRUGO, show_lmx_count, NULL);
-+
-+/*
-+ * show_lmx_index(d, attr, buf)
-+ * return lmx index
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_lmx_index(struct device *d, struct device_attribute
-*attr,
-+			      char *buf)
-+{
-+	struct mpdev *mpd;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", mpd->mpd_lmx_index);
-+}
-+
-+/*
-+ * store_lmx_index(d, attr, buf, size)
-+ * set lmx index
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= input buffer
-+ * size	= input size
-+ */
-+static ssize_t store_lmx_index(struct device *d, struct
-device_attribute *attr,
-+			       const char *buf, size_t size)
-+{
-+	struct mpdev *mpd;
-+	int index, max;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	if (mpd->mpd_board_def->asic == SSP4)
-+		max = 1;
-+	else
-+		max = mpd->mpd_board_def->number_of_asics * MAXLMX;
-+
-+	index = simple_strtol(buf, NULL, 10);
-+	if ((index >= 0) && (index < max))
-+		mpd->mpd_lmx_index = index;
-+
-+	return size;
-+}
-+
-+static DEVICE_ATTR(lmx_index, S_IRUSR | S_IWUSR, show_lmx_index,
-+		   store_lmx_index);
-+
-+/*
-+ * show_lmx_status(d, attr, buf)
-+ * return lmx status: active, id and chan
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_lmx_status(struct device *d, struct
-device_attribute *attr,
-+			       char *buf)
-+{
-+	struct mpdev *mpd;
-+	struct icp_struct *icp;
-+	unsigned int status;
-+	int index;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	index = mpd->mpd_lmx_index;
-+	if (index >= MAXLMX) {
-+		icp = &mpd->icp[1];
-+		index -= 4;
-+	} else
-+		icp = &mpd->icp[0];
-+
-+	status = icp->lmx[index].lmx_active & 0xff;
-+	status |= ((icp->lmx[index].lmx_id << 8) & 0xff00);
-+	status |= ((icp->lmx[index].lmx_chan << 16) & 0xff0000);
-+
-+	return sprintf(buf, "0x%x\n", status);
-+}
-+
-+static DEVICE_ATTR(lmx_status, S_IRUGO, show_lmx_status, NULL);
-+
-+/*
-+ * show_lmx_rmt_status(d, attr, buf)
-+ * return lmx rmt status: active and id
-+ *
-+ * d	= device pointer
-+ * attr	= attribute pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_lmx_rmt_status(struct device *d, struct
-device_attribute
-+				   *attr, char *buf)
-+{
-+	struct mpdev *mpd;
-+	struct icp_struct *icp;
-+	unsigned int status;
-+	int index;
-+
-+	mpd = locate_mpd_by_dev(d);
-+	if (mpd == NULL)
-+		return 0;
-+
-+	index = mpd->mpd_lmx_index;
-+	if (index >= MAXLMX) {
-+		icp = &mpd->icp[1];
-+		index -= 4;
-+	} else
-+		icp = &mpd->icp[0];
-+
-+	status = icp->lmx[index].lmx_rmt_active & 0xff;
-+	status |= ((icp->lmx[index].lmx_rmt_id << 8) & 0xff00);
-+
-+	return sprintf(buf, "0x%x\n", status);
-+}
-+
-+static DEVICE_ATTR(lmx_rmt_status, S_IRUGO, show_lmx_rmt_status, NULL);
-+
-+static struct attribute *eqnx_sysfs_entries[] = {
-+	&dev_attr_board_number.attr,
-+	&dev_attr_name.attr,
-+	&dev_attr_driver_version.attr,
-+	&dev_attr_asic.attr,
-+	&dev_attr_port_count.attr,
-+	&dev_attr_flags.attr,
-+	&dev_attr_status.attr,
-+	&dev_attr_lmx_count.attr,
-+	&dev_attr_lmx_index.attr,
-+	&dev_attr_lmx_status.attr,
-+	&dev_attr_lmx_rmt_status.attr,
-+	NULL
-+};
-+
-+static struct attribute_group eqnx_attribute_group = {
-+	.name = NULL,
-+	.attrs = eqnx_sysfs_entries,
-+};
-+
-+/*
-+ * eqnx_create_sysfs(d)
-+ * create sysfs files and directories for selected device.
-+ *
-+ * d	= device pointer
-+ */
-+void eqnx_create_sysfs(struct device *d)
-+{
-+	int ret;
-+
-+	ret = sysfs_create_group(&d->kobj, &eqnx_attribute_group);
-+	if (ret) {
-+		printk(KERN_ERR
-+		       "eqnx: failed to create sysfs device
-attributes.\n");
-+		sysfs_remove_group(&d->kobj, &eqnx_attribute_group);
-+	}
-+}
-+
-+/*
-+ * eqnx_remove_sysfs(d)
-+ * remove sysfs files and directories for selected device.
-+ *
-+ * d	= device pointer
-+ */
-+void eqnx_remove_sysfs(struct device *d)
-+{
-+	sysfs_remove_group(&d->kobj, &eqnx_attribute_group);
-+}
-+
-+/**********************************************************************
-***
-+ *
-+ * channel (port) level sysfs functions
-+ *
-+
-************************************************************************
-*/
-+
-+/*
-+ * The following attribute files are provided in the tty directory:
-+ *
-+ * termios_i = termios iflag settings 
-+ * termios_o = termios oflag settings 
-+ * termios_c = termios cflag settings 
-+ * termios_l = termios lflag settings 
-+ * signals = port signals (inbound and outbound)
-+ * bufstats = input / output buffer counts
-+ * flow = flow control state
-+ * input = input counter, may be cleared
-+ * output = output counter, may be cleared
-+ * parity = parity error counter, may be cleared
-+ * framing = framing error counter, may be cleared
-+ * break = break error counter, may be cleared
-+ * flags = tty flags 
-+ * openwaitcnt = openwaitcnt
-+ * loopback = loopback state - can be set
-+ * datascope = datascope state - can be set
-+ *
-+ * input_registers = ICP input registers (binary data)
-+ * output_registers = ICP output registers (binary data)
-+ * datascope_input = datascope input data (binary data)
-+ * datascope_output = datascope output data (binary data)
-+ */
-+
-+/*
-+ * locate_mpc_by_class(c)
-+ * return the channel structure (mpc) from class device pointer
-+ *
-+ * c	= class device pointer
-+ */
-+static struct mpchan *locate_mpc_by_dev(struct class_device *c)
-+{
-+	int i;
-+	struct mpchan *mpc = NULL;
-+
-+	for (i = 0; i < (eqnx_nssps * MAXCHNL_BRD); i++) {
-+		if (eqnx_chan[i].cdev == c)
-+			mpc = &eqnx_chan[i];
-+	}
-+
-+	return mpc;
-+}
-+
-+/*
-+ * show_termios_i(c, buf)
-+ * return tty termios iflag settings
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_termios_i(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	if ((mpc->flags & ASYNC_INITIALIZED) && (mpc->mpc_tty) &&
-+	    (mpc->mpc_tty->termios))
-+		return sprintf(buf, "0x%x\n",
-mpc->mpc_tty->termios->c_iflag);
-+	else
-+		return sprintf(buf, "0x0\n");
-+}
-+
-+static CLASS_DEVICE_ATTR(termios_i, S_IRUSR, show_termios_i, NULL);
-+
-+/*
-+ * show_termios_o(c, buf)
-+ * return tty termios oflag settings
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_termios_o(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	if ((mpc->flags & ASYNC_INITIALIZED) && (mpc->mpc_tty) &&
-+	    (mpc->mpc_tty->termios))
-+		return sprintf(buf, "0x%x\n",
-mpc->mpc_tty->termios->c_oflag);
-+	else
-+		return sprintf(buf, "0x0\n");
-+}
-+
-+static CLASS_DEVICE_ATTR(termios_o, S_IRUSR, show_termios_o, NULL);
-+
-+/*
-+ * show_termios_c(c, buf)
-+ * return tty termios cflag settings
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_termios_c(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	if ((mpc->flags & ASYNC_INITIALIZED) && (mpc->mpc_tty) &&
-+	    (mpc->mpc_tty->termios))
-+		return sprintf(buf, "0x%x\n",
-mpc->mpc_tty->termios->c_cflag);
-+	else
-+		return sprintf(buf, "0x0\n");
-+}
-+
-+static CLASS_DEVICE_ATTR(termios_c, S_IRUSR, show_termios_c, NULL);
-+
-+/*
-+ * show_termios_l(c, buf)
-+ * return tty termios lflag settings
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_termios_l(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	if ((mpc->flags & ASYNC_INITIALIZED) && (mpc->mpc_tty) &&
-+	    (mpc->mpc_tty->termios))
-+		return sprintf(buf, "0x%x\n",
-mpc->mpc_tty->termios->c_lflag);
-+	else
-+		return sprintf(buf, "0x0\n");
-+}
-+
-+static CLASS_DEVICE_ATTR(termios_l, S_IRUSR, show_termios_l, NULL);
-+
-+/*
-+ * show_signals(c, buf)
-+ * return tty signal settings
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_signals(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", eqnx_get_signal_state(mpc));
-+
-+}
-+
-+static CLASS_DEVICE_ATTR(signals, S_IRUSR, show_signals, NULL);
-+
-+/*
-+ * show_bufstats(c, buf)
-+ * return tty input / output buffer counts
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_bufstats(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+	volatile struct icp_in_struct *icpi;
++	struct mpchan *mpc = &eqnx_chan[d];
++	volatile struct icp_in_struct *icpi = mpc->mpc_icpi;
 +	volatile struct cin_bnk_struct *icpb;
-+	volatile struct cout_que_struct *icpq;
-+	unsigned int counts;
++	u16 cur, mux;
 +
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
++#ifdef	DEBUG_LOCKS
++	struct mpdev *mpd = mpc->mpc_mpd;
 +
-+	icpi = mpc->mpc_icpi;
++	if (!(spin_is_locked(&mpc->mpc_mpd->mpd_lock)))
++		dev_dbg(mpd->pdev, "eqnx_modem: mpd lock !locked\n");
++#endif
++
 +	icpb = (icpi->cin_locks & LOCK_A) ? &icpi->cin_bank_b :
 +	    &icpi->cin_bank_a;
 +	if (!(SSTRD16(icpb->bank_events) & EV_REG_UPDT))
-+		/* make sure regs are valid */
++		/* wait until registers are valid */
 +		eqnx_frame_wait(mpc, 2);
-+	icpq = (volatile struct cout_que_struct
-*)&mpc->mpc_icpo->cout_q0;
 +
-+	/*
-+	 * returned input buffered count and output buffered count
-+	 */
-+	counts = SSTRD16(icpb->bank_num_chars);
-+	counts |= ((SSTRD16(icpq->q_data_count) << 16) & 0xffff0000);
-+	return (sprintf(buf, "0x%x ", counts));
++	GET_CTRL_SIGS(mpc, cur);
++	mux = TX_TRGT_LMX_MUX;
++
++	switch (cmd) {
++	case TURNON:
++		/* raise outbound signals */
++		mpc->mpc_flags |= MPC_MODEM;
++
++		/* default sigs for HW flow control off */
++		cur |= (TX_DTR | TX_RTS | TX_HFC_DTR | TX_HFC_RTS);
++
++		/*
++		 * if HW flow control enabled, clear overload RTS
+signal.
++		 * This causes RTS to be lowered on overload state.
++		 */
++		if (mpc->mpc_param & IOCTRTS)
++			cur &= ~TX_HFC_RTS;
++		if ((mpc->mpc_tty) && (mpc->mpc_tty->termios)) {
++			if (mpc->mpc_tty->termios->c_cflag & CRTSCTS)
++				cur &= ~TX_HFC_RTS;
++		}
++
++		if ((SSTRD16(icpb->bank_signals) & (AMI_CNFG |
+LMX_ONLN)) ==
++		    (AMI_CNFG | LMX_ONLN))
++			cur |= mux;
++		else
++			cur &= ~mux;
++
++		/* set control signal ""mux" bits for SST-16 */
++		if (mpc->mpc_mpd->mpd_board_def->number_of_ports == 16)
++			cur |= (TX_HFC_2 | TX_CNT_2);
++
++		cur ^= TX_SND_CTRL_TG;
++		SET_CTRL_SIGS(mpc, cur);
++		break;
++
++	case TURNOFF:
++		/* lower outbound signals */
++		mpc->mpc_flags &= ~MPC_MODEM;
++		cur &= ~(TX_HFC_DTR | TX_HFC_RTS | TX_DTR | TX_RTS);
++		cur ^= TX_SND_CTRL_TG;
++		SET_CTRL_SIGS(mpc, cur);
++		break;
++	}
++
++	/* return current state of DCD */
++	return ((SSTRD16(icpb->bank_signals) & (unsigned int)CIN_DCD) >>
+1);
 +}
 +
-+static CLASS_DEVICE_ATTR(bufstats, S_IRUSR, show_bufstats, NULL);
++/*
++ * megaparam_sigs(chan, mpc, tiosp)
++ *
++ * Map termio outbound signal parameters into ICP control register
+settings.
++ * Helper (inline) routine for megaparam()
++ *
++ * chan	= channel index.
++ * mpc	= pointer to channel structure.
++ * tiosp = pointer to termios structure.
++ *
++ * mpdev (board-level) lock ** MUST ** be held.
++ */
++static void inline megaparam_sigs(int chan, struct mpchan *mpc,
++				  volatile struct termios *tiosp)
++{
++	u16 attn;
++
++	/* CLOCAL and carrier detect parameters */
++	attn = SSTRD16(mpc->mpc_icpi->cin_attn_ena);
++	if (tiosp->c_cflag & CLOCAL) {
++		attn &= ~ENA_DCD_CNG;
++		mpc->carr_state = true;
++	} else
++		attn |= ENA_DCD_CNG;
++	SSTWR16(mpc->mpc_icpi->cin_attn_ena, attn);
++
++	/* outbound control signals */
++	if ((tiosp->c_cflag & CBAUD) == 0) {
++		/* B0 */
++		(void)eqnx_modem(chan, TURNOFF);
++		return;
++	} else
++		mpc->carr_state = eqnx_modem(chan, TURNON);
++}
 +
 +/*
-+ * show_flow(c, buf)
-+ * return tty input / output flow control state
++ * megaparam_hwflow(mpc, tiosp)
 + *
-+ * c	= class device pointer
-+ * buf	= return buffer
++ * Map termio HW flow parameters into ICP control register settings.
++ * Helper (inline) routine for megaparam()
++ *
++ * mpc	= pointer to channel structure.
++ * tiosp = pointer to termios structure.
++ *
++ * mpdev (board-level) lock ** MUST ** be held.
 + */
-+static ssize_t show_flow(struct class_device *c, char *buf)
++static void inline megaparam_hwflow(struct mpchan *mpc,
++				    volatile struct termios *tiosp)
 +{
-+	struct mpchan *mpc;
 +	volatile struct icp_in_struct *icpi;
-+	volatile struct cin_bnk_struct *icpb;
-+	unsigned int flow;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
++	volatile struct icp_out_struct *icpo;
++	u16 cntrl_sig;
++	struct mpdev *mpd = mpc->mpc_mpd;
 +
 +	icpi = mpc->mpc_icpi;
-+	icpb = (icpi->cin_locks & LOCK_A) ? &icpi->cin_bank_b :
-+	    &icpi->cin_bank_a;
-+	if (!(SSTRD16(icpb->bank_events) & EV_REG_UPDT))
-+		/* make sure regs are valid */
-+		eqnx_frame_wait(mpc, 2);
++	icpo = mpc->mpc_icpo;
 +
-+	/*
-+	 * return input flow control state and output flow control state
-+	 */
-+	flow = 0;
-+	if ((mpc->mpc_block) || (mpc->mpc_icpi->cin_intern_flgs &
-IN_BUF_OVFL))
-+		flow = 0;
-+	else
-+		flow = 1;
-+	if (!(mpc->mpc_icpi->cin_intern_flgs & DAT_OUT_SUSP))
-+		flow |= 0x10000;
++	if (mpc->mpc_param & (IOCTCTS | IOCTRTS))
++		tiosp->c_cflag |= CRTSCTS;
 +
-+	return (sprintf(buf, "0x%x ", flow));
-+}
-+
-+static CLASS_DEVICE_ATTR(flow, S_IRUSR, show_flow, NULL);
-+
-+/*
-+ * show_input(c, buf)
-+ * return tty input count
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_input(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", mpc->mpc_input);
++	/* set HW flow control settings.  Need to account for rs-422
+ports */
++	if ((mpc->mpc_icp->lmx[mpc->mpc_lmxno].lmx_id != LMX_8E_422) &&
++	    (mpc->mpc_icp->lmx[mpc->mpc_lmxno].lmx_id != LMX_PM16_422))
+{
++		cntrl_sig = SSTRD16(icpo->cout_cntrl_sig);
++		if (tiosp->c_cflag & CRTSCTS) {
++			icpi->cin_susp_output_lmx |= CTS_OFF;
++			cntrl_sig &= ~TX_HFC_RTS;
++			dev_dbg(mpd->dev, "megaparam: HW flow enabled
+for "
++				"device %d\n",
++				SSTMINOR(mpc->mpc_major,
+mpc->mpc_minor));
++		} else {
++			icpi->cin_susp_output_lmx &= ~CTS_OFF;
++			cntrl_sig |= TX_HFC_RTS;
++			dev_dbg(mpd->dev, "megaparam: HW flow disabled
+for "
++				"device %d\n",
++				SSTMINOR(mpc->mpc_major,
+mpc->mpc_minor));
++		}
++		SSTWR16(icpo->cout_cntrl_sig, cntrl_sig);
++	}
 +}
 +
 +/*
-+ * store_input(c, buf, size)
-+ * set (clear) tty input count
++ * megaparam_swflow(mpc, tiosp)
 + *
-+ * c	= class device pointer
-+ * buf	= input buffer
-+ * size	= input size
-+ */
-+static ssize_t store_input(struct class_device *c, const char *buf,
-size_t size)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	mpc->mpc_input = 0;
-+
-+	return size;
-+}
-+
-+static CLASS_DEVICE_ATTR(input, S_IRUSR | S_IWUSR, show_input,
-store_input);
-+
-+/*
-+ * show_output(c, buf)
-+ * return tty output count
++ * Map termio SW flow parameters into ICP control register settings.
++ * Helper (inline) routine for megaparam()
 + *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_output(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", mpc->mpc_output);
-+}
-+
-+/*
-+ * store_output(c, buf, size)
-+ * set (clear) tty output count
++ * mpc	= pointer to channel structure.
++ * tiosp = pointer to termios structure.
 + *
-+ * c	= class device pointer
-+ * buf	= input buffer
-+ * size	= input size
++ * mpdev (board-level) lock ** MUST ** be held.
 + */
-+static ssize_t store_output(struct class_device *c, const char *buf,
-+			    size_t size)
++static void inline megaparam_swflow(struct mpchan *mpc,
++				    volatile struct termios *tiosp)
 +{
-+	struct mpchan *mpc;
++	volatile struct icp_in_struct *icpi;
++	volatile struct icp_out_struct *icpo;
++	unsigned short char_ctrl;
++	struct mpdev *mpd = mpc->mpc_mpd;
 +
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
++	icpi = mpc->mpc_icpi;
++	icpo = mpc->mpc_icpo;
 +
-+	mpc->mpc_output = 0;
-+
-+	return size;
-+}
-+
-+static CLASS_DEVICE_ATTR(output, S_IRUSR | S_IWUSR, show_output,
-store_output);
-+
-+/*
-+ * show_parity(c, buf)
-+ * return tty parity error count
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_parity(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", mpc->mpc_parity_err_cnt);
-+}
-+
-+/*
-+ * store_parity(c, buf, size)
-+ * set (clear) tty parity error count
-+ *
-+ * c	= class device pointer
-+ * buf	= input buffer
-+ * size	= input size
-+ */
-+static ssize_t store_parity(struct class_device *c, const char *buf,
-+			    size_t size)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	mpc->mpc_parity_err_cnt = 0;
-+
-+	return size;
-+}
-+
-+static CLASS_DEVICE_ATTR(parity, S_IRUSR | S_IWUSR, show_parity,
-store_parity);
-+
-+/*
-+ * show_framing(c, buf)
-+ * return tty framing error count
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_framing(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", mpc->mpc_framing_err_cnt);
-+}
-+
-+/*
-+ * store_framing(c, buf, size)
-+ * set (clear) tty framing error count
-+ *
-+ * c	= class device pointer
-+ * buf	= input buffer
-+ * size	= input size
-+ */
-+static ssize_t store_framing(struct class_device *c, const char *buf,
-+			     size_t size)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	mpc->mpc_parity_err_cnt = 0;
-+
-+	return size;
-+}
-+
-+static CLASS_DEVICE_ATTR(framing, S_IRUSR | S_IWUSR, show_framing,
-+			 store_framing);
-+
-+/*
-+ * show_break(c, buf)
-+ * return tty break count
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_break(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", mpc->mpc_break_cnt);
-+}
-+
-+/*
-+ * store_break(c, buf, size)
-+ * set (clear) tty break count
-+ *
-+ * c	= class device pointer
-+ * buf	= input buffer
-+ * size	= input size
-+ */
-+static ssize_t store_break(struct class_device *c, const char *buf,
-size_t size)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	mpc->mpc_break_cnt = 0;
-+
-+	return size;
-+}
-+
-+static CLASS_DEVICE_ATTR(break, S_IRUSR | S_IWUSR, show_break,
-store_break);
-+
-+/*
-+ * show_tty_flags(c, buf)
-+ * return tty flags
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_tty_flags(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", mpc->mpc_flags);
-+}
-+
-+static CLASS_DEVICE_ATTR(tty_flags, S_IRUSR, show_tty_flags, NULL);
-+
-+/*
-+ * show_openwaitcnt(c, buf)
-+ * return tty openwaitcnt
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_openwaitcnt(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	return sprintf(buf, "0x%x\n", mpc->openwaitcnt);
-+}
-+
-+static CLASS_DEVICE_ATTR(openwaitcnt, S_IRUSR, show_openwaitcnt, NULL);
-+
-+/*
-+ * show_loopback(c, buf)
-+ * return tty loopback state
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_loopback(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	if (mpc->mpc_flags & MPC_LOOPBACK)
-+		return sprintf(buf, "0x1\n");
-+	else
-+		return sprintf(buf, "0x0\n");
-+}
-+
-+/*
-+ * store_loopback(c, buf, size)
-+ * set tty loopback state
-+ *
-+ * c	= class device pointer
-+ * buf	= input buffer
-+ * size	= input size
-+ */
-+static ssize_t store_loopback(struct class_device *c, const char *buf,
-+			      size_t size)
-+{
-+	struct mpchan *mpc;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	if (simple_strtol(buf, NULL, 10)) {
-+		mpc->mpc_icpo->cout_lmx_command |=
-+		    (TX_INTR_LB | TX_XTRN_LB | TX_LMX_CMD_EN);
-+		eqnx_frame_wait(mpc, 6);
-+		mpc->mpc_icpo->cout_lmx_command &= ~TX_LMX_CMD_EN;
-+		mpc->mpc_flags |= MPC_LOOPBACK;
++	/* set input inband flow control settings */
++	if ((tiosp->c_iflag & IXON) || (mpc->mpc_param & IXONSET)) {
++		char_ctrl = SSTRD16(icpi->cin_char_cntrl);
++		char_ctrl |= (EN_XON | EN_XOFF);
++		char_ctrl &= ~EN_DBL_FLW;
++		if (mpc->mpc_param & IOCTXON)
++			char_ctrl &= ~EN_DNS_FLW;
++		else
++			char_ctrl |= EN_DNS_FLW;
++		if ((tiosp->c_iflag & IXANY) && (!(mpc->mpc_param &
+IXANYIG)))
++			char_ctrl |= EN_IXANY;
++		else
++			char_ctrl &= ~EN_IXANY;
++		eqnx_chnl_sync(mpc);
++		mpc->mpc_stop = tiosp->c_cc[VSTOP];
++		mpc->mpc_start = tiosp->c_cc[VSTART];
++		icpi->cin_xoff_1 = mpc->mpc_stop;
++		icpi->cin_xon_1 = mpc->mpc_start;
++		SSTWR16(icpi->cin_char_cntrl, char_ctrl);
++		/* clear lock bit and enable inband flow control */
++		icpi->cin_locks &= ~DIS_IBAND_FLW;
++		dev_dbg(mpd->dev, "megaparam: IXON enabled for device
+%d\n",
++			SSTMINOR(mpc->mpc_major, mpc->mpc_minor));
 +	} else {
-+		mpc->mpc_icpo->cout_lmx_command &= ~(TX_INTR_LB |
-TX_XTRN_LB);
-+		mpc->mpc_icpo->cout_lmx_command |= TX_LMX_CMD_EN;
-+		eqnx_frame_wait(mpc, 6);
-+		mpc->mpc_icpo->cout_lmx_command &= ~TX_LMX_CMD_EN;
-+		mpc->mpc_flags &= ~MPC_LOOPBACK;
++		SSTWR16(icpi->cin_char_cntrl,
++			(SSTRD16(icpi->cin_char_cntrl) & ~EN_DNS_FLW));
++		icpi->cin_locks |= DIS_IBAND_FLW;
++		eqnx_chnl_sync(mpc);
++		icpi->cin_iband_flow_cntrl = 0;
++		dev_dbg(mpd->dev, "megaparam: IXON disabled for device
+%d\n",
++			SSTMINOR(mpc->mpc_major, mpc->mpc_minor));
 +	}
 +
-+	return size;
-+}
-+
-+static CLASS_DEVICE_ATTR(loopback, S_IRUSR | S_IWUSR, show_loopback,
-+			 store_loopback);
-+
-+/*
-+ * show_datascope(c, buf)
-+ * return tty datascope state
-+ *
-+ * c	= class device pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_datascope(struct class_device *c, char *buf)
-+{
-+	struct mpchan *mpc;
-+	int index, val = 0;
-+
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	index = mpc - eqnx_chan;
-+	if (!(eqnx_dscope[0].open))
-+		return sprintf(buf, "0x0\n");
-+	if (eqnx_dscope[0].chan != index)
-+		return sprintf(buf, "0xFF\n");
-+	if (mpc->mpc_flags & MPC_DSCOPER)
-+		val += 0x1;
-+	if (mpc->mpc_flags & MPC_DSCOPEW)
-+		val += 0x2;
-+	return sprintf(buf, "0x%x\n", val);
++	/* set output inband flow control settings */
++	if (tiosp->c_iflag & IXOFF) {
++		mpc->mpc_stop = tiosp->c_cc[VSTOP];
++		mpc->mpc_start = tiosp->c_cc[VSTART];
++		icpo->cout_xoff_1 = mpc->mpc_stop;
++		icpo->cout_xon_1 = mpc->mpc_start;
++		icpo->cout_flow_config &= ~TX_XON_DBL;
++		icpo->cout_flow_config |= TX_XON_XOFF_EN;
++		dev_dbg(mpd->dev, "megaparam: IXOFF enabled for device
+%d\n",
++			SSTMINOR(mpc->mpc_major, mpc->mpc_minor));
++	} else {
++		if ((icpo->cout_flow_config & TX_XON_XOFF_EN) &&
++		    (icpi->cin_intern_flgs & IN_BUF_OVFL))
++			megajam(mpc);
++		icpo->cout_flow_config &= ~(TX_XON_XOFF_EN |
+TX_XON_DBL);
++		dev_dbg(mpd->dev, "megaparam: IXOFF disabled for device
+%d\n",
++			SSTMINOR(mpc->mpc_major, mpc->mpc_minor));
++	}
 +}
 +
 +/*
-+ * store_datascope(c, buf, size)
-+ * set tty datascope state
++ * megaparam_icpbaud(mpc, val)
 + *
-+ * c	= class device pointer
-+ * buf	= input buffer
-+ * size	= input size
++ * Map baud rate parameters into ICP control register settings.
++ * Helper (inline) routine for megaparam()
++ *
++ * mpc	= pointer to channel structure.
++ * val	= termios setting for baud.
++ *
++ * mpdev (board-level) lock ** MUST ** be held.
 + */
-+static ssize_t store_datascope(struct class_device *c, const char *buf,
-+			       size_t size)
++static u16 inline megaparam_icpbaud(struct mpchan *mpc, int val)
 +{
-+	struct mpchan *mpc;
-+	int val, index, i;
++	int baud, maxbaud;
 +
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
++	if (val == 0)
 +		return 0;
 +
-+	val = simple_strtol(buf, NULL, 10);
-+	if ((val < 0) || (val > 3))
-+		return size;
-+
-+	index = mpc - eqnx_chan;
-+
-+	/* check for shutdown */
-+	if ((val == 0) && (eqnx_dscope[0].open) &&
-+	    (eqnx_dscope[0].chan == index)) {
-+		eqnx_dscope[0].chan = -1;
-+		eqnx_dscope[1].chan = -1;
-+		eqnx_dscope[0].open = false;
-+		eqnx_dscope[1].open = false;
-+		mpc->mpc_flags &= ~(MPC_DSCOPER | MPC_DSCOPEW);
-+		return size;
++	switch (mpc->mpc_icp->lmx[mpc->mpc_lmxno].lmx_speed) {
++	case 0:
++		maxbaud = 115200;
++		break;
++	case 1:
++		maxbaud = 230400;
++		break;
++	case 2:
++		maxbaud = 460800;
++		break;
++	case 3:
++		maxbaud = 921600;
++		break;
++	default:
++		maxbaud = 115200;
++		break;
 +	}
 +
-+	/* open for read and or write */
-+	if (eqnx_dscope[0].open)
-+		return size;
++	baud = icpbaud_tbl[val];
++	if (baud == (2 * maxbaud / 3))
++		return (0x7ffe);
 +
-+	for (i = 0; i < 2; i++) {
-+		eqnx_dscope[i].chan = index;
-+		eqnx_dscope[i].open = true;
-+		eqnx_dscope[i].q.q_addr = eqnx_dscope[i].buffer;
-+		eqnx_dscope[i].q.q_begin = 0;
-+		eqnx_dscope[i].q.q_end = DSQMASK;
-+		eqnx_dscope[i].q.q_ptr = eqnx_dscope[i].q.q_begin;
-+		eqnx_dscope[i].next = eqnx_dscope[i].q.q_begin;
-+		eqnx_dscope[i].scope_wait_wait = 0;
-+		init_waitqueue_head(&eqnx_dscope[i].scope_wait);
++	return (~(2 * maxbaud / baud - 2) & 0x7fff) | 1;
++}
++
++/*
++ * megaparam_speed(mpc, tiosp)
++ *
++ * Map termio baud rate parameters into ICP control register settings.
++ * Helper (inline) routine for megaparam()
++ *
++ * mpc	= pointer to channel structure.
++ * tiosp = pointer to termios structure.
++ *
++ * mpdev (board-level) lock ** MUST ** be held.
++ */
++static void inline megaparam_speed(struct mpchan *mpc,
++				   volatile struct termios *tiosp)
++{
++	volatile struct icp_in_struct *icpi;
++	volatile struct icp_out_struct *icpo;
++	volatile struct cout_que_struct *icpq;
++	u32 speed;
++	u16 d;
++	struct mpdev *mpd = mpc->mpc_mpd;
++
++	icpi = mpc->mpc_icpi;
++	icpo = mpc->mpc_icpo;
++
++	speed = tiosp->c_cflag & CBAUD;
++
++	dev_dbg(mpd->dev, "megaparam: speed for device %d is %d\n",
++		SSTMINOR(mpc->mpc_major, mpc->mpc_minor), speed);
++
++	if (speed & CBAUDEX) {
++		speed &= ~CBAUDEX;
++		if ((speed < 1) || (speed > 4))
++			tiosp->c_cflag &= ~CBAUDEX;
++		else
++			speed += 15;
++	}
++	if ((speed >= 0) && (speed <= (B38400 + 4))) {
++		d = megaparam_icpbaud(mpc, speed);
++		if (d != SSTRD16(icpi->cin_baud))
++			SSTWR16(icpi->cin_baud, d);
++		if (d != SSTRD16(icpo->cout_baud_rate)) {
++			SSTWR16(icpo->cout_baud_rate, d);
++			icpq = &icpo->cout_q0;
++			eqnx_chnl_sync(mpc);
++			if (mpc->mpc_mpd->mpd_board_def->asic == SSP64)
++				/* SSP64 */
++				icpq->q_block_count =
+ssp64_lowat[speed];
++			else
++				/* SSP4 */
++				icpq->q_block_count = ssp4_lowat[speed];
++
++			icpo->cout_intnl_baud_ctr = 0;
++			eqnx_chnl_sync(mpc);
++			if (icpo->cout_intnl_baud_ctr)
++				icpo->cout_intnl_baud_ctr = 0;
++		}
++		if (d >= 0x7ffe)
++			icpo->cout_flow_config |= TX_XTRA_DMA;
++		else
++			icpo->cout_flow_config &= ~TX_XTRA_DMA;
++	}
++}
++
++/*
++ * megaparam_databits(mpc, tiosp)
++ *
++ * Map termio datasize parameters into ICP control register settings.
++ * Helper (inline) routine for megaparam()
++ *
++ * mpc	= pointer to channel structure.
++ * tiosp = pointer to termios structure.
++ *
++ * mpdev (board-level) lock ** MUST ** be held.
++ */
++static void inline megaparam_databits(struct mpchan *mpc,
++				      volatile struct termios *tiosp)
++{
++	volatile struct icp_in_struct *icpi;
++	volatile struct icp_out_struct *icpo;
++	u16 d, e;
++	struct mpdev *mpd = mpc->mpc_mpd;
++
++	icpi = mpc->mpc_icpi;
++	icpo = mpc->mpc_icpo;
++
++	e = SSTRD16(icpi->cin_char_cntrl) & ~EN_ISTRIP;
++	e &= ~CS_MASK;
++	switch (tiosp->c_cflag & CSIZE) {
++	case CS5:
++		d = CS_5;
++		break;
++
++	case CS6:
++		d = CS_6;
++		break;
++
++	case CS7:
++		d = CS_7;
++		break;
++
++	default:
++		/* CS8 */
++		d = CS_8;
++		if (tiosp->c_iflag & ISTRIP)
++			e |= EN_ISTRIP;
 +	}
 +
-+	if (val & 0x1)
-+		mpc->mpc_flags |= MPC_DSCOPER;
-+	if (val & 0x2)
-+		mpc->mpc_flags |= MPC_DSCOPEW;
++	SSTWR16(icpi->cin_char_cntrl, (d | e));
++	e = icpo->cout_char_fmt;
++	e &= ~TX_CS;
++	icpo->cout_char_fmt = (d | e);
 +
-+	return size;
-+}
-+
-+static CLASS_DEVICE_ATTR(datascope, S_IRUSR | S_IWUSR, show_datascope,
-+			 store_datascope);
-+
-+static struct attribute *eqnx_sysfs_tty_entries[] = {
-+	&class_device_attr_termios_i.attr,
-+	&class_device_attr_termios_o.attr,
-+	&class_device_attr_termios_c.attr,
-+	&class_device_attr_termios_l.attr,
-+	&class_device_attr_signals.attr,
-+	&class_device_attr_bufstats.attr,
-+	&class_device_attr_flow.attr,
-+	&class_device_attr_input.attr,
-+	&class_device_attr_output.attr,
-+	&class_device_attr_parity.attr,
-+	&class_device_attr_framing.attr,
-+	&class_device_attr_break.attr,
-+	&class_device_attr_tty_flags.attr,
-+	&class_device_attr_openwaitcnt.attr,
-+	&class_device_attr_loopback.attr,
-+	&class_device_attr_datascope.attr,
-+	NULL
-+};
-+
-+static struct attribute_group eqnx_tty_attribute_group = {
-+	.name = NULL,
-+	.attrs = eqnx_sysfs_tty_entries,
-+};
-+
-+static inline struct class_device * kobj_to_class(struct kobject *kobj)
-+{
-+	return container_of(kobj, struct class_device, kobj);
++	dev_dbg(mpd->dev, "megaparam: databits for device %d is %d\n",
++		SSTMINOR(mpc->mpc_major, mpc->mpc_minor), d);
 +}
 +
 +/*
-+ * show_input_registers(kobj, buf, off, count)
-+ * return ICP input registers
++ * megaparam_parity(mpc, tiosp)
 + *
-+ * kobj	= kernel object pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_input_registers(struct kobject *kobj, char *buf,
-+				    loff_t off, size_t count)
-+{
-+	struct class_device *c;
-+	struct mpchan *mpc;
-+
-+	c = kobj_to_class(kobj);
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL) 
-+		return 0;
-+
-+	memcpy(buf, (unsigned char *)mpc->mpc_icpi,
-+	       sizeof(struct icp_in_struct));
-+	return (sizeof(struct icp_in_struct));
-+}
-+
-+static struct bin_attribute eqnx_tty_input_registers = {
-+	.attr = {
-+		.name = "input_registers",
-+		.mode = S_IRUGO,
-+		.owner = THIS_MODULE,
-+	},
-+	.size = sizeof(struct icp_in_struct),
-+	.read = show_input_registers,
-+};
-+
-+/*
-+ * show_output_registers(kobj, buf, off, count)
-+ * return ICP output registers
++ * Map termio parity parameters into ICP control register settings.
++ * Helper (inline) routine for megaparam()
 + *
-+ * kobj	= kernel object pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_output_registers(struct kobject *kobj, char *buf,
-+				     loff_t off, size_t count)
-+{
-+	struct class_device *c;
-+	struct mpchan *mpc;
-+
-+	c = kobj_to_class(kobj);
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
-+
-+	memcpy(buf, (unsigned char *)mpc->mpc_icpo,
-+	       sizeof(struct icp_out_struct));
-+	return (sizeof(struct icp_out_struct));
-+}
-+
-+static struct bin_attribute eqnx_tty_output_registers = {
-+	.attr = {
-+		.name = "output_registers",
-+		.mode = S_IRUGO,
-+		.owner = THIS_MODULE,
-+	},
-+	.size = sizeof(struct icp_out_struct),
-+	.read = show_output_registers,
-+};
-+
-+/*
-+ * show_datascope_input(kobj, buf, off, count)
-+ * return contents of input datascope buffer
++ * mpc	= pointer to channel structure.
++ * tiosp = pointer to termios structure.
 + *
-+ * kobj	= kernel object pointer
-+ * buf	= return buffer
++ * mpdev (board-level) lock ** MUST ** be held.
 + */
-+static ssize_t show_datascope_input(struct kobject *kobj, char *buf,
-+				    loff_t off, size_t count)
++static void inline megaparam_parity(struct mpchan *mpc,
++				    volatile struct termios *tiosp)
 +{
-+	struct class_device *c;
-+	struct mpchan *mpc;
-+	int cnt, end, index;
++	volatile struct icp_in_struct *icpi;
++	volatile struct icp_out_struct *icpo;
++	unsigned char oldreg;
++	int ii;
++	u16 d = 0, e, char_cntrl, attn_ena;
++	struct mpdev *mpd = mpc->mpc_mpd;
 +
-+	c = kobj_to_class(kobj);
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
++	icpi = mpc->mpc_icpi;
++	icpo = mpc->mpc_icpo;
 +
-+	index = mpc - eqnx_chan;
-+	if (index != eqnx_dscope[0].chan)
-+		return 0;
-+
-+	cnt = (eqnx_dscope[0].next - eqnx_dscope[0].q.q_ptr) & DSQMASK;
-+	end = eqnx_dscope[0].q.q_end - eqnx_dscope[0].q.q_ptr + 1;
-+	cnt = MIN(cnt, end);
-+	cnt = MIN(cnt, 4096);
-+
-+	if (cnt) {
-+		memcpy(buf, (unsigned char *)(eqnx_dscope[0].q.q_addr +
-+					      eqnx_dscope[0].q.q_ptr),
-cnt);
-+		eqnx_dscope[0].q.q_ptr += cnt;
-+		if (eqnx_dscope[0].q.q_ptr > eqnx_dscope[0].q.q_end)
-+			eqnx_dscope[0].q.q_ptr =
-eqnx_dscope[0].q.q_begin;
++	if (tiosp->c_cflag & PARENB) {
++		d |= PARITY_ON;
++		if (!(tiosp->c_cflag & PARODD))
++			d |= PARITY_EVEN;
 +	}
 +
-+	return cnt;
-+}
++	char_cntrl = SSTRD16(icpi->cin_char_cntrl);
++	char_cntrl &= ~(PARITY_ON | PARITY_MASK);
++	oldreg = icpo->cout_cpu_req;
++	icpo->cout_cpu_req |= TX_SUSP;
++	eqnx_chnl_sync(mpc);
++	char_cntrl |= d;
++	e = icpo->cout_char_fmt;
++	e &= ~(TX_PARENB | TX_PARITY);
++	icpo->cout_char_fmt = (d | e);
++	if (!(oldreg & TX_SUSP))
++		icpo->cout_cpu_req &= ~TX_SUSP;
 +
-+static struct bin_attribute eqnx_tty_datascope_input = {
-+	.attr = {
-+		.name = "datascope_input",
-+		.mode = S_IRUGO,
-+		.owner = THIS_MODULE,
-+	},
-+	.size = 4096,
-+	.read = show_datascope_input,
-+};
++	/* always ignore breaks - handled in rxint_break */
++	char_cntrl |= IGN_BRK_NULL;
 +
-+/*
-+ * show_datascope_outut(kobj, buf, off, count)
-+ * return contents of output datascope buffer
-+ *
-+ * kobj	= kernel object pointer
-+ * buf	= return buffer
-+ */
-+static ssize_t show_datascope_output(struct kobject *kobj, char *buf,
-+				    loff_t off, size_t count)
-+{
-+	struct class_device *c;
-+	struct mpchan *mpc;
-+	int cnt, end, index;
++	/* prepare for input break/parity processing */
++	char_cntrl &= ~(IGN_BAD_CHAR | EN_CHAR_LOOKUP | NO_CMP_ERR |
+EN_LITNXT);
++	attn_ena = SSTRD16(icpi->cin_attn_ena);
++	attn_ena &= ~(ENA_BREAK_CNG | ENA_PAR_ERR | ENA_FRM_ERR |
++		      ENA_CHAR_LOOKUP);
 +
-+	c = kobj_to_class(kobj);
-+	mpc = locate_mpc_by_dev(c);
-+	if (mpc == NULL)
-+		return 0;
++	/* prepare for break processing */
++	if (!(tiosp->c_iflag & IGNBRK))
++		attn_ena |= (ENA_FRM_ERR | ENA_BREAK_CNG);
 +
-+	index = mpc - eqnx_chan;
-+	if (index != eqnx_dscope[1].chan)
-+		return 0;
++	/* clear lookup table */
++	for (ii = 0; ii < 32; ii++)
++		icpi->cin_lookup_tbl[ii] = 0;
 +
-+	cnt = (eqnx_dscope[1].next - eqnx_dscope[1].q.q_ptr) & DSQMASK;
-+	end = eqnx_dscope[1].q.q_end - eqnx_dscope[1].q.q_ptr + 1;
-+	cnt = MIN(cnt, end);
-+	cnt = MIN(cnt, 4096);
-+
-+	if (cnt) {
-+		memcpy(buf, (unsigned char *)(eqnx_dscope[1].q.q_addr +
-+					      eqnx_dscope[1].q.q_ptr),
-cnt);
-+		eqnx_dscope[1].q.q_ptr += cnt;
-+		if (eqnx_dscope[1].q.q_ptr > eqnx_dscope[1].q.q_end)
-+			eqnx_dscope[1].q.q_ptr =
-eqnx_dscope[1].q.q_begin;
++	/* input parity processing */
++	if ((tiosp->c_cflag & PARENB) && (tiosp->c_iflag & INPCK)) {
++		dev_dbg(mpd->dev, "megaparam: parity enable for device
+%d\n",
++			SSTMINOR(mpc->mpc_major, mpc->mpc_minor));
++		if (tiosp->c_iflag & IGNPAR)
++			/* discard chars with parity/framing errors */
++			char_cntrl |= IGN_BAD_CHAR;
++		else {
++			/* hardware must maintain and tag err'd chars */
++			attn_ena |= (ENA_PAR_ERR | ENA_FRM_ERR);
++			if ((tiosp->c_iflag & PARMRK) &&
++			    !(tiosp->c_iflag & ISTRIP)) {
++				/* put 0xff in lookup table */
++				icpi->cin_lookup_tbl[0x1f] |= 0x80;
++				char_cntrl |= EN_CHAR_LOOKUP;
++				attn_ena |= ENA_CHAR_LOOKUP;
++			}
++		}
 +	}
 +
-+	return cnt;
++	SSTWR16(icpi->cin_char_cntrl, char_cntrl);
++	SSTWR16(icpi->cin_attn_ena, attn_ena);
++
++	/* output stop bits */
++	if (tiosp->c_cflag & CSTOPB)
++		icpo->cout_char_fmt |= TX_2STPB;
++	else
++		icpo->cout_char_fmt &= ~TX_2STPB;
++
++	icpo->cout_ses_cntrl_a = 0;
++
++	if (tiosp->c_cflag & CREAD)
++		/* make sure dma's to dram are enabled */
++		icpi->cin_locks &= ~DIS_DMA_WR;
++	else
++		/* disable unnecessary dma's to dram */
++		icpi->cin_locks |= DIS_DMA_WR;
 +}
 +
-+static struct bin_attribute eqnx_tty_datascope_output = {
-+	.attr = {
-+		.name = "datascope_output",
-+		.mode = S_IRUGO,
-+		.owner = THIS_MODULE,
-+	},
-+	.size = 4096,
-+	.read = show_datascope_output,
-+};
++/*
++ * eqnx_megaparam(chan)
++ *
++ * Map termio parameters into ICP control register settings.
++ *
++ * chan	= device index
++ *
++ * mpdev (board-level) lock ** MUST ** be held.
++ */
++void eqnx_megaparam(int chan)
++{
++	struct mpchan *mpc;
++	volatile struct termios *tiosp;
++	struct mpdev *mpd;
++
++	mpc = &eqnx_chan[chan];
++	if (mpc->mpc_tty == (struct tty_struct *)NULL)
++		return;
++	tiosp = mpc->mpc_tty->termios;
++	if (tiosp == NULL)
++		return;
++
++	mpd = mpc->mpc_mpd;
++
++#ifdef	DEBUG_LOCKS
++	if (!(spin_is_locked(&mpc->mpc_mpd->mpd_lock)))
++		dev_dbg(mpd->dev, "megaparam: mpd lock !locked\n");
++#endif
++
++	if (mpc->mpc_param & IOCTLCK)
++		return;
++
++	megaparam_sigs(chan, mpc, tiosp);
++	megaparam_hwflow(mpc, tiosp);
++	megaparam_swflow(mpc, tiosp);
++	megaparam_speed(mpc, tiosp);
++	megaparam_databits(mpc, tiosp);
++	megaparam_parity(mpc, tiosp);
++}
 +
 +/*
-+ * eqnx_create_tty_sysfs(c)
-+ * create sysfs tty files for selected class device.
++ * megajam(mpc)
 + *
-+ * c	= class device pointer
++ * Jam an xon character into the output queue.  If the transmitter
++ * is idle, it's easy: just place the character in the output
++ * queue and start output.  In the more difficult case,
++ * we must stop the transmitter, push the character into the
++ * output next byte" register, and then restart normal output.
++ *
++ * mpc	= pointer to channel structure.
++ *
++ * mpdev (board-level) lock ** MUST ** be held.
 + */
-+void eqnx_create_tty_sysfs(struct class_device *c)
++static void megajam(struct mpchan *mpc)
 +{
-+	int ret;
++	volatile struct icp_out_struct *icpo = mpc->mpc_icpo;
++	int ii = 0;
 +
-+	ret = sysfs_create_group(&c->kobj, &eqnx_tty_attribute_group);
-+	if (ret) {
-+		printk(KERN_ERR "eqnx: failed to create sysfs tty device
++#ifdef	DEBUG_LOCKS
++	if (!(spin_is_locked(&mpc->mpc_mpd->mpd_lock)))
++		dev_dbg(mpc->mpc_mpd->dev, "megajam: mpd lock
+!locked\n");
++#endif
++
++	while (((icpo->cout_flow_config & TX_TGL_XON_XOFF) !=
++		(icpo->cout_intnl_flow_ctrl & IFLOW_TOGGLE)) &&
++	       (++ii < 100000)) ;
++
++	ii = 0;
++	while ((icpo->cout_intnl_flow_ctrl & IFLOW_XOFF) && (++ii <
+100000)) ;
++
++	if (icpo->cout_intnl_flow_ctrl & IFLOW_XOFF) {
++		dev_warn(mpc->mpc_mpd->dev, "megajam: send flow char ack
 "
-+		       "attributes.\n");
-+		sysfs_remove_group(&c->kobj, &eqnx_tty_attribute_group);
++			 "missing.\n");
 +		return;
 +	}
 +
-+	ret = sysfs_create_bin_file(&c->kobj,
-&eqnx_tty_input_registers);
-+	if (ret < 0) {
-+		printk(KERN_ERR "eqnx: failed to create sysfs tty device
-"
-+			"attributes.\n");
-+		sysfs_remove_group(&c->kobj, &eqnx_tty_attribute_group);
-+		sysfs_remove_bin_file(&c->kobj,
-&eqnx_tty_input_registers);
-+		return;
++	icpo->cout_flow_config |= TX_SND_XON;
++	icpo->cout_flow_config ^= TX_TGL_XON_XOFF;
++}
++
++/*
++ * eqnx_chnl_sync(mpc)
++ *
++ * Wait until changes to channel settings have been taken.
++ *
++ * mpc	= pointer to channel structure.
++ *
++ * mpdev (board-level) lock ** MUST ** be held.
++ */
++void eqnx_chnl_sync(struct mpchan *mpc)
++{
++	volatile union global_regs_u *icpg;
++	int i = 0;
++	volatile unsigned char *chan_ptr;
++	struct icp_struct *icp;
++#ifdef	DEBUG_LOCKS
++	struct mpdev *mpd = mpc->mpc_mpd;
++
++	if (!(spin_is_locked(&mpc->mpc_mpd->mpd_lock)))
++		dev_dbg(mpd->dev, "eqnx_chnl_sync: mpd lock !locked\n");
++#endif
++
++	if (mpc->mpc_mpd->mpd_board_def->asic == SSP64) {
++		/* SSP64 */
++		icpg = (volatile union global_regs_u *)mpc->mpc_icpo;
++		chan_ptr = &(icpg->ssp.gicp_chan);
++	} else {
++		/* SSP4 */
++		icp = mpc->mpc_icp;
++		icpg = (volatile union global_regs_u *)
++		    ((unsigned long)icp->icp_regs_start + 0x400);
++		chan_ptr = &(icpg->ssp4.chan_ctr);
 +	}
 +
-+	ret = sysfs_create_bin_file(&c->kobj,
-&eqnx_tty_output_registers);
-+	if (ret < 0) {
-+		printk(KERN_ERR "eqnx: failed to create sysfs tty device
-"
-+			"attributes.\n");
-+		sysfs_remove_group(&c->kobj, &eqnx_tty_attribute_group);
-+		sysfs_remove_bin_file(&c->kobj,
-&eqnx_tty_input_registers);
-+		sysfs_remove_bin_file(&c->kobj,
-&eqnx_tty_output_registers);
-+		return;
-+	}
-+
-+	ret = sysfs_create_bin_file(&c->kobj,
-&eqnx_tty_datascope_input);
-+	if (ret < 0) {
-+		printk(KERN_ERR "eqnx: failed to create sysfs tty device
-"
-+			"attributes.\n");
-+		sysfs_remove_group(&c->kobj, &eqnx_tty_attribute_group);
-+		sysfs_remove_bin_file(&c->kobj,
-&eqnx_tty_input_registers);
-+		sysfs_remove_bin_file(&c->kobj,
-&eqnx_tty_output_registers);
-+		sysfs_remove_bin_file(&c->kobj,
-&eqnx_tty_datascope_input);
-+		return;
-+	}
-+
-+	ret = sysfs_create_bin_file(&c->kobj,
-&eqnx_tty_datascope_output);
-+	if (ret < 0) {
-+		printk(KERN_ERR "eqnx: failed to create sysfs tty device
-"
-+			"attributes.\n");
-+		sysfs_remove_group(&c->kobj, &eqnx_tty_attribute_group);
-+		sysfs_remove_bin_file(&c->kobj,
-&eqnx_tty_input_registers);
-+		sysfs_remove_bin_file(&c->kobj,
-&eqnx_tty_output_registers);
-+		sysfs_remove_bin_file(&c->kobj,
-&eqnx_tty_datascope_input);
-+		sysfs_remove_bin_file(&c->kobj,
-&eqnx_tty_datascope_output);
-+		return;
++	while (*chan_ptr == mpc->mpc_chan) {
++		if (++i > 9000)
++			break;
 +	}
 +}
 +
 +/*
-+ * eqnx_remove_tty_sysfs(c)
-+ * remove sysfs tty files for selected class device.
++ * eqnx_frame_wait(mpc, count)
 + *
-+ * c	= device pointer
++ * Wait at least "count" frames to elapse.
++ *
++ * mpc	= pointer to channel structure.
++ * count = number of frames to wait.
++ *
++ * mpdev (board-level) lock ** MUST ** be held.
 + */
-+void eqnx_remove_tty_sysfs(struct class_device *c)
++void eqnx_frame_wait(struct mpchan *mpc, int count)
 +{
-+	sysfs_remove_group(&c->kobj, &eqnx_tty_attribute_group);
-+	sysfs_remove_bin_file(&c->kobj, &eqnx_tty_input_registers);
-+	sysfs_remove_bin_file(&c->kobj, &eqnx_tty_output_registers);
-+	sysfs_remove_bin_file(&c->kobj, &eqnx_tty_datascope_input);
-+	sysfs_remove_bin_file(&c->kobj, &eqnx_tty_datascope_output);
++	volatile union global_regs_u *icpg;
++	volatile struct icp_out_struct *icpo;
++	u16 final, original;
++	volatile u16 *frame_ptr, curval;
++	int x, wrap;
++
++#ifdef	DEBUG_LOCKS
++	if (!(spin_is_locked(&mpc->mpc_mpd->mpd_lock)))
++		dev_dbg(mpc->mpc_mpd->dev, "eqnx_frame_wait: mpd lock "
++			"!locked\n");
++#endif
++
++	if (mpc->mpc_mpd->mpd_board_def->asic == SSP64) {
++		/* SSP64 */
++		icpg = (volatile union global_regs_u *)(mpc->mpc_icpo);
++		frame_ptr = &icpg->ssp.gicp_frame_ctr;
++	} else {
++		/* SSP4 */
++		icpg = (volatile union global_regs_u *)
++		    ((unsigned long)(mpc->mpc_icpi) + 0x400);
++		icpo = (volatile struct icp_out_struct *)
++		    ((unsigned long)(mpc->mpc_icp->icp_regs_start) +
+0x200);
++		frame_ptr = &(icpo->cout_frame_ctr);
++	}
++
++	original = SSTRD16(*frame_ptr);
++	final = original + count;
++	wrap = (final > original) ? false : true;
++	for (x = 0; x < 0x100000; x++) {
++		curval = SSTRD16(*frame_ptr);
++		if (curval > final) {
++			if (!wrap)
++				break;
++			if (curval < original)
++				break;
++		}
++	}
++
++	if (x > 0x100000)
++		dev_warn(mpc->mpc_mpd->dev, "eqnx_frame_wait:
+timeout\n");
 +}

@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWFVSdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWFVSdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030364AbWFVSdX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 14:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWFVSdK
+	id S1030362AbWFVSdt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 14:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbWFVSdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 14:33:10 -0400
-Received: from mx2.suse.de ([195.135.220.15]:59326 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161174AbWFVSbN (ORCPT
+	Thu, 22 Jun 2006 14:33:49 -0400
+Received: from ns1.suse.de ([195.135.220.2]:45962 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161175AbWFVSd0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 14:31:13 -0400
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 13/14] [PATCH] w1: clean up W1_CON dependency.
-Reply-To: Greg KH <greg@kroah.com>
-Date: Thu, 22 Jun 2006 11:27:17 -0700
-Message-Id: <11510008821893-git-send-email-greg@kroah.com>
-X-Mailer: git-send-email 1.4.0
-In-Reply-To: <11510008791727-git-send-email-greg@kroah.com>
-References: <20060622182645.GB5668@kroah.com> <11510008381000-git-send-email-greg@kroah.com> <11510008413045-git-send-email-greg@kroah.com> <11510008461301-git-send-email-greg@kroah.com> <11510008522327-git-send-email-greg@kroah.com> <11510008553417-git-send-email-greg@kroah.com> <11510008583492-git-send-email-greg@kroah.com> <11510008623474-git-send-email-greg@kroah.com> <11510008662311-git-send-email-greg@kroah.com> <11510008691087-git-send-email-greg@kroah.com> <1151000872615-git-send-email-greg@kroah.com> <1151000876534-git-send-email-greg@kroah.com> <11510008791727-git-send-email-greg@kroah.com>
+	Thu, 22 Jun 2006 14:33:26 -0400
+Date: Thu, 22 Jun 2006 11:30:21 -0700
+From: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.17
+Message-ID: <20060622183021.GA5857@kroah.com>
+References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606211519550.5498@g5.osdl.org> <20060621225134.GA13618@kroah.com> <Pine.LNX.4.64.0606211814200.5498@g5.osdl.org> <20060622181826.GB22867@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060622181826.GB22867@kroah.com>
+User-Agent: Mutt/1.5.11
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+On Thu, Jun 22, 2006 at 11:18:26AM -0700, Greg KH wrote:
+> On Wed, Jun 21, 2006 at 06:22:58PM -0700, Linus Torvalds wrote:
+> > And as usual, the diff options work fine with "git log" too, so you can do
+> > 
+> > 	git log -M --stat --summary
+> > 
+> > and it will do the right thing. Look at your ae0dadcf.. commit, for 
+> > example.
+> > 
+> > Btw, the _one_ thing to be careful about is that when you generate a real 
+> > patch with "-M", if that patch actually has a rename, then only "git 
+> > apply" will be able to apply it correctly, and if somebody uses a regular 
+> > "patch" program to apply it, they'll miss out on the rename, of course.
+> > 
+> > Some day maybe the git "extended patch format" is so univerally recognized 
+> > to be superior that everybody understands them, in the meantime you may 
+> > not want to use "-M" to generate patches unless you know the other end 
+> > applies them with git.
+> > 
+> > (Which also explains why "-M" is not the default, of course).
+> 
+> For now I'll leave -M off, as people might want to apply the patches
+> from email.  Although it might cut down on main bandwidth, and they can
+> always refer to the git tree or original patch...  I'll think about that
+> one.
 
-If w1 is not enabled, w1_con should not appear in configuration,
-even if no logic is turned on without w1.
-W1_CON should depend on W1 also.
+I take that back.  I just used -M for the W1 patch series and I think it
+is very helpful as it shows only the lines that change in a rename,
+which can easily get lost in the noise of a longer patch.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/w1/Kconfig |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Very nice stuff, have I mentioned lately how much I love git?
 
-diff --git a/drivers/w1/Kconfig b/drivers/w1/Kconfig
-index 0c6c435..f2d9a08 100644
---- a/drivers/w1/Kconfig
-+++ b/drivers/w1/Kconfig
-@@ -12,7 +12,7 @@ config W1
- 	  will be called wire.ko.
- 
- config W1_CON
--	depends on CONNECTOR
-+	depends on CONNECTOR && W1
- 	bool "Userspace communication over connector"
- 	default y
- 	--- help ---
--- 
-1.4.0
+thanks,
 
+greg k-h

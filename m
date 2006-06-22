@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWFVIfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWFVIfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbWFVIfI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 04:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWFVIfH
+	id S932466AbWFVIfa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 04:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWFVIfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 04:35:07 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30885
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932409AbWFVIfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 04:35:05 -0400
-Date: Thu, 22 Jun 2006 01:34:40 -0700 (PDT)
-Message-Id: <20060622.013440.97293561.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: alan@lxorguk.ukuu.org.uk, snakebyte@gmx.de, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, netdev@vger.kernel.org
-Subject: Re: Memory corruption in 8390.c ?
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060622083037.GB26083@gondor.apana.org.au>
-References: <20060622023029.GA6156@gondor.apana.org.au>
-	<20060622.012609.25474139.davem@davemloft.net>
-	<20060622083037.GB26083@gondor.apana.org.au>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 22 Jun 2006 04:35:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12558 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932454AbWFVIf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 04:35:29 -0400
+Date: Thu, 22 Jun 2006 09:35:16 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu
+Subject: Re: [patch 1/2] genirq: allow usage of no_irq_chip
+Message-ID: <20060622083516.GB25212@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+	mingo@elte.hu
+References: <20060610085428.366868000@cruncher.tec.linutronix.de> <20060610085435.487020000@cruncher.tec.linutronix.de> <20060621161236.e868284d.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060621161236.e868284d.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Thu, 22 Jun 2006 18:30:37 +1000
-
-> On Thu, Jun 22, 2006 at 01:26:09AM -0700, David Miller wrote:
-> >
-> > Want me to let this cook in 2.6.18 for a while before sending
-> > it off to -stable?
+On Wed, Jun 21, 2006 at 04:12:36PM -0700, Andrew Morton wrote:
+> On Sat, 10 Jun 2006 10:15:11 -0000
+> Thomas Gleixner <tglx@linutronix.de> wrote:
+> > Some dumb interrupt hardware has no way to ack/mask.... Instead of creating a
+> > seperate chip structure we allow to reuse the already existing no_irq_chip
 > 
-> You know I'm never one to push anything quickly so absolutely yes :)
+> This is the patch which causes powerpc to crash.  In a quite ugly manner:
+> early oops, falls into xmon, keeps oopsing from within xmon.  No serial
+> port, too early for netconsole.
+> 
+> I'll drop it.
 
-Ok, applied to net-2.6.18 for now :)
+Note that dropping it makes the genirq stuff buggy on ARM, so this
+needs to be resolved before it can go anywhere near Linus' tree.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

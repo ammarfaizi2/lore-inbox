@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWFVO2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbWFVO24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030308AbWFVO2L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 10:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWFVO2L
+	id S1161148AbWFVO24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 10:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161150AbWFVO24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 10:28:11 -0400
-Received: from kurby.webscope.com ([204.141.84.54]:59573 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S1030296AbWFVO2J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 10:28:09 -0400
-Message-ID: <449AA8A5.8070903@linuxtv.org>
-Date: Thu, 22 Jun 2006 10:26:45 -0400
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Thu, 22 Jun 2006 10:28:56 -0400
+Received: from mail.gmx.net ([213.165.64.21]:5062 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1161148AbWFVO2y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 10:28:54 -0400
+X-Authenticated: #704063
+Date: Thu, 22 Jun 2006 16:28:15 +0200
+From: Eric Sesterhenn / Snakebyte <snakebyte@gmx.de>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: linux-kernel@vger.kernel.org, snakebyte@gmx.de, gregkh@suse.de
+Subject: Re: [Patch] Off by one in drivers/usb/serial/usb-serial.c
+Message-ID: <20060622142815.GB7503@whiterabbit>
+References: <200606221331.k5MDVua9010794@harpo.it.uu.se>
 MIME-Version: 1.0
-To: predivan@ptt.yu
-CC: v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: Re: [v4l-dvb-maintainer]  [PATCH][2.6.17]drivers/media/video/bt8xx/bttvp.h
- has wrong include line
-References: <20060622145850.0cf87d8a.predivan@ptt.yu>
-In-Reply-To: <20060622145850.0cf87d8a.predivan@ptt.yu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606221331.k5MDVua9010794@harpo.it.uu.se>
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snake-basket.de
+X-Operating-System: Linux/2.6.15-1-686 (i686)
+X-Uptime: 16:27:07 up 4 days, 22:17,  1 user,  load average: 0.02, 0.02, 0.01
+User-Agent: Mutt/1.5.11+cvs20060403
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Predrag Ivanovic wrote:
-> Hi.
-> Trivial patch, really.
-> Fixes include line in bttvp.h(btcx-risc.h is in parent dir).
-> ------
-> --- bttvp.h	2006-06-19 16:48:46.000000000 +0200
-> +++ bttvp.h.new	2006-06-19 16:49:54.000000000 +0200
-> @@ -48,7 +48,7 @@
->  
->  #include "bt848.h"
->  #include "bttv.h"
-> -#include "btcx-risc.h"
-> +#include "../btcx-risc.h"
->  
->  #ifdef __KERNEL__
->  
-> -----------
-> Pedja 
->   
-NACK.
+* Mikael Pettersson (mikpe@it.uu.se) wrote:
+> On Wed, 21 Jun 2006 23:28:17 +0200, Eric Sesterhenn wrote:
+> > this fixes coverity id #554. since serial table
+> > is defines as serial_table[SERIAL_TTY_MINORS] we
+> > should make sure we dont acess with an index
+> > of SERIAL_TTY_MINORS.
+> > 
+> > Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+> > 
+> > --- linux-2.6.17-git2/drivers/usb/serial/usb-serial.c.orig	2006-06-21 23:24:07.000000000 +0200
+> > +++ linux-2.6.17-git2/drivers/usb/serial/usb-serial.c	2006-06-21 23:25:12.000000000 +0200
+> > @@ -83,7 +83,7 @@ static struct usb_serial *get_free_seria
+> >  
+> >  		good_spot = 1;
+> >  		for (j = 1; j <= num_ports-1; ++j)
+> > -			if ((i+j >= SERIAL_TTY_MINORS) || (serial_table[i+j])) {
+> > +			if ((i+j >= SERIAL_TTY_MINORS-1)||(serial_table[i+j])) {
+> >  				good_spot = 0;
+> >  				i += j;
+> >  				break;
+> 
+> Where is the access coverity complained about? If it's the serial_table[i+j]
+> quoted above, then the original code is OK since i+j < SERIAL_TTY_MINORS is
+> an invariant in that subexpression.
+> 
+> And the other accesses to serial_table[] in get_free_serial() are also only
+> done when the index is < SERIAL_TTY_MINORS.
 
-Please see drivers/media/video/bt8xx/Makefile
+I'll check that again on sunday, when i am back home.
 
-You will notice the following line:
-
-EXTRA_CFLAGS += -Idrivers/media/video
-
-This instructs the compiler to find some other required headers in 
-drivers/media/video (such as btcx-risc.h)
-
-Your patch is unnecessary, and it is bad practice to use ".." inside a 
-header includes path, IMHO at least.
-
-In addition, please see the guidelines in 
-Documentation/SubmittingPatches before you send any future patches.  We 
-cannot accept patches into the linux kernel without a proper developer's 
-certificate of origin.
-
-Thank you for the effort, though :-)
-
-Regards,
-
-Michael Krufky
-
-
+Greetings, Eric

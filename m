@@ -1,254 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWFVQoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWFVQuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbWFVQoN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 12:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWFVQoN
+	id S1751485AbWFVQuy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 12:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWFVQuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 12:44:13 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:26546 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750972AbWFVQoL (ORCPT
+	Thu, 22 Jun 2006 12:50:54 -0400
+Received: from mx27.mail.ru ([194.67.23.63]:1130 "EHLO mx27.mail.ru")
+	by vger.kernel.org with ESMTP id S1751485AbWFVQux (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 12:44:11 -0400
-Date: Thu, 22 Jun 2006 18:44:09 +0200
-From: Jan Blunck <jblunck@suse.de>
-To: David Howells <dhowells@redhat.com>
-Cc: neilb@suse.de, balbir@in.ibm.com, akpm@osdl.org, aviro@redhat.com,
-       dev@openvz.org, olh@suse.de, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Fix dcache race during umount
-Message-ID: <20060622164409.GL6824@hasse.suse.de>
-References: <15603.1150978967@warthog.cambridge.redhat.com> <20060622160830.GK6824@hasse.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="O3RTKUHj+75w1tg5"
+	Thu, 22 Jun 2006 12:50:53 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATA driver patch for 2.6.17
+Date: Thu, 22 Jun 2006 20:50:33 +0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <1150740947.2871.42.camel@localhost.localdomain> <e79a9e$2kt$1@sea.gmane.org> <1150925002.15275.128.camel@localhost.localdomain>
+In-Reply-To: <1150925002.15275.128.camel@localhost.localdomain>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060622160830.GK6824@hasse.suse.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200606222050.34248.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---O3RTKUHj+75w1tg5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thursday 22 June 2006 01:23, Alan Cox wrote:
+> Ar Maw, 2006-06-20 am 21:12 +0400, ysgrifennodd Andrey Borzenkov:
+> > Running vanilla 2.6.17 + ide1 patch on ALi M5229 does not find CD-ROM.
+> > Notice "ata2: command 0xa0 timeout" below.
+>
+> Not sure immediately but does the following help
+>
 
-On Thu, Jun 22, Jan Blunck wrote:
+Not really. AFAIK lowest nibble bit has meaning only in DMA mode anyway.
 
-> I had a similar patch. But after calling shrink_dcache_sb() in
-> generic_shutdown_super() the call to shrink_dcache_parent() is not necessary
-> anymore. And you should also fix d_genocide() that it is putting unused
-> dentries to the LRU list.
+Anything else I could try to help pinpoint the problem?
 
-And I even have a patch that does compile ... so please ignore the previous
-one.
+> --- ../libata-devo/drivers/scsi/pata_ali.c	2006-06-20 11:50:15.000000000
+> +0100 +++ drivers/scsi/pata_ali.c	2006-06-21 21:42:27.458542280 +0100
+> @@ -181,11 +181,12 @@
+>  	u8 fifo;
+>  	int shift = 4 * adev->devno;
+>
+> -	/* Bits 3:2 (7:6 for slave) control the PIO. 00 is off 01
+> -	   is on. The FIFO must not be used for ATAPI. We preserve
+> -	   BIOS set thresholds */
+> +	/* ATA - FIFO on set nibble to 0x05, ATAPI - FIFO off, set nibble to
+> +	   0x00. Not all the docs agree but the behaviour we now use is the
+> +	   one stated in the BIOS Programming Guide */
+> +
+>  	pci_read_config_byte(pdev, pio_fifo, &fifo);
+> -	fifo &= ~(0x0C << shift);
+> +	fifo &= ~(0x0F << shift);
+>  	if (on)
+>  		fifo |= (on << shift);
+>  	pci_write_config_byte(pdev, pio_fifo, fifo);
+> @@ -261,10 +262,10 @@
+>
+>  	/* PIO FIFO is only permitted on ATA disk */
+>  	if (adev->class != ATA_DEV_ATA)
+> -		ali_fifo_control(ap, adev, 0);
+> +		ali_fifo_control(ap, adev, 0x00);
+>  	ali_program_modes(ap, adev, &t, 0);
+>  	if (adev->class == ATA_DEV_ATA)
+> -		ali_fifo_control(ap, adev, 0x04);
+> +		ali_fifo_control(ap, adev, 0x05);
+>
+>  }
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-Jan
-
---O3RTKUHj+75w1tg5
-Content-Type: text/x-patch; charset=us-ascii
-Content-Disposition: attachment; filename="combined.diff"
-
-Index: linux-2.6/fs/dcache.c
-===================================================================
---- linux-2.6.orig/fs/dcache.c
-+++ linux-2.6/fs/dcache.c
-@@ -384,9 +384,8 @@ static inline void prune_one_dentry(stru
-  * @count: number of entries to try and free
-  *
-  * Shrink the dcache. This is done when we need
-- * more memory, or simply when we need to unmount
-- * something (at which point we need to unuse
-- * all dentries).
-+ * more memory. When we need to unmount something
-+ * we call shrink_dcache_sb().
-  *
-  * This function may fail to free any resources if
-  * all the dentries are in use.
-@@ -419,15 +418,26 @@ static void prune_dcache(int count)
-  			spin_unlock(&dentry->d_lock);
- 			continue;
- 		}
--		/* If the dentry was recently referenced, don't free it. */
--		if (dentry->d_flags & DCACHE_REFERENCED) {
--			dentry->d_flags &= ~DCACHE_REFERENCED;
-- 			list_add(&dentry->d_lru, &dentry_unused);
-- 			dentry_stat.nr_unused++;
-- 			spin_unlock(&dentry->d_lock);
--			continue;
-+		/* If the dentry was recently referenced, or dentry's
-+		 * filesystem is going to be unmounted, don't free it. */
-+		if (!(dentry->d_flags & DCACHE_REFERENCED) &&
-+		    down_read_trylock(&dentry->d_sb->s_umount)) {
-+			struct super_block *sb = dentry->d_sb;
-+
-+			if (dentry->d_sb->s_root) {
-+				prune_one_dentry(dentry);
-+				up_read(&sb->s_umount);
-+				continue;
-+			}
-+			up_read(&sb->s_umount);
- 		}
--		prune_one_dentry(dentry);
-+		/* Append it at the beginning of the list, because either it
-+		 * was recently reference or the dentry's filesystem is
-+		 * unmounted so shrink_dcache_sb() can find it faster. */
-+		dentry->d_flags &= ~DCACHE_REFERENCED;
-+		list_add(&dentry->d_lru, &dentry_unused);
-+		dentry_stat.nr_unused++;
-+		spin_unlock(&dentry->d_lock);
- 	}
- 	spin_unlock(&dcache_lock);
- }
-@@ -456,32 +466,28 @@ static void prune_dcache(int count)
- 
- void shrink_dcache_sb(struct super_block * sb)
- {
--	struct list_head *tmp, *next;
--	struct dentry *dentry;
-+	struct dentry *dentry, *pos;
- 
- 	/*
- 	 * Pass one ... move the dentries for the specified
- 	 * superblock to the most recent end of the unused list.
- 	 */
- 	spin_lock(&dcache_lock);
--	list_for_each_safe(tmp, next, &dentry_unused) {
--		dentry = list_entry(tmp, struct dentry, d_lru);
-+	list_for_each_entry_safe(dentry, pos, &dentry_unused, d_lru) {
- 		if (dentry->d_sb != sb)
- 			continue;
--		list_del(tmp);
--		list_add(tmp, &dentry_unused);
-+		list_move(&dentry->d_lru, &dentry_unused);
- 	}
- 
- 	/*
- 	 * Pass two ... free the dentries for this superblock.
- 	 */
- repeat:
--	list_for_each_safe(tmp, next, &dentry_unused) {
--		dentry = list_entry(tmp, struct dentry, d_lru);
-+	list_for_each_entry_safe(dentry, pos, &dentry_unused, d_lru) {
- 		if (dentry->d_sb != sb)
- 			continue;
- 		dentry_stat.nr_unused--;
--		list_del_init(tmp);
-+		list_del_init(&dentry->d_lru);
- 		spin_lock(&dentry->d_lock);
- 		if (atomic_read(&dentry->d_count)) {
- 			spin_unlock(&dentry->d_lock);
-@@ -633,45 +639,6 @@ void shrink_dcache_parent(struct dentry 
- 		prune_dcache(found);
- }
- 
--/**
-- * shrink_dcache_anon - further prune the cache
-- * @head: head of d_hash list of dentries to prune
-- *
-- * Prune the dentries that are anonymous
-- *
-- * parsing d_hash list does not hlist_for_each_entry_rcu() as it
-- * done under dcache_lock.
-- *
-- */
--void shrink_dcache_anon(struct hlist_head *head)
--{
--	struct hlist_node *lp;
--	int found;
--	do {
--		found = 0;
--		spin_lock(&dcache_lock);
--		hlist_for_each(lp, head) {
--			struct dentry *this = hlist_entry(lp, struct dentry, d_hash);
--			if (!list_empty(&this->d_lru)) {
--				dentry_stat.nr_unused--;
--				list_del_init(&this->d_lru);
--			}
--
--			/* 
--			 * move only zero ref count dentries to the end 
--			 * of the unused list for prune_dcache
--			 */
--			if (!atomic_read(&this->d_count)) {
--				list_add_tail(&this->d_lru, &dentry_unused);
--				dentry_stat.nr_unused++;
--				found++;
--			}
--		}
--		spin_unlock(&dcache_lock);
--		prune_dcache(found);
--	} while(found);
--}
--
- /*
-  * Scan `nr' dentries and return the number which remain.
-  *
-@@ -1604,19 +1571,38 @@ repeat:
- resume:
- 	while (next != &this_parent->d_subdirs) {
- 		struct list_head *tmp = next;
--		struct dentry *dentry = list_entry(tmp, struct dentry, d_u.d_child);
-+		struct dentry *dentry = list_entry(tmp, struct dentry,
-+						   d_u.d_child);
- 		next = tmp->next;
-+
- 		if (d_unhashed(dentry)||!dentry->d_inode)
- 			continue;
-+
-+		if (!list_empty(&dentry->d_lru)) {
-+			dentry_stat.nr_unused--;
-+			list_del_init(&dentry->d_lru);
-+		}
-+		/*
-+		 * We can lower the reference count here:
-+		 * - if the refcount is zero afterwards, the dentry hasn't got
-+		 *   any children
-+		 * - if the recount isn't zero afterwards, we visit the
-+		 *   chrildren next
-+		 * - because we always hold the dcache lock, nobody else can
-+		 *   kill the unused dentries yet
-+		 */
-+		if (atomic_dec_and_test(&dentry->d_count)) {
-+			list_add_tail(&dentry->d_lru, &dentry_unused);
-+			dentry_stat.nr_unused++;
-+		}
-+
- 		if (!list_empty(&dentry->d_subdirs)) {
- 			this_parent = dentry;
- 			goto repeat;
- 		}
--		atomic_dec(&dentry->d_count);
- 	}
- 	if (this_parent != root) {
- 		next = this_parent->d_u.d_child.next;
--		atomic_dec(&this_parent->d_count);
- 		this_parent = this_parent->d_parent;
- 		goto resume;
- 	}
-Index: linux-2.6/fs/super.c
-===================================================================
---- linux-2.6.orig/fs/super.c
-+++ linux-2.6/fs/super.c
-@@ -230,8 +230,7 @@ void generic_shutdown_super(struct super
- 
- 	if (root) {
- 		sb->s_root = NULL;
--		shrink_dcache_parent(root);
--		shrink_dcache_anon(&sb->s_anon);
-+		shrink_dcache_sb(sb);
- 		dput(root);
- 		fsync_super(sb);
- 		lock_super(sb);
-Index: linux-2.6/include/linux/dcache.h
-===================================================================
---- linux-2.6.orig/include/linux/dcache.h
-+++ linux-2.6/include/linux/dcache.h
-@@ -217,7 +217,6 @@ extern struct dentry * d_alloc_anon(stru
- extern struct dentry * d_splice_alias(struct inode *, struct dentry *);
- extern void shrink_dcache_sb(struct super_block *);
- extern void shrink_dcache_parent(struct dentry *);
--extern void shrink_dcache_anon(struct hlist_head *);
- extern int d_invalidate(struct dentry *);
- 
- /* only used at mount-time */
-
---O3RTKUHj+75w1tg5--
+iD8DBQFEmspZR6LMutpd94wRApEgAJ4q7AQM09lZ/uTnSPJIM296LYnF9QCgp63W
+5lygD8TmjYh+1QwOGTWbQkg=
+=SDOQ
+-----END PGP SIGNATURE-----

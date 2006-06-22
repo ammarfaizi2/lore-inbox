@@ -1,41 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbWFVV23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030406AbWFVV3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030408AbWFVV23 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbWFVV23
+	id S1030406AbWFVV3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbWFVV3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:28:29 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:63413 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S932653AbWFVV22 (ORCPT
+	Thu, 22 Jun 2006 17:29:24 -0400
+Received: from xenotime.net ([66.160.160.81]:27048 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030406AbWFVV3X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:28:28 -0400
-Date: Thu, 22 Jun 2006 23:28:26 +0200
-From: Petr Baudis <pasky@suse.cz>
-To: Jakub Narebski <jnareb@gmail.com>
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: What's in git.git and announcing v1.4.1-rc1
-Message-ID: <20060622212826.GG21864@pasky.or.cz>
-References: <7v8xnpj7hg.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.64.0606221301500.5498@g5.osdl.org> <20060622205859.GF21864@pasky.or.cz> <Pine.LNX.4.64.0606221402140.6483@g5.osdl.org> <e7f1pk$l1q$1@sea.gmane.org>
+	Thu, 22 Jun 2006 17:29:23 -0400
+Date: Thu, 22 Jun 2006 14:32:07 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] parport: add to kernel-doc
+Message-Id: <20060622143207.adf9cea6.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e7f1pk$l1q$1@sea.gmane.org>
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> Isn't manually numbering the enum choices somewhat pointless, though?
-> >> (Actually makes it more difficult to do changes in it later.)
-> > 
-> > Yeah, I just mindlessly followed Johannes' original scheme. 
-> 
-> You might want to start at 0, just in case...
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-C99 (6.7.2.2) guarantees the enumeration constants start at 0 if not
-specified otherwise.
+Add parport interfaces to kernel-doc template.
+Small doc. cleanups in 2 parport source files.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-A person is just about as big as the things that make them angry.
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/DocBook/kernel-api.tmpl |    9 ++++++++-
+ drivers/parport/daisy.c               |    2 +-
+ drivers/parport/share.c               |    2 +-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
+
+--- linux-2617-g4.orig/Documentation/DocBook/kernel-api.tmpl
++++ linux-2617-g4/Documentation/DocBook/kernel-api.tmpl
+@@ -390,7 +390,6 @@ X!Edrivers/pnp/system.c
+      </sect1>
+   </chapter>
+ 
+-
+   <chapter id="blkdev">
+      <title>Block Devices</title>
+ !Eblock/ll_rw_blk.c
+@@ -401,6 +400,14 @@ X!Edrivers/pnp/system.c
+ !Edrivers/char/misc.c
+   </chapter>
+ 
++  <chapter id="parportdev">
++     <title>Parallel Port Devices</title>
++!Iinclude/linux/parport.h
++!Edrivers/parport/ieee1284.c
++!Edrivers/parport/share.c
++!Idrivers/parport/daisy.c
++  </chapter>
++
+   <chapter id="viddev">
+      <title>Video4Linux</title>
+ !Edrivers/media/video/videodev.c
+--- linux-2617-g4.orig/drivers/parport/daisy.c
++++ linux-2617-g4/drivers/parport/daisy.c
+@@ -283,7 +283,7 @@ void parport_close (struct pardevice *de
+  *
+  *	This tries to locate a device on the given parallel port,
+  *	multiplexor port and daisy chain address, and returns its
+- *	device number or -NXIO if no device with those coordinates
++ *	device number or %-ENXIO if no device with those coordinates
+  *	exists.
+  **/
+ 
+--- linux-2617-g4.orig/drivers/parport/share.c
++++ linux-2617-g4/drivers/parport/share.c
+@@ -218,7 +218,7 @@ static void free_port (struct parport *p
+  *	parport_get_port - increment a port's reference count
+  *	@port: the port
+  *
+- *	This ensure's that a struct parport pointer remains valid
++ *	This ensures that a struct parport pointer remains valid
+  *	until the matching parport_put_port() call.
+  **/
+ 
+
+
+---

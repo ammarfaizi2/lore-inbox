@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161176AbWFVSuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161175AbWFVSvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161176AbWFVSuu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 14:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161175AbWFVSuu
+	id S1161175AbWFVSvN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 14:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161183AbWFVSvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 14:50:50 -0400
+	Thu, 22 Jun 2006 14:51:12 -0400
 Received: from nz-out-0102.google.com ([64.233.162.193]:24479 "EHLO
 	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1161176AbWFVSur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 14:50:47 -0400
+	id S1161175AbWFVSvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 14:51:10 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=gp1b1DeKep994rawjMJf5q3WlSwCRPDc4HjsfeoPq6/WvwRLp2NMQS8etFSUy70vUnrjOJR0OCfvR5baCpO/hKAO9wXQxhrhuzstPGuWxx9uNzG0J7RXHfoj46EwSlrlmtpIqsRYkTW+8P2X7nJEELcdIIbatpvCdlkh9kT/gus=
-Message-ID: <449AE685.3090305@gmail.com>
-Date: Thu, 22 Jun 2006 12:50:45 -0600
+        b=k2xxb1mVZ2SKplFFp442CSUHnYgK41vLOamVv+W9pdf2qsTweZdTShMZJW47VUbMzxs0ffNkpxGGvrnW0o+7fyhPxbot52FbuZgHWYkUQCBUZklYxRs3c+1nZOs8OmuvvJ1Q8izLPHo+oQvVmv38YQjBkoZcN8kga0g+SqGbxK0=
+Message-ID: <449AE69C.1040404@gmail.com>
+Date: Thu, 22 Jun 2006 12:51:08 -0600
 From: Jim Cromie <jim.cromie@gmail.com>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
 CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [ patch -mm1 03/11 ] gpio-patchset-fixups:  scx200 init undo malloc
+Subject: [ patch -mm1 04/11 ] gpio-patchset-fixups: request-region
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-If platform_device_add() fails,  the add doesnt need to be undone.
-What is needed it to undo the previous malloc.
+diff.13-fix-request-region
+
+Usage of request_region() was wrong ( returns 0 on error - docpatch sent 
+to trivial ).
+This fixes it, and clarifies the err-msg.
 
 Signed-off-by:   Jim Cromie <jim.cromie@gmail.com>
 
-diff -ruNp -X dontdiff -X exclude-diffs aa-2/drivers/char/scx200_gpio.c aa-3/drivers/char/scx200_gpio.c
---- aa-2/drivers/char/scx200_gpio.c	2006-06-22 09:43:16.000000000 -0600
-+++ aa-3/drivers/char/scx200_gpio.c	2006-06-22 09:30:20.000000000 -0600
-@@ -91,7 +91,7 @@ static int __init scx200_gpio_init(void)
+---
+
+diff -ruNp -X dontdiff -X exclude-diffs 17-mm-pre0/drivers/char/pc8736x_gpio.c 13/drivers/char/pc8736x_gpio.c
+--- 17-mm-pre0/drivers/char/pc8736x_gpio.c	2006-06-20 20:42:39.000000000 -0600
++++ 13/drivers/char/pc8736x_gpio.c	2006-06-21 10:31:31.000000000 -0600
+@@ -297,9 +297,12 @@ static int __init pc8736x_gpio_init(void
+ 	pc8736x_gpio_base = (superio_inb(SIO_BASE_HADDR) << 8
+ 			     | superio_inb(SIO_BASE_LADDR));
  
- 	rc = platform_device_add(pdev);
- 	if (rc)
--		goto undo_platform_device_add;
-+		goto undo_malloc;
+-	if (request_region(pc8736x_gpio_base, 16, DEVNAME))
+-		dev_info(&pdev->dev, "GPIO ioport %x reserved\n",
+-			 pc8736x_gpio_base);
++	if (!request_region(pc8736x_gpio_base, 16, DEVNAME)) {
++		dev_err(&pdev->dev, "GPIO ioport %x busy\n",
++			pc8736x_gpio_base);
++		return -ENODEV;
++	}
++	dev_info(&pdev->dev, "GPIO ioport %x reserved\n", pc8736x_gpio_base);
  
- 	/* nsc_gpio uses dev_dbg(), so needs this */
- 	scx200_access.dev = &pdev->dev;
-@@ -127,7 +127,8 @@ undo_chrdev_region:
- 	unregister_chrdev_region(dev, num_pins);
- undo_platform_device_add:
- 	platform_device_put(pdev);
--	kfree(pdev);		/* undo platform_device_alloc */
-+undo_malloc:
-+	kfree(pdev);
- 	return rc;
- }
- 
+ 	r = register_chrdev(major, DEVNAME, &pc8736x_gpio_fops);
+ 	if (r < 0) {
 
 

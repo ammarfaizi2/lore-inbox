@@ -1,93 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWFVWQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbWFVWRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030420AbWFVWQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 18:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030423AbWFVWQZ
+	id S1030421AbWFVWRm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 18:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030422AbWFVWRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 18:16:25 -0400
-Received: from mx0.towertech.it ([213.215.222.73]:17065 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S1030420AbWFVWQY (ORCPT
+	Thu, 22 Jun 2006 18:17:42 -0400
+Received: from ns.suse.de ([195.135.220.2]:49576 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030421AbWFVWRl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 18:16:24 -0400
-Date: Fri, 23 Jun 2006 00:16:22 +0200
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] RTC: add rtc-ds1553 and rtc-ds1742 driver
-Message-ID: <20060623001622.65db7c0f@inspiron>
-In-Reply-To: <20060623.001927.74750182.anemo@mba.ocn.ne.jp>
-References: <20060623.001927.74750182.anemo@mba.ocn.ne.jp>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 22 Jun 2006 18:17:41 -0400
+From: Andi Kleen <ak@suse.de>
+To: Willy Tarreau <w@1wt.eu>
+Subject: Re: [PATCH] x86_64: another fix for canonical RIPs during signal handling
+Date: Fri, 23 Jun 2006 00:17:35 +0200
+User-Agent: KMail/1.9.3
+Cc: marcelo@kvack.org, linux-kernel@vger.kernel.org, pageexec@freemail.hu
+References: <20060622210657.GA1221@1wt.eu> <200606222326.22133.ak@suse.de> <20060622213313.GA22611@1wt.eu>
+In-Reply-To: <20060622213313.GA22611@1wt.eu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606230017.35668.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 00:19:27 +0900 (JST)
-Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
 
-> Add RTC drivers for the Dallas DS1553 and DS1742 RTC chip.
-> 
-> Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+> What I understand from this is if code is mapped at 0 (eg by mmap(PROT_EXEC)),
+> it would get executed instead of the program being killed. Although I don't
+> see how this could be exploited to gain any privileges, I wonder if it can
+> cause a process to loop indefinitely instead of being killed or nasty things
+> like this. May be this is a stupid analysis from me, so I hope that PaX Team
+> will have more precise info.
 
- please split this into two patches.
+When you can inject a non canonical RIP into the stack frame you can likely 
+also inject other RIPs.  So the whole thing is just a funny way for a program to 
+jump in its address space.  0 is as good as any other address for this.
 
- 
->  
-> +config RTC_DRV_DS1553
-> +	tristate "Dallas DS1553"
-> +	depends on RTC_CLASS
-> +	help
-> +	  If you say yes here you get support for the
-> +	  Dallas DS1553 timekeeping chip.
-> +
-> +	  This driver can also be built as a module. If so, the module
-> +	  will be called rtc-ds1553.
-> +
->  config RTC_DRV_DS1672
->  	tristate "Dallas/Maxim DS1672"
->  	depends on RTC_CLASS && I2C
-> @@ -96,6 +106,16 @@ config RTC_DRV_DS1672
->  	  This driver can also be built as a module. If so, the module
->  	  will be called rtc-ds1672.
->  
-> +config RTC_DRV_DS1742
-> +	tristate "Dallas DS1742"
-> +	depends on RTC_CLASS
-> +	help
-> +	  If you say yes here you get support for the
-> +	  Dallas DS1742 timekeeping chip.
-> +
-> +	  This driver can also be built as a module. If so, the module
-> +	  will be called rtc-ds1742.
-> +
+The whole point of the check is just to protect the kernel/CPU against this.
+What happens to the user space program itself is no concern because it is the program's
+own doing.
 
-
- on which systems will we likely find those twos? no extra
- depends?
-
-
-> +static int ds1553_rtc_ioctl(struct device *dev, unsigned int cmd,
-> +			    unsigned long arg)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
-> +
-> +	if (pdata->irq < 0)
-> +		return -ENOIOCTLCMD;
-
- inappropriate -Exxx . maybe -ENODEV?.
-
-
-
--- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+-Andi

@@ -1,89 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWFVWuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030438AbWFVW43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030430AbWFVWuI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 18:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbWFVWuH
+	id S1030438AbWFVW43 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 18:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030440AbWFVW43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 18:50:07 -0400
-Received: from barracuda.s2io.com ([72.1.205.138]:46315 "EHLO
-	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
-	id S932668AbWFVWuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 18:50:05 -0400
-X-ASG-Debug-ID: 1151013778-10070-54-0
-X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
-X-ASG-Whitelist: Client
-Reply-To: <ravinandan.arakali@neterion.com>
-From: "Ravinandan Arakali" <ravinandan.arakali@neterion.com>
-To: "'Andrew Morton'" <akpm@osdl.org>,
-       "'Ananda Raju'" <Ananda.Raju@neterion.com>
-Cc: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, <dgc@sgi.com>, <balbir@in.ibm.com>,
-       <viro@zeniv.linux.org.uk>, <neilb@suse.de>, <jblunck@suse.de>,
-       <tglx@linutronix.de>, <ananda.raju@neterion.com>,
-       <leonid.grossman@neterion.com>, <alicia.pena@neterion.com>
-X-ASG-Orig-Subj: RE: [patch 2.6.17] s2io driver irq fix
-Subject: RE: [patch 2.6.17] s2io driver irq fix
-Date: Thu, 22 Jun 2006 14:50:56 -0700
-Message-ID: <001f01c69645$f1762740$4110100a@pc.s2io.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 22 Jun 2006 18:56:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39094 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030438AbWFVW42 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 18:56:28 -0400
+Date: Thu, 22 Jun 2006 15:59:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@muc.de>
+Cc: jeff@garzik.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86-64 build fix
+Message-Id: <20060622155943.27c98d61.akpm@osdl.org>
+In-Reply-To: <20060622223919.GB50270@muc.de>
+References: <20060622205928.GA23801@havoc.gtf.org>
+	<20060622142430.3219f352.akpm@osdl.org>
+	<20060622223919.GB50270@muc.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-In-Reply-To: <20060621211534.b740d0f8.akpm@osdl.org>
-Importance: Normal
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-My understanding is that MSI-X vectors are not usually shared. We don't want
-to spend cycles checking if the interrupt was indeed from our card or
-another device on same IRQ.
-In fact, current driver shares IRQ for the MSI case which I think is a bug.
-That should also be non-shared. Our MSI handler just runs thru' the Tx/Rx
-completions and returns IRQ_HANDLED. In case of IRQ sharing, we could be
-falsely claiming the interrupt as our own.
-
-Ravi
-
------Original Message-----
-From: netdev-owner@vger.kernel.org
-[mailto:netdev-owner@vger.kernel.org]On Behalf Of Andrew Morton
-Sent: Wednesday, June 21, 2006 9:16 PM
-To: Ananda Raju
-Cc: netdev@vger.kernel.org; linux-kernel@vger.kernel.org;
-linux-fsdevel@vger.kernel.org; dgc@sgi.com; balbir@in.ibm.com;
-viro@zeniv.linux.org.uk; neilb@suse.de; jblunck@suse.de;
-tglx@linutronix.de; ananda.raju@neterion.com;
-leonid.grossman@neterion.com; ravinandan.arakali@neterion.com;
-alicia.pena@neterion.com
-Subject: Re: [patch 2.6.17] s2io driver irq fix
-
-
-On Wed, 21 Jun 2006 15:50:49 -0400 (EDT)
-Ananda Raju <Ananda.Raju@neterion.com> wrote:
-
-> +	if (sp->intr_type == MSI_X) {
-> +		int i;
+Andi Kleen <ak@muc.de> wrote:
 >
-> -				free_irq(vector, arg);
-> +		for (i=1; (sp->s2io_entries[i].in_use == MSIX_FLG); i++) {
-> +			if (sp->s2io_entries[i].type == MSIX_FIFO_TYPE) {
-> +				sprintf(sp->desc[i], "%s:MSI-X-%d-TX",
-> +					dev->name, i);
-> +				err = request_irq(sp->entries[i].vector,
-> +					  s2io_msix_fifo_handle, 0, sp->desc[i],
-> +						  sp->s2io_entries[i].arg);
+> On Thu, Jun 22, 2006 at 02:24:30PM -0700, Andrew Morton wrote:
+> > Jeff Garzik <jeff@garzik.org> wrote:
+> > >
+> > > As of last night, I still needed the Kconfig patch below to
+> > > successfully build allmodconfig on x86-64.  I believe Andrew has the
+> > > patch with a proper description and attribution, so I would prefer
+> > > that he send it...
+> > 
+> > It was transferred from the -mm-only stuff and into the x86_64 tree, so
+> > Andi owns it now.
+> > 
+> > I'll steal it back and will send it to Linus.
+> 
+> It's in my pile to eventually send, but so far nobody was able to explain
+> to me why it is suddenly needed at all, so  I wasn't feeling
+> very comfortable with it.
+> 
 
-Is it usual to prohibit IRQ sharing with msix?
+urgh, we worked all this out several weeks ago.  Forget.
 
--
-To unsubscribe from this list: send the line "unsubscribe netdev" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Looking at the patch, I guess the problem is the
 
+config AGP
+	default y if GART_IOMMU
+
+which doesn't dtrt if you already have AGP=m.
+
+
+The patch does this, instead:
+
+config GART_IOMMU
+	select AGP
+
+which gives us AGP=y if GART_IOMMU=y.
+
+
+I don't think Jeff has sent us an example .config, but I hit this a few
+times too, before we fixed it.  I think this was all triggered by a Kconfig
+change in the AGP tree, so you wouldn't have seen it, but -mm did.

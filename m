@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932839AbWFVH5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932837AbWFVIAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932839AbWFVH5n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 03:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932838AbWFVH5n
+	id S932837AbWFVIAn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 04:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWFVIAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 03:57:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5012 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932835AbWFVH5m (ORCPT
+	Thu, 22 Jun 2006 04:00:43 -0400
+Received: from mga02.intel.com ([134.134.136.20]:37496 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932307AbWFVIAm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 03:57:42 -0400
-Date: Thu, 22 Jun 2006 00:57:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: michal.k.k.piotrowski@gmail.com, mingo@elte.hu, arjan@linux.intel.com,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       robert.moore@intel.com
-Subject: Re: 2.6.17-mm1 - possible recursive locking detected
-Message-Id: <20060622005736.1124f8b8.akpm@osdl.org>
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6CF0D03@hdsmsx411.amr.corp.intel.com>
-References: <CFF307C98FEABE47A452B27C06B85BB6CF0D03@hdsmsx411.amr.corp.intel.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jun 2006 04:00:42 -0400
+X-IronPort-AV: i="4.06,164,1149490800"; 
+   d="scan'208"; a="55025751:sNHT16295958"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch] ACPI: reduce code size, clean up, fix validator message
+Date: Thu, 22 Jun 2006 04:00:37 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6CF0D04@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] ACPI: reduce code size, clean up, fix validator message
+Thread-Index: AcaVzRFeS1rs2RSWTzeVJH49xhx8eAAA6zgA
+From: "Brown, Len" <len.brown@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>
+Cc: <michal.k.k.piotrowski@gmail.com>, <arjan@linux.intel.com>,
+       <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
+       "Moore, Robert" <robert.moore@intel.com>,
+       "Arjan van de Ven" <arjan@infradead.org>
+X-OriginalArrivalTime: 22 Jun 2006 08:00:41.0101 (UTC) FILETIME=[F49903D0:01C695D1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006 03:51:51 -0400
-"Brown, Len" <len.brown@intel.com> wrote:
+Ingo,
+Thanks for the quick reply.
 
->  
-> >> The key thing here is that our recent changes in
-> >> how the locks are _used_ is okay -- and I think it is.
-> >
-> >Well.  We don't know that.  We just know that this report of unokayness
-> >wasn't right.  With Ingo's Linux-only patch we're in a 
-> >position to verify
-> >that the locking is probably OK.
-> 
-> If this were really recursive, my machine would have deadlocked
-> instead of booting normally like it did, no?
+An Andrew's advice a while back, Bob already got rid
+of the allocate part -- it just isn't upstream yet.
 
-yup.  If it's SMP ;)
+Re: changing ACPICA code (sub-directories of drivers/acpi/) like this:
+
+>-	flags = acpi_os_acquire_lock(acpi_gbl_gpe_lock);
+>+	spin_lock_irqsave(&acpi_gbl_gpe_lock, flags);
+
+I can't do that without either
+1. diverging between Linux and ACPICA
+or
+2. getting a license back from you to Intel such that Intel can
+   re-distrubute such a change under the Intel license on the file
+   and
+   inventing spin_lock_irqsave() on about 9 other operating systems.
+
+#1 is all pain and no gain, unless the 244 net fewer bytes counts as
+gain.
+#2 wouldn't make sense either.
+
+If this code were performance or size critical, I would still delete
+acpi_os_acquire_lock from osl.c, but would inline it in aclinux.h.
+
+thanks,
+-Len

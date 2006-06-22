@@ -1,83 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751824AbWFVPUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWFVP0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751824AbWFVPUU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 11:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWFVPUT
+	id S1751476AbWFVP0W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 11:26:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751814AbWFVP0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 11:20:19 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:11469 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1751824AbWFVPUS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 11:20:18 -0400
-Date: Thu, 22 Jun 2006 16:20:16 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Franck <vagabon.xyz@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm1
-In-Reply-To: <449AB01A.5000608@innova-card.com>
-Message-ID: <Pine.LNX.4.64.0606221617420.5869@skynet.skynet.ie>
-References: <20060621034857.35cfe36f.akpm@osdl.org> <449AB01A.5000608@innova-card.com>
+	Thu, 22 Jun 2006 11:26:22 -0400
+Received: from web33301.mail.mud.yahoo.com ([68.142.206.116]:64628 "HELO
+	web33301.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751476AbWFVP0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 11:26:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=mjlEF+D1/w0SWCxiQJkgGoifrHK2NuVoaiu2kSLswOXRVymb5FNmqYqSlarbVii1rAC0D02xmDTDez6zo4DkaH0dial0hq0iYQuV25tIUN+Ge4ZzhqaiB9L09t/btDKg1zn8PrvystghAzHRQNMJzRfWmQIWquEhwez0i6LHzfA=  ;
+Message-ID: <20060622152621.92347.qmail@web33301.mail.mud.yahoo.com>
+Date: Thu, 22 Jun 2006 08:26:21 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Measuring tools - top and interrupts
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006, Franck Bui-Huu wrote:
+Running 2.6.17, it seems that top is reporting
+100% idle with a network load of about 75K pps
+(bridged) , which seems unlikely. Is it possible
+that system load accounting is turned off by some
+tunning knob?
 
-> Andrew,
->
-> Andrew Morton wrote:
->>
->>
->> All 1738 patches:
->>
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/patch-list
->>
->
-> Is the following patch really needed ?
->
-> flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch
->
-> """
-> The FLATMEM memory model assumes that memory is in one contigious area
-> based at pfn 0.  If we initialise node 0 to start at any other offset we
-> will incorrectly map pfn's to the wrong struct page *.  The key to the
-> memory model is the contigious nature of the memory not the location of it.
-> Relax the requirement for the area to start at 0.
-> """
->
-> Should ARCH_PFN_OFFSET macro be used instead in order to make pfn/page
-> convertions work when node 0 start offset do not start at 0 ?
->
+Is there something that shows the current
+interrupts/second in LINUX (such as systat in
+'BSD)?
 
-What happens if you have ARCH_PFN_OFFSET as
+DT
 
-#define ARCH_PFN_OFFSET (0UL)
-
-?
-
-What arch is this?
-
-> My physical memory start at 0x20000000. So node 0 starts at an offset
-> different from 0. I setup ARCH_PFN_OFFSET this way
->
-> 	#define ARCH_PFN_OFFSET    (0x20000000 << PAGE_SHIFT)
->
-
-If physical memory starts at 0x20000000, why is the PFN not
-0x20000000 >> PAGE_SHIFT ?
-
-> Until now (2.6.17), it works well, but this patch breaks my machine.
->
-> If you need more details about my memory mapping, feel free to ask.
->
-> Thanks
->
-> 		Franck
->
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

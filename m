@@ -1,244 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161124AbWFVQIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWFVQOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161124AbWFVQIi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 12:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161160AbWFVQIi
+	id S1030296AbWFVQOd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 12:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbWFVQOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 12:08:38 -0400
-Received: from mx2.suse.de ([195.135.220.15]:3245 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161124AbWFVQIh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 12:08:37 -0400
-Date: Thu, 22 Jun 2006 18:08:30 +0200
-From: Jan Blunck <jblunck@suse.de>
-To: David Howells <dhowells@redhat.com>
-Cc: neilb@suse.de, balbir@in.ibm.com, akpm@osdl.org, aviro@redhat.com,
-       dev@openvz.org, olh@suse.de, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Fix dcache race during umount
-Message-ID: <20060622160830.GK6824@hasse.suse.de>
-References: <15603.1150978967@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="WYTEVAkct0FjGQmd"
-Content-Disposition: inline
-In-Reply-To: <15603.1150978967@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.5.9i
+	Thu, 22 Jun 2006 12:14:33 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:6297 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030296AbWFVQOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 12:14:32 -0400
+Date: Thu, 22 Jun 2006 09:14:12 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: rdunlap@xenotime.net, ntl@pobox.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, ashok.raj@intel.com, pavel@ucw.cz,
+       ak@suse.de, nickpiggin@yahoo.com.au, mingo@elte.hu
+Subject: Re: [PATCH] stop on cpu lost
+In-Reply-To: <20060623010550.0e26a46e.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.64.0606220909350.28399@schroedinger.engr.sgi.com>
+References: <20060620125159.72b0de15.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060621225609.db34df34.akpm@osdl.org> <20060622150848.GL16029@localdomain>
+ <20060622084513.4717835e.rdunlap@xenotime.net>
+ <Pine.LNX.4.64.0606220844430.28341@schroedinger.engr.sgi.com>
+ <20060623010550.0e26a46e.kamezawa.hiroyu@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 23 Jun 2006, KAMEZAWA Hiroyuki wrote:
 
---WYTEVAkct0FjGQmd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Jun 22, David Howells wrote:
-
-> I'd like to propose an alternative to your patch to fix the dcache race
-> between unmounting a filesystem and the memory shrinker.
+> Hm..
+> Then, there is several ways to manage this sitation.
 > 
-> In my patch, generic_shutdown_super() is made to call shrink_dcache_sb()
-> instead of shrink_dcache_anon(), and the latter function is discarded
-> completely since it's no longer used.
+> 1. migrate all even if it's not allowed by users
 
-I had a similar patch. But after calling shrink_dcache_sb() in
-generic_shutdown_super() the call to shrink_dcache_parent() is not necessary
-anymore. And you should also fix d_genocide() that it is putting unused
-dentries to the LRU list.
+If its not allowed then the system should not do this. Otherwise we get an 
+inconsistent system with lots of exceptions just because the user can
+do something stupid.
 
-> I feel that prune_dcache() should probably at some point be merged into its
-> two callers, since shrink_dcache_parent() and select_parent() can probably
-> then do a better job of eating a dentry subtree from the leaves inwards, but I
-> haven't attempted that with this patch.
+> 2. kill mis-configured tasks.
 
-Hmm, yes. The problem is that we only have a valid reference to the root
-dentry of the subtree that we shrink. So we have to get a reference for the
-parent of each dentry that we prune before calling prune_one_dentry().
+If the user misconfigured then its their problem.
 
-Jan
+> 3. stop ...
 
---WYTEVAkct0FjGQmd
-Content-Type: text/x-patch; charset=us-ascii
-Content-Disposition: attachment; filename="combined.diff"
+That wont work well since the process may ignore stops. We have no history 
+of stopping processes. This would be new functionality to pioneer in 
+Linux.
 
-Index: linux-2.6/fs/dcache.c
-===================================================================
---- linux-2.6.orig/fs/dcache.c
-+++ linux-2.6/fs/dcache.c
-@@ -384,9 +384,8 @@ static inline void prune_one_dentry(stru
-  * @count: number of entries to try and free
-  *
-  * Shrink the dcache. This is done when we need
-- * more memory, or simply when we need to unmount
-- * something (at which point we need to unuse
-- * all dentries).
-+ * more memory. When we need to unmount something
-+ * we call shrink_dcache_sb().
-  *
-  * This function may fail to free any resources if
-  * all the dentries are in use.
-@@ -419,15 +418,26 @@ static void prune_dcache(int count)
- 			spin_unlock(&dentry->d_lock);
- 			continue;
- 		}
--		/* If the dentry was recently referenced, don't free it. */
--		if (dentry->d_flags & DCACHE_REFERENCED) {
--			dentry->d_flags &= ~DCACHE_REFERENCED;
--			list_add(&dentry->d_lru, &dentry_unused);
--			dentry_stat.nr_unused++;
--			spin_unlock(&dentry->d_lock);
--			continue;
-+		/* If the dentry was recently referenced, or dentry's
-+		 * filesystem is going to be unmounted, don't free it. */
-+		if (!(dentry->d_flags & DCACHE_REFERENCED) &&
-+		    down_read_trylock(&dentry->d_sb->s_umount)) {
-+			struct super_block *sb = dentry->d_sb;
-+
-+			if (dentry->d_sb->s_root) {
-+				prune_one_dentry(dentry);
-+				up_read(&sb->s_umount);
-+				continue;
-+			}
-+			up_read(&sb->s_umount);
- 		}
--		prune_one_dentry(dentry);
-+		/* Append it at the beginning of the list, because either it
-+		 * was recently reference or the dentry's filesystem is
-+		 * unmounted so shrink_dcache_sb() can find it faster. */
-+		dentry->d_flags &= ~DCACHE_REFERENCED;
-+		list_add(&dentry->d_lru, &dentry_unused);
-+		dentry_stat.nr_unused++;
-+		spin_unlock(&dentry->d_lock);
- 	}
- 	spin_unlock(&dcache_lock);
- }
-@@ -464,12 +474,10 @@ void shrink_dcache_sb(struct super_block
- 	 * superblock to the most recent end of the unused list.
- 	 */
- 	spin_lock(&dcache_lock);
--	list_for_each_safe(tmp, next, &dentry_unused) {
--		dentry = list_entry(tmp, struct dentry, d_lru);
-+	list_for_each_entry_safe(dentry, pos, &dentry_unused, d_lru) {
- 		if (dentry->d_sb != sb)
- 			continue;
--		list_del(tmp);
--		list_add(tmp, &dentry_unused);
-+		list_move(&dentry->d_lru, &dentry_unused);
- 	}
+> 4. cancel cpu-hot-removal.
+> 
+> I just don't like "1". 
+> I discussed this problem with my colleagues before sending patch,
+> one said "4" seems regular way but another said "4" is bad.
+
+4 is a good thing. Just give the user some feedback as to why. F.e. write 
+a message to the syslog. This is the way we deal with many other 
+problem situations.
  
- 	/*
-@@ -633,45 +641,6 @@ void shrink_dcache_parent(struct dentry 
- 		prune_dcache(found);
- }
- 
--/**
-- * shrink_dcache_anon - further prune the cache
-- * @head: head of d_hash list of dentries to prune
-- *
-- * Prune the dentries that are anonymous
-- *
-- * parsing d_hash list does not hlist_for_each_entry_rcu() as it
-- * done under dcache_lock.
-- *
-- */
--void shrink_dcache_anon(struct hlist_head *head)
--{
--	struct hlist_node *lp;
--	int found;
--	do {
--		found = 0;
--		spin_lock(&dcache_lock);
--		hlist_for_each(lp, head) {
--			struct dentry *this = hlist_entry(lp, struct dentry, d_hash);
--			if (!list_empty(&this->d_lru)) {
--				dentry_stat.nr_unused--;
--				list_del_init(&this->d_lru);
--			}
--
--			/*
--			 * move only zero ref count dentries to the end
--			 * of the unused list for prune_dcache
--			 */
--			if (!atomic_read(&this->d_count)) {
--				list_add_tail(&this->d_lru, &dentry_unused);
--				dentry_stat.nr_unused++;
--				found++;
--			}
--		}
--		spin_unlock(&dcache_lock);
--		prune_dcache(found);
--	} while(found);
--}
--
- /*
-  * Scan `nr' dentries and return the number which remain.
-  *
-@@ -1604,19 +1573,38 @@ repeat:
- resume:
- 	while (next != &this_parent->d_subdirs) {
- 		struct list_head *tmp = next;
--		struct dentry *dentry = list_entry(tmp, struct dentry, d_u.d_child);
-+		struct dentry *dentry = list_entry(tmp, struct dentry,
-+						   d_u.d_child);
- 		next = tmp->next;
-+
- 		if (d_unhashed(dentry)||!dentry->d_inode)
- 			continue;
-+
-+		if (!list_empty(&dentry->d_lru)) {
-+			dentry_stat.nr_unused--;
-+			list_del_init(&dentry->d_lru);
-+		}
-+		/*
-+		 * We can lower the reference count here:
-+		 * - if the refcount is zero afterwards, the dentry hasn't got
-+		 *   any children
-+		 * - if the recount isn't zero afterwards, we visit the
-+		 *   chrildren next
-+		 * - because we always hold the dcache lock, nobody else can
-+		 *   kill the unused dentries yet
-+		 */
-+		if (atomic_dec_and_test(&dentry->d_count)) {
-+			list_add_tail(&dentry->d_lru, &dentry_unused);
-+			dentry_stat.nr_unused++;
-+		}
-+
- 		if (!list_empty(&dentry->d_subdirs)) {
- 			this_parent = dentry;
- 			goto repeat;
- 		}
--		atomic_dec(&dentry->d_count);
- 	}
- 	if (this_parent != root) {
- 		next = this_parent->d_u.d_child.next;
--		atomic_dec(&this_parent->d_count);
- 		this_parent = this_parent->d_parent;
- 		goto resume;
- 	}
-Index: linux-2.6/fs/super.c
-===================================================================
---- linux-2.6.orig/fs/super.c
-+++ linux-2.6/fs/super.c
-@@ -230,8 +230,7 @@ void generic_shutdown_super(struct super
- 
- 	if (root) {
- 		sb->s_root = NULL;
--		shrink_dcache_parent(root);
--		shrink_dcache_anon(&sb->s_anon);
-+		shrink_dcache_sb(sb);
- 		dput(root);
- 		fsync_super(sb);
- 		lock_super(sb);
-Index: linux-2.6/include/linux/dcache.h
-===================================================================
---- linux-2.6.orig/include/linux/dcache.h
-+++ linux-2.6/include/linux/dcache.h
-@@ -217,7 +217,6 @@ extern struct dentry * d_alloc_anon(stru
- extern struct dentry * d_splice_alias(struct inode *, struct dentry *);
- extern void shrink_dcache_sb(struct super_block *);
- extern void shrink_dcache_parent(struct dentry *);
--extern void shrink_dcache_anon(struct hlist_head *);
- extern int d_invalidate(struct dentry *);
- 
- /* only used at mount-time */
+> I sent a patch for "4" in the first place but Andi Kleen said it's bad.
+> As he said, I'm handling the problem for which I can't find a good answer :(
 
---WYTEVAkct0FjGQmd--
+Andi: Why is 4 bad?
+

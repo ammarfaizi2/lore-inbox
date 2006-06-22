@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWFVPvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751788AbWFVPwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWFVPvU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 11:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWFVPvU
+	id S1751788AbWFVPwc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 11:52:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751650AbWFVPwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 11:51:20 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:28686 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750834AbWFVPvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 11:51:20 -0400
-Date: Thu, 22 Jun 2006 11:51:18 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>, <pavel@suse.cz>,
-       <linux-pm@osdl.org>
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-In-Reply-To: <20060622004648.f1912e34.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0606221144190.8121-100000@iolanthe.rowland.org>
+	Thu, 22 Jun 2006 11:52:32 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45586 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751377AbWFVPwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 11:52:31 -0400
+Date: Thu, 22 Jun 2006 17:52:30 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.17-mm1: kernel/lockdep.c: write-only variables
+Message-ID: <20060622155230.GG9111@stusta.de>
+References: <20060621034857.35cfe36f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006, Andrew Morton wrote:
+The following variables in kernel/lockdep.c are write-only:
+  nr_hardirq_read_safe_locks
+  nr_hardirq_read_unsafe_locks
+  nr_hardirq_safe_locks
+  nr_hardirq_unsafe_locks
+  nr_softirq_read_safe_locks
+  nr_softirq_read_unsafe_locks
+  nr_softirq_safe_locks
+  nr_softirq_unsafe_locks
 
-> On Wed, 21 Jun 2006 23:19:05 -0700
-> Greg KH <greg@kroah.com> wrote:
-> 
-> > > I have the same problems also with suspend to disk. BTW I can't resume
-> > > from disk since 2.6.17-rc5-mm1, but I'll try to be more precise
-> > > tomorrow, as it seems removing the usb stuff makes it do some more steps
-> > > toward resumimg (eg: with usb modules this laptop immediately reboots
-> > > after reading all pages, without them I can reach "resuming device.."
-> > > stage).
-> > 
-> > Removing uhci-hcd causes all USB devices to be removed from the system.
-> > 
-> > Alan, you've been working in the "generic usb" section lately, any ideas
-> > why we can't suspend that kind of device now?
+Is a usage pending or should they be removed?
 
-See below...
+cu
+Adrian
 
-> My laptop has the same problem.
+-- 
 
-> Shrinking memory... done (0 pages freed)
-> hci_usb 3-1:1.1: no suspend for driver hci_usb?
-> hci_usb 3-1:1.0: no suspend for driver hci_usb?
->  usbdev3.2_ep00: not suspended
-> usb_generic_suspend(): verify_suspended+0x0/0x3c() returns -16
-> suspend_device(): usb_generic_suspend+0x0/0x134() returns -16
-> Could not suspend device 3-1: error -16
-> hci_usb 3-1:1.0: no resume for driver hci_usb?
-> hci_usb 3-1:1.1: no resume for driver hci_usb?
-> Some devices failed to suspend
-> Restarting tasks... done
-> 
-> 
-> What's a usbdev3.2_ep00?
-
-Evidently the regression was caused by Greg's patch making endpoints into 
-real struct devices.  usbdev3.2_ep00 is the device corresponding to 
-endpoint 0 on device 2 of USB bus 3.
-
-Is it really true that this patch has been sitting in -mm for several
-months (as stated in the cover message to Linus for the new batch of
-changes for 2.6.17 sent in yesterday)?
-
-There are several possible ways to fix this.  One is to add suspend and 
-resume routines to the endpoint-device driver.  Another is to change the 
-code that checks for the children being suspended, to make it check only 
-for child USB devices and not child endpoints.
-
-Alan Stern
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

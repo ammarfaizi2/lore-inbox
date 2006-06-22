@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbWFVJCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932522AbWFVJDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932536AbWFVJCz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 05:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbWFVJCz
+	id S932522AbWFVJDj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 05:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWFVJDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 05:02:55 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:14854 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932527AbWFVJCy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 05:02:54 -0400
-Date: Thu, 22 Jun 2006 19:02:27 +1000
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, snakebyte@gmx.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: Memory corruption in 8390.c ? (was Re: Possible leaks in network drivers)
-Message-ID: <20060622090227.GA28367@gondor.apana.org.au>
-References: <1150909982.15275.100.camel@localhost.localdomain> <E1FtDU0-0005nd-00@gondolin.me.apana.org.au> <20060622023029.GA6156@gondor.apana.org.au> <449A533E.4090201@pobox.com> <20060622082931.GA26083@gondor.apana.org.au> <449A5B83.4090104@pobox.com>
+	Thu, 22 Jun 2006 05:03:38 -0400
+Received: from gw.openss7.com ([142.179.199.224]:23489 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S932531AbWFVJDh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 05:03:37 -0400
+Date: Thu, 22 Jun 2006 03:03:36 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Theodore Tso <tytso@mit.edu>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH 2/8] inode-diet: Move i_pipe into a union
+Message-ID: <20060622030336.A5792@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	linux-kernel@vger.kernel.org
+References: <20060619152003.830437000@candygram.thunk.org> <20060619153108.720582000@candygram.thunk.org> <Pine.LNX.4.61.0606191918310.23792@yvahk01.tjqt.qr> <20060619190610.GH15216@thunk.org> <20060620092351.E10897@openss7.org> <20060621014537.GC5663@thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <449A5B83.4090104@pobox.com>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060621014537.GC5663@thunk.org>; from tytso@mit.edu on Tue, Jun 20, 2006 at 09:45:37PM -0400
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 04:57:39AM -0400, Jeff Garzik wrote:
->
-> >>Non-linear skbs smaller than ETH_ZLEN seem unlikely.
-> >
-> >When I was grepping it seems that a few drivers were using it with
-> >a length other than ETH_ZLEN.  I've just done another grep and here
-> >are the potential suspects:
-> >
-> >cassini.c
-> >starfire.c
-> >yellowfin.c
+Theodore,
+
+On Tue, 20 Jun 2006, Theodore Tso wrote:
 > 
-> That doesn't really invalidate the point :)  These drivers are still 
-> only padding very small packets.
+> In any case, when you state authoratively what "can" and "can not" be
+> combined, please specify when your justification is for a particular
+> out of tree modules.
 
-Hmm, at least cassini pads it to 255 for gigabit...
+In that case, be my guest: combine i_pipe with i_private: see if what
+you break is worth the gain.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

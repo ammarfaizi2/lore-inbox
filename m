@@ -1,85 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161224AbWFVTrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161211AbWFVTtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161224AbWFVTrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 15:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161222AbWFVTrI
+	id S1161211AbWFVTtv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 15:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161215AbWFVTtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 15:47:08 -0400
-Received: from silver.veritas.com ([143.127.12.111]:50078 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1161224AbWFVTrF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 15:47:05 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.06,166,1149490800"; 
-   d="scan'208"; a="39477421:sNHT22426268"
-Date: Thu, 22 Jun 2006 20:46:43 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Pavel Machek <pavel@suse.cz>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, clameter@sgi.com,
-       ntl@pobox.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com, ak@suse.de, mingo@elte.hu
-Subject: Re: [PATCH] stop on cpu lost
-In-Reply-To: <449AEF29.9070300@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0606222030290.23611@blonde.wat.veritas.com>
-References: <20060620125159.72b0de15.kamezawa.hiroyu@jp.fujitsu.com>
- <20060621225609.db34df34.akpm@osdl.org> <20060622150848.GL16029@localdomain>
- <20060622084513.4717835e.rdunlap@xenotime.net>
- <Pine.LNX.4.64.0606220844430.28341@schroedinger.engr.sgi.com>
- <20060623010550.0e26a46e.kamezawa.hiroyu@jp.fujitsu.com>
- <20060622092422.256d6692.rdunlap@xenotime.net> <20060622182231.GC4193@elf.ucw.cz>
- <Pine.LNX.4.64.0606221938410.17581@blonde.wat.veritas.com>
- <449AEF29.9070300@yahoo.com.au>
+	Thu, 22 Jun 2006 15:49:50 -0400
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:23705 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S1161211AbWFVTtt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 15:49:49 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: What's in git.git and announcing v1.4.1-rc1
+cc: linux-kernel@vger.kernel.org
+X-maint-at: be0c7e069738fbb697b0719f2252107261c9340e
+X-master-at: bf9e9542f94bc39e8bc653065d477bd25e79010e
+Date: Thu, 22 Jun 2006 12:49:47 -0700
+Message-ID: <7v8xnpj7hg.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 22 Jun 2006 19:47:04.0924 (UTC) FILETIME=[A35329C0:01C69634]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006, Nick Piggin wrote:
-> Hugh Dickins wrote:
-> > 
-> > I'd expect tasks bound to the unplugged cpu simply not to be run
-> > until "that" cpu is plugged back in.
-> 
-> Yes, I don't see why swsusp tasks would need to be migrated and
-> run. OTOH, this would require more swsusp special casing, but
-> apparently that's encouraged ;)
+I've merged quite a bit of stuff and tagged the tip of "master"
+as GIT 1.4.1-rc1.
 
-No, I wasn't meaning any swsusp special casing at all.
+As promised, 1.4.X series will be managed slightly differently,
+and this is in preparation of the first installment of it.  The
+releases will come from the "master" branch to contain both
+fixes and enhancements from now on.  Hotfix releases when
+necessary would have 1.4.X.Y revision numbers, but I am hoping
+that we do not have to do that very often.
 
-I was just using Pavel's swsusp-related mail as the hook to raise
-the point that had been haunting me with every earlier mail on
-this subject, mails I'd already deleted.
+Since all the exciting and potentially risky developments are to
+happen on the "next" branch and they are supposed to graduate to
+"master" branch after they are reasonably well cooked, this
+change will help the end-users to stay reasonably current
+without hopefully not introducing unexpected problems.  The
+older scheme left out all the enhancements if people followed
+packaged versions, and gave big surprises when upgrading from
+version X.Y.Z to X.(Y+1).0 which was not so nice.
 
-Pavel seemed to imply overriding the requested affinity for tasks
-(in preferring #1 migration), I doubted he really wanted that.
+Notable improvements since v1.4.0 are:
 
-> > With proviso that it should be possible to "kill -9" such a task
-> > i.e. it be allowed to run in kernel on a wrong cpu just to exit.
-> > 
-> > Presumably this is difficult, because unplugging a cpu will also
-> > remove infrastructure which would, for example, allow "ps" to show
-> > such tasks.  Perhaps such infrastructure should remain so long as
-> > there are tasks there.
-> 
-> They'll be in the global tasklist, so there should be no reason why
-> they couldn't be migrated over to an online CPU with taskset. Shouldn't
-> require any rewrites, IIRC.
+ - PPC SHA1 routine can grok more than half-gig of data (Paul
+   Mackerras)
 
-I was afraid that "for_each_online_cpu"-type scans would skip over
-the unplugged cpus, in such a way that the homeless tasks might be
-awkwardly invisible in some contexts.  If no such problem, fine.
+ - rev-list and object-layer in general is less (much less)
+   space hungry (Linus).
 
-> But after swsusp comes back up, it will be bringing up the same number
-> of CPUs as went down, won't it? So you shouldn't get into that
-> situation where you'd need to kill stuff, should you?
+ - the source is more friendly to stricter compilers such as
+   Sun's (Florian Forster).
 
-I wasn't meaning "kill -9" for the swsusp case, but for the general
-unplug cpu case.  We have a number of homeless tasks, which the admin
-might want to run again when "the" cpu is plugged back in; or might
-want to kill off without having to plug a cpu back in.
+ - git rebase --merge (Eric Wong).  This uses the usual 3-way
+   merge machinery while running rebase, and you can rebase
+   across renames if you use the recursive strategy which is the
+   default.
 
-Hugh
+ - gitweb updates -- mostly cleanups (Jakub Narebski with help
+   from Pasky and Timo Hirvonen).
+
+ - diff --color (Johannes).
+
+ - ~/.gitconfig and $ENV{GIT_CONFIG} (Pasky and Johannes).
+
+ - core.sharedrepository can take umask, group or world (Linus
+   and I)
+
+ - "git checkout -f" removes files that becomes untracked from
+   the working tree
+
+ - "git clone/fetch" from a corrupt repository does not
+   propagate brokenness to the downloaders.
+
+ - "git clone/fetch" over the network gives better progress
+   updates; this may also help TCP timeout problems for people
+   behind NAT.
+
+ - Many more commands are built-in (Lukas Sandström)
+
+ - git can now be used on Kiritimati (Paul Eggert)
+
+----------------------------------------------------------------
+
+* The 'master' branch has these since the last announcement.
+
+   Andre Noll:
+      object-refs: avoid division by zero
+
+   David Woodhouse:
+      Log peer address when git-daemon called from inetd
+
+   Dennis Stosberg:
+      Make t8001-annotate and t8002-blame more portable
+      Fix t8001-annotate and t8002-blame for ActiveState Perl
+
+   Eric W. Biederman:
+      Fix git-format-patch -s
+      Check and document the options to prevent mistakes.
+
+   Eric Wong:
+      git-svn: fix --rmdir when using SVN:: libraries
+      rebase: Allow merge strategies to be used when rebasing
+      rebase: error out for NO_PYTHON if they use recursive merge
+      git-svn: fix commit --edit flag when using SVN:: libraries
+
+   Florian Forster:
+      Remove ranges from switch statements.
+      Initialize FAMs using `FLEX_ARRAY'.
+      Don't instantiate structures with FAMs.
+      Cast pointers to `void *' when used in a format.
+      Don't use empty structure initializers.
+      Change types used in bitfields to be `int's.
+      Remove all void-pointer arithmetic.
+
+   Jakub Narebski:
+      Move gitweb style to gitweb.css
+      gitweb: safely output binary files for 'blob_plain' action
+      gitweb: text files for 'blob_plain' action without charset by default
+      Fix gitweb stylesheet
+      Make CSS file gitweb/gitweb.css more readable
+      gitweb: add type="text/css" to stylesheet link
+      Fix: Support for the standard mime.types map in gitweb
+      gitweb: A couple of page title tweaking
+      gitweb: style done with stylesheet
+      gitweb: whitespace cleanup
+      Add git version to gitweb output
+      Move $gitbin earlier in gitweb.cgi
+      gitweb: Make use of $PATH_INFO for project parameter
+      gitweb: whitespace cleanup around '='
+
+   Johannes Schindelin:
+      diff options: add --color
+      Initialize lock_file struct to all zero.
+      Fix setting config variables with an alternative GIT_CONFIG
+      Read configuration also from $HOME/.gitconfig
+      repo-config: Fix late-night bug
+      git_config: access() returns 0 on success, not > 0
+
+   Junio C Hamano:
+      read-tree: --prefix=<path>/ option.
+      write-tree: --prefix=<path>
+      read-tree: reorganize bind_merge code.
+      fetch-pack: give up after getting too many "ack continue"
+      shared repository: optionally allow reading to "others".
+      fix rfc2047 formatter.
+      xdiff: minor changes to match libxdiff-0.21
+      Restore SIGCHLD to SIG_DFL where we care about waitpid().
+      checkout -f: do not leave untracked working tree files.
+      upload-pack: avoid sending an incomplete pack upon failure
+      upload-pack: prepare for sideband message support.
+      Retire git-clone-pack
+      upload-pack/fetch-pack: support side-band communication
+      Add renaming-rebase test.
+      daemon: send stderr to /dev/null instead of closing.
+      rebase --merge: fix for rebasing more than 7 commits.
+      Makefile: do not force unneeded recompilation upon GIT_VERSION changes
+
+   Linus Torvalds:
+      Shrink "struct object" a bit
+      Move "void *util" from "struct object" into "struct commit"
+      Some more memory leak avoidance
+      Remove "refs" field from "struct object"
+      Add specialized object allocator
+      Add "named object array" concept
+      Fix grow_refs_hash()
+
+   Lukas Sandström:
+      Make git-write-tree a builtin
+      Make git-mailsplit a builtin
+      Make git-mailinfo a builtin
+      Make git-stripspace a builtin
+      Make git-update-index a builtin
+      Make git-update-ref a builtin
+
+   Paul Eggert:
+      date.c: improve guess between timezone offset and year.
+
+   Paul Mackerras:
+      Fix PPC SHA1 routine for large input buffers
+
+   Petr Baudis:
+      Support for extracting configuration from different files
+      Support for the standard mime.types map in gitweb
+
+   Rene Scharfe:
+      git-tar-tree: Simplify write_trailer()
+      git-tar-tree: documentation update
+      git-tar-tree: no more void pointer arithmetic
+      Make release tarballs friendlier to older tar versions
+
+   Timo Hirvonen:
+      gitweb: Use $hash_base as $search_hash if possible
+
+   Uwe Zeisberger:
+      Fix possible out-of-bounds array access
+
+   Yakov Lerner:
+      auto-detect changed prefix and/or changed build flags
+      Pass -DDEFAULT_GIT_TEMPLATE_DIR only where actually used.
+
+
+* The 'pu' branch, in addition, has these.
+
+   Johannes Schindelin:
+      Teach diff about -b and -w flags
+
+   Lukas Sandström:
+      Make it possible to call cmd_apply multiple times
+      Make git-am a builtin
+
+

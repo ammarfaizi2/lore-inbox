@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbWFVJMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161021AbWFVJVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161017AbWFVJMp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 05:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbWFVJMp
+	id S1161021AbWFVJVM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 05:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161023AbWFVJVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 05:12:45 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:32262 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1161015AbWFVJMo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 05:12:44 -0400
-Date: Thu, 22 Jun 2006 19:12:29 +1000
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, snakebyte@gmx.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: Memory corruption in 8390.c ? (was Re: Possible leaks in network drivers)
-Message-ID: <20060622091229.GA28488@gondor.apana.org.au>
-References: <1150909982.15275.100.camel@localhost.localdomain> <E1FtDU0-0005nd-00@gondolin.me.apana.org.au> <20060622023029.GA6156@gondor.apana.org.au> <449A533E.4090201@pobox.com> <20060622082931.GA26083@gondor.apana.org.au> <449A5B83.4090104@pobox.com> <20060622090227.GA28367@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Jun 2006 05:21:12 -0400
+Received: from test.estpak.ee ([194.126.115.47]:29655 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1161021AbWFVJVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 05:21:10 -0400
+From: Hasso Tepper <hasso@estpak.ee>
+To: netdev@vger.kernel.org
+Subject: Re: No interfaces under /proc/sys/net/ipv4/conf/
+Date: Thu, 22 Jun 2006 12:20:52 +0300
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <200606211631.39656.hasso@estpak.ee> <200606221154.20999.hasso@estpak.ee>
+In-Reply-To: <200606221154.20999.hasso@estpak.ee>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060622090227.GA28367@gondor.apana.org.au>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-Id: <200606221220.52935.hasso@estpak.ee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 07:02:27PM +1000, herbert wrote:
->
-> > >cassini.c
-> > >starfire.c
-> > >yellowfin.c
-> > 
-> > That doesn't really invalidate the point :)  These drivers are still 
-> > only padding very small packets.
-> 
-> Hmm, at least cassini pads it to 255 for gigabit...
+Hasso Tepper:
+> I can think of workarounds for most of problems (although it breaks a
+> hell lot of software here), but how I suppose to configure ipv6
+> settings for interfaces which have to obtain global ipv6 address via
+> autoconf so that it will work even if cable is not plugged in? I did
+> via /etc/sysctl.conf, but now ... machine boots with no link => no
+> link-local address => no /proc/sys/net/ipv6/conf/<interfce> =>
+> configuration fails.
 
-The one in starfire looks especially dodgy.  It supports SG and also
-requires the whole length to be a multiple of 4 if the firmware is
-broken.  The question is do they really intend this or do they want
-each fragment to terminate on a 4-byte boundary.
+Just realized (via practical experience) that same question applies to 
+interfaces configured via dhcp.
 
-Cheers,
+
+regards,
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Hasso Tepper

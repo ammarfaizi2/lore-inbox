@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWFVI3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWFVIaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964912AbWFVI3x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 04:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWFVI3x
+	id S964928AbWFVIaO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 04:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWFVIaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 04:29:53 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40971 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964912AbWFVI3w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 04:29:52 -0400
-Date: Thu, 22 Jun 2006 09:29:40 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, gregkh@suse.de,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: Serial-Core: USB-Serial port current issues.
-Message-ID: <20060622082939.GA25212@flint.arm.linux.org.uk>
-Mail-Followup-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>,
-	Pete Zaitcev <zaitcev@redhat.com>, gregkh@suse.de,
-	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-	linux-usb-devel@lists.sourceforge.net
-References: <20060613192829.3f4b7c34@home.brethil> <20060614152809.GA17432@flint.arm.linux.org.uk> <20060620161134.20c1316e@doriath.conectiva> <20060620193233.15224308.zaitcev@redhat.com> <20060621133500.18e82511@doriath.conectiva> <20060621164336.GD24265@flint.arm.linux.org.uk> <20060621181513.235fc23c@doriath.conectiva>
+	Thu, 22 Jun 2006 04:30:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11167 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964928AbWFVIaL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 04:30:11 -0400
+Date: Thu, 22 Jun 2006 01:29:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Milan Broz <mbroz@redhat.com>
+Cc: agk@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/15] dm: support ioctls on mapped devices
+Message-Id: <20060622012957.97697208.akpm@osdl.org>
+In-Reply-To: <449A51A2.4080601@redhat.com>
+References: <20060621193121.GP4521@agk.surrey.redhat.com>
+	<20060621205206.35ecdbf8.akpm@osdl.org>
+	<449A51A2.4080601@redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060621181513.235fc23c@doriath.conectiva>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 06:15:13PM -0300, Luiz Fernando N. Capitulino wrote:
-> On Wed, 21 Jun 2006 17:43:36 +0100
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+On Thu, 22 Jun 2006 10:15:30 +0200
+Milan Broz <mbroz@redhat.com> wrote:
+
+> Andrew Morton wrote:
+> > On Wed, 21 Jun 2006 20:31:21 +0100
+> > Alasdair G Kergon <agk@redhat.com> wrote:
+> > 
+> >> From: Milan Broz <mbroz@redhat.com>
+> >>  
+> >> Extend the core device-mapper infrastructure to accept arbitrary ioctls
+> >> on a mapped device provided that it has exactly one target and it is 
+> >> capable of supporting ioctls.
+> > 
+> > I don't understand that.  We're taking an ioctl against a dm device and
+> > we're passing it through to an underlying device?  Or something else?
 > 
-> | In the uart_update_mctrl() case, the purpose of the locking is to
-> | prevent two concurrent changes to the modem control state resulting
-> | in an inconsistency between the hardware and the software state.  If
-> | it's provable that it is always called from process context (and
-> | it isn't called from a lock_kernel()-section or the lock_kernel()
-> | section doesn't mind a rescheduling point being introduced there),
-> | there's no problem converting that to a mutex.
+> Solving this situation: logical volume (say /dev/mapper/lv1) mapped in dm 
+> to single device (/dev/sda):
 > 
->  Ok, then I can submit my debug patch to answer these questions.
+> If there is need to send ioctl you must know that /dev/mapper/lv1
+> is mapped to /dev/sda (and use /dev/sda for ioctl).
+> This is dm work -  so send ioctl to /dev/mapper/lv1 directly
+> and let dm decide what to do.
+
+OK.  I do think dm needs to remember /dev/sda's file* to get this right
+though.  That's where the ->ioctl methods are.
+
+> This is supported only for single mapping. If there are more than one target
+> it will return -ENOTTY.
 > 
->  might_sleep() can catch the lock_kernel()-section case right?
+> >> [We can't use unlocked_ioctl because we need 'inode': 'file' might be NULL.
+> >> Is it worth changing this?]
+> > 
+> > It _should_ be possible to use unlocked_ioctl() - unlocked_ioctl() would be
+> > pretty useless if someone was passing it a NULL file*.  More details?
 > 
-> | With get_mctrl(), the situation is slightly more complicated, because
-> | we need to atomically update tty->hw_stopped in some circumstances
-> | (that may also be modified from irq context.)  Therefore, to give
-> | the driver a consistent locking picture, the spinlock is _always_
-> | held.
+> yes, 
+> (I prefer change block code to not pass NULL and use unlocked_ioctl,
+> - Alasdair ?)
 > 
->  Is it too bad (wrong?) to only protect the tty->hw_stopped update
-> by the spinlock? Then the call to get_mctrl() could be protected by
-> a mutex, or is it messy?
+> see
+> 
+> drivers/char/raw.c:
+> 126: return blkdev_ioctl(bdev->bd_inode, *NULL*, command, arg);
 
-Consider this scenario with what you're proposing:
+Oh dear.  raw_open() doesn't have a file* for the device.
 
-	thread				irq
+> and block/ioctl.c: [file = NULL here]
+> 206: if (disk->fops->unlocked_ioctl)
+> 207:	return disk->fops->unlocked_ioctl(*file*, cmd, arg);
 
-	take mutex
-	get_mctrl
-					cts changes state
-					take port lock
-					mctrl state read
-					tty->hw_stopped changed state
-					release port lock
-	releaes mutex
-	take port lock
-	update tty->hw_stopped
-	release port lock
 
-Now, tty->hw_stopped does not reflect the hardware state, which will be
-buggy and can cause a loss of transmission.
-
-I'm not sure what to suggest on this one since for USB drivers you do
-need to be able to sleep in this method... but for UARTs you must not.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

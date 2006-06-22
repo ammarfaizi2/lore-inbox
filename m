@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030414AbWFVVcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030410AbWFVVe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030414AbWFVVcm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030410AbWFVVck
+	id S1030410AbWFVVe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbWFVVe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:32:40 -0400
-Received: from aa002msr.fastwebnet.it ([85.18.95.65]:3562 "EHLO
-	aa002msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932664AbWFVVcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:32:16 -0400
-Date: Thu, 22 Jun 2006 23:28:55 +0200
+	Thu, 22 Jun 2006 17:34:26 -0400
+Received: from aa001msr.fastwebnet.it ([85.18.95.64]:36783 "EHLO
+	aa001msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1030410AbWFVVeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 17:34:25 -0400
+Date: Thu, 22 Jun 2006 23:34:00 +0200
 From: Mattia Dongili <malattia@linux.it>
 To: Greg KH <greg@kroah.com>
 Cc: Jiri Slaby <jirislaby@gmail.com>, Alan Stern <stern@rowland.harvard.edu>,
@@ -17,7 +17,7 @@ Cc: Jiri Slaby <jirislaby@gmail.com>, Alan Stern <stern@rowland.harvard.edu>,
        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
        linux-pm@osdl.org, pavel@suse.cz
 Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
-Message-ID: <20060622212855.GA4891@inferi.kami.home>
+Message-ID: <20060622213400.GA5967@inferi.kami.home>
 Mail-Followup-To: Greg KH <greg@kroah.com>,
 	Jiri Slaby <jirislaby@gmail.com>,
 	Alan Stern <stern@rowland.harvard.edu>,
@@ -41,9 +41,10 @@ On Thu, Jun 22, 2006 at 01:29:52PM -0700, Greg KH wrote:
 > Mattai and Jiri, can you try the patch below to see if it fixes the USB
 > suspend problem you are seeing with 2.6.17-mm1?
 
-it does, s2ram now works again
+great! it also solves the s2disk problems I was seeing since
+2.6.17-rc5-mm1.
 
-thanks
+double thanks!
 -- 
 mattia
 :wq!

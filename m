@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932656AbWFVVrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWFVVwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932656AbWFVVrP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbWFVVrP
+	id S1750784AbWFVVwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWFVVwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:47:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25569 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932656AbWFVVrO (ORCPT
+	Thu, 22 Jun 2006 17:52:09 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:26127 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1750784AbWFVVwI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:47:14 -0400
-Date: Thu, 22 Jun 2006 23:46:01 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, clameter@sgi.com,
-       ntl@pobox.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com, ak@suse.de, nickpiggin@yahoo.com.au, mingo@elte.hu
-Subject: Re: [PATCH] stop on cpu lost
-Message-ID: <20060622214601.GB4462@elf.ucw.cz>
-References: <20060620125159.72b0de15.kamezawa.hiroyu@jp.fujitsu.com> <20060621225609.db34df34.akpm@osdl.org> <20060622150848.GL16029@localdomain> <20060622084513.4717835e.rdunlap@xenotime.net> <Pine.LNX.4.64.0606220844430.28341@schroedinger.engr.sgi.com> <20060623010550.0e26a46e.kamezawa.hiroyu@jp.fujitsu.com> <20060622092422.256d6692.rdunlap@xenotime.net> <20060622182231.GC4193@elf.ucw.cz> <449AF500.7000106@goop.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Thu, 22 Jun 2006 17:52:08 -0400
+Date: Thu, 22 Jun 2006 23:52:05 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: Eduard-Gabriel Munteanu <maxdamage@aladin.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is the x86-64 kernel size limit real?
+Message-ID: <20060622215205.GA52945@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Eduard-Gabriel Munteanu <maxdamage@aladin.ro>,
+	linux-kernel@vger.kernel.org
+References: <20060622204627.GA47994@dspnet.fr.eu.org> <449B355C.2080805@aladin.ro>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <449AF500.7000106@goop.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <449B355C.2080805@aladin.ro>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 22-06-06 12:52:32, Jeremy Fitzhardinge wrote:
-> Pavel Machek wrote:
-> >That's what I'd prefer... as swsusp uses cpu hotplug.
+On Fri, Jun 23, 2006 at 12:27:08AM +0000, Eduard-Gabriel Munteanu wrote:
+> *This message was transferred with a trial version of CommuniGate(r) Pro*
+> Olivier Galibert wrote:
 > 
-> Does it have to?  I presume this has been considered before, but what if 
-> the other CPUs were just idled for suspend rather than "removed"?
+> >
+> >which shows two things:
+> >1- a8f5034540195307362d071a8b387226b410469f should have a x86-64 version
+> >2- the limit looks entirely artificial
+> >
+> >So, is removing the limit prone to bite me?
+> >
+> >  OG.
+> 
+> The build system merely tries to warn you it's not going to fit on a 
+> floppy disk. "bzImage" means "Big zImage", not "bz2-compressed Image", 
+> so unless you're building a floppy disk, don't use zImage.
 
-Basically yes, it has to. Idling cpus is easy, but bringing cpus back
-up during resume is not, and we'd like to reuse cpu hotplug code.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+You failed to notice the "is_big_kernel ? 0x40000 : ..." part, which
+means the 4Mb limit is for bzImage.  And the "die(...)" part, which
+means it's not a warning but an error.
+
+  OG.
+

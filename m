@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161432AbWFVXB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbWFVXCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161432AbWFVXB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 19:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161431AbWFVXB5
+	id S932729AbWFVXCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 19:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbWFVXCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 19:01:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23482 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161429AbWFVXB4 (ORCPT
+	Thu, 22 Jun 2006 19:02:24 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:58892 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S932713AbWFVXCW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 19:01:56 -0400
-Date: Thu, 22 Jun 2006 19:01:38 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, jeff@garzik.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86-64 build fix
-Message-ID: <20060622230138.GA6209@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-	jeff@garzik.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <20060622205928.GA23801@havoc.gtf.org> <20060622142430.3219f352.akpm@osdl.org> <20060622223919.GB50270@muc.de> <20060622155943.27c98d61.akpm@osdl.org>
+	Thu, 22 Jun 2006 19:02:22 -0400
+Date: Fri, 23 Jun 2006 01:02:19 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is the x86-64 kernel size limit real?
+Message-ID: <20060622230219.GA61221@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <20060622204627.GA47994@dspnet.fr.eu.org> <e7f2jq$r17$1@terminus.zytor.com> <20060622220057.GB52945@dspnet.fr.eu.org> <449B1D95.4090705@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060622155943.27c98d61.akpm@osdl.org>
+In-Reply-To: <449B1D95.4090705@zytor.com>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 03:59:43PM -0700, Andrew Morton wrote:
+On Thu, Jun 22, 2006 at 03:45:41PM -0700, H. Peter Anvin wrote:
+> The limit should be removed from the boot tools; since we're talking 
+> uncompressed limits those should be tested in the linker script if anywhere.
 
- > I don't think Jeff has sent us an example .config, but I hit this a few
- > times too, before we fixed it.  I think this was all triggered by a Kconfig
- > change in the AGP tree, so you wouldn't have seen it, but -mm did.
+Probably yeah.  And the two build.c files should become one too.
+There is version drift already.  I'm not a x86-64 maintainer though :-)
 
-Not guilty your honour.
-See my mail..
-Subject: Re: intelfb: enable on x86_64
+  OG.
 
-It got busted due to INTEL_FB becoming available on x86-64, and it doing
-select AGP which if INTEL_FB was =m turned CONFIG_AGP=y into CONFIG_AGP=m
-for who-knows-why reason.  This busts the IOMMU code which expects the AGP
-code to be =y or =n
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk

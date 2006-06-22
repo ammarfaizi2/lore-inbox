@@ -1,43 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932522AbWFVJDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWFVJJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932522AbWFVJDj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 05:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWFVJDi
+	id S932537AbWFVJJy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 05:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbWFVJJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 05:03:38 -0400
-Received: from gw.openss7.com ([142.179.199.224]:23489 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S932531AbWFVJDh (ORCPT
+	Thu, 22 Jun 2006 05:09:54 -0400
+Received: from www.osadl.org ([213.239.205.134]:64733 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932537AbWFVJJx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 05:03:37 -0400
-Date: Thu, 22 Jun 2006 03:03:36 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Theodore Tso <tytso@mit.edu>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH 2/8] inode-diet: Move i_pipe into a union
-Message-ID: <20060622030336.A5792@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	linux-kernel@vger.kernel.org
-References: <20060619152003.830437000@candygram.thunk.org> <20060619153108.720582000@candygram.thunk.org> <Pine.LNX.4.61.0606191918310.23792@yvahk01.tjqt.qr> <20060619190610.GH15216@thunk.org> <20060620092351.E10897@openss7.org> <20060621014537.GC5663@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060621014537.GC5663@thunk.org>; from tytso@mit.edu on Tue, Jun 20, 2006 at 09:45:37PM -0400
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+	Thu, 22 Jun 2006 05:09:53 -0400
+Message-Id: <20060622082758.669511000@cruncher.tec.linutronix.de>
+Date: Thu, 22 Jun 2006 09:08:37 -0000
+From: Thomas Gleixner <tglx@linutronix.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: [patch 0/3] rtmutex: Propagate priority setting into lock chains
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore,
+Andrew,
 
-On Tue, 20 Jun 2006, Theodore Tso wrote:
-> 
-> In any case, when you state authoratively what "can" and "can not" be
-> combined, please specify when your justification is for a particular
-> out of tree modules.
+Please add the following patches to the rtmutex / pi-futex patchset.
 
-In that case, be my guest: combine i_pipe with i_private: see if what
-you break is worth the gain.
+This ensures that asynchronous setscheduler() calls are properly propagated
+into a already blocked task's lock dependency chain.
+The testsuite has also been improved to verify this behaviour.
+
+	tglx
+
+--
 

@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWFVVwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWFVVxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWFVVwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWFVVwJ
+	id S1750880AbWFVVxV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751897AbWFVVxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:52:09 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:26127 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1750784AbWFVVwI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:52:08 -0400
-Date: Thu, 22 Jun 2006 23:52:05 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Eduard-Gabriel Munteanu <maxdamage@aladin.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is the x86-64 kernel size limit real?
-Message-ID: <20060622215205.GA52945@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Eduard-Gabriel Munteanu <maxdamage@aladin.ro>,
-	linux-kernel@vger.kernel.org
-References: <20060622204627.GA47994@dspnet.fr.eu.org> <449B355C.2080805@aladin.ro>
+	Thu, 22 Jun 2006 17:53:20 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:57984 "EHLO
+	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
+	id S1750880AbWFVVxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 17:53:20 -0400
+Date: Thu, 22 Jun 2006 14:53:08 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: James Morris <jmorris@namei.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+       David Quigley <dpquigl@tycho.nsa.gov>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH 1/3] SELinux: add task_movememory hook
+Message-ID: <20060622215308.GG22737@sequoia.sous-sol.org>
+References: <Pine.LNX.4.64.0606211517170.11782@d.namei> <Pine.LNX.4.64.0606211730540.12872@d.namei> <Pine.LNX.4.64.0606211733470.12872@d.namei>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <449B355C.2080805@aladin.ro>
+In-Reply-To: <Pine.LNX.4.64.0606211733470.12872@d.namei>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 12:27:08AM +0000, Eduard-Gabriel Munteanu wrote:
-> *This message was transferred with a trial version of CommuniGate(r) Pro*
-> Olivier Galibert wrote:
+* James Morris (jmorris@namei.org) wrote:
+> From: David Quigley <dpquigl@tycho.nsa.gov>
 > 
-> >
-> >which shows two things:
-> >1- a8f5034540195307362d071a8b387226b410469f should have a x86-64 version
-> >2- the limit looks entirely artificial
-> >
-> >So, is removing the limit prone to bite me?
-> >
-> >  OG.
+> This patch adds new security hook, task_movememory, to be called when 
+> memory owened by a task is to be moved (e.g. when migrating pages to a 
+> different node). At present, the SELinux hook function implementation for 
+> this hook is identical to the setscheduler implementation, but a separate 
+> hook introduced to allow this check to be specialized in the future if 
+> necessary.
 > 
-> The build system merely tries to warn you it's not going to fit on a 
-> floppy disk. "bzImage" means "Big zImage", not "bz2-compressed Image", 
-> so unless you're building a floppy disk, don't use zImage.
+> Since the last posting, the hook has been renamed following feedback from
+> Christoph Lameter.
+> 
+> This patch is aimed at 2.6.18 inclusion.
+> 
+> Please apply.
+> 
+> Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: James Morris <jmorris@namei.org>
 
-You failed to notice the "is_big_kernel ? 0x40000 : ..." part, which
-means the 4Mb limit is for bzImage.  And the "die(...)" part, which
-means it's not a warning but an error.
+Acked-by: Chris Wright <chrisw@sous-sol.org>
 
-  OG.
-
+thanks,
+-chris

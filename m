@@ -1,49 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932659AbWFVVxs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWFVVyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932659AbWFVVxs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWFVVxs
+	id S932167AbWFVVyl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWFVVyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:53:48 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:57728 "EHLO
-	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
-	id S932659AbWFVVxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:53:47 -0400
-Date: Thu, 22 Jun 2006 14:53:44 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: James Morris <jmorris@namei.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-       David Quigley <dpquigl@tycho.nsa.gov>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Christoph Lameter <clameter@sgi.com>
-Subject: Re: [PATCH 2/3] SELinux: add security_task_movememory calls to mm code
-Message-ID: <20060622215344.GH22737@sequoia.sous-sol.org>
-References: <Pine.LNX.4.64.0606211517170.11782@d.namei> <Pine.LNX.4.64.0606211730540.12872@d.namei> <Pine.LNX.4.64.0606211734480.12872@d.namei>
+	Thu, 22 Jun 2006 17:54:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31141 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932167AbWFVVyk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 17:54:40 -0400
+Date: Thu, 22 Jun 2006 14:57:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Theodore Tso <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org, Jeff Dike <jdike@addtoit.com>
+Subject: Re: 2.6.17-mm1: UML failing w/o SKAS enabled
+Message-Id: <20060622145743.2accfeaf.akpm@osdl.org>
+In-Reply-To: <20060622213443.GA22303@thunk.org>
+References: <20060621034857.35cfe36f.akpm@osdl.org>
+	<20060622213443.GA22303@thunk.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606211734480.12872@d.namei>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Morris (jmorris@namei.org) wrote:
-> From: David Quigley <dpquigl@tycho.nsa.gov>
+Theodore Tso <tytso@mit.edu> wrote:
+>
+> When I tried compiling 2.6.17-mm1 without SKAS support, it failed to
+> link:
 > 
-> This patch inserts security_task_movememory hook calls into memory
-> management code to enable security modules to mediate this operation
-> between tasks.
+> arch/um/sys-i386/built-in.o: In function `__setup_host_supports_tls':tls.c:(.init.text+0x14): undefined reference to `check_host_supports_tls'
+> collect2: ld returned 1 exit status
 > 
-> Since the last posting, the hook has been renamed following feedback from
-> Christoph Lameter.
-> 
-> This patch is aimed at 2.6.18 inclusion.
-> 
-> Please apply.
-> 
-> Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> Signed-off-by: James Morris <jmorris@namei.org>
+> This can fixed be addressed with the attached patch,
 
-Acked-by: Chris Wright <chrisw@sous-sol.org>
+--- linux-2.6.17-mm1.orig/arch/um/os-Linux/sys-i386/Makefile	2006-06-17 21:49:35.000000000 -0400
++++ linux-2.6.17-mm1/arch/um/os-Linux/sys-i386/Makefile	2006-06-22 17:28:59.000000000 -0400
+@@ -3,7 +3,8 @@
+ # Licensed under the GPL
+ #
+ 
+-obj-$(CONFIG_MODE_SKAS) = registers.o tls.o
++obj-$(CONFIG_MODE_SKAS) = registers.o
++obj-y = tls.o
+ 
+ USER_OBJS := $(obj-y)
+ 
+
+
+hm, I don't see anything in -mm which could cause this.
+
+> but it the
+> resulting kernel still doesn't boot:
+> 
+> <tytso@candygram>       {/usr/projects/uml/linux-2.6.17-mm1}
+> 35% ./linux
+> Checking that ptrace can change system call numbers...OK
+> Checking syscall emulation patch for ptrace...OK
+> Checking advanced syscall emulation patch for ptrace...OK
+> Checking for tmpfs mount on /dev/shm...OK
+> Checking PROT_EXEC mmap in /dev/shm/...OK
+> UML running in TT mode
+> tracing thread pid = 25812
+> Checking that ptrace can change system call numbers...OK
+> Checking syscall emulation patch for ptrace...OK
+> Checking advanced syscall emulation patch for ptrace...OK
+> 
+> <tytso@candygram>       {/usr/projects/uml/linux-2.6.17-mm1}
+> 36%
+> 
+> If anyone has any suggestions, I'd appreciate them.
+> 
+
+It's not clear what actually happened - did it quietly exit, or what?
+
+I haven't run UML in several years, alas.  I should work out how to do it
+(again).   Links to any uml-for-dummies site would be appreciated ;)
+

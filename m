@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751878AbWFVTK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751883AbWFVTQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751878AbWFVTK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 15:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751879AbWFVTK2
+	id S1751883AbWFVTQn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 15:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751885AbWFVTQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 15:10:28 -0400
-Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:5835 "EHLO
-	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751878AbWFVTK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 15:10:27 -0400
-Date: Thu, 22 Jun 2006 15:10:24 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-       David Quigley <dpquigl@tycho.nsa.gov>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Christoph Lameter <clameter@sgi.com>
-Subject: Re: [PATCH 2/3] SELinux: add security_task_movememory calls to mm
- code
-In-Reply-To: <20060622123102.GF27074@sergelap.austin.ibm.com>
-Message-ID: <Pine.LNX.4.64.0606221504370.21897@d.namei>
-References: <Pine.LNX.4.64.0606211517170.11782@d.namei>
- <Pine.LNX.4.64.0606211730540.12872@d.namei> <Pine.LNX.4.64.0606211734480.12872@d.namei>
- <20060622123102.GF27074@sergelap.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Jun 2006 15:16:43 -0400
+Received: from xenotime.net ([66.160.160.81]:45228 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751883AbWFVTQm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 15:16:42 -0400
+Date: Thu, 22 Jun 2006 12:19:27 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Al Boldi <a1426z@gawab.com>
+Cc: adaplas@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_VGACON_SOFT_SCROLLBACK crashes 2.6.17
+Message-Id: <20060622121927.e7d27e9c.rdunlap@xenotime.net>
+In-Reply-To: <200606222036.45081.a1426z@gawab.com>
+References: <200606211715.58773.a1426z@gawab.com>
+	<200606220005.32446.a1426z@gawab.com>
+	<4499E89F.6030509@gmail.com>
+	<200606222036.45081.a1426z@gawab.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006, Serge E. Hallyn wrote:
+On Thu, 22 Jun 2006 20:36:45 +0300 Al Boldi wrote:
 
-> sorry if I'm being dense - what is actually being protected against
-> here?  The only thing I can think of is one process causing performance
-> degradation to another by moving it's memory further from it's cpu on a
-> NUMA machine.
+> Antonino A. Daplas wrote:
+> > Al Boldi wrote:
+> > > Antonino A. Daplas wrote:
+> > >> Al Boldi wrote:
+> > >>> Enabling CONFIG_VGACON_SOFT_SCROLLBACK causes random fatal system
+> > >>> freezes.
+> > >>>
+> > >>> Especially, ping 10.1 -A easily causes a complete system hang during
+> > >>> scroll.
+> > >>>
+> > >>> Is there an easy way to fix this, other than disabling the option?
+> > >>
+> > >> I can't duplicate your problem. Did it ever work before?
+> > >
+> > > This option did not exist before 2.6.17.
+> >
+> > I meant if you tried any of the -rc kernels.
+> 
+> If -rc's were additive, I would probably use them.  But they are not :(
 
-This is a privileged operation, which currently relies only on uid (i.e. 
-traditional Unix DAC), and capability checking.
+How big is that problem?  You can use ketchup
+(http://www.selenic.com/ketchup/wiki/) or
+http://www.xenotime.net/linux/scripts/grab-kernel-rc
+to automate that.
 
-SELinux introduces Mandatory Access Control (MAC) based upon all 
-security-relevant attributes of tasks and objects, not just uid/capability 
-checks.  Theoretically, all processes could run with euid==0 under SELinux 
-(in fact, Russell Coker's 'play box' does something similar by giving out 
-the root password to everyone, although SELinux is designed to complement 
-DAC, not replace it).
-
-Any privileged operations with DAC controls also need corresponding MAC 
-controls, which is what this patch implements.
-
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+---
+~Randy

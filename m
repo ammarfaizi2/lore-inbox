@@ -1,48 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWFWN6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWFWN6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWFWN6V (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750703AbWFWN6V (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 23 Jun 2006 09:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWFWN6F
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWFWN6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 09:58:05 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:39869 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750714AbWFWNi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 09:38:28 -0400
-Subject: Re: IPWireless 3G PCMCIA Network Driver and GPL
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Charles Majola <chmj@rootcore.co.za>
-Cc: Pavel Machek <pavel@ucw.cz>, stephen@blacksapphire.com,
-       benm@symmetric.co.nz, kernel list <linux-kernel@vger.kernel.org>,
-       radek.stangel@gmsil.com
-In-Reply-To: <449BEABD.5010305@rootcore.co.za>
-References: <20060616094516.GA3432@elf.ucw.cz>
-	 <20060623124405.GA8027@elf.ucw.cz>
-	 <1151068832.4549.7.camel@localhost.localdomain>
-	 <449BEABD.5010305@rootcore.co.za>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 23 Jun 2006 14:53:57 +0100
-Message-Id: <1151070837.4549.18.camel@localhost.localdomain>
+	Fri, 23 Jun 2006 09:58:03 -0400
+Received: from 1wt.eu ([62.212.114.60]:16905 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1750703AbWFWNkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 09:40:49 -0400
+Date: Fri, 23 Jun 2006 15:32:17 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: pageexec@freemail.hu
+Cc: Andi Kleen <ak@suse.de>, marcelo@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64: another fix for canonical RIPs during signal handling
+Message-ID: <20060623133217.GA24737@1wt.eu>
+References: <449BC808.4174.277D15CF@pageexec.freemail.hu> <449C0616.4382.286F7C8C@pageexec.freemail.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <449C0616.4382.286F7C8C@pageexec.freemail.hu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-06-23 am 15:21 +0200, ysgrifennodd Charles Majola:
-> Alan, can you please give me pointers on the tty changes since 2.6.12?
+On Fri, Jun 23, 2006 at 03:17:42PM +0200, pageexec@freemail.hu wrote:
+> > > that's not true. if the application expects to crash due to a bad
+> > > signal handler then rip=0 may or may not achieve that, depending on
+> > > what mapping exists at that address - this is inconsistent behaviour
+> > > (from userland's point of view) created by the kernel itself, hence
+> > > this is a kernel bug and should be fixed.
+> > 
+> > If it "wants" to crash it can just jump to 0 (or whatever unmapped address
+> > it has) by itself.
+> 
+> i very carefully didn't say 'want' above, instead i said 'expect'. the
+> current code is breaking the expectation that invalid memory dereferences
+> will cause a SIGSEGV because the rip=0 code tries to outsmart userland by
+> finding such an invalid address - except 0 is not at all guaranteed to be
+> invalid. don't think of only 'normal' applications where this assumption
+> is mostly true, think of everything that userland may want to do and having
+> a mapping at 0 is within the game rules.
+> 
+> > No need to involve the kernel here.
+> 
+> but the current code does exactly that. it assumes that it will crash
+> the application by jumping to 0 which may or may not be true. the kernel
+> has no business making such assumptions, if it wants to trigger an event
+> in userland, it had better make sure it'll actually happen, regardless
+> what userland may have done.
+> 
+> > The only point of the patch was to not make the kernel/CPU crash due 
+> > to CPU bugs triggered by applications.
+> 
+> and was it also the purpose to make the application behave differently
+> depending on what it has mapped at 0? i doubt so. also, what does 2.6
+> do to avoid this? it doesn't have this rip=0 code (yet?).
+> 
+> > But we really
+> > don't care what happens to the application when it corrupts its stack frame.
+> 
+> then why do you (try to) crash it? apparently you do care about it ;-).
+> 
+> in particular, the bad signal handler installed by userland would cause a
+> SIGSEGV (modulo the CPU bug?), so what the original rip=0 patch wanted to
+> do is trigger this SIGSEGV while not tripping on the CPU bug. it achieved
+> the second goal but not the first one, that's all i'm trying to explain.
 
-The newest kernels have a replacement set of tty receive functions that
-use a new buffering system.
+If I understand it well, an application which maps address 0 has no way to
+be notified that the kernel detected a corrupted stack pointer. I agree
+that if the proposed patch avoids to make this undesired distinction between
+apps that map addr 0 and those which don't, it would be better to merge it.
+Andi, you said there was nothing wrong with it, do you accept that it gets
+merged ?
 
-http://kerneltrap.org/node/5473
-
-covers the changes briefly. The internals of the buffering changes are
-quite complex because Paul did some rather neat things with SMP locking
-but the API is nice and simple.
-
-Its fairly easy to express the old API in terms of the new one if you
-are doing compat wrappers as well
-
-Alan
+Regards,
+Willy
 

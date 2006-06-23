@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752012AbWFWUFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752013AbWFWUHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752012AbWFWUFv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 16:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752011AbWFWUFv
+	id S1752013AbWFWUHz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752011AbWFWUHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 16:05:51 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:40911 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751967AbWFWUFu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 16:05:50 -0400
-Date: Fri, 23 Jun 2006 22:05:41 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Finn Thain <fthain@telegraphics.com.au>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH 08/21] gcc 4 fix
-In-Reply-To: <20060623193524.GA27946@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0606232158400.17704@scrub.home>
-References: <20060623183056.479024000@linux-m68k.org> <20060623183911.847605000@linux-m68k.org>
- <20060623193524.GA27946@ftp.linux.org.uk>
+	Fri, 23 Jun 2006 16:07:55 -0400
+Received: from mga03.intel.com ([143.182.124.21]:54311 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751974AbWFWUHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 16:07:54 -0400
+X-IronPort-AV: i="4.06,170,1149490800"; 
+   d="scan'208"; a="56627610:sNHT16384914"
+Message-ID: <449C49F9.6090005@intel.com>
+Date: Fri, 23 Jun 2006 13:07:21 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.4 (X11/20060617)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linas Vepstas <linas@austin.ibm.com>
+CC: netdev@vger.kernel.org, john.ronciak@intel.com, jesse.brandeburg@intel.com,
+       jeffrey.t.kirsher@intel.com, "Zhang, Yanmin" <yanmin.zhang@intel.com>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: e1000: Janitor: Use #defined values for literals
+References: <20060623163624.GM8866@austin.ibm.com>
+In-Reply-To: <20060623163624.GM8866@austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Jun 2006 20:07:52.0656 (UTC) FILETIME=[B571B500:01C69700]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 23 Jun 2006, Al Viro wrote:
-
-> On Fri, Jun 23, 2006 at 08:31:04PM +0200, zippel@linux-m68k.org wrote:
-> > Fixes a "static qualifier follows non-static qualifier" error from gcc 4.
-> > 
-> > Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-> > Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+Linas Vepstas wrote:
+> Minor janitorial patch: use #defines for literal values.
 > 
-> Broken.  Proper fix is to rename the function so that it wouldn't clash.
+> Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+> 
+> ----
+>  drivers/net/e1000/e1000_main.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> Index: linux-2.6.17-rc6-mm2/drivers/net/e1000/e1000_main.c
+> ===================================================================
+> --- linux-2.6.17-rc6-mm2.orig/drivers/net/e1000/e1000_main.c	2006-06-13 18:13:30.000000000 -0500
+> +++ linux-2.6.17-rc6-mm2/drivers/net/e1000/e1000_main.c	2006-06-23 11:27:47.000000000 -0500
+> @@ -4663,8 +4663,8 @@ static pci_ers_result_t e1000_io_slot_re
+>  	}
+>  	pci_set_master(pdev);
+>  
+> -	pci_enable_wake(pdev, 3, 0);
+> -	pci_enable_wake(pdev, 4, 0); /* 4 == D3 cold */
+> +	pci_enable_wake(pdev, PCI_D3hot, 0);
+> +	pci_enable_wake(pdev, PCI_D3cold, 0);
+>  
+>  	/* Perform card reset only on one instance of the card */
+>  	if (PCI_FUNC (pdev->devfn) != 0)
 
-Well, I wouldn't call it broken, as both versions can never be compiled 
-into the same kernel, but I don't care much how it's fixed.
+I Acked this but that's silly - the patches sent yesterday already change the 
+code above and this patch is no longer needed (thanks Jesse for spotting this).
 
-Does anyone know the relationship between via-pmu.c and via-pmu68k.c? If 
-it's intended to keep the differences small, a rename would be the wrong 
-fix.
+This patch would conflict with them so please don't apply.
 
-bye, Roman
+Cheers,
+
+AUke

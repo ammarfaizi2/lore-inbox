@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932820AbWFWGKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932842AbWFWG1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932820AbWFWGKh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 02:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932821AbWFWGKh
+	id S932842AbWFWG1U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 02:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932843AbWFWG1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 02:10:37 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47257 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932820AbWFWGKg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 02:10:36 -0400
-Date: Thu, 22 Jun 2006 23:07:27 -0700
-From: Greg KH <gregkh@suse.de>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] USB patches for 2.6.17
-Message-ID: <20060623060727.GA7048@suse.de>
-References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606211519550.5498@g5.osdl.org> <20060621225134.GA13618@kroah.com> <Pine.LNX.4.64.0606211814200.5498@g5.osdl.org> <20060622181826.GB22867@kroah.com> <20060622183021.GA5857@kroah.com> <20060622114900.6f1c6a5f.rdunlap@xenotime.net> <20060622185456.GA6794@suse.de> <20060623055241.GB7771@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623055241.GB7771@2ka.mipt.ru>
-User-Agent: Mutt/1.5.11
+	Fri, 23 Jun 2006 02:27:20 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:37876 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932842AbWFWG1U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 02:27:20 -0400
+Date: Fri, 23 Jun 2006 02:27:01 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Esben Nielsen <nielsen.esben@googlemail.com>
+cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 2/3] rtmutex: Propagate priority settings into PI lock
+ chains
+In-Reply-To: <Pine.LNX.4.64.0606221853550.10511@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0606230218480.30422@gandalf.stny.rr.com>
+References: <20060622082758.669511000@cruncher.tec.linutronix.de>
+ <20060622082812.607857000@cruncher.tec.linutronix.de>
+ <Pine.LNX.4.58.0606220959490.15236@gandalf.stny.rr.com>
+ <Pine.LNX.4.64.0606221853550.10511@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 09:52:41AM +0400, Evgeniy Polyakov wrote:
-> On Thu, Jun 22, 2006 at 11:54:56AM -0700, Greg KH (gregkh@suse.de) wrote:
-> > On Thu, Jun 22, 2006 at 11:49:00AM -0700, Randy.Dunlap wrote:
-> > > 
-> > > Um, I was going to say that my patch wasn't listed in the
-> > > shortlog that you sent (for W1), but it's there, just mis-attributed
-> > > to Evgeniy (#13/14).
-> > 
-> > I think that happened as Evgeniy sent it to me without the "From:" line
-> > on the top of the email, which would have preserved your attribute.
-> > Evgeniy, care to do that next time?
-> 
-> I.e. first line should look like
-> From: Someone Who Sent be the mail <and address here> ?
 
-Yes, that's the correct format.
 
-thanks,
+On Thu, 22 Jun 2006, Esben Nielsen wrote:
 
-greg k-h
+> > The above means that you cant ever call sched_setscheduler from a
+> > interrupt handler (or softirq).  The rt_mutex_adjust_prio_chain since that
+> > grabs wait_lock which is not for interrupt use.
+>
+> Worse in RT context: It makes it unhealthy to call from a RT task as it
+> doesn't have predictable runtime unless you know that the target task is
+> not blocked on a deep locking tree.
+>
+> I know this is very unlikely to happen very often in real life and this
+> thread isn't about preempt-realtime, but I'll say it anyway: Hard realtime
+
+Esben, you are right. This is not about RT so it does _not_ belong in this
+thread.  Please keep the topic in this thread about -mm.  We already have
+a RT thread to discuss this in.
+
+My comments here where about a fact that setscheduler when from interrupt
+context friendly to interrupt context unfriendly and I thought it would
+be good to document that fact.  I like Andrews answer better.  Document it
+with a BUG_ON(in_interrupt).
+
+-- Steve
+
+> is about avoiding surprisingly long execution times - especially those
+> which are  extremely unlikely to happen, but nevertheless are possible,
+> because you are not very likely to see those situations in any tests, and
+> therefore you can suddenly miss deadlines in the field without a clue what
+> is happening.
+>

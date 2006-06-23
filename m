@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932771AbWFWBtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161005AbWFWBs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932771AbWFWBtF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 21:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932767AbWFWBtF
+	id S1161005AbWFWBs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 21:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932771AbWFWBs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 21:49:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60033 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161009AbWFWBtC (ORCPT
+	Thu, 22 Jun 2006 21:48:57 -0400
+Received: from xenotime.net ([66.160.160.81]:62182 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932767AbWFWBs4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 21:49:02 -0400
-Date: Thu, 22 Jun 2006 18:48:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [patch 1/3] Drop tasklist lock in do_sched_setscheduler
-Message-Id: <20060622184850.29e26ce6.akpm@osdl.org>
-In-Reply-To: <20060622082812.492564000@cruncher.tec.linutronix.de>
-References: <20060622082758.669511000@cruncher.tec.linutronix.de>
-	<20060622082812.492564000@cruncher.tec.linutronix.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 22 Jun 2006 21:48:56 -0400
+Date: Thu, 22 Jun 2006 18:51:42 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de, akpm@osdl.org,
+       bcasavan@sgi.com
+Subject: Re: [PATCH] PCI: Move various PCI IDs to header file
+Message-Id: <20060622185142.c8bc1b16.rdunlap@xenotime.net>
+In-Reply-To: <449B440B.7010407@garzik.org>
+References: <200606222300.k5MN0uPW000741@hera.kernel.org>
+	<449B440B.7010407@garzik.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006 09:08:38 -0000
-Thomas Gleixner <tglx@linutronix.de> wrote:
+On Thu, 22 Jun 2006 21:29:47 -0400 Jeff Garzik wrote:
 
+> Linux Kernel Mailing List wrote:
+> > diff --git a/drivers/scsi/sata_vsc.c b/drivers/scsi/sata_vsc.c
+> > index 8a29ce3..27d6587 100644
+> > --- a/drivers/scsi/sata_vsc.c
+> > +++ b/drivers/scsi/sata_vsc.c
+> > @@ -433,13 +433,14 @@ err_out:
+> >  
+> >  
+> >  /*
+> > - * 0x1725/0x7174 is the Vitesse VSC-7174
+> > - * 0x8086/0x3200 is the Intel 31244, which is supposed to be identical
+> > - * compatibility is untested as of yet
+> > + * Intel 31244 is supposed to be identical.
+> > + * Compatibility is untested as of yet.
+> >   */
+> >  static const struct pci_device_id vsc_sata_pci_tbl[] = {
+> > -	{ 0x1725, 0x7174, PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
+> > -	{ 0x8086, 0x3200, PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
+> > +	{ PCI_VENDOR_ID_VITESSE, PCI_DEVICE_ID_VITESSE_VSC7174,
+> > +	  PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
+> > +	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_GD31244,
+> > +	  PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
+> >  	{ }
+> >  };
+> >  
 > 
-> There is no need to hold tasklist_lock across the setscheduler call, when we
-> pin the task structure with get_task_struct(). Interrupts are disabled in 
-> setscheduler anyway and the permission checks do not need interrupts disabled.
+> WTF?  This is a REGRESSION from the repeatedly expressed desire -- clear 
+> throughout libata -- that single-use PCI device IDs should not ever 
+> receive PCI_DEVICE_ID_xxx constants.
 > 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> I'm going to queue up a revert patch for this silliness.
 > 
->  kernel/sched.c |    4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+> Next time, please let the relevant maintainer(s) know when you are 
+> touching their driver, so they have a chance to filter out the crap.
 > 
-> Index: linux-2.6.17-mm/kernel/sched.c
-> ===================================================================
-> --- linux-2.6.17-mm.orig/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
-> +++ linux-2.6.17-mm/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
-> @@ -4140,8 +4140,10 @@
->  		read_unlock_irq(&tasklist_lock);
->  		return -ESRCH;
->  	}
-> -	retval = sched_setscheduler(p, policy, &lparam);
-> +	get_task_struct(p);
->  	read_unlock_irq(&tasklist_lock);
-> +	retval = sched_setscheduler(p, policy, &lparam);
-> +	put_task_struct(p);
->  	return retval;
->  }
->  
+> This was -never- sent to me or linux-ide, or otherwise brought to the 
+> attention of the maintainers.
 
-Is this optimisation actually related to the rt-mutex patches, or to the
-other two patches?
+Well, if you could get IDE/ATA traffic moved to linux-ide
+and networking traffic moved to netdev  and USB traffic
+to linux-usb etc. etc. etc.,
+I'd love it.  :)
 
+lkml is like a "melting pot."
+
+---
+~Randy

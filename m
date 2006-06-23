@@ -1,164 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWFWNY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751486AbWFWNZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbWFWNY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 09:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWFWNY2
+	id S1751486AbWFWNZF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 09:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWFWNZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 09:24:28 -0400
-Received: from mtagate5.uk.ibm.com ([195.212.29.138]:37451 "EHLO
-	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1750771AbWFWNY1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 09:24:27 -0400
-Date: Fri, 23 Jun 2006 15:23:55 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: [patch 1/4] lock validator: provide common print_ip_sym()
-Message-ID: <20060623132355.GE9446@osiris.boeblingen.de.ibm.com>
+	Fri, 23 Jun 2006 09:25:04 -0400
+Received: from [212.33.161.28] ([212.33.161.28]:27402 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1751486AbWFWNZD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 09:25:03 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: CONFIG_VGACON_SOFT_SCROLLBACK crashes 2.6.17
+Date: Fri, 23 Jun 2006 16:25:39 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200606211715.58773.a1426z@gawab.com> <200606222036.45081.a1426z@gawab.com> <449ADCB2.4000006@gmail.com>
+In-Reply-To: <449ADCB2.4000006@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Type: text/plain;
+  charset="windows-1256"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200606231625.39904.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Antonino A. Daplas wrote:
+>
+> (vgacon's screenbuffer is video RAM while the rest of the console drivers
+> have it in system RAM. But you can have vgacon and fbcon compiled at the
+> same time, for example, and this basically screws up the screen accessors,
+> especially in non-x86 archs.)
+>
+> So a revamp of vgacon may be necessary, by placing the screen buffer in
+> system RAM. This will entail a lot of work, so the revamp will take some
+> time.
 
-Provide a common print_ip_sym() function that prints the passed instruction
-pointer as well as the symbol belonging to it. Avoids adding a bunch of
-#ifdef CONFIG_64BIT in order to get the printk format right on 32/64 bit
-platforms.
+Thanks for looking into this.
 
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Arjan van de Ven <arjan@infradead.org>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > VIA has a separate driver, couldn't this be merged with mainline?
+>
+> Sure, as long as it's GPL-compatible, properly written, and correctly
+> Signed-off.
+
+Attached below is their license.  Is it GPL-compatible?
+
+Thanks!
+
+--
+Al
+
 ---
+/*
+ * Copyright 1998-2006 VIA Technologies, Inc. All Rights Reserved.
+ * Copyright 2001-2006 S3 Graphics, Inc. All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sub license,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the
+ * next paragraph) shall be included in all copies or substantial portions
+ * of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHOR(S) OR COPYRIGHT HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
 
- include/linux/kallsyms.h |   14 ++++++++++++++
- kernel/lockdep.c         |   38 ++++++++++++++------------------------
- kernel/stacktrace.c      |    4 +---
- 3 files changed, 29 insertions(+), 27 deletions(-)
+(... and at the end of viafbdev.c it says this ...)
 
-Index: linux-2.6.17-mm1/include/linux/kallsyms.h
-===================================================================
---- linux-2.6.17-mm1.orig/include/linux/kallsyms.h
-+++ linux-2.6.17-mm1/include/linux/kallsyms.h
-@@ -63,4 +63,18 @@ do {						\
- 	__print_symbol(fmt, addr);		\
- } while(0)
- 
-+#ifndef CONFIG_64BIT
-+#define print_ip_sym(ip)		\
-+do {					\
-+	printk("[<%08lx>]", ip);	\
-+	print_symbol(" %s\n", ip);	\
-+} while(0)
-+#else
-+#define print_ip_sym(ip)		\
-+do {					\
-+	printk("[<%016lx>]", ip);	\
-+	print_symbol(" %s\n", ip);	\
-+} while(0)
-+#endif
-+
- #endif /*_LINUX_KALLSYMS_H*/
-Index: linux-2.6.17-mm1/kernel/lockdep.c
-===================================================================
---- linux-2.6.17-mm1.orig/kernel/lockdep.c
-+++ linux-2.6.17-mm1/kernel/lockdep.c
-@@ -311,12 +311,6 @@ static const char *usage_str[] =
- 	[LOCK_ENABLED_HARDIRQS_READ] =	"hardirq-on-R",
- };
- 
--static void printk_sym(unsigned long ip)
--{
--	printk(" [<%08lx>]", ip);
--	print_symbol(" %s\n", ip);
--}
--
- const char * __get_key_name(struct lockdep_subtype_key *key, char *str)
- {
- 	unsigned long offs, size;
-@@ -413,8 +407,8 @@ static void print_lockdep_cache(struct l
- static void print_lock(struct held_lock *hlock)
- {
- 	print_lock_name(hlock->type);
--	printk(", at:");
--	printk_sym(hlock->acquire_ip);
-+	printk(", at: ");
-+	print_ip_sym(hlock->acquire_ip);
- }
- 
- void lockdep_print_held_locks(struct task_struct *curr)
-@@ -468,8 +462,8 @@ void print_lock_type_header(struct lock_
- 	printk(" }\n");
- 
- 	print_spaces(depth);
--	printk(" ... key      at:");
--	printk_sym((unsigned long)type->key);
-+	printk(" ... key      at: ");
-+	print_ip_sym((unsigned long)type->key);
- }
- 
- /*
-@@ -1508,18 +1502,14 @@ check_usage_backwards(struct task_struct
- static inline void print_irqtrace_events(struct task_struct *curr)
- {
- 	printk("irq event stamp: %u\n", curr->irq_events);
--	printk("hardirqs last  enabled at (%u): [<%08lx>]",
--		curr->hardirq_enable_event, curr->hardirq_enable_ip);
--	print_symbol(" %s\n", curr->hardirq_enable_ip);
--	printk("hardirqs last disabled at (%u): [<%08lx>]",
--		curr->hardirq_disable_event, curr->hardirq_disable_ip);
--	print_symbol(" %s\n", curr->hardirq_disable_ip);
--	printk("softirqs last  enabled at (%u): [<%08lx>]",
--		curr->softirq_enable_event, curr->softirq_enable_ip);
--	print_symbol(" %s\n", curr->softirq_enable_ip);
--	printk("softirqs last disabled at (%u): [<%08lx>]",
--		curr->softirq_disable_event, curr->softirq_disable_ip);
--	print_symbol(" %s\n", curr->softirq_disable_ip);
-+	printk("hardirqs last  enabled at (%u): ", curr->hardirq_enable_event);
-+	print_ip_sym(curr->hardirq_enable_ip);
-+	printk("hardirqs last disabled at (%u): ", curr->hardirq_disable_event);
-+	print_ip_sym(curr->hardirq_disable_ip);
-+	printk("softirqs last  enabled at (%u): ", curr->softirq_enable_event);
-+	print_ip_sym(curr->softirq_enable_ip);
-+	printk("softirqs last disabled at (%u): ", curr->softirq_disable_event);
-+	print_ip_sym(curr->softirq_disable_ip);
- }
- 
- #else
-@@ -2262,7 +2252,7 @@ print_unlock_order_bug(struct task_struc
- 		curr->comm, curr->pid);
- 	print_lockdep_cache(lock);
- 	printk(") at:\n");
--	printk_sym(ip);
-+	print_ip_sym(ip);
- 	printk("but the next lock to release is:\n");
- 	print_lock(hlock);
- 	printk("\nother info that might help us debug this:\n");
-@@ -2292,7 +2282,7 @@ print_unlock_inbalance_bug(struct task_s
- 		curr->comm, curr->pid);
- 	print_lockdep_cache(lock);
- 	printk(") at:\n");
--	printk_sym(ip);
-+	print_ip_sym(ip);
- 	printk("but there are no more locks to release!\n");
- 	printk("\nother info that might help us debug this:\n");
- 	lockdep_print_held_locks(curr);
-Index: linux-2.6.17-mm1/kernel/stacktrace.c
-===================================================================
---- linux-2.6.17-mm1.orig/kernel/stacktrace.c
-+++ linux-2.6.17-mm1/kernel/stacktrace.c
-@@ -18,9 +18,7 @@ void print_stack_trace(struct stack_trac
- 
- 		for (j = 0; j < spaces + 1; j++)
- 			printk(" ");
--
--		printk("[<%08lx>]", ip);
--		print_symbol(" %s\n", ip);
-+		print_ip_sym(ip);
- 	}
- }
- 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,9)
+    MODULE_LICENSE("GPL");
+#endif
+

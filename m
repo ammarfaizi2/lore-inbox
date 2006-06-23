@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWFWOPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWFWORe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWFWOPB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 10:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWFWOPB
+	id S1750736AbWFWORe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 10:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWFWORe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 10:15:01 -0400
-Received: from crystal.sipsolutions.net ([195.210.38.204]:38330 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S1750741AbWFWOPA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 10:15:00 -0400
-Subject: Re: all-modular snd-aoa
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Paul Collins <paul@briny.ondioline.org>
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-In-Reply-To: <87hd2cz116.fsf@briny.internal.ondioline.org>
-References: <87hd2cz116.fsf@briny.internal.ondioline.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1D2HO/H6PtMafGIpufJc"
-Date: Fri, 23 Jun 2006 16:14:55 +0200
-Message-Id: <1151072095.7608.29.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 23 Jun 2006 10:17:34 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:55610 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750736AbWFWORd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 10:17:33 -0400
+Date: Fri, 23 Jun 2006 08:17:24 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [PATCHSET] Announce: High-res timers,
+ tickless/dyntick and dynamic HZ -V4
+In-reply-to: <20060623082609.GB1040@elte.hu>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@timesys.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Message-id: <449BF7F4.9080408@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.lKfxxA+pCJb5tSZbL1XnnrPzaeQ@ifi.uio.no>
+ <449B60A9.2000809@shaw.ca> <1151051238.25491.223.camel@localhost.localdomain>
+ <20060623082609.GB1040@elte.hu>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> * Thomas Gleixner <tglx@timesys.com> wrote:
+> 
+>>> Disabling NO_HZ and high resolution timers due to timer broadcasting
+>>>
+>>> Not sure exactly what this is indicating or what's triggered this, but 
+>>> I'm assuming the patch isn't doing much on this machine?
+>> The system is configured for SMP, but this is an UP machine and the 
+>> APIC is disabled in the BIOS. Linux uses then the PIT and an IPI 
+>> mechanism to broadcast timer events. We need to do the event 
+>> reprogramming per CPU, so we switch off in that situation.
+> 
+> hm, we should update the message to be less cryptic. Something like:
+> 
+>   'Disabling NO_HZ and high resolution timers due to no APIC'
+> 
+> and in this particular case we should also finetune the condition a bit 
+> and make it conditional on the number of CPUs. I.e. if someone boots an 
+> SMP kernel on a UP box we should still allow the PIT. (there wont be any 
+> broadcasting done) [the only exception would be if CONFIG_HOTPLUG_CPU is 
+> specified - in that case we cannot be sure whether a new CPU will be 
+> plugged in or not]
 
---=-1D2HO/H6PtMafGIpufJc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yes, I would say that this case should be handled better, considering 
+this configuration is the default one for Fedora kernels, for one..
 
-On Fri, 2006-06-23 at 19:14 +1000, Paul Collins wrote:
-> I get this when building from Linus's current git tree:
->=20
->     LD      sound/built-in.o
->   ld: sound/aoa/built-in.o: No such file: No such file or directory
->   make[1]: *** [sound/built-in.o] Error 1
->   make: *** [sound] Error 2
->=20
-> Doing "touch sound/aoa/built-in.o" lets the build continue and
-> complete successfully.
-
-Ahrg! That's a mistake in my Makefile programming, I'll probably have to
-move the core/ files up one dir. Sorry.
-
-johannes
-
---=-1D2HO/H6PtMafGIpufJc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIVAwUARJv3XaVg1VMiehFYAQIqTRAAs6VClE9YJKDUqHEfkdNakRrbaG4WA1V7
-5TvESpfty1R42EI5e26Kco1U0USdGZMqEoBZnAFVGdHaSUf3A48EUEDe4ZFAERR0
-eI4lm8lEisAdYejQYQbp2YNN9Nj2+HDxjuIrNQ96RyEpSc4VMHkH0E6ymlVnnEPG
-jssnP8UP9G9fa9cwS81cabO3SA4o7xT59Or7jcRytKiBobFV39ix1Ekm4aDP6y14
-yd4Bmn03lONPYqGpVhN7LzEcy4x3juICHsfZCIe7b8f/BrQezpeNyl+UPZPz/Ogs
-jf3IGWVVg98baYgvsZ82AKEnHwDyrgutdz82zWgSwqUBOQLVY7uX1ODRp59BPOce
-1x4YYYD4latxtQXXxRFq1GlUWnwqsmeMxb1Zwf5Yx86NVE/4mdAxnCxD/KvI1jAi
-LRhtfjiltyHrmuuobHWySmxGFYI9s5aPoyehaRD9gNphCyDggt4NVKw8qXBfP/Wo
-FQW7wYie62i7PNUi9W+FBL0WFn+TihAfgbBOBCCnLY9Q7P3/QFTC5oASzGOQvSIG
-2KA5Yjh9xCGs61x8Umc2yte8nE1JWn+Xiipu2eK3eHInS3JcGPi8MWr6oi5wDECu
-O4mctQgreOO1HvLPFVuTiHCZz03BwgfSFWL8S1mtBbQXIaNRprHdybkCZpjzHxHO
-QaLNQOtPkuU=
-=Y1tC
------END PGP SIGNATURE-----
-
---=-1D2HO/H6PtMafGIpufJc--
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

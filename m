@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751737AbWFWQVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751747AbWFWQWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751737AbWFWQVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 12:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbWFWQVQ
+	id S1751747AbWFWQWT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 12:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751748AbWFWQWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 12:21:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8614 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751734AbWFWQVQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 12:21:16 -0400
-Subject: Re: GFS2 and DLM
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, David Teigland <teigland@redhat.com>,
-       Patrick Caulfield <pcaulfie@redhat.com>,
-       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060623150040.GA1197@infradead.org>
-References: <1150805833.3856.1356.camel@quoit.chygwyn.com>
-	 <20060623150040.GA1197@infradead.org>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Fri, 23 Jun 2006 17:29:34 +0100
-Message-Id: <1151080174.3856.1606.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Jun 2006 12:22:19 -0400
+Received: from web31809.mail.mud.yahoo.com ([68.142.207.72]:50046 "HELO
+	web31809.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751747AbWFWQWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 12:22:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=uSzTRe/iO0zB1dSSWxdbx2HpDLV4p/0dvOpuVsE+ujXiwkRczIu0GH/hsSW9ruFWqBoEXzy3M4w4PYNpqL+dVELghcvBr/oGGgD7PoSr1Z7XBbHFH6IRoAgkIo1YO3xZK/a5RRxLAJb7E7n7DbG4HJF2gEiDrcGcUW1n4yw2dyY=  ;
+Message-ID: <20060623162217.58559.qmail@web31809.mail.mud.yahoo.com>
+Date: Fri, 23 Jun 2006 09:22:17 -0700 (PDT)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: slab corruption warnings
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Kernel 2.6.17 at e752c9c9d83e86ff9da1d1adc7fef5d8fdb219ce.
 
-On Fri, 2006-06-23 at 16:00 +0100, Christoph Hellwig wrote:
-> On Tue, Jun 20, 2006 at 01:17:13PM +0100, Steven Whitehouse wrote:
-> > Hi,
-> > 
-> > Linus, Andrew suggested to me to send this pull request to you directly.
-> > Please consider merging the GFS2 filesystem and DLM from (they are both
-> > in the same tree for ease of testing):
-> 
-> A new normal filesystem (aka everything but procfs) shouldn't implement
-> ->readlink but use generic_readlink instead.
-> 
+Plug in a disk (USB key) and see this:
 
-The comment above generic_readlink has this to say:
+Slab corruption: start=ffff81007c0666b0, len=1024
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff804cee45>](skb_release_data+0x88/0x8d)
+2a0: 48 3d 05 6d 00 81 ff ff 6b 6b 6b 6b 6b 6b 6b 6b
+Prev obj: start=ffff81007c066298, len=1024
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff804cee45>](skb_release_data+0x88/0x8d)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Next obj: start=ffff81007c066ac8, len=1024
+Redzone: 0x170fc2a5/0x170fc2a5.
+Last user: [<ffffffff8048c7ab>](atkbd_connect+0x22/0x277)
+000: e8 d8 2d 7c 00 81 ff ff 01 00 00 00 00 00 00 00
+010: 01 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00
 
-/*
- * A helper for ->readlink().  This should be used *ONLY* for symlinks that
- * have ->follow_link() touching nd only in nd_set_link().  Using (or not
- * using) it for any given inode is up to filesystem.
- */
+   Luben
 
-which appears, at least, to contradict what you are saying. I'll put it
-on my list to look at again, but a straight substitution of
-generic_readlink() does not work, so I'd prefer to leave it as it is for
-the moment,
-
-Steve.
-  
 

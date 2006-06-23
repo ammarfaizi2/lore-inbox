@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932753AbWFWBhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932767AbWFWBud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932753AbWFWBhX (ORCPT <rfc822;akpm@zip.com.au>);
-	Thu, 22 Jun 2006 21:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161005AbWFWBhW
+	id S932767AbWFWBud (ORCPT <rfc822;akpm@zip.com.au>);
+	Thu, 22 Jun 2006 21:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932776AbWFWBud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 21:37:22 -0400
-Received: from smtp2.netcabo.pt ([212.113.174.29]:37648 "EHLO
+	Thu, 22 Jun 2006 21:50:33 -0400
+Received: from smtp2.netcabo.pt ([212.113.174.29]:36636 "EHLO
 	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1161004AbWFWBhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 21:37:20 -0400
+	id S932767AbWFWBub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 21:50:31 -0400
 X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AUchANvemkREgQuEUIJGgk0
+X-IronPort-Anti-Spam-Result: AQoXAELkmkREgQuHFg
 X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(213.22.16.51):SA:1(10.6/5.0):. Processed in 5.877051 secs Process 22720)
-Subject: Re: how I know if a interrupt is ioapic_edge_type or 
+X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(213.22.16.51):SA:1(10.6/5.0):. Processed in 6.290366 secs Process 22972)
+Subject: Re: how I know if a interrupt is ioapic_edge_type or
 	ioapic_level_type? [Was Re: [Fwd: Re: [Linux-usb-users] Fwd: Re:
 	2.6.17-rc6-mm2 - USB issues]]
 From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
 Reply-To: sergio@sergiomb.no-ip.org
 To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: kernel@agotnes.com, akpm@osdl.org, linux-acpi@vger.kernel.org,
+Cc: cw@f00f.org, kernel@agotnes.com, akpm@osdl.org, linux-acpi@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
         linux-usb-devel@lists.sourceforge.net, stern@rowland.harvard.edu,
-        cw@f00f.org, vsu@altlinux.ru
-In-Reply-To: <20060622162509.c36aa336.rdunlap@xenotime.net>
-References: <44953B4B.9040108@agotnes.com> <4497DA3F.80302@agotnes.com>
+        vsu@altlinux.ru
+In-Reply-To: <20060622183926.fada1a25.rdunlap@xenotime.net>
+References: <4497DA3F.80302@agotnes.com>
 	 <20060620044003.4287426d.akpm@osdl.org> <4499245C.8040207@agotnes.com>
 	 <1150936606.2855.21.camel@localhost.portugal>
 	 <20060621174754.159bb1d0.rdunlap@xenotime.net>
@@ -33,89 +33,37 @@ References: <44953B4B.9040108@agotnes.com> <4497DA3F.80302@agotnes.com>
 	 <1150977386.2859.34.camel@localhost.localdomain>
 	 <20060622142902.5c8f8e67.rdunlap@xenotime.net>
 	 <1151016398.3022.4.camel@localhost.portugal>
-	 <20060622162509.c36aa336.rdunlap@xenotime.net>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-1VIYLsMOgxLmc/45LjOY"
-Date: Fri, 23 Jun 2006 02:30:28 +0100
-Message-Id: <1151026228.2858.41.camel@localhost.portugal>
+	 <20060622225405.GA5840@tuatara.stupidest.org>
+	 <1151024444.2858.14.camel@localhost.portugal>
+	 <20060622183926.fada1a25.rdunlap@xenotime.net>
+Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-NP3dSnsjbOqynvDZ8d0e"
+Date: Fri, 23 Jun 2006 02:50:15 +0100
+Message-Id: <1151027415.2835.5.camel@localhost.portugal>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-X-OriginalArrivalTime: 23 Jun 2006 01:37:17.0606 (UTC) FILETIME=[8FDBFC60:01C69665]
+X-OriginalArrivalTime: 23 Jun 2006 01:50:28.0825 (UTC) FILETIME=[67766C90:01C69667]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-1VIYLsMOgxLmc/45LjOY
+--=-NP3dSnsjbOqynvDZ8d0e
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2006-06-22 at 16:25 -0700, Randy.Dunlap wrote:
-> No idea about that.
-> I think that you still didn't answer my question, or maybe I
-> didn't ask it well enough.  What device are you having problems
-> with? I don't mean what chipset, I mean what device that you
-> touch...
->=20
+On Thu, 2006-06-22 at 18:39 -0700, Randy.Dunlap wrote:
+> This sounds like just running with CONFIG_IO_APIC=3Dn or using
+> "noapic" on the kernel boot command line.  If that's what is
+> needed, we can know that.  I just haven't seen info to know
+> what the real problem is.=20
 
-I'd like to give you one answer , but  I don't have one problem with one
-device, I bought (accidentally) one VIA with a Pentium dual-core, which
-have a bunch of problems.=20
+yes, could be a way, if we know if IO_APIC or LOCAL_APIC is enabled or
+not ?
 
->=20
-> > --- orig/drivers/pci/quirks.c 2006-06-21 20:25:41.000000000 +1000
-> > +++ linux-2.6.17-rc6-mm2/drivers/pci/quirks.c 2006-06-21
-> 20:25:08.000000000 +1000
-> > @@ -662,13 +662,7 @@
-> >               pci_write_config_byte(dev, PCI_INTERRUPT_LINE,
-> new_irq);
-> >       }
-> >  }
-> > -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,
-> PCI_DEVICE_ID_VIA_82C586_0, quirk_via_irq);
-> > -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,
-> PCI_DEVICE_ID_VIA_82C586_1, quirk_via_irq);
-> > -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,
-> PCI_DEVICE_ID_VIA_82C586_2, quirk_via_irq);
-> > -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,
-> PCI_DEVICE_ID_VIA_82C586_3, quirk_via_irq);
-> > -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,
-> PCI_DEVICE_ID_VIA_82C686, quirk_via_irq);
-> > -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,
-> PCI_DEVICE_ID_VIA_82C686_4, quirk_via_irq);
-> > -DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,
-> PCI_DEVICE_ID_VIA_82C686_5, quirk_via_irq);
-> > +DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID,
-> quirk_via_irq);
-> > =20
-> >  /*
-> >   * VIA VT82C598 has its device ID settable and many BIOSes
-> >=20
-> >=20
-> > But do you know or not ? how I know if dev->irq is XT-pic ?=20
->=20
-> I don't see a way to know that currently.  It could be added
-> somehow if it's really required.  So far I haven't seen a full
-> problem description or requirement for this.=20
-
-Well, this is based in tests along this 4 years, with my two computers.
-Like Bjorn said, we don't have any specification of VIA chipsets. But I
-like to try, use this quirks only if system don't have IO-APICs enabled.
-Many VIA systems work like that, for example my old laptop.
-
-For me, I know that my old laptop needs the quirks and run with
-interrupts in XT-PIC, and with my new desktop, I quit sure that don't
-need the quirks and system runs with interrupts in IO-APIC-edge and
-IO-APIC-level.=20
-
-Based in, what I read in this original thread
-http://lkml.org/lkml/2005/8/18/92 , seems to me, that we could try this
-solution, if we have a easy way to know what kind of interrupts have the
-device.=20
-
-Thanks Randy for your time,
+thanks,=20
 --=20
 S=E9rgio M. B.
 
---=-1VIYLsMOgxLmc/45LjOY
+--=-NP3dSnsjbOqynvDZ8d0e
 Content-Type: application/x-pkcs7-signature; name=smime.p7s
 Content-Disposition: attachment; filename=smime.p7s
 Content-Transfer-Encoding: base64
@@ -152,13 +100,13 @@ C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
 0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
 c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
 dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjA2MjMwMTMwMjhaMCMGCSqGSIb3DQEJBDEWBBRKLbHmWDmOChlnkFxlTopK
-2gSdazANBgkqhkiG9w0BAQEFAASCAQBw/yMuGse127TQmeb5NMYDd59ajTXi5ARXgQ8EEwTcOxtF
-V+zzXS/0rbBVlv5s8Mdb0PLplIMOMfsjZbvYY+STzzwd5Otifd/hgXBJT1P1hAKCXHKKOOQ8OFNa
-imTFi+n6e5NSLNRPUcE2DYwstJvyaa/8JcDUDUYZRw20iRoLW90lzOSe0vlnb87Ulj50J3l4fcre
-bIi8yt0XxW6P+tKCW4LRB1fzFWLb60BRaNGPzIkf4b/5dsLpmbM7tQkNIBjleuW16jiEjr6uXsFF
-jtZccjMHisfn/LNkoKv/P9nsar4Bcbnw5kcokGZ9EwoGlpecwQ4WBv3zyC2/0sB/s1O2AAAAAAAA
+SIb3DQEJBTEPFw0wNjA2MjMwMTUwMTFaMCMGCSqGSIb3DQEJBDEWBBRZ7wephpC806Ogscb302+v
+u9tglTANBgkqhkiG9w0BAQEFAASCAQBOPvoAM7eQQ+Vwv30CWnVw8bSS1lw83FhajJUQvPMwa9tV
+CcjoDazQPjdDV4B6uMRiy66vhpszWGIB7KvI62izUNjM94LsScn66PJJhHUVI5qcWuo3eJP7Wo8N
+DTT2ZYsU4Kk5QtiaGzJR8XrxhfrpdiUef607kCFKQPCilBCN1F6HmwHfjK6Vw/c8iSL7lQkeWU4a
+23e5o+M6lIAqKDsbLJ3KHDkOyVvs97wSR/+f37fZ3L6QL59ikf8G/LI+1LmCKol6dKO5X9SuLAII
+sXqjlwWfCPlCTMfamIpz2RLog4DszznBA7/EwQRf51asHJ/sHpq7/aScm0yD3N++cGJtAAAAAAAA
 
 
 
---=-1VIYLsMOgxLmc/45LjOY--
+--=-NP3dSnsjbOqynvDZ8d0e--

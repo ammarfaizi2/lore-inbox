@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932979AbWFWJ26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932969AbWFWJ2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932979AbWFWJ26 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932967AbWFWJ24
+	id S932969AbWFWJ2j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932967AbWFWJ2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:28:56 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:21404 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932960AbWFWJ2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:28:55 -0400
-Date: Fri, 23 Jun 2006 05:28:45 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Andrew Morton <akpm@osdl.org>
-cc: tglx@linutronix.de, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: [PATCH -mm] bug if setscheduler is called from interrupt context.
-In-Reply-To: <20060622190825.7da4eeae.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0606230522360.2272@gandalf.stny.rr.com>
-References: <20060622082758.669511000@cruncher.tec.linutronix.de>
- <20060622082812.607857000@cruncher.tec.linutronix.de>
- <Pine.LNX.4.58.0606220959490.15236@gandalf.stny.rr.com>
- <20060622190825.7da4eeae.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Jun 2006 05:28:38 -0400
+Received: from topsns2.toshiba-tops.co.jp ([202.230.225.126]:35784 "EHLO
+	topsns2.toshiba-tops.co.jp") by vger.kernel.org with ESMTP
+	id S932966AbWFWJ2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 05:28:37 -0400
+Date: Fri, 23 Jun 2006 18:28:28 +0900 (JST)
+Message-Id: <20060623.182828.92343173.nemoto@toshiba-tops.co.jp>
+To: alessandro.zummo@towertech.it
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] RTC: add rtc-ds1553 and rtc-ds1742 driver
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060623001622.65db7c0f@inspiron>
+References: <20060623.001927.74750182.anemo@mba.ocn.ne.jp>
+	<20060623001622.65db7c0f@inspiron>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 23 Jun 2006 00:16:22 +0200, Alessandro Zummo <alessandro.zummo@towertech.it> wrote:
+> > Add RTC drivers for the Dallas DS1553 and DS1742 RTC chip.
+> > 
+> > Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+> 
+>  please split this into two patches.
 
-Thomas Gleixner is adding the call to a rtmutex function in setscheduler.
-This call grabs a spin_lock that is not always protected by interrupts
-disabled.  So this means that setscheduler cant be called from interrupt
-context.
+OK, I'll send two patches soon.
 
-To prevent this from happening in the future, this patch adds a
-BUG_ON(in_interrupt()) in that function.  (Thanks to akpm <aka. Andrew
-Morton> for this suggestion).
+>  on which systems will we likely find those twos? no extra
+>  depends?
 
--- Steve
+MIPS, PPC, ARM, etc.  I think no extra depends needed.
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+> > +static int ds1553_rtc_ioctl(struct device *dev, unsigned int cmd,
+> > +			    unsigned long arg)
+> > +{
+> > +	struct platform_device *pdev = to_platform_device(dev);
+> > +	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
+> > +
+> > +	if (pdata->irq < 0)
+> > +		return -ENOIOCTLCMD;
+> 
+>  inappropriate -Exxx . maybe -ENODEV?.
 
-Index: linux-2.6.17-mm1/kernel/sched.c
-===================================================================
---- linux-2.6.17-mm1.orig/kernel/sched.c	2006-06-23 05:19:41.000000000 -0400
-+++ linux-2.6.17-mm1/kernel/sched.c	2006-06-23 05:20:44.000000000 -0400
-@@ -4034,6 +4034,8 @@ int sched_setscheduler(struct task_struc
- 	unsigned long flags;
- 	runqueue_t *rq;
+No, it is intentional.  If irq is not available, I want to fall back
+into emulation in rtc-dev.c.
 
-+	/* may grab non-irq protected spin_locks */
-+	BUG_ON(in_interrupt());
- recheck:
- 	/* double check policy once rq lock held */
- 	if (policy < 0)
-
+Thanks for your comments.
+---
+Atsushi Nemoto

@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752041AbWFWUm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751550AbWFWUrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752041AbWFWUm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 16:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752042AbWFWUm1
+	id S1751550AbWFWUrL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752045AbWFWUrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 16:42:27 -0400
-Received: from web33315.mail.mud.yahoo.com ([68.142.206.130]:25708 "HELO
-	web33315.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1752041AbWFWUm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 16:42:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=VuOvInhXm/cLMn+Kin/id5eOwapkimPYneNaniRmgLNcNKF50+7Xl4AzZJK0Rvcwkw0nsyCIrbfr+vlmLLR6MfKg5xkDoKsPxWzM7sNKFxKvmdd+bpWueWqA7CkINCwVZ+Sy+5GTxLjto6Ty0cl7J6JXNVESnv/dIO7F7kmSvMM=  ;
-Message-ID: <20060623204226.91945.qmail@web33315.mail.mud.yahoo.com>
-Date: Fri, 23 Jun 2006 13:42:26 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: Measuring tools - top and interrupts
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060622173128.GD14682@harddisk-recovery.com>
-MIME-Version: 1.0
+	Fri, 23 Jun 2006 16:47:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32690 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751550AbWFWUrJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 16:47:09 -0400
+Date: Fri, 23 Jun 2006 13:46:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: swhiteho@redhat.com, torvalds@osdl.org, teigland@redhat.com,
+       pcaulfie@redhat.com, kanderso@redhat.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: GFS2 and DLM
+Message-Id: <20060623134648.a7d56d1e.akpm@osdl.org>
+In-Reply-To: <20060623144928.GA32694@infradead.org>
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com>
+	<20060623144928.GA32694@infradead.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Network traffic is usually IO bound, not CPU
-> bound. The load figures
-> top shows tell something about the amount of
-> work the CPU has to do,
-> not about how busy your PCI bus (or whatever
-> bus the NIC lives on) is.
+On Fri, 23 Jun 2006 15:49:28 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
+
+> On Tue, Jun 20, 2006 at 01:17:13PM +0100, Steven Whitehouse wrote:
+> > Hi,
+> > 
+> > Linus, Andrew suggested to me to send this pull request to you directly.
+> > Please consider merging the GFS2 filesystem and DLM from (they are both
+> > in the same tree for ease of testing):
 > 
-> IIRC the networking layer in 2.6 differs quite
-> a lot from 2.4, so the
-> load average figures can be quite misleading.
-> 
+> The code uses GFP_NOFAIL for slab allocator calls.
 
-For the record, *most* of the work are I/O calls
-(ie reading and writing registers), which are not
-in the "background". I/O calls become more and
-more expensive as the bus becomes saturated as it
-takes longer to get the bus to do the operation. 
+All existing users of GFP_NOFAIL are lame and should be fixed to handle
+ENOMEM.  We shouldn't add new ones.
 
-DT
+And we shouldn't open-code the retry loops to avoid attracting attention,
+either ;)
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+>  It's been pointed out
+> here numerous times that this can't work.  Andrew, what about adding
+> a check to slab.c to bail out if someone passes it?
+
+Is there anything special about slab which makes the use of GFP_NOFAIL
+worse when called from the slab code?

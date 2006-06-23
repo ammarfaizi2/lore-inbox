@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751838AbWFWS1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751897AbWFWS3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751838AbWFWS1x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 14:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751894AbWFWS1x
+	id S1751897AbWFWS3e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 14:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751901AbWFWS3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 14:27:53 -0400
-Received: from mail.visionpro.com ([63.91.95.13]:24023 "EHLO
-	chicken.machinevisionproducts.com") by vger.kernel.org with ESMTP
-	id S1751838AbWFWS1w convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 14:27:52 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: [PATCH] mm: tracking shared dirty pages -v10
-Date: Fri, 23 Jun 2006 11:27:51 -0700
-Message-ID: <14CFC56C96D8554AA0B8969DB825FEA0012B3592@chicken.machinevisionproducts.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] mm: tracking shared dirty pages -v10
-Thread-Index: AcaW8ljmRwGDmCWFSUaYULinD/6t8AAAC+rA
-From: "Brian D. McGrew" <brian@visionpro.com>
-To: "Linus Torvalds" <torvalds@osdl.org>, "Martin Bligh" <mbligh@google.com>
-Cc: "Christoph Lameter" <clameter@sgi.com>,
-       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
-       "Hugh Dickins" <hugh@veritas.com>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       "David Howells" <dhowells@redhat.com>,
-       "Christoph Lameter" <christoph@lameter.com>,
-       "Nick Piggin" <npiggin@suse.de>
+	Fri, 23 Jun 2006 14:29:33 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:45537 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751897AbWFWS3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 14:29:33 -0400
+Subject: Re: cmd64x not happy about being hotplugged, 2.6.17
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Josh Litherland <josh@temp123.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <449C0A3B.6070409@temp123.org>
+References: <449C0A3B.6070409@temp123.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 23 Jun 2006 19:45:13 +0100
+Message-Id: <1151088313.4549.76.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I had assumed this was a sick joke. Please tell me people aren't
-> really swapping over NFS. That's *insane*.
+Ar Gwe, 2006-06-23 am 11:35 -0400, ysgrifennodd Josh Litherland:
+> I have a thinkpad dock 2 which includes a Silicon Image CMD648 IDE 
+> controller (1095:0648 (rev 01)) for the UltraBay2000 slot.  The dock now 
+> works as an acpiphp PCI hotplug device, and the PCI devs get detected 
 
-Hey, I think it even used to be common. I think some NCR X client did 
-basically exactly that, with _no_ local disk at all.
+drivers/ide does not support hotplug except in 2.4-ac and sort-of (if
+the device is closed entirely) in Red Hat Enterprise Linux 4. You'll
+have to ask Bartlomiej if he has any plans to fix that for 2.6 proper.
 
-			Linus
+The new libata layer has hotplug work afoot which should deal with this,
+although the CMD648 driver for it is very experimental as the 648 is
+pretty rare nowdays
 
----
+Alan
 
-Some of us still do!  Ah, the joys of remote clients!!!
-(Now that I think about it, I should put those guys back on dial-up)
-
-:b!

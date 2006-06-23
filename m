@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932734AbWFWAhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751677AbWFWAil@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932734AbWFWAhs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 20:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932736AbWFWAhr
+	id S1751677AbWFWAil (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 20:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWFWAil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 20:37:47 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:22502 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932734AbWFWAhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 20:37:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=l0e9vfii2RXHrYr7F0tdXFuqvGXztffADwmnS2jwSapTg1KcL62kW8O1mWFHh6A84Eq+fu0ail73UICuMMCkADqACE2JwIcabUYdjuEkYxgkaRxxqe3xixSQyc65scbZkrjFcmMWPn4uiBYTdSXY/V62Wzy/udFgnklUFA2tUlo=
-Message-ID: <88ee31b70606221737w4ec118e5i3db5e5e253cf3e43@mail.gmail.com>
-Date: Fri, 23 Jun 2006 09:37:45 +0900
-From: "Jerome Pinot" <ngc891@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Empty file in kernel source
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jun 2006 20:38:41 -0400
+Received: from mail.suse.de ([195.135.220.2]:38327 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750973AbWFWAik (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 20:38:40 -0400
+Date: Thu, 22 Jun 2006 17:38:33 -0700
+From: Greg KH <gregkh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.17
+Message-ID: <20060623003833.GB333@suse.de>
+References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606221546120.6483@g5.osdl.org> <20060622234040.GB30143@suse.de> <449B3047.50704@goop.org> <20060622171732.16fd2cd1.akpm@osdl.org> <20060623002230.GA333@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060623002230.GA333@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jun 22, 2006 at 05:22:30PM -0700, Greg KH wrote:
+> On Thu, Jun 22, 2006 at 05:17:32PM -0700, Andrew Morton wrote:
+> > Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> > >
+> > > Greg KH wrote:
+> > > > I saw this once when debugging the usb code, but could never reproduce
+> > > > it, so I attributed it to an incomplete build at the time, as a reboot
+> > > > fixed it.
+> > > >
+> > > > Is this easy to trigger for you?
+> > > >   
+> > > 
+> > > This is the same oops as I posted yesterday: "2.6.17-mm1: oops in 
+> > > Bluetooth stuff, usbdev_open".  I haven't seen it since...
+> > > 
+> > 
+> > That's a kernel-wide list of USB devices, isn't it?  Which means that some
+> > driver other than the bluetooth one has got itself freed up while still
+> > being on the list.
+> > 
+> > If so, it could be any driver at all..
+> 
+> Hopefully we have the list locked properly while we are walking it, so
+> that should not happen, but I'll go back and verify that I got it all
+> correct...
 
-The last git commit (0dad31d2da706ef114bc5c21123123be2f405d5b) let one
-empty file:
-./sound/ppc/toonie.c
+Oh crap, that's it.  There's a race when a device switches
+configurations and the endpoints disappear.  I was locking in the wrong
+functions...  Let me beat on the fix for a bit to make sure I have it
+right.
 
-This should be removed, no ?
+thanks,
 
--- 
-Jerome Pinot
-http://ngc891.blogdns.net/
+greg k-h

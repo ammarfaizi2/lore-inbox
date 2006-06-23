@@ -1,111 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933012AbWFWK4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933015AbWFWK5C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933012AbWFWK4P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933014AbWFWK4G
+	id S933015AbWFWK5C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:57:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933013AbWFWK4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:56:06 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5900 "HELO
+	Fri, 23 Jun 2006 06:56:04 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6668 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S933012AbWFWKzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:55:43 -0400
-Date: Fri, 23 Jun 2006 12:55:43 +0200
+	id S933014AbWFWKzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 06:55:46 -0400
+Date: Fri, 23 Jun 2006 12:55:46 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: pavel@suse.cz
-Cc: linux-pm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove kernel/power/pm.c:pm_unregister_all()
-Message-ID: <20060623105543.GO9111@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Ben Collins <bcollins@ubuntu.com>,
+       Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] drivers/char/agp/nvidia-agp.c: remove unused variable
+Message-ID: <20060623105546.GP9111@stusta.de>
+References: <20060621034857.35cfe36f.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the deprecated and no longer used pm_unregister_all().
+On Wed, Jun 21, 2006 at 03:48:57AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.17-rc6-mm2:
+>...
+>  git-agpgart.patch
+>...
+>  git trees
+>...
+
+This patch removes an unused variable.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
- include/linux/pm_legacy.h |    7 -------
- kernel/power/pm.c         |   37 -------------------------------------
- 2 files changed, 44 deletions(-)
-
---- linux-2.6.17-mm1-full/include/linux/pm_legacy.h.old	2006-06-22 17:55:29.000000000 +0200
-+++ linux-2.6.17-mm1-full/include/linux/pm_legacy.h	2006-06-22 17:55:40.000000000 +0200
-@@ -15,11 +15,6 @@
- pm_register(pm_dev_t type, unsigned long id, pm_callback callback);
+--- linux-2.6.17-mm1-full/drivers/char/agp/nvidia-agp.c.old	2006-06-22 18:31:18.000000000 +0200
++++ linux-2.6.17-mm1-full/drivers/char/agp/nvidia-agp.c	2006-06-22 18:31:39.000000000 +0200
+@@ -387,8 +387,6 @@
  
- /*
-- * Unregister all devices with matching callback
-- */
--void __deprecated pm_unregister_all(pm_callback callback);
--
--/*
-  * Send a request to all devices
-  */
- int __deprecated pm_send_all(pm_request_t rqst, void *data);
-@@ -35,8 +30,6 @@
- 	return NULL;
- }
- 
--static inline void pm_unregister_all(pm_callback callback) {}
--
- static inline int pm_send_all(pm_request_t rqst, void *data)
+ static int agp_nvidia_resume(struct pci_dev *pdev)
  {
- 	return 0;
---- linux-2.6.17-mm1-full/kernel/power/pm.c.old	2006-06-22 17:56:18.000000000 +0200
-+++ linux-2.6.17-mm1-full/kernel/power/pm.c	2006-06-22 18:10:14.000000000 +0200
-@@ -75,42 +75,6 @@
- 	return dev;
- }
- 
--static void __pm_unregister(struct pm_dev *dev)
--{
--	if (dev) {
--		list_del(&dev->entry);
--		kfree(dev);
--	}
--}
+-	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
 -
--/**
-- *	pm_unregister_all - unregister all devices with matching callback
-- *	@callback: callback function pointer
-- *
-- *	Unregister every device that would call the callback passed. This
-- *	is primarily meant as a helper function for loadable modules. It
-- *	enables a module to give up all its managed devices without keeping
-- *	its own private list.
-- */
-- 
--void pm_unregister_all(pm_callback callback)
--{
--	struct list_head *entry;
--
--	if (!callback)
--		return;
--
--	mutex_lock(&pm_devs_lock);
--	entry = pm_devs.next;
--	while (entry != &pm_devs) {
--		struct pm_dev *dev = list_entry(entry, struct pm_dev, entry);
--		entry = entry->next;
--		if (dev->callback == callback)
--			__pm_unregister(dev);
--	}
--	mutex_unlock(&pm_devs_lock);
--}
--
- /**
-  *	pm_send - send request to a single device
-  *	@dev: device to send to
-@@ -239,7 +203,6 @@
- }
- 
- EXPORT_SYMBOL(pm_register);
--EXPORT_SYMBOL(pm_unregister_all);
- EXPORT_SYMBOL(pm_send_all);
- EXPORT_SYMBOL(pm_active);
- 
-
+ 	/* set power state 0 and restore PCI space */
+ 	pci_set_power_state (pdev, 0);
+ 	pci_restore_state(pdev);

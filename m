@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWFWXod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752178AbWFWXrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWFWXod (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 19:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752173AbWFWXod
+	id S1752178AbWFWXrx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 19:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752179AbWFWXrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 19:44:33 -0400
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:29654 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750779AbWFWXoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 19:44:32 -0400
-Message-ID: <449C7CF0.4000002@acm.org>
-Date: Fri, 23 Jun 2006 18:44:48 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
-MIME-Version: 1.0
-To: Matt Domsch <Matt_Domsch@dell.com>
-CC: Peter Palfrader <peter@palfrader.org>,
-       openipmi-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Openipmi-developer] BUG: soft lockup detected on CPU#1, ipmi_si
-References: <20060613233521.GO22999@asteria.noreply.org>	<44962116.70302@acm.org>	<20060619093851.GL27377@asteria.noreply.org>	<449AA320.3060700@acm.org> <20060623025649.GE15027@lists.us.dell.com>
-In-Reply-To: <20060623025649.GE15027@lists.us.dell.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 23 Jun 2006 19:47:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59628 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752178AbWFWXrx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 19:47:53 -0400
+Date: Fri, 23 Jun 2006 16:47:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: nagar@watson.ibm.com, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in
+ taskstats
+Message-Id: <20060623164743.c894c314.akpm@osdl.org>
+In-Reply-To: <449C6620.1020203@engr.sgi.com>
+References: <44892610.6040001@watson.ibm.com>
+	<20060609010057.e454a14f.akpm@osdl.org>
+	<448952C2.1060708@in.ibm.com>
+	<20060609042129.ae97018c.akpm@osdl.org>
+	<4489EE7C.3080007@watson.ibm.com>
+	<449999D1.7000403@engr.sgi.com>
+	<44999A98.8030406@engr.sgi.com>
+	<44999F5A.2080809@watson.ibm.com>
+	<4499D7CD.1020303@engr.sgi.com>
+	<449C2181.6000007@watson.ibm.com>
+	<20060623141926.b28a5fc0.akpm@osdl.org>
+	<449C6620.1020203@engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I also had a report from Matt that running the driver full-bore caused
-the mouse to go haywire.  I did some testing and the mouse didn't go
-haywire, but my keyboard did.  I changed the udelay(1) to schedule() and
-kipmi0 is running at 100% as I type right now, and things seem to be
-running smoothly.  Testing the performance, I got 4.5ms per message for
-a get device id, which was the same as I saw before the change.  So I
-think this change is a good idea.
+On Fri, 23 Jun 2006 15:07:28 -0700
+Jay Lan <jlan@engr.sgi.com> wrote:
 
-I'll let Peter test it out when he gets his machines back, and if it all
-looks good I'll do a patch.
+> >>        %ovhd of tgid on over off
+> >>        (higher is worse)
+> >>
+> >>Exit     User     Sys     Elapsed
+> >>Rate     Time     Time    Time
+> >>
+> >>2283      25.76  649.41   -0.14
+> >>1193     -10.53   88.81   -0.12
+> >>963      -11.90    3.28   -0.10
+> >>806       -8.54   -0.84    0.16
+> >>694       -4.41    2.38    0.03
+> >>    
+> >
+> >Oh wow.  Something's gone quadratic there.
+> >  
+> It was due to a loop in fill_tgid() when per-TG stats
+> data are assembled for netlink:
+>         do {
+>                 rc = delayacct_add_tsk(stats, tsk);
+>                 if (rc)
+>                         break;
+> 
+>         } while_each_thread(first, tsk);
+> 
+> and it is executed inside a lock.
+> Fortunately single threaded appls do not hit this code.
 
-Thanks,
+Am I reading this right?  We do that loop when each thread within the
+thread group exits?  How come?
 
--Corey
-
-Matt Domsch wrote:
-> On Thu, Jun 22, 2006 at 09:03:12AM -0500, Corey Minyard wrote:
->   
->> Peter, can you make a code change for me and try something out?
->>
->> If possible, could you change the call to udelay(1) in the function
->> ipmi_thread() in drivers/char/ipmi_si_intf.c to be a call to schedule()
->> instead?  I'm guessing that will fix this problem.
->>     
->
-> won't that cause the thread to be scheduled out for at least one timer
-> tick (1-10ms depending on HZ), especially as it's at nice 19?  This
-> will cause the commands to be quite slow, which was the primary reason
-> for the kthread here in the first place.
->
-> Thanks,
-> Matt
->
->   
-
+Is there some better lock we can use in there?  It only has to be
+threadgroup-wide rather than kernel-wide.

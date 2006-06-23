@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWFWOZx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWFWO1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWFWOZx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 10:25:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWFWOZx
+	id S1750764AbWFWO1g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 10:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWFWO1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 10:25:53 -0400
-Received: from mail.gmx.net ([213.165.64.21]:40358 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750755AbWFWOZw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 10:25:52 -0400
-X-Authenticated: #1490710
-Date: Fri, 23 Jun 2006 16:25:50 +0200 (CEST)
-From: Johannes Schindelin <Johannes.Schindelin@gmx.de>
-X-X-Sender: gene099@wbgn013.biozentrum.uni-wuerzburg.de
-To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Junio C Hamano <junkio@cox.net>,
-       Git Mailing List <git@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What's in git.git and announcing v1.4.1-rc1
-In-Reply-To: <449BF508.9040207@draigBrady.com>
-Message-ID: <Pine.LNX.4.63.0606231624200.29667@wbgn013.biozentrum.uni-wuerzburg.de>
-References: <7v8xnpj7hg.fsf@assigned-by-dhcp.cox.net>
- <Pine.LNX.4.64.0606221301500.5498@g5.osdl.org>
- <Pine.LNX.4.63.0606231305000.29667@wbgn013.biozentrum.uni-wuerzburg.de>
- <449BF508.9040207@draigBrady.com>
+	Fri, 23 Jun 2006 10:27:36 -0400
+Received: from nz-out-0102.google.com ([64.233.162.194]:32889 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750764AbWFWO1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 10:27:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=cGFeRzzQUrDQY9RMwFmgybCrgt0LhFDTOd66nltWLN8IvAhCSjZKT9iHPV2lX2dBDxTzCLyqFlkQHOM1PYUKtWWbpfdFRJNRVwA4NDfeM2glxyfeub0yK5i+TzmyPmOLDTSo34Le95izfjYPwVmVXTN/Hqib1FKEjyoegtMOBTg=
+Message-ID: <9e4733910606230727s6e78b611m8a239ad8102438e@mail.gmail.com>
+Date: Fri, 23 Jun 2006 10:27:35 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: EDAC: unable to reserve PCI region
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1148973799-1698894413-1151072750=:29667"
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+I don't know anything about how EDAC works, but this doesn't look
+right. I would not have expected a PCI memory reservation to fail if
+everything was set up right.
 
----1148973799-1698894413-1151072750=:29667
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+EDAC MC: Ver: 2.0.0 Jun  6 2006
+EDAC i82875p: i82875p init one
+PCI: Unable to reserve mem region #1:1000@fecf0000 for device 0000:00:06.0
+EDAC MC0: Giving out device to "i82875p_edac" i82875p: PCI 0000:00:00.0
 
-Hi,
+using 2.6.17
 
-On Fri, 23 Jun 2006, Pádraig Brady wrote:
+I don't have a device 0000:00:06.0 in /sys/bus/pci/devices either.
+Shouldn't there be an entry there if I have this hardware?
 
-> So 10% of the male population need to learn traffic light positions 
-> rather than colours?
+Looks like my EDAC isn't functioning, I used have entries for it in sysfs.
 
-A friend of mine was at the military and had to check new recruits for 
-color-blindness. Only after the 20th color-blind man in a row he realized 
-for the first time in hist life that it was _him_, being the color-blind.
-
-Ciao,
-Dscho
----1148973799-1698894413-1151072750=:29667--
+-- 
+Jon Smirl
+jonsmirl@gmail.com

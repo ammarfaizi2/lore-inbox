@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932990AbWFWKLC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932993AbWFWKM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932990AbWFWKLC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:11:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932992AbWFWKLC
+	id S932993AbWFWKM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932987AbWFWKM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:11:02 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:48331 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932991AbWFWKLA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:11:00 -0400
-Date: Fri, 23 Jun 2006 12:10:35 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Jeff Dike <jdike@addtoit.com>
-cc: Andrew Morton <akpm@osdl.org>, Theodore Tso <tytso@mit.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm1: UML failing w/o SKAS enabled
-In-Reply-To: <20060623025418.GC8316@ccure.user-mode-linux.org>
-Message-ID: <Pine.LNX.4.64.0606231209000.17704@scrub.home>
-References: <20060621034857.35cfe36f.akpm@osdl.org> <20060622213443.GA22303@thunk.org>
- <20060622145743.2accfeaf.akpm@osdl.org> <20060623025418.GC8316@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Jun 2006 06:12:27 -0400
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:29456 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932993AbWFWKM0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 06:12:26 -0400
+Date: Fri, 23 Jun 2006 12:12:30 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix cpufreq_{conservative,ondemand} compilation
+Message-Id: <20060623121230.63e1237a.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Fix cpufreq_conservative and cpufreq_ondemand, which were using
+{lock,unlock}_cpu_hotplug without including linux/cpu.h which defines
+them.
 
-On Thu, 22 Jun 2006, Jeff Dike wrote:
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+ drivers/cpufreq/cpufreq_conservative.c |    1 +
+ drivers/cpufreq/cpufreq_ondemand.c     |    1 +
+ 2 files changed, 2 insertions(+)
 
-> The important thing is to start with a defconfig in order to avoid
-> config grabbing the host's config from /boot.
+--- linux-2.6.17-git.orig/drivers/cpufreq/cpufreq_conservative.c	2006-06-23 10:24:17.000000000 +0200
++++ linux-2.6.17-git/drivers/cpufreq/cpufreq_conservative.c	2006-06-23 12:07:42.000000000 +0200
+@@ -17,6 +17,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/ctype.h>
++#include <linux/cpu.h>
+ #include <linux/cpufreq.h>
+ #include <linux/sysctl.h>
+ #include <linux/types.h>
+--- linux-2.6.17-git.orig/drivers/cpufreq/cpufreq_ondemand.c	2006-06-23 10:24:17.000000000 +0200
++++ linux-2.6.17-git/drivers/cpufreq/cpufreq_ondemand.c	2006-06-23 12:07:34.000000000 +0200
+@@ -16,6 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/ctype.h>
++#include <linux/cpu.h>
+ #include <linux/cpufreq.h>
+ #include <linux/sysctl.h>
+ #include <linux/types.h>
 
-BTW this can be now configured. Check DEFCONFIG_LIST in init/Kconfig in 
--mm.
 
-bye, Roman
+-- 
+Jean Delvare

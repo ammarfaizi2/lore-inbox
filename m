@@ -1,184 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751968AbWFWUgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751987AbWFWUjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751968AbWFWUgE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 16:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbWFWUgE
+	id S1751987AbWFWUjE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbWFWUjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 16:36:04 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52890 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751968AbWFWUgD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 16:36:03 -0400
-Message-ID: <449C50B8.7060302@engr.sgi.com>
-Date: Fri, 23 Jun 2006 13:36:08 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
-X-Accept-Language: en-us, en
+	Fri, 23 Jun 2006 16:39:04 -0400
+Received: from nz-out-0102.google.com ([64.233.162.196]:55991 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751987AbWFWUjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 16:39:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c8aBc4xcZ1kMe6MVdgFZ3Dq4Tf2t+8SnPxbCsrnBZnr/nnrLOmBCMz4Qv/k2V2aebViVTaKc1NjJUpY9FFOC+zH/LfckyoDfIni66gbwjvl8+6oBwKW9qVP4q20X//KnN14J+5SAd2h32KQ+GFTamiUX0yodnQ6TNpMHtJAJVHU=
+Message-ID: <a762e240606231339n11b8de89r37b9ff0401c50e21@mail.gmail.com>
+Date: Fri, 23 Jun 2006 13:39:01 -0700
+From: "Keith Mannthey" <kmannth@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-mm1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
 MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com> <20060609042129.ae97018c.akpm@osdl.org> <4489EE7C.3080007@watson.ibm.com> <449999D1.7000403@engr.sgi.com> <44999A98.8030406@engr.sgi.com> <44999F5A.2080809@watson.ibm.com> <4499D7CD.1020303@engr.sgi.com> <449C2181.6000007@watson.ibm.com> <449C30C1.6090802@engr.sgi.com> <449C3897.70001@watson.ibm.com> <449C4865.7040706@engr.sgi.com> <449C4C37.5020802@watson.ibm.com>
-In-Reply-To: <449C4C37.5020802@watson.ibm.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060621034857.35cfe36f.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar wrote:
->Jay Lan wrote:
->
->  
->>>My results confirm the high overhead at these exit rates. In fact,
->>>on the system I used, I see the 649% overhead for the 2200 exits/second case
->>>even higher than yours) but the point is whether that exit rate
->>>is a valid design criteria.
->>>
->>>      
->>Agreed. The indeed the deciding factor. The exit rate in the labs
->>does not help answer this question. I need input from our fields.
->>
->>    
->
->FWIW, I just spoke to some of the IBM folks working on Websphere (the
->J2EE platform) and they've said that the exit rate is quite low since a thread pool
->is used to reuse threads rather than have them exit. Also, I'm waiting to
->hear from our db2 folks though I suspect its the same story there.
->  
+Andrew,
+  When I make mrproper to clean the kernel tree with the -mm trees (at
+least the last few releases) I end up having to remove
+/include/linux/dwarf2-defs.h myself.  This file is generated at build
+time but mrproper isn't cleaning it up.   This file is always present
+in a tree that has been built but not in the origninal tree so a diff
+of the tree picks it up.
 
-Pardon me on my lack of knowledge on the 'thread pool' tool.
-Is that a GPL tool? Sounds like a great tool.
+Is this expected?
 
->  
->>>>And, the per-thread group processing also increase the rate of ENOBUFS
->>>>at the receiver.
->>>>  
->>>>        
->>>Could you quantify please ? Also, pls list the exit rate at which
->>>this happens.
->>>
->>>      
->>I have not posted it nor quantify it because i must bring down the errors
->>count, or we (CSA) have to explore a different way. So any comparison
->>on these number at this point does not really help. Again, if the exit rate
->>is unrealistic, then i need to run a different set of testings. 
->>    
->
->
->  
->>What
->>sleep_factor did you use? 
->>    
->
->Each thread executed the following code:
->
->void *slow_exit(void *arg)
->{
->        int i = (int) arg;
->        usleep((n-i)*200);
->}
->
->and I varied the number within between
->700 (resulting in exit rate of 694 in my data)
->and 100 (resulting in the 2283 exit rate)
->
->
->  
->>Are those printf() in your new test program
->>essential?
->>    
->
->No. I dropped them.
->The test program used is appended below. There were no
->printfs on the non-failure paths.
->
->
->  
->>If this type of exit rate can happen even once a day, the surge may cause
->>loss of accounting data of other processes. Again, i do not have data
->>to say either way yet. But i would rather spend time on working on
->>the ENOBUFS error than running all different tests to argue on the
->>per-TG switch.
->>
->>    
->
->I suppose the ENOBUFS case has to be handled at userspace anyway
->since it can potentially happen for high thread exit rate cases even if
->only pid data is sent.
->  
-
-I will rerun my tests trying to bring exit rate down around 800
-and see what happens.
-
-Thanks!
- - jay
-
->  
->>Regards,
->> - jay
->>
->>
->>
->>    
->
->
->#include <stdio.h>
->#include <stdlib.h>
->#include <sys/types.h>
->#include <unistd.h>
->#include <pthread.h>
->
->int n;
->int barrier=1;
->
->
->void *slow_exit(void *arg)
->{
->    long i = (int) arg;
->    usleep((n-i)*600);
->}
->
->int main(int argc, char *argv[])
->{
->    int i,rc, rep;
->    pthread_t *ppthread;
->
->    n = 5 ;
->    if (argc > 1)
->        n = atoi(argv[1]);
->
->    rep = 10;
->    if (argc > 2)
->        rep = atoi(argv[2]);
->
->    ppthread = malloc(n * sizeof(pthread_t));
->    if (ppthread == NULL) {
->        printf("Memory allocation failure\n");
->        exit(-1);
->    }
->
->    while (rep) {
->        for (i=0; i<n; i++) {
->            rc = pthread_create(&ppthread[i], NULL,
->                        slow_exit, (void *)i);
->            if (rc) {
->                printf("Error creating thread %d %d\n", i, rc);
->                exit(-1);
->            }
->        }
->        for (i=0; i<n; i++) {
->            rc = pthread_join(ppthread[i], NULL);
->            if (rc) {
->                printf("Error joining thread %d\n", i);
->                exit(-1);
->            }
->        }
->        rep--;
->    }
->}
->
->  
-
+Thanks,
+  Keith

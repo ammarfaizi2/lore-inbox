@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWFWS6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751949AbWFWTEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWFWS6L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 14:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751936AbWFWS6L
+	id S1751949AbWFWTEG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 15:04:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751948AbWFWTEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 14:58:11 -0400
-Received: from usea-naimss1.unisys.com ([192.61.61.103]:60680 "EHLO
-	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S1750897AbWFWS6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 14:58:09 -0400
-Subject: [PATCH] Fix kdump Crash Kernel boot memory reservation for NUMA
-	machines
-From: Amul Shah <amul.shah@unisys.com>
-To: Takashi Iwai <tiwai@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, fastboot@osdl.org,
-       Eric Biederman <ebiederm@xmission.com>,
-       Randy Dunlap <rdunlap@xenotime.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Linux Systems Group
-Date: Fri, 23 Jun 2006 14:57:17 -0400
-Message-Id: <1151089038.29121.32.camel@b4.na.uis.unisys.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-X-OriginalArrivalTime: 23 Jun 2006 18:58:04.0092 (UTC) FILETIME=[F4DD8FC0:01C696F6]
+	Fri, 23 Jun 2006 15:04:05 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:30207 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751946AbWFWTDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 15:03:53 -0400
+Message-Id: <20060623185824.725989000@klappe.arndb.de>
+References: <20060623185746.037897000@klappe.arndb.de>
+Date: Fri, 23 Jun 2006 20:57:48 +0200
+From: arnd@arndb.de
+To: paulus@samba.org
+Cc: linuxppc-dev@ozlabs.org, cbe-oss-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: [PATCH 2/5] spufs: fix MFC command queue purge
+Content-Disposition: inline; filename=spufs-dma-status.diff
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch will fix a boot memory reservation bug that trashes memory on
-the ES7000 when loading the kdump crash kernel.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-The code in arch/x86_64/kernel/setup.c to reserve boot memory for the 
-crash kernel uses the non-numa aware "reserve_bootmem" function instead 
-of the NUMA aware "reserve_bootmem_generic".  I checked to make sure 
-that no other function was using "reserve_bootmem" and found none, 
-except the ones that had NUMA ifdef'ed out.
+In the context save/restore code, the SPU MFC command queue purge
+code has a bug:
 
-I have tested this patch only on an ES7000 with NUMA on and off (numa=off)
-in a single (non-NUMA) and multi-cell (NUMA) configurations.
+static inline void wait_purge_complete(struct spu_state *csa, struct
+				       spu *spu)
+{
+    struct spu_priv2 __iomem *priv2 = spu->priv2;
 
-Signed-off-by: Amul Shah <amul.shah@unisys.com>
+    /* Save, Step 28:
+     *     Poll MFC_CNTL[Ps] until value '11' is
+     *     read
+     *      (purge complete).
+     */
+    POLL_WHILE_FALSE(in_be64(&priv2->mfc_control_RW)
+		     & MFC_CNTL_PURGE_DMA_COMPLETE);
+}
 
+This will exit as soon as _one_ of the 2 bits that compose
+MFC_CNTL_PURGE_DMA_COMPLETE is set, and one of them happens to be
+"purge in progress"...  which means that we'll happily continue
+restoring the MFC while it's being purged at the same time.
 
----
---- linux-2.6.16.18-1.8/arch/x86_64/kernel/setup.c      2006-06-06 12:07:42.000000000 -0400
-+++ linux-2.6.16.18-1.8-az/arch/x86_64/kernel/setup.c   2006-06-21 17:06:04.000000000 -0400
-@@ -715,7 +715,7 @@ void __init setup_arch(char **cmdline_p)
- #endif
- #ifdef CONFIG_KEXEC
-        if (crashk_res.start != crashk_res.end) {
--               reserve_bootmem(crashk_res.start,
-+               reserve_bootmem_generic(crashk_res.start,
-                        crashk_res.end - crashk_res.start + 1);
-        }
- #endif
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Index: linus-2.6/arch/powerpc/platforms/cell/spufs/switch.c
+===================================================================
+--- linus-2.6.orig/arch/powerpc/platforms/cell/spufs/switch.c
++++ linus-2.6/arch/powerpc/platforms/cell/spufs/switch.c
+@@ -464,7 +464,8 @@ static inline void wait_purge_complete(s
+ 	 *     Poll MFC_CNTL[Ps] until value '11' is read
+ 	 *     (purge complete).
+ 	 */
+-	POLL_WHILE_FALSE(in_be64(&priv2->mfc_control_RW) &
++	POLL_WHILE_FALSE((in_be64(&priv2->mfc_control_RW) &
++			 MFC_CNTL_PURGE_DMA_STATUS_MASK) ==
+ 			 MFC_CNTL_PURGE_DMA_COMPLETE);
+ }
+ 
+@@ -1028,7 +1029,8 @@ static inline void wait_suspend_mfc_comp
+ 	 * Restore, Step 47.
+ 	 *     Poll MFC_CNTL[Ss] until 11 is returned.
+ 	 */
+-	POLL_WHILE_FALSE(in_be64(&priv2->mfc_control_RW) &
++	POLL_WHILE_FALSE((in_be64(&priv2->mfc_control_RW) &
++			 MFC_CNTL_SUSPEND_DMA_STATUS_MASK) ==
+ 			 MFC_CNTL_SUSPEND_COMPLETE);
+ }
+ 
+
+--
 

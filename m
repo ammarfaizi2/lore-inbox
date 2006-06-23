@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWFWIXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932932AbWFWIZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWFWIXP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 04:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWFWIXO
+	id S932932AbWFWIZq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 04:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWFWIZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 04:23:14 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:43153 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751103AbWFWIXN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 04:23:13 -0400
-Date: Fri, 23 Jun 2006 10:18:15 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Kirill Korotaev <dev@openvz.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] sched: CPU hotplug race vs. set_cpus_allowed()
-Message-ID: <20060623081815.GA919@elte.hu>
-References: <449BA349.6040901@openvz.org>
+	Fri, 23 Jun 2006 04:25:46 -0400
+Received: from mail.timesys.com ([65.117.135.102]:61137 "EHLO
+	postfix.timesys.com") by vger.kernel.org with ESMTP
+	id S1751119AbWFWIZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 04:25:45 -0400
+Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick and
+	dynamic HZ -V4
+From: Thomas Gleixner <tglx@timesys.com>
+Reply-To: tglx@timesys.com
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+In-Reply-To: <449B60A9.2000809@shaw.ca>
+References: <fa.lKfxxA+pCJb5tSZbL1XnnrPzaeQ@ifi.uio.no>
+	 <449B60A9.2000809@shaw.ca>
+Content-Type: text/plain
+Date: Fri, 23 Jun 2006 10:27:18 +0200
+Message-Id: <1151051238.25491.223.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <449BA349.6040901@openvz.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5013]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Kirill Korotaev <dev@openvz.org> wrote:
-
-> Looks like there is a race between set_cpus_allowed() and 
-> move_task_off_dead_cpu(). __migrate_task() doesn't report any err 
-> code, so task can be left on its runqueue if its cpus_allowed mask 
-> changed so that dest_cpu is not longer a possible target. Also, 
-> chaning cpus_allowed mask requires rq->lock being held.
+On Thu, 2006-06-22 at 21:31 -0600, Robert Hancock wrote:
+> Thomas Gleixner wrote:
+> > An updated patchset is available from:
+> > 
+> > http://www.tglx.de/projects/hrtimers/2.6.17/patch-2.6.17-hrt-dyntick4.patch
 > 
-> Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+> On my Compaq Presario X1050 laptop running Fedora Core 5 I get:
+> 
+> Disabling NO_HZ and high resolution timers due to timer broadcasting
+> 
+> Not sure exactly what this is indicating or what's triggered this, but 
+> I'm assuming the patch isn't doing much on this machine?
 
-good one!
+The system is configured for SMP, but this is an UP machine and the APIC
+is disabled in the BIOS. Linux uses then the PIT and an IPI mechanism to
+broadcast timer events. We need to do the event reprogramming per CPU,
+so we switch off in that situation.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+Solution: Either use an UP kernel, or enable Local APIC in the BIOS (is
+not possible in most BIOSes), or add "lapic" to the kernel command line.
 
-	Ingo
+Also for an UP kernel adding "lapic" to the commandline is good, as the
+APIC is faster accessible than the PIT.
+
+	tglx
+
+

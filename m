@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933035AbWFWLGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933031AbWFWLJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933035AbWFWLGq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 07:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933036AbWFWLGq
+	id S933031AbWFWLJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 07:09:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933034AbWFWLJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 07:06:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23257 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933035AbWFWLGp (ORCPT
+	Fri, 23 Jun 2006 07:09:25 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:15323 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S933031AbWFWLJY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 07:06:45 -0400
-Date: Fri, 23 Jun 2006 04:06:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
+	Fri, 23 Jun 2006 07:09:24 -0400
+Date: Fri, 23 Jun 2006 13:04:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
 Subject: Re: [patch 07/61] lock validator: better lock debugging
-Message-Id: <20060623040625.827b2c7c.akpm@osdl.org>
-In-Reply-To: <20060623102523.GN4889@elte.hu>
-References: <20060529212109.GA2058@elte.hu>
-	<20060529212337.GG3155@elte.hu>
-	<20060529183334.d3e7bef9.akpm@osdl.org>
-	<20060623102523.GN4889@elte.hu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Message-ID: <20060623110429.GA10479@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <20060529212337.GG3155@elte.hu> <20060529183334.d3e7bef9.akpm@osdl.org> <20060623102523.GN4889@elte.hu> <20060623040625.827b2c7c.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060623040625.827b2c7c.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5070]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 12:25:23 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
 
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > > +#define DEBUG_WARN_ON(c)						\
-> > > +({									\
-> > > +	int __ret = 0;							\
-> > > +									\
-> > > +	if (unlikely(c)) {						\
-> > > +		if (debug_locks_off())					\
-> > > +			WARN_ON(1);					\
-> > > +		__ret = 1;						\
-> > > +	}								\
-> > > +	__ret;								\
-> > > +})
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> > > Either the name of this thing is too generic, or we _make_ it 
+> > > generic, in which case it's in the wrong header file.
 > > 
-> > Either the name of this thing is too generic, or we _make_ it generic, 
-> > in which case it's in the wrong header file.
+> > this op is only intended to be used only by the lock debugging 
+> > infrastructure. So it should be renamed - but i fail to find a good 
+> > name for it. (it's used quite frequently within the lock debugging 
+> > code, at 60+ places) Maybe INTERNAL_WARN_ON()? [that makes it sound 
+> > special enough.] DEBUG_LOCKS_WARN_ON() might work too.
 > 
-> this op is only intended to be used only by the lock debugging 
-> infrastructure. So it should be renamed - but i fail to find a good name 
-> for it. (it's used quite frequently within the lock debugging code, at 
-> 60+ places) Maybe INTERNAL_WARN_ON()? [that makes it sound special 
-> enough.] DEBUG_LOCKS_WARN_ON() might work too.
+> Well it has a debug_locks_off() in there, so DEBUG_LOCKS_WARN_ON() 
+> seems right.
 
-Well it has a debug_locks_off() in there, so DEBUG_LOCKS_WARN_ON() seems right.
+done.
 
+	Ingo

@@ -1,47 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752120AbWFWWPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752127AbWFWWVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752120AbWFWWPU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 18:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752119AbWFWWPU
+	id S1752127AbWFWWVv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 18:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752103AbWFWWVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 18:15:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26067 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752118AbWFWWPT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 18:15:19 -0400
-Date: Fri, 23 Jun 2006 23:15:13 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Kevin Corry <kevcorry@us.ibm.com>
-Subject: Re: [PATCH 12/15] dm: add exports
-Message-ID: <20060623221513.GC19222@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Kevin Corry <kevcorry@us.ibm.com>
-References: <20060621193657.GA4521@agk.surrey.redhat.com> <20060621210504.b1f387bd.akpm@osdl.org> <20060622135117.GS19222@agk.surrey.redhat.com> <20060622100353.50a7654e.akpm@osdl.org> <20060623150011.GW19222@agk.surrey.redhat.com> <20060623153323.GA4848@infradead.org> <20060623140040.01aeccf9.akpm@osdl.org>
-Mime-Version: 1.0
+	Fri, 23 Jun 2006 18:21:51 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:44433 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1752126AbWFWWVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 18:21:50 -0400
+Date: Sat, 24 Jun 2006 00:21:06 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Michael Grundy <grundym@us.ibm.com>
+Cc: Jan Glauber <jan.glauber@de.ibm.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
+Subject: Re: [PATCH] kprobes for s390 architecture
+Message-ID: <20060623222106.GA25410@osiris.ibm.com>
+References: <20060623150344.GL9446@osiris.boeblingen.de.ibm.com> <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060623140040.01aeccf9.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 02:00:40PM -0700, Andrew Morton wrote:
-> but I'm uncertain if I can just reshuffle them like this, because at least
-> two of them update the userspace-visible DM version number.
+> On the same page it says "All copies of a prefetched instruction are
+> discarded
+> when: * A serializing function is performed" Would something like this in a
+> smp_call_function do it? :
+> 
+> bcr 15,0
+> 
+> if (*p->addr != breakpoint_instruction)
+>       *p->addr = breakpoint_instruction;
+> 
+> 
+> Alternatively, if we did a compare and swap on that location (serializing
+> instruction) would that be acceptable?
+> 
+> Thanks
+> Michael
 
-In this instance there's nothing in distributed userspace code relying on the
-actual version numbers yet, so it's OK to swap them over if the ioctl patches
-are held back:
+The crap below is something that could solve your problem (assumes that "a"
+is the address of the instruction to be replaced and 0x42 is the opcode of
+the new instruction):
 
-  dm-prevent-removal-if-open.patch then sets #define DM_VERSION_MINOR 7
+- generates an irq on all other cpus -> prefetched stuff on them discarded
+- catches all cpus
+- writes the new instruction
+- the atomic_inc(&cap.done) is a compare and swap instruction -> serialization
 
-  dm-support-ioctls-on-mapped-devices.patch then sets #define DM_VERSION_MINOR 8
+At least this is something that could work... completely untested and might
+have some problems that I didn't think of ;)
 
-(The date in DM_VERSION_EXTRA is for information only - can either leave alone
-or set to today's date when edited.)
+struct capture_data {
+	atomic_t cpus;
+	atomic_t done;
+};
 
-Alasdair
--- 
-agk@redhat.com
+void capture_wait(void *data)
+{ 
+	struct capture_data *cap = data;
+
+	atomic_inc(&cap->cpus);
+	while(!atomic_read(&cap->done))
+		cpu_relax();
+	atomic_dec(&cap->cpus);
+}
+
+void replace_instr(int *a)
+{
+	struct capture_data cap;
+
+	preempt_disable();
+	atomic_set(&cap.cpus, 0);
+	atomic_set(&cap.done, 0);
+	smp_call_function(capture_wait, (void *)&cap, 0, 0);
+	while (atomic_read(&cap.cpus) != num_online_cpus() - 1)
+		cpu_relax();
+	*a = 0x42;
+	atomic_inc(&cap.done);
+	while (atomic_read(&cap.cpus))
+		cpu_relax();
+	preempt_enable();
+}

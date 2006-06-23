@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWFWDt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWFWDvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWFWDt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 23:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWFWDt1
+	id S1751232AbWFWDvr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 23:51:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWFWDvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 23:49:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20142 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751229AbWFWDt1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 23:49:27 -0400
-Date: Thu, 22 Jun 2006 20:49:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kevin Corry <kevcorry@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, agk@redhat.com, mbroz@redhat.com, hch@lst.de
-Subject: Re: [PATCH 01/15] dm: support ioctls on mapped devices
-Message-Id: <20060622204907.48c0b841.akpm@osdl.org>
-In-Reply-To: <200606222231.17465.kevcorry@us.ibm.com>
-References: <20060621193121.GP4521@agk.surrey.redhat.com>
-	<20060622151721.GT19222@agk.surrey.redhat.com>
-	<20060622095551.b5c6ddce.akpm@osdl.org>
-	<200606222231.17465.kevcorry@us.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 22 Jun 2006 23:51:47 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:8075 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751232AbWFWDvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 23:51:46 -0400
+Date: Thu, 22 Jun 2006 23:50:45 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hpa@zytor.com, a.p.zijlstra@chello.nl, hugh@veritas.com,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, dhowells@redhat.com,
+       christoph@lameter.com, mbligh@google.com, npiggin@suse.de,
+       torvalds@osdl.org
+Subject: Re: [PATCH] mm: tracking shared dirty pages -v10
+Message-ID: <20060623035045.GA8968@ccure.user-mode-linux.org>
+References: <20060619175243.24655.76005.sendpatchset@lappy> <20060619175253.24655.96323.sendpatchset@lappy> <Pine.LNX.4.64.0606222126310.26805@blonde.wat.veritas.com> <1151019590.15744.144.camel@lappy> <20060623031012.GA8395@ccure.user-mode-linux.org> <20060622203123.affde061.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060622203123.affde061.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006 22:31:16 -0500
-Kevin Corry <kevcorry@us.ibm.com> wrote:
+On Thu, Jun 22, 2006 at 08:31:23PM -0700, Andrew Morton wrote:
+> That's probably a parallel kbuild race.  Type `make' again ;)
 
-> On Thu June 22 2006 11:55 am, Andrew Morton wrote:
-> > On Thu, 22 Jun 2006 16:17:21 +0100 Alasdair G Kergon <agk@redhat.com> wrote:
-> > > On Thu, Jun 22, 2006 at 01:29:57AM -0700, Andrew Morton wrote:
-> > > See also block/scsi_ioctl.c:201 verify_command()  [scsi_cmd_ioctl]
-> > >          * file can be NULL from ioctl_by_bdev()...
-> > >
-> > > Or should we be working towards eliminating interfaces that use device
-> > > numbers?
-> >
-> > If possible.  I guess that would require DM to track the devices with
-> > file*'s or inode*'s or bdev*'s.  Which, I assume, would be non-trivial.
-> 
-> There already is a bdev pointer available. Each "consumed" device get a struct 
-> dm_dev, which has a *bdev field. From the bdev, it looks like we should be 
-> able to get to the gendisk, then the block_device_operations, and then the 
-> ioctl routine (if it exists). Correct?
-> 
+Nope, it's extremely consistent, including with a non-parallel build.
 
-My head is spinning in a twisty maze of ioctls.  What _should_ we call? 
-file_operations.foo_ioctl() or block_device_operations.foo_ioctl() or
-blkdev_ioctl()?
-
-I think as far as the user is concerned, file_operations.foo_ioctl(),
-because that's what the user would end up calling against /dev/sda. 
-Whether that's always, reliably, equivalent to
-block_device_operations.foo_ioctl() I am presently disinclined to spare
-time to discover.
+				Jeff

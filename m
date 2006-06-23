@@ -1,309 +1,364 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751920AbWFWSo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751921AbWFWSo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751920AbWFWSo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 14:44:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751918AbWFWSmg
+	id S1751921AbWFWSo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 14:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751920AbWFWSmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 14:42:36 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:18639 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751921AbWFWSmB (ORCPT
+	Fri, 23 Jun 2006 14:42:39 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:18895 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751922AbWFWSmB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 23 Jun 2006 14:42:01 -0400
-Message-Id: <20060623183915.285707000@linux-m68k.org>
+Message-Id: <20060623183912.179727000@linux-m68k.org>
 References: <20060623183056.479024000@linux-m68k.org>
 User-Agent: quilt/0.44-1
-Date: Fri, 23 Jun 2006 20:31:13 +0200
+Date: Fri, 23 Jun 2006 20:31:05 +0200
 From: zippel@linux-m68k.org
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 17/21] convert hp300 irq code
-Content-Disposition: inline; filename=0023-M68K-convert-hp300-irq-code.txt
+Subject: [PATCH 09/21] separate handler for auto and user vector interrupt
+Content-Disposition: inline; filename=0015-M68K-separate-handler-for-auto-and-user-vector-interrupt.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Use separate entry points for auto and user vector interrupts and
+cleanup naming a little.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- arch/m68k/hp300/Makefile |    2 -
- arch/m68k/hp300/config.c |   11 +--
- arch/m68k/hp300/ints.c   |  175 ----------------------------------------------
- arch/m68k/hp300/ints.h   |    9 --
- arch/m68k/hp300/time.c   |    3 -
- 5 files changed, 6 insertions(+), 194 deletions(-)
- delete mode 100644 arch/m68k/hp300/ints.c
- delete mode 100644 arch/m68k/hp300/ints.h
+ arch/m68k/atari/ataints.c |   12 +++---
+ arch/m68k/kernel/entry.S  |   84 +++++++++++++++++++++++----------------------
+ arch/m68k/kernel/ints.c   |   21 +++++------
+ arch/m68k/kernel/traps.c  |   55 ++++-------------------------
+ include/asm-m68k/traps.h  |    7 ++++
+ 5 files changed, 71 insertions(+), 108 deletions(-)
 
-4170e111d26ddfeabdf6af7cdedc33f665f61dff
-diff --git a/arch/m68k/hp300/Makefile b/arch/m68k/hp300/Makefile
-index 89b6317..288b9c6 100644
---- a/arch/m68k/hp300/Makefile
-+++ b/arch/m68k/hp300/Makefile
-@@ -2,4 +2,4 @@ #
- # Makefile for Linux arch/m68k/hp300 source directory
- #
+62d132c2030fdb80cb5dff1c65183e1b8d1bf3c5
+diff --git a/arch/m68k/atari/ataints.c b/arch/m68k/atari/ataints.c
+index 076f479..bb54741 100644
+--- a/arch/m68k/atari/ataints.c
++++ b/arch/m68k/atari/ataints.c
+@@ -314,7 +314,7 @@ __ALIGN_STR "\n\t"
+ 	"rte");
  
--obj-y		:= ksyms.o config.o ints.o time.o reboot.o
-+obj-y		:= ksyms.o config.o time.o reboot.o
-diff --git a/arch/m68k/hp300/config.c b/arch/m68k/hp300/config.c
-index 6d129ee..2ef271c 100644
---- a/arch/m68k/hp300/config.c
-+++ b/arch/m68k/hp300/config.c
-@@ -21,7 +21,6 @@ #include <asm/io.h>                     
- #include <asm/hp300hw.h>
- #include <asm/rtc.h>
+ /* Defined in entry.S; only increments 'num_spurious' */
+-asmlinkage void bad_interrupt(void);
++asmlinkage void bad_inthandler(void);
  
--#include "ints.h"
- #include "time.h"
+ extern void atari_microwire_cmd( int cmd );
  
- unsigned long hp300_model;
-@@ -64,8 +63,6 @@ static char *hp300_models[] __initdata =
- static char hp300_model_name[13] = "HP9000/";
+@@ -337,7 +337,7 @@ void __init atari_init_IRQ(void)
  
- extern void hp300_reset(void);
--extern irqreturn_t (*hp300_default_handler[])(int, void *, struct pt_regs *);
--extern int show_hp300_interrupts(struct seq_file *, void *);
- #ifdef CONFIG_SERIAL_8250_CONSOLE
- extern int hp300_setup_serial_console(void) __init;
+ 	/* initialize the vector table */
+ 	for (i = 0; i < NUM_INT_SOURCES; ++i) {
+-		vectors[IRQ_SOURCE_TO_VECTOR(i)] = bad_interrupt;
++		vectors[IRQ_SOURCE_TO_VECTOR(i)] = bad_inthandler;
+ 	}
+ 
+ 	/* Initialize the MFP(s) */
+@@ -461,7 +461,7 @@ int atari_request_irq(unsigned int irq, 
+ 		return -EINVAL;
+ 	}
+ 
+-	if (vectors[vector] == bad_interrupt) {
++	if (vectors[vector] == bad_inthandler) {
+ 		/* int has no handler yet */
+ 		irq_handler[irq].handler = handler;
+ 		irq_handler[irq].dev_id  = dev_id;
+@@ -528,7 +528,7 @@ void atari_free_irq(unsigned int irq, vo
+ 	}
+ 
+ 	vector = IRQ_SOURCE_TO_VECTOR(irq);
+-	if (vectors[vector] == bad_interrupt)
++	if (vectors[vector] == bad_inthandler)
+ 		goto not_found;
+ 
+ 	local_irq_save(flags);
+@@ -542,7 +542,7 @@ void atari_free_irq(unsigned int irq, vo
+ 		irq_handler[irq].handler = NULL;
+ 		irq_handler[irq].dev_id  = NULL;
+ 		irq_param[irq].devname   = NULL;
+-		vectors[vector] = bad_interrupt;
++		vectors[vector] = bad_inthandler;
+ 		/* If MFP int, also disable it */
+ 		atari_disable_irq(irq);
+ 		atari_turnoff_irq(irq);
+@@ -617,7 +617,7 @@ int show_atari_interrupts(struct seq_fil
+ 	int i;
+ 
+ 	for (i = 0; i < NUM_INT_SOURCES; ++i) {
+-		if (vectors[IRQ_SOURCE_TO_VECTOR(i)] == bad_interrupt)
++		if (vectors[IRQ_SOURCE_TO_VECTOR(i)] == bad_inthandler)
+ 			continue;
+ 		if (i < STMFP_SOURCE_BASE)
+ 			seq_printf(p, "auto %2d: %10u ",
+diff --git a/arch/m68k/kernel/entry.S b/arch/m68k/kernel/entry.S
+index 522079f..1fb88f3 100644
+--- a/arch/m68k/kernel/entry.S
++++ b/arch/m68k/kernel/entry.S
+@@ -45,7 +45,7 @@ #include <asm/unistd.h>
+ #include <asm/asm-offsets.h>
+ 
+ .globl system_call, buserr, trap, resume
+-.globl inthandler, sys_call_table
++.globl sys_call_table
+ .globl sys_fork, sys_clone, sys_vfork
+ .globl ret_from_interrupt, bad_interrupt
+ 
+@@ -191,44 +191,15 @@ do_delayed_trace:
+ 	jbra	resume_userspace
+ 
+ 
+-#if 0
+-#ifdef CONFIG_AMIGA
+-ami_inthandler:
+-	addql	#1,irq_stat+CPUSTAT_LOCAL_IRQ_COUNT
+-	SAVE_ALL_INT
+-	GET_CURRENT(%d0)
+-
+-	bfextu	%sp@(PT_VECTOR){#4,#12},%d0
+-	movel	%d0,%a0
+-	addql	#1,%a0@(kstat+STAT_IRQ-VECOFF(VEC_SPUR))
+-	movel	%a0@(autoirq_list-VECOFF(VEC_SPUR)),%a0
+-
+-| amiga vector int handler get the req mask instead of irq vector
+-	lea	CUSTOMBASE,%a1
+-	movew	%a1@(C_INTREQR),%d0
+-	andw	%a1@(C_INTENAR),%d0
+-
+-| prepare stack (push frame pointer, dev_id & req mask)
+-	pea	%sp@
+-	movel	%a0@(IRQ_DEVID),%sp@-
+-	movel	%d0,%sp@-
+-	pea	%pc@(ret_from_interrupt:w)
+-	jbra	@(IRQ_HANDLER,%a0)@(0)
+-
+-ENTRY(nmi_handler)
+-	rte
+-#endif
+-#endif
++/* This is the main interrupt handler for autovector interrupts */
+ 
+-/*
+-** This is the main interrupt handler, responsible for calling process_int()
+-*/
+-inthandler:
++ENTRY(auto_inthandler)
+ 	SAVE_ALL_INT
+ 	GET_CURRENT(%d0)
+ 	addqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
+ 					|  put exception # in d0
+-	bfextu %sp@(PT_VECTOR){#4,#10},%d0
++	bfextu	%sp@(PT_VECTOR){#4,#10},%d0
++	subw	#VEC_SPUR,%d0
+ 
+ 	movel	%sp,%sp@-
+ 	movel	%d0,%sp@-		|  put vector # on stack
+@@ -241,15 +212,16 @@ #if defined(MACH_Q40_ONLY) && defined(CO
+ 	jbra	3f
+ 1:
  #endif
-@@ -245,16 +242,16 @@ static unsigned int hp300_get_ss(void)
- 		hp300_rtc_read(RTC_REG_SEC2);
+-	jbsr	process_int		|  process the IRQ
++	jsr	m68k_handle_int		|  process the IRQ
+ 3:	addql	#8,%sp			|  pop parameters off stack
+ 
+ ret_from_interrupt:
+ 	subqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
+-	jeq	1f
+-2:
+-	RESTORE_ALL
+-1:
++	jeq	ret_from_last_interrupt
++2:	RESTORE_ALL
++
++	ALIGN
++ret_from_last_interrupt:
+ 	moveq	#(~ALLOWINT>>8)&0xff,%d0
+ 	andb	%sp@(PT_SR),%d0
+ 	jne	2b
+@@ -260,12 +232,40 @@ ret_from_interrupt:
+ 	pea	ret_from_exception
+ 	jra	do_softirq
+ 
++/* Handler for user defined interrupt vectors */
++
++ENTRY(mach_inthandler)
++	SAVE_ALL_INT
++	GET_CURRENT(%d0)
++	addqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
++					|  put exception # in d0
++	bfextu	%sp@(PT_VECTOR){#4,#10},%d0
++
++	movel	%sp,%sp@-
++	movel	%d0,%sp@-		|  put vector # on stack
++	movel	mach_process_int,%a0
++	jsr	%a0@			|  process the IRQ
++	addql	#8,%sp			|  pop parameters off stack
++
++	subqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
++	jeq	ret_from_last_interrupt
++	RESTORE_ALL
+ 
+ /* Handler for uninitialized and spurious interrupts */
+ 
+-bad_interrupt:
+-	addql	#1,num_spurious
+-	rte
++ENTRY(bad_inthandler)
++	SAVE_ALL_INT
++	GET_CURRENT(%d0)
++	addqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
++
++	movel	%sp,%sp@-
++	jsr	handle_badint
++	addql	#4,%sp
++
++	subqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
++	jeq	ret_from_last_interrupt
++	RESTORE_ALL
++
+ 
+ ENTRY(sys_fork)
+ 	SAVE_SWITCH_STACK
+diff --git a/arch/m68k/kernel/ints.c b/arch/m68k/kernel/ints.c
+index 4b85514..895a56d 100644
+--- a/arch/m68k/kernel/ints.c
++++ b/arch/m68k/kernel/ints.c
+@@ -248,19 +248,16 @@ static void dummy_free_irq(unsigned int 
+ 	printk("calling uninitialized disable_irq()\n");
  }
  
-+static void __init hp300_init_IRQ(void)
-+{
+-asmlinkage void process_int(unsigned long vec, struct pt_regs *fp)
++asmlinkage void m68k_handle_int(unsigned int irq, struct pt_regs *regs)
+ {
+-	if (vec >= VEC_INT1 && vec <= VEC_INT7 && !MACH_IS_BVME6000) {
+-		vec -= VEC_SPUR;
+-		kstat_cpu(0).irqs[vec]++;
+-		irq_list[vec].handler(vec, irq_list[vec].dev_id, fp);
+-	} else {
+-		if (mach_process_int)
+-			mach_process_int(vec, fp);
+-		else
+-			panic("Can't process interrupt vector %ld\n", vec);
+-		return;
+-	}
++	kstat_cpu(0).irqs[irq]++;
++	irq_list[irq].handler(irq, irq_list[irq].dev_id, regs);
 +}
 +
- void __init config_hp300(void)
++asmlinkage void handle_badint(struct pt_regs *regs)
++{
++	kstat_cpu(0).irqs[0]++;
++	printk("unexpected interrupt from %u\n", regs->vector);
+ }
+ 
+ int show_interrupts(struct seq_file *p, void *v)
+diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
+index 9adf378..b19b951 100644
+--- a/arch/m68k/kernel/traps.c
++++ b/arch/m68k/kernel/traps.c
+@@ -45,7 +45,6 @@ #include <asm/siginfo.h>
+ asmlinkage void system_call(void);
+ asmlinkage void buserr(void);
+ asmlinkage void trap(void);
+-asmlinkage void inthandler(void);
+ asmlinkage void nmihandler(void);
+ #ifdef CONFIG_M68KFPU_EMU
+ asmlinkage void fpu_emu(void);
+@@ -53,51 +52,7 @@ #endif
+ 
+ e_vector vectors[256] = {
+ 	[VEC_BUSERR]	= buserr,
+-	[VEC_ADDRERR]	= trap,
+-	[VEC_ILLEGAL]	= trap,
+-	[VEC_ZERODIV]	= trap,
+-	[VEC_CHK]	= trap,
+-	[VEC_TRAP]	= trap,
+-	[VEC_PRIV]	= trap,
+-	[VEC_TRACE]	= trap,
+-	[VEC_LINE10]	= trap,
+-	[VEC_LINE11]	= trap,
+-	[VEC_RESV12]	= trap,
+-	[VEC_COPROC]	= trap,
+-	[VEC_FORMAT]	= trap,
+-	[VEC_UNINT]	= trap,
+-	[VEC_RESV16]	= trap,
+-	[VEC_RESV17]	= trap,
+-	[VEC_RESV18]	= trap,
+-	[VEC_RESV19]	= trap,
+-	[VEC_RESV20]	= trap,
+-	[VEC_RESV21]	= trap,
+-	[VEC_RESV22]	= trap,
+-	[VEC_RESV23]	= trap,
+-	[VEC_SPUR]	= inthandler,
+-	[VEC_INT1]	= inthandler,
+-	[VEC_INT2]	= inthandler,
+-	[VEC_INT3]	= inthandler,
+-	[VEC_INT4]	= inthandler,
+-	[VEC_INT5]	= inthandler,
+-	[VEC_INT6]	= inthandler,
+-	[VEC_INT7]	= inthandler,
+ 	[VEC_SYS]	= system_call,
+-	[VEC_TRAP1]	= trap,
+-	[VEC_TRAP2]	= trap,
+-	[VEC_TRAP3]	= trap,
+-	[VEC_TRAP4]	= trap,
+-	[VEC_TRAP5]	= trap,
+-	[VEC_TRAP6]	= trap,
+-	[VEC_TRAP7]	= trap,
+-	[VEC_TRAP8]	= trap,
+-	[VEC_TRAP9]	= trap,
+-	[VEC_TRAP10]	= trap,
+-	[VEC_TRAP11]	= trap,
+-	[VEC_TRAP12]	= trap,
+-	[VEC_TRAP13]	= trap,
+-	[VEC_TRAP14]	= trap,
+-	[VEC_TRAP15]	= trap,
+ };
+ 
+ /* nmi handler for the Amiga */
+@@ -132,12 +87,16 @@ void __init trap_init (void)
  {
- 	mach_sched_init      = hp300_sched_init;
- 	mach_init_IRQ        = hp300_init_IRQ;
--	mach_request_irq     = hp300_request_irq;
--	mach_free_irq        = hp300_free_irq;
- 	mach_get_model       = hp300_get_model;
--	mach_get_irq_list    = show_hp300_interrupts;
- 	mach_gettimeoffset   = hp300_gettimeoffset;
--	mach_default_handler = &hp300_default_handler;
- 	mach_hwclk	     = hp300_hwclk;
- 	mach_get_ss	     = hp300_get_ss;
- 	mach_reset           = hp300_reset;
-diff --git a/arch/m68k/hp300/ints.c b/arch/m68k/hp300/ints.c
-deleted file mode 100644
-index 0c5bb40..0000000
---- a/arch/m68k/hp300/ints.c
-+++ /dev/null
-@@ -1,175 +0,0 @@
--/*
-- *  linux/arch/m68k/hp300/ints.c
-- *
-- *  Copyright (C) 1998 Philip Blundell <philb@gnu.org>
-- *
-- *  This file contains the HP300-specific interrupt handling.
-- *  We only use the autovector interrupts, and therefore we need to
-- *  maintain lists of devices sharing each ipl.
-- *  [ipl list code added by Peter Maydell <pmaydell@chiark.greenend.org.uk> 06/1998]
-- */
--
--#include <linux/kernel.h>
--#include <linux/types.h>
--#include <linux/init.h>
--#include <linux/sched.h>
--#include <linux/kernel_stat.h>
--#include <linux/interrupt.h>
--#include <linux/spinlock.h>
--#include <asm/machdep.h>
--#include <asm/irq.h>
--#include <asm/io.h>
--#include <asm/system.h>
--#include <asm/traps.h>
--#include <asm/ptrace.h>
--#include <asm/errno.h>
--#include "ints.h"
--
--/* Each ipl has a linked list of interrupt service routines.
-- * Service routines are added via hp300_request_irq() and removed
-- * via hp300_free_irq(). The device driver should set IRQ_FLG_FAST
-- * if it needs to be serviced early (eg FIFOless UARTs); this will
-- * cause it to be added at the front of the queue rather than
-- * the back.
-- * Currently IRQ_FLG_SLOW and flags=0 are treated identically; if
-- * we needed three levels of priority we could distinguish them
-- * but this strikes me as mildly ugly...
-- */
--
--/* we start with no entries in any list */
--static irq_node_t *hp300_irq_list[HP300_NUM_IRQS];
--
--static spinlock_t irqlist_lock;
--
--/* This handler receives all interrupts, dispatching them to the registered handlers */
--static irqreturn_t hp300_int_handler(int irq, void *dev_id, struct pt_regs *fp)
--{
--        irq_node_t *t;
--        /* We just give every handler on the chain an opportunity to handle
--         * the interrupt, in priority order.
--         */
--        for(t = hp300_irq_list[irq]; t; t=t->next)
--                t->handler(irq, t->dev_id, fp);
--        /* We could put in some accounting routines, checks for stray interrupts,
--         * etc, in here. Note that currently we can't tell whether or not
--         * a handler handles the interrupt, though.
--         */
--	return IRQ_HANDLED;
--}
--
--static irqreturn_t hp300_badint(int irq, void *dev_id, struct pt_regs *fp)
--{
--	num_spurious += 1;
--	return IRQ_NONE;
--}
--
--irqreturn_t (*hp300_default_handler[SYS_IRQS])(int, void *, struct pt_regs *) = {
--	[0] = hp300_badint,
--	[1] = hp300_int_handler,
--	[2] = hp300_int_handler,
--	[3] = hp300_int_handler,
--	[4] = hp300_int_handler,
--	[5] = hp300_int_handler,
--	[6] = hp300_int_handler,
--	[7] = hp300_int_handler
--};
--
--/* dev_id had better be unique to each handler because it's the only way we have
-- * to distinguish handlers when removing them...
-- *
-- * It would be pretty easy to support IRQ_FLG_LOCK (handler is not replacable)
-- * and IRQ_FLG_REPLACE (handler replaces existing one with this dev_id)
-- * if we wanted to. IRQ_FLG_FAST is needed for devices where interrupt latency
-- * matters (eg the dreaded FIFOless UART...)
-- */
--int hp300_request_irq(unsigned int irq,
--                      irqreturn_t (*handler) (int, void *, struct pt_regs *),
--                      unsigned long flags, const char *devname, void *dev_id)
--{
--        irq_node_t *t, *n = new_irq_node();
--
--        if (!n)                                   /* oops, no free nodes */
--                return -ENOMEM;
--
--	spin_lock_irqsave(&irqlist_lock, flags);
--
--        if (!hp300_irq_list[irq]) {
--                /* no list yet */
--                hp300_irq_list[irq] = n;
--                n->next = NULL;
--        } else if (flags & IRQ_FLG_FAST) {
--                /* insert at head of list */
--                n->next = hp300_irq_list[irq];
--                hp300_irq_list[irq] = n;
--        } else {
--                /* insert at end of list */
--                for(t = hp300_irq_list[irq]; t->next; t = t->next)
--                        /* do nothing */;
--                n->next = NULL;
--                t->next = n;
--        }
--
--        /* Fill in n appropriately */
--        n->handler = handler;
--        n->flags = flags;
--        n->dev_id = dev_id;
--        n->devname = devname;
--	spin_unlock_irqrestore(&irqlist_lock, flags);
--	return 0;
--}
--
--void hp300_free_irq(unsigned int irq, void *dev_id)
--{
--        irq_node_t *t;
--        unsigned long flags;
--
--        spin_lock_irqsave(&irqlist_lock, flags);
--
--        t = hp300_irq_list[irq];
--        if (!t)                                   /* no handlers at all for that IRQ */
--        {
--                printk(KERN_ERR "hp300_free_irq: attempt to remove nonexistent handler for IRQ %d\n", irq);
--                spin_unlock_irqrestore(&irqlist_lock, flags);
--		return;
--        }
--
--        if (t->dev_id == dev_id)
--        {                                         /* removing first handler on chain */
--                t->flags = IRQ_FLG_STD;           /* we probably don't really need these */
--                t->dev_id = NULL;
--                t->devname = NULL;
--                t->handler = NULL;                /* frees this irq_node_t */
--                hp300_irq_list[irq] = t->next;
--		spin_unlock_irqrestore(&irqlist_lock, flags);
--		return;
--        }
--
--        /* OK, must be removing from middle of the chain */
--
--        for (t = hp300_irq_list[irq]; t->next && t->next->dev_id != dev_id; t = t->next)
--                /* do nothing */;
--        if (!t->next)
--        {
--                printk(KERN_ERR "hp300_free_irq: attempt to remove nonexistent handler for IRQ %d\n", irq);
--		spin_unlock_irqrestore(&irqlist_lock, flags);
--		return;
--        }
--        /* remove the entry after t: */
--        t->next->flags = IRQ_FLG_STD;
--        t->next->dev_id = NULL;
--	t->next->devname = NULL;
--	t->next->handler = NULL;
--        t->next = t->next->next;
--
--	spin_unlock_irqrestore(&irqlist_lock, flags);
--}
--
--int show_hp300_interrupts(struct seq_file *p, void *v)
--{
--	return 0;
--}
--
--void __init hp300_init_IRQ(void)
--{
--	spin_lock_init(&irqlist_lock);
--}
-diff --git a/arch/m68k/hp300/ints.h b/arch/m68k/hp300/ints.h
-deleted file mode 100644
-index 8cfabe2..0000000
---- a/arch/m68k/hp300/ints.h
-+++ /dev/null
-@@ -1,9 +0,0 @@
--extern void hp300_init_IRQ(void);
--extern void (*hp300_handlers[8])(int, void *, struct pt_regs *);
--extern void hp300_free_irq(unsigned int irq, void *dev_id);
--extern int hp300_request_irq(unsigned int irq,
--		irqreturn_t (*handler) (int, void *, struct pt_regs *),
--		unsigned long flags, const char *devname, void *dev_id);
--
--/* number of interrupts, includes 0 (what's that?) */
--#define HP300_NUM_IRQS 8
-diff --git a/arch/m68k/hp300/time.c b/arch/m68k/hp300/time.c
-index 8da5b1b..7df0566 100644
---- a/arch/m68k/hp300/time.c
-+++ b/arch/m68k/hp300/time.c
-@@ -18,7 +18,6 @@ #include <asm/io.h>
- #include <asm/system.h>
- #include <asm/traps.h>
- #include <asm/blinken.h>
--#include "ints.h"
+ 	int i;
  
- /* Clock hardware definitions */
+-	for (i = 48; i < 64; i++)
++	vectors[VEC_SPUR] = bad_inthandler;
++	for (i = VEC_INT1; i <= VEC_INT7; i++)
++		vectors[i] = auto_inthandler;
++
++	for (i = 0; i < VEC_USER; i++)
+ 		if (!vectors[i])
+ 			vectors[i] = trap;
  
-@@ -71,7 +70,7 @@ void __init hp300_sched_init(irqreturn_t
+-	for (i = 64; i < 256; i++)
+-		vectors[i] = inthandler;
++	for (i = VEC_USER; i < 256; i++)
++		vectors[i] = mach_inthandler;
  
-   asm volatile(" movpw %0,%1@(5)" : : "d" (INTVAL), "a" (CLOCKBASE));
+ #ifdef CONFIG_M68KFPU_EMU
+ 	if (FPU_IS_EMU)
+diff --git a/include/asm-m68k/traps.h b/include/asm-m68k/traps.h
+index 4750561..7715194 100644
+--- a/include/asm-m68k/traps.h
++++ b/include/asm-m68k/traps.h
+@@ -13,8 +13,15 @@ #define _M68K_TRAPS_H
  
--  cpu_request_irq(6, hp300_tick, IRQ_FLG_STD, "timer tick", vector);
-+  request_irq(IRQ_AUTO_6, hp300_tick, IRQ_FLG_STD, "timer tick", vector);
+ #ifndef __ASSEMBLY__
  
-   out_8(CLOCKBASE + CLKCR2, 0x1);		/* select CR1 */
-   out_8(CLOCKBASE + CLKCR1, 0x40);		/* enable irq */
++#include <linux/linkage.h>
++#include <asm/ptrace.h>
++
+ typedef void (*e_vector)(void);
+ 
++asmlinkage void auto_inthandler(void);
++asmlinkage void mach_inthandler(void);
++asmlinkage void bad_inthandler(void);
++
+ extern e_vector vectors[];
+ 
+ #endif
 -- 
 1.3.3
 

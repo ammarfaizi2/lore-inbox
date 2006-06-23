@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752015AbWFWUNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752017AbWFWUOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752015AbWFWUNp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 16:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752016AbWFWUNp
+	id S1752017AbWFWUOH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752018AbWFWUNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 16:13:45 -0400
-Received: from mga05.intel.com ([192.55.52.89]:5514 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1752015AbWFWUNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 16:13:44 -0400
+	Fri, 23 Jun 2006 16:13:50 -0400
+Received: from mga07.intel.com ([143.182.124.22]:48505 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1752017AbWFWUNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 16:13:48 -0400
 X-IronPort-AV: i="4.06,170,1149490800"; 
-   d="scan'208"; a="88440523:sNHT67973969"
-Message-Id: <20060623201601.652662000@rshah1-sfield.jf.intel.com>
+   d="scan'208"; a="56629578:sNHT67094685"
+Message-Id: <20060623201601.752629000@rshah1-sfield.jf.intel.com>
 References: <20060623200928.036235000@rshah1-sfield.jf.intel.com>
-Date: Fri, 23 Jun 2006 13:09:29 -0700
+Date: Fri, 23 Jun 2006 13:09:30 -0700
 From: rajesh.shah@intel.com
 To: ak@suse.de, gregkh@suse.de
 Cc: akpm@osdl.org, brice@myri.com, 76306.1226@compuserve.com,
        arjan@linux.intel.com, linux-pci@atrey.karlin.mff.cuni.cz,
        linux-kernel@vger.kernel.org, Rajesh Shah <rajesh.shah@intel.com>
-Subject: [patch 1/2] i386 PCI: improve extended config space verification
-Content-Disposition: inline; filename=i386-fix-mcfg-check
+Subject: [patch 2/2] x86_64 PCI: improve extended config space verification
+Content-Disposition: inline; filename=x86_64-fix-mcfg-check
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -33,16 +33,14 @@ config space.
 
 Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
 
- arch/i386/pci/mmconfig.c   |  113 +++++++++++++++++++++++++++++++++++++++++++--
- drivers/acpi/motherboard.c |    3 -
- include/acpi/aclocal.h     |    2 
- 3 files changed, 112 insertions(+), 6 deletions(-)
+ arch/x86_64/pci/mmconfig.c |  112 +++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 109 insertions(+), 3 deletions(-)
 
-Index: linux-2.6.17-mm1/arch/i386/pci/mmconfig.c
+Index: linux-2.6.17-mm1/arch/x86_64/pci/mmconfig.c
 ===================================================================
---- linux-2.6.17-mm1.orig/arch/i386/pci/mmconfig.c
-+++ linux-2.6.17-mm1/arch/i386/pci/mmconfig.c
-@@ -187,6 +187,108 @@ static __init void unreachable_devices(v
+--- linux-2.6.17-mm1.orig/arch/x86_64/pci/mmconfig.c
++++ linux-2.6.17-mm1/arch/x86_64/pci/mmconfig.c
+@@ -164,6 +164,107 @@ static __init void unreachable_devices(v
  	}
  }
  
@@ -147,11 +145,10 @@ Index: linux-2.6.17-mm1/arch/i386/pci/mmconfig.c
 +	return mcfg_res.flags;
 +}
 +
-+
  void __init pci_mmcfg_init(void)
  {
- 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
-@@ -201,10 +303,15 @@ void __init pci_mmcfg_init(void)
+ 	int i;
+@@ -180,10 +281,15 @@ void __init pci_mmcfg_init(void)
  	if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
  			pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
  			E820_RESERVED)) {
@@ -169,33 +166,6 @@ Index: linux-2.6.17-mm1/arch/i386/pci/mmconfig.c
 +		}
  	}
  
- 	printk(KERN_INFO "PCI: Using MMCONFIG\n");
-Index: linux-2.6.17-mm1/include/acpi/aclocal.h
-===================================================================
---- linux-2.6.17-mm1.orig/include/acpi/aclocal.h
-+++ linux-2.6.17-mm1/include/acpi/aclocal.h
-@@ -697,6 +697,8 @@ struct acpi_parse_state {
- 
- #define PCI_ROOT_HID_STRING             "PNP0A03"
- #define PCI_EXPRESS_ROOT_HID_STRING     "PNP0A08"
-+#define ACPI_MB_HID1			"PNP0C01"
-+#define ACPI_MB_HID2			"PNP0C02"
- 
- struct acpi_bit_register_info {
- 	u8 parent_register;
-Index: linux-2.6.17-mm1/drivers/acpi/motherboard.c
-===================================================================
---- linux-2.6.17-mm1.orig/drivers/acpi/motherboard.c
-+++ linux-2.6.17-mm1/drivers/acpi/motherboard.c
-@@ -32,9 +32,6 @@
- #define _COMPONENT		ACPI_SYSTEM_COMPONENT
- ACPI_MODULE_NAME("acpi_motherboard")
- 
--/* Dell use PNP0C01 instead of PNP0C02 */
--#define ACPI_MB_HID1			"PNP0C01"
--#define ACPI_MB_HID2			"PNP0C02"
- /**
-  * Doesn't care about legacy IO ports, only IO ports beyond 0x1000 are reserved
-  * Doesn't care about the failure of 'request_region', since other may reserve
+ 	/* RED-PEN i386 doesn't do _nocache right now */
 
 --

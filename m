@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWFWGAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWFWGBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbWFWGAr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 02:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWFWGAr
+	id S932361AbWFWGBp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 02:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWFWGBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 02:00:47 -0400
-Received: from ns2.suse.de ([195.135.220.15]:53143 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932352AbWFWGAq (ORCPT
+	Fri, 23 Jun 2006 02:01:45 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:59287 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932361AbWFWGBo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 02:00:46 -0400
-Date: Thu, 22 Jun 2006 22:57:37 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] USB fixes for suspend issues
-Message-ID: <20060623055737.GA29631@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Fri, 23 Jun 2006 02:01:44 -0400
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-usb-devel@lists.sourceforge.net, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 1/2] [PATCH] USB: get USB suspend to work again
+Reply-To: Greg KH <greg@kroah.com>
+Date: Thu, 22 Jun 2006 22:58:34 -0700
+Message-Id: <11510423151128-git-send-email-greg@kroah.com>
+X-Mailer: git-send-email 1.4.0
+In-Reply-To: <20060623055737.GA29631@kroah.com>
+References: <20060623055737.GA29631@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are the two patches that fix the suspend issue and the USB oops
-issue in your current tree.
+From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Please pull from:
-	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+Yeah, it's a hack, but it is only temporary until Alan's patches
+reworking this area make it in.  We really should not care what devices
+below us are doing, especially when we do not really know what type of
+devices they are.  This patch relies on the fact that the endpoint
+devices do not have a driver assigned to us.
 
-The full patches will be sent to the linux-kernel mailing list, if
-anyone wants to see them.
-
-thanks,
-
-greg k-h
-
-
- drivers/base/core.c    |   19 +++++++++++--------
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
  drivers/usb/core/usb.c |    2 ++
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
----------------
-
-Greg Kroah-Hartman:
-      USB: get USB suspend to work again
-      Driver core: fix locking issues with the devices that are attached to classes
+diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
+index 5153107..fb488c8 100644
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -991,6 +991,8 @@ void usb_buffer_unmap_sg (struct usb_dev
+ 
+ static int verify_suspended(struct device *dev, void *unused)
+ {
++	if (dev->driver == NULL)
++		return 0;
+ 	return (dev->power.power_state.event == PM_EVENT_ON) ? -EBUSY : 0;
+ }
+ 
+-- 
+1.4.0
 

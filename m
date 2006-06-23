@@ -1,46 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWFWPd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWFWPdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751463AbWFWPd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 11:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWFWPd1
+	id S1751467AbWFWPdj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 11:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWFWPdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 11:33:27 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:48844 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751463AbWFWPd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 11:33:26 -0400
-Date: Fri, 23 Jun 2006 16:33:23 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 12/15] dm: add exports
-Message-ID: <20060623153323.GA4848@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20060621193657.GA4521@agk.surrey.redhat.com> <20060621210504.b1f387bd.akpm@osdl.org> <20060622135117.GS19222@agk.surrey.redhat.com> <20060622100353.50a7654e.akpm@osdl.org> <20060623150011.GW19222@agk.surrey.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623150011.GW19222@agk.surrey.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 23 Jun 2006 11:33:38 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:44519 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751464AbWFWPdh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 11:33:37 -0400
+In-Reply-To: <20060623020942.GA22889@redhat.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       sfrench@samba.org
+Subject: Re: remove useless checks in cifs connect.c
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Release 7.0 HF144 February 01, 2006
+Message-ID: <OFA663BA0A.AC8EFA76-ON87257196.0055A492-86257196.005548D7@us.ibm.com>
+From: Steven French <sfrench@us.ibm.com>
+Date: Fri, 23 Jun 2006 10:38:19 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 7.0.1HF123 | April 14, 2006) at
+ 06/23/2006 09:40:58,
+	Serialize complete at 06/23/2006 09:40:58
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 04:00:11PM +0100, Alasdair G Kergon wrote:
-> On Thu, Jun 22, 2006 at 10:03:53AM -0700, Andrew Morton wrote:
-> > Adding twenty new unused exports is rather a big deal.  Do you have some
-> > new code pending which will use all these?
-> 
-> No - there's code on the horizon which wants to use a few and so I did this
-> clean-up exercise to indicate which ones should be used and which ones
-> shouldn't.  It's no problem delaying the actual exports until they're
-> specifically requested, but I would at least like to move the definitions
-> into include/linux so people know they are welcome to use them if they wish.
+Thanks - I can make this change - but quite soon this whole routine is 
+going away (as well as most of the fs/cifs/connect.c) as the session setup 
+code in fs/cifs/sess.c.
 
-Please dont introduce exports eaarly.  I'm also very curious about what kind
-of user you have in the pipeline, calling these functions from kernelspace
-seems very wrong to me.
+The original SessSetup routines in fs/cifs/connect.c badly needed a 
+rewrite
+
+
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench at-sign us dot ibm dot com
+
+Dave Jones <davej@redhat.com> wrote on 06/22/2006 09:09:42 PM:
+
+> The ; at the end of the 2nd if line in this diff caught my eye.
+> On closer inspection the whole line is unnecessary
+> anyway as kfree(NULL) is ok.
+> 
+> Also nuked another one a few lines up.
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> --- linux-2.6/fs/cifs/connect.c~   2006-06-22 22:07:04.000000000 -0400
+> +++ linux-2.6/fs/cifs/connect.c   2006-06-22 22:07:42.000000000 -0400
+> @@ -2822,15 +2822,13 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
+>                           = 0;
+>                    } /* else no more room so create dummy domain string 
+*/
+>                    else {
+> -                     if(ses->serverDomain)
+> -                        kfree(ses->serverDomain);
+> +                     kfree(ses->serverDomain);
+>                       ses->serverDomain =
+>                           kzalloc(2,
+>                              GFP_KERNEL);
+>                    }
+>                 } else {   /* no room so create dummy domain and 
+NOSstring */
+> -                  if(ses->serverDomain);
+> -                     kfree(ses->serverDomain);
+> +                  kfree(ses->serverDomain);
+>                    ses->serverDomain =
+>                        kzalloc(2, GFP_KERNEL);
+>                    if(ses->serverNOS)
+> 
+> -- 
+> http://www.codemonkey.org.uk
 

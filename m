@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933011AbWFWKta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWFWKyD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933011AbWFWKta (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933008AbWFWKta
+	id S1751269AbWFWKyD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:54:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWFWKyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:49:30 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15567 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S933012AbWFWKt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:49:29 -0400
-Date: Fri, 23 Jun 2006 12:48:37 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Marcin Juszkiewicz <openembedded@hrw.one.pl>
-Cc: Richard Purdie <rpurdie@rpsys.net>, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, metan@seznam.cz,
-       arminlitzel@web.de
-Subject: Re: sharp zaurus sl-5500 (collie): touchscreen now works
-Message-ID: <20060623104836.GG5343@elf.ucw.cz>
-References: <20060610202541.GA26697@elf.ucw.cz> <1150139307.5376.56.camel@localhost.localdomain> <20060614232814.GJ7751@elf.ucw.cz> <1150329342.9240.38.camel@localhost.localdomain> <e6ec3ad10606230320s25596353y7b238593b90051f5@mail.gmail.com>
+	Fri, 23 Jun 2006 06:54:03 -0400
+Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:8673 "EHLO
+	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751269AbWFWKyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 06:54:01 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Kirill Korotaev <dev@openvz.org>
+Subject: Re: [PATCH] sched: CPU hotplug race vs. set_cpus_allowed()
+Date: Fri, 23 Jun 2006 20:53:22 +1000
+User-Agent: KMail/1.9.3
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <449BA349.6040901@openvz.org>
+In-Reply-To: <449BA349.6040901@openvz.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <e6ec3ad10606230320s25596353y7b238593b90051f5@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200606232053.23526.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 23 June 2006 18:16, Kirill Korotaev wrote:
+> Looks like there is a race between set_cpus_allowed()
+> and move_task_off_dead_cpu().
+> __migrate_task() doesn't report any err code, so
+> task can be left on its runqueue if its cpus_allowed mask
+> changed so that dest_cpu is not longer a possible target.
+> Also, chaning cpus_allowed mask requires rq->lock being held.
+>
+> Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+>
+> Kirill
+> P.S. against 2.6.17-mm1
+
 Hi!
 
-> Yesterday someone added following info into OpenZaurus FAQ [1]:
+Since you've got
 
-Thanks a lot for a pointer.
+-static void __migrate_task(struct task_struct *p, int src_cpu, int dest_cpu)
++static int __migrate_task(struct task_struct *p, int src_cpu, int dest_cpu)
+ {
+        runqueue_t *rq_dest, *rq_src;
++       int res = 0;
+ 
+        if (unlikely(cpu_is_offline(dest_cpu)))
+-               return;
++               return 0;
 
-> >Zaurus SL-5500 MMC/SDIO technical info
-> >
-> >For communicating with the MMC/SDIO card SL-5500 uses the LoCoMo built-in
-> >SPI controller (secondary communication protocol) and 3 LoCoMo GPIOs
-> >
-> >LOCOMO_SPIMD for SPI MODE
-> >LOCOMO_SPICT for SPI CONTROL
-> >LOCOMO_SPIST for SPI STATUS
-> >LOCOMO_SPITD for SPI TRANSMIT (write)
-> >LOCOMO_SPIRD for SPI RECEIVE (read)
-> >
-> >LOCOMO_GPIO(13) for MMC irq / card detect
-> >LOCOMO_GPIO(14) for MMC write protect test bit
-> >LOCOMO_GPIO(15) for MMC power
-> >
-> >All these registers are 16bit, and data transfers are 8bit. On resume
-> >the SPI MODE is set to 0x6c14, on suspend to 0x3c14.
-> >
-> >Useful bits in the SPI MODE register: 0x0001, 0x0040, 0x0080.
-> >Useful bits in the SPI CONTROL register: 0x0040 and 0x0080.
-> >
-> >For further information read the Sandisk SD card manual. A software
-> >implementation of the SPI MMC/SD protocol driver can be be found at
-> >http://kiel.kool.dk/mmc.c
+why not return res here?
 
-Do you have any contact to author of this? It lacks any copyright/GPL
-info :-(. Is wrt54g also sa1100-based?
+oh and ret is a more commonly used name than res (your choice of course).
 
-> Maybe this will help.
+and an addition to the comment such as "returns non-zero only when it fails to 
+migrate the task" would be nice.
 
-Yes, thanks a lot.
+thanks!
 
-> 1. http://openzaurus.berlios.de/FAQ
-									Pavel
+--
+-ck
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-ck

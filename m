@@ -1,88 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751815AbWFWRf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751818AbWFWRhc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751815AbWFWRf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 13:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWFWRfz
+	id S1751818AbWFWRhc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 13:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751821AbWFWRhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 13:35:55 -0400
-Received: from mga03.intel.com ([143.182.124.21]:30224 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751815AbWFWRfz convert rfc822-to-8bit (ORCPT
+	Fri, 23 Jun 2006 13:37:32 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:40343 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751818AbWFWRhc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 13:35:55 -0400
-X-IronPort-AV: i="4.06,169,1149490800"; 
-   d="scan'208"; a="56571092:sNHT33017901"
-Subject: RE: [PATCH] Fix cpufreq_{conservative,ondemand} compilation
-Date: Fri, 23 Jun 2006 10:20:23 -0700
-Message-ID: <EB12A50964762B4D8111D55B764A84541D47D3@scsmsx413.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
+	Fri, 23 Jun 2006 13:37:32 -0400
+Date: Fri, 23 Jun 2006 19:37:03 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Brian Hall <brihall@pcisys.net>
+cc: Sebastian Noack <xaon.seb@gmx.net>, ck@vds.kolivas.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ck] problem burning DVDs with 2.6.17-ck1 (mlockall?)
+In-Reply-To: <20060623145903.GA12719@pcisys.net>
+Message-ID: <Pine.LNX.4.61.0606231936150.26864@yvahk01.tjqt.qr>
+References: <200606230819.44551.xaon.seb@gmx.net> <20060623145903.GA12719@pcisys.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Thread-Topic: [PATCH] Fix cpufreq_{conservative,ondemand} compilation
-Thread-Index: AcaWraUXbrrROngjRhiC/8G4HD5W2wAO4i2A
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Content-class: urn:content-classes:message
-To: "Jean Delvare" <khali@linux-fr.org>
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Cc: "LKML" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 Jun 2006 17:35:54.0197 (UTC) FILETIME=[7A6B4850:01C696EB]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+>Aha! Solved, thanks.
+>
+>echo "ulimit -l unlimited" >> /etc/conf.d/local.start
+>
+>Thanks to all for the quick replies.
 
-Thanks for the patch. Yes, I had missed this warning as some other patch
-in my local tree was adding cpu.h to cpufreq_ondemand.c
+That seems strange. This is on SUSE Linux 10.1, using the root account:
 
-Thanks,
-Venki 
+19:36 shanghai:/J/kernel/linux-2.6.17+ # ulimit -a
+core file size          (blocks, -c) 0
+data seg size           (kbytes, -d) unlimited
+file size               (blocks, -f) unlimited
+pending signals                 (-i) 6143
+max locked memory       (kbytes, -l) 32
+max memory size         (kbytes, -m) unlimited
+open files                      (-n) 1024
+pipe size            (512 bytes, -p) 8
+POSIX message queues     (bytes, -q) 819200
+stack size              (kbytes, -s) 8192
+cpu time               (seconds, -t) unlimited
+max user processes              (-u) 6143
+virtual memory          (kbytes, -v) unlimited
+file locks                      (-x) unlimited
 
->-----Original Message-----
->From: Jean Delvare [mailto:khali@linux-fr.org] 
->Sent: Friday, June 23, 2006 3:13 AM
->To: Pallipadi, Venkatesh
->Cc: LKML
->Subject: [PATCH] Fix cpufreq_{conservative,ondemand} compilation
->
->Fix cpufreq_conservative and cpufreq_ondemand, which were using
->{lock,unlock}_cpu_hotplug without including linux/cpu.h which defines
->them.
->
->Signed-off-by: Jean Delvare <khali@linux-fr.org>
->---
-> drivers/cpufreq/cpufreq_conservative.c |    1 +
-> drivers/cpufreq/cpufreq_ondemand.c     |    1 +
-> 2 files changed, 2 insertions(+)
->
->--- 
->linux-2.6.17-git.orig/drivers/cpufreq/cpufreq_conservative.c	
->2006-06-23 10:24:17.000000000 +0200
->+++ linux-2.6.17-git/drivers/cpufreq/cpufreq_conservative.c	
->2006-06-23 12:07:42.000000000 +0200
->@@ -17,6 +17,7 @@
-> #include <linux/init.h>
-> #include <linux/interrupt.h>
-> #include <linux/ctype.h>
->+#include <linux/cpu.h>
-> #include <linux/cpufreq.h>
-> #include <linux/sysctl.h>
-> #include <linux/types.h>
->--- linux-2.6.17-git.orig/drivers/cpufreq/cpufreq_ondemand.c	
->2006-06-23 10:24:17.000000000 +0200
->+++ linux-2.6.17-git/drivers/cpufreq/cpufreq_ondemand.c	
->2006-06-23 12:07:34.000000000 +0200
->@@ -16,6 +16,7 @@
-> #include <linux/init.h>
-> #include <linux/interrupt.h>
-> #include <linux/ctype.h>
->+#include <linux/cpu.h>
-> #include <linux/cpufreq.h>
-> #include <linux/sysctl.h>
-> #include <linux/types.h>
->
->
->-- 
->Jean Delvare
->
+and I have no problems with cdrecord-prodvd wrt. mmap or memlocking.
+
+
+
+Jan Engelhardt
+-- 

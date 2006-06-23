@@ -1,41 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWFWFy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWFWGAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWFWFy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 01:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWFWFy1
+	id S932335AbWFWGAO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 02:00:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWFWGAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 01:54:27 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:21379 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S932323AbWFWFy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 01:54:26 -0400
-X-IronPort-AV: i="4.06,167,1149490800"; 
-   d="scan'208"; a="1831134735:sNHT33218120"
+	Fri, 23 Jun 2006 02:00:14 -0400
+Received: from www.osadl.org ([213.239.205.134]:4590 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932333AbWFWGAM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 02:00:12 -0400
+Subject: Re: [patch 1/3] Drop tasklist lock in do_sched_setscheduler
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
 To: Andrew Morton <akpm@osdl.org>
-Cc: Ananda Raju <Ananda.Raju@neterion.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       dgc@sgi.com, balbir@in.ibm.com, viro@zeniv.linux.org.uk, neilb@suse.de,
-       jblunck@suse.de, tglx@linutronix.de, leonid.grossman@neterion.com,
-       ravinandan.arakali@neterion.com, alicia.pena@neterion.com
-Subject: Re: [patch 2.6.17] s2io driver irq fix
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.GSO.4.10.10606211537540.23949-100000@guinness>
-	<20060621211534.b740d0f8.akpm@osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 22 Jun 2006 22:54:23 -0700
-In-Reply-To: <20060621211534.b740d0f8.akpm@osdl.org> (Andrew Morton's message of "Wed, 21 Jun 2006 21:15:34 -0700")
-Message-ID: <adalkrol8mo.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 23 Jun 2006 05:54:24.0329 (UTC) FILETIME=[7AE71B90:01C69689]
-Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+In-Reply-To: <20060622184850.29e26ce6.akpm@osdl.org>
+References: <20060622082758.669511000@cruncher.tec.linutronix.de>
+	 <20060622082812.492564000@cruncher.tec.linutronix.de>
+	 <20060622184850.29e26ce6.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 23 Jun 2006 08:01:39 +0200
+Message-Id: <1151042499.25491.211.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andrew> Is it usual to prohibit IRQ sharing with msix?
+On Thu, 2006-06-22 at 18:48 -0700, Andrew Morton wrote:
+> On Thu, 22 Jun 2006 09:08:38 -0000
+> Thomas Gleixner <tglx@linutronix.de> wrote:
+> 
+> > 
+> > There is no need to hold tasklist_lock across the setscheduler call, when we
+> > pin the task structure with get_task_struct(). Interrupts are disabled in 
+> > setscheduler anyway and the permission checks do not need interrupts disabled.
+> > 
+> > Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> > Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> > 
+> >  kernel/sched.c |    4 +++-
+> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > 
+> > Index: linux-2.6.17-mm/kernel/sched.c
+> > ===================================================================
+> > --- linux-2.6.17-mm.orig/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
+> > +++ linux-2.6.17-mm/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
+> > @@ -4140,8 +4140,10 @@
+> >  		read_unlock_irq(&tasklist_lock);
+> >  		return -ESRCH;
+> >  	}
+> > -	retval = sched_setscheduler(p, policy, &lparam);
+> > +	get_task_struct(p);
+> >  	read_unlock_irq(&tasklist_lock);
+> > +	retval = sched_setscheduler(p, policy, &lparam);
+> > +	put_task_struct(p);
+> >  	return retval;
+> >  }
+> >  
+> 
+> Is this optimisation actually related to the rt-mutex patches, or to the
+> other two patches?
 
-With current code at least, MSI/MSI-X interrupts can never be shared.
+Yes. We neither want interrupt disabled nor holding tasklist lock when
+it comes to the lock chain walk. So its a preperatory patch and a
+general optimization.
 
- - R.
+	tglx
+
+

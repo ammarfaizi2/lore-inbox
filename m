@@ -1,50 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932918AbWFWHr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932926AbWFWHyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932918AbWFWHr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 03:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932923AbWFWHr0
+	id S932926AbWFWHyb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 03:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932925AbWFWHyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 03:47:26 -0400
-Received: from mga07.intel.com ([143.182.124.22]:19474 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932918AbWFWHrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 03:47:25 -0400
-X-IronPort-AV: i="4.06,168,1149490800"; 
-   d="scan'208"; a="56363140:sNHT70843773"
-Date: Fri, 23 Jun 2006 00:41:42 -0700
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@suse.de>,
-       Brice Goglin <brice@myri.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] PCI extended conf space when MMCONFIG disabled because of e820
-Message-ID: <20060623004141.A27049@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <44907A8E.1080308@myri.com> <4491029D.4060002@linux.intel.com> <20060621151942.A17228@unix-os.sc.intel.com> <200606220032.19388.ak@suse.de> <20060621171536.A17560@unix-os.sc.intel.com> <449A629F.9000401@linux.intel.com>
+	Fri, 23 Jun 2006 03:54:31 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:46761 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932926AbWFWHya (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 03:54:30 -0400
+Date: Fri, 23 Jun 2006 09:49:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm1: kernel/lockdep.c: write-only variables
+Message-ID: <20060623074929.GA30406@elte.hu>
+References: <20060621034857.35cfe36f.akpm@osdl.org> <20060622155230.GG9111@stusta.de> <20060623072656.GC29321@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <449A629F.9000401@linux.intel.com>; from arjan@linux.intel.com on Thu, Jun 22, 2006 at 11:27:59AM +0200
+In-Reply-To: <20060623072656.GC29321@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5004]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 11:27:59AM +0200, Arjan van de Ven wrote:
-> Rajesh Shah wrote:
-> > Oh I agree with you that booting is more important. My point with
-> > the spec statement was that most BIOS developers may not even know
-> > they are doing something "wrong" by not listing these resources in
-> > the int15 E820 table, since the document they normally refer to
-> > doesn't say so. I suspect there are many more systems out there
-> > which do the same thing and will fail the check, but we never notice
-> > since most users don't try to ever access the extended space today.
-> 
-> well... it's sort of common sense though.. if you want non-ACPI OSes to 
-> work properly (like the older 2.4 based distros...)
-> 
-In this case we already have an ACPI dependence, since the MCFG
-table is listed in ACPI. In any case, I have a patch that got me
-my extended config space back on the one machine I've tested so
-far. I'll test it out on the remaining 2 where I saw this problem
-and send it out.
 
-Rajesh
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> 
+> * Adrian Bunk <bunk@stusta.de> wrote:
+> 
+> > The following variables in kernel/lockdep.c are write-only:
+> >   nr_hardirq_read_safe_locks
+> >   nr_hardirq_read_unsafe_locks
+> >   nr_hardirq_safe_locks
+> >   nr_hardirq_unsafe_locks
+> >   nr_softirq_read_safe_locks
+> >   nr_softirq_read_unsafe_locks
+> >   nr_softirq_safe_locks
+> >   nr_softirq_unsafe_locks
+> > 
+> > Is a usage pending or should they be removed?
+> 
+> they are stale - i'll remove them. (there's a new calculation method 
+> for them)
+
+the patch is below. (Andrew, please dont apply this one - will be part 
+of another patchset)
+
+	Ingo
+
+---
+ kernel/lockdep.c           |   16 ----------------
+ kernel/lockdep_internals.h |    8 --------
+ 2 files changed, 24 deletions(-)
+
+Index: linux/kernel/lockdep.c
+===================================================================
+--- linux.orig/kernel/lockdep.c
++++ linux/kernel/lockdep.c
+@@ -271,14 +271,6 @@ atomic_t softirqs_off_events;
+ atomic_t redundant_softirqs_on;
+ atomic_t redundant_softirqs_off;
+ atomic_t nr_unused_locks;
+-atomic_t nr_hardirq_safe_locks;
+-atomic_t nr_softirq_safe_locks;
+-atomic_t nr_hardirq_unsafe_locks;
+-atomic_t nr_softirq_unsafe_locks;
+-atomic_t nr_hardirq_read_safe_locks;
+-atomic_t nr_softirq_read_safe_locks;
+-atomic_t nr_hardirq_read_unsafe_locks;
+-atomic_t nr_softirq_read_unsafe_locks;
+ atomic_t nr_cyclic_checks;
+ atomic_t nr_cyclic_check_recursions;
+ atomic_t nr_find_usage_forwards_checks;
+@@ -1640,7 +1632,6 @@ static int mark_lock(struct task_struct 
+ 				LOCK_ENABLED_HARDIRQS_READ, "hard-read"))
+ 			return 0;
+ #endif
+-		debug_atomic_inc(&nr_hardirq_safe_locks);
+ 		if (hardirq_verbose(this->type))
+ 			ret = 2;
+ 		break;
+@@ -1666,7 +1657,6 @@ static int mark_lock(struct task_struct 
+ 				LOCK_ENABLED_SOFTIRQS_READ, "soft-read"))
+ 			return 0;
+ #endif
+-		debug_atomic_inc(&nr_softirq_safe_locks);
+ 		if (softirq_verbose(this->type))
+ 			ret = 2;
+ 		break;
+@@ -1680,7 +1670,6 @@ static int mark_lock(struct task_struct 
+ 		if (!check_usage_forwards(curr, this,
+ 					  LOCK_ENABLED_HARDIRQS, "hard"))
+ 			return 0;
+-		debug_atomic_inc(&nr_hardirq_read_safe_locks);
+ 		if (hardirq_verbose(this->type))
+ 			ret = 2;
+ 		break;
+@@ -1694,7 +1683,6 @@ static int mark_lock(struct task_struct 
+ 		if (!check_usage_forwards(curr, this,
+ 					  LOCK_ENABLED_SOFTIRQS, "soft"))
+ 			return 0;
+-		debug_atomic_inc(&nr_softirq_read_safe_locks);
+ 		if (softirq_verbose(this->type))
+ 			ret = 2;
+ 		break;
+@@ -1721,7 +1709,6 @@ static int mark_lock(struct task_struct 
+ 				   LOCK_USED_IN_HARDIRQ_READ, "hard-read"))
+ 			return 0;
+ #endif
+-		debug_atomic_inc(&nr_hardirq_unsafe_locks);
+ 		if (hardirq_verbose(this->type))
+ 			ret = 2;
+ 		break;
+@@ -1748,7 +1735,6 @@ static int mark_lock(struct task_struct 
+ 				   LOCK_USED_IN_SOFTIRQ_READ, "soft-read"))
+ 			return 0;
+ #endif
+-		debug_atomic_inc(&nr_softirq_unsafe_locks);
+ 		if (softirq_verbose(this->type))
+ 			ret = 2;
+ 		break;
+@@ -1764,7 +1750,6 @@ static int mark_lock(struct task_struct 
+ 					   LOCK_USED_IN_HARDIRQ, "hard"))
+ 			return 0;
+ #endif
+-		debug_atomic_inc(&nr_hardirq_read_unsafe_locks);
+ 		if (hardirq_verbose(this->type))
+ 			ret = 2;
+ 		break;
+@@ -1780,7 +1765,6 @@ static int mark_lock(struct task_struct 
+ 					   LOCK_USED_IN_SOFTIRQ, "soft"))
+ 			return 0;
+ #endif
+-		debug_atomic_inc(&nr_softirq_read_unsafe_locks);
+ 		if (softirq_verbose(this->type))
+ 			ret = 2;
+ 		break;
+Index: linux/kernel/lockdep_internals.h
+===================================================================
+--- linux.orig/kernel/lockdep_internals.h
++++ linux/kernel/lockdep_internals.h
+@@ -69,14 +69,6 @@ extern atomic_t softirqs_off_events;
+ extern atomic_t redundant_softirqs_on;
+ extern atomic_t redundant_softirqs_off;
+ extern atomic_t nr_unused_locks;
+-extern atomic_t nr_hardirq_safe_locks;
+-extern atomic_t nr_softirq_safe_locks;
+-extern atomic_t nr_hardirq_unsafe_locks;
+-extern atomic_t nr_softirq_unsafe_locks;
+-extern atomic_t nr_hardirq_read_safe_locks;
+-extern atomic_t nr_softirq_read_safe_locks;
+-extern atomic_t nr_hardirq_read_unsafe_locks;
+-extern atomic_t nr_softirq_read_unsafe_locks;
+ extern atomic_t nr_cyclic_checks;
+ extern atomic_t nr_cyclic_check_recursions;
+ extern atomic_t nr_find_usage_forwards_checks;

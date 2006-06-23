@@ -1,119 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWFWFty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWFWFw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWFWFty (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 01:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWFWFty
+	id S932320AbWFWFw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 01:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWFWFw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 01:49:54 -0400
-Received: from xenotime.net ([66.160.160.81]:43486 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751245AbWFWFtx (ORCPT
+	Fri, 23 Jun 2006 01:52:59 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:19328 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932320AbWFWFw6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 01:49:53 -0400
-Date: Thu, 22 Jun 2006 22:52:39 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: mgross@linux.intel.com
-Cc: arjan@infradead.org, linux-kernel@vger.kernel.org, mark.gross@intel.com
-Subject: Re: [PATCH] riport LADAR driver
-Message-Id: <20060622225239.bf0ccab2.rdunlap@xenotime.net>
-In-Reply-To: <20060622231604.GA5208@linux.intel.com>
-References: <20060622144120.GA5215@linux.intel.com>
-	<1151000401.3120.55.camel@laptopd505.fenrus.org>
-	<20060622231604.GA5208@linux.intel.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Fri, 23 Jun 2006 01:52:58 -0400
+Date: Fri, 23 Jun 2006 09:52:41 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Greg KH <gregkh@suse.de>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.17
+Message-ID: <20060623055241.GB7771@2ka.mipt.ru>
+References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606211519550.5498@g5.osdl.org> <20060621225134.GA13618@kroah.com> <Pine.LNX.4.64.0606211814200.5498@g5.osdl.org> <20060622181826.GB22867@kroah.com> <20060622183021.GA5857@kroah.com> <20060622114900.6f1c6a5f.rdunlap@xenotime.net> <20060622185456.GA6794@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060622185456.GA6794@suse.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 23 Jun 2006 09:52:43 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006 16:16:04 -0700 mark gross wrote:
+On Thu, Jun 22, 2006 at 11:54:56AM -0700, Greg KH (gregkh@suse.de) wrote:
+> On Thu, Jun 22, 2006 at 11:49:00AM -0700, Randy.Dunlap wrote:
+> > 
+> > Um, I was going to say that my patch wasn't listed in the
+> > shortlog that you sent (for W1), but it's there, just mis-attributed
+> > to Evgeniy (#13/14).
+> 
+> I think that happened as Evgeniy sent it to me without the "From:" line
+> on the top of the email, which would have preserved your attribute.
+> Evgeniy, care to do that next time?
 
-a.  still has 6 lines of trailing whitespace.
+I.e. first line should look like
+From: Someone Who Sent be the mail <and address here> ?
 
-> diff -urN -X linux-2.6.17.1/Documentation/dontdiff ../linux-2.6.17.1/drivers/char/riport.c linux-2.6.17.1/drivers/char/riport.c
-> --- ../linux-2.6.17.1/drivers/char/riport.c	1969-12-31 16:00:00.000000000 -0800
-> +++ linux-2.6.17.1/drivers/char/riport.c	2006-06-22 16:07:34.000000000 -0700
+Sure will do.
 
-> +static struct devriport __init *devriport_init(int major, int minor, unsigned int io, int irq,
-> +				   int dma, int size, int *presult)
-> +{
-> +	struct devriport *this;
-> +
-> +	*presult = 0;
-> +	this = kzalloc(sizeof(struct devriport), GFP_KERNEL);
-> +	if (!this) {
-> +		*presult = -ENOMEM;
-> +		goto fail_memory;
-> +	}
-> +
-> +	if (!request_region(io, 3, "riport")) {
-> +		PDEBUG("request_region 0x%X of 3 bytes fails\n", io);
-> +		*presult = -EBUSY;
-> +		goto fail_io;
-> +	}
-> +	if (!request_region(io + ECP_OFFSET, 3, "riport")) {
-> +		release_region(io,3);
-> +
-> +		PDEBUG("request_region 0x%X of 3 bytes fails\n", io + ECP_OFFSET );
-> +		*presult = -EBUSY;
-> +		goto fail_io;
-> +	}
+> thanks,
+> 
+> greg k-h
 
-> +	this->pinode = NULL;
-> +	this->pfile = NULL;
-> +	this->usage = 0;
-> +	this->syncWord = 0;
-> +	this->bytestoread = 0;
-> +	this->numbytesthisstate = 0;
-> +	this->irqinuse = 0;
-
-Since kzalloc() is now being used, above lines aren't needed.
-
-> +		switch (this->readstate) {
-> +			/* due to the magic of the ECP port, it seems that we are
-> +			 guaranteed to be fed a header from the riegl whenever we call
-> +			 riport_open.  this code assumes that is true */
-
-For multi-line comments (multiple places), regular kernel
-coding style is:
-			/*
-			 * due to blah blah ...
-			 * end
-			 */
-
-> +static int devriport_open(struct devriport *this)
-> +{
-
-> +	result =
-> +		request_irq(this->irq, devriport_irq_wrap, SA_INTERRUPT,
-> +			"riport", this);
-
-Put that on 2 lines.
-
-> +static int __init riport_init(void)
-> +{
-
-> +	pdev =
-> +	    devriport_init(riport.major, riport.numdevs, io, irq, dma, size,
-> +			   &result);
-
-Put on 2 lines.
-
-> +}
-> +
-
-> +module_param(io, int, 0444);
-> +MODULE_PARM_DESC(io, "if non-zero then overrides IO port address");
-> +
-> +module_param(irq, int, 0444);
-> +MODULE_PARM_DESC(io, "if non-zero then overrides IRQ number");
-                    irq
-
-> +
-> +module_param(size, int, 0444);
-> +MODULE_PARM_DESC(io, "if non-zero then overrides buffer size");
-                    size
-
----
-~Randy
+-- 
+	Evgeniy Polyakov

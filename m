@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932997AbWFWKaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933005AbWFWKiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932997AbWFWKaU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933001AbWFWKaU
+	id S933005AbWFWKiq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933007AbWFWKiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:30:20 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:36059 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932997AbWFWKaT (ORCPT
+	Fri, 23 Jun 2006 06:38:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2769 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933005AbWFWKip (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:30:19 -0400
-Date: Fri, 23 Jun 2006 12:25:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
+	Fri, 23 Jun 2006 06:38:45 -0400
+Date: Fri, 23 Jun 2006 03:38:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch 07/61] lock validator: better lock debugging
-Message-ID: <20060623102523.GN4889@elte.hu>
-References: <20060529212109.GA2058@elte.hu> <20060529212337.GG3155@elte.hu> <20060529183334.d3e7bef9.akpm@osdl.org>
+Subject: Re: [patch 50/61] lock validator: special locking: hrtimer.c
+Message-Id: <20060623033825.b62eec20.akpm@osdl.org>
+In-Reply-To: <20060623100439.GI4889@elte.hu>
+References: <20060529212109.GA2058@elte.hu>
+	<20060529212709.GX3155@elte.hu>
+	<20060529183556.602b1570.akpm@osdl.org>
+	<20060623100439.GI4889@elte.hu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060529183334.d3e7bef9.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5010]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 23 Jun 2006 12:04:39 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> > +#define DEBUG_WARN_ON(c)						\
-> > +({									\
-> > +	int __ret = 0;							\
-> > +									\
-> > +	if (unlikely(c)) {						\
-> > +		if (debug_locks_off())					\
-> > +			WARN_ON(1);					\
-> > +		__ret = 1;						\
-> > +	}								\
-> > +	__ret;								\
-> > +})
 > 
-> Either the name of this thing is too generic, or we _make_ it generic, 
-> in which case it's in the wrong header file.
-
-this op is only intended to be used only by the lock debugging 
-infrastructure. So it should be renamed - but i fail to find a good name 
-for it. (it's used quite frequently within the lock debugging code, at 
-60+ places) Maybe INTERNAL_WARN_ON()? [that makes it sound special 
-enough.] DEBUG_LOCKS_WARN_ON() might work too.
-
-> > +#ifdef CONFIG_SMP
-> > +# define SMP_DEBUG_WARN_ON(c)			DEBUG_WARN_ON(c)
-> > +#else
-> > +# define SMP_DEBUG_WARN_ON(c)			do { } while (0)
-> > +#endif
+> * Andrew Morton <akpm@osdl.org> wrote:
 > 
-> Probably ditto.
+> > >  	for (i = 0; i < MAX_HRTIMER_BASES; i++, base++)
+> > > -		spin_lock_init(&base->lock);
+> > > +		spin_lock_init_static(&base->lock);
+> > >  }
+> > >  
+> > 
+> > Perhaps the validator core's implementation of spin_lock_init() could 
+> > look at the address and work out if it's within the static storage 
+> > sections.
+> 
+> yeah, but there are two cases: places where we want to 'unify' array 
+> locks into a single type, and places where we want to treat them 
+> separately. The case where we 'unify' is the more common one: locks 
+> embedded into hash-tables for example. So i went for annotating the ones 
+> that are rarer. There are 2 right now: scheduler, hrtimers, with the 
+> hrtimers one going away in the high-res-timers implementation. (we 
+> unified the hrtimers locks into a per-CPU lock) (there's also a kgdb 
+> annotation for -mm)
+> 
+> perhaps the naming should be clearer? I had it named 
+> spin_lock_init_standalone() originally, then cleaned it up to be 
+> spin_lock_init_static(). Maybe the original name is better?
+> 
 
-agreed.
+hm.  This is where a "term of art" is needed.  What is lockdep's internal
+term for locks-of-a-different-type?  It should have such a term.
 
-	Ingo
+"class" would be a good term, although terribly overused.  Using that as an
+example, spin_lock_init_standalone_class()?  ug.
+
+<gives up>
+
+You want spin_lock_init_singleton().

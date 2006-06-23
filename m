@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWFWOix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWFWOjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWFWOix (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 10:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWFWOix
+	id S1750800AbWFWOjG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 10:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWFWOjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 10:38:53 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:60542 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750795AbWFWOiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 10:38:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=h5ZqbwsYFycDWpHmMG1+An8b45TmfhyQFhuhmg3Ql2/VDdQBQfztgvwyDcLQWZt/Y2tAdA2GkMbRUpQLb/odKxydqLT1hVbSnTif3dIu7zzKinN1BYXKXwNnrMr0HL/I5EhSf4bLdKJfK6OzGOUiZXeq+QujD+JcrEg+dHADUOk=
-Message-ID: <449BFCF6.1000603@gmail.com>
-Date: Fri, 23 Jun 2006 22:38:46 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Fri, 23 Jun 2006 10:39:05 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:11423 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1750800AbWFWOjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 10:39:04 -0400
+Date: Fri, 23 Jun 2006 16:38:35 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Jan Glauber <jan.glauber@de.ibm.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
+Subject: Re: [PATCH] kprobes for s390 architecture
+Message-ID: <20060623143835.GK9446@osiris.boeblingen.de.ibm.com>
+References: <20060612131552.GA6647@localhost.localdomain> <1150141217.5495.72.camel@localhost> <20060621042804.GA20300@localhost.localdomain> <1150907920.8295.10.camel@localhost> <20060621173436.GA7834@localhost.localdomain> <1150975716.6496.9.camel@localhost> <20060622163643.GA3329@localhost.localdomain>
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_VGACON_SOFT_SCROLLBACK crashes 2.6.17
-References: <200606211715.58773.a1426z@gawab.com> <200606222036.45081.a1426z@gawab.com> <449ADCB2.4000006@gmail.com> <200606231625.39904.a1426z@gawab.com>
-In-Reply-To: <200606231625.39904.a1426z@gawab.com>
-Content-Type: text/plain; charset=windows-1256
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060622163643.GA3329@localhost.localdomain>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Antonino A. Daplas wrote:
->> (vgacon's screenbuffer is video RAM while the rest of the console drivers
->> have it in system RAM. But you can have vgacon and fbcon compiled at the
->> same time, for example, and this basically screws up the screen accessors,
->> especially in non-x86 archs.)
->>
->> So a revamp of vgacon may be necessary, by placing the screen buffer in
->> system RAM. This will entail a lot of work, so the revamp will take some
->> time.
+On Thu, Jun 22, 2006 at 09:36:43AM -0700, Mike Grundy wrote:
+> On Thu, Jun 22, 2006 at 01:28:36PM +0200, Jan Glauber wrote:
+> > On Wed, 2006-06-21 at 10:34 -0700, Mike Grundy wrote:
+> > > On Wed, Jun 21, 2006 at 06:38:40PM +0200, Martin Schwidefsky wrote:
+> > > > You misunderstood me here. I'm not talking about storing the same piece
+> > > > of data to memory on each processor. I'm talking about isolating all
+> > > > other cpus so that the initiating cpu can store the breakpoint to memory
+> > > > without running into the danger that another cpu is trying to execute it
+> > > > at the same time. But probably the store should be atomic in regard to
+> > > > instruction fetching on the other cpus. It is only two bytes and it
+> > > > should be aligned.
+> > 
+> > Preemption disabling is not necessary around smp_call_function(), since
+> > smp_call_function() takes a spin lock. But smp_call_function() is wrong
+> > here, it calls the code on all other CPUs but not on our own. Please use
+> > on_each_cpu() instead.
 > 
-> Thanks for looking into this.
+> But on_each_cpu() does:
 > 
->>> VIA has a separate driver, couldn't this be merged with mainline?
->> Sure, as long as it's GPL-compatible, properly written, and correctly
->> Signed-off.
-> 
-> Attached below is their license.  Is it GPL-compatible?
+>         preempt_disable();
+>         ret = smp_call_function(func, info, retry, wait);
+>         local_irq_disable();
+>         func(info);
+>         local_irq_enable();
+>         preempt_enable();
+>  
+> I'm confused. I really don't need to swap the instruction on each cpu. I really
+> need to make sure each cpu is not fetching that instruction while I change it.
+> s390 doesn't have a flush_icache_range() (which the other arches use after the 
+> swap). I thought that the synchronization that smp_call_function() does was the
+> primary reason for using it here, not repeatedly changing the same area of 
+> memory.  If you'd prefer I use on_each_cpu() instead of smp_call_function(), 
+> no problem.  
 
-The license text is MIT. A note from the author explicitly stating GPL
-compatibility or dual-licensing the code is much better. 
+This won't solve anything. What Martin probably meant is something like a poor
+man's stop_machine_run() implemented by using smp_call_function(). This way
+you synchronize all cpus and when all cpus are in a known state, you change
+the instruction in question and make sure that serialization happens before
+cpus leave the handler again... Except for the cpu that called
+smp_call_function() you get the serialization for free, since the last
+instruction of the handler is always an lpsw/lpswe instruction.
 
-Also, I prefer that the author of the code himself submit it for inclusion.
+Otherwise there is still the possibility that a different cpu is fetching the
+instruction concurrently while you change it. This doesn't sound very good,
+especially if you take this paragraph of the Principles of Operation into
+account (p.5-89 of SA22-7832-04):
 
-Tony
+"It is possible, if another CPU or a channel program concurrently modifies
+the instruction, for one CPU to recognize the changes to some but not all bit
+positions of an instruction."

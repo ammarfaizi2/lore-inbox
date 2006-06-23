@@ -1,81 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751811AbWFWRec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751815AbWFWRf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751811AbWFWRec (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 13:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWFWRec
+	id S1751815AbWFWRf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 13:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWFWRfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 13:34:32 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:32274 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751811AbWFWReb convert rfc822-to-8bit (ORCPT
+	Fri, 23 Jun 2006 13:35:55 -0400
+Received: from mga03.intel.com ([143.182.124.21]:30224 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751815AbWFWRfz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 13:34:31 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 23 Jun 2006 17:34:30.0418 (UTC) FILETIME=[487B9F20:01C696EB]
-Content-class: urn:content-classes:message
-Subject: Re: 2.6.11: spinlock problem
-Date: Fri, 23 Jun 2006 13:34:30 -0400
-Message-ID: <Pine.LNX.4.61.0606231331310.16810@chaos.analogic.com>
-In-Reply-To: <200606231651.k5NGpbYr008153@firewall.reed.wattle.id.au>
+	Fri, 23 Jun 2006 13:35:55 -0400
+X-IronPort-AV: i="4.06,169,1149490800"; 
+   d="scan'208"; a="56571092:sNHT33017901"
+Subject: RE: [PATCH] Fix cpufreq_{conservative,ondemand} compilation
+Date: Fri, 23 Jun 2006 10:20:23 -0700
+Message-ID: <EB12A50964762B4D8111D55B764A84541D47D3@scsmsx413.amr.corp.intel.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.11: spinlock problem
-thread-index: AcaW60iV6qbBK7Q3TQaTlMoj95ac7A==
-References: <200606231651.k5NGpbYr008153@firewall.reed.wattle.id.au>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Darren Reed" <darrenr@reed.wattle.id.au>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Thread-Topic: [PATCH] Fix cpufreq_{conservative,ondemand} compilation
+Thread-Index: AcaWraUXbrrROngjRhiC/8G4HD5W2wAO4i2A
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Content-class: urn:content-classes:message
+To: "Jean Delvare" <khali@linux-fr.org>
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Jun 2006 17:35:54.0197 (UTC) FILETIME=[7A6B4850:01C696EB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 23 Jun 2006, Darren Reed wrote:
+Thanks for the patch. Yes, I had missed this warning as some other patch
+in my local tree was adding cpu.h to cpufreq_ondemand.c
 
-> Hi,
->
-> I'm seeing a spinlock held panic with a kernel stack like this:
->
-> spinlock - panic, lock already held
-> ..
-> __do_softirq
-> do_softirq
-> =========
-> do_IRQ
-> common_interrupt
-> spinlock/spinunlock
-> ..
->
-> when I load up the system in testing.
-> The code protected by the spinlock is quite small - counter increment.
->
-> I'm using 2.6.11-1.1369_FC4 #1, installed inside of vmware,
-> running as a guest on a Windows XP box.
->
-> Is this
-> (a) linux allowing the IRQ too early
-> (b) vmware not doing something right
-> (c) enivitable
-> (d) somehow my fault
-> (e) something else?
->
-> Thanks,
-> Darren
+Thanks,
+Venki 
 
-Where's the code? Also, did you initialize the spin-lock variable
-before use?
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.88 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+>-----Original Message-----
+>From: Jean Delvare [mailto:khali@linux-fr.org] 
+>Sent: Friday, June 23, 2006 3:13 AM
+>To: Pallipadi, Venkatesh
+>Cc: LKML
+>Subject: [PATCH] Fix cpufreq_{conservative,ondemand} compilation
+>
+>Fix cpufreq_conservative and cpufreq_ondemand, which were using
+>{lock,unlock}_cpu_hotplug without including linux/cpu.h which defines
+>them.
+>
+>Signed-off-by: Jean Delvare <khali@linux-fr.org>
+>---
+> drivers/cpufreq/cpufreq_conservative.c |    1 +
+> drivers/cpufreq/cpufreq_ondemand.c     |    1 +
+> 2 files changed, 2 insertions(+)
+>
+>--- 
+>linux-2.6.17-git.orig/drivers/cpufreq/cpufreq_conservative.c	
+>2006-06-23 10:24:17.000000000 +0200
+>+++ linux-2.6.17-git/drivers/cpufreq/cpufreq_conservative.c	
+>2006-06-23 12:07:42.000000000 +0200
+>@@ -17,6 +17,7 @@
+> #include <linux/init.h>
+> #include <linux/interrupt.h>
+> #include <linux/ctype.h>
+>+#include <linux/cpu.h>
+> #include <linux/cpufreq.h>
+> #include <linux/sysctl.h>
+> #include <linux/types.h>
+>--- linux-2.6.17-git.orig/drivers/cpufreq/cpufreq_ondemand.c	
+>2006-06-23 10:24:17.000000000 +0200
+>+++ linux-2.6.17-git/drivers/cpufreq/cpufreq_ondemand.c	
+>2006-06-23 12:07:34.000000000 +0200
+>@@ -16,6 +16,7 @@
+> #include <linux/init.h>
+> #include <linux/interrupt.h>
+> #include <linux/ctype.h>
+>+#include <linux/cpu.h>
+> #include <linux/cpufreq.h>
+> #include <linux/sysctl.h>
+> #include <linux/types.h>
+>
+>
+>-- 
+>Jean Delvare
+>

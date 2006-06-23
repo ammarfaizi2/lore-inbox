@@ -1,71 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWFWMsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWFWMtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWFWMsL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 08:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWFWMsL
+	id S932565AbWFWMtU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 08:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWFWMtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 08:48:11 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18329 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964793AbWFWMsI (ORCPT
+	Fri, 23 Jun 2006 08:49:20 -0400
+Received: from cantor.suse.de ([195.135.220.2]:53156 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932565AbWFWMtT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 08:48:08 -0400
-Date: Fri, 23 Jun 2006 14:46:56 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, Randy Dunlap <randy.dunlap@oracle.com>,
-       davej@codemonkey.org.uk, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-Subject: Re: [Ubuntu PATCH] cpufreq: fix powernow-k8 load bug
-Message-ID: <20060623124654.GA8048@elf.ucw.cz>
-References: <4498DA08.1010309@oracle.com> <20060622203855.GD2959@openzaurus.ucw.cz> <20060623122845.GC19461@redhat.com>
+	Fri, 23 Jun 2006 08:49:19 -0400
+To: Olivier Galibert <galibert@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is the x86-64 kernel size limit real?
+References: <20060622204627.GA47994@dspnet.fr.eu.org>
+From: Andi Kleen <ak@suse.de>
+Date: 23 Jun 2006 14:49:13 +0200
+In-Reply-To: <20060622204627.GA47994@dspnet.fr.eu.org>
+Message-ID: <p73hd2cnik6.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623122845.GC19461@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Olivier Galibert <galibert@pobox.com> writes:
 
->  > > --- linux-2617-pv.orig/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
->  > > +++ linux-2617-pv/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
->  > > @@ -1008,7 +1008,7 @@ static int __cpuinit powernowk8_cpu_init
->  > >  		 * an UP version, and is deprecated by AMD.
->  > >  		 */
->  > >  
->  > > -		if ((num_online_cpus() != 1) || (num_possible_cpus() != 1)) {
->  > > +		if ((num_online_cpus() != 1)) {
->  > >  			printk(KERN_ERR PFX "MP systems not supported by PSB BIOS structure\n");
->  > >  			kfree(data);
->  > >  			return -ENODEV;
->  > > 
->  > 
->  > Seems wrong to me... what if I boot, then hotplug second cpu?
-> 
-> We only run this code if powernow_k8_cpu_init_acpi() has failed,
-> which it should never do on an SMP system.
-> 
-> So, you get exactly the same behaviour, as expected.
-> You can't support >1 CPU with PSB.
-> 
-> The above patch makes sure things continue to work if you run
-> an SMP kernel on UP hardware.
+> I get bitched at by the build process because the kernel I get is
+> around 4.5Mb compressed.  i386 does not have that limitation.
+> Interestingly, a diff between the two build.c gives:
 
-I'm pretty sure you'll find SMP machine with broken ACPI cpufreq
-(therefore cpu_init_acpi() will fail). And if user is perverse enough,
-he might boot with one cpu then simulate hotplug of second one.
+A patch to fix it is already queued for 2.6.18
 
-OTOH:
+Also long term it might be completely dropped when the uncompressor
+moves to long mode.
 
-1) user is already doing perverse things at this point
-
-and
-
-2) machine BIOS is b0rken
-
-...so... it is only theoretical and probably not worth fixing.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-Andi

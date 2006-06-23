@@ -1,678 +1,486 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbWFWJWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932957AbWFWJWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbWFWJWN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWFWJWG
+	id S932957AbWFWJWt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932955AbWFWJV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:22:06 -0400
-Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:10676 "EHLO
-	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1750931AbWFWJUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:20:49 -0400
-Date: Fri, 23 Jun 2006 02:13:01 -0700
+	Fri, 23 Jun 2006 05:21:58 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:29142 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S1750917AbWFWJUx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 05:20:53 -0400
+Date: Fri, 23 Jun 2006 02:13:05 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200606230913.k5N9D19c032325@frankl.hpl.hp.com>
+Message-Id: <200606230913.k5N9D51k032375@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/17] 2.6.17.1 perfmon2 patch for review: new sysfs support
+Subject: [PATCH 9/17] 2.6.17.1 perfmon2 patch for review: kernel-level API support (kapi)
 Cc: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the sysfs support.
+This patch contains the kernel-level API support.
 
 
 
 
---- linux-2.6.17.1.orig/perfmon/perfmon_sysfs.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.1/perfmon/perfmon_sysfs.c	2006-06-21 04:22:51.000000000 -0700
-@@ -0,0 +1,650 @@
+--- linux-2.6.17.1.orig/perfmon/perfmon_kapi.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.1/perfmon/perfmon_kapi.c	2006-06-21 04:22:51.000000000 -0700
+@@ -0,0 +1,458 @@
 +/*
-+ * perfmon_proc.c: perfmon2 /proc interface
++ * perfmon_kapi.c: perfmon2 kernel level interface
 + *
 + * This file implements the perfmon2 interface which
 + * provides access to the hardware performance counters
 + * of the host processor.
 + *
-+ * The initial version of perfmon.c was written by
-+ * Ganesh Venkitachalam, IBM Corp.
-+ *
-+ * Then it was modified for perfmon-1.x by Stephane Eranian and
-+ * David Mosberger, Hewlett Packard Co.
-+ *
-+ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
-+ * by Stephane Eranian, Hewlett Packard Co.
-+ *
-+ * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
++ * Copyright (c) 2006 Hewlett-Packard Development Company, L.P.
 + * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *                David Mosberger-Tang <davidm@hpl.hp.com>
 + *
 + * More information about perfmon available at:
-+ * 	http://www.hpl.hp.com/research/linux/perfmon
++ * 	http://perfmon2.sf.net
++ *
++ * perfmon2 KAPI overview:
++ *  The goal is to allow kernel-level code to use the perfmon2
++ *  interface for both counting and sampling. It is not possible
++ *  to directly use the system calls because they expected parameters
++ *  from user level. The kernel-level interface is more restrictive
++ *  because of inherent kernel constraints.  The limited interface
++ *  is comosed by a set of functions  implemented in this this. For
++ *  ease of use, the mimic the names of the user level interface, e.g.
++ *  pfmk_create_context()  is the equivalent of pfm_create_context().
++ *  The pfmk_ prefix is used on all calls. Those can be called from
++ *  kernel modules or core kernel files.
++ *
++ *  The kernel-level perfmon api (KAPI) does not use file descriptors
++ *  to identify a context. Instead an opaque (void *) descriptor is used.
++ *  It is returned by pfmk_create_context() and must be passed to all
++ *  subsequence pfmk_*() calls. List of calls is:
++ *  	pfmk_create_context();
++ *  	pfmk_write_pmcs();
++ *  	pfmk_write_pmds();
++ *  	pfmk_read_pmds();
++ *  	pfmk_restart();
++ *  	pfmk_stop();
++ *  	pfmk_start();
++ *  	pfmk_load_context();
++ *  	pfmk_unload_context();
++ *  	pfmk_delete_evtsets();
++ *  	pfmk_create_evtsets();
++ *  	pfmk_getinfo_evtsets();
++ *  	pfmk_close();
++ *  	pfmk_read();
++ *
++ *  Unlike pfm_create_context(), the KAPI equivalent, pfmk_create_context()
++ *  does not trigger the PMU description module to be inserted automatically
++ *  (if known). That means that the call may fail if no PMU description module
++ *  is inserted in advance. This is a restriction to avoid deadlocks during
++ *  insmod.
++ *
++ *  When sampling, the kernel level sampling buffer base address is directly
++ *  returned by pfmk_create_context(). There is no re-mapping necessary.
++ * 
++ * When sampling, the buffer overflow notification can generate a message.
++ * But given that there is no file descriptor, it is not possible to use a
++ * plain read() call. Instead the pfmk_read() function must be invoke. It
++ * returns one message at a time. The pfmk_read() function can be blocking
++ * when there is no message, unless the noblock parameter is set to 1.
++ * Because there is no file descriptor, it would be hard for a kernel thread
++ * to wait on an overflow notification message and something else. It would
++ * be hard to get out, should the thread need to terminate. To avoid this
++ * problem, the pfmk_create_context() requires a completion structure be
++ * passed. It is used during pfmk_read() to wait on an event. But the completion
++ * is visible outside the perfmon context and can be used to signal other events
++ * as well. Upon return from pfmk_read() the caller must check the return value,
++ * if zero no message was extracted and the reason for waking up is outside the
++ * scope of perfmon.
++ *
++ * pefmon2 KAPI known restrictions:
++ * 	- only system-wide contexts are supported
++ * 	- with a sampling buffer defined, it is not possible
++ * 	  to call pfmk_close() from an interrupt context
++ * 	  (e.g. from IPI handler)
 + */
-+#include <linux/config.h>
-+#include <linux/module.h>
 +#include <linux/kernel.h>
-+#include <linux/smp_lock.h>
-+#include <linux/proc_fs.h>
-+#include <linux/list.h>
-+#include <linux/version.h>
 +#include <linux/perfmon.h>
-+#include <linux/device.h>
-+#include <linux/cpu.h>
++#include <linux/module.h>
++#include <asm/uaccess.h>
 +
-+#include <asm/bitops.h>
-+#include <asm/errno.h>
-+#include <asm/processor.h>
-+
-+struct pfm_attribute {
-+	struct attribute attr;
-+	ssize_t (*show)(void *, char *);
-+	ssize_t (*store)(void *, const char *, size_t);
-+};
-+#define to_attr(n) container_of(n, struct pfm_attribute, attr);
-+
-+#define PFM_RO_ATTR(_name) \
-+struct pfm_attribute attr_##_name = __ATTR_RO(_name)
-+
-+#define PFM_RW_ATTR(_name,_mode,_show,_store) 			\
-+struct pfm_attribute attr_##_name = __ATTR(_name,_mode,_show,_store);
-+
-+static int pfm_sysfs_init_done;	/* true when pfm_sysfs_init() completed */
-+
-+static void pfm_sysfs_init_percpu(int i);
-+
-+int pfm_sysfs_add_pmu(struct _pfm_pmu_config *pmu);
-+
-+struct pfm_controls pfm_controls = {
-+	.sys_group = PFM_GROUP_PERM_ANY,
-+	.task_group = PFM_GROUP_PERM_ANY,
-+	.arg_size_max = PAGE_SIZE,
-+	.smpl_buf_size_max = ~0,
-+};
-+EXPORT_SYMBOL(pfm_controls);
-+
-+DECLARE_PER_CPU(struct pfm_stats, pfm_stats);
-+
-+static struct kobject pfm_kernel_kobj, pfm_kernel_fmt_kobj;
-+
-+static void pfm_reset_stats(void)
++static int pfmk_get_smpl_arg(pfm_uuid_t uuid, void *addr, size_t size,
++		     struct pfm_smpl_fmt **fmt)
 +{
-+	struct pfm_stats *st;
-+	int m;
-+
-+	for_each_online_cpu(m) {
-+
-+		st = &per_cpu(pfm_stats,m);
-+		/*
-+		 * cannot use memset because of kobj member
-+		 */
-+		st->pfm_ovfl_intr_replay_count = 0;
-+		st->pfm_ovfl_intr_regular_count = 0;
-+		st->pfm_ovfl_intr_all_count = 0;
-+		st->pfm_ovfl_intr_cycles = 0;
-+		st->pfm_ovfl_intr_phase1 = 0;
-+		st->pfm_ovfl_intr_phase2 = 0;
-+		st->pfm_ovfl_intr_phase3 = 0;
-+		st->pfm_fmt_handler_calls = 0;
-+		st->pfm_fmt_handler_cycles = 0;
-+		st->pfm_set_switch_count = 0;
-+		st->pfm_set_switch_cycles = 0;
-+		st->pfm_handle_timeout_count = 0;
-+	}
-+}
-+
-+
-+static ssize_t pfm_fmt_attr_show(struct kobject *kobj,
-+		struct attribute *attr, char *buf)
-+{
-+	struct pfm_smpl_fmt *fmt = to_smpl_fmt(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->show ? attribute->show(fmt, buf) : -EIO;
-+}
-+
-+static ssize_t pfm_pmu_attr_show(struct kobject *kobj,
-+		struct attribute *attr, char *buf)
-+{
-+	struct _pfm_pmu_config *pmu= to_pmu(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->show ? attribute->show(pmu, buf) : -EIO;
-+}
-+
-+static ssize_t pfm_stats_attr_show(struct kobject *kobj,
-+		struct attribute *attr, char *buf)
-+{
-+	struct pfm_stats *st = to_stats(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->show ? attribute->show(st, buf) : -EIO;
-+}
-+
-+static ssize_t pfm_stats_attr_store(struct kobject *kobj,
-+		struct attribute *attr, const char *buf, size_t count)
-+{
-+	struct pfm_stats *st = to_stats(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->store ? attribute->store(st, buf, count) : -EIO;
-+}
-+
-+static struct sysfs_ops pfm_fmt_sysfs_ops = {
-+	.show = pfm_fmt_attr_show,
-+};
-+
-+static struct sysfs_ops pfm_pmu_sysfs_ops = {
-+	.show = pfm_pmu_attr_show,
-+};
-+
-+static struct sysfs_ops pfm_stats_sysfs_ops = {
-+	.show  = pfm_stats_attr_show,
-+	.store = pfm_stats_attr_store,
-+};
-+
-+static struct kobj_type pfm_fmt_ktype = {
-+	.sysfs_ops = &pfm_fmt_sysfs_ops,
-+};
-+
-+static struct kobj_type pfm_pmu_ktype = {
-+	.sysfs_ops = &pfm_pmu_sysfs_ops,
-+};
-+
-+static struct kobj_type pfm_stats_ktype = {
-+	.sysfs_ops = &pfm_stats_sysfs_ops,
-+};
-+
-+decl_subsys_name(pfm_fmt, pfm_fmt, &pfm_fmt_ktype, NULL);
-+decl_subsys_name(pfm_pmu, pfm_pmu, &pfm_pmu_ktype, NULL);
-+decl_subsys_name(pfm_stats, pfm_stats, &pfm_stats_ktype, NULL);
-+
-+static ssize_t version_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%u.%u\n",  PFM_VERSION_MAJ, PFM_VERSION_MIN);
-+}
-+
-+static ssize_t pmd_max_fast_arg_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%u\n",  PFM_PMD_ARG);
-+}
-+
-+static ssize_t pmc_max_fast_arg_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%u\n",  PFM_PMC_ARG);
-+}
-+
-+static ssize_t pmu_model_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 0);
-+}
-+
-+static ssize_t counter_width_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 1);
-+}
-+
-+static ssize_t task_sessions_count_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 2);
-+}
-+
-+static ssize_t sys_sessions_count_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 3);
-+}
-+
-+static ssize_t smpl_buffer_mem_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 4);
-+}
-+
-+static ssize_t debug_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.debug);
-+}
-+
-+static ssize_t debug_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.debug = d;
-+
-+	if (d == 0)
-+		pfm_reset_stats();
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t debug_ovfl_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.debug_ovfl);
-+}
-+
-+static ssize_t debug_ovfl_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.debug_ovfl = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t reset_stats_show(void *info, char *buf)
-+{
-+	buf[0]='0';
-+	buf[1]='\0';
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t reset_stats_store(void *info, const char *buf, size_t count)
-+{
-+	pfm_reset_stats();
-+	return count;
-+}
-+
-+static ssize_t expert_mode_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.expert_mode);
-+}
-+
-+static ssize_t expert_mode_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.expert_mode = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t sys_group_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.sys_group);
-+}
-+
-+static ssize_t sys_group_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.sys_group = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t task_group_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.task_group);
-+}
-+
-+static ssize_t task_group_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.task_group = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t buf_size_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.expert_mode);
-+}
-+
-+static ssize_t buf_size_store(void *info, const char *buf, size_t sz)
-+{
-+	size_t d;
-+
-+	if (sscanf(buf,"%zu", &d) != 1)
-+		return -EINVAL;
-+	/*
-+	 * we impose a page as the minimum
-+	 */
-+	if (d < PAGE_SIZE)
-+		return -EINVAL;
-+
-+	pfm_controls.smpl_buf_size_max = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t arg_size_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.expert_mode);
-+}
-+
-+static ssize_t arg_size_store(void *info, const char *buf, size_t sz)
-+{
-+	size_t d;
-+
-+	if (sscanf(buf,"%zu", &d) != 1)
-+		return -EINVAL;
-+
-+	/*
-+	 * we impose a page as the minimum
-+	 */
-+	if (d < PAGE_SIZE)
-+		return -EINVAL;
-+
-+	pfm_controls.arg_size_max = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+/*
-+ * /sys/kernel/perfmon attributes
-+ */
-+static PFM_RO_ATTR(version);
-+static PFM_RO_ATTR(pmu_model);
-+static PFM_RO_ATTR(counter_width);
-+static PFM_RO_ATTR(task_sessions_count);
-+static PFM_RO_ATTR(sys_sessions_count);
-+static PFM_RO_ATTR(smpl_buffer_mem);
-+static PFM_RO_ATTR(pmd_max_fast_arg);
-+static PFM_RO_ATTR(pmc_max_fast_arg);
-+
-+static PFM_RW_ATTR(debug, 0644, debug_show, debug_store);
-+static PFM_RW_ATTR(debug_ovfl, 0644, debug_ovfl_show, debug_ovfl_store);
-+static PFM_RW_ATTR(reset_stats, 0644, reset_stats_show, reset_stats_store);
-+static PFM_RW_ATTR(expert_mode, 0644, expert_mode_show, expert_mode_store);
-+static PFM_RW_ATTR(sys_group, 0644, sys_group_show, sys_group_store);
-+static PFM_RW_ATTR(task_group, 0644, task_group_show, task_group_store);
-+static PFM_RW_ATTR(buf_size_max, 0644, buf_size_show, buf_size_store);
-+static PFM_RW_ATTR(arg_size_max, 0644, arg_size_show, arg_size_store);
-+
-+static struct attribute *pfm_kernel_attrs[] = {
-+	&attr_version.attr,
-+	&attr_pmu_model.attr,
-+	&attr_counter_width.attr,
-+	&attr_task_sessions_count.attr,
-+	&attr_sys_sessions_count.attr,
-+	&attr_smpl_buffer_mem.attr,
-+	&attr_pmd_max_fast_arg.attr,
-+	&attr_pmc_max_fast_arg.attr,
-+	&attr_debug.attr,
-+	&attr_debug_ovfl.attr,
-+	&attr_reset_stats.attr,
-+	&attr_expert_mode.attr,
-+	&attr_sys_group.attr,
-+	&attr_task_group.attr,
-+	&attr_buf_size_max.attr,
-+	&attr_arg_size_max.attr,
-+	NULL
-+};
-+
-+static struct attribute_group pfm_kernel_attr_group = {
-+	.attrs = pfm_kernel_attrs,
-+};
-+
-+
-+int pfm_sysfs_init(void)
-+{
-+	int i, ret;
-+	
-+	ret = subsystem_register(&pfm_fmt_subsys);
-+	if (ret) {
-+		PFM_INFO("cannot register pfm_fmt_subsys: %d", ret);
-+		return ret;
-+	}
-+
-+	ret = subsystem_register(&pfm_pmu_subsys);
-+	if (ret) {
-+		PFM_INFO("cannot register pfm_pmu_subsys: %d", ret);
-+		subsystem_unregister(&pfm_fmt_subsys);
-+		return ret;
-+	}
-+
-+	ret = subsystem_register(&pfm_stats_subsys);
-+	if (ret) {
-+		PFM_INFO("cannot register pfm_statssubsys: %d", ret);
-+		subsystem_unregister(&pfm_fmt_subsys);
-+		subsystem_unregister(&pfm_pmu_subsys);
-+		return ret;
-+	}
-+
-+	kobject_init(&pfm_kernel_kobj);
-+	kobject_init(&pfm_kernel_fmt_kobj);
-+
-+	pfm_kernel_kobj.parent = &kernel_subsys.kset.kobj;
-+	kobject_set_name(&pfm_kernel_kobj, "perfmon");
-+
-+	pfm_kernel_fmt_kobj.parent = &pfm_kernel_kobj;
-+	kobject_set_name(&pfm_kernel_fmt_kobj, "formats");
-+
-+	kobject_add(&pfm_kernel_kobj);
-+	kobject_add(&pfm_kernel_fmt_kobj);
-+
-+	sysfs_create_group(&pfm_kernel_kobj, &pfm_kernel_attr_group);
-+
-+	for_each_online_cpu(i) {
-+		pfm_sysfs_init_percpu(i);
-+	}
-+
-+	pfm_sysfs_init_done = 1;
-+
-+	pfm_builtin_fmt_sysfs_add();
-+
-+	if (pfm_pmu_conf)
-+		pfm_sysfs_add_pmu(pfm_pmu_conf);
-+
-+	return 0;
-+}
-+
-+#define PFM_DECL_ATTR(name) \
-+static ssize_t name##_show(void *info, char *buf) \
-+{ \
-+	struct pfm_stats *st = info;\
-+	return snprintf(buf, PAGE_SIZE, "%llu\n", \
-+			(unsigned long long)st->pfm_##name); \
-+} \
-+static PFM_RO_ATTR(name)
-+
-+/*
-+ * per-cpu perfmon stats attributes
-+ */
-+PFM_DECL_ATTR(ovfl_intr_replay_count);
-+PFM_DECL_ATTR(ovfl_intr_all_count);
-+PFM_DECL_ATTR(ovfl_intr_cycles);
-+PFM_DECL_ATTR(fmt_handler_calls);
-+PFM_DECL_ATTR(fmt_handler_cycles);
-+PFM_DECL_ATTR(set_switch_count);
-+PFM_DECL_ATTR(set_switch_cycles);
-+PFM_DECL_ATTR(handle_timeout_count);
-+
-+static ssize_t ovfl_intr_spurious_count_show(void *info, char *buf)
-+{
-+	struct pfm_stats *st = info;
-+	return snprintf(buf, PAGE_SIZE, "%llu\n",
-+			(unsigned long long)(st->pfm_ovfl_intr_all_count
-+					     - st->pfm_ovfl_intr_regular_count));
-+}
-+
-+static ssize_t ovfl_intr_regular_count_show(void *info, char *buf)
-+{
-+	struct pfm_stats *st = info;
-+	return snprintf(buf, PAGE_SIZE, "%llu\n",
-+			(unsigned long long)(st->pfm_ovfl_intr_regular_count
-+					     - st->pfm_ovfl_intr_replay_count));
-+}
-+
-+static PFM_RO_ATTR(ovfl_intr_spurious_count);
-+static PFM_RO_ATTR(ovfl_intr_regular_count);
-+
-+static struct attribute *pfm_cpu_attrs[] = {
-+	&attr_ovfl_intr_spurious_count.attr,
-+	&attr_ovfl_intr_replay_count.attr,
-+	&attr_ovfl_intr_regular_count.attr,
-+	&attr_ovfl_intr_all_count.attr,
-+	&attr_ovfl_intr_cycles.attr,
-+	&attr_fmt_handler_calls.attr,
-+	&attr_fmt_handler_cycles.attr,
-+	&attr_set_switch_count.attr,
-+	&attr_set_switch_cycles.attr,
-+	&attr_handle_timeout_count.attr,
-+	NULL
-+};
-+
-+static struct attribute_group pfm_cpu_attr_group = {
-+	.attrs = pfm_cpu_attrs,
-+};
-+
-+static void pfm_sysfs_init_percpu(int i)
-+{
-+	struct sys_device *cpudev;
-+	struct pfm_stats *st;
-+
-+	cpudev = get_cpu_sysdev(i);
-+	if (!cpudev)
-+		return;
-+
-+	st = &per_cpu(pfm_stats, i);
-+
-+	kobject_init(&st->kobj);
-+
-+	st->kobj.parent = &cpudev->kobj;
-+	kobject_set_name(&st->kobj, "perfmon");
-+	kobj_set_kset_s(st, pfm_stats_subsys);
-+
-+	kobject_add(&st->kobj);
-+
-+	sysfs_create_group(&st->kobj, &pfm_cpu_attr_group);
-+}
-+
-+static ssize_t uuid_show(void *data, char *buf)
-+{
-+	struct pfm_smpl_fmt *fmt = data;
-+
-+	return snprintf(buf, PAGE_SIZE, "%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x"
-+			   "-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x\n",
-+			fmt->fmt_uuid[0],
-+			fmt->fmt_uuid[1],
-+			fmt->fmt_uuid[2],
-+			fmt->fmt_uuid[3],
-+			fmt->fmt_uuid[4],
-+			fmt->fmt_uuid[5],
-+			fmt->fmt_uuid[6],
-+			fmt->fmt_uuid[7],
-+			fmt->fmt_uuid[8],
-+			fmt->fmt_uuid[9],
-+			fmt->fmt_uuid[10],
-+			fmt->fmt_uuid[11],
-+			fmt->fmt_uuid[12],
-+			fmt->fmt_uuid[13],
-+			fmt->fmt_uuid[14],
-+			fmt->fmt_uuid[15]);
-+}
-+
-+PFM_RO_ATTR(uuid);
-+
-+int pfm_sysfs_add_fmt(struct pfm_smpl_fmt *fmt)
-+{
++	struct pfm_smpl_fmt *f;
++	size_t sz;
 +	int ret;
 +
-+	if (pfm_sysfs_init_done == 0)
++	if (!pfm_use_smpl_fmt(uuid))
 +		return 0;
 +
-+	kobject_init(&fmt->kobj);
-+	kobject_set_name(&fmt->kobj, fmt->fmt_name);
-+	kobj_set_kset_s(fmt, pfm_fmt_subsys);
-+	fmt->kobj.parent = &pfm_kernel_fmt_kobj;
++	/*
++	 * find fmt and increase refcount
++	 */
++	f = pfm_smpl_fmt_get(uuid);
++	if (f == NULL) {
++		PFM_DBG("buffer format not found");
++		return -EINVAL;
++	}
 +
-+	ret = kobject_add(&fmt->kobj);
++	sz = f->fmt_arg_size;
 +
-+	return sysfs_create_file(&fmt->kobj, &attr_uuid.attr);
-+}
-+
-+int pfm_sysfs_remove_fmt(struct pfm_smpl_fmt *fmt)
-+{
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
-+
-+	sysfs_remove_file(&fmt->kobj, &attr_uuid.attr);
-+
-+	kobject_del(&fmt->kobj);
-+
++	/*
++	 * usize = -1 is for IA-64 backward compatibility
++	 */
++	ret = -EINVAL;
++	if (sz != size && size != -1) {
++		PFM_DBG("invalid arg size %zu, format expects %zu",
++			size, sz);
++		goto error;
++	}
++	*fmt = f;
 +	return 0;
++
++error:
++	pfm_smpl_fmt_put(f);
++	return ret;
 +}
 +
 +/*
-+ * because the mappings can vary between one PMU and the other, we cannot really
-+ * use an attribute per PMC to describe a mapping. Instead we have a single
-+ * mappings attribute per PMU.
++ * req: pointer to context creation  argument. ctx_flags msut have
++ *      PFM_FL_SYSTEM_WIDE set.
++ *
++ * smpl_arg: optional sampling format option argument. NULL if unused
++ * smpl_size: sizeof of optional sampling format argument. 0 if unused
++ * c       : pointer to completion structure. Call does not initialization
++ * 	     struct (i.e. no init_completion). Completion used with pfmk_read()
++ * Return:
++ * desc    : pointer to opaque context descriptor. unique identifier for context
++ * smpl_buf: pointer to base of sampling buffer. Pass NULL if unused
 + */
-+static ssize_t mappings_show(void *data, char *buf)
++int pfmk_create_context(struct pfarg_ctx *req, void *smpl_arg,
++			size_t smpl_size,
++			struct completion *c,
++			void **desc,
++			void **buf)
 +{
-+	struct _pfm_pmu_config *pmu = data;
-+	size_t s = PAGE_SIZE;
-+	u32 n = 0, i;
++	struct pfm_context *new_ctx;
++	struct pfm_smpl_fmt *fmt = NULL;
++	int ret = -EFAULT;
 +
-+	for (i = 0; i < PFM_MAX_PMCS;  i++) {
++	if (desc == NULL)
++		return -EINVAL;
 +
-+		if ((pmu->pmc_desc[i].type & PFM_REG_I) == 0)
-+			continue;
++	if (c == NULL)
++		return -EINVAL;
 +
-+		n = snprintf(buf, s, "PMC%u:0x%llx:0x%llx:%s\n",
-+			     i,
-+			     (unsigned long long)pfm_pmu_conf->pmc_desc[i].dfl_val,
-+			     (unsigned long long)pfm_pmu_conf->pmc_desc[i].rsvd_msk,
-+			     pfm_pmu_conf->pmc_desc[i].desc);
-+		buf += n;
-+		if (n > s)
-+			goto skip;
-+		s -= n;
++	if ((req->ctx_flags & PFM_FL_SYSTEM_WIDE) == 0) {
++		PFM_DBG("kapi only supoprts system-wide context\n");
++		return -EINVAL;
 +	}
 +
-+	for (i = 0; i < PFM_MAX_PMDS;  i++) {
++	ret = pfmk_get_smpl_arg(req->ctx_smpl_buf_id, smpl_arg, smpl_size, &fmt);
++	if (ret)
++		return ret;
 +
-+		if ((pmu->pmd_desc[i].type & PFM_REG_I) == 0)
-+			continue;
-+
-+		n = snprintf(buf, s, "PMD%u:0x%llx:0x%llx:%s\n",
-+			     i,
-+			     (unsigned long long)pfm_pmu_conf->pmd_desc[i].dfl_val,
-+			     (unsigned long long)pfm_pmu_conf->pmd_desc[i].rsvd_msk,
-+			     pfm_pmu_conf->pmd_desc[i].desc);
-+		buf += n;
-+		if (n > s)
-+			break;
-+		s -= n;
++	ret = __pfm_create_context(req, fmt, smpl_arg, PFM_KAPI, c, &new_ctx);
++	if (!ret) {
++		*desc = new_ctx;
++		/*
++		 * return base of sampling buffer
++		 */
++		if (buf)
++			*buf = new_ctx->smpl_addr;
 +	}
-+skip:
-+	return PAGE_SIZE - s;
++	return ret;
 +}
++EXPORT_SYMBOL(pfmk_create_context);
 +
-+PFM_RO_ATTR(mappings);
-+
-+int pfm_sysfs_add_pmu(struct _pfm_pmu_config *pmu)
++int pfmk_write_pmcs(void *desc, struct pfarg_pmc *req, int count)
 +{
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret;
 +
-+	kobject_init(&pmu->kobj);
-+	kobject_set_name(&pmu->kobj, "pmu_desc");
-+	kobj_set_kset_s(pmu, pfm_pmu_subsys);
-+	pmu->kobj.parent = &pfm_kernel_kobj;
++	if (count < 0 || desc == NULL)
++		return -EINVAL;
 +
-+	kobject_add(&pmu->kobj);
++	ctx = desc;
 +
-+	return sysfs_create_file(&pmu->kobj, &attr_mappings.attr);
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (ret == 0)
++		ret = __pfm_write_pmcs(ctx, req, count);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
 +}
++EXPORT_SYMBOL(pfmk_write_pmcs);
 +
-+int pfm_sysfs_remove_pmu(struct _pfm_pmu_config *pmu)
++int pfmk_write_pmds(void *desc, struct pfarg_pmd *req, int count)
 +{
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret;
 +
-+	sysfs_remove_file(&pmu->kobj, &attr_mappings.attr);
++	if (count < 0 || desc == NULL)
++		return -EINVAL;
 +
-+	kobject_del(&pmu->kobj);
++	ctx = desc;
 +
-+	return 0;
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (ret == 0)
++		ret = __pfm_write_pmds(ctx, req, count, 0);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
 +}
++EXPORT_SYMBOL(pfmk_write_pmds);
++
++int pfmk_read_pmds(void *desc, struct pfarg_pmd *req, int count)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret;
++
++	if (count < 0 || desc == NULL)
++		return -EINVAL;
++
++	ctx = desc;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (ret == 0)
++		ret = __pfm_read_pmds(ctx, req, count);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
++}
++EXPORT_SYMBOL(pfmk_read_pmds);
++
++int pfmk_restart(void *desc)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret = 0;
++
++	ctx = desc;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, 0, &flags);
++	if (ret == 0)
++		ret = __pfm_restart(ctx);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
++}
++EXPORT_SYMBOL(pfmk_restart);
++
++
++int pfmk_stop(void *desc)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret;
++
++	ctx = desc;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (ret == 0)
++		ret = __pfm_stop(ctx);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++	return ret;
++}
++EXPORT_SYMBOL(pfmk_stop);
++
++int pfmk_start(void *desc, struct pfarg_start *req)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret = 0;
++
++	if (desc == NULL)
++		return -EINVAL;
++	ctx = desc;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (ret == 0)
++		ret = __pfm_start(ctx, req);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
++}
++EXPORT_SYMBOL(pfmk_start);
++
++int pfmk_load_context(void *desc, struct pfarg_load *req)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret;
++
++	if (desc == NULL)
++		return -EINVAL;
++
++	ctx = desc;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
++	if (ret == 0)
++		ret = __pfm_load_context(ctx, req);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
++}
++EXPORT_SYMBOL(pfmk_load_context);
++
++
++int pfmk_unload_context(void *desc)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret = 0;
++
++	if (desc == NULL)
++		return -EINVAL;
++
++	ctx = desc;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED|PFM_CMD_UNLOAD, &flags);
++	if (ret == 0)
++		ret = __pfm_unload_context(ctx, 0);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
++}
++EXPORT_SYMBOL(pfmk_unload_context);
++
++int pfmk_delete_evtsets(void *desc, struct pfarg_setinfo *req, int count)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret;
++
++	if (count < 0 || desc == NULL)
++		return -EINVAL;
++
++	ctx = desc;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_UNLOADED, &flags);
++	if (ret == 0)
++		ret = __pfm_delete_evtsets(ctx, req, count);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
++}
++EXPORT_SYMBOL(pfmk_delete_evtsets);
++
++int pfmk_create_evtsets(void *desc, struct pfarg_setdesc  *req, int count)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret;
++
++	if (count < 0 || desc == NULL)
++		return -EINVAL;
++
++	ctx = desc;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, PFM_CMD_UNLOADED, &flags);
++	if (ret == 0)
++		ret = __pfm_create_evtsets(ctx, req, count);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
++}
++EXPORT_SYMBOL(pfmk_create_evtsets);
++
++int pfmk_getinfo_evtsets(void *desc, struct pfarg_setinfo *req, int count)
++{
++	struct pfm_context *ctx;
++	unsigned long flags;
++	int ret;
++
++	if (count < 0 || desc == NULL)
++		return -EINVAL;
++
++	ctx = desc;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	ret = pfm_check_task_state(ctx, 0, &flags);
++	if (ret == 0)
++		ret = __pfm_getinfo_evtsets(ctx, req, count);
++
++	spin_unlock_irqrestore(&ctx->lock, flags);
++
++	return ret;
++}
++EXPORT_SYMBOL(pfmk_getinfo_evtsets);
++
++int pfmk_close(void *desc)
++{
++	struct pfm_context *ctx;
++
++	if (desc == NULL)
++		return -EINVAL;
++
++	ctx = desc;
++
++	return __pfm_close(ctx, NULL);
++}
++EXPORT_SYMBOL(pfmk_close);
++
++/*
++ * desc   : opaque context descriptor
++ * msg    : pointer to message structure
++ * sz     : sizeof of message argument. Must be equal to 1 message 
++ * noblock: 1 means do not wait for messages. 0 means wait for completion
++ *          signal.
++ *
++ * Note on completion:
++ *	- completion structure can be shared with code outside the perfmon2
++ *	  core. This function will return with 0, if there was a completion
++ *	  signal but no messages to read.
++ *
++ * Return:
++ *    0           : no message extracted, but awaken
++ *    sizeof(*msg): one message extracted
++ *    -EAGAIN     : noblock=1 and nothing to read
++ *    -ERESTARTSYS: noblock=0, signal pending
++ */
++ssize_t pfmk_read(void *desc, union pfm_msg *msg, size_t sz, int noblock)
++{
++	struct pfm_context *ctx;
++	union pfm_msg msg_buf;
++
++	if (desc == NULL || msg == NULL || sz != sizeof(*msg))
++		return -EINVAL;
++
++	ctx = desc;
++
++	return __pfmk_read(ctx, &msg_buf, noblock);
++}
++EXPORT_SYMBOL(pfmk_read);

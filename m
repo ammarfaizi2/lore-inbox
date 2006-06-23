@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932985AbWFWJ7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932982AbWFWKAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932985AbWFWJ7q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932987AbWFWJ7p
+	id S932982AbWFWKAe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932987AbWFWKAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:59:45 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:28374 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932986AbWFWJ7o (ORCPT
+	Fri, 23 Jun 2006 06:00:33 -0400
+Received: from verein.lst.de ([213.95.11.210]:62387 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S932984AbWFWKAc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:59:44 -0400
-Date: Fri, 23 Jun 2006 11:54:49 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Fri, 23 Jun 2006 06:00:32 -0400
+Date: Fri, 23 Jun 2006 12:00:18 +0200
+From: Christoph Hellwig <hch@lst.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch 46/61] lock validator: special locking: slab
-Message-ID: <20060623095449.GH4889@elte.hu>
-References: <20060529212109.GA2058@elte.hu> <20060529212649.GT3155@elte.hu> <20060529183549.97a90e12.akpm@osdl.org>
+Cc: Alasdair G Kergon <agk@redhat.com>, mbroz@redhat.com,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 01/15] dm: support ioctls on mapped devices
+Message-ID: <20060623100018.GA6985@lst.de>
+References: <20060621193121.GP4521@agk.surrey.redhat.com> <20060621205206.35ecdbf8.akpm@osdl.org> <449A51A2.4080601@redhat.com> <20060622012957.97697208.akpm@osdl.org> <20060622151721.GT19222@agk.surrey.redhat.com> <20060622095551.b5c6ddce.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060529183549.97a90e12.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5004]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060622095551.b5c6ddce.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -0.6 () BAYES_01
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> On Mon, 29 May 2006 23:26:49 +0200
-> Ingo Molnar <mingo@elte.hu> wrote:
+On Thu, Jun 22, 2006 at 09:55:51AM -0700, Andrew Morton wrote:
+> > - long (*unlocked_ioctl) (struct file *, unsigned, unsigned long);
+> > + long (*unlocked_ioctl) (struct inode *, struct file *, unsigned, unsigned long);
+> > 
+> > so it can be used for block devices?
 > 
-> > +		/*
-> > +		 * Do not assume that spinlocks can be initialized via memcpy:
-> > +		 */
+> Perhaps it should (have).  It's a bit nasty, but we do have at least two
+> internal callers who don't have a file*.
 > 
-> I'd view that as something which should be fixed in mainline.
+> The alternative would be to cook up a fake file* like blkdev_get() does,
+> but we don't want to propagate that practice.
 
-yeah. I got bitten by this (read: pulled hair for hours) when converting 
-the slab spinlocks to rtmutexes in the -rt tree.
+Faking up the file struct is the only viable short-term option.  It
+should be done in ioctl_by_bdev which every kernel blockdevice ioctl
+user should use.  Long-term we should not pass a struct file but
+a struct block_device *, but braindamage in floppy.c prevents that.
 
-	Ingo

@@ -1,58 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWFWE1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWFWEbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWFWE1b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 00:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWFWE1b
+	id S932219AbWFWEbY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 00:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWFWEbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 00:27:31 -0400
-Received: from mail.kroah.org ([69.55.234.183]:36557 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932205AbWFWE1a (ORCPT
+	Fri, 23 Jun 2006 00:31:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58045 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932211AbWFWEbW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 00:27:30 -0400
-Date: Thu, 22 Jun 2006 21:26:14 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: David Brownell <david-b@pacbell.net>, Mattia Dongili <malattia@linux.it>,
-       Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-pm@osdl.org, pavel@suse.cz
-Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
-Message-ID: <20060623042614.GB23232@kroah.com>
-References: <20060622235112.GA30484@kroah.com> <Pine.LNX.4.44L0.0606222241390.18690-100000@netrider.rowland.org>
+	Fri, 23 Jun 2006 00:31:22 -0400
+Date: Thu, 22 Jun 2006 21:30:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ian Kent <raven@themaw.net>
+Cc: autofs@linux.kernel.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] autofs4 needs to force fail return revalidate
+Message-Id: <20060622213050.fc753e91.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606231159540.2904@raven.themaw.net>
+References: <200606210618.k5L6IFDr008176@raven.themaw.net>
+	<20060620233941.49ba2223.akpm@osdl.org>
+	<Pine.LNX.4.64.0606231159540.2904@raven.themaw.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0606222241390.18690-100000@netrider.rowland.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 10:45:15PM -0400, Alan Stern wrote:
-> On Thu, 22 Jun 2006, Greg KH wrote:
-> 
-> > > And yes, we _should_ care about whether or not any interface is
-> > > still active, until the pm core code starts to pay attention to
-> > > the driver model tree at all times ... even outside of system-wide
-> > > suspend transitions.  Today, the pm core code doesn't even use
-> > > that tree directly, and all runtime state changes (like selective
-> > > suspend with USB) completely bypass that pm tree.
+On Fri, 23 Jun 2006 12:14:09 +0800 (WST)
+Ian Kent <raven@themaw.net> wrote:
+
 > > 
-> > Hm, ok, yes, we should care about interfaces, but we need some way to
-> > only walk them, not anything else that might be attached to us...
+> > Also, did you consider broadening the ->d_revalidate() semantics?  It
+> > appears that all implementations return 0 or 1.  You could teach the VFS to
+> > also recognise and act upon a -ve return value, and do this trickery within
+> > the autofs d_revalidate(), perhaps?
+> > 
 > 
-> In my upcoming patch set this test isn't needed at all, because suspending
-> a device automatically suspends all of its interfaces first.  I've already
-> submitted the first few revised patches in that set (not the part that
-> removes the test, though), but you've probably been too busy to look at
-> them yet.
+> Yep and I've now done this.
+> I think this is in fact the only way to do it.
 
-I've glanced at them (and yes, been busy, they are still in my TO-APPLY
-queue, trying to sync up with Linus first), but I don't see anything in
-that set that changes the suspend logic.
+Below is the combined patch for reviewing purposes.
 
-Or am I just missing something obvious?  Which patch does that in your
-revised series?
+Removing that __always_inline saves 30-odd bytes.  I suspect that removing
+it would be a performance loss in this case.  But I'll make it just
+`inline' because __always_inline is peculiar, and people will wonder what's
+special about this function.
 
-thanks,
 
-greg k-h
+
+ fs/autofs4/root.c |   38 ++++++++++++++++++++++++++--------
+ fs/namei.c        |   49 ++++++++++++++++++++++++++++++--------------
+ linux/dcache.h    |    0 
+ 3 files changed, 64 insertions(+), 23 deletions(-)
+
+diff -puN fs/autofs4/root.c~autofs4-needs-to-force-fail-return-revalidate fs/autofs4/root.c
+--- a/fs/autofs4/root.c~autofs4-needs-to-force-fail-return-revalidate
++++ a/fs/autofs4/root.c
+@@ -137,7 +137,9 @@ static int autofs4_dir_open(struct inode
+ 		nd.flags = LOOKUP_DIRECTORY;
+ 		ret = (dentry->d_op->d_revalidate)(dentry, &nd);
+ 
+-		if (!ret) {
++		if (ret <= 0) {
++			if (ret < 0)
++				status = ret;
+ 			dcache_dir_close(inode, file);
+ 			goto out;
+ 		}
+@@ -400,13 +402,23 @@ static int autofs4_revalidate(struct den
+ 	struct autofs_sb_info *sbi = autofs4_sbi(dir->i_sb);
+ 	int oz_mode = autofs4_oz_mode(sbi);
+ 	int flags = nd ? nd->flags : 0;
+-	int status = 0;
++	int status = 1;
+ 
+ 	/* Pending dentry */
+ 	if (autofs4_ispending(dentry)) {
+-		if (!oz_mode)
+-			status = try_to_fill_dentry(dentry, flags);
+-		return !status;
++		/* The daemon never causes a mount to trigger */
++		if (oz_mode)
++			return 1;
++
++		/*
++		 * A zero status is success otherwise we have a
++		 * negative error code.
++		 */
++		status = try_to_fill_dentry(dentry, flags);
++		if (status == 0)
++				return 1;
++
++		return status;
+ 	}
+ 
+ 	/* Negative dentry.. invalidate if "old" */
+@@ -421,9 +433,19 @@ static int autofs4_revalidate(struct den
+ 		DPRINTK("dentry=%p %.*s, emptydir",
+ 			 dentry, dentry->d_name.len, dentry->d_name.name);
+ 		spin_unlock(&dcache_lock);
+-		if (!oz_mode)
+-			status = try_to_fill_dentry(dentry, flags);
+-		return !status;
++		/* The daemon never causes a mount to trigger */
++		if (oz_mode)
++			return 1;
++
++		/*
++		 * A zero status is success otherwise we have a
++		 * negative error code.
++		 */
++		status = try_to_fill_dentry(dentry, flags);
++		if (status == 0)
++			return 1;
++
++		return status;
+ 	}
+ 	spin_unlock(&dcache_lock);
+ 
+diff -puN fs/namei.c~autofs4-needs-to-force-fail-return-revalidate fs/namei.c
+--- a/fs/namei.c~autofs4-needs-to-force-fail-return-revalidate
++++ a/fs/namei.c
+@@ -365,6 +365,29 @@ void release_open_intent(struct nameidat
+ 		fput(nd->intent.open.file);
+ }
+ 
++static __always_inline struct dentry *do_revalidate(struct dentry *dentry, struct nameidata *nd)
++{
++	int status = dentry->d_op->d_revalidate(dentry, nd);
++	if (unlikely(status <= 0)) {
++		/*
++		 * The dentry failed validation.
++		 * If d_revalidate returned 0 attempt to invalidate
++		 * the dentry otherwise d_revalidate is asking us
++		 * to return a fail status.
++		 */
++		if (!status) {
++			if (!d_invalidate(dentry)) {
++				dput(dentry);
++				dentry = NULL;
++			}
++		} else {
++			dput(dentry);
++			dentry = ERR_PTR(status);
++		}
++	}
++	return dentry;
++}
++
+ /*
+  * Internal lookup() using the new generic dcache.
+  * SMP-safe
+@@ -379,12 +402,9 @@ static struct dentry * cached_lookup(str
+ 	if (!dentry)
+ 		dentry = d_lookup(parent, name);
+ 
+-	if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
+-		if (!dentry->d_op->d_revalidate(dentry, nd) && !d_invalidate(dentry)) {
+-			dput(dentry);
+-			dentry = NULL;
+-		}
+-	}
++	if (dentry && dentry->d_op && dentry->d_op->d_revalidate)
++		dentry = do_revalidate(dentry, nd);
++
+ 	return dentry;
+ }
+ 
+@@ -477,10 +497,9 @@ static struct dentry * real_lookup(struc
+ 	 */
+ 	mutex_unlock(&dir->i_mutex);
+ 	if (result->d_op && result->d_op->d_revalidate) {
+-		if (!result->d_op->d_revalidate(result, nd) && !d_invalidate(result)) {
+-			dput(result);
++		result = do_revalidate(result, nd);
++		if (!result)
+ 			result = ERR_PTR(-ENOENT);
+-		}
+ 	}
+ 	return result;
+ }
+@@ -760,12 +779,12 @@ need_lookup:
+ 	goto done;
+ 
+ need_revalidate:
+-	if (dentry->d_op->d_revalidate(dentry, nd))
+-		goto done;
+-	if (d_invalidate(dentry))
+-		goto done;
+-	dput(dentry);
+-	goto need_lookup;
++	dentry = do_revalidate(dentry, nd);
++	if (!dentry)
++		goto need_lookup;
++	if (IS_ERR(dentry))
++		goto fail;
++	goto done;
+ 
+ fail:
+ 	return PTR_ERR(dentry);
+diff -puN include/linux/dcache.h~autofs4-needs-to-force-fail-return-revalidate include/linux/dcache.h
+_
+

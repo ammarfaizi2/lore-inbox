@@ -1,292 +1,409 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932955AbWFWJYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWFWJVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932955AbWFWJYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWFWJVa
+	id S1751270AbWFWJVY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:21:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWFWJVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:21:30 -0400
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:48538 "EHLO
-	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S932950AbWFWJVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:21:09 -0400
-Date: Fri, 23 Jun 2006 02:13:14 -0700
+	Fri, 23 Jun 2006 05:21:16 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:56795 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S1751278AbWFWJVI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 05:21:08 -0400
+Date: Fri, 23 Jun 2006 02:13:07 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200606230913.k5N9DE54032471@frankl.hpl.hp.com>
+Message-Id: <200606230913.k5N9D73v032387@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 17/17] 2.6.17.1 perfmon2 patch for review: modified x86_64 files
+Subject: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
 Cc: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the modified files for x86_64 (AMD and Intel EM64T).
-diff -urp linux-2.6.17.1.orig/arch/x86_64/Kconfig linux-2.6.17.1/arch/x86_64/Kconfig
---- linux-2.6.17.1.orig/arch/x86_64/Kconfig	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/arch/x86_64/Kconfig	2006-06-21 04:22:51.000000000 -0700
-@@ -501,6 +501,8 @@ config REORDER
-          optimal TLB usage. If you have pretty much any version of binutils, 
- 	 this can increase your kernel build time by roughly one minute.
- 
-+source "arch/x86_64/perfmon/Kconfig"
-+
- endmenu
- 
- #
-diff -urp linux-2.6.17.1.orig/arch/x86_64/Makefile linux-2.6.17.1/arch/x86_64/Makefile
---- linux-2.6.17.1.orig/arch/x86_64/Makefile	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/arch/x86_64/Makefile	2006-06-21 04:22:51.000000000 -0700
-@@ -65,6 +65,7 @@ core-y					+= arch/x86_64/kernel/ \
- 					   arch/x86_64/crypto/
- core-$(CONFIG_IA32_EMULATION)		+= arch/x86_64/ia32/
- drivers-$(CONFIG_PCI)			+= arch/x86_64/pci/
-+drivers-$(CONFIG_PERFMON)		+= arch/x86_64/perfmon/
- drivers-$(CONFIG_OPROFILE)		+= arch/x86_64/oprofile/
- 
- boot := arch/x86_64/boot
-diff -urp linux-2.6.17.1.orig/arch/x86_64/ia32/ia32entry.S linux-2.6.17.1/arch/x86_64/ia32/ia32entry.S
---- linux-2.6.17.1.orig/arch/x86_64/ia32/ia32entry.S	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/arch/x86_64/ia32/ia32entry.S	2006-06-21 04:22:51.000000000 -0700
-@@ -696,4 +696,17 @@ ia32_sys_call_table:
- 	.quad sys_sync_file_range
- 	.quad sys_tee
- 	.quad compat_sys_vmsplice
-+   	.quad sys_pfm_create_context
-+       	.quad sys_pfm_write_pmcs
-+       	.quad sys_pfm_write_pmds
-+       	.quad sys_pfm_read_pmds		/* 320 */
-+       	.quad sys_pfm_load_context
-+       	.quad sys_pfm_start
-+       	.quad sys_pfm_stop
-+       	.quad sys_pfm_restart
-+       	.quad sys_pfm_create_evtsets	/* 325 */
-+       	.quad sys_pfm_getinfo_evtsets
-+       	.quad sys_pfm_delete_evtsets
-+  	.quad sys_pfm_unload_context
-+
- ia32_syscall_end:		
-diff -urp linux-2.6.17.1.orig/arch/x86_64/kernel/apic.c linux-2.6.17.1/arch/x86_64/kernel/apic.c
---- linux-2.6.17.1.orig/arch/x86_64/kernel/apic.c	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/arch/x86_64/kernel/apic.c	2006-06-21 04:22:51.000000000 -0700
-@@ -26,6 +26,7 @@
- #include <linux/kernel_stat.h>
- #include <linux/sysdev.h>
- #include <linux/module.h>
+This patch contains the PMU context switch routines.
+
+
+
+
+--- linux-2.6.17.1.orig/perfmon/perfmon_ctxsw.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.1/perfmon/perfmon_ctxsw.c	2006-06-21 04:22:51.000000000 -0700
+@@ -0,0 +1,381 @@
++/*
++ * perfmon_cxtsw.c: perfmon2 context switch code
++ *
++ * This file implements the perfmon2 interface which
++ * provides access to the hardware performance counters
++ * of the host processor.
++ *
++ * The initial version of perfmon.c was written by
++ * Ganesh Venkitachalam, IBM Corp.
++ *
++ * Then it was modified for perfmon-1.x by Stephane Eranian and
++ * David Mosberger, Hewlett Packard Co.
++ *
++ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
++ * by Stephane Eranian, Hewlett Packard Co.
++ *
++ * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
++ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
++ *                David Mosberger-Tang <davidm@hpl.hp.com>
++ *
++ * More information about perfmon available at:
++ * 	http://www.hpl.hp.com/research/linux/perfmon
++ */
++#include <linux/kernel.h>
 +#include <linux/perfmon.h>
- 
- #include <asm/atomic.h>
- #include <asm/smp.h>
-@@ -934,6 +935,7 @@ void setup_threshold_lvt(unsigned long l
- void smp_local_timer_interrupt(struct pt_regs *regs)
- {
- 	profile_tick(CPU_PROFILING, regs);
-+ 	pfm_handle_switch_timeout();
- #ifdef CONFIG_SMP
- 	update_process_times(user_mode(regs));
- #endif
-diff -urp linux-2.6.17.1.orig/arch/x86_64/kernel/entry.S linux-2.6.17.1/arch/x86_64/kernel/entry.S
---- linux-2.6.17.1.orig/arch/x86_64/kernel/entry.S	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/arch/x86_64/kernel/entry.S	2006-06-21 04:22:51.000000000 -0700
-@@ -640,6 +640,11 @@ ENTRY(error_interrupt)
- 
- ENTRY(spurious_interrupt)
- 	apicinterrupt SPURIOUS_APIC_VECTOR,smp_spurious_interrupt
 +
-+#ifdef CONFIG_PERFMON
-+ENTRY(pmu_interrupt)
-+	apicinterrupt LOCAL_PERFMON_VECTOR,smp_pmu_interrupt
-+#endif
- #endif
- 				
- /*
-diff -urp linux-2.6.17.1.orig/arch/x86_64/kernel/i8259.c linux-2.6.17.1/arch/x86_64/kernel/i8259.c
---- linux-2.6.17.1.orig/arch/x86_64/kernel/i8259.c	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/arch/x86_64/kernel/i8259.c	2006-06-21 04:22:51.000000000 -0700
-@@ -13,6 +13,7 @@
- #include <linux/kernel_stat.h>
- #include <linux/sysdev.h>
- #include <linux/bitops.h>
-+#include <linux/perfmon.h>
- 
- #include <asm/acpi.h>
- #include <asm/atomic.h>
-@@ -589,6 +590,8 @@ void __init init_IRQ(void)
- 	/* IPI vectors for APIC spurious and error interrupts */
- 	set_intr_gate(SPURIOUS_APIC_VECTOR, spurious_interrupt);
- 	set_intr_gate(ERROR_APIC_VECTOR, error_interrupt);
++#ifdef CONFIG_SMP
++/*
++ * interrupts are masked, runqueue lock is held, context is locked
++ */
++void pfm_ctxswin_thread(struct task_struct *task, struct pfm_context *ctx,
++			struct pfm_event_set *set, int must_reload)
++{
++	u64 cur_act;
++	int reload_pmcs, reload_pmds;
 +
-+ 	pfm_vector_init();
- #endif
- 
- 	/*
-diff -urp linux-2.6.17.1.orig/arch/x86_64/kernel/nmi.c linux-2.6.17.1/arch/x86_64/kernel/nmi.c
---- linux-2.6.17.1.orig/arch/x86_64/kernel/nmi.c	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/arch/x86_64/kernel/nmi.c	2006-06-21 04:22:51.000000000 -0700
-@@ -248,6 +248,7 @@ int reserve_lapic_nmi(void)
- 	old_owner = lapic_nmi_owner;
- 	lapic_nmi_owner |= LAPIC_NMI_RESERVED;
- 	spin_unlock(&lapic_nmi_owner_lock);
++	BUG_ON(task->pid == 0);
++	BUG_ON(__get_cpu_var(pmu_owner));
 +
- 	if (old_owner & LAPIC_NMI_RESERVED)
- 		return -EBUSY;
- 	if (old_owner & LAPIC_NMI_WATCHDOG)
-diff -urp linux-2.6.17.1.orig/arch/x86_64/kernel/process.c linux-2.6.17.1/arch/x86_64/kernel/process.c
---- linux-2.6.17.1.orig/arch/x86_64/kernel/process.c	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/arch/x86_64/kernel/process.c	2006-06-21 04:22:51.000000000 -0700
-@@ -37,6 +37,7 @@
- #include <linux/random.h>
- #include <linux/notifier.h>
- #include <linux/kprobes.h>
-+#include <linux/perfmon.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -358,6 +359,7 @@ void exit_thread(void)
- 		t->io_bitmap_max = 0;
- 		put_cpu();
- 	}
-+	pfm_exit_thread(me);
- }
- 
- void flush_thread(void)
-@@ -459,6 +461,8 @@ int copy_thread(int nr, unsigned long cl
- 	asm("mov %%es,%0" : "=m" (p->thread.es));
- 	asm("mov %%ds,%0" : "=m" (p->thread.ds));
- 
-+	pfm_copy_thread(p, childregs);
++	BUG_ON(task->pfm_context != ctx);
 +
- 	if (unlikely(me->thread.io_bitmap_ptr != NULL)) { 
- 		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
- 		if (!p->thread.io_bitmap_ptr) {
-@@ -482,6 +486,8 @@ int copy_thread(int nr, unsigned long cl
- 		if (err) 
- 			goto out;
- 	}
++	cur_act = __get_cpu_var(pmu_activation_number);
 +
-+
- 	err = 0;
- out:
- 	if (err && p->thread.io_bitmap_ptr) {
-@@ -615,6 +621,7 @@ __switch_to(struct task_struct *prev_p, 
- 			memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
- 		}
- 	}
-+	pfm_ctxswin(next_p);
- 
- 	return prev_p;
- }
-diff -urp linux-2.6.17.1.orig/arch/x86_64/kernel/signal.c linux-2.6.17.1/arch/x86_64/kernel/signal.c
---- linux-2.6.17.1.orig/arch/x86_64/kernel/signal.c	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/arch/x86_64/kernel/signal.c	2006-06-21 04:22:51.000000000 -0700
-@@ -24,6 +24,7 @@
- #include <linux/stddef.h>
- #include <linux/personality.h>
- #include <linux/compiler.h>
-+#include <linux/perfmon.h>
- #include <asm/ucontext.h>
- #include <asm/uaccess.h>
- #include <asm/i387.h>
-@@ -492,6 +493,10 @@ void do_notify_resume(struct pt_regs *re
- 		regs->eflags |= TF_MASK;
- 		clear_thread_flag(TIF_SINGLESTEP);
- 	}
 +	/*
-+	 * must be done before signals
++	 * in case fo zombie, we do not complete ctswin of the
++	 * PMU, and we force a call to pfm_handle_work() to finish
++	 * cleanup, i.e., free context + smpl_buff. The reason for
++	 * deferring to pfm_handle_work() is that it is not possible
++	 * to vfree() with interrupts disabled.
 +	 */
-+	pfm_handle_work();
- 
- 	/* deal with pending signal delivery */
- 	if (thread_info_flags & _TIF_SIGPENDING)
-diff -urp linux-2.6.17.1.orig/arch/x86_64/kernel/x8664_ksyms.c linux-2.6.17.1/arch/x86_64/kernel/x8664_ksyms.c
---- linux-2.6.17.1.orig/arch/x86_64/kernel/x8664_ksyms.c	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/arch/x86_64/kernel/x8664_ksyms.c	2006-06-21 04:22:51.000000000 -0700
-@@ -95,6 +95,7 @@ EXPORT_SYMBOL(__write_lock_failed);
- EXPORT_SYMBOL(__read_lock_failed);
- 
- EXPORT_SYMBOL(smp_call_function);
-+EXPORT_SYMBOL(smp_call_function_single);
- EXPORT_SYMBOL(cpu_callout_map);
- #endif
- 
-Only in linux-2.6.17.1/arch/x86_64: perfmon
-diff -urp linux-2.6.17.1.orig/include/asm-x86_64/hw_irq.h linux-2.6.17.1/include/asm-x86_64/hw_irq.h
---- linux-2.6.17.1.orig/include/asm-x86_64/hw_irq.h	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/include/asm-x86_64/hw_irq.h	2006-06-21 04:22:51.000000000 -0700
-@@ -67,6 +67,7 @@ struct hw_interrupt_type;
-  * sources per level' errata.
-  */
- #define LOCAL_TIMER_VECTOR	0xef
-+#define LOCAL_PERFMON_VECTOR	0xee
- 
- /*
-  * First APIC vector available to drivers: (vectors 0x30-0xee)
-@@ -74,7 +75,7 @@ struct hw_interrupt_type;
-  * levels. (0x80 is the syscall vector)
-  */
- #define FIRST_DEVICE_VECTOR	0x31
--#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in irq.h */
-+#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in irq.h */
- 
- 
- #ifndef __ASSEMBLY__
-diff -urp linux-2.6.17.1.orig/include/asm-x86_64/irq.h linux-2.6.17.1/include/asm-x86_64/irq.h
---- linux-2.6.17.1.orig/include/asm-x86_64/irq.h	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/include/asm-x86_64/irq.h	2006-06-21 04:22:51.000000000 -0700
-@@ -29,7 +29,7 @@
-  */
- #define NR_VECTORS 256
- 
--#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in hw_irq.h */
-+#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in hw_irq.h */
- 
- #ifdef CONFIG_PCI_MSI
- #define NR_IRQS FIRST_SYSTEM_VECTOR
-Only in linux-2.6.17.1/include/asm-x86_64: perfmon.h
-Only in linux-2.6.17.1/include/asm-x86_64: perfmon_em64t_pebs_smpl.h
-diff -urp linux-2.6.17.1.orig/include/asm-x86_64/system.h linux-2.6.17.1/include/asm-x86_64/system.h
---- linux-2.6.17.1.orig/include/asm-x86_64/system.h	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/include/asm-x86_64/system.h	2006-06-21 04:22:51.000000000 -0700
-@@ -27,6 +27,7 @@
- 	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
- 
- #define switch_to(prev,next,last) \
-+	pfm_ctxswout(prev);							  \
- 	asm volatile(SAVE_CONTEXT						    \
- 		     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP */	  \
- 		     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore RSP */	  \
-diff -urp linux-2.6.17.1.orig/include/asm-x86_64/unistd.h linux-2.6.17.1/include/asm-x86_64/unistd.h
---- linux-2.6.17.1.orig/include/asm-x86_64/unistd.h	2006-06-20 02:31:55.000000000 -0700
-+++ linux-2.6.17.1/include/asm-x86_64/unistd.h	2006-06-21 04:22:51.000000000 -0700
-@@ -617,8 +617,32 @@ __SYSCALL(__NR_tee, sys_tee)
- __SYSCALL(__NR_sync_file_range, sys_sync_file_range)
- #define __NR_vmsplice		278
- __SYSCALL(__NR_vmsplice, sys_vmsplice)
--
--#define __NR_syscall_max __NR_vmsplice
-+#define __NR_pfm_create_context	279
-+ __SYSCALL(__NR_pfm_create_context, sys_pfm_create_context)
-+#define __NR_pfm_write_pmcs	(__NR_pfm_create_context+1)
-+__SYSCALL(__NR_pfm_write_pmcs, sys_pfm_write_pmcs)
-+#define __NR_pfm_write_pmds	(__NR_pfm_create_context+2)
-+__SYSCALL(__NR_pfm_write_pmds, sys_pfm_write_pmds)
-+#define __NR_pfm_read_pmds	(__NR_pfm_create_context+3)
-+__SYSCALL(__NR_pfm_read_pmds, sys_pfm_read_pmds)
-+#define __NR_pfm_load_context	(__NR_pfm_create_context+4)
-+__SYSCALL(__NR_pfm_load_context, sys_pfm_load_context)
-+#define __NR_pfm_start		(__NR_pfm_create_context+5)
-+__SYSCALL(__NR_pfm_start, sys_pfm_start)
-+#define __NR_pfm_stop		(__NR_pfm_create_context+6)
-+__SYSCALL(__NR_pfm_stop, sys_pfm_stop)
-+#define __NR_pfm_restart	(__NR_pfm_create_context+7)
-+__SYSCALL(__NR_pfm_restart, sys_pfm_restart)
-+#define __NR_pfm_create_evtsets	(__NR_pfm_create_context+8)
-+__SYSCALL(__NR_pfm_create_evtsets, sys_pfm_create_evtsets)
-+#define __NR_pfm_getinfo_evtsets (__NR_pfm_create_context+9)
-+__SYSCALL(__NR_pfm_getinfo_evtsets, sys_pfm_getinfo_evtsets)
-+#define __NR_pfm_delete_evtsets (__NR_pfm_create_context+10)
-+__SYSCALL(__NR_pfm_delete_evtsets, sys_pfm_delete_evtsets)
-+#define __NR_pfm_unload_context	(__NR_pfm_create_context+11)
-+__SYSCALL(__NR_pfm_unload_context, sys_pfm_unload_context)
-+  
-+#define __NR_syscall_max __NR_pfm_unload_context
- 
- #ifndef __NO_STUBS
- 
++	if (unlikely(ctx->state == PFM_CTX_ZOMBIE)) {
++		struct thread_info *th_info;
++
++		/*
++		 * ensure everything is properly stopped
++		 */
++		__pfm_stop(ctx);
++
++		ctx->flags.trap_reason = PFM_TRAP_REASON_ZOMBIE;
++		th_info = task->thread_info;
++		set_bit(TIF_NOTIFY_RESUME, &th_info->flags);
++
++		return;
++	}
++
++	if (set->flags & PFM_SETFL_TIME_SWITCH)
++		__get_cpu_var(pfm_syst_info) = PFM_CPUINFO_TIME_SWITCH;
++ctx->last_cpu=-1;
++	/*
++	 * if we were the last user of the PMU on that CPU,
++	 * then nothing to do except restore psr
++	 */
++	if (ctx->last_cpu == smp_processor_id() && ctx->last_act == cur_act) {
++		/*
++		 * check for forced reload conditions
++		 */
++		reload_pmcs = set->priv_flags & PFM_SETFL_PRIV_MOD_PMCS;
++		reload_pmds = set->priv_flags & PFM_SETFL_PRIV_MOD_PMDS;
++	} else {
++		reload_pmcs = 1;
++		reload_pmds = 1;
++	}
++	/* consumed */
++	set->priv_flags &= ~PFM_SETFL_PRIV_MOD_BOTH;
++
++	if (reload_pmds)
++		pfm_arch_restore_pmds(ctx, set);
++
++	/*
++	 * need to check if had in-flight interrupt in
++	 * pfm_ctxswout_thread(). If at least one bit set, then we must replay
++	 * the interrupt to avoid loosing some important performance data.
++	 */
++	if (set->npend_ovfls) {
++		pfm_arch_resend_irq();
++		__get_cpu_var(pfm_stats).pfm_ovfl_intr_replay_count++;
++	}
++
++	if (reload_pmcs)
++		pfm_arch_restore_pmcs(ctx, set);
++
++	/*
++	 * record current activation for this context
++	 */
++	pfm_inc_activation();
++	pfm_set_last_cpu(ctx, smp_processor_id());
++	pfm_set_activation(ctx);
++
++	/*
++	 * establish new ownership.
++	 */
++	pfm_set_pmu_owner(task, ctx);
++
++	pfm_arch_ctxswin(task, ctx, set);
++}
++#else /*  !CONFIG_SMP */
++/*
++ * interrupts are disabled
++ */
++void pfm_ctxswin_thread(struct task_struct *task, struct pfm_context *ctx,
++			struct pfm_event_set *set, int force_reload)
++{
++	u32 set_priv_flags;
++
++	set_priv_flags = set->priv_flags;
++
++	if (set->flags & PFM_SETFL_TIME_SWITCH) {
++		__get_cpu_var(pfm_syst_info) = PFM_CPUINFO_TIME_SWITCH;
++	}
++
++	/*
++	 * must force reload due to lazy save
++	 */
++	if (force_reload)
++		set_priv_flags |= PFM_SETFL_PRIV_MOD_BOTH;
++
++	/*
++	 * check what needs to be restored.
++	 * If owner == task, our state is still live and we could
++	 * just reactivate and go. However, we need to check for the
++	 * following conditions:
++	 * 	- pmu owner != task
++	 * 	- PMDs were modified
++	 * 	- PMCs were modified
++	 * 	- arch modifies PMC to stop monitoring
++	 * 	- there was an in-flight interrupt at pfm_ctxswout_thread()
++	 *
++	 * if anyone of these is true, we cannot take the short path, i.e,
++	 * just restore info + arch_ctxswin and return
++	 */
++	if (set_priv_flags & PFM_SETFL_PRIV_MOD_PMDS)
++		pfm_arch_restore_pmds(ctx, set);
++
++	/*
++	 * need to check if had in-flight interrupt at time of pfm_ctxswout_thread().
++	 * If at least one bit set, then we must replay the interrupt to avoid
++	 * losing some important performance data.
++	 */
++	if (set->npend_ovfls) {
++		pfm_arch_resend_irq();
++		__get_cpu_var(pfm_stats).pfm_ovfl_intr_replay_count++;
++	}
++
++	if (set_priv_flags & PFM_SETFL_PRIV_MOD_PMCS)
++		pfm_arch_restore_pmcs(ctx, set);
++
++	set->priv_flags &= ~PFM_SETFL_PRIV_MOD_BOTH;
++
++	/*
++	 * establish new ownership.
++	 */
++	pfm_set_pmu_owner(task, ctx);
++
++	/*
++	 * reactivate monitoring
++	 */
++	pfm_arch_ctxswin(task, ctx, set);
++}
++#endif /* !CONFIG_SMP */
++
++static void pfm_ctxswin_sys(struct task_struct *task, struct pfm_context *ctx,
++			    struct pfm_event_set *set)
++{
++	unsigned long info;
++
++	info = __get_cpu_var(pfm_syst_info);
++
++	/*
++	 * don't do anything before started
++	 */
++	if (ctx->flags.started == 0)
++		return;
++
++	/*
++	 * pid 0 is guaranteed to be the idle task. There is one such task with pid 0
++	 * on each CPU, so we can rely on the pid to identify the idle task.
++	 */
++	if (task->pid == 0 && (set->flags & PFM_SETFL_EXCL_IDLE) != 0)
++		pfm_arch_stop(task ,ctx, set);
++	else
++		pfm_arch_ctxswin(task, ctx, set);
++}
++
++void __pfm_ctxswin(struct task_struct *task)
++{
++	struct pfm_context *ctx, *ctxp;
++	struct pfm_event_set *set;
++	int must_force_reload = 0;
++	u64 now_itc;
++
++	ctxp = __get_cpu_var(pmu_ctx);
++	ctx = task->pfm_context;
++
++	/*
++	 * system-wide   : pmu_ctx must not be NULL to proceed
++	 * per-thread  UP: pmu_ctx may be NULL if no left-over owner
++	 * per-thread SMP: pmu_ctx is always NULL coming in
++	 */
++	if (ctxp == NULL && ctx == NULL)
++		return;
++
++#ifdef CONFIG_SMP
++	/*
++	 * if ctxp != 0, it means we are in system-wide mode.
++	 * thereore ctx is NULL (mutual exclusion)
++	 */
++	if (ctxp)
++		ctx = ctxp;
++#else
++	/*
++	 * someone used the PMU, first push it out and
++	 * then we'll be able to install our stuff !
++	 */
++	if (ctxp && ctxp->flags.system)
++		ctx = ctxp;
++	else if (ctx) {
++		if (ctxp && ctxp != ctx) {
++			pfm_save_pmds_release(ctxp);
++			must_force_reload = 1;
++		}
++	} else
++		return;
++#endif
++	spin_lock(&ctx->lock);
++
++	set = ctx->active_set;
++
++	if (ctx->flags.system)
++		pfm_ctxswin_sys(task, ctx, set);
++	else
++		pfm_ctxswin_thread(task, ctx, set, must_force_reload);
++
++	/*
++	 * ctx->duration does count even when context in MASKED state
++	 * set->duration does not count when context in MASKED state.
++	 * But the set->duration_start is reset in unmask_monitoring()
++	 */
++
++	now_itc = pfm_arch_get_itc();
++
++	ctx->duration_start = now_itc;
++	set->duration_start = now_itc;
++
++	spin_unlock(&ctx->lock);
++}
++
++/*
++ * interrupts are masked, runqueue lock is held.
++ *
++ * In UP. we simply stop monitoring and leave the state
++ * in place, i.e., lazy save
++ */
++void pfm_ctxswout_thread(struct task_struct *task, struct pfm_context *ctx,
++			 struct pfm_event_set *set)
++{
++	BUG_ON(task->pfm_context != ctx);
++
++	/*
++	 * stop monitoring and collect any pending
++	 * overflow information into set_povfl_pmds
++	 * and set_npend_ovfls for use on ctxswin_thread()
++	 * to potentially replay the PMU interrupt
++	 *
++	 * The key point is that we cannot afford to loose a PMU
++	 * interrupt. We cannot cancel in-flight interrupts, therefore
++	 * we let them happen and be treated as spurious and then we
++	 * replay them on ctxsw in.
++	 */
++	pfm_arch_ctxswout(task, ctx, set);
++
++#ifdef CONFIG_SMP
++	/*
++	 * release ownership of this PMU.
++	 * PM interrupts are masked, so nothing
++	 * can happen.
++	 */
++	pfm_set_pmu_owner(NULL, NULL);
++
++	/*
++	 * we systematically save the PMD that we effectively
++	 * use. In SMP, we have no guarantee we will be scheduled
++	 * on the same CPU again.
++	 */
++	pfm_modview_begin(set);
++	pfm_arch_save_pmds(ctx, set);
++	pfm_modview_end(set);
++#endif
++
++	/*
++	 * clear cpuinfo, cpuinfo is used in
++	 * per task mode with the set time switch flag.
++	 */
++	__get_cpu_var(pfm_syst_info) = 0;
++}
++
++static void pfm_ctxswout_sys(struct task_struct *task, struct pfm_context *ctx,
++			     struct pfm_event_set *set)
++{
++	/*
++	 * do nothing before started
++	 * XXX: assumes cannot be started from user level
++	 */
++	if (ctx->flags.started == 0)
++		return;
++
++	/*
++	 * restore monitoring if set has EXCL_IDLE and task was idle task
++	 */
++	if (task->pid == 0 && (set->flags & PFM_SETFL_EXCL_IDLE) != 0) {
++		pfm_arch_start(task, ctx, set);
++	} else {
++		pfm_arch_ctxswout(task, ctx, set);
++	}
++}
++
++/*
++ * we come here on every context switch out.
++ */
++void __pfm_ctxswout(struct task_struct *task)
++{
++	struct pfm_context *ctx;
++	struct pfm_event_set *set;
++	u64 now_itc, diff;
++
++	ctx = __get_cpu_var(pmu_ctx);
++	if (ctx == NULL)
++		return;
++
++	now_itc = pfm_arch_get_itc();
++
++	spin_lock(&ctx->lock);
++
++	set = ctx->active_set;
++
++	if (ctx->flags.system) {
++		pfm_ctxswout_sys(task, ctx, set);
++	} else {
++		/*
++		 * in UP, due to lazy save, we may have a
++		 * context loaded onto the PMU BUT it may not
++		 * be the one from the current task. In that case
++		 * simply skip everything else
++		 */
++		if (task->pfm_context == NULL)
++			goto done;
++
++		pfm_ctxswout_thread(task, ctx, set);
++	}
++
++	diff = now_itc - ctx->duration_start;
++	ctx->duration += diff;
++
++	/*
++	 * accumulate only when set is actively monitoring,
++	 */
++	if (ctx->state == PFM_CTX_LOADED)
++		set->duration += now_itc - set->duration_start;
++
++done:
++	spin_unlock(&ctx->lock);
++}

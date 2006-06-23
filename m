@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752116AbWFWWNn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752120AbWFWWPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752116AbWFWWNn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 18:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752118AbWFWWNn
+	id S1752120AbWFWWPU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 18:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752119AbWFWWPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 18:13:43 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:61327 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1752116AbWFWWNm (ORCPT
+	Fri, 23 Jun 2006 18:15:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26067 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752118AbWFWWPT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 18:13:42 -0400
-Date: Sat, 24 Jun 2006 00:12:18 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Section mismatch warnings
-Message-ID: <20060623221217.GA372@mars.ravnborg.org>
-References: <Pine.LNX.4.61.0606231938080.26864@yvahk01.tjqt.qr>
+	Fri, 23 Jun 2006 18:15:19 -0400
+Date: Fri, 23 Jun 2006 23:15:13 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Kevin Corry <kevcorry@us.ibm.com>
+Subject: Re: [PATCH 12/15] dm: add exports
+Message-ID: <20060623221513.GC19222@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Kevin Corry <kevcorry@us.ibm.com>
+References: <20060621193657.GA4521@agk.surrey.redhat.com> <20060621210504.b1f387bd.akpm@osdl.org> <20060622135117.GS19222@agk.surrey.redhat.com> <20060622100353.50a7654e.akpm@osdl.org> <20060623150011.GW19222@agk.surrey.redhat.com> <20060623153323.GA4848@infradead.org> <20060623140040.01aeccf9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0606231938080.26864@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060623140040.01aeccf9.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 07:40:12PM +0200, Jan Engelhardt wrote:
-> Hello,
-> 
-> 
-> as others have already seen to, 2.6.17 spits out a lot of section mismatch 
-> warnings on modpost. Some of them have may already been addressed; here is 
-> the output I get when MODPOST starts to run during the compile process of 
-> an almost-completely-compiled kernel. Need .config?
+On Fri, Jun 23, 2006 at 02:00:40PM -0700, Andrew Morton wrote:
+> but I'm uncertain if I can just reshuffle them like this, because at least
+> two of them update the userspace-visible DM version number.
 
-All the .smp_locks related warnings are gone when I get the kbuild.git
-tree pushed linus wise. Needs to spend only an hour or so before it is
-ready and will do so during the weekend.
+In this instance there's nothing in distributed userspace code relying on the
+actual version numbers yet, so it's OK to swap them over if the ioctl patches
+are held back:
 
-	Sam
+  dm-prevent-removal-if-open.patch then sets #define DM_VERSION_MINOR 7
+
+  dm-support-ioctls-on-mapped-devices.patch then sets #define DM_VERSION_MINOR 8
+
+(The date in DM_VERSION_EXTRA is for information only - can either leave alone
+or set to today's date when edited.)
+
+Alasdair
+-- 
+agk@redhat.com

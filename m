@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030403AbWFVVVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbWFVVYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030403AbWFVVVN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWFVVVN
+	id S1030405AbWFVVYG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:24:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWFVVYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:21:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56985 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030403AbWFVVVN (ORCPT
+	Thu, 22 Jun 2006 17:24:06 -0400
+Received: from [80.96.155.2] ([80.96.155.2]:25814 "EHLO aladin.ro")
+	by vger.kernel.org with ESMTP id S1030405AbWFVVYF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:21:13 -0400
-Date: Thu, 22 Jun 2006 14:24:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH] x86-64 build fix
-Message-Id: <20060622142430.3219f352.akpm@osdl.org>
-In-Reply-To: <20060622205928.GA23801@havoc.gtf.org>
-References: <20060622205928.GA23801@havoc.gtf.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 22 Jun 2006 17:24:05 -0400
+Message-ID: <449B355C.2080805@aladin.ro>
+Date: Fri, 23 Jun 2006 00:27:08 +0000
+From: Eduard-Gabriel Munteanu <maxdamage@aladin.ro>
+User-Agent: Mozilla Thunderbird 1.0.5 (X11/20050719)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Olivier Galibert <galibert@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is the x86-64 kernel size limit real?
+References: <20060622204627.GA47994@dspnet.fr.eu.org>
+In-Reply-To: <20060622204627.GA47994@dspnet.fr.eu.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jeff@garzik.org> wrote:
->
-> As of last night, I still needed the Kconfig patch below to
-> successfully build allmodconfig on x86-64.  I believe Andrew has the
-> patch with a proper description and attribution, so I would prefer
-> that he send it...
+*This message was transferred with a trial version of CommuniGate(r) Pro*
+Olivier Galibert wrote:
 
-It was transferred from the -mm-only stuff and into the x86_64 tree, so
-Andi owns it now.
+> 
+> which shows two things:
+> 1- a8f5034540195307362d071a8b387226b410469f should have a x86-64 version
+> 2- the limit looks entirely artificial
+> 
+> So, is removing the limit prone to bite me?
+> 
+>   OG.
 
-I'll steal it back and will send it to Linus.
-
+The build system merely tries to warn you it's not going to fit on a 
+floppy disk. "bzImage" means "Big zImage", not "bz2-compressed Image", 
+so unless you're building a floppy disk, don't use zImage.
 

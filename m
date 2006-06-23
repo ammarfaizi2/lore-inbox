@@ -1,37 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752016AbWFWUNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752015AbWFWUNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752016AbWFWUNt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 16:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752018AbWFWUNs
+	id S1752015AbWFWUNp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752016AbWFWUNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 16:13:48 -0400
-Received: from mga07.intel.com ([143.182.124.22]:48505 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1752016AbWFWUNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 16:13:48 -0400
+	Fri, 23 Jun 2006 16:13:45 -0400
+Received: from mga05.intel.com ([192.55.52.89]:5514 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1752015AbWFWUNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 16:13:44 -0400
 X-IronPort-AV: i="4.06,170,1149490800"; 
-   d="scan'208"; a="56629573:sNHT15669997"
-Message-Id: <20060623200928.036235000@rshah1-sfield.jf.intel.com>
-Date: Fri, 23 Jun 2006 13:09:28 -0700
+   d="scan'208"; a="88440523:sNHT67973969"
+Message-Id: <20060623201601.652662000@rshah1-sfield.jf.intel.com>
+References: <20060623200928.036235000@rshah1-sfield.jf.intel.com>
+Date: Fri, 23 Jun 2006 13:09:29 -0700
 From: rajesh.shah@intel.com
 To: ak@suse.de, gregkh@suse.de
 Cc: akpm@osdl.org, brice@myri.com, 76306.1226@compuserve.com,
        arjan@linux.intel.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: [patch 0/2] PCI: improve extended config space verification
+       linux-kernel@vger.kernel.org, Rajesh Shah <rajesh.shah@intel.com>
+Subject: [patch 1/2] i386 PCI: improve extended config space verification
+Content-Disposition: inline; filename=i386-fix-mcfg-check
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACPI defines an MCFG table that gives us the pointer to where the
-extended PCI-X/PCI-Express configuration space exists. We validate
-this region today by making sure that the reported range is marked
-as reserved in the int 15 E820 memory map. However, the PCI firmware
-spec states this is optional and BIOS should be reporting the MCFG
-range as a motherboard resources. Several of my systems failed the
-existing check and ended up without extended PCI-Express config
-space. This patch extends the verification to also look for the
-MCFG range as a motherboard resource in ACPI. This solves the
-problem on my i386 as well as x86_64 test systems.
+Extend the verification for PCI-X/PCI-Express extended config
+space pointer. This patch checks whether the MCFG address range
+is listed as a motherboard resource, per the PCI firmware spec.
+The old check only looked in int 15 e820 memory map, causing
+several systems to fail the verification and lose extended
+config space.
 
-Rajesh
+Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
+
+ arch/i386/pci/mmconfig.c   |  113 +++++++++++++++++++++++++++++++++++++++++++--
+ drivers/acpi/motherboard.c |    3 -
+ include/acpi/aclocal.h     |    2 
+ 3 files changed, 112 insertions(+), 6 deletions(-)
+
+Index: linux-2.6.17-mm1/arch/i386/pci/mmconfig.c
+===================================================================
+--- linux-2.6.17-mm1.orig/arch/i386/pci/mmconfig.c
++++ linux-2.6.17-mm1/arch/i386/pci/mmconfig.c
+@@ -187,6 +187,108 @@ static __init void unreachable_devices(v
+ 	}
+ }
+ 
++static int __init is_motherboard_resource(acpi_handle handle)
++{
++       acpi_status status;
++       struct acpi_device_info *info;
++       struct acpi_buffer buffer = {ACPI_ALLOCATE_BUFFER, NULL};
++       int i;
++
++       status = acpi_get_object_info(handle, &buffer);
++       if (ACPI_FAILURE(status))
++	       return 0;
++       info = buffer.pointer;
++       if ((info->valid & ACPI_VALID_HID) &&
++		       (!strcmp(ACPI_MB_HID1, info->hardware_id.value) ||
++			!strcmp(ACPI_MB_HID2, info->hardware_id.value))) {
++	       kfree(buffer.pointer);
++	       return 1;
++       }
++       if (info->valid & ACPI_VALID_CID) {
++	       for (i=0; i < info->compatibility_id.count; i++) {
++		       if (!strcmp(ACPI_MB_HID1,
++				info->compatibility_id.id[i].value) ||
++				!strcmp(ACPI_MB_HID2,
++					info->compatibility_id.id[i].value)) {
++                                        kfree(buffer.pointer);
++                                        return 1;
++			}
++		}
++	}
++	kfree(buffer.pointer);
++        return 0;
++}
++
++static acpi_status __init check_mcfg_resource(struct acpi_resource *res,
++		void *data)
++{
++	struct resource *mcfg_res = data;
++	struct acpi_resource_address64 address;
++	acpi_status status;
++
++	if (res->type == ACPI_RESOURCE_TYPE_FIXED_MEMORY32) {
++		struct acpi_resource_fixed_memory32 *fixmem32;
++
++		fixmem32 = &res->data.fixed_memory32;
++		if (!fixmem32)
++			return AE_OK;
++		if ((mcfg_res->start >= fixmem32->address) &&
++			(mcfg_res->end <= (fixmem32->address +
++					   fixmem32->address_length))) {
++			mcfg_res->flags = 1;
++			return AE_CTRL_TERMINATE;
++		}
++	}
++	if ((res->type != ACPI_RESOURCE_TYPE_ADDRESS32) &&
++			(res->type != ACPI_RESOURCE_TYPE_ADDRESS64))
++		return AE_OK;
++
++	status = acpi_resource_to_address64(res, &address);
++	if (ACPI_FAILURE(status) || (address.address_length <= 0) ||
++			(address.resource_type != ACPI_MEMORY_RANGE))
++		return AE_OK;
++
++	if ((mcfg_res->start >= address.minimum) &&
++			(mcfg_res->end <=
++			 (address.minimum +address.address_length))) {
++		mcfg_res->flags = 1;
++		return AE_CTRL_TERMINATE;
++	}
++	return AE_OK;
++}
++
++static acpi_status __init find_mboard_resource(acpi_handle handle, u32 lvl,
++		void *context, void **rv)
++{
++	struct resource *mcfg_res = context;
++	acpi_status status = AE_OK;
++
++	/* Stop namespace scanning if we've already verified MMCONFIG */
++	if (mcfg_res->flags)
++		return AE_CTRL_TERMINATE;
++
++	if (is_motherboard_resource(handle)) {
++		status = acpi_walk_resources(handle, METHOD_NAME__CRS,
++				check_mcfg_resource, context);
++	}
++	return status;
++}
++
++int __init is_acpi_reserved(unsigned long start, unsigned long end)
++{
++	struct resource mcfg_res;
++
++	mcfg_res.start = start;
++	mcfg_res.end = end;
++	mcfg_res.flags = 0;
++
++	acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
++			ACPI_UINT32_MAX, find_mboard_resource,
++			(void *)&mcfg_res, NULL);
++	return mcfg_res.flags;
++}
++
++
+ void __init pci_mmcfg_init(void)
+ {
+ 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
+@@ -201,10 +303,15 @@ void __init pci_mmcfg_init(void)
+ 	if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
+ 			pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
+ 			E820_RESERVED)) {
+-		printk(KERN_ERR "PCI: BIOS Bug: MCFG area at %x is not E820-reserved\n",
++		if (!is_acpi_reserved(pci_mmcfg_config[0].base_address,
++				pci_mmcfg_config[0].base_address +
++				MMCONFIG_APER_MIN)) {
++			printk(KERN_ERR
++				"PCI: BIOS Bug: MCFG area at %x is not reserved\n",
+ 				pci_mmcfg_config[0].base_address);
+-		printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
+-		return;
++			printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
++			return;
++		}
+ 	}
+ 
+ 	printk(KERN_INFO "PCI: Using MMCONFIG\n");
+Index: linux-2.6.17-mm1/include/acpi/aclocal.h
+===================================================================
+--- linux-2.6.17-mm1.orig/include/acpi/aclocal.h
++++ linux-2.6.17-mm1/include/acpi/aclocal.h
+@@ -697,6 +697,8 @@ struct acpi_parse_state {
+ 
+ #define PCI_ROOT_HID_STRING             "PNP0A03"
+ #define PCI_EXPRESS_ROOT_HID_STRING     "PNP0A08"
++#define ACPI_MB_HID1			"PNP0C01"
++#define ACPI_MB_HID2			"PNP0C02"
+ 
+ struct acpi_bit_register_info {
+ 	u8 parent_register;
+Index: linux-2.6.17-mm1/drivers/acpi/motherboard.c
+===================================================================
+--- linux-2.6.17-mm1.orig/drivers/acpi/motherboard.c
++++ linux-2.6.17-mm1/drivers/acpi/motherboard.c
+@@ -32,9 +32,6 @@
+ #define _COMPONENT		ACPI_SYSTEM_COMPONENT
+ ACPI_MODULE_NAME("acpi_motherboard")
+ 
+-/* Dell use PNP0C01 instead of PNP0C02 */
+-#define ACPI_MB_HID1			"PNP0C01"
+-#define ACPI_MB_HID2			"PNP0C02"
+ /**
+  * Doesn't care about legacy IO ports, only IO ports beyond 0x1000 are reserved
+  * Doesn't care about the failure of 'request_region', since other may reserve
+
 --

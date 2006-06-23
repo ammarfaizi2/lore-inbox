@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933080AbWFWMRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932557AbWFWM3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933080AbWFWMRv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 08:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933086AbWFWMRv
+	id S932557AbWFWM3D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 08:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWFWM3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 08:17:51 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:59922 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S933080AbWFWMRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 08:17:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=PIrz0l09xI3blkkTYrdRVlgPoNgDgQp8ivAOCOp++soXxFdJJgHwg2XEh/XJdOhRKt06MQ6bhvyB0xU0Yfd6GJqTZn5FEibioy3DC+xsBrFFlXIDWW/WZXLAU6PG6nKswFpcPHboZLYbEkpxqFENKT6MtHg3g4SOaCCVAdevaQ4=
-Message-ID: <449BDCF5.6040808@innova-card.com>
-Date: Fri, 23 Jun 2006 14:22:13 +0200
-Reply-To: franck.bui-huu@innova-card.com
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Mel Gorman <mel@skynet.ie>
-CC: Franck Bui-Huu <vagabon.xyz@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm1
-References: <20060621034857.35cfe36f.akpm@osdl.org> <449AB01A.5000608@innova-card.com> <Pine.LNX.4.64.0606221617420.5869@skynet.skynet.ie> <449ABC3E.5070609@innova-card.com> <Pine.LNX.4.64.0606221649070.5869@skynet.skynet.ie> <cda58cb80606221025y63906e81wbec9597b94069b6a@mail.gmail.com> <20060623102037.GA1973@skynet.ie>
-In-Reply-To: <20060623102037.GA1973@skynet.ie>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <fbh.work@gmail.com>
+	Fri, 23 Jun 2006 08:29:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11211 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932557AbWFWM3C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 08:29:02 -0400
+Date: Fri, 23 Jun 2006 08:28:45 -0400
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, davej@codemonkey.org.uk,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [Ubuntu PATCH] cpufreq: fix powernow-k8 load bug
+Message-ID: <20060623122845.GC19461@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>, Randy Dunlap <randy.dunlap@oracle.com>,
+	davej@codemonkey.org.uk, lkml <linux-kernel@vger.kernel.org>,
+	akpm <akpm@osdl.org>
+References: <4498DA08.1010309@oracle.com> <20060622203855.GD2959@openzaurus.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060622203855.GD2959@openzaurus.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman wrote:
-> On (22/06/06 19:25), Franck Bui-Huu didst pronounce:
->>>>
->>> I know, but what I'm getting at is that ARCH_PFN_OFFSET may be unnecessary
->>> with flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch applied.
->> yes it seems so. But ARCH_PFN_OFFSET has been used before your patch
->> has been sent. So your patch seems to be incomplete...
-> 
-> Difficult to argue with that logic.
-> 
+On Thu, Jun 22, 2006 at 10:38:56PM +0200, Pavel Machek wrote:
+ > > --- linux-2617-pv.orig/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+ > > +++ linux-2617-pv/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+ > > @@ -1008,7 +1008,7 @@ static int __cpuinit powernowk8_cpu_init
+ > >  		 * an UP version, and is deprecated by AMD.
+ > >  		 */
+ > >  
+ > > -		if ((num_online_cpus() != 1) || (num_possible_cpus() != 1)) {
+ > > +		if ((num_online_cpus() != 1)) {
+ > >  			printk(KERN_ERR PFX "MP systems not supported by PSB BIOS structure\n");
+ > >  			kfree(data);
+ > >  			return -ENODEV;
+ > > 
+ > 
+ > Seems wrong to me... what if I boot, then hotplug second cpu?
 
-sorry, I was just meaning that ARCH_PFN_OFFSET had been introduced to
-solve this before your patch has been sent. So the requirement for
-memory to start at pfn 0 is already solved.
+We only run this code if powernow_k8_cpu_init_acpi() has failed,
+which it should never do on an SMP system.
 
-Your patch solves the problem in a different way, but it's
-incompatible with the current one (ARCH_PFN_OFFSET).
+So, you get exactly the same behaviour, as expected.
+You can't support >1 CPU with PSB.
 
-IMHO the question is now, which method is the best one ? If it's yours
-the we probably need to get ride of the previous method and add yours
-(but don't forget to modify arch such ARM which are currently using
-ARCH_PFN_OFFSET).
+The above patch makes sure things continue to work if you run
+an SMP kernel on UP hardware.
 
-		Franck
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

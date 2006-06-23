@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932752AbWFWB0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWFWB3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932752AbWFWB0o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 21:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932753AbWFWB0o
+	id S932524AbWFWB3v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 21:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932753AbWFWB3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 21:26:44 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:18157 "EHLO
-	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932752AbWFWB0n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 21:26:43 -0400
-Date: Thu, 22 Jun 2006 19:24:03 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: make PROT_WRITE imply PROT_READ
-In-reply-to: <fa.PuMM6IwflUYh1MWILO9rb6z4fvY@ifi.uio.no>
-To: Jason Baron <jbaron@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-id: <449B42B3.6010908@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.PuMM6IwflUYh1MWILO9rb6z4fvY@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Thu, 22 Jun 2006 21:29:51 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:11139 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932524AbWFWB3u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 21:29:50 -0400
+Message-ID: <449B440B.7010407@garzik.org>
+Date: Thu, 22 Jun 2006 21:29:47 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>, bcasavan@sgi.com
+Subject: Re: [PATCH] PCI: Move various PCI IDs to header file
+References: <200606222300.k5MN0uPW000741@hera.kernel.org>
+In-Reply-To: <200606222300.k5MN0uPW000741@hera.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Baron wrote:
-> Currently, if i mmap() a file PROT_WRITE only and then first read from it 
-> and then write to it, i get a SEGV. However, if i write to it first and 
-> then read from it, i get no SEGV. This seems rather inconsistent.
-> 
-> The current implementation seems to be to make PROT_WRITE imply PROT_READ, 
-> however it does not quite work correctly. The patch below resolves this 
-> issue, by explicitly setting the PROT_READ flag when PROT_WRITE is 
-> requested.
+Linux Kernel Mailing List wrote:
+> diff --git a/drivers/scsi/sata_vsc.c b/drivers/scsi/sata_vsc.c
+> index 8a29ce3..27d6587 100644
+> --- a/drivers/scsi/sata_vsc.c
+> +++ b/drivers/scsi/sata_vsc.c
+> @@ -433,13 +433,14 @@ err_out:
+>  
+>  
+>  /*
+> - * 0x1725/0x7174 is the Vitesse VSC-7174
+> - * 0x8086/0x3200 is the Intel 31244, which is supposed to be identical
+> - * compatibility is untested as of yet
+> + * Intel 31244 is supposed to be identical.
+> + * Compatibility is untested as of yet.
+>   */
+>  static const struct pci_device_id vsc_sata_pci_tbl[] = {
+> -	{ 0x1725, 0x7174, PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
+> -	{ 0x8086, 0x3200, PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
+> +	{ PCI_VENDOR_ID_VITESSE, PCI_DEVICE_ID_VITESSE_VSC7174,
+> +	  PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
+> +	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_GD31244,
+> +	  PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
+>  	{ }
+>  };
+>  
 
-I would disagree.. the kernel is enforcing the permissions specified 
-where the CPU architecture allows it. There is no sense in breaking this 
-everywhere just because we can't always enforce it. By that logic we 
-should be making PROT_READ imply PROT_EXEC because not all CPUs can 
-enforce them separately, which makes no sense at all.
+WTF?  This is a REGRESSION from the repeatedly expressed desire -- clear 
+throughout libata -- that single-use PCI device IDs should not ever 
+receive PCI_DEVICE_ID_xxx constants.
 
-> 
-> This might appear at first as a possible permissions subversion, as i 
-> could get PROT_READ on a file that i only have write permission 
-> to...however, the mmap implementation requires that the file be opened 
-> with at least read access already. Thus, i don't believe there is any 
-> issue with regards to permissions.
-> 
-> Another consequenece of this patch is that it forces PROT_READ even for 
-> architectures that might be able to support it, (I know that x86, x86_64 
-> and ia64 do not) but i think this is best for portability.
+I'm going to queue up a revert patch for this silliness.
 
-That makes little sense to me.. if you want portability, and you're 
-reading from the file, you better request PROT_READ. Any app that 
-doesn't do that is inherently broken and non-portable regardless of what 
-you do to the kernel.
+Next time, please let the relevant maintainer(s) know when you are 
+touching their driver, so they have a chance to filter out the crap.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+This was -never- sent to me or linux-ide, or otherwise brought to the 
+attention of the maintainers.
+
+	Jeff
+
 

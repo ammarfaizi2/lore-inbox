@@ -1,109 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWFWN5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWFWOCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbWFWN5y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 09:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWFWN5o
+	id S1750715AbWFWOCF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 10:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWFWN5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 09:57:44 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:51920 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750736AbWFWNut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 09:50:49 -0400
-Message-ID: <449BF1AD.9010304@intel.com>
-Date: Fri, 23 Jun 2006 09:50:37 -0400
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: George Nychis <gnychis@cmu.edu>
-CC: Jeremy Fitzhardinge <jeremy@goop.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cdrom support with thinkpad x6 ultrabay
-References: <4490E776.7080000@cmu.edu> <4490F4BC.1040300@goop.org> <44910B54.8000408@cmu.edu> <44910E2A.5090205@goop.org> <44917B30.9010904@cmu.edu> <449188FF.7030700@goop.org> <44961246.1040509@cmu.edu>
-In-Reply-To: <44961246.1040509@cmu.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 23 Jun 2006 09:57:53 -0400
+Received: from es335.com ([67.65.19.105]:7738 "EHLO mail.es335.com")
+	by vger.kernel.org with ESMTP id S1750705AbWFWNow (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 09:44:52 -0400
+Subject: Re: [PATCH v3 1/7] AMSO1100 Low Level Driver.
+From: Steve Wise <swise@opengridcomputing.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: rdreier@cisco.com, mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <1150836226.2891.231.camel@laptopd505.fenrus.org>
+References: <20060620203050.31536.5341.stgit@stevo-desktop>
+	 <20060620203055.31536.15131.stgit@stevo-desktop>
+	 <1150836226.2891.231.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Fri, 23 Jun 2006 08:44:50 -0500
+Message-Id: <1151070290.7808.33.camel@stevo-desktop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Nychis wrote:
-> any update on this? anyone else have a clue?
->
-> Thanks!
-> George
->
->
-> Jeremy Fitzhardinge wrote:
->   
->> George Nychis wrote:
->>     
->>> I applied the acpi-dock patch that I specified, and that patch only, and
->>> i'm getting errors building:
->>>
->>> drivers/acpi/dock.c: In function 'dock_notify':
->>> drivers/acpi/dock.c:543: error: 'KOBJ_DOCK' undeclared (first use in
->>> this function)
->>> drivers/acpi/dock.c:543: error: (Each undeclared identifier is reported
->>> only once
->>> drivers/acpi/dock.c:543: error: for each function it appears in.)
->>> drivers/acpi/dock.c:562: error: 'KOBJ_UNDOCK' undeclared (first use in
->>> this function)
->>>
->>> Is there something else I need to apply that I am missing?
->>>   
->>>       
->> Kristen?
->>
->>    J
->>     
->>> Thanks!
->>> George
->>>
->>>
->>> Jeremy Fitzhardinge wrote:
->>>  
->>>       
->>>> George Nychis wrote:
->>>>    
->>>>         
->>>>> it successfully is applied, and i notice that CONFIG_ACPI_DOCK needs to
->>>>> be set, so I did a "make oldconfig" after applying the patch, expecting
->>>>> it to ask me whether or not i wanted to support it... it didn't.  So
->>>>> then I manually added "CONFIG_ACPI_DOCK=y" to the .config and built the
->>>>> kernel, but dock.o is never built... what else do i need to do?
->>>>>         
->>>>>           
->>>> Make sure you disable the (obsolete?) ACPI_IBM_DOCK stuff.
->>>>
->>>>    
->>>>         
->>>>> If i can't get hot swappable support yet, I might as well get what is
->>>>> supported for now so I can atleast use it sometimes :)
->>>>>
->>>>> Maybe this cry for help will spark someone to finish off the work on
->>>>> hot
->>>>> swapping the optical drive.
->>>>>         
->>>>>           
->>>> Yeah, I'm hoping all the work on power management in libata will make
->>>> things "just work" soon, but I think there's more to it.  When you press
->>>> the dock eject button, it really needs to go out to acpid, activate a
->>>> script to unmount any filesystems mounted off the device, and then poke
->>>> the ata layer to remove the device, before OKing the dock eject so the
->>>> hardware's "don't do that" light goes out.
->>>>
->>>> But in the meantime I'm having enough trouble getting plain old
->>>> suspend/resume reliable.
->>>>
->>>>    J
->>>>
->>>>     
->>>>         
-Hi, sorry for the delay in responding - I am out of town at the moment 
-and have sporadic access to email.
 
-You are indeed missing a patch that you need:
+> 
+> Also on a related note, have you checked the driver for the needed PCI
+> posting flushes?
+> 
+> > +
+> > +	/* Disable IRQs by clearing the interrupt mask */
+> > +	writel(1, c2dev->regs + C2_IDIS);
+> > +	writel(0, c2dev->regs + C2_NIMR0);
+> 
+> like here...
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm3/broken-out/kevent-add-new-uevent.patch
+This code is followed by a call to c2_reset(), which interacts with the
+firmware on the adapter to quiesce the hardware.  So I don't think we
+need to wait here for the posted writes to flush...
 
-If you have any PCI devices, you also need the patches to acpiphp:
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm3/broken-out/acpiphp-use-new-dock-driver.patch
+> > +
+> > +	elem = tx_ring->to_use;
+> > +	elem->skb = skb;
+> > +	elem->mapaddr = mapaddr;
+> > +	elem->maplen = maplen;
+> > +
+> > +	/* Tell HW to xmit */
+> > +	__raw_writeq(cpu_to_be64(mapaddr), elem->hw_desc + C2_TXP_ADDR);
+> > +	__raw_writew(cpu_to_be16(maplen), elem->hw_desc + C2_TXP_LEN);
+> > +	__raw_writew(cpu_to_be16(TXP_HTXD_READY), elem->hw_desc + C2_TXP_FLAGS);
+> 
+> or here
+> 
+
+No need here.  This logic submits the packet for transmission.  We don't
+assume it is transmitted until we (after a completion interrupt usually)
+read back the HTXD entry and see the TXP_HTXD_DONE bit set (see
+c2_tx_interrupt()). 
+
+
+Steve.
+
 

@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751987AbWFWUjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752043AbWFWUmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751987AbWFWUjE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 16:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbWFWUjE
+	id S1752043AbWFWUmn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752042AbWFWUmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 16:39:04 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:55991 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751987AbWFWUjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 16:39:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=c8aBc4xcZ1kMe6MVdgFZ3Dq4Tf2t+8SnPxbCsrnBZnr/nnrLOmBCMz4Qv/k2V2aebViVTaKc1NjJUpY9FFOC+zH/LfckyoDfIni66gbwjvl8+6oBwKW9qVP4q20X//KnN14J+5SAd2h32KQ+GFTamiUX0yodnQ6TNpMHtJAJVHU=
-Message-ID: <a762e240606231339n11b8de89r37b9ff0401c50e21@mail.gmail.com>
-Date: Fri, 23 Jun 2006 13:39:01 -0700
-From: "Keith Mannthey" <kmannth@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
+	Fri, 23 Jun 2006 16:42:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63408 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752043AbWFWUmm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 16:42:42 -0400
+Date: Fri, 23 Jun 2006 13:42:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Cc: mingo@elte.hu, arjan@linux.intel.com, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.17-mm1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <20060623134234.14ae4cbe.akpm@osdl.org>
+In-Reply-To: <6bffcb0e0606230533g7fd1dac5m16c62d035b4e9896@mail.gmail.com>
 References: <20060621034857.35cfe36f.akpm@osdl.org>
+	<6bffcb0e0606230533g7fd1dac5m16c62d035b4e9896@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-  When I make mrproper to clean the kernel tree with the -mm trees (at
-least the last few releases) I end up having to remove
-/include/linux/dwarf2-defs.h myself.  This file is generated at build
-time but mrproper isn't cleaning it up.   This file is always present
-in a tree that has been built but not in the origninal tree so a diff
-of the tree picks it up.
+On Fri, 23 Jun 2006 14:33:27 +0200
+"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
 
-Is this expected?
+> Hi,
+> 
+> On 21/06/06, Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/
+> >
+> 
+> Firefox 2 - a new testing tool for bug hunters.
 
-Thanks,
-  Keith
+Thanks.
+
+> Jun 23 11:03:48 ltg01-fedora kernel: =======================================
+> Jun 23 11:03:48 ltg01-fedora kernel: [ INFO: out of order unlock detected. ]
+> Jun 23 11:03:48 ltg01-fedora kernel: ---------------------------------------
+
+This test is a bit of a nuisance.
+
+> Jun 23 11:03:48 ltg01-fedora kernel: The code is fine but needs lock
+> validator annotation.
+> Jun 23 11:03:48 ltg01-fedora kernel: firefox-bin/25734 is trying to
+> release lock (tasklist_lock) at:
+> Jun 23 11:03:48 ltg01-fedora kernel:  [<c017b02c>] flush_old_exec+0x12f/0xa5f
+> Jun 23 11:03:48 ltg01-fedora kernel: but the next lock to release is:
+> Jun 23 11:03:48 ltg01-fedora kernel:  (&sighand->siglock){++..}, at:
+> [<c017afab>] flush_old_exec+0xae/0xa5f
+> Jun 23 11:03:48 ltg01-fedora kernel:
+> Jun 23 11:03:48 ltg01-fedora kernel: other info that might help us debug this:
+> Jun 23 11:03:48 ltg01-fedora kernel: 2 locks held by firefox-bin/25734:
+> Jun 23 11:03:48 ltg01-fedora kernel:  #0:  (tasklist_lock){..??}, at:
+> [<c017afa4>] flush_old_exec+0xa7/0xa5f
+> Jun 23 11:03:48 ltg01-fedora kernel:  #1:  (&sighand->siglock){++..},
+> at: [<c017afab>] flush_old_exec+0xae/0xa5f
+
+This is de_thread().  It's deliberate.
+

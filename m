@@ -1,65 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933008AbWFWK4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933012AbWFWK4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933008AbWFWK4O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933012AbWFWK4H
+	id S933012AbWFWK4P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933014AbWFWK4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:56:07 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5132 "HELO
+	Fri, 23 Jun 2006 06:56:06 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5900 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S933008AbWFWKzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:55:40 -0400
-Date: Fri, 23 Jun 2006 12:55:40 +0200
+	id S933012AbWFWKzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 06:55:43 -0400
+Date: Fri, 23 Jun 2006 12:55:43 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] kernel/lockdep.c: make 3 functions static
-Message-ID: <20060623105540.GN9111@stusta.de>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
+To: pavel@suse.cz
+Cc: linux-pm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove kernel/power/pm.c:pm_unregister_all()
+Message-ID: <20060623105543.GO9111@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes three needlessly global functions static.
+This patch removes the deprecated and no longer used pm_unregister_all().
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- kernel/lockdep.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/pm_legacy.h |    7 -------
+ kernel/power/pm.c         |   37 -------------------------------------
+ 2 files changed, 44 deletions(-)
 
---- linux-2.6.17-mm1-full/kernel/lockdep.c.old	2006-06-22 17:39:33.000000000 +0200
-+++ linux-2.6.17-mm1-full/kernel/lockdep.c	2006-06-22 17:48:58.000000000 +0200
-@@ -444,7 +444,7 @@
- 		printk("  ");
- }
+--- linux-2.6.17-mm1-full/include/linux/pm_legacy.h.old	2006-06-22 17:55:29.000000000 +0200
++++ linux-2.6.17-mm1-full/include/linux/pm_legacy.h	2006-06-22 17:55:40.000000000 +0200
+@@ -15,11 +15,6 @@
+ pm_register(pm_dev_t type, unsigned long id, pm_callback callback);
  
--void print_lock_type_header(struct lock_type *type, int depth)
-+static void print_lock_type_header(struct lock_type *type, int depth)
- {
- 	int bit;
- 
-@@ -516,7 +516,7 @@
- 	printk(" } [%d]", nr);
- }
- 
--void print_lock_type(struct lock_type *type)
-+static void print_lock_type(struct lock_type *type)
- {
- 	print_lock_type_header(type, 0);
- 	if (!list_empty(&type->locks_after))
-@@ -1177,7 +1177,7 @@
-  * To make lock name printouts unique, we calculate a unique
-  * type->name_version generation counter:
+ /*
+- * Unregister all devices with matching callback
+- */
+-void __deprecated pm_unregister_all(pm_callback callback);
+-
+-/*
+  * Send a request to all devices
   */
--int count_matching_names(struct lock_type *new_type)
-+static int count_matching_names(struct lock_type *new_type)
+ int __deprecated pm_send_all(pm_request_t rqst, void *data);
+@@ -35,8 +30,6 @@
+ 	return NULL;
+ }
+ 
+-static inline void pm_unregister_all(pm_callback callback) {}
+-
+ static inline int pm_send_all(pm_request_t rqst, void *data)
  {
- 	struct lock_type *type;
- 	int count = 0;
+ 	return 0;
+--- linux-2.6.17-mm1-full/kernel/power/pm.c.old	2006-06-22 17:56:18.000000000 +0200
++++ linux-2.6.17-mm1-full/kernel/power/pm.c	2006-06-22 18:10:14.000000000 +0200
+@@ -75,42 +75,6 @@
+ 	return dev;
+ }
+ 
+-static void __pm_unregister(struct pm_dev *dev)
+-{
+-	if (dev) {
+-		list_del(&dev->entry);
+-		kfree(dev);
+-	}
+-}
+-
+-/**
+- *	pm_unregister_all - unregister all devices with matching callback
+- *	@callback: callback function pointer
+- *
+- *	Unregister every device that would call the callback passed. This
+- *	is primarily meant as a helper function for loadable modules. It
+- *	enables a module to give up all its managed devices without keeping
+- *	its own private list.
+- */
+- 
+-void pm_unregister_all(pm_callback callback)
+-{
+-	struct list_head *entry;
+-
+-	if (!callback)
+-		return;
+-
+-	mutex_lock(&pm_devs_lock);
+-	entry = pm_devs.next;
+-	while (entry != &pm_devs) {
+-		struct pm_dev *dev = list_entry(entry, struct pm_dev, entry);
+-		entry = entry->next;
+-		if (dev->callback == callback)
+-			__pm_unregister(dev);
+-	}
+-	mutex_unlock(&pm_devs_lock);
+-}
+-
+ /**
+  *	pm_send - send request to a single device
+  *	@dev: device to send to
+@@ -239,7 +203,6 @@
+ }
+ 
+ EXPORT_SYMBOL(pm_register);
+-EXPORT_SYMBOL(pm_unregister_all);
+ EXPORT_SYMBOL(pm_send_all);
+ EXPORT_SYMBOL(pm_active);
+ 
 

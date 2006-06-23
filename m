@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWFWOzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWFWOzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWFWOzF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 10:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWFWOzF
+	id S1750819AbWFWOzz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 10:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWFWOzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 10:55:05 -0400
-Received: from crystal.sipsolutions.net ([195.210.38.204]:55959 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S1750816AbWFWOzB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 10:55:01 -0400
-Subject: Re: [Alsa-devel] all-modular snd-aoa
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Paul Collins <paul@briny.ondioline.org>, alsa-devel@alsa-project.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <s5h3bdw9b92.wl%tiwai@suse.de>
-References: <87hd2cz116.fsf@briny.internal.ondioline.org>
-	 <1151072095.7608.29.camel@localhost> <s5h7j389c7d.wl%tiwai@suse.de>
-	 <1151073390.7608.38.camel@localhost>  <s5h3bdw9b92.wl%tiwai@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bwNey68v96dPc9G4lTwb"
-Date: Fri, 23 Jun 2006 16:54:52 +0200
-Message-Id: <1151074492.7608.41.camel@localhost>
+	Fri, 23 Jun 2006 10:55:55 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57805 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750819AbWFWOzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 10:55:54 -0400
+Date: Fri, 23 Jun 2006 15:55:46 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Teigland <teigland@redhat.com>,
+       Patrick Caulfield <pcaulfie@redhat.com>,
+       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: GFS2 and DLM
+Message-ID: <20060623145546.GC32694@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steven Whitehouse <swhiteho@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	David Teigland <teigland@redhat.com>,
+	Patrick Caulfield <pcaulfie@redhat.com>,
+	Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1150805833.3856.1356.camel@quoit.chygwyn.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 20, 2006 at 01:17:13PM +0100, Steven Whitehouse wrote:
+> Hi,
+> 
+> Linus, Andrew suggested to me to send this pull request to you directly.
+> Please consider merging the GFS2 filesystem and DLM from (they are both
+> in the same tree for ease of testing):
 
---=-bwNey68v96dPc9G4lTwb
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, 2006-06-23 at 16:50 +0200, Takashi Iwai wrote:
-
-> Then it's eaiser to fix sound/Makefile.
-
-Ah, I should get out of fast-mail mode and think about things a bit
-more. Sorry. Yeah that should work, Paul, could you verify?
-
-> Post patches to alsa-devel (and Cc to me).  Will be pushed together
-> with other fixes.
-
-Ok, but then should I assume you already committed these (your own)
-patches or not?
-
-johannes
-
---=-bwNey68v96dPc9G4lTwb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIVAwUARJwAuKVg1VMiehFYAQIP7A/8D7wwmcrkfOckN4Pe2oowVFxsB3aIaRCu
-j20V/8dzBbvpi91LnLqydlR9Hpb5VGZikL4aOSp7fPxiT3ww3AeFsICv/CrHPlJt
-CKeAMMBeCyyiQgMu3ySBmXntqRw398aQf63x1rXiGpx0SPez8eL3AnWT13caDn3M
-0ttkioG+B1eyAfNkSmkemaE6WfZ3MpTYF5VUNoByMB/IV3Z3boabRBTltj8m+vMd
-bt+Jd3LtXvucaZ1RMQUQ1EA9lqN0xF5NkcMaU0gge2lZoFzW6UTHp0SFkmvrACFo
-85XjHqVFj6CGAOp/XnCtbl8VAdVVGlhVcnxfEcFuGufcY7719kaZgipLrh5DFM+9
-edvKcFYCvNF2OAXXsYP/ZyyemDz8CqJdsZVJ5H4vauUiM+RBfsBrYM2zdZSGUL0B
-5VtXUngUK+JqUinW2y+KAx0ev1EGiO/apXdICkHEIrnthnVZWeNyTqtjOtHaPW7/
-FtJfBRx0nTfBf0qyrqjVEJcY4qb0+zq99F1Bm1vTqwjJIabWX2jmIEATH+VMSIIJ
-ScoURDZvsi/eF2p8wLR5ZPeNKK0CkB1gJmUxTC1KNMPQ3leiCEZ0Pugm73IIY9yR
-qxe6Z6D1qJ5Swg4va+h0QU1aygpMEovyomxrVJQ5pyGMNzRMifxUty9y8yYQUjkp
-1wO52wO2mnI=
-=Ec/U
------END PGP SIGNATURE-----
-
---=-bwNey68v96dPc9G4lTwb--
+gfs2_glock_nq_atime doesn't take per-mountpoint atime into consideration
+at all.  Deciding on when to do an atime update is pretty much a VFS
+thing anyway.
 

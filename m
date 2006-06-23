@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932733AbWFWA1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161465AbWFWA27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932733AbWFWA1u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 20:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbWFWA1u
+	id S1161465AbWFWA27 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 20:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161466AbWFWA27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 20:27:50 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:711 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932733AbWFWA1t (ORCPT
+	Thu, 22 Jun 2006 20:28:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58584 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161465AbWFWA24 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 20:27:49 -0400
-Date: Fri, 23 Jun 2006 02:27:22 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: davej@redhat.com, akpm@osdl.org, ak@muc.de, jeff@garzik.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86-64 build fix
-In-Reply-To: <20060622163724.5b360e83.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.64.0606230224540.12900@scrub.home>
-References: <20060622205928.GA23801@havoc.gtf.org> <20060622142430.3219f352.akpm@osdl.org>
- <20060622223919.GB50270@muc.de> <20060622155943.27c98d61.akpm@osdl.org>
- <20060622230138.GA6209@redhat.com> <Pine.LNX.4.64.0606230124350.17704@scrub.home>
- <20060622163724.5b360e83.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Jun 2006 20:28:56 -0400
+Date: Thu, 22 Jun 2006 17:32:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <gregkh@suse.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.17
+Message-Id: <20060622173215.446e9de8.akpm@osdl.org>
+In-Reply-To: <20060622235259.GA30639@suse.de>
+References: <20060621220656.GA10652@kroah.com>
+	<Pine.LNX.4.64.0606221546120.6483@g5.osdl.org>
+	<20060622234040.GB30143@suse.de>
+	<Pine.LNX.4.64.0606221646200.6483@g5.osdl.org>
+	<20060622235259.GA30639@suse.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Greg KH <gregkh@suse.de> wrote:
+>
+> I would think it's something new too, as I did change that very line
+> that oopsed.  That's why I found it odd that I couldn't reproduce it
+> anymore.
 
-On Thu, 22 Jun 2006, Randy.Dunlap wrote:
+device_destroy() looks wrong.  It alters the class->devices list outside
+its lock.
 
-> > The select overrides the default (it actually overrides pretty much 
-> > everything, that's why one should be careful with it).
-> 
-> Just checking:  so the "select AGP"
-> sets CONFIG_AGP to the same level or value (m or y) as the option
-> where it is being used?
+--- 25/drivers/base/core.c~device_destroy-locking-fix	Thu Jun 22 17:29:07 2006
++++ 25-akpm/drivers/base/core.c	Thu Jun 22 17:29:34 2006
+@@ -632,14 +632,13 @@ void device_destroy(struct class *class,
+ 	list_for_each_entry(dev_tmp, &class->devices, node) {
+ 		if (dev_tmp->devt == devt) {
+ 			dev = dev_tmp;
++			list_del_init(&dev->node);
+ 			break;
+ 		}
+ 	}
+ 	up(&class->sem);
+ 
+-	if (dev) {
+-		list_del_init(&dev->node);
++	if (dev)
+ 		device_unregister(dev);
+-	}
+ }
+ EXPORT_SYMBOL_GPL(device_destroy);
 
-To be exact it defines the minimum value, so if it's selected as m, the 
-user might still be able to choose between m or y.
-
-bye, Roman
+That won't be it though.

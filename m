@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932959AbWFWJnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932975AbWFWJqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932959AbWFWJnE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932965AbWFWJnE
+	id S932975AbWFWJqX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932976AbWFWJqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:43:04 -0400
-Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:46473
-	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
-	id S932959AbWFWJnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:43:02 -0400
-Message-ID: <449BB7A6.4050802@ed-soft.at>
-Date: Fri, 23 Jun 2006 11:43:02 +0200
-From: Edgar Hucek <hostmaster@ed-soft.at>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #2]
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Jun 2006 05:46:23 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:468 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932975AbWFWJqX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 05:46:23 -0400
+Date: Fri, 23 Jun 2006 11:41:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch 00/61] ANNOUNCE: lock validator -V1
+Message-ID: <20060623094126.GD4889@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <20060529183503.6bc60a83.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060529183503.6bc60a83.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix EFI boot on 32 bit machines with pcie port.
-Efi machines does not have an e820 memory map.
-This bug makes native efi boots on Intel Mac's
-impossible.
 
-Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
+* Andrew Morton <akpm@osdl.org> wrote:
 
---- a/arch/i386/kernel/setup.c	2006-06-19 09:12:09.000000000 +0200
-+++ b/arch/i386/kernel/setup.c	2006-06-19 09:12:24.000000000 +0200
-@@ -975,24 +975,28 @@
- 	u64 start = s;
- 	u64 end = e;
- 	int i;
--	for (i = 0; i < e820.nr_map; i++) {
--		struct e820entry *ei = &e820.map[i];
--		if (type && ei->type != type)
--			continue;
--		/* is the region (part) in overlap with the current region ?*/
--		if (ei->addr >= end || ei->addr + ei->size <= start)
--			continue;
--		/* if the region is at the beginning of <start,end> we move
--		 * start to the end of the region since it's ok until there
--		 */
--		if (ei->addr <= start)
--			start = ei->addr + ei->size;
--		/* if start is now at or beyond end, we're done, full
--		 * coverage */
--		if (start >= end)
--			return 1; /* we're done */
-+	if (!efi_enabled) {
-+		for (i = 0; i < e820.nr_map; i++) {
-+			struct e820entry *ei = &e820.map[i];
-+			if (type && ei->type != type)
-+				continue;
-+			/* is the region (part) in overlap with the current region ?*/
-+			if (ei->addr >= end || ei->addr + ei->size <= start)
-+				continue;
-+			/* if the region is at the beginning of <start,end> we move
-+			 * start to the end of the region since it's ok until there
-+			 */
-+			if (ei->addr <= start)
-+				start = ei->addr + ei->size;
-+			/* if start is now at or beyond end, we're done, full
-+			 * coverage */
-+			if (start >= end)
-+				return 1; /* we're done */
-+		}
-+		return 0;
-+	} else {
-+		return 1;
- 	}
--	return 0;
- }
- 
- /*
+> > We are pleased to announce the first release of the "lock dependency 
+> > correctness validator" kernel debugging feature
+> 
+> What are the runtime speed and space costs of enabling this?
 
+The RAM space costs are estimated in the bootup info printout:
 
+ ... MAX_LOCKDEP_SUBTYPES:    8
+ ... MAX_LOCK_DEPTH:          30
+ ... MAX_LOCKDEP_KEYS:        2048
+ ... TYPEHASH_SIZE:           1024
+ ... MAX_LOCKDEP_ENTRIES:     8192
+ ... MAX_LOCKDEP_CHAINS:      8192
+ ... CHAINHASH_SIZE:          4096
+  memory used by lock dependency info: 696 kB
+  per task-struct memory footprint: 1200 bytes
+
+Plus every lock now embedds the lock_map structure which is 10 pointers. 
+That is the biggest direct dynamic RAM cost.
+
+There are also a few embedded keys in .data but they are small.
+
+The .text overhead mostly comes from the subsystem itself - which is 
+around 20K of .text. The callbacks are not inlined most of the time - 
+there are about 200 of them right now, which should be another +1-2K of 
+.text cost.
+
+The runtime cycle cost is significant if CONFIG_DEBUG_LOCKDEP [lock 
+validator self-consistency checks] is enabled - then we take a global 
+lock from every lock operation which kills scalability.
+
+If DEBUG_LOCKDEP is disabled then it's OK - smaller than DEBUG_SLAB. In 
+this case we have the lock-stack maintainance overhead, the irq-trace 
+callbacks and a lockless hash-lookup per lock operation. All of that 
+overhead is O(1) and lockless so it shouldnt change fundamental 
+characteristics anywhere.
+
+	Ingo

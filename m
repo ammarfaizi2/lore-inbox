@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWFWDFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWFWDHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbWFWDFY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 23:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWFWDFY
+	id S1751112AbWFWDHc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 23:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWFWDHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 23:05:24 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:646 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751105AbWFWDFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 23:05:24 -0400
-Date: Fri, 23 Jun 2006 12:07:06 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, jeremy@goop.org,
-       rdunlap@xenotime.net, clameter@sgi.com, ntl@pobox.com,
-       ashok.raj@intel.com, ak@suse.de, nickpiggin@yahoo.com.au, mingo@elte.hu
-Subject: Re: [PATCH] avoid cpu removal if busy revisited
-Message-Id: <20060623120706.49522965.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060622195409.1ea44604.akpm@osdl.org>
-References: <20060623105058.96937576.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060622195409.1ea44604.akpm@osdl.org>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 22 Jun 2006 23:07:32 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:29062 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751112AbWFWDHc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 23:07:32 -0400
+Message-ID: <449B5AF2.9090104@garzik.org>
+Date: Thu, 22 Jun 2006 23:07:30 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Andrew Chew <achew@nvidia.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add MCP65 support for sata_nv driver
+References: <1150961925.5109.6.camel@achew-linux>
+In-Reply-To: <1150961925.5109.6.camel@achew-linux>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.1 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.1 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006 19:54:09 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
-> On Fri, 23 Jun 2006 10:50:58 +0900
-> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+Andrew Chew wrote:
+> Splitting up patch and resending.
 > 
-> > +static int test_cpu_busy(int cpu)
-> > ...
-> > +		if (moderate_cpu_removal && test_cpu_bust(cpu))
+> This patch adds MCP65 SATA controller support to the sata_nv driver.
 > 
-> I love the function name but alas, the linker will not.
+> Signed-off-by: Andrew Chew <achew@nvidia.com>
 > 
-Sorry, my refreshing process was bad.
+> 
+> 
+> 
+> diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/scsi/sata_nv.c linux-2.6.16.19/drivers/scsi/sata_nv.c
+> --- linux-2.6.16.19.original/drivers/scsi/sata_nv.c	2006-05-30 17:31:44.000000000 -0700
+> +++ linux-2.6.16.19/drivers/scsi/sata_nv.c	2006-06-05 17:20:48.000000000 -0700
+> @@ -166,12 +166,17 @@ static const struct pci_device_id nv_pci
+>  		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+>  	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA2,
+>  		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA,
+> +		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2,
+> +		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3,
+> +		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4,
+> +		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+>  	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+>  		PCI_ANY_ID, PCI_ANY_ID,
+>  		PCI_CLASS_STORAGE_IDE<<8, 0xffff00, GENERIC },
+> -	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+> -		PCI_ANY_ID, PCI_ANY_ID,
+> -		PCI_CLASS_STORAGE_RAID<<8, 0xffff00, GENERIC },
 
-> Let's treat this as an [rfc].  Please test the final version carefully.
+Why do you want to remove the RAID PCI ID?  That was not mentioned in 
+the patch description at all.
 
-Ah, yes. I should add  [RFC] to subject, reviews from cpu-hotplug people 
-are welcome.
+	Jeff
 
--Kame
+
 

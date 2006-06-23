@@ -1,72 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933042AbWFWMGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWFWMMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933042AbWFWMGl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 08:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933080AbWFWMGl
+	id S932141AbWFWMMx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 08:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933080AbWFWMMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 08:06:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60902 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933042AbWFWMGk (ORCPT
+	Fri, 23 Jun 2006 08:12:53 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:38520 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932141AbWFWMMw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 08:06:40 -0400
-Date: Fri, 23 Jun 2006 05:06:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch 50/61] lock validator: special locking: hrtimer.c
-Message-Id: <20060623050625.997fbdf8.akpm@osdl.org>
-In-Reply-To: <20060623115254.GA12075@elte.hu>
-References: <20060529212109.GA2058@elte.hu>
-	<20060529212709.GX3155@elte.hu>
-	<20060529183556.602b1570.akpm@osdl.org>
-	<20060623100439.GI4889@elte.hu>
-	<20060623033825.b62eec20.akpm@osdl.org>
-	<20060623105255.GQ4889@elte.hu>
-	<20060623115254.GA12075@elte.hu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Jun 2006 08:12:52 -0400
+Date: Fri, 23 Jun 2006 14:12:51 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org, kai@germaschewski.name, sam@ravnborg.org
+Subject: Re: modpost change proposed
+Message-ID: <20060623121250.GG14682@harddisk-recovery.com>
+References: <20060623113138.GA29844@kestrel.barix.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060623113138.GA29844@kestrel.barix.local>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 13:52:54 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+On Fri, Jun 23, 2006 at 01:31:38PM +0200, Karel Kulhavy wrote:
+> If the modpost has error it dumps core:
+> modpost: vmlinux no symtab?
+> /bin/sh: line 1: 28307 Aborted                 (core dumped)
+> scripts/mod/modpost -o
+> /home/clock/edb9302/cirrus-arm-linux-1.0.7/linux-2.6.8.1/Module.symvers
+> vmlinux drivers/net/wireless/hermes.o drivers/net/wireless/orinoco.o
+> drivers/net/wireless/orinoco_cs.o drivers/usb/gadget/g_file_storage.o
+> make[1]: *** [__modpost] Error 134
+> 
+> I suggest the abort(); to be everywhere replaced with exit(1) for the
+> following reasons:
+> 1) it's customary
 
-> 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > > > perhaps the naming should be clearer? I had it named 
-> > > > spin_lock_init_standalone() originally, then cleaned it up to be 
-> > > > spin_lock_init_static(). Maybe the original name is better?
-> > > > 
-> > > 
-> > > hm.  This is where a "term of art" is needed.  What is lockdep's 
-> > > internal term for locks-of-a-different-type?  It should have such a 
-> > > term.
-> > 
-> > 'lock type' is what i tried to use consistenty.
-> > 
-> > > "class" would be a good term, although terribly overused.  Using that 
-> > > as an example, spin_lock_init_standalone_class()?  ug.
-> 
-> actually ... 'class' might be an even better term than 'type', mainly 
-> because type is even more overloaded in this context than class. "Q: 
-> What type does this lock have?" The natural answer: "it's a spinlock".
-> 
-> so i'm strongly considering the renaming of 'lock type' to 'lock class' 
-> and push that through all the APIs (and documentation). (i.e. we'd have 
-> 'subclasses' of locks, not 'subtypes'.)
-> 
-> then we could do the annotations (where the call-site heuristics get the 
-> class wrong and either do false splits or dont do a split) via:
-> 
-> 	spin_lock_set_class(&lock, &class_key)
-> 	rwlock_set_class(&rwlock, &class_key)
-> 	mutex_set_class(&mutex, &class_key)
-> 	rwsem_set_class(&rwsem, &class_key)
-> 
-> [And for class-internal nesting, we'd have subclass nesting levels.]
-> 
+It's not. In case of a serious error, abort() gives you the chance to
+do a post mortem analysis with a debugger, exit() doesn't. I do agree
+that the use of abort() in modpost is not necessary. Try this patch
+(against 2.6.17):
 
-Works for me.
+commit 726ee2748969fb2d40b45de36dd56a5abea37954
+Author: Erik Mouw <erik@harddisk-recovery.com>
+Date:   Fri Jun 23 14:04:52 2006 +0200
+
+    modpost: change abort() into exit()
+    
+    The perror() above the abort() tells enough about the
+    failure, no need to dump core (a post mortem analysis
+    on the core file won't give extra information about the
+    failure). Suggested by Karel Kulhavy.
+    
+    Signed-off-by: Erik Mouw <erik@harddisk-recovery.com>
+
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index d0f86ed..42a2bc0 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -283,7 +283,7 @@ static void parse_elf(struct elf_info *i
+ 	hdr = grab_file(filename, &info->size);
+ 	if (!hdr) {
+ 		perror(filename);
+-		abort();
++		exit(1);
+ 	}
+ 	info->hdr = hdr;
+ 	if (info->size < sizeof(*hdr))
+
+> 2) core dumping looks scary
+
+If it scares you, disable it. "limit coredumpsize 0" in (t)csh, or
+"ulimit -c 0" in bash.
+
+> 3) the core takes up space on disk
+
+If you don't like it, disable it.
+
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWFWN5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWFWN6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbWFWN5z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 09:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWFWN5u
+	id S1750704AbWFWN6W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 09:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWFWN6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 09:57:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23705 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750721AbWFWNp4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 09:45:56 -0400
-Date: Fri, 23 Jun 2006 09:39:12 -0400 (EDT)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp83-5.boston.redhat.com
-To: Robert Hancock <hancockr@shaw.ca>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: make PROT_WRITE imply PROT_READ
-In-Reply-To: <449B42B3.6010908@shaw.ca>
-Message-ID: <Pine.LNX.4.64.0606230934360.24102@dhcp83-5.boston.redhat.com>
-References: <fa.PuMM6IwflUYh1MWILO9rb6z4fvY@ifi.uio.no> <449B42B3.6010908@shaw.ca>
+	Fri, 23 Jun 2006 09:58:00 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:26006
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1750704AbWFWNlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 09:41:22 -0400
+Message-ID: <449BEF80.2080301@microgate.com>
+Date: Fri, 23 Jun 2006 08:41:20 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] kill TTY_DONT_FLIP
+References: <1151002928.15500.21.camel@amdx2.microgate.com> <1151069137.4549.11.camel@localhost.localdomain>
+In-Reply-To: <1151069137.4549.11.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> Looks good to me on a first review.
 
-On Thu, 22 Jun 2006, Robert Hancock wrote:
+I looked at the paths taken by n_tty_receive_buf()
+for how they would effect read_chan():
 
-> Jason Baron wrote:
-> > Currently, if i mmap() a file PROT_WRITE only and then first read from it
-> > and then write to it, i get a SEGV. However, if i write to it first and then
-> > read from it, i get no SEGV. This seems rather inconsistent.
-> > 
-> > The current implementation seems to be to make PROT_WRITE imply PROT_READ,
-> > however it does not quite work correctly. The patch below resolves this
-> > issue, by explicitly setting the PROT_READ flag when PROT_WRITE is
-> > requested.
-> 
-> I would disagree.. the kernel is enforcing the permissions specified where the
-> CPU architecture allows it. There is no sense in breaking this everywhere just
-> because we can't always enforce it. By that logic we should be making
-> PROT_READ imply PROT_EXEC because not all CPUs can enforce them separately,
-> which makes no sense at all.
-> 
-> > 
-> > This might appear at first as a possible permissions subversion, as i could
-> > get PROT_READ on a file that i only have write permission to...however, the
-> > mmap implementation requires that the file be opened with at least read
-> > access already. Thus, i don't believe there is any issue with regards to
-> > permissions.
-> > 
-> > Another consequenece of this patch is that it forces PROT_READ even for
-> > architectures that might be able to support it, (I know that x86, x86_64 and
-> > ia64 do not) but i think this is best for portability.
-> 
-> That makes little sense to me.. if you want portability, and you're reading
-> from the file, you better request PROT_READ. Any app that doesn't do that is
-> inherently broken and non-portable regardless of what you do to the kernel.
-> 
-> 
+* tty state (put_tty_queue,eraser,finish_erasing,etc)
+* read wakeups
+* start_tty/stop_tty
+* put_char/opost
 
+everything looks OK without TTY_DONT_FLIP
 
-hi,
+2.0.X relied on the BKL (and dinosaurs roamed the Earth)
 
-So if i create a PROT_WRITE only mapping and then read from first and then 
-writte to it a get a SEGV. However, if i write to it first and then read 
-from it, i don't get a SEGV...Why should the read/write ordering matter? 
+2.1.X introduced TTY_DONT_FLIP to prevent read_chan and
+n_tty_receive_buf from executing at the same time.
 
-thanks,
+2.2.15 added tty->read_lock around the N_TTY read buffer,
+which is the only thing needing protection in this context.
 
--Jason 
+The usual progression to finer grained locking.
+This looks like a safe removal.
 
+The review also revealed a spot in reset_buffer_flags()
+where tty->read_lock needs to be extended around
+modifications of canon_head, canon_data, and read_flags.
+I'll make a patch for that.
+
+-- 
+Paul Fulghum
+Microgate Systems, Ltd.

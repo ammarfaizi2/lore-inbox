@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933010AbWFWKtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933011AbWFWKta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933010AbWFWKtI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933008AbWFWKtI
+	id S933011AbWFWKta (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933008AbWFWKta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:49:08 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:22942 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S933010AbWFWKtG (ORCPT
+	Fri, 23 Jun 2006 06:49:30 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15567 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S933012AbWFWKt3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:49:06 -0400
-Date: Fri, 23 Jun 2006 12:44:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch 27/61] lock validator: prove spinlock/rwlock locking correctness
-Message-ID: <20060623104411.GP4889@elte.hu>
-References: <20060529212109.GA2058@elte.hu> <20060529212523.GA3155@elte.hu> <20060529183512.38a6e367.akpm@osdl.org>
-Mime-Version: 1.0
+	Fri, 23 Jun 2006 06:49:29 -0400
+Date: Fri, 23 Jun 2006 12:48:37 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Marcin Juszkiewicz <openembedded@hrw.one.pl>
+Cc: Richard Purdie <rpurdie@rpsys.net>, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>, metan@seznam.cz,
+       arminlitzel@web.de
+Subject: Re: sharp zaurus sl-5500 (collie): touchscreen now works
+Message-ID: <20060623104836.GG5343@elf.ucw.cz>
+References: <20060610202541.GA26697@elf.ucw.cz> <1150139307.5376.56.camel@localhost.localdomain> <20060614232814.GJ7751@elf.ucw.cz> <1150329342.9240.38.camel@localhost.localdomain> <e6ec3ad10606230320s25596353y7b238593b90051f5@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060529183512.38a6e367.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <e6ec3ad10606230320s25596353y7b238593b90051f5@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Andrew Morton <akpm@osdl.org> wrote:
+> Yesterday someone added following info into OpenZaurus FAQ [1]:
 
-> On Mon, 29 May 2006 23:25:23 +0200
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > +# define spin_lock_init_key(lock, key)				\
-> > +	__spin_lock_init((lock), #lock, key)
-> 
-> erk.  This adds a whole new layer of obfuscation on top of the 
-> existing spinlock header files.  You already need to run the 
-> preprocessor and disassembler to even work out which flavour you're 
-> presently using.
-> 
-> Ho hum.
+Thanks a lot for a pointer.
 
-agreed. I think the API we started using in latest -mm 
-(lockdep_init_key()) is the cleaner approach - that also makes it 
-trivially sure that lockdep doesnt impact non-lockdep code. I'll fix the 
-current lockdep_init_key() shortcomings and i'll get rid of the 
-*_init_key() APIs.
+> >Zaurus SL-5500 MMC/SDIO technical info
+> >
+> >For communicating with the MMC/SDIO card SL-5500 uses the LoCoMo built-in
+> >SPI controller (secondary communication protocol) and 3 LoCoMo GPIOs
+> >
+> >LOCOMO_SPIMD for SPI MODE
+> >LOCOMO_SPICT for SPI CONTROL
+> >LOCOMO_SPIST for SPI STATUS
+> >LOCOMO_SPITD for SPI TRANSMIT (write)
+> >LOCOMO_SPIRD for SPI RECEIVE (read)
+> >
+> >LOCOMO_GPIO(13) for MMC irq / card detect
+> >LOCOMO_GPIO(14) for MMC write protect test bit
+> >LOCOMO_GPIO(15) for MMC power
+> >
+> >All these registers are 16bit, and data transfers are 8bit. On resume
+> >the SPI MODE is set to 0x6c14, on suspend to 0x3c14.
+> >
+> >Useful bits in the SPI MODE register: 0x0001, 0x0040, 0x0080.
+> >Useful bits in the SPI CONTROL register: 0x0040 and 0x0080.
+> >
+> >For further information read the Sandisk SD card manual. A software
+> >implementation of the SPI MMC/SD protocol driver can be be found at
+> >http://kiel.kool.dk/mmc.c
 
-	Ingo
+Do you have any contact to author of this? It lacks any copyright/GPL
+info :-(. Is wrt54g also sa1100-based?
+
+> Maybe this will help.
+
+Yes, thanks a lot.
+
+> 1. http://openzaurus.berlios.de/FAQ
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

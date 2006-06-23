@@ -1,120 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932946AbWFWJGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932948AbWFWJLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932946AbWFWJGb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932947AbWFWJGb
+	id S932948AbWFWJLS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932950AbWFWJLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:06:31 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:18817 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932946AbWFWJGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:06:31 -0400
-Date: Fri, 23 Jun 2006 05:06:06 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
-       mbligh@mbligh.org, Mattia Dongili <malattia@linux.it>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: fs/binfmt_aout.o, Error: suffix or operands invalid for  `cmp'
- [was Re: 2.6.1
-In-Reply-To: <449AB908.30002@zytor.com>
-Message-ID: <Pine.LNX.4.58.0606230456220.1145@gandalf.stny.rr.com>
-References: <200606220238_MC3-1-C321-1AC2@compuserve.com> <449AB908.30002@zytor.com>
+	Fri, 23 Jun 2006 05:11:18 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10712 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932948AbWFWJLS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 05:11:18 -0400
+Date: Fri, 23 Jun 2006 11:10:21 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, linux-pm@osdl.org,
+       stern@rowland.harvard.edu
+Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
+Message-ID: <20060623091016.GE4940@elf.ucw.cz>
+References: <20060621034857.35cfe36f.akpm@osdl.org> <4499BE99.6010508@gmail.com> <20060621221445.GB3798@inferi.kami.home> <20060622061905.GD15834@kroah.com> <20060622004648.f1912e34.akpm@osdl.org> <20060622160403.GB2539@slug> <20060622092506.da2a8bf4.akpm@osdl.org> <20060623090206.GA2234@slug>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060623090206.GA2234@slug>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-I have no idea why I have binfmt_aout turned on but I did and hit this
-too.
+> > Frederik Deweerdt <deweerdt@free.fr> wrote:
+> > 
+> > > Thu, Jun 22, 2006 at 12:46:48AM -0700, Andrew Morton wrote:
+> > > > I can bisect it if we're stuck, but that'll require beer or something.
+> > > 
+> > > FWIW, my laptop (Dell D610) gave the following results:
+> > > 2.6.17-mm1: suspend_device(): usb_generic_suspend+0x0/0x135 [usbcore]() returns -16
+> > > 2.6.17+origin.patch: suspend_device(): usb_generic_suspend+0x0/0x135 [usbcore]() returns -16
+> > 
+> > So it's in mainline already - hence it's some recently-written thing which
+> > was not tested in rc6-mm2.
+> > 
+> > > 2.6.17: oops
+> > > 2.6.17.1: oops
+> > 
+> > 2.6.17 wasn't supposed to oops.  Do you have details on this?
+> > 
+> For some reason, unknown to me, the oops won't display on the serial
+> link :(.
 
-On Thu, 22 Jun 2006, H. Peter Anvin wrote:
+Serial console is currently broken by suspend, resume. _But_ I have a
+patch I'd like you to try.... pretty please?
 
-> Chuck Ebbert wrote:
-> >>>>
-> >>> It's complaining about this:
-> >>>
-> >>> #APP
-> >>>         addl %ecx,%eax ; sbbl %edx,%edx; cmpl %eax,$-1073741824; sbbl $0,%edx   # dump.u_dsize, sum, flag,
-> >>> #NO_APP
-> >> The cmpl should have its arguments reversed.  It's quite possible some versions of the
-> >> assembler accepts the form given, but they're wrong (and doubly confusing when used as
-> >> input to sbb.)
-> >
-> > This was built with gcc 4.0.4 20060507 (prerelease).
-> >
-> > I don't normally build a.out support, but I just tried and it compiled
-> > fine with gcc 4.1.1.  SO this is probably a compiler bug (almost certainly
-> > given that it generated illegal assembler code.)
-> >
->
-> It's not (it's #APP, i.e. inline assembly); rather, it's an illegal
-> constraint.
->
+> Here's what I could hand copy (I've suppressed printk timing information):
+> x1b9/0x1be
+> <c0166e6b> sys_write+0x4b/0x75  <c010300f> sysenter_past_esp+0x54/0x75
+> Code: 05 c4 52 43 c0 31 53 43 c0 c3 8b 2d 68 6e 54 c0 8b 1d 60
+> 6e 54 c0 8b 35 6c 6e 54 c0 8b 3d 70 6e 54 c0 ff 35 74 6e 54 c0 9d c3 90 <e8>
+> 9d 2c ea ff e8 a2 ff ff ff 6a 03 e8 4c ab de ff 83 c4 04 c3
+> EIP: [<c043531c>] do_suspend_lowlevel+0x0/0x15 SS:ESP 0068:f7a0fea4
+> <3>BUG: sleeping function called from invalid context at include/linux/rwsem.h:43
+> in_atomic():0, irqs_disabled():1
+>  <c0103e56> show_trace+0x20/0x22  <c0103f5b> dump_stack+0x1e/0x20
+>  <c011aec7> __might_sleep+0x9e/0xa6  <c012b0cf> blocking_notifier_call_chain+0x1e/0x5b
+>  <c011f091> profile_task_exit+0x21/0x23  <c0120946> do_exit+0x1d/0x483
+>  <c0104432> do_divide_error+0x0/0xbf  <c0362c76> do_page_fault+0x3c4/0x752
+>  <c0103b2f> error_code+0x4f/0x54  <c013b33a> suspend_enter+0x2f/0x52
+>  <c013b3e0> enter_state+0x4b/0x8d  <c013b579> state_store+0xa0/0xa2
+>  <c01a54f1> subsys_attr_store+0x37/0x41  <c01a5772> flush_write_buffer+0x3c/046
+>  <c01a57e3> sysfs_write_file+0x67/0x8b  <c0166da6> vfs_write+0x1b9/0x1be
+>  <c0166e6b> sys_write+0x4b/0x75  <c010300f> sysenter_past_esp+0x54/0x75
 
-It's GCC optimizing a little too much.
+That is not an oops, rather a kernel BUG(). Can you just remove
+might_sleep line and see what happens?
 
-The problem code is this (in binfmt_aout.c):
+Unfortunately, backtrace does not tell me which notifier chain did
+that :-(. Are you using audit or something like that?
 
-/* make sure we actually have a data and stack area to dump */
-	set_fs(USER_DS);
-#ifdef __sparc__
-	if (!access_ok(VERIFY_READ, (void __user *)START_DATA(dump), dump.u_dsize))
-		dump.u_dsize = 0;
-	if (!access_ok(VERIFY_READ, (void __user *)START_STACK(dump), dump.u_ssize))
-		dump.u_ssize = 0;
-#else
-	if (!access_ok(VERIFY_READ, (void __user *)START_DATA(dump), dump.u_dsize << PAGE_SHIFT))
-		dump.u_dsize = 0;
-	if (!access_ok(VERIFY_READ, (void __user *)START_STACK(dump), dump.u_ssize << PAGE_SHIFT))
-		dump.u_ssize = 0;
-#endif
+/*
+ * lock for reading
+ */
+static inline void down_read(struct rw_semaphore *sem)
+{
+        might_sleep();
+~~~~~~~~~~~~~~~~~~~~~~
+        rwsemtrace(sem,"Entering down_read");
+        __down_read(sem);
+        rwsemtrace(sem,"Leaving down_read");
+}
 
+										Pavel
 
-Previously it did a set_fs(KERNEL_DS) so it needs to do the
-set_fs(USER_DS) now.
-
-But that is:
-
-  #define set_fs(x)	(current_thread_info()->addr_limit = (x))
-
-and access_ok is:
-
-  #define access_ok(type,addr,size) (likely(__range_ok(addr,size) == 0))
-
-where __range_ok is:
-
-#define __range_ok(addr,size) ({ \
-	unsigned long flag,sum; \
-	__chk_user_ptr(addr); \
-	asm("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; sbbl $0,%0" \
-		:"=&r" (flag), "=r" (sum) \
-		:"1" (addr),"g" ((int)(size)),"g" (current_thread_info()->addr_limit.seg)); \
-	flag; })
-
-What happened was that gcc optimized the
-(current_thread_info()->addre_limit.seg to be a constant. Thus cmpl
-failed.
-
-The following patch fixes this, although I don't know the intel
-constraints very well, but this does compile.
-
--- Steve
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-Index: linux-2.6.17-mm1/include/asm-i386/uaccess.h
-===================================================================
---- linux-2.6.17-mm1.orig/include/asm-i386/uaccess.h	2006-06-23 05:02:15.000000000 -0400
-+++ linux-2.6.17-mm1/include/asm-i386/uaccess.h	2006-06-23 05:02:29.000000000 -0400
-@@ -58,7 +58,7 @@ extern struct movsl_mask {
- 	__chk_user_ptr(addr); \
- 	asm("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; sbbl $0,%0" \
- 		:"=&r" (flag), "=r" (sum) \
--		:"1" (addr),"g" ((int)(size)),"g" (current_thread_info()->addr_limit.seg)); \
-+		:"1" (addr),"g" ((int)(size)),"r" (current_thread_info()->addr_limit.seg)); \
- 	flag; })
-
- /**
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

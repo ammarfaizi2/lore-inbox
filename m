@@ -1,171 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752017AbWFWUOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752020AbWFWUO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752017AbWFWUOH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 16:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752018AbWFWUNu
+	id S1752020AbWFWUO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752018AbWFWUO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 16:13:50 -0400
-Received: from mga07.intel.com ([143.182.124.22]:48505 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1752017AbWFWUNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 16:13:48 -0400
-X-IronPort-AV: i="4.06,170,1149490800"; 
-   d="scan'208"; a="56629578:sNHT67094685"
-Message-Id: <20060623201601.752629000@rshah1-sfield.jf.intel.com>
-References: <20060623200928.036235000@rshah1-sfield.jf.intel.com>
-Date: Fri, 23 Jun 2006 13:09:30 -0700
-From: rajesh.shah@intel.com
-To: ak@suse.de, gregkh@suse.de
-Cc: akpm@osdl.org, brice@myri.com, 76306.1226@compuserve.com,
-       arjan@linux.intel.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, Rajesh Shah <rajesh.shah@intel.com>
-Subject: [patch 2/2] x86_64 PCI: improve extended config space verification
-Content-Disposition: inline; filename=x86_64-fix-mcfg-check
+	Fri, 23 Jun 2006 16:14:56 -0400
+Received: from web33303.mail.mud.yahoo.com ([68.142.206.118]:62885 "HELO
+	web33303.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1752019AbWFWUOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 16:14:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=ozrcWJWDRxXD7Z2R5hDVsrRGZ0nFEdiF3AMPaE2rNSeiBnhg3Dn1FsxhpkhWjmgtbUsBO+tSAEedRp3tMGpRkOAa5QMA+y6PEz0c4O9rN1xt2S9zEHD3loTajKTc1muGz0FQvaYBfe4nD2/FKCmsz3eDjd6lml0B+xt1Ihz5Ai0=  ;
+Message-ID: <20060623201454.68199.qmail@web33303.mail.mud.yahoo.com>
+Date: Fri, 23 Jun 2006 13:14:54 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: Measuring tools - top and interrupts
+To: Mike Galbraith <efault@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1151051543.11381.43.camel@Homer.TheSimpsons.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Extend the verification for PCI-X/PCI-Express extended config
-space pointer. This patch checks whether the MCFG address range
-is listed as a motherboard resource, per the PCI firmware spec.
-The old check only looked in int 15 e820 memory map, causing
-several systems to fail the verification and lose extended
-config space.
 
-Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
 
- arch/x86_64/pci/mmconfig.c |  112 +++++++++++++++++++++++++++++++++++++++++++--
- 1 files changed, 109 insertions(+), 3 deletions(-)
+--- Mike Galbraith <efault@gmx.de> wrote:
 
-Index: linux-2.6.17-mm1/arch/x86_64/pci/mmconfig.c
-===================================================================
---- linux-2.6.17-mm1.orig/arch/x86_64/pci/mmconfig.c
-+++ linux-2.6.17-mm1/arch/x86_64/pci/mmconfig.c
-@@ -164,6 +164,107 @@ static __init void unreachable_devices(v
- 	}
- }
- 
-+static int __init is_motherboard_resource(acpi_handle handle)
-+{
-+       acpi_status status;
-+       struct acpi_device_info *info;
-+       struct acpi_buffer buffer = {ACPI_ALLOCATE_BUFFER, NULL};
-+       int i;
-+
-+       status = acpi_get_object_info(handle, &buffer);
-+       if (ACPI_FAILURE(status))
-+	       return 0;
-+       info = buffer.pointer;
-+       if ((info->valid & ACPI_VALID_HID) &&
-+		       (!strcmp(ACPI_MB_HID1, info->hardware_id.value) ||
-+			!strcmp(ACPI_MB_HID2, info->hardware_id.value))) {
-+	       kfree(buffer.pointer);
-+	       return 1;
-+       }
-+       if (info->valid & ACPI_VALID_CID) {
-+	       for (i=0; i < info->compatibility_id.count; i++) {
-+		       if (!strcmp(ACPI_MB_HID1,
-+				info->compatibility_id.id[i].value) ||
-+				!strcmp(ACPI_MB_HID2,
-+					info->compatibility_id.id[i].value)) {
-+                                        kfree(buffer.pointer);
-+                                        return 1;
-+			}
-+		}
-+	}
-+	kfree(buffer.pointer);
-+        return 0;
-+}
-+
-+static acpi_status __init check_mcfg_resource(struct acpi_resource *res,
-+		void *data)
-+{
-+	struct resource *mcfg_res = data;
-+	struct acpi_resource_address64 address;
-+	acpi_status status;
-+
-+	if (res->type == ACPI_RESOURCE_TYPE_FIXED_MEMORY32) {
-+		struct acpi_resource_fixed_memory32 *fixmem32;
-+
-+		fixmem32 = &res->data.fixed_memory32;
-+		if (!fixmem32)
-+			return AE_OK;
-+		if ((mcfg_res->start >= fixmem32->address) &&
-+			(mcfg_res->end <= (fixmem32->address +
-+					   fixmem32->address_length))) {
-+			mcfg_res->flags = 1;
-+			return AE_CTRL_TERMINATE;
-+		}
-+	}
-+	if ((res->type != ACPI_RESOURCE_TYPE_ADDRESS32) &&
-+			(res->type != ACPI_RESOURCE_TYPE_ADDRESS64))
-+		return AE_OK;
-+
-+	status = acpi_resource_to_address64(res, &address);
-+	if (ACPI_FAILURE(status) || (address.address_length <= 0) ||
-+			(address.resource_type != ACPI_MEMORY_RANGE))
-+		return AE_OK;
-+
-+	if ((mcfg_res->start >= address.minimum) &&
-+			(mcfg_res->end <=
-+			 (address.minimum +address.address_length))) {
-+		mcfg_res->flags = 1;
-+		return AE_CTRL_TERMINATE;
-+	}
-+	return AE_OK;
-+}
-+
-+static acpi_status __init find_mboard_resource(acpi_handle handle, u32 lvl,
-+		void *context, void **rv)
-+{
-+	struct resource *mcfg_res = context;
-+	acpi_status status = AE_OK;
-+
-+	/* Stop namespace scanning if we've already verified MMCONFIG */
-+	if (mcfg_res->flags)
-+		return AE_CTRL_TERMINATE;
-+
-+	if (is_motherboard_resource(handle)) {
-+		status = acpi_walk_resources(handle, METHOD_NAME__CRS,
-+				check_mcfg_resource, context);
-+	}
-+	return status;
-+}
-+
-+int __init is_acpi_reserved(unsigned long start, unsigned long end)
-+{
-+	struct resource mcfg_res;
-+
-+	mcfg_res.start = start;
-+	mcfg_res.end = end;
-+	mcfg_res.flags = 0;
-+
-+	acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
-+			ACPI_UINT32_MAX, find_mboard_resource,
-+			(void *)&mcfg_res, NULL);
-+	return mcfg_res.flags;
-+}
-+
- void __init pci_mmcfg_init(void)
- {
- 	int i;
-@@ -180,10 +281,15 @@ void __init pci_mmcfg_init(void)
- 	if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
- 			pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
- 			E820_RESERVED)) {
--		printk(KERN_ERR "PCI: BIOS Bug: MCFG area at %x is not E820-reserved\n",
-+		if (!is_acpi_reserved(pci_mmcfg_config[0].base_address,
-+				pci_mmcfg_config[0].base_address +
-+				MMCONFIG_APER_MIN)) {
-+			printk(KERN_ERR
-+				"PCI: BIOS Bug: MCFG area at %x is not reserved\n",
- 				pci_mmcfg_config[0].base_address);
--		printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
--		return;
-+			printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
-+			return;
-+		}
- 	}
- 
- 	/* RED-PEN i386 doesn't do _nocache right now */
+> On Thu, 2006-06-22 at 16:37 -0700, Danial Thom
+> wrote:
+> > I'm sorry, but you're being an idiot if you
+> think
+> > that 16K interrupts per second and forwarding
+> 75K
+> > pps generate no cpu load. Its just that
+> simple.
+> > It also means that you've never profiled a
+> kernel
+> > because you don't understand where the loads
+> are
+> > generated. You've probably been on too many
+> lists
+> > with too many people who have no idea what
+> > they're talking about.
+> 
+> (what horrid manners)
+> 
+> Hm.  You may be right about the load average
+> calculation being broken.
+> 
+> Below is a 100 second profile sample of my 3GHz
+> P4 handling 15K
+> interrupts per second while receiving a flood
+> ping.  My interpretation
+> is that tools should be showing ~10% cpu load
+> rather than zero.  Am I'm
+> misinterpreting it?
+> 
+>  97574 total                                   
+>   0.0258
+>  89549 default_idle                            
+> 1017.6023
+>   1734 ioread16                                
+>  36.8936
+>   1138 ioread8                                 
+>  24.7391
+>    974 rhine_start_tx                          
+>   1.3994
+>    534 __do_softirq                            
+>   3.8417
+>    331 handle_IRQ_event                        
+>   3.2772
+>    223 rhine_interrupt                         
+>   0.0739
+>    222 memset                                  
+>   7.9286
+>    194 nf_iterate                              
+>   1.5520
+>    140 local_bh_enable                         
+>   1.0769
+>     99 __kmalloc                               
+>   1.0532
+>     92 net_rx_action                           
+>   0.2000
+>     85 kfree                                   
+>   0.9884
+>     82 skb_release_data                        
+>   0.6406
+>     77 csum_partial_copy_generic               
+>   0.3105
+>     73 ip_push_pending_frames                  
+>   0.0681
+>     71 __alloc_skb                             
+>   0.2898
+>     69 kmem_cache_free                         
+>   1.3529
+>     66 kmem_cache_alloc                        
+>   1.3750
+>     62 csum_partial                            
+>   0.2153
+>     61 rt_hash_code                            
+>   0.4959
+>     61 ip_append_data                          
+>   0.0253
+>     60 netif_receive_skb                       
+>   0.0516
+>     58 ip_rcv                                  
+>   0.0471
+>     58 ip_local_deliver                        
+>   0.0854
+>     58 eth_type_trans                          
+>   0.2489
+>     55 ip_output                               
+>   0.0957
+>     52 icmp_reply                              
+>   0.1187
+> 
+Thats a pretty crappy controller you have in with
+that shiny P4...
 
---
+I'm not sure that they want the tools to work.
+They'll just call you a troll and go on
+developing unnecessary things like NAPI because
+they're still using controllers designed by DEC
+(remember them?) back in the stone ages. 
+
+Yet I regularly encounter people using cheap NICs
+with expensive cpus on network-intensive
+applications. But you'd think one or two people
+would have a clue.
+
+DT
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

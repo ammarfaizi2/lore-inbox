@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWFWGBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932782AbWFWGJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbWFWGBt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 02:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWFWGBt
+	id S932782AbWFWGJI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 02:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbWFWGJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 02:01:49 -0400
-Received: from ns.suse.de ([195.135.220.2]:7641 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932363AbWFWGBr (ORCPT
+	Fri, 23 Jun 2006 02:09:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:37595 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932782AbWFWGJF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 02:01:47 -0400
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-usb-devel@lists.sourceforge.net, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 2/2] [PATCH] Driver core: fix locking issues with the devices that are attached to classes
-Reply-To: Greg KH <greg@kroah.com>
-Date: Thu, 22 Jun 2006 22:58:35 -0700
-Message-Id: <11510423183635-git-send-email-greg@kroah.com>
-X-Mailer: git-send-email 1.4.0
-In-Reply-To: <11510423151128-git-send-email-greg@kroah.com>
-References: <20060623055737.GA29631@kroah.com> <11510423151128-git-send-email-greg@kroah.com>
+	Fri, 23 Jun 2006 02:09:05 -0400
+Date: Thu, 22 Jun 2006 23:08:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       David Howells <dhowells@redhat.com>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>
+Subject: Re: [PATCH] mm: tracking shared dirty pages -v10
+In-Reply-To: <1151019590.15744.144.camel@lappy>
+Message-ID: <Pine.LNX.4.64.0606222305210.6483@g5.osdl.org>
+References: <20060619175243.24655.76005.sendpatchset@lappy> 
+ <20060619175253.24655.96323.sendpatchset@lappy> 
+ <Pine.LNX.4.64.0606222126310.26805@blonde.wat.veritas.com>
+ <1151019590.15744.144.camel@lappy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Doh, that was foolish...
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/base/core.c |   19 +++++++++++--------
- 1 files changed, 11 insertions(+), 8 deletions(-)
+On Fri, 23 Jun 2006, Peter Zijlstra wrote:
+>
+> Preview of the goodness,
+> 
+> I'll repost the whole thing tomorrow after I've updated the other
+> patches, esp. the msync one. I seem to be too tired to make any sense
+> out of that atm.
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index d0f84ff..27c2176 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -356,6 +356,13 @@ int device_add(struct device *dev)
- 	if (parent)
- 		klist_add_tail(&dev->knode_parent, &parent->klist_children);
- 
-+	if (dev->class) {
-+		/* tie the class to the device */
-+		down(&dev->class->sem);
-+		list_add_tail(&dev->node, &dev->class->devices);
-+		up(&dev->class->sem);
-+	}
-+
- 	/* notify platform of device entry */
- 	if (platform_notify)
- 		platform_notify(dev);
-@@ -455,6 +462,9 @@ void device_del(struct device * dev)
- 		sysfs_remove_link(&dev->kobj, "device");
- 		sysfs_remove_link(&dev->parent->kobj, class_name);
- 		kfree(class_name);
-+		down(&dev->class->sem);
-+		list_del_init(&dev->node);
-+		up(&dev->class->sem);
- 	}
- 	device_remove_file(dev, &dev->uevent_attr);
- 
-@@ -601,11 +611,6 @@ struct device *device_create(struct clas
- 	if (retval)
- 		goto error;
- 
--	/* tie the class to the device */
--	down(&class->sem);
--	list_add_tail(&dev->node, &class->devices);
--	up(&class->sem);
--
- 	return dev;
- 
- error:
-@@ -636,9 +641,7 @@ void device_destroy(struct class *class,
- 	}
- 	up(&class->sem);
- 
--	if (dev) {
--		list_del_init(&dev->node);
-+	if (dev)
- 		device_unregister(dev);
--	}
- }
- EXPORT_SYMBOL_GPL(device_destroy);
--- 
-1.4.0
+Do people agree about this thing? If we want it in 2.6.18, we should merge 
+this soon. I'd prefer to not leave something like this to be a last-minute 
+thing before the merge window closes, and I get the feeling that we're 
+getting to where this should just go in sooner rather than later.
 
+Comments? Hugh, does the last version address all your concerns?
+
+		Linus

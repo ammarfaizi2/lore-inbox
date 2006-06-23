@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751762AbWFWQmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751770AbWFWQsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751762AbWFWQmI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 12:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751766AbWFWQmI
+	id S1751770AbWFWQsd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 12:48:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751776AbWFWQsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 12:42:08 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:21915 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751762AbWFWQmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 12:42:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=hyc0flnm6KydK7cm2MtW+7FaDnBTXWm3bfsZdoVd+Qk48ROwiZ3+Qzj4cjgtokaqA2FxTFZG7CpCIJwNKGG8VJGMaHoSEcoibcdoB4AozLA0vnyST6ZNxSrZ0Hm5q9aJNaBEnRziG5/5KiClqG0Gicf1FR4pjV4kPZagUiSZx7M=
-Message-ID: <449C19D3.8050804@gmail.com>
-Date: Fri, 23 Jun 2006 18:41:32 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: Eduard Bloch <edi@gmx.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm1
-References: <20060621034857.35cfe36f.akpm@osdl.org> <20060623154858.GA15327@rotes76.wohnheim.uni-kl.de>
-In-Reply-To: <20060623154858.GA15327@rotes76.wohnheim.uni-kl.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Jun 2006 12:48:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:25742 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751770AbWFWQsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 12:48:32 -0400
+Date: Fri, 23 Jun 2006 17:48:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       David Teigland <teigland@redhat.com>,
+       Patrick Caulfield <pcaulfie@redhat.com>,
+       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: GFS2 and DLM
+Message-ID: <20060623164823.GA12480@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steven Whitehouse <swhiteho@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	David Teigland <teigland@redhat.com>,
+	Patrick Caulfield <pcaulfie@redhat.com>,
+	Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <20060623150040.GA1197@infradead.org> <1151080174.3856.1606.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1151080174.3856.1606.camel@quoit.chygwyn.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eduard Bloch napsal(a):
-> #include <hallo.h>
-> * Andrew Morton [Wed, Jun 21 2006, 03:48:57AM]:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/
+On Fri, Jun 23, 2006 at 05:29:34PM +0100, Steven Whitehouse wrote:
+> Hi,
 > 
-> Cannot build it. Looks like the build system is looping over:
+> On Fri, 2006-06-23 at 16:00 +0100, Christoph Hellwig wrote:
+> > On Tue, Jun 20, 2006 at 01:17:13PM +0100, Steven Whitehouse wrote:
+> > > Hi,
+> > > 
+> > > Linus, Andrew suggested to me to send this pull request to you directly.
+> > > Please consider merging the GFS2 filesystem and DLM from (they are both
+> > > in the same tree for ease of testing):
+> > 
+> > A new normal filesystem (aka everything but procfs) shouldn't implement
+> > ->readlink but use generic_readlink instead.
+> > 
 > 
->   GEN     usr/klibc/syscalls/typesize.c
->   KLIBCCC usr/klibc/syscalls/typesize.o
->   OBJCOPY usr/klibc/syscalls/typesize.bin
->   GEN     usr/klibc/syscalls/syscalls.mk
->   GEN     usr/klibc/syscalls/typesize.c
->   KLIBCCC usr/klibc/syscalls/typesize.o
->   OBJCOPY usr/klibc/syscalls/typesize.bin
->   GEN     usr/klibc/syscalls/syscalls.mk
->   GEN     usr/klibc/syscalls/typesize.c
->   KLIBCCC usr/klibc/syscalls/typesize.o
->   OBJCOPY usr/klibc/syscalls/typesize.bin
->   GEN     usr/klibc/syscalls/syscalls.mk
->   GEN     usr/klibc/syscalls/typesize.c
->   KLIBCCC usr/klibc/syscalls/typesize.o
->   OBJCOPY usr/klibc/syscalls/typesize.bin
->   GEN     usr/klibc/syscalls/syscalls.mk
+> The comment above generic_readlink has this to say:
 > 
-> No matter whether executed as user or as root. Setting KBUILD_VERBOSE
-> does not help much, for the log see http://people.debian.org/~blade/log .
+> /*
+>  * A helper for ->readlink().  This should be used *ONLY* for symlinks that
+>  * have ->follow_link() touching nd only in nd_set_link().  Using (or not
+>  * using) it for any given inode is up to filesystem.
+>  */
+> 
+> which appears, at least, to contradict what you are saying. I'll put it
+> on my list to look at again, but a straight substitution of
+> generic_readlink() does not work, so I'd prefer to leave it as it is for
+> the moment,
 
-Should be fixed already:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115091547426482&w=2
+The above is the common and preffered case.  The only intree filesystem
+not doing it is procfs.
 
-regards,
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E

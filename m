@@ -1,50 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751901AbWFWSg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751908AbWFWSil@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751901AbWFWSg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 14:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751906AbWFWSg3
+	id S1751908AbWFWSil (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 14:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751906AbWFWSil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 14:36:29 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:28035 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751901AbWFWSg2 (ORCPT
+	Fri, 23 Jun 2006 14:38:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2985 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751908AbWFWSik (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 14:36:28 -0400
-Date: Fri, 23 Jun 2006 11:33:16 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Fault tolerance/bad patch, [was Re: [PATCH 29/30] [PATCH] PCI Hotplug: fake NULL pointer dereferences in IBM Hot Plug Controller Driver]
-Message-ID: <20060623183316.GA4529@suse.de>
-References: <115075348565-git-send-email-greg@kroah.com> <11507534883521-git-send-email-greg@kroah.com> <11507534914002-git-send-email-greg@kroah.com> <11507534953044-git-send-email-greg@kroah.com> <11507534983982-git-send-email-greg@kroah.com> <11507535021937-git-send-email-greg@kroah.com> <11507535054091-git-send-email-greg@kroah.com> <11507535082418-git-send-email-greg@kroah.com> <11507535123764-git-send-email-greg@kroah.com> <20060623150442.GK8866@austin.ibm.com>
+	Fri, 23 Jun 2006 14:38:40 -0400
+Date: Fri, 23 Jun 2006 19:38:29 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] dm: support ioctls on mapped devices: fix with fake file
+Message-ID: <20060623183829.GZ19222@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060623150442.GK8866@austin.ibm.com>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 10:04:43AM -0500, Linas Vepstas wrote:
-> Hi,
-> 
-> On Mon, Jun 19, 2006 at 02:43:35PM -0700, Greg KH wrote:
-> > From: Eric Sesterhenn <snakebyte@gmx.de>
-> > 
-> > Remove checks for value, since the hotplug core always provides
-> > a valid value.
-> > 
-> > -	if (hotplug_slot && value) {
-> > +	if (hotplug_slot) {
-> 
-> This may be the wrong place to bring up a philosphical issue,
+[This applies after all the current dm patches.]
 
-You are right, it is the wrong place for it, please take stuff like this
-elsewhere.
 
-value can not be a null value here, it's an impossiblity as that is how
-this interface works.
+From: Milan Broz <mbroz@redhat.com>
 
-thanks,
+The new ioctl code passes the wrong file pointer to the underlying device.
+No file pointer is available so make a temporary fake one.
 
-greg k-h
+Signed-off-by: Milan Broz <mbroz@redhat.com>
+Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+
+Index: linux-2.6.17/drivers/md/dm-mpath.c
+===================================================================
+--- linux-2.6.17.orig/drivers/md/dm-mpath.c	2006-06-23 19:17:27.000000000 +0100
++++ linux-2.6.17/drivers/md/dm-mpath.c	2006-06-23 19:17:40.000000000 +0100
+@@ -1272,15 +1272,22 @@ static int multipath_ioctl(struct dm_tar
+ 	struct multipath *m = (struct multipath *) ti->private;
+ 	struct block_device *bdev = NULL;
+ 	unsigned long flags;
++	struct file fake_file = {};
++	struct dentry fake_dentry = {};
+ 	int r = 0;
+ 
++	fake_file.f_dentry = &fake_dentry;
++
+ 	spin_lock_irqsave(&m->lock, flags);
+ 
+ 	if (!m->current_pgpath)
+ 		__choose_pgpath(m);
+ 
+-	if (m->current_pgpath)
++	if (m->current_pgpath) {
+ 		bdev = m->current_pgpath->path.dev->bdev;
++		fake_dentry.d_inode = bdev->bd_inode;
++		fake_file.f_mode = m->current_pgpath->path.dev->mode;
++	}
+ 
+ 	if (m->queue_io)
+ 		r = -EAGAIN;
+@@ -1289,8 +1296,8 @@ static int multipath_ioctl(struct dm_tar
+ 
+ 	spin_unlock_irqrestore(&m->lock, flags);
+ 
+-	return r ? : blkdev_driver_ioctl(bdev->bd_inode, filp, bdev->bd_disk,
+-		     cmd, arg);
++	return r ? : blkdev_driver_ioctl(bdev->bd_inode, &fake_file,
++					 bdev->bd_disk, cmd, arg);
+ }
+ 
+ /*-----------------------------------------------------------------
+Index: linux-2.6.17/drivers/md/dm-linear.c
+===================================================================
+--- linux-2.6.17.orig/drivers/md/dm-linear.c	2006-06-23 19:17:27.000000000 +0100
++++ linux-2.6.17/drivers/md/dm-linear.c	2006-06-23 19:17:40.000000000 +0100
+@@ -104,8 +104,14 @@ static int linear_ioctl(struct dm_target
+ {
+ 	struct linear_c *lc = (struct linear_c *) ti->private;
+ 	struct block_device *bdev = lc->dev->bdev;
++	struct file fake_file = {};
++	struct dentry fake_dentry = {};
+ 
+-	return blkdev_driver_ioctl(bdev->bd_inode, filp, bdev->bd_disk, cmd, arg);
++	fake_file.f_mode = lc->dev->mode;
++	fake_file.f_dentry = &fake_dentry;
++	fake_dentry.d_inode = bdev->bd_inode;
++
++	return blkdev_driver_ioctl(bdev->bd_inode, &fake_file, bdev->bd_disk, cmd, arg);
+ }
+ 
+ static struct target_type linear_target = {

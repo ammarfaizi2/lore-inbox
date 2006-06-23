@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWFWN5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWFWOAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWFWN5z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 09:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWFWN5p
+	id S1750709AbWFWOAw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 10:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWFWOAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 09:57:45 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:44675 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750734AbWFWNs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 09:48:59 -0400
-Subject: Re: [PATCH v3 1/7] AMSO1100 Low Level Driver.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: rdreier@cisco.com, mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <1151070290.7808.33.camel@stevo-desktop>
-References: <20060620203050.31536.5341.stgit@stevo-desktop>
-	 <20060620203055.31536.15131.stgit@stevo-desktop>
-	 <1150836226.2891.231.camel@laptopd505.fenrus.org>
-	 <1151070290.7808.33.camel@stevo-desktop>
-Content-Type: text/plain
-Date: Fri, 23 Jun 2006 15:48:52 +0200
-Message-Id: <1151070532.3204.10.camel@laptopd505.fenrus.org>
+	Fri, 23 Jun 2006 10:00:43 -0400
+Received: from 1wt.eu ([62.212.114.60]:17929 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1750709AbWFWOAh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 10:00:37 -0400
+Date: Fri, 23 Jun 2006 15:52:01 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Andi Kleen <ak@suse.de>
+Cc: pageexec@freemail.hu, marcelo@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64: another fix for canonical RIPs during signal handling
+Message-ID: <20060623135201.GB24737@1wt.eu>
+References: <449BC808.4174.277D15CF@pageexec.freemail.hu> <449C0616.4382.286F7C8C@pageexec.freemail.hu> <20060623133217.GA24737@1wt.eu> <200606231546.21731.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606231546.21731.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > > +	/* Tell HW to xmit */
-> > > +	__raw_writeq(cpu_to_be64(mapaddr), elem->hw_desc + C2_TXP_ADDR);
-> > > +	__raw_writew(cpu_to_be16(maplen), elem->hw_desc + C2_TXP_LEN);
-> > > +	__raw_writew(cpu_to_be16(TXP_HTXD_READY), elem->hw_desc + C2_TXP_FLAGS);
-> > 
-> > or here
-> > 
+On Fri, Jun 23, 2006 at 03:46:21PM +0200, Andi Kleen wrote:
 > 
-> No need here.  This logic submits the packet for transmission.  We don't
-> assume it is transmitted until we (after a completion interrupt usually)
-> read back the HTXD entry and see the TXP_HTXD_DONE bit set (see
-> c2_tx_interrupt()). 
+> > If I understand it well, an application which maps address 0 has no way to
+> > be notified that the kernel detected a corrupted stack pointer. 
+> 
+> It will just not crash again after the application tried to deliberately
+> crash the kernel.
 
-... but will that interrupt happen at all if these 3 writes never hit
-the hardware?
+"deliberately" is a bit exagerated here. Failed stack overflows,
+hardware memory corruption and various bugs that happen to most
+application developpers at early coding stage are not what can be
+called "deliberate".
 
+Also, I don't know if memory leak detectors rely on getting a SEGV,
+but this patch would make them useless on apps which map addr 0.
+
+> > I agree 
+> > that if the proposed patch avoids to make this undesired distinction between
+> > apps that map addr 0 and those which don't, it would be better to merge it.
+> > Andi, you said there was nothing wrong with it, do you accept that it gets
+> > merged ?
+> 
+> As I said, it's not wrong, just not necessary.
+
+I understand your point, but I think that covering most situations the
+same way helps reducing exceptions, and helps troubleshooting.
+
+> -Andi
+
+Regards,
+Willy
 

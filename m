@@ -1,89 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752000AbWFWT5P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752008AbWFWUAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752000AbWFWT5P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 15:57:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752005AbWFWT5P
+	id S1752008AbWFWUAi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752009AbWFWUAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 15:57:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:421 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752000AbWFWT5P (ORCPT
+	Fri, 23 Jun 2006 16:00:38 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:15253 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1752008AbWFWUAh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 15:57:15 -0400
-Date: Fri, 23 Jun 2006 12:57:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: deweerdt@free.fr, greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-pm@osdl.org, stern@rowland.harvard.edu
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-Message-Id: <20060623125706.69dafffd.akpm@osdl.org>
-In-Reply-To: <20060623125658.GB8048@elf.ucw.cz>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
-	<4499BE99.6010508@gmail.com>
-	<20060621221445.GB3798@inferi.kami.home>
-	<20060622061905.GD15834@kroah.com>
-	<20060622004648.f1912e34.akpm@osdl.org>
-	<20060622160403.GB2539@slug>
-	<20060622092506.da2a8bf4.akpm@osdl.org>
-	<20060623090206.GA2234@slug>
-	<20060623091016.GE4940@elf.ucw.cz>
-	<20060623121210.GB2234@slug>
-	<20060623125658.GB8048@elf.ucw.cz>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 23 Jun 2006 16:00:37 -0400
+Message-ID: <449C4865.7040706@engr.sgi.com>
+Date: Fri, 23 Jun 2006 13:00:37 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Shailabh Nagar <nagar@watson.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
+References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com> <20060609042129.ae97018c.akpm@osdl.org> <4489EE7C.3080007@watson.ibm.com> <449999D1.7000403@engr.sgi.com> <44999A98.8030406@engr.sgi.com> <44999F5A.2080809@watson.ibm.com> <4499D7CD.1020303@engr.sgi.com> <449C2181.6000007@watson.ibm.com> <449C30C1.6090802@engr.sgi.com> <449C3897.70001@watson.ibm.com>
+In-Reply-To: <449C3897.70001@watson.ibm.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 14:57:01 +0200
-Pavel Machek <pavel@ucw.cz> wrote:
+Shailabh Nagar wrote:
+>Jay Lan wrote:
+>  
+>>Shailabh Nagar wrote:
+>>
+>>    
+>>>Hi Andrew,
+>>>
+>>>Two developments on the tgid overhead issue:
+>>>
+>>>1. The latest results show that overhead is significant
+>>>only when the exit rate exceeds roughly 1000 threads/second.
+>>>
+>>>      
+>>I worked with Shailabh this week to run various testing and
+>>debugging as he requested. I was pulled off to some urgent
+>>task yesterday and surprising saw this coming this morning...
+>>    
+>
+>Sorry...didn't mean to surprise. I sent you the data last night
+>privately with request for comments.
+>  
 
-> > Stack: c0229b71 00000046 00000000 00000286 c0383ca7 f6cb9ecc c013b242 00000003
-> >         00000000 00000003 f6cb9ee0 c013b2e8 00000003 c0436890 f6c9a003 f6cb9f08
-> >         c013b481 00000003 00000003 00000246 c1788b00 00000003 c04368a0 c043692c
-> > Call Trace:
-> >  <c0103eea> show_stack_log_lvl+0x92/0xb7  <c0104100> show_registers+0x1a3/0x21b
-> >  <c0104319> die+0x117/0x230  <c03627a6> do_page_fault+0x39c/0x72a
-> >  <c0103b2f> error_code+0x4f/0x54  <c013b242> suspend_enter+0x2f/0x52
-> >  <c013b2e8> enter_state+0x4b/0x8d  <c013b481> state_store+0xa0/0xa2
-> >  <c01a5151> subsys_attr_store+0x37/0x41  <c01a53d2> flush_write_buffer+0x3c/0x46
-> >  <c01a5443> sysfs_write_file+0x67/0x8b  <c0166bb6> vfs_write+0x1b9/0x1be
-> >  <c0166c7b> sys_write+0x4b/0x75  <c010300f> sysenter_past_esp+0x54/0x75
-> > 
-> > Code: 05 c4 42 43 c0 31 43 43 c0 c3 8b 2d 68 6e 54 c0 8b 1d 60 6e 54 c0 8b 35 6c 6e 54 c0 8b 3d 70 6d 54 c0 ff 35 74 6e 54 c0 9d c3 90 <e8> 6d 38 ea ff e8 a2 ff ff ff 6a 03 e8 ec b6 de ff 83 c4 04 c3
-> > EIP: [c043431c>] do_suspend_lowlevel+0x0/0x15 SS:ESP 0068:f6cb6ea4
->   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> Ha, wait a moment, this is interesting line. Can you trace down which
-> instruction causes this?
-> 
-> We recently changed pagetable handling during swsusp, perhaps thats
-> it? It went to Linus few minutes ago...
+Yeah, i saw it, but did not have time to respond before your posting.
 
-That's a good possibility.  It does appear to be oopsing at the first
-instruction of arch/i386/kernel/acpi/wakeup.S:do_suspend_lowlevel(). 
-Perhaps there's enough info in that oops trace to tell us whether it was
-the instruction fetch which oopsed.
+>Your testing and help has been very valuable and helped uncover
+>two issues: the locking patch (sent separately) and also a
+>dependency between taskstats and delay accounting (for which another
+>patch is being sent out shortly).
+>
+>  
+>>Let's slow it down please. My last testing (after your fix in
+>>#2 below) still showed 109% overhead at system time. 
+>>    
+>
+>True, but my point is that the overhead is at an extremely
+>high exit rate. I think the test in which you saw 109% overhead
+>ran 5000 iterations of 1000 threads and had an elapsed time of
+>294 seconds (with tgid turned off) giving an exit rate of roughly
+>8500 exits/second, right ?
+>
+>My results confirm the high overhead at these exit rates. In fact,
+>on the system I used, I see the 649% overhead for the 2200 exits/second case
+>even higher than yours) but the point is whether that exit rate
+>is a valid design criteria.
+>  
 
-One wonders whether this will help...
+Agreed. The indeed the deciding factor. The exit rate in the labs
+does not help answer this question. I need input from our fields.
 
---- a/arch/i386/kernel/acpi/wakeup.S~a
-+++ a/arch/i386/kernel/acpi/wakeup.S
-@@ -270,6 +270,7 @@ ALIGN
- ENTRY(saved_magic)	.long	0
- ENTRY(saved_eip)	.long	0
- 
-+.text
- save_registers:
- 	leal	4(%esp), %eax
- 	movl	%eax, saved_context_esp
-@@ -304,6 +305,7 @@ ret_point:
- 	call	restore_processor_state
- 	ret
- 
-+.data
- ALIGN
- # saved registers
- saved_gdt:	.long	0,0
-_
+>  
+>>And, the per-thread group processing also increase the rate of ENOBUFS
+>>at the receiver.
+>>    
+>
+>Could you quantify please ? Also, pls list the exit rate at which
+>this happens.
+>  
+
+I have not posted it nor quantify it because i must bring down the errors
+count, or we (CSA) have to explore a different way. So any comparison
+on these number at this point does not really help. Again, if the exit rate
+is unrealistic, then i need to run a different set of testings. What
+sleep_factor did you use? Are those printf() in your new test program
+essential?
+
+>  
+>>I need to check with other guys to find out if 1000 threads/sec
+>>indeed unrealistic at our customers' environments. A good
+>>design should allow a mechanism to turn off the penalty due to
+>>a feature that is not common to everybody. I do not understand
+>>your objection.
+>>    
+>
+>Only objection is that design shouldn't cater to a case that is
+>extremely unlikely in practice. In most situations, there is no
+>or insignificant penalty.
+>  
+
+If this type of exit rate can happen even once a day, the surge may cause
+loss of accounting data of other processes. Again, i do not have data
+to say either way yet. But i would rather spend time on working on
+the ENOBUFS error than running all different tests to argue on the
+per-TG switch.
+
+Regards,
+ - jay
+
+>Perhaps others on the list can also chip in whether this kind of exit
+>rate is realistic in some scenarios and where the peformance
+>penalty matters (i.e. not system shutdown etc.)
+>
+>Please note that the exits have to be for multithreaded apps, not
+>single-threaded ones for which tgid sending is already turned off.
+>
+>Thanks,
+>Shailabh
+>
+>  
+>>Regards,
+>> - jay
+>>
+>>
+>>    
+>>>2. A new patch that modifies the locking used within taskstats,
+>>>brings down the overhead of the extreme case quite a bit.
+>>>I'll submit the patch along shortly in a separate mail.
+>>>
+>>>To get back to the effect of exit rate, I modified the fork+exit
+>>>benchmark to vary the rate at which exits happened and
+>>>ran tests on a 4-way 1.4 GHz x86_64 box. The kernel was 2.6.17,
+>>>uses the delay accounting/taskstat patches in 2.6.17-mm1 + the new
+>>>locking patch mentioned in 2. above.
+>>>
+>>>The results show that differential between tgid on and off
+>>>starts becoming significant once the exit rate crosses roughly 1000
+>>>threads/second. Below that exit rate, the difference is negligible.
+>>>Above it, the difference starts climbing rapidly.
+>>>
+>>>So I guess the question is whether this rate of exit is representative
+>>>enough of real life to warrant making any more changes to the existing
+>>>patchset, beyond the locking changes in 2. above.
+>>>
+>>>>From my limited experience, I think this is too high an exit rate
+>>>to be worrying about overhead.
+>>>
+>>>
+>>>      %ovhd of tgid on over off
+>>>      (higher is worse)
+>>>
+>>>Exit     User     Sys     Elapsed
+>>>Rate     Time     Time    Time
+>>>
+>>>2283      25.76  649.41   -0.14
+>>>1193     -10.53   88.81   -0.12
+>>>963      -11.90    3.28   -0.10
+>>>806       -8.54   -0.84    0.16
+>>>694       -4.41    2.38    0.03
+>>>
+>>>Exit Rate: units are threads exiting per second.
+>>>Calculated by (#threads_forked+exited)/(elapsed_time)/2
+>>>Since app pretty much does only thread create and exit for 10000
+>>>threads (1000 threads, 10 iterations), this is a good measure
+>>>for exit rate.
+>>>
+>>>%diff in user, sys, elapsed times calculated using
+>>>(tgid_on - tgid_off)/tgid_off * 100
+>>>where tgid_on/off times are reported by /usr/bin/time as before.
+>>>
+>>>Each data point for tgid_on and tgid_off was an average
+>>>of 10 runs of the fork+exit benchmark.
+>>>The rate of exits was controlled by delaying the individual
+>>>threads through a usleep before being allowed to exit.
+>>>
+>>>Machine was 4-way 1.6GHz x86_64 Opteron.
+>>>
+>>>"exit_recv -w", the user program consuming the stats, was running
+>>>on the side, reading the stats but not writing to a file or
+>>>printing to screen.
+>>>
+>>>      
+>>    
+>
+>  
 

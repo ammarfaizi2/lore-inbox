@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752132AbWFWWqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752153AbWFWWsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752132AbWFWWqk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 18:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752150AbWFWWqj
+	id S1752153AbWFWWsY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 18:48:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752154AbWFWWsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 18:46:39 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:8602 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1752132AbWFWWqj (ORCPT
+	Fri, 23 Jun 2006 18:48:24 -0400
+Received: from mail.gmx.de ([213.165.64.21]:133 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1752153AbWFWWsY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 18:46:39 -0400
-Date: Fri, 23 Jun 2006 15:43:18 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: rajesh.shah@intel.com, akpm@osdl.org, brice@myri.com,
-       76306.1226@compuserve.com, arjan@linux.intel.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/2] x86_64 PCI: improve extended config space verification
-Message-ID: <20060623224318.GB31139@suse.de>
-References: <20060623200928.036235000@rshah1-sfield.jf.intel.com> <20060623201601.752629000@rshah1-sfield.jf.intel.com> <200606232230.36579.ak@suse.de>
+	Fri, 23 Jun 2006 18:48:24 -0400
+X-Authenticated: #14349625
+Subject: Re: Measuring tools - top and interrupts
+From: Mike Galbraith <efault@gmx.de>
+To: danial_thom@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060623201454.68199.qmail@web33303.mail.mud.yahoo.com>
+References: <20060623201454.68199.qmail@web33303.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Sat, 24 Jun 2006 00:51:59 +0200
+Message-Id: <1151103119.11935.74.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606232230.36579.ak@suse.de>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 10:30:36PM +0200, Andi Kleen wrote:
-> On Friday 23 June 2006 22:09, rajesh.shah@intel.com wrote:
-> > Extend the verification for PCI-X/PCI-Express extended config
-> > space pointer. This patch checks whether the MCFG address range
-> > is listed as a motherboard resource, per the PCI firmware spec.
-> > The old check only looked in int 15 e820 memory map, causing
-> > several systems to fail the verification and lose extended
-> > config space.
+On Fri, 2006-06-23 at 13:14 -0700, Danial Thom wrote:
+>  
+> Thats a pretty crappy controller you have in with
+> that shiny P4...
+
+Shrug.  It's a grocery store desktop box, and I'm quite happy with it,
+but that has roughly zip to do with the price of tea in China.
+
+> I'm not sure that they want the tools to work.
+> They'll just call you a troll and go on
+> developing unnecessary things like NAPI because
+> they're still using controllers designed by DEC
+> (remember them?) back in the stone ages. 
 > 
-> By adding so much code to it you volunteered to factor the 
-> sanity check into a common i386/x86-64 file first.
+> Yet I regularly encounter people using cheap NICs
+> with expensive cpus on network-intensive
+> applications. But you'd think one or two people
+> would have a clue.
 
-I agree :)
+As does that.
 
-Also, have you looked at the current -git tree?  It also modified some
-stuff in this area?  Look at commit
-ead2bfeb7f739d2ad6e09dc1343f0da51feb7f51 for details.
+	-Mike
 
-thanks,
-
-greg k-h

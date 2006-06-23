@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751793AbWFWRN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751792AbWFWRNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751793AbWFWRN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 13:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751804AbWFWRN3
+	id S1751792AbWFWRNP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 13:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751793AbWFWRNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 13:13:29 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:50573 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1751793AbWFWRN1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 13:13:27 -0400
-Date: Fri, 23 Jun 2006 10:14:57 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Steve Wise <swise@opengridcomputing.com>, rdreier@cisco.com,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       netdev@vger.kernel.org
-Subject: Re: [openib-general] [PATCH v3 1/7] AMSO1100 Low Level Driver.
-Message-ID: <20060623171457.GA3610@esmail.cup.hp.com>
-References: <20060620203050.31536.5341.stgit@stevo-desktop> <20060620203055.31536.15131.stgit@stevo-desktop> <1150836226.2891.231.camel@laptopd505.fenrus.org> <1151070290.7808.33.camel@stevo-desktop> <1151070532.3204.10.camel@laptopd505.fenrus.org> <1151071005.7808.39.camel@stevo-desktop> <1151071471.3204.12.camel@laptopd505.fenrus.org>
+	Fri, 23 Jun 2006 13:13:14 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:51460 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751792AbWFWRNO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 13:13:14 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: danial_thom@yahoo.com
+Subject: Re: Measuring tools - top and interrupts
+Date: Fri, 23 Jun 2006 18:13:33 +0100
+User-Agent: KMail/1.9.3
+Cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
+References: <20060622233744.99206.qmail@web33314.mail.mud.yahoo.com>
+In-Reply-To: <20060622233744.99206.qmail@web33314.mail.mud.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1151071471.3204.12.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200606231813.33855.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 04:04:31PM +0200, Arjan van de Ven wrote:
-> > I thought the posted write WILL eventually get to adapter memory.  Not
-> > stall forever cached in a bridge.  I'm wrong?
-> 
-> I'm not sure there is a theoretical upper bound.... 
+On Friday 23 June 2006 00:37, Danial Thom wrote:
+> Of course you folks could never really know that,
+> because the tools to measure things don't work,
+> and you all seem to be using systems that are so
+> kludged up that you don't even know what you're
+> measuring.
 
-I'm not aware of one either since MMIO writes can travel
-across many other chips that are not constrained by
-PCI ordering rules (I'm thinking of SGI Altix...)
+Next time attach a patch fixing, or at least bother to investigate the problem 
+which you're so rudely flaming about. Maybe Linux is broken. Nobody said it 
+wasn't. But you're closer to (and clearly care more about) the problem than 
+99% of the people reading your email.
 
-> (and if it's several msec per bridge, then you have a lot of latency
-> anyway)
+So why don't you help fix it, instead of laying into Erik and the netdev 
+people (who incidentally aren't CC'ed)?
 
-That's what my original concern was when I saw you point this out.
-But MMIO reads here would be expensive and many drivers tolerate
-this latency in exchange for avoiding the MMIO read in the
-performance path.
+-- 
+Cheers,
+Alistair.
 
-grant
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,90 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751804AbWFWRP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751800AbWFWRUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751804AbWFWRP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 13:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751806AbWFWRP0
+	id S1751800AbWFWRUm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 13:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751806AbWFWRUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 13:15:26 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:46278 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751804AbWFWRP0 (ORCPT
+	Fri, 23 Jun 2006 13:20:42 -0400
+Received: from mx6.mail.ru ([194.67.23.26]:35858 "EHLO mx6.mail.ru")
+	by vger.kernel.org with ESMTP id S1751800AbWFWRUl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 13:15:26 -0400
-Message-ID: <449C2181.6000007@watson.ibm.com>
-Date: Fri, 23 Jun 2006 13:14:41 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jay Lan <jlan@engr.sgi.com>, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com> <20060609042129.ae97018c.akpm@osdl.org> <4489EE7C.3080007@watson.ibm.com> <449999D1.7000403@engr.sgi.com> <44999A98.8030406@engr.sgi.com> <44999F5A.2080809@watson.ibm.com> <4499D7CD.1020303@engr.sgi.com>
-In-Reply-To: <4499D7CD.1020303@engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 23 Jun 2006 13:20:41 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATA driver patch for 2.6.17
+Date: Fri, 23 Jun 2006 21:20:37 +0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <1150740947.2871.42.camel@localhost.localdomain> <200606222050.34248.arvidjaar@mail.ru> <1151076278.4549.49.camel@localhost.localdomain>
+In-Reply-To: <1151076278.4549.49.camel@localhost.localdomain>
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606232120.38232.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Two developments on the tgid overhead issue:
+On Friday 23 June 2006 19:24, Alan Cox wrote:
+> Ar Iau, 2006-06-22 am 20:50 +0400, ysgrifennodd Andrey Borzenkov:
+> > Anything else I could try to help pinpoint the problem?
+>
+> Set the controller to support PIO only and see what happens.
+>
+> [ie set .udma_mask = 0 i nthe ali_init_one entries]
+>
+> If that works it implies the DMA tuning may be involved.
 
-1. The latest results show that overhead is significant
-only when the exit rate exceeds roughly 1000 threads/second.
+this works (sr is module)
 
-2. A new patch that modifies the locking used within taskstats,
-brings down the overhead of the extreme case quite a bit.
-I'll submit the patch along shortly in a separate mail.
+libata version 1.20 loaded.
+ACPI: PCI Interrupt 0000:00:04.0[A]: no GSI
+ata1: PATA max PIO4 cmd 0x1F0 ctl 0x3F6 bmdma 0xEFF0 irq 14
+ata1: dev 0 cfg 49:0f00 82:746b 83:49a8 84:4003 85:f469 86:0800 87:4003 
+88:103f
+ata1: dev 0 ATA-5, max UDMA/100, 39070080 sectors: LBA
+ata1: dev 0 configured for PIO4
+scsi0 : ali
+  Vendor: ATA       Model: IC25N020ATDA04-0  Rev: DA3O
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+ata2: PATA max PIO4 cmd 0x170 ctl 0x376 bmdma 0xEFF8 irq 15
+ata2: dev 0 cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 
+88:0407
+ata2: dev 0 ATAPI, max UDMA/33
+ata2: dev 0 configured for PIO4
+scsi1 : ali
+  Vendor: TOSHIBA   Model: DVD-ROM SD-C2502  Rev: 1313
+  Type:   CD-ROM                             ANSI SCSI revision: 05
+SCSI device sda: 39070080 512-byte hdwr sectors (20004 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 39070080 512-byte hdwr sectors (20004 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2
+sd 0:0:0:0: Attached scsi disk sda
 
-To get back to the effect of exit rate, I modified the fork+exit
-benchmark to vary the rate at which exits happened and
-ran tests on a 4-way 1.4 GHz x86_64 box. The kernel was 2.6.17,
-uses the delay accounting/taskstat patches in 2.6.17-mm1 + the new
-locking patch mentioned in 2. above.
+next step? :)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-The results show that differential between tgid on and off
-starts becoming significant once the exit rate crosses roughly 1000
-threads/second. Below that exit rate, the difference is negligible.
-Above it, the difference starts climbing rapidly.
-
-So I guess the question is whether this rate of exit is representative
-enough of real life to warrant making any more changes to the existing
-patchset, beyond the locking changes in 2. above.
-
->From my limited experience, I think this is too high an exit rate
-to be worrying about overhead.
-
-
-        %ovhd of tgid on over off
-        (higher is worse)
-
-Exit     User     Sys     Elapsed
-Rate     Time     Time    Time
-
-2283      25.76  649.41   -0.14
-1193     -10.53   88.81   -0.12
-963      -11.90    3.28   -0.10
-806       -8.54   -0.84    0.16
-694       -4.41    2.38    0.03
-
-Exit Rate: units are threads exiting per second.
-Calculated by (#threads_forked+exited)/(elapsed_time)/2
-Since app pretty much does only thread create and exit for 10000
-threads (1000 threads, 10 iterations), this is a good measure
-for exit rate.
-
-%diff in user, sys, elapsed times calculated using
-(tgid_on - tgid_off)/tgid_off * 100
-where tgid_on/off times are reported by /usr/bin/time as before.
-
-Each data point for tgid_on and tgid_off was an average
-of 10 runs of the fork+exit benchmark.
-The rate of exits was controlled by delaying the individual
-threads through a usleep before being allowed to exit.
-
-Machine was 4-way 1.6GHz x86_64 Opteron.
-
-"exit_recv -w", the user program consuming the stats, was running
-on the side, reading the stats but not writing to a file or
-printing to screen.
+iD8DBQFEnCLlR6LMutpd94wRArNuAJ9gqT7pSW5GwKN7xHlKP6EwNAAE9wCdH2gt
+cwtcRFOix65bcL6fm4AlnKA=
+=eCqh
+-----END PGP SIGNATURE-----

@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751895AbWFWTK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751914AbWFWTNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751895AbWFWTK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 15:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751948AbWFWTK0
+	id S1751914AbWFWTNs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 15:13:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751946AbWFWTNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 15:10:26 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:3742 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751895AbWFWTKZ (ORCPT
+	Fri, 23 Jun 2006 15:13:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43202 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751914AbWFWTNs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 15:10:25 -0400
-Date: Fri, 23 Jun 2006 15:10:02 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Amul Shah <amul.shah@unisys.com>
-Cc: Takashi Iwai <tiwai@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, fastboot@osdl.org,
-       Eric Biederman <ebiederm@xmission.com>,
-       Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [Fastboot] [PATCH] Fix kdump Crash Kernel boot memory reservation for NUMA	machines
-Message-ID: <20060623191002.GD7551@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <1151089038.29121.32.camel@b4.na.uis.unisys.com>
+	Fri, 23 Jun 2006 15:13:48 -0400
+Date: Fri, 23 Jun 2006 20:13:40 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dm: support ioctls on mapped devices: fix with fake file
+Message-ID: <20060623191340.GA19222@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060623183829.GZ19222@agk.surrey.redhat.com> <20060623184520.GB22172@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1151089038.29121.32.camel@b4.na.uis.unisys.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060623184520.GB22172@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 02:57:17PM -0400, Amul Shah wrote:
-> This patch will fix a boot memory reservation bug that trashes memory on
-> the ES7000 when loading the kdump crash kernel.
-> 
-> The code in arch/x86_64/kernel/setup.c to reserve boot memory for the 
-> crash kernel uses the non-numa aware "reserve_bootmem" function instead 
-> of the NUMA aware "reserve_bootmem_generic".  I checked to make sure 
-> that no other function was using "reserve_bootmem" and found none, 
-> except the ones that had NUMA ifdef'ed out.
-> 
-> I have tested this patch only on an ES7000 with NUMA on and off (numa=off)
-> in a single (non-NUMA) and multi-cell (NUMA) configurations.
-> 
-> Signed-off-by: Amul Shah <amul.shah@unisys.com>
-> 
-> 
-> ---
-> --- linux-2.6.16.18-1.8/arch/x86_64/kernel/setup.c      2006-06-06 12:07:42.000000000 -0400
-> +++ linux-2.6.16.18-1.8-az/arch/x86_64/kernel/setup.c   2006-06-21 17:06:04.000000000 -0400
-> @@ -715,7 +715,7 @@ void __init setup_arch(char **cmdline_p)
->  #endif
->  #ifdef CONFIG_KEXEC
->         if (crashk_res.start != crashk_res.end) {
-> -               reserve_bootmem(crashk_res.start,
-> +               reserve_bootmem_generic(crashk_res.start,
->                         crashk_res.end - crashk_res.start + 1);
->         }
+On Fri, Jun 23, 2006 at 07:45:20PM +0100, Christoph Hellwig wrote:
+> NACK.  You should use ioctl_by_bdev and fix it to fake up the file pointer
+> instead.  That keeps faking the file pointer in a single place and solves
+> the problem of NULL file pointers for other cases like the s390 partitioning
+> code, or various odd filesystems figuring out partition tables by themselves.
+> For bonus points use a common helper for both blkdev_get and ioctl_by_bdev
+> that creates the fake struct file.
 
-Looks good to me. I know of a 64w NUMA machine test results and kdump
-was successful. Not sure why did not we see the problem there. But
-anyway this is logical.
+Fixing the existing callers that pass a NULL file struct is a separate matter
+that can be handled by a later patch, as can consolidating all the fake users.
 
-Thanks
-Vivek
+I don't follow the reasoning behind backing out and using ioctl_by_bdev() here.
+Isn't the primary reason for its existence to add a set_fs(KERNEL_DS) to the
+mix?  I don't understand why device-mapper should interfere (surely
+incorrectly?) at that level.
 
+Alasdair
+-- 
+agk@redhat.com

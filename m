@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752021AbWFWUSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752029AbWFWUWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752021AbWFWUSi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 16:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752022AbWFWUSh
+	id S1752029AbWFWUWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752030AbWFWUWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 16:18:37 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:41392 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1752021AbWFWUSh (ORCPT
+	Fri, 23 Jun 2006 16:22:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24718 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752029AbWFWUWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 16:18:37 -0400
-Message-ID: <449C4C8B.4010009@garzik.org>
-Date: Fri, 23 Jun 2006 16:18:19 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: rajesh.shah@intel.com
-CC: ak@suse.de, gregkh@suse.de, akpm@osdl.org, brice@myri.com,
-       76306.1226@compuserve.com, arjan@linux.intel.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/2] PCI: improve extended config space verification
-References: <20060623200928.036235000@rshah1-sfield.jf.intel.com>
-In-Reply-To: <20060623200928.036235000@rshah1-sfield.jf.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Fri, 23 Jun 2006 16:22:24 -0400
+Date: Fri, 23 Jun 2006 16:22:04 -0400
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>, Frederik Deweerdt <deweerdt@free.fr>,
+       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, linux-pm@osdl.org,
+       stern@rowland.harvard.edu
+Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
+Message-ID: <20060623202204.GC4102@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>, Frederik Deweerdt <deweerdt@free.fr>,
+	Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+	linux-kernel@vger.kernel.org, linux-pm@osdl.org,
+	stern@rowland.harvard.edu
+References: <20060621034857.35cfe36f.akpm@osdl.org> <4499BE99.6010508@gmail.com> <20060621221445.GB3798@inferi.kami.home> <20060622061905.GD15834@kroah.com> <20060622004648.f1912e34.akpm@osdl.org> <20060622160403.GB2539@slug> <20060622092506.da2a8bf4.akpm@osdl.org> <20060623090206.GA2234@slug> <20060623091016.GE4940@elf.ucw.cz> <20060623194100.GA3812@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060623194100.GA3812@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rajesh.shah@intel.com wrote:
-> ACPI defines an MCFG table that gives us the pointer to where the
-> extended PCI-X/PCI-Express configuration space exists. We validate
-> this region today by making sure that the reported range is marked
-> as reserved in the int 15 E820 memory map. However, the PCI firmware
-> spec states this is optional and BIOS should be reporting the MCFG
-> range as a motherboard resources. Several of my systems failed the
-> existing check and ended up without extended PCI-Express config
-> space. This patch extends the verification to also look for the
-> MCFG range as a motherboard resource in ACPI. This solves the
-> problem on my i386 as well as x86_64 test systems.
+On Fri, Jun 23, 2006 at 08:41:01PM +0100, Russell King wrote:
+ > On Fri, Jun 23, 2006 at 11:10:21AM +0200, Pavel Machek wrote:
+ > > Serial console is currently broken by suspend, resume. _But_ I have a
+ > > patch I'd like you to try.... pretty please?
+ > 
+ > Did you bother trying my patch, which was done the Right(tm) way?
+ > There wasn't any feedback on it so I can only assume not.
 
-On a related note -- PCI segments potentially enumerated in ACPI -- I 
-have a PCI segments patch available at:
+I thought I had replied to that.   It didn't make any difference for me.
+I recall seeing a posting from someone else saying the same thing.
 
-'pciseg' branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
-
-GregKH also has a few fixes for this which I need to integrate, too.
-
-	Jeff
+		Dave
 
 
+-- 
+http://www.codemonkey.org.uk

@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751758AbWFWQg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751752AbWFWQgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751758AbWFWQg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 12:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWFWQg3
+	id S1751752AbWFWQgO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 12:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751750AbWFWQgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 12:36:29 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:28387 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751754AbWFWQg1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 12:36:27 -0400
-Date: Fri, 23 Jun 2006 11:36:24 -0500
-To: netdev@vger.kernel.org, john.ronciak@intel.com, jesse.brandeburg@intel.com,
-       jeffrey.t.kirsher@intel.com, "Zhang, Yanmin" <yanmin.zhang@intel.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH]: e1000: Janitor: Use #defined values for literals
-Message-ID: <20060623163624.GM8866@austin.ibm.com>
+	Fri, 23 Jun 2006 12:36:13 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:36265 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751752AbWFWQgN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 12:36:13 -0400
+Date: Fri, 23 Jun 2006 11:35:40 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] make kernel/utsname.c:clone_uts_ns()
+Message-ID: <20060623163540.GB32224@sergelap.austin.ibm.com>
+References: <20060621034857.35cfe36f.akpm@osdl.org> <20060623105551.GR9111@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: linas@austin.ibm.com (Linas Vepstas)
+In-Reply-To: <20060623105551.GR9111@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+True.
 
-Minor janitorial patch: use #defines for literal values.
+Acked-by: Serge Hallyn <serue@us.ibm.com>
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+thanks,
+-serge
 
-----
- drivers/net/e1000/e1000_main.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.17-rc6-mm2/drivers/net/e1000/e1000_main.c
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/drivers/net/e1000/e1000_main.c	2006-06-13 18:13:30.000000000 -0500
-+++ linux-2.6.17-rc6-mm2/drivers/net/e1000/e1000_main.c	2006-06-23 11:27:47.000000000 -0500
-@@ -4663,8 +4663,8 @@ static pci_ers_result_t e1000_io_slot_re
- 	}
- 	pci_set_master(pdev);
- 
--	pci_enable_wake(pdev, 3, 0);
--	pci_enable_wake(pdev, 4, 0); /* 4 == D3 cold */
-+	pci_enable_wake(pdev, PCI_D3hot, 0);
-+	pci_enable_wake(pdev, PCI_D3cold, 0);
- 
- 	/* Perform card reset only on one instance of the card */
- 	if (PCI_FUNC (pdev->devfn) != 0)
+Quoting Adrian Bunk (bunk@stusta.de):
+> This patch makes the needlessly global clone_uts_ns() static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.17-mm1-full/kernel/utsname.c.old	2006-06-22 20:53:20.000000000 +0200
+> +++ linux-2.6.17-mm1-full/kernel/utsname.c	2006-06-22 20:53:31.000000000 +0200
+> @@ -19,7 +19,7 @@
+>   * @old_ns: namespace to clone
+>   * Return NULL on error (failure to kmalloc), new ns otherwise
+>   */
+> -struct uts_namespace *clone_uts_ns(struct uts_namespace *old_ns)
+> +static struct uts_namespace *clone_uts_ns(struct uts_namespace *old_ns)
+>  {
+>  	struct uts_namespace *ns;
+>  

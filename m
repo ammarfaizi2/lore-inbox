@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751666AbWFWX33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752174AbWFWXj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751666AbWFWX33 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 19:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751669AbWFWX33
+	id S1752174AbWFWXj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 19:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752175AbWFWXj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 19:29:29 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:14727 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751647AbWFWX32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 19:29:28 -0400
-Date: Sat, 24 Jun 2006 08:27:43 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, jeremy@goop.org,
-       rdunlap@xenotime.net, clameter@sgi.com, ntl@pobox.com, akpm@osdl.org,
-       ashok.raj@intel.com, ak@suse.de, nickpiggin@yahoo.com.au, mingo@elte.hu
-Subject: Re: [RFC][PATCH] avoid cpu hot removal if busy take3
-Message-Id: <20060624082743.8e57755a.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060623120950.A31038@unix-os.sc.intel.com>
-References: <20060623164042.3a828e8e.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060623120950.A31038@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Fri, 23 Jun 2006 19:39:58 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:8070 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752174AbWFWXj5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 19:39:57 -0400
+Subject: Re: [PATCH] Per-task watchers: Enable inheritance
+From: Matt Helsley <matthltc@us.ibm.com>
+To: "John T. Kohl" <jtk@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Peter Williams <pwil3058@bigpond.net.au>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       LSE-Tech <lse-tech@lists.sourceforge.net>,
+       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
+In-Reply-To: <6c4pybmv19.fsf@sumu.lexma.ibm.com>
+References: <1150879635.21787.964.camel@stark>
+	 <6c4pybmv19.fsf@sumu.lexma.ibm.com>
+Content-Type: text/plain
+Date: Fri, 23 Jun 2006 16:33:04 -0700
+Message-Id: <1151105584.21787.1571.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 12:09:50 -0700
-Ashok Raj <ashok.raj@intel.com> wrote:
-
-> On Fri, Jun 23, 2006 at 04:40:42PM +0900, KAMEZAWA Hiroyuki wrote:
-> > This patch adds sysctl cpu_removal_migration.
-> > If cpu_removal_migration == 1, all tasks are migrated by force.
-> > If cpu_removal_migration == 0, cpu_hotremoval can fail because of not-migratable
-> > tasks.
+On Fri, 2006-06-23 at 17:17 -0400, John T. Kohl wrote:
+> >>>>> "MattH" ==   <matthltc@us.ibm.com> writes:
 > 
-> Having this dual behaviour is a concern. Probably we should have the tasks
-> decide if they want to terminate themselves if its not *OK* to run on a 
-> different CPU, and not have a policy in kernel decide which way the 
-> behaviour should be. The kernel policy should be to always force
-> the cpu removal to happen. Admin should decide what processes should terminate
-> ahead of time before the removal force migrates them.
+> MattH> This allows per-task watchers to implement inheritance of the
+> MattH> same function and/or data in response to the initialization of
+> MattH> new tasks. A watcher might implement inheritance using the
+> MattH> following notifier_call snippet:
 > 
-Hmm..I wish this forcced migration will not break resource isolation sub system
-in future.
+> I think this would meet our needs--we (MVFS) need to initialize some new
+> state in a child process based on our state in the parent process
+> (essentially, module-private inherited per-process state).  It may still
+> be a bit clumsy to find the per-process state in other situations,
+> though.  While a process is executing our module's code, would it be
+> safe to traverse current's notifier chain to find our state?
 
-> Once the kernel/admin chooses to perform cpu offline, it should not be possible
-> for some process to veto the removal and fail the removal. Removal was probably
-> choosen since we would like to offline a failing cpu, and dont want some
-> thing in the way to make that happen.
+	Hmm. We may need to be careful with terminology here. Keep in mind that
+a task is not the same as the userspace concept of a  "process".
 
-But in dynamic reconfiguration case (ex. VM resiging for load balancing)
-the demand is not so heavy. And if we want to remove cpu by force, just adding
-one line to script, echo 1 > /proc/sys/kernel/cpu_removal_migration is enough.
-This is not so big obstacle.
+	When a task is executing a module's code it will be safe to traverse
+the task's notifier chain to find state. It will *not* be safe to
+traverse the notifier chain of other tasks -- even if the other task is
+a thread in the same "process".
 
-
-> > +
-> > +	read_lock(&tasklist_lock);
-> > +	for_each_process(p) {
-> > +		if (p == current)
-> > +			continue;
-> > +		if (p->mm && cpus_equal(mask, p->cpus_allowed)) {
-> > +			ret = 1;
-> > +			pid = p->pid;
-> > +			break;
-> > +		}
-> 
-> Do you want to scan and print all possible id's? otherwise printk will
-> have just 1, and next attempt will show another pid now... in case the
-> admin wants to do something useful with this list, probably better to 
-> give it all out?
-> 
-Hmm, maybe useful. I'll consider again this if I can go ahead. 
-
-Thanks,
--Kame
+Cheers,
+	-Matt Helsley
 

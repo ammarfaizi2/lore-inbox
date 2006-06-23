@@ -1,96 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932948AbWFWJLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbWFWJP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932948AbWFWJLS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932950AbWFWJLS
+	id S932538AbWFWJP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932949AbWFWJP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:11:18 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10712 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932948AbWFWJLS (ORCPT
+	Fri, 23 Jun 2006 05:15:56 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:22161 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932538AbWFWJPz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:11:18 -0400
-Date: Fri, 23 Jun 2006 11:10:21 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, linux-pm@osdl.org,
-       stern@rowland.harvard.edu
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-Message-ID: <20060623091016.GE4940@elf.ucw.cz>
-References: <20060621034857.35cfe36f.akpm@osdl.org> <4499BE99.6010508@gmail.com> <20060621221445.GB3798@inferi.kami.home> <20060622061905.GD15834@kroah.com> <20060622004648.f1912e34.akpm@osdl.org> <20060622160403.GB2539@slug> <20060622092506.da2a8bf4.akpm@osdl.org> <20060623090206.GA2234@slug>
-MIME-Version: 1.0
+	Fri, 23 Jun 2006 05:15:55 -0400
+Date: Fri, 23 Jun 2006 11:10:52 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch 16/61] lock validator: fown locking workaround
+Message-ID: <20060623091052.GD919@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <20060529212423.GP3155@elte.hu> <20060529183404.48878079.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060623090206.GA2234@slug>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060529183404.48878079.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Frederik Deweerdt <deweerdt@free.fr> wrote:
-> > 
-> > > Thu, Jun 22, 2006 at 12:46:48AM -0700, Andrew Morton wrote:
-> > > > I can bisect it if we're stuck, but that'll require beer or something.
-> > > 
-> > > FWIW, my laptop (Dell D610) gave the following results:
-> > > 2.6.17-mm1: suspend_device(): usb_generic_suspend+0x0/0x135 [usbcore]() returns -16
-> > > 2.6.17+origin.patch: suspend_device(): usb_generic_suspend+0x0/0x135 [usbcore]() returns -16
-> > 
-> > So it's in mainline already - hence it's some recently-written thing which
-> > was not tested in rc6-mm2.
-> > 
-> > > 2.6.17: oops
-> > > 2.6.17.1: oops
-> > 
-> > 2.6.17 wasn't supposed to oops.  Do you have details on this?
-> > 
-> For some reason, unknown to me, the oops won't display on the serial
-> link :(.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Serial console is currently broken by suspend, resume. _But_ I have a
-patch I'd like you to try.... pretty please?
+> On Mon, 29 May 2006 23:24:23 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > temporary workaround for the lock validator: make all uses of 
+> > f_owner.lock irq-safe. (The real solution will be to express to the 
+> > lock validator that f_owner.lock rules are to be generated 
+> > per-filesystem.)
+> 
+> This description forgot to tell us what problem is being worked 
+> around.
 
-> Here's what I could hand copy (I've suppressed printk timing information):
-> x1b9/0x1be
-> <c0166e6b> sys_write+0x4b/0x75  <c010300f> sysenter_past_esp+0x54/0x75
-> Code: 05 c4 52 43 c0 31 53 43 c0 c3 8b 2d 68 6e 54 c0 8b 1d 60
-> 6e 54 c0 8b 35 6c 6e 54 c0 8b 3d 70 6e 54 c0 ff 35 74 6e 54 c0 9d c3 90 <e8>
-> 9d 2c ea ff e8 a2 ff ff ff 6a 03 e8 4c ab de ff 83 c4 04 c3
-> EIP: [<c043531c>] do_suspend_lowlevel+0x0/0x15 SS:ESP 0068:f7a0fea4
-> <3>BUG: sleeping function called from invalid context at include/linux/rwsem.h:43
-> in_atomic():0, irqs_disabled():1
->  <c0103e56> show_trace+0x20/0x22  <c0103f5b> dump_stack+0x1e/0x20
->  <c011aec7> __might_sleep+0x9e/0xa6  <c012b0cf> blocking_notifier_call_chain+0x1e/0x5b
->  <c011f091> profile_task_exit+0x21/0x23  <c0120946> do_exit+0x1d/0x483
->  <c0104432> do_divide_error+0x0/0xbf  <c0362c76> do_page_fault+0x3c4/0x752
->  <c0103b2f> error_code+0x4f/0x54  <c013b33a> suspend_enter+0x2f/0x52
->  <c013b3e0> enter_state+0x4b/0x8d  <c013b579> state_store+0xa0/0xa2
->  <c01a54f1> subsys_attr_store+0x37/0x41  <c01a5772> flush_write_buffer+0x3c/046
->  <c01a57e3> sysfs_write_file+0x67/0x8b  <c0166da6> vfs_write+0x1b9/0x1be
->  <c0166e6b> sys_write+0x4b/0x75  <c010300f> sysenter_past_esp+0x54/0x75
+f_owner locking rules are per-filesystem: some of them have this lock 
+irq-safe [because they use it in irq-context generated SIGIOs], some of 
+them have it irq-unsafe [because they dont generate SIGIOs in irq 
+context]. The lock validator meshes them together and produces a false 
+positive. The workaround changed all uses of f_owner.lock to be 
+irq-safe.
 
-That is not an oops, rather a kernel BUG(). Can you just remove
-might_sleep line and see what happens?
+> This patch is a bit of a show-stopper.  How hard-n-bad is the real 
+> fix?
 
-Unfortunately, backtrace does not tell me which notifier chain did
-that :-(. Are you using audit or something like that?
+the real fix would be to correctly map the 'key' of the f_owner.lock to 
+the filesystem. I.e. to embedd a "lockdep_type_key s_fown_key" in 
+'struct file_system_type', and to use that key when initializing 
+f_own.lock.
 
-/*
- * lock for reading
- */
-static inline void down_read(struct rw_semaphore *sem)
-{
-        might_sleep();
-~~~~~~~~~~~~~~~~~~~~~~
-        rwsemtrace(sem,"Entering down_read");
-        __down_read(sem);
-        rwsemtrace(sem,"Leaving down_read");
-}
+the practical problem is that the initialization site of f_owner.lock 
+does not know about which filesystem this file will belong to.
 
-										Pavel
+there might be another way though: the only non-core user of f_own.lock 
+is CIFS, and that use of f_own.lock seems unnecessary - it does not 
+change any fowner state, and its justification for taking that lock 
+seems rather vague as well:
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+ *  GlobalSMBSesLock protects:
+ *      list operations on tcp and SMB session lists and tCon lists
+ *  f_owner.lock protects certain per file struct operations
+
+maybe CIFS or VFS people could comment?
+
+that way you could remove the following patch from -mm:
+
+   lock-validator-fown-locking-workaround.patch
+
+and add the patch below. (the fcntl.c portion of the above patch is 
+meanwhile moot)
+
+	Ingo
+
+--------------------------------------
+Subject: CIFS: remove f_owner.lock use
+From: Ingo Molnar <mingo@elte.hu>
+
+CIFS takes/releases f_owner.lock - why? It does not change anything
+in the fowner state. Remove this locking.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ fs/cifs/file.c |    9 ---------
+ 1 file changed, 9 deletions(-)
+
+Index: linux/fs/cifs/file.c
+===================================================================
+--- linux.orig/fs/cifs/file.c
++++ linux/fs/cifs/file.c
+@@ -110,7 +110,6 @@ static inline int cifs_open_inode_helper
+ 			 &pCifsInode->openFileList);
+ 	}
+ 	write_unlock(&GlobalSMBSeslock);
+-	write_unlock(&file->f_owner.lock);
+ 	if (pCifsInode->clientCanCacheRead) {
+ 		/* we have the inode open somewhere else
+ 		   no need to discard cache data */
+@@ -287,7 +286,6 @@ int cifs_open(struct inode *inode, struc
+ 		goto out;
+ 	}
+ 	pCifsFile = cifs_init_private(file->private_data, inode, file, netfid);
+-	write_lock(&file->f_owner.lock);
+ 	write_lock(&GlobalSMBSeslock);
+ 	list_add(&pCifsFile->tlist, &pTcon->openFileList);
+ 
+@@ -298,7 +296,6 @@ int cifs_open(struct inode *inode, struc
+ 					    &oplock, buf, full_path, xid);
+ 	} else {
+ 		write_unlock(&GlobalSMBSeslock);
+-		write_unlock(&file->f_owner.lock);
+ 	}
+ 
+ 	if (oplock & CIFS_CREATE_ACTION) {           
+@@ -477,7 +474,6 @@ int cifs_close(struct inode *inode, stru
+ 	pTcon = cifs_sb->tcon;
+ 	if (pSMBFile) {
+ 		pSMBFile->closePend = TRUE;
+-		write_lock(&file->f_owner.lock);
+ 		if (pTcon) {
+ 			/* no sense reconnecting to close a file that is
+ 			   already closed */
+@@ -492,23 +488,18 @@ int cifs_close(struct inode *inode, stru
+ 					the struct would be in each open file,
+ 					but this should give enough time to 
+ 					clear the socket */
+-					write_unlock(&file->f_owner.lock);
+ 					cERROR(1,("close with pending writes"));
+ 					msleep(timeout);
+-					write_lock(&file->f_owner.lock);
+ 					timeout *= 4;
+ 				} 
+-				write_unlock(&file->f_owner.lock);
+ 				rc = CIFSSMBClose(xid, pTcon,
+ 						  pSMBFile->netfid);
+-				write_lock(&file->f_owner.lock);
+ 			}
+ 		}
+ 		write_lock(&GlobalSMBSeslock);
+ 		list_del(&pSMBFile->flist);
+ 		list_del(&pSMBFile->tlist);
+ 		write_unlock(&GlobalSMBSeslock);
+-		write_unlock(&file->f_owner.lock);
+ 		kfree(pSMBFile->search_resume_name);
+ 		kfree(file->private_data);
+ 		file->private_data = NULL;

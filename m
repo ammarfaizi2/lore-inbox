@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751960AbWFWTlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751961AbWFWTno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751960AbWFWTlL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 15:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751961AbWFWTlL
+	id S1751961AbWFWTno (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 15:43:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751963AbWFWTno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 15:41:11 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57360 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751960AbWFWTlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 15:41:10 -0400
-Date: Fri, 23 Jun 2006 20:41:01 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Frederik Deweerdt <deweerdt@free.fr>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org, linux-pm@osdl.org,
-       stern@rowland.harvard.edu
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-Message-ID: <20060623194100.GA3812@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Frederik Deweerdt <deweerdt@free.fr>, Andrew Morton <akpm@osdl.org>,
-	greg@kroah.com, linux-kernel@vger.kernel.org, linux-pm@osdl.org,
-	stern@rowland.harvard.edu
-References: <20060621034857.35cfe36f.akpm@osdl.org> <4499BE99.6010508@gmail.com> <20060621221445.GB3798@inferi.kami.home> <20060622061905.GD15834@kroah.com> <20060622004648.f1912e34.akpm@osdl.org> <20060622160403.GB2539@slug> <20060622092506.da2a8bf4.akpm@osdl.org> <20060623090206.GA2234@slug> <20060623091016.GE4940@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623091016.GE4940@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Fri, 23 Jun 2006 15:43:44 -0400
+Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:24804 "EHLO
+	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751961AbWFWTnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 15:43:43 -0400
+Message-ID: <449C446C.3020605@tilera.com>
+Date: Fri, 23 Jun 2006 15:43:40 -0400
+From: Chris Metcalf <cmetcalf@tilera.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: compiler warning from cryptic pointer math
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Jun 2006 19:43:41.0860 (UTC) FILETIME=[54B3CE40:01C696FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 11:10:21AM +0200, Pavel Machek wrote:
-> Serial console is currently broken by suspend, resume. _But_ I have a
-> patch I'd like you to try.... pretty please?
+(Using the format from REPORTING-BUGS...)
 
-Did you bother trying my patch, which was done the Right(tm) way?
-There wasn't any feedback on it so I can only assume not.
+[1.] compiler warning from cryptic pointer math
+
+[2.] This change simplifies a cryptic macro in fs/readdir.c.  Rather
+than subtracting an uninitialized pointer's d_name field address from
+the uninitialized pointer base to get the field offset, we just use the
+normal "offsetof" idiom to directly get the d_name field address from a
+pointer to zero.  We can't use offsetof directly since the variable type
+we have handy is a pointer, not the structure type itself.
+
+(Our compiler is a gcc-alike that can figure out that it doesn't need to 
+warn about things like "foo - foo" for an uninitialized pointer foo, but 
+the field reference makes it think the pointer is truly being used; the 
+warning made me look more closely at this piece of code.)
+
+[4.] The kernel version is 2.6.17.1.
+
+[X.]
+
+--- /tmp/tmp.3955.0     2006-06-23 10:10:54.000000000 -0400
++++ /u/cmetcalf/linux/fs/readdir.c  2006-06-23 10:09:07.000000000 -0400
+@@ -51,7 +51,7 @@
+  * anyway. Thus the special "fillonedir()" function for that
+  * case (the low-level handlers don't need to care about this).
+  */
+-#define NAME_OFFSET(de) ((int) ((de)->d_name - (char __user *) (de)))
++#define NAME_OFFSET(de) ((int) ((typeof(de))0)->d_name)
+#define ROUND_UP(x) (((x)+sizeof(long)-1) & ~(sizeof(long)-1))
+
+#ifdef __ARCH_WANT_OLD_READDIR
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Chris Metcalf, Tilera Corp.
+http://www.tilera.com
+
+

@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932965AbWFWJ4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932981AbWFWJ7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932965AbWFWJ4P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932983AbWFWJ4P
+	id S932981AbWFWJ7K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932982AbWFWJ7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:56:15 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:43400 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932965AbWFWJ4O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:56:14 -0400
-Date: Fri, 23 Jun 2006 11:51:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
-Subject: Re: [patch 37/61] lock validator: special locking: dcache
-Message-ID: <20060623095111.GF4889@elte.hu>
-References: <20060529212109.GA2058@elte.hu> <20060529212608.GK3155@elte.hu> <20060529183539.08d3463c.akpm@osdl.org> <1149022268.21827.4.camel@localhost.localdomain>
+	Fri, 23 Jun 2006 05:59:10 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:61154 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932981AbWFWJ7J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 05:59:09 -0400
+Date: Fri, 23 Jun 2006 11:59:09 +0200
+From: Frank Pavlic <fpavlic@de.ibm.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux390@de.ibm.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] s390: move var declarations behind ifdef
+Message-ID: <20060623115909.068c09af@localhost.localdomain>
+In-Reply-To: <20060614120733.GF15061@sergelap.austin.ibm.com>
+References: <20060614120733.GF15061@sergelap.austin.ibm.com>
+Organization: IBM
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149022268.21827.4.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 14 Jun 2006 07:07:33 -0500
+"Serge E. Hallyn" <serue@us.ibm.com> wrote:
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> On Mon, 2006-05-29 at 18:35 -0700, Andrew Morton wrote:
-
-> > DENTRY_D_LOCK_NORMAL isn't used anywhere.
+> Two variables in drivers/s390/net/qeth_main.c:qeth_send_packet()
+> are only used if CONFIG_QETH_PERF_STATS.  Move their definition
+> under the same ifdef to remove compiler warning.
 > 
-> I guess it is implied with the normal spin_lock.  Since 
->   spin_lock(&target->d_lock) and
->   spin_lock_nested(&target->d_lock, DENTRY_D_LOCK_NORMAL)
-> are equivalent. (DENTRY_D_LOCK_NORMAL == 0)
+> Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 > 
-> Probably this deserves a comment.
+> ---
+> 
+>  drivers/s390/net/qeth_main.c |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
+> 74bcd2e9461534ccd39ec84455b0b2c07c7f24a5
+> diff --git a/drivers/s390/net/qeth_main.c b/drivers/s390/net/qeth_main.c
+> index 9e671a4..8f8c0f4 100644
+> --- a/drivers/s390/net/qeth_main.c
+> +++ b/drivers/s390/net/qeth_main.c
+> @@ -4416,8 +4416,10 @@ qeth_send_packet(struct qeth_card *card,
+>  	enum qeth_large_send_types large_send = QETH_LARGE_SEND_NO;
+>  	struct qeth_eddp_context *ctx = NULL;
+>  	int tx_bytes = skb->len;
+> +#ifdef CONFIG_QETH_PERF_STATS
+>  	unsigned short nr_frags = skb_shinfo(skb)->nr_frags;
+>  	unsigned short tso_size = skb_shinfo(skb)->tso_size;
+> +#endif
+>  	int rc;
+>  
+>  	QETH_DBF_TEXT(trace, 6, "sendpkt");
 
-i have added a comment to dcache.h explaining this better.
+Hi Serge,
 
-	Ingo
+thanks for the patch...Applied ...
+I will send it out with the next patch series .
+
+Frank

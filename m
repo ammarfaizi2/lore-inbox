@@ -1,133 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932996AbWFWKXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932995AbWFWKXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932996AbWFWKXj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932997AbWFWKXj
+	id S932995AbWFWKXh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932996AbWFWKXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:23:39 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:40743 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932996AbWFWKXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:23:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
-        b=MYO0Z2rV45yG4RPOihRMPz+zwWB1uBYUNTthTeayDm/rgZnay7RaqmUJvSf6QcG7aKoZqP2Iy83nnv+eGd4TN/Am3QOnXwVmrloZIBnaCo0qMFCYKarzcq5WAxpR5l2Pl7/sJf62IinvDVJt41dL7X4pkdA6920yZsTH9EJ6jTg=
-Date: Fri, 23 Jun 2006 12:23:44 +0100 (BST)
-X-X-Sender: simlo@localhost.localdomain
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Esben Nielsen <nielsen.esben@googlemail.com>,
-       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
-In-Reply-To: <1150999517.25491.151.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0606230055390.13514@localhost.localdomain>
-References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
-  <1150816429.6780.222.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain> 
- <Pine.LNX.4.58.0606201229310.729@gandalf.stny.rr.com> 
- <Pine.LNX.4.64.0606201903030.11643@localhost.localdomain> 
- <1150824092.6780.255.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0606202217160.11643@localhost.localdomain> 
- <Pine.LNX.4.58.0606210418160.29673@gandalf.stny.rr.com> 
- <Pine.LNX.4.64.0606211204220.10723@localhost.localdomain> 
- <Pine.LNX.4.64.0606211638560.6572@localhost.localdomain> 
- <1150907165.25491.4.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0606220936290.15236@gandalf.stny.rr.com> 
- <1150986041.25491.53.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0606221021410.15236@gandalf.stny.rr.com> 
- <1150986396.25491.56.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0606221902560.10511@localhost.localdomain>
- <1150999517.25491.151.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-From: Esben Nielsen <nielsen.esben@googlemail.com>
+	Fri, 23 Jun 2006 06:23:37 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:44174 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932995AbWFWKXg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 06:23:36 -0400
+Date: Fri, 23 Jun 2006 12:18:40 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org, rmk@arm.linux.org.uk
+Subject: Re: [patch 36/61] lock validator: special locking: serial
+Message-ID: <20060623101840.GL4889@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <20060529212604.GJ3155@elte.hu> <20060529183533.75381871.akpm@osdl.org> <20060623094941.GE4889@elte.hu> <20060623030447.a8061690.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060623030447.a8061690.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006, Thomas Gleixner wrote:
 
-> On Thu, 2006-06-22 at 19:06 +0100, Esben Nielsen wrote:
->>>
->>> Thats a seperate issue. Though you are right.
->>
->> Why not use my original patch and solve both issues?
->> I have even updated it to avoid the double traversal. It also removes
->> one other traversal which shouldn't be needed. (I have not had time
->> to boot the kernel with it, though, but it does compile...:-)
->
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Let me comment on your last sentence first:
+> btw, I was looking at this change:
 
-> We want an immidate propagation.
-There is no such thing as "immidiate". The most you can say is that when 
-you  return from setscheduler() everything is taken care off. I agree - it 
-has to be like that. But I just want to add _effectively_ taken care off. I.e. 
-when the within the time setscheduler() has returned _and_ the the 
-relevant priorities have time to run things get fixed. No, the users 
-should not have to worry about the priorities hanging around, but the 
-system can wait with fixing them it is relavant.
+> @@ -1003,6 +1003,7 @@ unsigned ata_exec_internal(struct ata_de
+>  	unsigned int err_mask;
+>  	int rc;
+>  
+> +	init_completion(&wait);
+>  	spin_lock_irqsave(ap->lock, flags);
+>  
+>  	/* no internal command while frozen */
+> 
+> That local was already initialised with DEFINE_COMPLETION().  Am 
+> surprised that an init_completion() also was needed?
 
-> Simply because it does not solve following scenario:
->
-> High prio task is blocked on lock and boosts 3 other tasks. Now the
-> higher prrio watchdog detects that the high prio task is stuck and
-> lowers the priority. You can wake it up as long as you want, the boosted
-> task is still busy looping.
+That's a fundamental problem of DECLARE_COMPLETION() done on the kernel 
+stack - it does build-time initialization with no opportunity to inject 
+any runtime logic. (which lockdep would need. Maybe i missed some clever 
+way to add a runtime callback into the initialization? [*])
 
-Yes, you are right. I have thought about how to fix it, but it will be 
-rather ugly. I'll try to see what I can do though, but I am afraid the 
-patch might get too big. :-(
+Btw., there is no danger from missing the initialization of a wait 
+structure: lockdep will detect "uninitialized" on-stack locks and will 
+complain about it and turn itself off. [this happened a few times during 
+development - that's how those init_completion() calls got added]
 
-(
-The same problem may actually always have been present in another corner 
-situation:
-    A boosts B whichs is blocked interruptible on a lock a boosts C, which 
-again boosts D (etc.). A and B are signalled roughly at the same time. A 
-wakes up first a decrease the priority of B but not C, because the B runs 
-on another CPU, but with lower priority and fixes C. A then stops because C is
-fixed. but D still have the A's priority and preempts B, which should fix 
-it, but has it's low priority back.
-  This situation is not bad because A has already been in the and 
-therefore the designer has to think that C D etc already got it's 
-priority. That A is later on interrupted shouldn't matter.
-)
+But at a minimum these initializations need to become lockdep-specific 
+key-reinits - otherwise there will be impact to non-lockdep kernels too.
 
-May I suggest a compromise:
+	Ingo
 
-if (in_interrupt() ||
-     ( increasing priority && current->prio < prio ) )
-            do it Esben's way;
-else
-            do it Thomas's way;
+[*] the only solution i can see is to introduce 
+DECLARE_COMPLETION_ONSTACK(), which could call a function with &wait 
+passed in, where that function would return with a structure. The macro 
+magic would resolve to something like:
 
-Then will have fixed most of the problems. We still have the problem of a 
-the high priority watchdog task being unbound in setscheduler(), though. 
-And if it is called from interrupt and used to descrease the priority, it 
-wont work correctly. But it will work for the use in hrtimers, where the 
-priority is increased from interrupt.
+  struct completion wait = lockdep_init_completion(&wait);
 
-
-> And I do not like the idea of invoking the scheduler to do those
-> propagations. setscheduler is a synchronous effect in all other cases.
-> So it has to be synchronous in the propagation case too.
-
-See my note above about being "immediate". Syncronous is more precise but 
-the same argument holds.
-
->
-> Preempt-RT and the dynamic priority adjustment of high resolution timers
-> is a different playground and we have to think about that seperately.
-
-*nod*
-I agree, although we deffinitely don't want to have too many #ifdef 
-CONFIG_PREEMPT_RT around in the code. That makes it far harder to get into 
-the mainline tree.
-
-I was bonked for using the other thread for preempt-realtime stuff, so I 
-assume this thread is for preempt-realtime stuff only :-)
-
->
-> 	tglx
->
->
+and thus the structure would be initialized. But this method cannot be 
+used for static scope uses of DECLARE_COMPLETION, because it's not a 
+constant initializer. So we'd definitely have to make a distinction in 
+terms of _ONSTACK(). Is there really no compiler feature that could help 
+us out here?

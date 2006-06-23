@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932913AbWFWHbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932914AbWFWHbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932913AbWFWHbl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 03:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932914AbWFWHbl
+	id S932914AbWFWHbz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 03:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932917AbWFWHby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 03:31:41 -0400
-Received: from rwcrmhc15.comcast.net ([216.148.227.155]:65513 "EHLO
-	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
-	id S932913AbWFWHbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 03:31:40 -0400
-Message-ID: <449B98D1.3010005@namesys.com>
-Date: Fri, 23 Jun 2006 00:31:29 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nate Diller <nate.diller@gmail.com>
-CC: Nick Piggin <npiggin@suse.de>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Linus Torvalds <torvalds@osdl.org>,
-       "E. Gryaznova" <grev@namesys.com>
-Subject: Re: [PATCH] mm/tracking dirty pages: update get_dirty_limits for
- mmap tracking
-References: <5c49b0ed0606211001s452c080cu3f55103a130b78f1@mail.gmail.com>	 <20060621180857.GA6948@wotan.suse.de> <5c49b0ed0606211525i57628af5yaef46ee4e1820339@mail.gmail.com>
-In-Reply-To: <5c49b0ed0606211525i57628af5yaef46ee4e1820339@mail.gmail.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Jun 2006 03:31:54 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:46055 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932914AbWFWHbw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 03:31:52 -0400
+Date: Fri, 23 Jun 2006 09:26:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm1: kernel/lockdep.c: write-only variables
+Message-ID: <20060623072656.GC29321@elte.hu>
+References: <20060621034857.35cfe36f.akpm@osdl.org> <20060622155230.GG9111@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060622155230.GG9111@stusta.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5008]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nate, you should note that A: increasing to 80% was my idea, and B: the
-data from the benchmarks provide no indication that it is a good idea.
 
-That said, it is very possible that C: the benchmark is flawed, because
-the variance is so high that I am suspicious that something is wrong
-with the benchmark, and D: that the implementation is flawed in some way
-we don't yet see.
+* Adrian Bunk <bunk@stusta.de> wrote:
 
-All that said, I cannot say that we have anything here that suggests the
-change is a good change.   My intuition says it should be a good change,
-but the data does not.  Not yet. 
+> The following variables in kernel/lockdep.c are write-only:
+>   nr_hardirq_read_safe_locks
+>   nr_hardirq_read_unsafe_locks
+>   nr_hardirq_safe_locks
+>   nr_hardirq_unsafe_locks
+>   nr_softirq_read_safe_locks
+>   nr_softirq_read_unsafe_locks
+>   nr_softirq_safe_locks
+>   nr_softirq_unsafe_locks
+> 
+> Is a usage pending or should they be removed?
 
-Hans
+they are stale - i'll remove them. (there's a new calculation method for 
+them)
+
+	Ingo

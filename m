@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932993AbWFWKM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932992AbWFWKMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932993AbWFWKM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932987AbWFWKM1
+	id S932992AbWFWKMX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932993AbWFWKMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:12:27 -0400
-Received: from smtp-105-friday.nerim.net ([62.4.16.105]:29456 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932993AbWFWKM0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:12:26 -0400
-Date: Fri, 23 Jun 2006 12:12:30 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix cpufreq_{conservative,ondemand} compilation
-Message-Id: <20060623121230.63e1237a.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Fri, 23 Jun 2006 06:12:23 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:56215 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932992AbWFWKMV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 06:12:21 -0400
+Date: Fri, 23 Jun 2006 12:07:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [patch 52/61] lock validator: special locking: af_unix
+Message-ID: <20060623100726.GK4889@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <20060529212719.GZ3155@elte.hu> <20060529183608.19308b7c.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060529183608.19308b7c.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5003]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix cpufreq_conservative and cpufreq_ondemand, which were using
-{lock,unlock}_cpu_hotplug without including linux/cpu.h which defines
-them.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
- drivers/cpufreq/cpufreq_conservative.c |    1 +
- drivers/cpufreq/cpufreq_ondemand.c     |    1 +
- 2 files changed, 2 insertions(+)
+* Andrew Morton <akpm@osdl.org> wrote:
 
---- linux-2.6.17-git.orig/drivers/cpufreq/cpufreq_conservative.c	2006-06-23 10:24:17.000000000 +0200
-+++ linux-2.6.17-git/drivers/cpufreq/cpufreq_conservative.c	2006-06-23 12:07:42.000000000 +0200
-@@ -17,6 +17,7 @@
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/ctype.h>
-+#include <linux/cpu.h>
- #include <linux/cpufreq.h>
- #include <linux/sysctl.h>
- #include <linux/types.h>
---- linux-2.6.17-git.orig/drivers/cpufreq/cpufreq_ondemand.c	2006-06-23 10:24:17.000000000 +0200
-+++ linux-2.6.17-git/drivers/cpufreq/cpufreq_ondemand.c	2006-06-23 12:07:34.000000000 +0200
-@@ -16,6 +16,7 @@
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/ctype.h>
-+#include <linux/cpu.h>
- #include <linux/cpufreq.h>
- #include <linux/sysctl.h>
- #include <linux/types.h>
+> > -			spin_lock(&sk->sk_receive_queue.lock);
+> > +			spin_lock_bh(&sk->sk_receive_queue.lock);
+> 
+> Again, a bit of a show-stopper.  Will the real fix be far off?
 
+ok, this should be solved in recent -mm, via:
 
--- 
-Jean Delvare
+ lock-validator-special-locking-af_unix-undo-af_unix-_bh-locking-changes-and-split-lock-type.patch
+
+	Ingo

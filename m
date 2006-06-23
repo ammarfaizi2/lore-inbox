@@ -1,81 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932944AbWFWIls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932945AbWFWInl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932944AbWFWIls (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 04:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932945AbWFWIls
+	id S932945AbWFWInl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 04:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932946AbWFWInl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 04:41:48 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:46218 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932944AbWFWIlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 04:41:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=C06cu6K5LD5ixxa0zV1OJFDqHWIfF94eFKmK3IEVa7di7blS0MpgHg/WBHa+rctY1QrVxkWFFctjZS73KQphxeSKmWo872my6Db1FiPha12aQ9dviiuGvz1kXpUuFI4kVqCOhTrzTNv5oXpVAv8JTvRofOZqv1Afalzme1kEOgM=  ;
-Message-ID: <449BA94A.4030603@yahoo.com.au>
-Date: Fri, 23 Jun 2006 18:41:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
+	Fri, 23 Jun 2006 04:43:41 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:47582 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932945AbWFWInk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 04:43:40 -0400
+Date: Fri, 23 Jun 2006 10:38:44 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
-CC: Nick Piggin <npiggin@suse.de>, paulmck@us.ibm.com,
-       benh@kernel.crashing.org, Paul.McKenney@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [patch 3/3] radix-tree: RCU lockless readside
-References: <20060408134635.22479.79269.sendpatchset@linux.site>	<20060408134707.22479.33814.sendpatchset@linux.site>	<20060622014949.GA2202@us.ibm.com>	<20060622154518.GA23109@wotan.suse.de>	<20060622163032.GC1295@us.ibm.com>	<20060622165551.GB23109@wotan.suse.de>	<20060622174057.GF1295@us.ibm.com>	<20060622181111.GD23109@wotan.suse.de> <20060623000901.bf8b46c5.akpm@osdl.org> <449BA8BB.3070402@yahoo.com.au>
-In-Reply-To: <449BA8BB.3070402@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------060302010002000807020202"
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch 06/61] lock validator: add __module_address() method
+Message-ID: <20060623083844.GC919@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <20060529212333.GF3155@elte.hu> <20060529183325.b2f02192.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060529183325.b2f02192.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060302010002000807020202
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Nick Piggin wrote:
+* Andrew Morton <akpm@osdl.org> wrote:
 
->>          shift -= RADIX_TREE_MAP_SHIFT;
->> -        slot = slot->slots[i];
->> +        slot = rcu_dereference(slot->slots[i]);
->> +        if (slot == NULL);
->> +            break;
->>      }
+> On Mon, 29 May 2006 23:23:33 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
 > 
+> > +/*
+> > + * Is this a valid module address? We don't grab the lock.
+> > + */
+> > +int __module_address(unsigned long addr)
+> > +{
+> > +	struct module *mod;
+> > +
+> > +	list_for_each_entry(mod, &modules, list)
+> > +		if (within(addr, mod->module_core, mod->core_size))
+> > +			return 1;
+> > +	return 0;
+> > +}
 > 
->                          ^^^^^^^^
+> Returns a boolean.
 > 
-> Up there.
+> >  /* Is this a valid kernel address?  We don't grab the lock: we are oopsing. */
+> >  struct module *__module_text_address(unsigned long addr)
 > 
+> But this returns a module*.
+> 
+> I'd suggest that __module_address() should do the same thing, from an 
+> API neatness POV.  Although perhaps that's mot very useful if we 
+> didn't take a ref on the returned object (but module_text_address() 
+> doesn't either).
+> 
+> Also, the name's a bit misleading - it sounds like it returns the 
+> address of a module or something.  __module_any_address() would be 
+> better, perhaps?
 
-And here's the patch.
+yeah. I changed this to __is_module_address().
 
--- 
-SUSE Labs, Novell Inc.
+> Also, how come this doesn't need modlist_lock()?
 
---------------060302010002000807020202
-Content-Type: text/plain;
- name="radix-tree-paul-review-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="radix-tree-paul-review-fix.patch"
+indeed. I originally avoided taking that lock due to recursion worries - 
+but in fact we use this only in sections that initialize a lock - hence 
+no recursion problems.
 
-Index: linux-2.6/lib/radix-tree.c
-===================================================================
---- linux-2.6.orig/lib/radix-tree.c
-+++ linux-2.6/lib/radix-tree.c
-@@ -752,7 +752,7 @@ __lookup_tag(struct radix_tree_node *slo
- 		}
- 		shift -= RADIX_TREE_MAP_SHIFT;
- 		slot = rcu_dereference(slot->slots[i]);
--		if (slot == NULL);
-+		if (slot == NULL)
- 			break;
- 	}
- out:
+i fixed this and renamed the function to is_module_address() :)
 
---------------060302010002000807020202--
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	Ingo

@@ -1,142 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752020AbWFWUO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751988AbWFWURp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752020AbWFWUO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 16:14:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752018AbWFWUO4
+	id S1751988AbWFWURp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752021AbWFWURp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 16:14:56 -0400
-Received: from web33303.mail.mud.yahoo.com ([68.142.206.118]:62885 "HELO
-	web33303.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1752019AbWFWUOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 16:14:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=ozrcWJWDRxXD7Z2R5hDVsrRGZ0nFEdiF3AMPaE2rNSeiBnhg3Dn1FsxhpkhWjmgtbUsBO+tSAEedRp3tMGpRkOAa5QMA+y6PEz0c4O9rN1xt2S9zEHD3loTajKTc1muGz0FQvaYBfe4nD2/FKCmsz3eDjd6lml0B+xt1Ihz5Ai0=  ;
-Message-ID: <20060623201454.68199.qmail@web33303.mail.mud.yahoo.com>
-Date: Fri, 23 Jun 2006 13:14:54 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: Measuring tools - top and interrupts
-To: Mike Galbraith <efault@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1151051543.11381.43.camel@Homer.TheSimpsons.net>
+	Fri, 23 Jun 2006 16:17:45 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:10165 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751988AbWFWURo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 16:17:44 -0400
+Message-ID: <449C4C37.5020802@watson.ibm.com>
+Date: Fri, 23 Jun 2006 16:16:55 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Jay Lan <jlan@engr.sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
+References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com> <20060609042129.ae97018c.akpm@osdl.org> <4489EE7C.3080007@watson.ibm.com> <449999D1.7000403@engr.sgi.com> <44999A98.8030406@engr.sgi.com> <44999F5A.2080809@watson.ibm.com> <4499D7CD.1020303@engr.sgi.com> <449C2181.6000007@watson.ibm.com> <449C30C1.6090802@engr.sgi.com> <449C3897.70001@watson.ibm.com> <449C4865.7040706@engr.sgi.com>
+In-Reply-To: <449C4865.7040706@engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jay Lan wrote:
 
-
---- Mike Galbraith <efault@gmx.de> wrote:
-
-> On Thu, 2006-06-22 at 16:37 -0700, Danial Thom
-> wrote:
-> > I'm sorry, but you're being an idiot if you
-> think
-> > that 16K interrupts per second and forwarding
-> 75K
-> > pps generate no cpu load. Its just that
-> simple.
-> > It also means that you've never profiled a
-> kernel
-> > because you don't understand where the loads
-> are
-> > generated. You've probably been on too many
-> lists
-> > with too many people who have no idea what
-> > they're talking about.
+>>
+>>My results confirm the high overhead at these exit rates. In fact,
+>>on the system I used, I see the 649% overhead for the 2200 exits/second case
+>>even higher than yours) but the point is whether that exit rate
+>>is a valid design criteria.
+>> 
 > 
-> (what horrid manners)
 > 
-> Hm.  You may be right about the load average
-> calculation being broken.
+> Agreed. The indeed the deciding factor. The exit rate in the labs
+> does not help answer this question. I need input from our fields.
 > 
-> Below is a 100 second profile sample of my 3GHz
-> P4 handling 15K
-> interrupts per second while receiving a flood
-> ping.  My interpretation
-> is that tools should be showing ~10% cpu load
-> rather than zero.  Am I'm
-> misinterpreting it?
+
+FWIW, I just spoke to some of the IBM folks working on Websphere (the
+J2EE platform) and they've said that the exit rate is quite low since a thread pool
+is used to reuse threads rather than have them exit. Also, I'm waiting to
+hear from our db2 folks though I suspect its the same story there.
+
+>>
+>>>And, the per-thread group processing also increase the rate of ENOBUFS
+>>>at the receiver.
+>>>   
+>>
+>>Could you quantify please ? Also, pls list the exit rate at which
+>>this happens.
+>> 
 > 
->  97574 total                                   
->   0.0258
->  89549 default_idle                            
-> 1017.6023
->   1734 ioread16                                
->  36.8936
->   1138 ioread8                                 
->  24.7391
->    974 rhine_start_tx                          
->   1.3994
->    534 __do_softirq                            
->   3.8417
->    331 handle_IRQ_event                        
->   3.2772
->    223 rhine_interrupt                         
->   0.0739
->    222 memset                                  
->   7.9286
->    194 nf_iterate                              
->   1.5520
->    140 local_bh_enable                         
->   1.0769
->     99 __kmalloc                               
->   1.0532
->     92 net_rx_action                           
->   0.2000
->     85 kfree                                   
->   0.9884
->     82 skb_release_data                        
->   0.6406
->     77 csum_partial_copy_generic               
->   0.3105
->     73 ip_push_pending_frames                  
->   0.0681
->     71 __alloc_skb                             
->   0.2898
->     69 kmem_cache_free                         
->   1.3529
->     66 kmem_cache_alloc                        
->   1.3750
->     62 csum_partial                            
->   0.2153
->     61 rt_hash_code                            
->   0.4959
->     61 ip_append_data                          
->   0.0253
->     60 netif_receive_skb                       
->   0.0516
->     58 ip_rcv                                  
->   0.0471
->     58 ip_local_deliver                        
->   0.0854
->     58 eth_type_trans                          
->   0.2489
->     55 ip_output                               
->   0.0957
->     52 icmp_reply                              
->   0.1187
 > 
-Thats a pretty crappy controller you have in with
-that shiny P4...
+> I have not posted it nor quantify it because i must bring down the errors
+> count, or we (CSA) have to explore a different way. So any comparison
+> on these number at this point does not really help. Again, if the exit rate
+> is unrealistic, then i need to run a different set of testings. 
 
-I'm not sure that they want the tools to work.
-They'll just call you a troll and go on
-developing unnecessary things like NAPI because
-they're still using controllers designed by DEC
-(remember them?) back in the stone ages. 
 
-Yet I regularly encounter people using cheap NICs
-with expensive cpus on network-intensive
-applications. But you'd think one or two people
-would have a clue.
+> What
+> sleep_factor did you use? 
 
-DT
+Each thread executed the following code:
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+void *slow_exit(void *arg)
+{
+        int i = (int) arg;
+        usleep((n-i)*200);
+}
+
+and I varied the number within between
+700 (resulting in exit rate of 694 in my data)
+and 100 (resulting in the 2283 exit rate)
+
+
+> Are those printf() in your new test program
+> essential?
+
+No. I dropped them.
+The test program used is appended below. There were no
+printfs on the non-failure paths.
+
+
+> 
+> If this type of exit rate can happen even once a day, the surge may cause
+> loss of accounting data of other processes. Again, i do not have data
+> to say either way yet. But i would rather spend time on working on
+> the ENOBUFS error than running all different tests to argue on the
+> per-TG switch.
+> 
+
+I suppose the ENOBUFS case has to be handled at userspace anyway
+since it can potentially happen for high thread exit rate cases even if
+only pid data is sent.
+
+> Regards,
+>  - jay
+> 
+> 
+>
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <pthread.h>
+
+int n;
+int barrier=1;
+
+
+void *slow_exit(void *arg)
+{
+    long i = (int) arg;
+    usleep((n-i)*600);
+}
+
+int main(int argc, char *argv[])
+{
+    int i,rc, rep;
+    pthread_t *ppthread;
+
+    n = 5 ;
+    if (argc > 1)
+        n = atoi(argv[1]);
+
+    rep = 10;
+    if (argc > 2)
+        rep = atoi(argv[2]);
+
+    ppthread = malloc(n * sizeof(pthread_t));
+    if (ppthread == NULL) {
+        printf("Memory allocation failure\n");
+        exit(-1);
+    }
+
+    while (rep) {
+        for (i=0; i<n; i++) {
+            rc = pthread_create(&ppthread[i], NULL,
+                        slow_exit, (void *)i);
+            if (rc) {
+                printf("Error creating thread %d %d\n", i, rc);
+                exit(-1);
+            }
+        }
+        for (i=0; i<n; i++) {
+            rc = pthread_join(ppthread[i], NULL);
+            if (rc) {
+                printf("Error joining thread %d\n", i);
+                exit(-1);
+            }
+        }
+        rep--;
+    }
+}
+

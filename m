@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWFWAWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932732AbWFWAX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030473AbWFWAWj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 20:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbWFWAWj
+	id S932732AbWFWAX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 20:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWFWAX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 20:22:39 -0400
-Received: from ns.suse.de ([195.135.220.2]:53685 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030473AbWFWAWi (ORCPT
+	Thu, 22 Jun 2006 20:23:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59360 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932732AbWFWAX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 20:22:38 -0400
-Date: Thu, 22 Jun 2006 17:22:30 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] USB patches for 2.6.17
-Message-ID: <20060623002230.GA333@suse.de>
-References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606221546120.6483@g5.osdl.org> <20060622234040.GB30143@suse.de> <449B3047.50704@goop.org> <20060622171732.16fd2cd1.akpm@osdl.org>
+	Thu, 22 Jun 2006 20:23:59 -0400
+Date: Thu, 22 Jun 2006 20:23:49 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86-64 build fix
+Message-ID: <20060623002348.GF5604@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@muc.de>,
+	Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <20060622205928.GA23801@havoc.gtf.org> <20060622142430.3219f352.akpm@osdl.org> <20060622223919.GB50270@muc.de> <20060622155943.27c98d61.akpm@osdl.org> <449B268E.4000808@garzik.org> <20060622233549.GA55538@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060622171732.16fd2cd1.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060622233549.GA55538@muc.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 05:17:32PM -0700, Andrew Morton wrote:
-> Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> >
-> > Greg KH wrote:
-> > > I saw this once when debugging the usb code, but could never reproduce
-> > > it, so I attributed it to an incomplete build at the time, as a reboot
-> > > fixed it.
-> > >
-> > > Is this easy to trigger for you?
-> > >   
-> > 
-> > This is the same oops as I posted yesterday: "2.6.17-mm1: oops in 
-> > Bluetooth stuff, usbdev_open".  I haven't seen it since...
-> > 
-> 
-> That's a kernel-wide list of USB devices, isn't it?  Which means that some
-> driver other than the bluetooth one has got itself freed up while still
-> being on the list.
-> 
-> If so, it could be any driver at all..
+On Fri, Jun 23, 2006 at 01:35:49AM +0200, Andi Kleen wrote:
+ > On Thu, Jun 22, 2006 at 07:23:58PM -0400, Jeff Garzik wrote:
+ > > Andrew Morton wrote:
+ > > >I don't think Jeff has sent us an example .config, but I hit this a few
+ > > >times too, before we fixed it.  I think this was all triggered by a Kconfig
+ > > >change in the AGP tree, so you wouldn't have seen it, but -mm did.
+ > > 
+ > > 'make allmodconfig' on x86-64.  You can create this .config yourself :)
+ > > 
+ > > I think the tree suffers [sometimes due to me :(] when 'allyesconfig' 
+ > > and 'allmodconfig' stop working.
+ > 
+ > Yes, but they work in 2.6.17 right? 
 
-Hopefully we have the list locked properly while we are walking it, so
-that should not happen, but I'll go back and verify that I got it all
-correct...
+worked for me, it only broke as of .17-git2 or so.
 
-thanks,
+ > And nothing should have changed since 2.6.17 so far.
+ > But apparently something did. What was it?
 
-greg k-h
+(for the 3rd time today)  INTEL_FB now builds on x86-64,
+and selects AGP, so if INTEL_FB=m, AGP becomes =m too,
+which breaks the select AGP which GART_IOMMU wants.
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

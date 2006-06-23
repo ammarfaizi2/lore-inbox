@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932968AbWFWJgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932970AbWFWJiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932968AbWFWJgO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:36:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932971AbWFWJgO
+	id S932970AbWFWJiF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932971AbWFWJiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:36:14 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:3979 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932968AbWFWJgN (ORCPT
+	Fri, 23 Jun 2006 05:38:05 -0400
+Received: from rtsoft2.corbina.net ([85.21.88.2]:6341 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S932970AbWFWJiD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:36:13 -0400
-Date: Fri, 23 Jun 2006 11:30:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org,
-       "Luck, Tony" <tony.luck@intel.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [patch 22/61] lock validator:  add per_cpu_offset()
-Message-ID: <20060623093059.GC4889@elte.hu>
-References: <20060529212109.GA2058@elte.hu> <20060529212457.GV3155@elte.hu> <20060529183458.ebb74ff8.akpm@osdl.org>
+	Fri, 23 Jun 2006 05:38:03 -0400
+Date: Fri, 23 Jun 2006 13:38:55 +0400
+From: Vitaly Wool <vitalywool@gmail.com>
+To: Mark Underwood <basicmark@yahoo.com>
+Cc: greg@kroah.com, i2c@lm-sensors.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [i2c] [PATCH] I2C bus driver for Philips ARM boards
+Message-Id: <20060623133855.59b08f33.vitalywool@gmail.com>
+In-Reply-To: <20060622222600.49601.qmail@web36915.mail.mud.yahoo.com>
+References: <20060622203559.GA14445@kroah.com>
+	<20060622222600.49601.qmail@web36915.mail.mud.yahoo.com>
+X-Mailer: Sylpheed version 2.2.1 (GTK+ 2.8.13; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060529183458.ebb74ff8.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 22 Jun 2006 23:26:00 +0100 (BST)
+Mark Underwood <basicmark@yahoo.com> wrote:
+ 
+> Would it not make sense to call this driver ip3204 or ph_ip3204 or some such seeing as you
+> correctly point out that this is a common Philips IP block and is used in other, non pnx, chips?
 
-* Andrew Morton <akpm@osdl.org> wrote:
+No I don't think it would -- this is an internal Philips IP block number AFAIK and was given there only for reference.
+Funny is that people from Philips Semi asked me about a year ago not to use internal IP block numbers in the code. I know you're also from Philips... Well, what does that prove? It proves that everything can't be in alignment in such a big company. ;-)
+ 
+> I'm also not sure why the register map is in the arch-pnx4008 directory as this will require every
+> chip that has this IP block to have a copy of the file.
 
-> > +#define per_cpu_offset(x) (__per_cpu_offset(x))
-> > +
-> >  /* Separate out the type, so (int[3], foo) works. */
-> >  #define DEFINE_PER_CPU(type, name) \
-> >      __attribute__((__section__(".data.percpu"))) __typeof__(type) per_cpu__##name
-> 
-> I can tell just looking at it that it'll break various builds.I assume 
-> that things still happen to compile because you're presently using it 
-> in code which those architectures don't presently compile.
-> 
-> But introducing a "generic" function invites others to start using it.  
-> And they will, and they'll ship code which "works" but is broken, 
-> because they only tested it on x86 and x86_64.
-> 
-> I'll queue the needed fixups - please check it.
+IIRC, PNX5220 has a slightly different register map. Of course the main registers are the same but putting first N regs into common header and putting others into arch header would have made even less sense.
 
-[belated reply] They look good.
-
-	Ingo
+Vitaly

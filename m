@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752149AbWFWWoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752132AbWFWWqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752149AbWFWWoY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 18:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752150AbWFWWoY
+	id S1752132AbWFWWqk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 18:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752150AbWFWWqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 18:44:24 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:46245 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1752149AbWFWWoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 18:44:23 -0400
-Subject: Re: [PATCH] mm: tracking shared dirty pages -v10
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>
-In-Reply-To: <Pine.LNX.4.64.0606231514170.6483@g5.osdl.org>
-References: <20060619175243.24655.76005.sendpatchset@lappy>
-	 <20060619175253.24655.96323.sendpatchset@lappy>
-	 <Pine.LNX.4.64.0606222126310.26805@blonde.wat.veritas.com>
-	 <1151019590.15744.144.camel@lappy>
-	 <Pine.LNX.4.64.0606231933060.7524@blonde.wat.veritas.com>
-	 <1151100017.30819.50.camel@lappy>
-	 <Pine.LNX.4.64.0606231514170.6483@g5.osdl.org>
-Content-Type: text/plain
-Date: Sat, 24 Jun 2006 00:44:18 +0200
-Message-Id: <1151102659.30819.55.camel@lappy>
+	Fri, 23 Jun 2006 18:46:39 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:8602 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752132AbWFWWqj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 18:46:39 -0400
+Date: Fri, 23 Jun 2006 15:43:18 -0700
+From: Greg KH <gregkh@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: rajesh.shah@intel.com, akpm@osdl.org, brice@myri.com,
+       76306.1226@compuserve.com, arjan@linux.intel.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/2] x86_64 PCI: improve extended config space verification
+Message-ID: <20060623224318.GB31139@suse.de>
+References: <20060623200928.036235000@rshah1-sfield.jf.intel.com> <20060623201601.752629000@rshah1-sfield.jf.intel.com> <200606232230.36579.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606232230.36579.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-23 at 15:35 -0700, Linus Torvalds wrote:
-> On Sat, 24 Jun 2006, Peter Zijlstra wrote:
+On Fri, Jun 23, 2006 at 10:30:36PM +0200, Andi Kleen wrote:
+> On Friday 23 June 2006 22:09, rajesh.shah@intel.com wrote:
+> > Extend the verification for PCI-X/PCI-Express extended config
+> > space pointer. This patch checks whether the MCFG address range
+> > is listed as a motherboard resource, per the PCI firmware spec.
+> > The old check only looked in int 15 e820 memory map, causing
+> > several systems to fail the verification and lose extended
+> > config space.
 > 
-> > > > +	if ((pgprot_val(vma->vm_page_prot) == pgprot_val(vm_page_prot) &&
-> > > > +	     ((vm_flags & (VM_WRITE|VM_SHARED|VM_PFNMAP|VM_INSERTPAGE)) ==
-> > > > +			  (VM_WRITE|VM_SHARED)) &&
-> > > > +	     vma->vm_file && vma->vm_file->f_mapping &&
-> > > > +	     mapping_cap_account_dirty(vma->vm_file->f_mapping)) ||
-> > > > +	    (vma->vm_ops && vma->vm_ops->page_mkwrite))
-> > > > +		vma->vm_page_prot =
-> > > > +			protection_map[vm_flags & (VM_READ|VM_WRITE|VM_EXEC)];
-> > > > +
-> > > 
-> > > I'm dazzled by the beauty of it!
-> > 
-> > It's a real beauty isn't it :-)
-> 
-> Since Hugh pointed that out..
-> 
-> It really would be nice to just encapsulate that as an inline function of 
-> its own, and move the comment at the top of it to be at the top of the 
-> inline function.
+> By adding so much code to it you volunteered to factor the 
+> sanity check into a common i386/x86-64 file first.
 
-Dang, I just send out -v11, awell such is life. I'll see what I can do.
-Preferably mprotect can reuse that same function.
+I agree :)
 
-Will repost a new 1/5 shortly.
+Also, have you looked at the current -git tree?  It also modified some
+stuff in this area?  Look at commit
+ead2bfeb7f739d2ad6e09dc1343f0da51feb7f51 for details.
 
-Peter
+thanks,
 
+greg k-h

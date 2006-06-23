@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933025AbWFWLAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933020AbWFWK7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933025AbWFWLAI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 07:00:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933027AbWFWLAH
+	id S933020AbWFWK7A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933016AbWFWKz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 07:00:07 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37861 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S933017AbWFWLAE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 07:00:04 -0400
-Date: Fri, 23 Jun 2006 12:55:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch 55/61] lock validator: special locking: sb->s_umount
-Message-ID: <20060623105505.GR4889@elte.hu>
-References: <20060529212109.GA2058@elte.hu> <20060529212732.GC3155@elte.hu> <20060529183624.2c8032cd.akpm@osdl.org>
-Mime-Version: 1.0
+	Fri, 23 Jun 2006 06:55:57 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8460 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S933017AbWFWKzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 06:55:52 -0400
+Date: Fri, 23 Jun 2006 12:55:51 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] make kernel/utsname.c:clone_uts_ns()
+Message-ID: <20060623105551.GR9111@stusta.de>
+References: <20060621034857.35cfe36f.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060529183624.2c8032cd.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch makes the needlessly global clone_uts_ns() static.
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> > +++ linux/fs/dcache.c
-> > @@ -470,8 +470,9 @@ static void prune_dcache(int count, stru
-> >  		s_umount = &dentry->d_sb->s_umount;
-> >  		if (down_read_trylock(s_umount)) {
-> >  			if (dentry->d_sb->s_root != NULL) {
-> > -				prune_one_dentry(dentry);
-> > +// lockdep hack: do this better!
-> >  				up_read(s_umount);
-> > +				prune_one_dentry(dentry);
-> >  				continue;
-> 
-> argh, you broke my kernel!
-> 
-> I'll whack some ifdefs in here so it's only known-broken if 
-> CONFIG_LOCKDEP.
-> 
-> Again, we'd need the real fix here.
+--- linux-2.6.17-mm1-full/kernel/utsname.c.old	2006-06-22 20:53:20.000000000 +0200
++++ linux-2.6.17-mm1-full/kernel/utsname.c	2006-06-22 20:53:31.000000000 +0200
+@@ -19,7 +19,7 @@
+  * @old_ns: namespace to clone
+  * Return NULL on error (failure to kmalloc), new ns otherwise
+  */
+-struct uts_namespace *clone_uts_ns(struct uts_namespace *old_ns)
++static struct uts_namespace *clone_uts_ns(struct uts_namespace *old_ns)
+ {
+ 	struct uts_namespace *ns;
+ 
 
-yeah. We should undo this patch for now. This will only be complained 
-about if CONFIG_DEBUG_NON_NESTED_UNLOCKS is enabled. [i'll do this in my 
-refactored queue]
-
-	Ingo

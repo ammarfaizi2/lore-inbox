@@ -1,80 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751719AbWFWQEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751718AbWFWQDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751719AbWFWQEB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 12:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751724AbWFWQEB
+	id S1751718AbWFWQDq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 12:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751719AbWFWQDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 12:04:01 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:15241 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751719AbWFWQD7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 12:03:59 -0400
-In-Reply-To: <20060623150344.GL9446@osiris.boeblingen.de.ibm.com>
-Subject: Re: [heiko.carstens@de.ibm.com: Re: [PATCH] kprobes for s390 architecture]
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Jan Glauber <jan.glauber@de.ibm.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
-X-Mailer: Lotus Notes Release 7.0 HF242 April 21, 2006
-Message-ID: <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com>
-From: Michael Grundy <grundym@us.ibm.com>
-Date: Fri, 23 Jun 2006 15:53:54 -0700
-X-MIMETrack: Serialize by Router on D01ML065/01/M/IBM(Release 7.0.1 HF4|May 16, 2006) at
- 06/23/2006 12:03:55
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Fri, 23 Jun 2006 12:03:46 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:62608 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751702AbWFWQDp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 12:03:45 -0400
+Message-ID: <449C10E7.8010606@drzeus.cx>
+Date: Fri, 23 Jun 2006 18:03:51 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_hera.drzeus.cx-31661-1151078624-0001-2"
+To: rmk+lkml@arm.linux.org.uk
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/21] [MMC] Avoid sdhci DMA boundaries
+References: <20060621142323.8857.69197.stgit@poseidon.drzeus.cx> <20060621142608.8857.96591.stgit@poseidon.drzeus.cx>
+In-Reply-To: <20060621142608.8857.96591.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
+
+--=_hera.drzeus.cx-31661-1151078624-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+New version to fix conflicts by recent merge.
 
 
-Heiko Carstens <heiko.carstens@de.ibm.com> wrote on 06/23/2006 08:03:44 AM:
+--=_hera.drzeus.cx-31661-1151078624-0001-2
+Content-Type: text/x-patch; name="sdhci-dma-bounds.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sdhci-dma-bounds.patch"
 
-> This won't solve anything. What Martin probably meant is something like a
-poor
-> man's stop_machine_run() implemented by using smp_call_function(). This
-way
-> you synchronize all cpus and when all cpus are in a known state, you
-change
-> the instruction in question and make sure that serialization happens
-before
-> cpus leave the handler again... Except for the cpu that called
-> smp_call_function() you get the serialization for free, since the last
-> instruction of the handler is always an lpsw/lpswe instruction.
->
-> Otherwise there is still the possibility that a different cpu is fetching
-the
-> instruction concurrently while you change it. This doesn't sound very
-good,
-> especially if you take this paragraph of the Principles of Operation into
-> account (p.5-89 of SA22-7832-04):
->
-> "It is possible, if another CPU or a channel program concurrently
-modifies
-> the instruction, for one CPU to recognize the changes to some but not all
-bit
-> positions of an instruction."
+[MMC] Avoid sdhci DMA boundaries
 
-(link to doc for anyone following along at home:
- http://publibz.boulder.ibm.com/epubs/pdf/a2278324.pdf)
+The sdhci controllers will issue an interrupt when a configurable number of
+bytes have been transfered using DMA. The purpose is to handle multiple,
+scattered memory pages.
 
-On the same page it says "All copies of a prefetched instruction are
-discarded
-when: * A serializing function is performed" Would something like this in a
-smp_call_function do it? :
+Unfortunately, it requires that all transfers are completely aligned to
+memory pages, which we cannot guarantee. So we just disable the function.
 
-bcr 15,0
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
 
-if (*p->addr != breakpoint_instruction)
-      *p->addr = breakpoint_instruction;
+ drivers/mmc/sdhci.c |   13 +++++++++----
+ drivers/mmc/sdhci.h |    1 +
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
+index 2636cf5..f8c02ee 100644
+--- a/drivers/mmc/sdhci.c
++++ b/drivers/mmc/sdhci.c
+@@ -326,6 +326,9 @@ static void sdhci_prepare_data(struct sd
+ 	DBG("tsac %d ms nsac %d clk\n",
+ 		data->timeout_ns / 1000000, data->timeout_clks);
+ 
++	/* Sanity checks */
++	BUG_ON((1 << data->blksz_bits) * data->blocks > 524288);
++
+ 	/* timeout in us */
+ 	target_timeout = data->timeout_ns / 1000 +
+ 		data->timeout_clks / host->clock;
+@@ -375,7 +378,9 @@ static void sdhci_prepare_data(struct sd
+ 		host->remain = host->cur_sg->length;
+ 	}
+ 
+-	writew(data->blksz, host->ioaddr + SDHCI_BLOCK_SIZE);
++	/* We do not handle DMA boundaries, so set it to max (512 KiB) */
++	writew(SDHCI_MAKE_BLKSZ(7, data->blksz),
++		host->ioaddr + SDHCI_BLOCK_SIZE);
+ 	writew(data->blocks, host->ioaddr + SDHCI_BLOCK_COUNT);
+ }
+ 
+@@ -1188,10 +1193,10 @@ static int __devinit sdhci_probe_slot(st
+ 	mmc->max_phys_segs = 16;
+ 
+ 	/*
+-	 * Maximum number of sectors in one transfer. Limited by sector
+-	 * count register.
++	 * Maximum number of sectors in one transfer. Limited by DMA boundary
++	 * size (512KiB), which means (512 KiB/512=) 1024 entries.
+ 	 */
+-	mmc->max_sectors = 0x3FFF;
++	mmc->max_sectors = 1024;
+ 
+ 	/*
+ 	 * Maximum segment size. Could be one segment with the maximum number
+diff --git a/drivers/mmc/sdhci.h b/drivers/mmc/sdhci.h
+index f8df28f..8ed2a89 100644
+--- a/drivers/mmc/sdhci.h
++++ b/drivers/mmc/sdhci.h
+@@ -23,6 +23,7 @@ #define  PCI_SLOT_INFO_FIRST_BAR_MASK	0x
+ #define SDHCI_DMA_ADDRESS	0x00
+ 
+ #define SDHCI_BLOCK_SIZE	0x04
++#define  SDHCI_MAKE_BLKSZ(dma, blksz) (((dma & 0x7) << 12) | (blksz & 0xFFF))
+ 
+ #define SDHCI_BLOCK_COUNT	0x06
+ 
 
-Alternatively, if we did a compare and swap on that location (serializing
-instruction) would that be acceptable?
-
-Thanks
-Michael
-
-=========================================
-If at first you don't succeed, call in an air strike.
-
+--=_hera.drzeus.cx-31661-1151078624-0001-2--

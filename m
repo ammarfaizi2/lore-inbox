@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752070AbWFWVRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752073AbWFWVRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752070AbWFWVRG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 17:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751965AbWFWVRG
+	id S1752073AbWFWVRP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 17:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752076AbWFWVRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 17:17:06 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.143]:61718 "EHLO
-	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
-	id S1752073AbWFWVRF convert rfc822-to-8bit (ORCPT
+	Fri, 23 Jun 2006 17:17:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38836 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751965AbWFWVRN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 17:17:05 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 23 Jun 2006 17:17:13 -0400
+Message-ID: <449C598B.7070803@redhat.com>
+Date: Fri, 23 Jun 2006 17:13:47 -0400
+From: William Cohen <wcohen@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Add MCP65 support for sata_nv driver
-Date: Fri, 23 Jun 2006 14:16:59 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B00604CEB4@hqemmail02.nvidia.com>
-In-Reply-To: <449B5AF2.9090104@garzik.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Add MCP65 support for sata_nv driver
-Thread-Index: AcaWciqyZcpTL1WSS8i41nXo0+vTuwAlyNeg
-From: "Andrew Chew" <AChew@nvidia.com>
-To: "Jeff Garzik" <jeff@garzik.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 Jun 2006 21:17:00.0277 (UTC) FILETIME=[5D9E7250:01C6970A]
+To: eranian@hpl.hp.com
+CC: perfmon@napali.hpl.hp.com, oprofile-list@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       perfctr-devel@lists.sourceforge.net
+Subject: Re: [perfmon] 2.6.17.1 new perfmon code base, libpfm, pfmon available
+References: <20060621142447.GA29389@frankl.hpl.hp.com>
+In-Reply-To: <20060621142447.GA29389@frankl.hpl.hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why do you want to remove the RAID PCI ID?  That was not mentioned in 
-> the patch description at all.
+Hi Stephane,
 
-Sorry.  NVIDIA's future SATA controllers are going to be AHCI (so for
-0104 RAID mode, we want the ahci driver to pick up these controllers.
-We don't want future chips (chips for which we didn't add the proper
-device IDs yet into their respective drivers) to be picked up by sata_nv
-anymore.
+Some quick questions about the current perfmon code.
 
-What's missing, I realize now, is the 0104 generic entry that should be
-in the ahci driver.  I'll send along a separate patch for that.
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+
+The athlon has very similar hw to the amd64 and there is now 32-bit
+x86-64 support. Wouldn't it make sense to move perfmon_amd.c to i386
+and have it work in the same way as perfmon_p4.c does currently for p4
+and em64t?
+
+Could the 32-bit and 64-bit code be combined in a manner similar to
+oprofile and avoid duplication between perfmon_em64t_pebs.c and
+perfmon_p4_pebs.c?  pfm_{p4|em64}_ds_area and
+pfm_{p4|em64t}_pebs_sample_entry have differences due to the upgrade
+from 32 to 64 bit values.
+
+Why isn't Intel family 0xf model 3 not supported?
+	Model 1,2, 4, and 5 are supported.
+	Model 3 Pentium4 isn't that different is it?
+
+Why the following patch in the code and array using this constant in
+sys_pfm_write_pmcs and sys_pfm_write_pmds? The the p4/em64t certainly
+has more registers than that.
+
+--- linux-2.6.17.1.old/include/asm-i386/perfmon.h	2006-06-21 
+05:19:04.000000000 -0700
++++ linux-2.6.17.1/include/asm-i386/perfmon.h	2006-06-21 
+04:22:51.000000000 -0700
+@@ -18,6 +18,14 @@
+
+  #ifdef __KERNEL__
+
++#ifdef CONFIG_4KSTACKS
++#define PFM_ARCH_PMD_ARG	2
++#define PFM_ARCH_PMC_ARG	2
++#else
++#define PFM_ARCH_PMD_ARG	4
++#define PFM_ARCH_PMC_ARG	4
++#endif
++
+  #include <asm/desc.h>
+  #include <asm/apic.h>
+
+
+What is the purpose of PFM_MAX_XTRA_PMCS and PFM_MAX_XTRA_PMDS? Are
+they used for anything other than increasing the size of PFM_MAX_PMCS
+and PFM_MAX_PMDS?
+
+
+-Will

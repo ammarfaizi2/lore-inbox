@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932964AbWFWJYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932979AbWFWJ26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932964AbWFWJYq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932965AbWFWJYM
+	id S932979AbWFWJ26 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932967AbWFWJ24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:24:12 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:19095 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932960AbWFWJYH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:24:07 -0400
-Date: Fri, 23 Jun 2006 11:19:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Fri, 23 Jun 2006 05:28:56 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:21404 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932960AbWFWJ2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 05:28:55 -0400
+Date: Fri, 23 Jun 2006 05:28:45 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch 17/61] lock validator: sk_callback_lock workaround
-Message-ID: <20060623091912.GA4889@elte.hu>
-References: <20060529212109.GA2058@elte.hu> <20060529212427.GQ3155@elte.hu> <20060529183409.32b8896b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060529183409.32b8896b.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+cc: tglx@linutronix.de, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: [PATCH -mm] bug if setscheduler is called from interrupt context.
+In-Reply-To: <20060622190825.7da4eeae.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0606230522360.2272@gandalf.stny.rr.com>
+References: <20060622082758.669511000@cruncher.tec.linutronix.de>
+ <20060622082812.607857000@cruncher.tec.linutronix.de>
+ <Pine.LNX.4.58.0606220959490.15236@gandalf.stny.rr.com>
+ <20060622190825.7da4eeae.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Thomas Gleixner is adding the call to a rtmutex function in setscheduler.
+This call grabs a spin_lock that is not always protected by interrupts
+disabled.  So this means that setscheduler cant be called from interrupt
+context.
 
-> On Mon, 29 May 2006 23:24:27 +0200
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > temporary workaround for the lock validator: make all uses of 
-> > sk_callback_lock softirq-safe. (The real solution will be to express 
-> > to the lock validator that sk_callback_lock rules are to be 
-> > generated per-address-family.)
-> 
-> Ditto.  What's the actual problem being worked around here, and how's 
-> the real fix shaping up?
+To prevent this from happening in the future, this patch adds a
+BUG_ON(in_interrupt()) in that function.  (Thanks to akpm <aka. Andrew
+Morton> for this suggestion).
 
-this patch should be moot meanwhile. Earlier versions of the lock 
-validator produced false positives for certain read-locking constructs.
+-- Steve
 
-i have undone the patch:
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-  lock-validator-sk_callback_lock-workaround.patch
+Index: linux-2.6.17-mm1/kernel/sched.c
+===================================================================
+--- linux-2.6.17-mm1.orig/kernel/sched.c	2006-06-23 05:19:41.000000000 -0400
++++ linux-2.6.17-mm1/kernel/sched.c	2006-06-23 05:20:44.000000000 -0400
+@@ -4034,6 +4034,8 @@ int sched_setscheduler(struct task_struc
+ 	unsigned long flags;
+ 	runqueue_t *rq;
 
-and there doesnt seem to be any false positives popping up. Please dont 
-remove it from -mm yet, i'll test this some more and will do the removal 
-in the lock validator queue refactoring, ok?
++	/* may grab non-irq protected spin_locks */
++	BUG_ON(in_interrupt());
+ recheck:
+ 	/* double check policy once rq lock held */
+ 	if (policy < 0)
 
-	Ingo

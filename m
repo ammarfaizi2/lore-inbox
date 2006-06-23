@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWFWOBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWFWN5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWFWOBe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 10:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWFWN5y
+	id S1750705AbWFWN5z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 09:57:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWFWN5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 09:57:54 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:31885 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750716AbWFWNna (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 09:43:30 -0400
-Date: Fri, 23 Jun 2006 15:38:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch 2/4] lock validator: fix compile warnings in lockdep.c
-Message-ID: <20060623133830.GC15113@elte.hu>
-References: <20060623132506.GF9446@osiris.boeblingen.de.ibm.com>
+	Fri, 23 Jun 2006 09:57:45 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:44675 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750734AbWFWNs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 09:48:59 -0400
+Subject: Re: [PATCH v3 1/7] AMSO1100 Low Level Driver.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Steve Wise <swise@opengridcomputing.com>
+Cc: rdreier@cisco.com, mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <1151070290.7808.33.camel@stevo-desktop>
+References: <20060620203050.31536.5341.stgit@stevo-desktop>
+	 <20060620203055.31536.15131.stgit@stevo-desktop>
+	 <1150836226.2891.231.camel@laptopd505.fenrus.org>
+	 <1151070290.7808.33.camel@stevo-desktop>
+Content-Type: text/plain
+Date: Fri, 23 Jun 2006 15:48:52 +0200
+Message-Id: <1151070532.3204.10.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623132506.GF9446@osiris.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > > +	/* Tell HW to xmit */
+> > > +	__raw_writeq(cpu_to_be64(mapaddr), elem->hw_desc + C2_TXP_ADDR);
+> > > +	__raw_writew(cpu_to_be16(maplen), elem->hw_desc + C2_TXP_LEN);
+> > > +	__raw_writew(cpu_to_be16(TXP_HTXD_READY), elem->hw_desc + C2_TXP_FLAGS);
+> > 
+> > or here
+> > 
 > 
-> Fix a few compile warnings on 64 bit machines:
-> 
-> kernel/lockdep.c: In function 'check_chain_key':
-> kernel/lockdep.c:1399:
->  warning: format '%016Lx' expects type 'long long unsigned int',
->  but argument 4 has type 'u64'
-> kernel/lockdep.c:1399:
->  warning: format '%016Lx' expects type 'long long unsigned int',
->  but argument 5 has type 'u64'
-> ...
-> 
-> Cc: Ingo Molnar <mingo@elte.hu>
-> Cc: Arjan van de Ven <arjan@infradead.org>
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> No need here.  This logic submits the packet for transmission.  We don't
+> assume it is transmitted until we (after a completion interrupt usually)
+> read back the HTXD entry and see the TXP_HTXD_DONE bit set (see
+> c2_tx_interrupt()). 
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+... but will that interrupt happen at all if these 3 writes never hit
+the hardware?
 
-	Ingo
+

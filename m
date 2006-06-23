@@ -1,47 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbWFWEBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWFWEE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751235AbWFWEBt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 00:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWFWEBt
+	id S1751130AbWFWEE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 00:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWFWEE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 00:01:49 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:45549 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751235AbWFWEBt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 00:01:49 -0400
-Message-ID: <449B6790.9010806@zytor.com>
-Date: Thu, 22 Jun 2006 21:01:20 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jeff Dike <jdike@addtoit.com>, a.p.zijlstra@chello.nl, hugh@veritas.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, dhowells@redhat.com,
-       christoph@lameter.com, mbligh@google.com, npiggin@suse.de,
-       torvalds@osdl.org
-Subject: Re: [PATCH] mm: tracking shared dirty pages -v10
-References: <20060619175243.24655.76005.sendpatchset@lappy>	<20060619175253.24655.96323.sendpatchset@lappy>	<Pine.LNX.4.64.0606222126310.26805@blonde.wat.veritas.com>	<1151019590.15744.144.camel@lappy>	<20060623031012.GA8395@ccure.user-mode-linux.org> <20060622203123.affde061.akpm@osdl.org>
-In-Reply-To: <20060622203123.affde061.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 23 Jun 2006 00:04:57 -0400
+Received: from xenotime.net ([66.160.160.81]:47029 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751130AbWFWEE4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 00:04:56 -0400
+Date: Thu, 22 Jun 2006 21:07:42 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Straub, Michael" <Michael.Straub@avocent.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 1/13] SST driver: tty_register_device() change
+Message-Id: <20060622210742.e7bc1e35.rdunlap@xenotime.net>
+In-Reply-To: <4821D5B6CD3C1B4880E6E94C6E70913E01B710F1@sun-email.corp.avocent.com>
+References: <4821D5B6CD3C1B4880E6E94C6E70913E01B710F1@sun-email.corp.avocent.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Thu, 22 Jun 2006 23:10:12 -0400
-> Jeff Dike <jdike@addtoit.com> wrote:
+On Thu, 22 Jun 2006 09:06:40 -0400 Straub, Michael wrote:
+
+> Adds Equinox multi-port serial (SST) driver.
 > 
->> On Fri, Jun 23, 2006 at 01:39:49AM +0200, Peter Zijlstra wrote:
->>> (PS, 2.6.17-mm1 UML doesn't seem to boot)
->> I don't get that far - it doesn't build for me.  It dies in klibc thusly:
->>
->>   gcc -Wp,-MD,usr/klibc/syscalls/.typesize.o.d  -nostdinc -isystem /usr/lib/gcc/i386-redhat-linux/4.1.1/include -I/home/jdike/linux/2.6/test/linux-2.6.17/usr/include/arch/i386 -Iusr/include/arch/i386 -I/home/jdike/linux/2.6/test/linux-2.6.17/usr/include/bits32 -Iusr/include/bits32  -I/home/jdike/linux/2.6/test/linux-2.6.17/obj/usr/klibc/../include -I/home/jdike/linux/2.6/test/linux-2.6.17/usr/include -Iusr/include  -I/home/jdike/linux/2.6/test/linux-2.6.17/include -I/home/jdike/linux/2.6/test/linux-2.6.17/include2 -Iinclude2 -I/home/jdike/linux/2.6/test/linux-2.6.17/include -Iinclude  -I/home/jdike/linux/2.6/test/linux-2.6.17/include -D__KLIBC__=1 -D__KLIBC_MINOR__=4 -D_BITSIZE=32 -m32 -march=i386 -Os -g -fomit-frame-pointer -falign-functions=0 -falign-jumps=0 -falign-loops=0 -W -Wall -Wno-sign-compare -Wno-unused-parameter -c -o usr/klibc/syscalls/typesize.o usr/klibc/syscalls/typesize.c
->> usr/klibc/syscalls/typesize.c:1:23: error: syscommon.h: No such file or directory
+> Part 1: Modifies the tty subsystem routine tty_register_device so that
+> it
+> returns the class_device allocated for the tty device, thus making it 
+> available to the tty driver.  The class_device is used by this driver to
+> add additional sysfs-based attribute files used for status and
+> diagnostics.
 > 
-> That's probably a parallel kbuild race.  Type `make' again ;)
+> Signed-off-by: Mike Straub <michael.straub@avocent.com>
+> 
+> ---
+>  drivers/char/tty_io.c |    8 ++++----
+>  include/linux/tty.h   |    4 +++-
+>  2 files changed, 7 insertions(+), 5 deletions(-)
+> 
+> diff -Naurp -X dontdiff linux-2.6.17/include/linux/tty.h
+> linux-2.6.17.eqnx/include/linux/tty.h
+> --- linux-2.6.17/include/linux/tty.h	2006-06-17 21:49:35.000000000
+> -0400
+> +++ linux-2.6.17.eqnx/include/linux/tty.h	2006-06-20
+> 09:49:54.000000000 -0400
 
-No, it's not.  It's a problem with O=, apparently; this patch fixes it:
+Your mailer or (exchange?) server likes to break lines where
+they shouldn't be split, as above 2 (now 4) lines.
 
-http://www.kernel.org/git/?p=linux/kernel/git/hpa/linux-2.6-klibc.git;a=commitdiff;h=4e51186fb663b57ac7c53517947510d2e1e9de01;hp=79317ba49e3f83d40f37b59fcdd5bd7c7635ee32
+> diff -Naurp -X dontdiff linux-2.6.17/drivers/char/tty_io.c
+> linux-2.6.17.eqnx/drivers/char/tty_io.c
+> --- linux-2.6.17/drivers/char/tty_io.c	2006-06-17 21:49:35.000000000
+> -0400
+> +++ linux-2.6.17.eqnx/drivers/char/tty_io.c	2006-06-20
+> 09:49:54.000000000 -0400
+> @@ -2965,8 +2965,8 @@ static struct class *tty_class;
+>   * the tty driver's flags have the TTY_DRIVER_NO_DEVFS bit set.  If
+> that
+>   * bit is not set, this function should not be called.
+>   */
+> -void tty_register_device(struct tty_driver *driver, unsigned index,
+> -			 struct device *device)
+> +struct class_device *tty_register_device(struct tty_driver *driver,
+> +					 unsigned index, struct device
+> *device)
+>  {
+>  	char name[64];
+>  	dev_t dev = MKDEV(driver->major, driver->minor_start) + index;
+> @@ -2974,7 +2974,7 @@ void tty_register_device(struct tty_driv
+>  	if (index >= driver->num) {
+>  		printk(KERN_ERR "Attempt to register invalid tty line
+> number "
+>  		       " (%d).\n", index);
+> -		return;
+> +		return NULL;
+>  	}
+>  
+>  	devfs_mk_cdev(dev, S_IFCHR | S_IRUSR | S_IWUSR,
+> @@ -2984,7 +2984,7 @@ void tty_register_device(struct tty_driv
+>  		pty_line_name(driver, index, name);
+>  	else
+>  		tty_line_name(driver, index, name);
+> -	class_device_create(tty_class, NULL, dev, device, "%s", name);
+> +	return (class_device_create(tty_class, NULL, dev, device, "%s",
+> name));
+>  }
 
-	-hpa
+Don't use unneeded parens around the return value.  Just:
+	return class_device_create(foo bar blah);
+
+
+---
+~Randy

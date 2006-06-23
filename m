@@ -1,43 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751888AbWFWSXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751892AbWFWSZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751888AbWFWSXY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 14:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751892AbWFWSXY
+	id S1751892AbWFWSZn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 14:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751894AbWFWSZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 14:23:24 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:37515 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751888AbWFWSXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 14:23:23 -0400
-Date: Fri, 23 Jun 2006 11:23:01 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
-       riel <riel@redhat.com>
-Subject: Re: [PATCH] mm: tracking shared dirty pages -v10
-In-Reply-To: <1151085829.30819.33.camel@lappy>
-Message-ID: <Pine.LNX.4.64.0606231121170.6877@schroedinger.engr.sgi.com>
-References: <20060619175243.24655.76005.sendpatchset@lappy> 
- <20060619175253.24655.96323.sendpatchset@lappy> 
- <Pine.LNX.4.64.0606222126310.26805@blonde.wat.veritas.com> 
- <1151019590.15744.144.camel@lappy>  <Pine.LNX.4.64.0606222305210.6483@g5.osdl.org>
-  <Pine.LNX.4.64.0606230759480.19782@blonde.wat.veritas.com> 
- <Pine.LNX.4.64.0606230955230.6265@schroedinger.engr.sgi.com> 
- <1151083338.30819.28.camel@lappy>  <Pine.LNX.4.64.0606231055520.6483@g5.osdl.org>
- <1151085829.30819.33.camel@lappy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Jun 2006 14:25:43 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:64915 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751892AbWFWSZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 14:25:43 -0400
+Subject: Re: [GIT PATCH] Geode patches for 2.6.17
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jordan Crouse <jordan.crouse@amd.com>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       akpm@osdl.org
+In-Reply-To: <20060623170058.GA12819@cosmic.amd.com>
+References: <20060623170058.GA12819@cosmic.amd.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 23 Jun 2006 19:41:09 +0100
+Message-Id: <1151088069.4549.72.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006, Peter Zijlstra wrote:
+Ar Gwe, 2006-06-23 am 11:00 -0600, ysgrifennodd Jordan Crouse:
+>       Add a configuration option to avoid automatically probing VGA
 
-> But the general idea is that its broken because the ACK from writeout
-> can be delayed and the remaining free memory taken by other incomming
-> network packets.
+Can you not do this automatically using the DMI data or PCI subvendor
+id ?
 
-That is already taken care of by nr_unstable which is considered for 
-write throttling.

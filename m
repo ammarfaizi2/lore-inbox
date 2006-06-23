@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWFWPjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWFWPjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbWFWPjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 11:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbWFWPjJ
+	id S1751473AbWFWPjI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 11:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWFWPjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 11:39:09 -0400
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:12725 "HELO
+	Fri, 23 Jun 2006 11:39:07 -0400
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:13749 "HELO
 	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751244AbWFWPjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751473AbWFWPjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 23 Jun 2006 11:39:05 -0400
 From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH] get USB suspend to work again on 2.6.17-mm1
-Date: Fri, 23 Jun 2006 08:38:57 -0700
+To: linux-usb-devel@lists.sourceforge.net, sergio@sergiomb.no-ip.org
+Subject: Re: [linux-usb-devel] who I do know if a interrupt is ioapic_edge_type or ioapic_level_type? [Was Re: [Fwd: Re: [Linux-usb-users] Fwd: Re:	2.6.17-rc6-mm2 - USB issues]]
+Date: Fri, 23 Jun 2006 08:31:04 -0700
 User-Agent: KMail/1.7.1
-Cc: Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, linux-pm@osdl.org,
-       linux-kernel@vger.kernel.org, Mattia Dongili <malattia@linux.it>,
-       pavel@suse.cz, Jiri Slaby <jirislaby@gmail.com>
-References: <Pine.LNX.4.44L0.0606231028570.5966-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0606231028570.5966-100000@iolanthe.rowland.org>
+Cc: Johny <kernel@agotnes.com>, Andrew Morton <akpm@osdl.org>, vsu@altlinux.ru,
+       Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org,
+       linux-usb-users@lists.sourceforge.net, linux-acpi@vger.kernel.org,
+       stern@rowland.harvard.edu
+References: <44953B4B.9040108@agotnes.com> <4499245C.8040207@agotnes.com> <1150936606.2855.21.camel@localhost.portugal>
+In-Reply-To: <1150936606.2855.21.camel@localhost.portugal>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606230838.57957.david-b@pacbell.net>
+Message-Id: <200606230831.05832.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 June 2006 7:51 am, Alan Stern wrote:
+This isn't quite the same as "how to handle the VIA quirks correctly",
+but it does seem like the IRQ API should probably have a call to get
+the IRQ trigger mode, just like it has ways to set it.  I've seen
+drivers that need to try multiple trigger modes before they find one
+that will work on the target platform.
 
-> Ah, there's the rub.  If a driver doesn't have suspend/resume methods, is 
-> it because it doesn't need them, or is it because nobody has written them 
-> yet?  In the latter case, failing the suspend or unbinding the driver are 
-> the only safe courses.
-
-I think the former would ba a dangerous assumption ... in the category
-of "intermittent bugs triggering later on" rather than "easily reproduced
-bugs triggering right at the trouble spot" (like the latter).
+The actual details of _how_ that trigger mode is set -- APIC, PIC and
+so on for x86; or other IRQ controllers on other hardware -- should
+not matter to drivers, since they're platform-specific.  The quirk
+handling code is platform-specific though, and might care.
 
 - Dave

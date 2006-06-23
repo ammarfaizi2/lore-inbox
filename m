@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWFWOjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWFWOpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWFWOjG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 10:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWFWOjF
+	id S1750801AbWFWOpi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 10:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWFWOpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 10:39:05 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:11423 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1750800AbWFWOjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 10:39:04 -0400
-Date: Fri, 23 Jun 2006 16:38:35 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Jan Glauber <jan.glauber@de.ibm.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
-Subject: Re: [PATCH] kprobes for s390 architecture
-Message-ID: <20060623143835.GK9446@osiris.boeblingen.de.ibm.com>
-References: <20060612131552.GA6647@localhost.localdomain> <1150141217.5495.72.camel@localhost> <20060621042804.GA20300@localhost.localdomain> <1150907920.8295.10.camel@localhost> <20060621173436.GA7834@localhost.localdomain> <1150975716.6496.9.camel@localhost> <20060622163643.GA3329@localhost.localdomain>
-MIME-Version: 1.0
+	Fri, 23 Jun 2006 10:45:38 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:433 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750801AbWFWOpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 10:45:38 -0400
+Date: Fri, 23 Jun 2006 15:45:30 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Steven Whitehouse <swhiteho@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       David Teigland <teigland@redhat.com>,
+       Patrick Caulfield <pcaulfie@redhat.com>,
+       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: GFS2 and DLM
+Message-ID: <20060623144530.GA32291@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Steven Whitehouse <swhiteho@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	David Teigland <teigland@redhat.com>,
+	Patrick Caulfield <pcaulfie@redhat.com>,
+	Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <4497EAC6.3050003@yahoo.com.au> <1150807630.3856.1372.camel@quoit.chygwyn.com> <44980064.6040306@yahoo.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060622163643.GA3329@localhost.localdomain>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <44980064.6040306@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 09:36:43AM -0700, Mike Grundy wrote:
-> On Thu, Jun 22, 2006 at 01:28:36PM +0200, Jan Glauber wrote:
-> > On Wed, 2006-06-21 at 10:34 -0700, Mike Grundy wrote:
-> > > On Wed, Jun 21, 2006 at 06:38:40PM +0200, Martin Schwidefsky wrote:
-> > > > You misunderstood me here. I'm not talking about storing the same piece
-> > > > of data to memory on each processor. I'm talking about isolating all
-> > > > other cpus so that the initiating cpu can store the breakpoint to memory
-> > > > without running into the danger that another cpu is trying to execute it
-> > > > at the same time. But probably the store should be atomic in regard to
-> > > > instruction fetching on the other cpus. It is only two bytes and it
-> > > > should be aligned.
-> > 
-> > Preemption disabling is not necessary around smp_call_function(), since
-> > smp_call_function() takes a spin lock. But smp_call_function() is wrong
-> > here, it calls the code on all other CPUs but not on our own. Please use
-> > on_each_cpu() instead.
-> 
-> But on_each_cpu() does:
-> 
->         preempt_disable();
->         ret = smp_call_function(func, info, retry, wait);
->         local_irq_disable();
->         func(info);
->         local_irq_enable();
->         preempt_enable();
->  
-> I'm confused. I really don't need to swap the instruction on each cpu. I really
-> need to make sure each cpu is not fetching that instruction while I change it.
-> s390 doesn't have a flush_icache_range() (which the other arches use after the 
-> swap). I thought that the synchronization that smp_call_function() does was the
-> primary reason for using it here, not repeatedly changing the same area of 
-> memory.  If you'd prefer I use on_each_cpu() instead of smp_call_function(), 
-> no problem.  
+> The part where you needed file_read_actor looks like pretty much a stright
+> cut and paste from __generic_file_aio_read, which indicates that you might
+> be exporting at the wrong level.
 
-This won't solve anything. What Martin probably meant is something like a poor
-man's stop_machine_run() implemented by using smp_call_function(). This way
-you synchronize all cpus and when all cpus are in a known state, you change
-the instruction in question and make sure that serialization happens before
-cpus leave the handler again... Except for the cpu that called
-smp_call_function() you get the serialization for free, since the last
-instruction of the handler is always an lpsw/lpswe instruction.
+A definitive NACK to this export.  All other filesystems manage to use
+the generic file read code so GFS should do so aswell.  And there's a technical
+reason for not exporting aswell as the generic file read interface is far
+too complicated already.
 
-Otherwise there is still the possibility that a different cpu is fetching the
-instruction concurrently while you change it. This doesn't sound very good,
-especially if you take this paragraph of the Principles of Operation into
-account (p.5-89 of SA22-7832-04):
+> Not sure about the tty_ export. Would it be better to make a generic
+> printfish interface on top of it and also replace the interesting dquot.c
+> gymnastics? (I don't know)
 
-"It is possible, if another CPU or a channel program concurrently modifies
-the instruction, for one CPU to recognize the changes to some but not all bit
-positions of an instruction."
+In fact neither gfs nor dquot should use it at all.  The xfs quota code
+is fine without this nonsense.

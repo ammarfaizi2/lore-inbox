@@ -1,45 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752064AbWFWVKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752061AbWFWVLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752064AbWFWVKa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 17:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWFWVKa
+	id S1752061AbWFWVLq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 17:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWFWVLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 17:10:30 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:61084 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1752061AbWFWVK3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 17:10:29 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-Date: Fri, 23 Jun 2006 23:10:54 +0200
-User-Agent: KMail/1.9.3
-Cc: Pavel Machek <pavel@ucw.cz>, Frederik Deweerdt <deweerdt@free.fr>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, linux-pm@osdl.org,
-       stern@rowland.harvard.edu
-References: <20060621034857.35cfe36f.akpm@osdl.org> <20060623091016.GE4940@elf.ucw.cz> <20060623194100.GA3812@flint.arm.linux.org.uk>
-In-Reply-To: <20060623194100.GA3812@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 23 Jun 2006 17:11:46 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:15560
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1752061AbWFWVLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 17:11:46 -0400
+Subject: [PATCH] add receive_room flow control to flush_to_ldisc
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 23 Jun 2006 16:11:24 -0500
+Message-Id: <1151097084.4249.10.camel@amdx2.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606232310.54564.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Flush data serially to line discipline in blocks no
+larger than tty->receive_room to avoid losing data
+if line discipline is busy (such as N_TTY operating at
+high speed on heavily loaded system) or does
+not accept data in large blocks (such as N_MOUSE).
 
-On Friday 23 June 2006 21:41, Russell King wrote:
-> On Fri, Jun 23, 2006 at 11:10:21AM +0200, Pavel Machek wrote:
-> > Serial console is currently broken by suspend, resume. _But_ I have a
-> > patch I'd like you to try.... pretty please?
-> 
-> Did you bother trying my patch, which was done the Right(tm) way?
-> There wasn't any feedback on it so I can only assume not.
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
+--- a/drivers/char/tty_io.c	2006-06-23 15:40:14.000000000 -0500
++++ b/drivers/char/tty_io.c	2006-06-23 15:39:47.000000000 -0500
+@@ -2772,7 +2772,7 @@ static void flush_to_ldisc(void *private
+ 	struct tty_struct *tty = (struct tty_struct *) private_;
+ 	unsigned long 	flags;
+ 	struct tty_ldisc *disc;
+-	struct tty_buffer *tbuf;
++	struct tty_buffer *tbuf, *head;
+ 	int count;
+ 	char *char_buf;
+ 	unsigned char *flag_buf;
+@@ -2782,21 +2782,33 @@ static void flush_to_ldisc(void *private
+ 		return;
+ 
+ 	spin_lock_irqsave(&tty->buf.lock, flags);
+-	while((tbuf = tty->buf.head) != NULL) {
+-		while ((count = tbuf->commit - tbuf->read) != 0) {
+-			char_buf = tbuf->char_buf_ptr + tbuf->read;
+-			flag_buf = tbuf->flag_buf_ptr + tbuf->read;
+-			tbuf->read += count;
++	head = tty->buf.head;
++	if (head != NULL) {
++		tty->buf.head = NULL;
++		for (;;) {
++			count = head->commit - head->read;
++			if (!count) {
++				if (head->next == NULL)
++					break;
++				tbuf = head;
++				head = head->next;
++				tty_buffer_free(tty, tbuf);
++				continue;
++			}
++			if (!tty->receive_room) {
++				schedule_delayed_work(&tty->buf.work, 1);
++				break;
++			}
++			if (count > tty->receive_room)
++				count = tty->receive_room;
++			char_buf = head->char_buf_ptr + head->read;
++			flag_buf = head->flag_buf_ptr + head->read;
++			head->read += count;
+ 			spin_unlock_irqrestore(&tty->buf.lock, flags);
+ 			disc->receive_buf(tty, char_buf, flag_buf, count);
+ 			spin_lock_irqsave(&tty->buf.lock, flags);
+ 		}
+-		if (tbuf->active)
+-			break;
+-		tty->buf.head = tbuf->next;
+-		if (tty->buf.head == NULL)
+-			tty->buf.tail = NULL;
+-		tty_buffer_free(tty, tbuf);
++		tty->buf.head = head;
+ 	}
+ 	spin_unlock_irqrestore(&tty->buf.lock, flags);
+ 
 
-Sorry for that, I just couldn't test it earlier.  Works for me. :-)
 
-Thanks,
-Rafael

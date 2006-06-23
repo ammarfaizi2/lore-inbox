@@ -1,69 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWFWMvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWFWM6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWFWMvk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 08:51:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWFWMvj
+	id S964794AbWFWM6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 08:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWFWM6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 08:51:39 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:60034 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964795AbWFWMvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 08:51:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=kcgF1FD7NolugqZs5ctfaFtKmQGhDXUFXj2y1b55LnmBRdeZqThobKynSJKFjAN9z/7aTmwWEbciNBQnoJjfeMeKsGoRrzfvtzmC8zKcB2ZXMQbyyNrRLGIvQryTpWtdQtSo9cys0mm8oBJx6bUNwFEoIG/ziniLgHPxD8E3zNI=
-Message-ID: <449BE4E0.6070301@innova-card.com>
-Date: Fri, 23 Jun 2006 14:56:00 +0200
-Reply-To: franck.bui-huu@innova-card.com
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 23 Jun 2006 08:58:16 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11495 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964794AbWFWM6P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 08:58:15 -0400
+Date: Fri, 23 Jun 2006 14:57:01 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, linux-pm@osdl.org,
+       stern@rowland.harvard.edu
+Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
+Message-ID: <20060623125658.GB8048@elf.ucw.cz>
+References: <20060621034857.35cfe36f.akpm@osdl.org> <4499BE99.6010508@gmail.com> <20060621221445.GB3798@inferi.kami.home> <20060622061905.GD15834@kroah.com> <20060622004648.f1912e34.akpm@osdl.org> <20060622160403.GB2539@slug> <20060622092506.da2a8bf4.akpm@osdl.org> <20060623090206.GA2234@slug> <20060623091016.GE4940@elf.ucw.cz> <20060623121210.GB2234@slug>
 MIME-Version: 1.0
-To: franck.bui-huu@innova-card.com
-CC: Mel Gorman <mel@skynet.ie>, Franck Bui-Huu <vagabon.xyz@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rmk+lkml@arm.linux.org.uk
-Subject: Re: 2.6.17-mm1
-References: <20060621034857.35cfe36f.akpm@osdl.org> <449AB01A.5000608@innova-card.com> <Pine.LNX.4.64.0606221617420.5869@skynet.skynet.ie> <449ABC3E.5070609@innova-card.com> <Pine.LNX.4.64.0606221649070.5869@skynet.skynet.ie> <cda58cb80606221025y63906e81wbec9597b94069b6a@mail.gmail.com> <20060623102037.GA1973@skynet.ie> <449BDCF5.6040808@innova-card.com>
-In-Reply-To: <449BDCF5.6040808@innova-card.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <fbh.work@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060623121210.GB2234@slug>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Franck Bui-Huu wrote:
-> Mel Gorman wrote:
->> On (22/06/06 19:25), Franck Bui-Huu didst pronounce:
->>>> I know, but what I'm getting at is that ARCH_PFN_OFFSET may be unnecessary
->>>> with flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch applied.
->>> yes it seems so. But ARCH_PFN_OFFSET has been used before your patch
->>> has been sent. So your patch seems to be incomplete...
->> Difficult to argue with that logic.
->>
+Hi!
+
+> > > > 2.6.17 wasn't supposed to oops.  Do you have details on this?
+> > > > 
+> > > For some reason, unknown to me, the oops won't display on the serial
+> > > link :(.
+> > 
+> > Serial console is currently broken by suspend, resume. _But_ I have a
+> > patch I'd like you to try.... pretty please?
+> > 
+> Sure :)... I applied it but the output went to the laptop's screen anyway...
+
+Do you need some kernel command line options? This is s2ram, do I
+recall it correctly?
+
+> > That is not an oops, rather a kernel BUG(). Can you just remove
+> > might_sleep line and see what happens?
+> > 
+> > Unfortunately, backtrace does not tell me which notifier chain did
+> > that :-(. Are you using audit or something like that?
+> > 
+> > /*
+> >  * lock for reading
+> >  */
+> > static inline void down_read(struct rw_semaphore *sem)
+> > {
+> >         might_sleep();
+> > ~~~~~~~~~~~~~~~~~~~~~~
+> >         rwsemtrace(sem,"Entering down_read");
+> >         __down_read(sem);
+> >         rwsemtrace(sem,"Leaving down_read");
+> > }
+> > 
+> Here's the (hand copied) dump when the might_sleep is removed:
 > 
-> sorry, I was just meaning that ARCH_PFN_OFFSET had been introduced to
-> solve this before your patch has been sent. So the requirement for
-> memory to start at pfn 0 is already solved.
+> esi: 00000003  edit: 00000000 ebp: f6cb9eb8  esp: f6cb9ea4
+> ds: 007b  es: 007b  ss: 0068
+> Process bash (pid: 9402, threadinfo=f6cb8000 task=f7a5c570)
+
+This stack lines are not really interesting (can you comment them from
+sources?) and they make interesting info scroll away :-(. Or maybe
+vga=1 can help?
+
+> Stack: c0229b71 00000046 00000000 00000286 c0383ca7 f6cb9ecc c013b242 00000003
+>         00000000 00000003 f6cb9ee0 c013b2e8 00000003 c0436890 f6c9a003 f6cb9f08
+>         c013b481 00000003 00000003 00000246 c1788b00 00000003 c04368a0 c043692c
+> Call Trace:
+>  <c0103eea> show_stack_log_lvl+0x92/0xb7  <c0104100> show_registers+0x1a3/0x21b
+>  <c0104319> die+0x117/0x230  <c03627a6> do_page_fault+0x39c/0x72a
+>  <c0103b2f> error_code+0x4f/0x54  <c013b242> suspend_enter+0x2f/0x52
+>  <c013b2e8> enter_state+0x4b/0x8d  <c013b481> state_store+0xa0/0xa2
+>  <c01a5151> subsys_attr_store+0x37/0x41  <c01a53d2> flush_write_buffer+0x3c/0x46
+>  <c01a5443> sysfs_write_file+0x67/0x8b  <c0166bb6> vfs_write+0x1b9/0x1be
+>  <c0166c7b> sys_write+0x4b/0x75  <c010300f> sysenter_past_esp+0x54/0x75
 > 
-> Your patch solves the problem in a different way, but it's
-> incompatible with the current one (ARCH_PFN_OFFSET).
-> 
-> IMHO the question is now, which method is the best one ? If it's yours
-> the we probably need to get ride of the previous method and add yours
-> (but don't forget to modify arch such ARM which are currently using
-> ARCH_PFN_OFFSET).
-> 
+> Code: 05 c4 42 43 c0 31 43 43 c0 c3 8b 2d 68 6e 54 c0 8b 1d 60 6e 54 c0 8b 35 6c 6e 54 c0 8b 3d 70 6d 54 c0 ff 35 74 6e 54 c0 9d c3 90 <e8> 6d 38 ea ff e8 a2 ff ff ff 6a 03 e8 ec b6 de ff 83 c4 04 c3
+> EIP: [c043431c>] do_suspend_lowlevel+0x0/0x15 SS:ESP 0068:f6cb6ea4
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-maybe these figures can help to make our choice:
+Ha, wait a moment, this is interesting line. Can you trace down which
+instruction causes this?
 
-   text    data     bss     dec     hex filename
-2226384  223824  110624 2560832  271340 vmlinux-arch-pfn-offset-0
-2228488  223824  110624 2562936  271b78 vmlinux-arch-pfn-offset-not-0
-2226964  223856  110624 2561444  2715a4 vmlinux-out-of-line-pfn-to-page
-
-Arch is MIPS and I used gcc 3.4.4
-
-So your solution gives the smallest kernel with my config although the win
-is only 0.1%. Maybe it would be good to have ARM figures/opinion too.
-
-		Franck
+We recently changed pagetable handling during swsusp, perhaps thats
+it? It went to Linus few minutes ago...
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

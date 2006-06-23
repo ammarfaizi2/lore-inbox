@@ -1,53 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWFWGBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWFWGBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbWFWGBp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 02:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWFWGBp
+	id S932367AbWFWGBt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 02:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWFWGBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 02:01:45 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:59287 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932361AbWFWGBo (ORCPT
+	Fri, 23 Jun 2006 02:01:49 -0400
+Received: from ns.suse.de ([195.135.220.2]:7641 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932363AbWFWGBr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 02:01:44 -0400
+	Fri, 23 Jun 2006 02:01:47 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-usb-devel@lists.sourceforge.net, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 1/2] [PATCH] USB: get USB suspend to work again
+Subject: [PATCH 2/2] [PATCH] Driver core: fix locking issues with the devices that are attached to classes
 Reply-To: Greg KH <greg@kroah.com>
-Date: Thu, 22 Jun 2006 22:58:34 -0700
-Message-Id: <11510423151128-git-send-email-greg@kroah.com>
+Date: Thu, 22 Jun 2006 22:58:35 -0700
+Message-Id: <11510423183635-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.0
-In-Reply-To: <20060623055737.GA29631@kroah.com>
-References: <20060623055737.GA29631@kroah.com>
+In-Reply-To: <11510423151128-git-send-email-greg@kroah.com>
+References: <20060623055737.GA29631@kroah.com> <11510423151128-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Yeah, it's a hack, but it is only temporary until Alan's patches
-reworking this area make it in.  We really should not care what devices
-below us are doing, especially when we do not really know what type of
-devices they are.  This patch relies on the fact that the endpoint
-devices do not have a driver assigned to us.
+Doh, that was foolish...
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/usb/core/usb.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ drivers/base/core.c |   19 +++++++++++--------
+ 1 files changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
-index 5153107..fb488c8 100644
---- a/drivers/usb/core/usb.c
-+++ b/drivers/usb/core/usb.c
-@@ -991,6 +991,8 @@ void usb_buffer_unmap_sg (struct usb_dev
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index d0f84ff..27c2176 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -356,6 +356,13 @@ int device_add(struct device *dev)
+ 	if (parent)
+ 		klist_add_tail(&dev->knode_parent, &parent->klist_children);
  
- static int verify_suspended(struct device *dev, void *unused)
- {
-+	if (dev->driver == NULL)
-+		return 0;
- 	return (dev->power.power_state.event == PM_EVENT_ON) ? -EBUSY : 0;
++	if (dev->class) {
++		/* tie the class to the device */
++		down(&dev->class->sem);
++		list_add_tail(&dev->node, &dev->class->devices);
++		up(&dev->class->sem);
++	}
++
+ 	/* notify platform of device entry */
+ 	if (platform_notify)
+ 		platform_notify(dev);
+@@ -455,6 +462,9 @@ void device_del(struct device * dev)
+ 		sysfs_remove_link(&dev->kobj, "device");
+ 		sysfs_remove_link(&dev->parent->kobj, class_name);
+ 		kfree(class_name);
++		down(&dev->class->sem);
++		list_del_init(&dev->node);
++		up(&dev->class->sem);
+ 	}
+ 	device_remove_file(dev, &dev->uevent_attr);
+ 
+@@ -601,11 +611,6 @@ struct device *device_create(struct clas
+ 	if (retval)
+ 		goto error;
+ 
+-	/* tie the class to the device */
+-	down(&class->sem);
+-	list_add_tail(&dev->node, &class->devices);
+-	up(&class->sem);
+-
+ 	return dev;
+ 
+ error:
+@@ -636,9 +641,7 @@ void device_destroy(struct class *class,
+ 	}
+ 	up(&class->sem);
+ 
+-	if (dev) {
+-		list_del_init(&dev->node);
++	if (dev)
+ 		device_unregister(dev);
+-	}
  }
- 
+ EXPORT_SYMBOL_GPL(device_destroy);
 -- 
 1.4.0
 

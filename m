@@ -1,148 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932994AbWFWKUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932996AbWFWKXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932994AbWFWKUl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932995AbWFWKUl
+	id S932996AbWFWKXj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932997AbWFWKXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:20:41 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:28075 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S932994AbWFWKUk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:20:40 -0400
-Date: Fri, 23 Jun 2006 11:20:38 +0100
-To: Franck Bui-Huu <vagabon.xyz@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm1
-Message-ID: <20060623102037.GA1973@skynet.ie>
-References: <20060621034857.35cfe36f.akpm@osdl.org> <449AB01A.5000608@innova-card.com> <Pine.LNX.4.64.0606221617420.5869@skynet.skynet.ie> <449ABC3E.5070609@innova-card.com> <Pine.LNX.4.64.0606221649070.5869@skynet.skynet.ie> <cda58cb80606221025y63906e81wbec9597b94069b6a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <cda58cb80606221025y63906e81wbec9597b94069b6a@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-From: mel@skynet.ie (Mel Gorman)
+	Fri, 23 Jun 2006 06:23:39 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:40743 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932996AbWFWKXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 06:23:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=MYO0Z2rV45yG4RPOihRMPz+zwWB1uBYUNTthTeayDm/rgZnay7RaqmUJvSf6QcG7aKoZqP2Iy83nnv+eGd4TN/Am3QOnXwVmrloZIBnaCo0qMFCYKarzcq5WAxpR5l2Pl7/sJf62IinvDVJt41dL7X4pkdA6920yZsTH9EJ6jTg=
+Date: Fri, 23 Jun 2006 12:23:44 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+In-Reply-To: <1150999517.25491.151.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0606230055390.13514@localhost.localdomain>
+References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+  <1150816429.6780.222.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain> 
+ <Pine.LNX.4.58.0606201229310.729@gandalf.stny.rr.com> 
+ <Pine.LNX.4.64.0606201903030.11643@localhost.localdomain> 
+ <1150824092.6780.255.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0606202217160.11643@localhost.localdomain> 
+ <Pine.LNX.4.58.0606210418160.29673@gandalf.stny.rr.com> 
+ <Pine.LNX.4.64.0606211204220.10723@localhost.localdomain> 
+ <Pine.LNX.4.64.0606211638560.6572@localhost.localdomain> 
+ <1150907165.25491.4.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0606220936290.15236@gandalf.stny.rr.com> 
+ <1150986041.25491.53.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0606221021410.15236@gandalf.stny.rr.com> 
+ <1150986396.25491.56.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0606221902560.10511@localhost.localdomain>
+ <1150999517.25491.151.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On (22/06/06 19:25), Franck Bui-Huu didst pronounce:
-> 2006/6/22, Mel Gorman <mel@csn.ul.ie>:
-> >On Thu, 22 Jun 2006, Franck Bui-Huu wrote:
-> >
-> >> Mel Gorman wrote:
-> >>> On Thu, 22 Jun 2006, Franck Bui-Huu wrote:
-> >>>>
-> >>>> Should ARCH_PFN_OFFSET macro be used instead in order to make pfn/page
-> >>>> convertions work when node 0 start offset do not start at 0 ?
-> >>>>
-> >>>
-> >>> What happens if you have ARCH_PFN_OFFSET as
-> >>>
-> >>> #define ARCH_PFN_OFFSET (0UL)
-> >>>
-> >>> ?
-> >>
-> >> It's the default value (see memory_model.h). It means that pfn start
-> >> for node 0 is 0, therefore your physical memory address starts at 0.
-> >>
-> >
-> >I know, but what I'm getting at is that ARCH_PFN_OFFSET may be unnecessary
-> >with flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch applied.
-> 
-> yes it seems so. But ARCH_PFN_OFFSET has been used before your patch
-> has been sent. So your patch seems to be incomplete...
+On Thu, 22 Jun 2006, Thomas Gleixner wrote:
 
-Difficult to argue with that logic.
+> On Thu, 2006-06-22 at 19:06 +0100, Esben Nielsen wrote:
+>>>
+>>> Thats a seperate issue. Though you are right.
+>>
+>> Why not use my original patch and solve both issues?
+>> I have even updated it to avoid the double traversal. It also removes
+>> one other traversal which shouldn't be needed. (I have not had time
+>> to boot the kernel with it, though, but it does compile...:-)
+>
 
-> 
-> >ARCH_PFN_OFFSET is used as
-> >
-> >#define page_to_pfn(page)       ((unsigned long)((page) - mem_map) + \
-> >                                  ARCH_PFN_OFFSET)
-> >
-> >because it knew that the map may not start at PFN 0. With
-> >flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch, the map will
-> >start at PFN 0 even if physical memory does not start until later.
-> >
-> 
-> well your approach's trick is on the mem_map address whereas
-> ARCH_PFN_OFFSET's one is on the computation of the index. Your
-> solution may result in smaller kernel (when ARCH_PFN_OFFSET != 0)
-> because in your case page/pfn conversion is simpler.
-> 
-> Maybe in your patch instead of doing:
-> 
->        map -= pgdat->node_start_pfn;
-> 
-> you could do:
-> 
->        map -= ARCH_OFFSET_PFN;
-> 
+Let me comment on your last sentence first:
 
-That will assume that ARCH_OFFSET_PFN is always equal to
-NODE_DATA(0)->node_start_pfn which may cause other breakage further down
-the line. How about something like this? (boot tested on x86 only)
+> We want an immidate propagation.
+There is no such thing as "immidiate". The most you can say is that when 
+you  return from setscheduler() everything is taken care off. I agree - it 
+has to be like that. But I just want to add _effectively_ taken care off. I.e. 
+when the within the time setscheduler() has returned _and_ the the 
+relevant priorities have time to run things get fixed. No, the users 
+should not have to worry about the priorities hanging around, but the 
+system can wait with fixing them it is relavant.
+
+> Simply because it does not solve following scenario:
+>
+> High prio task is blocked on lock and boosts 3 other tasks. Now the
+> higher prrio watchdog detects that the high prio task is stuck and
+> lowers the priority. You can wake it up as long as you want, the boosted
+> task is still busy looping.
+
+Yes, you are right. I have thought about how to fix it, but it will be 
+rather ugly. I'll try to see what I can do though, but I am afraid the 
+patch might get too big. :-(
+
+(
+The same problem may actually always have been present in another corner 
+situation:
+    A boosts B whichs is blocked interruptible on a lock a boosts C, which 
+again boosts D (etc.). A and B are signalled roughly at the same time. A 
+wakes up first a decrease the priority of B but not C, because the B runs 
+on another CPU, but with lower priority and fixes C. A then stops because C is
+fixed. but D still have the A's priority and preempts B, which should fix 
+it, but has it's low priority back.
+  This situation is not bad because A has already been in the and 
+therefore the designer has to think that C D etc already got it's 
+priority. That A is later on interrupted shouldn't matter.
+)
+
+May I suggest a compromise:
+
+if (in_interrupt() ||
+     ( increasing priority && current->prio < prio ) )
+            do it Esben's way;
+else
+            do it Thomas's way;
+
+Then will have fixed most of the problems. We still have the problem of a 
+the high priority watchdog task being unbound in setscheduler(), though. 
+And if it is called from interrupt and used to descrease the priority, it 
+wont work correctly. But it will work for the use in hrtimers, where the 
+priority is increased from interrupt.
 
 
->>> Begin patch
+> And I do not like the idea of invoking the scheduler to do those
+> propagations. setscheduler is a synchronous effect in all other cases.
+> So it has to be synchronous in the propagation case too.
 
-The FLATMEM memory model assumes that memory is
-on contiguous area starting from PFN 0.  The patch
-flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch relaxed
-this assumption by offsetting mem_map from NODE_DATA(0)->node_mem_map
-by NODE_DATA(0)->node_start_pfn. However, some architectures are using
-ARCH_OFFSET_PFN to do a similar job at a runtime cost which causes the map
-to get offset twice.
+See my note above about being "immediate". Syncronous is more precise but 
+the same argument holds.
 
-This patch catches the situation where ARCH_OFFSET_PFN was being used to
-workaround NODE_DATA(0)->node_start_pfn != 0 and prints a message letting
-the arch maintainer know that ARCH_OFFSET_PFN may be safe to remove.
-Once the message appears on no architectures, it may be safe to remove
-ARCH_OFFSET_PFN totally.
+>
+> Preempt-RT and the dynamic priority adjustment of high resolution timers
+> is a different playground and we have to think about that seperately.
 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-mm1-clean/include/asm-generic/memory_model.h linux-2.6.17-mm1-archpfnfix/include/asm-generic/memory_model.h
---- linux-2.6.17-mm1-clean/include/asm-generic/memory_model.h	2006-06-23 09:26:15.000000000 +0100
-+++ linux-2.6.17-mm1-archpfnfix/include/asm-generic/memory_model.h	2006-06-23 10:44:18.000000000 +0100
-@@ -28,9 +28,8 @@
-  */
- #if defined(CONFIG_FLATMEM)
- 
--#define __pfn_to_page(pfn)	(mem_map + ((pfn) - ARCH_PFN_OFFSET))
--#define __page_to_pfn(page)	((unsigned long)((page) - mem_map) + \
--				 ARCH_PFN_OFFSET)
-+#define __pfn_to_page(pfn)	(mem_map + (pfn))
-+#define __page_to_pfn(page)	((unsigned long)((page) - mem_map))
- #elif defined(CONFIG_DISCONTIGMEM)
- 
- #define __pfn_to_page(pfn)			\
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-mm1-clean/mm/page_alloc.c linux-2.6.17-mm1-archpfnfix/mm/page_alloc.c
---- linux-2.6.17-mm1-clean/mm/page_alloc.c	2006-06-23 09:26:15.000000000 +0100
-+++ linux-2.6.17-mm1-archpfnfix/mm/page_alloc.c	2006-06-23 10:49:01.000000000 +0100
-@@ -2316,7 +2316,22 @@ static void __init alloc_node_mem_map(st
- 		 * is true. Adjust map relative to node_mem_map to
- 		 * maintain this relationship.
- 		 */
--		map -= pgdat->node_start_pfn;
-+		if (ARCH_PFN_OFFSET == 0)
-+			map -= pgdat->node_start_pfn;
-+		else {
-+			/*
-+			 * If ARCH_PFN_OFFSET is being used to to workaround
-+			 * old assumptions of the FLATMEM memory model, print
-+			 * a message so that ARCH_PFN_OFFSET can be safely
-+			 * removed. If there are no remaining users of
-+			 * ARCH_PFN_OFFSET after this message no longer
-+			 * shows up, it'll be safe to remove this else block
-+			 */
-+			if (ARCH_PFN_OFFSET == pgdat->node_start_pfn)
-+				printk("ARCH_PFN_OFFSET not necessary\n");
-+
-+			map -= ARCH_PFN_OFFSET;
-+		}
- 	}
- #ifdef CONFIG_FLATMEM
- 	/*
+*nod*
+I agree, although we deffinitely don't want to have too many #ifdef 
+CONFIG_PREEMPT_RT around in the code. That makes it far harder to get into 
+the mainline tree.
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+I was bonked for using the other thread for preempt-realtime stuff, so I 
+assume this thread is for preempt-realtime stuff only :-)
+
+>
+> 	tglx
+>
+>

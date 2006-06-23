@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWFWN6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWFWN5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWFWN6V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 09:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWFWN6D
+	id S1750770AbWFWN5n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 09:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWFWN5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 09:58:03 -0400
-Received: from 1wt.eu ([62.212.114.60]:16905 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1750703AbWFWNkt (ORCPT
+	Fri, 23 Jun 2006 09:57:42 -0400
+Received: from es335.com ([67.65.19.105]:39941 "EHLO mail.es335.com")
+	by vger.kernel.org with ESMTP id S1750749AbWFWN4r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 09:40:49 -0400
-Date: Fri, 23 Jun 2006 15:32:17 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: pageexec@freemail.hu
-Cc: Andi Kleen <ak@suse.de>, marcelo@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64: another fix for canonical RIPs during signal handling
-Message-ID: <20060623133217.GA24737@1wt.eu>
-References: <449BC808.4174.277D15CF@pageexec.freemail.hu> <449C0616.4382.286F7C8C@pageexec.freemail.hu>
+	Fri, 23 Jun 2006 09:56:47 -0400
+Subject: Re: [PATCH v3 1/7] AMSO1100 Low Level Driver.
+From: Steve Wise <swise@opengridcomputing.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: rdreier@cisco.com, mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <1151070532.3204.10.camel@laptopd505.fenrus.org>
+References: <20060620203050.31536.5341.stgit@stevo-desktop>
+	 <20060620203055.31536.15131.stgit@stevo-desktop>
+	 <1150836226.2891.231.camel@laptopd505.fenrus.org>
+	 <1151070290.7808.33.camel@stevo-desktop>
+	 <1151070532.3204.10.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Fri, 23 Jun 2006 08:56:45 -0500
+Message-Id: <1151071005.7808.39.camel@stevo-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <449C0616.4382.286F7C8C@pageexec.freemail.hu>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 03:17:42PM +0200, pageexec@freemail.hu wrote:
-> > > that's not true. if the application expects to crash due to a bad
-> > > signal handler then rip=0 may or may not achieve that, depending on
-> > > what mapping exists at that address - this is inconsistent behaviour
-> > > (from userland's point of view) created by the kernel itself, hence
-> > > this is a kernel bug and should be fixed.
+On Fri, 2006-06-23 at 15:48 +0200, Arjan van de Ven wrote:
+> > > > +	/* Tell HW to xmit */
+> > > > +	__raw_writeq(cpu_to_be64(mapaddr), elem->hw_desc + C2_TXP_ADDR);
+> > > > +	__raw_writew(cpu_to_be16(maplen), elem->hw_desc + C2_TXP_LEN);
+> > > > +	__raw_writew(cpu_to_be16(TXP_HTXD_READY), elem->hw_desc + C2_TXP_FLAGS);
+> > > 
+> > > or here
+> > > 
 > > 
-> > If it "wants" to crash it can just jump to 0 (or whatever unmapped address
-> > it has) by itself.
+> > No need here.  This logic submits the packet for transmission.  We don't
+> > assume it is transmitted until we (after a completion interrupt usually)
+> > read back the HTXD entry and see the TXP_HTXD_DONE bit set (see
+> > c2_tx_interrupt()). 
 > 
-> i very carefully didn't say 'want' above, instead i said 'expect'. the
-> current code is breaking the expectation that invalid memory dereferences
-> will cause a SIGSEGV because the rip=0 code tries to outsmart userland by
-> finding such an invalid address - except 0 is not at all guaranteed to be
-> invalid. don't think of only 'normal' applications where this assumption
-> is mostly true, think of everything that userland may want to do and having
-> a mapping at 0 is within the game rules.
+> ... but will that interrupt happen at all if these 3 writes never hit
+> the hardware?
 > 
-> > No need to involve the kernel here.
-> 
-> but the current code does exactly that. it assumes that it will crash
-> the application by jumping to 0 which may or may not be true. the kernel
-> has no business making such assumptions, if it wants to trigger an event
-> in userland, it had better make sure it'll actually happen, regardless
-> what userland may have done.
-> 
-> > The only point of the patch was to not make the kernel/CPU crash due 
-> > to CPU bugs triggered by applications.
-> 
-> and was it also the purpose to make the application behave differently
-> depending on what it has mapped at 0? i doubt so. also, what does 2.6
-> do to avoid this? it doesn't have this rip=0 code (yet?).
-> 
-> > But we really
-> > don't care what happens to the application when it corrupts its stack frame.
-> 
-> then why do you (try to) crash it? apparently you do care about it ;-).
-> 
-> in particular, the bad signal handler installed by userland would cause a
-> SIGSEGV (modulo the CPU bug?), so what the original rip=0 patch wanted to
-> do is trigger this SIGSEGV while not tripping on the CPU bug. it achieved
-> the second goal but not the first one, that's all i'm trying to explain.
 
-If I understand it well, an application which maps address 0 has no way to
-be notified that the kernel detected a corrupted stack pointer. I agree
-that if the proposed patch avoids to make this undesired distinction between
-apps that map addr 0 and those which don't, it would be better to merge it.
-Andi, you said there was nothing wrong with it, do you accept that it gets
-merged ?
+I thought the posted write WILL eventually get to adapter memory.  Not
+stall forever cached in a bridge.  I'm wrong?
 
-Regards,
-Willy
+My point is for a given HTXD entry, we write it to post a packet for
+transmission, then only free the packet memory and reuse this entry
+_after_ reading the HTXD and seeing the DONE bit set.  So I still don't
+see a problem.  But I've been wrong before ;-)
+
+Steve.
+
+
+
 

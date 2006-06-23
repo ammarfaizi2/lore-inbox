@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWFWDer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWFWDhL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWFWDer (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 23:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWFWDer
+	id S932099AbWFWDhL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 23:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWFWDhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 23:34:47 -0400
-Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:64402 "HELO
-	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932072AbWFWDeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 23:34:46 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
-Date: Thu, 22 Jun 2006 20:34:43 -0700
-User-Agent: KMail/1.7.1
-Cc: Mattia Dongili <malattia@linux.it>, Jiri Slaby <jirislaby@gmail.com>,
-       Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-pm@osdl.org, pavel@suse.cz
-References: <20060622202952.GA14135@kroah.com> <200606221624.03182.david-b@pacbell.net> <20060622235112.GA30484@kroah.com>
-In-Reply-To: <20060622235112.GA30484@kroah.com>
+	Thu, 22 Jun 2006 23:37:10 -0400
+Received: from wx-out-0102.google.com ([66.249.82.203]:12897 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932099AbWFWDhJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 23:37:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=XbNNNKYNFpJoujuVSvLePtRiGXbldEBofaeOgRCAgwHZPVUSfb4ThkRsnpZ38Z2aKNXHY3p9cvQd3LbsOZiqcQ2dlb+aZ+9OkFR8Lj3A9W898I6W2PcFM0RFINH4XpGsNj4pqW8KRWMSRfSH93I+k7OsEcQT34KAHieFHUvEoP0=
+Message-ID: <449B6349.7070205@gmail.com>
+Date: Thu, 22 Jun 2006 23:43:05 -0400
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: David Woodhouse <dwmw2@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] jffs2: potential memory leaks in jffs2_scan_medium()
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606222034.44085.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 June 2006 4:51 pm, Greg KH wrote:
-> > There was previously an invariant that the interfaces were marked
-> > as quiescent unless the interface (a) had a driver, and (b) that
-> > driver was not suspended.  Evidently that has been lost.  This patch
-> > may be insufficient; ISTR other places relying on that invariant.
-> > 
-> > And yes, we _should_ care about whether or not any interface is
-> > still active, until the pm core code starts to pay attention to
-> > the driver model tree at all times ... even outside of system-wide
-> > suspend transitions.  Today, the pm core code doesn't even use
-> > that tree directly, and all runtime state changes (like selective
-> > suspend with USB) completely bypass that pm tree.
-> 
-> Hm, ok, yes, we should care about interfaces, but we need some way to
-> only walk them, not anything else that might be attached to us...
+This patch deals with 3 return paths that fail to perform proper cleanup
+(which can result into leaking 'flashbuf' and/or 's').
 
-Under what scenario could it possibly be legitimate to suspend a
-usb device -- or interface, or anything else -- with its children
-remaining active?  The ability to guarantee that could _never_ happen
-was one of the fundamental motivations for the driver model ...
+Coverity IDs: 676, 1301
 
-Maybe that invariant should be replaced with something else, though
-I'm not sure what.  Certainly it would make a fair amount of sense
-to leave unused PCI devices in the PCI_D3 state, for example; that
-would be the PCI analogue of that invariant.
+Signed-off-by: Florin Malita <fmalita@gmail.com>
+---
 
-- Dave
+ fs/jffs2/scan.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/fs/jffs2/scan.c b/fs/jffs2/scan.c
+index 6161808..4a068de 100644
+--- a/fs/jffs2/scan.c
++++ b/fs/jffs2/scan.c
+@@ -128,12 +128,12 @@ #endif
+ 	}
+ 
+ 	if (jffs2_sum_active()) {
+-		s = kmalloc(sizeof(struct jffs2_summary), GFP_KERNEL);
++		s = kzalloc(sizeof(struct jffs2_summary), GFP_KERNEL);
+ 		if (!s) {
+ 			JFFS2_WARNING("Can't allocate memory for summary\n");
+-			return -ENOMEM;
++			ret = -ENOMEM;
++			goto out;
+ 		}
+-		memset(s, 0, sizeof(struct jffs2_summary));
+ 	}
+ 
+ 	for (i=0; i<c->nr_blocks; i++) {
+@@ -194,7 +194,7 @@ #endif
+ 				if (c->nextblock) {
+ 					ret = file_dirty(c, c->nextblock);
+ 					if (ret)
+-						return ret;
++						goto out;
+ 					/* deleting summary information of the old nextblock */
+ 					jffs2_sum_reset_collected(c->summary);
+ 				}
+@@ -205,7 +205,7 @@ #endif
+ 			} else {
+ 				ret = file_dirty(c, jeb);
+ 				if (ret)
+-					return ret;
++					goto out;
+ 			}
+ 			break;
+ 
+
 

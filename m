@@ -1,50 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWFWEzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWFWFen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWFWEzN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 00:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWFWEzN
+	id S1750822AbWFWFen (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 01:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWFWFen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 00:55:13 -0400
-Received: from main.gmane.org ([80.91.229.2]:207 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932299AbWFWEzL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 00:55:11 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Ryan M." <kubisuro@att.net>
-Subject: Re: problem burning DVDs with 2.6.17-ck1 (mlockall?)
-Date: Fri, 23 Jun 2006 13:55:12 +0900
-Message-ID: <449B7430.80503@att.net>
-References: <449B52BF.3070404@pcisys.net>
-Reply-To: kubisuro@att.net
+	Fri, 23 Jun 2006 01:34:43 -0400
+Received: from brain.cel.usyd.edu.au ([129.78.24.68]:28918 "EHLO
+	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
+	id S1750822AbWFWFen (ORCPT <rfc822;linux-Kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 01:34:43 -0400
+Message-Id: <5.1.1.5.2.20060623152731.02656038@brain.sedal.usyd.edu.au>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Fri, 23 Jun 2006 15:34:41 +1000
+To: Erik Mouw <erik@harddisk-recovery.com>
+From: sena seneviratne <auntvini@cel.usyd.edu.au>
+Subject: Re: Measuring tools - top and interrupts
+Cc: linux-Kernel@vger.kernel.org
+In-Reply-To: <20060622173128.GD14682@harddisk-recovery.com>
+References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
+ <20060622162141.GC14682@harddisk-recovery.com>
+ <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 210.120.111.91
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-In-Reply-To: <449B52BF.3070404@pcisys.net>
-Cc: ck@vds.kolivas.org
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Erik,
 
-Brian Hall wrote:
-> After upgrading from 2.6.16-ck11 to 2.6.17-ck1, I find I can no longer
-> burn DVDs. With growisofs I get:
-<snip>
-> Maybe it's something else I've done on the system. Running ~amd64 Gentoo
-> 2006.0. Suggestions welcome!
-> 
+We have fixed this problem in the kernel 2.4.19 which has been installed in 
+few selected computers of the "Middleware grid"
+Sydney University.
 
-I have not had any problems burning DVDs with 2.6.17-ck1 using an ix86 kernel.
+Also load average has been calculated for each login user.
 
-I primarily use k3b which utilizes growisofs.
+Thanks
+Sena Seneviratne
+Computer Engineering Lab
+Sydney University
 
-Perhaps something else in kernel 2.6.17 with regards to x86-64 changed to cause this
-problem?
 
-regards,
-Ryan M.
+
+
+At 07:31 PM 6/22/2006 +0200, you wrote:
+>On Thu, Jun 22, 2006 at 09:58:08AM -0700, Danial Thom wrote:
+> > --- Erik Mouw <erik@harddisk-recovery.com> wrote:
+> > > 75K packets/s isn't too hard for modern NICs,
+> > > especially when using
+> > > NAPI.
+> >
+> > Well thats just a ridiculous answer, so why
+> > bother?
+> >
+> > You polling guys just crack me up. There isn't
+> > much less work to be done with polling. The only
+> > reason you THINK its less work is because the
+> > measuring tools don't work properly. You still
+> > have to process the same number of packets when
+> > you poll, and you have polls instead of
+> > interrupts. Since you can control the # of
+> > interrupts with most cards, there is zero
+> > advantage to polling, and more negatives.
+>
+>There certainly is less work to be done with polling. Less IRQs means
+>less expensive context switches, which means a lower system load. See
+>Documentation/NAPI_HOWTO.txt for information and a link to the Linux
+>NAPI paper.
+>
+> > And 75K pps may not be "much", but its still at
+> > least 10% of what the system can handle, so it
+> > should measure around a 10% load. 2.4 measures
+> > about 12% load. So the only conclusion is that
+> > load accounting is broken in 2.6.
+>
+>Network traffic is usually IO bound, not CPU bound. The load figures
+>top shows tell something about the amount of work the CPU has to do,
+>not about how busy your PCI bus (or whatever bus the NIC lives on) is.
+>
+>IIRC the networking layer in 2.6 differs quite a lot from 2.4, so the
+>load average figures can be quite misleading.
+>
+>
+>Erik
+>
+>--
+>+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+>| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 

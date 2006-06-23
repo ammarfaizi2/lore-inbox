@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933024AbWFWK5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933025AbWFWLAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933024AbWFWK5A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933023AbWFWK4f
+	id S933025AbWFWLAI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 07:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933027AbWFWLAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:56:35 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10764 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S933015AbWFWK4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:56:24 -0400
-Date: Fri, 23 Jun 2006 12:56:23 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] make net/core/skbuff.c:skb_release_data() static
-Message-ID: <20060623105623.GT9111@stusta.de>
-MIME-Version: 1.0
+	Fri, 23 Jun 2006 07:00:07 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:37861 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S933017AbWFWLAE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 07:00:04 -0400
+Date: Fri, 23 Jun 2006 12:55:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch 55/61] lock validator: special locking: sb->s_umount
+Message-ID: <20060623105505.GR4889@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <20060529212732.GC3155@elte.hu> <20060529183624.2c8032cd.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <20060529183624.2c8032cd.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-skb_release_data() no longer has any users in other files.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+* Andrew Morton <akpm@osdl.org> wrote:
 
----
+> > +++ linux/fs/dcache.c
+> > @@ -470,8 +470,9 @@ static void prune_dcache(int count, stru
+> >  		s_umount = &dentry->d_sb->s_umount;
+> >  		if (down_read_trylock(s_umount)) {
+> >  			if (dentry->d_sb->s_root != NULL) {
+> > -				prune_one_dentry(dentry);
+> > +// lockdep hack: do this better!
+> >  				up_read(s_umount);
+> > +				prune_one_dentry(dentry);
+> >  				continue;
+> 
+> argh, you broke my kernel!
+> 
+> I'll whack some ifdefs in here so it's only known-broken if 
+> CONFIG_LOCKDEP.
+> 
+> Again, we'd need the real fix here.
 
- include/linux/skbuff.h |    2 --
- net/core/skbuff.c      |    2 +-
- 2 files changed, 1 insertion(+), 3 deletions(-)
+yeah. We should undo this patch for now. This will only be complained 
+about if CONFIG_DEBUG_NON_NESTED_UNLOCKS is enabled. [i'll do this in my 
+refactored queue]
 
---- linux-2.6.17-mm1-full/include/linux/skbuff.h.old	2006-06-23 00:45:40.000000000 +0200
-+++ linux-2.6.17-mm1-full/include/linux/skbuff.h	2006-06-23 00:46:37.000000000 +0200
-@@ -1289,8 +1289,6 @@
- extern void	       skb_split(struct sk_buff *skb,
- 				 struct sk_buff *skb1, const u32 len);
- 
--extern void	       skb_release_data(struct sk_buff *skb);
--
- static inline void *skb_header_pointer(const struct sk_buff *skb, int offset,
- 				       int len, void *buffer)
- {
---- linux-2.6.17-mm1-full/net/core/skbuff.c.old	2006-06-23 00:46:44.000000000 +0200
-+++ linux-2.6.17-mm1-full/net/core/skbuff.c	2006-06-23 00:46:50.000000000 +0200
-@@ -292,7 +292,7 @@
- 		skb_get(list);
- }
- 
--void skb_release_data(struct sk_buff *skb)
-+static void skb_release_data(struct sk_buff *skb)
- {
- 	if (!skb->cloned ||
- 	    !atomic_sub_return(skb->nohdr ? (1 << SKB_DATAREF_SHIFT) + 1 : 1,
-
+	Ingo

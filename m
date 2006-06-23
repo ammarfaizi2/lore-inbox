@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933031AbWFWLJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933034AbWFWLKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933031AbWFWLJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 07:09:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933034AbWFWLJZ
+	id S933034AbWFWLKT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 07:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933037AbWFWLKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 07:09:25 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:15323 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S933031AbWFWLJY (ORCPT
+	Fri, 23 Jun 2006 07:10:19 -0400
+Received: from mail.gmx.de ([213.165.64.21]:28063 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S933034AbWFWLKR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 07:09:24 -0400
-Date: Fri, 23 Jun 2006 13:04:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch 07/61] lock validator: better lock debugging
-Message-ID: <20060623110429.GA10479@elte.hu>
-References: <20060529212109.GA2058@elte.hu> <20060529212337.GG3155@elte.hu> <20060529183334.d3e7bef9.akpm@osdl.org> <20060623102523.GN4889@elte.hu> <20060623040625.827b2c7c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623040625.827b2c7c.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5070]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 23 Jun 2006 07:10:17 -0400
+X-Authenticated: #1490710
+Date: Fri, 23 Jun 2006 13:10:15 +0200 (CEST)
+From: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+X-X-Sender: gene099@wbgn013.biozentrum.uni-wuerzburg.de
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Junio C Hamano <junkio@cox.net>, Git Mailing List <git@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What's in git.git and announcing v1.4.1-rc1
+In-Reply-To: <Pine.LNX.4.64.0606221301500.5498@g5.osdl.org>
+Message-ID: <Pine.LNX.4.63.0606231305000.29667@wbgn013.biozentrum.uni-wuerzburg.de>
+References: <7v8xnpj7hg.fsf@assigned-by-dhcp.cox.net>
+ <Pine.LNX.4.64.0606221301500.5498@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Andrew Morton <akpm@osdl.org> wrote:
+On Thu, 22 Jun 2006, Linus Torvalds wrote:
 
-> > > Either the name of this thing is too generic, or we _make_ it 
-> > > generic, in which case it's in the wrong header file.
+> On Thu, 22 Jun 2006, Junio C Hamano wrote:
 > > 
-> > this op is only intended to be used only by the lock debugging 
-> > infrastructure. So it should be renamed - but i fail to find a good 
-> > name for it. (it's used quite frequently within the lock debugging 
-> > code, at 60+ places) Maybe INTERNAL_WARN_ON()? [that makes it sound 
-> > special enough.] DEBUG_LOCKS_WARN_ON() might work too.
+> >  - diff --color (Johannes).
 > 
-> Well it has a debug_locks_off() in there, so DEBUG_LOCKS_WARN_ON() 
-> seems right.
+>  - default to red/green for old/new lines. That's the norm, I'd think.
 
-done.
+... and which happens to be useless for 10% of the male population (and 
+even more if you look specifically at Asian people). But then, I just 
+pasted that part from somewhere else.
 
-	Ingo
+Besides, I rarely have a fondue fork handy when I sit in front of the 
+computer. I actually do not own one. And when I am sitting in front of the 
+computer, shops typically are closed (yeah, I am living in Germany, but we 
+_do_ have cars...). So at least for 100% of the writers of this email, 
+your warning just does not apply.
+
+Ciao,
+Dscho
+

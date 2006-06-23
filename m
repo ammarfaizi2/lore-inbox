@@ -1,267 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933021AbWFWK5D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933023AbWFWK5B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933021AbWFWK5D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:57:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933014AbWFWK5B
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S933023AbWFWK5B (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 23 Jun 2006 06:57:01 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12044 "HELO
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932999AbWFWK4i
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 23 Jun 2006 06:56:38 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:10252 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S933015AbWFWK4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:56:39 -0400
-Date: Fri, 23 Jun 2006 12:56:39 +0200
+	id S933014AbWFWK4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 06:56:18 -0400
+Date: Fri, 23 Jun 2006 12:56:17 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/advansys.c: cleanups
-Message-ID: <20060623105639.GU9111@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] mm/readahead.c: cleanups
+Message-ID: <20060623105617.GS9111@stusta.de>
+References: <20060621034857.35cfe36f.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch contains the following cleanups:
-- remove the unneeded advansys.h
-- remove the unused advansys_setup()
-- make needlessly global functions static
+- make needlessly global code static
+- rename the global variable debug_level (sic) to readahead_debug_level
+- proper extern declaration for readahead_debug_level in 
+  include/linux/mm.h
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
-This patch was already sent on:
-- 17 May 2006
+ include/linux/mm.h |    6 ++++++
+ mm/filemap.c       |   12 +++---------
+ mm/readahead.c     |   19 +++++++++----------
+ 3 files changed, 18 insertions(+), 19 deletions(-)
 
- drivers/scsi/advansys.c |  101 +++-------------------------------------
- drivers/scsi/advansys.h |   36 --------------
- 2 files changed, 8 insertions(+), 129 deletions(-)
-
---- linux-2.6.17-rc2-mm1-full/drivers/scsi/advansys.h	2006-04-27 17:41:44.000000000 +0200
-+++ /dev/null	2006-04-23 00:42:46.000000000 +0200
-@@ -1,36 +0,0 @@
--/*
-- * advansys.h - Linux Host Driver for AdvanSys SCSI Adapters
-- * 
-- * Copyright (c) 1995-2000 Advanced System Products, Inc.
-- * Copyright (c) 2000-2001 ConnectCom Solutions, Inc.
-- * All Rights Reserved.
-- *
-- * Redistribution and use in source and binary forms, with or without
-- * modification, are permitted provided that redistributions of source
-- * code retain the above copyright notice and this comment without
-- * modification.
-- *
-- * As of March 8, 2000 Advanced System Products, Inc. (AdvanSys)
-- * changed its name to ConnectCom Solutions, Inc.
-- *
-- */
--
--#ifndef _ADVANSYS_H
--#define _ADVANSYS_H
--
--/*
-- * struct scsi_host_template function prototypes.
-- */
--int advansys_detect(struct scsi_host_template *);
--int advansys_release(struct Scsi_Host *);
--const char *advansys_info(struct Scsi_Host *);
--int advansys_queuecommand(struct scsi_cmnd *, void (* done)(struct scsi_cmnd *));
--int advansys_reset(struct scsi_cmnd *);
--int advansys_biosparam(struct scsi_device *, struct block_device *,
--		sector_t, int[]);
--static int advansys_slave_configure(struct scsi_device *);
--
--/* init/main.c setup function */
--void advansys_setup(char *, int *);
--
--#endif /* _ADVANSYS_H */
---- linux-2.6.17-rc4-mm1-full/drivers/scsi/advansys.c.old	2006-05-16 21:09:59.000000000 +0200
-+++ linux-2.6.17-rc4-mm1-full/drivers/scsi/advansys.c	2006-05-16 21:10:45.000000000 +0200
-@@ -799,7 +799,6 @@
- #include <scsi/scsi_tcq.h>
- #include <scsi/scsi.h>
- #include <scsi/scsi_host.h>
--#include "advansys.h"
- #ifdef CONFIG_PCI
- #include <linux/pci.h>
- #endif /* CONFIG_PCI */
-@@ -2013,7 +2012,7 @@
- STATIC void      AscEnableIsaDma(uchar);
- #endif /* CONFIG_ISA */
- STATIC ASC_DCNT  AscGetMaxDmaCount(ushort);
--
-+static const char *advansys_info(struct Scsi_Host *shp);
- 
- /*
-  * --- Adv Library Constants and Macros
-@@ -3982,10 +3981,6 @@
-     ASC_IS_PCI,
- };
- 
--/*
-- * Used with the LILO 'advansys' option to eliminate or
-- * limit I/O port probing at boot time, cf. advansys_setup().
-- */
- STATIC int asc_iopflag = ASC_FALSE;
- STATIC int asc_ioport[ASC_NUM_IOPORT_PROBE] = { 0, 0, 0, 0 };
- 
-@@ -4067,10 +4062,6 @@
- #endif /* ADVANSYS_DEBUG */
- 
- 
--/*
-- * --- Linux 'struct scsi_host_template' and advansys_setup() Functions
-- */
--
- #ifdef CONFIG_PROC_FS
- /*
-  * advansys_proc_info() - /proc/scsi/advansys/[0-(ASC_NUM_BOARD_SUPPORTED-1)]
-@@ -4092,7 +4083,7 @@
-  * if 'prtbuf' is too small it will not be overwritten. Instead the
-  * user just won't get all the available statistics.
-  */
--int
-+static int
- advansys_proc_info(struct Scsi_Host *shost, char *buffer, char **start,
- 		off_t offset, int length, int inout)
- {
-@@ -4308,7 +4299,7 @@
-  * it must not call SCSI mid-level functions including scsi_malloc()
-  * and scsi_free().
-  */
--int __init
-+static int __init
- advansys_detect(struct scsi_host_template *tpnt)
- {
-     static int          detect_called = ASC_FALSE;
-@@ -5440,7 +5431,7 @@
-  *
-  * Release resources allocated for a single AdvanSys adapter.
-  */
--int
-+static int
- advansys_release(struct Scsi_Host *shp)
- {
-     asc_board_t    *boardp;
-@@ -5487,7 +5478,7 @@
-  * Note: The information line should not exceed ASC_INFO_SIZE bytes,
-  * otherwise the static 'info' array will be overrun.
-  */
--const char *
-+static const char *
- advansys_info(struct Scsi_Host *shp)
- {
-     static char     info[ASC_INFO_SIZE];
-@@ -5580,7 +5571,7 @@
-  * This function always returns 0. Command return status is saved
-  * in the 'scp' result field.
-  */
--int
-+static int
- advansys_queuecommand(struct scsi_cmnd *scp, void (*done)(struct scsi_cmnd *))
- {
-     struct Scsi_Host    *shp;
-@@ -5668,7 +5659,7 @@
-  * sleeping is allowed and no locking other than for host structures is
-  * required. Returns SUCCESS or FAILED.
-  */
--int
-+static int
- advansys_reset(struct scsi_cmnd *scp)
- {
-     struct Scsi_Host     *shp;
-@@ -5853,7 +5844,7 @@
-  * ip[1]: sectors
-  * ip[2]: cylinders
-  */
--int
-+static int
- advansys_biosparam(struct scsi_device *sdev, struct block_device *bdev,
- 		sector_t capacity, int ip[])
- {
-@@ -5887,82 +5878,6 @@
+--- linux-2.6.17-mm1-full/include/linux/mm.h.old	2006-06-22 22:04:21.000000000 +0200
++++ linux-2.6.17-mm1-full/include/linux/mm.h	2006-06-22 22:09:13.000000000 +0200
+@@ -1062,6 +1062,12 @@
+ #endif
  }
  
- /*
-- * advansys_setup()
-- *
-- * This function is called from init/main.c at boot time.
-- * It it passed LILO parameters that can be set from the
-- * LILO command line or in /etc/lilo.conf.
-- *
-- * It is used by the AdvanSys driver to either disable I/O
-- * port scanning or to limit scanning to 1 - 4 I/O ports.
-- * Regardless of the option setting EISA and PCI boards
-- * will still be searched for and detected. This option
-- * only affects searching for ISA and VL boards.
-- *
-- * If ADVANSYS_DEBUG is defined the driver debug level may
-- * be set using the 5th (ASC_NUM_IOPORT_PROBE + 1) I/O Port.
-- *
-- * Examples:
-- * 1. Eliminate I/O port scanning:
-- *         boot: linux advansys=
-- *       or
-- *         boot: linux advansys=0x0
-- * 2. Limit I/O port scanning to one I/O port:
-- *        boot: linux advansys=0x110
-- * 3. Limit I/O port scanning to four I/O ports:
-- *        boot: linux advansys=0x110,0x210,0x230,0x330
-- * 4. If ADVANSYS_DEBUG, limit I/O port scanning to four I/O ports and
-- *    set the driver debug level to 2.
-- *        boot: linux advansys=0x110,0x210,0x230,0x330,0xdeb2
-- *
-- * ints[0] - number of arguments
-- * ints[1] - first argument
-- * ints[2] - second argument
-- * ...
-- */
--void __init
--advansys_setup(char *str, int *ints)
--{
--    int    i;
--
--    if (asc_iopflag == ASC_TRUE) {
--        printk("AdvanSys SCSI: 'advansys' LILO option may appear only once\n");
--        return;
--    }
--
--    asc_iopflag = ASC_TRUE;
--
--    if (ints[0] > ASC_NUM_IOPORT_PROBE) {
--#ifdef ADVANSYS_DEBUG
--        if ((ints[0] == ASC_NUM_IOPORT_PROBE + 1) &&
--            (ints[ASC_NUM_IOPORT_PROBE + 1] >> 4 == 0xdeb)) {
--            asc_dbglvl = ints[ASC_NUM_IOPORT_PROBE + 1] & 0xf;
--        } else {
--#endif /* ADVANSYS_DEBUG */
--            printk("AdvanSys SCSI: only %d I/O ports accepted\n",
--                ASC_NUM_IOPORT_PROBE);
--#ifdef ADVANSYS_DEBUG
--        }
--#endif /* ADVANSYS_DEBUG */
--    }
--
--#ifdef ADVANSYS_DEBUG
--    ASC_DBG1(1, "advansys_setup: ints[0] %d\n", ints[0]);
--    for (i = 1; i < ints[0]; i++) {
--        ASC_DBG2(1, " ints[%d] 0x%x", i, ints[i]);
--    }
--    ASC_DBG(1, "\n");
--#endif /* ADVANSYS_DEBUG */
--
--    for (i = 1; i <= ints[0] && i <= ASC_NUM_IOPORT_PROBE; i++) {
--        asc_ioport[i-1] = ints[i];
--        ASC_DBG2(1, "advansys_setup: asc_ioport[%d] 0x%x\n",
--            i - 1, asc_ioport[i-1]);
--    }
--}
--
--
--/*
-  * --- Loadable Driver Support
-  */
++#ifdef CONFIG_DEBUG_READAHEAD
++extern u32 readahead_debug_level;
++#else
++#define readahead_debug_level 0
++#endif /* CONFIG_DEBUG_READAHEAD */
++
+ /* Do stack extension */
+ extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
+ #ifdef CONFIG_IA64
+--- linux-2.6.17-mm1-full/mm/readahead.c.old	2006-06-22 20:57:07.000000000 +0200
++++ linux-2.6.17-mm1-full/mm/readahead.c	2006-06-23 00:31:25.000000000 +0200
+@@ -102,10 +102,10 @@
+ };
  
+ #ifdef CONFIG_DEBUG_READAHEAD
+-u32 initial_ra_hit;
+-u32 initial_ra_miss;
+-u32 debug_level = 1;
+-u32 disable_stateful_method = 0;
++static u32 initial_ra_hit;
++static u32 initial_ra_miss;
++u32 readahead_debug_level = 1;
++static u32 disable_stateful_method = 0;
+ static const char * const ra_class_name[];
+ static void ra_account(struct file_ra_state *ra, enum ra_event e, int pages);
+ #  define debug_inc(var)		do { var++; } while (0)
+@@ -114,13 +114,12 @@
+ #  define ra_account(ra, e, pages)	do { } while (0)
+ #  define debug_inc(var)		do { } while (0)
+ #  define debug_option(o)		(0)
+-#  define debug_level 			(0)
+ #endif /* CONFIG_DEBUG_READAHEAD */
+ 
+ #define dprintk(args...) \
+-	do { if (debug_level >= 2) printk(KERN_DEBUG args); } while(0)
++	do { if (readahead_debug_level >= 2) printk(KERN_DEBUG args); } while(0)
+ #define ddprintk(args...) \
+-	do { if (debug_level >= 3) printk(KERN_DEBUG args); } while(0)
++	do { if (readahead_debug_level >= 3) printk(KERN_DEBUG args); } while(0)
+ 
+ void default_unplug_io_fn(struct backing_dev_info *bdi, struct page *page)
+ {
+@@ -2011,7 +2010,7 @@
+ {
+ 	enum ra_class c;
+ 
+-	if (!debug_level)
++	if (!readahead_debug_level)
+ 		return;
+ 
+ 	if (e == RA_EVENT_READAHEAD_HIT && pages < 0) {
+@@ -2142,7 +2141,7 @@
+ 	return 1;
+ }
+ 
+-struct file_operations ra_events_fops = {
++static struct file_operations ra_events_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= ra_events_open,
+ 	.write		= ra_events_write,
+@@ -2168,7 +2167,7 @@
+ 	READAHEAD_DEBUGFS_ENTRY_U32(initial_ra_hit);
+ 	READAHEAD_DEBUGFS_ENTRY_U32(initial_ra_miss);
+ 
+-	READAHEAD_DEBUGFS_ENTRY_U32(debug_level);
++	debugfs_create_u32("debug_level", 0644, root, &readahead_debug_level);
+ 	READAHEAD_DEBUGFS_ENTRY_BOOL(disable_stateful_method);
+ 
+ 	return 0;
+--- linux-2.6.17-mm1-full/mm/filemap.c.old	2006-06-22 22:03:34.000000000 +0200
++++ linux-2.6.17-mm1-full/mm/filemap.c	2006-06-22 22:06:37.000000000 +0200
+@@ -45,12 +45,6 @@
+ generic_file_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov,
+ 	loff_t offset, unsigned long nr_segs);
+ 
+-#ifdef CONFIG_DEBUG_READAHEAD
+-extern u32 debug_level;
+-#else
+-#define debug_level 0
+-#endif /* CONFIG_DEBUG_READAHEAD */
+-
+ /*
+  * Shared mappings implemented 30.11.1994. It's not fully working yet,
+  * though.
+@@ -937,7 +931,7 @@
+ 	if (!isize)
+ 		goto out;
+ 
+-	if (debug_level >= 5)
++	if (readahead_debug_level >= 5)
+ 		printk(KERN_DEBUG "read-file(ino=%lu, req=%lu+%lu)\n",
+ 			inode->i_ino, index, last_index - index);
+ 
+@@ -995,7 +989,7 @@
+ 		if (prefer_adaptive_readahead())
+ 			readahead_cache_hit(&ra, page);
+ 
+-		if (debug_level >= 7)
++		if (readahead_debug_level >= 7)
+ 			printk(KERN_DEBUG "read-page(ino=%lu, idx=%lu, io=%s)\n",
+ 				inode->i_ino, index,
+ 				PageUptodate(page) ? "hit" : "miss");
+@@ -1524,7 +1518,7 @@
+ 	if (prefer_adaptive_readahead())
+ 		readahead_cache_hit(ra, page);
+ 
+-	if (debug_level >= 6)
++	if (readahead_debug_level >= 6)
+ 		printk(KERN_DEBUG "read-mmap(ino=%lu, idx=%lu, hint=%s, io=%s)\n",
+ 			inode->i_ino, pgoff,
+ 			VM_RandomReadHint(area) ? "random" :
+

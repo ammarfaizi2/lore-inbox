@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751961AbWFWTno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751982AbWFWTpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751961AbWFWTno (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 15:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751963AbWFWTno
+	id S1751982AbWFWTpI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 15:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751970AbWFWTpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 15:43:44 -0400
-Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:24804 "EHLO
-	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751961AbWFWTnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 15:43:43 -0400
-Message-ID: <449C446C.3020605@tilera.com>
-Date: Fri, 23 Jun 2006 15:43:40 -0400
-From: Chris Metcalf <cmetcalf@tilera.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Fri, 23 Jun 2006 15:45:07 -0400
+Received: from 20151019058.user.veloxzone.com.br ([201.51.19.58]:7915 "EHLO
+	xuo1.m7ua.verizon.net") by vger.kernel.org with ESMTP
+	id S1751980AbWFWTpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 15:45:05 -0400
+Message-ID: <41295041851960.BC95B9FA38@ZIUU>
+From: "Winston" <CodySheets0k@japan.com>
+To: <linux-laptop@vger.kernel.org>
+Subject: Just out Want the degree but can't find the time?
+Date: Fri, 23 Jun 2006 16:44:57 -0200
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: compiler warning from cryptic pointer math
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: NgFaCvUcOeySuJ9VebZECnwqTtIgYcefsiXU
+Content-Type: text/plain;
+        charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Jun 2006 19:43:41.0860 (UTC) FILETIME=[54B3CE40:01C696FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Using the format from REPORTING-BUGS...)
+Professional Degrees in 2 Weeks
+Fa st T rack De gree Progra m
 
-[1.] compiler warning from cryptic pointer math
+Obtain the de gree you deserve, based on your present knowledge and life
+experience. A prosperous future, money earning power, and the Admiration of all.
 
-[2.] This change simplifies a cryptic macro in fs/readdir.c.  Rather
-than subtracting an uninitialized pointer's d_name field address from
-the uninitialized pointer base to get the field offset, we just use the
-normal "offsetof" idiom to directly get the d_name field address from a
-pointer to zero.  We can't use offsetof directly since the variable type
-we have handy is a pointer, not the structure type itself.
+De grees from an Established, Pre stigious, Leading Institution.
+Your degr ee will show exactly what you really can do.
 
-(Our compiler is a gcc-alike that can figure out that it doesn't need to 
-warn about things like "foo - foo" for an uninitialized pointer foo, but 
-the field reference makes it think the pointer is truly being used; the 
-warning made me look more closely at this piece of code.)
+Get the Job, Promotion, Business Opportunity and Social Advancement you Desire!
+Eliminates classrooms and traveling.
 
-[4.] The kernel version is 2.6.17.1.
+Achieve your B achelors, M asters, M BA, or P hD
+in the field of your expertise.
 
-[X.]
+Professional and affordable! Call now - your G raduation is a phone call away.
 
---- /tmp/tmp.3955.0     2006-06-23 10:10:54.000000000 -0400
-+++ /u/cmetcalf/linux/fs/readdir.c  2006-06-23 10:09:07.000000000 -0400
-@@ -51,7 +51,7 @@
-  * anyway. Thus the special "fillonedir()" function for that
-  * case (the low-level handlers don't need to care about this).
-  */
--#define NAME_OFFSET(de) ((int) ((de)->d_name - (char __user *) (de)))
-+#define NAME_OFFSET(de) ((int) ((typeof(de))0)->d_name)
-#define ROUND_UP(x) (((x)+sizeof(long)-1) & ~(sizeof(long)-1))
+Please call:
+ 1-206-600-6825   
+Calls returned promptly
 
-#ifdef __ARCH_WANT_OLD_READDIR
 
--- 
-Chris Metcalf, Tilera Corp.
-http://www.tilera.com
+
+Look good, feel good Every Soldier has the Baton of a Field Marshal in his Knapsack Make love not war There but for the grace of God go I  If in doubt, mumble Confession is good for the soul
+
+
 
 

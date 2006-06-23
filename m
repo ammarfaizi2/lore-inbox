@@ -1,363 +1,288 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751921AbWFWSo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751918AbWFWSqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751921AbWFWSo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 14:44:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751920AbWFWSmj
+	id S1751918AbWFWSqW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 14:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751912AbWFWSmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 14:42:39 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:18895 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751922AbWFWSmB (ORCPT
+	Fri, 23 Jun 2006 14:42:33 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:18127 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751920AbWFWSl7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 14:42:01 -0400
-Message-Id: <20060623183912.179727000@linux-m68k.org>
+	Fri, 23 Jun 2006 14:41:59 -0400
+Message-Id: <20060623183914.473905000@linux-m68k.org>
 References: <20060623183056.479024000@linux-m68k.org>
 User-Agent: quilt/0.44-1
-Date: Fri, 23 Jun 2006 20:31:05 +0200
+Date: Fri, 23 Jun 2006 20:31:11 +0200
 From: zippel@linux-m68k.org
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 09/21] separate handler for auto and user vector interrupt
-Content-Disposition: inline; filename=0015-M68K-separate-handler-for-auto-and-user-vector-interrupt.txt
+Subject: [PATCH 15/21] convert apollo irq code
+Content-Disposition: inline; filename=0021-M68K-convert-apollo-irq-code.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-Use separate entry points for auto and user vector interrupts and
-cleanup naming a little.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- arch/m68k/atari/ataints.c |   12 +++---
- arch/m68k/kernel/entry.S  |   84 +++++++++++++++++++++++----------------------
- arch/m68k/kernel/ints.c   |   21 +++++------
- arch/m68k/kernel/traps.c  |   55 ++++-------------------------
- include/asm-m68k/traps.h  |    7 ++++
- 5 files changed, 71 insertions(+), 108 deletions(-)
+ arch/m68k/apollo/config.c   |   24 ++------
+ arch/m68k/apollo/dn_ints.c  |  137 +++++++++----------------------------------
+ include/asm-m68k/apollohw.h |    4 +
+ 3 files changed, 37 insertions(+), 128 deletions(-)
 
-62d132c2030fdb80cb5dff1c65183e1b8d1bf3c5
-diff --git a/arch/m68k/atari/ataints.c b/arch/m68k/atari/ataints.c
-index 076f479..bb54741 100644
---- a/arch/m68k/atari/ataints.c
-+++ b/arch/m68k/atari/ataints.c
-@@ -314,7 +314,7 @@ __ALIGN_STR "\n\t"
- 	"rte");
+5627860f622a2c9a2c6a63c6cc76183c672f0322
+diff --git a/arch/m68k/apollo/config.c b/arch/m68k/apollo/config.c
+index d401962..99c7097 100644
+--- a/arch/m68k/apollo/config.c
++++ b/arch/m68k/apollo/config.c
+@@ -28,11 +28,6 @@ u_long apollo_model;
  
- /* Defined in entry.S; only increments 'num_spurious' */
--asmlinkage void bad_interrupt(void);
-+asmlinkage void bad_inthandler(void);
- 
- extern void atari_microwire_cmd( int cmd );
- 
-@@ -337,7 +337,7 @@ void __init atari_init_IRQ(void)
- 
- 	/* initialize the vector table */
- 	for (i = 0; i < NUM_INT_SOURCES; ++i) {
--		vectors[IRQ_SOURCE_TO_VECTOR(i)] = bad_interrupt;
-+		vectors[IRQ_SOURCE_TO_VECTOR(i)] = bad_inthandler;
- 	}
- 
- 	/* Initialize the MFP(s) */
-@@ -461,7 +461,7 @@ int atari_request_irq(unsigned int irq, 
- 		return -EINVAL;
- 	}
- 
--	if (vectors[vector] == bad_interrupt) {
-+	if (vectors[vector] == bad_inthandler) {
- 		/* int has no handler yet */
- 		irq_handler[irq].handler = handler;
- 		irq_handler[irq].dev_id  = dev_id;
-@@ -528,7 +528,7 @@ void atari_free_irq(unsigned int irq, vo
- 	}
- 
- 	vector = IRQ_SOURCE_TO_VECTOR(irq);
--	if (vectors[vector] == bad_interrupt)
-+	if (vectors[vector] == bad_inthandler)
- 		goto not_found;
- 
- 	local_irq_save(flags);
-@@ -542,7 +542,7 @@ void atari_free_irq(unsigned int irq, vo
- 		irq_handler[irq].handler = NULL;
- 		irq_handler[irq].dev_id  = NULL;
- 		irq_param[irq].devname   = NULL;
--		vectors[vector] = bad_interrupt;
-+		vectors[vector] = bad_inthandler;
- 		/* If MFP int, also disable it */
- 		atari_disable_irq(irq);
- 		atari_turnoff_irq(irq);
-@@ -617,7 +617,7 @@ int show_atari_interrupts(struct seq_fil
- 	int i;
- 
- 	for (i = 0; i < NUM_INT_SOURCES; ++i) {
--		if (vectors[IRQ_SOURCE_TO_VECTOR(i)] == bad_interrupt)
-+		if (vectors[IRQ_SOURCE_TO_VECTOR(i)] == bad_inthandler)
- 			continue;
- 		if (i < STMFP_SOURCE_BASE)
- 			seq_printf(p, "auto %2d: %10u ",
-diff --git a/arch/m68k/kernel/entry.S b/arch/m68k/kernel/entry.S
-index 522079f..1fb88f3 100644
---- a/arch/m68k/kernel/entry.S
-+++ b/arch/m68k/kernel/entry.S
-@@ -45,7 +45,7 @@ #include <asm/unistd.h>
- #include <asm/asm-offsets.h>
- 
- .globl system_call, buserr, trap, resume
--.globl inthandler, sys_call_table
-+.globl sys_call_table
- .globl sys_fork, sys_clone, sys_vfork
- .globl ret_from_interrupt, bad_interrupt
- 
-@@ -191,44 +191,15 @@ do_delayed_trace:
- 	jbra	resume_userspace
- 
- 
--#if 0
--#ifdef CONFIG_AMIGA
--ami_inthandler:
--	addql	#1,irq_stat+CPUSTAT_LOCAL_IRQ_COUNT
--	SAVE_ALL_INT
--	GET_CURRENT(%d0)
--
--	bfextu	%sp@(PT_VECTOR){#4,#12},%d0
--	movel	%d0,%a0
--	addql	#1,%a0@(kstat+STAT_IRQ-VECOFF(VEC_SPUR))
--	movel	%a0@(autoirq_list-VECOFF(VEC_SPUR)),%a0
--
--| amiga vector int handler get the req mask instead of irq vector
--	lea	CUSTOMBASE,%a1
--	movew	%a1@(C_INTREQR),%d0
--	andw	%a1@(C_INTENAR),%d0
--
--| prepare stack (push frame pointer, dev_id & req mask)
--	pea	%sp@
--	movel	%a0@(IRQ_DEVID),%sp@-
--	movel	%d0,%sp@-
--	pea	%pc@(ret_from_interrupt:w)
--	jbra	@(IRQ_HANDLER,%a0)@(0)
--
--ENTRY(nmi_handler)
--	rte
--#endif
--#endif
-+/* This is the main interrupt handler for autovector interrupts */
- 
--/*
--** This is the main interrupt handler, responsible for calling process_int()
--*/
--inthandler:
-+ENTRY(auto_inthandler)
- 	SAVE_ALL_INT
- 	GET_CURRENT(%d0)
- 	addqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
- 					|  put exception # in d0
--	bfextu %sp@(PT_VECTOR){#4,#10},%d0
-+	bfextu	%sp@(PT_VECTOR){#4,#10},%d0
-+	subw	#VEC_SPUR,%d0
- 
- 	movel	%sp,%sp@-
- 	movel	%d0,%sp@-		|  put vector # on stack
-@@ -241,15 +212,16 @@ #if defined(MACH_Q40_ONLY) && defined(CO
- 	jbra	3f
- 1:
+ extern void dn_sched_init(irqreturn_t (*handler)(int,void *,struct pt_regs *));
+ extern void dn_init_IRQ(void);
+-extern int dn_request_irq(unsigned int irq, irqreturn_t (*handler)(int, void *, struct pt_regs *), unsigned long flags, const char *devname, void *dev_id);
+-extern void dn_free_irq(unsigned int irq, void *dev_id);
+-extern void dn_enable_irq(unsigned int);
+-extern void dn_disable_irq(unsigned int);
+-extern int show_dn_interrupts(struct seq_file *, void *);
+ extern unsigned long dn_gettimeoffset(void);
+ extern int dn_dummy_hwclk(int, struct rtc_time *);
+ extern int dn_dummy_set_clock_mmss(unsigned long);
+@@ -40,13 +35,11 @@ extern void dn_dummy_reset(void);
+ extern void dn_dummy_waitbut(void);
+ extern struct fb_info *dn_fb_init(long *);
+ extern void dn_dummy_debug_init(void);
+-extern void dn_dummy_video_setup(char *,int *);
+ extern irqreturn_t dn_process_int(int irq, struct pt_regs *fp);
+ #ifdef CONFIG_HEARTBEAT
+ static void dn_heartbeat(int on);
  #endif
--	jbsr	process_int		|  process the IRQ
-+	jsr	m68k_handle_int		|  process the IRQ
- 3:	addql	#8,%sp			|  pop parameters off stack
+ static irqreturn_t dn_timer_int(int irq,void *, struct pt_regs *);
+-static irqreturn_t (*sched_timer_handler)(int, void *, struct pt_regs *)=NULL;
+ static void dn_get_model(char *model);
+ static const char *apollo_models[] = {
+ 	[APOLLO_DN3000-APOLLO_DN3000] = "DN3000 (Otter)",
+@@ -164,17 +157,10 @@ void config_apollo(void) {
  
- ret_from_interrupt:
- 	subqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
--	jeq	1f
--2:
--	RESTORE_ALL
--1:
-+	jeq	ret_from_last_interrupt
-+2:	RESTORE_ALL
-+
-+	ALIGN
-+ret_from_last_interrupt:
- 	moveq	#(~ALLOWINT>>8)&0xff,%d0
- 	andb	%sp@(PT_SR),%d0
- 	jne	2b
-@@ -260,12 +232,40 @@ ret_from_interrupt:
- 	pea	ret_from_exception
- 	jra	do_softirq
+ 	mach_sched_init=dn_sched_init; /* */
+ 	mach_init_IRQ=dn_init_IRQ;
+-	mach_default_handler=NULL;
+-	mach_request_irq     = dn_request_irq;
+-	mach_free_irq        = dn_free_irq;
+-	enable_irq      = dn_enable_irq;
+-	disable_irq     = dn_disable_irq;
+-	mach_get_irq_list    = show_dn_interrupts;
+ 	mach_gettimeoffset   = dn_gettimeoffset;
+ 	mach_max_dma_address = 0xffffffff;
+ 	mach_hwclk           = dn_dummy_hwclk; /* */
+ 	mach_set_clock_mmss  = dn_dummy_set_clock_mmss; /* */
+-	mach_process_int     = dn_process_int;
+ 	mach_reset	     = dn_dummy_reset;  /* */
+ #ifdef CONFIG_HEARTBEAT
+ 	mach_heartbeat = dn_heartbeat;
+@@ -189,11 +175,13 @@ #endif
  
-+/* Handler for user defined interrupt vectors */
-+
-+ENTRY(mach_inthandler)
-+	SAVE_ALL_INT
-+	GET_CURRENT(%d0)
-+	addqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
-+					|  put exception # in d0
-+	bfextu	%sp@(PT_VECTOR){#4,#10},%d0
-+
-+	movel	%sp,%sp@-
-+	movel	%d0,%sp@-		|  put vector # on stack
-+	movel	mach_process_int,%a0
-+	jsr	%a0@			|  process the IRQ
-+	addql	#8,%sp			|  pop parameters off stack
-+
-+	subqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
-+	jeq	ret_from_last_interrupt
-+	RESTORE_ALL
- 
- /* Handler for uninitialized and spurious interrupts */
- 
--bad_interrupt:
--	addql	#1,num_spurious
--	rte
-+ENTRY(bad_inthandler)
-+	SAVE_ALL_INT
-+	GET_CURRENT(%d0)
-+	addqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
-+
-+	movel	%sp,%sp@-
-+	jsr	handle_badint
-+	addql	#4,%sp
-+
-+	subqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+1)
-+	jeq	ret_from_last_interrupt
-+	RESTORE_ALL
-+
- 
- ENTRY(sys_fork)
- 	SAVE_SWITCH_STACK
-diff --git a/arch/m68k/kernel/ints.c b/arch/m68k/kernel/ints.c
-index 4b85514..895a56d 100644
---- a/arch/m68k/kernel/ints.c
-+++ b/arch/m68k/kernel/ints.c
-@@ -248,19 +248,16 @@ static void dummy_free_irq(unsigned int 
- 	printk("calling uninitialized disable_irq()\n");
  }
  
--asmlinkage void process_int(unsigned long vec, struct pt_regs *fp)
-+asmlinkage void m68k_handle_int(unsigned int irq, struct pt_regs *regs)
- {
--	if (vec >= VEC_INT1 && vec <= VEC_INT7 && !MACH_IS_BVME6000) {
--		vec -= VEC_SPUR;
--		kstat_cpu(0).irqs[vec]++;
--		irq_list[vec].handler(vec, irq_list[vec].dev_id, fp);
--	} else {
--		if (mach_process_int)
--			mach_process_int(vec, fp);
--		else
--			panic("Can't process interrupt vector %ld\n", vec);
--		return;
--	}
-+	kstat_cpu(0).irqs[irq]++;
-+	irq_list[irq].handler(irq, irq_list[irq].dev_id, regs);
-+}
-+
-+asmlinkage void handle_badint(struct pt_regs *regs)
+-irqreturn_t dn_timer_int(int irq, void *dev_id, struct pt_regs *fp) {
++irqreturn_t dn_timer_int(int irq, void *dev_id, struct pt_regs *fp)
 +{
-+	kstat_cpu(0).irqs[0]++;
-+	printk("unexpected interrupt from %u\n", regs->vector);
++	irqreturn_t (*timer_handler)(int, void *, struct pt_regs *) = dev_id;
+ 
+ 	volatile unsigned char x;
+ 
+-	sched_timer_handler(irq,dev_id,fp);
++	timer_handler(irq, dev_id, fp);
+ 
+ 	x=*(volatile unsigned char *)(timer+3);
+ 	x=*(volatile unsigned char *)(timer+5);
+@@ -217,9 +205,7 @@ #if 0
+ 	printk("*(0x10803) %02x\n",*(volatile unsigned char *)(timer+0x3));
+ #endif
+ 
+-	sched_timer_handler=timer_routine;
+-	request_irq(0,dn_timer_int,0,NULL,NULL);
+-
++	request_irq(IRQ_APOLLO, dn_timer_int, 0, "time", timer_routine);
  }
  
- int show_interrupts(struct seq_file *p, void *v)
-diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
-index 9adf378..b19b951 100644
---- a/arch/m68k/kernel/traps.c
-+++ b/arch/m68k/kernel/traps.c
-@@ -45,7 +45,6 @@ #include <asm/siginfo.h>
- asmlinkage void system_call(void);
- asmlinkage void buserr(void);
- asmlinkage void trap(void);
--asmlinkage void inthandler(void);
- asmlinkage void nmihandler(void);
- #ifdef CONFIG_M68KFPU_EMU
- asmlinkage void fpu_emu(void);
-@@ -53,51 +52,7 @@ #endif
+ unsigned long dn_gettimeoffset(void) {
+diff --git a/arch/m68k/apollo/dn_ints.c b/arch/m68k/apollo/dn_ints.c
+index a312593..9fe0780 100644
+--- a/arch/m68k/apollo/dn_ints.c
++++ b/arch/m68k/apollo/dn_ints.c
+@@ -1,125 +1,44 @@
+-#include <linux/types.h>
+-#include <linux/kernel.h>
+-#include <linux/jiffies.h>
+-#include <linux/kernel_stat.h>
+-#include <linux/timer.h>
++#include <linux/interrupt.h>
  
- e_vector vectors[256] = {
- 	[VEC_BUSERR]	= buserr,
--	[VEC_ADDRERR]	= trap,
--	[VEC_ILLEGAL]	= trap,
--	[VEC_ZERODIV]	= trap,
--	[VEC_CHK]	= trap,
--	[VEC_TRAP]	= trap,
--	[VEC_PRIV]	= trap,
--	[VEC_TRACE]	= trap,
--	[VEC_LINE10]	= trap,
--	[VEC_LINE11]	= trap,
--	[VEC_RESV12]	= trap,
--	[VEC_COPROC]	= trap,
--	[VEC_FORMAT]	= trap,
--	[VEC_UNINT]	= trap,
--	[VEC_RESV16]	= trap,
--	[VEC_RESV17]	= trap,
--	[VEC_RESV18]	= trap,
--	[VEC_RESV19]	= trap,
--	[VEC_RESV20]	= trap,
--	[VEC_RESV21]	= trap,
--	[VEC_RESV22]	= trap,
--	[VEC_RESV23]	= trap,
--	[VEC_SPUR]	= inthandler,
--	[VEC_INT1]	= inthandler,
--	[VEC_INT2]	= inthandler,
--	[VEC_INT3]	= inthandler,
--	[VEC_INT4]	= inthandler,
--	[VEC_INT5]	= inthandler,
--	[VEC_INT6]	= inthandler,
--	[VEC_INT7]	= inthandler,
- 	[VEC_SYS]	= system_call,
--	[VEC_TRAP1]	= trap,
--	[VEC_TRAP2]	= trap,
--	[VEC_TRAP3]	= trap,
--	[VEC_TRAP4]	= trap,
--	[VEC_TRAP5]	= trap,
--	[VEC_TRAP6]	= trap,
--	[VEC_TRAP7]	= trap,
--	[VEC_TRAP8]	= trap,
--	[VEC_TRAP9]	= trap,
--	[VEC_TRAP10]	= trap,
--	[VEC_TRAP11]	= trap,
--	[VEC_TRAP12]	= trap,
--	[VEC_TRAP13]	= trap,
--	[VEC_TRAP14]	= trap,
--	[VEC_TRAP15]	= trap,
- };
+-#include <asm/system.h>
+ #include <asm/irq.h>
+ #include <asm/traps.h>
+-#include <asm/page.h>
+-#include <asm/machdep.h>
+ #include <asm/apollohw.h>
+-#include <asm/errno.h>
  
- /* nmi handler for the Amiga */
-@@ -132,12 +87,16 @@ void __init trap_init (void)
+-static irq_handler_t dn_irqs[16];
+-
+-irqreturn_t dn_process_int(int irq, struct pt_regs *fp)
++void dn_process_int(unsigned int irq, struct pt_regs *fp)
  {
- 	int i;
+-  irqreturn_t res = IRQ_NONE;
+-
+-  if(dn_irqs[irq-160].handler) {
+-    res = dn_irqs[irq-160].handler(irq,dn_irqs[irq-160].dev_id,fp);
+-  } else {
+-    printk("spurious irq %d occurred\n",irq);
+-  }
+-
+-  *(volatile unsigned char *)(pica)=0x20;
+-  *(volatile unsigned char *)(picb)=0x20;
+-
+-  return res;
+-}
+-
+-void dn_init_IRQ(void) {
+-
+-  int i;
+-
+-  for(i=0;i<16;i++) {
+-    dn_irqs[i].handler=NULL;
+-    dn_irqs[i].flags=IRQ_FLG_STD;
+-    dn_irqs[i].dev_id=NULL;
+-    dn_irqs[i].devname=NULL;
+-  }
+-
+-}
+-
+-int dn_request_irq(unsigned int irq, irqreturn_t (*handler)(int, void *, struct pt_regs *), unsigned long flags, const char *devname, void *dev_id) {
+-
+-  if((irq<0) || (irq>15)) {
+-    printk("Trying to request invalid IRQ\n");
+-    return -ENXIO;
+-  }
+-
+-  if(!dn_irqs[irq].handler) {
+-    dn_irqs[irq].handler=handler;
+-    dn_irqs[irq].flags=IRQ_FLG_STD;
+-    dn_irqs[irq].dev_id=dev_id;
+-    dn_irqs[irq].devname=devname;
+-    if(irq<8)
+-      *(volatile unsigned char *)(pica+1)&=~(1<<irq);
+-    else
+-      *(volatile unsigned char *)(picb+1)&=~(1<<(irq-8));
+-
+-    return 0;
+-  }
+-  else {
+-    printk("Trying to request already assigned irq %d\n",irq);
+-    return -ENXIO;
+-  }
+-
+-}
+-
+-void dn_free_irq(unsigned int irq, void *dev_id) {
+-
+-  if((irq<0) || (irq>15)) {
+-    printk("Trying to free invalid IRQ\n");
+-    return ;
+-  }
+-
+-  if(irq<8)
+-    *(volatile unsigned char *)(pica+1)|=(1<<irq);
+-  else
+-    *(volatile unsigned char *)(picb+1)|=(1<<(irq-8));
+-
+-  dn_irqs[irq].handler=NULL;
+-  dn_irqs[irq].flags=IRQ_FLG_STD;
+-  dn_irqs[irq].dev_id=NULL;
+-  dn_irqs[irq].devname=NULL;
+-
+-  return ;
+-
+-}
+-
+-void dn_enable_irq(unsigned int irq) {
+-
+-  printk("dn enable irq\n");
+-
+-}
+-
+-void dn_disable_irq(unsigned int irq) {
+-
+-  printk("dn disable irq\n");
++	m68k_handle_int(irq, fp);
  
--	for (i = 48; i < 64; i++)
-+	vectors[VEC_SPUR] = bad_inthandler;
-+	for (i = VEC_INT1; i <= VEC_INT7; i++)
-+		vectors[i] = auto_inthandler;
++	*(volatile unsigned char *)(pica)=0x20;
++	*(volatile unsigned char *)(picb)=0x20;
+ }
+ 
+-int show_dn_interrupts(struct seq_file *p, void *v) {
+-
+-  printk("dn get irq list\n");
+-
+-  return 0;
+-
++int apollo_irq_startup(unsigned int irq)
++{
++	if (irq < 8)
++		*(volatile unsigned char *)(pica+1) &= ~(1 << irq);
++	else
++		*(volatile unsigned char *)(picb+1) &= ~(1 << (irq - 8));
++	return 0;
+ }
+ 
+-struct fb_info *dn_dummy_fb_init(long *mem_start) {
+-
+-  printk("fb init\n");
+-
+-  return NULL;
+-
++void apollo_irq_shutdown(unsigned int irq)
++{
++	if (irq < 8)
++		*(volatile unsigned char *)(pica+1) |= (1 << irq);
++	else
++		*(volatile unsigned char *)(picb+1) |= (1 << (irq - 8));
+ }
+ 
+-void dn_dummy_video_setup(char *options,int *ints) {
++static struct irq_controller apollo_irq_controller = {
++	.name           = "apollo",
++	.lock           = SPIN_LOCK_UNLOCKED,
++	.startup        = apollo_irq_startup,
++	.shutdown       = apollo_irq_shutdown,
++};
+ 
+-  printk("no video yet\n");
+ 
++void dn_init_IRQ(void)
++{
++	m68k_setup_user_interrupt(VEC_USER + 96, 16, dn_process_int);
++	m68k_setup_irq_controller(&apollo_irq_controller, IRQ_APOLLO, 16);
+ }
+diff --git a/include/asm-m68k/apollohw.h b/include/asm-m68k/apollohw.h
+index 4304e1c..a1373b9 100644
+--- a/include/asm-m68k/apollohw.h
++++ b/include/asm-m68k/apollohw.h
+@@ -3,6 +3,8 @@
+ #ifndef _ASMm68k_APOLLOHW_H_
+ #define _ASMm68k_APOLLOHW_H_
+ 
++#include <linux/types.h>
 +
-+	for (i = 0; i < VEC_USER; i++)
- 		if (!vectors[i])
- 			vectors[i] = trap;
+ /*
+    apollo models
+ */
+@@ -101,4 +103,6 @@ #define addr_xlat_map ((unsigned short *
  
--	for (i = 64; i < 256; i++)
--		vectors[i] = inthandler;
-+	for (i = VEC_USER; i < 256; i++)
-+		vectors[i] = mach_inthandler;
+ #define isaIO2mem(x) (((((x) & 0x3f8)  << 7) | (((x) & 0xfc00) >> 6) | ((x) & 0x7)) + 0x40000 + IO_BASE)
  
- #ifdef CONFIG_M68KFPU_EMU
- 	if (FPU_IS_EMU)
-diff --git a/include/asm-m68k/traps.h b/include/asm-m68k/traps.h
-index 4750561..7715194 100644
---- a/include/asm-m68k/traps.h
-+++ b/include/asm-m68k/traps.h
-@@ -13,8 +13,15 @@ #define _M68K_TRAPS_H
- 
- #ifndef __ASSEMBLY__
- 
-+#include <linux/linkage.h>
-+#include <asm/ptrace.h>
++#define IRQ_APOLLO	IRQ_USER
 +
- typedef void (*e_vector)(void);
- 
-+asmlinkage void auto_inthandler(void);
-+asmlinkage void mach_inthandler(void);
-+asmlinkage void bad_inthandler(void);
-+
- extern e_vector vectors[];
- 
  #endif
 -- 
 1.3.3

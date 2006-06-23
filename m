@@ -1,205 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWFWEbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWFWEzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbWFWEbY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 00:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWFWEbX
+	id S932299AbWFWEzN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 00:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWFWEzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 00:31:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58045 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932211AbWFWEbW (ORCPT
+	Fri, 23 Jun 2006 00:55:13 -0400
+Received: from main.gmane.org ([80.91.229.2]:207 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932299AbWFWEzL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 00:31:22 -0400
-Date: Thu, 22 Jun 2006 21:30:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ian Kent <raven@themaw.net>
-Cc: autofs@linux.kernel.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] autofs4 needs to force fail return revalidate
-Message-Id: <20060622213050.fc753e91.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606231159540.2904@raven.themaw.net>
-References: <200606210618.k5L6IFDr008176@raven.themaw.net>
-	<20060620233941.49ba2223.akpm@osdl.org>
-	<Pine.LNX.4.64.0606231159540.2904@raven.themaw.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Fri, 23 Jun 2006 00:55:11 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Ryan M." <kubisuro@att.net>
+Subject: Re: problem burning DVDs with 2.6.17-ck1 (mlockall?)
+Date: Fri, 23 Jun 2006 13:55:12 +0900
+Message-ID: <449B7430.80503@att.net>
+References: <449B52BF.3070404@pcisys.net>
+Reply-To: kubisuro@att.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 210.120.111.91
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+In-Reply-To: <449B52BF.3070404@pcisys.net>
+Cc: ck@vds.kolivas.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 12:14:09 +0800 (WST)
-Ian Kent <raven@themaw.net> wrote:
+Hello,
 
-> > 
-> > Also, did you consider broadening the ->d_revalidate() semantics?  It
-> > appears that all implementations return 0 or 1.  You could teach the VFS to
-> > also recognise and act upon a -ve return value, and do this trickery within
-> > the autofs d_revalidate(), perhaps?
-> > 
+Brian Hall wrote:
+> After upgrading from 2.6.16-ck11 to 2.6.17-ck1, I find I can no longer
+> burn DVDs. With growisofs I get:
+<snip>
+> Maybe it's something else I've done on the system. Running ~amd64 Gentoo
+> 2006.0. Suggestions welcome!
 > 
-> Yep and I've now done this.
-> I think this is in fact the only way to do it.
 
-Below is the combined patch for reviewing purposes.
+I have not had any problems burning DVDs with 2.6.17-ck1 using an ix86 kernel.
 
-Removing that __always_inline saves 30-odd bytes.  I suspect that removing
-it would be a performance loss in this case.  But I'll make it just
-`inline' because __always_inline is peculiar, and people will wonder what's
-special about this function.
+I primarily use k3b which utilizes growisofs.
 
+Perhaps something else in kernel 2.6.17 with regards to x86-64 changed to cause this
+problem?
 
-
- fs/autofs4/root.c |   38 ++++++++++++++++++++++++++--------
- fs/namei.c        |   49 ++++++++++++++++++++++++++++++--------------
- linux/dcache.h    |    0 
- 3 files changed, 64 insertions(+), 23 deletions(-)
-
-diff -puN fs/autofs4/root.c~autofs4-needs-to-force-fail-return-revalidate fs/autofs4/root.c
---- a/fs/autofs4/root.c~autofs4-needs-to-force-fail-return-revalidate
-+++ a/fs/autofs4/root.c
-@@ -137,7 +137,9 @@ static int autofs4_dir_open(struct inode
- 		nd.flags = LOOKUP_DIRECTORY;
- 		ret = (dentry->d_op->d_revalidate)(dentry, &nd);
- 
--		if (!ret) {
-+		if (ret <= 0) {
-+			if (ret < 0)
-+				status = ret;
- 			dcache_dir_close(inode, file);
- 			goto out;
- 		}
-@@ -400,13 +402,23 @@ static int autofs4_revalidate(struct den
- 	struct autofs_sb_info *sbi = autofs4_sbi(dir->i_sb);
- 	int oz_mode = autofs4_oz_mode(sbi);
- 	int flags = nd ? nd->flags : 0;
--	int status = 0;
-+	int status = 1;
- 
- 	/* Pending dentry */
- 	if (autofs4_ispending(dentry)) {
--		if (!oz_mode)
--			status = try_to_fill_dentry(dentry, flags);
--		return !status;
-+		/* The daemon never causes a mount to trigger */
-+		if (oz_mode)
-+			return 1;
-+
-+		/*
-+		 * A zero status is success otherwise we have a
-+		 * negative error code.
-+		 */
-+		status = try_to_fill_dentry(dentry, flags);
-+		if (status == 0)
-+				return 1;
-+
-+		return status;
- 	}
- 
- 	/* Negative dentry.. invalidate if "old" */
-@@ -421,9 +433,19 @@ static int autofs4_revalidate(struct den
- 		DPRINTK("dentry=%p %.*s, emptydir",
- 			 dentry, dentry->d_name.len, dentry->d_name.name);
- 		spin_unlock(&dcache_lock);
--		if (!oz_mode)
--			status = try_to_fill_dentry(dentry, flags);
--		return !status;
-+		/* The daemon never causes a mount to trigger */
-+		if (oz_mode)
-+			return 1;
-+
-+		/*
-+		 * A zero status is success otherwise we have a
-+		 * negative error code.
-+		 */
-+		status = try_to_fill_dentry(dentry, flags);
-+		if (status == 0)
-+			return 1;
-+
-+		return status;
- 	}
- 	spin_unlock(&dcache_lock);
- 
-diff -puN fs/namei.c~autofs4-needs-to-force-fail-return-revalidate fs/namei.c
---- a/fs/namei.c~autofs4-needs-to-force-fail-return-revalidate
-+++ a/fs/namei.c
-@@ -365,6 +365,29 @@ void release_open_intent(struct nameidat
- 		fput(nd->intent.open.file);
- }
- 
-+static __always_inline struct dentry *do_revalidate(struct dentry *dentry, struct nameidata *nd)
-+{
-+	int status = dentry->d_op->d_revalidate(dentry, nd);
-+	if (unlikely(status <= 0)) {
-+		/*
-+		 * The dentry failed validation.
-+		 * If d_revalidate returned 0 attempt to invalidate
-+		 * the dentry otherwise d_revalidate is asking us
-+		 * to return a fail status.
-+		 */
-+		if (!status) {
-+			if (!d_invalidate(dentry)) {
-+				dput(dentry);
-+				dentry = NULL;
-+			}
-+		} else {
-+			dput(dentry);
-+			dentry = ERR_PTR(status);
-+		}
-+	}
-+	return dentry;
-+}
-+
- /*
-  * Internal lookup() using the new generic dcache.
-  * SMP-safe
-@@ -379,12 +402,9 @@ static struct dentry * cached_lookup(str
- 	if (!dentry)
- 		dentry = d_lookup(parent, name);
- 
--	if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
--		if (!dentry->d_op->d_revalidate(dentry, nd) && !d_invalidate(dentry)) {
--			dput(dentry);
--			dentry = NULL;
--		}
--	}
-+	if (dentry && dentry->d_op && dentry->d_op->d_revalidate)
-+		dentry = do_revalidate(dentry, nd);
-+
- 	return dentry;
- }
- 
-@@ -477,10 +497,9 @@ static struct dentry * real_lookup(struc
- 	 */
- 	mutex_unlock(&dir->i_mutex);
- 	if (result->d_op && result->d_op->d_revalidate) {
--		if (!result->d_op->d_revalidate(result, nd) && !d_invalidate(result)) {
--			dput(result);
-+		result = do_revalidate(result, nd);
-+		if (!result)
- 			result = ERR_PTR(-ENOENT);
--		}
- 	}
- 	return result;
- }
-@@ -760,12 +779,12 @@ need_lookup:
- 	goto done;
- 
- need_revalidate:
--	if (dentry->d_op->d_revalidate(dentry, nd))
--		goto done;
--	if (d_invalidate(dentry))
--		goto done;
--	dput(dentry);
--	goto need_lookup;
-+	dentry = do_revalidate(dentry, nd);
-+	if (!dentry)
-+		goto need_lookup;
-+	if (IS_ERR(dentry))
-+		goto fail;
-+	goto done;
- 
- fail:
- 	return PTR_ERR(dentry);
-diff -puN include/linux/dcache.h~autofs4-needs-to-force-fail-return-revalidate include/linux/dcache.h
-_
+regards,
+Ryan M.
 

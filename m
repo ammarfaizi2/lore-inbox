@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752043AbWFWUmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752041AbWFWUm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752043AbWFWUmn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 16:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752042AbWFWUmn
+	id S1752041AbWFWUm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 16:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752042AbWFWUm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 16:42:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63408 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752043AbWFWUmm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 16:42:42 -0400
-Date: Fri, 23 Jun 2006 13:42:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: mingo@elte.hu, arjan@linux.intel.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm1
-Message-Id: <20060623134234.14ae4cbe.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0606230533g7fd1dac5m16c62d035b4e9896@mail.gmail.com>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
-	<6bffcb0e0606230533g7fd1dac5m16c62d035b4e9896@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Fri, 23 Jun 2006 16:42:27 -0400
+Received: from web33315.mail.mud.yahoo.com ([68.142.206.130]:25708 "HELO
+	web33315.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1752041AbWFWUm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 16:42:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=VuOvInhXm/cLMn+Kin/id5eOwapkimPYneNaniRmgLNcNKF50+7Xl4AzZJK0Rvcwkw0nsyCIrbfr+vlmLLR6MfKg5xkDoKsPxWzM7sNKFxKvmdd+bpWueWqA7CkINCwVZ+Sy+5GTxLjto6Ty0cl7J6JXNVESnv/dIO7F7kmSvMM=  ;
+Message-ID: <20060623204226.91945.qmail@web33315.mail.mud.yahoo.com>
+Date: Fri, 23 Jun 2006 13:42:26 -0700 (PDT)
+From: Danial Thom <danial_thom@yahoo.com>
+Reply-To: danial_thom@yahoo.com
+Subject: Re: Measuring tools - top and interrupts
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060622173128.GD14682@harddisk-recovery.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 14:33:27 +0200
-"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
-
-> Hi,
+> Network traffic is usually IO bound, not CPU
+> bound. The load figures
+> top shows tell something about the amount of
+> work the CPU has to do,
+> not about how busy your PCI bus (or whatever
+> bus the NIC lives on) is.
 > 
-> On 21/06/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/
-> >
+> IIRC the networking layer in 2.6 differs quite
+> a lot from 2.4, so the
+> load average figures can be quite misleading.
 > 
-> Firefox 2 - a new testing tool for bug hunters.
 
-Thanks.
+For the record, *most* of the work are I/O calls
+(ie reading and writing registers), which are not
+in the "background". I/O calls become more and
+more expensive as the bus becomes saturated as it
+takes longer to get the bus to do the operation. 
 
-> Jun 23 11:03:48 ltg01-fedora kernel: =======================================
-> Jun 23 11:03:48 ltg01-fedora kernel: [ INFO: out of order unlock detected. ]
-> Jun 23 11:03:48 ltg01-fedora kernel: ---------------------------------------
+DT
 
-This test is a bit of a nuisance.
-
-> Jun 23 11:03:48 ltg01-fedora kernel: The code is fine but needs lock
-> validator annotation.
-> Jun 23 11:03:48 ltg01-fedora kernel: firefox-bin/25734 is trying to
-> release lock (tasklist_lock) at:
-> Jun 23 11:03:48 ltg01-fedora kernel:  [<c017b02c>] flush_old_exec+0x12f/0xa5f
-> Jun 23 11:03:48 ltg01-fedora kernel: but the next lock to release is:
-> Jun 23 11:03:48 ltg01-fedora kernel:  (&sighand->siglock){++..}, at:
-> [<c017afab>] flush_old_exec+0xae/0xa5f
-> Jun 23 11:03:48 ltg01-fedora kernel:
-> Jun 23 11:03:48 ltg01-fedora kernel: other info that might help us debug this:
-> Jun 23 11:03:48 ltg01-fedora kernel: 2 locks held by firefox-bin/25734:
-> Jun 23 11:03:48 ltg01-fedora kernel:  #0:  (tasklist_lock){..??}, at:
-> [<c017afa4>] flush_old_exec+0xa7/0xa5f
-> Jun 23 11:03:48 ltg01-fedora kernel:  #1:  (&sighand->siglock){++..},
-> at: [<c017afab>] flush_old_exec+0xae/0xa5f
-
-This is de_thread().  It's deliberate.
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

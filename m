@@ -1,42 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751952AbWFWTTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751953AbWFWTX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751952AbWFWTTP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 15:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751953AbWFWTTP
+	id S1751953AbWFWTX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 15:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751951AbWFWTX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 15:19:15 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:36154 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751952AbWFWTTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 15:19:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ecg4G4SJbakLrTu3ucy/CEPZeBCh++vP04sUVREzJ3KkOOWSH5Ow4fdiHRX9pyZ4H2ni38zn2RLo5Q/bu5OgU7279440satHG3RvZibK9+MEsHkByv+EhkOg1LbTWQ4ZPQ7/ge6XnGLPmv4dTPtLAmTUIS5LGnTFKEsypj949cQ=
-Message-ID: <38b19aa60606231219n57b18a81i51b3b3a55a94406e@mail.gmail.com>
-Date: Fri, 23 Jun 2006 12:19:13 -0700
-From: "Hareesh Nagarajan" <hnagar2@gmail.com>
-To: "Darren Reed" <darrenr@reed.wattle.id.au>
-Subject: Re: 2.6.11: spinlock problem
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200606231651.k5NGpbYr008153@firewall.reed.wattle.id.au>
+	Fri, 23 Jun 2006 15:23:56 -0400
+Received: from dvhart.com ([64.146.134.43]:54690 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751953AbWFWTX4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 15:23:56 -0400
+Message-ID: <449C3FCA.5080501@mbligh.org>
+Date: Fri, 23 Jun 2006 12:23:54 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-mm1
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200606231651.k5NGpbYr008153@firewall.reed.wattle.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/23/06, Darren Reed <darrenr@reed.wattle.id.au> wrote:
-> Is this
-> (a) linux allowing the IRQ too early
-> (b) vmware not doing something right
-> (c) enivitable
-> (d) somehow my fault
-> (e) something else?
+On 16x NUMA-Q, got a panic running dbench across different fs's.
 
-Turn on spin lock debugging.
 
--- 
-./hareesh
+BUG: unable to handle kernel NULL pointer dereference at virtual address 
+00000000
+  printing eip:
+c0154030
+*pde = 2589f001
+*pte = 00000000
+Oops: 0000 [#1]
+8K_STACKS SMP
+last sysfs file: /devices/pci0000:00/0000:00:0a.0/resource
+Modules linked in:
+CPU:    1
+EIP:    0060:[<c0154030>]    Not tainted VLI
+EFLAGS: 00010006   (2.6.17-mm1-autokern1 #1)
+EIP is at s_show+0xe5/0x28e
+eax: c038efe0   ebx: e744ef60   ecx: 00000000   edx: 00000000
+esi: c038efe0   edi: 00000000   ebp: e744b2c0   esp: e67aff14
+ds: 007b   es: 007b   ss: 0068
+Process cp (pid: 7295, ti=e67ae000 task=e1521570 task.ti=e67ae000)
+Stack: 00000000 00000000 00000000 00000072 00000c66 e64a78c0 e744b2c0 
+00000000
+        00001000 c01724e5 e64a78c0 e744b2c0 0000087e 00000000 0000005c 
+00000000
+        0000005b 00000000 e6754720 bfc8afa0 e67affa4 00001000 c0156e80 
+e6754720
+Call Trace:
+  [<c01724e5>] seq_read+0x195/0x262
+  [<c0156e80>] vfs_read+0x88/0x11e
+  [<c0157160>] sys_read+0x3b/0x63
+  [<c036d07f>] syscall_call+0x7/0xb
+Code: 10 3b 8d d4 00 00 00 75 0a 85 f6 b8 a0 ef 38 c0 0f 44 f0 85 c9 75 
+0a 85 f6 b8 e0 ef 38 c0 0f 44 f0 01 4c 24 10 ff 44 24 0c 8b 12 <8b> 02 
+0f 18 00 90 39 da 75 c9 8b 53 10 8b 02 0f 18 00 90 8d 43
+EIP: [<c0154030>] s_show+0xe5/0x28e SS:ESP 0068:e67aff14
+
+Got a very similar panic on a flat SMP box too:
+
+BUG: unable to handle kernel paging request at virtual address 00100100
+  printing eip:
+c0154030
+*pde = 2f2fa001
+*pte = 00000000
+Oops: 0000 [#1]
+8K_STACKS SMP
+last sysfs file: /devices/pci0000:00/0000:00:0a.0/resource
+Modules linked in:
+CPU:    1
+EIP:    0060:[<c0154030>]    Not tainted VLI
+EFLAGS: 00010006   (2.6.17-mm1-autokern1 #1)
+EIP is at s_show+0xe5/0x28e
+eax: c038efe0   ebx: dffead60   ecx: 00000000   edx: 00100100
+esi: c038efe0   edi: 00000000   ebp: dffe7660   esp: f69a7f14
+ds: 007b   es: 007b   ss: 0068
+Process cp (pid: 7190, ti=f69a6000 task=f64dc570 task.ti=f69a6000)
+Stack: 00000000 00000000 00000000 0000003f 00000328 f650a620 dffe7660 
+00000000
+        00001000 c01724e5 f650a620 dffe7660 00000909 00000000 0000005d 
+00000000
+        0000005c 00000000 ed4d3200 bff47a70 f69a7fa4 00001000 c0156e80 
+ed4d3200
+Call Trace:
+  [<c01724e5>] seq_read+0x195/0x262
+  [<c0156e80>] vfs_read+0x88/0x11e
+  [<c0157160>] sys_read+0x3b/0x63
+  [<c036d07f>] syscall_call+0x7/0xb
+Code: 10 3b 8d d4 00 00 00 75 0a 85 f6 b8 a0 ef 38 c0 0f 44 f0 85 c9 75 
+0a 85 f6 b8 e0 ef 38 c0 0f 44 f0 01 4c 24 10 ff 44 24 0c 8b 12 <8b> 02 
+8d 74 26 00 39 da 75 c9 8b 53 10 8b 02 8d 74 26 00 8d 43
+EIP: [<c0154030>] s_show+0xe5/0x28e SS:ESP 0068:f69a7f14

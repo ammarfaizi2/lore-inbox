@@ -1,104 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932924AbWFWIEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932929AbWFWIH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932924AbWFWIEc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 04:04:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932930AbWFWIEc
+	id S932929AbWFWIH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 04:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932930AbWFWIH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 04:04:32 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:16273 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932924AbWFWIEb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 04:04:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=V9dK2DMOyuxCJ2Nb/OQ2TjvfDaqHWYrZJOhZ3eFIvGnpi9W5hRkSPkxHpPD64pkbVcnWmYqKlKOu8lz2J3fLoYMWtcmFMHHd+lViq7EB5lwZUoYV0kyR0fmuvt7v57CWo5mB2jNs+6bxdQKCjpO+wpOFRtrtmH6h+NIHQJLcAXQ=  ;
-Message-ID: <449BA06A.2030507@yahoo.com.au>
-Date: Fri, 23 Jun 2006 18:03:54 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
+	Fri, 23 Jun 2006 04:07:27 -0400
+Received: from mo30.po.2iij.net ([210.128.50.53]:13320 "EHLO mo30.po.2iij.net")
+	by vger.kernel.org with ESMTP id S932929AbWFWIH0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 04:07:26 -0400
+Date: Fri, 23 Jun 2006 17:07:11 +0900
+From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
 To: Andrew Morton <akpm@osdl.org>
-CC: Nick Piggin <npiggin@suse.de>, paulmck@us.ibm.com,
-       benh@kernel.crashing.org, Paul.McKenney@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [patch 3/3] radix-tree: RCU lockless readside
-References: <20060408134635.22479.79269.sendpatchset@linux.site>	<20060408134707.22479.33814.sendpatchset@linux.site>	<20060622014949.GA2202@us.ibm.com>	<20060622154518.GA23109@wotan.suse.de>	<20060622163032.GC1295@us.ibm.com>	<20060622165551.GB23109@wotan.suse.de>	<20060622174057.GF1295@us.ibm.com>	<20060622181111.GD23109@wotan.suse.de> <20060623000901.bf8b46c5.akpm@osdl.org>
-In-Reply-To: <20060623000901.bf8b46c5.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: yoichi_yuasa@tripeaks.co.jp, Ralf Baechle <ralf@linux-mips.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][MIPS] wire up tee system call
+Message-Id: <20060623170711.3a6d1ef8.yoichi_yuasa@tripeaks.co.jp>
+Organization: TriPeaks Corporation
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Thu, 22 Jun 2006 20:11:12 +0200
-> Nick Piggin <npiggin@suse.de> wrote:
-> 
-> 
->>On Thu, Jun 22, 2006 at 10:40:57AM -0700, Paul E. McKenney wrote:
->>
->>>On Thu, Jun 22, 2006 at 06:55:51PM +0200, Nick Piggin wrote:
->>>
->>>>No problem, will change.
->>>
->>>Thank you!
->>
->>OK, and with that I believe I've covered all your concerns.
->>
->>Attached is the incremental patch (plus a little bit of fuzz
->>that's gone to Andrew). The big items are:
->>
->>- documentation, clarification of comments
->>- tag lookups are now RCU safe (tested with harness)
->>- cleanups of various misuses of rcu_ API that Paul spotted
->>- thought I might put in a copyright -- is this OK?
->>
->>Andrew, please apply.
-> 
-> 
-> Freeing unused kernel memory: 316k freed
-> Write protecting the kernel read-only data: 384k
-> No module found in object
-> No module found in object
-> No module found in object
-> No module found in object
-> input: AT Translated Set 2 keyboard as /class/input/input0
-> No module found in object
-> EXT3-fs: INFO: recovery required on readonly filesystem.
-> EXT3-fs: write access will be enabled during recovery.
-> kjournald starting.  Commit interval 5 seconds
-> EXT3-fs: recovery complete.
-> EXT3-fs: mounted filesystem with ordered data mode.
-> BUG: NMI Watchdog detected LOCKUP on CPU0, eip c0264345, registers:
-> CPU:    0
-> EIP is at radix_tree_gang_lookup_tag+0x105/0x1a0
-> eax: ffffffff   ebx: 00000040   ecx: ffffffc0   edx: 00000007
-> esi: e701e9d8   edi: 000001c0   ebp: e6fbddd8   esp: e6fbdda8
-> ds: 007b   es: 007b   ss: 0068
-> Process fsck.ext3 (pid: 1565, ti=e6fbc000 task=c1fbcb90 task.ti=e6fbc000)
-> Stack: e77f2dc4 e701e9d8 e701e9d8 00000002 00000fff 00000000 e701e8c8 e6fbde60 
->        0000000e c1c6c52c e6fbde60 c1c6c538 e6fbde00 c014b68f c1c6c52c e6fbde60 
->        00000000 0000000e 00000000 e6fbde58 00000000 00000001 e6fbde20 c0155631 
-> Call Trace:
-> Code: 89 fa 8d 4c 09 fa d3 e3 d3 ea 89 d9 83 e2 3f f7 d9 eb 13 8d 76 00 89 f8 89 df 21 c8 01 c7 74 26 42 83 fa 40 74 95 0f a3 16 19 c0 <85> c0 74 e7 83 7d dc 01 74 3a 31 f6 89 75 f0 e9 6e ff ff ff c7 
-> console shuts up ...
-> 
-> 
-> Not sure why, either.  It all looks like an equivalent transformation to
-> me.
+Hi,
 
-Ahh crap, sorry.
+This patch wires up tee system call for MIPS.
 
-I'll see if I can work it out. Will make another good addition to
-rtth (which I'm going to have to sort out and get synched up with
-you soon).
+[MIPS] Wire up tee(2).
 
-> 
-> fwiw, here's what I tested:
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
 
-Thanks.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+diff -pruN -X 2.6.17/Documentation/dontdiff 2.6.17-orig/arch/mips/kernel/scall32-o32.S 2.6.17/arch/mips/kernel/scall32-o32.S
+--- 2.6.17-orig/arch/mips/kernel/scall32-o32.S	2006-06-23 10:28:02.285634500 +0900
++++ 2.6.17/arch/mips/kernel/scall32-o32.S	2006-06-23 10:28:07.569964750 +0900
+@@ -647,6 +647,7 @@ einval:	li	v0, -EINVAL
+ 	sys	sys_unshare		1
+ 	sys	sys_splice		4
+ 	sys	sys_sync_file_range	7	/* 4305 */
++	sys	sys_tee			4
+ 	.endm
+ 
+ 	/* We pre-compute the number of _instruction_ bytes needed to
+diff -pruN -X 2.6.17/Documentation/dontdiff 2.6.17-orig/arch/mips/kernel/scall64-64.S 2.6.17/arch/mips/kernel/scall64-64.S
+--- 2.6.17-orig/arch/mips/kernel/scall64-64.S	2006-06-23 10:00:07.028937500 +0900
++++ 2.6.17/arch/mips/kernel/scall64-64.S	2006-06-23 10:28:07.573965000 +0900
+@@ -462,3 +462,4 @@ sys_call_table:
+ 	PTR	sys_unshare
+ 	PTR	sys_splice
+ 	PTR	sys_sync_file_range
++	PTR	sys_tee				/* 5265 */
+diff -pruN -X 2.6.17/Documentation/dontdiff 2.6.17-orig/arch/mips/kernel/scall64-n32.S 2.6.17/arch/mips/kernel/scall64-n32.S
+--- 2.6.17-orig/arch/mips/kernel/scall64-n32.S	2006-06-23 10:00:07.028937500 +0900
++++ 2.6.17/arch/mips/kernel/scall64-n32.S	2006-06-23 10:28:07.573965000 +0900
+@@ -388,3 +388,4 @@ EXPORT(sysn32_call_table)
+ 	PTR	sys_unshare
+ 	PTR	sys_splice
+ 	PTR	sys_sync_file_range
++	PTR	sys_tee
+diff -pruN -X 2.6.17/Documentation/dontdiff 2.6.17-orig/arch/mips/kernel/scall64-o32.S 2.6.17/arch/mips/kernel/scall64-o32.S
+--- 2.6.17-orig/arch/mips/kernel/scall64-o32.S	2006-06-23 10:00:07.028937500 +0900
++++ 2.6.17/arch/mips/kernel/scall64-o32.S	2006-06-23 10:28:07.573965000 +0900
+@@ -510,4 +510,5 @@ sys_call_table:
+ 	PTR	sys_unshare
+ 	PTR	sys_splice
+ 	PTR	sys32_sync_file_range		/* 4305 */
++	PTR	sys_tee
+ 	.size	sys_call_table,.-sys_call_table
+diff -pruN -X 2.6.17/Documentation/dontdiff 2.6.17-orig/include/asm-mips/unistd.h 2.6.17/include/asm-mips/unistd.h
+--- 2.6.17-orig/include/asm-mips/unistd.h	2006-06-23 10:00:16.129506250 +0900
++++ 2.6.17/include/asm-mips/unistd.h	2006-06-23 10:28:07.577965250 +0900
+@@ -326,16 +326,17 @@
+ #define __NR_unshare			(__NR_Linux + 303)
+ #define __NR_splice			(__NR_Linux + 304)
+ #define __NR_sync_file_range		(__NR_Linux + 305)
++#define __NR_tee			(__NR_Linux + 306)
+ 
+ /*
+  * Offset of the last Linux o32 flavoured syscall
+  */
+-#define __NR_Linux_syscalls		305
++#define __NR_Linux_syscalls		306
+ 
+ #endif /* _MIPS_SIM == _MIPS_SIM_ABI32 */
+ 
+ #define __NR_O32_Linux			4000
+-#define __NR_O32_Linux_syscalls		305
++#define __NR_O32_Linux_syscalls		306
+ 
+ #if _MIPS_SIM == _MIPS_SIM_ABI64
+ 
+@@ -608,16 +609,17 @@
+ #define __NR_unshare			(__NR_Linux + 262)
+ #define __NR_splice			(__NR_Linux + 263)
+ #define __NR_sync_file_range		(__NR_Linux + 264)
++#define __NR_tee			(__NR_Linux + 265)
+ 
+ /*
+  * Offset of the last Linux 64-bit flavoured syscall
+  */
+-#define __NR_Linux_syscalls		264
++#define __NR_Linux_syscalls		265
+ 
+ #endif /* _MIPS_SIM == _MIPS_SIM_ABI64 */
+ 
+ #define __NR_64_Linux			5000
+-#define __NR_64_Linux_syscalls		264
++#define __NR_64_Linux_syscalls		265
+ 
+ #if _MIPS_SIM == _MIPS_SIM_NABI32
+ 
+@@ -894,16 +896,17 @@
+ #define __NR_unshare			(__NR_Linux + 266)
+ #define __NR_splice			(__NR_Linux + 267)
+ #define __NR_sync_file_range		(__NR_Linux + 268)
++#define __NR_tee			(__NR_Linux + 269)
+ 
+ /*
+  * Offset of the last N32 flavoured syscall
+  */
+-#define __NR_Linux_syscalls		268
++#define __NR_Linux_syscalls		269
+ 
+ #endif /* _MIPS_SIM == _MIPS_SIM_NABI32 */
+ 
+ #define __NR_N32_Linux			6000
+-#define __NR_N32_Linux_syscalls		268
++#define __NR_N32_Linux_syscalls		269
+ 
+ #ifdef __KERNEL__
+ 

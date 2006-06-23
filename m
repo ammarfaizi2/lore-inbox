@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933054AbWFWMQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933080AbWFWMRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933054AbWFWMQU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 08:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933080AbWFWMQU
+	id S933080AbWFWMRv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 08:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933086AbWFWMRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 08:16:20 -0400
-Received: from web36904.mail.mud.yahoo.com ([209.191.85.72]:59492 "HELO
-	web36904.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S933054AbWFWMQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 08:16:20 -0400
+	Fri, 23 Jun 2006 08:17:51 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:59922 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S933080AbWFWMRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 08:17:51 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=J4QtkGDj1DiU0sPnwHl4JaUVQGamI+JBeN4pf7/CgsawGR5HmoY9WjaZ/YFN0oB3mnS5v04PsuiAOR4cpWDYdxWighkWj/wYW6hVuxBMMty4R7uIfciAW1qyaDFH6KFtKEjf+vRiDWuTIh9sKuYIIu+/0X0fmK7OZdHneEpViqU=  ;
-Message-ID: <20060623121619.11995.qmail@web36904.mail.mud.yahoo.com>
-Date: Fri, 23 Jun 2006 13:16:19 +0100 (BST)
-From: Mark Underwood <basicmark@yahoo.com>
-Subject: Re: [i2c] [PATCH] I2C bus driver for Philips ARM boards
-To: Vitaly Wool <vitalywool@gmail.com>
-Cc: greg@kroah.com, i2c@lm-sensors.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20060623133855.59b08f33.vitalywool@gmail.com>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=PIrz0l09xI3blkkTYrdRVlgPoNgDgQp8ivAOCOp++soXxFdJJgHwg2XEh/XJdOhRKt06MQ6bhvyB0xU0Yfd6GJqTZn5FEibioy3DC+xsBrFFlXIDWW/WZXLAU6PG6nKswFpcPHboZLYbEkpxqFENKT6MtHg3g4SOaCCVAdevaQ4=
+Message-ID: <449BDCF5.6040808@innova-card.com>
+Date: Fri, 23 Jun 2006 14:22:13 +0200
+Reply-To: franck.bui-huu@innova-card.com
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Mel Gorman <mel@skynet.ie>
+CC: Franck Bui-Huu <vagabon.xyz@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm1
+References: <20060621034857.35cfe36f.akpm@osdl.org> <449AB01A.5000608@innova-card.com> <Pine.LNX.4.64.0606221617420.5869@skynet.skynet.ie> <449ABC3E.5070609@innova-card.com> <Pine.LNX.4.64.0606221649070.5869@skynet.skynet.ie> <cda58cb80606221025y63906e81wbec9597b94069b6a@mail.gmail.com> <20060623102037.GA1973@skynet.ie>
+In-Reply-To: <20060623102037.GA1973@skynet.ie>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <fbh.work@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Vitaly Wool <vitalywool@gmail.com> wrote:
-
-> On Thu, 22 Jun 2006 23:26:00 +0100 (BST)
-> Mark Underwood <basicmark@yahoo.com> wrote:
->  
-> > Would it not make sense to call this driver ip3204 or ph_ip3204 or some such seeing as you
-> > correctly point out that this is a common Philips IP block and is used in other, non pnx,
-> chips?
+Mel Gorman wrote:
+> On (22/06/06 19:25), Franck Bui-Huu didst pronounce:
+>>>>
+>>> I know, but what I'm getting at is that ARCH_PFN_OFFSET may be unnecessary
+>>> with flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch applied.
+>> yes it seems so. But ARCH_PFN_OFFSET has been used before your patch
+>> has been sent. So your patch seems to be incomplete...
 > 
-> No I don't think it would -- this is an internal Philips IP block number AFAIK and was given
-> there only for reference.
-> Funny is that people from Philips Semi asked me about a year ago not to use internal IP block
-> numbers in the code. I know you're also from Philips... Well, what does that prove? It proves
-> that everything can't be in alignment in such a big company. ;-)
-
-OK.
-
->  
-> > I'm also not sure why the register map is in the arch-pnx4008 directory as this will require
-> every
-> > chip that has this IP block to have a copy of the file.
-> 
-> IIRC, PNX5220 has a slightly different register map. Of course the main registers are the same
-> but putting first N regs into common header and putting others into arch header would have made
-> even less sense.
-
-I'm not familiar with the PNX5220. What you've done makes sense now :-). Thanks for the
-explanation.
-
-Mark
-
-
-> 
-> Vitaly
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Difficult to argue with that logic.
 > 
 
+sorry, I was just meaning that ARCH_PFN_OFFSET had been introduced to
+solve this before your patch has been sent. So the requirement for
+memory to start at pfn 0 is already solved.
 
+Your patch solves the problem in a different way, but it's
+incompatible with the current one (ARCH_PFN_OFFSET).
 
-		
-___________________________________________________________ 
-Does your mail provider give you FREE antivirus protection? 
-Get Yahoo! Mail http://uk.mail.yahoo.com
+IMHO the question is now, which method is the best one ? If it's yours
+the we probably need to get ride of the previous method and add yours
+(but don't forget to modify arch such ARM which are currently using
+ARCH_PFN_OFFSET).
+
+		Franck

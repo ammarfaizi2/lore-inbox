@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932962AbWFWJb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932967AbWFWJds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932962AbWFWJb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932966AbWFWJb5
+	id S932967AbWFWJds (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932970AbWFWJds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:31:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29374 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932962AbWFWJb4 (ORCPT
+	Fri, 23 Jun 2006 05:33:48 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:31697 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932967AbWFWJdr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:31:56 -0400
-Date: Fri, 23 Jun 2006 02:31:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: deweerdt@free.fr, greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-pm@osdl.org, stern@rowland.harvard.edu
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-Message-Id: <20060623023124.138d432f.akpm@osdl.org>
-In-Reply-To: <20060623091016.GE4940@elf.ucw.cz>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
-	<4499BE99.6010508@gmail.com>
-	<20060621221445.GB3798@inferi.kami.home>
-	<20060622061905.GD15834@kroah.com>
-	<20060622004648.f1912e34.akpm@osdl.org>
-	<20060622160403.GB2539@slug>
-	<20060622092506.da2a8bf4.akpm@osdl.org>
-	<20060623090206.GA2234@slug>
-	<20060623091016.GE4940@elf.ucw.cz>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Fri, 23 Jun 2006 05:33:47 -0400
+Date: Fri, 23 Jun 2006 11:28:52 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch 21/61] lock validator: lockdep: add local_irq_enable_in_hardirq() API.
+Message-ID: <20060623092852.GB4889@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <20060529212452.GU3155@elte.hu> <20060529183428.0d12052e.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060529183428.0d12052e.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 11:10:21 +0200
-Pavel Machek <pavel@ucw.cz> wrote:
 
-> > Here's what I could hand copy (I've suppressed printk timing information):
-> > x1b9/0x1be
-> > <c0166e6b> sys_write+0x4b/0x75  <c010300f> sysenter_past_esp+0x54/0x75
-> > Code: 05 c4 52 43 c0 31 53 43 c0 c3 8b 2d 68 6e 54 c0 8b 1d 60
-> > 6e 54 c0 8b 35 6c 6e 54 c0 8b 3d 70 6e 54 c0 ff 35 74 6e 54 c0 9d c3 90 <e8>
-> > 9d 2c ea ff e8 a2 ff ff ff 6a 03 e8 4c ab de ff 83 c4 04 c3
-> > EIP: [<c043531c>] do_suspend_lowlevel+0x0/0x15 SS:ESP 0068:f7a0fea4
-> > <3>BUG: sleeping function called from invalid context at include/linux/rwsem.h:43
-> > in_atomic():0, irqs_disabled():1
-> >  <c0103e56> show_trace+0x20/0x22  <c0103f5b> dump_stack+0x1e/0x20
-> >  <c011aec7> __might_sleep+0x9e/0xa6  <c012b0cf> blocking_notifier_call_chain+0x1e/0x5b
-> >  <c011f091> profile_task_exit+0x21/0x23  <c0120946> do_exit+0x1d/0x483
-> >  <c0104432> do_divide_error+0x0/0xbf  <c0362c76> do_page_fault+0x3c4/0x752
-> >  <c0103b2f> error_code+0x4f/0x54  <c013b33a> suspend_enter+0x2f/0x52
-> >  <c013b3e0> enter_state+0x4b/0x8d  <c013b579> state_store+0xa0/0xa2
-> >  <c01a54f1> subsys_attr_store+0x37/0x41  <c01a5772> flush_write_buffer+0x3c/046
-> >  <c01a57e3> sysfs_write_file+0x67/0x8b  <c0166da6> vfs_write+0x1b9/0x1be
-> >  <c0166e6b> sys_write+0x4b/0x75  <c010300f> sysenter_past_esp+0x54/0x75
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> On Mon, 29 May 2006 23:24:52 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> That is not an oops, rather a kernel BUG().
-
-It's not a BUG().  It's a BUG.
-
-IOW, it's just a WARN_ON().  Ingo decided all the scary messages should
-start with the text "BUG".  That doesn't correlate with BUG().  Confused
-yet?
-
-That trace is odd.  It kinda looks like we got a segfault when entering the
-do_suspend_lowlevel() assembly.  Or something.
-
-> Can you just remove
-> might_sleep line and see what happens?
+> > introduce local_irq_enable_in_hardirq() API. It is currently
+> > aliased to local_irq_enable(), hence has no functional effects.
+> > 
+> > This API will be used by lockdep, but even without lockdep
+> > this will better document places in the kernel where a hardirq
+> > context enables hardirqs.
 > 
-> Unfortunately, backtrace does not tell me which notifier chain did
-> that :-(. Are you using audit or something like that?
+> If we expect people to use this then we'd best whack a comment over 
+> it.
 
-No, that's all a consequence of something which happened earlier.
+ok, i've improved the comment in trace_irqflags.h.
+
+> Also, trace_irqflags.h doesn't seem an appropriate place for it to 
+> live.
+
+seems like the most practical place for it. Previously we had no central 
+include file for irq-flags APIs (they used to be included from 
+asm/system.h and other random per-arch places) - trace_irqflags.h has 
+become the central file now. Should i rename it to irqflags.h perhaps, 
+to not tie it to tracing? We have some deprecated irq-flags ops in 
+interrupt.h, maybe this all belongs there. (although i think it's 
+cleaner to have linux/include/irqflags.h and include it from 
+interrupt.h)
+
+	Ingo

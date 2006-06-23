@@ -1,65 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932978AbWFWJwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932977AbWFWJyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932978AbWFWJwz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 05:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWFWJwy
+	id S932977AbWFWJyq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 05:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932965AbWFWJyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:52:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17093 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932978AbWFWJwy (ORCPT
+	Fri, 23 Jun 2006 05:54:46 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:26818 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932150AbWFWJyp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 05:52:54 -0400
-Date: Fri, 23 Jun 2006 02:52:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch 21/61] lock validator: lockdep: add
- local_irq_enable_in_hardirq() API.
-Message-Id: <20060623025237.10ac3f68.akpm@osdl.org>
-In-Reply-To: <20060623092852.GB4889@elte.hu>
-References: <20060529212109.GA2058@elte.hu>
-	<20060529212452.GU3155@elte.hu>
-	<20060529183428.0d12052e.akpm@osdl.org>
-	<20060623092852.GB4889@elte.hu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Fri, 23 Jun 2006 05:54:45 -0400
+Date: Fri, 23 Jun 2006 11:49:41 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [patch 36/61] lock validator: special locking: serial
+Message-ID: <20060623094941.GE4889@elte.hu>
+References: <20060529212109.GA2058@elte.hu> <20060529212604.GJ3155@elte.hu> <20060529183533.75381871.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060529183533.75381871.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5015]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 11:28:52 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
 
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > On Mon, 29 May 2006 23:24:52 +0200
-> > Ingo Molnar <mingo@elte.hu> wrote:
-> > 
-> > > introduce local_irq_enable_in_hardirq() API. It is currently
-> > > aliased to local_irq_enable(), hence has no functional effects.
-> > > 
-> > > This API will be used by lockdep, but even without lockdep
-> > > this will better document places in the kernel where a hardirq
-> > > context enables hardirqs.
-> > 
-> > If we expect people to use this then we'd best whack a comment over 
-> > it.
-> 
-> ok, i've improved the comment in trace_irqflags.h.
-> 
-> > Also, trace_irqflags.h doesn't seem an appropriate place for it to 
-> > live.
-> 
-> seems like the most practical place for it. Previously we had no central 
-> include file for irq-flags APIs (they used to be included from 
-> asm/system.h and other random per-arch places) - trace_irqflags.h has 
-> become the central file now. Should i rename it to irqflags.h perhaps, 
-> to not tie it to tracing? We have some deprecated irq-flags ops in 
-> interrupt.h, maybe this all belongs there. (although i think it's 
-> cleaner to have linux/include/irqflags.h and include it from 
-> interrupt.h)
-> 
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Yes, irqflags.h is nice.
+> > +/*
+> > + * lockdep: port->lock is initialized in two places, but we
+> > + *          want only one lock-type:
+> > + */
+> > +static struct lockdep_type_key port_lock_key;
+> > +
+> >  /**
+> >   *	uart_set_options - setup the serial console parameters
+> >   *	@port: pointer to the serial ports uart_port structure
+> > @@ -1869,7 +1875,7 @@ uart_set_options(struct uart_port *port,
+> >  	 * Ensure that the serial console lock is initialised
+> >  	 * early.
+> >  	 */
+> > -	spin_lock_init(&port->lock);
+> > +	spin_lock_init_key(&port->lock, &port_lock_key);
+> >  
+> >  	memset(&termios, 0, sizeof(struct termios));
+> >  
+> > @@ -2255,7 +2261,7 @@ int uart_add_one_port(struct uart_driver
+> >  	 * initialised.
+> >  	 */
+> >  	if (!(uart_console(port) && (port->cons->flags & CON_ENABLED)))
+> > -		spin_lock_init(&port->lock);
+> > +		spin_lock_init_key(&port->lock, &port_lock_key);
+> >  
+> >  	uart_configure_port(drv, state, port);
+> >  
+> 
+> Is there a cleaner way of doing this?
+> 
+> Perhaps write a new helper function which initialises the spinlock, 
+> call that?  Rather than open-coding lockdep stuff?
+
+yes, we can do that too - but that would have an effect to non-lockdep 
+kernels too.
+
+Also, the initialization of the 'port' seems a bit twisted here, already 
+initialized and not-yet-initialized ports can be passed in to 
+uard_add_one_port(). So i did not want to touch the structure of the 
+code - hence the open-coded solution.
+
+	Ingo

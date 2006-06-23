@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932782AbWFWGJI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932820AbWFWGKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932782AbWFWGJI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 02:09:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbWFWGJH
+	id S932820AbWFWGKh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 02:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932821AbWFWGKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 02:09:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37595 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932782AbWFWGJF (ORCPT
+	Fri, 23 Jun 2006 02:10:37 -0400
+Received: from mx2.suse.de ([195.135.220.15]:47257 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932820AbWFWGKg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 02:09:05 -0400
-Date: Thu, 22 Jun 2006 23:08:43 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>
-Subject: Re: [PATCH] mm: tracking shared dirty pages -v10
-In-Reply-To: <1151019590.15744.144.camel@lappy>
-Message-ID: <Pine.LNX.4.64.0606222305210.6483@g5.osdl.org>
-References: <20060619175243.24655.76005.sendpatchset@lappy> 
- <20060619175253.24655.96323.sendpatchset@lappy> 
- <Pine.LNX.4.64.0606222126310.26805@blonde.wat.veritas.com>
- <1151019590.15744.144.camel@lappy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Jun 2006 02:10:36 -0400
+Date: Thu, 22 Jun 2006 23:07:27 -0700
+From: Greg KH <gregkh@suse.de>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.17
+Message-ID: <20060623060727.GA7048@suse.de>
+References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606211519550.5498@g5.osdl.org> <20060621225134.GA13618@kroah.com> <Pine.LNX.4.64.0606211814200.5498@g5.osdl.org> <20060622181826.GB22867@kroah.com> <20060622183021.GA5857@kroah.com> <20060622114900.6f1c6a5f.rdunlap@xenotime.net> <20060622185456.GA6794@suse.de> <20060623055241.GB7771@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060623055241.GB7771@2ka.mipt.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 23 Jun 2006, Peter Zijlstra wrote:
->
-> Preview of the goodness,
+On Fri, Jun 23, 2006 at 09:52:41AM +0400, Evgeniy Polyakov wrote:
+> On Thu, Jun 22, 2006 at 11:54:56AM -0700, Greg KH (gregkh@suse.de) wrote:
+> > On Thu, Jun 22, 2006 at 11:49:00AM -0700, Randy.Dunlap wrote:
+> > > 
+> > > Um, I was going to say that my patch wasn't listed in the
+> > > shortlog that you sent (for W1), but it's there, just mis-attributed
+> > > to Evgeniy (#13/14).
+> > 
+> > I think that happened as Evgeniy sent it to me without the "From:" line
+> > on the top of the email, which would have preserved your attribute.
+> > Evgeniy, care to do that next time?
 > 
-> I'll repost the whole thing tomorrow after I've updated the other
-> patches, esp. the msync one. I seem to be too tired to make any sense
-> out of that atm.
+> I.e. first line should look like
+> From: Someone Who Sent be the mail <and address here> ?
 
-Do people agree about this thing? If we want it in 2.6.18, we should merge 
-this soon. I'd prefer to not leave something like this to be a last-minute 
-thing before the merge window closes, and I get the feeling that we're 
-getting to where this should just go in sooner rather than later.
+Yes, that's the correct format.
 
-Comments? Hugh, does the last version address all your concerns?
+thanks,
 
-		Linus
+greg k-h

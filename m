@@ -1,33 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWFWJWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbWFWJWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751258AbWFWJWN (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750917AbWFWJWN (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 23 Jun 2006 05:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWFWJWL
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWFWJWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 05:22:11 -0400
-Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:10420 "EHLO
+	Fri, 23 Jun 2006 05:22:06 -0400
+Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:10676 "EHLO
 	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1750919AbWFWJUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750931AbWFWJUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 23 Jun 2006 05:20:49 -0400
-Date: Fri, 23 Jun 2006 02:13:00 -0700
+Date: Fri, 23 Jun 2006 02:13:01 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200606230913.k5N9D0fl032313@frankl.hpl.hp.com>
+Message-Id: <200606230913.k5N9D19c032325@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/17] 2.6.17.1 perfmon2 patch for review: new system calls
+Subject: [PATCH 5/17] 2.6.17.1 perfmon2 patch for review: new sysfs support
 Cc: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the system calls interface.
+This patch contains the sysfs support.
 
 
 
 
---- linux-2.6.17.1.orig/perfmon/perfmon_file.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.1/perfmon/perfmon_file.c	2006-06-21 04:22:51.000000000 -0700
-@@ -0,0 +1,810 @@
+--- linux-2.6.17.1.orig/perfmon/perfmon_sysfs.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.1/perfmon/perfmon_sysfs.c	2006-06-21 04:22:51.000000000 -0700
+@@ -0,0 +1,650 @@
 +/*
-+ * perfmon_file.c: perfmon2 file input/output functions
++ * perfmon_proc.c: perfmon2 /proc interface
 + *
 + * This file implements the perfmon2 interface which
 + * provides access to the hardware performance counters
@@ -49,1437 +49,630 @@ This patch contains the system calls interface.
 + * More information about perfmon available at:
 + * 	http://www.hpl.hp.com/research/linux/perfmon
 + */
-+#include <linux/kernel.h>
++#include <linux/config.h>
 +#include <linux/module.h>
-+#include <linux/file.h>
-+#include <linux/poll.h>
-+#include <linux/vfs.h>
-+#include <linux/pagemap.h>
-+#include <linux/mount.h>
-+#include <linux/perfmon.h>
-+
-+#define PFMFS_MAGIC 0xa0b4d889	/* perfmon filesystem magic number */
-+
-+static struct file_operations pfm_file_ops;
-+
-+static int pfmfs_delete_dentry(struct dentry *dentry)
-+{
-+	return 1;
-+}
-+
-+static struct dentry_operations pfmfs_dentry_operations = {
-+	.d_delete = pfmfs_delete_dentry,
-+};
-+
-+int pfm_is_fd(struct file *filp)
-+{
-+	return filp->f_op == &pfm_file_ops;
-+}
-+
-+static union pfm_msg *pfm_get_next_msg(struct pfm_context *ctx)
-+{
-+	union pfm_msg *msg;
-+
-+	PFM_DBG("ctx=%p head=%d tail=%d",
-+		ctx,
-+		ctx->msgq_head,
-+		ctx->msgq_tail);
-+
-+	if (PFM_CTXQ_EMPTY(ctx))
-+		return NULL;
-+
-+	/*
-+	 * get oldest message
-+	 */
-+	msg = ctx->msgq+ctx->msgq_head;
-+
-+	/*
-+	 * and move forward
-+	 */
-+	ctx->msgq_head = (ctx->msgq_head+1) % PFM_MAX_MSGS;
-+
-+	PFM_DBG("ctx=%p head=%d tail=%d type=%d",
-+		ctx,
-+		ctx->msgq_head,
-+		ctx->msgq_tail,
-+		msg->type);
-+
-+	return msg;
-+}
-+
-+static struct page *pfm_buf_map_pagefault(struct vm_area_struct *vma,
-+					  unsigned long address, int *type)
-+{
-+	void *kaddr;
-+	struct pfm_context *ctx;
-+	struct page *page;
-+	size_t size;
-+
-+	ctx = vma->vm_private_data;
-+	if (ctx == NULL) {
-+		PFM_DBG("no ctx");
-+		return NOPAGE_SIGBUS;
-+	}
-+	size = ctx->smpl_size;
-+
-+	if ( (address < (unsigned long) vma->vm_start) ||
-+	     (address > (unsigned long) (vma->vm_start + size)) )
-+		return NOPAGE_SIGBUS;
-+
-+	kaddr = ctx->smpl_addr + (address - vma->vm_start);
-+
-+	if (type)
-+		*type = VM_FAULT_MINOR;
-+
-+	page = vmalloc_to_page(kaddr);
-+	get_page(page);
-+
-+	PFM_DBG("[%d] start=%p ref_count=%d",
-+		current->pid,
-+		kaddr, page_count(page));
-+
-+	return page;
-+}
-+
-+struct vm_operations_struct pfm_buf_map_vm_ops = {
-+	.nopage	= pfm_buf_map_pagefault,
-+};
-+
-+static int pfm_mmap_buffer(struct pfm_context *ctx, struct vm_area_struct *vma,
-+			   size_t size)
-+{
-+	if (ctx->smpl_addr == NULL) {
-+		PFM_DBG("no sampling buffer to map");
-+		return -EINVAL;
-+	}
-+
-+	if (size > ctx->smpl_size) {
-+		PFM_DBG("mmap size=%zu >= actual buf size=%zu",
-+			size,
-+			ctx->smpl_size);
-+		return -EINVAL;
-+	}
-+
-+	vma->vm_ops = &pfm_buf_map_vm_ops;
-+	vma->vm_private_data = ctx;
-+
-+	return 0;
-+}
-+
-+static int pfm_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	size_t size;
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
-+
-+
-+	ctx  = file->private_data;
-+	size = (vma->vm_end - vma->vm_start);
-+
-+	if (ctx == NULL)
-+		return -EINVAL;
-+
-+	ret = -EINVAL;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	if (vma->vm_flags & VM_WRITE) {
-+		PFM_DBG("cannot map buffer for writing");
-+		goto done;
-+	}
-+
-+	PFM_DBG("vm_pgoff=%lu size=%zu vm_start=0x%lx",
-+		vma->vm_pgoff,
-+		size,
-+		vma->vm_start);
-+
-+	if (vma->vm_pgoff == 0) {
-+		ret = pfm_mmap_buffer(ctx, vma, size);
-+
-+	} else {
-+		ret = pfm_mmap_set(ctx, vma, size);
-+	}
-+	/*
-+	 * marked the vma as special (important on the free side)
-+	 */
-+	if (ret == 0)
-+		vma->vm_flags |= VM_RESERVED;
-+
-+	PFM_DBG("ret=%d vma_flags=0x%lx vma_start=0x%lx vma_size=%lu",
-+		ret,
-+		vma->vm_flags,
-+		vma->vm_start,
-+		vma->vm_end-vma->vm_start);
-+done:
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
-+}
-+
-+ssize_t __pfmk_read(struct pfm_context *ctx, union pfm_msg *msg_buf, int noblock)
-+{
-+	union pfm_msg *msg;
-+	ssize_t ret = 0;
-+	unsigned long flags;
-+
-+	/*
-+	 * we must masks interrupts to avoid a race condition
-+	 * with the PMU interrupt handler.
-+	 */
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	if(PFM_CTXQ_EMPTY(ctx) == 0)
-+		goto fast_path;
-+
-+	ret = -EAGAIN;
-+	if (noblock)
-+		goto empty;
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	ret = wait_for_completion_interruptible(ctx->msgq_comp);
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	if(PFM_CTXQ_EMPTY(ctx))
-+		goto empty;
-+
-+fast_path:
-+
-+	/*
-+	 * extract message from queue
-+	 *
-+	 * it is possible that the message was stolen by another thread
-+	 * before we could protect the context after schedule()
-+	 */
-+	msg = pfm_get_next_msg(ctx);
-+	if (unlikely(msg == NULL))
-+		goto empty;
-+
-+	ret = sizeof(*msg);
-+
-+	/*
-+	 * we must make a local copy before we unlock
-+	 * to ensure that the message queue cannot fill
-+	 * (overwriting our message) up before
-+	 * we do copy_to_user() which cannot be done
-+	 * with interrupts masked.
-+	 */
-+	*msg_buf = *msg;
-+
-+	PFM_DBG("type=%d ret=%zd", msg->type, ret);
-+
-+empty:
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+	return ret;
-+}
-+EXPORT_SYMBOL(__pfmk_read);
-+
-+ssize_t __pfm_read(struct pfm_context *ctx, union pfm_msg *msg_buf, int non_block)
-+{
-+	union pfm_msg *msg;
-+	ssize_t ret = 0;
-+	unsigned long flags;
-+	DECLARE_WAITQUEUE(wait, current);
-+
-+	/*
-+	 * we must masks interrupts to avoid a race condition
-+	 * with the PMU interrupt handler.
-+	 */
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	if(PFM_CTXQ_EMPTY(ctx) == 0)
-+		goto fast_path;
-+retry:
-+	/*
-+	 * check non-blocking read. we include it
-+	 * in the loop in case another thread modifies
-+	 * the propoerty of the file while the current thread
-+	 * is looping here
-+	 */
-+
-+      	ret = -EAGAIN;
-+	if(non_block)
-+		goto abort_locked;
-+
-+	/*
-+	 * put ourself on the wait queue
-+	 */
-+	add_wait_queue(&ctx->msgq_wait, &wait);
-+
-+	for (;;) {
-+		/*
-+		 * check wait queue
-+		 */
-+		set_current_state(TASK_INTERRUPTIBLE);
-+
-+		PFM_DBG("head=%d tail=%d",
-+			ctx->msgq_head,
-+			ctx->msgq_tail);
-+
-+		spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+		/*
-+		 * wait for message
-+		 */
-+		schedule();
-+
-+		spin_lock_irqsave(&ctx->lock, flags);
-+
-+		/*
-+		 * check pending signals
-+		 */
-+		ret = -ERESTARTSYS;
-+		if(signal_pending(current))
-+			break;
-+
-+		ret = 0;
-+		if(PFM_CTXQ_EMPTY(ctx) == 0)
-+			break;
-+	}
-+
-+	set_current_state(TASK_RUNNING);
-+
-+	remove_wait_queue(&ctx->msgq_wait, &wait);
-+
-+	PFM_DBG("back to running ret=%zd", ret);
-+
-+	if (ret < 0)
-+		goto abort_locked;
-+
-+fast_path:
-+
-+	/*
-+	 * extract message from queue
-+	 *
-+	 * it is possible that the message was stolen by another thread
-+	 * before we could protect the context after schedule()
-+	 */
-+	msg = pfm_get_next_msg(ctx);
-+	if (unlikely(msg == NULL))
-+		goto retry;
-+
-+	/*
-+	 * we must make a local copy before we unlock
-+	 * to ensure that the message queue cannot fill
-+	 * (overwriting our message) up before
-+	 * we do copy_to_user() which cannot be done
-+	 * with interrupts masked.
-+	 */
-+	*msg_buf = *msg;
-+
-+	ret = sizeof(*msg);
-+
-+	PFM_DBG("type=%d size=%zu", msg->type, ret);
-+
-+abort_locked:
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	/*
-+	 * ret = EAGAIN when non-blocking and nothing is
-+	 * in thequeue.
-+	 *
-+	 * ret = ERESTARTSYS when signal pending
-+	 *
-+	 * otherwise ret = size of message
-+	 */
-+	return ret;
-+}
-+
-+static ssize_t pfm_read(struct file *filp, char __user *buf, size_t size,
-+			loff_t *ppos)
-+{
-+	struct pfm_context *ctx;
-+	union pfm_msg msg_buf;
-+	int non_block, ret;
-+
-+	ctx = filp->private_data;
-+	if (ctx == NULL) {
-+		PFM_ERR("no ctx for pfm_read");
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * cannot extract partial messages.
-+	 * check even when there is no message
-+	 *
-+	 * cannot extract more than one message per call. Bytes
-+	 * above sizeof(msg) are ignored.
-+	 */
-+	if (size < sizeof(msg_buf)) {
-+		PFM_DBG("message is too small size=%zu must be >=%zu)",
-+			size,
-+			sizeof(msg_buf));
-+		return -EINVAL;
-+	}
-+
-+	non_block = filp->f_flags & O_NONBLOCK;
-+
-+	ret =  __pfm_read(ctx, &msg_buf, non_block);
-+	if (ret > 0) {
-+  		if(copy_to_user(buf, &msg_buf, sizeof(msg_buf)))
-+			ret = -EFAULT;
-+	}
-+	return ret;
-+}
-+
-+static ssize_t pfm_write(struct file *file, const char __user *ubuf,
-+			  size_t size, loff_t *ppos)
-+{
-+	PFM_DBG("pfm_write called");
-+	return -EINVAL;
-+}
-+
-+static unsigned int pfm_poll(struct file *filp, poll_table * wait)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	unsigned int mask = 0;
-+
-+	if (!pfm_is_fd(filp)) {
-+		PFM_ERR("pfm_poll bad magic");
-+		return 0;
-+	}
-+
-+	ctx = filp->private_data;
-+	if (ctx == NULL) {
-+		PFM_ERR("pfm_poll no ctx");
-+		return 0;
-+	}
-+
-+
-+	PFM_DBG("before poll_wait");
-+
-+	poll_wait(filp, &ctx->msgq_wait, wait);
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	if (PFM_CTXQ_EMPTY(ctx) == 0)
-+		mask =  POLLIN | POLLRDNORM;
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	PFM_DBG("after poll_wait mask=0x%x", mask);
-+
-+	return mask;
-+}
-+
-+static int pfm_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
-+	  	     unsigned long arg)
-+{
-+	PFM_DBG("pfm_ioctl called");
-+	return -EINVAL;
-+}
-+
-+/*
-+ * interrupt cannot be masked when entering this function
-+ */
-+static inline int __pfm_fasync(int fd, struct file *filp,
-+			       struct pfm_context *ctx, int on)
-+{
-+	int ret;
-+
-+	ret = fasync_helper (fd, filp, on, &ctx->async_queue);
-+
-+	PFM_DBG("fd=%d on=%d async_q=%p ret=%d",
-+		fd,
-+		on,
-+		ctx->async_queue, ret);
-+
-+	return ret;
-+}
-+
-+static int pfm_fasync(int fd, struct file *filp, int on)
-+{
-+	struct pfm_context *ctx;
-+	int ret;
-+
-+	ctx = filp->private_data;
-+	if (ctx == NULL) {
-+		PFM_ERR("pfm_fasync no ctx");
-+		return -EBADF;
-+	}
-+
-+	/*
-+	 * we cannot mask interrupts during this call because this may
-+	 * may go to sleep if memory is not readily avalaible.
-+	 *
-+	 * We are protected from the context disappearing by the
-+	 * get_fd()/put_fd() done in caller. Serialization of this function
-+	 * is ensured by caller.
-+	 */
-+	ret = __pfm_fasync(fd, filp, ctx, on);
-+
-+	PFM_DBG("pfm_fasync called on fd=%d on=%d async_queue=%p ret=%d",
-+		fd,
-+		on,
-+		ctx->async_queue, ret);
-+
-+	return ret;
-+}
-+
-+/*
-+ * called either on explicit close() or from exit_files().
-+ * Only the LAST user of the file gets to this point, i.e., it is
-+ * called only ONCE.
-+ *
-+ * IMPORTANT: we get called ONLY when the refcnt on the file gets to zero
-+ * (fput()),i.e, last task to access the file. Nobody else can access the
-+ * file at this point.
-+ *
-+ * When called from exit_files(), the VMA has been freed because exit_mm()
-+ * is executed before exit_files().
-+ *
-+ * When called from exit_files(), the current task is not yet ZOMBIE but we
-+ * flush the PMU state to the context.
-+ */
-+int __pfm_close(struct pfm_context *ctx, struct file *filp)
-+{
-+	struct task_struct *task;
-+	unsigned long flags;
-+	int free_possible, can_unload;
-+	int state, is_system;
-+
-+	free_possible = 1;
-+	can_unload = 1;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	state = ctx->state;
-+	is_system = ctx->flags.system;
-+	task = ctx->task;
-+
-+	/*
-+	 * task is NULL for a system-wide context
-+	 */
-+	if (task == NULL)
-+		task = current;
-+
-+	PFM_DBG("ctx_state=%d is_system=%d is_current=%d",
-+		state,
-+		is_system,
-+		task == current);
-+
-+	/*
-+	 * check if unload is needed
-+	 */
-+	if (state == PFM_CTX_UNLOADED)
-+		goto doit;
-+
-+	/*
-+	 * context is loaded/masked, we need to
-+	 * either force an unload or go zombie
-+	 */
-+	
-+	if (is_system) {
-+#ifdef CONFIG_SMP
-+		/*
-+	 	 * We need to release the resource on the ORIGINAL cpu.
-+	 	 */
-+		if (ctx->cpu != smp_processor_id()) {
-+			/*
-+			 * keep context protected but unmask interrupt
-+			 * for IPI
-+			 */
-+			local_irq_restore(flags);
-+
-+			pfm_syswide_cleanup_other_cpu(ctx);
-+
-+			/*
-+			 * restore interrupt masking
-+			 */
-+			local_irq_save(flags);
-+
-+			can_unload = 0;
-+		}
-+#endif
-+	} else if (task != current) {
-+#ifdef CONFIG_SMP
-+		/*
-+		 * switch context to zombie state
-+		 */
-+		ctx->state = PFM_CTX_ZOMBIE;
-+
-+		PFM_DBG("zombie ctx for [%d]", task->pid);
-+		
-+		if (state == PFM_CTX_MASKED && ctx->flags.block) {
-+			/*
-+		 	* force task to wake up from MASKED state
-+		 	*/
-+			PFM_DBG("waking up ctx_state=%d", state);
-+
-+			complete(&ctx->restart_complete);
-+		}
-+		/*
-+		 * cannot free the context on the spot. deferred until
-+		 * the task notices the ZOMBIE state
-+		 */
-+		free_possible = can_unload = 0;
-+#endif
-+	}
-+	if (can_unload)
-+		__pfm_unload_context(ctx, 0);
-+doit:
-+	/* reload state */
-+	state = ctx->state;
-+
-+	PFM_DBG("ctx_state=%d free_possible=%d can_unload=%d",
-+		state,
-+		free_possible,
-+		can_unload);
-+
-+	if (state == PFM_CTX_ZOMBIE)
-+		pfm_release_session(ctx, ctx->cpu);
-+
-+	/*
-+	 * disconnect file descriptor from context must be done
-+	 * before we unlock.
-+	 */
-+	if (filp)
-+		filp->private_data = NULL;
-+
-+	/*
-+	 * if we free on the spot, the context is now completely unreacheable
-+	 * from the callers side. The monitored task side is also cut, so we
-+	 * can freely cut.
-+	 *
-+	 * If we have a deferred free, only the caller side is disconnected.
-+	 */
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	/*
-+	 * return the memory used by the context
-+	 */
-+	if (free_possible)
-+		pfm_context_free(ctx);
-+
-+	return 0;
-+}
-+
-+static int pfm_close(struct inode *inode, struct file *filp)
-+{
-+	struct pfm_context *ctx;
-+
-+	ctx = filp->private_data;
-+	if (ctx == NULL) {
-+		PFM_ERR("no ctx");
-+		return -EBADF;
-+	}
-+	return __pfm_close(ctx, filp);
-+}
-+
-+static int pfm_no_open(struct inode *irrelevant, struct file *dontcare)
-+{
-+	return -ENXIO;
-+}
-+
-+/*
-+ * pfm_flush() is called from filp_close() on every call to
-+ * close(). pfm_close() is only invoked when the last user
-+ * calls close(). pfm_close() is never invoked without
-+ * pfm_flush() being invoked first.
-+ *
-+ * Partially free resources:
-+ * 	- remove from fasync queue
-+ */
-+static int pfm_flush(struct file *filp)
-+{
-+	struct pfm_context *ctx;
-+
-+	ctx = filp->private_data;
-+	if (ctx == NULL) {
-+		PFM_ERR("pfm_flush no ctx");
-+		return -EBADF;
-+	}
-+
-+	/*
-+	 * remove our file from the async queue, if we use this mode.
-+	 * This can be done without the context being protected. We come
-+	 * here when the context has become unreacheable by other tasks.
-+	 *
-+	 * We may still have active monitoring at this point and we may
-+	 * end up in pfm_overflow_handler(). However, fasync_helper()
-+	 * operates with interrupts disabled and it cleans up the
-+	 * queue. If the PMU handler is called prior to entering
-+	 * fasync_helper() then it will send a signal. If it is
-+	 * invoked after, it will find an empty queue and no
-+	 * signal will be sent. In both case, we are safe
-+	 */
-+	if (filp->f_flags & FASYNC) {
-+		PFM_DBG("cleaning up async_queue=%p", ctx->async_queue);
-+		__pfm_fasync (-1, filp, ctx, 0);
-+	}
-+	return 0;
-+}
-+
-+static struct file_operations pfm_file_ops = {
-+	.llseek = no_llseek,
-+	.read = pfm_read,
-+	.write = pfm_write,
-+	.poll = pfm_poll,
-+	.ioctl = pfm_ioctl,
-+	.open = pfm_no_open, /* special open to disallow open via /proc */
-+	.fasync = pfm_fasync,
-+	.release = pfm_close,
-+	.flush= pfm_flush,
-+	.mmap = pfm_mmap
-+};
-+
-+
-+
-+static struct super_block *pfmfs_get_sb(struct file_system_type *fs_type,
-+					int flags, const char *dev_name,
-+					void *data)
-+{
-+	return get_sb_pseudo(fs_type, "pfm:", NULL, PFMFS_MAGIC);
-+}
-+
-+static struct file_system_type pfm_fs_type = {
-+	.name     = "pfmfs",
-+	.get_sb   = pfmfs_get_sb,
-+	.kill_sb  = kill_anon_super,
-+};
-+
-+
-+/*
-+ * pfmfs should _never_ be mounted by userland - too much of security hassle,
-+ * no real gain from having the whole whorehouse mounted. So we don't need
-+ * any operations on the root directory. However, we need a non-trivial
-+ * d_name - pfm: will go nicely and kill the special-casing in procfs.
-+ */
-+static struct vfsmount *pfmfs_mnt;
-+
-+int __init init_pfm_fs(void)
-+{
-+	int err = register_filesystem(&pfm_fs_type);
-+	if (!err) {
-+		pfmfs_mnt = kern_mount(&pfm_fs_type);
-+		err = PTR_ERR(pfmfs_mnt);
-+		if (IS_ERR(pfmfs_mnt))
-+			unregister_filesystem(&pfm_fs_type);
-+		else
-+			err = 0;
-+	}
-+	return err;
-+}
-+
-+static void __exit exit_pfm_fs(void)
-+{
-+	unregister_filesystem(&pfm_fs_type);
-+	mntput(pfmfs_mnt);
-+}
-+
-+int pfm_alloc_fd(struct file **cfile)
-+{
-+	int fd, ret = 0;
-+	struct file *file = NULL;
-+	struct inode * inode;
-+	char name[32];
-+	struct qstr this;
-+
-+	fd = get_unused_fd();
-+	if (fd < 0)
-+		return -ENFILE;
-+
-+	ret = -ENFILE;
-+
-+	file = get_empty_filp();
-+	if (!file)
-+		goto out;
-+
-+	/*
-+	 * allocate a new inode
-+	 */
-+	inode = new_inode(pfmfs_mnt->mnt_sb);
-+	if (!inode)
-+		goto out;
-+
-+	PFM_DBG("new inode ino=%ld @%p", inode->i_ino, inode);
-+
-+	inode->i_sb = pfmfs_mnt->mnt_sb;
-+	inode->i_mode = S_IFCHR|S_IRUGO;
-+	inode->i_uid = current->fsuid;
-+	inode->i_gid = current->fsgid;
-+
-+	sprintf(name, "[%lu]", inode->i_ino);
-+	this.name = name;
-+	this.hash = inode->i_ino;
-+	this.len = strlen(name);
-+
-+	ret = -ENOMEM;
-+
-+	/*
-+	 * allocate a new dcache entry
-+	 */
-+	file->f_dentry = d_alloc(pfmfs_mnt->mnt_sb->s_root, &this);
-+	if (!file->f_dentry)
-+		goto out;
-+
-+	file->f_dentry->d_op = &pfmfs_dentry_operations;
-+
-+	d_add(file->f_dentry, inode);
-+	file->f_vfsmnt = mntget(pfmfs_mnt);
-+	file->f_mapping = inode->i_mapping;
-+
-+	file->f_op = &pfm_file_ops;
-+	file->f_mode = FMODE_READ;
-+	file->f_flags = O_RDONLY;
-+	file->f_pos  = 0;
-+
-+	*cfile = file;
-+
-+	return fd;
-+out:
-+	if (file)
-+		put_filp(file);
-+	put_unused_fd(fd);
-+	return ret;
-+}
---- linux-2.6.17.1.orig/perfmon/perfmon_syscalls.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17.1/perfmon/perfmon_syscalls.c	2006-06-21 04:22:51.000000000 -0700
-@@ -0,0 +1,644 @@
-+/*
-+ * perfmon_syscalls.c: perfmon2 system call interface
-+ *
-+ * This file implements the perfmon2 interface which
-+ * provides access to the hardware performance counters
-+ * of the host processor.
-+ *
-+ * The initial version of perfmon.c was written by
-+ * Ganesh Venkitachalam, IBM Corp.
-+ *
-+ * Then it was modified for perfmon-1.x by Stephane Eranian and
-+ * David Mosberger, Hewlett Packard Co.
-+ *
-+ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
-+ * by Stephane Eranian, Hewlett Packard Co.
-+ *
-+ * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *                David Mosberger-Tang <davidm@hpl.hp.com>
-+ *
-+ * More information about perfmon available at:
-+ * 	http://www.hpl.hp.com/research/linux/perfmon
-+ */
 +#include <linux/kernel.h>
++#include <linux/smp_lock.h>
++#include <linux/proc_fs.h>
++#include <linux/list.h>
++#include <linux/version.h>
 +#include <linux/perfmon.h>
-+#include <asm/uaccess.h>
++#include <linux/device.h>
++#include <linux/cpu.h>
 +
-+int pfm_check_task_state(struct pfm_context *ctx, int check_mask,
-+			 unsigned long *flags)
++#include <asm/bitops.h>
++#include <asm/errno.h>
++#include <asm/processor.h>
++
++struct pfm_attribute {
++	struct attribute attr;
++	ssize_t (*show)(void *, char *);
++	ssize_t (*store)(void *, const char *, size_t);
++};
++#define to_attr(n) container_of(n, struct pfm_attribute, attr);
++
++#define PFM_RO_ATTR(_name) \
++struct pfm_attribute attr_##_name = __ATTR_RO(_name)
++
++#define PFM_RW_ATTR(_name,_mode,_show,_store) 			\
++struct pfm_attribute attr_##_name = __ATTR(_name,_mode,_show,_store);
++
++static int pfm_sysfs_init_done;	/* true when pfm_sysfs_init() completed */
++
++static void pfm_sysfs_init_percpu(int i);
++
++int pfm_sysfs_add_pmu(struct _pfm_pmu_config *pmu);
++
++struct pfm_controls pfm_controls = {
++	.sys_group = PFM_GROUP_PERM_ANY,
++	.task_group = PFM_GROUP_PERM_ANY,
++	.arg_size_max = PAGE_SIZE,
++	.smpl_buf_size_max = ~0,
++};
++EXPORT_SYMBOL(pfm_controls);
++
++DECLARE_PER_CPU(struct pfm_stats, pfm_stats);
++
++static struct kobject pfm_kernel_kobj, pfm_kernel_fmt_kobj;
++
++static void pfm_reset_stats(void)
 +{
-+	struct task_struct *task;
-+	unsigned long local_flags, new_flags;
-+	int state, old_state;
++	struct pfm_stats *st;
++	int m;
 +
-+recheck:
++	for_each_online_cpu(m) {
++
++		st = &per_cpu(pfm_stats,m);
++		/*
++		 * cannot use memset because of kobj member
++		 */
++		st->pfm_ovfl_intr_replay_count = 0;
++		st->pfm_ovfl_intr_regular_count = 0;
++		st->pfm_ovfl_intr_all_count = 0;
++		st->pfm_ovfl_intr_cycles = 0;
++		st->pfm_ovfl_intr_phase1 = 0;
++		st->pfm_ovfl_intr_phase2 = 0;
++		st->pfm_ovfl_intr_phase3 = 0;
++		st->pfm_fmt_handler_calls = 0;
++		st->pfm_fmt_handler_cycles = 0;
++		st->pfm_set_switch_count = 0;
++		st->pfm_set_switch_cycles = 0;
++		st->pfm_handle_timeout_count = 0;
++	}
++}
++
++
++static ssize_t pfm_fmt_attr_show(struct kobject *kobj,
++		struct attribute *attr, char *buf)
++{
++	struct pfm_smpl_fmt *fmt = to_smpl_fmt(kobj);
++	struct pfm_attribute *attribute = to_attr(attr);
++	return attribute->show ? attribute->show(fmt, buf) : -EIO;
++}
++
++static ssize_t pfm_pmu_attr_show(struct kobject *kobj,
++		struct attribute *attr, char *buf)
++{
++	struct _pfm_pmu_config *pmu= to_pmu(kobj);
++	struct pfm_attribute *attribute = to_attr(attr);
++	return attribute->show ? attribute->show(pmu, buf) : -EIO;
++}
++
++static ssize_t pfm_stats_attr_show(struct kobject *kobj,
++		struct attribute *attr, char *buf)
++{
++	struct pfm_stats *st = to_stats(kobj);
++	struct pfm_attribute *attribute = to_attr(attr);
++	return attribute->show ? attribute->show(st, buf) : -EIO;
++}
++
++static ssize_t pfm_stats_attr_store(struct kobject *kobj,
++		struct attribute *attr, const char *buf, size_t count)
++{
++	struct pfm_stats *st = to_stats(kobj);
++	struct pfm_attribute *attribute = to_attr(attr);
++	return attribute->store ? attribute->store(st, buf, count) : -EIO;
++}
++
++static struct sysfs_ops pfm_fmt_sysfs_ops = {
++	.show = pfm_fmt_attr_show,
++};
++
++static struct sysfs_ops pfm_pmu_sysfs_ops = {
++	.show = pfm_pmu_attr_show,
++};
++
++static struct sysfs_ops pfm_stats_sysfs_ops = {
++	.show  = pfm_stats_attr_show,
++	.store = pfm_stats_attr_store,
++};
++
++static struct kobj_type pfm_fmt_ktype = {
++	.sysfs_ops = &pfm_fmt_sysfs_ops,
++};
++
++static struct kobj_type pfm_pmu_ktype = {
++	.sysfs_ops = &pfm_pmu_sysfs_ops,
++};
++
++static struct kobj_type pfm_stats_ktype = {
++	.sysfs_ops = &pfm_stats_sysfs_ops,
++};
++
++decl_subsys_name(pfm_fmt, pfm_fmt, &pfm_fmt_ktype, NULL);
++decl_subsys_name(pfm_pmu, pfm_pmu, &pfm_pmu_ktype, NULL);
++decl_subsys_name(pfm_stats, pfm_stats, &pfm_stats_ktype, NULL);
++
++static ssize_t version_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%u.%u\n",  PFM_VERSION_MAJ, PFM_VERSION_MIN);
++}
++
++static ssize_t pmd_max_fast_arg_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%u\n",  PFM_PMD_ARG);
++}
++
++static ssize_t pmc_max_fast_arg_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%u\n",  PFM_PMC_ARG);
++}
++
++static ssize_t pmu_model_show(void *info, char *buf)
++{
++	return pfm_sysfs_session_show(buf, PAGE_SIZE, 0);
++}
++
++static ssize_t counter_width_show(void *info, char *buf)
++{
++	return pfm_sysfs_session_show(buf, PAGE_SIZE, 1);
++}
++
++static ssize_t task_sessions_count_show(void *info, char *buf)
++{
++	return pfm_sysfs_session_show(buf, PAGE_SIZE, 2);
++}
++
++static ssize_t sys_sessions_count_show(void *info, char *buf)
++{
++	return pfm_sysfs_session_show(buf, PAGE_SIZE, 3);
++}
++
++static ssize_t smpl_buffer_mem_show(void *info, char *buf)
++{
++	return pfm_sysfs_session_show(buf, PAGE_SIZE, 4);
++}
++
++static ssize_t debug_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.debug);
++}
++
++static ssize_t debug_store(void *info, const char *buf, size_t sz)
++{
++	int d;
++
++	if (sscanf(buf,"%d", &d) != 1)
++		return -EINVAL;
++
++	pfm_controls.debug = d;
++
++	if (d == 0)
++		pfm_reset_stats();
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t debug_ovfl_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.debug_ovfl);
++}
++
++static ssize_t debug_ovfl_store(void *info, const char *buf, size_t sz)
++{
++	int d;
++
++	if (sscanf(buf,"%d", &d) != 1)
++		return -EINVAL;
++
++	pfm_controls.debug_ovfl = d;
++
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t reset_stats_show(void *info, char *buf)
++{
++	buf[0]='0';
++	buf[1]='\0';
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t reset_stats_store(void *info, const char *buf, size_t count)
++{
++	pfm_reset_stats();
++	return count;
++}
++
++static ssize_t expert_mode_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.expert_mode);
++}
++
++static ssize_t expert_mode_store(void *info, const char *buf, size_t sz)
++{
++	int d;
++
++	if (sscanf(buf,"%d", &d) != 1)
++		return -EINVAL;
++
++	pfm_controls.expert_mode = d;
++
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t sys_group_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.sys_group);
++}
++
++static ssize_t sys_group_store(void *info, const char *buf, size_t sz)
++{
++	int d;
++
++	if (sscanf(buf,"%d", &d) != 1)
++		return -EINVAL;
++
++	pfm_controls.sys_group = d;
++
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t task_group_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.task_group);
++}
++
++static ssize_t task_group_store(void *info, const char *buf, size_t sz)
++{
++	int d;
++
++	if (sscanf(buf,"%d", &d) != 1)
++		return -EINVAL;
++
++	pfm_controls.task_group = d;
++
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t buf_size_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.expert_mode);
++}
++
++static ssize_t buf_size_store(void *info, const char *buf, size_t sz)
++{
++	size_t d;
++
++	if (sscanf(buf,"%zu", &d) != 1)
++		return -EINVAL;
 +	/*
-+	 * task is NULL for system-wide context
++	 * we impose a page as the minimum
 +	 */
-+	task = ctx->task;
-+	state = ctx->state;
-+	local_flags = *flags;
++	if (d < PAGE_SIZE)
++		return -EINVAL;
 +
-+	PFM_DBG("state=%d [%d] task_state=%ld check_mask=0x%x",
-+		state,
-+		task ? task->pid : -1,
-+		task ? task->state : -1, check_mask);
++	pfm_controls.smpl_buf_size_max = d;
 +
-+	if (state == PFM_CTX_UNLOADED)
-+		return 0;
-+	/*
-+	 * no command can operate on a zombie context
-+	 */
-+	if (state == PFM_CTX_ZOMBIE)
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t arg_size_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.expert_mode);
++}
++
++static ssize_t arg_size_store(void *info, const char *buf, size_t sz)
++{
++	size_t d;
++
++	if (sscanf(buf,"%zu", &d) != 1)
 +		return -EINVAL;
 +
 +	/*
-+	 * at this point, state is PFM_CTX_LOADED or PFM_CTX_MASKED
++	 * we impose a page as the minimum
 +	 */
-+
-+	/*
-+	 * some commands require the context to be unloaded to operate
-+	 */
-+	if (check_mask & PFM_CMD_UNLOADED)  {
-+		PFM_DBG("state=%d, cmd needs unloaded", state);
-+		return -EBUSY;
-+	}
-+
-+	/*
-+	 * self-monitoring always ok.
-+	 */
-+	if (task == current)
-+		return 0;
-+
-+	/*
-+	 * for syswide, we accept if running on the cpu the context is bound
-+	 * to. When monitoring another thread, must wait until stopped.
-+	 */
-+	if (ctx->flags.system) {
-+		if (ctx->cpu != smp_processor_id())
-+			return -EBUSY;
-+		return 0;
-+	}
-+
-+	/*
-+	 * monitoring another thread
-+	 */
-+	if (state == PFM_CTX_MASKED && (check_mask & PFM_CMD_UNLOAD) == 0)
-+		return 0;
-+	/*
-+	 * state is PFM_CTX_LOADED.
-+	 *
-+	 * We could lift this restriction for UP but it would mean that
-+	 * the user has no guarantee the task would not run between
-+	 * two successive calls to perfmonctl(). That's probably OK.
-+	 * If this user wants to ensure the task does not run, then
-+	 * the task must be stopped.
-+	 */
-+	if (check_mask & PFM_CMD_STOPPED) {
-+		if ((task->state != TASK_STOPPED)
-+		     && (task->state != TASK_TRACED)) {
-+			PFM_DBG("[%d] task not in stopped state", task->pid);
-+			return -EBUSY;
-+		}
-+		/*
-+		 * task is now stopped, wait for ctxsw out
-+		 *
-+		 * This is an interesting point in the code.
-+		 * We need to unprotect the context because
-+		 * the pfm_ctxswout_thread() routines needs to grab
-+		 * the same lock. There are danger in doing
-+		 * this because it leaves a window open for
-+		 * another task to get access to the context
-+		 * and possibly change its state. The one thing
-+		 * that is not possible is for the context to disappear
-+		 * because we are protected by the VFS layer, i.e.,
-+		 * get_fd()/put_fd().
-+		 */
-+		old_state = state;
-+
-+		PFM_DBG("going wait_inactive for [%d] state=%ld flags=0x%lx",
-+			task->pid,
-+			task->state,
-+			local_flags);
-+
-+		spin_unlock_irqrestore(&ctx->lock, local_flags);
-+
-+		wait_task_inactive(task);
-+
-+		spin_lock_irqsave(&ctx->lock, new_flags);
-+
-+		/*
-+		 * flags may be different than when we released the lock
-+		 */
-+		*flags = new_flags;
-+
-+		/*
-+		 * we must recheck to verify if state has changed
-+		 */
-+		if (ctx->state != old_state) {
-+			PFM_DBG("old_state=%d new_state=%d",
-+				old_state,
-+				ctx->state);
-+			goto recheck;
-+		}
-+	}
-+	return 0;
-+}
-+
-+int pfm_get_args(void __user *ureq, size_t sz, size_t max_sz, void *laddr,
-+		 void **req)
-+{
-+	void *addr;
-+
-+	if (sz <= max_sz) {
-+		*req = laddr;
-+		return copy_from_user(laddr, ureq, sz);
-+	}
-+
-+	if (unlikely(sz > pfm_controls.arg_size_max)) {
-+		PFM_DBG("argument too big %zu max=%zu",
-+			sz,
-+			pfm_controls.arg_size_max);
-+		return -E2BIG;
-+	}
-+
-+	addr = kmalloc(sz, GFP_KERNEL);
-+	if (unlikely(addr == NULL))
-+		return -ENOMEM;
-+
-+	if (copy_from_user(addr, ureq, sz)) {
-+		kfree(addr);
-+		return -EFAULT;
-+	}
-+	*req = addr;
-+
-+	return 0;
-+}
-+
-+int pfm_get_smpl_arg(pfm_uuid_t uuid, void __user *uaddr, size_t usize, void **arg,
-+		     struct pfm_smpl_fmt **fmt)
-+{
-+	struct pfm_smpl_fmt *f;
-+	void *addr = NULL;
-+	size_t sz;
-+	int ret;
-+
-+	if (!pfm_use_smpl_fmt(uuid))
-+		return 0;
-+
-+	/*
-+	 * find fmt and increase refcount
-+	 */
-+	f = pfm_smpl_fmt_get(uuid);
-+	if (f == NULL) {
-+		PFM_DBG("buffer format not found");
++	if (d < PAGE_SIZE)
 +		return -EINVAL;
-+	}
 +
-+	sz = f->fmt_arg_size;
++	pfm_controls.arg_size_max = d;
 +
-+	/*
-+	 * usize = -1 is for IA-64 backward compatibility
-+	 */
-+	ret = -EINVAL;
-+	if (sz != usize && usize != -1) {
-+		PFM_DBG("invalid arg size %zu, format expects %zu",
-+			usize, sz);
-+		goto error;
-+	}
++	return strnlen(buf, PAGE_SIZE);
++}
++
++/*
++ * /sys/kernel/perfmon attributes
++ */
++static PFM_RO_ATTR(version);
++static PFM_RO_ATTR(pmu_model);
++static PFM_RO_ATTR(counter_width);
++static PFM_RO_ATTR(task_sessions_count);
++static PFM_RO_ATTR(sys_sessions_count);
++static PFM_RO_ATTR(smpl_buffer_mem);
++static PFM_RO_ATTR(pmd_max_fast_arg);
++static PFM_RO_ATTR(pmc_max_fast_arg);
++
++static PFM_RW_ATTR(debug, 0644, debug_show, debug_store);
++static PFM_RW_ATTR(debug_ovfl, 0644, debug_ovfl_show, debug_ovfl_store);
++static PFM_RW_ATTR(reset_stats, 0644, reset_stats_show, reset_stats_store);
++static PFM_RW_ATTR(expert_mode, 0644, expert_mode_show, expert_mode_store);
++static PFM_RW_ATTR(sys_group, 0644, sys_group_show, sys_group_store);
++static PFM_RW_ATTR(task_group, 0644, task_group_show, task_group_store);
++static PFM_RW_ATTR(buf_size_max, 0644, buf_size_show, buf_size_store);
++static PFM_RW_ATTR(arg_size_max, 0644, arg_size_show, arg_size_store);
++
++static struct attribute *pfm_kernel_attrs[] = {
++	&attr_version.attr,
++	&attr_pmu_model.attr,
++	&attr_counter_width.attr,
++	&attr_task_sessions_count.attr,
++	&attr_sys_sessions_count.attr,
++	&attr_smpl_buffer_mem.attr,
++	&attr_pmd_max_fast_arg.attr,
++	&attr_pmc_max_fast_arg.attr,
++	&attr_debug.attr,
++	&attr_debug_ovfl.attr,
++	&attr_reset_stats.attr,
++	&attr_expert_mode.attr,
++	&attr_sys_group.attr,
++	&attr_task_group.attr,
++	&attr_buf_size_max.attr,
++	&attr_arg_size_max.attr,
++	NULL
++};
++
++static struct attribute_group pfm_kernel_attr_group = {
++	.attrs = pfm_kernel_attrs,
++};
++
++
++int pfm_sysfs_init(void)
++{
++	int i, ret;
 +	
-+	ret = -ENOMEM;
-+	addr = kmalloc(sz, GFP_KERNEL);
-+	if (addr == NULL)
-+		goto error;
-+
-+	ret = -EFAULT;
-+	if (copy_from_user(addr, uaddr, sz))
-+		goto error;
-+
-+	*arg = addr;
-+	*fmt = f;
-+	return 0;
-+
-+error:
-+	kfree(addr);
-+	pfm_smpl_fmt_put(f);
-+	return ret;
-+}
-+
-+asmlinkage long sys_pfm_create_context(struct pfarg_ctx __user *ureq,
-+				       void __user *uarg, size_t smpl_size)
-+{
-+	struct pfarg_ctx req;
-+	struct pfm_context *new_ctx;
-+	struct pfm_smpl_fmt *fmt = NULL;
-+	void *smpl_arg = NULL;
-+	int ret;
-+
-+	if (copy_from_user(&req, ureq, sizeof(req)))
-+		return -EFAULT;
-+
-+	ret = pfm_get_smpl_arg(req.ctx_smpl_buf_id, uarg, smpl_size,
-+			       &smpl_arg, &fmt);
-+	if (ret)
-+		goto abort;
-+
-+	ret = __pfm_create_context(&req, fmt, smpl_arg, PFM_NORMAL, NULL, &new_ctx);
-+
-+	/*
-+	 * copy_user return value overrides command return value
-+	 */
-+	if (!ret) {
-+		if (copy_to_user(ureq, &req, sizeof(req))) {
-+			pfm_undo_create_context_fd(req.ctx_fd, new_ctx);
-+			ret = -EFAULT;
-+		}
++	ret = subsystem_register(&pfm_fmt_subsys);
++	if (ret) {
++		PFM_INFO("cannot register pfm_fmt_subsys: %d", ret);
++		return ret;
 +	}
-+	kfree(smpl_arg);
-+abort:
-+	return ret;
++
++	ret = subsystem_register(&pfm_pmu_subsys);
++	if (ret) {
++		PFM_INFO("cannot register pfm_pmu_subsys: %d", ret);
++		subsystem_unregister(&pfm_fmt_subsys);
++		return ret;
++	}
++
++	ret = subsystem_register(&pfm_stats_subsys);
++	if (ret) {
++		PFM_INFO("cannot register pfm_statssubsys: %d", ret);
++		subsystem_unregister(&pfm_fmt_subsys);
++		subsystem_unregister(&pfm_pmu_subsys);
++		return ret;
++	}
++
++	kobject_init(&pfm_kernel_kobj);
++	kobject_init(&pfm_kernel_fmt_kobj);
++
++	pfm_kernel_kobj.parent = &kernel_subsys.kset.kobj;
++	kobject_set_name(&pfm_kernel_kobj, "perfmon");
++
++	pfm_kernel_fmt_kobj.parent = &pfm_kernel_kobj;
++	kobject_set_name(&pfm_kernel_fmt_kobj, "formats");
++
++	kobject_add(&pfm_kernel_kobj);
++	kobject_add(&pfm_kernel_fmt_kobj);
++
++	sysfs_create_group(&pfm_kernel_kobj, &pfm_kernel_attr_group);
++
++	for_each_online_cpu(i) {
++		pfm_sysfs_init_percpu(i);
++	}
++
++	pfm_sysfs_init_done = 1;
++
++	pfm_builtin_fmt_sysfs_add();
++
++	if (pfm_pmu_conf)
++		pfm_sysfs_add_pmu(pfm_pmu_conf);
++
++	return 0;
 +}
 +
-+asmlinkage long sys_pfm_write_pmcs(int fd, struct pfarg_pmc __user *ureq, int count)
++#define PFM_DECL_ATTR(name) \
++static ssize_t name##_show(void *info, char *buf) \
++{ \
++	struct pfm_stats *st = info;\
++	return snprintf(buf, PAGE_SIZE, "%llu\n", \
++			(unsigned long long)st->pfm_##name); \
++} \
++static PFM_RO_ATTR(name)
++
++/*
++ * per-cpu perfmon stats attributes
++ */
++PFM_DECL_ATTR(ovfl_intr_replay_count);
++PFM_DECL_ATTR(ovfl_intr_all_count);
++PFM_DECL_ATTR(ovfl_intr_cycles);
++PFM_DECL_ATTR(fmt_handler_calls);
++PFM_DECL_ATTR(fmt_handler_cycles);
++PFM_DECL_ATTR(set_switch_count);
++PFM_DECL_ATTR(set_switch_cycles);
++PFM_DECL_ATTR(handle_timeout_count);
++
++static ssize_t ovfl_intr_spurious_count_show(void *info, char *buf)
 +{
-+	struct pfm_context *ctx;
-+	struct pfarg_pmc pmcs[PFM_PMC_ARG];
-+	struct pfarg_pmc *req;
-+	unsigned long flags;
-+	size_t sz;
++	struct pfm_stats *st = info;
++	return snprintf(buf, PAGE_SIZE, "%llu\n",
++			(unsigned long long)(st->pfm_ovfl_intr_all_count
++					     - st->pfm_ovfl_intr_regular_count));
++}
++
++static ssize_t ovfl_intr_regular_count_show(void *info, char *buf)
++{
++	struct pfm_stats *st = info;
++	return snprintf(buf, PAGE_SIZE, "%llu\n",
++			(unsigned long long)(st->pfm_ovfl_intr_regular_count
++					     - st->pfm_ovfl_intr_replay_count));
++}
++
++static PFM_RO_ATTR(ovfl_intr_spurious_count);
++static PFM_RO_ATTR(ovfl_intr_regular_count);
++
++static struct attribute *pfm_cpu_attrs[] = {
++	&attr_ovfl_intr_spurious_count.attr,
++	&attr_ovfl_intr_replay_count.attr,
++	&attr_ovfl_intr_regular_count.attr,
++	&attr_ovfl_intr_all_count.attr,
++	&attr_ovfl_intr_cycles.attr,
++	&attr_fmt_handler_calls.attr,
++	&attr_fmt_handler_cycles.attr,
++	&attr_set_switch_count.attr,
++	&attr_set_switch_cycles.attr,
++	&attr_handle_timeout_count.attr,
++	NULL
++};
++
++static struct attribute_group pfm_cpu_attr_group = {
++	.attrs = pfm_cpu_attrs,
++};
++
++static void pfm_sysfs_init_percpu(int i)
++{
++	struct sys_device *cpudev;
++	struct pfm_stats *st;
++
++	cpudev = get_cpu_sysdev(i);
++	if (!cpudev)
++		return;
++
++	st = &per_cpu(pfm_stats, i);
++
++	kobject_init(&st->kobj);
++
++	st->kobj.parent = &cpudev->kobj;
++	kobject_set_name(&st->kobj, "perfmon");
++	kobj_set_kset_s(st, pfm_stats_subsys);
++
++	kobject_add(&st->kobj);
++
++	sysfs_create_group(&st->kobj, &pfm_cpu_attr_group);
++}
++
++static ssize_t uuid_show(void *data, char *buf)
++{
++	struct pfm_smpl_fmt *fmt = data;
++
++	return snprintf(buf, PAGE_SIZE, "%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x"
++			   "-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x\n",
++			fmt->fmt_uuid[0],
++			fmt->fmt_uuid[1],
++			fmt->fmt_uuid[2],
++			fmt->fmt_uuid[3],
++			fmt->fmt_uuid[4],
++			fmt->fmt_uuid[5],
++			fmt->fmt_uuid[6],
++			fmt->fmt_uuid[7],
++			fmt->fmt_uuid[8],
++			fmt->fmt_uuid[9],
++			fmt->fmt_uuid[10],
++			fmt->fmt_uuid[11],
++			fmt->fmt_uuid[12],
++			fmt->fmt_uuid[13],
++			fmt->fmt_uuid[14],
++			fmt->fmt_uuid[15]);
++}
++
++PFM_RO_ATTR(uuid);
++
++int pfm_sysfs_add_fmt(struct pfm_smpl_fmt *fmt)
++{
 +	int ret;
 +
-+	if (count < 0)
-+		return -EINVAL;
++	if (pfm_sysfs_init_done == 0)
++		return 0;
 +
-+	ctx = pfm_get_ctx(fd);
-+	if (unlikely(ctx == NULL))
-+		return -EBADF;
++	kobject_init(&fmt->kobj);
++	kobject_set_name(&fmt->kobj, fmt->fmt_name);
++	kobj_set_kset_s(fmt, pfm_fmt_subsys);
++	fmt->kobj.parent = &pfm_kernel_fmt_kobj;
 +
-+	sz = count*sizeof(*ureq);
++	ret = kobject_add(&fmt->kobj);
 +
-+	ret = pfm_get_args(ureq, sz, sizeof(pmcs), pmcs, (void **)&req);
-+	if (ret)
-+		goto error;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (ret == 0)
-+		ret = __pfm_write_pmcs(ctx, req, count);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	if (copy_to_user(ureq, req, sz))
-+		ret = -EFAULT;
-+
-+	if (count > PFM_PMC_ARG)
-+		kfree(req);
-+error:
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
++	return sysfs_create_file(&fmt->kobj, &attr_uuid.attr);
 +}
 +
-+asmlinkage long sys_pfm_write_pmds(int fd, struct pfarg_pmd __user *ureq, int count)
++int pfm_sysfs_remove_fmt(struct pfm_smpl_fmt *fmt)
 +{
-+	struct pfm_context *ctx;
-+	struct pfarg_pmd pmds[PFM_PMD_ARG];
-+	struct pfarg_pmd *req;
-+	unsigned long flags;
-+	size_t sz;
-+	int ret;
++	if (pfm_sysfs_init_done == 0)
++		return 0;
 +
-+	if (count < 0)
-+		return -EINVAL;
++	sysfs_remove_file(&fmt->kobj, &attr_uuid.attr);
 +
-+	ctx = pfm_get_ctx(fd);
-+	if (unlikely(ctx == NULL))
-+		return -EBADF;
++	kobject_del(&fmt->kobj);
 +
-+	sz = count*sizeof(*ureq);
-+
-+	ret = pfm_get_args(ureq, sz, sizeof(pmds), pmds, (void **)&req);
-+	if (ret)
-+		goto error;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (ret == 0)
-+		ret = __pfm_write_pmds(ctx, req, count, 0);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	if (copy_to_user(ureq, req, sz))
-+		ret = -EFAULT;
-+
-+	if (count > PFM_PMD_ARG)
-+		kfree(req);
-+error:
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
++	return 0;
 +}
 +
-+asmlinkage long sys_pfm_read_pmds(int fd, struct pfarg_pmd __user *ureq, int count)
++/*
++ * because the mappings can vary between one PMU and the other, we cannot really
++ * use an attribute per PMC to describe a mapping. Instead we have a single
++ * mappings attribute per PMU.
++ */
++static ssize_t mappings_show(void *data, char *buf)
 +{
-+	struct pfm_context *ctx;
-+	struct pfarg_pmd pmds[PFM_PMD_ARG];
-+	struct pfarg_pmd *req;
-+	unsigned long flags;
-+	size_t sz;
-+	int ret, state;
++	struct _pfm_pmu_config *pmu = data;
++	size_t s = PAGE_SIZE;
++	u32 n = 0, i;
 +
-+	if (count < 0)
-+		return -EINVAL;
++	for (i = 0; i < PFM_MAX_PMCS;  i++) {
 +
-+	ctx = pfm_get_ctx(fd);
-+	if (unlikely(ctx == NULL))
-+		return -EBADF;
++		if ((pmu->pmc_desc[i].type & PFM_REG_I) == 0)
++			continue;
 +
-+	sz = count*sizeof(*ureq);
++		n = snprintf(buf, s, "PMC%u:0x%llx:0x%llx:%s\n",
++			     i,
++			     (unsigned long long)pfm_pmu_conf->pmc_desc[i].dfl_val,
++			     (unsigned long long)pfm_pmu_conf->pmc_desc[i].rsvd_msk,
++			     pfm_pmu_conf->pmc_desc[i].desc);
++		buf += n;
++		if (n > s)
++			goto skip;
++		s -= n;
++	}
 +
-+	ret = pfm_get_args(ureq, sz, sizeof(pmds), pmds, (void **)&req);
-+	if (ret)
-+		goto error;
++	for (i = 0; i < PFM_MAX_PMDS;  i++) {
 +
-+	spin_lock(&ctx->lock);
++		if ((pmu->pmd_desc[i].type & PFM_REG_I) == 0)
++			continue;
 +
-+	state = ctx->state;
-+	if (state == PFM_CTX_LOADED)
-+		local_irq_save(flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (ret == 0)
-+		ret = __pfm_read_pmds(ctx, req, count);
-+
-+	if (state == PFM_CTX_LOADED)
-+		local_irq_restore(flags);
-+
-+	spin_unlock(&ctx->lock);
-+
-+	if (copy_to_user(ureq, req, sz))
-+		ret = -EFAULT;
-+
-+	if (count > PFM_PMD_ARG)
-+		kfree(req);
-+error:
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
++		n = snprintf(buf, s, "PMD%u:0x%llx:0x%llx:%s\n",
++			     i,
++			     (unsigned long long)pfm_pmu_conf->pmd_desc[i].dfl_val,
++			     (unsigned long long)pfm_pmu_conf->pmd_desc[i].rsvd_msk,
++			     pfm_pmu_conf->pmd_desc[i].desc);
++		buf += n;
++		if (n > s)
++			break;
++		s -= n;
++	}
++skip:
++	return PAGE_SIZE - s;
 +}
 +
-+asmlinkage long sys_pfm_restart(int fd)
++PFM_RO_ATTR(mappings);
++
++int pfm_sysfs_add_pmu(struct _pfm_pmu_config *pmu)
 +{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret = 0;
++	if (pfm_sysfs_init_done == 0)
++		return 0;
 +
-+	ctx = pfm_get_ctx(fd);
-+	if (unlikely(ctx == NULL))
-+		return -EBADF;
++	kobject_init(&pmu->kobj);
++	kobject_set_name(&pmu->kobj, "pmu_desc");
++	kobj_set_kset_s(pmu, pfm_pmu_subsys);
++	pmu->kobj.parent = &pfm_kernel_kobj;
 +
-+	spin_lock_irqsave(&ctx->lock, flags);
++	kobject_add(&pmu->kobj);
 +
-+	ret = pfm_check_task_state(ctx, 0, &flags);
-+	if (ret == 0)
-+		ret = __pfm_restart(ctx);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
++	return sysfs_create_file(&pmu->kobj, &attr_mappings.attr);
 +}
 +
-+
-+asmlinkage long sys_pfm_stop(int fd)
++int pfm_sysfs_remove_pmu(struct _pfm_pmu_config *pmu)
 +{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
++	if (pfm_sysfs_init_done == 0)
++		return 0;
 +
-+	ctx = pfm_get_ctx(fd);
-+	if (unlikely(ctx == NULL))
-+		return -EBADF;
++	sysfs_remove_file(&pmu->kobj, &attr_mappings.attr);
 +
-+	spin_lock_irqsave(&ctx->lock, flags);
++	kobject_del(&pmu->kobj);
 +
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (ret == 0)
-+		ret = __pfm_stop(ctx);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
-+}
-+
-+asmlinkage long sys_pfm_start(int fd, struct pfarg_start __user *ureq)
-+{
-+	struct pfm_context *ctx;
-+	struct pfarg_start req;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	ctx = pfm_get_ctx(fd);
-+	if (ctx == NULL)
-+		return -EBADF;
-+
-+	/*
-+	 * the one argument is actually optional
-+	 */
-+	if (ureq && copy_from_user(&req, ureq, sizeof(req)))
-+		return -EFAULT;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (ret == 0)
-+		ret = __pfm_start(ctx, ureq ? &req : NULL);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
-+}
-+
-+
-+
-+asmlinkage long sys_pfm_load_context(int fd, struct pfarg_load __user *ureq)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	struct pfarg_load req;
-+	int ret;
-+
-+	ctx = pfm_get_ctx(fd);
-+	if (ctx == NULL)
-+		return -EBADF;
-+
-+	if (copy_from_user(&req, ureq, sizeof(req)))
-+		return -EFAULT;
-+
-+	/*
-+	 * irqsave is required to avoid race in case context is already
-+	 * loaded or with switch timeout in the case of self-monitoring
-+	 */
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED, &flags);
-+	if (ret == 0)
-+		ret = __pfm_load_context(ctx, &req);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
-+}
-+
-+
-+asmlinkage long sys_pfm_unload_context(int fd)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	ctx = pfm_get_ctx(fd);
-+	if (ctx == NULL)
-+		return -EBADF;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_STOPPED|PFM_CMD_UNLOAD, &flags);
-+	if (ret == 0)
-+		ret = __pfm_unload_context(ctx, 0);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
-+}
-+
-+asmlinkage long sys_pfm_delete_evtsets(int fd, struct pfarg_setinfo __user *ureq, int count)
-+{
-+	struct pfm_context *ctx;
-+	struct pfarg_setinfo *req;
-+	unsigned long flags;
-+	size_t sz;
-+	int ret;
-+
-+	if (count < 0)
-+		return -EINVAL;
-+
-+	ctx = pfm_get_ctx(fd);
-+	if (ctx == NULL)
-+		return -EBADF;
-+
-+	sz = count*sizeof(*ureq);
-+
-+	ret = pfm_get_args(ureq, sz, 0, NULL, (void **)&req);
-+	if (ret)
-+		goto error;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_UNLOADED, &flags);
-+	if (ret == 0)
-+		ret = __pfm_delete_evtsets(ctx, req, count);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	if (copy_to_user(ureq, req, sz))
-+		ret = -EFAULT;
-+
-+	kfree(req);
-+
-+error:
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
-+}
-+
-+asmlinkage long sys_pfm_create_evtsets(int fd, struct pfarg_setdesc __user *ureq, int count)
-+{
-+	struct pfm_context *ctx;
-+	struct pfarg_setdesc *req;
-+	unsigned long flags;
-+	size_t sz;
-+	int ret;
-+
-+	if (count < 0)
-+		return -EINVAL;
-+
-+	ctx = pfm_get_ctx(fd);
-+	if (ctx == NULL)
-+		return -EBADF;
-+
-+	sz = count*sizeof(*ureq);
-+
-+	ret = pfm_get_args(ureq, sz, 0, NULL, (void **)&req);
-+	if (ret)
-+		goto error;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_UNLOADED, &flags);
-+	if (ret == 0)
-+		ret = __pfm_create_evtsets(ctx, req, count);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	if (copy_to_user(ureq, req, sz))
-+		ret = -EFAULT;
-+
-+	kfree(req);
-+
-+error:
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
-+}
-+
-+asmlinkage long  sys_pfm_getinfo_evtsets(int fd, struct pfarg_setinfo __user *ureq, int count)
-+{
-+	struct pfm_context *ctx;
-+	struct pfarg_setinfo *req;
-+	unsigned long flags;
-+	size_t sz;
-+	int ret;
-+
-+	if (count < 0)
-+		return -EINVAL;
-+
-+	ctx = pfm_get_ctx(fd);
-+	if (ctx == NULL)
-+		return -EBADF;
-+
-+	sz = count*sizeof(*ureq);
-+
-+	ret = pfm_get_args(ureq, sz, 0, NULL, (void **)&req);
-+	if (ret)
-+		goto error;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, 0, &flags);
-+	if (ret == 0)
-+		ret = __pfm_getinfo_evtsets(ctx, req, count);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	if (copy_to_user(ureq, req, sz))
-+		ret = -EFAULT;
-+
-+	kfree(req);
-+error:
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
++	return 0;
 +}

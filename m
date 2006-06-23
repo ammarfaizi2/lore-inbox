@@ -1,55 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbWFWMfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWFWMm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932560AbWFWMfn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 08:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWFWMfn
+	id S964779AbWFWMm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 08:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWFWMm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 08:35:43 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49091 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932560AbWFWMfn (ORCPT
+	Fri, 23 Jun 2006 08:42:29 -0400
+Received: from ns2.suse.de ([195.135.220.15]:49604 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751278AbWFWMm3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 08:35:43 -0400
+	Fri, 23 Jun 2006 08:42:29 -0400
 From: Andi Kleen <ak@suse.de>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Subject: Re: [PATCH] i386/x86-64 Add nmi watchdog support for new Intel CPUs
-Date: Fri, 23 Jun 2006 14:35:38 +0200
+To: discuss@x86-64.org, rohitseth@google.com
+Subject: Re: [discuss] Re: [RFC, patch] i386: vgetcpu(), take 2
+Date: Fri, 23 Jun 2006 14:42:23 +0200
 User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <20060514185023.A16695@unix-os.sc.intel.com>
-In-Reply-To: <20060514185023.A16695@unix-os.sc.intel.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+References: <200606210329_MC3-1-C305-E008@compuserve.com> <200606230014.17067.ak@suse.de> <1151017804.14536.98.camel@galaxy.corp.google.com>
+In-Reply-To: <1151017804.14536.98.camel@galaxy.corp.google.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606231435.38496.ak@suse.de>
+Message-Id: <200606231442.23073.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 May 2006 03:50, Venkatesh Pallipadi wrote:
-> 
-> [Sorry if this is a duplicate. I tried sending this mail two days back and I don't
-> see it on the mailing list yet. So, resending it.]
-> 
-> 
-> 
-> Intel now has support for Architectural Performance Monitoring Counters
-> ( Refer to IA-32 Intel Architecture Software Developer's Manual
-> http://www.intel.com/design/pentium4/manuals/253669.htm ). This
-> feature is present starting from Intel Core Duo and Intel Core Solo processors.
-> 
-> What this means is, the performance monitoring counters and some performance
-> monitoring events are now defined in an architectural way (using cpuid).
-> And there will be no need to check for family/model etc for these architectural
-> events.
-> 
-> Below is the patch to use this performance counters in nmi watchdog driver.
-> Patch handles both i386 and x86-64 kernels.
+On Friday 23 June 2006 01:10, Rohit Seth wrote:
 
-FYI - i went back to this old patch again because I temporarily dropped
-the NMI rework for 2.6.18. Please let me know if it misses any changes
-that you added in later kernels (except for the merge with the newer
-code base)
+> > > I agree that we should not overload a single call (though cpu, package
+> > > and node numbers do belong in one category IMO).  We can have multiple
+> > > calls if that is required as long as there is an efficient mechanism to
+> > > provide that information.
+> > 
+> > The current mechanism doesn't scale to much more calls, but I guess
+> > i'll have to do a vDSO sooner or later.
+> >  
+> > > Why maintain that extra logic in user space when kernel can easily give
+> > > that information.
+> > 
+> > It already does.
+> >  
+> 
+> I'm missing your point here.  How and where?
+
+In /proc/cpuinfo. 
+
+Suresh and others even put a lot of thought into how to present the information
+there.
+
+Or did you just refer to the overhead of writing a /proc parser?
+ 
+> > > > I've been pondering to put some more information about that
+> > > > in the ELF aux vector, but exporting might work too. I suppose
+> > > > exporting would require the vDSO first to give a sane interface.
+> > > > 
+> > > Can you please tell me what more information you are thinking of putting
+> > > in aux vector?
+> > 
+> > One proposal (not fully fleshed out was) number of siblings / sockets / nodes 
+> > I don't think bitmaps would work well there (and if someone really needs
+> > those they can read cpuinfo again) 
+> > 
+> 
+> This is exactly the point, why do that expensive /proc operation when
+> you can do a quick vsyscall and get all of that information.  I'm not
+> sure if Aux is the right direction.
+
+It's already used for this at least (hwcap etc.) 
+
+vDSO might be better too, but I haven't thought too much about it yet
+
+> 
+> > This is mostly for OpenMP and tuning of a few functions (e.g. on AMD
+> > the memory latencies varies with the number of nodes so some functions
+> > can be tuned in different ways based on that) 
+> > 
+> > > You are absolutely right that the mechanism I'm proposing makes sense
+> > > only if we have more fields AND if any of those fields are dynamically
+> > > changing.  But this is a generic mechanism that could be extended to
+> > > share any user visible information in efficient way.  Once we have this
+> > > in place then information like whole cpuinfo, percpu interrupts etc. can
+> > > be retrieved easily.
+> > 
+> > The problem with exposing too much is that it might be a nightmare
+> > to guarantee a stable ABI for this. At least it would
+> > constrain the kernel internally. Probably less is better here. 
+> > 
+> 
+> There will be (in all probability) requests to include as much as
+> possible, 
+
+Yes but that doesn't mean all these requests make sense and should
+be actually followed :)
+
+
+> but I think that should be manageable with sensible API.
+
+Not sure. Leaner interfaces are really better here.
+
+It's one of the lessons I learned from libnuma - i provide a lot of tools,
+but nearly all people are perfectly satisfied with the total basics. So
+it's better to start small and only add stuff when there is really a clear
+use case.
+
+
+> Okay. I just cooked that example for some monitoring process to find out
+> the interrupts /sec on that CPU.  But as you mentioned above sibling,
+> sockets, nodes, flags, and even other characteristics like current
+> p-state are all important information that will help applications
+> sitting in user land (even if some of them will be used only couple of
+> times in the life of a process).
+
+Ok you want faster monitoring applications? Some faster way than 
+/proc for some stuff probably makes sense - but I don't think shared
+mappings are the right way for it.
+
+There's still a lot of other possibilities for this like relayfs 
+or binary /proc files 
+ 
+> Side note: I don't want to delay the vgetcpu call into mainline because
+> of this discussion
+I'll probably delay it after 2.6.18
+
+> (as long as there is no cpuid and tcache in that 
+> call).
+
+What do you not like about tcache? 
 
 -Andi
 

@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWFWOEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWFWOFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWFWOEg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 10:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWFWOEg
+	id S1750720AbWFWOFq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 10:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWFWOFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 10:04:36 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:39833 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750713AbWFWOEe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 10:04:34 -0400
-Subject: Re: [PATCH v3 1/7] AMSO1100 Low Level Driver.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: rdreier@cisco.com, mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <1151071005.7808.39.camel@stevo-desktop>
-References: <20060620203050.31536.5341.stgit@stevo-desktop>
-	 <20060620203055.31536.15131.stgit@stevo-desktop>
-	 <1150836226.2891.231.camel@laptopd505.fenrus.org>
-	 <1151070290.7808.33.camel@stevo-desktop>
-	 <1151070532.3204.10.camel@laptopd505.fenrus.org>
-	 <1151071005.7808.39.camel@stevo-desktop>
-Content-Type: text/plain
-Date: Fri, 23 Jun 2006 16:04:31 +0200
-Message-Id: <1151071471.3204.12.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 23 Jun 2006 10:05:46 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:21942 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750720AbWFWOFp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 10:05:45 -0400
+Message-ID: <449BF508.9040207@draigBrady.com>
+Date: Fri, 23 Jun 2006 15:04:56 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Junio C Hamano <junkio@cox.net>,
+       Git Mailing List <git@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What's in git.git and announcing v1.4.1-rc1
+References: <7v8xnpj7hg.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.64.0606221301500.5498@g5.osdl.org> <Pine.LNX.4.63.0606231305000.29667@wbgn013.biozentrum.uni-wuerzburg.de>
+In-Reply-To: <Pine.LNX.4.63.0606231305000.29667@wbgn013.biozentrum.uni-wuerzburg.de>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-23 at 08:56 -0500, Steve Wise wrote:
-> On Fri, 2006-06-23 at 15:48 +0200, Arjan van de Ven wrote:
-> > > > > +	/* Tell HW to xmit */
-> > > > > +	__raw_writeq(cpu_to_be64(mapaddr), elem->hw_desc + C2_TXP_ADDR);
-> > > > > +	__raw_writew(cpu_to_be16(maplen), elem->hw_desc + C2_TXP_LEN);
-> > > > > +	__raw_writew(cpu_to_be16(TXP_HTXD_READY), elem->hw_desc + C2_TXP_FLAGS);
-> > > > 
-> > > > or here
-> > > > 
-> > > 
-> > > No need here.  This logic submits the packet for transmission.  We don't
-> > > assume it is transmitted until we (after a completion interrupt usually)
-> > > read back the HTXD entry and see the TXP_HTXD_DONE bit set (see
-> > > c2_tx_interrupt()). 
-> > 
-> > ... but will that interrupt happen at all if these 3 writes never hit
-> > the hardware?
-> > 
+Johannes Schindelin wrote:
+> Hi,
 > 
-> I thought the posted write WILL eventually get to adapter memory.  Not
-> stall forever cached in a bridge.  I'm wrong?
+> On Thu, 22 Jun 2006, Linus Torvalds wrote:
+> 
+> 
+>>On Thu, 22 Jun 2006, Junio C Hamano wrote:
+>>
+>>> - diff --color (Johannes).
+>>
+>> - default to red/green for old/new lines. That's the norm, I'd think.
+> 
+> 
+> ... and which happens to be useless for 10% of the male population (and 
+> even more if you look specifically at Asian people). But then, I just 
+> pasted that part from somewhere else.
 
-I'm not sure there is a theoretical upper bound.... 
+:)
 
-(and if it's several msec per bridge, then you have a lot of latency
-anyway)
+So 10% of the male population need to learn
+traffic light positions rather than colours?
 
+I'm red/green colour blind which means I can't
+distinguish _subtley_ different shades of red and green.
+
+vim is another fondue fork offender as it merges
+syntax highlighting and diff colours in diff mode (vimdiff).
+I put the following in ~/.vimrc to disable that madness:
+
+if &diff
+    "I'm only interested in diff colours
+    syntax off
+endif
+
+Pádraig.

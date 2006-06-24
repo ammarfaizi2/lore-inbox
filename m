@@ -1,116 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWFXB5V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWFXB7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWFXB5V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 21:57:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWFXB5U
+	id S1750829AbWFXB7p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 21:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWFXB7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 21:57:20 -0400
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:62348 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750826AbWFXB5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 21:57:20 -0400
-Date: Fri, 23 Jun 2006 21:54:00 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-To: Andrew Morton <akpm@osdl.org>
-Cc: Frederik Deweerdt <deweerdt@free.fr>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-pm <linux-pm@vger.kernel.org>
-Message-ID: <200606232156_MC3-1-C354-D5AE@compuserve.com>
+	Fri, 23 Jun 2006 21:59:45 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:15284 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750829AbWFXB7o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 21:59:44 -0400
+Message-ID: <449C9C6D.7050905@zytor.com>
+Date: Fri, 23 Jun 2006 18:59:09 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org,
+       76306.1226@compuserve.com, ak@muc.de, akpm@osdl.org
+Subject: Re: i386 ABI and the stack
+References: <787b0d920606231837k5d57da8ct5c511def6c035176@mail.gmail.com> <Pine.LNX.4.64.0606231844460.6483@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606231844460.6483@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060623023124.138d432f.akpm@osdl.org>
-
-On Fri, 23 Jun 2006 02:31:24 -0700, Andrew Morton wrote:
-
-> > > Code: 05 c4 42 43 c0 31 43 43 c0 c3 8b 2d 68 6e 54 c0 8b 1d 60 6e 54 c0 8b 35 6c 6e 54 c0 8b 3d 70 6d 54 c0 ff 35 74 6e 54 c0 9d c3 90 <e8> 6d 38 ea ff e8 a2 ff ff ff 6a 03 e8 ec b6 de ff 83 c4 04 c3
-> > > EIP: [c043431c>] do_suspend_lowlevel+0x0/0x15 SS:ESP 0068:f6cb6ea4
-> >   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> > 
-> > Ha, wait a moment, this is interesting line. Can you trace down which
-> > instruction causes this?
-> > 
-> > We recently changed pagetable handling during swsusp, perhaps thats
-> > it? It went to Linus few minutes ago...
+Linus Torvalds wrote:
 > 
-> That's a good possibility.  It does appear to be oopsing at the first
-> instruction of arch/i386/kernel/acpi/wakeup.S:do_suspend_lowlevel(). 
-> Perhaps there's enough info in that oops trace to tell us whether it was
-> the instruction fetch which oopsed.
+> We always have. It's the x86 ABI.
 > 
-> One wonders whether this will help...
+> The x86-64 ABI has a 128-byte(*) zone that is safe from signals etc, so 
+> you can use a small amount of stack below the stackpointer safely. Not so 
+> on x86.
 > 
-> --- a/arch/i386/kernel/acpi/wakeup.S~a
-> +++ a/arch/i386/kernel/acpi/wakeup.S
-> @@ -270,6 +270,7 @@ ALIGN
->  ENTRY(saved_magic)   .long   0
->  ENTRY(saved_eip)     .long   0
->  
-> +.text
->  save_registers:
->       leal    4(%esp), %eax
->       movl    %eax, saved_context_esp
-> @@ -304,6 +305,7 @@ ret_point:
->       call    restore_processor_state
->       ret
->  
-> +.data
->  ALIGN
->  # saved registers
->  saved_gdt:   .long   0,0
+> 		Linus
+> 
+> (*) That "128 byte" is from memory. Maybe it's bigger.
 
+Adding a small redzone like this to i386 would be easy, though -- just 
+drop the stack pointer by that much when creating a signal frame.  128 
+bytes isn't enough to interfere with libraries.
 
-This is in 2.6.17-mm1 already:
+Unlike other enhancements that have been proposed to the i386 ABI (like 
+regparm), this has the advantage of being fully backwards-compatible 
+with old binaries and libraries.  As long as you have a kernel that 
+knows to preserve the redzone, then you can use the new -mredzone 
+option, but you cross-call classical ABI functions without any problems, 
+and old ABI programs won't even notice.
 
-
-From: Shaohua Li <shaohua.li@intel.com>
-
-Move do_suspend_lowlevel to correct segment.  If it is in the same hugepage
-with ro data, mark_rodata_ro will make it unexecutable.
-
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
-Cc: Len Brown <len.brown@intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- arch/i386/kernel/acpi/wakeup.S |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
-
-diff -puN arch/i386/kernel/acpi/wakeup.S~move-do_suspend_lowlevel-to-correct-segment arch/i386/kerne
---- a/arch/i386/kernel/acpi/wakeup.S~move-do_suspend_lowlevel-to-correct-segment
-+++ a/arch/i386/kernel/acpi/wakeup.S
-@@ -265,11 +265,6 @@ ENTRY(acpi_copy_wakeup_routine)
-        movl    $0x12345678, saved_magic
-        ret
-
--.data
--ALIGN
--ENTRY(saved_magic)     .long   0
--ENTRY(saved_eip)       .long   0
--
- save_registers:
-        leal    4(%esp), %eax
-        movl    %eax, saved_context_esp
-@@ -304,7 +299,11 @@ ret_point:
-        call    restore_processor_state
-        ret
-
-+.data
- ALIGN
-+ENTRY(saved_magic)     .long   0
-+ENTRY(saved_eip)       .long   0
-+
- # saved registers
- saved_gdt:     .long   0,0
- saved_idt:     .long   0,0
-_
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+	-hpa

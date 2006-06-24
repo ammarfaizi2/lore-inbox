@@ -1,86 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWFXMDF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWFXMJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWFXMDF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 08:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWFXMDF
+	id S964801AbWFXMJA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 08:09:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWFXMJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 08:03:05 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:29016 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964782AbWFXMDD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 08:03:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CzIuVEuyhc+QGNSDdh50291tRIWB6g6dF9A+hBwUXEvyEeFPU7WijNwtS485JwkIDE0Eq4xMkAlYX1Rp4SK1pUCnf3cPVfTYmVBxw25XDygoqjqpIjg9zP60su02A1SAGHqlEEAVKlMuuqegqErAL5YWK4NUWjba2caBGCSkQf8=
-Message-ID: <b8bf37780606240503s4713283eo2b8aa43513751da9@mail.gmail.com>
-Date: Sat, 24 Jun 2006 08:03:03 -0400
-From: "=?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?=" <andre.goddard@gmail.com>
-To: "Jens Axboe" <axboe@suse.de>
-Subject: Re: [ck] Re: [PATCH] fcache: a remapping boot cache
-Cc: James <iphitus@gmail.com>, ck@vds.kolivas.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060624110959.GQ4083@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Sat, 24 Jun 2006 08:09:00 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:44969 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964797AbWFXMI7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 08:08:59 -0400
+Date: Sat, 24 Jun 2006 08:08:36 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
+       linux-scsi@vger.kernel.org, ebiederm@xmission.com, mike.miller@hp.com,
+       Neela.Kolli@engenio.com
+Subject: Re: [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
+Message-ID: <20060624120836.GB7313@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060623210121.GA18384@in.ibm.com> <20060623210424.GB18384@in.ibm.com> <20060623235553.2892f21a.akpm@osdl.org> <20060624111954.GA7313@in.ibm.com> <20060624043046.4e4985be.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060515091806.GA4110@suse.de> <20060515101019.GA4068@suse.de>
-	 <20060516074628.GA16317@suse.de>
-	 <4d8e3fd30605301438k457f6242x1df64df9bab7f8f1@mail.gmail.com>
-	 <20060531061234.GC29535@suse.de>
-	 <1e1a7e1b0606232044x11136be5p332716b757ecd537@mail.gmail.com>
-	 <20060624110959.GQ4083@suse.de>
+In-Reply-To: <20060624043046.4e4985be.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/24/06, Jens Axboe <axboe@suse.de> wrote:
-> On Sat, Jun 24 2006, James wrote:
-> > Set this up on my laptop yesterday with some awesome results. I'm
-> > using 2.6.17-ck1 which has v2.1.
-> >
-> > Heres some bootcharts, before, after, and a prime run.
-> >
-> > http://archlinux.org/~james/normal.png
-> > http://archlinux.org/~james/fs-fcache.png
-> > http://archlinux.org/~james/fs-fcache-prime.png
-> >
-> > Repeated boots show about the same 6 second improvement, 32 down to 26
-> > seconds. Looking at the slowdowns in the fs-fcache run, most are due
-> > to cpu load, waiting on network or, modprobe, and not disk access. X
-> > now starts nearly instantaneously.
-> >
-> > As an experiment, I primed my cache right through to logging into my
-> > desktop environment. It was so effective, that now when I login, the
-> > GNOME splash screen only flickers onto the screen briefly, and the
-> > panels appear almost instantly. This is a big improvment over without
-> > fcache, where you'd see each component of GNOME being loaded on the
-> > splash screen, nautilus, metacity, and the panels would take quite a
-> > bit of time to render and load all their applets.
-> >
-> > Impressive work, I hope to see it broadened to other filesystems,
-> > improved and merged to vanilla soon because it has clear improvements.
->
-> Thanks for giving it a spin! I have plans to implement some improvements
-> on monday that will speed it up even more, I hope I can talk you into
-> retesting it then. Basically it make sure we always get full speed out
-> of the drive by extending the 4kb reads with a sliding window cache.
-> That will help both drive efficiency, and also speed up the cases where
-> sub sequent boots differ just a little bit from the primed boot (often
-> the case with parallel init scripts). It should win you a few seconds
-> more in total, would be my guess.
->
-> I hope to be able to extend it to xfs and reiser in the very near future
-> as well, should not be hard to do.
+On Sat, Jun 24, 2006 at 04:30:46AM -0700, Andrew Morton wrote:
 
-Impressive good work, Jens!
+[..]
+> > > > 
+> > > > diff -puN drivers/block/cciss.c~cciss-initialization-issue-over-kdump-fix drivers/block/cciss.c
+> > > > --- linux-2.6.17-1M/drivers/block/cciss.c~cciss-initialization-issue-over-kdump-fix	2006-06-23 14:04:55.000000000 -0400
+> > > > +++ linux-2.6.17-1M-vivek/drivers/block/cciss.c	2006-06-23 14:08:12.000000000 -0400
+> > > > @@ -1976,6 +1976,13 @@ static int add_sendcmd_reject(__u8 cmd, 
+> > > >  			ctlr, complete);
+> > > >  		/* not much we can do. */
+> > > >  #ifdef CONFIG_CISS_SCSI_TAPE
+> > > > +		/* We might get notification of completion of commands
+> > > > +		 * which we never issued in this kernel if this boot is
+> > > > +		 * taking place after previous kernel's crash. Simply
+> > > > +		 * ignore the commands in this case.
+> > > > +		 */
+> > > > +		if (crash_boot)
+> > > > +			return 0;
+> > > >  		return 1;
+> > > 
+> > > Looks like this is working around a driver problem rather than fixing it
+> > > properly ;)
+> > 
+> > That's true. Its more of a working around the problem. I think in all
+> > such cases we should soft reset the device so that device drops the messages
+> > issued from the context of previous kernel and starts afresh.
+> 
+> Sounds good.
+> 
+> > But looks like not all the devices provide software reset facility
+> > (Or I can't find it out from the source code or limited documentation
+> > available). Mike, can I soft reset this device?
+> > 
+> > I am facing similar problem in megaraid driver as well where detailed
+> > technical documentation is not available and I can't find a way to
+> > soft reset the device.
+> 
+> Megaraid has a maintainer who has documents and hardware engineers.
+> 
 
-Do you have any distribution in contact with you already?
+Well, maintainer mentioned that we do not export more documents more than
+what is available on LSI site. That site contains product specification,
+installation guides, user guides etc but not a technical document which
+gives insight into the various registers and what a driver writer
+can do with the device.
 
-Thank you so much, I look forward to test it on xfs.
+I have also sent mails regarding my problem to linux-scsi list as well
+as to people working on megaraid but but no response. :-(
 
-Best regards,
--- 
-[]s,
-André Goddard
+
+> > Or is there a generic way to handle these situations? Fixing them driver
+> > by driver is a long painful process. 
+> 
+> Some generic way of whacking a PCI device via the standard PCI registers? 
+> Not that I know of.
+
+Somebody hinted that think of PCI bus reset. But I think PCI bus reset will
+require firware/BIOS to export a hook to software to so initiate PCI bus
+reset and I don't think many platforms do that. Infact I am not even aware
+of one platform who does that.
+
+Thanks
+Vivek  

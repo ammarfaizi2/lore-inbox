@@ -1,95 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933045AbWFXLbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933065AbWFXLh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933045AbWFXLbF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 07:31:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933050AbWFXLbE
+	id S933065AbWFXLh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 07:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933066AbWFXLh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 07:31:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16059 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933045AbWFXLbC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 07:31:02 -0400
-Date: Sat, 24 Jun 2006 04:30:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
-       linux-scsi@vger.kernel.org, ebiederm@xmission.com, mike.miller@hp.com
-Subject: Re: [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
-Message-Id: <20060624043046.4e4985be.akpm@osdl.org>
-In-Reply-To: <20060624111954.GA7313@in.ibm.com>
-References: <20060623210121.GA18384@in.ibm.com>
-	<20060623210424.GB18384@in.ibm.com>
-	<20060623235553.2892f21a.akpm@osdl.org>
-	<20060624111954.GA7313@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jun 2006 07:37:28 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:14841 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S933065AbWFXLh1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 07:37:27 -0400
+Date: Sat, 24 Jun 2006 13:36:41 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Michael Grundy <grundym@us.ibm.com>
+Cc: Jan Glauber <jan.glauber@de.ibm.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
+Subject: Re: [PATCH] kprobes for s390 architecture
+Message-ID: <20060624113641.GB10403@osiris.ibm.com>
+References: <20060623150344.GL9446@osiris.boeblingen.de.ibm.com> <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com> <20060623222106.GA25410@osiris.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060623222106.GA25410@osiris.ibm.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Jun 2006 07:19:54 -0400
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
-
-> On Fri, Jun 23, 2006 at 11:55:53PM -0700, Andrew Morton wrote:
-> > On Fri, 23 Jun 2006 17:04:24 -0400
-> > Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> > 
-> > > 
-> > > o cciss driver initialization fails and hits BUG() if underlying device
-> > >   was active during the driver initialization. Device might be active
-> > >   if previous kernel crashed and this kernel is booting after that using
-> > >   kdump.
-> > > 
-> > >
-> > > ...
-> > >
-> > > o If crash_boot parameter is set, then ignore the completed command messages
-> > >   sent by device which have not been issued in the context of this kernel.
-> > > 
-> > > Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
-> > > ---
-> > > 
-> > >  linux-2.6.17-1M-vivek/drivers/block/cciss.c |    7 +++++++
-> > >  1 files changed, 7 insertions(+)
-> > > 
-> > > diff -puN drivers/block/cciss.c~cciss-initialization-issue-over-kdump-fix drivers/block/cciss.c
-> > > --- linux-2.6.17-1M/drivers/block/cciss.c~cciss-initialization-issue-over-kdump-fix	2006-06-23 14:04:55.000000000 -0400
-> > > +++ linux-2.6.17-1M-vivek/drivers/block/cciss.c	2006-06-23 14:08:12.000000000 -0400
-> > > @@ -1976,6 +1976,13 @@ static int add_sendcmd_reject(__u8 cmd, 
-> > >  			ctlr, complete);
-> > >  		/* not much we can do. */
-> > >  #ifdef CONFIG_CISS_SCSI_TAPE
-> > > +		/* We might get notification of completion of commands
-> > > +		 * which we never issued in this kernel if this boot is
-> > > +		 * taking place after previous kernel's crash. Simply
-> > > +		 * ignore the commands in this case.
-> > > +		 */
-> > > +		if (crash_boot)
-> > > +			return 0;
-> > >  		return 1;
-> > 
-> > Looks like this is working around a driver problem rather than fixing it
-> > properly ;)
+> At least this is something that could work... completely untested and might
+> have some problems that I didn't think of ;)
 > 
-> That's true. Its more of a working around the problem. I think in all
-> such cases we should soft reset the device so that device drops the messages
-> issued from the context of previous kernel and starts afresh.
-
-Sounds good.
-
-> But looks like not all the devices provide software reset facility
-> (Or I can't find it out from the source code or limited documentation
-> available). Mike, can I soft reset this device?
+> struct capture_data {
+> 	atomic_t cpus;
+> 	atomic_t done;
+> };
 > 
-> I am facing similar problem in megaraid driver as well where detailed
-> technical documentation is not available and I can't find a way to
-> soft reset the device.
+> void capture_wait(void *data)
+> { 
+> 	struct capture_data *cap = data;
+> 
+> 	atomic_inc(&cap->cpus);
+> 	while(!atomic_read(&cap->done))
+> 		cpu_relax();
+> 	atomic_dec(&cap->cpus);
+> }
+> 
+> void replace_instr(int *a)
+> {
+> 	struct capture_data cap;
+> 
+> 	preempt_disable();
+> 	atomic_set(&cap.cpus, 0);
+> 	atomic_set(&cap.done, 0);
+> 	smp_call_function(capture_wait, (void *)&cap, 0, 0);
+> 	while (atomic_read(&cap.cpus) != num_online_cpus() - 1)
+> 		cpu_relax();
+> 	*a = 0x42;
+> 	atomic_inc(&cap.done);
+> 	while (atomic_read(&cap.cpus))
+> 		cpu_relax();
+> 	preempt_enable();
+> }
 
-Megaraid has a maintainer who has documents and hardware engineers.
+Forget this crap. It can easily cause deadlocks with more than two cpus.
 
-> Or is there a generic way to handle these situations? Fixing them driver
-> by driver is a long painful process. 
+Just do a compare and swap operation on the instruction you want to replace,
+then do an smp_call_function() with the wait parameter set to 1 and passing
+a pointer to a function that does nothing but return.
 
-Some generic way of whacking a PCI device via the standard PCI registers? 
-Not that I know of.
+The cs/csg instruction will make sure that your cpu has exclusive access
+to the memory region in question and will invalidate the cache lines on all
+other cpus.
+With the following smp_call_function() you can make sure that all other
+cpus discard everything they have prefetched. Hence there is only a small
+window between the cs/csg and the return of smp_call_function() where you
+do not know if other cpus are executing the old or the new instruction.

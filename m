@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWFXQTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWFXQag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbWFXQTt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 12:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbWFXQTt
+	id S1750867AbWFXQag (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 12:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWFXQag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 12:19:49 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:18954 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750873AbWFXQTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 12:19:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=G+FOPacbF0XZJJRw6NuUNUPDPmwOxudRF7oIo8XktMC3ymbltRbnyraEqSkJJDWSpPPdkMxQ/ZL/pFD2CLCFhR1Uk9Z6ndrA5fxi1MkVvfzeyvjM9jo8hKAjnv20Tv3cJO9wLu5fFlvhQCjhmCbhLbijr3WHPhwM3k4KE++hyrg=
-Message-ID: <84144f020606240919o53a38646lc4a46cd39c7a94fc@mail.gmail.com>
-Date: Sat, 24 Jun 2006 19:19:45 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: [PATCH] ext3_clear_inode(): avoid kfree(NULL)
-Cc: "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-Reply-To: <1151151104.3181.30.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 24 Jun 2006 12:30:36 -0400
+Received: from hegel.brightdsl.net ([66.219.128.245]:32150 "EHLO
+	hegel.brightdsl.net") by vger.kernel.org with ESMTP
+	id S1750867AbWFXQag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 12:30:36 -0400
+Subject: Re: 2.6.17-...: looong writeouts
+From: Donald Parsons <dparsons@brightdsl.net>
+To: Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sat, 24 Jun 2006 12:30:29 -0400
+Message-Id: <1151166629.4409.18.camel@danny.parsons.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200606231502.k5NF2jfO007109@hera.kernel.org>
-	 <449C3817.2030802@garzik.org> <20060623142430.333dd666.akpm@osdl.org>
-	 <1151151104.3181.30.camel@laptopd505.fenrus.org>
-X-Google-Sender-Auth: bbe5718794671255
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/24/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> >
-> > Because at that callsite, NULL is the common case.  We avoid a do-nothing
-> > function call most of the time.  It's a nano-optimisation.
->
-> but a function call is basically free, while an if () is not... even
-> with unlikely()...
+I am seeing the same problem.  I had only noticed it
+since I installed Opera-9.0 and thought it was Opera's
+problem.  It even happened when I clicked to read this
+message at www.uwsg.iu.edu/hypermail/linux/kernel/0606.3/0091.html
+to which I am replying.  I had to wait for the disk
+access to end before the message link would display.
 
-Yeah, but the called function has an if statement too...
+Something serious has happened to Linux 2.6.17.1  It
+appears I installed both  2.6.17.1 and Opera-9.0 on
+June 20 and that is when the disk timeout was first
+noticed.  (I compile and use most every git/rc kernel
+so if the problem is seen by people without Opera then
+it must have entered the kernel very close to 2.6.17.1)
 
-                                   Pekka
+Next time I boot I will go back to 2.6.17
+(Too bad I deleted earlier rc[567]-gits).
+
+Don
+

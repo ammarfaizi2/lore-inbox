@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWFXRQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWFXRUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbWFXRQN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 13:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWFXRQN
+	id S1750933AbWFXRUw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 13:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbWFXRUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 13:16:13 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:27302 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750918AbWFXRQL (ORCPT
+	Sat, 24 Jun 2006 13:20:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11145 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750930AbWFXRUv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 13:16:11 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-Date: Sat, 24 Jun 2006 19:16:43 +0200
-User-Agent: KMail/1.9.3
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, linux-pm@osdl.org,
-       stern@rowland.harvard.edu
-References: <4499BE99.6010508@gmail.com> <20060623221117.GA2497@elf.ucw.cz> <20060623235357.GA1181@slug>
-In-Reply-To: <20060623235357.GA1181@slug>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jun 2006 13:20:51 -0400
+Date: Sat, 24 Jun 2006 13:20:14 -0400
+From: Dave Jones <davej@redhat.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm2
+Message-ID: <20060624172014.GB26273@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060624061914.202fbfb5.akpm@osdl.org> <200606241753.44937.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606241916.43892.rjw@sisk.pl>
+In-Reply-To: <200606241753.44937.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 June 2006 01:53, Frederik Deweerdt wrote:
-> On Sat, Jun 24, 2006 at 12:11:18AM +0200, Pavel Machek wrote:
-> > On Fri 2006-06-23 20:41:01, Russell King wrote:
-> > > On Fri, Jun 23, 2006 at 11:10:21AM +0200, Pavel Machek wrote:
-> > > > Serial console is currently broken by suspend, resume. _But_ I have a
-> > > > patch I'd like you to try.... pretty please?
-> > > 
-> > > Did you bother trying my patch, which was done the Right(tm) way?
-> > > There wasn't any feedback on it so I can only assume not.
-> > 
-> > (I actually forwarded him your patch in private email).
-> And I did try it, but it make no difference: the output would still
-> appear on the laptop.
+On Sat, Jun 24, 2006 at 05:53:44PM +0200, Rafael J. Wysocki wrote:
+ > On Saturday 24 June 2006 15:19, Andrew Morton wrote:
+ > > 
+ > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm2/
+ > 
+ > The box seems to work, although I have some "interesting" stuff in dmesg:
+ > 
+ > int3: 0000 [1] PREEMPT
+ > last sysfs file: /devices/pci0000:00/0000:00:0a.0/0000:02:00.0/subsystem_device
+ > CPU 0
+ > Modules linked in: acpi_cpufreq usbserial asus_acpi thermal processor fan button battery ac snd_pcm_oss snd_mixer_oss snd_seq snd_seqd
+ > Pid: 4839, comm: modprobe Not tainted 2.6.17-mm2 #4
+ > RIP: 0010:[<ffffffff806b0401>] <ffffffff806b0401>{cpufreq_register_driver+1}
+ > RSP: 0018:ffff810052c59e40  EFLAGS: 00000292
+ > RAX: 00000000ffffffea RBX: ffffffff8832a340 RCX: 00000000ffffffff
+ > RDX: ffff8100567e3810 RSI: ffffffff883092cf RDI: ffffffff8832a2a0
+ > RBP: ffff810052c59e48 R08: 0000000000000000 R09: 0000000000000001
+ > R10: 0000000000000001 R11: 0000000000000001 R12: ffff8100545f4de0
+ > R13: ffffffff8832a340 R14: ffffc20000af49b0 R15: ffff8100545f53a0
+ > FS:  00002ae4d623db00(0000) GS:ffffffff80689000(0000) knlGS:0000000000000000
+ > CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+ > CR2: 000000000051a680 CR3: 0000000054243000 CR4: 00000000000006e0
+ > Process modprobe (pid: 4839, threadinfo ffff810052c58000, task ffff8100567e3810)
+ > Stack: ffffffff880c808f ffff810052c59f78 ffffffff8024f14a ffffffff8832a390
+ >        ffffffff8832a358 ffffffff8830e340 ffffc20000af4970 ffffc20000af43b0
+ >        ffffc20000af4930 ffff8100531a5490
+ > Call Trace: [<ffff810052c59f78>]
+ > 
+ > Code: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
+ > RIP <ffffffff806b0401>{cpufreq_register_driver+1} RSP <ffff810052c59e40>
 
-You can try to use the hack at
-http://www.sisk.pl/kernel/patches/2.6.17-mm1/hack-serial-suspend.patch
-and see if that makes the messages get to the serial console.
+'something' filled this function with breakpoints.
+Andrew mentioned he dropped the kgdb patches. Any chance something was missed?
 
-Greetings,
-Rafael
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

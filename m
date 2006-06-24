@@ -1,72 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933359AbWFXJV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933001AbWFXJYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933359AbWFXJV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 05:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933361AbWFXJV7
+	id S933001AbWFXJYy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 05:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933366AbWFXJYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 05:21:59 -0400
-Received: from mail.gmx.de ([213.165.64.21]:30430 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S933359AbWFXJV7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 05:21:59 -0400
-X-Authenticated: #5039886
-Date: Sat, 24 Jun 2006 11:21:56 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Mike Galbraith <efault@gmx.de>
-Cc: danial_thom@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: Measuring tools - top and interrupts
-Message-ID: <20060624092156.GA13142@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Mike Galbraith <efault@gmx.de>, danial_thom@yahoo.com,
-	linux-kernel@vger.kernel.org
-References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com> <1151128763.7795.9.camel@Homer.TheSimpsons.net> <1151130383.7545.1.camel@Homer.TheSimpsons.net>
+	Sat, 24 Jun 2006 05:24:54 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:51688 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S933001AbWFXJYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 05:24:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=feOQixIyZPfZp9sCfJSqCzydcLyxuqO/G+dFW+j5ujWKsaSQ+pOps5m+7AdcKXadXyTjvHs7+WmVUe1qK7icZJwfdW4AMzQ2HCewvkOoC6gGSvO/SJj89vWr8zxTlrquBxoWz0UGOaLFTaGKOlr81J5aJAMIDHkx6Hh+ZvX/Uxo=
+Message-ID: <615cd8d10606240224m2a0dece7t3bdb41df0dae71f2@mail.gmail.com>
+Date: Sat, 24 Jun 2006 09:24:51 +0000
+From: "=?BIG5?B?s1yspbuo?=" <brianhsu.hsu@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: A question about behavior of SCHED_FIFO: Only one process in run queue at any time.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1151130383.7545.1.camel@Homer.TheSimpsons.net>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-Y-GMX-Trusted: 0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_98711_17762204.1151141091190"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.06.24 08:26:23 +0200, Mike Galbraith wrote:
-> On Sat, 2006-06-24 at 07:59 +0200, Mike Galbraith wrote:
-> > On Thu, 2006-06-22 at 09:58 -0700, Danial Thom wrote:
-> > 
-> > > And 75K pps may not be "much", but its still at
-> > > least 10% of what the system can handle, so it
-> > > should measure around a 10% load. 2.4 measures
-> > > about 12% load. So the only conclusion is that
-> > > load accounting is broken in 2.6.
-> > 
-> > For UP, yes.  SMP kernel accounts irq processing time properly.
+------=_Part_98711_17762204.1151141091190
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Do you actually see 100% idle? On both, UP and SMP, I see non-zero hi/si
-values using "top". With IO-APIC enabled, I see only non-zero si values
-for my tg3 NICs, and non-zero hi and si values for the nVidia NIC. With
-IO-APIC disabled, I also see a non-zero hi value for the tg3 on UP,
-guess that's normal... But I never see 100% idle while flooding the box
-with pings.
+Sorry for my poor English, I will try to explain clearly at my best.
 
-> For my little box, the below cures it.
-> 
-> --- linux-2.6.17x/arch/i386/kernel/apic.c.org	2006-06-24 08:08:46.000000000 +0200
-> +++ linux-2.6.17x/arch/i386/kernel/apic.c	2006-06-24 08:09:16.000000000 +0200
-> @@ -1175,9 +1175,7 @@ EXPORT_SYMBOL(switch_ipi_to_APIC_timer);
->  inline void smp_local_timer_interrupt(struct pt_regs * regs)
->  {
->  	profile_tick(CPU_PROFILING, regs);
-> -#ifdef CONFIG_SMP
->  	update_process_times(user_mode_vm(regs));
-> -#endif
->  
->  	/*
->  	 * We take the 'long' return path, and there every subsystem
+The main question I have is that why even I have lots of SCHED_FIFO
+process with same
+priority, it still have time sharing behavior? And at any time point,
+there is always only one
+process in the runqueue?
 
-The non-SMP call to update_process_times() is in do_timer_interrupt_hook(),
-so I guess the above is not the Right Thing to do. I don't even see how
-you could reach smp_local_timer_interrupt() without going through
-do_timer_interrupt_hook() first.
+Following is the full story:
 
-Björn
+I have to do a homework that tearcher asks us impelement an EDF
+real-time process
+scheduling policy in Linux, so I am trying to understanding how Linux
+real-time process
+scheduling work, and do the homework baed on this.
+
+I have read some textbook about OS and Linux kernel, according to these books,
+SCHED_FIFO is a real-time scheduling policy, and when a process is a SCHED_FIFO
+process, it will be preempted only when follwing case happend:
+
+1.There are some process with higher priority.
+2.The process is in blocking opreation.
+3.The process is dead.
+4.sched_yield()
+
+Man page of sched_setscheduler even says:"SCHED_FIFO is a  simple
+scheduling  algorithm  without  time slicing."
+
+Then I worte an user space program (in the attachment),
+which fork an SCHED_FIFO child process, it does nothing expect an infinite loop
+and print something on screen.
+
+Beside this, I also modify kernel/sched.c and add the following code
+after line of
+"next = list_entry(queue->next, task_t, run_list);"
+
+====== Code Start =======
+        /* Print all element in the real-time task runqueue */
+        if ( idx < 100 ) {
+
+            struct task_struct * i;
+
+            printk ( "RT-Queue[%d]:", idx );
+
+            list_for_each_entry ( i, queue, run_list ) {
+                printk ( "P[%d] ->", i->pid );
+            }
+
+            printk ( "\n" );
+        }
+====== Code  End =======
+
+As I mentioned, after these modify, no matter how many SCHED_FIFO process I
+am running, there are always only one process in the runqueue, why?
+
+Here is the dmesg result, it is clearly these process is in the same
+queue, and there
+is only one process in the queue at any time point.
+
+RT-Queue[1]:P[9822] ->
+RT-Queue[1]:P[9822] ->
+RT-Queue[1]:P[9810] ->
+RT-Queue[1]:P[9810] ->
+RT-Queue[1]:P[9816] ->
+RT-Queue[1]:P[9816] ->
+RT-Queue[1]:P[9822] ->
+RT-Queue[1]:P[9822] ->
+
+Did I misunderstand about SCHED_FIFO policy?
+
+------=_Part_98711_17762204.1151141091190
+Content-Type: text/x-csrc; name="test.c"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="test.c"
+X-Attachment-Id: f_eou8t6go
+
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxhc20vdW5pc3RkLmg+CiNpbmNsdWRlIDxlcnJu
+by5oPgojaW5jbHVkZSA8c2NoZWQuaD4KCl9zeXNjYWxsMSAoIGludCwgZm9ya19ydF9wcm9jZXNz
+LCBpbnQgLCBkZWFkbGluZSApOwoKaW50IG1haW4gKCBpbnQgYXJnYywgY2hhciAqIGFyZ3ZbXSAp
+CnsKICAgIGludCBwaWQgPSAtMTsKICAgIGxvbmcgZGVhZGxpbmUgPSAwOwogICAgc3RydWN0IHNj
+aGVkX3BhcmFtIHRtcDsKICAgIHRtcC5zY2hlZF9wcmlvcml0eSA9IDk4OwoKICAgIGlmICggYXJn
+YyAhPSAyICkgewogICAgICAgIHByaW50ZiAoICJVU0U6JXMgZGVhZGxpbmVcbiIsIGFyZ3ZbMF0g
+KTsgCiAgICAgICAgcmV0dXJuOwogICAgfQoKICAgIGRlYWRsaW5lID0gdGltZShOVUxMKSArIGF0
+b2kgKCBhcmd2WzFdICk7CgogICAgcGlkID0gZm9yayAoKTsKCiAgICBpZiAoIHBpZCA9PSAwICkg
+ewogICAgICAgIGludCBpID0gMDsKCiAgICAgICAgaW50IGNvZGUgPSBzY2hlZF9zZXRzY2hlZHVs
+ZXIgKCBnZXRwaWQoKSwgU0NIRURfRklGTywgJnRtcCApOwoKICAgICAgICB3aGlsZSAoIDEgKSB7
+CiAgICAgICAgICAgIHByaW50ZiAoICJOZXcgUElEOiVkOiVkXG4iLCBnZXRwaWQoKSxpICk7CiAg
+ICAgICAgICAgIGkrKzsKCiAgICAgICAgICAgIGlmICggKGxvbmcpIHRpbWUoTlVMTCkgPiBkZWFk
+bGluZSApCiAgICAgICAgICAgICAgICBicmVhazsKICAgICAgICB9CgogICAgICAgIHByaW50ZiAo
+ICJFbmQgb2YgUElEOiVkLCVkXG4iLCBnZXRwaWQoKSxjb2RlICk7CiAgICB9IGVsc2UgewogICAg
+ICAgIHdhaXQoKTsKICAgIH0KfQo=
+------=_Part_98711_17762204.1151141091190--

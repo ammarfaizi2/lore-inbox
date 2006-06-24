@@ -1,76 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933065AbWFXLh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933066AbWFXLiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933065AbWFXLh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 07:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933066AbWFXLh2
+	id S933066AbWFXLiL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 07:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933067AbWFXLiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 07:37:28 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:14841 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S933065AbWFXLh1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 07:37:27 -0400
-Date: Sat, 24 Jun 2006 13:36:41 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Michael Grundy <grundym@us.ibm.com>
-Cc: Jan Glauber <jan.glauber@de.ibm.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
-Subject: Re: [PATCH] kprobes for s390 architecture
-Message-ID: <20060624113641.GB10403@osiris.ibm.com>
-References: <20060623150344.GL9446@osiris.boeblingen.de.ibm.com> <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com> <20060623222106.GA25410@osiris.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623222106.GA25410@osiris.ibm.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Sat, 24 Jun 2006 07:38:11 -0400
+Received: from mail.gmx.net ([213.165.64.21]:25744 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S933066AbWFXLiJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 07:38:09 -0400
+X-Authenticated: #14349625
+Subject: Re: Measuring tools - top and interrupts
+From: Mike Galbraith <efault@gmx.de>
+To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: danial_thom@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1151142716.7797.10.camel@Homer.TheSimpsons.net>
+References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
+	 <1151128763.7795.9.camel@Homer.TheSimpsons.net>
+	 <1151130383.7545.1.camel@Homer.TheSimpsons.net>
+	 <20060624092156.GA13142@atjola.homenet>
+	 <1151142716.7797.10.camel@Homer.TheSimpsons.net>
+Content-Type: text/plain; charset=utf-8
+Date: Sat, 24 Jun 2006 13:41:57 +0200
+Message-Id: <1151149317.7646.14.camel@Homer.TheSimpsons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At least this is something that could work... completely untested and might
-> have some problems that I didn't think of ;)
+On Sat, 2006-06-24 at 11:52 +0200, Mike Galbraith wrote:
+> On Sat, 2006-06-24 at 11:21 +0200, Björn Steinbrink wrote:
+> > 
+> > The non-SMP call to update_process_times() is in do_timer_interrupt_hook(),
+> > so I guess the above is not the Right Thing to do.
 > 
-> struct capture_data {
-> 	atomic_t cpus;
-> 	atomic_t done;
-> };
-> 
-> void capture_wait(void *data)
-> { 
-> 	struct capture_data *cap = data;
-> 
-> 	atomic_inc(&cap->cpus);
-> 	while(!atomic_read(&cap->done))
-> 		cpu_relax();
-> 	atomic_dec(&cap->cpus);
-> }
-> 
-> void replace_instr(int *a)
-> {
-> 	struct capture_data cap;
-> 
-> 	preempt_disable();
-> 	atomic_set(&cap.cpus, 0);
-> 	atomic_set(&cap.done, 0);
-> 	smp_call_function(capture_wait, (void *)&cap, 0, 0);
-> 	while (atomic_read(&cap.cpus) != num_online_cpus() - 1)
-> 		cpu_relax();
-> 	*a = 0x42;
-> 	atomic_inc(&cap.done);
-> 	while (atomic_read(&cap.cpus))
-> 		cpu_relax();
-> 	preempt_enable();
-> }
+> Ah, there it is.  That's what I was looking for.  I figured that doing
+> what I did had to be wrong, but tried it for grins anyway... was pretty
+> surprised when it worked (kinda).
 
-Forget this crap. It can easily cause deadlocks with more than two cpus.
+Calling update_process_times() in do_timer_interrupt_hook() flat does
+not work here.  Calling it in smp_local_timer_interrupt() works fine.  
 
-Just do a compare and swap operation on the instruction you want to replace,
-then do an smp_call_function() with the wait parameter set to 1 and passing
-a pointer to a function that does nothing but return.
+Oh joy.
 
-The cs/csg instruction will make sure that your cpu has exclusive access
-to the memory region in question and will invalidate the cache lines on all
-other cpus.
-With the following smp_call_function() you can make sure that all other
-cpus discard everything they have prefetched. Hence there is only a small
-window between the cs/csg and the return of smp_call_function() where you
-do not know if other cpus are executing the old or the new instruction.
+	-Mike
+

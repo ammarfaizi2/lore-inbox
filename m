@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWFXO5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752270AbWFXPPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbWFXO5c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 10:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752248AbWFXO5c
+	id S1752270AbWFXPPE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 11:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752281AbWFXPPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 10:57:32 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:31067 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1750804AbWFXO5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 10:57:31 -0400
-X-IronPort-AV: i="4.06,172,1149490800"; 
-   d="scan'208"; a="1832010963:sNHT35390512"
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jbeulich@novell.com
-Subject: Re: Subject: [PATCH] reintegrate irqreturn.h into hardirq.h
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.LNX.4.64.0606231943580.12900@scrub.home>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sat, 24 Jun 2006 07:57:28 -0700
-In-Reply-To: <Pine.LNX.4.64.0606231943580.12900@scrub.home> (Roman Zippel's message of "Fri, 23 Jun 2006 19:45:22 +0200 (CEST)")
-Message-ID: <adawtb6k3dz.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
+	Sat, 24 Jun 2006 11:15:04 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:59818 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1752270AbWFXPPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 11:15:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=Lbi7cQCmWz4ddoFHYB7gtT3Oywy6Hoa53Ivpym/eImYIAQYAHjjP1WaNM6tcww0dOkeW54/qkimvlAdaeSIOzrAHG9ky8J3kSwCHPWDuNDkIxaqyNCltxFvdEdFWNMRcaJVpC/hJpwA4gCA9VDTayJ9szEYetdPdcBx3Px3ckxg=
+Date: Sat, 24 Jun 2006 19:15:31 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17-...: looong writeouts
+Message-ID: <20060624151531.GA7565@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 24 Jun 2006 14:57:30.0053 (UTC) FILETIME=[83EBBF50:01C6979E]
-Authentication-Results: sj-dkim-5.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > -extern fastcall irqreturn_t handle_IRQ_event(unsigned int irq, struct pt_regs *regs,
- > +extern fastcall int handle_IRQ_event(unsigned int irq, struct pt_regs *regs,
- >  					struct irqaction *action);
+Immediate problem: from time to time post 2.6.17 kernel [1] decides that it
+really really needs disk.
 
-This seems like a step backwards: this changes the declaration of
-handle_IRQ_event() so it no longer matches the real definition.
+	[kernel compilation goes as usual]
+	  CC [M]  fs/xfs/xfs_inode.o
+	[compilation blocks for ~10 seconds, disk LED is red]
+	[then it continues]
 
- - R.
+Again, from time to time saving 2k file makes vi inoperational for same
+period.
+
+Scheduler is CFQ, fs is reiserfs mounted with noatime, notail. 2.6.17-rc
+and 2.6.17 kernels were OK.
+
+It occured only several times in 4 hours.
+
+[1] 2.6.17-95eaa5fa8eb2c345244acd5f65b200b115ae8c65 to be precise
+
+
+Probably related problem below:
+
+During 2.6.17-rc cycle CFQ subjectively became less F.
+
+	[   unpacking  ]
+	[kernel tarball]
+		.
+		.
+		.
+		.
+		.
+		.
+		.		[:wq on little file]
+		.
+		.
+		.
+		.
+		.
+		.
+	[              ]
+
+IIRC, on 2.6.16 that :wq took say 0.5 sec, on late 2.6.17-rc it was
+several times slower. I don't have numbers but it was psychologically
+noticeable, but not BFD.
+

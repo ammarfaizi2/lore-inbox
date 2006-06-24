@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWFXQGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWFXQT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbWFXQGg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 12:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWFXQGg
+	id S1750871AbWFXQT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 12:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWFXQT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 12:06:36 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:6736 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750854AbWFXQGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 12:06:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=iB4HbzX1PSFYwesy4xCtQ+brHCDWTTerJPYCWoPzfgfSgb/sQPNnKXj7QVAouF5UdPA0oFBV70aZ26Pc42eG8YuZCQdjTs4xcT7OIqnEF6d4GbEXojMYC69UrKzSPj7OP9dqnOUKZDROeSBfmhRdY3xdEMm45i3sf3Yo+yykb9M=  ;
-Message-ID: <449D6305.4060303@yahoo.com.au>
-Date: Sun, 25 Jun 2006 02:06:29 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] ext3_clear_inode(): avoid kfree(NULL)
-References: <200606231502.k5NF2jfO007109@hera.kernel.org>	 <449C3817.2030802@garzik.org> <20060623142430.333dd666.akpm@osdl.org>	 <1151151104.3181.30.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.58.0606240817170.23087@gandalf.stny.rr.com>	 <1151152059.3181.37.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.58.0606240833010.23318@gandalf.stny.rr.com>	 <1151153177.3181.39.camel@laptopd505.fenrus.org>	 <1151153635.3181.41.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.58.0606240902390.23703@gandalf.stny.rr.com> <1151158295.3181.46.camel@laptopd505.fenrus.org>
-In-Reply-To: <1151158295.3181.46.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jun 2006 12:19:27 -0400
+Received: from mail.gmx.net ([213.165.64.21]:3714 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750871AbWFXQT1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 12:19:27 -0400
+X-Authenticated: #14349625
+Subject: Re: Measuring tools - top and interrupts
+From: Mike Galbraith <efault@gmx.de>
+To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: danial_thom@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060624154037.GA2946@atjola.homenet>
+References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
+	 <1151128763.7795.9.camel@Homer.TheSimpsons.net>
+	 <1151130383.7545.1.camel@Homer.TheSimpsons.net>
+	 <20060624092156.GA13142@atjola.homenet>
+	 <1151142716.7797.10.camel@Homer.TheSimpsons.net>
+	 <1151149317.7646.14.camel@Homer.TheSimpsons.net>
+	 <20060624154037.GA2946@atjola.homenet>
+Content-Type: text/plain; charset=utf-8
+Date: Sat, 24 Jun 2006 18:23:12 +0200
+Message-Id: <1151166193.8516.8.camel@Homer.TheSimpsons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>The jne is expected to fail, so we will always continue to 0x13. Now is
->>this a problem with x86/x86_64?
+On Sat, 2006-06-24 at 17:40 +0200, Björn Steinbrink wrote:
+> On 2006.06.24 13:41:57 +0200, Mike Galbraith wrote:
+> > On Sat, 2006-06-24 at 11:52 +0200, Mike Galbraith wrote:
+> > > On Sat, 2006-06-24 at 11:21 +0200, Björn Steinbrink wrote:
+> > > > 
+> > > > The non-SMP call to update_process_times() is in do_timer_interrupt_hook(),
+> > > > so I guess the above is not the Right Thing to do.
+> > > 
+> > > Ah, there it is.  That's what I was looking for.  I figured that doing
+> > > what I did had to be wrong, but tried it for grins anyway... was pretty
+> > > surprised when it worked (kinda).
+> > 
+> > Calling update_process_times() in do_timer_interrupt_hook() flat does
+> > not work here.  Calling it in smp_local_timer_interrupt() works fine.  
+> > 
+> > Oh joy.
 > 
-> 
-> I'm not saying there is a problem; likely/unlikely do have an effect for
-> sure, it's just not a "make it free" thing....
+> I can reproduce it now, seems to require CONFIG_4KSTACKS to fail. Can
+> you confirm that?
 
-On x86 I think the main saving is the icache one. However I guess
-gcc would try to align with the branch prediction behaviour for
-unknown branches too.
+What a coincidence.  After trying a different compiler, and slogging
+through a bunch of assembler trying to figure out how the heck this can
+happen, I was just booting an 8k stack kernel (as a wild-ass guess;).
 
-The microoptimisation is that the call avoids the unlikely branch
-in kfree. Maybe for x86 this isn't going to matter, but for some
-architectures in might.
+let's see.  Yeah, confirmed.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	-Mike
+

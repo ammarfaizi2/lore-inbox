@@ -1,73 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932828AbWFXF0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932851AbWFXFzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932828AbWFXF0E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 01:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932836AbWFXF0E
+	id S932851AbWFXFzl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 01:55:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932852AbWFXFzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 01:26:04 -0400
-Received: from home.keithp.com ([63.227.221.253]:31492 "EHLO keithp.com")
-	by vger.kernel.org with ESMTP id S932828AbWFXF0D (ORCPT
+	Sat, 24 Jun 2006 01:55:41 -0400
+Received: from mail.gmx.de ([213.165.64.21]:4021 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932851AbWFXFzk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 01:26:03 -0400
-Subject: Re: i915 vsync interrupt fix
-From: Keith Packard <keithp@keithp.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: keithp@keithp.com, airlied@linux.ie,
-       Alan Hourihane <alanh@fairlite.demon.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dri-devel@lists.sourceforge.net
-In-Reply-To: <449C891E.6010405@goop.org>
-References: <449C891E.6010405@goop.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wUz+ToYHIVaBaNaKeN7d"
-Date: Fri, 23 Jun 2006 22:25:03 -0700
-Message-Id: <1151126703.1668.10.camel@neko.keithp.com>
+	Sat, 24 Jun 2006 01:55:40 -0400
+X-Authenticated: #14349625
+Subject: Re: Measuring tools - top and interrupts
+From: Mike Galbraith <efault@gmx.de>
+To: danial_thom@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
+References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Sat, 24 Jun 2006 07:59:23 +0200
+Message-Id: <1151128763.7795.9.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-06-22 at 09:58 -0700, Danial Thom wrote:
 
---=-wUz+ToYHIVaBaNaKeN7d
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> And 75K pps may not be "much", but its still at
+> least 10% of what the system can handle, so it
+> should measure around a 10% load. 2.4 measures
+> about 12% load. So the only conclusion is that
+> load accounting is broken in 2.6.
 
-On Fri, 2006-06-23 at 17:36 -0700, Jeremy Fitzhardinge wrote:
-> I need this patch from Alan Hourihane=20
-> <mailto:alanh@fairlite.demon.co.uk> to make direct rendering work=20
-> properly on my 945GM-based laptop. It comes from=20
-> https://bugs.freedesktop.org/show_bug.cgi?id=3D7233.  This change is=20
-> immediately useful to me now, but I don't know if the development DRM is=20
-> going to be merged with the kernel any time soon (I notice CVS has a=20
-> variant of this patch).
+For UP, yes.  SMP kernel accounts irq processing time properly.
 
-CVS has a more comprehensive patch where the X server tells the DRI
-module which pipe it should use to signal vblank. With the patch posted,
-a dual-head environment will generate interrupts on *both* pipes, which
-will reduce performance while negating the desired synchronized
-behaviour.
+	-Mike
 
-The more complete fix requires updated DRI bits and an updated
-xf86-video-intel 2D driver, but no changes are needed in the Mesa GL
-driver. This bumps the i915 DRM version to 1.5.
-
-When we start looking at mergedfb environments, we may want to consider
-an even more sophisticated fix where the vblank used depends on the
-dominant monitor displaying the window. The patch I made won't help with
-that, unfortunately.
-
---=20
-keith.packard@intel.com
-
---=-wUz+ToYHIVaBaNaKeN7d
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBEnMyvQp8BWwlsTdMRAjFNAKCa/XJhkoFHOVJ+YaLn+eGP2uDxowCgslnT
-lD2GztAFB+JQRcMrTkFNqlI=
-=SM4a
------END PGP SIGNATURE-----
-
---=-wUz+ToYHIVaBaNaKeN7d--

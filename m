@@ -1,48 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWFXVnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWFXVrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWFXVnp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 17:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWFXVnp
+	id S964840AbWFXVrg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 17:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWFXVrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 17:43:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42981 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751107AbWFXVno (ORCPT
+	Sat, 24 Jun 2006 17:47:36 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:21945 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751101AbWFXVrg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 17:43:44 -0400
-Date: Sat, 24 Jun 2006 14:43:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dominik Karall <dominik.karall@gmx.net>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "John W. Linville" <linville@tuxdriver.com>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: 2.6.17-mm2
-Message-Id: <20060624144321.e41cf408.akpm@osdl.org>
-In-Reply-To: <200606242141.41055.dominik.karall@gmx.net>
-References: <20060624061914.202fbfb5.akpm@osdl.org>
-	<200606242141.41055.dominik.karall@gmx.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sat, 24 Jun 2006 17:47:36 -0400
+Date: Sat, 24 Jun 2006 23:47:27 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org,
+       kai@germaschewski.name
+Subject: Re: modpost change proposed
+Message-ID: <20060624214727.GA8904@mars.ravnborg.org>
+References: <20060623113138.GA29844@kestrel.barix.local> <20060623121250.GG14682@harddisk-recovery.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060623121250.GG14682@harddisk-recovery.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Jun 2006 21:41:41 +0200
-Dominik Karall <dominik.karall@gmx.net> wrote:
+On Fri, Jun 23, 2006 at 02:12:51PM +0200, Erik Mouw wrote:
+> > 
+> > I suggest the abort(); to be everywhere replaced with exit(1) for the
+> > following reasons:
+> > 1) it's customary
+Did so in scripts/* - thanks.
 
-> On Saturday, 24. June 2006 15:19, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1
-> >7/2.6.17-mm2/
-> 
-> hi!
-> 
-> I get this warning on make modules_install:
-> 
-> WARNING: /lib/modules/2.6.17-mm2/kernel/net/ieee80211/ieee80211.ko 
-> needs unknown symbol wireless_spy_update
-> 
-
-Someone removed the `#ifdef CONFIG_WIRELESS_EXT' from around the callsite
-in net/ieee80211/ieee80211_rx.c and didn't update Kconfig appropriately.
-
-Presumably, setting CONFIG_WIRELESS_EXT will get you going again.
+	Sam

@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933180AbWFXCH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933176AbWFXCLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933180AbWFXCH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 22:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933182AbWFXCH6
+	id S933176AbWFXCLq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 22:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933182AbWFXCLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 22:07:58 -0400
-Received: from mail.gmx.de ([213.165.64.21]:7625 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S933180AbWFXCH5 (ORCPT
+	Fri, 23 Jun 2006 22:11:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40612 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933176AbWFXCLp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 22:07:57 -0400
-X-Authenticated: #5039886
-Date: Sat, 24 Jun 2006 04:07:56 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Danial Thom <danial_thom@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Measuring tools - top and interrupts
-Message-ID: <20060624020755.GA6139@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Danial Thom <danial_thom@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20060622162141.GC14682@harddisk-recovery.com> <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
+	Fri, 23 Jun 2006 22:11:45 -0400
+Date: Fri, 23 Jun 2006 19:11:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org,
+       76306.1226@compuserve.com, ak@muc.de, akpm@osdl.org
+Subject: Re: i386 ABI and the stack
+In-Reply-To: <449C9C6D.7050905@zytor.com>
+Message-ID: <Pine.LNX.4.64.0606231907290.6483@g5.osdl.org>
+References: <787b0d920606231837k5d57da8ct5c511def6c035176@mail.gmail.com>
+ <Pine.LNX.4.64.0606231844460.6483@g5.osdl.org> <449C9C6D.7050905@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-Y-GMX-Trusted: 0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.06.22 09:58:08 -0700, Danial Thom wrote:
-> And 75K pps may not be "much", but its still at
-> least 10% of what the system can handle, so it
-> should measure around a 10% load. 2.4 measures
-> about 12% load. So the only conclusion is that
-> load accounting is broken in 2.6.
 
-Are you by chance using procps < 3.1.12? The kernel reports absolute
-values for cpu usage, the conversion to percentage is done by top/vmstat
-itself. And those old versions don't know about the new fields that 2.6
-kernels have in /proc/stat, thus they simply ignore the si and hi
-values, producing quite misleading results...
 
-Björn
+On Fri, 23 Jun 2006, H. Peter Anvin wrote:
+> > 
+> > The x86-64 ABI has a 128-byte(*) zone that is safe from signals etc, so you
+> > can use a small amount of stack below the stackpointer safely. Not so on
+> > x86.
+> 
+> Adding a small redzone like this to i386 would be easy, though -- just drop
+> the stack pointer by that much when creating a signal frame.  128 bytes isn't
+> enough to interfere with libraries.
 
-PS: procps 3.1.12 was released in 2003, so if DEC was stone age and my
-assumption about your tools holds, then your tools are like... medieval :)
+However, any binaries created with that in mind would be 
+buggy-by-definition on older kernels, so I don't think it's worth it. 
+
+> Unlike other enhancements that have been proposed to the i386 ABI (like
+> regparm), this has the advantage of being fully backwards-compatible with old
+> binaries and libraries.
+
+Right, but it's not backwards-compatible with old kernels ;(
+
+So any user space app that does it would have to be pretty crazy.
+
+I don't think it's a huge advantage anyway. x86 CPU's are really good at 
+tracking %esp - there are papers out there that talk about how %esp is the 
+limiter for effective IPC, but modern x86 CPU's will generally have ways 
+around it, so in _practice_ I think you can do
+
+	subl $16,%esp
+	movl %eax,4(%esp)
+
+without having any address stall on the subtract on most modern CPU cores 
+(because the core will break the dependency and track %esp specially).
+
+That's the Yonah "stack engine", afaik. And I could obviously name other 
+CPU's that does it too, but I probably shouldn't ;)
+
+		Linus

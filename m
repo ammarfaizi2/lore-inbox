@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWFXIQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933317AbWFXIXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWFXIQB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 04:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWFXIQB
+	id S933317AbWFXIXG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 04:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933315AbWFXIXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 04:16:01 -0400
-Received: from aa001msr.fastwebnet.it ([85.18.95.64]:14474 "EHLO
-	aa001msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1751239AbWFXIP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 04:15:59 -0400
-Date: Sat, 24 Jun 2006 10:09:57 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Jeff Garzik <jeff@garzik.org>, Hamish <hamish@travellingkiwi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SATA hangs...
-Message-ID: <20060624100957.73fff572@localhost>
-In-Reply-To: <20060624093659.7bc2a4a0@localhost>
-References: <200606232134.42231.hamish@travellingkiwi.com>
-	<449C6023.9010204@garzik.org>
-	<20060624093659.7bc2a4a0@localhost>
-X-Mailer: Sylpheed-Claws 2.3.0-rc3 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jun 2006 04:23:05 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:16854 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1752199AbWFXIXE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 04:23:04 -0400
+Message-ID: <351137381.24594@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Message-Id: <20060624082006.574472632@localhost.localdomain>
+Date: Sat, 24 Jun 2006 16:20:06 +0800
+From: Fengguang Wu <wfg@mail.ustc.edu.cn>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Lubos Lunak <l.lunak@suse.cz>
+Subject: [PATCH 0/7] [RFC] iosched: make a difference between read/readahead requests
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Jun 2006 09:36:59 +0200
-Paolo Ornati <ornati@fastwebnet.it> wrote:
+Hi Jens,
 
-> > > I'm having problems with a SATA drive on an ASUS A8V deluxe 
-> > > motherboard under kernel 2.6.17... In fact it's happened under 
-> > > every (Vanilla) kernel I've ever run on this server (Back to 2.6.14).
-> > > (It's just over a year old. It didn't used to experience the same load
-> > > as it does now, so I'm currently assuming it's load related...
-> 
-> I think I've hit something similar yesterday, with 2.6.17.1...
+This patchset does two jobs:
+	1) do io schedule differently on READ/READA requests.
+		- to help improve I/O latency and throughput
+	2) do notification/action on READA => READ events
+		- to make the elevators better informed
+		- to prevent the priority inversion problem
+		- also brings some CPU overheads*
+(*) I'm not able to provide numbers at the moment.
+    Our server is not up for testing these days. But sure will for the next time.
 
-I was thinking that I've recently enabled CONFIG_PREEMPT (usually I
-was just using CONFIG_PREEMPT_VOLUNTARY).
 
-Maybe is totally unrelated but... for Hamish: what is/was your PREEMPT
-config?
+The patches come in two groups:
 
--- 
-	Paolo Ornati
-	Linux 2.6.17.1 on x86_64
+1) explicitly schedule READA requests
+Note: currently only the deadline elevator is touched.
+
+[PATCH 1/7] iosched: introduce WRITEA                                                  
+[PATCH 2/7] iosched: introduce parameter deadline.reada_expire                         
+[PATCH 3/7] iosched: introduce deadline_add_drq_fifo()                                 
+[PATCH 4/7] iosched: submit READA requests on possible readahead code path             
+
+2) notify/act on pending reads
+Naming issue: how about pending_read/need_page/... for kick_page?
+
+[PATCH 5/7] iosched: introduce elv_kick_page()                                         
+[PATCH 6/7] iosched: run elv_kick_page() on sync read                                  
+[PATCH 7/7] iosched: introduce deadline_kick_page()                                    
+
+Most overheads should be in functions deadline_kick_page() and
+deadline_add_drq_fifo(). I'll explore the details later.
+
+Any comments are welcome, thanks.
+
+Fengguang Wu
+--
+Dept. Automation                University of Science and Technology of China

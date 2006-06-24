@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWFXATU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751687AbWFXASn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWFXATU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 20:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWFXATU
+	id S1751687AbWFXASn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 20:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752182AbWFXASm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 20:19:20 -0400
-Received: from cantor.suse.de ([195.135.220.2]:15503 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932110AbWFXATS (ORCPT
+	Fri, 23 Jun 2006 20:18:42 -0400
+Received: from mail.suse.de ([195.135.220.2]:64654 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751687AbWFXASm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 20:19:18 -0400
-Date: Sat, 24 Jun 2006 02:19:16 +0200
+	Fri, 23 Jun 2006 20:18:42 -0400
+Date: Sat, 24 Jun 2006 02:18:40 +0200
 From: "Andi Kleen" <ak@suse.de>
 To: torvalds@osdl.org
-Cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       jbeulich@novell.com
-Subject: [PATCH] [16/82] i386/x86-64: simplify ioapic_register_intr()
-Message-ID: <449C8504.mailCVE1AFQPQ@suse.de>
+Cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [4/82] i386/x86-64: Use new official CPUID to get 
+ APICID/core split on AMD platforms
+Message-ID: <449C84E0.mailCMY1N1S88@suse.de>
 User-Agent: nail 10.6 11/15/03
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,82 +24,82 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: "Jan Beulich" <jbeulich@novell.com>
-Simplify (remove duplication of) code in ioapic_register_intr().
+Previously the apicid<->coreid split was computed based on the max 
+number of cores. Now use a new CPUID AMD defined for that. On most
+systems right now it should be 0 and the old method will be used.
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/i386/kernel/io_apic.c   |   23 ++++++++---------------
- arch/x86_64/kernel/io_apic.c |   23 ++++++++---------------
- 2 files changed, 16 insertions(+), 30 deletions(-)
+ arch/i386/kernel/cpu/amd.c |   14 ++++++++------
+ arch/x86_64/kernel/setup.c |   20 +++++++++++++-------
+ 2 files changed, 21 insertions(+), 13 deletions(-)
 
-Index: linux/arch/i386/kernel/io_apic.c
+Index: linux/arch/x86_64/kernel/setup.c
 ===================================================================
---- linux.orig/arch/i386/kernel/io_apic.c
-+++ linux/arch/i386/kernel/io_apic.c
-@@ -1205,21 +1205,14 @@ static struct hw_interrupt_type ioapic_e
+--- linux.orig/arch/x86_64/kernel/setup.c
++++ linux/arch/x86_64/kernel/setup.c
+@@ -968,10 +968,18 @@ static void __init amd_detect_cmp(struct
+ 	int node = 0;
+ 	unsigned apicid = hard_smp_processor_id();
+ #endif
++	unsigned ecx = cpuid_ecx(0x80000008);
  
- static inline void ioapic_register_intr(int irq, int vector, unsigned long trigger)
- {
--	if (use_pci_vector() && !platform_legacy_irq(irq)) {
--		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
--				trigger == IOAPIC_LEVEL)
--			irq_desc[vector].handler = &ioapic_level_type;
--		else
--			irq_desc[vector].handler = &ioapic_edge_type;
--		set_intr_gate(vector, interrupt[vector]);
--	} else	{
--		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
--				trigger == IOAPIC_LEVEL)
--			irq_desc[irq].handler = &ioapic_level_type;
--		else
--			irq_desc[irq].handler = &ioapic_edge_type;
--		set_intr_gate(vector, interrupt[irq]);
--	}
-+	unsigned idx = use_pci_vector() && !platform_legacy_irq(irq) ? vector : irq;
+-	bits = 0;
+-	while ((1 << bits) < c->x86_max_cores)
+-		bits++;
++	c->x86_max_cores = (ecx & 0xff) + 1;
 +
-+	if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
-+			trigger == IOAPIC_LEVEL)
-+		irq_desc[idx].handler = &ioapic_level_type;
-+	else
-+		irq_desc[idx].handler = &ioapic_edge_type;
-+	set_intr_gate(vector, interrupt[idx]);
- }
++	/* CPU telling us the core id bits shift? */
++	bits = (ecx >> 12) & 0xF;
++
++	/* Otherwise recompute */
++	if (bits == 0) {
++		while ((1 << bits) < c->x86_max_cores)
++			bits++;
++	}
  
- static void __init setup_IO_APIC_irqs(void)
-Index: linux/arch/x86_64/kernel/io_apic.c
+ 	/* Low order bits define the core id (index of core in socket) */
+ 	cpu_core_id[cpu] = phys_proc_id[cpu] & ((1 << bits)-1);
+@@ -1059,11 +1067,9 @@ static int __init init_amd(struct cpuinf
+ 	if (c->x86_power & (1<<8))
+ 		set_bit(X86_FEATURE_CONSTANT_TSC, &c->x86_capability);
+ 
+-	if (c->extended_cpuid_level >= 0x80000008) {
+-		c->x86_max_cores = (cpuid_ecx(0x80000008) & 0xff) + 1;
+-
++	/* Multi core CPU? */
++	if (c->extended_cpuid_level >= 0x80000008)
+ 		amd_detect_cmp(c);
+-	}
+ 
+ 	return r;
+ }
+Index: linux/arch/i386/kernel/cpu/amd.c
 ===================================================================
---- linux.orig/arch/x86_64/kernel/io_apic.c
-+++ linux/arch/x86_64/kernel/io_apic.c
-@@ -876,21 +876,14 @@ static struct hw_interrupt_type ioapic_e
+--- linux.orig/arch/i386/kernel/cpu/amd.c
++++ linux/arch/i386/kernel/cpu/amd.c
+@@ -224,15 +224,17 @@ static void __init init_amd(struct cpuin
  
- static inline void ioapic_register_intr(int irq, int vector, unsigned long trigger)
- {
--	if (use_pci_vector() && !platform_legacy_irq(irq)) {
--		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
--				trigger == IOAPIC_LEVEL)
--			irq_desc[vector].handler = &ioapic_level_type;
--		else
--			irq_desc[vector].handler = &ioapic_edge_type;
--		set_intr_gate(vector, interrupt[vector]);
--	} else	{
--		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
--				trigger == IOAPIC_LEVEL)
--			irq_desc[irq].handler = &ioapic_level_type;
--		else
--			irq_desc[irq].handler = &ioapic_edge_type;
--		set_intr_gate(vector, interrupt[irq]);
--	}
-+	unsigned idx = use_pci_vector() && !platform_legacy_irq(irq) ? vector : irq;
+ #ifdef CONFIG_X86_HT
+ 	/*
+-	 * On a AMD dual core setup the lower bits of the APIC id
+-	 * distingush the cores.  Assumes number of cores is a power
+-	 * of two.
++	 * On a AMD multi core setup the lower bits of the APIC id
++	 * distingush the cores.
+ 	 */
+ 	if (c->x86_max_cores > 1) {
+ 		int cpu = smp_processor_id();
+-		unsigned bits = 0;
+-		while ((1 << bits) < c->x86_max_cores)
+-			bits++;
++		unsigned bits = (cpuid_ecx(0x80000008) >> 12) & 0xf;
 +
-+	if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
-+			trigger == IOAPIC_LEVEL)
-+		irq_desc[idx].handler = &ioapic_level_type;
-+	else
-+		irq_desc[idx].handler = &ioapic_edge_type;
-+	set_intr_gate(vector, interrupt[idx]);
- }
- 
- static void __init setup_IO_APIC_irqs(void)
++		if (bits == 0) {
++			while ((1 << bits) < c->x86_max_cores)
++				bits++;
++		}
+ 		cpu_core_id[cpu] = phys_proc_id[cpu] & ((1<<bits)-1);
+ 		phys_proc_id[cpu] >>= bits;
+ 		printk(KERN_INFO "CPU %d(%d) -> Core %d\n",

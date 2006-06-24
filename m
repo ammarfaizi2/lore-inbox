@@ -1,80 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWFXLx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWFXMDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWFXLx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 07:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWFXLxz
+	id S964782AbWFXMDF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 08:03:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWFXMDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 07:53:55 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:30592 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964782AbWFXLxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 07:53:54 -0400
-Date: Sat, 24 Jun 2006 07:53:32 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
-       mbligh@mbligh.org, Mattia Dongili <malattia@linux.it>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: fs/binfmt_aout.o, Error: suffix or operands invalid for  `cmp'
- [was Re: 2.6.1
-In-Reply-To: <449C168F.30708@zytor.com>
-Message-ID: <Pine.LNX.4.58.0606240747430.22321@gandalf.stny.rr.com>
-References: <200606220238_MC3-1-C321-1AC2@compuserve.com> <449AB908.30002@zytor.com>
- <Pine.LNX.4.58.0606230456220.1145@gandalf.stny.rr.com> <449C168F.30708@zytor.com>
+	Sat, 24 Jun 2006 08:03:05 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:29016 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964782AbWFXMDD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 08:03:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CzIuVEuyhc+QGNSDdh50291tRIWB6g6dF9A+hBwUXEvyEeFPU7WijNwtS485JwkIDE0Eq4xMkAlYX1Rp4SK1pUCnf3cPVfTYmVBxw25XDygoqjqpIjg9zP60su02A1SAGHqlEEAVKlMuuqegqErAL5YWK4NUWjba2caBGCSkQf8=
+Message-ID: <b8bf37780606240503s4713283eo2b8aa43513751da9@mail.gmail.com>
+Date: Sat, 24 Jun 2006 08:03:03 -0400
+From: "=?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?=" <andre.goddard@gmail.com>
+To: "Jens Axboe" <axboe@suse.de>
+Subject: Re: [ck] Re: [PATCH] fcache: a remapping boot cache
+Cc: James <iphitus@gmail.com>, ck@vds.kolivas.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060624110959.GQ4083@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <20060515091806.GA4110@suse.de> <20060515101019.GA4068@suse.de>
+	 <20060516074628.GA16317@suse.de>
+	 <4d8e3fd30605301438k457f6242x1df64df9bab7f8f1@mail.gmail.com>
+	 <20060531061234.GC29535@suse.de>
+	 <1e1a7e1b0606232044x11136be5p332716b757ecd537@mail.gmail.com>
+	 <20060624110959.GQ4083@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 23 Jun 2006, H. Peter Anvin wrote:
-
-> Steven Rostedt wrote:
-> >>>
-> >> It's not (it's #APP, i.e. inline assembly); rather, it's an illegal
-> >> constraint.
+On 6/24/06, Jens Axboe <axboe@suse.de> wrote:
+> On Sat, Jun 24 2006, James wrote:
+> > Set this up on my laptop yesterday with some awesome results. I'm
+> > using 2.6.17-ck1 which has v2.1.
 > >
-> > It's GCC optimizing a little too much.
+> > Heres some bootcharts, before, after, and a prime run.
 > >
->
-> No, it's not...
-
-Yes it is! Calm down, I didn't say it was GCC's fault!
-
-> it's the author of the inline assembly who told gcc a
-> lie at what it was allowed to optimize.  The constraint is "g"
-> (equivalent to "rmi"), but "rm" is the correct constraint.
-
-And this is why it over optimized.  It was the fault of the inline
-assembly author.  He/she gave it the wrong constraint and this was
-the reason for GCC over optimizing.  If it didn't over optimize than
-it would have worked.  But the bug is with the code and not GCC.
-
->
-> There is already a patch in Andrew's repo for this.
-
-Then this is all OK.
-
->
->  >
-> > #define __range_ok(addr,size) ({ \
-> > 	unsigned long flag,sum; \
-> > 	__chk_user_ptr(addr); \
-> > 	asm("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; sbbl $0,%0" \
-> > 		:"=&r" (flag), "=r" (sum) \
-> > 		:"1" (addr),"g" ((int)(size)),"g" (current_thread_info()->addr_limit.seg)); \
-> > 	flag; })
+> > http://archlinux.org/~james/normal.png
+> > http://archlinux.org/~james/fs-fcache.png
+> > http://archlinux.org/~james/fs-fcache-prime.png
 > >
-> > What happened was that gcc optimized the
-> > (current_thread_info()->addre_limit.seg to be a constant. Thus cmpl
-> > failed.
+> > Repeated boots show about the same 6 second improvement, 32 down to 26
+> > seconds. Looking at the slowdowns in the fs-fcache run, most are due
+> > to cpu load, waiting on network or, modprobe, and not disk access. X
+> > now starts nearly instantaneously.
 > >
+> > As an experiment, I primed my cache right through to logging into my
+> > desktop environment. It was so effective, that now when I login, the
+> > GNOME splash screen only flickers onto the screen briefly, and the
+> > panels appear almost instantly. This is a big improvment over without
+> > fcache, where you'd see each component of GNOME being loaded on the
+> > splash screen, nautilus, metacity, and the panels would take quite a
+> > bit of time to render and load all their applets.
+> >
+> > Impressive work, I hope to see it broadened to other filesystems,
+> > improved and merged to vanilla soon because it has clear improvements.
 >
-> ... perfectly legally so, given the "g" constraint.
+> Thanks for giving it a spin! I have plans to implement some improvements
+> on monday that will speed it up even more, I hope I can talk you into
+> retesting it then. Basically it make sure we always get full speed out
+> of the drive by extending the 4kb reads with a sliding window cache.
+> That will help both drive efficiency, and also speed up the cases where
+> sub sequent boots differ just a little bit from the primed boot (often
+> the case with parallel init scripts). It should win you a few seconds
+> more in total, would be my guess.
 >
+> I hope to be able to extend it to xfs and reiser in the very near future
+> as well, should not be hard to do.
 
-I never said it wasn't legal.
+Impressive good work, Jens!
 
--- Steve
+Do you have any distribution in contact with you already?
 
+Thank you so much, I look forward to test it on xfs.
+
+Best regards,
+-- 
+[]s,
+André Goddard

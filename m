@@ -1,259 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933221AbWFXI14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933323AbWFXImP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933221AbWFXI14 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 04:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933218AbWFXI14
+	id S933323AbWFXImP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 04:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933327AbWFXImP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 04:27:56 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:39123 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S933221AbWFXI1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 04:27:55 -0400
-Date: Sat, 24 Jun 2006 04:23:01 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [RFC, patch] i386: vgetcpu() for NUMA, take 2
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Rohit Seth <rohitseth@google.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
-       Ingo Molnar <mingo@elte.hu>
-Message-ID: <200606240426_MC3-1-C354-E4BC@compuserve.com>
+	Sat, 24 Jun 2006 04:42:15 -0400
+Received: from cantor.suse.de ([195.135.220.2]:17857 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S933323AbWFXImP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 04:42:15 -0400
+From: Andi Kleen <ak@suse.de>
+To: rohitseth@google.com
+Subject: Re: [discuss] Re: [RFC, patch] i386: vgetcpu(), take 2
+Date: Sat, 24 Jun 2006 10:42:49 +0200
+User-Agent: KMail/1.9.1
+Cc: discuss@x86-64.org, Chuck Ebbert <76306.1226@compuserve.com>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+References: <200606210329_MC3-1-C305-E008@compuserve.com> <200606231442.23073.ak@suse.de> <1151114785.23432.38.camel@galaxy.corp.google.com>
+In-Reply-To: <1151114785.23432.38.camel@galaxy.corp.google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200606241042.50139.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is attempt #2 at vgetcpu() NUMA support for i386.  It uses a
-GDT entry to hold cpu and node number for fast userspace access.
 
-changes since #1:
-   proper function prototype (same as x86_64)
-   changed alignment of vsyscall functions to 16 bytes
-        (sigreturn needs to stay fixed, others can move)
+> It just does not sound like a right interface.  Why should an app be
+> giving the last time value that it asked for the same information.  
 
-to-do:
-   CFI annotations
-   test NUMA on real NUMA hardware (someone please test)
+First this information comes with a good-before date stamp
+so it's natural. Otherwise the application will never pick
+up when the scheduler decides to schedule it somewhere else,
+which would be bad.
 
-Test program:
+And that came from conversation with application developers.
 
-/* vgetcpu.c: test how fast vgetcpu runs
- * boot kernel with vgetcpu patch first, then:
- *  gcc -O3 -o vgetcpu vgetcpu.c <srcpath>/arch/i386/kernel/vsyscall-int80.so
- * (don't forget the optimization (-O3))
- */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
+A: We want something to get the current node
+me: how fast does it need to be? 
+B: we will cache it anyways.
 
-extern int __attribute__ ((regparm(2))) __vgetcpu(int *cpu, int *node);
+Problem is that normally the application can't do a good job
+at doing the cache because it doesn't have a fast way to 
+do time stamping (gettimeofday would be too slow and it's
+the fastest timer available short of having a second thread
+that sleeps and updates a counter) 
 
-#define rdtscll(t)	asm("rdtsc" : "=A" (t))
+But the vsyscall incidentially knows this because of it
+sharing data with  vgettimeofday(), so it can
+do the job for the application
 
-int main(int argc, char * const argv[])
-{
-	long long tsc1, tsc2;
-	int i, cpu = 999, node = 999, iters = 99999;
-	
-	if (__vgetcpu(&cpu, &node) || node == 999 || cpu == 999) {
-		printf("vgetcpu failed!\n");
-		_exit(1);
-	}
-	printf("node: %d, cpu: %d\n", node, cpu);
+> User 
+> wants cpu, package and node numbers and those are the three parameters
+> that should be there.  Besides if we are using lsl then the latency part
+> of cpuid is already gone so no need to optimize this any more.
+>
+> Though this will be good interface to export jiffies ;-)
 
-	rdtscll(tsc1);
-	for (i = 0; i < iters; i++)
-		__vgetcpu(&cpu, &node);
-	rdtscll(tsc2);
+No - jiffies don't have a defined unit and might even go away
+on a fully tickless kernel.
 
-	printf("vgetcpu took %llu clocks per call\n", (tsc2 - tsc1) / iters);
+If we just exported jiffies you would get lots of HZ dependent
+programs.
 
-	return 0;
-}
-
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
- arch/i386/kernel/cpu/common.c         |    3 ++
- arch/i386/kernel/head.S               |   11 +++++++-
- arch/i386/kernel/smpboot.c            |    2 +
- arch/i386/kernel/vsyscall-getcpu.S    |   42 ++++++++++++++++++++++++++++++++++
- arch/i386/kernel/vsyscall-int80.S     |    2 +
- arch/i386/kernel/vsyscall-sigreturn.S |    3 --
- arch/i386/kernel/vsyscall-sysenter.S  |    2 +
- arch/i386/kernel/vsyscall.lds.S       |    1 
- include/asm-i386/segment.h            |    4 ++-
- 9 files changed, 65 insertions(+), 5 deletions(-)
-
---- 2.6.17-32.orig/arch/i386/kernel/cpu/common.c
-+++ 2.6.17-32/arch/i386/kernel/cpu/common.c
-@@ -642,6 +642,9 @@ void __cpuinit cpu_init(void)
- 		((((__u64)stk16_off) << 32) & 0xff00000000000000ULL) |
- 		(CPU_16BIT_STACK_SIZE - 1);
- 
-+	/* Set up GDT entry for per-cpu data */
-+ 	gdt[GDT_ENTRY_VGETCPU].a |= cpu & 0xff;
-+
- 	cpu_gdt_descr->size = GDT_SIZE - 1;
-  	cpu_gdt_descr->address = (unsigned long)gdt;
- 
---- 2.6.17-32.orig/arch/i386/kernel/head.S
-+++ 2.6.17-32/arch/i386/kernel/head.S
-@@ -480,7 +480,7 @@ ENTRY(boot_gdt_table)
- 	.quad 0x00cf92000000ffff	/* kernel 4GB data at 0x00000000 */
- 
- /*
-- * The Global Descriptor Table contains 28 quadwords, per-CPU.
-+ * The Global Descriptor Table contains 32 quadwords, per-CPU.
-  */
- 	.align L1_CACHE_BYTES
- ENTRY(cpu_gdt_table)
-@@ -525,7 +525,14 @@ ENTRY(cpu_gdt_table)
- 	.quad 0x004092000000ffff	/* 0xc8 APM DS    data */
- 
- 	.quad 0x0000920000000000	/* 0xd0 - ESPFIX 16-bit SS */
--	.quad 0x0000000000000000	/* 0xd8 - unused */
-+
-+	/*
-+	 * Use GDT entries to store per-cpu data for user space (DPL 3.)
-+	 * 32-bit data segment, byte granularity, base 0, limit set at runtime.
-+	 * Userspace will use LSL to access this data, stored in the limit field.
-+	 */
-+	.quad 0x0040f20000000000	/* 0xd8 - nodeid and logical CPU number */
-+
- 	.quad 0x0000000000000000	/* 0xe0 - unused */
- 	.quad 0x0000000000000000	/* 0xe8 - unused */
- 	.quad 0x0000000000000000	/* 0xf0 - unused */
---- /dev/null
-+++ 2.6.17-32/arch/i386/kernel/vsyscall-getcpu.S
-@@ -0,0 +1,42 @@
-+/*
-+ * fastcall int __vgetcpu(int *cpu, int *node)
-+ *
-+ * This file is #include'd by vsyscall-*.S to place vgetcpu after the
-+ * sigreturn code.
-+ *
-+ * Puts logical CPU number in *cpu, node ID in *node;
-+ * returns 0 for success and -EFAULT on error.
-+ *
-+ * CPU number and node ID are 8 bits each, with 4 total bits available
-+ * for future growth of either field.
-+ */
-+
-+#include <linux/errno.h>
-+#include <asm/segment.h>
-+
-+	.text
-+	.balign 16
-+	.globl __vgetcpu
-+	.type __vgetcpu,@function
-+__vgetcpu:
-+.LSTART_vgetcpu:
-+	mov $((GDT_ENTRY_VGETCPU<<3)|3),%cx
-+	lsl %ecx,%ecx
-+	jnz 1f
-+	push %ecx
-+	and $0xff,%ecx		/* 8-bit cpu number */
-+	mov %ecx,(%eax)
-+	pop %ecx
-+	xor %eax,%eax
-+	shr $8,%ecx		/* assume top 4 bits are zero */
-+	mov %ecx,(%edx)
-+	ret
-+1:
-+	push $-EFAULT		/* saves 2 bytes of .text */
-+	pop %eax
-+	ret
-+.LEND_vgetcpu:
-+	.size __vgetcpu,.-.LSTART_vgetcpu
-+	.previous
-+
-+/* ZZZ: need CFI annotations here */
---- 2.6.17-32.orig/arch/i386/kernel/vsyscall-int80.S
-+++ 2.6.17-32/arch/i386/kernel/vsyscall-int80.S
-@@ -51,3 +51,5 @@ __kernel_vsyscall:
-  * Get the common code for the sigreturn entry points.
-  */
- #include "vsyscall-sigreturn.S"
-+
-+#include "vsyscall-getcpu.S"
---- 2.6.17-32.orig/arch/i386/kernel/vsyscall-sysenter.S
-+++ 2.6.17-32/arch/i386/kernel/vsyscall-sysenter.S
-@@ -120,3 +120,5 @@ SYSENTER_RETURN:
-  * Get the common code for the sigreturn entry points.
-  */
- #include "vsyscall-sigreturn.S"
-+
-+#include "vsyscall-getcpu.S"
---- 2.6.17-32.orig/arch/i386/kernel/vsyscall.lds.S
-+++ 2.6.17-32/arch/i386/kernel/vsyscall.lds.S
-@@ -57,6 +57,7 @@ VERSION
-     	__kernel_vsyscall;
-     	__kernel_sigreturn;
-     	__kernel_rt_sigreturn;
-+	__vgetcpu;
- 
-     local: *;
-   };
---- 2.6.17-32.orig/arch/i386/kernel/smpboot.c
-+++ 2.6.17-32/arch/i386/kernel/smpboot.c
-@@ -615,6 +615,7 @@ static inline void map_cpu_to_node(int c
- 	printk("Mapping cpu %d to node %d\n", cpu, node);
- 	cpu_set(cpu, node_2_cpu_mask[node]);
- 	cpu_2_node[cpu] = node;
-+ 	get_cpu_gdt_table(cpu)[GDT_ENTRY_VGETCPU].a |= (node & 0xff) << 8;
- }
- 
- /* undo a mapping between cpu and node. */
-@@ -626,6 +627,7 @@ static inline void unmap_cpu_to_node(int
- 	for (node = 0; node < MAX_NUMNODES; node ++)
- 		cpu_clear(cpu, node_2_cpu_mask[node]);
- 	cpu_2_node[cpu] = 0;
-+ 	get_cpu_gdt_table(cpu)[GDT_ENTRY_VGETCPU].a &= ~(0xff << 8);
- }
- #else /* !CONFIG_NUMA */
- 
---- 2.6.17-32.orig/include/asm-i386/segment.h
-+++ 2.6.17-32/include/asm-i386/segment.h
-@@ -39,7 +39,7 @@
-  *  25 - APM BIOS support 
-  *
-  *  26 - ESPFIX small SS
-- *  27 - unused
-+ *  27 - vgetcpu() data
-  *  28 - unused
-  *  29 - unused
-  *  30 - unused
-@@ -74,6 +74,8 @@
- #define GDT_ENTRY_ESPFIX_SS		(GDT_ENTRY_KERNEL_BASE + 14)
- #define __ESPFIX_SS (GDT_ENTRY_ESPFIX_SS * 8)
- 
-+#define GDT_ENTRY_VGETCPU		(GDT_ENTRY_KERNEL_BASE + 15)
-+
- #define GDT_ENTRY_DOUBLEFAULT_TSS	31
- 
- /*
---- 2.6.17-32.orig/arch/i386/kernel/vsyscall-sigreturn.S
-+++ 2.6.17-32/arch/i386/kernel/vsyscall-sigreturn.S
-@@ -26,7 +26,7 @@ __kernel_sigreturn:
- .LEND_sigreturn:
- 	.size __kernel_sigreturn,.-.LSTART_sigreturn
- 
--	.balign 32
-+	.balign 16
- 	.globl __kernel_rt_sigreturn
- 	.type __kernel_rt_sigreturn,@function
- __kernel_rt_sigreturn:
-@@ -35,7 +35,6 @@ __kernel_rt_sigreturn:
- 	int $0x80
- .LEND_rt_sigreturn:
- 	.size __kernel_rt_sigreturn,.-.LSTART_rt_sigreturn
--	.balign 32
- 	.previous
- 
- 	.section .eh_frame,"a",@progbits
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+-Andi

@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWFXROf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWFXRQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750924AbWFXROf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 13:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbWFXROf
+	id S1750920AbWFXRQN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 13:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWFXRQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 13:14:35 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35734 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750908AbWFXROe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 13:14:34 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: vgoyal@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       fastboot@lists.osdl.org, linux-scsi@vger.kernel.org, mike.miller@hp.com,
-       Neela.Kolli@engenio.com
-Subject: Re: [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
-References: <20060623210121.GA18384@in.ibm.com>
-	<20060623210424.GB18384@in.ibm.com>
-	<20060623235553.2892f21a.akpm@osdl.org>
-	<20060624111954.GA7313@in.ibm.com>
-	<20060624043046.4e4985be.akpm@osdl.org>
-	<20060624120836.GB7313@in.ibm.com>
-Date: Sat, 24 Jun 2006 11:13:44 -0600
-In-Reply-To: <20060624120836.GB7313@in.ibm.com> (Vivek Goyal's message of
-	"Sat, 24 Jun 2006 08:08:36 -0400")
-Message-ID: <m1veqqxyrb.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sat, 24 Jun 2006 13:16:13 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:27302 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750918AbWFXRQL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 13:16:11 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
+Date: Sat, 24 Jun 2006 19:16:43 +0200
+User-Agent: KMail/1.9.3
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, linux-pm@osdl.org,
+       stern@rowland.harvard.edu
+References: <4499BE99.6010508@gmail.com> <20060623221117.GA2497@elf.ucw.cz> <20060623235357.GA1181@slug>
+In-Reply-To: <20060623235357.GA1181@slug>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606241916.43892.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
+On Saturday 24 June 2006 01:53, Frederik Deweerdt wrote:
+> On Sat, Jun 24, 2006 at 12:11:18AM +0200, Pavel Machek wrote:
+> > On Fri 2006-06-23 20:41:01, Russell King wrote:
+> > > On Fri, Jun 23, 2006 at 11:10:21AM +0200, Pavel Machek wrote:
+> > > > Serial console is currently broken by suspend, resume. _But_ I have a
+> > > > patch I'd like you to try.... pretty please?
+> > > 
+> > > Did you bother trying my patch, which was done the Right(tm) way?
+> > > There wasn't any feedback on it so I can only assume not.
+> > 
+> > (I actually forwarded him your patch in private email).
+> And I did try it, but it make no difference: the output would still
+> appear on the laptop.
 
-> On Sat, Jun 24, 2006 at 04:30:46AM -0700, Andrew Morton wrote:
->
->> > Or is there a generic way to handle these situations? Fixing them driver
->> > by driver is a long painful process. 
->> 
->> Some generic way of whacking a PCI device via the standard PCI registers? 
->> Not that I know of.
->
-> Somebody hinted that think of PCI bus reset. But I think PCI bus reset will
-> require firware/BIOS to export a hook to software to so initiate PCI bus
-> reset and I don't think many platforms do that. Infact I am not even aware
-> of one platform who does that.
+You can try to use the hack at
+http://www.sisk.pl/kernel/patches/2.6.17-mm1/hack-serial-suspend.patch
+and see if that makes the messages get to the serial console.
 
-Not all pci busses support it but there is a standard pci bus reset bit
-in pci bridges.
-
-I don't know if it would help but it might make sense to have a config
-option that can be used to mark drivers that are known to have problems,
-in these scenarios.
-
-CONFIG_BRITTLE_INIT perhaps?
-
-It would at least make it easier for people to see which drivers
-they don't want to use, and give people some incentive to fix things.
-
-Eric
+Greetings,
+Rafael

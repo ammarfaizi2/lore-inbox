@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWFXEjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWFXEpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWFXEjr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 00:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWFXEjr
+	id S932217AbWFXEpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 00:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWFXEpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 00:39:47 -0400
-Received: from brain.cel.usyd.edu.au ([129.78.24.68]:44973 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S932211AbWFXEjp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-Kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 00:39:45 -0400
-Message-Id: <5.1.1.5.2.20060624143219.02771e40@brain.sedal.usyd.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Sat, 24 Jun 2006 14:39:45 +1000
-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-From: sena seneviratne <auntvini@cel.usyd.edu.au>
-Subject: Re: Measuring tools - top and interrupts
-Cc: linux-Kernel@vger.kernel.org, balbir@in.ibm.com
-In-Reply-To: <20060624020755.GA6139@atjola.homenet>
-References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
- <20060622162141.GC14682@harddisk-recovery.com>
- <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Sat, 24 Jun 2006 00:45:09 -0400
+Received: from loopy.telegraphics.com.au ([202.45.126.152]:52939 "EHLO
+	loopy.telegraphics.com.au") by vger.kernel.org with ESMTP
+	id S932173AbWFXEpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 00:45:07 -0400
+Date: Sat, 24 Jun 2006 14:45:06 +1000 (EST)
+From: Finn Thain <fthain@telegraphics.com.au>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Linux/m68k <linux-m68k@vger.kernel.org>
+Subject: Re: [PATCH 08/21] gcc 4 fix
+In-Reply-To: <Pine.LNX.4.64.0606232158400.17704@scrub.home>
+Message-ID: <Pine.LNX.4.64.0606241420330.1073@loopy.telegraphics.com.au>
+References: <20060623183056.479024000@linux-m68k.org> <20060623183911.847605000@linux-m68k.org>
+ <20060623193524.GA27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606232158400.17704@scrub.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Björn,
-
-Yes you have to change the procps to read the new /proc/stat
-
-For example, after separating the load and disk IO measurements, also 
-separating for per user at the kernel level, I had to introduce new code 
-into procps/ to reflect those changes
-
-Otherwise those tools (top, uptime etc) would not know the new formats etc.
-
-Thanks
-Sena
-Sydney University
 
 
-At 04:07 AM 6/24/2006 +0200, you wrote:
->On 2006.06.22 09:58:08 -0700, Danial Thom wrote:
-> > And 75K pps may not be "much", but its still at
-> > least 10% of what the system can handle, so it
-> > should measure around a 10% load. 2.4 measures
-> > about 12% load. So the only conclusion is that
-> > load accounting is broken in 2.6.
->
->Are you by chance using procps < 3.1.12? The kernel reports absolute
->values for cpu usage, the conversion to percentage is done by top/vmstat
->itself. And those old versions don't know about the new fields that 2.6
->kernels have in /proc/stat, thus they simply ignore the si and hi
->values, producing quite misleading results...
->
->Björn
->
->PS: procps 3.1.12 was released in 2003, so if DEC was stone age and my
->assumption about your tools holds, then your tools are like... medieval :)
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+On Fri, 23 Jun 2006, Roman Zippel wrote:
 
+> Hi,
+> 
+> On Fri, 23 Jun 2006, Al Viro wrote:
+> 
+> > On Fri, Jun 23, 2006 at 08:31:04PM +0200, zippel@linux-m68k.org wrote:
+> > > Fixes a "static qualifier follows non-static qualifier" error from 
+> > > gcc 4.
+> > > 
+> > > Signed-off-by: Finn Thain <fthain@telegraphics.com.au> 
+> > > Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+> > 
+> > Broken.  Proper fix is to rename the function so that it wouldn't 
+> > clash.
+> 
+> Well, I wouldn't call it broken, as both versions can never be compiled 
+> into the same kernel, but I don't care much how it's fixed.
+> 
+> Does anyone know the relationship between via-pmu.c and via-pmu68k.c? If 
+> it's intended to keep the differences small, a rename would be the wrong 
+> fix.
+
+The relationship is (and was) just that they share the pmu.h header file 
+declarations. In the patch in question I used the powerpc definition as 
+well.
+
+The powerpc version exports pmu_queue_request (apparently for the use of 
+low_i2c.c). The m68k version doesn't, but if it needed to export it, I 
+don't see why it shouldn't implement the same "API"?
+
+-f
+
+> bye, Roman
+> 

@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWFXVyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWFXWPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbWFXVyG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 17:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWFXVyF
+	id S1751121AbWFXWPT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 18:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWFXWPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 17:54:05 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:35492 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S964851AbWFXVyA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 17:54:00 -0400
-Date: Sat, 24 Jun 2006 23:54:00 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: linux-kernel@vger.kernel.org, Jon Masters <jcm@redhat.com>
-Subject: Re: [RFC PATCH] kbuild support for %.symtypes files
-Message-ID: <20060624215400.GC8904@mars.ravnborg.org>
-References: <200605092037.31228.agruen@suse.de>
+	Sat, 24 Jun 2006 18:15:19 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:32749 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751121AbWFXWPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 18:15:17 -0400
+Subject: Re: More weird latency trace output (was Re: 2.6.17-rt1)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, john stultz <johnstul@us.ibm.com>
+In-Reply-To: <1151025892.17952.32.camel@mindpipe>
+References: <20060618070641.GA6759@elte.hu>
+	 <1150937848.2754.379.camel@mindpipe>  <1150944663.2754.416.camel@mindpipe>
+	 <1151025892.17952.32.camel@mindpipe>
+Content-Type: text/plain
+Date: Sat, 24 Jun 2006 18:15:19 -0400
+Message-Id: <1151187320.2931.191.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605092037.31228.agruen@suse.de>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 09, 2006 at 08:37:30PM +0200, Andreas Gruenbacher wrote:
-> Hello,
+On Thu, 2006-06-22 at 21:24 -0400, Lee Revell wrote:
+> On Wed, 2006-06-21 at 22:51 -0400, Lee Revell wrote:
+> > How can the latency tracer be reporting 1898us max latency while the
+> > trace is of a 12us latency?  This must be a bug, correct?
 > 
-> here is a patch that adds a new -T option to genksyms for generating dumps of 
-> the type definition that makes up the symbol version hashes. This allows to 
-> trace modversion changes back to what caused them. The dump format is the 
-> name of the type defined, followed by its definition (which is almost C):
+> I've found the bug.  The latency tracer uses get_cycles() for
+> timestamping, which uses rdtsc, which is unusable for timing on dual
+> core AMD64 machines due to the well known "unsynced TSCs" hardware bug.
+> 
+> Would a patch to convert the latency tracer to use gettimeofday() be
+> acceptable?
 
-Applid as is. But please take a closer look at the output format.
-Making it human readable somewho is desireable - even it the parsing
-needs a bit more effort then.
+OK, I tried that and it oopses on boot - presumably the latency tracer
+runs before clocksource infrastructure is initialized.
 
-	Sam
+Does anyone have any suggestions at all as to what a proper solution
+would look like?  Is no one interested in this problem?
+
+Lee
+

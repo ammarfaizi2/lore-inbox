@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWFXQag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWFXQsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbWFXQag (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 12:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWFXQag
+	id S1750883AbWFXQsx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 12:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWFXQsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 12:30:36 -0400
-Received: from hegel.brightdsl.net ([66.219.128.245]:32150 "EHLO
-	hegel.brightdsl.net") by vger.kernel.org with ESMTP
-	id S1750867AbWFXQag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 12:30:36 -0400
-Subject: Re: 2.6.17-...: looong writeouts
-From: Donald Parsons <dparsons@brightdsl.net>
-To: Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Sat, 24 Jun 2006 12:30:29 -0400
-Message-Id: <1151166629.4409.18.camel@danny.parsons.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Sat, 24 Jun 2006 12:48:53 -0400
+Received: from gw.goop.org ([64.81.55.164]:50583 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1750876AbWFXQsx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 12:48:53 -0400
+Message-ID: <449D6D07.9070901@goop.org>
+Date: Sat, 24 Jun 2006 09:49:11 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] ext3_clear_inode(): avoid kfree(NULL)
+References: <200606231502.k5NF2jfO007109@hera.kernel.org>	 <449C3817.2030802@garzik.org> <20060623142430.333dd666.akpm@osdl.org>	 <1151151104.3181.30.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.58.0606240817170.23087@gandalf.stny.rr.com>	 <1151152059.3181.37.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.58.0606240833010.23318@gandalf.stny.rr.com> <1151153177.3181.39.camel@laptopd505.fenrus.org>
+In-Reply-To: <1151153177.3181.39.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am seeing the same problem.  I had only noticed it
-since I installed Opera-9.0 and thought it was Opera's
-problem.  It even happened when I clicked to read this
-message at www.uwsg.iu.edu/hypermail/linux/kernel/0606.3/0091.html
-to which I am replying.  I had to wait for the disk
-access to end before the message link would display.
+Arjan van de Ven wrote:
+> nope none at all, at least not on x86/x86-64.
+> (in fact there is no way to help the prediction on those architectures
+> that actually works)
+>   
+The branch prediction hint prefixes (2e & 3e) don't work?
 
-Something serious has happened to Linux 2.6.17.1  It
-appears I installed both  2.6.17.1 and Opera-9.0 on
-June 20 and that is when the disk timeout was first
-noticed.  (I compile and use most every git/rc kernel
-so if the problem is seen by people without Opera then
-it must have entered the kernel very close to 2.6.17.1)
-
-Next time I boot I will go back to 2.6.17
-(Too bad I deleted earlier rc[567]-gits).
-
-Don
-
+    J

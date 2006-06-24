@@ -1,115 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWFXEQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWFXEdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWFXEQE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 00:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWFXEQE
+	id S932160AbWFXEdO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 00:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWFXEdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 00:16:04 -0400
-Received: from dsl-202-45-110-141-static.VIC.netspace.net.au ([202.45.110.141]:27588
-	"EHLO firewall.reed.wattle.id.au") by vger.kernel.org with ESMTP
-	id S932160AbWFXEQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 00:16:03 -0400
-From: Darren Reed <darrenr@reed.wattle.id.au>
-Message-Id: <200606240247.k5O2lU3C009083@firewall.reed.wattle.id.au>
-Subject: Re: 2.6.11: spinlock problem
-In-Reply-To: <Pine.LNX.4.61.0606231331310.16810@chaos.analogic.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Date: Sat, 24 Jun 2006 12:47:30 +1000 (EST)
-CC: Darren Reed <darrenr@reed.wattle.id.au>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL107a (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 24 Jun 2006 00:33:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31634 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932160AbWFXEdN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 00:33:13 -0400
+Date: Sat, 24 Jun 2006 00:33:08 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: fix typo in acpi video brightness changes.
+Message-ID: <20060624043308.GA21753@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Charset ISO-8859-1 unsupported, converting... ]
-> On Fri, 23 Jun 2006, Darren Reed wrote:
-> 
-> > Hi,
-> >
-> > I'm seeing a spinlock held panic with a kernel stack like this:
-> >
-> > spinlock - panic, lock already held
-> > ..
-> > __do_softirq
-> > do_softirq
-> > =========
-> > do_IRQ
-> > common_interrupt
-> > spinlock/spinunlock
-> > ..
-> >
-> > when I load up the system in testing.
-> > The code protected by the spinlock is quite small - counter increment.
-> >
-> > I'm using 2.6.11-1.1369_FC4 #1, installed inside of vmware,
-> > running as a guest on a Windows XP box.
-> >
-> > Is this
-> > (a) linux allowing the IRQ too early
-> > (b) vmware not doing something right
-> > (c) enivitable
-> > (d) somehow my fault
-> > (e) something else?
-> >
-> > Thanks,
-> > Darren
-> 
-> Where's the code? Also, did you initialize the spin-lock variable
-> before use?
+Prevent possible null dereference due to misplaced ;
 
-locks are intialised...code runs for a minute or so before panic'ing
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-I write my own wrappers to read/write_lock/unlock.
+--- linux-2.6/drivers/acpi/video.c~	2006-06-24 00:30:39.000000000 -0400
++++ linux-2.6/drivers/acpi/video.c	2006-06-24 00:31:04.000000000 -0400
+@@ -1645,7 +1645,7 @@ static int acpi_video_bus_put_devices(st
+ 			printk(KERN_WARNING PREFIX
+ 			       "hhuuhhuu bug in acpi video driver.\n");
+ 
+-		if (data->brightness);
++		if (data->brightness)
+ 			kfree(data->brightness->levels);
+ 		kfree(data->brightness);
+ 		kfree(data);
 
-The call stack for the panic is:
-panic
-ipf_read_enter
-..
-do_softirq
-=====
-do_IRQ
-common_interrupt
-ipf_rw_exit
-
-ipf_read_enter and ipf_rw_exit are being called for different locks.
-The panic is occuring in the spin_lock() for the counter increment.
-The counter incrememnt/decrement uses the same lock, regardless of
-the counter being used.
-
-I believe I'm hitting a race condition of sorts...I just don't know
-who owns it yet - vmware or linux and I cant test running linux
-natively at present because I only have one computer.
-
-Darren
-
-INLINE void ipf_rw_exit(rwlk)
-ipfrwlock_t *rwlk;
-{
-        if (rwlk->ipf_isw > 0) {
-                rwlk->ipf_isw = 0;
-                write_unlock(&rwlk->ipf_lk);
-        } else if (rwlk->ipf_isr > 0) {
-                ATOMIC_DEC32(rwlk->ipf_isr);
-                read_unlock(&rwlk->ipf_lk);
-        } else {
-                panic("rwlk->ipf_isw %d isr %d rwlk %p name [%s]\n",
-                      rwlk->ipf_isw, rwlk->ipf_isr, rwlk, rwlk->ipf_lname);
-        }
-}
-
-INLINE void ipf_read_enter(rwlk)
-ipfrwlock_t *rwlk;
-{
-        read_lock(&rwlk->ipf_lk);
-        ATOMIC_INC32(rwlk->ipf_isr);
-}
-
-#  define       ATOMIC_INC32(x)         MUTEX_ENTER(&ipf_rw); (x)++; \
-                                        MUTEX_EXIT(&ipf_rw)
-#  define       ATOMIC_DEC32(x)         MUTEX_ENTER(&ipf_rw); (x)--; \
-                                        MUTEX_EXIT(&ipf_rw)
-#  define       MUTEX_ENTER(x)          spin_lock(&(x)->ipf_lk)
-#  define       MUTEX_EXIT(x)           spin_unlock(&(x)->ipf_lk)
-
+-- 
+http://www.codemonkey.org.uk

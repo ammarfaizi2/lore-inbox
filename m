@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933323AbWFXImP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933362AbWFXJQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933323AbWFXImP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 04:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933327AbWFXImP
+	id S933362AbWFXJQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 05:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933363AbWFXJQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 04:42:15 -0400
-Received: from cantor.suse.de ([195.135.220.2]:17857 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S933323AbWFXImP (ORCPT
+	Sat, 24 Jun 2006 05:16:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18585 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933360AbWFXJQy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 04:42:15 -0400
-From: Andi Kleen <ak@suse.de>
-To: rohitseth@google.com
-Subject: Re: [discuss] Re: [RFC, patch] i386: vgetcpu(), take 2
-Date: Sat, 24 Jun 2006 10:42:49 +0200
-User-Agent: KMail/1.9.1
-Cc: discuss@x86-64.org, Chuck Ebbert <76306.1226@compuserve.com>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-References: <200606210329_MC3-1-C305-E008@compuserve.com> <200606231442.23073.ak@suse.de> <1151114785.23432.38.camel@galaxy.corp.google.com>
-In-Reply-To: <1151114785.23432.38.camel@galaxy.corp.google.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606241042.50139.ak@suse.de>
+	Sat, 24 Jun 2006 05:16:54 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <17564.52290.338084.934211@cse.unsw.edu.au> 
+References: <17564.52290.338084.934211@cse.unsw.edu.au>  <15603.1150978967@warthog.cambridge.redhat.com> 
+To: Neil Brown <neilb@suse.de>
+Cc: David Howells <dhowells@redhat.com>, balbir@in.ibm.com, akpm@osdl.org,
+       aviro@redhat.com, jblunck@suse.de, dev@openvz.org, olh@suse.de,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Fix dcache race during umount 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Sat, 24 Jun 2006 10:16:34 +0100
+Message-ID: <27097.1151140594@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Neil Brown <neilb@suse.de> wrote:
 
-> It just does not sound like a right interface.  Why should an app be
-> giving the last time value that it asked for the same information.  
+> > In my patch, generic_shutdown_super() is made to call shrink_dcache_sb()
+> > instead of shrink_dcache_anon(), and the latter function is discarded
+> > completely since it's no longer used.
+> 
+> Is that a good idea?
 
-First this information comes with a good-before date stamp
-so it's natural. Otherwise the application will never pick
-up when the scheduler decides to schedule it somewhere else,
-which would be bad.
+It depends on how often you expect unmounts to be happening, I suppose.
 
-And that came from conversation with application developers.
+> Do you not have easy access to the roots of all trees in your
+> super-block-sharing situation so that shrink_dcache_parent can be
+> called on them all?
 
-A: We want something to get the current node
-me: how fast does it need to be? 
-B: we will cache it anyways.
+Well, all the roots are on the anon list, it's just that shrink_dcache_anon()
+can't get rid of any root that's got children.
 
-Problem is that normally the application can't do a good job
-at doing the cache because it doesn't have a fast way to 
-do time stamping (gettimeofday would be too slow and it's
-the fastest timer available short of having a second thread
-that sleeps and updates a counter) 
+For unmounting specifically, we can do better as we can consume the dentry
+trees directly.  That's not too difficult when we can unconditionally destroy
+them from the leaves inwards.  That way we could probably avoid calling
+shrink_dcache_parent() also - stick the tree at s_root on to the anon list
+during unmount and have a single algorithm to wipe away the whole lot from
+there.
 
-But the vsyscall incidentially knows this because of it
-sharing data with  vgettimeofday(), so it can
-do the job for the application
-
-> User 
-> wants cpu, package and node numbers and those are the three parameters
-> that should be there.  Besides if we are using lsl then the latency part
-> of cpuid is already gone so no need to optimize this any more.
->
-> Though this will be good interface to export jiffies ;-)
-
-No - jiffies don't have a defined unit and might even go away
-on a fully tickless kernel.
-
-If we just exported jiffies you would get lots of HZ dependent
-programs.
-
--Andi
+David

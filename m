@@ -1,55 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWFXThI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWFXTin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751060AbWFXThI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 15:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWFXThI
+	id S1751064AbWFXTin (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 15:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWFXTin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 15:37:08 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:55472 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S1751060AbWFXThG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 15:37:06 -0400
-DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=Wjk9N9YqOev84lAzTCYXdE5yJLNDU64YABOF7jEuHHNtNjUt+zR9zrGoIr3efPiMxCZaIOyGShP7rMFfo4V6H3jal2/pQu2Cjg9Di0ZGTho9cmIglc5RrRlMQ3d2PKvu;
-X-IronPort-AV: i="4.06,172,1149483600"; 
-   d="scan'208"; a="35571031:sNHT34179327"
-Date: Sat, 24 Jun 2006 14:37:05 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Corey Minyard <minyard@acm.org>
-Cc: Peter Palfrader <peter@palfrader.org>,
-       openipmi-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Openipmi-developer] BUG: soft lockup detected on CPU#1, ipmi_si
-Message-ID: <20060624193704.GB14713@humbolt.us.dell.com>
-Reply-To: Matt Domsch <Matt_Domsch@dell.com>
-References: <20060613233521.GO22999@asteria.noreply.org> <44962116.70302@acm.org> <20060619093851.GL27377@asteria.noreply.org> <449AA320.3060700@acm.org> <20060623025649.GE15027@lists.us.dell.com> <449C7CF0.4000002@acm.org>
+	Sat, 24 Jun 2006 15:38:43 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:15627 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751064AbWFXTim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 15:38:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=Za8XSI8Cfhvlm1K15+TOQwZiSDOD8mXmpYoUUhbCZxePh8U5VFxrNCkUjm0G9wXCzqMYcEEMUm60dJKpRlmp5LdfX18Vt4IvE6ErN2IfJfiGc+LjMSYtBgqxH+DY93b8recqM0+7vZUUxU0ardUoNCwG+zMsQ8FF0wzzIvSUOvk=
+Date: Sat, 24 Jun 2006 23:39:09 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] ioctl-mess.txt: XFS + typos
+Message-ID: <20060624193909.GA30083@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <449C7CF0.4000002@acm.org>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 06:44:48PM -0500, Corey Minyard wrote:
-> I also had a report from Matt that running the driver full-bore caused
-> the mouse to go haywire.  I did some testing and the mouse didn't go
-> haywire, but my keyboard did.  I changed the udelay(1) to schedule() and
-> kipmi0 is running at 100% as I type right now, and things seem to be
-> running smoothly.  Testing the performance, I got 4.5ms per message for
-> a get device id, which was the same as I saw before the change.  So I
-> think this change is a good idea.
+nusigned
 
-I tried this here too, and while I'm not at the console to try the
-mouse, the times for 'ipmitool sensor list' are still within the same
-range (5-10 seconds, average is about 6) as with udelay(1) instead.
-Running some load generators to keep the CPUs pegged didn't change
-this result either.  So I'm inclined to agree changing to schedule()
-is the right approach.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-Thanks,
-Matt
+ Documentation/ioctl-mess.txt |  162 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 160 insertions(+), 2 deletions(-)
 
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+--- a/Documentation/ioctl-mess.txt
++++ b/Documentation/ioctl-mess.txt
+@@ -1735,7 +1735,7 @@ I: struct hci_dev_req
+ O: -
+ 
+ N: HCISETRAW
+-I: (nusigned long) arg
++I: (unsigned long) arg
+ O: -
+ 
+ N: HCISETSCAN
+@@ -1747,7 +1747,7 @@ I: struct hci_dev_req
+ O: -
+ 
+ N: HCISETSECMGR
+-I: (nusigned long) arg
++I: (unsigned long) arg
+ O: -
+ 
+ N: HCIUARTGETPROTO
+@@ -4769,6 +4769,164 @@ O: -
+ 
+ WRITE_RAID_INFO
+ 
++N: XFS_IOC_ALLOCSP
++I: xfs_flock64_t
++O: -
++
++N: XFS_IOC_ALLOCSP64
++I: xfs_flock64_t
++O: -
++
++N: XFS_IOC_ATTRLIST_BY_HANDLE
++I: xfs_fsop_attrlist_handlereq_t
++O: xfs_fsop_attrlist_handlereq_t::buflen
++
++XFS_IOC_ATTRMULTI_BY_HANDLE
++
++N: XFS_IOC_DIOINFO
++I: -
++O: struct dioattr
++
++N: XFS_IOC_ERROR_CLEARALL
++I: -
++O: -
++
++N: XFS_IOC_ERROR_INJECTION
++I: xfs_error_injection_t
++O: -
++
++N: XFS_IOC_FD_TO_HANDLE
++I: xfs_fsop_handlereq_t
++O: xfs_fsid_t + __s32
++
++N: XFS_IOC_FREESP
++I: xfs_flock64_t
++O: -
++
++N: XFS_IOC_FREESP64
++I: xfs_flock64_t
++O: -
++
++N: XFS_IOC_FREEZE
++I: -
++O: -
++
++N: XFS_IOC_FSBULKSTAT
++I: xfs_fsop_bulkreq_t + __s64
++O: [xfs_ino_t + int]
++
++N: XFS_IOC_FSBULKSTAT_SINGLE
++I: xfs_fsop_bulkreq_t + __s64
++O: [xfs_ino_t + int]
++
++N: XFS_IOC_FSCOUNTS
++I: -
++O: xfs_fsop_counts_t
++
++N: XFS_IOC_FSGEOMETRY
++I: -
++O: xfs_fsop_geom_t
++
++N: XFS_IOC_FSGEOMETRY_V1
++I: -
++O: xfs_fsop_geom_v1_t
++
++N: XFS_IOC_FSGETXATTR
++I: -
++O: struct fsxattr
++
++N: XFS_IOC_FSGETXATTRA
++I: -
++O: struct fsxattr
++
++
++N: XFS_IOC_FSGROWFSDATA
++I: xfs_growfs_data_t
++O: -
++
++N: XFS_IOC_FSGROWFSLOG
++I: xfs_growfs_log_t
++O: -
++
++N: XFS_IOC_FSGROWFSRT
++I: xfs_growfs_rt_t
++O: -
++
++N: XFS_IOC_FSINUMBERS
++I: xfs_fsop_bulkreq_t + __s64
++O: [xfs_ino_t + int]
++
++N: XFS_IOC_FSSETDM
++I: struct fsdmidata
++O: -
++
++N: XFS_IOC_FSSETDM_BY_HANDLE
++I: xfs_fsop_setdm_handlereq_t + struct fsdmidata
++O: -
++
++N: XFS_IOC_FSSETXATTR
++I: struct fsxattr
++O: -
++
++N: XFS_IOC_GETBMAP
++I: struct getbmap
++O: struct getbmap
++
++N: XFS_IOC_GETBMAPA
++I: struct getbmap
++O: struct getbmap
++
++N: XFS_IOC_GETBMAPX
++I: struct getbmapx
++O: struct getbmapx
++
++N: XFS_IOC_GET_RESBLKS
++I: -
++O: xfs_fsop_resblks_t
++
++N: XFS_IOC_GOINGDOWN
++I: __uint32_t
++O: -
++
++N: XFS_IOC_OPEN_BY_HANDLE
++I: xfs_fsop_handlereq_t
++O: -
++
++XFS_IOC_PATH_TO_FSHANDLE
++XFS_IOC_PATH_TO_HANDLE
++
++N: XFS_IOC_READLINK_BY_HANDLE
++I: xfs_fsop_handlereq_t + __u32
++O: -
++
++N: XFS_IOC_RESVSP
++I: xfs_flock64_t
++O: -
++
++N: XFS_IOC_RESVSP64
++I: xfs_flock64_t
++O: -
++
++N: XFS_IOC_SET_RESBLKS
++I: xfs_fsop_resblks_t
++O: xfs_fsop_resblks_t
++
++N: XFS_IOC_SWAPEXT
++I: xfs_swapext_t
++O: -
++
++N:XFS_IOC_THAW
++I: -
++O: -
++
++N: XFS_IOC_UNRESVSP
++I: xfs_flock64_t
++O: -
++
++N: XFS_IOC_UNRESVSP64
++I: xfs_flock64_t
++O: -
++
+ N: Z90QUIESCE
+ I: -
+ O: -
+

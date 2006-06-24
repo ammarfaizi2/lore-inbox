@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932736AbWFXAWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWFXAYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932736AbWFXAWA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 20:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbWFXAWA
+	id S932469AbWFXAYv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 20:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbWFXAYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 20:22:00 -0400
-Received: from cantor.suse.de ([195.135.220.2]:8848 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932736AbWFXAV5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 20:21:57 -0400
-Date: Sat, 24 Jun 2006 02:21:56 +0200
-From: "Andi Kleen" <ak@suse.de>
-To: torvalds@osdl.org
-Cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       jbeulich@novell.com
-Subject: [PATCH] [69/82] i386/x86-64: adjust /proc/interrupts column 
- headings
-Message-ID: <449C85A4.mailDS211MACW@suse.de>
-User-Agent: nail 10.6 11/15/03
+	Fri, 23 Jun 2006 20:24:51 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:60388 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932469AbWFXAYu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 20:24:50 -0400
+Message-ID: <449C8648.9000103@zytor.com>
+Date: Fri, 23 Jun 2006 17:24:40 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>
+CC: torvalds@osdl.org, discuss@x86-64.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [55/82] i386/x86-64: Fix isoimage when syslinux is in
+  /usr/share
+References: <449C857A.mailDLW18S19K@suse.de>
+In-Reply-To: <449C857A.mailDLW18S19K@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
+> It's like this on SUSE systems.
+> 
+> Cc: hpa@zytor.com
+> 
+> Signed-off-by: Andi Kleen <ak@suse.de>
+> 
 
-From: "Jan Beulich" <jbeulich@novell.com>
+Ack.
 
-With (significantly) more than 10 CPUs online, the column headings
-drifted off the positions of the column contents with growing CPU
-numbers.
-
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
-Signed-off-by: Andi Kleen <ak@suse.de>
-
----
- arch/i386/kernel/irq.c   |    2 +-
- arch/x86_64/kernel/irq.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-Index: linux/arch/i386/kernel/irq.c
-===================================================================
---- linux.orig/arch/i386/kernel/irq.c
-+++ linux/arch/i386/kernel/irq.c
-@@ -219,7 +219,7 @@ int show_interrupts(struct seq_file *p, 
- 	if (i == 0) {
- 		seq_printf(p, "           ");
- 		for_each_online_cpu(j)
--			seq_printf(p, "CPU%d       ",j);
-+			seq_printf(p, "CPU%-8d",j);
- 		seq_putc(p, '\n');
- 	}
- 
-Index: linux/arch/x86_64/kernel/irq.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/irq.c
-+++ linux/arch/x86_64/kernel/irq.c
-@@ -39,7 +39,7 @@ int show_interrupts(struct seq_file *p, 
- 	if (i == 0) {
- 		seq_printf(p, "           ");
- 		for_each_online_cpu(j)
--			seq_printf(p, "CPU%d       ",j);
-+			seq_printf(p, "CPU%-8d",j);
- 		seq_putc(p, '\n');
- 	}
- 
+	-hpa

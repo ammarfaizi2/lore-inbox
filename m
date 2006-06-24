@@ -1,124 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWFXLA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752184AbWFXK77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbWFXLA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 07:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbWFXLA1
+	id S1752184AbWFXK77 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 06:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752199AbWFXK76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 07:00:27 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:42927 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751324AbWFXLA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 07:00:26 -0400
-Subject: Re: [PATCH] riport LADAR driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: mgross@linux.intel.com
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       mark.gross@intel.com
-In-Reply-To: <20060623224654.GA5204@linux.intel.com>
-References: <20060622144120.GA5215@linux.intel.com>
-	 <1151000401.3120.55.camel@laptopd505.fenrus.org>
-	 <20060622231604.GA5208@linux.intel.com>
-	 <20060622225239.bf0ccab2.rdunlap@xenotime.net>
-	 <20060623224654.GA5204@linux.intel.com>
-Content-Type: text/plain
-Date: Sat, 24 Jun 2006 13:00:20 +0200
-Message-Id: <1151146820.3181.22.camel@laptopd505.fenrus.org>
+	Sat, 24 Jun 2006 06:59:58 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:14100 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751560AbWFXK76 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 06:59:58 -0400
+Date: Sat, 24 Jun 2006 13:01:04 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Fengguang Wu <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Lubos Lunak <l.lunak@suse.cz>
+Subject: Re: [PATCH 7/7] iosched: introduce deadline_kick_page()
+Message-ID: <20060624110104.GP4083@suse.de>
+References: <20060624082006.574472632@localhost.localdomain> <20060624082312.833976992@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060624082312.833976992@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-since this is for a tutorial... double nitpick mode ;-)
-(since examples should be squeeky clean or people will turn the right
-thing into the not quite right thing later in their own code)
-
-> +#undef PDEBUG
-> +#ifdef RIPORT_DEBUG
-> +#  define PDEBUG(fmt, args...) printk( KERN_DEBUG "riport: " fmt, ## args)
-> +#else	/*  */
-> +#  define PDEBUG(fmt, args...)
-> +#endif	/*  */
-
-this is still there while it really shouldn't be; either use pr_debug()
-or dev_printk().
-
-
-> +struct devriport {
-> +	unsigned int io;
-> +	unsigned int io_ext;
-> +	int irq;
-> +	int dma;
-> +	int size;		/* buffer size */
-> +	unsigned char *pbuf;	/* pointer to the start of the memory that
-> +				stores scans from the riegl */
-> +	unsigned char *pbuf_top;/* pointer to the end of pbuf (see above) */
-> +	unsigned char *pin;	/* pointer to the end of new data */
-> +	unsigned char *pout;	/* pointer to the start of new data (end of
-> +				old/read data) */
-> +	wait_queue_head_t qwait;
-> +	struct inode *pinode;
-> +	struct file *pfile;
-> +	int usage;
-> +	int irqinuse;
-> +	int readstate;
-> +	short syncWord;
-> +	int numbytesthisstate;
-> +	int bytestoread;
-> +	char buf[4];
-> +	struct timeval timestamp;
+On Sat, Jun 24 2006, Fengguang Wu wrote:
+> Introduce deadline_kick_page() to
+> 	- find the request containing the page
+> 	- remove its BIO_RW_AHEAD flag
+> 	- reschedule if it was of type READA
+> 
+> Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+> ---
+> 
+> 
+>  block/deadline-iosched.c |   45 +++++++++++++++++++++++++++++++++++++++++++--
+>  1 files changed, 43 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.17-rc6-mm2.orig/block/deadline-iosched.c
+> +++ linux-2.6.17-rc6-mm2/block/deadline-iosched.c
+> @@ -317,6 +317,44 @@ deadline_add_request(struct request_queu
+>  }
+>  
+>  /*
+> + * We have a pending read on @page,
+> + * find the corresponding request of type READA,
+> + * promote it to READ, and reschedule it.
+> + */
+> +static int
+> +deadline_kick_page(struct request_queue *q, struct page *page)
+> +{
+> +	struct deadline_data *dd = q->elevator->elevator_data;
+> +	struct deadline_rq *drq;
+> +	struct request *rq;
+> +	struct list_head *pos;
+> +	struct bio_vec *bvec;
+> +	struct bio *bio;
+> +	int i;
 > +
-> +	spinlock_t lock;
-> +};
-
-if this is for a tutorial.. might as well sort these fields in order of
-decreasing size so that you get minimal alignment packing by the
-compiler
-
-> +	if (!request_region(io + ECP_OFFSET, 3, "riport")) {
-> +		release_region(io,3);
-> +
-> +		PDEBUG("request_region 0x%X of 3 bytes fails\n", io + ECP_OFFSET );
-> +		*presult = -EBUSY;
-> +		goto fail_io;
+> +	list_for_each(pos, &dd->fifo_list[READ]) {
+> +		drq = list_entry_fifo(pos);
+> +		rq = drq->request;
+> +		if (rq->flags & (1 << BIO_RW_AHEAD)) {
+> +			rq_for_each_bio(bio, rq) {
+> +				bio_for_each_segment(bvec, bio, i) {
+> +					if (page == bvec->bv_page)
+> +						goto found;
+> +				}
+> +			}
+> +		}
 > +	}
 
-might as well make another goto target and have that do the
-release_region...
+Uh that's horrible!
 
-> +
-> +static int devriport_release(struct devriport *this)
-> +{
-> +	this->irqinuse = 0;
-> +
-> +	/* switch to compatibility mode */
-> +	outb(ECR_SPP_MODE | ECR_ERRINT_DISABLED | ECR_SERVICE_INTERRUPT,
-> +		this->io_ext + ECR_EXT);
-> +	outb(DCR_NOT_REVERSE_REQUEST | DCR_SELECT_IN, this->io + DCR_BASE);
-> +
-> +	free_irq(this->irq, this);
-> +	kfree(this->pbuf);
-> +
-> +	this->usage--;
-> +	WARN_ON(this->usage < 0);
-> +	PDEBUG("release\n");
-> +	return 0;
-> +}
-> +
-> +
-...
+Before we go into further details, I'd like to see some numbers on where
+this makes a difference.
 
-> +
-> +
-> +static int devriport_open(struct devriport *this)
-> +{
-> +	int result;
-> +
-> +	if (this->usage)
-> +		return -EBUSY;
-
-this "usage count" thing is probably buggy and racy; what is it for? 
+-- 
+Jens Axboe
 

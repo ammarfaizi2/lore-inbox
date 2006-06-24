@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWFXPiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWFXPkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbWFXPiU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 11:38:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWFXPiU
+	id S1750832AbWFXPkk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 11:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWFXPkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 11:38:20 -0400
-Received: from thunk.org ([69.25.196.29]:28567 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1750833AbWFXPiT (ORCPT
+	Sat, 24 Jun 2006 11:40:39 -0400
+Received: from mail.gmx.de ([213.165.64.21]:31903 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750832AbWFXPkj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 11:38:19 -0400
-Date: Sat, 24 Jun 2006 11:38:18 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm1: UML failing w/o SKAS enabled
-Message-ID: <20060624153818.GB7752@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Jeff Dike <jdike@addtoit.com>, Andrew Morton <akpm@osdl.org>,
+	Sat, 24 Jun 2006 11:40:39 -0400
+X-Authenticated: #5039886
+Date: Sat, 24 Jun 2006 17:40:37 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Mike Galbraith <efault@gmx.de>
+Cc: danial_thom@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: Measuring tools - top and interrupts
+Message-ID: <20060624154037.GA2946@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Mike Galbraith <efault@gmx.de>, danial_thom@yahoo.com,
 	linux-kernel@vger.kernel.org
-References: <20060621034857.35cfe36f.akpm@osdl.org> <20060622213443.GA22303@thunk.org> <20060623024222.GA8316@ccure.user-mode-linux.org> <20060623210714.GA16661@thunk.org> <20060623214623.GA7319@ccure.user-mode-linux.org> <20060624140001.GA7752@thunk.org> <20060624152235.GB3627@ccure.user-mode-linux.org>
+References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com> <1151128763.7795.9.camel@Homer.TheSimpsons.net> <1151130383.7545.1.camel@Homer.TheSimpsons.net> <20060624092156.GA13142@atjola.homenet> <1151142716.7797.10.camel@Homer.TheSimpsons.net> <1151149317.7646.14.camel@Homer.TheSimpsons.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060624152235.GB3627@ccure.user-mode-linux.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1151149317.7646.14.camel@Homer.TheSimpsons.net>
+User-Agent: Mutt/1.5.11+cvs20060403
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 24, 2006 at 11:22:35AM -0400, Jeff Dike wrote:
-> I'm working on this - the genirq stuff in -mm broke UML.  Add stderr=1
-> to the command line to see the actual crash.  2.6.17 is fine, except
-> you need a klibc patch for O= builds.
+On 2006.06.24 13:41:57 +0200, Mike Galbraith wrote:
+> On Sat, 2006-06-24 at 11:52 +0200, Mike Galbraith wrote:
+> > On Sat, 2006-06-24 at 11:21 +0200, Björn Steinbrink wrote:
+> > > 
+> > > The non-SMP call to update_process_times() is in do_timer_interrupt_hook(),
+> > > so I guess the above is not the Right Thing to do.
+> > 
+> > Ah, there it is.  That's what I was looking for.  I figured that doing
+> > what I did had to be wrong, but tried it for grins anyway... was pretty
+> > surprised when it worked (kinda).
+> 
+> Calling update_process_times() in do_timer_interrupt_hook() flat does
+> not work here.  Calling it in smp_local_timer_interrupt() works fine.  
+> 
+> Oh joy.
 
-Yeah, I was using CONFIG_MODE_TT with 2.6.17 to test the inode
-slimming patches, mainly because it was a lot easier to test each
-patch one at a time, and UML was working just fine for me.  The only
-reason I was using TT was because it had always worked before, so I
-just carried over the .config file and I didn't know that TT mode was
-getting deprecated.  (I was using UML with 2.6.17-mm1 to port the
-patches to the -mm tree so they could get wider testing.)
+I can reproduce it now, seems to require CONFIG_4KSTACKS to fail. Can
+you confirm that?
 
-					- Ted
+Björn

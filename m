@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932861AbWFXGFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932865AbWFXGPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932861AbWFXGFL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 02:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932860AbWFXGFK
+	id S932865AbWFXGPm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 02:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932867AbWFXGPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 02:05:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9689 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932857AbWFXGFI (ORCPT
+	Sat, 24 Jun 2006 02:15:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5083 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932865AbWFXGPm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 02:05:08 -0400
-Date: Fri, 23 Jun 2006 23:05:03 -0700
+	Sat, 24 Jun 2006 02:15:42 -0400
+Date: Fri, 23 Jun 2006 23:15:35 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: ASANO Masahiro <masano@tnes.nec.co.jp>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC PATCH] add lookup hint for network file systems
-Message-Id: <20060623230503.003c51af.akpm@osdl.org>
-In-Reply-To: <20060623.210430.2110776701550307243.masano@tnes.nec.co.jp>
-References: <20060623.210430.2110776701550307243.masano@tnes.nec.co.jp>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+Subject: Re: [patch] s390: setup.c cleanup + build fix
+Message-Id: <20060623231535.b368fbda.akpm@osdl.org>
+In-Reply-To: <20060623133122.GJ9446@osiris.boeblingen.de.ibm.com>
+References: <20060623133122.GJ9446@osiris.boeblingen.de.ibm.com>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,48 +24,62 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 21:04:30 +0900 (JST)
-ASANO Masahiro <masano@tnes.nec.co.jp> wrote:
+On Fri, 23 Jun 2006 15:31:22 +0200
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
-> Hi,
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
 > 
-> I'm trying to speeding up mkdir(2) for network file systems.
-> A typical mkdir(2) calls two inode_operations: lookup and mkdir.
-> The lookup operation would fail with ENOENT in common case.  I think
-> it is unnecessary because the subsequent mkdir operation can check it.
-> In case of creat(2), lookup operation is called with the LOOKUP_CREATE
-> flag, so individual filesystem can omit real lookup. e.g. nfs_lookup().
+> Cleanup & fix 31 bit compilation:
 > 
-> Here is a sample patch which uses LOOKUP_CREATE and O_EXCL on mkdir,
-> symlink and mknod.  This uses the gadget for creat(2).
+>   CC      arch/s390/kernel/setup.o
+> arch/s390/kernel/setup.c:83: error: initializer element is not computable at
+>                                     load time
+> arch/s390/kernel/setup.c:83: error: (near initialization for
+>                                     'code_resource.start')
+> Not sure which patch in the -mm tree breaks this, but since this can be
+> considered a cleanup it can be merged anyway.
 > 
-> And here is the result of a benchmark on NFSv3.
->   mkdir(2) 10,000 times:
->     original  50.5 sec
->     patched   29.0 sec
-> 
-> Signed-off-by: ASANO Masahiro <masano@tnes.nec.co.jp>
-> 
-> ---
-> 
->  fs/namei.c |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
-> 
-> 5273ee304b4dc1096432dc3f3aa9183e20afab1d
-> diff --git a/fs/namei.c b/fs/namei.c
-> index 184fe4a..209867d 100644
-> --- a/fs/namei.c
-> +++ b/fs/namei.c
-> @@ -1759,6 +1759,8 @@ struct dentry *lookup_create(struct name
->  	if (nd->last_type != LAST_NORM)
->  		goto fail;
->  	nd->flags &= ~LOOKUP_PARENT;
-> +	nd->flags |= LOOKUP_CREATE;
-> +	nd->intent.open.flags = O_EXCL;
+
+That's strange.
+
+>  /*
+> - * Setup options
+> - */
+> -extern int _text,_etext, _edata, _end;
+> -
+> -/*
+>   * This is set up by the setup-routine at boot-time
+>   * for S390 need to find out, what we have to setup
+>   * using address 0x10400 ...
+> @@ -80,15 +76,11 @@ extern int _text,_etext, _edata, _end;
 >  
->  	/*
->  	 * Do the final lookup.
+>  static struct resource code_resource = {
+>  	.name  = "Kernel code",
+> -	.start = (unsigned long) &_text,
+> -	.end = (unsigned long) &_etext - 1,
+>  	.flags = IORESOURCE_BUSY | IORESOURCE_MEM,
+>  };
+>  
+>  static struct resource data_resource = {
+>  	.name = "Kernel data",
+> -	.start = (unsigned long) &_etext,
+> -	.end = (unsigned long) &_edata - 1,
+>  	.flags = IORESOURCE_BUSY | IORESOURCE_MEM,
+>  };
+>  
+> @@ -422,6 +414,11 @@ setup_resources(void)
+>  	struct resource *res;
+>  	int i;
+>  
+> +	code_resource.start = (unsigned long) &_text;
+> +	code_resource.end = (unsigned long) &_etext - 1;
+> +	data_resource.start = (unsigned long) &_etext;
+> +	data_resource.end = (unsigned long) &_edata - 1;
+> +
+>  	for (i = 0; i < MEMORY_CHUNKS && memory_chunk[i].size > 0; i++) {
+>  		res = alloc_bootmem_low(sizeof(struct resource));
+>  		res->flags = IORESOURCE_BUSY | IORESOURCE_MEM;
 
-whoa.  Big patch ;)
+The linker should be able to handle all that.  I wonder why it didn't.
 
-I'll save it up for when Trond returns, thanks.
+And it works for me.  What is "31 bit compilation"?

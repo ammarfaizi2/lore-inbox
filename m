@@ -1,55 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWFXV1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWFXVfD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWFXV1J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 17:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWFXV1J
+	id S1751106AbWFXVfD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 17:35:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWFXVfC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 17:27:09 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:3531 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750827AbWFXV1G (ORCPT
+	Sat, 24 Jun 2006 17:35:02 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4067 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751106AbWFXVfA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 17:27:06 -0400
-Date: Sat, 24 Jun 2006 23:27:06 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keith Mannthey <kmannth@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm1
-Message-ID: <20060624212706.GE2049@mars.ravnborg.org>
-References: <20060621034857.35cfe36f.akpm@osdl.org> <a762e240606231339n11b8de89r37b9ff0401c50e21@mail.gmail.com> <20060623143205.9b8bfa96.akpm@osdl.org>
+	Sat, 24 Jun 2006 17:35:00 -0400
+Date: Sat, 24 Jun 2006 14:34:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: 2.6.17-mm2
+Message-Id: <20060624143440.0931b4f1.akpm@osdl.org>
+In-Reply-To: <20060624172014.GB26273@redhat.com>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
+	<200606241753.44937.rjw@sisk.pl>
+	<20060624172014.GB26273@redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623143205.9b8bfa96.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 02:32:05PM -0700, Andrew Morton wrote:
-> On Fri, 23 Jun 2006 13:39:01 -0700
-> "Keith Mannthey" <kmannth@gmail.com> wrote:
-> 
-> > Andrew,
-> >   When I make mrproper to clean the kernel tree with the -mm trees (at
-> > least the last few releases) I end up having to remove
-> > /include/linux/dwarf2-defs.h myself.  This file is generated at build
-> > time but mrproper isn't cleaning it up.   This file is always present
-> > in a tree that has been built but not in the origninal tree so a diff
-> > of the tree picks it up.
-> > 
-> > Is this expected?
-> > 
-> 
-> No, it's not expected.  That's due to the kgdb patches.
-> 
-> Sam, what should we be doing here?
+On Sat, 24 Jun 2006 13:20:14 -0400
+Dave Jones <davej@redhat.com> wrote:
 
-The dwarf2-defs.h file is similar to the asm-offsets.h file. We need it
-before starting to build the kernel.
-So the only same solution would be to move it all to the Kbuild file in
-the top-level directory. Then we should also let same Kbuild file take
-care of cleaning up.
+> On Sat, Jun 24, 2006 at 05:53:44PM +0200, Rafael J. Wysocki wrote:
+>  > On Saturday 24 June 2006 15:19, Andrew Morton wrote:
+>  > > 
+>  > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm2/
+>  > 
+>  > The box seems to work, although I have some "interesting" stuff in dmesg:
+>  > 
+>  > int3: 0000 [1] PREEMPT
+>  > last sysfs file: /devices/pci0000:00/0000:00:0a.0/0000:02:00.0/subsystem_device
+>  > CPU 0
+>  > Modules linked in: acpi_cpufreq usbserial asus_acpi thermal processor fan button battery ac snd_pcm_oss snd_mixer_oss snd_seq snd_seqd
+>  > Pid: 4839, comm: modprobe Not tainted 2.6.17-mm2 #4
+>  > RIP: 0010:[<ffffffff806b0401>] <ffffffff806b0401>{cpufreq_register_driver+1}
+>  > RSP: 0018:ffff810052c59e40  EFLAGS: 00000292
+>  > RAX: 00000000ffffffea RBX: ffffffff8832a340 RCX: 00000000ffffffff
+>  > RDX: ffff8100567e3810 RSI: ffffffff883092cf RDI: ffffffff8832a2a0
+>  > RBP: ffff810052c59e48 R08: 0000000000000000 R09: 0000000000000001
+>  > R10: 0000000000000001 R11: 0000000000000001 R12: ffff8100545f4de0
+>  > R13: ffffffff8832a340 R14: ffffc20000af49b0 R15: ffff8100545f53a0
+>  > FS:  00002ae4d623db00(0000) GS:ffffffff80689000(0000) knlGS:0000000000000000
+>  > CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+>  > CR2: 000000000051a680 CR3: 0000000054243000 CR4: 00000000000006e0
+>  > Process modprobe (pid: 4839, threadinfo ffff810052c58000, task ffff8100567e3810)
+>  > Stack: ffffffff880c808f ffff810052c59f78 ffffffff8024f14a ffffffff8832a390
+>  >        ffffffff8832a358 ffffffff8830e340 ffffc20000af4970 ffffc20000af43b0
+>  >        ffffc20000af4930 ffff8100531a5490
+>  > Call Trace: [<ffff810052c59f78>]
+>  > 
+>  > Code: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
+>  > RIP <ffffffff806b0401>{cpufreq_register_driver+1} RSP <ffff810052c59e40>
+> 
+> 'something' filled this function with breakpoints.
+> Andrew mentioned he dropped the kgdb patches. Any chance something was missed?
+> 
 
-I noticed that kgdb patches was dropped in -mm this time.
-Shall I try to cook up a patch next time you include kgdb?
+My guess would be that cpufreq_register_driver() is being called after it
+has been unloaded from the kernel.
 
-	Sam
+Do you have CONFIG_CPU_FREQ=y?
+
+Does removal of the __cpuinit from cpufreq_register_driver() fix it (or
+move the crash elsewhere)?
+
+Do you get any section mismatch warnings at build-time?
+
+Chandra, those patches seem a bit wobbly.

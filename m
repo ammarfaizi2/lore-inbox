@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWFXSFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWFXSKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751010AbWFXSFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 14:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWFXSFQ
+	id S1751016AbWFXSKF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 14:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWFXSKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 14:05:16 -0400
-Received: from wx-out-0102.google.com ([66.249.82.207]:14603 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751010AbWFXSFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 14:05:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=suwaHCfnxy7KYx7K7LBXylnxZN4rCbKszoCEGiLnHthiLe3xk9gYogW3E+CiThdzxx4Q1vT4yT3pzutuxM4gGgaCASMHxytaxvOO7WKDhZFJqCI0Dn9KPzcX3rOKkOgjNj4d6JrE9nrE8vhpiatDFDWsn1qs2MlP7ao+OgAYnoE=
-Message-ID: <3aa654a40606241105q7de827ecs1cfe422acd32757a@mail.gmail.com>
-Date: Sat, 24 Jun 2006 11:05:14 -0700
-From: "Avuton Olrich" <avuton@gmail.com>
-To: Daniel <damage@rooties.de>
-Subject: Re: Kernelsources writeable for everyone?!
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200606242000.51024.damage@rooties.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jun 2006 14:10:05 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:63929 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751016AbWFXSKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 14:10:04 -0400
+Date: Sat, 24 Jun 2006 19:09:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Troy Benjegerdes <hozer@hozed.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Change in-kernel afs client filesystem name to 'kafs'
+Message-ID: <20060624180953.GA4145@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Troy Benjegerdes <hozer@hozed.org>,
+	Arjan van de Ven <arjan@infradead.org>,
+	David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+References: <20060624004154.GL5040@narn.hozed.org> <1151151360.3181.34.camel@laptopd505.fenrus.org> <20060624180136.GO5040@narn.hozed.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200606242000.51024.damage@rooties.de>
+In-Reply-To: <20060624180136.GO5040@narn.hozed.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/24/06, Daniel <damage@rooties.de> wrote:
-> Hi,
-> may be this was reported/asked 999999999 times, but here ist the 1000000000th:
->
-> I have downloaded linux-2.6.17.1 10 min ago and I noticed that every file is
-> writeable by everyone. What's going on there?
+On Sat, Jun 24, 2006 at 01:01:41PM -0500, Troy Benjegerdes wrote:
+> Now, if you could suggest another way to have both the *experimental* 
+> in-kernel AFS client and OpenAFS client with mounted filesystems, please
+> let me know.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114635639325551&w=2
--- 
-avuton
---
- Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Don't do that.  Or at least stay far away from the vger lists with any
+bugreports or suggestions that come up when running OpenAFS.  It's some
+of the worst code around, and it has a license that doesn't event permit 
+the blatantly stupid poking into kernel internals it does.
+

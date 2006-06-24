@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWFXEpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932825AbWFXFX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWFXEpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 00:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWFXEpJ
+	id S932825AbWFXFX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 01:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932826AbWFXFX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 00:45:09 -0400
-Received: from loopy.telegraphics.com.au ([202.45.126.152]:52939 "EHLO
-	loopy.telegraphics.com.au") by vger.kernel.org with ESMTP
-	id S932173AbWFXEpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 00:45:07 -0400
-Date: Sat, 24 Jun 2006 14:45:06 +1000 (EST)
-From: Finn Thain <fthain@telegraphics.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH 08/21] gcc 4 fix
-In-Reply-To: <Pine.LNX.4.64.0606232158400.17704@scrub.home>
-Message-ID: <Pine.LNX.4.64.0606241420330.1073@loopy.telegraphics.com.au>
-References: <20060623183056.479024000@linux-m68k.org> <20060623183911.847605000@linux-m68k.org>
- <20060623193524.GA27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606232158400.17704@scrub.home>
+	Sat, 24 Jun 2006 01:23:59 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:912 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932825AbWFXFX6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 01:23:58 -0400
+Message-ID: <449CCBA1.9020904@zytor.com>
+Date: Fri, 23 Jun 2006 22:20:33 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Albert Cahalan <acahalan@gmail.com>
+CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       76306.1226@compuserve.com, ak@muc.de, akpm@osdl.org
+Subject: Re: i386 ABI and the stack
+References: <787b0d920606231837k5d57da8ct5c511def6c035176@mail.gmail.com>	 <Pine.LNX.4.64.0606231844460.6483@g5.osdl.org>	 <449C9C6D.7050905@zytor.com>	 <Pine.LNX.4.64.0606231907290.6483@g5.osdl.org> <787b0d920606231943x7aad43bwb108b6a88b678b1a@mail.gmail.com>
+In-Reply-To: <787b0d920606231943x7aad43bwb108b6a88b678b1a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 23 Jun 2006, Roman Zippel wrote:
-
-> Hi,
+Albert Cahalan wrote:
+> Since gcc-2.96 would access 256 bytes below the stack pointer
+> (according to the valgrind man page), the kernel needs to allow
+> for this in signal handlers anyway.
 > 
-> On Fri, 23 Jun 2006, Al Viro wrote:
-> 
-> > On Fri, Jun 23, 2006 at 08:31:04PM +0200, zippel@linux-m68k.org wrote:
-> > > Fixes a "static qualifier follows non-static qualifier" error from 
-> > > gcc 4.
-> > > 
-> > > Signed-off-by: Finn Thain <fthain@telegraphics.com.au> 
-> > > Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
-> > 
-> > Broken.  Proper fix is to rename the function so that it wouldn't 
-> > clash.
-> 
-> Well, I wouldn't call it broken, as both versions can never be compiled 
-> into the same kernel, but I don't care much how it's fixed.
-> 
-> Does anyone know the relationship between via-pmu.c and via-pmu68k.c? If 
-> it's intended to keep the differences small, a rename would be the wrong 
-> fix.
+> I'm pretty sure I saw that code in the kernel in fact, but I
+> can't find it now. Perhaps it got lost in a cleanup accident?
+> (it sure would be nice to have continuous source control history)
 
-The relationship is (and was) just that they share the pmu.h header file 
-declarations. In the patch in question I used the powerpc definition as 
-well.
+We have it; you can graft on the pre-git history.  See previous posts on 
+this and the git list.
 
-The powerpc version exports pmu_queue_request (apparently for the use of 
-low_i2c.c). The m68k version doesn't, but if it needed to export it, I 
-don't see why it shouldn't implement the same "API"?
+	-hpa
 
--f
-
-> bye, Roman
-> 

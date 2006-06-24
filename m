@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932865AbWFXGPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932868AbWFXGWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932865AbWFXGPm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 02:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932867AbWFXGPm
+	id S932868AbWFXGWn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 02:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932869AbWFXGWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 02:15:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5083 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932865AbWFXGPm (ORCPT
+	Sat, 24 Jun 2006 02:22:43 -0400
+Received: from mail.gmx.net ([213.165.64.21]:54242 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932868AbWFXGWn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 02:15:42 -0400
-Date: Fri, 23 Jun 2006 23:15:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-Subject: Re: [patch] s390: setup.c cleanup + build fix
-Message-Id: <20060623231535.b368fbda.akpm@osdl.org>
-In-Reply-To: <20060623133122.GJ9446@osiris.boeblingen.de.ibm.com>
-References: <20060623133122.GJ9446@osiris.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sat, 24 Jun 2006 02:22:43 -0400
+X-Authenticated: #14349625
+Subject: Re: Measuring tools - top and interrupts
+From: Mike Galbraith <efault@gmx.de>
+To: danial_thom@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1151128763.7795.9.camel@Homer.TheSimpsons.net>
+References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
+	 <1151128763.7795.9.camel@Homer.TheSimpsons.net>
+Content-Type: text/plain
+Date: Sat, 24 Jun 2006 08:26:23 +0200
+Message-Id: <1151130383.7545.1.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 15:31:22 +0200
-Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Sat, 2006-06-24 at 07:59 +0200, Mike Galbraith wrote:
+> On Thu, 2006-06-22 at 09:58 -0700, Danial Thom wrote:
 > 
-> Cleanup & fix 31 bit compilation:
+> > And 75K pps may not be "much", but its still at
+> > least 10% of what the system can handle, so it
+> > should measure around a 10% load. 2.4 measures
+> > about 12% load. So the only conclusion is that
+> > load accounting is broken in 2.6.
 > 
->   CC      arch/s390/kernel/setup.o
-> arch/s390/kernel/setup.c:83: error: initializer element is not computable at
->                                     load time
-> arch/s390/kernel/setup.c:83: error: (near initialization for
->                                     'code_resource.start')
-> Not sure which patch in the -mm tree breaks this, but since this can be
-> considered a cleanup it can be merged anyway.
-> 
+> For UP, yes.  SMP kernel accounts irq processing time properly.
 
-That's strange.
+For my little box, the below cures it.
 
->  /*
-> - * Setup options
-> - */
-> -extern int _text,_etext, _edata, _end;
-> -
-> -/*
->   * This is set up by the setup-routine at boot-time
->   * for S390 need to find out, what we have to setup
->   * using address 0x10400 ...
-> @@ -80,15 +76,11 @@ extern int _text,_etext, _edata, _end;
->  
->  static struct resource code_resource = {
->  	.name  = "Kernel code",
-> -	.start = (unsigned long) &_text,
-> -	.end = (unsigned long) &_etext - 1,
->  	.flags = IORESOURCE_BUSY | IORESOURCE_MEM,
->  };
->  
->  static struct resource data_resource = {
->  	.name = "Kernel data",
-> -	.start = (unsigned long) &_etext,
-> -	.end = (unsigned long) &_edata - 1,
->  	.flags = IORESOURCE_BUSY | IORESOURCE_MEM,
->  };
->  
-> @@ -422,6 +414,11 @@ setup_resources(void)
->  	struct resource *res;
->  	int i;
->  
-> +	code_resource.start = (unsigned long) &_text;
-> +	code_resource.end = (unsigned long) &_etext - 1;
-> +	data_resource.start = (unsigned long) &_etext;
-> +	data_resource.end = (unsigned long) &_edata - 1;
-> +
->  	for (i = 0; i < MEMORY_CHUNKS && memory_chunk[i].size > 0; i++) {
->  		res = alloc_bootmem_low(sizeof(struct resource));
->  		res->flags = IORESOURCE_BUSY | IORESOURCE_MEM;
+--- linux-2.6.17x/arch/i386/kernel/apic.c.org	2006-06-24 08:08:46.000000000 +0200
++++ linux-2.6.17x/arch/i386/kernel/apic.c	2006-06-24 08:09:16.000000000 +0200
+@@ -1175,9 +1175,7 @@ EXPORT_SYMBOL(switch_ipi_to_APIC_timer);
+ inline void smp_local_timer_interrupt(struct pt_regs * regs)
+ {
+ 	profile_tick(CPU_PROFILING, regs);
+-#ifdef CONFIG_SMP
+ 	update_process_times(user_mode_vm(regs));
+-#endif
+ 
+ 	/*
+ 	 * We take the 'long' return path, and there every subsystem
 
-The linker should be able to handle all that.  I wonder why it didn't.
 
-And it works for me.  What is "31 bit compilation"?

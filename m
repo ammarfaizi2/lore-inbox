@@ -1,49 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933066AbWFXLiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933388AbWFXLsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933066AbWFXLiL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 07:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933067AbWFXLiL
+	id S933388AbWFXLsg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 07:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933391AbWFXLsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 07:38:11 -0400
-Received: from mail.gmx.net ([213.165.64.21]:25744 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S933066AbWFXLiJ (ORCPT
+	Sat, 24 Jun 2006 07:48:36 -0400
+Received: from mna75-1-87-90-15-195.dsl.club-internet.fr ([87.90.15.195]:11277
+	"EHLO LARI") by vger.kernel.org with ESMTP id S933394AbWFXLsc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 07:38:09 -0400
-X-Authenticated: #14349625
-Subject: Re: Measuring tools - top and interrupts
-From: Mike Galbraith <efault@gmx.de>
-To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-Cc: danial_thom@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1151142716.7797.10.camel@Homer.TheSimpsons.net>
-References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
-	 <1151128763.7795.9.camel@Homer.TheSimpsons.net>
-	 <1151130383.7545.1.camel@Homer.TheSimpsons.net>
-	 <20060624092156.GA13142@atjola.homenet>
-	 <1151142716.7797.10.camel@Homer.TheSimpsons.net>
-Content-Type: text/plain; charset=utf-8
-Date: Sat, 24 Jun 2006 13:41:57 +0200
-Message-Id: <1151149317.7646.14.camel@Homer.TheSimpsons.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+	Sat, 24 Jun 2006 07:48:32 -0400
+Message-ID: <96025121842205.FECF1C2C86@GQB0E>
+From: "Dale" <Dalechowder@earthlink.net>
+To: <linux-msdos@vger.kernel.org>
+Subject: re:[2]  =?ISO-8859-1?Q?=20New=92n=92hot?=  Do you wish to increase your volume by up to 500%?
+Date: Sat, 24 Jun 2006 13:48:33 +0200
+MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: 8dWhy3RtWxZ3RhU0rpINhqsE79hMMvzMaocN
+Content-Type: text/plain;
+        charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-24 at 11:52 +0200, Mike Galbraith wrote:
-> On Sat, 2006-06-24 at 11:21 +0200, BjÃ¶rn Steinbrink wrote:
-> > 
-> > The non-SMP call to update_process_times() is in do_timer_interrupt_hook(),
-> > so I guess the above is not the Right Thing to do.
-> 
-> Ah, there it is.  That's what I was looking for.  I figured that doing
-> what I did had to be wrong, but tried it for grins anyway... was pretty
-> surprised when it worked (kinda).
-
-Calling update_process_times() in do_timer_interrupt_hook() flat does
-not work here.  Calling it in smp_local_timer_interrupt() works fine.  
-
-Oh joy.
-
-	-Mike
+Good day! We will get you the results you need  Take it before go to bed and you will be able to show the paradise for you sweetie Surely you only dream of it Now it’s possible to do with magic tab You gape for shooting like you had seen in those films… Enter: http://enmsf.com/gal/ms
 

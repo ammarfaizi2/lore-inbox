@@ -1,61 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWFXCmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933195AbWFXCnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750906AbWFXCmz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 22:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWFXCmy
+	id S933195AbWFXCnY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 22:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWFXCm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 22:42:54 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:33176 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1750866AbWFXCmy (ORCPT
+	Fri, 23 Jun 2006 22:42:59 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:52632 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1750900AbWFXCmz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 22:42:54 -0400
-Message-ID: <351116971.29400@ustc.edu.cn>
+	Fri, 23 Jun 2006 22:42:55 -0400
+Message-ID: <351116972.29400@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060624020358.719251923@localhost.localdomain>
-Date: Sat, 24 Jun 2006 10:03:58 +0800
+Message-Id: <20060624024258.540944943@localhost.localdomain>
+References: <20060624020358.719251923@localhost.localdomain>
+Date: Sat, 24 Jun 2006 10:04:02 +0800
 From: Fengguang Wu <wfg@mail.ustc.edu.cn>
 To: Jens Axboe <axboe@suse.de>
 Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Lubos Lunak <l.lunak@suse.cz>
-Subject: [PATCH 0/7] [RFC] iosched: make a difference between read/readahead requests
+       Nick Piggin <nickpiggin@yahoo.com.au>, Lubos Lunak <l.lunak@suse.cz>,
+       Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 4/7] iosched: submit READA requests on possible readahead code path
+Content-Disposition: inline; filename=iosched-submit-reada-on-possible-readahead-path.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+Change the request type from READ to READA in possible readahead code paths.
 
-This patchset does two jobs:
-	1) do io schedule differently on READ/READA requests.
-		- to help improve I/O latency and throughput
-	2) do notification/action on READA => READ events
-		- to make the elevators better informed
-		- to prevent the priority inversion problem
-		- also brings some CPU overheads*
-(*) I'm not able to provide the numbers at the moment.
-    But sure for the next time.
+- call mpage_bio_submit(READA) in mpage_readpages()
+- call submit_bio(READA) in swap_readpage()
+
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+---
 
 
-The patches come in two groups:
+ fs/mpage.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-1) explicitly schedule READA requests
-Note: currently only the deadline elevator is touched.
+--- linux-2.6.17-mm1.orig/fs/mpage.c
++++ linux-2.6.17-mm1/fs/mpage.c
+@@ -302,7 +302,7 @@ do_mpage_readpage(struct bio *bio, struc
+ 	 * This page will go to BIO.  Do we need to send this BIO off first?
+ 	 */
+ 	if (bio && (*last_block_in_bio != blocks[0] - 1))
+-		bio = mpage_bio_submit(READ, bio);
++		bio = mpage_bio_submit(READA, bio);
+ 
+ alloc_new:
+ 	if (bio == NULL) {
+@@ -315,12 +315,12 @@ alloc_new:
+ 
+ 	length = first_hole << blkbits;
+ 	if (bio_add_page(bio, page, length, 0) < length) {
+-		bio = mpage_bio_submit(READ, bio);
++		bio = mpage_bio_submit(READA, bio);
+ 		goto alloc_new;
+ 	}
+ 
+ 	if (buffer_boundary(map_bh) || (first_hole != blocks_per_page))
+-		bio = mpage_bio_submit(READ, bio);
++		bio = mpage_bio_submit(READA, bio);
+ 	else
+ 		*last_block_in_bio = blocks[blocks_per_page - 1];
+ out:
+@@ -328,7 +328,7 @@ out:
+ 
+ confused:
+ 	if (bio)
+-		bio = mpage_bio_submit(READ, bio);
++		bio = mpage_bio_submit(READA, bio);
+ 	if (!PageUptodate(page))
+ 	        block_read_full_page(page, get_block);
+ 	else
+@@ -418,7 +418,7 @@ mpage_readpages(struct address_space *ma
+ 	pagevec_lru_add(&lru_pvec);
+ 	BUG_ON(!list_empty(pages));
+ 	if (bio)
+-		mpage_bio_submit(READ, bio);
++		mpage_bio_submit(READA, bio);
+ 	return 0;
+ }
+ EXPORT_SYMBOL(mpage_readpages);
+@@ -437,7 +437,7 @@ int mpage_readpage(struct page *page, ge
+ 	bio = do_mpage_readpage(bio, page, 1, &last_block_in_bio,
+ 			&map_bh, &first_logical_block, get_block);
+ 	if (bio)
+-		mpage_bio_submit(READ, bio);
++		mpage_bio_submit(READA, bio);
+ 	return 0;
+ }
+ EXPORT_SYMBOL(mpage_readpage);
+--- linux-2.6.17-mm1.orig/mm/page_io.c
++++ linux-2.6.17-mm1/mm/page_io.c
+@@ -124,7 +124,7 @@ int swap_readpage(struct file *file, str
+ 		goto out;
+ 	}
+ 	inc_page_state(pswpin);
+-	submit_bio(READ, bio);
++	submit_bio(READA, bio);
+ out:
+ 	return ret;
+ }
 
-[PATCH 1/7] iosched: introduce WRITEA                                                  
-[PATCH 2/7] iosched: introduce parameter deadline.reada_expire                         
-[PATCH 3/7] iosched: introduce deadline_add_drq_fifo()                                 
-[PATCH 4/7] iosched: submit READA requests on possible readahead code path             
-
-2) notify/act on pending reads
-Naming issue: how about pending_read/need_page/... for kick_page?
-
-[PATCH 5/7] iosched: introduce elv_kick_page()                                         
-[PATCH 6/7] iosched: run elv_kick_page() on sync read                                  
-[PATCH 7/7] iosched: introduce deadline_kick_page()                                    
-
-Most overheads should be in functions deadline_kick_page() and
-deadline_add_drq_fifo(). I'll explore the details later.
-
-Any comments are welcome, thanks.
-
-Fengguang Wu
 --
-Dept. Automation                University of Science and Technology of China

@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWFXIP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWFXIQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbWFXIP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 04:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWFXIP7
+	id S1751224AbWFXIQB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 04:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWFXIQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 24 Jun 2006 04:16:01 -0400
+Received: from aa001msr.fastwebnet.it ([85.18.95.64]:14474 "EHLO
+	aa001msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751239AbWFXIP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 24 Jun 2006 04:15:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45451 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933259AbWFXIP5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 04:15:57 -0400
-Date: Sat, 24 Jun 2006 01:15:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: jlan@sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Revised locking for taskstats interface
-Message-Id: <20060624011551.1bcd4385.akpm@osdl.org>
-In-Reply-To: <449CEB7C.3060004@watson.ibm.com>
-References: <449C2A44.9000206@watson.ibm.com>
-	<20060623233245.77f365bb.akpm@osdl.org>
-	<449CEB7C.3060004@watson.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Date: Sat, 24 Jun 2006 10:09:57 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: Jeff Garzik <jeff@garzik.org>, Hamish <hamish@travellingkiwi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SATA hangs...
+Message-ID: <20060624100957.73fff572@localhost>
+In-Reply-To: <20060624093659.7bc2a4a0@localhost>
+References: <200606232134.42231.hamish@travellingkiwi.com>
+	<449C6023.9010204@garzik.org>
+	<20060624093659.7bc2a4a0@localhost>
+X-Mailer: Sylpheed-Claws 2.3.0-rc3 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Jun 2006 03:36:28 -0400
-Shailabh Nagar <nagar@watson.ibm.com> wrote:
+On Sat, 24 Jun 2006 09:36:59 +0200
+Paolo Ornati <ornati@fastwebnet.it> wrote:
 
-> Andrew Morton wrote:
+> > > I'm having problems with a SATA drive on an ASUS A8V deluxe 
+> > > motherboard under kernel 2.6.17... In fact it's happened under 
+> > > every (Vanilla) kernel I've ever run on this server (Back to 2.6.14).
+> > > (It's just over a year old. It didn't used to experience the same load
+> > > as it does now, so I'm currently assuming it's load related...
 > 
-> >On Fri, 23 Jun 2006 13:52:04 -0400
-> >Shailabh Nagar <nagar@watson.ibm.com> wrote:
-> >
-> >  
-> >
-> >>Convert locking used within taskstats interface and delay accounting
-> >>code to be more fine-grained.
-> >>    
-> >>
-> >
-> >This patch is based on
-> >per-task-delay-accounting-taskstats-interface-fix-exit-race-in-per-task-delay-accounting.patch,
-> >which I've noted as `nacked' but didn't drop.
-> >
-> >So I guess that's now un-nacked?
-> >  
-> >
-> Not in intent. This patch reverses all the changes made by that patch. 
-> So effectively the previous patch is still nacked.
-> However, I based this patch on the previous one because you hadn't 
-> dropped the latter (so we're going round in circles !)
-> 
-> How about  I just send one patch that covers the whole locking thing ?
-> 
+> I think I've hit something similar yesterday, with 2.6.17.1...
 
-Is OK - I'll concatenate these:
+I was thinking that I've recently enabled CONFIG_PREEMPT (usually I
+was just using CONFIG_PREEMPT_VOLUNTARY).
 
-per-task-delay-accounting-taskstats-interface-fix-exit-race-in-per-task-delay-accounting.patch
-per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface.patch
-per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface-use-portable-cputime-api-in-__delayacct_add_tsk.patch
-per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface-fix-return-value-of-delayacct_add_tsk.patch
-revised-locking-for-taskstats-interface.patch
+Maybe is totally unrelated but... for Hamish: what is/was your PREEMPT
+config?
 
-into a single
-
-per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface.patch
-
+-- 
+	Paolo Ornati
+	Linux 2.6.17.1 on x86_64

@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWFXQFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWFXQGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbWFXQFL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 12:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWFXQFK
+	id S1750855AbWFXQGg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 12:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWFXQGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 12:05:10 -0400
-Received: from www.osadl.org ([213.239.205.134]:48792 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1750851AbWFXQFJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 12:05:09 -0400
-Subject: Re: 2.6.17-mm1: UML failing w/o SKAS enabled
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Theodore Tso <tytso@mit.edu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060624152235.GB3627@ccure.user-mode-linux.org>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
-	 <20060622213443.GA22303@thunk.org>
-	 <20060623024222.GA8316@ccure.user-mode-linux.org>
-	 <20060623210714.GA16661@thunk.org>
-	 <20060623214623.GA7319@ccure.user-mode-linux.org>
-	 <20060624140001.GA7752@thunk.org>
-	 <20060624152235.GB3627@ccure.user-mode-linux.org>
-Content-Type: text/plain
-Date: Sat, 24 Jun 2006 18:06:50 +0200
-Message-Id: <1151165210.25491.352.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 24 Jun 2006 12:06:36 -0400
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:6736 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750854AbWFXQGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 12:06:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=iB4HbzX1PSFYwesy4xCtQ+brHCDWTTerJPYCWoPzfgfSgb/sQPNnKXj7QVAouF5UdPA0oFBV70aZ26Pc42eG8YuZCQdjTs4xcT7OIqnEF6d4GbEXojMYC69UrKzSPj7OP9dqnOUKZDROeSBfmhRdY3xdEMm45i3sf3Yo+yykb9M=  ;
+Message-ID: <449D6305.4060303@yahoo.com.au>
+Date: Sun, 25 Jun 2006 02:06:29 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] ext3_clear_inode(): avoid kfree(NULL)
+References: <200606231502.k5NF2jfO007109@hera.kernel.org>	 <449C3817.2030802@garzik.org> <20060623142430.333dd666.akpm@osdl.org>	 <1151151104.3181.30.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.58.0606240817170.23087@gandalf.stny.rr.com>	 <1151152059.3181.37.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.58.0606240833010.23318@gandalf.stny.rr.com>	 <1151153177.3181.39.camel@laptopd505.fenrus.org>	 <1151153635.3181.41.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.58.0606240902390.23703@gandalf.stny.rr.com> <1151158295.3181.46.camel@laptopd505.fenrus.org>
+In-Reply-To: <1151158295.3181.46.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-24 at 11:22 -0400, Jeff Dike wrote:
-> On Sat, Jun 24, 2006 at 10:00:01AM -0400, Theodore Tso wrote:
-> > Looks like UML just crashed (tm), without any explanation.  Kconfig
-> > attached.  Suggestions on how to debug this would be appreciated.
+Arjan van de Ven wrote:
+>>The jne is expected to fail, so we will always continue to 0x13. Now is
+>>this a problem with x86/x86_64?
 > 
-> I'm working on this - the genirq stuff in -mm broke UML.  Add stderr=1
-> to the command line to see the actual crash.  2.6.17 is fine, except
-> you need a klibc patch for O= builds.
+> 
+> I'm not saying there is a problem; likely/unlikely do have an effect for
+> sure, it's just not a "make it free" thing....
 
-Jeff, its the following patch:
+On x86 I think the main saving is the icache one. However I guess
+gcc would try to align with the branch prediction behaviour for
+unknown branches too.
 
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/broken-out/genirq-allow-usage-of-no_irq_chip.patch
+The microoptimisation is that the call avoids the unlikely branch
+in kfree. Maybe for x86 this isn't going to matter, but for some
+architectures in might.
 
-It was a brown paperbag thinko. Back it out or use -mm2
-
-	tglx
-
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

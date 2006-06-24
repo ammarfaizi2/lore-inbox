@@ -1,72 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933167AbWFXAIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWFXATU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933167AbWFXAIp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 20:08:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933165AbWFXAIp
+	id S932110AbWFXATU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 20:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWFXATU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 20:08:45 -0400
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:26617 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S933164AbWFXAIo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 20:08:44 -0400
-Message-ID: <449C828A.2090705@bigpond.net.au>
-Date: Sat, 24 Jun 2006 10:08:42 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Fri, 23 Jun 2006 20:19:20 -0400
+Received: from cantor.suse.de ([195.135.220.2]:15503 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932110AbWFXATS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 20:19:18 -0400
+Date: Sat, 24 Jun 2006 02:19:16 +0200
+From: "Andi Kleen" <ak@suse.de>
+To: torvalds@osdl.org
+Cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       jbeulich@novell.com
+Subject: [PATCH] [16/82] i386/x86-64: simplify ioapic_register_intr()
+Message-ID: <449C8504.mailCVE1AFQPQ@suse.de>
+User-Agent: nail 10.6 11/15/03
 MIME-Version: 1.0
-To: Matt Helsley <matthltc@us.ibm.com>
-CC: "John T. Kohl" <jtk@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       LSE-Tech <lse-tech@lists.sourceforge.net>,
-       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
-Subject: Re: [PATCH] Per-task watchers: Enable inheritance
-References: <1150879635.21787.964.camel@stark>	 <6c4pybmv19.fsf@sumu.lexma.ibm.com> <1151105584.21787.1571.camel@stark>
-In-Reply-To: <1151105584.21787.1571.camel@stark>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 24 Jun 2006 00:08:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Helsley wrote:
-> On Fri, 2006-06-23 at 17:17 -0400, John T. Kohl wrote:
->>>>>>> "MattH" ==   <matthltc@us.ibm.com> writes:
->> MattH> This allows per-task watchers to implement inheritance of the
->> MattH> same function and/or data in response to the initialization of
->> MattH> new tasks. A watcher might implement inheritance using the
->> MattH> following notifier_call snippet:
->>
->> I think this would meet our needs--we (MVFS) need to initialize some new
->> state in a child process based on our state in the parent process
->> (essentially, module-private inherited per-process state).  It may still
->> be a bit clumsy to find the per-process state in other situations,
->> though.  While a process is executing our module's code, would it be
->> safe to traverse current's notifier chain to find our state?
-> 
-> 	Hmm. We may need to be careful with terminology here. Keep in mind that
-> a task is not the same as the userspace concept of a  "process".
-> 
-> 	When a task is executing a module's code it will be safe to traverse
-> the task's notifier chain to find state. It will *not* be safe to
-> traverse the notifier chain of other tasks -- even if the other task is
-> a thread in the same "process".
 
-Yes, the client has to make its own arrangements for protecting this 
-type of thing.
+From: "Jan Beulich" <jbeulich@novell.com>
+Simplify (remove duplication of) code in ioapic_register_intr().
 
-The "per process CPU caps" code that I'm working on using task watchers 
-has to address these issues and indications (so far) are that they're 
-solvable.  I should be in a position to post that code early next week 
-and, hopefully, that will give some insight into what can be achieved 
-with this type of mechanism.  What I've done might not be the best way 
-to solve the issues involved but it should provide a starting point for 
-discussion :-)
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+---
+ arch/i386/kernel/io_apic.c   |   23 ++++++++---------------
+ arch/x86_64/kernel/io_apic.c |   23 ++++++++---------------
+ 2 files changed, 16 insertions(+), 30 deletions(-)
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Index: linux/arch/i386/kernel/io_apic.c
+===================================================================
+--- linux.orig/arch/i386/kernel/io_apic.c
++++ linux/arch/i386/kernel/io_apic.c
+@@ -1205,21 +1205,14 @@ static struct hw_interrupt_type ioapic_e
+ 
+ static inline void ioapic_register_intr(int irq, int vector, unsigned long trigger)
+ {
+-	if (use_pci_vector() && !platform_legacy_irq(irq)) {
+-		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
+-				trigger == IOAPIC_LEVEL)
+-			irq_desc[vector].handler = &ioapic_level_type;
+-		else
+-			irq_desc[vector].handler = &ioapic_edge_type;
+-		set_intr_gate(vector, interrupt[vector]);
+-	} else	{
+-		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
+-				trigger == IOAPIC_LEVEL)
+-			irq_desc[irq].handler = &ioapic_level_type;
+-		else
+-			irq_desc[irq].handler = &ioapic_edge_type;
+-		set_intr_gate(vector, interrupt[irq]);
+-	}
++	unsigned idx = use_pci_vector() && !platform_legacy_irq(irq) ? vector : irq;
++
++	if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
++			trigger == IOAPIC_LEVEL)
++		irq_desc[idx].handler = &ioapic_level_type;
++	else
++		irq_desc[idx].handler = &ioapic_edge_type;
++	set_intr_gate(vector, interrupt[idx]);
+ }
+ 
+ static void __init setup_IO_APIC_irqs(void)
+Index: linux/arch/x86_64/kernel/io_apic.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/io_apic.c
++++ linux/arch/x86_64/kernel/io_apic.c
+@@ -876,21 +876,14 @@ static struct hw_interrupt_type ioapic_e
+ 
+ static inline void ioapic_register_intr(int irq, int vector, unsigned long trigger)
+ {
+-	if (use_pci_vector() && !platform_legacy_irq(irq)) {
+-		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
+-				trigger == IOAPIC_LEVEL)
+-			irq_desc[vector].handler = &ioapic_level_type;
+-		else
+-			irq_desc[vector].handler = &ioapic_edge_type;
+-		set_intr_gate(vector, interrupt[vector]);
+-	} else	{
+-		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
+-				trigger == IOAPIC_LEVEL)
+-			irq_desc[irq].handler = &ioapic_level_type;
+-		else
+-			irq_desc[irq].handler = &ioapic_edge_type;
+-		set_intr_gate(vector, interrupt[irq]);
+-	}
++	unsigned idx = use_pci_vector() && !platform_legacy_irq(irq) ? vector : irq;
++
++	if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
++			trigger == IOAPIC_LEVEL)
++		irq_desc[idx].handler = &ioapic_level_type;
++	else
++		irq_desc[idx].handler = &ioapic_edge_type;
++	set_intr_gate(vector, interrupt[idx]);
+ }
+ 
+ static void __init setup_IO_APIC_irqs(void)

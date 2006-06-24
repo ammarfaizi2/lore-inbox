@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWFXCnX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWFXCrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWFXCnX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 22:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbWFXCm6
+	id S932072AbWFXCrj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 22:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933196AbWFXCrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 22:42:58 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:32920 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1750856AbWFXCmz (ORCPT
+	Fri, 23 Jun 2006 22:47:39 -0400
+Received: from ns2.suse.de ([195.135.220.15]:52657 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932072AbWFXCri (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 22:42:55 -0400
-Message-ID: <351116971.32766@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060624024257.216415573@localhost.localdomain>
-References: <20060624020358.719251923@localhost.localdomain>
-Date: Sat, 24 Jun 2006 10:03:59 +0800
-From: Fengguang Wu <wfg@mail.ustc.edu.cn>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Lubos Lunak <l.lunak@suse.cz>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 1/7] iosched: introduce WRITEA
-Content-Disposition: inline; filename=iosched-reada-redef.patch
+	Fri, 23 Jun 2006 22:47:38 -0400
+Date: Fri, 23 Jun 2006 19:44:12 -0700
+From: Greg KH <greg@kroah.com>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix "Trying to free nonexistent resource" format string
+Message-ID: <20060624024412.GA29637@kroah.com>
+References: <20060621175700.GA4620@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060621175700.GA4620@hexapodia.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce WRITEA as 3, and redefine SWRITE as 5.
+On Wed, Jun 21, 2006 at 10:57:00AM -0700, Andy Isaacson wrote:
+> In 2.6.17-mm1, the patch
+> gregkh-pci-64bit-resource-fix-up-printks-for-resources-in-arch-and-core-code.patch
+> has some formatting bugs.
+>  * converts %08x into %16llx, which results in space-padding rather than
+>    zero-padding.
+>  * some casts are insufficiently touchy-feely with their castees.
+> 
+> This patch fixes them.
+> 
+> Signed-off-by: Andy Isaacson <adi@hexapodia.org>
 
-I'm not sure if WRITEA will ever be used, though it would be better to
-redefine SWRITE to avoid possible conflict with BIO_RW_AHEAD.
+Thanks, I've merged this in with the original patch and added your
+Signed-off-by to it.
 
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
----
+thanks,
 
-
---- linux-2.6.17-rc6-mm2.orig/include/linux/fs.h
-+++ linux-2.6.17-rc6-mm2/include/linux/fs.h
-@@ -74,8 +74,9 @@ extern int dir_notify_enable;
- #define READ 0
- #define WRITE 1
- #define READA 2		/* read-ahead  - don't block if no resources */
--#define SWRITE 3	/* for ll_rw_block() - wait for buffer lock */
-+#define WRITEA 3	/* write-ahead - don't block if no resources */
- #define SPECIAL 4	/* For non-blockdevice requests in request queue */
-+#define SWRITE 5	/* for ll_rw_block() - wait for buffer lock */
- #define READ_SYNC	(READ | (1 << BIO_RW_SYNC))
- #define WRITE_SYNC	(WRITE | (1 << BIO_RW_SYNC))
- #define WRITE_BARRIER	((1 << BIO_RW) | (1 << BIO_RW_BARRIER))
-
---
+greg k-h

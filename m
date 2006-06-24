@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWFXU5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWFXVCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWFXU5o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 16:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWFXU5o
+	id S964783AbWFXVCO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 17:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWFXVCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 16:57:44 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:40362 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751099AbWFXU5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 16:57:43 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <449DA6F4.9070105@s5r6.in-berlin.de>
-Date: Sat, 24 Jun 2006 22:56:20 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 2.6.17-mm1 4/3] ieee1394: convert	ieee1394_transactions
- from semaphores to waitqueue
-References: <449BEBFB.60302@s5r6.in-berlin.de>	 <200606230904.k5N94Al3005245@shell0.pdx.osdl.net>	 <30866.1151072338@warthog.cambridge.redhat.com>	 <tkrat.df6845846c72176e@s5r6.in-berlin.de>	 <tkrat.9c73406a85ae9ce4@s5r6.in-berlin.de>	 <tkrat.e74b06c4105348f6@s5r6.in-berlin.de>	 <tkrat.2ff7b57397a5a37e@s5r6.in-berlin.de>	 <tkrat.3f9c07538e381afd@s5r6.in-berlin.de>	 <449D7A53.4080605@s5r6.in-berlin.de> <1151172766.3181.75.camel@laptopd505.fenrus.org> <449DA08A.10209@s5r6.in-berlin.de>
-In-Reply-To: <449DA08A.10209@s5r6.in-berlin.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-0.72) AWL,BAYES_00
+	Sat, 24 Jun 2006 17:02:14 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:34194 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751100AbWFXVCO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 17:02:14 -0400
+Date: Sat, 24 Jun 2006 23:02:13 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Section mismatch warnings
+Message-ID: <20060624210213.GB2049@mars.ravnborg.org>
+References: <Pine.LNX.4.61.0606231938080.26864@yvahk01.tjqt.qr> <20060623221217.GA372@mars.ravnborg.org> <20060623222243.GB27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060623222243.GB27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> It looks like fi->complete_sem is a actually a counting semaphore. It 
-> could perhaps be replaced by a wait queue plus an atomic counter.
+On Fri, Jun 23, 2006 at 11:22:43PM +0100, Al Viro wrote:
+> From nobody Mon Sep 17 00:00:00 2001
+> From: Al Viro <viro@zeniv.linux.org.uk>
+> Date: Wed, 14 Jun 2006 13:05:12 -0400
+> Subject: [PATCH] kill some false positives from modpost
 
-...which would be a semaphore. %-|
--- 
-Stefan Richter
--=====-=-==- -==- ==---
-http://arcgraph.de/sr/
+Applied,
+
+	Sam

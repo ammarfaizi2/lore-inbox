@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932750AbWFXAml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932770AbWFXAvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932750AbWFXAml (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 20:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932748AbWFXAml
+	id S932770AbWFXAvP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 20:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933164AbWFXAvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 20:42:41 -0400
-Received: from mx1.suse.de ([195.135.220.2]:64658 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932750AbWFXAmk (ORCPT
+	Fri, 23 Jun 2006 20:51:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15763 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932770AbWFXAvO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 20:42:40 -0400
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH] [20/82] i386: Panic the system when a NUMA kernel doesn't run on IBM NUMA
-Date: Sat, 24 Jun 2006 02:42:31 +0200
-User-Agent: KMail/1.9.3
-Cc: torvalds@osdl.org, discuss@x86-64.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <449C8510.mailCWD11E44E@suse.de> <20060624003856.GE19461@redhat.com>
-In-Reply-To: <20060624003856.GE19461@redhat.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200606240242.31906.ak@suse.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 23 Jun 2006 20:51:14 -0400
+Date: Fri, 23 Jun 2006 17:50:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: nkiesel@tbdnetworks.com (Norbert Kiesel)
+Cc: bfennema@falcon.csc.calpoly.edu, linux-kernel@vger.kernel.org
+Subject: Re: OOPS in UDF
+Message-Id: <20060623175033.664ddcce.akpm@osdl.org>
+In-Reply-To: <20060615155828.GA14257@defiant.tbdnetworks.com>
+References: <20060615155828.GA14257@defiant.tbdnetworks.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 June 2006 02:38, Dave Jones wrote:
-> On Sat, Jun 24, 2006 at 02:19:28AM +0200, Andi Kleen wrote:
+On Thu, 15 Jun 2006 08:58:28 -0700
+nkiesel@tbdnetworks.com (Norbert Kiesel) wrote:
+
+> I just got an OOPS while copying between two loopback-mounted UDF filesystems.
+> One or both of the UDF file systems are corrupted (some files not readable by
+> root), but kernel should not OOPS anyway.
 > 
-> 
->  > +	extern int use_cyclone;
->  > +	if (use_cyclone == 0) {
->  > +		/* Make sure user sees something */
->  > +		static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else.";
->  > +		early_printk(s);
->  > +		panic(s);
->  > +	}
-> 
-> non-IBM Machines do still boot with that enabled though don't they?
+> I get the corrupted file systems reliably by rsync'ing big directories onto the
+> UDF filesystem (while trying to prepare a backup DVD).  I saw the OOPS only once
+> so far.  The system continued to work after the OOPS.
 
+Are you able to get a copy of one of these filesystem images up onto a
+server somewhere so others can reproduce the crash?
 
-No they don't - as they likely didn't do before. e.g. Opterons generally
-break and that brings the point across clearer.
-
-The rationale is that CONFIG_NUMA is very rarely used on i386 (even on summit)
-and always does bitrot quickly. It also doesn't work at all on a wide
-range of machines.
-
-I'm sure someone will bring up now an example where their non Summit 
-machine booted with CONFIG_NUMA, but they were just extremly lucky
-and unlikely to be for very long.
-
--Andi

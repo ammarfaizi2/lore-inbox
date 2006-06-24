@@ -1,62 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWFXDom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWFXEQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWFXDom (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 23:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWFXDol
+	id S932102AbWFXEQE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 00:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWFXEQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 23:44:41 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:20321 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932109AbWFXDol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 23:44:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=c2GL3y/J2UoddsvSfVjBwKuEUtcPXba+Ta32O0eAs0Z63+/lAFdMG+4Ks7K3mVN1TKedJfdWn3ElFA3AuFWMMENr2yzwvEpOquaF5jnW89byHLuDxZ3qwpmRfroQzY8AMSqoS46yJm7RwCPHfacu02GS/CkzcnT56Gg+90n2K2E=
-Message-ID: <1e1a7e1b0606232044x11136be5p332716b757ecd537@mail.gmail.com>
-Date: Sat, 24 Jun 2006 13:44:39 +1000
-From: James <iphitus@gmail.com>
-To: "Jens Axboe" <axboe@suse.de>
-Subject: Re: [PATCH] fcache: a remapping boot cache
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-In-Reply-To: <20060531061234.GC29535@suse.de>
+	Sat, 24 Jun 2006 00:16:04 -0400
+Received: from dsl-202-45-110-141-static.VIC.netspace.net.au ([202.45.110.141]:27588
+	"EHLO firewall.reed.wattle.id.au") by vger.kernel.org with ESMTP
+	id S932160AbWFXEQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 00:16:03 -0400
+From: Darren Reed <darrenr@reed.wattle.id.au>
+Message-Id: <200606240247.k5O2lU3C009083@firewall.reed.wattle.id.au>
+Subject: Re: 2.6.11: spinlock problem
+In-Reply-To: <Pine.LNX.4.61.0606231331310.16810@chaos.analogic.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Date: Sat, 24 Jun 2006 12:47:30 +1000 (EST)
+CC: Darren Reed <darrenr@reed.wattle.id.au>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL107a (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060515091806.GA4110@suse.de> <20060515101019.GA4068@suse.de>
-	 <20060516074628.GA16317@suse.de>
-	 <4d8e3fd30605301438k457f6242x1df64df9bab7f8f1@mail.gmail.com>
-	 <20060531061234.GC29535@suse.de>
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Set this up on my laptop yesterday with some awesome results. I'm
-using 2.6.17-ck1 which has v2.1.
+[ Charset ISO-8859-1 unsupported, converting... ]
+> On Fri, 23 Jun 2006, Darren Reed wrote:
+> 
+> > Hi,
+> >
+> > I'm seeing a spinlock held panic with a kernel stack like this:
+> >
+> > spinlock - panic, lock already held
+> > ..
+> > __do_softirq
+> > do_softirq
+> > =========
+> > do_IRQ
+> > common_interrupt
+> > spinlock/spinunlock
+> > ..
+> >
+> > when I load up the system in testing.
+> > The code protected by the spinlock is quite small - counter increment.
+> >
+> > I'm using 2.6.11-1.1369_FC4 #1, installed inside of vmware,
+> > running as a guest on a Windows XP box.
+> >
+> > Is this
+> > (a) linux allowing the IRQ too early
+> > (b) vmware not doing something right
+> > (c) enivitable
+> > (d) somehow my fault
+> > (e) something else?
+> >
+> > Thanks,
+> > Darren
+> 
+> Where's the code? Also, did you initialize the spin-lock variable
+> before use?
 
-Heres some bootcharts, before, after, and a prime run.
+locks are intialised...code runs for a minute or so before panic'ing
 
-http://archlinux.org/~james/normal.png
-http://archlinux.org/~james/fs-fcache.png
-http://archlinux.org/~james/fs-fcache-prime.png
+I write my own wrappers to read/write_lock/unlock.
 
-Repeated boots show about the same 6 second improvement, 32 down to 26
-seconds. Looking at the slowdowns in the fs-fcache run, most are due
-to cpu load, waiting on network or, modprobe, and not disk access. X
-now starts nearly instantaneously.
+The call stack for the panic is:
+panic
+ipf_read_enter
+..
+do_softirq
+=====
+do_IRQ
+common_interrupt
+ipf_rw_exit
 
-As an experiment, I primed my cache right through to logging into my
-desktop environment. It was so effective, that now when I login, the
-GNOME splash screen only flickers onto the screen briefly, and the
-panels appear almost instantly. This is a big improvment over without
-fcache, where you'd see each component of GNOME being loaded on the
-splash screen, nautilus, metacity, and the panels would take quite a
-bit of time to render and load all their applets.
+ipf_read_enter and ipf_rw_exit are being called for different locks.
+The panic is occuring in the spin_lock() for the counter increment.
+The counter incrememnt/decrement uses the same lock, regardless of
+the counter being used.
 
-Impressive work, I hope to see it broadened to other filesystems,
-improved and merged to vanilla soon because it has clear improvements.
+I believe I'm hitting a race condition of sorts...I just don't know
+who owns it yet - vmware or linux and I cant test running linux
+natively at present because I only have one computer.
 
-James
--- 
-iphitus - Beyond Maintainer, Arch Trusted User, Arch Developer.
-Home:iphitus.loudas.com
+Darren
+
+INLINE void ipf_rw_exit(rwlk)
+ipfrwlock_t *rwlk;
+{
+        if (rwlk->ipf_isw > 0) {
+                rwlk->ipf_isw = 0;
+                write_unlock(&rwlk->ipf_lk);
+        } else if (rwlk->ipf_isr > 0) {
+                ATOMIC_DEC32(rwlk->ipf_isr);
+                read_unlock(&rwlk->ipf_lk);
+        } else {
+                panic("rwlk->ipf_isw %d isr %d rwlk %p name [%s]\n",
+                      rwlk->ipf_isw, rwlk->ipf_isr, rwlk, rwlk->ipf_lname);
+        }
+}
+
+INLINE void ipf_read_enter(rwlk)
+ipfrwlock_t *rwlk;
+{
+        read_lock(&rwlk->ipf_lk);
+        ATOMIC_INC32(rwlk->ipf_isr);
+}
+
+#  define       ATOMIC_INC32(x)         MUTEX_ENTER(&ipf_rw); (x)++; \
+                                        MUTEX_EXIT(&ipf_rw)
+#  define       ATOMIC_DEC32(x)         MUTEX_ENTER(&ipf_rw); (x)--; \
+                                        MUTEX_EXIT(&ipf_rw)
+#  define       MUTEX_ENTER(x)          spin_lock(&(x)->ipf_lk)
+#  define       MUTEX_EXIT(x)           spin_unlock(&(x)->ipf_lk)
+

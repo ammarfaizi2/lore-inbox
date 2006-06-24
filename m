@@ -1,92 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWFXRhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbWFXRjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750976AbWFXRhV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 13:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWFXRhV
+	id S1750979AbWFXRjN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 13:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWFXRjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 13:37:21 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:58004 "EHLO
+	Sat, 24 Jun 2006 13:39:13 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:13717 "EHLO
 	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750976AbWFXRhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 13:37:19 -0400
+	id S1750979AbWFXRjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 13:39:12 -0400
 X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Sat, 24 Jun 2006 19:36:03 +0200 (CEST)
+Date: Sat, 24 Jun 2006 19:37:54 +0200 (CEST)
 From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH] ieee1394: fix calculation of csr->expire
+Subject: [PATCH] ieee1394: dv1394: sem2mutex conversion
 To: linux1394-devel@lists.sourceforge.net
 cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
-Message-ID: <tkrat.fcab316d805e0c52@s5r6.in-berlin.de>
+Message-ID: <tkrat.7092f9b969592375@s5r6.in-berlin.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; CHARSET=us-ascii
 Content-Disposition: INLINE
-X-Spam-Score: (0.896) AWL,BAYES_50
+X-Spam-Score: (-0.024) AWL,BAYES_40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This variant of calculate_expire() is more correct and easier to read.
+just because it is trivial
 
 Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 ---
- drivers/ieee1394/csr.c |   31 ++++++++++---------------------
- 1 files changed, 10 insertions(+), 21 deletions(-)
+ drivers/ieee1394/dv1394-private.h |    6 ++---
+ drivers/ieee1394/dv1394.c         |   31 +++++++++++++++---------------
+ 2 files changed, 19 insertions(+), 18 deletions(-)
 
-Index: linux/drivers/ieee1394/csr.c
+Index: linux/drivers/ieee1394/dv1394-private.h
 ===================================================================
---- linux.orig/drivers/ieee1394/csr.c	2006-06-24 18:58:14.000000000 +0200
-+++ linux/drivers/ieee1394/csr.c	2006-06-24 19:04:09.000000000 +0200
-@@ -17,11 +17,13 @@
-  *
+--- linux.orig/drivers/ieee1394/dv1394-private.h	2006-04-24 22:20:24.000000000 +0200
++++ linux/drivers/ieee1394/dv1394-private.h	2006-06-24 17:36:10.000000000 +0200
+@@ -460,7 +460,7 @@ struct video_card {
+ 	int dma_running;
+ 
+ 	/*
+-	  3) the sleeping semaphore 'sem' - this is used from process context only,
++	  3) the sleeping mutex 'mtx' - this is used from process context only,
+ 	  to serialize various operations on the video_card. Even though only one
+ 	  open() is allowed, we still need to prevent multiple threads of execution
+ 	  from entering calls like read, write, ioctl, etc.
+@@ -468,9 +468,9 @@ struct video_card {
+ 	  I honestly can't think of a good reason to use dv1394 from several threads
+ 	  at once, but we need to serialize anyway to prevent oopses =).
+ 
+-	  NOTE: if you need both spinlock and sem, take sem first to avoid deadlock!
++	  NOTE: if you need both spinlock and mtx, take mtx first to avoid deadlock!
+ 	 */
+-	struct semaphore sem;
++	struct mutex mtx;
+ 
+ 	/* people waiting for buffer space, please form a line here... */
+ 	wait_queue_head_t waitq;
+Index: linux/drivers/ieee1394/dv1394.c
+===================================================================
+--- linux.orig/drivers/ieee1394/dv1394.c	2006-06-23 19:10:29.000000000 +0200
++++ linux/drivers/ieee1394/dv1394.c	2006-06-24 17:48:23.000000000 +0200
+@@ -96,6 +96,7 @@
+ #include <linux/fs.h>
+ #include <linux/poll.h>
+ #include <linux/smp_lock.h>
++#include <linux/mutex.h>
+ #include <linux/bitops.h>
+ #include <asm/byteorder.h>
+ #include <asm/atomic.h>
+@@ -248,7 +249,7 @@ static void frame_delete(struct frame *f
+ 
+    Frame_prepare() must be called OUTSIDE the video->spinlock.
+    However, frame_prepare() must still be serialized, so
+-   it should be called WITH the video->sem taken.
++   it should be called WITH the video->mtx taken.
   */
  
--#include <linux/string.h>
-+#include <linux/jiffies.h>
-+#include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/param.h>
- #include <linux/spinlock.h>
-+#include <linux/string.h>
+ static void frame_prepare(struct video_card *video, unsigned int this_frame)
+@@ -1272,7 +1273,7 @@ static int dv1394_mmap(struct file *file
+ 	int retval = -EINVAL;
  
- #include "csr1212.h"
- #include "ieee1394_types.h"
-@@ -149,31 +151,18 @@ static void host_reset(struct hpsb_host 
+ 	/* serialize mmap */
+-	down(&video->sem);
++	mutex_lock(&video->mtx);
  
- /*
-  * HI == seconds (bits 0:2)
-- * LO == fraction units of 1/8000 of a second, as per 1394 (bits 19:31)
-- *
-- * Convert to units and then to HZ, for comparison to jiffies.
-- *
-- * By default this will end up being 800 units, or 100ms (125usec per
-- * unit).
-+ * LO == fractions of a second in units of 125usec (bits 19:31)
-  *
-- * NOTE: The spec says 1/8000, but also says we can compute based on 1/8192
-- * like CSR specifies. Should make our math less complex.
-+ * Convert SPLIT_TIMEOUT to jiffies.
-+ * The default and minimum as per 1394a-2000 clause 8.3.2.2.6 is 100ms.
-  */
- static inline void calculate_expire(struct csr_control *csr)
- {
--	unsigned long units;
--
--	/* Take the seconds, and convert to units */
--	units = (unsigned long)(csr->split_timeout_hi & 0x07) << 13;
--
--	/* Add in the fractional units */
--	units += (unsigned long)(csr->split_timeout_lo >> 19);
--
--	/* Convert to jiffies */
--	csr->expire = (unsigned long)(units * HZ) >> 13UL;
-+	unsigned long usecs =
-+		(csr->split_timeout_hi & 0x07) * USEC_PER_SEC +
-+		(csr->split_timeout_lo >> 19) * 125L;
+ 	if ( ! video_card_initialized(video) ) {
+ 		retval = do_dv1394_init_default(video);
+@@ -1282,7 +1283,7 @@ static int dv1394_mmap(struct file *file
  
--	/* Just to keep from rounding low */
--	csr->expire++;
-+	csr->expire = usecs_to_jiffies(usecs > 100000L ? usecs : 100000L);
- 
- 	HPSB_VERBOSE("CSR: setting expire to %lu, HZ=%u", csr->expire, HZ);
+ 	retval = dma_region_mmap(&video->dv_buf, file, vma);
+ out:
+-	up(&video->sem);
++	mutex_unlock(&video->mtx);
+ 	return retval;
  }
+ 
+@@ -1338,17 +1339,17 @@ static ssize_t dv1394_write(struct file 
+ 
+ 	/* serialize this to prevent multi-threaded mayhem */
+ 	if (file->f_flags & O_NONBLOCK) {
+-		if (down_trylock(&video->sem))
++		if (mutex_trylock(&video->mtx))
+ 			return -EAGAIN;
+ 	} else {
+-		if (down_interruptible(&video->sem))
++		if (mutex_lock_interruptible(&video->mtx))
+ 			return -ERESTARTSYS;
+ 	}
+ 
+ 	if ( !video_card_initialized(video) ) {
+ 		ret = do_dv1394_init_default(video);
+ 		if (ret) {
+-			up(&video->sem);
++			mutex_unlock(&video->mtx);
+ 			return ret;
+ 		}
+ 	}
+@@ -1419,7 +1420,7 @@ static ssize_t dv1394_write(struct file 
+ 
+ 	remove_wait_queue(&video->waitq, &wait);
+ 	set_current_state(TASK_RUNNING);
+-	up(&video->sem);
++	mutex_unlock(&video->mtx);
+ 	return ret;
+ }
+ 
+@@ -1435,17 +1436,17 @@ static ssize_t dv1394_read(struct file *
+ 
+ 	/* serialize this to prevent multi-threaded mayhem */
+ 	if (file->f_flags & O_NONBLOCK) {
+-		if (down_trylock(&video->sem))
++		if (mutex_trylock(&video->mtx))
+ 			return -EAGAIN;
+ 	} else {
+-		if (down_interruptible(&video->sem))
++		if (mutex_lock_interruptible(&video->mtx))
+ 			return -ERESTARTSYS;
+ 	}
+ 
+ 	if ( !video_card_initialized(video) ) {
+ 		ret = do_dv1394_init_default(video);
+ 		if (ret) {
+-			up(&video->sem);
++			mutex_unlock(&video->mtx);
+ 			return ret;
+ 		}
+ 		video->continuity_counter = -1;
+@@ -1527,7 +1528,7 @@ static ssize_t dv1394_read(struct file *
+ 
+ 	remove_wait_queue(&video->waitq, &wait);
+ 	set_current_state(TASK_RUNNING);
+-	up(&video->sem);
++	mutex_unlock(&video->mtx);
+ 	return ret;
+ }
+ 
+@@ -1548,12 +1549,12 @@ static long dv1394_ioctl(struct file *fi
+ 
+ 	/* serialize this to prevent multi-threaded mayhem */
+ 	if (file->f_flags & O_NONBLOCK) {
+-		if (down_trylock(&video->sem)) {
++		if (mutex_trylock(&video->mtx)) {
+ 			unlock_kernel();
+ 			return -EAGAIN;
+ 		}
+ 	} else {
+-		if (down_interruptible(&video->sem)) {
++		if (mutex_lock_interruptible(&video->mtx)) {
+ 			unlock_kernel();
+ 			return -ERESTARTSYS;
+ 		}
+@@ -1779,7 +1780,7 @@ static long dv1394_ioctl(struct file *fi
+ 	}
+ 
+  out:
+-	up(&video->sem);
++	mutex_unlock(&video->mtx);
+ 	unlock_kernel();
+ 	return ret;
+ }
+@@ -2254,7 +2255,7 @@ static int dv1394_init(struct ti_ohci *o
+ 	clear_bit(0, &video->open);
+ 	spin_lock_init(&video->spinlock);
+ 	video->dma_running = 0;
+-	init_MUTEX(&video->sem);
++	mutex_init(&video->mtx);
+ 	init_waitqueue_head(&video->waitq);
+ 	video->fasync = NULL;
+ 
 
 

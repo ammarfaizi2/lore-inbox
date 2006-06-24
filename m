@@ -1,66 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752199AbWFXLIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbWFXLUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752199AbWFXLIo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 07:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752203AbWFXLIo
+	id S932586AbWFXLUe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 07:20:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWFXLUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 07:08:44 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:49433 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751559AbWFXLIn (ORCPT
+	Sat, 24 Jun 2006 07:20:34 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:5837 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752214AbWFXLUd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 07:08:43 -0400
-Date: Sat, 24 Jun 2006 13:10:00 +0200
-From: Jens Axboe <axboe@suse.de>
-To: James <iphitus@gmail.com>
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] fcache: a remapping boot cache
-Message-ID: <20060624110959.GQ4083@suse.de>
-References: <20060515091806.GA4110@suse.de> <20060515101019.GA4068@suse.de> <20060516074628.GA16317@suse.de> <4d8e3fd30605301438k457f6242x1df64df9bab7f8f1@mail.gmail.com> <20060531061234.GC29535@suse.de> <1e1a7e1b0606232044x11136be5p332716b757ecd537@mail.gmail.com>
+	Sat, 24 Jun 2006 07:20:33 -0400
+Date: Sat, 24 Jun 2006 07:19:54 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
+       linux-scsi@vger.kernel.org, ebiederm@xmission.com, mike.miller@hp.com
+Subject: Re: [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
+Message-ID: <20060624111954.GA7313@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060623210121.GA18384@in.ibm.com> <20060623210424.GB18384@in.ibm.com> <20060623235553.2892f21a.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1e1a7e1b0606232044x11136be5p332716b757ecd537@mail.gmail.com>
+In-Reply-To: <20060623235553.2892f21a.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 24 2006, James wrote:
-> Set this up on my laptop yesterday with some awesome results. I'm
-> using 2.6.17-ck1 which has v2.1.
+On Fri, Jun 23, 2006 at 11:55:53PM -0700, Andrew Morton wrote:
+> On Fri, 23 Jun 2006 17:04:24 -0400
+> Vivek Goyal <vgoyal@in.ibm.com> wrote:
 > 
-> Heres some bootcharts, before, after, and a prime run.
+> > 
+> > o cciss driver initialization fails and hits BUG() if underlying device
+> >   was active during the driver initialization. Device might be active
+> >   if previous kernel crashed and this kernel is booting after that using
+> >   kdump.
+> > 
+> >
+> > ...
+> >
+> > o If crash_boot parameter is set, then ignore the completed command messages
+> >   sent by device which have not been issued in the context of this kernel.
+> > 
+> > Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> > ---
+> > 
+> >  linux-2.6.17-1M-vivek/drivers/block/cciss.c |    7 +++++++
+> >  1 files changed, 7 insertions(+)
+> > 
+> > diff -puN drivers/block/cciss.c~cciss-initialization-issue-over-kdump-fix drivers/block/cciss.c
+> > --- linux-2.6.17-1M/drivers/block/cciss.c~cciss-initialization-issue-over-kdump-fix	2006-06-23 14:04:55.000000000 -0400
+> > +++ linux-2.6.17-1M-vivek/drivers/block/cciss.c	2006-06-23 14:08:12.000000000 -0400
+> > @@ -1976,6 +1976,13 @@ static int add_sendcmd_reject(__u8 cmd, 
+> >  			ctlr, complete);
+> >  		/* not much we can do. */
+> >  #ifdef CONFIG_CISS_SCSI_TAPE
+> > +		/* We might get notification of completion of commands
+> > +		 * which we never issued in this kernel if this boot is
+> > +		 * taking place after previous kernel's crash. Simply
+> > +		 * ignore the commands in this case.
+> > +		 */
+> > +		if (crash_boot)
+> > +			return 0;
+> >  		return 1;
 > 
-> http://archlinux.org/~james/normal.png
-> http://archlinux.org/~james/fs-fcache.png
-> http://archlinux.org/~james/fs-fcache-prime.png
-> 
-> Repeated boots show about the same 6 second improvement, 32 down to 26
-> seconds. Looking at the slowdowns in the fs-fcache run, most are due
-> to cpu load, waiting on network or, modprobe, and not disk access. X
-> now starts nearly instantaneously.
-> 
-> As an experiment, I primed my cache right through to logging into my
-> desktop environment. It was so effective, that now when I login, the
-> GNOME splash screen only flickers onto the screen briefly, and the
-> panels appear almost instantly. This is a big improvment over without
-> fcache, where you'd see each component of GNOME being loaded on the
-> splash screen, nautilus, metacity, and the panels would take quite a
-> bit of time to render and load all their applets.
-> 
-> Impressive work, I hope to see it broadened to other filesystems,
-> improved and merged to vanilla soon because it has clear improvements.
+> Looks like this is working around a driver problem rather than fixing it
+> properly ;)
 
-Thanks for giving it a spin! I have plans to implement some improvements
-on monday that will speed it up even more, I hope I can talk you into
-retesting it then. Basically it make sure we always get full speed out
-of the drive by extending the 4kb reads with a sliding window cache.
-That will help both drive efficiency, and also speed up the cases where
-sub sequent boots differ just a little bit from the primed boot (often
-the case with parallel init scripts). It should win you a few seconds
-more in total, would be my guess.
+That's true. Its more of a working around the problem. I think in all
+such cases we should soft reset the device so that device drops the messages
+issued from the context of previous kernel and starts afresh.
 
-I hope to be able to extend it to xfs and reiser in the very near future
-as well, should not be hard to do.
+But looks like not all the devices provide software reset facility
+(Or I can't find it out from the source code or limited documentation
+available). Mike, can I soft reset this device?
 
--- 
-Jens Axboe
+I am facing similar problem in megaraid driver as well where detailed
+technical documentation is not available and I can't find a way to
+soft reset the device.
 
+Or is there a generic way to handle these situations? Fixing them driver
+by driver is a long painful process. 
+
+Thanks
+Vivek

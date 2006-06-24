@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933223AbWFXIKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWFXIP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933223AbWFXIKd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 04:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933224AbWFXIKd
+	id S1751240AbWFXIP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 04:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWFXIP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 04:10:33 -0400
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:3062 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S933223AbWFXIKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 04:10:32 -0400
-Message-ID: <18235552.1151136631329.JavaMail.tomcat@pne-ps3-sn2>
-Date: Sat, 24 Jun 2006 10:10:31 +0200 (MEST)
-From: <lista1@comhem.se>
-Reply-To: <lista1@comhem.se>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.17-git[5,6] CONFIG_PCI_MSI=y compile failure
+	Sat, 24 Jun 2006 04:15:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45451 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933259AbWFXIP5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 04:15:57 -0400
+Date: Sat, 24 Jun 2006 01:15:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: jlan@sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Revised locking for taskstats interface
+Message-Id: <20060624011551.1bcd4385.akpm@osdl.org>
+In-Reply-To: <449CEB7C.3060004@watson.ibm.com>
+References: <449C2A44.9000206@watson.ibm.com>
+	<20060623233245.77f365bb.akpm@osdl.org>
+	<449CEB7C.3060004@watson.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain;charset="ISO-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: CP Presentation Server
-X-clientstamp: [83.249.195.206]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.17-git1 and git4 compiles OK, but git5 and 6 fail with CONFIG_PCI_MSI=y 
-here:
+On Sat, 24 Jun 2006 03:36:28 -0400
+Shailabh Nagar <nagar@watson.ibm.com> wrote:
 
-msi)"  -D"KBUILD_MODNAME=KBUILD_STR(msi)" -c -o drivers/pci/msi.o 
-drivers/pci/msi.c
-  gcc -Wp,-MD,drivers/pci/.msi-apic.o.d  -nostdinc -isystem 
-/usr/lib/gcc/x86_64-unknown-linux-gnu/3.4.4/include -D__KERNEL__ -Iinclude  -
-include include/linux/autoconf.h -Wall -Wundef -Wstrict-prototypes -Wno-
-trigraphs -fno-strict-aliasing -fno-common -Os -fomit-frame-pointer  -march=k8 -
-m64 -mno-red-zone -mcmodel=kernel -pipe -ffunction-sections -fno-reorder-blocks 
--Wno-sign-compare -fno-asynchronous-unwind-tables -funit-at-a-time -mno-sse -
-mno-mmx -mno-sse2 -mno-3dnow -Wdeclaration-after-statement     -D"KBUILD_STR(s)
-=#s" -D"KBUILD_BASENAME=KBUILD_STR(msi_apic)"  -D"KBUILD_MODNAME=KBUILD_STR
-(msi_apic)" -c -o drivers/pci/msi-apic.o drivers/pci/msi-apic.c
-In file included from include/asm/msi.h:11,
-                 from drivers/pci/msi.h:71,
-                 from drivers/pci/msi-apic.c:8:
-include/asm/smp.h:103: error: parse error before '->' token
-make[2]: *** [drivers/pci/msi-apic.o] Error 1
-make[1]: *** [drivers/pci] Error 2
-make: *** [drivers] Error 2
+> Andrew Morton wrote:
+> 
+> >On Fri, 23 Jun 2006 13:52:04 -0400
+> >Shailabh Nagar <nagar@watson.ibm.com> wrote:
+> >
+> >  
+> >
+> >>Convert locking used within taskstats interface and delay accounting
+> >>code to be more fine-grained.
+> >>    
+> >>
+> >
+> >This patch is based on
+> >per-task-delay-accounting-taskstats-interface-fix-exit-race-in-per-task-delay-accounting.patch,
+> >which I've noted as `nacked' but didn't drop.
+> >
+> >So I guess that's now un-nacked?
+> >  
+> >
+> Not in intent. This patch reverses all the changes made by that patch. 
+> So effectively the previous patch is still nacked.
+> However, I based this patch on the previous one because you hadn't 
+> dropped the latter (so we're going round in circles !)
+> 
+> How about  I just send one patch that covers the whole locking thing ?
+> 
 
-Sorry about line-wraps/length, I'm writing this from a webmail site - own 
-machine is down.
+Is OK - I'll concatenate these:
 
-Mvh
-Mats Johannesson
+per-task-delay-accounting-taskstats-interface-fix-exit-race-in-per-task-delay-accounting.patch
+per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface.patch
+per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface-use-portable-cputime-api-in-__delayacct_add_tsk.patch
+per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface-fix-return-value-of-delayacct_add_tsk.patch
+revised-locking-for-taskstats-interface.patch
+
+into a single
+
+per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface.patch
 

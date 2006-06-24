@@ -1,104 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933195AbWFXCnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWFXCmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933195AbWFXCnY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 22:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWFXCm7
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 22:42:59 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:52632 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1750900AbWFXCmz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932098AbWFXCmz (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 23 Jun 2006 22:42:55 -0400
-Message-ID: <351116972.29400@ustc.edu.cn>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWFXCmz
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 23 Jun 2006 22:42:55 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:37528 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1750881AbWFXCmy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 22:42:54 -0400
+Message-ID: <351116971.08470@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060624024258.540944943@localhost.localdomain>
+Message-Id: <20060624024257.537043377@localhost.localdomain>
 References: <20060624020358.719251923@localhost.localdomain>
-Date: Sat, 24 Jun 2006 10:04:02 +0800
+Date: Sat, 24 Jun 2006 10:04:00 +0800
 From: Fengguang Wu <wfg@mail.ustc.edu.cn>
 To: Jens Axboe <axboe@suse.de>
 Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
        Nick Piggin <nickpiggin@yahoo.com.au>, Lubos Lunak <l.lunak@suse.cz>,
        Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 4/7] iosched: submit READA requests on possible readahead code path
-Content-Disposition: inline; filename=iosched-submit-reada-on-possible-readahead-path.patch
+Subject: [PATCH 2/7] iosched: introduce parameter deadline.reada_expire
+Content-Disposition: inline; filename=iosched-reada-deadline.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change the request type from READ to READA in possible readahead code paths.
+Introduce parameter reada_expire to the deadline elevator.
 
-- call mpage_bio_submit(READA) in mpage_readpages()
-- call submit_bio(READA) in swap_readpage()
+It avoids readahead requests contending with read requests,
+and helps improve latency/throughput when there's many concurrent readers.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
 
- fs/mpage.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
-
---- linux-2.6.17-mm1.orig/fs/mpage.c
-+++ linux-2.6.17-mm1/fs/mpage.c
-@@ -302,7 +302,7 @@ do_mpage_readpage(struct bio *bio, struc
- 	 * This page will go to BIO.  Do we need to send this BIO off first?
+--- linux-2.6.17-rc6-mm2.orig/block/deadline-iosched.c
++++ linux-2.6.17-rc6-mm2/block/deadline-iosched.c
+@@ -19,7 +19,8 @@
+ /*
+  * See Documentation/block/deadline-iosched.txt
+  */
+-static const int read_expire = HZ / 2;  /* max time before a read is submitted. */
++static const int read_expire = HZ / 2;	/* max time before an _impending_ read is submitted. */
++static const int reada_expire = 60 * HZ;/* max time before a read-ahead is submitted. */
+ static const int write_expire = 5 * HZ; /* ditto for writes, these limits are SOFT! */
+ static const int writes_starved = 2;    /* max times reads can starve a write */
+ static const int fifo_batch = 16;       /* # of sequential requests treated as one
+@@ -56,7 +57,7 @@ struct deadline_data {
+ 	/*
+ 	 * settings that change how the i/o scheduler behaves
  	 */
- 	if (bio && (*last_block_in_bio != blocks[0] - 1))
--		bio = mpage_bio_submit(READ, bio);
-+		bio = mpage_bio_submit(READA, bio);
- 
- alloc_new:
- 	if (bio == NULL) {
-@@ -315,12 +315,12 @@ alloc_new:
- 
- 	length = first_hole << blkbits;
- 	if (bio_add_page(bio, page, length, 0) < length) {
--		bio = mpage_bio_submit(READ, bio);
-+		bio = mpage_bio_submit(READA, bio);
- 		goto alloc_new;
- 	}
- 
- 	if (buffer_boundary(map_bh) || (first_hole != blocks_per_page))
--		bio = mpage_bio_submit(READ, bio);
-+		bio = mpage_bio_submit(READA, bio);
- 	else
- 		*last_block_in_bio = blocks[blocks_per_page - 1];
- out:
-@@ -328,7 +328,7 @@ out:
- 
- confused:
- 	if (bio)
--		bio = mpage_bio_submit(READ, bio);
-+		bio = mpage_bio_submit(READA, bio);
- 	if (!PageUptodate(page))
- 	        block_read_full_page(page, get_block);
- 	else
-@@ -418,7 +418,7 @@ mpage_readpages(struct address_space *ma
- 	pagevec_lru_add(&lru_pvec);
- 	BUG_ON(!list_empty(pages));
- 	if (bio)
--		mpage_bio_submit(READ, bio);
-+		mpage_bio_submit(READA, bio);
- 	return 0;
+-	int fifo_expire[2];
++	int fifo_expire[4];
+ 	int fifo_batch;
+ 	int writes_starved;
+ 	int front_merges;
+@@ -711,7 +712,9 @@ static void *deadline_init_queue(request
+ 	dd->sort_list[READ] = RB_ROOT;
+ 	dd->sort_list[WRITE] = RB_ROOT;
+ 	dd->fifo_expire[READ] = read_expire;
++	dd->fifo_expire[READA] = reada_expire;
+ 	dd->fifo_expire[WRITE] = write_expire;
++	dd->fifo_expire[WRITEA] = write_expire;
+ 	dd->writes_starved = writes_starved;
+ 	dd->front_merges = 1;
+ 	dd->fifo_batch = fifo_batch;
+@@ -780,6 +783,7 @@ static ssize_t __FUNC(elevator_t *e, cha
+ 	return deadline_var_show(__data, (page));			\
  }
- EXPORT_SYMBOL(mpage_readpages);
-@@ -437,7 +437,7 @@ int mpage_readpage(struct page *page, ge
- 	bio = do_mpage_readpage(bio, page, 1, &last_block_in_bio,
- 			&map_bh, &first_logical_block, get_block);
- 	if (bio)
--		mpage_bio_submit(READ, bio);
-+		mpage_bio_submit(READA, bio);
- 	return 0;
+ SHOW_FUNCTION(deadline_read_expire_show, dd->fifo_expire[READ], 1);
++SHOW_FUNCTION(deadline_reada_expire_show, dd->fifo_expire[READA], 1);
+ SHOW_FUNCTION(deadline_write_expire_show, dd->fifo_expire[WRITE], 1);
+ SHOW_FUNCTION(deadline_writes_starved_show, dd->writes_starved, 0);
+ SHOW_FUNCTION(deadline_front_merges_show, dd->front_merges, 0);
+@@ -803,6 +807,7 @@ static ssize_t __FUNC(elevator_t *e, con
+ 	return ret;							\
  }
- EXPORT_SYMBOL(mpage_readpage);
---- linux-2.6.17-mm1.orig/mm/page_io.c
-+++ linux-2.6.17-mm1/mm/page_io.c
-@@ -124,7 +124,7 @@ int swap_readpage(struct file *file, str
- 		goto out;
- 	}
- 	inc_page_state(pswpin);
--	submit_bio(READ, bio);
-+	submit_bio(READA, bio);
- out:
- 	return ret;
- }
+ STORE_FUNCTION(deadline_read_expire_store, &dd->fifo_expire[READ], 0, INT_MAX, 1);
++STORE_FUNCTION(deadline_reada_expire_store, &dd->fifo_expire[READA], 0, INT_MAX, 1);
+ STORE_FUNCTION(deadline_write_expire_store, &dd->fifo_expire[WRITE], 0, INT_MAX, 1);
+ STORE_FUNCTION(deadline_writes_starved_store, &dd->writes_starved, INT_MIN, INT_MAX, 0);
+ STORE_FUNCTION(deadline_front_merges_store, &dd->front_merges, 0, 1, 0);
+@@ -815,6 +820,7 @@ STORE_FUNCTION(deadline_fifo_batch_store
+ 
+ static struct elv_fs_entry deadline_attrs[] = {
+ 	DD_ATTR(read_expire),
++	DD_ATTR(reada_expire),
+ 	DD_ATTR(write_expire),
+ 	DD_ATTR(writes_starved),
+ 	DD_ATTR(front_merges),
 
 --

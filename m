@@ -1,63 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWFXWRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWFXWTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWFXWRt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 18:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWFXWRt
+	id S1751128AbWFXWTI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 18:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWFXWTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 18:17:49 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:65416 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751124AbWFXWRs (ORCPT
+	Sat, 24 Jun 2006 18:19:07 -0400
+Received: from xenotime.net ([66.160.160.81]:30444 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751128AbWFXWTG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 18:17:48 -0400
-Date: Sun, 25 Jun 2006 00:12:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, john stultz <johnstul@us.ibm.com>
-Subject: Re: More weird latency trace output (was Re: 2.6.17-rt1)
-Message-ID: <20060624221235.GA23423@elte.hu>
-References: <20060618070641.GA6759@elte.hu> <1150937848.2754.379.camel@mindpipe> <1150944663.2754.416.camel@mindpipe> <1151025892.17952.32.camel@mindpipe> <1151187320.2931.191.camel@mindpipe>
+	Sat, 24 Jun 2006 18:19:06 -0400
+Date: Sat, 24 Jun 2006 15:21:52 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
+       pavel@suse.cz, jeremy@goop.org, clameter@sgi.com, ntl@pobox.com,
+       akpm@osdl.org, ashok.raj@intel.com, ak@suse.de, nickpiggin@yahoo.com.au,
+       mingo@elte.hu
+Subject: Re: [RFC][PATCH] avoid cpu hot removal if busy take3
+Message-Id: <20060624152152.bf3a68cd.rdunlap@xenotime.net>
+In-Reply-To: <20060623120950.A31038@unix-os.sc.intel.com>
+References: <20060623164042.3a828e8e.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060623120950.A31038@unix-os.sc.intel.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151187320.2931.191.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 23 Jun 2006 12:09:50 -0700 Ashok Raj wrote:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Thu, 2006-06-22 at 21:24 -0400, Lee Revell wrote:
-> > On Wed, 2006-06-21 at 22:51 -0400, Lee Revell wrote:
-> > > How can the latency tracer be reporting 1898us max latency while the
-> > > trace is of a 12us latency?  This must be a bug, correct?
+> On Fri, Jun 23, 2006 at 04:40:42PM +0900, KAMEZAWA Hiroyuki wrote:
 > > 
-> > I've found the bug.  The latency tracer uses get_cycles() for
-> > timestamping, which uses rdtsc, which is unusable for timing on dual
-> > core AMD64 machines due to the well known "unsynced TSCs" hardware bug.
+> > In this case,
+> > 1. ignore bad configuration in user-land just do warnings.
+> > 2. cancel cpu hot removal and warn users to fix the problem and retry.
+> > seems to be a realisitc workaround. Killing the problematic process may
+> > cause some trouble in user-land (dead-lock etc..)
 > > 
-> > Would a patch to convert the latency tracer to use gettimeofday() be
-> > acceptable?
+> > This patch adds sysctl cpu_removal_migration.
+> > If cpu_removal_migration == 1, all tasks are migrated by force.
+> > If cpu_removal_migration == 0, cpu_hotremoval can fail because of not-migratable
+> > tasks.
 > 
-> OK, I tried that and it oopses on boot - presumably the latency tracer 
-> runs before clocksource infrastructure is initialized.
+> Having this dual behaviour is a concern. Probably we should have the tasks
+> decide if they want to terminate themselves if its not *OK* to run on a 
+> different CPU, and not have a policy in kernel decide which way the 
+> behaviour should be. The kernel policy should be to always force
+> the cpu removal to happen. Admin should decide what processes should terminate
+> ahead of time before the removal force migrates them.
+
+You are making a value call as you see it.  Others have
+disagreed.
+
+> Once the kernel/admin chooses to perform cpu offline, it should not be possible
+> for some process to veto the removal and fail the removal. Removal was probably
+> choosen since we would like to offline a failing cpu, and dont want some
+> thing in the way to make that happen.
+
+Just how slowly or quickly to CPUs fail?  Does an admin have time
+to look up the list of processes that are bound to which CPUs,
+move them or kill them, etc., before giving the offline-that-CPU
+command?  or would she/he rather tell the system how to handle
+CPU-offlining conflicts and then just issue the one command?
+
+
+> > + */
+> > +static int test_cpu_busy(int cpu)
+> > +{
+> > +	cpumask_t mask;
+> > +	int ret = 0;
 > 
-> Does anyone have any suggestions at all as to what a proper solution 
-> would look like?  Is no one interested in this problem?
+>  Deleted....
+> 
+> > +
+> > +	read_lock(&tasklist_lock);
+> > +	for_each_process(p) {
+> > +		if (p == current)
+> > +			continue;
+> > +		if (p->mm && cpus_equal(mask, p->cpus_allowed)) {
+> > +			ret = 1;
+> > +			pid = p->pid;
+> > +			break;
+> > +		}
+> 
+> Do you want to scan and print all possible id's? otherwise printk will
+> have just 1, and next attempt will show another pid now... in case the
+> admin wants to do something useful with this list, probably better to 
+> give it all out?
 
-does it get better if you boot with idle=poll? [that could work around 
-the rdtsc drifting problem] Calling gettimeofday() from within the 
-tracer is close to impossible - way too many opportunities for 
-recursion. It's also pretty slow that way.
+Yep, I noticed that too, but didn't comment on it.
 
-	Ingo
+---
+~Randy

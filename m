@@ -1,89 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWFXUEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWFXUaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWFXUEM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 16:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWFXUEM
+	id S1751094AbWFXUaU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 16:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWFXUaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 16:04:12 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:43397 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S1751084AbWFXUEK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 16:04:10 -0400
-Date: Sat, 24 Jun 2006 16:04:09 -0400
-From: Yaroslav Halchenko <kernel@onerussian.com>
-To: linux-kernel@vger.kernel.org
-Subject: PCMCIA modem not found... resume/suspend helps some times... magic is not found
-Message-ID: <20060624200409.GA12704@washoe.onerussian.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sat, 24 Jun 2006 16:30:20 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:30888 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751094AbWFXUaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 16:30:19 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <449DA08A.10209@s5r6.in-berlin.de>
+Date: Sat, 24 Jun 2006 22:28:58 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-URL: http://www.onerussian.com
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
-X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-User-Agent: mutt-ng/devel-r804 (Debian)
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH 2.6.17-mm1 4/3] ieee1394: convert	ieee1394_transactions
+ from semaphores to waitqueue
+References: <449BEBFB.60302@s5r6.in-berlin.de>	 <200606230904.k5N94Al3005245@shell0.pdx.osdl.net>	 <30866.1151072338@warthog.cambridge.redhat.com>	 <tkrat.df6845846c72176e@s5r6.in-berlin.de>	 <tkrat.9c73406a85ae9ce4@s5r6.in-berlin.de>	 <tkrat.e74b06c4105348f6@s5r6.in-berlin.de>	 <tkrat.2ff7b57397a5a37e@s5r6.in-berlin.de>	 <tkrat.3f9c07538e381afd@s5r6.in-berlin.de>	 <449D7A53.4080605@s5r6.in-berlin.de> <1151172766.3181.75.camel@laptopd505.fenrus.org>
+In-Reply-To: <1151172766.3181.75.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.894) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Kernel People,
+Arjan van de Ven wrote:
+> On Sat, 2006-06-24 at 19:45 +0200, Stefan Richter wrote:
+>>following semaphores remain in the ieee1394 subsystem:
+>>
+>>highlevel.c:  hl_drivers_sem    (RW semaphore)
+>>nodemgr.c:    subsys.rwsem      (driver core's RW semaphores)
+>>raw1394.c:    fi->complete_sem  (completion semaphore)
 
-Before my long trip abroad I decided to make my pcmcia modem work under
-fresh 2.6.17-rc6-mm2.
+> can this last one move to an actual completion? That would get rid of it
+> nicely ;)
 
-It wasn't found at all... after some dancing around it started to
-to appear after pccardctl suspend, pccardctl resume calls.
-After reboot it stopped to do that... now max I could make it is to find
-it partially without binding to loaded serial_cs:
+Hmm. There are dozens of points in raw1394 which call 
+__queue_complete_req() which up()s the semaphore. ("fi" is the 
+private_data of a struct file. Multiple outstanding requests may be 
+associated with a file.) Then there are two places which wait on the 
+semaphore:
 
-> sudo pccardctl status
-Socket 0:
-5.0V 16-bit PC Card
-Subdevice 0 (function 0) [unbound]
+raw1394_read(), called when somebody reads /dev/raw1394:
+	if (file->f_flags & O_NONBLOCK) {
+		if (down_trylock(&fi->complete_sem))
+			return -EAGAIN;
+	} else {
+		if (down_interruptible(&fi->complete_sem))
+			return -ERESTARTSYS;
+	}
 
-Some information from magic successful initialization is available
-in my bug failed on Debian:
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=374742
+raw1394_release(), called when somebody closes (releases) /dev/raw1394:
+	done = 0;
+	while (!done) {
+		/* free all complete requests */
+		/* set "done" if there are no more pending requests */
+		if (!done)
+			down_interruptible(&fi->complete_sem);
+	}
+	/* cleanup, free fi */
 
-and modem was found to be
-    SUBSYSTEM=="pcmcia"
-    SYSFS{modalias}=="pcmcia:m016Cc0001f02fn00pfn00paF5F025C2pb200E6E61pc26477DB8pdC5F4D6FD"
-    SYSFS{prod_id4}=="V8.041"
-    SYSFS{prod_id3}=="56K+Fax"
-    SYSFS{prod_id2}=="Gold Card Global 56K+Fax"
-    SYSFS{prod_id1}=="Psion Dacom"
-    SYSFS{card_id}=="0x0001"
-    SYSFS{manf_id}=="0x016c"
-    SYSFS{func_id}=="0x02"
-    SYSFS{pm_state}=="on"
-    SYSFS{function}=="0x00"
-
-information on current system where I can't make it work any more
-http://www.onerussian.com/Linux/bugs/pcmcia.modem/
-
-Here are the results of suspend/resume sequence:
-
-*> sudo pccardctl eject
-*> sudo pccardctl insert
-> sudo pccardctl status
-Socket 0:
-5.0V 16-bit PC Card
-> sudo pccardctl suspend
-> sudo pccardctl status
-Socket 0:
-X.XV 16-bit PC Card [suspended]
-> sudo pccardctl resume
-> sudo pccardctl status
-Socket 0:
-5.0V 16-bit PC Card
-Subdevice 0 (function 0) [unbound]
-
-Please advise!
-
-
+It looks like fi->complete_sem is a actually a counting semaphore. It 
+could perhaps be replaced by a wait queue plus an atomic counter. There 
+is even already a wait queue in "fi" for use with poll_wait() via 
+raw1394_poll().
 -- 
-Yaroslav Halchenko
-Research Assistant, Psychology Department, Rutgers-Newark
-Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
-        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07102
-Student  Ph.D. @ CS Dept. NJIT
+Stefan Richter
+-=====-=-==- -==- ==---
+http://arcgraph.de/sr/

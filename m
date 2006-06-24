@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933165AbWFXBDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933174AbWFXBK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933165AbWFXBDh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 21:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933171AbWFXBDh
+	id S933174AbWFXBK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 21:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933176AbWFXBK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 21:03:37 -0400
-Received: from nz-out-0102.google.com ([64.233.162.205]:22448 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S933165AbWFXBDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 21:03:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cUh0zp/EIPw5AsYPgtT557Wjtq+YQOIBA6R/oMX63kMOl4Jm31zXXcc6gRxmK7FbW3ZTPy7YIHkAbg0O9tpK8K/D3B3Y6CEGKtZtqNgd7dLC861FeE8/P93+YLp1h2GzMaTKIhGCIAXcA+piNxhc0FQqQ0ic4pQd2eixjDZJeMQ=
-Message-ID: <a762e240606231803p72e4e684v42cf27cdaf8fb30f@mail.gmail.com>
-Date: Fri, 23 Jun 2006 18:03:35 -0700
-From: "Keith Mannthey" <kmannth@gmail.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: [PATCH] [20/82] i386: Panic the system when a NUMA kernel doesn't run on IBM NUMA
-Cc: "Dave Jones" <davej@redhat.com>, torvalds@osdl.org, discuss@x86-64.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200606240242.31906.ak@suse.de>
+	Fri, 23 Jun 2006 21:10:29 -0400
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:5563 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S933174AbWFXBK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 21:10:29 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick =?iso-8859-1?q?and=09dynamic_HZ?= -V4
+Date: Sat, 24 Jun 2006 11:09:55 +1000
+User-Agent: KMail/1.9.3
+Cc: Robert Hancock <hancockr@shaw.ca>, tglx@timesys.com,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+References: <fa.lKfxxA+pCJb5tSZbL1XnnrPzaeQ@ifi.uio.no> <1151051238.25491.223.camel@localhost.localdomain> <449C8C7E.1040500@shaw.ca>
+In-Reply-To: <449C8C7E.1040500@shaw.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <449C8510.mailCWD11E44E@suse.de>
-	 <20060624003856.GE19461@redhat.com> <200606240242.31906.ak@suse.de>
+Message-Id: <200606241109.56414.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/23/06, Andi Kleen <ak@suse.de> wrote:
-> On Saturday 24 June 2006 02:38, Dave Jones wrote:
-> > On Sat, Jun 24, 2006 at 02:19:28AM +0200, Andi Kleen wrote:
+On Saturday 24 June 2006 10:51, Robert Hancock wrote:
+> Thomas Gleixner wrote:
+> > On Thu, 2006-06-22 at 21:31 -0600, Robert Hancock wrote:
+> >> Thomas Gleixner wrote:
+> >>> An updated patchset is available from:
+> >>>
+> >>> http://www.tglx.de/projects/hrtimers/2.6.17/patch-2.6.17-hrt-dyntick4.p
+> >>>atch
+> >>
+> >> On my Compaq Presario X1050 laptop running Fedora Core 5 I get:
+> >>
+> >> Disabling NO_HZ and high resolution timers due to timer broadcasting
+> >>
+> >> Not sure exactly what this is indicating or what's triggered this, but
+> >> I'm assuming the patch isn't doing much on this machine?
 > >
+> > The system is configured for SMP, but this is an UP machine and the APIC
+> > is disabled in the BIOS. Linux uses then the PIT and an IPI mechanism to
+> > broadcast timer events. We need to do the event reprogramming per CPU,
+> > so we switch off in that situation.
 > >
-> >  > +  extern int use_cyclone;
-> >  > +  if (use_cyclone == 0) {
-> >  > +          /* Make sure user sees something */
-> >  > +          static const char s[] __initdata = "Not an IBM x440/NUMAQ. Don't use i386 CONFIG_NUMA anywhere else.";
-> >  > +          early_printk(s);
-> >  > +          panic(s);
-> >  > +  }
+> > Solution: Either use an UP kernel, or enable Local APIC in the BIOS (is
+> > not possible in most BIOSes), or add "lapic" to the kernel command line.
 > >
-> > non-IBM Machines do still boot with that enabled though don't they?
+> > Also for an UP kernel adding "lapic" to the commandline is good, as the
+> > APIC is faster accessible than the PIT.
 >
+> Tried that, still no dice:
 >
-> No they don't - as they likely didn't do before. e.g. Opterons generally
-> break and that brings the point across clearer.
+> Kernel command line: ro root=/dev/VolGroup00/LogVol00 lapic
+> Local APIC disabled by BIOS -- reenabling.
+> Found and enabled local APIC!
 >
-> The rationale is that CONFIG_NUMA is very rarely used on i386 (even on summit)
-> and always does bitrot quickly. It also doesn't work at all on a wide
-> range of machines.
+> ...
+>
+> Disabling NO_HZ and high resolution timers due to timer broadcasting
+>
+> This isn't a viable solution for all machines anyway - some laptops
+> disable the local APIC and the BIOS expects it to remain that way, and
+> blows up if it gets turned on.
 
-I agree that i386 CONFIG_NUMA is only ment to boot on small subset of
-hw but there is litte motivation to boot a numa kernel on a non-numa
-box.  I am supprised that no one has enabled i386 AMD NUMA (the one
-numa box that regular people have access to).
+One thing I did discover with my dynticks was that APIC on UP i386 was nigh on 
+broken for the most part. Virtually all BIOSs disable it and even if you 
+force enable it you may have to play with enable_timer_pin to get it to work 
+(sometimes 1, sometimes 0) and there was no pattern to when it would be 
+required since the BIOS manufacturer cared not. This is why for UP I disabled 
+APIC when dynticks was enabled, and would test for one online cpu on SMP and 
+do the same. This obviously isn't a solution when cpu hotplug is enabled and 
+only one cpu is online.
 
-> I'm sure someone will bring up now an example where their non Summit
-> machine booted with CONFIG_NUMA, but they were just extremly lucky
-> and unlikely to be for very long.
-
-Current Summit HW  (x460) dosen't use/have a cyclone.  There are
-patches submitted to this list to support it's i386 NUMA boot.
-
-Thanks,
-  Keith
+-- 
+-ck

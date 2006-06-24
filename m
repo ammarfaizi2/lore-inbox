@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWFXVCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWFXVI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbWFXVCO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 17:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWFXVCO
+	id S964849AbWFXVI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 17:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbWFXVI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 17:02:14 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:34194 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751100AbWFXVCO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 17:02:14 -0400
-Date: Sat, 24 Jun 2006 23:02:13 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Section mismatch warnings
-Message-ID: <20060624210213.GB2049@mars.ravnborg.org>
-References: <Pine.LNX.4.61.0606231938080.26864@yvahk01.tjqt.qr> <20060623221217.GA372@mars.ravnborg.org> <20060623222243.GB27946@ftp.linux.org.uk>
+	Sat, 24 Jun 2006 17:08:56 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:48515 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964849AbWFXVIz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 17:08:55 -0400
+Subject: Re: PATCH: Change in-kernel afs client filesystem name to 'kafs'
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Troy Benjegerdes <hozer@hozed.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060624182737.GQ5040@narn.hozed.org>
+References: <20060624004154.GL5040@narn.hozed.org>
+	 <1151151360.3181.34.camel@laptopd505.fenrus.org>
+	 <20060624180136.GO5040@narn.hozed.org>
+	 <20060624180953.GA4145@infradead.org>
+	 <20060624182737.GQ5040@narn.hozed.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 24 Jun 2006 22:23:56 +0100
+Message-Id: <1151184236.8676.41.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623222243.GB27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 11:22:43PM +0100, Al Viro wrote:
-> From nobody Mon Sep 17 00:00:00 2001
-> From: Al Viro <viro@zeniv.linux.org.uk>
-> Date: Wed, 14 Jun 2006 13:05:12 -0400
-> Subject: [PATCH] kill some false positives from modpost
+Ar Sad, 2006-06-24 am 13:27 -0500, ysgrifennodd Troy Benjegerdes:
+> Besides the syscall table modification, which is just plain stupid, is
+> there any other poking around in kernel internals the openafs code does
+> that shouldn't be there?
 
-Applied,
+It certainly used to pull interesting tricks to hide its auth info and
+had some "novel" views of the kernel locking. Given the cachefs and FUSE
+work though we ought to be at the point where almost all of OpenAFS can
+be done in user space and the rest via the fuse/cachefs work.
 
-	Sam
+
+

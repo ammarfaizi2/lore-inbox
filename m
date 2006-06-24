@@ -1,92 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWFXCmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933205AbWFXCoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWFXCmz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 22:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWFXCmz
+	id S933205AbWFXCoG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 22:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWFXCn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 22:42:55 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:37528 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1750881AbWFXCmy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 22:42:54 -0400
-Message-ID: <351116971.08470@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060624024257.537043377@localhost.localdomain>
-References: <20060624020358.719251923@localhost.localdomain>
-Date: Sat, 24 Jun 2006 10:04:00 +0800
-From: Fengguang Wu <wfg@mail.ustc.edu.cn>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Lubos Lunak <l.lunak@suse.cz>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 2/7] iosched: introduce parameter deadline.reada_expire
-Content-Disposition: inline; filename=iosched-reada-deadline.patch
+	Fri, 23 Jun 2006 22:43:29 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:46222 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932132AbWFXCnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 22:43:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e5kOis0D237MFmhcvwiLxBNty0nbE9WqclUaGWr5G4mhZN66pOpg0fNJ8ORdK7sPlCx5DuaOkTe1EO0FPoqYE7Rz8t/y+FBEljuAh7D6UQ8xfdq1egEiazohGkam5vYtOlm8Uey8hMRtXrBmqAeJzaUI7jRuuE80iB2I3ZLURkk=
+Message-ID: <787b0d920606231943x7aad43bwb108b6a88b678b1a@mail.gmail.com>
+Date: Fri, 23 Jun 2006 22:43:05 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: i386 ABI and the stack
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+       76306.1226@compuserve.com, ak@muc.de, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.64.0606231907290.6483@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <787b0d920606231837k5d57da8ct5c511def6c035176@mail.gmail.com>
+	 <Pine.LNX.4.64.0606231844460.6483@g5.osdl.org>
+	 <449C9C6D.7050905@zytor.com>
+	 <Pine.LNX.4.64.0606231907290.6483@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce parameter reada_expire to the deadline elevator.
+On 6/23/06, Linus Torvalds <torvalds@osdl.org> wrote:
+> On Fri, 23 Jun 2006, H. Peter Anvin wrote:
+> > >
+> > > The x86-64 ABI has a 128-byte(*) zone that is safe from signals etc, so you
+> > > can use a small amount of stack below the stackpointer safely. Not so on
+> > > x86.
+> >
+> > Adding a small redzone like this to i386 would be easy, though -- just drop
+> > the stack pointer by that much when creating a signal frame.  128 bytes isn't
+> > enough to interfere with libraries.
+>
+> However, any binaries created with that in mind would be
+> buggy-by-definition on older kernels, so I don't think it's worth it.
 
-It avoids readahead requests contending with read requests,
-and helps improve latency/throughput when there's many concurrent readers.
+Since gcc-2.96 would access 256 bytes below the stack pointer
+(according to the valgrind man page), the kernel needs to allow
+for this in signal handlers anyway.
 
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
----
-
-
---- linux-2.6.17-rc6-mm2.orig/block/deadline-iosched.c
-+++ linux-2.6.17-rc6-mm2/block/deadline-iosched.c
-@@ -19,7 +19,8 @@
- /*
-  * See Documentation/block/deadline-iosched.txt
-  */
--static const int read_expire = HZ / 2;  /* max time before a read is submitted. */
-+static const int read_expire = HZ / 2;	/* max time before an _impending_ read is submitted. */
-+static const int reada_expire = 60 * HZ;/* max time before a read-ahead is submitted. */
- static const int write_expire = 5 * HZ; /* ditto for writes, these limits are SOFT! */
- static const int writes_starved = 2;    /* max times reads can starve a write */
- static const int fifo_batch = 16;       /* # of sequential requests treated as one
-@@ -56,7 +57,7 @@ struct deadline_data {
- 	/*
- 	 * settings that change how the i/o scheduler behaves
- 	 */
--	int fifo_expire[2];
-+	int fifo_expire[4];
- 	int fifo_batch;
- 	int writes_starved;
- 	int front_merges;
-@@ -711,7 +712,9 @@ static void *deadline_init_queue(request
- 	dd->sort_list[READ] = RB_ROOT;
- 	dd->sort_list[WRITE] = RB_ROOT;
- 	dd->fifo_expire[READ] = read_expire;
-+	dd->fifo_expire[READA] = reada_expire;
- 	dd->fifo_expire[WRITE] = write_expire;
-+	dd->fifo_expire[WRITEA] = write_expire;
- 	dd->writes_starved = writes_starved;
- 	dd->front_merges = 1;
- 	dd->fifo_batch = fifo_batch;
-@@ -780,6 +783,7 @@ static ssize_t __FUNC(elevator_t *e, cha
- 	return deadline_var_show(__data, (page));			\
- }
- SHOW_FUNCTION(deadline_read_expire_show, dd->fifo_expire[READ], 1);
-+SHOW_FUNCTION(deadline_reada_expire_show, dd->fifo_expire[READA], 1);
- SHOW_FUNCTION(deadline_write_expire_show, dd->fifo_expire[WRITE], 1);
- SHOW_FUNCTION(deadline_writes_starved_show, dd->writes_starved, 0);
- SHOW_FUNCTION(deadline_front_merges_show, dd->front_merges, 0);
-@@ -803,6 +807,7 @@ static ssize_t __FUNC(elevator_t *e, con
- 	return ret;							\
- }
- STORE_FUNCTION(deadline_read_expire_store, &dd->fifo_expire[READ], 0, INT_MAX, 1);
-+STORE_FUNCTION(deadline_reada_expire_store, &dd->fifo_expire[READA], 0, INT_MAX, 1);
- STORE_FUNCTION(deadline_write_expire_store, &dd->fifo_expire[WRITE], 0, INT_MAX, 1);
- STORE_FUNCTION(deadline_writes_starved_store, &dd->writes_starved, INT_MIN, INT_MAX, 0);
- STORE_FUNCTION(deadline_front_merges_store, &dd->front_merges, 0, 1, 0);
-@@ -815,6 +820,7 @@ STORE_FUNCTION(deadline_fifo_batch_store
- 
- static struct elv_fs_entry deadline_attrs[] = {
- 	DD_ATTR(read_expire),
-+	DD_ATTR(reada_expire),
- 	DD_ATTR(write_expire),
- 	DD_ATTR(writes_starved),
- 	DD_ATTR(front_merges),
-
---
+I'm pretty sure I saw that code in the kernel in fact, but I
+can't find it now. Perhaps it got lost in a cleanup accident?
+(it sure would be nice to have continuous source control history)

@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWFXSO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWFXSRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWFXSO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 14:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWFXSO3
+	id S1751023AbWFXSRI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 14:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWFXSRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 14:14:29 -0400
-Received: from static-ip-217-172-187-230.inaddr.intergenia.de ([217.172.187.230]:5330
-	"EHLO neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S1751020AbWFXSO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 14:14:28 -0400
-Message-ID: <449D8105.3060903@lsrfire.ath.cx>
-Date: Sat, 24 Jun 2006 20:14:29 +0200
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
+	Sat, 24 Jun 2006 14:17:08 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:10930 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751023AbWFXSRH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 14:17:07 -0400
+Date: Sat, 24 Jun 2006 19:17:02 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
 To: Daniel <damage@rooties.de>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Kernelsources writeable for everyone?!
+Message-ID: <20060624181702.GG27946@ftp.linux.org.uk>
 References: <200606242000.51024.damage@rooties.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <200606242000.51024.damage@rooties.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel schrieb:
+On Sat, Jun 24, 2006 at 08:00:50PM +0200, Daniel wrote:
 > Hi,
 > may be this was reported/asked 999999999 times, but here ist the 1000000000th:
-
-You're close. :-P
-
+> 
 > I have downloaded linux-2.6.17.1 10 min ago and I noticed that every file is 
 > writeable by everyone. What's going on there?
-> 
-> coffee src # tar -jtvf linux-2.6.17.1.tar.bz2
-> drwxrwxrwx git/git           0 2006-06-20 11:31:55 linux-2.6.17.1/
 
-This is intentional.  You can set the permissions to anything you want
-by making tar honor the umask setting -- without needing to run chmod
-after extracting.
-
-So either use the --no-same-permissions option of GNU tar, or simply
-don't run tar as root (then this option is on by default), which is a
-good idea anyway.
-
-René
+You are unpacking tarballs as root and preserve ownership and permissions.
+Don't.

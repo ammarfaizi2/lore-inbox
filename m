@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932826AbWFXFZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932828AbWFXF0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932826AbWFXFZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 01:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932828AbWFXFZ4
+	id S932828AbWFXF0E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 01:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932836AbWFXF0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 01:25:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34770 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932826AbWFXFZz (ORCPT
+	Sat, 24 Jun 2006 01:26:04 -0400
+Received: from home.keithp.com ([63.227.221.253]:31492 "EHLO keithp.com")
+	by vger.kernel.org with ESMTP id S932828AbWFXF0D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 01:25:55 -0400
-Date: Fri, 23 Jun 2006 22:25:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kirill Korotaev <dev@openvz.org>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, kernel@kolivas.org
-Subject: Re: [PATCH] sched: CPU hotplug race vs. set_cpus_allowed()
-Message-Id: <20060623222543.73bf727a.akpm@osdl.org>
-In-Reply-To: <449BA349.6040901@openvz.org>
-References: <449BA349.6040901@openvz.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sat, 24 Jun 2006 01:26:03 -0400
+Subject: Re: i915 vsync interrupt fix
+From: Keith Packard <keithp@keithp.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: keithp@keithp.com, airlied@linux.ie,
+       Alan Hourihane <alanh@fairlite.demon.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sourceforge.net
+In-Reply-To: <449C891E.6010405@goop.org>
+References: <449C891E.6010405@goop.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wUz+ToYHIVaBaNaKeN7d"
+Date: Fri, 23 Jun 2006 22:25:03 -0700
+Message-Id: <1151126703.1668.10.camel@neko.keithp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 12:16:09 +0400
-Kirill Korotaev <dev@openvz.org> wrote:
 
-> Looks like there is a race between set_cpus_allowed()
-> and move_task_off_dead_cpu().
-> __migrate_task() doesn't report any err code, so
-> task can be left on its runqueue if its cpus_allowed mask
-> changed so that dest_cpu is not longer a possible target.
-> Also, chaning cpus_allowed mask requires rq->lock being held.
-> 
-> Signed-Off-By: Kirill Korotaev <dev@openvz.org>
-> 
-> Kirill
-> P.S. against 2.6.17-mm1
-> 
+--=-wUz+ToYHIVaBaNaKeN7d
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-That's not against 2.6.17-mm1.
+On Fri, 2006-06-23 at 17:36 -0700, Jeremy Fitzhardinge wrote:
+> I need this patch from Alan Hourihane=20
+> <mailto:alanh@fairlite.demon.co.uk> to make direct rendering work=20
+> properly on my 945GM-based laptop. It comes from=20
+> https://bugs.freedesktop.org/show_bug.cgi?id=3D7233.  This change is=20
+> immediately useful to me now, but I don't know if the development DRM is=20
+> going to be merged with the kernel any time soon (I notice CVS has a=20
+> variant of this patch).
 
+CVS has a more comprehensive patch where the X server tells the DRI
+module which pipe it should use to signal vblank. With the patch posted,
+a dual-head environment will generate interrupts on *both* pipes, which
+will reduce performance while negating the desired synchronized
+behaviour.
 
->  static void move_task_off_dead_cpu(int dead_cpu, struct task_struct *tsk)
->  {
-> -	int dest_cpu;
-> +	runqueue_t *rq;
-> +	unsigned long flags;
-> +	int dest_cpu, res;
->  	cpumask_t mask;
->  	int force = 0;
-> 
+The more complete fix requires updated DRI bits and an updated
+xf86-video-intel 2D driver, but no changes are needed in the Mesa GL
+driver. This bumps the i915 DRM version to 1.5.
 
-Your kernel has extra goodies: the `force' stuff.
+When we start looking at mergedfb environments, we may want to consider
+an even more sophisticated fix where the vblank used depends on the
+dominant monitor displaying the window. The patch I made won't help with
+that, unfortunately.
 
-Please check that the patch which I merged is correct.
+--=20
+keith.packard@intel.com
+
+--=-wUz+ToYHIVaBaNaKeN7d
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBEnMyvQp8BWwlsTdMRAjFNAKCa/XJhkoFHOVJ+YaLn+eGP2uDxowCgslnT
+lD2GztAFB+JQRcMrTkFNqlI=
+=SM4a
+-----END PGP SIGNATURE-----
+
+--=-wUz+ToYHIVaBaNaKeN7d--

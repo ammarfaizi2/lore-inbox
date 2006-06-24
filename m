@@ -1,23 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWFXEfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWFXEjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWFXEfV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 00:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWFXEfV
+	id S932198AbWFXEjV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 00:39:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWFXEjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 00:35:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12225 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932178AbWFXEfU (ORCPT
+	Sat, 24 Jun 2006 00:39:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10178 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932198AbWFXEjU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 00:35:20 -0400
-Date: Fri, 23 Jun 2006 21:28:54 -0700
+	Sat, 24 Jun 2006 00:39:20 -0400
+Date: Fri, 23 Jun 2006 21:39:12 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: deweerdt@free.fr, pavel@ucw.cz, linux-kernel@vger.kernel.org,
-       linux-pm@vger.kernel.org, Shaohua Li <shaohua.li@intel.com>
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-Message-Id: <20060623212854.5a38684a.akpm@osdl.org>
-In-Reply-To: <200606232156_MC3-1-C354-D5AE@compuserve.com>
-References: <200606232156_MC3-1-C354-D5AE@compuserve.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: jlan@engr.sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in
+ taskstats
+Message-Id: <20060623213912.96056b02.akpm@osdl.org>
+In-Reply-To: <449CAA78.4080902@watson.ibm.com>
+References: <44892610.6040001@watson.ibm.com>
+	<20060609010057.e454a14f.akpm@osdl.org>
+	<448952C2.1060708@in.ibm.com>
+	<20060609042129.ae97018c.akpm@osdl.org>
+	<4489EE7C.3080007@watson.ibm.com>
+	<449999D1.7000403@engr.sgi.com>
+	<44999A98.8030406@engr.sgi.com>
+	<44999F5A.2080809@watson.ibm.com>
+	<4499D7CD.1020303@engr.sgi.com>
+	<449C2181.6000007@watson.ibm.com>
+	<20060623141926.b28a5fc0.akpm@osdl.org>
+	<449C6620.1020203@engr.sgi.com>
+	<20060623164743.c894c314.akpm@osdl.org>
+	<449CAA78.4080902@watson.ibm.com>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,57 +39,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 21:54:00 -0400
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
+On Fri, 23 Jun 2006 22:59:04 -0400
+Shailabh Nagar <nagar@watson.ibm.com> wrote:
 
-> In-Reply-To: <20060623023124.138d432f.akpm@osdl.org>
+> >>It was due to a loop in fill_tgid() when per-TG stats
+> >>data are assembled for netlink:
+> >>        do {
+> >>                rc = delayacct_add_tsk(stats, tsk);
+> >>                if (rc)
+> >>                        break;
+> >>
+> >>        } while_each_thread(first, tsk);
+> >>
+> >>and it is executed inside a lock.
+> >>Fortunately single threaded appls do not hit this code.
+> >>    
+> >>
+> >
+> >Am I reading this right?  We do that loop when each thread within the
+> >thread group exits?
+> >
+> Yes.
 > 
-> On Fri, 23 Jun 2006 02:31:24 -0700, Andrew Morton wrote:
-> 
-> > > > Code: 05 c4 42 43 c0 31 43 43 c0 c3 8b 2d 68 6e 54 c0 8b 1d 60 6e 54 c0 8b 35 6c 6e 54 c0 8b 3d 70 6d 54 c0 ff 35 74 6e 54 c0 9d c3 90 <e8> 6d 38 ea ff e8 a2 ff ff ff 6a 03 e8 ec b6 de ff 83 c4 04 c3
-> > > > EIP: [c043431c>] do_suspend_lowlevel+0x0/0x15 SS:ESP 0068:f6cb6ea4
-> > >   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> > > 
-> > > Ha, wait a moment, this is interesting line. Can you trace down which
-> > > instruction causes this?
-> > > 
-> > > We recently changed pagetable handling during swsusp, perhaps thats
-> > > it? It went to Linus few minutes ago...
-> > 
-> > That's a good possibility.  It does appear to be oopsing at the first
-> > instruction of arch/i386/kernel/acpi/wakeup.S:do_suspend_lowlevel(). 
-> > Perhaps there's enough info in that oops trace to tell us whether it was
-> > the instruction fetch which oopsed.
-> > 
-> > One wonders whether this will help...
-> > 
-> > --- a/arch/i386/kernel/acpi/wakeup.S~a
-> > +++ a/arch/i386/kernel/acpi/wakeup.S
-> > @@ -270,6 +270,7 @@ ALIGN
-> >  ENTRY(saved_magic)   .long   0
-> >  ENTRY(saved_eip)     .long   0
+> > How come?
 > >  
-> > +.text
-> >  save_registers:
-> >       leal    4(%esp), %eax
-> >       movl    %eax, saved_context_esp
-> > @@ -304,6 +305,7 @@ ret_point:
-> >       call    restore_processor_state
-> >       ret
-> >  
-> > +.data
-> >  ALIGN
-> >  # saved registers
-> >  saved_gdt:   .long   0,0
-> 
-> 
-> This is in 2.6.17-mm1 already:
-> 
-> 
-> From: Shaohua Li <shaohua.li@intel.com>
-> 
-> Move do_suspend_lowlevel to correct segment.  If it is in the same hugepage
-> with ro data, mark_rodata_ro will make it unexecutable.
-> 
+> >
+> To get the sum of all per-tid data for threads that are currently alive.
+> This is returned to userspace with each thread exit.
 
-OK.  But this bug report is against 2.6.17-mm1, isn't it?
+I realise that.  How about we stop doing it?
+
+When a thread exits it only makes sense to send up the stats for that
+thread.  Why does the kernel assume that userspace is also interested in
+the accumulated stats of its siblings?  And if userspace _is_ interested in
+that info, it's still present in-kernel and can be queried for.
+
+> >Is there some better lock we can use in there?  It only has to be
+> >threadgroup-wide rather than kernel-wide.
+> >  
+> >
+> The lock we're holding is the tasklist_lock. To go through all the 
+> threads of a thread group
+> thats the only lock that can protect integrity of while_each_thread afaics.
+
+At present, yes.  That's persumably not impossible to fix.

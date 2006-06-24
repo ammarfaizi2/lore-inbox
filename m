@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWFXM1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWFXMbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWFXM1r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 08:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933069AbWFXM1r
+	id S964808AbWFXMbt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 08:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWFXMbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 08:27:47 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54468 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S933050AbWFXM1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 08:27:47 -0400
-Subject: Re: [PATCH] ext3_clear_inode(): avoid kfree(NULL)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-Reply-To: <Pine.LNX.4.58.0606240817170.23087@gandalf.stny.rr.com>
-References: <200606231502.k5NF2jfO007109@hera.kernel.org>
-	 <449C3817.2030802@garzik.org> <20060623142430.333dd666.akpm@osdl.org>
-	 <1151151104.3181.30.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.58.0606240817170.23087@gandalf.stny.rr.com>
-Content-Type: text/plain
-Date: Sat, 24 Jun 2006 14:27:39 +0200
-Message-Id: <1151152059.3181.37.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 24 Jun 2006 08:31:49 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:33479 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964813AbWFXMbs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 08:31:48 -0400
+Date: Sat, 24 Jun 2006 08:31:45 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: =?BIG5?B?s1yspbuo?= <brianhsu.hsu@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: A question about behavior of SCHED_FIFO: Only one process in
+ run queue at any time.
+In-Reply-To: <615cd8d10606240224m2a0dece7t3bdb41df0dae71f2@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0606240828430.23087@gandalf.stny.rr.com>
+References: <615cd8d10606240224m2a0dece7t3bdb41df0dae71f2@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-24 at 08:20 -0400, Steven Rostedt wrote:
-> On Sat, 24 Jun 2006, Arjan van de Ven wrote:
-> 
-> >
-> > >
-> > > Because at that callsite, NULL is the common case.  We avoid a do-nothing
-> > > function call most of the time.  It's a nano-optimisation.
-> >
-> > but a function call is basically free, while an if () is not... even
-> > with unlikely()...
-> >
-> > sounds like a misoptimization to me.
-> >
-> 
-> How is a function call free when an if is not? 
 
-in general, a function call is 100% predictable without any real control
-flow dependencies for the processor, and thus there is no real issue in
-the execution pipeline. An if is a conditional branch, which breaks up
-the execution pipeline if mispredicted...
+On Sat, 24 Jun 2006, [BIG5] ³\¬¥»¨ wrote:
 
->  Especially if that
-> function does the exact same if?
+>
+> I have read some textbook about OS and Linux kernel, according to these books,
+> SCHED_FIFO is a real-time scheduling policy, and when a process is a SCHED_FIFO
+> process, it will be preempted only when follwing case happend:
+>
+> 1.There are some process with higher priority.
+> 2.The process is in blocking opreation.
+> 3.The process is dead.
+> 4.sched_yield()
 
-sure; 
+That all sounds right.
 
-but to call this code an optimization ... it's just extra code.
+>
+> Man page of sched_setscheduler even says:"SCHED_FIFO is a  simple
+> scheduling  algorithm  without  time slicing."
 
+Correct.
+
+>
+> Then I worte an user space program (in the attachment),
+> which fork an SCHED_FIFO child process, it does nothing expect an infinite loop
+> and print something on screen.
+
+How did you run more than one SCHED_FIFO process?  If you are not on a SMP
+machine, as soon as you run 1 of these children, it will run to completion
+because it is higher priority than any other process.  So the next
+child you run will run after that.
+
+>
+> Here is the dmesg result, it is clearly these process is in the same
+> queue, and there
+> is only one process in the queue at any time point.
+>
+> RT-Queue[1]:P[9822] ->
+> RT-Queue[1]:P[9822] ->
+> RT-Queue[1]:P[9810] ->
+> RT-Queue[1]:P[9810] ->
+> RT-Queue[1]:P[9816] ->
+> RT-Queue[1]:P[9816] ->
+> RT-Queue[1]:P[9822] ->
+> RT-Queue[1]:P[9822] ->
+>
+> Did I misunderstand about SCHED_FIFO policy?
+>
+
+No, but I still don't know how you ran all of them.
+
+-- Steve
 

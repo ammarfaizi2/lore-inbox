@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933220AbWFXIHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933223AbWFXIKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933220AbWFXIHz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 04:07:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933222AbWFXIHz
+	id S933223AbWFXIKd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 04:10:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933224AbWFXIKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 04:07:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50824 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933220AbWFXIHy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 04:07:54 -0400
-Date: Sat, 24 Jun 2006 01:07:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [patch 1/3] Drop tasklist lock in do_sched_setscheduler
-Message-Id: <20060624010741.6faf355d.akpm@osdl.org>
-In-Reply-To: <20060622082812.492564000@cruncher.tec.linutronix.de>
-References: <20060622082758.669511000@cruncher.tec.linutronix.de>
-	<20060622082812.492564000@cruncher.tec.linutronix.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sat, 24 Jun 2006 04:10:33 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:3062 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S933223AbWFXIKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 04:10:32 -0400
+Message-ID: <18235552.1151136631329.JavaMail.tomcat@pne-ps3-sn2>
+Date: Sat, 24 Jun 2006 10:10:31 +0200 (MEST)
+From: <lista1@comhem.se>
+Reply-To: <lista1@comhem.se>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17-git[5,6] CONFIG_PCI_MSI=y compile failure
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Mailer: CP Presentation Server
+X-clientstamp: [83.249.195.206]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006 09:08:38 -0000
-Thomas Gleixner <tglx@linutronix.de> wrote:
+2.6.17-git1 and git4 compiles OK, but git5 and 6 fail with CONFIG_PCI_MSI=y 
+here:
 
-> 
-> There is no need to hold tasklist_lock across the setscheduler call, when we
-> pin the task structure with get_task_struct(). Interrupts are disabled in 
-> setscheduler anyway and the permission checks do not need interrupts disabled.
-> 
+msi)"  -D"KBUILD_MODNAME=KBUILD_STR(msi)" -c -o drivers/pci/msi.o 
+drivers/pci/msi.c
+  gcc -Wp,-MD,drivers/pci/.msi-apic.o.d  -nostdinc -isystem 
+/usr/lib/gcc/x86_64-unknown-linux-gnu/3.4.4/include -D__KERNEL__ -Iinclude  -
+include include/linux/autoconf.h -Wall -Wundef -Wstrict-prototypes -Wno-
+trigraphs -fno-strict-aliasing -fno-common -Os -fomit-frame-pointer  -march=k8 -
+m64 -mno-red-zone -mcmodel=kernel -pipe -ffunction-sections -fno-reorder-blocks 
+-Wno-sign-compare -fno-asynchronous-unwind-tables -funit-at-a-time -mno-sse -
+mno-mmx -mno-sse2 -mno-3dnow -Wdeclaration-after-statement     -D"KBUILD_STR(s)
+=#s" -D"KBUILD_BASENAME=KBUILD_STR(msi_apic)"  -D"KBUILD_MODNAME=KBUILD_STR
+(msi_apic)" -c -o drivers/pci/msi-apic.o drivers/pci/msi-apic.c
+In file included from include/asm/msi.h:11,
+                 from drivers/pci/msi.h:71,
+                 from drivers/pci/msi-apic.c:8:
+include/asm/smp.h:103: error: parse error before '->' token
+make[2]: *** [drivers/pci/msi-apic.o] Error 1
+make[1]: *** [drivers/pci] Error 2
+make: *** [drivers] Error 2
 
-These three patches had intricate dependencies upon the __IP__ and
-__IP_DECL__ gunk which later patches removed, so these patches do not
-compile against the pi-futex patches.
+Sorry about line-wraps/length, I'm writing this from a webmail site - own 
+machine is down.
 
-So I dropped these.
+Mvh
+Mats Johannesson
 
-And I'll drop the lockdep patches, so you'll be able to redo these.

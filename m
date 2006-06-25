@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWFYVw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWFYVzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWFYVw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 17:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWFYVw6
+	id S932363AbWFYVzT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 17:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWFYVzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 17:52:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57532 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932371AbWFYVw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 17:52:58 -0400
-Subject: Re: remove __read_mostly?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Lameter <clameter@engr.sgi.com>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060625115736.d90e1241.akpm@osdl.org>
-References: <20060625115736.d90e1241.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 25 Jun 2006 23:52:53 +0200
-Message-Id: <1151272373.4940.60.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 25 Jun 2006 17:55:19 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:65259 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932363AbWFYVzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 17:55:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=kyGGsjS2sryBMGzkorxjb9yoTTvNVYGzYHRIrMbmsQscg2MtU8n05cYjl6VZcE3hyAppNuJXBaYR7fa1Sv4w1okK6cfceF7AXP81rkvoIRsqqRb0+F/p/nbvJaMThjAL6/7ft0OmnO/2kbGr4k0RGCzGFx+tJefmquvzQVEjblc=
+Message-ID: <787b0d920606251455y748c61c3q4711481c35e3190a@mail.gmail.com>
+Date: Sun, 25 Jun 2006 17:55:17 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: linux-kernel@vger.kernel.org, andi@rhlx01.fht-esslingen.de,
+       hirofumi@mail.parknet.co.jp, rankincj@yahoo.com, jd@disjunkt.com,
+       bert.hubert@netherlabs.nl, george@mvista.com
+Subject: Re: Linux 2.6.17: PM-Timer bug warning?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andreas Mohr writes:
 
-> Because if we use this everywhere where it's supposed to be used, we end up
-> with .bss and .data 100% populated with write-often variables, packed
-> closely together.  The cachelines will really flying around.
+> OK, so if I get a nice description of which dual P4 Xeon motherboard
+> that was (Dell something?), then I'll make a patch adding
+> this chipset's revision + motherboard + LKML link of bug test app
+> to the file, and asking for more testers there, too.
 
-this argument is true if you have unrelated data together; however if
-related data is together than suddenly you improve and increase cache
-density....
+I may have some bad news for you.
 
+Vendors hack around this sort of thing via SMM/SMI tricks.
+They catch the device access, then execute BIOS code to retry
+or delay as needed. So the BIOS version will matter.
 
+I actually saw this with a 2-way Xeon box from Dell a couple years ago.
+I don't recall exactly what it was, but the board probably had a few
+64-bit and/or PCI-X slots. Reading from one of the clocks would screw
+up if you were near the transition. The board would frequently go into
+SMM to check on things. When a clock tick was found to be really soon,
+the BIOS would set some sort of flag. If you tried to read the clock
+while this flag was set, the BIOS would spin until the clock settled.

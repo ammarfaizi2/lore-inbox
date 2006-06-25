@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWFYRSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWFYRUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWFYRSp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 13:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWFYRSp
+	id S1751330AbWFYRUI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 13:20:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWFYRUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 13:18:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35459 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751329AbWFYRSo (ORCPT
+	Sun, 25 Jun 2006 13:20:08 -0400
+Received: from hera.kernel.org ([140.211.167.34]:10440 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751330AbWFYRUG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 13:18:44 -0400
-Date: Sun, 25 Jun 2006 10:18:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dominik Karall <dominik.karall@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm2 (NULL pointer dereference)
-Message-Id: <20060625101840.4f90da21.akpm@osdl.org>
-In-Reply-To: <200606251825.26614.dominik.karall@gmx.net>
-References: <20060624061914.202fbfb5.akpm@osdl.org>
-	<200606251825.26614.dominik.karall@gmx.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sun, 25 Jun 2006 13:20:06 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Is the x86-64 kernel size limit real?
+Date: Sun, 25 Jun 2006 10:19:52 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e7mgjo$oco$1@terminus.zytor.com>
+References: <20060622204627.GA47994@dspnet.fr.eu.org> <p73hd2cnik6.fsf@verdi.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1151255992 24985 127.0.0.1 (25 Jun 2006 17:19:52 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Sun, 25 Jun 2006 17:19:52 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jun 2006 18:25:26 +0200
-Dominik Karall <dominik.karall@gmx.net> wrote:
-
-> On Saturday, 24. June 2006 15:19, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1
-> >7/2.6.17-mm2/
+Followup to:  <p73hd2cnik6.fsf@verdi.suse.de>
+By author:    Andi Kleen <ak@suse.de>
+In newsgroup: linux.dev.kernel
+>
+> Olivier Galibert <galibert@pobox.com> writes:
 > 
-> hi!
+> > I get bitched at by the build process because the kernel I get is
+> > around 4.5Mb compressed.  i386 does not have that limitation.
+> > Interestingly, a diff between the two build.c gives:
 > 
-> I got this error with 2.6.17-mm1 too, I took a picture with my mobile, 
-> hope it's readable:
-> http://stud4.tuwien.ac.at/~e0227135/kernel/060625_180209.jpg
+> A patch to fix it is already queued for 2.6.18
+> 
+> Also long term it might be completely dropped when the uncompressor
+> moves to long mode.
 > 
 
-hm, that's new.  We do seem to be getting a few sysfs/kobject crashes in
-there.
+It can be completely dropped now (and the directories unified); the
+size limitation on the uncompressed size can be enforced in the linker
+script.
 
-Do you actually have the bttv hardware present?
+The uncompressor only needs to be in long mode to support > 4 GB.
+
+	-hpa
+

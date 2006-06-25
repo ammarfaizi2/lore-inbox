@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWFYLZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWFYLaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbWFYLZv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 07:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWFYLZu
+	id S932377AbWFYLaF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 07:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWFYLaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 07:25:50 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:2284 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932370AbWFYLZu (ORCPT
+	Sun, 25 Jun 2006 07:30:05 -0400
+Received: from mail1.skjellin.no ([80.239.42.67]:4826 "EHLO mx1.skjellin.no")
+	by vger.kernel.org with ESMTP id S932374AbWFYLaC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 07:25:50 -0400
-Date: Sun, 25 Jun 2006 13:20:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: Problem with 2.6.17-mm2
-Message-ID: <20060625112055.GA29623@elte.hu>
-References: <20060625103523.GY27143@charite.de> <20060625034913.315755ae.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060625034913.315755ae.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5002]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 25 Jun 2006 07:30:02 -0400
+Message-ID: <449E73C1.4050604@tomt.net>
+Date: Sun, 25 Jun 2006 13:30:09 +0200
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Thunderbird 3.0a1 (Windows/20060622)
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and Power Management
+ patches against v2.6.17
+References: <20060625073003.GA21435@htj.dyndns.org>
+In-Reply-To: <20060625073003.GA21435@htj.dyndns.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> > 1) A lot of "unexpected IRQ trap at vector X" for X=[09,07]
+Tejun Heo wrote:
+> Hello, all.
 > 
-> hm, ack_bad_irq().  That isn't supposed to happen.
-> 
-> Ingo, Thomas - it's possible that -mm2's genirq is affecting x86?
+> libata-tj-stable patches against v2.6.17 and v2.6.17.1 are available.
 
-hm, indeed - investigating.
+It appears drivers/scsi/libata-eh.c isn't getting built in the 2.6.17 
+patch, seems to be missing in drivers/scsi/Makefile:
 
-	Ingo
+> if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map -b /build/kernel/linux-2.6.17/debian/linux-image-2.6.17-1-vs-exp -r 2.6.17-1-vs-exp; fi
+> WARNING: /build/kernel/linux-2.6.17/debian/linux-image-2.6.17-1-vs-exp/lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/libata.ko needs unknown symbol ata_scsi_timed_out
+> WARNING: /build/kernel/linux-2.6.17/debian/linux-image-2.6.17-1-vs-exp/lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/libata.ko needs unknown symbol ata_qc_schedule_eh
+> WARNING: /build/kernel/linux-2.6.17/debian/linux-image-2.6.17-1-vs-exp/lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/libata.ko needs unknown symbol ata_scsi_error
+> WARNING: /build/kernel/linux-2.6.17/debian/linux-image-2.6.17-1-vs-exp/lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/libata.ko needs unknown symbol ata_port_wait_eh
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_vsc.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_via.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_uli.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_sx4.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_svw.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_sis.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_sil24.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_sil.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_qstor.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_promise.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_nv.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/sata_mv.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/pdc_adma.ko ignored, due to loop
+> WARNING: Loop detected: /build/kernel/linux-2.6.17/debian/linux-image-2.6.17-1-vs-exp/lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/libata.ko which needs libata.ko again!
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/libata.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/ata_piix.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.17-1-vs-exp/kernel/drivers/scsi/ahci.ko ignored, due to loop
+> make[1]: Leaving directory `/build/kernel/linux-2.6.17/build/linux-image-2.6.17-1-vs-exp'

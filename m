@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWFYLso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWFYLvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWFYLso (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 07:48:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWFYLso
+	id S932405AbWFYLvx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 07:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWFYLvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 07:48:44 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:38607 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932397AbWFYLsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 07:48:43 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Sun, 25 Jun 2006 13:46:04 +0200
-To: schilling@fokus.fraunhofer.de, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bugme-new] [Bug 6745] New: kernel hangs when trying to read atip wiith cdrecord
-Message-ID: <449E777C.nail9X1595M9@burner>
-References: <449E6B43.nail9A11I1BV@burner>
- <20060625040642.f37646ba.akpm@osdl.org>
-In-Reply-To: <20060625040642.f37646ba.akpm@osdl.org>
-User-Agent: nail 11.2 8/15/04
+	Sun, 25 Jun 2006 07:51:53 -0400
+Received: from er-systems.de ([85.25.136.202]:41411 "EHLO er-systems.de")
+	by vger.kernel.org with ESMTP id S932405AbWFYLvx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 07:51:53 -0400
+Date: Sun, 25 Jun 2006 13:51:51 +0200 (CEST)
+From: Thomas Voegtle <tv@lio96.de>
+To: Chris Wright <chrisw@sous-sol.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16.22
+In-Reply-To: <20060622201757.GZ22737@sequoia.sous-sol.org>
+Message-ID: <Pine.LNX.4.63.0606251347100.31427@er-systems.de>
+References: <20060622201757.GZ22737@sequoia.sous-sol.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="425052808-1248206604-1151236311=:31427"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> On Sun, 25 Jun 2006 12:53:55 +0200
-> Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
->
-> > The problem mentioned in this thread seems to be caused by the fact that
-> > Linux sometimes ignores timeouts. I have no idea how to help in this (timeout) 
-> > case.
->
-> OK, thanks.  So is that likely to be an IDE bug, or a SCSI bug or an IDE-CD
-> bug?
+--425052808-1248206604-1151236311=:31427
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 
-I am not sure if the log from the OP includes all information.
+On Thu, 22 Jun 2006, Chris Wright wrote:
 
-I've seen already messages like this:
+> We (the -stable team) are announcing the release of the 2.6.16.22 kernel.
+> The diffstat and short summary of the fixes are below.
 
-cdrecord: Input/output error. Cannot set SG_SET_TIMEOUT.
 
-This should be something that I would never to expect to happen.
+Perhaps I missed the discussion about it, but why is this not piped 
+through linux-kernel-announce?
 
-If the OP does not see a similar message, it seems that the call is
-accepted but later ignored. I have no idea why this happens.
+It isn't on kernel.org as well so it is hard to track it.
 
-Jörg
+
+      Thomas
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+ Thomas Vögtle    email: thomas@voegtle-clan.de
+ ----- http://www.voegtle-clan.de/thomas ------
+--425052808-1248206604-1151236311=:31427--

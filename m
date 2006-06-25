@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWFYBSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWFYBT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751285AbWFYBSX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 21:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWFYBSX
+	id S932432AbWFYBT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 21:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWFYBT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 21:18:23 -0400
-Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:39826
-	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
-	id S1751285AbWFYBSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 21:18:23 -0400
-Message-ID: <449DE45C.90902@ed-soft.at>
-Date: Sun, 25 Jun 2006 03:18:20 +0200
-From: Edgar Hucek <hostmaster@ed-soft.at>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #3]
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+	Sat, 24 Jun 2006 21:19:28 -0400
+Received: from 0x55511dab.adsl.cybercity.dk ([85.81.29.171]:62315 "EHLO
+	hunin.borkware.net") by vger.kernel.org with ESMTP id S932432AbWFYBT2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 21:19:28 -0400
+Subject: Re: Kernelsources writeable for everyone?!
+From: Mark Rosenstand <mark@borkware.net>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Daniel <damage@rooties.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060624181702.GG27946@ftp.linux.org.uk>
+References: <200606242000.51024.damage@rooties.de>
+	 <20060624181702.GG27946@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Sun, 25 Jun 2006 03:20:52 +0200
+Message-Id: <1151198452.6508.10.camel@mjollnir>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix EFI boot on 32 bit machines with pcie port.
-Efi machines does not have an e820 memory map.
-This bug makes native efi boots on Intel Mac's
-impossible.
-[try #3] simplified the patch.
+On Sat, 2006-06-24 at 19:17 +0100, Al Viro wrote:
+> On Sat, Jun 24, 2006 at 08:00:50PM +0200, Daniel wrote:
+> > Hi,
+> > may be this was reported/asked 999999999 times, but here ist the 1000000000th:
+> > 
+> > I have downloaded linux-2.6.17.1 10 min ago and I noticed that every file is 
+> > writeable by everyone. What's going on there?
 
-Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
+It's an abusive way of telling people to not extract the kernel sources
+as root. Surely if they don't follow the recommended workflow, their box
+deserve to be rooted.
 
---- a/arch/i386/kernel/setup.c	2006-06-25 03:13:24.000000000 +0200
-+++ b/arch/i386/kernel/setup.c	2006-06-25 03:13:50.000000000 +0200
-@@ -975,6 +975,10 @@
- 	u64 start = s;
- 	u64 end = e;
- 	int i;
-+
-+	if (efi_enabled)
-+		return 1;
-+
- 	for (i = 0; i < e820.nr_map; i++) {
- 		struct e820entry *ei = &e820.map[i];
- 		if (type && ei->type != type)
+> You are unpacking tarballs as root and preserve ownership and permissions.
+> Don't.
 
+Preserving ownership and permissions is the default behaviour for GNU
+tar when running as root. Other implementations require the -p option.
 

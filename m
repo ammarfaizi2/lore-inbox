@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWFYFC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWFYFiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWFYFC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 01:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWFYFC7
+	id S1751403AbWFYFiv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 01:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWFYFiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 01:02:59 -0400
-Received: from mail.gmx.de ([213.165.64.21]:12512 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751383AbWFYFC6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 01:02:58 -0400
-X-Authenticated: #14349625
-Subject: Re: Measuring tools - top and interrupts
-From: Mike Galbraith <efault@gmx.de>
-To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-Cc: danial_thom@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20060624192523.GA3231@atjola.homenet>
-References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
-	 <1151128763.7795.9.camel@Homer.TheSimpsons.net>
-	 <1151130383.7545.1.camel@Homer.TheSimpsons.net>
-	 <20060624092156.GA13142@atjola.homenet>
-	 <1151142716.7797.10.camel@Homer.TheSimpsons.net>
-	 <1151149317.7646.14.camel@Homer.TheSimpsons.net>
-	 <20060624154037.GA2946@atjola.homenet>
-	 <1151166193.8516.8.camel@Homer.TheSimpsons.net>
-	 <20060624192523.GA3231@atjola.homenet>
-Content-Type: text/plain; charset=utf-8
-Date: Sun, 25 Jun 2006 07:06:33 +0200
-Message-Id: <1151211993.8519.6.camel@Homer.TheSimpsons.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+	Sun, 25 Jun 2006 01:38:51 -0400
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:59777 "HELO
+	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751403AbWFYFiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 01:38:50 -0400
+Message-ID: <449E216E.8010508@sbcglobal.net>
+Date: Sun, 25 Jun 2006 00:38:54 -0500
+From: Matthew Frost <artusemrys@sbcglobal.net>
+Reply-To: artusemrys@sbcglobal.net
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Mark Rosenstand <mark@borkware.net>
+CC: Al Viro <viro@ftp.linux.org.uk>, Daniel <damage@rooties.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernelsources writeable for everyone?!
+References: <200606242000.51024.damage@rooties.de>	 <20060624181702.GG27946@ftp.linux.org.uk> <1151198452.6508.10.camel@mjollnir>
+In-Reply-To: <1151198452.6508.10.camel@mjollnir>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-24 at 21:25 +0200, Björn Steinbrink wrote:
-> On 2006.06.24 18:23:12 +0200, Mike Galbraith wrote:
-> > 
-> > let's see.  Yeah, confirmed.
+Mark Rosenstand wrote:
+> On Sat, 2006-06-24 at 19:17 +0100, Al Viro wrote:
+>> On Sat, Jun 24, 2006 at 08:00:50PM +0200, Daniel wrote:
+>>> Hi,
+>>> may be this was reported/asked 999999999 times, but here ist the 1000000000th:
+>>>
+>>> I have downloaded linux-2.6.17.1 10 min ago and I noticed that every file is 
+>>> writeable by everyone. What's going on there?
 > 
-> OK, it also depends on IO APIC being enabled and active, ie. noapic on
-> the kernel command line will fix it as well as disabling
-> CONFIG_X86_IO_APIC. That doesn't help me at all to understand why it
-> happens though.
+> It's an abusive way of telling people to not extract the kernel sources
+> as root. Surely if they don't follow the recommended workflow, their box
+> deserve to be rooted.
+> 
 
-Ditto.
+No, the inevitable flame war here is the abusive way of telling people 
+not to extract the kernel sources as root.  This argument boils down to 
+a fundamental disjunct: trust people to handle security of their own box 
+their own way, with full knowledge of how their tools work, or assume 
+that they aren't intelligent enough to use tools sanely and securely, 
+and handicap so they don't have to.  The latter, much as it is not seen 
+this way, is the abusive philosophy.  The former trusts the user.
 
-> The only difference with IO APIC disabled seems to be that the irq
-> doesn't get ACKed before update_process_times() gets called.
-> And your "fix" makes it being called outside of the xtime_lock spinlock
-> and with a slightly different stack usage AFAICT.
+Yes, there's a learning curve.  There is always a learning curve.  Never 
+expect there not to be a learning curve.
 
-(it's still under the xtime lock)
+The kernel archive is foremost an archive of a working directory.  The 
+recommended workflow is sane, and is designed around the limitations of 
+tools sensibly designed for a wide range of purposes, not foremost of 
+which is kernel compilation.
 
-> But none of these should make a difference, right?
+Please learn to take advice.  It tends to be intended for your benefit, 
+and is generally more useful when not viewed as a personal affront.
 
-Not that I can see, but then it's pretty dark down here.  Anybody got a
-flashlight I can borrow? ;-)
+>> You are unpacking tarballs as root and preserve ownership and permissions.
+>> Don't.
+> 
+> Preserving ownership and permissions is the default behaviour for GNU
+> tar when running as root. Other implementations require the -p option.
 
-	-Mike
-
+Matt

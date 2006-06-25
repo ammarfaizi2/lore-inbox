@@ -1,82 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWFYDTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWFYE3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWFYDTw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 23:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWFYDTw
+	id S1751386AbWFYE3o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 00:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWFYE3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 23:19:52 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:36549 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751366AbWFYDTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 23:19:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=puauarIusP3XZq/5uRXG7YaCAsJM9VEKrtHVLlvFYQPdAEkS0o135zn1YKil2MuwxOcZjUGp8HveNZnW90H0tfW7ul7NBHd9XcnlONT5q965gBreL7+tYV1AhuthEHwrC8ZD38wj0zwXVMZHKwewuXR+d1MlWOz7W/QjP1gwQ4k=
-Message-ID: <625fc13d0606242019l2ee7ca29w178896d7355b9302@mail.gmail.com>
-Date: Sat, 24 Jun 2006 22:19:50 -0500
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: "Troy Benjegerdes" <hozer@hozed.org>
-Subject: Re: PATCH: Change in-kernel afs client filesystem name to 'kafs'
-Cc: "Christoph Hellwig" <hch@infradead.org>,
-       "David Howells" <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060624181900.GP5040@narn.hozed.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 25 Jun 2006 00:29:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21713 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751373AbWFYE3n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 00:29:43 -0400
+Date: Sat, 24 Jun 2006 21:29:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Miles Lane" <miles.lane@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: 2.6.17-mm2 -- Slab corruption, plus invalid opcode: 0000 [#1]
+ -- 4K_STACKS PREEMPT -- last sysfs file: /block/md0/dev
+Message-Id: <20060624212940.ea8976ae.akpm@osdl.org>
+In-Reply-To: <a44ae5cd0606241628u18fc9530g9dfbbfca441309fc@mail.gmail.com>
+References: <a44ae5cd0606241628u18fc9530g9dfbbfca441309fc@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060624004154.GL5040@narn.hozed.org>
-	 <20060624133703.GB15734@infradead.org>
-	 <20060624181900.GP5040@narn.hozed.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/24/06, Troy Benjegerdes <hozer@hozed.org> wrote:
-> On Sat, Jun 24, 2006 at 02:37:03PM +0100, Christoph Hellwig wrote:
-> > On Fri, Jun 23, 2006 at 07:41:59PM -0500, Troy Benjegerdes wrote:
-> > > This patch changes the in-kernel AFS client filesystem name to 'kafs',
-> > > as well as allowing the AFS cache manager port to be set as a module
-> > > parameter. This is usefull for having a system boot with the root
-> > > filesystem on afs with the kernel AFS client, while still having the
-> > > option of loading the OpenAFS kernel module for use as a read-write
-> > > filesystem later.
-> >
-> > NACK.  OpenAFS isn't even legal to load into the kernel, we shouldn't
-> > support it.  Better help making the kernel afs client fully features
-> > than wasting your time on this.
->
-> So, you are telling me that even though OpenAFS has a license
-> substationally similiar in intent to the GPLv2, that it's not legal to
-> load into the kernel, even though the OpenAFS code predates the Linux
-> kernel by about 5 years? Are you going to personally sue me if I put up
-> an initramfs image with the OpenAFS kernel module in it?
+On Sat, 24 Jun 2006 16:28:24 -0700
+"Miles Lane" <miles.lane@gmail.com> wrote:
 
-I doubt anyone would waste their time.
+> Slab corruption: start=f7bba640, len=1424
+> 030: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a8 8b 9b 50
+> Prev obj: start=f7bba0b0, len=1424
+> 000: 01 00 00 00 00 b0 51 f7 02 00 00 00 40 01 40 00
+> 010: 00 00 00 00 ff ff ff ff 33 02 00 00 7b 00 00 00
+> Next obj: start=f7bbabd0, len=1424
+> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> 
+> acpi_processor-0758 [86] processor_preregister_: Error while parsing
+> _PSD domain information. Assuming no coordination
 
-Btw, release date has nothing to do with licensing issues.  The
-original BSD license was around before the GPL, and yet they were
-incompatible.
+Is that ACPI message new behaviour?
 
->
-> My home directory is in AFS. And if you want me to help make the kernel
-> AFS client full-featured, I need to have both kAFS and OpenAFS loaded
-> and mounted at the same time. So quit bitching about OpenAFS and get out of
-> my way so I can work on kAFS.
+> invalid opcode: 0000 [#1]
+> 4K_STACKS PREEMPT
+> last sysfs file: /block/md0/dev
+> Modules linked in: speedstep_centrino cpufreq_stats freq_table
+> cpufreq_powersave cpufreq_performance cpufreq_conservative video
+> thermal sony_acpi processor fan container button battery asus_acpi ac
+> vfat fat nls_utf8 ntfs dm_mod sr_mod sbp2 scsi_mod parport_pc lp
+> parport snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm_oss
+> snd_mixer_oss snd_pcm snd_timer snd soundcore rtc ipw2200
+> snd_page_alloc sdhci mmc_core pcspkr ohci1394 ieee80211
+> ieee80211_crypt 8139too mii ieee1394 ehci_hcd uhci_hcd joydev
+> CPU:    0
+> EIP:    0060:[<c13afab1>]    Not tainted VLI
+> EFLAGS: 00010287   (2.6.17-mm2 #2)
+> EIP is at cpufreq_register_driver+0x36/0x129
+> eax: 28f290f8   ebx: c1f8f9e0   ecx: f7b83000   edx: 00000000
+> esi: f8bbf38b   edi: f8bbf384   ebp: c3c3c39e   esp: f7b83ed0
+> ds: 007b   es: 007b   ss: 0068
+> Process modprobe (pid: 2629, ti=f7b83000 task=c1d68c10 task.ti=f7b83000)
+> Stack: f8b80053 f7b83fb4 c1030e07 00000016 00000370 c121f564 c121f564 00000530
+>        00000000 00000003 f8bbf380 f8bba308 f8bba1f0 f8bba2e0 f7a4a9dc f8bbae48
+>        00000017 00000015 00000000 00000000 00000000 00000000 00000000 00000000
+> Call Trace:
+>  <b894ff5c> 0xb894ff5c
+> Code: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a5 71 f0 2c 5a c0 fe 06
+> c1 a5 c2 0f 17 00 00 00 00 08 00 00 00 01 00 00 00 ad 4e ad de ff <ff>
+> ff ff ff ff ff ff e8 84 14 f7 00 00 00 00 c8 5d c7 c1 d0 eb
+> EIP: [<c13afab1>] cpufreq_register_driver+0x36/0x129 SS:ESP 0068:f7b83ed0
+>  acpi_processor-0758 [86] processor_preregister_: Error while parsing
+> _PSD domain information. Assuming no coordination
+> invalid opcode: 0000 [#2]
+> 4K_STACKS PREEMPT
+> last sysfs file: /block/md0/dev
+> Modules linked in: acpi_cpufreq speedstep_centrino cpufreq_stats
+> freq_table cpufreq_powersave cpufreq_performance cpufreq_conservative
+> video thermal sony_acpi processor fan container button battery
+> asus_acpi ac vfat fat nls_utf8 ntfs dm_mod sr_mod sbp2 scsi_mod
+> parport_pc lp parport snd_intel8x0 snd_ac97_codec snd_ac97_bus
+> snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore rtc ipw2200
+> snd_page_alloc sdhci mmc_core pcspkr ohci1394 ieee80211
+> ieee80211_crypt 8139too mii ieee1394 ehci_hcd uhci_hcd joydev
+> CPU:    0
+> EIP:    0060:[<c13afab1>]    Not tainted VLI
+> EFLAGS: 00010282   (2.6.17-mm2 #2)
+> EIP is at cpufreq_register_driver+0x36/0x129
+> eax: 28f290f8   ebx: c1f76564   ecx: c1da7000   edx: 00000000
+> esi: f8bc2e0b   edi: f8bc2e04   ebp: c3c3c39e   esp: c1da7ed0
+> ds: 007b   es: 007b   ss: 0068
+> Process modprobe (pid: 2631, ti=c1da7000 task=f7a959b0 task.ti=c1da7000)
+> Stack: f8b8406f c1da7fb4 c1030e07 00000017 00000398 c121f564 c121f564 00000500
+>        00000001 00000002 f8bc2e00 f8bb9e34 f8bb9d1c f8bb9e0c f78cd278 f8bba7a4
+>        00000018 00000016 00000008 00000000 00000000 00000000 00000000 00000000
+> Call Trace:
+>  <b894ff5c> 0xb894ff5c
+> Code: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a5 71 f0 2c 5a c0 fe 06
+> c1 a5 c2 0f 17 00 00 00 00 08 00 00 00 01 00 00 00 ad 4e ad de ff <ff>
+> ff ff ff ff ff ff e8 84 14 f7 00 00 00 00 c8 5d c7 c1 d0 eb
+> EIP: [<c13afab1>] cpufreq_register_driver+0x36/0x129 SS:ESP 0068:c1da7ed0
 
-Nobody is in your way.  If you truly want to improve kAFS to the point
-where it is usable, then by all means do so.  There are many people
-that would thank you.
+Do you have CONFIG_HOTPLUG_CPU=y?
 
-However, I hope that you would agree that the end goal is to have kAFS
-be a drop in replacement such that it can be used inter-changeably
-with other AFS implementations.  Given that, integrating a patch the
-changes the filesystem type which will later be reverted just is
-silly.
+If not, please enable that and retest.
 
-There is nothing preventing you from doing this in your local tree
-while you work on kAFS.  Pushing it to the mainline kernel is just
-wrong though.  The fact your local setup requires you have both kAFS
-and OpenAFS loaded at the same time is not reason enough to change it
-in mainline.
 
-josh

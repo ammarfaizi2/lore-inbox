@@ -1,102 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWFYJqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWFYJrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbWFYJqS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 05:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWFYJqS
+	id S932220AbWFYJrT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 05:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWFYJrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 05:46:18 -0400
-Received: from kevlar.burdell.org ([66.92.73.214]:8898 "EHLO
-	kevlar.burdell.org") by vger.kernel.org with ESMTP id S932212AbWFYJqS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 05:46:18 -0400
-Date: Sun, 25 Jun 2006 05:46:16 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Cc: anton@samba.org
-Subject: [PATCH] fix race in idr code
-Message-ID: <20060625094616.GA18382@kevlar.burdell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 25 Jun 2006 05:47:18 -0400
+Received: from outgoing3.smtp.agnat.pl ([193.239.44.85]:28852 "EHLO
+	outgoing3.smtp.agnat.pl") by vger.kernel.org with ESMTP
+	id S932220AbWFYJrS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 05:47:18 -0400
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Subject: thinkpad z60m and nsc-ircc
+Date: Sun, 25 Jun 2006 11:47:11 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200606251147.11694.arekm@pld-linux.org>
+X-Authenticated-Id: arekm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+Hi,
 
-I ran into a bug where the kernel died in the idr code:
+I've just upgraded kernel to todays 2.6.17 git version which has some of 
+nsc-ircc patches merged.
 
-cpu 0x1d: Vector: 300 (Data Access) at [c000000b7096f710]
-    pc: c0000000001f8984: .idr_get_new_above_int+0x140/0x330
-    lr: c0000000001f89b4: .idr_get_new_above_int+0x170/0x330
-    sp: c000000b7096f990
-   msr: 800000000000b032
-   dar: 0
- dsisr: 40010000
-  current = 0xc000000b70d43830
-  paca    = 0xc000000000556900
-    pid   = 2022, comm = hwup
-1d:mon> t
-[c000000b7096f990] c0000000000d2ad8 .expand_files+0x2e8/0x364 (unreliable)
-[c000000b7096faa0] c0000000001f8bf8 .idr_get_new_above+0x18/0x68
-[c000000b7096fb20] c00000000002a054 .init_new_context+0x5c/0xf0
-[c000000b7096fbc0] c000000000049dc8 .copy_process+0x91c/0x1404
-[c000000b7096fcd0] c00000000004a988 .do_fork+0xd8/0x224
-[c000000b7096fdc0] c00000000000ebdc .sys_clone+0x5c/0x74
-[c000000b7096fe30] c000000000008950 .ppc_clone+0x8/0xc
---- Exception: c00 (System Call) at 000000000fde887c
-SP (f8b4e7a0) is in userspace
+Unfortunately nsc-ircc stopped working for me after this upgrade:
 
-Turned out to be a race-condition and NULL ptr deref, here's my fix:
+hci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[66]  MMIO=[c0001000-c00017ff]  
+Max Packet=[2048]  IR/IT contexts=[4/4]
+usb 2-1: new low speed USB device using uhci_hcd and address 2
+Yenta: CardBus bridge found at 0000:14:00.0 [1014:056c]
+pnp: Unable to assign resources to device 00:09.
+nsc-ircc: probe of 00:09 failed with error -16
+nsc-ircc, Found chip at base=0x164e
+nsc-ircc, Wrong chip version ff
+Yenta: ISA IRQ mask 0x04b8, PCI irq 169
+Socket status: 30000006
+pcmcia: parent PCI bridge I/O window: 0x9000 - 0xcfff
 
-Users of the idr code are supposed to call idr_pre_get without
-locking, so the idr code must serialize itself with respect to layer
-allocations.  However, it fails to do so in an error path in
-idr_get_new_above_int(). I added the missing locking to fix this.
+In earlier version (2.6.17 rc X) it was:
 
-Signed-off-by: Sonny Rao <sonny@burdell.org>
+pnp: Device 00:09 activated.
+nsc-ircc, chip->init
+nsc-ircc, Found chip at base=0x164e
+nsc-ircc, driver loaded (Dag Brattli)
+IrDA: Registered device irda0
+nsc-ircc, Using dongle: IBM31T1100 or Temic TFDS6000/TFDS6500
 
---- linux-sr/lib/idr.c~orig	2006-06-25 04:00:13.000000000 -0500
-+++ linux-sr/lib/idr.c	2006-06-25 04:17:47.000000000 -0500
-@@ -48,15 +48,21 @@ static struct idr_layer *alloc_layer(str
- 	return(p);
- }
- 
-+/* only called when idp->lock is held */
-+static void __free_layer(struct idr *idp, struct idr_layer *p)
-+{
-+	p->ary[0] = idp->id_free;
-+	idp->id_free = p;
-+	idp->id_free_cnt++;
-+}
-+
- static void free_layer(struct idr *idp, struct idr_layer *p)
- {
- 	/*
- 	 * Depends on the return element being zeroed.
- 	 */
- 	spin_lock(&idp->lock);
--	p->ary[0] = idp->id_free;
--	idp->id_free = p;
--	idp->id_free_cnt++;
-+	__free_layer(idp, p);
- 	spin_unlock(&idp->lock);
- }
- 
-@@ -184,12 +190,14 @@ build_up:
- 			 * The allocation failed.  If we built part of
- 			 * the structure tear it down.
- 			 */
-+			spin_lock(&idp->lock);
- 			for (new = p; p && p != idp->top; new = p) {
- 				p = p->ary[0];
- 				new->ary[0] = NULL;
- 				new->bitmap = new->count = 0;
--				free_layer(idp, new);
-+				__free_layer(idp, new);
- 			}
-+			spin_unlock(&idp->lock);
- 			return -1;
- 		}
- 		new->ary[0] = p;
+my modprobe setup is:
+alias irda0 nsc-ircc
+options nsc-ircc dongle_id=0x09 io=0x2f8 irq=3 dma=3
+install nsc-ircc /bin/setserial /dev/ttyS1 uart none port 0 irq 
+0; /sbin/modprobe --ignore-install nsc-ircc
 
+-- 
+Arkadiusz Mi¶kiewicz        PLD/Linux Team
+arekm / maven.pl            http://ftp.pld-linux.org/

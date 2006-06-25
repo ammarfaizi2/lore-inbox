@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWFYLvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWFYLx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWFYLvx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 07:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWFYLvx
+	id S932409AbWFYLx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 07:53:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWFYLx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 07:51:53 -0400
-Received: from er-systems.de ([85.25.136.202]:41411 "EHLO er-systems.de")
-	by vger.kernel.org with ESMTP id S932405AbWFYLvx (ORCPT
+	Sun, 25 Jun 2006 07:53:58 -0400
+Received: from mail.charite.de ([160.45.207.131]:9453 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S932409AbWFYLx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 07:51:53 -0400
-Date: Sun, 25 Jun 2006 13:51:51 +0200 (CEST)
-From: Thomas Voegtle <tv@lio96.de>
-To: Chris Wright <chrisw@sous-sol.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16.22
-In-Reply-To: <20060622201757.GZ22737@sequoia.sous-sol.org>
-Message-ID: <Pine.LNX.4.63.0606251347100.31427@er-systems.de>
-References: <20060622201757.GZ22737@sequoia.sous-sol.org>
+	Sun, 25 Jun 2006 07:53:58 -0400
+Date: Sun, 25 Jun 2006 13:53:55 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem with 2.6.17-mm2
+Message-ID: <20060625115355.GP27143@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060625103523.GY27143@charite.de> <20060625034913.315755ae.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="425052808-1248206604-1151236311=:31427"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060625034913.315755ae.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+* Andrew Morton <akpm@osdl.org>:
 
---425052808-1248206604-1151236311=:31427
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+> > 2) A problem with the powernow_k8 driver, which makes the kernel puke upon modprobe (at the end of my dmes output).
+> 
+> yup, I uploaded the below for for that into the hot-fixes directory.
 
-On Thu, 22 Jun 2006, Chris Wright wrote:
-
-> We (the -stable team) are announcing the release of the 2.6.16.22 kernel.
-> The diffstat and short summary of the fixes are below.
-
-
-Perhaps I missed the discussion about it, but why is this not piped 
-through linux-kernel-announce?
-
-It isn't on kernel.org as well so it is hard to track it.
-
-
-      Thomas
+Yes, the hotfix fixes this.
 
 -- 
- Thomas Vögtle    email: thomas@voegtle-clan.de
- ----- http://www.voegtle-clan.de/thomas ------
---425052808-1248206604-1151236311=:31427--
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

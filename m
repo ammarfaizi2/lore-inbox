@@ -1,35 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWFYVvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWFYVw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWFYVvu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 17:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWFYVvu
+	id S932371AbWFYVw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 17:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWFYVw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 17:51:50 -0400
-Received: from dew1.atmos.washington.edu ([128.95.89.41]:14572 "EHLO
-	dew1.atmos.washington.edu") by vger.kernel.org with ESMTP
-	id S932336AbWFYVvt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 17:51:49 -0400
-Message-ID: <449F0570.2090001@atmos.washington.edu>
-Date: Sun, 25 Jun 2006 14:51:44 -0700
-From: Harry Edmon <harry@atmos.washington.edu>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-References: <4492D5D3.4000303@atmos.washington.edu> <44948EF6.1060201@atmos.washington.edu> <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk> <200606191724.31305.ak@suse.de> <Pine.LNX.4.61.0606192017370.31662@ask.diku.dk>
-In-Reply-To: <Pine.LNX.4.61.0606192017370.31662@ask.diku.dk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 25 Jun 2006 17:52:58 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57532 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932371AbWFYVw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 17:52:58 -0400
+Subject: Re: remove __read_mostly?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Ravikiran G Thirumalai <kiran@scalex86.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060625115736.d90e1241.akpm@osdl.org>
+References: <20060625115736.d90e1241.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 25 Jun 2006 23:52:53 +0200
+Message-Id: <1151272373.4940.60.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.599 () BAYES_00
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I understand the saying "beggars can't be choosers", but I have heard nothing on 
-this issue since June 19th.  Does anyone have any ideas on what is going on?  Is 
-there more information I can collect that would help diagnose this problem?  And 
-again, thanks for any and all help!
--- 
-  Dr. Harry Edmon			E-MAIL: harry@atmos.washington.edu
-  206-543-0547				harry@u.washington.edu
-  Dept of Atmospheric Sciences		FAX:	206-543-0308
-  University of Washington, Box 351640, Seattle, WA 98195-1640
+
+> Because if we use this everywhere where it's supposed to be used, we end up
+> with .bss and .data 100% populated with write-often variables, packed
+> closely together.  The cachelines will really flying around.
+
+this argument is true if you have unrelated data together; however if
+related data is together than suddenly you improve and increase cache
+density....
+
+

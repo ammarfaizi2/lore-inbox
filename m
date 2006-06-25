@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWFYJ4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWFYKJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWFYJ4R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 05:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWFYJ4Q
+	id S1751225AbWFYKJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 06:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWFYKJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 05:56:16 -0400
-Received: from mx0.towertech.it ([213.215.222.73]:19401 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S932213AbWFYJ4Q (ORCPT
+	Sun, 25 Jun 2006 06:09:28 -0400
+Received: from smtp1-g19.free.fr ([212.27.42.27]:15834 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751225AbWFYKJ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 05:56:16 -0400
-Date: Sun, 25 Jun 2006 11:55:25 +0200
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] RTC: add rtc-ds1553 and rtc-ds1742 driver
-Message-ID: <20060625115525.098f53a5@inspiron>
-In-Reply-To: <20060623.182828.92343173.nemoto@toshiba-tops.co.jp>
-References: <20060623.001927.74750182.anemo@mba.ocn.ne.jp>
-	<20060623001622.65db7c0f@inspiron>
-	<20060623.182828.92343173.nemoto@toshiba-tops.co.jp>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 25 Jun 2006 06:09:27 -0400
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: "Avuton Olrich" <avuton@gmail.com>
+Subject: Re: XFS crashed twice, once in 2.6.16.20, next in 2.6.17, reproducable
+Date: Sun, 25 Jun 2006 12:09:23 +0200
+User-Agent: KMail/1.9.1
+Cc: "Nathan Scott" <nathans@sgi.com>, linux-kernel@vger.kernel.org,
+       xfs@oss.sgi.com
+References: <3aa654a40606190044q43dca571qdc06ee13d82d979@mail.gmail.com> <20060620165209.C1080488@wobbly.melbourne.sgi.com> <3aa654a40606200120v5baf0304ka205f1ad8f136ad9@mail.gmail.com>
+In-Reply-To: <3aa654a40606200120v5baf0304ka205f1ad8f136ad9@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606251209.23766.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jun 2006 18:28:28 +0900 (JST)
-Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
+I just got a new XFS crash running 2.6.17, again with problems at block
+16777216 - I'll try to make a copy of the corrupted filesystem available.
+Interestingly enough, I'm also seeing ext3 corruption.  The usual
+manifestation is that a program fails to run, with a message about it
+not being in executable format (if it happens again I will take a note of
+the exact message).  I've had no problems at all with 2.6.17.  It seems
+to be happening randomly, which makes me suspect a race condition
+(uniprocessor machine, but preemptable kernel), or memory corruption.
+I will rebuild the kernel with all kernel debugging options turned
+on, once I recover the filesystem.
 
-> > > +static int ds1553_rtc_ioctl(struct device *dev, unsigned int cmd,
-> > > +			    unsigned long arg)
-> > > +{
-> > > +	struct platform_device *pdev = to_platform_device(dev);
-> > > +	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
-> > > +
-> > > +	if (pdata->irq < 0)
-> > > +		return -ENOIOCTLCMD;
-> > 
-> >  inappropriate -Exxx . maybe -ENODEV?.
-> 
-> No, it is intentional.  If irq is not available, I want to fall back
-> into emulation in rtc-dev.c.
+Ciao,
 
- maybe you can add a comment explaining this choice
-
--- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+D.

@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWFYQqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWFYQro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWFYQqU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 12:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWFYQqU
+	id S1751171AbWFYQro (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 12:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWFYQro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 12:46:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8171 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751168AbWFYQqT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 12:46:19 -0400
-Date: Sun, 25 Jun 2006 09:46:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-cc: Shaohua Li <shaohua.li@intel.com>, Pavel Machek <pavel@ucw.cz>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] swsuspend breakage in 2.6.17-git
-In-Reply-To: <200606251605.10956.daniel.ritz-ml@swissonline.ch>
-Message-ID: <Pine.LNX.4.64.0606250943580.3747@g5.osdl.org>
-References: <200606251605.10956.daniel.ritz-ml@swissonline.ch>
+	Sun, 25 Jun 2006 12:47:44 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:63503 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751171AbWFYQrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 12:47:43 -0400
+Date: Sun, 25 Jun 2006 18:47:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Ron Mercer <ron.mercer@qlogic.com>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       Stephen Hemminger <shemminger@osdl.org>, netdev@vger.kernel.org
+Subject: 2.6.17-mm2: no QLA3YYY_NAPI help text
+Message-ID: <20060625164741.GB23314@stusta.de>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060624061914.202fbfb5.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[ resent with a subject adapted to vger mail filter... ]
 
+On Sat, Jun 24, 2006 at 06:19:14AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.17-mm1:
+>...
+> +qla3xxx-NIC-driver.patch
+>...
+>  Net driver updates.  Includes a new driver from qlogic which almost compiles.
+>...
 
-On Sun, 25 Jun 2006, Daniel Ritz wrote:
-> 
-> commit b6370d96e09944c6e3ae8d5743ca8a8ab1f79f6c:
-> 	[PATCH] swsusp: i386 mark special saveable/unsaveable pages
-> breaks swsusp for me with a page fault in kernel/power/snapshot.c:save_arch_mem()
-> 
-> the following patch makes suspend-resume working again, but some
-> problems still remain: fan goes on and stays on after resume (same as
-> in bug #5000). i guess this is a due to a change in ACPI which i still
-> have to track down along with the problem that acpi is not powering-off
-> my other laptop anymore...
-> 
-> comments?
+The QLA3XXX_NAPI option lacks a help text.
 
-Looking at that whole commit, it looks bogus.
+Please add a help text.
 
-The rule about ACPI memory (whether NVS or not) according to what I have 
-seen is that the OS is _not_ supposed to touch that memory except through 
-ACPI routines.
+TIA
+Adrian
 
-So saving and restoring those pages sounds really really wrong in the 
-first place. We have no idea what current state it could screw up.
+--
 
-Shaohua?
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-		Linus

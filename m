@@ -1,87 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWFYKz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWFYK6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbWFYKz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 06:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWFYKz5
+	id S932347AbWFYK6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 06:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWFYK6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 06:55:57 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:8898 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932344AbWFYKz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 06:55:57 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Sun, 25 Jun 2006 12:53:55 +0200
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [Bugme-new] [Bug 6745] New: kernel hangs when trying to read  
- atip wiith cdrecord
-Message-ID: <449E6B43.nail9A11I1BV@burner>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 25 Jun 2006 06:58:16 -0400
+Received: from mx6.mail.ru ([194.67.23.26]:36656 "EHLO mx6.mail.ru")
+	by vger.kernel.org with ESMTP id S932347AbWFYK6P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 06:58:15 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATA driver patch for 2.6.17
+Date: Sun, 25 Jun 2006 14:58:10 +0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <1150740947.2871.42.camel@localhost.localdomain> <e79a9e$2kt$1@sea.gmane.org> <1150925002.15275.128.camel@localhost.localdomain>
+In-Reply-To: <1150925002.15275.128.camel@localhost.localdomain>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606251458.11824.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You did write:
+On Thursday 22 June 2006 01:23, Alan Cox wrote:
+> Ar Maw, 2006-06-20 am 21:12 +0400, ysgrifennodd Andrey Borzenkov:
+> > Running vanilla 2.6.17 + ide1 patch on ALi M5229 does not find CD-ROM.
+> > Notice "ata2: command 0xa0 timeout" below.
+>
 
->> Executing 'read buffer' command on Bus 1 Target 0, Lun 0 timeout 40s
->> CDB:  3C 00 00 00 00 00 00 FC 00 00
->> 
->> So the kernel doesn't timeout/return for some reason.
->> You can find the full log here:
->> http://muenchen-surf.de/lohmaier/cdrecord_atip_log
->> 
->> If that information is not enough to handle the process, please tell me what
->> else you need. Thank you.
->> 
+I also tried the Tejun Heo patch for 2.6.17 (wihout PM) + pata_ali from Jeff 
+Garik git tree with the same result; may be it gives more information about 
+the error:
 
->We seem to have an awful lot of these "CD burner doesn't work but it did in
->2.4" reports.
+libata version 1.30 loaded.
+ACPI: PCI Interrupt 0000:00:04.0[A]: no GSI
+ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xEFF0 irq 14
+scsi0 : pata_ali
+ata1.00: configured for UDMA/33
+  Vendor: ATA       Model: IC25N020ATDA04-0  Rev: DA3O
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xEFF8 irq 15
+scsi1 : pata_ali
+ata2.00: configured for UDMA/33
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata2.00: (BMDMA stat 0x21)
+ata2.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
+ata2: soft resetting port
+ata2.00: configured for UDMA/33
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata2.00: (BMDMA stat 0x21)
+ata2.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
+ata2: soft resetting port
+ata2.00: configured for UDMA/33
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata2.00: (BMDMA stat 0x21)
+ata2.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
+ata2: soft resetting port
+ata2.00: configured for UDMA/33
+ata2: EH complete
+ata2.00: limiting speed to UDMA/25
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata2.00: (BMDMA stat 0x21)
+ata2.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
+ata2: soft resetting port
+ata2.00: configured for UDMA/25
+ata2: EH complete
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
->Does anyone have the vaguest inklink of how we broke it?
-
-There are various reasons....
-
-One important problem of course is the fact that various distributors (e.g. 
-RedHat, Suse, Debian, Ubuntu) are ungrading cdrecord slower than the Linux 
-kernel changes it's interfaces. Related  to is problem: the Linux Kernel folks
-do not inform me before breaking Linux kernel interfaces, so I am informed too 
-late in order to add a workaround to cdrecord in time.
-
-The most recent interface changes have been:
-
--	Instead of fixing the bug that allowed anyone to send arbitrary SCSI 
-	commands to CD/DVD-recorders (caused by not requiring write permission
-	on the node), the behavior of SCSI generic was changed (in 2.6.8.1).
-
-	Old behavior: open device as root and send commands as user.
-	New behavior: open device as user and send commands as root.
-
--	Some time between January 2006 and 2004, a new rlimit "RLIMIT_NOFILE"
-	was added and implemented in a way that is not compatible to previous
-	kernel behavior.
-
-	Old behavior: mlockall(MCL_CURRENT|MCL_FUTURE) done as root was honored
-			for the same process if later continued as user.
-	New behavior: mlockall(MCL_CURRENT|MCL_FUTURE) done as root is no longer
-			honored for the same process if later continued as user.
-
-
-Another problem is caused by the fact that various distributors (e.g. RedHat, 
-Suse, Debian, Ubuntu) are applying patches to cdrecord that break cdrecord.
-
-
-The problem mentioned in this thread seems to be caused by the fact that
-Linux sometimes ignores timeouts. I have no idea how to help in this (timeout) 
-case.
-
-
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+iD8DBQFEnmxDR6LMutpd94wRAk7tAJ42j1L2FENW05f5SgbfFvSY9PJWDwCgjdwn
+0p11xgxTLdnddgjPtBHEGVM=
+=sZeN
+-----END PGP SIGNATURE-----

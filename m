@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWFYALm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWFYBAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWFYALm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 20:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWFYALm
+	id S1751312AbWFYBAs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 21:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWFYBAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 20:11:42 -0400
-Received: from hegel.brightdsl.net ([66.219.128.245]:36308 "EHLO
-	hegel.brightdsl.net") by vger.kernel.org with ESMTP
-	id S1751280AbWFYALm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 20:11:42 -0400
-Subject: Re: 2.6.17-...: looong writeouts
-From: Donald Parsons <dparsons@brightdsl.net>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060624173658.GB7565@martell.zuzino.mipt.ru>
-References: <1151166629.4409.18.camel@danny.parsons.org>
-	 <1151167852.3181.65.camel@laptopd505.fenrus.org>
-	 <20060624173658.GB7565@martell.zuzino.mipt.ru>
-Content-Type: text/plain
-Date: Sat, 24 Jun 2006 20:11:28 -0400
-Message-Id: <1151194288.4469.4.camel@danny.parsons.org>
+	Sat, 24 Jun 2006 21:00:48 -0400
+Received: from asteria.debian.or.at ([86.59.21.34]:1508 "EHLO
+	asteria.debian.or.at") by vger.kernel.org with ESMTP
+	id S1751312AbWFYBAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 21:00:48 -0400
+Date: Sun, 25 Jun 2006 03:00:47 +0200
+From: Peter Palfrader <peter@palfrader.org>
+To: linux-kernel@vger.kernel.org, openipmi-developer@lists.sourceforge.net
+Subject: Re: [Openipmi-developer] BUG: soft lockup detected on CPU#1, ipmi_si
+Message-ID: <20060625010047.GP3519@asteria.noreply.org>
+Mail-Followup-To: Peter Palfrader <peter@palfrader.org>,
+	linux-kernel@vger.kernel.org,
+	openipmi-developer@lists.sourceforge.net
+References: <20060613233521.GO22999@asteria.noreply.org> <44962116.70302@acm.org> <20060619093851.GL27377@asteria.noreply.org> <449AA320.3060700@acm.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <449AA320.3060700@acm.org>
+X-PGP: 1024D/94C09C7F 5B00 C96D 5D54 AEE1 206B  AF84 DE7A AF6E 94C0 9C7F
+X-Request-PGP: http://www.palfrader.org/keys/94C09C7F.asc
+X-Accept-Language: de, en
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-24 at 21:36 +0400, Alexey Dobriyan wrote:
-> On Sat, Jun 24, 2006 at 06:50:52PM +0200, Arjan van de Ven wrote:
-> > just a random question to rule things out: can you check if laptop mode
-> > is enabled? (see the /proc/sys/vm/laptop_mode file). Laptop mode will
-> > have the effect of grouping writes together, so if that got enabled
-> > accidentally for some reason, that could explain the behavior you are
-> > seeing. (and it would narrow down the "what broke" search problem to
-> > something that is a lot easier to work on)
+On Thu, 22 Jun 2006, Corey Minyard wrote:
+
+> Peter, can you make a code change for me and try something out?
 > 
-> Mine is not laptop and I've never enabled it.
-> 
+> If possible, could you change the call to udelay(1) in the function
+> ipmi_thread() in drivers/char/ipmi_si_intf.c to be a call to schedule()
+> instead?  I'm guessing that will fix this problem.
 
-Mine is a laptop T43 running FC3 and the mode is not enabled:
+That appears to work.  I can still get sensor data using ipmitool, and I
+haven't gotten any of the soft lockup warnings in 4 hours.
 
-# cat /proc/sys/vm/laptop_mode
-0
-
-I have rebooted to 2.6.17 and the problem is there too.  It
-happened when I tried to paste the above path from the mail.
-
-Don
-
+Thanks!
+-- 
+                           |  .''`.  ** Debian GNU/Linux **
+      Peter Palfrader      | : :' :      The  universal
+ http://www.palfrader.org/ | `. `'      Operating System
+                           |   `-    http://www.debian.org/

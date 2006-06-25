@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWFYRnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWFYRoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbWFYRnU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 13:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWFYRnU
+	id S964786AbWFYRoj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 13:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWFYRoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 13:43:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12247 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932431AbWFYRnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 13:43:19 -0400
-Subject: Re: [PATCH] i386: Fix softirq accounting with 4K stacks
-From: Arjan van de Ven <arjan@infradead.org>
-To: Mike Galbraith <efault@gmx.de>
-Cc: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-       linux-kernel@vger.kernel.org, danial_thom@yahoo.com,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1151257451.7858.45.camel@Homer.TheSimpsons.net>
-References: <1151128763.7795.9.camel@Homer.TheSimpsons.net>
-	 <1151130383.7545.1.camel@Homer.TheSimpsons.net>
-	 <20060624092156.GA13142@atjola.homenet>
-	 <1151142716.7797.10.camel@Homer.TheSimpsons.net>
-	 <1151149317.7646.14.camel@Homer.TheSimpsons.net>
-	 <20060624154037.GA2946@atjola.homenet>
-	 <1151166193.8516.8.camel@Homer.TheSimpsons.net>
-	 <20060624192523.GA3231@atjola.homenet>
-	 <1151211993.8519.6.camel@Homer.TheSimpsons.net>
-	 <20060625111238.GB8223@atjola.homenet>
-	 <20060625142440.GD8223@atjola.homenet>
-	 <1151257451.7858.45.camel@Homer.TheSimpsons.net>
-Content-Type: text/plain; charset=UTF-8
-Date: Sun, 25 Jun 2006 19:43:17 +0200
-Message-Id: <1151257397.4940.45.camel@laptopd505.fenrus.org>
+	Sun, 25 Jun 2006 13:44:38 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:27971 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964786AbWFYRoh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 13:44:37 -0400
+Date: Sun, 25 Jun 2006 19:43:59 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ck@vds.kolivas.org
+Subject: Re: 2.6.17-ck1: fcache problem...
+Message-ID: <20060625174358.GA21513@suse.de>
+References: <20060625093534.1700e8b6@localhost> <20060625102837.GC20702@suse.de> <20060625152325.605faf1f@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060625152325.605faf1f@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-25 at 19:44 +0200, Mike Galbraith wrote:
-> On Sun, 2006-06-25 at 16:24 +0200, Björn Steinbrink wrote:
+On Sun, Jun 25 2006, Paolo Ornati wrote:
+> On Sun, 25 Jun 2006 12:28:39 +0200
+> Jens Axboe <axboe@suse.de> wrote:
 > 
-> > Still no idea why your "fix" works, but the following patch also fixes
-> > the problem and is at least a little more like the RightThing.
+> > > [   26.673525] fcache: found serial 33, expected 34.
+> > > [   26.673529] fcache: reprime the cache!
+> > > [   26.673535] ext3: failed to open fcache (err=-22)
+> > 
+> > Hmm, and you are sure that the fs is properly umounted on reboot? Or is
+> > it just remounted ro? It looks like fcache_close_dev() isn't being
+> > called, so the cache serial doesn't match what we expect from the fs,
+> > hence fcache bails out since it could indicate that the fs has been
+> > changed without fcache being attached.
 > 
-> Yeah.  I don't know about you, but I fully intend to blatantly ignore
-> that 'why' ;-)
+> Ahh... it is the root fs and it's just remounted read-only by the
+> standard Gentoo scripts ;)
+> 
+> I don't think that unmounting it is trivial (you need to chroot to a
+> virtual FS or something...). Does any distro do it?
 
-the why is relatively easy ;)
+ro should be enough, something odd must be going on. I'll add it to the
+list of things to test tomorrow.
 
-since the "is a softirq executing" bit is on the stack, and each context
-(user, soft and hard irq) has their own stack, it's not automatic that
-the hardirq stack gets the softirq-executing flag... which your patch
-fixes.
+> > What kind of speedup did you see?
+> 
+> with cold caches...
+> 
+> NORMAL
+> from Grub to KDM login		42"5	(~6" to reach init)
+> KDE 3.5.3 startup		10"
+> Firefox				7"
+> 
+> FCACHE
+> from Grub to KDM login		31"4	(~6" to reach init)
+> KDE 3.5.3 startup		4"
+> Firefox				2"4
 
-NMI's and apic irqs generally don't go via the normal irq path and thus
-don't do a stack switch... so they don't lose the bit (for accounting
-purposes)
+Very nice!
 
+-- 
+Jens Axboe
 

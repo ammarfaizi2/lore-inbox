@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWFYVVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbWFYVWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWFYVVL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 17:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWFYVVL
+	id S1751030AbWFYVWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 17:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWFYVWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 17:21:11 -0400
-Received: from xenotime.net ([66.160.160.81]:46781 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750747AbWFYVVK (ORCPT
+	Sun, 25 Jun 2006 17:22:16 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:2206 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751019AbWFYVWP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 17:21:10 -0400
-Date: Sun, 25 Jun 2006 14:23:57 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: toralf.foerster@gmx.de, linux-kernel@vger.kernel.org, haveblue@us.ibm.com,
-       y-goto@jp.fujitsu.com
-Subject: Re: linux-2.6.17.1: undefined reference to `online_page'
-Message-Id: <20060625142357.93036593.rdunlap@xenotime.net>
-In-Reply-To: <200606251704_MC3-1-C36D-5D33@compuserve.com>
-References: <200606251704_MC3-1-C36D-5D33@compuserve.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sun, 25 Jun 2006 17:22:15 -0400
+Date: Sun, 25 Jun 2006 23:21:13 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rjw@sisk.pl, davej@redhat.com, linux-kernel@vger.kernel.org,
+       sekharan@us.ibm.com, rusty@rustcorp.com.au, rdunlap@xenotime.net
+Subject: Re: 2.6.17-mm2
+Message-ID: <20060625212113.GA13702@mars.ravnborg.org>
+References: <20060624061914.202fbfb5.akpm@osdl.org> <20060624172014.GB26273@redhat.com> <20060624143440.0931b4f1.akpm@osdl.org> <200606251051.55355.rjw@sisk.pl> <20060625032243.fcce9e2e.akpm@osdl.org> <20060625081610.9b0a775a.akpm@osdl.org> <20060625182352.GB17945@mars.ravnborg.org> <20060625114051.e9d5cbde.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060625114051.e9d5cbde.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jun 2006 17:01:22 -0400 Chuck Ebbert wrote:
-
-> In-Reply-To: <200606231001.33766.toralf.foerster@gmx.de>
-> 
-> On Fri, 23 Jun 2006 10:01:33 +0200, Toralf Foerster wrote:
-> 
-> > I got the compile error :
+On Sun, Jun 25, 2006 at 11:40:51AM -0700, Andrew Morton wrote:
+ > > 
+> > > IOW, any reference from __ksymtab, __ksymtab_gpl or __ksymtab_gpl_future
+> > > into __init or __initdata should be a hard error.
+> > We could let modpost error out. Then the module does not get build but
+> > we detect it a bit later than optimal.
 > > 
-> > ...
-> >   UPD     include/linux/compile.h
-> >   CC      init/version.o
-> >   LD      init/built-in.o
-> >   LD      .tmp_vmlinux1
-> > mm/built-in.o: In function `online_pages':
-> > : undefined reference to `online_page'
-> > make: *** [.tmp_vmlinux1] Error 1
-> > 
-> > with this config:
 > 
-> > CONFIG_X86_32=y
-> 
-> > CONFIG_NOHIGHMEM=y
-> 
-> > CONFIG_SPARSEMEM_MANUAL=y
-> > CONFIG_SPARSEMEM=y
-> > CONFIG_HAVE_MEMORY_PRESENT=y
-> > CONFIG_SPARSEMEM_STATIC=y
-> > CONFIG_MEMORY_HOTPLUG=y
-> 
-> Yes, that config is broken. mm/memory_hotplug.c::online_pages() calls
-> online_page() but without HIGHMEM that doesn't get built and no dummy
-> function gets defined.
+> Well, it doesn't have anything to do with modules per-se.  When vmlinux is
+> post-processed we want to error out if vmlinux is exporting any
+> __init/__initdata symbols to modules.
 
-Toralf, was this from a random config file?  (make randconfig)
+modpost has evolved over time and when I get the time I will refactor
+kbuild so we always call modpost in the final steps of the kernel build
+independent on module support or not. And then is makes perfect sense
+to have the check for exported symbols from illegal sections located
+there.
+In other words current modpost will be used also when
+executing "make vmlinux". That impose a few tricky things and I have
+posponed it for now. Implementing the suggested check should be possible
+and will try to look at that sooner.
 
-It's certainly not just a 2.6.17.1 problem.  .1 didn't change this.
+	Sam
 
----
-~Randy

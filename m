@@ -1,77 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWFYEcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWFYFC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWFYEcX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 00:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFYEcX
+	id S1751383AbWFYFC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 01:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWFYFC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 00:32:23 -0400
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:39791 "HELO
-	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751387AbWFYEcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 00:32:22 -0400
-From: David Brownell <david-b@pacbell.net>
-To: jg@laptop.org
-Subject: Re: [linux-pm] [PATCH] get USB suspend to work again on 2.6.17-mm1
-Date: Sat, 24 Jun 2006 21:32:18 -0700
-User-Agent: KMail/1.7.1
-Cc: Greg KH <greg@kroah.com>, Mattia Dongili <malattia@linux.it>,
-       Jiri Slaby <jirislaby@gmail.com>, linux-pm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-References: <20060622202952.GA14135@kroah.com> <200606222034.44085.david-b@pacbell.net> <1151203377.15365.389.camel@localhost.localdomain>
-In-Reply-To: <1151203377.15365.389.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606242132.19907.david-b@pacbell.net>
+	Sun, 25 Jun 2006 01:02:59 -0400
+Received: from mail.gmx.de ([213.165.64.21]:12512 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751383AbWFYFC6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 01:02:58 -0400
+X-Authenticated: #14349625
+Subject: Re: Measuring tools - top and interrupts
+From: Mike Galbraith <efault@gmx.de>
+To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: danial_thom@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060624192523.GA3231@atjola.homenet>
+References: <20060622165808.71704.qmail@web33303.mail.mud.yahoo.com>
+	 <1151128763.7795.9.camel@Homer.TheSimpsons.net>
+	 <1151130383.7545.1.camel@Homer.TheSimpsons.net>
+	 <20060624092156.GA13142@atjola.homenet>
+	 <1151142716.7797.10.camel@Homer.TheSimpsons.net>
+	 <1151149317.7646.14.camel@Homer.TheSimpsons.net>
+	 <20060624154037.GA2946@atjola.homenet>
+	 <1151166193.8516.8.camel@Homer.TheSimpsons.net>
+	 <20060624192523.GA3231@atjola.homenet>
+Content-Type: text/plain; charset=utf-8
+Date: Sun, 25 Jun 2006 07:06:33 +0200
+Message-Id: <1151211993.8519.6.camel@Homer.TheSimpsons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 June 2006 7:42 pm, Jim Gettys wrote:
-> On Thu, 2006-06-22 at 20:34 -0700, David Brownell wrote:
+On Sat, 2006-06-24 at 21:25 +0200, Björn Steinbrink wrote:
+> On 2006.06.24 18:23:12 +0200, Mike Galbraith wrote:
+> > 
+> > let's see.  Yeah, confirmed.
 > 
-> > Under what scenario could it possibly be legitimate to suspend a
-> > usb device -- or interface, or anything else -- with its children
-> > remaining active?  The ability to guarantee that could _never_ happen
-> > was one of the fundamental motivations for the driver model ...
-> 
-> I'm not sure this directly applies, but....
+> OK, it also depends on IO APIC being enabled and active, ie. noapic on
+> the kernel command line will fix it as well as disabling
+> CONFIG_X86_IO_APIC. That doesn't help me at all to understand why it
+> happens though.
 
-It's not a counterexample, but it may be an interesting example of
-the sort of loosely coupled multiprocessor that gets more common.
-The different processors use different power management schemes.
-(I think an ACPI "embedded processor" has related issues.)
+Ditto.
 
+> The only difference with IO APIC disabled seems to be that the irq
+> doesn't get ACKed before update_process_times() gets called.
+> And your "fix" makes it being called outside of the xtime_lock spinlock
+> and with a slightly different stack usage AFAICT.
 
-> The Marvell wireless chip we're using this generation in the OLPC
-> machine is interfaced via USB.  Not ideal, but there's no other game in
-> town to let us keep the mesh network up while the main machine is STR.
+(it's still under the xtime lock)
 
-So presumably it's both "self" powered (so far as the parent hub is
-concerned!) and also has some kind of cpu and firmware.  I'll assume
-this chipset is used with discrete products too, not only for wiring to
-motherboards.  (Despite the board layout advantages of using serial
-interfaces:  fewer high speed signal lines, etc.)
+> But none of these should make a difference, right?
 
+Not that I can see, but then it's pretty dark down here.  Anybody got a
+flashlight I can borrow? ;-)
 
-> We intend to leave the Marvell chip on (it can forward packets in the
-> mesh network, and/or wake up the CPU if there are inbound packets for
-> the machine that matter), and turn off the USB interface it is attached
-> to.
+	-Mike
 
-The normal way to do such things -- from the perspective of the firmware
-inside a USB peripheral doing that routing etc -- recognizes that the
-USB suspend state affects only the upstream link, and uses remote wakeup
-signaling in the normal fashion.  (An SPI or I2C/SMBUS based coprocessor
-probably needs an IRQ signal line.)
-
-That is, from the perspective of the host CPU, it's suspended normally.
-Just like any other USB device (like I sketched above).
-
-But the peripheral's CPU can continue doing whatever it likes ... which
-doesn't necessarily include stopping.  Bus powered USB peripherals would
-probably try to suspend their CPUs though, since otherwise it may be hard
-to meet the 500 microAmpere power budget.
-
-- Dave

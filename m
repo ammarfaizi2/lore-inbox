@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWFYJh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWFYJif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWFYJh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 05:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWFYJh5
+	id S932215AbWFYJif (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 05:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWFYJif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 05:37:57 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:4007 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932186AbWFYJh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 05:37:56 -0400
+	Sun, 25 Jun 2006 05:38:35 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:58459 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932215AbWFYJie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 05:38:34 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=JsjTJRUSfxN2wfsmst+E1rOujtPWO9wItVsVs3qBM6m1QkkOlDJRxujcreON44Bw5lsh3XvgUtdk5opFtqZxlD8CUpnLOy5Oz5MJlYv16s1DB60+gdz57+G7fZWgjP0LpsuglC0dcWZSonWAJs63l1o/XRtXl0FBN7V9hZMGUV0=
-Message-ID: <986ed62e0606250237w1e2f759bgdf255e407e873c4f@mail.gmail.com>
-Date: Sun, 25 Jun 2006 02:37:56 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Reuben Farrelly" <reuben-lkml@reub.net>
-Subject: Re: 2.6.17-mm2
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <449E27F2.100@reub.net>
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=cDoQ+06wYqmfoIovwD0bzyjnAmwZWwBCUwE7aDh/1/vRhXhdM/BFj2L+M108E5EiaJC++nyPT1JzksJN7uTPcqdw89qjO1G+wlb9DtQD7pVmzJL/HHoGT1MOjoBPBimPkr3yv1wzI8CX9kQb6TPnF4YINtJ05jy15PIgKkcz4Lc=
+Date: Sun, 25 Jun 2006 11:38:26 +0200
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Darren Reed <darrenr@reed.wattle.id.au>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11: spinlock problem
+Message-ID: <20060625093826.GC1181@slug>
+References: <Pine.LNX.4.61.0606231331310.16810@chaos.analogic.com> <200606240247.k5O2lU3C009083@firewall.reed.wattle.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060624061914.202fbfb5.akpm@osdl.org> <449E27F2.100@reub.net>
-X-Google-Sender-Auth: 18a6688f06cb8817
+In-Reply-To: <200606240247.k5O2lU3C009083@firewall.reed.wattle.id.au>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/24/06, Reuben Farrelly <reuben-lkml@reub.net> wrote:
-> 2.6.17-mm1 was a no-go for me due to the bustage with ReiserFS and bitmaps, even
-> the hotfix didn't seem to fix that...  :-(
+On Sat, Jun 24, 2006 at 12:47:30PM +1000, Darren Reed wrote:
+> I believe I'm hitting a race condition of sorts...I just don't know
+> who owns it yet - vmware or linux and I cant test running linux
+> natively at present because I only have one computer.
+> 
+You could try ruuning your code in QEMU http://fabrice.bellard.free.fr/qemu/, 
+that would help indentifying the culprit.
 
-Take 2.6.17-mm1, apply the hotfix, then apply this patch from 2.6.17-mm2 also:
-
-http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm2/broken-out/reiserfs-reorganize-bitmap-loading-functions-fix2.patch
-
-That should make 2.6.17-mm1's reiserfs work. (This way you can at
-least see whether your 2.6.17-mm2 bug happens under -mm1 as well.)
--- 
--Barry K. Nathan <barryn@pobox.com>
+Regards,
+Frederik

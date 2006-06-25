@@ -1,104 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWFYK0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWFYK3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWFYK0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 06:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWFYK0Y
+	id S932317AbWFYK3R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 06:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWFYK3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 06:26:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5284 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932230AbWFYK0X (ORCPT
+	Sun, 25 Jun 2006 06:29:17 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29806 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932317AbWFYK3Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 06:26:23 -0400
-Date: Sun, 25 Jun 2006 03:22:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org, sekharan@us.ibm.com,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: 2.6.17-mm2
-Message-Id: <20060625032243.fcce9e2e.akpm@osdl.org>
-In-Reply-To: <200606251051.55355.rjw@sisk.pl>
-References: <20060624061914.202fbfb5.akpm@osdl.org>
-	<20060624172014.GB26273@redhat.com>
-	<20060624143440.0931b4f1.akpm@osdl.org>
-	<200606251051.55355.rjw@sisk.pl>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sun, 25 Jun 2006 06:29:16 -0400
+Date: Sun, 25 Jun 2006 12:28:39 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ck@vds.kolivas.org
+Subject: Re: 2.6.17-ck1: fcache problem...
+Message-ID: <20060625102837.GC20702@suse.de>
+References: <20060625093534.1700e8b6@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060625093534.1700e8b6@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jun 2006 10:51:55 +0200
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-
-> > > 
-> > 
-> > My guess would be that cpufreq_register_driver() is being called after it
-> > has been unloaded from the kernel.
-> > 
-> > Do you have CONFIG_CPU_FREQ=y?
+On Sun, Jun 25 2006, Paolo Ornati wrote:
+> Hello,
 > 
-> Yes.
+> I'm trying to get fcache (2.6.17-ck1) working on my machine, but it
+> works just once ;)
 > 
-> > Does removal of the __cpuinit from cpufreq_register_driver() fix it (or
-> > move the crash elsewhere)?
+> In Gentoo the root fs is remounted rw in "checkroot" init script, so
+> I've done this:
 > 
-> Yes (makes it go away).
-
-Well it would appear that the new __cpuinit on cpufreq_register_driver() is
-causing the problem, although I'm surprised that you don't have
-CONFIG_HOTPLUG_CPU set, if it's a swsusp requirement??
-
-> > Do you get any section mismatch warnings at build-time?
+> --- /etc/init.d/checkroot.orig  2006-06-24 18:47:41.000000000 +0200
+> +++ /etc/init.d/checkroot       2006-06-25 09:17:52.000000000 +0200
+> @@ -70,8 +70,10 @@
+>         if mount -vf -o remount / 2> /dev/null | \
+>            awk '{ if ($6 ~ /rw/) exit 0; else exit 1; }'
+>         then
+> -               ebegin "Remounting root filesystem read/write"
+> -               mount -n -o remount,rw / &> /dev/null
+> +               ebegin "Remounting root filesystem read/write (FCACHE)"
+> +               # try with fcache
+> +               mount -n -o remount,rw,fcache_dev=8/10,fcache_prime=0 / &> /dev/null || \
+> +                       mount -n -o remount,rw / &> /dev/null
+>                 if [[ $? -ne 0 ]] ; then
+>                         eend 2 "Root filesystem could not be mounted read/write :("
+>                         if [[ ${RC_FORCE_AUTO} != "yes" ]] ; then
 > 
-> Only this one:
-> WARNING: drivers/acpi/processor.o - Section mismatch: reference to .init.data: from .text between 'acpi_processor_power_init' (at offset 0x1164) and 'acpi_processor_power_exit'
 > 
+> 1) priming - it works
+> 
+> [  167.488268] fcache: ios r/w 8304/4747, hits 0, misses 0, overwrites 1217
+> [  167.882597] fcache: wrote 8304 extents, holding 347648 sectors of data
+> [  167.899555] fcache: wrote header (extents=8304,serial=33)
+> 
+> "remounting with priming=0"
+> 
+> [  167.905498] fcache: header looks valid (extents=8304 extents, serial=33)
+> [  167.928273] fcache: loaded 8304 extents
+> [  167.928320] fcache: sda10 opened successfully (not priming)
+> 
+> 
+> 2) first boot with priming=0 - it works! Great speedup :)
+> 
+> [   37.845964] fcache: header looks valid (extents=8304 extents, serial=33)
+> [   37.874101] fcache: loaded 8304 extents
+> [   37.874105] fcache: sda10 opened successfully (not priming)
+> 
+> 
+> 3) reboot - it doesn't work anymore :(
+> 
+> [   26.673525] fcache: found serial 33, expected 34.
+> [   26.673529] fcache: reprime the cache!
+> [   26.673535] ext3: failed to open fcache (err=-22)
 
-That's a false-positive - the code in there is, I think, OK:
+Hmm, and you are sure that the fs is properly umounted on reboot? Or is
+it just remounted ro? It looks like fcache_close_dev() isn't being
+called, so the cache serial doesn't match what we expect from the fs,
+hence fcache bails out since it could indicate that the fs has been
+changed without fcache being attached.
 
-	static int first_run;
+What kind of speedup did you see?
 
-	...
+-- 
+Jens Axboe
 
-	if (!first_run) {
-		dmi_check_system(processor_power_dmi_table);
-		...
-		first_run++;
-	}
-
-The warning is about the reference to processor_power_dmi_table.  But as
-long as the first call to acpi_processor_power_init() happens prior to
-free_initmem(), we won't actually try to touch the unloaded memory.
-
-It's fragile and nasty though - it'd be nice to sort it out.
-
-
-Anyway.  It's regrettable that the new section-checking code didn't
-complain about the bug.  It looks like this is because the call to
-cpufreq_register_driver() happened at modprobe-time, and we don't check for
-that.  Which is rather bad.
-
-Sam, would it be possible to check for references from modules into
-statically-linked __init code?  It's always wrong...
-
-Rusty/Randy/whoever looks after modules: it also seems wrong that it's
-possible to load a module which refers to now-unloaded symbols.  In fact,
-it's surprising - sorry if I'm misinterpreting this.  If I'm not, it should
-be pretty easy to barf if a module is trying to get at symbols which lie
-between __init_begin and __init_end?
-
-Chandra, this is scary stuff.  I'll tempdrop those patches until we can get
-the kbuild/modprobe infrastructure in place which will allow us to fully
-check your sectioning changes at depmod/modprobe time.
-
-<thinks>
-
-Actually, it should still be possible to do this - simply do a `make
-allyesconfig; make' with the patches unapplied, then do it with the patches
-applied and then look for the differences in the warnings.
-
-Need to do this with various combinations of CONFIG_MODULES,
-CONFIG_HOTPLUG, CONFIG_HOTPLUG_CPU, CONFIG_MEMORY_HOTPLUG,
-CONFIG_ACPI_HOTPLUG_MEMORY and CONFIG_ACPI_HOTPLUG_MEMORY_MODULE.

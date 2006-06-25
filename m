@@ -1,62 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWFYWeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965653AbWFYW4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWFYWeW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 18:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWFYWeW
+	id S965653AbWFYW4F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 18:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965647AbWFYW4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 18:34:22 -0400
-Received: from 1wt.eu ([62.212.114.60]:19209 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1750766AbWFYWeV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 18:34:21 -0400
-Date: Mon, 26 Jun 2006 00:22:43 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Andi Kleen <ak@suse.de>
-Cc: Jesper Dangaard Brouer <hawk@diku.dk>,
-       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-Message-ID: <20060625222243.GJ13255@w.ods.org>
-References: <4492D5D3.4000303@atmos.washington.edu> <44948EF6.1060201@atmos.washington.edu> <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk> <200606191724.31305.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606191724.31305.ak@suse.de>
-User-Agent: Mutt/1.5.10i
+	Sun, 25 Jun 2006 18:56:04 -0400
+Received: from web50406.mail.yahoo.com ([206.190.38.71]:36775 "HELO
+	web50406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932411AbWFYW4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 18:56:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=4eebEUhwAUevA3BYznKwRuZ/FkGvw/WEHikieC9SP2GkTUeucMtlnllmXGsbRULzDdVQDZGTzhgfCBzbbsEd6D2Hkrp3lrqW/fEPnqihgzyCiUpr5l7bEzV1aAEB+BxyASBaBYDvwO4oXGeKIOvUPKxdBl8RRZc+sa6Z4hV9dW0=  ;
+Message-ID: <20060625225557.76929.qmail@web50406.mail.yahoo.com>
+Date: Sun, 25 Jun 2006 15:55:56 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: Kernel panic when re-inserting Adaptec PCMCIA card
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
+--- Alex Davis <alex14641@yahoo.com> wrote:
 
-On Mon, Jun 19, 2006 at 05:24:31PM +0200, Andi Kleen wrote:
+> --- Alex Davis <alex14641@yahoo.com> wrote:
 > 
-> > If you use "pmtmr" try to reboot with kernel option "clock=tsc".
-> 
-> That's dangerous advice - when the system choses not to use
-> TSC it often has a reason.
-> 
+> > --- Chuck Ebbert <76306.1226@compuserve.com> wrote:
 > > 
-> > On my Opteron AMD system i normally can route 400 kpps, but with 
-> > timesource "pmtmr" i could only route around 83 kpps.  (I found the timer 
-> > to be the issue by using oprofile).
-> 
-> Unless you're using packet sniffing or any other application
-> that requests time stamps on a socket then the timer shouldn't 
-> make much difference. Incoming packets are only time stamped
-> when someone asks for the timestamps.
+> > > In-Reply-To: <20060614022139.21737.qmail@web50208.mail.yahoo.com>
+> > > 
+> > > On Tue, 13 Jun 2006 19:21:39 -0700, Alex Davis wrote:
+> > > 
+> > > Same panic occurs in 2.6.17rc6:
+> > > 
+> > > > Jun 13 17:50:36 siafu kernel: [4295220.230000] pccard: PCMCIA card inserted into slot 0
+> > > > Jun 13 17:50:36 siafu kernel: [4295220.230000] pcmcia: registering new device pcmcia0.0
+> > > > Jun 13 17:50:37 siafu kernel: [4295220.281000] aha152x: resetting bus...
+> > > > Jun 13 17:50:37 siafu kernel: [4295220.637000] aha152x13: vital data: rev=1, io=0xd340
+> > > > (0xd340/0xd340), irq=3, scsiid=7, reconnect=enabled,
+> > > >  parity=enabled, synchronous=enabled, delay=100, extended translation=disabled
+> > > > Jun 13 17:50:37 siafu kernel: [4295220.637000] aha152x13: trying software interrupt, ok.
+> > > > Jun 13 17:50:37 siafu kernel: [4295221.638000] scsi13 : Adaptec 152x SCSI driver;
+> $Revision:
+> > > 2.7 $
+> > > > Jun 13 17:50:37 siafu kernel: [4295221.650000]
+> > > > Jun 13 17:50:37 siafu kernel: [4295221.650000] aha152x22856: bottom-half already running!?
+> > > > Jun 13 17:50:37 siafu kernel: [4295221.650000]
+> > > > Jun 13 17:50:37 siafu kernel: [4295221.650000] queue status:
+> > > > Jun 13 17:50:37 siafu kernel: [4295221.650000] issue_SC:
+> > > > Jun 13 17:50:37 siafu kernel: [4295221.650000] current_SC:
+> > > > Jun 13 17:50:37 siafu kernel: [4295221.650000] BUG: unable to handle kernel paging request
+> > at
+> > > > virtual address 00020016
+> > > 
+> > > Something is going very wrong here.  At time .637 it says it is
+> > > adapter number 13 (aha152x13.)  Then at .650 it thinks it's
+> > > adapter nr. 22856 (!)  Looks like some kind of pointer to the
+> > > hostdata is corrupted.
+> > > 
+> > > Can you rmmod the driver after removing the card and see if that
+> > > helps?
+> > > 
+> > It turns out I was trying to remove the driver before doing 'pccardctl eject'.
+> > 
+> > It seems that removing the driver after ejecting make the problem go away:
+> > I ejected and re-inserted the card six times with no crash.
+> > 
+> > I'll continue testing just to make sure.
 
-I encountered the same problem on a dual core opteron equipped with a
-broadcom NIC (tg3) under 2.4. It could receive 1 Mpps when using TSC
-as the clock source, but the time jumped back and forth, so I changed
-it to 'notsc', then the performance dropped dramatically to around the
-same value as above with one CPU saturated. I suspect that the clock
-precision is needed by the tg3 driver to correctly decide to switch to
-polling mode, but unfortunately, the performance drop rendered the
-solution so much unusable that I finally decided to use it only in
-uniprocessor with TSC enabled.
+I now know what the problem is.
 
-> -Andi
+In drivers/scsi/aha152x.c, there is an array of two scsi hosts:
+        static struct Scsi_Host *aha152x_host[2];
+There is also the aha152x_probe_one method.
 
-Regards,
-Willy
+The problem is that each re-insert of the card creates a new 'host' via aha152x_probe_one,
+which increments the registered_count variable. This variable is used as an index into the afore-
+mentioned 2-element host array. When registered_count is 2 or greater we're in no-man's land,
+hence the crashes. I'm currently testing a fix for this, which I hope to post soon.
 
+-Alex
+
+I code, therefore I am
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWFYT2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbWFYTcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWFYT2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 15:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWFYT2r
+	id S1751391AbWFYTcX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 15:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWFYTcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 15:28:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56742 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750803AbWFYT2q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 15:28:46 -0400
-Date: Sun, 25 Jun 2006 12:28:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
-       nfsv4@linux-nfs.org
-Subject: Re: [GIT] Please pull NFS updates...
-In-Reply-To: <1151232744.13127.40.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.64.0606251218500.3747@g5.osdl.org>
-References: <1151232744.13127.40.camel@lade.trondhjem.org>
+	Sun, 25 Jun 2006 15:32:23 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:24593 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751391AbWFYTcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 15:32:23 -0400
+Date: Sun, 25 Jun 2006 21:32:21 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Vivek Goyal <vgoyal@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, mike.miller@hp.com, iss_storagedev@hp.com,
+       hbabu@us.ibm.com, fastboot@lists.osdl.org
+Subject: 2.6.17-mm2: BLK_CPQ_CISS_DA=m error
+Message-ID: <20060625193220.GE23314@stusta.de>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060624061914.202fbfb5.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 25 Jun 2006, Trond Myklebust wrote:
+On Sat, Jun 24, 2006 at 06:19:14AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.17-mm1:
+>...
+> +kdump-cciss-driver-initialization-issue-fix.patch
 > 
-> Please pull from the repository at
-> 
->    git pull git://git.linux-nfs.org/pub/linux/nfs-2.6.git
+>  Unpleasant kdump patches.
+>...
 
-This is broken.
+This patch breaks CONFIG_BLK_CPQ_CISS_DA=m:
 
-	  CC      fs/nfs/nfs2xdr.o
-	In file included from fs/nfs/nfs2xdr.c:28:
-	fs/nfs/internal.h:7: error: redefinition of 'struct nfs_clone_mount'
-	fs/nfs/internal.h:99: error: redefinition of 'nfs4_path'
-	fs/nfs/internal.h:99: error: previous definition of 'nfs4_path' was here
-	fs/nfs/internal.h:113: error: redefinition of 'nfs_devname'
-	fs/nfs/internal.h:113: error: previous definition of 'nfs_devname' was here
-	fs/nfs/internal.h:122: error: redefinition of 'nfs_block_bits'
-	fs/nfs/internal.h:122: error: previous definition of 'nfs_block_bits' was here
-	fs/nfs/internal.h:141: error: redefinition of 'nfs_calc_block_size'
-	fs/nfs/internal.h:141: error: previous definition of 'nfs_calc_block_size' was here
-	fs/nfs/internal.h:151: error: redefinition of 'nfs_block_size'
-	fs/nfs/internal.h:151: error: previous definition of 'nfs_block_size' was here
-	fs/nfs/internal.h:165: error: redefinition of 'nfs_super_set_maxbytes'
-	fs/nfs/internal.h:165: error: previous definition of 'nfs_super_set_maxbytes' was here
-	fs/nfs/internal.h:175: error: redefinition of 'valid_ipaddr4'
-	fs/nfs/internal.h:175: error: previous definition of 'valid_ipaddr4' was here
-	make[2]: *** [fs/nfs/nfs2xdr.o] Error 1
-	make[1]: *** [fs/nfs] Error 2
-	make: *** [fs] Error 2
+<--  snip  -->
 
-Looks like a merge error, causing that "internal.h" file to be included
-twice. 
+...
+if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map  2.6.17-mm2; fi
+WARNING: /lib/modules/2.6.17-mm2/kernel/drivers/block/cciss.ko needs unknown symbol crash_boot
 
-Alternatively, you're applying patches without "--fuzz=0", which allowed
-Andrew's "git-nfs-build-fixes" patch to be applied wice.
+<--  snip  -->
+ 
+cu
+Adrian
 
-In either case, it came from your tree, and had apparently never even
-been compile-tested. 
+-- 
 
-Tssk, tssk..
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-		Linus

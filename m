@@ -1,193 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWFYTsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965319AbWFYTve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWFYTsO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 15:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965319AbWFYTsO
+	id S965319AbWFYTve (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 15:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965351AbWFYTve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 15:48:14 -0400
-Received: from nz-out-0102.google.com ([64.233.162.206]:21465 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964878AbWFYTsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 15:48:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EI7OUXJRe5+Y7Xo15lMuaruQC/fdK5sJ9da4ppXwu9MaK2vaRKgwa9lAELDr4o/wkW5gfpzUj9TpZP5zDJ4YgKLPVoVtFeqvUWRB9+15i7d7MfVErVBcvXsShhUZt6dbZV7p8EWZMofWKTSiixKVvsSGN+E/OqdlqO3OewJ5A0U=
-Message-ID: <9e4733910606251248l2b80af8dp817aa7f39c393be8@mail.gmail.com>
-Date: Sun, 25 Jun 2006 15:48:12 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Subject: Re: [PATCH] Kconfig for radio cards to allow VIDEO_V4L1_COMPAT
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060625182147.GA17945@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 25 Jun 2006 15:51:34 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:58343 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965319AbWFYTvd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 15:51:33 -0400
+Date: Sun, 25 Jun 2006 21:46:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, Ralf.Hildebrandt@charite.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problem with 2.6.17-mm2
+Message-ID: <20060625194639.GB11494@elte.hu>
+References: <20060625103523.GY27143@charite.de> <20060625034913.315755ae.akpm@osdl.org> <1151256246.25491.398.camel@localhost.localdomain> <20060625103246.a309d67b.akpm@osdl.org> <1151257123.25491.404.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9e4733910606251040v62675399gdfe438aaac691a5a@mail.gmail.com>
-	 <20060625182147.GA17945@mars.ravnborg.org>
+In-Reply-To: <1151257123.25491.404.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-n Kconfig all of the radio cards depend on VIDEO_V4L1. But V4L1 has
-been deprecated and replaced with V4L2. V4L2 offers a V4L1
-compatibility layer. Should the Kconfig for these devices be changed
-to depend on (VIDEO_V4L1. || VIDEO_V4L1_COMPAT)? I'm not the
-maintainer for this but they seem to build ok. New version that
-combines the test for VIDEO_V4L1 || VIDEO_V4L1_COMPAT.
 
-Signed-off-by: Jon Smirl <jonsmirl@gmail.com
+* Thomas Gleixner <tglx@linutronix.de> wrote:
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> On Sun, 2006-06-25 at 10:32 -0700, Andrew Morton wrote:
+> > > So in fact this just silently acks spurious interrupts which have an
+> > > hw_irq_controller assigned. If there is no action, then nothing has
+> > > called setup_irq/request_irq for this interrupt line and therefor it is
+> > > an spurious interrupt which should not happen.
+> > > 
+> > > 
+> > > genirq makes these visible and informs noisily about those events. 
+> > > 
+> > 
+> > hm, OK.  I guess we can let it ride for now.  Later we can decide whether
+> > we need to shut that warning up.  I suspect we should, if the machine's
+> > working OK.
+> 
+> We can make it once per IRQ.
 
+yeah. A bit more sophisticated method would be to use a new sticky 
+IRQ_SPURIOUS bit and only print a warning if it goes from 0 to 1. 
+Whenever a real handler is installed the bit gets cleared. This will 
+make behavior a bit more deterministic than 'once per bootup', and it 
+will still not spam the box with printks. (Or never let that bit go from 
+1 to 0 - this effectively implements the once-per-bootup warning.)
 
-diff --git a/drivers/media/radio/Kconfig b/drivers/media/radio/Kconfig
-index de3128a..26044a5 100644
---- a/drivers/media/radio/Kconfig
-+++ b/drivers/media/radio/Kconfig
-@@ -4,10 +4,15 @@ #
+> In fact I think the original behaviour is a BUG. You have no chance to 
+> notice that your box gets flooded by such interrupts. With my 
+> willingly asserted spurious interrupts the box simply stalls in a 
+> flood of interrupts without any notice.
 
- menu "Radio Adapters"
- 	depends on VIDEO_DEV!=n
--
-+	
-+# Use either the V4L1 layer or the V4L1 compatibility layer from V4L2
-+config RADIO_V4L1
-+	def_bool y
-+	depends on VIDEO_V4L1 || VIDEO_V4L1_COMPAT
-+	
- config RADIO_CADET
- 	tristate "ADS Cadet AM/FM Tuner"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	---help---
- 	  Choose Y here if you have one of these AM/FM radio cards, and then
- 	  fill in the port address below.
-@@ -25,7 +30,7 @@ config RADIO_CADET
+hm, doesnt note_interrupt()/irqpoll detect and handle this to a certain 
+degree?
 
- config RADIO_RTRACK
- 	tristate "AIMSlab RadioTrack (aka RadioReveal) support"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards, and then fill
- 	  in the port address below.
-@@ -59,7 +64,7 @@ config RADIO_RTRACK_PORT
-
- config RADIO_RTRACK2
- 	tristate "AIMSlab RadioTrack II support"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	---help---
- 	  Choose Y here if you have this FM radio card, and then fill in the
- 	  port address below.
-@@ -82,7 +87,7 @@ config RADIO_RTRACK2_PORT
-
- config RADIO_AZTECH
- 	tristate "Aztech/Packard Bell Radio"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards, and then fill
- 	  in the port address below.
-@@ -106,7 +111,7 @@ config RADIO_AZTECH_PORT
-
- config RADIO_GEMTEK
- 	tristate "GemTek Radio Card support"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	---help---
- 	  Choose Y here if you have this FM radio card, and then fill in the
- 	  port address below.
-@@ -131,7 +136,7 @@ config RADIO_GEMTEK_PORT
-
- config RADIO_GEMTEK_PCI
- 	tristate "GemTek PCI Radio Card support"
--	depends on VIDEO_V4L1 && PCI
-+	depends on RADIO_V4L1 && PCI
- 	---help---
- 	  Choose Y here if you have this PCI FM radio card.
-
-@@ -145,7 +150,7 @@ config RADIO_GEMTEK_PCI
-
- config RADIO_MAXIRADIO
- 	tristate "Guillemot MAXI Radio FM 2000 radio"
--	depends on VIDEO_V4L1 && PCI
-+	depends on RADIO_V4L1 && PCI
- 	---help---
- 	  Choose Y here if you have this radio card.  This card may also be
- 	  found as Gemtek PCI FM.
-@@ -160,7 +165,7 @@ config RADIO_MAXIRADIO
-
- config RADIO_MAESTRO
- 	tristate "Maestro on board radio"
--	depends on VIDEO_V4L1
-+	depends on RADIO_V4L1
- 	---help---
- 	  Say Y here to directly support the on-board radio tuner on the
- 	  Maestro 2 or 2E sound card.
-@@ -175,7 +180,7 @@ config RADIO_MAESTRO
-
- config RADIO_MIROPCM20
- 	tristate "miroSOUND PCM20 radio"
--	depends on ISA && VIDEO_V4L1 && SOUND_ACI_MIXER
-+	depends on ISA && RADIO_V4L1 && SOUND_ACI_MIXER
- 	---help---
- 	  Choose Y here if you have this FM radio card. You also need to say Y
- 	  to "ACI mixer (miroSOUND PCM1-pro/PCM12/PCM20 radio)" (in "Sound")
-@@ -208,7 +213,7 @@ config RADIO_MIROPCM20_RDS
-
- config RADIO_SF16FMI
- 	tristate "SF16FMI Radio"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards.  If you
- 	  compile the driver into the kernel and your card is not PnP one, you
-@@ -225,7 +230,7 @@ config RADIO_SF16FMI
-
- config RADIO_SF16FMR2
- 	tristate "SF16FMR2 Radio"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards.
-
-@@ -239,7 +244,7 @@ config RADIO_SF16FMR2
-
- config RADIO_TERRATEC
- 	tristate "TerraTec ActiveRadio ISA Standalone"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	---help---
- 	  Choose Y here if you have this FM radio card, and then fill in the
- 	  port address below. (TODO)
-@@ -268,7 +273,7 @@ config RADIO_TERRATEC_PORT
-
- config RADIO_TRUST
- 	tristate "Trust FM radio card"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	help
- 	  This is a driver for the Trust FM radio cards. Say Y if you have
- 	  such a card and want to use it under Linux.
-@@ -286,7 +291,7 @@ config RADIO_TRUST_PORT
-
- config RADIO_TYPHOON
- 	tristate "Typhoon Radio (a.k.a. EcoRadio)"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards, and then fill
- 	  in the port address and the frequency used for muting below.
-@@ -330,7 +335,7 @@ config RADIO_TYPHOON_MUTEFREQ
-
- config RADIO_ZOLTRIX
- 	tristate "Zoltrix Radio"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && RADIO_V4L1
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards, and then fill
- 	  in the port address below.
+	Ingo

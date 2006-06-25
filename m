@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWFYRg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWFYRj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbWFYRg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 13:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWFYRg4
+	id S932430AbWFYRj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 13:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWFYRj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 13:36:56 -0400
-Received: from www.osadl.org ([213.239.205.134]:23976 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932420AbWFYRgz (ORCPT
+	Sun, 25 Jun 2006 13:39:59 -0400
+Received: from mail.gmx.net ([213.165.64.21]:26293 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932430AbWFYRj7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 13:36:55 -0400
-Subject: Re: Problem with 2.6.17-mm2
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ralf.Hildebrandt@charite.de, linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <20060625103246.a309d67b.akpm@osdl.org>
-References: <20060625103523.GY27143@charite.de>
-	 <20060625034913.315755ae.akpm@osdl.org>
-	 <1151256246.25491.398.camel@localhost.localdomain>
-	 <20060625103246.a309d67b.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 25 Jun 2006 19:38:42 +0200
-Message-Id: <1151257123.25491.404.camel@localhost.localdomain>
+	Sun, 25 Jun 2006 13:39:59 -0400
+X-Authenticated: #14349625
+Subject: Re: [PATCH] i386: Fix softirq accounting with 4K stacks
+From: Mike Galbraith <efault@gmx.de>
+To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: linux-kernel@vger.kernel.org, danial_thom@yahoo.com,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060625142440.GD8223@atjola.homenet>
+References: <1151128763.7795.9.camel@Homer.TheSimpsons.net>
+	 <1151130383.7545.1.camel@Homer.TheSimpsons.net>
+	 <20060624092156.GA13142@atjola.homenet>
+	 <1151142716.7797.10.camel@Homer.TheSimpsons.net>
+	 <1151149317.7646.14.camel@Homer.TheSimpsons.net>
+	 <20060624154037.GA2946@atjola.homenet>
+	 <1151166193.8516.8.camel@Homer.TheSimpsons.net>
+	 <20060624192523.GA3231@atjola.homenet>
+	 <1151211993.8519.6.camel@Homer.TheSimpsons.net>
+	 <20060625111238.GB8223@atjola.homenet>
+	 <20060625142440.GD8223@atjola.homenet>
+Content-Type: text/plain; charset=utf-8
+Date: Sun, 25 Jun 2006 19:44:11 +0200
+Message-Id: <1151257451.7858.45.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-25 at 10:32 -0700, Andrew Morton wrote:
-> > So in fact this just silently acks spurious interrupts which have an
-> > hw_irq_controller assigned. If there is no action, then nothing has
-> > called setup_irq/request_irq for this interrupt line and therefor it is
-> > an spurious interrupt which should not happen.
-> > 
-> > 
-> > genirq makes these visible and informs noisily about those events. 
-> > 
-> 
-> hm, OK.  I guess we can let it ride for now.  Later we can decide whether
-> we need to shut that warning up.  I suspect we should, if the machine's
-> working OK.
+On Sun, 2006-06-25 at 16:24 +0200, Björn Steinbrink wrote:
 
-We can make it once per IRQ. 
+> Still no idea why your "fix" works, but the following patch also fixes
+> the problem and is at least a little more like the RightThing.
 
-In fact I think the original behaviour is a BUG. You have no chance to
-notice that your box gets flooded by such interrupts. With my willingly
-asserted spurious interrupts the box simply stalls in a flood of
-interrupts without any notice.
+Yeah.  I don't know about you, but I fully intend to blatantly ignore
+that 'why' ;-)
 
-	tglx
-
+	-Mike
 

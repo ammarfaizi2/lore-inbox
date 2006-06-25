@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965312AbWFYSYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWFYScZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965312AbWFYSYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 14:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965319AbWFYSYJ
+	id S932437AbWFYScZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 14:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWFYScZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 14:24:09 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:56992 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S965312AbWFYSYI (ORCPT
+	Sun, 25 Jun 2006 14:32:25 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:58572 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S932437AbWFYScZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 14:24:08 -0400
-Date: Sun, 25 Jun 2006 20:23:52 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rjw@sisk.pl, davej@redhat.com, linux-kernel@vger.kernel.org,
-       sekharan@us.ibm.com, rusty@rustcorp.com.au, rdunlap@xenotime.net
-Subject: Re: 2.6.17-mm2
-Message-ID: <20060625182352.GB17945@mars.ravnborg.org>
-References: <20060624061914.202fbfb5.akpm@osdl.org> <20060624172014.GB26273@redhat.com> <20060624143440.0931b4f1.akpm@osdl.org> <200606251051.55355.rjw@sisk.pl> <20060625032243.fcce9e2e.akpm@osdl.org> <20060625081610.9b0a775a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060625081610.9b0a775a.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Sun, 25 Jun 2006 14:32:25 -0400
+Message-ID: <449ED4D2.7060808@ens-lyon.org>
+Date: Sun, 25 Jun 2006 14:24:18 -0400
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Thomas Voegtle <tv@lio96.de>, Chris Wright <chrisw@sous-sol.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16.22
+References: <20060622201757.GZ22737@sequoia.sous-sol.org> <Pine.LNX.4.63.0606251347100.31427@er-systems.de>
+In-Reply-To: <Pine.LNX.4.63.0606251347100.31427@er-systems.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 25, 2006 at 08:16:10AM -0700, Andrew Morton wrote:
-> On Sun, 25 Jun 2006 03:22:43 -0700
-> 
-> Actually we should be able to address this pretty simply by disallowing
-> exports of symbols which are in the __init section.  There's no sense in
-> exporting something which ain't there.
-> 
-> IOW, any reference from __ksymtab, __ksymtab_gpl or __ksymtab_gpl_future
-> into __init or __initdata should be a hard error.
-We could let modpost error out. Then the module does not get build but
-we detect it a bit later than optimal.
+Thomas Voegtle wrote:
+> On Thu, 22 Jun 2006, Chris Wright wrote:
+>
+>   
+>> We (the -stable team) are announcing the release of the 2.6.16.22 kernel.
+>> The diffstat and short summary of the fixes are below.
+>>     
+>
+>
+> Perhaps I missed the discussion about it, but why is this not piped 
+> through linux-kernel-announce?
+>
+> It isn't on kernel.org as well so it is hard to track it.
+>
+>   
 
-	Sam
+By the way, Adrian, is there still a plan to maintain the 2.6.16.x
+branch for a long time? If so, it would definitely make sense to keep
+the latest 2.6.16.x on the kernel.org banner.
+
+Brice
+

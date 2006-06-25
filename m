@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWFYPQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWFYPPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWFYPQe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 11:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWFYPQe
+	id S1751079AbWFYPPV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 11:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWFYPPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 11:16:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6106 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751077AbWFYPQd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 11:16:33 -0400
-Date: Sun, 25 Jun 2006 08:16:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: rjw@sisk.pl, davej@redhat.com, linux-kernel@vger.kernel.org,
-       sekharan@us.ibm.com, rusty@rustcorp.com.au, rdunlap@xenotime.net,
-       sam@ravnborg.org
-Subject: Re: 2.6.17-mm2
-Message-Id: <20060625081610.9b0a775a.akpm@osdl.org>
-In-Reply-To: <20060625032243.fcce9e2e.akpm@osdl.org>
-References: <20060624061914.202fbfb5.akpm@osdl.org>
-	<20060624172014.GB26273@redhat.com>
-	<20060624143440.0931b4f1.akpm@osdl.org>
-	<200606251051.55355.rjw@sisk.pl>
-	<20060625032243.fcce9e2e.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sun, 25 Jun 2006 11:15:21 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:11483 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751079AbWFYPPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 11:15:20 -0400
+Subject: Re: [PATCH] i386: Fix softirq accounting with 4K stacks
+From: Arjan van de Ven <arjan@infradead.org>
+To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
+       danial_thom@yahoo.com, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060625142440.GD8223@atjola.homenet>
+References: <1151128763.7795.9.camel@Homer.TheSimpsons.net>
+	 <1151130383.7545.1.camel@Homer.TheSimpsons.net>
+	 <20060624092156.GA13142@atjola.homenet>
+	 <1151142716.7797.10.camel@Homer.TheSimpsons.net>
+	 <1151149317.7646.14.camel@Homer.TheSimpsons.net>
+	 <20060624154037.GA2946@atjola.homenet>
+	 <1151166193.8516.8.camel@Homer.TheSimpsons.net>
+	 <20060624192523.GA3231@atjola.homenet>
+	 <1151211993.8519.6.camel@Homer.TheSimpsons.net>
+	 <20060625111238.GB8223@atjola.homenet>
+	 <20060625142440.GD8223@atjola.homenet>
+Content-Type: text/plain; charset=UTF-8
+Date: Sun, 25 Jun 2006 17:15:18 +0200
+Message-Id: <1151248518.4940.29.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jun 2006 03:22:43 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
-> Anyway.  It's regrettable that the new section-checking code didn't
-> complain about the bug.  It looks like this is because the call to
-> cpufreq_register_driver() happened at modprobe-time, and we don't check for
-> that.  Which is rather bad.
+On Sun, 2006-06-25 at 16:24 +0200, Björn Steinbrink wrote:
+> Copy the softirq bits in preempt_count from the current context into the
+> hardirq context when using 4K stacks to make the softirq_count macro work
+> correctly and thereby fix softirq cpu time accounting.
 > 
-> Sam, would it be possible to check for references from modules into
-> statically-linked __init code?  It's always wrong...
+> Signed-off-by: Björn Steinbrink <B.Steinbrink@gmx.de>
 > 
-> Rusty/Randy/whoever looks after modules: it also seems wrong that it's
-> possible to load a module which refers to now-unloaded symbols.  In fact,
-> it's surprising - sorry if I'm misinterpreting this.  If I'm not, it should
-> be pretty easy to barf if a module is trying to get at symbols which lie
-> between __init_begin and __init_end?
-> 
+> diff -Nurp a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
+> --- a/arch/i386/kernel/irq.c	2006-03-20 06:53:29.000000000 +0100
+> +++ b/arch/i386/kernel/irq.c	2006-06-25 15:49:52.000000000 +0200
+> @@ -95,6 +95,14 @@ fastcall unsigned int do_IRQ(struct pt_r
+>  		irqctx->tinfo.task = curctx->tinfo.task;
+>  		irqctx->tinfo.previous_esp = current_stack_pointer;
+>  
+> +		/*
+> +		 * Copy the softirq bits in preempt_count so that the
+> +		 * softirq checks work in the hardirq context.
+> +		 */
+> +		irqctx->tinfo.preempt_count =
+> +			irqctx->tinfo.preempt_count & ~SOFTIRQ_MASK |
+> +			curctx->tinfo.preempt_count & SOFTIRQ_MASK;
+> +
+>  		asm volatile(
+>  			"       xchgl   %%ebx,%%esp      \n"
+>  			"       call    __do_IRQ         \n"
 
-Actually we should be able to address this pretty simply by disallowing
-exports of symbols which are in the __init section.  There's no sense in
-exporting something which ain't there.
+Hi,
 
-IOW, any reference from __ksymtab, __ksymtab_gpl or __ksymtab_gpl_future
-into __init or __initdata should be a hard error.
+at first I got nervous about the asymmetry of this (eg why only do this
+copying only on entry, and not a copy back on exit)... but then again
+these bits shouldn't change so your patch is ok as is...
+it's regrettable that we need to add this for the softirq accounting;
+part of me wishes we would just count irq-vs-user time and be done with
+it ;)
 
-It'd be lovely to do that at compile-time, but I cannot think of a way.
 
-Sam, does that sound reasonable&&feasible?
+Acked-by: Arjan van de Ven <arjan@linux.intel.com>
+

@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWFYLGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWFYLH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWFYLGz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 07:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWFYLGz
+	id S932360AbWFYLH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 07:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWFYLH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 07:06:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48554 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932354AbWFYLGz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 07:06:55 -0400
-Date: Sun, 25 Jun 2006 04:06:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bugme-new] [Bug 6745] New: kernel hangs when trying to read  
- atip wiith cdrecord
-Message-Id: <20060625040642.f37646ba.akpm@osdl.org>
-In-Reply-To: <449E6B43.nail9A11I1BV@burner>
-References: <449E6B43.nail9A11I1BV@burner>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sun, 25 Jun 2006 07:07:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:41884 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932357AbWFYLHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 07:07:25 -0400
+Subject: Re: [Bugme-new] [Bug 6745] New: kernel hangs when trying to read
+	atip wiith cdrecord
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20060624144739.78bde590.akpm@osdl.org>
+References: <200606242036.k5OKaSvp031813@fire-2.osdl.org>
+	 <20060624144739.78bde590.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 25 Jun 2006 13:07:23 +0200
+Message-Id: <1151233643.4940.13.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jun 2006 12:53:55 +0200
-Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+On Sat, 2006-06-24 at 14:47 -0700, Andrew Morton wrote:
+> > I simply try to use "cdrecord dev=ATAPI:1,0,0 -atip" as root.
 
-> The problem mentioned in this thread seems to be caused by the fact that
-> Linux sometimes ignores timeouts. I have no idea how to help in this (timeout) 
-> case.
 
-OK, thanks.  So is that likely to be an IDE bug, or a SCSI bug or an IDE-CD
-bug?
+one issue is that it's a lot better to use --dev=/dev/hda (or whatever
+your cdrom device is.. usually even /dev/cdrom or /dev/cdwriter will
+work, depends on your distro)... that is what most people use and that
+is the interface that's actively supported and debugged...
 

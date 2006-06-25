@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWFYW7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWFYXEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWFYW7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 18:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWFYW7Y
+	id S932413AbWFYXEp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 19:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWFYXEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 18:59:24 -0400
-Received: from mail.gmx.de ([213.165.64.21]:42439 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932411AbWFYW7X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 18:59:23 -0400
-X-Authenticated: #704063
-Date: Mon, 26 Jun 2006 00:59:21 +0200
-From: Eric Sesterhenn / Snakebyte <snakebyte@gmx.de>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: linux-kernel@vger.kernel.org, snakebyte@gmx.de, gregkh@suse.de
-Subject: Re: [Patch] Off by one in drivers/usb/serial/usb-serial.c
-Message-ID: <20060625225920.GA16834@alice>
-References: <200606221331.k5MDVua9010794@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606221331.k5MDVua9010794@harpo.it.uu.se>
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snake-basket.de
-X-Operating-System: Linux/2.6.17 (i686)
-X-Uptime: 00:58:07 up 28 min,  5 users,  load average: 2.04, 1.90, 1.36
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+	Sun, 25 Jun 2006 19:04:45 -0400
+Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:27744 "HELO
+	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932413AbWFYXEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 19:04:44 -0400
+Message-ID: <449F169C.7080304@sbcglobal.net>
+Date: Sun, 25 Jun 2006 18:05:00 -0500
+From: Matthew Frost <artusemrys@sbcglobal.net>
+Reply-To: artusemrys@sbcglobal.net
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: artusemrys@sbcglobal.net
+CC: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernelsources writeable for everyone?!
+References: <200606242000.51024.damage@rooties.de>	 <20060624181702.GG27946@ftp.linux.org.uk>	 <1151198452.6508.10.camel@mjollnir> <449E216E.8010508@sbcglobal.net> <bda6d13a0606251309x3e07e9feoad777d9a062f923f@mail.gmail.com> <449F0B44.6050407@sbcglobal.net>
+In-Reply-To: <449F0B44.6050407@sbcglobal.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mikael Pettersson (mikpe@it.uu.se) wrote:
-> On Wed, 21 Jun 2006 23:28:17 +0200, Eric Sesterhenn wrote:
-> > this fixes coverity id #554. since serial table
-> > is defines as serial_table[SERIAL_TTY_MINORS] we
-> > should make sure we dont acess with an index
-> > of SERIAL_TTY_MINORS.
-> > 
-> > Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-> > 
-> > --- linux-2.6.17-git2/drivers/usb/serial/usb-serial.c.orig	2006-06-21 23:24:07.000000000 +0200
-> > +++ linux-2.6.17-git2/drivers/usb/serial/usb-serial.c	2006-06-21 23:25:12.000000000 +0200
-> > @@ -83,7 +83,7 @@ static struct usb_serial *get_free_seria
-> >  
-> >  		good_spot = 1;
-> >  		for (j = 1; j <= num_ports-1; ++j)
-> > -			if ((i+j >= SERIAL_TTY_MINORS) || (serial_table[i+j])) {
-> > +			if ((i+j >= SERIAL_TTY_MINORS-1)||(serial_table[i+j])) {
-> >  				good_spot = 0;
-> >  				i += j;
-> >  				break;
+Matthew Frost wrote:
+> Joshua Hudson wrote:
+>> I feel like asking how they initially get set to world-writable. To me
+>> it means that the tree that is being tarred up for distribution is
+>> world-writible. I sure hope that it is a single-user box.
+>> -
 > 
-> Where is the access coverity complained about? If it's the serial_table[i+j]
-> quoted above, then the original code is OK since i+j < SERIAL_TTY_MINORS is
-> an invariant in that subexpression.
+> Yeah.  Having said, "Take advice", I'm also curious as to just the 
+> why/how of the current configuration and the work patterns that create 
+> it.  I get the impression that there *is* a reason for it, because if it 
+> were just a security issue, I can't see this much resistance to changing 
+> it.  Sane tar permissions and sensible usage aside.
 > 
-> And the other accesses to serial_table[] in get_free_serial() are also only
-> done when the index is < SERIAL_TTY_MINORS.
+> The kernel untar-and-compile procedure has been documented this way 
+> since at least 2000, from Linus.  There's a good recent (and short) 
+> discussion from Jesper Juhl on LXer that references it, as well.
+> 
+> http://uwsg.iu.edu/hypermail/linux/kernel/0007.3/0587.html
+> http://lxer.com/module/forums/t/22410/
+> 
+> The previous two l-k threads I can find on this topic (one listed 
+> earlier in this thread, one referenced from it) don't seem to be any 
+> more revelatory about why the tarball is as it is.  I might guess that 
+> it has to do with how changes get checked in, but I also have the vague 
+> memory that these aren't tar()ed on a development box.  I could be 
+> wrong.  Consider me seconding the "Why?" aspect, if anybody's still 
+> listening.  :)
+> 
+> Matt
 
-guess i was too quick on that one, sorry. Here is the coverity
-report for completeness.
-
-Event assignment: Assigning "1" to "j"
-Also see events: [overrun-local]
-At conditional (11): "j <= (num_ports - 1)" taking true path
-At conditional (16): "j <= (num_ports - 1)" taking true path
-
-85   			for (j = 1; j <= num_ports-1; ++j)
-
-Event overrun-local: Overrun of static array "serial_table" of size 255
-at position 255 with index variable "(i + j)"
-Also see events: [assignment]
-At conditional (12): "(i + j) >= 255" taking true path
-At conditional (17): "(i + j) >= 255" taking false path
-
-86   				if ((i+j >= SERIAL_TTY_MINORS) ||
-(serial_table[i+j])) {
-87   					good_spot = 0;
-88   					i += j;
-89   					break;
-90   				}
-
-
-
-
-greetings, Eric
-
+No, I'm an idiot.  Blockquoted here (Norbert van Nobelen):
+"The rights on the files should be sufficient for the compiler to go 
+through the tree and compile the kernel for you. If it bothers you, you 
+can just run chmod -R to correct it.
+I guess that it will not be corrected."
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113304353113129&w=2

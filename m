@@ -1,66 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWFYNHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWFYNJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWFYNHR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 09:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWFYNHQ
+	id S1751249AbWFYNJP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 09:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWFYNJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 09:07:16 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:39857 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750710AbWFYNHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 09:07:15 -0400
-Date: Sun, 25 Jun 2006 09:06:57 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Thomas Gleixner <tglx@timesys.com>
-cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
-       Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick and
- dynamic HZ
-In-Reply-To: <1150746705.29299.57.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0606250904530.5324@gandalf.stny.rr.com>
-References: <1150643426.27073.17.camel@localhost.localdomain> 
- <449580CA.2060704@gmail.com> <20060618182820.GA32765@elte.hu> 
- <4496D24F.80003@gmail.com> <1150746705.29299.57.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 Jun 2006 09:09:15 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:3550 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751249AbWFYNJP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 09:09:15 -0400
+Message-ID: <351240952.82409@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Message-Id: <20060625130921.987235199@localhost.localdomain>
+References: <20060625130704.464870100@localhost.localdomain>
+Date: Sun, 25 Jun 2006 21:07:06 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 2/6] readahead: backward prefetching method fix
+Content-Disposition: inline; filename=readahead-backward-prefetching-fix.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+- The backward prefetching method fails near start of file. Fix it.
+- Make it scale up more quickly by adding ra_min to ra_size.
+- Do not discount readahead_hit_rate, that's not a documented behavior.
 
-Hi Thomas,
-
-I finally was able to try -V5. And hit the following:
-
-WARNING: "hrtimer_stop_sched_tick" [drivers/acpi/processor.ko] undefined!
-WARNING: "hrtimer_restart_sched_tick" [drivers/acpi/processor.ko] undefined!
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+---
 
 
-Here's the patch.
-
--- Steve
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-Index: linux-2.6.17/kernel/hrtimer.c
-===================================================================
---- linux-2.6.17.orig/kernel/hrtimer.c	2006-06-24 18:47:22.000000000 -0400
-+++ linux-2.6.17/kernel/hrtimer.c	2006-06-24 18:48:03.000000000 -0400
-@@ -550,6 +550,7 @@ int hrtimer_stop_sched_tick(void)
-
- 	return need_resched();
- }
-+EXPORT_SYMBOL_GPL(hrtimer_stop_sched_tick);
-
- void hrtimer_restart_sched_tick(void)
+--- linux-2.6.17-mm2.orig/mm/readahead.c
++++ linux-2.6.17-mm2/mm/readahead.c
+@@ -1636,8 +1636,9 @@ initial_readahead(struct address_space *
+  * Important for certain scientific arenas(i.e. structural analysis).
+  */
+ static int
+-try_read_backward(struct file_ra_state *ra, pgoff_t begin_index,
+-			unsigned long ra_size, unsigned long ra_max)
++try_read_backward(struct file_ra_state *ra,
++			pgoff_t begin_index, unsigned long ra_size,
++			unsigned long ra_min, unsigned long ra_max)
  {
-@@ -584,6 +585,7 @@ void hrtimer_restart_sched_tick(void)
- 		      HRTIMER_ABS);
- 	local_irq_restore(flags);
- }
-+EXPORT_SYMBOL_GPL(hrtimer_restart_sched_tick);
+ 	pgoff_t end_index;
+ 
+@@ -1646,11 +1647,11 @@ try_read_backward(struct file_ra_state *
+ 		return 0;
+ 
+ 	if ((ra->flags & RA_CLASS_MASK) == RA_CLASS_BACKWARD &&
+-					ra_has_index(ra, ra->prev_page)) {
+-		ra_size += 2 * ra->hit0;
++		ra_has_index(ra, ra->prev_page) && ra_cache_hit_ok(ra)) {
++		ra_size += ra_min + 2 * ra_readahead_size(ra);
+ 		end_index = ra->la_index;
+ 	} else {
+-		ra_size += ra_size + ra_size * (readahead_hit_rate - 1) / 2;
++		ra_size += ra_size * readahead_hit_rate;
+ 		end_index = ra->prev_page;
+ 	}
+ 
+@@ -1661,7 +1662,7 @@ try_read_backward(struct file_ra_state *
+ 	if (end_index > begin_index + ra_size)
+ 		return 0;
+ 
+-	begin_index = end_index - ra_size;
++	begin_index = end_index > ra_size ? end_index - ra_size : 0;
+ 
+ 	ra_set_class(ra, RA_CLASS_BACKWARD);
+ 	ra_set_index(ra, begin_index, begin_index);
+@@ -1864,7 +1865,7 @@ page_cache_readahead_adaptive(struct add
+ 	 * Backward read-ahead.
+ 	 */
+ 	if (!page && begin_index == index &&
+-				try_read_backward(ra, index, size, ra_max))
++				try_read_backward(ra, index, size, ra_min, ra_max))
+ 		return ra_dispatch(ra, mapping, filp);
+ 
+ 	/*
 
- void show_no_hz_stats(struct seq_file *p)
- {
+--

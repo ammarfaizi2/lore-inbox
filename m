@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWFYXNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWFYX2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbWFYXNx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 19:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWFYXNr
+	id S1751149AbWFYX2j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 19:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWFYX2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 19:13:47 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:17683 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932417AbWFYXNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 19:13:31 -0400
-Date: Mon, 26 Jun 2006 01:13:29 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Steven French <sfrench@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-cifs-client@lists.samba.org
-Subject: [-mm patch] fs/cifs/cifsproto.h: remove #ifdef around small_smb_init_no_tc() prototype
-Message-ID: <20060625231329.GM23314@stusta.de>
-References: <20060624061914.202fbfb5.akpm@osdl.org>
-MIME-Version: 1.0
+	Sun, 25 Jun 2006 19:28:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4488 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751149AbWFYX2i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 19:28:38 -0400
+Date: Sun, 25 Jun 2006 19:27:28 -0400
+From: Alan Cox <alan@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, alan@redhat.com,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       linux-ide@vger.kernel.org
+Subject: Re: [-mm patch] make drivers/scsi/pata_it821x.c:it821x_passthru_dev_select() static
+Message-ID: <20060625232728.GA20345@devserv.devel.redhat.com>
+References: <20060624061914.202fbfb5.akpm@osdl.org> <20060625231324.GK23314@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060624061914.202fbfb5.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <20060625231324.GK23314@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 24, 2006 at 06:19:14AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.17-mm1:
->...
-> +cifs-build-fix.patch
+On Mon, Jun 26, 2006 at 01:13:24AM +0200, Adrian Bunk wrote:
+> On Sat, Jun 24, 2006 at 06:19:14AM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.17-mm1:
+> >...
+> >  git-libata-all.patch
+> >...
+> >  git trees
+> >...
 > 
->  Fix git-cifs.patch.
->...
+> This patch makes the needlessly global it821x_passthru_dev_select() 
+> static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Let's hope gcc guesses the prototye of the function right.
+Acked-by: Alan Cox <alan@redhat.com>
 
-Otherwise, this patch has turned a compile error into a nasty runtime 
-error (in many cases, the stack is garbage).
+> 
+> --- linux-2.6.17-mm2-full/drivers/scsi/pata_it821x.c.old	2006-06-25 22:52:11.000000000 +0200
+> +++ linux-2.6.17-mm2-full/drivers/scsi/pata_it821x.c	2006-06-25 22:52:52.000000000 +0200
+> @@ -411,7 +411,8 @@
+>   *	Device selection hook. If neccessary perform clock switching
+>   */
+>   
+> -void it821x_passthru_dev_select(struct ata_port *ap, unsigned int device)
+> +static void it821x_passthru_dev_select(struct ata_port *ap,
+> +				       unsigned int device)
+>  {
+>  	struct it821x_dev *itdev = ap->private_data;
+>  	if (itdev && device != itdev->last_device) {
 
-The -Werror-implicit-function-declaration gcc flag would turn such 
-possible problems into compile errors.
-
-This patch removes the (never required) #ifdef from the prototype of 
-thie function in fs/cifs/cifsproto.h. 
- 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.17-mm2-full/fs/cifs/cifsproto.h.old	2006-06-26 00:00:56.000000000 +0200
-+++ linux-2.6.17-mm2-full/fs/cifs/cifsproto.h	2006-06-26 00:01:02.000000000 +0200
-@@ -64,11 +64,9 @@
- extern void header_assemble(struct smb_hdr *, char /* command */ ,
- 			    const struct cifsTconInfo *, int /* length of
- 			    fixed section (word count) in two byte units */);
--#ifdef CONFIG_CIFS_EXPERIMENTAL
- extern int small_smb_init_no_tc(const int smb_cmd, const int wct,
- 				struct cifsSesInfo *ses,
- 				void ** request_buf);
--#endif
- extern int CIFS_SessSetup(unsigned int xid, struct cifsSesInfo *ses,
- 			     const int stage, 
- 			     const struct nls_table *nls_cp);
-
+-- 
+	"Some people are like Slinkies...
+	Not really good for anything,
+	but they still bring a smile to your face
+	when you push them down a flight of stairs."
+			-- Gordon Wolfe.

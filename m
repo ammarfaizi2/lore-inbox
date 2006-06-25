@@ -1,71 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWFYNbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWFYNpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWFYNbS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 09:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWFYNbS
+	id S1750911AbWFYNpH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 09:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbWFYNpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 09:31:18 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:15803 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750726AbWFYNbS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 09:31:18 -0400
-Date: Sun, 25 Jun 2006 06:31:28 -0700
-From: Mike Grundy <grundym@us.ibm.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Jan Glauber <jan.glauber@de.ibm.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
-Subject: Re: [PATCH] kprobes for s390 architecture
-Message-ID: <20060625133128.GA23432@localhost.localdomain>
-Mail-Followup-To: Heiko Carstens <heiko.carstens@de.ibm.com>,
-	Jan Glauber <jan.glauber@de.ibm.com>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
-References: <20060623150344.GL9446@osiris.boeblingen.de.ibm.com> <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com> <20060623222106.GA25410@osiris.ibm.com> <20060624113641.GB10403@osiris.ibm.com> <20060624121541.GD10403@osiris.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060624121541.GD10403@osiris.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 25 Jun 2006 09:45:07 -0400
+Received: from mail1.skjellin.no ([80.239.42.67]:6279 "EHLO mx1.skjellin.no")
+	by vger.kernel.org with ESMTP id S1750911AbWFYNpF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 09:45:05 -0400
+Message-ID: <449E935E.4090006@tomt.net>
+Date: Sun, 25 Jun 2006 15:45:02 +0200
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Thunderbird 3.0a1 (Windows/20060622)
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and Power Management
+ patches against v2.6.17
+References: <20060625073003.GA21435@htj.dyndns.org> <449E73C1.4050604@tomt.net> <449E770E.4010102@gmail.com>
+In-Reply-To: <449E770E.4010102@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 24, 2006 at 02:15:41PM +0200, Heiko Carstens wrote:
-> > Just do a compare and swap operation on the instruction you want to replace,
-> > then do an smp_call_function() with the wait parameter set to 1 and passing
-> > a pointer to a function that does nothing but return.
-Here's what I came up with Friday before I jumped timezones back east:
+Tejun Heo wrote:
+> Andre Tomt wrote:
+>> Tejun Heo wrote:
+>>> Hello, all.
+>>>
+>>> libata-tj-stable patches against v2.6.17 and v2.6.17.1 are available.
+>>
+>> It appears drivers/scsi/libata-eh.c isn't getting built in the 2.6.17 
+>> patch, seems to be missing in drivers/scsi/Makefile:
+> 
+> Yeap, right.  My bad.  I forgot to do 'quilt add' the Makefile.  The 
+> updated tarball is at
+> 
+> http://home-tj.org/files/libata-tj-stable/libata-tj-2.6.17-20060625-1.tar.bz2 
 
-void smp_replace_instruction(void *info)
-{
-	struct ins_replace_args *parms;
-
-	parms = (struct ins_replace_args *) info;
-	cmpxchg(parms->addr, parms->oinsn, parms->ninsn);
-}
-
-void __kprobes arch_arm_kprobe(struct kprobe *p)
-{
-	struct ins_replace_args parms;
-	parms.addr = p->addr;
-	parms.ninsn = BREAKPOINT_INSTRUCTION;
-	parms.oinsn = p->opcode;
-
-	on_each_cpu(smp_replace_instruction, &parms, 0, 1);
-} etc...
-
-After reading your notes it's probably overkill doing the cs on each cpu, since
-the interrupt will discard the prefetched instructions.
-
--- 
-Thanks
-Mike
-
-=========================================
-Michael Grundy - grundym@us.ibm.com
-Advanced Linux Response Team (ALRT)
-http://ltc.linux.ibm.com/teamweb/alrt/
-845-435-8842 (T/L 295)
-
-If at first you don't succeed, call in an air strike.
-
+Seems to work great so far, only knit is that the kernel log does not 
+print it out the NCQ bits as indicated in the README. queue_depth in 
+sysfs do show proper values however, just a backport issue I guess.

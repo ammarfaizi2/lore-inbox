@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWFYXj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWFYXnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbWFYXj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 19:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWFYXj0
+	id S964897AbWFYXnY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 19:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWFYXnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 19:39:26 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:25875 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964900AbWFYXjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 19:39:25 -0400
-Date: Mon, 26 Jun 2006 01:39:23 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] fs/read_write.c: unexport iov_shorten
-Message-ID: <20060625233923.GO23314@stusta.de>
-MIME-Version: 1.0
+	Sun, 25 Jun 2006 19:43:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37261 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964897AbWFYXnX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 19:43:23 -0400
+Date: Sun, 25 Jun 2006 19:43:07 -0400
+From: Dave Jones <davej@redhat.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Knut J Bjuland <knutjbj@online.no>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: I can cause kernel panic by using native alsa midi with 2.6.17.1
+Message-ID: <20060625234307.GA29712@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Lee Revell <rlrevell@joe-job.com>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Knut J Bjuland <knutjbj@online.no>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <200606250207_MC3-1-C35F-F5F8@compuserve.com> <20060625063151.GE26273@redhat.com> <1151265654.2931.256.camel@mindpipe>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <1151265654.2931.256.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the unused EXPORT_SYMBOL(iov_shorten).
+On Sun, Jun 25, 2006 at 04:00:53PM -0400, Lee Revell wrote:
+ > On Sun, 2006-06-25 at 02:31 -0400, Dave Jones wrote:
+ > > On Sun, Jun 25, 2006 at 02:03:21AM -0400, Chuck Ebbert wrote:
+ > >  > In-Reply-To: <449B8A0D.60607@online.no>
+ > >  > 
+ > >  > On Fri, 23 Jun 2006 08:28:29 +0200, Knut J Bjuland wrote:
+ > >  > 
+ > >  > > ksymoops 2.4.9 on i686 2.6.17-1.2138_FC5smp.  Options used
+ > >  > 
+ > >  > Please do not run oops reports through ksymoops.  The recipient
+ > >  > can do that.  And report Fedora bugs to Fedora...
+ > > 
+ > > It's already in Fedora bugzilla. It matches the same thing I reported
+ > > here a few days ago. With a list-head debug patch (kinda sorta
+ > > the same as the one in -mm), alsa goes boom.
+ > 
+ > I have not seen a bug report in the ALSA bug tracker
+ > or a report on alsa-devel.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+http://lkml.org/lkml/2006/6/22/505
+was Cc'd to alsa-devel.
 
----
-
-This patch was already sent on:
-- 27 Apr 2006
-- 23 Apr 2006
-
---- linux-2.6.17-rc1-mm3-full/fs/read_write.c.old	2006-04-23 15:51:52.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/fs/read_write.c	2006-04-23 15:52:02.000000000 +0200
-@@ -436,8 +436,6 @@
- 	return seg;
- }
- 
--EXPORT_SYMBOL(iov_shorten);
--
- /* A write operation does a read from user space and vice versa */
- #define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
- 
-
+		Dave
+-- 
+http://www.codemonkey.org.uk

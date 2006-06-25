@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWFYPd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWFYPkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWFYPd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 11:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWFYPd4
+	id S1751320AbWFYPkK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 11:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWFYPkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 11:33:56 -0400
-Received: from www.osadl.org ([213.239.205.134]:55206 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751096AbWFYPd4 (ORCPT
+	Sun, 25 Jun 2006 11:40:10 -0400
+Received: from www.osadl.org ([213.239.205.134]:64166 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751320AbWFYPkJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 11:33:56 -0400
-Subject: Re: [patch 1/3] Drop tasklist lock in do_sched_setscheduler
+	Sun, 25 Jun 2006 11:40:09 -0400
+Subject: Re: Problem with 2.6.17-mm2
 From: Thomas Gleixner <tglx@linutronix.de>
 Reply-To: tglx@linutronix.de
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060625005045.GA155@oleg>
-References: <20060625005045.GA155@oleg>
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20060625105512.GZ27143@charite.de>
+References: <20060625103523.GY27143@charite.de>
+	 <20060625034913.315755ae.akpm@osdl.org> <20060625105512.GZ27143@charite.de>
 Content-Type: text/plain
-Date: Sun, 25 Jun 2006 17:35:46 +0200
-Message-Id: <1151249747.25491.378.camel@localhost.localdomain>
+Date: Sun, 25 Jun 2006 17:41:55 +0200
+Message-Id: <1151250115.25491.384.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-25 at 04:50 +0400, Oleg Nesterov wrote:
-> Thomas Gleixner wrote:
-> >
-> > There is no need to hold tasklist_lock across the setscheduler call, when we
-> > pin the task structure with get_task_struct(). Interrupts are disabled in 
-> > setscheduler anyway and the permission checks do not need interrupts disabled.
-> >
-> > --- linux-2.6.17-mm.orig/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
-> > +++ linux-2.6.17-mm/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
-> > @@ -4140,8 +4140,10 @@
-> >  		read_unlock_irq(&tasklist_lock);
-> >  		return -ESRCH;
-> >  	}
-> > -	retval = sched_setscheduler(p, policy, &lparam);
-> > +	get_task_struct(p);
-> >  	read_unlock_irq(&tasklist_lock);
-> > +	retval = sched_setscheduler(p, policy, &lparam);
-> > +	put_task_struct(p);
-> >  	return retval;
-> >  }
-> 
-> But we don't need read_lock(tasklist) and get_task_struct(p) at all?
-> 
-> rcu_read_lock/rcu_read_unlock is enough, no?
+Ralf,
 
-Probably yes, did not think about that
+On Sun, 2006-06-25 at 12:55 +0200, Ralf Hildebrandt wrote: 
+> > > 1) A lot of "unexpected IRQ trap at vector X" for X=[09,07]
+> > 
+> > hm, ack_bad_irq().  That isn't supposed to happen.
+> 
+> Yet the box seems to work ok.
+
+Can you please provide the boot log from 2.6.17 and one with the
+following patch on top of 2.6.17-mm2 applied:
+http://www.tglx.de/private/tglx/linux-2.6.17-mm2-revert-genirq.diff
+
+It reverts the genirq changes. When the unexpected IRQ trap messages
+persist, we know that it's unrelated to genirq. Otherwise, sigh
+
+Thanks,
 
 	tglx
+
+P.S.: Greetings from Bene Spranger
 
 

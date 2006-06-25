@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWFYPkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWFYPnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWFYPkK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 11:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWFYPkK
+	id S1751444AbWFYPnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 11:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWFYPnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 11:40:10 -0400
-Received: from www.osadl.org ([213.239.205.134]:64166 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751320AbWFYPkJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 11:40:09 -0400
-Subject: Re: Problem with 2.6.17-mm2
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20060625105512.GZ27143@charite.de>
-References: <20060625103523.GY27143@charite.de>
-	 <20060625034913.315755ae.akpm@osdl.org> <20060625105512.GZ27143@charite.de>
-Content-Type: text/plain
-Date: Sun, 25 Jun 2006 17:41:55 +0200
-Message-Id: <1151250115.25491.384.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 25 Jun 2006 11:43:08 -0400
+Received: from ik55118.ikexpress.com ([213.246.55.118]:7887 "EHLO
+	ik55118.ikexpress.com") by vger.kernel.org with ESMTP
+	id S1751444AbWFYPnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 11:43:07 -0400
+Message-ID: <449EAE70.3010000@free-electrons.com>
+Date: Sun, 25 Jun 2006 17:40:32 +0200
+From: Michael Opdenacker <michael-lists@free-electrons.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Adrian Bunk <bunk@stusta.de>
+Subject: [PATCH][TRIVIAL] Compile fix for the rtc test program
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf,
+This patch is a trivial compile fix the test program embedded in 
+Documentation/rtc.txt
+Without it, compiling issues many ugly warnings:
+warning: incompatible implicit declaration of built-in function ‘exit’
 
-On Sun, 2006-06-25 at 12:55 +0200, Ralf Hildebrandt wrote: 
-> > > 1) A lot of "unexpected IRQ trap at vector X" for X=[09,07]
-> > 
-> > hm, ack_bad_irq().  That isn't supposed to happen.
-> 
-> Yet the box seems to work ok.
+Also available on 
+http://free-electrons.com/pub/patches/linux/20060625/rtc-test.patch
 
-Can you please provide the boot log from 2.6.17 and one with the
-following patch on top of 2.6.17-mm2 applied:
-http://www.tglx.de/private/tglx/linux-2.6.17-mm2-revert-genirq.diff
+Signed-off-by: Michael Opdenacker <michael@free-electrons.com>
 
-It reverts the genirq changes. When the unexpected IRQ trap messages
-persist, we know that it's unrelated to genirq. Otherwise, sigh
+--- linux-2.6.17/Documentation/rtc.txt 2006-06-18 03:49:35.000000000 +0200
++++ linux-2.6.17-rtc-test/Documentation/rtc.txt 2006-06-25 
+16:49:26.000000000 +0200
+@@ -81,6 +81,7 @@ that will be using this driver.
+*/
 
-Thanks,
+#include <stdio.h>
++#include <stdlib.h>
+#include <linux/rtc.h>
+#include <sys/ioctl.h>
+#include <sys/time.h>
 
-	tglx
-
-P.S.: Greetings from Bene Spranger
+-- 
+Michael Opdenacker, Free Electrons
+Free Embedded Linux Training Materials
+on http://free-electrons.com/training
+(More than 1000 pages!)
 
 

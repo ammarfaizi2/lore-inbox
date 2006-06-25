@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWFYEcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWFYEcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWFYEcO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 00:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWFYEcO
+	id S1751387AbWFYEcX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 00:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFYEcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 00:32:14 -0400
-Received: from mga03.intel.com ([143.182.124.21]:47953 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751382AbWFYEcN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 00:32:13 -0400
-X-IronPort-AV: i="4.06,172,1149490800"; 
-   d="scan'208"; a="56981655:sNHT16567831"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Sun, 25 Jun 2006 00:32:23 -0400
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:39791 "HELO
+	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751387AbWFYEcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 00:32:22 -0400
+From: David Brownell <david-b@pacbell.net>
+To: jg@laptop.org
+Subject: Re: [linux-pm] [PATCH] get USB suspend to work again on 2.6.17-mm1
+Date: Sat, 24 Jun 2006 21:32:18 -0700
+User-Agent: KMail/1.7.1
+Cc: Greg KH <greg@kroah.com>, Mattia Dongili <malattia@linux.it>,
+       Jiri Slaby <jirislaby@gmail.com>, linux-pm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <20060622202952.GA14135@kroah.com> <200606222034.44085.david-b@pacbell.net> <1151203377.15365.389.camel@localhost.localdomain>
+In-Reply-To: <1151203377.15365.389.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.17-mm2 -- Slab corruption, plus invalid opcode: 0000 [#1] -- 4K_STACKS PREEMPT -- last sysfs file: /block/md0/dev
-Date: Sun, 25 Jun 2006 00:32:05 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6D35512@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.17-mm2 -- Slab corruption, plus invalid opcode: 0000 [#1] -- 4K_STACKS PREEMPT -- last sysfs file: /block/md0/dev
-Thread-Index: AcaYEAM0Q4CsHXNaQpCdKLDQ91jBBQAACFUg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Miles Lane" <miles.lane@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 25 Jun 2006 04:32:11.0690 (UTC) FILETIME=[53A5A0A0:01C69810]
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606242132.19907.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->> acpi_processor-0758 [86] processor_preregister_: Error while parsing
->> _PSD domain information. Assuming no coordination
->
->Is that ACPI message new behaviour?
+On Saturday 24 June 2006 7:42 pm, Jim Gettys wrote:
+> On Thu, 2006-06-22 at 20:34 -0700, David Brownell wrote:
+> 
+> > Under what scenario could it possibly be legitimate to suspend a
+> > usb device -- or interface, or anything else -- with its children
+> > remaining active?  The ability to guarantee that could _never_ happen
+> > was one of the fundamental motivations for the driver model ...
+> 
+> I'm not sure this directly applies, but....
 
-Yes, where new is in the last couple of months.
-You can ignore the message -- it is going away.
+It's not a counterexample, but it may be an interesting example of
+the sort of loosely coupled multiprocessor that gets more common.
+The different processors use different power management schemes.
+(I think an ACPI "embedded processor" has related issues.)
 
--Len
+
+> The Marvell wireless chip we're using this generation in the OLPC
+> machine is interfaced via USB.  Not ideal, but there's no other game in
+> town to let us keep the mesh network up while the main machine is STR.
+
+So presumably it's both "self" powered (so far as the parent hub is
+concerned!) and also has some kind of cpu and firmware.  I'll assume
+this chipset is used with discrete products too, not only for wiring to
+motherboards.  (Despite the board layout advantages of using serial
+interfaces:  fewer high speed signal lines, etc.)
+
+
+> We intend to leave the Marvell chip on (it can forward packets in the
+> mesh network, and/or wake up the CPU if there are inbound packets for
+> the machine that matter), and turn off the USB interface it is attached
+> to.
+
+The normal way to do such things -- from the perspective of the firmware
+inside a USB peripheral doing that routing etc -- recognizes that the
+USB suspend state affects only the upstream link, and uses remote wakeup
+signaling in the normal fashion.  (An SPI or I2C/SMBUS based coprocessor
+probably needs an IRQ signal line.)
+
+That is, from the perspective of the host CPU, it's suspended normally.
+Just like any other USB device (like I sketched above).
+
+But the peripheral's CPU can continue doing whatever it likes ... which
+doesn't necessarily include stopping.  Bus powered USB peripherals would
+probably try to suspend their CPUs though, since otherwise it may be hard
+to meet the 500 microAmpere power budget.
+
+- Dave

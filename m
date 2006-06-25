@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965517AbWFYT7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965564AbWFYUBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965517AbWFYT7g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 15:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965516AbWFYT7g
+	id S965564AbWFYUBA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 16:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965562AbWFYUA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 15:59:36 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:30931 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965512AbWFYT7e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 15:59:34 -0400
-Date: Sun, 25 Jun 2006 21:54:40 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, michal.k.k.piotrowski@gmail.com,
-       arjan@linux.intel.com, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, "Moore, Robert" <robert.moore@intel.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch] ACPI: reduce code size, clean up, fix validator message
-Message-ID: <20060625195440.GC11494@elte.hu>
-References: <CFF307C98FEABE47A452B27C06B85BB6CF0D04@hdsmsx411.amr.corp.intel.com>
+	Sun, 25 Jun 2006 16:00:59 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:44716 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S965559AbWFYUA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 16:00:58 -0400
+Subject: Re: I can cause kernel panic by using native alsa midi with
+	2.6.17.1
+From: Lee Revell <rlrevell@joe-job.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Knut J Bjuland <knutjbj@online.no>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060625063151.GE26273@redhat.com>
+References: <200606250207_MC3-1-C35F-F5F8@compuserve.com>
+	 <20060625063151.GE26273@redhat.com>
+Content-Type: text/plain
+Date: Sun, 25 Jun 2006 16:00:53 -0400
+Message-Id: <1151265654.2931.256.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6CF0D04@hdsmsx411.amr.corp.intel.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5007]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Brown, Len <len.brown@intel.com> wrote:
-
-> Ingo,
-> Thanks for the quick reply.
+On Sun, 2006-06-25 at 02:31 -0400, Dave Jones wrote:
+> On Sun, Jun 25, 2006 at 02:03:21AM -0400, Chuck Ebbert wrote:
+>  > In-Reply-To: <449B8A0D.60607@online.no>
+>  > 
+>  > On Fri, 23 Jun 2006 08:28:29 +0200, Knut J Bjuland wrote:
+>  > 
+>  > > ksymoops 2.4.9 on i686 2.6.17-1.2138_FC5smp.  Options used
+>  > 
+>  > Please do not run oops reports through ksymoops.  The recipient
+>  > can do that.  And report Fedora bugs to Fedora...
 > 
-> An Andrew's advice a while back, Bob already got rid
-> of the allocate part -- it just isn't upstream yet.
-> 
-> Re: changing ACPICA code (sub-directories of drivers/acpi/) like this:
-> 
-> >-	flags = acpi_os_acquire_lock(acpi_gbl_gpe_lock);
-> >+	spin_lock_irqsave(&acpi_gbl_gpe_lock, flags);
-> 
-> I can't do that without either
-> 1. diverging between Linux and ACPICA
-> or
-> 2. getting a license back from you to Intel such that Intel can
->    re-distrubute such a change under the Intel license on the file and 
->    inventing spin_lock_irqsave() on about 9 other operating systems.
+> It's already in Fedora bugzilla. It matches the same thing I reported
+> here a few days ago. With a list-head debug patch (kinda sorta
+> the same as the one in -mm), alsa goes boom.
 
-btw., regarding #2 i hereby put my patch (which i wrote in my free time) 
-into the public domain - feel free to reuse it in any way, shape or 
-form, under any license. (but it's trivial enough so i guess the only 
-copyrightable element is my changelog entry anyway ;)
+I have not seen a bug report in the ALSA bug tracker or a report on
+alsa-devel.
 
-> If this code were performance or size critical, I would still delete 
-> acpi_os_acquire_lock from osl.c, but would inline it in aclinux.h.
+Lee
 
-well its in the kernel so it's size critical by definition. But it's 
-certainly not a highprio thing.
-
-	Ingo

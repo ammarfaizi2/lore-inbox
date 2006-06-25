@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965444AbWFYT4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965517AbWFYT7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965444AbWFYT4q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 15:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965445AbWFYT4q
+	id S965517AbWFYT7g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 15:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965516AbWFYT7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 15:56:46 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:8782 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S965444AbWFYT4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 15:56:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=txf+8M4yCK8WNC5i5cSCI7SL7g0i+19PMwQDkXj3SSx4wP7CRypv4Ie6dacOVBTjvx3PwoOUsSIuEZ/M4scttGRC+q4l2tOiGgfh7FPochqTwQPGUQQ9Ed4Dr6rZam8838Yl9GLB1jrJ0MYrLx2owGNsSaKZOKbJnu6FKSv/zJQ=
-Message-ID: <a44ae5cd0606251256m74182e7fw4eb2692c89b0e2f8@mail.gmail.com>
-Date: Sun, 25 Jun 2006 12:56:44 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.17-mm2 -- drivers/built-in.o: In function `is_pci_dock_device':acpiphp_glue.c:(.text+0x12364): undefined reference to `is_dock_device'
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 25 Jun 2006 15:59:36 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:30931 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965512AbWFYT7e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 15:59:34 -0400
+Date: Sun, 25 Jun 2006 21:54:40 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, michal.k.k.piotrowski@gmail.com,
+       arjan@linux.intel.com, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, "Moore, Robert" <robert.moore@intel.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [patch] ACPI: reduce code size, clean up, fix validator message
+Message-ID: <20060625195440.GC11494@elte.hu>
+References: <CFF307C98FEABE47A452B27C06B85BB6CF0D04@hdsmsx411.amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6CF0D04@hdsmsx411.amr.corp.intel.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5007]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/built-in.o: In function
-`is_pci_dock_device':acpiphp_glue.c:(.text+0x12364): undefined
-reference to `is_dock_device'
-drivers/built-in.o: In function
-`cleanup_bridge':acpiphp_glue.c:(.text+0x12bc4): undefined reference
-to `is_dock_device'
-:acpiphp_glue.c:(.text+0x12bd3): undefined reference to
-`unregister_hotplug_dock_device'
-:acpiphp_glue.c:(.text+0x12bdb): undefined reference to
-`unregister_dock_notifier'
-drivers/built-in.o: In function
-`register_slot':acpiphp_glue.c:(.text+0x13ac0): undefined reference to
-`is_dock_device'
-:acpiphp_glue.c:(.text+0x13cd9): undefined reference to `is_dock_device'
-:acpiphp_glue.c:(.text+0x13cf0): undefined reference to
-`register_hotplug_dock_device'
-:acpiphp_glue.c:(.text+0x13d1d): undefined reference to `register_dock_notifier'
-make: *** [.tmp_vmlinux1] Error 1
 
-#
-# PCI Hotplug Support
-#
-CONFIG_HOTPLUG_PCI=y
-CONFIG_HOTPLUG_PCI_FAKE=y
-CONFIG_HOTPLUG_PCI_COMPAQ=y
-# CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM is not set
-CONFIG_HOTPLUG_PCI_ACPI=y
-CONFIG_HOTPLUG_PCI_ACPI_IBM=y
-CONFIG_HOTPLUG_PCI_CPCI=y
-# CONFIG_HOTPLUG_PCI_CPCI_ZT5550 is not set
-CONFIG_HOTPLUG_PCI_CPCI_GENERIC=y
-CONFIG_HOTPLUG_PCI_SHPC=y
-# CONFIG_HOTPLUG_PCI_SHPC_POLL_EVENT_MODE is not set
+* Brown, Len <len.brown@intel.com> wrote:
+
+> Ingo,
+> Thanks for the quick reply.
+> 
+> An Andrew's advice a while back, Bob already got rid
+> of the allocate part -- it just isn't upstream yet.
+> 
+> Re: changing ACPICA code (sub-directories of drivers/acpi/) like this:
+> 
+> >-	flags = acpi_os_acquire_lock(acpi_gbl_gpe_lock);
+> >+	spin_lock_irqsave(&acpi_gbl_gpe_lock, flags);
+> 
+> I can't do that without either
+> 1. diverging between Linux and ACPICA
+> or
+> 2. getting a license back from you to Intel such that Intel can
+>    re-distrubute such a change under the Intel license on the file and 
+>    inventing spin_lock_irqsave() on about 9 other operating systems.
+
+btw., regarding #2 i hereby put my patch (which i wrote in my free time) 
+into the public domain - feel free to reuse it in any way, shape or 
+form, under any license. (but it's trivial enough so i guess the only 
+copyrightable element is my changelog entry anyway ;)
+
+> If this code were performance or size critical, I would still delete 
+> acpi_os_acquire_lock from osl.c, but would inline it in aclinux.h.
+
+well its in the kernel so it's size critical by definition. But it's 
+certainly not a highprio thing.
+
+	Ingo

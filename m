@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWFYR0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWFYR2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWFYR0n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 13:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWFYR0n
+	id S1751338AbWFYR2r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 13:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWFYR2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 13:26:43 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:29796 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751334AbWFYR0n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 13:26:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RAE8SM1lFLM9OCVwzgROkvzSZcXBG9EHDRNZCImKZI7vTgX9nvF6Szfg+dWZrEVBqQsn2cir7MSQAq5KoczejW8yNS5GmEBtwLZ2My+Nvv9BL35kM1STuL5D8PkPE6IAzBkt3dQOjAh6sR9CjomOtsvAaKIkqAnvTVjkjD6+N98=
-Message-ID: <6bffcb0e0606251026gbd121dam83c1b763b8cba02d@mail.gmail.com>
-Date: Sun, 25 Jun 2006 19:26:42 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Nick Piggin" <npiggin@suse.de>
-Subject: Re: [patch] 2.6.17: lockless pagecache
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Linux Memory Management List" <linux-mm@kvack.org>
-In-Reply-To: <20060625163930.GB3006@wotan.suse.de>
+	Sun, 25 Jun 2006 13:28:47 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:13215 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751338AbWFYR2q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 13:28:46 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <449EC774.5060908@s5r6.in-berlin.de>
+Date: Sun, 25 Jun 2006 19:27:16 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux1394-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH 2.6.17-mm1 4/3] ieee1394: convert ieee1394_transactions
+ from semaphores to waitqueue
+References: <449BEBFB.60302@s5r6.in-berlin.de> <200606230904.k5N94Al3005245@shell0.pdx.osdl.net>  <30866.1151072338@warthog.cambridge.redhat.com> <tkrat.df6845846c72176e@s5r6.in-berlin.de> <tkrat.9c73406a85ae9ce4@s5r6.in-berlin.de> <tkrat.e74b06c4105348f6@s5r6.in-berlin.de> <tkrat.2ff7b57397a5a37e@s5r6.in-berlin.de> <tkrat.3f9c07538e381afd@s5r6.in-berlin.de>
+In-Reply-To: <tkrat.3f9c07538e381afd@s5r6.in-berlin.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060625163930.GB3006@wotan.suse.de>
+X-Spam-Score: (0.894) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
+I wrote on 2006-06-24:
+> +	return wait_event_interruptible(tlabel_wq,
+> +					!hpsb_get_tlabel_atomic(packet));
 
-On 25/06/06, Nick Piggin <npiggin@suse.de> wrote:
-> Updated lockless pagecache patchset available here:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/npiggin/patches/lockless/2.6.17/lockless.patch.gz
->
+Hmm. "Linux Device Drivers" says about wait_event_interruptible(wq, 
+condition): ''Note that @condition may be evaluated an arbitrary number 
+of times, so it should not have any side effects.''
 
-"make O=/dir oldconfig" doesn't work.
+Alas the hpsb_get_tlabel_atomic() _does_ have a side effect, but only 
+when !hpsb_get_tlabel_atomic(packet) is true.
 
-[michal@ltg01-fedora linux-work]$ LANG="C" make O=../linux-work-obj/ oldconfig
-  GEN     /usr/src/linux-work-obj/Makefile
-  HOSTCC  scripts/kconfig/zconf.tab.o
-In file included from scripts/kconfig/zconf.tab.c:158:
-scripts/kconfig/zconf.hash.c: In function 'kconf_id_lookup':
-scripts/kconfig/zconf.hash.c:190: error: 'T_OPT_DEFCONFIG_LIST'
-undeclared (first use in this function)
-scripts/kconfig/zconf.hash.c:190: error: (Each undeclared identifier
-is reported only once
-scripts/kconfig/zconf.hash.c:190: error: for each function it appears in.)
-scripts/kconfig/zconf.hash.c:190: error: 'TF_OPTION' undeclared (first
-use in this function)
-scripts/kconfig/zconf.hash.c:203: error: 'T_OPT_MODULES' undeclared
-(first use in this function)
-scripts/kconfig/zconf.tab.c: In function 'zconfparse':
-scripts/kconfig/zconf.tab.c:1557: error: 'TF_OPTION' undeclared (first
-use in this function)
-scripts/kconfig/zconf.tab.c:1557: error: invalid operands to binary &
-scripts/kconfig/zconf.tab.c:1558: warning: implicit declaration of
-function 'menu_add_option'
-make[2]: *** [scripts/kconfig/zconf.tab.o] Error 1
-make[1]: *** [oldconfig] Error 2
-make: *** [oldconfig] Error 2
+The current implementation of wait_event_interruptible() seems to 
+evaluate @condition multiple times if it is false but only _once_ while 
+it is true. May I rely on this fact or do I have to rewrite the 
+condition to be completely free of side effects?
 
-Regards,
-Michal
+I don't believe there would be ever a sensible implementation of 
+wait_event_interruptible() which would evaluate @condition again after 
+it became true.
 
+Thanks,
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Stefan Richter
+-=====-=-==- -==- ==--=
+http://arcgraph.de/sr/

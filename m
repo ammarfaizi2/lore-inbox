@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWFYKJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWFYKN2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWFYKJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 06:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWFYKJ2
+	id S932275AbWFYKN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 06:13:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWFYKN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 06:09:28 -0400
-Received: from smtp1-g19.free.fr ([212.27.42.27]:15834 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751225AbWFYKJ1 (ORCPT
+	Sun, 25 Jun 2006 06:13:27 -0400
+Received: from e181106078.adsl.alicedsl.de ([85.181.106.78]:28936 "EHLO
+	alexander") by vger.kernel.org with ESMTP id S1751238AbWFYKNX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 06:09:27 -0400
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: "Avuton Olrich" <avuton@gmail.com>
-Subject: Re: XFS crashed twice, once in 2.6.16.20, next in 2.6.17, reproducable
-Date: Sun, 25 Jun 2006 12:09:23 +0200
-User-Agent: KMail/1.9.1
-Cc: "Nathan Scott" <nathans@sgi.com>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com
-References: <3aa654a40606190044q43dca571qdc06ee13d82d979@mail.gmail.com> <20060620165209.C1080488@wobbly.melbourne.sgi.com> <3aa654a40606200120v5baf0304ka205f1ad8f136ad9@mail.gmail.com>
-In-Reply-To: <3aa654a40606200120v5baf0304ka205f1ad8f136ad9@mail.gmail.com>
+	Sun, 25 Jun 2006 06:13:23 -0400
+Date: Sun, 25 Jun 2006 10:13:31 -0060
+From: "Chester Godfrey" <tkolokotrones@selfesteemclothing.com>
+X-Mailer: The Bat! (v2.0 Beta/1) Personal
+Reply-To: "Chester Godfrey" <tkolokotrones@selfesteemclothing.com>
+X-Priority: 3 (Normal)
+Message-ID: <150672230.20060625101331@selfesteemclothing.com>
+To: linux-smp@vger.kernel.org
+Subject: April: may the market 's market review the investment 
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606251209.23766.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got a new XFS crash running 2.6.17, again with problems at block
-16777216 - I'll try to make a copy of the corrupted filesystem available.
-Interestingly enough, I'm also seeing ext3 corruption.  The usual
-manifestation is that a program fails to run, with a message about it
-not being in executable format (if it happens again I will take a note of
-the exact message).  I've had no problems at all with 2.6.17.  It seems
-to be happening randomly, which makes me suspect a race condition
-(uniprocessor machine, but preemptable kernel), or memory corruption.
-I will rebuild the kernel with all kernel debugging options turned
-on, once I recover the filesystem.
+AGA Resources Climbs 33% after announcing the Acquisition Of Triumph Research LTD and Beijing Tangde International Film and Culture Co. LTD
 
-Ciao,
+This is climbing move now.
 
-D.
+AGA Resources Inc.
+A G A 0
+Open: $2.25
+Close: $3.00
+Up: 33%
+
+AGA announced its Acquisition of a B.V.I. company to become involved in a Media and Entertainment Joint Venture in China. This agreement gives them controlling shares of Triumph and all its investment ventures in China.
+
+this has also drawn attention to AGA's current exploration of minerals in there acquired properties in British Columbia, in which recent purchase of Diamond Core drilling equipment that can explore to a depth of 1400 feet, has excited its current investors and today brought more investors to the table.
+
+With an increase in price of 33% and the excitement building on this company, we strongly encourage you to review the recent news releases and get on board while the price is still low. Place your bid first thing Monday morning.
+
+
+
+

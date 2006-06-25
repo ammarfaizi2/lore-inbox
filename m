@@ -1,108 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWFYMNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWFYMS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWFYMNm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 08:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWFYMNm
+	id S1750737AbWFYMS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 08:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWFYMS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 08:13:42 -0400
-Received: from ozlabs.org ([203.10.76.45]:62137 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750753AbWFYMNl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 08:13:41 -0400
+	Sun, 25 Jun 2006 08:18:58 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:40815 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750737AbWFYMS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 08:18:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WMnIXbDJc45NajgGgfbkclUx61M1zdHMOKDTDm/AQ+TG0gO3FbRv9i0EUb1bjWcmfJGiaiwuvJQnlraGTI575GlHTtxx+VC335BVViY2wq9DNd+4m+uYTsSMZMJaaF3LZlUiu7LgUONoMT3GlRjoyJ5OVSY1U4rLt0eAUfZqT54=
+Message-ID: <6bffcb0e0606250518t1a6ba70cgc92d6353139a4ead@mail.gmail.com>
+Date: Sun, 25 Jun 2006 14:18:56 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-mm2
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060625044013.09190fff.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17566.32236.368906.227113@cargo.ozlabs.ibm.com>
-Date: Sun, 25 Jun 2006 22:13:32 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, mingo@elte.hu, schwidefsky@de.ibm.com
-CC: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove extra local_bh_disable/enable from arch do_softirq
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+References: <20060624061914.202fbfb5.akpm@osdl.org>
+	 <6bffcb0e0606250419p5e1fca1en5975f3d7a3c12ecd@mail.gmail.com>
+	 <20060625044013.09190fff.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At the moment, powerpc and s390 have their own versions of do_softirq
-which include local_bh_disable() and __local_bh_enable() calls.  They
-end up calling __do_softirq (in kernel/softirq.c) which also does
-local_bh_disable/enable.
+On 25/06/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Sun, 25 Jun 2006 13:19:25 +0200
+> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+>
+> > On 24/06/06, Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm2/
+> > >
+> >
+> > I found this in /var/log/messages.1
+> >
+> > Jun 24 22:29:52 ltg01-fedora kernel: BUG: unable to handle kernel
+> > paging request at virtual address 6b6b6b7b
+> > Jun 24 22:29:52 ltg01-fedora kernel:  printing eip:
+> > Jun 24 22:29:52 ltg01-fedora kernel: c01174f2
+> > Jun 24 22:29:52 ltg01-fedora kernel: *pde = 00000000
+> > Jun 24 22:29:52 ltg01-fedora kernel: Oops: 0000 [#1]
+> > Jun 24 22:29:52 ltg01-fedora kernel: 4K_STACKS PREEMPT SMP
+> > Jun 24 22:29:52 ltg01-fedora kernel: last sysfs file:
+> > /devices/platform/i2c-9191/9191-0290/temp2_input
+> > Jun 24 22:29:52 ltg01-fedora kernel: Modules linked in: ipv6 w83627hf
+> > hwmon_vid hwmon i2c_isa af_packet ip_conntrack_netbios
+> > _ns ipt_REJECT xt_state ip_conntrack nfnetlink xt_tcpudp
+> > iptable_filter ip_tables x_tables p4_clockmod speedstep_lib binfmt_
+> > misc thermal processor fan container parport_pc parport nvram
+> > snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq
+> > _oss snd_seq_midi_event evdev snd_seq snd_seq_device snd_pcm_oss
+> > snd_mixer_oss snd_pcm snd_timer snd soundcore ide_cd snd_pa
+> > ge_alloc intel_agp i2c_i801 sk98lin skge agpgart cdrom rtc unix
+> > Jun 24 22:29:52 ltg01-fedora kernel: CPU:    0
+> > Jun 24 22:29:52 ltg01-fedora kernel: EIP:    0060:[<c01174f2>]    Not
+> > tainted VLI
+> > Jun 24 22:29:52 ltg01-fedora kernel: EFLAGS: 00010096   (2.6.17-mm2 #51)
+> > Jun 24 22:29:52 ltg01-fedora kernel: EIP is at task_rq_lock+0x1d/0x57
+>
+> OK, thanks.  I expect the below will fix that (I've since dropped the
+> offending patches)
+>
 
-Apparently the two levels of disable/enable trigger a warning from
-some validation code that Ingo is working on, and he would like to see
-the outer level removed.  But to do that, we have to move the
-account_system_vtime calls that are currently in the arch do_softirq()
-implementations for powerpc and s390 into the generic __do_softirq()
-(this is a no-op for other archs because account_system_vtime is
-defined to be an empty inline function on all other archs).  This
-patch does that.
+Problem fixed, thanks.
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
----
-The s390 change here needs to be acked by the s390 folks, in case
-there's a subtlety on s390 that I have missed.
+Regards,
+Michal
 
-diff --git a/arch/powerpc/kernel/irq.c b/arch/powerpc/kernel/irq.c
-index 40d4c14..2b52802 100644
---- a/arch/powerpc/kernel/irq.c
-+++ b/arch/powerpc/kernel/irq.c
-@@ -425,13 +425,8 @@ void do_softirq(void)
- 
- 	local_irq_save(flags);
- 
--	if (local_softirq_pending()) {
--		account_system_vtime(current);
--		local_bh_disable();
-+	if (local_softirq_pending())
- 		do_softirq_onstack();
--		account_system_vtime(current);
--		__local_bh_enable();
--	}
- 
- 	local_irq_restore(flags);
- }
-diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-index 480b6a5..1eef509 100644
---- a/arch/s390/kernel/irq.c
-+++ b/arch/s390/kernel/irq.c
-@@ -69,10 +69,6 @@ asmlinkage void do_softirq(void)
- 
- 	local_irq_save(flags);
- 
--	account_system_vtime(current);
--
--	local_bh_disable();
--
- 	if (local_softirq_pending()) {
- 		/* Get current stack pointer. */
- 		asm volatile("la %0,0(15)" : "=a" (old));
-@@ -95,10 +91,6 @@ asmlinkage void do_softirq(void)
- 			__do_softirq();
- 	}
- 
--	account_system_vtime(current);
--
--	__local_bh_enable();
--
- 	local_irq_restore(flags);
- }
- 
-diff --git a/kernel/softirq.c b/kernel/softirq.c
-index 336f92d..20922c5 100644
---- a/kernel/softirq.c
-+++ b/kernel/softirq.c
-@@ -81,6 +81,7 @@ asmlinkage void __do_softirq(void)
- 
- 	pending = local_softirq_pending();
- 
-+	account_system_vtime(current);
- 	local_bh_disable();
- 	cpu = smp_processor_id();
- restart:
-@@ -109,6 +110,7 @@ restart:
- 	if (pending)
- 		wakeup_softirqd();
- 
-+	account_system_vtime(current);
- 	__local_bh_enable();
- }
- 
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

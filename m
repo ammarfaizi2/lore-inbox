@@ -1,82 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWFYK6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWFYLBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbWFYK6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 06:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWFYK6Q
+	id S932350AbWFYLBp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 07:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWFYLBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 06:58:16 -0400
-Received: from mx6.mail.ru ([194.67.23.26]:36656 "EHLO mx6.mail.ru")
-	by vger.kernel.org with ESMTP id S932347AbWFYK6P (ORCPT
+	Sun, 25 Jun 2006 07:01:44 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:20924 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932350AbWFYLBo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 06:58:15 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATA driver patch for 2.6.17
-Date: Sun, 25 Jun 2006 14:58:10 +0400
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <1150740947.2871.42.camel@localhost.localdomain> <e79a9e$2kt$1@sea.gmane.org> <1150925002.15275.128.camel@localhost.localdomain>
-In-Reply-To: <1150925002.15275.128.camel@localhost.localdomain>
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606251458.11824.arvidjaar@mail.ru>
+	Sun, 25 Jun 2006 07:01:44 -0400
+Date: Sun, 25 Jun 2006 13:01:36 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Dave Jones <davej@redhat.com>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
+In-Reply-To: <20060624195409.GA2777@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.61.0606251301030.28911@yvahk01.tjqt.qr>
+References: <20060619191543.GA17187@rhlx01.fht-esslingen.de>
+ <Pine.LNX.4.61.0606191542050.4926@chaos.analogic.com> <20060619202354.GD26759@redhat.com>
+ <20060619222528.GC1648@openzaurus.ucw.cz> <Pine.LNX.4.61.0606201156080.2481@yvahk01.tjqt.qr>
+ <20060622181658.GA4193@elf.ucw.cz> <Pine.LNX.4.61.0606231930360.26864@yvahk01.tjqt.qr>
+ <20060624195409.GA2777@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Thursday 22 June 2006 01:23, Alan Cox wrote:
-> Ar Maw, 2006-06-20 am 21:12 +0400, ysgrifennodd Andrey Borzenkov:
-> > Running vanilla 2.6.17 + ide1 patch on ALi M5229 does not find CD-ROM.
-> > Notice "ata2: command 0xa0 timeout" below.
+>> The best would be to turn the machine off after, say, 60 seconds. (So you 
+>> can grab the panic, if there is one.)
 >
+>I'd rather not overdo it. Shutting machine down is pretty hard
+>operation.
 
-I also tried the Tejun Heo patch for 2.6.17 (wihout PM) + pata_ali from Jeff 
-Garik git tree with the same result; may be it gives more information about 
-the error:
+Hm. Too bad a CPU does not have a simple low-level trigger for poweroff, 
+like there is for reboot when a triplefault occurs.
 
-libata version 1.30 loaded.
-ACPI: PCI Interrupt 0000:00:04.0[A]: no GSI
-ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xEFF0 irq 14
-scsi0 : pata_ali
-ata1.00: configured for UDMA/33
-  Vendor: ATA       Model: IC25N020ATDA04-0  Rev: DA3O
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xEFF8 irq 15
-scsi1 : pata_ali
-ata2.00: configured for UDMA/33
-ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-ata2.00: (BMDMA stat 0x21)
-ata2.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
-ata2: soft resetting port
-ata2.00: configured for UDMA/33
-ata2: EH complete
-ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-ata2.00: (BMDMA stat 0x21)
-ata2.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
-ata2: soft resetting port
-ata2.00: configured for UDMA/33
-ata2: EH complete
-ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-ata2.00: (BMDMA stat 0x21)
-ata2.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
-ata2: soft resetting port
-ata2.00: configured for UDMA/33
-ata2: EH complete
-ata2.00: limiting speed to UDMA/25
-ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-ata2.00: (BMDMA stat 0x21)
-ata2.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
-ata2: soft resetting port
-ata2.00: configured for UDMA/25
-ata2: EH complete
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
 
-iD8DBQFEnmxDR6LMutpd94wRAk7tAJ42j1L2FENW05f5SgbfFvSY9PJWDwCgjdwn
-0p11xgxTLdnddgjPtBHEGVM=
-=sZeN
------END PGP SIGNATURE-----
+Jan Engelhardt
+-- 

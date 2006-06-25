@@ -1,180 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWFYRkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWFYRnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbWFYRkv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 13:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWFYRkv
+	id S932431AbWFYRnU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 13:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWFYRnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 13:40:51 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:38287 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932434AbWFYRku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 13:40:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=LlRS5oV75f5TeoYLABy+Ss+dFdQXVZsJAMnS3+x2UfdKqygCdEqCId1RN7BirHmi87+lK0aleNig+On48myQa8DnQGBAb/bkr87m+oJuGNy4A9o2GDHyehBTo65CXjmtLr/izXRcYG/zwJOlW66zigxiFHdhqzNwQGTSKLJ8zlA=
-Message-ID: <9e4733910606251040v62675399gdfe438aaac691a5a@mail.gmail.com>
-Date: Sun, 25 Jun 2006 13:40:49 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Kconfig for radio cards to allow VIDEO_V4L1_COMPAT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sun, 25 Jun 2006 13:43:20 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:12247 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932431AbWFYRnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 13:43:19 -0400
+Subject: Re: [PATCH] i386: Fix softirq accounting with 4K stacks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+       linux-kernel@vger.kernel.org, danial_thom@yahoo.com,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1151257451.7858.45.camel@Homer.TheSimpsons.net>
+References: <1151128763.7795.9.camel@Homer.TheSimpsons.net>
+	 <1151130383.7545.1.camel@Homer.TheSimpsons.net>
+	 <20060624092156.GA13142@atjola.homenet>
+	 <1151142716.7797.10.camel@Homer.TheSimpsons.net>
+	 <1151149317.7646.14.camel@Homer.TheSimpsons.net>
+	 <20060624154037.GA2946@atjola.homenet>
+	 <1151166193.8516.8.camel@Homer.TheSimpsons.net>
+	 <20060624192523.GA3231@atjola.homenet>
+	 <1151211993.8519.6.camel@Homer.TheSimpsons.net>
+	 <20060625111238.GB8223@atjola.homenet>
+	 <20060625142440.GD8223@atjola.homenet>
+	 <1151257451.7858.45.camel@Homer.TheSimpsons.net>
+Content-Type: text/plain; charset=UTF-8
+Date: Sun, 25 Jun 2006 19:43:17 +0200
+Message-Id: <1151257397.4940.45.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In Kconfig all of the radio cards depend on VIDEO_V4L1. But V4L1 has
-been deprecated and replaced with V4L2. V4L2 offers a V4L1
-compatibility layer. Should the Kconfig for these devices be changed
-to depend on (VIDEO_V4L1. || VIDEO_V4L1_COMPAT)? I'm not the
-maintainer for this but they seem to build ok.
+On Sun, 2006-06-25 at 19:44 +0200, Mike Galbraith wrote:
+> On Sun, 2006-06-25 at 16:24 +0200, Björn Steinbrink wrote:
+> 
+> > Still no idea why your "fix" works, but the following patch also fixes
+> > the problem and is at least a little more like the RightThing.
+> 
+> Yeah.  I don't know about you, but I fully intend to blatantly ignore
+> that 'why' ;-)
 
-Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
+the why is relatively easy ;)
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+since the "is a softirq executing" bit is on the stack, and each context
+(user, soft and hard irq) has their own stack, it's not automatic that
+the hardirq stack gets the softirq-executing flag... which your patch
+fixes.
+
+NMI's and apic irqs generally don't go via the normal irq path and thus
+don't do a stack switch... so they don't lose the bit (for accounting
+purposes)
 
 
-
-diff --git a/drivers/media/radio/Kconfig b/drivers/media/radio/Kconfig
-index 3fff757..efa27f3 100644
---- a/drivers/media/radio/Kconfig
-+++ b/drivers/media/radio/Kconfig
-@@ -7,7 +7,7 @@ menu "Radio Adapters"
-
-  config RADIO_CADET
-  	tristate "ADS Cadet AM/FM Tuner"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Choose Y here if you have one of these AM/FM radio cards, and then
- 	  fill in the port address below.
-@@ -25,7 +25,7 @@ config RADIO_CADET
-
-  config RADIO_RTRACK
-  	tristate "AIMSlab RadioTrack (aka RadioReveal) support"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards, and then fill
- 	  in the port address below.
-@@ -59,7 +59,7 @@ config RADIO_RTRACK_PORT
-
-  config RADIO_RTRACK2
-  	tristate "AIMSlab RadioTrack II support"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Choose Y here if you have this FM radio card, and then fill in the
- 	  port address below.
-@@ -82,7 +82,7 @@ config RADIO_RTRACK2_PORT
-
-  config RADIO_AZTECH
-  	tristate "Aztech/Packard Bell Radio"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards, and then fill
- 	  in the port address below.
-@@ -106,7 +106,7 @@ config RADIO_AZTECH_PORT
-
-  config RADIO_GEMTEK
-  	tristate "GemTek Radio Card support"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Choose Y here if you have this FM radio card, and then fill in the
- 	  port address below.
-@@ -131,7 +131,7 @@ config RADIO_GEMTEK_PORT
-
-  config RADIO_GEMTEK_PCI
-  	tristate "GemTek PCI Radio Card support"
--	depends on VIDEO_V4L1 && PCI
-+	depends on (VIDEO_V4L1 || VIDEO_V4L1_COMPAT) && PCI
- 	---help---
-  	  Choose Y here if you have this PCI FM radio card.
-
-@@ -145,7 +145,7 @@ config RADIO_GEMTEK_PCI
-
-  config RADIO_MAXIRADIO
-  	tristate "Guillemot MAXI Radio FM 2000 radio"
--	depends on VIDEO_V4L1 && PCI
-+	depends on (VIDEO_V4L1 || VIDEO_V4L1_COMPAT) && PCI
- 	---help---
- 	  Choose Y here if you have this radio card.  This card may also be
-  	  found as Gemtek PCI FM.
-@@ -160,7 +160,7 @@ config RADIO_MAXIRADIO
-
-  config RADIO_MAESTRO
-  	tristate "Maestro on board radio"
--	depends on VIDEO_V4L1
-+	depends on (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Say Y here to directly support the on-board radio tuner on the
- 	  Maestro 2 or 2E sound card.
-@@ -175,7 +175,7 @@ config RADIO_MAESTRO
-
-  config RADIO_MIROPCM20
-  	tristate "miroSOUND PCM20 radio"
--	depends on ISA && VIDEO_V4L1 && SOUND_ACI_MIXER
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT) && SOUND_ACI_MIXER
- 	---help---
- 	  Choose Y here if you have this FM radio card. You also need to say Y
-  	  to "ACI mixer (miroSOUND PCM1-pro/PCM12/PCM20 radio)" (in "Sound")
-@@ -208,7 +208,7 @@ config RADIO_MIROPCM20_RDS
-
-  config RADIO_SF16FMI
-  	tristate "SF16FMI Radio"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards.  If you
-  	  compile the driver into the kernel and your card is not PnP one, you
-@@ -225,7 +225,7 @@ config RADIO_SF16FMI
-
-  config RADIO_SF16FMR2
-  	tristate "SF16FMR2 Radio"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards.
-
-@@ -239,7 +239,7 @@ config RADIO_SF16FMR2
-
-  config RADIO_TERRATEC
-  	tristate "TerraTec ActiveRadio ISA Standalone"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Choose Y here if you have this FM radio card, and then fill in the
-  	  port address below. (TODO)
-@@ -268,7 +268,7 @@ config RADIO_TERRATEC_PORT
-
-  config RADIO_TRUST
-  	tristate "Trust FM radio card"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	help
- 	  This is a driver for the Trust FM radio cards. Say Y if you have
- 	  such a card and want to use it under Linux.
-@@ -286,7 +286,7 @@ config RADIO_TRUST_PORT
-
-  config RADIO_TYPHOON
-  	tristate "Typhoon Radio (a.k.a. EcoRadio)"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards, and then fill
- 	  in the port address and the frequency used for muting below.
-@@ -330,7 +330,7 @@ config RADIO_TYPHOON_MUTEFREQ
-
-  config RADIO_ZOLTRIX
-  	tristate "Zoltrix Radio"
--	depends on ISA && VIDEO_V4L1
-+	depends on ISA && (VIDEO_V4L1 || VIDEO_V4L1_COMPAT)
- 	---help---
- 	  Choose Y here if you have one of these FM radio cards, and then fill
- 	  in the port address below.

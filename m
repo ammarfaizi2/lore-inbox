@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWFYRzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965294AbWFYSLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWFYRzl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 13:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWFYRzk
+	id S965294AbWFYSLG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 14:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965300AbWFYSLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 13:55:40 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:58911 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750727AbWFYRzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 13:55:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=KZdQuDPXWLlQeJ8H7wjRrLCWLG2CIfenNVXmNlDBXIeIqyC1kkfSXi79hLBP2DftYnxQTj+uzUs+A6RtpDVrHRoD6+bVnjqAyAO/66Y5+9rekl5OYGtN+nlDRtdsNj77evKnit94xEsgHixFmCSM4xOUoH+j85V7ShCjHBH10DY=
-Message-ID: <449ECE2E.3080804@gmail.com>
-Date: Sun, 25 Jun 2006 19:55:58 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Sun, 25 Jun 2006 14:11:05 -0400
+Received: from mail.gmx.net ([213.165.64.21]:31136 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965294AbWFYSLD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 14:11:03 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-mm2 (NULL pointer dereference)
+Date: Sun, 25 Jun 2006 20:11:36 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <20060624061914.202fbfb5.akpm@osdl.org> <200606251825.26614.dominik.karall@gmx.net> <20060625101840.4f90da21.akpm@osdl.org>
+In-Reply-To: <20060625101840.4f90da21.akpm@osdl.org>
 MIME-Version: 1.0
-To: Nick Piggin <npiggin@suse.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: [patch] 2.6.17: lockless pagecache
-References: <20060625163930.GB3006@wotan.suse.de>
-In-Reply-To: <20060625163930.GB3006@wotan.suse.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606252011.36602.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin napisał(a):
-> Updated lockless pagecache patchset available here:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/npiggin/patches/lockless/2.6.17/lockless.patch.gz
-> 
+On Sunday, 25. June 2006 19:18, Andrew Morton wrote:
+> On Sun, 25 Jun 2006 18:25:26 +0200
+>
+> Dominik Karall <dominik.karall@gmx.net> wrote:
+> > On Saturday, 24. June 2006 15:19, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2
+> > >.6.1 7/2.6.17-mm2/
+> >
+> > hi!
+> >
+> > I got this error with 2.6.17-mm1 too, I took a picture with my
+> > mobile, hope it's readable:
+> > http://stud4.tuwien.ac.at/~e0227135/kernel/060625_180209.jpg
+>
+> hm, that's new.  We do seem to be getting a few sysfs/kobject
+> crashes in there.
+>
+> Do you actually have the bttv hardware present?
 
-Here is my fix for this warnings
-WARNING: /lib/modules/2.6.17.1/kernel/fs/ntfs/ntfs.ko needs unknown symbol add_to_page_cache
-WARNING: /lib/modules/2.6.17.1/kernel/fs/ntfs/ntfs.ko needs unknown symbol add_to_page_cache
+Yes, the bttv hardware is present. You can find my lspci output and 
+the .config file which I used for that kernel at:
+http://stud4.tuwien.ac.at/~e0227135/kernel/
 
-Regards,
-Michal
-
---
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
-
-diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/mm/filemap.c linux-work/mm/filemap.c
---- linux-work-clean/mm/filemap.c	2006-06-25 19:47:47.000000000 +0200
-+++ linux-work/mm/filemap.c	2006-06-25 19:50:43.000000000 +0200
-@@ -445,6 +445,8 @@ int add_to_page_cache(struct page *page,
- 	return error;
- }
-
-+EXPORT_SYMBOL(add_to_page_cache);
-+
- /*
-  * Same as add_to_page_cache, but works on pages that are already in
-  * swapcache and possibly visible to external lookups.
-
+hth,
+dominik

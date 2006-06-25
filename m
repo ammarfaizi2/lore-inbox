@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWFXUaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWFXUup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751094AbWFXUaU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jun 2006 16:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWFXUaU
+	id S1751095AbWFXUup (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jun 2006 16:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWFXUup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jun 2006 16:30:20 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:30888 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751094AbWFXUaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jun 2006 16:30:19 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <449DA08A.10209@s5r6.in-berlin.de>
-Date: Sat, 24 Jun 2006 22:28:58 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 2.6.17-mm1 4/3] ieee1394: convert	ieee1394_transactions
- from semaphores to waitqueue
-References: <449BEBFB.60302@s5r6.in-berlin.de>	 <200606230904.k5N94Al3005245@shell0.pdx.osdl.net>	 <30866.1151072338@warthog.cambridge.redhat.com>	 <tkrat.df6845846c72176e@s5r6.in-berlin.de>	 <tkrat.9c73406a85ae9ce4@s5r6.in-berlin.de>	 <tkrat.e74b06c4105348f6@s5r6.in-berlin.de>	 <tkrat.2ff7b57397a5a37e@s5r6.in-berlin.de>	 <tkrat.3f9c07538e381afd@s5r6.in-berlin.de>	 <449D7A53.4080605@s5r6.in-berlin.de> <1151172766.3181.75.camel@laptopd505.fenrus.org>
-In-Reply-To: <1151172766.3181.75.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.894) AWL,BAYES_50
+	Sat, 24 Jun 2006 16:50:45 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:9622 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751095AbWFXUuo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jun 2006 16:50:44 -0400
+Date: Sun, 25 Jun 2006 04:50:45 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/3] Drop tasklist lock in do_sched_setscheduler
+Message-ID: <20060625005045.GA155@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Sat, 2006-06-24 at 19:45 +0200, Stefan Richter wrote:
->>following semaphores remain in the ieee1394 subsystem:
->>
->>highlevel.c:  hl_drivers_sem    (RW semaphore)
->>nodemgr.c:    subsys.rwsem      (driver core's RW semaphores)
->>raw1394.c:    fi->complete_sem  (completion semaphore)
+Thomas Gleixner wrote:
+>
+> There is no need to hold tasklist_lock across the setscheduler call, when we
+> pin the task structure with get_task_struct(). Interrupts are disabled in 
+> setscheduler anyway and the permission checks do not need interrupts disabled.
+>
+> --- linux-2.6.17-mm.orig/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
+> +++ linux-2.6.17-mm/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
+> @@ -4140,8 +4140,10 @@
+>  		read_unlock_irq(&tasklist_lock);
+>  		return -ESRCH;
+>  	}
+> -	retval = sched_setscheduler(p, policy, &lparam);
+> +	get_task_struct(p);
+>  	read_unlock_irq(&tasklist_lock);
+> +	retval = sched_setscheduler(p, policy, &lparam);
+> +	put_task_struct(p);
+>  	return retval;
+>  }
 
-> can this last one move to an actual completion? That would get rid of it
-> nicely ;)
+But we don't need read_lock(tasklist) and get_task_struct(p) at all?
 
-Hmm. There are dozens of points in raw1394 which call 
-__queue_complete_req() which up()s the semaphore. ("fi" is the 
-private_data of a struct file. Multiple outstanding requests may be 
-associated with a file.) Then there are two places which wait on the 
-semaphore:
+rcu_read_lock/rcu_read_unlock is enough, no?
 
-raw1394_read(), called when somebody reads /dev/raw1394:
-	if (file->f_flags & O_NONBLOCK) {
-		if (down_trylock(&fi->complete_sem))
-			return -EAGAIN;
-	} else {
-		if (down_interruptible(&fi->complete_sem))
-			return -ERESTARTSYS;
-	}
+Oleg.
 
-raw1394_release(), called when somebody closes (releases) /dev/raw1394:
-	done = 0;
-	while (!done) {
-		/* free all complete requests */
-		/* set "done" if there are no more pending requests */
-		if (!done)
-			down_interruptible(&fi->complete_sem);
-	}
-	/* cleanup, free fi */
-
-It looks like fi->complete_sem is a actually a counting semaphore. It 
-could perhaps be replaced by a wait queue plus an atomic counter. There 
-is even already a wait queue in "fi" for use with poll_wait() via 
-raw1394_poll().
--- 
-Stefan Richter
--=====-=-==- -==- ==---
-http://arcgraph.de/sr/

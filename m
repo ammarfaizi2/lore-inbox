@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWFYRUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWFYRWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbWFYRUI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 13:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWFYRUI
+	id S1751331AbWFYRWP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 13:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWFYRWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 13:20:08 -0400
-Received: from hera.kernel.org ([140.211.167.34]:10440 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751330AbWFYRUG (ORCPT
+	Sun, 25 Jun 2006 13:22:15 -0400
+Received: from www.osadl.org ([213.239.205.134]:7592 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751331AbWFYRWO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 13:20:06 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Is the x86-64 kernel size limit real?
-Date: Sun, 25 Jun 2006 10:19:52 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e7mgjo$oco$1@terminus.zytor.com>
-References: <20060622204627.GA47994@dspnet.fr.eu.org> <p73hd2cnik6.fsf@verdi.suse.de>
+	Sun, 25 Jun 2006 13:22:14 -0400
+Subject: Re: Problem with 2.6.17-mm2
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20060625034913.315755ae.akpm@osdl.org>
+References: <20060625103523.GY27143@charite.de>
+	 <20060625034913.315755ae.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 25 Jun 2006 19:24:06 +0200
+Message-Id: <1151256246.25491.398.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1151255992 24985 127.0.0.1 (25 Jun 2006 17:19:52 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sun, 25 Jun 2006 17:19:52 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <p73hd2cnik6.fsf@verdi.suse.de>
-By author:    Andi Kleen <ak@suse.de>
-In newsgroup: linux.dev.kernel
->
-> Olivier Galibert <galibert@pobox.com> writes:
-> 
-> > I get bitched at by the build process because the kernel I get is
-> > around 4.5Mb compressed.  i386 does not have that limitation.
-> > Interestingly, a diff between the two build.c gives:
-> 
-> A patch to fix it is already queued for 2.6.18
-> 
-> Also long term it might be completely dropped when the uncompressor
-> moves to long mode.
-> 
+Andrew,
 
-It can be completely dropped now (and the directories unified); the
-size limitation on the uncompressed size can be enforced in the linker
-script.
+On Sun, 2006-06-25 at 03:49 -0700, Andrew Morton wrote:
+> OK, thanks.
+> 
+> > 1) A lot of "unexpected IRQ trap at vector X" for X=[09,07]
+> 
+> hm, ack_bad_irq().  That isn't supposed to happen.
+> 
+> Ingo, Thomas - it's possible that -mm2's genirq is affecting x86?
 
-The uncompressor only needs to be in long mode to support > 4 GB.
+I did some tests by asserting spurious interrupts. genirq is just making
+them visible, backing out the genirq changes makes them invisible again.
 
-	-hpa
+The reason is:
+
+ack_bad_irq() in !genirq is only called, when no hw_irq_controller has
+been installed. The interrupts in question have the PIC/APIC/IOAPIC
+functions installed.
+
+Now when a spurios interrupt comes in we do
+
+	desc->handler->ack(irq);
+
+	if (!desc->action)
+		goto out;
+
+So in fact this just silently acks spurious interrupts which have an
+hw_irq_controller assigned. If there is no action, then nothing has
+called setup_irq/request_irq for this interrupt line and therefor it is
+an spurious interrupt which should not happen.
+
+
+genirq makes these visible and informs noisily about those events. 
+
+Looking at the debug output we see:
+
+irq 7, desc: c037bc00, depth: 1, count: 0, unhandled: 0
+->handle_irq():  c013d360, handle_bad_irq+0x0/0x270
+->chip(): c037f980, 0xc037f980
+->action(): 00000000
+IRQ_DISABLED set
+
+The interrupt is disabled and action is NULL.
+
+	tglx
+
 

@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWFYLoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWFYLso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbWFYLoV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 07:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWFYLoV
+	id S932397AbWFYLso (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 07:48:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWFYLso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 07:44:21 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:65456 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932385AbWFYLoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 07:44:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=QhZUVyO/Ad/Y1RKwRn4JpkR9TaMJ1NBcgJx+zB7P0Qtxz4jjNAgftuaXcJ0DiVQlpL1YViZVL+I1snSyLQ3b9oiN1TRiqVy7/YAdwlGRGbOd5lGkN9+pWFQmumVJDvFJLi0NaCvHWaK0KlFhjmUEMT1PDKmoTNOYiH1Gj67r1yk=
-Message-ID: <449E770E.4010102@gmail.com>
-Date: Sun, 25 Jun 2006 20:44:14 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Sun, 25 Jun 2006 07:48:44 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:38607 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932397AbWFYLsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 07:48:43 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Sun, 25 Jun 2006 13:46:04 +0200
+To: schilling@fokus.fraunhofer.de, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bugme-new] [Bug 6745] New: kernel hangs when trying to read atip wiith cdrecord
+Message-ID: <449E777C.nail9X1595M9@burner>
+References: <449E6B43.nail9A11I1BV@burner>
+ <20060625040642.f37646ba.akpm@osdl.org>
+In-Reply-To: <20060625040642.f37646ba.akpm@osdl.org>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: Andre Tomt <andre@tomt.net>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [ANNOUNCE] libata: new EH, NCQ, hotplug and Power Management
- patches against v2.6.17
-References: <20060625073003.GA21435@htj.dyndns.org> <449E73C1.4050604@tomt.net>
-In-Reply-To: <449E73C1.4050604@tomt.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Tomt wrote:
-> Tejun Heo wrote:
->> Hello, all.
->>
->> libata-tj-stable patches against v2.6.17 and v2.6.17.1 are available.
-> 
-> It appears drivers/scsi/libata-eh.c isn't getting built in the 2.6.17 
-> patch, seems to be missing in drivers/scsi/Makefile:
+Andrew Morton <akpm@osdl.org> wrote:
 
-Yeap, right.  My bad.  I forgot to do 'quilt add' the Makefile.  The 
-updated tarball is at
+> On Sun, 25 Jun 2006 12:53:55 +0200
+> Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+>
+> > The problem mentioned in this thread seems to be caused by the fact that
+> > Linux sometimes ignores timeouts. I have no idea how to help in this (timeout) 
+> > case.
+>
+> OK, thanks.  So is that likely to be an IDE bug, or a SCSI bug or an IDE-CD
+> bug?
 
-http://home-tj.org/files/libata-tj-stable/libata-tj-2.6.17-20060625-1.tar.bz2
+I am not sure if the log from the OP includes all information.
 
-Sorry about the trouble.
+I've seen already messages like this:
+
+cdrecord: Input/output error. Cannot set SG_SET_TIMEOUT.
+
+This should be something that I would never to expect to happen.
+
+If the OP does not see a similar message, it seems that the call is
+accepted but later ignored. I have no idea why this happens.
+
+Jörg
 
 -- 
-tejun
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

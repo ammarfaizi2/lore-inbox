@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWFYPXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWFYPd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWFYPXH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 11:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWFYPXG
+	id S1751096AbWFYPd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 11:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWFYPd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 11:23:06 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:30374 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932427AbWFYPXF (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 11:23:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tVT3ONXJcRVKQ4jRfL6K7DA48ex27JCg43oKaA/36g1NIWVTB5NES8tICYYQstAXdx8he/i0z6TQiQzOHISxeBfnJtHAkZ6j7r+eCy2uIVibDKqgAkWwtAnSrok0pUALDwxstjVLiGaaUSAPXj4fw25wJQAqdbbFokA/+zjzfJM=
-Message-ID: <3b0ffc1f0606250823h49ec5c9cy180d4941d6c9c8b@mail.gmail.com>
-Date: Sun, 25 Jun 2006 11:23:02 -0400
-From: "Kevin Radloff" <radsaq@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATA driver patch for 2.6.17
-Cc: Linux-Kernel@vger.kernel.org
-In-Reply-To: <1150740947.2871.42.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 25 Jun 2006 11:33:56 -0400
+Received: from www.osadl.org ([213.239.205.134]:55206 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751096AbWFYPd4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 11:33:56 -0400
+Subject: Re: [patch 1/3] Drop tasklist lock in do_sched_setscheduler
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060625005045.GA155@oleg>
+References: <20060625005045.GA155@oleg>
+Content-Type: text/plain
+Date: Sun, 25 Jun 2006 17:35:46 +0200
+Message-Id: <1151249747.25491.378.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1150740947.2871.42.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/19/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> http://zeniv.linux.org.uk/~alan/IDE
->
-> This is basically a resync versus 2.6.17, the head of the PATA tree is
-> now built against Jeffs tree with revised error handling and the like.
->
-> Alan
+On Sun, 2006-06-25 at 04:50 +0400, Oleg Nesterov wrote:
+> Thomas Gleixner wrote:
+> >
+> > There is no need to hold tasklist_lock across the setscheduler call, when we
+> > pin the task structure with get_task_struct(). Interrupts are disabled in 
+> > setscheduler anyway and the permission checks do not need interrupts disabled.
+> >
+> > --- linux-2.6.17-mm.orig/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
+> > +++ linux-2.6.17-mm/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
+> > @@ -4140,8 +4140,10 @@
+> >  		read_unlock_irq(&tasklist_lock);
+> >  		return -ESRCH;
+> >  	}
+> > -	retval = sched_setscheduler(p, policy, &lparam);
+> > +	get_task_struct(p);
+> >  	read_unlock_irq(&tasklist_lock);
+> > +	retval = sched_setscheduler(p, policy, &lparam);
+> > +	put_task_struct(p);
+> >  	return retval;
+> >  }
+> 
+> But we don't need read_lock(tasklist) and get_task_struct(p) at all?
+> 
+> rcu_read_lock/rcu_read_unlock is enough, no?
 
-Hrm, I finally tried a different CF card (Viking 256MB) from the one I
-usually use in my camera, and it failed to work:
+Probably yes, did not think about that
 
-pccard: PCMCIA card inserted into slot 1
-pcmcia: registering new device pcmcia1.0
-ata6: PATA max PIO0 cmd 0x3100 ctl 0x310E bmdma 0x0 irq 3
-ata6: dev 0 cfg 49:0200 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:0000
-ata6: dev 0 ATA-0, max PIO0, 500736 sectors: LBA
-ata6: failed to set xfermode (err_mask=0x1)
-scsi6 : pata_pcmcia
+	tglx
 
-Here's me sticking in my Sandisk Ultra II 1GB CF card and it working
-immediately after:
 
-pccard: card ejected from slot 1
-pccard: PCMCIA card inserted into slot 1
-pcmcia: registering new device pcmcia1.0
-ata7: PATA max PIO0 cmd 0x3100 ctl 0x310E bmdma 0x0 irq 3
-ata7: dev 0 cfg 49:0200 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:0000
-ata7: dev 0 ATA-10, max PIO4, 2001888 sectors: LBA
-ata7: dev 0 configured for PIO0
-scsi7 : pata_pcmcia
-  Vendor: ATA       Model: SanDisk SDCFH-10  Rev: HDX
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sdb: 2001888 512-byte hdwr sectors (1025 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 3a 00 00
-SCSI device sdb: drive cache: write through
-SCSI device sdb: 2001888 512-byte hdwr sectors (1025 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 3a 00 00
-SCSI device sdb: drive cache: write through
- sdb: sdb1
-sd 7:0:0:0: Attached scsi removable disk sdb
-sd 7:0:0:0: Attached scsi generic sg2 type 0
-
--- 
-Kevin 'radsaq' Radloff
-radsaq@gmail.com
-http://thesaq.com/

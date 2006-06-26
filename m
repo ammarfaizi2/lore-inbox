@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWFZQVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWFZQXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWFZQVm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 12:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWFZQVm
+	id S1750756AbWFZQXv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 12:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWFZQXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 12:21:42 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:38281 "EHLO
-	dwalker1.mvista.com") by vger.kernel.org with ESMTP
-	id S1750754AbWFZQVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 12:21:41 -0400
-Date: Mon, 26 Jun 2006 09:21:30 -0700
-From: Daniel Walker <dwalker@dwalker1.mvista.com>
-Message-Id: <200606261621.k5QGLUM4016700@dwalker1.mvista.com>
-To: mingo@elte.hu
-Cc: tglx@linutronix.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH -rt] fix preempt hardirqs on OMAP
+	Mon, 26 Jun 2006 12:23:50 -0400
+Received: from lug.demon.co.uk ([83.104.159.110]:17814 "EHLO lug.demon.co.uk")
+	by vger.kernel.org with ESMTP id S1750756AbWFZQXu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 12:23:50 -0400
+From: David Johnson <dj@david-web.co.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: Drivers statically linked in the wrong order
+Date: Mon, 26 Jun 2006 17:23:38 +0100
+User-Agent: KMail/1.9.3
+References: <200606261259.25959.dj@david-web.co.uk> <1151325055.3185.32.camel@laptopd505.fenrus.org>
+In-Reply-To: <1151325055.3185.32.camel@laptopd505.fenrus.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606261723.39319.dj@david-web.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This should fix hardirq threading when the chained handler
-disables an interrupt when setting IRQ_PENDING. Which happens
-on OMAP, but I'm not sure how many other ARM boards do this.
-It also has the effect of re-running the interrupt on 
-IRQ_PENDING, which would normally be handled inside the chained
-handler. Since this happens inside a thread the chained handler
-will just wake up the thread multiple times, leaving the thread
-to actually rerun the interrupt .
+On Monday 26 June 2006 13:30, you wrote:
+>
+> Does this help?
+>
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+That's great - thanks!
+Replacing module_init with subsys_initcall in the I2C bus driver has solved 
+the problem :-)
 
----
- kernel/irq/manage.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+)
-
-Index: linux-2.6.16/kernel/irq/manage.c
-===================================================================
---- linux-2.6.16.orig/kernel/irq/manage.c
-+++ linux-2.6.16/kernel/irq/manage.c
-@@ -511,6 +511,7 @@ static void thread_simple_irq(irq_desc_t
- 	unsigned int irq = desc - irq_desc;
- 	irqreturn_t action_ret;
- 
-+restart:
- 	if (action && !desc->depth) {
- 		spin_unlock(&desc->lock);
- 		action_ret = handle_IRQ_event(irq, NULL, action);
-@@ -520,6 +521,18 @@ static void thread_simple_irq(irq_desc_t
- 		if (!noirqdebug)
- 			note_interrupt(irq, desc, action_ret, NULL);
- 	}
-+
-+	/*
-+	 * Some boards will disable an interrupt when it
-+	 * sets IRQ_PENDING . So we have to remove the flag
-+	 * and re-enable to handle it.
-+	 */
-+	if (desc->status & IRQ_PENDING) {
-+		desc->status &= ~IRQ_PENDING;
-+		if (desc->chip)
-+			desc->chip->enable(irq);
-+		goto restart;
-+	}
- 	desc->status &= ~IRQ_INPROGRESS;
- }
- 
+Regards,
+David.

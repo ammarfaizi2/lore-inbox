@@ -1,479 +1,413 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWFZBCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbWFZBAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbWFZBCF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 21:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbWFZA7l
+	id S965173AbWFZBAl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 21:00:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbWFZA76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 20:59:41 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:21135 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964985AbWFZA67
+	Sun, 25 Jun 2006 20:59:58 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:25743 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S965104AbWFZA7b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:58:59 -0400
-Date: Sun, 25 Jun 2006 17:58:03 -0700
+	Sun, 25 Jun 2006 20:59:31 -0400
+Date: Sun, 25 Jun 2006 17:58:06 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 19/43] klibc basic build infrastructure
-Message-Id: <klibc.200606251757.19@tazenda.hos.anvin.org>
+Subject: [klibc 31/43] ppc support for klibc
+Message-Id: <klibc.200606251757.31@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Basic infrastructure for building klibc.
+The parts of klibc specific to the ppc architecture.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit 5bba564a5c133369b3e83e5827d053a98cb3c59a
-tree 11f2acc1f9d845e8764fa790f522b79ea1106b80
-parent 378abd8f4d39024ea6c87eb5b54155238f647f0d
-author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:08 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:08 -0700
+commit a82c9b6e9b3428bae592241d1ac276054bc46fc5
+tree 70852f39dd495c9bffc307d38f6da673d91ab08a
+parent 078d6614054391efe17093f8d70340e2c0644ffb
+author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:37 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:37 -0700
 
- scripts/Kbuild.klibc |  358 ++++++++++++++++++++++++++++++++++++++++++++++++++
- usr/Kbuild           |   75 ++++++++++
- 2 files changed, 433 insertions(+), 0 deletions(-)
+ usr/include/arch/ppc/klibc/archconfig.h |   14 +++++++
+ usr/include/arch/ppc/klibc/archsetjmp.h |   36 ++++++++++++++++++
+ usr/include/arch/ppc/klibc/archsignal.h |   14 +++++++
+ usr/include/arch/ppc/klibc/archstat.h   |   30 +++++++++++++++
+ usr/include/arch/ppc/klibc/archsys.h    |   61 +++++++++++++++++++++++++++++++
+ usr/klibc/arch/ppc/MCONFIG              |   29 +++++++++++++++
+ usr/klibc/arch/ppc/Makefile.inc         |   22 +++++++++++
+ usr/klibc/arch/ppc/crt0.S               |   23 ++++++++++++
+ usr/klibc/arch/ppc/setjmp.S             |   34 +++++++++++++++++
+ usr/klibc/arch/ppc/syscall.S            |   16 ++++++++
+ usr/klibc/arch/ppc/sysstub.ph           |   25 +++++++++++++
+ 11 files changed, 304 insertions(+), 0 deletions(-)
 
-diff --git a/scripts/Kbuild.klibc b/scripts/Kbuild.klibc
+diff --git a/usr/include/arch/ppc/klibc/archconfig.h b/usr/include/arch/ppc/klibc/archconfig.h
 new file mode 100644
-index 0000000..ac0439e
+index 0000000..ce04eee
 --- /dev/null
-+++ b/scripts/Kbuild.klibc
-@@ -0,0 +1,358 @@
-+# ==========================================================================
-+# Support for building klibc and related programs
-+# ==========================================================================
-+#
-+# To create a kbuild file for a userspace program do the following:
-+#
-+# Kbuild:
-+#
-+# static-y := cat
-+# # This will compile a file named cat.c -> the executable 'cat'
-+# # The executable will be linked statically
-+#
-+# shared-y := cats
-+# # This will compile a file named cats.c -> the executable 'cats'
-+# # The executable will be linked shared
-+#
-+# If the userspace program consist of more files do the following:
-+# Kbuild:
-+#
-+# static-y   := ipconfig
-+# ipconfig-y := main.o netdev.c
-+# So ipconfig will be linked statically using the two .o files
-+# specified with ipconfig-y.
-+#
-+# To set directory wide CFLAGS use:
-+# EXTRA_KLIBCCFLAGS := -DDEBUG
-+# To set directory wide AFLAGS use:
-+# EXTRA_KLIBCAFLAGS := -DDEBUG
-+#
-+# To set target specific CFLAGS (for .c files) use
-+# KLIBCCFLAGS-main.o := -DDEBUG=3
-+# To set target specific AFLAGS (for .s files) use
-+# KLIBCAFLAGS-main.o := -DDEBUG=3
-+
-+src := $(obj)
-+# Preset target and make sure it is a ':=' variable
-+targets :=
-+
-+.phony: __build
-+__build:
-+
-+# Read .config if it exist, otherwise ignore
-+-include .config
-+
-+# Generic Kbuild routines
-+include $(srctree)/scripts/Kbuild.include
-+
-+# Defines used when compiling early userspace (klibc programs)
-+# ---------------------------------------------------------------------------
-+
-+KLIBCREQFLAGS     :=
-+KLIBCARCHREQFLAGS :=
-+KLIBCOPTFLAGS     :=
-+KLIBCWARNFLAGS    := -W -Wall -Wno-sign-compare -Wno-unused-parameter
-+KLIBCSHAREDFLAGS  :=
-+KLIBCBITSIZE      :=
-+KLIBCLDFLAGS      :=
-+KLIBCCFLAGS       :=
-+
-+# Arch specific definitions for klibc
-+include $(KLIBCSRC)/arch/$(KLIBCARCHDIR)/MCONFIG
-+
-+# include/asm-* architecture
-+KLIBCASMARCH	  ?= $(KLIBCARCH)
-+
-+# klibc version
-+KLIBCMAJOR        := $(shell cut -d. -f1 $(srctree)/usr/klibc/version)
-+KLIBCMINOR        := $(shell cut -d. -f2 $(srctree)/usr/klibc/version)
-+
-+# binutils
-+KLIBCLD          := $(LD)
-+KLIBCCC          := $(CC)
-+KLIBCAR          := $(AR)
-+KLIBCRANLIB      := $(RANLIB)
-+KLIBCSTRIP       := $(STRIP)
-+KLIBCNM          := $(NM)
-+KLIBCOBJCOPY	 := $(OBJCOPY)
-+KLIBCOBJDUMP	 := $(OBJDUMP)
-+
-+# klibc include paths
-+KLIBCCPPFLAGS    := -I$(KLIBCINC)/arch/$(KLIBCARCHDIR)	\
-+                    -I$(KLIBCINC)/bits$(KLIBCBITSIZE)	\
-+		    -I$(KLIBCOBJ)/../include		\
-+                    -I$(KLIBCINC)
-+# kernel include paths
-+KLIBCKERNELSRC	 ?= $(srctree)/
-+KLIBCCPPFLAGS    += -I$(KLIBCKERNELSRC)include		\
-+                     $(if $(KBUILD_SRC),-I$(KLIBCKERNELOBJ)include2 -I$(KLIBCKERNELOBJ)include -I$(srctree)/include)    \
-+		     $(KLIBCARCHINCFLAGS)
-+
-+# klibc definitions
-+KLIBCDEFS        += -D__KLIBC__=$(KLIBCMAJOR)          \
-+		    -D__KLIBC_MINOR__=$(KLIBCMINOR)    \
-+		    -D_BITSIZE=$(KLIBCBITSIZE)
-+KLIBCCPPFLAGS    += $(KLIBCDEFS)
-+KLIBCCFLAGS      += $(KLIBCCPPFLAGS) $(KLIBCREQFLAGS) $(KLIBCARCHREQFLAGS)  \
-+                    $(KLIBCOPTFLAGS) $(KLIBCWARNFLAGS)
-+KLIBCAFLAGS      += -D__ASSEMBLY__ $(KLIBCCFLAGS)
-+KLIBCSTRIPFLAGS  += --strip-all -R .comment -R .note
-+
-+KLIBCLIBGCC_DEF  := $(shell $(KLIBCCC) $(KLIBCCFLAGS) --print-libgcc)
-+KLIBCLIBGCC	 ?= $(KLIBCLIBGCC_DEF)
-+KLIBCCRT0        := $(KLIBCOBJ)/arch/$(KLIBCARCHDIR)/crt0.o
-+KLIBCLIBC        := $(KLIBCOBJ)/libc.a
-+KLIBCCRTSHARED   := $(KLIBCOBJ)/interp.o
-+KLIBCLIBCSHARED  := $(KLIBCOBJ)/libc.so
-+# How to tell the linker main() is the entrypoint
-+KLIBCEMAIN	 ?= -e main
-+
-+#
-+# This indicates the location of the final version of the shared library.
-+# THIS MUST BE AN ABSOLUTE PATH WITH NO FINAL SLASH.
-+# Leave this empty to make it the root.
-+#
-+SHLIBDIR = /lib
-+
-+export KLIBCLD KLIBCCC KLIBCAR KLIBCSTRIP KLIBCNM
-+export KLIBCCFLAGS KLIBCAFLAGS KLIBCLIBGCC KLIBCSHAREDFLAGS KLIBCSTRIPFLAGS
-+export KLIBCCRT0 KLIBCLIBC SHLIBDIR
-+
-+# kernel configuration
-+include .config
-+
-+# Add $(obj)/ for paths that is not absolute
-+objectify = $(foreach o,$(1),$(if $(filter /%,$(o)),$(o),$(obj)/$(o)))
-+
-+# Kbuild file in the directory that is being build
-+include $(obj)/Kbuild
-+
-+#####
-+# static-y + shared-y handling
-+klibc-progs := $(static-y) $(shared-y)
-+# klibc-progs based on a single .o file (with same name + .o)
-+klibc-objs := $(foreach p, $(klibc-progs), $(if $($(p)-y),,$(p)))
-+klibc-objs := $(addsuffix .o, $(klibc-objs))
-+# klibc-progs which is based on several .o files
-+klibc-multi := $(foreach p, $(klibc-progs), $(if $($(p)-y),$(p)))
-+# objects used for klibc-progs with more then one .o file
-+klibc-objs += $(foreach p, $(klibc-multi), $($(p)-y))
-+# objects build in this dir
-+klibc-real-objs := $(patsubst %/,,$(klibc-objs))
-+# Directories we need to visit before klibc-objs are up-to-date
-+klibc-dirs :=  $(patsubst %/,%,$(filter %/, $(klibc-objs)))
-+# replace all dir/ with dir/lib.a
-+klibc-objs := $(patsubst %/, %/lib.a, $(klibc-objs))
-+
-+targets += $(static-y) $(shared-y)
-+
-+# $(output-dirs) are a list of directories that contain object files
-+output-dirs := $(dir $(klibc-dirs) $(klibc-objs))
-+output-dirs += $(foreach f, $(hostprogs-y) $(targets), \
-+               $(if $(dir $(f)), $(dir $(f))))
-+output-dirs := $(strip $(sort $(filter-out ./,$(output-dirs))))
-+
-+# prefix so we get full dir
-+static-y        := $(addprefix $(obj)/,$(static-y))
-+shared-y        := $(addprefix $(obj)/,$(shared-y))
-+klibc-objs      := $(addprefix $(obj)/,$(klibc-objs))
-+klibc-real-objs := $(addprefix $(obj)/,$(klibc-real-objs))
-+output-dirs     := $(addprefix $(obj)/,$(output-dirs))
-+klibc-dirs      := $(addprefix $(obj)/,$(klibc-dirs))
-+subdir-y        := $(addprefix $(obj)/,$(subdir-y))
-+lib-y           := $(addprefix $(obj)/,$(lib-y))
-+always          := $(addprefix $(obj)/,$(always))
-+targets         := $(addprefix $(obj)/,$(targets))
-+
-+#####
-+# Handle options to gcc. Support building with separate output directory
-+
-+__klibccflags    = $(KLIBCCFLAGS) $(EXTRA_KLIBCCFLAGS) $(KLIBCCFLAGS_$(*F).o)
-+__klibcaflags    = $(KLIBCAFLAGS) $(EXTRA_KLIBCAFLAGS) $(KLIBCAFLAGS_$(*F).o)
-+
-+ifeq ($(KBUILD_SRC),)
-+_klibccflags    = $(__klibccflags)
-+_klibcaflags    = $(__klibcaflags)
-+else
-+_klibccflags    = $(call flags,__klibccflags)
-+_klibcaflags    = $(call flags,__klibcaflags)
-+endif
-+
-+klibccflags     = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(_klibccflags)
-+klibcaflags     = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(_klibcaflags)
-+
-+# Create output directory if not already present
-+_dummy := $(shell [ -d $(obj) ] || mkdir -p $(obj))
-+
-+# Create directories for object files if directory does not exist
-+# Needed when lib-y := dir/file.o syntax is used
-+_dummy := $(foreach d,$(output-dirs), $(shell [ -d $(d) ] || mkdir -p $(d)))
-+
-+# Do we have to make a lib.a in this dir?
-+ifneq ($(strip $(lib-y) $(lib-n) $(lib-)),)
-+lib-target := $(obj)/lib.a
-+endif
-+
-+__build: $(subdir-y) $(lib-target) $(always)
-+	@:
-+
-+# Compile C sources (.c)
-+# ---------------------------------------------------------------------------
-+
-+quiet_cmd_cc_s_c = KLIBCCC $@
-+      cmd_cc_s_c = $(KLIBCCC) $(klibccflags) -S -o $@ $<
-+
-+%.s: %.c FORCE
-+	$(call if_changed_dep,cc_s_c)
-+
-+quiet_cmd_cc_o_c = KLIBCCC $@
-+      cmd_cc_o_c = $(KLIBCCC) $(klibccflags) -c -o $@ $<
-+
-+%.o: %.c FORCE
-+	$(call if_changed_dep,cc_o_c)
-+
-+quiet_cmd_cc_i_c = CPP     $@
-+      cmd_cc_i_c = $(KLIBCCC) -E $(klibccflags) -o $@ $<
-+%.i: %.c FORCE
-+	$(call if_changed_dep,cc_i_c)
-+
-+# Compile assembler sources (.S)
-+# ---------------------------------------------------------------------------
-+
-+quiet_cmd_as_o_S = KLIBCAS $@
-+      cmd_as_o_S = $(KLIBCCC) $(klibcaflags) -c -o $@ $<
-+
-+%.o: %.S FORCE
-+	$(call if_changed_dep,as_o_S)
-+
-+targets += $(real-objs-y)
-+
-+#
-+# Rule to compile a set of .o files into one .o file
-+#
-+ifdef lib-target
-+quiet_cmd_link_o_target = LD      $@
-+# If the list of objects to link is empty, just create an empty lib.a
-+cmd_link_o_target = $(if $(strip $(lib-y)),\
-+                    rm -f $@; $(KLIBCAR) cru $@ $(filter $(lib-y), $^),\
-+                    rm -f $@; $(KLIBCAR) crs $@)
-+
-+$(lib-target): $(lib-y) FORCE
-+	$(call if_changed,link_o_target)
-+targets += $(lib-target) $(lib-y)
-+endif # lib-target
-+
-+
-+ifdef klibc-progs
-+# Compile klibcspace programs for the target
-+# ===========================================================================
-+
-+__build : $(klibc-dirs) $(static-y) $(shared-y)
-+
-+# Descend if needed
-+$(sort $(addsuffix /lib.a,$(klibc-dirs))): $(klibc-dirs) ;
-+
-+# Define dependencies for link of progs
-+# For the simple program:
-+#	file.o => file
-+# A program with multiple objects
-+#	filea.o, fileb.o => file
-+# A program with .o files in another dir
-+#	dir/lib.a filea.o => file
-+
-+stripobj  = $(subst $(obj)/,,$@)
-+addliba   = $(addprefix $(obj)/, $(patsubst %/, %/lib.a, $(1)))
-+link-deps = $(if $($(stripobj)-y), $(call addliba, $($(stripobj)-y)), $@.o)
-+
-+quiet_cmd_ld-static = KLIBCLD $@
-+      cmd_ld-static = $(KLIBCLD) $(KLIBCLDFLAGS) -o $@    	\
-+                       $(EXTRA_KLIBCLDFLAGS)              	\
-+                       $(KLIBCCRT0)                       	\
-+                       $(link-deps)                       	\
-+                       --start-group $(KLIBCLIBC) 	  	\
-+		       $(KLIBCLIBGCC) --end-group ;       	\
-+                      cp -f $@ $@.g ;                     	\
-+                      $(KLIBCSTRIP) $(KLIBCSTRIPFLAGS) $@
-+
-+
-+$(static-y): $(klibc-objs) $(lib-target) $(KLIBCCRT0) $(KLIBCLIBC) FORCE
-+	$(call if_changed,ld-static)
-+
-+quiet_cmd_ld-shared = KLIBCLD $@
-+      cmd_ld-shared = $(KLIBCLD) $(KLIBCLDFLAGS) -o $@    	\
-+                       $(EXTRA_KLIBCLDFLAGS)              	\
-+                       $(KLIBCEMAIN) $(KLIBCCRTSHARED)    	\
-+                       $(link-deps)                       	\
-+                       --start-group -R $(KLIBCLIBCSHARED) 	\
-+	               $(KLIBCLIBGCC) --end-group ;		\
-+                      cp -f $@ $@.g ;                     	\
-+                      $(KLIBCSTRIP) $(KLIBCSTRIPFLAGS) $@
-+
-+
-+$(shared-y): $(klibc-objs) $(lib-target) $(KLIBCCRTSHARED) \
-+                                         $(KLIBCLIBCSHARED) FORCE
-+	$(call if_changed,ld-shared)
-+
-+# Do not try to build KLIBC libaries if we are building klibc
-+ifeq ($(klibc-build),)
-+$(KLIBCCRT0) $(KLIBCLIBC): ;
-+$(KLIBCCRTSHARED) $(KLIBCLIBCSHARED): ;
-+endif
-+
-+targets += $(klibc-real-objs)
-+endif
-+
-+# Compile programs on the host
-+# ===========================================================================
-+ifdef hostprogs-y
-+include $(srctree)/scripts/Makefile.host
-+endif
-+
-+# Descending
-+# ---------------------------------------------------------------------------
-+
-+.PHONY: $(subdir-y) $(klibc-dirs)
-+$(subdir-y) $(klibc-dirs):
-+	$(Q)$(MAKE) $(klibc)=$@
-+
-+# Add FORCE to the prequisites of a target to force it to be always rebuilt.
-+# ---------------------------------------------------------------------------
-+
-+.PHONY: FORCE
-+
-+FORCE:
-+
-+# Linking
-+# Create a reloctable composite object file
-+# ---------------------------------------------------------------------------
-+quiet_cmd_klibcld = KLIBCLD $@
-+      cmd_klibcld = $(KLIBCLD) -r $(KLIBCLDFLAGS) \
-+                                $(EXTRA_KLIBCLDFLAGS) $(KLIBCLDFLAGS_$(@F)) \
-+                                $(filter-out FORCE,$^) -o $@
-+
-+
-+# Link target to a new name
-+# ---------------------------------------------------------------------------
-+quiet_cmd_ln = LN      $@
-+      cmd_ln = rm -f $@ && ln $< $@
-+
-+# Strip target (remove all debugging info)
-+quiet_cmd_strip = STRIP   $@
-+      cmd_strip = $(KLIBCSTRIP) $(KLIBCSTRIPFLAGS) $< -o $@
-+
-+
-+# Read all saved command lines and dependencies for the $(targets) we
-+# may be building above, using $(if_changed{,_dep}). As an
-+# optimization, we don't need to read them if the target does not
-+# exist, we will rebuild anyway in that case.
-+targets := $(wildcard $(sort $(targets)))
-+cmd_files := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).cmd))
-+
-+ifneq ($(cmd_files),)
-+  include $(cmd_files)
-+endif
-+
-+# Shorthand for $(Q)$(MAKE) -f scripts/Kbuild.klibc obj
-+# Usage:
-+# $(Q)$(MAKE) $(klibc)=dir
-+klibc := -rR -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Kbuild.klibc obj
-diff --git a/usr/Kbuild b/usr/Kbuild
++++ b/usr/include/arch/ppc/klibc/archconfig.h
+@@ -0,0 +1,14 @@
++/*
++ * include/arch/ppc/klibc/archconfig.h
++ *
++ * See include/klibc/sysconfig.h for the options that can be set in
++ * this file.
++ *
++ */
++
++#ifndef _KLIBC_ARCHCONFIG_H
++#define _KLIBC_ARCHCONFIG_H
++
++/* All defaults */
++
++#endif				/* _KLIBC_ARCHCONFIG_H */
+diff --git a/usr/include/arch/ppc/klibc/archsetjmp.h b/usr/include/arch/ppc/klibc/archsetjmp.h
 new file mode 100644
-index 0000000..f874f51
+index 0000000..4be9ed6
 --- /dev/null
-+++ b/usr/Kbuild
-@@ -0,0 +1,75 @@
++++ b/usr/include/arch/ppc/klibc/archsetjmp.h
+@@ -0,0 +1,36 @@
++/*
++ * arch/ppc/include/klibc/archsetjmp.h
++ */
++
++#ifndef _KLIBC_ARCHSETJMP_H
++#define _KLIBC_ARCHSETJMP_H
++
++struct __jmp_buf {
++	unsigned long __r2;
++	unsigned long __sp;
++	unsigned long __lr;
++	unsigned long __cr;
++	unsigned long __r13;
++	unsigned long __r14;
++	unsigned long __r15;
++	unsigned long __r16;
++	unsigned long __r17;
++	unsigned long __r18;
++	unsigned long __r19;
++	unsigned long __r20;
++	unsigned long __r21;
++	unsigned long __r22;
++	unsigned long __r23;
++	unsigned long __r24;
++	unsigned long __r25;
++	unsigned long __r26;
++	unsigned long __r27;
++	unsigned long __r28;
++	unsigned long __r29;
++	unsigned long __r30;
++	unsigned long __r31;
++};
++
++typedef struct __jmp_buf jmp_buf[1];
++
++#endif				/* _SETJMP_H */
+diff --git a/usr/include/arch/ppc/klibc/archsignal.h b/usr/include/arch/ppc/klibc/archsignal.h
+new file mode 100644
+index 0000000..9c3ac92
+--- /dev/null
++++ b/usr/include/arch/ppc/klibc/archsignal.h
+@@ -0,0 +1,14 @@
++/*
++ * arch/ppc/include/klibc/archsignal.h
++ *
++ * Architecture-specific signal definitions
++ *
++ */
++
++#ifndef _KLIBC_ARCHSIGNAL_H
++#define _KLIBC_ARCHSIGNAL_H
++
++#include <asm/signal.h>
++/* No special stuff for this architecture */
++
++#endif
+diff --git a/usr/include/arch/ppc/klibc/archstat.h b/usr/include/arch/ppc/klibc/archstat.h
+new file mode 100644
+index 0000000..9e31f4a
+--- /dev/null
++++ b/usr/include/arch/ppc/klibc/archstat.h
+@@ -0,0 +1,30 @@
++#ifndef _KLIBC_ARCHSTAT_H
++#define _KLIBC_ARCHSTAT_H
++
++#include <klibc/stathelp.h>
++
++#define _STATBUF_ST_NSEC
++
++/* This matches struct stat64 in glibc2.1.
++ */
++struct stat {
++	__stdev64 (st_dev);		/* Device. */
++	unsigned long long st_ino;	/* File serial number.  */
++	unsigned int st_mode;		/* File mode.  */
++	unsigned int st_nlink;		/* Link count.  */
++	unsigned int st_uid;		/* User ID of the file's owner.  */
++	unsigned int st_gid;		/* Group ID of the file's group. */
++	__stdev64 (st_rdev); 		/* Device number, if device.  */
++	unsigned short int __pad2;
++	long long st_size;		/* Size of file, in bytes.  */
++	long st_blksize;		/* Optimal block size for I/O.  */
++
++	long long st_blocks;		/* Number 512-byte blocks allocated. */
++	struct timespec st_atim;	/* Time of last access.  */
++	struct timespec st_mtim;	/* Time of last modification.  */
++	struct timespec st_ctim;	/* Time of last status change.  */
++	unsigned long int __unused4;
++	unsigned long int __unused5;
++};
++
++#endif
+diff --git a/usr/include/arch/ppc/klibc/archsys.h b/usr/include/arch/ppc/klibc/archsys.h
+new file mode 100644
+index 0000000..24752da
+--- /dev/null
++++ b/usr/include/arch/ppc/klibc/archsys.h
+@@ -0,0 +1,61 @@
++/*
++ * arch/ppc/include/klibc/archsys.h
++ *
++ * Architecture-specific syscall definitions
++ */
++
++#ifndef _KLIBC_ARCHSYS_H
++#define _KLIBC_ARCHSYS_H
++
++/* PowerPC seems to lack _syscall6() in its headers */
++/* This seems to work on both 32- and 64-bit ppc */
++
++#ifndef _syscall6
++
++#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
++          type5,arg5,type6,arg6) \
++type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5,type6 arg6) \
++{ \
++        unsigned long __sc_ret, __sc_err;                               \
++        {                                                               \
++                register unsigned long __sc_0 __asm__ ("r0");           \
++                register unsigned long __sc_3 __asm__ ("r3");           \
++                register unsigned long __sc_4 __asm__ ("r4");           \
++                register unsigned long __sc_5 __asm__ ("r5");           \
++                register unsigned long __sc_6 __asm__ ("r6");           \
++                register unsigned long __sc_7 __asm__ ("r7");           \
++                register unsigned long __sc_8 __asm__ ("r8");           \
++                                                                        \
++                __sc_3 = (unsigned long) (arg1);                        \
++                __sc_4 = (unsigned long) (arg2);                        \
++                __sc_5 = (unsigned long) (arg3);                        \
++                __sc_6 = (unsigned long) (arg4);                        \
++                __sc_7 = (unsigned long) (arg5);                        \
++                __sc_8 = (unsigned long) (arg6);                        \
++                __sc_0 = __NR_##name;                                   \
++                __asm__ __volatile__                                    \
++                        ("sc           \n\t"                            \
++                         "mfcr %1      "                                \
++                        : "+r"   (__sc_3),				\
++			  "+r"   (__sc_0),             			\
++                          "+r"   (__sc_4),                              \
++                          "+r"   (__sc_5),                              \
++                          "+r"   (__sc_6),                              \
++                          "+r"   (__sc_7),                              \
++                          "+r"   (__sc_8)                               \
++                        : : "cr0", "ctr", "memory",                     \
++                            "r9", "r10", "r11", "r12");		        \
++                __sc_ret = __sc_3;                                      \
++                __sc_err = __sc_0;                                      \
++        }                                                               \
++        if (__sc_err & 0x10000000)                                      \
++        {                                                               \
++                errno = (int)__sc_ret;                                  \
++                __sc_ret = -1;                                          \
++        }                                                               \
++        return (type)__sc_ret;                                          \
++}
++
++#endif				/* _syscall6() missing */
++
++#endif				/* _KLIBC_ARCHSYS_H */
+diff --git a/usr/klibc/arch/ppc/MCONFIG b/usr/klibc/arch/ppc/MCONFIG
+new file mode 100644
+index 0000000..5410933
+--- /dev/null
++++ b/usr/klibc/arch/ppc/MCONFIG
+@@ -0,0 +1,29 @@
++# -*- makefile -*-
 +#
-+# kbuild file for usr/ - including initramfs image and klibc
++# arch/ppc/MCONFIG
++#
++# Special rules for this architecture.  Note that this is actually
++# included from the main Makefile, and that pathnames should be
++# accordingly.
 +#
 +
-+CONFIG_KLIBC := 1
++gcc_m32_option  := $(call cc-option, -m32, )
 +
-+include-subdir := include
-+klibc-subdir := klibc
-+usr-subdirs  := kinit utils dash gzip
-+subdir-      := $(include-subdir) $(klibc-subdir) $(usr-subdirs)
++KLIBCOPTFLAGS	   = -Os
++KLIBCLDFLAGS       = -m elf32ppclinux
++KLIBCARCHREQFLAGS += $(gcc_m32_option)
 +
-+usr-subdirs  := $(addprefix _usr_,$(usr-subdirs))
-+klibc-subdir := $(addprefix _usr_,$(klibc-subdir))
++KLIBCBITSIZE       = 32
 +
-+# Klibc binaries
-+ifdef CONFIG_KLIBC
++# Extra linkflags when building the shared version of the library
++# This address needs to be reachable using normal inter-module
++# calls, and work on the memory models for this architecture
++# 256-16 MB - normal binaries start at 256 MB, and jumps are limited
++# to +/- 16 MB
++KLIBCSHAREDFLAGS     = -Ttext 0x0f800200
 +
-+# .initramfs_data.cpio.gz.d is used to identify all files included
-+# in initramfs and to detect if any files are added/removed.
-+# Removed files are identified by directory timestamp being updated
-+# The dependency list is generated by gen_initramfs.sh -l
-+ifneq ($(wildcard $(obj)/.initramfs_data.cpio.gz.d),)
-+	include $(obj)/.initramfs_data.cpio.gz.d
-+endif
++# The kernel so far has both asm-ppc* and asm-powerpc.
++KLIBCARCHINCFLAGS = -I$(KLIBCKERNELOBJ)arch/$(KLIBCARCH)/include
 +
-+# build klibc library before the klibc programs
-+# build klibc programs before cpio.gz
-+.PHONY: initramfs $(usr-subdirs) $(klibc-subdir) $(include-subdir)
-+initramfs:         $(usr-subdirs) $(klibc-subdir) $(include-subdir)
-+$(deps_initramfs): $(usr-subdirs) $(klibc-subdir) $(include-subdir)
++# The asm include files live in asm-powerpc
++KLIBCASMARCH	= powerpc
+diff --git a/usr/klibc/arch/ppc/Makefile.inc b/usr/klibc/arch/ppc/Makefile.inc
+new file mode 100644
+index 0000000..53d99c4
+--- /dev/null
++++ b/usr/klibc/arch/ppc/Makefile.inc
+@@ -0,0 +1,22 @@
++# -*- makefile -*-
++#
++# arch/ppc/Makefile.inc
++#
++# Special rules for this architecture.  Note that this is actually
++# included from the main Makefile, and that pathnames should be
++# accordingly.
++#
 +
-+$(usr-subdirs): $(klibc-subdir)
-+	$(Q)$(MAKE) $(klibc)=$(src)/$(patsubst _usr_%,%,$(@))
++KLIBCARCHOBJS = \
++	arch/$(KLIBCARCH)/setjmp.o \
++	arch/$(KLIBCARCH)/syscall.o \
++	libgcc/__divdi3.o \
++	libgcc/__moddi3.o \
++	libgcc/__udivdi3.o \
++	libgcc/__umoddi3.o \
++	libgcc/__udivmoddi4.o
 +
-+$(klibc-subdir): $(include-subdir)
-+	$(Q)$(MAKE) $(klibc)=$(src)/$(patsubst _usr_%,%,$(@))
 +
-+$(include-subdir):
-+	$(Q)$(MAKE) $(klibc)=$(src)/$(patsubst _usr_%,%,$(@))
-+endif
++KLIBCARCHSOOBJS = $(patsubst %.o,%.lo,$(KLIBCARCHOBJS))
 +
++archclean:
+diff --git a/usr/klibc/arch/ppc/crt0.S b/usr/klibc/arch/ppc/crt0.S
+new file mode 100644
+index 0000000..85b6dca
+--- /dev/null
++++ b/usr/klibc/arch/ppc/crt0.S
+@@ -0,0 +1,23 @@
++#
++# arch/ppc/crt0.S
++#
 +
-+# Generate builtin.o based on initramfs_data.o
-+obj-y := initramfs_data.o
++	.text
++	.align 4
++	.type _start,@function
++	.globl _start
++_start:
++	stwu	1,-16(1)
++	addi	3,1,16
++	/*
++	 * the SVR4abippc.pdf specifies r7 as a pointer to
++	 * a termination function point
++	 * However, Section 8.4.1 of the LSB API docs say that
++	 * The value to be placed into register r7, the termination
++	 * function pointer, is not passed to the process.
++	 * So we stub it out, instead.
++	 */
++	li	4,0
++	bl	__libc_init
 +
-+# initramfs_data.o contains the initramfs_data.cpio.gz image.
-+# The image is included using .incbin, a dependency which is not
-+# tracked automatically.
-+$(obj)/initramfs_data.o: $(obj)/initramfs_data.cpio.gz FORCE
++	.size _start,.-_start
+diff --git a/usr/klibc/arch/ppc/setjmp.S b/usr/klibc/arch/ppc/setjmp.S
+new file mode 100644
+index 0000000..e02b7da
+--- /dev/null
++++ b/usr/klibc/arch/ppc/setjmp.S
+@@ -0,0 +1,34 @@
++#
++# arch/ppc/setjmp.S
++#
++# Basic setjmp/longjmp implementation
++# This file was derived from the equivalent file in NetBSD
++#
 +
-+#####
-+# Generate the initramfs cpio archive
++	.text
++	.align 4
++	.type setjmp,@function
++	.globl setjmp
++setjmp:
++        mflr    %r11                    /* save return address */
++        mfcr    %r12                    /* save condition register */
++        mr      %r10,%r1                /* save stack pointer */
++        mr      %r9,%r2                 /* save GPR2 (not needed) */
++        stmw    %r9,0(%r3)              /* save r9..r31 */
++        li      %r3,0                   /* indicate success */
++        blr                             /* return */
 +
-+hostprogs-y := gen_init_cpio
-+ginitramfs  := $(CONFIG_SHELL) $(srctree)/scripts/gen_initramfs_list.sh
-+ramfs-def   := $(srctree)/$(src)/initramfs.default
-+ramfs-input := $(shell echo $(CONFIG_INITRAMFS_SOURCE))
-+ramfs-input := $(if $(ramfs-input), $(ramfs-input), $(ramfs-def))
++	.size setjmp,.-setjmp
 +
-+ramfs-args  := \
-+        $(if $(CONFIG_INITRAMFS_ROOT_UID), -u $(CONFIG_INITRAMFS_ROOT_UID)) \
-+        $(if $(CONFIG_INITRAMFS_ROOT_GID), -g $(CONFIG_INITRAMFS_ROOT_GID))
++	.type longjmp,@function
++	.globl longjmp
++longjmp:
++        lmw     %r9,0(%r3)              /* save r9..r31 */
++        mtlr    %r11                    /* restore LR */
++        mtcr    %r12                    /* restore CR */
++        mr      %r2,%r9                 /* restore GPR2 (not needed) */
++        mr      %r1,%r10                /* restore stack */
++        mr      %r3,%r4                 /* get return value */
++        blr                             /* return */
 +
-+quiet_cmd_initfs = GEN     $@
-+      cmd_initfs = $(ginitramfs) -o $@ $(ramfs-args) $(ramfs-input)
++	.size longjmp,.-longjmp
+diff --git a/usr/klibc/arch/ppc/syscall.S b/usr/klibc/arch/ppc/syscall.S
+new file mode 100644
+index 0000000..0a7c37c
+--- /dev/null
++++ b/usr/klibc/arch/ppc/syscall.S
+@@ -0,0 +1,16 @@
++/*
++ * arch/ppc/syscall.S
++ *
++ * Common error-handling path for system calls.
++ */
 +
-+targets := initramfs_data.cpio.gz
-+# We rebuild initramfs_data.cpio.gz if:
-+# 1) Any included file is newer then initramfs_data.cpio.gz
-+# 2) There are changes in which files are included (added or deleted)
-+# 3) If gen_init_cpio are newer than initramfs_data.cpio.gz
-+# 4) arguments to gen_initramfs.sh changes
-+$(obj)/initramfs_data.cpio.gz: $(obj)/gen_init_cpio $(deps_initramfs) initramfs
-+	$(Q)$(ginitramfs) -l $(ramfs-input) > $(obj)/.initramfs_data.cpio.gz.d
-+	$(call if_changed,initfs)
++	.text
++	.align	2
++	.globl	__syscall_error
++	.type	__syscall_error,@function
++__syscall_error:
++	lis	9,errno@ha
++	stw	3,errno@l(9)
++	li	3,-1
++	blr
++	.size	__syscall_error,.-__syscall_error
+diff --git a/usr/klibc/arch/ppc/sysstub.ph b/usr/klibc/arch/ppc/sysstub.ph
+new file mode 100644
+index 0000000..3b3916c
+--- /dev/null
++++ b/usr/klibc/arch/ppc/sysstub.ph
+@@ -0,0 +1,25 @@
++# -*- perl -*-
++#
++# arch/ppc/sysstub.ph
++#
++# Script to generate system call stubs
++#
++
++sub make_sysstub($$$$$@) {
++    my($outputdir, $fname, $type, $sname, $stype, @args) = @_;
++
++    open(OUT, '>', "${outputdir}/${fname}.S");
++    print OUT "#include <asm/unistd.h>\n";
++    print OUT "\n";
++    print OUT "\t.type ${fname},\@function\n";
++    print OUT "\t.globl ${fname}\n";
++    print OUT "${fname}:\n";
++    print OUT "\tli 0,__NR_${sname}\n";
++    print OUT "\tsc\n";
++    print OUT "\tbnslr\n";
++    print OUT "\tb __syscall_error\n";
++    print OUT "\t.size ${fname},.-${fname}\n";
++    close(OUT);
++}
++
++1;

@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWFZRkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWFZRoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWFZRkK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 13:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWFZRkJ
+	id S1751229AbWFZRoO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 13:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWFZRoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 13:40:09 -0400
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:62102 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751212AbWFZRkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 13:40:07 -0400
-Date: Mon, 26 Jun 2006 13:33:03 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.17.1 new perfmon code base, libpfm, pfmon available
-To: Stephane Eranian <eranian@hpl.hp.com>
-Cc: oprofile-list <oprofile-list@lists.sourceforge.net>,
-       perfmon <perfmon@napali.hpl.hp.com>,
-       linux-ia64 <linux-ia64@vger.kernel.org>,
-       perfctr-devel <perfctr-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200606261336_MC3-1-C384-7981@compuserve.com>
+	Mon, 26 Jun 2006 13:44:14 -0400
+Received: from web52905.mail.yahoo.com ([206.190.49.15]:40366 "HELO
+	web52905.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751229AbWFZRoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 13:44:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=phOs8CyKogMyDhTbDLkMzgor2m2CQ/7e+fTrm3EvFXgw+DieSuo0BtHgittUN2fKNSNDjWtfzykYk5fx5wM9gJhnjsc1u80OYhiAqKPTL+Ev0oSyijzLAOlSF5jYlw+7W/DdyevtJRYOOL9GVi4sC4pe+J3R5HUV+HO9I3LQipA=  ;
+Message-ID: <20060626174412.76248.qmail@web52905.mail.yahoo.com>
+Date: Mon, 26 Jun 2006 18:44:12 +0100 (BST)
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: Re: Linux-2.6.17: PMTimer results for another PCI chipset
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060626120847.GA6272@rhlx01.fht-esslingen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also a new version of pfmon, pfmon-3.2-060621, to take advantage of the update in libpfm:
+--- Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
+> Yeah, but this is no problem anyway, since it's neither in the blacklisted
+> nor in the graylisted area, IOW it's whitelisted and should work
+> without delays.
+> Or do you get the "The chipset may have PM-Timer Bug" message here??
 > 
->       - support for 32-bit mode AMD64 processors
->       - updated event name parsing to prepare for separate
->         event unit mask management (Kevin Corry)
->       - fix the detection of unavailable PMC registers. it was causing crashes
->         when used with sampling.
+> > 00:1f.0 Class 0601: 8086:2440 (rev 05)
 > 
-> Note that I have tested 32-bit compiled libpfm,pfmon running on an 64-bit AMD
-> perfmon kernel. I have not tested on a 32-bit AMD linux kernel because I don't
-> have such setup. I would appreciate any feedback on this.
+> #define PCI_DEVICE_ID_INTEL_82801BA_0   0x2440
 
-32-bit works great.  Unfortunately, pfmon is far too limited for serious kernel
-monitoring AFAICT.  E.g. you can't select edge counting instead of cycle
-counting.  So you can count how many clock cycles were spent with interrupts
-disabled but you can't count how many times they were disabled.  That's too bad
-because using pfmon is so easy compared to writing a program.
+Nope, it's all good. But since this chipset was released between the one which definitely has the
+bug and one which might have the bug, I thought that it was worth testing it for real.
 
-And is someone working on kernel profiling tools that use the perfmon2
-infrastructure on i386?  I'd like to see kernel-based profiling that lets
-you use something like the existing 'readprofile' to retrieve results.  This
-would be a lot better than the current timer-based profiling.
+Cheers,
+Chris
 
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+
+
+		
+___________________________________________________________ 
+Try the all-new Yahoo! Mail. "The New Version is radically easier to use" – The Wall Street Journal 
+http://uk.docs.yahoo.com/nowyoucan.html

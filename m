@@ -1,135 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWFZCGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWFZCLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964990AbWFZCGs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 22:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWFZCGs
+	id S1751394AbWFZCLT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 22:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWFZCLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 22:06:48 -0400
-Received: from web50406.mail.yahoo.com ([206.190.38.71]:31847 "HELO
-	web50406.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S964990AbWFZCGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 22:06:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=m/rrvj65a8kxoq32O+MaR+0cAtci9s3ilJkMhB/B9GQhIrFdHH5xZzsfPh23YsUf1XcALuMiEHGdstwGwaW+z2A+2XUqW7FDWJXnnYXqMvTzJcLfpQrTyPGVvTAHLlySOESn6hlkGwW/8gSTCe7eu5QDzYL8I/g4g7JN5GcHEDc=  ;
-Message-ID: <20060626020646.49093.qmail@web50406.mail.yahoo.com>
-Date: Sun, 25 Jun 2006 19:06:46 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: [PATCH] Fix bug: accessing past end of array.
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 25 Jun 2006 22:11:19 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:5067 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751374AbWFZCLR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 22:11:17 -0400
+Date: Mon, 26 Jun 2006 07:41:00 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>, Neela.Kolli@engenio.com,
+       linux-scsi@vger.kernel.org, mike.miller@hp.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
+Message-ID: <20060626021100.GA12824@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20060623210121.GA18384@in.ibm.com> <20060623210424.GB18384@in.ibm.com> <20060623235553.2892f21a.akpm@osdl.org> <20060624111954.GA7313@in.ibm.com> <20060624043046.4e4985be.akpm@osdl.org> <20060624120836.GB7313@in.ibm.com> <m1veqqxyrb.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1veqqxyrb.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the card is re-inserted 2 or more times, we access elements
-past the end of the aha152x_host array.
+On Sat, Jun 24, 2006 at 11:13:44AM -0600, Eric W. Biederman wrote:
+> Vivek Goyal <vgoyal@in.ibm.com> writes:
+> 
+> > On Sat, Jun 24, 2006 at 04:30:46AM -0700, Andrew Morton wrote:
+> >
+> >> > Or is there a generic way to handle these situations? Fixing them driver
+> >> > by driver is a long painful process. 
+> >> 
+> >> Some generic way of whacking a PCI device via the standard PCI registers? 
+> >> Not that I know of.
+> >
+> > Somebody hinted that think of PCI bus reset. But I think PCI bus reset will
+> > require firware/BIOS to export a hook to software to so initiate PCI bus
+> > reset and I don't think many platforms do that. Infact I am not even aware
+> > of one platform who does that.
+> 
+> Not all pci busses support it but there is a standard pci bus reset bit
+> in pci bridges.
+> 
+> I don't know if it would help but it might make sense to have a config
+> option that can be used to mark drivers that are known to have problems,
+> in these scenarios.
+> 
+> CONFIG_BRITTLE_INIT perhaps?
+> 
+> It would at least make it easier for people to see which drivers
+> they don't want to use, and give people some incentive to fix things.
+> 
 
-Also correct spelling errors.
+Vivek, 
 
-This is for 2.6.17.
+I think having something as Eric suggested instead of crashboot= is better.
+We can hve this config option set for kernel like dump capture
+kernel. (CONFIG_CRASH_DUMP=y). This should save some bytes on already longish
+kdump kernel boot paramenters.
 
-Signed-off-by Alex Davis <alex14641 at yahoo dot com>
-=========================================================================
-diff -u linux-2.6.17.1-orig/drivers/scsi/aha152x.c linux-2.6.17.1/drivers/scsi/aha152x.c
---- linux-2.6.17.1-orig/drivers/scsi/aha152x.c	2006-06-17 21:49:35.000000000 -0400
-+++ linux-2.6.17.1/drivers/scsi/aha152x.c	2006-06-25 20:06:05.000000000 -0400
-@@ -766,7 +766,7 @@
- 	struct Scsi_Host *shpnt = lookup_irq(irqno);
- 
- 	if (!shpnt) {
--        	printk(KERN_ERR "aha152x: catched software interrupt %d for unknown controller.\n",
-irqno);
-+        	printk(KERN_ERR "aha152x: caught software interrupt %d for unknown controller.\n",
-irqno);
- 		return IRQ_NONE;
- 	}
- 
-@@ -779,6 +779,7 @@
- struct Scsi_Host *aha152x_probe_one(struct aha152x_setup *setup)
- {
- 	struct Scsi_Host *shpnt;
-+	int i;
- 
- 	shpnt = scsi_host_alloc(&aha152x_driver_template, sizeof(struct aha152x_hostdata));
- 	if (!shpnt) {
-@@ -787,6 +788,22 @@
- 	}
- 
- 	/* need to have host registered before triggering any interrupt */
-+
-+	/* find an empty slot. */
-+	for ( i = 0; i < ARRAY_SIZE(aha152x_host); ++i ) {
-+		if ( aha152x_host[i] == NULL ) {
-+			break;
-+		}
-+	}
-+
-+	/* no empty slots? */
-+	if ( i >= ARRAY_SIZE(aha152x_host) ) {
-+		printk(KERN_ERR "aha152x: too many hosts: %d\n", i + 1);
-+		return NULL;
-+	}
-+
-+	registered_count = i;
-+
- 	aha152x_host[registered_count] = shpnt;
- 
- 	memset(HOSTDATA(shpnt), 0, sizeof *HOSTDATA(shpnt));
-@@ -915,6 +932,8 @@
- 
- void aha152x_release(struct Scsi_Host *shpnt)
- {
-+	int i;
-+
- 	if(!shpnt)
- 		return;
- 
-@@ -933,6 +952,12 @@
- 
- 	scsi_remove_host(shpnt);
- 	scsi_host_put(shpnt);
-+	for ( i = 0; i < ARRAY_SIZE(aha152x_host); ++i ) {
-+		if ( aha152x_host[i] == shpnt ) {
-+			aha152x_host[i] = NULL;
-+			break;
-+		}
-+	}
- }
- 
- 
-@@ -1458,7 +1483,7 @@
- 	unsigned char rev, dmacntrl0;
- 
- 	if (!shpnt) {
--		printk(KERN_ERR "aha152x: catched interrupt %d for unknown controller.\n", irqno);
-+		printk(KERN_ERR "aha152x: caught interrupt %d for unknown controller.\n", irqno);
- 		return IRQ_NONE;
- 	}
- 
-@@ -2976,6 +3001,9 @@
- 	Scsi_Cmnd *ptr;
- 	unsigned long flags;
- 
-+	if(!shpnt)
-+		return;
-+
- 	DO_LOCK(flags);
- 	printk(KERN_DEBUG "\nqueue status:\nissue_SC:\n");
- 	for (ptr = ISSUE_SC; ptr; ptr = SCNEXT(ptr))
-@@ -3941,7 +3969,6 @@
- 
- 	for(i=0; i<ARRAY_SIZE(setup); i++) {
- 		aha152x_release(aha152x_host[i]);
--		aha152x_host[i]=NULL;
- 	}
- }
-
-I code, therefore I am
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Thanks
+Maneesh

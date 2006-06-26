@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWFZXC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbWFZXDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWFZXC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWFZXCy
+	id S964820AbWFZXDj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933265AbWFZWjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:02:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54481 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964811AbWFZXCd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 19:02:33 -0400
-Date: Mon, 26 Jun 2006 16:02:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       linux-kernel@vger.kernel.org, arjan@linux.intel.com, pavel@suse.cz,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH] binfmt: turn MAX_ARG_PAGES into a sysctl tunable
-In-Reply-To: <20060626223526.GA18579@elte.hu>
-Message-ID: <Pine.LNX.4.64.0606261555320.3927@g5.osdl.org>
-References: <1151060089.30819.2.camel@lappy> <20060626095702.8b23263d.akpm@osdl.org>
- <Pine.LNX.4.64.0606261009190.3747@g5.osdl.org> <20060626223526.GA18579@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 Jun 2006 18:39:54 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:19639 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933267AbWFZWjS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:39:18 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [Suspend2][ 04/35] [Suspend2] Does a filewriter page have contiguous blocks?
+Date: Tue, 27 Jun 2006 08:39:17 +1000
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060626223915.4685.72892.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
+References: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+To simplify things, pages in the file being used by the filewriter which
+don't have contiguous blocks are ignored. This function determines whether
+a given page meets this criteria by bmapping each sector in the page to
+check.
 
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-On Tue, 27 Jun 2006, Ingo Molnar wrote:
->
-> i thought about your "map execve pages directly into target" (since the 
-> source gets destroyed anyway) suggestion back then, and unfortunately it 
-> gets quite complex.
+ kernel/power/suspend_file.c |   18 ++++++++++++++++++
+ 1 files changed, 18 insertions(+), 0 deletions(-)
 
-No, you misunderstood.
+diff --git a/kernel/power/suspend_file.c b/kernel/power/suspend_file.c
+index caa86bc..41aaed4 100644
+--- a/kernel/power/suspend_file.c
++++ b/kernel/power/suspend_file.c
+@@ -136,3 +136,21 @@ static int filewriter_storage_available(
+ 	return result;
+ }
+ 
++static int has_contiguous_blocks(int page_num)
++{
++	int j;
++	sector_t last = 0;
++
++	for (j = 0; j < devinfo.blocks_per_page; j++) {
++		sector_t this = bmap(target_inode,
++				page_num * devinfo.blocks_per_page + j);
++
++		if (!this || (last && (last + 1) != this))
++			break;
++
++		last = this;
++	}
++			
++	return (j == devinfo.blocks_per_page);
++}
++
 
-I wasn't actually suggesting mapping pages directly from the source into 
-the destination.  That is indeed horribly horribly complicated.
-
-I really only wanted to avoid the "brpm->pages[]" indirection.
-
-So right now, we copy the argument strings into new temporary pages and 
-put them in the ->pages[] array.
-
-The "copy argument strings into new temporary pages" part is _fine_. I 
-wouldn't change that part at all.
-
-I'd only really change the "into the ->pages[] array" part, and instead 
-move them directly into the destination page tables.
-
-Why?
-
-Two reasons:
- - right now ->pages[] array is unswappable. Avoiding the temporary array 
-   would allow the swapper to actually swap the pages out (no special 
-   cases: it's a perfectly normal page table, it just hasn't actually 
-   gotten activated yet).
- - And the whole reason for having a limited array  basically goes away 
-   (the swappable thing is part of it, but the fact that the page tables 
-   themselves are just a lot more extensible than the silly array is just 
-   fundamentally a part of it too)
-
-So it's literally just the array I'd get rid of. Instead of insertign the 
-page into the array, just insert it directly into the page table with 
-"install_arg_page()".
-
-			Linus
+--
+Nigel Cunningham		nigel at suspend2 dot net

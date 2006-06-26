@@ -1,83 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932633AbWFZSgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbWFZSjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932633AbWFZSgw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 14:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbWFZSgw
+	id S932640AbWFZSjn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 14:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbWFZSjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 14:36:52 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:17366 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S932635AbWFZSgv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 14:36:51 -0400
-Date: Mon, 26 Jun 2006 20:36:49 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Daniel Lezcano <dlezcano@fr.ibm.com>, Andrey Savochkin <saw@swsoft.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       dev@sw.ru, devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-Message-ID: <20060626183649.GB3368@MAIL.13thfloor.at>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	Daniel Lezcano <dlezcano@fr.ibm.com>,
-	Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-	clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-	devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-	Alexey Kuznetsov <alexey@sw.ru>
-References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <m1hd27uaxw.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1hd27uaxw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 26 Jun 2006 14:39:43 -0400
+Received: from silver.veritas.com ([143.127.12.111]:47790 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932636AbWFZSjm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 14:39:42 -0400
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.06,177,1149490800"; 
+   d="scan'208"; a="39545672:sNHT21585548"
+Date: Mon, 26 Jun 2006 19:39:23 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: please revert kthread from loop.c
+Message-ID: <Pine.LNX.4.64.0606261920440.1330@blonde.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 26 Jun 2006 18:39:41.0859 (UTC) FILETIME=[E31F6730:01C6994F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 10:40:59AM -0600, Eric W. Biederman wrote:
-> Daniel Lezcano <dlezcano@fr.ibm.com> writes:
-> 
-> >> Then you lose the ability for each namespace to have its own
-> >> routing entries. Which implies that you'll have difficulties with
-> >> devices that should exist and be visible in one namespace only
-> >> (like tunnels), as they require IP addresses and route.
-> >
-> > I mean instead of having the route tables private to the namespace, the routes
-> > have the information to which namespace they are associated.
-> 
-> Is this an implementation difference or is this a user visible
-> difference? As an implementation difference this is sensible, as it is
-> pretty insane to allocate hash tables at run time.
->
-> As a user visible difference that affects semantics of the operations
-> this is not something we want to do.
+Please revert c7b2eff059fcc2d1b7085ee3d84b79fd657a537b
+[PATCH] kthread: update loop.c to use kthread
 
-well, I guess there are even more options here, for
-example I'd like to propose the following idea, which
-might be a viable solution for the policy/isolation
-problem, with the actual overhead on the setup part
-not the hot pathes for packet and connection handling
+It seems too little tested: "losetup -d /dev/loop0" fails with
+EINVAL because nothing sets lo_thread; but even when you patch
+loop_thread() to set lo->lo_thread = current, it can't survive
+more than a few dozen iterations of the loop below (with a tmpfs
+mounted on /tst): collapses with failed ioctl then BUG_ON(!bio).
+I think the original lo_done completion was more subtle and safe
+than the kthread conversion has allowed for.
 
-we could use the multiple routing tables to provide
-a single routing table for each guest, which could
-be used inside the guest to add arbitrary routes, but
-would allow to keep the 'main' policy on the host, by
-selecting the proper table based on IPs and guest tags
-
-similar we could allow to have a separate iptables
-chain for each guest (or several chains), which are
-once again directed by the host system (applying the
-required prolicy) which can be managed and configured
-via normal iptable interfaces (both on the guest and
-host) but actually provide at least to layers
-
-note: this does not work for hierarchical network
-contexts, but I do not see that the yet proposed
-implementations would do, so I do not think that
-is of concern here ...
-
-best,
-Herbert
-
-> Eric
+j=0
+cp /dev/zero /tst
+while :
+do
+	let j=j+1
+	echo "Doing pass $j"
+	losetup /dev/loop0 /tst/zero
+	mkfs -t ext2 -b 1024 /dev/loop0 >/dev/null 2>&1
+	mount -t ext2 /dev/loop0 /mnt
+	umount /mnt
+	losetup -d /dev/loop0
+done

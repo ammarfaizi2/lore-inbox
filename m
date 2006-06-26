@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933181AbWFZWgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933172AbWFZX11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933181AbWFZWgB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:36:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933163AbWFZWfc
+	id S933172AbWFZX11 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933182AbWFZWgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:35:32 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:36767 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933123AbWFZWfP
+	Mon, 26 Jun 2006 18:36:04 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:42399 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933173AbWFZWfx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:35:15 -0400
+	Mon, 26 Jun 2006 18:35:53 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 08/20] [Suspend2] Generate free page bitmap.
-Date: Tue, 27 Jun 2006 08:35:14 +1000
+Subject: [Suspend2][ 19/20] [Suspend2] Prepare an image.
+Date: Tue, 27 Jun 2006 08:35:51 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223512.4050.21951.stgit@nigel.suspend2.net>
+Message-Id: <20060626223550.4050.47136.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626223446.4050.9897.stgit@nigel.suspend2.net>
 References: <20060626223446.4050.9897.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,74 +22,87 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Generate a bitmap of pages that are free (including in pcp lists).
+Attempt to prepare everything for suspending. This section of the code does
+most of the work - freezing processes, allocating storage, freeing memory
+and so on. Once it is complete, we are either going to abort or jump
+straight into writing the image.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/prepare_image.c |   53 ++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 53 insertions(+), 0 deletions(-)
+ kernel/power/prepare_image.c |   63 ++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 63 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/prepare_image.c b/kernel/power/prepare_image.c
-index e54865a..bf38334 100644
+index 893ba72..10159e5 100644
 --- a/kernel/power/prepare_image.c
 +++ b/kernel/power/prepare_image.c
-@@ -169,3 +169,56 @@ static void display_stats(int always, in
- 		suspend_message(SUSPEND_EAT_MEMORY, SUSPEND_MEDIUM, 1, buffer);
+@@ -622,3 +622,66 @@ static int eat_memory(void)
+ 	return 0;
  }
  
-+/* generate_free_page_map
++/* prepare_image
 + *
-+ * Description:	This routine generates a bitmap of free pages from the
-+ * 		lists used by the memory manager. We then use the bitmap
-+ * 		to quickly calculate which pages to save and in which
-+ * 		pagesets.
++ * Entry point to the whole image preparation section.
++ *
++ * We do four things:
++ * - Freeze processes;
++ * - Ensure image size constraints are met;
++ * - Complete all the preparation for saving the image,
++ *   including allocation of storage. The only memory
++ *   that should be needed when we're finished is that
++ *   for actually storing the image (and we know how
++ *   much is needed for that because the modules tell
++ *   us).
++ * - Make sure that all dirty buffers are written out.
 + */
-+static void generate_free_page_map(void) 
++#define MAX_TRIES 4
++int suspend_prepare_image(void)
 +{
-+	int i, order, loop, cpu;
-+	struct page *page;
-+	unsigned long flags;
-+	struct zone *zone;
-+	struct per_cpu_pageset *pset;
++	int result = 1, tries = 0;
 +
-+	for_each_zone(zone) {
-+		if (!zone->present_pages)
-+			continue;
-+		for(i=0; i < zone->spanned_pages; i++)
-+			SetPageInUse(pfn_to_page(zone->zone_start_pfn + i));
++	are_frozen = 0;
++
++	header_space_allocated = 0;
++
++	if (attempt_to_freeze())
++		return 1;
++
++	if (!extra_pd1_pages_allowance)
++		get_extra_pd1_allowance();
++
++	storage_available = suspend_active_writer->storage_available();
++
++	if (!storage_available) {
++		printk(KERN_ERR "You need some storage available to be able to suspend.\n");
++		set_result_state(SUSPEND_ABORTED);
++		set_result_state(SUSPEND_NOSTORAGE_AVAILABLE);
++		return 1;
 +	}
++
++	do {
++		suspend_prepare_status(CLEAR_BAR, "Preparing Image.");
 +	
-+	for_each_zone(zone) {
-+		if (!zone->present_pages)
-+			continue;
-+		spin_lock_irqsave(&zone->lock, flags);
-+		for (order = MAX_ORDER - 1; order >= 0; --order) {
-+			list_for_each_entry(page, &zone->free_area[order].free_list, lru)
-+				for(loop=0; loop < (1 << order); loop++)
-+					ClearPageInUse(page+loop);
-+		}
++		if (eat_memory() || test_result_state(SUSPEND_ABORTED))
++			break;
 +
++		result = update_image();
++
++		suspend_cond_pause(0, NULL);
 +		
-+		for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+			if (!cpu_possible(cpu))
-+				continue;
++		tries++;
 +
-+			pset = zone_pcp(zone, cpu);
++	} while ((result) && (tries < MAX_TRIES) && (!test_result_state(SUSPEND_ABORTED)) &&
++		(!test_result_state(SUSPEND_UNABLE_TO_FREE_ENOUGH_MEMORY)));
 +
-+			for (i = 0; i < ARRAY_SIZE(pset->pcp); i++) {
-+				struct per_cpu_pages *pcp;
-+				struct page *page;
-+
-+				pcp = &pset->pcp[i];
-+				list_for_each_entry(page, &pcp->list, lru)
-+					ClearPageInUse(page);
-+			}
-+		}
-+		
-+		spin_unlock_irqrestore(&zone->lock, flags);
++	if (tries == MAX_TRIES) {
++		abort_suspend("Unable to successfully prepare the image.\n");
++		display_stats(1, 0);
 +	}
-+}
 +
++	suspend_cond_pause(1, "Image preparation complete.");
++
++	return result;
++}
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

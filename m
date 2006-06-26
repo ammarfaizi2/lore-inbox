@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933187AbWFZXiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933122AbWFZXhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933187AbWFZXiV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933136AbWFZXhl
+	id S933122AbWFZXhg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933150AbWFZWem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:37:41 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:31647 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933147AbWFZWel
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:34:41 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 8/9] [Suspend2] Get pageset1 load addresses.
-Date: Tue, 27 Jun 2006 08:34:39 +1000
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223438.3963.82572.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626223412.3963.1484.stgit@nigel.suspend2.net>
-References: <20060626223412.3963.1484.stgit@nigel.suspend2.net>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Mon, 26 Jun 2006 18:34:42 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:64987 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S933122AbWFZWeW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:34:22 -0400
+Message-ID: <44A060BD.6090500@watson.ibm.com>
+Date: Mon, 26 Jun 2006 18:33:33 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Shailabh Nagar <nagar@watson.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, Balbir Singh <balbir@in.ibm.com>,
+       Jay Lan <jlan@engr.sgi.com>, Chris Sturtivant <csturtiv@sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] per-task delay accounting: avoid send without listeners
+References: <44A05F4F.8060503@watson.ibm.com>
+In-Reply-To: <44A05F4F.8060503@watson.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get the addresses into which the atomically copied memory should loaded
-prior to restoring it. They need to be locations that won't be overwritten
-in the process.
+Andrew,
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+This applies on top of the rollup of -mm (as of 5:39, 26 Jun 06), over 2.6.17,
+that you have provided at
+http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2
 
- kernel/power/pagedir.c |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
+Using this and not 2.6.17-mm2 due to inclusion of other patches that aren't in -mm2.
 
-diff --git a/kernel/power/pagedir.c b/kernel/power/pagedir.c
-index ec75e79..daf498a 100644
---- a/kernel/power/pagedir.c
-+++ b/kernel/power/pagedir.c
-@@ -308,3 +308,29 @@ void suspend_relocate_if_required(unsign
- 	}
- }
- 
-+/* get_pageset1_load_addresses
-+ * 
-+ * Description: We check here that pagedir & pages it points to won't collide
-+ * 		with pages where we're going to restore from the loaded pages
-+ * 		later.
-+ * Returns:	Zero on success, one if couldn't find enough pages (shouldn't
-+ * 		happen).
-+ */
-+
-+int suspend_get_pageset1_load_addresses(void)
-+{
-+	int i, result = 0;
-+	void *this;
-+
-+	for(i=0; i < pagedir1.pageset_size; i++) {
-+		this = (void *) suspend_get_nonconflicting_page();
-+		if (!this) {
-+			abort_suspend("Error: Ran out of memory seeking locations for reloading data.");
-+			result = 1;
-+			break;
-+		}
-+		SetPagePageset1Copy(virt_to_page(this));
-+	}
-+
-+	return result;
-+}
+This concludes the changes I planned to make and should hopefully address all
+the overhead concerns.
 
---
-Nigel Cunningham		nigel at suspend2 dot net
+
+Jay,
+
+If there are any remaining overhead issues you see, pls let me know asap.
+
+Thanks,
+Shailabh
+
+Shailabh Nagar wrote:
+> Don't send taskstats (per-pid or per-tgid) on thread exit when no one is
+> listening for such data.
+> 
+> Currently the taskstats interface allocates a structure, fills it in
+> and calls netlink to send out per-pid and per-tgid stats regardless of whether
+> a userspace listener for the data exists (netlink layer would check for that
+> and avoid the multicast).
+> 
+> As a result of this patch, the check for the no-listener case is performed
+> early, avoiding the redundant allocation and filling up of the taskstats
+> structures.
+> 
+> Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+> Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>

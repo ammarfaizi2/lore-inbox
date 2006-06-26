@@ -1,97 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933268AbWFZXS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933199AbWFZXUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933268AbWFZXS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933217AbWFZWhT
+	id S933199AbWFZXUA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933170AbWFZWg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:37:19 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:54175 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933209AbWFZWhL
+	Mon, 26 Jun 2006 18:36:57 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:49567 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933199AbWFZWgl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:37:11 -0400
+	Mon, 26 Jun 2006 18:36:41 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 01/32] [Suspend2] Block I/O Header File
-Date: Tue, 27 Jun 2006 08:37:09 +1000
+Subject: [Suspend2][ 12/19] [Suspend2] Read module configs from an image header.
+Date: Tue, 27 Jun 2006 08:36:39 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223708.4376.9487.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626223706.4376.96042.stgit@nigel.suspend2.net>
-References: <20060626223706.4376.96042.stgit@nigel.suspend2.net>
+Message-Id: <20060626223638.4219.31885.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223557.4219.53030.stgit@nigel.suspend2.net>
+References: <20060626223557.4219.53030.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel/power/block_io.h is the header file for the lowlevel block i/o code.
-It defines the operations that the swapwriter and filewriter use to
-actually perform the I/O.
+Read the configurations used when writing the image, prior to loading the
+data. Modules which are loaded now, and weren't when we suspended are
+disabled. If a module which is needed is not available, we complain and
+abort resuming. When built as modules, support for (say) encryption and
+compression can end up loaded in the wrong order. We therefore also reorder
+the modules to match the order used when suspending.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/block_io.h |   55 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 55 insertions(+), 0 deletions(-)
+ kernel/power/io.c |  126 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 126 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/block_io.h b/kernel/power/block_io.h
-new file mode 100644
-index 0000000..2e89ca2
---- /dev/null
-+++ b/kernel/power/block_io.h
-@@ -0,0 +1,55 @@
-+/*
-+ * kernel/power/block_io.h
+diff --git a/kernel/power/io.c b/kernel/power/io.c
+index a0aabd1..b179c50 100644
+--- a/kernel/power/io.c
++++ b/kernel/power/io.c
+@@ -488,3 +488,129 @@ static int write_module_configs(void)
+ 	return 0;
+ }
+ 
++/* read_module_configs()
 + *
-+ * Copyright 2004-2006 Nigel Cunningham <nigel@suspend2.net>
-+ *
-+ * Distributed under GPLv2.
-+ *
-+ * This file contains declarations for functions exported from
-+ * block_io.c, which contains low level io functions.
++ * Description:	Reload module configurations from the image header.
++ * Returns:	Int. Zero on success, error value otherwise.
 + */
 +
-+#include <linux/buffer_head.h>
-+#include "extent.h"
++static int read_module_configs(void)
++{
++	struct suspend_module_ops *this_module;
++	char *buffer = (char *) get_zeroed_page(GFP_ATOMIC);
++	int len, result = 0;
++	struct suspend_module_header suspend_module_header;
 +
-+struct suspend_bdev_info {
-+	struct block_device *bdev;
-+	dev_t dev_t;
-+	int bmap_shift;
-+	int blocks_per_page;
-+};
++	if (!buffer) {
++		printk("Failed to allocate a buffer for reloading module "
++				"configuration info.\n");
++		return -ENOMEM;
++	}
++		
++	/* All modules are initially disabled. That way, if we have a module
++	 * loaded now that wasn't loaded when we suspended, it won't be used
++	 * in trying to read the data.
++	 */
++	list_for_each_entry(this_module, &suspend_modules, module_list)
++		this_module->disabled = 1;
++	
++	/* Get the first module header */
++	result = suspend_active_writer->rw_header_chunk(READ, NULL,
++			(char *) &suspend_module_header, sizeof(suspend_module_header));
++	if (!result) {
++		printk("Failed to read the next module header.\n");
++		free_page((unsigned long) buffer);
++		return -EINVAL;
++	}
 +
-+/* 
-+ * Our exported interface so the swapwriter and filewriter don't
-+ * need these functions duplicated.
-+ */
-+struct suspend_bio_ops {
-+	int (*bdev_page_io) (int rw, struct block_device *bdev, long pos,
-+			struct page *page);
-+	void (*check_io_stats) (void);
-+	void (*reset_io_stats) (void);
-+	void (*finish_all_io) (void);
-+	int (*prepare_readahead) (int index);
-+	void (*cleanup_readahead) (int index);
-+	struct page ** readahead_pages;
-+	int (*readahead_ready) (int readahead_index);
-+	int (*forward_one_page) (void);
-+	void (*set_extra_page_forward) (void);
-+	void (*set_devinfo) (struct suspend_bdev_info *info);
-+	int (*read_chunk) (struct page *buffer_page, int sync);
-+	int (*write_chunk) (struct page *buffer_page);
-+	int (*rw_header_chunk) (int rw, struct suspend_module_ops *owner,
-+			char *buffer, int buffer_size);
-+	int (*write_header_chunk_finish) (void);
-+	int (*rw_init) (int rw, int stream_number);
-+	int (*rw_cleanup) (int rw);
-+};
++	/* For each module (in registration order) */
++	while (suspend_module_header.name[0]) {
 +
-+extern struct suspend_bio_ops suspend_bio_ops;
++		/* Find the module */
++		this_module = suspend_find_module_given_name(suspend_module_header.name);
 +
-+extern char *suspend_writer_buffer;
-+extern int suspend_writer_buffer_posn;
-+extern int suspend_read_fd;
-+extern struct extent_iterate_saved_state suspend_writer_posn_save[3];
-+extern struct extent_iterate_state suspend_writer_posn;
-+extern int suspend_header_bytes_used;
++		if (!this_module) {
++			/* 
++			 * Is it used? Only need to worry about filters. The active
++			 * writer must be loaded!
++			 */
++			if (!suspend_module_header.disabled) {
++				suspend_early_boot_message(1, SUSPEND_CONTINUE_REQ,
++					"It looks like we need module %s for "
++					"reading the image but it hasn't been "
++					"registered.\n",
++					suspend_module_header.name);
++				if (!(test_suspend_state(SUSPEND_CONTINUE_REQ))) {
++					suspend_active_writer->invalidate_image();
++					free_page((unsigned long) buffer);
++					return -EINVAL;
++				}
++			} else
++				printk("Module %s configuration data found, but the module "
++					"hasn't registered. Looks like it was disabled, so "
++					"we're ignoring it's data.",
++					suspend_module_header.name);
++		}
++		
++		/* Get the length of the data (if any) */
++		result = suspend_active_writer->rw_header_chunk(READ, NULL,
++				(char *) &len, sizeof(int));
++		if (!result) {
++			printk("Failed to read the length of the module %s's"
++					" configuration data.\n",
++					suspend_module_header.name);
++			free_page((unsigned long) buffer);
++			return -EINVAL;
++		}
++
++		/* Read any data and pass to the module (if we found one) */
++		if (len) {
++			suspend_active_writer->rw_header_chunk(READ, NULL,
++					buffer, len);
++			if (this_module) {
++				if (!this_module->save_config_info) {
++					printk("Huh? Module %s appears to have "
++						"a save_config_info, but not a "
++						"load_config_info function!\n",
++						this_module->name);
++				} else
++					this_module->load_config_info(buffer, len);
++			}
++		}
++
++		if (this_module) {
++			/* Now move this module to the tail of its lists. This
++			 * will put it in order. Any new modules will end up at
++			 * the top of the lists. They should have been set to
++			 * disabled when loaded (people will normally not edit
++			 * an initrd to load a new module and then suspend
++			 * without using it!).
++			 */
++
++			suspend_move_module_tail(this_module);
++
++			/* 
++			 * We apply the disabled state; modules don't need to
++			 * save whether they were disabled and if they do, we
++			 * override them anyway.
++			 */
++			this_module->disabled = suspend_module_header.disabled;
++		}
++
++		/* Get the next module header */
++		result = suspend_active_writer->rw_header_chunk(READ, NULL,
++				(char *) &suspend_module_header,
++				sizeof(suspend_module_header));
++
++		if (!result) {
++			printk("Failed to read the next module header.\n");
++			free_page((unsigned long) buffer);
++			return -EINVAL;
++		}
++
++	}
++
++	free_page((unsigned long) buffer);
++	return 0;
++}
++
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

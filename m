@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbWFZA75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbWFZA76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965106AbWFZA75 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 20:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbWFZA7x
+	id S964977AbWFZA76 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 20:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWFZA7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 20:59:53 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:25231 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965106AbWFZA7a
+	Sun, 25 Jun 2006 20:59:48 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:24975 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S965103AbWFZA7a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 25 Jun 2006 20:59:30 -0400
 Date: Sun, 25 Jun 2006 17:58:08 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 37/43] x86_64 support for klibc
-Message-Id: <klibc.200606251757.37@tazenda.hos.anvin.org>
+Subject: [klibc 36/43] sparc64 support for klibc
+Message-Id: <klibc.200606251757.36@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The parts of klibc specific to the x86_64 architecture.
+The parts of klibc specific to the sparc64 architecture.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit f889dd04bef1aed36ba18161c727af47338e167a
-tree c25f184d2e3337b52dfe3abd191ec639d4d9543d
-parent f30fa3db62972125afa68d3b53d03cdb843d3bbd
-author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:53 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:53 -0700
+commit f30fa3db62972125afa68d3b53d03cdb843d3bbd
+tree f2d942e281dce8bb98d4fa84b7e431c7beaddfc4
+parent 1b5c93603ed3460ed1fba9e5d453a6fa54d0ccce
+author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:50 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:50 -0700
 
- usr/include/arch/x86_64/klibc/archconfig.h |   15 +++
- usr/include/arch/x86_64/klibc/archsetjmp.h |   21 +++++
- usr/include/arch/x86_64/klibc/archsignal.h |   18 ++++
- usr/include/arch/x86_64/klibc/archstat.h   |   28 ++++++
- usr/include/arch/x86_64/klibc/archsys.h    |  109 ++++++++++++++++++++++++
- usr/include/arch/x86_64/sys/io.h           |  127 ++++++++++++++++++++++++++++
- usr/klibc/arch/x86_64/MCONFIG              |   35 ++++++++
- usr/klibc/arch/x86_64/Makefile.inc         |   18 ++++
- usr/klibc/arch/x86_64/crt0.S               |   22 +++++
- usr/klibc/arch/x86_64/setjmp.S             |   54 ++++++++++++
- usr/klibc/arch/x86_64/sigreturn.S          |   15 +++
- usr/klibc/arch/x86_64/syscall.S            |   28 ++++++
- usr/klibc/arch/x86_64/sysstub.ph           |   23 +++++
- usr/klibc/arch/x86_64/vfork.S              |   26 ++++++
- 14 files changed, 539 insertions(+), 0 deletions(-)
+ usr/include/arch/sparc64/klibc/archconfig.h |   15 +++++++
+ usr/include/arch/sparc64/klibc/archsetjmp.h |   16 ++++++++
+ usr/include/arch/sparc64/klibc/archsignal.h |   17 ++++++++
+ usr/include/arch/sparc64/klibc/archstat.h   |   30 +++++++++++++++
+ usr/include/arch/sparc64/klibc/archsys.h    |   10 +++++
+ usr/klibc/arch/sparc64/MCONFIG              |   21 ++++++++++
+ usr/klibc/arch/sparc64/Makefile.inc         |   16 ++++++++
+ usr/klibc/arch/sparc64/crt0.S               |    2 +
+ usr/klibc/arch/sparc64/pipe.S               |   30 +++++++++++++++
+ usr/klibc/arch/sparc64/setjmp.S             |   55 +++++++++++++++++++++++++++
+ usr/klibc/arch/sparc64/syscall.S            |   18 +++++++++
+ usr/klibc/arch/sparc64/sysfork.S            |   26 +++++++++++++
+ usr/klibc/arch/sparc64/sysstub.ph           |   25 ++++++++++++
+ 13 files changed, 281 insertions(+), 0 deletions(-)
 
-diff --git a/usr/include/arch/x86_64/klibc/archconfig.h b/usr/include/arch/x86_64/klibc/archconfig.h
+diff --git a/usr/include/arch/sparc64/klibc/archconfig.h b/usr/include/arch/sparc64/klibc/archconfig.h
 new file mode 100644
-index 0000000..b8a2a6d
+index 0000000..bb0c003
 --- /dev/null
-+++ b/usr/include/arch/x86_64/klibc/archconfig.h
++++ b/usr/include/arch/sparc64/klibc/archconfig.h
 @@ -0,0 +1,15 @@
 +/*
-+ * include/arch/x86_64/klibc/archconfig.h
++ * include/arch/sparc64/klibc/archconfig.h
 + *
 + * See include/klibc/sysconfig.h for the options that can be set in
 + * this file.
@@ -61,45 +60,40 @@ index 0000000..b8a2a6d
 +#ifndef _KLIBC_ARCHCONFIG_H
 +#define _KLIBC_ARCHCONFIG_H
 +
-+/* x86-64 doesn't provide a default sigreturn. */
-+#define _KLIBC_NEEDS_SA_RESTORER 1
++#define _KLIBC_USE_RT_SIG 1	/* Use rt_* signals */
++#define _KLIBC_NEEDS_SA_RESTORER 1 /* Need a restorer function */
 +
 +#endif				/* _KLIBC_ARCHCONFIG_H */
-diff --git a/usr/include/arch/x86_64/klibc/archsetjmp.h b/usr/include/arch/x86_64/klibc/archsetjmp.h
+diff --git a/usr/include/arch/sparc64/klibc/archsetjmp.h b/usr/include/arch/sparc64/klibc/archsetjmp.h
 new file mode 100644
-index 0000000..454fc60
+index 0000000..9e825bd
 --- /dev/null
-+++ b/usr/include/arch/x86_64/klibc/archsetjmp.h
-@@ -0,0 +1,21 @@
++++ b/usr/include/arch/sparc64/klibc/archsetjmp.h
+@@ -0,0 +1,16 @@
 +/*
-+ * arch/x86_64/include/klibc/archsetjmp.h
++ * arch/sparc64/include/klibc/archsetjmp.h
 + */
 +
 +#ifndef _KLIBC_ARCHSETJMP_H
 +#define _KLIBC_ARCHSETJMP_H
 +
 +struct __jmp_buf {
-+	unsigned long __rbx;
-+	unsigned long __rsp;
-+	unsigned long __rbp;
-+	unsigned long __r12;
-+	unsigned long __r13;
-+	unsigned long __r14;
-+	unsigned long __r15;
-+	unsigned long __rip;
++	unsigned long __sp;
++	unsigned long __fp;
++	unsigned long __pc;
 +};
 +
 +typedef struct __jmp_buf jmp_buf[1];
 +
 +#endif				/* _SETJMP_H */
-diff --git a/usr/include/arch/x86_64/klibc/archsignal.h b/usr/include/arch/x86_64/klibc/archsignal.h
+diff --git a/usr/include/arch/sparc64/klibc/archsignal.h b/usr/include/arch/sparc64/klibc/archsignal.h
 new file mode 100644
-index 0000000..6c8ec77
+index 0000000..bb0a5ce
 --- /dev/null
-+++ b/usr/include/arch/x86_64/klibc/archsignal.h
-@@ -0,0 +1,18 @@
++++ b/usr/include/arch/sparc64/klibc/archsignal.h
+@@ -0,0 +1,17 @@
 +/*
-+ * arch/x86_64/include/klibc/archsignal.h
++ * arch/sparc64/include/klibc/archsignal.h
 + *
 + * Architecture-specific signal definitions
 + *
@@ -108,20 +102,19 @@ index 0000000..6c8ec77
 +#ifndef _KLIBC_ARCHSIGNAL_H
 +#define _KLIBC_ARCHSIGNAL_H
 +
++#define __WANT_POSIX1B_SIGNALS__
 +#include <asm/signal.h>
-+/* The x86-64 headers defines NSIG 32, but it's actually 64 */
-+#undef  _NSIG
-+#undef  NSIG
-+#define _NSIG 64
-+#define NSIG  _NSIG
++
++/* Not actually used by the kernel... */
++#define SA_RESTORER	0x80000000
 +
 +#endif
-diff --git a/usr/include/arch/x86_64/klibc/archstat.h b/usr/include/arch/x86_64/klibc/archstat.h
+diff --git a/usr/include/arch/sparc64/klibc/archstat.h b/usr/include/arch/sparc64/klibc/archstat.h
 new file mode 100644
-index 0000000..de168ac
+index 0000000..56fb2a4
 --- /dev/null
-+++ b/usr/include/arch/x86_64/klibc/archstat.h
-@@ -0,0 +1,28 @@
++++ b/usr/include/arch/sparc64/klibc/archstat.h
+@@ -0,0 +1,30 @@
 +#ifndef _KLIBC_ARCHSTAT_H
 +#define _KLIBC_ARCHSTAT_H
 +
@@ -138,26 +131,28 @@ index 0000000..de168ac
 +	unsigned int	st_uid;
 +	unsigned int	st_gid;
 +	unsigned int	__pad0;
-+	__stdev64	(st_rdev);
++
++	__stdev64 (st_rdev);
 +	long		st_size;
 +	long		st_blksize;
-+	long		st_blocks;	/* Number 512-byte blocks allocated. */
++	long		st_blocks;
 +
 +	struct timespec st_atim;
 +	struct timespec st_mtim;
 +	struct timespec st_ctim;
-+  	long		__unused[3];
++
++	unsigned long __unused[3];
 +};
 +
 +#endif
-diff --git a/usr/include/arch/x86_64/klibc/archsys.h b/usr/include/arch/x86_64/klibc/archsys.h
+diff --git a/usr/include/arch/sparc64/klibc/archsys.h b/usr/include/arch/sparc64/klibc/archsys.h
 new file mode 100644
-index 0000000..45c71a7
+index 0000000..43151b6
 --- /dev/null
-+++ b/usr/include/arch/x86_64/klibc/archsys.h
-@@ -0,0 +1,109 @@
++++ b/usr/include/arch/sparc64/klibc/archsys.h
+@@ -0,0 +1,10 @@
 +/*
-+ * arch/x86_64/include/klibc/archsys.h
++ * arch/sparc64/include/klibc/archsys.h
 + *
 + * Architecture-specific syscall definitions
 + */
@@ -165,289 +160,43 @@ index 0000000..45c71a7
 +#ifndef _KLIBC_ARCHSYS_H
 +#define _KLIBC_ARCHSYS_H
 +
-+/* The x86-64 syscall headers are needlessly inefficient */
-+
-+#undef _syscall0
-+#undef _syscall1
-+#undef _syscall2
-+#undef _syscall3
-+#undef _syscall4
-+#undef _syscall5
-+#undef _syscall6
-+
-+#define _syscall0(type,name) \
-+type name (void) \
-+{ \
-+long __res; \
-+__asm__ volatile (__syscall \
-+        : "=a" (__res) \
-+        : "0" (__NR_##name) \
-+        : __syscall_clobber); \
-+__syscall_return(type,__res); \
-+}
-+
-+#define _syscall1(type,name,type1,arg1) \
-+type name (type1 arg1) \
-+{ \
-+long __res; \
-+__asm__ volatile (__syscall \
-+        : "=a" (__res) \
-+        : "0" (__NR_##name),"D" (arg1) \
-+        : __syscall_clobber); \
-+__syscall_return(type,__res); \
-+}
-+
-+#define _syscall2(type,name,type1,arg1,type2,arg2) \
-+type name (type1 arg1,type2 arg2) \
-+{ \
-+long __res; \
-+__asm__ volatile (__syscall \
-+        : "=a" (__res) \
-+        : "0" (__NR_##name),"D" (arg1),"S" (arg2) \
-+        : __syscall_clobber); \
-+__syscall_return(type,__res); \
-+}
-+
-+#define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
-+type name (type1 arg1,type2 arg2,type3 arg3) \
-+{ \
-+long __res; \
-+__asm__ volatile (__syscall \
-+        : "=a" (__res) \
-+        : "0" (__NR_##name),"D" (arg1),"S" (arg2), \
-+          "d" (arg3) \
-+        : __syscall_clobber); \
-+__syscall_return(type,__res); \
-+}
-+
-+#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
-+type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4) \
-+{ \
-+long __res; \
-+register type4 __r10 asm("%r10") = arg4; \
-+__asm__ volatile (__syscall \
-+        : "=a" (__res) \
-+        : "0" (__NR_##name),"D" (arg1),"S" (arg2), \
-+          "d" (arg3),"r" (__r10) \
-+        : __syscall_clobber); \
-+__syscall_return(type,__res); \
-+}
-+
-+#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
-+          type5,arg5) \
-+type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5) \
-+{ \
-+long __res; \
-+register type4 __r10 asm("%r10") = arg4; \
-+register type5 __r8  asm("%r8")  = arg5; \
-+__asm__ volatile (__syscall \
-+        : "=a" (__res) \
-+        : "0" (__NR_##name),"D" (arg1),"S" (arg2), \
-+          "d" (arg3),"r" (__r10),"r" (__r8) \
-+        : __syscall_clobber); \
-+__syscall_return(type,__res); \
-+}
-+
-+#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
-+          type5,arg5,type6,arg6) \
-+type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5,type6 arg6) \
-+{ \
-+long __res; \
-+register type4 __r10 asm("%r10") = arg4; \
-+register type5 __r8  asm("%r8")  = arg5; \
-+register type6 __r9  asm("%r9")  = arg6; \
-+__asm__ volatile (__syscall \
-+        : "=a" (__res) \
-+        : "0" (__NR_##name),"D" (arg1),"S" (arg2), \
-+          "d" (arg3),"r" (__r10),"r" (__r8), "r" (__r9) \
-+        : __syscall_clobber); \
-+__syscall_return(type,__res); \
-+}
-+
 +#endif				/* _KLIBC_ARCHSYS_H */
-diff --git a/usr/include/arch/x86_64/sys/io.h b/usr/include/arch/x86_64/sys/io.h
+diff --git a/usr/klibc/arch/sparc64/MCONFIG b/usr/klibc/arch/sparc64/MCONFIG
 new file mode 100644
-index 0000000..2a0ca48
+index 0000000..443250a
 --- /dev/null
-+++ b/usr/include/arch/x86_64/sys/io.h
-@@ -0,0 +1,127 @@
-+/* ----------------------------------------------------------------------- *
-+ *
-+ *   Copyright 2004 H. Peter Anvin - All Rights Reserved
-+ *
-+ *   Permission is hereby granted, free of charge, to any person
-+ *   obtaining a copy of this software and associated documentation
-+ *   files (the "Software"), to deal in the Software without
-+ *   restriction, including without limitation the rights to use,
-+ *   copy, modify, merge, publish, distribute, sublicense, and/or
-+ *   sell copies of the Software, and to permit persons to whom
-+ *   the Software is furnished to do so, subject to the following
-+ *   conditions:
-+ *
-+ *   The above copyright notice and this permission notice shall
-+ *   be included in all copies or substantial portions of the Software.
-+ *
-+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ *   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-+ *   OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ *   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-+ *   HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-+ *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-+ *   OTHER DEALINGS IN THE SOFTWARE.
-+ *
-+ * ----------------------------------------------------------------------- */
-+
-+/*
-+ * sys/io.h for the i386 architecture
-+ *
-+ * Basic I/O macros
-+ */
-+
-+#ifndef _SYS_IO_H
-+#define _SYS_IO_H 1
-+
-+/* I/O-related system calls */
-+
-+int iopl(int);
-+int ioperm(unsigned long, unsigned long, int);
-+
-+/* Basic I/O macros */
-+
-+static __inline__ void outb(unsigned char __v, unsigned short __p)
-+{
-+	asm volatile ("outb %0,%1" : : "a" (__v), "dN"(__p));
-+}
-+
-+static __inline__ void outw(unsigned short __v, unsigned short __p)
-+{
-+	asm volatile ("outw %0,%1" : : "a" (__v), "dN"(__p));
-+}
-+
-+static __inline__ void outl(unsigned int __v, unsigned short __p)
-+{
-+	asm volatile ("outl %0,%1" : : "a" (__v), "dN"(__p));
-+}
-+
-+static __inline__ unsigned char inb(unsigned short __p)
-+{
-+	unsigned char __v;
-+	asm volatile ("inb %1,%0" : "=a" (__v) : "dN"(__p));
-+	return v;
-+}
-+
-+static __inline__ unsigned short inw(unsigned short __p)
-+{
-+	unsigned short __v;
-+	asm volatile ("inw %1,%0" : "=a" (__v) : "dN"(__p));
-+	return v;
-+}
-+
-+static __inline__ unsigned int inl(unsigned short __p)
-+{
-+	unsigned int __v;
-+	asm volatile ("inl %1,%0" : "=a" (__v) : "dN"(__p));
-+	return v;
-+}
-+
-+/* String I/O macros */
-+
-+static __inline__ void
-+outsb(unsigned short __p, const void *__d, unsigned long __n)
-+{
-+	asm volatile ("cld; rep; outsb"
-+		      : "+S" (__d), "+c"(__n)
-+		      : "d"(__p));
-+}
-+
-+static __inline__ void
-+outsw(unsigned short __p, const void *__d, unsigned long __n)
-+{
-+	asm volatile ("cld; rep; outsw"
-+		      : "+S" (__d), "+c"(__n)
-+		      : "d"(__p));
-+}
-+
-+static __inline__ void
-+outsl(unsigned short __p, const void *__d, unsigned long __n)
-+{
-+	asm volatile ("cld; rep; outsl"
-+		      : "+S" (__d), "+c"(__n)
-+		      : "d"(__p));
-+}
-+
-+static __inline__ void insb(unsigned short __p, void *__d, unsigned long __n)
-+{
-+	asm volatile ("cld; rep; insb"
-+		      : "+D" (__d), "+c"(__n)
-+		      : "d"(__p));
-+}
-+
-+static __inline__ void insw(unsigned short __p, void *__d, unsigned long __n)
-+{
-+	asm volatile ("cld; rep; insw"
-+		      : "+D" (__d), "+c"(__n)
-+		      : "d"(__p));
-+}
-+
-+static __inline__ void insl(unsigned short __p, void *__d, unsigned long __n)
-+{
-+	asm volatile ("cld; rep; insl"
-+		      : "+D" (__d), "+c"(__n)
-+		      : "d"(__p));
-+}
-+
-+#endif				/* _SYS_IO_H */
-diff --git a/usr/klibc/arch/x86_64/MCONFIG b/usr/klibc/arch/x86_64/MCONFIG
-new file mode 100644
-index 0000000..edcd638
---- /dev/null
-+++ b/usr/klibc/arch/x86_64/MCONFIG
-@@ -0,0 +1,35 @@
++++ b/usr/klibc/arch/sparc64/MCONFIG
+@@ -0,0 +1,21 @@
 +# -*- makefile -*-
 +#
-+# arch/x86-64/MCONFIG
++# arch/sparc64/MCONFIG
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
 +# accordingly.
 +#
-+# Blatantly copied and modified from i386 version by Mats Petersson, AMD.
-+#
 +
-+#
-+# NOTE: -fno-asynchronous-unwind-tables produce significantly smaller
-+# binaries (20% smaller), but makes the code completely useless for
-+# debugging using gdb.
-+#
-+KLIBCARCHREQFLAGS = -m64
-+ifeq ($(DEBUG),y)
-+KLIBCOPTFLAGS     = -Os -fomit-frame-pointer \
-+		-falign-functions=1 -falign-jumps=1 -falign-loops=1
-+else
-+KLIBCOPTFLAGS     = -Os -fno-asynchronous-unwind-tables -fomit-frame-pointer \
-+		-falign-functions=1 -falign-jumps=1 -falign-loops=1
-+endif
++KLIBCARCHREQFLAGS = -m64 -mptr64 -D__sparc64__
++KLIBCOPTFLAGS     = -Os
 +KLIBCBITSIZE      = 64
-+KLIBCLDFLAGS      = -m elf_x86_64
++
++KLIBCLDFLAGS      = -m elf64_sparc
 +
 +# Extra linkflags when building the shared version of the library
 +# This address needs to be reachable using normal inter-module
 +# calls, and work on the memory models for this architecture
-+# 2 MB - normal binaries start at 4 MB
-+KLIBCSHAREDFLAGS     = -Ttext 0x00200200
-+
-+# Additional asm- directories needed during installation
-+ASMARCH = asm-i386
-diff --git a/usr/klibc/arch/x86_64/Makefile.inc b/usr/klibc/arch/x86_64/Makefile.inc
++# Normal binaries start at 1 MB; the linker wants 1 MB alignment,
++# and call instructions have a 30-bit signed offset, << 2.
++KLIBCSHAREDFLAGS	= -Ttext 0x80000200
+diff --git a/usr/klibc/arch/sparc64/Makefile.inc b/usr/klibc/arch/sparc64/Makefile.inc
 new file mode 100644
-index 0000000..4bfe56a
+index 0000000..1641f51
 --- /dev/null
-+++ b/usr/klibc/arch/x86_64/Makefile.inc
-@@ -0,0 +1,18 @@
++++ b/usr/klibc/arch/sparc64/Makefile.inc
+@@ -0,0 +1,16 @@
 +# -*- makefile -*-
 +#
-+# arch/x86_64/Makefile.inc
++# arch/sparc64/Makefile.inc
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
@@ -455,166 +204,182 @@ index 0000000..4bfe56a
 +#
 +
 +KLIBCARCHOBJS = \
++	arch/$(KLIBCARCH)/pipe.o \
 +	arch/$(KLIBCARCH)/setjmp.o \
 +	arch/$(KLIBCARCH)/syscall.o \
-+	arch/$(KLIBCARCH)/sigreturn.o \
-+	arch/$(KLIBCARCH)/vfork.o
-+
-+KLIBCARCHSOOBJS = $(patsubst %.o,%.lo,$(KLIBCARCHOBJS))
++	arch/$(KLIBCARCH)/sysfork.o
 +
 +archclean:
-diff --git a/usr/klibc/arch/x86_64/crt0.S b/usr/klibc/arch/x86_64/crt0.S
+diff --git a/usr/klibc/arch/sparc64/crt0.S b/usr/klibc/arch/sparc64/crt0.S
 new file mode 100644
-index 0000000..6a5f335
+index 0000000..5faee7c
 --- /dev/null
-+++ b/usr/klibc/arch/x86_64/crt0.S
-@@ -0,0 +1,22 @@
-+#
-+# arch/x86_64/crt0.S
-+#
-+# Does arch-specific initialization and invokes __libc_init
-+# with the appropriate arguments.
-+#
-+# See __static_init.c or __shared_init.c for the expected
-+# arguments.
-+#
-+
-+	.text
-+	.align 4
-+	.type _start,@function
-+	.globl _start
-+_start:
-+	movq %rsp,%rdi			# Offset of the ELF data structure
-+	movq %rdx,%rsi			# The atexit() pointer (if any)
-+	call __libc_init
-+	# We should never get here...
-+	hlt
-+
-+	.size _start,.-_start
-diff --git a/usr/klibc/arch/x86_64/setjmp.S b/usr/klibc/arch/x86_64/setjmp.S
++++ b/usr/klibc/arch/sparc64/crt0.S
+@@ -0,0 +1,2 @@
++#define TARGET_PTR_SIZE 64
++#include "../sparc/crt0i.S"
+diff --git a/usr/klibc/arch/sparc64/pipe.S b/usr/klibc/arch/sparc64/pipe.S
 new file mode 100644
-index 0000000..45f547b
+index 0000000..c63b20f
 --- /dev/null
-+++ b/usr/klibc/arch/x86_64/setjmp.S
-@@ -0,0 +1,54 @@
-+#
-+# arch/x86_64/setjmp.S
-+#
-+# setjmp/longjmp for the x86-64 architecture
-+#
-+
-+#
-+# The jmp_buf is assumed to contain the following, in order:
-+#	%rbx
-+#	%rsp (post-return)
-+#	%rbp
-+#	%r12
-+#	%r13
-+#	%r14
-+#	%r15
-+#	<return address>
-+#
-+
-+	.text
-+	.align 4
-+	.globl setjmp
-+	.type setjmp, @function
-+setjmp:
-+	pop  %rsi			# Return address, and adjust the stack
-+	xorl %eax,%eax			# Return value
-+	movq %rbx,(%rdi)
-+	movq %rsp,8(%rdi)		# Post-return %rsp!
-+	push %rsi			# Make the call/return stack happy
-+	movq %rbp,16(%rdi)
-+	movq %r12,24(%rdi)
-+	movq %r13,32(%rdi)
-+	movq %r14,40(%rdi)
-+	movq %r15,48(%rdi)
-+	movq %rsi,56(%rdi)		# Return address
-+	ret
-+
-+	.size setjmp,.-setjmp
-+
-+	.text
-+	.align 4
-+	.globl longjmp
-+	.type longjmp, @function
-+longjmp:
-+	movl %esi,%eax			# Return value (int)
-+	movq (%rdi),%rbx
-+	movq 8(%rdi),%rsp
-+	movq 16(%rdi),%rbp
-+	movq 24(%rdi),%r12
-+	movq 32(%rdi),%r13
-+	movq 40(%rdi),%r14
-+	movq 48(%rdi),%r15
-+	jmp *56(%rdi)
-+
-+	.size longjmp,.-longjmp
-diff --git a/usr/klibc/arch/x86_64/sigreturn.S b/usr/klibc/arch/x86_64/sigreturn.S
-new file mode 100644
-index 0000000..46a5a0b
---- /dev/null
-+++ b/usr/klibc/arch/x86_64/sigreturn.S
-@@ -0,0 +1,15 @@
++++ b/usr/klibc/arch/sparc64/pipe.S
+@@ -0,0 +1,30 @@
 +/*
-+ * arch/x86_64/sigreturn.S
++ * arch/sparc64/pipe.S
++ *
++ * The pipe system call are special on sparc[64]:
++ * they return the two file descriptors in %o0 and %o1.
 + */
 +
 +#include <asm/unistd.h>
 +
-+	.text
-+	.align	4
-+	.globl	__sigreturn
-+	.type	__sigreturn,@function
-+__sigreturn:
-+	movl	$__NR_rt_sigreturn,%eax
-+	syscall
-+
-+	.size	__sigreturn,.-__sigreturn
-diff --git a/usr/klibc/arch/x86_64/syscall.S b/usr/klibc/arch/x86_64/syscall.S
-new file mode 100644
-index 0000000..1797797
---- /dev/null
-+++ b/usr/klibc/arch/x86_64/syscall.S
-@@ -0,0 +1,28 @@
-+/*
-+ * arch/x86-64/syscall.S
-+ *
-+ * Common tail-handling code for system calls.
-+ *
-+ * The arguments are in the standard argument registers; the system
-+ * call number in %eax.
-+ */
-+	.text
-+	.align	4
-+	.globl	__syscall_common
-+	.type	__syscall_common,@function
-+__syscall_common:
-+	movq	%rcx,%r10		# The kernel uses %r10 istf %rcx
-+	syscall
-+
-+	cmpq	$-4095,%rax
-+	jnb	1f
-+	ret
-+
-+	# Error return, must set errno
++	.globl	pipe
++	.type	pipe,#function
++       	.align	4
++pipe:
++	mov	__NR_pipe, %g1
++	or	%o0, 0, %g4
++	t	0x6d
++	bcc	%xcc, 1f
++	  nop
++	sethi	%hi(errno), %g4
++	or	%g4, %lo(errno), %g4
++	st	%o0,[%g4]
++	retl
++	  mov	-1, %o0
 +1:
-+	negl	%eax
-+	movl	%eax,errno(%rip)	# errno is type int, so 32 bits
-+	orq	$-1,%rax		# orq $-1 smaller than movq $-1
-+	ret
++	st	%o0,[%g4]
++	st	%o1,[%g4+4]
++	retl
++	  mov	0, %o0
 +
-+	.size	__syscall_common,.-__syscall_common
-diff --git a/usr/klibc/arch/x86_64/sysstub.ph b/usr/klibc/arch/x86_64/sysstub.ph
++	.size pipe,.-pipe
+diff --git a/usr/klibc/arch/sparc64/setjmp.S b/usr/klibc/arch/sparc64/setjmp.S
 new file mode 100644
-index 0000000..e2d797b
+index 0000000..75a6a68
 --- /dev/null
-+++ b/usr/klibc/arch/x86_64/sysstub.ph
-@@ -0,0 +1,23 @@
++++ b/usr/klibc/arch/sparc64/setjmp.S
+@@ -0,0 +1,55 @@
++!
++! setjmp.S
++!
++! Basic setjmp/longjmp
++!
++! This code was based on the equivalent code in NetBSD
++!
++
++!
++! The jmp_buf contains the following entries:
++!   sp
++!   fp
++!   pc
++!
++	.text
++	.align	4
++	.global	setjmp
++	.type	setjmp, @function
++setjmp:
++	stx	%sp,[%o0+0]	! Callers stack pointer
++	stx	%o7,[%o0+8]	! Return pc
++	stx	%fp,[%o0+16]	! Frame pointer
++	retl			! Return
++	 clr	%o0		!  ...0
++
++	.size	setjmp,.-setjmp
++
++
++       	.globl	longjmp
++	.type	longjmp, @function
++longjmp:
++	mov	%o1, %g4	! save return value
++	mov	%o0, %g1	! save target
++	ldx	[%g1+16],%g5	! get callers frame
++1:
++	cmp	%fp, %g5	! compare against desired frame
++	bl,a	1b		! if below...
++	 restore		! pop frame and loop
++	be,a	2f		! if there...
++       	 ldx	[%g1+0],%o2	! fetch return %sp
++
++.Lbotch:
++	unimp	0		! ... error ...
++
++2:
++       	cmp	%o2, %sp	! %sp must not decrease
++	bl	.Lbotch
++	 nop
++	mov	%o2, %sp	! it is OK, put it in place
++
++	ldx	[%g1+8],%o3	! fetch %pc
++	jmp	%o3 + 8		! if sucess...
++	 mov	%g4,%o0		!   return %g4
++
++	.size	longjmp,.-longjmp
+diff --git a/usr/klibc/arch/sparc64/syscall.S b/usr/klibc/arch/sparc64/syscall.S
+new file mode 100644
+index 0000000..7ab9d95
+--- /dev/null
++++ b/usr/klibc/arch/sparc64/syscall.S
+@@ -0,0 +1,18 @@
++/*
++ * arch/sparc64/syscall.S
++ *
++ * Common system-call stub; %g1 already set to syscall number
++ */
++
++	.globl	__syscall_common
++	.type	__syscall_common,#function
++       	.align	4
++__syscall_common:
++	t	0x6d
++	bcc	%xcc, 1f
++	  sethi	%hi(errno), %g4
++	or	%g4, %lo(errno), %g4
++	st	%o0,[%g4]
++1:
++       	retl
++	  movcs	%xcc, -1, %o0
+diff --git a/usr/klibc/arch/sparc64/sysfork.S b/usr/klibc/arch/sparc64/sysfork.S
+new file mode 100644
+index 0000000..2eed659
+--- /dev/null
++++ b/usr/klibc/arch/sparc64/sysfork.S
+@@ -0,0 +1,26 @@
++/*
++ * arch/sparc64/sysfork.S
++ *
++ * The fork and vfork system calls are special on sparc[64]:
++ * they return the "other process" pid in %o0 and the
++ * "is child" flag in %o1
++ *
++ * Common system-call stub; %g1 already set to syscall number
++ */
++
++	.globl	__syscall_forkish
++	.type	__syscall_forkish,#function
++       	.align	4
++__syscall_forkish:
++	t	0x6d
++	sub	%o1, 1, %o1
++	bcc,a	%xcc, 1f
++	  and	%o0, %o1, %o0
++	sethi	%hi(errno), %g4
++	or	%g4, %lo(errno), %g4
++	st	%o0, [%g4]
++	retl
++	  mov	-1, %o0
++1:
++       	retl
++	  nop
+diff --git a/usr/klibc/arch/sparc64/sysstub.ph b/usr/klibc/arch/sparc64/sysstub.ph
+new file mode 100644
+index 0000000..deeb88c
+--- /dev/null
++++ b/usr/klibc/arch/sparc64/sysstub.ph
+@@ -0,0 +1,25 @@
 +# -*- perl -*-
 +#
-+# arch/x86_64/sysstub.ph
++# arch/sparc64/sysstub.ph
 +#
 +# Script to generate system call stubs
 +#
@@ -622,48 +387,18 @@ index 0000000..e2d797b
 +sub make_sysstub($$$$$@) {
 +    my($outputdir, $fname, $type, $sname, $stype, @args) = @_;
 +
++    $stype = $stype || 'common';
++
 +    open(OUT, '>', "${outputdir}/${fname}.S");
 +    print OUT "#include <asm/unistd.h>\n";
 +    print OUT "\n";
 +    print OUT "\t.type ${fname},\@function\n";
 +    print OUT "\t.globl ${fname}\n";
 +    print OUT "${fname}:\n";
-+    print OUT "\tmovl \$__NR_${sname},%eax\n"; # Zero-extends to 64 bits
-+    print OUT "\tjmp __syscall_common\n";
++    print OUT "\tb __syscall_${stype}\n";
++    print OUT "\t  mov\t__NR_${sname}, %g1\n";
 +    print OUT "\t.size ${fname},.-${fname}\n";
 +    close(OUT);
 +}
 +
 +1;
-diff --git a/usr/klibc/arch/x86_64/vfork.S b/usr/klibc/arch/x86_64/vfork.S
-new file mode 100644
-index 0000000..e1c8090
---- /dev/null
-+++ b/usr/klibc/arch/x86_64/vfork.S
-@@ -0,0 +1,26 @@
-+#
-+# usr/klibc/arch/x86_64/vfork.S
-+#
-+# vfork is nasty - there must be nothing at all on the stack above
-+# the stack frame of the enclosing function.
-+#
-+
-+#include <asm/unistd.h>
-+
-+	.text
-+	.align	4
-+	.globl	vfork
-+	.type	vfork, @function
-+vfork:
-+	pop	%rdx			/* Return address */
-+	movl	$__NR_vfork, %eax
-+	syscall
-+	push	%rdx
-+	cmpq	$-4095, %rax
-+	jae	1f
-+	ret
-+1:
-+	negl	%eax
-+	movl	%eax, errno(%rip)
-+	orq	$-1, %rax
-+	ret

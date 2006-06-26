@@ -1,121 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965192AbWFZBxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWFZCGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965192AbWFZBxa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 21:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWFZBxa
+	id S964990AbWFZCGs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 22:06:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWFZCGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 21:53:30 -0400
-Received: from mx1.suse.de ([195.135.220.2]:6118 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965118AbWFZBx3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 21:53:29 -0400
-From: Neil Brown <neilb@suse.de>
-To: Ronald Lembcke <es186@fen-net.de>
-Date: Mon, 26 Jun 2006 11:53:06 +1000
+	Sun, 25 Jun 2006 22:06:48 -0400
+Received: from web50406.mail.yahoo.com ([206.190.38.71]:31847 "HELO
+	web50406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S964990AbWFZCGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 22:06:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=m/rrvj65a8kxoq32O+MaR+0cAtci9s3ilJkMhB/B9GQhIrFdHH5xZzsfPh23YsUf1XcALuMiEHGdstwGwaW+z2A+2XUqW7FDWJXnnYXqMvTzJcLfpQrTyPGVvTAHLlySOESn6hlkGwW/8gSTCe7eu5QDzYL8I/g4g7JN5GcHEDc=  ;
+Message-ID: <20060626020646.49093.qmail@web50406.mail.yahoo.com>
+Date: Sun, 25 Jun 2006 19:06:46 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: [PATCH] Fix bug: accessing past end of array.
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17567.15874.836519.525015@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: Bug in 2.6.17 / mdadm 2.5.1
-In-Reply-To: message from Neil Brown on Monday June 26
-References: <20060624104745.GA6352@defiant.crash>
-	<20060625135926.GA6253@defiant.crash>
-	<17567.13099.133933.397389@cse.unsw.edu.au>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday June 26, neilb@suse.de wrote:
-> On Sunday June 25, es186@fen-net.de wrote:
-> > Hi!
-> > 
-> > There's a bug in Kernel 2.6.17 and / or mdadm which prevents (re)adding
-> > a disk to a degraded RAID5-Array.
-> 
-> Thank you for the detailed report.
-> The bug is in the md driver in the kernel (not in mdadm), and only
-> affects version-1 superblocks.  Debian recently changed the default
-> (in /etc/mdadm.conf) to use version-1 superblocks which I thought
-> would be OK (I've some testing) but obviously I missed something. :-(
-> 
-> If you remove the "metadata=1" (or whatever it is) from
-> /etc/mdadm/mdadm.conf and then create the array, it will be created
-> with a version-0.90 superblock has had more testing.
-> 
-> Alternately you can apply the following patch to the kernel and
-> version-1 superblocks should work better.
+If the card is re-inserted 2 or more times, we access elements
+past the end of the aha152x_host array.
 
-And as a third alternate, you can apply this patch to mdadm-2.5.1
-It will work-around the kernel bug.
+Also correct spelling errors.
 
-NeilBrown
+This is for 2.6.17.
 
-diff .prev/Manage.c ./Manage.c
---- .prev/Manage.c	2006-06-20 10:01:17.000000000 +1000
-+++ ./Manage.c	2006-06-26 11:46:56.000000000 +1000
-@@ -271,8 +271,14 @@ int Manage_subdevs(char *devname, int fd
- 				 * If so, we can simply re-add it.
- 				 */
- 				st->ss->uuid_from_super(duuid, dsuper);
--			
--				if (osuper) {
+Signed-off-by Alex Davis <alex14641 at yahoo dot com>
+=========================================================================
+diff -u linux-2.6.17.1-orig/drivers/scsi/aha152x.c linux-2.6.17.1/drivers/scsi/aha152x.c
+--- linux-2.6.17.1-orig/drivers/scsi/aha152x.c	2006-06-17 21:49:35.000000000 -0400
++++ linux-2.6.17.1/drivers/scsi/aha152x.c	2006-06-25 20:06:05.000000000 -0400
+@@ -766,7 +766,7 @@
+ 	struct Scsi_Host *shpnt = lookup_irq(irqno);
+ 
+ 	if (!shpnt) {
+-        	printk(KERN_ERR "aha152x: catched software interrupt %d for unknown controller.\n",
+irqno);
++        	printk(KERN_ERR "aha152x: caught software interrupt %d for unknown controller.\n",
+irqno);
+ 		return IRQ_NONE;
+ 	}
+ 
+@@ -779,6 +779,7 @@
+ struct Scsi_Host *aha152x_probe_one(struct aha152x_setup *setup)
+ {
+ 	struct Scsi_Host *shpnt;
++	int i;
+ 
+ 	shpnt = scsi_host_alloc(&aha152x_driver_template, sizeof(struct aha152x_hostdata));
+ 	if (!shpnt) {
+@@ -787,6 +788,22 @@
+ 	}
+ 
+ 	/* need to have host registered before triggering any interrupt */
 +
-+				/* re-add doesn't work for version-1 superblocks
-+				 * before 2.6.18 :-(
-+				 */
-+				if (array.major_version == 1 &&
-+				    get_linux_version() <= 2006018)
-+					;
-+				else if (osuper) {
- 					st->ss->uuid_from_super(ouuid, osuper);
- 					if (memcmp(duuid, ouuid, sizeof(ouuid))==0) {
- 						/* look close enough for now.  Kernel
-@@ -295,7 +301,10 @@ int Manage_subdevs(char *devname, int fd
- 					}
- 				}
- 			}
--			for (j=0; j< st->max_devs; j++) {
-+			/* due to a bug in 2.6.17 and earlier, we start
-+			 * looking from raid_disks, not 0
-+			 */
-+			for (j = array.raid_disks ; j< st->max_devs; j++) {
- 				disc.number = j;
- 				if (ioctl(fd, GET_DISK_INFO, &disc))
- 					break;
-
-diff .prev/super1.c ./super1.c
---- .prev/super1.c	2006-06-20 10:01:46.000000000 +1000
-+++ ./super1.c	2006-06-26 11:47:12.000000000 +1000
-@@ -277,6 +277,18 @@ static void examine_super1(void *sbv, ch
- 	default: break;
- 	}
- 	printf("\n");
-+	printf("    Array Slot : %d (", __le32_to_cpu(sb->dev_number));
-+	for (i= __le32_to_cpu(sb->max_dev); i> 0 ; i--)
-+		if (__le16_to_cpu(sb->dev_roles[i-1]) != 0xffff)
++	/* find an empty slot. */
++	for ( i = 0; i < ARRAY_SIZE(aha152x_host); ++i ) {
++		if ( aha152x_host[i] == NULL ) {
 +			break;
-+	for (d=0; d < i; d++) {
-+		int role = __le16_to_cpu(sb->dev_roles[d]);
-+		if (d) printf(", ");
-+		if (role == 0xffff) printf("empty");
-+		else if(role == 0xfffe) printf("failed");
-+		else printf("%d", role);
++		}
 +	}
-+	printf(")\n");
- 	printf("   Array State : ");
- 	for (d=0; d<__le32_to_cpu(sb->raid_disks); d++) {
- 		int cnt = 0;
-@@ -767,7 +779,8 @@ static int write_init_super1(struct supe
- 		if (memcmp(sb->set_uuid, refsb->set_uuid, 16)==0) {
- 			/* same array, so preserve events and dev_number */
- 			sb->events = refsb->events;
--			sb->dev_number = refsb->dev_number;
-+			if (get_linux_version() >= 2006018)
-+				sb->dev_number = refsb->dev_number;
- 		}
- 		free(refsb);
++
++	/* no empty slots? */
++	if ( i >= ARRAY_SIZE(aha152x_host) ) {
++		printk(KERN_ERR "aha152x: too many hosts: %d\n", i + 1);
++		return NULL;
++	}
++
++	registered_count = i;
++
+ 	aha152x_host[registered_count] = shpnt;
+ 
+ 	memset(HOSTDATA(shpnt), 0, sizeof *HOSTDATA(shpnt));
+@@ -915,6 +932,8 @@
+ 
+ void aha152x_release(struct Scsi_Host *shpnt)
+ {
++	int i;
++
+ 	if(!shpnt)
+ 		return;
+ 
+@@ -933,6 +952,12 @@
+ 
+ 	scsi_remove_host(shpnt);
+ 	scsi_host_put(shpnt);
++	for ( i = 0; i < ARRAY_SIZE(aha152x_host); ++i ) {
++		if ( aha152x_host[i] == shpnt ) {
++			aha152x_host[i] = NULL;
++			break;
++		}
++	}
+ }
+ 
+ 
+@@ -1458,7 +1483,7 @@
+ 	unsigned char rev, dmacntrl0;
+ 
+ 	if (!shpnt) {
+-		printk(KERN_ERR "aha152x: catched interrupt %d for unknown controller.\n", irqno);
++		printk(KERN_ERR "aha152x: caught interrupt %d for unknown controller.\n", irqno);
+ 		return IRQ_NONE;
  	}
+ 
+@@ -2976,6 +3001,9 @@
+ 	Scsi_Cmnd *ptr;
+ 	unsigned long flags;
+ 
++	if(!shpnt)
++		return;
++
+ 	DO_LOCK(flags);
+ 	printk(KERN_DEBUG "\nqueue status:\nissue_SC:\n");
+ 	for (ptr = ISSUE_SC; ptr; ptr = SCNEXT(ptr))
+@@ -3941,7 +3969,6 @@
+ 
+ 	for(i=0; i<ARRAY_SIZE(setup); i++) {
+ 		aha152x_release(aha152x_host[i]);
+-		aha152x_host[i]=NULL;
+ 	}
+ }
+
+I code, therefore I am
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

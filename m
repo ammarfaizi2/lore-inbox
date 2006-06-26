@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWFZRaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWFZRbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWFZRaD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 13:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWFZRaB
+	id S1751174AbWFZRbl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 13:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWFZRbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 13:30:01 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:60100 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1750990AbWFZRaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 13:30:00 -0400
-Message-ID: <44A01995.20802@fr.ibm.com>
-Date: Mon, 26 Jun 2006 19:29:57 +0200
-From: Daniel Lezcano <dlezcano@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrey Savochkin <saw@swsoft.com>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       ebiederm@xmission.com, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: [patch 4/4] Network namespaces: playing and debugging
-References: <20060626134945.A28942@castle.nmd.msu.ru> <20060626135250.B28942@castle.nmd.msu.ru> <20060626135427.C28942@castle.nmd.msu.ru> <20060626135537.D28942@castle.nmd.msu.ru> <449FF77D.3080707@fr.ibm.com> <20060626194339.D989@castle.nmd.msu.ru>
-In-Reply-To: <20060626194339.D989@castle.nmd.msu.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 26 Jun 2006 13:31:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61889 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751174AbWFZRbj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 13:31:39 -0400
+Date: Mon, 26 Jun 2006 10:31:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vgoyal@in.ibm.com
+Cc: ebiederm@xmission.com, maneesh@in.ibm.com, Neela.Kolli@engenio.com,
+       linux-scsi@vger.kernel.org, mike.miller@hp.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver initialization
+ issue fix
+Message-Id: <20060626103130.de79fd9f.akpm@osdl.org>
+In-Reply-To: <20060626171659.GG8985@in.ibm.com>
+References: <20060623235553.2892f21a.akpm@osdl.org>
+	<20060624111954.GA7313@in.ibm.com>
+	<20060624043046.4e4985be.akpm@osdl.org>
+	<20060624120836.GB7313@in.ibm.com>
+	<m1veqqxyrb.fsf@ebiederm.dsl.xmission.com>
+	<20060626021100.GA12824@in.ibm.com>
+	<20060626133504.GA8985@in.ibm.com>
+	<m11wtcvw5k.fsf@ebiederm.dsl.xmission.com>
+	<20060626153239.GD8985@in.ibm.com>
+	<m13bdrvrd4.fsf@ebiederm.dsl.xmission.com>
+	<20060626171659.GG8985@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>Do
->>>	exec 7< /proc/net/net_ns
->>>in your bash shell and you'll get a brand new network namespace.
->>>There you can, for example, do
->>>	ip link set lo up
->>>	ip addr list
->>>	ip addr add 1.2.3.4 dev lo
->>>	ping -n 1.2.3.4
->>>
+On Mon, 26 Jun 2006 13:16:59 -0400
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
 
-Andrey,
-
-I began to play with your patchset. I am able to connect to 127.0.0.1 
-from different namespaces. Is it the expected behavior ?
-Furthermore, I am not able to have several programs, running in 
-different namespaces, to bind to the same INADDR_ANY:port.
-
-Will these features be included in the second patchset ?
-
->>
->>Is it possible to setup a network device to communicate with the outside ?
+> So it is matter of making a choice in case the device does not have a
+> software reset capability.
 > 
+> - Either try to make driver work through some hacks based on crashboot
+>   option.
 > 
-> Such device was planned for the second patchset :)
-> I perhaps can send the patch tomorrow.
+> - Or mark the driver unusable in kdump scenarios.
+> 
+> Even if one decides to go for second option, at least "crashboot" or
+> similar parameter will be required so that driver can choose whether
+> to reset the device or not during initialization due to significant
+> time penalty. 
 
-Cool :)
+yes, this does legitimise the `crashboot' option.
+
+That being said, it's misnamed, I think.  It should be called
+`reset_devices' or something.  Because that's what it does, and who
+knows, there might be other reasons for wanting to reset devices.
+
+See, it's more accurate.  We don't want drivers to be looking at some
+global environmental thing and then independently working out what they
+should be doing this time around.  We just want drivers to do what they're
+told.
+

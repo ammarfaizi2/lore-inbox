@@ -1,55 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWFZHT4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWFZHke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbWFZHT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 03:19:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWFZHT4
+	id S932386AbWFZHke (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 03:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWFZHke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 03:19:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8041 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932301AbWFZHT4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 03:19:56 -0400
-Date: Mon, 26 Jun 2006 09:21:25 +0200
-From: Jens Axboe <axboe@suse.de>
-To: gary sheppard <rhyotte@gmail.com>
-Cc: =?iso-8859-1?Q?Andr=E9?= Goddard Rosa <andre.goddard@gmail.com>,
-       ck@vds.kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: [ck] Re: [PATCH] fcache: a remapping boot cache
-Message-ID: <20060626072125.GG3966@suse.de>
-References: <20060515091806.GA4110@suse.de> <20060515101019.GA4068@suse.de> <20060516074628.GA16317@suse.de> <4d8e3fd30605301438k457f6242x1df64df9bab7f8f1@mail.gmail.com> <20060531061234.GC29535@suse.de> <1e1a7e1b0606232044x11136be5p332716b757ecd537@mail.gmail.com> <20060624110959.GQ4083@suse.de> <b8bf37780606240503s4713283eo2b8aa43513751da9@mail.gmail.com> <20060626064313.GB3966@suse.de> <fe15b94a0606260015i440c995vda3327cc3c4c8210@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fe15b94a0606260015i440c995vda3327cc3c4c8210@mail.gmail.com>
+	Mon, 26 Jun 2006 03:40:34 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:44233 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932386AbWFZHkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 03:40:33 -0400
+Date: Mon, 26 Jun 2006 16:39:59 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Toralf Foerster <toralf.foerster@gmx.de>
+Subject: Re: linux-2.6.17.1: undefined reference to `online_page'
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+In-Reply-To: <200606251704_MC3-1-C36D-5D33@compuserve.com>
+References: <200606251704_MC3-1-C36D-5D33@compuserve.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060626163235.A022.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26 2006, gary sheppard wrote:
-> The thing is there are a lot of Desktop users out there who for various
-> reasons will shut down their systems either every night, or every few days.
-> Where I live now is notorious for brown outs and black outs. Now in a server
-> room you *WILL* have battery backup and of course will simply laugh at such
-> an event. In the home very few people I know who have computers have a
-> battery backup system. For those types of people anything to help boot time
-> is nice to have. It may be totally bogus to equate boot time with system
-> performance but many folks do in fact equate boot time/ system
-> responsiveness to performance. I very much believe that your work with
-> Fcache is and will be very much appreciated. Another project
+> In-Reply-To: <200606231001.33766.toralf.foerster@gmx.de>
+> 
+> On Fri, 23 Jun 2006 10:01:33 +0200, Toralf Foerster wrote:
+> 
+> > I got the compile error :
+> > 
+> > ...
+> >   UPD     include/linux/compile.h
+> >   CC      init/version.o
+> >   LD      init/built-in.o
+> >   LD      .tmp_vmlinux1
+> > mm/built-in.o: In function `online_pages':
+> > : undefined reference to `online_page'
+> > make: *** [.tmp_vmlinux1] Error 1
+> > 
+> > with this config:
+> 
+> > CONFIG_X86_32=y
+> 
+> > CONFIG_NOHIGHMEM=y
+> 
+> > CONFIG_SPARSEMEM_MANUAL=y
+> > CONFIG_SPARSEMEM=y
+> > CONFIG_HAVE_MEMORY_PRESENT=y
+> > CONFIG_SPARSEMEM_STATIC=y
+> > CONFIG_MEMORY_HOTPLUG=y
+> 
+> Yes, that config is broken. mm/memory_hotplug.c::online_pages() calls
+> online_page() but without HIGHMEM that doesn't get built and no dummy
+> function gets defined.
 
-Yes, I realize that and I look forward to posting some numbers on the
-newer fcache later today. It should be even faster than before. I just
-stated my personal usage pattern, I know it might not be the average.
+Toralf-san. How is this patch?
+Or do you want to use memory hotplug without highmem?
 
-> http://www.initng.org/   is actively working on reducing boot time. I
-> actually downloaded their live CD and have to admit it is pretty good!
+Bye.
 
-Fixing init scripts is of course a priority, but it needs to happen with
-improve disk layout as well to get the huge speed increase.
+---
 
-There are also things like kernel device detection. SATA is pretty
-quick, but the old IDE is dog slow and you easily waste many seconds
-there.
+add_memory() for i386 add memory to highmem. So, if CONFIG_HIGHMEM
+is not set, CONFIG_MEMORY_HOTPLUG shouldn't be set.
+
+
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+---
+ mm/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.17/mm/Kconfig
+===================================================================
+--- linux-2.6.17.orig/mm/Kconfig	2006-06-26 14:19:11.000000000 +0900
++++ linux-2.6.17/mm/Kconfig	2006-06-26 14:19:53.000000000 +0900
+@@ -115,7 +115,7 @@ config SPARSEMEM_EXTREME
+ # eventually, we can have this option just 'select SPARSEMEM'
+ config MEMORY_HOTPLUG
+ 	bool "Allow for memory hot-add"
+-	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND
++	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND && !(X86_32 && !HIGHMEM)
+ 
+ comment "Memory hotplug is currently incompatible with Software Suspend"
+ 	depends on SPARSEMEM && HOTPLUG && SOFTWARE_SUSPEND
 
 -- 
-Jens Axboe
+Yasunori Goto 
+
 

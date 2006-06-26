@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWFZRAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWFZRBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbWFZRAr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 13:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWFZQxK
+	id S1750811AbWFZRBN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 13:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbWFZRAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 12:53:10 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:43910 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1750812AbWFZQxI
+	Mon, 26 Jun 2006 13:00:51 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:44678 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1750811AbWFZQxM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 12:53:08 -0400
+	Mon, 26 Jun 2006 12:53:12 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 03/11] [Suspend2] Get memory needed for Suspend2 modules.
-Date: Tue, 27 Jun 2006 02:53:12 +1000
+Subject: [Suspend2][ 04/11] [Suspend2] Find a suspend2 module given its name
+Date: Tue, 27 Jun 2006 02:53:15 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626165310.10957.73619.stgit@nigel.suspend2.net>
+Message-Id: <20060626165314.10957.4181.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626165301.10957.62592.stgit@nigel.suspend2.net>
 References: <20060626165301.10957.62592.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,42 +22,39 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Determine how much free memory should be available for Suspend2 modules to
-do their work while reading and writing the image.
+Given the name of a Suspend2 module, return a pointer to it's struct
+suspend_module_ops.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/modules.c |   22 ++++++++++++++++++++++
- 1 files changed, 22 insertions(+), 0 deletions(-)
+ kernel/power/modules.c |   19 +++++++++++++++++++
+ 1 files changed, 19 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/modules.c b/kernel/power/modules.c
-index 60c7c7b..ff9b9d7 100644
+index ff9b9d7..c18b5fb 100644
 --- a/kernel/power/modules.c
 +++ b/kernel/power/modules.c
-@@ -49,3 +49,25 @@ unsigned long suspend_header_storage_for
- 	return bytes + sizeof(struct suspend_module_header);
+@@ -71,3 +71,22 @@ unsigned long suspend_memory_for_modules
+ 	return ((bytes + PAGE_SIZE - 1) >> PAGE_SHIFT);
  }
  
-+/*
-+ * suspend_memory_for_modules
-+ *
-+ * Returns the amount of memory requested by modules for
-+ * doing their work during the cycle.
++/* suspend_find_module_given_name
++ * Functionality :	Return a module (if found), given a pointer
++ * 			to its name
 + */
 +
-+unsigned long suspend_memory_for_modules(void)
++struct suspend_module_ops *suspend_find_module_given_name(char *name)
 +{
-+	unsigned long bytes = 0;
-+	struct suspend_module_ops *this_module;
-+
++	struct suspend_module_ops *this_module, *found_module = NULL;
++	
 +	list_for_each_entry(this_module, &suspend_modules, module_list) {
-+		if (this_module->disabled)
-+			continue;
-+		if (this_module->memory_needed)
-+			bytes += this_module->memory_needed();
++		if (!strcmp(name, this_module->name)) {
++			found_module = this_module;
++			break;
++		}			
 +	}
 +
-+	return ((bytes + PAGE_SIZE - 1) >> PAGE_SHIFT);
++	return found_module;
 +}
 +
 

@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWFZUwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWFZUwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWFZUwD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 16:52:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWFZUwD
+	id S1751266AbWFZUwc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 16:52:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWFZUwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 16:52:03 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:9376 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751264AbWFZUwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 16:52:00 -0400
-Subject: Re: [PATCH] riport LADAR driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: mgross@linux.intel.com
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       mark.gross@intel.com
-In-Reply-To: <20060626205525.GA13411@linux.intel.com>
-References: <20060622144120.GA5215@linux.intel.com>
-	 <1151000401.3120.55.camel@laptopd505.fenrus.org>
-	 <20060622231604.GA5208@linux.intel.com>
-	 <20060622225239.bf0ccab2.rdunlap@xenotime.net>
-	 <20060623224654.GA5204@linux.intel.com>
-	 <1151146820.3181.22.camel@laptopd505.fenrus.org>
-	 <20060626205525.GA13411@linux.intel.com>
+	Mon, 26 Jun 2006 16:52:32 -0400
+Received: from r16s03p19.home.nbox.cz ([83.240.22.12]:39358 "EHLO
+	scarab.smoula.net") by vger.kernel.org with ESMTP id S1751266AbWFZUwb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 16:52:31 -0400
+Subject: NFS and partitioned md
+From: Martin Filip <bugtraq@smoula.net>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Mon, 26 Jun 2006 22:51:49 +0200
-Message-Id: <1151355109.3185.88.camel@laptopd505.fenrus.org>
+Date: Mon, 26 Jun 2006 22:52:25 +0200
+Message-Id: <1151355145.4460.16.camel@archon.smoula-in.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello to LKML,
 
-> +#define RIPORT_DEBUG
-> +
-> +#undef pr_debug
-> +#ifdef RIPORT_DEBUG
-> +#  define pr_debug(fmt, args...) printk( KERN_DEBUG "riport: " fmt, ## args)
-> +#else	/*  */
-> +#  define pr_debug(fmt, args...)
-> +#endif	/*  */
+few days ago I've changed my sw RAID5 to use md_d devices, which are
+"partitonable". (major 254, minor dependant on partiton no)
 
+The problem is with kernel space NFS daemon. When I create loopback
+device and export it - everything works OK, but when exported directory
+is directly something goes really wrong and it's not possible to mount
+it.
 
+I'm getting "nfs: server 192.168.0.2 not responding, timed out" in my
+kernel log, when I look on what's happening on network, the last thing
+what's there are 3 retransmitted GETATTR calls without any response. 
 
-ehhhhh that's not what I meant... if you would just remove these 6
-lines.. then sure..
-> +	if (!request_region(io + ECP_OFFSET, 3, "riport")) {
-> +		release_region(io,3);
-> +
-> +		pr_debug("request_region 0x%X of 3 bytes fails\n", io + ECP_OFFSET );
-> +		*presult = -EBUSY;
-> +		goto fail_io2;
+I'm a little bit confused because I thought that NFS should work on
+filesystem and should not care about devices, but it seems that it's not
+true.
 
-this is a double release..
+Is here someone who is interested in this problematic and know whether
+this is bug or feature? I've done lots of googling, but had not found
+anything relevant :(
 
-> +
-> +fail_dev:
-> +	release_region(io + ECP_OFFSET,3);
-> +fail_io2:
-> +	release_region(io,3);
+Many thanks in advance...
 
-with this.
+-- 
+Martin Filip
+e-mail: nexus@smoula.net
+ICQ#: 31531391
+jabber: nexus@smoula.net
 
-> +	current->state = TASK_RUNNING;
-
-please use set_current_state() API for this
-
-
+ ________________________________________ 
+/ BOFH Excuse #274: It was OK before you \
+\ touched it.                            /
+ ---------------------------------------- 
+       \   ,__,
+        \  (oo)____
+           (__)    )\
+              ||--|| *
 

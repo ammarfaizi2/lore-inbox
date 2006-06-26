@@ -1,127 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933098AbWFZW1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933100AbWFZW2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933098AbWFZW1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933099AbWFZW1Q
+	id S933100AbWFZW2R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933101AbWFZW2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:27:16 -0400
-Received: from mxout.hispeed.ch ([62.2.95.247]:38973 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S933098AbWFZW1P (ORCPT
+	Mon, 26 Jun 2006 18:28:17 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:9161 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S933100AbWFZW2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:27:15 -0400
-From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: oom-killer problem
-Date: Tue, 27 Jun 2006 00:28:15 +0200
-User-Agent: KMail/1.7.2
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+	Mon, 26 Jun 2006 18:28:16 -0400
+Message-ID: <44A05F4F.8060503@watson.ibm.com>
+Date: Mon, 26 Jun 2006 18:27:27 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>
+CC: Balbir Singh <balbir@in.ibm.com>, Jay Lan <jlan@engr.sgi.com>,
+       Chris Sturtivant <csturtiv@sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [RFC][PATCH] per-task delay accounting: avoid send without listeners
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606270028.16346.daniel.ritz-ml@swissonline.ch>
-X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-05.tornado.cablecom.ch 1378;
-	Body=4 Fuz1=4 Fuz2=4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Don't send taskstats (per-pid or per-tgid) on thread exit when no one is
+listening for such data.
 
-i got the same here. reason is a recent change that made modules always
-shows as module.mod. it breaks modprobe and probably many scripts..besides
-lsmod looking horrible.
-stuff like this in modprobe.conf:
-	install pcmcia_core /sbin/modprobe --ignore-install pcmcia_core; /sbin/modprobe pcmcia
-makes modprobe fork/exec endlessly calling itself...until oom interrupts it...
-reverting the attached patch fixes the problem...
+Currently the taskstats interface allocates a structure, fills it in
+and calls netlink to send out per-pid and per-tgid stats regardless of whether
+a userspace listener for the data exists (netlink layer would check for that
+and avoid the multicast).
 
-rgds
--daniel
+As a result of this patch, the check for the no-listener case is performed
+early, avoiding the redundant allocation and filling up of the taskstats
+structures.
 
+Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
 
-From: Sam Ravnborg <sam@mars.ravnborg.org>
-Date: Sat, 24 Jun 2006 20:50:18 +0000 (+0200)
-Subject: kbuild: fix make -rR breakage
-X-Git-Url: http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=e5c44fd88c146755da6941d047de4d97651404a9
-
-kbuild: fix make -rR breakage
-
-make failed to supply the filename when using make -rR and using $(*F)
-to get target filename without extension.
-This bug was not reproduceable in small scale but using:
-$(basename $(notdir $@)) fixes it with same functionality.
-
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 ---
 
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -13,6 +13,11 @@ space   := $(empty) $(empty)
- depfile = $(subst $(comma),_,$(@D)/.$(@F).d)
- 
- ###
-+# basetarget equals the filename of the target with no extension.
-+# So 'foo/bar.o' becomes 'bar'
-+basetarget = $(basename $(notdir $@))
+ include/linux/taskstats_kern.h |   13 ++++++++++++-
+ 1 files changed, 12 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.17/include/linux/taskstats_kern.h
+===================================================================
+--- linux-2.6.17.orig/include/linux/taskstats_kern.h	2006-06-26 16:45:33.000000000 -0400
++++ linux-2.6.17/include/linux/taskstats_kern.h	2006-06-26 16:47:08.000000000 -0400
+@@ -9,6 +9,7 @@
+
+ #include <linux/taskstats.h>
+ #include <linux/sched.h>
++#include <net/genetlink.h>
+
+ enum {
+ 	TASKSTATS_MSG_UNICAST,		/* send data only to requester */
+@@ -19,9 +20,19 @@ enum {
+ extern kmem_cache_t *taskstats_cache;
+ extern struct mutex taskstats_exit_mutex;
+
++static inline int taskstats_has_listeners(void)
++{
++	if (!genl_sock)
++		return 0;
++	return netlink_has_listeners(genl_sock, TASKSTATS_LISTEN_GROUP);
++}
 +
-+###
- # Escape single quote for use in echo statements
- escsq = $(subst $(squote),'\$(squote)',$1)
- 
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -117,7 +117,7 @@ $(real-objs-m:.o=.lst): quiet_modtag := 
- $(obj-m)              : quiet_modtag := [M]
- 
- # Default for not multi-part modules
--modname = $(*F)
-+modname = $(basetarget)
- 
- $(multi-objs-m)         : modname = $(modname-multi)
- $(multi-objs-m:.o=.i)   : modname = $(modname-multi)
---- a/scripts/Makefile.host
-+++ b/scripts/Makefile.host
-@@ -80,8 +80,10 @@ obj-dirs += $(host-objdirs)
- #####
- # Handle options to gcc. Support building with separate output directory
- 
--_hostc_flags   = $(HOSTCFLAGS)   $(HOST_EXTRACFLAGS)   $(HOSTCFLAGS_$(*F).o)
--_hostcxx_flags = $(HOSTCXXFLAGS) $(HOST_EXTRACXXFLAGS) $(HOSTCXXFLAGS_$(*F).o)
-+_hostc_flags   = $(HOSTCFLAGS)   $(HOST_EXTRACFLAGS)   \
-+                 $(HOSTCFLAGS_$(basetarget).o)
-+_hostcxx_flags = $(HOSTCXXFLAGS) $(HOST_EXTRACXXFLAGS) \
-+                 $(HOSTCXXFLAGS_$(basetarget).o)
- 
- ifeq ($(KBUILD_SRC),)
- __hostc_flags	= $(_hostc_flags)
---- a/scripts/Makefile.lib
-+++ b/scripts/Makefile.lib
-@@ -82,12 +82,12 @@ obj-dirs	:= $(addprefix $(obj)/,$(obj-di
- #       than one module. In that case KBUILD_MODNAME will be set to foo_bar,
- #       where foo and bar are the name of the modules.
- name-fix = $(subst $(comma),_,$(subst -,_,$1))
--basename_flags = -D"KBUILD_BASENAME=KBUILD_STR($(call name-fix,$(*F)))"
-+basename_flags = -D"KBUILD_BASENAME=KBUILD_STR($(call name-fix,$(basetarget)))"
- modname_flags  = $(if $(filter 1,$(words $(modname))),\
-                  -D"KBUILD_MODNAME=KBUILD_STR($(call name-fix,$(modname)))")
- 
--_c_flags       = $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o)
--_a_flags       = $(AFLAGS) $(EXTRA_AFLAGS) $(AFLAGS_$(*F).o)
-+_c_flags       = $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$(basetarget).o)
-+_a_flags       = $(AFLAGS) $(EXTRA_AFLAGS) $(AFLAGS_$(basetarget).o)
- _cpp_flags     = $(CPPFLAGS) $(EXTRA_CPPFLAGS) $(CPPFLAGS_$(@F))
- 
- # If building the kernel in a separate objtree expand all occurrences
---- a/scripts/Makefile.modpost
-+++ b/scripts/Makefile.modpost
-@@ -72,7 +72,7 @@ $(modules:.ko=.mod.c): __modpost ;
- # Step 5), compile all *.mod.c files
- 
- # modname is set to make c_flags define KBUILD_MODNAME
--modname = $(*F)
-+modname = $(basetarget)
- 
- quiet_cmd_cc_o_c = CC      $@
-       cmd_cc_o_c = $(CC) $(c_flags) $(CFLAGS_MODULE)	\
++
+ static inline void taskstats_exit_alloc(struct taskstats **ptidstats)
+ {
+-	*ptidstats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
++	*ptidstats = NULL;
++	if (taskstats_has_listeners())
++		*ptidstats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
+ }
+
+ static inline void taskstats_exit_free(struct taskstats *tidstats)

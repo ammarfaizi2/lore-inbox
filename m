@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933347AbWFZWsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933373AbWFZWsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933347AbWFZWsX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933333AbWFZWlu
+	id S933373AbWFZWsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933347AbWFZWrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:41:50 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:41143 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933335AbWFZWll
+	Mon, 26 Jun 2006 18:47:47 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:42679 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933329AbWFZWlv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:41:41 -0400
+	Mon, 26 Jun 2006 18:41:51 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 10/28] [Suspend2] Allocate swapwriter header space.
-Date: Tue, 27 Jun 2006 08:41:39 +1000
+Subject: [Suspend2][ 13/28] [Suspend2] Initialise/cleanup swapwriter
+Date: Tue, 27 Jun 2006 08:41:49 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626224138.4975.96144.stgit@nigel.suspend2.net>
+Message-Id: <20060626224148.4975.13748.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626224105.4975.90758.stgit@nigel.suspend2.net>
 References: <20060626224105.4975.90758.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,50 +22,44 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allocate space in the allocated storage for the header of the image.
+Initialise and cleanup routines, called when we're going to do something.
+It may be just modifying a setting, but some of these result in I/O being
+done to (eg) check whether an image exists.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/suspend_swap.c |   31 +++++++++++++++++++++++++++++++
- 1 files changed, 31 insertions(+), 0 deletions(-)
+ kernel/power/suspend_swap.c |   23 +++++++++++++++++++++++
+ 1 files changed, 23 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/suspend_swap.c b/kernel/power/suspend_swap.c
-index 7f16bea..8e4221d 100644
+index 792bcc8..ae0dfad 100644
 --- a/kernel/power/suspend_swap.c
 +++ b/kernel/power/suspend_swap.c
-@@ -329,3 +329,34 @@ static int prepare_signature(dev_t bdev,
- 	return 0;
+@@ -429,3 +429,26 @@ static int swapwriter_storage_available(
+ 	return swapinfo.freeswap + swapwriter_storage_allocated();
  }
  
-+static int swapwriter_allocate_storage(int space_requested);
-+
-+static int swapwriter_allocate_header_space(int space_requested)
++static int swapwriter_initialise(int starting_cycle)
 +{
-+	int i;
++	if (!starting_cycle)
++		return 0;
 +
-+	if (!swapextents.size)
-+		swapwriter_allocate_storage(space_requested);
++	enable_swapfile();
 +
-+	suspend_extent_state_goto_start(&suspend_writer_posn);
-+	suspend_bio_ops.forward_one_page(); /* To first page */
++	if (resume_dev_t && !resume_block_device &&
++	    IS_ERR(resume_block_device =
++	    		open_bdev(MAX_SWAPFILES, resume_dev_t)))
++		return 1;
 +	
-+	for (i = 0; i < space_requested; i++) {
-+		if (suspend_bio_ops.forward_one_page()) {
-+			printk("Out of space while seeking to allocate "
-+					"header pages,\n");
-+			header_pages_allocated = i;
-+			return -ENOSPC;
-+		}
-+
-+	}
-+
-+	header_pages_allocated = space_requested;
-+
-+	/* The end of header pages will be the start of pageset 2;
-+	 * we are now sitting on the first pageset2 page. */
-+	suspend_extent_state_save(&suspend_writer_posn,
-+			&suspend_writer_posn_save[2]);
 +	return 0;
++}
++
++static void swapwriter_cleanup(int ending_cycle)
++{
++	if (ending_cycle)
++		disable_swapfile();
++	
++	close_bdevs();
 +}
 +
 

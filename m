@@ -1,54 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933316AbWFZWx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933375AbWFZWvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933316AbWFZWx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933331AbWFZWwi
+	id S933375AbWFZWvm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933395AbWFZWvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:52:38 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:37559 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933316AbWFZWlR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:41:17 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 03/28] [Suspend2] Close bdevs opened by the swapwriter.
-Date: Tue, 27 Jun 2006 08:41:16 +1000
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060626224114.4975.48247.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626224105.4975.90758.stgit@nigel.suspend2.net>
-References: <20060626224105.4975.90758.stgit@nigel.suspend2.net>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Mon, 26 Jun 2006 18:51:40 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:13285 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S933387AbWFZWv1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:51:27 -0400
+Date: Tue, 27 Jun 2006 00:46:32 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       linux-kernel@vger.kernel.org, arjan@linux.intel.com, pavel@suse.cz,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] binfmt: turn MAX_ARG_PAGES into a sysctl tunable
+Message-ID: <20060626224632.GA19183@elte.hu>
+References: <1151060089.30819.2.camel@lappy> <20060626095702.8b23263d.akpm@osdl.org> <Pine.LNX.4.64.0606261009190.3747@g5.osdl.org> <20060626223526.GA18579@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060626223526.GA18579@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5001]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Close bdevs opened by the swapwriter and clear the resume_block_device and
-header_block_device.
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+* Ingo Molnar <mingo@elte.hu> wrote:
 
- kernel/power/suspend_swap.c |   11 +++++++++++
- 1 files changed, 11 insertions(+), 0 deletions(-)
+> * Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> > I totally re-organized how execve() allocates the new mm at an execve 
+> > several years ago (it used to re-use the old MM if it could), and that 
+> > was so that we count just remove the brpm->page array, and just 
+> > install the pages directly into the destination.
+> > 
+> > That was in 2002. I never actually got around to doing it ;(.
+> 
+> i thought about your "map execve pages directly into target" (since the 
+> source gets destroyed anyway) suggestion back then, and unfortunately it 
+> gets quite complex.
+> 
+> Firstly, if setenv is done and the array of strings gets larger, glibc 
+> realloc()s it and the layout of the environment gets 'fragmented'. 
+> Ulrich was uneasy about passing a fragmented environment to the target 
+> task - it's not sure that no app would break. Secondly, for security 
+> reasons we have to memset all the memory around fragmented strings. So 
+> we might end up doing _alot_ of memsetting in some cases, if the string 
+> space happens to be fragmented. So while the current method is slow and 
+> uses persistent memory, it at least "compresses" the layout of the 
+> environment (and arguments) at every exec() time and thus avoids these 
+> sorts of problems.
+> 
+> And this is a real problem for real applications and is being complained 
+> about alot by shops that do alot of development and have scrips around 
+> large filesystem hierarchies. (and who got used to their scripts working 
+> on other unices just fine)
+> 
+> Lets at least give root the chance to increase this limit and go with 
+> the dumb and easy patch i posted years ago. [...]
 
-diff --git a/kernel/power/suspend_swap.c b/kernel/power/suspend_swap.c
-index 8a58b12..6f87a4a 100644
---- a/kernel/power/suspend_swap.c
-+++ b/kernel/power/suspend_swap.c
-@@ -103,3 +103,14 @@ static void close_bdev(int i)
- 	bdev_info_list[i] = NULL;
- }
- 
-+static void close_bdevs(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < MAX_SWAPFILES; i++)
-+		if (bdev_info_list[i])
-+			close_bdev(i);
-+
-+	resume_block_device = header_block_device = NULL;
-+}
-+
+it's almost 5 years old:
 
---
-Nigel Cunningham		nigel at suspend2 dot net
+  http://people.redhat.com/mingo/execve-patches/exec-argsize-2.4.10-A3
+
+( purely making the limit dynamic is not enough - bprm->pages needs to
+  become kmalloc()ed, plus i added a bprm->nr_pages so that decreasing 
+  the limit becomes safe too.)
+
+	Ingo

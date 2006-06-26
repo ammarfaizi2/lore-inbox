@@ -1,49 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932983AbWFZTu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932982AbWFZTwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932983AbWFZTu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 15:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932982AbWFZTu5
+	id S932982AbWFZTwY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 15:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932985AbWFZTwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 15:50:57 -0400
-Received: from server99.tchmachines.com ([72.9.230.178]:28847 "EHLO
-	server99.tchmachines.com") by vger.kernel.org with ESMTP
-	id S932983AbWFZTu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 15:50:56 -0400
-Date: Mon, 26 Jun 2006 12:52:20 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org, clameter@engr.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: remove __read_mostly?
-Message-ID: <20060626195220.GA4323@localhost.localdomain>
-References: <20060625115736.d90e1241.akpm@osdl.org> <20060625211929.GA3865@localhost.localdomain> <20060626113950.571d3e4c.pj@sgi.com> <Pine.LNX.4.64.0606261142560.32190@schroedinger.engr.sgi.com> <20060626121124.45ecc5f2.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060626121124.45ecc5f2.pj@sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server99.tchmachines.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 26 Jun 2006 15:52:24 -0400
+Received: from rwcrmhc13.comcast.net ([216.148.227.153]:35535 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S932982AbWFZTwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 15:52:23 -0400
+Message-ID: <44A03B0C.90101@acm.org>
+Date: Mon, 26 Jun 2006 14:52:44 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Matt_Domsch@dell.com, peter@palfrader.org,
+       openipmi-developer@lists.sourceforge.net
+Subject: Re: [PATCH] IPMI: use schedule in kthread
+References: <20060626140819.GA17804@localdomain> <20060626120048.cff87fac.akpm@osdl.org>
+In-Reply-To: <20060626120048.cff87fac.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 12:11:24PM -0700, Paul Jackson wrote:
-> Christoph wrote:
-> > 99:1 may be too small a ratio.
-> 
-> Could well be.  I was just quoting Ravikiran's number.  I suspect he
-> was using the number loosely, not as a precise value.
+Andrew Morton wrote:
+> On Mon, 26 Jun 2006 09:08:19 -0500
+> MAILER-DAEMON@osdl.org wrote:
+>
+>   
+>> The kthread used to speed up polling for IPMI was using udelay
+>> when the lower-level state machine told it to do a short delay.
+>> This just used CPU and didn't help scheduling, thus causing bad
+>> problems with other tasks.  Call schedule() instead.
+>>
+>> Signed-off-by: Corey Minyard <minyard@acm.org>
+>>
+>> Index: linux-2.6.17/drivers/char/ipmi/ipmi_si_intf.c
+>> ===================================================================
+>> --- linux-2.6.17.orig/drivers/char/ipmi/ipmi_si_intf.c
+>> +++ linux-2.6.17/drivers/char/ipmi/ipmi_si_intf.c
+>> @@ -809,7 +809,7 @@ static int ipmi_thread(void *data)
+>>  			/* do nothing */
+>>  		}
+>>  		else if (smi_result == SI_SM_CALL_WITH_DELAY)
+>> -			udelay(1);
+>> +			schedule();
+>>  		else
+>>  			schedule_timeout_interruptible(1);
+>>  	}
+>>     
+>
+> calling schedule() isn't a lot of use either.
+>
+> If CONFIG_PREEMPT it's of no benefit and will just chew CPU.
+>
+> If !CONFIG_PREEMPT && !need_resched() then it's a no-op and will chew CPU.
+>
+> If !CONFIG_PREEMPT && need_resched() then yes, it'll schedule away.  This
+> is pretty much the only time that a simple schedule() is useful.
+>
+>
+>
+> What are we actually trying to do in here?
+>   
+The IPMI physical interfaces in generally really suck.  The most common
+are byte at a time interfaces without interrupts that generally take in
+the 500 microsecond per byte range.
 
-Yes I was using it loosely.  I also mentioned ~100% read which is probably
-more accurate :).  It is indeed "read hot write cold".  Writes on these
-variables are typically during bootup/subsystem initialization/hot plug
-events.
+This thread is an attempt to improve the performance of these
+interfaces.  It is very low priority and wakes up when the IPMI
+interface is doing something.  It basically spins looking for IPMI
+activity at nice level 19 to help improve the performance of the
+interface.  So basically, it chews CPU, but should be preempted by
+anything else that is scheduled to run.  However, just calling udelay(1)
+caused scheduling problems; users were reporting soft lockups, jerky
+mouse movement, and keyboard problems if the IPMI interface was very
+busy.  Adding a schedule here seems to fix those problems, and I'm
+assuming they are falling into your third scenario above.
+
+Any suggestions on better ways to fix this?
 
 Thanks,
-Kiran
+
+-Corey

@@ -1,69 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932933AbWFZTNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932941AbWFZTNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932933AbWFZTNV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 15:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932935AbWFZTNV
+	id S932941AbWFZTNh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 15:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932938AbWFZTNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 15:13:21 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:52365 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932933AbWFZTNU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 15:13:20 -0400
-Message-ID: <44A03198.3060909@watson.ibm.com>
-Date: Mon, 26 Jun 2006 15:12:24 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jay Lan <jlan@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, Balbir Singh <balbir@in.ibm.com>,
-       Chris Sturtivant <csturtiv@sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] delay accounting taskstats interface send tgid once
-References: <44A02331.8020903@watson.ibm.com> <44A02FB0.6000505@sgi.com>
-In-Reply-To: <44A02FB0.6000505@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jun 2006 15:13:37 -0400
+Received: from cantor.suse.de ([195.135.220.2]:64908 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932936AbWFZTNg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 15:13:36 -0400
+Date: Mon, 26 Jun 2006 12:10:07 -0700
+From: Greg KH <gregkh@suse.de>
+To: Eric Sesterhenn / Snakebyte <snakebyte@gmx.de>
+Cc: Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Off by one in drivers/usb/serial/usb-serial.c
+Message-ID: <20060626191007.GA21925@suse.de>
+References: <200606221331.k5MDVua9010794@harpo.it.uu.se> <20060625225920.GA16834@alice>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060625225920.GA16834@alice>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan wrote:
-> Shailabh,
+On Mon, Jun 26, 2006 at 12:59:21AM +0200, Eric Sesterhenn / Snakebyte wrote:
+> * Mikael Pettersson (mikpe@it.uu.se) wrote:
+> > On Wed, 21 Jun 2006 23:28:17 +0200, Eric Sesterhenn wrote:
+> > > this fixes coverity id #554. since serial table
+> > > is defines as serial_table[SERIAL_TTY_MINORS] we
+> > > should make sure we dont acess with an index
+> > > of SERIAL_TTY_MINORS.
+> > > 
+> > > Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+> > > 
+> > > --- linux-2.6.17-git2/drivers/usb/serial/usb-serial.c.orig	2006-06-21 23:24:07.000000000 +0200
+> > > +++ linux-2.6.17-git2/drivers/usb/serial/usb-serial.c	2006-06-21 23:25:12.000000000 +0200
+> > > @@ -83,7 +83,7 @@ static struct usb_serial *get_free_seria
+> > >  
+> > >  		good_spot = 1;
+> > >  		for (j = 1; j <= num_ports-1; ++j)
+> > > -			if ((i+j >= SERIAL_TTY_MINORS) || (serial_table[i+j])) {
+> > > +			if ((i+j >= SERIAL_TTY_MINORS-1)||(serial_table[i+j])) {
+> > >  				good_spot = 0;
+> > >  				i += j;
+> > >  				break;
+> > 
+> > Where is the access coverity complained about? If it's the serial_table[i+j]
+> > quoted above, then the original code is OK since i+j < SERIAL_TTY_MINORS is
+> > an invariant in that subexpression.
+> > 
+> > And the other accesses to serial_table[] in get_free_serial() are also only
+> > done when the index is < SERIAL_TTY_MINORS.
 > 
-> Is this patch supposed to go on top of all other patches? Or is it
-> supposed to replace any? I had failure applying this patch on top
-> of all previously applied.
+> guess i was too quick on that one, sorry. Here is the coverity
+> report for completeness.
+> 
+> Event assignment: Assigning "1" to "j"
+> Also see events: [overrun-local]
+> At conditional (11): "j <= (num_ports - 1)" taking true path
+> At conditional (16): "j <= (num_ports - 1)" taking true path
+> 
+> 85   			for (j = 1; j <= num_ports-1; ++j)
+> 
+> Event overrun-local: Overrun of static array "serial_table" of size 255
+> at position 255 with index variable "(i + j)"
+> Also see events: [assignment]
+> At conditional (12): "(i + j) >= 255" taking true path
+> At conditional (17): "(i + j) >= 255" taking false path
+> 
+> 86   				if ((i+j >= SERIAL_TTY_MINORS) ||
+> (serial_table[i+j])) {
+> 87   					good_spot = 0;
+> 88   					i += j;
+> 89   					break;
+> 90   				}
 
-This is my series file (effectively). So it should have applied on
-top of the new lock patch (which is now integrated into -mm2). But I'll send out
-another one that's explicitly on top of the -mm2 patchset. Since we've been
-privately exchanging patches, the series wasn't clear.
+So, what does this mean?  That coverity is broken, yet again?
 
---Shailabh
+I'm getting very tired of these false positives from them, it is getting
+so that I can't trust the output of the tool at all :(
 
+thanks,
 
-Series for this patch:
-
-#********** 2.6.17-mm1 patchset, ported to 2.6.17, start
-per-task-delay-accounting-setup.patch
-per-task-delay-accounting-setup-fix-1.patch
-per-task-delay-accounting-setup-fix-2.patch
-per-task-delay-accounting-sync-block-i-o-and-swapin-delay-collection.patch
-per-task-delay-accounting-sync-block-i-o-and-swapin-delay-collection-fix-1.patch
-per-task-delay-accounting-cpu-delay-collection-via-schedstats.patch
-per-task-delay-accounting-cpu-delay-collection-via-schedstats-fix-1.patch
-per-task-delay-accounting-utilities-for-genetlink-usage.patch
-per-task-delay-accounting-taskstats-interface.patch
-per-task-delay-accounting-taskstats-interface-fix-1.patch
-per-task-delay-accounting-taskstats-interface-fix-2.patch
-per-task-delay-accounting-taskstats-interface-fix-exit-race-in-per-task-delay-accounting.patch
-per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface.patch
-per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface-use-portable-cputime-api-in-__delayacct_add_tsk.patch
-per-task-delay-accounting-delay-accounting-usage-of-taskstats-interface-fix-return-value-of-delayacct_add_tsk.patch
-per-task-delay-accounting-documentation.patch
-per-task-delay-accounting-proc-export-of-aggregated-block-i-o-delays.patch
-per-task-delay-accounting-proc-export-of-aggregated-block-i-o-delays-warning-fix.patch
-#*********** 2.6.17-mm1 patchset, ported to 2.6.17, end
-taskstats-interface-revised-exit-race-locking.patch
-taskstats-interface-send-tgid-once.patch
-
+greg k-h

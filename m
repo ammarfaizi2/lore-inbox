@@ -1,80 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933100AbWFZW2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933103AbWFZWat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933100AbWFZW2R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933101AbWFZW2R
+	id S933103AbWFZWat (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933104AbWFZWat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:28:17 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:9161 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S933100AbWFZW2Q (ORCPT
+	Mon, 26 Jun 2006 18:30:49 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:31669 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S933103AbWFZWas (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:28:16 -0400
-Message-ID: <44A05F4F.8060503@watson.ibm.com>
-Date: Mon, 26 Jun 2006 18:27:27 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Balbir Singh <balbir@in.ibm.com>, Jay Lan <jlan@engr.sgi.com>,
-       Chris Sturtivant <csturtiv@sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] per-task delay accounting: avoid send without listeners
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jun 2006 18:30:48 -0400
+Date: Mon, 26 Jun 2006 17:30:32 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: akpm@osdl.org
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-mm2 & ecryptfs
+Message-ID: <20060626223032.GD2867@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <1151359559.32250.15.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1151359559.32250.15.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't send taskstats (per-pid or per-tgid) on thread exit when no one is
-listening for such data.
+On Mon, Jun 26, 2006 at 03:05:59PM -0700, Badari Pulavarty wrote:
+> I am not sure, if its already reported or not. 
+> 
+> 2.6.17-mm2 vfs_statfs() takes a "dentry" instead of "sb".
+> ecryptfs seems to be broken :(
 
-Currently the taskstats interface allocates a structure, fills it in
-and calls netlink to send out per-pid and per-tgid stats regardless of whether
-a userspace listener for the data exists (netlink layer would check for that
-and avoid the multicast).
-
-As a result of this patch, the check for the no-listener case is performed
-early, avoiding the redundant allocation and filling up of the taskstats
-structures.
-
-Signed-off-by: Balbir Singh <balbir@in.ibm.com>
-Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
+Yeah, that one slipped right by me with the API change.
 
 ---
 
- include/linux/taskstats_kern.h |   13 ++++++++++++-
- 1 files changed, 12 insertions(+), 1 deletion(-)
+Update ecryptfs_statfs (API change).
 
-Index: linux-2.6.17/include/linux/taskstats_kern.h
-===================================================================
---- linux-2.6.17.orig/include/linux/taskstats_kern.h	2006-06-26 16:45:33.000000000 -0400
-+++ linux-2.6.17/include/linux/taskstats_kern.h	2006-06-26 16:47:08.000000000 -0400
-@@ -9,6 +9,7 @@
+Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
 
- #include <linux/taskstats.h>
- #include <linux/sched.h>
-+#include <net/genetlink.h>
+---
+ fs/ecryptfs/super.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
- enum {
- 	TASKSTATS_MSG_UNICAST,		/* send data only to requester */
-@@ -19,9 +20,19 @@ enum {
- extern kmem_cache_t *taskstats_cache;
- extern struct mutex taskstats_exit_mutex;
-
-+static inline int taskstats_has_listeners(void)
-+{
-+	if (!genl_sock)
-+		return 0;
-+	return netlink_has_listeners(genl_sock, TASKSTATS_LISTEN_GROUP);
-+}
-+
-+
- static inline void taskstats_exit_alloc(struct taskstats **ptidstats)
+b3c064b2248bd949c07900aab9ac4517f301d66c
+diff --git a/fs/ecryptfs/super.c b/fs/ecryptfs/super.c
+index 437a542..8b014a4 100644
+--- a/fs/ecryptfs/super.c
++++ b/fs/ecryptfs/super.c
+@@ -122,9 +122,9 @@ static void ecryptfs_put_super(struct su
+  * Get the filesystem statistics. Currently, we let this pass right through
+  * to the lower filesystem and take no action ourselves.
+  */
+-static inline int ecryptfs_statfs(struct super_block *sb, struct kstatfs *buf)
++static inline int ecryptfs_statfs(struct dentry *dentry, struct kstatfs *buf)
  {
--	*ptidstats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
-+	*ptidstats = NULL;
-+	if (taskstats_has_listeners())
-+		*ptidstats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
+-	return vfs_statfs(ecryptfs_superblock_to_lower(sb), buf);
++	return vfs_statfs(ecryptfs_dentry_to_lower(dentry), buf);
  }
+ 
+ /**
+-- 
+1.3.3
 
- static inline void taskstats_exit_free(struct taskstats *tidstats)

@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWFZSCs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWFZSKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWFZSCs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 14:02:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWFZSCr
+	id S932298AbWFZSKB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 14:10:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWFZSKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 14:02:47 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:48012 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932455AbWFZSCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 14:02:45 -0400
-Date: Mon, 26 Jun 2006 20:02:44 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Chris Rankin <rankincj@yahoo.com>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.17: PMTimer results for another PCI chipset
-Message-ID: <20060626180244.GA6898@rhlx01.fht-esslingen.de>
-References: <20060626120847.GA6272@rhlx01.fht-esslingen.de> <20060626174412.76248.qmail@web52905.mail.yahoo.com>
+	Mon, 26 Jun 2006 14:10:01 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:11218 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932298AbWFZSKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 14:10:00 -0400
+Date: Mon, 26 Jun 2006 11:09:33 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <npiggin@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@osdl.org,
+       dsp@llnl.gov
+Subject: Re: [rfc][patch] fixes for several oom killer problems
+Message-Id: <20060626110933.8fe47858.pj@sgi.com>
+In-Reply-To: <20060626162038.GB7573@wotan.suse.de>
+References: <20060626162038.GB7573@wotan.suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060626174412.76248.qmail@web52905.mail.yahoo.com>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, Jun 26, 2006 at 06:44:12PM +0100, Chris Rankin wrote:
-> --- Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
-> > Yeah, but this is no problem anyway, since it's neither in the blacklisted
-> > nor in the graylisted area, IOW it's whitelisted and should work
-> > without delays.
-> > Or do you get the "The chipset may have PM-Timer Bug" message here??
-> > 
-> > > 00:1f.0 Class 0601: 8086:2440 (rev 05)
-> > 
-> > #define PCI_DEVICE_ID_INTEL_82801BA_0   0x2440
-> 
-> Nope, it's all good. But since this chipset was released between the one which definitely has the
-> bug and one which might have the bug, I thought that it was worth testing it for real.
+Acked-by: Paul Jackson <pj@sgi.com>
 
-Oh, then it's a very valid concern indeed!
-Thanks for verifying that it doesn't seem to be a problem here.
-(however, given the SMM/SMI BIOS fixups as pointed out by Albert Cahalan,
-there might still be an issue with this chipset)
++	/*
++	 * If p's nodes don't overlap ours, it may still help to kill p
++	 * because p may have allocated or otherwise mapped memory on
++	 * this node before. However it will be less likely.
++	 */
++	if (!cpuset_excl_nodes_overlap(p))
++		points /= 4;
 
-Andreas Mohr
+Good.
+
+
+ int cpuset_excl_nodes_overlap(const struct task_struct *p)
+ {
+ 	const struct cpuset *cs1, *cs2;	/* my and p's cpuset ancestors */
+-	int overlap = 0;		/* do cpusets overlap? */
++	int overlap = 1;		/* do cpusets overlap? */
+
+Good.
+
+Thanks, Nick and Jan.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

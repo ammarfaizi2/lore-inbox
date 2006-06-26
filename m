@@ -1,15 +1,15 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbWFZLJE (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 26 Jun 2006 07:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWFZLJE
+	id S932089AbWFZLvw (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 26 Jun 2006 07:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWFZLvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 07:09:04 -0400
-Received: from smtp1-g19.free.fr ([212.27.42.27]:28332 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S964942AbWFZLJC (ORCPT
+	Mon, 26 Jun 2006 07:51:52 -0400
+Received: from smtp6-g19.free.fr ([212.27.42.36]:60294 "EHLO smtp6-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932089AbWFZLvv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 07:09:02 -0400
-Message-ID: <1151320110.449fc02ec9ba5@imp1-g19.free.fr>
-Date: Mon, 26 Jun 2006 13:08:30 +0200
+	Mon, 26 Jun 2006 07:51:51 -0400
+Message-ID: <1151322687.449fca3fe338f@imp1-g19.free.fr>
+Date: Mon, 26 Jun 2006 13:51:27 +0200
 From: PETER KAMARA <peterkamara2@katamail.com>
 Reply-to: peterkamara4@katamail.com
 Subject: Votre =?iso-8859-1?b?ZnLocmU=?= MR .P. KAMARA
@@ -21,7 +21,7 @@ X-Originating-IP: 81.91.237.40
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964983AbWFZLJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932089AbWFZLvw@vger.kernel.org>
 
 MR Peter KAMARA
 Email:  peterkamara3@katamail.com

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933210AbWFZXoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933136AbWFZXpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933210AbWFZXoL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933134AbWFZWd4
+	id S933136AbWFZXpj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933132AbWFZXpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:33:56 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:2283 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933128AbWFZWdl
+	Mon, 26 Jun 2006 19:45:38 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:24479 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933137AbWFZWdz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:33:41 -0400
+	Mon, 26 Jun 2006 18:33:55 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 07/16] [Suspend2] Suspend2 init/cleanup.
-Date: Tue, 27 Jun 2006 08:33:39 +1000
+Subject: [Suspend2][ 11/16] [Suspend2] General proc entries for suspend.
+Date: Tue, 27 Jun 2006 08:33:52 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223337.3832.93772.stgit@nigel.suspend2.net>
+Message-Id: <20060626223351.3832.44436.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626223314.3832.23435.stgit@nigel.suspend2.net>
 References: <20060626223314.3832.23435.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,94 +22,233 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Basic initialisation and cleanup for a suspend cycle.
+Implement the proc entries for Suspend2's core - debug_info,
+extra_pages_allowance, ignore_rootfs, image_exists, image_size_limit,
+last_result, reboot, resume2, resume_commandline, version. If PM_DEBUG is
+enabled, there are also entries for testing the freezer, block io, filters
+speed, for adding delays at different steps and disabling pageset2. If ACPI
+is enabled, the user can select sleep states S3, S4 or S5 as powerdown
+methods. Keepimage mode, since it could cause damage if used without
+consideration, depends on a compile time option.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/suspend.c |   73 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 73 insertions(+), 0 deletions(-)
+ kernel/power/suspend.c |  205 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 205 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/suspend.c b/kernel/power/suspend.c
-index 6457d75..504eed7 100644
+index 4eabb21..429d2eb 100644
 --- a/kernel/power/suspend.c
 +++ b/kernel/power/suspend.c
-@@ -502,3 +502,76 @@ static int check_still_keeping_image(voi
- 	return 0;
+@@ -691,3 +691,208 @@ static int image_exists_write(struct fil
+ 	return count;
  }
  
-+static int suspend_init(void)
-+{
-+	suspend_result = 0;
-+
-+	printk(name_suspend "Initiating a software suspend cycle.\n");
-+
-+	nr_suspends++;
-+	clear_suspend_state(SUSPEND_NOW_RESUMING);
++/*
++ * Core proc entries that aren't built in.
++ *
++ * This array contains entries that are automatically registered at
++ * boot. Modules and the console code register their own entries separately.
++ */
++static struct suspend_proc_data proc_params[] = {
++	{ .filename			= "debug_info",
++	  .permissions			= PROC_READONLY,
++	  .type				= SUSPEND_PROC_DATA_CUSTOM,
++	  .data = {
++		  .special = {
++			  .read_proc	= debuginfo_read_proc,
++		  }
++	  }
++	},
 +	
-+	orig_system_state = system_state;
++	{ .filename			= "extra_pages_allowance",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_LONG,
++	  .data = {
++		  .a_long = {
++			  .variable	= &extra_pd1_pages_allowance,
++			  .minimum	= 0,
++			  .maximum	= INT_MAX,
++		  }
++	  }
++	},
 +	
-+	suspend_io_time[0][0] = suspend_io_time[0][1] = 
-+		suspend_io_time[1][0] =
-+		suspend_io_time[1][1] = 0;
-+
-+	free_metadata();	/* We might have kept it */
-+
-+	if (!test_suspend_state(SUSPEND_CAN_SUSPEND))
-+		return 0;
++	{ .filename			= "ignore_rootfs",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_IGNORE_ROOTFS,
++		  }
++	  }
++	},
 +	
-+	if (allocate_bitmaps())
-+		return 0;
++	{ .filename			= "image_exists",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_CUSTOM,
++	  .needs_storage_manager	= 3,
++	  .data = {
++		  .special = {
++			  .read_proc	= image_exists_read,
++			  .write_proc	= image_exists_write,
++		  }
++	  }
++	},
++
++	{ .filename			= "image_size_limit",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_LONG,
++	  .data = {
++		  .a_long = {
++			  .variable	= &image_size_limit,
++			  .minimum	= -2,
++			  .maximum	= 32767,
++		  }
++	  }
++	},
++
++	{ .filename			= "last_result",
++	  .permissions			= PROC_READONLY,
++	  .type				= SUSPEND_PROC_DATA_UL,
++	  .data = {
++		  .ul = {
++			  .variable	=  &suspend_result,
++		  }
++	  }
++	},
 +	
-+	suspend_prepare_console();
-+	disable_nonboot_cpus();
++	{ .filename			= "reboot",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_REBOOT,
++		  }
++	  }
++	},
++	  
++	{ .filename			= "resume2",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_STRING,
++	  .needs_storage_manager	= 2,
++	  .data = {
++		  .string = {
++			  .variable	= resume2_file,
++			  .max_length	= 255,
++		  }
++	  },
++	  .write_proc			= attempt_to_parse_resume_device2,
++	},
 +
-+	return 1;
-+}
++	{ .filename			= "resume_commandline",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_STRING,
++	  .data = {
++		  .string = {
++			  .variable	= suspend_resume_commandline,
++			  .max_length	= COMMAND_LINE_SIZE,
++		  }
++	  },
++	},
 +
-+void suspend_cleanup(void)
-+{
-+	int i;
++	{ .filename			= "version",
++	  .permissions			= PROC_READONLY,
++	  .type				= SUSPEND_PROC_DATA_STRING,
++	  .data = {
++		  .string = {
++			  .variable	= suspend_core_version,
++		  }
++	  }
++	},
 +
-+	i = get_suspend_debug_info();
++#ifdef CONFIG_PM_DEBUG
++	{ .filename			= "freezer_test",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_FREEZER_TEST,
++		  }
++	  }
++	},
 +
-+	suspend_free_extra_pagedir_memory();
++	{ .filename			= "test_bio",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_TEST_BIO,
++		  }
++	  }
++	},
++
++	{ .filename			= "test_filter_speed",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_TEST_FILTER_SPEED,
++		  }
++	  }
++	},
++
++	{ .filename			= "slow",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_SLOW,
++		  }
++	  }
++	},
 +	
-+	pagedir1.pageset_size = pagedir2.pageset_size = 0;
-+
-+	system_state = orig_system_state;
-+
-+	thaw_processes(FREEZER_KERNEL_THREADS);
++	{ .filename			= "no_pageset2",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_NO_PAGESET2,
++		  }
++	  }
++	},
++	
++#endif
++	  
++#if defined(CONFIG_ACPI)
++	{ .filename			= "powerdown_method",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_UL,
++	  .data = {
++		  .ul = {
++			  .variable	= &suspend_powerdown_method,
++			  .minimum	= 0,
++			  .maximum	= 5,
++		  }
++	  }
++	},
++#endif
 +
 +#ifdef CONFIG_SUSPEND2_KEEP_IMAGE
-+	if (test_action_state(SUSPEND_KEEP_IMAGE) &&
-+	    !test_result_state(SUSPEND_ABORTED)) {
-+		suspend_message(SUSPEND_ANY_SECTION, SUSPEND_LOW, 1,
-+			name_suspend "Not invalidating the image due "
-+			"to Keep Image being enabled.\n");
-+		set_result_state(SUSPEND_KEPT_IMAGE);
-+	} else
++	{ .filename			= "keep_image",
++	  .permissions			= PROC_RW,
++	  .type				= SUSPEND_PROC_DATA_BIT,
++	  .data = {
++		  .bit = {
++			  .bit_vector	= &suspend_action,
++			  .bit		= SUSPEND_KEEP_IMAGE,
++		  }
++	  }
++	},
 +#endif
-+		if (suspend_active_writer)
-+			suspend_active_writer->invalidate_image();
-+
-+	free_metadata();
-+
-+	if (debug_info_buffer) {
-+		/* Printk can only handle 1023 bytes, including
-+		 * its level mangling. */
-+		for (i = 0; i < 3; i++)
-+			printk("%s", debug_info_buffer + (1023 * i));
-+		free_page((unsigned long) debug_info_buffer);
-+		debug_info_buffer = NULL;
-+	}
-+
-+	thaw_processes(FREEZER_ALL_THREADS);
-+	enable_nonboot_cpus();
-+	suspend_cleanup_console();
-+
-+	up(&pm_sem);
-+}
-+
++};
++       
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

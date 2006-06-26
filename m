@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933013AbWFZURq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933018AbWFZUSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933013AbWFZURq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 16:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933019AbWFZURq
+	id S933018AbWFZUSO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 16:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933019AbWFZUSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 16:17:46 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:2483 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S933013AbWFZURp (ORCPT
+	Mon, 26 Jun 2006 16:18:14 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:47060 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S933018AbWFZUSN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 16:17:45 -0400
-Date: Mon, 26 Jun 2006 13:18:21 -0700
+	Mon, 26 Jun 2006 16:18:13 -0400
+Date: Mon, 26 Jun 2006 13:18:49 -0700
 From: "Paul E. McKenney" <paulmck@us.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: Fw: [PATCH 1/2] srcu: RCU variant permitting read-side blocking
-Message-ID: <20060626201821.GB2396@us.ibm.com>
+Subject: Fw: [PATCH 2/2] srcu: add SRCU operations to rcutorture
+Message-ID: <20060626201849.GC2396@us.ibm.com>
 Reply-To: paulmck@us.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,351 +22,159 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds variant of RCU that permits sleeping in read-side critical sections.
-SRCU is as follows:
-
-o	Each use of SRCU creates its own srcu_struct, and each
-	srcu_struct has its own set of grace periods.  This is
-	critical, as it prevents one subsystem with a blocking
-	reader from holding up SRCU grace periods for other
-	subsystems.
-
-o	The SRCU primitives (srcu_read_lock(), srcu_read_unlock(),
-	and synchronize_srcu()) all take a pointer to a srcu_struct.
-
-o	The SRCU primitives must be called from process context.
-
-o	srcu_read_lock() returns an int that must be passed to
-	the matching srcu_read_unlock().  Realtime RCU avoids the
-	need for this by storing the state in the task struct,
-	but SRCU needs to allow a given code path to pass through
-	multiple SRCU domains -- storing state in the task struct
-	would therefore require either arbitrary space in the
-	task struct or arbitrary limits on SRCU nesting.  So I
-	kicked the state-storage problem up to the caller.
-
-o	There is no call_srcu().  It would not be hard to implement
-	one, but it seems like too easy a way to OOM the system.
-	(Hey, we have enough trouble with call_rcu(), which does
-	-not- permit readers to sleep!!!)  So, if you want it,
-	please tell me why...
+Adds SRCU operations to rcutorture and updates rcutorture documentation.
 
 Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
 ---
 
- Documentation/RCU/checklist.txt |   32 +++++++
- Documentation/RCU/rcu.txt       |    3 
- Documentation/RCU/whatisRCU.txt |    3 
- include/linux/srcu.h            |   42 +++++++++
- kernel/Makefile                 |    2 
- kernel/srcu.c                   |  173 ++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 253 insertions(+), 2 deletions(-)
+ Documentation/RCU/torture.txt |   15 +++++++
+ kernel/rcutorture.c           |   89 ++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 101 insertions(+), 3 deletions(-)
 
-diff -urpNa -X dontdiff linux-2.6.17-torturercu_bh/Documentation/RCU/checklist.txt linux-2.6.17-srcu/Documentation/RCU/checklist.txt
---- linux-2.6.17-torturercu_bh/Documentation/RCU/checklist.txt	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17-srcu/Documentation/RCU/checklist.txt	2006-06-24 08:04:07.000000000 -0700
-@@ -183,3 +183,35 @@ over a rather long period of time, but i
- 	disable irq on a given acquisition of that lock will result in
- 	deadlock as soon as the RCU callback happens to interrupt that
- 	acquisition's critical section.
+diff -urpNa -X dontdiff linux-2.6.17-srcu/Documentation/RCU/torture.txt linux-2.6.17-torturesrcu/Documentation/RCU/torture.txt
+--- linux-2.6.17-srcu/Documentation/RCU/torture.txt	2006-06-24 12:13:12.000000000 -0700
++++ linux-2.6.17-torturesrcu/Documentation/RCU/torture.txt	2006-06-24 12:13:45.000000000 -0700
+@@ -118,6 +118,21 @@ o	"Free-Block Circulation": Shows the nu
+ 	as it is only incremented if a torture structure's counter
+ 	somehow gets incremented farther than it should.
+ 
++Different implementations of RCU can provide implementation-specific
++additional information.  For example, SRCU provides the following:
 +
-+13.	SRCU (srcu_read_lock(), srcu_read_unlock(), and synchronize_srcu())
-+	may only be invoked from process context.  Unlike other forms of
-+	RCU, it -is- permissible to block in an SRCU read-side critical
-+	section (demarked by srcu_read_lock() and srcu_read_unlock()),
-+	hence the "SRCU": "sleepable RCU".
++	srcu-torture: rtc: f8cf46a8 ver: 355 tfle: 0 rta: 356 rtaf: 0 rtf: 346 rtmbe: 0
++	srcu-torture: Reader Pipe:  559738 939 0 0 0 0 0 0 0 0 0
++	srcu-torture: Reader Batch:  560434 243 0 0 0 0 0 0 0 0
++	srcu-torture: Free-Block Circulation:  355 354 353 352 351 350 349 348 347 346 0
++	srcu-torture: per-CPU(idx=1): 0(0,1) 1(0,1) 2(0,0) 3(0,1)
 +
-+	Also unlike other forms of RCU, explicit initialization
-+	and cleanup is required via init_srcu_struct() and
-+	cleanup_srcu_struct().	These are passed a "struct srcu_struct"
-+	that defines the scope of a given SRCU domain.	Once initialized,
-+	the srcu_struct is passed to srcu_read_lock(), srcu_read_unlock()
-+	and synchronize_srcu().  A given synchronize_srcu() waits only
-+	for SRCU read-side critical sections governed by srcu_read_lock()
-+	and srcu_read_unlock() calls that have been passd the same
-+	srcu_struct.  This property is what makes sleeping read-side
-+	critical sections tolerable -- a given subsystem delays only
-+	its own updates, not those of other subsystems using SRCU.
++The first four lines are similar to those for RCU.  The last line shows
++the per-CPU counter state.  The numbers in parentheses are the values
++of the "old" and "current" counters for the corresponding CPU.  The
++"idx" value maps the "old" and "current" values to the underlying array,
++and is useful for debugging.
 +
-+	This benefit does not come for free.  First, corresponding
-+	srcu_read_lock() and srcu_read_unlock() calls must be passed
-+	the same srcu_struct.  Second, grace-period-detection overhead
-+	is amortized only over those updates sharing a given srcu_struct,
-+	rather than being globally amortized as they are for other forms
-+	of RCU.  This means that SRCU should be used only in extremely
-+	read-intensive situations if performance is the goal (of course,
-+	if the goal is instead read-side deadlock avoidance or read-side
-+	realtime latency, then SRCU might be applicable to less extreme
-+	degrees of read intensity).
-+
-+	Note that, rcu_assign_pointer() and rcu_dereference() relate to
-+	SRCU just as they do to other forms of RCU.
-diff -urpNa -X dontdiff linux-2.6.17-torturercu_bh/Documentation/RCU/rcu.txt linux-2.6.17-srcu/Documentation/RCU/rcu.txt
---- linux-2.6.17-torturercu_bh/Documentation/RCU/rcu.txt	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17-srcu/Documentation/RCU/rcu.txt	2006-06-24 08:04:07.000000000 -0700
-@@ -45,7 +45,8 @@ o	How can I see where RCU is currently u
  
- 	Search for "rcu_read_lock", "rcu_read_unlock", "call_rcu",
- 	"rcu_read_lock_bh", "rcu_read_unlock_bh", "call_rcu_bh",
--	"synchronize_rcu", and "synchronize_net".
-+	"srcu_read_lock", "srcu_read_unlock", "synchronize_rcu",
-+	"synchronize_net", and "synchronize_srcu".
+ USAGE
  
- o	What guidelines should I follow when writing code that uses RCU?
+diff -urpNa -X dontdiff linux-2.6.17-srcu/kernel/rcutorture.c linux-2.6.17-torturesrcu/kernel/rcutorture.c
+--- linux-2.6.17-srcu/kernel/rcutorture.c	2006-06-24 11:52:08.000000000 -0700
++++ linux-2.6.17-torturesrcu/kernel/rcutorture.c	2006-06-24 11:51:16.000000000 -0700
+@@ -44,6 +44,7 @@
+ #include <linux/delay.h>
+ #include <linux/byteorder/swabb.h>
+ #include <linux/stat.h>
++#include <linux/srcu.h>
  
-diff -urpNa -X dontdiff linux-2.6.17-torturercu_bh/Documentation/RCU/whatisRCU.txt linux-2.6.17-srcu/Documentation/RCU/whatisRCU.txt
---- linux-2.6.17-torturercu_bh/Documentation/RCU/whatisRCU.txt	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17-srcu/Documentation/RCU/whatisRCU.txt	2006-06-24 08:04:07.000000000 -0700
-@@ -767,6 +767,8 @@ Markers for RCU read-side critical secti
- 	rcu_read_unlock
- 	rcu_read_lock_bh
- 	rcu_read_unlock_bh
-+	srcu_read_lock
-+	srcu_read_unlock
+ MODULE_LICENSE("GPL");
  
- RCU pointer/list traversal:
+@@ -53,7 +54,7 @@ static int stat_interval;	/* Interval be
+ static int verbose;		/* Print more debug info. */
+ static int test_no_idle_hz;	/* Test RCU's support for tickless idle CPUs. */
+ static int shuffle_interval = 5; /* Interval between shuffles (in sec)*/
+-static char *torture_type = "rcu"; /* What to torture. */
++static char *torture_type = "rcu"; /* What to torture: rcu, srcu. */
  
-@@ -794,6 +796,7 @@ RCU grace period:
- 	synchronize_net
- 	synchronize_sched
- 	synchronize_rcu
-+	synchronize_srcu
- 	call_rcu
- 	call_rcu_bh
+ module_param(nreaders, int, 0);
+ MODULE_PARM_DESC(nreaders, "Number of RCU reader threads");
+@@ -66,7 +67,7 @@ MODULE_PARM_DESC(test_no_idle_hz, "Test 
+ module_param(shuffle_interval, int, 0);
+ MODULE_PARM_DESC(shuffle_interval, "Number of seconds between shuffles");
+ module_param(torture_type, charp, 0);
+-MODULE_PARM_DESC(torture_type, "Type of RCU to torture (rcu, rcu_bh)");
++MODULE_PARM_DESC(torture_type, "Type of RCU to torture (rcu, rcu_bh, srcu)");
  
-diff -urpNa -X dontdiff linux-2.6.17-torturercu_bh/include/linux/srcu.h linux-2.6.17-srcu/include/linux/srcu.h
---- linux-2.6.17-torturercu_bh/include/linux/srcu.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17-srcu/include/linux/srcu.h	2006-06-24 08:00:18.000000000 -0700
-@@ -0,0 +1,42 @@
+ #define TORTURE_FLAG "-torture:"
+ #define PRINTK_STRING(s) \
+@@ -282,8 +283,90 @@ static struct rcu_torture_ops rcu_bh_ops
+ 	.name = "rcu_bh"
+ };
+ 
 +/*
-+ * Sleepable Read-Copy Update mechanism for mutual exclusion
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2006
-+ *
-+ * Author: Paul McKenney <paulmck@us.ibm.com>
-+ *
-+ * For detailed explanation of Read-Copy Update mechanism see -
-+ * 		Documentation/RCU/ *.txt
-+ *
++ * Definitions for srcu torture testing.
 + */
 +
-+struct srcu_struct_array {
-+	int c[2];
-+} ____cacheline_internode_aligned_in_smp;
++static struct srcu_struct srcu_ctl;
++static struct list_head srcu_removed;
 +
-+struct srcu_struct {
-+	int completed;
-+	struct srcu_struct_array *per_cpu_ref;
-+	struct mutex mutex;
++static void srcu_torture_init(void)
++{
++	init_srcu_struct(&srcu_ctl);
++	INIT_LIST_HEAD(&srcu_removed);
++}
++
++static void srcu_torture_cleanup(void)
++{
++	synchronize_srcu(&srcu_ctl);
++	cleanup_srcu_struct(&srcu_ctl);
++}
++
++static int srcu_torture_read_lock(void)
++{
++	return (srcu_read_lock(&srcu_ctl));
++}
++
++static void srcu_torture_read_unlock(int idx)
++{
++	srcu_read_unlock(&srcu_ctl, idx);
++}
++
++static int srcu_torture_completed(void)
++{
++	return srcu_batches_completed(&srcu_ctl);
++}
++
++static void srcu_torture_deferred_free(struct rcu_torture *p)
++{
++	int i;
++	struct rcu_torture *rp;
++	struct rcu_torture *rp1;
++
++	synchronize_srcu(&srcu_ctl);
++	list_add(&p->rtort_free, &srcu_removed);
++	list_for_each_entry_safe(rp, rp1, &srcu_removed, rtort_free) {
++		i = rp->rtort_pipe_count;
++		if (i > RCU_TORTURE_PIPE_LEN)
++			i = RCU_TORTURE_PIPE_LEN;
++		atomic_inc(&rcu_torture_wcount[i]);
++		if (++rp->rtort_pipe_count >= RCU_TORTURE_PIPE_LEN) {
++			rp->rtort_mbtest = 0;
++			list_del(&rp->rtort_free);
++			rcu_torture_free(rp);
++		}
++	}
++}
++
++int srcu_torture_stats(char *page)
++{
++	int cnt = 0;
++	int cpu;
++	int idx = srcu_ctl.completed & 0x1;
++
++	cnt += sprintf(&page[cnt], "%s%s per-CPU(idx=%d):", torture_type, TORTURE_FLAG, idx);
++	for_each_cpu(cpu) {
++		cnt += sprintf(&page[cnt], " %d(%d,%d)", cpu,
++			       srcu_ctl.per_cpu_ref[cpu].c[!idx],
++			       srcu_ctl.per_cpu_ref[cpu].c[idx]);
++	}
++	cnt += sprintf(&page[cnt], "\n");
++	return (cnt);
++}
++
++static struct rcu_torture_ops srcu_ops = {
++	.init = srcu_torture_init,
++	.cleanup = srcu_torture_cleanup,
++	.readlock = srcu_torture_read_lock,
++	.readunlock = srcu_torture_read_unlock,
++	.completed = srcu_torture_completed,
++	.deferredfree = srcu_torture_deferred_free,
++	.stats = srcu_torture_stats,
++	.name = "srcu"
 +};
 +
-+void init_srcu_struct(struct srcu_struct *sp);
-+void cleanup_srcu_struct(struct srcu_struct *sp);
-+int srcu_read_lock(struct srcu_struct *sp);
-+void srcu_read_unlock(struct srcu_struct *sp, int idx);
-+void synchronize_srcu(struct srcu_struct *sp);
-+long srcu_batches_completed(struct srcu_struct *sp);
-diff -urpNa -X dontdiff linux-2.6.17-torturercu_bh/kernel/Makefile linux-2.6.17-srcu/kernel/Makefile
---- linux-2.6.17-torturercu_bh/kernel/Makefile	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17-srcu/kernel/Makefile	2006-06-24 08:04:07.000000000 -0700
-@@ -8,7 +8,7 @@ obj-y     = sched.o fork.o exec_domain.o
- 	    signal.o sys.o kmod.o workqueue.o pid.o \
- 	    rcupdate.o extable.o params.o posix-timers.o \
- 	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o mutex.o \
--	    hrtimer.o
-+	    hrtimer.o srcu.o
+ static struct rcu_torture_ops *torture_ops[] =
+-	{ &rcu_ops, &rcu_bh_ops, NULL };
++	{ &rcu_ops, &rcu_bh_ops, &srcu_ops, NULL };
  
- obj-$(CONFIG_DEBUG_MUTEXES) += mutex-debug.o
- obj-$(CONFIG_FUTEX) += futex.o
-diff -urpNa -X dontdiff linux-2.6.17-torturercu_bh/kernel/srcu.c linux-2.6.17-srcu/kernel/srcu.c
---- linux-2.6.17-torturercu_bh/kernel/srcu.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17-srcu/kernel/srcu.c	2006-06-24 07:59:58.000000000 -0700
-@@ -0,0 +1,173 @@
-+/*
-+ * Sleepable Read-Copy Update mechanism for mutual exclusion.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2006
-+ *
-+ * Author: Paul McKenney <paulmck@us.ibm.com>
-+ *
-+ * For detailed explanation of Read-Copy Update mechanism see -
-+ * 		Documentation/RCU/ *.txt
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/preempt.h>
-+#include <linux/rcupdate.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/smp.h>
-+#include <linux/srcu.h>
-+
-+/**
-+ * init_srcu_struct - initialize a sleep-RCU structure
-+ * @sp: structure to initialize.
-+ *
-+ * Must invoke this on a given srcu_struct before passing that srcu_struct
-+ * to any other function.  Each srcu_struct represents a separate domain
-+ * of SRCU protection.
-+ */
-+void init_srcu_struct(struct srcu_struct *sp)
-+{
-+	int cpu;
-+
-+	sp->completed = 0;
-+	sp->per_cpu_ref = (struct srcu_struct_array *)
-+			  kmalloc(NR_CPUS * sizeof(*sp->per_cpu_ref),
-+				  GFP_KERNEL);
-+	for_each_cpu(cpu) {
-+		sp->per_cpu_ref[cpu].c[0] = 0;
-+		sp->per_cpu_ref[cpu].c[1] = 0;
-+	}
-+	mutex_init(&sp->mutex);
-+}
-+
-+/**
-+ * cleanup_srcu_struct - deconstruct a sleep-RCU structure
-+ * @sp: structure to clean up.
-+ *
-+ * Must invoke this after you are finished using a given srcu_struct.
-+ * Failure to do so will result in a memory leak.
-+ */
-+void cleanup_srcu_struct(struct srcu_struct *sp)
-+{
-+	kfree(sp->per_cpu_ref);
-+	sp->per_cpu_ref = NULL;
-+}
-+
-+/**
-+ * srcu_read_lock - register a new reader for an SRCU-protected structure.
-+ * @sp: srcu_struct in which to register the new reader.
-+ *
-+ * Counts the new reader in the appropriate per-CPU element of the
-+ * srcu_struct.  Must be called from process context.
-+ * Returns an index that must be passed to the matching srcu_read_unlock().
-+ */
-+int srcu_read_lock(struct srcu_struct *sp)
-+{
-+	int idx;
-+
-+	preempt_disable();
-+	idx = sp->completed & 0x1;
-+	barrier();
-+	sp->per_cpu_ref[smp_processor_id()].c[idx]++;
-+	preempt_enable();
-+	return idx;
-+}
-+
-+/**
-+ * srcu_read_unlock - unregister a old reader from an SRCU-protected structure.
-+ * @sp: srcu_struct in which to unregister the old reader.
-+ * @idx: return value from corresponding srcu_read_lock().
-+ *
-+ * Removes the count for the old reader from the appropriate per-CPU
-+ * element of the srcu_struct.  Note that this may well be a different
-+ * CPU than that which was incremented by the corresponding srcu_read_lock().
-+ * Must be called from process context.
-+ */
-+void srcu_read_unlock(struct srcu_struct *sp, int idx)
-+{
-+	preempt_disable();
-+	sp->per_cpu_ref[smp_processor_id()].c[idx]--;
-+	preempt_enable();
-+}
-+
-+/**
-+ * synchronize_srcu - wait for prior SRCU read-side critical-section completion
-+ * @sp: srcu_struct with which to synchronize.
-+ *
-+ * Flip the completed counter, and wait for the old count to drain to zero.
-+ * As with classic RCU, the updater must use some separate means of
-+ * synchronizing concurrent updates.  Can block; must be called from
-+ * process context.
-+ */
-+void synchronize_srcu(struct srcu_struct *sp)
-+{
-+	int cpu;
-+	int idx;
-+	int sum;
-+
-+	might_sleep();
-+
-+	mutex_lock(&sp->mutex);
-+
-+	smp_mb();  /* Prevent operations from leaking in. */
-+
-+	idx = sp->completed & 0x1;
-+	sp->completed++;
-+
-+	synchronize_sched();  /* forces memory barriers all around. */
-+
-+	/*
-+	 * At this point, all srcu_read_lock() calls using the
-+	 * old counters have completed.
-+	 */
-+
-+	for (;;) {
-+		sum = 0;
-+		for_each_cpu(cpu) {
-+			sum += sp->per_cpu_ref[cpu].c[idx];
-+		}
-+		if (sum == 0)
-+			break;
-+		schedule_timeout_interruptible(1);
-+	}
-+
-+	synchronize_sched();  /* forces memory barriers all around. */
-+
-+	mutex_unlock(&sp->mutex);
-+}
-+
-+/**
-+ * srcu_batches_completed - return batches completed.
-+ * @sp: srcu_struct on which to report batch completion.
-+ *
-+ * Report the number of batches, correlated with, but not necessarily
-+ * precisely the same as, the number of grace periods that have elapsed.
-+ */
-+
-+long srcu_batches_completed(struct srcu_struct *sp)
-+{
-+	return (sp->completed);
-+}
-+
-+EXPORT_SYMBOL_GPL(init_srcu_struct);
-+EXPORT_SYMBOL_GPL(cleanup_srcu_struct);
-+EXPORT_SYMBOL_GPL(srcu_read_lock);
-+EXPORT_SYMBOL_GPL(srcu_read_unlock);
-+EXPORT_SYMBOL_GPL(synchronize_srcu);
-+EXPORT_SYMBOL_GPL(srcu_batches_completed);
+ /*
+  * RCU torture writer kthread.  Repeatedly substitutes a new structure
 

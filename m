@@ -1,76 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWFZXDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933275AbWFZXE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964842AbWFZXDs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWFZXDk
+	id S933275AbWFZXE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWFZXDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:03:40 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:25271 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933288AbWFZWjz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:39:55 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 15/35] [Suspend2] Allocate filewriter storage.
-Date: Tue, 27 Jun 2006 08:39:54 +1000
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223952.4685.22538.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
-References: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Mon, 26 Jun 2006 19:03:52 -0400
+Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:36255 "HELO
+	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S933275AbWFZWjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:39:54 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch 2.6.17-git] NFS section fixups
+Date: Mon, 26 Jun 2006 15:39:44 -0700
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_wIGoEVUZ31+KN74"
+Message-Id: <200606261539.44507.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allocate storage for the body of the image, preserving any existing
-allocation for the header. This routine will never shrink the amount
-allocated.
+--Boundary-00=_wIGoEVUZ31+KN74
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+Without these I couldn't link an ARM kernel.
 
- kernel/power/suspend_file.c |   32 ++++++++++++++++++++++++++++++++
- 1 files changed, 32 insertions(+), 0 deletions(-)
+Note that "fixing" these bugs currently involves wasting RAM, often in the
+range of multiple KBytes per driver or subsystem.  Which kind of sucks,
+given how much effort goes into shrinking kernel foot prints otherwise...
 
-diff --git a/kernel/power/suspend_file.c b/kernel/power/suspend_file.c
-index 6b04eb5..cdc0261 100644
---- a/kernel/power/suspend_file.c
-+++ b/kernel/power/suspend_file.c
-@@ -448,3 +448,35 @@ static int filewriter_allocate_header_sp
+Wasn't there once an "__init_or_exit" section annotation?
+
+
+--Boundary-00=_wIGoEVUZ31+KN74
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="nfs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="nfs.patch"
+
+Builds on ARM report link problems with common configurations like
+statically linked NFS (for nfsroot).  The symptom is that __init
+section code references __exit section code; that won't work since
+the exit sections are discarded (since they can never be called).
+
+The best fix for these particular cases would be an "__init_or_exit"
+section annotation.
+
+
+Index: at91/fs/nfs/direct.c
+===================================================================
+--- at91.orig/fs/nfs/direct.c	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/direct.c	2006-06-26 14:32:39.000000000 -0700
+@@ -909,7 +909,7 @@ int __init nfs_init_directcache(void)
+  * nfs_destroy_directcache - destroy the slab cache for nfs_direct_req structures
+  *
+  */
+-void __exit nfs_destroy_directcache(void)
++void /* init or exit */ nfs_destroy_directcache(void)
+ {
+ 	if (kmem_cache_destroy(nfs_direct_cachep))
+ 		printk(KERN_INFO "nfs_direct_cache: not all structures were freed\n");
+Index: at91/fs/nfs/inode.c
+===================================================================
+--- at91.orig/fs/nfs/inode.c	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/inode.c	2006-06-26 14:32:39.000000000 -0700
+@@ -1132,7 +1132,7 @@ static int __init nfs_init_inodecache(vo
  	return 0;
  }
  
-+static int filewriter_allocate_storage(int space_requested)
-+{
-+	int result = 0, prev_header_pages;
-+	int blocks_to_get = (space_requested << devinfo.bmap_shift) -
-+		block_chain.size;
-+	
-+	/* Only release_storage reduces the size */
-+	if (blocks_to_get < 1)
-+		return 0;
-+
-+	main_pages = space_requested;
-+
-+	populate_block_list();
-+
-+	suspend_message(SUSPEND_WRITER, SUSPEND_MEDIUM, 0,
-+		"Finished with block_chain.size == %d.\n",
-+		block_chain.size);
-+
-+	if (block_chain.size < (header_pages + main_pages)) {
-+		printk("Block chain size (%d) < header pages (%d) + main pages (%d) (=%d).\n",
-+				block_chain.size,
-+				header_pages, main_pages,
-+				header_pages + main_pages);
-+		result = -ENOSPC;
-+	}
-+
-+	prev_header_pages = header_pages;
-+	header_pages = 0;
-+	filewriter_allocate_header_space(prev_header_pages);
-+	return result;
-+}
-+
+-static void __exit nfs_destroy_inodecache(void)
++static void /* init or exit */ nfs_destroy_inodecache(void)
+ {
+ 	if (kmem_cache_destroy(nfs_inode_cachep))
+ 		printk(KERN_INFO "nfs_inode_cache: not all structures were freed\n");
+Index: at91/fs/nfs/internal.h
+===================================================================
+--- at91.orig/fs/nfs/internal.h	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/internal.h	2006-06-26 14:32:39.000000000 -0700
+@@ -31,15 +31,15 @@ extern struct svc_version nfs4_callback_
+ 
+ /* pagelist.c */
+ extern int __init nfs_init_nfspagecache(void);
+-extern void __exit nfs_destroy_nfspagecache(void);
++extern void /* init or exit */ nfs_destroy_nfspagecache(void);
+ extern int __init nfs_init_readpagecache(void);
+-extern void __exit nfs_destroy_readpagecache(void);
++extern void /* init or exit */ nfs_destroy_readpagecache(void);
+ extern int __init nfs_init_writepagecache(void);
+-extern void __exit nfs_destroy_writepagecache(void);
++extern void /* init or exit */ nfs_destroy_writepagecache(void);
+ 
+ #ifdef CONFIG_NFS_DIRECTIO
+ extern int __init nfs_init_directcache(void);
+-extern void __exit nfs_destroy_directcache(void);
++extern void /* init or exit */ nfs_destroy_directcache(void);
+ #else
+ #define nfs_init_directcache() (0)
+ #define nfs_destroy_directcache() do {} while(0)
+Index: at91/fs/nfs/pagelist.c
+===================================================================
+--- at91.orig/fs/nfs/pagelist.c	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/pagelist.c	2006-06-26 14:32:39.000000000 -0700
+@@ -390,7 +390,7 @@ int __init nfs_init_nfspagecache(void)
+ 	return 0;
+ }
+ 
+-void __exit nfs_destroy_nfspagecache(void)
++void /* init or exit */ nfs_destroy_nfspagecache(void)
+ {
+ 	if (kmem_cache_destroy(nfs_page_cachep))
+ 		printk(KERN_INFO "nfs_page: not all structures were freed\n");
+Index: at91/fs/nfs/read.c
+===================================================================
+--- at91.orig/fs/nfs/read.c	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/read.c	2006-06-26 14:32:39.000000000 -0700
+@@ -711,7 +711,7 @@ int __init nfs_init_readpagecache(void)
+ 	return 0;
+ }
+ 
+-void __exit nfs_destroy_readpagecache(void)
++void /* init or exit */ nfs_destroy_readpagecache(void)
+ {
+ 	mempool_destroy(nfs_rdata_mempool);
+ 	if (kmem_cache_destroy(nfs_rdata_cachep))
+Index: at91/fs/nfs/write.c
+===================================================================
+--- at91.orig/fs/nfs/write.c	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/write.c	2006-06-26 14:32:39.000000000 -0700
+@@ -1551,7 +1551,7 @@ int __init nfs_init_writepagecache(void)
+ 	return 0;
+ }
+ 
+-void __exit nfs_destroy_writepagecache(void)
++void /* init or exit */ nfs_destroy_writepagecache(void)
+ {
+ 	mempool_destroy(nfs_commit_mempool);
+ 	mempool_destroy(nfs_wdata_mempool);
 
---
-Nigel Cunningham		nigel at suspend2 dot net
+--Boundary-00=_wIGoEVUZ31+KN74--

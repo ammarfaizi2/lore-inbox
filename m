@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWFZPzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWFZP4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWFZPzV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 11:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWFZPzV
+	id S1750776AbWFZP4B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 11:56:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWFZP4B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 11:55:21 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:1668 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750721AbWFZPzT convert rfc822-to-8bit (ORCPT
+	Mon, 26 Jun 2006 11:56:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23753 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750776AbWFZPz6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 11:55:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=M6BS+hPwRm4dWNb7fHExRUljyriBBFZooh4nNI8KrhnaK6xFP7gkn/kPg5F+SMLPFU9MZYXxvpVnXnCxXw6nPdNRpho/FY3iq4U4amHpwAaqEkV2u4AOq7QRbzp4PjxZLgoD97N//fsvmSQ5vQsKwtU0IOnn2a8+vAdFiNrP2zA=
-Message-ID: <9e4733910606260855kf2e57ado5c69d8295d1be5@mail.gmail.com>
-Date: Mon, 26 Jun 2006 11:55:18 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Mauro Carvalho Chehab" <mchehab@infradead.org>
-Subject: Re: [PATCH] Kconfig for radio cards to allow VIDEO_V4L1_COMPAT
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1151327213.3687.13.camel@praia>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Mon, 26 Jun 2006 11:55:58 -0400
+Date: Mon, 26 Jun 2006 11:54:39 -0400
+From: Dave Jones <davej@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
+Message-ID: <20060626155439.GB18599@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060626151012.GR23314@stusta.de> <20060626153834.GA18599@redhat.com> <1151336815.3185.61.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9e4733910606251040v62675399gdfe438aaac691a5a@mail.gmail.com>
-	 <1151327213.3687.13.camel@praia>
+In-Reply-To: <1151336815.3185.61.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/26/06, Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
-> Jon,
->
-> Em Dom, 2006-06-25 às 13:40 -0400, Jon Smirl escreveu:
-> > In Kconfig all of the radio cards depend on VIDEO_V4L1. But V4L1 has
-> > been deprecated and replaced with V4L2. V4L2 offers a V4L1
-> > compatibility layer. Should the Kconfig for these devices be changed
-> > to depend on (VIDEO_V4L1. || VIDEO_V4L1_COMPAT)? I'm not the
-> > maintainer for this but they seem to build ok.
-> No, it isn't. V4L1_COMPAT gets a userspace request, using the obsoleted
-> V4L1 API and converts into a V4L2 call to be handled by a V4L2 driver.
->
-> All radio stuff at kernel are still using the old obsoleted V4L1 API,
-> and requires some changes to be V4L2 compliant. The correct fix is to
-> replace the old calls to V4L2 calls, and include videodev2.h header
-> instead of videodev.h.
+On Mon, Jun 26, 2006 at 05:46:55PM +0200, Arjan van de Ven wrote:
+ > On Mon, 2006-06-26 at 11:38 -0400, Dave Jones wrote:
+ > > On Mon, Jun 26, 2006 at 05:10:12PM +0200, Adrian Bunk wrote:
+ > >  > virt_to_bus/bus_to_virt are long deprecated, mark them as __deprecated 
+ > >  > on i386.
+ > >  > 
+ > >  > Without such warnings people will never update their code and fix 
+ > >  > the errors in PPC64 builds.
+ > > 
+ > > .. and deprecating pm_send_all, cli, sti, restore_flags, check_region yadayada
+ > > has really been a great success at motivating people to fix those up too.
+ > 
+ > cli/sti should just be removed, or at least have those drivers marked
+ > BROKEN... nobody is apparently using them anyway...
 
-Is anyone who knows how V4L2 works going to port those drivers? I
-would hate to see 20 device drivers lost because they weren't ported
-and V4L1 gets removed.
+Just ISDN really.
 
-> After those changes, we should move the dependencies to be VIDEO_V4L2,
-> instead of VIDEO_V4L1.
->
-> Cheers,
-> Mauro.
->
->
-
+		Dave
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+http://www.codemonkey.org.uk

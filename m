@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933052AbWFZVVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933059AbWFZVVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933052AbWFZVVG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 17:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933053AbWFZVVF
+	id S933059AbWFZVVx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 17:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933058AbWFZVVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 17:21:05 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:22474 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S933052AbWFZVVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 17:21:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=bo3DCUHsr5gyEdCWVDZVyxZZXinVFMjVFWyHipq2+sBZQ0JWI1wcGd7YOA4ANtj1/1y2q0Iq6bMa9OaPA1L9mxN45kMHqe7lrCvsFI/AJnzlofVcnepOXT03lWDdbEdTGOlf5wmDU/3qDeHCtarSo2pJNWB7zdyT2miIjxsVfUY=
-Date: Tue, 27 Jun 2006 01:21:01 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] fs/mpage.c: unexport mpage_writepage
-Message-ID: <20060626212101.GA7557@martell.zuzino.mipt.ru>
-References: <20060626205633.GF23314@stusta.de>
+	Mon, 26 Jun 2006 17:21:53 -0400
+Received: from r16s03p19.home.nbox.cz ([83.240.22.12]:53477 "EHLO
+	scarab.smoula.net") by vger.kernel.org with ESMTP id S933059AbWFZVVw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 17:21:52 -0400
+Subject: Re: NFS and partitioned md
+From: Martin Filip <bugtraq@smoula.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1151355509.9797.7.camel@lade.trondhjem.org>
+References: <1151355145.4460.16.camel@archon.smoula-in.net>
+	 <1151355509.9797.7.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-2
+Date: Mon, 26 Jun 2006 23:21:50 +0200
+Message-Id: <1151356910.4460.20.camel@archon.smoula-in.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060626205633.GF23314@stusta.de>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 10:56:33PM +0200, Adrian Bunk wrote:
-> This patch removes the unused EXPORT_SYMBOL(mpage_writepage).
+Trond Myklebust pí¹e v Po 26. 06. 2006 v 16:58 -0400:
+> On Mon, 2006-06-26 at 22:52 +0200, Martin Filip wrote:
+> > Hello to LKML,
+> > 
+> > few days ago I've changed my sw RAID5 to use md_d devices, which are
+> > "partitonable". (major 254, minor dependant on partiton no)
+> > 
+> > The problem is with kernel space NFS daemon. When I create loopback
+> > device and export it - everything works OK, but when exported directory
+> > is directly something goes really wrong and it's not possible to mount
+> > it.
+> 
+> Could we at the very least see a copy of your /etc/exports
+> and /etc/fstab please?
+of course... thought It's irelevant when it works with other devices...
 
-> -EXPORT_SYMBOL(mpage_writepage);
+$ cat /etc/exports 
+/mnt/data/public            *(ro,all_squash,async)
 
-mpage_readpage		mpage_writepage
-mpage_readpages		mpage_writepages
+mounted via
+mount -t nfs 192.168.0.2:/mnt/data/public /mnt/tmp/
 
-Shoot me but this symmetric picture should stay. It's a library, sigh.
+
+> 
+> Cheers,
+>   Trond
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

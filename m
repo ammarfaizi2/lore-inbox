@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933102AbWFZWcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933114AbWFZWco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933102AbWFZWcG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:32:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933115AbWFZWb4
+	id S933114AbWFZWco (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933120AbWFZWcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:31:56 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:61418 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933102AbWFZWbl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:31:41 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 3/7] [Suspend2] Pages for zone.
-Date: Tue, 27 Jun 2006 08:31:39 +1000
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223138.3725.12590.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626223128.3725.55605.stgit@nigel.suspend2.net>
-References: <20060626223128.3725.55605.stgit@nigel.suspend2.net>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Mon, 26 Jun 2006 18:32:35 -0400
+Received: from pat.uio.no ([129.240.10.4]:13195 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S933110AbWFZWcS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:32:18 -0400
+Subject: Re: NFS and partitioned md
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Martin Filip <bugtraq@smoula.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1151360087.8325.2.camel@archon.smoula-in.net>
+References: <1151355145.4460.16.camel@archon.smoula-in.net>
+	 <1151355509.9797.7.camel@lade.trondhjem.org>
+	 <1151356840.4460.18.camel@archon.smoula-in.net>
+	 <1151358717.9797.13.camel@lade.trondhjem.org>
+	 <1151360087.8325.2.camel@archon.smoula-in.net>
+Content-Type: text/plain
+Date: Mon, 26 Jun 2006 18:32:00 -0400
+Message-Id: <1151361121.9797.19.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.803, required 12,
+	autolearn=disabled, AWL 1.20, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Find out how many pages are used for the bitmap for a given zone.
+On Tue, 2006-06-27 at 00:14 +0200, Martin Filip wrote:
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+> Yes, of course... that dir and everything in that is world readable
+> (+executable when it is directory)
+> Everything worked with same settings, versions and everything between
+> switching my multiple md devices into md_d. And even now it works on
+> other devices than md_d.
 
- kernel/power/pageflags.c |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
+So would you then please help us determine what the difference between
+the two setups actually is?
 
-diff --git a/kernel/power/pageflags.c b/kernel/power/pageflags.c
-index 3781fc8..ec028d3 100644
---- a/kernel/power/pageflags.c
-+++ b/kernel/power/pageflags.c
-@@ -37,3 +37,9 @@ static int num_zones(void)
- 	return result;
- }
- 
-+static int pages_for_zone(struct zone *zone)
-+{
-+	return (zone->spanned_pages + (PAGE_SIZE << 3) - 1) /
-+			(PAGE_SIZE << 3);
-+}
-+
+knfsd knows bugger all about what device you are running your filesystem
+on. All it cares about is that the type of filesystem is supported.
 
---
-Nigel Cunningham		nigel at suspend2 dot net
+Cheers,
+  Trond
+

@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932989AbWFZUHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933008AbWFZUJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932989AbWFZUHt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 16:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933003AbWFZUHt
+	id S933008AbWFZUJS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 16:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933010AbWFZUJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 16:07:49 -0400
-Received: from john.hrz.tu-chemnitz.de ([134.109.132.2]:4795 "EHLO
-	john.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S932989AbWFZUHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 16:07:48 -0400
-Message-ID: <20060626220747.zmkyd4smqs0o044s@mail.tu-chemnitz.de>
-Date: Mon, 26 Jun 2006 22:07:47 +0200
-From: Ingo van Lil <inguin@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Serial: UART_BUG_TXEN race conditions
+	Mon, 26 Jun 2006 16:09:18 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:30138 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S933008AbWFZUJR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 16:09:17 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [Suspend2][ 0/2] Cryptoapi deflate fix.
+Date: Mon, 26 Jun 2006 22:09:50 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <20060626165135.10864.53686.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626165135.10864.53686.stgit@nigel.suspend2.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format="flowed"
-Content-Disposition: inline
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0.4)
-X-Scan-Signature: aa86db5e7f3e85aa9355d5c307b12c26
+Content-Disposition: inline
+Message-Id: <200606262209.50749.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody,
+On Monday 26 June 2006 18:51, Nigel Cunningham wrote:
+> 
+> The deflate module doesn't properly complete the handling of PAGE_SIZE
+> chunks of data. This patch corrects that so that it can be used with
+> Suspend2.
 
-I'm currently working with Linux on a custom ASIC system with two 
-crappy UART ports that show a behaviour quite similar to the problem 
-that the UART_BUG_TXEN workaround is supposed to deal with. The 
-interesting lines are in serial8250_start_tx 
-(drivers/serial/8250.c:1127)
+Well, it also adds the LZF support to the cryptoapi.  These are two different
+things.
 
-	if (up->bugs & UART_BUG_TXEN) {
-		unsigned char lsr, iir;
-		lsr = serial_in(up, UART_LSR);
-		iir = serial_in(up, UART_IIR);
-		if (lsr & UART_LSR_TEMT && iir & UART_IIR_NO_INT)
-			transmit_chars(up);
-	}
+If you think the deflate modules needs to be fixed, you should post the patch
+for it separately, I think.
 
-Correct me if I'm mistaken, but I see two possible race conditions with 
-that piece of code:
-
-1. What if the IIR actually equals UART_IIR_THRI at that point? The
-    read access will clear the interrupt condition and the workaround
-    will effect the actual opposite of its intention: Neither
-    serial8250_start_tx() nor the interrupt handler will start
-    transmitting characters for the ring buffer.
-
-2. What if an interrupt is triggered shortly after reading the IIR?
-    Both serial8250_start_tx() and the interrupt handler will start
-    a transmission simultaneously.
-
-Problem #1 should be quite easy to deal with: If the IIR read comes out 
-as UART_IIR_THRI then the interrupt handler won't initiate a 
-transmission, so we should. I'm not entirely sure how to deal with #2, 
-though. Maybe it's enough to clear the THRE bit while transmitting 
-characters, maybe some kind of locking is required.
-
-Cheers,
-Ingo
-
-
+Rafael

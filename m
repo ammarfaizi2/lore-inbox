@@ -1,111 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932935AbWFZTPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWFZTQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932935AbWFZTPj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 15:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932936AbWFZTPi
+	id S932068AbWFZTQo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 15:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932665AbWFZTQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 15:15:38 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:61061 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932935AbWFZTPh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 15:15:37 -0400
-Message-ID: <44A031FA.7050502@us.ibm.com>
-Date: Mon, 26 Jun 2006 12:14:02 -0700
-From: Haren Myneni <haren@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: vgoyal@in.ibm.com
-CC: Troy Benjegerdes <hozer@hozed.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       ellerman@au1.ibm.com, Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH] powerpc: build fix for ppc32 with CONFIG_KEXEC
-References: <20060626063128.GA3359@narn.hozed.org> <20060626135801.GC8985@in.ibm.com>
-In-Reply-To: <20060626135801.GC8985@in.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------050704020902080309020608"
+	Mon, 26 Jun 2006 15:16:44 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:32228 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932068AbWFZTQn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 15:16:43 -0400
+Date: Mon, 26 Jun 2006 12:17:15 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       arjan@infradead.org, ioe-lkml@rameria.de, greg@kroah.com,
+       pbadari@us.ibm.com, mrmacman_g4@mac.com, hugh@veritas.com,
+       vatsa@in.ibm.com
+Subject: Re: [PATCH 0/3] rcutorture: add call_rcu_bh() operations
+Message-ID: <20060626191715.GA2261@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060626184821.GA2091@us.ibm.com> <20060626185812.GC2141@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060626185812.GC2141@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050704020902080309020608
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+And that subject line should of course be:
 
-Vivek Goyal wrote:
+	[PATCH 3/3] rcutorture: add call_rcu_bh() operations
 
->On Mon, Jun 26, 2006 at 01:31:28AM -0500, Troy Benjegerdes wrote:
+I guess I need to start using quilt or something...  :-/
+
+						Thanx, Paul
+
+On Mon, Jun 26, 2006 at 11:58:12AM -0700, Paul E. McKenney wrote:
+> Add operations for the call_rcu_bh() variant of RCU.  Also add an
+> rcu_batches_completed_bh() function, which is needed by rcutorture.
+> 
+> Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
+> ---
+> 
+>  include/linux/rcupdate.h |    1 +
+>  kernel/rcupdate.c        |   10 ++++++++++
+>  kernel/rcutorture.c      |   40 ++++++++++++++++++++++++++++++++++++++--
+>  3 files changed, 49 insertions(+), 2 deletions(-)
+> 
+> diff -urpNa -X dontdiff linux-2.6.17-tortureops/include/linux/rcupdate.h linux-2.6.17-torturercu_bh/include/linux/rcupdate.h
+> --- linux-2.6.17-tortureops/include/linux/rcupdate.h	2006-06-17 18:49:35.000000000 -0700
+> +++ linux-2.6.17-torturercu_bh/include/linux/rcupdate.h	2006-06-23 22:45:12.000000000 -0700
+> @@ -258,6 +258,7 @@ extern void rcu_init(void);
+>  extern void rcu_check_callbacks(int cpu, int user);
+>  extern void rcu_restart_cpu(int cpu);
+>  extern long rcu_batches_completed(void);
+> +extern long rcu_batches_completed_bh(void);
 >  
->
->>various things like 'reserve_crashkernel' are referenced, but only
->>exist in arch/powerpc/kernel/machine_kexec_64.c.
->>
->>    
->>
->
->I think for ppc32 the framework is present for kexec/kdump but nobody 
->is actively testing/maintaining it as of today.
+>  /* Exported interfaces */
+>  extern void FASTCALL(call_rcu(struct rcu_head *head, 
+> diff -urpNa -X dontdiff linux-2.6.17-tortureops/kernel/rcupdate.c linux-2.6.17-torturercu_bh/kernel/rcupdate.c
+> --- linux-2.6.17-tortureops/kernel/rcupdate.c	2006-06-17 18:49:35.000000000 -0700
+> +++ linux-2.6.17-torturercu_bh/kernel/rcupdate.c	2006-06-23 22:40:09.000000000 -0700
+> @@ -182,6 +182,15 @@ long rcu_batches_completed(void)
+>  	return rcu_ctrlblk.completed;
+>  }
 >  
->
-At present, even though kexec support is included for PPC32, I believe, 
-it has been actively tested/maintained only on gamecube.
-
-Michael, if you are OK with this patch, please send it to upstream.
-Thanks
-Haren
-
-arch/powerpc/kernel/built-in.o(.init.text+0x1c98): In function 
-`early_init_devtree':
-: undefined reference to `reserve_crashkernel'
-arch/powerpc/kernel/built-in.o(.init.text+0x1d90): In function 
-`early_init_devtree':
-: undefined reference to `overlaps_crashkernel'
- This patch will fix the above build errors on ppc32 with CONFIG_KEXEC.  
-Both reserve_crashkernel() and overlaps_crashkernel() should be moved to 
-machine_kexec.c() after the kdump support is included on ppc32.
-
-Signed-off-by: Haren Myneni <haren@us.ibm.com>
-
-
-
-
-
->Thanks
->Vivek
->_______________________________________________
->fastboot mailing list
->fastboot@lists.osdl.org
->https://lists.osdl.org/mailman/listinfo/fastboot
+> +/*
+> + * Return the number of RCU batches processed thus far.  Useful
+> + * for debug and statistics.
+> + */
+> +long rcu_batches_completed_bh(void)
+> +{
+> +	return rcu_bh_ctrlblk.completed;
+> +}
+> +
+>  static void rcu_barrier_callback(struct rcu_head *notused)
+>  {
+>  	if (atomic_dec_and_test(&rcu_barrier_cpu_count))
+> @@ -627,6 +636,7 @@ module_param(qlowmark, int, 0);
+>  module_param(rsinterval, int, 0);
+>  #endif
+>  EXPORT_SYMBOL_GPL(rcu_batches_completed);
+> +EXPORT_SYMBOL_GPL(rcu_batches_completed_bh);
+>  EXPORT_SYMBOL_GPL_FUTURE(call_rcu);	/* WARNING: GPL-only in April 2006. */
+>  EXPORT_SYMBOL_GPL_FUTURE(call_rcu_bh);	/* WARNING: GPL-only in April 2006. */
+>  EXPORT_SYMBOL_GPL(synchronize_rcu);
+> diff -urpNa -X dontdiff linux-2.6.17-tortureops/kernel/rcutorture.c linux-2.6.17-torturercu_bh/kernel/rcutorture.c
+> --- linux-2.6.17-tortureops/kernel/rcutorture.c	2006-06-24 11:51:47.000000000 -0700
+> +++ linux-2.6.17-torturercu_bh/kernel/rcutorture.c	2006-06-24 11:52:08.000000000 -0700
+> @@ -66,7 +66,7 @@ MODULE_PARM_DESC(test_no_idle_hz, "Test 
+>  module_param(shuffle_interval, int, 0);
+>  MODULE_PARM_DESC(shuffle_interval, "Number of seconds between shuffles");
+>  module_param(torture_type, charp, 0);
+> -MODULE_PARM_DESC(torture_type, "Type of RCU to torture (rcu)");
+> +MODULE_PARM_DESC(torture_type, "Type of RCU to torture (rcu, rcu_bh)");
 >  
->
-
-
---------------050704020902080309020608
-Content-Type: text/x-patch;
- name="ppc32-kexec-build-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ppc32-kexec-build-fix.patch"
-
---- linux-2.6.17-git10/arch/powerpc/kernel/machine_kexec_32.c.orig	2006-06-26 05:33:51.000000000 -0700
-+++ linux-2.6.17-git10/arch/powerpc/kernel/machine_kexec_32.c	2006-06-26 05:47:04.000000000 -0700
-@@ -63,3 +63,16 @@ int default_machine_kexec_prepare(struct
- {
- 	return 0;
- }
-+
-+/*
-+ * FIXME: Move the following functions to machine_kexec.c after
-+ * kdump support is included on ppc32.
-+ */
-+void __init reserve_crashkernel(void)
-+{
-+}
-+
-+int overlaps_crashkernel(unsigned long start, unsigned long size)
-+{
-+	return 0;
-+}
-
---------------050704020902080309020608--
+>  #define TORTURE_FLAG "-torture:"
+>  #define PRINTK_STRING(s) \
+> @@ -246,8 +246,44 @@ static struct rcu_torture_ops rcu_ops = 
+>  	.name = "rcu"
+>  };
+>  
+> +/*
+> + * Definitions for rcu_bh torture testing.
+> + */
+> +
+> +static int rcu_bh_torture_read_lock(void)
+> +{
+> +	rcu_read_lock_bh();
+> +	return 0;
+> +}
+> +
+> +static void rcu_bh_torture_read_unlock(int idx)
+> +{
+> +	rcu_read_unlock_bh();
+> +}
+> +
+> +static int rcu_bh_torture_completed(void)
+> +{
+> +	return rcu_batches_completed_bh();
+> +}
+> +
+> +static void rcu_bh_torture_deferred_free(struct rcu_torture *p)
+> +{
+> +	call_rcu_bh(&p->rtort_rcu, rcu_torture_cb);
+> +}
+> +
+> +static struct rcu_torture_ops rcu_bh_ops = {
+> +	.init = NULL,
+> +	.cleanup = NULL,
+> +	.readlock = rcu_bh_torture_read_lock,
+> +	.readunlock = rcu_bh_torture_read_unlock,
+> +	.completed = rcu_bh_torture_completed,
+> +	.deferredfree = rcu_bh_torture_deferred_free,
+> +	.stats = NULL,
+> +	.name = "rcu_bh"
+> +};
+> +
+>  static struct rcu_torture_ops *torture_ops[] =
+> -	{ &rcu_ops, NULL };
+> +	{ &rcu_ops, &rcu_bh_ops, NULL };
+>  
+>  /*
+>   * RCU torture writer kthread.  Repeatedly substitutes a new structure

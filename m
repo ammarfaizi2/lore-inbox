@@ -1,92 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbWFZSNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbWFZSSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbWFZSNH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 14:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbWFZSNG
+	id S932606AbWFZSSy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 14:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbWFZSSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 14:13:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28372 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932601AbWFZSNF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 14:13:05 -0400
-Date: Mon, 26 Jun 2006 11:12:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: jlan@sgi.com, jlan@engr.sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in
- taskstats
-Message-Id: <20060626111249.7aece36e.akpm@osdl.org>
-In-Reply-To: <44A020CD.30903@watson.ibm.com>
-References: <44892610.6040001@watson.ibm.com>
-	<20060609010057.e454a14f.akpm@osdl.org>
-	<448952C2.1060708@in.ibm.com>
-	<20060609042129.ae97018c.akpm@osdl.org>
-	<4489EE7C.3080007@watson.ibm.com>
-	<449999D1.7000403@engr.sgi.com>
-	<44999A98.8030406@engr.sgi.com>
-	<44999F5A.2080809@watson.ibm.com>
-	<4499D7CD.1020303@engr.sgi.com>
-	<449C2181.6000007@watson.ibm.com>
-	<20060623141926.b28a5fc0.akpm@osdl.org>
-	<449C6620.1020203@engr.sgi.com>
-	<20060623164743.c894c314.akpm@osdl.org>
-	<449CAA78.4080902@watson.ibm.com>
-	<20060623213912.96056b02.akpm@osdl.org>
-	<449CD4B3.8020300@watson.ibm.com>
-	<44A01A50.1050403@sgi.com>
-	<20060626105548.edef4c64.akpm@osdl.org>
-	<44A020CD.30903@watson.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 26 Jun 2006 14:18:54 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:49040 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932606AbWFZSSx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 14:18:53 -0400
+Date: Mon, 26 Jun 2006 14:18:25 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>,
+       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Neela.Kolli@engenio.com, linux-scsi@vger.kernel.org,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
+Message-ID: <20060626181825.GI8985@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <E717642AF17E744CA95C070CA815AE550E1555@cceexc23.americas.cpqcorp.net> <m1veqnst2b.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1veqnst2b.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jun 2006 14:00:45 -0400
-Shailabh Nagar <nagar@watson.ibm.com> wrote:
-
-> >
-> >Balbir, are you able to summarise where we stand wrt
-> >per-task-delay-accounting-* now?
-> >  
-> >
-> Andrew,
+On Mon, Jun 26, 2006 at 11:52:28AM -0600, Eric W. Biederman wrote:
+> "Miller, Mike (OS Dev)" <Mike.Miller@hp.com> writes:
 > 
-> I'm maintaining per-task delay accouting and taskstats interface patches 
-> so I'll take the liberty to reply :-)
-
-Sorry, too many IBMers ;)
-
-> >What problem have we identified?  How close are we to finding agreeable
-> >solutions to them?
-> >  
-> >
-> The main problems identified are:
+> > Thanks Eric, that helps me understand. Section 8.2.2 of the open cciss
+> > spec supports a reset message. Target 0x00 is the controller. We could
+> > add this to the init routine to ensure the board is made sane again but
+> > this would drastically increase init time under normal circumstances.
 > 
-> 1. extra sending of per-tgid stats on every thread exit
-> 2. unnecessary send of per-tgid stats when there are no listeners
-> 3. unnecessary linkage of delayacct accumalation into per-tgid stats 
-> with sending out of taskstats
+> Where does the init time penalty come from? How large is the
+> init penalty?  I suspect it is from waiting for the scsi disks to spin up.
+> But I am just guessing in the dark.
 > 
-> All three have an acceptable solution.
-> 1. & 3. are going to be addressed in a patch I'm sending out shortly.
-> 2. in a separate patch also being sent out shortly.
+> > And I suspect this is a hard reset, also. Not sure if that would
+> > negatively impact kdump. If there were some condition we could test
+> > against and perform the reset when that condition is met it would not
+> > impact 99.9% of users.
+> 
+> I am wondering if it is possible to look at the controller and
+> see if it is in a bad state, (i.e. in some state besides just coming
+> out of reset) and if so issue a reset.  If this really is a long operation
+> that would be the ideal way to handle it.
+> 
 
-Great.
+That's a good question. MPT fustion driver already does something like
+this. It retrieves the state of IOC and then checks whether there is
+a need of reset or not.
 
-> >My general sense is that there's some rework needed, and that rework will
-> >affect the userspace interfaces, which is a problem for a 2.6.18 merge.
-> >  
-> >
-> The rework will affect the number of per-tgid records that userspace 
-> sees (fewer), not the format or any of the
-> other details regarding the genetlink interface.
-> Will that be a problem for userspace ?
+        /*
+         *      Check to see if IOC got left/stuck in doorbell handshake
+         *      grip of death.  If so, hard reset the IOC.
+         */
+        if (ioc_state & MPI_DOORBELL_ACTIVE) {
+                statefault = 1;
+                printk(MYIOC_s_WARN_FMT "Unexpected doorbell active!\n",
+                                ioc->name);
+        }
 
-Nope.
+But then question will be if all the devices out there provide the
+capability to query something similar to if we have just come out of reset
+state or not.
 
-OK, please send the patch and I'll plan on sending this lot to Linus
-Thursdayish.
+> If the amount of time is really user noticeable and testing for it
+> is impossible then it is probably time to talk kernel command line
+> options.  > 
+> Although it might simply be appropriate to handle commands completing
+> you didn't start.  I am not at all familiar with that particular piece
+> of hardware so I can't make a good guess on what needs to happen there.
+> 
+> > Thoughts, comments, flames?
+> 
+> Good question.
+> 
+> It is a bit of a pain but not too hard to setup a test environment
+> so you can reproduce this if you are interested.  Vivek should
+> be the authority there.
+> 
 
+Mike, I have got one setup ready with me. I have got a Compaq Smart Array
+5300 controller. I can reproduce this issue consistently. I don't know
+much about this device. Is it possible for you to post a patch for 
+resetting the device during initialization. I can test the fix and provide
+you more data.
+
+Thanks
+Vivek 

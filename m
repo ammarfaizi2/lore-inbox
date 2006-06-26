@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWFZOfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbWFZOhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbWFZOfr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 10:35:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWFZOfr
+	id S1030241AbWFZOhF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 10:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbWFZOhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 10:35:47 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:33626 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030239AbWFZOfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 10:35:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uVHvHDK0YH+9o14RH/xFMchi8fNR4+VxnAIgdvzNRW0d9Cmw61Wy4NlO/gSOI4bKrq0FPEpZeykCqhvfoxdbIGNIifwmI/V28juDBMP4wXUFgGYMST1yoc51M0wJpA9wa7mX8GWII0/TSzfFNkhhHza4WIrf7P2QsF361PPJ1nU=
-Message-ID: <d120d5000606260735v6e1762d7mc278f315c3a994fb@mail.gmail.com>
-Date: Mon, 26 Jun 2006 10:35:44 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Alan Stern" <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] atkbd: restore autorepeat rate after resume
-Cc: "Andrew Morton" <akpm@osdl.org>, "Vojtech Pavlik" <vojtech@suse.cz>,
-       "Kernel development list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0606261017340.9467-100000@iolanthe.rowland.org>
+	Mon, 26 Jun 2006 10:37:05 -0400
+Received: from sccrmhc15.comcast.net ([204.127.200.85]:56820 "EHLO
+	sccrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1030241AbWFZOhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 10:37:03 -0400
+Message-ID: <449FF130.3010601@acm.org>
+Date: Mon, 26 Jun 2006 09:37:36 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "amatus@ocgnet.org" <amatus@ocgnet.org>
+CC: openipmi-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IPMI: Support registering for a command per-channel
+References: <20060623150705.GA14245@login.ocgnet.org>
+In-Reply-To: <20060623150705.GA14245@login.ocgnet.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.44L0.0606261017340.9467-100000@iolanthe.rowland.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/26/06, Alan Stern <stern@rowland.harvard.edu> wrote:
-> From: Linus Torvalds <torvalds@osdl.org>
+amatus@ocgnet.org wrote:
+> From: David Barksdale <amatus@ocgnet.org>
 >
-> This patch (as728) makes the AT keyboard driver store the current
-> autorepeat rate so that it can be restored properly following a
-> suspend/resume cycle.
+> This patch adds the ability to register for a command per-channel.
 >
+> If your BMC supports multiple channels, incoming messages can be
+> differentiated by the channel on which they arrived. In this case it's
+> useful to have the ability to register to receive commands on a
+> specific channel instead the current behaviour of all channels.
+>
+>   
+Sorry for the long delay on this.  I like the patch in general, there
+are a few things I'd like to fix in it, though:
 
-Alan,
+* Instead of naming the IOCTLs xxx_CMD2, could you name
+  them xxx_CMD_CHANNEL, or something that conveys a
+  little more meaning?
 
-I think it should be a per-device, not global parameter. Anyway, I'll
-adjust adn apply, thank you.
+* The command unregister function needs to use a different
+  matching function now that you have to allow non-exact
+  matches for the channels.  You still need an exact match
+  for unregistering.
 
--- 
-Dmitry
+* Someone mentioned using a bitmask for the channels
+  you are registering.  I think that's a good idea.  IPMI
+  only allows 16 channels max, so an unsigned int should
+  be plenty.  Add a define for all channels and for setting
+  a specific channel.
+
+Thanks,
+
+-Corey

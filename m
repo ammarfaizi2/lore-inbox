@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWFZNmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWFZNmt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWFZNmW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 09:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWFZNmW
+	id S964893AbWFZNmt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 09:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWFZNmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 09:42:22 -0400
-Received: from mx1.mail.ru ([194.67.23.121]:22125 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S964841AbWFZNmV (ORCPT
+	Mon, 26 Jun 2006 09:42:49 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:41768 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S964889AbWFZNmr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 09:42:21 -0400
-Date: Mon, 26 Jun 2006 17:48:04 +0400
+	Mon, 26 Jun 2006 09:42:47 -0400
+Date: Mon, 26 Jun 2006 17:48:36 +0400
 From: Evgeniy Dushistov <dushistov@mail.ru>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH 1/3]: ufs: ufs_read_inode cleanup
-Message-ID: <20060626134804.GA8138@rain.homenetwork>
+Subject: [RFC] [PATCH 2/3]: ufs: track i_size
+Message-ID: <20060626134836.GA8400@rain.homenetwork>
 Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
 	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Mime-Version: 1.0
@@ -24,192 +24,87 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds missed ufsi->i_dir_start_lookup initialization
-in ufs_read_inode in UFS2 case. Also it cleans ufs_read_inode
-function to prevent such kind of situation in the future:
-it move depend on UFS type parts of code into separate
-functions and leaves in ufs_read_inode only generic code.
-It cleans code and avoids duplication.
+To make possible proper work of `ufs_truncate'(see the next patch),
+I need to know old size of file in` ufs_truncate',
+but for some unknown for me reason VFS layer doesn't tell
+old size to file system, or at least I don't find way to get
+this information. 
+So I have to add per each inode `loff_t' field and update it
+in
+- alloc inode
+- read inode
+- commit write
+- truncate(see the next patch)
+is this right way to know "old size" in truncate method?
 
 Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
 
 ---
 
+Index: linux-2.6.17-mm2/fs/ufs/ialloc.c
+===================================================================
+--- linux-2.6.17-mm2.orig/fs/ufs/ialloc.c
++++ linux-2.6.17-mm2/fs/ufs/ialloc.c
+@@ -265,6 +265,7 @@ cg_found:
+ 	ufsi->i_osync = 0;
+ 	ufsi->i_oeftflag = 0;
+ 	ufsi->i_dir_start_lookup = 0;
++	ufsi->i_size = 0;
+ 	memset(&ufsi->i_u1, 0, sizeof(ufsi->i_u1));
+ 
+ 	insert_inode_hash(inode);
 Index: linux-2.6.17-mm2/fs/ufs/inode.c
 ===================================================================
 --- linux-2.6.17-mm2.orig/fs/ufs/inode.c
 +++ linux-2.6.17-mm2/fs/ufs/inode.c
-@@ -605,39 +605,12 @@ static void ufs_set_inode_ops(struct ino
- 				   ufs_get_inode_dev(inode->i_sb, UFS_I(inode)));
- }
- 
--void ufs_read_inode (struct inode * inode)
-+static void ufs1_read_inode(struct inode *inode, struct ufs_inode *ufs_inode)
+@@ -574,12 +574,25 @@ static sector_t ufs_bmap(struct address_
  {
- 	struct ufs_inode_info *ufsi = UFS_I(inode);
--	struct super_block * sb;
--	struct ufs_sb_private_info * uspi;
--	struct ufs_inode * ufs_inode;	
--	struct ufs2_inode *ufs2_inode;
--	struct buffer_head * bh;
-+	struct super_block *sb = inode->i_sb;
- 	mode_t mode;
- 	unsigned i;
--	unsigned flags;
--	
--	UFSD("ENTER, ino %lu\n", inode->i_ino);
--	
--	sb = inode->i_sb;
--	uspi = UFS_SB(sb)->s_uspi;
--	flags = UFS_SB(sb)->s_flags;
--
--	if (inode->i_ino < UFS_ROOTINO || 
--	    inode->i_ino > (uspi->s_ncg * uspi->s_ipg)) {
--		ufs_warning (sb, "ufs_read_inode", "bad inode number (%lu)\n", inode->i_ino);
--		goto bad_inode;
--	}
--	
--	bh = sb_bread(sb, uspi->s_sbbase + ufs_inotofsba(inode->i_ino));
--	if (!bh) {
--		ufs_warning (sb, "ufs_read_inode", "unable to read inode %lu\n", inode->i_ino);
--		goto bad_inode;
--	}
--	if ((flags & UFS_TYPE_MASK) == UFS_TYPE_UFS2)
--		goto ufs2_inode;
--
--	ufs_inode = (struct ufs_inode *) (bh->b_data + sizeof(struct ufs_inode) * ufs_inotofsbo(inode->i_ino));
- 
- 	/*
- 	 * Copy data to the in-core inode.
-@@ -661,14 +634,11 @@ void ufs_read_inode (struct inode * inod
- 	inode->i_atime.tv_nsec = 0;
- 	inode->i_ctime.tv_nsec = 0;
- 	inode->i_blocks = fs32_to_cpu(sb, ufs_inode->ui_blocks);
--	inode->i_blksize = PAGE_SIZE;   /* This is the optimal IO size (for stat) */
--	inode->i_version++;
- 	ufsi->i_flags = fs32_to_cpu(sb, ufs_inode->ui_flags);
- 	ufsi->i_gen = fs32_to_cpu(sb, ufs_inode->ui_gen);
- 	ufsi->i_shadow = fs32_to_cpu(sb, ufs_inode->ui_u3.ui_sun.ui_shadow);
- 	ufsi->i_oeftflag = fs32_to_cpu(sb, ufs_inode->ui_u3.ui_sun.ui_oeftflag);
--	ufsi->i_lastfrag = (inode->i_size + uspi->s_fsize - 1) >> uspi->s_fshift;
--	ufsi->i_dir_start_lookup = 0;
+ 	return generic_block_bmap(mapping,block,ufs_getfrag_block);
+ }
 +
- 	
- 	if (S_ISCHR(mode) || S_ISBLK(mode) || inode->i_blocks) {
- 		for (i = 0; i < (UFS_NDADDR + UFS_NINDIR); i++)
-@@ -677,24 +647,16 @@ void ufs_read_inode (struct inode * inod
- 		for (i = 0; i < (UFS_NDADDR + UFS_NINDIR) * 4; i++)
- 			ufsi->i_u1.i_symlink[i] = ufs_inode->ui_u2.ui_symlink[i];
- 	}
--	ufsi->i_osync = 0;
--
--	ufs_set_inode_ops(inode);
--
--	brelse (bh);
--
--	UFSD("EXIT\n");
--	return;
-+}
- 
--bad_inode:
--	make_bad_inode(inode);
--	return;
-+static void ufs2_read_inode(struct inode *inode, struct ufs2_inode *ufs2_inode)
++/*
++ * we have to update our internal i_size holder,
++ * because of we want know old size in truncate
++ */
++static int ufs_commit_write(struct file *file, struct page *page,
++			    unsigned from, unsigned to)
 +{
-+	struct ufs_inode_info *ufsi = UFS_I(inode);
-+	struct super_block *sb = inode->i_sb;
-+	mode_t mode;
-+	unsigned i;
- 
--ufs2_inode :
- 	UFSD("Reading ufs2 inode, ino %lu\n", inode->i_ino);
--
--	ufs2_inode = (struct ufs2_inode *)(bh->b_data + sizeof(struct ufs2_inode) * ufs_inotofsbo(inode->i_ino));
--
- 	/*
- 	 * Copy data to the in-core inode.
- 	 */
-@@ -717,26 +679,64 @@ ufs2_inode :
- 	inode->i_atime.tv_nsec = 0;
- 	inode->i_ctime.tv_nsec = 0;
- 	inode->i_blocks = fs64_to_cpu(sb, ufs2_inode->ui_blocks);
--	inode->i_blksize = PAGE_SIZE; /*This is the optimal IO size(for stat)*/
--
--	inode->i_version++;
- 	ufsi->i_flags = fs32_to_cpu(sb, ufs2_inode->ui_flags);
- 	ufsi->i_gen = fs32_to_cpu(sb, ufs2_inode->ui_gen);
- 	/*
- 	ufsi->i_shadow = fs32_to_cpu(sb, ufs_inode->ui_u3.ui_sun.ui_shadow);
- 	ufsi->i_oeftflag = fs32_to_cpu(sb, ufs_inode->ui_u3.ui_sun.ui_oeftflag);
- 	*/
--	ufsi->i_lastfrag= (inode->i_size + uspi->s_fsize- 1) >> uspi->s_fshift;
- 
- 	if (S_ISCHR(mode) || S_ISBLK(mode) || inode->i_blocks) {
- 		for (i = 0; i < (UFS_NDADDR + UFS_NINDIR); i++)
- 			ufsi->i_u1.u2_i_data[i] =
- 				ufs2_inode->ui_u2.ui_addr.ui_db[i];
--	}
--	else {
-+	} else {
- 		for (i = 0; i < (UFS_NDADDR + UFS_NINDIR) * 4; i++)
- 			ufsi->i_u1.i_symlink[i] = ufs2_inode->ui_u2.ui_symlink[i];
- 	}
++	UFS_I(page->mapping->host)->i_size =
++		((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
++	return generic_commit_write(file, page, from, to);
 +}
 +
-+void ufs_read_inode(struct inode * inode)
-+{
-+	struct ufs_inode_info *ufsi = UFS_I(inode);
-+	struct super_block * sb;
-+	struct ufs_sb_private_info * uspi;
-+	struct buffer_head * bh;
-+
-+	UFSD("ENTER, ino %lu\n", inode->i_ino);
-+
-+	sb = inode->i_sb;
-+	uspi = UFS_SB(sb)->s_uspi;
-+
-+	if (inode->i_ino < UFS_ROOTINO ||
-+	    inode->i_ino > (uspi->s_ncg * uspi->s_ipg)) {
-+		ufs_warning(sb, "ufs_read_inode", "bad inode number (%lu)\n",
-+			    inode->i_ino);
-+		goto bad_inode;
-+	}
-+
-+	bh = sb_bread(sb, uspi->s_sbbase + ufs_inotofsba(inode->i_ino));
-+	if (!bh) {
-+		ufs_warning(sb, "ufs_read_inode", "unable to read inode %lu\n",
-+			    inode->i_ino);
-+		goto bad_inode;
-+	}
-+	if ((UFS_SB(sb)->s_flags & UFS_TYPE_MASK) == UFS_TYPE_UFS2) {
-+		struct ufs2_inode *ufs2_inode = (struct ufs2_inode *)bh->b_data;
-+
-+		ufs2_read_inode(inode,
-+				ufs2_inode + ufs_inotofsbo(inode->i_ino));
-+	} else {
-+		struct ufs_inode *ufs_inode = (struct ufs_inode *)bh->b_data;
-+
-+		ufs1_read_inode(inode, ufs_inode + ufs_inotofsbo(inode->i_ino));
-+	}
-+
-+	inode->i_blksize = PAGE_SIZE;/*This is the optimal IO size (for stat)*/
-+	inode->i_version++;
-+	ufsi->i_lastfrag =
-+		(inode->i_size + uspi->s_fsize - 1) >> uspi->s_fshift;
-+	ufsi->i_dir_start_lookup = 0;
+ const struct address_space_operations ufs_aops = {
+ 	.readpage = ufs_readpage,
+ 	.writepage = ufs_writepage,
+ 	.sync_page = block_sync_page,
+ 	.prepare_write = ufs_prepare_write,
+-	.commit_write = generic_commit_write,
++	.commit_write = ufs_commit_write,
+ 	.bmap = ufs_bmap
+ };
+ 
+@@ -738,6 +751,7 @@ void ufs_read_inode(struct inode * inode
+ 		(inode->i_size + uspi->s_fsize - 1) >> uspi->s_fshift;
+ 	ufsi->i_dir_start_lookup = 0;
  	ufsi->i_osync = 0;
++	ufsi->i_size = inode->i_size;
  
  	ufs_set_inode_ops(inode);
-@@ -745,6 +745,9 @@ ufs2_inode :
  
- 	UFSD("EXIT\n");
- 	return;
-+
-+bad_inode:
-+	make_bad_inode(inode);
- }
+Index: linux-2.6.17-mm2/include/linux/ufs_fs_i.h
+===================================================================
+--- linux-2.6.17-mm2.orig/include/linux/ufs_fs_i.h
++++ linux-2.6.17-mm2/include/linux/ufs_fs_i.h
+@@ -28,6 +28,7 @@ struct ufs_inode_info {
+ 	__u16	i_osync;
+ 	__u32	i_lastfrag;
+ 	__u32   i_dir_start_lookup;
++	loff_t	i_size;
+ 	struct inode vfs_inode;
+ };
  
- static int ufs_update_inode(struct inode * inode, int do_sync)
+
 
 -- 
 /Evgeniy

@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWFZEIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWFZERJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWFZEIS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 00:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWFZEIS
+	id S932288AbWFZERJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 00:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWFZERJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 00:08:18 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:25324 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751500AbWFZEIR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 00:08:17 -0400
-In-Reply-To: <20060625231329.GM23314@stusta.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-cifs-client@lists.samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] fs/cifs/cifsproto.h: remove #ifdef around small_smb_init_no_tc() prototype
+	Mon, 26 Jun 2006 00:17:09 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:18384 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932288AbWFZERI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 00:17:08 -0400
+Date: Sun, 25 Jun 2006 21:17:00 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Ravikiran G Thirumalai <kiran@scalex86.org>, linux-kernel@vger.kernel.org
+Subject: Re: remove __read_mostly?
+In-Reply-To: <20060625115736.d90e1241.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0606252112080.27464@schroedinger.engr.sgi.com>
+References: <20060625115736.d90e1241.akpm@osdl.org>
 MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 7.0 HF144 February 01, 2006
-Message-ID: <OFA1426D0C.77A63AA3-ON87257199.0016018A-86257199.0015D47A@us.ibm.com>
-From: Steven French <sfrench@us.ibm.com>
-Date: Sun, 25 Jun 2006 23:05:19 -0500
-X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 7.0.1HF123 | April 14, 2006) at
- 06/25/2006 22:15:44,
-	Serialize complete at 06/25/2006 22:15:44
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The equivalent fix should already be merged in now
+On Sun, 25 Jun 2006, Andrew Morton wrote:
 
- The missed ifdef removal happened a couple days ago as I turned on the 
-previously experimental  new session establishment code (in 
-fs/cifs/sess.c) and turn off the older code in fs/cifs/connect.c 
-(necessary for legacy win9x lanman server support and more secure (ntlmv2) 
-session establishment support).    I have a few relatively minor changes 
-to make to fs/cifs/sess.c (including changing buffer allocation in a few 
-places, an ntlmv2 fix for support of one server type) still.
+> I'm thinking we should remove __read_mostly.
+> 
+> Because if we use this everywhere where it's supposed to be used, we end up
+> with .bss and .data 100% populated with write-often variables, packed
+> closely together.  The cachelines will really flying around.
 
+What we really want is a write-often variable in a cacheline combined with 
+infrequently read and write data. However, data that is frequently read 
+(that is __read_mostly) would still need to be in a separate section.
 
-Steve French
-Senior Software Engineer
-Linux Technology Center - IBM Austin
-phone: 512-838-2294
-email: sfrench at-sign us dot ibm dot com
+> IOW: __read_mostly optimises read-mostly variables and pessimises
+> write-often variables.
+> 
+> We want something which optimises both read-mostly and write-often storage.
+>  We do that by marking the write-often variables with
+> __cacheline_aligned_in_smp.
+> 
+> OK?
 
-Adrian Bunk <bunk@stusta.de> wrote on 06/25/2006 06:13:29 PM:
+I think we would want to group write-often variables with infrequently 
+used variable. But how does one convince the linker to doing that?
 
-> On Sat, Jun 24, 2006 at 06:19:14AM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.17-mm1:
-> >...
-> > +cifs-build-fix.patch
-> > 
-> >  Fix git-cifs.patch.
-> >...
-> 
-> Let's hope gcc guesses the prototye of the function right.
-> 
-> Otherwise, this patch has turned a compile error into a nasty runtime 
-> error (in many cases, the stack is garbage).
-> 
-> The -Werror-implicit-function-declaration gcc flag would turn such 
-> possible problems into compile errors.
-> 
-> This patch removes the (never required) #ifdef from the prototype of 
-> thie function in fs/cifs/cifsproto.h. 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.17-mm2-full/fs/cifs/cifsproto.h.old   2006-06-26 00:
-> 00:56.000000000 +0200
-> +++ linux-2.6.17-mm2-full/fs/cifs/cifsproto.h   2006-06-26 00:01:02.
-> 000000000 +0200
-> @@ -64,11 +64,9 @@
->  extern void header_assemble(struct smb_hdr *, char /* command */ ,
->               const struct cifsTconInfo *, int /* length of
->               fixed section (word count) in two byte units */);
-> -#ifdef CONFIG_CIFS_EXPERIMENTAL
->  extern int small_smb_init_no_tc(const int smb_cmd, const int wct,
->              struct cifsSesInfo *ses,
->              void ** request_buf);
-> -#endif
->  extern int CIFS_SessSetup(unsigned int xid, struct cifsSesInfo *ses,
->                const int stage, 
->                const struct nls_table *nls_cp);
-> 
-
+I agree that there is a problem with shift frequently written variables 
+together which may in itself cause ill effects. So __read_mostly should 
+only be used when we have identified real cacheline sharing problems and 
+real cache hot variables may have to be put in a separate cacheline for 
+itself. I think we already do that and that is at least the way I have 
+handled it. Too many __read_mostly kill the whole point of the exercise.

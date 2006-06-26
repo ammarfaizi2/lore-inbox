@@ -1,83 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965196AbWFZBHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbWFZBIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965196AbWFZBHu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 21:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWFZBHs
+	id S964989AbWFZBIg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 21:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWFZA6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 21:07:48 -0400
-Received: from mx2.suse.de ([195.135.220.15]:54462 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964996AbWFZBHD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 21:07:03 -0400
-From: Neil Brown <neilb@suse.de>
-To: Ronald Lembcke <es186@fen-net.de>
-Date: Mon, 26 Jun 2006 11:06:51 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17567.13099.133933.397389@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: Bug in 2.6.17 / mdadm 2.5.1
-In-Reply-To: message from Ronald Lembcke on Sunday June 25
-References: <20060624104745.GA6352@defiant.crash>
-	<20060625135926.GA6253@defiant.crash>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Sun, 25 Jun 2006 20:58:47 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:14223 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964971AbWFZA6Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 20:58:16 -0400
+Date: Sun, 25 Jun 2006 17:57:59 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: linux-kernel@vger.kernel.org, klibc@zytor.com
+Subject: [klibc 05/43] Need to export RANLIB from the top Makefile
+Message-Id: <klibc.200606251757.05@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday June 25, es186@fen-net.de wrote:
-> Hi!
-> 
-> There's a bug in Kernel 2.6.17 and / or mdadm which prevents (re)adding
-> a disk to a degraded RAID5-Array.
+klibc needs RANLIB, and since KLIBCRANLIB is now generated from RANLIB,
+we need to actually define RANLIB.
 
-Thank you for the detailed report.
-The bug is in the md driver in the kernel (not in mdadm), and only
-affects version-1 superblocks.  Debian recently changed the default
-(in /etc/mdadm.conf) to use version-1 superblocks which I thought
-would be OK (I've some testing) but obviously I missed something. :-(
+Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
-If you remove the "metadata=1" (or whatever it is) from
-/etc/mdadm/mdadm.conf and then create the array, it will be created
-with a version-0.90 superblock has had more testing.
+---
+commit f3e41698e540a7d39658d6590fde1379c0f5bab0
+tree 2c41ad2f69c0ba17652e90d6cee122675727dc1d
+parent 5ad9bee01be52a0593fedcf905ae26ef4fd65007
+author H. Peter Anvin <hpa@zytor.com> Thu, 06 Apr 2006 11:33:35 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 18 Jun 2006 18:46:08 -0700
 
-Alternately you can apply the following patch to the kernel and
-version-1 superblocks should work better.
+ Makefile |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-NeilBrown
-
--------------------------------------------------
-Set desc_nr correctly for version-1 superblocks.
-
-This has to be done in ->load_super, not ->validate_super
-
-### Diffstat output
- ./drivers/md/md.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff .prev/drivers/md/md.c ./drivers/md/md.c
---- .prev/drivers/md/md.c	2006-06-26 11:02:43.000000000 +1000
-+++ ./drivers/md/md.c	2006-06-26 11:02:46.000000000 +1000
-@@ -1057,6 +1057,11 @@ static int super_1_load(mdk_rdev_t *rdev
- 	if (rdev->sb_size & bmask)
- 		rdev-> sb_size = (rdev->sb_size | bmask)+1;
+diff --git a/Makefile b/Makefile
+index 889ee38..897e647 100644
+--- a/Makefile
++++ b/Makefile
+@@ -280,6 +280,7 @@ LD		= $(CROSS_COMPILE)ld
+ CC		= $(CROSS_COMPILE)gcc
+ CPP		= $(CC) -E
+ AR		= $(CROSS_COMPILE)ar
++RANLIB		= $(CROSS_COMPILE)ranlib
+ NM		= $(CROSS_COMPILE)nm
+ STRIP		= $(CROSS_COMPILE)strip
+ OBJCOPY		= $(CROSS_COMPILE)objcopy
+@@ -316,10 +317,11 @@ # Read KERNELRELEASE from .kernelrelease
+ KERNELRELEASE = $(shell cat .kernelrelease 2> /dev/null)
+ KERNELVERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
  
-+	if (sb->level == cpu_to_le32(LEVEL_MULTIPATH))
-+		rdev->desc_nr = -1;
-+	else
-+		rdev->desc_nr = le32_to_cpu(sb->dev_number);
-+
- 	if (refdev == 0)
- 		ret = 1;
- 	else {
-@@ -1165,7 +1170,6 @@ static int super_1_validate(mddev_t *mdd
+-export	VERSION PATCHLEVEL SUBLEVEL KERNELRELEASE KERNELVERSION \
+-	ARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
+-	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE AWK GENKSYMS PERL UTS_MACHINE \
+-	HOSTCXX HOSTCXXFLAGS LDFLAGS_MODULE CHECK CHECKFLAGS KLIBCARCH
++export VERSION PATCHLEVEL SUBLEVEL KERNELRELEASE KERNELVERSION ARCH
++export KLIBCARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD
++export CC CPP AR RANLIB NM STRIP OBJCOPY OBJDUMP MAKE AWK GENKSYMS
++export PERL UTS_MACHINE HOSTCXX HOSTCXXFLAGS LDFLAGS_MODULE CHECK
++export CHECKFLAGS
  
- 	if (mddev->level != LEVEL_MULTIPATH) {
- 		int role;
--		rdev->desc_nr = le32_to_cpu(sb->dev_number);
- 		role = le16_to_cpu(sb->dev_roles[rdev->desc_nr]);
- 		switch(role) {
- 		case 0xffff: /* spare */
+ export CPPFLAGS NOSTDINC_FLAGS LINUXINCLUDE OBJCOPYFLAGS LDFLAGS
+ export CFLAGS CFLAGS_KERNEL CFLAGS_MODULE 

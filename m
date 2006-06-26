@@ -1,115 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWFZA6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWFZA6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWFZA6K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 20:58:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWFZA6K
+	id S964986AbWFZA6f (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 20:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWFZA6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 20:58:10 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:2703 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932451AbWFZA6J
+	Sun, 25 Jun 2006 20:58:32 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:14991 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964974AbWFZA6T
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:58:09 -0400
-Date: Sun, 25 Jun 2006 17:57:58 -0700
+	Sun, 25 Jun 2006 20:58:19 -0400
+Date: Sun, 25 Jun 2006 17:58:00 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 03/43] Remove parts moved to kinit
-Message-Id: <klibc.200606251757.03@tazenda.hos.anvin.org>
+Subject: [klibc 09/43] kbuild: support single targets for klibc and klibc programs
+Message-Id: <klibc.200606251757.09@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+With the following patch kbuild now supports:
+make usr/dash/arith_yylex.i
+make usr/klibc/umount.o
+make usr/klibc/umount.s
+
+Patch does also fix indention of CPP command
+
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit 79d8875c392c6eaf4b9537625c57690a02eab411
-tree 024822bc058f19761a001d4026dc5b9bb2f940b2
-parent a2faf9b56a04fc16ef2a8a8e42e91601cae1dc75
-author H. Peter Anvin <hpa@zytor.com> Thu, 30 Mar 2006 11:35:15 -0800
-committer H. Peter Anvin <hpa@zytor.com> Sun, 18 Jun 2006 18:45:43 -0700
+commit a36102c485caf951294301425ee8e87aa6ab4d92
+tree 88d3e4aebe253cb3d6c417eac3cd2c1fa14db694
+parent 15ad2d153c3c214522eef889a14f3cd97f40864a
+author Sam Ravnborg <sam@ravnborg.org> Mon, 17 Apr 2006 13:54:47 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 18 Jun 2006 18:47:01 -0700
 
- kernel/power/disk.c |   45 ++++-----------------------------------------
- 1 files changed, 4 insertions(+), 41 deletions(-)
+ Makefile               |   24 ++++++++++++++++--------
+ scripts/Kbuild.include |    5 +++++
+ 2 files changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/power/disk.c b/kernel/power/disk.c
-index 81d4d98..b886784 100644
---- a/kernel/power/disk.c
-+++ b/kernel/power/disk.c
-@@ -22,8 +22,6 @@ #include <linux/pm.h>
- #include "power.h"
+diff --git a/Makefile b/Makefile
+index 897e647..ea1bae0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -181,6 +181,11 @@ UTS_MACHINE	:= $(ARCH)
+ # Architecture used to compile user-space code
+ KLIBCARCH	?= $(subst powerpc,ppc,$(ARCH))
  
- 
--static int noresume = 0;
--char resume_file[256] = CONFIG_PM_STD_PARTITION;
- dev_t swsusp_resume_device;
- 
- /**
-@@ -166,26 +164,13 @@ static int software_resume(void)
- 
- 	down(&pm_sem);
- 	if (!swsusp_resume_device) {
--		if (!strlen(resume_file)) {
--			up(&pm_sem);
--			return -ENOENT;
--		}
--		swsusp_resume_device = name_to_dev_t(resume_file);
--		pr_debug("swsusp: Resume From Partition %s\n", resume_file);
--	} else {
--		pr_debug("swsusp: Resume From Partition %d:%d\n",
--			 MAJOR(swsusp_resume_device), MINOR(swsusp_resume_device));
--	}
--
--	if (noresume) {
--		/**
--		 * FIXME: If noresume is specified, we need to find the partition
--		 * and reset it back to normal swap space.
--		 */
--		up(&pm_sem);
-+		pr_debug("swsusp: No device given!\n");
- 		return 0;
- 	}
- 
-+	pr_debug("swsusp: Resume From Partition %d:%d\n",
-+		 MAJOR(swsusp_resume_device), MINOR(swsusp_resume_device));
++# klibc definitions
++export KLIBCINC := usr/include
++export KLIBCSRC := $(srctree)/usr/klibc
++export KLIBCOBJ := $(objtree)/usr/klibc
 +
- 	pr_debug("PM: Checking swsusp image.\n");
+ # SHELL used by kbuild
+ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+ 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
+@@ -1281,39 +1286,42 @@ # Single targets are compatible with:
+ # - build whith mixed source and output
+ # - build with separate output dir 'make O=...'
+ # - external modules
++# - klibc library and klibc programs (everything under usr/)
+ #
+ #  target-dir => where to store outputfile
+ #  build-dir  => directory in kernel source tree to use
  
- 	if ((error = swsusp_check()))
-@@ -228,8 +213,6 @@ static int software_resume(void)
- 	return 0;
- }
+ ifeq ($(KBUILD_EXTMOD),)
++        singlebld  = $(if $(filter usr/%,$(dir $@)),$(klibc),$(build))
+         build-dir  = $(patsubst %/,%,$(dir $@))
+         target-dir = $(dir $@)
+ else
++        singlebld  = $(build)
+         zap-slash=$(filter-out .,$(patsubst %/,%,$(dir $@)))
+         build-dir  = $(KBUILD_EXTMOD)$(if $(zap-slash),/$(zap-slash))
+         target-dir = $(if $(KBUILD_EXTMOD),$(dir $<),$(dir $@))
+ endif
  
--late_initcall(software_resume);
--
+ %.s: %.c prepare scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
++	$(Q)$(MAKE) $(singlebld)=$(build-dir) $(target-dir)$(notdir $@)
+ %.i: %.c prepare scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
++	$(Q)$(MAKE) $(singlebld)=$(build-dir) $(target-dir)$(notdir $@)
+ %.o: %.c prepare scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
++	$(Q)$(MAKE) $(singlebld)=$(build-dir) $(target-dir)$(notdir $@)
+ %.lst: %.c prepare scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
++	$(Q)$(MAKE) $(singlebld)=$(build-dir) $(target-dir)$(notdir $@)
+ %.s: %.S prepare scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
++	$(Q)$(MAKE) $(singlebld)=$(build-dir) $(target-dir)$(notdir $@)
+ %.o: %.S prepare scripts FORCE
+-	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
++	$(Q)$(MAKE) $(singlebld)=$(build-dir) $(target-dir)$(notdir $@)
  
- static char * pm_disk_modes[] = {
- 	[PM_DISK_FIRMWARE]	= "firmware",
-@@ -333,7 +316,6 @@ static ssize_t resume_store(struct subsy
- 	swsusp_resume_device = res;
- 	up(&pm_sem);
- 	printk("Attempting manual resume\n");
--	noresume = 0;
- 	software_resume();
- 	ret = n;
- out:
-@@ -380,22 +362,3 @@ static int __init pm_disk_init(void)
- }
+ # Modules
+ / %/: prepare scripts FORCE
+ 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1) \
+-	$(build)=$(build-dir)
++	$(singlebld)=$(build-dir)
+ %.ko: prepare scripts FORCE
+ 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1)   \
+-	$(build)=$(build-dir) $(@:.ko=.o)
++	$(singlebld)=$(build-dir) $(@:.ko=.o)
+ 	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost
  
- core_initcall(pm_disk_init);
--
--
--static int __init resume_setup(char *str)
--{
--	if (noresume)
--		return 1;
--
--	strncpy( resume_file, str, 255 );
--	return 1;
--}
--
--static int __init noresume_setup(char *str)
--{
--	noresume = 1;
--	return 1;
--}
--
--__setup("noresume", noresume_setup);
--__setup("resume=", resume_setup);
+ # FIXME Should go into a make.lib or something 
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index b0d067b..3c90468 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -87,6 +87,11 @@ # Usage:
+ # $(Q)$(MAKE) $(build)=dir
+ build := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.build obj
+ 
++# Shorthand for $(Q)$(MAKE) -f scripts/Kbuild.klibc obj=
++# Usage:
++# $(Q)$(MAKE) $(klibc)=dir
++klibc := -f $(srctree)/scripts/Kbuild.klibc obj
++
+ # Prefix -I with $(srctree) if it is not an absolute path
+ addtree = $(if $(filter-out -I/%,$(1)),$(patsubst -I%,-I$(srctree)/%,$(1))) $(1)
+ # Find all -I options and call addtree

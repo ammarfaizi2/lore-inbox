@@ -1,802 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWFZBLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWFZA6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbWFZBLn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 21:11:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWFZBLL
+	id S964976AbWFZA6i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 20:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWFZA6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 21:11:11 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:18831 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964978AbWFZA6l
+	Sun, 25 Jun 2006 20:58:35 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:16271 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964976AbWFZA6Z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:58:41 -0400
-Date: Sun, 25 Jun 2006 17:58:01 -0700
+	Sun, 25 Jun 2006 20:58:25 -0400
+Date: Sun, 25 Jun 2006 17:57:59 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 14/43] Remove in-kernel nfsroot code
-Message-Id: <klibc.200606251757.14@tazenda.hos.anvin.org>
+Subject: [klibc 06/43] Re-create ROOT_DEV, too many architectures need it.
+Message-Id: <klibc.200606251757.06@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The in-kernel nfsroot code is obsoleted by kinit.  Remove it; it
-causes conflicts.
+ROOT_DEV carries a root device number communicated in an architecture-
+specific way.  We now pass it to kinit via the real-root-dev sysctl call.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit 161e1dc16ec1129b30b634a2a8dcbbd1937800c5
-tree c30da837d746fe65d8a13ccf6f27bd381948edb4
-parent 018604e070e143657abcf0cb256a1e2dda205d97
-author H. Peter Anvin <hpa@zytor.com> Sat, 20 May 2006 16:24:05 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 18 Jun 2006 18:51:32 -0700
+commit 0f5a324d655ad582246b6830843114d09835f593
+tree fd3a96a69b6d74ee33dcd54a58b8666c02139a3a
+parent f3e41698e540a7d39658d6590fde1379c0f5bab0
+author H. Peter Anvin <hpa@zytor.com> Thu, 06 Apr 2006 14:07:43 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 18 Jun 2006 18:46:23 -0700
 
- fs/Kconfig          |   14 -
- fs/nfs/Makefile     |    1 
- fs/nfs/mount_clnt.c |  191 -------------------
- fs/nfs/nfsroot.c    |  525 ---------------------------------------------------
- 4 files changed, 0 insertions(+), 731 deletions(-)
+ arch/i386/kernel/setup.c   |    1 +
+ arch/x86_64/kernel/setup.c |    1 +
+ init/initramfs.c           |    4 ----
+ init/main.c                |   12 ++++++++++++
+ 4 files changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/fs/Kconfig b/fs/Kconfig
-index f9b5842..71d6b30 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -1498,20 +1498,6 @@ config NFSD_TCP
- 	  TCP connections usually perform better than the default UDP when
- 	  the network is lossy or congested.  If unsure, say Y.
+diff --git a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
+index 16784a6..54c72d9 100644
+--- a/arch/i386/kernel/setup.c
++++ b/arch/i386/kernel/setup.c
+@@ -1460,6 +1460,7 @@ #ifdef CONFIG_EFI
+ 		efi_enabled = 1;
+ #endif
  
--config ROOT_NFS
--	bool "Root file system on NFS"
--	depends on NFS_FS=y && IP_PNP
--	help
--	  If you want your Linux box to mount its whole root file system (the
--	  one containing the directory /) from some other computer over the
--	  net via NFS (presumably because your box doesn't have a hard disk),
--	  say Y. Read <file:Documentation/nfsroot.txt> for details. It is
--	  likely that in this case, you also want to say Y to "Kernel level IP
--	  autoconfiguration" so that your box can discover its network address
--	  at boot time.
--
--	  Most people say N here.
--
- config LOCKD
- 	tristate
++	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
+  	drive_info = DRIVE_INFO;
+  	screen_info = SCREEN_INFO;
+ 	edid_info = EDID_INFO;
+diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
+index cadbe33..6d4f025 100644
+--- a/arch/x86_64/kernel/setup.c
++++ b/arch/x86_64/kernel/setup.c
+@@ -599,6 +599,7 @@ void __init setup_arch(char **cmdline_p)
+ {
+ 	unsigned long kernel_end;
  
-diff --git a/fs/nfs/Makefile b/fs/nfs/Makefile
-index ec61fd5..a06c590 100644
---- a/fs/nfs/Makefile
-+++ b/fs/nfs/Makefile
-@@ -6,7 +6,6 @@ obj-$(CONFIG_NFS_FS) += nfs.o
++	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
+  	screen_info = SCREEN_INFO;
+ 	edid_info = EDID_INFO;
+ 	saved_video_mode = SAVED_VIDEO_MODE;
+diff --git a/init/initramfs.c b/init/initramfs.c
+index 0cbd783..7ea4127 100644
+--- a/init/initramfs.c
++++ b/init/initramfs.c
+@@ -10,10 +10,6 @@ #include <linux/syscalls.h>
+ unsigned long __initdata initrd_start, initrd_end;
+ int __initdata initrd_below_start_ok;
  
- nfs-y 			:= dir.o file.o inode.o nfs2xdr.o pagelist.o \
- 			   proc.o read.o symlink.o unlink.o write.o
--nfs-$(CONFIG_ROOT_NFS)	+= nfsroot.o mount_clnt.o      
- nfs-$(CONFIG_NFS_V3)	+= nfs3proc.o nfs3xdr.o
- nfs-$(CONFIG_NFS_V3_ACL)	+= nfs3acl.o
- nfs-$(CONFIG_NFS_V4)	+= nfs4proc.o nfs4xdr.o nfs4state.o nfs4renewd.o \
-diff --git a/fs/nfs/mount_clnt.c b/fs/nfs/mount_clnt.c
-deleted file mode 100644
-index 445abb4..0000000
---- a/fs/nfs/mount_clnt.c
-+++ /dev/null
-@@ -1,191 +0,0 @@
--/*
-- * linux/fs/nfs/mount_clnt.c
-- *
-- * MOUNT client to support NFSroot.
-- *
-- * Copyright (C) 1997, Olaf Kirch <okir@monad.swb.de>
-- */
--
--#include <linux/types.h>
--#include <linux/socket.h>
--#include <linux/kernel.h>
--#include <linux/errno.h>
--#include <linux/uio.h>
--#include <linux/net.h>
--#include <linux/in.h>
--#include <linux/sunrpc/clnt.h>
--#include <linux/sunrpc/xprt.h>
--#include <linux/sunrpc/sched.h>
--#include <linux/nfs_fs.h>
--
--#ifdef RPC_DEBUG
--# define NFSDBG_FACILITY	NFSDBG_ROOT
--#endif
--
--/*
--#define MOUNT_PROGRAM		100005
--#define MOUNT_VERSION		1
--#define MOUNT_MNT		1
--#define MOUNT_UMNT		3
-- */
--
--static struct rpc_clnt *	mnt_create(char *, struct sockaddr_in *,
--								int, int);
--static struct rpc_program	mnt_program;
--
--struct mnt_fhstatus {
--	unsigned int		status;
--	struct nfs_fh *		fh;
--};
--
--/*
-- * Obtain an NFS file handle for the given host and path
-- */
--int
--nfsroot_mount(struct sockaddr_in *addr, char *path, struct nfs_fh *fh,
--		int version, int protocol)
--{
--	struct rpc_clnt		*mnt_clnt;
--	struct mnt_fhstatus	result = {
--		.fh		= fh
--	};
--	struct rpc_message msg	= {
--		.rpc_argp	= path,
--		.rpc_resp	= &result,
--	};
--	char			hostname[32];
--	int			status;
--
--	dprintk("NFS:      nfs_mount(%08x:%s)\n",
--			(unsigned)ntohl(addr->sin_addr.s_addr), path);
--
--	sprintf(hostname, "%u.%u.%u.%u", NIPQUAD(addr->sin_addr.s_addr));
--	mnt_clnt = mnt_create(hostname, addr, version, protocol);
--	if (IS_ERR(mnt_clnt))
--		return PTR_ERR(mnt_clnt);
--
--	if (version == NFS_MNT3_VERSION)
--		msg.rpc_proc = &mnt_clnt->cl_procinfo[MOUNTPROC3_MNT];
--	else
--		msg.rpc_proc = &mnt_clnt->cl_procinfo[MNTPROC_MNT];
--
--	status = rpc_call_sync(mnt_clnt, &msg, 0);
--	return status < 0? status : (result.status? -EACCES : 0);
--}
--
--static struct rpc_clnt *
--mnt_create(char *hostname, struct sockaddr_in *srvaddr, int version,
--		int protocol)
--{
--	struct rpc_xprt	*xprt;
--	struct rpc_clnt	*clnt;
--
--	xprt = xprt_create_proto(protocol, srvaddr, NULL);
--	if (IS_ERR(xprt))
--		return (struct rpc_clnt *)xprt;
--
--	clnt = rpc_create_client(xprt, hostname,
--				&mnt_program, version,
--				RPC_AUTH_UNIX);
--	if (!IS_ERR(clnt)) {
--		clnt->cl_softrtry = 1;
--		clnt->cl_oneshot  = 1;
--		clnt->cl_intr = 1;
--	}
--	return clnt;
--}
--
--/*
-- * XDR encode/decode functions for MOUNT
-- */
--static int
--xdr_encode_dirpath(struct rpc_rqst *req, u32 *p, const char *path)
--{
--	p = xdr_encode_string(p, path);
--
--	req->rq_slen = xdr_adjust_iovec(req->rq_svec, p);
--	return 0;
--}
--
--static int
--xdr_decode_fhstatus(struct rpc_rqst *req, u32 *p, struct mnt_fhstatus *res)
--{
--	struct nfs_fh *fh = res->fh;
--
--	if ((res->status = ntohl(*p++)) == 0) {
--		fh->size = NFS2_FHSIZE;
--		memcpy(fh->data, p, NFS2_FHSIZE);
--	}
--	return 0;
--}
--
--static int
--xdr_decode_fhstatus3(struct rpc_rqst *req, u32 *p, struct mnt_fhstatus *res)
--{
--	struct nfs_fh *fh = res->fh;
--
--	if ((res->status = ntohl(*p++)) == 0) {
--		int size = ntohl(*p++);
--		if (size <= NFS3_FHSIZE) {
--			fh->size = size;
--			memcpy(fh->data, p, size);
--		} else
--			res->status = -EBADHANDLE;
--	}
--	return 0;
--}
--
--#define MNT_dirpath_sz		(1 + 256)
--#define MNT_fhstatus_sz		(1 + 8)
--
--static struct rpc_procinfo	mnt_procedures[] = {
--[MNTPROC_MNT] = {
--	  .p_proc		= MNTPROC_MNT,
--	  .p_encode		= (kxdrproc_t) xdr_encode_dirpath,	
--	  .p_decode		= (kxdrproc_t) xdr_decode_fhstatus,
--	  .p_bufsiz		= MNT_dirpath_sz << 2,
--	  .p_statidx		= MNTPROC_MNT,
--	  .p_name		= "MOUNT",
--	},
--};
--
--static struct rpc_procinfo mnt3_procedures[] = {
--[MOUNTPROC3_MNT] = {
--	  .p_proc		= MOUNTPROC3_MNT,
--	  .p_encode		= (kxdrproc_t) xdr_encode_dirpath,
--	  .p_decode		= (kxdrproc_t) xdr_decode_fhstatus3,
--	  .p_bufsiz		= MNT_dirpath_sz << 2,
--	  .p_statidx		= MOUNTPROC3_MNT,
--	  .p_name		= "MOUNT",
--	},
--};
--
--
--static struct rpc_version	mnt_version1 = {
--		.number		= 1,
--		.nrprocs 	= 2,
--		.procs 		= mnt_procedures
--};
--
--static struct rpc_version       mnt_version3 = {
--		.number		= 3,
--		.nrprocs	= 2,
--		.procs		= mnt3_procedures
--};
--
--static struct rpc_version *	mnt_version[] = {
--	NULL,
--	&mnt_version1,
--	NULL,
--	&mnt_version3,
--};
--
--static struct rpc_stat		mnt_stats;
--
--static struct rpc_program	mnt_program = {
--	.name		= "mount",
--	.number		= NFS_MNT_PROGRAM,
--	.nrvers		= ARRAY_SIZE(mnt_version),
--	.version	= mnt_version,
--	.stats		= &mnt_stats,
--};
-diff --git a/fs/nfs/nfsroot.c b/fs/nfs/nfsroot.c
-deleted file mode 100644
-index c0a754e..0000000
---- a/fs/nfs/nfsroot.c
-+++ /dev/null
-@@ -1,525 +0,0 @@
--/*
-- *  $Id: nfsroot.c,v 1.45 1998/03/07 10:44:46 mj Exp $
-- *
-- *  Copyright (C) 1995, 1996  Gero Kuhlmann <gero@gkminix.han.de>
-- *
-- *  Allow an NFS filesystem to be mounted as root. The way this works is:
-- *     (1) Use the IP autoconfig mechanism to set local IP addresses and routes.
-- *     (2) Handle RPC negotiation with the system which replied to RARP or
-- *         was reported as a boot server by BOOTP or manually.
-- *     (3) The actual mounting is done later, when init() is running.
-- *
-- *
-- *	Changes:
-- *
-- *	Alan Cox	:	Removed get_address name clash with FPU.
-- *	Alan Cox	:	Reformatted a bit.
-- *	Gero Kuhlmann	:	Code cleanup
-- *	Michael Rausch  :	Fixed recognition of an incoming RARP answer.
-- *	Martin Mares	: (2.0)	Auto-configuration via BOOTP supported.
-- *	Martin Mares	:	Manual selection of interface & BOOTP/RARP.
-- *	Martin Mares	:	Using network routes instead of host routes,
-- *				allowing the default configuration to be used
-- *				for normal operation of the host.
-- *	Martin Mares	:	Randomized timer with exponential backoff
-- *				installed to minimize network congestion.
-- *	Martin Mares	:	Code cleanup.
-- *	Martin Mares	: (2.1)	BOOTP and RARP made configuration options.
-- *	Martin Mares	:	Server hostname generation fixed.
-- *	Gerd Knorr	:	Fixed wired inode handling
-- *	Martin Mares	: (2.2)	"0.0.0.0" addresses from command line ignored.
-- *	Martin Mares	:	RARP replies not tested for server address.
-- *	Gero Kuhlmann	: (2.3) Some bug fixes and code cleanup again (please
-- *				send me your new patches _before_ bothering
-- *				Linus so that I don' always have to cleanup
-- *				_afterwards_ - thanks)
-- *	Gero Kuhlmann	:	Last changes of Martin Mares undone.
-- *	Gero Kuhlmann	: 	RARP replies are tested for specified server
-- *				again. However, it's now possible to have
-- *				different RARP and NFS servers.
-- *	Gero Kuhlmann	:	"0.0.0.0" addresses from command line are
-- *				now mapped to INADDR_NONE.
-- *	Gero Kuhlmann	:	Fixed a bug which prevented BOOTP path name
-- *				from being used (thanks to Leo Spiekman)
-- *	Andy Walker	:	Allow to specify the NFS server in nfs_root
-- *				without giving a path name
-- *	Swen Thümmler	:	Allow to specify the NFS options in nfs_root
-- *				without giving a path name. Fix BOOTP request
-- *				for domainname (domainname is NIS domain, not
-- *				DNS domain!). Skip dummy devices for BOOTP.
-- *	Jacek Zapala	:	Fixed a bug which prevented server-ip address
-- *				from nfsroot parameter from being used.
-- *	Olaf Kirch	:	Adapted to new NFS code.
-- *	Jakub Jelinek	:	Free used code segment.
-- *	Marko Kohtala	:	Fixed some bugs.
-- *	Martin Mares	:	Debug message cleanup
-- *	Martin Mares	:	Changed to use the new generic IP layer autoconfig
-- *				code. BOOTP and RARP moved there.
-- *	Martin Mares	:	Default path now contains host name instead of
-- *				host IP address (but host name defaults to IP
-- *				address anyway).
-- *	Martin Mares	:	Use root_server_addr appropriately during setup.
-- *	Martin Mares	:	Rewrote parameter parsing, now hopefully giving
-- *				correct overriding.
-- *	Trond Myklebust :	Add in preliminary support for NFSv3 and TCP.
-- *				Fix bug in root_nfs_addr(). nfs_data.namlen
-- *				is NOT for the length of the hostname.
-- *	Hua Qin		:	Support for mounting root file system via
-- *				NFS over TCP.
-- *	Fabian Frederick:	Option parser rebuilt (using parser lib)
--*/
--
--#include <linux/config.h>
--#include <linux/types.h>
--#include <linux/string.h>
--#include <linux/kernel.h>
--#include <linux/time.h>
--#include <linux/fs.h>
--#include <linux/init.h>
--#include <linux/sunrpc/clnt.h>
--#include <linux/nfs.h>
--#include <linux/nfs_fs.h>
--#include <linux/nfs_mount.h>
--#include <linux/in.h>
--#include <linux/major.h>
--#include <linux/utsname.h>
--#include <linux/inet.h>
--#include <linux/root_dev.h>
--#include <net/ipconfig.h>
--#include <linux/parser.h>
--
--/* Define this to allow debugging output */
--#undef NFSROOT_DEBUG
--#define NFSDBG_FACILITY NFSDBG_ROOT
--
--/* Default path we try to mount. "%s" gets replaced by our IP address */
--#define NFS_ROOT		"/tftpboot/%s"
--
--/* Parameters passed from the kernel command line */
--static char nfs_root_name[256] __initdata = "";
--
--/* Address of NFS server */
--static __u32 servaddr __initdata = 0;
--
--/* Name of directory to mount */
--static char nfs_path[NFS_MAXPATHLEN] __initdata = { 0, };
--
--/* NFS-related data */
--static struct nfs_mount_data nfs_data __initdata = { 0, };/* NFS mount info */
--static int nfs_port __initdata = 0;		/* Port to connect to for NFS */
--static int mount_port __initdata = 0;		/* Mount daemon port number */
--
--
--/***************************************************************************
--
--			     Parsing of options
--
-- ***************************************************************************/
--
--enum {
--	/* Options that take integer arguments */
--	Opt_port, Opt_rsize, Opt_wsize, Opt_timeo, Opt_retrans, Opt_acregmin,
--	Opt_acregmax, Opt_acdirmin, Opt_acdirmax,
--	/* Options that take no arguments */
--	Opt_soft, Opt_hard, Opt_intr,
--	Opt_nointr, Opt_posix, Opt_noposix, Opt_cto, Opt_nocto, Opt_ac, 
--	Opt_noac, Opt_lock, Opt_nolock, Opt_v2, Opt_v3, Opt_udp, Opt_tcp,
--	Opt_acl, Opt_noacl,
--	/* Error token */
--	Opt_err
--};
--
--static match_table_t __initdata tokens = {
--	{Opt_port, "port=%u"},
--	{Opt_rsize, "rsize=%u"},
--	{Opt_wsize, "wsize=%u"},
--	{Opt_timeo, "timeo=%u"},
--	{Opt_retrans, "retrans=%u"},
--	{Opt_acregmin, "acregmin=%u"},
--	{Opt_acregmax, "acregmax=%u"},
--	{Opt_acdirmin, "acdirmin=%u"},
--	{Opt_acdirmax, "acdirmax=%u"},
--	{Opt_soft, "soft"},
--	{Opt_hard, "hard"},
--	{Opt_intr, "intr"},
--	{Opt_nointr, "nointr"},
--	{Opt_posix, "posix"},
--	{Opt_noposix, "noposix"},
--	{Opt_cto, "cto"},
--	{Opt_nocto, "nocto"},
--	{Opt_ac, "ac"},
--	{Opt_noac, "noac"},
--	{Opt_lock, "lock"},
--	{Opt_nolock, "nolock"},
--	{Opt_v2, "nfsvers=2"},
--	{Opt_v2, "v2"},
--	{Opt_v3, "nfsvers=3"},
--	{Opt_v3, "v3"},
--	{Opt_udp, "proto=udp"},
--	{Opt_udp, "udp"},
--	{Opt_tcp, "proto=tcp"},
--	{Opt_tcp, "tcp"},
--	{Opt_acl, "acl"},
--	{Opt_noacl, "noacl"},
--	{Opt_err, NULL}
--	
--};
--
--/*
-- *  Parse option string.
-- */
--
--static int __init root_nfs_parse(char *name, char *buf)
--{
--
--	char *p;
--	substring_t args[MAX_OPT_ARGS];
--	int option;
--
--	if (!name)
--		return 1;
--
--	/* Set the NFS remote path */
--	p = strsep(&name, ",");
--	if (p[0] != '\0' && strcmp(p, "default") != 0)
--		strlcpy(buf, p, NFS_MAXPATHLEN);
--
--	while ((p = strsep (&name, ",")) != NULL) {
--		int token; 
--		if (!*p)
--			continue;
--		token = match_token(p, tokens, args);
--
--		/* %u tokens only. Beware if you add new tokens! */
--		if (token < Opt_soft && match_int(&args[0], &option))
--			return 0;
--		switch (token) {
--			case Opt_port:
--				nfs_port = option;
--				break;
--			case Opt_rsize:
--				nfs_data.rsize = option;
--				break;
--			case Opt_wsize:
--				nfs_data.wsize = option;
--				break;
--			case Opt_timeo:
--				nfs_data.timeo = option;
--				break;
--			case Opt_retrans:
--				nfs_data.retrans = option;
--				break;
--			case Opt_acregmin:
--				nfs_data.acregmin = option;
--				break;
--			case Opt_acregmax:
--				nfs_data.acregmax = option;
--				break;
--			case Opt_acdirmin:
--				nfs_data.acdirmin = option;
--				break;
--			case Opt_acdirmax:
--				nfs_data.acdirmax = option;
--				break;
--			case Opt_soft:
--				nfs_data.flags |= NFS_MOUNT_SOFT;
--				break;
--			case Opt_hard:
--				nfs_data.flags &= ~NFS_MOUNT_SOFT;
--				break;
--			case Opt_intr:
--				nfs_data.flags |= NFS_MOUNT_INTR;
--				break;
--			case Opt_nointr:
--				nfs_data.flags &= ~NFS_MOUNT_INTR;
--				break;
--			case Opt_posix:
--				nfs_data.flags |= NFS_MOUNT_POSIX;
--				break;
--			case Opt_noposix:
--				nfs_data.flags &= ~NFS_MOUNT_POSIX;
--				break;
--			case Opt_cto:
--				nfs_data.flags &= ~NFS_MOUNT_NOCTO;
--				break;
--			case Opt_nocto:
--				nfs_data.flags |= NFS_MOUNT_NOCTO;
--				break;
--			case Opt_ac:
--				nfs_data.flags &= ~NFS_MOUNT_NOAC;
--				break;
--			case Opt_noac:
--				nfs_data.flags |= NFS_MOUNT_NOAC;
--				break;
--			case Opt_lock:
--				nfs_data.flags &= ~NFS_MOUNT_NONLM;
--				break;
--			case Opt_nolock:
--				nfs_data.flags |= NFS_MOUNT_NONLM;
--				break;
--			case Opt_v2:
--				nfs_data.flags &= ~NFS_MOUNT_VER3;
--				break;
--			case Opt_v3:
--				nfs_data.flags |= NFS_MOUNT_VER3;
--				break;
--			case Opt_udp:
--				nfs_data.flags &= ~NFS_MOUNT_TCP;
--				break;
--			case Opt_tcp:
--				nfs_data.flags |= NFS_MOUNT_TCP;
--				break;
--			case Opt_acl:
--				nfs_data.flags &= ~NFS_MOUNT_NOACL;
--				break;
--			case Opt_noacl:
--				nfs_data.flags |= NFS_MOUNT_NOACL;
--				break;
--			default:
--				printk(KERN_WARNING "Root-NFS: unknown "
--					"option: %s\n", p);
--				return 0;
--		}
--	}
--
--	return 1;
--}
--
--/*
-- *  Prepare the NFS data structure and parse all options.
-- */
--static int __init root_nfs_name(char *name)
--{
--	static char buf[NFS_MAXPATHLEN] __initdata;
--	char *cp;
--
--	/* Set some default values */
--	memset(&nfs_data, 0, sizeof(nfs_data));
--	nfs_port          = -1;
--	nfs_data.version  = NFS_MOUNT_VERSION;
--	nfs_data.flags    = NFS_MOUNT_NONLM;	/* No lockd in nfs root yet */
--	nfs_data.rsize    = NFS_DEF_FILE_IO_SIZE;
--	nfs_data.wsize    = NFS_DEF_FILE_IO_SIZE;
--	nfs_data.acregmin = 3;
--	nfs_data.acregmax = 60;
--	nfs_data.acdirmin = 30;
--	nfs_data.acdirmax = 60;
--	strcpy(buf, NFS_ROOT);
--
--	/* Process options received from the remote server */
--	root_nfs_parse(root_server_path, buf);
--
--	/* Override them by options set on kernel command-line */
--	root_nfs_parse(name, buf);
--
--	cp = system_utsname.nodename;
--	if (strlen(buf) + strlen(cp) > NFS_MAXPATHLEN) {
--		printk(KERN_ERR "Root-NFS: Pathname for remote directory too long.\n");
--		return -1;
--	}
--	sprintf(nfs_path, buf, cp);
--
--	return 1;
--}
--
--
--/*
-- *  Get NFS server address.
-- */
--static int __init root_nfs_addr(void)
--{
--	if ((servaddr = root_server_addr) == INADDR_NONE) {
--		printk(KERN_ERR "Root-NFS: No NFS server available, giving up.\n");
--		return -1;
--	}
--
--	snprintf(nfs_data.hostname, sizeof(nfs_data.hostname),
--		 "%u.%u.%u.%u", NIPQUAD(servaddr));
--	return 0;
--}
--
--/*
-- *  Tell the user what's going on.
-- */
--#ifdef NFSROOT_DEBUG
--static void __init root_nfs_print(void)
--{
--	printk(KERN_NOTICE "Root-NFS: Mounting %s on server %s as root\n",
--		nfs_path, nfs_data.hostname);
--	printk(KERN_NOTICE "Root-NFS:     rsize = %d, wsize = %d, timeo = %d, retrans = %d\n",
--		nfs_data.rsize, nfs_data.wsize, nfs_data.timeo, nfs_data.retrans);
--	printk(KERN_NOTICE "Root-NFS:     acreg (min,max) = (%d,%d), acdir (min,max) = (%d,%d)\n",
--		nfs_data.acregmin, nfs_data.acregmax,
--		nfs_data.acdirmin, nfs_data.acdirmax);
--	printk(KERN_NOTICE "Root-NFS:     nfsd port = %d, mountd port = %d, flags = %08x\n",
--		nfs_port, mount_port, nfs_data.flags);
--}
--#endif
--
--
--static int __init root_nfs_init(void)
--{
--#ifdef NFSROOT_DEBUG
--	nfs_debug |= NFSDBG_ROOT;
--#endif
--
--	/*
--	 * Decode the root directory path name and NFS options from
--	 * the kernel command line. This has to go here in order to
--	 * be able to use the client IP address for the remote root
--	 * directory (necessary for pure RARP booting).
--	 */
--	if (root_nfs_name(nfs_root_name) < 0 ||
--	    root_nfs_addr() < 0)
--		return -1;
--
--#ifdef NFSROOT_DEBUG
--	root_nfs_print();
--#endif
--
--	return 0;
--}
--
--
--/*
-- *  Parse NFS server and directory information passed on the kernel
-- *  command line.
-- */
--static int __init nfs_root_setup(char *line)
--{
--	ROOT_DEV = Root_NFS;
--	if (line[0] == '/' || line[0] == ',' || (line[0] >= '0' && line[0] <= '9')) {
--		strlcpy(nfs_root_name, line, sizeof(nfs_root_name));
--	} else {
--		int n = strlen(line) + sizeof(NFS_ROOT) - 1;
--		if (n >= sizeof(nfs_root_name))
--			line[sizeof(nfs_root_name) - sizeof(NFS_ROOT) - 2] = '\0';
--		sprintf(nfs_root_name, NFS_ROOT, line);
--	}
--	root_server_addr = root_nfs_parse_addr(nfs_root_name);
--	return 1;
--}
--
--__setup("nfsroot=", nfs_root_setup);
--
--/***************************************************************************
--
--	       Routines to actually mount the root directory
--
-- ***************************************************************************/
--
--/*
-- *  Construct sockaddr_in from address and port number.
-- */
--static inline void
--set_sockaddr(struct sockaddr_in *sin, __u32 addr, __u16 port)
--{
--	sin->sin_family = AF_INET;
--	sin->sin_addr.s_addr = addr;
--	sin->sin_port = port;
--}
--
--/*
-- *  Query server portmapper for the port of a daemon program.
-- */
--static int __init root_nfs_getport(int program, int version, int proto)
--{
--	struct sockaddr_in sin;
--
--	printk(KERN_NOTICE "Looking up port of RPC %d/%d on %u.%u.%u.%u\n",
--		program, version, NIPQUAD(servaddr));
--	set_sockaddr(&sin, servaddr, 0);
--	return rpc_getport_external(&sin, program, version, proto);
--}
--
--
--/*
-- *  Use portmapper to find mountd and nfsd port numbers if not overriden
-- *  by the user. Use defaults if portmapper is not available.
-- *  XXX: Is there any nfs server with no portmapper?
-- */
--static int __init root_nfs_ports(void)
--{
--	int port;
--	int nfsd_ver, mountd_ver;
--	int nfsd_port, mountd_port;
--	int proto;
--
--	if (nfs_data.flags & NFS_MOUNT_VER3) {
--		nfsd_ver = NFS3_VERSION;
--		mountd_ver = NFS_MNT3_VERSION;
--		nfsd_port = NFS_PORT;
--		mountd_port = NFS_MNT_PORT;
--	} else {
--		nfsd_ver = NFS2_VERSION;
--		mountd_ver = NFS_MNT_VERSION;
--		nfsd_port = NFS_PORT;
--		mountd_port = NFS_MNT_PORT;
--	}
--
--	proto = (nfs_data.flags & NFS_MOUNT_TCP) ? IPPROTO_TCP : IPPROTO_UDP;
--
--	if (nfs_port < 0) {
--		if ((port = root_nfs_getport(NFS_PROGRAM, nfsd_ver, proto)) < 0) {
--			printk(KERN_ERR "Root-NFS: Unable to get nfsd port "
--					"number from server, using default\n");
--			port = nfsd_port;
--		}
--		nfs_port = port;
--		dprintk("Root-NFS: Portmapper on server returned %d "
--			"as nfsd port\n", port);
--	}
--	nfs_port = htons(nfs_port);
--
--	if ((port = root_nfs_getport(NFS_MNT_PROGRAM, mountd_ver, proto)) < 0) {
--		printk(KERN_ERR "Root-NFS: Unable to get mountd port "
--				"number from server, using default\n");
--		port = mountd_port;
--	}
--	mount_port = htons(port);
--	dprintk("Root-NFS: mountd port is %d\n", port);
--
--	return 0;
--}
--
--
--/*
-- *  Get a file handle from the server for the directory which is to be
-- *  mounted.
-- */
--static int __init root_nfs_get_handle(void)
--{
--	struct nfs_fh fh;
--	struct sockaddr_in sin;
--	int status;
--	int protocol = (nfs_data.flags & NFS_MOUNT_TCP) ?
--					IPPROTO_TCP : IPPROTO_UDP;
--	int version = (nfs_data.flags & NFS_MOUNT_VER3) ?
--					NFS_MNT3_VERSION : NFS_MNT_VERSION;
--
--	set_sockaddr(&sin, servaddr, mount_port);
--	status = nfsroot_mount(&sin, nfs_path, &fh, version, protocol);
--	if (status < 0)
--		printk(KERN_ERR "Root-NFS: Server returned error %d "
--				"while mounting %s\n", status, nfs_path);
--	else {
--		nfs_data.root.size = fh.size;
--		memcpy(nfs_data.root.data, fh.data, fh.size);
--	}
--
--	return status;
--}
--
--/*
-- *  Get the NFS port numbers and file handle, and return the prepared 'data'
-- *  argument for mount() if everything went OK. Return NULL otherwise.
-- */
--void * __init nfs_root_data(void)
--{
--	if (root_nfs_init() < 0
--	 || root_nfs_ports() < 0
--	 || root_nfs_get_handle() < 0)
--		return NULL;
--	set_sockaddr((struct sockaddr_in *) &nfs_data.addr, servaddr, nfs_port);
--	return (void*)&nfs_data;
--}
+-/* This isn't used by the kernel, but exists as a sysctl node for
+-   backwards compatibility reasons. */
+-unsigned int real_root_dev;
+-
+ static __initdata char *message;
+ static void __init error(char *x)
+ {
+diff --git a/init/main.c b/init/main.c
+index 4b3fd6f..10fb231 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -49,6 +49,7 @@ #include <linux/unistd.h>
+ #include <linux/rmap.h>
+ #include <linux/mempolicy.h>
+ #include <linux/key.h>
++#include <linux/root_dev.h>
+ 
+ #include <asm/io.h>
+ #include <asm/bugs.h>
+@@ -126,6 +127,11 @@ static char *ramdisk_execute_command;
+ /* Setup configured maximum number of CPUs to activate */
+ static unsigned int max_cpus = NR_CPUS;
+ 
++/* ROOT_DEV contains any architecture-specific default root device. */
++/* real_root_dev is used (via sysctl) to communicate ROOT_DEV to kinit. */
++dev_t ROOT_DEV;
++unsigned int real_root_dev;
++
+ /*
+  * Setup routine for controlling SMP activation
+  *
+@@ -682,6 +688,12 @@ static int init(void * unused)
+ 	do_basic_setup();
+ 
+ 	/*
++	 * If we have a root device set by architecture-specific means,
++	 * let kinit know about it.
++	 */
++	real_root_dev = new_encode_dev(ROOT_DEV);
++
++	/*
+ 	 * check if there is an early userspace init.  If yes, let it do all
+ 	 * the work
+ 	 */

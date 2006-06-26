@@ -1,107 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWFZAff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWFZAlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbWFZAff (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 20:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWFZAff
+	id S932429AbWFZAlg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 20:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWFZAlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 20:35:35 -0400
-Received: from xenotime.net ([66.160.160.81]:62157 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964960AbWFZAfe (ORCPT
+	Sun, 25 Jun 2006 20:41:36 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:6854 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932429AbWFZAlf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:35:34 -0400
-Date: Sun, 25 Jun 2006 17:38:20 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jim Cromie <jim.cromie@gmail.com>
-Cc: akpm@osdl.org, johnstul@us.ibm.com, linux-kernel@vger.kernel.org,
-       phelps@gnusto.com
-Subject: Re: [ patch -mm ]  GTOD: add-scx200-hrt-clocksource.diff
-Message-Id: <20060625173820.20ba5d78.rdunlap@xenotime.net>
-In-Reply-To: <449F07C4.5030805@gmail.com>
-References: <449F07C4.5030805@gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sun, 25 Jun 2006 20:41:35 -0400
+Date: Sun, 25 Jun 2006 20:41:08 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>, Morton Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mike.miller@hp.com, iss_storagedev@hp.com,
+       hbabu@us.ibm.com, fastboot@lists.osdl.org
+Subject: Re: 2.6.17-mm2: BLK_CPQ_CISS_DA=m error
+Message-ID: <20060626004108.GA21170@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060624061914.202fbfb5.akpm@osdl.org> <20060625193220.GE23314@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060625193220.GE23314@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jun 2006 16:01:40 -0600 Jim Cromie wrote:
-
-> $ diffstat add-scx200-hrt-clocksource.diff
->  arch/i386/Kconfig                |   24 ++++++---
->  drivers/clocksource/Makefile     |    5 +
->  drivers/clocksource/scx200_hrt.c |  101 +++++++++++++++++++++++++++++++++++++++
->  3 files changed, 121 insertions(+), 9 deletions(-)
+On Sun, Jun 25, 2006 at 09:32:21PM +0200, Adrian Bunk wrote:
+> On Sat, Jun 24, 2006 at 06:19:14AM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.17-mm1:
+> >...
+> > +kdump-cciss-driver-initialization-issue-fix.patch
+> > 
+> >  Unpleasant kdump patches.
+> >...
 > 
-> ---
+> This patch breaks CONFIG_BLK_CPQ_CISS_DA=m:
 > 
-> diff -ruNp -X dontdiff -X exclude-diffs linux-2.6.17-mm2/arch/i386/Kconfig linux-2.6.17-mm2-hrt-sk/arch/i386/Kconfig
-> --- linux-2.6.17-mm2/arch/i386/Kconfig	2006-06-25 01:09:56.000000000 -0600
-> +++ linux-2.6.17-mm2-hrt-sk/arch/i386/Kconfig	2006-06-25 07:48:18.000000000 -0600
-> @@ -1073,13 +1073,23 @@ config SCx200
->  	tristate "NatSemi SCx200 support"
->  	depends on !X86_VOYAGER
->  	help
-> -	  This provides basic support for the National Semiconductor SCx200
-> -	  processor.  Right now this is just a driver for the GPIO pins.
-> -
-> -	  If you don't know what to do here, say N.
-> -
-> -	  This support is also available as a module.  If compiled as a
-> -	  module, it will be called scx200.
-> +	  This provides basic support for National Semiconductor's
-> +	  (now AMD's) Geode processors.  The driver probes for the
-> +	  PCI-IDs of several on-chip devices, so its a good dependency
-                                                 it's
-> +	  for other scx200_* drivers.
-> +
-> +	  If compiled as a module, the driver is named scx200.
-> +
-> +config SCx200HR_TIMER
-> +	tristate "NatSemi SCx200 27MHz High-Resolution Timer Support"
-> +	depends on SCx200 && GENERIC_TIME
-> +	default y
-> +	help
-> +	  This driver provides a clocksource built upon the on-chip
-> +	  27MHz high-resolution timer.  Its also a workaround for
-                                        It's
-> +	  NSC Geode SC-1100's buggy TSC, which loses time when the
-> +	  processor goes idle (as is done by the scheduler).  The
-> +	  other workaround is idle=poll boot option.
->  
->  config K8_NB
->  	def_bool y
+> <--  snip  -->
+> 
+> ...
+> if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map  2.6.17-mm2; fi
+> WARNING: /lib/modules/2.6.17-mm2/kernel/drivers/block/cciss.ko needs unknown symbol crash_boot
+>
 
-> diff -ruNp -X dontdiff -X exclude-diffs linux-2.6.17-mm2/drivers/clocksource/scx200_hrt.c linux-2.6.17-mm2-hrt-sk/drivers/clocksource/scx200_hrt.c
-> --- linux-2.6.17-mm2/drivers/clocksource/scx200_hrt.c	1969-12-31 17:00:00.000000000 -0700
-> +++ linux-2.6.17-mm2-hrt-sk/drivers/clocksource/scx200_hrt.c	2006-06-25 07:48:18.000000000 -0600
-> @@ -0,0 +1,101 @@
-> +/*
-> + * Copyright (C) 2006 Jim Cromie
-> + *
-> +
-> +static int mhz27;
-> +module_param(mhz27, int, 0);	/* load time only */
-> +MODULE_PARM_DESC(mhz27, "count at 27.0 MHz (default is 1.0 MHz)\n");
+Sorry. I forgot to export the symbol crash_boot. Please find attached the
+patch.
 
-Don't need the newline.  Please drop it.
+Thanks
+Vivek
+ 
 
-> +static int ppm;
-> +module_param(ppm, int, 0);	/* load time only */
-> +MODULE_PARM_DESC(ppm, "+-adjust to actual XO freq (ppm)\n");
 
-Ditto.
+o Compilation of cciss driver broke when compiled as a module as crash_boot
+  was not exported.
 
-> +static int __init init_hrt_clocksource(void)
-> +{
-> +	/* Make sure scx200 has initd the configuration block */
-
-I expect some people won't know what "initd" is.
-Please write it for other people to read.
-
-> +	if (!scx200_cb_present())
-> +		return -ENODEV;
-
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
-~Randy
+
+ linux-2.6.17-1M-vivek/init/main.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -puN init/main.c~cciss-module-compilation-break-fix init/main.c
+--- linux-2.6.17-1M/init/main.c~cciss-module-compilation-break-fix	2006-06-25 20:31:24.000000000 -0400
++++ linux-2.6.17-1M-vivek/init/main.c	2006-06-25 20:31:24.000000000 -0400
+@@ -131,6 +131,7 @@ static char *ramdisk_execute_command;
+  * context.
+  */
+ unsigned int crash_boot;
++EXPORT_SYMBOL(crash_boot);
+ 
+ /* Setup configured maximum number of CPUs to activate */
+ static unsigned int max_cpus = NR_CPUS;
+_

@@ -1,47 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWF0KDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbWF0KDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWF0KDe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 06:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWF0KDd
+	id S1751062AbWF0KDk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 06:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbWF0KDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 06:03:33 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:25810 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1751087AbWF0KDd
+	Tue, 27 Jun 2006 06:03:40 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:28114 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1751062AbWF0KDj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 06:03:33 -0400
-Date: Tue, 27 Jun 2006 00:03:45 +0100
+	Tue, 27 Jun 2006 06:03:39 -0400
+Date: Mon, 26 Jun 2006 14:38:37 +0100
 From: Ralf Baechle <ralf@linux-mips.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: Re: [klibc 28/43] mips support for klibc
-Message-ID: <20060626230345.GA14345@linux-mips.org>
-References: <klibc.200606251757.28@tazenda.hos.anvin.org>
+To: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][MIPS] wire up tee system call
+Message-ID: <20060626133837.GA4583@linux-mips.org>
+References: <20060623170711.3a6d1ef8.yoichi_yuasa@tripeaks.co.jp> <20060623100210.GB3290@linux-mips.org> <200606261251.k5QCpxpd080229@mbox30.po.2iij.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <klibc.200606251757.28@tazenda.hos.anvin.org>
+In-Reply-To: <200606261251.k5QCpxpd080229@mbox30.po.2iij.net>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 25, 2006 at 05:58:05PM -0700, H. Peter Anvin wrote:
+On Mon, Jun 26, 2006 at 09:51:59PM +0900, Yoichi Yuasa wrote:
 
-> +typedef struct flock {
-> +	short	l_type;
-> +	short	l_whence;
-> +	loff_t	l_start;
-> +	loff_t	l_len;
-> +	pid_t	l_pid;
-> +} flock_t;
+> It is not in Linus's git yet, but it has been in your git last April.
+> What is the reason that you did not send it to upstream?
 
-32-bit MIPS uses this:
+Glitch.  Waiting for him to pull now this and loads of other stuff.
 
-struct flock {
-        short   l_type;
-        short   l_whence;
-        off_t   l_start;
-        off_t   l_len;
-        long    l_sysid;
-        __kernel_pid_t l_pid;
-        long    pad[4];
-};
+  Ralf

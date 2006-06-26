@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWFZLoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWFZLtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbWFZLoe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 07:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWFZLod
+	id S1750904AbWFZLtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 07:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWFZLtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 07:44:33 -0400
-Received: from main.gmane.org ([80.91.229.2]:27058 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750760AbWFZLod (ORCPT
+	Mon, 26 Jun 2006 07:49:25 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:59790 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750768AbWFZLtY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 07:44:33 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Rodrigo Ventura <yoda@isr.ist.utl.pt>
-Subject: alloc_pages error
-Date: Mon, 26 Jun 2006 12:43:56 +0100
-Organization: ISR/IST
-Message-ID: <e7oh9s$sme$1@sea.gmane.org>
-Mime-Version: 1.0
+	Mon, 26 Jun 2006 07:49:24 -0400
+To: Piotr Kaczuba <pepe@attika.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [x86-64] ioctl32 for USB
+References: <20060626113037.GA6265@attika.ath.cx>
+From: Andi Kleen <ak@suse.de>
+Date: 26 Jun 2006 13:49:22 +0200
+In-Reply-To: <20060626113037.GA6265@attika.ath.cx>
+Message-ID: <p738xnkuofx.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: gtisr.isr.ist.utl.pt
-User-Agent: KNode/0.10.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Under stressful conditions, I got the following dmesg mensages, repeatedly:
+Piotr Kaczuba <pepe@attika.ath.cx> writes:
 
-__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-VM: killing process python
+> Hello!
+> 
+> I'm running a 64-bit kernel and 32-bit userspace. There seems to be some
+> unimplemented compability ioctls regarding USB. Dmesg shows the
+> following:
+> 
+> [184966.543022] ioctl32(hald-probe-hidd:10760): Unknown cmd fd(4)
+> cmd(81004806){01} arg(ffb52dd0) on /dev/usb/hiddev0
+> 
+> and
+> 
+> [50974.410204] ioctl32(vmware-vmx:3470): Unknown cmd fd(140)
+> cmd(40109980){00} arg(ffb551a0) on /proc/bus/usb/002/001
+> 
+> Have it been only forgotten or are there other more serious reasons that
+> these ioctls are missing?
 
-(and for other processes)
+Some of the USB ioctls were basically impossible to compat due to
+broken design. Maybe it's now possible with is_compat_task,
+but would be still extremly ugly.
 
-however, the memory did not seem full:
-
-             total       used       free     shared    buffers     cached
-Mem:        904148     547464     356684          0      23068      56648
--/+ buffers/cache:     467748     436400
-Swap:      1052632     234388     818244
-
-The kernel is vanilla version 2.4.32.
-
-What is going on here?
-
-Cheers,
-
-Rodrigo
-
--- 
-
-*** Rodrigo Martins de Matos Ventura <yoda@isr.ist.utl.pt>
-***  Web page: http://www.isr.ist.utl.pt/~yoda
-***   Teaching Assistant and PhD Student at ISR:
-***    Instituto de Sistemas e Robotica, Polo de Lisboa
-***     Instituto Superior Tecnico, Lisboa, PORTUGAL
-*** PGP fingerprint = 0119 AD13 9EEE 264A 3F10  31D3 89B3 C6C4 60C6 4585
-
+-Andi

@@ -1,69 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWFZOuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWFZOwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWFZOuP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 10:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWFZOuP
+	id S1750936AbWFZOwl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 10:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWFZOwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 10:50:15 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:30661 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751252AbWFZOuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 10:50:05 -0400
-Subject: Re: Areca driver recap + status
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rdunlap@xenotime.net, hch@infradead.org, erich@areca.com.tw,
-       brong@fastmail.fm, dax@gurulabs.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Robert Mueller <robm@fastmail.fm>
-In-Reply-To: <20060621222826.ff080422.akpm@osdl.org>
-References: <09be01c695b3$2ed8c2c0$c100a8c0@robm>
-	 <20060621222826.ff080422.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 26 Jun 2006 09:48:58 -0500
-Message-Id: <1151333338.2673.4.camel@mulgrave.il.steeleye.com>
+	Mon, 26 Jun 2006 10:52:41 -0400
+Received: from styx.suse.cz ([82.119.242.94]:64463 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1750936AbWFZOwk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 10:52:40 -0400
+Date: Mon, 26 Jun 2006 16:52:37 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       dtor_core@ameritech.net
+Subject: Re: [PATCH] atkbd: restore autorepeat rate after resume
+Message-ID: <20060626145237.GA24275@suse.cz>
+References: <Pine.LNX.4.44L0.0606261017340.9467-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0606261017340.9467-100000@iolanthe.rowland.org>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-21 at 22:28 -0700, Andrew Morton wrote: 
-> On Thu, 22 Jun 2006 14:18:23 +1000
-> "Robert Mueller" <robm@fastmail.fm> wrote:
+On Mon, Jun 26, 2006 at 10:21:29AM -0400, Alan Stern wrote:
+> From: Linus Torvalds <torvalds@osdl.org>
 > 
-> > The driver went into 2.6.11-rc3-mm1 here:
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=110754432622498&w=2
+> This patch (as728) makes the AT keyboard driver store the current
+> autorepeat rate so that it can be restored properly following a 
+> suspend/resume cycle.
 > 
-> One and a half years.
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+
+IMO this should be done in keyboard.c, similar to the LED setting upon
+keyboard plug-in.
+
+> ---
 > 
-> Would the world end if we just merged the dang thing?
+> Index: usb-2.6/drivers/input/keyboard/atkbd.c
+> ===================================================================
+> --- usb-2.6.orig/drivers/input/keyboard/atkbd.c
+> +++ usb-2.6/drivers/input/keyboard/atkbd.c
+> @@ -39,6 +39,8 @@ static int atkbd_set = 2;
+>  module_param_named(set, atkbd_set, int, 0);
+>  MODULE_PARM_DESC(set, "Select keyboard code set (2 = default, 3 = PS/2 native)");
+>  
+> +static int atkbd_repeatrate;
+> +
+>  #if defined(__i386__) || defined(__x86_64__) || defined(__hppa__)
+>  static int atkbd_reset;
+>  #else
+> @@ -477,7 +479,7 @@ static void atkbd_event_work(void *data)
+>  			j++;
+>  		dev->rep[REP_PERIOD] = period[i];
+>  		dev->rep[REP_DELAY] = delay[j];
+> -		param[0] = i | (j << 5);
+> +		param[0] = atkbd_repeatrate = i | (j << 5);
+>  		ps2_command(&atkbd->ps2dev, param, ATKBD_CMD_SETREP);
+>  	}
+>  
+> @@ -676,10 +678,10 @@ static int atkbd_activate(struct atkbd *
+>  		return -1;
+>  
+>  /*
+> - * Set autorepeat to fastest possible.
+> + * Set autorepeat to whatever it used to be.
+>   */
+>  
+> -	param[0] = 0;
+> +	param[0] = atkbd_repeatrate;
+>  	if (ps2_command(ps2dev, param, ATKBD_CMD_SETREP))
+>  		return -1;
+>  
+> 
+> 
+> 
 
-Not the world perhaps, but I'm unwilling to concede that if a driver
-author is given a list of major issues and does nothing, then the driver
-should go in after everyone gets impatient.
-
-The rules for inclusion are elastic and include broad leeway for good
-behaviour, but this would stretch the elasticity way beyond breaking
-point.
-
-The list of issues is here:
-
-http://marc.theaimsgroup.com/?l=linux-scsi&m=114556263632510
-
-Most of the serious stuff is fixed with the exception of:
-
-- sysfs has more than one value per file
-- BE platform support
-- PAE (cast of dma_addr_t to unsigned long) issues.
-- SYNCHRONIZE_CACHE is ignored.  This is wrong.  The sync cache in the
-shutdown notifier isn't sufficient.
-
-At least the sysfs files have to be fixed before it goes in ... unless
-you want to be lynched by Greg?
-
-What I could do is set up a holding tree for all the fixed ... but -mm
-is doing a good job of that at the moment.
-
-James
-
-
+-- 
+Vojtech Pavlik
+Director SuSE Labs

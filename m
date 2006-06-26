@@ -1,77 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWFZPB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWFZPBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbWFZPB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 11:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWFZPBo
+	id S932113AbWFZPBi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 11:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWFZPBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 11:01:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25220 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932355AbWFZPBl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 11:01:41 -0400
-Date: Mon, 26 Jun 2006 08:01:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: rdunlap@xenotime.net, hch@infradead.org, erich@areca.com.tw,
-       brong@fastmail.fm, dax@gurulabs.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, robm@fastmail.fm
-Subject: Re: Areca driver recap + status
-Message-Id: <20060626080122.894de905.akpm@osdl.org>
-In-Reply-To: <1151333338.2673.4.camel@mulgrave.il.steeleye.com>
-References: <09be01c695b3$2ed8c2c0$c100a8c0@robm>
-	<20060621222826.ff080422.akpm@osdl.org>
-	<1151333338.2673.4.camel@mulgrave.il.steeleye.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 26 Jun 2006 11:01:38 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:64650 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932113AbWFZPBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 11:01:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=f4FCzISsYiTw8EPRGi7BPIkb0xAsIm+09ATK271uSNHH+TewjhS0vOdI7NGSZosL9gLKbYVviH4sYy9kZJIprVm3IOOMGLvmfsrF2HbvP4W2WXL/9VCgOcUl0UyNZF3EnK4iBrBMn2rxCFMnspWkgNFIx0d5o/j/vL9pr9zDOxo=
+Message-ID: <449FF7D4.6010004@innova-card.com>
+Date: Mon, 26 Jun 2006 17:05:56 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Mel Gorman <mel@skynet.ie>
+CC: "vagabon >> Franck" <vagabon.xyz@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-mm1
+References: <20060623134634.GA6071@skynet.ie> <449C036D.6060004@innova-card.com> <20060623151322.GA13130@skynet.ie> <449C0DF3.601@innova-card.com> <Pine.LNX.4.64.0606231728040.13746@skynet.skynet.ie> <449F9B4C.6000404@innova-card.com> <Pine.LNX.4.64.0606261011480.24431@skynet.skynet.ie> <449FC592.8050409@innova-card.com> <Pine.LNX.4.64.0606261409140.24431@skynet.skynet.ie> <449FE5E0.3050603@innova-card.com> <20060626143159.GA700@skynet.ie>
+In-Reply-To: <20060626143159.GA700@skynet.ie>
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <fbh.work@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jun 2006 09:48:58 -0500
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
-
-> On Wed, 2006-06-21 at 22:28 -0700, Andrew Morton wrote: 
-> > On Thu, 22 Jun 2006 14:18:23 +1000
-> > "Robert Mueller" <robm@fastmail.fm> wrote:
-> > 
-> > > The driver went into 2.6.11-rc3-mm1 here:
-> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=110754432622498&w=2
-> > 
-> > One and a half years.
-> > 
-> > Would the world end if we just merged the dang thing?
+Mel Gorman wrote:
 > 
-> Not the world perhaps, but I'm unwilling to concede that if a driver
-> author is given a list of major issues and does nothing, then the driver
-> should go in after everyone gets impatient.
+> Lets close this out first and then figure out where to go next.  The following
+> patch should fix the problem where mem_map is offset twice when ARCH_PFN_OFFSET
+> != 0 and documents what ARCH_PFN_OFFSET is for.
 > 
-> The rules for inclusion are elastic and include broad leeway for good
-> behaviour, but this would stretch the elasticity way beyond breaking
-> point.
+
+why not dropping the initial patch, and resubmit the whole thing that
+can be called an optimization rather than a fix ?
+
+> Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+> diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-mm2-clean/include/asm-generic/memory_model.h linux-2.6.17-mm2-archpfnfix/include/asm-generic/memory_model.h
+> --- linux-2.6.17-mm2-clean/include/asm-generic/memory_model.h	2006-06-26 11:38:21.000000000 +0100
+> +++ linux-2.6.17-mm2-archpfnfix/include/asm-generic/memory_model.h	2006-06-26 15:22:19.000000000 +0100
+> @@ -6,6 +6,20 @@
+>  
+>  #if defined(CONFIG_FLATMEM)
+>  
+> +/*
+> + * With FLATMEM, the mem_map on node 0 is used as the global mem_map.
+> + * This implicitly assumes that NODE_DATA(0)->node_start_pfn == 0 and
+> + * represents the first physical page frame in the system. This is not
+> + * always the case as an architecture may start physical memory at 3GB
+> + * for example. Rather than allocating an empty mem_map to represent
+> + * the non-existent memory, ARCH_PFN_OFFSET is subtracted from
+> + * NODE_DATA(0)->node_mem_map such that;
+> + *
+> + * PFN 0 = mem_map = NODE_DATA(0)->node_mem_map - ARCH_PFN_OFFSET
+> + *
+> + * One would expect NODE_DATA(0)->node_start_pfn == ARCH_PFN_OFFSET but
+> + * depending on how memory is initialised, this is not always the case.
+> + */
+>  #ifndef ARCH_PFN_OFFSET
+>  #define ARCH_PFN_OFFSET		(0UL)
+>  #endif
+> @@ -28,9 +42,8 @@
+>   */
+>  #if defined(CONFIG_FLATMEM)
+>  
+> -#define __pfn_to_page(pfn)	(mem_map + ((pfn) - ARCH_PFN_OFFSET))
+> -#define __page_to_pfn(page)	((unsigned long)((page) - mem_map) + \
+> -				 ARCH_PFN_OFFSET)
+> +#define __pfn_to_page(pfn)	(mem_map + (pfn))
+> +#define __page_to_pfn(page)	((unsigned long)((page) - mem_map))
+>  #elif defined(CONFIG_DISCONTIGMEM)
+>  
+>  #define __pfn_to_page(pfn)			\
+> diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-mm2-clean/mm/page_alloc.c linux-2.6.17-mm2-archpfnfix/mm/page_alloc.c
+> --- linux-2.6.17-mm2-clean/mm/page_alloc.c	2006-06-26 11:38:21.000000000 +0100
+> +++ linux-2.6.17-mm2-archpfnfix/mm/page_alloc.c	2006-06-26 15:11:29.000000000 +0100
+> @@ -2103,7 +2103,7 @@ static void __init alloc_node_mem_map(st
+>  		 * is true. Adjust map relative to node_mem_map to
+>  		 * maintain this relationship.
+>  		 */
+> -		map -= pgdat->node_start_pfn;
+> +		map -= ARCH_PFN_OFFSET;
+
+why not moving this inside the if statement below ?
+
+>  	}
+>  #ifdef CONFIG_FLATMEM
+>  	/*
 > 
-> The list of issues is here:
-> 
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=114556263632510
-
-I'm under the impression that Erich is under the impression that they've all
-been addressed.
-
-> Most of the serious stuff is fixed with the exception of:
-> 
-> - sysfs has more than one value per file
-> - BE platform support
-> - PAE (cast of dma_addr_t to unsigned long) issues.
-> - SYNCHRONIZE_CACHE is ignored.  This is wrong.  The sync cache in the
-> shutdown notifier isn't sufficient.
-
-So this is progress.
-
-Erich, can you please fix these things up and then re-review the issues
-list which I'm maintaining in
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm2/broken-out/areca-raid-linux-scsi-driver.patch,
-make sure that everything has been addressed?
-
-If there are some things in those lists which you cannot/will not address
-then please identify them and give us the reasoning behind your decision.
 

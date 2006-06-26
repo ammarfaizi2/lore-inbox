@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933126AbWFZXng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933113AbWFZWdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933126AbWFZXng (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:43:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933131AbWFZWd6
+	id S933113AbWFZWdz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933135AbWFZWdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:33:58 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:1771 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933126AbWFZWdh
+	Mon, 26 Jun 2006 18:33:51 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:22943 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933130AbWFZWdo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:33:37 -0400
+	Mon, 26 Jun 2006 18:33:44 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 06/16] [Suspend2] Check if still keeping an existing image.
-Date: Tue, 27 Jun 2006 08:33:35 +1000
+Subject: [Suspend2][ 08/16] [Suspend2] Can suspend?
+Date: Tue, 27 Jun 2006 08:33:42 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223334.3832.50002.stgit@nigel.suspend2.net>
+Message-Id: <20060626223341.3832.99142.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626223314.3832.23435.stgit@nigel.suspend2.net>
 References: <20060626223314.3832.23435.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,36 +22,44 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suspend2 supports a keep-the-image mode, which can be used when the
-contents of mounted filesystems don't change. Writeable storage can still
-be used, but it needs to be unmounted while suspending and remounted on
-resume.
+Test whether resume2= points to a recognised signature. That is, can we
+even try to suspend?
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/suspend.c |   14 ++++++++++++++
- 1 files changed, 14 insertions(+), 0 deletions(-)
+ kernel/power/suspend.c |   24 ++++++++++++++++++++++++
+ 1 files changed, 24 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/suspend.c b/kernel/power/suspend.c
-index 06ab034..6457d75 100644
+index 504eed7..bda4c2a 100644
 --- a/kernel/power/suspend.c
 +++ b/kernel/power/suspend.c
-@@ -488,3 +488,17 @@ static void free_metadata(void)
- 	free_dyn_pageflags(&in_use_map);
+@@ -575,3 +575,27 @@ void suspend_cleanup(void)
+ 	up(&pm_sem);
  }
  
-+static int check_still_keeping_image(void)
++static int can_suspend(void)
 +{
-+	if (test_action_state(SUSPEND_KEEP_IMAGE)) {
-+		printk("Image already stored: powering down immediately.");
-+		suspend_power_down();
-+		return 1;	/* Just in case we're using S3 */
++	if (down_trylock(&pm_sem)) {
++		set_result_state(SUSPEND_ABORTED);
++		set_result_state(SUSPEND_PM_SEM);
++		return 0;
 +	}
 +
-+	printk("Invalidating previous image.\n");
-+	suspend_active_writer->invalidate_image();
++	if (!test_suspend_state(SUSPEND_CAN_SUSPEND))
++		suspend_attempt_to_parse_resume_device();
 +
-+	return 0;
++	if (!test_suspend_state(SUSPEND_CAN_SUSPEND)) {
++		printk(name_suspend "Software suspend is disabled.\n"
++			"This may be because you haven't put something along "
++			"the lines of\n\nresume2=swap:/dev/hda1\n\n"
++			"in lilo.conf or equivalent. (Where /dev/hda1 is your "
++			"swap partition).\n");
++		set_result_state(SUSPEND_ABORTED);
++		return 0;
++	}
++	
++	return 1;
 +}
 +
 

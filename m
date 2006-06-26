@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932950AbWFZTbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932948AbWFZTc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932950AbWFZTbY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 15:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932949AbWFZTbY
+	id S932948AbWFZTc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 15:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932951AbWFZTc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 15:31:24 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:43476 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S932946AbWFZTbX (ORCPT
+	Mon, 26 Jun 2006 15:32:29 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:4525 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932948AbWFZTc2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 15:31:23 -0400
-Date: Mon, 26 Jun 2006 12:32:56 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Stephane Eranian <eranian@hpl.hp.com>,
-       oprofile-list <oprofile-list@lists.sourceforge.net>,
-       perfmon <perfmon@napali.hpl.hp.com>,
-       linux-ia64 <linux-ia64@vger.kernel.org>,
-       perfctr-devel <perfctr-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17.1 new perfmon code base, libpfm, pfmon available
-Message-ID: <20060626193256.GE14684@esmail.cup.hp.com>
-References: <200606261336_MC3-1-C384-7981@compuserve.com>
-MIME-Version: 1.0
+	Mon, 26 Jun 2006 15:32:28 -0400
+Date: Mon, 26 Jun 2006 14:31:41 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-390@vm.marist.edu
+Subject: [PATCH] s390: fix duplicate export of overflow{ug}id
+Message-ID: <20060626193141.GB32035@sergelap.austin.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200606261336_MC3-1-C384-7981@compuserve.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 01:33:03PM -0400, Chuck Ebbert wrote:
-> 32-bit works great.  Unfortunately, pfmon is far too limited for serious
-> kernel monitoring AFAICT.
+overflowuid and overflowgid were exported twice.  Remove the export
+from s390_ksyms.c
 
-I think "far too limited for serious kernel monitoring" is not a fair
-statement. One can do some very interesting things as I presented
-two years ago at OLS:
-	http://iou.parisc-linux.org/ols_2004/pfmon_for_iodorks.pdf
+Signed-off-by: "Serge E. Hallyn" <serue@us.ibm.com>
 
-It's just a _very_ complex subsystem and has a steep learning curve
-to do some of the more complex things that one might like.
+---
 
-> E.g. you can't select edge counting instead
-> of cycle counting.  So you can count how many clock cycles were spent
-> with interrupts disabled but you can't count how many times they were
-> disabled.
+ arch/s390/kernel/s390_ksyms.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-At first glance, this example sounds more like a limitation of the HW
-and not the SW.
-
-> And is someone working on kernel profiling tools that use the perfmon2
-> infrastructure on i386?  I'd like to see kernel-based profiling that lets
-> you use something like the existing 'readprofile' to retrieve results.  This
-> would be a lot better than the current timer-based profiling.
-
-Both are useful. I wouldn't say one of necessarily better.
-FWIW, the "CPU_CYCLES" counts from pfmon aren't timer based on ia64.
-AFAIK, the HW counters are sampled to gather those counts.
-
-thanks,
-grant
+b89fdbbb0859c2ed03246a822e278bf9a31ae054
+diff --git a/arch/s390/kernel/s390_ksyms.c b/arch/s390/kernel/s390_ksyms.c
+index 4176c77..0886e73 100644
+--- a/arch/s390/kernel/s390_ksyms.c
++++ b/arch/s390/kernel/s390_ksyms.c
+@@ -46,8 +46,6 @@ EXPORT_SYMBOL(__down_interruptible);
+  */
+ extern int dump_fpu (struct pt_regs * regs, s390_fp_regs *fpregs);
+ EXPORT_SYMBOL(dump_fpu);
+-EXPORT_SYMBOL(overflowuid);
+-EXPORT_SYMBOL(overflowgid);
+ EXPORT_SYMBOL(empty_zero_page);
+ 
+ /*
+-- 
+1.1.6

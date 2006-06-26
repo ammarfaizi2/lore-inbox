@@ -1,408 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbWFZA7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbWFZBFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965014AbWFZA7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 20:59:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbWFZA7X
+	id S965061AbWFZBFE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 21:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbWFZBEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 20:59:23 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:22159 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965014AbWFZA7K
+	Sun, 25 Jun 2006 21:04:33 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:24463 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S965015AbWFZA72
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:59:10 -0400
-Date: Sun, 25 Jun 2006 17:58:05 -0700
+	Sun, 25 Jun 2006 20:59:28 -0400
+Date: Sun, 25 Jun 2006 17:58:09 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 27/43] m68k support for klibc
-Message-Id: <klibc.200606251757.27@tazenda.hos.anvin.org>
+Subject: [klibc 39/43] zlib for klibc
+Message-Id: <klibc.200606251757.39@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The parts of klibc specific to the m68k architecture.
+[klibc] zlib for klibc
+
+Add zlib for klibc.  kinit needs this to decompress compressed
+ramdisks.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit bc9b363b31d301ab94c115cccc2e079c0d318498
-tree db9cf277429e2722b8c51f68897991f0759b1d02
-parent 7ba219f9bcddda38ddc9010b54fd10431292f744
-author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:29 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:29 -0700
+commit 331e12895f91848ae0eff9acdbd5058b3c1056af
+tree f27c096bf53a0be72586f562900008145a6c81a8
+parent b64a5142ab2aa6c030b2a254eb94384161f93f0c
+author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:57 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:57 -0700
 
- usr/include/arch/m68k/klibc/archconfig.h |   15 ++++++++++
- usr/include/arch/m68k/klibc/archsetjmp.h |   26 ++++++++++++++++++
- usr/include/arch/m68k/klibc/archsignal.h |   14 ++++++++++
- usr/include/arch/m68k/klibc/archstat.h   |   38 +++++++++++++++++++++++++++
- usr/include/arch/m68k/klibc/archsys.h    |   12 ++++++++
- usr/klibc/arch/m68k/MCONFIG              |   11 ++++++++
- usr/klibc/arch/m68k/Makefile.inc         |   25 +++++++++++++++++
- usr/klibc/arch/m68k/crt0.S               |   27 +++++++++++++++++++
- usr/klibc/arch/m68k/setjmp.S             |   43 ++++++++++++++++++++++++++++++
- usr/klibc/arch/m68k/syscall.S            |   27 +++++++++++++++++++
- usr/klibc/arch/m68k/sysstub.ph           |   26 ++++++++++++++++++
- usr/klibc/arch/m68k/vfork.S              |   28 ++++++++++++++++++++
- 12 files changed, 292 insertions(+), 0 deletions(-)
+ usr/include/zconf.h          |  332 ++++++++
+ usr/include/zlib.h           | 1357 +++++++++++++++++++++++++++++++++
+ usr/klibc/zlib/FAQ           |  339 ++++++++
+ usr/klibc/zlib/INDEX         |   51 +
+ usr/klibc/zlib/README        |  125 +++
+ usr/klibc/zlib/adler32.c     |  149 ++++
+ usr/klibc/zlib/algorithm.txt |  209 +++++
+ usr/klibc/zlib/compress.c    |   79 ++
+ usr/klibc/zlib/crc32.c       |  423 ++++++++++
+ usr/klibc/zlib/crc32.h       |  441 +++++++++++
+ usr/klibc/zlib/deflate.c     | 1736 ++++++++++++++++++++++++++++++++++++++++++
+ usr/klibc/zlib/deflate.h     |  331 ++++++++
+ usr/klibc/zlib/gzio.c        | 1029 +++++++++++++++++++++++++
+ usr/klibc/zlib/infback.c     |  623 +++++++++++++++
+ usr/klibc/zlib/inffast.c     |  318 ++++++++
+ usr/klibc/zlib/inffast.h     |   11 
+ usr/klibc/zlib/inffixed.h    |   94 ++
+ usr/klibc/zlib/inflate.c     | 1368 +++++++++++++++++++++++++++++++++
+ usr/klibc/zlib/inflate.h     |  115 +++
+ usr/klibc/zlib/inftrees.c    |  329 ++++++++
+ usr/klibc/zlib/inftrees.h    |   55 +
+ usr/klibc/zlib/trees.c       | 1219 +++++++++++++++++++++++++++++
+ usr/klibc/zlib/trees.h       |  127 +++
+ usr/klibc/zlib/uncompr.c     |   61 +
+ usr/klibc/zlib/zconf.in.h    |  332 ++++++++
+ usr/klibc/zlib/zlib.3        |  159 ++++
+ usr/klibc/zlib/zutil.c       |  318 ++++++++
+ usr/klibc/zlib/zutil.h       |  269 +++++++
+ 28 files changed, 11999 insertions(+), 0 deletions(-)
 
-diff --git a/usr/include/arch/m68k/klibc/archconfig.h b/usr/include/arch/m68k/klibc/archconfig.h
-new file mode 100644
-index 0000000..10ef62e
---- /dev/null
-+++ b/usr/include/arch/m68k/klibc/archconfig.h
-@@ -0,0 +1,15 @@
-+/*
-+ * include/arch/m68k/klibc/archconfig.h
-+ *
-+ * See include/klibc/sysconfig.h for the options that can be set in
-+ * this file.
-+ *
-+ */
-+
-+#ifndef _KLIBC_ARCHCONFIG_H
-+#define _KLIBC_ARCHCONFIG_H
-+
-+/* On m68k, sys_mmap2 uses the current page size as the shift factor */
-+#define _KLIBC_MMAP2_SHIFT	__getpageshift()
-+
-+#endif				/* _KLIBC_ARCHCONFIG_H */
-diff --git a/usr/include/arch/m68k/klibc/archsetjmp.h b/usr/include/arch/m68k/klibc/archsetjmp.h
-new file mode 100644
-index 0000000..e85c810
---- /dev/null
-+++ b/usr/include/arch/m68k/klibc/archsetjmp.h
-@@ -0,0 +1,26 @@
-+/*
-+ * usr/include/arch/m68k/klibc/archsetjmp.h
-+ */
-+
-+#ifndef _KLIBC_ARCHSETJMP_H
-+#define _KLIBC_ARCHSETJMP_H
-+
-+struct __jmp_buf {
-+	unsigned int __d2;
-+	unsigned int __d3;
-+	unsigned int __d4;
-+	unsigned int __d5;
-+	unsigned int __d6;
-+	unsigned int __d7;
-+	unsigned int __a2;
-+	unsigned int __a3;
-+	unsigned int __a4;
-+	unsigned int __a5;
-+	unsigned int __fp;	/* a6 */
-+	unsigned int __sp;	/* a7 */
-+	unsigned int __retaddr;
-+};
-+
-+typedef struct __jmp_buf jmp_buf[1];
-+
-+#endif				/* _KLBIC_ARCHSETJMP_H */
-diff --git a/usr/include/arch/m68k/klibc/archsignal.h b/usr/include/arch/m68k/klibc/archsignal.h
-new file mode 100644
-index 0000000..bf7912a
---- /dev/null
-+++ b/usr/include/arch/m68k/klibc/archsignal.h
-@@ -0,0 +1,14 @@
-+/*
-+ * arch/m68k/include/klibc/archsignal.h
-+ *
-+ * Architecture-specific signal definitions
-+ *
-+ */
-+
-+#ifndef _KLIBC_ARCHSIGNAL_H
-+#define _KLIBC_ARCHSIGNAL_H
-+
-+#include <asm/signal.h>
-+/* No special stuff for this architecture */
-+
-+#endif
-diff --git a/usr/include/arch/m68k/klibc/archstat.h b/usr/include/arch/m68k/klibc/archstat.h
-new file mode 100644
-index 0000000..dce25f9
---- /dev/null
-+++ b/usr/include/arch/m68k/klibc/archstat.h
-@@ -0,0 +1,38 @@
-+#ifndef _KLIBC_ARCHSTAT_H
-+#define _KLIBC_ARCHSTAT_H
-+
-+#include <klibc/stathelp.h>
-+
-+#define _STATBUF_ST_NSEC
-+
-+/* This matches struct stat64 in glibc2.1, hence the absolutely
-+ * insane padding around dev_t's.
-+ */
-+struct stat {
-+	__stdev64	(st_dev);
-+	unsigned char	__pad1[2];
-+
-+	unsigned long	__st_ino;
-+
-+	unsigned int	st_mode;
-+	unsigned int	st_nlink;
-+
-+	unsigned long	st_uid;
-+	unsigned long	st_gid;
-+
-+	__stdev64	(st_rdev);
-+	unsigned char	__pad3[2];
-+
-+	long long	st_size;
-+	unsigned long	st_blksize;
-+
-+	unsigned long long	st_blocks;	/* Number 512-byte blocks allocated. */
-+
-+	struct timespec st_atim;
-+	struct timespec st_mtim;
-+	struct timespec st_ctim;
-+
-+	unsigned long long	st_ino;
-+};
-+
-+#endif
-diff --git a/usr/include/arch/m68k/klibc/archsys.h b/usr/include/arch/m68k/klibc/archsys.h
-new file mode 100644
-index 0000000..1a3a7b7
---- /dev/null
-+++ b/usr/include/arch/m68k/klibc/archsys.h
-@@ -0,0 +1,12 @@
-+/*
-+ * arch/m68k/include/klibc/archsys.h
-+ *
-+ * Architecture-specific syscall definitions
-+ */
-+
-+#ifndef _KLIBC_ARCHSYS_H
-+#define _KLIBC_ARCHSYS_H
-+
-+/* No special syscall definitions for this architecture */
-+
-+#endif				/* _KLIBC_ARCHSYS_H */
-diff --git a/usr/klibc/arch/m68k/MCONFIG b/usr/klibc/arch/m68k/MCONFIG
-new file mode 100644
-index 0000000..4360408
---- /dev/null
-+++ b/usr/klibc/arch/m68k/MCONFIG
-@@ -0,0 +1,11 @@
-+# -*- makefile -*-
-+#
-+# arch/m68k/MCONFIG
-+#
-+# Special rules for this architecture.  Note that this is actually
-+# included from the main Makefile, and that pathnames should be
-+# accordingly.
-+#
-+
-+KLIBCOPTFLAGS = -Os -fomit-frame-pointer
-+KLIBCBITSIZE  = 32
-diff --git a/usr/klibc/arch/m68k/Makefile.inc b/usr/klibc/arch/m68k/Makefile.inc
-new file mode 100644
-index 0000000..a6f9827
---- /dev/null
-+++ b/usr/klibc/arch/m68k/Makefile.inc
-@@ -0,0 +1,25 @@
-+# -*- makefile -*-
-+#
-+# arch/m68k/Makefile.inc
-+#
-+# Special rules for this architecture.  Note that this is actually
-+# included from the main Makefile, and that pathnames should be
-+# accordingly.
-+#
-+
-+KLIBCARCHOBJS = \
-+	arch/$(KLIBCARCH)/setjmp.o \
-+	arch/$(KLIBCARCH)/syscall.o \
-+	arch/$(KLIBCARCH)/vfork.o
-+
-+KLIBCBITSIZE  = 32
-+
-+# Extra linkflags when building the shared version of the library
-+# This address needs to be reachable using normal inter-module
-+# calls, and work on the memory models for this architecture
-+# 2816 MB - normal binaries start at 2048 MB if I read the link
-+# script right.  Not sure if there is a fundamental reason
-+# to not duck below the halfway point...
-+KLIBCSHAREDFLAGS        = -Ttext 0xb0000000
-+
-+archclean:
-diff --git a/usr/klibc/arch/m68k/crt0.S b/usr/klibc/arch/m68k/crt0.S
-new file mode 100644
-index 0000000..fbf6f13
---- /dev/null
-+++ b/usr/klibc/arch/m68k/crt0.S
-@@ -0,0 +1,27 @@
-+#
-+# arch/m68k/crt0.S
-+#
-+# Does arch-specific initialization and invokes __libc_init
-+# with the appropriate arguments.
-+#
-+# See __static_init.c or __shared_init.c for the expected
-+# arguments.
-+#
-+
-+	.text
-+	.align 4
-+	.type _start,@function
-+	.globl _start
-+_start:
-+	# Zero out the frame pointer to be nice to the debugger
-+	movea.l	#0,%a6
-+	# Save the address of the ELF argument array
-+	move.l	%a7, %d0
-+	# Push a zero on the stack in lieu of atexit pointer
-+	clr.l	-(%sp)
-+	# Push ELF argument pointer on the stack
-+	move.l	%d0, -(%a7)
-+
-+	jbsr	__libc_init
-+
-+	.size _start, .-_start
-diff --git a/usr/klibc/arch/m68k/setjmp.S b/usr/klibc/arch/m68k/setjmp.S
-new file mode 100644
-index 0000000..1b3591e
---- /dev/null
-+++ b/usr/klibc/arch/m68k/setjmp.S
-@@ -0,0 +1,43 @@
-+#
-+# arch/m68k/setjmp.S
-+#
-+# setjmp/longjmp for the m68k architecture
-+#
-+
-+#
-+# The jmp_buf is assumed to contain the following, in order:
-+#	%d2..%d7
-+#	%a2..%a7
-+#	return address
-+#
-+
-+	.text
-+	.align 2
-+	.globl setjmp
-+	.type setjmp, @function
-+setjmp:
-+	move.l	(%sp)+, %d0		| Return address
-+	movea.l	(%sp), %a0		| Buffer address
-+	| Postincrement mode is not permitted here...
-+	movem.l	%d2-%d7/%a2-%a7, (%a0)
-+	move.l	%d0, 48(%a0)		| Return address
-+	move.l	%d0, -(%sp)		| Restore return address
-+	clr.l	%d0			| Return value
-+	movea.l	%d0, %a0		| Redundant return...
-+	rts
-+
-+	.size setjmp,.-setjmp
-+
-+	.text
-+	.align 2
-+	.globl longjmp
-+	.type longjmp, @function
-+longjmp:
-+	move.l	4(%sp), %a0		| Buffer address
-+	move.l	8(%sp), %d0		| Return value
-+	movem.l	(%a0)+, %d2-%d7/%a2-%a7
-+	movea.l	(%a0), %a1
-+	movea.l	%d0, %a0		| Redundant return...
-+	jmp.l	(%a1)
-+
-+	.size longjmp,.-longjmp
-diff --git a/usr/klibc/arch/m68k/syscall.S b/usr/klibc/arch/m68k/syscall.S
-new file mode 100644
-index 0000000..966c92d
---- /dev/null
-+++ b/usr/klibc/arch/m68k/syscall.S
-@@ -0,0 +1,27 @@
-+/*
-+ * arch/m68k/syscall.S
-+ *
-+ * Common tail-handling code for system calls.
-+ *
-+ * The arguments are on the stack; the system call number in %d0.
-+ */
-+
-+	.text
-+	.align	2
-+	.globl	__syscall_common
-+	.type	__syscall_common, @function
-+__syscall_common:
-+	movem.l %d2-%d6, -(%sp)	/* 5 registers saved */
-+	movem.l	24(%sp), %d1-%d6
-+	trap	#0
-+	cmpi.l	#-4095, %d0
-+	blt.l	1f
-+	neg.l	%d0
-+	move.l	%d0, (errno)
-+	moveq	#-1, %d0
-+1:
-+	movea.l	%d0, %a0	/* Redundant return */
-+	movem.l (%sp)+, %d2-%d6 /* Restore registers */
-+	rts
-+
-+	.size	__syscall_common,.-__syscall_common
-diff --git a/usr/klibc/arch/m68k/sysstub.ph b/usr/klibc/arch/m68k/sysstub.ph
-new file mode 100644
-index 0000000..78c239d
---- /dev/null
-+++ b/usr/klibc/arch/m68k/sysstub.ph
-@@ -0,0 +1,26 @@
-+# -*- perl -*-
-+#
-+# arch/m68k/sysstub.ph
-+#
-+# Script to generate system call stubs
-+#
-+
-+sub make_sysstub($$$$$@) {
-+    my($outputdir, $fname, $type, $sname, $stype, @args) = @_;
-+
-+    open(OUT, '>', "${outputdir}/${fname}.S");
-+    print OUT "#include <asm/unistd.h>\n";
-+    print OUT "\n";
-+    print OUT "\t.type ${fname},\@function\n";
-+    print OUT "\t.globl ${fname}\n";
-+    print OUT "${fname}:\n";
-+
-+    $stype = 'common' if ( $stype eq '' );
-+
-+    print OUT "\tmove.l\t# __NR_${sname}, %d0\n";
-+    print OUT "\tbr\t__syscall_$stype\n";
-+    print OUT "\t.size ${fname},.-${fname}\n";
-+    close(OUT);
-+}
-+
-+1;
-diff --git a/usr/klibc/arch/m68k/vfork.S b/usr/klibc/arch/m68k/vfork.S
-new file mode 100644
-index 0000000..a3a7e44
---- /dev/null
-+++ b/usr/klibc/arch/m68k/vfork.S
-@@ -0,0 +1,28 @@
-+#
-+# usr/klibc/arch/m68k/vfork.S
-+#
-+# vfork is nasty - there must be nothing at all on the stack above
-+# the stack frame of the enclosing function.
-+#
-+
-+#include <asm/unistd.h>
-+
-+	.text
-+	.align	2
-+	.globl	vfork
-+	.type	vfork, @function
-+vfork:
-+	move.l	(%sp)+, %d1		/* Return address */
-+	move.l	# __NR_vfork, %d0
-+	trap	#0
-+	move.l	%d1, -(%sp)
-+	cmpi.l	#-4095, %d0
-+	blt.l	1f
-+	neg.l	%d0
-+	move.l	%d0, (errno)
-+	moveq	#-1, %d0
-+1:
-+	movea.l	%d0, %a0
-+	rts
-+
-+	.size	vfork, .-vfork
+Patch suppressed due to size (468 K), available at:
+http://www.kernel.org/pub/linux/kernel/people/hpa/klibc-patchset/39-zlib-for-klibc.patch

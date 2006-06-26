@@ -1,133 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933157AbWFZWfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933188AbWFZWgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933157AbWFZWfG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933117AbWFZWev
+	id S933188AbWFZWgL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933163AbWFZWgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:34:51 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:30111 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933123AbWFZWeb
+	Mon, 26 Jun 2006 18:36:07 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:41887 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933172AbWFZWfu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:34:31 -0400
+	Mon, 26 Jun 2006 18:35:50 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 5/9] [Suspend2] Mark pages for pageset 2.
-Date: Tue, 27 Jun 2006 08:34:29 +1000
+Subject: [Suspend2][ 18/20] [Suspend2] Free up memory if necessary.
+Date: Tue, 27 Jun 2006 08:35:48 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223428.3963.94287.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626223412.3963.1484.stgit@nigel.suspend2.net>
-References: <20060626223412.3963.1484.stgit@nigel.suspend2.net>
+Message-Id: <20060626223547.4050.40672.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223446.4050.9897.stgit@nigel.suspend2.net>
+References: <20060626223446.4050.9897.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reset the contents of pageset 2: clear the map, mark LRU pages as being in,
-then remove userspace helpers' pages.
+Seek to ensure memory constraints are met. If we need to free memory, we
+thaw kernel space processes only, so that we won't deadlock with the swap
+and filesystem code. We then call shrink_all_memory until the constraints
+are met or we determine that we're not getting anywhere. We may also bail
+immediately if the user has said they don't want any memory to be freed.
+Kernel space is re-frozen before we exit.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/pagedir.c |   92 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 92 insertions(+), 0 deletions(-)
+ kernel/power/prepare_image.c |   94 ++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 94 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/pagedir.c b/kernel/power/pagedir.c
-index b7fc3bc..c23ca58 100644
---- a/kernel/power/pagedir.c
-+++ b/kernel/power/pagedir.c
-@@ -178,3 +178,95 @@ void suspend_mark_task_as_pageset1(struc
- 		up_read(&mm->mmap_sem);
+diff --git a/kernel/power/prepare_image.c b/kernel/power/prepare_image.c
+index 054d0d4..893ba72 100644
+--- a/kernel/power/prepare_image.c
++++ b/kernel/power/prepare_image.c
+@@ -528,3 +528,97 @@ long ram_to_suspend(void)
+ 		MIN_FREE_RAM + suspend_memory_for_modules());
  }
  
-+/* mark_pages_for_pageset2
++/* eat_memory
 + *
-+ * Description:	Mark unshared pages in processes not needed for suspend as
-+ * 		being able to be written out in a separate pagedir.
-+ * 		HighMem pages are simply marked as pageset2. They won't be
-+ * 		needed during suspend.
++ * Try to free some memory, either to meet hard or soft constraints on the image
++ * characteristics.
++ * 
++ * Hard constraints:
++ * - Pageset1 must be < half of memory;
++ * - We must have enough memory free at resume time to have pageset1
++ *   be able to be loaded in pages that don't conflict with where it has to
++ *   be restored.
++ * Soft constraints
++ * - User specificied image size limit.
 + */
-+
-+struct attention_list {
-+	struct task_struct *task;
-+	struct attention_list *next;
-+};
-+
-+void suspend_mark_pages_for_pageset2(void)
++static int eat_memory(void)
 +{
-+	struct zone *zone;
-+	struct task_struct *p;
-+	struct attention_list *attention_list = NULL, *last = NULL;
-+	unsigned long flags;
-+
-+	BUG_ON(in_atomic() && !irqs_disabled());
-+
-+	clear_dyn_pageflags(pageset2_map);
-+
-+	if (test_action_state(SUSPEND_NO_PAGESET2))
-+		return;
-+
-+	/* 
-+	 * Note that we don't clear the map to begin with!
-+	 * This is because if we eat memory, we loose track
-+	 * of LRU pages that are still in use but taken off
-+	 * the LRU. If I can figure out how the VM keeps
-+	 * track of them, I might be able to tweak this a
-+	 * little further and decrease pageset one's size
-+	 * further.
-+	 *
-+	 * (Memory grabbing clears the pageset2 flag on
-+	 * pages that are really freed!).
-+	 */
++	int amount_wanted = 0;
++	int free_flags = 0, did_eat_memory = 0;
 +	
-+	for_each_zone(zone) {
-+		spin_lock_irqsave(&zone->lru_lock, flags);
-+		if (zone->nr_inactive) {
-+			struct page *page;
-+			list_for_each_entry(page, &zone->inactive_list, lru)
-+				SetPagePageset2(page);
-+		}
-+		if (zone->nr_active) {
-+			struct page *page;
-+			list_for_each_entry(page, &zone->active_list, lru)
-+				SetPagePageset2(page);
-+		}
-+		spin_unlock_irqrestore(&zone->lru_lock, flags);
-+	}
-+
-+	BUG_ON(in_atomic() && !irqs_disabled());
-+
-+	/* Now we find all userspace process (with task->mm) marked PF_NOFREEZE
-+	 * and move them into pageset1.
-+	 */
-+	read_lock(&tasklist_lock);
-+	for_each_process(p)
-+		if ((p->flags & PF_NOFREEZE) || p == current) {
-+			struct attention_list *this = kmalloc(sizeof(struct attention_list), GFP_ATOMIC);
-+			BUG_ON(!this);
-+			this->task = p;
-+			this->next = NULL;
-+			if (attention_list) {
-+				last->next = this;
-+				last = this;
-+			} else
-+				attention_list = last = this;
-+		}
-+	read_unlock(&tasklist_lock);
-+
-+	BUG_ON(in_atomic() && !irqs_disabled());
-+
-+	/* Because the tasks in attention_list are ones related to suspending,
-+	 * we know that they won't go away under us.
++	/*
++	 * Note that if we have enough storage space and enough free memory, we may
++	 * exit without eating anything. We give up when the last 10 iterations ate
++	 * no extra pages because we're not going to get much more anyway, but
++	 * the few pages we get will take a lot of time.
++	 *
++	 * We freeze processes before beginning, and then unfreeze them if we
++	 * need to eat memory until we think we have enough. If our attempts
++	 * to freeze fail, we give up and abort.
 +	 */
 +
-+	while (attention_list) {
-+		suspend_mark_task_as_pageset1(attention_list->task);
-+		last = attention_list;
-+		attention_list = attention_list->next;
-+		kfree(last);
++	/* -- Stage 1: Freeze Processes -- */
++
++	
++	suspend_recalculate_image_contents(0);
++	amount_wanted = amount_needed(1);
++
++	switch (image_size_limit) {
++		case -1: /* Don't eat any memory */
++			if (amount_wanted > 0) {
++				set_result_state(SUSPEND_ABORTED);
++				set_result_state(SUSPEND_WOULD_EAT_MEMORY);
++			}
++			break;
++		case -2:  /* Free caches only */
++			free_flags = GFP_NOIO | __GFP_HIGHMEM;
++			amount_wanted = 1 << 31; /* As much cache as we can get */
++			break;
++		default:
++			free_flags = GFP_ATOMIC | __GFP_HIGHMEM;
++	}
++		
++	thaw_processes(FREEZER_KERNEL_THREADS);
++
++	/* -- Stage 2: Eat memory -- */
++
++	if (amount_wanted > 0 && !test_result_state(SUSPEND_ABORTED) &&
++			image_size_limit != -1) {
++
++		suspend_prepare_status(CLEAR_BAR, "Seeking to free %dMB of memory.", MB(amount_wanted));
++
++		shrink_all_memory(amount_wanted);
++		suspend_recalculate_image_contents(0);
++
++		did_eat_memory = 1;
++
++		suspend_cond_pause(0, NULL);
 +	}
 +
-+	BUG_ON(in_atomic() && !irqs_disabled());
++	if (freeze_processes()) {
++		set_result_state(SUSPEND_FREEZING_FAILED);
++		set_result_state(SUSPEND_ABORTED);
++	}
++	
++	if (did_eat_memory) {
++		unsigned long orig_state = get_suspend_state();
++		/* Freeze_processes will call sys_sync too */
++		restore_suspend_state(orig_state);
++		suspend_recalculate_image_contents(0);
++	}
 +
++	/* Blank out image size display */
++	suspend_update_status(100, 100, NULL);
++
++	if (!test_result_state(SUSPEND_ABORTED) &&
++	    (amount_needed(0) - extra_pd1_pages_allowance > 0)) {
++		printk("Unable to free sufficient memory to suspend. Still need %d pages.\n",
++			amount_needed(1));
++		display_stats(1, 1);
++		set_result_state(SUSPEND_ABORTED);
++		set_result_state(SUSPEND_UNABLE_TO_FREE_ENOUGH_MEMORY);
++	}
++
++	return 0;
 +}
 +
 

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933171AbWFZXVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933106AbWFZXVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933171AbWFZXVk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933106AbWFZXVD
+	id S933106AbWFZXVl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:21:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933193AbWFZWgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:21:03 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:51615 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933171AbWFZWgy
+	Mon, 26 Jun 2006 18:36:51 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:47007 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933171AbWFZWgY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:36:54 -0400
+	Mon, 26 Jun 2006 18:36:24 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 16/19] [Suspend2] Read pageset1.
-Date: Tue, 27 Jun 2006 08:36:53 +1000
+Subject: [Suspend2][ 07/19] [Suspend2] Cleanup modules after doing I/O on a portion of the image.
+Date: Tue, 27 Jun 2006 08:36:22 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223651.4219.73921.stgit@nigel.suspend2.net>
+Message-Id: <20060626223620.4219.88435.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626223557.4219.53030.stgit@nigel.suspend2.net>
 References: <20060626223557.4219.53030.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,8 +22,8 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Call the __read_pageset1() function, report any errors and return the
-result.
+Flush any pending I/O (writes only), and cleanup modules using in doing the
+I/O.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
@@ -31,46 +31,46 @@ Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
  1 files changed, 35 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/io.c b/kernel/power/io.c
-index 35fb081..79cf54f 100644
+index 401789d..be13f42 100644
 --- a/kernel/power/io.c
 +++ b/kernel/power/io.c
-@@ -898,3 +898,38 @@ out_reset_console:
- 	goto out;
+@@ -206,3 +206,38 @@ static int rw_init_modules(int rw, int w
+ 	return 0;
  }
  
-+/* read_pageset1()
++/*
++ * rw_cleanup_modules
 + *
-+ * Description:	Attempt to read the header and pageset1 of a suspend image.
-+ * 		Handle the outcome, complaining where appropriate.
++ * Cleanup components after reading or writing a set of pages.
++ * Only the writer may fail.
 + */
-+
-+int read_pageset1(void)
++static int rw_cleanup_modules(int rw)
 +{
-+	int error;
++	struct suspend_module_ops *this_module;
++	int result = 0;
 +
-+	error = __read_pageset1();
-+
-+	switch (error) {
-+		case 0:
-+		case -ENODATA:
-+		case -EINVAL:	/* non fatal error */
-+			return error;
-+		case -EIO:
-+			printk(KERN_CRIT name_suspend "I/O error\n");
-+			break;
-+		case -ENOENT:
-+			printk(KERN_CRIT name_suspend "No such file or directory\n");
-+			break;
-+		case -EPERM:
-+			printk(KERN_CRIT name_suspend "Sanity check error\n");
-+			break;
-+		default:
-+			printk(KERN_CRIT name_suspend "Error %d resuming\n",
-+					error);
-+			break;
++	/* Cleanup other modules */
++	list_for_each_entry(this_module, &suspend_modules, module_list) {
++		if (this_module->disabled)
++			continue;
++		if ((this_module->type == FILTER_MODULE) ||
++		    (this_module->type == WRITER_MODULE))
++			continue;
++		if (this_module->rw_cleanup)
++			result |= this_module->rw_cleanup(rw);
 +	}
-+	abort_suspend("Error %d in read_pageset1",error);
-+	return error;
++
++	/* Flush data and cleanup */
++	list_for_each_entry(this_module, &suspend_filters, type_list) {
++		if (this_module->disabled)
++			continue;
++		if (this_module->rw_cleanup)
++			result |= this_module->rw_cleanup(rw);
++	}
++
++	result |= suspend_active_writer->rw_cleanup(rw);
++
++	return result;
 +}
 +
 

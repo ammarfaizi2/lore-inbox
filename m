@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933118AbWFZWco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933121AbWFZWdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933118AbWFZWco (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933115AbWFZWcd
+	id S933121AbWFZWdv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933113AbWFZWby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:32:33 -0400
-Received: from out3.smtp.messagingengine.com ([66.111.4.27]:35793 "EHLO
-	out3.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S933114AbWFZWcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:32:25 -0400
-X-Sasl-enc: f2Ip4yOGTIljyO7p6kyheTevwhBtdDDAQGsf03qMT2To 1151361143
-Message-ID: <057801c69970$70b45090$0e00cb0a@robm>
-From: "Robert Mueller" <robm@fastmail.fm>
-To: "James Bottomley" <James.Bottomley@SteelEye.com>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: <rdunlap@xenotime.net>, <hch@infradead.org>, <erich@areca.com.tw>,
-       <brong@fastmail.fm>, <dax@gurulabs.com>, <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>
-References: <09be01c695b3$2ed8c2c0$c100a8c0@robm> <20060621222826.ff080422.akpm@osdl.org> <1151333338.2673.4.camel@mulgrave.il.steeleye.com>
-Subject: Re: Areca driver recap + status
-Date: Tue, 27 Jun 2006 08:32:19 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="Windows-1252";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+	Mon, 26 Jun 2006 18:31:54 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:61930 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933108AbWFZWbp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:31:45 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [Suspend2][ 4/7] [Suspend2] Space needed to store one set of pageflags.
+Date: Tue, 27 Jun 2006 08:31:43 +1000
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060626223141.3725.33148.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223128.3725.55605.stgit@nigel.suspend2.net>
+References: <20060626223128.3725.55605.stgit@nigel.suspend2.net>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Return the number of bytes in the image header required to store one set of
+pageflags.
 
-> - PAE (cast of dma_addr_t to unsigned long) issues.
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-Can you explain a bit what this is about and what the effect is? It's just 
-that we've been using the driver (older version from the areca website) in a 
-PAE kernel on machines with 8G of memory and haven't had a problem yet 
-(running high IO load for several weeks) but this sounds like it 
-might/should cause corruption or crashing in this situation?
+ kernel/power/pageflags.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+), 0 deletions(-)
 
-Rob
+diff --git a/kernel/power/pageflags.c b/kernel/power/pageflags.c
+index ec028d3..7c00257 100644
+--- a/kernel/power/pageflags.c
++++ b/kernel/power/pageflags.c
+@@ -43,3 +43,16 @@ static int pages_for_zone(struct zone *z
+ 			(PAGE_SIZE << 3);
+ }
+ 
++int suspend_pageflags_space_needed(void)
++{
++	int total = 0;
++	struct zone *zone;
++
++	for_each_zone(zone)
++		total += sizeof(int) * 2 + pages_for_zone(zone) * PAGE_SIZE;
++
++	total += sizeof(int);
++
++	return total;
++}
++
 
+--
+Nigel Cunningham		nigel at suspend2 dot net

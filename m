@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbWFZRFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWFZREp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751069AbWFZRFI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 13:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWFZRFI
+	id S1750816AbWFZREp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 13:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWFZREp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 13:05:08 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:29884 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751062AbWFZRFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 13:05:05 -0400
-Date: Mon, 26 Jun 2006 13:04:40 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Neela.Kolli@engenio.com, linux-scsi@vger.kernel.org,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
-Message-ID: <20060626170440.GF8985@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <m1lkrjub2m.fsf@ebiederm.dsl.xmission.com> <E717642AF17E744CA95C070CA815AE550E1555@cceexc23.americas.cpqcorp.net>
+	Mon, 26 Jun 2006 13:04:45 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:64198 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750816AbWFZREn (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 13:04:43 -0400
+Message-Id: <200606261704.k5QH4V4P008055@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@osdl.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: SC1200 debug printk
+In-Reply-To: Your message of "Mon, 26 Jun 2006 14:51:45 BST."
+             <1151329905.27147.29.camel@localhost.localdomain>
+From: Valdis.Kletnieks@vt.edu
+References: <1151329905.27147.29.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E717642AF17E744CA95C070CA815AE550E1555@cceexc23.americas.cpqcorp.net>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed; boundary="==_Exmh_1151341470_3150P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 26 Jun 2006 13:04:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 11:51:52AM -0500, Miller, Mike (OS Dev) wrote:
-[..]
-> > kdump or taking crash dumps using the kexec on panic 
-> > mechanism could be called a drivers worst nightmare.  In the 
-> > latest distros this is becoming the way crash dump style 
-> > information is captured.
-> > 
-> > Because the initial kernel is broken we do a jump into 
-> > another kernel that is sufficient to record a crash dump.  
-> > That second kernel initializes the hardware from whatever 
-> > random state the first kernel left the drivers in.  That 
-> > first kernel is not permitted to do any device shutdown activities.
-> > 
-> > The problem is that a command the running instance of the 
-> > driver did not initiate completes.  At least if I read Vivek 
-> > patch 2/2 correctly.
-> > 
-> > So we have three options.
-> > - reset the card during initialization.
-> > - handle the case of a command we did not initiate completing.
-> > - mark the driver/card as impossibly hopeless for use in a crash
-> >   dump scenario.
-> > 
-> > 
-> > Eric
+--==_Exmh_1151341470_3150P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 26 Jun 2006 14:51:45 BST, Alan Cox said:
+> Kill a pair of long escaped debug printk calls
 > 
-> Thanks Eric, that helps me understand. Section 8.2.2 of the open cciss
-> spec supports a reset message. Target 0x00 is the controller. We could
-> add this to the init routine to ensure the board is made sane again but
-> this would drastically increase init time under normal circumstances.
-> And I suspect this is a hard reset, also. Not sure if that would
-> negatively impact kdump. If there were some condition we could test
-> against and perform the reset when that condition is met it would not
-> impact 99.9% of users.
+> Signed-off-by: Alan Cox <alan@redhat.com>
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/ide/pci/sc1200.c linux-2.6.17/drivers/ide/pci/sc1200.c
+> --- linux.vanilla-2.6.17/drivers/ide/pci/sc1200.c	2006-06-19 17:17:24.000000000 +0100
+> +++ linux-2.6.17/drivers/ide/pci/sc1200.c	2006-06-26 13:27:45.671877280 +0100
 
-That's the precise reason of introducing the "crashboot" command line
-parameter. Driver authors can check against this condition and reset
-the device and 99.9% of the users are not impacted.
+Hmm... 
 
-Thanks
-Vivek
+> @@ -493,7 +491,7 @@
+>  }
+>  
+>  static struct pci_device_id sc1200_pci_tbl[] = {
+> -	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_IDE), 0},
+>  	{ 0, },
+>  };
+>  MODULE_DEVICE_TABLE(pci, sc1200_pci_tbl);
 
+Escape of an unrelated change to the same file?
+
+--==_Exmh_1151341470_3150P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEoBOecC3lWbTT17ARAqz9AKDJf4zk7scTcwFMAbEb/aj1y2NeMACgnwQa
+AZWsgD4JfCVvIKslPTChu1A=
+=dIcm
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1151341470_3150P--

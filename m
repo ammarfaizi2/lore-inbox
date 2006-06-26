@@ -1,96 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWFZNeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWFZNfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWFZNeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 09:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWFZNeJ
+	id S964873AbWFZNfh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 09:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbWFZNfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 09:34:09 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:34180 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751204AbWFZNeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 09:34:08 -0400
-Subject: PATCH: backport piix fixes from libata into the legacy driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 26 Jun 2006 14:50:09 +0100
-Message-Id: <1151329809.27147.26.camel@localhost.localdomain>
+	Mon, 26 Jun 2006 09:35:37 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:23008 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964817AbWFZNfg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 09:35:36 -0400
+Date: Mon, 26 Jun 2006 09:35:04 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       Neela.Kolli@engenio.com, linux-scsi@vger.kernel.org, mike.miller@hp.com,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
+Message-ID: <20060626133504.GA8985@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060623210121.GA18384@in.ibm.com> <20060623210424.GB18384@in.ibm.com> <20060623235553.2892f21a.akpm@osdl.org> <20060624111954.GA7313@in.ibm.com> <20060624043046.4e4985be.akpm@osdl.org> <20060624120836.GB7313@in.ibm.com> <m1veqqxyrb.fsf@ebiederm.dsl.xmission.com> <20060626021100.GA12824@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060626021100.GA12824@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+On Mon, Jun 26, 2006 at 07:41:00AM +0530, Maneesh Soni wrote:
+> On Sat, Jun 24, 2006 at 11:13:44AM -0600, Eric W. Biederman wrote:
+> > Vivek Goyal <vgoyal@in.ibm.com> writes:
+> > 
+> > > On Sat, Jun 24, 2006 at 04:30:46AM -0700, Andrew Morton wrote:
+> > >
+> > >> > Or is there a generic way to handle these situations? Fixing them driver
+> > >> > by driver is a long painful process. 
+> > >> 
+> > >> Some generic way of whacking a PCI device via the standard PCI registers? 
+> > >> Not that I know of.
+> > >
+> > > Somebody hinted that think of PCI bus reset. But I think PCI bus reset will
+> > > require firware/BIOS to export a hook to software to so initiate PCI bus
+> > > reset and I don't think many platforms do that. Infact I am not even aware
+> > > of one platform who does that.
+> > 
+> > Not all pci busses support it but there is a standard pci bus reset bit
+> > in pci bridges.
+> > 
+> > I don't know if it would help but it might make sense to have a config
+> > option that can be used to mark drivers that are known to have problems,
+> > in these scenarios.
+> > 
+> > CONFIG_BRITTLE_INIT perhaps?
+> > 
+> > It would at least make it easier for people to see which drivers
+> > they don't want to use, and give people some incentive to fix things.
+> > 
+> 
+> Vivek, 
+> 
+> I think having something as Eric suggested instead of crashboot= is better.
+> We can hve this config option set for kernel like dump capture
+> kernel. (CONFIG_CRASH_DUMP=y). This should save some bytes on already longish
+> kdump kernel boot paramenters.
+> 
 
-There are three flags being set by default by the PIIX driver for speeds
-> PIO 1, and one not being cleared properly on fallback to PIO0. The
-most important one is the prefetch/post write control which only works
-for ATA and can do bad things with ATAPI.
+Maneesh, Keeping this code under a config option becomes a problem when we
+will have a relocatable kernel. At some point of time we got to have
+relocatable kernel so that people don't have to build two kernels. In fact
+this is becoming a pain area for distros. That's the reason I thought
+of making it a command line parameter.
 
-The patch does its best to set the flags correctly for drivers/ide. Its
-not 100% perfect but its closer than the original. 100% perfect requires
-proper IORDY handling but this isn't critical (and its not right in
-libata either .. yet)
+I remember few months back, Eric had mentioned that he has got patches for
+relocatable kernel ready for review for i386 and x86_64. Eric, do you have
+any plans to post the patches for review?
 
-Probably should live in -mm for a bit for testing
-
-Alan
-
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/ide/pci/piix.c linux-2.6.17/drivers/ide/pci/piix.c
---- linux.vanilla-2.6.17/drivers/ide/pci/piix.c	2006-06-19 17:17:24.000000000 +0100
-+++ linux-2.6.17/drivers/ide/pci/piix.c	2006-06-26 13:44:49.296262720 +0100
-@@ -222,29 +222,42 @@
- 	unsigned long flags;
- 	u16 master_data;
- 	u8 slave_data;
-+	int control = 0;
- 				 /* ISP  RTC */
--	u8 timings[][2]	= { { 0, 0 },
--			    { 0, 0 },
--			    { 1, 0 },
--			    { 2, 1 },
--			    { 2, 3 }, };
-+	static const u8 timings[][2]= { 
-+					{ 0, 0 },
-+					{ 0, 0 },
-+					{ 1, 0 },
-+					{ 2, 1 },
-+					{ 2, 3 }, };
- 
- 	pio = ide_get_best_pio_mode(drive, pio, 5, NULL);
- 	spin_lock_irqsave(&ide_lock, flags);
- 	pci_read_config_word(dev, master_port, &master_data);
-+	
-+	if (pio >= 2)
-+		control |= 1;	/* Programmable timing on */
-+	if (drive->media == ide_disk)
-+		control |= 4;	/* Prefetch, post write */
-+	if (pio >= 3)
-+		control |= 2;	/* IORDY */
- 	if (is_slave) {
- 		master_data = master_data | 0x4000;
--		if (pio > 1)
-+		if (pio > 1) {
- 			/* enable PPE, IE and TIME */
--			master_data = master_data | 0x0070;
-+			master_data = master_data | (control << 4);
-+		} else {
-+			master_data &= ~0x0070;
-+		}
- 		pci_read_config_byte(dev, slave_port, &slave_data);
- 		slave_data = slave_data & (hwif->channel ? 0x0f : 0xf0);
- 		slave_data = slave_data | (((timings[pio][0] << 2) | timings[pio][1]) << (hwif->channel ? 4 : 0));
- 	} else {
- 		master_data = master_data & 0xccf8;
--		if (pio > 1)
-+		if (pio > 1) {
- 			/* enable PPE, IE and TIME */
--			master_data = master_data | 0x0007;
-+			master_data = master_data | control;
-+		}
- 		master_data = master_data | (timings[pio][0] << 12) | (timings[pio][1] << 8);
- 	}
- 	pci_write_config_word(dev, master_port, master_data);
-
+Thanks
+Vivek 

@@ -1,21 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWFZMr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWFZMtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWFZMr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 08:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWFZMr7
+	id S1751209AbWFZMtk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 08:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWFZMtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 08:47:59 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:37810 "EHLO
+	Mon, 26 Jun 2006 08:49:40 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:6556 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751202AbWFZMr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 08:47:58 -0400
-Message-Id: <20060626124246.PS11592000000@infradead.org>
-Date: Mon, 26 Jun 2006 09:42:46 -0300
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org
-Subject: [PATCH 00/10] V4L/DVB updates
+	id S1751209AbWFZMtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 08:49:39 -0400
+Subject: Re: [PATCH] fix quickcam messenger build (git9)
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+In-Reply-To: <20060625182954.a557ffbd.rdunlap@xenotime.net>
+References: <20060625182954.a557ffbd.rdunlap@xenotime.net>
+Content-Type: text/plain
+Date: Mon, 26 Jun 2006 09:49:31 -0300
+Message-Id: <1151326171.3687.5.camel@praia>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
 Content-Transfer-Encoding: 7bit
@@ -24,49 +26,14 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Hi, Randy,
 
-Please pull these from master branch at:
-        kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
+> header filename changed:
+> drivers/media/video/usbvideo/quickcam_messenger.c:36:11: error: unable to open 'linux/usb_input.h'
 
-It contains the following stuff:
+Thanks. Andrew had already noticed this while at -mm tree and sent a
+fix. I've asked Linus to pull it, and should be in mainstream shortly.
 
-   - Fix an Oops for all fe that have get_frontend_algo == NULL
-   - Cx88: cleanups
-   - Make VIDEO_CX2341X a selectable build option
-   - Make VIDEO_CX88_BLACKBIRD a separate build option
-   - Fix a misplaced closing bracket/else, which caused swzigzag not to be called
-   - Av7110: analog sound output of DVB-C rev 2.3
-   - Add HM12 YUV format define.
-   - Always switch tuner mode when calling VIDIOC_S_FREQUENCY.
-   - Add V4L2_CID_MPEG_STREAM_VBI_FMT control
-   - Update this driver for recent header file movement.
-
-Cheers,
+Cheers, 
 Mauro.
-
-V4L/DVB development is hosted at http://linuxtv.org
----
-
- drivers/media/Kconfig                             |    3 
- drivers/media/dvb/dvb-core/dvb_frontend.c         |   33 ++++-----
- drivers/media/dvb/ttpci/av7110.c                  |    8 --
- drivers/media/dvb/ttpci/av7110_av.c               |   25 ++++++-
- drivers/media/dvb/ttpci/av7110_v4l.c              |   50 +++++++++++---
- drivers/media/video/Kconfig                       |   12 +++
- drivers/media/video/cx2341x.c                     |   17 ++++
- drivers/media/video/cx88/Kconfig                  |   15 +++-
- drivers/media/video/cx88/Makefile                 |    5 -
- drivers/media/video/cx88/cx88-blackbird.c         |   17 +---
- drivers/media/video/cx88/cx88-cards.c             |    5 -
- drivers/media/video/cx88/cx88-core.c              |    2 
- drivers/media/video/cx88/cx88-i2c.c               |    1 
- drivers/media/video/cx88/cx88-tvaudio.c           |    2 
- drivers/media/video/cx88/cx88.h                   |    7 -
- drivers/media/video/tuner-core.c                  |   10 --
- drivers/media/video/usbvideo/quickcam_messenger.c |    2 
- drivers/media/video/v4l2-common.c                 |   14 +++
- include/linux/videodev2.h                         |    6 +
- include/media/cx2341x.h                           |    6 +
- 20 files changed, 161 insertions(+), 79 deletions(-)
 

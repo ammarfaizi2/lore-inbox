@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWFZPvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWFZPxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWFZPvw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 11:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWFZPvw
+	id S1750723AbWFZPxA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 11:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWFZPw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 11:51:52 -0400
-Received: from k2smtpout02-02.prod.mesa1.secureserver.net ([64.202.189.91]:44168
-	"HELO k2smtpout02-02.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1750720AbWFZPvv (ORCPT
+	Mon, 26 Jun 2006 11:52:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28054 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750721AbWFZPw7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 11:51:51 -0400
-X-Antivirus-MYDOMAIN-Mail-From: razvan.g@plutohome.com via plutohome.com.secureserver.net
-X-Antivirus-MYDOMAIN: 1.25-st-qms (Clear:RC:0(82.77.255.201):SA:0(-2.4/5.0):. Processed in 1.309254 secs Process 22683)
-Message-ID: <44A002C3.9000807@plutohome.com>
-Date: Mon, 26 Jun 2006 18:52:35 +0300
-From: Razvan Gavril <razvan.g@plutohome.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
+	Mon, 26 Jun 2006 11:52:59 -0400
+Date: Mon, 26 Jun 2006 08:52:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PM_TRACE corrupts RTC
+In-Reply-To: <20060625232322.af3f4f6c.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0606260851000.3747@g5.osdl.org>
+References: <20060625232322.af3f4f6c.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: USB & Sysfs Question ( posible issue )
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If i had a usb-serial device in linux, i can/could find a symlink in 
-/sys/bus/usb-serial/devices named ttyUSBX that is/was pointing to 
-another sysfs directory, which is in /sys/device. The directory in the 
-/device looked something like this : 
-/devices/pci0000:00/0000:00:02.0/usb1/1-3/1-3:1.0/ttyUSBX . As far i 
-could figure out the '... usb1/1-3/...' part from the path means that 
-the device is connected to the port 3 of the 1st usb controler.
 
-I used this for a long of time to uniquely identify phisical usb ports 
-from a computer, when upgrading to 2.6.17, something strange started to 
-happen: even if i didn't remove the usb device from a specified port of 
-a the computer, sometimes when rebooting the usb controlers changed 
-their numbers in sysfs. A device that was before the reboot 
-'...usb1/1-3/...' can be now ' ...usb2/2-3...' or '...usb4/4-3...'.
 
-The main idea is that an usb port can't no loger be identified only by 
-looking on it's sysfs path. Is this a normal behavior ? I'm asking this 
-as i didn't get this numbering change when using older 2.6 kernel.
+On Sun, 25 Jun 2006, Andrew Morton wrote:
+> 
+> On a Sony Vaio, after a suspend-to-disk and a resume, `hwclock' says
+> 
+>   The Hardware Clock registers contain values that are either invalid
+>   (e.g.  50th day of month) or beyond the range we can handle (e.g.  Year
+>   2095).
+> 
+> and after a reboot the machine takes a trip back to 1969.  Setting
+> CONFIG_PM_TRACE=n prevents this.
 
-Thanks
+That's how it works. It's by design. The RTC is where the trace events are 
+stored, since that's the only piece of hw that reliably survives a reboot.
 
---
-Razvan Gavril
+The help-text says:
+
+        This enables some cheesy code to save the last PM event point in the
+        RTC across reboots, so that you can debug a machine that just hangs
+        during suspend (or more commonly, during resume).
+
+Heh.
+
+		Linus

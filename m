@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWFZUwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWFZUw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWFZUwc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 16:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWFZUwc
+	id S1751267AbWFZUw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 16:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWFZUw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 16:52:32 -0400
-Received: from r16s03p19.home.nbox.cz ([83.240.22.12]:39358 "EHLO
-	scarab.smoula.net") by vger.kernel.org with ESMTP id S1751266AbWFZUwb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 16:52:31 -0400
-Subject: NFS and partitioned md
-From: Martin Filip <bugtraq@smoula.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 26 Jun 2006 22:52:25 +0200
-Message-Id: <1151355145.4460.16.camel@archon.smoula-in.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Mon, 26 Jun 2006 16:52:56 -0400
+Received: from lana.hrz.tu-chemnitz.de ([134.109.132.3]:1516 "EHLO
+	lana.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S1751268AbWFZUwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 16:52:55 -0400
+Message-ID: <20060626225254.6hxf233zz4koog40@mail.tu-chemnitz.de>
+Date: Mon, 26 Jun 2006 22:52:54 +0200
+From: Ingo van Lil <inguin@gmx.de>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Serial: UART_BUG_TXEN race conditions
+References: <20060626220747.zmkyd4smqs0o044s@mail.tu-chemnitz.de>
+	<20060626202536.GJ21272@flint.arm.linux.org.uk>
+In-Reply-To: <20060626202536.GJ21272@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	format="flowed"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) H3 (4.0.4)
+X-Scan-Signature: f63ec78c36006dbd9f08cecca336b949
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello to LKML,
+Russell King <rmk+lkml@arm.linux.org.uk> schrieb:
 
-few days ago I've changed my sw RAID5 to use md_d devices, which are
-"partitonable". (major 254, minor dependant on partiton no)
+>> 1. What if the IIR actually equals UART_IIR_THRI at that point? The
+>>    read access will clear the interrupt condition and the workaround
+>>    will effect the actual opposite of its intention: Neither
+>>    serial8250_start_tx() nor the interrupt handler will start
+>>    transmitting characters for the ring buffer.
+>
+> Gah, looks like you're right - reading the IIR will clear the transmit
+> pending interrupt, so we should probably just load the transmitter up
+> with characters anyway if the TEMT bit is set.
 
-The problem is with kernel space NFS daemon. When I create loopback
-device and export it - everything works OK, but when exported directory
-is directly something goes really wrong and it's not possible to mount
-it.
+How about doing that on any controller, not just the buggy ones? It 
+shouldn't cause any problems even on well-behaved UARTs, or could it?
 
-I'm getting "nfs: server 192.168.0.2 not responding, timed out" in my
-kernel log, when I look on what's happening on network, the last thing
-what's there are 3 retransmitted GETATTR calls without any response. 
+> This function is run under the port spinlock, so the interrupt handler
+> will be held off until it completes.
 
-I'm a little bit confused because I thought that NFS should work on
-filesystem and should not care about devices, but it seems that it's not
-true.
+OK, great. Forget about my second concern, then.
 
-Is here someone who is interested in this problematic and know whether
-this is bug or feature? I've done lots of googling, but had not found
-anything relevant :(
+Cheers,
+Ingo
 
-Many thanks in advance...
-
--- 
-Martin Filip
-e-mail: nexus@smoula.net
-ICQ#: 31531391
-jabber: nexus@smoula.net
-
- ________________________________________ 
-/ BOFH Excuse #274: It was OK before you \
-\ touched it.                            /
- ---------------------------------------- 
-       \   ,__,
-        \  (oo)____
-           (__)    )\
-              ||--|| *
 

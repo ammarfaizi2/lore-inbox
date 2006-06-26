@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWFZXjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933208AbWFZXiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWFZXjd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:39:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933206AbWFZXjU
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:39:20 -0400
-Received: from stinky.trash.net ([213.144.137.162]:30404 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S933280AbWFZXiw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S933208AbWFZXiw (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 26 Jun 2006 19:38:52 -0400
-Message-ID: <44A0700A.8090600@trash.net>
-Date: Tue, 27 Jun 2006 01:38:50 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dlezcano@fr.ibm.com
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com
-Subject: Re: [RFC] [patch 0/6] [Network namespace] introduction
-References: <20060609210202.215291000@localhost.localdomain>
-In-Reply-To: <20060609210202.215291000@localhost.localdomain>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933206AbWFZXid
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 26 Jun 2006 19:38:33 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:31135 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933143AbWFZWej
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:34:39 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [Suspend2][ 7/9] [Suspend2] Relocate a piece of memory if required.
+Date: Tue, 27 Jun 2006 08:34:36 +1000
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060626223435.3963.65981.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223412.3963.1484.stgit@nigel.suspend2.net>
+References: <20060626223412.3963.1484.stgit@nigel.suspend2.net>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dlezcano@fr.ibm.com wrote:
-> What is missing ?
-> -----------------
-> The routes are not yet isolated, that implies:
-> 
->    - binding to another container's address is allowed
-> 
->    - an outgoing packet which has an unset source address can
->      potentially get another container's address
-> 
->    - an incoming packet can be routed to the wrong container if there
->      are several containers listening to the same addr:port
+Given an address and size (never more than a page and never overlapping
+page boundaries), relocate the data to an address that can be safely used
+during the atomic restore if that relocation is necessary. The memory to be
+freed might be slab or a normal page.
 
-Does that mean that identification of containers for incoming packets
-is done by IP address through routing (just had a quick look at the
-patches, if I missed something obvious please just point me to it)?
-How is code that uses global data without verifying its presence
-(and visibility in the container) at initialization time going to be
-handled? Netfilter and I think the TC action code contain some examples
-for this.
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
+ kernel/power/pagedir.c |   20 ++++++++++++++++++++
+ 1 files changed, 20 insertions(+), 0 deletions(-)
+
+diff --git a/kernel/power/pagedir.c b/kernel/power/pagedir.c
+index 4cdc0ef..ec75e79 100644
+--- a/kernel/power/pagedir.c
++++ b/kernel/power/pagedir.c
+@@ -288,3 +288,23 @@ unsigned long suspend_get_nonconflicting
+ 	return (unsigned long) page_address(page);
+ }
+ 
++/* relocate_page_if_required
++ *
++ * Description: Given the address of a pointer to a page, we check if the page
++ * 		needs relocating and do so if needs be, adjusting the pointer
++ * 		too.
++ */
++
++void suspend_relocate_if_required(unsigned long *current_value, unsigned int size)
++{
++	if (PagePageset1(virt_to_page(*current_value))) {
++		unsigned long new_page = suspend_get_nonconflicting_page();
++		memcpy((char *) new_page, (char *) *current_value, size);
++		if (PageSlab(virt_to_page(*current_value)))
++			kfree((void *) *current_value);
++		else
++			free_page((unsigned long) *current_value);
++		*current_value = new_page;
++	}
++}
++
+
+--
+Nigel Cunningham		nigel at suspend2 dot net

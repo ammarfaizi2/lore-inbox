@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWFZQxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWFZQxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWFZQxg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 12:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWFZQxg
+	id S1750887AbWFZQxu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 12:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWFZQxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 12:53:36 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:47750 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1750898AbWFZQxb
+	Mon, 26 Jun 2006 12:53:42 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:46726 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1750887AbWFZQxY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 12:53:31 -0400
+	Mon, 26 Jun 2006 12:53:24 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 10/11] [Suspend2] Get and put references to Suspend2 modules.
-Date: Tue, 27 Jun 2006 02:53:35 +1000
+Subject: [Suspend2][ 08/11] [Suspend2] Initialise and cleanup routines for suspend2 modules.
+Date: Tue, 27 Jun 2006 02:53:28 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626165334.10957.75157.stgit@nigel.suspend2.net>
+Message-Id: <20060626165327.10957.45861.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626165301.10957.62592.stgit@nigel.suspend2.net>
 References: <20060626165301.10957.62592.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,40 +22,43 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Functions to get and put references to suspend2 modules, to stop them being
-unloaded while in use.
+Routines to iterate through the list of suspend2 modules, calling their
+initialisation and cleanup routines.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/modules.c |   36 +++++++++++++++++++++++++++++++++++-
- 1 files changed, 35 insertions(+), 1 deletions(-)
+ kernel/power/modules.c |   49 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 49 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/modules.c b/kernel/power/modules.c
-index d7c2076..5c5cbf0 100644
+index af237b6..cd171a8 100644
 --- a/kernel/power/modules.c
 +++ b/kernel/power/modules.c
-@@ -288,6 +288,40 @@ struct suspend_module_ops *suspend_get_n
- 	return suspend_active_writer;
+@@ -219,6 +219,55 @@ void suspend_move_module_tail(struct sus
+ 		list_move_tail(&module->module_list, &suspend_modules);
  }
  
--	return len;
-+/* suspend_get_modules
-+ * 
-+ * Take a reference to modules so they can't go away under us.
++/*
++ * suspend_initialise_modules
++ *
++ * Get ready to do some work!
 + */
-+
-+int suspend_get_modules(void)
++int suspend_initialise_modules(int starting_cycle)
 +{
 +	struct suspend_module_ops *this_module;
++	int result;
 +	
 +	list_for_each_entry(this_module, &suspend_modules, module_list) {
-+		if (!try_module_get(this_module->module)) {
-+			/* Failed! Reverse gets and return error */
-+			struct suspend_module_ops *this_module2;
-+			list_for_each_entry(this_module2, &suspend_modules, module_list) {
-+				if (this_module == this_module2)
-+					return -EINVAL;
-+				module_put(this_module2->module);
++		if (this_module->disabled)
++			continue;
++		if (this_module->initialise) {
++			suspend_message(SUSPEND_MEMORY, SUSPEND_MEDIUM, 1,
++				"Initialising module %s.\n",
++				this_module->name);
++			if ((result = this_module->initialise(starting_cycle))) {
++				printk("%s didn't initialise okay.\n",
++						this_module->name);
++				return result;
 +			}
 +		}
 +	}
@@ -63,17 +66,28 @@ index d7c2076..5c5cbf0 100644
 +	return 0;
 +}
 +
-+/* suspend_put_modules
++/* 
++ * suspend_cleanup_modules
 + *
-+ * Release our references to modules we used.
++ * Tell modules the work is done.
 + */
-+
-+void suspend_put_modules(void)
++void suspend_cleanup_modules(int finishing_cycle)
 +{
 +	struct suspend_module_ops *this_module;
 +	
-+	list_for_each_entry(this_module, &suspend_modules, module_list)
-+		module_put(this_module->module);
++	list_for_each_entry(this_module, &suspend_modules, module_list) {
++		if (this_module->disabled)
++			continue;
++		if (this_module->cleanup) {
++			suspend_message(SUSPEND_MEMORY, SUSPEND_MEDIUM, 1,
++				"Cleaning up module %s.\n",
++				this_module->name);
++			this_module->cleanup(finishing_cycle);
++		}
++	}
++}
++
+ 	return len;
  }
  
 

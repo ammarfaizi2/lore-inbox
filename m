@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWFZSAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWFZSCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWFZSAw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 14:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWFZSAv
+	id S932337AbWFZSCs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 14:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWFZSCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 14:00:51 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:25529 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932228AbWFZSAt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 14:00:49 -0400
-Message-ID: <44A020CD.30903@watson.ibm.com>
-Date: Mon, 26 Jun 2006 14:00:45 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jay Lan <jlan@sgi.com>, jlan@engr.sgi.com, balbir@in.ibm.com,
-       csturtiv@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com>	<20060609042129.ae97018c.akpm@osdl.org>	<4489EE7C.3080007@watson.ibm.com>	<449999D1.7000403@engr.sgi.com>	<44999A98.8030406@engr.sgi.com>	<44999F5A.2080809@watson.ibm.com>	<4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>	<20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>	<20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>	<20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>	<44A01A50.1050403@sgi.com> <20060626105548.edef4c64.akpm@osdl.org>
-In-Reply-To: <20060626105548.edef4c64.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jun 2006 14:02:47 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:48012 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S932455AbWFZSCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 14:02:45 -0400
+Date: Mon, 26 Jun 2006 20:02:44 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Chris Rankin <rankincj@yahoo.com>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.17: PMTimer results for another PCI chipset
+Message-ID: <20060626180244.GA6898@rhlx01.fht-esslingen.de>
+References: <20060626120847.GA6272@rhlx01.fht-esslingen.de> <20060626174412.76248.qmail@web52905.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060626174412.76248.qmail@web52905.mail.yahoo.com>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi,
 
->On Mon, 26 Jun 2006 10:33:04 -0700
->Jay Lan <jlan@sgi.com> wrote:
->
->  
->
->>>Will that work for everyone ?
->>>      
->>>
->>As long as the per-pid delayacct struct has a pointer to the per-tgid
->>data struct and deoes not need to go through the loop on every exit.
->>    
->>
->
->My brain is wilting, and time is moving along.
->
->Balbir, are you able to summarise where we stand wrt
->per-task-delay-accounting-* now?
->  
->
-Andrew,
+On Mon, Jun 26, 2006 at 06:44:12PM +0100, Chris Rankin wrote:
+> --- Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
+> > Yeah, but this is no problem anyway, since it's neither in the blacklisted
+> > nor in the graylisted area, IOW it's whitelisted and should work
+> > without delays.
+> > Or do you get the "The chipset may have PM-Timer Bug" message here??
+> > 
+> > > 00:1f.0 Class 0601: 8086:2440 (rev 05)
+> > 
+> > #define PCI_DEVICE_ID_INTEL_82801BA_0   0x2440
+> 
+> Nope, it's all good. But since this chipset was released between the one which definitely has the
+> bug and one which might have the bug, I thought that it was worth testing it for real.
 
-I'm maintaining per-task delay accouting and taskstats interface patches 
-so I'll take the liberty to reply :-)
+Oh, then it's a very valid concern indeed!
+Thanks for verifying that it doesn't seem to be a problem here.
+(however, given the SMM/SMI BIOS fixups as pointed out by Albert Cahalan,
+there might still be an issue with this chipset)
 
->What problem have we identified?  How close are we to finding agreeable
->solutions to them?
->  
->
-The main problems identified are:
-
-1. extra sending of per-tgid stats on every thread exit
-2. unnecessary send of per-tgid stats when there are no listeners
-3. unnecessary linkage of delayacct accumalation into per-tgid stats 
-with sending out of taskstats
-
-All three have an acceptable solution.
-1. & 3. are going to be addressed in a patch I'm sending out shortly.
-2. in a separate patch also being sent out shortly.
-
->My general sense is that there's some rework needed, and that rework will
->affect the userspace interfaces, which is a problem for a 2.6.18 merge.
->  
->
-The rework will affect the number of per-tgid records that userspace 
-sees (fewer), not the format or any of the
-other details regarding the genetlink interface.
-Will that be a problem for userspace ?
-
---Shailabh
-
+Andreas Mohr

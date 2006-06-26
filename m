@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWFZA7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbWFZA75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbWFZA7e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 20:59:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWFZA7c
+	id S965106AbWFZA75 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 20:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbWFZA7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 20:59:32 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:21391 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965002AbWFZA7I
+	Sun, 25 Jun 2006 20:59:53 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:25231 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S965106AbWFZA7a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:59:08 -0400
-Date: Sun, 25 Jun 2006 17:58:04 -0700
+	Sun, 25 Jun 2006 20:59:30 -0400
+Date: Sun, 25 Jun 2006 17:58:08 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 24/43] i386 support for klibc
-Message-Id: <klibc.200606251757.24@tazenda.hos.anvin.org>
+Subject: [klibc 37/43] x86_64 support for klibc
+Message-Id: <klibc.200606251757.37@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The parts of klibc specific to the i386 architecture.
+The parts of klibc specific to the x86_64 architecture.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit bd0599e5290ca1a16bb7a68f7c362d395c612eb3
-tree 8f33afdd02a14c22e7a3984da2bad13184e3f729
-parent 84f6a72f42cf41e32daa59871a0b5424572093e4
-author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:21 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:21 -0700
+commit f889dd04bef1aed36ba18161c727af47338e167a
+tree c25f184d2e3337b52dfe3abd191ec639d4d9543d
+parent f30fa3db62972125afa68d3b53d03cdb843d3bbd
+author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:53 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:53 -0700
 
- usr/include/arch/i386/klibc/archconfig.h |   19 ++++
- usr/include/arch/i386/klibc/archsetjmp.h |   19 ++++
- usr/include/arch/i386/klibc/archsignal.h |  114 +++++++++++++++++++++++++++
- usr/include/arch/i386/klibc/archstat.h   |   38 +++++++++
- usr/include/arch/i386/klibc/archsys.h    |   12 +++
- usr/include/arch/i386/klibc/diverr.h     |   15 ++++
- usr/include/arch/i386/sys/io.h           |  127 ++++++++++++++++++++++++++++++
- usr/include/arch/i386/sys/vm86.h         |   40 +++++++++
- usr/klibc/arch/i386/MCONFIG              |   33 ++++++++
- usr/klibc/arch/i386/Makefile.inc         |   30 +++++++
- usr/klibc/arch/i386/crt0.S               |   31 +++++++
- usr/klibc/arch/i386/libgcc/__ashldi3.S   |   29 +++++++
- usr/klibc/arch/i386/libgcc/__ashrdi3.S   |   29 +++++++
- usr/klibc/arch/i386/libgcc/__lshrdi3.S   |   29 +++++++
- usr/klibc/arch/i386/libgcc/__muldi3.S    |   34 ++++++++
- usr/klibc/arch/i386/libgcc/__negdi2.S    |   21 +++++
- usr/klibc/arch/i386/open.S               |   29 +++++++
- usr/klibc/arch/i386/openat.S             |   26 ++++++
- usr/klibc/arch/i386/setjmp.S             |   58 ++++++++++++++
- usr/klibc/arch/i386/sigreturn.S          |   15 ++++
- usr/klibc/arch/i386/socketcall.S         |   55 +++++++++++++
- usr/klibc/arch/i386/syscall.S            |   69 ++++++++++++++++
- usr/klibc/arch/i386/sysstub.ph           |   26 ++++++
- usr/klibc/arch/i386/varsyscall.S         |   36 +++++++++
- usr/klibc/arch/i386/vfork.S              |   26 ++++++
- 25 files changed, 960 insertions(+), 0 deletions(-)
+ usr/include/arch/x86_64/klibc/archconfig.h |   15 +++
+ usr/include/arch/x86_64/klibc/archsetjmp.h |   21 +++++
+ usr/include/arch/x86_64/klibc/archsignal.h |   18 ++++
+ usr/include/arch/x86_64/klibc/archstat.h   |   28 ++++++
+ usr/include/arch/x86_64/klibc/archsys.h    |  109 ++++++++++++++++++++++++
+ usr/include/arch/x86_64/sys/io.h           |  127 ++++++++++++++++++++++++++++
+ usr/klibc/arch/x86_64/MCONFIG              |   35 ++++++++
+ usr/klibc/arch/x86_64/Makefile.inc         |   18 ++++
+ usr/klibc/arch/x86_64/crt0.S               |   22 +++++
+ usr/klibc/arch/x86_64/setjmp.S             |   54 ++++++++++++
+ usr/klibc/arch/x86_64/sigreturn.S          |   15 +++
+ usr/klibc/arch/x86_64/syscall.S            |   28 ++++++
+ usr/klibc/arch/x86_64/sysstub.ph           |   23 +++++
+ usr/klibc/arch/x86_64/vfork.S              |   26 ++++++
+ 14 files changed, 539 insertions(+), 0 deletions(-)
 
-diff --git a/usr/include/arch/i386/klibc/archconfig.h b/usr/include/arch/i386/klibc/archconfig.h
+diff --git a/usr/include/arch/x86_64/klibc/archconfig.h b/usr/include/arch/x86_64/klibc/archconfig.h
 new file mode 100644
-index 0000000..4463d08
+index 0000000..b8a2a6d
 --- /dev/null
-+++ b/usr/include/arch/i386/klibc/archconfig.h
-@@ -0,0 +1,19 @@
++++ b/usr/include/arch/x86_64/klibc/archconfig.h
+@@ -0,0 +1,15 @@
 +/*
-+ * include/arch/i386/klibc/archconfig.h
++ * include/arch/x86_64/klibc/archconfig.h
 + *
 + * See include/klibc/sysconfig.h for the options that can be set in
 + * this file.
@@ -72,47 +61,45 @@ index 0000000..4463d08
 +#ifndef _KLIBC_ARCHCONFIG_H
 +#define _KLIBC_ARCHCONFIG_H
 +
-+/* On i386, only half the signals are accessible using the legacy calls. */
-+#define _KLIBC_USE_RT_SIG 1
-+
-+/* The stock i386 kernel is fine, but a whole string of Fedora kernels
-+   had a broken default restorer.  It's easier to enable this here. */
++/* x86-64 doesn't provide a default sigreturn. */
 +#define _KLIBC_NEEDS_SA_RESTORER 1
 +
 +#endif				/* _KLIBC_ARCHCONFIG_H */
-diff --git a/usr/include/arch/i386/klibc/archsetjmp.h b/usr/include/arch/i386/klibc/archsetjmp.h
+diff --git a/usr/include/arch/x86_64/klibc/archsetjmp.h b/usr/include/arch/x86_64/klibc/archsetjmp.h
 new file mode 100644
-index 0000000..ea1ba3d
+index 0000000..454fc60
 --- /dev/null
-+++ b/usr/include/arch/i386/klibc/archsetjmp.h
-@@ -0,0 +1,19 @@
++++ b/usr/include/arch/x86_64/klibc/archsetjmp.h
+@@ -0,0 +1,21 @@
 +/*
-+ * arch/i386/include/klibc/archsetjmp.h
++ * arch/x86_64/include/klibc/archsetjmp.h
 + */
 +
 +#ifndef _KLIBC_ARCHSETJMP_H
 +#define _KLIBC_ARCHSETJMP_H
 +
 +struct __jmp_buf {
-+	unsigned int __ebx;
-+	unsigned int __esp;
-+	unsigned int __ebp;
-+	unsigned int __esi;
-+	unsigned int __edi;
-+	unsigned int __eip;
++	unsigned long __rbx;
++	unsigned long __rsp;
++	unsigned long __rbp;
++	unsigned long __r12;
++	unsigned long __r13;
++	unsigned long __r14;
++	unsigned long __r15;
++	unsigned long __rip;
 +};
 +
 +typedef struct __jmp_buf jmp_buf[1];
 +
 +#endif				/* _SETJMP_H */
-diff --git a/usr/include/arch/i386/klibc/archsignal.h b/usr/include/arch/i386/klibc/archsignal.h
+diff --git a/usr/include/arch/x86_64/klibc/archsignal.h b/usr/include/arch/x86_64/klibc/archsignal.h
 new file mode 100644
-index 0000000..6c942db
+index 0000000..6c8ec77
 --- /dev/null
-+++ b/usr/include/arch/i386/klibc/archsignal.h
-@@ -0,0 +1,114 @@
++++ b/usr/include/arch/x86_64/klibc/archsignal.h
+@@ -0,0 +1,18 @@
 +/*
-+ * arch/i386/include/klibc/archsignal.h
++ * arch/x86_64/include/klibc/archsignal.h
 + *
 + * Architecture-specific signal definitions
 + *
@@ -121,116 +108,20 @@ index 0000000..6c942db
 +#ifndef _KLIBC_ARCHSIGNAL_H
 +#define _KLIBC_ARCHSIGNAL_H
 +
-+/* The in-kernel headers for i386 still have libc5
-+   crap in them.  Reconsider using <asm/signal.h>
-+   when/if it gets cleaned up; for now, duplicate
-+   the definitions here. */
-+
-+#define _NSIG           64
-+#define _NSIG_BPW       32
-+#define _NSIG_WORDS     (_NSIG / _NSIG_BPW)
-+
-+typedef struct {
-+	unsigned long sig[_NSIG_WORDS];
-+} sigset_t;
-+
-+#define SIGHUP           1
-+#define SIGINT           2
-+#define SIGQUIT          3
-+#define SIGILL           4
-+#define SIGTRAP          5
-+#define SIGABRT          6
-+#define SIGIOT           6
-+#define SIGBUS           7
-+#define SIGFPE           8
-+#define SIGKILL          9
-+#define SIGUSR1         10
-+#define SIGSEGV         11
-+#define SIGUSR2         12
-+#define SIGPIPE         13
-+#define SIGALRM         14
-+#define SIGTERM         15
-+#define SIGSTKFLT       16
-+#define SIGCHLD         17
-+#define SIGCONT         18
-+#define SIGSTOP         19
-+#define SIGTSTP         20
-+#define SIGTTIN         21
-+#define SIGTTOU         22
-+#define SIGURG          23
-+#define SIGXCPU         24
-+#define SIGXFSZ         25
-+#define SIGVTALRM       26
-+#define SIGPROF         27
-+#define SIGWINCH        28
-+#define SIGIO           29
-+#define SIGPOLL         SIGIO
-+#define SIGPWR          30
-+#define SIGSYS          31
-+#define SIGUNUSED       31
-+
-+#define SIGRTMIN        32
-+#define SIGRTMAX        (_NSIG-1)
-+
-+/*
-+ * SA_FLAGS values:
-+ *
-+ * SA_ONSTACK indicates that a registered stack_t will be used.
-+ * SA_INTERRUPT is a no-op, but left due to historical reasons. Use the
-+ * SA_RESTART flag to get restarting signals (which were the default long ago)
-+ * SA_NOCLDSTOP flag to turn off SIGCHLD when children stop.
-+ * SA_RESETHAND clears the handler when the signal is delivered.
-+ * SA_NOCLDWAIT flag on SIGCHLD to inhibit zombies.
-+ * SA_NODEFER prevents the current signal from being masked in the handler.
-+ *
-+ * SA_ONESHOT and SA_NOMASK are the historical Linux names for the Single
-+ * Unix names RESETHAND and NODEFER respectively.
-+ */
-+#define SA_NOCLDSTOP	0x00000001u
-+#define SA_NOCLDWAIT	0x00000002u
-+#define SA_SIGINFO	0x00000004u
-+#define SA_ONSTACK	0x08000000u
-+#define SA_RESTART	0x10000000u
-+#define SA_NODEFER	0x40000000u
-+#define SA_RESETHAND	0x80000000u
-+
-+#define SA_NOMASK	SA_NODEFER
-+#define SA_ONESHOT	SA_RESETHAND
-+#define SA_INTERRUPT	0x20000000	/* dummy -- ignored */
-+
-+#define SA_RESTORER	0x04000000
-+
-+/*
-+ * sigaltstack controls
-+ */
-+#define SS_ONSTACK	1
-+#define SS_DISABLE	2
-+
-+#define MINSIGSTKSZ	2048
-+#define SIGSTKSZ	8192
-+
-+#include <asm-generic/signal.h>
-+
-+/* This uses gcc anonymous union support... */
-+struct siginfo;
-+
-+struct sigaction {
-+	union {
-+		__sighandler_t sa_handler;
-+		void (*sa_sigaction)(int, struct siginfo *, void *);
-+	};
-+	unsigned long	sa_flags;
-+	__sigrestore_t 	sa_restorer;
-+	sigset_t	sa_mask;
-+};
++#include <asm/signal.h>
++/* The x86-64 headers defines NSIG 32, but it's actually 64 */
++#undef  _NSIG
++#undef  NSIG
++#define _NSIG 64
++#define NSIG  _NSIG
 +
 +#endif
-diff --git a/usr/include/arch/i386/klibc/archstat.h b/usr/include/arch/i386/klibc/archstat.h
+diff --git a/usr/include/arch/x86_64/klibc/archstat.h b/usr/include/arch/x86_64/klibc/archstat.h
 new file mode 100644
-index 0000000..c00f955
+index 0000000..de168ac
 --- /dev/null
-+++ b/usr/include/arch/i386/klibc/archstat.h
-@@ -0,0 +1,38 @@
++++ b/usr/include/arch/x86_64/klibc/archstat.h
+@@ -0,0 +1,28 @@
 +#ifndef _KLIBC_ARCHSTAT_H
 +#define _KLIBC_ARCHSTAT_H
 +
@@ -238,45 +129,35 @@ index 0000000..c00f955
 +
 +#define _STATBUF_ST_NSEC
 +
-+/* This matches struct stat64 in glibc2.1, hence the absolutely
-+ * insane amounts of padding around dev_t's.
-+ */
 +struct stat {
 +	__stdev64	(st_dev);
-+	unsigned char	__pad0[4];
-+
-+	unsigned long	__st_ino;
++	unsigned long	st_ino;
++	unsigned long	st_nlink;
 +
 +	unsigned int	st_mode;
-+	unsigned int	st_nlink;
-+
-+	unsigned long	st_uid;
-+	unsigned long	st_gid;
-+
++	unsigned int	st_uid;
++	unsigned int	st_gid;
++	unsigned int	__pad0;
 +	__stdev64	(st_rdev);
-+	unsigned char	__pad3[4];
-+
-+	long long	st_size;
-+	unsigned long	st_blksize;
-+
-+	unsigned long long st_blocks;	/* Number 512-byte blocks allocated. */
++	long		st_size;
++	long		st_blksize;
++	long		st_blocks;	/* Number 512-byte blocks allocated. */
 +
 +	struct timespec st_atim;
 +	struct timespec st_mtim;
 +	struct timespec st_ctim;
-+
-+	unsigned long long	st_ino;
++  	long		__unused[3];
 +};
 +
 +#endif
-diff --git a/usr/include/arch/i386/klibc/archsys.h b/usr/include/arch/i386/klibc/archsys.h
+diff --git a/usr/include/arch/x86_64/klibc/archsys.h b/usr/include/arch/x86_64/klibc/archsys.h
 new file mode 100644
-index 0000000..e655680
+index 0000000..45c71a7
 --- /dev/null
-+++ b/usr/include/arch/i386/klibc/archsys.h
-@@ -0,0 +1,12 @@
++++ b/usr/include/arch/x86_64/klibc/archsys.h
+@@ -0,0 +1,109 @@
 +/*
-+ * arch/cris/include/klibc/archsys.h
++ * arch/x86_64/include/klibc/archsys.h
 + *
 + * Architecture-specific syscall definitions
 + */
@@ -284,35 +165,111 @@ index 0000000..e655680
 +#ifndef _KLIBC_ARCHSYS_H
 +#define _KLIBC_ARCHSYS_H
 +
-+/* No special syscall definitions for this architecture */
++/* The x86-64 syscall headers are needlessly inefficient */
 +
-+#endif				/* _KLIBC_ARCHSYS_H */
-diff --git a/usr/include/arch/i386/klibc/diverr.h b/usr/include/arch/i386/klibc/diverr.h
-new file mode 100644
-index 0000000..fa238ac
---- /dev/null
-+++ b/usr/include/arch/i386/klibc/diverr.h
-@@ -0,0 +1,15 @@
-+/*
-+ * arch/i386/include/klibc/diverr.h
-+ */
++#undef _syscall0
++#undef _syscall1
++#undef _syscall2
++#undef _syscall3
++#undef _syscall4
++#undef _syscall5
++#undef _syscall6
 +
-+#ifndef _KLIBC_DIVERR_H
-+#define _KLIBC_DIVERR_H
-+
-+#include <signal.h>
-+
-+static __inline__ void __divide_error(void)
-+{
-+	asm volatile ("int $0");
++#define _syscall0(type,name) \
++type name (void) \
++{ \
++long __res; \
++__asm__ volatile (__syscall \
++        : "=a" (__res) \
++        : "0" (__NR_##name) \
++        : __syscall_clobber); \
++__syscall_return(type,__res); \
 +}
 +
-+#endif				/* _KLIBC_DIVERR_H */
-diff --git a/usr/include/arch/i386/sys/io.h b/usr/include/arch/i386/sys/io.h
++#define _syscall1(type,name,type1,arg1) \
++type name (type1 arg1) \
++{ \
++long __res; \
++__asm__ volatile (__syscall \
++        : "=a" (__res) \
++        : "0" (__NR_##name),"D" (arg1) \
++        : __syscall_clobber); \
++__syscall_return(type,__res); \
++}
++
++#define _syscall2(type,name,type1,arg1,type2,arg2) \
++type name (type1 arg1,type2 arg2) \
++{ \
++long __res; \
++__asm__ volatile (__syscall \
++        : "=a" (__res) \
++        : "0" (__NR_##name),"D" (arg1),"S" (arg2) \
++        : __syscall_clobber); \
++__syscall_return(type,__res); \
++}
++
++#define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
++type name (type1 arg1,type2 arg2,type3 arg3) \
++{ \
++long __res; \
++__asm__ volatile (__syscall \
++        : "=a" (__res) \
++        : "0" (__NR_##name),"D" (arg1),"S" (arg2), \
++          "d" (arg3) \
++        : __syscall_clobber); \
++__syscall_return(type,__res); \
++}
++
++#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
++type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4) \
++{ \
++long __res; \
++register type4 __r10 asm("%r10") = arg4; \
++__asm__ volatile (__syscall \
++        : "=a" (__res) \
++        : "0" (__NR_##name),"D" (arg1),"S" (arg2), \
++          "d" (arg3),"r" (__r10) \
++        : __syscall_clobber); \
++__syscall_return(type,__res); \
++}
++
++#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
++          type5,arg5) \
++type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5) \
++{ \
++long __res; \
++register type4 __r10 asm("%r10") = arg4; \
++register type5 __r8  asm("%r8")  = arg5; \
++__asm__ volatile (__syscall \
++        : "=a" (__res) \
++        : "0" (__NR_##name),"D" (arg1),"S" (arg2), \
++          "d" (arg3),"r" (__r10),"r" (__r8) \
++        : __syscall_clobber); \
++__syscall_return(type,__res); \
++}
++
++#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
++          type5,arg5,type6,arg6) \
++type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5,type6 arg6) \
++{ \
++long __res; \
++register type4 __r10 asm("%r10") = arg4; \
++register type5 __r8  asm("%r8")  = arg5; \
++register type6 __r9  asm("%r9")  = arg6; \
++__asm__ volatile (__syscall \
++        : "=a" (__res) \
++        : "0" (__NR_##name),"D" (arg1),"S" (arg2), \
++          "d" (arg3),"r" (__r10),"r" (__r8), "r" (__r9) \
++        : __syscall_clobber); \
++__syscall_return(type,__res); \
++}
++
++#endif				/* _KLIBC_ARCHSYS_H */
+diff --git a/usr/include/arch/x86_64/sys/io.h b/usr/include/arch/x86_64/sys/io.h
 new file mode 100644
-index 0000000..cf31b97
+index 0000000..2a0ca48
 --- /dev/null
-+++ b/usr/include/arch/i386/sys/io.h
++++ b/usr/include/arch/x86_64/sys/io.h
 @@ -0,0 +1,127 @@
 +/* ----------------------------------------------------------------------- *
 + *
@@ -359,38 +316,38 @@ index 0000000..cf31b97
 +
 +static __inline__ void outb(unsigned char __v, unsigned short __p)
 +{
-+	asm volatile ("outb %0,%1" : : "a" (__v), "dN" (__p));
++	asm volatile ("outb %0,%1" : : "a" (__v), "dN"(__p));
 +}
 +
 +static __inline__ void outw(unsigned short __v, unsigned short __p)
 +{
-+	asm volatile ("outw %0,%1" : : "a" (__v), "dN" (__p));
++	asm volatile ("outw %0,%1" : : "a" (__v), "dN"(__p));
 +}
 +
 +static __inline__ void outl(unsigned int __v, unsigned short __p)
 +{
-+	asm volatile ("outl %0,%1" : : "a" (__v), "dN" (__p));
++	asm volatile ("outl %0,%1" : : "a" (__v), "dN"(__p));
 +}
 +
 +static __inline__ unsigned char inb(unsigned short __p)
 +{
 +	unsigned char __v;
-+	asm volatile ("inb %1,%0" : "=a" (__v) : "dN" (__p));
-+	return __v;
++	asm volatile ("inb %1,%0" : "=a" (__v) : "dN"(__p));
++	return v;
 +}
 +
 +static __inline__ unsigned short inw(unsigned short __p)
 +{
 +	unsigned short __v;
-+	asm volatile ("inw %1,%0" : "=a" (__v) : "dN" (__p));
-+	return __v;
++	asm volatile ("inw %1,%0" : "=a" (__v) : "dN"(__p));
++	return v;
 +}
 +
 +static __inline__ unsigned int inl(unsigned short __p)
 +{
 +	unsigned int __v;
-+	asm volatile ("inl %1,%0" : "=a" (__v) : "dN" (__p));
-+	return __v;
++	asm volatile ("inl %1,%0" : "=a" (__v) : "dN"(__p));
++	return v;
 +}
 +
 +/* String I/O macros */
@@ -399,16 +356,16 @@ index 0000000..cf31b97
 +outsb(unsigned short __p, const void *__d, unsigned long __n)
 +{
 +	asm volatile ("cld; rep; outsb"
-+		      : "+S" (__d), "+c" (__n)
-+		      : "d" (__p));
++		      : "+S" (__d), "+c"(__n)
++		      : "d"(__p));
 +}
 +
 +static __inline__ void
 +outsw(unsigned short __p, const void *__d, unsigned long __n)
 +{
 +	asm volatile ("cld; rep; outsw"
-+		      : "+S" (__d), "+c" (__n)
-+		      : "d" (__p));
++		      : "+S" (__d), "+c"(__n)
++		      : "d"(__p));
 +}
 +
 +static __inline__ void
@@ -416,125 +373,81 @@ index 0000000..cf31b97
 +{
 +	asm volatile ("cld; rep; outsl"
 +		      : "+S" (__d), "+c"(__n)
-+		      : "d" (__p));
++		      : "d"(__p));
 +}
 +
 +static __inline__ void insb(unsigned short __p, void *__d, unsigned long __n)
 +{
 +	asm volatile ("cld; rep; insb"
-+		      : "+D" (__d), "+c" (__n)
-+		      : "d" (__p));
++		      : "+D" (__d), "+c"(__n)
++		      : "d"(__p));
 +}
 +
 +static __inline__ void insw(unsigned short __p, void *__d, unsigned long __n)
 +{
 +	asm volatile ("cld; rep; insw"
-+		      : "+D" (__d), "+c" (__n)
-+		      : "d" (__p));
++		      : "+D" (__d), "+c"(__n)
++		      : "d"(__p));
 +}
 +
 +static __inline__ void insl(unsigned short __p, void *__d, unsigned long __n)
 +{
 +	asm volatile ("cld; rep; insl"
-+		      : "+D" (__d), "+c" (__n)
-+		      : "d" (__p));
++		      : "+D" (__d), "+c"(__n)
++		      : "d"(__p));
 +}
 +
 +#endif				/* _SYS_IO_H */
-diff --git a/usr/include/arch/i386/sys/vm86.h b/usr/include/arch/i386/sys/vm86.h
+diff --git a/usr/klibc/arch/x86_64/MCONFIG b/usr/klibc/arch/x86_64/MCONFIG
 new file mode 100644
-index 0000000..c4651cd
+index 0000000..edcd638
 --- /dev/null
-+++ b/usr/include/arch/i386/sys/vm86.h
-@@ -0,0 +1,40 @@
-+/* ----------------------------------------------------------------------- *
-+ *
-+ *   Copyright 2004 H. Peter Anvin - All Rights Reserved
-+ *
-+ *   Permission is hereby granted, free of charge, to any person
-+ *   obtaining a copy of this software and associated documentation
-+ *   files (the "Software"), to deal in the Software without
-+ *   restriction, including without limitation the rights to use,
-+ *   copy, modify, merge, publish, distribute, sublicense, and/or
-+ *   sell copies of the Software, and to permit persons to whom
-+ *   the Software is furnished to do so, subject to the following
-+ *   conditions:
-+ *
-+ *   The above copyright notice and this permission notice shall
-+ *   be included in all copies or substantial portions of the Software.
-+ *
-+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ *   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-+ *   OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ *   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-+ *   HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-+ *   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-+ *   OTHER DEALINGS IN THE SOFTWARE.
-+ *
-+ * ----------------------------------------------------------------------- */
-+
-+/*
-+ * sys/vm86.h for i386
-+ */
-+
-+#ifndef _SYS_VM86_H
-+#define _SYS_VM86_H 1
-+
-+#include <asm/vm86.h>
-+
-+/* Actual system call */
-+int vm86(struct vm86_struct *);
-+
-+#endif
-diff --git a/usr/klibc/arch/i386/MCONFIG b/usr/klibc/arch/i386/MCONFIG
-new file mode 100644
-index 0000000..e173266
---- /dev/null
-+++ b/usr/klibc/arch/i386/MCONFIG
-@@ -0,0 +1,33 @@
++++ b/usr/klibc/arch/x86_64/MCONFIG
+@@ -0,0 +1,35 @@
 +# -*- makefile -*-
 +#
-+# arch/i386/MCONFIG
++# arch/x86-64/MCONFIG
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
 +# accordingly.
 +#
++# Blatantly copied and modified from i386 version by Mats Petersson, AMD.
++#
 +
-+# Enable this to compile with register parameters; only safe for
-+# gcc >= 3
-+
-+ifeq ($(CONFIG_REGPARM),y)
-+REGPARM_OPT := -mregparm=3 -D_REGPARM=3
++#
++# NOTE: -fno-asynchronous-unwind-tables produce significantly smaller
++# binaries (20% smaller), but makes the code completely useless for
++# debugging using gdb.
++#
++KLIBCARCHREQFLAGS = -m64
++ifeq ($(DEBUG),y)
++KLIBCOPTFLAGS     = -Os -fomit-frame-pointer \
++		-falign-functions=1 -falign-jumps=1 -falign-loops=1
++else
++KLIBCOPTFLAGS     = -Os -fno-asynchronous-unwind-tables -fomit-frame-pointer \
++		-falign-functions=1 -falign-jumps=1 -falign-loops=1
 +endif
-+
-+gcc_align_option  := $(call cc-option, \
-+		-falign-functions=0 -falign-jumps=0 -falign-loops=0, \
-+		-malign-functions=0 -malign-jumps=0 -malign-loops=0)
-+gcc_m32_option  := $(call cc-option, -m32, )
-+
-+KLIBCOPTFLAGS     = -march=i386 -Os -g -fomit-frame-pointer $(gcc_align_option)
-+KLIBCLDFLAGS      = -m elf_i386
-+KLIBCREQFLAGS	  += $(REGPARM_OPT)
-+KLIBCARCHREQFLAGS += $(gcc_m32_option)
-+
-+KLIBCBITSIZE  = 32
++KLIBCBITSIZE      = 64
++KLIBCLDFLAGS      = -m elf_x86_64
 +
 +# Extra linkflags when building the shared version of the library
 +# This address needs to be reachable using normal inter-module
 +# calls, and work on the memory models for this architecture
-+# 96 MB - normal binaries start at 128 MB
-+KLIBCSHAREDFLAGS	= -Ttext 0x06000200
-diff --git a/usr/klibc/arch/i386/Makefile.inc b/usr/klibc/arch/i386/Makefile.inc
++# 2 MB - normal binaries start at 4 MB
++KLIBCSHAREDFLAGS     = -Ttext 0x00200200
++
++# Additional asm- directories needed during installation
++ASMARCH = asm-i386
+diff --git a/usr/klibc/arch/x86_64/Makefile.inc b/usr/klibc/arch/x86_64/Makefile.inc
 new file mode 100644
-index 0000000..d13a28f
+index 0000000..4bfe56a
 --- /dev/null
-+++ b/usr/klibc/arch/i386/Makefile.inc
-@@ -0,0 +1,30 @@
++++ b/usr/klibc/arch/x86_64/Makefile.inc
+@@ -0,0 +1,18 @@
 +# -*- makefile -*-
 +#
-+# arch/i386/Makefile.inc
++# arch/x86_64/Makefile.inc
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
@@ -542,34 +455,22 @@ index 0000000..d13a28f
 +#
 +
 +KLIBCARCHOBJS = \
-+	arch/$(KLIBCARCH)/socketcall.o \
 +	arch/$(KLIBCARCH)/setjmp.o \
 +	arch/$(KLIBCARCH)/syscall.o \
-+	arch/$(KLIBCARCH)/varsyscall.o \
-+	arch/$(KLIBCARCH)/open.o \
-+	arch/$(KLIBCARCH)/openat.o \
 +	arch/$(KLIBCARCH)/sigreturn.o \
-+	arch/$(KLIBCARCH)/vfork.o \
-+	arch/$(KLIBCARCH)/libgcc/__ashldi3.o \
-+	arch/$(KLIBCARCH)/libgcc/__ashrdi3.o \
-+	arch/$(KLIBCARCH)/libgcc/__lshrdi3.o \
-+	arch/$(KLIBCARCH)/libgcc/__muldi3.o \
-+	arch/$(KLIBCARCH)/libgcc/__negdi2.o \
-+	libgcc/__divdi3.o \
-+	libgcc/__moddi3.o \
-+	libgcc/__udivdi3.o \
-+	libgcc/__umoddi3.o \
-+	libgcc/__udivmoddi4.o
++	arch/$(KLIBCARCH)/vfork.o
++
++KLIBCARCHSOOBJS = $(patsubst %.o,%.lo,$(KLIBCARCHOBJS))
 +
 +archclean:
-diff --git a/usr/klibc/arch/i386/crt0.S b/usr/klibc/arch/i386/crt0.S
+diff --git a/usr/klibc/arch/x86_64/crt0.S b/usr/klibc/arch/x86_64/crt0.S
 new file mode 100644
-index 0000000..8c6635e
+index 0000000..6a5f335
 --- /dev/null
-+++ b/usr/klibc/arch/i386/crt0.S
-@@ -0,0 +1,31 @@
++++ b/usr/klibc/arch/x86_64/crt0.S
+@@ -0,0 +1,22 @@
 +#
-+# arch/i386/crt0.S
++# arch/x86_64/crt0.S
 +#
 +# Does arch-specific initialization and invokes __libc_init
 +# with the appropriate arguments.
@@ -583,280 +484,34 @@ index 0000000..8c6635e
 +	.type _start,@function
 +	.globl _start
 +_start:
-+	# Save the address of the ELF argument array
-+	movl %esp,%eax		# Address of ELF arguments
-+	# Set up a faux stack frame for the benefit of gdb
-+	xorl %ebp,%ebp
-+	push %ebp		# Keep gdb from getting confused
-+	push %ebp		# Keep gdb from getting confused
-+	# Push the arguments and called __libc_init()
-+#ifndef _REGPARM
-+	push %edx		# atexit() function
-+	push %eax		# ELF array
-+#endif
++	movq %rsp,%rdi			# Offset of the ELF data structure
++	movq %rdx,%rsi			# The atexit() pointer (if any)
 +	call __libc_init
-+	# If __libc_init returns, problem...
++	# We should never get here...
 +	hlt
 +
-+	.size _start, .-_start
-diff --git a/usr/klibc/arch/i386/libgcc/__ashldi3.S b/usr/klibc/arch/i386/libgcc/__ashldi3.S
++	.size _start,.-_start
+diff --git a/usr/klibc/arch/x86_64/setjmp.S b/usr/klibc/arch/x86_64/setjmp.S
 new file mode 100644
-index 0000000..7344142
+index 0000000..45f547b
 --- /dev/null
-+++ b/usr/klibc/arch/i386/libgcc/__ashldi3.S
-@@ -0,0 +1,29 @@
-+/*
-+ * arch/i386/libgcc/__ashldi3.S
-+ *
-+ * 64-bit shl
-+ */
-+	.text
-+	.align 4
-+	.globl __ashldi3
-+	.type __ashldi3,@function
-+__ashldi3:
-+#ifndef _REGPARM
-+	movl  4(%esp),%eax
-+	movl  8(%esp),%edx
-+	movb  12(%esp),%cl
-+#endif
-+	cmpb  $32,%cl
-+	jae   1f
-+
-+	shldl %cl,%eax,%edx
-+	shl   %cl,%eax
-+	ret
-+
-+1:
-+	xorl  %edx,%edx
-+	shl   %cl,%eax
-+	xchgl %edx,%eax
-+	ret
-+
-+	.size __ashldi3,.-__ashldi3
-diff --git a/usr/klibc/arch/i386/libgcc/__ashrdi3.S b/usr/klibc/arch/i386/libgcc/__ashrdi3.S
-new file mode 100644
-index 0000000..7666eb2
---- /dev/null
-+++ b/usr/klibc/arch/i386/libgcc/__ashrdi3.S
-@@ -0,0 +1,29 @@
-+/*
-+ * arch/i386/libgcc/__ashrdi3.S
-+ *
-+ * 64-bit sar
-+ */
-+	.text
-+	.align 4
-+	.globl __ashrdi3
-+	.type __ashrdi3,@function
-+__ashrdi3:
-+#ifndef _REGPARM
-+	movl  4(%esp),%eax
-+	movl  8(%esp),%edx
-+	movb  12(%esp),%cl
-+#endif
-+	cmpb  $32,%cl
-+	jae   1f
-+
-+	shrdl %cl,%edx,%eax
-+	sarl  %cl,%edx
-+	ret
-+
-+1:
-+	sarl  %cl,%edx
-+	movl  %edx,%eax
-+	cdq
-+	ret
-+
-+	.size __ashrdi3,.-__ashrdi3
-diff --git a/usr/klibc/arch/i386/libgcc/__lshrdi3.S b/usr/klibc/arch/i386/libgcc/__lshrdi3.S
-new file mode 100644
-index 0000000..6a63c52
---- /dev/null
-+++ b/usr/klibc/arch/i386/libgcc/__lshrdi3.S
-@@ -0,0 +1,29 @@
-+/*
-+ * arch/i386/libgcc/__lshrdi3.S
-+ *
-+ * 64-bit shr
-+ */
-+	.text
-+	.align 4
-+	.globl __lshrdi3
-+	.type __lshrdi3,@function
-+__lshrdi3:
-+#ifndef _REGPARM
-+	movl  4(%esp),%eax
-+	movl  8(%esp),%edx
-+	movb  12(%esp),%cl
-+#endif
-+	cmpb  $32,%cl
-+	jae   1f
-+
-+	shrdl %cl,%edx,%eax
-+	shrl  %cl,%edx
-+	ret
-+
-+1:
-+	shrl  %cl,%edx
-+	xorl  %eax,%eax
-+	xchgl %edx,%eax
-+	ret
-+
-+	.size __lshrdi3,.-__lshrdi3
-diff --git a/usr/klibc/arch/i386/libgcc/__muldi3.S b/usr/klibc/arch/i386/libgcc/__muldi3.S
-new file mode 100644
-index 0000000..472c7cc
---- /dev/null
-+++ b/usr/klibc/arch/i386/libgcc/__muldi3.S
-@@ -0,0 +1,34 @@
-+/*
-+ * arch/i386/libgcc/__muldi3.S
-+ *
-+ * 64*64 = 64 bit unsigned multiplication
-+ */
-+
-+	.text
-+	.align 4
-+	.globl __muldi3
-+	.type __muldi3,@function
-+__muldi3:
-+	push  %esi
-+#ifndef _REGPARM
-+	movl  8(%esp),%eax
-+	movl  %eax,%esi
-+	movl  16(%esp),%ecx
-+	mull  %ecx
-+	imull 12(%esp),%ecx
-+	imull 20(%esp),%esi
-+	addl  %ecx,%edx
-+	addl  %esi,%edx
-+#else
-+	movl  %eax,%esi
-+	push  %edx
-+	mull  %ecx
-+	imull 8(%esp),%esi
-+	addl  %esi,%edx
-+	pop   %esi
-+	imull %esi,%ecx
-+	addl  %ecx,%edx
-+#endif
-+	pop   %esi
-+	ret
-+	.size __muldi3,.-__muldi3
-diff --git a/usr/klibc/arch/i386/libgcc/__negdi2.S b/usr/klibc/arch/i386/libgcc/__negdi2.S
-new file mode 100644
-index 0000000..147ad94
---- /dev/null
-+++ b/usr/klibc/arch/i386/libgcc/__negdi2.S
-@@ -0,0 +1,21 @@
-+/*
-+ * arch/i386/libgcc/__negdi2.S
-+ *
-+ * 64-bit negation
-+ */
-+
-+	.text
-+	.align 4
-+	.globl __negdi2
-+	.type __negdi2,@function
-+__negdi2:
-+#ifndef _REGPARM
-+	movl 4(%esp),%eax
-+	movl 8(%esp),%edx
-+#endif
-+	negl %edx
-+	negl %eax
-+	sbbl $0,%edx
-+	ret
-+
-+	.size __negdi2,.-__negdi2
-diff --git a/usr/klibc/arch/i386/open.S b/usr/klibc/arch/i386/open.S
-new file mode 100644
-index 0000000..7cd136c
---- /dev/null
-+++ b/usr/klibc/arch/i386/open.S
-@@ -0,0 +1,29 @@
-+/*
-+ * arch/i386/open.S
-+ *
-+ * Handle the open() system call - oddball due to the varadic
-+ * prototype, which forces the use of the cdecl calling convention,
-+ * and the need for O_LARGEFILE.
-+ */
-+
-+#include <asm/unistd.h>
-+
-+/* <asm/fcntl.h>, despite the name, isn't assembly-safe */
-+#define O_LARGEFILE     0100000
-+
-+	.globl	open
-+	.type	open,@function
-+
-+open:
-+#ifdef _REGPARM
-+	movl	4(%esp),%eax
-+	movl	8(%esp),%edx
-+	movl	12(%esp),%ecx
-+	orl	$O_LARGEFILE,%edx
-+#else
-+	orl	$O_LARGEFILE,8(%esp)
-+#endif
-+	pushl	$__NR_open
-+	jmp	__syscall_common
-+
-+	.size	open,.-open
-diff --git a/usr/klibc/arch/i386/openat.S b/usr/klibc/arch/i386/openat.S
-new file mode 100644
-index 0000000..2dfdfe2
---- /dev/null
-+++ b/usr/klibc/arch/i386/openat.S
-@@ -0,0 +1,26 @@
-+/*
-+ * arch/i386/openat.S
-+ *
-+ * Handle the openat() system call - oddball due to the varadic
-+ * prototype, which forces the use of the cdecl calling convention,
-+ * and the need for O_LARGEFILE.
-+ */
-+
-+#include <asm/unistd.h>
-+
-+/* <asm/fcntl.h>, despite the name, isn't assembly-safe */
-+#define O_LARGEFILE     0100000
-+
-+#ifdef __NR_openat		/* Don't build if kernel headers too old */
-+
-+	.globl	openat
-+	.type	openat,@function
-+
-+openat:
-+	orl	$O_LARGEFILE,12(%esp)
-+	pushl	$__NR_openat
-+	jmp	__syscall_varadic
-+
-+	.size	openat,.-openat
-+
-+#endif
-diff --git a/usr/klibc/arch/i386/setjmp.S b/usr/klibc/arch/i386/setjmp.S
-new file mode 100644
-index 0000000..b766792
---- /dev/null
-+++ b/usr/klibc/arch/i386/setjmp.S
-@@ -0,0 +1,58 @@
++++ b/usr/klibc/arch/x86_64/setjmp.S
+@@ -0,0 +1,54 @@
 +#
-+# arch/i386/setjmp.S
++# arch/x86_64/setjmp.S
 +#
-+# setjmp/longjmp for the i386 architecture
++# setjmp/longjmp for the x86-64 architecture
 +#
 +
 +#
 +# The jmp_buf is assumed to contain the following, in order:
-+#	%ebx
-+#	%esp
-+#	%ebp
-+#	%esi
-+#	%edi
++#	%rbx
++#	%rsp (post-return)
++#	%rbp
++#	%r12
++#	%r13
++#	%r14
++#	%r15
 +#	<return address>
 +#
 +
@@ -865,20 +520,17 @@ index 0000000..b766792
 +	.globl setjmp
 +	.type setjmp, @function
 +setjmp:
-+#ifdef _REGPARM
-+	movl %eax,%edx
-+#else
-+	movl 4(%esp),%edx
-+#endif
-+	popl %ecx			# Return address, and adjust the stack
++	pop  %rsi			# Return address, and adjust the stack
 +	xorl %eax,%eax			# Return value
-+	movl %ebx,(%edx)
-+	movl %esp,4(%edx)		# Post-return %esp!
-+	pushl %ecx			# Make the call/return stack happy
-+	movl %ebp,8(%edx)
-+	movl %esi,12(%edx)
-+	movl %edi,16(%edx)
-+	movl %ecx,20(%edx)		# Return address
++	movq %rbx,(%rdi)
++	movq %rsp,8(%rdi)		# Post-return %rsp!
++	push %rsi			# Make the call/return stack happy
++	movq %rbp,16(%rdi)
++	movq %r12,24(%rdi)
++	movq %r13,32(%rdi)
++	movq %r14,40(%rdi)
++	movq %r15,48(%rdi)
++	movq %rsi,56(%rdi)		# Return address
 +	ret
 +
 +	.size setjmp,.-setjmp
@@ -888,186 +540,81 @@ index 0000000..b766792
 +	.globl longjmp
 +	.type longjmp, @function
 +longjmp:
-+#ifdef _REGPARM
-+	xchgl %eax,%edx
-+#else
-+	movl 4(%esp),%edx		# jmp_ptr address
-+	movl 8(%esp),%eax		# Return value
-+#endif
-+	movl (%edx),%ebx
-+	movl 4(%edx),%esp
-+	movl 8(%edx),%ebp
-+	movl 12(%edx),%esi
-+	movl 16(%edx),%edi
-+	jmp *20(%edx)
++	movl %esi,%eax			# Return value (int)
++	movq (%rdi),%rbx
++	movq 8(%rdi),%rsp
++	movq 16(%rdi),%rbp
++	movq 24(%rdi),%r12
++	movq 32(%rdi),%r13
++	movq 40(%rdi),%r14
++	movq 48(%rdi),%r15
++	jmp *56(%rdi)
 +
 +	.size longjmp,.-longjmp
-diff --git a/usr/klibc/arch/i386/sigreturn.S b/usr/klibc/arch/i386/sigreturn.S
+diff --git a/usr/klibc/arch/x86_64/sigreturn.S b/usr/klibc/arch/x86_64/sigreturn.S
 new file mode 100644
-index 0000000..f2a3241
+index 0000000..46a5a0b
 --- /dev/null
-+++ b/usr/klibc/arch/i386/sigreturn.S
++++ b/usr/klibc/arch/x86_64/sigreturn.S
 @@ -0,0 +1,15 @@
-+#
-+# arch/i386/sigreturn.S
-+#
-+
-+#include <asm/unistd.h>
-+
-+	.text
-+	.align 4
-+	.globl __sigreturn
-+	.type __sigreturn,@function
-+__sigreturn:
-+	pop	%eax		# Have no idea why this is needed...
-+	movl	$__NR_sigreturn,%eax
-+	int	$0x80
-+	.size __sigreturn,.-__sigreturn
-diff --git a/usr/klibc/arch/i386/socketcall.S b/usr/klibc/arch/i386/socketcall.S
-new file mode 100644
-index 0000000..816db34
---- /dev/null
-+++ b/usr/klibc/arch/i386/socketcall.S
-@@ -0,0 +1,55 @@
-+#
-+# socketcall.S
-+#
-+# Socketcalls use the following convention:
-+# %eax = __NR_socketcall
-+# %ebx = socketcall number
-+# %ecx = pointer to arguments (up to 6)
-+#
-+	
-+#include <asm/unistd.h>
-+
-+#ifdef __i386__
-+
-+	.text
-+	.align 4
-+	.globl __socketcall_common
-+	.type __socketcall_common, @function
-+
-+__socketcall_common:
-+	xchgl	%ebx,(%esp)	# The stub passes the socketcall # on stack
-+
-+#ifdef	_REGPARM
-+	pushl	16(%esp)	# Arg 6
-+	pushl	16(%esp)	# Arg 5
-+	pushl	16(%esp)	# Arg 4
-+	pushl	%ecx
-+	pushl	%edx
-+	pushl	%eax
-+	movl	%esp,%ecx
-+#else
-+	leal	8(%esp),%ecx	# Arguments already contiguous on-stack
-+#endif
-+
-+	movl	$__NR_socketcall,%eax
-+	int	$0x80
-+
-+#ifdef	_REGPARM
-+	addl	$6*4, %esp
-+#endif
-+	
-+	cmpl	$-4095,%eax	# Error return?
-+
-+	popl	%ebx
-+
-+	jb	1f
-+
-+	negl	%eax
-+	movl	%eax,errno
-+	orl	$-1,%eax	# Return -1
-+1:
-+	ret
-+
-+	.size __socketcall_common,.-__socketcall_common
-+
-+#endif
-diff --git a/usr/klibc/arch/i386/syscall.S b/usr/klibc/arch/i386/syscall.S
-new file mode 100644
-index 0000000..d28717b
---- /dev/null
-+++ b/usr/klibc/arch/i386/syscall.S
-@@ -0,0 +1,69 @@
 +/*
-+ * arch/i386/syscall.S
++ * arch/x86_64/sigreturn.S
++ */
++
++#include <asm/unistd.h>
++
++	.text
++	.align	4
++	.globl	__sigreturn
++	.type	__sigreturn,@function
++__sigreturn:
++	movl	$__NR_rt_sigreturn,%eax
++	syscall
++
++	.size	__sigreturn,.-__sigreturn
+diff --git a/usr/klibc/arch/x86_64/syscall.S b/usr/klibc/arch/x86_64/syscall.S
+new file mode 100644
+index 0000000..1797797
+--- /dev/null
++++ b/usr/klibc/arch/x86_64/syscall.S
+@@ -0,0 +1,28 @@
++/*
++ * arch/x86-64/syscall.S
 + *
 + * Common tail-handling code for system calls.
 + *
-+ * The arguments are on the stack; the system call number in %eax.
++ * The arguments are in the standard argument registers; the system
++ * call number in %eax.
 + */
-+
-+#define ARG(n)	(4*n+20)(%esp)
-+
 +	.text
 +	.align	4
 +	.globl	__syscall_common
 +	.type	__syscall_common,@function
 +__syscall_common:
-+#ifdef _REGPARM
-+	xchgl	%ebx,(%esp)
-+#else
-+	popl	%eax
-+	pushl	%ebx
-+#endif
-+	pushl	%esi
-+	pushl	%edi
-+	pushl	%ebp
++	movq	%rcx,%r10		# The kernel uses %r10 istf %rcx
++	syscall
 +
-+#ifdef _REGPARM
-+	xchgl	%eax,%ebx
-+	xchgl	%ecx,%edx
-+	movl	ARG(0),%esi
-+	movl	ARG(1),%edi
-+	movl	ARG(2),%ebp
-+#else
-+	movl	ARG(0),%ebx		# Syscall arguments
-+	movl	ARG(1),%ecx
-+	movl	ARG(2),%edx
-+	movl	ARG(3),%esi
-+	movl	ARG(4),%edi
-+	movl	ARG(5),%ebp
-+#endif
-+	.globl __syscall_common_tail
-+__syscall_common_tail:
-+	int	$0x80
-+
-+	cmpl	$-4095,%eax
-+
-+	popl	%ebp
-+	popl	%edi
-+	popl	%esi
-+	popl	%ebx
-+
-+	jb	1f
++	cmpq	$-4095,%rax
++	jnb	1f
++	ret
 +
 +	# Error return, must set errno
-+	negl	%eax
-+	movl	%eax,errno
-+	orl	$-1,%eax		# Return -1
-+
 +1:
++	negl	%eax
++	movl	%eax,errno(%rip)	# errno is type int, so 32 bits
++	orq	$-1,%rax		# orq $-1 smaller than movq $-1
 +	ret
 +
 +	.size	__syscall_common,.-__syscall_common
-+
-+#ifndef _REGPARM
-+
-+	.globl	__syscall_varadic
-+	.type	__syscall_varadic,@function
-+__syscall_varadic = __syscall_common
-+
-+#endif
-diff --git a/usr/klibc/arch/i386/sysstub.ph b/usr/klibc/arch/i386/sysstub.ph
+diff --git a/usr/klibc/arch/x86_64/sysstub.ph b/usr/klibc/arch/x86_64/sysstub.ph
 new file mode 100644
-index 0000000..e73a3ff
+index 0000000..e2d797b
 --- /dev/null
-+++ b/usr/klibc/arch/i386/sysstub.ph
-@@ -0,0 +1,26 @@
++++ b/usr/klibc/arch/x86_64/sysstub.ph
+@@ -0,0 +1,23 @@
 +# -*- perl -*-
 +#
-+# arch/i386/sysstub.ph
++# arch/x86_64/sysstub.ph
 +#
 +# Script to generate system call stubs
 +#
@@ -1081,66 +628,21 @@ index 0000000..e73a3ff
 +    print OUT "\t.type ${fname},\@function\n";
 +    print OUT "\t.globl ${fname}\n";
 +    print OUT "${fname}:\n";
-+
-+    $stype = 'common' if ( $stype eq '' );
-+
-+    print OUT "\tpushl \$__NR_${sname}\n";
-+    print OUT "\tjmp __syscall_$stype\n";
++    print OUT "\tmovl \$__NR_${sname},%eax\n"; # Zero-extends to 64 bits
++    print OUT "\tjmp __syscall_common\n";
 +    print OUT "\t.size ${fname},.-${fname}\n";
 +    close(OUT);
 +}
 +
 +1;
-diff --git a/usr/klibc/arch/i386/varsyscall.S b/usr/klibc/arch/i386/varsyscall.S
+diff --git a/usr/klibc/arch/x86_64/vfork.S b/usr/klibc/arch/x86_64/vfork.S
 new file mode 100644
-index 0000000..24329ea
+index 0000000..e1c8090
 --- /dev/null
-+++ b/usr/klibc/arch/i386/varsyscall.S
-@@ -0,0 +1,36 @@
-+/*
-+ * arch/i386/varsyscall.S
-+ *
-+ * Common tail-handling code for varadic system calls (which always
-+ * use the cdecl convention.)
-+ *
-+ * The arguments are on the stack; the system call number in %eax.
-+ */
-+
-+#ifdef	_REGPARM
-+
-+#define ARG(n)	(4*n+20)(%esp)
-+
-+	.text
-+	.align	4
-+	.globl	__syscall_varadic
-+	.type	__syscall_varadic,@function
-+__syscall_varadic:
-+	popl	%eax
-+	pushl	%ebx
-+	pushl	%esi
-+	pushl	%edi
-+	pushl	%ebp
-+
-+	movl	ARG(0),%ebx		# Syscall arguments
-+	movl	ARG(1),%ecx
-+	movl	ARG(2),%edx
-+	movl	ARG(3),%esi
-+	movl	ARG(4),%edi
-+	movl	ARG(5),%ebp
-+
-+	jmp	__syscall_common_tail
-+
-+	.size	__syscall_varadic,.-__syscall_varadic
-+
-+#endif
-diff --git a/usr/klibc/arch/i386/vfork.S b/usr/klibc/arch/i386/vfork.S
-new file mode 100644
-index 0000000..c98ba3a
---- /dev/null
-+++ b/usr/klibc/arch/i386/vfork.S
++++ b/usr/klibc/arch/x86_64/vfork.S
 @@ -0,0 +1,26 @@
 +#
-+# usr/klibc/arch/i386/vfork.S
++# usr/klibc/arch/x86_64/vfork.S
 +#
 +# vfork is nasty - there must be nothing at all on the stack above
 +# the stack frame of the enclosing function.
@@ -1148,20 +650,20 @@ index 0000000..c98ba3a
 +
 +#include <asm/unistd.h>
 +
-+        .text
-+        .align  4
++	.text
++	.align	4
 +	.globl	vfork
 +	.type	vfork, @function
 +vfork:
-+	popl	%edx			/* Return address */
++	pop	%rdx			/* Return address */
 +	movl	$__NR_vfork, %eax
-+	int	$0x80
-+	pushl	%edx
-+	cmpl	$-4095, %eax
++	syscall
++	push	%rdx
++	cmpq	$-4095, %rax
 +	jae	1f
 +	ret
 +1:
 +	negl	%eax
-+	movl	%eax, errno
-+	orl	$-1, %eax
++	movl	%eax, errno(%rip)
++	orq	$-1, %rax
 +	ret

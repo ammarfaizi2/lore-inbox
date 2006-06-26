@@ -1,46 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWFZMwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWFZNCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWFZMwU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 08:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWFZMwT
+	id S932266AbWFZNCI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 09:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWFZNCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 08:52:19 -0400
-Received: from mo30.po.2iij.net ([210.128.50.53]:2842 "EHLO mo30.po.2iij.net")
-	by vger.kernel.org with ESMTP id S1751213AbWFZMwT (ORCPT
+	Mon, 26 Jun 2006 09:02:08 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:48852 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S932177AbWFZNCF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 08:52:19 -0400
-Message-Id: <200606261251.k5QCpxpd080229@mbox30.po.2iij.net>
-Date: Mon, 26 Jun 2006 21:51:59 +0900
-From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: yoichi_yuasa@tripeaks.co.jp, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][MIPS] wire up tee system call
-In-Reply-To: <20060623100210.GB3290@linux-mips.org>
-References: <20060623170711.3a6d1ef8.yoichi_yuasa@tripeaks.co.jp>
-	<20060623100210.GB3290@linux-mips.org>
-Organization: TriPeaks Corporation
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 26 Jun 2006 09:02:05 -0400
+Date: Mon, 26 Jun 2006 15:02:03 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Andrey Savochkin <saw@sw.ru>
+Cc: dlezcano@fr.ibm.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       serue@us.ibm.com, haveblue@us.ibm.com, clg@fr.ibm.com,
+       Andrew Morton <akpm@osdl.org>, dev@sw.ru, devel@openvz.org,
+       sam@vilain.net, ebiederm@xmission.com, viro@ftp.linux.org.uk
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+Message-ID: <20060626130203.GA504@MAIL.13thfloor.at>
+Mail-Followup-To: Andrey Savochkin <saw@sw.ru>, dlezcano@fr.ibm.com,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	serue@us.ibm.com, haveblue@us.ibm.com, clg@fr.ibm.com,
+	Andrew Morton <akpm@osdl.org>, dev@sw.ru, devel@openvz.org,
+	sam@vilain.net, ebiederm@xmission.com, viro@ftp.linux.org.uk
+References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060626134711.A28729@castle.nmd.msu.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ralf,
-
-On Fri, 23 Jun 2006 11:02:10 +0100
-Ralf Baechle <ralf@linux-mips.org> wrote:
-
-> On Fri, Jun 23, 2006 at 05:07:11PM +0900, Yoichi Yuasa wrote:
+On Mon, Jun 26, 2006 at 01:47:11PM +0400, Andrey Savochkin wrote:
+> Hi Daniel,
 > 
-> > 
-> > This patch wires up tee system call for MIPS.
-> > 
-> > [MIPS] Wire up tee(2).
+> It's good that you kicked off network namespace discussion Although I.
+> wish you'd Cc'ed someone at OpenVZ so I could notice it earlier :)   .
+
+> Indeed, the first point to agree in this discussion is device list. 
+> In your patch, you essentially introduce a data structure parallel
+> to the main device list, creating a "view" of this list. 
+
+> I see a fundamental problem with this approach. When a device presents
+> an skb to the protocol layer, it needs to know to which namespace this
+> skb belongs.
+
+> Otherwise you would never get rid of problems with bind: what to do if
+> device eth1 is visible in namespace1, namespace2, and root namespace,
+> and each namespace has a socket bound to 0.0.0.0:80?
+
+this is something which isn't a fundamental problem at
+all, and IMHO there are at least three options here
+(probably more)
+
+ - check at 'bind' time if the binding would overlap
+   and give the 'proper' error (as it happens right
+   now on the host)
+   (this is how Linux-VServer currently handles the
+   network isolation, and yes, it works quite fine :)
+
+ - allow arbitrary binds and 'tag' the packets according
+   to some 'host' policy (e.g. iptables or tc)
+   (this is how the Linux-VServer ngnet was designed)
+
+ - deliver packets to _all_ bound sockets/destinations
+   (this is probably a more unusable but quite thinkable
+   solution)
+
+> We have to conclude that each device should be visible only in one
+> namespace. 
+
+I disagree here, especially some supervisor context or
+the host context should be able to 'see' and probably
+manipulate _all_ of the devices
+
+> In this case, instead of introducing net_ns_dev and net_ns_dev_list
+> structures, we can simply have a separate dev_base list head in each
+> namespace. Moreover, separate device list in each namespace will be in
+> line with making namespace isolation complete. 
+
+> Complete isolation will allow each namespace to set up own tun/tap
+> devices, have own routes, netfilter tables, and so on.
+
+tun/tap devices are quite possible with this approach
+too, I see no problem here ...
+
+for iptables and routes, I'm worried about the required
+'policy' to make them secure, i.e. how do you ensure
+that the packets 'leaving' guest X do not contain
+'evil' packets and/or disrupt your host system?
+
+> My follow-up messages will contain the first set of patches with
+> network namespaces implemented in the same way as network isolation 
+> in OpenVZ. 
+
+hmm, you probably mean 'network virtualization' here
+
+> This patchset introduces namespaces for device list and IPv4
+> FIB/routing. Two technical issues are omitted to make the patch idea
+> clearer: device moving between namespaces, and selective routing cache
+> flush + garbage collection.
+>
+> If this patchset is agreeable, the next patchset will finalize
+> integration with nsproxy, add namespaces to socket lookup code and
+> neighbour cache, and introduce a simple device to pass traffic between
+> namespaces.
+
+passing traffic 'between' namespaces should happen via
+lo, no? what kind of 'device' is required there, and
+what overhead does it add to the networking?
+
+TIA,
+Herbert
+
+> Then we will turn to less obvious matters including
+> netlink messages, network statistics, representation of network
+> information in proc and sysfs, tuning of parameters through sysctl,
+> IPv6 and other protocols, and per-namespace netfilters.
 > 
-> Same here.  Stop ripping patches out of the MIPS tree.
-
-It is not in Linus's git yet, but it has been in your git last April.
-What is the reason that you did not send it to upstream?
-
-Yoichi
+> Best regards
+> 		Andrey

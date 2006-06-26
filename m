@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWFZMa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWFZMhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbWFZMa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 08:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWFZMa7
+	id S1751074AbWFZMhj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 08:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWFZMhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 08:30:59 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51591 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751097AbWFZMa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 08:30:59 -0400
-Subject: Re: Drivers statically linked in the wrong order
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200606261259.25959.dj@david-web.co.uk>
-References: <200606261259.25959.dj@david-web.co.uk>
-Content-Type: text/plain
-Date: Mon, 26 Jun 2006 14:30:55 +0200
-Message-Id: <1151325055.3185.32.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 26 Jun 2006 08:37:39 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:5353 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751074AbWFZMhi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 08:37:38 -0400
+Date: Mon, 26 Jun 2006 14:37:19 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Sam Ravnborg <sam@ravnborg.org>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Section mismatch warnings
+In-Reply-To: <20060623222346.GC27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0606261425340.17704@scrub.home>
+References: <Pine.LNX.4.61.0606231938080.26864@yvahk01.tjqt.qr>
+ <20060623221217.GA372@mars.ravnborg.org> <20060623222346.GC27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> How can I get the I2C bus driver to be linked before the main driver? I've 
-> tried re-ordering things in Makefiles, but nothing I've tried seems to make 
-> any difference.
-
 Hi,
 
-there are 2 levels of ordering;
-1) the initcall level
-2) the Makefile order
+On Fri, 23 Jun 2006, Al Viro wrote:
 
-at equal initcall level, the Makefile order really is the order that
-matters, however... if there is not the same initcall level, then that
-level overrules. 
+> On Sat, Jun 24, 2006 at 12:12:18AM +0200, Sam Ravnborg wrote:
+> > All the .smp_locks related warnings are gone when I get the kbuild.git
+> > tree pushed linus wise. Needs to spend only an hour or so before it is
+> > ready and will do so during the weekend.
+> 
+> Another fun toy that might be interesting there:
+> 
+> >From nobody Mon Sep 17 00:00:00 2001
+> From: Al Viro <viro@zeniv.linux.org.uk>
+> Date: Fri, 26 May 2006 08:35:22 -0400
+> Subject: [PATCH] add make listconfig (show all kconfig symbols seen by parser)
 
-So to your problem, you have 2 choices
-1) try to fix the makefile issue some more (will fail if there are
-different initcall levels)
-2) Use initcall levels yourself...
+I don't mind the functionality, but what I'd like to avoid is adding lots 
+of little config targets, so what I'd like to add is something more like 
+'make queryconfig', which maybe even could be extended to some simple 
+scripting functionality.
 
-see
-#define core_initcall(fn)               __define_initcall("1",fn)
-#define postcore_initcall(fn)           __define_initcall("2",fn)
-#define arch_initcall(fn)               __define_initcall("3",fn)
-#define subsys_initcall(fn)             __define_initcall("4",fn)
-#define fs_initcall(fn)                 __define_initcall("5",fn)
-#define device_initcall(fn)             __define_initcall("6",fn)
-#define late_initcall(fn)               __define_initcall("7",fn)
+> +static void list_symbols(struct menu *m)
+> +{
+> +	for (m = m->list; m; m = m->next) {
+> +		struct symbol *s = m->sym;
+> +		if (s && !sym_is_choice(s)) {
 
-in include/linux.init.h
+for_all_symbols() would be simpler and avoids possible duplicate menu 
+entries and I think it's better to just test for s->name.
 
-iirc a normal module_init() is over type "device_initcall", so you can
-make your must-be-last one a late_initcall(), or your "must be first" a
-subsys_initcall....
-
-(note: you can use late_initcall() and friends instead of module_init;
-for the module case these get defined to be module_init() anyway, so no
-need for ugly ifdefs in your drivers)
-
-Does this help?
-
-Greetings,
-   Arjan van de Ven
-
+bye, Roman

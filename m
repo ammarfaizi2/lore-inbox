@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWFZQ7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWFZQxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbWFZQ7g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 12:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWFZQ7P
+	id S1750885AbWFZQxu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 12:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWFZQxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 12:59:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:55721 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750999AbWFZQ66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 12:58:58 -0400
-Subject: Re: [PATCH] Kconfig for radio cards to allow VIDEO_V4L1_COMPAT
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e4733910606260855kf2e57ado5c69d8295d1be5@mail.gmail.com>
-References: <9e4733910606251040v62675399gdfe438aaac691a5a@mail.gmail.com>
-	 <1151327213.3687.13.camel@praia>
-	 <9e4733910606260855kf2e57ado5c69d8295d1be5@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 26 Jun 2006 13:58:42 -0300
-Message-Id: <1151341122.13794.2.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
+	Mon, 26 Jun 2006 12:53:44 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:46214 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1750885AbWFZQxV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 12:53:21 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [Suspend2][ 07/11] [Suspend2] Move a suspend2 module to the tail of its list.
+Date: Tue, 27 Jun 2006 02:53:25 +1000
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060626165323.10957.23439.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626165301.10957.62592.stgit@nigel.suspend2.net>
+References: <20060626165301.10957.62592.stgit@nigel.suspend2.net>
+Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon,
+When suspend2 modules are built as kernel modules, they may be loaded in a
+different order when resuming to the order used when suspending. This could
+result in decryption and decompression being done in the wrong order. We
+avoid this by remembering the order used when suspending, and reordering at
+resume-time to match. This routine provides the primitive used in that
+reordering.
 
-Em Seg, 2006-06-26 às 11:55 -0400, Jon Smirl escreveu:
-> On 6/26/06, Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-> > All radio stuff at kernel are still using the old obsoleted V4L1 API,
-> > and requires some changes to be V4L2 compliant. The correct fix is to
-> > replace the old calls to V4L2 calls, and include videodev2.h header
-> > instead of videodev.h.
-> 
-> Is anyone who knows how V4L2 works going to port those drivers?
-Nobody started working on it yet.
+ kernel/power/modules.c |   35 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 35 insertions(+), 0 deletions(-)
 
-> I would hate to see 20 device drivers lost because they weren't ported
-> and V4L1 gets removed.
-The driver conversion shouldn't be that hard. The main problem is that
-those devices are really obsolete hardware and none of the current V4L
-developers have those boards for testing. Do you have any of those
-devices? Can you help porting it to V4L2?
+diff --git a/kernel/power/modules.c b/kernel/power/modules.c
+index 6305fa2..af237b6 100644
+--- a/kernel/power/modules.c
++++ b/kernel/power/modules.c
+@@ -187,3 +187,38 @@ void suspend_unregister_module(struct su
+ 	list_del(&module->module_list);
+ 	suspend_num_modules--;
+ }
++
++/*
++ * suspend_move_module_tail
++ *
++ * Rearrange modules when reloading the config.
++ */
++void suspend_move_module_tail(struct suspend_module_ops *module)
++{
++	switch (module->type) {
++		case FILTER_MODULE:
++			if (suspend_num_filters > 1)
++				list_move_tail(&module->type_list,
++						&suspend_filters);
++			break;
++
++		case WRITER_MODULE:
++			if (suspend_num_writers > 1)
++				list_move_tail(&module->type_list,
++						&suspend_writers);
++			break;
++		
++		case MISC_MODULE:
++			break;
++		default:
++			printk("Hmmm. Module '%s' has an invalid type."
++				" It has been ignored.\n", module->name);
++			return;
++	}
++	if ((suspend_num_filters + suspend_num_writers) > 1)
++		list_move_tail(&module->module_list, &suspend_modules);
++}
++
++	return len;
++}
++
 
-Cheers, 
-Mauro.
-
+--
+Nigel Cunningham		nigel at suspend2 dot net

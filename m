@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWFZQyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWFZQ7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750964AbWFZQyc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 12:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWFZQy0
+	id S1751073AbWFZQ7g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 12:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWFZQ7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 12:54:26 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:51846 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1750925AbWFZQyV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 12:54:21 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 6/9] [Suspend2] Get next extent in an extent state.
-Date: Tue, 27 Jun 2006 02:54:25 +1000
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060626165424.11065.71173.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626165404.11065.91833.stgit@nigel.suspend2.net>
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net>
-Content-Type: text/plain; charset=utf-8; format=fixed
+	Mon, 26 Jun 2006 12:59:15 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:55721 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750999AbWFZQ66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 12:58:58 -0400
+Subject: Re: [PATCH] Kconfig for radio cards to allow VIDEO_V4L1_COMPAT
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e4733910606260855kf2e57ado5c69d8295d1be5@mail.gmail.com>
+References: <9e4733910606251040v62675399gdfe438aaac691a5a@mail.gmail.com>
+	 <1151327213.3687.13.camel@praia>
+	 <9e4733910606260855kf2e57ado5c69d8295d1be5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 26 Jun 2006 13:58:42 -0300
+Message-Id: <1151341122.13794.2.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
 Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a routine for getting the next device and block to which a page will be
-written. We are essentially iterating through a series of one (filewriter)
-or more (swapwriter) devices, each having a chain of sectors in which the
-image is stored.
+Jon,
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+Em Seg, 2006-06-26 às 11:55 -0400, Jon Smirl escreveu:
+> On 6/26/06, Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
 
- kernel/power/extent.c |   43 +++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 43 insertions(+), 0 deletions(-)
+> > All radio stuff at kernel are still using the old obsoleted V4L1 API,
+> > and requires some changes to be V4L2 compliant. The correct fix is to
+> > replace the old calls to V4L2 calls, and include videodev2.h header
+> > instead of videodev.h.
+> 
+> Is anyone who knows how V4L2 works going to port those drivers?
+Nobody started working on it yet.
 
-diff --git a/kernel/power/extent.c b/kernel/power/extent.c
-index f7db014..8cbb48a 100644
---- a/kernel/power/extent.c
-+++ b/kernel/power/extent.c
-@@ -206,3 +206,46 @@ int suspend_load_extent_chain(struct ext
- 	return ret;
- }
- 
-+/* suspend_extent_state_next
-+ *
-+ * Given a state, progress to the next valid entry. We may begin in an
-+ * invalid state, as we do when invoked after extent_state_goto_start below.
-+ *
-+ * When using compression and expected_compression > 0, we allocate fewer
-+ * swap entries, so we can validly run out of data to return.
-+ */
-+unsigned long suspend_extent_state_next(struct extent_iterate_state *state)
-+{
-+	if (state->current_chain > state->num_chains)
-+		return 0;
-+
-+	if (state->current_extent) {
-+		if (state->current_offset == state->current_extent->maximum) {
-+			if (state->current_extent->next) {
-+				state->current_extent = state->current_extent->next;
-+				state->current_offset = state->current_extent->minimum;
-+			} else {
-+				state->current_extent = NULL;
-+				state->current_offset = 0;
-+			}
-+		} else
-+			state->current_offset++;
-+	}
-+
-+	while(!state->current_extent) {
-+		int chain_num = ++(state->current_chain);
-+
-+		if (chain_num > state->num_chains)
-+			return 0;
-+
-+		state->current_extent = (state->chains + chain_num)->first;
-+
-+		if (!state->current_extent)
-+			continue;
-+
-+		state->current_offset = state->current_extent->minimum;
-+	}
-+
-+	return state->current_offset;
-+}
-+
+> I would hate to see 20 device drivers lost because they weren't ported
+> and V4L1 gets removed.
+The driver conversion shouldn't be that hard. The main problem is that
+those devices are really obsolete hardware and none of the current V4L
+developers have those boards for testing. Do you have any of those
+devices? Can you help porting it to V4L2?
 
---
-Nigel Cunningham		nigel at suspend2 dot net
+Cheers, 
+Mauro.
+

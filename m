@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965001AbWFZBCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965184AbWFZBFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965001AbWFZBCG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 21:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWFZA7h
+	id S965184AbWFZBFA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 21:05:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbWFZBEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 20:59:37 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:20879 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965001AbWFZA67
+	Sun, 25 Jun 2006 21:04:42 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:23951 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S965061AbWFZA70
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:58:59 -0400
-Date: Sun, 25 Jun 2006 17:58:06 -0700
+	Sun, 25 Jun 2006 20:59:26 -0400
+Date: Sun, 25 Jun 2006 17:58:07 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 29/43] mips64 support for klibc
-Message-Id: <klibc.200606251757.29@tazenda.hos.anvin.org>
+Subject: [klibc 34/43] sh support for klibc
+Message-Id: <klibc.200606251757.34@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The parts of klibc specific to the mips64 architecture.
+The parts of klibc specific to the sh architecture.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit ebd2860ad3dc19cb11fd5b9cc235cab54e9165f4
-tree 9102166758a04802e42c8eaaddf103002a14eb68
-parent 8dc79563c06020d8844b9e9b821741828039b59e
-author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:33 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:33 -0700
+commit 94473ed85b00ec45ff8ee6cac62f60a368ff4534
+tree 5c09fdd824962cba83c198ac1dd077045d2cb0b1
+parent 418ab99cc64fed344e2d3e446208f48655cccb31
+author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:44 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:44 -0700
 
- usr/include/arch/mips64/klibc/archconfig.h |   14 ++++++++++++
- usr/include/arch/mips64/klibc/archsignal.h |   14 ++++++++++++
- usr/include/arch/mips64/klibc/archstat.h   |   33 ++++++++++++++++++++++++++++
- usr/include/arch/mips64/klibc/archsys.h    |   12 ++++++++++
- usr/klibc/arch/mips64/MCONFIG              |   11 +++++++++
- usr/klibc/arch/mips64/Makefile.inc         |   10 ++++++++
- 6 files changed, 94 insertions(+), 0 deletions(-)
+ usr/include/arch/sh/klibc/archconfig.h |   14 +++++++
+ usr/include/arch/sh/klibc/archsetjmp.h |   22 +++++++++++
+ usr/include/arch/sh/klibc/archsignal.h |   14 +++++++
+ usr/include/arch/sh/klibc/archstat.h   |   38 +++++++++++++++++++
+ usr/include/arch/sh/klibc/archsys.h    |   12 ++++++
+ usr/klibc/arch/sh/MCONFIG              |   18 +++++++++
+ usr/klibc/arch/sh/Makefile.inc         |   15 ++++++++
+ usr/klibc/arch/sh/crt0.S               |   27 ++++++++++++++
+ usr/klibc/arch/sh/setjmp.S             |   64 ++++++++++++++++++++++++++++++++
+ usr/klibc/arch/sh/syscall.S            |   35 ++++++++++++++++++
+ usr/klibc/arch/sh/sysstub.ph           |   34 +++++++++++++++++
+ 11 files changed, 293 insertions(+), 0 deletions(-)
 
-diff --git a/usr/include/arch/mips64/klibc/archconfig.h b/usr/include/arch/mips64/klibc/archconfig.h
+diff --git a/usr/include/arch/sh/klibc/archconfig.h b/usr/include/arch/sh/klibc/archconfig.h
 new file mode 100644
-index 0000000..b440af1
+index 0000000..9c9e3d8
 --- /dev/null
-+++ b/usr/include/arch/mips64/klibc/archconfig.h
++++ b/usr/include/arch/sh/klibc/archconfig.h
 @@ -0,0 +1,14 @@
 +/*
-+ * include/arch/mips64/klibc/archconfig.h
++ * include/arch/sh/klibc/archconfig.h
 + *
 + * See include/klibc/sysconfig.h for the options that can be set in
 + * this file.
@@ -56,14 +61,42 @@ index 0000000..b440af1
 +/* All defaults */
 +
 +#endif				/* _KLIBC_ARCHCONFIG_H */
-diff --git a/usr/include/arch/mips64/klibc/archsignal.h b/usr/include/arch/mips64/klibc/archsignal.h
+diff --git a/usr/include/arch/sh/klibc/archsetjmp.h b/usr/include/arch/sh/klibc/archsetjmp.h
 new file mode 100644
-index 0000000..f350af9
+index 0000000..bb97167
 --- /dev/null
-+++ b/usr/include/arch/mips64/klibc/archsignal.h
++++ b/usr/include/arch/sh/klibc/archsetjmp.h
+@@ -0,0 +1,22 @@
++/*
++ * arch/sh/include/klibc/archsetjmp.h
++ */
++
++#ifndef _KLIBC_ARCHSETJMP_H
++#define _KLIBC_ARCHSETJMP_H
++
++struct __jmp_buf {
++	unsigned long __r8;
++	unsigned long __r9;
++	unsigned long __r10;
++	unsigned long __r11;
++	unsigned long __r12;
++	unsigned long __r13;
++	unsigned long __r14;
++	unsigned long __r15;
++	unsigned long __pr;
++};
++
++typedef struct __jmp_buf jmp_buf[1];
++
++#endif				/* _KLIBC_ARCHSETJMP_H */
+diff --git a/usr/include/arch/sh/klibc/archsignal.h b/usr/include/arch/sh/klibc/archsignal.h
+new file mode 100644
+index 0000000..8e48e51
+--- /dev/null
++++ b/usr/include/arch/sh/klibc/archsignal.h
 @@ -0,0 +1,14 @@
 +/*
-+ * arch/mips64/include/klibc/archsignal.h
++ * arch/sh/include/klibc/archsignal.h
 + *
 + * Architecture-specific signal definitions
 + *
@@ -76,53 +109,58 @@ index 0000000..f350af9
 +/* No special stuff for this architecture */
 +
 +#endif
-diff --git a/usr/include/arch/mips64/klibc/archstat.h b/usr/include/arch/mips64/klibc/archstat.h
+diff --git a/usr/include/arch/sh/klibc/archstat.h b/usr/include/arch/sh/klibc/archstat.h
 new file mode 100644
-index 0000000..577f9ad
+index 0000000..f4c65ea
 --- /dev/null
-+++ b/usr/include/arch/mips64/klibc/archstat.h
-@@ -0,0 +1,33 @@
++++ b/usr/include/arch/sh/klibc/archstat.h
+@@ -0,0 +1,38 @@
 +#ifndef _KLIBC_ARCHSTAT_H
 +#define _KLIBC_ARCHSTAT_H
 +
++#include <klibc/stathelp.h>
++
 +#define _STATBUF_ST_NSEC
 +
-+struct stat {
-+	unsigned int		st_dev;
-+	unsigned int		st_pad0[3]; /* Reserved for st_dev expansion */
++/* This matches struct stat64 in glibc2.1, hence the absolutely
++ * insane amounts of padding around dev_t's.
++ */
++struct stat64 {
++	__stdev64	(st_dev);
++	unsigned char	__pad0[4];
 +
-+	unsigned long		st_ino;
++	unsigned long	st_ino;
++	unsigned int	st_mode;
++	unsigned int	st_nlink;
 +
-+	mode_t			st_mode;
-+	nlink_t			st_nlink;
++	unsigned long	st_uid;
++	unsigned long	st_gid;
 +
-+	uid_t			st_uid;
-+	gid_t			st_gid;
++	__stdev64	(st_rdev);
++	unsigned char	__pad3[4];
 +
-+	unsigned int		st_rdev;
-+	unsigned int		st_pad1[3]; /* Reserved for st_rdev expansion */
++	long long	st_size;
++	unsigned long	st_blksize;
 +
-+	off_t			st_size;
++	unsigned long long st_blocks;
 +
-+	struct timespec		st_atim;
-+	struct timespec		st_mtim;
-+	struct timespec		st_ctim;
++	struct timespec	st_atim;
++	struct timespec st_mtim;
++	struct timespec st_ctim;
 +
-+	unsigned int		st_blksize;
-+	unsigned int		st_pad2;
-+
-+	unsigned long		st_blocks;
++	unsigned long	__unused1;
++	unsigned long	__unused2;
 +};
 +
 +#endif
-diff --git a/usr/include/arch/mips64/klibc/archsys.h b/usr/include/arch/mips64/klibc/archsys.h
+diff --git a/usr/include/arch/sh/klibc/archsys.h b/usr/include/arch/sh/klibc/archsys.h
 new file mode 100644
-index 0000000..76492d4
+index 0000000..4a077fa
 --- /dev/null
-+++ b/usr/include/arch/mips64/klibc/archsys.h
++++ b/usr/include/arch/sh/klibc/archsys.h
 @@ -0,0 +1,12 @@
 +/*
-+ * arch/mips64/include/klibc/archsys.h
++ * arch/sh/include/klibc/archsys.h
 + *
 + * Architecture-specific syscall definitions
 + */
@@ -133,36 +171,232 @@ index 0000000..76492d4
 +/* No special syscall definitions for this architecture */
 +
 +#endif				/* _KLIBC_ARCHSYS_H */
-diff --git a/usr/klibc/arch/mips64/MCONFIG b/usr/klibc/arch/mips64/MCONFIG
+diff --git a/usr/klibc/arch/sh/MCONFIG b/usr/klibc/arch/sh/MCONFIG
 new file mode 100644
-index 0000000..3b55625
+index 0000000..f0106e1
 --- /dev/null
-+++ b/usr/klibc/arch/mips64/MCONFIG
-@@ -0,0 +1,11 @@
++++ b/usr/klibc/arch/sh/MCONFIG
+@@ -0,0 +1,18 @@
 +# -*- makefile -*-
 +#
-+# arch/mips64/MCONFIG
++# arch/sh/MCONFIG
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
 +# accordingly.
 +#
 +
-+KLIBCOPTFLAGS = -Os
-+KLIBCBITSIZE  = 64
-diff --git a/usr/klibc/arch/mips64/Makefile.inc b/usr/klibc/arch/mips64/Makefile.inc
++ARCHREGFLAGS = -m4 -mno-implicit-fp
++KLIBCOPTFLAGS     = -Os -fomit-frame-pointer
++KLIBCBITSIZE      = 32
++
++# Extra linkflags when building the shared version of the library
++# This address needs to be reachable using normal inter-module
++# calls, and work on the memory models for this architecture
++# 2 MB -- the normal starting point for text is 4 MB.
++KLIBCSHAREDFLAGS	= -Ttext 0x00200200
+diff --git a/usr/klibc/arch/sh/Makefile.inc b/usr/klibc/arch/sh/Makefile.inc
 new file mode 100644
-index 0000000..4a9529a
+index 0000000..ccabfa4
 --- /dev/null
-+++ b/usr/klibc/arch/mips64/Makefile.inc
-@@ -0,0 +1,10 @@
++++ b/usr/klibc/arch/sh/Makefile.inc
+@@ -0,0 +1,15 @@
 +# -*- makefile -*-
 +#
-+# arch/mips64/Makefile.inc
++# arch/sh/Makefile.inc
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
 +# accordingly.
 +#
++
++ARCHOBJS = arch/sh/setjmp.o \
++	   arch/sh/syscall.o
++
++ARCHSOOBJS = $(patsubst %.o,%.lo,$(ARCHOBJS))
 +
 +archclean:
+diff --git a/usr/klibc/arch/sh/crt0.S b/usr/klibc/arch/sh/crt0.S
+new file mode 100644
+index 0000000..7f0a649
+--- /dev/null
++++ b/usr/klibc/arch/sh/crt0.S
+@@ -0,0 +1,27 @@
++#
++# arch/sh/crt0.S
++#
++# Does arch-specific initialization and invokes __libc_init
++# with the appropriate arguments.
++#
++# See __static_init.c or __shared_init.c for the expected
++# arguments.
++#
++
++	.text
++	.align 2
++	.type _start,#function
++	.globl _start
++
++_start:
++	mov	r15, r4
++	mov	#0, r5
++	mov.l	1f, r0
++
++	jsr	@r0
++	 nop
++
++	.align 2
++1:	.long	__libc_init
++
++	.size _start,.-_start
+diff --git a/usr/klibc/arch/sh/setjmp.S b/usr/klibc/arch/sh/setjmp.S
+new file mode 100644
+index 0000000..2552358
+--- /dev/null
++++ b/usr/klibc/arch/sh/setjmp.S
+@@ -0,0 +1,64 @@
++#
++# arch/sh/setjmp.S
++#
++# setjmp/longjmp for the SuperH architecture
++#
++
++#
++# The jmp_buf is assumed to contain the following, in order:
++#
++#		r8
++#		r9
++#		r10
++#		r11
++#		r12
++#		r13
++#		r14
++#		r15
++#		pr
++#
++
++	.text
++	.align 2
++
++	.globl setjmp
++	.type setjmp, #function
++
++setjmp:
++	add	#(9*4), r4
++	sts.l	pr, @-r4
++	mov.l	r15, @-r4
++	mov.l	r14, @-r4
++	mov.l	r13, @-r4
++	mov.l	r12, @-r4
++	mov.l	r11, @-r4
++	mov.l	r10, @-r4
++	mov.l	r9, @-r4
++	mov.l	r8, @-r4
++	rts
++	 mov	#0, r0
++
++	.size setjmp,.-setjmp
++
++	.align 2
++	.globl longjmp
++	.type setjmp, #function
++
++longjmp:
++	mov.l	@r4+, r8
++	mov.l	@r4+, r9
++	mov.l	@r4+, r10
++	mov.l	@r4+, r11
++	mov.l	@r4+, r12
++	mov.l	@r4+, r13
++	mov.l	@r4+, r14
++	mov.l	@r4+, r15
++	lds.l	@r4+, pr
++	mov	r5, r0
++	tst	r0, r0
++	bf	1f
++	mov	#1, r0	! in case val==0
++1:	rts
++	 nop
++
++	.size longjmp,.-longjmp
+diff --git a/usr/klibc/arch/sh/syscall.S b/usr/klibc/arch/sh/syscall.S
+new file mode 100644
+index 0000000..41a0486
+--- /dev/null
++++ b/usr/klibc/arch/sh/syscall.S
+@@ -0,0 +1,35 @@
++/*
++ * arch/sh/syscall.S
++ *
++ * On sh, r3 contains the syscall number (set by generated stub);
++ * r4..r7 contain arguments 0-3 per the standard calling convention,
++ * and arguments 4-5 are passed in r0 and r1.
++ *
++ * The return value is in r3 rather than standard r0.
++ */
++
++	.section ".text.syscall","ax"
++	.align	2
++	.globl	___syscall_common
++	.type	___syscall_common,@function
++___syscall_common:
++	mov.l	@(sp),r0
++	mov.l	@(4,sp),r1
++	trapa	#0x15
++	mov.l	1f,r0
++	cmp/hs	r0,r3
++	bt/s	3f
++	  neg	r3,r4
++	mov.l	2f,r5
++	mov.l	r4,@r5
++	rts
++	  mov	#-1,r0
++3:
++	rts
++	  mov	r3,r0
++
++	.align 2
++1:	.long	-4096		/* Errno limit */
++2:	.long	errno
++
++	.size	___syscall_common,.-___syscall_common
+diff --git a/usr/klibc/arch/sh/sysstub.ph b/usr/klibc/arch/sh/sysstub.ph
+new file mode 100644
+index 0000000..ce04b73
+--- /dev/null
++++ b/usr/klibc/arch/sh/sysstub.ph
+@@ -0,0 +1,34 @@
++# -*- perl -*-
++#
++# arch/sh/sysstub.ph
++#
++# Script to generate system call stubs
++#
++
++sub make_sysstub($$$$$@) {
++    my($outputdir, $fname, $type, $sname, $stype, @args) = @_;
++
++    open(OUT, '>', "${outputdir}/${fname}.S");
++    print OUT "#include <asm/unistd.h>\n";
++    print OUT "\n";
++    print OUT "\t.section\t\".text.syscall\",\"ax\"\n";
++    print OUT "\t.type\t${fname},\#function\n";
++    print OUT "\t.globl\t${fname}\n";
++    print OUT "\t.align\t2\n";
++    print OUT "${fname}:\n";
++    print OUT "\tbra\t__syscall_common\n";
++    print OUT "#if __NR_${sname} >= 128\n";
++    print OUT "\t  mov.l\t1f, r3\n";
++    print OUT "#else\n";
++    print OUT "\t  mov\t# __NR_${sname}, r3\n";
++    print OUT "#endif\n";
++    print OUT "\t.size ${fname},.-${fname}\n";
++    print OUT "\n";
++    print OUT "#if __NR_${sname} >= 128\n";
++    print OUT "\t.align\t2\n";
++    print OUT "1:\t.long\t__NR_${sname}\n";
++    print OUT "#endif\n";
++    close(OUT);
++}
++
++1;

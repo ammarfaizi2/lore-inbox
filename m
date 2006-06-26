@@ -1,82 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933148AbWFZXmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933287AbWFZXme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933148AbWFZXmI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933154AbWFZXlA
+	id S933287AbWFZXme (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933280AbWFZXmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:41:00 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:26527 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933115AbWFZWeI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:34:08 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 15/16] [Suspend2] __init routines
-Date: Tue, 27 Jun 2006 08:34:06 +1000
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223405.3832.27744.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626223314.3832.23435.stgit@nigel.suspend2.net>
-References: <20060626223314.3832.23435.stgit@nigel.suspend2.net>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Mon, 26 Jun 2006 19:42:31 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:19286 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S933154AbWFZXmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 19:42:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XIALBtDZY3eHQ/FfbRbmRtVosl/BjBzARQrTr7jKQiB33wR62hDyNXA6PB9VDx9gAN0HBzhdnPVYijpjVhpTSszdARsHsp51TE0mlPlh+GobZJW/IBFD4/ipgwW5NU0WobGGVjPEejkB1JIjaS2VN+L8gtMrMCoTv8xhPAd24Uc=
+Message-ID: <6bffcb0e0606261642q429f9f54w44f1c6580ce0c143@mail.gmail.com>
+Date: Tue, 27 Jun 2006 01:42:12 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: oom-killer problem
+Cc: "Daniel Ritz" <daniel.ritz-ml@swissonline.ch>,
+       "Sam Ravnborg" <sam@ravnborg.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0606261604180.3927@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200606270028.16346.daniel.ritz-ml@swissonline.ch>
+	 <Pine.LNX.4.64.0606261604180.3927@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Support for resume2=, noresume2 and retry_resume command line options.
+On 27/06/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>
+> On Tue, 27 Jun 2006, Daniel Ritz wrote:
+> >
+> > reverting the attached patch fixes the problem...
+>
+> Michal, can you also confirm that just doing a simple revert of that one
+> commit makes things work for you?
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+Yes I can confirm that.
+(http://www.ussg.iu.edu/hypermail/linux/kernel/0606.3/0827.html)
 
- kernel/power/suspend.c |   40 ++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 40 insertions(+), 0 deletions(-)
+>
+> Sam, if I don't hear otherwise from you, and Michael confirms, I'll just
+> revert it for now, and you can figure out how to fix it without breakage?
+>
+>                         Linus
+>
 
-diff --git a/kernel/power/suspend.c b/kernel/power/suspend.c
-index 85307c6..78c77d6 100644
---- a/kernel/power/suspend.c
-+++ b/kernel/power/suspend.c
-@@ -1024,3 +1024,43 @@ void suspend2_try_suspend(void)
- 	suspend_finish_anything(0);
- }
- 
-+/* --  Commandline Parameter Handling ---
-+ *
-+ * Resume setup: obtain the storage device.
-+ */
-+static int __init resume2_setup(char *str)
-+{
-+	if (!*str)
-+		return 0;
-+	
-+	strncpy(resume2_file, str, 255);
-+	return 0;
-+}
-+
-+/*
-+ * Allow the user to set the debug parameter from lilo, prior to resuming.
-+ */
-+/*
-+ * Allow the user to specify that we should ignore any image found and
-+ * invalidate the image if necesssary. This is equivalent to running
-+ * the task queue and a sync and then turning off the power. The same
-+ * precautions should be taken: fsck if you're not journalled.
-+ */
-+static int __init noresume2_setup(char *str)
-+{
-+	set_suspend_state(SUSPEND_NORESUME_SPECIFIED);
-+	return 0;
-+}
-+
-+static int __init suspend_retry_resume_setup(char *str)
-+{
-+	set_suspend_state(SUSPEND_RETRY_RESUME);
-+	return 0;
-+}
-+
-+__setup("noresume2", noresume2_setup);
-+__setup("resume2=", resume2_setup);
-+__setup("suspend_retry_resume", suspend_retry_resume_setup);
-+
-+late_initcall(core_load);
-+EXPORT_SYMBOL(suspend_state);
+Regards,
+Michal
 
---
-Nigel Cunningham		nigel at suspend2 dot net
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

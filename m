@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbWFZXDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWFZXDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964820AbWFZXDj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933265AbWFZWjy
+	id S964842AbWFZXDs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWFZXDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:39:54 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:19639 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933267AbWFZWjS
+	Mon, 26 Jun 2006 19:03:40 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:25271 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933288AbWFZWjz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:39:18 -0400
+	Mon, 26 Jun 2006 18:39:55 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 04/35] [Suspend2] Does a filewriter page have contiguous blocks?
-Date: Tue, 27 Jun 2006 08:39:17 +1000
+Subject: [Suspend2][ 15/35] [Suspend2] Allocate filewriter storage.
+Date: Tue, 27 Jun 2006 08:39:54 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223915.4685.72892.stgit@nigel.suspend2.net>
+Message-Id: <20060626223952.4685.22538.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
 References: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,40 +22,53 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To simplify things, pages in the file being used by the filewriter which
-don't have contiguous blocks are ignored. This function determines whether
-a given page meets this criteria by bmapping each sector in the page to
-check.
+Allocate storage for the body of the image, preserving any existing
+allocation for the header. This routine will never shrink the amount
+allocated.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/suspend_file.c |   18 ++++++++++++++++++
- 1 files changed, 18 insertions(+), 0 deletions(-)
+ kernel/power/suspend_file.c |   32 ++++++++++++++++++++++++++++++++
+ 1 files changed, 32 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/suspend_file.c b/kernel/power/suspend_file.c
-index caa86bc..41aaed4 100644
+index 6b04eb5..cdc0261 100644
 --- a/kernel/power/suspend_file.c
 +++ b/kernel/power/suspend_file.c
-@@ -136,3 +136,21 @@ static int filewriter_storage_available(
- 	return result;
+@@ -448,3 +448,35 @@ static int filewriter_allocate_header_sp
+ 	return 0;
  }
  
-+static int has_contiguous_blocks(int page_num)
++static int filewriter_allocate_storage(int space_requested)
 +{
-+	int j;
-+	sector_t last = 0;
++	int result = 0, prev_header_pages;
++	int blocks_to_get = (space_requested << devinfo.bmap_shift) -
++		block_chain.size;
++	
++	/* Only release_storage reduces the size */
++	if (blocks_to_get < 1)
++		return 0;
 +
-+	for (j = 0; j < devinfo.blocks_per_page; j++) {
-+		sector_t this = bmap(target_inode,
-+				page_num * devinfo.blocks_per_page + j);
++	main_pages = space_requested;
 +
-+		if (!this || (last && (last + 1) != this))
-+			break;
++	populate_block_list();
 +
-+		last = this;
++	suspend_message(SUSPEND_WRITER, SUSPEND_MEDIUM, 0,
++		"Finished with block_chain.size == %d.\n",
++		block_chain.size);
++
++	if (block_chain.size < (header_pages + main_pages)) {
++		printk("Block chain size (%d) < header pages (%d) + main pages (%d) (=%d).\n",
++				block_chain.size,
++				header_pages, main_pages,
++				header_pages + main_pages);
++		result = -ENOSPC;
 +	}
-+			
-+	return (j == devinfo.blocks_per_page);
++
++	prev_header_pages = header_pages;
++	header_pages = 0;
++	filewriter_allocate_header_space(prev_header_pages);
++	return result;
 +}
 +
 

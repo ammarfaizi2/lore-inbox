@@ -1,58 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWFZDXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWFZD7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbWFZDXE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 23:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWFZDXD
+	id S1751416AbWFZD7W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 23:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWFZD7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 23:23:03 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:41628 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751425AbWFZDXD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 23:23:03 -0400
-Message-ID: <449F52FF.7000300@zytor.com>
-Date: Sun, 25 Jun 2006 20:22:39 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Sun, 25 Jun 2006 23:59:22 -0400
+Received: from pimout4-ext.prodigy.net ([207.115.63.98]:51856 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S1751416AbWFZD7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jun 2006 23:59:21 -0400
+X-ORBL: [64.216.106.128]
+Message-ID: <449F5B73.4020102@ksu.edu>
+Date: Sun, 25 Jun 2006 22:58:43 -0500
+From: "Scott J. Harmon" <harmon@ksu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060601)
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: Re: [klibc 12/43] Enable CONFIG_KLIBC_ZLIB (now required to build
- kinit)
-References: <klibc.200606251757.12@tazenda.hos.anvin.org> <449F511C.6020303@garzik.org>
-In-Reply-To: <449F511C.6020303@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Sergey Vlasov <vsu@altlinux.ru>
+CC: linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
+Subject: Re: acpi gets wrong interrupt for via sata in 2.6.16.17
+References: <449DE6BA.2050206@ksu.edu> <20060625132457.4b0922b4.vsu@altlinux.ru>
+In-Reply-To: <20060625132457.4b0922b4.vsu@altlinux.ru>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> H. Peter Anvin wrote:
->> After removing the private copy of zlib in kinit, we need
->> CONFIG_KLIBC_ZLIB in order to build klibc.  zlib is required in order
->> to decompress classical ramdisks.
+Sergey Vlasov wrote:
+> On Sat, 24 Jun 2006 20:28:26 -0500 Scott J. Harmon wrote:
+> 
+>> The short: something that came in 2.6.16.17 has caused my sata to no
+>> longer work correctly (by work correctly, I mean actually be able to
+>> detect any drives).  I'm no expert, but it seems that it is getting the
+>> wrong interrupt.  In 2.6.16.16 it works fine with the exact same config.
+>>  It also works fine if I append 'pci=noacpi'.  This has still happens in
+>> 2.6.17.
+> 
+> I assume that your root filesystem is on a SATA disk, and therefore you
+> don't have an easy way to extract dmesg from a broken kernel?
+> 
+Exactly :)
+
+>> Here is the output of lspci:
 >>
->> In the future this should maybe be made conditional on 
->> CONFIG_BLK_DEV_RAM.
+>> scott@amdg:~$ /sbin/lspci
+>> 00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400/KT600 AGP]
+>> Host Bridge (rev 80)
+>> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
+>> 00:07.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5705
+>> Gigabit Ethernet (rev 03)
+>> 00:0d.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host
+>> Controller (rev 46)
+>> 00:0e.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+>> 00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID
+>> Controller (rev 80)
+>> 00:0f.1 IDE interface: VIA Technologies, Inc.
+>> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+>> 00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>> Controller (rev 81)
+>> 00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>> Controller (rev 81)
+>> 00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>> Controller (rev 81)
+>> 00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>> Controller (rev 81)
+>> 00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+>> 00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge
+>> [KT600/K8T800/K8T890 South]
+>> 01:00.0 VGA compatible controller: nVidia Corporation NV15DDR [GeForce2
+>> Ti] (rev a4)
 > 
->> +config KLIBC_ZLIB
->> +    bool
->> +    default y
+> Try to revert these patches:
 > 
+> http://kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=commitdiff_plain;h=dc0f369552b491d1578e8a8c6f6512e17246241c
 > 
-> Dumb question, then:  why not make it conditional on rd now?
+> http://kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=commitdiff_plain;h=c72493379d4aaac49ad3366987db1e118bb4f5ba
 > 
+> (revert in the above order - these are two patches which depend on each
+> other, you need to revert both).  You can try it both with 2.6.16.17
+> and 2.6.17.
+> 
+> Chris: seems that the SATA subdevice (1106:3149) also needs the quirk,
+> like EHCI, sound and builtin network.
 
-Mostly because I haven't yet broken down kinit in configurable chunks; 
-it's somewhat messy to do as long as I'm maintaining a standalone 
-distribution as well as the out-of-mainline kernel tree.  Not difficult 
-by any means, but I've wanted to avoid combinatorics and code churn as 
-long as I have a limited testing base (although -mm has vastly increased 
-it.)
+Will do, and will report back.
 
-It's also unclear to me if it's the right thing to omit it from the 
-library, ever; the only users that are affected are the ones that are 
-using the shared klibc and don't have any use of zlib.
+Thanks,
 
-	-hpa
-
-
+Scott.
+-- 
+"Computer Science is no more about computers than astronomy is about
+telescopes." - Edsger Dijkstra

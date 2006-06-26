@@ -1,109 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933277AbWFZWjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933282AbWFZWjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933277AbWFZWjm (ORCPT <rfc822;willy@w.ods.org>);
+	id S933282AbWFZWjm (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 26 Jun 2006 18:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933264AbWFZWjM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933277AbWFZWjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:39:12 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:15543 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933248AbWFZWiv
+	Mon, 26 Jun 2006 18:39:41 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:22199 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933274AbWFZWjf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:38:51 -0400
+	Mon, 26 Jun 2006 18:39:35 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 29/32] [Suspend2] Read or write a chunk of the header.
-Date: Tue, 27 Jun 2006 08:38:49 +1000
+Subject: [Suspend2][ 09/35] [Suspend2] Get filewriter target info.
+Date: Tue, 27 Jun 2006 08:39:33 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223848.4376.4607.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626223706.4376.96042.stgit@nigel.suspend2.net>
-References: <20060626223706.4376.96042.stgit@nigel.suspend2.net>
+Message-Id: <20060626223932.4685.56666.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
+References: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Submit a buffer with data to write, or a buffer to be filled. In contrast
-to the functions for the main portion of the image, the buffer is normally
-less than a full page.
+Given the name of a target (eg /dev/hda3, /my-suspend-file, /dev/ttyS0),
+attempt to access it and discover the properties (inode, block size, dev_t,
+first block, storage available) we need to work with it.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/suspend_block_io.c |   67 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 67 insertions(+), 0 deletions(-)
+ kernel/power/suspend_file.c |   87 +++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 87 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/suspend_block_io.c b/kernel/power/suspend_block_io.c
-index f881fc7..e822b19 100644
---- a/kernel/power/suspend_block_io.c
-+++ b/kernel/power/suspend_block_io.c
-@@ -961,3 +961,70 @@ static int suspend_write_chunk(struct pa
- 	return suspend_rw_page(WRITE, buffer_page, -1, 0, 0);
+diff --git a/kernel/power/suspend_file.c b/kernel/power/suspend_file.c
+index 7e06a06..6851977 100644
+--- a/kernel/power/suspend_file.c
++++ b/kernel/power/suspend_file.c
+@@ -278,3 +278,90 @@ static void reopen_resume_devt(void)
+ 	set_devinfo(filewriter_target_bdev, target_inode->i_blkbits);
  }
  
-+static int suspend_rw_header_chunk(int rw, struct suspend_module_ops *owner,
-+		char *buffer, int buffer_size)
++static void filewriter_get_target_info(char *target, int get_size,
++		int resume2)
 +{
-+	int bytes_left = buffer_size;
++	if (target_file)
++		filewriter_cleanup(0);
++
++	if (!target || !strlen(target))
++		return;
++
++	target_file = filp_open(target, O_RDWR, 0);
++
++	if (IS_ERR(target_file) || !target_file) {
++
++		if (!resume2) {
++			printk("Open file %s returned %p.\n",
++					target, target_file);
++			target_file = NULL;
++			return;
++		}
++
++		target_file = NULL;
++		resume_dev_t = name_to_dev_t(target);
++		if (!resume_dev_t) {
++			printk("Open file %s returned %p and name_to_devt "
++					"failed.\n",
++					target, target_file);
++			if (!resume_dev_t) {
++				struct kstat stat;
++				int error = vfs_stat(target, &stat);
++				if (error) {
++					printk("Stating the file also failed."
++						" Nothing more we can do.\n");
++					return;
++				}
++				resume_dev_t = stat.rdev;
++			}
++			return;
++		}
++	     	filewriter_target_bdev = open_by_devnum(resume_dev_t, FMODE_READ);
++		if (IS_ERR(filewriter_target_bdev)) {
++			printk("Got a dev_num (%lx) but failed to open it.\n",
++					(unsigned long) resume_dev_t);
++			return;
++		}
++		used_devt = 1;
++		target_inode = filewriter_target_bdev->bd_inode;
++	} else
++		target_inode = target_file->f_mapping->host;
++
++	if (S_ISLNK(target_inode->i_mode) ||
++	    S_ISDIR(target_inode->i_mode) ||
++	    S_ISSOCK(target_inode->i_mode) ||
++	    S_ISFIFO(target_inode->i_mode)) {
++		printk("The filewriter works with regular files, character "
++				"files and block devices.\n");
++		goto cleanup;
++	}
++
++	if (!used_devt) {
++		if (S_ISBLK(target_inode->i_mode)) {
++			filewriter_target_bdev = I_BDEV(target_inode);
++			if (!bd_claim(filewriter_target_bdev, &filewriterops))
++				target_claim = 1;
++		} else
++			filewriter_target_bdev = target_inode->i_sb->s_bdev;
++		resume_dev_t = filewriter_target_bdev->bd_dev;
++	}
++
++	set_devinfo(filewriter_target_bdev, target_inode->i_blkbits);
++
++	if (get_size)
++		target_storage_available = size_ignoring_ignored_pages();
++
++	if (!resume2)
++		target_firstblock = bmap(target_inode, 0) << devinfo.bmap_shift;
 +	
-+	if (owner) {
-+		owner->header_used += buffer_size;
-+		if (owner->header_used > owner->header_requested) {
-+			printk(KERN_EMERG "Suspend2 module %s is using more"
-+				"header space (%lu) than it requested (%lu).\n",
-+				owner->name,
-+				owner->header_used,
-+				owner->header_requested);
-+			BUG();
-+		}
++	return;
++cleanup:
++	target_inode = NULL;
++	if (target_file) {
++		filp_close(target_file, NULL);
++		target_file = NULL;
 +	}
-+
-+	/* Read a chunk of the header */
-+	while (bytes_left) {
-+		char *source_start = buffer + buffer_size - bytes_left;
-+		char *dest_start = suspend_writer_buffer + suspend_writer_buffer_posn;
-+		int capacity = PAGE_SIZE - suspend_writer_buffer_posn;
-+		char *to = rw ? dest_start : source_start;
-+		char *from = rw ? source_start : dest_start;
-+
-+		if (bytes_left <= capacity) {
-+			if (test_debug_state(SUSPEND_HEADER))
-+				printk("Copy %d bytes %d-%d from %p to %p.\n",
-+						bytes_left,
-+						suspend_header_bytes_used,
-+						suspend_header_bytes_used + bytes_left,
-+						from, to);
-+			memcpy(to, from, bytes_left);
-+			suspend_writer_buffer_posn += bytes_left;
-+			suspend_header_bytes_used += bytes_left;
-+			return rw ? 0 : buffer_size;
-+		}
-+
-+		/* Next to read the next page */
-+		if (test_debug_state(SUSPEND_HEADER))
-+			printk("Copy %d bytes (%d-%d) from %p to %p.\n",
-+					capacity,
-+					suspend_header_bytes_used,
-+					suspend_header_bytes_used + capacity,
-+					from, to);
-+		memcpy(to, from, capacity);
-+		bytes_left -= capacity;
-+		suspend_header_bytes_used += capacity;
-+
-+		if (rw == READ && test_suspend_state(SUSPEND_TRY_RESUME_RD))
-+			sys_read(suspend_read_fd,
-+				suspend_writer_buffer, BLOCK_SIZE);
-+		else {
-+			if (suspend_rw_page(rw,
-+					virt_to_page(suspend_writer_buffer),
-+					-1, !rw,
-+					test_debug_state(SUSPEND_HEADER)))
-+				return -EIO;
-+		}
-+
-+		suspend_writer_buffer_posn = 0;
-+		suspend_cond_pause(0, NULL);
-+	}
-+
-+	return rw ? 0 : buffer_size;
++	set_devinfo(NULL, 0);
++	target_storage_available = 0;
 +}
 +
 

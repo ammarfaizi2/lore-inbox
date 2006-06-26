@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbWFZSqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932639AbWFZSrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932642AbWFZSqr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 14:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932643AbWFZSqr
+	id S932639AbWFZSrw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 14:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932645AbWFZSrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 14:46:47 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:2519 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932642AbWFZSqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 14:46:47 -0400
-Date: Mon, 26 Jun 2006 11:46:37 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-cc: Ravikiran G Thirumalai <kiran@scalex86.org>, akpm@osdl.org,
-       clameter@engr.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: remove __read_mostly?
-In-Reply-To: <20060626113950.571d3e4c.pj@sgi.com>
-Message-ID: <Pine.LNX.4.64.0606261142560.32190@schroedinger.engr.sgi.com>
-References: <20060625115736.d90e1241.akpm@osdl.org> <20060625211929.GA3865@localhost.localdomain>
- <20060626113950.571d3e4c.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 Jun 2006 14:47:51 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:3819 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932639AbWFZSrv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 14:47:51 -0400
+Date: Mon, 26 Jun 2006 11:48:21 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       arjan@infradead.org, ioe-lkml@rameria.de, greg@kroah.com,
+       pbadari@us.ibm.com, mrmacman_g4@mac.com, hugh@veritas.com,
+       vatsa@in.ibm.com
+Subject: [PATCH 0/3] 2.6.17 rcutorture: add ops vector to test multiple RCUs
+Message-ID: <20060626184821.GA2091@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jun 2006, Paul Jackson wrote:
+This series contains the following:
 
-> In other words, the name __read_mostly is a little misleading, in my
-> book.  That name only suggests read much more than written.  In your
-> words:
-> 
->     something like 99:1 read
+o	Catch-up updates to the rcutorture documentation.
+o	Ops vector for rcutorture to allow it to test multiple RCU
+	implementations (e.g., both call_rcu() and call_rcu_bh()
+	currently in mainline).
+o	Add operations to allow the _bh variant of RCU to be tested.
 
-
-99:1 may be too small a ratio. 
-
-A read_mostly marked variable should be changed rarely (meaning is 
-is extremely unlikely that his is going to change) but read frequently.
-
-F.e. configuration data for timer operations, number of possible 
-processors and stuff like that.
-
-If we would make the operation to write to the read_mostly section more 
-expensive (by f.e. replicating the data per node) then this would hold off 
-the uses that are changing too frequently.
+						Thanx, Paul

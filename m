@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWFZPBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWFZPEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWFZPBm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 11:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWFZPBm
+	id S932471AbWFZPEf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 11:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWFZPEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 11:01:42 -0400
-Received: from styx.suse.cz ([82.119.242.94]:40400 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932130AbWFZPBl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 11:01:41 -0400
-Date: Mon, 26 Jun 2006 17:01:39 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] atkbd: restore autorepeat rate after resume
-Message-ID: <20060626150139.GA24550@suse.cz>
-References: <Pine.LNX.4.44L0.0606261017340.9467-100000@iolanthe.rowland.org> <d120d5000606260735v6e1762d7mc278f315c3a994fb@mail.gmail.com> <20060626145332.GB24275@suse.cz> <d120d5000606260758m2ee97482m517d432f88975d87@mail.gmail.com>
+	Mon, 26 Jun 2006 11:04:34 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:33342 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S932447AbWFZPEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 11:04:32 -0400
+DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=gIGhqrK6q1/HL0QT2A3bSHVibO1pa+B+A/nCL3ECZKafPazhNr5xgEGI/204AWj5fe1ZztaBeGwU2nAG5qdh3Z6PgTz9K9Qz7X04OTEmvN2zv3/cx6oJqQO+4q674f+u;
+X-IronPort-AV: i="4.06,176,1149483600"; 
+   d="scan'208"; a="35482340:sNHT56961828"
+Date: Mon, 26 Jun 2006 10:04:35 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: minyard@acm.org
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       peter@palfrader.org, openipmi-developer@lists.sourceforge.net
+Subject: Re: [Openipmi-developer] [PATCH] IPMI: use schedule in kthread
+Message-ID: <20060626150434.GA14109@lists.us.dell.com>
+References: <20060626140819.GA17804@localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d5000606260758m2ee97482m517d432f88975d87@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20060626140819.GA17804@localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 10:58:46AM -0400, Dmitry Torokhov wrote:
-> On 6/26/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> >On Mon, Jun 26, 2006 at 10:35:44AM -0400, Dmitry Torokhov wrote:
-> >> On 6/26/06, Alan Stern <stern@rowland.harvard.edu> wrote:
-> >> >From: Linus Torvalds <torvalds@osdl.org>
-> >> >
-> >> >This patch (as728) makes the AT keyboard driver store the current
-> >> >autorepeat rate so that it can be restored properly following a
-> >> >suspend/resume cycle.
-> >> >
-> >>
-> >> Alan,
-> >>
-> >> I think it should be a per-device, not global parameter. Anyway, I'll
-> >> adjust adn apply, thank you.
-> >
-> >You can't make it per-device when there is no device when the keyboard
-> >isn't plugged in. ;)
+On Mon, Jun 26, 2006 at 09:08:19AM -0500, @ wrote:
+> The kthread used to speed up polling for IPMI was using udelay
+> when the lower-level state machine told it to do a short delay.
+> This just used CPU and didn't help scheduling, thus causing bad
+> problems with other tasks.  Call schedule() instead.
 > 
-> It there is no keyboard then you could not change repeat rate before
-> suspending and we don't have anyhting to restore ;)
- 
-What the patch is trying to achieve is that you have the keyboard, set
-the rate, unplug the keyboard, replug the keyboard, get the original
-setting.
+> Signed-off-by: Corey Minyard <minyard@acm.org>
 
-In the middle of the process, you have no device to attach the
-information to. That's why the patch uses a global variable.
+Acked-by: Matt Domsch <Matt_Domsch@dell.com>
 
 -- 
-Vojtech Pavlik
-Director SuSE Labs
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

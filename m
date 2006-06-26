@@ -1,113 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWFZA6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWFZBLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbWFZA6i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 20:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWFZA6f
+	id S964987AbWFZBLo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 21:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWFZBLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 20:58:35 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:16271 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964976AbWFZA6Z
+	Sun, 25 Jun 2006 21:11:07 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:19087 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964972AbWFZA6r
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:58:25 -0400
-Date: Sun, 25 Jun 2006 17:57:59 -0700
+	Sun, 25 Jun 2006 20:58:47 -0400
+Date: Sun, 25 Jun 2006 17:58:02 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 06/43] Re-create ROOT_DEV, too many architectures need it.
-Message-Id: <klibc.200606251757.06@tazenda.hos.anvin.org>
+Subject: [klibc 16/43] sparc64: transmit arch-specific options to kinit via /arch.cmd
+Message-Id: <klibc.200606251757.16@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ROOT_DEV carries a root device number communicated in an architecture-
-specific way.  We now pass it to kinit via the real-root-dev sysctl call.
+Sparc64 has support for a bunch of architecture-specific options
+taken from the PROM.  Convert them to kernel command line form and
+write the file /arch.cmd in the rootfs, which can be recovered by
+kinit and processed.  The kinit support has already been committed.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit 0f5a324d655ad582246b6830843114d09835f593
-tree fd3a96a69b6d74ee33dcd54a58b8666c02139a3a
-parent f3e41698e540a7d39658d6590fde1379c0f5bab0
-author H. Peter Anvin <hpa@zytor.com> Thu, 06 Apr 2006 14:07:43 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 18 Jun 2006 18:46:23 -0700
+commit c6e5c5a77681f5bf6f9fea55d031115e9f58ada6
+tree 98f63b0e32f2deb223b7d06a3c8f2d2d293ae5e4
+parent 060ee84166196f97abcb34bd6af7df1cfc677578
+author H. Peter Anvin <hpa@zytor.com> Wed, 24 May 2006 22:44:55 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 18 Jun 2006 18:55:55 -0700
 
- arch/i386/kernel/setup.c   |    1 +
- arch/x86_64/kernel/setup.c |    1 +
- init/initramfs.c           |    4 ----
- init/main.c                |   12 ++++++++++++
- 4 files changed, 14 insertions(+), 4 deletions(-)
+ arch/sparc64/kernel/setup.c |   92 +++++++++++++++++++++++++++++--------------
+ 1 files changed, 61 insertions(+), 31 deletions(-)
 
-diff --git a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
-index 16784a6..54c72d9 100644
---- a/arch/i386/kernel/setup.c
-+++ b/arch/i386/kernel/setup.c
-@@ -1460,6 +1460,7 @@ #ifdef CONFIG_EFI
- 		efi_enabled = 1;
- #endif
+diff --git a/arch/sparc64/kernel/setup.c b/arch/sparc64/kernel/setup.c
+index 9cf1c88..e8f61fa 100644
+--- a/arch/sparc64/kernel/setup.c
++++ b/arch/sparc64/kernel/setup.c
+@@ -32,6 +32,7 @@ #include <linux/root_dev.h>
+ #include <linux/interrupt.h>
+ #include <linux/cpu.h>
+ #include <linux/initrd.h>
++#include <linux/fcntl.h>
  
-+	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
-  	drive_info = DRIVE_INFO;
-  	screen_info = SCREEN_INFO;
- 	edid_info = EDID_INFO;
-diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
-index cadbe33..6d4f025 100644
---- a/arch/x86_64/kernel/setup.c
-+++ b/arch/x86_64/kernel/setup.c
-@@ -599,6 +599,7 @@ void __init setup_arch(char **cmdline_p)
- {
- 	unsigned long kernel_end;
- 
-+	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
-  	screen_info = SCREEN_INFO;
- 	edid_info = EDID_INFO;
- 	saved_video_mode = SAVED_VIDEO_MODE;
-diff --git a/init/initramfs.c b/init/initramfs.c
-index 0cbd783..7ea4127 100644
---- a/init/initramfs.c
-+++ b/init/initramfs.c
-@@ -10,10 +10,6 @@ #include <linux/syscalls.h>
- unsigned long __initdata initrd_start, initrd_end;
- int __initdata initrd_below_start_ok;
- 
--/* This isn't used by the kernel, but exists as a sysctl node for
--   backwards compatibility reasons. */
--unsigned int real_root_dev;
--
- static __initdata char *message;
- static void __init error(char *x)
- {
-diff --git a/init/main.c b/init/main.c
-index 4b3fd6f..10fb231 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -49,6 +49,7 @@ #include <linux/unistd.h>
- #include <linux/rmap.h>
- #include <linux/mempolicy.h>
- #include <linux/key.h>
-+#include <linux/root_dev.h>
- 
+ #include <asm/system.h>
  #include <asm/io.h>
- #include <asm/bugs.h>
-@@ -126,6 +127,11 @@ static char *ramdisk_execute_command;
- /* Setup configured maximum number of CPUs to activate */
- static unsigned int max_cpus = NR_CPUS;
+@@ -102,7 +103,7 @@ int obp_system_intr(void)
+ 	return 0;
+ }
  
-+/* ROOT_DEV contains any architecture-specific default root device. */
-+/* real_root_dev is used (via sysctl) to communicate ROOT_DEV to kinit. */
-+dev_t ROOT_DEV;
-+unsigned int real_root_dev;
-+
- /*
-  * Setup routine for controlling SMP activation
-  *
-@@ -682,6 +688,12 @@ static int init(void * unused)
- 	do_basic_setup();
+-/* 
++/*
+  * Process kernel command line switches that are specific to the
+  * SPARC or that require special low-level processing.
+  */
+@@ -214,8 +215,6 @@ #define RAMDISK_IMAGE_START_MASK	0x07FF
+ #define RAMDISK_PROMPT_FLAG		0x8000
+ #define RAMDISK_LOAD_FLAG		0x4000
  
- 	/*
-+	 * If we have a root device set by architecture-specific means,
-+	 * let kinit know about it.
-+	 */
-+	real_root_dev = new_encode_dev(ROOT_DEV);
+-extern int root_mountflags;
+-
+ char reboot_command[COMMAND_LINE_SIZE];
+ 
+ static struct pt_regs fake_swapper_regs = { { 0, }, 0, 0, 0, 0 };
+@@ -315,6 +314,64 @@ void __init sun4v_patch(void)
+ 	}
+ }
+ 
++/*
++ * Platform-specific configuration commands which don't come from
++ * the actual kernel command line.  Write them into a file in rootfs
++ * so kinit can pick them up.
++ */
++static int __init set_arch_init_commands(void)
++{
++	int fd = sys_open("/arch.cmd", O_WRONLY|O_CREAT|O_APPEND, 0666);
++	int chosen;
++	u32 cl, sv, gw;
++	char buffer[256];
++	int len = 0;
 +
-+	/*
- 	 * check if there is an early userspace init.  If yes, let it do all
- 	 * the work
- 	 */
++	if (fd < 0)
++		return fd;
++
++	buffer[0] = 'r';
++	buffer[1] = root_flags ? 'o' : 'w';
++	buffer[2] = '\n';
++	len = 3;
++
++#ifdef CONFIG_BLK_DEV_RAM
++	len += min((int)(sizeof buffer - 1 - len),
++		   snprintf(buffer+len, sizeof buffer - len,
++			    "ramdisk_start=%u\n"
++			    "prompt_ramdisk=%d\n"
++			    "load_ramdisk=%d\n",
++			    ram_flags & RAMDISK_IMAGE_START_MASK,
++			    !!(ram_flags & RAMDISK_PROMPT_FLAG),
++			    !!(ram_flags & RAMDISK_LOAD_FLAG)));
++#endif
++
++	chosen = prom_finddevice("/chosen");
++	cl = prom_getintdefault(chosen, "client-ip", 0);
++	sv = prom_getintdefault(chosen, "server-ip", 0);
++	gw = prom_getintdefault(chosen, "gateway-ip", 0);
++
++	if (cl && sv) {
++		len += min((int)(sizeof buffer - 1 - len),
++			   snprintf(buffer+len, sizeof buffer - len,
++				    "ip=%u.%u.%u.%u:%u.%u.%u.%u:"
++				    "%u.%u.%u.%u\n",
++				    (u8)(cl >> 24), (u8)(cl >> 16),
++				    (u8)(cl >> 8), (u8)cl,
++				    (u8)(sv >> 24), (u8)(sv >> 16),
++				    (u8)(sv >> 8), (u8)sv,
++				    (u8)(gw >> 24), (u8)(gw >> 16),
++				    (u8)(gw >> 8), (u8)gw));
++	}
++
++	sys_write(fd, buffer, len);
++	sys_close(fd);
++
++	return 0;
++}
++
++late_initcall(set_arch_init_commands);
++
+ #ifdef CONFIG_SMP
+ void __init boot_cpu_id_too_large(int cpu)
+ {
+@@ -345,37 +402,10 @@ #endif
+ 
+ 	idprom_init();
+ 
+-	if (!root_flags)
+-		root_mountflags &= ~MS_RDONLY;
+ 	ROOT_DEV = old_decode_dev(root_dev);
+-#ifdef CONFIG_BLK_DEV_RAM
+-	rd_image_start = ram_flags & RAMDISK_IMAGE_START_MASK;
+-	rd_prompt = ((ram_flags & RAMDISK_PROMPT_FLAG) != 0);
+-	rd_doload = ((ram_flags & RAMDISK_LOAD_FLAG) != 0);	
+-#endif
+ 
+ 	task_thread_info(&init_task)->kregs = &fake_swapper_regs;
+ 
+-#ifdef CONFIG_IP_PNP
+-	if (!ic_set_manually) {
+-		int chosen = prom_finddevice ("/chosen");
+-		u32 cl, sv, gw;
+-		
+-		cl = prom_getintdefault (chosen, "client-ip", 0);
+-		sv = prom_getintdefault (chosen, "server-ip", 0);
+-		gw = prom_getintdefault (chosen, "gateway-ip", 0);
+-		if (cl && sv) {
+-			ic_myaddr = cl;
+-			ic_servaddr = sv;
+-			if (gw)
+-				ic_gateway = gw;
+-#if defined(CONFIG_IP_PNP_BOOTP) || defined(CONFIG_IP_PNP_RARP)
+-			ic_proto_enabled = 0;
+-#endif
+-		}
+-	}
+-#endif
+-
+ 	smp_setup_cpu_possible_map();
+ 
+ 	/* Get boot processor trap_block[] setup.  */
+@@ -438,7 +468,7 @@ static int ncpus_probed;
+ 
+ static int show_cpuinfo(struct seq_file *m, void *__unused)
+ {
+-	seq_printf(m, 
++	seq_printf(m,
+ 		   "cpu\t\t: %s\n"
+ 		   "fpu\t\t: %s\n"
+ 		   "prom\t\t: %s\n"

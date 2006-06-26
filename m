@@ -1,66 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWFZREp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWFZROZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWFZREp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 13:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWFZREp
+	id S1751126AbWFZROZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 13:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWFZROZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 13:04:45 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:64198 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750816AbWFZREn (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 13:04:43 -0400
-Message-Id: <200606261704.k5QH4V4P008055@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@osdl.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: SC1200 debug printk
-In-Reply-To: Your message of "Mon, 26 Jun 2006 14:51:45 BST."
-             <1151329905.27147.29.camel@localhost.localdomain>
-From: Valdis.Kletnieks@vt.edu
-References: <1151329905.27147.29.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1151341470_3150P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 26 Jun 2006 13:14:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60306 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751104AbWFZROX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 13:14:23 -0400
+Message-ID: <44A0151D.5090400@redhat.com>
+Date: Mon, 26 Jun 2006 13:10:53 -0400
+From: William Cohen <wcohen@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: eranian@hpl.hp.com
+CC: linux-ia64@vger.kernel.org, perfctr-devel@lists.sourceforge.net,
+       perfmon@napali.hpl.hp.com, linux-kernel@vger.kernel.org,
+       oprofile-list@lists.sourceforge.net
+Subject: Re: [Perfctr-devel] [perfmon] 2.6.17.1 new perfmon code base, libpfm,
+ pfmon available
+References: <20060621142447.GA29389@frankl.hpl.hp.com> <449C598B.7070803@redhat.com> <20060623212354.GA1102@frankl.hpl.hp.com>
+In-Reply-To: <20060623212354.GA1102@frankl.hpl.hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 26 Jun 2006 13:04:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1151341470_3150P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 26 Jun 2006 14:51:45 BST, Alan Cox said:
-> Kill a pair of long escaped debug printk calls
+Stephane Eranian wrote:
+> Will,
 > 
-> Signed-off-by: Alan Cox <alan@redhat.com>
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/ide/pci/sc1200.c linux-2.6.17/drivers/ide/pci/sc1200.c
-> --- linux.vanilla-2.6.17/drivers/ide/pci/sc1200.c	2006-06-19 17:17:24.000000000 +0100
-> +++ linux-2.6.17/drivers/ide/pci/sc1200.c	2006-06-26 13:27:45.671877280 +0100
+> On Fri, Jun 23, 2006 at 05:13:47PM -0400, William Cohen wrote:
+> 
+>>Hi Stephane,
+>>
+>>Some quick questions about the current perfmon code.
+>>
+>>
+>>The athlon has very similar hw to the amd64 and there is now 32-bit
+>>x86-64 support. Wouldn't it make sense to move perfmon_amd.c to i386
+>>and have it work in the same way as perfmon_p4.c does currently for p4
+>>and em64t?
+>>
+> 
+> Does Athlon have 4 counters as well. I don't have the HW so I cannot really
+> test. I suspect they are similar. If you have HW and you can test, I don't
+> have a problem.
 
-Hmm... 
+I have an Athlon machine in the office that I can test this change out 
+on and send you a diff.
 
-> @@ -493,7 +491,7 @@
->  }
->  
->  static struct pci_device_id sc1200_pci_tbl[] = {
-> -	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_IDE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_IDE), 0},
->  	{ 0, },
->  };
->  MODULE_DEVICE_TABLE(pci, sc1200_pci_tbl);
+>>Could the 32-bit and 64-bit code be combined in a manner similar to
+>>oprofile and avoid duplication between perfmon_em64t_pebs.c and
+>>perfmon_p4_pebs.c?  pfm_{p4|em64}_ds_area and
+>>pfm_{p4|em64t}_pebs_sample_entry have differences due to the upgrade
+>>from 32 to 64 bit values.
+>>
+> 
+> You have several issues here:
+> 	- the 64-bit version has 8 more reigsters int the PEBS entry
+> 	- the PEBS entry uses 32 or 64 bitfields depending on data model
+> 	- the ds_area uses 32 or 64 bits depending on the data model except for the threshold value
+> 
+> Now remember that on on EM64T we also support 32-bit (i386) binaries. 
+> With an EM64T kernel you would have the 64-bit PEBS format. With the same UUID if would satisfy
+> a i386 binary and this is wrong because they would not match the definition of the PEBS entry.
+> We need to keep the PEBS 32 and 64-bit format UUIDs different. At the source code level, you would
+> need to ifdef __x86_64__ and __i386__ to switch struct definition and UUID. That's doable but is
+> this clean?
 
-Escape of an unrelated change to the same file?
+Certainly given the differences in the pebs elements there will need to 
+unique names for each. It was just a thought to factor out the similar code.
 
---==_Exmh_1151341470_3150P
-Content-Type: application/pgp-signature
+There is support to handle amd64 hardware running on 32-bit kernel. Has 
+someone verified that the em64t processor generate 32-bit compatible 
+entries when running in 32-bit mode? Or does it always write out 64-bit 
+style PEBS entries?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+>>Why isn't Intel family 0xf model 3 not supported?
+>>	Model 1,2, 4, and 5 are supported.
+>>	Model 3 Pentium4 isn't that different is it?
+> 
+> 
+> I have not looked at this. I don't have a lot of P4 HW. I think that
+> all family 15 uses the same PMU. Could someone confirm this?
 
-iD8DBQFEoBOecC3lWbTT17ARAqz9AKDJf4zk7scTcwFMAbEb/aj1y2NeMACgnwQa
-AZWsgD4JfCVvIKslPTChu1A=
-=dIcm
------END PGP SIGNATURE-----
+A NC State University professor mentioned that the ommission of model 3 
+was a problem because his machine were model 3. I suggested the addition 
+of case for model 3 processors to get him going on that.
 
---==_Exmh_1151341470_3150P--
+-Will

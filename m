@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbWFZSkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbWFZSqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbWFZSkV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 14:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWFZSkV
+	id S932642AbWFZSqr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 14:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932643AbWFZSqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 14:40:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8416 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932637AbWFZSkR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 14:40:17 -0400
-Date: Mon, 26 Jun 2006 11:39:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jay Lan <jlan@sgi.com>
-Cc: nagar@watson.ibm.com, jlan@engr.sgi.com, balbir@in.ibm.com,
-       csturtiv@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in
- taskstats
-Message-Id: <20060626113959.839d72bc.akpm@osdl.org>
-In-Reply-To: <44A026ED.8080903@sgi.com>
-References: <44892610.6040001@watson.ibm.com>
-	<20060609010057.e454a14f.akpm@osdl.org>
-	<448952C2.1060708@in.ibm.com>
-	<20060609042129.ae97018c.akpm@osdl.org>
-	<4489EE7C.3080007@watson.ibm.com>
-	<449999D1.7000403@engr.sgi.com>
-	<44999A98.8030406@engr.sgi.com>
-	<44999F5A.2080809@watson.ibm.com>
-	<4499D7CD.1020303@engr.sgi.com>
-	<449C2181.6000007@watson.ibm.com>
-	<20060623141926.b28a5fc0.akpm@osdl.org>
-	<449C6620.1020203@engr.sgi.com>
-	<20060623164743.c894c314.akpm@osdl.org>
-	<449CAA78.4080902@watson.ibm.com>
-	<20060623213912.96056b02.akpm@osdl.org>
-	<449CD4B3.8020300@watson.ibm.com>
-	<44A01A50.1050403@sgi.com>
-	<20060626105548.edef4c64.akpm@osdl.org>
-	<44A020CD.30903@watson.ibm.com>
-	<20060626111249.7aece36e.akpm@osdl.org>
-	<44A026ED.8080903@sgi.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jun 2006 14:46:47 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:2519 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932642AbWFZSqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 14:46:47 -0400
+Date: Mon, 26 Jun 2006 11:46:37 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+cc: Ravikiran G Thirumalai <kiran@scalex86.org>, akpm@osdl.org,
+       clameter@engr.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: remove __read_mostly?
+In-Reply-To: <20060626113950.571d3e4c.pj@sgi.com>
+Message-ID: <Pine.LNX.4.64.0606261142560.32190@schroedinger.engr.sgi.com>
+References: <20060625115736.d90e1241.akpm@osdl.org> <20060625211929.GA3865@localhost.localdomain>
+ <20060626113950.571d3e4c.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jun 2006 11:26:53 -0700
-Jay Lan <jlan@sgi.com> wrote:
+On Mon, 26 Jun 2006, Paul Jackson wrote:
 
-> > OK, please send the patch and I'll plan on sending this lot to Linus
-> > Thursdayish.
+> In other words, the name __read_mostly is a little misleading, in my
+> book.  That name only suggests read much more than written.  In your
+> words:
 > 
-> These new patches are fresh out of Shailabh's stove (well, i have
-> seen one, but not the other yet) and i have not had chance to look
-> at them yet. No need to rush, does it?
+>     something like 99:1 read
 
-Thursday's a long way off ;)
 
-As long as we have a high level of confidence that any remaining issues
-will be fixed within a few weeks, this code is OK for a merge.
+99:1 may be too small a ratio. 
 
-There's a general agreement that the kernel needs this feature - people
-have been mucking around with it for years.  Let's put the effort in and
-make it happen.
+A read_mostly marked variable should be changed rarely (meaning is 
+is extremely unlikely that his is going to change) but read frequently.
+
+F.e. configuration data for timer operations, number of possible 
+processors and stuff like that.
+
+If we would make the operation to write to the read_mostly section more 
+expensive (by f.e. replicating the data per node) then this would hold off 
+the uses that are changing too frequently.

@@ -1,95 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbWFZSvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932650AbWFZSwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932652AbWFZSvs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 14:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbWFZSvs
+	id S932650AbWFZSwO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 14:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWFZSwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 14:51:48 -0400
-Received: from ccerelbas01.cce.hp.com ([161.114.21.104]:24554 "EHLO
-	ccerelbas01.cce.hp.com") by vger.kernel.org with ESMTP
-	id S932649AbWFZSvr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 14:51:47 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
-Date: Mon, 26 Jun 2006 13:51:43 -0500
-Message-ID: <E717642AF17E744CA95C070CA815AE550E163F@cceexc23.americas.cpqcorp.net>
-In-Reply-To: <m1veqnst2b.fsf@ebiederm.dsl.xmission.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
-Thread-Index: AcaZSWAqLRld4Gi6ToSuKZh18kNSLgAByaPw
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: <vgoyal@in.ibm.com>, "Maneesh Soni" <maneesh@in.ibm.com>,
-       "Andrew Morton" <akpm@osdl.org>, <Neela.Kolli@engenio.com>,
-       <linux-scsi@vger.kernel.org>, <fastboot@lists.osdl.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jun 2006 18:51:44.0648 (UTC) FILETIME=[91F04080:01C69951]
+	Mon, 26 Jun 2006 14:52:14 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:42443 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932650AbWFZSwN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 14:52:13 -0400
+Date: Mon, 26 Jun 2006 11:52:47 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       arjan@infradead.org, ioe-lkml@rameria.de, greg@kroah.com,
+       pbadari@us.ibm.com, mrmacman_g4@mac.com, hugh@veritas.com,
+       vatsa@in.ibm.com
+Subject: [PATCH 1/3] rcutorture: catchup doc fixes for idle-hz tests
+Message-ID: <20060626185247.GA2141@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060626184821.GA2091@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060626184821.GA2091@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Eric W. Biederman [mailto:ebiederm@xmission.com] 
-> Sent: Monday, June 26, 2006 12:52 PM
-> To: Miller, Mike (OS Dev)
-> Cc: vgoyal@in.ibm.com; Maneesh Soni; Andrew Morton; 
-> Neela.Kolli@engenio.com; linux-scsi@vger.kernel.org; 
-> fastboot@lists.osdl.org; linux-kernel@vger.kernel.org
-> Subject: Re: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver 
-> initialization issue fix
-> 
-> "Miller, Mike (OS Dev)" <Mike.Miller@hp.com> writes:
-> 
-> > Thanks Eric, that helps me understand. Section 8.2.2 of the 
-> open cciss 
-> > spec supports a reset message. Target 0x00 is the 
-> controller. We could 
-> > add this to the init routine to ensure the board is made sane again 
-> > but this would drastically increase init time under normal 
-> circumstances.
-> 
-> Where does the init time penalty come from? How large is the 
-> init penalty?  I suspect it is from waiting for the scsi 
-> disks to spin up.
-> But I am just guessing in the dark.
+This just catches the RCU torture documentation up with the recent
+fixes that test RCU for architectures that turn of the scheduling-clock
+interrupt for idle CPUs and the addition of a SUCCESS/FAILURE
+indication, fixing up an obsolete comment as well.
 
-The penalty is in the firmware and self-test operations.
+Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
+---
 
-> 
-> > And I suspect this is a hard reset, also. Not sure if that would 
-> > negatively impact kdump. If there were some condition we could test 
-> > against and perform the reset when that condition is met it 
-> would not 
-> > impact 99.9% of users.
-> 
-> I am wondering if it is possible to look at the controller 
-> and see if it is in a bad state, (i.e. in some state besides 
-> just coming out of reset) and if so issue a reset.  If this 
-> really is a long operation that would be the ideal way to handle it.
+ Documentation/RCU/torture.txt |   12 +++++++++++-
+ kernel/rcutorture.c           |    2 +-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
 
-It's not really in a bad state at this time, is it? Maybe some commands
-hanging around.
-
-> 
-> If the amount of time is really user noticeable and testing 
-> for it is impossible then it is probably time to talk kernel 
-> command line options.
-
-I was informed of the crashboot command line parameter. I can implement
-that as a test.
-
-> 
-> Although it might simply be appropriate to handle commands 
-> completing you didn't start.  I am not at all familiar with 
-> that particular piece of hardware so I can't make a good 
-> guess on what needs to happen there.
-
-Not sure about doing this.
-
-mikem
+diff -urpNa -X dontdiff linux-2.6.17/Documentation/RCU/torture.txt linux-2.6.17-torturedoc/Documentation/RCU/torture.txt
+--- linux-2.6.17/Documentation/RCU/torture.txt	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17-torturedoc/Documentation/RCU/torture.txt	2006-06-24 11:34:36.000000000 -0700
+@@ -35,6 +35,15 @@ stat_interval	The number of seconds betw
+ 		be printed -only- when the module is unloaded, and this
+ 		is the default.
+ 
++shuffle_interval
++		The number of seconds to keep the test threads affinitied
++		to a particular subset of the CPUs.  Used in conjunction
++		with test_no_idle_hz.
++
++test_no_idle_hz	Whether or not to test the ability of RCU to operate in
++		a kernel that disables the scheduling-clock interrupt to
++		idle CPUs.  Boolean parameter, "1" to test, "0" otherwise.
++
+ verbose		Enable debug printk()s.  Default is disabled.
+ 
+ 
+@@ -119,4 +128,5 @@ The following script may be used to tort
+ 
+ The output can be manually inspected for the error flag of "!!!".
+ One could of course create a more elaborate script that automatically
+-checked for such errors.
++checked for such errors.  The "rmmod" command forces a "SUCCESS" or
++"FAILURE" indication to be printk()ed.
+diff -urpNa -X dontdiff linux-2.6.17/kernel/rcutorture.c linux-2.6.17-torturedoc/kernel/rcutorture.c
+--- linux-2.6.17/kernel/rcutorture.c	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17-torturedoc/kernel/rcutorture.c	2006-06-23 16:28:08.000000000 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Read-Copy Update /proc-based torture test facility
++ * Read-Copy Update module-based torture test facility
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by

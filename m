@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933217AbWFZXS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933268AbWFZXS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933217AbWFZXS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWFZXS5
+	id S933268AbWFZXS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933217AbWFZWhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:18:57 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:55711 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933209AbWFZWhW
+	Mon, 26 Jun 2006 18:37:19 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:54175 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933209AbWFZWhL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:37:22 -0400
+	Mon, 26 Jun 2006 18:37:11 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 04/32] [Suspend2] Check the io stats.
-Date: Tue, 27 Jun 2006 08:37:20 +1000
+Subject: [Suspend2][ 01/32] [Suspend2] Block I/O Header File
+Date: Tue, 27 Jun 2006 08:37:09 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223718.4376.43898.stgit@nigel.suspend2.net>
+Message-Id: <20060626223708.4376.9487.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626223706.4376.96042.stgit@nigel.suspend2.net>
 References: <20060626223706.4376.96042.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,59 +22,76 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perform sanity checking at the conclusion of performing some I/O. By the
-time this is called, there should be no outstanding I/O, and the io_info
-structure lists should all be empty. We check these conditions, and display
-the vital statistics if the appropriate debugging level is enabled.
+kernel/power/block_io.h is the header file for the lowlevel block i/o code.
+It defines the operations that the swapwriter and filewriter use to
+actually perform the I/O.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/suspend_block_io.c |   35 +++++++++++++++++++++++++++++++++++
- 1 files changed, 35 insertions(+), 0 deletions(-)
+ kernel/power/block_io.h |   55 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 55 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/suspend_block_io.c b/kernel/power/suspend_block_io.c
-index 51e02ef..09682c4 100644
---- a/kernel/power/suspend_block_io.c
-+++ b/kernel/power/suspend_block_io.c
-@@ -144,3 +144,38 @@ static void suspend_reset_io_stats(void)
- 		nr_schedule_calls[i] = 0;
- }
- 
+diff --git a/kernel/power/block_io.h b/kernel/power/block_io.h
+new file mode 100644
+index 0000000..2e89ca2
+--- /dev/null
++++ b/kernel/power/block_io.h
+@@ -0,0 +1,55 @@
 +/*
-+ * suspend_check_io_stats
++ * kernel/power/block_io.h
 + *
-+ * Description:	Check that our statistics look right and print
-+ * 		any debugging info wanted.
++ * Copyright 2004-2006 Nigel Cunningham <nigel@suspend2.net>
++ *
++ * Distributed under GPLv2.
++ *
++ * This file contains declarations for functions exported from
++ * block_io.c, which contains low level io functions.
 + */
-+static void suspend_check_io_stats(void)
-+{
-+	int i;
 +
-+	BUG_ON(atomic_read(&outstanding_io));
-+	BUG_ON(infopages);
-+	BUG_ON(!list_empty(&ioinfo_submit_batch));
-+	BUG_ON(!list_empty(&ioinfo_busy));
-+	BUG_ON(!list_empty(&ioinfo_ready_for_cleanup));
-+	BUG_ON(!list_empty(&ioinfo_free));
-+	BUG_ON(atomic_read(&buffer_allocs) != atomic_read(&buffer_frees));
++#include <linux/buffer_head.h>
++#include "extent.h"
 +
-+	suspend_message(SUSPEND_WRITER, SUSPEND_LOW, 0,
-+			"Maximum outstanding_io was %d.\n",
-+			max_outstanding_io);
-+	suspend_message(SUSPEND_WRITER, SUSPEND_LOW, 0,
-+			"Max info pages was %d.\n",
-+			maxinfopages);
-+	if (atomic_read(&buffer_allocs) != atomic_read(&buffer_frees))
-+		suspend_message(SUSPEND_WRITER, SUSPEND_MEDIUM, 0,
-+			"Buffer allocs (%d) != buffer frees (%d)",
-+				atomic_read(&buffer_allocs),
-+				atomic_read(&buffer_frees));
-+	for(i = 0; i < 8; i++)
-+		suspend_message(SUSPEND_WRITER, SUSPEND_MEDIUM, 0,
-+			"Nr schedule calls %s: %lu.\n", sch_caller[i],
-+			nr_schedule_calls[i]);
-+}
++struct suspend_bdev_info {
++	struct block_device *bdev;
++	dev_t dev_t;
++	int bmap_shift;
++	int blocks_per_page;
++};
 +
++/* 
++ * Our exported interface so the swapwriter and filewriter don't
++ * need these functions duplicated.
++ */
++struct suspend_bio_ops {
++	int (*bdev_page_io) (int rw, struct block_device *bdev, long pos,
++			struct page *page);
++	void (*check_io_stats) (void);
++	void (*reset_io_stats) (void);
++	void (*finish_all_io) (void);
++	int (*prepare_readahead) (int index);
++	void (*cleanup_readahead) (int index);
++	struct page ** readahead_pages;
++	int (*readahead_ready) (int readahead_index);
++	int (*forward_one_page) (void);
++	void (*set_extra_page_forward) (void);
++	void (*set_devinfo) (struct suspend_bdev_info *info);
++	int (*read_chunk) (struct page *buffer_page, int sync);
++	int (*write_chunk) (struct page *buffer_page);
++	int (*rw_header_chunk) (int rw, struct suspend_module_ops *owner,
++			char *buffer, int buffer_size);
++	int (*write_header_chunk_finish) (void);
++	int (*rw_init) (int rw, int stream_number);
++	int (*rw_cleanup) (int rw);
++};
++
++extern struct suspend_bio_ops suspend_bio_ops;
++
++extern char *suspend_writer_buffer;
++extern int suspend_writer_buffer_posn;
++extern int suspend_read_fd;
++extern struct extent_iterate_saved_state suspend_writer_posn_save[3];
++extern struct extent_iterate_state suspend_writer_posn;
++extern int suspend_header_bytes_used;
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

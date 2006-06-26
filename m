@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932945AbWFZTai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932950AbWFZTbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932945AbWFZTai (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 15:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932949AbWFZTai
+	id S932950AbWFZTbY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 15:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932949AbWFZTbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 15:30:38 -0400
-Received: from mail.gmx.de ([213.165.64.21]:51587 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932945AbWFZTah (ORCPT
+	Mon, 26 Jun 2006 15:31:24 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:43476 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S932946AbWFZTbX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 15:30:37 -0400
-X-Authenticated: #704063
-Date: Mon, 26 Jun 2006 21:30:34 +0200
-From: Eric Sesterhenn / Snakebyte <snakebyte@gmx.de>
-To: Greg KH <gregkh@suse.de>
-Cc: Eric Sesterhenn / Snakebyte <snakebyte@gmx.de>,
-       Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Off by one in drivers/usb/serial/usb-serial.c
-Message-ID: <20060626193034.GA13701@alice>
-References: <200606221331.k5MDVua9010794@harpo.it.uu.se> <20060625225920.GA16834@alice> <20060626191007.GA21925@suse.de>
-Mime-Version: 1.0
+	Mon, 26 Jun 2006 15:31:23 -0400
+Date: Mon, 26 Jun 2006 12:32:56 -0700
+From: Grant Grundler <iod00d@hp.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Stephane Eranian <eranian@hpl.hp.com>,
+       oprofile-list <oprofile-list@lists.sourceforge.net>,
+       perfmon <perfmon@napali.hpl.hp.com>,
+       linux-ia64 <linux-ia64@vger.kernel.org>,
+       perfctr-devel <perfctr-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17.1 new perfmon code base, libpfm, pfmon available
+Message-ID: <20060626193256.GE14684@esmail.cup.hp.com>
+References: <200606261336_MC3-1-C384-7981@compuserve.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060626191007.GA21925@suse.de>
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snake-basket.de
-X-Operating-System: Linux/2.6.17-mm2 (i686)
-X-Uptime: 21:23:37 up 10:20,  3 users,  load average: 0.53, 0.40, 0.36
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+In-Reply-To: <200606261336_MC3-1-C384-7981@compuserve.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, what does this mean?  That coverity is broken, yet again?
+On Mon, Jun 26, 2006 at 01:33:03PM -0400, Chuck Ebbert wrote:
+> 32-bit works great.  Unfortunately, pfmon is far too limited for serious
+> kernel monitoring AFAICT.
 
-right, it means that this was a false report.
+I think "far too limited for serious kernel monitoring" is not a fair
+statement. One can do some very interesting things as I presented
+two years ago at OLS:
+	http://iou.parisc-linux.org/ols_2004/pfmon_for_iodorks.pdf
 
-> I'm getting very tired of these false positives from them, it is getting
-> so that I can't trust the output of the tool at all :(
+It's just a _very_ complex subsystem and has a steep learning curve
+to do some of the more complex things that one might like.
 
-you shouldnt trust it anyways. At the moment ~11% of the
-stuff we checked is marked as bug, ~24% as false or ignore,
-5% pending, 4% resolved and 54% uninspected. If we count
-pending and resolved to the bugs, that would mean a 50/50
-split between bugs and false positives. So we should not trust
-it blind and i try my best to avoid such mistakes.
-But I wouldnt say coverity is that bad, and it already helped
-us fixing several bugs.
+> E.g. you can't select edge counting instead
+> of cycle counting.  So you can count how many clock cycles were spent
+> with interrupts disabled but you can't count how many times they were
+> disabled.
 
-Greetings, Eric
+At first glance, this example sounds more like a limitation of the HW
+and not the SW.
+
+> And is someone working on kernel profiling tools that use the perfmon2
+> infrastructure on i386?  I'd like to see kernel-based profiling that lets
+> you use something like the existing 'readprofile' to retrieve results.  This
+> would be a lot better than the current timer-based profiling.
+
+Both are useful. I wouldn't say one of necessarily better.
+FWIW, the "CPU_CYCLES" counts from pfmon aren't timer based on ia64.
+AFAIK, the HW counters are sampled to gather those counts.
+
+thanks,
+grant

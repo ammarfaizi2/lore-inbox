@@ -1,68 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWFZCTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWFZCZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbWFZCTP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 22:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWFZCTP
+	id S1751381AbWFZCZm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 22:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWFZCZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 22:19:15 -0400
-Received: from mail.gmx.de ([213.165.64.21]:57262 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751364AbWFZCTO (ORCPT
+	Sun, 25 Jun 2006 22:25:42 -0400
+Received: from xenotime.net ([66.160.160.81]:47247 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751380AbWFZCZl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 22:19:14 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH] i386: Fix softirq accounting with 4K stacks
-From: Mike Galbraith <efault@gmx.de>
-To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       danial_thom@yahoo.com, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060625184244.GA11921@atjola.homenet>
-References: <1151142716.7797.10.camel@Homer.TheSimpsons.net>
-	 <1151149317.7646.14.camel@Homer.TheSimpsons.net>
-	 <20060624154037.GA2946@atjola.homenet>
-	 <1151166193.8516.8.camel@Homer.TheSimpsons.net>
-	 <20060624192523.GA3231@atjola.homenet>
-	 <1151211993.8519.6.camel@Homer.TheSimpsons.net>
-	 <20060625111238.GB8223@atjola.homenet>
-	 <20060625142440.GD8223@atjola.homenet>
-	 <1151257451.7858.45.camel@Homer.TheSimpsons.net>
-	 <1151257397.4940.45.camel@laptopd505.fenrus.org>
-	 <20060625184244.GA11921@atjola.homenet>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 26 Jun 2006 04:23:22 +0200
-Message-Id: <1151288602.7470.22.camel@Homer.TheSimpsons.net>
+	Sun, 25 Jun 2006 22:25:41 -0400
+Date: Sun, 25 Jun 2006 19:28:27 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Alex Davis <alex14641@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, scsi <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] Fix bug: accessing past end of array.
+Message-Id: <20060625192827.730f1a8d.rdunlap@xenotime.net>
+In-Reply-To: <20060626020646.49093.qmail@web50406.mail.yahoo.com>
+References: <20060626020646.49093.qmail@web50406.mail.yahoo.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-25 at 20:42 +0200, Björn Steinbrink wrote:
-> I just booted with both patches applied, mine and Mike's, and that
-> actually makes a difference in hardirq cpu time accounting. With my
-> patch only, hi is 0 in top while the box gets a ping flood. With both
-> patches, I get about 1% hi. Mike's patch causes update_process_times()
-> to be called twice on UP, but that alone shouldn't change the
-> percentages, right?
+[adding linux-scsi]
 
-Yes, you definitely need to comment out the other call if you test the
-SMP path on UP+IO-APIC.
+On Sun, 25 Jun 2006 19:06:46 -0700 (PDT) Alex Davis wrote:
 
-> OTOH top shows "hi" as zero with 8K stacks as well unless Mike's patch
-> is applied, so the results with Mike's patch are bogus (if so, why?) or
-> hardirq accounting is broken in general.
+> If the card is re-inserted 2 or more times, we access elements
+> past the end of the aha152x_host array.
 
-Something is certainly still b0rken.  I still get three different
-answers to the question "what is my cpu usage" depending on
-configuration.  With stock UP kernel with no IO-APIC, interrupt load is
-all hi.  With your patch and IO-APIC, it's all si.  SMP shows a mix of
-both.
+When I was testing/reproducing this, I observed that removing
+the card did not cause the aha152x_detach() function to be called
+(in drivers/scsi/pcmcia/aha152x_stub.c).  However, I didn't
+find out why that doesn't happen.  I think fixing this would
+be a big help.
 
-I like the result of using the SMP path if you have an IO-APIC best,
-though I haven't verified them against a profile for accuracy.  Taking a
-peek at the profile confirms that it is indeed mixed, so anything
-showing the load as being either hi or si has to be wrong.
 
-	-Mike
+> Also correct spelling errors.
+> 
+> This is for 2.6.17.
+> 
+> Signed-off-by Alex Davis <alex14641 at yahoo dot com>
+> =========================================================================
+> diff -u linux-2.6.17.1-orig/drivers/scsi/aha152x.c linux-2.6.17.1/drivers/scsi/aha152x.c
+> --- linux-2.6.17.1-orig/drivers/scsi/aha152x.c	2006-06-17 21:49:35.000000000 -0400
+> +++ linux-2.6.17.1/drivers/scsi/aha152x.c	2006-06-25 20:06:05.000000000 -0400
+> @@ -766,7 +766,7 @@
+>  	struct Scsi_Host *shpnt = lookup_irq(irqno);
+>  
+>  	if (!shpnt) {
+> -        	printk(KERN_ERR "aha152x: catched software interrupt %d for unknown controller.\n",
+> irqno);
+> +        	printk(KERN_ERR "aha152x: caught software interrupt %d for unknown controller.\n",
+> irqno);
+>  		return IRQ_NONE;
+>  	}
+>  
+> @@ -779,6 +779,7 @@
+>  struct Scsi_Host *aha152x_probe_one(struct aha152x_setup *setup)
+>  {
+>  	struct Scsi_Host *shpnt;
+> +	int i;
+>  
+>  	shpnt = scsi_host_alloc(&aha152x_driver_template, sizeof(struct aha152x_hostdata));
+>  	if (!shpnt) {
+> @@ -787,6 +788,22 @@
+>  	}
+>  
+>  	/* need to have host registered before triggering any interrupt */
+> +
+> +	/* find an empty slot. */
+> +	for ( i = 0; i < ARRAY_SIZE(aha152x_host); ++i ) {
+> +		if ( aha152x_host[i] == NULL ) {
+> +			break;
+> +		}
+> +	}
+> +
+> +	/* no empty slots? */
+> +	if ( i >= ARRAY_SIZE(aha152x_host) ) {
+> +		printk(KERN_ERR "aha152x: too many hosts: %d\n", i + 1);
+> +		return NULL;
+> +	}
+> +
+> +	registered_count = i;
+> +
+>  	aha152x_host[registered_count] = shpnt;
+>  
+>  	memset(HOSTDATA(shpnt), 0, sizeof *HOSTDATA(shpnt));
+> @@ -915,6 +932,8 @@
+>  
+>  void aha152x_release(struct Scsi_Host *shpnt)
+>  {
+> +	int i;
+> +
+>  	if(!shpnt)
+>  		return;
+>  
+> @@ -933,6 +952,12 @@
+>  
+>  	scsi_remove_host(shpnt);
+>  	scsi_host_put(shpnt);
+> +	for ( i = 0; i < ARRAY_SIZE(aha152x_host); ++i ) {
+> +		if ( aha152x_host[i] == shpnt ) {
+> +			aha152x_host[i] = NULL;
+> +			break;
+> +		}
+> +	}
+>  }
+>  
+>  
+> @@ -1458,7 +1483,7 @@
+>  	unsigned char rev, dmacntrl0;
+>  
+>  	if (!shpnt) {
+> -		printk(KERN_ERR "aha152x: catched interrupt %d for unknown controller.\n", irqno);
+> +		printk(KERN_ERR "aha152x: caught interrupt %d for unknown controller.\n", irqno);
+>  		return IRQ_NONE;
+>  	}
+>  
+> @@ -2976,6 +3001,9 @@
+>  	Scsi_Cmnd *ptr;
+>  	unsigned long flags;
+>  
+> +	if(!shpnt)
+> +		return;
+> +
+>  	DO_LOCK(flags);
+>  	printk(KERN_DEBUG "\nqueue status:\nissue_SC:\n");
+>  	for (ptr = ISSUE_SC; ptr; ptr = SCNEXT(ptr))
+> @@ -3941,7 +3969,6 @@
+>  
+>  	for(i=0; i<ARRAY_SIZE(setup); i++) {
+>  		aha152x_release(aha152x_host[i]);
+> -		aha152x_host[i]=NULL;
+>  	}
+>  }
+> 
 
+---
+~Randy

@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWFZBMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWFZBNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964971AbWFZBMk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 21:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWFZA6k
+	id S964982AbWFZBNe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 21:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWFZBNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 20:58:40 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:16527 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964978AbWFZA61
+	Sun, 25 Jun 2006 21:13:34 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:18575 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964974AbWFZA6h
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:58:27 -0400
-Date: Sun, 25 Jun 2006 17:57:59 -0700
+	Sun, 25 Jun 2006 20:58:37 -0400
+Date: Sun, 25 Jun 2006 17:58:03 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 07/43] Eliminate unnecessary whitespace delta vs. Linus' tree
-Message-Id: <klibc.200606251757.07@tazenda.hos.anvin.org>
+Subject: [klibc 18/43] klibc (inkernel): merge s390/s390x #4
+Message-Id: <klibc.200606251757.18@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus' tree has a space-tab sequence for a few lines in these files,
-causing an unnecessary delta.
+Changes needed for the inkernel klibc merge of s390/s390x.
 
-Signed-off-by: H. Peter Anvin <hpa@zytor.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 
 ---
-commit 7c753dbe7467f0d5ff6904f1bf5840350527e3c4
-tree c40a68f6556a702a836d9a6e90f5d632eed0bc0c
-parent 0f5a324d655ad582246b6830843114d09835f593
-author H. Peter Anvin <hpa@zytor.com> Thu, 06 Apr 2006 14:15:53 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 18 Jun 2006 18:46:34 -0700
+commit 378abd8f4d39024ea6c87eb5b54155238f647f0d
+tree d2f336f8ab090090b07dfb6829b70ead42ea70b8
+parent fc8c0c09f9dd5139dd8d797eaf9fe33962b6cd2c
+author Heiko Carstens <heiko.carstens@de.ibm.com> Sun, 28 May 2006 11:41:42 +0200
+committer H. Peter Anvin <hpa@zytor.com> Sun, 18 Jun 2006 19:05:07 -0700
 
- arch/i386/kernel/setup.c   |    2 +-
- arch/x86_64/kernel/setup.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ Makefile           |    3 ++-
+ arch/s390/Makefile |    4 ++++
+ 2 files changed, 6 insertions(+), 1 deletions(-)
 
-diff --git a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
-index 54c72d9..4945931 100644
---- a/arch/i386/kernel/setup.c
-+++ b/arch/i386/kernel/setup.c
-@@ -1460,7 +1460,7 @@ #ifdef CONFIG_EFI
- 		efi_enabled = 1;
- #endif
+diff --git a/Makefile b/Makefile
+index c550270..4f684b3 100644
+--- a/Makefile
++++ b/Makefile
+@@ -180,6 +180,7 @@ UTS_MACHINE	:= $(ARCH)
  
--	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
-+ 	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
-  	drive_info = DRIVE_INFO;
-  	screen_info = SCREEN_INFO;
- 	edid_info = EDID_INFO;
-diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
-index 6d4f025..003667e 100644
---- a/arch/x86_64/kernel/setup.c
-+++ b/arch/x86_64/kernel/setup.c
-@@ -599,7 +599,7 @@ void __init setup_arch(char **cmdline_p)
- {
- 	unsigned long kernel_end;
+ # Architecture used to compile user-space code
+ KLIBCARCH	?= $(ARCH)
++KLIBCARCHDIR	?= $(KLIBCARCH)
  
--	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
-+ 	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
-  	screen_info = SCREEN_INFO;
- 	edid_info = EDID_INFO;
- 	saved_video_mode = SAVED_VIDEO_MODE;
+ # klibc definitions
+ export KLIBCINC := usr/include
+@@ -326,7 +327,7 @@ export VERSION PATCHLEVEL SUBLEVEL KERNE
+ export KLIBCARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD
+ export CC CPP AR RANLIB NM STRIP OBJCOPY OBJDUMP MAKE AWK GENKSYMS
+ export PERL UTS_MACHINE HOSTCXX HOSTCXXFLAGS LDFLAGS_MODULE CHECK
+-export CHECKFLAGS
++export CHECKFLAGS KLIBCARCHDIR
+ 
+ export CPPFLAGS NOSTDINC_FLAGS LINUXINCLUDE OBJCOPYFLAGS LDFLAGS
+ export CFLAGS CFLAGS_KERNEL CFLAGS_MODULE 
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index 7bb16fb..d3a271e 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -20,6 +20,7 @@ AFLAGS		+= -m31
+ UTS_MACHINE	:= s390
+ STACK_SIZE	:= 8192
+ CHECKFLAGS	+= -D__s390__
++KLIBCARCH	:= s390
+ else
+ LDFLAGS		:= -m elf64_s390
+ MODFLAGS	+= -fpic -D__PIC__
+@@ -28,8 +29,11 @@ AFLAGS		+= -m64
+ UTS_MACHINE	:= s390x
+ STACK_SIZE	:= 16384
+ CHECKFLAGS	+= -D__s390__ -D__s390x__
++KLIBCARCH	:= s390x
+ endif
+ 
++KLIBCARCHDIR	:= s390
++
+ cflags-$(CONFIG_MARCH_G5)   += $(call cc-option,-march=g5)
+ cflags-$(CONFIG_MARCH_Z900) += $(call cc-option,-march=z900)
+ cflags-$(CONFIG_MARCH_Z990) += $(call cc-option,-march=z990)

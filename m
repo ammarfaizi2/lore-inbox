@@ -1,114 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWFZPku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWFZPmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWFZPku (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 11:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWFZPkt
+	id S1750712AbWFZPmI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 11:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWFZPmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 11:40:49 -0400
-Received: from rtsoft2.corbina.net ([85.21.88.2]:13283 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1750704AbWFZPkt
+	Mon, 26 Jun 2006 11:42:08 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:60169 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S1750705AbWFZPmH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 11:40:49 -0400
-Date: Mon, 26 Jun 2006 19:40:46 +0400
-From: Vitaly Wool <vwool@ru.mvista.com>
-To: linux-kernel@vger.kernel.org
-Subject: NFS warning messages: .exit section funcs referenced in .init
-Message-Id: <20060626194046.c88e8e82.vwool@ru.mvista.com>
-X-Mailer: Sylpheed version 2.2.1 (GTK+ 2.8.13; i486-pc-linux-gnu)
+	Mon, 26 Jun 2006 11:42:07 -0400
+Message-ID: <20060626194205.C989@castle.nmd.msu.ru>
+Date: Mon, 26 Jun 2006 19:42:05 +0400
+From: Andrey Savochkin <saw@swsoft.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: dlezcano@fr.ibm.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       serue@us.ibm.com, haveblue@us.ibm.com, clg@fr.ibm.com,
+       Andrew Morton <akpm@osdl.org>, dev@sw.ru, herbert@13thfloor.at,
+       devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: [patch 1/4] Network namespaces: cleanup of dev_base list use
+References: <20060626134945.A28942@castle.nmd.msu.ru> <m1odwguez3.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <m1odwguez3.fsf@ebiederm.dsl.xmission.com>; from "Eric W. Biederman" on Mon, Jun 26, 2006 at 09:13:52AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Eric,
 
-here's what I get when compiling full NFSv3 support into kernel (I guess that it's also a result of some janitorial actions):
+On Mon, Jun 26, 2006 at 09:13:52AM -0600, Eric W. Biederman wrote:
+> Andrey Savochkin <saw@swsoft.com> writes:
+> 
+> > Cleanup of dev_base list use, with the aim to make device list per-namespace.
+> > In almost every occasion, use of dev_base variable and dev->next pointer
+> > could be easily replaced by for_each_netdev loop.
+> > A few most complicated places were converted to using
+> > first_netdev()/next_netdev().
+> 
+> As a proof of concept patch this is ok.
+> 
+> As a real world patch this is much too big, which prevents review.
+> Plus it takes a few actions that are more than replace just
+> iterators through the device list.
 
-  LD      .tmp_vmlinux1
-arm_v5t_le-ld: `nfs_destroy_writepagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+dev_base list is historically not the cleanest part of Linux networking.
+I've still spotted a place where the first device in dev_base list is assumed
+to be loopback.  In early days we had more, now only one place or two...
 
-arm_v5t_le-ld: `nfs_destroy_readpagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+> 
+> In addition I suspect several if not all of these iterators
+> can be replaced with the an appropriate helper function.
+> 
+> The normal structure for a patch like this would be to
+> introduce the new helper function.  for_each_netdev.
+> And then to replace all of the users while cc'ing the
+> maintainers of those drivers.  With each different
+> driver being a different patch.
+> 
+> There is another topic for discussion in this patch as well.
+> How much of the context should be implicit and how much
+> should be explicit.
+> 
+> If the changes from netchannels had already been implemented, and all of
+> the network processing was happening in a process context then I would
+> trivially agree that implicit would be the way to go.
 
-arm_v5t_le-ld: `.exit.text' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+Why would we want all network processing happen in a process context?
 
-arm_v5t_le-ld: `nfs_destroy_nfspagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+> 
+> However short of always having code always execute in the proper
+> context I'm not comfortable with implicit parameters to functions.
+> Not that this the contents of this patch should address this but the
+> later patches should.
 
-  KSYM    .tmp_kallsyms1.S
-  AS      .tmp_kallsyms1.o
-  LD      .tmp_vmlinux2
-arm_v5t_le-ld: `nfs_destroy_writepagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+We just have too many layers in networking code, and FIB/routing
+illustrates it well.
 
-arm_v5t_le-ld: `nfs_destroy_readpagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+> 
+> When I went through this, my patchset just added an explicit
+> continue if the devices was not in the appropriate namespace.
+> I actually prefer the multiple list implementation but at
+> the same time I think it is harder to get a clean implementation
+> out of it.
 
-arm_v5t_le-ld: `.exit.text' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+Certainly, dev_base list reorganization is not the crucial point in network
+namespaces.  But it has to be done some way or other.
+If people vote for a single list with skipping devices from a wrong
+namespace, it's fine with me, I can re-make this patch.
 
-arm_v5t_le-ld: `nfs_destroy_nfspagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+I personally prefer per-namespace device list since we have too many places
+in the kernel where this list is walked in a linear fashion,
+and with many namespaces this list may become quite long.
 
-  KSYM    .tmp_kallsyms2.S
-  AS      .tmp_kallsyms2.o
-  LD      vmlinux
-arm_v5t_le-ld: `nfs_destroy_writepagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
+Regards
 
-arm_v5t_le-ld: `nfs_destroy_readpagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `.exit.text' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `nfs_destroy_nfspagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-  SYSMAP  System.map
-  SYSMAP  .tmp_System.map
-  OBJCOPY arch/arm/boot/Image
-  Kernel: arch/arm/boot/Image is ready
-  GZIP    arch/arm/boot/compressed/piggy.gz
-  AS      arch/arm/boot/compressed/piggy.o
-  LD      arch/arm/boot/compressed/vmlinux
-  OBJCOPY arch/arm/boot/zImage
-  Kernel: arch/arm/boot/zImage is ready
-vital@laja:~/work/opensource/linux-2.6.git$ make O=../build ARCH=arm CROSS_COMPILE=arm_v5t_le- zImage && cp ../build/arch/arm/boot/zImage /tftpboot/zzz
-  CHK     include/linux/version.h
-make[2]: `include/asm-arm/mach-types.h' is up to date.
-  Using /home/vital/work/opensource/linux-2.6.git as source for kernel
-  GEN     /home/vital/work/opensource/build/Makefile
-  CHK     include/linux/compile.h
-  CC      drivers/char/watchdog/pnx4008_wdt.o
-  LD      drivers/char/watchdog/built-in.o
-  LD      drivers/char/built-in.o
-  LD      drivers/built-in.o
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-arm_v5t_le-ld: `nfs_destroy_writepagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `nfs_destroy_readpagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `.exit.text' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `nfs_destroy_nfspagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-  KSYM    .tmp_kallsyms1.S
-  AS      .tmp_kallsyms1.o
-  LD      .tmp_vmlinux2
-arm_v5t_le-ld: `nfs_destroy_writepagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `nfs_destroy_readpagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `.exit.text' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `nfs_destroy_nfspagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-  KSYM    .tmp_kallsyms2.S
-  AS      .tmp_kallsyms2.o
-  LD      vmlinux
-arm_v5t_le-ld: `nfs_destroy_writepagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `nfs_destroy_readpagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `.exit.text' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-arm_v5t_le-ld: `nfs_destroy_nfspagecache' referenced in section `.init.text' of fs/built-in.o: defined in discarded section `.exit.text' of fs/built-in.o
-
-Vitaly
+Andrey

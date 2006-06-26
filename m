@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWFZRjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWFZRj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWFZRjK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 13:39:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWFZRjJ
+	id S1751216AbWFZRj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 13:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWFZRj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 13:39:09 -0400
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:23994 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751207AbWFZRjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 13:39:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ZnZ0Ah9dnyRYTI6NIzKuSw9CcnwWvEriD2ikQVZp1Tm52QCleG5ZjoqhgCfiunADeOA8qS58o97OuDYwWDV/WD5qyBCsyGV4aczU6KCmf0cfxm1FwQHCUsubfkq8u9y2TRy3qgMmrLImwviygILVXe27g+bVCjy1kSUU2vJYnD0=  ;
-Message-ID: <44A01BBB.3070903@yahoo.com.au>
-Date: Tue, 27 Jun 2006 03:39:07 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Mon, 26 Jun 2006 13:39:58 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38819 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751211AbWFZRj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 13:39:56 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: vgoyal@in.ibm.com
+Cc: Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Neela.Kolli@engenio.com, linux-scsi@vger.kernel.org, mike.miller@hp.com,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
+References: <20060623235553.2892f21a.akpm@osdl.org>
+	<20060624111954.GA7313@in.ibm.com>
+	<20060624043046.4e4985be.akpm@osdl.org>
+	<20060624120836.GB7313@in.ibm.com>
+	<m1veqqxyrb.fsf@ebiederm.dsl.xmission.com>
+	<20060626021100.GA12824@in.ibm.com> <20060626133504.GA8985@in.ibm.com>
+	<m11wtcvw5k.fsf@ebiederm.dsl.xmission.com>
+	<20060626153239.GD8985@in.ibm.com>
+	<m13bdrvrd4.fsf@ebiederm.dsl.xmission.com>
+	<20060626171659.GG8985@in.ibm.com>
+Date: Mon, 26 Jun 2006 11:39:21 -0600
+In-Reply-To: <20060626171659.GG8985@in.ibm.com> (Vivek Goyal's message of
+	"Mon, 26 Jun 2006 13:16:59 -0400")
+Message-ID: <m14py7u88m.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Nick Piggin <npiggin@suse.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Andrew Morton <akpm@osdl.org>, "David S. Peterson" <dsp@llnl.gov>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [rfc][patch] fixes for several oom killer problems
-References: <20060626162038.GB7573@wotan.suse.de>
-In-Reply-To: <20060626162038.GB7573@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Hi,
-> 
-> We have reports of OOM killer panicing the system even if there are
-> tasks currently exiting and/or plenty able to be freed.
-> 
+Vivek Goyal <vgoyal@in.ibm.com> writes:
 
-BTW, I should credit Jan Beulich with spotting some of the issues
-and helping to debug the problem.
+> On Mon, Jun 26, 2006 at 10:00:55AM -0600, Eric W. Biederman wrote:
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> I think it does hurt.
+>
+> - I have seen the case of MPT fusion drvier. It takes significantly more
+>   time to come up if we choose to reset the device during initialization.
+>   One of the reasons that we wait in a tight loop for the controller to 
+>   come up after a reset message.
+>
+> - Long back we fixed ips driver and I remember that the maintainer had
+>   a similar issue with the reset of device. He did not want to reset the
+>   device in normal boot because otherwise it took significantly longer
+>   for the driver to initialize.
+>
+> - Just now Mike also confirmed that resetting the device definitely
+>   hurts in terms of time.
+
+In the general case resets are trivial operations.  In scsi land 
+things are different.  So a solution appropriate to that domain may
+be appropriate.
+
+Eric

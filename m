@@ -1,76 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWFZWzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933301AbWFZW4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbWFZWzb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWFZWyu
+	id S933301AbWFZW4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933295AbWFZWk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:54:50 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18116 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751284AbWFZWyg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:54:36 -0400
-Date: Mon, 26 Jun 2006 15:26:28 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Pete Zaitcev <zaitcev@redhat.com>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: Serial-Core: USB-Serial port current issues.
-Message-ID: <20060626222628.GC29325@suse.de>
-References: <20060613192829.3f4b7c34@home.brethil> <20060614152809.GA17432@flint.arm.linux.org.uk> <20060620161134.20c1316e@doriath.conectiva> <20060620193233.15224308.zaitcev@redhat.com> <20060621133500.18e82511@doriath.conectiva> <20060621164336.GD24265@flint.arm.linux.org.uk> <20060621181513.235fc23c@doriath.conectiva> <20060622082939.GA25212@flint.arm.linux.org.uk> <20060623142842.2b35103b@home.brethil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623142842.2b35103b@home.brethil>
-User-Agent: Mutt/1.5.11
+	Mon, 26 Jun 2006 18:40:29 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:27319 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933294AbWFZWkJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:40:09 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [Suspend2][ 19/35] [Suspend2] Filewriter header reading initialisation.
+Date: Tue, 27 Jun 2006 08:40:07 +1000
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060626224006.4685.9113.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
+References: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 23, 2006 at 02:28:42PM -0300, Luiz Fernando N. Capitulino wrote:
-> On Thu, 22 Jun 2006 09:29:40 +0100
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> 
-> | On Wed, Jun 21, 2006 at 06:15:13PM -0300, Luiz Fernando N. Capitulino wrote:
-> |
-> | > | With get_mctrl(), the situation is slightly more complicated, because
-> | > | we need to atomically update tty->hw_stopped in some circumstances
-> | > | (that may also be modified from irq context.)  Therefore, to give
-> | > | the driver a consistent locking picture, the spinlock is _always_
-> | > | held.
-> | > 
-> | >  Is it too bad (wrong?) to only protect the tty->hw_stopped update
-> | > by the spinlock? Then the call to get_mctrl() could be protected by
-> | > a mutex, or is it messy?
-> | 
-> | Consider this scenario with what you're proposing:
-> | 
-> | 	thread				irq
-> | 
-> | 	take mutex
-> | 	get_mctrl
-> | 					cts changes state
-> | 					take port lock
-> | 					mctrl state read
-> | 					tty->hw_stopped changed state
-> | 					release port lock
-> | 	releaes mutex
-> | 	take port lock
-> | 	update tty->hw_stopped
-> | 	release port lock
-> | 
-> | Now, tty->hw_stopped does not reflect the hardware state, which will be
-> | buggy and can cause a loss of transmission.
-> | 
-> | I'm not sure what to suggest on this one since for USB drivers you do
-> | need to be able to sleep in this method... but for UARTs you must not.
-> 
->  Neither do I. :((
-> 
->  I thought we could move the 'tty->hw_stopped' update to a workqueue
-> but it has the same problem you explained above...
-> 
->  Greg, any suggestions?
+Shared initialisation when reading a filewriter image header.
 
-Nope, sorry, I don't know what to suggest :(
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-greg k-h
+ kernel/power/suspend_file.c |   62 +++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 62 insertions(+), 0 deletions(-)
+
+diff --git a/kernel/power/suspend_file.c b/kernel/power/suspend_file.c
+index 1dd082f..da50422 100644
+--- a/kernel/power/suspend_file.c
++++ b/kernel/power/suspend_file.c
+@@ -594,3 +594,65 @@ static int file_init(void)
+ 	return 0;
+ }
+ 
++/*
++ * read_header_init()
++ * 
++ * Ramdisk support based heavily on init/do_mounts_rd.c
++ *
++ * Description:
++ * 1. Attempt to read the device specified with resume2=.
++ * 2. Check the contents of the header for our signature.
++ * 3. Warn, ignore, reset and/or continue as appropriate.
++ * 4. If continuing, read the filewriter configuration section
++ *    of the header and set up block device info so we can read
++ *    the rest of the header & image.
++ *
++ * Returns:
++ * May not return if user choose to reboot at a warning.
++ * -EINVAL if cannot resume at this time. Booting should continue
++ * normally.
++ */
++
++static int filewriter_read_header_init(void)
++{
++	int result;
++	struct block_device *tmp;
++
++	suspend_writer_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
++	
++	if (test_suspend_state(SUSPEND_TRY_RESUME_RD))
++		result = rd_init();
++	else
++		result = file_init();
++	
++	if (result) {
++		printk("Filewriter read header init: Failed to initialise "
++				"reading the first page of data.\n");
++		return result;
++	}
++
++	memcpy(&suspend_writer_posn_save,
++	       suspend_writer_buffer + suspend_writer_buffer_posn,
++	       sizeof(suspend_writer_posn_save));
++	
++	suspend_writer_buffer_posn += sizeof(suspend_writer_posn_save);
++
++	tmp = devinfo.bdev;
++
++	memcpy(&devinfo,
++	       suspend_writer_buffer + suspend_writer_buffer_posn,
++	       sizeof(devinfo));
++
++	devinfo.bdev = tmp;
++	suspend_writer_buffer_posn += sizeof(devinfo);
++
++	suspend_extent_state_goto_start(&suspend_writer_posn);
++	suspend_bio_ops.set_extra_page_forward();
++
++	suspend_header_bytes_used = suspend_writer_buffer_posn;
++
++	suspend_load_extent_chain(&block_chain);
++	
++	return 0;
++}
++
+
+--
+Nigel Cunningham		nigel at suspend2 dot net

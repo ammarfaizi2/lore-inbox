@@ -1,802 +1,1095 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWFZJxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWFZJyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964933AbWFZJxE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 05:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbWFZJxD
+	id S964938AbWFZJyc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 05:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWFZJyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 05:53:03 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:1284 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S964933AbWFZJxB
+	Mon, 26 Jun 2006 05:54:31 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:9732 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S964938AbWFZJy3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 05:53:01 -0400
-Message-ID: <20060626135250.B28942@castle.nmd.msu.ru>
-Date: Mon, 26 Jun 2006 13:52:50 +0400
+	Mon, 26 Jun 2006 05:54:29 -0400
+Message-ID: <20060626135427.C28942@castle.nmd.msu.ru>
+Date: Mon, 26 Jun 2006 13:54:27 +0400
 From: Andrey Savochkin <saw@swsoft.com>
 To: dlezcano@fr.ibm.com
 Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
        haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
        dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
        ebiederm@xmission.com, viro@ftp.linux.org.uk
-Subject: [patch 2/4] Network namespaces: cleanup of dev_base list use
-References: <20060626134945.A28942@castle.nmd.msu.ru>
+Subject: [patch 3/4] Network namespaces: IPv4 FIB/routing in namespaces
+References: <20060626134945.A28942@castle.nmd.msu.ru> <20060626135250.B28942@castle.nmd.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20060626134945.A28942@castle.nmd.msu.ru>; from "Andrey Savochkin" on Mon, Jun 26, 2006 at 01:49:45PM
+In-Reply-To: <20060626135250.B28942@castle.nmd.msu.ru>; from "Andrey Savochkin" on Mon, Jun 26, 2006 at 01:52:50PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_NET_NS and net_namespace structure are introduced.
-List of network devices is made per-namespace.
-Each namespace gets its own loopback device.
-
-Task's net_namespace pointer is not incorporated into nsproxy structure,
-since current namespace changes temporarily for processing of packets
-in softirq.
+Structures related to IPv4 rounting (FIB and routing cache)
+are made per-namespace.
 
 Signed-off-by: Andrey Savochkin <saw@swsoft.com>
 ---
- drivers/net/loopback.c    |   70 +++++++++++--------
- include/linux/init_task.h |    9 ++
- include/linux/net_ns.h    |   88 ++++++++++++++++++++++++
- include/linux/netdevice.h |   20 ++++-
- include/linux/nsproxy.h   |    3 
- include/linux/sched.h     |    3 
- kernel/nsproxy.c          |   14 +++
- net/Kconfig               |    7 +
- net/core/dev.c            |  162 +++++++++++++++++++++++++++++++++++++++++++++-
- net/core/net-sysfs.c      |   24 ++++++
- net/ipv4/devinet.c        |    2 
- net/ipv6/addrconf.c       |    2 
- net/ipv6/route.c          |    3 
- 13 files changed, 371 insertions, 36 deletions
+ include/linux/net_ns.h   |    9 +++
+ include/net/flow.h       |    3 +
+ include/net/ip_fib.h     |   62 ++++++++++++++++++++-----
+ net/core/dev.c           |    7 ++
+ net/ipv4/Kconfig         |    4 -
+ net/ipv4/fib_frontend.c  |   87 +++++++++++++++++++++++++++++------
+ net/ipv4/fib_hash.c      |   13 ++++-
+ net/ipv4/fib_rules.c     |  114 +++++++++++++++++++++++++++++++++++++++++------
+ net/ipv4/fib_semantics.c |  104 +++++++++++++++++++++++++++++-------------
+ net/ipv4/route.c         |   26 ++++++++++
+ 10 files changed, 348 insertions, 81 deletions
 
---- ./drivers/net/loopback.c.venshd	Wed Jun 21 18:50:39 2006
-+++ ./drivers/net/loopback.c	Fri Jun 23 11:48:09 2006
-@@ -196,42 +196,56 @@ static struct ethtool_ops loopback_ethto
- 	.set_tso		= ethtool_op_set_tso,
+--- ./include/linux/net_ns.h.vensrt	Fri Jun 23 11:49:42 2006
++++ ./include/linux/net_ns.h	Fri Jun 23 11:50:16 2006
+@@ -14,7 +14,16 @@ struct net_namespace {
+ 	atomic_t		active_ref, use_ref;
+ 	struct list_head	dev_base;
+ 	struct net_device	*loopback;
++#ifndef CONFIG_IP_MULTIPLE_TABLES
++	struct fib_table	*fib4_local_table, *fib4_main_table;
++#else
++	struct fib_table	**fib4_tables;
++	struct hlist_head	fib4_rules;
++#endif
++	struct hlist_head	*fib4_hash, *fib4_laddrhash;
++	unsigned		fib4_hash_size, fib4_info_cnt;
+ 	unsigned int		hash;
++	char			destroying;
+ 	struct execute_work	destroy_work;
  };
  
--struct net_device loopback_dev = {
--	.name	 		= "lo",
--	.mtu			= (16 * 1024) + 20 + 20 + 12,
--	.hard_start_xmit	= loopback_xmit,
--	.hard_header		= eth_header,
--	.hard_header_cache	= eth_header_cache,
--	.header_cache_update	= eth_header_cache_update,
--	.hard_header_len	= ETH_HLEN,	/* 14	*/
--	.addr_len		= ETH_ALEN,	/* 6	*/
--	.tx_queue_len		= 0,
--	.type			= ARPHRD_LOOPBACK,	/* 0x0001*/
--	.rebuild_header		= eth_rebuild_header,
--	.flags			= IFF_LOOPBACK,
--	.features 		= NETIF_F_SG | NETIF_F_FRAGLIST
-+struct net_device loopback_dev_static;
-+EXPORT_SYMBOL(loopback_dev_static);
-+
-+void loopback_dev_dtor(struct net_device *dev)
-+{
-+	if (dev->priv) {
-+		kfree(dev->priv);
-+		dev->priv = NULL;
-+	}
-+	free_netdev(dev);
-+}
-+
-+void loopback_dev_ctor(struct net_device *dev)
-+{
-+	struct net_device_stats *stats;
-+
-+	memset(dev, 0, sizeof(*dev));
-+	strcpy(dev->name, "lo");
-+	dev->mtu		= (16 * 1024) + 20 + 20 + 12;
-+	dev->hard_start_xmit	= loopback_xmit;
-+	dev->hard_header	= eth_header;
-+	dev->hard_header_cache	= eth_header_cache;
-+	dev->header_cache_update = eth_header_cache_update;
-+	dev->hard_header_len	= ETH_HLEN;	/* 14	*/
-+	dev->addr_len		= ETH_ALEN;	/* 6	*/
-+	dev->tx_queue_len	= 0;
-+	dev->type		= ARPHRD_LOOPBACK;	/* 0x0001*/
-+	dev->rebuild_header	= eth_rebuild_header;
-+	dev->flags		= IFF_LOOPBACK;
-+	dev->features 		= NETIF_F_SG | NETIF_F_FRAGLIST
- #ifdef LOOPBACK_TSO
- 				  | NETIF_F_TSO
- #endif
- 				  | NETIF_F_NO_CSUM | NETIF_F_HIGHDMA
--				  | NETIF_F_LLTX,
--	.ethtool_ops		= &loopback_ethtool_ops,
--};
--
--/* Setup and register the loopback device. */
--int __init loopback_init(void)
--{
--	struct net_device_stats *stats;
-+				  | NETIF_F_LLTX
-+				  | NETIF_F_NSOK;
-+	dev->ethtool_ops	= &loopback_ethtool_ops;
- 
- 	/* Can survive without statistics */
- 	stats = kmalloc(sizeof(struct net_device_stats), GFP_KERNEL);
- 	if (stats) {
- 		memset(stats, 0, sizeof(struct net_device_stats));
--		loopback_dev.priv = stats;
--		loopback_dev.get_stats = &get_stats;
-+		dev->priv = stats;
-+		dev->get_stats = &get_stats;
- 	}
--	
--	return register_netdev(&loopback_dev);
--};
-+}
- 
--EXPORT_SYMBOL(loopback_dev);
-+/* Setup and register the loopback device. */
-+int __init loopback_init(void)
-+{
-+	loopback_dev_ctor(&loopback_dev_static);
-+	return register_netdev(&loopback_dev_static);
-+};
---- ./include/linux/init_task.h.venshd	Wed Jun 21 18:53:16 2006
-+++ ./include/linux/init_task.h	Fri Jun 23 11:48:09 2006
-@@ -87,6 +87,14 @@ extern struct nsproxy init_nsproxy;
- 
- extern struct group_info init_groups;
- 
-+#ifdef CONFIG_NET_NS
-+extern struct net_namespace init_net_ns;
-+#define INIT_NET_NS \
-+	.net_context	= &init_net_ns,
-+#else
-+#define INIT_NET_NS
-+#endif
-+
- /*
-  *  INIT_TASK is used to set up the first task table, touch at
-  * your own risk!. Base=0, limit=0x1fffff (=2MB)
-@@ -129,6 +137,7 @@ extern struct group_info init_groups;
- 	.signal		= &init_signals,				\
- 	.sighand	= &init_sighand,				\
- 	.nsproxy	= &init_nsproxy,				\
-+	INIT_NET_NS							\
- 	.pending	= {						\
- 		.list = LIST_HEAD_INIT(tsk.pending.list),		\
- 		.signal = {{0}}},					\
---- ./include/linux/net_ns.h.venshd	Thu Jun 22 12:10:13 2006
-+++ ./include/linux/net_ns.h	Fri Jun 23 11:49:42 2006
-@@ -0,0 +1,88 @@
-+/*
-+ * Copyright (C) 2006  SWsoft
-+ */
-+#ifndef __LINUX_NET_NS__
-+#define __LINUX_NET_NS__
-+
-+#ifdef CONFIG_NET_NS
-+
-+#include <asm/atomic.h>
-+#include <linux/list.h>
-+#include <linux/workqueue.h>
-+
-+struct net_namespace {
-+	atomic_t		active_ref, use_ref;
-+	struct list_head	dev_base;
-+	struct net_device	*loopback;
-+	unsigned int		hash;
-+	struct execute_work	destroy_work;
-+};
-+
-+static inline struct net_namespace *get_net_ns(struct net_namespace *ns)
-+{
-+	atomic_inc(&ns->active_ref);
-+	return ns;
-+}
-+
-+extern void net_ns_stop(struct net_namespace *ns);
-+static inline void put_net_ns(struct net_namespace *ns)
-+{
-+	if (atomic_dec_and_test(&ns->active_ref))
-+		net_ns_stop(ns);
-+}
-+
-+static inline struct net_namespace *ref_net_ns(struct net_namespace *ns)
-+{
-+	atomic_inc(&ns->use_ref);
-+	return ns;
-+}
-+
-+extern void net_ns_free(struct net_namespace *ns);
-+static inline void unref_net_ns(struct net_namespace *ns)
-+{
-+	if (atomic_dec_and_test(&ns->use_ref))
-+		net_ns_free(ns);
-+}
-+
-+extern struct net_namespace init_net_ns;
-+#define current_net_ns		(current->net_context)
-+
-+#define push_net_ns(to, orig)	do { \
-+					task_t *__cur; \
-+					__cur = current; \
-+					orig = __cur->net_context; \
-+					__cur->net_context = ref_net_ns(to); \
-+				} while (0)
-+#define pop_net_ns(orig)	do { \
-+					task_t *__cur; \
-+					struct net_namespace *__cur_ns; \
-+					__cur = current; \
-+					__cur_ns = __cur->net_context; \
-+					__cur->net_context = orig; \
-+					unref_net_ns(__cur_ns); \
-+				} while (0)
-+#define switch_net_ns(to)	do { \
-+					task_t *__cur; \
-+					struct net_namespace *__cur_ns; \
-+					__cur = current; \
-+					__cur_ns = __cur->net_context; \
-+					__cur->net_context = ref_net_ns(to); \
-+					unref_net_ns(__cur_ns); \
-+				} while (0)
-+
-+#define net_ns_same(target, context) ((target) == (context))
-+
-+#else /* CONFIG_NET_NS */
-+
-+struct net_namespace;
-+
-+#define get_net_ns(x)		NULL
-+#define put_net_ns(x)		((void)0)
-+
-+#define current_net_ns		NULL
-+
-+#define net_ns_same(target, context) 1
-+
-+#endif /* CONFIG_NET_NS */
-+
-+#endif /* __LINUX_NET_NS__ */
---- ./include/linux/netdevice.h.venshd	Thu Jun 22 18:57:50 2006
-+++ ./include/linux/netdevice.h	Fri Jun 23 11:48:15 2006
-@@ -311,6 +311,7 @@ struct net_device
- #define NETIF_F_TSO		2048	/* Can offload TCP/IP segmentation */
- #define NETIF_F_LLTX		4096	/* LockLess TX */
- #define NETIF_F_UFO             8192    /* Can offload UDP Large Send*/
-+#define NETIF_F_NSOK		16384	/* OK for namespaces */
- 
- #define NETIF_F_GEN_CSUM	(NETIF_F_NO_CSUM | NETIF_F_HW_CSUM)
- #define NETIF_F_ALL_CSUM	(NETIF_F_IP_CSUM | NETIF_F_GEN_CSUM)
-@@ -366,6 +367,10 @@ struct net_device
- 	int			promiscuity;
- 	int			allmulti;
- 
-+#ifdef CONFIG_NET_NS
-+	struct net_namespace	*net_ns;
-+#endif
-+
- 
- 	/* Protocol specific pointers */
- 	
-@@ -542,17 +547,26 @@ struct packet_type {
- 
- #include <linux/interrupt.h>
- #include <linux/notifier.h>
-+#include <linux/net_ns.h>
- 
--extern struct net_device	loopback_dev;		/* The loopback */
-+extern struct net_device	loopback_dev_static;
-+#ifndef CONFIG_NET_NS
-+#define loopback_dev		loopback_dev_static	/* The loopback */
- extern struct list_head		dev_base_head;		/* All devices */
-+#else
-+#define loopback_dev		(*current_net_ns->loopback)
-+#define dev_base_head		(current_net_ns->dev_base)
-+#endif
- extern rwlock_t			dev_base_lock;		/* Device list lock */
- 
- #define for_each_netdev(p)	list_for_each_entry(p, &dev_base_head, dev_list)
- 
- /* DO NOT USE first_netdev/next_netdev, use loop defined above */
- #define first_netdev()		({ \
--					list_empty(&dev_base_head) ? NULL : \
--						list_entry(dev_base_head.next, \
-+					struct list_head *__base; \
-+					__base = &dev_base_head; \
-+					list_empty(__base) ? NULL : \
-+						list_entry(__base->next, \
- 							struct net_device, \
- 							dev_list); \
- 				 })
---- ./include/linux/nsproxy.h.venshd	Wed Jun 21 18:53:17 2006
-+++ ./include/linux/nsproxy.h	Fri Jun 23 11:48:15 2006
-@@ -33,6 +33,7 @@ struct nsproxy *dup_namespaces(struct ns
- int copy_namespaces(int flags, struct task_struct *tsk);
- void get_task_namespaces(struct task_struct *tsk);
- void free_nsproxy(struct nsproxy *ns);
-+void release_net_context(struct task_struct *tsk);
- 
- static inline void put_nsproxy(struct nsproxy *ns)
- {
-@@ -48,5 +49,7 @@ static inline void exit_task_namespaces(
- 		put_nsproxy(ns);
- 		p->nsproxy = NULL;
- 	}
-+	release_net_context(p);
- }
-+
- #endif
---- ./include/linux/sched.h.venshd	Wed Jun 21 18:53:17 2006
-+++ ./include/linux/sched.h	Fri Jun 23 11:48:15 2006
-@@ -887,6 +887,9 @@ struct task_struct {
- 	struct files_struct *files;
- /* namespaces */
- 	struct nsproxy *nsproxy;
-+#ifdef CONFIG_NET_NS
-+	struct net_namespace *net_context;
-+#endif
- /* signal handlers */
- 	struct signal_struct *signal;
- 	struct sighand_struct *sighand;
---- ./kernel/nsproxy.c.venshd	Wed Jun 21 18:53:17 2006
-+++ ./kernel/nsproxy.c	Fri Jun 23 11:48:15 2006
-@@ -16,6 +16,7 @@
- #include <linux/module.h>
- #include <linux/version.h>
- #include <linux/nsproxy.h>
-+#include <linux/net_ns.h>
- #include <linux/namespace.h>
- #include <linux/utsname.h>
- 
-@@ -84,6 +85,7 @@ int copy_namespaces(int flags, struct ta
- 		return 0;
- 
- 	get_nsproxy(old_ns);
-+	(void) get_net_ns(tsk->net_context); /* for pointer copied by memcpy */
- 
- 	if (!(flags & (CLONE_NEWNS | CLONE_NEWUTS | CLONE_NEWIPC)))
- 		return 0;
-@@ -134,3 +136,15 @@ void free_nsproxy(struct nsproxy *ns)
- 			put_ipc_ns(ns->ipc_ns);
- 		kfree(ns);
- }
-+
-+void release_net_context(struct task_struct *tsk)
-+{
+--- ./include/net/flow.h.vensrt	Wed Jun 21 18:51:08 2006
++++ ./include/net/flow.h	Fri Jun 23 11:50:16 2006
+@@ -78,6 +78,9 @@ struct flowi {
+ #define fl_icmp_type	uli_u.icmpt.type
+ #define fl_icmp_code	uli_u.icmpt.code
+ #define fl_ipsec_spi	uli_u.spi
 +#ifdef CONFIG_NET_NS
 +	struct net_namespace *net_ns;
-+
-+	net_ns = tsk->net_context;
-+	/* do not get refcounter here, nobody can put it later */
-+	tsk->net_context = &init_net_ns;
-+	put_net_ns(net_ns);
 +#endif
-+}
---- ./net/Kconfig.venshd	Wed Jun 21 18:53:22 2006
-+++ ./net/Kconfig	Fri Jun 23 11:48:15 2006
-@@ -66,6 +66,13 @@ source "net/ipv6/Kconfig"
+ } __attribute__((__aligned__(BITS_PER_LONG/8)));
  
- endif # if INET
+ #define FLOW_DIR_IN	0
+--- ./include/net/ip_fib.h.vensrt	Wed Jun 21 18:53:17 2006
++++ ./include/net/ip_fib.h	Fri Jun 23 11:50:16 2006
+@@ -18,6 +18,7 @@
  
-+config NET_NS
-+	bool "Network Namespaces"
-+	help
-+	  This option enables multiple independent network namespaces,
-+	  each having own network devices, IP addresses, routes, and so on.
-+	  If unsure, answer N.
-+
- config NETWORK_SECMARK
- 	bool "Security Marking"
- 	help
---- ./net/core/dev.c.venshd	Thu Jun 22 17:40:13 2006
-+++ ./net/core/dev.c	Fri Jun 23 11:48:15 2006
-@@ -91,6 +91,7 @@
- #include <linux/if_ether.h>
- #include <linux/netdevice.h>
- #include <linux/etherdevice.h>
+ #include <net/flow.h>
+ #include <linux/seq_file.h>
 +#include <linux/net_ns.h>
- #include <linux/notifier.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
-@@ -177,8 +178,10 @@ static spinlock_t net_dma_event_lock;
- DEFINE_RWLOCK(dev_base_lock);
- EXPORT_SYMBOL(dev_base_lock);
  
+ /* WARNING: The ordering of these elements must match ordering
+  *          of RTA_* rtnetlink attribute numbers.
+@@ -169,14 +170,21 @@ struct fib_table {
+ 
+ #ifndef CONFIG_IP_MULTIPLE_TABLES
+ 
+-extern struct fib_table *ip_fib_local_table;
+-extern struct fib_table *ip_fib_main_table;
 +#ifndef CONFIG_NET_NS
- LIST_HEAD(dev_base_head);
- EXPORT_SYMBOL(dev_base_head);
++extern struct fib_table *ip_fib_local_table_static;
++extern struct fib_table *ip_fib_main_table_static;
++#define ip_fib_local_table_ns()		ip_fib_local_table_static
++#define ip_fib_main_table_ns()		ip_fib_main_table_static
++#else
++#define ip_fib_local_table_ns()		(current_net_ns->fib4_local_table)
++#define ip_fib_main_table_ns()		(current_net_ns->fib4_main_table)
 +#endif
  
- #define NETDEV_HASHBITS	8
- static struct hlist_head dev_name_head[1<<NETDEV_HASHBITS];
-@@ -187,6 +190,9 @@ static struct hlist_head dev_index_head[
- static inline struct hlist_head *dev_name_hash(const char *name)
+ static inline struct fib_table *fib_get_table(int id)
  {
- 	unsigned hash = full_name_hash(name, strnlen(name, IFNAMSIZ));
-+#ifdef CONFIG_NET_NS
-+	hash ^= current_net_ns->hash;
-+#endif
- 	return &dev_name_head[hash & ((1<<NETDEV_HASHBITS)-1)];
+ 	if (id != RT_TABLE_LOCAL)
+-		return ip_fib_main_table;
+-	return ip_fib_local_table;
++		return ip_fib_main_table_ns();
++	return ip_fib_local_table_ns();
  }
  
-@@ -211,10 +217,12 @@ DEFINE_PER_CPU(struct softnet_data, soft
- extern int netdev_sysfs_init(void);
- extern int netdev_register_sysfs(struct net_device *);
- extern void netdev_unregister_sysfs(struct net_device *);
-+extern int netdev_rename_sysfs(struct net_device *);
- #else
- #define netdev_sysfs_init()	 	(0)
- #define netdev_register_sysfs(dev)	(0)
- #define	netdev_unregister_sysfs(dev)	do { } while(0)
-+#define netdev_rename_sysfs(dev)	(0)
+ static inline struct fib_table *fib_new_table(int id)
+@@ -186,23 +194,36 @@ static inline struct fib_table *fib_new_
+ 
+ static inline int fib_lookup(const struct flowi *flp, struct fib_result *res)
+ {
+-	if (ip_fib_local_table->tb_lookup(ip_fib_local_table, flp, res) &&
+-	    ip_fib_main_table->tb_lookup(ip_fib_main_table, flp, res))
++	struct fib_table *tb;
++
++	tb = ip_fib_local_table_ns();
++	if (!tb->tb_lookup(tb, flp, res))
++		return 0;
++	tb = ip_fib_main_table_ns();
++	if (tb->tb_lookup(tb, flp, res))
+ 		return -ENETUNREACH;
+ 	return 0;
+ }
+ 
+ static inline void fib_select_default(const struct flowi *flp, struct fib_result *res)
+ {
++	struct fib_table *tb;
++
++	tb = ip_fib_main_table_ns();
+ 	if (FIB_RES_GW(*res) && FIB_RES_NH(*res).nh_scope == RT_SCOPE_LINK)
+-		ip_fib_main_table->tb_select_default(ip_fib_main_table, flp, res);
++		tb->tb_select_default(main_table, flp, res);
+ }
+ 
+ #else /* CONFIG_IP_MULTIPLE_TABLES */
+-#define ip_fib_local_table (fib_tables[RT_TABLE_LOCAL])
+-#define ip_fib_main_table (fib_tables[RT_TABLE_MAIN])
++#define ip_fib_local_table_ns() (fib_tables_ns()[RT_TABLE_LOCAL])
++#define ip_fib_main_table_ns() (fib_tables_ns()[RT_TABLE_MAIN])
+ 
+-extern struct fib_table * fib_tables[RT_TABLE_MAX+1];
++#ifndef CONFIG_NET_NS
++extern struct fib_table * fib_tables_static[RT_TABLE_MAX+1];
++#define fib_tables_ns() fib_tables_static
++#else
++#define fib_tables_ns() (current_net_ns->fib4_tables)
++#endif
+ extern int fib_lookup(const struct flowi *flp, struct fib_result *res);
+ extern struct fib_table *__fib_new_table(int id);
+ extern void fib_rule_put(struct fib_rule *r);
+@@ -212,7 +233,7 @@ static inline struct fib_table *fib_get_
+ 	if (id == 0)
+ 		id = RT_TABLE_MAIN;
+ 
+-	return fib_tables[id];
++	return fib_tables_ns()[id];
+ }
+ 
+ static inline struct fib_table *fib_new_table(int id)
+@@ -220,7 +241,7 @@ static inline struct fib_table *fib_new_
+ 	if (id == 0)
+ 		id = RT_TABLE_MAIN;
+ 
+-	return fib_tables[id] ? : __fib_new_table(id);
++	return fib_tables_ns()[id] ? : __fib_new_table(id);
+ }
+ 
+ extern void fib_select_default(const struct flowi *flp, struct fib_result *res);
+@@ -229,6 +250,10 @@ extern void fib_select_default(const str
+ 
+ /* Exported by fib_frontend.c */
+ extern void		ip_fib_init(void);
++#ifdef CONFIG_NET_NS
++extern int ip_fib_struct_init(void);
++extern void ip_fib_struct_fini(void);
++#endif
+ extern int inet_rtm_delroute(struct sk_buff *skb, struct nlmsghdr* nlh, void *arg);
+ extern int inet_rtm_newroute(struct sk_buff *skb, struct nlmsghdr* nlh, void *arg);
+ extern int inet_rtm_getroute(struct sk_buff *skb, struct nlmsghdr* nlh, void *arg);
+@@ -246,9 +271,16 @@ extern int fib_sync_up(struct net_device
+ extern int fib_convert_rtentry(int cmd, struct nlmsghdr *nl, struct rtmsg *rtm,
+ 			       struct kern_rta *rta, struct rtentry *r);
+ extern u32  __fib_res_prefsrc(struct fib_result *res);
++#ifdef CONFIG_NET_NS
++extern void fib_hashtable_destroy(void);
++#endif
+ 
+ /* Exported by fib_hash.c */
+ extern struct fib_table *fib_hash_init(int id);
++#ifdef CONFIG_NET_NS
++extern void fib_hash_fini(struct fib_table *tb);
++extern void fib_hash_destroy_hash(void);
++#endif
+ 
+ #ifdef CONFIG_IP_MULTIPLE_TABLES
+ /* Exported by fib_rules.c */
+@@ -259,7 +291,11 @@ extern int inet_dump_rules(struct sk_buf
+ #ifdef CONFIG_NET_CLS_ROUTE
+ extern u32 fib_rules_tclass(struct fib_result *res);
+ #endif
+-extern void fib_rules_init(void);
++extern int fib_rules_struct_init(void);
++extern void fib_rules_notif_init(void);
++#ifdef CONFIG_NET_NS
++extern void fib_rules_struct_fini(void);
++#endif
  #endif
  
- 
-@@ -474,10 +482,13 @@ __setup("netdev=", netdev_boot_setup);
- struct net_device *__dev_get_by_name(const char *name)
- {
- 	struct hlist_node *p;
-+	struct net_namespace *ns __attribute_used__ = current_net_ns;
- 
- 	hlist_for_each(p, dev_name_hash(name)) {
- 		struct net_device *dev
- 			= hlist_entry(p, struct net_device, name_hlist);
-+		if (!net_ns_same(dev->net_ns, ns))
-+			continue;
- 		if (!strncmp(dev->name, name, IFNAMSIZ))
- 			return dev;
- 	}
-@@ -740,7 +751,7 @@ int dev_change_name(struct net_device *d
- 	else
- 		strlcpy(dev->name, newname, IFNAMSIZ);
- 
--	err = class_device_rename(&dev->class_dev, dev->name);
-+	err = netdev_rename_sysfs(dev);
- 	if (!err) {
- 		hlist_del(&dev->name_hlist);
- 		hlist_add_head(&dev->name_hlist, dev_name_hash(dev->name));
-@@ -1531,7 +1542,14 @@ static void net_tx_action(struct softirq
- 			clear_bit(__LINK_STATE_SCHED, &dev->state);
- 
- 			if (spin_trylock(&dev->queue_lock)) {
-+#ifdef CONFIG_NET_NS
-+				struct net_namespace *orig_net_ns;
-+				push_net_ns(dev->net_ns, orig_net_ns);
-+#endif
- 				qdisc_run(dev);
-+#ifdef CONFIG_NET_NS
-+				pop_net_ns(orig_net_ns);
-+#endif
- 				spin_unlock(&dev->queue_lock);
- 			} else {
- 				netif_schedule(dev);
-@@ -1618,6 +1636,7 @@ int netif_receive_skb(struct sk_buff *sk
- {
- 	struct packet_type *ptype, *pt_prev;
- 	struct net_device *orig_dev;
-+	struct net_namespace *orig_net_ns __attribute_used__;
- 	int ret = NET_RX_DROP;
- 	unsigned short type;
- 
-@@ -1636,6 +1655,10 @@ int netif_receive_skb(struct sk_buff *sk
- 	if (!orig_dev)
- 		return NET_RX_DROP;
- 
-+#ifdef CONFIG_NET_NS
-+	push_net_ns(skb->dev->net_ns, orig_net_ns);
-+#endif
-+
- 	__get_cpu_var(netdev_rx_stat).total++;
- 
- 	skb->h.raw = skb->nh.raw = skb->data;
-@@ -1706,6 +1729,9 @@ ncls:
- 
- out:
- 	rcu_read_unlock();
-+#ifdef CONFIG_NET_NS
-+	pop_net_ns(orig_net_ns);
-+#endif
- 	return ret;
- }
- 
-@@ -2732,6 +2758,7 @@ int register_netdevice(struct net_device
- {
- 	struct hlist_head *head;
- 	struct hlist_node *p;
-+	struct net_namespace *ns __attribute_used__ = current_net_ns;
- 	int ret;
- 
- 	BUG_ON(dev_boot_phase);
-@@ -2749,9 +2776,19 @@ int register_netdevice(struct net_device
- 	spin_lock_init(&dev->ingress_lock);
- #endif
- 
-+#ifdef CONFIG_NET_NS
-+	dev->net_ns = ref_net_ns(ns);
-+	/*
-+	 * loopback device doesn't hold active reference: it doesn't prevent
-+	 * stopping of net_namespace
-+	 */
-+	if (dev != ns->loopback)
-+		get_net_ns(ns);
-+#endif
-+
- 	ret = alloc_divert_blk(dev);
- 	if (ret)
--		goto out;
-+		goto out_divert;
- 
- 	dev->iflink = -1;
- 
-@@ -2779,6 +2816,8 @@ int register_netdevice(struct net_device
- 	hlist_for_each(p, head) {
- 		struct net_device *d
- 			= hlist_entry(p, struct net_device, name_hlist);
-+		if (!net_ns_same(d->net_ns, ns))
-+			continue;
- 		if (!strncmp(d->name, dev->name, IFNAMSIZ)) {
- 			ret = -EEXIST;
-  			goto out_err;
-@@ -2852,6 +2891,13 @@ out:
- 	return ret;
- out_err:
- 	free_divert_blk(dev);
-+out_divert:
-+#ifdef CONFIG_NET_NS
-+	unref_net_ns(ns);
-+	if (dev != ns->loopback)
-+		put_net_ns(ns);
-+	dev->net_ns = NULL;
-+#endif
- 	goto out;
- }
- 
-@@ -2977,9 +3023,13 @@ static DEFINE_MUTEX(net_todo_run_mutex);
- void netdev_run_todo(void)
- {
- 	struct list_head list;
-+	struct net_namespace *orig_net_ns __attribute_used__;
- 
- 	/* Need to guard against multiple cpu's getting out of order. */
- 	mutex_lock(&net_todo_run_mutex);
-+#ifdef CONFIG_NET_NS
-+	push_net_ns(current_net_ns, orig_net_ns);
-+#endif
- 
- 	/* Not safe to do outside the semaphore.  We must not return
- 	 * until all unregister events invoked by the local processor
-@@ -3006,6 +3056,9 @@ void netdev_run_todo(void)
- 			continue;
- 		}
- 
-+#ifdef CONFIG_NET_NS
-+		switch_net_ns(dev->net_ns);
-+#endif
- 		netdev_unregister_sysfs(dev);
- 		dev->reg_state = NETREG_UNREGISTERED;
- 
-@@ -3025,6 +3078,9 @@ void netdev_run_todo(void)
- 	}
- 
- out:
-+#ifdef CONFIG_NET_NS
-+	pop_net_ns(orig_net_ns);
-+#endif
- 	mutex_unlock(&net_todo_run_mutex);
- }
- 
-@@ -3077,6 +3133,17 @@ EXPORT_SYMBOL(alloc_netdev);
-  */
- void free_netdev(struct net_device *dev)
- {
-+#ifdef CONFIG_NET_NS
-+	struct net_namespace *ns;
-+
-+	ns = dev->net_ns;
-+	if (ns != NULL) {
-+		unref_net_ns(ns);
-+		if (dev != ns->loopback)
-+			put_net_ns(ns);
-+		dev->net_ns = NULL;
-+	}
-+#endif
- #ifdef CONFIG_SYSFS
- 	/*  Compatibility with error handling in drivers */
- 	if (dev->reg_state == NETREG_UNINITIALIZED) {
-@@ -3087,6 +3154,13 @@ void free_netdev(struct net_device *dev)
- 	BUG_ON(dev->reg_state != NETREG_UNREGISTERED);
- 	dev->reg_state = NETREG_RELEASED;
- 
-+#ifdef CONFIG_NET_NS
-+	if (ns != NULL && ns != &init_net_ns) {
-+		kfree((char *)dev - dev->padded);
-+		return;
-+	}
-+#endif
-+
- 	/* will free via class release */
- 	class_device_put(&dev->class_dev);
- #else
-@@ -3323,6 +3397,90 @@ static int __init netdev_dma_register(vo
- static int __init netdev_dma_register(void) { return -ENODEV; }
+ static inline void fib_combine_itag(u32 *itag, struct fib_result *res)
+--- ./net/core/dev.c.vensrt	Fri Jun 23 11:48:15 2006
++++ ./net/core/dev.c	Fri Jun 23 11:50:16 2006
+@@ -3398,6 +3398,8 @@ static int __init netdev_dma_register(vo
  #endif /* CONFIG_NET_DMA */
  
-+#ifdef CONFIG_NET_NS
-+struct net_namespace init_net_ns = {
-+	.active_ref	= ATOMIC_INIT(2),
-+			  /* one for init_task->net_context,
-+			     one not to let init_net_ns go away */
-+	.use_ref	= ATOMIC_INIT(1), /* for active references */
-+	.dev_base	= LIST_HEAD_INIT(init_net_ns.dev_base),
-+	.loopback	= &loopback_dev_static,
-+};
+ #ifdef CONFIG_NET_NS
++#include <net/ip_fib.h>
 +
-+extern void loopback_dev_ctor(struct net_device *dev);
-+extern void loopback_dev_dtor(struct net_device *dev);
-+int net_ns_start(void)
+ struct net_namespace init_net_ns = {
+ 	.active_ref	= ATOMIC_INIT(2),
+ 			  /* one for init_task->net_context,
+@@ -3436,6 +3438,8 @@ int net_ns_start(void)
+ 	task = current;
+ 	orig_ns = task->net_context;
+ 	task->net_context = ns;
++	if (ip_fib_struct_init())
++		goto out_fib4;
+ 	err = register_netdev(dev);
+ 	if (err)
+ 		goto out_register;
+@@ -3443,6 +3447,8 @@ int net_ns_start(void)
+ 	return 0;
+ 
+ out_register:
++	ip_fib_struct_fini();
++out_fib4:
+ 	dev->destructor(dev);
+ 	task->net_context = orig_ns;
+ 	BUG_ON(atomic_read(&ns->active_ref) != 1);
+@@ -3467,6 +3473,7 @@ static void net_ns_destroy(void *data)
+ 	ns = data;
+ 	push_net_ns(ns, orig_ns);
+ 	unregister_netdev(ns->loopback);
++	ip_fib_struct_fini();
+ 	BUG_ON(!list_empty(&ns->dev_base));
+ 	pop_net_ns(orig_ns);
+ 
+--- ./net/ipv4/Kconfig.vensrt	Wed Jun 21 18:53:19 2006
++++ ./net/ipv4/Kconfig	Fri Jun 23 11:50:16 2006
+@@ -53,7 +53,7 @@ config IP_ADVANCED_ROUTER
+ 
+ choice 
+ 	prompt "Choose IP: FIB lookup algorithm (choose FIB_HASH if unsure)"
+-	depends on IP_ADVANCED_ROUTER
++	depends on IP_ADVANCED_ROUTER && !NET_NS
+ 	default ASK_IP_FIB_HASH
+ 
+ config ASK_IP_FIB_HASH
+@@ -83,7 +83,7 @@ config IP_FIB_TRIE
+ endchoice
+ 
+ config IP_FIB_HASH
+-	def_bool ASK_IP_FIB_HASH || !IP_ADVANCED_ROUTER
++	def_bool ASK_IP_FIB_HASH || !IP_ADVANCED_ROUTER || NET_NS
+ 
+ config IP_MULTIPLE_TABLES
+ 	bool "IP: policy routing"
+--- ./net/ipv4/fib_frontend.c.vensrt	Wed Jun 21 18:53:19 2006
++++ ./net/ipv4/fib_frontend.c	Fri Jun 23 11:50:16 2006
+@@ -53,14 +53,18 @@
+ 
+ #define RT_TABLE_MIN RT_TABLE_MAIN
+ 
+-struct fib_table *ip_fib_local_table;
+-struct fib_table *ip_fib_main_table;
++#ifndef CONFIG_NET_NS
++struct fib_table *ip_fib_local_table_static;
++struct fib_table *ip_fib_main_table_static;
++#endif
+ 
+ #else
+ 
+ #define RT_TABLE_MIN 1
+ 
+-struct fib_table *fib_tables[RT_TABLE_MAX+1];
++#ifndef CONFIG_NET_NS
++struct fib_table *fib_tables_static[RT_TABLE_MAX+1];
++#endif
+ 
+ struct fib_table *__fib_new_table(int id)
+ {
+@@ -69,7 +73,7 @@ struct fib_table *__fib_new_table(int id
+ 	tb = fib_hash_init(id);
+ 	if (!tb)
+ 		return NULL;
+-	fib_tables[id] = tb;
++	fib_tables_ns()[id] = tb;
+ 	return tb;
+ }
+ 
+@@ -80,8 +84,8 @@ struct fib_table *__fib_new_table(int id
+ static void fib_flush(void)
+ {
+ 	int flushed = 0;
+-#ifdef CONFIG_IP_MULTIPLE_TABLES
+ 	struct fib_table *tb;
++#ifdef CONFIG_IP_MULTIPLE_TABLES
+ 	int id;
+ 
+ 	for (id = RT_TABLE_MAX; id>0; id--) {
+@@ -90,8 +94,10 @@ static void fib_flush(void)
+ 		flushed += tb->tb_flush(tb);
+ 	}
+ #else /* CONFIG_IP_MULTIPLE_TABLES */
+-	flushed += ip_fib_main_table->tb_flush(ip_fib_main_table);
+-	flushed += ip_fib_local_table->tb_flush(ip_fib_local_table);
++	tb = ip_fib_main_table_ns();
++	flushed += tb->tb_flush(tb);
++	tb = ip_fib_local_table_ns();
++	flushed += tb->tb_flush(tb);
+ #endif /* CONFIG_IP_MULTIPLE_TABLES */
+ 
+ 	if (flushed)
+@@ -106,14 +112,15 @@ struct net_device * ip_dev_find(u32 addr
+ {
+ 	struct flowi fl = { .nl_u = { .ip4_u = { .daddr = addr } } };
+ 	struct fib_result res;
++	struct fib_table *tb;
+ 	struct net_device *dev = NULL;
+ 
+ #ifdef CONFIG_IP_MULTIPLE_TABLES
+ 	res.r = NULL;
+ #endif
+ 
+-	if (!ip_fib_local_table ||
+-	    ip_fib_local_table->tb_lookup(ip_fib_local_table, &fl, &res))
++	tb = ip_fib_local_table_ns();
++	if (!tb || tb->tb_lookup(tb, &fl, &res))
+ 		return NULL;
+ 	if (res.type != RTN_LOCAL)
+ 		goto out;
+@@ -130,6 +137,7 @@ unsigned inet_addr_type(u32 addr)
+ {
+ 	struct flowi		fl = { .nl_u = { .ip4_u = { .daddr = addr } } };
+ 	struct fib_result	res;
++	struct fib_table *tb;
+ 	unsigned ret = RTN_BROADCAST;
+ 
+ 	if (ZERONET(addr) || BADCLASS(addr))
+@@ -141,10 +149,10 @@ unsigned inet_addr_type(u32 addr)
+ 	res.r = NULL;
+ #endif
+ 	
+-	if (ip_fib_local_table) {
++	tb = ip_fib_local_table_ns();
++	if (tb) {
+ 		ret = RTN_UNICAST;
+-		if (!ip_fib_local_table->tb_lookup(ip_fib_local_table,
+-						   &fl, &res)) {
++		if (!tb->tb_lookup(tb, &fl, &res)) {
+ 			ret = res.type;
+ 			fib_res_put(&res);
+ 		}
+@@ -651,19 +659,66 @@ static struct notifier_block fib_netdev_
+ 	.notifier_call =fib_netdev_event,
+ };
+ 
+-void __init ip_fib_init(void)
++int ip_fib_struct_init(void)
+ {
+ #ifndef CONFIG_IP_MULTIPLE_TABLES
+-	ip_fib_local_table = fib_hash_init(RT_TABLE_LOCAL);
+-	ip_fib_main_table  = fib_hash_init(RT_TABLE_MAIN);
++	ip_fib_local_table_ns() = fib_hash_init(RT_TABLE_LOCAL);
++	ip_fib_main_table_ns()  = fib_hash_init(RT_TABLE_MAIN);
++#else
++#ifndef CONFIG_NET_NS
++	return fib_rules_struct_init();
+ #else
+-	fib_rules_init();
++	struct fib_table **tables;
++
++	tables = kmalloc((RT_TABLE_MAX+1) * sizeof(*tables), GFP_KERNEL);
++	if (tables == NULL)
++		return -ENOMEM;
++	memset(tables, 0, (RT_TABLE_MAX+1) * sizeof(*tables));
++	fib_tables_ns() = tables;
++	if (fib_rules_struct_init()) {
++		kfree(tables);
++		fib_tables_ns() = NULL;
++		return -ENOMEM;
++	}
+ #endif
++#endif
++	return 0;
++}
+ 
++void __init ip_fib_init(void)
 +{
-+	struct net_namespace *ns, *orig_ns;
-+	struct net_device *dev;
-+	task_t *task;
-+	int err;
++	ip_fib_struct_init();
 +
-+	err = -ENOMEM;
-+	ns = kmalloc(sizeof(*ns), GFP_KERNEL);
-+	if (ns == NULL)
-+		goto out_ns;
-+	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
-+	if (dev == NULL)
-+		goto out_dev;
-+	loopback_dev_ctor(dev);
-+	dev->destructor = loopback_dev_dtor;
++#ifdef CONFIG_IP_MULTIPLE_TABLES
++	fib_rules_notif_init();
++#endif
+ 	register_netdevice_notifier(&fib_netdev_notifier);
+ 	register_inetaddr_notifier(&fib_inetaddr_notifier);
+ 	nl_fib_lookup_init();
+ }
+ 
++#ifdef CONFIG_NET_NS
++void ip_fib_struct_fini(void)
++{
++	current_net_ns->destroying = 1;
++	rtnl_lock();
++#ifdef CONFIG_IP_MULTIPLE_TABLES
++	fib_rules_struct_fini();
++#endif
++	/*
++	 * FIB should already be empty since there is no netdevice,
++	 * but clear it anyway
++	 */
++	fib_flush();
++	rt_cache_flush(0);
++#ifdef CONFIG_IP_MULTIPLE_TABLES
++	kfree(fib_tables_ns());
++	fib_tables_ns() = NULL;
++#endif
++	fib_hashtable_destroy();
++	rtnl_unlock();
++}
++#endif /* CONFIG_NET_NS */
 +
-+	memset(ns, 0, sizeof(*ns));
-+	atomic_set(&ns->active_ref, 1);
-+	atomic_set(&ns->use_ref, 1);
-+	INIT_LIST_HEAD(&ns->dev_base);
-+	ns->hash = net_random();
-+	ns->loopback = dev;
+ EXPORT_SYMBOL(inet_addr_type);
+ EXPORT_SYMBOL(ip_dev_find);
+--- ./net/ipv4/fib_hash.c.vensrt	Mon Mar 20 08:53:29 2006
++++ ./net/ipv4/fib_hash.c	Fri Jun 23 11:50:16 2006
+@@ -629,6 +629,11 @@ static int fn_flush_list(struct fn_zone 
+ 	struct hlist_node *node, *n;
+ 	struct fib_node *f;
+ 	int found = 0;
++#ifndef CONFIG_NET_NS
++	const int destroy = 0;
++#else
++	const int destroy = current_net_ns->destroying;
++#endif
+ 
+ 	hlist_for_each_entry_safe(f, node, n, head, fn_hash) {
+ 		struct fib_alias *fa, *fa_node;
+@@ -638,7 +643,9 @@ static int fn_flush_list(struct fn_zone 
+ 		list_for_each_entry_safe(fa, fa_node, &f->fn_alias, fa_list) {
+ 			struct fib_info *fi = fa->fa_info;
+ 
+-			if (fi && (fi->fib_flags&RTNH_F_DEAD)) {
++			if (fi == NULL)
++				continue;
++			if (destroy || (fi->fib_flags&RTNH_F_DEAD)) {
+ 				write_lock_bh(&fib_hash_lock);
+ 				list_del(&fa->fa_list);
+ 				if (list_empty(&f->fn_alias)) {
+@@ -819,7 +826,7 @@ struct fib_iter_state {
+ static struct fib_alias *fib_get_first(struct seq_file *seq)
+ {
+ 	struct fib_iter_state *iter = seq->private;
+-	struct fn_hash *table = (struct fn_hash *) ip_fib_main_table->tb_data;
++	struct fn_hash *table = (struct fn_hash *) ip_fib_main_table_ns()->tb_data;
+ 
+ 	iter->bucket    = 0;
+ 	iter->hash_head = NULL;
+@@ -958,7 +965,7 @@ static void *fib_seq_start(struct seq_fi
+ 	void *v = NULL;
+ 
+ 	read_lock(&fib_hash_lock);
+-	if (ip_fib_main_table)
++	if (ip_fib_main_table_ns())
+ 		v = *pos ? fib_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ 	return v;
+ }
+--- ./net/ipv4/fib_rules.c.vensrt	Wed Jun 21 18:51:09 2006
++++ ./net/ipv4/fib_rules.c	Fri Jun 23 11:50:16 2006
+@@ -100,7 +100,12 @@ static struct fib_rule local_rule = {
+ 	.r_action =	RTN_UNICAST,
+ };
+ 
+-static struct hlist_head fib_rules;
++#ifndef CONFIG_NET_NS
++static struct hlist_head fib_rules_static;
++#define fib_rules_ns() (&fib_rules_static)
++#else
++#define fib_rules_ns() (&current_net_ns->fib4_rules)
++#endif
+ 
+ /* writer func called from netlink -- rtnl_sem hold*/
+ 
+@@ -110,11 +115,13 @@ int inet_rtm_delrule(struct sk_buff *skb
+ {
+ 	struct rtattr **rta = arg;
+ 	struct rtmsg *rtm = NLMSG_DATA(nlh);
++	struct hlist_head *fib_rules;
+ 	struct fib_rule *r;
+ 	struct hlist_node *node;
+ 	int err = -ESRCH;
+ 
+-	hlist_for_each_entry(r, node, &fib_rules, hlist) {
++	fib_rules = fib_rules_ns();
++	hlist_for_each_entry(r, node, fib_rules, hlist) {
+ 		if ((!rta[RTA_SRC-1] || memcmp(RTA_DATA(rta[RTA_SRC-1]), &r->r_src, 4) == 0) &&
+ 		    rtm->rtm_src_len == r->r_src_len &&
+ 		    rtm->rtm_dst_len == r->r_dst_len &&
+@@ -128,7 +135,7 @@ int inet_rtm_delrule(struct sk_buff *skb
+ 		    (!rta[RTA_IIF-1] || rtattr_strcmp(rta[RTA_IIF-1], r->r_ifname) == 0) &&
+ 		    (!rtm->rtm_table || (r && rtm->rtm_table == r->r_table))) {
+ 			err = -EPERM;
+-			if (r == &local_rule)
++			if (&r->hlist == fib_rules->first)
+ 				break;
+ 
+ 			hlist_del_rcu(&r->hlist);
+@@ -147,9 +154,11 @@ int inet_rtm_delrule(struct sk_buff *skb
+ static struct fib_table *fib_empty_table(void)
+ {
+ 	int id;
++	struct fib_table **tbs;
+ 
++	tbs = fib_tables_ns();
+ 	for (id = 1; id <= RT_TABLE_MAX; id++)
+-		if (fib_tables[id] == NULL)
++		if (tbs[id] == NULL)
+ 			return __fib_new_table(id);
+ 	return NULL;
+ }
+@@ -176,6 +185,7 @@ int inet_rtm_newrule(struct sk_buff *skb
+ {
+ 	struct rtattr **rta = arg;
+ 	struct rtmsg *rtm = NLMSG_DATA(nlh);
++	struct hlist_head *fib_rules;
+ 	struct fib_rule *r, *new_r, *last = NULL;
+ 	struct hlist_node *node = NULL;
+ 	unsigned char table_id;
+@@ -234,7 +244,8 @@ int inet_rtm_newrule(struct sk_buff *skb
+ 	if (rta[RTA_FLOW-1])
+ 		memcpy(&new_r->r_tclassid, RTA_DATA(rta[RTA_FLOW-1]), 4);
+ #endif
+-	r = container_of(fib_rules.first, struct fib_rule, hlist);
++	fib_rules = fib_rules_ns();
++	r = container_of(fib_rules->first, struct fib_rule, hlist);
+ 
+ 	if (!new_r->r_preference) {
+ 		if (r && r->hlist.next != NULL) {
+@@ -244,7 +255,7 @@ int inet_rtm_newrule(struct sk_buff *skb
+ 		}
+ 	}
+ 
+-	hlist_for_each_entry(r, node, &fib_rules, hlist) {
++	hlist_for_each_entry(r, node, fib_rules, hlist) {
+ 		if (r->r_preference > new_r->r_preference)
+ 			break;
+ 		last = r;
+@@ -273,10 +284,12 @@ u32 fib_rules_tclass(struct fib_result *
+ 
+ static void fib_rules_detach(struct net_device *dev)
+ {
++	struct hlist_head *fib_rules;
+ 	struct hlist_node *node;
+ 	struct fib_rule *r;
+ 
+-	hlist_for_each_entry(r, node, &fib_rules, hlist) {
++	fib_rules = fib_rules_ns();
++	hlist_for_each_entry(r, node, fib_rules, hlist) {
+ 		if (r->r_ifindex == dev->ifindex)
+ 			r->r_ifindex = -1;
+ 
+@@ -287,10 +300,12 @@ static void fib_rules_detach(struct net_
+ 
+ static void fib_rules_attach(struct net_device *dev)
+ {
++	struct hlist_head *fib_rules;
+ 	struct hlist_node *node;
+ 	struct fib_rule *r;
+ 
+-	hlist_for_each_entry(r, node, &fib_rules, hlist) {
++	fib_rules = fib_rules_ns();
++	hlist_for_each_entry(r, node, fib_rules, hlist) {
+ 		if (r->r_ifindex == -1 && strcmp(dev->name, r->r_ifname) == 0)
+ 			r->r_ifindex = dev->ifindex;
+ 	}
+@@ -299,6 +314,7 @@ static void fib_rules_attach(struct net_
+ int fib_lookup(const struct flowi *flp, struct fib_result *res)
+ {
+ 	int err;
++	struct hlist_head *fib_rules;
+ 	struct fib_rule *r, *policy;
+ 	struct fib_table *tb;
+ 	struct hlist_node *node;
+@@ -311,7 +327,8 @@ FRprintk("Lookup: %u.%u.%u.%u <- %u.%u.%
+ 
+ 	rcu_read_lock();
+ 
+-	hlist_for_each_entry_rcu(r, node, &fib_rules, hlist) {
++	fib_rules = fib_rules_ns();
++	hlist_for_each_entry_rcu(r, node, fib_rules, hlist) {
+ 		if (((saddr^r->r_src) & r->r_srcmask) ||
+ 		    ((daddr^r->r_dst) & r->r_dstmask) ||
+ 		    (r->r_tos && r->r_tos != flp->fl4_tos) ||
+@@ -453,11 +470,13 @@ int inet_dump_rules(struct sk_buff *skb,
+ {
+ 	int idx = 0;
+ 	int s_idx = cb->args[0];
++	struct hlist_head *fib_rules;
+ 	struct fib_rule *r;
+ 	struct hlist_node *node;
+ 
+ 	rcu_read_lock();
+-	hlist_for_each_entry(r, node, &fib_rules, hlist) {
++	fib_rules = fib_rules_ns();
++	hlist_for_each_entry(r, node, fib_rules, hlist) {
+ 
+ 		if (idx < s_idx)
+ 			continue;
+@@ -473,11 +492,80 @@ int inet_dump_rules(struct sk_buff *skb,
+ 	return skb->len;
+ }
+ 
+-void __init fib_rules_init(void)
++#ifndef CONFIG_NET_NS
 +
-+	task = current;
-+	orig_ns = task->net_context;
-+	task->net_context = ns;
-+	err = register_netdev(dev);
-+	if (err)
-+		goto out_register;
-+	put_net_ns(orig_ns);
++int fib_rules_struct_init(void)
+ {
+-	INIT_HLIST_HEAD(&fib_rules);
+-	hlist_add_head(&local_rule.hlist, &fib_rules);
++	INIT_HLIST_HEAD(&fib_rules_static);
++	hlist_add_head(&local_rule.hlist, &fib_rules_static);
+ 	hlist_add_after(&local_rule.hlist, &main_rule.hlist);
+ 	hlist_add_after(&main_rule.hlist, &default_rule.hlist);
++	return 0;
++}
++
++#else
++
++static struct fib_rule *fib_rule_create(struct fib_rule *orig,
++		struct fib_rule *prev)
++{
++	struct fib_rule *p;
++
++	p = kmalloc(sizeof(*p), GFP_KERNEL);
++	if (p == NULL)
++		goto out;
++	memcpy(p, orig, sizeof(*p));
++	if (prev != NULL)
++		hlist_add_after(&prev->hlist, &p->hlist);
++	else
++		hlist_add_head(&p->hlist, fib_rules_ns());
++out:
++	return p;
++}
++
++int fib_rules_struct_init(void)
++{
++	struct hlist_head *fib_rules;
++	struct fib_rule *p, *q;
++
++	fib_rules = fib_rules_ns();
++	INIT_HLIST_HEAD(fib_rules);
++	p = fib_rule_create(&local_rule, NULL);
++	if (p == NULL)
++		goto out_rule;
++	q = fib_rule_create(&main_rule, p);
++	if (q == NULL)
++		goto out_rule;
++	p = q;
++	q = fib_rule_create(&default_rule, p);
++	if (q == NULL)
++		goto out_rule;
 +	return 0;
 +
-+out_register:
-+	dev->destructor(dev);
-+	task->net_context = orig_ns;
-+	BUG_ON(atomic_read(&ns->active_ref) != 1);
-+out_dev:
-+	kfree(ns);
-+out_ns:
-+	return err;
++out_rule:
++	while (!hlist_empty(fib_rules)) {
++		p = hlist_entry(fib_rules->first, struct fib_rule, hlist);
++		hlist_del(&p->hlist);
++		kfree(p);
++	}
++	return -ENOMEM;
 +}
-+EXPORT_SYMBOL(net_ns_start);
 +
-+void net_ns_free(struct net_namespace *ns)
++void fib_rules_struct_fini(void)
 +{
-+	kfree(ns);
-+}
-+EXPORT_SYMBOL(net_ns_free);
++	struct fib_rule *r, *nxt;
 +
-+/* destroy loopback device and protocol datastructures in process context */
-+static void net_ns_destroy(void *data)
-+{
-+	struct net_namespace *ns, *orig_ns;
-+
-+	ns = data;
-+	push_net_ns(ns, orig_ns);
-+	unregister_netdev(ns->loopback);
-+	BUG_ON(!list_empty(&ns->dev_base));
-+	pop_net_ns(orig_ns);
-+
-+	/* drop (hopefully) final reference */
-+	unref_net_ns(ns);
++	for (r = hlist_entry(fib_rules_ns()->first, struct fib_rule, hlist);
++			r != NULL; r = nxt) {
++		nxt = hlist_entry(r->hlist.next, struct fib_rule, hlist);
++		hlist_del_rcu(&r->hlist);
++		r->r_dead = 1;
++		fib_rule_put(r);
++	}
 +}
 +
-+void net_ns_stop(struct net_namespace *ns)
-+{
-+	execute_in_process_context(net_ns_destroy, ns, &ns->destroy_work);
-+}
-+EXPORT_SYMBOL(net_ns_stop);
 +#endif
 +
- /*
-  *	Initialize the DEV module. At boot time this walks the device list and
-  *	unhooks any devices that fail to initialise (normally hardware not
---- ./net/core/net-sysfs.c.venshd	Wed Jun 21 18:51:08 2006
-+++ ./net/core/net-sysfs.c	Fri Jun 23 11:48:15 2006
-@@ -13,6 +13,7 @@
- #include <linux/config.h>
- #include <linux/kernel.h>
++void __init fib_rules_notif_init(void)
++{
+ 	register_netdevice_notifier(&fib_rules_notifier);
+ }
+--- ./net/ipv4/fib_semantics.c.vensrt	Mon Mar 20 08:53:29 2006
++++ ./net/ipv4/fib_semantics.c	Fri Jun 23 11:50:16 2006
+@@ -31,6 +31,7 @@
+ #include <linux/inet.h>
+ #include <linux/inetdevice.h>
  #include <linux/netdevice.h>
 +#include <linux/net_ns.h>
  #include <linux/if_arp.h>
- #include <net/sock.h>
- #include <linux/rtnetlink.h>
-@@ -445,6 +446,12 @@ static struct class net_class = {
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
+@@ -51,10 +52,21 @@
+ #define FSprintk(a...)
  
- void netdev_unregister_sysfs(struct net_device * net)
+ static DEFINE_RWLOCK(fib_info_lock);
+-static struct hlist_head *fib_info_hash;
+-static struct hlist_head *fib_info_laddrhash;
+-static unsigned int fib_hash_size;
+-static unsigned int fib_info_cnt;
++#ifndef CONFIG_NET_NS
++static struct hlist_head *fib_info_hash_static;
++static struct hlist_head *fib_info_laddrhash_static;
++static unsigned int fib_hash_size_static;
++static unsigned int fib_info_cnt_static;
++#define fib_info_hash(ns)	fib_info_hash_static
++#define fib_info_laddrhash(ns)	fib_info_laddrhash_static
++#define fib_hash_size(ns)	fib_hash_size_static
++#define fib_info_cnt(ns)	fib_info_cnt_static
++#else
++#define fib_info_hash(ns)	((ns)->fib4_hash)
++#define fib_info_laddrhash(ns)	((ns)->fib4_laddrhash)
++#define fib_hash_size(ns)	((ns)->fib4_hash_size)
++#define fib_info_cnt(ns)	((ns)->fib4_info_cnt)
++#endif
+ 
+ #define DEVINDEX_HASHBITS 8
+ #define DEVINDEX_HASHSIZE (1U << DEVINDEX_HASHBITS)
+@@ -145,6 +157,8 @@ static const struct 
+ 
+ void free_fib_info(struct fib_info *fi)
  {
-+#ifdef CONFIG_NET_NS
-+	if (current_net_ns != &init_net_ns)
-+		/* not supported yet: sysfs virtualization is required */
-+		return;
-+#endif
++	struct net_namespace *ns __attribute_used__ = current_net_ns;
 +
- 	class_device_del(&(net->class_dev));
- }
- 
-@@ -454,6 +461,12 @@ int netdev_register_sysfs(struct net_dev
- 	struct class_device *class_dev = &(net->class_dev);
- 	struct attribute_group **groups = net->sysfs_groups;
- 
-+#ifdef CONFIG_NET_NS
-+	if (current_net_ns != &init_net_ns)
-+		/* not supported yet: sysfs virtualization is required */
-+		return 0;
-+#endif
-+
- 	class_device_initialize(class_dev);
- 	class_dev->class = &net_class;
- 	class_dev->class_data = net;
-@@ -474,6 +487,17 @@ int netdev_register_sysfs(struct net_dev
- 	return class_device_add(class_dev);
- }
- 
-+int netdev_rename_sysfs(struct net_device *dev)
-+{
-+#ifdef CONFIG_NET_NS
-+	if (current_net_ns != &init_net_ns)
-+		/* not supported yet: sysfs virtualization is required */
-+		return 0;
-+#endif
-+
-+	return class_device_rename(&dev->class_dev, dev->name);
-+}
-+
- int netdev_sysfs_init(void)
- {
- 	return class_register(&net_class);
---- ./net/ipv4/devinet.c.venshd	Thu Jun 22 12:03:08 2006
-+++ ./net/ipv4/devinet.c	Fri Jun 23 11:48:15 2006
-@@ -190,7 +190,7 @@ static void inetdev_destroy(struct in_de
- 	ASSERT_RTNL();
- 
- 	dev = in_dev->dev;
--	if (dev == &loopback_dev)
-+	if (dev == &loopback_dev_static)
+ 	if (fi->fib_dead == 0) {
+ 		printk("Freeing alive fib_info %p\n", fi);
  		return;
- 
- 	in_dev->dead = 1;
---- ./net/ipv6/addrconf.c.venshd	Thu Jun 22 12:03:08 2006
-+++ ./net/ipv6/addrconf.c	Fri Jun 23 11:48:15 2006
-@@ -2277,7 +2277,7 @@ static int addrconf_ifdown(struct net_de
- 
- 	ASSERT_RTNL();
- 
--	if (dev == &loopback_dev && how == 1)
-+	if (dev == &loopback_dev_static && how == 1)
- 		how = 0;
- 
- 	rt6_ifdown(dev);
---- ./net/ipv6/route.c.venshd	Wed Jun 21 18:53:20 2006
-+++ ./net/ipv6/route.c	Fri Jun 23 11:48:15 2006
-@@ -125,7 +125,7 @@ struct rt6_info ip6_null_entry = {
- 		.dst = {
- 			.__refcnt	= ATOMIC_INIT(1),
- 			.__use		= 1,
--			.dev		= &loopback_dev,
-+			/* .dev		= &loopback_dev, */
- 			.obsolete	= -1,
- 			.error		= -ENETUNREACH,
- 			.metrics	= { [RTAX_HOPLIMIT - 1] = 255, },
-@@ -2268,6 +2268,7 @@ void __init ip6_route_init(void)
- #ifdef CONFIG_XFRM
- 	xfrm6_init();
- #endif
-+	ip6_null_entry.u.dst.dev = &loopback_dev;
+@@ -154,7 +168,7 @@ void free_fib_info(struct fib_info *fi)
+ 			dev_put(nh->nh_dev);
+ 		nh->nh_dev = NULL;
+ 	} endfor_nexthops(fi);
+-	fib_info_cnt--;
++	fib_info_cnt(ns)--;
+ 	kfree(fi);
  }
  
- void ip6_route_cleanup(void)
+@@ -197,9 +211,10 @@ static __inline__ int nh_comp(const stru
+ 	return 0;
+ }
+ 
+-static inline unsigned int fib_info_hashfn(const struct fib_info *fi)
++static inline unsigned int fib_info_hashfn(const struct fib_info *fi,
++		struct net_namespace *ns)
+ {
+-	unsigned int mask = (fib_hash_size - 1);
++	unsigned int mask = (fib_hash_size(ns) - 1);
+ 	unsigned int val = fi->fib_nhs;
+ 
+ 	val ^= fi->fib_protocol;
+@@ -211,13 +226,14 @@ static inline unsigned int fib_info_hash
+ 
+ static struct fib_info *fib_find_info(const struct fib_info *nfi)
+ {
++	struct net_namespace *ns = current_net_ns;
+ 	struct hlist_head *head;
+ 	struct hlist_node *node;
+ 	struct fib_info *fi;
+ 	unsigned int hash;
+ 
+-	hash = fib_info_hashfn(nfi);
+-	head = &fib_info_hash[hash];
++	hash = fib_info_hashfn(nfi, ns);
++	head = &fib_info_hash(ns)[hash];
+ 
+ 	hlist_for_each_entry(fi, node, head, fib_hash) {
+ 		if (fi->fib_nhs != nfi->fib_nhs)
+@@ -237,11 +253,15 @@ static struct fib_info *fib_find_info(co
+ 
+ static inline unsigned int fib_devindex_hashfn(unsigned int val)
+ {
+-	unsigned int mask = DEVINDEX_HASHSIZE - 1;
++	unsigned int r, mask = DEVINDEX_HASHSIZE - 1;
+ 
+-	return (val ^
++	r = val ^
+ 		(val >> DEVINDEX_HASHBITS) ^
+-		(val >> (DEVINDEX_HASHBITS * 2))) & mask;
++		(val >> (DEVINDEX_HASHBITS * 2));
++#ifdef CONFIG_NET_NS
++	r ^= current_net_ns->hash;
++#endif
++	return r & mask;
+ }
+ 
+ /* Check, that the gateway is already configured.
+@@ -564,9 +584,9 @@ out:
+ 	return 0;
+ }
+ 
+-static inline unsigned int fib_laddr_hashfn(u32 val)
++static inline unsigned int fib_laddr_hashfn(u32 val, struct net_namespace *ns)
+ {
+-	unsigned int mask = (fib_hash_size - 1);
++	unsigned int mask = (fib_hash_size(ns) - 1);
+ 
+ 	return (val ^ (val >> 7) ^ (val >> 14)) & mask;
+ }
+@@ -595,17 +615,18 @@ static void fib_hash_move(struct hlist_h
+ 			  struct hlist_head *new_laddrhash,
+ 			  unsigned int new_size)
+ {
++	struct net_namespace *ns = current_net_ns;
+ 	struct hlist_head *old_info_hash, *old_laddrhash;
+-	unsigned int old_size = fib_hash_size;
++	unsigned int old_size = fib_hash_size(ns);
+ 	unsigned int i, bytes;
+ 
+ 	write_lock(&fib_info_lock);
+-	old_info_hash = fib_info_hash;
+-	old_laddrhash = fib_info_laddrhash;
+-	fib_hash_size = new_size;
++	old_info_hash = fib_info_hash(ns);
++	old_laddrhash = fib_info_laddrhash(ns);
++	fib_hash_size(ns) = new_size;
+ 
+ 	for (i = 0; i < old_size; i++) {
+-		struct hlist_head *head = &fib_info_hash[i];
++		struct hlist_head *head = &old_info_hash[i];
+ 		struct hlist_node *node, *n;
+ 		struct fib_info *fi;
+ 
+@@ -615,15 +636,15 @@ static void fib_hash_move(struct hlist_h
+ 
+ 			hlist_del(&fi->fib_hash);
+ 
+-			new_hash = fib_info_hashfn(fi);
++			new_hash = fib_info_hashfn(fi, ns);
+ 			dest = &new_info_hash[new_hash];
+ 			hlist_add_head(&fi->fib_hash, dest);
+ 		}
+ 	}
+-	fib_info_hash = new_info_hash;
++	fib_info_hash(ns) = new_info_hash;
+ 
+ 	for (i = 0; i < old_size; i++) {
+-		struct hlist_head *lhead = &fib_info_laddrhash[i];
++		struct hlist_head *lhead = &old_laddrhash[i];
+ 		struct hlist_node *node, *n;
+ 		struct fib_info *fi;
+ 
+@@ -633,12 +654,12 @@ static void fib_hash_move(struct hlist_h
+ 
+ 			hlist_del(&fi->fib_lhash);
+ 
+-			new_hash = fib_laddr_hashfn(fi->fib_prefsrc);
++			new_hash = fib_laddr_hashfn(fi->fib_prefsrc, ns);
+ 			ldest = &new_laddrhash[new_hash];
+ 			hlist_add_head(&fi->fib_lhash, ldest);
+ 		}
+ 	}
+-	fib_info_laddrhash = new_laddrhash;
++	fib_info_laddrhash(ns) = new_laddrhash;
+ 
+ 	write_unlock(&fib_info_lock);
+ 
+@@ -647,11 +668,27 @@ static void fib_hash_move(struct hlist_h
+ 	fib_hash_free(old_laddrhash, bytes);
+ }
+ 
++#ifdef CONFIG_NET_NS
++void fib_hashtable_destroy(void)
++{
++	struct net_namespace *ns;
++	unsigned int bytes;
++
++	ns = current_net_ns;
++	bytes = ns->fib4_hash_size * sizeof(struct hlist_head *);
++	fib_hash_free(ns->fib4_hash, bytes);
++	ns->fib4_hash = NULL;
++	fib_hash_free(ns->fib4_laddrhash, bytes);
++	ns->fib4_laddrhash = NULL;
++}
++#endif
++
+ struct fib_info *
+ fib_create_info(const struct rtmsg *r, struct kern_rta *rta,
+ 		const struct nlmsghdr *nlh, int *errp)
+ {
+ 	int err;
++	struct net_namespace *ns = current_net_ns;
+ 	struct fib_info *fi = NULL;
+ 	struct fib_info *ofi;
+ #ifdef CONFIG_IP_ROUTE_MULTIPATH
+@@ -685,8 +722,8 @@ fib_create_info(const struct rtmsg *r, s
+ #endif
+ 
+ 	err = -ENOBUFS;
+-	if (fib_info_cnt >= fib_hash_size) {
+-		unsigned int new_size = fib_hash_size << 1;
++	if (fib_info_cnt(ns) >= fib_hash_size(ns)) {
++		unsigned int new_size = fib_hash_size(ns) << 1;
+ 		struct hlist_head *new_info_hash;
+ 		struct hlist_head *new_laddrhash;
+ 		unsigned int bytes;
+@@ -706,14 +743,14 @@ fib_create_info(const struct rtmsg *r, s
+ 			fib_hash_move(new_info_hash, new_laddrhash, new_size);
+ 		}
+ 
+-		if (!fib_hash_size)
++		if (!fib_hash_size(ns))
+ 			goto failure;
+ 	}
+ 
+ 	fi = kmalloc(sizeof(*fi)+nhs*sizeof(struct fib_nh), GFP_KERNEL);
+ 	if (fi == NULL)
+ 		goto failure;
+-	fib_info_cnt++;
++	fib_info_cnt(ns)++;
+ 	memset(fi, 0, sizeof(*fi)+nhs*sizeof(struct fib_nh));
+ 
+ 	fi->fib_protocol = r->rtm_protocol;
+@@ -824,11 +861,11 @@ link_it:
+ 	atomic_inc(&fi->fib_clntref);
+ 	write_lock(&fib_info_lock);
+ 	hlist_add_head(&fi->fib_hash,
+-		       &fib_info_hash[fib_info_hashfn(fi)]);
++		       &fib_info_hash(ns)[fib_info_hashfn(fi, ns)]);
+ 	if (fi->fib_prefsrc) {
+ 		struct hlist_head *head;
+ 
+-		head = &fib_info_laddrhash[fib_laddr_hashfn(fi->fib_prefsrc)];
++		head = &fib_info_laddrhash(ns)[fib_laddr_hashfn(fi->fib_prefsrc, ns)];
+ 		hlist_add_head(&fi->fib_lhash, head);
+ 	}
+ 	change_nexthops(fi) {
+@@ -1162,15 +1199,16 @@ fib_convert_rtentry(int cmd, struct nlms
+ 
+ int fib_sync_down(u32 local, struct net_device *dev, int force)
+ {
++	struct net_namespace *ns = current_net_ns;
+ 	int ret = 0;
+ 	int scope = RT_SCOPE_NOWHERE;
+ 	
+ 	if (force)
+ 		scope = -1;
+ 
+-	if (local && fib_info_laddrhash) {
+-		unsigned int hash = fib_laddr_hashfn(local);
+-		struct hlist_head *head = &fib_info_laddrhash[hash];
++	if (local && fib_info_laddrhash(ns)) {
++		unsigned int hash = fib_laddr_hashfn(local, ns);
++		struct hlist_head *head = &fib_info_laddrhash(ns)[hash];
+ 		struct hlist_node *node;
+ 		struct fib_info *fi;
+ 
+--- ./net/ipv4/route.c.vensrt	Wed Jun 21 18:53:19 2006
++++ ./net/ipv4/route.c	Fri Jun 23 11:50:16 2006
+@@ -267,6 +267,7 @@ struct rt_cache_iter_state {
+ 	int bucket;
+ };
+ 
++static struct rtable *rt_cache_get_next(struct seq_file *seq, struct rtable *r);
+ static struct rtable *rt_cache_get_first(struct seq_file *seq)
+ {
+ 	struct rtable *r = NULL;
+@@ -279,21 +280,28 @@ static struct rtable *rt_cache_get_first
+ 			break;
+ 		rcu_read_unlock_bh();
+ 	}
++	if (r && !net_ns_same(r->fl.net_ns, current_net_ns))
++		r = rt_cache_get_next(seq, r);
+ 	return r;
+ }
+ 
+ static struct rtable *rt_cache_get_next(struct seq_file *seq, struct rtable *r)
+ {
+ 	struct rt_cache_iter_state *st = rcu_dereference(seq->private);
++	struct net_namespace *ns __attribute_used__ = current_net_ns;
+ 
++next:
+ 	r = r->u.rt_next;
+ 	while (!r) {
+ 		rcu_read_unlock_bh();
+ 		if (--st->bucket < 0)
+-			break;
++			goto out;
+ 		rcu_read_lock_bh();
+ 		r = rt_hash_table[st->bucket].chain;
+ 	}
++	if (!net_ns_same(r->fl.net_ns, ns))
++		goto next;
++out:
+ 	return r;
+ }
+ 
+@@ -564,6 +572,7 @@ static inline u32 rt_score(struct rtable
+ static inline int compare_keys(struct flowi *fl1, struct flowi *fl2)
+ {
+ 	return memcmp(&fl1->nl_u.ip4_u, &fl2->nl_u.ip4_u, sizeof(fl1->nl_u.ip4_u)) == 0 &&
++	       net_ns_same(fl1->net_ns, fl2->net_ns) &&
+ 	       fl1->oif     == fl2->oif &&
+ 	       fl1->iif     == fl2->iif;
+ }
+@@ -1127,6 +1136,7 @@ void ip_rt_redirect(u32 old_gw, u32 dadd
+ 	struct rtable *rth, **rthp;
+ 	u32  skeys[2] = { saddr, 0 };
+ 	int  ikeys[2] = { dev->ifindex, 0 };
++	struct net_namespace *ns __attribute_used__ = current_net_ns;
+ 
+ 	if (!in_dev)
+ 		return;
+@@ -1158,6 +1168,7 @@ void ip_rt_redirect(u32 old_gw, u32 dadd
+ 
+ 				if (rth->fl.fl4_dst != daddr ||
+ 				    rth->fl.fl4_src != skeys[i] ||
++				    !net_ns_same(rth->fl.net_ns, ns) ||
+ 				    rth->fl.oif != ikeys[k] ||
+ 				    rth->fl.iif != 0) {
+ 					rthp = &rth->u.rt_next;
+@@ -1643,6 +1654,9 @@ static int ip_route_input_mc(struct sk_b
+ 	dev_hold(rth->u.dst.dev);
+ 	rth->idev	= in_dev_get(rth->u.dst.dev);
+ 	rth->fl.oif	= 0;
++#ifdef CONFIG_NET_NS
++	rth->fl.net_ns	= current_net_ns;
++#endif
+ 	rth->rt_gateway	= daddr;
+ 	rth->rt_spec_dst= spec_dst;
+ 	rth->rt_type	= RTN_MULTICAST;
+@@ -1786,6 +1800,9 @@ static inline int __mkroute_input(struct
+ 	dev_hold(rth->u.dst.dev);
+ 	rth->idev	= in_dev_get(rth->u.dst.dev);
+ 	rth->fl.oif 	= 0;
++#ifdef CONFIG_NET_NS
++	rth->fl.net_ns	= current_net_ns;
++#endif
+ 	rth->rt_spec_dst= spec_dst;
+ 
+ 	rth->u.dst.input = ip_forward;
+@@ -2087,6 +2104,7 @@ int ip_route_input(struct sk_buff *skb, 
+ 	struct rtable * rth;
+ 	unsigned	hash;
+ 	int iif = dev->ifindex;
++	struct net_namespace *ns __attribute_used__ = current_net_ns;
+ 
+ 	tos &= IPTOS_RT_MASK;
+ 	hash = rt_hash_code(daddr, saddr ^ (iif << 5));
+@@ -2096,6 +2114,7 @@ int ip_route_input(struct sk_buff *skb, 
+ 	     rth = rcu_dereference(rth->u.rt_next)) {
+ 		if (rth->fl.fl4_dst == daddr &&
+ 		    rth->fl.fl4_src == saddr &&
++		    net_ns_same(rth->fl.net_ns, ns) &&
+ 		    rth->fl.iif == iif &&
+ 		    rth->fl.oif == 0 &&
+ #ifdef CONFIG_IP_ROUTE_FWMARK
+@@ -2235,6 +2254,9 @@ static inline int __mkroute_output(struc
+ 	rth->u.dst.dev	= dev_out;
+ 	dev_hold(dev_out);
+ 	rth->idev	= in_dev_get(dev_out);
++#ifdef CONFIG_NET_NS
++	rth->fl.net_ns	= current_net_ns;
++#endif
+ 	rth->rt_gateway = fl->fl4_dst;
+ 	rth->rt_spec_dst= fl->fl4_src;
+ 
+@@ -2560,6 +2582,7 @@ int __ip_route_output_key(struct rtable 
+ {
+ 	unsigned hash;
+ 	struct rtable *rth;
++	struct net_namespace *ns __attribute_used__ = current_net_ns;
+ 
+ 	hash = rt_hash_code(flp->fl4_dst, flp->fl4_src ^ (flp->oif << 5));
+ 
+@@ -2568,6 +2591,7 @@ int __ip_route_output_key(struct rtable 
+ 		rth = rcu_dereference(rth->u.rt_next)) {
+ 		if (rth->fl.fl4_dst == flp->fl4_dst &&
+ 		    rth->fl.fl4_src == flp->fl4_src &&
++		    net_ns_same(rth->fl.net_ns, ns) &&
+ 		    rth->fl.iif == 0 &&
+ 		    rth->fl.oif == flp->oif &&
+ #ifdef CONFIG_IP_ROUTE_FWMARK

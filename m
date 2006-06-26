@@ -1,91 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWFZWzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933306AbWFZW6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWFZWzn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:55:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWFZWyr
+	id S933306AbWFZW6U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933309AbWFZW4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:54:47 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:10456 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1751287AbWFZWym (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:54:42 -0400
-Date: Tue, 27 Jun 2006 00:54:40 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Ben Greear <greearb@candelatech.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Daniel Lezcano <dlezcano@fr.ibm.com>, Andrey Savochkin <saw@swsoft.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       dev@sw.ru, devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-Message-ID: <20060626225440.GA7425@MAIL.13thfloor.at>
-Mail-Followup-To: Ben Greear <greearb@candelatech.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Daniel Lezcano <dlezcano@fr.ibm.com>,
-	Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-	clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-	devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-	Alexey Kuznetsov <alexey@sw.ru>
-References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <m1hd27uaxw.fsf@ebiederm.dsl.xmission.com> <20060626183649.GB3368@MAIL.13thfloor.at> <m1u067r9qk.fsf@ebiederm.dsl.xmission.com> <44A05BFD.6030402@candelatech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A05BFD.6030402@candelatech.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 26 Jun 2006 18:56:30 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:31927 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933306AbWFZWkk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:40:40 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [Suspend2][ 28/35] [Suspend2] Test filewriter target value helper.
+Date: Tue, 27 Jun 2006 08:40:39 +1000
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060626224038.4685.46217.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
+References: <20060626223902.4685.52543.stgit@nigel.suspend2.net>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 03:13:17PM -0700, Ben Greear wrote:
-> Eric W. Biederman wrote:
-> 
-> >Basically it is just a matter of:
-> >if (dest_mac == my_mac1) it is for device 1.
-> >If (dest_mac == my_mac2) it is for device 2.
-> >etc.
-> >
-> >At a small count of macs it is trivial to understand it will go
-> >fast for a larger count of macs it only works with a good data
-> >structure.  We don't hit any extra cache lines of the packet,
-> >and the above test can be collapsed with other routing lookup tests.
-> 
-> I think you should do this at the layer-2 level, well before you get
-> to routing. That will make the virtual mac-vlan work with arbitrary
-> protocols and appear very much like a regular ethernet interface.
-> This approach worked well with .1q vlans, and with my version of the
-> mac-vlan module.
+The helper called either when the user echoes a new value into
+filewriter_target, or when resume2= is checked on boot or when it is reset.
 
-yes, that sounds good to me, any numbers how that
-affects networking in general (performance wise and
-memory wise, i.e. caches and hashes) ...
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-> Using the mac-vlan and source-based routing tables, I can give a
-> unique 'interface' to each process and have each process able to bind
-> to the same IP port, for instance. Using source-based routing (by
-> binding to a local IP explicitly and adding a route table for that
-> source IP), I can give unique default routes to each interface as
-> well. Since we cannot have more than 256 routing tables, this approach
-> is currently limitted to around 250 virtual interfaces, but that is
-> still a substantial amount.
+ kernel/power/suspend_file.c |   30 ++++++++++++++++++++++++++++++
+ 1 files changed, 30 insertions(+), 0 deletions(-)
 
-an typically that would be sufficient IMHO, but
-of course, a more 'general' hash tag would be
-better in the long run ...
+diff --git a/kernel/power/suspend_file.c b/kernel/power/suspend_file.c
+index 2e19aae..9947323 100644
+--- a/kernel/power/suspend_file.c
++++ b/kernel/power/suspend_file.c
+@@ -828,3 +828,33 @@ static void filewriter_set_resume2(void)
+ 	suspend_attempt_to_parse_resume_device();
+ }
+ 
++static int __test_filewriter_target(char *target, int resume_time)
++{
++	filewriter_get_target_info(target, 0, resume_time);
++	if (filewriter_signature_op(GET_IMAGE_EXISTS) > -1) {
++		printk(name_suspend "Filewriter: File signature found.\n");
++		if (!resume_time)
++			filewriter_set_resume2();
++		
++		suspend_bio_ops.set_devinfo(&devinfo);
++		suspend_writer_posn.chains = &block_chain;
++		suspend_writer_posn.num_chains = 1;
++
++		set_suspend_state(SUSPEND_CAN_SUSPEND);
++		return 0;
++	}
++
++	clear_suspend_state(SUSPEND_CAN_SUSPEND);
++
++	if (*target)
++		printk(name_suspend
++			"Filewriter: Sorry. No signature found at %s.\n",
++			target);
++	else
++		if (!resume_time)
++			printk(name_suspend
++				"Filewriter: Sorry. Target is not set for suspending.\n");
++
++	return 1;
++}
++
 
-> My mac-vlan patch, redirect-device patch, and other hackings are
-> consolidated in this patch:
-> 
-> http://www.candelatech.com/oss/candela_2.6.16.patch
-
-great! thanks!
-
-best,
-Herbert
-
-> Thanks,
-> Ben
-> 
-> -- 
-> Ben Greear <greearb@candelatech.com>
-> Candela Technologies Inc  http://www.candelatech.com
+--
+Nigel Cunningham		nigel at suspend2 dot net

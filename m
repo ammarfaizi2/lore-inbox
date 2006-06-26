@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWFZPrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWFZPt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWFZPrN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 11:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWFZPrN
+	id S1750718AbWFZPt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 11:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWFZPt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 11:47:13 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61370 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750715AbWFZPrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 11:47:11 -0400
-Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on
-	i386
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dave Jones <davej@redhat.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060626153834.GA18599@redhat.com>
-References: <20060626151012.GR23314@stusta.de>
-	 <20060626153834.GA18599@redhat.com>
-Content-Type: text/plain
-Date: Mon, 26 Jun 2006 17:46:55 +0200
-Message-Id: <1151336815.3185.61.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 26 Jun 2006 11:49:56 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:3696 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1750718AbWFZPtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 11:49:55 -0400
+Message-ID: <44A00215.2040608@fr.ibm.com>
+Date: Mon, 26 Jun 2006 17:49:41 +0200
+From: Daniel Lezcano <dlezcano@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrey Savochkin <saw@swsoft.com>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
+       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
+       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       ebiederm@xmission.com, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru>
+In-Reply-To: <20060626192751.A989@castle.nmd.msu.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-26 at 11:38 -0400, Dave Jones wrote:
-> On Mon, Jun 26, 2006 at 05:10:12PM +0200, Adrian Bunk wrote:
->  > virt_to_bus/bus_to_virt are long deprecated, mark them as __deprecated 
->  > on i386.
->  > 
->  > Without such warnings people will never update their code and fix 
->  > the errors in PPC64 builds.
+
+> Then you lose the ability for each namespace to have its own routing entries.
+> Which implies that you'll have difficulties with devices that should exist
+> and be visible in one namespace only (like tunnels), as they require IP
+> addresses and route.
+
+I mean instead of having the route tables private to the namespace, the 
+routes have the information to which namespace they are associated.
+
 > 
-> .. and deprecating pm_send_all, cli, sti, restore_flags, check_region yadayada
-> has really been a great success at motivating people to fix those up too.
+>	- keep a "flat" model where network ressources have a new identifier 
+>>which is the network namespace pointer. The idea is to move only some 
+>>network informations private to the namespace (eg port range, stats, ...)
+> 
+> 
+> Sorry, I don't get the second idea with only some information private to
+> namespace.
+> 
+> How do you want TCP_INC_STATS macro look?
 
-cli/sti should just be removed, or at least have those drivers marked
-BROKEN... nobody is apparently using them anyway...
+I was thinking in TCP_INC_STATS(net_ns, field) 
+SNMP_INC_STATS(net_ns->tcp_stat, field)
 
-
-Maybe depreciation needs to go together with a "will mark users broken
-in X days, and will remove entirely in X+Y days".. and then stick to
-it. 
+> In my concept, it would be something like
+> #define TCP_INC_STATS(field) SNMP_INC_STATS(current_net_ns->tcp_stat, field)
+> where tcp_stat is a TCP statistics array inside net_namespace.
 

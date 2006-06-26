@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWFZF1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWFZF2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbWFZF1n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 01:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWFZF1n
+	id S964771AbWFZF2F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 01:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWFZF2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 01:27:43 -0400
-Received: from mo30.po.2iij.net ([210.128.50.53]:4409 "EHLO mo30.po.2iij.net")
-	by vger.kernel.org with ESMTP id S964776AbWFZF1m (ORCPT
+	Mon, 26 Jun 2006 01:28:04 -0400
+Received: from xenotime.net ([66.160.160.81]:46557 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964771AbWFZF2D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 01:27:42 -0400
-Message-Id: <200606260527.k5Q5RSBj044481@mbox31.po.2iij.net>
-Date: Mon, 26 Jun 2006 14:27:28 +0900
-From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yoichi_yuasa@tripeaks.co.jp, ralf@linux-mips.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][MIPS] wire up tee system call
-In-Reply-To: <20060623011148.1a57b6a7.akpm@osdl.org>
-References: <20060623170711.3a6d1ef8.yoichi_yuasa@tripeaks.co.jp>
-	<20060623011148.1a57b6a7.akpm@osdl.org>
-Organization: TriPeaks Corporation
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 26 Jun 2006 01:28:03 -0400
+Date: Sun, 25 Jun 2006 22:30:49 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] IOAT: fix sparse ulong warning
+Message-Id: <20060625223049.f7d2f249.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-On Fri, 23 Jun 2006 01:11:48 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+Fix sparse warning:
+drivers/dma/ioatdma.c:444:32: warning: constant 0xFFFFFFFFFFFFFFC0 is so big it is unsigned long
 
-> On Fri, 23 Jun 2006 17:07:11 +0900
-> Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> wrote:
-> 
-> > This patch wires up tee system call for MIPS.
-> 
-> Thanks.  Was the syscall tested on MIPS?
+Also needs a MAINTAINERS entry.
 
-Yes, I've tested by Jens Axboe's test program(included in his patch).
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/dma/ioatdma_registers.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Yoichi 
+--- linux-2617-g9.orig/drivers/dma/ioatdma_registers.h
++++ linux-2617-g9/drivers/dma/ioatdma_registers.h
+@@ -76,7 +76,7 @@
+ #define IOAT_CHANSTS_OFFSET			0x04	/* 64-bit Channel Status Register */
+ #define IOAT_CHANSTS_OFFSET_LOW			0x04
+ #define IOAT_CHANSTS_OFFSET_HIGH		0x08
+-#define IOAT_CHANSTS_COMPLETED_DESCRIPTOR_ADDR	0xFFFFFFFFFFFFFFC0
++#define IOAT_CHANSTS_COMPLETED_DESCRIPTOR_ADDR	0xFFFFFFFFFFFFFFC0UL
+ #define IOAT_CHANSTS_SOFT_ERR			0x0000000000000010
+ #define IOAT_CHANSTS_DMA_TRANSFER_STATUS	0x0000000000000007
+ #define IOAT_CHANSTS_DMA_TRANSFER_STATUS_ACTIVE	0x0
+
+
+---

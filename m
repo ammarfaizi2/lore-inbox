@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWFZERJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWFZEUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWFZERJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 00:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWFZERJ
+	id S964911AbWFZEUU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 00:20:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWFZEUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 00:17:09 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:18384 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932288AbWFZERI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 00:17:08 -0400
-Date: Sun, 25 Jun 2006 21:17:00 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Ravikiran G Thirumalai <kiran@scalex86.org>, linux-kernel@vger.kernel.org
-Subject: Re: remove __read_mostly?
-In-Reply-To: <20060625115736.d90e1241.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0606252112080.27464@schroedinger.engr.sgi.com>
-References: <20060625115736.d90e1241.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 Jun 2006 00:20:20 -0400
+Received: from smtpauth04.mail.atl.earthlink.net ([209.86.89.64]:7810 "EHLO
+	smtpauth04.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S932272AbWFZEUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 00:20:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=dk20050327; d=mindspring.com;
+  b=SIk48TGOTBs2wFYbup03bRoSVy4tKGn8EqZADvJhRYjfxGaV13SKr5PETNhes6yd;
+  h=Received:Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:X-Mailer:Mime-Version:Content-Type:Content-Transfer-Encoding:X-ELNK-Trace:X-Originating-IP;
+Date: Mon, 26 Jun 2006 00:20:13 -0400
+From: Bill Fink <billfink@mindspring.com>
+To: Harry Edmon <harry@atmos.washington.edu>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Message-Id: <20060626002013.55514734.billfink@mindspring.com>
+In-Reply-To: <449F0570.2090001@atmos.washington.edu>
+References: <4492D5D3.4000303@atmos.washington.edu>
+	<44948EF6.1060201@atmos.washington.edu>
+	<Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
+	<200606191724.31305.ak@suse.de>
+	<Pine.LNX.4.61.0606192017370.31662@ask.diku.dk>
+	<449F0570.2090001@atmos.washington.edu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; powerpc-yellowdog-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ELNK-Trace: c598f748b88b6fd49c7f779228e2f6aeda0071232e20db4dc209a60dc5beaffe44c2a27f1374f8c2350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 68.55.21.22
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jun 2006, Andrew Morton wrote:
+On Sun, 25 Jun 2006, Harry Edmon wrote:
 
-> I'm thinking we should remove __read_mostly.
-> 
-> Because if we use this everywhere where it's supposed to be used, we end up
-> with .bss and .data 100% populated with write-often variables, packed
-> closely together.  The cachelines will really flying around.
+> I understand the saying "beggars can't be choosers", but I have heard nothing on 
+> this issue since June 19th.  Does anyone have any ideas on what is going on?  Is 
+> there more information I can collect that would help diagnose this problem?  And 
+> again, thanks for any and all help!
 
-What we really want is a write-often variable in a cacheline combined with 
-infrequently read and write data. However, data that is frequently read 
-(that is __read_mostly) would still need to be in a separate section.
+Harry,
 
-> IOW: __read_mostly optimises read-mostly variables and pessimises
-> write-often variables.
-> 
-> We want something which optimises both read-mostly and write-often storage.
->  We do that by marking the write-often variables with
-> __cacheline_aligned_in_smp.
-> 
-> OK?
+I'd suggest checking all the ethtool configuration settings
+(ethtool -a, -c, -g, -k) and statistics (ethtool -S) for both
+the working and problematic kernels, and then comparing them
+to see if anything jumps out at you.  Also compare ifconfig
+settings and dmesg output.  Check /proc/interrupts to see if
+there is any difference with the interrupt routing.  Check
+sysctl.conf and rc.local for any special system configuration
+or device settings that might differ between the systems.
 
-I think we would want to group write-often variables with infrequently 
-used variable. But how does one convince the linker to doing that?
+The one thing that has caused me a lot of network performance
+issues on e1000 is having TSO enabled, so if that is enabled
+(check with ethtool -k), then I'd try disabling it to see if
+that helps.
 
-I agree that there is a problem with shift frequently written variables 
-together which may in itself cause ill effects. So __read_mostly should 
-only be used when we have identified real cacheline sharing problems and 
-real cache hot variables may have to be put in a separate cacheline for 
-itself. I think we already do that and that is at least the way I have 
-handled it. Too many __read_mostly kill the whole point of the exercise.
+					-Hope this helps
+
+					-Bill

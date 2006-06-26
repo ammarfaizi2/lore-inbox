@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWFZQmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWFZQph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWFZQmR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 12:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWFZQmR
+	id S1750761AbWFZQph (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 12:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWFZQph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 12:42:17 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25999 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750770AbWFZQmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 12:42:16 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Daniel Lezcano <dlezcano@fr.ibm.com>
-Cc: Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       ebiederm@xmission.com, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-References: <20060609210202.215291000@localhost.localdomain>
-	<20060609210625.144158000@localhost.localdomain>
-	<20060626134711.A28729@castle.nmd.msu.ru>
-	<449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru>
-	<44A00215.2040608@fr.ibm.com>
-Date: Mon, 26 Jun 2006 10:40:59 -0600
-In-Reply-To: <44A00215.2040608@fr.ibm.com> (Daniel Lezcano's message of "Mon,
-	26 Jun 2006 17:49:41 +0200")
-Message-ID: <m1hd27uaxw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Mon, 26 Jun 2006 12:45:37 -0400
+Received: from mx2.suse.de ([195.135.220.15]:65458 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750789AbWFZQph (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 12:45:37 -0400
+From: Andi Kleen <ak@suse.de>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: Alsa update in mainline broke ATI-IXP sound driver II
+Date: Mon, 26 Jun 2006 18:45:32 +0200
+User-Agent: KMail/1.9.3
+Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+References: <200606252139.36002.ak@suse.de> <s5hpsgw9qgz.wl%tiwai@suse.de>
+In-Reply-To: <s5hpsgw9qgz.wl%tiwai@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606261845.32450.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Lezcano <dlezcano@fr.ibm.com> writes:
+On Monday 26 June 2006 12:11, Takashi Iwai wrote:
+> At Sun, 25 Jun 2006 21:39:35 +0200,
+> Andi Kleen wrote:
+> > 
+> > 
+> > Since I updated an ATI x86-64 box to 2.6.17-git6 sound doesn't work anymore.
+> > 
+> > I just get
+> > 
+> > ALSA lib confmisc.c:672:(snd_func_card_driver) cannot find card '0'
+> > ALSA lib conf.c:3493:(_snd_config_evaluate) function snd_func_card_driver returned error: No such device
+> (snip) 
+> > User land is from SUSE 10.0
+> 
+> First check /proc/asound/cards after loading snd-atiixp.  If the ATI
+> IXP entry appears, the device was initialized and set up.  If not,
+> something wrong in the driver initialization.
+> 
+> Then check whether /dev/snd/controlC0 exists.  If not, it's likely a
+> udev thingy.  Possibly upgrading udev package might help...
 
->> Then you lose the ability for each namespace to have its own routing entries.
->> Which implies that you'll have difficulties with devices that should exist
->> and be visible in one namespace only (like tunnels), as they require IP
->> addresses and route.
->
-> I mean instead of having the route tables private to the namespace, the routes
-> have the information to which namespace they are associated.
+First /proc/asound appeared now - in the first try the modules weren't correctly loaded.
+The card is shown there
 
-Is this an implementation difference or is this a user visible difference?
-As an implementation difference this is sensible, as it is pretty insane
-to allocate hash tables at run time.
+ 0 [IXP            ]: ATIIXP - ATI IXP
+                      ATI IXP rev 0 with ALC658D at 0xfe029000, irq 217
 
-As a user visible difference that affects semantics of the operations
-this is not something we want to do.
 
-Eric
+I added some instrumentation to the driver now and the probe function seems
+to run completely - at least it hits its return 0.
+
+The device file is also still there so I don't think udev is to blame.
+
+-Andi
+

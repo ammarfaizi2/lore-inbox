@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWFZOKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWFZONF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWFZOKT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 10:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWFZOKT
+	id S1750758AbWFZONF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 10:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWFZONE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 10:10:19 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:15381 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030223AbWFZOKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 10:10:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pv7vBPqSEHHxDEnHfvkycecjRn07eYRaRYtLEDvg6K98qZT8tEwVWvcEDUFVes8YvdFuoRqX2wQMkgFy7fbJXs6uK395Ds/BZbk72AyQeaUKl/0DN2+tH4jQLCDDqd4CMlaHsrOVHy9IH+MEetEAC/2rLGPGkmPUb9gR1mJ/9PA=
-Message-ID: <d120d5000606260710g5f93773fuf7b94d85830fbed5@mail.gmail.com>
-Date: Mon, 26 Jun 2006 10:10:16 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: [2.6 patch] drivers/input/misc/wistron_btns.c: section fixes
-Cc: mitr@volny.cz, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200606260750.32863.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 26 Jun 2006 10:13:04 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:7811 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750758AbWFZOND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 10:13:03 -0400
+Subject: Re: finding pci_dev from scsi_device
+From: Arjan van de Ven <arjan@infradead.org>
+To: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200606261355.k5QDtcTm013419@wildsau.enemy.org>
+References: <200606261355.k5QDtcTm013419@wildsau.enemy.org>
+Content-Type: text/plain
+Date: Mon, 26 Jun 2006 16:13:01 +0200
+Message-Id: <1151331181.3185.44.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060626103509.GQ23314@stusta.de>
-	 <200606260750.32863.dtor_core@ameritech.net>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/26/06, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> On Monday 26 June 2006 06:35, Adrian Bunk wrote:
-> > This patch contains the following fixes:
-> > - it doesn't make sense to mark a variable on the stack as __initdata
-> > - struct dmi_ids is using the __init dmi_matched()
->
-> Since when did static variables become allocated on stack?
->
+On Mon, 2006-06-26 at 15:55 +0200, Herbert Rosmanith wrote:
+> good day,
+> 
+> Could someone please tell me how to find the corresponding
+> "struct pci_dev *" from a given "struct scsi_device *"?
+> 
+> I've been searching through structures/header files now for
+> quite some time, but cannot find anything.
 
-BTW, if I add __intidata to dmi_ids array GCC (3.4.4) bitches at me:
+looking at my isa bus scsi controller... I'd say that that is a really
+hard question that doesn't even always have an answer ;)
 
-  CC      drivers/input/misc/wistron_btns.o
-drivers/input/misc/wistron_btns.c:345: error: dmi_ids causes a section
-type conflict
-make[1]: *** [drivers/input/misc/wistron_btns.o] Error 1
-make: *** [drivers/input/misc/] Error 2
+can you share with us what you want to do with this?
 
-I have to declare it as "static const struct dmi_system_id __initdata
-dmi_ids[] = {..." for it to compile successfully, but there is a
-comment that we should not use const with __initdata. Although I
-checked the assembly oputput and const __initdata endes up in
-init.data section - exactly where we want it. Wierd...
+Greetings,
+   Arjan van de Ven
 
--- 
-Dmitry

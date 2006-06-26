@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWFZBGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbWFZBGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964991AbWFZBGu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 21:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWFZBGl
+	id S965007AbWFZBGv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 21:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWFZBGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 21:06:41 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:22415 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964991AbWFZA7R
+	Sun, 25 Jun 2006 21:06:33 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:22927 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S965007AbWFZA7V
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:59:17 -0400
-Date: Sun, 25 Jun 2006 17:58:06 -0700
+	Sun, 25 Jun 2006 20:59:21 -0400
+Date: Sun, 25 Jun 2006 17:58:05 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 30/43] parisc support for klibc
-Message-Id: <klibc.200606251757.30@tazenda.hos.anvin.org>
+Subject: [klibc 28/43] mips support for klibc
+Message-Id: <klibc.200606251757.28@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The parts of klibc specific to the parisc architecture.
+The parts of klibc specific to the mips architecture.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit 078d6614054391efe17093f8d70340e2c0644ffb
-tree 63a4bf899e5ca2ef3c0a8e9ef3098273012f7a33
-parent ebd2860ad3dc19cb11fd5b9cc235cab54e9165f4
-author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:36 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:36 -0700
+commit 8dc79563c06020d8844b9e9b821741828039b59e
+tree b957c8fb1fddf486f5c26b1880726051d4f6aaad
+parent bc9b363b31d301ab94c115cccc2e079c0d318498
+author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:31 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:31 -0700
 
- usr/include/arch/parisc/klibc/archconfig.h |   14 ++++
- usr/include/arch/parisc/klibc/archsetjmp.h |   14 ++++
- usr/include/arch/parisc/klibc/archsignal.h |   25 ++++++++
- usr/include/arch/parisc/klibc/archstat.h   |   29 +++++++++
- usr/include/arch/parisc/klibc/archsys.h    |   12 ++++
- usr/klibc/arch/parisc/MCONFIG              |   12 ++++
- usr/klibc/arch/parisc/Makefile.inc         |   16 +++++
- usr/klibc/arch/parisc/crt0.S               |   37 ++++++++++++
- usr/klibc/arch/parisc/setjmp.S             |   88 ++++++++++++++++++++++++++++
- usr/klibc/arch/parisc/syscall.S            |   36 +++++++++++
- usr/klibc/arch/parisc/sysstub.ph           |   28 +++++++++
- 11 files changed, 311 insertions(+), 0 deletions(-)
+ usr/include/arch/mips/klibc/archconfig.h |   15 ++
+ usr/include/arch/mips/klibc/archfcntl.h  |   86 ++++++++++++
+ usr/include/arch/mips/klibc/archsetjmp.h |   39 +++++
+ usr/include/arch/mips/klibc/archsignal.h |   14 ++
+ usr/include/arch/mips/klibc/archstat.h   |   40 ++++++
+ usr/include/arch/mips/klibc/archsys.h    |   12 ++
+ usr/include/arch/mips/machine/asm.h      |   11 ++
+ usr/include/arch/mips/sgidefs.h          |   20 +++
+ usr/include/arch/mips/spaces.h           |    1 
+ usr/klibc/arch/mips/MCONFIG              |   15 ++
+ usr/klibc/arch/mips/Makefile.inc         |   30 ++++
+ usr/klibc/arch/mips/crt0.S               |   25 ++++
+ usr/klibc/arch/mips/klibc.ld             |  214 ++++++++++++++++++++++++++++++
+ usr/klibc/arch/mips/pipe.S               |   16 ++
+ usr/klibc/arch/mips/setjmp.S             |   80 +++++++++++
+ usr/klibc/arch/mips/syscall.S            |   16 ++
+ usr/klibc/arch/mips/sysstub.ph           |   30 ++++
+ usr/klibc/arch/mips/vfork.S              |   16 ++
+ 18 files changed, 680 insertions(+), 0 deletions(-)
 
-diff --git a/usr/include/arch/parisc/klibc/archconfig.h b/usr/include/arch/parisc/klibc/archconfig.h
+diff --git a/usr/include/arch/mips/klibc/archconfig.h b/usr/include/arch/mips/klibc/archconfig.h
 new file mode 100644
-index 0000000..f8ba9e2
+index 0000000..d9528b8
 --- /dev/null
-+++ b/usr/include/arch/parisc/klibc/archconfig.h
-@@ -0,0 +1,14 @@
++++ b/usr/include/arch/mips/klibc/archconfig.h
+@@ -0,0 +1,15 @@
 +/*
-+ * include/arch/parisc/klibc/archconfig.h
++ * include/arch/mips/klibc/archconfig.h
 + *
 + * See include/klibc/sysconfig.h for the options that can be set in
 + * this file.
@@ -58,37 +65,155 @@ index 0000000..f8ba9e2
 +#ifndef _KLIBC_ARCHCONFIG_H
 +#define _KLIBC_ARCHCONFIG_H
 +
-+/* All defaults */
++/* MIPS has architecture-specific code for vfork() */
++#define _KLIBC_REAL_VFORK 1
 +
 +#endif				/* _KLIBC_ARCHCONFIG_H */
-diff --git a/usr/include/arch/parisc/klibc/archsetjmp.h b/usr/include/arch/parisc/klibc/archsetjmp.h
+diff --git a/usr/include/arch/mips/klibc/archfcntl.h b/usr/include/arch/mips/klibc/archfcntl.h
 new file mode 100644
-index 0000000..05e943e
+index 0000000..1f61822
 --- /dev/null
-+++ b/usr/include/arch/parisc/klibc/archsetjmp.h
-@@ -0,0 +1,14 @@
++++ b/usr/include/arch/mips/klibc/archfcntl.h
+@@ -0,0 +1,86 @@
 +/*
-+ * arch/parisc/include/klibc/archsetjmp.h
++ * arch/mips/include/klibc/archfcntl.h
++ *
++ * On MIPS, <asm/fcntl.h> isn't usable (compiling struct stat with
++ * the correct definitions doesn't "just work"), so we need to provide
++ * our own definitions.
++ */
++
++#ifndef _KLIBC_ARCHFCNTL_H
++#define _KLIBC_ARCHFCNTL_H
++
++#ifdef _ASM_FCNTL_H		/* We were too late! */
++# error "<asm/fcntl.h> included before <klibc/archfcntl.h>"
++#endif
++#define _ASM_FCNTL_H		/* Keep <asm/fcntl.h> from getting included */
++
++#define O_ACCMODE	0x0003
++#define O_RDONLY	0x0000
++#define O_WRONLY	0x0001
++#define O_RDWR		0x0002
++#define O_APPEND	0x0008
++#define O_SYNC		0x0010
++#define O_NONBLOCK	0x0080
++#define O_CREAT         0x0100
++#define O_TRUNC		0x0200
++#define O_EXCL		0x0400
++#define O_NOCTTY	0x0800
++#define FASYNC		0x1000
++#define O_LARGEFILE	0x2000
++#define O_DIRECT	0x8000
++#define O_DIRECTORY	0x10000
++#define O_NOFOLLOW	0x20000
++#define O_NOATIME	0x40000
++
++#define O_NDELAY	O_NONBLOCK
++
++#define F_DUPFD		0
++#define F_GETFD		1
++#define F_SETFD		2
++#define F_GETFL		3
++#define F_SETFL		4
++#define F_GETLK		14
++#define F_SETLK		6
++#define F_SETLKW	7
++
++#define F_SETOWN	24
++#define F_GETOWN	23
++#define F_SETSIG	10
++#define F_GETSIG	11
++
++#define F_GETLK64	33
++#define F_SETLK64	34
++#define F_SETLKW64	35
++
++#define FD_CLOEXEC	1
++
++#define F_RDLCK		0
++#define F_WRLCK		1
++#define F_UNLCK		2
++
++#define F_EXLCK		4
++#define F_SHLCK		8
++
++#define F_INPROGRESS	16
++
++#define LOCK_SH		1
++#define LOCK_EX		2
++#define LOCK_NB		4
++#define LOCK_UN		8
++
++#define LOCK_MAND	32
++#define LOCK_READ	64
++#define LOCK_WRITE	128
++#define LOCK_RW		192
++
++typedef struct flock {
++	short	l_type;
++	short	l_whence;
++	loff_t	l_start;
++	loff_t	l_len;
++	pid_t	l_pid;
++} flock_t;
++
++#define F_LINUX_SPECIFIC_BASE	1024
++
++#endif				/* _KLIBC_ARCHFCNTL_H */
+diff --git a/usr/include/arch/mips/klibc/archsetjmp.h b/usr/include/arch/mips/klibc/archsetjmp.h
+new file mode 100644
+index 0000000..1fbe83e
+--- /dev/null
++++ b/usr/include/arch/mips/klibc/archsetjmp.h
+@@ -0,0 +1,39 @@
++/*
++ * arch/mips/include/klibc/archsetjmp.h
 + */
 +
 +#ifndef _KLIBC_ARCHSETJMP_H
 +#define _KLIBC_ARCHSETJMP_H
 +
 +struct __jmp_buf {
-+	double regs[21];
-+};
++	unsigned long __s0;
++	unsigned long __s1;
++	unsigned long __s2;
++	unsigned long __s3;
++	unsigned long __s4;
++	unsigned long __s5;
++	unsigned long __s6;
++	unsigned long __s7;
++	unsigned long __gp;
++	unsigned long __sp;
++	unsigned long __s8;
++	unsigned long __ra;
++	unsigned long __f20;
++	unsigned long __f21;
++	unsigned long __f22;
++	unsigned long __f23;
++	unsigned long __f24;
++	unsigned long __f25;
++	unsigned long __f26;
++	unsigned long __f27;
++	unsigned long __f28;
++	unsigned long __f29;
++	unsigned long __f30;
++	unsigned long __f31;
++	unsigned long __fcr31;
++	unsigned long __unused;
++} __attribute__ ((aligned(8)));
 +
 +typedef struct __jmp_buf jmp_buf[1];
 +
-+#endif				/* _SETJMP_H */
-diff --git a/usr/include/arch/parisc/klibc/archsignal.h b/usr/include/arch/parisc/klibc/archsignal.h
++#endif				/* _KLIBC_ARCHSETJMP_H */
+diff --git a/usr/include/arch/mips/klibc/archsignal.h b/usr/include/arch/mips/klibc/archsignal.h
 new file mode 100644
-index 0000000..256aeea
+index 0000000..b9ca756
 --- /dev/null
-+++ b/usr/include/arch/parisc/klibc/archsignal.h
-@@ -0,0 +1,25 @@
++++ b/usr/include/arch/mips/klibc/archsignal.h
+@@ -0,0 +1,14 @@
 +/*
-+ * arch/parisc/include/klibc/archsignal.h
++ * arch/mips/include/klibc/archsignal.h
 + *
 + * Architecture-specific signal definitions
 + *
@@ -98,63 +223,63 @@ index 0000000..256aeea
 +#define _KLIBC_ARCHSIGNAL_H
 +
 +#include <asm/signal.h>
-+#define _NSIG    64
-+#define _NSIG_SZ (_NSIG / LONG_BIT)
-+
-+typedef struct {
-+	unsigned long sig[_NSIG_SZ];
-+} sigset_t;
-+
-+struct sigaction {
-+	__sighandler_t	sa_handler;
-+	unsigned long	sa_flags;
-+	sigset_t	sa_mask;
-+};
++/* No special stuff for this architecture */
 +
 +#endif
-diff --git a/usr/include/arch/parisc/klibc/archstat.h b/usr/include/arch/parisc/klibc/archstat.h
+diff --git a/usr/include/arch/mips/klibc/archstat.h b/usr/include/arch/mips/klibc/archstat.h
 new file mode 100644
-index 0000000..0b8ef8d
+index 0000000..c1d60d9
 --- /dev/null
-+++ b/usr/include/arch/parisc/klibc/archstat.h
-@@ -0,0 +1,29 @@
++++ b/usr/include/arch/mips/klibc/archstat.h
+@@ -0,0 +1,40 @@
 +#ifndef _KLIBC_ARCHSTAT_H
 +#define _KLIBC_ARCHSTAT_H
 +
-+#include <klibc/stathelp.h>
-+
 +#define _STATBUF_ST_NSEC
 +
++/*
++ * This matches struct stat64 in glibc2.1, hence the absolutely insane
++ * amounts of padding around dev_t's.  The memory layout is the same as of
++ * struct stat of the 64-bit kernel, which makes this one of the sanest
++ * 32-bit struct stats.
++ */
++
 +struct stat {
-+	__stdev64		(st_dev);
-+	unsigned int		__pad1;
++	unsigned int	st_dev;
++	unsigned long	st_pad0[3];	/* Reserved for st_dev expansion  */
 +
-+	unsigned int		__st_ino;	/* Not actually filled in */
-+	unsigned int		st_mode;
-+	unsigned int		st_nlink;
-+	unsigned int		st_uid;
-+	unsigned int		st_gid;
-+	__stdev64		(st_rdev);
-+	unsigned int		__pad2;
-+	signed long long	st_size;
-+	signed int		st_blksize;
++	unsigned long long	st_ino;
 +
-+	signed long long	st_blocks;
++	mode_t		st_mode;
++	nlink_t		st_nlink;
++
++	uid_t		st_uid;
++	gid_t		st_gid;
++
++	unsigned int	st_rdev;
++	unsigned long	st_pad1[3];	/* Reserved for st_rdev expansion  */
++
++	long long	st_size;
++
 +	struct timespec		st_atim;
 +	struct timespec		st_mtim;
 +	struct timespec		st_ctim;
-+	unsigned long long	st_ino;
++
++	unsigned long	st_blksize;
++	unsigned long	st_pad2;
++
++	long long	st_blocks;
 +};
 +
 +#endif
-diff --git a/usr/include/arch/parisc/klibc/archsys.h b/usr/include/arch/parisc/klibc/archsys.h
+diff --git a/usr/include/arch/mips/klibc/archsys.h b/usr/include/arch/mips/klibc/archsys.h
 new file mode 100644
-index 0000000..681ee76
+index 0000000..252d80c
 --- /dev/null
-+++ b/usr/include/arch/parisc/klibc/archsys.h
++++ b/usr/include/arch/mips/klibc/archsys.h
 @@ -0,0 +1,12 @@
 +/*
-+ * arch/parisc/include/klibc/archsys.h
++ * arch/mips/include/klibc/archsys.h
 + *
 + * Architecture-specific syscall definitions
 + */
@@ -165,33 +290,86 @@ index 0000000..681ee76
 +/* No special syscall definitions for this architecture */
 +
 +#endif				/* _KLIBC_ARCHSYS_H */
-diff --git a/usr/klibc/arch/parisc/MCONFIG b/usr/klibc/arch/parisc/MCONFIG
+diff --git a/usr/include/arch/mips/machine/asm.h b/usr/include/arch/mips/machine/asm.h
 new file mode 100644
-index 0000000..83c2e9e
+index 0000000..f524bc6
 --- /dev/null
-+++ b/usr/klibc/arch/parisc/MCONFIG
-@@ -0,0 +1,12 @@
++++ b/usr/include/arch/mips/machine/asm.h
+@@ -0,0 +1,11 @@
++/*
++ * arch/mips/include/machine/asm.h
++ */
++
++#ifndef _MACHINE_ASM_H
++#define _MACHINE_ASM_H
++
++#include <asm/regdef.h>
++#include <asm/asm.h>
++
++#endif				/* _MACHINE_ASM_H */
+diff --git a/usr/include/arch/mips/sgidefs.h b/usr/include/arch/mips/sgidefs.h
+new file mode 100644
+index 0000000..fba8ae8
+--- /dev/null
++++ b/usr/include/arch/mips/sgidefs.h
+@@ -0,0 +1,20 @@
++/*
++ * arch/mips/include/sgidefs.h
++ */
++
++/* Some ABI constants */
++
++#ifndef _SGIDEFS_H
++#define _SGIDEFS_H
++
++#define _MIPS_ISA_MIPS1 1
++#define _MIPS_ISA_MIPS2 2
++#define _MIPS_ISA_MIPS3 3
++#define _MIPS_ISA_MIPS4 4
++#define _MIPS_ISA_MIPS5 5
++
++#define _MIPS_SIM_ABI32         1
++#define _MIPS_SIM_NABI32        2
++#define _MIPS_SIM_ABI64         3
++
++#endif				/* _SGIDEFS_H */
+diff --git a/usr/include/arch/mips/spaces.h b/usr/include/arch/mips/spaces.h
+new file mode 100644
+index 0000000..b5f530b
+--- /dev/null
++++ b/usr/include/arch/mips/spaces.h
+@@ -0,0 +1 @@
++/* Included by <asm/page.h> but not actually needed */
+diff --git a/usr/klibc/arch/mips/MCONFIG b/usr/klibc/arch/mips/MCONFIG
+new file mode 100644
+index 0000000..fd70500
+--- /dev/null
++++ b/usr/klibc/arch/mips/MCONFIG
+@@ -0,0 +1,15 @@
 +# -*- makefile -*-
 +#
-+# arch/parisc/MCONFIG
++# arch/mips/MCONFIG
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
 +# accordingly.
 +#
 +
-+KLIBCOPTFLAGS = -Os -fomit-frame-pointer
-+KLIBCBITSIZE  = 32
-+KLIBCSHAREDFLAGS	= -Ttext 0x40001000
-diff --git a/usr/klibc/arch/parisc/Makefile.inc b/usr/klibc/arch/parisc/Makefile.inc
++KLIBCARCHREQFLAGS = -fno-pic -mno-abicalls -G 0
++KLIBCOPTFLAGS     = -Os
++KLIBCBITSIZE      = 32
++
++# Extra linkflags when building the shared version of the library
++KLIBCSHAREDFLAGS	= -T $(src)/arch/$(KLIBCARCH)/klibc.ld
+diff --git a/usr/klibc/arch/mips/Makefile.inc b/usr/klibc/arch/mips/Makefile.inc
 new file mode 100644
-index 0000000..f479a6c
+index 0000000..311bdfc
 --- /dev/null
-+++ b/usr/klibc/arch/parisc/Makefile.inc
-@@ -0,0 +1,16 @@
++++ b/usr/klibc/arch/mips/Makefile.inc
+@@ -0,0 +1,30 @@
 +# -*- makefile -*-
 +#
-+# arch/parisc/Makefile.inc
++# arch/mips/Makefile.inc
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
@@ -199,222 +377,462 @@ index 0000000..f479a6c
 +#
 +
 +KLIBCARCHOBJS = \
++	arch/$(KLIBCARCH)/pipe.o \
++	arch/$(KLIBCARCH)/vfork.o \
 +	arch/$(KLIBCARCH)/setjmp.o \
-+	arch/$(KLIBCARCH)/syscall.o
++	arch/$(KLIBCARCH)/syscall.o \
++	libgcc/__clzsi2.o \
++	libgcc/__clzdi2.o \
++	libgcc/__ashldi3.o \
++	libgcc/__ashrdi3.o \
++	libgcc/__lshrdi3.o \
++	libgcc/__divdi3.o \
++        libgcc/__moddi3.o \
++        libgcc/__udivdi3.o \
++	libgcc/__umoddi3.o \
++        libgcc/__udivmoddi4.o
 +
-+KLIBCARCHOOBJS = $(patsubst %o,%.lo,%(KLIBCARCHOBJS))
++
++KLIBCARCHSOOBJS = $(patsubst %.o,%.lo,$(KLIBCARCHOBJS))
++
 +
 +archclean:
-diff --git a/usr/klibc/arch/parisc/crt0.S b/usr/klibc/arch/parisc/crt0.S
+diff --git a/usr/klibc/arch/mips/crt0.S b/usr/klibc/arch/mips/crt0.S
 new file mode 100644
-index 0000000..0922446
+index 0000000..142d9f2
 --- /dev/null
-+++ b/usr/klibc/arch/parisc/crt0.S
-@@ -0,0 +1,37 @@
-+	.align 4
++++ b/usr/klibc/arch/mips/crt0.S
+@@ -0,0 +1,25 @@
++#
++# arch/mips/crt0.S
++#
++# Does arch-specific initialization and invokes __libc_init
++# with the appropriate arguments.
++#
++# See __static_init.c or __shared_init.c for the expected
++# arguments.
++#
 +
-+	.import $global$, data
-+	.import __libc_init, code
++#include <machine/asm.h>
 +
-+	.global _start
-+	.export _start, ENTRY
-+	.type _start,@function
++NESTED(__start, 32, sp)
++	subu	sp, 32
++	sw	zero, 16(sp)
 +
-+	.proc
-+	.callinfo
++	lui	gp, %hi(_gp)		# Initialize gp
++	addiu	gp, gp, _gp
 +
-+_start:
-+/* extend the stack by 64-bytes */
-+	ldo	64(%sp), %sp
++	addiu	a0, sp, 32		# Pointer to ELF entry structure
++	move	a1, v0			# Kernel-provided atexit() pointer
 +
-+/* %r25 = argc
-+ * %r24 = argv
-+ * envp = argv + (argc + 1)
-+ * elfdata = (argv - 4)
-+ */
-+	ldo	-4(%r24), %r26
++	jal	__libc_init
 +
-+/* load global data */
-+	ldil	L%$global$, %dp
-+	ldo	R%$global$(%dp), %dp
-+
-+/* parisc abi puts the atexit pointer in %r23, see ELF_PLAT_INIT() */
-+	copy	%r23, %r25
-+
-+/* branch to __libc_init */
-+	bl	__libc_init,%r2
-+	nop
-+/* break miserably if we ever return */
-+	iitlbp	%r0,(%sr0,%r0) /* illegal instruction */
-+	nop
-+	.procend
-diff --git a/usr/klibc/arch/parisc/setjmp.S b/usr/klibc/arch/parisc/setjmp.S
++	END(__start)
+diff --git a/usr/klibc/arch/mips/klibc.ld b/usr/klibc/arch/mips/klibc.ld
 new file mode 100644
-index 0000000..c8d766c
+index 0000000..5a2a7a6
 --- /dev/null
-+++ b/usr/klibc/arch/parisc/setjmp.S
-@@ -0,0 +1,88 @@
-+/*
-+ * parisc specific setjmp/longjmp routines
-+ *
-+ */
++++ b/usr/klibc/arch/mips/klibc.ld
+@@ -0,0 +1,214 @@
++/* Linker script for klibc.so, needed because of the the damned
++   GNU ld script headers problem */
 +
-+        .text
-+        .align 4
-+        .global setjmp
-+        .export setjmp, code
-+        .proc
-+        .callinfo
-+setjmp:
-+        stw     %r3,0(%r26)
-+        stw     %r4,8(%r26)
-+        stw     %r5,12(%r26)
-+        stw     %r6,16(%r26)
-+        stw     %r7,20(%r26)
-+        stw     %r8,24(%r26)
-+        stw     %r9,28(%r26)
-+        stw     %r10,32(%r26)
-+        stw     %r11,36(%r26)
-+        stw     %r12,40(%r26)
-+        stw     %r13,44(%r26)
-+        stw     %r14,48(%r26)
-+        stw     %r15,52(%r26)
-+        stw     %r16,56(%r26)
-+        stw     %r17,60(%r26)
-+        stw     %r18,64(%r26)
-+        stw     %r19,68(%r26)
-+        stw     %r27,72(%r26)
-+        stw     %r30,76(%r26)
-+        stw     %rp,80(%r26)
-+        ldo     88(%r26),%r19
-+        fstd,ma %fr12,8(%r19)
-+        fstd,ma %fr13,8(%r19)
-+        fstd,ma %fr14,8(%r19)
-+        fstd,ma %fr15,8(%r19)
-+        fstd,ma %fr16,8(%r19)
-+        fstd,ma %fr17,8(%r19)
-+        fstd,ma %fr18,8(%r19)
-+        fstd,ma %fr19,8(%r19)
-+        fstd,ma %fr20,8(%r19)
-+        fstd     %fr21,0(%r19)
-+        bv       %r0(%rp)
-+        copy     %r0,%r28
-+	.procend
-+
-+	.text
-+	.align 4
-+	.global longjmp
-+	.export longjmp, code
-+	.proc
-+	.callinfo
-+longjmp:
-+        ldw     0(%r26),%r3
-+        ldw     8(%r26),%r4
-+        ldw     12(%r26),%r5
-+        ldw     16(%r26),%r6
-+        ldw     20(%r26),%r7
-+        ldw     24(%r26),%r8
-+        ldw     28(%r26),%r9
-+        ldw     32(%r26),%r10
-+        ldw     36(%r26),%r11
-+        ldw     40(%r26),%r12
-+        ldw     44(%r26),%r13
-+        ldw     48(%r26),%r14
-+        ldw     52(%r26),%r15
-+        ldw     56(%r26),%r16
-+        ldw     60(%r26),%r17
-+        ldw     64(%r26),%r18
-+        ldw     68(%r26),%r19
-+        ldw     72(%r26),%r27
-+        ldw     76(%r26),%r30
-+        ldw     80(%r26),%rp
-+        ldo     88(%r26),%r20
-+        fldd,ma 8(%r20),%fr12
-+        fldd,ma 8(%r20),%fr13
-+        fldd,ma 8(%r20),%fr14
-+        fldd,ma 8(%r20),%fr15
-+        fldd,ma 8(%r20),%fr16
-+        fldd,ma 8(%r20),%fr17
-+        fldd,ma 8(%r20),%fr18
-+        fldd,ma 8(%r20),%fr19
-+        fldd,ma 8(%r20),%fr20
-+        fldd    0(%r20),%fr21
-+        bv      %r0(%rp)
-+        copy    %r25,%r28
-+        .procend
-diff --git a/usr/klibc/arch/parisc/syscall.S b/usr/klibc/arch/parisc/syscall.S
++ENTRY(__start)
++SECTIONS
++{
++  /* Read-only sections, merged into text segment: */
++  /* This address needs to be reachable using normal inter-module
++      calls, and work on the memory models for this architecture */
++  /* 2 MB -- the normal starting point for text is 4 MB */
++  . = 0x00200400;
++  .interp         : { *(.interp) }
++  .reginfo        : { *(.reginfo) }
++  .dynamic        : { *(.dynamic) }
++  .hash           : { *(.hash) }
++  .dynsym         : { *(.dynsym) }
++  .dynstr         : { *(.dynstr) }
++  .gnu.version    : { *(.gnu.version) }
++  .gnu.version_d  : { *(.gnu.version_d) }
++  .gnu.version_r  : { *(.gnu.version_r) }
++  .rel.dyn        :
++    {
++      *(.rel.init)
++      *(.rel.text .rel.text.* .rel.gnu.linkonce.t.*)
++      *(.rel.fini)
++      *(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.*)
++      *(.rel.data .rel.data.* .rel.gnu.linkonce.d.*)
++      *(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.*)
++      *(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.*)
++      *(.rel.ctors)
++      *(.rel.dtors)
++      *(.rel.got)
++      *(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.*)
++      *(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.*)
++      *(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.*)
++      *(.rel.sbss2 .rel.sbss2.* .rel.gnu.linkonce.sb2.*)
++      *(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.*)
++    }
++  .rela.dyn       :
++    {
++      *(.rela.init)
++      *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
++      *(.rela.fini)
++      *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
++      *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
++      *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
++      *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
++      *(.rela.ctors)
++      *(.rela.dtors)
++      *(.rela.got)
++      *(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.*)
++      *(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.*)
++      *(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.*)
++      *(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.*)
++      *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
++    }
++  .rel.plt        : { *(.rel.plt) }
++  .rela.plt       : { *(.rela.plt) }
++  .init           :
++  {
++    KEEP (*(.init))
++  } =0
++  .plt            : { *(.plt) }
++  .text           :
++  {
++    _ftext = . ;
++    *(.text .stub .text.* .gnu.linkonce.t.*)
++    /* .gnu.warning sections are handled specially by elf32.em.  */
++    *(.gnu.warning)
++    *(.mips16.fn.*) *(.mips16.call.*)
++  } =0
++  .fini           :
++  {
++    KEEP (*(.fini))
++  } =0
++  PROVIDE (__etext = .);
++  PROVIDE (_etext = .);
++  PROVIDE (etext = .);
++  .rodata         : { *(.rodata .rodata.* .gnu.linkonce.r.*) }
++  .rodata1        : { *(.rodata1) }
++  .sdata2         : { *(.sdata2 .sdata2.* .gnu.linkonce.s2.*) }
++  .sbss2          : { *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*) }
++  .eh_frame_hdr : { *(.eh_frame_hdr) }
++  /* Adjust the address for the data segment.  We want to adjust up to
++     the same address within the page on the next page up.  */
++  . = ALIGN(8192);
++  /* Ensure the __preinit_array_start label is properly aligned.  We
++     could instead move the label definition inside the section, but
++     the linker would then create the section even if it turns out to
++     be empty, which isn't pretty.  */
++  . = ALIGN(32 / 8);
++  PROVIDE (__preinit_array_start = .);
++  .preinit_array     : { *(.preinit_array) }
++  PROVIDE (__preinit_array_end = .);
++  PROVIDE (__init_array_start = .);
++  .init_array     : { *(.init_array) }
++  PROVIDE (__init_array_end = .);
++  PROVIDE (__fini_array_start = .);
++  .fini_array     : { *(.fini_array) }
++  PROVIDE (__fini_array_end = .);
++  .data           :
++  {
++    _fdata = . ;
++    *(.data .data.* .gnu.linkonce.d.*)
++    SORT(CONSTRUCTORS)
++  }
++  .data1          : { *(.data1) }
++  .tdata	  : { *(.tdata .tdata.* .gnu.linkonce.td.*) }
++  .tbss		  : { *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon) }
++  .eh_frame       : { KEEP (*(.eh_frame)) }
++  .gcc_except_table   : { *(.gcc_except_table) }
++  .ctors          :
++  {
++    /* gcc uses crtbegin.o to find the start of
++       the constructors, so we make sure it is
++       first.  Because this is a wildcard, it
++       doesn't matter if the user does not
++       actually link against crtbegin.o; the
++       linker won't look for a file to match a
++       wildcard.  The wildcard also means that it
++       doesn't matter which directory crtbegin.o
++       is in.  */
++    KEEP (*crtbegin*.o(.ctors))
++    /* We don't want to include the .ctor section from
++       from the crtend.o file until after the sorted ctors.
++       The .ctor section from the crtend file contains the
++       end of ctors marker and it must be last */
++    KEEP (*(EXCLUDE_FILE (*crtend*.o ) .ctors))
++    KEEP (*(SORT(.ctors.*)))
++    KEEP (*(.ctors))
++  }
++  .dtors          :
++  {
++    KEEP (*crtbegin*.o(.dtors))
++    KEEP (*(EXCLUDE_FILE (*crtend*.o ) .dtors))
++    KEEP (*(SORT(.dtors.*)))
++    KEEP (*(.dtors))
++  }
++  .jcr            : { KEEP (*(.jcr)) }
++  _gp = ALIGN(16) + 0x7ff0;
++  .got            : { *(.got.plt) *(.got) }
++  /* We want the small data sections together, so single-instruction offsets
++     can access them all, and initialized data all before uninitialized, so
++     we can shorten the on-disk segment size.  */
++  .sdata          :
++  {
++    *(.sdata .sdata.* .gnu.linkonce.s.*)
++  }
++  .lit8           : { *(.lit8) }
++  .lit4           : { *(.lit4) }
++  _edata = .;
++  PROVIDE (edata = .);
++  __bss_start = .;
++  _fbss = .;
++  .sbss           :
++  {
++    PROVIDE (__sbss_start = .);
++    PROVIDE (___sbss_start = .);
++    *(.dynsbss)
++    *(.sbss .sbss.* .gnu.linkonce.sb.*)
++    *(.scommon)
++    PROVIDE (__sbss_end = .);
++    PROVIDE (___sbss_end = .);
++  }
++  .bss            :
++  {
++   *(.dynbss)
++   *(.bss .bss.* .gnu.linkonce.b.*)
++   *(COMMON)
++   /* Align here to ensure that the .bss section occupies space up to
++      _end.  Align after .bss to ensure correct alignment even if the
++      .bss section disappears because there are no input sections.  */
++   . = ALIGN(32 / 8);
++  }
++  . = ALIGN(32 / 8);
++  _end = .;
++  PROVIDE (end = .);
++  /* Stabs debugging sections.  */
++  .stab          0 : { *(.stab) }
++  .stabstr       0 : { *(.stabstr) }
++  .stab.excl     0 : { *(.stab.excl) }
++  .stab.exclstr  0 : { *(.stab.exclstr) }
++  .stab.index    0 : { *(.stab.index) }
++  .stab.indexstr 0 : { *(.stab.indexstr) }
++  .comment       0 : { *(.comment) }
++  /* DWARF debug sections.
++     Symbols in the DWARF debugging sections are relative to the beginning
++     of the section so we begin them at 0.  */
++  /* DWARF 1 */
++  .debug          0 : { *(.debug) }
++  .line           0 : { *(.line) }
++  /* GNU DWARF 1 extensions */
++  .debug_srcinfo  0 : { *(.debug_srcinfo) }
++  .debug_sfnames  0 : { *(.debug_sfnames) }
++  /* DWARF 1.1 and DWARF 2 */
++  .debug_aranges  0 : { *(.debug_aranges) }
++  .debug_pubnames 0 : { *(.debug_pubnames) }
++  /* DWARF 2 */
++  .debug_info     0 : { *(.debug_info .gnu.linkonce.wi.*) }
++  .debug_abbrev   0 : { *(.debug_abbrev) }
++  .debug_line     0 : { *(.debug_line) }
++  .debug_frame    0 : { *(.debug_frame) }
++  .debug_str      0 : { *(.debug_str) }
++  .debug_loc      0 : { *(.debug_loc) }
++  .debug_macinfo  0 : { *(.debug_macinfo) }
++  /* SGI/MIPS DWARF 2 extensions */
++  .debug_weaknames 0 : { *(.debug_weaknames) }
++  .debug_funcnames 0 : { *(.debug_funcnames) }
++  .debug_typenames 0 : { *(.debug_typenames) }
++  .debug_varnames  0 : { *(.debug_varnames) }
++  .gptab.sdata : { *(.gptab.data) *(.gptab.sdata) }
++  .gptab.sbss : { *(.gptab.bss) *(.gptab.sbss) }
++  /DISCARD/ : { *(.note.GNU-stack) }
++}
+diff --git a/usr/klibc/arch/mips/pipe.S b/usr/klibc/arch/mips/pipe.S
 new file mode 100644
-index 0000000..0ff2a65
+index 0000000..02b9405
 --- /dev/null
-+++ b/usr/klibc/arch/parisc/syscall.S
-@@ -0,0 +1,36 @@
-+/*
-+ * arch/parisc/syscall.S
-+ *
-+ * %r20 contains the system call number, %r2 contains whence we came
-+ *
-+ */
++++ b/usr/klibc/arch/mips/pipe.S
+@@ -0,0 +1,16 @@
++#include <asm/asm.h>
++#include <asm/regdef.h>
++#include <asm/unistd.h>
 +
-+	.text
-+	.align 64				; cache-width aligned
-+	.globl	__syscall_common
-+	.type	__syscall_common,@function
-+__syscall_common:
-+	ldo 		0x40(%sp),%sp
-+	stw 		%rp,-0x54(%sp)		; save return pointer
-+
-+	ldw 		-0x74(%sp),%r22		; %arg4
-+	ldw 		-0x78(%sp),%r21		; %arg5
-+
-+	ble		0x100(%sr2, %r0)	; jump to gateway page
-+	nop					; can we move a load here?
-+
-+	ldi		-0x1000,%r19		; %r19 = -4096
-+	sub		%r0,%ret0,%r22		; %r22 = -%ret0
-+	cmpb,>>=,n	%r19,%ret0,1f		; if %ret0 >= -4096UL
-+	ldi		-1,%ret0		; nullified on taken forward
-+
-+	/* store %r22 to errno... */
-+	ldil		L%errno,%r1
-+	ldo		R%errno(%r1),%r1
-+	stw		%r22,0(%r1)
-+1:
-+	ldw 		-0x54(%sp),%rp		; restore return pointer
-+	bv		%r0(%rp)		; jump back
-+	ldo 		-0x40(%sp),%sp
-+
-+	.size __syscall_common,.-__syscall_common
-diff --git a/usr/klibc/arch/parisc/sysstub.ph b/usr/klibc/arch/parisc/sysstub.ph
++LEAF(pipe)
++	li	v0, __NR_pipe
++	syscall
++	bnez	a3, 1f
++	sw	v0,  (a0)
++	sw	v1, 4(a0)
++	li	v0, 0
++	b	2f
++1:	sw	v0, errno
++	li	v0, -1
++2:	jr	ra
++	END(pipe)
+diff --git a/usr/klibc/arch/mips/setjmp.S b/usr/klibc/arch/mips/setjmp.S
 new file mode 100644
-index 0000000..e2196ac
+index 0000000..68eed19
 --- /dev/null
-+++ b/usr/klibc/arch/parisc/sysstub.ph
-@@ -0,0 +1,28 @@
++++ b/usr/klibc/arch/mips/setjmp.S
+@@ -0,0 +1,80 @@
++#
++# arch/mips/setjmp.S
++#
++# setjmp/longjmp for the MIPS architecture
++#
++# The jmp_buf is assumed to contain the following, in order:
++#	s0..s7
++#	gp
++#	sp
++#	s8
++#	ra
++#	f20..f31
++#	fcr31
++#
++
++#include <machine/asm.h>
++
++LEAF(setjmp)
++	sw	s0,  0(a0)
++	sw	s1,  4(a0)
++	sw	s2,  8(a0)
++	sw	s3, 12(a0)
++	sw	s4, 16(a0)
++	sw	s5, 20(a0)
++	sw	s6, 24(a0)
++	sw	s7, 28(a0)
++	sw	gp, 32(a0)
++	sw	sp, 36(a0)
++	sw	s8, 40(a0)
++	sw	ra, 44(a0)
++	cfc1	t0,$31
++	swc1	$f20,48(a0)
++	swc1	$f21,52(a0)
++	swc1	$f22,56(a0)
++	swc1	$f23,60(a0)
++	swc1	$f24,64(a0)
++	swc1	$f25,68(a0)
++	swc1	$f26,72(a0)
++	swc1	$f27,76(a0)
++	swc1	$f28,80(a0)
++	swc1	$f29,84(a0)
++	swc1	$f30,88(a0)
++	swc1	$f31,92(a0)
++	sw	t0,96(a0)
++	move	v0,zero
++	jr	ra
++
++	END(setjmp)
++
++LEAF(longjmp)
++	lw	s0,  0(a0)
++	lw	s1,  4(a0)
++	lw	s2,  8(a0)
++	lw	s3, 12(a0)
++	lw	s4, 16(a0)
++	lw	s5, 20(a0)
++	lw	s6, 24(a0)
++	lw	s7, 28(a0)
++	lw	gp, 32(a0)
++	lw	sp, 36(a0)
++	lw	s8, 40(a0)
++	lw	ra, 44(a0)
++	lw	t0, 96(a0)
++	lwc1	$f20,48(a0)
++	lwc1	$f21,52(a0)
++	lwc1	$f22,56(a0)
++	lwc1	$f23,60(a0)
++	lwc1	$f24,64(a0)
++	lwc1	$f25,68(a0)
++	lwc1	$f26,72(a0)
++	lwc1	$f27,76(a0)
++	lwc1	$f28,80(a0)
++	lwc1	$f29,84(a0)
++	lwc1	$f30,88(a0)
++	lwc1	$f31,92(a0)
++	ctc1	t0,$31
++	move	v0,a1
++	jr	ra
++
++	END(longjmp)
+diff --git a/usr/klibc/arch/mips/syscall.S b/usr/klibc/arch/mips/syscall.S
+new file mode 100644
+index 0000000..9f308df
+--- /dev/null
++++ b/usr/klibc/arch/mips/syscall.S
+@@ -0,0 +1,16 @@
++#include <asm/asm.h>
++#include <asm/regdef.h>
++#include <asm/unistd.h>
++
++	.set noreorder
++
++LEAF(__syscall_common)
++	syscall
++        beqz    a3, 1f
++	# sw is actually two instructions; the first one goes
++	# in the branch delay slot
++	# XXX: Break this up manually; as it is now it generates warnings.
++        sw      v0, errno
++        li      v0, -1
++1:      jr      ra
++	END(__syscall_common)
+diff --git a/usr/klibc/arch/mips/sysstub.ph b/usr/klibc/arch/mips/sysstub.ph
+new file mode 100644
+index 0000000..a71d5d0
+--- /dev/null
++++ b/usr/klibc/arch/mips/sysstub.ph
+@@ -0,0 +1,30 @@
 +# -*- perl -*-
 +#
-+# arch/parisc/sysstub.ph
++# arch/mips/sysstub.ph
 +#
 +# Script to generate system call stubs
 +#
 +
++# On MIPS, most system calls follow the standard convention, with the
++# system call number in r0 (v0), return an error value in r19 (a3) as
++# well as the return value in r0 (v0).
++
 +sub make_sysstub($$$$$@) {
 +    my($outputdir, $fname, $type, $sname, $stype, @args) = @_;
 +
++    $stype = $stype || 'common';
 +    open(OUT, '>', "${outputdir}/${fname}.S");
++    print OUT "#include <asm/asm.h>\n";
++    print OUT "#include <asm/regdef.h>\n";
 +    print OUT "#include <asm/unistd.h>\n";
 +    print OUT "\n";
-+    print OUT "\t.text\n";
-+    print OUT "\t.align 4\n";
-+    print OUT "\t.import __syscall_common, code\n";
-+    print OUT "\t.global ${fname}\n";
-+    print OUT "\t.export ${fname}, code\n";
-+    print OUT "\t.proc\n";
-+    print OUT "\.callinfo\n";
-+    print OUT "${fname}:\n";
-+    print OUT "\tb\t__syscall_common\n";
-+    print OUT "\t  ldo\t__NR_${sname}(%r0),%r20\n";
-+    print OUT "\t.procend\n";
++    print OUT "\t.set noreorder\n";
++    print OUT "\n";
++    print OUT "LEAF(${fname})\n";
++    print OUT "\tj\t__syscall_${stype}\n";
++    print OUT "\t  li\tv0, __NR_${sname}\n";
++    print OUT "\tEND(${fname})\n";
 +    close(OUT);
 +}
 +
 +1;
+diff --git a/usr/klibc/arch/mips/vfork.S b/usr/klibc/arch/mips/vfork.S
+new file mode 100644
+index 0000000..f9f035b
+--- /dev/null
++++ b/usr/klibc/arch/mips/vfork.S
+@@ -0,0 +1,16 @@
++#include <asm/asm.h>
++#include <asm/regdef.h>
++#include <asm/unistd.h>
++
++#define CLONE_VM	0x00000100
++#define CLONE_VFORK	0x00004000
++#define SIGCHLD		18
++
++	.set noreorder
++
++LEAF(vfork)
++	li	a0, CLONE_VFORK | CLONE_VM | SIGCHLD
++	li	a1, 0
++	j	__syscall_common
++	  li	v0, __NR_clone
++	END(vfork)

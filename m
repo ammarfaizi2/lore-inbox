@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWFZXcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWFZXcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030203AbWFZXcK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWFZXcJ
+	id S1030238AbWFZXcf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:32:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWFZXcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:32:09 -0400
-Received: from dh134.citi.umich.edu ([141.211.133.134]:28062 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S1030203AbWFZXcF
+	Mon, 26 Jun 2006 19:32:11 -0400
+Received: from dh134.citi.umich.edu ([141.211.133.134]:28830 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S1030234AbWFZXcH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 19:32:05 -0400
+	Mon, 26 Jun 2006 19:32:07 -0400
 From: Trond Myklebust <Trond.Myklebust@netapp.com>
-Subject: [PATCH 1/2] NFS: Fix NFS page_state usage
-Date: Mon, 26 Jun 2006 19:32:04 -0400
+Subject: [PATCH 2/2] NFS: missing set_page_writeback()/end_page_writeback() in nfs_cancel_requests
+Date: Mon, 26 Jun 2006 19:32:07 -0400
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, nfs@lists.sourceforge.net
-Message-Id: <20060626233204.6228.86324.stgit@lade.trondhjem.org>
+Message-Id: <20060626233206.6228.95805.stgit@lade.trondhjem.org>
+In-Reply-To: <20060626233204.6228.86324.stgit@lade.trondhjem.org>
+References: <20060626233204.6228.86324.stgit@lade.trondhjem.org>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.10
@@ -23,33 +25,56 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Trond Myklebust <Trond.Myklebust@netapp.com>
 
-The introduction of the FLUSH_INVALIDATE argument to nfs_sync_inode_wait()
-can cause the nr_unstable page state counter to be corrupted. Fix by
-moving the call to sub_page_state() to inside nfs_scan_commit().
-
 Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
 ---
 
- fs/nfs/write.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ fs/nfs/write.c |   22 +++++++++++++++++++---
+ 1 files changed, 19 insertions(+), 3 deletions(-)
 
 diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index b383fdd..d054f12 100644
+index d054f12..fe3eb36 100644
 --- a/fs/nfs/write.c
 +++ b/fs/nfs/write.c
-@@ -636,6 +636,7 @@ nfs_scan_commit(struct inode *inode, str
- 	if (nfsi->ncommit != 0) {
- 		res = nfs_scan_list(nfsi, &nfsi->commit, dst, idx_start, npages);
- 		nfsi->ncommit -= res;
-+		sub_page_state(nr_unstable,res);
- 		if ((nfsi->ncommit == 0) != list_empty(&nfsi->commit))
- 			printk(KERN_ERR "NFS: desynchronized value of nfs_i.ncommit.\n");
- 	}
-@@ -1434,7 +1435,6 @@ static void nfs_commit_done(struct rpc_t
- 		nfs_clear_page_writeback(req);
- 		res++;
- 	}
--	sub_page_state(nr_unstable,res);
+@@ -579,7 +579,23 @@ static int nfs_wait_on_requests(struct i
+ 	return ret;
  }
  
- static const struct rpc_call_ops nfs_commit_ops = {
+-static void nfs_cancel_requests(struct list_head *head)
++static void nfs_cancel_dirty_list(struct list_head *head)
++{
++	struct nfs_page *req;
++	while(!list_empty(head)) {
++		req = nfs_list_entry(head->next);
++		nfs_list_remove_request(req);
++		/* Hack, cough, splutter!
++		 * Wretched borken mm requires us to do this...
++		 */
++		set_page_writeback(req->wb_page);
++		end_page_writeback(req->wb_page);
++		nfs_inode_remove_request(req);
++		nfs_clear_page_writeback(req);
++	}
++}
++
++static void nfs_cancel_commit_list(struct list_head *head)
+ {
+ 	struct nfs_page *req;
+ 	while(!list_empty(head)) {
+@@ -1503,7 +1519,7 @@ int nfs_sync_inode_wait(struct inode *in
+ 		if (pages != 0) {
+ 			spin_unlock(&nfsi->req_lock);
+ 			if (how & FLUSH_INVALIDATE)
+-				nfs_cancel_requests(&head);
++				nfs_cancel_dirty_list(&head);
+ 			else
+ 				ret = nfs_flush_list(inode, &head, pages, how);
+ 			spin_lock(&nfsi->req_lock);
+@@ -1516,7 +1532,7 @@ int nfs_sync_inode_wait(struct inode *in
+ 			break;
+ 		if (how & FLUSH_INVALIDATE) {
+ 			spin_unlock(&nfsi->req_lock);
+-			nfs_cancel_requests(&head);
++			nfs_cancel_commit_list(&head);
+ 			spin_lock(&nfsi->req_lock);
+ 			continue;
+ 		}

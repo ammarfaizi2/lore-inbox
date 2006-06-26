@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWFZI06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWFZIai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWFZI06 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 04:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWFZI06
+	id S964932AbWFZIai (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 04:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWFZIai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 04:26:58 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:1892 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964923AbWFZI05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 04:26:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=UZeSmOXSmXCPuW0rBihZQl+2456W2mm4MiceYBn4HF+1h+FRX0cKU4/P9F4CRFrY4u5MZ5Kx4LW8qbmqmjErLcldzS/9l3T1jfyIIN+czNDrdpSziOoxLa5YVu6fSMlHhGa7IEUICOTcnoSjv8FrDjMjC/WX//uRI5pwwK5lo78=
-Message-ID: <449F9B4C.6000404@innova-card.com>
-Date: Mon, 26 Jun 2006 10:31:08 +0200
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Mel Gorman <mel@csn.ul.ie>
-CC: Franck <vagabon.xyz@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-mm1
-References: <20060621034857.35cfe36f.akpm@osdl.org> <449AB01A.5000608@innova-card.com> <Pine.LNX.4.64.0606221617420.5869@skynet.skynet.ie> <449ABC3E.5070609@innova-card.com> <Pine.LNX.4.64.0606221649070.5869@skynet.skynet.ie> <cda58cb80606221025y63906e81wbec9597b94069b6a@mail.gmail.com> <20060623102037.GA1973@skynet.ie> <449BDCF5.6040808@innova-card.com> <20060623134634.GA6071@skynet.ie> <449C036D.6060004@innova-card.com> <20060623151322.GA13130@skynet.ie> <449C0DF3.601@innova-card.com> <Pine.LNX.4.64.0606231728040.13746@skynet.skynet.ie>
-In-Reply-To: <Pine.LNX.4.64.0606231728040.13746@skynet.skynet.ie>
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 26 Jun 2006 04:30:38 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:52872 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964932AbWFZIag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 04:30:36 -0400
+Subject: Re: ia32 binfmt problem with x86-64
+From: Arjan van de Ven <arjan@infradead.org>
+To: Markus Schoder <lists@gammarayburst.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200606260143.16362.lists@gammarayburst.de>
+References: <200606260143.16362.lists@gammarayburst.de>
+Content-Type: text/plain
+Date: Mon, 26 Jun 2006 10:30:34 +0200
+Message-Id: <1151310634.3185.19.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <fbh.work@gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mel
-
-Mel Gorman wrote:
-> On Fri, 23 Jun 2006, Franck Bui-Huu wrote:
+On Mon, 2006-06-26 at 01:43 +0200, Markus Schoder wrote:
+> The 32 bit emulation for x86-64 has the following in 
+> arch/x86_64/ia32/ia32_binfmt.c:
 > 
-
-[snip]
-
->>
->> -unsigned long __init init_bootmem (unsigned long start, unsigned long
->> pages)
->> +unsigned long __init init_bootmem(unsigned long start, unsigned long
->> pages)
->> {
->>     max_low_pfn = pages;
->>     min_low_pfn = start;
->> -    return(init_bootmem_core(NODE_DATA(0), start, 0, pages));
->> +    return init_bootmem_core(NODE_DATA(0), start, ARCH_PFN_OFFSET,
->> pages);
->> }
->>
+> #define elf_read_implies_exec(ex, have_pt_gnu_stack)	  \
+>   (!(have_pt_gnu_stack))
 > 
-> Not all arches will use init_bootmem(). Arm for example uses
-> init_bootmem_node(). ARCH_PFN_OFFSET is only meant to affect mem_map,
-
-well, I don't agree here. ARCH_PFN_OFFSET is used to save the first
-page number that has physical memory. I don't see why we couldn't use
-it to correctly initialise the memory system...
-
-If we don't change init_bootmem() to use ARCH_PFN_OFFSET, then the
-kernel will initialise the start of memory to 0 which is boggus. IOW,
-we can't use this function without this change (except if your memory
-start at 0 of course). And I think that init_bootmem() has been
-implemented for systems which have only one node _whatever_ memory
-start value...
-
->> #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
->> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-
-[snip]
-
->> @@ -2174,8 +2181,7 @@ #endif
->>
->> void __init free_area_init(unsigned long *zones_size)
->> {
->> -    free_area_init_node(0, NODE_DATA(0), zones_size,
->> -            __pa(PAGE_OFFSET) >> PAGE_SHIFT, NULL);
->> +    free_area_init_node(0, NODE_DATA(0), zones_size, ARCH_PFN_OFFSET,
->> NULL);
->> }
->>
+> I guess it should be same definition as in include/asm-i386/elf.h and 
+> include/asm-x86_64/elf.h instead:
 > 
-> Same comment applies as for init_bootmem(). I can't be sure it's a good
-> idea.
+> #define elf_read_implies_exec(ex, executable_stack) \
+>   (executable_stack != EXSTACK_DISABLE_X)
 > 
+> >From the usage in fs/binfmt_elf.c it looks like the semantics of that 
+> macro changed slightly but was not fixed in all places (ia64 seems to 
+> have a similar problem from the looks of it).
+> 
+> The current behavior leads to 32 bit executables not setting the 
+> READ_IMPLIES_EXEC personality when they are marked as requiring an 
+> executable stack (64 bit executables do however).
 
-same comment as for init_bootmem()
+Hi,
 
+regardless of the inconsistency you found; I think the behavior is
+correct. "Legacy" binaries get read-implies-exec (since that is the old
+behavior), "new" binaries get "we honor the stack you set". Why should
+read-implies-exec be set when an application asks for an executable
+stack? I disagree that it should be set; the application should just use
+the proper PROT_EXEC flags for its allocations; now it's not an option
+to fix legacy apps (the ones without the pt_gnu_stack marker), but for
+new things for sure is/was; this has been the case for the last... 3+
+years already.
 
-		Franck
+So... fix the app ! (and.. which app is this ?)
+
+Greetings,
+    Arjan van de Ven
+

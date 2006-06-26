@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933251AbWFZWit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933254AbWFZWiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933251AbWFZWit (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933254AbWFZWit
+	id S933254AbWFZWiu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933248AbWFZWia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:38:49 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:34055 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S933251AbWFZWir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:38:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=YN/eA+9qC2z1Kj4C5I0rgq0wAY/BSqjptwL4h2y4QJUWoHGuTV4+hklSLuYM5wHG4rrHtIKRzdPqIg1OQO8Sm1RxoZ9cvHErieum2cTRumkNXwtPlq6Qi/FHRS/7EA+nU1Kyje7JF+kN7fGDkmzRlm/bwddNsMafhJFyAOadvx8=
-Message-ID: <9e4733910606261538i584e2203o9555d77094de6fe7@mail.gmail.com>
-Date: Mon, 26 Jun 2006 18:38:46 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: tty_mutex and tty_old_pgrp
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Mon, 26 Jun 2006 18:38:30 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:64415 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933226AbWFZWiX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:38:23 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [Suspend2][ 21/32] [Suspend2] Set device info.
+Date: Tue, 27 Jun 2006 08:38:22 +1000
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060626223820.4376.8054.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223706.4376.96042.stgit@nigel.suspend2.net>
+References: <20060626223706.4376.96042.stgit@nigel.suspend2.net>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In tty_io.c there is a comment that tty_mutex needs to be held before
-changing tty_old_pgrp. If I grep for tty_old_pgrp every place it is
-changed except for one is protected by tty_mutex.
-In security/selinux/hooks.c it appears to be changed without holding
-the lock, is this ok? If it is ok, I can add a comment saying it is.
+Set the list of devices and blocks to use for i/o.
 
-If someone were to provide me with the proper guidance, I have some
-time I could spend working on the tty code. For example from an object
-oriented perspective it doesn't look right to me that
-disassociate_ctty is a function in the tty layer. It makes more sense
-to me that this function would be located in the task code.
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-How could things be rearranged to avoid the need for sys_setsid() and
-daemonize() to directly manipulate tty_mutex? What exactly is
-tty_mutex protecting, it appears to be used in multiple contexts.
+ kernel/power/suspend_block_io.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+diff --git a/kernel/power/suspend_block_io.c b/kernel/power/suspend_block_io.c
+index 6e0f22c..3902758 100644
+--- a/kernel/power/suspend_block_io.c
++++ b/kernel/power/suspend_block_io.c
+@@ -775,3 +775,8 @@ static unsigned long suspend_bio_memory_
+ 				sizeof(struct bio) + sizeof(struct io_info)));
+ }
+ 
++static void suspend_set_devinfo(struct suspend_bdev_info *info)
++{
++	suspend_devinfo = info;
++}
++
+
+--
+Nigel Cunningham		nigel at suspend2 dot net

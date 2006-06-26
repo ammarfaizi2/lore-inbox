@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932970AbWFZTib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932973AbWFZTjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932970AbWFZTib (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 15:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932972AbWFZTib
+	id S932973AbWFZTjN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 15:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932977AbWFZTjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 15:38:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14729 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932971AbWFZTia (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 15:38:30 -0400
-Date: Mon, 26 Jun 2006 12:38:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jay Lan <jlan@sgi.com>
-Cc: nagar@watson.ibm.com, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] delay accounting taskstats interface send tgid
- once
-Message-Id: <20060626123819.b5b9a156.akpm@osdl.org>
-In-Reply-To: <44A02FB0.6000505@sgi.com>
-References: <44A02331.8020903@watson.ibm.com>
-	<44A02FB0.6000505@sgi.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 26 Jun 2006 15:39:12 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:23821 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S932971AbWFZTjK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 15:39:10 -0400
+Message-ID: <20060626233909.A4686@castle.nmd.msu.ru>
+Date: Mon, 26 Jun 2006 23:39:09 +0400
+From: Andrey Savochkin <saw@swsoft.com>
+To: Daniel Lezcano <dlezcano@fr.ibm.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
+       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
+       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       ebiederm@xmission.com, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: [patch 3/4] Network namespaces: IPv4 FIB/routing in namespaces
+References: <20060626134945.A28942@castle.nmd.msu.ru> <20060626135250.B28942@castle.nmd.msu.ru> <20060626135427.C28942@castle.nmd.msu.ru> <449FF5AE.2040201@fr.ibm.com> <20060626194625.E989@castle.nmd.msu.ru> <44A003CD.9050204@fr.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <44A003CD.9050204@fr.ibm.com>; from "Daniel Lezcano" on Mon, Jun 26, 2006 at 05:57:01PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jun 2006 12:04:16 -0700
-Jay Lan <jlan@sgi.com> wrote:
+On Mon, Jun 26, 2006 at 05:57:01PM +0200, Daniel Lezcano wrote:
+> Andrey Savochkin wrote:
+> > On Mon, Jun 26, 2006 at 04:56:46PM +0200, Daniel Lezcano wrote:
+> >>
+> >>How do you handle ICMP_REDIRECT ?
+> > 
+> > 
+> > Are you talking about routing cache entries created on incoming redirects?
+> > Or outgoing redirects?
+> > 
+> 
+> incoming redirects
 
-> Is this patch supposed to go on top of all other patches? Or is it
-> supposed to replace any? I had failure applying this patch on top
-> of all previously applied.
+They are inserted into routing cache with the current namespace tag, in
+the same way as input routing cache entries.
 
-It would have got tangled up with the task-watchers patches.
-
-ahem.  Documentation/SubmitChecklist, item 2:
-
-In file included from kernel/exit.c:29:
-include/linux/taskstats_kern.h: In function 'taskstats_exit_send':
-include/linux/taskstats_kern.h:80: error: parameter name omitted
-In file included from include/linux/delayacct.h:21,
-                 from kernel/fork.c:47:
-include/linux/taskstats_kern.h: In function 'taskstats_exit_send':
-include/linux/taskstats_kern.h:80: error: parameter name omitted
-make[1]: *** [kernel/exit.o] Error 1
-make: *** [kernel/exit.o] Error 2
-make: *** Waiting for unfinished jobs....
-make[1]: *** [kernel/fork.o] Error 1
-make: *** [kernel/fork.o] Error 2
-
-diff -puN include/linux/taskstats_kern.h~delay-accounting-taskstats-interface-send-tgid-once-fixes include/linux/taskstats_kern.h
---- a/include/linux/taskstats_kern.h~delay-accounting-taskstats-interface-send-tgid-once-fixes
-+++ a/include/linux/taskstats_kern.h
-@@ -77,7 +77,8 @@ static inline void taskstats_exit_alloc(
- static inline void taskstats_exit_free(struct taskstats *ptidstats)
- {}
- static inline void taskstats_exit_send(struct task_struct *tsk,
--				       struct taskstats *tidstats, int)
-+				       struct taskstats *tidstats,
-+				       int group_dead)
- {}
- static inline void taskstats_tgid_init(struct signal_struct *sig)
- {}
-_
-
-http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2 contains the current
--mm rollup up to and including this patch.  It's against 2.6.17.
-
+	Andrey

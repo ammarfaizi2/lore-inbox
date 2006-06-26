@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWFZCLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWFZCTP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751394AbWFZCLT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 22:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWFZCLT
+	id S1751364AbWFZCTP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 22:19:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWFZCTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 22:11:19 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:5067 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751374AbWFZCLR (ORCPT
+	Sun, 25 Jun 2006 22:19:15 -0400
+Received: from mail.gmx.de ([213.165.64.21]:57262 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751364AbWFZCTO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 22:11:17 -0400
-Date: Mon, 26 Jun 2006 07:41:00 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>, Neela.Kolli@engenio.com,
-       linux-scsi@vger.kernel.org, mike.miller@hp.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver initialization issue fix
-Message-ID: <20060626021100.GA12824@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20060623210121.GA18384@in.ibm.com> <20060623210424.GB18384@in.ibm.com> <20060623235553.2892f21a.akpm@osdl.org> <20060624111954.GA7313@in.ibm.com> <20060624043046.4e4985be.akpm@osdl.org> <20060624120836.GB7313@in.ibm.com> <m1veqqxyrb.fsf@ebiederm.dsl.xmission.com>
+	Sun, 25 Jun 2006 22:19:14 -0400
+X-Authenticated: #14349625
+Subject: Re: [PATCH] i386: Fix softirq accounting with 4K stacks
+From: Mike Galbraith <efault@gmx.de>
+To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       danial_thom@yahoo.com, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060625184244.GA11921@atjola.homenet>
+References: <1151142716.7797.10.camel@Homer.TheSimpsons.net>
+	 <1151149317.7646.14.camel@Homer.TheSimpsons.net>
+	 <20060624154037.GA2946@atjola.homenet>
+	 <1151166193.8516.8.camel@Homer.TheSimpsons.net>
+	 <20060624192523.GA3231@atjola.homenet>
+	 <1151211993.8519.6.camel@Homer.TheSimpsons.net>
+	 <20060625111238.GB8223@atjola.homenet>
+	 <20060625142440.GD8223@atjola.homenet>
+	 <1151257451.7858.45.camel@Homer.TheSimpsons.net>
+	 <1151257397.4940.45.camel@laptopd505.fenrus.org>
+	 <20060625184244.GA11921@atjola.homenet>
+Content-Type: text/plain; charset=utf-8
+Date: Mon, 26 Jun 2006 04:23:22 +0200
+Message-Id: <1151288602.7470.22.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1veqqxyrb.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 24, 2006 at 11:13:44AM -0600, Eric W. Biederman wrote:
-> Vivek Goyal <vgoyal@in.ibm.com> writes:
-> 
-> > On Sat, Jun 24, 2006 at 04:30:46AM -0700, Andrew Morton wrote:
-> >
-> >> > Or is there a generic way to handle these situations? Fixing them driver
-> >> > by driver is a long painful process. 
-> >> 
-> >> Some generic way of whacking a PCI device via the standard PCI registers? 
-> >> Not that I know of.
-> >
-> > Somebody hinted that think of PCI bus reset. But I think PCI bus reset will
-> > require firware/BIOS to export a hook to software to so initiate PCI bus
-> > reset and I don't think many platforms do that. Infact I am not even aware
-> > of one platform who does that.
-> 
-> Not all pci busses support it but there is a standard pci bus reset bit
-> in pci bridges.
-> 
-> I don't know if it would help but it might make sense to have a config
-> option that can be used to mark drivers that are known to have problems,
-> in these scenarios.
-> 
-> CONFIG_BRITTLE_INIT perhaps?
-> 
-> It would at least make it easier for people to see which drivers
-> they don't want to use, and give people some incentive to fix things.
-> 
+On Sun, 2006-06-25 at 20:42 +0200, Björn Steinbrink wrote:
+> I just booted with both patches applied, mine and Mike's, and that
+> actually makes a difference in hardirq cpu time accounting. With my
+> patch only, hi is 0 in top while the box gets a ping flood. With both
+> patches, I get about 1% hi. Mike's patch causes update_process_times()
+> to be called twice on UP, but that alone shouldn't change the
+> percentages, right?
 
-Vivek, 
+Yes, you definitely need to comment out the other call if you test the
+SMP path on UP+IO-APIC.
 
-I think having something as Eric suggested instead of crashboot= is better.
-We can hve this config option set for kernel like dump capture
-kernel. (CONFIG_CRASH_DUMP=y). This should save some bytes on already longish
-kdump kernel boot paramenters.
+> OTOH top shows "hi" as zero with 8K stacks as well unless Mike's patch
+> is applied, so the results with Mike's patch are bogus (if so, why?) or
+> hardirq accounting is broken in general.
 
-Thanks
-Maneesh
+Something is certainly still b0rken.  I still get three different
+answers to the question "what is my cpu usage" depending on
+configuration.  With stock UP kernel with no IO-APIC, interrupt load is
+all hi.  With your patch and IO-APIC, it's all si.  SMP shows a mix of
+both.
+
+I like the result of using the SMP path if you have an IO-APIC best,
+though I haven't verified them against a profile for accuracy.  Taking a
+peek at the profile confirms that it is indeed mixed, so anything
+showing the load as being either hi or si has to be wrong.
+
+	-Mike
+

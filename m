@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWFZO4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWFZO6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWFZO4v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 10:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWFZO4u
+	id S932376AbWFZO6u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 10:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWFZO6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 10:56:50 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:60448 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932318AbWFZO4s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 10:56:48 -0400
-Message-ID: <449FF5AE.2040201@fr.ibm.com>
-Date: Mon, 26 Jun 2006 16:56:46 +0200
-From: Daniel Lezcano <dlezcano@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 26 Jun 2006 10:58:49 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:48026 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932376AbWFZO6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 10:58:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HdbG+jQM+khjOPQ8q0FeO0fh2oY6ci9Er0HGhKpVqy+NdjjCLXeM1TLTzjWTknfFLQb4zRfffAWdoay4DXnDJEPIsB5cOCtjr7l+t7ql8jaiCwiqJ9YV8NUQutWaJi22bfyU79dYg1Rdx0TBeO959V4OVAf2Izo12JzlS4IicB0=
+Message-ID: <d120d5000606260758m2ee97482m517d432f88975d87@mail.gmail.com>
+Date: Mon, 26 Jun 2006 10:58:46 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Subject: Re: [PATCH] atkbd: restore autorepeat rate after resume
+Cc: "Alan Stern" <stern@rowland.harvard.edu>, "Andrew Morton" <akpm@osdl.org>,
+       "Kernel development list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060626145332.GB24275@suse.cz>
 MIME-Version: 1.0
-To: Andrey Savochkin <saw@swsoft.com>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       ebiederm@xmission.com, viro@ftp.linux.org.uk
-Subject: Re: [patch 3/4] Network namespaces: IPv4 FIB/routing in namespaces
-References: <20060626134945.A28942@castle.nmd.msu.ru> <20060626135250.B28942@castle.nmd.msu.ru> <20060626135427.C28942@castle.nmd.msu.ru>
-In-Reply-To: <20060626135427.C28942@castle.nmd.msu.ru>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.44L0.0606261017340.9467-100000@iolanthe.rowland.org>
+	 <d120d5000606260735v6e1762d7mc278f315c3a994fb@mail.gmail.com>
+	 <20060626145332.GB24275@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Savochkin wrote:
-> Structures related to IPv4 rounting (FIB and routing cache)
-> are made per-namespace.
+On 6/26/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Mon, Jun 26, 2006 at 10:35:44AM -0400, Dmitry Torokhov wrote:
+> > On 6/26/06, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > >From: Linus Torvalds <torvalds@osdl.org>
+> > >
+> > >This patch (as728) makes the AT keyboard driver store the current
+> > >autorepeat rate so that it can be restored properly following a
+> > >suspend/resume cycle.
+> > >
+> >
+> > Alan,
+> >
+> > I think it should be a per-device, not global parameter. Anyway, I'll
+> > adjust adn apply, thank you.
+>
+> You can't make it per-device when there is no device when the keyboard
+> isn't plugged in. ;)
+>
 
-How do you handle ICMP_REDIRECT ?
+It there is no keyboard then you could not change repeat rate before
+suspending and we don't have anyhting to restore ;)
 
-
-
+-- 
+Dmitry

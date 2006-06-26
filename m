@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWFZLtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWFZLuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbWFZLtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 07:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWFZLtZ
+	id S1750989AbWFZLuh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 07:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWFZLug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 07:49:25 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:59790 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750768AbWFZLtY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 07:49:24 -0400
-To: Piotr Kaczuba <pepe@attika.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [x86-64] ioctl32 for USB
-References: <20060626113037.GA6265@attika.ath.cx>
-From: Andi Kleen <ak@suse.de>
-Date: 26 Jun 2006 13:49:22 +0200
-In-Reply-To: <20060626113037.GA6265@attika.ath.cx>
-Message-ID: <p738xnkuofx.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 26 Jun 2006 07:50:36 -0400
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:35451 "HELO
+	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750989AbWFZLug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 07:50:36 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] drivers/input/misc/wistron_btns.c: section fixes
+Date: Mon, 26 Jun 2006 07:50:31 -0400
+User-Agent: KMail/1.9.3
+Cc: mitr@volny.cz, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+References: <20060626103509.GQ23314@stusta.de>
+In-Reply-To: <20060626103509.GQ23314@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606260750.32863.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Piotr Kaczuba <pepe@attika.ath.cx> writes:
+On Monday 26 June 2006 06:35, Adrian Bunk wrote:
+> This patch contains the following fixes:
+> - it doesn't make sense to mark a variable on the stack as __initdata
+> - struct dmi_ids is using the __init dmi_matched()
 
-> Hello!
-> 
-> I'm running a 64-bit kernel and 32-bit userspace. There seems to be some
-> unimplemented compability ioctls regarding USB. Dmesg shows the
-> following:
-> 
-> [184966.543022] ioctl32(hald-probe-hidd:10760): Unknown cmd fd(4)
-> cmd(81004806){01} arg(ffb52dd0) on /dev/usb/hiddev0
-> 
-> and
-> 
-> [50974.410204] ioctl32(vmware-vmx:3470): Unknown cmd fd(140)
-> cmd(40109980){00} arg(ffb551a0) on /proc/bus/usb/002/001
-> 
-> Have it been only forgotten or are there other more serious reasons that
-> these ioctls are missing?
+Since when did static variables become allocated on stack?
 
-Some of the USB ioctls were basically impossible to compat due to
-broken design. Maybe it's now possible with is_compat_task,
-but would be still extremly ugly.
-
--Andi
+-- 
+Dmitry

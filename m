@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932726AbWFZTBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932679AbWFZTA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932726AbWFZTBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 15:01:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932758AbWFZTBI
+	id S932679AbWFZTA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 15:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbWFZTAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 15:01:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32488 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932751AbWFZTBF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 15:01:05 -0400
-Date: Mon, 26 Jun 2006 12:00:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org, Matt_Domsch@dell.com, peter@palfrader.org,
-       openipmi-developer@lists.sourceforge.net
-Subject: Re: [PATCH] IPMI: use schedule in kthread
-Message-Id: <20060626120048.cff87fac.akpm@osdl.org>
-In-Reply-To: <20060626140819.GA17804@localdomain>
-References: <20060626140819.GA17804@localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 26 Jun 2006 15:00:25 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:25062 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932691AbWFZTAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 15:00:23 -0400
+Subject: Re: [PATCH] Kconfig for radio cards to allow VIDEO_V4L1_COMPAT
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e4733910606261015l13399f96hebebeb00b6b01790@mail.gmail.com>
+References: <9e4733910606251040v62675399gdfe438aaac691a5a@mail.gmail.com>
+	 <1151327213.3687.13.camel@praia>
+	 <9e4733910606260855kf2e57ado5c69d8295d1be5@mail.gmail.com>
+	 <1151341122.13794.2.camel@praia>
+	 <9e4733910606261015l13399f96hebebeb00b6b01790@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 26 Jun 2006 16:00:03 -0300
+Message-Id: <1151348403.16290.5.camel@praia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jun 2006 09:08:19 -0500
-MAILER-DAEMON@osdl.org wrote:
+Em Seg, 2006-06-26 às 13:15 -0400, Jon Smirl escreveu:
+> On 6/26/06, Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
 
-> The kthread used to speed up polling for IPMI was using udelay
-> when the lower-level state machine told it to do a short delay.
-> This just used CPU and didn't help scheduling, thus causing bad
-> problems with other tasks.  Call schedule() instead.
+> I don't have any of the hardware. I was just doing some work on
+> Kconfig and noticed that a bunch of drivers had gone missing. I see
+> now that a lot of the drivers in media/video have the same problem.
+Yes, mostly webcam stuff, where there are active developers. Hopefully
+those stuff will be fixed in time to 2.6.19.
+> I guess V4L1 is going to be with us for a while longer since all of
+> these drivers need to get ported.
+Radio devices will be more complicated to test. Those devices emerged a
+long time ago, and it seems that nobody is using they, at least with 2.6
+series. I'm not sure if it would be valuable to port all those stuff.
+Some devices even don't have pnp support (you need to specify IO ports
+and IRQ lines).
 > 
-> Signed-off-by: Corey Minyard <minyard@acm.org>
-> 
-> Index: linux-2.6.17/drivers/char/ipmi/ipmi_si_intf.c
-> ===================================================================
-> --- linux-2.6.17.orig/drivers/char/ipmi/ipmi_si_intf.c
-> +++ linux-2.6.17/drivers/char/ipmi/ipmi_si_intf.c
-> @@ -809,7 +809,7 @@ static int ipmi_thread(void *data)
->  			/* do nothing */
->  		}
->  		else if (smi_result == SI_SM_CALL_WITH_DELAY)
-> -			udelay(1);
-> +			schedule();
->  		else
->  			schedule_timeout_interruptible(1);
->  	}
+Cheers, 
+Mauro.
 
-calling schedule() isn't a lot of use either.
-
-If CONFIG_PREEMPT it's of no benefit and will just chew CPU.
-
-If !CONFIG_PREEMPT && !need_resched() then it's a no-op and will chew CPU.
-
-If !CONFIG_PREEMPT && need_resched() then yes, it'll schedule away.  This
-is pretty much the only time that a simple schedule() is useful.
-
-
-
-What are we actually trying to do in here?

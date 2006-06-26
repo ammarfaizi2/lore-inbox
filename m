@@ -1,52 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933140AbWFZXtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933137AbWFZX7o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933140AbWFZXtn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933135AbWFZXtn
+	id S933137AbWFZX7o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933150AbWFZX7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:49:43 -0400
-Received: from mail.sdi-muenchen.de ([62.245.203.250]:16121 "EHLO
-	linux.sdi-muenchen.de") by vger.kernel.org with ESMTP
-	id S933139AbWFZXtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 19:49:42 -0400
-From: Stephan =?iso-8859-1?q?M=FCller?= <smueller@chronox.de>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH 06/06] ecryptfs: Print the actual option that is problematic
-Date: Tue, 27 Jun 2006 01:49:36 +0200
-User-Agent: KMail/1.9.1
-Cc: Michael Halcrow <mhalcrow@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jun 2006 19:59:44 -0400
+Received: from mail.kroah.org ([69.55.234.183]:53451 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S933137AbWFZX7n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 19:59:43 -0400
+Date: Mon, 26 Jun 2006 16:57:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: David Brownell <david-b@pacbell.net>, Mattia Dongili <malattia@linux.it>,
+       Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       linux-pm@osdl.org, pavel@suse.cz
+Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
+Message-ID: <20060626235732.GE32008@kroah.com>
+References: <20060623042452.GA23232@kroah.com> <Pine.LNX.4.44L0.0606231028570.5966-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606270149.36679.smueller@chronox.de>
+In-Reply-To: <Pine.LNX.4.44L0.0606231028570.5966-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel version: 2.6.17-mm1
+On Fri, Jun 23, 2006 at 10:51:47AM -0400, Alan Stern wrote:
+> On Thu, 22 Jun 2006, Greg KH wrote:
+> 
+> > > Under what scenario could it possibly be legitimate to suspend a
+> > > usb device -- or interface, or anything else -- with its children
+> > > remaining active?  The ability to guarantee that could _never_ happen
+> > > was one of the fundamental motivations for the driver model ...
+> > 
+> > I'm not disagreeing with that.  It's just that you are looping all
+> > struct devices that are attached to a struct usb_device and assuming
+> > that they are all of type struct usb_interface.  And that's not true
+> > anymore, and should never have been assumed (which is probably my fault
+> > way long ago when converting USB to the driver model.)
+> 
+> In fact the code doesn't make that assumption.  It only assumes that the 
+> dev->power.power_state.event field is set correctly (0 for not suspended, 
+> non-zero for suspended) and that you don't want to suspend a device if its 
+> children aren't all suspended.
 
-When parsing unknown mount options, the printk will now issue the 
-problematic option instead of the whole option string.
+Yes, but it's looking at devices it should _not_ care about.  The USB
+core should only care about devices it controls, not other devices in
+the device chain.  Those are for the driver core to handle.
 
-Signed-off-by: Stephan Mueller <smueller@chronox.de>
+> > We probably need to keep our own list of interfaces if we want to
+> > properly walk them now...
+> 
+> We do have such a list: udev->actconfig->interface[].
 
----
+Ah, ok, I thought it was somewhere...  David, why don't we walk that
+list instead?
 
- fs/ecryptfs/main.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> > And we also need to be able to handle devices in the device tree that do
+> > not have a suspend/resume function, or ones that are not attached to any
+> > bus, without failing the suspend, as obviously they do not care or need
+> > to worry about the whole issue.
+> 
+> Ah, there's the rub.  If a driver doesn't have suspend/resume methods, is 
+> it because it doesn't need them, or is it because nobody has written them 
+> yet?  In the latter case, failing the suspend or unbinding the driver are 
+> the only safe courses.
 
-aef091d547149874971834ae41a3b5e3982ef679
-diff --git a/fs/ecryptfs/main.c b/fs/ecryptfs/main.c
-index 3592834..e09de17 100644
---- a/fs/ecryptfs/main.c
-+++ b/fs/ecryptfs/main.c
-@@ -280,7 +280,7 @@ static int ecryptfs_parse_options(struct
- 		default:
- 			ecryptfs_printk(KERN_WARNING,
- 					"eCryptfs: unrecognized option '%s'\n",
--					options);
-+					p);
- 		}
- 	}
- 	/* Do not support lack of mount-wide signature in 0.1
+No, if it's not there, just expect that it knows what it is doing, and
+don't fail the thing.  Unless you want to add those methods to _every_
+driver in the kernel, and that's going to be a lot of work...
+
+> And when you're dealing with a device that isn't on a bus or doesn't have 
+> a driver, then clearly you _can't_ suspend it.  You can abort the system 
+> sleep, or you can go ahead knowing that the device may not be in a 
+> low-power mode.
+
+It's a virtual device, it can go to sleep just fine with nothing needed
+to have done at all, as it's just in kernel memory, no physical thing to
+turn to "low power" mode at all.
+
+thanks,
+
+greg k-h

@@ -1,104 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933256AbWFZX0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933123AbWFZX0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933256AbWFZX0J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933206AbWFZXZd
+	id S933123AbWFZX0X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933208AbWFZXZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:25:33 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:50079 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933123AbWFZWgo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:36:44 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 13/19] [Suspend2] Write image header.
-Date: Tue, 27 Jun 2006 08:36:43 +1000
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223641.4219.12586.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626223557.4219.53030.stgit@nigel.suspend2.net>
-References: <20060626223557.4219.53030.stgit@nigel.suspend2.net>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Mon, 26 Jun 2006 19:25:27 -0400
+Received: from www.osadl.org ([213.239.205.134]:32959 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S933189AbWFZXZS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 19:25:18 -0400
+Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
+	 <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 01:27:09 +0200
+Message-Id: <1151364429.25491.462.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Write the header of an image to storage.
+On Mon, 2006-06-26 at 17:41 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Sat, 24 Jun 2006 06:19:14 PDT, Andrew Morton said:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm2/
+> 
+> I'm seeing a 2-minute or so hang at system startup, seems to be hrtimer
+> related.  
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+hrtimer is not really involved here.
 
- kernel/power/io.c |   62 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 62 insertions(+), 0 deletions(-)
+> This is at fairly early userspace - the initrd has run, but we're not
+> into /etc/rc.sysinit yet (although the root filesystem is mounted and we have
+> a kjournald for it).  Poking with sysrq-T and sysrq-R gets me this:
+> 
+> [  108.301806] Pid: 4, comm:              khelper
+> [  108.330565] EIP: 0060:[<c0119f48>] CPU: 0
+> [  108.359315] EIP is at getnstimeofday+0x9e/0xb8
+> [  108.387820]  EFLAGS: 00000207    Not tainted  (2.6.17-mm2 #1)
+> [  108.416344] EAX: efed073c EBX: efed073c ECX: 00000000 EDX: 0f16d9ba
+> [  108.444765] ESI: a7955c5a EDI: 4a12cf06 EBP: effd0e5c DS: 007b ES: 007b
+> [  108.473303] CR0: 8005003b CR2: b7d9acb0 CR3: 2ffbc000 CR4: 000006d0
+> [  108.501579]  <c0125c0c> ktime_get_ts+0x14/0x3f  <c0110f84> copy_process+0x395/0x1111
+> [  108.530366]  <c0111f3c> do_fork+0x8d/0x16a  <c0100a27> kernel_thread+0x6c/0x74
+> [  108.559363]  <c0120431> __call_usermodehelper+0x2b/0x44  <c0120982> run_workqueue+0x94/0xe9
+> [  108.588523]  <c0120e64> worker_thread+0xe1/0x115  <c01232b2> kthread+0xb0/0xdc
+> [  108.617618]  <c01006c5> kernel_thread_helper+0x5/0xb
+> [  115.881903] SysRq : Show Regs
+> [  115.910288]
+> [  115.938097] Pid: 4, comm:              khelper
+> [  115.965908] EIP: 0060:[<c0119f48>] CPU: 0
+> [  115.993553] EIP is at getnstimeofday+0x9e/0xb8
+> [  116.020928]  EFLAGS: 00000287    Not tainted  (2.6.17-mm2 #1)
+> [  116.048387] EAX: efed073c EBX: efed073c ECX: 00000000 EDX: 0f16d9ba
+> [  116.075750] ESI: 9484965a EDI: 2262af5b EBP: effd0e5c DS: 007b ES: 007b
+> [  116.103240] CR0: 8005003b CR2: b7d9acb0 CR3: 2ffbc000 CR4: 000006d0
+> [  116.130449]  <c0125c0c> ktime_get_ts+0x14/0x3f  <c0110f84> copy_process+0x395/0x1111
+> [  116.158078]  <c0111f3c> do_fork+0x8d/0x16a  <c0100a27> kernel_thread+0x6c/0x74
+> [  116.185729]  <c0120431> __call_usermodehelper+0x2b/0x44  <c0120982> run_workqueue+0x94/0xe9
+> [  116.213729]  <c0120e64> worker_thread+0xe1/0x115  <c01232b2> kthread+0xb0/0xdc
+> [  116.241689]  <c01006c5> kernel_thread_helper+0x5/0xb
+> 
+> Looking at the body of ktime_get_ts, I see:
+> 
+>         do {
+>                 seq = read_seqbegin(&xtime_lock);
+>                 getnstimeofday(ts);
+>                 tomono = wall_to_monotonic;
+> 
+>         } while (read_seqretry(&xtime_lock, seq));
 
-diff --git a/kernel/power/io.c b/kernel/power/io.c
-index b179c50..d7c48e0 100644
---- a/kernel/power/io.c
-+++ b/kernel/power/io.c
-@@ -614,3 +614,65 @@ static int read_module_configs(void)
- 	return 0;
- }
- 
-+/* write_image_header()
-+ *
-+ * Description:	Write the image header after write the image proper.
-+ * Returns:	Int. Zero on success or -1 on failure.
-+ */
-+
-+int write_image_header(void)
-+{
-+	int ret;
-+	int total = pagedir1.pageset_size + pagedir2.pageset_size+2;
-+	char *header_buffer = NULL;
-+
-+	/* Now prepare to write the header */
-+	if ((ret = suspend_active_writer->write_header_init())) {
-+		abort_suspend("Active writer's write_header_init"
-+				" function failed.");
-+		goto write_image_header_abort;
-+	}
-+
-+	/* Get a buffer */
-+	header_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
-+	if (!header_buffer) {
-+		abort_suspend("Out of memory when trying to get page "
-+				"for header!");
-+		goto write_image_header_abort;
-+	}
-+
-+	/* Write suspend header */
-+	fill_suspend_header((struct suspend_header *) header_buffer);
-+	suspend_active_writer->rw_header_chunk(WRITE, NULL,
-+			header_buffer, sizeof(struct suspend_header));
-+
-+	free_page((unsigned long) header_buffer);
-+
-+	/* Write module configurations */
-+	if ((ret = write_module_configs())) {
-+		abort_suspend("Failed to write module configs.");
-+		goto write_image_header_abort;
-+	}
-+
-+	save_dyn_pageflags(pageset1_map);
-+
-+	/* Flush data and let writer cleanup */
-+	if (suspend_active_writer->write_header_cleanup()) {
-+		abort_suspend("Failed to cleanup writing header.");
-+		goto write_image_header_abort_no_cleanup;
-+	}
-+
-+	if (test_result_state(SUSPEND_ABORTED))
-+		goto write_image_header_abort_no_cleanup;
-+
-+	suspend_message(SUSPEND_IO, SUSPEND_VERBOSE, 1, "|\n");
-+	suspend_update_status(total, total, NULL);
-+
-+	return 0;
-+
-+write_image_header_abort:
-+	suspend_active_writer->write_header_cleanup();
-+write_image_header_abort_no_cleanup:
-+	return -1;
-+}
-+
+>From the stack trace:
 
---
-Nigel Cunningham		nigel at suspend2 dot net
+copy_process:
+ ....
+ do_posix_clock_monotonic_gettime(&p->start_time);
+
+#define do_posix_clock_monotonic_gettime(ts) ktime_get_ts(ts)
+
+ktime_get_ts() has not been touched since it was merged in 2.6.16
+
+Can you provide the complete boot log up to this point please ? -
+Preferably over serial console.
+
+	tglx
+
+
+

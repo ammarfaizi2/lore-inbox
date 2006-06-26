@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933103AbWFZWat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933105AbWFZWbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933103AbWFZWat (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933104AbWFZWat
+	id S933105AbWFZWbf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933099AbWFZWbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:30:49 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:31669 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S933103AbWFZWas (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:30:48 -0400
-Date: Mon, 26 Jun 2006 17:30:32 -0500
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: akpm@osdl.org
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-mm2 & ecryptfs
-Message-ID: <20060626223032.GD2867@us.ibm.com>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
-References: <1151359559.32250.15.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151359559.32250.15.camel@dyn9047017100.beaverton.ibm.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 26 Jun 2006 18:31:35 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:60394 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933105AbWFZWbe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:31:34 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [Suspend2][ 1/7] [Suspend2] Pagedir.h
+Date: Tue, 27 Jun 2006 08:31:33 +1000
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060626223131.3725.40537.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223128.3725.55605.stgit@nigel.suspend2.net>
+References: <20060626223128.3725.55605.stgit@nigel.suspend2.net>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 03:05:59PM -0700, Badari Pulavarty wrote:
-> I am not sure, if its already reported or not. 
-> 
-> 2.6.17-mm2 vfs_statfs() takes a "dentry" instead of "sb".
-> ecryptfs seems to be broken :(
+Add pagedir structs and declarations for variables and functions exported
+from pagedir.c.
 
-Yeah, that one slipped right by me with the API change.
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
----
+ kernel/power/pageflags.c |   28 ++++++++++++++++++++++++++++
+ 1 files changed, 28 insertions(+), 0 deletions(-)
 
-Update ecryptfs_statfs (API change).
+diff --git a/kernel/power/pageflags.c b/kernel/power/pageflags.c
+new file mode 100644
+index 0000000..81f0825
+--- /dev/null
++++ b/kernel/power/pageflags.c
+@@ -0,0 +1,28 @@
++/*
++ * kernel/power/pageflags.c
++ *
++ * Copyright (C) 2004-2006 Nigel Cunningham <nigel@suspend2.net>
++ * 
++ * This file is released under the GPLv2.
++ *
++ * Routines for serialising and relocating pageflags in which we
++ * store our image metadata.
++ *
++ */
++
++#include <linux/kernel.h>
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/bitops.h>
++#include <linux/list.h>
++#include <linux/suspend.h>
++#include "pageflags.h"
++#include "modules.h"
++#include "pagedir.h"
++
++/* Maps used in copying the image back are in builtin.c */
++dyn_pageflags_t pageset1_map;
++dyn_pageflags_t pageset1_copy_map;
++dyn_pageflags_t pageset2_map;
++dyn_pageflags_t in_use_map;
++
 
-Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
-
----
- fs/ecryptfs/super.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-b3c064b2248bd949c07900aab9ac4517f301d66c
-diff --git a/fs/ecryptfs/super.c b/fs/ecryptfs/super.c
-index 437a542..8b014a4 100644
---- a/fs/ecryptfs/super.c
-+++ b/fs/ecryptfs/super.c
-@@ -122,9 +122,9 @@ static void ecryptfs_put_super(struct su
-  * Get the filesystem statistics. Currently, we let this pass right through
-  * to the lower filesystem and take no action ourselves.
-  */
--static inline int ecryptfs_statfs(struct super_block *sb, struct kstatfs *buf)
-+static inline int ecryptfs_statfs(struct dentry *dentry, struct kstatfs *buf)
- {
--	return vfs_statfs(ecryptfs_superblock_to_lower(sb), buf);
-+	return vfs_statfs(ecryptfs_dentry_to_lower(dentry), buf);
- }
- 
- /**
--- 
-1.3.3
-
+--
+Nigel Cunningham		nigel at suspend2 dot net

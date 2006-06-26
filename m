@@ -1,62 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932938AbWFZTYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932947AbWFZT2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932938AbWFZTYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 15:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932939AbWFZTYQ
+	id S932947AbWFZT2T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 15:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932945AbWFZT2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 15:24:16 -0400
-Received: from mx2.suse.de ([195.135.220.15]:62667 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932938AbWFZTYP (ORCPT
+	Mon, 26 Jun 2006 15:28:19 -0400
+Received: from khc.piap.pl ([195.187.100.11]:56021 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932944AbWFZT2S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 15:24:15 -0400
-Date: Mon, 26 Jun 2006 20:21:01 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <gregkh@suse.de>
-Subject: [PATCH] fix processing of the last byte in isdn_readbchan_tty()
-Message-ID: <20060626182101.GA6899@pingi.kke.suse.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Greg KH <gregkh@suse.de>
-Mime-Version: 1.0
+	Mon, 26 Jun 2006 15:28:18 -0400
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: -git: Why is drivers/net/wan/hdlc_generic.c:hdlc_setup() exported?
+References: <20060625205137.GH23314@stusta.de>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 26 Jun 2006 21:28:14 +0200
+In-Reply-To: <20060625205137.GH23314@stusta.de> (Adrian Bunk's message of "Sun, 25 Jun 2006 22:51:38 +0200")
+Message-ID: <m3veqnlnsh.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.16.13-4-smp x86_64
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The changes in the tty handling contain a bug while accessing
-the last byte in the skb. Since special sequence for control of
-DTMF and FAX via ttyI* devices handled via this path, these services
-do not work anymore.
+Adrian Bunk <bunk@stusta.de> writes:
 
-Signed-off-by: Karsten Keil <kkeil@suse.de>
+>    hdlc_setup() is now EXPORTed as per David's request.
+>
+> Is a usage of this export pending for the near future
 
----
-
- drivers/isdn/i4l/isdn_common.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-1bfb4ea878e3e73e64a5507d1a305517c1f2bbdd
-diff --git a/drivers/isdn/i4l/isdn_common.c b/drivers/isdn/i4l/isdn_common.c
-index 81accdf..b26e509 100644
---- a/drivers/isdn/i4l/isdn_common.c
-+++ b/drivers/isdn/i4l/isdn_common.c
-@@ -933,7 +933,7 @@ isdn_readbchan_tty(int di, int channel, 
- 			count_put = count_pull;
- 			if(count_put > 1)
- 				tty_insert_flip_string(tty, skb->data, count_put - 1);
--			last = skb->data[count_put] - 1;
-+			last = skb->data[count_put - 1];
- 			len -= count_put;
- #ifdef CONFIG_ISDN_AUDIO
- 		}
-
-
+I'm told it is.
 -- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Krzysztof Halasa

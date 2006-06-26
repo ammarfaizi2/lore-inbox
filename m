@@ -1,101 +1,420 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbWFZBFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWFZBGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965101AbWFZBFB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 21:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWFZBEi
+	id S964991AbWFZBGu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 21:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWFZBGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 21:04:38 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:24207 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965047AbWFZA71
+	Sun, 25 Jun 2006 21:06:41 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:22415 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964991AbWFZA7R
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:59:27 -0400
-Date: Sun, 25 Jun 2006 17:58:09 -0700
+	Sun, 25 Jun 2006 20:59:17 -0400
+Date: Sun, 25 Jun 2006 17:58:06 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 40/43] kinit: replacement for in-kernel do_mount, ipconfig, nfsroot
-Message-Id: <klibc.200606251757.40@tazenda.hos.anvin.org>
+Subject: [klibc 30/43] parisc support for klibc
+Message-Id: <klibc.200606251757.30@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[klibc] kinit: replacement for in-kernel do_mount, ipconfig, nfsroot
-
-kinit provides the default root-mounting code.  It should be
-compatible with the in-kernel root-mounting code (modulo bugs); it
-also provides a few minor enhancements.
+The parts of klibc specific to the parisc architecture.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit f0b65bb7d198f7bde27107c762d4ff0bf43754b2
-tree 4890fa3f418bc3b068ee6c4c0e8ddeedaf9e4416
-parent 331e12895f91848ae0eff9acdbd5058b3c1056af
-author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:59 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:59 -0700
+commit 078d6614054391efe17093f8d70340e2c0644ffb
+tree 63a4bf899e5ca2ef3c0a8e9ef3098273012f7a33
+parent ebd2860ad3dc19cb11fd5b9cc235cab54e9165f4
+author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:36 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:36 -0700
 
- usr/kinit/Kbuild                    |   28 +
- usr/kinit/README                    |    9 
- usr/kinit/devname.c                 |  114 +++++
- usr/kinit/do_mounts.c               |  221 ++++++++++
- usr/kinit/do_mounts.h               |   48 ++
- usr/kinit/do_mounts_md.c            |  398 ++++++++++++++++++
- usr/kinit/do_mounts_mtd.c           |   44 ++
- usr/kinit/fstype/Kbuild             |   25 +
- usr/kinit/fstype/cramfs_fs.h        |   85 ++++
- usr/kinit/fstype/ext2_fs.h          |   79 ++++
- usr/kinit/fstype/ext3_fs.h          |   92 ++++
- usr/kinit/fstype/fstype.c           |  296 ++++++++++++++
- usr/kinit/fstype/fstype.h           |   23 +
- usr/kinit/fstype/jfs_superblock.h   |  114 +++++
- usr/kinit/fstype/luks_fs.h          |   44 ++
- usr/kinit/fstype/lvm2_sb.h          |   18 +
- usr/kinit/fstype/main.c             |   58 +++
- usr/kinit/fstype/minix_fs.h         |   85 ++++
- usr/kinit/fstype/reiserfs_fs.h      |   69 +++
- usr/kinit/fstype/romfs_fs.h         |   56 +++
- usr/kinit/fstype/swap_fs.h          |   18 +
- usr/kinit/fstype/xfs_sb.h           |   16 +
- usr/kinit/getarg.c                  |   57 +++
- usr/kinit/getintfile.c              |   30 +
- usr/kinit/initrd.c                  |  199 +++++++++
- usr/kinit/ipconfig/Kbuild           |   31 +
- usr/kinit/ipconfig/README           |  103 +++++
- usr/kinit/ipconfig/bootp_packet.h   |   34 ++
- usr/kinit/ipconfig/bootp_proto.c    |  213 ++++++++++
- usr/kinit/ipconfig/bootp_proto.h    |    8 
- usr/kinit/ipconfig/dhcp_proto.c     |  212 ++++++++++
- usr/kinit/ipconfig/dhcp_proto.h     |   18 +
- usr/kinit/ipconfig/ipconfig.h       |   35 ++
- usr/kinit/ipconfig/main.c           |  758 +++++++++++++++++++++++++++++++++++
- usr/kinit/ipconfig/netdev.c         |  251 ++++++++++++
- usr/kinit/ipconfig/netdev.h         |   83 ++++
- usr/kinit/ipconfig/packet.c         |  286 +++++++++++++
- usr/kinit/ipconfig/packet.h         |    9 
- usr/kinit/kinit.c                   |  330 +++++++++++++++
- usr/kinit/kinit.h                   |   73 +++
- usr/kinit/name_to_dev.c             |  202 +++++++++
- usr/kinit/nfsmount/Kbuild           |   27 +
- usr/kinit/nfsmount/README.locking   |   26 +
- usr/kinit/nfsmount/dummypmap.c      |  188 +++++++++
- usr/kinit/nfsmount/dummypmap.h      |   13 +
- usr/kinit/nfsmount/dummypmap_test.c |    2 
- usr/kinit/nfsmount/main.c           |  263 ++++++++++++
- usr/kinit/nfsmount/mount.c          |  357 ++++++++++++++++
- usr/kinit/nfsmount/nfsmount.h       |   39 ++
- usr/kinit/nfsmount/portmap.c        |   73 +++
- usr/kinit/nfsmount/sunrpc.c         |  253 ++++++++++++
- usr/kinit/nfsmount/sunrpc.h         |   99 +++++
- usr/kinit/nfsroot.c                 |  113 +++++
- usr/kinit/open.c                    |   18 +
- usr/kinit/ramdisk_load.c            |  271 +++++++++++++
- usr/kinit/readfile.c                |   86 ++++
- usr/kinit/resume.c                  |   75 +++
- usr/kinit/run-init/Kbuild           |   25 +
- usr/kinit/run-init/run-init.c       |   95 ++++
- usr/kinit/run-init/run-init.h       |   38 ++
- usr/kinit/run-init/runinitlib.c     |  216 ++++++++++
- usr/kinit/xpio.c                    |   51 ++
- usr/kinit/xpio.h                    |   11 +
- 63 files changed, 7211 insertions(+), 0 deletions(-)
+ usr/include/arch/parisc/klibc/archconfig.h |   14 ++++
+ usr/include/arch/parisc/klibc/archsetjmp.h |   14 ++++
+ usr/include/arch/parisc/klibc/archsignal.h |   25 ++++++++
+ usr/include/arch/parisc/klibc/archstat.h   |   29 +++++++++
+ usr/include/arch/parisc/klibc/archsys.h    |   12 ++++
+ usr/klibc/arch/parisc/MCONFIG              |   12 ++++
+ usr/klibc/arch/parisc/Makefile.inc         |   16 +++++
+ usr/klibc/arch/parisc/crt0.S               |   37 ++++++++++++
+ usr/klibc/arch/parisc/setjmp.S             |   88 ++++++++++++++++++++++++++++
+ usr/klibc/arch/parisc/syscall.S            |   36 +++++++++++
+ usr/klibc/arch/parisc/sysstub.ph           |   28 +++++++++
+ 11 files changed, 311 insertions(+), 0 deletions(-)
 
-Patch suppressed due to size (185 K), available at:
-http://www.kernel.org/pub/linux/kernel/people/hpa/klibc-patchset/40-kinit-replacement-for-in-kernel-do-mount-ipconfig-nfsroot.patch
+diff --git a/usr/include/arch/parisc/klibc/archconfig.h b/usr/include/arch/parisc/klibc/archconfig.h
+new file mode 100644
+index 0000000..f8ba9e2
+--- /dev/null
++++ b/usr/include/arch/parisc/klibc/archconfig.h
+@@ -0,0 +1,14 @@
++/*
++ * include/arch/parisc/klibc/archconfig.h
++ *
++ * See include/klibc/sysconfig.h for the options that can be set in
++ * this file.
++ *
++ */
++
++#ifndef _KLIBC_ARCHCONFIG_H
++#define _KLIBC_ARCHCONFIG_H
++
++/* All defaults */
++
++#endif				/* _KLIBC_ARCHCONFIG_H */
+diff --git a/usr/include/arch/parisc/klibc/archsetjmp.h b/usr/include/arch/parisc/klibc/archsetjmp.h
+new file mode 100644
+index 0000000..05e943e
+--- /dev/null
++++ b/usr/include/arch/parisc/klibc/archsetjmp.h
+@@ -0,0 +1,14 @@
++/*
++ * arch/parisc/include/klibc/archsetjmp.h
++ */
++
++#ifndef _KLIBC_ARCHSETJMP_H
++#define _KLIBC_ARCHSETJMP_H
++
++struct __jmp_buf {
++	double regs[21];
++};
++
++typedef struct __jmp_buf jmp_buf[1];
++
++#endif				/* _SETJMP_H */
+diff --git a/usr/include/arch/parisc/klibc/archsignal.h b/usr/include/arch/parisc/klibc/archsignal.h
+new file mode 100644
+index 0000000..256aeea
+--- /dev/null
++++ b/usr/include/arch/parisc/klibc/archsignal.h
+@@ -0,0 +1,25 @@
++/*
++ * arch/parisc/include/klibc/archsignal.h
++ *
++ * Architecture-specific signal definitions
++ *
++ */
++
++#ifndef _KLIBC_ARCHSIGNAL_H
++#define _KLIBC_ARCHSIGNAL_H
++
++#include <asm/signal.h>
++#define _NSIG    64
++#define _NSIG_SZ (_NSIG / LONG_BIT)
++
++typedef struct {
++	unsigned long sig[_NSIG_SZ];
++} sigset_t;
++
++struct sigaction {
++	__sighandler_t	sa_handler;
++	unsigned long	sa_flags;
++	sigset_t	sa_mask;
++};
++
++#endif
+diff --git a/usr/include/arch/parisc/klibc/archstat.h b/usr/include/arch/parisc/klibc/archstat.h
+new file mode 100644
+index 0000000..0b8ef8d
+--- /dev/null
++++ b/usr/include/arch/parisc/klibc/archstat.h
+@@ -0,0 +1,29 @@
++#ifndef _KLIBC_ARCHSTAT_H
++#define _KLIBC_ARCHSTAT_H
++
++#include <klibc/stathelp.h>
++
++#define _STATBUF_ST_NSEC
++
++struct stat {
++	__stdev64		(st_dev);
++	unsigned int		__pad1;
++
++	unsigned int		__st_ino;	/* Not actually filled in */
++	unsigned int		st_mode;
++	unsigned int		st_nlink;
++	unsigned int		st_uid;
++	unsigned int		st_gid;
++	__stdev64		(st_rdev);
++	unsigned int		__pad2;
++	signed long long	st_size;
++	signed int		st_blksize;
++
++	signed long long	st_blocks;
++	struct timespec		st_atim;
++	struct timespec		st_mtim;
++	struct timespec		st_ctim;
++	unsigned long long	st_ino;
++};
++
++#endif
+diff --git a/usr/include/arch/parisc/klibc/archsys.h b/usr/include/arch/parisc/klibc/archsys.h
+new file mode 100644
+index 0000000..681ee76
+--- /dev/null
++++ b/usr/include/arch/parisc/klibc/archsys.h
+@@ -0,0 +1,12 @@
++/*
++ * arch/parisc/include/klibc/archsys.h
++ *
++ * Architecture-specific syscall definitions
++ */
++
++#ifndef _KLIBC_ARCHSYS_H
++#define _KLIBC_ARCHSYS_H
++
++/* No special syscall definitions for this architecture */
++
++#endif				/* _KLIBC_ARCHSYS_H */
+diff --git a/usr/klibc/arch/parisc/MCONFIG b/usr/klibc/arch/parisc/MCONFIG
+new file mode 100644
+index 0000000..83c2e9e
+--- /dev/null
++++ b/usr/klibc/arch/parisc/MCONFIG
+@@ -0,0 +1,12 @@
++# -*- makefile -*-
++#
++# arch/parisc/MCONFIG
++#
++# Special rules for this architecture.  Note that this is actually
++# included from the main Makefile, and that pathnames should be
++# accordingly.
++#
++
++KLIBCOPTFLAGS = -Os -fomit-frame-pointer
++KLIBCBITSIZE  = 32
++KLIBCSHAREDFLAGS	= -Ttext 0x40001000
+diff --git a/usr/klibc/arch/parisc/Makefile.inc b/usr/klibc/arch/parisc/Makefile.inc
+new file mode 100644
+index 0000000..f479a6c
+--- /dev/null
++++ b/usr/klibc/arch/parisc/Makefile.inc
+@@ -0,0 +1,16 @@
++# -*- makefile -*-
++#
++# arch/parisc/Makefile.inc
++#
++# Special rules for this architecture.  Note that this is actually
++# included from the main Makefile, and that pathnames should be
++# accordingly.
++#
++
++KLIBCARCHOBJS = \
++	arch/$(KLIBCARCH)/setjmp.o \
++	arch/$(KLIBCARCH)/syscall.o
++
++KLIBCARCHOOBJS = $(patsubst %o,%.lo,%(KLIBCARCHOBJS))
++
++archclean:
+diff --git a/usr/klibc/arch/parisc/crt0.S b/usr/klibc/arch/parisc/crt0.S
+new file mode 100644
+index 0000000..0922446
+--- /dev/null
++++ b/usr/klibc/arch/parisc/crt0.S
+@@ -0,0 +1,37 @@
++	.align 4
++
++	.import $global$, data
++	.import __libc_init, code
++
++	.global _start
++	.export _start, ENTRY
++	.type _start,@function
++
++	.proc
++	.callinfo
++
++_start:
++/* extend the stack by 64-bytes */
++	ldo	64(%sp), %sp
++
++/* %r25 = argc
++ * %r24 = argv
++ * envp = argv + (argc + 1)
++ * elfdata = (argv - 4)
++ */
++	ldo	-4(%r24), %r26
++
++/* load global data */
++	ldil	L%$global$, %dp
++	ldo	R%$global$(%dp), %dp
++
++/* parisc abi puts the atexit pointer in %r23, see ELF_PLAT_INIT() */
++	copy	%r23, %r25
++
++/* branch to __libc_init */
++	bl	__libc_init,%r2
++	nop
++/* break miserably if we ever return */
++	iitlbp	%r0,(%sr0,%r0) /* illegal instruction */
++	nop
++	.procend
+diff --git a/usr/klibc/arch/parisc/setjmp.S b/usr/klibc/arch/parisc/setjmp.S
+new file mode 100644
+index 0000000..c8d766c
+--- /dev/null
++++ b/usr/klibc/arch/parisc/setjmp.S
+@@ -0,0 +1,88 @@
++/*
++ * parisc specific setjmp/longjmp routines
++ *
++ */
++
++        .text
++        .align 4
++        .global setjmp
++        .export setjmp, code
++        .proc
++        .callinfo
++setjmp:
++        stw     %r3,0(%r26)
++        stw     %r4,8(%r26)
++        stw     %r5,12(%r26)
++        stw     %r6,16(%r26)
++        stw     %r7,20(%r26)
++        stw     %r8,24(%r26)
++        stw     %r9,28(%r26)
++        stw     %r10,32(%r26)
++        stw     %r11,36(%r26)
++        stw     %r12,40(%r26)
++        stw     %r13,44(%r26)
++        stw     %r14,48(%r26)
++        stw     %r15,52(%r26)
++        stw     %r16,56(%r26)
++        stw     %r17,60(%r26)
++        stw     %r18,64(%r26)
++        stw     %r19,68(%r26)
++        stw     %r27,72(%r26)
++        stw     %r30,76(%r26)
++        stw     %rp,80(%r26)
++        ldo     88(%r26),%r19
++        fstd,ma %fr12,8(%r19)
++        fstd,ma %fr13,8(%r19)
++        fstd,ma %fr14,8(%r19)
++        fstd,ma %fr15,8(%r19)
++        fstd,ma %fr16,8(%r19)
++        fstd,ma %fr17,8(%r19)
++        fstd,ma %fr18,8(%r19)
++        fstd,ma %fr19,8(%r19)
++        fstd,ma %fr20,8(%r19)
++        fstd     %fr21,0(%r19)
++        bv       %r0(%rp)
++        copy     %r0,%r28
++	.procend
++
++	.text
++	.align 4
++	.global longjmp
++	.export longjmp, code
++	.proc
++	.callinfo
++longjmp:
++        ldw     0(%r26),%r3
++        ldw     8(%r26),%r4
++        ldw     12(%r26),%r5
++        ldw     16(%r26),%r6
++        ldw     20(%r26),%r7
++        ldw     24(%r26),%r8
++        ldw     28(%r26),%r9
++        ldw     32(%r26),%r10
++        ldw     36(%r26),%r11
++        ldw     40(%r26),%r12
++        ldw     44(%r26),%r13
++        ldw     48(%r26),%r14
++        ldw     52(%r26),%r15
++        ldw     56(%r26),%r16
++        ldw     60(%r26),%r17
++        ldw     64(%r26),%r18
++        ldw     68(%r26),%r19
++        ldw     72(%r26),%r27
++        ldw     76(%r26),%r30
++        ldw     80(%r26),%rp
++        ldo     88(%r26),%r20
++        fldd,ma 8(%r20),%fr12
++        fldd,ma 8(%r20),%fr13
++        fldd,ma 8(%r20),%fr14
++        fldd,ma 8(%r20),%fr15
++        fldd,ma 8(%r20),%fr16
++        fldd,ma 8(%r20),%fr17
++        fldd,ma 8(%r20),%fr18
++        fldd,ma 8(%r20),%fr19
++        fldd,ma 8(%r20),%fr20
++        fldd    0(%r20),%fr21
++        bv      %r0(%rp)
++        copy    %r25,%r28
++        .procend
+diff --git a/usr/klibc/arch/parisc/syscall.S b/usr/klibc/arch/parisc/syscall.S
+new file mode 100644
+index 0000000..0ff2a65
+--- /dev/null
++++ b/usr/klibc/arch/parisc/syscall.S
+@@ -0,0 +1,36 @@
++/*
++ * arch/parisc/syscall.S
++ *
++ * %r20 contains the system call number, %r2 contains whence we came
++ *
++ */
++
++	.text
++	.align 64				; cache-width aligned
++	.globl	__syscall_common
++	.type	__syscall_common,@function
++__syscall_common:
++	ldo 		0x40(%sp),%sp
++	stw 		%rp,-0x54(%sp)		; save return pointer
++
++	ldw 		-0x74(%sp),%r22		; %arg4
++	ldw 		-0x78(%sp),%r21		; %arg5
++
++	ble		0x100(%sr2, %r0)	; jump to gateway page
++	nop					; can we move a load here?
++
++	ldi		-0x1000,%r19		; %r19 = -4096
++	sub		%r0,%ret0,%r22		; %r22 = -%ret0
++	cmpb,>>=,n	%r19,%ret0,1f		; if %ret0 >= -4096UL
++	ldi		-1,%ret0		; nullified on taken forward
++
++	/* store %r22 to errno... */
++	ldil		L%errno,%r1
++	ldo		R%errno(%r1),%r1
++	stw		%r22,0(%r1)
++1:
++	ldw 		-0x54(%sp),%rp		; restore return pointer
++	bv		%r0(%rp)		; jump back
++	ldo 		-0x40(%sp),%sp
++
++	.size __syscall_common,.-__syscall_common
+diff --git a/usr/klibc/arch/parisc/sysstub.ph b/usr/klibc/arch/parisc/sysstub.ph
+new file mode 100644
+index 0000000..e2196ac
+--- /dev/null
++++ b/usr/klibc/arch/parisc/sysstub.ph
+@@ -0,0 +1,28 @@
++# -*- perl -*-
++#
++# arch/parisc/sysstub.ph
++#
++# Script to generate system call stubs
++#
++
++sub make_sysstub($$$$$@) {
++    my($outputdir, $fname, $type, $sname, $stype, @args) = @_;
++
++    open(OUT, '>', "${outputdir}/${fname}.S");
++    print OUT "#include <asm/unistd.h>\n";
++    print OUT "\n";
++    print OUT "\t.text\n";
++    print OUT "\t.align 4\n";
++    print OUT "\t.import __syscall_common, code\n";
++    print OUT "\t.global ${fname}\n";
++    print OUT "\t.export ${fname}, code\n";
++    print OUT "\t.proc\n";
++    print OUT "\.callinfo\n";
++    print OUT "${fname}:\n";
++    print OUT "\tb\t__syscall_common\n";
++    print OUT "\t  ldo\t__NR_${sname}(%r0),%r20\n";
++    print OUT "\t.procend\n";
++    close(OUT);
++}
++
++1;

@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWFZPKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWFZPQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWFZPKR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 11:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWFZPKQ
+	id S932149AbWFZPQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 11:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbWFZPQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 11:10:16 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56073 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932468AbWFZPKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 11:10:14 -0400
-Date: Mon, 26 Jun 2006 17:10:12 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
-Message-ID: <20060626151012.GR23314@stusta.de>
+	Mon, 26 Jun 2006 11:16:08 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:3786 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932468AbWFZPQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 11:16:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Bs2R0AqHeknauC178K5SBrgcT9pTfPJl0KLyt2wAZ0lAZ+GV1qeggEe/3K5/mH7FyZIMa7NIyZQ+awqAV0vnTXcUP11He4DiW9BUfl+U8/cw37tSt3NHB70efM3DixdLrmYaYXaUb05b42wFh+N9U+upZzPo6H+2Rwv5klQEiWU=
+Message-ID: <d120d5000606260816g68def55btb52cbb1255f3d200@mail.gmail.com>
+Date: Mon, 26 Jun 2006 11:16:04 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Subject: Re: [PATCH] atkbd: restore autorepeat rate after resume
+Cc: "Alan Stern" <stern@rowland.harvard.edu>, "Andrew Morton" <akpm@osdl.org>,
+       "Kernel development list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060626150139.GA24550@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <Pine.LNX.4.44L0.0606261017340.9467-100000@iolanthe.rowland.org>
+	 <d120d5000606260735v6e1762d7mc278f315c3a994fb@mail.gmail.com>
+	 <20060626145332.GB24275@suse.cz>
+	 <d120d5000606260758m2ee97482m517d432f88975d87@mail.gmail.com>
+	 <20060626150139.GA24550@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-virt_to_bus/bus_to_virt are long deprecated, mark them as __deprecated 
-on i386.
+On 6/26/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Mon, Jun 26, 2006 at 10:58:46AM -0400, Dmitry Torokhov wrote:
+> > On 6/26/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > >On Mon, Jun 26, 2006 at 10:35:44AM -0400, Dmitry Torokhov wrote:
+> > >> On 6/26/06, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > >> >From: Linus Torvalds <torvalds@osdl.org>
+> > >> >
+> > >> >This patch (as728) makes the AT keyboard driver store the current
+> > >> >autorepeat rate so that it can be restored properly following a
+> > >> >suspend/resume cycle.
+> > >> >
+> > >>
+> > >> Alan,
+> > >>
+> > >> I think it should be a per-device, not global parameter. Anyway, I'll
+> > >> adjust adn apply, thank you.
+> > >
+> > >You can't make it per-device when there is no device when the keyboard
+> > >isn't plugged in. ;)
+> >
+> > It there is no keyboard then you could not change repeat rate before
+> > suspending and we don't have anyhting to restore ;)
+>
+> What the patch is trying to achieve is that you have the keyboard, set
+> the rate, unplug the keyboard, replug the keyboard, get the original
+> setting.
+>
+> In the middle of the process, you have no device to attach the
+> information to. That's why the patch uses a global variable.
+>
 
-Without such warnings people will never update their code and fix 
-the errors in PPC64 builds.
+The original complaint was that we don't keep repeat rate after
+suspend/resume cycle. I think pulling the cord and then plugging it
+back in is completely different scenario, but even then it will also
+work because we do not destroy keyboard device when cord is pulled
+(there is no notification that device is gone). So input_dev is still
+there and we can use dev->rep[] to restore the former settings.
 
-And yes, some of the drivers affected are maintained.
-
-This also ctches accidential additions of users for these functions like 
-a usage of bus_to_virt() in the infiniband code that was added in 
-2.6.17-rc1 (already removed).
-
-This patch increases the number of warnings shown during builds, but it 
-seems worth including it at least in -mm for making people aware of this 
-issue.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was already sent on:
-- 27 Apr 2006
-- 19 Apr 2006
-- 6 Jan 2006
-- 13 Dec 2005
-- 23 Nov 2005
-- 18 Nov 2005
-- 12 Nov 2005
-
---- linux-2.6.14-mm2-full/include/asm-i386/io.h.old	2005-11-12 01:44:38.000000000 +0100
-+++ linux-2.6.14-mm2-full/include/asm-i386/io.h	2005-11-12 01:45:58.000000000 +0100
-@@ -144,8 +144,14 @@
-  *
-  * Allow them on x86 for legacy drivers, though.
-  */
--#define virt_to_bus virt_to_phys
--#define bus_to_virt phys_to_virt
-+static inline unsigned long __deprecated virt_to_bus(volatile void * address)
-+{
-+	return __pa(address);
-+}
-+static inline void * __deprecated bus_to_virt(unsigned long address)
-+{
-+	return __va(address);
-+}
- 
- /*
-  * readX/writeX() are used to access memory mapped devices. On some
-
+-- 
+Dmitry

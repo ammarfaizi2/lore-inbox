@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWFZQ4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWFZQ4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWFZQ4F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 12:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWFZQym
+	id S1750898AbWFZQ4o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 12:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWFZQyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 12:54:42 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:50310 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1750921AbWFZQyL
+	Mon, 26 Jun 2006 12:54:32 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:51334 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1750915AbWFZQyS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 12:54:11 -0400
+	Mon, 26 Jun 2006 12:54:18 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 3/9] [Suspend2] Free a whole extent chain.
-Date: Tue, 27 Jun 2006 02:54:15 +1000
+Subject: [Suspend2][ 5/9] [Suspend2] Serialise extent chains.
+Date: Tue, 27 Jun 2006 02:54:22 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626165413.11065.69373.stgit@nigel.suspend2.net>
+Message-Id: <20060626165420.11065.26195.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626165404.11065.91833.stgit@nigel.suspend2.net>
 References: <20060626165404.11065.91833.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,42 +22,84 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a routine to free an entire extent chain at once.
+Add routines for storing extent chains in an image header.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/extent.c |   23 +++++++++++++++++++++++
- 1 files changed, 23 insertions(+), 0 deletions(-)
+ kernel/power/extent.c |   65 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 65 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/extent.c b/kernel/power/extent.c
-index 2fb6a23..ab19509 100644
+index 31fcb65..f7db014 100644
 --- a/kernel/power/extent.c
 +++ b/kernel/power/extent.c
-@@ -47,3 +47,26 @@ void suspend_put_extent(struct extent *e
- 	suspend_extents_allocated--;
+@@ -141,3 +141,68 @@ int suspend_add_to_extent_chain(struct e
+ 	return 0;
  }
  
-+/* suspend_put_extent_chain.
++/* suspend_serialise_extent_chain
 + *
-+ * Frees a whole chain of extents.
++ * Write a chain in the image.
 + */
-+void suspend_put_extent_chain(struct extent_chain *chain)
++int suspend_serialise_extent_chain(struct suspend_module_ops *owner,
++		struct extent_chain *chain)
 +{
 +	struct extent *this;
++	int ret, i = 0;
++	
++	if ((ret = suspend_active_writer->rw_header_chunk(WRITE, owner,
++		(char *) chain,
++		3 * sizeof(int))))
++		return ret;
 +
 +	this = chain->first;
-+
-+	while(this) {
-+		struct extent *next = this->next;
-+		kfree(this);
-+		chain->frees++;
-+		suspend_extents_allocated --;
-+		this = next;
++	while (this) {
++		if ((ret = suspend_active_writer->rw_header_chunk(WRITE, owner,
++				(char *) this,
++				2 * sizeof(unsigned long))))
++			return ret;
++		this = this->next;
++		i++;
 +	}
-+	
-+	BUG_ON(chain->frees != chain->allocs);
-+	chain->first = chain->last = chain->last_touched = NULL;
-+	chain->size = chain->allocs = chain->frees = 0;
++
++	if (i != (chain->allocs - chain->frees)) {
++		printk(KERN_EMERG "Saved %d extents but chain metadata says there should be %d-%d.\n",
++				i, chain->allocs, chain->frees);
++		BUG();
++	}
++
++	return ret;
++}
++
++/* suspend_load_extent_chain
++ *
++ * Read back a chain saved in the image.
++ */
++int suspend_load_extent_chain(struct extent_chain *chain)
++{
++	struct extent *this, *last = NULL;
++	int i, ret;
++
++	if (!(ret = suspend_active_writer->rw_header_chunk(READ, NULL,
++		(char *) chain,
++		3 * sizeof(int))))
++		return ret;
++
++	for (i = 0; i < (chain->allocs - chain->frees); i++) {
++		this = kmalloc(sizeof(struct extent), GFP_ATOMIC);
++		BUG_ON(!this); /* Shouldn't run out of memory trying this! */
++		this->next = NULL;
++		if (!(ret = suspend_active_writer->rw_header_chunk(READ, NULL,
++				(char *) this, 2 * sizeof(unsigned long))))
++			return ret;
++		if (last)
++			last->next = this;
++		else
++			chain->first = this;
++		last = this;
++	}
++	chain->last = last;
++	return ret;
 +}
 +
 

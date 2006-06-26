@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933121AbWFZWdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933099AbWFZWcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933121AbWFZWdv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933113AbWFZWby
+	id S933099AbWFZWcG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933102AbWFZWb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:31:54 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:61930 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933108AbWFZWbp
+	Mon, 26 Jun 2006 18:31:58 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:60906 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933099AbWFZWbi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:31:45 -0400
+	Mon, 26 Jun 2006 18:31:38 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 4/7] [Suspend2] Space needed to store one set of pageflags.
-Date: Tue, 27 Jun 2006 08:31:43 +1000
+Subject: [Suspend2][ 2/7] [Suspend2] Return number of zones used.
+Date: Tue, 27 Jun 2006 08:31:36 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223141.3725.33148.stgit@nigel.suspend2.net>
+Message-Id: <20060626223135.3725.11811.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626223128.3725.55605.stgit@nigel.suspend2.net>
 References: <20060626223128.3725.55605.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,33 +22,30 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Return the number of bytes in the image header required to store one set of
-pageflags.
+Get the number of zones used. Used when relocating the pageflags (below).
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/pageflags.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+), 0 deletions(-)
+ kernel/power/pageflags.c |   11 +++++++++++
+ 1 files changed, 11 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/pageflags.c b/kernel/power/pageflags.c
-index ec028d3..7c00257 100644
+index 81f0825..3781fc8 100644
 --- a/kernel/power/pageflags.c
 +++ b/kernel/power/pageflags.c
-@@ -43,3 +43,16 @@ static int pages_for_zone(struct zone *z
- 			(PAGE_SIZE << 3);
- }
+@@ -26,3 +26,14 @@ dyn_pageflags_t pageset1_copy_map;
+ dyn_pageflags_t pageset2_map;
+ dyn_pageflags_t in_use_map;
  
-+int suspend_pageflags_space_needed(void)
++static int num_zones(void)
 +{
-+	int total = 0;
++	int result = 0;
 +	struct zone *zone;
 +
 +	for_each_zone(zone)
-+		total += sizeof(int) * 2 + pages_for_zone(zone) * PAGE_SIZE;
++		result++;
 +
-+	total += sizeof(int);
-+
-+	return total;
++	return result;
 +}
 +
 

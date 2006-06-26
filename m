@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWFZLal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWFZLhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750902AbWFZLal (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 07:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWFZLal
+	id S1750951AbWFZLhW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 07:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWFZLhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 07:30:41 -0400
-Received: from bambus1.net.skarpam.net ([83.142.194.78]:59817 "EHLO
-	orbiter.attika.ath.cx") by vger.kernel.org with ESMTP
-	id S1750902AbWFZLak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 07:30:40 -0400
-Date: Mon, 26 Jun 2006 13:30:38 +0200
-From: Piotr Kaczuba <pepe@attika.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: [x86-64] ioctl32 for USB
-Message-ID: <20060626113037.GA6265@attika.ath.cx>
+	Mon, 26 Jun 2006 07:37:22 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:43752 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750752AbWFZLhU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 07:37:20 -0400
+Date: Mon, 26 Jun 2006 13:37:02 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 61/61] lock validator: enable lock validator in Kconfig
+In-Reply-To: <20060623110119.GS4889@elte.hu>
+Message-ID: <Pine.LNX.4.64.0606261317520.12900@scrub.home>
+References: <20060529212812.GI3155@elte.hu> <Pine.LNX.4.64.0605301525510.17704@scrub.home>
+ <20060623110119.GS4889@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-I'm running a 64-bit kernel and 32-bit userspace. There seems to be some
-unimplemented compability ioctls regarding USB. Dmesg shows the
-following:
+On Fri, 23 Jun 2006, Ingo Molnar wrote:
 
-[184966.543022] ioctl32(hald-probe-hidd:10760): Unknown cmd fd(4)
-cmd(81004806){01} arg(ffb52dd0) on /dev/usb/hiddev0
+> > Could you please keep all the defaults in a separate -mm-only patch, 
+> > so it doesn't get merged?
+> 
+> yep - the default got removed.
 
-and
+Thanks.
 
-[50974.410204] ioctl32(vmware-vmx:3470): Unknown cmd fd(140)
-cmd(40109980){00} arg(ffb551a0) on /proc/bus/usb/002/001
+> > > +config LOCKDEP
+> > > +	bool
+> > > +	default y
+> > > +	depends on PROVE_SPIN_LOCKING || PROVE_RW_LOCKING || PROVE_MUTEX_LOCKING || PROVE_RWSEM_LOCKING
+> > 
+> > This can be written shorter as:
+> > 
+> > config LOCKDEP
+> > 	def_bool PROVE_SPIN_LOCKING || PROVE_RW_LOCKING || PROVE_MUTEX_LOCKING || PROVE_RWSEM_LOCKING
+> 
+> ok, done. (Btw., there's tons of other Kconfig code though that uses the 
+> bool + depends syntax though, and def_bool usage is quite rare.)
 
-Have it been only forgotten or are there other more serious reasons that
-these ioctls are missing?
+The new syntax was added later, so everything that was converted uses the 
+basic syntax and is still copied around a lot (where it's probably also 
+doesn't help that it's not properly documented yet). I'm still planing to 
+go through this and convert most of them...
 
-Piotr Kaczuba
+bye, Roman

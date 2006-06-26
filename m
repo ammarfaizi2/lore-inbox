@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWFZBJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWFZBIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbWFZBJU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 21:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWFZBIp
+	id S964984AbWFZBIh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 21:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965179AbWFZBIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 21:08:45 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:19855 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964990AbWFZA6t
+	Sun, 25 Jun 2006 21:08:35 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:20367 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964971AbWFZA6u
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:58:49 -0400
+	Sun, 25 Jun 2006 20:58:50 -0400
 Date: Sun, 25 Jun 2006 17:58:04 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 21/43] alpha support for klibc
-Message-Id: <klibc.200606251757.21@tazenda.hos.anvin.org>
+Subject: [klibc 22/43] arm support for klibc
+Message-Id: <klibc.200606251757.22@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The parts of klibc specific to the alpha architecture.
+The parts of klibc specific to the arm architecture.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit 5e5ce29210ac33a0b3704eb9ab5e5d5b55375575
-tree 2ec24df596e13c21b68da4d905f546770d36fdad
-parent 8529b52550ba78984998d3a9cc9deb467217fa3e
-author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:14 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:14 -0700
+commit 1eff7c685b36cd0120694fd4150b32a26168d926
+tree 953dd1dbd2e994fc27c6cf5708fcbe06fe000d58
+parent 5e5ce29210ac33a0b3704eb9ab5e5d5b55375575
+author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:16 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:16 -0700
 
- usr/include/arch/alpha/klibc/archconfig.h |   15 ++++++
- usr/include/arch/alpha/klibc/archsetjmp.h |   33 +++++++++++++
- usr/include/arch/alpha/klibc/archsignal.h |   14 +++++
- usr/include/arch/alpha/klibc/archstat.h   |   28 +++++++++++
- usr/include/arch/alpha/klibc/archsys.h    |   53 ++++++++++++++++++++
- usr/include/arch/alpha/machine/asm.h      |   44 +++++++++++++++++
- usr/klibc/arch/alpha/MCONFIG              |   16 ++++++
- usr/klibc/arch/alpha/Makefile.inc         |   60 +++++++++++++++++++++++
- usr/klibc/arch/alpha/README-gcc           |   22 +++++++++
- usr/klibc/arch/alpha/crt0.S               |   22 +++++++++
- usr/klibc/arch/alpha/divide.c             |   59 +++++++++++++++++++++++
- usr/klibc/arch/alpha/pipe.S               |   38 +++++++++++++++
- usr/klibc/arch/alpha/setjmp.S             |   75 +++++++++++++++++++++++++++++
- usr/klibc/arch/alpha/syscall.S            |   26 ++++++++++
- usr/klibc/arch/alpha/sysdual.S            |   33 +++++++++++++
- usr/klibc/arch/alpha/sysstub.ph           |   37 ++++++++++++++
- 16 files changed, 575 insertions(+), 0 deletions(-)
+ usr/include/arch/arm/klibc/archconfig.h |   14 ++++
+ usr/include/arch/arm/klibc/archsetjmp.h |   14 ++++
+ usr/include/arch/arm/klibc/archsignal.h |   14 ++++
+ usr/include/arch/arm/klibc/archstat.h   |   40 ++++++++++++
+ usr/include/arch/arm/klibc/archsys.h    |   12 ++++
+ usr/include/arch/arm/klibc/asmmacros.h  |   30 +++++++++
+ usr/klibc/arch/arm/MCONFIG              |   36 +++++++++++
+ usr/klibc/arch/arm/Makefile.inc         |   23 +++++++
+ usr/klibc/arch/arm/__muldi3.c           |   15 +++++
+ usr/klibc/arch/arm/aeabi_nonsense.S     |    9 +++
+ usr/klibc/arch/arm/crt0.S               |   23 +++++++
+ usr/klibc/arch/arm/setjmp.S             |  102 +++++++++++++++++++++++++++++++
+ usr/klibc/arch/arm/syscall.S            |   61 +++++++++++++++++++
+ usr/klibc/arch/arm/sysstub.ph           |   58 ++++++++++++++++++
+ usr/klibc/arch/arm/vfork.S              |   60 ++++++++++++++++++
+ 15 files changed, 511 insertions(+), 0 deletions(-)
 
-diff --git a/usr/include/arch/alpha/klibc/archconfig.h b/usr/include/arch/alpha/klibc/archconfig.h
+diff --git a/usr/include/arch/arm/klibc/archconfig.h b/usr/include/arch/arm/klibc/archconfig.h
 new file mode 100644
-index 0000000..272fee0
+index 0000000..e34bdb7
 --- /dev/null
-+++ b/usr/include/arch/alpha/klibc/archconfig.h
-@@ -0,0 +1,15 @@
++++ b/usr/include/arch/arm/klibc/archconfig.h
+@@ -0,0 +1,14 @@
 +/*
-+ * include/arch/alpha/klibc/archconfig.h
++ * include/arch/arm/klibc/archconfig.h
 + *
 + * See include/klibc/sysconfig.h for the options that can be set in
 + * this file.
@@ -63,57 +62,37 @@ index 0000000..272fee0
 +#ifndef _KLIBC_ARCHCONFIG_H
 +#define _KLIBC_ARCHCONFIG_H
 +
-+#define _KLIBC_USE_RT_SIG 1
-+#define _KLIBC_STATFS_F_TYPE_64 0
++/* All defaults */
 +
 +#endif				/* _KLIBC_ARCHCONFIG_H */
-diff --git a/usr/include/arch/alpha/klibc/archsetjmp.h b/usr/include/arch/alpha/klibc/archsetjmp.h
+diff --git a/usr/include/arch/arm/klibc/archsetjmp.h b/usr/include/arch/arm/klibc/archsetjmp.h
 new file mode 100644
-index 0000000..47638b3
+index 0000000..88db8a1
 --- /dev/null
-+++ b/usr/include/arch/alpha/klibc/archsetjmp.h
-@@ -0,0 +1,33 @@
++++ b/usr/include/arch/arm/klibc/archsetjmp.h
+@@ -0,0 +1,14 @@
 +/*
-+ * arch/alpha/include/klibc/archsetjmp.h
++ * arch/i386/include/klibc/archsetjmp.h
 + */
 +
 +#ifndef _KLIBC_ARCHSETJMP_H
 +#define _KLIBC_ARCHSETJMP_H
 +
 +struct __jmp_buf {
-+	unsigned long __s0;
-+	unsigned long __s1;
-+	unsigned long __s2;
-+	unsigned long __s3;
-+	unsigned long __s4;
-+	unsigned long __s5;
-+	unsigned long __fp;
-+	unsigned long __ra;
-+	unsigned long __gp;
-+	unsigned long __sp;
-+
-+	unsigned long __f2;
-+	unsigned long __f3;
-+	unsigned long __f4;
-+	unsigned long __f5;
-+	unsigned long __f6;
-+	unsigned long __f7;
-+	unsigned long __f8;
-+	unsigned long __f9;
++	unsigned int regs[10];
 +};
 +
-+/* Must be an array so it will decay to a pointer when a function is called */
 +typedef struct __jmp_buf jmp_buf[1];
 +
-+#endif				/* _KLIBC_ARCHSETJMP_H */
-diff --git a/usr/include/arch/alpha/klibc/archsignal.h b/usr/include/arch/alpha/klibc/archsignal.h
++#endif				/* _SETJMP_H */
+diff --git a/usr/include/arch/arm/klibc/archsignal.h b/usr/include/arch/arm/klibc/archsignal.h
 new file mode 100644
-index 0000000..2193a35
+index 0000000..a589527
 --- /dev/null
-+++ b/usr/include/arch/alpha/klibc/archsignal.h
++++ b/usr/include/arch/arm/klibc/archsignal.h
 @@ -0,0 +1,14 @@
 +/*
-+ * arch/alpha/include/klibc/archsignal.h
++ * arch/arm/include/klibc/archsignal.h
 + *
 + * Architecture-specific signal definitions
 + *
@@ -126,12 +105,12 @@ index 0000000..2193a35
 +/* No special stuff for this architecture */
 +
 +#endif
-diff --git a/usr/include/arch/alpha/klibc/archstat.h b/usr/include/arch/alpha/klibc/archstat.h
+diff --git a/usr/include/arch/arm/klibc/archstat.h b/usr/include/arch/arm/klibc/archstat.h
 new file mode 100644
-index 0000000..66e29be
+index 0000000..95bbc9e
 --- /dev/null
-+++ b/usr/include/arch/alpha/klibc/archstat.h
-@@ -0,0 +1,28 @@
++++ b/usr/include/arch/arm/klibc/archstat.h
+@@ -0,0 +1,40 @@
 +#ifndef _KLIBC_ARCHSTAT_H
 +#define _KLIBC_ARCHSTAT_H
 +
@@ -139,35 +118,47 @@ index 0000000..66e29be
 +
 +#define _STATBUF_ST_NSEC
 +
++/* This matches struct stat64 in glibc2.1, hence the absolutely
++ * insane amounts of padding around dev_t's.
++ * Note: The kernel zero's the padded region because glibc might read them
++ * in the hope that the kernel has stretched to using larger sizes.
++ */
++
 +struct stat {
 +	__stdev64	(st_dev);
-+	unsigned long	st_ino;
-+	__stdev64	(st_rdev);
-+	long		st_size;
-+	unsigned long	st_blocks;
++	unsigned char   __pad0[4];
 +
++	unsigned long	__st_ino;
 +	unsigned int	st_mode;
-+	unsigned int	st_uid;
-+	unsigned int	st_gid;
-+	unsigned int	st_blksize;
 +	unsigned int	st_nlink;
-+	unsigned int	__pad0;
++
++	unsigned long	st_uid;
++	unsigned long	st_gid;
++
++	__stdev64	(st_rdev);
++	unsigned char   __pad3[4];
++
++	long long	st_size;
++	unsigned long	st_blksize;
++
++	unsigned long long  st_blocks;	/* Number 512-byte blocks allocated. */
 +
 +	struct timespec st_atim;
 +	struct timespec st_mtim;
 +	struct timespec st_ctim;
-+  	long		__unused[3];
++
++	unsigned long long	st_ino;
 +};
 +
 +#endif
-diff --git a/usr/include/arch/alpha/klibc/archsys.h b/usr/include/arch/alpha/klibc/archsys.h
+diff --git a/usr/include/arch/arm/klibc/archsys.h b/usr/include/arch/arm/klibc/archsys.h
 new file mode 100644
-index 0000000..a60a0f2
+index 0000000..e655680
 --- /dev/null
-+++ b/usr/include/arch/alpha/klibc/archsys.h
-@@ -0,0 +1,53 @@
++++ b/usr/include/arch/arm/klibc/archsys.h
+@@ -0,0 +1,12 @@
 +/*
-+ * arch/alpha/include/klibc/archsys.h
++ * arch/cris/include/klibc/archsys.h
 + *
 + * Architecture-specific syscall definitions
 + */
@@ -175,545 +166,483 @@ index 0000000..a60a0f2
 +#ifndef _KLIBC_ARCHSYS_H
 +#define _KLIBC_ARCHSYS_H
 +
-+/* Alpha has some bizarre Tru64-derived system calls which return two
-+   different values in $0 and $20(!), respectively.  The standard
-+   macros can't deal with these; even the ones that give the right
-+   return value have the wrong clobbers. */
-+
-+#define _syscall0_dual0(type, name)                                     \
-+type name(void)                                                         \
-+{                                                                       \
-+        long _sc_ret, _sc_err;                                          \
-+        {                                                               \
-+                register long _sc_0 __asm__("$0");                      \
-+                register long _sc_19 __asm__("$19");                    \
-+                register long _sc_20 __asm__("$20");                    \
-+                                                                        \
-+                _sc_0 = __NR_##name;                                    \
-+                __asm__("callsys"                                       \
-+                        : "=r"(_sc_0), "=r"(_sc_19), "=r" (_sc_20)      \
-+                        : "0"(_sc_0)                                    \
-+                        : _syscall_clobbers);                           \
-+                _sc_ret = _sc_0, _sc_err = _sc_19; (void)(_sc_20);      \
-+        }                                                               \
-+        _syscall_return(type);                                          \
-+}
-+
-+#define _syscall0_dual1(type, name)                                     \
-+type name(void)                                                         \
-+{                                                                       \
-+        long _sc_ret, _sc_err;                                          \
-+        {                                                               \
-+                register long _sc_0 __asm__("$0");                      \
-+                register long _sc_19 __asm__("$19");                    \
-+                register long _sc_20 __asm__("$20");                    \
-+                                                                        \
-+                _sc_0 = __NR_##name;                                    \
-+                __asm__("callsys"                                       \
-+                        : "=r"(_sc_0), "=r"(_sc_19), "=r" (_sc_20)      \
-+                        : "0"(_sc_0)                                    \
-+                        : _syscall_clobbers);                           \
-+                _sc_ret = _sc_20, _sc_err = _sc_19; (void)(_sc_0);      \
-+        }                                                               \
-+        _syscall_return(type);                                          \
-+}
++/* No special syscall definitions for this architecture */
 +
 +#endif				/* _KLIBC_ARCHSYS_H */
-diff --git a/usr/include/arch/alpha/machine/asm.h b/usr/include/arch/alpha/machine/asm.h
+diff --git a/usr/include/arch/arm/klibc/asmmacros.h b/usr/include/arch/arm/klibc/asmmacros.h
 new file mode 100644
-index 0000000..c2ae4ed
+index 0000000..8a21c94
 --- /dev/null
-+++ b/usr/include/arch/alpha/machine/asm.h
-@@ -0,0 +1,44 @@
++++ b/usr/include/arch/arm/klibc/asmmacros.h
+@@ -0,0 +1,30 @@
 +/*
-+ * machine/asm.h
++ * usr/include/arch/arm/klibc/asmmacros.h
++ *
++ * Assembly macros used by ARM system call stubs
 + */
 +
-+#ifndef _MACHINE_ASM_H
-+#define _MACHINE_ASM_H
++#ifndef _KLIBC_ASMMACROS_H
++#define _KLIBC_ASMMACROS_H
 +
-+/* Standard aliases for Alpha register names */
++/* An immediate in ARM can be any 8-bit value rotated by an even number of bits */
 +
-+#define v0	$0
-+#define t0	$1
-+#define t1	$2
-+#define t2	$3
-+#define t3	$4
-+#define t4	$5
-+#define t5	$6
-+#define t6	$7
-+#define t7	$8
-+#define s0	$9
-+#define s1	$10
-+#define s2	$11
-+#define s3	$12
-+#define s4	$13
-+#define s5	$14
-+#define fp	$15
-+#define a0	$16
-+#define a1	$17
-+#define a2	$18
-+#define a3	$19
-+#define a4	$20
-+#define a5	$21
-+#define t8	$22
-+#define t9	$23
-+#define t10	$24
-+#define t11	$25
-+#define ra	$26
-+#define t12	$27		/* t12 and pv are both used for $27 */
-+#define pv	$27		/* t12 and pv are both used for $27 */
-+#define at	$28
-+#define gp	$29
-+#define sp	$30
-+#define zero	$31
++#define ARM_VALID_IMM(x)	\
++	((((x) & ~0x000000ff) == 0) || \
++	 (((x) & ~0x000003fc) == 0) || \
++	 (((x) & ~0x00000ff0) == 0) || \
++	 (((x) & ~0x00003fc0) == 0) || \
++	 (((x) & ~0x0000ff00) == 0) || \
++	 (((x) & ~0x0003fc00) == 0) || \
++	 (((x) & ~0x000ff000) == 0) || \
++	 (((x) & ~0x003fc000) == 0) || \
++	 (((x) & ~0x00ff0000) == 0) || \
++	 (((x) & ~0x03fc0000) == 0) || \
++	 (((x) & ~0x0ff00000) == 0) || \
++	 (((x) & ~0x3fc00000) == 0) || \
++	 (((x) & ~0xff000000) == 0) || \
++	 (((x) & ~0xfc000003) == 0) || \
++	 (((x) & ~0xf000000f) == 0) || \
++	 (((x) & ~0xc000003f) == 0))
 +
-+#endif				/* _MACHINE_ASM_H */
-diff --git a/usr/klibc/arch/alpha/MCONFIG b/usr/klibc/arch/alpha/MCONFIG
++#endif /* _KLIBC_ASMMACROS_H */
+diff --git a/usr/klibc/arch/arm/MCONFIG b/usr/klibc/arch/arm/MCONFIG
 new file mode 100644
-index 0000000..4420cdb
+index 0000000..0023eee
 --- /dev/null
-+++ b/usr/klibc/arch/alpha/MCONFIG
-@@ -0,0 +1,16 @@
++++ b/usr/klibc/arch/arm/MCONFIG
+@@ -0,0 +1,36 @@
 +# -*- makefile -*-
 +#
-+# arch/alpha/MCONFIG
-+#
-+# Build configuration for this architecture
-+#
-+
-+KLIBCOPTFLAGS = -Os
-+KLIBCBITSIZE  = 64
-+
-+# Extra linkflags when building the shared version of the library
-+# This address needs to be reachable using normal inter-module
-+# calls, and work on the memory models for this architecture
-+# 7 GB - normal binaries start at 4.5 GB, and the stack is below
-+# the binary.
-+KLIBCSHAREDFLAGS	= -Ttext 0x1c0000200
-diff --git a/usr/klibc/arch/alpha/Makefile.inc b/usr/klibc/arch/alpha/Makefile.inc
-new file mode 100644
-index 0000000..9f51b7f
---- /dev/null
-+++ b/usr/klibc/arch/alpha/Makefile.inc
-@@ -0,0 +1,60 @@
-+# -*- makefile -*-
-+#
-+# arch/alpha/Makefile.inc
++# arch/arm/MCONFIG
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
 +# accordingly.
 +#
 +
-+# Special CFLAGS for the divide code
-+DIVCFLAGS = $(KLIBCREQFLAGS) $(KLIBCARCHREQFLAGS) \
-+	-O3 -fomit-frame-pointer -fcall-saved-1 -fcall-saved-2 \
-+	-fcall-saved-3 -fcall-saved-4 -fcall-saved-5 -fcall-saved-6 \
-+	-fcall-saved-7 -fcall-saved-8 -ffixed-15 -fcall-saved-16 \
-+	-fcall-saved-17 -fcall-saved-18 -fcall-saved-19 -fcall-saved-20 \
-+	-fcall-saved-21 -fcall-saved-22 -ffixed-23 -fcall-saved-24 \
-+	-ffixed-25 -ffixed-27
++CPU_ARCH := armv4
++CPU_TUNE := strongarm
 +
-+KLIBCARCHOBJS := arch/$(KLIBCARCH)/pipe.o     arch/$(KLIBCARCH)/setjmp.o
-+KLIBCARCHOBJS += arch/$(KLIBCARCH)/syscall.o  arch/$(KLIBCARCH)/sysdual.o
++KLIBCOPTFLAGS = -Os -march=$(CPU_ARCH) -mtune=$(CPU_TUNE)
++KLIBCBITSIZE  = 32
++KLIBCREQFLAGS = -fno-exceptions
++KLIBCSTRIPFLAGS += -R .ARM.exidx
 +
-+DIVOBJS += arch/$(KLIBCARCH)/__divqu.o \
-+           arch/$(KLIBCARCH)/__remqu.o \
-+           arch/$(KLIBCARCH)/__divq.o \
-+           arch/$(KLIBCARCH)/__remq.o \
-+           arch/$(KLIBCARCH)/__divlu.o \
-+           arch/$(KLIBCARCH)/__remlu.o \
-+           arch/$(KLIBCARCH)/__divl.o \
-+           arch/$(KLIBCARCH)/__reml.o
++ifeq ($(CONFIG_KLIBC_THUMB),y)
++CPU_ARCH := $(CPU_ARCH)t
++KLIBCREQFLAGS += -mthumb
++KLIBCLDFLAGS  += --thumb-entry _start
++KLIBCEMAIN     = --thumb-entry _start
++KLIBCREQFLAGS += -mabi=aapcs-linux
++KLIBCSHAREDFLAGS = -Ttext 0x380200
++else
++# Extra linkflags when building the shared version of the library
++# This address needs to be reachable using normal inter-module
++# calls, and work on the memory models for this architecture
++KLIBCSHAREDFLAGS = -Ttext 0x01800200
++ifeq ($(CONFIG_AEABI),y)
++KLIBCREQFLAGS += -mabi=aapcs-linux -mno-thumb-interwork
++else
++KLIBCREQFLAGS += -mabi=apcs-gnu -mno-thumb-interwork
++endif
++endif
 +
-+KLIBCARCHOBJS += $(DIVOBJS)
-+
-+quiet_cmd_regswap = REGSWAP $@
-+      cmd_regswap = sed -e 's/\$$0\b/$$27/g'  -e 's/\$$24\b/$$99/g' \
-+                        -e 's/\$$16\b/$$24/g' -e 's/\$$17\b/$$25/g' \
-+                        -e 's/\$$26\b/$$23/g' -e 's/\$$99\b/$$16/g' < $< > $@
-+
-+# Use static pattern rule to avoid using a temporary file
-+$(addprefix $(obj)/,$(DIVOBJS:.o=.S)): $(obj)/arch/$(KLIBCARCH)/%.S: \
-+                                       $(obj)/arch/$(KLIBCARCH)/%.ss
-+	$(call if_changed,regswap)
-+
-+quiet_cmd_genss = DIV-CC  $@
-+      cmd_genss = $(CC) $(DIVCFLAGS) $(FILE_CFLAGS) \
-+                        -DNAME=$(basename $(notdir $@)) -S -o $@ $<
-+
-+$(obj)/arch/$(KLIBCARCH)/%.ss: $(obj)/arch/$(KLIBCARCH)/divide.c
-+	$(call if_changed,genss)
-+
-+$(obj)/arch/$(KLIBCARCH)/__divqu.ss: FILE_CFLAGS := -DSIGNED=0 -DREM=0 -DBITS=64
-+$(obj)/arch/$(KLIBCARCH)/__remqu.ss: FILE_CFLAGS := -DSIGNED=0 -DREM=1 -DBITS=64
-+$(obj)/arch/$(KLIBCARCH)/__divq.ss:  FILE_CFLAGS := -DSIGNED=1 -DREM=0 -DBITS=64
-+$(obj)/arch/$(KLIBCARCH)/__remq.ss:  FILE_CFLAGS := -DSIGNED=1 -DREM=1 -DBITS=64
-+$(obj)/arch/$(KLIBCARCH)/__divlu.ss: FILE_CFLAGS := -DSIGNED=0 -DREM=0 -DBITS=32
-+$(obj)/arch/$(KLIBCARCH)/__remlu.ss: FILE_CFLAGS := -DSIGNED=0 -DREM=1 -DBITS=32
-+$(obj)/arch/$(KLIBCARCH)/__divl.ss:  FILE_CFLAGS := -DSIGNED=1 -DREM=0 -DBITS=32
-+$(obj)/arch/$(KLIBCARCH)/__reml.ss:  FILE_CFLAGS := -DSIGNED=1 -DREM=1 -DBITS=32
-+
-+targets     += $(DIVOBJS:.o=.S) $(DIVOBJS:.o=.ss)
-+clean-files += $(DIVOBJS:.o=.S) $(DIVOBJS:.o=.ss)
-diff --git a/usr/klibc/arch/alpha/README-gcc b/usr/klibc/arch/alpha/README-gcc
+diff --git a/usr/klibc/arch/arm/Makefile.inc b/usr/klibc/arch/arm/Makefile.inc
 new file mode 100644
-index 0000000..1d0052f
+index 0000000..9222918
 --- /dev/null
-+++ b/usr/klibc/arch/alpha/README-gcc
-@@ -0,0 +1,22 @@
-+   The current Alpha chips don't provide hardware for integer
-+   division.  The C compiler expects the functions
-+
-+        __divqu: 64-bit unsigned long divide
-+        __remqu: 64-bit unsigned long remainder
-+        __divq/__remq:   signed 64-bit
-+        __divlu/__remlu: unsigned 32-bit
-+        __divl/__reml:   signed 32-bit
-+
-+   These are not normal C functions: instead of the normal calling
-+   sequence, these expect their arguments in registers t10 and t11, and
-+   return the result in t12 (aka pv).  Register AT may be clobbered
-+   (assembly temporary), anything else must be saved.
-+
-+   Furthermore, the return address is in t9 instead of ra.
-+
-+   Normal function	Divide functions
-+   ---------------	----------------
-+   v0 ($0)		t12/pv ($27)
-+   a0 ($16)		t10 ($24)
-+   a1 ($17)		t11 ($25)
-+   ra ($26)		t9 ($23)
-diff --git a/usr/klibc/arch/alpha/crt0.S b/usr/klibc/arch/alpha/crt0.S
-new file mode 100644
-index 0000000..5e2babb
---- /dev/null
-+++ b/usr/klibc/arch/alpha/crt0.S
-@@ -0,0 +1,22 @@
++++ b/usr/klibc/arch/arm/Makefile.inc
+@@ -0,0 +1,23 @@
++# -*- makefile -*-
 +#
-+# arch/alpha/crt0.S
++# arch/arm/Makefile.inc
++#
++# Special rules for this architecture.  Note that this is actually
++# included from the main Makefile, and that pathnames should be
++# accordingly.
 +#
 +
-+	.text
-+	.type	_start,@function
-+	.ent	_start, 0
-+	.globl	_start
-+_start:
-+	.frame  $30, 0, $26, 0
-+	mov	$31, $15
-+	br	$29, 1f
-+1:	ldgp	$29, 0($29)
-+	.prologue 0
++KLIBCARCHOBJS = \
++	arch/arm/setjmp.o \
++	arch/arm/syscall.o \
++	arch/arm/vfork.o \
++	arch/arm/aeabi_nonsense.o \
++	libgcc/__udivmodsi4.o \
++	libgcc/__divdi3.o \
++	libgcc/__moddi3.o \
++	libgcc/__udivdi3.o \
++	libgcc/__umoddi3.o \
++	libgcc/__udivmoddi4.o \
++	libgcc/__clzsi2.o \
++	libgcc/__clzdi2.o \
 +
-+	lda	$16, 0($30)		# ELF data structure
-+	lda	$17, 0($0)		# atexit pointer
-+
-+	jsr	$26, __libc_init
-+
-+	.size	_start,.-_start
-+	.end	_start
-diff --git a/usr/klibc/arch/alpha/divide.c b/usr/klibc/arch/alpha/divide.c
+diff --git a/usr/klibc/arch/arm/__muldi3.c b/usr/klibc/arch/arm/__muldi3.c
 new file mode 100644
-index 0000000..c44254f
+index 0000000..3fdeb2b
 --- /dev/null
-+++ b/usr/klibc/arch/alpha/divide.c
-@@ -0,0 +1,59 @@
++++ b/usr/klibc/arch/arm/__muldi3.c
+@@ -0,0 +1,15 @@
 +#include <stdint.h>
-+#include <asm/gentrap.h>
-+#include <asm/pal.h>
 +
-+#if BITS == 64
-+typedef uint64_t uint;
-+typedef int64_t sint;
-+#else
-+typedef uint32_t uint;
-+typedef int32_t sint;
-+#endif
-+
-+#ifdef SIGNED
-+typedef sint xint;
-+#else
-+typedef uint xint;
-+#endif
-+
-+xint NAME(uint num, uint den)
++uint64_t __muldi3(uint64_t a, uint64_t b)
 +{
-+	uint quot = 0, qbit = 1;
-+	int minus = 0;
-+	xint v;
++	uint32_t al = (uint32_t)a;
++	uint32_t ah = (uint32_t)(a >> 32);
++	uint32_t bl = (uint32_t)b;
++	uint32_t bh = (uint32_t)(b >> 32);
++	uint64_t v;
 +
-+	if (den == 0) {
-+		/* This is really $16, but $16 and $24 are exchanged by a script */
-+		register unsigned long cause asm("$24") = GEN_INTDIV;
-+		asm volatile ("call_pal %0"::"i" (PAL_gentrap), "r"(cause));
-+		return 0;	/* If trap returns... */
-+	}
-+#if SIGNED
-+	if ((sint) (num ^ den) < 0)
-+		minus = 1;
-+	if ((sint) num < 0)
-+		num = -num;
-+	if ((sint) den < 0)
-+		den = -den;
-+#endif
++	v = (uint64_t)al * bl;
++	v += (uint64_t)(al*bh+ah*bl) << 32;
 +
-+	/* Left-justify denominator and count shift */
-+	while ((sint) den >= 0) {
-+		den <<= 1;
-+		qbit <<= 1;
-+	}
-+
-+	while (qbit) {
-+		if (den <= num) {
-+			num -= den;
-+			quot += qbit;
-+		}
-+		den >>= 1;
-+		qbit >>= 1;
-+	}
-+
-+	v = (xint) (REM ? num : quot);
-+	if (minus)
-+		v = -v;
 +	return v;
 +}
-diff --git a/usr/klibc/arch/alpha/pipe.S b/usr/klibc/arch/alpha/pipe.S
+diff --git a/usr/klibc/arch/arm/aeabi_nonsense.S b/usr/klibc/arch/arm/aeabi_nonsense.S
 new file mode 100644
-index 0000000..ee72413
+index 0000000..c69eb11
 --- /dev/null
-+++ b/usr/klibc/arch/alpha/pipe.S
-@@ -0,0 +1,38 @@
++++ b/usr/klibc/arch/arm/aeabi_nonsense.S
+@@ -0,0 +1,9 @@
++	.text
++	.globl	__aeabi_unwind_cpp_pr0
++__aeabi_unwind_cpp_pr0:
++	.globl	__aeabi_unwind_cpp_pr1
++__aeabi_unwind_cpp_pr1:
++	.globl	__aeabi_unwind_cpp_pr2
++__aeabi_unwind_cpp_pr2:
++	.globl	__aeabi_unwind_cpp_pr3
++__aeabi_unwind_cpp_pr3:
+diff --git a/usr/klibc/arch/arm/crt0.S b/usr/klibc/arch/arm/crt0.S
+new file mode 100644
+index 0000000..1e81f8e
+--- /dev/null
++++ b/usr/klibc/arch/arm/crt0.S
+@@ -0,0 +1,23 @@
 +#
-+# arch/alpha/pipe.S
++# arch/arm/crt0.S
 +#
-+
++# void _start(void)
++# {
++#    __libc_init(elf_structure, atexit_ptr);
++# }
 +#
-+# pipe() on alpha returns both file descriptors in registers --
-+# $0 (v0) and $20 (a4) respectively.  This is unlike any other system call,
-+# as far as I can tell.
-+#
-+
-+#include <asm/unistd.h>
-+#include <machine/asm.h>
 +
 +	.text
-+	.align	3
-+	.type	pipe, @function
-+	.ent	pipe, 0
-+	.globl	pipe
-+pipe:
-+	.frame	sp,0,ra,0
-+	lda	v0, __NR_pipe
-+	callsys
-+	beq	a3, 1f
-+	br	pv, 2f			# pv <- pc
-+2:
-+	ldgp	gp, 0(pv)
-+	lda	a1, errno
-+	lda	v0, -1(zero)
-+	stl	a3, 0(a1)
-+	ret	zero,(ra),1
-+1:
-+	stl	v0, 0(a0)
-+	lda	v0, 0
-+	stl	a4, 4(a0)
-+	ret	zero,(ra),1
++	.balign 4
++	.type _start,#function
++	.globl _start
 +
-+	.size	pipe,.-pipe
-+	.end	pipe
-diff --git a/usr/klibc/arch/alpha/setjmp.S b/usr/klibc/arch/alpha/setjmp.S
++#ifdef __thumb__
++	.thumb_func
++#endif
++
++_start:	mov	r0, sp
++	mov	r1, #0
++	bl	__libc_init
++
++	.size _start,.-_start
+diff --git a/usr/klibc/arch/arm/setjmp.S b/usr/klibc/arch/arm/setjmp.S
 new file mode 100644
-index 0000000..ed604bd
+index 0000000..1841bc7
 --- /dev/null
-+++ b/usr/klibc/arch/alpha/setjmp.S
-@@ -0,0 +1,75 @@
++++ b/usr/klibc/arch/arm/setjmp.S
+@@ -0,0 +1,102 @@
 +#
-+# setjmp.S
++# arch/arm/setjmp.S
 +#
-+
-+#
-+# The jmp_buf looks like:
-+#
-+#	s0..5
-+#	fp
-+#	ra
-+#	gp
-+#	sp
++# setjmp/longjmp for the ARM architecture
 +#
 +
-+#include <machine/asm.h>
++#ifndef	__thumb__
++
++#
++# "Pure ARM" version		
++#
++# The jmp_buf is assumed to contain the following, in order:
++#		r4
++#		r5
++#		r6
++#		r7
++#		r8
++#		r9
++#		r10
++#		fp
++#		sp
++#		lr
++#
 +
 +	.text
-+	.align	3
-+	.type	setjmp,@function
-+	.ent	setjmp, 0
-+	.globl	setjmp
++	.balign 4
++	.globl setjmp
++	.type setjmp, #function
 +setjmp:
-+	lda	v0,   0(zero)
-+	stq	s0,   0(a0)
-+	stq	s1,   8(a0)
-+	stq	s2,  16(a0)
-+	stq	s3,  24(a0)
-+	stq	s4,  32(a0)
-+	stq	s5,  40(a0)
-+	stq	fp,  48(a0)
-+	stq	ra,  56(a0)
-+	stq	gp,  64(a0)
-+	stq	sp,  72(a0)
-+	stt	$f2,  80(a0)
-+	stt	$f3,  88(a0)
-+	stt	$f4,  96(a0)
-+	stt	$f5, 104(a0)
-+	stt	$f6, 112(a0)
-+	stt	$f7, 120(a0)
-+	stt	$f8, 128(a0)
-+	stt	$f9, 136(a0)
-+	ret	zero,(ra),1
-+
++	stmia	r0, {r4, r5, r6, r7, r8, r9, r10, fp, sp, lr}
++	mov	r0, #0
++	mov	pc, lr
 +	.size setjmp,.-setjmp
-+	.end setjmp
 +
-+	.type	longjmp,@function
-+	.ent	longjmp, 0
-+	.globl	longjmp
++	.text
++	.balign 4
++	.globl longjmp
++	.type longjmp, #function
 +longjmp:
-+	mov	a1, v0
-+	ldq	s0,   0(a0)
-+	ldq	s1,   8(a0)
-+	ldq	s2,  16(a0)
-+	ldq	s3,  24(a0)
-+	ldq	s4,  32(a0)
-+	ldq	s5,  40(a0)
-+	ldq	fp,  48(a0)
-+	ldq	ra,  56(a0)
-+	ldq	gp,  64(a0)
-+	ldq	sp,  72(a0)
-+	ldt	$f2,  80(a0)
-+	ldt	$f3,  88(a0)
-+	ldt	$f4,  96(a0)
-+	ldt	$f5, 104(a0)
-+	ldt	$f6, 112(a0)
-+	ldt	$f7, 120(a0)
-+	ldt	$f8, 128(a0)
-+	ldt	$f9, 136(a0)
-+	/* We're bound to get a mispredict here, but at least give us
-+	   a chance to get the return stack back in sync... */
-+	ret	zero,(ra),1
-+
++	ldmia	r0, {r4, r5, r6, r7, r8, r9, r10, fp, sp, lr}
++	mov	r0, r1
++	mov	pc, lr
 +	.size longjmp,.-longjmp
-+	.end longjmp
-diff --git a/usr/klibc/arch/alpha/syscall.S b/usr/klibc/arch/alpha/syscall.S
-new file mode 100644
-index 0000000..ae69ef2
---- /dev/null
-+++ b/usr/klibc/arch/alpha/syscall.S
-@@ -0,0 +1,26 @@
-+#
-+# arch/alpha/syscall.S
-+#
 +
-+#include <machine/asm.h>
++#else /* __thumb__ */
++
++#
++# Thumb version
++#
++# The jmp_buf is assumed to contain the following, in order:
++#		lr
++#		r4
++#		r5
++#		r6
++#		r7
++#		r8
++#		r9
++#		r10
++#		fp
++#		sp
++#
 +
 +	.text
-+	.align	3
-+	.type	__syscall_common,@function
-+	.ent	__syscall_common, 0
++	.balign 4
++	.globl setjmp
++	.type setjmp, #function
++	.thumb_func
++setjmp:
++	mov	r3, lr
++	stmia	r0!, {r3, r4, r5, r6, r7}
++	mov	r3, r8
++	mov	r4, r9
++	mov	r5, r10
++	mov	r6, fp
++	mov	r7, sp
++	stmia	r0!, {r3, r4, r5, r6, r7}
++	mov	r0, #0
++	mov	pc, lr
++	.size setjmp,.-setjmp
++
++	.text
++	.balign 4
++	.globl longjmp
++	.type longjmp, #function
++	.thumb_func
++longjmp:
++	mov	r2, r0
++	add	r0, #5*4
++	ldmia	r0!, {r3, r4, r5, r6, r7}
++	mov	r8, r3
++	mov	r9, r4
++	mov	r10, r5
++	mov	fp, r6
++	mov	sp, r7
++	ldmia	r2!, {r3, r4, r5, r6, r7}
++	mov	r0, r1
++	bne	1f
++	mov	r0, #1
++1:	mov	pc, r3
++	.size longjmp,.-longjmp
++
++#endif /* __thumb__ */
+diff --git a/usr/klibc/arch/arm/syscall.S b/usr/klibc/arch/arm/syscall.S
+new file mode 100644
+index 0000000..5bc291d
+--- /dev/null
++++ b/usr/klibc/arch/arm/syscall.S
+@@ -0,0 +1,61 @@
++/*
++ * arch/arm/syscall.S
++ *
++ * System call common handling
++ */
++
++	.type	__syscall_common,#function
 +	.globl	__syscall_common
++#ifndef __thumb__
++	/* ARM version - this is executed after the swi, unless
++	   we are compiled in EABI mode */
++
++	.balign	4
 +__syscall_common:
-+	.frame	sp,0,ra,0
-+	callsys
-+	beq	a3, 1f
-+	br	pv, 2f			# pv <- pc
-+2:
-+	ldgp	gp, 0(pv)
-+	lda	a1, errno
-+	stl	v0, 0(a1)
-+	lda	v0, -1(zero)
++#ifdef __ARM_EABI__
++	ldr	r4, [sp,#16]
++	ldr	r5, [sp,#20]
++	ldr	r7, [lr]
++	swi	0
++#endif
++        cmn     r0, #4096
++        rsbcs	r2, r0, #0
++        ldrcs	r3, 1f
++        mvncs	r0, #0
++        strcs	r2, [r3]
++	ldmfd	sp!,{r4,r5,r7,pc}
++
++	.balign 4
 +1:
-+	ret	zero,(ra),1
++	.word	errno
 +
-+	.size	__syscall_common,.-__syscall_common
-+	.end	__syscall_common
-diff --git a/usr/klibc/arch/alpha/sysdual.S b/usr/klibc/arch/alpha/sysdual.S
-new file mode 100644
-index 0000000..1719e37
---- /dev/null
-+++ b/usr/klibc/arch/alpha/sysdual.S
-@@ -0,0 +1,33 @@
-+#
-+# arch/alpha/sysdual.S
-+#
++#else
++	/* Thumb version - must still load r4 and r5 and run swi */
 +
-+#
-+# Some system calls have an alternate return value in r20 (a4).
-+# This system call stub is for system calls where that is
-+# the "real" return value.
-+#
-+
-+#include <machine/asm.h>
-+
-+	.text
-+	.align	3
-+	.type	__syscall_dual1,@function
-+	.ent	__syscall_dual1, 0
-+	.globl	__syscall_dual1
-+__syscall_dual1:
-+	.frame	sp,0,ra,0
-+	callsys
-+	mov	v0, a4
-+	beq	a3, 1f
-+	br	pv, 2f			# pv <- pc
-+2:
-+	ldgp	gp, 0(pv)
-+	lda	a1, errno
-+	lda	v0, -1(zero)
-+	stl	a3, 0(a1)
++	.thumb_func
++	.balign	2
++__syscall_common:
++	mov	r7, lr
++	ldr	r4, [sp,#16]
++	sub	r7, #1		/* Remove the Thumb bit */
++	ldr	r5, [sp,#20]
++	ldrh	r7, [r7]
++	swi	0
++	ldr	r1, 2f
++	cmp	r0, r1
++	bcc	1f
++	ldr	r1, 3f
++	neg	r2, r0
++	mov	r0, #1
++	str	r2, [r1]
++	neg	r0, r0
 +1:
-+	ret	zero,(ra),1
++	pop	{r4,r5,r7,pc}
 +
-+	.size	__syscall_dual1,.-__syscall_dual1
-+	.end	__syscall_dual1
-diff --git a/usr/klibc/arch/alpha/sysstub.ph b/usr/klibc/arch/alpha/sysstub.ph
++	.balign	4
++2:
++	.word	-4095
++3:
++	.word	errno
++
++#endif
+diff --git a/usr/klibc/arch/arm/sysstub.ph b/usr/klibc/arch/arm/sysstub.ph
 new file mode 100644
-index 0000000..08b97e8
+index 0000000..d51ace1
 --- /dev/null
-+++ b/usr/klibc/arch/alpha/sysstub.ph
-@@ -0,0 +1,37 @@
++++ b/usr/klibc/arch/arm/sysstub.ph
+@@ -0,0 +1,58 @@
 +# -*- perl -*-
 +#
-+# arch/alpha/sysstub.ph
++# arch/arm/sysstub.ph
 +#
 +# Script to generate system call stubs
 +#
 +
-+# On Alpha, most system calls follow the standard convention, with the
-+# system call number in r0 (v0), return an error value in r19 (a3) as
-+# well as the return value in r0 (v0).
-+#
-+# A few system calls are dual-return with the second return value in
-+# r20 (a4).
 +
 +sub make_sysstub($$$$$@) {
 +    my($outputdir, $fname, $type, $sname, $stype, @args) = @_;
 +
-+    $stype = $stype || 'common';
-+    $stype = 'common' if ( $stype eq 'dual0' );
-+
 +    open(OUT, '>', "${outputdir}/${fname}.S");
-+    print OUT "#include <asm/unistd.h>\n";
-+    print OUT "#include <machine/asm.h>\n";
-+    print OUT "\n";
-+    print OUT "\t.text\n";
-+    print OUT "\t.type ${fname},\@function\n";
-+    print OUT "\t.ent\t${fname}, 0\n"; # What is this?
-+    print OUT "\t.globl ${fname}\n";
-+    print OUT "${fname}:\n";
-+    print OUT "\tlda\tv0, __NR_${sname}(zero)\n";
-+    print OUT "\tbr __syscall_${stype}\n";
-+    print OUT "\t.size\t${fname},.-${fname}\n";
-+    print OUT "\t.end\t${fname}\n";
-+    close(OUT);
++    print  OUT "#include <asm/unistd.h>\n";
++    print  OUT "#include <klibc/asmmacros.h>\n";
++
++    print  OUT "	.text\n";
++    print  OUT "	.type	${fname}, #function\n";
++    print  OUT "	.globl	${fname}\n";
++
++    print  OUT "#ifndef __thumb__\n";
++
++    print  OUT "#ifndef __ARM_EABI__\n";
++
++    # ARM version first
++    print  OUT "	.balign	4\n";
++    print  OUT "${fname}:\n";
++    print  OUT "	stmfd	sp!,{r4,r5,lr}\n";
++    print  OUT "	ldr	r4,[sp,#12]\n";
++    print  OUT "	ldr	r5,[sp,#16]\n";
++    print  OUT "	swi	# __NR_${sname}\n";
++    print  OUT "	b	__syscall_common\n";
++
++    print  OUT "#else /* __ARM_EABI__ */\n";
++
++    # ARM EABI version
++    print  out "	.balign	4\n";
++    print  OUT "${fname}:\n";
++    print  OUT "	stmfd	sp!,{r4,r5,r7,lr}\n";
++    print  OUT "	bl	__syscall_common\n";
++    print  OUT "	.word	__NR_${sname}\n";
++
++    print  OUT "#endif /* __ARM_EABI__ */\n";
++    print  OUT "#else /* __thumb__ */\n";
++
++    # Thumb version
++    print  OUT "	.balign	8\n";
++    print  OUT "	.thumb_func\n";
++    print  OUT "${fname}:\n";
++    print  OUT "	push	{r4,r5,r7,lr}\n";
++    print  OUT "	bl	__syscall_common\n";
++    print  OUT "	.short	__NR_${sname}\n";
++
++    print  OUT "#endif /* __thumb__*/\n";
++
++    print  OUT "	.size	__syscall${i},.-__syscall${i}\n";
 +}
 +
 +1;
+diff --git a/usr/klibc/arch/arm/vfork.S b/usr/klibc/arch/arm/vfork.S
+new file mode 100644
+index 0000000..3b2d9f7
+--- /dev/null
++++ b/usr/klibc/arch/arm/vfork.S
+@@ -0,0 +1,60 @@
++/*
++ * arch/arm/vfork.S
++ *
++ * vfork - nasty system call which must not use the stack.
++ */
++
++#include <asm/unistd.h>
++
++	.type	vfork,#function
++	.globl	vfork
++#ifndef __thumb__
++
++	.balign	4
++vfork:
++#ifdef	__ARM_EABI__
++	mov	r3, r7
++	mov	r7, # __NR_vfork
++	swi	0
++	mov	r7, r3
++#else
++	swi	# __NR_vfork
++#endif
++        cmn     r0, #4096
++        rsbcs	r2, r0, #0
++        ldrcs	r3, 1f
++        mvncs	r0, #0
++        strcs	r2, [r3]
++	mov	pc, lr
++
++	.balign 4
++1:
++	.word	errno
++
++#else
++
++	.thumb_func
++	.balign	2
++vfork:
++	mov	r3, r7
++	mov	r7, # __NR_vfork
++	swi	0
++	mov	r7, r3
++	ldr	r1, 2f
++	cmp	r0, r1
++	bcc	1f
++	ldr	r1, 3f
++	neg	r2, r0
++	mov	r0, #1
++	str	r2, [r1]
++	neg	r0, r0
++1:
++	mov	pc, lr
++
++	.balign	4
++2:
++	.word	-4095
++3:
++	.word	errno
++
++#endif

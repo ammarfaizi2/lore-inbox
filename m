@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWFZNJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWFZNRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWFZNJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 09:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWFZNJQ
+	id S932269AbWFZNRq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 09:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWFZNRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 09:09:16 -0400
-Received: from static-ip-217-172-187-230.inaddr.intergenia.de ([217.172.187.230]:38352
-	"EHLO neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S932182AbWFZNJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 09:09:15 -0400
-Message-ID: <449FDC76.50107@lsrfire.ath.cx>
-Date: Mon, 26 Jun 2006 15:09:10 +0200
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Mon, 26 Jun 2006 09:17:46 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:51065 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932269AbWFZNRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 09:17:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QRjVWfJs25q0w+2BnQuHYyjBYC63DG/6xVLJGKgnK12UVnT7EBMD2EvZWr3JpirPel5iK55vpbnblow40gpFk3qBtBopl7kOorOSjTP55HzvYUd5GbT/bfufZjfbCvLMWUyC0JFVwYpp0NQBzU+wpmfIri2sTCuQmgkFLaHWRyQ=
+Message-ID: <2cf1ee820606260617v7ea151c7kf5f7935da87adae6@mail.gmail.com>
+Date: Mon, 26 Jun 2006 16:17:43 +0300
+From: "emin ak" <eminak71@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: huge performance loss with ipsec 2.6.16.20 on ppc85xx
+In-Reply-To: <2cf1ee820606260616v2583c063w20caac144b52ccbb@mail.gmail.com>
 MIME-Version: 1.0
-Newsgroups: gmane.linux.kernel
-To: Troy Benjegerdes <hozer@hozed.org>
-CC: Daniel <damage@rooties.de>, linux-kernel@vger.kernel.org
-Subject: Re: Kernelsources writeable for everyone?!
-References: <200606242000.51024.damage@rooties.de> <20060624181702.GG27946@ftp.linux.org.uk> <20060626071140.GB3359@narn.hozed.org>
-In-Reply-To: <20060626071140.GB3359@narn.hozed.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <2cf1ee820606260616v2583c063w20caac144b52ccbb@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Troy Benjegerdes schrieb:
-> On Sat, Jun 24, 2006 at 07:17:02PM +0100, Al Viro wrote:
->> On Sat, Jun 24, 2006 at 08:00:50PM +0200, Daniel wrote:
->>> Hi, may be this was reported/asked 999999999 times, but here ist 
->>> the 1000000000th:
->>> 
->>> I have downloaded linux-2.6.17.1 10 min ago and I noticed that 
->>> every file is writeable by everyone. What's going on there?
->> You are unpacking tarballs as root and preserve ownership and 
->> permissions. Don't.
-> 
-> While it is true that users generally shouldn't be unpacking tarballs
->  as root, It seems rather monumentally stupid for a trusted source
-> for a critical system component (aka, kernel.org) to be distributing 
-> tarballs like this.
+Dear All,
+I'am planning to use linux  2.6 ipsec for an vpn design with an
+embedded powerpc (mpc85xx) family. Basic routing performance looks
+pretty for the system with 2.6.16.20 kernel
+---------------------------------------------------
+Basic routing performance on ppc85xx
+64Byte packets:         230680 pps
+512 Byte packets:       176221 pps
+1518 Byte packets:      77617 pps
+---------------------------------------------------
+Software AES 256 ipsec tunnel mode routing performance (with manual keyying):
+64Byte packets:      55059pps (-%76 lesser then normal routing)
+512 Byte packets:   23496 pps (-%87 lesser then routing)
+1518 Byte packets:  8533 pps (-%90  lesser then  routing)
+-----------------------------------------------------
 
-The permissions info within a tarball doesn't mean anything as long as
-the file just sits there.  Only when you interpret the contents and
-create files and directories they become relevant.
+I know software encryption/ decryption affects system performance
+alot, but isn't %90 decreasement  so much for this effect?
 
-Tar gives you two options: A) set permissions exactly as stored in the
-tar file, or B) apply the umask.  Tar archives created by git are
-intended to be interpreted using option B), which is the default for GNU
-tar if run as non-root.
-
-You can interpret the tar file correctly even if you are root, you just
-have to convince tar to apply the umask.
-
-Best regards,
-René
+Is there any ipsec performance benchmark  with same of different
+platform, or anyting wrong with my tests?
+Thanks alot for the responses..
+Regads
+Emin Ak

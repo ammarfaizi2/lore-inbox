@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWFZHAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWFZHLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWFZHAq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 03:00:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWFZHAp
+	id S964852AbWFZHLl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 03:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWFZHLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 03:00:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18130 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751192AbWFZHAp (ORCPT
+	Mon, 26 Jun 2006 03:11:41 -0400
+Received: from narn.hozed.org ([209.234.73.39]:11746 "EHLO narn.hozed.org")
+	by vger.kernel.org with ESMTP id S932301AbWFZHLl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 03:00:45 -0400
-Date: Mon, 26 Jun 2006 00:00:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Miles Lane" <miles.lane@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Chris Leech <christopher.leech@intel.com>
-Subject: Re: In function =?ISO-8859-1?B?X19faW9hdF9pbml0X21vZHVsZV9fXzo=?=
- 2.6.17-mm2 -- In function =?ISO-8859-1?B?X19faW9hdF9pbml0X21vZHVsZV9fXzo=?=
- drivers/dma/ioatdma.c:828: error: dereferencing pointer to incomplete type
-Message-Id: <20060626000041.deb8f20d.akpm@osdl.org>
-In-Reply-To: <a44ae5cd0606252339v51cada26x6ab23da155e1dea5@mail.gmail.com>
-References: <a44ae5cd0606252339v51cada26x6ab23da155e1dea5@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 26 Jun 2006 03:11:41 -0400
+Date: Mon, 26 Jun 2006 02:11:40 -0500
+From: Troy Benjegerdes <hozer@hozed.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Daniel <damage@rooties.de>, linux-kernel@vger.kernel.org
+Subject: Re: Kernelsources writeable for everyone?!
+Message-ID: <20060626071140.GB3359@narn.hozed.org>
+References: <200606242000.51024.damage@rooties.de> <20060624181702.GG27946@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060624181702.GG27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jun 2006 23:39:34 -0700
-"Miles Lane" <miles.lane@gmail.com> wrote:
+On Sat, Jun 24, 2006 at 07:17:02PM +0100, Al Viro wrote:
+> On Sat, Jun 24, 2006 at 08:00:50PM +0200, Daniel wrote:
+> > Hi,
+> > may be this was reported/asked 999999999 times, but here ist the 1000000000th:
+> > 
+> > I have downloaded linux-2.6.17.1 10 min ago and I noticed that every file is 
+> > writeable by everyone. What's going on there?
+> 
+> You are unpacking tarballs as root and preserve ownership and permissions.
+> Don't.
 
->   CC      drivers/dma/ioatdma.o
-> drivers/dma/ioatdma.c: In function 'ioat_init_module':
-> drivers/dma/ioatdma.c:828: error: dereferencing pointer to incomplete type
-> make[2]: *** [drivers/dma/ioatdma.o] Error 1
+While it is true that users generally shouldn't be unpacking tarballs as root,
+It seems rather monumentally stupid for a trusted source for a critical
+system component (aka, kernel.org) to be distributing tarballs like
+this.
 
-Known (and oft-reported) bug.  The driver will only compile as a module.
+How hard is it really to make the git tarball export script set sane
+owner (root) and permissions (644/755) on files and directories?

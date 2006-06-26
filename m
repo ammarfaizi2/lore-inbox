@@ -1,81 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933155AbWFZWfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933161AbWFZXaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933155AbWFZWfH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933156AbWFZWfG
+	id S933161AbWFZXaw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933257AbWFZXau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:35:06 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:34719 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933154AbWFZWfB
+	Mon, 26 Jun 2006 19:30:50 -0400
+Received: from dh134.citi.umich.edu ([141.211.133.134]:3516 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S933233AbWFZXaN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:35:01 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 04/20] [Suspend2] Calculate pagedir1 growth allowance.
-Date: Tue, 27 Jun 2006 08:35:00 +1000
+	Mon, 26 Jun 2006 19:30:13 -0400
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+Subject: [PATCH 5/5] NLM,NFSv4: Wait on local locks before we put RPC calls on the wire
+Date: Mon, 26 Jun 2006 19:30:12 -0400
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223459.4050.65990.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626223446.4050.9897.stgit@nigel.suspend2.net>
-References: <20060626223446.4050.9897.stgit@nigel.suspend2.net>
+Cc: linux-fsdevel@vger.kernel.org, nfs@lists.sourceforge.net
+Message-Id: <20060626233012.6059.34137.stgit@lade.trondhjem.org>
+In-Reply-To: <20060626232936.6059.50399.stgit@lade.trondhjem.org>
+References: <20060626232936.6059.50399.stgit@lade.trondhjem.org>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While writing the LRU, and (more importantly) as a result of suspending the
-drivers, the amount of memory needed for the atomic copy may increase
-significantly. This amount is always predictable - LRU I/O will only ever
-get a few more slab pages allocated, and drivers suspend and resume will
-allocate a fixed number. The problem is that most drivers use virtually
-nothing, so that the default allowance of 100 pages is ample. NVidia
-drivers especially, however, allocate thousands of pages in some
-configurations, so we need a way for the user to be able to tune or
-autotune this value.
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
 
-This routine provides a method for autotuning. If the allowance is set to
-zero, this routine will be invoked, determining how much extra memory will
-be allocated by the drivers when the real call is made later. We can then
-take that, plus our normal 100 page allowance, as the value to use.
+Use FL_ACCESS flag to test and/or wait for local locks before we try
+requesting a lock from the server
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
 
- kernel/power/prepare_image.c |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
+ fs/lockd/clntproc.c |    8 +++++++-
+ fs/nfs/nfs4proc.c   |   35 ++++++++++++++++++++++++-----------
+ 2 files changed, 31 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/power/prepare_image.c b/kernel/power/prepare_image.c
-index cb1a3da..271f904 100644
---- a/kernel/power/prepare_image.c
-+++ b/kernel/power/prepare_image.c
-@@ -81,3 +81,29 @@ long real_nr_free_pages(void)
- 	return nr_free_pages() + num_pcp_pages();
+diff --git a/fs/lockd/clntproc.c b/fs/lockd/clntproc.c
+index e6dd725..ad089d0 100644
+--- a/fs/lockd/clntproc.c
++++ b/fs/lockd/clntproc.c
+@@ -497,6 +497,7 @@ nlmclnt_lock(struct nlm_rqst *req, struc
+ 	struct nlm_host	*host = req->a_host;
+ 	struct nlm_res	*resp = &req->a_res;
+ 	struct nlm_wait *block = NULL;
++	unsigned char fl_flags = fl->fl_flags;
+ 	int status = -ENOLCK;
+ 
+ 	if (!host->h_monitored && nsm_monitor(host) < 0) {
+@@ -504,6 +505,10 @@ nlmclnt_lock(struct nlm_rqst *req, struc
+ 					host->h_name);
+ 		goto out;
+ 	}
++	fl->fl_flags |= FL_ACCESS;
++	status = do_vfs_lock(fl);
++	if (status < 0)
++		goto out;
+ 
+ 	block = nlmclnt_prepare_block(host, fl);
+ again:
+@@ -538,8 +543,8 @@ again:
+ 			up_read(&host->h_rwsem);
+ 			goto again;
+ 		}
+-		fl->fl_flags |= FL_SLEEP;
+ 		/* Ensure the resulting lock will get added to granted list */
++		fl->fl_flags = fl_flags | FL_SLEEP;
+ 		if (do_vfs_lock(fl) < 0)
+ 			printk(KERN_WARNING "%s: VFS is out of sync with lock manager!\n", __FUNCTION__);
+ 		up_read(&host->h_rwsem);
+@@ -552,6 +557,7 @@ out_unblock:
+ 		nlmclnt_cancel(host, req->a_args.block, fl);
+ out:
+ 	nlm_release_call(req);
++	fl->fl_flags = fl_flags;
+ 	return status;
  }
  
-+/*
-+ * Discover how much extra memory will be required by the drivers
-+ * when they're asked to suspend. We can then ensure that amount
-+ * of memory is available when we really want it.
-+ */
-+static void get_extra_pd1_allowance(void)
-+{
-+	int orig_num_free = real_nr_free_pages(), final;
-+	
-+	suspend_prepare_status(CLEAR_BAR, "Finding allowance for drivers.");
-+	device_suspend(PMSG_FREEZE);
-+	local_irq_disable(); /* irqs might have been re-enabled on us */
-+	device_power_down(PMSG_FREEZE);
-+	
-+	final = real_nr_free_pages();
-+
-+	device_power_up();
-+	local_irq_enable();
-+
-+	device_resume();
-+
-+	extra_pd1_pages_allowance = max(
-+		orig_num_free - final + MIN_EXTRA_PAGES_ALLOWANCE,
-+		MIN_EXTRA_PAGES_ALLOWANCE);
-+}
-+
-
---
-Nigel Cunningham		nigel at suspend2 dot net
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 8bdfe3f..e6ee97f 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -3489,29 +3489,42 @@ static int nfs4_lock_expired(struct nfs4
+ static int _nfs4_proc_setlk(struct nfs4_state *state, int cmd, struct file_lock *request)
+ {
+ 	struct nfs4_client *clp = state->owner->so_client;
++	unsigned char fl_flags = request->fl_flags;
+ 	int status;
+ 
+ 	/* Is this a delegated open? */
+-	if (NFS_I(state->inode)->delegation_state != 0) {
+-		/* Yes: cache locks! */
+-		status = do_vfs_lock(request->fl_file, request);
+-		/* ...but avoid races with delegation recall... */
+-		if (status < 0 || test_bit(NFS_DELEGATED_STATE, &state->flags))
+-			return status;
+-	}
+-	down_read(&clp->cl_sem);
+ 	status = nfs4_set_lock_state(state, request);
+ 	if (status != 0)
+ 		goto out;
++	request->fl_flags |= FL_ACCESS;
++	status = do_vfs_lock(request->fl_file, request);
++	if (status < 0)
++		goto out;
++	down_read(&clp->cl_sem);
++	if (test_bit(NFS_DELEGATED_STATE, &state->flags)) {
++		struct nfs_inode *nfsi = NFS_I(state->inode);
++		/* Yes: cache locks! */
++		down_read(&nfsi->rwsem);
++		/* ...but avoid races with delegation recall... */
++		if (test_bit(NFS_DELEGATED_STATE, &state->flags)) {
++			request->fl_flags = fl_flags & ~FL_SLEEP;
++			status = do_vfs_lock(request->fl_file, request);
++			up_read(&nfsi->rwsem);
++			goto out_unlock;
++		}
++		up_read(&nfsi->rwsem);
++	}
+ 	status = _nfs4_do_setlk(state, cmd, request, 0);
+ 	if (status != 0)
+-		goto out;
++		goto out_unlock;
+ 	/* Note: we always want to sleep here! */
+-	request->fl_flags |= FL_SLEEP;
++	request->fl_flags = fl_flags | FL_SLEEP;
+ 	if (do_vfs_lock(request->fl_file, request) < 0)
+ 		printk(KERN_WARNING "%s: VFS is out of sync with lock manager!\n", __FUNCTION__);
+-out:
++out_unlock:
+ 	up_read(&clp->cl_sem);
++out:
++	request->fl_flags = fl_flags;
+ 	return status;
+ }
+ 

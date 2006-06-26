@@ -1,60 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933287AbWFZXme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933129AbWFZXnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933287AbWFZXme (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 19:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933280AbWFZXmb
+	id S933129AbWFZXnP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 19:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933150AbWFZXmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 19:42:31 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:19286 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S933154AbWFZXmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 19:42:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XIALBtDZY3eHQ/FfbRbmRtVosl/BjBzARQrTr7jKQiB33wR62hDyNXA6PB9VDx9gAN0HBzhdnPVYijpjVhpTSszdARsHsp51TE0mlPlh+GobZJW/IBFD4/ipgwW5NU0WobGGVjPEejkB1JIjaS2VN+L8gtMrMCoTv8xhPAd24Uc=
-Message-ID: <6bffcb0e0606261642q429f9f54w44f1c6580ce0c143@mail.gmail.com>
-Date: Tue, 27 Jun 2006 01:42:12 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: oom-killer problem
-Cc: "Daniel Ritz" <daniel.ritz-ml@swissonline.ch>,
-       "Sam Ravnborg" <sam@ravnborg.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0606261604180.3927@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200606270028.16346.daniel.ritz-ml@swissonline.ch>
-	 <Pine.LNX.4.64.0606261604180.3927@g5.osdl.org>
+	Mon, 26 Jun 2006 19:42:49 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:25503 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933140AbWFZWeB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:34:01 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [Suspend2][ 13/16] [Suspend2] do_resume routine.
+Date: Tue, 27 Jun 2006 08:34:00 +1000
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060626223358.3832.74079.stgit@nigel.suspend2.net>
+In-Reply-To: <20060626223314.3832.23435.stgit@nigel.suspend2.net>
+References: <20060626223314.3832.23435.stgit@nigel.suspend2.net>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/06/06, Linus Torvalds <torvalds@osdl.org> wrote:
->
->
-> On Tue, 27 Jun 2006, Daniel Ritz wrote:
-> >
-> > reverting the attached patch fixes the problem...
->
-> Michal, can you also confirm that just doing a simple revert of that one
-> commit makes things work for you?
+Main routine for seeing if we can resume - and doing it!
 
-Yes I can confirm that.
-(http://www.ussg.iu.edu/hypermail/linux/kernel/0606.3/0827.html)
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
->
-> Sam, if I don't hear otherwise from you, and Michael confirms, I'll just
-> revert it for now, and you can figure out how to fix it without breakage?
->
->                         Linus
->
+ kernel/power/suspend.c |   98 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 98 insertions(+), 0 deletions(-)
 
-Regards,
-Michal
+diff --git a/kernel/power/suspend.c b/kernel/power/suspend.c
+index f7138c1..0f751d1 100644
+--- a/kernel/power/suspend.c
++++ b/kernel/power/suspend.c
+@@ -910,3 +910,101 @@ static __init int core_load(void)
+ 	return 0;
+ }
+ 
++/*
++ * Called from init kernel_thread.
++ * We check if we have an image and if so we try to resume.
++ * We also start ksuspendd if configuration looks right.
++ */
++int suspend_resume(void)
++{
++	int read_image_result = 0;
++
++	if (sizeof(swp_entry_t) != sizeof(long)) {
++		printk(KERN_WARNING name_suspend
++			"The size of swp_entry_t != size of long. "
++			"Please report this!\n");
++		return 1;
++	}
++	
++	if (!resume2_file[0])
++		printk(KERN_WARNING name_suspend
++			"You need to use a resume2= command line parameter to "
++			"tell Suspend2 where to look for an image.\n");
++
++	suspend_activate_storage(0);
++
++	if (!(test_suspend_state(SUSPEND_RESUME_DEVICE_OK)) &&
++		!suspend_attempt_to_parse_resume_device()) {
++		/* 
++		 * Without a usable storage device we can do nothing - 
++		 * even if noresume is given
++		 */
++
++		if (!suspend_num_writers)
++			printk(KERN_ALERT name_suspend
++				"No writers have been registered.\n");
++		else
++			printk(KERN_ALERT name_suspend
++				"Missing or invalid storage location "
++				"(resume2= parameter). Please correct and "
++				"rerun lilo (or equivalent) before "
++				"suspending.\n");
++		suspend_deactivate_storage(0);
++		return 1;
++	}
++
++	suspend_orig_mem_free = real_nr_free_pages();
++
++	read_image_result = read_pageset1(); /* non fatal error ignored */
++
++	if (test_suspend_state(SUSPEND_NORESUME_SPECIFIED))
++		printk(KERN_WARNING name_suspend "Resuming disabled as requested.\n");
++
++	suspend_deactivate_storage(0);
++	
++	if (read_image_result)
++		return 1;
++
++	suspend2_running = 1;
++
++	suspend_atomic_restore();
++
++	BUG();
++
++	return 0;
++}
++
++/* -- Functions for kickstarting a suspend or resume --- */
++
++/*
++ * Check if we have an image and if so try to resume.
++ */
++void __suspend_try_resume(void)
++{
++	set_suspend_state(SUSPEND_TRYING_TO_RESUME);
++	
++	clear_suspend_state(SUSPEND_RESUME_NOT_DONE);
++
++	suspend_resume();
++
++	clear_suspend_state(SUSPEND_IGNORE_LOGLEVEL);
++	clear_suspend_state(SUSPEND_TRYING_TO_RESUME);
++}
++
++/* Wrapper for when called from init/do_mounts.c */
++void suspend2_try_resume(void)
++{
++	if (suspend_start_anything(0))
++		return;
++
++	__suspend_try_resume();
++
++	/* 
++	 * For initramfs, we have to clear the boot time
++	 * flag after trying to resume
++	 */
++	clear_suspend_state(SUSPEND_BOOT_TIME);
++
++	suspend_finish_anything(0);
++}
++
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+--
+Nigel Cunningham		nigel at suspend2 dot net

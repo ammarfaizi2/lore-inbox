@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933229AbWFZWiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933241AbWFZWiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933229AbWFZWiY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933243AbWFZWiT
+	id S933241AbWFZWiM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933227AbWFZWhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:38:19 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:60831 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933229AbWFZWh7
+	Mon, 26 Jun 2006 18:37:51 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:56223 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933224AbWFZWh0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:37:59 -0400
+	Mon, 26 Jun 2006 18:37:26 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 14/32] [Suspend2] Submit io on a page.
-Date: Tue, 27 Jun 2006 08:37:57 +1000
+Subject: [Suspend2][ 05/32] [Suspend2] Cleanup one page.
+Date: Tue, 27 Jun 2006 08:37:24 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060626223754.4376.9056.stgit@nigel.suspend2.net>
+Message-Id: <20060626223722.4376.34259.stgit@nigel.suspend2.net>
 In-Reply-To: <20060626223706.4376.96042.stgit@nigel.suspend2.net>
 References: <20060626223706.4376.96042.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,71 +22,115 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Given a struct io_info, allocate and populate a struct bio for the page,
-link it to the struct io_info and submit the i/o.
+Clean up upon completion of the I/O for a page.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/suspend_block_io.c |   51 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 51 insertions(+), 0 deletions(-)
+ kernel/power/suspend_block_io.c |   96 +++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 96 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/suspend_block_io.c b/kernel/power/suspend_block_io.c
-index 288718c..4d489f4 100644
+index 09682c4..037535b 100644
 --- a/kernel/power/suspend_block_io.c
 +++ b/kernel/power/suspend_block_io.c
-@@ -463,3 +463,54 @@ static int suspend_end_bio(struct bio *b
- 	return 0;
+@@ -179,3 +179,99 @@ static void suspend_check_io_stats(void)
+ 			nr_schedule_calls[i]);
  }
  
-+/**
-+ *	submit - submit BIO request.
-+ *	@rw:	READ or WRITE.
-+ *	@io_info: IO info structure.
-+ *
-+ * 	Based on Patrick's pmdisk code from long ago:
-+ *	"Straight from the textbook - allocate and initialize the bio.
-+ *	If we're writing, make sure the page is marked as dirty.
-+ *	Then submit it and carry on."
-+ *
-+ *	With a twist, though - we handle block_size != PAGE_SIZE.
-+ *	Caller has already checked that our page is not fragmented.
++/*
++ * __suspend_bio_cleanup_one
++ * 
++ * Description: Clean up after completing I/O on a page.
++ * Arguments:	struct io_info:	Data for I/O to be completed.
++ */
++static void __suspend_bio_cleanup_one(struct io_info *io_info)
++{
++	struct page *buffer_page;
++	struct page *data_page;
++	char *buffer_address, *data_address;
++	int reading;
++
++	buffer_page = io_info->buffer_page;
++	data_page = io_info->data_page;
++
++	reading = test_bit(IO_AWAITING_READ, &io_info->flags);
++	suspend_message(SUSPEND_WRITER, SUSPEND_HIGH, 0,
++		"Cleanup IO: [%p]\n", 
++		io_info);
++
++	if (reading && io_info->readahead_index == -1) {
++		/*
++		 * Copy the page we read into the buffer our caller provided.
++		 */
++		data_address = (char *) kmap(data_page);
++		buffer_address = (char *) kmap(buffer_page);
++		memcpy(data_address, buffer_address, PAGE_SIZE);
++		kunmap(data_page);
++		kunmap(buffer_page);
++	
++	}
++
++	if (!reading || io_info->readahead_index == -1) {
++		/* Sanity check */
++		if (page_count(buffer_page) != 2)
++			printk(KERN_EMERG "Cleanup IO: Page count on page %p"
++					" is %d. Not good!\n",
++					buffer_page, page_count(buffer_page));
++		put_page(buffer_page);
++		__free_page(buffer_page);
++		atomic_inc(&buffer_frees);
++	} else
++		put_page(buffer_page);
++	
++	bio_put(io_info->sys_struct);
++	io_info->sys_struct = NULL;
++	io_info->flags = 0;
++}
++
++/* suspend_bio_cleanup_one
 + */
 +
-+static int submit(int rw, struct io_info *io_info)
++static int suspend_bio_cleanup_one(void *data)
 +{
-+	int error = 0;
-+	struct bio *bio = NULL;
++	struct io_info *io_info = (struct io_info *) data;
++	int readahead_index;
 +	unsigned long flags;
 +
-+	while (!bio) {
-+		bio = bio_alloc(GFP_ATOMIC,1);
-+		if (!bio)
-+			do_bio_wait(4);
-+	}
++	/*
++	 * If this I/O was a readahead, remember its index.
++	 */
++	readahead_index = io_info->readahead_index;
 +
-+	bio->bi_bdev = io_info->dev;
-+	bio->bi_sector = io_info->block[0];
-+	bio->bi_private = io_info;
-+	bio->bi_end_io = suspend_end_bio;
-+	io_info->sys_struct = bio;
-+
-+	if (bio_add_page(bio, io_info->buffer_page, PAGE_SIZE, 0) < PAGE_SIZE) {
-+		printk("ERROR: adding page to bio at %lld\n",
-+				(unsigned long long) io_info->block[0]);
-+		bio_put(bio);
-+		return -EFAULT;
-+	}
-+
-+	if (rw == WRITE)
-+		bio_set_pages_dirty(bio);
-+
-+	spin_lock_irqsave(&ioinfo_busy_lock, flags);
-+	list_add_tail(&io_info->list, &ioinfo_busy);
-+	spin_unlock_irqrestore(&ioinfo_busy_lock, flags);
++	/*
++	 * Add it to the free list.
++	 */
++	list_del_init(&io_info->list);
 +	
-+	submit_bio(rw,bio);
++	/*
++	 * Do the cleanup.
++	 */
++	__suspend_bio_cleanup_one(io_info);
 +
-+	return error;
++	/*
++	 * Record the readahead as done.
++	 */
++	if (readahead_index > -1) {
++		int index = readahead_index/BITS_PER_LONG;
++		int bit = readahead_index - (index * BITS_PER_LONG);
++		spin_lock_irqsave(&suspend_readahead_flags_lock, flags);
++		set_bit(bit, &suspend_readahead_flags[index]);
++		spin_unlock_irqrestore(&suspend_readahead_flags_lock, flags);
++	}
++
++	spin_lock_irqsave(&ioinfo_free_lock, flags);
++	list_add_tail(&io_info->list, &ioinfo_free);
++	spin_unlock_irqrestore(&ioinfo_free_lock, flags);
++	
++	/* Important: Must be last thing we do to avoid a race with
++	 * finish_all_io when using keventd to do the cleanup */
++	atomic_dec(&outstanding_io);
++
++	return 0;
 +}
 +
 

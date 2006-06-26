@@ -1,84 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933352AbWFZWoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933383AbWFZWqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933352AbWFZWoK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 18:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933348AbWFZWnB
+	id S933383AbWFZWqV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 18:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933354AbWFZWpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 18:43:01 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:52407 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933345AbWFZWm0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 18:42:26 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 23/28] [Suspend2] Swapwriter mark resume attempted.
-Date: Tue, 27 Jun 2006 08:42:25 +1000
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060626224223.4975.2499.stgit@nigel.suspend2.net>
-In-Reply-To: <20060626224105.4975.90758.stgit@nigel.suspend2.net>
-References: <20060626224105.4975.90758.stgit@nigel.suspend2.net>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Mon, 26 Jun 2006 18:45:51 -0400
+Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:2778 "EHLO
+	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
+	id S933341AbWFZWpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 18:45:23 -0400
+Date: Mon, 26 Jun 2006 15:37:17 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: oprofile-list <oprofile-list@lists.sourceforge.net>,
+       perfmon <perfmon@napali.hpl.hp.com>,
+       linux-ia64 <linux-ia64@vger.kernel.org>,
+       perfctr-devel <perfctr-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17.1 new perfmon code base, libpfm, pfmon available
+Message-ID: <20060626223716.GA16082@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200606261336_MC3-1-C384-7981@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606261336_MC3-1-C384-7981@compuserve.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark in the signature of a swap image that we've attempted to resume from
-this image before.
+Chuck,
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+On Mon, Jun 26, 2006 at 01:33:03PM -0400, Chuck Ebbert wrote:
+> > Also a new version of pfmon, pfmon-3.2-060621, to take advantage of the update in libpfm:
+> > 
+> >       - support for 32-bit mode AMD64 processors
+> >       - updated event name parsing to prepare for separate
+> >         event unit mask management (Kevin Corry)
+> >       - fix the detection of unavailable PMC registers. it was causing crashes
+> >         when used with sampling.
+> > 
+> > Note that I have tested 32-bit compiled libpfm,pfmon running on an 64-bit AMD
+> > perfmon kernel. I have not tested on a 32-bit AMD linux kernel because I don't
+> > have such setup. I would appreciate any feedback on this.
+> 
+> 32-bit works great.  Unfortunately, pfmon is far too limited for serious kernel
+> monitoring AFAICT.  E.g. you can't select edge counting instead of cycle
+> counting.  So you can count how many clock cycles were spent with interrupts
 
- kernel/power/suspend_swap.c |   41 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 41 insertions(+), 0 deletions(-)
+I put in an option to enable this mode, do pfmon --help. I think it's called
+edge-mask.
 
-diff --git a/kernel/power/suspend_swap.c b/kernel/power/suspend_swap.c
-index 7342cb2..683797a 100644
---- a/kernel/power/suspend_swap.c
-+++ b/kernel/power/suspend_swap.c
-@@ -926,3 +926,44 @@ static int swapwriter_image_exists(void)
- 	return 1;
- }
- 
-+/*
-+ * Mark resume attempted.
-+ *
-+ * Record that we tried to resume from this image.
-+ */
-+
-+static void swapwriter_mark_resume_attempted(void)
-+{
-+	union p_diskpage diskpage;
-+	int signature_found;
-+	
-+	if (!resume_dev_t) {
-+		printk("Not even trying to record attempt at resuming"
-+				" because resume_dev_t is not set.\n");
-+		return;
-+	}
-+	
-+	diskpage.address = get_zeroed_page(GFP_ATOMIC);
-+
-+	suspend_bio_ops.bdev_page_io(READ, resume_block_device,
-+			resume_firstblock,
-+			virt_to_page(diskpage.ptr));
-+	signature_found = parse_signature(diskpage.pointer->swh.magic.magic, 0);
-+
-+	switch (signature_found) {
-+		case 12:
-+		case 13:
-+			diskpage.pointer->swh.magic.magic[5] |= 0x80;
-+			break;
-+	}
-+	
-+	suspend_bio_ops.bdev_page_io(WRITE, resume_block_device,
-+			resume_firstblock,
-+			virt_to_page(diskpage.ptr));
-+	suspend_bio_ops.finish_all_io();
-+	free_page(diskpage.address);
-+	
-+	close_bdevs();
-+	return;
-+}
-+
+> disabled but you can't count how many times they were disabled.  That's too bad
+> because using pfmon is so easy compared to writing a program.
+> 
+Try the option, and let me know if it does not work for you.
 
---
-Nigel Cunningham		nigel at suspend2 dot net
+> And is someone working on kernel profiling tools that use the perfmon2
+> infrastructure on i386?  I'd like to see kernel-based profiling that lets
+> you use something like the existing 'readprofile' to retrieve results.  This
+> would be a lot better than the current timer-based profiling.
+> 
+You can do this on your athlon using pfmon already, you need to enable a
+different sampling module. Here is an example:
+
+$ pfmon --smpl-module=inst-hist -ecpu_clk_unhalted -k --long-smpl-period=100000 \
+     --resolve-addr --system-wide --session-timeout=10
+
+This will sample (period of 100,000 cpu_clk_unhalted) in the kernel ONLY for 10s and print  a flat
+profile sorted by #samples/instruction addresses. You can chose any event you want. Note that you can
+also use this output format in per-thread mode.
+
+Hope this helps.
+-- 
+-Stephane

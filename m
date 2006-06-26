@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932998AbWFZUGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933006AbWFZUGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932998AbWFZUGM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 16:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933003AbWFZUGL
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 16:06:11 -0400
-Received: from gw.goop.org ([64.81.55.164]:24704 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932998AbWFZUGI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S933006AbWFZUGI (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 26 Jun 2006 16:06:08 -0400
-Message-ID: <44A03E2F.7040602@goop.org>
-Date: Mon, 26 Jun 2006 13:06:07 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933003AbWFZUGH
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 26 Jun 2006 16:06:07 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:58473 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932998AbWFZUGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 16:06:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=UvW/z5Rbup6Xr7cCBTcoMgTaL8f+kbqdGbHWGysC6jLnLNfkjbah54cr1jDspJ0FQMySITJkQIKjYz9bkxa3keD/BVBIXxpzjesQCti2uKyFy4ecaRsN8dWeYh/mV8plEMELPl35ZbV0JwdpIg0yhKZwjNAMe9C0mO2lellogjo=
+Message-ID: <6bffcb0e0606261306i7f5a3326oa0c7f53aac2aa18d@mail.gmail.com>
+Date: Mon, 26 Jun 2006 22:06:03 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: oom-killer problem
+Cc: LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>,
-       Corey Minyard <minyard@acm.org>, linux-kernel@vger.kernel.org,
-       peter@palfrader.org, openipmi-developer@lists.sourceforge.net
-Subject: Re: [PATCH] IPMI: use schedule in kthread
-References: <20060626140819.GA17804@localdomain>	 <20060626120048.cff87fac.akpm@osdl.org>	 <20060626194937.GA16528@lists.us.dell.com> <1151351921.3185.76.camel@laptopd505.fenrus.org>
-In-Reply-To: <1151351921.3185.76.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> at least put a whole bunch of cpu_relax() in that loop, or your cpu
-> will.. get hot. Would also be nice if cpufreq had a "run this one slow"
-> option.... 
-The "conservative" and "ondemand" governors have an "ignore niced 
-processes" setting, which looks like it would help here.
+Hi Linus,
 
-    J
+I have noticed a small problem with
+2.6.17-5fd571cbc13db113bda26c20673e1ec54bfd26b4 - in fact, it doesn't
+work.
+
+http://www.stardust.webpages.pl/files/linux/bug1.jpg
+http://www.stardust.webpages.pl/files/linux/bug2.jpg
+
+Here is a config file
+http://www.stardust.webpages.pl/files/linux/config
+
+Any ideas?
+
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

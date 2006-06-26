@@ -1,562 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWFZBEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbWFZBCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965003AbWFZBEE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jun 2006 21:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbWFZBEB
+	id S964993AbWFZBCp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jun 2006 21:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbWFZBCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jun 2006 21:04:01 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:24719 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965094AbWFZA7a
+	Sun, 25 Jun 2006 21:02:11 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:26767 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964993AbWFZA7i
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jun 2006 20:59:30 -0400
-Date: Sun, 25 Jun 2006 17:58:07 -0700
+	Sun, 25 Jun 2006 20:59:38 -0400
+Date: Sun, 25 Jun 2006 17:58:10 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: [klibc 33/43] s390 support for klibc
-Message-Id: <klibc.200606251757.33@tazenda.hos.anvin.org>
+Subject: [klibc 42/43] dash - a small POSIX shell for klibc
+Message-Id: <klibc.200606251757.42@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The parts of klibc specific to the s390 architecture.
+[klibc] dash - a small POSIX shell for klibc
+
+A port of dash, a size-optimized version of ash by Herbert Xu, for
+klibc.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit 418ab99cc64fed344e2d3e446208f48655cccb31
-tree 958352848ed34bcf1aacdf5357ba453f96e38cbb
-parent 6db62c809bf46ac8a9f743513384d29fd339f877
-author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:42 -0700
-committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:58:42 -0700
+commit c61927fa211e3c54be7e868f41a4a1b99768111f
+tree bcc3c134be8c85809d4d7ef00aa4c6e183398440
+parent 6c2ddf4b91c2c390ef4568c02204f0af26fae842
+author H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:59:03 -0700
+committer H. Peter Anvin <hpa@zytor.com> Sun, 25 Jun 2006 16:59:03 -0700
 
- usr/include/arch/s390/klibc/archconfig.h |   15 ++++++
- usr/include/arch/s390/klibc/archsetjmp.h |   26 ++++++++++
- usr/include/arch/s390/klibc/archsignal.h |   14 ++++++
- usr/include/arch/s390/klibc/archstat.h   |   56 ++++++++++++++++++++++
- usr/include/arch/s390/klibc/archsys.h    |   41 ++++++++++++++++
- usr/klibc/arch/s390/MCONFIG              |   23 +++++++++
- usr/klibc/arch/s390/Makefile.inc         |   39 ++++++++++++++++
- usr/klibc/arch/s390/crt0.S               |   35 ++++++++++++++
- usr/klibc/arch/s390/mmap.c               |   75 ++++++++++++++++++++++++++++++
- usr/klibc/arch/s390/setjmp.S             |   66 ++++++++++++++++++++++++++
- usr/klibc/arch/s390/syscall.c            |   16 ++++++
- usr/klibc/arch/s390/sysstub.ph           |   40 ++++++++++++++++
- 12 files changed, 446 insertions(+), 0 deletions(-)
+ usr/dash/Kbuild          |  146 +++
+ usr/dash/README.klibc    |    7 
+ usr/dash/TOUR            |  356 +++++++
+ usr/dash/alias.c         |  227 ++++
+ usr/dash/alias.h         |   52 +
+ usr/dash/arith.y         |  155 +++
+ usr/dash/arith_yylex.c   |  163 +++
+ usr/dash/bltin/bltin.h   |   89 ++
+ usr/dash/bltin/echo.1    |  109 ++
+ usr/dash/bltin/printf.1  |  354 +++++++
+ usr/dash/bltin/printf.c  |  476 +++++++++
+ usr/dash/bltin/test.1    |  309 ++++++
+ usr/dash/bltin/test.c    |  500 ++++++++++
+ usr/dash/builtins.def.in |   92 ++
+ usr/dash/cd.c            |  303 ++++++
+ usr/dash/cd.h            |   35 +
+ usr/dash/config.h        |   85 ++
+ usr/dash/error.c         |  233 +++++
+ usr/dash/error.h         |  145 +++
+ usr/dash/eval.c          | 1100 ++++++++++++++++++++++
+ usr/dash/eval.h          |   62 +
+ usr/dash/exec.c          |  869 +++++++++++++++++
+ usr/dash/exec.h          |   77 ++
+ usr/dash/expand.c        | 1744 ++++++++++++++++++++++++++++++++++
+ usr/dash/expand.h        |   83 ++
+ usr/dash/funcs/cmv       |   47 +
+ usr/dash/funcs/dirs      |   71 +
+ usr/dash/funcs/kill      |   47 +
+ usr/dash/funcs/login     |   36 +
+ usr/dash/funcs/newgrp    |   35 +
+ usr/dash/funcs/popd      |   71 +
+ usr/dash/funcs/pushd     |   71 +
+ usr/dash/funcs/suspend   |   39 +
+ usr/dash/gendeps.pl      |   38 +
+ usr/dash/hetio.c         |  397 ++++++++
+ usr/dash/hetio.h         |   22 
+ usr/dash/histedit.c      |  492 ++++++++++
+ usr/dash/init.h          |   39 +
+ usr/dash/input.c         |  563 +++++++++++
+ usr/dash/input.h         |   68 +
+ usr/dash/jobs.c          | 1499 ++++++++++++++++++++++++++++++
+ usr/dash/jobs.h          |  109 ++
+ usr/dash/machdep.h       |   53 +
+ usr/dash/mail.c          |  112 ++
+ usr/dash/mail.h          |   38 +
+ usr/dash/main.c          |  349 +++++++
+ usr/dash/main.h          |   54 +
+ usr/dash/memalloc.c      |  329 ++++++
+ usr/dash/memalloc.h      |   97 ++
+ usr/dash/miscbltin.c     |  457 +++++++++
+ usr/dash/miscbltin.h     |   31 +
+ usr/dash/mkbuiltins      |  101 ++
+ usr/dash/mkinit.c        |  476 +++++++++
+ usr/dash/mknodes.c       |  448 +++++++++
+ usr/dash/mksyntax.c      |  315 ++++++
+ usr/dash/mktokens        |   92 ++
+ usr/dash/myhistedit.h    |   45 +
+ usr/dash/mystring.c      |  209 ++++
+ usr/dash/mystring.h      |   58 +
+ usr/dash/nodes.c.pat     |  166 +++
+ usr/dash/nodetypes       |  144 +++
+ usr/dash/options.c       |  547 +++++++++++
+ usr/dash/options.h       |   86 ++
+ usr/dash/output.c        |  385 ++++++++
+ usr/dash/output.h        |  112 ++
+ usr/dash/parser.c        | 1556 +++++++++++++++++++++++++++++++
+ usr/dash/parser.h        |   96 ++
+ usr/dash/redir.c         |  475 +++++++++
+ usr/dash/redir.h         |   49 +
+ usr/dash/sh.1            | 2332 ++++++++++++++++++++++++++++++++++++++++++++++
+ usr/dash/shell.h         |   94 ++
+ usr/dash/show.c          |  403 ++++++++
+ usr/dash/show.h          |   45 +
+ usr/dash/system.c        |  191 ++++
+ usr/dash/system.h        |   91 ++
+ usr/dash/trap.c          |  443 +++++++++
+ usr/dash/trap.h          |   52 +
+ usr/dash/var.c           |  676 +++++++++++++
+ usr/dash/var.h           |  146 +++
+ 79 files changed, 22768 insertions(+), 0 deletions(-)
 
-diff --git a/usr/include/arch/s390/klibc/archconfig.h b/usr/include/arch/s390/klibc/archconfig.h
-new file mode 100644
-index 0000000..d7a71a4
---- /dev/null
-+++ b/usr/include/arch/s390/klibc/archconfig.h
-@@ -0,0 +1,15 @@
-+/*
-+ * include/arch/s390/klibc/archconfig.h
-+ *
-+ * See include/klibc/sysconfig.h for the options that can be set in
-+ * this file.
-+ *
-+ */
-+
-+#ifndef _KLIBC_ARCHCONFIG_H
-+#define _KLIBC_ARCHCONFIG_H
-+
-+/* Both s390 and s390x use the "32-bit" version of this structure */
-+#define _KLIBC_STATFS_F_TYPE_64 0
-+
-+#endif				/* _KLIBC_ARCHCONFIG_H */
-diff --git a/usr/include/arch/s390/klibc/archsetjmp.h b/usr/include/arch/s390/klibc/archsetjmp.h
-new file mode 100644
-index 0000000..728780a
---- /dev/null
-+++ b/usr/include/arch/s390/klibc/archsetjmp.h
-@@ -0,0 +1,26 @@
-+/*
-+ * arch/s390/include/klibc/archsetjmp.h
-+ */
-+
-+#ifndef _KLIBC_ARCHSETJMP_H
-+#define _KLIBC_ARCHSETJMP_H
-+
-+#ifndef __s390x__
-+
-+struct __jmp_buf {
-+	uint32_t __gregs[10];	/* general registers r6-r15 */
-+	uint64_t __fpregs[2];	/* fp registers f4 and f6   */
-+};
-+
-+#else /* __s390x__ */
-+
-+struct __jmp_buf {
-+	uint64_t __gregs[10]; /* general registers r6-r15 */
-+	uint64_t __fpregs[4]; /* fp registers f1, f3, f5, f7 */
-+};
-+
-+#endif /* __s390x__ */
-+
-+typedef struct __jmp_buf jmp_buf[1];
-+
-+#endif				/* _SETJMP_H */
-diff --git a/usr/include/arch/s390/klibc/archsignal.h b/usr/include/arch/s390/klibc/archsignal.h
-new file mode 100644
-index 0000000..a16b977
---- /dev/null
-+++ b/usr/include/arch/s390/klibc/archsignal.h
-@@ -0,0 +1,14 @@
-+/*
-+ * arch/s390/include/klibc/archsignal.h
-+ *
-+ * Architecture-specific signal definitions
-+ *
-+ */
-+
-+#ifndef _KLIBC_ARCHSIGNAL_H
-+#define _KLIBC_ARCHSIGNAL_H
-+
-+#include <asm/signal.h>
-+/* No special stuff for this architecture */
-+
-+#endif
-diff --git a/usr/include/arch/s390/klibc/archstat.h b/usr/include/arch/s390/klibc/archstat.h
-new file mode 100644
-index 0000000..de3a9da
---- /dev/null
-+++ b/usr/include/arch/s390/klibc/archstat.h
-@@ -0,0 +1,56 @@
-+#ifndef _KLIBC_ARCHSTAT_H
-+#define _KLIBC_ARCHSTAT_H
-+
-+#include <klibc/stathelp.h>
-+
-+#define _STATBUF_ST_NSEC
-+
-+#ifndef __s390x__
-+
-+/* This matches struct stat64 in glibc2.1, hence the absolutely
-+ * insane amounts of padding around dev_t's.
-+ */
-+struct stat {
-+	__stdev64	(st_dev);
-+        unsigned int    __pad1;
-+#define STAT64_HAS_BROKEN_ST_INO        1
-+        unsigned long   __st_ino;
-+        unsigned int    st_mode;
-+        unsigned int    st_nlink;
-+        unsigned long   st_uid;
-+        unsigned long   st_gid;
-+	__stdev64	(st_rdev);
-+        unsigned int    __pad3;
-+        long long	st_size;
-+        unsigned long   st_blksize;
-+        unsigned char   __pad4[4];
-+        unsigned long   __pad5;     /* future possible st_blocks high bits */
-+        unsigned long   st_blocks;  /* Number 512-byte blocks allocated. */
-+	struct timespec st_atim;
-+	struct timespec st_mtim;
-+	struct timespec st_ctim;
-+        unsigned long long	st_ino;
-+};
-+
-+#else /* __s390x__ */
-+
-+struct stat {
-+	__stdev64	(st_dev);
-+	unsigned long	st_ino;
-+	unsigned long	st_nlink;
-+	unsigned int	st_mode;
-+	unsigned int	st_uid;
-+	unsigned int	st_gid;
-+	unsigned int	__pad1;
-+	__stdev64	(st_rdev);
-+	unsigned long	st_size;
-+	struct timespec	st_atim;
-+	struct timespec	st_mtim;
-+	struct timespec	st_ctim;
-+	unsigned long	st_blksize;
-+	long		st_blocks;
-+	unsigned long	__unused[3];
-+};
-+
-+#endif /* __s390x__ */
-+#endif
-diff --git a/usr/include/arch/s390/klibc/archsys.h b/usr/include/arch/s390/klibc/archsys.h
-new file mode 100644
-index 0000000..63079b4
---- /dev/null
-+++ b/usr/include/arch/s390/klibc/archsys.h
-@@ -0,0 +1,41 @@
-+/*
-+ * arch/s390/include/klibc/archsys.h
-+ *
-+ * Architecture-specific syscall definitions
-+ */
-+
-+#ifndef _KLIBC_ARCHSYS_H
-+#define _KLIBC_ARCHSYS_H
-+
-+/* S/390 only has five syscall parameters, and uses a structure for
-+   6-argument syscalls. */
-+
-+#ifndef _syscall6
-+
-+#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,\
-+                  type4,arg4,type5,arg5,type6,arg6)          \
-+type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4,    \
-+          type5 arg5, type6 arg6) {			     \
-+	unsigned long  __arg[6] = {			     \
-+		(unsigned long) arg1, 			     \
-+		(unsigned long) arg2, 			     \
-+		(unsigned long) arg3, 			     \
-+		(unsigned long) arg4, 			     \
-+		(unsigned long) arg5,			     \
-+		(unsigned long) arg6 			     \
-+	};						     \
-+	register void *__argp asm("2") = &__arg;	     \
-+	long __res;					     \
-+	__asm__ __volatile__ (               	             \
-+                "    svc %b1\n"                              \
-+                "    la  %0,2"                               \
-+                : "=d" (__res)                               \
-+                : "i" (__NR_##name),                         \
-+                  "d" (__argp)				     \
-+		: _svc_clobber);			     \
-+	__syscall_return(type, __res);			     \
-+}
-+
-+#endif				/* _syscall6() missing */
-+
-+#endif				/* _KLIBC_ARCHSYS_H */
-diff --git a/usr/klibc/arch/s390/MCONFIG b/usr/klibc/arch/s390/MCONFIG
-new file mode 100644
-index 0000000..dd4495a
---- /dev/null
-+++ b/usr/klibc/arch/s390/MCONFIG
-@@ -0,0 +1,23 @@
-+# -*- makefile -*-
-+#
-+# arch/s390/MCONFIG
-+#
-+# Special rules for this architecture.  Note that this is actually
-+# included from the main Makefile, and that pathnames should be
-+# accordingly.
-+#
-+
-+KLIBCOPTFLAGS = -Os
-+
-+ifneq ("$(KLIBCARCH)", "s390x")
-+	KLIBCBITSIZE	= 32
-+	KLIBCCFLAGS	+= -m31
-+	KLIBCLDFLAGS	+= -m elf_s390
-+else
-+	KLIBCBITSIZE	= 64
-+	KLIBCCFLAGS	+= -m64
-+	KLIBCLDFLAGS	+= -m elf64_s390
-+endif
-+
-+KLIBCASMARCH		= s390
-+KLIBCSHAREDFLAGS	= -Ttext 0x40000200
-diff --git a/usr/klibc/arch/s390/Makefile.inc b/usr/klibc/arch/s390/Makefile.inc
-new file mode 100644
-index 0000000..7c1cb42
---- /dev/null
-+++ b/usr/klibc/arch/s390/Makefile.inc
-@@ -0,0 +1,39 @@
-+# -*- makefile -*-
-+#
-+# arch/s390/Makefile.inc
-+#
-+# Special rules for this architecture.  Note that this is actually
-+# included from the main Makefile, and that pathnames should be
-+# accordingly.
-+#
-+
-+ifneq ("$(KLIBCARCH)", "s390x")
-+
-+KLIBCARCHOBJS = \
-+	arch/$(KLIBCARCHDIR)/setjmp.o \
-+	arch/$(KLIBCARCHDIR)/mmap.o \
-+	arch/$(KLIBCARCHDIR)/syscall.o \
-+	libgcc/__clzsi2.o \
-+	libgcc/__clzdi2.o \
-+	libgcc/__ashldi3.o \
-+	libgcc/__ashrdi3.o \
-+	libgcc/__lshrdi3.o \
-+	libgcc/__divdi3.o \
-+	libgcc/__moddi3.o \
-+	libgcc/__udivdi3.o \
-+	libgcc/__umoddi3.o \
-+	libgcc/__udivmoddi4.o
-+
-+else
-+
-+KLIBCARCHOBJS = \
-+	arch/$(KLIBCARCHDIR)/setjmp.o \
-+	arch/$(KLIBCARCHDIR)/mmap.o \
-+	arch/$(KLIBCARCHDIR)/syscall.o
-+
-+endif
-+
-+KLIBCARCHSOOBJS = $(patsubst %.o,%.lo,$(KLIBCARCHOBJS))
-+
-+
-+archclean:
-diff --git a/usr/klibc/arch/s390/crt0.S b/usr/klibc/arch/s390/crt0.S
-new file mode 100644
-index 0000000..fd9237e
---- /dev/null
-+++ b/usr/klibc/arch/s390/crt0.S
-@@ -0,0 +1,35 @@
-+#
-+# arch/s390/crt0.S
-+#
-+# Does arch-specific initialization and invokes __libc_init
-+# with the appropriate arguments.
-+#
-+# See __static_init.c or __shared_init.c for the expected
-+# arguments.
-+#
-+	.text
-+	.align 4
-+	.type _start,@function
-+	.globl _start
-+
-+#ifndef __s390x__
-+
-+_start:
-+	lr	%r2,%r15
-+	lhi	%r3,0
-+	ahi	%r15,-96
-+	bras	%r1,.L0
-+.L0:
-+	l	%r1,.L1-.L0(%r1)
-+	br	%r1
-+.L1:
-+	.long	__libc_init
-+#else
-+
-+_start:
-+	lgr	%r2,%r15
-+	lghi	%r3,0
-+	aghi	%r15,-160
-+	jg	__libc_init
-+#endif
-+	.size _start,.-_start
-diff --git a/usr/klibc/arch/s390/mmap.c b/usr/klibc/arch/s390/mmap.c
-new file mode 100644
-index 0000000..4c43779
---- /dev/null
-+++ b/usr/klibc/arch/s390/mmap.c
-@@ -0,0 +1,75 @@
-+#include <errno.h>
-+#include <sys/types.h>
-+#include <linux/unistd.h>
-+
-+struct mmap_arg_struct {
-+	unsigned long addr;
-+	unsigned long len;
-+	unsigned long prot;
-+	unsigned long flags;
-+	unsigned long fd;
-+	unsigned long offset;
-+};
-+
-+#ifndef __s390x__
-+
-+void *__mmap2(void *addr, size_t len, int prot, int flags, int fd, long offset)
-+{
-+	struct mmap_arg_struct args = {
-+		(unsigned long)addr,
-+		(unsigned long)len,
-+		(unsigned long)prot,
-+		(unsigned long)flags,
-+		(unsigned long)fd,
-+		(unsigned long)offset,
-+	};
-+
-+	register struct mmap_arg_struct *__arg1 asm("2") = &args;
-+	register long __svcres asm("2");
-+	unsigned long __res;
-+
-+	__asm__ __volatile__("    svc %b1\n"
-+			     : "=d"(__svcres)
-+			     : "i"(__NR_mmap2), "0"(__arg1)
-+			     : "1", "cc", "memory");
-+	__res = __svcres;
-+	if (__res >= (unsigned long)-4095) {
-+		errno = -__res;
-+		__res = -1;
-+	}
-+	return (void *)__res;
-+}
-+
-+#else /* __s390x__ */
-+
-+void * mmap(void * addr, size_t len, int prot, int flags,
-+						 int fd, off_t offset)
-+{
-+	struct mmap_arg_struct args = {
-+		(unsigned long) addr,
-+		(unsigned long) len,
-+		(unsigned long) prot,
-+		(unsigned long) flags,
-+		(unsigned long) fd,
-+		(unsigned long) offset,
-+	};
-+
-+	register struct mmap_arg_struct *__arg1 asm("2") = &args;
-+	register long __svcres asm("2");
-+	unsigned long __res;
-+
-+	__asm__ __volatile__ (
-+		"    svc %b1\n"
-+		: "=d" (__svcres)
-+		: "i" (__NR_mmap),
-+		  "0" (__arg1)
-+		: "1", "cc", "memory");
-+	__res = __svcres;
-+	if (__res >= (unsigned long)-4095) {
-+		errno = -__res;
-+		__res = -1;
-+	}
-+	return (void *)__res;
-+}
-+
-+#endif /* __s390x__ */
-diff --git a/usr/klibc/arch/s390/setjmp.S b/usr/klibc/arch/s390/setjmp.S
-new file mode 100644
-index 0000000..c36a051
---- /dev/null
-+++ b/usr/klibc/arch/s390/setjmp.S
-@@ -0,0 +1,66 @@
-+#
-+# arch/s390/setjmp.S
-+#
-+# setjmp/longjmp for the s390 architecture
-+#
-+
-+	.text
-+	.align 4
-+	.globl setjmp
-+	.type setjmp, @function
-+
-+#ifndef __s390x__
-+
-+setjmp:
-+	stm	%r6,%r15,0(%r2)		# save all general registers
-+	std	%f4,40(%r2)		# save fp registers f4 and f6
-+	std	%f6,48(%r2)
-+	lhi	%r2,0			# return 0
-+	br	%r14
-+
-+	.size setjmp,.-setjmp
-+
-+	.text
-+	.align 4
-+	.globl longjmp
-+	.type longjmp, @function
-+longjmp:
-+	lr	%r1,%r2			# jmp_buf
-+	lr	%r2,%r3			# return value
-+	ld	%f6,48(%r1)		# restore all saved registers
-+	ld	%f4,40(%r1)
-+	lm	%r6,%r15,0(%r1)
-+	br	%r14			# return to restored address
-+
-+	.size longjmp,.-longjmp
-+
-+#else
-+
-+setjmp:
-+	stmg	%r6,%r15,0(%r2)		# save all general registers
-+	std	%f1,80(%r2)		# save fp registers f4 and f6
-+	std	%f3,88(%r2)
-+	std	%f5,96(%r2)
-+	std	%f7,104(%r2)
-+	lghi	%r2,0			# return 0
-+	br	%r14
-+
-+	.size setjmp,.-setjmp
-+
-+	.text
-+	.align 4
-+	.globl longjmp
-+	.type longjmp, @function
-+longjmp:
-+	lgr	%r1,%r2			# jmp_buf
-+	lgr	%r2,%r3			# return value
-+	ld	%f7,104(%r1)		# restore all saved registers
-+	ld	%f5,96(%r1)
-+	ld	%f3,88(%r1)
-+	ld	%f1,80(%r1)
-+	lmg	%r6,%r15,0(%r1)
-+	br	%r14			# return to restored address
-+
-+	.size longjmp,.-longjmp
-+
-+#endif
-diff --git a/usr/klibc/arch/s390/syscall.c b/usr/klibc/arch/s390/syscall.c
-new file mode 100644
-index 0000000..e1d201d
---- /dev/null
-+++ b/usr/klibc/arch/s390/syscall.c
-@@ -0,0 +1,16 @@
-+/*
-+ * arch/s390/syscall.c
-+ *
-+ * Common error-handling path for system calls.
-+ * The return value from __syscall_common becomes the
-+ * return value from the system call.
-+ */
-+#include <errno.h>
-+
-+unsigned long __syscall_common(unsigned long err)
-+{
-+	if (err < -4095UL)
-+		return err;
-+	errno = -err;
-+	return -1;
-+}
-diff --git a/usr/klibc/arch/s390/sysstub.ph b/usr/klibc/arch/s390/sysstub.ph
-new file mode 100644
-index 0000000..880a0da
---- /dev/null
-+++ b/usr/klibc/arch/s390/sysstub.ph
-@@ -0,0 +1,40 @@
-+# -*- perl -*-
-+#
-+# arch/s390/sysstub.ph
-+#
-+# Script to generate system call stubs
-+#
-+
-+sub make_sysstub($$$$$@) {
-+    my($outputdir, $fname, $type, $sname, $stype, @args) = @_;
-+
-+    open(OUT, '>', "${outputdir}/${fname}.S");
-+    print OUT "#include <asm/unistd.h>\n";
-+    print OUT "\n";
-+    print OUT "\t.type ${fname},\@function\n";
-+    print OUT "\t.globl ${fname}\n";
-+    print OUT "${fname}:\n";
-+    print OUT ".if __NR_${sname} < 256\n";
-+    print OUT "\tsvc __NR_${sname}\n";
-+    print OUT ".else\n";
-+    print OUT "\tla %r1,__NR_${sname}\n";
-+    print OUT "\tsvc 0\n";
-+    print OUT ".endif\n";
-+
-+    print OUT "#ifndef __s390x__\n";
-+
-+    print OUT "\tbras %r3,1f\n";
-+    print OUT "\t.long __syscall_common\n";
-+    print OUT "1:\tl %r3,0(%r3)\n";
-+    print OUT "\tbr %r3\n";
-+
-+    print OUT "#else\n";
-+
-+    print OUT "\tbrasl %r3,__syscall_common\n";
-+
-+    print OUT "#endif\n";
-+    print OUT "\t.size ${fname},.-${fname}\n";
-+    close(OUT);
-+}
-+
-+1;
+Patch suppressed due to size (577 K), available at:
+http://www.kernel.org/pub/linux/kernel/people/hpa/klibc-patchset/42-dash---a-small-posix-shell-for-klibc.patch

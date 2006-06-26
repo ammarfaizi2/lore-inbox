@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932829AbWFZTE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932931AbWFZTLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932829AbWFZTE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 15:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932831AbWFZTE1
+	id S932931AbWFZTLw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 15:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932933AbWFZTLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 15:04:27 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53973 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932829AbWFZTEZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 15:04:25 -0400
-Message-ID: <44A02FB0.6000505@sgi.com>
-Date: Mon, 26 Jun 2006 12:04:16 -0700
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Balbir Singh <balbir@in.ibm.com>,
-       Chris Sturtivant <csturtiv@sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] delay accounting taskstats interface send tgid once
-References: <44A02331.8020903@watson.ibm.com>
-In-Reply-To: <44A02331.8020903@watson.ibm.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 26 Jun 2006 15:11:51 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:19931 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932931AbWFZTLv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 15:11:51 -0400
+Date: Mon, 26 Jun 2006 12:11:24 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: kiran@scalex86.org, akpm@osdl.org, clameter@engr.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: remove __read_mostly?
+Message-Id: <20060626121124.45ecc5f2.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0606261142560.32190@schroedinger.engr.sgi.com>
+References: <20060625115736.d90e1241.akpm@osdl.org>
+	<20060625211929.GA3865@localhost.localdomain>
+	<20060626113950.571d3e4c.pj@sgi.com>
+	<Pine.LNX.4.64.0606261142560.32190@schroedinger.engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh,
+Christoph wrote:
+> 99:1 may be too small a ratio.
 
-Is this patch supposed to go on top of all other patches? Or is it
-supposed to replace any? I had failure applying this patch on top
-of all previously applied.
-
-- jay
+Could well be.  I was just quoting Ravikiran's number.  I suspect he
+was using the number loosely, not as a precise value.
 
 
-Shailabh Nagar wrote:
-> Send per-tgid data only once during exit of a thread group instead of once with
-> each member thread exit.
-> 
-> Currently, when a thread exits, besides its per-tid data, the per-tgid data of
-> its thread group is also sent out, if its thread group is non-empty. The
-> per-tgid data sent consists of the sum of per-tid stats for all *remaining*
-> threads of the thread group.
-> 
-> This patch modifies this sending in two ways:
-> 
-> - the per-tgid data is sent only when the last thread of a thread group exits.
-> This cuts down heavily on the overhead of sending/receiving per-tgid data,
-> especially  when other exploiters of the taskstats interface aren't interested
-> in per-tgid stats
-> 
-> - the semantics of the per-tgid data sent are changed. Instead of being the
-> sum of per-tid data for remaining threads, the value now sent is the true total
-> accumalated statistics for all threads that are/were part of the thread group.
-> 
-> The patch also addresses a minor issue where failure of one accounting
-> subsystem to fill in the taskstats structure was causing the send of taskstats
-> to not be sent at all.
-> 
-> The patch has been tested for stability and run cerberus for over 4 hours on
-> an SMP.
-> 
-> Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
-> Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+> A read_mostly marked variable should be changed rarely (meaning is 
+> is extremely unlikely that his is going to change) but read frequently.
+
+Yes - well said.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

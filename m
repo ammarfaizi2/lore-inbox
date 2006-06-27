@@ -1,67 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422716AbWF0XPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422718AbWF0XS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422716AbWF0XPn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 19:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422717AbWF0XPn
+	id S1422718AbWF0XS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 19:18:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422720AbWF0XS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 19:15:43 -0400
-Received: from xenotime.net ([66.160.160.81]:23956 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422716AbWF0XPm (ORCPT
+	Tue, 27 Jun 2006 19:18:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24251 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422719AbWF0XSZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 19:15:42 -0400
-Date: Tue, 27 Jun 2006 16:18:26 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Eric Sesterhenn / Snakebyte <snakebyte@gmx.de>
-Cc: snakebyte@gmx.de, linux-kernel@vger.kernel.org, Henk.Vergonet@gmail.com
-Subject: Re: [Patch] Off by one in drivers/usb/input/yealink.c
-Message-Id: <20060627161826.db62fd00.rdunlap@xenotime.net>
-In-Reply-To: <20060627230415.GA16561@alice>
-References: <1151448080.16217.3.camel@alice>
-	<20060627155143.b0e3e1dd.rdunlap@xenotime.net>
-	<20060627230415.GA16561@alice>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 19:18:25 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060627155549.786724cf.akpm@osdl.org> 
+References: <20060627155549.786724cf.akpm@osdl.org>  <18192.1151320860@warthog.cambridge.redhat.com> <17567.31035.471039.999828@cse.unsw.edu.au> <17566.12727.489041.220653@cse.unsw.edu.au> <17564.52290.338084.934211@cse.unsw.edu.au> <15603.1150978967@warthog.cambridge.redhat.com> <553.1151156031@warthog.cambridge.redhat.com> <20946.1151251352@warthog.cambridge.redhat.com> <3087.1151403431@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, aviro@redhat.com,
+       neilb@suse.de, jblunck@suse.de, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Destroy the dentries contributed by a superblock on unmounting 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 28 Jun 2006 00:18:15 +0100
+Message-ID: <15750.1151450295@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006 01:04:16 +0200 Eric Sesterhenn / Snakebyte wrote:
+Andrew Morton <akpm@osdl.org> wrote:
 
-> * Randy.Dunlap (rdunlap@xenotime.net) wrote:
-> > On Wed, 28 Jun 2006 00:41:19 +0200 Eric Sesterhenn wrote:
-> > 
-> > > another off by one spotted by coverity (id #485),
-> > > we loop exactly one time too often
-> > > 
-> > > --- linux-2.6.17-git11/drivers/usb/input/yealink.c.orig	2006-06-28 00:29:46.000000000 +0200
-> > > +++ linux-2.6.17-git11/drivers/usb/input/yealink.c	2006-06-28 00:30:04.000000000 +0200
-> > > @@ -350,7 +350,7 @@ static int yealink_do_idle_tasks(struct 
-> > >  		val = yld->master.b[ix];
-> > >  		if (val != yld->copy.b[ix])
-> > >  			goto send_update;
-> > > -	} while (++ix < sizeof(yld->master));
-> > > +	} while (++ix < sizeof(yld->master)-1);
-> > >  
-> > >  	/* nothing todo, wait a bit and poll for a KEYPRESS */
-> > >  	yld->stat_ix = 0;
-> > 
-> > FWIW, on this one and the previous floppy.c patch,
-> > I would rather see the comparison be <= instead of using -1.
-> 
-> maybe it is too late, but wouldnt the <= make the loop
-> run even more iterations, like (++ix < sizeof() + 1)
+> Is the cond_resched_lock() here safe?  Once we've dropped that lock, the
+> list cursor `loop' is invalidated?
 
-:) Yep.
+Yes.  Nothing else is permitted to modify the d_subdirs list.  Not the VFS,
+not the filesystem, not the memory pressure shrinker.
 
-so for the floppy.c patch, I still prefer to see:
-+	if (drive < 0 || drive >= N_DRIVE) {
+> If all lookup paths to all entries on this list are removed at this time
+> then OK - but these dentries are still on the LRU.
 
-instead of
-+	if (drive < 0 || drive > N_DRIVE-1) {
+Ah... but the LRU shrinker may not touch dentries belonging to a filesystem
+that's got s_umount writelocked (eg: one that's in the process of being
+unmounted).  See prune_dcache():
 
-Does that make sense?
+		/*
+		 * ...otherwise we need to be sure this filesystem isn't being
+		 * unmounted, otherwise we could race with
+		 * generic_shutdown_super(), and end up holding a reference to
+		 * an inode while the filesystem is unmounted.
+		 * So we try to get s_umount, and make sure s_root isn't NULL.
+		 * (Take a local copy of s_umount to avoid a use-after-free of
+		 * `dentry').
+		 */
+		s_umount = &dentry->d_sb->s_umount;
+		if (down_read_trylock(s_umount)) {
+			if (dentry->d_sb->s_root != NULL) {
+				prune_one_dentry(dentry);
+				up_read(s_umount);
+				continue;
+			}
+			up_read(s_umount);
+		}
 
----
-~Randy
+		spin_unlock(&dentry->d_lock);
+
+> (An answer-via-comment-patch would suit ;))
+
+It is commented already:
+
+/*
+ * destroy the dentries attached to a superblock on unmounting
+ * - we don't need to use dentry->d_lock, and only need dcache_lock when
+ *   removing the dentry from the system lists and hashes because:
+ *   - the superblock is detached from all mountings and open files, so the
+ *     dentry trees will not be rearranged by the VFS
+ *   - s_umount is write-locked, so the memory pressure shrinker will ignore
+ *     any dentries belonging to this superblock that it comes across
+ *   - the filesystem itself is no longer permitted to rearrange the dentries
+ *     in this superblock
+ */
+void shrink_dcache_for_umount(struct super_block *sb)
+{
+
+
+Note the point about the memory pressure shrinker.
+
+David

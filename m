@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbWF0TwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWF0T66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932554AbWF0TwE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWF0TwE
+	id S932548AbWF0T66 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbWF0T66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:52:04 -0400
-Received: from mail.gmx.net ([213.165.64.21]:65427 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932554AbWF0TwD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:52:03 -0400
-X-Authenticated: #420190
-Message-ID: <44A18C38.7040504@gmx.net>
-Date: Tue, 27 Jun 2006 21:51:20 +0200
-From: Marko Macek <Marko.Macek@gmx.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: vojtech@suse.cz, thoffman@arnor.net
-CC: vanackere@lif.univ-mrs.fr, linux-kernel@vger.kernel.org
-Subject: USB input ati_remote autorepeat problem
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 27 Jun 2006 15:58:58 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:34008 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932548AbWF0T65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 15:58:57 -0400
+Subject: Re: I can cause kernel panic by using native alsa midi with
+	2.6.17.1
+From: Lee Revell <rlrevell@joe-job.com>
+To: Knut J Bjuland <knutjbj@online.no>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <449B8A0D.60607@online.no>
+References: <449B8A0D.60607@online.no>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 15:58:58 -0400
+Message-Id: <1151438338.2899.108.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, 2006-06-23 at 08:28 +0200, Knut J Bjuland wrote:
+> I can cause kernel panic by either alsasound stop or using a native midi player
+> like pmidi. osss midi player does not cause crash.pmidi -p 17:1 midifile.
+> 1./sbin/modprobe snd-emu10k1-synth
+> 2./bin/asfxload *.sf2
+> 3.pmidi -p 17.0 any.midi file
+> 4. hit ctrl-c during playing a midi file  
+> 
 
-I have problems with autorepeat in ati_remote (drivers/usb/input) driver 
-in "recent" kernels: all keys start repeating immediately without some 
-delay.
+Should be fixed in the Alsa HG tree.
 
-This makes some things, like changing the channel prev/next or toggling 
-fullscreen, etc... impossible/hard.
+Lee
 
-The problem seems to be related to FILTER_TIME and HZ=250 (which I 
-forgot to change).
 
-FILTER_TIME is defined to HZ / 20, and since 250 is not divisible by 20, 
-the time will be too short to ignore enough events.
-
-Defining FILTER_TIME to HZ / 20 + 1 seems to fix things, but I'm not 
-sure if there are any bad side effects.
-
-    Mark

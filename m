@@ -1,115 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWF0T7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161251AbWF0T73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbWF0T7J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWF0T7J
+	id S1161251AbWF0T73 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161255AbWF0T73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:59:09 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:59397 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932551AbWF0T7H convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:59:07 -0400
+	Tue, 27 Jun 2006 15:59:29 -0400
+Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:14522 "HELO
+	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161251AbWF0T72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 15:59:28 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Jes Sorensen <jes@sgi.com>
+Subject: Re: [patch] fix static linking of NFS
+Date: Tue, 27 Jun 2006 12:59:15 -0700
+User-Agent: KMail/1.7.1
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <yq04py7j699.fsf@jaguar.mkp.net> <44A1809F.5030306@sgi.com> <200606271221.31927.david-b@pacbell.net>
+In-Reply-To: <200606271221.31927.david-b@pacbell.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 27 Jun 2006 19:59:05.0938 (UTC) FILETIME=[2525EB20:01C69A24]
-Content-class: urn:content-classes:message
-Subject: Re: Serial: UART_BUG_TXEN race conditions
-Date: Tue, 27 Jun 2006 15:59:05 -0400
-Message-ID: <Pine.LNX.4.61.0606271542530.7275@chaos.analogic.com>
-In-Reply-To: <20060627211946.5le5spxmckwo0sks@mail.tu-chemnitz.de>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Serial: UART_BUG_TXEN race conditions
-thread-index: AcaaJCUvA+xDZSEET8WWzdAMT7057Q==
-References: <20060626220747.zmkyd4smqs0o044s@mail.tu-chemnitz.de><Pine.LNX.4.61.0606270813380.2135@chaos.analogic.com> <20060627211946.5le5spxmckwo0sks@mail.tu-chemnitz.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Ingo van Lil" <inguin@gmx.de>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_U4YoEBZYqH/rJ4o"
+Message-Id: <200606271259.16408.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_U4YoEBZYqH/rJ4o
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Tue, 27 Jun 2006, Ingo van Lil wrote:
+On Tuesday 27 June 2006 12:21 pm, David Brownell wrote:
+> OK here's a version of my patch that I edited to remove the
+> comments Jes objected to ... /* init or exit */ to remind
+> about the omitted section annotation.  Having one of those
+> would save multiple kbytes throughout the kernel, and I had
+> include the comments as reminders for an eventual fix...
+> 
+> - Dave
+> 
 
-> "linux-os (Dick Johnson)" <linux-os@analogic.com> schrieb:
->
->> A common problem with 8250 UART code I've seen is that
->> writers often do this:
->>
->> 	clear interrupts (spinlock)
->> 	read/check status
->> 	do something
->> 	enable interrupts (spin unlock)
->>
->> This 'seems' correct, but allows sneaky things to happen between
->> when you read/check status and you actually handle it.
->
-> What "sneaky thinks" could possibly happen between there? Either the
-> IIR read tells you that the TX FIFO is empty (in that case you can
-> safely write data into it) or it will tell you something different. In
-> the latter case another interrupt will be generated as soon as the FIFO
-> becomes empty.
 
-The sneaky things are other bits being set after you read them.
-Look under 'Interrupt Reset Control': Reading IIR register or
-writing to the transmitter holding register. You read status,
-then do something else because the THRE bit wasn't set yet. It
-is now set just before you do something else, but you don't get
-another edge interrupt because the IRQ line never moved. It's
-always high, no more interrupts ... ever. This problem wouldn't
-exist with level interrupts but the 8250/16450 doesn't use level
-interrupts.
+Once more, with patch.
 
-These problems are why you sometimes see the UART ISR code
-being called from a timer-tick interrupt.
+--Boundary-00=_U4YoEBZYqH/rJ4o
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="nfs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="nfs.patch"
 
-Whatever you do, you must completely satisfy the interrupt
-condition in the ISR, or your code will never get the CPU back!
-All the bits that could cause interrupts must be reset before
-you return from your routine.
+Builds on ARM report link problems with common configurations like
+statically linked NFS (for nfsroot).  The symptom is that __init
+section code references __exit section code; that won't work since
+the exit sections are discarded (since they can never be called).
 
->
-> As far as I can see the main reason for all the UART confusion is the
-> requirement that the interrupt condition is to be automatically cleared
->  by an IIR read, if (and only if) the indicated state ist THRE. This
-> sounds like a particularly bad idea to me, but I'm not an expert.
-> Anyway, as the IIR read might have been performed by some other piece
-> of code (e.g. serial8250_startup) the 8250 driver depends on the UART
-> to trigger another interrupt as soon the THRE bit in the IER is set (by
-> start_tx). The opencores.org UART behaves that way, and I guess that's
-> what most controllers do, but some more exotic chips appear not to.
->
->> To implement the above algorithm, the following has been successful.
-> [...]
->
-> This seems to be pretty much what I suggested yesterday: After adding
-> new characters to the ring buffer, check whether the transmitter is
-> idle and, if it is, write a first load of characters into the FIFO.
+The best fix for these particular cases would be an "__init_or_exit"
+section annotation.
 
-Yep.
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-> This should be a safe for solution for all kinds of UARTs, and it would
-> allow us to entirely drop the UART_BUG_TXEN detection.
->
-> I'm gonna have a look at the kernel patch submission guidelines and,
-> unless somebody is quicker than me, propose a patch.
->
-> Cheers,
-> Ingo
->
+Index: at91/fs/nfs/direct.c
+===================================================================
+--- at91.orig/fs/nfs/direct.c	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/direct.c	2006-06-26 14:32:39.000000000 -0700
+@@ -909,7 +909,7 @@ int __init nfs_init_directcache(void)
+  * nfs_destroy_directcache - destroy the slab cache for nfs_direct_req structures
+  *
+  */
+-void __exit nfs_destroy_directcache(void)
++void nfs_destroy_directcache(void)
+ {
+ 	if (kmem_cache_destroy(nfs_direct_cachep))
+ 		printk(KERN_INFO "nfs_direct_cache: not all structures were freed\n");
+Index: at91/fs/nfs/inode.c
+===================================================================
+--- at91.orig/fs/nfs/inode.c	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/inode.c	2006-06-26 14:32:39.000000000 -0700
+@@ -1132,7 +1132,7 @@ static int __init nfs_init_inodecache(vo
+ 	return 0;
+ }
+ 
+-static void __exit nfs_destroy_inodecache(void)
++static void nfs_destroy_inodecache(void)
+ {
+ 	if (kmem_cache_destroy(nfs_inode_cachep))
+ 		printk(KERN_INFO "nfs_inode_cache: not all structures were freed\n");
+Index: at91/fs/nfs/internal.h
+===================================================================
+--- at91.orig/fs/nfs/internal.h	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/internal.h	2006-06-26 14:32:39.000000000 -0700
+@@ -31,15 +31,15 @@ extern struct svc_version nfs4_callback_
+ 
+ /* pagelist.c */
+ extern int __init nfs_init_nfspagecache(void);
+-extern void __exit nfs_destroy_nfspagecache(void);
++extern void nfs_destroy_nfspagecache(void);
+ extern int __init nfs_init_readpagecache(void);
+-extern void __exit nfs_destroy_readpagecache(void);
++extern void nfs_destroy_readpagecache(void);
+ extern int __init nfs_init_writepagecache(void);
+-extern void __exit nfs_destroy_writepagecache(void);
++extern void nfs_destroy_writepagecache(void);
+ 
+ #ifdef CONFIG_NFS_DIRECTIO
+ extern int __init nfs_init_directcache(void);
+-extern void __exit nfs_destroy_directcache(void);
++extern void nfs_destroy_directcache(void);
+ #else
+ #define nfs_init_directcache() (0)
+ #define nfs_destroy_directcache() do {} while(0)
+Index: at91/fs/nfs/pagelist.c
+===================================================================
+--- at91.orig/fs/nfs/pagelist.c	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/pagelist.c	2006-06-26 14:32:39.000000000 -0700
+@@ -390,7 +390,7 @@ int __init nfs_init_nfspagecache(void)
+ 	return 0;
+ }
+ 
+-void __exit nfs_destroy_nfspagecache(void)
++void nfs_destroy_nfspagecache(void)
+ {
+ 	if (kmem_cache_destroy(nfs_page_cachep))
+ 		printk(KERN_INFO "nfs_page: not all structures were freed\n");
+Index: at91/fs/nfs/read.c
+===================================================================
+--- at91.orig/fs/nfs/read.c	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/read.c	2006-06-26 14:32:39.000000000 -0700
+@@ -711,7 +711,7 @@ int __init nfs_init_readpagecache(void)
+ 	return 0;
+ }
+ 
+-void __exit nfs_destroy_readpagecache(void)
++void nfs_destroy_readpagecache(void)
+ {
+ 	mempool_destroy(nfs_rdata_mempool);
+ 	if (kmem_cache_destroy(nfs_rdata_cachep))
+Index: at91/fs/nfs/write.c
+===================================================================
+--- at91.orig/fs/nfs/write.c	2006-06-26 14:28:55.000000000 -0700
++++ at91/fs/nfs/write.c	2006-06-26 14:32:39.000000000 -0700
+@@ -1551,7 +1551,7 @@ int __init nfs_init_writepagecache(void)
+ 	return 0;
+ }
+ 
+-void __exit nfs_destroy_writepagecache(void)
++void nfs_destroy_writepagecache(void)
+ {
+ 	mempool_destroy(nfs_commit_mempool);
+ 	mempool_destroy(nfs_wdata_mempool);
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.71 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+--Boundary-00=_U4YoEBZYqH/rJ4o--

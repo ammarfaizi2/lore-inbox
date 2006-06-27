@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWF0AXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWF0Acu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbWF0AXa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 20:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWF0AX3
+	id S1030265AbWF0Acu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 20:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030278AbWF0Act
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 20:23:29 -0400
-Received: from mail.gurulabs.com ([67.137.148.7]:50663 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S1030252AbWF0AX1 (ORCPT
+	Mon, 26 Jun 2006 20:32:49 -0400
+Received: from mail.suse.de ([195.135.220.2]:17338 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030265AbWF0Acs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 20:23:27 -0400
-Subject: Re: Areca driver recap + status
-From: Dax Kelson <dax@gurulabs.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Andrew Morton <akpm@osdl.org>, rdunlap@xenotime.net, hch@infradead.org,
-       erich@areca.com.tw, brong@fastmail.fm, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Robert Mueller <robm@fastmail.fm>
-In-Reply-To: <1151333338.2673.4.camel@mulgrave.il.steeleye.com>
-References: <09be01c695b3$2ed8c2c0$c100a8c0@robm>
-	 <20060621222826.ff080422.akpm@osdl.org>
-	 <1151333338.2673.4.camel@mulgrave.il.steeleye.com>
-Content-Type: text/plain
-Date: Mon, 26 Jun 2006 18:23:08 -0600
-Message-Id: <1151367789.2935.23.camel@mentorng.gurulabs.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 26 Jun 2006 20:32:48 -0400
+From: Neil Brown <neilb@suse.de>
+To: Martin Filip <bugtraq@smoula.net>
+Date: Tue, 27 Jun 2006 10:32:22 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17568.31894.207153.563590@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS and partitioned md
+In-Reply-To: message from Martin Filip on Monday June 26
+References: <1151355145.4460.16.camel@archon.smoula-in.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-26 at 09:48 -0500, James Bottomley wrote:
-
-> Not the world perhaps, but I'm unwilling to concede that if a driver
-> author is given a list of major issues and does nothing, then the driver
-> should go in after everyone gets impatient.
-
-That isn't accurate or fair. Erich has submitted large patches to
-address issues. That hardly qualifies as "does nothing".
-
-> The list of issues is here:
+On Monday June 26, bugtraq@smoula.net wrote:
+> Hello to LKML,
 > 
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=114556263632510
+> few days ago I've changed my sw RAID5 to use md_d devices, which are
+> "partitonable". (major 254, minor dependant on partiton no)
 > 
-> Most of the serious stuff is fixed with the exception of:
+> The problem is with kernel space NFS daemon. When I create loopback
+> device and export it - everything works OK, but when exported directory
+> is directly something goes really wrong and it's not possible to mount
+> it.
 > 
-> - sysfs has more than one value per file
-> - BE platform support
-> - PAE (cast of dma_addr_t to unsigned long) issues.
-> - SYNCHRONIZE_CACHE is ignored.  This is wrong.  The sync cache in the
-> shutdown notifier isn't sufficient.
-> 
-> At least the sysfs files have to be fixed before it goes in ... unless
-> you want to be lynched by Greg?
+> I'm getting "nfs: server 192.168.0.2 not responding, timed out" in my
+> kernel log, when I look on what's happening on network, the last thing
+> what's there are 3 retransmitted GETATTR calls without any response. 
 
-Thanks for the new list. Erich has been eager to get work on any
-remaining blockers.
+Odd.  It works fine for me (I've had this sort of configuration on
+some machines for ages, and I just tested a bleeding edge kernel and
+it still works).
 
-It would have been nice to have gotten it back on May 19th, they might
-have been resolved by now.
+So I suspect there is something else going on that has nothing to do
+with the usage of partitioned md.... then again, maybe there is some
+weird sign extension happening to '254' somewhere, though that would
+be terribly strange.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114801926400287&w=2
+So: details please.
+ What md device exactly (major and minor)
+ What filesystem.
+ 'tcpdump -s0' trace capturing all nfs/mountd/rpc packets from before
+ you issue the mount command. e.g.  use 'rpcinfo -p' to find out what
+ port mountd is listening on then,
 
+   tcpdump -s0 -w /tmp/trace host CLIENT and host SERVER and \( \
+    port 2049 or port 111 or port MOUNTDPORT \)  &
 
+ Then try the mount.
 
+ After the experiment, on the server
+    grep . /proc/net/rpc/*/content
+    cat /proc/fs/nfsd/exports
+
+That should be enough detail to start with.
+
+NeilBrown

@@ -1,88 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWF0AzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWF0A5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWF0AzS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 20:55:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWF0AzR
+	id S964804AbWF0A5G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 20:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWF0A5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 20:55:17 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:21922
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S964809AbWF0AzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 20:55:15 -0400
-Subject: Re: Serial-Core: USB-Serial port current issues.
-From: Paul Fulghum <paulkf@microgate.com>
-To: Greg KH <gregkh@suse.de>
-Cc: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Pete Zaitcev <zaitcev@redhat.com>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20060626222628.GC29325@suse.de>
-References: <20060613192829.3f4b7c34@home.brethil>
-	 <20060614152809.GA17432@flint.arm.linux.org.uk>
-	 <20060620161134.20c1316e@doriath.conectiva>
-	 <20060620193233.15224308.zaitcev@redhat.com>
-	 <20060621133500.18e82511@doriath.conectiva>
-	 <20060621164336.GD24265@flint.arm.linux.org.uk>
-	 <20060621181513.235fc23c@doriath.conectiva>
-	 <20060622082939.GA25212@flint.arm.linux.org.uk>
-	 <20060623142842.2b35103b@home.brethil>  <20060626222628.GC29325@suse.de>
-Content-Type: text/plain
-Date: Mon, 26 Jun 2006 19:49:09 -0500
-Message-Id: <1151369349.2600.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jun 2006 20:57:06 -0400
+Received: from mail.gmx.net ([213.165.64.21]:59858 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964811AbWF0A5E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 20:57:04 -0400
+X-Authenticated: #5039886
+Date: Tue, 27 Jun 2006 02:57:18 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386: Fix softirq accounting with 4K stacks
+Message-ID: <20060627005718.GA7127@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <200606261856_MC3-1-C384-91D6@compuserve.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200606261856_MC3-1-C384-91D6@compuserve.com>
+User-Agent: Mutt/1.5.11+cvs20060403
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-26 at 15:26 -0700, Greg KH wrote:
-> On Fri, Jun 23, 2006 at 02:28:42PM -0300, Luiz Fernando N. Capitulino wrote:
-> > On Thu, 22 Jun 2006 09:29:40 +0100
-> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > 
-> > | 
-> > | Consider this scenario with what you're proposing:
-> > | 
-> > | 	thread				irq
-> > | 
-> > | 	take mutex
-> > | 	get_mctrl
-> > | 					cts changes state
-> > | 					take port lock
-> > | 					mctrl state read
-> > | 					tty->hw_stopped changed state
-> > | 					release port lock
-> > | 	releaes mutex
-> > | 	take port lock
-> > | 	update tty->hw_stopped
-> > | 	release port lock
-> > | 
-> > | Now, tty->hw_stopped does not reflect the hardware state, which will be
-> > | buggy and can cause a loss of transmission.
-> > | 
-> > | I'm not sure what to suggest on this one since for USB drivers you do
-> > | need to be able to sleep in this method... but for UARTs you must not.
+On 2006.06.26 18:54:00 -0400, Chuck Ebbert wrote:
+> In-Reply-To: <20060625184244.GA11921@atjola.homenet>
+> 
+> On Sun, 25 Jun 2006 20:42:44 +0200, Bjorn Steinbrink wrote:
+> 
+> > Btw, which path do apic irqs go? I stumbled across the nmi stuff, but
+> > didn't see anything special for the apic irqs.
+> 
+> arch/i386/kernel/entry.S has the macro BUILD_INTERRUPT(name, nr).
+> 
+> The code that uses this macro is in arch/i386/mach-*/entry_arch.h.
+> 
+> The macro prepends "smp_" to the name passed to the macro and the
+> generated asm code calls that function after saving registers, etc.
+> 
+> arch/i386/kernel/apic.c::apic_intr_init() calls set_intr_gate() to
+> point some of the interrupt gates at the correct functions.
 
-What about this ugly fragment?
-(assuming get_mctrl not called from IRQ)
+Thanks, my view on the code was too cscope-centric and the grep runs
+searched for the full function name.
+That finally explains why calling update_process_times() in
+smp_local_timer_interrupt() makes a difference on UP.
 
-  take mutex
-  take port lock
-again:
-  save local copy of icount
-  release port lock
-  get_mctrl
-  take port lock
-  if (icount changed)
-    goto again
-  update tty->hw_stopped
-  release port lock
-  release mutex
-
---
-Paul
-
-
-
-
-
+Björn

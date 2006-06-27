@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbWF0VDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbWF0VDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030366AbWF0VDX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 17:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030369AbWF0VDX
+	id S1030369AbWF0VDz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 17:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbWF0VDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 17:03:23 -0400
-Received: from pat.qlogic.com ([198.70.193.2]:55017 "EHLO avexch2.qlogic.com")
-	by vger.kernel.org with ESMTP id S1030366AbWF0VDW (ORCPT
+	Tue, 27 Jun 2006 17:03:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59832 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030369AbWF0VDt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 17:03:22 -0400
-Date: Tue, 27 Jun 2006 14:03:19 -0700
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Dmitry Torokhov <dtor@mail.ru>
-Subject: keyboard repeat-rate borked with recent linux-2.6 git tree...
-Message-ID: <20060627210319.GA16504@andrew-vasquezs-powerbook-g4-15.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: QLogic Corporation
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 27 Jun 2006 21:03:22.0063 (UTC) FILETIME=[1F93E5F0:01C69A2D]
+	Tue, 27 Jun 2006 17:03:49 -0400
+Date: Tue, 27 Jun 2006 14:03:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: dtor_core@ameritech.net
+cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [git pull] Input update for 2.6.17
+In-Reply-To: <d120d5000606271240v76d3f159j1615ad0b16ad8e68@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0606271403190.3927@g5.osdl.org>
+References: <200606260235.03718.dtor_core@ameritech.net> 
+ <Pine.LNX.4.64.0606262247040.3927@g5.osdl.org>  <20060627063734.GA28135@kroah.com>
+  <Pine.LNX.4.64.0606271131590.3927@g5.osdl.org>  <Pine.LNX.4.64.0606271211110.3927@g5.osdl.org>
+  <Pine.LNX.4.64.0606271231440.3927@g5.osdl.org>
+ <d120d5000606271240v76d3f159j1615ad0b16ad8e68@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Key repeats while depressing any key are broken due to the following
-commits:
 
-Input: atkbd - fix HANGEUL/HANJA keys
-0ae051a19092d36112b5ba60ff8b5df7a5d5d23b
 
-Input: fix misspelling of Hangeul key
-b9ab58dd8e771d30df110c56e785db1ae5e073df
+On Tue, 27 Jun 2006, Dmitry Torokhov wrote:
+> 
+> Are you dropping mails with attachments or maybe you have not gone
+> through all your email, because I believe the patch I send to you
+> should fix the problem.
 
-reverting 0ae051a19 fixes the lack-of-key repeats...
+Sorry too many emails, and I looked at the others first.
 
---
-av
-realizing how annoying it is to have to hit 'j' 10 times to move ten
-lines...
+Yes, your patch fixes it. Goodie.
+
+		Linus

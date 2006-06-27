@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWF0JxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWF0JzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932531AbWF0JxL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 05:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbWF0JxL
+	id S964871AbWF0JzX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 05:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWF0JzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 05:53:11 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43796 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932531AbWF0JxK (ORCPT
+	Tue, 27 Jun 2006 05:55:22 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:1581 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S964858AbWF0JzV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 05:53:10 -0400
-Date: Tue, 27 Jun 2006 11:54:44 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ck@vds.kolivas.org
-Subject: Re: 2.6.17-ck1: fcache problem...
-Message-ID: <20060627095443.GQ22071@suse.de>
-References: <20060625093534.1700e8b6@localhost> <20060625102837.GC20702@suse.de> <20060625152325.605faf1f@localhost> <20060625174358.GA21513@suse.de> <20060627112105.0b15bfa1@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060627112105.0b15bfa1@localhost>
+	Tue, 27 Jun 2006 05:55:21 -0400
+Message-ID: <44A1006B.3040700@sw.ru>
+Date: Tue, 27 Jun 2006 13:54:51 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Daniel Lezcano <dlezcano@fr.ibm.com>
+CC: Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, herbert@13thfloor.at,
+       devel@openvz.org, sam@vilain.net, ebiederm@xmission.com,
+       viro@ftp.linux.org.uk, Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <20060627131136.B13959@castle.nmd.msu.ru> <44A0FBAC.7020107@fr.ibm.com>
+In-Reply-To: <44A0FBAC.7020107@fr.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27 2006, Paolo Ornati wrote:
-> On Sun, 25 Jun 2006 19:43:59 +0200
-> Jens Axboe <axboe@suse.de> wrote:
-> 
-> > > > Hmm, and you are sure that the fs is properly umounted on reboot? Or is
-> > > > it just remounted ro? It looks like fcache_close_dev() isn't being
-> > > > called, so the cache serial doesn't match what we expect from the fs,
-> > > > hence fcache bails out since it could indicate that the fs has been
-> > > > changed without fcache being attached.
-> > > 
-> > > Ahh... it is the root fs and it's just remounted read-only by the
-> > > standard Gentoo scripts ;)
-> > > 
-> > > I don't think that unmounting it is trivial (you need to chroot to a
-> > > virtual FS or something...). Does any distro do it?
-> > 
-> > ro should be enough, something odd must be going on. I'll add it to the
-> > list of things to test tomorrow.
-> 
-> Since "fcache_close_dev()" is called by "ext3_put_super()" I have added
-> this stupid printk:
-> 
-> --- fs/ext3/super.c.orig        2006-06-27 10:47:15.000000000 +0200
-> +++ fs/ext3/super.c     2006-06-27 10:50:36.000000000 +0200
-> @@ -422,6 +422,8 @@ static void ext3_put_super (struct super
-> 
->         has_fcache = test_opt(sb, FCACHE);
-> 
-> +       printk("!!! ext3_put_super !!!   has_fcache=%d\n", has_fcache);
-> +
->         ext3_xattr_put_super(sb);
->         journal_destroy(sbi->s_journal);
->         if (!(sb->s_flags & MS_RDONLY)) {
+>> My point is that if you make namespace tagging at routing time, and
+>> your packets are being routed only once, you lose the ability
+>> to have separate routing tables in each namespace.
 > 
 > 
-> It triggers on unmount but it doesn't on remount "ro".
-> 
-> So the problem is that "fcache_close_dev()" have zero chances to run ;)
+> Right. What is the advantage of having separate the routing tables ?
+it is impossible to have bridged networking, tun/tap and many other 
+features without it. I even doubt that it is possible to introduce 
+private netfilter rules w/o virtualization of routing.
 
-Hmm, you seem to be using an older fcache version. I'll test this and
-post an updated patch if it doesn't work with the newer version.
+The question is do we want to have fully featured namespaces which allow 
+to create isolated virtual environments with semantics and behaviour of 
+standalone linux box or do we want to introduce some hacks with new 
+rules/restrictions to meet ones goals only?
 
--- 
-Jens Axboe
+ From my POV, fully virtualized namespaces are the future. It is what 
+makes virtualization solution usable (w/o apps modifications), provides 
+all the features and doesn't require much efforts from people to be used.
 
+Thanks,
+Kirill

@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWF0WLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbWF0WNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422642AbWF0WLT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 18:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbWF0WLT
+	id S1422643AbWF0WNm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 18:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422644AbWF0WNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 18:11:19 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:51864 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1030431AbWF0WLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 18:11:19 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44A1AC3D.6080801@s5r6.in-berlin.de>
-Date: Wed, 28 Jun 2006 00:07:57 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Robert Hancock <hancockr@shaw.ca>, Ben Collins <bcollins@ubuntu.com>,
-       Jody McIntyre <scjody@modernduck.com>
-Subject: Re: [PATCH 18/25] ohci1394: Fix broken suspend/resume in ohci1394
-References: <20060627200745.771284000@sous-sol.org> <20060627201539.350588000@sous-sol.org>
-In-Reply-To: <20060627201539.350588000@sous-sol.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 27 Jun 2006 18:13:42 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:57806 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1422643AbWF0WNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 18:13:41 -0400
+Subject: [GIT *] make headers_install
+From: David Woodhouse <dwmw2@infradead.org>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: sam@savnborg.org, arnd@arndb.de, jbailey@ubuntu.com,
+       Tim Yamin <plasmaroo@gentoo.org>,
+       Bernhard Rosenkraenzer <bero@arklinux.org>, alan@lxorguk.ukuu.org.uk,
+       Thorsten Kukuk <kukuk@suse.de>, Clint Adams <schizo@debian.org>,
+       linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 23:12:52 +0100
+Message-Id: <1151446372.6394.295.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.9) AWL,BAYES_50
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-...
-> From: Robert Hancock <hancockr@shaw.ca>
-...
-> I created the patch below and tested it, and it appears to resolve the
-> suspend problems I was having with the module loaded. I only added in
-> the pci_save_state and pci_restore_state - however, though I know little
-> of this hardware, surely the driver should really be doing more than
-> this when suspending and resuming? Currently it does almost nothing,
-> what if there are commands in progress, etc?
-...
+Linus, please pull from git://git.infradead.org/hdrinstall-2.6.git
 
-This patch is OK. (Although unlike one might expect from reading the 
-patch title, there is still a lot to do for full suspend/resume 
-functionality in ohci1394.) Just FYI, here is my reply to Robert's 
-initial patch submission:
+This contains an implementation of a 'make headers_install' target for
+the kernel -- based on original work by Arnd Bergmann, modifed my myself
+and then cleaned up by Sam. This copies _selected_ kernel headers out to
+a separate directory, passing them through sed and BSD's 'unifdef' tool
+to remove parts which userspace should not see.
 
-| Thanks, this is at least a start. Apart from the code for PPC Macintoshs,
-| ohci1394 does indeed lack any suspend/resume handling. I don't know
-| anything about this matter, however the OHCI spec (gratis available,
-| linked from www.linux1394.org) table A-11 on page 168 says which losses
-| of configuration result from what power state transitions: Interrupts are
-| masked when going into D1. IEEE 1394 configuration is lost when going
-| into D2. PCI configuration is lost when going into D3. Since we don't
-| handle this yet, a suspend/resume cycle results at least in loss of
-| FireWire connectivity.
-|
-| As you may have guessed, this problem is basically as old as the driver.
-| Nobody is actively working on it AFAIK. ["it" = the resume problem]
-| (Except that I dusted off an old notebook and put a fresh Linux distro on
-| it --- with the plan [to] check power management and hot ejection
-| handling by ohci1394... later this year...)
+(The BSD 'unifdef' tool is available at least in Fedora and Debian
+through their standard package management tools. I believe that Sam
+intends to follow up with a patch to add our own copy of unifdef into
+the kernel scripts/ directory, as soon as he's fixed the dependency
+issues with that.)
+
+This isn't a departure from our current policy that random userspace
+must not poke at kernel private headers. It's just an attempt to impose
+some control over those places where we have to accept that people _do_
+use the kernel's headers -- when building system libraries and tools,
+and when building compilers.
+
+Currently, the compiler-build scripts just use 'cp -a', while the
+distributions tend to do their own thing to make it _slightly_ saner
+than that, although it's a lot of work to do so. The result is wildly
+inconsistent and often exposes things which we really don't want
+userspace to have copies of.
+
+By adding a 'make headers_install' target to the kernel, we regulate
+those people who really do have to use kernel headers, and we can ensure
+that we have a _consistent_ set of headers across all distributions,
+which contains only what we _need_ to expose; ioctl definitions, etc.
+
+An additional benefit is that comparing the results of 'make
+headers_install' from one kernel release to the next allows us to spot
+kernel<->user ABI changes in isolation and give them the extra review
+that they deserve. I've already caught and fixed one potential problem
+with 32-bit userspace on a 64-bit kernel this way.
+
+The result of this export is already being used in the Fedora Core 6
+test releases, and other distributions are either looking at switching
+over to it or have done so already.
+
+Ignoring the new Kbuild files which just list the files to be exported
+from each directory under include/, the diffstat is as follows:
+
+ Makefile                              |   17 ++++
+ scripts/Makefile.headersinst          |  158 +++++++++++++++++++++++++++++++++
+ scripts/hdrcheck.sh                   |    8 ++
+ 49 files changed, 399 insertions(+), 0 deletions(-)
+
+David S. Miller:
+      Restrict headers exported to userspace for SPARC and SPARC64
+
+David Woodhouse:
+      Basic implementation of 'make headers_install'
+      Basic implementation of 'make headers_check'
+      Add generic Kbuild files for 'make headers_install'
+      Add Kbuild file for PowerPC 'make headers_install'
+      Add Kbuild file for x86_64 'make headers_install'
+      Add Kbuild file for i386 'make headers_install'
+      Add Kbuild file for S390 'make headers_install'
+      Add Kbuild file for IA64 'make headers_install'
+      Add Kbuild file for SPARC 'make headers_install'
+      Add Kbuild file for Alpha 'make headers_install'
+      Add empty Kbuild files for 'make headers_install' in remaining arches.
+
+Jean Delvare:
+      Remove <linux/i2c-id.h> and <linux/i2c-algo-ite.h> from userspace export
+
 -- 
-Stefan Richter
--=====-=-==- -==- ==-==
-http://arcgraph.de/sr/
+dwmw2
+

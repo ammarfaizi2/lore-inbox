@@ -1,70 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWF0Ges@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWF0Gic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWF0Ges (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 02:34:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWF0Ges
+	id S932249AbWF0Gic (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 02:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWF0Gic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 02:34:48 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:41391 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S932170AbWF0Ger (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 02:34:47 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [Suspend2][ 07/13] [Suspend2] Page_alloc paranoia.
-Date: Tue, 27 Jun 2006 16:34:39 +1000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060627044226.15066.7403.stgit@nigel.suspend2.net> <20060627044248.15066.52507.stgit@nigel.suspend2.net> <44A0CC28.5030508@yahoo.com.au>
-In-Reply-To: <44A0CC28.5030508@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2404754.SRI9aqRPzh";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606271634.43662.nigel@suspend2.net>
+	Tue, 27 Jun 2006 02:38:32 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:61141 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932249AbWF0Gib (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 02:38:31 -0400
+Date: Tue, 27 Jun 2006 08:33:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>,
+       Steven Whitehouse <swhiteho@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       David Teigland <teigland@redhat.com>,
+       Patrick Caulfield <pcaulfie@redhat.com>,
+       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GFS2 and DLM
+Message-ID: <20060627063339.GA27938@elte.hu>
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <20060623144928.GA32694@infradead.org> <20060626200300.GA15424@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060626200300.GA15424@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5273]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2404754.SRI9aqRPzh
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Hi.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-On Tuesday 27 June 2006 16:11, Nick Piggin wrote:
-> Nigel Cunningham wrote:
-> > Add paranoia to the page_alloc code to ensure we don't start page recla=
-im
-> > during suspending.
->
-> Nack. Set PF_MEMALLOC if you must.
+> * Christoph Hellwig <hch@infradead.org> wrote:
+> 
+> > The code uses GFP_NOFAIL for slab allocator calls.  It's been 
+> > pointed out here numerous times that this can't work.  Andrew, what 
+> > about adding a check to slab.c to bail out if someone passes it?
+> 
+> reiserfs, jbd and NTFS are all using GFP_NOFAIL ...
+> 
+> i dont think this is a huge issue that should block merging.
 
-That would work for the thread doing the suspending. What about other kerne=
-l=20
-threads that might run and allocate memory during the cycle because of=20
-$RANDOM_EVENT? We don't want them triggering memory freeing either.
+oh, and XFS has this little gem in its journalling code:
 
-Regards,
+ fs/xfs/xfs_log.c:
 
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
+ STATIC void
+ xlog_state_ticket_alloc(xlog_t *log)
+ {
+ [...]
+         /*
+          * The kmem_zalloc may sleep, so we shouldn't be holding the
+          * global lock.  XXXmiken: may want to use zone allocator.
+          */
+         buf = (xfs_caddr_t) kmem_zalloc(NBPP, KM_SLEEP);
 
---nextPart2404754.SRI9aqRPzh
-Content-Type: application/pgp-signature
+         s = LOG_LOCK(log);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+         /* Attach 1st ticket to Q, so we can keep track of allocated memory */
+         t_list = (xlog_ticket_t *)buf;
+         t_list->t_next = log->l_unmount_free;
+ [...]
 
-iD8DBQBEoNGDN0y+n1M3mo0RAhLDAKD0Dpc0PdjQMcYH0slrS00wu+zlQgCg0PtB
-4E3DLGlKbB0+mzpsfWrdfjw=
-=owx5
------END PGP SIGNATURE-----
+where kmem_zalloc() may fail!!!
 
---nextPart2404754.SRI9aqRPzh--
+So XFS is apprarently hiding the "journalling allocations must not fail" 
+problem by ... crashing? Wow! Most of the other journalling filesystems 
+loop on the allocator: the honest ones do it via GFP_NOFAIL, others via 
+open-coded infinite retry loops.
+
+Just in case anyone says 'preallocate': that's _hard_ to do in a 
+sophisticated filesystem, which has many dynamic (and delayed) decisions 
+that make the prediction of resource overhead difficult. That's the 
+fundamental reason why basically all journalling filesystems either loop 
+(or the really enterprise quality ones: crash ;) on allocation failure.
+
+Btw., i have just taken a 5 minute tour into XFS, and i found at least 5 
+other problems with the XFS code that are similar in nature to the ones 
+you pointed out. (mostly useless wrappers around Linux functionality) 
+Isnt this whole episode highly hypocritic to begin with?
+
+	Ingo

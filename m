@@ -1,860 +1,297 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWF0TD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWF0TEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWF0TD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWF0TD6
+	id S1030281AbWF0TEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbWF0TEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:03:58 -0400
-Received: from wr-out-0506.google.com ([64.233.184.233]:29870 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932533AbWF0TDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:03:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=mCgVR//5+P35L1UonRgaKps88ctK3opC8dX9BpXO/DGSU/90zVp9V+f3eBbn68+B4Mf58X2Qs5QXPJ0ATVyfXG9FcPA8FRAJ8yrpEHtcgkeb4GzlYgZqhp5xFZf5G+IgvYdsW3O+Fu/kfd6gQCsCr3lrzF2wAehPO2/CLRQa+NI=
-Message-ID: <9e4733910606271203w4ceb6216g92f5fefee654aaf3@mail.gmail.com>
-Date: Tue, 27 Jun 2006 15:03:50 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: [PATCH] move MAX_NR_CONSOLES from tty.h to vt.h
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 27 Jun 2006 15:04:24 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:61873 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1030281AbWF0TEW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 15:04:22 -0400
+Subject: [PATCH] 8250 UART backup timer
+From: Alex Williamson <alex.williamson@hp.com>
+To: rmk+serial@arm.linux.org.uk
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: OSLO R&D
+Date: Tue, 27 Jun 2006 13:04:14 -0600
+Message-Id: <1151435054.11285.41.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MAX_NR_CONSOLES is more of a function of the VT layer than the TTY
-one. Moving this to vt.h allows all of the framebuffer drivers to
-remove their dependency on tty.h. Note that console drivers in
-video/console still depend on tty.h but fbdev drivers should not
-depend on the tty layer.
 
-Signed-off-by: Jon Smirl <jonsmir@gmail.com>
+   The patch below works around a minor bug found in the UART of the
+remote management card used in many HP ia64 and parisc servers (aka the
+Diva UARTs).  The problem is that the UART does not reassert the THRE
+interrupt if it has been previously cleared and the IIR THRI bit is
+re-enabled.  This can produce a very annoying failure mode when used as
+a serial console, allowing a boot/reboot to hang indefinitely until an
+RX interrupt kicks it into working again (ie. an unattended reboot could
+stall).
 
-diff --git a/drivers/video/68328fb.c b/drivers/video/68328fb.c
-index 78488bb..0dda73d 100644
---- a/drivers/video/68328fb.c
-+++ b/drivers/video/68328fb.c
-@@ -32,7 +32,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/S3triofb.c b/drivers/video/S3triofb.c
-index 455fda9..0850eac 100644
---- a/drivers/video/S3triofb.c
-+++ b/drivers/video/S3triofb.c
-@@ -29,7 +29,6 @@ #include <linux/module.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/amifb.c b/drivers/video/amifb.c
-index 3033c72..9c06446 100644
---- a/drivers/video/amifb.c
-+++ b/drivers/video/amifb.c
-@@ -45,7 +45,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/config.h>
-diff --git a/drivers/video/arcfb.c b/drivers/video/arcfb.c
-index 4660428..a84b0c0 100644
---- a/drivers/video/arcfb.c
-+++ b/drivers/video/arcfb.c
-@@ -39,7 +39,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/asiliantfb.c b/drivers/video/asiliantfb.c
-index 29f9f0d..b9d3541 100644
---- a/drivers/video/asiliantfb.c
-+++ b/drivers/video/asiliantfb.c
-@@ -35,7 +35,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/atafb.c b/drivers/video/atafb.c
-index e69ab65..5831893 100644
---- a/drivers/video/atafb.c
-+++ b/drivers/video/atafb.c
-@@ -53,7 +53,6 @@ #include <linux/sched.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-diff --git a/drivers/video/aty/aty128fb.c b/drivers/video/aty/aty128fb.c
-index db878fd..facd6f7 100644
---- a/drivers/video/aty/aty128fb.c
-+++ b/drivers/video/aty/aty128fb.c
-@@ -53,7 +53,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/aty/radeon_base.c b/drivers/video/aty/radeon_base.c
-index c5ecbb0..e9d4b9e 100644
---- a/drivers/video/aty/radeon_base.c
-+++ b/drivers/video/aty/radeon_base.c
-@@ -59,7 +59,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/time.h>
-diff --git a/drivers/video/chipsfb.c b/drivers/video/chipsfb.c
-index d76bbfa..f75dee9 100644
---- a/drivers/video/chipsfb.c
-+++ b/drivers/video/chipsfb.c
-@@ -20,7 +20,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/cirrusfb.c b/drivers/video/cirrusfb.c
-index 1103010..17e00d3 100644
---- a/drivers/video/cirrusfb.c
-+++ b/drivers/video/cirrusfb.c
-@@ -42,7 +42,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/console/dummycon.c b/drivers/video/console/dummycon.c
-index 1ecda91..5f70fc2 100644
---- a/drivers/video/console/dummycon.c
-+++ b/drivers/video/console/dummycon.c
-@@ -7,7 +7,6 @@
+   To solve this problem, a backup timer is introduced that runs
+alongside the standard interrupt driven mechanism.  This timer wakes up
+periodically, checks for a hang condition and gets characters moving
+again.  This backup mechanism is only enabled if the UART is detected as
+having this problem, so systems without these UARTs will have no
+additional overhead.
 
- #include <linux/types.h>
- #include <linux/kdev_t.h>
--#include <linux/tty.h>
- #include <linux/console.h>
- #include <linux/vt_kern.h>
- #include <linux/init.h>
-diff --git a/drivers/video/console/mdacon.c b/drivers/video/console/mdacon.c
-index 7f939d0..1b7ec3d 100644
---- a/drivers/video/console/mdacon.c
-+++ b/drivers/video/console/mdacon.c
-@@ -31,7 +31,6 @@ #include <linux/sched.h>
- #include <linux/fs.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
--#include <linux/tty.h>
- #include <linux/console.h>
- #include <linux/string.h>
- #include <linux/kd.h>
-diff --git a/drivers/video/console/newport_con.c
-b/drivers/video/console/newport_con.c
-index e99fe30..c08cb7b 100644
---- a/drivers/video/console/newport_con.c
-+++ b/drivers/video/console/newport_con.c
-@@ -12,7 +12,6 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
--#include <linux/tty.h>
- #include <linux/kd.h>
- #include <linux/selection.h>
- #include <linux/console.h>
-diff --git a/drivers/video/console/softcursor.c
-b/drivers/video/console/softcursor.c
-index 3957fc7..557c563 100644
---- a/drivers/video/console/softcursor.c
-+++ b/drivers/video/console/softcursor.c
-@@ -10,7 +10,6 @@
+   This version of the patch incorporates previous comments from Pavel
+and removes races in the bug detection code.  The test is now done
+before the irq linking to prevent races with interrupt handler clearing
+the THRE interrupt.  Short delays and syncs are also added to ensure the
+device is able to update register state before the result is tested.
+Comments?  Thanks,
 
- #include <linux/module.h>
- #include <linux/string.h>
--#include <linux/tty.h>
- #include <linux/fb.h>
- #include <linux/slab.h>
+	Alex
 
-diff --git a/drivers/video/controlfb.c b/drivers/video/controlfb.c
-index 655301a..8f69231 100644
---- a/drivers/video/controlfb.c
-+++ b/drivers/video/controlfb.c
-@@ -37,7 +37,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/cyber2000fb.c b/drivers/video/cyber2000fb.c
-index 55a3514..0dce249 100644
---- a/drivers/video/cyber2000fb.c
-+++ b/drivers/video/cyber2000fb.c
-@@ -42,7 +42,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/cyberfb.c b/drivers/video/cyberfb.c
-index a3e189f..c40e72d 100644
---- a/drivers/video/cyberfb.c
-+++ b/drivers/video/cyberfb.c
-@@ -81,7 +81,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/zorro.h>
-diff --git a/drivers/video/dnfb.c b/drivers/video/dnfb.c
-index 5abd3cb..b083ea7 100644
---- a/drivers/video/dnfb.c
-+++ b/drivers/video/dnfb.c
-@@ -2,7 +2,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/interrupt.h>
-diff --git a/drivers/video/epson1355fb.c b/drivers/video/epson1355fb.c
-index 0827594..5921f88 100644
---- a/drivers/video/epson1355fb.c
-+++ b/drivers/video/epson1355fb.c
-@@ -48,7 +48,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/fbcmap.c b/drivers/video/fbcmap.c
-index 1f98392..e8b135f 100644
---- a/drivers/video/fbcmap.c
-+++ b/drivers/video/fbcmap.c
-@@ -13,7 +13,6 @@
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+---
 
- #include <linux/string.h>
- #include <linux/module.h>
--#include <linux/tty.h>
- #include <linux/fb.h>
- #include <linux/slab.h>
-
-diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
-index 372aa17..f968d10 100644
---- a/drivers/video/fbmem.c
-+++ b/drivers/video/fbmem.c
-@@ -24,7 +24,7 @@ #include <linux/major.h>
- #include <linux/slab.h>
- #include <linux/mm.h>
- #include <linux/mman.h>
--#include <linux/tty.h>
-+#include <linux/vt.h>
- #include <linux/init.h>
- #include <linux/linux_logo.h>
- #include <linux/proc_fs.h>
-diff --git a/drivers/video/fbmon.c b/drivers/video/fbmon.c
-index 53beeb4..64cec86 100644
---- a/drivers/video/fbmon.c
-+++ b/drivers/video/fbmon.c
-@@ -26,7 +26,6 @@
-  * for more details.
-  *
-  */
--#include <linux/tty.h>
- #include <linux/fb.h>
- #include <linux/module.h>
- #include <video/edid.h>
-diff --git a/drivers/video/g364fb.c b/drivers/video/g364fb.c
-index 605d1a1..1b981b6 100644
---- a/drivers/video/g364fb.c
-+++ b/drivers/video/g364fb.c
-@@ -21,7 +21,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/geode/gx1fb_core.c b/drivers/video/geode/gx1fb_core.c
-index 20e6915..96782fa 100644
---- a/drivers/video/geode/gx1fb_core.c
-+++ b/drivers/video/geode/gx1fb_core.c
-@@ -15,7 +15,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/geode/gxfb_core.c b/drivers/video/geode/gxfb_core.c
-index 89c34b1..a067532 100644
---- a/drivers/video/geode/gxfb_core.c
-+++ b/drivers/video/geode/gxfb_core.c
-@@ -25,7 +25,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/hgafb.c b/drivers/video/hgafb.c
-index 4e39035..fb9e672 100644
---- a/drivers/video/hgafb.c
-+++ b/drivers/video/hgafb.c
-@@ -36,7 +36,6 @@ #include <linux/errno.h>
- #include <linux/spinlock.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/hitfb.c b/drivers/video/hitfb.c
-index f04ca72..36e2499 100644
---- a/drivers/video/hitfb.c
-+++ b/drivers/video/hitfb.c
-@@ -18,7 +18,6 @@ #include <linux/sched.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-diff --git a/drivers/video/hpfb.c b/drivers/video/hpfb.c
-index abd920a..91cf3b5 100644
---- a/drivers/video/hpfb.c
-+++ b/drivers/video/hpfb.c
-@@ -11,7 +11,6 @@ #include <linux/sched.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-diff --git a/drivers/video/i810/i810_main.c b/drivers/video/i810/i810_main.c
-index 44aa2ff..685e243 100644
---- a/drivers/video/i810/i810_main.c
-+++ b/drivers/video/i810/i810_main.c
-@@ -34,7 +34,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/fb.h>
- #include <linux/init.h>
-diff --git a/drivers/video/igafb.c b/drivers/video/igafb.c
-index 8a0c2d3..67f384f 100644
---- a/drivers/video/igafb.c
-+++ b/drivers/video/igafb.c
-@@ -33,7 +33,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/imsttfb.c b/drivers/video/imsttfb.c
-index f73c642..5a32bb6 100644
---- a/drivers/video/imsttfb.c
-+++ b/drivers/video/imsttfb.c
-@@ -22,7 +22,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/intelfb/intelfbdrv.c
-b/drivers/video/intelfb/intelfbdrv.c
-index 0a0a8b1..283a173 100644
---- a/drivers/video/intelfb/intelfbdrv.c
-+++ b/drivers/video/intelfb/intelfbdrv.c
-@@ -114,7 +114,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/intelfb/intelfbhw.c
-b/drivers/video/intelfb/intelfbhw.c
-index 7533b3d..4511c2d 100644
---- a/drivers/video/intelfb/intelfbhw.c
-+++ b/drivers/video/intelfb/intelfbhw.c
-@@ -25,7 +25,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/kyro/fbdev.c b/drivers/video/kyro/fbdev.c
-index 477ad29..19da5f4 100644
---- a/drivers/video/kyro/fbdev.c
-+++ b/drivers/video/kyro/fbdev.c
-@@ -17,7 +17,6 @@ #include <linux/sched.h>
- #include <linux/mm.h>
- #include <linux/errno.h>
- #include <linux/string.h>
--#include <linux/tty.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
- #include <linux/ioctl.h>
-diff --git a/drivers/video/macfb.c b/drivers/video/macfb.c
-index e6cbd9d..80a0438 100644
---- a/drivers/video/macfb.c
-+++ b/drivers/video/macfb.c
-@@ -24,7 +24,6 @@ #include <linux/sched.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/nubus.h>
-diff --git a/drivers/video/matrox/matroxfb_base.h
-b/drivers/video/matrox/matroxfb_base.h
-index b717371..e48e1c7 100644
---- a/drivers/video/matrox/matroxfb_base.h
-+++ b/drivers/video/matrox/matroxfb_base.h
-@@ -31,7 +31,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/maxinefb.c b/drivers/video/maxinefb.c
-index f85421b..38c8d38 100644
---- a/drivers/video/maxinefb.c
-+++ b/drivers/video/maxinefb.c
-@@ -29,7 +29,6 @@ #include <linux/sched.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-diff --git a/drivers/video/modedb.c b/drivers/video/modedb.c
-index 26a1c61..33023fb 100644
---- a/drivers/video/modedb.c
-+++ b/drivers/video/modedb.c
-@@ -12,7 +12,6 @@
-  */
-
- #include <linux/module.h>
--#include <linux/tty.h>
- #include <linux/fb.h>
- #include <linux/sched.h>
-
-diff --git a/drivers/video/neofb.c b/drivers/video/neofb.c
-index 24b12f7..1348f71 100644
---- a/drivers/video/neofb.c
-+++ b/drivers/video/neofb.c
-@@ -60,7 +60,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/nvidia/nvidia.c b/drivers/video/nvidia/nvidia.c
-index 03a7c1e..e6a8ef1 100644
---- a/drivers/video/nvidia/nvidia.c
-+++ b/drivers/video/nvidia/nvidia.c
-@@ -15,7 +15,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/offb.c b/drivers/video/offb.c
-index ad1434e..6ebaee3 100644
---- a/drivers/video/offb.c
-+++ b/drivers/video/offb.c
-@@ -18,7 +18,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/platinumfb.c b/drivers/video/platinumfb.c
-index 335e374..bff64b4 100644
---- a/drivers/video/platinumfb.c
-+++ b/drivers/video/platinumfb.c
-@@ -23,7 +23,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/pm2fb.c b/drivers/video/pm2fb.c
-index 4e96393..81bd3db 100644
---- a/drivers/video/pm2fb.c
-+++ b/drivers/video/pm2fb.c
-@@ -34,7 +34,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/pm3fb.c b/drivers/video/pm3fb.c
-index 52c18a3..3383add 100644
---- a/drivers/video/pm3fb.c
-+++ b/drivers/video/pm3fb.c
-@@ -58,7 +58,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/pmag-aa-fb.c b/drivers/video/pmag-aa-fb.c
-index d92f352..68ca3cc 100644
---- a/drivers/video/pmag-aa-fb.c
-+++ b/drivers/video/pmag-aa-fb.c
-@@ -29,7 +29,6 @@ #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/timer.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-diff --git a/drivers/video/pvr2fb.c b/drivers/video/pvr2fb.c
-index ec4bacf..c6c904b 100644
---- a/drivers/video/pvr2fb.c
-+++ b/drivers/video/pvr2fb.c
-@@ -53,7 +53,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/config.h>
-diff --git a/drivers/video/q40fb.c b/drivers/video/q40fb.c
-index fc91dbf..48536c3 100644
---- a/drivers/video/q40fb.c
-+++ b/drivers/video/q40fb.c
-@@ -14,7 +14,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/interrupt.h>
-diff --git a/drivers/video/retz3fb.c b/drivers/video/retz3fb.c
-index 5e2c64f..cf41ff1 100644
---- a/drivers/video/retz3fb.c
-+++ b/drivers/video/retz3fb.c
-@@ -25,7 +25,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/riva/fbdev.c b/drivers/video/riva/fbdev.c
-index d4384ab..b2e0f17 100644
---- a/drivers/video/riva/fbdev.c
-+++ b/drivers/video/riva/fbdev.c
-@@ -35,7 +35,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/s3c2410fb.c b/drivers/video/s3c2410fb.c
-index 9451932..7a32ade 100644
---- a/drivers/video/s3c2410fb.c
-+++ b/drivers/video/s3c2410fb.c
-@@ -76,7 +76,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/savage/savagefb_driver.c
-b/drivers/video/savage/savagefb_driver.c
-index 0da624e..79e84a1 100644
---- a/drivers/video/savage/savagefb_driver.c
-+++ b/drivers/video/savage/savagefb_driver.c
-@@ -47,7 +47,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/sis/sis_main.c b/drivers/video/sis/sis_main.c
-index 8adf5bf..4da2cd6 100644
---- a/drivers/video/sis/sis_main.c
-+++ b/drivers/video/sis/sis_main.c
-@@ -45,7 +45,6 @@ #include <linux/spinlock.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/fb.h>
- #include <linux/selection.h>
-diff --git a/drivers/video/skeletonfb.c b/drivers/video/skeletonfb.c
-index 9b70777..b2725a2 100644
---- a/drivers/video/skeletonfb.c
-+++ b/drivers/video/skeletonfb.c
-@@ -47,7 +47,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/sun3fb.c b/drivers/video/sun3fb.c
-index 9b36b9d..3373491 100644
---- a/drivers/video/sun3fb.c
-+++ b/drivers/video/sun3fb.c
-@@ -31,7 +31,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/tdfxfb.c b/drivers/video/tdfxfb.c
-index 5e5328d..07edecb 100644
---- a/drivers/video/tdfxfb.c
-+++ b/drivers/video/tdfxfb.c
-@@ -64,7 +64,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/interrupt.h>
-diff --git a/drivers/video/tgafb.c b/drivers/video/tgafb.c
-index 7398bd4..9bdd4bb 100644
---- a/drivers/video/tgafb.c
-+++ b/drivers/video/tgafb.c
-@@ -17,7 +17,6 @@ #include <linux/sched.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-diff --git a/drivers/video/tx3912fb.c b/drivers/video/tx3912fb.c
-index d904da4..07389ba 100644
---- a/drivers/video/tx3912fb.c
-+++ b/drivers/video/tx3912fb.c
-@@ -14,7 +14,6 @@ #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
--#include <linux/tty.h>
- #include <linux/delay.h>
- #include <linux/interrupt.h>
- #include <linux/init.h>
-diff --git a/drivers/video/valkyriefb.c b/drivers/video/valkyriefb.c
-index 2bdeb4b..895ea90 100644
---- a/drivers/video/valkyriefb.c
-+++ b/drivers/video/valkyriefb.c
-@@ -45,7 +45,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/vesafb.c b/drivers/video/vesafb.c
-index b0b9acf..059d85c 100644
---- a/drivers/video/vesafb.c
-+++ b/drivers/video/vesafb.c
-@@ -13,7 +13,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-diff --git a/drivers/video/vfb.c b/drivers/video/vfb.c
-index 77eed1f..57d8077 100644
---- a/drivers/video/vfb.c
-+++ b/drivers/video/vfb.c
-@@ -15,7 +15,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/delay.h>
-diff --git a/drivers/video/vga16fb.c b/drivers/video/vga16fb.c
-index 4fd2a27..608fba0 100644
---- a/drivers/video/vga16fb.c
-+++ b/drivers/video/vga16fb.c
-@@ -15,13 +15,13 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
- #include <linux/ioport.h>
- #include <linux/init.h>
- #include <linux/platform_device.h>
-+#include <linux/screen_info.h>
-
- #include <asm/io.h>
- #include <video/vga.h>
-diff --git a/drivers/video/virgefb.c b/drivers/video/virgefb.c
-index 5ea2345..6437895 100644
---- a/drivers/video/virgefb.c
-+++ b/drivers/video/virgefb.c
-@@ -39,7 +39,6 @@ #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/tty.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/zorro.h>
-diff --git a/include/linux/console_struct.h b/include/linux/console_struct.h
-index f8e5587..25423f7 100644
---- a/include/linux/console_struct.h
-+++ b/include/linux/console_struct.h
-@@ -9,6 +9,7 @@
-  * to achieve effects such as fast scrolling by changing the origin.
-  */
-
-+#include <linux/wait.h>
- #include <linux/vt.h>
-
- struct vt_struct;
-diff --git a/include/linux/fb.h b/include/linux/fb.h
-index f128168..57b0273 100644
---- a/include/linux/fb.h
-+++ b/include/linux/fb.h
-@@ -377,7 +377,6 @@ #ifdef __KERNEL__
-
- #include <linux/fs.h>
- #include <linux/init.h>
--#include <linux/tty.h>
- #include <linux/device.h>
- #include <linux/workqueue.h>
- #include <linux/devfs_fs_kernel.h>
-diff --git a/include/linux/tty.h b/include/linux/tty.h
-index cb35ca5..32aac7a 100644
---- a/include/linux/tty.h
-+++ b/include/linux/tty.h
-@@ -5,16 +5,6 @@ #define _LINUX_TTY_H
-  * 'tty.h' defines some structures used by tty_io.c and some defines.
-  */
-
--/*
-- * These constants are also useful for user-level apps (e.g., VC
-- * resizing).
-- */
--#define MIN_NR_CONSOLES 1       /* must be at least 1 */
--#define MAX_NR_CONSOLES	63	/* serial lines start at 64 */
--#define MAX_NR_USER_CONSOLES 63	/* must be root to allocate above this */
--		/* Note: the ioctl VT_GETSTATE does not work for
--		   consoles 16 and higher (since it returns a short) */
--
- #ifdef __KERNEL__
- #include <linux/fs.h>
- #include <linux/major.h>
-diff --git a/include/linux/vt.h b/include/linux/vt.h
-index 9f95b0b..8ab334a 100644
---- a/include/linux/vt.h
-+++ b/include/linux/vt.h
-@@ -1,6 +1,16 @@
- #ifndef _LINUX_VT_H
- #define _LINUX_VT_H
-
-+/*
-+ * These constants are also useful for user-level apps (e.g., VC
-+ * resizing).
-+ */
-+#define MIN_NR_CONSOLES 1       /* must be at least 1 */
-+#define MAX_NR_CONSOLES	63	/* serial lines start at 64 */
-+#define MAX_NR_USER_CONSOLES 63	/* must be root to allocate above this */
-+		/* Note: the ioctl VT_GETSTATE does not work for
-+		   consoles 16 and higher (since it returns a short) */
+diff -r e3554576c29a drivers/serial/8250.c
+--- a/drivers/serial/8250.c	Sun Jun 18 02:00:07 2006 +0000
++++ b/drivers/serial/8250.c	Tue Jun 27 12:27:03 2006 -0600
+@@ -353,6 +353,23 @@ serial_out(struct uart_8250_port *up, in
+ 	}
+ }
+ 
++static void
++serial_out_sync(struct uart_8250_port *up, int offset, int value)
++{
++	switch (up->port.iotype) {
++	case UPIO_MEM:
++	case UPIO_MEM32:
++#ifdef CONFIG_SERIAL_8250_AU1X00
++	case UPIO_AU:
++#endif
++		serial_out(up, offset, value);
++		(void)serial_in(up, UART_LCR); /* safe, no side-effects */
++		break;
++	default:
++		serial_out(up, offset, value);
++	}
++}
 +
- /* 0x56 is 'V', to avoid collision with termios and kd */
+ /*
+  * We used to support using pause I/O for certain machines.  We
+  * haven't supported this for a while, but just in case it's badly
+@@ -1436,6 +1453,13 @@ static void serial_unlink_irq_chain(stru
+ 	serial_do_unlink(i, up);
+ }
+ 
++/* Base timer interval for polling */
++static inline int
++poll_timeout(int timeout)
++{
++	return timeout > 6 ? (timeout / 2 - 2) : 1;
++}
++
+ /*
+  * This function is used to handle ports that do not have an
+  * interrupt.  This doesn't work very well for 16450's, but gives
+@@ -1445,16 +1469,52 @@ static void serial8250_timeout(unsigned 
+ static void serial8250_timeout(unsigned long data)
+ {
+ 	struct uart_8250_port *up = (struct uart_8250_port *)data;
+-	unsigned int timeout;
+ 	unsigned int iir;
+ 
+ 	iir = serial_in(up, UART_IIR);
+ 	if (!(iir & UART_IIR_NO_INT))
+ 		serial8250_handle_port(up, NULL);
+ 
+-	timeout = up->port.timeout;
+-	timeout = timeout > 6 ? (timeout / 2 - 2) : 1;
+-	mod_timer(&up->timer, jiffies + timeout);
++	mod_timer(&up->timer, jiffies + poll_timeout(up->port.timeout));
++}
++
++static void serial8250_backup_timeout(unsigned long data)
++{
++	struct uart_8250_port *up = (struct uart_8250_port *)data;
++	unsigned int iir, ier = 0;
++
++	/*
++	 * Must disable interrupts or else we risk racing with the interrupt
++	 * based handler.
++	 */
++	if (is_real_interrupt(up->port.irq)) {
++		ier = serial_in(up, UART_IER);
++		serial_out(up, UART_IER, 0);
++	}
++
++	iir = serial_in(up, UART_IIR);
++
++	/*
++	 * This should be a safe test for anyone who doesn't trust the
++	 * IIR bits on their UART, but it's specifically designed for
++	 * the "Diva" UART used on the management processor on many HP
++	 * ia64 and parisc boxes.
++	 */
++	if ((iir & UART_IIR_NO_INT) && (up->ier & UART_IER_THRI) &&
++	    (!uart_circ_empty(&up->port.info->xmit) || up->port.x_char) &&
++	    (serial_in(up, UART_LSR) & UART_LSR_THRE)) {
++		iir &= ~(UART_IIR_ID | UART_IIR_NO_INT);
++		iir |= UART_IIR_THRI;
++	}
++
++	if (!(iir & UART_IIR_NO_INT))
++		serial8250_handle_port(up, NULL);
++
++	if (is_real_interrupt(up->port.irq))
++		serial_out(up, UART_IER, ier);
++
++	/* Standard timer interval plus 0.2s to keep the port running */
++	mod_timer(&up->timer, jiffies + poll_timeout(up->port.timeout) + HZ/5);
+ }
+ 
+ static unsigned int serial8250_tx_empty(struct uart_port *port)
+@@ -1523,6 +1583,36 @@ static void serial8250_break_ctl(struct 
+ 		up->lcr &= ~UART_LCR_SBC;
+ 	serial_out(up, UART_LCR, up->lcr);
+ 	spin_unlock_irqrestore(&up->port.lock, flags);
++}
++
++#define BOTH_EMPTY (UART_LSR_TEMT | UART_LSR_THRE)
++
++/*
++ *	Wait for transmitter & holding register to empty
++ */
++static inline void wait_for_xmitr(struct uart_8250_port *up, int bits)
++{
++	unsigned int status, timeout = 10000;
++
++	/* Wait up to 10ms for the character(s) to be sent. */
++	do {
++		status = serial_in(up, UART_LSR);
++
++		if (status & UART_LSR_BI)
++			up->lsr_break_flag = UART_LSR_BI;
++
++		if (--timeout == 0)
++			break;
++		udelay(1);
++	} while ((status & bits) != bits);
++
++	/* Wait up to 1s for flow control if necessary */
++	if (up->port.flags & UPF_CONS_FLOW) {
++		timeout = 1000000;
++		while (--timeout &&
++		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
++			udelay(1);
++	}
+ }
+ 
+ static int serial8250_startup(struct uart_port *port)
+@@ -1598,18 +1688,50 @@ static int serial8250_startup(struct uar
+ 		serial_outp(up, UART_LCR, 0);
+ 	}
+ 
++	if (is_real_interrupt(up->port.irq)) {
++		/*
++		 * Test for UARTs that do not reassert THRE when the
++		 * transmitter is idle and the interrupt has already
++		 * been cleared.  Real 16550s should always reassert
++		 * this interrupt whenever the transmitter is idle and
++		 * the interrupt is enabled.  Delays are necessary to
++		 * allow register changes to become visible.
++		 */
++		spin_lock_irqsave(&up->port.lock, flags);
++
++		wait_for_xmitr(up, UART_LSR_THRE);
++		serial_out_sync(up, UART_IER, UART_IER_THRI);
++		udelay(1); /* allow THRE to set */
++		(void)serial_in(up, UART_IIR);
++		serial_out(up, UART_IER, 0);
++		serial_out_sync(up, UART_IER, UART_IER_THRI);
++		udelay(1); /* allow a working UART time to re-assert THRE */
++		iir = serial_in(up, UART_IIR);
++		serial_out(up, UART_IER, 0);
++
++		spin_unlock_irqrestore(&up->port.lock, flags);
++
++		/*
++		 * If the interrupt is not reasserted, setup a timer to
++		 * kick the UART on a regular basis.
++		 */
++		if (iir & UART_IIR_NO_INT) {
++			pr_debug("ttyS%d - using backup timer\n", port->line);
++			up->timer.function = serial8250_backup_timeout;
++			up->timer.data = (unsigned long)up;
++			mod_timer(&up->timer, jiffies +
++			          poll_timeout(up->port.timeout) + HZ/5);
++		}
++	}
++
+ 	/*
+ 	 * If the "interrupt" for this port doesn't correspond with any
+ 	 * hardware interrupt, we use a timer-based system.  The original
+ 	 * driver used to do this with IRQ0.
+ 	 */
+ 	if (!is_real_interrupt(up->port.irq)) {
+-		unsigned int timeout = up->port.timeout;
+-
+-		timeout = timeout > 6 ? (timeout / 2 - 2) : 1;
+-
+ 		up->timer.data = (unsigned long)up;
+-		mod_timer(&up->timer, jiffies + timeout);
++		mod_timer(&up->timer, jiffies + poll_timeout(up->port.timeout));
+ 	} else {
+ 		retval = serial_link_irq_chain(up);
+ 		if (retval)
+@@ -1725,9 +1847,9 @@ static void serial8250_shutdown(struct u
+ 	 */
+ 	(void) serial_in(up, UART_RX);
+ 
+-	if (!is_real_interrupt(up->port.irq))
+-		del_timer_sync(&up->timer);
+-	else
++	del_timer_sync(&up->timer);
++	up->timer.function = serial8250_timeout;
++	if (is_real_interrupt(up->port.irq))
+ 		serial_unlink_irq_chain(up);
+ }
+ 
+@@ -2187,36 +2309,6 @@ serial8250_register_ports(struct uart_dr
+ 
+ #ifdef CONFIG_SERIAL_8250_CONSOLE
+ 
+-#define BOTH_EMPTY (UART_LSR_TEMT | UART_LSR_THRE)
+-
+-/*
+- *	Wait for transmitter & holding register to empty
+- */
+-static inline void wait_for_xmitr(struct uart_8250_port *up, int bits)
+-{
+-	unsigned int status, tmout = 10000;
+-
+-	/* Wait up to 10ms for the character(s) to be sent. */
+-	do {
+-		status = serial_in(up, UART_LSR);
+-
+-		if (status & UART_LSR_BI)
+-			up->lsr_break_flag = UART_LSR_BI;
+-
+-		if (--tmout == 0)
+-			break;
+-		udelay(1);
+-	} while ((status & bits) != bits);
+-
+-	/* Wait up to 1s for flow control if necessary */
+-	if (up->port.flags & UPF_CONS_FLOW) {
+-		tmout = 1000000;
+-		while (--tmout &&
+-		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
+-			udelay(1);
+-	}
+-}
+-
+ static void serial8250_console_putchar(struct uart_port *port, int ch)
+ {
+ 	struct uart_8250_port *up = (struct uart_8250_port *)port;
 
- #define VT_OPENQRY	0x5600	/* find available vt */
+

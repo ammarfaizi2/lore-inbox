@@ -1,65 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWF0FAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933312AbWF0EkI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbWF0FAm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 01:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWF0E7z
+	id S933312AbWF0EkI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 00:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030619AbWF0Ejv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:59:55 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:32731 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S932251AbWF0EkO
+	Tue, 27 Jun 2006 00:39:51 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:29142 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030651AbWF0EiP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:40:14 -0400
+	Tue, 27 Jun 2006 00:38:15 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 1/4] [Suspend2] Power_off.c header.
-Date: Tue, 27 Jun 2006 14:40:13 +1000
+Subject: [Suspend2][ 03/12] [Suspend2] Encryption rw init & cleanup routines.
+Date: Tue, 27 Jun 2006 14:38:14 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627044012.14736.81596.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627044010.14736.18813.stgit@nigel.suspend2.net>
-References: <20060627044010.14736.18813.stgit@nigel.suspend2.net>
+Message-Id: <20060627043812.14437.95293.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
+References: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add kernel/power/power_off.c header.
+Add routines for preparing to read or write an image, and cleaning up
+afterwards.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/power_off.c |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
+ kernel/power/encryption.c |   61 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 61 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/power_off.c b/kernel/power/power_off.c
-new file mode 100644
-index 0000000..8f9f425
---- /dev/null
-+++ b/kernel/power/power_off.c
-@@ -0,0 +1,26 @@
-+/*
-+ * kernel/power/power_off.c
+diff --git a/kernel/power/encryption.c b/kernel/power/encryption.c
+index 45d325d..98b0114 100644
+--- a/kernel/power/encryption.c
++++ b/kernel/power/encryption.c
+@@ -96,3 +96,64 @@ static void free_local_buffer(void)
+ 	page_buffer = NULL;
+ }
+ 
++/* suspend_encrypt_rw_cleanup
 + *
-+ * Copyright (C) 2006 Nigel Cunningham <nigel@suspend2.net>
-+ *
-+ * This file is released under the GPLv2.
-+ *
-+ * Support for powering down.
++ * Description:	Frees memory allocated for our labours.
 + */
++static int suspend_encrypt_rw_cleanup(int rw)
++{
++	if (suspend_encryptor_transform) {
++		crypto_free_tfm(suspend_encryptor_transform);
++		suspend_encryptor_transform = NULL;
++	}
 +
-+#include <linux/device.h>
-+#include <linux/suspend.h>
-+#include <linux/mm.h>
-+#include <linux/pm.h>
-+#include <linux/reboot.h>
-+#include "suspend2_common.h"
-+#include "suspend2.h"
-+#include "ui.h"
++	free_local_buffer();
 +
-+unsigned long suspend_powerdown_method = 0; /* 0 - Kernel power off */
++	return 0;
++}
 +
-+extern struct pm_ops *pm_ops;
++/* suspend_crypto_prepare
++ *
++ * Description:	Prepare to do some work by allocating buffers and transforms.
++ * Returns:	Int: Zero if successful, 1 otherwise.
++ */
++static int suspend_encrypt_rw_prepare(int rw)
++{
++	if (!*suspend_encryptor_name) {
++		printk("Suspend2: Encryptor enabled but no name set.\n");
++		suspend_encryption_ops.disabled = 1;
++		return 1;
++	}
 +
-+/* Use suspend_enter from main.c */
-+extern int suspend_enter(suspend_state_t state);
++	if (!(suspend_encryptor_transform = crypto_alloc_tfm(suspend_encryptor_name,
++					1 << suspend_encryptor_mode))) {
++		printk("Suspend2: Failed to initialise the encryption "
++				"transform (%s, mode %d).\n",
++				suspend_encryptor_name, suspend_encryptor_mode);
++		return 1;
++	}
++
++	if (rw == READ)
++		bufofs = PAGE_SIZE;
++	else
++		bufofs = 0;
++
++	suspend_key_len = strlen(suspend_encryptor_key);
++
++	if (crypto_cipher_setkey(suspend_encryptor_transform, suspend_encryptor_key, 
++				suspend_key_len)) {
++		printk("%d is an invalid key length for cipher %s.\n",
++					suspend_key_len,
++					suspend_encryptor_name);
++		return 1;
++	}
++	
++	if (rw != READ) {
++		crypto_cipher_set_iv(suspend_encryptor_transform,
++				suspend_encryptor_iv,
++				crypto_tfm_alg_ivsize(suspend_encryptor_transform));
++	}
++		
++	return 0;
++}
 +
 
 --

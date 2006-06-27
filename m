@@ -1,44 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161330AbWF0Vr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161332AbWF0VtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161330AbWF0Vr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 17:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161333AbWF0Vrz
+	id S1161332AbWF0VtE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 17:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161334AbWF0VtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 17:47:55 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63154 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161330AbWF0Vry (ORCPT
+	Tue, 27 Jun 2006 17:49:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43207 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161332AbWF0VtB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 17:47:54 -0400
-Date: Tue, 27 Jun 2006 23:47:43 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Dave Jones <davej@redhat.com>, Brad Campbell <brad@wasp.net.au>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       suspend2-devel@lists.suspend2.net
-Subject: Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion in	-mm
-Message-ID: <20060627214743.GM29199@elf.ucw.cz>
-References: <200606270147.16501.ncunningham@linuxmail.org> <20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au> <20060627190323.GA28863@elf.ucw.cz> <20060627191903.GJ7914@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060627191903.GJ7914@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 27 Jun 2006 17:49:01 -0400
+Date: Tue, 27 Jun 2006 14:52:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Doug Thompson <norsk5@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6]  EDAC PCI device to DEVICE cleanup
+Message-Id: <20060627145225.054b1e63.akpm@osdl.org>
+In-Reply-To: <20060626221558.11917.qmail@web50115.mail.yahoo.com>
+References: <20060626221558.11917.qmail@web50115.mail.yahoo.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue 2006-06-27 15:19:03, Dave Jones wrote:
-> On Tue, Jun 27, 2006 at 09:03:24PM +0200, Pavel Machek wrote:
+Doug Thompson <norsk5@yahoo.com> wrote:
+>
+> From: Doug Thompson <norsk5@xmission.com>
 > 
->  > uswsusp already uses normal I/O ... and that is asynchronous.
+> Change MC drivers from using CVS revision strings for their version number,
+> Now each driver has its own local string.
 > 
-> Errm, no. it isn't.
+> Remove some PCI dependencies from the core EDAC module.  
+> Made the code 'struct device' centric instead of 'struct pci_dev'
+> Most of the code changes here are from a patch by Dave Jiang.
+> It may be best to eventually move the PCI-specific code into a separate source file.
+> 
+> ...
+>
+> --- linux-2.6.17-rc6.orig/drivers/edac/edac_mc.h	2006-06-12 18:17:17.000000000 -0600
+> +++ linux-2.6.17-rc6/drivers/edac/edac_mc.h	2006-06-12 18:17:29.000000000 -0600
+> @@ -88,6 +88,12 @@
+>  #define PCI_VEND_DEV(vend, dev) PCI_VENDOR_ID_ ## vend, \
+>  	PCI_DEVICE_ID_ ## vend ## _ ## dev
+>  
+> +#if defined(CONFIG_X86) && defined(CONFIG_PCI)
+> +#define dev_name(dev) pci_name(to_pci_dev(dev))
+> +#else
+> +#define dev_name(dev) to_platform_device(dev)->name
+> +#endif
 
-Okay...
+This looks fishy.  pci_name() should work OK on non-x86?
 
-It is asynchronous on the write part. On the read part, it is not, but
-that should be okay... readahead should save us.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> +static void do_pci_parity_check(void)
+> +{
+> +	unsigned long flags;
+> +	int before_count;
+> +
+> +	debugf3("%s()\n", __func__);
+> +
+> +	if (!check_pci_parity)
+> +		return;
+> +
+> +	before_count = atomic_read(&pci_parity_count);
+> +
+> +	/* scan all PCI devices looking for a Parity Error on devices and
+> +	 * bridges
+> +	 */
+> +	local_irq_save(flags);
+> +	edac_pci_dev_parity_iterator(edac_pci_dev_parity_test);
+> +	local_irq_restore(flags);
+> +
+> +	/* Only if operator has selected panic on PCI Error */
+> +	if (panic_on_pci_parity) {
+> +		/* If the count is different 'after' from 'before' */
+> +		if (before_count != atomic_read(&pci_parity_count))
+> +			panic("EDAC: PCI Parity Error");
+> +	}
+> +}
+
+What is the local_irq_save() attempting to do in there?  It won't provide
+any locking-style coverage on SMP..
+

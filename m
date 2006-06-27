@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161268AbWF0UNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161270AbWF0UOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161268AbWF0UNt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 16:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161274AbWF0UNs
+	id S1161270AbWF0UOT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 16:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161272AbWF0UOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 16:13:48 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:2432 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1161266AbWF0UNp
+	Tue, 27 Jun 2006 16:14:19 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:35200 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1161278AbWF0UOQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 16:13:45 -0400
-Message-Id: <20060627201126.254686000@sous-sol.org>
+	Tue, 27 Jun 2006 16:14:16 -0400
+Message-Id: <20060627201151.581322000@sous-sol.org>
 References: <20060627200745.771284000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 27 Jun 2006 00:00:08 -0700
+Date: Tue, 27 Jun 2006 00:00:09 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,95 +21,63 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
        akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       David Miller <davem@davemloft.net>,
-       Tsutomu Fujii <t-fujii@nb.jp.nec.com>,
-       Vlad Yasevich <vladislav.yasevich@hp.com>,
+       David Miller <davem@davemloft.net>, Neil Horman <nhorman@tuxdriver.com>,
        Sridhar Samudrala <sri@us.ibm.com>
-Subject: [PATCH 08/25] SCTP: Send only 1 window update SACK per message.
-Content-Disposition: inline; filename=sctp-send-only-1-window-update-sack-per-message.patch
+Subject: [PATCH 09/25] SCTP: Fix persistent slowdown in sctp when a gap ack consumes rx buffer.
+Content-Disposition: inline; filename=sctp-fix-persistent-slowdown-in-sctp-when-a-gap-ack-consumes-rx-buffer.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Tsutomu Fujii <t-fujii@nb.jp.nec.com>
+From: Neil Horman <nhorman@tuxdriver.com>
 
-Right now, every time we increase our rwnd by more then MTU bytes, we
-trigger a SACK.  When processing large messages, this will generate a
-SACK for almost every other SCTP fragment. However since we are freeing
-the entire message at the same time, we might as well collapse the SACK
-generation to 1.
+In the event that our entire receive buffer is full with a series of
+chunks that represent a single gap-ack, and then we accept a chunk
+(or chunks) that fill in the gap between the ctsn and the first gap,
+we renege chunks from the end of the buffer, which effectively does
+nothing but move our gap to the end of our received tsn stream. This
+does little but move our missing tsns down stream a little, and, if the
+sender is sending sufficiently large retransmit frames, the result is a
+perpetual slowdown which can never be recovered from, since the only
+chunk that can be accepted to allow progress in the tsn stream necessitates
+that a new gap be created to make room for it. This leads to a constant
+need for retransmits, and subsequent receiver stalls. The fix I've come up
+with is to deliver the frame without reneging if we have a full receive
+buffer and the receiving sockets sk_receive_queue is empty(indicating that
+the receive buffer is being blocked by a missing tsn).
 
-Signed-off-by: Tsutomu Fujii <t-fujii@nb.jp.nec.com>
-Signed-off-by: Vlad Yasevich <vladislav.yasevich@hp.com>
+Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
 Signed-off-by: Sridhar Samudrala <sri@us.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- net/sctp/ulpevent.c |   30 ++++++++++++++++++++++++++++--
- 1 file changed, 28 insertions(+), 2 deletions(-)
+ net/sctp/sm_statefuns.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- linux-2.6.17.1.orig/net/sctp/ulpevent.c
-+++ linux-2.6.17.1/net/sctp/ulpevent.c
-@@ -51,6 +51,8 @@
- static void sctp_ulpevent_receive_data(struct sctp_ulpevent *event,
- 				       struct sctp_association *asoc);
- static void sctp_ulpevent_release_data(struct sctp_ulpevent *event);
-+static void sctp_ulpevent_release_frag_data(struct sctp_ulpevent *event);
-+
- 
- /* Initialize an ULP event from an given skb.  */
- SCTP_STATIC void sctp_ulpevent_init(struct sctp_ulpevent *event, int msg_flags)
-@@ -883,6 +885,7 @@ static void sctp_ulpevent_receive_data(s
- static void sctp_ulpevent_release_data(struct sctp_ulpevent *event)
- {
- 	struct sk_buff *skb, *frag;
-+	unsigned int	len;
- 
- 	/* Current stack structures assume that the rcv buffer is
- 	 * per socket.   For UDP style sockets this is not true as
-@@ -892,7 +895,30 @@ static void sctp_ulpevent_release_data(s
+--- linux-2.6.17.1.orig/net/sctp/sm_statefuns.c
++++ linux-2.6.17.1/net/sctp/sm_statefuns.c
+@@ -5293,10 +5293,18 @@ static int sctp_eat_data(const struct sc
+ 	 * seems a bit troublesome in that frag_point varies based on
+ 	 * PMTU.  In cases, such as loopback, this might be a rather
+ 	 * large spill over.
++	 * NOTE: If we have a full receive buffer here, we only renege if
++	 * our receiver can still make progress without the tsn being
++	 * received. We do this because in the event that the associations
++	 * receive queue is empty we are filling a leading gap, and since
++	 * reneging moves the gap to the end of the tsn stream, we are likely
++	 * to stall again very shortly. Avoiding the renege when we fill a
++	 * leading gap is a good heuristic for avoiding such steady state
++	 * stalls.
  	 */
+ 	if (!asoc->rwnd || asoc->rwnd_over ||
+ 	    (datalen > asoc->rwnd + asoc->frag_point) ||
+-	    rcvbuf_over) {
++	    (rcvbuf_over && (!skb_queue_len(&sk->sk_receive_queue)))) {
  
- 	skb = sctp_event2skb(event);
--	sctp_assoc_rwnd_increase(event->asoc, skb_headlen(skb));
-+	len = skb->len;
-+
-+	if (!skb->data_len)
-+		goto done;
-+
-+	/* Don't forget the fragments. */
-+	for (frag = skb_shinfo(skb)->frag_list; frag; frag = frag->next) {
-+		/* NOTE:  skb_shinfos are recursive. Although IP returns
-+		 * skb's with only 1 level of fragments, SCTP reassembly can
-+		 * increase the levels.
-+		 */
-+		sctp_ulpevent_release_frag_data(sctp_skb2event(frag));
-+	}
-+
-+done:
-+	sctp_assoc_rwnd_increase(event->asoc, len);
-+	sctp_ulpevent_release_owner(event);
-+}
-+
-+static void sctp_ulpevent_release_frag_data(struct sctp_ulpevent *event)
-+{
-+	struct sk_buff *skb, *frag;
-+
-+	skb = sctp_event2skb(event);
- 
- 	if (!skb->data_len)
- 		goto done;
-@@ -903,7 +929,7 @@ static void sctp_ulpevent_release_data(s
- 		 * skb's with only 1 level of fragments, SCTP reassembly can
- 		 * increase the levels.
- 		 */
--		sctp_ulpevent_release_data(sctp_skb2event(frag));
-+		sctp_ulpevent_release_frag_data(sctp_skb2event(frag));
- 	}
- 
- done:
+ 		/* If this is the next TSN, consider reneging to make
+ 		 * room.   Note: Playing nice with a confused sender.  A
 
 --

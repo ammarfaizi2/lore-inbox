@@ -1,85 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161144AbWF0QJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWF0QKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161144AbWF0QJL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 12:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbWF0QJL
+	id S1161145AbWF0QKu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 12:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161143AbWF0QKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 12:09:11 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:43996 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1161138AbWF0QJJ (ORCPT
+	Tue, 27 Jun 2006 12:10:50 -0400
+Received: from ns2.lanforge.com ([66.165.47.211]:63905 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S1161141AbWF0QKs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 12:09:09 -0400
-Date: Tue, 27 Jun 2006 18:09:08 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Daniel Lezcano <dlezcano@fr.ibm.com>, Andrey Savochkin <saw@swsoft.com>,
+	Tue, 27 Jun 2006 12:10:48 -0400
+Message-ID: <44A157CA.70204@candelatech.com>
+Date: Tue, 27 Jun 2006 09:07:38 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ben Greear <greearb@candelatech.com>
+CC: Herbert Poetzl <herbert@13thfloor.at>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Daniel Lezcano <dlezcano@fr.ibm.com>, Andrey Savochkin <saw@swsoft.com>,
        linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
        haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       devel@openvz.org, sam@vilain.net, ebiederm@xmission.com,
-       viro@ftp.linux.org.uk, Alexey Kuznetsov <alexey@sw.ru>
+       dev@sw.ru, devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>
 Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-Message-ID: <20060627160908.GC28984@MAIL.13thfloor.at>
-Mail-Followup-To: Kirill Korotaev <dev@sw.ru>,
-	Daniel Lezcano <dlezcano@fr.ibm.com>,
-	Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-	clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, devel@openvz.org,
-	sam@vilain.net, ebiederm@xmission.com, viro@ftp.linux.org.uk,
-	Alexey Kuznetsov <alexey@sw.ru>
-References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <20060627131136.B13959@castle.nmd.msu.ru> <44A0FBAC.7020107@fr.ibm.com> <44A1006B.3040700@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A1006B.3040700@sw.ru>
-User-Agent: Mutt/1.5.6i
+References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <m1hd27uaxw.fsf@ebiederm.dsl.xmission.com> <20060626183649.GB3368@MAIL.13thfloor.at> <m1u067r9qk.fsf@ebiederm.dsl.xmission.com> <44A05BFD.6030402@candelatech.com> <20060626225440.GA7425@MAIL.13thfloor.at> <44A068E7.6080403@candelatech.com>
+In-Reply-To: <44A068E7.6080403@candelatech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 01:54:51PM +0400, Kirill Korotaev wrote:
-> >>My point is that if you make namespace tagging at routing time, and
-> >>your packets are being routed only once, you lose the ability
-> >>to have separate routing tables in each namespace.
-> >
-> >
-> >Right. What is the advantage of having separate the routing tables ?
+Ben Greear wrote:
+> Herbert Poetzl wrote:
+> 
+>> On Mon, Jun 26, 2006 at 03:13:17PM -0700, Ben Greear wrote:
+> 
+> 
+>> yes, that sounds good to me, any numbers how that
+>> affects networking in general (performance wise and
+>> memory wise, i.e. caches and hashes) ...
+> 
+> 
+> I'll run some tests later today.  Based on my previous tests,
+> I don't remember any significant overhead.
 
-> it is impossible to have bridged networking, tun/tap and many other 
-> features without it. I even doubt that it is possible to introduce 
-> private netfilter rules w/o virtualization of routing.
+Here's a quick benchmark using my redirect devices (RDD).  Each
+RDD comes in a pair...when you tx on one, the pkt is rx'd on the peer.
+The idea is that it is exactly like two physical ethernet interfaces
+connected by a cross-over cable.
 
-why? iptables work quite fine on a typical linux
-system when you 'delegate' certain functionality
-to certain chains (i.e. doesn't require access to
-_all_ of them)
+My test system is a 64-bit dual-core Intel system, 3.013 Ghz processor with 1GB RAM.
+Fairly standard stuff..it's one of the Shuttle XPC systems.
+Kernel is 2.6.16.16 (64-bit).
 
-> The question is do we want to have fully featured namespaces which
-> allow to create isolated virtual environments with semantics and
-> behaviour of standalone linux box or do we want to introduce some
-> hacks with new rules/restrictions to meet ones goals only?
 
-well, soemtimes 'hacks' are not only simpler but also 
-a much better solution for a given problem than the
-straight forward approach ... 
+Test setup is:  rdd1 -- rdd2   [bridge]   rdd3 -- rdd4
 
-for example, you won't have multiple routing tables
-in a kernel where this feature is disabled, no?
-so why should it affect a guest, or require modified
-apps inside a guest when we would decide to provide
-only a single routing table?
+I am using my proprietary module for the bridge logic...and the default
+bridge should be at least this fast.  I am injecting 1514 byte packets
+on rdd1 and rdd4 with pktgen (bi-directional flow).  My pktgen is also
+receiving the pkts and gathering stats.
 
-> From my POV, fully virtualized namespaces are the future. 
+This setup sustains 1.7Gbps of generated and received traffic between
+rdd1 and rdd4.
 
-the future is already there, it's called Xen or UML, or QEMU :)
+Running only the [bridge] between two 10/100/1000 ports on an Intel PCI-E
+NIC will sustain about 870Mbps (bi-directional) on this system, so the
+virtual devices are quite efficient, as suspected.
 
-> It is what makes virtualization solution usable (w/o apps
-> modifications), provides all the features and doesn't require much
-> efforts from people to be used.
+I have not yet had time to benchmark the mac-vlans...hopefully later today.
 
-and what if they want to use virtualization inside
-their guests? where do you draw the line?
+Thanks,
+Ben
 
-best,
-Herbert
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
-> Thanks,
-> Kirill

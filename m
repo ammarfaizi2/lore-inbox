@@ -1,108 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422670AbWF0WTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbWF0WTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422670AbWF0WTv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 18:19:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422667AbWF0WTt
+	id S1422655AbWF0WTw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 18:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbWF0WOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 18:19:49 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:25784 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030451AbWF0WOx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 18:14:53 -0400
-Subject: [PATCH 07/20] elevate mount count for extended attributes
+	Tue, 27 Jun 2006 18:14:46 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:49631 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030437AbWF0WOo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 18:14:44 -0400
+Subject: [PATCH 02/20] r/o bind mount prepwork: move open_namei()'s vfs_create()
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
        serue@us.ibm.com, Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Tue, 27 Jun 2006 15:14:46 -0700
+Date: Tue, 27 Jun 2006 15:14:37 -0700
 References: <20060627221436.77CCB048@localhost.localdomain>
 In-Reply-To: <20060627221436.77CCB048@localhost.localdomain>
-Message-Id: <20060627221446.77788715@localhost.localdomain>
+Message-Id: <20060627221437.9D01FB69@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This basically audits the callers of xattr_permission(), which
-calls permission() and can perform writes to the filesystem.
+The code around vfs_create() in open_namei() is getting a
+bit too complex.  Right now, there is at least the reference
+count on the dentry, and the i_mutex to worry about.  Soon,
+we'll also have mnt_writecount.
+
+So, break the vfs_create() call out of open_namei(), and
+into a helper function.  This duplicates the call to
+may_open(), but that isn't such a bad thing since the
+arguments (acc_mode and flag) were being heavily massaged
+anyway.
+
+Later in the series, we'll add the mnt_writecount handling
+around this new function call.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/nfsd/nfs4proc.c |    7 ++++++-
- lxc-dave/fs/xattr.c         |   14 ++++++++++++++
- 2 files changed, 20 insertions(+), 1 deletion(-)
+ lxc-dave/fs/namei.c |   30 ++++++++++++++++++++----------
+ 1 files changed, 20 insertions(+), 10 deletions(-)
 
-diff -puN fs/nfsd/nfs4proc.c~C-xattr fs/nfsd/nfs4proc.c
---- lxc/fs/nfsd/nfs4proc.c~C-xattr	2006-06-27 10:40:28.000000000 -0700
-+++ lxc-dave/fs/nfsd/nfs4proc.c	2006-06-27 10:40:28.000000000 -0700
-@@ -604,13 +604,18 @@ nfsd4_setattr(struct svc_rqst *rqstp, st
- 			return status;
- 		}
- 	}
-+	status = mnt_want_write(current_fh->fh_export->ex_mnt);
-+	if (status)
-+		return status;
- 	status = nfs_ok;
- 	if (setattr->sa_acl != NULL)
- 		status = nfsd4_set_nfs4_acl(rqstp, current_fh, setattr->sa_acl);
- 	if (status)
--		return status;
-+		goto out;
- 	status = nfsd_setattr(rqstp, current_fh, &setattr->sa_iattr,
- 				0, (time_t)0);
-+out:
-+	mnt_drop_write(current_fh->fh_export->ex_mnt);
- 	return status;
+diff -puN fs/namei.c~C-prepwork-cleanup-open_namei fs/namei.c
+--- lxc/fs/namei.c~C-prepwork-cleanup-open_namei	2006-06-27 10:40:24.000000000 -0700
++++ lxc-dave/fs/namei.c	2006-06-27 10:40:24.000000000 -0700
+@@ -1580,6 +1580,24 @@ int may_open(struct nameidata *nd, int a
+ 	return 0;
  }
  
-diff -puN fs/xattr.c~C-xattr fs/xattr.c
---- lxc/fs/xattr.c~C-xattr	2006-06-27 10:40:28.000000000 -0700
-+++ lxc-dave/fs/xattr.c	2006-06-27 10:40:28.000000000 -0700
-@@ -12,6 +12,7 @@
- #include <linux/smp_lock.h>
- #include <linux/file.h>
- #include <linux/xattr.h>
-+#include <linux/mount.h>
- #include <linux/namei.h>
- #include <linux/security.h>
- #include <linux/syscalls.h>
-@@ -210,7 +211,11 @@ sys_setxattr(char __user *path, char __u
- 	error = user_path_walk(path, &nd);
- 	if (error)
- 		return error;
-+	error = mnt_want_write(nd.mnt);
++static int open_namei_create(struct nameidata *nd, struct path *path,
++				int flag, int mode)
++{
++	int error;
++	struct dentry *dir = nd->dentry;
++
++	if (!IS_POSIXACL(dir->d_inode))
++		mode &= ~current->fs->umask;
++	error = vfs_create(dir->d_inode, path->dentry, mode, nd);
++	mutex_unlock(&dir->d_inode->i_mutex);
++	dput(nd->dentry);
++	nd->dentry = path->dentry;
 +	if (error)
 +		return error;
- 	error = setxattr(nd.dentry, name, value, size, flags);
-+	mnt_drop_write(nd.mnt);
- 	path_release(&nd);
- 	return error;
- }
-@@ -225,7 +230,11 @@ sys_lsetxattr(char __user *path, char __
- 	error = user_path_walk_link(path, &nd);
- 	if (error)
- 		return error;
-+	error = mnt_want_write(nd.mnt);
-+	if (error)
-+		return error;
- 	error = setxattr(nd.dentry, name, value, size, flags);
-+	mnt_drop_write(nd.mnt);
- 	path_release(&nd);
- 	return error;
- }
-@@ -241,9 +250,14 @@ sys_fsetxattr(int fd, char __user *name,
- 	f = fget(fd);
- 	if (!f)
- 		return error;
-+	error = mnt_want_write(f->f_vfsmnt);
-+	if (error)
-+		goto out_fput;
- 	dentry = f->f_dentry;
- 	audit_inode(NULL, dentry->d_inode);
- 	error = setxattr(dentry, name, value, size, flags);
-+	mnt_drop_write(f->f_vfsmnt);
-+out_fput:
- 	fput(f);
- 	return error;
- }
++	/* Don't check for write permission, don't truncate */
++	return may_open(nd, 0, flag & ~O_TRUNC);
++}
++
+ /*
+  *	open_namei()
+  *
+@@ -1661,18 +1679,10 @@ do_last:
+ 
+ 	/* Negative dentry, just create the file */
+ 	if (!path.dentry->d_inode) {
+-		if (!IS_POSIXACL(dir->d_inode))
+-			mode &= ~current->fs->umask;
+-		error = vfs_create(dir->d_inode, path.dentry, mode, nd);
+-		mutex_unlock(&dir->d_inode->i_mutex);
+-		dput(nd->dentry);
+-		nd->dentry = path.dentry;
++		error = open_namei_create(nd, &path, flag, mode);
+ 		if (error)
+ 			goto exit;
+-		/* Don't check for write permission, don't truncate */
+-		acc_mode = 0;
+-		flag &= ~O_TRUNC;
+-		goto ok;
++		return 0;
+ 	}
+ 
+ 	/*
 _

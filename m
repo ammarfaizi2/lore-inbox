@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWF0McN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWF0Md0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWF0McN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 08:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWF0McN
+	id S932202AbWF0Md0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 08:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWF0Md0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 08:32:13 -0400
-Received: from [212.33.187.200] ([212.33.187.200]:44039 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S932143AbWF0McM (ORCPT
+	Tue, 27 Jun 2006 08:33:26 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:49316 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932202AbWF0MdZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 08:32:12 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Incorrect CPU process accounting using CONFIG_HZ=100
-Date: Tue, 27 Jun 2006 15:32:33 +0300
-User-Agent: KMail/1.5
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-References: <200606211716.01472.a1426z@gawab.com> <200606222036.39908.a1426z@gawab.com> <20060626160239.GA3257@elf.ucw.cz>
-In-Reply-To: <20060626160239.GA3257@elf.ucw.cz>
-MIME-Version: 1.0
+	Tue, 27 Jun 2006 08:33:25 -0400
+Date: Tue, 27 Jun 2006 16:33:25 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Subject: Re: [RFC][PATCH 0/3] Process events biarch bug: Intro
+Message-ID: <20060627123325.GA26716@2ka.mipt.ru>
+References: <1151408822.21787.1807.camel@stark>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606271532.33368.a1426z@gawab.com>
+In-Reply-To: <1151408822.21787.1807.camel@stark>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 27 Jun 2006 16:33:26 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> On Thu 2006-06-22 20:36:39, Al Boldi wrote:
-> > Jan Engelhardt wrote:
-> > > >Setting CONFIG_HZ=100 results in incorrect CPU process accounting.
-> > > >
-> > > >This can be seen running top d.1, that shows top, itself, consuming
-> > > > 0ms CPUtime.
-> > > >
-> > > >Will this bug have consequences for sched.c?
-> > >
-> > > Works for me, somewhat.
-> > > TIME+ says 0:00.02 after 70 secs. (Ergo: top is not expensive on this
-> > > CPU.)
-> >
-> > That's what I thought for a long time.  But at closer inspection, top
-> > d.1 slows down other apps by about the same amount of time at 1000Hz and
-> > 100Hz, only at 1000Hz it is accounted for whereas at 100Hz it is not.
->
-> It is not a bug... it is design decision. If you eat "too little" cpu
-> time, you'll be accouted 0 msec. That's what happens at 100Hz...
+On Tue, Jun 27, 2006 at 04:47:01AM -0700, Matt Helsley (matthltc@us.ibm.com) wrote:
+> The events sent by Process Events from a 64-bit kernel are not binary compatible
+> with what a 32-bit userspace program would expect to recieve because the timespec
+> struct (used to send a timestamp) is not the same. This means that fields stored
+> after the timestamp are offset and programs that don't take this into account
+> break under these circumstances.
+> 
+> This is a problem for 32-bit userspace programs running with 64-bit kernels on
+> ppc64, s390, x86-64.. any "biarch" system.
+> 
+> This series:
+> 
+> 1 - Gives a name to the union of the process events structure so it may be used
+> 	to work around the problem from userspace.
+> 2 - Comments on the bug and describes a userspace workaround in
+> 	Documentation/connector/process_events.txt
+> 3 - Implements a second connector interface without the problem
+> 	(Removing the old interface or changing the definition would break
+> 	 binary compatibility)
 
-Bummer!
+If you are sure binary compatibility on this stage of process
+notification connector is really major issue, then I agree that above is
+correct, otherwise I would recommend to just replace broken code with fixed size objects.
 
-Meanwhile, can't "too little" cpu time be made relative to CONFIG_HZ?
+Btw, __u64 is not the best choice for some arches too due to it's
+alignment (64bit code requires u64 to be aligned to 64 bit, while 32bit
+code will only align it to 32 bits), so you will need 
+attribute ((aligned(8)))) for your own ___u64.
 
-Thanks!
-
---
-Al
-
-
+-- 
+	Evgeniy Polyakov

@@ -1,50 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWF0HAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWF0HBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbWF0HAR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 03:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWF0HAQ
+	id S1750860AbWF0HBP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 03:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWF0HBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 03:00:16 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:50199 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750749AbWF0HAO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 03:00:14 -0400
-Message-ID: <44A0D755.5090204@sw.ru>
-Date: Tue, 27 Jun 2006 10:59:33 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Tue, 27 Jun 2006 03:01:15 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:56756 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1751062AbWF0HBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 03:01:14 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [Suspend2][ 07/13] [Suspend2] Page_alloc paranoia.
+Date: Tue, 27 Jun 2006 17:01:06 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060627044226.15066.7403.stgit@nigel.suspend2.net> <20060627044248.15066.52507.stgit@nigel.suspend2.net> <20060626233353.052ae23c.pj@sgi.com>
+In-Reply-To: <20060626233353.052ae23c.pj@sgi.com>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andrey Savochkin <saw@swsoft.com>, dlezcano@fr.ibm.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       viro@ftp.linux.org.uk
-Subject: Re: [RFC][patch 1/4] Network namespaces: cleanup of dev_base list
- use
-References: <20060626134945.A28942@castle.nmd.msu.ru> <m1odwguez3.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1odwguez3.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart4696431.FHI4yS2Osu";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200606271701.11008.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Cleanup of dev_base list use, with the aim to make device list per-namespace.
->>In almost every occasion, use of dev_base variable and dev->next pointer
->>could be easily replaced by for_each_netdev loop.
->>A few most complicated places were converted to using
->>first_netdev()/next_netdev().
-> 
-> 
-> As a proof of concept patch this is ok.
-> 
-> As a real world patch this is much too big, which prevents review.
-> Plus it takes a few actions that are more than replace just
-> iterators through the device list.
-Mmm, actually it is a whole changeset and should go as a one patch. I 
-didn't find it to be big and my review took only 5-10mins..
-I also don't think that mailing each driver maintainer is a good idea.
-Only if we want to make some buzz :)
+--nextPart4696431.FHI4yS2Osu
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Kirill
+Hi.
+
+On Tuesday 27 June 2006 16:33, Paul Jackson wrote:
+> Nigel wrote:
+> -	do {
+> -		if (cpuset_zone_allowed(*z, gfp_mask|__GFP_HARDWALL))
+> -			wakeup_kswapd(*z, order);
+> -	} while (*(++z));
+> +	if (likely(!test_freezer_state(FREEZER_ON))) {
+> +		do {
+> +			if (cpuset_zone_allowed(*z, gfp_mask|__GFP_HARDWALL))
+> +				wakeup_kswapd(*z, order);
+> +		} while (*(++z));
+> +	}
+>
+>
+> The cpuset_zone_allowed() check above was removed recently, thanks to
+> a Chris Wright patch.  So the above patch won't apply to Linus's or
+> Andrew's current tree.
+
+This is for 2.6.17. I'm just about to update my git tree. Sorry - forever=20
+playing catchup :)
+
+Regards,
+
+Nigel
+=2D-=20
+See http://www.suspend2.net for Howtos, FAQs, mailing
+lists, wiki and bugzilla info.
+
+--nextPart4696431.FHI4yS2Osu
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEoNe2N0y+n1M3mo0RAndrAJ4rpmlcRQ/3Xm4d2oV6gJ6Vmq7n6gCffsn3
+tcucRL6J+8nyehbebPSzqGQ=
+=vJQh
+-----END PGP SIGNATURE-----
+
+--nextPart4696431.FHI4yS2Osu--

@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161267AbWF0UO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161273AbWF0UQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161267AbWF0UO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 16:14:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161271AbWF0UO4
+	id S1161273AbWF0UQS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 16:16:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbWF0UQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 16:14:56 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52355 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1161267AbWF0UOy
+	Tue, 27 Jun 2006 16:16:17 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:56960 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1161274AbWF0UQP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 16:14:54 -0400
-Message-Id: <20060627201241.754037000@sous-sol.org>
+	Tue, 27 Jun 2006 16:16:15 -0400
+Message-Id: <20060627201333.225567000@sous-sol.org>
 References: <20060627200745.771284000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 27 Jun 2006 00:00:11 -0700
+Date: Tue, 27 Jun 2006 00:00:13 -0700
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, kirr@mns.spb.ru
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       David Miller <davem@davemloft.net>, Bob Breuer <breuerr@mc.net>
-Subject: [PATCH 11/25] SPARC32: Fix iommu_flush_iotlb end address
-Content-Disposition: inline; filename=sparc32-fix-iommu_flush_iotlb-end-address.patch
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: [PATCH 13/25] x86: compile fix for asm-i386/alternatives.h
+Content-Disposition: inline; filename=x86-compile-fix-for-asm-i386-alternatives.h.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: David Miller <davem@davemloft.net>
+From: Kirill Smelkov <kirr@mns.spb.ru>
 
-Fix the calculation of the end address when flushing iotlb entries to
-ram.  This bug has been a cause of esp dma errors, and it affects
-HyperSPARC systems much worse than SuperSPARC systems.
+compile fix:  <asm-i386/alternative.h>  needs  <asm/types.h> for 'u8' --
+just look at struct alt_instr.
 
-Signed-off-by: Bob Breuer <breuerr@mc.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+My module includes <asm/bitops.h> as the first header, and as of 2.6.17 this
+leads to compilation errors.
+
+Signed-off-by: Kirill Smelkov <kirr@mns.spb.ru>
+Cc: <stable@kernel.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/sparc/mm/iommu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- linux-2.6.17.1.orig/arch/sparc/mm/iommu.c
-+++ linux-2.6.17.1/arch/sparc/mm/iommu.c
-@@ -144,8 +144,9 @@ static void iommu_flush_iotlb(iopte_t *i
- 	unsigned long start;
- 	unsigned long end;
+ include/asm-i386/alternative.h |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- linux-2.6.17.1.orig/include/asm-i386/alternative.h
++++ linux-2.6.17.1/include/asm-i386/alternative.h
+@@ -3,6 +3,8 @@
  
--	start = (unsigned long)iopte & PAGE_MASK;
-+	start = (unsigned long)iopte;
- 	end = PAGE_ALIGN(start + niopte*sizeof(iopte_t));
-+	start &= PAGE_MASK;
- 	if (viking_mxcc_present) {
- 		while(start < end) {
- 			viking_mxcc_flush_page(start);
+ #ifdef __KERNEL__
+ 
++#include <asm/types.h>
++
+ struct alt_instr {
+ 	u8 *instr; 		/* original instruction */
+ 	u8 *replacement;
 
 --

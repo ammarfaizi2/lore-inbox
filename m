@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161060AbWF0JPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWF0JVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161060AbWF0JPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 05:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161061AbWF0JPZ
+	id S1750949AbWF0JVP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 05:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWF0JVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 05:15:25 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35257 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161060AbWF0JPY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 05:15:24 -0400
-Date: Tue, 27 Jun 2006 11:15:09 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Charles Majola <chmj@rootcore.co.za>
-Cc: Ben Martel <benm@symmetric.co.nz>, Patrick McFarland <diablod3@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, stephen@blacksapphire.com,
-       kernel list <linux-kernel@vger.kernel.org>, radek.stangel@gmsil.com
-Subject: Re: IPWireless 3G PCMCIA Network Driver and GPL
-Message-ID: <20060627091509.GD29199@elf.ucw.cz>
-References: <20060616094516.GA3432@elf.ucw.cz> <449BEABD.5010305@rootcore.co.za> <1151070837.4549.18.camel@localhost.localdomain> <200606270437.59454.diablod3@gmail.com> <44A0F4CC.2000606@symmetric.co.nz> <44A0F617.6050106@rootcore.co.za>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A0F617.6050106@rootcore.co.za>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 27 Jun 2006 05:21:15 -0400
+Received: from aa004msr.fastwebnet.it ([85.18.95.67]:19677 "EHLO
+	aa004msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1750949AbWF0JVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 05:21:14 -0400
+Date: Tue, 27 Jun 2006 11:21:05 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ck@vds.kolivas.org
+Subject: Re: 2.6.17-ck1: fcache problem...
+Message-ID: <20060627112105.0b15bfa1@localhost>
+In-Reply-To: <20060625174358.GA21513@suse.de>
+References: <20060625093534.1700e8b6@localhost>
+	<20060625102837.GC20702@suse.de>
+	<20060625152325.605faf1f@localhost>
+	<20060625174358.GA21513@suse.de>
+X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 25 Jun 2006 19:43:59 +0200
+Jens Axboe <axboe@suse.de> wrote:
 
-> >I have had a look at the changes to the 2.6.1{6,7} kernel to do with 
-> >the buffering and I think that this driver will benefit greatly from 
-> >the changes away from the flip/flop scheme.
-> >
-> >When Steve and I originally wrote the driver it always seemed to be 
-> >limited throughput wise, due to the inefficient char handling it did.
-> >
-> >Good luck in the 'hacking it for 2.6.1{6,7} department' let me know if 
-> >I can help at all :)
-> >
-> >BTW: Can someone tell me the version that you are changing - I may 
-> >have a later version that fixes a problem with the V2 PCMCIA cards 
-> >from IPWireless/T-Mobile.
-> >
+> > > Hmm, and you are sure that the fs is properly umounted on reboot? Or is
+> > > it just remounted ro? It looks like fcache_close_dev() isn't being
+> > > called, so the cache serial doesn't match what we expect from the fs,
+> > > hence fcache bails out since it could indicate that the fs has been
+> > > changed without fcache being attached.
+> > 
+> > Ahh... it is the root fs and it's just remounted read-only by the
+> > standard Gentoo scripts ;)
+> > 
+> > I don't think that unmounting it is trivial (you need to chroot to a
+> > virtual FS or something...). Does any distro do it?
 > 
-> I have version 1.0.1 - 28 Mar 2004, working with the 2.6.15 kernel, with 
-> some minor changes I made.
+> ro should be enough, something odd must be going on. I'll add it to the
+> list of things to test tomorrow.
 
-Can you post it somewhere? Radek was trying to make it work with
-2.6.16...
-								Pavel
+Since "fcache_close_dev()" is called by "ext3_put_super()" I have added
+this stupid printk:
+
+--- fs/ext3/super.c.orig        2006-06-27 10:47:15.000000000 +0200
++++ fs/ext3/super.c     2006-06-27 10:50:36.000000000 +0200
+@@ -422,6 +422,8 @@ static void ext3_put_super (struct super
+
+        has_fcache = test_opt(sb, FCACHE);
+
++       printk("!!! ext3_put_super !!!   has_fcache=%d\n", has_fcache);
++
+        ext3_xattr_put_super(sb);
+        journal_destroy(sbi->s_journal);
+        if (!(sb->s_flags & MS_RDONLY)) {
+
+
+It triggers on unmount but it doesn't on remount "ro".
+
+So the problem is that "fcache_close_dev()" have zero chances to run ;)
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+	Paolo Ornati
+	Linux 2.6.17-ck1 on x86_64

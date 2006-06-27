@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWF0FN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030671AbWF0Eix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWF0FN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 01:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933394AbWF0Ehp
+	id S1030671AbWF0Eix (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 00:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030661AbWF0Eik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:37:45 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:21718 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933389AbWF0Eh2
+	Tue, 27 Jun 2006 00:38:40 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:31702 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030658AbWF0Eib
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:37:28 -0400
+	Tue, 27 Jun 2006 00:38:31 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 03/13] [Suspend2] Compression cryptoapi initialisation and cleanup.
-Date: Tue, 27 Jun 2006 14:37:27 +1000
+Subject: [Suspend2][ 08/12] [Suspend2] Encryption resources needed.
+Date: Tue, 27 Jun 2006 14:38:30 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043726.14320.63837.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
-References: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
+Message-Id: <20060627043828.14437.24057.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
+References: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the routines for preparing cryptoapi for suspend2 use and cleaning it
-up.
+Add routines to return the amount of memory and header storage needed for
+the encryption module.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/compression.c |   37 +++++++++++++++++++++++++++++++++++++
- 1 files changed, 37 insertions(+), 0 deletions(-)
+ kernel/power/encryption.c |   20 ++++++++++++++++++++
+ 1 files changed, 20 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/compression.c b/kernel/power/compression.c
-index 3d222b3..470644f 100644
---- a/kernel/power/compression.c
-+++ b/kernel/power/compression.c
-@@ -92,3 +92,40 @@ static inline void suspend_compress_free
- 	page_buffer = NULL;
+diff --git a/kernel/power/encryption.c b/kernel/power/encryption.c
+index 25db7ba..d12eb47 100644
+--- a/kernel/power/encryption.c
++++ b/kernel/power/encryption.c
+@@ -297,3 +297,23 @@ static int suspend_encrypt_print_debug_s
+ 	return len;
  }
  
-+/* 
-+ * suspend_compress_cleanup
++/* encryption_memory_needed
 + *
-+ * Frees memory allocated for our labours.
++ * Description:	Tell the caller how much memory we need to operate during
++ * 		suspend/resume.
++ * Returns:	Unsigned long. Maximum number of bytes of memory required for
++ * 		operation.
 + */
-+static void suspend_compress_cleanup(void)
++static unsigned long suspend_encrypt_memory_needed(void)
 +{
-+	if (suspend_compressor_transform) {
-+		crypto_free_tfm(suspend_compressor_transform);
-+		suspend_compressor_transform = NULL;
-+	}
++	return PAGE_SIZE;
 +}
 +
-+/* 
-+ * suspend_crypto_prepare
-+ *
-+ * Prepare to do some work by allocating buffers and transforms.
-+ * Returns: Int: Zero. Even if we can't set up compression, we still
-+ * seek to suspend.
-+ */
-+static int suspend_compress_crypto_prepare(void)
++static unsigned long suspend_encrypt_storage_needed(void)
 +{
-+	if (!*suspend_compressor_name) {
-+		printk("Suspend2: Compression enabled but no compressor name set.\n");
-+		suspend_compression_ops.disabled = 1;
-+		return 0;
-+	}
-+
-+	if (!(suspend_compressor_transform = crypto_alloc_tfm(suspend_compressor_name, 0))) {
-+		printk("Suspend2: Failed to initialise the %s compression transform.\n",
-+				suspend_compressor_name);
-+		return 1;
-+	}
-+
-+	return 0;
++	return 4 + strlen(suspend_encryptor_name) +
++		(suspend_encryptor_save_key_and_iv ?
++		 (4 + strlen(suspend_encryptor_key) +
++		  strlen(suspend_encryptor_iv)) : 0);
 +}
 +
 

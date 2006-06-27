@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbWF0TRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbWF0TSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbWF0TRm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbWF0TRl
+	id S932544AbWF0TSH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbWF0TSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:17:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:44946 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932542AbWF0TRk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:17:40 -0400
-Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on
-	i386
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0606272104500.7853@yvahk01.tjqt.qr>
-References: <20060626151012.GR23314@stusta.de>
-	 <20060626153834.GA18599@redhat.com>
-	 <1151336815.3185.61.camel@laptopd505.fenrus.org>
-	 <20060626155439.GB18599@redhat.com>
-	 <Pine.LNX.4.61.0606271626470.10810@yvahk01.tjqt.qr>
-	 <1151421452.32186.19.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0606272104500.7853@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Tue, 27 Jun 2006 21:17:21 +0200
-Message-Id: <1151435841.5217.39.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 27 Jun 2006 15:18:06 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:63983 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932544AbWF0TSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 15:18:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=U1Hir4v0KqnMSQRYQWzsqWs6i1iLyU//w2+2CiONFdFEHJpGPSb0nqbWd0kDVyzNGkU098A8QbSnMQRgfF7O/uY2OoIicI5wbJjWiujML4UjzHyIZFLmo13rZ67Z22hVbssvsu7pqKH7VMSjFoNnX1fHFQohZixlvdFZhmwyWMs=
+Message-ID: <cda58cb80606271218j427f926duc997a9a5b1b7f3e4@mail.gmail.com>
+Date: Tue, 27 Jun 2006 21:18:01 +0200
+From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
+To: "Dave Hansen" <haveblue@us.ibm.com>
+Subject: Re: [PATCH 2/7] bootmem: mark link_bootmem() as part of the __init section
+Cc: "Andrew Morton" <akpm@osdl.org>, "Mel Gorman" <mel@skynet.ie>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1151428665.24103.2.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <449FDD02.2090307@innova-card.com>
+	 <1151344691.10877.44.camel@localhost.localdomain>
+	 <44A12A4F.8030204@innova-card.com>
+	 <1151428665.24103.2.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-27 at 21:09 +0200, Jan Engelhardt wrote:
-> >> > > cli/sti should just be removed, or at least have those drivers marked
-> >> > > BROKEN... nobody is apparently using them anyway...
-> >> >
-> >> >Just ISDN really.
-> >> >
-> >> And ISDN is widespread in Germany (besides 56k and DSL(PPPOE)).
+2006/6/27, Dave Hansen <haveblue@us.ibm.com>:
+> On Tue, 2006-06-27 at 14:53 +0200, Franck Bui-Huu wrote:
+> > Signed-off-by: Franck Bui-Huu <vagabon.xyz@gmail.com>
+> > ---
+> >  mm/bootmem.c |    2 +-
+> >  1 files changed, 1 insertions(+), 1 deletions(-)
 > >
-> >Then there should be lots of Germans eager to fix it when it gets dealt
-> >with.
-> >
-> 
-> /* Heh, heh */
-> 
-> So what do I need to replace cli/sti with?
+> > diff --git a/mm/bootmem.c b/mm/bootmem.c
+> > index d213fed..d0a34fe 100644
+> > --- a/mm/bootmem.c
+> > +++ b/mm/bootmem.c
+> > @@ -56,7 +56,7 @@ unsigned long __init bootmem_bootmap_pag
+> >  /*
+> >   * link bdata in order
+> >   */
+> > -static void link_bootmem(bootmem_data_t *bdata)
+> > +static void __init link_bootmem(bootmem_data_t *bdata)
+> >  {
+> >       bootmem_data_t *ent;
+> >       if (list_empty(&bdata_list)) {
+>
+> Looks sane.  Just curious, did you do any wider audit in bootmem.c for
+> more of these?
+>
 
-proper spinlocks ;)
+I checked that all functions in bootmem.c belong to the __init section.
 
-cli/sti assumed to disable interrupts on all processors, and so when an
-old driver uses cli/sti it's sort of a lock against any interrupt
-handler (yes this is locking code not data!). In general you need to
-find out what data the author wanted to protect, and just create proper
-locking for that data.  
-
-yes this is not a mechanical transformation.. if it was it would have
-been done already :)
-
-
+-- 
+               Franck

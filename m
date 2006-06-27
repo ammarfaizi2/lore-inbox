@@ -1,115 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161059AbWF0J34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933076AbWF0Jcr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161059AbWF0J34 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 05:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbWF0J34
+	id S933076AbWF0Jcr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 05:32:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933385AbWF0Jcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 05:29:56 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:58021 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1161059AbWF0J3z (ORCPT
+	Tue, 27 Jun 2006 05:32:47 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:53134 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S933076AbWF0Jcq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 05:29:55 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       David Brownell <david-b@pacbell.net>
-Subject: [patch] fix static linking of NFS 
-From: Jes Sorensen <jes@sgi.com>
-Date: 27 Jun 2006 05:29:54 -0400
-Message-ID: <yq04py7j699.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
+	Tue, 27 Jun 2006 05:32:46 -0400
+Date: Tue, 27 Jun 2006 11:28:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: [patch] irq: fix arch/i386/kernel/irq.c gcc warning
+Message-ID: <20060627092801.GA4196@elte.hu>
+References: <20060627015211.ce480da6.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060627015211.ce480da6.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This patch solved the problem where certain functions in the NFS code
-goes missing due to the __exit section being discarded for static
-links.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-I saw one other version of this patch from David Brownell, but it had
-clutter left on the lines where the __exit should simply be removed.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm3/
 
-Cheers,
-Jes
+> Changes since 2.6.17-mm2:
+> 
+>  origin.patch
 
-Remove __exit declarations from functions called from __init code to
-avoid link errors when the __exit section is discarded, eg NFS is
-linked statically into the kernel.
+upstream grew a new compiler warning in i386 irq.c. Patch below fixes 
+it. No change in resulting irq.o code.
 
-Signed-off-by: Jes Sorensen <jes@sgi.com>
+	Ingo
 
+-------------
+Subject: irq: fix arch/i386/kernel/irq.c gcc warning
+From: Ingo Molnar <mingo@elte.hu>
+
+add parantheses. (code was fine because & has a higher precedence than |,
+but it's a dangerous construct in general and gcc also emits a warning)
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
- fs/nfs/direct.c   |    2 +-
- fs/nfs/inode.c    |    2 +-
- fs/nfs/pagelist.c |    2 +-
- fs/nfs/read.c     |    2 +-
- fs/nfs/write.c    |    2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ arch/i386/kernel/irq.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Index: linux-2.6/fs/nfs/direct.c
+Index: linux/arch/i386/kernel/irq.c
 ===================================================================
---- linux-2.6.orig/fs/nfs/direct.c
-+++ linux-2.6/fs/nfs/direct.c
-@@ -909,7 +909,7 @@ int __init nfs_init_directcache(void)
-  * nfs_destroy_directcache - destroy the slab cache for nfs_direct_req structures
-  *
-  */
--void __exit nfs_destroy_directcache(void)
-+void nfs_destroy_directcache(void)
- {
- 	if (kmem_cache_destroy(nfs_direct_cachep))
- 		printk(KERN_INFO "nfs_direct_cache: not all structures were freed\n");
-Index: linux-2.6/fs/nfs/inode.c
-===================================================================
---- linux-2.6.orig/fs/nfs/inode.c
-+++ linux-2.6/fs/nfs/inode.c
-@@ -1132,7 +1132,7 @@ static int __init nfs_init_inodecache(vo
- 	return 0;
- }
+--- linux.orig/arch/i386/kernel/irq.c
++++ linux/arch/i386/kernel/irq.c
+@@ -104,8 +104,8 @@ fastcall unsigned int do_IRQ(struct pt_r
+ 		 * softirq checks work in the hardirq context.
+ 		 */
+ 		irqctx->tinfo.preempt_count =
+-			irqctx->tinfo.preempt_count & ~SOFTIRQ_MASK |
+-			curctx->tinfo.preempt_count & SOFTIRQ_MASK;
++			(irqctx->tinfo.preempt_count & ~SOFTIRQ_MASK) |
++			(curctx->tinfo.preempt_count & SOFTIRQ_MASK);
  
--static void __exit nfs_destroy_inodecache(void)
-+static void nfs_destroy_inodecache(void)
- {
- 	if (kmem_cache_destroy(nfs_inode_cachep))
- 		printk(KERN_INFO "nfs_inode_cache: not all structures were freed\n");
-Index: linux-2.6/fs/nfs/pagelist.c
-===================================================================
---- linux-2.6.orig/fs/nfs/pagelist.c
-+++ linux-2.6/fs/nfs/pagelist.c
-@@ -390,7 +390,7 @@ int __init nfs_init_nfspagecache(void)
- 	return 0;
- }
- 
--void __exit nfs_destroy_nfspagecache(void)
-+void nfs_destroy_nfspagecache(void)
- {
- 	if (kmem_cache_destroy(nfs_page_cachep))
- 		printk(KERN_INFO "nfs_page: not all structures were freed\n");
-Index: linux-2.6/fs/nfs/read.c
-===================================================================
---- linux-2.6.orig/fs/nfs/read.c
-+++ linux-2.6/fs/nfs/read.c
-@@ -711,7 +711,7 @@ int __init nfs_init_readpagecache(void)
- 	return 0;
- }
- 
--void __exit nfs_destroy_readpagecache(void)
-+void nfs_destroy_readpagecache(void)
- {
- 	mempool_destroy(nfs_rdata_mempool);
- 	if (kmem_cache_destroy(nfs_rdata_cachep))
-Index: linux-2.6/fs/nfs/write.c
-===================================================================
---- linux-2.6.orig/fs/nfs/write.c
-+++ linux-2.6/fs/nfs/write.c
-@@ -1551,7 +1551,7 @@ int __init nfs_init_writepagecache(void)
- 	return 0;
- }
- 
--void __exit nfs_destroy_writepagecache(void)
-+void nfs_destroy_writepagecache(void)
- {
- 	mempool_destroy(nfs_commit_mempool);
- 	mempool_destroy(nfs_wdata_mempool);
+ 		asm volatile(
+ 			"       xchgl   %%ebx,%%esp      \n"

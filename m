@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932876AbWF0JfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933394AbWF0JiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932876AbWF0JfS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 05:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933385AbWF0JfS
+	id S933394AbWF0JiI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 05:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbWF0JiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 05:35:18 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:55505 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S932876AbWF0JfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 05:35:16 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Date: Tue, 27 Jun 2006 19:35:07 +1000
-User-Agent: KMail/1.9.1
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271907.27831.nigel@suspend2.net> <200606271126.28898.rjw@sisk.pl>
-In-Reply-To: <200606271126.28898.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart9082126.FV47xy7HuM";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606271935.13261.nigel@suspend2.net>
+	Tue, 27 Jun 2006 05:38:07 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:35343 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S933396AbWF0JiG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 05:38:06 -0400
+Date: Tue, 27 Jun 2006 19:35:20 +1000
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2][ 0/2] Cryptoapi deflate fix.
+Message-ID: <20060627093520.GA26364@gondor.apana.org.au>
+References: <E1Fv6cg-000617-00@gondolin.me.apana.org.au> <200606271702.49408.nigel@suspend2.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606271702.49408.nigel@suspend2.net>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart9082126.FV47xy7HuM
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, Jun 27, 2006 at 05:02:46PM +1000, Nigel Cunningham wrote:
+> 
+> Ok. Sorry for my wonky memory then :)
 
-Hi.
+No problems.
 
-On Tuesday 27 June 2006 19:26, Rafael J. Wysocki wrote:
-> > > Now I haven't followed the suspend2 vs swsusp debate very closely, but
-> > > it seems to me that your biggest problem with getting this merged is
-> > > getting consensus on where exactly this is going. Nobody wants two
-> > > different suspend modules in the kernel. So there are two options -
-> > > suspend2 is deemed the way to go, and it gets merged and replaces
-> > > swsusp. Or the other way around - people like swsusp more, and you are
-> > > doomed to maintain suspend2 outside the tree.
-> >
-> > Generally, I agree, although my understanding of Rafael and Pavel's
-> > mindset is that swsusp is a dead dog and uswsusp is the way they want to
-> > see things go. swsusp is only staying for backwards compatability. If
-> > that's the case, perhaps we can just replace swsusp with Suspend2 and l=
-et
-> > them have their existing interface for uswsusp. Still not ideal, I agre=
-e,
-> > but it would be progress.
->
-> Well, ususpend needs some core functionality to be provided by the kernel,
-> like freezing/thawing processes (this is also used by the STR),
-> snapshotting the system memory.  These should be shared with the in-kernel
-> suspend, be it swsusp or suspend2.
+> Yes, I'm always feeding it PAGE_SIZE chunks and compressing each page 
+> separately. It's a long time since I looked at or thought about this, so I'll 
+> spend some more time getting it fresh in my head if you like.
 
-If I modify suspend2 so that from now on it replaces swsusp, using noresume=
-,=20
-resume=3D and echo disk > /sys/power/state in a way that's backward compati=
-ble=20
-with swsusp and doesn't interfere with uswsusp support, would you be happy?=
-=20
-IIRC, Pavel has said in the past he wishes I'd just do that, but he's not y=
-ou=20
-of course.
+If you could give me a minimal test case to work with that'd be great.
 
-Regards,
+> I just left Marc's original code as it was, so I'm not completely sure, but I 
+> guess it's because we want lowmem.
 
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
+The question is why do you need lowmem? It doesn't appear to be obvious
+by looking at the code.
 
---nextPart9082126.FV47xy7HuM
-Content-Type: application/pgp-signature
+> > This is a double-free of local_buffer.
+> 
+> Is that from our previous correspondence? I can't find anything like it now.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Yes, that was from a year ago before you fixed the code :) Feel free to
+resubmit this once you've addressed the vmalloc question.
 
-iD8DBQBEoPvRN0y+n1M3mo0RAsUGAKCSDjNOYevXaHVjSzmrKHmzJiUm8ACgyIon
-EicdGrOy4CnzPl9PTkhUedY=
-=iWBy
------END PGP SIGNATURE-----
-
---nextPart9082126.FV47xy7HuM--
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

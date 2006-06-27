@@ -1,81 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161102AbWF0P2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161107AbWF0PcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161102AbWF0P2V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 11:28:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161104AbWF0P2U
+	id S1161107AbWF0PcA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 11:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161109AbWF0PcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 11:28:20 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:54723 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1161099AbWF0P2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 11:28:18 -0400
-Subject: Re: Areca driver recap + status
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: Andrew Morton <akpm@osdl.org>, rdunlap@xenotime.net, hch@infradead.org,
-       erich@areca.com.tw, brong@fastmail.fm, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Robert Mueller <robm@fastmail.fm>
-In-Reply-To: <1151367789.2935.23.camel@mentorng.gurulabs.com>
-References: <09be01c695b3$2ed8c2c0$c100a8c0@robm>
-	 <20060621222826.ff080422.akpm@osdl.org>
-	 <1151333338.2673.4.camel@mulgrave.il.steeleye.com>
-	 <1151367789.2935.23.camel@mentorng.gurulabs.com>
-Content-Type: text/plain
-Date: Tue, 27 Jun 2006 10:27:49 -0500
-Message-Id: <1151422069.3340.23.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 11:32:00 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14087 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161107AbWF0Pb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 11:31:59 -0400
+Date: Tue, 27 Jun 2006 17:31:58 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: util-linux status
+Message-ID: <20060627153158.GB13915@stusta.de>
+References: <44A13AFE.3080107@draigBrady.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <44A13AFE.3080107@draigBrady.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-26 at 18:23 -0600, Dax Kelson wrote:
-> On Mon, 2006-06-26 at 09:48 -0500, James Bottomley wrote:
-> > Not the world perhaps, but I'm unwilling to concede that if a driver
-> > author is given a list of major issues and does nothing, then the driver
-> > should go in after everyone gets impatient.
+On Tue, Jun 27, 2006 at 03:04:46PM +0100, Pádraig Brady wrote:
+> What is the status of util-linux?
+> There doesn't seem to be anything significant
+> released in about 1.5 years now.
 > 
-> That isn't accurate or fair. Erich has submitted large patches to
-> address issues. That hardly qualifies as "does nothing".
-
-Yes, that was unfair, and I apologise for it.  However ...
-
-> > The list of issues is here:
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-scsi&m=114556263632510
-> > 
-> > Most of the serious stuff is fixed with the exception of:
-> > 
-> > - sysfs has more than one value per file
-> > - BE platform support
-> > - PAE (cast of dma_addr_t to unsigned long) issues.
-> > - SYNCHRONIZE_CACHE is ignored.  This is wrong.  The sync cache in the
-> > shutdown notifier isn't sufficient.
-> > 
-> > At least the sysfs files have to be fixed before it goes in ... unless
-> > you want to be lynched by Greg?
+> I'm worried about patches getting lost,
+> especially since there were a large number
+> of thirdparty bugs/patches referenced in
+> the changelog for 2004.
 > 
-> Thanks for the new list. Erich has been eager to get work on any
-> remaining blockers.
-
-This isn't a new list.  It's extracted from the old list summary of
-serious issues which an inspection of the driver reveals to be still
-unresolved.  The original list was posted on 20 April
-
-http://marc.theaimsgroup.com/?l=linux-scsi&m=114556263632510
-
-And that one was an redux of a previously posed list that I can't be
-bothered to find.
-
-> It would have been nice to have gotten it back on May 19th, they might
-> have been resolved by now.
+> Personally I submitted a patch in 2004 that was
+> merged immediately, then I sent a simple bug fix
+> early in 2005 that has never been released.
+>...
+> This is the timeline over the last while as I see it:
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=114801926400287&w=2
+> 23 Sep 2005 ----------------------------------------2.12r
+>   cfdisk: fix a segfault with ReiserFS partitions
+>   umount: disallow -r option for non-root users
+> 20 Jan 2005 ----------------------------------------2.12q
+>   updated translations
+> 01 Jan 2005 ----------------------------------------Maintainership change
+> 23 Dec 2004 ----------------------------------------2.12p
+>                            :
+>                            : many changes in 16 versions
+>                            :
+> 05 Mar 2004 ----------------------------------------2.12a
 
-Well, this is what's adding to the rising frustration ... there's
-apparently been another hiatus where I thought someone was working on
-the rest of the issues labelled serious and no-one was.
+What is missing in your timeline are the 2.13-pre releases that contain 
+everything I've done.
 
-James
+But I know I have a big backlog of util-linux emails, and I hope having 
+soon some spare time for handing them.
 
+> Pádraig.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

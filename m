@@ -1,87 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161057AbWF0OQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWF0OUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161057AbWF0OQn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 10:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWF0OQn
+	id S932184AbWF0OUi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 10:20:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWF0OUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 10:16:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43401 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932364AbWF0OQl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 10:16:41 -0400
-Message-ID: <44A13C04.6010609@redhat.com>
-Date: Tue, 27 Jun 2006 10:09:08 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@linux.intel.com>
-CC: deweerdt@free.fr, greearb@candelatech.com, mingo@redhat.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch] lockdep annotate vlan net device as being a special class
-References: <1150382401.449171412bdfe@imp1-g19.free.fr> <1151330484.3185.42.camel@laptopd505.fenrus.org>
-In-Reply-To: <1151330484.3185.42.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 27 Jun 2006 10:20:38 -0400
+Received: from aa003msr.fastwebnet.it ([85.18.95.66]:24722 "EHLO
+	aa003msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S932184AbWF0OUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 10:20:37 -0400
+Date: Tue, 27 Jun 2006 16:20:41 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ck@vds.kolivas.org
+Subject: Re: 2.6.17-ck1: fcache problem...
+Message-ID: <20060627162041.4560086d@localhost>
+In-Reply-To: <20060627133544.GW22071@suse.de>
+References: <20060625093534.1700e8b6@localhost>
+	<20060625102837.GC20702@suse.de>
+	<20060625152325.605faf1f@localhost>
+	<20060625174358.GA21513@suse.de>
+	<20060627112105.0b15bfa1@localhost>
+	<20060627095443.GQ22071@suse.de>
+	<20060627122457.2cabc4d7@localhost>
+	<20060627150440.0aaf07e1@localhost>
+	<20060627131033.GU22071@suse.de>
+	<20060627153043.60582710@localhost>
+	<20060627133544.GW22071@suse.de>
+X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Tue, 27 Jun 2006 15:35:45 +0200
+Jens Axboe <axboe@suse.de> wrote:
 
->On Thu, 2006-06-15 at 16:40 +0200, deweerdt@free.fr wrote:
->  
->
->>Hi,
->>
->>Assigning an inet address to a vlanized interface triggered the following BUG
->>from the lock validator (kernel is 2.6.17-rc6-mm2):
->>    
->>
->
->ok below is a real working (cross my fingers) patch against the current
->-mm tree:
->
->vlan network devices have devices nesting below it, and are a special
->"super class" of normal network devices; split their locks off into a
->separate class since they always nest.
->
->Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
->Signed-off-by: Ingo Molnar <mingo@elte.hu>
->---
-> net/8021q/vlan.c |   10 ++++++++++
-> 1 file changed, 10 insertions(+)
->
->Index: linux-2.6.17-lockdep/net/8021q/vlan.c
->===================================================================
->--- linux-2.6.17-lockdep.orig/net/8021q/vlan.c
->+++ linux-2.6.17-lockdep/net/8021q/vlan.c
->@@ -364,6 +364,14 @@ static void vlan_transfer_operstate(cons
-> 	}
-> }
+> > > But it needs to be fixed of course, also so you don't have to do it for
+> > > 'rw' remounts (which I sometimes do just to check stats).
+> > 
+> > I agree :)
 > 
->+/*
->+ * vlan network devices have devices nesting below it, and are a special
->+ * "super class" of normal network devices; split their locks off into a
->+ * separate class since they always nest.
->+ */
->+static struct lock_class_key vlan_netdev_xmit_lock_key;
->+
->+
-> /*  Attach a VLAN device to a mac address (ie Ethernet Card).
->  *  Returns the device that was created, or NULL if there was
->  *  an error of some kind.
->@@ -460,6 +468,8 @@ static struct net_device *register_vlan_
-> 		    
-> 	new_dev = alloc_netdev(sizeof(struct vlan_dev_info), name,
-> 			       vlan_setup);
->+
->+	lockdep_set_class(&new_dev->_xmit_lock, &vlan_netdev_xmit_lock_key);
-> 	if (new_dev == NULL)
-> 		goto out_unlock;
->
+> Will fix it up, for now just pass fdev= always.
 
-Shouldn't this test for new_dev being NULL _before_ it gets used?
+Ok.
 
-    Thanx...
-
-       ps
+-- 
+	Paolo Ornati
+	Linux 2.6.17-gd2581eb4 on x86_64

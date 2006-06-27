@@ -1,69 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161338AbWF0WvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161340AbWF0WwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161338AbWF0WvY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 18:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161336AbWF0WvY
+	id S1161340AbWF0WwR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 18:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161339AbWF0WwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 18:51:24 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46778 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161338AbWF0WvX (ORCPT
+	Tue, 27 Jun 2006 18:52:16 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:28894 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1161212AbWF0WwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 18:51:23 -0400
-Date: Wed, 28 Jun 2006 00:51:05 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Sebastian =?iso-8859-1?Q?K=FCgler?= <sebas@kde.org>
-Cc: suspend2-devel@lists.suspend2.net,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: swsusp / suspend2 reliability (was Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion in	-mm)
-Message-ID: <20060627225105.GC8642@elf.ucw.cz>
-References: <200606270147.16501.ncunningham@linuxmail.org> <20060627154130.GA31351@rhlx01.fht-esslingen.de> <20060627222234.GP29199@elf.ucw.cz> <200606280039.06296.sebas@kde.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 27 Jun 2006 18:52:15 -0400
+Date: Wed, 28 Jun 2006 00:52:13 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Ben Greear <greearb@candelatech.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Daniel Lezcano <dlezcano@fr.ibm.com>, Andrey Savochkin <saw@swsoft.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
+       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
+       dev@sw.ru, devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+Message-ID: <20060627225213.GB2612@MAIL.13thfloor.at>
+Mail-Followup-To: Ben Greear <greearb@candelatech.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Daniel Lezcano <dlezcano@fr.ibm.com>,
+	Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+	clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
+	devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
+	Alexey Kuznetsov <alexey@sw.ru>
+References: <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <20060627131136.B13959@castle.nmd.msu.ru> <44A0FBAC.7020107@fr.ibm.com> <20060627133849.E13959@castle.nmd.msu.ru> <44A1149E.6060802@fr.ibm.com> <m1sllqn7cb.fsf@ebiederm.dsl.xmission.com> <20060627160241.GB28984@MAIL.13thfloor.at> <m1psgulf4u.fsf@ebiederm.dsl.xmission.com> <44A1689B.7060809@candelatech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200606280039.06296.sebas@kde.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <44A1689B.7060809@candelatech.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 2006-06-28 00:38:59, Sebastian Kügler wrote:
-> On Wednesday 28 June 2006 00:22, Pavel Machek wrote:
-> > > > uswsusp is a great idea, really.. I love it.. but suspend2 is here, it
-> > > > works, it's stable and it's now. Why continue to deprive the mainstream
-> > > > of these features because "uswsusp should".. as yet it doesn't.. and
-> > > > when it does then we can phase out the currently stable, working
-> > > > alternative that has all these features that uswsusp _will_ have, after
-> > > > it's had them for a year or so and its been proven stable. Not only
-> > > > that, I'll be happy to migrate over to it. Until then however, you can
-> > > > pry suspend2.. cold, dead.. blah blah..
-> > >
-> > > Given the above explanation, it's obvious that I'm an outside watcher
-> > > now, but if swsusp2 success rate is clearly higher than the standard
-> > > version, then I'd also strongly advocate this direction since, quite
-> > > frankly,
+On Tue, Jun 27, 2006 at 10:19:23AM -0700, Ben Greear wrote:
+> Eric W. Biederman wrote:
+> >Herbert Poetzl <herbert@13thfloor.at> writes:
 > >
-> > I do not think suspend2 works on more machines than in-kernel
-> > swsusp. Problems are in drivers, and drivers are shared.
 > >
-> > That means that if you have machine where suspend2 works and swsusp
-> > does not, please tell me. I do not think there are many of them.
+> >>On Tue, Jun 27, 2006 at 05:52:52AM -0600, Eric W. Biederman wrote:
+> >>
+> >>>Inside the containers I want all network devices named eth0!
+> >>
+> >>huh? even if there are two of them? also tun?
+> >>
+> >>I think you meant, you want to be able to have eth0 in
+> >>_more_ than one guest where eth0 in a guest can also
+> >>be/use/relate to eth1 on the host, right?
+> >
+> >
+> >Right I want to have an eth0 in each guest where eth0 is
+> >it's own network device and need have no relationship to
+> >eth0 on the host.
 > 
-> Maybe not machines, but definitely usage scenarios. I've tried both 
-> implementations lately, and swsusp would often -- especially under high 
-> memory load -- just return from trying, while suspend2 succeeds in freeing 
-> enough memory to be able to suspend _every_ time. 
+> How does that help anything?  Do you envision programs
+> that make special decisions on whether the interface is
+> called eth0 v/s eth151?
 
-Refrigerator fixes should help with this one. Does it still happen in
-2.6.17?
+well, those poor folks who do not have ethernet
+devices for networking :)
 
-> Is that something uswsusp is likely to change anytime soon?
+seriously, what I think Eric meant was that it
+might be nice (especially for migration purposes)
+to keep the device namespace completely virtualized
+and not just isolated ...
 
-Actually this is common code for both swsusp and uswsusp; yes this
-should be fixed.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+I'm fine with that, as long as it does not add
+overhead or complicate handling, and as far as I
+can tell, it should not do that ...
+
+best,
+Herbert
+
+> Ben
+> 
+> 
+> -- 
+> Ben Greear <greearb@candelatech.com>
+> Candela Technologies Inc  http://www.candelatech.com

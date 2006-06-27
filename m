@@ -1,36 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWF0TVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbWF0TWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbWF0TVh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWF0TVh
+	id S1030307AbWF0TWj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030310AbWF0TWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:21:37 -0400
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:35985 "HELO
-	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030294AbWF0TVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:21:35 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Jes Sorensen <jes@sgi.com>, Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [patch] fix static linking of NFS
-Date: Tue, 27 Jun 2006 12:21:31 -0700
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <yq04py7j699.fsf@jaguar.mkp.net> <1151426697.23773.10.camel@lade.trondhjem.org> <44A1809F.5030306@sgi.com>
-In-Reply-To: <44A1809F.5030306@sgi.com>
+	Tue, 27 Jun 2006 15:22:39 -0400
+Received: from unn-206.superhosting.cz ([82.208.4.206]:57062 "EHLO
+	mail.aiken.cz") by vger.kernel.org with ESMTP id S1030307AbWF0TWg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 15:22:36 -0400
+Message-ID: <44A1858B.9080102@kernel-api.org>
+Date: Tue, 27 Jun 2006 21:22:51 +0200
+From: Lukas Jelinek <info@kernel-api.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; cs-CZ; rv:1.7.12) Gecko/20050915
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: Kernel API Reference Documentation
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606271221.31927.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK here's a version of my patch that I edited to remove the
-comments Jes objected to ... /* init or exit */ to remind
-about the omitted section annotation.  Having one of those
-would save multiple kbytes throughout the kernel, and I had
-include the comments as reminders for an eventual fix...
+Hello,
 
-- Dave
+a few months ago I looked for something like "Linux Kernel API Reference
+Documentation". This search was unsuccessful and somebody recommended me
+to generate this documentation from the kernel headers.
+
+I have used Doxygen for this work. But the headers have needed to be
+preprocessed by 'sed' using some regexp rules (due to various
+incompatible comment formats).
+
+Now I decide to share the result worldwide. The current generated
+"Kernel API Reference" can be found at http://www.kernel-api.org.
+Although it is very buggy this time I think it may be useful for module
+developers.
+
+To allow this work to be better, I suggest to establish some rules for
+writing code comments (especially for function prototypes, data
+structures etc.) and to add the comments to the kernel headers. The
+rules should be chosen carefully to be well accepted by various
+documentation generators (at least by Doxygen).
+
+Thank you for your time dedicated to this idea.
+
+Regards
+
+Lukas Jelinek
+

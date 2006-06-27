@@ -1,128 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWF0FOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWF0FKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbWF0FOA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 01:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933396AbWF0Ehm
+	id S1750795AbWF0FKs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 01:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030666AbWF0Eiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:37:42 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:22742 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933392AbWF0Ehf
+	Tue, 27 Jun 2006 00:38:55 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:19931 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030659AbWF0Eiv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:37:35 -0400
+	Tue, 27 Jun 2006 00:38:51 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 05/13] [Suspend2] Compression write routines.
-Date: Tue, 27 Jun 2006 14:37:34 +1000
+Subject: [Suspend2][ 01/10] [Suspend2] Atomic copy file header.
+Date: Tue, 27 Jun 2006 14:38:50 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043732.14320.33665.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
-References: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
+Message-Id: <20060627043848.14546.41152.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
+References: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add routines used in compressing pages and passing them to the next module.
+Add the header for the atomic copy file. This file contains the routines
+related to doing the copying and restoration of pages that need to be
+atomically copied.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/compression.c |   87 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 87 insertions(+), 0 deletions(-)
+ kernel/power/atomic_copy.c |   52 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 52 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/compression.c b/kernel/power/compression.c
-index 44d46be..db3bca3 100644
---- a/kernel/power/compression.c
-+++ b/kernel/power/compression.c
-@@ -188,3 +188,90 @@ static int suspend_compress_rw_init(int 
- 	return 0;
- }
- 
-+/* 
-+ * suspend_compress_write()
-+ * @u8*:		Output buffer to be written.
-+ * @unsigned int:	Length of buffer.
+diff --git a/kernel/power/atomic_copy.c b/kernel/power/atomic_copy.c
+new file mode 100644
+index 0000000..e54de43
+--- /dev/null
++++ b/kernel/power/atomic_copy.c
+@@ -0,0 +1,52 @@
++/*
++ * kernel/power/atomic_copy.c
 + *
-+ * Helper function for write_chunk. Write the compressed data.
-+ * Return: Int.	Result to be passed back to caller.
++ * Copyright 2004-2006 Nigel Cunningham <nigel@suspend2.net>
++ *
++ * Distributed under GPLv2.
++ *
++ * Routines for doing the atomic save/restore.
 + */
-+static int suspend_compress_write (u8 *buffer, unsigned int len)
-+{
-+	int ret;
 +
-+	bytes_out += len;
++#include <linux/suspend.h>
++#include <linux/highmem.h>
++#include <linux/bootmem.h>
++#include <asm/setup.h>
++#include "suspend2_common.h"
++#include "storage.h"
++#include "power_off.h"
++#include "version.h"
++#include "ui.h"
++#include "power.h"
++#include "io.h"
++#include "prepare_image.h"
++#include "pageflags.h"
++#include "extent.h"
 +
-+	while (len + bufofs > PAGE_SIZE) {
-+		unsigned int chunk = PAGE_SIZE - bufofs;
-+		memcpy (local_buffer + bufofs, buffer, chunk);
-+		buffer += chunk;
-+		len -= chunk;
-+		bufofs = 0;
-+		if ((ret = next_driver->write_chunk(virt_to_page(local_buffer))) < 0)
-+			return ret;
-+	}
-+	memcpy (local_buffer + bufofs, buffer, len);
-+	bufofs += len;
-+	return 0;
-+}
++static int state1 __nosavedata = 0;
++static int state2 __nosavedata = 0;
++static int state3 __nosavedata = 0;
++static int io_speed_save[2][2] __nosavedata;
++__nosavedata char suspend_resume_commandline[COMMAND_LINE_SIZE];
 +
-+/* 
-+ * suspend_compress_write_chunk()
-+ *
-+ * Compress a page of data, buffering output and passing on filled
-+ * pages to the next module in the pipeline.
-+ * 
-+ * Buffer_page:	Pointer to a buffer of size PAGE_SIZE, containing
-+ * data to be compressed.
-+ *
-+ * Returns:	0 on success. Otherwise the error is that returned by later
-+ * 		modules, -ECHILD if we have a broken pipeline or -EIO if
-+ * 		zlib errs.
-+ */
-+static int suspend_compress_write_chunk(struct page *buffer_page)
-+{
-+	int ret; 
-+	unsigned int len;
-+	u16 len_written;
-+	char *buffer_start;
-+	
-+	if (!suspend_compressor_transform)
-+		return next_driver->write_chunk(buffer_page);
++extern void suspend_power_down(void);
++extern int swsusp_resume(void);
++extern int suspend2_in_suspend __nosavedata;
++int extra_pd1_pages_used;
 +
-+	buffer_start = kmap(buffer_page);
++#ifdef CONFIG_HIGHMEM
++static dyn_pageflags_t __nosavedata origmap;
++static dyn_pageflags_t __nosavedata copymap;
++static unsigned long __nosavedata origoffset;
++static unsigned long __nosavedata copyoffset;
++static __nosavedata int o_zone_num, c_zone_num;
 +
-+	bytes_in += PAGE_SIZE;
++struct zone_data {
++	unsigned long start_pfn;
++	unsigned long end_pfn;
++	int is_highmem;
++};
 +
-+	len = PAGE_SIZE;
-+
-+	ret = crypto_comp_compress(suspend_compressor_transform,
-+			buffer_start, PAGE_SIZE,
-+			page_buffer, &len);
-+	
-+	if (ret) {
-+		printk("Compression failed.\n");
-+		goto failure;
-+	}
-+	
-+	len_written = (u16) len;
-+		
-+	if ((ret = suspend_compress_write((u8 *)&len_written, 2)) >= 0) {
-+		if ((ret = suspend_compress_write((u8 *) &position, sizeof(position))))
-+			return -EIO;
-+		if (len < PAGE_SIZE) { /* some compression */
-+			position += len;
-+			ret = suspend_compress_write(page_buffer, len);
-+		} else {
-+			ret = suspend_compress_write(buffer_start, PAGE_SIZE);
-+			position += PAGE_SIZE;
-+		}
-+	}
-+	position += 2 + sizeof(int);
-+
-+
-+failure:
-+	kunmap(buffer_page);
-+	return ret;
-+}
++static __nosavedata struct zone_data *zone_nosave;
++static __nosavedata int num_zones;
 +
 
 --

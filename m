@@ -1,36 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWF0InS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWF0Iu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWF0InS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 04:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWF0InS
+	id S1751308AbWF0Iu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 04:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWF0Iu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 04:43:18 -0400
-Received: from ns2.suse.de ([195.135.220.15]:12211 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751104AbWF0InR (ORCPT
+	Tue, 27 Jun 2006 04:50:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28578 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932655AbWF0Iu1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 04:43:17 -0400
-To: lists@gammarayburst.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ia32 binfmt problem with x86-64
-References: <20060626112210.307DB1A04006@prtg1.pretago.de>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Jun 2006 10:43:05 +0200
-In-Reply-To: <20060626112210.307DB1A04006@prtg1.pretago.de>
-Message-ID: <p73veqnt2ee.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jun 2006 04:50:27 -0400
+Date: Tue, 27 Jun 2006 01:50:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: hch@infradead.org, swhiteho@redhat.com, torvalds@osdl.org,
+       teigland@redhat.com, pcaulfie@redhat.com, kanderso@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: GFS2 and DLM
+Message-Id: <20060627015005.21c20186.akpm@osdl.org>
+In-Reply-To: <20060627083544.GA32761@elte.hu>
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com>
+	<20060623144928.GA32694@infradead.org>
+	<20060626200300.GA15424@elte.hu>
+	<20060627063339.GA27938@elte.hu>
+	<20060627000633.91e06155.akpm@osdl.org>
+	<20060627083544.GA32761@elte.hu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lists@gammarayburst.de writes:
+On Tue, 27 Jun 2006 10:35:44 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
+
+> * Andrew Morton <akpm@osdl.org> wrote:
 > 
-> This all makes sense. But 64 bit and 32 bit apps should get the same
-> treatment right?
+> > On Tue, 27 Jun 2006 08:33:39 +0200
+> > Ingo Molnar <mingo@elte.hu> wrote:
+> > 
+> > > Isnt this whole episode highly hypocritic to begin with?
+> > 
+> > Might be, but that's not relevant to GFS2's suitability.
+> 
+> it is relevant to a certain degree, because it creates a (IMO) false 
+> impression of merging showstoppers. After months of being in -mm, and 
+> after addressing all issues that were raised (and there was a fair 
+> amount of review activity December last year iirc), one week prior the 
+> close of the merge window a 'huge' list of issues are raised. (after 
+> belovingly calling the GFS2 code a "huge mess", to create a positive and 
+> productive tone for the review discussion i guess.)
 
-No - i386 behaves different here than x86-64.
+It's a general problem - our reviewing resources do not have the capacity
+to cover our coding resources.  This is especially the case on filesystems.
+ We'd have merged (a very different) reiser4 a year ago if things were
+in balance.
 
-x86-64 always had NX/PROT_EXEC (although not all CPUs have always enforced it)
-while i386 has lots of legacy binaries that don't know about it.
-
--Andi
+(and our code-breaking resources appear to exceed our code-fixing resources
+too, but that's another topic).

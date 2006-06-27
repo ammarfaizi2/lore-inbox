@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWF0SFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWF0SF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932488AbWF0SFw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 14:05:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWF0SFw
+	id S932514AbWF0SF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 14:05:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWF0SF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 14:05:52 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38322 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932488AbWF0SFw (ORCPT
+	Tue, 27 Jun 2006 14:05:56 -0400
+Received: from lucidpixels.com ([66.45.37.187]:23739 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S932504AbWF0SFz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 14:05:52 -0400
-Date: Tue, 27 Jun 2006 11:05:46 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: [ZVC 4/4] Inline counters for single processor configurations
-In-Reply-To: <20060627174607.11172.28265.sendpatchset@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0606271104260.11380@schroedinger.engr.sgi.com>
-References: <20060627174551.11172.49700.sendpatchset@schroedinger.engr.sgi.com>
- <20060627174607.11172.28265.sendpatchset@schroedinger.engr.sgi.com>
+	Tue, 27 Jun 2006 14:05:55 -0400
+Date: Tue, 27 Jun 2006 14:05:54 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: linux-kernel@vger.kernel.org
+cc: linux-raid@vger.kernel.org
+Subject: When will the Areca RAID driver be merged into mainline?
+Message-ID: <Pine.LNX.4.64.0606271404281.392@p34.internal.lan>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm.. i386/x86_64 do not convert the adds to incs like ia64. Therefore 
-one can decrease memory usage even further by using atomic_inc/dec 
-explicitly.
+Anyone have an ETA on this? I heard soon but was wondering how soon..?
 
-Index: linux-2.6.17-mm3/include/linux/vmstat.h
-===================================================================
---- linux-2.6.17-mm3.orig/include/linux/vmstat.h	2006-06-27 03:53:05.000000000 -0700
-+++ linux-2.6.17-mm3/include/linux/vmstat.h	2006-06-27 03:54:16.000000000 -0700
-@@ -186,12 +186,14 @@
- 
- static inline void __inc_zone_page_state(struct page *page, enum zone_stat_item item)
- {
--	zone_page_state_add(1, page_zone(page), item);
-+	atomic_long_inc(&page_zone(page)->vm_stat[item]);
-+	atomic_long_inc(&vm_stat[item]);
- }
- 
- static inline void __dec_zone_page_state(struct page *page, enum zone_stat_item item)
- {
--	zone_page_state_add(-1, page_zone(page), item);
-+	atomic_long_dec(&page_zone(page)->vm_stat[item]);
-+	atomic_long_dec(&vm_stat[item]);
- }
- 
- /*
+kernel-version-2.6.x
+kernel-version-2.6.x/arcmsr
+kernel-version-2.6.x/arcmsr/arcmsr.c
+kernel-version-2.6.x/arcmsr/arcmsr.h
+kernel-version-2.6.x/arcmsr/Makefile
+kernel-version-2.6.x/readme.txt
+
+The driver is quite small and non-intrusive, I was wondering what is 
+holding it back getting merged into the official mainline kernel?
+
+Thanks,
+
+Justin.

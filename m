@@ -1,112 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbWF0PsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161124AbWF0Pu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161120AbWF0PsW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 11:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbWF0PsV
+	id S1161124AbWF0Pu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 11:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161125AbWF0Pu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 11:48:21 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:31196 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1161120AbWF0PsU (ORCPT
+	Tue, 27 Jun 2006 11:50:56 -0400
+Received: from ns2.suse.de ([195.135.220.15]:50915 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161124AbWF0Puz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 11:48:20 -0400
-Date: Tue, 27 Jun 2006 17:48:19 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andrey Savochkin <saw@swsoft.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Daniel Lezcano <dlezcano@fr.ibm.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-       devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-Message-ID: <20060627154818.GA28984@MAIL.13thfloor.at>
-Mail-Followup-To: Andrey Savochkin <saw@swsoft.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Daniel Lezcano <dlezcano@fr.ibm.com>, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-	clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-	devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-	Alexey Kuznetsov <alexey@sw.ru>
-References: <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <m1hd27uaxw.fsf@ebiederm.dsl.xmission.com> <20060626183649.GB3368@MAIL.13thfloor.at> <m1u067r9qk.fsf@ebiederm.dsl.xmission.com> <20060626200225.GA5330@MAIL.13thfloor.at> <20060627130911.A13959@castle.nmd.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jun 2006 11:50:55 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] Restore set_nmi_callback export on x86_64
+Date: Tue, 27 Jun 2006 17:50:27 +0200
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <20060627172418.84423784.khali@linux-fr.org>
+In-Reply-To: <20060627172418.84423784.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060627130911.A13959@castle.nmd.msu.ru>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200606271750.27899.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 01:09:11PM +0400, Andrey Savochkin wrote:
-> Herbert,
+On Tuesday 27 June 2006 17:24, Jean Delvare wrote:
+> Commit 2ee60e17896c65da1df5780d3196c050bccb7d10 broke modular
+> oprofile (amongst others I suspect) on x86_64 by killing the
+> exports of set_nmi_callback and unset_nmi_callback. Let's
+> restore the exports next to the functions as is prefered now.
+
+Hmm yes this happened because I got unsubmitted patches 
+that remove set_nmi_callback/unset_nmi_callback
+
+But for 2.6.18 the patch is good, thanks.
+
+-Andi
+
 > 
-> On Mon, Jun 26, 2006 at 10:02:25PM +0200, Herbert Poetzl wrote:
-> > 
-> > keep in mind that you actually have three kinds
-> > of network traffic on a typical host/guest system:
-> > 
-> >  - traffic between unit and outside
-> >    - host traffic should be quite minimal
-> >    - guest traffic will be quite high
-> > 
-> >  - traffic between host and guest
-> >    probably minimal too (only for shared services)
-> > 
-> >  - traffic between guests
-> >    can be as high (or even higher) than the
-> >    outbound traffic, just think web guest and
-> >    database guest
+> Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> Cc: Andi Kleen <ak@suse.de>
+> ---
+>  arch/x86_64/kernel/nmi.c |    2 ++
+>  1 files changed, 2 insertions(+)
 > 
-> My experience with host-guest systems tells me the opposite: outside
-> traffic is a way higher than traffic between guests. People put web
-> server and database in different guests not more frequent than they
-> put them on separate physical server. Unless people are building a
-> really huge system when 1 server can't take the whole load, web and
-> database live together and benefit from communications over UNIX
-> sockets.
-
-well, that's probably because you (or your company)
-focuses on providers which simply (re)sell the entities
-to their customers, in which case it would be more
-expensive to put e.g. the database into a separate
-guest. but let me state here that this is not the only
-application for this technology
-
-many folks use Linux-VServer for separating services
-(e.g. mail, web, database, ...) and here a _lot_ of
-traffic happens between guests (as it would on a normal
-linux system or within a single guest in your case)
-
-> Guests are usually comprised of web-db pairs, and people place many
-> such guests on a single computer.
-
-in case two guests cost more than one, yes, in case
-two guests allow for better isolation and easier
-maintainance without additional cost, no :)
-
-> > > The routing between network namespaces does have the potential to
-> > > be more expensive than just a packet trivially coming off the wire
-> > > into a socket.
-> > 
-> > IMHO the routing between network namespaces should
-> > not require more than the current local traffic
-> > does (i.e. you should be able to achieve loopback
-> > speed within an insignificant tolerance) and not
-> > nearly the time required for on-wire stuff ...
+> --- linux-2.6.17-git.orig/arch/x86_64/kernel/nmi.c	2006-06-27 16:22:17.000000000 +0200
+> +++ linux-2.6.17-git/arch/x86_64/kernel/nmi.c	2006-06-27 17:08:18.000000000 +0200
+> @@ -607,11 +607,13 @@
+>  	vmalloc_sync_all();
+>  	rcu_assign_pointer(nmi_callback, callback);
+>  }
+> +EXPORT_SYMBOL_GPL(set_nmi_callback);
+>  
+>  void unset_nmi_callback(void)
+>  {
+>  	nmi_callback = dummy_nmi_callback;
+>  }
+> +EXPORT_SYMBOL_GPL(unset_nmi_callback);
+>  
+>  #ifdef CONFIG_SYSCTL
+>  
 > 
-> I'd like to caution about over-optimizing communications between
-> different network namespaces. Many optimizations of local traffic
-> (such as high MTU) don't look so appealing when you start to think
-> about live migration of namespaces.
-
-I think the 'optimization' (or to be precise: desire
-not to sacrifice local/loopback traffic for some use
-case as you describe it) does not interfere with live
-migration at all, we still will have 'local' and 'remote'
-traffic, and personally I doubt that the live migration
-is a feature for the masses ...
-
-best,
-Herbert
-
-> Regards
-> 	Andrey
+> 

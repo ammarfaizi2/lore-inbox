@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWF0GeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWF0Ges@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWF0GeT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 02:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWF0GeT
+	id S932170AbWF0Ges (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 02:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWF0Ges
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 02:34:19 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:36803 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932157AbWF0GeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 02:34:18 -0400
-Date: Mon, 26 Jun 2006 23:33:53 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 27 Jun 2006 02:34:48 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:41391 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S932170AbWF0Ger (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 02:34:47 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: Nick Piggin <nickpiggin@yahoo.com.au>
 Subject: Re: [Suspend2][ 07/13] [Suspend2] Page_alloc paranoia.
-Message-Id: <20060626233353.052ae23c.pj@sgi.com>
-In-Reply-To: <20060627044248.15066.52507.stgit@nigel.suspend2.net>
-References: <20060627044226.15066.7403.stgit@nigel.suspend2.net>
-	<20060627044248.15066.52507.stgit@nigel.suspend2.net>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Tue, 27 Jun 2006 16:34:39 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060627044226.15066.7403.stgit@nigel.suspend2.net> <20060627044248.15066.52507.stgit@nigel.suspend2.net> <44A0CC28.5030508@yahoo.com.au>
+In-Reply-To: <44A0CC28.5030508@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2404754.SRI9aqRPzh";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200606271634.43662.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel wrote:
--	do {
--		if (cpuset_zone_allowed(*z, gfp_mask|__GFP_HARDWALL))
--			wakeup_kswapd(*z, order);
--	} while (*(++z));
-+	if (likely(!test_freezer_state(FREEZER_ON))) {
-+		do {
-+			if (cpuset_zone_allowed(*z, gfp_mask|__GFP_HARDWALL))
-+				wakeup_kswapd(*z, order);
-+		} while (*(++z));
-+	}
+--nextPart2404754.SRI9aqRPzh
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+Hi.
 
-The cpuset_zone_allowed() check above was removed recently, thanks to 
-a Chris Wright patch.  So the above patch won't apply to Linus's or
-Andrew's current tree.
+On Tuesday 27 June 2006 16:11, Nick Piggin wrote:
+> Nigel Cunningham wrote:
+> > Add paranoia to the page_alloc code to ensure we don't start page recla=
+im
+> > during suspending.
+>
+> Nack. Set PF_MEMALLOC if you must.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+That would work for the thread doing the suspending. What about other kerne=
+l=20
+threads that might run and allocate memory during the cycle because of=20
+$RANDOM_EVENT? We don't want them triggering memory freeing either.
+
+Regards,
+
+Nigel
+=2D-=20
+See http://www.suspend2.net for Howtos, FAQs, mailing
+lists, wiki and bugzilla info.
+
+--nextPart2404754.SRI9aqRPzh
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEoNGDN0y+n1M3mo0RAhLDAKD0Dpc0PdjQMcYH0slrS00wu+zlQgCg0PtB
+4E3DLGlKbB0+mzpsfWrdfjw=
+=owx5
+-----END PGP SIGNATURE-----
+
+--nextPart2404754.SRI9aqRPzh--

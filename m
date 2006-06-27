@@ -1,70 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932599AbWF0HKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030710AbWF0HI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932599AbWF0HKF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 03:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWF0HJd
+	id S1030710AbWF0HI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 03:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030680AbWF0HFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 03:09:33 -0400
-Received: from mx1.suse.de ([195.135.220.2]:49027 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030738AbWF0HJ0 (ORCPT
+	Tue, 27 Jun 2006 03:05:47 -0400
+Received: from ns1.suse.de ([195.135.220.2]:20355 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030684AbWF0HF0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 03:09:26 -0400
-Date: Tue, 27 Jun 2006 00:06:09 -0700
-From: Greg KH <greg@kroah.com>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: Jens Axboe <axboe@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Message-ID: <20060627070609.GA28730@kroah.com>
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271428.11654.nigel@suspend2.net> <20060627053623.GG22071@suse.de> <200606271539.29540.nigel@suspend2.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606271539.29540.nigel@suspend2.net>
-User-Agent: Mutt/1.5.11
+	Tue, 27 Jun 2006 03:05:26 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 27 Jun 2006 17:05:20 +1000
+Message-Id: <1060627070520.25986@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 003 of 12] md: Delay starting md threads until array is completely setup.
+References: <20060627170010.25835.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 03:39:26PM +1000, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Tuesday 27 June 2006 15:36, Jens Axboe wrote:
-> > On Tue, Jun 27 2006, Nigel Cunningham wrote:
-> > > Hi.
-> > >
-> > > On Tuesday 27 June 2006 07:20, Rafael J. Wysocki wrote:
-> > > > On Monday 26 June 2006 18:54, Nigel Cunningham wrote:
-> > > > > Add Suspend2 extent support. Extents are used for storing the lists
-> > > > > of blocks to which the image will be written, and are stored in the
-> > > > > image header for use at resume time.
-> > > >
-> > > > Could you please put all of the changes in kernel/power/extents.c into
-> > > > one patch? ?It's quite difficult to review them now, at least for me.
-> > >
-> > > I spent a long time splitting them up because I was asked in previous
-> > > iterations to break them into manageable chunks. How about if I were to
-> > > email you the individual files off line, so as to not send the same
-> > > amount again?
-> >
-> > Managable chunks means logical changes go together, one function per
-> > diff is really extreme and unreviewable. Support for extents is one
-> > logical change, so it's one patch. Unless of course you have to do some
-> > preparatory patches, then you'd do those separately.
-> >
-> > I must admit I thought you were kidding when I read through this extents
-> > patch series, having a single patch just adding includes!
-> 
-> Sorry for fluffing it up. I'm pretty inexperienced, but I'm trying to follow 
-> CodingStyle and all the other advice. If I'd known I'd misunderstood what was 
-> wanted, I probably could have submitted this months ago. Oh well. Live and 
-> learn. What would you have me do at this point?
 
-Please break things up into logical steps to solve the problem, and try
-it again.
+When an array is started we start one or two threads (two if
+there is a reshape or recovery that needs to be completed).
 
-Oh, and as a meta-comment, why /proc?  You know that's not acceptable,
-right?
+We currently start these *before* the array is completely set up and
+in particular before queue->queuedata is set.  If the thread
+actually starts very quickly on another CPU, we can end up
+dereferencing queue->queuedata and oops.
 
-thanks,
+This patch also makes sure we don't try to start a recovery if
+a reshape is being restarted.
 
-greg k-h
+### Diffstat output
+ ./drivers/md/md.c    |   10 +++++-----
+ ./drivers/md/raid5.c |    3 ---
+ 2 files changed, 5 insertions(+), 8 deletions(-)
+
+diff .prev/drivers/md/md.c ./drivers/md/md.c
+--- .prev/drivers/md/md.c	2006-06-27 12:17:32.000000000 +1000
++++ ./drivers/md/md.c	2006-06-27 12:17:32.000000000 +1000
+@@ -3100,8 +3100,7 @@ static int do_md_run(mddev_t * mddev)
+ 		}
+ 	
+ 	set_bit(MD_RECOVERY_NEEDED, &mddev->recovery);
+-	md_wakeup_thread(mddev->thread);
+	
++
+ 	if (mddev->sb_dirty)
+ 		md_update_sb(mddev);
+ 
+@@ -3121,7 +3120,7 @@ static int do_md_run(mddev_t * mddev)
+ 	 * start recovery here.  If we leave it to md_check_recovery,
+ 	 * it will remove the drives and not do the right thing
+ 	 */
+-	if (mddev->degraded) {
++	if (mddev->degraded && !mddev->sync_thread) {
+ 		struct list_head *rtmp;
+ 		int spares = 0;
+ 		ITERATE_RDEV(mddev,rdev,rtmp)
+@@ -3142,10 +3141,11 @@ static int do_md_run(mddev_t * mddev)
+ 				       mdname(mddev));
+ 				/* leave the spares where they are, it shouldn't hurt */
+ 				mddev->recovery = 0;
+-			} else
+-				md_wakeup_thread(mddev->sync_thread);
++			}
+ 		}
+ 	}
++	md_wakeup_thread(mddev->thread);
++	md_wakeup_thread(mddev->sync_thread); /* possibly kick off a reshape */
+ 
+ 	mddev->changed = 1;
+ 	md_new_event(mddev);
+
+diff .prev/drivers/md/raid5.c ./drivers/md/raid5.c
+--- .prev/drivers/md/raid5.c	2006-06-27 12:16:41.000000000 +1000
++++ ./drivers/md/raid5.c	2006-06-27 12:17:32.000000000 +1000
+@@ -3248,9 +3248,6 @@ static int run(mddev_t *mddev)
+ 		set_bit(MD_RECOVERY_RUNNING, &mddev->recovery);
+ 		mddev->sync_thread = md_register_thread(md_do_sync, mddev,
+ 							"%s_reshape");
+-		/* FIXME if md_register_thread fails?? */
+-		md_wakeup_thread(mddev->sync_thread);
+-
+ 	}
+ 
+ 	/* read-ahead size must cover two whole stripes, which is

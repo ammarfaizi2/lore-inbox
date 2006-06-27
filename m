@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWF0Ol2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbWF0Ome@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030188AbWF0Ol2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 10:41:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWF0Ol1
+	id S1161068AbWF0Ome (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 10:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWF0Ome
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 10:41:27 -0400
-Received: from testhaus.cns.utoronto.ca ([128.100.103.99]:34751 "EHLO
-	testhaus.cns.utoronto.ca") by vger.kernel.org with ESMTP
-	id S1030188AbWF0Ol0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 10:41:26 -0400
-Subject: Re: [klibc] klibc and what's the next step?
-From: Jeff Bailey <jbailey@ubuntu.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, torvalds@osdl.org, klibc@zytor.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0606271316220.17704@scrub.home>
-References: <klibc.200606251757.00@tazenda.hos.anvin.org>
-	 <Pine.LNX.4.64.0606271316220.17704@scrub.home>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 27 Jun 2006 15:40:50 +0100
-Message-Id: <1151419250.5276.53.camel@localhost.localdomain>
+	Tue, 27 Jun 2006 10:42:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:13186 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030193AbWF0Omd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 10:42:33 -0400
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on
+	i386
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0606271626470.10810@yvahk01.tjqt.qr>
+References: <20060626151012.GR23314@stusta.de>
+	 <20060626153834.GA18599@redhat.com>
+	 <1151336815.3185.61.camel@laptopd505.fenrus.org>
+	 <20060626155439.GB18599@redhat.com>
+	 <Pine.LNX.4.61.0606271626470.10810@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 16:42:22 +0200
+Message-Id: <1151419342.5217.15.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 27 juin 2006 à 15:12 +0200, Roman Zippel a écrit :
+On Tue, 2006-06-27 at 16:27 +0200, Jan Engelhardt wrote:
+> > > cli/sti should just be removed, or at least have those drivers marked
+> > > BROKEN... nobody is apparently using them anyway...
+> >
+> >Just ISDN really.
+> >
+> And ISDN is widespread in Germany (besides 56k and DSL(PPPOE)).
+> 
 
-> So anyone who likes to see klibc merged, because it will solve some kind 
-> of problem for him, please speak up now. Without this information it's 
-> hard to judge whether we're going to solve the right problems.
+so it really should be fixed ;-)
 
-For Ubuntu, klibc could exist perfectly fine outside of the kernel -
-We're using it already and have been for about a year now.
-
-What merging will help us with is:
-
-1) Making sure that klibc remains able to get the system running.  That
-way some subtle mismatch between the kernel and klibc doesn't cause a
-boot failure on a less-tested config.
-
-2) Help us stay close to the best-practice for booting.  This is both
-for making sure that people don't wind up with an unexpected experience
-using Ubuntu, but also so that we can contribute back to the common
-core.
-
-3) Work towards removing the bootup pieces from the kernel that aren't
-used anymore, reducing duplication, crufty in-kernel pieces, yada, yada,
-yada...
-
-I'd like to see klibc become the canonical way of booting the kernel
-whether it's merged or not.  We already depend on outside tools to get
-the system running (udev, module-init-tools), so adding klibc to this
-doesn't seem that harmful.
-
-Tks,
-Jeff Bailey
 

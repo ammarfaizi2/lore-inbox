@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWF0ITS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161043AbWF0IVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161041AbWF0ITS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 04:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWF0ITR
+	id S1161043AbWF0IVT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 04:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbWF0IVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 04:19:17 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:38495 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161042AbWF0ITO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 04:19:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=JIrc7+NQLVtZhRAMfwdgGP6oXUv2x4+Tbiu/gLxntq8YOsEyC+ri8pRhkdo7bA7VO6QsEBdqnWWKFMuQLjxMXtaIR9IQJLQuvrjohvpH5GIv5IlmtyRMmQcqsDWt4YeW+NuiMWrQVpQIkd+O7rcZLCoeL8KVP1QgPW5w0PXSSF0=
-Message-ID: <44A0EB01.9090809@innova-card.com>
-Date: Tue, 27 Jun 2006 10:23:29 +0200
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Franck <vagabon.xyz@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Mel Gorman <mel@skynet.ie>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Clean up the bootmem allocator
-References: <449FDD02.2090307@innova-card.com> <1151344691.10877.44.camel@localhost.localdomain>
-In-Reply-To: <1151344691.10877.44.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <vagabon.xyz@gmail.com>
+	Tue, 27 Jun 2006 04:21:19 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:36629 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1161043AbWF0IVQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 04:21:16 -0400
+Date: Tue, 27 Jun 2006 10:22:42 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Greg KH <greg@kroah.com>
+Cc: Nigel Cunningham <nigel@suspend2.net>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2][ 0/9] Extents support.
+Message-ID: <20060627082242.GO22071@suse.de>
+References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271539.29540.nigel@suspend2.net> <20060627070505.GH22071@suse.de> <200606271739.13453.nigel@suspend2.net> <20060627075906.GK22071@suse.de> <20060627081252.GC7181@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060627081252.GC7181@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Mon, 2006-06-26 at 15:11 +0200, Franck Bui-Huu wrote:
->> This patch does _only_ some cleanup in the bootmem allocator by:
-> ...
->>  include/linux/bootmem.h |  101 ++++++++++++++----------
->>  mm/bootmem.c            |  195 ++++++++++++++++++++++++++---------------------
->>  2 files changed, 167 insertions(+), 129 deletions(-)
+On Tue, Jun 27 2006, Greg KH wrote:
+> On Tue, Jun 27, 2006 at 09:59:06AM +0200, Jens Axboe wrote:
+> > Now I haven't followed the suspend2 vs swsusp debate very closely, but
+> > it seems to me that your biggest problem with getting this merged is
+> > getting consensus on where exactly this is going. Nobody wants two
+> > different suspend modules in the kernel. So there are two options -
+> > suspend2 is deemed the way to go, and it gets merged and replaces
+> > swsusp. Or the other way around - people like swsusp more, and you are
+> > doomed to maintain suspend2 outside the tree.
 > 
-> I'm always suspicious of "cleanups" which add more code than they remove ;)
-> 
+> Actually, there's a third option that is looking like the way forward,
+> doing all of this from userspace and having no suspend-to-disk in the
+> kernel tree at all.
 
-it's mainly due to the "80 columns limit" changes
+Yeah, but isn't that already in progress and swsusp being migrated that
+way? So really option #2.
 
->>         - following the kernel coding style conventions
+> Pavel and others have a working implementation and are slowly moving
+> toward adding all of the "bright and shiny" features that is in suspend2
+> to it (encryption, progress screens, abort by pressing a key, etc.) so
+> that there is no loss of functionality.
 > 
-> Above everything else, this probably needs to be in its very own patch,
-> where it is trivially verifiable. 
-> 
->>         - using pfn/page conversion macros
->>         - removing some not needed parentheses
->>         - removing some useless included headers
->>         - limiting to 80 column width
-> 
-> In general, I think there is some good stuff in here.  However, instead
-> of concentrating on "kernel coding style conventions" and numeric (80
-> column) guidelines, I really hope that people consider _readability_
-> when modifying this code.  I don't think this patch makes the code much
-> more readable.
-> 
+> So I don't really see the future of suspend2 because of this...
 
-well, IMHO using pfn/page conversion macros makes the code more readable.
+Well, it sure looks slim..
 
-> That said, there are some nice helper function in here.  Would you be
-> able to break this patch up into maybe 10 or 15 smaller patches?  I have
-> the feeling it will be easier to find the good bits then.
-> 
-
-ok I'll split that.
-
->> It also removes __init tags in the header file and hopefully make it
->> easier to read. 
-> 
-> I think I kinda like when these are present in headers.  I usually
-> stumble across the header declarations before I do the ones in the .c
-> files, and it is always nice to see the header visually _matching_
-> the .c file, and how the variable is intended to be used
-> 
-
-see Andrew's comments...
-
-		Franck
+-- 
+Jens Axboe
 

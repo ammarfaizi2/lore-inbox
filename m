@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030698AbWF0HNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030703AbWF0HTm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030698AbWF0HNK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 03:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbWF0HNJ
+	id S1030703AbWF0HTm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 03:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030714AbWF0HTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 03:13:09 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:29622 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932549AbWF0HNH (ORCPT
+	Tue, 27 Jun 2006 03:19:42 -0400
+Received: from ns2.suse.de ([195.135.220.15]:53414 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030703AbWF0HTk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 03:13:07 -0400
-Date: Tue, 27 Jun 2006 09:08:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Steven Whitehouse <swhiteho@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       David Teigland <teigland@redhat.com>,
-       Patrick Caulfield <pcaulfie@redhat.com>,
-       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GFS2 and DLM
-Message-ID: <20060627070817.GA30312@elte.hu>
-References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <20060623144928.GA32694@infradead.org> <20060626200300.GA15424@elte.hu> <1151352749.3185.78.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151352749.3185.78.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5003]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 27 Jun 2006 03:19:40 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 27 Jun 2006 17:19:34 +1000
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 000 of 14] knfsd: Introduction
+Message-ID: <20060627171533.26405.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Arjan van de Ven <arjan@infradead.org> wrote:
+Following are 14 assorted patches for nfsd.
+Patches are against 2.6.17-mm2 and are suitable for inclusion in 2.6.18.
 
-> On Mon, 2006-06-26 at 22:03 +0200, Ingo Molnar wrote:
-> > * Christoph Hellwig <hch@infradead.org> wrote:
-> > 
-> > > The code uses GFP_NOFAIL for slab allocator calls.  It's been pointed 
-> > > out here numerous times that this can't work.  Andrew, what about 
-> > > adding a check to slab.c to bail out if someone passes it?
-> > 
-> > reiserfs, jbd and NTFS are all using GFP_NOFAIL ...
-> > 
-> 
-> they use it for slab or for get_free_pages() ?
+Primarily minor bug fixes.
 
-for jbd and NTFS it's SLAB.
+Last three patches are initial support for RPC privacy (i.e. decrypt
+the RPC request and encrypt the reply).  This code is sub-optimal in
+several ways (memcopys ...) which will probably get tidied up once we
+determine the best way to do so.
 
-	Ingo
+Thanks,
+NeilBrown
+
+ [PATCH 001 of 14] knfsd: Improve the test for cross-device-rename in nfsd
+ [PATCH 002 of 14] knfsd: Fixing missing 'expkey' support for fsid type 3
+ [PATCH 003 of 14] knfsd: Remove noise about filehandle being uptodate.
+ [PATCH 004 of 14] knfsd: Ignore ref_fh when crossing a mountpoint.
+ [PATCH 005 of 14] knfsd: nfsd4: fix open_confirm locking
+ [PATCH 006 of 14] knfsd: nfsd: call nfsd_setuser() on fh_compose(), fix nfsd4 permissions problem
+ [PATCH 007 of 14] knfsd: nfsd4: remove superfluous grace period checks
+ [PATCH 008 of 14] knfsd: nfsd: fix misplaced fh_unlock() in nfsd_link()
+ [PATCH 009 of 14] knfsd: svcrpc: gss: simplify rsc_parse()
+ [PATCH 010 of 14] knfsd: nfsd4: fix some open argument tests
+ [PATCH 011 of 14] knfsd: nfsd4: fix open flag passing
+ [PATCH 012 of 14] knfsd: svcrpc: Simplify nfsd rpcsec_gss integrity code
+ [PATCH 013 of 14] knfsd: nfsd: mark rqstp to prevent use of sendfile in privacy case
+ [PATCH 014 of 14] knfsd: svcrpc: gss: server-side implementation of rpcsec_gss privacy.

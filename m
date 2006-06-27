@@ -1,78 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWF0E2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933343AbWF0Eaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWF0E2O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 00:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932951AbWF0E2O
+	id S933343AbWF0Eaw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 00:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933389AbWF0Eav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:28:14 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:11406 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S932106AbWF0E2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:28:13 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Date: Tue, 27 Jun 2006 14:28:08 +1000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606262320.01535.rjw@sisk.pl>
-In-Reply-To: <200606262320.01535.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart11402682.aKDxspA6Oh";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606271428.11654.nigel@suspend2.net>
+	Tue, 27 Jun 2006 00:30:51 -0400
+Received: from mail.kroah.org ([69.55.234.183]:11501 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S933343AbWF0Eav (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 00:30:51 -0400
+Date: Mon, 26 Jun 2006 21:27:50 -0700
+From: Greg KH <gregkh@suse.de>
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pciehp borkage.
+Message-ID: <20060627042750.GA1768@suse.de>
+References: <20060627033749.GB26575@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060627033749.GB26575@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart11402682.aKDxspA6Oh
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, Jun 26, 2006 at 11:37:49PM -0400, Dave Jones wrote:
+> My head hurts..
+> 
+> drivers/pci/pcie/Kconfig ..
+> 
+> config HOTPLUG_PCI_PCIE
+>     tristate "PCI Express Hotplug driver"
+>     depends on HOTPLUG_PCI && PCIEPORTBUS && (BROKEN || ACPI)
+> 
+> 
+> 
+> but drivers/pci/hotplug/Makefile has..
+> 
+> pciehp-objs     :=  pciehp_core.o   \
+>                 pciehp_ctrl.o   \
+>                 pciehp_pci.o    \
+>                 pciehp_hpc.o
+> 
+> So it gets built regardless of the option, which leaves ppc (among others)
+> totally busted..
 
-Hi.
+Yes, this driver does have issues on ppc, see the archives for Anton
+trying to fix it up to get it to build.  But as ppc currently doesn't
+_have_ pci express hotplug hardware it really doesn't matter much :)
 
-On Tuesday 27 June 2006 07:20, Rafael J. Wysocki wrote:
-> On Monday 26 June 2006 18:54, Nigel Cunningham wrote:
-> > Add Suspend2 extent support. Extents are used for storing the lists
-> > of blocks to which the image will be written, and are stored in the
-> > image header for use at resume time.
->
-> Could you please put all of the changes in kernel/power/extents.c into one
-> patch? =C2=A0It's quite difficult to review them now, at least for me.
+> In file included from include/acpi/platform/acenv.h:140,
+>                  from include/acpi/acpi.h:54,
+>                  from drivers/pci/hotplug/pciehp_hpc.c:41:
+> include/acpi/platform/aclinux.h:59:22: error: asm/acpi.h: No such file or directory
+> In file included from include/acpi/acpi.h:55,
+>                  from drivers/pci/hotplug/pciehp_hpc.c:41:
+> include/acpi/actypes.h:129: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'UINT64'
+> include/acpi/actypes.h:130: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'INT64'
+> make[3]: *** [drivers/pci/hotplug/pciehp_hpc.o] Error 1
+> make[2]: *** [drivers/pci/hotplug] Error 2
+> make[1]: *** [drivers/pci] Error 2
+> 
+> 
+> Should that Makefile be more along the lines of..
+> 
+> pciehp-$(CONFIG_PCI_PCIE)	:=  pciehp_core.o   \
+>                 pciehp_ctrl.o   \
+>                 pciehp_pci.o    \
+>                 pciehp_hpc.o
+> 
+> perhaps ?
 
-I spent a long time splitting them up because I was asked in previous=20
-iterations to break them into manageable chunks. How about if I were to ema=
-il=20
-you the individual files off line, so as to not send the same amount again?
+No, look up a bit higher:
+	obj-$(CONFIG_HOTPLUG_PCI_PCIE)          += pciehp.o
 
-> Well, I think similar remarks will apply to the other series of patches
-> too, so I won't repeat them if you don't mind.  [Also I won't be able to
-> have a look at the other patches today.  I'll do my best to review them in
-> the next couple of days.]
+which will build pciehp or not.  Just don't enable the option for now
+on ppc please.  Until people sanitize the ACPI headers for non-acpi
+arches (which is currently underway...)
 
-Thanks. No rush.
+thanks,
 
-Regards,
-
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
-
---nextPart11402682.aKDxspA6Oh
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEoLPbN0y+n1M3mo0RAhb6AJ4j4c6U8PdPWHOi8kz5EfciuoD5tACfeKEY
-D3Hdw5yy6rSXQhh49zzOvE4=
-=m+Fu
------END PGP SIGNATURE-----
-
---nextPart11402682.aKDxspA6Oh--
+greg k-h

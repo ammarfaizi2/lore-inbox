@@ -1,505 +1,356 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWF0MvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWF0MuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbWF0MvE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 08:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbWF0MvD
+	id S932484AbWF0MuR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 08:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWF0MuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 08:51:03 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:52136 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S932494AbWF0MuZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 08:50:25 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Hugh Dickins <hugh@veritas.com>, bjorn_helgaas@hp.com, holt@sgi.com,
-       Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [patch] mspec
-References: <yq0lkrtzelk.fsf@jaguar.mkp.net>
-From: Jes Sorensen <jes@sgi.com>
-Date: 27 Jun 2006 08:50:24 -0400
-In-Reply-To: <yq0lkrtzelk.fsf@jaguar.mkp.net>
-Message-ID: <yq0d5cuiwz3.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Tue, 27 Jun 2006 08:50:16 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:20557 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932484AbWF0MuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 08:50:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=UCKicAOdIx/KJvU5Y1l94oudoapuhg3R65rIM/1BppmslpgbGcbol98i4Xj04206QJC4Tu/+DK5yD+eC8pl6VqOKflGxFN0n8TCU/cWdvxFxWIVCKiYqo6mAB45MT/r7VWgOFVnJ69AHVjaTSYO/WuYSzsR9sA2yeuhn95yPpP0=
+Message-ID: <44A12A91.5030704@innova-card.com>
+Date: Tue, 27 Jun 2006 14:54:41 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Franck <vagabon.xyz@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Mel Gorman <mel@skynet.ie>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 7/7] bootmem: miscellaneous coding style fixes
+References: <449FDD02.2090307@innova-card.com> <1151344691.10877.44.camel@localhost.localdomain>
+In-Reply-To: <1151344691.10877.44.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Signed-off-by: Franck Bui-Huu <vagabon.xyz@gmail.com>
+---
+ include/linux/bootmem.h |   29 +++++++++-------
+ mm/bootmem.c            |   84 ++++++++++++++++++++++++++---------------------
+ 2 files changed, 62 insertions(+), 51 deletions(-)
 
-Latest mspec driver patch to go with do_no_pfn.
-
-Cheers,
-Jes
-
-This patch implements the special memory driver (mspec) based on the
-do_no_pfn approach. The driver is currently used only on SN2 hardware
-with special fetchop support but could be beneficial on other
-architectures using the uncached mode.
-
-Signed-off-by: Jes Sorensen <jes@sgi.com>
-
-----
-
- drivers/char/Kconfig  |    8 
- drivers/char/Makefile |    1 
- drivers/char/mspec.c  |  421 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 430 insertions(+)
-
-Index: linux-2.6/drivers/char/Kconfig
-===================================================================
---- linux-2.6.orig/drivers/char/Kconfig
-+++ linux-2.6/drivers/char/Kconfig
-@@ -439,6 +439,14 @@ config SGI_MBCS
-          If you have an SGI Altix with an attached SABrick
-          say Y or M here, otherwise say N.
+diff --git a/include/linux/bootmem.h b/include/linux/bootmem.h
+index fe48c5e..a532d00 100644
+--- a/include/linux/bootmem.h
++++ b/include/linux/bootmem.h
+@@ -38,13 +38,13 @@ typedef struct bootmem_data {
+ 	struct list_head list;
+ } bootmem_data_t;
  
-+config MSPEC
-+	tristate "Memory special operations driver"
-+	depends on IA64
-+	help
-+	  If you have an ia64 and you want to enable memory special
-+	  operations support (formerly known as fetchop), say Y here,
-+	  otherwise say N.
+-extern unsigned long bootmem_bootmap_pages (unsigned long);
+-extern unsigned long init_bootmem (unsigned long addr, unsigned long memend);
+-extern void free_bootmem (unsigned long addr, unsigned long size);
+-extern void * __alloc_bootmem (unsigned long size,
++extern unsigned long bootmem_bootmap_pages(unsigned long);
++extern unsigned long init_bootmem(unsigned long addr, unsigned long memend);
++extern void free_bootmem(unsigned long addr, unsigned long size);
++extern void * __alloc_bootmem(unsigned long size,
+ 			       unsigned long align,
+ 			       unsigned long goal);
+-extern void * __alloc_bootmem_nopanic (unsigned long size,
++extern void * __alloc_bootmem_nopanic(unsigned long size,
+ 				       unsigned long align,
+ 				       unsigned long goal);
+ extern void * __alloc_bootmem_low(unsigned long size,
+@@ -59,8 +59,9 @@ extern void * __alloc_bootmem_core(struc
+ 				   unsigned long align,
+ 				   unsigned long goal,
+ 				   unsigned long limit);
 +
- source "drivers/serial/Kconfig"
+ #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
+-extern void reserve_bootmem (unsigned long addr, unsigned long size);
++extern void reserve_bootmem(unsigned long addr, unsigned long size);
+ #define alloc_bootmem(x) \
+ 	__alloc_bootmem(x, SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_low(x) \
+@@ -70,22 +71,24 @@ #define alloc_bootmem_pages(x) \
+ #define alloc_bootmem_low_pages(x) \
+ 	__alloc_bootmem_low(x, PAGE_SIZE, 0)
+ #endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
+-extern unsigned long free_all_bootmem (void);
+-extern void * __alloc_bootmem_node (pg_data_t *pgdat,
++
++extern unsigned long free_all_bootmem(void);
++extern unsigned long free_all_bootmem_node(pg_data_t *pgdat);
++extern void * __alloc_bootmem_node(pg_data_t *pgdat,
+ 				    unsigned long size,
+ 				    unsigned long align,
+ 				    unsigned long goal);
+-extern unsigned long init_bootmem_node (pg_data_t *pgdat,
++extern unsigned long init_bootmem_node(pg_data_t *pgdat,
+ 					unsigned long freepfn,
+ 					unsigned long startpfn,
+ 					unsigned long endpfn);
+-extern void reserve_bootmem_node (pg_data_t *pgdat,
++extern void reserve_bootmem_node(pg_data_t *pgdat,
+ 				  unsigned long physaddr,
+ 				  unsigned long size);
+-extern void free_bootmem_node (pg_data_t *pgdat,
++extern void free_bootmem_node(pg_data_t *pgdat,
+ 			       unsigned long addr,
+ 			       unsigned long size);
+-extern unsigned long free_all_bootmem_node (pg_data_t *pgdat);
++
+ #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
+ #define alloc_bootmem_node(pgdat, x) \
+ 	__alloc_bootmem_node(pgdat, x, SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
+@@ -102,7 +105,7 @@ static inline void *alloc_remap(int nid,
+ {
+ 	return NULL;
+ }
+-#endif
++#endif /* CONFIG_HAVE_ARCH_ALLOC_REMAP */
  
- config UNIX98_PTYS
-Index: linux-2.6/drivers/char/Makefile
-===================================================================
---- linux-2.6.orig/drivers/char/Makefile
-+++ linux-2.6/drivers/char/Makefile
-@@ -51,6 +51,7 @@ obj-$(CONFIG_VIOCONS)		+= viocons.o
- obj-$(CONFIG_VIOTAPE)		+= viotape.o
- obj-$(CONFIG_HVCS)		+= hvcs.o
- obj-$(CONFIG_SGI_MBCS)		+= mbcs.o
-+obj-$(CONFIG_MSPEC)		+= mspec.o
+ extern unsigned long nr_kernel_pages;
+ extern unsigned long nr_all_pages;
+diff --git a/mm/bootmem.c b/mm/bootmem.c
+index 3368a14..0956c18 100644
+--- a/mm/bootmem.c
++++ b/mm/bootmem.c
+@@ -40,7 +40,7 @@ unsigned long saved_max_pfn;
+ #endif
  
- obj-$(CONFIG_PRINTER)		+= lp.o
- obj-$(CONFIG_TIPAR)		+= tipar.o
-Index: linux-2.6/drivers/char/mspec.c
-===================================================================
---- /dev/null
-+++ linux-2.6/drivers/char/mspec.c
-@@ -0,0 +1,421 @@
-+/*
-+ * Copyright (C) 2001-2006 Silicon Graphics, Inc.  All rights
-+ * reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of version 2 of the GNU General Public License
-+ * as published by the Free Software Foundation.
-+ */
+ /* return the number of _pages_ that will be allocated for the boot bitmap */
+-unsigned long __init bootmem_bootmap_pages (unsigned long pages)
++unsigned long __init bootmem_bootmap_pages(unsigned long pages)
+ {
+ 	unsigned long mapsize;
+ 
+@@ -50,12 +50,14 @@ unsigned long __init bootmem_bootmap_pag
+ 
+ 	return mapsize;
+ }
 +
-+/*
-+ * SN Platform Special Memory (mspec) Support
-+ *
-+ * This driver exports the SN special memory (mspec) facility to user
-+ * processes.
-+ * There are three types of memory made available thru this driver:
-+ * fetchops, uncached and cached.
-+ *
-+ * Fetchops are atomic memory operations that are implemented in the
-+ * memory controller on SGI SN hardware.
-+ *
-+ * Uncached are used for memory write combining feature of the ia64
-+ * cpu.
-+ *
-+ * Cached are used for areas of memory that are used as cached addresses
-+ * on our partition and used as uncached addresses from other partitions.
-+ * Due to a design constraint of the SN2 Shub, you can not have processors
-+ * on the same FSB perform both a cached and uncached reference to the
-+ * same cache line.  These special memory cached regions prevent the
-+ * kernel from ever dropping in a TLB entry and therefore prevent the
-+ * processor from ever speculating a cache line from this page.
-+ */
+ /*
+  * link bdata in order
+  */
+ static void __init link_bootmem(bootmem_data_t *bdata)
+ {
+ 	bootmem_data_t *ent;
 +
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+#include <linux/miscdevice.h>
-+#include <linux/spinlock.h>
-+#include <linux/mm.h>
-+#include <linux/vmalloc.h>
-+#include <linux/string.h>
-+#include <linux/slab.h>
-+#include <linux/numa.h>
-+#include <asm/page.h>
-+#include <asm/system.h>
-+#include <asm/pgtable.h>
-+#include <asm/atomic.h>
-+#include <asm/tlbflush.h>
-+#include <asm/uncached.h>
-+#include <asm/sn/addrs.h>
-+#include <asm/sn/arch.h>
-+#include <asm/sn/mspec.h>
-+#include <asm/sn/sn_cpuid.h>
-+#include <asm/sn/io.h>
-+#include <asm/sn/bte.h>
-+#include <asm/sn/shubio.h>
-+
-+
-+#define FETCHOP_ID	"SGI Fetchop,"
-+#define CACHED_ID	"Cached,"
-+#define UNCACHED_ID	"Uncached"
-+#define REVISION	"4.0"
-+#define MSPEC_BASENAME	"mspec"
-+
-+/*
-+ * Page types allocated by the device.
-+ */
-+enum {
-+	MSPEC_FETCHOP = 1,
-+	MSPEC_CACHED,
-+	MSPEC_UNCACHED
-+};
-+
-+static int is_sn2;
-+
-+/*
-+ * One of these structures is allocated when an mspec region is mmaped. The
-+ * structure is pointed to by the vma->vm_private_data field in the vma struct.
-+ * This structure is used to record the addresses of the mspec pages.
-+ */
-+struct vma_data {
-+	atomic_t refcnt;	/* Number of vmas sharing the data. */
-+	spinlock_t lock;	/* Serialize access to the vma. */
-+	int count;		/* Number of pages allocated. */
-+	int type;		/* Type of pages allocated. */
-+	unsigned long maddr[0];	/* Array of MSPEC addresses. */
-+};
-+
-+/* used on shub2 to clear FOP cache in the HUB */
-+static unsigned long scratch_page[MAX_NUMNODES];
-+#define SH2_AMO_CACHE_ENTRIES	4
-+
-+static inline int
-+mspec_zero_block(unsigned long addr, int len)
-+{
-+	int status;
-+
-+	if (is_sn2) {
-+		if (is_shub2()) {
-+			int nid;
-+			void *p;
-+			int i;
-+
-+			nid = nasid_to_cnodeid(get_node_number(__pa(addr)));
-+			p = (void *)TO_AMO(scratch_page[nid]);
-+
-+			for (i=0; i < SH2_AMO_CACHE_ENTRIES; i++) {
-+				FETCHOP_LOAD_OP(p, FETCHOP_LOAD);
-+				p += FETCHOP_VAR_SIZE;
-+			}
-+		}
-+
-+		status = bte_copy(0, addr & ~__IA64_UNCACHED_OFFSET, len,
-+				  BTE_WACQUIRE | BTE_ZERO_FILL, NULL);
-+	} else {
-+		memset((char *) addr, 0, len);
-+		status = 0;
+ 	if (list_empty(&bdata_list)) {
+ 		list_add(&bdata->list, &bdata_list);
+ 		return;
+@@ -68,7 +70,6 @@ static void __init link_bootmem(bootmem_
+ 		}
+ 	}
+ 	list_add_tail(&bdata->list, &bdata_list);
+-	return;
+ }
+ 
+ /*
+@@ -87,7 +88,7 @@ static unsigned long __init get_mapsize(
+ /*
+  * Called once to set up the allocator itself.
+  */
+-static unsigned long __init init_bootmem_core (pg_data_t *pgdat,
++static unsigned long __init init_bootmem_core(pg_data_t *pgdat,
+ 	unsigned long mapstart, unsigned long start, unsigned long end)
+ {
+ 	bootmem_data_t *bdata = pgdat->bdata;
+@@ -184,10 +185,10 @@ __alloc_bootmem_core(struct bootmem_data
+ 	      unsigned long align, unsigned long goal, unsigned long limit)
+ {
+ 	unsigned long offset, remaining_size, areasize, preferred;
+-	unsigned long i, start = 0, incr, eidx, end_pfn;
++	unsigned long i, start, incr, eidx, end_pfn;
+ 	void *ret;
+ 
+-	if(!size) {
++	if (!size) {
+ 		printk("__alloc_bootmem_core(): zero-sized request\n");
+ 		BUG();
+ 	}
+@@ -224,6 +225,7 @@ __alloc_bootmem_core(struct bootmem_data
+ 	areasize = (size + PAGE_SIZE-1) / PAGE_SIZE;
+ 	incr = align >> PAGE_SHIFT ? : 1;
+ 
++	start = 0;
+ restart_scan:
+ 	for (i = preferred; i < eidx; i += incr) {
+ 		unsigned long j;
+@@ -236,7 +238,7 @@ restart_scan:
+ 		for (j = i + 1; j < i + areasize; ++j) {
+ 			if (j >= eidx)
+ 				goto fail_block;
+-			if (test_bit (j, bdata->node_bootmem_map))
++			if (test_bit(j, bdata->node_bootmem_map))
+ 				goto fail_block;
+ 		}
+ 		start = i;
+@@ -264,19 +266,21 @@ found:
+ 	    bdata->last_offset && bdata->last_pos+1 == start) {
+ 		offset = ALIGN(bdata->last_offset, align);
+ 		BUG_ON(offset > PAGE_SIZE);
+-		remaining_size = PAGE_SIZE-offset;
++		remaining_size = PAGE_SIZE - offset;
+ 		if (size < remaining_size) {
+ 			areasize = 0;
+ 			/* last_pos unchanged */
+-			bdata->last_offset = offset+size;
+-			ret = phys_to_virt(bdata->last_pos*PAGE_SIZE + offset +
+-						bdata->node_boot_start);
++			bdata->last_offset = offset + size;
++			ret = phys_to_virt(bdata->last_pos * PAGE_SIZE +
++					   offset +
++					   bdata->node_boot_start);
+ 		} else {
+ 			remaining_size = size - remaining_size;
+-			areasize = (remaining_size+PAGE_SIZE-1)/PAGE_SIZE;
+-			ret = phys_to_virt(bdata->last_pos*PAGE_SIZE + offset +
+-						bdata->node_boot_start);
+-			bdata->last_pos = start+areasize-1;
++			areasize = (remaining_size + PAGE_SIZE-1) / PAGE_SIZE;
++			ret = phys_to_virt(bdata->last_pos * PAGE_SIZE +
++					   offset +
++					   bdata->node_boot_start);
++			bdata->last_pos = start + areasize - 1;
+ 			bdata->last_offset = remaining_size;
+ 		}
+ 		bdata->last_offset &= ~PAGE_MASK;
+@@ -289,7 +293,7 @@ found:
+ 	/*
+ 	 * Reserve the area now:
+ 	 */
+-	for (i = start; i < start+areasize; i++)
++	for (i = start; i < start + areasize; i++)
+ 		if (unlikely(test_and_set_bit(i, bdata->node_bootmem_map)))
+ 			BUG();
+ 	memset(ret, 0, size);
+@@ -340,7 +344,7 @@ static unsigned long __init free_all_boo
+ 				}
+ 			}
+ 		} else {
+-			i+=BITS_PER_LONG;
++			i += BITS_PER_LONG;
+ 		}
+ 		pfn += BITS_PER_LONG;
+ 	}
+@@ -363,51 +367,51 @@ static unsigned long __init free_all_boo
+ 	return total;
+ }
+ 
+-unsigned long __init init_bootmem_node (pg_data_t *pgdat, unsigned long freepfn,
++unsigned long __init init_bootmem_node(pg_data_t *pgdat, unsigned long freepfn,
+ 				unsigned long startpfn, unsigned long endpfn)
+ {
+-	return(init_bootmem_core(pgdat, freepfn, startpfn, endpfn));
++	return init_bootmem_core(pgdat, freepfn, startpfn, endpfn);
+ }
+ 
+-void __init reserve_bootmem_node (pg_data_t *pgdat, unsigned long physaddr,
+-				  unsigned long size)
++void __init reserve_bootmem_node(pg_data_t *pgdat, unsigned long physaddr,
++				 unsigned long size)
+ {
+ 	reserve_bootmem_core(pgdat->bdata, physaddr, size);
+ }
+ 
+-void __init free_bootmem_node (pg_data_t *pgdat, unsigned long physaddr,
+-			       unsigned long size)
++void __init free_bootmem_node(pg_data_t *pgdat, unsigned long physaddr,
++			      unsigned long size)
+ {
+ 	free_bootmem_core(pgdat->bdata, physaddr, size);
+ }
+ 
+-unsigned long __init free_all_bootmem_node (pg_data_t *pgdat)
++unsigned long __init free_all_bootmem_node(pg_data_t *pgdat)
+ {
+-	return(free_all_bootmem_core(pgdat));
++	return free_all_bootmem_core(pgdat);
+ }
+ 
+-unsigned long __init init_bootmem (unsigned long start, unsigned long pages)
++unsigned long __init init_bootmem(unsigned long start, unsigned long pages)
+ {
+ 	max_low_pfn = pages;
+ 	min_low_pfn = start;
+-	return(init_bootmem_core(NODE_DATA(0), start, 0, pages));
++	return init_bootmem_core(NODE_DATA(0), start, 0, pages);
+ }
+ 
+ #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
+-void __init reserve_bootmem (unsigned long addr, unsigned long size)
++void __init reserve_bootmem(unsigned long addr, unsigned long size)
+ {
+ 	reserve_bootmem_core(NODE_DATA(0)->bdata, addr, size);
+ }
+ #endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
+ 
+-void __init free_bootmem (unsigned long addr, unsigned long size)
++void __init free_bootmem(unsigned long addr, unsigned long size)
+ {
+ 	free_bootmem_core(NODE_DATA(0)->bdata, addr, size);
+ }
+ 
+-unsigned long __init free_all_bootmem (void)
++unsigned long __init free_all_bootmem(void)
+ {
+-	return(free_all_bootmem_core(NODE_DATA(0)));
++	return free_all_bootmem_core(NODE_DATA(0));
+ }
+ 
+ void * __init __alloc_bootmem_nopanic(unsigned long size, unsigned long align,
+@@ -416,9 +420,11 @@ void * __init __alloc_bootmem_nopanic(un
+ 	bootmem_data_t *bdata;
+ 	void *ptr;
+ 
+-	list_for_each_entry(bdata, &bdata_list, list)
+-		if ((ptr = __alloc_bootmem_core(bdata, size, align, goal, 0)))
+-			return(ptr);
++	list_for_each_entry(bdata, &bdata_list, list) {
++		ptr = __alloc_bootmem_core(bdata, size, align, goal, 0);
++		if (ptr)
++			return ptr;
 +	}
-+	return status;
-+}
+ 	return NULL;
+ }
+ 
+@@ -426,6 +432,7 @@ void * __init __alloc_bootmem(unsigned l
+ 			      unsigned long goal)
+ {
+ 	void *mem = __alloc_bootmem_nopanic(size,align,goal);
 +
-+/*
-+ * mspec_open
-+ *
-+ * Called when a device mapping is created by a means other than mmap
-+ * (via fork, etc.).  Increments the reference count on the underlying
-+ * mspec data so it is not freed prematurely.
-+ */
-+static void
-+mspec_open(struct vm_area_struct *vma)
-+{
-+	struct vma_data *vdata;
-+
-+	vdata = vma->vm_private_data;
-+	atomic_inc(&vdata->refcnt);
-+}
-+
-+/*
-+ * mspec_close
-+ *
-+ * Called when unmapping a device mapping. Frees all mspec pages
-+ * belonging to the vma.
-+ */
-+static void
-+mspec_close(struct vm_area_struct *vma)
-+{
-+	struct vma_data *vdata;
-+	int i, pages, result, vdata_size;
-+
-+	vdata = vma->vm_private_data;
-+	if (!atomic_dec_and_test(&vdata->refcnt))
-+		return;
-+
-+	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
-+	for (i = 0; i < pages; i++) {
-+		if (vdata->maddr[i] == 0)
-+			continue;
-+		/*
-+		 * Clear the page before sticking it back
-+		 * into the pool.
-+		 */
-+		result = mspec_zero_block(vdata->maddr[i], PAGE_SIZE);
-+		if (!result)
-+			uncached_free_page(vdata->maddr[i]);
-+		else
-+			printk(KERN_WARNING "mspec_close(): "
-+			       "failed to zero page %i\n",
-+			       result);
+ 	if (mem)
+ 		return mem;
+ 	/*
+@@ -444,7 +451,7 @@ void * __init __alloc_bootmem_node(pg_da
+ 
+ 	ptr = __alloc_bootmem_core(pgdat->bdata, size, align, goal, 0);
+ 	if (ptr)
+-		return (ptr);
++		return ptr;
+ 
+ 	return __alloc_bootmem(size, align, goal);
+ }
+@@ -457,10 +464,11 @@ void * __init __alloc_bootmem_low(unsign
+ 	bootmem_data_t *bdata;
+ 	void *ptr;
+ 
+-	list_for_each_entry(bdata, &bdata_list, list)
+-		if ((ptr = __alloc_bootmem_core(bdata, size,
+-						 align, goal, LOW32LIMIT)))
+-			return(ptr);
++	list_for_each_entry(bdata, &bdata_list, list) {
++		ptr = __alloc_bootmem_core(bdata, size, align, goal, LOW32LIMIT);
++		if (ptr)
++			return ptr;
 +	}
-+
-+	if (vdata_size <= PAGE_SIZE)
-+		kfree(vdata);
-+	else
-+		vfree(vdata);
-+}
-+
-+
-+/*
-+ * mspec_nopfn
-+ *
-+ * Creates a mspec page and maps it to user space.
-+ */
-+static unsigned long
-+mspec_nopfn(struct vm_area_struct *vma, unsigned long address)
-+{
-+	unsigned long paddr, maddr;
-+	unsigned long pfn;
-+	int index;
-+	struct vma_data *vdata = vma->vm_private_data;
-+
-+	index = (address - vma->vm_start) >> PAGE_SHIFT;
-+	maddr = (volatile unsigned long) vdata->maddr[index];
-+	if (maddr == 0) {
-+		maddr = uncached_alloc_page(numa_node_id());
-+		if (maddr == 0)
-+			return NOPFN_OOM;
-+
-+		spin_lock(&vdata->lock);
-+		if (vdata->maddr[index] == 0) {
-+			vdata->count++;
-+			vdata->maddr[index] = maddr;
-+		} else {
-+			uncached_free_page(maddr);
-+			maddr = vdata->maddr[index];
-+		}
-+		spin_unlock(&vdata->lock);
-+	}
-+
-+	if (vdata->type == MSPEC_FETCHOP)
-+		paddr = TO_AMO(maddr);
-+	else
-+		paddr = __pa(TO_CAC(maddr));
-+
-+	pfn = paddr >> PAGE_SHIFT;
-+
-+	return pfn;
-+}
-+
-+static struct vm_operations_struct mspec_vm_ops = {
-+	.open = mspec_open,
-+	.close = mspec_close,
-+	.nopfn = mspec_nopfn
-+};
-+
-+/*
-+ * mspec_mmap
-+ *
-+ * Called when mmaping the device.  Initializes the vma with a fault handler
-+ * and private data structure necessary to allocate, track, and free the
-+ * underlying pages.
-+ */
-+static int
-+mspec_mmap(struct file *file, struct vm_area_struct *vma, int type)
-+{
-+	struct vma_data *vdata;
-+	int pages, vdata_size;
-+
-+	if (vma->vm_pgoff != 0)
-+		return -EINVAL;
-+
-+	if ((vma->vm_flags & VM_SHARED) == 0)
-+		return -EINVAL;
-+
-+	if ((vma->vm_flags & VM_WRITE) == 0)
-+		return -EPERM;
-+
-+	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
-+	if (vdata_size <= PAGE_SIZE)
-+		vdata = kmalloc(vdata_size, GFP_KERNEL);
-+	else
-+		vdata = vmalloc(vdata_size);
-+	if (!vdata)
-+		return -ENOMEM;
-+	memset(vdata, 0, vdata_size);
-+
-+	vdata->type = type;
-+	spin_lock_init(&vdata->lock);
-+	vdata->refcnt = ATOMIC_INIT(1);
-+	vma->vm_private_data = vdata;
-+
-+	vma->vm_flags |= (VM_IO | VM_LOCKED | VM_RESERVED | VM_PFNMAP);
-+	if (vdata->type == MSPEC_FETCHOP || vdata->type == MSPEC_UNCACHED)
-+		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-+	vma->vm_ops = &mspec_vm_ops;
-+
-+	return 0;
-+}
-+
-+static int
-+fetchop_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_FETCHOP);
-+}
-+
-+static int
-+cached_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_CACHED);
-+}
-+
-+static int
-+uncached_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_UNCACHED);
-+}
-+
-+static struct file_operations fetchop_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = fetchop_mmap
-+};
-+
-+static struct miscdevice fetchop_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "sgi_fetchop",
-+	.fops = &fetchop_fops
-+};
-+
-+static struct file_operations cached_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = cached_mmap
-+};
-+
-+static struct miscdevice cached_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "mspec_cached",
-+	.fops = &cached_fops
-+};
-+
-+static struct file_operations uncached_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = uncached_mmap
-+};
-+
-+static struct miscdevice uncached_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "mspec_uncached",
-+	.fops = &uncached_fops
-+};
-+
-+/*
-+ * mspec_init
-+ *
-+ * Called at boot time to initialize the mspec facility.
-+ */
-+static int __init
-+mspec_init(void)
-+{
-+	int ret;
-+	int nid;
-+
-+	/*
-+	 * The fetchop device only works on SN2 hardware, uncached and cached
-+	 * memory drivers should both be valid on all ia64 hardware
-+	 */
-+	if (ia64_platform_is("sn2")) {
-+		is_sn2 = 1;
-+		if (is_shub2()) {
-+			ret = -ENOMEM;
-+			for_each_online_node(nid) {
-+				int actual_nid;
-+				int nasid;
-+				unsigned long phys;
-+
-+				scratch_page[nid] = uncached_alloc_page(nid);
-+				if (scratch_page[nid] == 0)
-+					goto free_scratch_pages;
-+				phys = __pa(scratch_page[nid]);
-+				nasid = get_node_number(phys);
-+				actual_nid = nasid_to_cnodeid(nasid);
-+				if (actual_nid != nid)
-+					goto free_scratch_pages;
-+			}
-+		}
-+
-+		ret = misc_register(&fetchop_miscdev);
-+		if (ret) {
-+			printk(KERN_ERR
-+			       "%s: failed to register device %i\n",
-+			       FETCHOP_ID, ret);
-+			goto free_scratch_pages;
-+		}
-+	}
-+	ret = misc_register(&cached_miscdev);
-+	if (ret) {
-+		printk(KERN_ERR "%s: failed to register device %i\n",
-+		       CACHED_ID, ret);
-+		if (is_sn2)
-+			misc_deregister(&fetchop_miscdev);
-+		goto free_scratch_pages;
-+	}
-+	ret = misc_register(&uncached_miscdev);
-+	if (ret) {
-+		printk(KERN_ERR "%s: failed to register device %i\n",
-+		       UNCACHED_ID, ret);
-+		misc_deregister(&cached_miscdev);
-+		if (is_sn2)
-+			misc_deregister(&fetchop_miscdev);
-+		goto free_scratch_pages;
-+	}
-+
-+	printk(KERN_INFO "%s %s initialized devices: %s %s %s\n",
-+	       MSPEC_BASENAME, REVISION, is_sn2 ? FETCHOP_ID : "",
-+	       CACHED_ID, UNCACHED_ID);
-+
-+	return 0;
-+
-+ free_scratch_pages:
-+	for_each_node(nid) {
-+		if (scratch_page[nid] != 0)
-+			uncached_free_page(scratch_page[nid]);
-+	}
-+	return ret;
-+}
-+
-+static void __exit
-+mspec_exit(void)
-+{
-+	int nid;
-+
-+	misc_deregister(&uncached_miscdev);
-+	misc_deregister(&cached_miscdev);
-+	if (is_sn2) {
-+		misc_deregister(&fetchop_miscdev);
-+
-+		for_each_node(nid) {
-+			if (scratch_page[nid] != 0)
-+				uncached_free_page(scratch_page[nid]);
-+		}
-+	}
-+}
-+
-+module_init(mspec_init);
-+module_exit(mspec_exit);
-+
-+MODULE_AUTHOR("Silicon Graphics, Inc. <linux-altix@sgi.com>");
-+MODULE_DESCRIPTION("Driver for SGI SN special memory operations");
-+MODULE_LICENSE("GPL");
+ 
+ 	/*
+ 	 * Whoops, we cannot satisfy the allocation request.
+-- 
+1.4.0.g64e8
+
+
+
+

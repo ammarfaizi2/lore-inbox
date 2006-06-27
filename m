@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932522AbWF0TDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbWF0TDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932522AbWF0TDf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWF0TDf
+	id S932530AbWF0TDP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWF0TDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:03:35 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44931 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932522AbWF0TDe (ORCPT
+	Tue, 27 Jun 2006 15:03:15 -0400
+Received: from mx1.pretago.de ([89.110.132.150]:9941 "EHLO mx1.pretago.de")
+	by vger.kernel.org with ESMTP id S932530AbWF0TDO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:03:34 -0400
-Date: Tue, 27 Jun 2006 21:03:24 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Brad Campbell <brad@wasp.net.au>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       suspend2-devel@lists.suspend2.net
-Subject: Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion in	-mm
-Message-ID: <20060627190323.GA28863@elf.ucw.cz>
-References: <200606270147.16501.ncunningham@linuxmail.org> <20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au>
+	Tue, 27 Jun 2006 15:03:14 -0400
+From: Markus Schoder <lists@gammarayburst.de>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: ia32 binfmt problem with x86-64
+Date: Tue, 27 Jun 2006 21:03:10 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060626112210.307DB1A04006@prtg1.pretago.de> <p73veqnt2ee.fsf@verdi.suse.de>
+In-Reply-To: <p73veqnt2ee.fsf@verdi.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44A14D3D.8060003@wasp.net.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200606272103.10378.lists@gammarayburst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue 2006-06-27 19:22:37, Brad Campbell wrote:
-> Pavel Machek wrote:
-> >>Some of the advantages of suspend2 over swsusp and uswsusp are:
-> >>
-> >>- Speed (Asynchronous I/O and readahead for synchronous I/O)
-> >
-> >uswsusp should be able to match suspend2's speed. It can do async I/O,
-> >etc...
+On Tuesday 27 June 2006 10:43, Andi Kleen wrote:
+> lists@gammarayburst.de writes:
+> > 
+> > This all makes sense. But 64 bit and 32 bit apps should get the same
+> > treatment right?
 > 
-> ARGH!
+> No - i386 behaves different here than x86-64.
 > 
-> And the next version of windows will have all the wonderful features that 
-> MacOSX has now so best not upgrade to Mac as you can just wait for the next 
-> version of windows.
-> 
-> suspend2 has it *now*. It works, it's stable.
+> x86-64 always had NX/PROT_EXEC (although not all CPUs have always enforced it)
+> while i386 has lots of legacy binaries that don't know about it.
 
-uswsusp also has it *now*, in case you missed it. I just do not do
-benchmark runs all the time, and don't know how fast suspend2
-is. uswsusp already uses normal I/O ... and that is asynchronous.
+But then 32 bit apps should be handled in a less restrictive fashion
+than 64 bit apps, no? And also probably only for binaries that do
+not have the exec_stack flag at all.
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+What I fail to understand then is why a 64 bit application with the
+exec_stack flag set gets read_implies_exec and a 32 bit application
+also with the exec_stack flag set does not (this is also the only case
+where the behavior differs).
+
+--
+Markus

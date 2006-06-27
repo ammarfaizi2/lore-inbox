@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161225AbWF0Re2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161261AbWF0Rll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161225AbWF0Re2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 13:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161237AbWF0Re2
+	id S1161261AbWF0Rll (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 13:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161252AbWF0Rlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 13:34:28 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:29870 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161225AbWF0Re1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 13:34:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=A/HS5/FHiATcFKXY0UWWRp6BuKZxJwPtJGL9qLOYBM/jPXfqFBvPKsHE7ct4x5ZWFnEwGl9TxnMHxOlXKlfeOQ1lCe0p1GzlAK1kaxmwOU1VYFCZUgMBL3ttIOoreGxQ86IBwVCT7EeX2dKwg1WjoHeAGvUR6WDXLhzKoc6EbKU=
-Message-ID: <d120d5000606271034l693567a3r23d892204d5fd3f7@mail.gmail.com>
-Date: Tue, 27 Jun 2006 13:34:26 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Paolo Ornati" <ornati@fastwebnet.it>
-Subject: Re: broken auto-repeat on PS/2 keyboard
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060627162733.551f844f@localhost>
+	Tue, 27 Jun 2006 13:41:40 -0400
+Received: from mx2.suse.de ([195.135.220.15]:50822 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161261AbWF0Rlk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 13:41:40 -0400
+From: Andi Kleen <ak@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: klibc and what's the next step?
+Date: Tue, 27 Jun 2006 19:40:46 +0200
+User-Agent: KMail/1.9.3
+Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       klibc@zytor.com, torvalds@osdl.org
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <p73r71attww.fsf@verdi.suse.de> <44A166AF.1040205@zytor.com>
+In-Reply-To: <44A166AF.1040205@zytor.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_14294_17216760.1151429666082"
-References: <20060627162733.551f844f@localhost>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606271940.46634.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_14294_17216760.1151429666082
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tuesday 27 June 2006 19:11, H. Peter Anvin wrote:
+> Andi Kleen wrote:
+> > Jeff Garzik <jeff@garzik.org> writes:
+> >> MD/DM root setup,
+> > 
+> > That would require pulling the tools for that into the kernel source right?
+> > Not sure that's a good idea. Do you really want /usr/src/linux/liblvm ? 
+> > 
+> 
+> Only enough to bring up the filesystem.  This is, of course, already the 
+> case for MD.  That code has (mostly) not yet been moved to userspace, 
+> but that is definitely on the road map going forward.
 
-On 6/27/06, Paolo Ornati <ornati@fastwebnet.it> wrote:
-> Hello,
->
-> with current git kernel keyboard repeat for my plain PS/2 keyboard
-> stopped working.
->
-> Reverting
->        0ae051a19092d36112b5ba60ff8b5df7a5d5d23b
->
-> fixes the problem...
->
+But not for LVM where this can be fairly complex.
 
-Paolo,
+And next would be probably iSCSI. Maybe it's better to leave some stuff
+in initramfs. 
 
-Thank you for identifying the problem commit. Please try the attached
-patch, it should fix the problem.
-
--- 
-Dmitry
-
-------=_Part_14294_17216760.1151429666082
-Content-Type: text/plain; name="atkbd-fix-hardware-autorepeat.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="atkbd-fix-hardware-autorepeat.patch"
-X-Attachment-Id: f_eoyjh4j0
-
-SW5wdXQ6IGF0a2JkIC0gZml4IGhhcmR3YXJlIGF1dG9yZXBlYXQKClNpZ25lZC1vZmYtYnk6IERt
-aXRyeSBUb3Jva2hvdiA8ZHRvckBtYWlsLnJ1PgotLS0KIGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQv
-YXRrYmQuYyB8ICAgIDIgKy0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxl
-dGlvbigtKQoKSW5kZXg6IGxpbnV4L2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvYXRrYmQuYwo9PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09Ci0tLSBsaW51eC5vcmlnL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvYXRrYmQuYworKysg
-bGludXgvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9hdGtiZC5jCkBAIC00NTksNyArNDU5LDcgQEAg
-c3RhdGljIGlycXJldHVybl90IGF0a2JkX2ludGVycnVwdChzdHJ1YwogCQkJfQogCiAJCQlpbnB1
-dF9yZWdzKGRldiwgcmVncyk7Ci0JCQlpbnB1dF9yZXBvcnRfa2V5KGRldiwga2V5Y29kZSwgdmFs
-dWUpOworCQkJaW5wdXRfZXZlbnQoZGV2LCBFVl9LRVksIGtleWNvZGUsIHZhbHVlKTsKIAkJCWlu
-cHV0X3N5bmMoZGV2KTsKIAogCQkJaWYgKHZhbHVlICYmIGFkZF9yZWxlYXNlX2V2ZW50KSB7Cg==
-
-------=_Part_14294_17216760.1151429666082--
+-Andi

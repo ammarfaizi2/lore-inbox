@@ -1,91 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030710AbWF0HI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932611AbWF0HMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030710AbWF0HI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 03:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030680AbWF0HFr
+	id S932611AbWF0HMP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 03:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWF0HMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 03:05:47 -0400
-Received: from ns1.suse.de ([195.135.220.2]:20355 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030684AbWF0HF0 (ORCPT
+	Tue, 27 Jun 2006 03:12:14 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:7350 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932549AbWF0HML (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 03:05:26 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 27 Jun 2006 17:05:20 +1000
-Message-Id: <1060627070520.25986@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 003 of 12] md: Delay starting md threads until array is completely setup.
-References: <20060627170010.25835.patches@notabene>
+	Tue, 27 Jun 2006 03:12:11 -0400
+Date: Tue, 27 Jun 2006 09:07:20 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Steven Whitehouse <swhiteho@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       David Teigland <teigland@redhat.com>,
+       Patrick Caulfield <pcaulfie@redhat.com>,
+       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GFS2 and DLM
+Message-ID: <20060627070720.GA29949@elte.hu>
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <20060623144928.GA32694@infradead.org> <20060626200300.GA15424@elte.hu> <20060627063339.GA27938@elte.hu> <1151390601.2879.16.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1151390601.2879.16.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-When an array is started we start one or two threads (two if
-there is a reshape or recovery that needs to be completed).
+* Arjan van de Ven <arjan@infradead.org> wrote:
 
-We currently start these *before* the array is completely set up and
-in particular before queue->queuedata is set.  If the thread
-actually starts very quickly on another CPU, we can end up
-dereferencing queue->queuedata and oops.
+> > Btw., i have just taken a 5 minute tour into XFS, and i found at 
+> > least 5 other problems with the XFS code that are similar in nature 
+> > to the ones you pointed out.
+> 
+> that's no reason to merge even more junk
 
-This patch also makes sure we don't try to start a recovery if
-a reshape is being restarted.
+the GFS2 ones were immediately addressed, 28 minutes and 27 seconds 
+after they were pointed out:
 
-### Diffstat output
- ./drivers/md/md.c    |   10 +++++-----
- ./drivers/md/raid5.c |    3 ---
- 2 files changed, 5 insertions(+), 8 deletions(-)
+  Date: Fri, 23 Jun 2006 15:57:56 +0100
+  From: Christoph Hellwig <hch@infradead.org>
+  Subject: Re: GFS2 and DLM
 
-diff .prev/drivers/md/md.c ./drivers/md/md.c
---- .prev/drivers/md/md.c	2006-06-27 12:17:32.000000000 +1000
-+++ ./drivers/md/md.c	2006-06-27 12:17:32.000000000 +1000
-@@ -3100,8 +3100,7 @@ static int do_md_run(mddev_t * mddev)
- 		}
- 	
- 	set_bit(MD_RECOVERY_NEEDED, &mddev->recovery);
--	md_wakeup_thread(mddev->thread);
-	
-+
- 	if (mddev->sb_dirty)
- 		md_update_sb(mddev);
- 
-@@ -3121,7 +3120,7 @@ static int do_md_run(mddev_t * mddev)
- 	 * start recovery here.  If we leave it to md_check_recovery,
- 	 * it will remove the drives and not do the right thing
- 	 */
--	if (mddev->degraded) {
-+	if (mddev->degraded && !mddev->sync_thread) {
- 		struct list_head *rtmp;
- 		int spares = 0;
- 		ITERATE_RDEV(mddev,rdev,rtmp)
-@@ -3142,10 +3141,11 @@ static int do_md_run(mddev_t * mddev)
- 				       mdname(mddev));
- 				/* leave the spares where they are, it shouldn't hurt */
- 				mddev->recovery = 0;
--			} else
--				md_wakeup_thread(mddev->sync_thread);
-+			}
- 		}
- 	}
-+	md_wakeup_thread(mddev->thread);
-+	md_wakeup_thread(mddev->sync_thread); /* possibly kick off a reshape */
- 
- 	mddev->changed = 1;
- 	md_new_event(mddev);
+  Date: Fri, 23 Jun 2006 16:26:23 +0100
+  From: Steven Whitehouse <swhiteho@redhat.com>
+  Subject: Re: GFS2 and DLM
 
-diff .prev/drivers/md/raid5.c ./drivers/md/raid5.c
---- .prev/drivers/md/raid5.c	2006-06-27 12:16:41.000000000 +1000
-+++ ./drivers/md/raid5.c	2006-06-27 12:17:32.000000000 +1000
-@@ -3248,9 +3248,6 @@ static int run(mddev_t *mddev)
- 		set_bit(MD_RECOVERY_RUNNING, &mddev->recovery);
- 		mddev->sync_thread = md_register_thread(md_do_sync, mddev,
- 							"%s_reshape");
--		/* FIXME if md_register_thread fails?? */
--		md_wakeup_thread(mddev->sync_thread);
--
- 	}
- 
- 	/* read-ahead size must cover two whole stripes, which is
+> > (mostly useless wrappers around Linux functionality) Isnt this whole 
+> > episode highly hypocritic to begin with?
+> 
+> lets not start calling names please...
+
+well, i guess it's way too late for that:
+
+> > Christoph Hellwig wrote:
+> > > Did anyone actually bother to review it?  It's huge and was in 
+> > > pretty bad shapre when I looked last time.  Also in the -mm merge 
+> > > writeup you guys said it's only scheduled for 2.6.19 so I didn't 
+> > > even bother looking at the huge mess.
+
+:-)
+
+	Ingo

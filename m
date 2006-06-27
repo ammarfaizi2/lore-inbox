@@ -1,161 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161194AbWF0Qsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161193AbWF0Qtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161194AbWF0Qsz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 12:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161203AbWF0Qsz
+	id S1161193AbWF0Qtw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 12:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161200AbWF0Qtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 12:48:55 -0400
-Received: from xenotime.net ([66.160.160.81]:50649 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161200AbWF0Qss (ORCPT
+	Tue, 27 Jun 2006 12:49:52 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:23972 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S1161193AbWF0Qtu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 12:48:48 -0400
-Date: Tue, 27 Jun 2006 09:51:27 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: jonsmirl@gmail.com, adaplas@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] [PATCH, trivial] Remove about 50 unneeded
- #includes in fbdev
-Message-Id: <20060627095127.441c543e.rdunlap@xenotime.net>
-In-Reply-To: <9e4733910606270919n7819dbc0g8bd5c99f4b911583@mail.gmail.com>
-References: <9e4733910606270919n7819dbc0g8bd5c99f4b911583@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 12:49:50 -0400
+Date: Tue, 27 Jun 2006 09:51:25 -0700
+From: Grant Grundler <iod00d@hp.com>
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       perfctr-devel <perfctr-devel@lists.sourceforge.net>,
+       linux-ia64 <linux-ia64@vger.kernel.org>,
+       perfmon <perfmon@napali.hpl.hp.com>,
+       oprofile-list <oprofile-list@lists.sourceforge.net>
+Subject: Re: 2.6.17.1 new perfmon code base, libpfm, pfmon available
+Message-ID: <20060627165125.GA19132@esmail.cup.hp.com>
+References: <200606270159_MC3-1-C391-1A2A@compuserve.com> <20060627143204.GC16417@frankl.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060627143204.GC16417@frankl.hpl.hp.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jun 2006 12:19:07 -0400 Jon Smirl wrote:
+On Tue, Jun 27, 2006 at 07:32:04AM -0700, Stephane Eranian wrote:
+...
+> > 5006 hardware interrupts in 10 seconds, 16359 interrupt-disable events ==>
+> > the kernel disabled interrupts 11353 times for critical sections.  To get
+> > useful results it looks like booting with idle=poll and disabling cpufreq
+> > is needed, though, since interrupts_masked_cycles (non-edge mode) counts
+> > even when the CPU is halted:
+> 
+> Yes, I think you need to be careful with the idle thread, some events may or
+> may not count when going low-power. I think it is best to avoid going
+> low-power for measurements.
 
-> Remove about 50 unneeded #includes in fbdev
+Any benchmarking that involves IA64 idle thread is strongly reccomended
+to use "nohalt" option. It's about a 15-20% performance difference
+on some interrupt intensive benchmarks (e.g. netperf TCP_RR).
 
-Does this that
-(a) these drivers build without these header files explicitly #included
-or
-(b) these drivers don't use *any* APIs or data from these header files?
+If someone has measured the delta for other architectures that
+go into a "low power" state in idle thread, I'd be grateful if
+they posted the results or mailed them to me.
 
-They may build (a) but still use the APIs, so (b) is the requirement/target.
-(I.e., other header files could suck in the required headers.)
-
-
-> Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
-> 
-> diff --git a/drivers/video/aty/aty128fb.c b/drivers/video/aty/aty128fb.c
-> index db878fd..e498a54 100644
-> --- a/drivers/video/aty/aty128fb.c
-> +++ b/drivers/video/aty/aty128fb.c
-> @@ -46,26 +46,14 @@
->   */
-> 
-> 
-> -#include <linux/config.h>
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
-> -#include <linux/kernel.h>
->  #include <linux/errno.h>
-> -#include <linux/string.h>
-> -#include <linux/mm.h>
-> -#include <linux/tty.h>
-> -#include <linux/slab.h>
-> -#include <linux/vmalloc.h>
->  #include <linux/delay.h>
-> -#include <linux/interrupt.h>
->  #include <asm/uaccess.h>
->   #include <linux/fb.h>
-> -#include <linux/init.h>
->  #include <linux/pci.h>
-> -#include <linux/ioport.h>
->  #include <linux/console.h>
-> -#include <linux/backlight.h>
-> -#include <asm/io.h>
-> 
->   #ifdef CONFIG_PPC_PMAC
->  #include <asm/machdep.h>
-> diff --git a/drivers/video/aty/atyfb_base.c b/drivers/video/aty/atyfb_base.c
-> index c5185f7..5f4c76c 100644
-> --- a/drivers/video/aty/atyfb_base.c
-> +++ b/drivers/video/aty/atyfb_base.c
-> @@ -49,26 +49,13 @@
->  ******************************************************************************/
-> 
-> 
-> -#include <linux/config.h>
-> -#include <linux/module.h>
-> -#include <linux/moduleparam.h>
-> -#include <linux/kernel.h>
-> -#include <linux/errno.h>
-> -#include <linux/string.h>
-> -#include <linux/mm.h>
-> -#include <linux/slab.h>
-> -#include <linux/vmalloc.h>
->  #include <linux/delay.h>
->  #include <linux/console.h>
->   #include <linux/fb.h>
-> -#include <linux/init.h>
->  #include <linux/pci.h>
->  #include <linux/interrupt.h>
-> -#include <linux/spinlock.h>
-> -#include <linux/wait.h>
->  #include <linux/backlight.h>
-> 
-> -#include <asm/io.h>
->  #include <asm/uaccess.h>
-> 
->  #include <video/mach64.h>
-> diff --git a/drivers/video/aty/radeon_base.c b/drivers/video/aty/radeon_base.c
-> index c5ecbb0..56445ea 100644
-> --- a/drivers/video/aty/radeon_base.c
-> +++ b/drivers/video/aty/radeon_base.c
-> @@ -52,25 +52,6 @@
-> 
->  #define RADEON_VERSION	"0.2.0"
-> 
-> -#include <linux/config.h>
-> -#include <linux/module.h>
-> -#include <linux/moduleparam.h>
-> -#include <linux/kernel.h>
-> -#include <linux/errno.h>
-> -#include <linux/string.h>
-> -#include <linux/mm.h>
-> -#include <linux/tty.h>
-> -#include <linux/slab.h>
-> -#include <linux/delay.h>
-> -#include <linux/time.h>
-> -#include <linux/fb.h>
-> -#include <linux/ioport.h>
-> -#include <linux/init.h>
-> -#include <linux/pci.h>
-> -#include <linux/vmalloc.h>
-> -#include <linux/device.h>
-> -
-> -#include <asm/io.h>
->  #include <asm/uaccess.h>
-> 
->   #ifdef CONFIG_PPC_OF
-> diff --git a/drivers/video/aty/radeon_i2c.c b/drivers/video/aty/radeon_i2c.c
-> index a9d0414..4855c0a 100644
-> --- a/drivers/video/aty/radeon_i2c.c
-> +++ b/drivers/video/aty/radeon_i2c.c
-> @@ -1,9 +1,3 @@
-> -#include <linux/config.h>
-> -#include <linux/module.h>
-> -#include <linux/kernel.h>
-> -#include <linux/sched.h>
-> -#include <linux/delay.h>
-> -#include <linux/pci.h>
->   #include <linux/fb.h>
-> 
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> Linux-fbdev-devel mailing list
-> Linux-fbdev-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel
-> 
-
-
----
-~Randy
+thanks,
+grant

@@ -1,240 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWF0Lox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWF0Lsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWF0Lox (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 07:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWF0Lox
+	id S932341AbWF0Lsq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 07:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWF0Lsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 07:44:53 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:28199 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932248AbWF0Lov (ORCPT
+	Tue, 27 Jun 2006 07:48:46 -0400
+Received: from tornado.reub.net ([202.89.145.182]:14520 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S932341AbWF0Lsp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 07:44:51 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Announce: kdb v4.4 is available for kernel 2.6.17
-Date: Tue, 27 Jun 2006 21:45:15 +1000
-Message-ID: <16552.1151408715@ocs3.ocs.com.au>
+	Tue, 27 Jun 2006 07:48:45 -0400
+Message-ID: <44A11B20.5050000@reub.net>
+Date: Tue, 27 Jun 2006 23:48:48 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 3.0a1 (Windows/20060623)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm3
+References: <20060627015211.ce480da6.akpm@osdl.org>
+In-Reply-To: <20060627015211.ce480da6.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-KDB (Linux Kernel Debugger) has been updated for kernel 2.6.17.
 
-ftp://oss.sgi.com/projects/kdb/download/v4.4/
-ftp://ftp.ocs.com.au/pub/mirrors/oss.sgi.com/projects/kdb/download/v4.4/
+On 27/06/2006 8:52 p.m., Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm3/
+> 
+> 
+> - Added the x86 Geode development tree to the -mm lineup, as git-geode.patch
+>   (Jordan Crouse).
+> 
+> - The locking validator patches are back, in a reworked series.
 
-Note:  Due to a spam attack, the kdb@oss.sgi.com mailing list is now
-subscriber only.  If you reply to this mail, you may wish to trim
-kdb@oss.sgi.com from the cc: list.
+Still seeing the same breakage as I posted about here in -mm2:
 
-Current versions are :-
+http://www.ussg.iu.edu/hypermail/linux/kernel/0606.3/0195.html
 
-  kdb-v4.4-2.6.17-common-1.bz2
-  kdb-v4.4-2.6.17-i386-1.bz2
-  kdb-v4.4-2.6.17-x86_64-1.bz2
-  kdb-v4.4-2.6.17-ia64-1.bz2
+I've since noticed that mail delivery is held up by the deliver process. 
+'deliver' is a component of the dovecot mail system (http://www.dovecot.org/) 
+which does delivery of mails to a user's Maildir and in the process recreates an 
+index.
 
-SGI is now supporting KDB for x86_64.  Thanks go to Jack Vogel for
-looking after the x86_64 patch in the past.
+[root@tornado ~]# nice top
+top - 23:05:13 up 47 min,  4 users,  load average: 6.48, 4.80, 4.10
+Tasks: 170 total,   5 running, 165 sleeping,   0 stopped,   0 zombie
+Cpu(s)%:  0.2 us, 98.9 sy,  0.0 ni,  0.6 id,  0.2 wa,  0.2 hi,  0.0 si,  0.0 st
+Mem:   1016764k total,   847184k used,   169580k free,    56840k buffers
+Swap:   497936k total,        0k used,   497936k free,   267064k cached
 
-Changelog extract since kdb-v4.4-2.6.16-common-1.
+   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+  2231 reuben    25   0  7984 1392 1136 R   55  0.1  23:20.16 deliver
+  2591 reuben    25   0  7988 1392 1136 R   53  0.1  22:41.52 deliver
+  2232 reuben    25   0  7988 1392 1136 R   50  0.1  23:23.78 deliver
+  2586 reuben    25   0  7984 1392 1136 R   49  0.1  22:28.72 deliver
 
-2006-06-19 Keith Owens  <kaos@sgi.com>
 
-	* kdb v4.4-2.6.17-common-1.
+[root@tornado ~]# strace -p 2232
+Process 2232 attached - interrupt to quit
 
-2006-05-31 Keith Owens  <kaos@sgi.com>
+I can't kill these processes with a KILL signal, nor can I strace them.
 
-	* Break spinlocks for keyboard entry.  Hopefully a temporary hack while
-	  I track down why keyboard entry to KDB is hanging.
-	* kdb v4.4-2.6.17-rc5-common-2.
+Revert to -mm1 or any previous kernel release, and it all works fine.  That 
+leads me to believe this is probably not a userspace issue.
 
-2006-05-25 Keith Owens  <kaos@sgi.com>
+What patches which could have possibly caused this?
 
-	* kdb v4.4-2.6.17-rc5-common-1.
-
-2006-05-15 Keith Owens  <kaos@sgi.com>
-
-	* Refresh bfd related files from binutils 2.16.91.0.2.
-	* kdb v4.4-2.6.17-rc4-common-2.
-
-2006-05-12 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc4-common-1.
-
-2006-04-28 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc3-common-1.
-
-2006-04-22 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc2-common-1.
-
-2006-04-11 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc1-common-1.
-
-2006-04-05 Keith Owens  <kaos@sgi.com>
-
-	* More fixes for the timing race with KDB_ENTER_SLAVE.
-	* kdb v4.4-2.6.16-common-5.
-
-2006-03-30 Keith Owens  <kaos@sgi.com>
-
-	* Some code was testing KDB_IS_RUNNING() twice, which left it open to
-	  races.  Cache the result instead.
-	* kdb v4.4-2.6.16-common-4.
-
-2006-03-30 Keith Owens  <kaos@sgi.com>
-
-	* Change CONFIG_LKCD to CONFIG_LKCD_DUMP.
-	* kdb v4.4-2.6.16-common-3.
-
-2006-03-22 Keith Owens  <kaos@sgi.com>
-
-	* Add some more xpc flags.  Dean Nelson, SGI.
-	* Replace open coded counter references with atomic_read().
-	* Pass early_uart_console to early_uart_setup().  Francois
-	  Wellenreiter, Bull.
-	* Replace open code with for_each_online_cpu().
-	* If cpus do not come into kdb after a few seconds then let
-	  architectures send a more forceful interrupt.
-	* Close a timing race with KDB_ENTER_SLAVE.
-	* kdb v4.4-2.6.16-common-2.
-
-
-Changelog extract since kdb-v4.4-2.6.16-i386-1.
-
-2006-06-19 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-i386-1.
-
-2006-05-25 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc5-i386-1.
-
-2006-05-15 Keith Owens  <kaos@sgi.com>
-
-	* Refresh bfd related files from binutils 2.16.91.0.2.
-	* kdb v4.4-2.6.17-rc4-i386-2.
-
-2006-05-12 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc4-i386-1.
-
-2006-04-28 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc3-i386-1.
-
-2006-04-22 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc2-i386-1.
-
-2006-04-11 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc1-i386-1.
-
-2006-03-30 Keith Owens  <kaos@sgi.com>
-
-	* Change CONFIG_LKCD to CONFIG_LKCD_DUMP.
-	* kdb v4.4-2.6.16-i386-3.
-
-2006-03-24 Keith Owens  <kaos@sgi.com>
-
-	* Define a dummy kdba_wait_for_cpus().
-	* kdb v4.4-2.6.16-i386-2.
-
-2006-03-21 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.16-i386-1.
-
-
-Changelog extract since kdb-v4.4-2.6.16-x86_64-1.
-
-2006-06-19 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-x86_64-1.
-
-2006-05-31 Keith Owens  <kaos@sgi.com>
-
-	* Define arch/x86_64/kdb/kdb_cmds.
-	* kdb v4.4-2.6.17-rc5-x86_64-2.
-
-2006-05-25 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc5-x86_64-1.
-
-2006-05-15 Keith Owens  <kaos@sgi.com>
-
-	* Refresh bfd related files from binutils 2.16.91.0.2.
-	* kdb v4.4-2.6.17-rc4-x86_64-2.
-
-2006-05-12 Keith Owens <kaos@sgi.com>
-
-	* kdb v4.4-2.6-17-rc4-x86_64-1.
-
-2006-04-22 Keith Owens <kaos@sgi.com>
-
-	* kdb v4.4-2.6-17-rc2-x86_64-1.
-
-2006-04-13 Keith Owens <kaos@sgi.com>
-
-	* Remove trailing white space.
-	* kdb v4.4-2.6-17-rc1-x86_64-1.
-
-
-Changelog extract since kdb v4.4-2.6.16-ia64-1.
-
-2006-06-19 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-ia64-1.
-
-2006-05-25 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc5-ia64-1.
-
-2006-05-15 Keith Owens  <kaos@sgi.com>
-
-	* Refresh bfd related files from binutils 2.16.91.0.2.
-	* kdb v4.4-2.6.17-rc4-ia64-2.
-
-2006-05-12 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc4-ia64-1.
-
-2006-04-28 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc3-ia64-1.
-
-2006-04-22 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc2-ia64-1.
-
-2006-04-11 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.17-rc1-ia64-1.
-
-2006-03-30 Keith Owens  <kaos@sgi.com>
-
-	* Change CONFIG_LKCD to CONFIG_LKCD_DUMP.
-	* kdb v4.4-2.6.16-ia64-3.
-
-2006-03-24 Keith Owens  <kaos@sgi.com>
-
-	* Use INIT to interrupt cpus that do not respond to a normal kdb IPI.
-	* Remove KDBA_MCA_TRACE from arch/ia64/kernel/mca.c.
-	* kdb v4.4-2.6.16-ia64-2.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQFEoRpLi4UHNye0ZOoRAhG1AJ0XUg1rd8KAStkeCUOoHV+ycUM2MACgjwiu
-imsfNOlUoNZDgqwhsrzBjDA=
-=KMkV
------END PGP SIGNATURE-----
-
+Reuben

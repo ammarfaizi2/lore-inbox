@@ -1,390 +1,258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030179AbWF0OON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160993AbWF0OQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030179AbWF0OON (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 10:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWF0OON
+	id S1160993AbWF0OQY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 10:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWF0OQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 10:14:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50311 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932184AbWF0OOL (ORCPT
+	Tue, 27 Jun 2006 10:16:24 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:1778 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S932428AbWF0OQX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 10:14:11 -0400
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org, kwc@citi.umich.edu
-cc: linux-kernel@vger.kernel.org, keyrings@linux-nfs.org
-Subject: 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 27 Jun 2006 15:13:53 +0100
-Message-ID: <15078.1151417633@warthog.cambridge.redhat.com>
+	Tue, 27 Jun 2006 10:16:23 -0400
+Date: Tue, 27 Jun 2006 23:17:31 +0900 (JST)
+Message-Id: <20060627.231731.89066761.anemo@mba.ocn.ne.jp>
+To: david-b@pacbell.net
+Cc: akpm@osdl.org, a.zummo@towertech.it, linux-kernel@vger.kernel.org
+Subject: Re: + rtc-add-rtc-rs5c348-driver.patch added to -mm tree
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060624.234231.63742358.anemo@mba.ocn.ne.jp>
+References: <20060623.190141.34763616.nemoto@toshiba-tops.co.jp>
+	<200606230809.24077.david-b@pacbell.net>
+	<20060624.234231.63742358.anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keys: Allow in-kernel key requestor to pass auxiliary data to upcaller
+On Sat, 24 Jun 2006 23:42:31 +0900 (JST), Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
+> Anyway I'll modify it to use spi_write_then_read().
+> 
+> > Grr, you're right.  There was supposed to be spi_board_info.mode,
+> > but instead there's just a comment that it _should_ be there.
+> > 
+> > You seem to have the first driver that needs non-default chipselect
+> > polarity.  I'll put together a patch adding that, and then you should
+> > adjust your code appropriately.  (Chipselect polarity is potentially
+> > troublesome, since Linux has to initialize it to "deselected" very
+> > early in order for the hardware act correctly.  Boot firmware has
+> > probably initialized it correctly ... Linux just has to avoid goofing
+> > it up, and without the board_info telling it the right polarity, it
+> > can't avoid goofing it up.)
+> 
+> OK, I'll adjust my driver according to the SPI subsystem change.
 
-From: David Howells <dhowells@redhat.com>
+Here is an update patch for 2.6.17-mm3.
 
-The proposed NFS key type uses its own method of passing key requests to
-userspace (upcalling) rather than invoking /sbin/request-key.  This is because
-the responsible userspace daemon should already be running and will be
-contacted through rpc_pipefs.
 
-This patch permits the NFS filesystem to pass auxiliary data to the upcall
-operation (struct key_type::request_key) so that the upcaller can use a
-pre-existing communications channel more easily.
+Subject: rtc-add-rtc-rs5c348-driver-update
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
-Acked-By: Kevin Coffman <kwc@citi.umich.edu>
----
+Use spi_write_then_read() instead of spi_sync().  Leave setup of
+transfer mode and chipselect polarity to the board specific init code.
+Suggested by David Brownell.
 
- Documentation/keys-request-key.txt |   54 ++++++++++++++++++++++++------------
- Documentation/keys.txt             |   28 +++++++++++++++++++
- include/linux/key.h                |    8 +++++
- security/keys/internal.h           |    1 +
- security/keys/keyctl.c             |    2 +
- security/keys/request_key.c        |   44 +++++++++++++++++++++++------
- 6 files changed, 107 insertions(+), 30 deletions(-)
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-diff --git a/Documentation/keys-request-key.txt b/Documentation/keys-request-key.txt
-index 22488d7..38ff9e2 100644
---- a/Documentation/keys-request-key.txt
-+++ b/Documentation/keys-request-key.txt
-@@ -3,16 +3,23 @@
- 			      ===================
- 
- The key request service is part of the key retention service (refer to
--Documentation/keys.txt). This document explains more fully how that the
--requesting algorithm works.
-+Documentation/keys.txt).  This document explains more fully how the requesting
-+algorithm works.
- 
- The process starts by either the kernel requesting a service by calling
--request_key():
-+request_key*():
- 
- 	struct key *request_key(const struct key_type *type,
- 				const char *description,
- 				const char *callout_string);
- 
-+or:
-+
-+	struct key *request_key2(const struct key_type *type,
-+				 const char *description,
-+				 const char *callout_string,
-+				 void *aux);
-+
- Or by userspace invoking the request_key system call:
- 
- 	key_serial_t request_key(const char *type,
-@@ -20,16 +27,26 @@ Or by userspace invoking the request_key
- 				 const char *callout_info,
- 				 key_serial_t dest_keyring);
- 
--The main difference between the two access points is that the in-kernel
--interface does not need to link the key to a keyring to prevent it from being
--immediately destroyed. The kernel interface returns a pointer directly to the
--key, and it's up to the caller to destroy the key.
-+The main difference between the access points is that the in-kernel interface
-+does not need to link the key to a keyring to prevent it from being immediately
-+destroyed.  The kernel interface returns a pointer directly to the key, and
-+it's up to the caller to destroy the key.
-+
-+The request_key2() call is like the request_key() call in the kernel, except
-+that it permits auxiliary data to be passed to the upcaller (the default is
-+NULL).  This is only useful for those key types that define their own upcall
-+mechanism rather than using /sbin/request-key.
- 
- The userspace interface links the key to a keyring associated with the process
- to prevent the key from going away, and returns the serial number of the key to
- the caller.
- 
- 
-+The following example assumes that the key types involved don't define their
-+own upcall mechanisms.  If they do, then those should be substituted for the
-+forking and execution of /sbin/request-key.
-+
-+
- ===========
- THE PROCESS
- ===========
-@@ -40,8 +57,8 @@ A request proceeds in the following mann
-      interface].
- 
-  (2) request_key() searches the process's subscribed keyrings to see if there's
--     a suitable key there. If there is, it returns the key. If there isn't, and
--     callout_info is not set, an error is returned. Otherwise the process
-+     a suitable key there.  If there is, it returns the key.  If there isn't,
-+     and callout_info is not set, an error is returned.  Otherwise the process
-      proceeds to the next step.
- 
-  (3) request_key() sees that A doesn't have the desired key yet, so it creates
-@@ -62,7 +79,7 @@ A request proceeds in the following mann
-      instantiation.
- 
-  (7) The program may want to access another key from A's context (say a
--     Kerberos TGT key). It just requests the appropriate key, and the keyring
-+     Kerberos TGT key).  It just requests the appropriate key, and the keyring
-      search notes that the session keyring has auth key V in its bottom level.
- 
-      This will permit it to then search the keyrings of process A with the
-@@ -79,10 +96,11 @@ A request proceeds in the following mann
- (10) The program then exits 0 and request_key() deletes key V and returns key
-      U to the caller.
- 
--This also extends further. If key W (step 7 above) didn't exist, key W would be
--created uninstantiated, another auth key (X) would be created (as per step 3)
--and another copy of /sbin/request-key spawned (as per step 4); but the context
--specified by auth key X will still be process A, as it was in auth key V.
-+This also extends further.  If key W (step 7 above) didn't exist, key W would
-+be created uninstantiated, another auth key (X) would be created (as per step
-+3) and another copy of /sbin/request-key spawned (as per step 4); but the
-+context specified by auth key X will still be process A, as it was in auth key
-+V.
- 
- This is because process A's keyrings can't simply be attached to
- /sbin/request-key at the appropriate places because (a) execve will discard two
-@@ -118,17 +136,17 @@ A search of any particular keyring proce
- 
-  (2) It considers all the non-keyring keys within that keyring and, if any key
-      matches the criteria specified, calls key_permission(SEARCH) on it to see
--     if the key is allowed to be found. If it is, that key is returned; if
-+     if the key is allowed to be found.  If it is, that key is returned; if
-      not, the search continues, and the error code is retained if of higher
-      priority than the one currently set.
- 
-  (3) It then considers all the keyring-type keys in the keyring it's currently
--     searching. It calls key_permission(SEARCH) on each keyring, and if this
-+     searching.  It calls key_permission(SEARCH) on each keyring, and if this
-      grants permission, it recurses, executing steps (2) and (3) on that
-      keyring.
- 
- The process stops immediately a valid key is found with permission granted to
--use it. Any error from a previous match attempt is discarded and the key is
-+use it.  Any error from a previous match attempt is discarded and the key is
- returned.
- 
- When search_process_keyrings() is invoked, it performs the following searches
-@@ -153,7 +171,7 @@ The moment one succeeds, all pending err
- returned.
- 
- Only if all these fail does the whole thing fail with the highest priority
--error. Note that several errors may have come from LSM.
-+error.  Note that several errors may have come from LSM.
- 
- The error priority is:
- 
-diff --git a/Documentation/keys.txt b/Documentation/keys.txt
-index 61c0fad..b2dcad9 100644
---- a/Documentation/keys.txt
-+++ b/Documentation/keys.txt
-@@ -780,6 +780,17 @@ (*) To search for a key, call:
-     See also Documentation/keys-request-key.txt.
- 
- 
-+(*) To search for a key, passing auxiliary data to the upcaller, call:
-+
-+	struct key *request_key2(const struct key_type *type,
-+				 const char *description,
-+				 const char *callout_string,
-+				 void *aux);
-+
-+    This is identical to request_key(), except that the auxiliary data is
-+    passed to the key_type->request_key() op if it exists.
-+
-+
- (*) When it is no longer required, the key should be released using:
- 
- 	void key_put(struct key *key);
-@@ -1031,6 +1042,23 @@ The structure has a number of fields, so
-      as might happen when the userspace buffer is accessed.
- 
- 
-+ (*) int (*request_key)(struct key *key, struct key *authkey, const char *op,
-+			void *aux);
-+
-+     This method is optional.  If provided, request_key() and request_key2()
-+     will invoke this function rather than upcalling to /sbin/request-key to
-+     operate upon a key of this type.
-+
-+     The aux parameter is as passed to request_key2() or is NULL otherwise.
-+     Also passed are the key to be operated upon, the authorisation key for
-+     this operation and the operation type (currently only "create").
-+
-+     This function should return only when the upcall is complete.  Upon return
-+     the authorisation key will be revoked, and the target key will be
-+     negatively instantiated if it is still uninstantiated.  The error will be
-+     returned to the caller of request_key*().
-+
-+
- ============================
- REQUEST-KEY CALLBACK SERVICE
- ============================
-diff --git a/include/linux/key.h b/include/linux/key.h
-index e693e72..fadad7f 100644
---- a/include/linux/key.h
-+++ b/include/linux/key.h
-@@ -177,7 +177,8 @@ #define KEY_FLAG_NEGATIVE	5	/* set if ke
- /*
-  * kernel managed key type definition
+--- linux-2.6.17-mm3/drivers/rtc/rtc-rs5c348.c.org	2006-06-27 22:34:07.826706168 +0900
++++ linux-2.6.17-mm3/drivers/rtc/rtc-rs5c348.c	2006-06-27 22:53:22.516166688 +0900
+@@ -6,6 +6,10 @@
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+  * published by the Free Software Foundation.
++ *
++ * The board specific init code should provide characteristics of this
++ * device:
++ *     Mode 1 (High-Active, Shift-Then-Sample), High Avtive CS
   */
--typedef int (*request_key_actor_t)(struct key *key, struct key *authkey, const char *op);
-+typedef int (*request_key_actor_t)(struct key *key, struct key *authkey,
-+				   const char *op, void *aux);
  
- struct key_type {
- 	/* name of the type */
-@@ -285,6 +286,11 @@ extern struct key *request_key(struct ke
- 			       const char *description,
- 			       const char *callout_info);
+ #include <linux/bcd.h>
+@@ -52,65 +56,42 @@
+ struct rs5c348_plat_data {
+ 	struct rtc_device *rtc;
+ 	int rtc_24h;
+-	void *xferbuf;
+ };
  
-+extern struct key *request_key2(struct key_type *type,
-+				const char *description,
-+				const char *callout_info,
-+				void *aux);
-+
- extern int key_validate(struct key *key);
+ static int
+-rs5c348_io(struct spi_device *spi,
+-	   const unsigned char *inbuf, unsigned char *outbuf,
+-	   unsigned int count)
+-{
+-	struct spi_message m;
+-	struct spi_transfer t;
+-	struct rs5c348_plat_data *pdata = spi->dev.platform_data;
+-	int ret;
+-
+-	spi_message_init(&m);
+-	memset(&t, 0, sizeof(t));
+-	spi_message_add_tail(&t, &m);
+-
+-	memcpy(pdata->xferbuf, inbuf, count);
+-	t.tx_buf = pdata->xferbuf;
+-	t.rx_buf = pdata->xferbuf + count;
+-	t.len = count;
+-
+-	ret = spi_sync(spi, &m);
+-
+-	udelay(62);	/* Tcsr 62us */
+-	memcpy(outbuf, t.rx_buf, count);
+-	return ret < 0 ? ret : m.status;
+-}
+-
+-static int
+ rs5c348_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct spi_device *spi = to_spi_device(dev);
+ 	struct rs5c348_plat_data *pdata = spi->dev.platform_data;
+-	unsigned char inbuf[11], *inp;
+-
+-	inp = inbuf;
+-	/* Transfer 4 bytes before writing SEC.  This gives 31us for carry. */
+-	*inp++ = RS5C348_CMD_R(RS5C348_REG_CTL2); /* cmd, ctl2 */
+-	inp++;
+-	*inp++ = RS5C348_CMD_MW(RS5C348_REG_CTL2); /* cmd, ctl2, sec, ... */
+-	*inp++ = 0x57;	/* mask W0C bits */
+-	*inp++ = BIN2BCD(tm->tm_sec);
+-	*inp++ = BIN2BCD(tm->tm_min);
++	u8 txbuf[5+7], *txp;
++	int ret;
  
- extern key_ref_t key_create_or_update(key_ref_t keyring,
-diff --git a/security/keys/internal.h b/security/keys/internal.h
-index 3c2877f..1bb416f 100644
---- a/security/keys/internal.h
-+++ b/security/keys/internal.h
-@@ -99,6 +99,7 @@ extern int install_process_keyring(struc
- extern struct key *request_key_and_link(struct key_type *type,
- 					const char *description,
- 					const char *callout_info,
-+					void *aux,
- 					struct key *dest_keyring,
- 					unsigned long flags);
- 
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 329411c..d9ca15c 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -183,7 +183,7 @@ asmlinkage long sys_request_key(const ch
++	/* Transfer 5 bytes before writing SEC.  This gives 31us for carry. */
++	txp = txbuf;
++	txbuf[0] = RS5C348_CMD_R(RS5C348_REG_CTL2); /* cmd, ctl2 */
++	txbuf[1] = 0;	/* dummy */
++	txbuf[2] = RS5C348_CMD_R(RS5C348_REG_CTL2); /* cmd, ctl2 */
++	txbuf[3] = 0;	/* dummy */
++	txbuf[4] = RS5C348_CMD_MW(RS5C348_REG_SECS); /* cmd, sec, ... */
++	txp = &txbuf[5];
++	txp[RS5C348_REG_SECS] = BIN2BCD(tm->tm_sec);
++	txp[RS5C348_REG_MINS] = BIN2BCD(tm->tm_min);
+ 	if (pdata->rtc_24h) {
+-		*inp++ = BIN2BCD(tm->tm_hour);
++		txp[RS5C348_REG_HOURS] = BIN2BCD(tm->tm_hour);
+ 	} else {
+ 		/* hour 0 is AM12, noon is PM12 */
+-		*inp++ = BIN2BCD((tm->tm_hour + 11) % 12 + 1) |
++		txp[RS5C348_REG_HOURS] = BIN2BCD((tm->tm_hour + 11) % 12 + 1) |
+ 			(tm->tm_hour >= 12 ? RS5C348_BIT_PM : 0);
  	}
+-	*inp++ = BIN2BCD(tm->tm_wday);
+-	*inp++ = BIN2BCD(tm->tm_mday);
+-	*inp++ = BIN2BCD(tm->tm_mon + 1) |
++	txp[RS5C348_REG_WDAY] = BIN2BCD(tm->tm_wday);
++	txp[RS5C348_REG_DAY] = BIN2BCD(tm->tm_mday);
++	txp[RS5C348_REG_MONTH] = BIN2BCD(tm->tm_mon + 1) |
+ 		(tm->tm_year >= 100 ? RS5C348_BIT_Y2K : 0);
+-	*inp++ = BIN2BCD(tm->tm_year % 100);
++	txp[RS5C348_REG_YEAR] = BIN2BCD(tm->tm_year % 100);
+ 	/* write in one transfer to avoid data inconsistency */
+-	return rs5c348_io(spi, inbuf, NULL, sizeof(inbuf));
++	ret = spi_write_then_read(spi, txbuf, sizeof(txbuf), NULL, 0);
++	udelay(62);	/* Tcsr 62us */
++	return ret;
+ }
  
- 	/* do the search */
--	key = request_key_and_link(ktype, description, callout_info,
-+	key = request_key_and_link(ktype, description, callout_info, NULL,
- 				   key_ref_to_ptr(dest_ref),
- 				   KEY_ALLOC_IN_QUOTA);
- 	if (IS_ERR(key)) {
-diff --git a/security/keys/request_key.c b/security/keys/request_key.c
-index 58d1efd..95c6760 100644
---- a/security/keys/request_key.c
-+++ b/security/keys/request_key.c
-@@ -1,6 +1,6 @@
- /* request_key.c: request a key from userspace
-  *
-- * Copyright (C) 2004-5 Red Hat, Inc. All Rights Reserved.
-+ * Copyright (C) 2004-6 Red Hat, Inc. All Rights Reserved.
-  * Written by David Howells (dhowells@redhat.com)
-  *
-  * This program is free software; you can redistribute it and/or
-@@ -33,7 +33,8 @@ DECLARE_WAIT_QUEUE_HEAD(request_key_cons
-  */
- static int call_sbin_request_key(struct key *key,
- 				 struct key *authkey,
--				 const char *op)
-+				 const char *op,
-+				 void *aux)
+ static int
+@@ -118,39 +99,38 @@
  {
- 	struct task_struct *tsk = current;
- 	key_serial_t prkey, sskey;
-@@ -127,6 +128,7 @@ error_alloc:
- static struct key *__request_key_construction(struct key_type *type,
- 					      const char *description,
- 					      const char *callout_info,
-+					      void *aux,
- 					      unsigned long flags)
- {
- 	request_key_actor_t actor;
-@@ -164,7 +166,7 @@ static struct key *__request_key_constru
- 	actor = call_sbin_request_key;
- 	if (type->request_key)
- 		actor = type->request_key;
--	ret = actor(key, authkey, "create");
-+	ret = actor(key, authkey, "create", aux);
+ 	struct spi_device *spi = to_spi_device(dev);
+ 	struct rs5c348_plat_data *pdata = spi->dev.platform_data;
+-	unsigned char inbuf[11], outbuf[11], *outp;
+-	unsigned int y2k;
++	u8 txbuf[5], rxbuf[7];
+ 	int ret;
+ 
+-	memset(inbuf, 0, sizeof(inbuf));
+-	/* Transfer 4 byte befores reading SEC.  This gives 31us for carry. */
+-	inbuf[0] = RS5C348_CMD_R(RS5C348_REG_CTL2); /* cmd, ctl2 */
+-	inbuf[2] = RS5C348_CMD_MR(RS5C348_REG_CTL2); /* cmd, ctl2, sec, ... */
++	/* Transfer 5 byte befores reading SEC.  This gives 31us for carry. */
++	txbuf[0] = RS5C348_CMD_R(RS5C348_REG_CTL2); /* cmd, ctl2 */
++	txbuf[1] = 0;	/* dummy */
++	txbuf[2] = RS5C348_CMD_R(RS5C348_REG_CTL2); /* cmd, ctl2 */
++	txbuf[3] = 0;	/* dummy */
++	txbuf[4] = RS5C348_CMD_MR(RS5C348_REG_SECS); /* cmd, sec, ... */
++
+ 	/* read in one transfer to avoid data inconsistency */
+-	ret = rs5c348_io(spi, inbuf, outbuf, sizeof(inbuf));
++	ret = spi_write_then_read(spi, txbuf, sizeof(txbuf),
++				  rxbuf, sizeof(rxbuf));
++	udelay(62);	/* Tcsr 62us */
  	if (ret < 0)
- 		goto request_failed;
- 
-@@ -258,8 +260,9 @@ alloc_failed:
-  */
- static struct key *request_key_construction(struct key_type *type,
- 					    const char *description,
--					    struct key_user *user,
- 					    const char *callout_info,
-+					    void *aux,
-+					    struct key_user *user,
- 					    unsigned long flags)
- {
- 	struct key_construction *pcons;
-@@ -284,7 +287,7 @@ static struct key *request_key_construct
+ 		return ret;
+-	outp = outbuf + 4;	/* cmd, ctl2, cmd, ctl2 */
+-	tm->tm_sec = BCD2BIN(*outp & RS5C348_SECS_MASK);
+-	outp++;
+-	tm->tm_min = BCD2BIN(*outp & RS5C348_MINS_MASK);
+-	outp++;
+-	tm->tm_hour = BCD2BIN(*outp & RS5C348_HOURS_MASK);
++
++	tm->tm_sec = BCD2BIN(rxbuf[RS5C348_REG_SECS] & RS5C348_SECS_MASK);
++	tm->tm_min = BCD2BIN(rxbuf[RS5C348_REG_MINS] & RS5C348_MINS_MASK);
++	tm->tm_hour = BCD2BIN(rxbuf[RS5C348_REG_HOURS] & RS5C348_HOURS_MASK);
+ 	if (!pdata->rtc_24h) {
+ 		tm->tm_hour %= 12;
+-		if (*outp & RS5C348_BIT_PM)
++		if (rxbuf[RS5C348_REG_HOURS] & RS5C348_BIT_PM)
+ 			tm->tm_hour += 12;
  	}
+-	outp++;
+-	tm->tm_wday = BCD2BIN(*outp & RS5C348_WDAY_MASK);
+-	outp++;
+-	tm->tm_mday = BCD2BIN(*outp & RS5C348_DAY_MASK);
+-	outp++;
+-	y2k = *outp & RS5C348_BIT_Y2K;
+-	tm->tm_mon = BCD2BIN(*outp & RS5C348_MONTH_MASK) - 1;
+-	outp++;
++	tm->tm_wday = BCD2BIN(rxbuf[RS5C348_REG_WDAY] & RS5C348_WDAY_MASK);
++	tm->tm_mday = BCD2BIN(rxbuf[RS5C348_REG_DAY] & RS5C348_DAY_MASK);
++	tm->tm_mon =
++		BCD2BIN(rxbuf[RS5C348_REG_MONTH] & RS5C348_MONTH_MASK) - 1;
+ 	/* year is 1900 + tm->tm_year */
+-	tm->tm_year = BCD2BIN(*outp) + (y2k ? 100 : 0);
++	tm->tm_year = BCD2BIN(rxbuf[RS5C348_REG_YEAR]) +
++		((rxbuf[RS5C348_REG_MONTH] & RS5C348_BIT_Y2K) ? 100 : 0);
  
- 	/* see about getting userspace to construct the key */
--	key = __request_key_construction(type, description, callout_info,
-+	key = __request_key_construction(type, description, callout_info, aux,
- 					 flags);
-  error:
- 	kleave(" = %p", key);
-@@ -392,6 +395,7 @@ static void request_key_link(struct key 
- struct key *request_key_and_link(struct key_type *type,
- 				 const char *description,
- 				 const char *callout_info,
-+				 void *aux,
- 				 struct key *dest_keyring,
- 				 unsigned long flags)
- {
-@@ -399,8 +403,9 @@ struct key *request_key_and_link(struct 
- 	struct key *key;
- 	key_ref_t key_ref;
+ 	if (rtc_valid_tm(tm) < 0) {
+ 		dev_err(&spi->dev, "retrieved date/time is not valid.\n");
+@@ -173,21 +153,9 @@
+ 	struct rtc_device *rtc;
+ 	struct rs5c348_plat_data *pdata;
  
--	kenter("%s,%s,%s,%p,%lx",
--	       type->name, description, callout_info, dest_keyring, flags);
-+	kenter("%s,%s,%s,%p,%p,%lx",
-+	       type->name, description, callout_info, aux,
-+	       dest_keyring, flags);
+-	/* Mode 1 (High-Active, Shift-Then-Sample), High Avtive CS  */
+-	spi->mode = SPI_MODE_1 | SPI_CS_HIGH;
+-	ret = spi_setup(spi);
+-	if (ret)
+-		return ret;
+-
+ 	pdata = kzalloc(sizeof(struct rs5c348_plat_data), GFP_KERNEL);
+ 	if (!pdata)
+ 		return -ENOMEM;
+-	/* allocate a DMA-safe buffer */
+-	pdata->xferbuf = kmalloc(32, GFP_KERNEL);
+-	if (!pdata->xferbuf) {
+-		ret = -ENOMEM;
+-		goto kfree_exit;
+-	}
+ 	spi->dev.platform_data = pdata;
  
- 	/* search all the process keyrings for a key */
- 	key_ref = search_process_keyrings(type, description, type->match,
-@@ -433,8 +438,8 @@ struct key *request_key_and_link(struct 
- 			/* ask userspace (returns NULL if it waited on a key
- 			 * being constructed) */
- 			key = request_key_construction(type, description,
--						       user, callout_info,
--						       flags);
-+						       callout_info, aux,
-+						       user, flags);
- 			if (key)
- 				break;
+ 	/* Check D7 of SECOND register */
+@@ -234,7 +202,6 @@
  
-@@ -491,8 +496,27 @@ struct key *request_key(struct key_type 
- 			const char *callout_info)
- {
- 	return request_key_and_link(type, description, callout_info, NULL,
--				    KEY_ALLOC_IN_QUOTA);
-+				    NULL, KEY_ALLOC_IN_QUOTA);
+ 	return 0;
+  kfree_exit:
+-	kfree(pdata->xferbuf);
+ 	kfree(pdata);
+ 	return ret;
+ }
+@@ -246,7 +213,6 @@
  
- } /* end request_key() */
- 
- EXPORT_SYMBOL(request_key);
-+
-+/*****************************************************************************/
-+/*
-+ * request a key with auxiliary data for the upcaller
-+ * - search the process's keyrings
-+ * - check the list of keys being created or updated
-+ * - call out to userspace for a key if supplementary info was provided
-+ */
-+struct key *request_key2(struct key_type *type,
-+			 const char *description,
-+			 const char *callout_info,
-+			 void *aux)
-+{
-+	return request_key_and_link(type, description, callout_info, aux,
-+				    NULL, KEY_ALLOC_IN_QUOTA);
-+
-+} /* end request_key2() */
-+
-+EXPORT_SYMBOL(request_key2);
+ 	if (rtc)
+ 		rtc_device_unregister(rtc);
+-	kfree(pdata->xferbuf);
+ 	kfree(pdata);
+ 	return 0;
+ }

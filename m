@@ -1,87 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWF0FN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030659AbWF0Eiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWF0FN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 01:13:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030631AbWF0Ehx
+	id S1030659AbWF0Eiz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 00:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030630AbWF0Eir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:37:53 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:24790 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030628AbWF0Eht
+	Tue, 27 Jun 2006 00:38:47 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:30166 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030647AbWF0EiV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:37:49 -0400
+	Tue, 27 Jun 2006 00:38:21 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 09/13] [Suspend2] Serialisation of compressor configuration in image header.
-Date: Tue, 27 Jun 2006 14:37:47 +1000
+Subject: [Suspend2][ 05/12] [Suspend2] Prepare to encrypt or decrypt a stream of pages.
+Date: Tue, 27 Jun 2006 14:38:20 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043746.14320.53907.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
-References: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
+Message-Id: <20060627043819.14437.79032.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
+References: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Routines for storing and reloading the compression configuration in an
-image header.
+This routine adds initialisation code for encrypting or decrypting a stream
+of pages in the image.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/compression.c |   43 +++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 43 insertions(+), 0 deletions(-)
+ kernel/power/encryption.c |   34 ++++++++++++++++++++++++++++++++++
+ 1 files changed, 34 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/compression.c b/kernel/power/compression.c
-index b8005c7..1398dc5 100644
---- a/kernel/power/compression.c
-+++ b/kernel/power/compression.c
-@@ -416,4 +416,47 @@ static unsigned long suspend_compress_st
- 	return 4 * sizeof(unsigned long) + strlen(suspend_compressor_name) + 1;
+diff --git a/kernel/power/encryption.c b/kernel/power/encryption.c
+index 16a275b..9b7dd93 100644
+--- a/kernel/power/encryption.c
++++ b/kernel/power/encryption.c
+@@ -204,3 +204,37 @@ static int suspend_encrypt_write_chunk(s
+ 	return ret;
  }
  
-+/* 
-+ * suspend_compress_save_config_info
-+ * @buffer: Pointer to a buffer of size PAGE_SIZE.
++/* rw_init()
 + *
-+ * Save informaton needed when reloading the image at resume time.
-+ * Returns: Number of bytes used for saving our data.
++ * Description:	Prepare to read a new stream of data.
++ * Arguments:	int: Section of image about to be read.
++ * Returns:	int: Zero on success, error number otherwise.
 + */
-+static int suspend_compress_save_config_info(char *buffer)
++static int suspend_encrypt_rw_init(int rw, int stream_number)
 +{
-+	int namelen = strlen(suspend_compressor_name) + 1;
-+	int total_len;
++	int result;
++
++	next_driver = suspend_get_next_filter(&suspend_encryption_ops);
++
++	if (!next_driver) {
++		printk("Encryption Driver: Argh! I'm at the end of the pipeline!");
++		return -ECHILD;
++	}
 +	
-+	*((unsigned long *) buffer) = bytes_in;
-+	*((unsigned long *) (buffer + 1 * sizeof(unsigned long))) = bytes_out;
-+	*((unsigned long *) (buffer + 2 * sizeof(unsigned long))) =
-+		suspend_expected_compression;
-+	*((unsigned long *) (buffer + 3 * sizeof(unsigned long))) = namelen;
-+	strncpy(buffer + 4 * sizeof(unsigned long), suspend_compressor_name, 
-+								namelen);
-+	total_len = 4 * sizeof(unsigned long) + namelen;
-+	return total_len;
++	if ((result = suspend_encrypt_rw_prepare(rw))) {
++		set_result_state(SUSPEND_ENCRYPTION_SETUP_FAILED);
++		suspend_encrypt_rw_cleanup(rw);
++		return result;
++	}
++	
++	if ((result = allocate_local_buffer()))
++		return result;
++
++	if (rw == WRITE && stream_number == 2)
++		bytes_in = bytes_out = 0;
++	
++	bufofs = (rw == READ) ? PAGE_SIZE : 0;
++
++	return 0;
 +}
 +
-+/* suspend_compress_load_config_info
-+ * @buffer: Pointer to the start of the data.
-+ * @size: Number of bytes that were saved.
-+ *
-+ * Description:	Reload information needed for decompressing the image at
-+ * resume time.
-+ */
-+static void suspend_compress_load_config_info(char *buffer, int size)
-+{
-+	int namelen;
-+	
-+	bytes_in = *((unsigned long *) buffer);
-+	bytes_out = *((unsigned long *) (buffer + 1 * sizeof(unsigned long)));
-+	suspend_expected_compression = *((unsigned long *) (buffer + 2 *
-+				sizeof(unsigned long)));
-+	namelen = *((unsigned long *) (buffer + 3 * sizeof(unsigned long)));
-+	strncpy(suspend_compressor_name, buffer + 4 * sizeof(unsigned long),
-+			namelen);
-+	return;
-+}
- 
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

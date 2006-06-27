@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030689AbWF0FIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030668AbWF0FG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030689AbWF0FIG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 01:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030658AbWF0FHA
+	id S1030668AbWF0FG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 01:06:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030669AbWF0EjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 01:07:00 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:24539 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030681AbWF0EjW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 27 Jun 2006 00:39:22 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:22491 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030668AbWF0EjI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 00:39:08 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 10/10] [Suspend2] Atomic restore highlevel routine.
-Date: Tue, 27 Jun 2006 14:39:20 +1000
+Subject: [Suspend2][ 06/10] [Suspend2] Post-atomic restore routine
+Date: Tue, 27 Jun 2006 14:39:07 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043919.14546.92958.stgit@nigel.suspend2.net>
+Message-Id: <20060627043905.14546.49973.stgit@nigel.suspend2.net>
 In-Reply-To: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
 References: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,77 +22,67 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This routine essentially duplicates the swsusp_resume routine, which does
-high level steps of the atomic restore. Rather than modifying that routine
-to include a number of if (suspend2) else clauses, it seemed better to put
-a suspend2ised version here.
+After doing the atomic restore, we need to restore the values of variables
+that were saved at resume time and get the remainder of the image loaded.
+At the end of this routine, the contents of memory are virtually the same
+as prior to beginning the cycle.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/atomic_copy.c |   55 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 55 insertions(+), 0 deletions(-)
+ kernel/power/atomic_copy.c |   45 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 45 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/atomic_copy.c b/kernel/power/atomic_copy.c
-index bb5d74f..e4aa9f9 100644
+index e565bf3..a834623 100644
 --- a/kernel/power/atomic_copy.c
 +++ b/kernel/power/atomic_copy.c
-@@ -380,3 +380,58 @@ enable_irqs:
- 	return error;
+@@ -217,3 +217,48 @@ void prepare_suspend2_pbe_list(void)
+ 	} while (1);
  }
  
 +/*
-+ * suspend_atomic_restore
++ * copyback_post: Post atomic-restore actions.
 + *
-+ * Get ready to do the atomic restore. This part gets us into the same
-+ * state we are in prior to do calling do_suspend2_lowlevel while
-+ * suspending: hotunplugging secondary cpus and freeze processes,
-+ * before starting the thread that will do the restore.
++ * After doing the atomic restore, we have a few more things to do:
++ * 1) We want to retain some values across the restore, so we now copy
++ * these from the nosave variables to the normal ones.
++ * 2) Set the status flags.
++ * 3) Resume devices.
++ * 4) Get userui to redraw.
++ * 5) Reread the page cache.
 + */
-+int suspend_atomic_restore(void)
++
++void copyback_post(void)
 +{
-+	int error, loop;
++	int loop;
 +
-+	disable_nonboot_cpus();
++	suspend_action = state1;
++	suspend_debug_state = state2;
++	console_loglevel = state3;
 +
-+	suspend_prepare_status(DONT_CLEAR_BAR,	"Atomic restore preparation");
-+	prepare_suspend2_pbe_list();
-+
-+	suspend_cond_pause(1, "Device suspend next.\n");
-+
-+	if ((error = device_suspend(PMSG_FREEZE))) {
-+		printk("Some devices failed to suspend\n");
-+		BUG();
-+	}
-+
-+#ifdef CONFIG_HIGHMEM
-+	origmap = pageset1_map;
-+	copymap = pageset1_copy_map;
-+	suspend_init_nosave_zone_table();
-+#endif
-+
-+	state1 = suspend_action;
-+	state2 = suspend_debug_state;
-+	state3 = console_loglevel;
-+	
 +	for (loop = 0; loop < 4; loop++)
-+		io_speed_save[loop/2][loop%2] =
-+			suspend_io_time[loop/2][loop%2];
-+	memcpy(suspend_resume_commandline, saved_command_line, COMMAND_LINE_SIZE);
++		suspend_io_time[loop/2][loop%2] =
++			io_speed_save[loop/2][loop%2];
 +
-+	local_irq_disable();
-+	if (device_power_down(PMSG_FREEZE))
-+		printk(KERN_ERR "Some devices failed to power down. Very bad.\n");
++	set_suspend_state(SUSPEND_NOW_RESUMING);
++	set_suspend_state(SUSPEND_PAGESET2_NOT_LOADED);
 +
-+	local_irq_disable();
++	if (pm_ops && pm_ops->finish && suspend_powerdown_method > 3)
++		pm_ops->finish(suspend_powerdown_method);
 +
-+	/* We'll ignore saved state, but this gets preempt count (etc) right */
-+	save_processor_state();
-+	error = swsusp_arch_resume();
-+	/* Code below is only ever reached in case of failure. Otherwise
-+	 * execution continues at place where swsusp_arch_suspend was called.
-+         */
-+	BUG();
-+	return 1;
++	if (suspend_activate_storage(1))
++		panic("Failed to reactivate our storage.");
++
++	userui_redraw();
++
++	suspend_cond_pause(1, "About to reload secondary pagedir.");
++
++	if (read_pageset2(0))
++		panic("Unable to successfully reread the page cache.");
++
++	clear_suspend_state(SUSPEND_PAGESET2_NOT_LOADED);
++	
++	suspend_prepare_status(DONT_CLEAR_BAR, "Cleaning up...");
 +}
 +
 

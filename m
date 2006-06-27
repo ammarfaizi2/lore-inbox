@@ -1,61 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161341AbWF0W4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422710AbWF0W4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161341AbWF0W4j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 18:56:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161342AbWF0W4j
+	id S1422710AbWF0W4t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 18:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161343AbWF0W4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 18:56:39 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:9960
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1161341AbWF0W4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 18:56:38 -0400
-Message-ID: <44A1B79F.9020204@microgate.com>
-Date: Tue, 27 Jun 2006 17:56:31 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: tty_mutex and tty_old_pgrp
-References: <9e4733910606261538i584e2203o9555d77094de6fe7@mail.gmail.com>
-In-Reply-To: <9e4733910606261538i584e2203o9555d77094de6fe7@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 27 Jun 2006 18:56:49 -0400
+Received: from blargh.com ([24.234.115.147]:28807 "EHLO blargh.com")
+	by vger.kernel.org with ESMTP id S1161342AbWF0W4s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 18:56:48 -0400
+From: 7091@blargh.com
+To: linux-kernel@vger.kernel.org
+Subject: Data corruption on SiI 3114?
+Date: Tue, 27 Jun 2006 15:56:32 -0700
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
+Message-ID: <courier.44A1B7A0.00000A99@blargh.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> In tty_io.c there is a comment that tty_mutex needs to be held before
-> changing tty_old_pgrp. If I grep for tty_old_pgrp every place it is
-> changed except for one is protected by tty_mutex.
-> In security/selinux/hooks.c it appears to be changed without holding
-> the lock, is this ok? If it is ok, I can add a comment saying it is.
-> 
-> If someone were to provide me with the proper guidance, I have some
-> time I could spend working on the tty code. For example from an object
-> oriented perspective it doesn't look right to me that
-> disassociate_ctty is a function in the tty layer. It makes more sense
-> to me that this function would be located in the task code.
-> 
-> How could things be rearranged to avoid the need for sys_setsid() and
-> daemonize() to directly manipulate tty_mutex? What exactly is
-> tty_mutex protecting, it appears to be used in multiple contexts.
+Greetings all. 
 
-No one has leaped in here with any wisdom, but the people
-who wrote that code may be dead or otherwise employed.
+The short version first:  I'm having problems with data corruption on a 
+software raid5 partition that is using 4 SATA drives hanging off of an addon 
+SiI 3114 card.  This has been going on for a couple months now, with my 
+thinking some action has fixed it and having to wait to see that it doesn't. 
+I recently started using iozone (source from 
+http://www.iozone.org/src/current/iozone3_263.tar) which generally triggers 
+it fairly quickly: 
 
-If you have knowledge of how those bits work,
-I encourage to you dig through the code and determine
-what needs to be done. It is certainly an area that can
-use more review.
+Test #1:
+./iozone -R -g 4G -a -+d > ~/iozone.report
+(blahblahblah)
+         524288    8192   75582   88670   141979   142247  141863  116981  
+142000  135012  142464    69620    77813  142197   142480
+         524288   16384   81263   93395   142279   142543  142399  114740  
+142307  135391  141962    70295    92522  141945   142090
+        1048576      64   81280   88546 
 
-I did see a comment that tty_mutex protects the creation
-and destruction of tty structures, so I assume the coverage
-of tty_old_pgrp has some relation to that. Unfortunately,
-I have seen other locks get borrowed for multiple purposes.
+Error in file: Position 0 0 0
+Error in file: Position 93847552
+Record # 1432 Record size 64 kb
+(dropped the Char line since it has high ASCII)
+Found pattern: Hex >>ffffffff<< Expecting >>fffffffb<< 
 
---
-Paul
+Test #2:
+         262144    8192   64311  110685   136845   126089  125882   69296  
+137398  101758  138808    68244    73281  137469   138596
+         262144   16384   73250   87237   137979   138027  127386   69802  
+130037   65369  133270    74445    90564  123972   102779
+         524288      64   74796  142936 
+
+Error in file: Position 1664 0 0
+Error in file: Position 473616384
+Record # 7226 Record size 64 kb
+(dropped the Char line since it has high ASCII)
+Found pattern: Hex >>ffffffff<< Expecting >>fffffffb<< 
+
+Other tests I've done:
+memtest86 and mprime both run for a couple days without showing problems.
+iozone running on other partitions does not error. 
+
+I'm trying to troubleshoot to see what portion of hardware/software is 
+flakey, but having a difficult time doing so.  This same server has a pair 
+of parallel ATA drives hanging off the motherboard, running software raid1, 
+that do not expose the problem.  This would seem to eliminate everything not 
+directly associated with the raid5 setup, and leaves the raid5 driver, the 
+sata_sil driver, the SATA card itself, drive cabling, or the drives.  But 
+the raid5 driver should catch errors from the sata_sil driver on down.  This 
+leaves either a memory/CPU problem (which memtest86 or mprime didn't find) 
+or a bug in raid5 (which I can't believe, as commonplace as it is). 
+
+Any suggestions, what-have-you to troubleshoot this is appreciated.  My key 
+problem is I can't really afford to lose the data on the raid5 partition - 
+I've backed up all the absolutely critical things, but I just don't have the 
+backup capacity for it all, and would rather not lose it. 
+
+System details:
+Motherboard: Tyan Tiger MPX (S2466N), with 2 AMD Athlon MP 2000+ processors, 
+and 1 gig of RAM
+Kernel: A number of different kernels, ranging from Debian-packaged 2.6.8-1, 
+grsec 2.6.14-1, up through the currently-installed 2.6.17.1 downloaded from 
+kernels.org.
+Drive configuations:
+SiI 3114 card using sata_sil driver, with 4 ST3300831AS drives connected.  
+These 4 drives are combined using the Linux raid5 driver to make a single 
+826GiB partition, mounted as /home.
+Onboard IDE with 2 ye-ol generic 40G drives.  5 seperate raid1 instances, 
+providing /, /tmp, /usr, /var, and /chroot.
+All partitions are using ext3. 
 
 

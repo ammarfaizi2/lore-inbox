@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWF0MQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWF0MSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWF0MQx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 08:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWF0MQw
+	id S1751318AbWF0MSX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 08:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWF0MSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 08:16:52 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:7827 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S932335AbWF0MQv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 08:16:51 -0400
-Date: Tue, 27 Jun 2006 14:16:49 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lib(p)ata SMART support?
-Message-ID: <20060627121649.GL3114@harddisk-recovery.com>
-References: <200606271555.13330.arvidjaar@mail.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606271555.13330.arvidjaar@mail.ru>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.11
+	Tue, 27 Jun 2006 08:18:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:56705 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751318AbWF0MSU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 08:18:20 -0400
+Subject: Re: make PROT_WRITE imply PROT_READ
+From: Arjan van de Ven <arjan@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Ulrich Drepper <drepper@gmail.com>, Jason Baron <jbaron@redhat.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060627095632.GA22666@elf.ucw.cz>
+References: <fa.PuMM6IwflUYh1MWILO9rb6z4fvY@ifi.uio.no>
+	 <449B42B3.6010908@shaw.ca>
+	 <Pine.LNX.4.64.0606230934360.24102@dhcp83-5.boston.redhat.com>
+	 <1151071581.3204.14.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0606231002150.24102@dhcp83-5.boston.redhat.com>
+	 <1151072280.3204.17.camel@laptopd505.fenrus.org>
+	 <a36005b50606241145q4d1dd17dg85f80e07fb582cdb@mail.gmail.com>
+	 <20060627095632.GA22666@elf.ucw.cz>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 14:18:12 +0200
+Message-Id: <1151410692.5217.6.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 03:55:12PM +0400, Andrey Borzenkov wrote:
-> Using legacy drivers I can use any SMART tools out there; HDD does support 
-> SMART. Running libata + pata_ali, smartctl claims device does not support 
-> SMART. This is sort of regression when switching from legacy drivers.
 
-Try smartctl -d ata.
+> Well, some hardware can probably support write-only, and such support
+> can be useful for "weird" applications, such as just-in-time
+> compilers, etc.
 
+it also makes sense for PCI MMIO mappings..
 
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWF0E7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWF0FAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWF0E7x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 00:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933405AbWF0EkP
+	id S932568AbWF0FAm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 01:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWF0E7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:40:15 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:31195 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933391AbWF0EkF
+	Tue, 27 Jun 2006 00:59:55 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:32731 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S932251AbWF0EkO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:40:05 -0400
+	Tue, 27 Jun 2006 00:40:14 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 12/13] [Suspend2] Start a userspace helper.
-Date: Tue, 27 Jun 2006 14:40:04 +1000
+Subject: [Suspend2][ 1/4] [Suspend2] Power_off.c header.
+Date: Tue, 27 Jun 2006 14:40:13 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627044003.14630.52995.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627043923.14630.565.stgit@nigel.suspend2.net>
-References: <20060627043923.14630.565.stgit@nigel.suspend2.net>
+Message-Id: <20060627044012.14736.81596.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627044010.14736.18813.stgit@nigel.suspend2.net>
+References: <20060627044010.14736.18813.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Attempt to start a userspace helper and set up the netlink socket
-connection to it.
+Add kernel/power/power_off.c header.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/netlink.c |   26 ++++++++++++++++++++++++++
+ kernel/power/power_off.c |   26 ++++++++++++++++++++++++++
  1 files changed, 26 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/netlink.c b/kernel/power/netlink.c
-index d7a3a90..0a379c3 100644
---- a/kernel/power/netlink.c
-+++ b/kernel/power/netlink.c
-@@ -344,3 +344,29 @@ int suspend2_launch_userspace_program(ch
- 	return retval;
- }
- 
-+int suspend_netlink_setup(struct user_helper_data *uhd)
-+{
-+	if (netlink_prepare(uhd) < 0) {
-+		printk("Netlink prepare failed.\n");
-+		return 1;
-+	}
+diff --git a/kernel/power/power_off.c b/kernel/power/power_off.c
+new file mode 100644
+index 0000000..8f9f425
+--- /dev/null
++++ b/kernel/power/power_off.c
+@@ -0,0 +1,26 @@
++/*
++ * kernel/power/power_off.c
++ *
++ * Copyright (C) 2006 Nigel Cunningham <nigel@suspend2.net>
++ *
++ * This file is released under the GPLv2.
++ *
++ * Support for powering down.
++ */
 +
-+	if (suspend2_launch_userspace_program(uhd->program, uhd->netlink_id) < 0) {
-+		printk("Launch userspace program failed.\n");
-+		suspend_netlink_close(uhd);
-+		return 1;
-+	}
++#include <linux/device.h>
++#include <linux/suspend.h>
++#include <linux/mm.h>
++#include <linux/pm.h>
++#include <linux/reboot.h>
++#include "suspend2_common.h"
++#include "suspend2.h"
++#include "ui.h"
 +
-+	/* Wait 2 seconds for the userspace process to make contact */
-+	wait_for_completion_timeout(&uhd->wait_for_process, 2*HZ);
++unsigned long suspend_powerdown_method = 0; /* 0 - Kernel power off */
 +
-+	if (uhd->pid == -1) {
-+		printk("%s: Failed to contact userspace process.\n",
-+				uhd->name);
-+		suspend_netlink_close(uhd);
-+		return 1;
-+	}
++extern struct pm_ops *pm_ops;
 +
-+	return 0;
-+}
-+#endif
++/* Use suspend_enter from main.c */
++extern int suspend_enter(suspend_state_t state);
++
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

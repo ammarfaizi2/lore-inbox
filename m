@@ -1,87 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030632AbWF0EiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030683AbWF0Ejg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030632AbWF0EiM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 00:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030647AbWF0EiL
+	id S1030683AbWF0Ejg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 00:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030679AbWF0Ej2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:38:11 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:28118 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030637AbWF0EiI
+	Tue, 27 Jun 2006 00:39:28 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:21467 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030658AbWF0EjB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:38:08 -0400
+	Tue, 27 Jun 2006 00:39:01 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 01/12] [Suspend2] Encryption support header
-Date: Tue, 27 Jun 2006 14:38:07 +1000
+Subject: [Suspend2][ 04/10] [Suspend2] Prepare pbe list for atomic restore.
+Date: Tue, 27 Jun 2006 14:39:00 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043805.14437.49018.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
-References: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
+Message-Id: <20060627043858.14546.24568.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
+References: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the header for the encryption support file.
+This routine prepares the list of page backup entries that is used by the
+swsusp lowlevel code in doing the atomic restore.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/encryption.c |   47 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 47 insertions(+), 0 deletions(-)
+ kernel/power/atomic_copy.c |   50 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 50 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/encryption.c b/kernel/power/encryption.c
-new file mode 100644
-index 0000000..a90d3ca
---- /dev/null
-+++ b/kernel/power/encryption.c
-@@ -0,0 +1,47 @@
+diff --git a/kernel/power/atomic_copy.c b/kernel/power/atomic_copy.c
+index 6d1bc68..556e481 100644
+--- a/kernel/power/atomic_copy.c
++++ b/kernel/power/atomic_copy.c
+@@ -135,3 +135,53 @@ static unsigned long __suspend_get_next_
+ 	return counter;
+ }
+ 
 +/*
-+ * kernel/power/suspend_core/encryption.c
++ * prepare_suspend2_pbe_list
 + *
-+ * Copyright (C) 2003-2006 Nigel Cunningham <nigel@suspend2.net>
++ * Prepare pageset2 pages for doing the atomic copy. If necessary,
++ * we allocate extra pages.
 + *
-+ * This file is released under the GPLv2.
-+ *
-+ * This file contains data encryption routines for suspend,
-+ * using cryptoapi transforms.
-+ *
-+ * ToDo:
-+ * - Apply min/max_keysize the cipher changes.
-+ * - Test.
 + */
 +
-+#include <linux/suspend.h>
-+#include <linux/module.h>
-+#include <linux/highmem.h>
-+#include <linux/vmalloc.h>
-+#include <linux/crypto.h>
-+#include <asm/scatterlist.h>
++void prepare_suspend2_pbe_list(void)
++{
++	int orig_pfn, copy_pfn, i = 1;
++	struct pbe *this_pbe = NULL, *last_pbe = NULL;
 +
-+#include "suspend2.h"
-+#include "modules.h"
-+#include "proc.h"
-+#include "suspend2_common.h"
-+#include "io.h"
++	orig_pfn = copy_pfn = -1;
 +
-+#define S2C_WRITE 0
-+#define S2C_READ 1
++	pagedir_nosave = NULL;
 +
-+static struct suspend_module_ops suspend_encryption_ops;
-+static struct suspend_module_ops *next_driver;
++	do {
++		if (!this_pbe ||
++		    ((((unsigned long) this_pbe) & (PAGE_SIZE - 1)) 
++		     + 2 * sizeof(struct pbe)) > PAGE_SIZE) {
++			/* Get the next page for pbes */
++			this_pbe = (struct pbe *) suspend_get_nonconflicting_page();
++			BUG_ON(!this_pbe);
++			BUG_ON(PagePageset1(virt_to_page(this_pbe)));
++		} else
++			this_pbe++;
 +
-+static char suspend_encryptor_name[32];
-+static struct crypto_tfm *suspend_encryptor_transform;
-+static char suspend_encryptor_key[256];
-+static int suspend_key_len;
-+static char suspend_encryptor_iv[256];
-+static int suspend_encryptor_mode;
-+static int suspend_encryptor_save_key_and_iv;
++		do {
++			orig_pfn = get_next_bit_on(pageset1_map, orig_pfn);
++			if (orig_pfn < 0)
++				return;
++			copy_pfn = get_next_bit_on(pageset1_copy_map, copy_pfn);
++		} while (PageHighMem(pfn_to_page(orig_pfn)));
++		
++		if (!last_pbe)
++			pagedir_nosave = this_pbe;
++		else
++			last_pbe->next = this_pbe;
 +
-+static u8 *page_buffer = NULL;
-+static unsigned int bufofs;
++		last_pbe = this_pbe;
++		this_pbe->orig_address = (unsigned long) page_address(pfn_to_page(orig_pfn));
++		this_pbe->address = (unsigned long) page_address(pfn_to_page(copy_pfn));
++		this_pbe->next = NULL; /* get_nonconflicting_page doesn't get zeroed pages */
 +
-+static struct scatterlist suspend_crypt_sg[PAGE_SIZE/8];
-+       
++		i++;
++
++	} while (1);
++}
++
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

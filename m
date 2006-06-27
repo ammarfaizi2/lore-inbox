@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422715AbWF0XNO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422716AbWF0XPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422715AbWF0XNO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 19:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932590AbWF0XNO
+	id S1422716AbWF0XPn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 19:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422717AbWF0XPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 19:13:14 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:56034 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932576AbWF0XNL (ORCPT
+	Tue, 27 Jun 2006 19:15:43 -0400
+Received: from xenotime.net ([66.160.160.81]:23956 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1422716AbWF0XPm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 19:13:11 -0400
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: Ben Greear <greearb@candelatech.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Daniel Lezcano <dlezcano@fr.ibm.com>, Andrey Savochkin <saw@swsoft.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-       devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-In-Reply-To: <20060627225213.GB2612@MAIL.13thfloor.at>
-References: <20060626192751.A989@castle.nmd.msu.ru>
-	 <44A00215.2040608@fr.ibm.com> <20060627131136.B13959@castle.nmd.msu.ru>
-	 <44A0FBAC.7020107@fr.ibm.com> <20060627133849.E13959@castle.nmd.msu.ru>
-	 <44A1149E.6060802@fr.ibm.com> <m1sllqn7cb.fsf@ebiederm.dsl.xmission.com>
-	 <20060627160241.GB28984@MAIL.13thfloor.at>
-	 <m1psgulf4u.fsf@ebiederm.dsl.xmission.com>
-	 <44A1689B.7060809@candelatech.com>
-	 <20060627225213.GB2612@MAIL.13thfloor.at>
-Content-Type: text/plain
-Date: Tue, 27 Jun 2006 16:12:52 -0700
-Message-Id: <1151449973.24103.51.camel@localhost.localdomain>
+	Tue, 27 Jun 2006 19:15:42 -0400
+Date: Tue, 27 Jun 2006 16:18:26 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Eric Sesterhenn / Snakebyte <snakebyte@gmx.de>
+Cc: snakebyte@gmx.de, linux-kernel@vger.kernel.org, Henk.Vergonet@gmail.com
+Subject: Re: [Patch] Off by one in drivers/usb/input/yealink.c
+Message-Id: <20060627161826.db62fd00.rdunlap@xenotime.net>
+In-Reply-To: <20060627230415.GA16561@alice>
+References: <1151448080.16217.3.camel@alice>
+	<20060627155143.b0e3e1dd.rdunlap@xenotime.net>
+	<20060627230415.GA16561@alice>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-28 at 00:52 +0200, Herbert Poetzl wrote:
-> seriously, what I think Eric meant was that it
-> might be nice (especially for migration purposes)
-> to keep the device namespace completely virtualized
-> and not just isolated ...
+On Wed, 28 Jun 2006 01:04:16 +0200 Eric Sesterhenn / Snakebyte wrote:
 
-It might be nice, but it is probably unneeded for an initial
-implementation.  In practice, a cluster doing
-checkpoint/restart/migration will already have a system in place for
-assigning unique IPs or other identifiers to each container.  It could
-just as easily make sure to assign unique network device names to
-containers.
+> * Randy.Dunlap (rdunlap@xenotime.net) wrote:
+> > On Wed, 28 Jun 2006 00:41:19 +0200 Eric Sesterhenn wrote:
+> > 
+> > > another off by one spotted by coverity (id #485),
+> > > we loop exactly one time too often
+> > > 
+> > > --- linux-2.6.17-git11/drivers/usb/input/yealink.c.orig	2006-06-28 00:29:46.000000000 +0200
+> > > +++ linux-2.6.17-git11/drivers/usb/input/yealink.c	2006-06-28 00:30:04.000000000 +0200
+> > > @@ -350,7 +350,7 @@ static int yealink_do_idle_tasks(struct 
+> > >  		val = yld->master.b[ix];
+> > >  		if (val != yld->copy.b[ix])
+> > >  			goto send_update;
+> > > -	} while (++ix < sizeof(yld->master));
+> > > +	} while (++ix < sizeof(yld->master)-1);
+> > >  
+> > >  	/* nothing todo, wait a bit and poll for a KEYPRESS */
+> > >  	yld->stat_ix = 0;
+> > 
+> > FWIW, on this one and the previous floppy.c patch,
+> > I would rather see the comparison be <= instead of using -1.
+> 
+> maybe it is too late, but wouldnt the <= make the loop
+> run even more iterations, like (++ix < sizeof() + 1)
 
-The issues really only come into play when you have an unstructured set
-of machines and you want to migrate between them without having prepared
-them with any kind of unique net device names beforehand.
+:) Yep.
 
-It may look weird, but do application really *need* to see eth0 rather
-than eth858354?
+so for the floppy.c patch, I still prefer to see:
++	if (drive < 0 || drive >= N_DRIVE) {
 
--- Dave
+instead of
++	if (drive < 0 || drive > N_DRIVE-1) {
 
+Does that make sense?
+
+---
+~Randy

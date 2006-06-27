@@ -1,100 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWF0Jr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWF0JxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWF0Jr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 05:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWF0Jr7
+	id S932531AbWF0JxL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 05:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbWF0JxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 05:47:59 -0400
-Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:54777
-	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1751070AbWF0Jr6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 05:47:58 -0400
-Message-ID: <003701c699ce$c126b550$b100a8c0@erich2003>
-From: "erich" <erich@areca.com.tw>
-To: "James Bottomley" <James.Bottomley@SteelEye.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, "\"Robert Mueller\"" <robm@fastmail.fm>,
-       <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <dax@gurulabs.com>, <brong@fastmail.fm>, <hch@infradead.org>,
-       <rdunlap@xenotime.net>
-References: <09be01c695b3$2ed8c2c0$c100a8c0@robm> <20060621222826.ff080422.akpm@osdl.org> <1151333338.2673.4.camel@mulgrave.il.steeleye.com>
-Subject: Re: Areca driver recap + status
-Date: Tue, 27 Jun 2006 17:47:47 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="big5";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.2663
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2663
-X-OriginalArrivalTime: 27 Jun 2006 09:41:21.0000 (UTC) FILETIME=[D8B93680:01C699CD]
+	Tue, 27 Jun 2006 05:53:11 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43796 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932531AbWF0JxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 05:53:10 -0400
+Date: Tue, 27 Jun 2006 11:54:44 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ck@vds.kolivas.org
+Subject: Re: 2.6.17-ck1: fcache problem...
+Message-ID: <20060627095443.GQ22071@suse.de>
+References: <20060625093534.1700e8b6@localhost> <20060625102837.GC20702@suse.de> <20060625152325.605faf1f@localhost> <20060625174358.GA21513@suse.de> <20060627112105.0b15bfa1@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060627112105.0b15bfa1@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Robert Mueller,
-
-Does arcmsr still has more than one value per file issue on it?
-Maybe I am miss-understand the means of one value per file.
-Please tell me the issue, thanks.
-About the BE platform, Areca's user on linux sparc platform had ran this 
-driver successfuly.
-But I attempt to install linux system on ppc platform and run this driver 
-for more long time testing this day.
-I will patch PAE issue on pci_map_single again and handle SYNCHRONIZE_CACHE 
-for your request.
-
-Best Regards
-Erich Chen
------ Original Message ----- 
-From: "James Bottomley" <James.Bottomley@SteelEye.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <rdunlap@xenotime.net>; <hch@infradead.org>; <erich@areca.com.tw>; 
-<brong@fastmail.fm>; <dax@gurulabs.com>; <linux-kernel@vger.kernel.org>; 
-<linux-scsi@vger.kernel.org>; "Robert Mueller" <robm@fastmail.fm>
-Sent: Monday, June 26, 2006 10:48 PM
-Subject: Re: Areca driver recap + status
-
-
-> On Wed, 2006-06-21 at 22:28 -0700, Andrew Morton wrote:
->> On Thu, 22 Jun 2006 14:18:23 +1000
->> "Robert Mueller" <robm@fastmail.fm> wrote:
->>
->> > The driver went into 2.6.11-rc3-mm1 here:
->> > http://marc.theaimsgroup.com/?l=linux-kernel&m=110754432622498&w=2
->>
->> One and a half years.
->>
->> Would the world end if we just merged the dang thing?
->
-> Not the world perhaps, but I'm unwilling to concede that if a driver
-> author is given a list of major issues and does nothing, then the driver
-> should go in after everyone gets impatient.
->
-> The rules for inclusion are elastic and include broad leeway for good
-> behaviour, but this would stretch the elasticity way beyond breaking
-> point.
->
-> The list of issues is here:
->
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=114556263632510
->
-> Most of the serious stuff is fixed with the exception of:
->
-> - sysfs has more than one value per file
-> - BE platform support
-> - PAE (cast of dma_addr_t to unsigned long) issues.
-> - SYNCHRONIZE_CACHE is ignored.  This is wrong.  The sync cache in the
-> shutdown notifier isn't sufficient.
->
-> At least the sysfs files have to be fixed before it goes in ... unless
-> you want to be lynched by Greg?
->
-> What I could do is set up a holding tree for all the fixed ... but -mm
-> is doing a good job of that at the moment.
->
-> James
->
+On Tue, Jun 27 2006, Paolo Ornati wrote:
+> On Sun, 25 Jun 2006 19:43:59 +0200
+> Jens Axboe <axboe@suse.de> wrote:
 > 
+> > > > Hmm, and you are sure that the fs is properly umounted on reboot? Or is
+> > > > it just remounted ro? It looks like fcache_close_dev() isn't being
+> > > > called, so the cache serial doesn't match what we expect from the fs,
+> > > > hence fcache bails out since it could indicate that the fs has been
+> > > > changed without fcache being attached.
+> > > 
+> > > Ahh... it is the root fs and it's just remounted read-only by the
+> > > standard Gentoo scripts ;)
+> > > 
+> > > I don't think that unmounting it is trivial (you need to chroot to a
+> > > virtual FS or something...). Does any distro do it?
+> > 
+> > ro should be enough, something odd must be going on. I'll add it to the
+> > list of things to test tomorrow.
+> 
+> Since "fcache_close_dev()" is called by "ext3_put_super()" I have added
+> this stupid printk:
+> 
+> --- fs/ext3/super.c.orig        2006-06-27 10:47:15.000000000 +0200
+> +++ fs/ext3/super.c     2006-06-27 10:50:36.000000000 +0200
+> @@ -422,6 +422,8 @@ static void ext3_put_super (struct super
+> 
+>         has_fcache = test_opt(sb, FCACHE);
+> 
+> +       printk("!!! ext3_put_super !!!   has_fcache=%d\n", has_fcache);
+> +
+>         ext3_xattr_put_super(sb);
+>         journal_destroy(sbi->s_journal);
+>         if (!(sb->s_flags & MS_RDONLY)) {
+> 
+> 
+> It triggers on unmount but it doesn't on remount "ro".
+> 
+> So the problem is that "fcache_close_dev()" have zero chances to run ;)
+
+Hmm, you seem to be using an older fcache version. I'll test this and
+post an updated patch if it doesn't work with the newer version.
+
+-- 
+Jens Axboe
 

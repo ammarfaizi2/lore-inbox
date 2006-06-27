@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWF0HxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030732AbWF0H45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161038AbWF0HxM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 03:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161039AbWF0HxM
+	id S1030732AbWF0H45 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 03:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030735AbWF0H45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 03:53:12 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:40350 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161038AbWF0HxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 03:53:10 -0400
-Date: Tue, 27 Jun 2006 08:52:57 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Steven Whitehouse <swhiteho@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       David Teigland <teigland@redhat.com>,
-       Patrick Caulfield <pcaulfie@redhat.com>,
-       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	Tue, 27 Jun 2006 03:56:57 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:30125 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030732AbWF0H44 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 03:56:56 -0400
+Date: Tue, 27 Jun 2006 00:53:41 -0700
+From: Greg KH <greg@kroah.com>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: Jens Axboe <axboe@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
        linux-kernel@vger.kernel.org
-Subject: Re: GFS2 and DLM
-Message-ID: <20060627075257.GB21066@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-	Steven Whitehouse <swhiteho@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	David Teigland <teigland@redhat.com>,
-	Patrick Caulfield <pcaulfie@redhat.com>,
-	Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <4497EAC6.3050003@yahoo.com.au> <1150807630.3856.1372.camel@quoit.chygwyn.com> <44980064.6040306@yahoo.com.au> <20060623144530.GA32291@infradead.org> <20060626210355.GA16827@elte.hu>
+Subject: Re: [Suspend2][ 0/9] Extents support.
+Message-ID: <20060627075341.GA16347@kroah.com>
+References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271539.29540.nigel@suspend2.net> <20060627070609.GA28730@kroah.com> <200606271727.39474.nigel@suspend2.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060626210355.GA16827@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <200606271727.39474.nigel@suspend2.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 11:03:55PM +0200, Ingo Molnar wrote:
-> > the generic file read code so GFS should do so aswell.  And there's a 
-> > technical reason for not exporting aswell as the generic file read 
-> > interface is far too complicated already.
+On Tue, Jun 27, 2006 at 05:27:30PM +1000, Nigel Cunningham wrote:
+> Hi.
 > 
-> GFS is different here mostly due to locking,
+> On Tuesday 27 June 2006 17:06, Greg KH wrote:
+> > Oh, and as a meta-comment, why /proc?  You know that's not acceptable,
+> > right?
+> 
+> Partly because when I did consider switching to /sys, I found it to be 
+> incomprehensible (even with the LWN articles and Documentation/ files). 
+> Jonathan's articles and LCA presentation did help me start to get a better 
+> grip, but then it just didn't seem to be worth the effort. I have two simple 
+> relatively simple routines that handle all my proc entries at the moment, so 
+> that adding a new entry is just a matter of adding an element in an array of 
+> structs (saying what variable is being read/written, what type, min/max 
+> values and side effect routines, eg). It looked to me like changing to sysfs 
+> was going to require me to have a separate routine for every sysfs entry, 
+> even though they'd all have those some basic features. Maybe I'm just 
+> ignorant. Please tell me I am and point me in the right direction.
 
-If it requires locking there it's sendifle and splice_read implementation
-are wrong.
+Well, as your stuff does not have anything to do with "processes",
+putting it in /proc is not acceptable.
 
-<marketing crap removed>
+sysfs is one value per file, and if that matches up to what you need,
+then it should be fine to use.
 
-ocfs2 seems to do pretty well using the generic code here, so there
-definitly is a explanation required why gfs can't do the same.
+You do need to have some kind of function for every sysfs entry, but you
+can group common ones together (as the hwmon drivers do.)
 
-> so i'd reformulate your request as a request to extend the VFS to unify 
-> clustering filesystems - which is a nice cleanup goal but not a merge 
-> showstopper to me.
+As you will not have a backing "device" to attach your files to, you
+will probably need to deal with "raw" kobjects, and the learning curve
+for how to create files in sysfs with them is unfortunatly a bit steep.
+But there is lots of working examples in the kernel that do this (block
+devices, md, driver core, etc.), there's plenty of code to copy from to
+get it to work.
 
-duplicating half the generic read code is definitily not okay.  I'm
-happy to have a discussion about more or less hacly ways to share the
-code mid-term.
+And if that doesn't look like fun, you can always just use create a new
+filesystem (only 200 lines of code), or use debugfs.
 
+good luck,
+
+greg k-h

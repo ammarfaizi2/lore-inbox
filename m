@@ -1,128 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWF0LyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWF0LzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWF0LyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 07:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWF0LyP
+	id S932466AbWF0LzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 07:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWF0LzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 07:54:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8116 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932179AbWF0LyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 07:54:12 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Daniel Lezcano <dlezcano@fr.ibm.com>
-Cc: Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       viro@ftp.linux.org.uk, Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-References: <20060609210202.215291000@localhost.localdomain>
-	<20060609210625.144158000@localhost.localdomain>
-	<20060626134711.A28729@castle.nmd.msu.ru>
-	<449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru>
-	<44A00215.2040608@fr.ibm.com>
-	<20060627131136.B13959@castle.nmd.msu.ru>
-	<44A0FBAC.7020107@fr.ibm.com>
-	<20060627133849.E13959@castle.nmd.msu.ru>
-	<44A1149E.6060802@fr.ibm.com>
-Date: Tue, 27 Jun 2006 05:52:52 -0600
-In-Reply-To: <44A1149E.6060802@fr.ibm.com> (Daniel Lezcano's message of "Tue,
-	27 Jun 2006 13:21:02 +0200")
-Message-ID: <m1sllqn7cb.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jun 2006 07:55:25 -0400
+Received: from mx1.mail.ru ([194.67.23.121]:23333 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S932466AbWF0LzX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 07:55:23 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: lib(p)ata SMART support?
+Date: Tue, 27 Jun 2006 15:55:12 +0400
+User-Agent: KMail/1.9.3
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606271555.13330.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Lezcano <dlezcano@fr.ibm.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->>>>My point is that if you make namespace tagging at routing time, and
->>>>your packets are being routed only once, you lose the ability
->>>>to have separate routing tables in each namespace.
->>>
->>>Right. What is the advantage of having separate the routing tables ?
->> Routing is everything.
->> For example, I want namespaces to have their private tunnel devices.
->> It means that namespaces should be allowed have private routes of local type,
->> private default routes, and so on...
->>
->
-> Ok, we are talking about the same things. We do it only in a different way:
->
-> 	* separate routing table :
-> 		 namespace
-> 			|
-> 			\--- route_tables
-> 				|
-> 				\---routes
->
-> 	* tagged routing table :
-> 		route_tables
-> 			|
-> 			\---routes
-> 				|
-> 				\---namespace
+Using legacy drivers I can use any SMART tools out there; HDD does support 
+SMART. Running libata + pata_ali, smartctl claims device does not support 
+SMART. This is sort of regression when switching from legacy drivers.
 
-There is a third possibility, that falls in between these two if local
-communication is really the bottle neck.
+- -andrey
 
-We have the dst cache for caching routes and cache multiple transformations
-that happen on a packet.
+libata version 1.30 loaded.
+ACPI: PCI Interrupt 0000:00:04.0[A]: no GSI
+ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xEFF0 irq 14
+scsi0 : pata_ali
+ata1.00: configured for UDMA/33
+  Vendor: ATA       Model: IC25N020ATDA04-0  Rev: DA3O
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xEFF8 irq 15
+scsi1 : pata_ali
+ata2.00: configured for PIO4
+  Vendor: TOSHIBA   Model: DVD-ROM SD-C2502  Rev: 1313
+  Type:   CD-ROM                             ANSI SCSI revision: 05
+SCSI device sda: 39070080 512-byte hdwr sectors (20004 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 39070080 512-byte hdwr sectors (20004 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2
+sd 0:0:0:0: Attached scsi disk sda
 
-With a little extra knowledge it is possible to have the separate
-routing tables but have special logic that recognizes the local tunnel
-device that connects namespaces and have it look into the next
-namespaces routes, and build up a complete stack of dst entries of
-where the packet needs to go.
+{pts/0}% sudo smartctl -i /dev/sda
+smartctl version 5.36 [i586-mandriva-linux-gnu] Copyright (C) 2002-6 Bruce 
+Allen
+Home page is http://smartmontools.sourceforge.net/
 
-I keep forgetting about that possibility.  But as long as everything
-is done at the routing layer that should work.
+Device: ATA      IC25N020ATDA04-0 Version: DA3O
+Serial number:          63A63GY1081
+Device type: disk
+Local Time is: Tue Jun 27 15:54:27 2006 MSD
+Device does not support SMART
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-> I use the second method, because I think it is more effecient and reduce the
-> overhead. But the isolation is minimalist and only aims to avoid the application
-> using ressources outside of the container (aka namespace) without taking care of
-> the system. For example, I didn't take care of network devices, because as far
-> as see I can't imagine an administrator wanting to change the network device
-> name while there are hundred of containers running. Concerning tunnel devices
-> for example, they should be created inside the container.
-
-Inside the containers I want all network devices named eth0!
-
-> I think, private network ressources method is more elegant and involves more
-> network ressources, but there is probably a significant overhead and some
-> difficulties to have __lightweight__ container (aka application container), make
-> nfs working well, etc... I did some tests with tbench and the loopback with the
-> private namespace and there is roughly an overhead of 4 % without the isolation
-> since with the tagging method there is 1 % with the isolation.
-
-The overhead went down?
-
-> The network namespace aims the isolation for now, but the container based on the
-> namespaces will probably need checkpoint/restart and migration ability. The
-> migration is needed not only for servers but for HPC jobs too.
-
-Yes.
-
-> So I don't know what level of isolation/virtualization is really needed by
-> users, what should be acceptable (strong isolation and overhead / weak isolation
-> and efficiency). I don't know if people wanting strong isolation will not prefer
-> Xen (cleary with much more overhead than your patches ;) )
-
-We need a clean abstraction that optimizes well.
-
-However local communication between containers is not what we should
-benchmark.  That can always be improved later.  So long as the
-performance is reasonable.  What needs to be benchmarked is the
-overhead of namespaces when connected to physical networking devices
-and on their own local loopback, and comparing that to a kernel
-without namespace support.
-
-If we don't hurt that core case we have an implementation we can
-merge.  There are a lot of optimization opportunities for local
-communications and we can do that after we have a correct and accepted
-implementation.  Anything else is optimizing too soon, and will
-just be muddying the waters.
-
-Eric
+iD8DBQFEoRyhR6LMutpd94wRAh/6AJsENQEibwUqGrP2q7cSIpDy9fIedgCfV6Y2
+COg2D+QL58CNlKBGXvnrM6Q=
+=DDES
+-----END PGP SIGNATURE-----

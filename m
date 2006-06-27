@@ -1,79 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWF0LOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbWF0LQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWF0LOs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 07:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933398AbWF0LOs
+	id S932517AbWF0LQp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 07:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933405AbWF0LQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 07:14:48 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:31170 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932153AbWF0LOr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 07:14:47 -0400
-Date: Tue, 27 Jun 2006 13:09:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       linux-kernel@vger.kernel.org, arjan@linux.intel.com, pavel@suse.cz,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH] binfmt: turn MAX_ARG_PAGES into a sysctl tunable
-Message-ID: <20060627110954.GA23672@elte.hu>
-References: <1151060089.30819.2.camel@lappy> <20060626095702.8b23263d.akpm@osdl.org> <Pine.LNX.4.64.0606261009190.3747@g5.osdl.org> <20060626223526.GA18579@elte.hu> <Pine.LNX.4.64.0606261555320.3927@g5.osdl.org>
-Mime-Version: 1.0
+	Tue, 27 Jun 2006 07:16:45 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:38017 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S932517AbWF0LQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 07:16:44 -0400
+Message-ID: <44A112F8.50104@s5r6.in-berlin.de>
+Date: Tue, 27 Jun 2006 13:14:00 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, linux1394-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: x86_64-mm-ieee1394-early.patch  (was Re: 2.6.17-mm3)
+References: <20060627015211.ce480da6.akpm@osdl.org>
+In-Reply-To: <20060627015211.ce480da6.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606261555320.3927@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Linus Torvalds <torvalds@osdl.org> wrote:
-
-> On Tue, 27 Jun 2006, Ingo Molnar wrote:
-> >
-> > i thought about your "map execve pages directly into target" (since the 
-> > source gets destroyed anyway) suggestion back then, and unfortunately it 
-> > gets quite complex.
+Andrew Morton wrote:
+> +x86_64-mm-ieee1394-early.patch
 > 
-> No, you misunderstood.
-> 
-> I wasn't actually suggesting mapping pages directly from the source 
-> into the destination.  That is indeed horribly horribly complicated.
+>  x86_64 tree update
 
-ok, that's good news :-)
+>From the patch:
+|| Initialize ieee1394 early when built in
+||
+|| This makes debugging with firescope easier.
+||
+|| Cc: linux1394-devel@lists.sourceforge.net
+||
+|| Signed-off-by: Andi Kleen <ak@suse.de>
+...
+|| +++ linux/drivers/ieee1394/ieee1394_core.c
+...
+|| +#ifndef MODULE
+|| +fs_initcall(ieee1394_init);
+|| +#else
+||  module_init(ieee1394_init);
+|| +#endif
+...
+|| +++ linux/drivers/ieee1394/ohci1394.c
+...
+|| +/* Try to register 1394 early to get the DMA engine running for
+debugging purposes */
+|| +#ifndef MODULE
+|| +fs_initcall(ohci1394_init);
+|| +#else
+||  module_init(ohci1394_init);
+|| +#endif
+...
 
->  - And the whole reason for having a limited array basically goes away
->    (the swappable thing is part of it, but the fact that the page 
->    tables themselves are just a lot more extensible than the silly 
->    array is just fundamentally a part of it too)
-> 
-> So it's literally just the array I'd get rid of. Instead of insertign 
-> the page into the array, just insert it directly into the page table 
-> with "install_arg_page()".
+Perhaps it doesn't matter, but shouldn't it rather be a
+subsys_initcall(ieee1394_init)?
 
-ok, but there are a few logistical issues:
+[fs_initcall(ohci1394_init) instead of device_initcall(ohci1394_init) is
+certainly appropriate if you want to have it up and running before other
+device drivers.]
 
-at copy_strings_kernel() time we dont yet know where in the target VM to 
-install the pages. A binformat might want to install all sorts of stuff 
-on the stack first, before it constructs the envp and copies the strings 
-themselves. So we dont know the precise alignment needed.
-
-delaying the copying to setup_arg_pages() time does not seem to work 
-either, because that gets called after the old MM has been destroyed.
-
-[ delaying the copying will also change behavior in error cases - 
-  instead of returning with an error if the string pointers are bad 
-  we'll have to kill the execve()ing process. ]
-
-am i missing something?
-
-	Ingo
+Also, I suggest an 80 columns friendly comment:
+/* Register early.  Useful for remote debugging via physical DMA */
+-- 
+Stefan Richter
+-=====-=-==- -==- ==-=-
+http://arcgraph.de/sr/

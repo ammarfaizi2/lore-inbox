@@ -1,50 +1,251 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030748AbWF0IQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbWF0IR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030748AbWF0IQF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 04:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030749AbWF0IQF
+	id S1161039AbWF0IR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 04:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030754AbWF0IR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 04:16:05 -0400
-Received: from mx2.suse.de ([195.135.220.15]:55215 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030748AbWF0IQD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 04:16:03 -0400
-Date: Tue, 27 Jun 2006 01:12:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Nigel Cunningham <nigel@suspend2.net>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Message-ID: <20060627081252.GC7181@kroah.com>
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271539.29540.nigel@suspend2.net> <20060627070505.GH22071@suse.de> <200606271739.13453.nigel@suspend2.net> <20060627075906.GK22071@suse.de>
+	Tue, 27 Jun 2006 04:17:29 -0400
+Received: from mga02.intel.com ([134.134.136.20]:31346 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030753AbWF0IR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 04:17:27 -0400
+X-IronPort-AV: i="4.06,178,1149490800"; 
+   d="scan'208"; a="57205353:sNHT96119366"
+Subject: Re: [PATCH]microcode update driver rewrite - takes 2
+From: Shaohua Li <shaohua.li@intel.com>
+To: Greg KH <greg@kroah.com>
+Cc: arjan <arjan@linux.intel.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Rajesh Shah <rajesh.shah@intel.com>,
+       Tigran Aivazian <tigran@veritas.com>
+In-Reply-To: <20060627060214.GA27469@kroah.com>
+References: <1151376693.21189.52.camel@sli10-desk.sh.intel.com>
+	 <20060627060214.GA27469@kroah.com>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 16:15:07 +0800
+Message-Id: <1151396107.21189.76.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060627075906.GK22071@suse.de>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 09:59:06AM +0200, Jens Axboe wrote:
-> Now I haven't followed the suspend2 vs swsusp debate very closely, but
-> it seems to me that your biggest problem with getting this merged is
-> getting consensus on where exactly this is going. Nobody wants two
-> different suspend modules in the kernel. So there are two options -
-> suspend2 is deemed the way to go, and it gets merged and replaces
-> swsusp. Or the other way around - people like swsusp more, and you are
-> doomed to maintain suspend2 outside the tree.
+On Mon, 2006-06-26 at 23:02 -0700, Greg KH wrote:
+> On Tue, Jun 27, 2006 at 10:51:33AM +0800, Shaohua Li wrote:
+> > This is the rewrite of microcode update driver. Changes:
+> > 1. trim the code
+> > 2. using request_firmware to pull ucode from userspace, so we don't need
+> > the application 'microcode_ctl' to assist. We name each ucode file
+> > according to CPU's info as intel-ucode/family-model-stepping. In this
+> > way we could split ucode file as small one. This has a lot of advantages
+> > such as selectively update and validate microcode for specific models,
+> > better manage microcode file, easily write tools for administerators and
+> > so on.
+> > 3. add sysfs support. Currently each CPU has two microcode related
+> > attributes. One is 'version' which shows current ucode version of CPU.
+> > Tools can use the attribute do validation or show CPU ucode status. The
+> > other is 'reload' which allows manually reloading ucode. 
+> > 4. add suspend/resume and CPU hotplug support. 
+> 
+> Why not break this up into 4 patches so we can better review them?
+> 
+> Remember, one patch per change please :)
+> 
+> > With the changes, we should put all intel-ucode/xx-xx-xx microcode files
+> > into the firmware dir (I had a tool to split previous big data file into
+> > small one and later we will release new style data file). The init
+> > script should be changed to just loading the driver without unloading
+> > for hotplug and suspend/resume (for back compatibility I keep old
+> > interface, so old init script also works).
+> > 
+> > Previous post is at
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=114852925121064&w=2
+> > Changes against previous patch:
+> > 1. use sys_create_group to add attributes
+> > 2. add a fake platform_device for reqeust_firmware as Greg disliked the
+> > request_firmware_kobj interface previous patch introduced
+> > 3. add a new attribute 'pf' to help tools check if CPU has latest ucode
+> 
+> What does "pf" stand for?
+[PATCH 2/3] using request_firmware to load microcode
 
-Actually, there's a third option that is looking like the way forward,
-doing all of this from userspace and having no suspend-to-disk in the
-kernel tree at all.
+using request_firmware to pull ucode from userspace, so we don't need
+the application 'microcode_ctl' to assist. We name each ucode file
+according to CPU's info as intel-ucode/family-model-stepping. In this
+way we could split ucode file as small one. This has a lot of advantages
+such as selectively update and validate microcode for specific models,
+better manage microcode file, easily write tools for administerators and
+so on.
+with the changes, we should put all intel-ucode/xx-xx-xx microcode files
+into the firmware dir (I had a tool to split previous big data file into
+small one and later we will release new style data file). The init
+script should be changed to just loading the driver without unloading
 
-Pavel and others have a working implementation and are slowly moving
-toward adding all of the "bright and shiny" features that is in suspend2
-to it (encryption, progress screens, abort by pressing a key, etc.) so
-that there is no loss of functionality.
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+Acked-by: Tigran Aivazian <tigran@veritas.com>
+---
+ arch/i386/kernel/microcode.c  |  116 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/base/firmware_class.c |    2 
+ 2 files changed, 117 insertions(+), 1 deletion(-)
 
-So I don't really see the future of suspend2 because of this...
+Index: linux-2.6.17/arch/i386/kernel/microcode.c
+===================================================================
+--- linux-2.6.17.orig/arch/i386/kernel/microcode.c	2006-06-26 14:08:32.000000000 +0800
++++ linux-2.6.17/arch/i386/kernel/microcode.c	2006-06-26 14:09:24.000000000 +0800
+@@ -83,6 +83,9 @@
+ #include <linux/spinlock.h>
+ #include <linux/mm.h>
+ #include <linux/mutex.h>
++#include <linux/cpu.h>
++#include <linux/firmware.h>
++#include <linux/platform_device.h>
+ 
+ #include <asm/msr.h>
+ #include <asm/uaccess.h>
+@@ -495,6 +498,112 @@ MODULE_ALIAS_MISCDEV(MICROCODE_MINOR);
+ #define microcode_dev_exit() do { } while(0)
+ #endif
+ 
++static long get_next_ucode_from_buffer(void **mc, void *buf,
++	unsigned long size, long offset)
++{
++	microcode_header_t *mc_header;
++	unsigned long total_size;
++
++	/* No more data */
++	if (offset >= size)
++		return 0;
++	mc_header = (microcode_header_t *)(buf + offset);
++	total_size = get_totalsize(mc_header);
++
++	if ((offset + total_size > size)
++		|| (total_size < DEFAULT_UCODE_TOTALSIZE)) {
++		printk(KERN_ERR "microcode: error! Bad data in microcode data file\n");
++		return -EINVAL;
++	}
++
++	*mc = vmalloc(total_size);
++	if (!*mc) {
++		printk(KERN_ERR "microcode: error! Can not allocate memory\n");
++		return -ENOMEM;
++	}
++	memcpy(*mc, buf + offset, total_size);
++	return offset + total_size;
++}
++
++/* fake device for request_firmware */
++static struct platform_device *microcode_pdev;
++
++static int cpu_request_microcode(int cpu)
++{
++	char name[30];
++	struct cpuinfo_x86 *c = cpu_data + cpu;
++	const struct firmware *firmware;
++	void * buf;
++	unsigned long size;
++	long offset = 0;
++	int error;
++	void *mc;
++
++	/* We should bind the task to the CPU */
++	BUG_ON(cpu != raw_smp_processor_id());
++	sprintf(name,"intel-ucode/%02x-%02x-%02x",
++		c->x86, c->x86_model, c->x86_mask);
++	error = request_firmware(&firmware, name, &microcode_pdev->dev);
++	if (error) {
++		pr_debug("ucode data file %s load failed\n", name);
++		return error;
++	}
++	buf = (void *)firmware->data;
++	size = firmware->size;
++	while ((offset = get_next_ucode_from_buffer(&mc, buf, size, offset))
++			> 0) {
++		error = microcode_sanity_check(mc);
++		if (error)
++			break;
++		error = get_maching_microcode(mc, cpu);
++		if (error < 0)
++			break;
++		/*
++		 * It's possible the data file has multiple matching ucode,
++		 * lets keep searching till the latest version
++		 */
++		if (error == 1) {
++			apply_microcode(cpu);
++			error = 0;
++		}
++		vfree(mc);
++	}
++	if (offset > 0)
++		vfree(mc);
++	if (offset < 0)
++		error = offset;
++	release_firmware(firmware);
++
++	return error;
++}
++
++static void microcode_init_cpu(int cpu)
++{
++	cpumask_t old;
++	struct ucode_cpu_info *uci = ucode_cpu_info + cpu;
++
++	old = current->cpus_allowed;
++
++	set_cpus_allowed(current, cpumask_of_cpu(cpu));
++	mutex_lock(&microcode_mutex);
++	collect_cpu_info(cpu);
++	if (uci->valid)
++		cpu_request_microcode(cpu);
++	mutex_unlock(&microcode_mutex);
++	set_cpus_allowed(current, old);
++}
++
++static void microcode_fini_cpu(int cpu)
++{
++	struct ucode_cpu_info *uci = ucode_cpu_info + cpu;
++
++	mutex_lock(&microcode_mutex);
++	uci->valid = 0;
++	vfree(uci->mc);
++	uci->mc = NULL;
++	mutex_unlock(&microcode_mutex);
++}
++
+ static int __init microcode_init (void)
+ {
+ 	int error;
+@@ -502,6 +611,12 @@ static int __init microcode_init (void)
+ 	error = microcode_dev_init();
+ 	if (error)
+ 		return error;
++	microcode_pdev = platform_device_register_simple("microcode", -1,
++							 NULL, 0);
++	if (IS_ERR(microcode_pdev)) {
++		microcode_dev_exit();
++		return PTR_ERR(microcode_pdev);
++	}
+ 
+ 	printk(KERN_INFO 
+ 		"IA-32 Microcode Update Driver: v" MICROCODE_VERSION " <tigran@veritas.com>\n");
+@@ -511,6 +626,7 @@ static int __init microcode_init (void)
+ static void __exit microcode_exit (void)
+ {
+ 	microcode_dev_exit();
++	platform_device_unregister(microcode_pdev);
+ }
+ 
+ module_init(microcode_init)
+Index: linux-2.6.17/drivers/base/firmware_class.c
+===================================================================
+--- linux-2.6.17.orig/drivers/base/firmware_class.c	2006-06-26 14:08:32.000000000 +0800
++++ linux-2.6.17/drivers/base/firmware_class.c	2006-06-26 14:09:24.000000000 +0800
+@@ -602,7 +602,7 @@ firmware_class_exit(void)
+ 	class_unregister(&firmware_class);
+ }
+ 
+-module_init(firmware_class_init);
++fs_initcall(firmware_class_init);
+ module_exit(firmware_class_exit);
+ 
+ EXPORT_SYMBOL(release_firmware);
 
-thanks,
-
-greg k-h

@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422695AbWF0WlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422701AbWF0WsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422695AbWF0WlY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 18:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422697AbWF0WlY
+	id S1422701AbWF0WsS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 18:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWF0WsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 18:41:24 -0400
-Received: from mail.gmx.net ([213.165.64.21]:49327 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422695AbWF0WlX (ORCPT
+	Tue, 27 Jun 2006 18:48:18 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42650 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1422701AbWF0WsS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 18:41:23 -0400
-X-Authenticated: #704063
-Subject: [Patch] Off by one in drivers/usb/input/yealink.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: Henk.Vergonet@gmail.com
-Content-Type: text/plain
-Date: Wed, 28 Jun 2006 00:41:19 +0200
-Message-Id: <1151448080.16217.3.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Tue, 27 Jun 2006 18:48:18 -0400
+Date: Wed, 28 Jun 2006 00:48:08 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PM_TRACE corrupts RTC
+Message-ID: <20060627224808.GA11910@elf.ucw.cz>
+References: <20060625232322.af3f4f6c.akpm@osdl.org> <Pine.LNX.4.64.0606260851000.3747@g5.osdl.org> <20060626091413.a15df2e0.akpm@osdl.org> <Pine.LNX.4.64.0606260927130.3747@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606260927130.3747@g5.osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Mon 2006-06-26 09:30:49, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 26 Jun 2006, Andrew Morton wrote:
+> > 
+> > Oh, I thought it found some spare space in there somehow.
+> 
+> I really tried. The fact is, the RTC chips have at least 114 bytes of 
+> NVRAM available in them, and most have more. Sadly, while from a hw 
+> standpoint it's non-volatile, the firmware I was testing with cleared it 
+> all (including the extended banks etc).
+> 
+> > Making it `default y' was a bit unfriendly.  How's about `default n' and
+> > `depends on EMBEDDED'?
+> 
+> We can certainly make it 'default n', and perhaps hide it behind 
+> EXPERIMENTAL (it's not really, but hey..). Not EMBEDDED, though, this is 
+> literally meant to help random people who have a dead machine on suspend 
+> be able to just turn this on, test suspend, and then when suspend causes a 
+> dead machine, just turn off power and reboot immediately again, and it 
+> will tell you which device was the last one to go through the resume 
+> cycle.
 
-another off by one spotted by coverity (id #485),
-we loop exactly one time too often
-
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
---- linux-2.6.17-git11/drivers/usb/input/yealink.c.orig	2006-06-28 00:29:46.000000000 +0200
-+++ linux-2.6.17-git11/drivers/usb/input/yealink.c	2006-06-28 00:30:04.000000000 +0200
-@@ -350,7 +350,7 @@ static int yealink_do_idle_tasks(struct 
- 		val = yld->master.b[ix];
- 		if (val != yld->copy.b[ix])
- 			goto send_update;
--	} while (++ix < sizeof(yld->master));
-+	} while (++ix < sizeof(yld->master)-1);
- 
- 	/* nothing todo, wait a bit and poll for a KEYPRESS */
- 	yld->stat_ix = 0;
-
-
+This should probably be hidden in kernel debugging submenu... or
+perhaps even out of the config system. It is only useful if you hack
+the .c code, anyway, no?
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

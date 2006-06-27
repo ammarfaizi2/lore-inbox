@@ -1,46 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422729AbWF0Xla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422730AbWF0Xm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422729AbWF0Xla (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 19:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422732AbWF0Xla
+	id S1422730AbWF0Xm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 19:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422733AbWF0Xm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 19:41:30 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:13920 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1422729AbWF0Xl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 19:41:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=hnhvd2jbi5ePNNNRy86sohMmZHWa+v+JhOMBl/Lm2jkWPu6/WLue4WYgJe1X+UoD6CI7NBvhizlLWZWZGYxjlrTQfEdkE7vEFpYiUmNZ6lj2DaTLMs22+8cnuhasZOguL+cxuMSN53xSxzFyqcQd4SuQKxCPS2xCMPZRhpINIUQ=
-Message-ID: <9bb377710606271641k480ec30s8aaf3c1b445fdf19@mail.gmail.com>
-Date: Tue, 27 Jun 2006 19:41:29 -0400
-From: "Brandon Berhent" <cheater1034@gmail.com>
+	Tue, 27 Jun 2006 19:42:57 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:54509 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1422730AbWF0Xm4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 19:42:56 -0400
+Date: Tue, 27 Jun 2006 16:43:27 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.17-mm3 possible reiser4 bug
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: akpm@osdl.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       stern@rowland.harvard.edu, mingo@elte.hu, tytso@us.ibm.com,
+       dvhltc@us.ibm.com, oleg@tv-sign.ru
+Subject: [PATCH 2/2] srcu-2: add SRCU operations to rcutorture
+Message-ID: <20060627234327.GB2734@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060627233702.GA2696@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060627233702.GA2696@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I've upgraded to 2.6.17-mm3 today, and there is a problem that happens
-when kexec is initiliazed
+Adds SRCU operations to rcutorture and updates rcutorture documentation.
 
-Reiser4[pdflush(170)] commit_current_atom (fs/reiser4/txnmgr.c:1062)[zam-597]
+Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
+---
 
-I receive the following every time kexec initializes, then the kernel
-panics and crashes. I rebooted to a rescue and ran fsck.reiser4 and it
-found a couple of small errors and fixed them. Then I tried it again,
-and I got the same thing on kexec initiliazation, except this time the
-FS wouldnt boot anymore, and i ran fsck.reiser4 and it came up with a
-severe error requiring me to run fsck.reiser4 --build-fs.
+ Documentation/RCU/torture.txt |   15 +++++++
+ kernel/rcutorture.c           |   89 ++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 101 insertions(+), 3 deletions(-)
 
-A couple other people have also tried it and had the same problem.
-2.6.17-mm1 and 2.6.17-mm2 do not have any problems for me.
-
-Any help his appreciated
-Thanks
--Brandon
+diff -urpNa -X dontdiff linux-2.6.17-srcu/Documentation/RCU/torture.txt linux-2.6.17-torturesrcu/Documentation/RCU/torture.txt
+--- linux-2.6.17-srcu/Documentation/RCU/torture.txt	2006-06-24 12:13:12.000000000 -0700
++++ linux-2.6.17-torturesrcu/Documentation/RCU/torture.txt	2006-06-26 18:50:33.000000000 -0700
+@@ -118,6 +118,21 @@ o	"Free-Block Circulation": Shows the nu
+ 	as it is only incremented if a torture structure's counter
+ 	somehow gets incremented farther than it should.
+ 
++Different implementations of RCU can provide implementation-specific
++additional information.  For example, SRCU provides the following:
++
++	srcu-torture: rtc: f8cf46a8 ver: 355 tfle: 0 rta: 356 rtaf: 0 rtf: 346 rtmbe: 0
++	srcu-torture: Reader Pipe:  559738 939 0 0 0 0 0 0 0 0 0
++	srcu-torture: Reader Batch:  560434 243 0 0 0 0 0 0 0 0
++	srcu-torture: Free-Block Circulation:  355 354 353 352 351 350 349 348 347 346 0
++	srcu-torture: per-CPU(idx=1): 0(0,1) 1(0,1) 2(0,0) 3(0,1)
++
++The first four lines are similar to those for RCU.  The last line shows
++the per-CPU counter state.  The numbers in parentheses are the values
++of the "old" and "current" counters for the corresponding CPU.  The
++"idx" value maps the "old" and "current" values to the underlying array,
++and is useful for debugging.
++
+ 
+ USAGE
+ 
+diff -urpNa -X dontdiff linux-2.6.17-srcu/kernel/rcutorture.c linux-2.6.17-torturesrcu/kernel/rcutorture.c
+--- linux-2.6.17-srcu/kernel/rcutorture.c	2006-06-24 11:52:08.000000000 -0700
++++ linux-2.6.17-torturesrcu/kernel/rcutorture.c	2006-06-27 07:13:13.000000000 -0700
+@@ -44,6 +44,7 @@
+ #include <linux/delay.h>
+ #include <linux/byteorder/swabb.h>
+ #include <linux/stat.h>
++#include <linux/srcu.h>
+ 
+ MODULE_LICENSE("GPL");
+ 
+@@ -53,7 +54,7 @@ static int stat_interval;	/* Interval be
+ static int verbose;		/* Print more debug info. */
+ static int test_no_idle_hz;	/* Test RCU's support for tickless idle CPUs. */
+ static int shuffle_interval = 5; /* Interval between shuffles (in sec)*/
+-static char *torture_type = "rcu"; /* What to torture. */
++static char *torture_type = "rcu"; /* What to torture: rcu, srcu. */
+ 
+ module_param(nreaders, int, 0);
+ MODULE_PARM_DESC(nreaders, "Number of RCU reader threads");
+@@ -66,7 +67,7 @@ MODULE_PARM_DESC(test_no_idle_hz, "Test 
+ module_param(shuffle_interval, int, 0);
+ MODULE_PARM_DESC(shuffle_interval, "Number of seconds between shuffles");
+ module_param(torture_type, charp, 0);
+-MODULE_PARM_DESC(torture_type, "Type of RCU to torture (rcu, rcu_bh)");
++MODULE_PARM_DESC(torture_type, "Type of RCU to torture (rcu, rcu_bh, srcu)");
+ 
+ #define TORTURE_FLAG "-torture:"
+ #define PRINTK_STRING(s) \
+@@ -282,8 +283,90 @@ static struct rcu_torture_ops rcu_bh_ops
+ 	.name = "rcu_bh"
+ };
+ 
++/*
++ * Definitions for srcu torture testing.
++ */
++
++static struct srcu_struct srcu_ctl;
++static struct list_head srcu_removed;
++
++static void srcu_torture_init(void)
++{
++	init_srcu_struct(&srcu_ctl);
++	INIT_LIST_HEAD(&srcu_removed);
++}
++
++static void srcu_torture_cleanup(void)
++{
++	synchronize_srcu(&srcu_ctl);
++	cleanup_srcu_struct(&srcu_ctl);
++}
++
++static int srcu_torture_read_lock(void)
++{
++	return (srcu_read_lock(&srcu_ctl));
++}
++
++static void srcu_torture_read_unlock(int idx)
++{
++	srcu_read_unlock(&srcu_ctl, idx);
++}
++
++static int srcu_torture_completed(void)
++{
++	return srcu_batches_completed(&srcu_ctl);
++}
++
++static void srcu_torture_deferred_free(struct rcu_torture *p)
++{
++	int i;
++	struct rcu_torture *rp;
++	struct rcu_torture *rp1;
++
++	synchronize_srcu(&srcu_ctl);
++	list_add(&p->rtort_free, &srcu_removed);
++	list_for_each_entry_safe(rp, rp1, &srcu_removed, rtort_free) {
++		i = rp->rtort_pipe_count;
++		if (i > RCU_TORTURE_PIPE_LEN)
++			i = RCU_TORTURE_PIPE_LEN;
++		atomic_inc(&rcu_torture_wcount[i]);
++		if (++rp->rtort_pipe_count >= RCU_TORTURE_PIPE_LEN) {
++			rp->rtort_mbtest = 0;
++			list_del(&rp->rtort_free);
++			rcu_torture_free(rp);
++		}
++	}
++}
++
++int srcu_torture_stats(char *page)
++{
++	int cnt = 0;
++	int cpu;
++	int idx = srcu_ctl.completed & 0x1;
++
++	cnt += sprintf(&page[cnt], "%s%s per-CPU(idx=%d):", torture_type, TORTURE_FLAG, idx);
++	for_each_cpu(cpu) {
++		cnt += sprintf(&page[cnt], " %d(%d,%d)", cpu,
++			       per_cpu_ptr(srcu_ctl.per_cpu_ref, cpu)->c[!idx],
++			       per_cpu_ptr(srcu_ctl.per_cpu_ref, cpu)->c[idx]);
++	}
++	cnt += sprintf(&page[cnt], "\n");
++	return (cnt);
++}
++
++static struct rcu_torture_ops srcu_ops = {
++	.init = srcu_torture_init,
++	.cleanup = srcu_torture_cleanup,
++	.readlock = srcu_torture_read_lock,
++	.readunlock = srcu_torture_read_unlock,
++	.completed = srcu_torture_completed,
++	.deferredfree = srcu_torture_deferred_free,
++	.stats = srcu_torture_stats,
++	.name = "srcu"
++};
++
+ static struct rcu_torture_ops *torture_ops[] =
+-	{ &rcu_ops, &rcu_bh_ops, NULL };
++	{ &rcu_ops, &rcu_bh_ops, &srcu_ops, NULL };
+ 
+ /*
+  * RCU torture writer kthread.  Repeatedly substitutes a new structure

@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWF0MLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWF0MLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbWF0MLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 08:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWF0MLP
+	id S932303AbWF0MLh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 08:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWF0MLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 08:11:15 -0400
-Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:24787 "EHLO
-	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932274AbWF0MLO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 08:11:14 -0400
-Date: Tue, 27 Jun 2006 08:05:01 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: list corruption on removal of snd_seq_dummy
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Dave Jones <davej@redhat.com>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200606270808_MC3-1-C391-2F33@compuserve.com>
+	Tue, 27 Jun 2006 08:11:37 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:23825 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S932303AbWF0MLf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 08:11:35 -0400
+Message-ID: <44A1204F.3070704@shadowen.org>
+Date: Tue, 27 Jun 2006 13:10:55 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Yasunori Goto <y-goto@jp.fujitsu.com>,
+       Toralf Foerster <toralf.foerster@gmx.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: linux-2.6.17.1: undefined reference to `online_page'
+References: <200606251704_MC3-1-C36D-5D33@compuserve.com>	 <20060626163235.A022.Y-GOTO@jp.fujitsu.com> <1151343992.10877.34.camel@localhost.localdomain>
+In-Reply-To: <1151343992.10877.34.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <s5hejxb7xrb.wl%tiwai@suse.de>
-
-On Tue, 27 Jun 2006 11:28:56 +0200, Takashi Iwai wrote:
-
-> >  > > The code in question is doing..
-> >  > > 
-> >  > >         __list_add(&deleted_list,
-> >  > >                client->ports_list_head.prev,
-> >  > >                client->ports_list_head.next);
-> >  > > 
-> >  > > which looks fishy, as those two elements aren't going to be consecutive,
-> >  > > as __list_add expects.
-> >  > 
-> >  > I think the code behaves correctly but probably misusing __list_add().
-> >  > It movies the whole entries from an existing list_head A
-> >  > (clients->ports_list_head) to a new list_head B (deleted_list).
-> >  > The above is exapnded:
-> >  > 
-> >  >  A->next->prev = B;
-> >  >  B->next = A->next;
-> >  >  B->prev = A->prev;
-> >  >  A->prev->next = B;
-> >  > 
-> >  > Any better way to achieve it using standard macros?
-> > 
-> > Why can't you just list_move() the elements ?
+Dave Hansen wrote:
+> On Mon, 2006-06-26 at 16:39 +0900, Yasunori Goto wrote:
 > 
-> No, list_move() can't move the whole elements without loop.
+>>===================================================================
+>>--- linux-2.6.17.orig/mm/Kconfig        2006-06-26 14:19:11.000000000
+>>+0900
+>>+++ linux-2.6.17/mm/Kconfig     2006-06-26 14:19:53.000000000 +0900
+>>@@ -115,7 +115,7 @@ config SPARSEMEM_EXTREME
+>> # eventually, we can have this option just 'select SPARSEMEM'
+>> config MEMORY_HOTPLUG
+>>        bool "Allow for memory hot-add"
+>>-       depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND
+>>+       depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND
+>>&& !(X86_32 && !HIGHMEM)
+>> 
+>> comment "Memory hotplug is currently incompatible with Software
+>>Suspend"
+>>        depends on SPARSEMEM && HOTPLUG && SOFTWARE_SUSPEND 
 > 
-> A solution is
 > 
->       list_add(B, A);
->       list_del_init(A);
-> 
-> (although this introduces a bit more code :)
+> I think it makes a lot more sense to just disable sparsemem when !
+> HIGHMEM.  Plus, we can do all of that in the arch-specific Kconfigs and
+> not litter the generic ones with this stuff.
 
-Shouldn't it be like this?
+SPARSEMEM cirtainly isn't going to offer you anything much with this
+little memory.  If you were going to do this I'd say it makes more sense
+to introduce an ARCH_DISABLE_MEMORY_HOTPLUG sort of thing and add that
+in the x86 Kconfig.
 
-        ports_list_first = client->ports_list_head.next;
-        list_del_init(client->ports_list_head);
-        list_splice(ports_list_first, &deleted_list);
-
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+-apw

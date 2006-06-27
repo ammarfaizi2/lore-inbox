@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbWF0TQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbWF0TRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932543AbWF0TQm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbWF0TQm
+	id S1030291AbWF0TRm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbWF0TRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:16:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2453 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932543AbWF0TQk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:16:40 -0400
-Date: Tue, 27 Jun 2006 12:16:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg KH <greg@kroah.com>
-cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [git pull] Input update for 2.6.17
-In-Reply-To: <Pine.LNX.4.64.0606271131590.3927@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0606271211110.3927@g5.osdl.org>
-References: <200606260235.03718.dtor_core@ameritech.net>
- <Pine.LNX.4.64.0606262247040.3927@g5.osdl.org> <20060627063734.GA28135@kroah.com>
- <Pine.LNX.4.64.0606271131590.3927@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Jun 2006 15:17:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:44946 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932542AbWF0TRk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 15:17:40 -0400
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on
+	i386
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0606272104500.7853@yvahk01.tjqt.qr>
+References: <20060626151012.GR23314@stusta.de>
+	 <20060626153834.GA18599@redhat.com>
+	 <1151336815.3185.61.camel@laptopd505.fenrus.org>
+	 <20060626155439.GB18599@redhat.com>
+	 <Pine.LNX.4.61.0606271626470.10810@yvahk01.tjqt.qr>
+	 <1151421452.32186.19.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0606272104500.7853@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 21:17:21 +0200
+Message-Id: <1151435841.5217.39.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 27 Jun 2006, Linus Torvalds wrote:
+On Tue, 2006-06-27 at 21:09 +0200, Jan Engelhardt wrote:
+> >> > > cli/sti should just be removed, or at least have those drivers marked
+> >> > > BROKEN... nobody is apparently using them anyway...
+> >> >
+> >> >Just ISDN really.
+> >> >
+> >> And ISDN is widespread in Germany (besides 56k and DSL(PPPOE)).
+> >
+> >Then there should be lots of Germans eager to fix it when it gets dealt
+> >with.
+> >
 > 
-> > What does the kernel log show right before this happened?
-> > Any chance to enable CONFIG_USB_DEBUG?
+> /* Heh, heh */
 > 
-> Will try.
+> So what do I need to replace cli/sti with?
 
-There were _no_ kernel messages just before the oops. Not even with USB 
-debugging turned on. Of course, they may have been marked "informational", 
-and not shown on the console. Every distribution seems to think that debug 
-messages are more annoying than useful, so they tend to set the console 
-debug level down (even if you boot with "debug" to turn it on!). Gaah!
+proper spinlocks ;)
 
-		Linus
+cli/sti assumed to disable interrupts on all processors, and so when an
+old driver uses cli/sti it's sort of a lock against any interrupt
+handler (yes this is locking code not data!). In general you need to
+find out what data the author wanted to protect, and just create proper
+locking for that data.  
+
+yes this is not a mechanical transformation.. if it was it would have
+been done already :)
+
+

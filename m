@@ -1,90 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWF0MTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWF0MUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbWF0MTl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 08:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWF0MTl
+	id S932304AbWF0MUf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 08:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWF0MUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 08:19:41 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:14853 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932335AbWF0MTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 08:19:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BrRqNZhnUPEYMJFTVoA7KffGEmaDCXVMYiM5XVT0lhM8pJ171WiG8qDF5bPlAWs0pcNAPlGBjguhf1gwgc0EeHM4QSiJUiCUjn6HDp/51IVglETUJmYmh8PbRn4DUI/Ri7gbLJu2cWSYobxwBmh+NA7NxOujoyjGsPH/kEYKpGQ=
-Message-ID: <625fc13d0606270519wc506fsa7b1c7e55044ec78@mail.gmail.com>
-Date: Tue, 27 Jun 2006 07:19:37 -0500
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: "Greg KH" <gregkh@suse.de>
-Subject: Re: pciehp borkage.
-Cc: "Dave Jones" <davej@redhat.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060627042750.GA1768@suse.de>
+	Tue, 27 Jun 2006 08:20:35 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:31203 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S932484AbWF0MUe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 08:20:34 -0400
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: oom-killer problem
+Date: Tue, 27 Jun 2006 14:21:44 +0200
+User-Agent: KMail/1.7.2
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200606270028.16346.daniel.ritz-ml@swissonline.ch> <Pine.LNX.4.64.0606261604180.3927@g5.osdl.org> <20060627053950.GA26435@mars.ravnborg.org>
+In-Reply-To: <20060627053950.GA26435@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060627033749.GB26575@redhat.com> <20060627042750.GA1768@suse.de>
+Message-Id: <200606271421.45497.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-04.tornado.cablecom.ch 1378;
+	Body=4 Fuz1=4 Fuz2=4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/26/06, Greg KH <gregkh@suse.de> wrote:
-> On Mon, Jun 26, 2006 at 11:37:49PM -0400, Dave Jones wrote:
-> > My head hurts..
-> >
-> > drivers/pci/pcie/Kconfig ..
-> >
-> > config HOTPLUG_PCI_PCIE
-> >     tristate "PCI Express Hotplug driver"
-> >     depends on HOTPLUG_PCI && PCIEPORTBUS && (BROKEN || ACPI)
-> >
-> >
-> >
-> > but drivers/pci/hotplug/Makefile has..
-> >
-> > pciehp-objs     :=  pciehp_core.o   \
-> >                 pciehp_ctrl.o   \
-> >                 pciehp_pci.o    \
-> >                 pciehp_hpc.o
-> >
-> > So it gets built regardless of the option, which leaves ppc (among others)
-> > totally busted..
->
-> Yes, this driver does have issues on ppc, see the archives for Anton
-> trying to fix it up to get it to build.  But as ppc currently doesn't
-> _have_ pci express hotplug hardware it really doesn't matter much :)
->
-> > In file included from include/acpi/platform/acenv.h:140,
-> >                  from include/acpi/acpi.h:54,
-> >                  from drivers/pci/hotplug/pciehp_hpc.c:41:
-> > include/acpi/platform/aclinux.h:59:22: error: asm/acpi.h: No such file or directory
-> > In file included from include/acpi/acpi.h:55,
-> >                  from drivers/pci/hotplug/pciehp_hpc.c:41:
-> > include/acpi/actypes.h:129: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'UINT64'
-> > include/acpi/actypes.h:130: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'INT64'
-> > make[3]: *** [drivers/pci/hotplug/pciehp_hpc.o] Error 1
-> > make[2]: *** [drivers/pci/hotplug] Error 2
-> > make[1]: *** [drivers/pci] Error 2
-> >
-> >
-> > Should that Makefile be more along the lines of..
-> >
-> > pciehp-$(CONFIG_PCI_PCIE)     :=  pciehp_core.o   \
-> >                 pciehp_ctrl.o   \
-> >                 pciehp_pci.o    \
-> >                 pciehp_hpc.o
-> >
-> > perhaps ?
->
-> No, look up a bit higher:
->         obj-$(CONFIG_HOTPLUG_PCI_PCIE)          += pciehp.o
->
-> which will build pciehp or not.  Just don't enable the option for now
-> on ppc please.  Until people sanitize the ACPI headers for non-acpi
-> arches (which is currently underway...)
+On Tuesday 27 June 2006 07.39, Sam Ravnborg wrote:
+> On Mon, Jun 26, 2006 at 04:05:40PM -0700, Linus Torvalds wrote:
+> > On Tue, 27 Jun 2006, Daniel Ritz wrote:
+> > >
+> > > reverting the attached patch fixes the problem...
+> > 
+> > Michal, can you also confirm that just doing a simple revert of that one 
+> > commit makes things work for you?
+> > 
+> > Sam, if I don't hear otherwise from you, and Michael confirms, I'll just 
+> > revert it for now, and you can figure out how to fix it without breakage?
+> I will try to find time during the weekend to track down the cause of
+> this.
+> But by reverting said patch you also have to revert:
+> 566f81ca598f80de03e80a9a743e94b65b4e017e
+> 
+> This is the patch where make -rR is enabled and that one initally caused
+> problems for ia64.
+> 
+> 	Sam
+> 
 
-Would it be sane to make the Kconfig refuse to enable the option for
-archs that this is known to be broken on?
+this little something on top (instead of reverting the patch) also fixes the
+problem for me. because the module name depends on the name of module.mod.o
+it's necessary to call basename twice on that, otherwise the name ends up
+being module.mod
 
-josh
+maybe we could also define basetarget in Kbuild.include as:
+	basetarget = $(basename $(basename $(notdir $@)))
+but that might be too much...dunno
+
+
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+index 3cb445c..e66f6dc 100644
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -117,7 +117,7 @@ quiet_modtag := $(empty)   $(empty)
+ $(obj-m)              : quiet_modtag := [M]
+ 
+ # Default for not multi-part modules
+-modname = $(basetarget)
++modname = $(basename $(basetarget))
+ 
+ $(multi-objs-m)         : modname = $(modname-multi)
+ $(multi-objs-m:.o=.i)   : modname = $(modname-multi)
+diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
+index e83613e..17f3d31 100644
+--- a/scripts/Makefile.modpost
++++ b/scripts/Makefile.modpost
+@@ -72,7 +72,7 @@ # Declare generated files as targets for
+ # Step 5), compile all *.mod.c files
+ 
+ # modname is set to make c_flags define KBUILD_MODNAME
+-modname = $(basetarget)
++modname = $(basename $(basetarget))
+ 
+ quiet_cmd_cc_o_c = CC      $@
+       cmd_cc_o_c = $(CC) $(c_flags) $(CFLAGS_MODULE)	\
+
+
+

@@ -1,95 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWF0SlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWF0SmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbWF0SlF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 14:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWF0SlF
+	id S1030259AbWF0SmA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 14:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbWF0Sl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 14:41:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:234 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030256AbWF0SlB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 14:41:01 -0400
-Date: Tue, 27 Jun 2006 14:40:54 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: don't print out SMP info on UP kernels.
-Message-ID: <20060627184054.GD7914@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jun 2006 14:41:59 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:7104 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030259AbWF0Sl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 14:41:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=inISVPvwwu6u62UezdyrdDU2I5tNYwHsgd66nukgpx68c10m44trYUn/xA9TNAEDGHU8dv7JFDm7ifyEFCtdOLV+8lZAlhGzNw1eqEHFKy+uhSi4IXFeknyq95RG2apcyPqfTMGaARDhzhBItZtcw/7ZPdHF7N1hXoj484I+XWI=
+Message-ID: <6bffcb0e0606271141o22077d69ya26fa6926e5524a1@mail.gmail.com>
+Date: Tue, 27 Jun 2006 20:41:58 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Shailabh Nagar" <nagar@watson.ibm.com>
+Subject: Re: [PATCH] delay accounting taskstats interface: send tgid once locking fix
+Cc: akpm@osdl.org, "Arjan van de Ven" <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, balbir@in.ibm.com,
+       jlan@engr.sgi.com
+In-Reply-To: <44A162F0.3060808@watson.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+References: <200606261906.k5QJ6vCp025201@shell0.pdx.osdl.net>
+	 <1151421336.5217.28.camel@laptopd505.fenrus.org>
+	 <44A15483.30308@watson.ibm.com> <44A1576C.8090307@watson.ibm.com>
+	 <44A162F0.3060808@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On UP kernels, it's silly to print out info about SMP alternatives..
+Hi,
 
- SMP alternatives: switching to UP code
- Freeing SMP alternatives: 0k freed
+On 27/06/06, Shailabh Nagar <nagar@watson.ibm.com> wrote:
+> Use irqsave variants of spin_lock for newly introduced tsk->signal->stats_lock
+> The lock is nested within tasklist_lock as part of release_task() and hence
+> there is possibility of a AB-BA deadlock if a timer interrupt occurs while
+> stats_lock is held.
+>
+> Thanks to Arjan van de Ven for pointing out the lock bug.
+> The patch conservatively converts all use of stats_lock to irqsave variant
+> rather than only the call within taskstats_tgid_free which is the function
+> called within tasklist_lock protection.
+>
+> Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
+>
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+Problem solved, thanks.
 
---- linux-2.6.17.noarch/arch/i386/kernel/alternative.c~	2006-06-20 13:44:40.000000000 -0400
-+++ linux-2.6.17.noarch/arch/i386/kernel/alternative.c	2006-06-20 13:46:33.000000000 -0400
-@@ -118,6 +118,7 @@ void apply_alternatives(struct alt_instr
- 	}
- }
- 
-+#ifdef CONFIG_SMP
- static void alternatives_smp_save(struct alt_instr *start, struct alt_instr *end)
- {
- 	struct alt_instr *a;
-@@ -282,6 +283,8 @@ void alternatives_smp_switch(int smp)
- 	}
- 	spin_unlock_irqrestore(&smp_alt, flags);
- }
-+#endif
-+
- 
- void __init alternative_instructions(void)
- {
-@@ -290,6 +290,8 @@ void __init alternative_instructions(voi
- {
- 	apply_alternatives(__alt_instructions, __alt_instructions_end);
- 
-+#ifdef CONFIG_SMP
-+
- 	/* switch to patch-once-at-boottime-only mode and free the
- 	 * tables in case we know the number of CPUs will never ever
- 	 * change */
-@@ -318,4 +322,5 @@ void __init alternative_instructions(voi
- 					    _text, _etext);
- 		alternatives_smp_switch(0);
- 	}
-+#endif
- }
---- linux-2.6.17.noarch/arch/i386/kernel/module.c~	2006-06-20 14:08:15.000000000 -0400
-+++ linux-2.6.17.noarch/arch/i386/kernel/module.c	2006-06-20 14:08:56.000000000 -0400
-@@ -125,6 +125,7 @@ int module_finalize(const Elf_Ehdr *hdr,
- 		void *aseg = (void *)alt->sh_addr;
- 		apply_alternatives(aseg, aseg + alt->sh_size);
- 	}
-+#ifdef CONFIG_SMP
- 	if (locks && text) {
- 		void *lseg = (void *)locks->sh_addr;
- 		void *tseg = (void *)text->sh_addr;
-@@ -132,10 +133,13 @@ int module_finalize(const Elf_Ehdr *hdr,
- 					    lseg, lseg + locks->sh_size,
- 					    tseg, tseg + text->sh_size);
- 	}
-+#endif
- 	return 0;
- }
- 
- void module_arch_cleanup(struct module *mod)
- {
-+#ifdef CONFIG_SMP
- 	alternatives_smp_module_del(mod);
-+#endif
- }
+Regards,
+Michal
 
 -- 
-http://www.codemonkey.org.uk
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

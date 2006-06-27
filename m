@@ -1,100 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422647AbWF0WSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422661AbWF0WTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422647AbWF0WSK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 18:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWF0WPQ
+	id S1422661AbWF0WTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 18:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWF0WTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 18:15:16 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:53418 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030472AbWF0WPB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 18:15:01 -0400
-Subject: [PATCH 19/20] elevate writer count for custom 'struct file'
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
-       serue@us.ibm.com, Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Tue, 27 Jun 2006 15:14:56 -0700
-References: <20060627221436.77CCB048@localhost.localdomain>
-In-Reply-To: <20060627221436.77CCB048@localhost.localdomain>
-Message-Id: <20060627221456.F6AD6304@localhost.localdomain>
+	Tue, 27 Jun 2006 18:19:03 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:9165 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1422650AbWF0WSk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 18:18:40 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: nigel@suspend2.net
+Subject: Re: [Suspend2][ 0/9] Extents support.
+Date: Wed, 28 Jun 2006 00:19:31 +0200
+User-Agent: KMail/1.9.3
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271126.28898.rjw@sisk.pl> <200606271935.13261.nigel@suspend2.net>
+In-Reply-To: <200606271935.13261.nigel@suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606280019.32045.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Some filesystems forego the vfs and may_open() and create their
-own 'struct file's.  Any of these users which set the write flag
-on the file will cause an extra mnt_drop_write() on __fput(),
-thus dropping the reference count too low.
+On Tuesday 27 June 2006 11:35, Nigel Cunningham wrote:
+> On Tuesday 27 June 2006 19:26, Rafael J. Wysocki wrote:
+> > > > Now I haven't followed the suspend2 vs swsusp debate very closely, but
+> > > > it seems to me that your biggest problem with getting this merged is
+> > > > getting consensus on where exactly this is going. Nobody wants two
+> > > > different suspend modules in the kernel. So there are two options -
+> > > > suspend2 is deemed the way to go, and it gets merged and replaces
+> > > > swsusp. Or the other way around - people like swsusp more, and you are
+> > > > doomed to maintain suspend2 outside the tree.
+> > >
+> > > Generally, I agree, although my understanding of Rafael and Pavel's
+> > > mindset is that swsusp is a dead dog and uswsusp is the way they want to
+> > > see things go. swsusp is only staying for backwards compatability. If
+> > > that's the case, perhaps we can just replace swsusp with Suspend2 and let
+> > > them have their existing interface for uswsusp. Still not ideal, I agree,
+> > > but it would be progress.
+> >
+> > Well, ususpend needs some core functionality to be provided by the kernel,
+> > like freezing/thawing processes (this is also used by the STR),
+> > snapshotting the system memory.  These should be shared with the in-kernel
+> > suspend, be it swsusp or suspend2.
+> 
+> If I modify suspend2 so that from now on it replaces swsusp, using noresume, 
+> resume= and echo disk > /sys/power/state in a way that's backward compatible 
+> with swsusp and doesn't interfere with uswsusp support, would you be happy? 
+> IIRC, Pavel has said in the past he wishes I'd just do that, but he's not you 
+> of course.
 
-These users tend to have artifical in-kernel vfsmounts which
-aren't really exposed to userspace and can't be remounted, but
-this patch is included for completeness and so that the warnings
-don't trip over these cases.
+That depends on how it's done.  For sure, I wouldn't like it to be done in the
+"everything at once" manner.
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
-
- lxc-dave/fs/hugetlbfs/inode.c |    2 ++
- lxc-dave/mm/shmem.c           |    2 ++
- lxc-dave/mm/tiny-shmem.c      |    2 ++
- lxc-dave/net/socket.c         |    3 +++
- 4 files changed, 9 insertions(+)
-
-diff -puN fs/hugetlbfs/inode.c~fix-__fput-rev2 fs/hugetlbfs/inode.c
---- lxc/fs/hugetlbfs/inode.c~fix-__fput-rev2	2006-06-27 10:40:35.000000000 -0700
-+++ lxc-dave/fs/hugetlbfs/inode.c	2006-06-27 10:40:35.000000000 -0700
-@@ -790,6 +790,8 @@ struct file *hugetlb_zero_setup(size_t s
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &hugetlbfs_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-+	error = mnt_want_write(hugetlbfs_vfsmount);
-+	WARN_ON(error);
- 	return file;
- 
- out_inode:
-diff -puN mm/shmem.c~fix-__fput-rev2 mm/shmem.c
---- lxc/mm/shmem.c~fix-__fput-rev2	2006-06-27 10:40:35.000000000 -0700
-+++ lxc-dave/mm/shmem.c	2006-06-27 10:40:35.000000000 -0700
-@@ -2326,6 +2326,8 @@ struct file *shmem_file_setup(char *name
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &shmem_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-+	error = mnt_want_write(shm_mnt);
-+	WARN_ON(error);
- 	return file;
- 
- close_file:
-diff -puN mm/tiny-shmem.c~fix-__fput-rev2 mm/tiny-shmem.c
---- lxc/mm/tiny-shmem.c~fix-__fput-rev2	2006-06-27 10:40:35.000000000 -0700
-+++ lxc-dave/mm/tiny-shmem.c	2006-06-27 10:40:35.000000000 -0700
-@@ -88,6 +88,8 @@ struct file *shmem_file_setup(char *name
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &ramfs_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-+	error = mnt_want_write(shm_mnt);
-+	WARN_ON(error);
- 
- 	/* notify everyone as to the change of file size */
- 	error = do_truncate(dentry, size, 0, file);
-diff -puN net/socket.c~fix-__fput-rev2 net/socket.c
---- lxc/net/socket.c~fix-__fput-rev2	2006-06-27 10:40:35.000000000 -0700
-+++ lxc-dave/net/socket.c	2006-06-27 10:40:35.000000000 -0700
-@@ -396,6 +396,7 @@ static int sock_attach_fd(struct socket 
- {
- 	struct qstr this;
- 	char name[32];
-+	int error;
- 
- 	this.len = sprintf(name, "[%lu]", SOCK_INODE(sock)->i_ino);
- 	this.name = name;
-@@ -416,6 +417,8 @@ static int sock_attach_fd(struct socket 
- 	file->f_flags = O_RDWR;
- 	file->f_pos = 0;
- 	file->private_data = sock;
-+	error = mnt_want_write(sock_mnt);
-+	WARN_ON(error);
- 
- 	return 0;
- }
-_
+Greetings,
+Rafael

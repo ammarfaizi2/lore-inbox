@@ -1,281 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWF0Lyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWF0LyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbWF0Lyk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 07:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWF0Lyk
+	id S932179AbWF0LyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 07:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWF0LyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 07:54:40 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:19683 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932466AbWF0Lyi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 07:54:38 -0400
-Subject: [RFC][PATCH 3/3] Process events biarch bug: New process events
-	connector value
-From: Matt Helsley <matthltc@us.ibm.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-References: <20060627112644.804066367@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 27 Jun 2006 04:49:35 -0700
-Message-Id: <1151408975.21787.1815.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 07:54:15 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8116 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932179AbWF0LyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 07:54:12 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Daniel Lezcano <dlezcano@fr.ibm.com>
+Cc: Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
+       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       viro@ftp.linux.org.uk, Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+References: <20060609210202.215291000@localhost.localdomain>
+	<20060609210625.144158000@localhost.localdomain>
+	<20060626134711.A28729@castle.nmd.msu.ru>
+	<449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru>
+	<44A00215.2040608@fr.ibm.com>
+	<20060627131136.B13959@castle.nmd.msu.ru>
+	<44A0FBAC.7020107@fr.ibm.com>
+	<20060627133849.E13959@castle.nmd.msu.ru>
+	<44A1149E.6060802@fr.ibm.com>
+Date: Tue, 27 Jun 2006 05:52:52 -0600
+In-Reply-To: <44A1149E.6060802@fr.ibm.com> (Daniel Lezcano's message of "Tue,
+	27 Jun 2006 13:21:02 +0200")
+Message-ID: <m1sllqn7cb.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Deprecate" existing Process Events connector interface and add a new one
-that works cleanly on biarch platforms.
+Daniel Lezcano <dlezcano@fr.ibm.com> writes:
 
-Any expansion of the previous event structure would break userspace's ability
-to workaround the biarch incompatibility problem. Hence this patch creates a
-new interface and generates events (for both when necessary).
+>>>>My point is that if you make namespace tagging at routing time, and
+>>>>your packets are being routed only once, you lose the ability
+>>>>to have separate routing tables in each namespace.
+>>>
+>>>Right. What is the advantage of having separate the routing tables ?
+>> Routing is everything.
+>> For example, I want namespaces to have their private tunnel devices.
+>> It means that namespaces should be allowed have private routes of local type,
+>> private default routes, and so on...
+>>
+>
+> Ok, we are talking about the same things. We do it only in a different way:
+>
+> 	* separate routing table :
+> 		 namespace
+> 			|
+> 			\--- route_tables
+> 				|
+> 				\---routes
+>
+> 	* tagged routing table :
+> 		route_tables
+> 			|
+> 			\---routes
+> 				|
+> 				\---namespace
 
-Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
----
- drivers/connector/cn_proc.c |   65 +++++++++++++++++++++++++++++---------------
- include/linux/cn_proc.h     |   23 ++++++++++-----
- include/linux/connector.h   |    3 +-
- 3 files changed, 61 insertions(+), 30 deletions(-)
+There is a third possibility, that falls in between these two if local
+communication is really the bottle neck.
 
-Index: linux-2.6.17-mm3-biarch/include/linux/connector.h
-===================================================================
---- linux-2.6.17-mm3-biarch.orig/include/linux/connector.h
-+++ linux-2.6.17-mm3-biarch/include/linux/connector.h
-@@ -29,11 +29,12 @@
- 
- /*
-  * Process Events connector unique ids -- used for message routing
-  */
- #define CN_IDX_PROC			0x1
--#define CN_VAL_PROC			0x1
-+#define CN_VAL_PROC_DEPRECATED		0x1 /* deprecated */
-+#define CN_VAL_PROC			0x2
- #define CN_IDX_CIFS			0x2
- #define CN_VAL_CIFS                     0x1
- #define CN_W1_IDX			0x3	/* w1 communication */
- #define CN_W1_VAL			0x1
- 
-Index: linux-2.6.17-mm3-biarch/drivers/connector/cn_proc.c
-===================================================================
---- linux-2.6.17-mm3-biarch.orig/drivers/connector/cn_proc.c
-+++ linux-2.6.17-mm3-biarch/drivers/connector/cn_proc.c
-@@ -30,13 +30,19 @@
- #include <linux/notifier.h>
- #include <asm/atomic.h>
- 
- #include <linux/cn_proc.h>
- 
--#define CN_PROC_MSG_SIZE (sizeof(struct cn_msg) + sizeof(struct proc_event))
--
--static atomic_t proc_event_num_listeners = ATOMIC_INIT(0);
-+#define CN_PROC_MSG_SIZE (sizeof(struct cn_msg) + \
-+			  max(sizeof(struct proc_event), \
-+			      sizeof(struct proc_event_deprecated)))
-+
-+static atomic_t proc_event_num_old_listeners = ATOMIC_INIT(0);
-+static struct cb_id cn_proc_event_deprecated_id = {
-+	CN_IDX_PROC,
-+	CN_VAL_PROC_DEPRECATED
-+};
- static struct cb_id cn_proc_event_id = { CN_IDX_PROC, CN_VAL_PROC };
- 
- /* proc_event_counts is used as the sequence number of the netlink message */
- static DEFINE_PER_CPU(__u32, proc_event_counts) = { 0 };
- 
-@@ -100,18 +106,18 @@ static inline void proc_exit_connector(s
-  * mechanisms.
-  */
- static void cn_proc_ack(int err, int rcvd_seq, int rcvd_ack)
- {
- 	struct cn_msg *msg;
--	struct proc_event *ev;
-+	struct proc_event_deprecated *ev;
- 	__u8 buffer[CN_PROC_MSG_SIZE];
- 
--	if (atomic_read(&proc_event_num_listeners) < 1)
-+	if (atomic_read(&proc_event_num_old_listeners) < 1)
- 		return;
- 
- 	msg = (struct cn_msg*)buffer;
--	ev = (struct proc_event*)msg->data;
-+	ev = (struct proc_event_deprecated*)msg->data;
- 	msg->seq = rcvd_seq;
- 	ktime_get_ts(&ev->timestamp);
- 	ev->cpu = -1;
- 	ev->what = PROC_EVENT_NONE;
- 	ev->event_data.ack.err = err;
-@@ -123,11 +129,11 @@ static void cn_proc_ack(int err, int rcv
- 
- /**
-  * cn_proc_mcast_ctl
-  * @data: message sent from userspace via the connector
-  */
--static void cn_proc_mcast_ctl(void *data)
-+static void cn_proc_mcast_old_ctl(void *data)
- {
- 	struct cn_msg *msg = data;
- 	enum proc_cn_mcast_op *mc_op = NULL;
- 	int err = 0;
- 
-@@ -135,14 +141,14 @@ static void cn_proc_mcast_ctl(void *data
- 		return;
- 
- 	mc_op = (enum proc_cn_mcast_op*)msg->data;
- 	switch (*mc_op) {
- 	case PROC_CN_MCAST_LISTEN:
--		atomic_inc(&proc_event_num_listeners);
-+		atomic_inc(&proc_event_num_old_listeners);
- 		break;
- 	case PROC_CN_MCAST_IGNORE:
--		atomic_dec(&proc_event_num_listeners);
-+		atomic_dec(&proc_event_num_old_listeners);
- 		break;
- 	default:
- 		err = EINVAL;
- 		break;
- 	}
-@@ -158,16 +164,15 @@ static int cn_proc_watch_task(struct not
- 			      void *t)
- {
- 	struct task_struct *task = t;
- 	struct cn_msg *msg;
- 	struct proc_event *ev;
-+	struct proc_event_deprecated *ev_old;
-+	struct timespec timestamp;
- 	__u8 buffer[CN_PROC_MSG_SIZE];
- 	int rc = NOTIFY_OK;
- 
--	if (atomic_read(&proc_event_num_listeners) < 1)
--		return rc;
--
- 	msg = (struct cn_msg*)buffer;
- 	ev = (struct proc_event*)msg->data;
- 	switch (get_watch_event(val)) {
- 	case WATCH_TASK_CLONE:
- 		proc_fork_connector(task, ev);
-@@ -189,16 +194,26 @@ static int cn_proc_watch_task(struct not
- 		break;
- 	}
- 	if (rc != NOTIFY_OK)
- 		return rc;
- 	get_seq(&msg->seq, &ev->cpu);
--	ktime_get_ts(&ev->timestamp); /* get high res monotonic timestamp */
-+	ktime_get_ts(&timestamp); /* get high res monotonic timestamp */
-+	ev->timestamp_ns = ((__u64)timestamp.tv_sec*(__u64)NSEC_PER_SEC) + (__u64)timestamp.tv_nsec;
- 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
- 	msg->ack = 0; /* not used */
- 	msg->len = sizeof(*ev);
- 	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
- 	/* If cn_netlink_send() fails, drop data */
-+
-+	if (atomic_read(&proc_event_num_old_listeners) < 1)
-+		return rc;
-+	ev_old = (struct proc_event_deprecated*)msg->data;
-+	msg->len = sizeof(*ev_old);
-+	memmove(&ev_old->event_data, &ev->event_data, sizeof(ev->event_data));
-+	memcpy(&ev_old->timestamp, &timestamp, sizeof(timestamp));
-+	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
-+	/* If cn_netlink_send() fails, drop data */
- 	return rc;
- }
- 
- static struct notifier_block __read_mostly cn_proc_nb = {
- 	.notifier_call = cn_proc_watch_task,
-@@ -211,20 +226,27 @@ static struct notifier_block __read_most
-  */
- static int __init cn_proc_init(void)
- {
- 	int err;
- 
--	if ((err = cn_add_callback(&cn_proc_event_id, "cn_proc",
--	 			   &cn_proc_mcast_ctl))) {
--		printk(KERN_WARNING "cn_proc failed to register\n");
--		goto out;
--	}
-+	err = cn_add_callback(&cn_proc_event_deprecated_id, "cn_proc_old",
-+			      &cn_proc_mcast_old_ctl);
-+	if (err)
-+		goto error_old;
-+	err = cn_add_callback(&cn_proc_event_id, "cn_proc", NULL);
-+	if (err)
-+		goto error;
- 
- 	err = register_task_watcher(&cn_proc_nb);
--	if (err != 0)
--		cn_del_callback(&cn_proc_event_id);
--out:
-+	if (err)
-+		goto error;
-+	return err;
-+error:
-+	cn_del_callback(&cn_proc_event_id);
-+error_old:
-+	cn_del_callback(&cn_proc_event_deprecated_id);
-+	printk(KERN_WARNING "cn_proc failed to register\n");
- 	return err;
- }
- 
- static void cn_proc_fini(void)
- {
-@@ -234,10 +256,11 @@ static void cn_proc_fini(void)
- 	if (err != 0)
- 		printk(KERN_WARNING
- 		       "cn_proc failed to unregister its task notify block\n");
- 
- 	cn_del_callback(&cn_proc_event_id);
-+	cn_del_callback(&cn_proc_event_deprecated_id);
- }
- 
- module_init(cn_proc_init);
- module_exit(cn_proc_fini);
- 
-Index: linux-2.6.17-mm3-biarch/include/linux/cn_proc.h
-===================================================================
---- linux-2.6.17-mm3-biarch.orig/include/linux/cn_proc.h
-+++ linux-2.6.17-mm3-biarch/include/linux/cn_proc.h
-@@ -55,18 +55,11 @@ struct proc_event {
- 		/* "next" should be 0x00000400 */
- 		/* "last" is the last process event: exit */
- 		PROC_EVENT_EXIT = 0x80000000
- 	} what;
- 	__u32 cpu;
--
-- 	/*
-- 	 * UGH! timespec is biarch incompatible. See
-- 	 * Documentation/connector/process_events.txt if you're going to listen
-- 	 * for process events in userspace.
-- 	 */
--	struct timespec timestamp;
--
-+	__u64 timestamp_ns;
- 	union process_event_data { /* must be last field of proc_event struct */
- 		struct {
- 			__u32 err;
- 		} ack;
- 
-@@ -100,6 +93,20 @@ struct proc_event {
- 			pid_t process_tgid;
- 			__u32 exit_code, exit_signal;
- 		} exit;
- 	} event_data;
- };
-+
-+struct proc_event_deprecated {
-+	enum what what;
-+	__u32 cpu;
-+
-+	/*
-+	 * UGH! timespec is biarch incompatible. See
-+	 * Documentation/connector/process_events.txt if you're going to listen
-+	 * for process events in userspace.
-+	 */
-+	struct timespec timestamp;
-+	union process_event_data event_data;
-+};
-+
- #endif	/* CN_PROC_H */
+We have the dst cache for caching routes and cache multiple transformations
+that happen on a packet.
 
---
+With a little extra knowledge it is possible to have the separate
+routing tables but have special logic that recognizes the local tunnel
+device that connects namespaces and have it look into the next
+namespaces routes, and build up a complete stack of dst entries of
+where the packet needs to go.
 
+I keep forgetting about that possibility.  But as long as everything
+is done at the routing layer that should work.
+
+> I use the second method, because I think it is more effecient and reduce the
+> overhead. But the isolation is minimalist and only aims to avoid the application
+> using ressources outside of the container (aka namespace) without taking care of
+> the system. For example, I didn't take care of network devices, because as far
+> as see I can't imagine an administrator wanting to change the network device
+> name while there are hundred of containers running. Concerning tunnel devices
+> for example, they should be created inside the container.
+
+Inside the containers I want all network devices named eth0!
+
+> I think, private network ressources method is more elegant and involves more
+> network ressources, but there is probably a significant overhead and some
+> difficulties to have __lightweight__ container (aka application container), make
+> nfs working well, etc... I did some tests with tbench and the loopback with the
+> private namespace and there is roughly an overhead of 4 % without the isolation
+> since with the tagging method there is 1 % with the isolation.
+
+The overhead went down?
+
+> The network namespace aims the isolation for now, but the container based on the
+> namespaces will probably need checkpoint/restart and migration ability. The
+> migration is needed not only for servers but for HPC jobs too.
+
+Yes.
+
+> So I don't know what level of isolation/virtualization is really needed by
+> users, what should be acceptable (strong isolation and overhead / weak isolation
+> and efficiency). I don't know if people wanting strong isolation will not prefer
+> Xen (cleary with much more overhead than your patches ;) )
+
+We need a clean abstraction that optimizes well.
+
+However local communication between containers is not what we should
+benchmark.  That can always be improved later.  So long as the
+performance is reasonable.  What needs to be benchmarked is the
+overhead of namespaces when connected to physical networking devices
+and on their own local loopback, and comparing that to a kernel
+without namespace support.
+
+If we don't hurt that core case we have an implementation we can
+merge.  There are a lot of optimization opportunities for local
+communications and we can do that after we have a correct and accepted
+implementation.  Anything else is optimizing too soon, and will
+just be muddying the waters.
+
+Eric

@@ -1,93 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030624AbWF0GNn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030650AbWF0GPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030624AbWF0GNn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 02:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030627AbWF0GNn
+	id S1030650AbWF0GPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 02:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030658AbWF0GPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 02:13:43 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:14507 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1030624AbWF0GNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 02:13:42 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Date: Tue, 27 Jun 2006 15:39:26 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271428.11654.nigel@suspend2.net> <20060627053623.GG22071@suse.de>
-In-Reply-To: <20060627053623.GG22071@suse.de>
+	Tue, 27 Jun 2006 02:15:08 -0400
+Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:5098
+	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
+	id S1030650AbWF0GPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 02:15:07 -0400
+Message-ID: <44A0CCEA.7030309@ed-soft.at>
+Date: Tue, 27 Jun 2006 08:15:06 +0200
+From: Edgar Hucek <hostmaster@ed-soft.at>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2693621.QRqNziUel5";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Linus Torvalds <torvalds@osdl.org>
+CC: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
+References: <44A04F5F.8030405@ed-soft.at> <Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606271539.29540.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2693621.QRqNziUel5
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+So what is your suggestion to get the working funktionality
+from kernel 2.6.16 back ? 2.6.17 have broken it.
 
-Hi.
+Sure, using Apples legacy support for EFI is a method to
+boot linux on the Intel Macs, but not the native way. It depends
+on how good their legacy emulation is and if they implement it
+in future products. They could also decide to drop it.
 
-On Tuesday 27 June 2006 15:36, Jens Axboe wrote:
-> On Tue, Jun 27 2006, Nigel Cunningham wrote:
-> > Hi.
-> >
-> > On Tuesday 27 June 2006 07:20, Rafael J. Wysocki wrote:
-> > > On Monday 26 June 2006 18:54, Nigel Cunningham wrote:
-> > > > Add Suspend2 extent support. Extents are used for storing the lists
-> > > > of blocks to which the image will be written, and are stored in the
-> > > > image header for use at resume time.
-> > >
-> > > Could you please put all of the changes in kernel/power/extents.c into
-> > > one patch? =A0It's quite difficult to review them now, at least for m=
-e.
-> >
-> > I spent a long time splitting them up because I was asked in previous
-> > iterations to break them into manageable chunks. How about if I were to
-> > email you the individual files off line, so as to not send the same
-> > amount again?
->
-> Managable chunks means logical changes go together, one function per
-> diff is really extreme and unreviewable. Support for extents is one
-> logical change, so it's one patch. Unless of course you have to do some
-> preparatory patches, then you'd do those separately.
->
-> I must admit I thought you were kidding when I read through this extents
-> patch series, having a single patch just adding includes!
+cu
 
-Sorry for fluffing it up. I'm pretty inexperienced, but I'm trying to follo=
-w=20
-CodingStyle and all the other advice. If I'd known I'd misunderstood what w=
-as=20
-wanted, I probably could have submitted this months ago. Oh well. Live and=
-=20
-learn. What would you have me do at this point?
+Edgar (gimli) Hucek 
 
-Regards,
+Linus Torvalds schrieb:
+> 
+> On Mon, 26 Jun 2006, Edgar Hucek wrote:
+>> Fix EFI boot on 32 bit machines with PCI Express slots.
+>> Efi machines does not have an e820 memory map.
+> 
+> The EFI code really should fill in the e820 memory map instead fo making 
+> up its own routines (and doing it badly at that).
+> 
+> There's nothing wrong with the e820 table, and we should consider it just 
+> the "firmware memory map", and not care how it's filled in (whether it's 
+> EFI or a real e820 BIOS call).
+> 
+> Quite frankly, right now I'm more likely to rip out the EFI code than 
+> start adding even more (broken) support for it.
+> 
+> On the Intel Macs, upgrading the firmware turns it into a perfectly usable 
+> machine.
+> 
+> 		Linus
+> 
 
-Nigel
-
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
-
---nextPart2693621.QRqNziUel5
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEoMSRN0y+n1M3mo0RAic+AJ41U0PETp9YLcKA+sWBlhJ2qfojowCfbymq
-nziPpxLUYnfvRPEEMYHVJf0=
-=xy9R
------END PGP SIGNATURE-----
-
---nextPart2693621.QRqNziUel5--

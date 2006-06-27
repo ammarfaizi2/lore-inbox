@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWF0SN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWF0SPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030204AbWF0SN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 14:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbWF0SN6
+	id S1030217AbWF0SPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 14:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbWF0SPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 14:13:58 -0400
-Received: from sccrmhc13.comcast.net ([204.127.200.83]:21664 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1030204AbWF0SN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 14:13:57 -0400
-Date: Tue, 27 Jun 2006 13:14:30 -0500
+	Tue, 27 Jun 2006 14:15:15 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:30662 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1030217AbWF0SPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 14:15:13 -0400
+Date: Tue, 27 Jun 2006 13:15:46 -0500
 From: minyard@acm.org
 To: Linux Kernel <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>,
        OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>
-Subject: [PATCH] IPMI: remove high res timer code
-Message-ID: <20060627181430.GB10805@localdomain>
+Subject: [PATCH] IPMI: watchdog handle panic properly
+Message-ID: <20060627181546.GC10805@localdomain>
 Reply-To: minyard@acm.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,123 +25,52 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-There was some old high-res-timer code in the IPMI driver that
-is dead.  Remove it.
+Modify the watchdog timeout in IPMI to only do things at panic/reboot
+time if the watchdog timer was already running.  Some BIOSes do not
+disable the watchdog timer at startup, and this led to a reboot a
+while later if the new OS running didn't start monitoring the watchdog,
+even if the watchdog was not running before.
 
 Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Index: linux-2.6.17/drivers/char/ipmi/ipmi_si_intf.c
+Index: linux-2.6.16/drivers/char/ipmi/ipmi_watchdog.c
 ===================================================================
---- linux-2.6.17.orig/drivers/char/ipmi/ipmi_si_intf.c
-+++ linux-2.6.17/drivers/char/ipmi/ipmi_si_intf.c
-@@ -55,23 +55,6 @@
- #include <linux/mutex.h>
- #include <linux/kthread.h>
- #include <asm/irq.h>
--#ifdef CONFIG_HIGH_RES_TIMERS
--#include <linux/hrtime.h>
--# if defined(schedule_next_int)
--/* Old high-res timer code, do translations. */
--#  define get_arch_cycles(a) quick_update_jiffies_sub(a)
--#  define arch_cycles_per_jiffy cycles_per_jiffies
--# endif
--static inline void add_usec_to_timer(struct timer_list *t, long v)
--{
--	t->arch_cycle_expires += nsec_to_arch_cycle(v * 1000);
--	while (t->arch_cycle_expires >= arch_cycles_per_jiffy)
--	{
--		t->expires++;
--		t->arch_cycle_expires -= arch_cycles_per_jiffy;
--	}
--}
--#endif
- #include <linux/interrupt.h>
- #include <linux/rcupdate.h>
- #include <linux/ipmi_smi.h>
-@@ -243,8 +226,6 @@ static int register_xaction_notifier(str
- 	return atomic_notifier_chain_register(&xaction_notifier_list, nb);
- }
- 
--static void si_restart_short_timer(struct smi_info *smi_info);
--
- static void deliver_recv_msg(struct smi_info *smi_info,
- 			     struct ipmi_smi_msg *msg)
+--- linux-2.6.16.orig/drivers/char/ipmi/ipmi_watchdog.c
++++ linux-2.6.16/drivers/char/ipmi/ipmi_watchdog.c
+@@ -966,9 +966,10 @@ static int wdog_reboot_handler(struct no
+ 			/* Disable the WDT if we are shutting down. */
+ 			ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
+ 			panic_halt_ipmi_set_timeout();
+-		} else {
++		} else if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
+ 			/* Set a long timer to let the reboot happens, but
+-			   reboot if it hangs. */
++			   reboot if it hangs, but only if the watchdog
++			   timer was already running. */
+ 			timeout = 120;
+ 			pretimeout = 0;
+ 			ipmi_watchdog_state = WDOG_TIMEOUT_RESET;
+@@ -990,16 +991,17 @@ static int wdog_panic_handler(struct not
  {
-@@ -768,7 +749,6 @@ static void sender(void                *
- 	    && (smi_info->curr_msg == NULL))
- 	{
- 		start_next_msg(smi_info);
--		si_restart_short_timer(smi_info);
- 	}
- 	spin_unlock_irqrestore(&(smi_info->si_lock), flags);
- }
-@@ -833,37 +813,6 @@ static void request_events(void *send_in
+ 	static int panic_event_handled = 0;
  
- static int initialized = 0;
- 
--/* Must be called with interrupts off and with the si_lock held. */
--static void si_restart_short_timer(struct smi_info *smi_info)
--{
--#if defined(CONFIG_HIGH_RES_TIMERS)
--	unsigned long flags;
--	unsigned long jiffies_now;
--	unsigned long seq;
--
--	if (del_timer(&(smi_info->si_timer))) {
--		/* If we don't delete the timer, then it will go off
--		   immediately, anyway.  So we only process if we
--		   actually delete the timer. */
--
--		do {
--			seq = read_seqbegin_irqsave(&xtime_lock, flags);
--			jiffies_now = jiffies;
--			smi_info->si_timer.expires = jiffies_now;
--			smi_info->si_timer.arch_cycle_expires
--				= get_arch_cycles(jiffies_now);
--		} while (read_seqretry_irqrestore(&xtime_lock, seq, flags));
--
--		add_usec_to_timer(&smi_info->si_timer, SI_SHORT_TIMEOUT_USEC);
--
--		add_timer(&(smi_info->si_timer));
--		spin_lock_irqsave(&smi_info->count_lock, flags);
--		smi_info->timeout_restarts++;
--		spin_unlock_irqrestore(&smi_info->count_lock, flags);
--	}
--#endif
--}
--
- static void smi_timeout(unsigned long data)
- {
- 	struct smi_info   *smi_info = (struct smi_info *) data;
-@@ -904,31 +853,15 @@ static void smi_timeout(unsigned long da
- 	/* If the state machine asks for a short delay, then shorten
-            the timer timeout. */
- 	if (smi_result == SI_SM_CALL_WITH_DELAY) {
--#if defined(CONFIG_HIGH_RES_TIMERS)
--		unsigned long seq;
--#endif
- 		spin_lock_irqsave(&smi_info->count_lock, flags);
- 		smi_info->short_timeouts++;
- 		spin_unlock_irqrestore(&smi_info->count_lock, flags);
--#if defined(CONFIG_HIGH_RES_TIMERS)
--		do {
--			seq = read_seqbegin_irqsave(&xtime_lock, flags);
--			smi_info->si_timer.expires = jiffies;
--			smi_info->si_timer.arch_cycle_expires
--				= get_arch_cycles(smi_info->si_timer.expires);
--		} while (read_seqretry_irqrestore(&xtime_lock, seq, flags));
--		add_usec_to_timer(&smi_info->si_timer, SI_SHORT_TIMEOUT_USEC);
--#else
- 		smi_info->si_timer.expires = jiffies + 1;
--#endif
- 	} else {
- 		spin_lock_irqsave(&smi_info->count_lock, flags);
- 		smi_info->long_timeouts++;
- 		spin_unlock_irqrestore(&smi_info->count_lock, flags);
- 		smi_info->si_timer.expires = jiffies + SI_TIMEOUT_JIFFIES;
--#if defined(CONFIG_HIGH_RES_TIMERS)
--		smi_info->si_timer.arch_cycle_expires = 0;
--#endif
+-	/* On a panic, if we have a panic timeout, make sure that the thing
+-	   reboots, even if it hangs during that panic. */
+-	if (watchdog_user && !panic_event_handled) {
+-		/* Make sure the panic doesn't hang, and make sure we
+-		   do this only once. */
++	/* On a panic, if we have a panic timeout, make sure to extend
++	   the watchdog timer to a reasonable value to complete the
++	   panic, if the watchdog timer is running.  Plus the
++	   pretimeout is meaningless at panic time. */
++	if (watchdog_user && !panic_event_handled &&
++	    ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
++		/* Make sure we do this only once. */
+ 		panic_event_handled = 1;
+ 	    
+ 		timeout = 255;
+ 		pretimeout = 0;
+-		ipmi_watchdog_state = WDOG_TIMEOUT_RESET;
+ 		panic_halt_ipmi_set_timeout();
  	}
  
-  do_add_timer:

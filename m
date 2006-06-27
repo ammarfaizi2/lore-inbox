@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWF0JzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbWF0J5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWF0JzX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 05:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWF0JzW
+	id S1161052AbWF0J5S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 05:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWF0J5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 05:55:22 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:1581 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964858AbWF0JzV (ORCPT
+	Tue, 27 Jun 2006 05:57:18 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44262 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964868AbWF0J5R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 05:55:21 -0400
-Message-ID: <44A1006B.3040700@sw.ru>
-Date: Tue, 27 Jun 2006 13:54:51 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Tue, 27 Jun 2006 05:57:17 -0400
+Date: Tue, 27 Jun 2006 11:56:32 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Ulrich Drepper <drepper@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Jason Baron <jbaron@redhat.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: make PROT_WRITE imply PROT_READ
+Message-ID: <20060627095632.GA22666@elf.ucw.cz>
+References: <fa.PuMM6IwflUYh1MWILO9rb6z4fvY@ifi.uio.no> <449B42B3.6010908@shaw.ca> <Pine.LNX.4.64.0606230934360.24102@dhcp83-5.boston.redhat.com> <1151071581.3204.14.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0606231002150.24102@dhcp83-5.boston.redhat.com> <1151072280.3204.17.camel@laptopd505.fenrus.org> <a36005b50606241145q4d1dd17dg85f80e07fb582cdb@mail.gmail.com>
 MIME-Version: 1.0
-To: Daniel Lezcano <dlezcano@fr.ibm.com>
-CC: Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, herbert@13thfloor.at,
-       devel@openvz.org, sam@vilain.net, ebiederm@xmission.com,
-       viro@ftp.linux.org.uk, Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <20060627131136.B13959@castle.nmd.msu.ru> <44A0FBAC.7020107@fr.ibm.com>
-In-Reply-To: <44A0FBAC.7020107@fr.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a36005b50606241145q4d1dd17dg85f80e07fb582cdb@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> My point is that if you make namespace tagging at routing time, and
->> your packets are being routed only once, you lose the ability
->> to have separate routing tables in each namespace.
+Hi!
+
+> >you ask for it, and the kernel is supposed to deliver the best behavior
+> >it can.
+> 
+> The kernel should provide
+> 
+> - a stable, reliable interface
+> 
+> - a consistent interface at least accross architectures, maybe even 
+> platforms
 > 
 > 
-> Right. What is the advantage of having separate the routing tables ?
-it is impossible to have bridged networking, tun/tap and many other 
-features without it. I even doubt that it is possible to introduce 
-private netfilter rules w/o virtualization of routing.
+> Providing write-only support for memory falls into none of these
+> categories.  When Jason and I discussed this my position actually was
+> to disallow PROT_WRITE without PROT_READ completely, making it an
+> error of mmap and mprotect.  That's perfectly legal according to POSIX
+> and it will teach those who write broken code like this.
 
-The question is do we want to have fully featured namespaces which allow 
-to create isolated virtual environments with semantics and behaviour of 
-standalone linux box or do we want to introduce some hacks with new 
-rules/restrictions to meet ones goals only?
+Well, some hardware can probably support write-only, and such support
+can be useful for "weird" applications, such as just-in-time
+compilers, etc.
 
- From my POV, fully virtualized namespaces are the future. It is what 
-makes virtualization solution usable (w/o apps modifications), provides 
-all the features and doesn't require much efforts from people to be used.
-
-Thanks,
-Kirill
+Usability for "normal" C applications is probably not too high... so
+why not work around it in glibc, if at all?
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

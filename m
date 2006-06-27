@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWF0Nrx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWF0Nsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWF0Nrx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 09:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWF0Nrx
+	id S932279AbWF0Nsw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 09:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWF0Nss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 09:47:53 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11236 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932278AbWF0Nrw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 09:47:52 -0400
-Date: Tue, 27 Jun 2006 15:45:14 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2][ 15/20] [Suspend2] Attempt to freeze processes.
-Message-ID: <20060627134514.GC3019@elf.ucw.cz>
-References: <20060626223446.4050.9897.stgit@nigel.suspend2.net> <20060626223537.4050.72340.stgit@nigel.suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060626223537.4050.72340.stgit@nigel.suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 27 Jun 2006 09:48:48 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:6845 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932279AbWF0Nsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 09:48:47 -0400
+Subject: Re: [2.6 patch] make drivers/mtd/cmdlinepart.c:mtdpart_setup()
+	static
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+       juha.yrjola@solidboot.com
+In-Reply-To: <20060626220215.GI23314@stusta.de>
+References: <20060626220215.GI23314@stusta.de>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 14:49:00 +0100
+Message-Id: <1151416141.17609.140.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 2006-06-27 at 00:02 +0200, Adrian Bunk wrote:
+> This patch makes the needlessly global mtdpart_setup() static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.17-mm2-full/drivers/mtd/cmdlinepart.c.old 2006-06-26 23:18:39.000000000 +0200
+> +++ linux-2.6.17-mm2-full/drivers/mtd/cmdlinepart.c     2006-06-26 23:18:51.000000000 +0200
+> @@ -346,7 +346,7 @@
+>   *
+>   * This function needs to be visible for bootloaders.
+>   */
+> -int mtdpart_setup(char *s)
+> +static int mtdpart_setup(char *s) 
 
-> Call the freezer code to get processes frozen, and abort suspending if that
-> fails. May be called multiple times as we thaw kernel space (only) if we
-> need to free memory to meet constraints.
+Patch lacks sufficient explanation. Explain the relevance of the comment
+immediately above the function declaration, in the context of your
+patch. Explain your decision to change the behaviour, but not change the
+comment itself.
 
-Current code seems to free memory without need to thaw/re-freeze
-kernel threads. Have you found bugs in that, or is this unneccessary?
-
-> +static int attempt_to_freeze(void)
-> +{
-> +	int result;
-> +	
-> +	/* Stop processes before checking again */
-> +	thaw_processes(FREEZER_ALL_THREADS);
-> +	suspend_prepare_status(CLEAR_BAR, "Freezing processes");
-> +	result = freeze_processes();
-> +
-> +	if (result) {
-> +		set_result_state(SUSPEND_ABORTED);
-> +		set_result_state(SUSPEND_FREEZING_FAILED);
-> +	} else
-> +		are_frozen = 1;
-> +
-> +	return result;
-> +}
-> +
-
+Think. Or you will be replaced with a small shell script.
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+dwmw2
+

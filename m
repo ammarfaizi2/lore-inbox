@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030659AbWF0Eiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWF0FN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030659AbWF0Eiz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 00:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030630AbWF0Eir
+	id S1750736AbWF0FN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 01:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933394AbWF0Ehp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:38:47 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:30166 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030647AbWF0EiV
+	Tue, 27 Jun 2006 00:37:45 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:21718 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933389AbWF0Eh2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:38:21 -0400
+	Tue, 27 Jun 2006 00:37:28 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 05/12] [Suspend2] Prepare to encrypt or decrypt a stream of pages.
-Date: Tue, 27 Jun 2006 14:38:20 +1000
+Subject: [Suspend2][ 03/13] [Suspend2] Compression cryptoapi initialisation and cleanup.
+Date: Tue, 27 Jun 2006 14:37:27 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043819.14437.79032.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
-References: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
+Message-Id: <20060627043726.14320.63837.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
+References: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This routine adds initialisation code for encrypting or decrypting a stream
-of pages in the image.
+Add the routines for preparing cryptoapi for suspend2 use and cleaning it
+up.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/encryption.c |   34 ++++++++++++++++++++++++++++++++++
- 1 files changed, 34 insertions(+), 0 deletions(-)
+ kernel/power/compression.c |   37 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 37 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/encryption.c b/kernel/power/encryption.c
-index 16a275b..9b7dd93 100644
---- a/kernel/power/encryption.c
-+++ b/kernel/power/encryption.c
-@@ -204,3 +204,37 @@ static int suspend_encrypt_write_chunk(s
- 	return ret;
+diff --git a/kernel/power/compression.c b/kernel/power/compression.c
+index 3d222b3..470644f 100644
+--- a/kernel/power/compression.c
++++ b/kernel/power/compression.c
+@@ -92,3 +92,40 @@ static inline void suspend_compress_free
+ 	page_buffer = NULL;
  }
  
-+/* rw_init()
++/* 
++ * suspend_compress_cleanup
 + *
-+ * Description:	Prepare to read a new stream of data.
-+ * Arguments:	int: Section of image about to be read.
-+ * Returns:	int: Zero on success, error number otherwise.
++ * Frees memory allocated for our labours.
 + */
-+static int suspend_encrypt_rw_init(int rw, int stream_number)
++static void suspend_compress_cleanup(void)
 +{
-+	int result;
-+
-+	next_driver = suspend_get_next_filter(&suspend_encryption_ops);
-+
-+	if (!next_driver) {
-+		printk("Encryption Driver: Argh! I'm at the end of the pipeline!");
-+		return -ECHILD;
++	if (suspend_compressor_transform) {
++		crypto_free_tfm(suspend_compressor_transform);
++		suspend_compressor_transform = NULL;
 +	}
-+	
-+	if ((result = suspend_encrypt_rw_prepare(rw))) {
-+		set_result_state(SUSPEND_ENCRYPTION_SETUP_FAILED);
-+		suspend_encrypt_rw_cleanup(rw);
-+		return result;
-+	}
-+	
-+	if ((result = allocate_local_buffer()))
-+		return result;
++}
 +
-+	if (rw == WRITE && stream_number == 2)
-+		bytes_in = bytes_out = 0;
-+	
-+	bufofs = (rw == READ) ? PAGE_SIZE : 0;
++/* 
++ * suspend_crypto_prepare
++ *
++ * Prepare to do some work by allocating buffers and transforms.
++ * Returns: Int: Zero. Even if we can't set up compression, we still
++ * seek to suspend.
++ */
++static int suspend_compress_crypto_prepare(void)
++{
++	if (!*suspend_compressor_name) {
++		printk("Suspend2: Compression enabled but no compressor name set.\n");
++		suspend_compression_ops.disabled = 1;
++		return 0;
++	}
++
++	if (!(suspend_compressor_transform = crypto_alloc_tfm(suspend_compressor_name, 0))) {
++		printk("Suspend2: Failed to initialise the %s compression transform.\n",
++				suspend_compressor_name);
++		return 1;
++	}
 +
 +	return 0;
 +}

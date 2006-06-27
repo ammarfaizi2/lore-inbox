@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030734AbWF0HU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030731AbWF0HVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030734AbWF0HU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 03:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030740AbWF0HUh
+	id S1030731AbWF0HVO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 03:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030743AbWF0HVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 03:20:37 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:60582 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030734AbWF0HUO (ORCPT
+	Tue, 27 Jun 2006 03:21:05 -0400
+Received: from mail.suse.de ([195.135.220.2]:29829 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030736AbWF0HUi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 03:20:14 -0400
+	Tue, 27 Jun 2006 03:20:38 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 27 Jun 2006 17:20:07 +1000
-Message-Id: <1060627072007.26660@suse.de>
+Date: Tue, 27 Jun 2006 17:20:32 +1000
+Message-Id: <1060627072032.26721@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 006 of 14] knfsd: nfsd: call nfsd_setuser() on fh_compose(), fix nfsd4 permissions problem
+Subject: [PATCH 011 of 14] knfsd: nfsd4: fix open flag passing
 References: <20060627171533.26405.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -25,55 +25,47 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 From: J. Bruce Fields <bfields@citi.umich.edu>
 
 
-In the typical v2/v3 case the only new filehandles used as arguments to
-operations are filehandles taken directly off the wire, which don't get
-dentries until fh_verify() is called.
-
-But in v4 the filehandles that are arguments to operations were often
-created by previous operations (putrootfh, lookup, etc.) using
-fh_compose, which sets the dentry in the filehandle without calling
-nfsd_setuser().
-
-This also means that, for example, if filesystem B is mounted on filesystem
-A, and filesystem A is exported without root-squashing, then a client can
-bypass the rootsquashing on B using a compound that starts at a filehandle
-in A, crosses into B using lookups, and then does stuff in B.
+Since nfsv4 actually keeps around the file descriptors it gets from open
+(instead of just using them for a single read or write operation), we need
+to make sure that we can do RDWR opens and not just RDONLY/WRONLY.
 
 Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
 
 ### Diffstat output
- ./fs/nfsd/nfsfh.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ ./fs/nfsd/nfs4state.c |    6 +++---
+ ./fs/nfsd/vfs.c       |    5 ++++-
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff .prev/fs/nfsd/nfsfh.c ./fs/nfsd/nfsfh.c
---- .prev/fs/nfsd/nfsfh.c	2006-06-27 12:16:27.000000000 +1000
-+++ ./fs/nfsd/nfsfh.c	2006-06-27 14:41:52.000000000 +1000
-@@ -187,13 +187,6 @@ fh_verify(struct svc_rqst *rqstp, struct
+diff .prev/fs/nfsd/nfs4state.c ./fs/nfsd/nfs4state.c
+--- .prev/fs/nfsd/nfs4state.c	2006-06-27 15:00:26.000000000 +1000
++++ ./fs/nfsd/nfs4state.c	2006-06-27 15:04:03.000000000 +1000
+@@ -1790,10 +1790,10 @@ nfsd4_process_open2(struct svc_rqst *rqs
+ 	} else {
+ 		/* Stateid was not found, this is a new OPEN */
+ 		int flags = 0;
++		if (open->op_share_access & NFS4_SHARE_ACCESS_READ)
++			flags |= MAY_READ;
+ 		if (open->op_share_access & NFS4_SHARE_ACCESS_WRITE)
+-			flags = MAY_WRITE;
+-		else
+-			flags = MAY_READ;
++			flags |= MAY_WRITE;
+ 		status = nfs4_new_open(rqstp, &stp, dp, current_fh, flags);
+ 		if (status)
  			goto out;
- 		}
+
+diff .prev/fs/nfsd/vfs.c ./fs/nfsd/vfs.c
+--- .prev/fs/nfsd/vfs.c	2006-06-27 14:59:40.000000000 +1000
++++ ./fs/nfsd/vfs.c	2006-06-27 15:04:03.000000000 +1000
+@@ -673,7 +673,10 @@ nfsd_open(struct svc_rqst *rqstp, struct
+ 		goto out_nfserr;
  
--		/* Set user creds for this exportpoint */
--		error = nfsd_setuser(rqstp, exp);
--		if (error) {
--			error = nfserrno(error);
--			goto out;
--		}
--
- 		/*
- 		 * Look up the dentry using the NFS file handle.
- 		 */
-@@ -251,6 +244,14 @@ fh_verify(struct svc_rqst *rqstp, struct
+ 	if (access & MAY_WRITE) {
+-		flags = O_WRONLY|O_LARGEFILE;
++		if (access & MAY_READ)
++			flags = O_RDWR|O_LARGEFILE;
++		else
++			flags = O_WRONLY|O_LARGEFILE;
+ 
+ 		DQUOT_INIT(inode);
  	}
- 	cache_get(&exp->h);
- 
-+	/* Set user creds for this exportpoint; necessary even in the "just
-+	 * checking" case because this may be a filehandle that was created by
-+	 * fh_compose, and that is about to be used in another nfsv4 compound
-+	 * operation */
-+	error = nfserrno(nfsd_setuser(rqstp, exp));
-+	if (error)
-+		goto out;
-+
- 	error = nfsd_mode_check(rqstp, dentry->d_inode->i_mode, type);
- 	if (error)
- 		goto out;

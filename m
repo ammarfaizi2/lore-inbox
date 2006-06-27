@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWF0Ikg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWF0IlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWF0Ikg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 04:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWF0Ikg
+	id S932314AbWF0IlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 04:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbWF0IlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 04:40:36 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:732 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751239AbWF0Ikf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 04:40:35 -0400
-Date: Tue, 27 Jun 2006 10:35:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@infradead.org, swhiteho@redhat.com, torvalds@osdl.org,
-       teigland@redhat.com, pcaulfie@redhat.com, kanderso@redhat.com,
-       linux-kernel@vger.kernel.org
+	Tue, 27 Jun 2006 04:41:08 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:35875 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932314AbWF0IlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 04:41:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=IKKGuvE+nHRUMvHmyL6+iexMNJuvYdnKD1HaWtSYBl0q1S3x2LDmUazXEVbUEEQnU1UrbdALI9PznAqObuq2/hQwLW0yMWtn0HCU4VqePaBppMg8SLo/8bhr6rc5sNRzBVbaxuMxXaLyJEKjTa+vB87Txq4UFp7gnm803rl5xko=
+Message-ID: <84144f020606270141x5a0afd6anfa6008bfcbba5fb@mail.gmail.com>
+Date: Tue, 27 Jun 2006 11:41:05 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Ingo Molnar" <mingo@elte.hu>
 Subject: Re: GFS2 and DLM
-Message-ID: <20060627083544.GA32761@elte.hu>
-References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <20060623144928.GA32694@infradead.org> <20060626200300.GA15424@elte.hu> <20060627063339.GA27938@elte.hu> <20060627000633.91e06155.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: "Nathan Scott" <nathans@sgi.com>, "Christoph Hellwig" <hch@infradead.org>,
+       "Steven Whitehouse" <swhiteho@redhat.com>,
+       "Linus Torvalds" <torvalds@osdl.org>,
+       "David Teigland" <teigland@redhat.com>,
+       "Patrick Caulfield" <pcaulfie@redhat.com>,
+       "Kevin Anderson" <kanderso@redhat.com>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060627082240.GA672@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060627000633.91e06155.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com>
+	 <20060623144928.GA32694@infradead.org>
+	 <20060626200300.GA15424@elte.hu> <20060627063339.GA27938@elte.hu>
+	 <20060627181632.A1297906@wobbly.melbourne.sgi.com>
+	 <20060627082240.GA672@elte.hu>
+X-Google-Sender-Auth: f8873325ad473c3b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/27/06, Ingo Molnar <mingo@elte.hu> wrote:
+> and since XFS makes use of KM_SLEEP in 130+ callsites, that means it is
+> in essence using GFP_NOFAIL massively!
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Yup, it's not just a wrapper, XFS really has its own allocator and the
+PF_FSTRANS magic makes it hard to convert to slab proper.
 
-> On Tue, 27 Jun 2006 08:33:39 +0200
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > Isnt this whole episode highly hypocritic to begin with?
-> 
-> Might be, but that's not relevant to GFS2's suitability.
-
-it is relevant to a certain degree, because it creates a (IMO) false 
-impression of merging showstoppers. After months of being in -mm, and 
-after addressing all issues that were raised (and there was a fair 
-amount of review activity December last year iirc), one week prior the 
-close of the merge window a 'huge' list of issues are raised. (after 
-belovingly calling the GFS2 code a "huge mess", to create a positive and 
-productive tone for the review discussion i guess.)
-
-So far in my reading there are only 2 serious ones in that list:
-
- - tty_* use in cluster-aware quota.c. Firstly, ocfs2 doesnt do quota -
-   which is fair enough, but this also means that there was no in-tree 
-   filesystem to base stuff off. Secondly, the tty_* use was inherited 
-   from fs/quota.c - hardly something i'd consider a fatal sin. Anyway, 
-   despite the mitigating factors it is an arguably lame thing and 
-   it should be (and will be) fixed.
-
- - GFP_NOFAIL: most other journalling filesystems seem to be doing this
-   or worse. Fixing it is _hard_. Suddenly this becomes a showstopper? 
-   Huh?
-
-(the "use the generic facilities" arguments are only valid if the 
-generic facilities can be used as-is, and if they are just optimal as 
-the one implemented by the filesystem.)
-
-	Ingo
+                                             Pekka

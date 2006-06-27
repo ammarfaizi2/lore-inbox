@@ -1,60 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWF0FEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932584AbWF0FDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbWF0FEp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 01:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932853AbWF0FEL
+	id S932584AbWF0FDj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 01:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWF0FD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 01:04:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21452 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932458AbWF0FDn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 01:03:43 -0400
-Date: Mon, 26 Jun 2006 22:03:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: stsp@aknet.ru, linux-kernel@vger.kernel.org
-Subject: Re: the creation of boot_cpu_init() is wrong and accessing
- uninitialised data
-Message-Id: <20060626220337.06014184.akpm@osdl.org>
-In-Reply-To: <1151379392.3443.20.camel@mulgrave.il.steeleye.com>
-References: <1151376313.3443.12.camel@mulgrave.il.steeleye.com>
-	<20060626200433.bf0292af.akpm@osdl.org>
-	<1151379392.3443.20.camel@mulgrave.il.steeleye.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 01:03:26 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:27611 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030649AbWF0Ejl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 00:39:41 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [Suspend2][ 05/13] [Suspend2] Send netlink message to userspace helper.
+Date: Tue, 27 Jun 2006 14:39:40 +1000
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060627043939.14630.69133.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627043923.14630.565.stgit@nigel.suspend2.net>
+References: <20060627043923.14630.565.stgit@nigel.suspend2.net>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jun 2006 22:36:32 -0500
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
+Send a netlink message to a userspace helper.
 
-> On Mon, 2006-06-26 at 20:04 -0700, Andrew Morton wrote:
-> > I think arch code should do it before calling start_kernel(), really.
-> > It's
-> > just such a basic part of the kernel framework.
-> 
-> Hmm ... well, getting at current_thread_info()->cpu is possible, but
-> nasty to audit, I would have thought (given that we're in assembler
-> before start_kernel is called).
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-Well.  It's the assembly code which chose to call start_kernel().  It could
-call something else.
+ kernel/power/netlink.c |   36 ++++++++++++++++++++++++++++++++++++
+ 1 files changed, 36 insertions(+), 0 deletions(-)
 
-> > A less wholesome but perhaps simpler solution would be to call the new
-> > setup_smp_processor_id() on entry to start_kernel().
-> 
-> I was wondering about simply replacing boot_cpu_init() with
-> smp_prepare_boot_cpu().  By and large they do the same thing on most
-> archs, and mostly they don't seem to depend on setup_arch() having been
-> called.
+diff --git a/kernel/power/netlink.c b/kernel/power/netlink.c
+index c8c543a..696009d 100644
+--- a/kernel/power/netlink.c
++++ b/kernel/power/netlink.c
+@@ -79,3 +79,39 @@ static void suspend_notify_userspace(voi
+ 	read_unlock(&tasklist_lock);
+ }
+ 
++DECLARE_WORK(suspend_notify_userspace_work, suspend_notify_userspace, NULL);
++
++void suspend_send_netlink_message(struct user_helper_data *uhd,
++		int type, void* params, size_t len)
++{
++	struct sk_buff *skb;
++	struct nlmsghdr *nlh;
++	void *dest;
++
++	skb = suspend_get_skb(uhd);
++	if (!skb) {
++		printk("suspend_netlink: Can't allocate skb!\n");
++		return;
++	}
++
++	/* NLMSG_PUT contains a hidden goto nlmsg_failure */
++	nlh = NLMSG_PUT(skb, 0, uhd->sock_seq, type, len);
++	uhd->sock_seq++;
++
++	dest = NLMSG_DATA(nlh);
++	if (params && len > 0)
++		memcpy(dest, params, len);
++
++	netlink_unicast(uhd->nl, skb, uhd->pid, 0);
++
++	/* We may be in an interrupt context so defer waking up userspace */
++	suspend_notify_userspace_work.data = uhd;
++	schedule_work(&suspend_notify_userspace_work);
++
++	return;
++
++nlmsg_failure:
++	if (skb)
++		put_skb(uhd, skb);
++}
++
 
-That won't fix the other bugs - we're presently calling printk() prior to
-setup_arch(), and printk uses smp_procesor_id().
-
-> However, introducing setup_smp_processor_id() will also work ... I'll
-> see if I can do it in an easy way.
-
-It's a bit odd - I think non-zero BSPs happen a bit more often than
-only-on-voyager.
+--
+Nigel Cunningham		nigel at suspend2 dot net

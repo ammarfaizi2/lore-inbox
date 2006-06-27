@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030679AbWF0Ejh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWF0FEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030679AbWF0Ejh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 00:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030682AbWF0Ej0
+	id S932458AbWF0FEp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 01:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932853AbWF0FEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:39:26 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:24027 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030679AbWF0EjS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:39:18 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 09/10] [Suspend2] Atomic copy highlevel routine.
-Date: Tue, 27 Jun 2006 14:39:17 +1000
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043915.14546.4671.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
-References: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Tue, 27 Jun 2006 01:04:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21452 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932458AbWF0FDn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 01:03:43 -0400
+Date: Mon, 26 Jun 2006 22:03:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: stsp@aknet.ru, linux-kernel@vger.kernel.org
+Subject: Re: the creation of boot_cpu_init() is wrong and accessing
+ uninitialised data
+Message-Id: <20060626220337.06014184.akpm@osdl.org>
+In-Reply-To: <1151379392.3443.20.camel@mulgrave.il.steeleye.com>
+References: <1151376313.3443.12.camel@mulgrave.il.steeleye.com>
+	<20060626200433.bf0292af.akpm@osdl.org>
+	<1151379392.3443.20.camel@mulgrave.il.steeleye.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This routine essentially duplicates the swsusp_suspend routine, which does
-high level steps of the atomic copy. Rather than modifying that routine to
-include a number of if (suspend2) else clauses, it seemed better to put a
-suspend2ised copy here.
+On Mon, 26 Jun 2006 22:36:32 -0500
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+> On Mon, 2006-06-26 at 20:04 -0700, Andrew Morton wrote:
+> > I think arch code should do it before calling start_kernel(), really.
+> > It's
+> > just such a basic part of the kernel framework.
+> 
+> Hmm ... well, getting at current_thread_info()->cpu is possible, but
+> nasty to audit, I would have thought (given that we're in assembler
+> before start_kernel is called).
 
- kernel/power/atomic_copy.c |   31 +++++++++++++++++++++++++++++++
- 1 files changed, 31 insertions(+), 0 deletions(-)
+Well.  It's the assembly code which chose to call start_kernel().  It could
+call something else.
 
-diff --git a/kernel/power/atomic_copy.c b/kernel/power/atomic_copy.c
-index 75e3beb..bb5d74f 100644
---- a/kernel/power/atomic_copy.c
-+++ b/kernel/power/atomic_copy.c
-@@ -349,3 +349,34 @@ void suspend_copy_pageset1(void)
- 	}
- }
- 
-+int suspend2_suspend(void)
-+{
-+	int error;
-+
-+	if ((error = arch_prepare_suspend()))
-+		return error;
-+	local_irq_disable();
-+	/* At this point, device_suspend() has been called, but *not*
-+	 * device_power_down(). We *must* device_power_down() now.
-+	 * Otherwise, drivers for some devices (e.g. interrupt controllers)
-+	 * become desynchronized with the actual state of the hardware
-+	 * at resume time, and evil weirdness ensues.
-+	 */
-+	if ((error = device_power_down(PMSG_FREEZE))) {
-+		printk(KERN_ERR "Some devices failed to power down, aborting suspend\n");
-+		goto enable_irqs;
-+	}
-+
-+	save_processor_state();
-+	if ((error = swsusp_arch_suspend()))
-+		printk(KERN_ERR "Error %d suspending\n", error);
-+	/* Restore control flow appears here */
-+	restore_processor_state();
-+	if (!suspend2_in_suspend)
-+		copyback_high();
-+	device_power_up();
-+enable_irqs:
-+	local_irq_enable();
-+	return error;
-+}
-+
+> > A less wholesome but perhaps simpler solution would be to call the new
+> > setup_smp_processor_id() on entry to start_kernel().
+> 
+> I was wondering about simply replacing boot_cpu_init() with
+> smp_prepare_boot_cpu().  By and large they do the same thing on most
+> archs, and mostly they don't seem to depend on setup_arch() having been
+> called.
 
---
-Nigel Cunningham		nigel at suspend2 dot net
+That won't fix the other bugs - we're presently calling printk() prior to
+setup_arch(), and printk uses smp_procesor_id().
+
+> However, introducing setup_smp_processor_id() will also work ... I'll
+> see if I can do it in an easy way.
+
+It's a bit odd - I think non-zero BSPs happen a bit more often than
+only-on-voyager.

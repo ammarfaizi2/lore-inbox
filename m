@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161129AbWF0QA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWF0QBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161129AbWF0QA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 12:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161130AbWF0QA0
+	id S932387AbWF0QBf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 12:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWF0QBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 12:00:26 -0400
-Received: from xenotime.net ([66.160.160.81]:5041 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161129AbWF0QAZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 12:00:25 -0400
-Date: Tue, 27 Jun 2006 09:02:59 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: David Miller <davem@davemloft.net>
-Cc: vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17 du jour on SPARC64: Build failure
-Message-Id: <20060627090259.baad2f4b.rdunlap@xenotime.net>
-In-Reply-To: <20060627.021212.92582530.davem@davemloft.net>
-References: <200606270041.k5R0fZqd008665@laptop11.inf.utfsm.cl>
-	<20060626182205.ba9392d2.rdunlap@xenotime.net>
-	<20060627.021212.92582530.davem@davemloft.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Jun 2006 12:01:35 -0400
+Received: from wx-out-0102.google.com ([66.249.82.202]:51726 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932387AbWF0QBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 12:01:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Bi5bmhwcVPkyY7X55jR38Dv7eXH1N4aG5In+HDHZLi0r6u+vpxdqW+JrhKNMjgyS31TLUlzLf4PXNZAlKqK7ailPC6yU1qmODpK1jOqbgn79G3RsPHz/HWWXFFS56uhq6fP+2yHpFg9MMobwLM40qC3MgjDsLjcHgV7di8UBiUc=
+Message-ID: <3aa654a40606270901k4af63de8oe9aa7dde2a2d6a22@mail.gmail.com>
+Date: Tue, 27 Jun 2006 09:01:33 -0700
+From: "Avuton Olrich" <avuton@gmail.com>
+To: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>
+Subject: Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion in -mm
+Cc: "Brad Campbell" <brad@wasp.net.au>, "Pavel Machek" <pavel@ucw.cz>,
+       "Nigel Cunningham" <ncunningham@linuxmail.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       suspend2-devel@lists.suspend2.net
+In-Reply-To: <20060627154130.GA31351@rhlx01.fht-esslingen.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200606270147.16501.ncunningham@linuxmail.org>
+	 <20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au>
+	 <20060627154130.GA31351@rhlx01.fht-esslingen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jun 2006 02:12:12 -0700 (PDT) David Miller wrote:
+On 6/27/06, Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
+> Hi,
+>
+> On Tue, Jun 27, 2006 at 07:22:37PM +0400, Brad Campbell wrote:
+> > Pavel Machek wrote:
+> > >>Some of the advantages of suspend2 over swsusp and uswsusp are:
+> > >>
+> > >>- Speed (Asynchronous I/O and readahead for synchronous I/O)
+> > >
+> > >uswsusp should be able to match suspend2's speed. It can do async I/O,
+> > >etc...
+> >
+> > ARGH!
+> >
+> > And the next version of windows will have all the wonderful features that
+> > MacOSX has now so best not upgrade to Mac as you can just wait for the
+> > next version of windows.
+> >
+> > suspend2 has it *now*. It works, it's stable.
 
-> From: "Randy.Dunlap" <rdunlap@xenotime.net>
-> Date: Mon, 26 Jun 2006 18:22:05 -0700
-> 
-> > CONFIG_PCI is not set.  That's the build problem, although
-> > I don't see which file #includes it.
-> > The bad news is that when CONFIG_PCI=n, those functions just do
-> > 	BUG();
-> > anyway, so it won't help you much.
-> 
-> No SBUS drivers will use dma_*() anyways, so it's not matter.  The
-> file should still build properly when CONFIG_PCI=n, and that's what
-> I'll fix.
-
-Yes, I realize that it should build.
-
-Thanks for the SBUS info.
-
----
-~Randy
+I'm not sure it's a reason for it to go in, but the truth is suspend2
+does work in more cases, ime. uswsusp is alpha(?) swsusp doesn't work
+(for me in most cases), suspend-to-ram doesn't work (probably even
+less cases than swsusp), suspend2 works. It's working status for more
+of the userbase should (hopefully) be a concideration.
+-- 
+avuton
+--
+ Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

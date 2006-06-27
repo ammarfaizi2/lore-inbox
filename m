@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161332AbWF0VtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422633AbWF0VxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161332AbWF0VtE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 17:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161334AbWF0VtE
+	id S1422633AbWF0VxM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 17:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422635AbWF0VxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 17:49:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43207 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161332AbWF0VtB (ORCPT
+	Tue, 27 Jun 2006 17:53:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7369 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422633AbWF0VxK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 17:49:01 -0400
-Date: Tue, 27 Jun 2006 14:52:25 -0700
+	Tue, 27 Jun 2006 17:53:10 -0400
+Date: Tue, 27 Jun 2006 14:56:33 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Doug Thompson <norsk5@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6]  EDAC PCI device to DEVICE cleanup
-Message-Id: <20060627145225.054b1e63.akpm@osdl.org>
-In-Reply-To: <20060626221558.11917.qmail@web50115.mail.yahoo.com>
-References: <20060626221558.11917.qmail@web50115.mail.yahoo.com>
+Subject: Re: [PATCH 3/6]  EDAC mc numbers refactor 2-of-2
+Message-Id: <20060627145633.533bc2dc.akpm@osdl.org>
+In-Reply-To: <20060626221713.42428.qmail@web50106.mail.yahoo.com>
+References: <20060626221713.42428.qmail@web50106.mail.yahoo.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,57 +28,64 @@ Doug Thompson <norsk5@yahoo.com> wrote:
 >
 > From: Doug Thompson <norsk5@xmission.com>
 > 
-> Change MC drivers from using CVS revision strings for their version number,
-> Now each driver has its own local string.
+> This is part 2 of a 2-part patch set.
 > 
-> Remove some PCI dependencies from the core EDAC module.  
-> Made the code 'struct device' centric instead of 'struct pci_dev'
-> Most of the code changes here are from a patch by Dave Jiang.
-> It may be best to eventually move the PCI-specific code into a separate source file.
+> 1 Reimplement add_mc_to_global_list() with semantics that allow the caller to
+>   determine the ID number for a mem_ctl_info structure.  Then modify
+>   edac_mc_add_mc() so that the caller specifies the ID number for the new
+>   mem_ctl_info structure.  Platform-specific code should be able to assign the
+>   ID numbers in a platform-specific manner.  For instance, on Opteron it makes
+>   sense to have the ID of the mem_ctl_info structure match the ID of the node
+>   that the memory controller belongs to.
+> 
+> 2 Modify callers of edac_mc_add_mc() so they use the new semantics.
 > 
 > ...
->
-> --- linux-2.6.17-rc6.orig/drivers/edac/edac_mc.h	2006-06-12 18:17:17.000000000 -0600
-> +++ linux-2.6.17-rc6/drivers/edac/edac_mc.h	2006-06-12 18:17:29.000000000 -0600
-> @@ -88,6 +88,12 @@
->  #define PCI_VEND_DEV(vend, dev) PCI_VENDOR_ID_ ## vend, \
->  	PCI_DEVICE_ID_ ## vend ## _ ## dev
 >  
-> +#if defined(CONFIG_X86) && defined(CONFIG_PCI)
-> +#define dev_name(dev) pci_name(to_pci_dev(dev))
-> +#else
-> +#define dev_name(dev) to_platform_device(dev)->name
-> +#endif
-
-This looks fishy.  pci_name() should work OK on non-x86?
-
-> +static void do_pci_parity_check(void)
+> +/* Return 0 on success, 1 on failure.
+> + * Before calling this function, caller must
+> + * assign a unique value to mci->mc_idx.
+> + */
+> +static int add_mc_to_global_list (struct mem_ctl_info *mci)
 > +{
-> +	unsigned long flags;
-> +	int before_count;
+> +	struct list_head *item, *insert_before;
+> +	struct mem_ctl_info *p;
 > +
-> +	debugf3("%s()\n", __func__);
+> +	insert_before = &mc_devices;
 > +
-> +	if (!check_pci_parity)
-> +		return;
+> +	if (unlikely((p = find_mci_by_dev(mci->dev)) != NULL))
+> +		goto fail0;
 > +
-> +	before_count = atomic_read(&pci_parity_count);
+> +	list_for_each(item, &mc_devices) {
+> +		p = list_entry(item, struct mem_ctl_info, link);
 > +
-> +	/* scan all PCI devices looking for a Parity Error on devices and
-> +	 * bridges
-> +	 */
-> +	local_irq_save(flags);
-> +	edac_pci_dev_parity_iterator(edac_pci_dev_parity_test);
-> +	local_irq_restore(flags);
+> +		if (p->mc_idx >= mci->mc_idx) {
+> +			if (unlikely(p->mc_idx == mci->mc_idx))
+> +				goto fail1;
 > +
-> +	/* Only if operator has selected panic on PCI Error */
-> +	if (panic_on_pci_parity) {
-> +		/* If the count is different 'after' from 'before' */
-> +		if (before_count != atomic_read(&pci_parity_count))
-> +			panic("EDAC: PCI Parity Error");
+> +			insert_before = item;
+> +			break;
+> +		}
 > +	}
+> +
+> +	list_add_tail_rcu(&mci->link, insert_before);
+> +	return 0;
+> +
+> +fail0:
+> +	edac_printk(KERN_WARNING, EDAC_MC,
+> +		    "%s (%s) %s %s already assigned %d\n", p->dev->bus_id,
+> +		    dev_name(p->dev), p->mod_name, p->ctl_name, p->mc_idx);
+> +	return 1;
+> +
+> +fail1:
+> +	edac_printk(KERN_WARNING, EDAC_MC,
+> +		    "bug in low-level driver: attempt to assign\n"
+> +		    "    duplicate mc_idx %d in %s()\n", p->mc_idx, __func__);
+> +	return 1;
 > +}
 
-What is the local_irq_save() attempting to do in there?  It won't provide
-any locking-style coverage on SMP..
+I assume the caller must hold some lock to prevent the list from getting
+trashed, but I didn't locate it in (literally) a five-second search.  I'd
+suggest that a comment describing the locking requirements be added to this
+function.
 

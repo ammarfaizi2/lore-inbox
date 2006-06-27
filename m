@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422725AbWF0XXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422724AbWF0X0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422725AbWF0XXk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 19:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422726AbWF0XXk
+	id S1422724AbWF0X0F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 19:26:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422726AbWF0X0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 19:23:40 -0400
-Received: from mx2.suse.de ([195.135.220.15]:56490 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422725AbWF0XXi (ORCPT
+	Tue, 27 Jun 2006 19:26:05 -0400
+Received: from mail.gmx.net ([213.165.64.21]:14802 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422724AbWF0X0E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 19:23:38 -0400
-Date: Tue, 27 Jun 2006 16:20:02 -0700
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>, linux-pm@osdl.org,
-       Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
-       Mattia Dongili <malattia@linux.it>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
-Message-ID: <20060627232002.GD15225@kroah.com>
-References: <20060623042452.GA23232@kroah.com> <20060626235732.GE32008@kroah.com> <20060627090304.GA29199@elf.ucw.cz> <200606271038.40510.david-b@pacbell.net>
+	Tue, 27 Jun 2006 19:26:04 -0400
+X-Authenticated: #704063
+Subject: Re: [Patch] Off by one in drivers/usb/input/yealink.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, Henk.Vergonet@gmail.com
+In-Reply-To: <20060627161826.db62fd00.rdunlap@xenotime.net>
+References: <1151448080.16217.3.camel@alice>
+	 <20060627155143.b0e3e1dd.rdunlap@xenotime.net>
+	 <20060627230415.GA16561@alice>
+	 <20060627161826.db62fd00.rdunlap@xenotime.net>
+Content-Type: text/plain
+Date: Wed, 28 Jun 2006 01:26:01 +0200
+Message-Id: <1151450761.16746.1.camel@alice>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606271038.40510.david-b@pacbell.net>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 10:38:39AM -0700, David Brownell wrote:
-> > > > > And we also need to be able to handle devices in the device tree that do
-> > > > > not have a suspend/resume function ...
-> > > >
-> > > > Ah, there's the rub.  If a driver doesn't have suspend/resume methods, is 
-> > > > it because it doesn't need them, or is it because nobody has written them 
-> > > > yet?  In the latter case, failing the suspend or unbinding the driver are 
-> > > > the only safe courses.
-> > > 
-> > > No, if it's not there, just expect that it knows what it is doing, and
-> > > don't fail the thing.  Unless you want to add those methods to _every_
-> > > driver in the kernel, and that's going to be a lot of work...
+> :) Yep.
 > 
-> It seems reasonable to me to require that drivers have at least
-> stub "it's actually OK to do nothing here" suspend/resume methods.
+> so for the floppy.c patch, I still prefer to see:
+> +	if (drive < 0 || drive >= N_DRIVE) {
+> 
+> instead of
+> +	if (drive < 0 || drive > N_DRIVE-1) {
+> 
+> Does that make sense?
 
-No, the point is that these devices have no driver associated with them.
-They are "class" devices, and as such, are virtual.
+looks better :)
 
-Hm, well, I guess I should go add the suspend callbacks to the class, as
-Linus's core changes is going to be expecting that...
+--- 
 
-Anyway, for virtual devices, it often times makes no sense to have a
-suspend function, and as such, they should not be required to provide a
-null function...
+another bug spotted by coverity (id #481).
+In the case that drive == N_DRIVE we acess past the
+drive_params array which is defined as 
+drive_params[N_DRIVE]. By using the UDP define
+in the else case because UDP is &drive_params[drive]
 
-thanks,
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-greg k-h
+--- linux-2.6.17-git11/drivers/block/floppy.c.orig	2006-06-28 01:22:59.000000000 +0200
++++ linux-2.6.17-git11/drivers/block/floppy.c	2006-06-28 01:23:24.000000000 +0200
+@@ -684,7 +684,7 @@ static void __reschedule_timeout(int dri
+ 	if (drive == current_reqD)
+ 		drive = current_drive;
+ 	del_timer(&fd_timeout);
+-	if (drive < 0 || drive > N_DRIVE) {
++	if (drive < 0 || drive >= N_DRIVE) {
+ 		fd_timeout.expires = jiffies + 20UL * HZ;
+ 		drive = 0;
+ 	} else
+
+

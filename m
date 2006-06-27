@@ -1,31 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161109AbWF0Peb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161111AbWF0PgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161109AbWF0Peb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 11:34:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161110AbWF0Peb
+	id S1161111AbWF0PgM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 11:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161112AbWF0PgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 11:34:31 -0400
-Received: from services110.cs.uwaterloo.ca ([129.97.152.166]:49397 "EHLO
-	services110.cs.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1161109AbWF0Pea (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 11:34:30 -0400
-Message-ID: <44A14FE0.4080204@uwaterloo.ca>
-Date: Tue, 27 Jun 2006 11:33:52 -0400
-From: Weihan Wang <w23wang@uwaterloo.ca>
-Organization: University of Waterloo, Canada
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: splice() doens't support socket as input?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 27 Jun 2006 11:36:12 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42725 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161111AbWF0PgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 11:36:10 -0400
+Subject: Re: Areca driver recap + status
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Robert Mueller <robm@fastmail.fm>, Andrew Morton <akpm@osdl.org>,
+       rdunlap@xenotime.net, hch@infradead.org, erich@areca.com.tw,
+       brong@fastmail.fm, dax@gurulabs.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <1151422074.3340.25.camel@mulgrave.il.steeleye.com>
+References: <09be01c695b3$2ed8c2c0$c100a8c0@robm>
+	 <20060621222826.ff080422.akpm@osdl.org>
+	 <1151333338.2673.4.camel@mulgrave.il.steeleye.com>
+	 <057801c69970$70b45090$0e00cb0a@robm>
+	 <1151422074.3340.25.camel@mulgrave.il.steeleye.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Miltered: at minos with ID 44A15000.001 by Joe's j-chkmail (http://j-chkmail.ensmp.fr)!
+Date: Tue, 27 Jun 2006 16:51:40 +0100
+Message-Id: <1151423500.32186.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Maw, 2006-06-27 am 10:27 -0500, ysgrifennodd James Bottomley:
+> On a PAE platform, dma_addr_t is u64 and unsigned long is u32, so any
+> address > 4GB will be truncated by these operations.
+> 
+> I think all this does is cause a slow leak of dma mappings, and on any
+> kernel > 2.6.16 the leak should be even smaller, since we've severely
+> restricted the use_sg == 0 case.  It probably is only significant on
+> x86_64 with the gart iommu enabled.
 
-If I'm right, splice() in 2.6.17 doesn't support sockets as input yet 
-(from the fact that socket_file_ops.splice_read == 0). So what is the 
-anticipated version to add support of sockets as input? Thanks.
+On x86_64 the dma_addr_t and the ulong are both 64bit so the problem
+doesn't arise. 
 
-Weihan
+Alan
+

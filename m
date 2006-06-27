@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161084AbWF0PMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbWF0PN2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161084AbWF0PMr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 11:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161087AbWF0PMr
+	id S1161100AbWF0PN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 11:13:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161103AbWF0PN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 11:12:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37306 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161084AbWF0PMq (ORCPT
+	Tue, 27 Jun 2006 11:13:28 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:6534 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1161098AbWF0PN0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 11:12:46 -0400
-To: samuelkorpi@myway.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Calling kernel functions from kprobes/jprobes
-References: <20060627080021.453306776E@mprdmxin.myway.com>
-From: fche@redhat.com (Frank Ch. Eigler)
-Date: 27 Jun 2006 11:12:34 -0400
-In-Reply-To: <20060627080021.453306776E@mprdmxin.myway.com>
-Message-ID: <y0md5cur5st.fsf@ton.toronto.redhat.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
+	Tue, 27 Jun 2006 11:13:26 -0400
+Message-ID: <44A14B14.6070900@garzik.org>
+Date: Tue, 27 Jun 2006 11:13:24 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use dev_printk() in some net drivers
+References: <20060627145145.GA30053@havoc.gtf.org> <44A14A5F.3090607@gmail.com>
+In-Reply-To: <44A14A5F.3090607@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Samuel" <samuelkorpi@myway.com> writes:
+Jiri Slaby wrote:
+> Don't you consider to use s#dev_printk(KERN_ERR, #dev_err(# macro?
 
-> [...]  I am using kprobes/jprobes to try and understand how IP
-> options are handled in the kernel. From one of these probes I want
-> to call another function inside the kernel, namely
-> ip_options_get_from_user. [...]
+Why, yes.  I had forgotten about those, thanks.
 
-Other than symbol exporting issues, you may encounter another problem
-that we have encountered in systemtap (which is also a kprobes
-client).  That is that the context where the kprobe was placed may be
-such that calling most ordinary kernel routines is unsafe.  In
-particular, ip_options_get_from_user may sleep, which may or may not
-be legal from the context of the kprobe.  (In systemtap probes, we
-don't permit anything to block/sleep/schedule, so instead suffer
-absent-page errors.)
+	Jeff
 
-- FChE
+

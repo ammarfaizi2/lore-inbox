@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932762AbWF0KOD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWF0KQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932762AbWF0KOD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 06:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbWF0KOC
+	id S932570AbWF0KQd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 06:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932739AbWF0KQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 06:14:02 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:29841 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932841AbWF0KOA (ORCPT
+	Tue, 27 Jun 2006 06:16:33 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:29316 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932570AbWF0KQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 06:14:00 -0400
-Date: Tue, 27 Jun 2006 12:08:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Mackerras <paulus@samba.org>
-Cc: akpm@osdl.org, schwidefsky@de.ibm.com, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove extra local_bh_disable/enable from arch do_softirq
-Message-ID: <20060627100856.GA17160@elte.hu>
-References: <17566.32236.368906.227113@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17566.32236.368906.227113@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 27 Jun 2006 06:16:33 -0400
+Date: Tue, 27 Jun 2006 12:16:15 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Valdis.Kletnieks@vt.edu
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
+In-Reply-To: <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.64.0606271212150.17704@scrub.home>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
+ <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Paul Mackerras <paulus@samba.org> wrote:
+On Mon, 26 Jun 2006, Valdis.Kletnieks@vt.edu wrote:
 
-> At the moment, powerpc and s390 have their own versions of do_softirq 
-> which include local_bh_disable() and __local_bh_enable() calls.  They 
-> end up calling __do_softirq (in kernel/softirq.c) which also does 
-> local_bh_disable/enable.
+> Which looks like a good place to get hung in a loop for a while....
 > 
-> Apparently the two levels of disable/enable trigger a warning from 
-> some validation code that Ingo is working on, and he would like to see 
-> the outer level removed.  But to do that, we have to move the 
-> account_system_vtime calls that are currently in the arch do_softirq() 
-> implementations for powerpc and s390 into the generic __do_softirq() 
-> (this is a no-op for other archs because account_system_vtime is 
-> defined to be an empty inline function on all other archs).  This 
-> patch does that.
+> Eventually (after about 2 minutes, it finally unwedges and continues on.
 > 
-> Signed-off-by: Paul Mackerras <paulus@samba.org>
+> Any ideas?
 
-thanks - this solves the problem nicely.
+Could you please try the patch below?
+tv_nsec can shortly become negative, but its absolute value will always be 
+smaller then the current nsec offset.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+bye, Roman
 
-	Ingo
+---
+ kernel/timer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6-mm/kernel/timer.c
+===================================================================
+--- linux-2.6-mm.orig/kernel/timer.c	2006-06-27 11:59:19.000000000 +0200
++++ linux-2.6-mm/kernel/timer.c	2006-06-27 12:10:28.000000000 +0200
+@@ -1129,7 +1129,7 @@ static void update_wall_time(void)
+ 	clocksource_adjust(clock, offset);
+ 
+ 	/* store full nanoseconds into xtime */
+-	xtime.tv_nsec = clock->xtime_nsec >> clock->shift;
++	xtime.tv_nsec = (s64)clock->xtime_nsec >> clock->shift;
+ 	clock->xtime_nsec -= (s64)xtime.tv_nsec << clock->shift;
+ 
+ 	/* check to see if there is a new clocksource to use */

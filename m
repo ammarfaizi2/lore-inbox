@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161246AbWF0RpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161231AbWF0RqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161246AbWF0RpR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 13:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161231AbWF0RpQ
+	id S1161231AbWF0RqB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 13:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161235AbWF0RqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 13:45:16 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:26296 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161246AbWF0RpP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 13:45:15 -0400
-Message-ID: <44A16E9C.70000@zytor.com>
-Date: Tue, 27 Jun 2006 10:45:00 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       klibc@zytor.com, torvalds@osdl.org
-Subject: Re: klibc and what's the next step?
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <p73r71attww.fsf@verdi.suse.de> <44A166AF.1040205@zytor.com> <200606271940.46634.ak@suse.de>
-In-Reply-To: <200606271940.46634.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 13:46:01 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:2496 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161231AbWF0RqA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 13:46:00 -0400
+Date: Tue, 27 Jun 2006 10:45:51 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
+Message-Id: <20060627174551.11172.49700.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [ZVC 1/4] Fix potential use of out of range page in kmem_getpages.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> 
-> But not for LVM where this can be fairly complex.
-> 
-> And next would be probably iSCSI. Maybe it's better to leave some stuff
-> in initramfs. 
-> 
+ZVC: Fix potential use of out of range page in kmem_getpages.
 
-Of course, and even if it's built into the kernel tree it doesn't have 
-to be monolithic (one binary.)  Current kinit is monolithic (although 
-there are chunks available as standalone binaries, and I have gotten 
-requests to break out more), but that's mostly because I've been 
-concerned about bloating the overall size of the kernel image for 
-embedded people.
+We use page_zone(page) following several page increments in kmem_getpages().
+Which page in a zone we use really does not matter. However, we may reach an
+invalid page and then oops.
 
-	-hpa
+So move the counter decrement before we increment page.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.17-mm3/mm/slab.c
+===================================================================
+--- linux-2.6.17-mm3.orig/mm/slab.c	2006-06-27 09:40:25.620599382 -0700
++++ linux-2.6.17-mm3/mm/slab.c	2006-06-27 09:40:32.330144958 -0700
+@@ -1539,12 +1539,12 @@ static void kmem_freepages(struct kmem_c
+ 	struct page *page = virt_to_page(addr);
+ 	const unsigned long nr_freed = i;
+ 
++	sub_zone_page_state(page_zone(page), NR_SLAB, nr_freed);
+ 	while (i--) {
+ 		BUG_ON(!PageSlab(page));
+ 		__ClearPageSlab(page);
+ 		page++;
+ 	}
+-	sub_zone_page_state(page_zone(page), NR_SLAB, nr_freed);
+ 	if (current->reclaim_state)
+ 		current->reclaim_state->reclaimed_slab += nr_freed;
+ 	free_pages((unsigned long)addr, cachep->gfporder);

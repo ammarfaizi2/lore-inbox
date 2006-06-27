@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161107AbWF0PcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161108AbWF0Pc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161107AbWF0PcA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 11:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161109AbWF0PcA
+	id S1161108AbWF0Pc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 11:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161109AbWF0Pc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 11:32:00 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14087 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161107AbWF0Pb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 11:31:59 -0400
-Date: Tue, 27 Jun 2006 17:31:58 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: util-linux status
-Message-ID: <20060627153158.GB13915@stusta.de>
-References: <44A13AFE.3080107@draigBrady.com>
+	Tue, 27 Jun 2006 11:32:27 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:44250 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161108AbWF0Pc0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 11:32:26 -0400
+Message-ID: <44A14F7B.2040600@zytor.com>
+Date: Tue, 27 Jun 2006 08:32:11 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <44A13AFE.3080107@draigBrady.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Ralf Baechle <ralf@linux-mips.org>
+CC: klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] [klibc 28/43] mips support for klibc
+References: <klibc.200606251757.28@tazenda.hos.anvin.org> <20060626230345.GA14345@linux-mips.org>
+In-Reply-To: <20060626230345.GA14345@linux-mips.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 03:04:46PM +0100, Pádraig Brady wrote:
-> What is the status of util-linux?
-> There doesn't seem to be anything significant
-> released in about 1.5 years now.
+Ralf Baechle wrote:
+> On Sun, Jun 25, 2006 at 05:58:05PM -0700, H. Peter Anvin wrote:
 > 
-> I'm worried about patches getting lost,
-> especially since there were a large number
-> of thirdparty bugs/patches referenced in
-> the changelog for 2004.
+>> +typedef struct flock {
+>> +	short	l_type;
+>> +	short	l_whence;
+>> +	loff_t	l_start;
+>> +	loff_t	l_len;
+>> +	pid_t	l_pid;
+>> +} flock_t;
 > 
-> Personally I submitted a patch in 2004 that was
-> merged immediately, then I sent a simple bug fix
-> early in 2005 that has never been released.
->...
-> This is the timeline over the last while as I see it:
+> 32-bit MIPS uses this:
 > 
-> 23 Sep 2005 ----------------------------------------2.12r
->   cfdisk: fix a segfault with ReiserFS partitions
->   umount: disallow -r option for non-root users
-> 20 Jan 2005 ----------------------------------------2.12q
->   updated translations
-> 01 Jan 2005 ----------------------------------------Maintainership change
-> 23 Dec 2004 ----------------------------------------2.12p
->                            :
->                            : many changes in 16 versions
->                            :
-> 05 Mar 2004 ----------------------------------------2.12a
+> struct flock {
+>         short   l_type;
+>         short   l_whence;
+>         off_t   l_start;
+>         off_t   l_len;
+>         long    l_sysid;
+>         __kernel_pid_t l_pid;
+>         long    pad[4];
+> };
 
-What is missing in your timeline are the 2.13-pre releases that contain 
-everything I've done.
+Does it use that for F_GETLK64 and friends?  klibc overrides the 
+definitions so that F_GETLK is really F_GETLK64 etc; thus, "struct 
+flock" in klibc userspace is really "struct flock64".  (To put it 
+differently, klibc is always large-file compliant.)
 
-But I know I have a big backlog of util-linux emails, and I hope having 
-soon some spare time for handing them.
+As far as I can tell, MIPS uses the generic definition for struct 
+flock64, which is the one I have above, so it should be correct.
 
-> Pádraig.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	-hpa

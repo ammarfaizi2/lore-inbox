@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWF0LFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932797AbWF0LMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWF0LFq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 07:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933315AbWF0LFq
+	id S932797AbWF0LMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 07:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933398AbWF0LMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 07:05:46 -0400
-Received: from mail.gmx.net ([213.165.64.21]:30103 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932188AbWF0LFp (ORCPT
+	Tue, 27 Jun 2006 07:12:09 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21477 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932797AbWF0LMI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 07:05:45 -0400
-X-Authenticated: #5039886
-Date: Tue, 27 Jun 2006 13:06:02 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] irq: fix arch/i386/kernel/irq.c gcc warning
-Message-ID: <20060627110602.GA11051@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-References: <20060627015211.ce480da6.akpm@osdl.org> <20060627092801.GA4196@elte.hu>
+	Tue, 27 Jun 2006 07:12:08 -0400
+Date: Tue, 27 Jun 2006 13:09:37 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2][ 2/2] [Suspend2] Freezer upgrade.
+Message-ID: <20060627110933.GA11763@elf.ucw.cz>
+References: <20060626163850.10345.13807.stgit@nigel.suspend2.net> <20060626163856.10345.14073.stgit@nigel.suspend2.net> <200606262201.09687.rjw@sisk.pl> <200606270848.55475.nigel@suspend2.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060627092801.GA4196@elte.hu>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-Y-GMX-Trusted: 0
+In-Reply-To: <200606270848.55475.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.06.27 11:28:01 +0200, Ingo Molnar wrote:
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm3/
-> 
-> > Changes since 2.6.17-mm2:
-> > 
-> >  origin.patch
-> 
-> upstream grew a new compiler warning in i386 irq.c. Patch below fixes 
-> it. No change in resulting irq.o code.
+Hi!
 
-Yep, that's my fault, Jean Delvare did also sent a patch yesterday.
+> > > This patch represents the Suspend2 upgrades to the freezer
+> > > implementation. Due to recent changes in the vanilla version, I should be
+> > > able to greatly reduce the size of this patch. TODO.
+> >
+> > So I assume the patch will change in the future.
+> 
+> This is after the changes. Sorry - forgot to update the comment.
 
-http://lkml.org/lkml/2006/6/26/380
-
-Björn
+Also please explain why we want those patches. "upgrades the freezer"
+is not good enough reason to apply a patch.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

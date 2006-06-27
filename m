@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWF0OBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWF0OBa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWF0OBq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 10:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWF0OBq
+	id S932289AbWF0OBa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 10:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWF0OBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 10:01:46 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20355 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932286AbWF0OBp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 10:01:45 -0400
-Date: Tue, 27 Jun 2006 15:59:04 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2][ 00/13] Compression support.
-Message-ID: <20060627135904.GD3019@elf.ucw.cz>
-References: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 27 Jun 2006 10:01:30 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:31165 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932289AbWF0OB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 10:01:29 -0400
+Subject: Re: the creation of boot_cpu_init() is wrong and accessing
+	uninitialised data
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, stsp@aknet.ru, linux-kernel@vger.kernel.org
+In-Reply-To: <31382.1151413209@ocs3.ocs.com.au>
+References: <31382.1151413209@ocs3.ocs.com.au>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 09:01:15 -0500
+Message-Id: <1151416875.3340.6.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 2006-06-27 at 23:00 +1000, Keith Owens wrote:
+> AFAICR, the BSP is supposed to be logical cpu 0 on all architectures.
+> Most architectures assign logical cpu 0 to the BSP, even if the BSP
+> has
+> a non-zero hard_smp_processor_id.  ia64 even has this
 
-> Patches which implement support for compressing the image. We use
-> cryptoapi. A separate patch adds an LZF compression module, which
-> is much faster than gzip.
+That's definitely not a requirement.  For systems like voyager whose
+CPUs cannot be renumbered it makes no sense.  The original reason for
+renumbering was that most CPU loops ran from 1 to max_cpu and therefore
+worked better if the CPU map was dense.  However, I fixed that up long
+ago so sparse CPU map traversal should be fine now.
 
-This is diffstat of compression/encryption patches:
+James
 
- b/kernel/power/compression.c |   43 +++
- b/kernel/power/encryption.c  |   49 +++
- kernel/power/compression.c   |  559 +++++++++++++++++++++++++++++++++++++++++--
- kernel/power/encryption.c    |  517 +++++++++++++++++++++++++++++++++++++--
- 4 files changed, 1115 insertions(+), 53 deletions(-)
 
-..so we add 1000 lines of code for feature that can very well live in
-userspace. All the filewriters/etc can live in userspace, too.
-
-Could we improve suspend.sf.net code instead of trying to merge awful
-lot of code that does not really belong into kernel?
-
-I counted over 300 patches in this series....
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,1632 +1,1578 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWF0NQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWF0N3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWF0NQO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 09:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWF0NQO
+	id S932238AbWF0N3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 09:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWF0N3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 09:16:14 -0400
-Received: from rtsoft2.corbina.net ([85.21.88.2]:47283 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S932169AbWF0NQM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 09:16:12 -0400
-Date: Tue, 27 Jun 2006 17:16:04 +0400
-From: Vitaly Wool <vitalywool@gmail.com>
-To: linux-fbdev-devel@lists.sourceforge.net
+	Tue, 27 Jun 2006 09:29:25 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:49639 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932238AbWF0N3W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 09:29:22 -0400
+Date: Tue, 27 Jun 2006 09:29:21 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: netdev@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] add framebuffer and display update module support for
- pnx4008
-Message-Id: <20060627171604.941d0538.vitalywool@gmail.com>
-X-Mailer: Sylpheed version 2.2.1 (GTK+ 2.8.13; i486-pc-linux-gnu)
+Subject: [PATCH] cleanups for Becker-derived drivers
+Message-ID: <20060627132920.GA26367@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
 
-inlined is the patch that adds support for Display Update Module and RGB framebuffer device on Philips PNX4008 ARM board.
+Just checked this into netdev-2.6.git#upstream...
 
- Kconfig            |   15
- Makefile           |    2
- pnx4008/Makefile   |    7
- pnx4008/dum.h      |  243 ++++++++++++++
- pnx4008/fbcommon.h |   43 ++
- pnx4008/rgbfb.c    |  223 +++++++++++++
- pnx4008/sdum.c     |  866 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- pnx4008/sdum.h     |  139 ++++++++
- 8 files changed, 1538 insertions(+)
+	Jeff
 
-Signed-off-by: Grigory Tolstolytkin <gtolstolytkin@ru.mvista.com>
-Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
 
-Index: linux-2.6.git/drivers/video/pnx4008/Makefile
-===================================================================
---- /dev/null
-+++ linux-2.6.git/drivers/video/pnx4008/Makefile
-@@ -0,0 +1,7 @@
-+#
-+# Makefile for the new PNX4008 framebuffer device driver
-+#
-+
-+obj-$(CONFIG_FB_PNX4008_DUM) += sdum.o
-+obj-$(CONFIG_FB_PNX4008_DUM_RGB) += rgbfb.o
-+
-Index: linux-2.6.git/drivers/video/pnx4008/dum.h
-===================================================================
---- /dev/null
-+++ linux-2.6.git/drivers/video/pnx4008/dum.h
-@@ -0,0 +1,243 @@
-+/*
-+ * linux/drivers/video/pnx4008/dum.h
-+ *
-+ * Internal header for SDUM
-+ *
-+ * 2005 (c) Koninklijke Philips N.V. This file is licensed under
-+ * the terms of the GNU General Public License version 2. This program
-+ * is licensed "as is" without any warranty of any kind, whether express
-+ * or implied.
-+ */
-+
-+#ifndef __PNX008_DUM_H__
-+#define __PNX008_DUM_H__
-+
-+#include <asm/arch/platform.h>
-+
-+#define PNX4008_DUMCONF_VA_BASE		IO_ADDRESS(PNX4008_DUMCONF_BASE)
-+#define PNX4008_DUM_MAIN_VA_BASE	IO_ADDRESS(PNX4008_DUM_MAINCFG_BASE)
-+
-+/* DUM CFG ADDRESSES */
-+#define DUM_CH_BASE_ADR		(PNX4008_DUMCONF_VA_BASE + 0x00)
-+#define DUM_CH_MIN_ADR		(PNX4008_DUMCONF_VA_BASE + 0x00)
-+#define DUM_CH_MAX_ADR		(PNX4008_DUMCONF_VA_BASE + 0x04)
-+#define DUM_CH_CONF_ADR		(PNX4008_DUMCONF_VA_BASE + 0x08)
-+#define DUM_CH_STAT_ADR		(PNX4008_DUMCONF_VA_BASE + 0x0C)
-+#define DUM_CH_CTRL_ADR		(PNX4008_DUMCONF_VA_BASE + 0x10)
-+
-+#define DUM_CH_MIN(i)		(*((volatile u32 *)DUM_CH_MIN_ADR + (i) * 5))
-+#define DUM_CH_MAX(i)		(*((volatile u32 *)DUM_CH_MAX_ADR + (i) * 5))
-+#define DUM_CH_CONF(i)		(*((volatile u32 *)DUM_CH_CONF_ADR + (i) * 5))
-+#define DUM_CH_STAT(i)		(*((volatile u32 *)DUM_CH_STAT_ADR + (i) * 5))
-+#define DUM_CH_CTRL(i)		(*((volatile u32 *)DUM_CH_CTRL_ADR + (i) * 5))
-+
-+#define DUM_CONF_ADR          (PNX4008_DUM_MAIN_VA_BASE + 0x4000)
-+#define DUM_CTRL_ADR          (PNX4008_DUM_MAIN_VA_BASE + 0x4004)
-+#define DUM_STAT_ADR          (PNX4008_DUM_MAIN_VA_BASE + 0x4008)
-+#define DUM_DECODE_ADR        (PNX4008_DUM_MAIN_VA_BASE + 0x400C)
-+#define DUM_COM_BASE_ADR      (PNX4008_DUM_MAIN_VA_BASE + 0x4010)
-+#define DUM_SYNC_C_ADR        (PNX4008_DUM_MAIN_VA_BASE + 0x4014)
-+#define DUM_CLK_DIV_ADR       (PNX4008_DUM_MAIN_VA_BASE + 0x4018)
-+#define DUM_DIRTY_LOW_ADR     (PNX4008_DUM_MAIN_VA_BASE + 0x4020)
-+#define DUM_DIRTY_HIGH_ADR    (PNX4008_DUM_MAIN_VA_BASE + 0x4024)
-+#define DUM_FORMAT_ADR        (PNX4008_DUM_MAIN_VA_BASE + 0x4028)
-+#define DUM_WTCFG1_ADR        (PNX4008_DUM_MAIN_VA_BASE + 0x4030)
-+#define DUM_RTCFG1_ADR        (PNX4008_DUM_MAIN_VA_BASE + 0x4034)
-+#define DUM_WTCFG2_ADR        (PNX4008_DUM_MAIN_VA_BASE + 0x4038)
-+#define DUM_RTCFG2_ADR        (PNX4008_DUM_MAIN_VA_BASE + 0x403C)
-+#define DUM_TCFG_ADR          (PNX4008_DUM_MAIN_VA_BASE + 0x4040)
-+#define DUM_OUTP_FORMAT1_ADR  (PNX4008_DUM_MAIN_VA_BASE + 0x4044)
-+#define DUM_OUTP_FORMAT2_ADR  (PNX4008_DUM_MAIN_VA_BASE + 0x4048)
-+#define DUM_SYNC_MODE_ADR     (PNX4008_DUM_MAIN_VA_BASE + 0x404C)
-+#define DUM_SYNC_OUT_C_ADR    (PNX4008_DUM_MAIN_VA_BASE + 0x4050)
-+
-+#define DUM_CONF              (*(volatile u32 *)(DUM_CONF_ADR))
-+#define DUM_CTRL              (*(volatile u32 *)(DUM_CTRL_ADR))
-+#define DUM_STAT              (*(volatile u32 *)(DUM_STAT_ADR))
-+#define DUM_DECODE            (*(volatile u32 *)(DUM_DECODE_ADR))
-+#define DUM_COM_BASE          (*(volatile u32 *)(DUM_COM_BASE_ADR))
-+#define DUM_SYNC_C            (*(volatile u32 *)(DUM_SYNC_C_ADR))
-+#define DUM_CLK_DIV           (*(volatile u32 *)(DUM_CLK_DIV_ADR))
-+#define DUM_DIRTY_LOW         (*(volatile u32 *)(DUM_DIRTY_LOW_ADR))
-+#define DUM_DIRTY_HIGH        (*(volatile u32 *)(DUM_DIRTY_HIGH_ADR))
-+#define DUM_FORMAT            (*(volatile u32 *)(DUM_FORMAT_ADR))
-+#define DUM_WTCFG1            (*(volatile u32 *)(DUM_WTCFG1_ADR))
-+#define DUM_RTCFG1            (*(volatile u32 *)(DUM_RTCFG1_ADR))
-+#define DUM_WTCFG2            (*(volatile u32 *)(DUM_WTCFG2_ADR))
-+#define DUM_RTCFG2            (*(volatile u32 *)(DUM_RTCFG2_ADR))
-+#define DUM_TCFG              (*(volatile u32 *)(DUM_TCFG_ADR))
-+#define DUM_OUTP_FORMAT1      (*(volatile u32 *)(DUM_OUTP_FORMAT1_ADR))
-+#define DUM_OUTP_FORMAT2      (*(volatile u32 *)(DUM_OUTP_FORMAT2_ADR))
-+#define DUM_SYNC_MODE         (*(volatile u32 *)(DUM_SYNC_MODE_ADR))
-+#define DUM_SYNC_OUT_C        (*(volatile u32 *)(DUM_SYNC_OUT_C_ADR))
-+
-+/* DUM SLAVE ADDRESSES */
-+#define DUM_SLAVE_WRITE_ADR      (PNX4008_DUM_MAINCFG_BASE + 0x0000000)
-+#define DUM_SLAVE_READ1_I_ADR    (PNX4008_DUM_MAINCFG_BASE + 0x1000000)
-+#define DUM_SLAVE_READ1_R_ADR    (PNX4008_DUM_MAINCFG_BASE + 0x1000004)
-+#define DUM_SLAVE_READ2_I_ADR    (PNX4008_DUM_MAINCFG_BASE + 0x1000008)
-+#define DUM_SLAVE_READ2_R_ADR    (PNX4008_DUM_MAINCFG_BASE + 0x100000C)
-+
-+#define DUM_SLAVE_WRITE_W  ((volatile u32 *)(DUM_SLAVE_WRITE_ADR))
-+#define DUM_SLAVE_WRITE_HW ((volatile u16 *)(DUM_SLAVE_WRITE_ADR))
-+#define DUM_SLAVE_READ1_I  ((volatile u8 *)(DUM_SLAVE_READ1_I_ADR))
-+#define DUM_SLAVE_READ1_R  ((volatile u16 *)(DUM_SLAVE_READ1_R_ADR))
-+#define DUM_SLAVE_READ2_I  ((volatile u8 *)(DUM_SLAVE_READ2_I_ADR))
-+#define DUM_SLAVE_READ2_R  ((volatile u16 *)(DUM_SLAVE_READ2_R_ADR))
-+
-+/* Sony display register addresses */
-+#define DISP_0_REG            (0x00)
-+#define DISP_1_REG            (0x01)
-+#define DISP_CAL_REG          (0x20)
-+#define DISP_ID_REG           (0x2A)
-+#define DISP_XMIN_L_REG       (0x30)
-+#define DISP_XMIN_H_REG       (0x31)
-+#define DISP_YMIN_REG         (0x32)
-+#define DISP_XMAX_L_REG       (0x34)
-+#define DISP_XMAX_H_REG       (0x35)
-+#define DISP_YMAX_REG         (0x36)
-+#define DISP_SYNC_EN_REG      (0x38)
-+#define DISP_SYNC_RISE_L_REG  (0x3C)
-+#define DISP_SYNC_RISE_H_REG  (0x3D)
-+#define DISP_SYNC_FALL_L_REG  (0x3E)
-+#define DISP_SYNC_FALL_H_REG  (0x3F)
-+#define DISP_PIXEL_REG        (0x0B)
-+#define DISP_DUMMY1_REG       (0x28)
-+#define DISP_DUMMY2_REG       (0x29)
-+#define DISP_TIMING_REG       (0x98)
-+#define DISP_DUMP_REG         (0x99)
-+
-+/* Sony display constants */
-+#define SONY_ID1              (0x22)
-+#define SONY_ID2              (0x23)
-+
-+/* Philips display register addresses */
-+#define PH_DISP_ORIENT_REG    (0x003)
-+#define PH_DISP_YPOINT_REG    (0x200)
-+#define PH_DISP_XPOINT_REG    (0x201)
-+#define PH_DISP_PIXEL_REG     (0x202)
-+#define PH_DISP_YMIN_REG      (0x406)
-+#define PH_DISP_YMAX_REG      (0x407)
-+#define PH_DISP_XMIN_REG      (0x408)
-+#define PH_DISP_XMAX_REG      (0x409)
-+
-+/* Misc constants */
-+#define NO_VALID_DISPLAY_FOUND      (0)
-+#define DISPLAY2_IS_NOT_CONNECTED   (0)
-+
-+/* register values */
-+#define V_BAC_ENABLE		(BIT(0))
-+#define V_BAC_DISABLE_IDLE	(BIT(1))
-+#define V_BAC_DISABLE_TRIG	(BIT(2))
-+#define V_DUM_RESET		(BIT(3))
-+#define V_MUX_RESET		(BIT(4))
-+#define BAC_ENABLED		(BIT(0))
-+#define BAC_DISABLED		0
-+
-+/* Sony LCD commands */
-+#define V_LCD_STANDBY_OFF	((BIT(25)) | (0 << 16) | DISP_0_REG)
-+#define V_LCD_USE_9BIT_BUS	((BIT(25)) | (2 << 16) | DISP_1_REG)
-+#define V_LCD_SYNC_RISE_L	((BIT(25)) | (0 << 16) | DISP_SYNC_RISE_L_REG)
-+#define V_LCD_SYNC_RISE_H	((BIT(25)) | (0 << 16) | DISP_SYNC_RISE_H_REG)
-+#define V_LCD_SYNC_FALL_L	((BIT(25)) | (160 << 16) | DISP_SYNC_FALL_L_REG)
-+#define V_LCD_SYNC_FALL_H	((BIT(25)) | (0 << 16) | DISP_SYNC_FALL_H_REG)
-+#define V_LCD_SYNC_ENABLE	((BIT(25)) | (128 << 16) | DISP_SYNC_EN_REG)
-+#define V_LCD_DISPLAY_ON	((BIT(25)) | (64 << 16) | DISP_0_REG)
-+
-+enum {
-+	PAD_NONE,
-+	PAD_512,
-+	PAD_1024
-+};
-+
-+enum {
-+	RGB888,
-+	RGB666,
-+	RGB565,
-+	BGR565,
-+	ARGB1555,
-+	ABGR1555,
-+	ARGB4444,
-+	ABGR4444
-+};
-+
-+struct dum_setup {
-+	int sync_neg_edge;
-+	int round_robin;
-+	int mux_int;
-+	int synced_dirty_flag_int;
-+	int dirty_flag_int;
-+	int error_int;
-+	int pf_empty_int;
-+	int sf_empty_int;
-+	int bac_dis_int;
-+	u32 dirty_base_adr;
-+	u32 command_base_adr;
-+	u32 sync_clk_div;
-+	int sync_output;
-+	u32 sync_restart_val;
-+	u32 set_sync_high;
-+	u32 set_sync_low;
-+};
-+
-+struct dum_ch_setup {
-+	int disp_no;
-+	u32 xmin;
-+	u32 ymin;
-+	u32 xmax;
-+	u32 ymax;
-+	int xmirror;
-+	int ymirror;
-+	int rotate;
-+	u32 minadr;
-+	u32 maxadr;
-+	u32 dirtybuffer;
-+	int pad;
-+	int format;
-+	int hwdirty;
-+	int slave_trans;
-+};
-+
-+struct disp_window {
-+	u32 xmin_l;
-+	u32 xmin_h;
-+	u32 ymin;
-+	u32 xmax_l;
-+	u32 xmax_h;
-+	u32 ymax;
-+};
-+
-+struct dumchanregs {
-+	u32 dum_ch_min;
-+	u32 dum_ch_max;
-+	u32 dum_ch_conf;
-+	u32 dum_ch_stat;
-+	u32 dum_ch_ctrl;
-+
-+} __attribute__ ((aligned(0x100)));
-+
-+struct dumglobregs {
-+	u32 dum_conf;		/* 0x400BC000 */
-+	u32 dum_ctrl;
-+	u32 dum_stat;
-+	u32 dum_decode;
-+	u32 dum_com_base;	/* 0x400BC010 */
-+	u32 dum_sync_c;
-+	u32 dum_clk_div;
-+	u32 dum_hf_count;
-+	u32 dummy1;		/* 0x400BC020 */
-+	u32 dummy2;
-+	u32 dum_format;
-+	u32 dum_cs_ctrl;
-+	u32 dum_wtcfg1;		/* 0x400BC030 */
-+	u32 dum_rtcfg1;
-+	u32 dum_wtcfg2;
-+	u32 dum_rtcfg2;
-+	u32 dum_tcfg;		/* 0x400BC040 */
-+	u32 dum_outp_format1;
-+	u32 dum_outp_format2;
-+	u32 dum_sync_mode;
-+	u32 dum_sync_out_c;	/* 0x400BC050 */
-+};
-+
-+#endif				/* #ifndef __PNX008_DUM_H__ */
-Index: linux-2.6.git/drivers/video/pnx4008/fbcommon.h
-===================================================================
---- /dev/null
-+++ linux-2.6.git/drivers/video/pnx4008/fbcommon.h
-@@ -0,0 +1,43 @@
-+/*
-+ * Copyright (C) 2005 Philips Semiconductors
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; see the file COPYING.  If not, write to
-+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-+ * Boston, MA 02111-1307, USA, or http://www.gnu.org/licenses/gpl.html
-+*/
-+
-+#define QCIF_W  (176)
-+#define QCIF_H  (144)
-+
-+#define CIF_W   (352)
-+#define CIF_H   (288)
-+
-+#define LCD_X_RES	208
-+#define LCD_Y_RES	320
-+#define LCD_X_PAD	256
-+#define LCD_BBP		4	/* Bytes Per Pixel */
-+
-+#define DISP_MAX_X_SIZE     (320)
-+#define DISP_MAX_Y_SIZE     (208)
-+
-+#define RETURNVAL_BASE (0x400)
-+
-+enum fb_ioctl_returntype {
-+	ENORESOURCESLEFT = RETURNVAL_BASE,
-+	ERESOURCESNOTFREED,
-+	EPROCNOTOWNER,
-+	EFBNOTOWNER,
-+	ECOPYFAILED,
-+	EIOREMAPFAILED,
-+};
-Index: linux-2.6.git/drivers/video/pnx4008/rgbfb.c
-===================================================================
---- /dev/null
-+++ linux-2.6.git/drivers/video/pnx4008/rgbfb.c
-@@ -0,0 +1,223 @@
-+/*
-+ * drivers/video/pnx4008/rgbfb.c
-+ *
-+ * PNX4008's framebuffer support
-+ *
-+ * Author: Grigory Tolstolytkin <gtolstolytkin@ru.mvista.com>
-+ * Based on Philips Semiconductors's code
-+ *
-+ * Copyrght (c) 2005 MontaVista Software, Inc.
-+ * Copyright (c) 2005 Philips Semiconductors
-+ * This file is licensed under the terms of the GNU General Public License
-+ * version 2. This program is licensed "as is" without any warranty of any
-+ * kind, whether express or implied.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/string.h>
-+#include <linux/mm.h>
-+#include <linux/tty.h>
-+#include <linux/slab.h>
-+#include <linux/vmalloc.h>
-+#include <linux/delay.h>
-+#include <linux/interrupt.h>
-+#include <linux/fb.h>
-+#include <linux/init.h>
-+#include <linux/platform_device.h>
-+
-+#include <asm/uaccess.h>
-+#include "sdum.h"
-+#include "fbcommon.h"
-+
-+static u32 colreg[16];
-+
-+extern u32 rgb_lcd_video_start;
-+extern u32 rgb_lcd_video_size;
-+extern u32 lcd_phys_video_start;
-+
-+static struct fb_var_screeninfo rgbfb_var __initdata = {
-+	.xres = LCD_X_RES,
-+	.yres = LCD_Y_RES,
-+	.xres_virtual = LCD_X_RES,
-+	.yres_virtual = LCD_Y_RES,
-+	.bits_per_pixel = 32,
-+	.red.offset = 16,
-+	.red.length = 8,
-+	.green.offset = 8,
-+	.green.length = 8,
-+	.blue.offset = 0,
-+	.blue.length = 8,
-+	.left_margin = 0,
-+	.right_margin = 0,
-+	.upper_margin = 0,
-+	.lower_margin = 0,
-+	.vmode = FB_VMODE_NONINTERLACED,
-+};
-+static struct fb_fix_screeninfo rgbfb_fix __initdata = {
-+	.id = "RGBFB",
-+	.line_length = LCD_X_PAD * LCD_BBP,
-+	.type = FB_TYPE_PACKED_PIXELS,
-+	.visual = FB_VISUAL_TRUECOLOR,
-+	.xpanstep = 0,
-+	.ypanstep = 0,
-+	.ywrapstep = 0,
-+	.accel = FB_ACCEL_NONE,
-+};
-+
-+static int channel_owned;
-+
-+static int no_cursor(struct fb_info *info, struct fb_cursor *cursor)
-+{
-+	return 0;
-+}
-+
-+static int rgbfb_setcolreg(u_int regno, u_int red, u_int green, u_int blue,
-+			   u_int transp, struct fb_info *info)
-+{
-+	if (regno > 15)
-+		return 1;
-+
-+	colreg[regno] = ((red & 0xff00) << 8) | (green & 0xff00) |
-+	    ((blue & 0xff00) >> 8);
-+	return 0;
-+}
-+
-+static int rgbfb_open(struct fb_info *info, int user)
-+{
-+	return 0;
-+}
-+
-+static int rgbfb_release(struct fb_info *info, int user)
-+{
-+	return 0;
-+}
-+
-+static int rgbfb_mmap(struct fb_info *info, struct vm_area_struct *vma)
-+{
-+	return pnx4008_sdum_mmap(info, vma, NULL);
-+}
-+
-+static struct fb_ops rgbfb_ops = {
-+	.fb_open = rgbfb_open,
-+	.fb_release = rgbfb_release,
-+	.fb_mmap = rgbfb_mmap,
-+	.fb_setcolreg = rgbfb_setcolreg,
-+	.fb_fillrect = cfb_fillrect,
-+	.fb_copyarea = cfb_copyarea,
-+	.fb_imageblit = cfb_imageblit,
-+	.fb_cursor = no_cursor,
-+};
-+
-+static int rgbfb_remove(struct platform_device *pdev)
-+{
-+	struct fb_info *info = platform_get_drvdata(pdev);
-+
-+	if (info) {
-+		unregister_framebuffer(info);
-+		fb_dealloc_cmap(&info->cmap);
-+		framebuffer_release(info);
-+		platform_set_drvdata(pdev, NULL);
-+	}
-+
-+	pnx4008_free_dum_channel(channel_owned, pdev->id);
-+	pnx4008_set_dum_exit_notification(pdev->id);
-+
-+	return 0;
-+}
-+
-+static int __devinit rgbfb_probe(struct platform_device *pdev)
-+{
-+	struct fb_info *info;
-+	struct dumchannel_uf chan_uf;
-+	int ret;
-+
-+	info = framebuffer_alloc(sizeof(u32) * 256, &pdev->dev);
-+	if (!info) {
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	pnx4008_get_fb_addresses(FB_TYPE_RGB, (void **)&info->screen_base,
-+				 (dma_addr_t *) &rgbfb_fix.smem_start,
-+				 &rgbfb_fix.smem_len);
-+
-+	if ((ret = pnx4008_alloc_dum_channel(pdev->id)) < 0)
-+		goto err;
-+	else {
-+		channel_owned = ret;
-+		chan_uf.channelnr = channel_owned;
-+		chan_uf.dirty = (u32 *) NULL;
-+		chan_uf.source = (u32 *) rgbfb_fix.smem_start;
-+		chan_uf.x_offset = 0;
-+		chan_uf.y_offset = 0;
-+		chan_uf.width = LCD_X_RES;
-+		chan_uf.height = LCD_Y_RES;
-+
-+		if ((ret = pnx4008_put_dum_channel_uf(chan_uf, pdev->id))< 0)
-+			goto err;
-+
-+		if ((ret =
-+		     pnx4008_set_dum_channel_sync(channel_owned, CONF_SYNC_ON,
-+						  pdev->id)) < 0)
-+			goto err;
-+
-+		if ((ret =
-+		     pnx4008_set_dum_chanel_dirty_detect(channel_owned,
-+							 CONF_DIRTYDETECTION_ON,
-+							 pdev->id)) < 0)
-+			goto err;
-+	}
-+
-+	info->node = -1;
-+	info->flags = FBINFO_FLAG_DEFAULT;
-+	info->fbops = &rgbfb_ops;
-+	info->fix = rgbfb_fix;
-+	info->var = rgbfb_var;
-+	info->screen_size = rgbfb_fix.smem_len;
-+	info->pseudo_palette = info->par;
-+	info->par = NULL;
-+
-+	ret = fb_alloc_cmap(&info->cmap, 256, 0);
-+	if (ret < 0)
-+		goto err1;
-+
-+	ret = register_framebuffer(info);
-+	if (ret < 0)
-+		goto err2;
-+	platform_set_drvdata(pdev, info);
-+
-+	return 0;
-+
-+err2:
-+	fb_dealloc_cmap(&info->cmap);
-+err1:
-+	framebuffer_release(info);
-+err:
-+	pnx4008_free_dum_channel(channel_owned, pdev->id);
-+	return ret;
-+}
-+
-+static struct platform_driver rgbfb_driver = {
-+	.driver = {
-+		.name = "rgbfb",
-+	},
-+	.probe = rgbfb_probe,
-+	.remove = rgbfb_remove,
-+};
-+
-+static int __init rgbfb_init(void)
-+{
-+	return platform_driver_register(&rgbfb_driver);
-+}
-+
-+static void __exit rgbfb_exit(void)
-+{
-+	platform_driver_unregister(&rgbfb_driver);
-+}
-+
-+module_init(rgbfb_init);
-+module_exit(rgbfb_exit);
-+
-+MODULE_LICENSE("GPL");
-Index: linux-2.6.git/drivers/video/Kconfig
-===================================================================
---- linux-2.6.git.orig/drivers/video/Kconfig
-+++ linux-2.6.git/drivers/video/Kconfig
-@@ -1560,6 +1560,21 @@ config FB_S3C2410_DEBUG
- 	  Turn on debugging messages. Note that you can set/unset at run time
- 	  through sysfs
+
+
+commit 5e4860c2f5dd64bdc9dedc657c246129659b5bbe
+Author: Jeff Garzik <jeff@garzik.org>
+Date:   Tue Jun 27 09:25:28 2006 -0400
+
+    [netdrvr] via-velocity: remove io_size struct member, it is invariant
+    
+    Replace io_size struct members with VELOCITY_IO_SIZE constant.
+    
+    Also, constify chip_info_table[].
+    
+    Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+commit 8a8b0fe4ac1cf49e4d1f170de20bc1c91206dc9c
+Author: Jeff Garzik <jeff@garzik.org>
+Date:   Tue Jun 27 09:20:08 2006 -0400
+
+    [netdrvr] via-velocity: misc. cleanups
+    
+    - const-ify pci_device_id table
+    - clean up pci_device_id table with PCI_DEVICE()
+    - don't store internal pointer in pci_device_id table,
+      use pci_device_id::driver_data as an integer index
+    - use dev_printk() for messages where eth%d prefix is unavailable
+    - formatting fixes
+    
+    Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+commit d573eb578808b9531e50b38222c56cf8792b4d86
+Author: Jeff Garzik <jeff@garzik.org>
+Date:   Tue Jun 27 09:12:38 2006 -0400
+
+    [netdrvr] minor cleanups in Becker-derived drivers
+    
+    - fealnx: convert #define to enum
+    - fealnx, sundance: mark chip info table __devinitdata
+    - fealnx: use dev_printk() during probe
+    - fealnx: formatting cleanups
+    - starfire: remove obsolete comment
+    - sundance, via-rhine: add some whitespace where useful, in tables
+    - sundance: prefer "{ }" table terminator
+    - via-rhine: mark PCI probe table const
+    
+    Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+commit c66fdbba1d9c058ea4a93c2be84c142cd24710ad
+Author: Jeff Garzik <jeff@garzik.org>
+Date:   Tue Jun 27 08:56:23 2006 -0400
+
+    [netdrvr] via-velocity: use netdev_priv() where appropriate
+    
+    Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+commit 61c874a20369c61840bbe70c77b8703a7e70834b
+Author: Jeff Garzik <jeff@garzik.org>
+Date:   Tue Jun 27 08:54:34 2006 -0400
+
+    [netdrvr] Remove Becker-template 'io_size' member, when invariant
+    
+    Becker-derived drivers often have the 'io_size' member in their chip
+    info struct, indicating the minimum required size of the I/O resource
+    (usually a PCI BAR).  For many situations, this number is either
+    constant or irrelevant (due to pci_iomap convenience behavior).
+    
+    This change removes the io_size invariant member, and replaces it with a
+    compile-time constant.
+    
+    Drivers updated: fealnx, gt96100eth, winbond-840, yellowfin
+    
+    Additionally,
+    - gt96100eth: unused 'drv_flags' removed from gt96100eth
+    - winbond-840: unused struct match_info removed
+    - winbond-840: mark pci_id_tbl[] const, __devinitdata
+    
+    Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+commit 5a60e801d0db1421e1f5753e96edd63975023ace
+Author: Jeff Garzik <jeff@garzik.org>
+Date:   Tue Jun 27 07:57:22 2006 -0400
+
+    [netdrvr] Remove Linux-specific changelogs from several Becker template drivers
+    
+    When in-kernel net drivers branched from Donald Becker's vanilla driver
+    set, in the days before BitKeeper and git, a driver changelog was
+    maintained in the driver source code.  These days, the kernel's
+    changelog is far superior and much more accurate, so the in-driver
+    changelogs are removed.
+    
+    Another relic of the Becker/kernel split was version numbering, using
+    "foo-LKx.y.z" notation, resulting in weird version numbers like
+    "1.17b-LK1.1.9".  These drivers are for older hardware, and see few
+    changes these days, so the version numbers were all bumped to something
+    more simple.
+    
+    Finally, in xircom_tulip_cb specifically, an additional cleanup removes
+    the always-enabled CARDBUS cpp macro.
+    
+    Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+commit 45d2b49000fa6cd65e2409bf7c121b374c4974cd
+Author: Jeff Garzik <jeff@garzik.org>
+Date:   Tue Jun 27 07:38:33 2006 -0400
+
+    [netdrvr] epic100: minor cleanups
+    
+    - Remove in-source changelog, it's in the global kernel history.
+    - convert silly and useless version to useful one
+    - replace invariant pci_id_tbl[]::io_size uses with EPIC_TOTAL_SIZE
+    - remove now-unused io_size member from pci_id_tbl[]
+    - current kernel style prefers dev_printk() for the rare ethernet driver
+      messages that cannot print an 'eth%d' prefix.
+    
+    Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+
+ drivers/net/dl2k.c                  |   43 ------------
+ drivers/net/epic100.c               |   71 ++------------------
+ drivers/net/fealnx.c                |   20 +++--
+ drivers/net/gt96100eth.c            |    3 
+ drivers/net/gt96100eth.h            |    2 
+ drivers/net/hamachi.c               |   13 ---
+ drivers/net/natsemi.c               |  117 ----------------------------------
+ drivers/net/starfire.c              |  123 ------------------------------------
+ drivers/net/sundance.c              |  106 ++++---------------------------
+ drivers/net/tulip/winbond-840.c     |   29 +++-----
+ drivers/net/tulip/xircom_tulip_cb.c |   27 +------
+ drivers/net/via-rhine.c             |  121 ++---------------------------------
+ drivers/net/via-velocity.c          |  102 ++++++++++++++---------------
+ drivers/net/via-velocity.h          |    4 -
+ drivers/net/yellowfin.c             |   39 ++---------
+ 15 files changed, 132 insertions(+), 688 deletions(-)
+
+
+diff --git a/drivers/net/dl2k.c b/drivers/net/dl2k.c
+index 038447f..be997cb 100644
+--- a/drivers/net/dl2k.c
++++ b/drivers/net/dl2k.c
+@@ -9,49 +9,10 @@
+     the Free Software Foundation; either version 2 of the License, or
+     (at your option) any later version.
+ */
+-/*
+-    Rev		Date		Description
+-    ==========================================================================
+-    0.01	2001/05/03	Created DL2000-based linux driver
+-    0.02	2001/05/21	Added VLAN and hardware checksum support.
+-    1.00	2001/06/26	Added jumbo frame support.
+-    1.01	2001/08/21	Added two parameters, rx_coalesce and rx_timeout.
+-    1.02	2001/10/08	Supported fiber media.
+-    				Added flow control parameters.
+-    1.03	2001/10/12	Changed the default media to 1000mbps_fd for 
+-    				the fiber devices.
+-    1.04	2001/11/08	Fixed Tx stopped when tx very busy.
+-    1.05	2001/11/22	Fixed Tx stopped when unidirectional tx busy.
+-    1.06	2001/12/13	Fixed disconnect bug at 10Mbps mode.
+-    				Fixed tx_full flag incorrect.
+-				Added tx_coalesce paramter.
+-    1.07	2002/01/03	Fixed miscount of RX frame error.
+-    1.08	2002/01/17	Fixed the multicast bug.
+-    1.09	2002/03/07	Move rx-poll-now to re-fill loop.	
+-    				Added rio_timer() to watch rx buffers. 
+-    1.10	2002/04/16	Fixed miscount of carrier error.
+-    1.11	2002/05/23	Added ISR schedule scheme
+-    				Fixed miscount of rx frame error for DGE-550SX.
+-    				Fixed VLAN bug.
+-    1.12	2002/06/13	Lock tx_coalesce=1 on 10/100Mbps mode.
+-    1.13	2002/08/13	1. Fix disconnection (many tx:carrier/rx:frame
+-    				   errs) with some mainboards.
+-    				2. Use definition "DRV_NAME" "DRV_VERSION" 
+-				   "DRV_RELDATE" for flexibility.	
+-    1.14	2002/08/14	Support ethtool.	
+-    1.15	2002/08/27	Changed the default media to Auto-Negotiation
+-				for the fiber devices.    
+-    1.16	2002/09/04      More power down time for fiber devices auto-
+-    				negotiation.
+-				Fix disconnect bug after ifup and ifdown.
+-    1.17	2002/10/03	Fix RMON statistics overflow. 
+-			     	Always use I/O mapping to access eeprom, 
+-				avoid system freezing with some chipsets.
  
-+config FB_PNX4008_DUM
-+	tristate "Display Update Module support on Philips PNX4008 board"
-+	depends on FB && ARCH_PNX4008
-+	---help---
-+	  Say Y here to enable support for PNX4008 Display Update Module (DUM)
-+
-+config FB_PNX4008_DUM_RGB
-+	tristate "RGB Framebuffer support on Philips PNX4008 board"
-+	depends on FB_PNX4008_DUM
-+	select FB_CFB_FILLRECT
-+	select FB_CFB_COPYAREA
-+	select FB_CFB_IMAGEBLIT
-+	---help---
-+	  Say Y here to enable support for PNX4008 RGB Framebuffer
-+
- config FB_VIRTUAL
- 	tristate "Virtual Frame Buffer support (ONLY FOR TESTING!)"
- 	depends on FB
-Index: linux-2.6.git/drivers/video/Makefile
-===================================================================
---- linux-2.6.git.orig/drivers/video/Makefile
-+++ linux-2.6.git/drivers/video/Makefile
-@@ -94,6 +94,8 @@ obj-$(CONFIG_FB_TX3912)		  += tx3912fb.o
- obj-$(CONFIG_FB_S1D13XXX)	  += s1d13xxxfb.o
- obj-$(CONFIG_FB_IMX)              += imxfb.o
- obj-$(CONFIG_FB_S3C2410)	  += s3c2410fb.o
-+obj-$(CONFIG_FB_PNX4008_DUM)	  += pnx4008/
-+obj-$(CONFIG_FB_PNX4008_DUM_RGB)  += pnx4008/
+-*/
+ #define DRV_NAME	"D-Link DL2000-based linux driver"
+-#define DRV_VERSION	"v1.17b"
+-#define DRV_RELDATE	"2006/03/10"
++#define DRV_VERSION	"v1.18"
++#define DRV_RELDATE	"2006/06/27"
+ #include "dl2k.h"
+ #include <linux/dma-mapping.h>
  
- # Platform or fallback drivers go here
- obj-$(CONFIG_FB_VESA)             += vesafb.o
-Index: linux-2.6.git/drivers/video/pnx4008/sdum.c
-===================================================================
---- /dev/null
-+++ linux-2.6.git/drivers/video/pnx4008/sdum.c
-@@ -0,0 +1,866 @@
-+/*
-+ * drivers/video/pnx4008/sdum.c
-+ *
-+ * Display Update Master support
-+ *
-+ * Authors: Grigory Tolstolytkin <gtolstolytkin@ru.mvista.com>
-+ *          Vitaly Wool <vitalywool@gmail.com>
-+ * Based on Philips Semiconductors's code
-+ *
-+ * Copyrght (c) 2005-2006 MontaVista Software, Inc.
-+ * Copyright (c) 2005 Philips Semiconductors
-+ * This file is licensed under the terms of the GNU General Public License
-+ * version 2. This program is licensed "as is" without any warranty of any
-+ * kind, whether express or implied.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/string.h>
-+#include <linux/mm.h>
-+#include <linux/tty.h>
-+#include <linux/slab.h>
-+#include <linux/vmalloc.h>
-+#include <linux/delay.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/fb.h>
-+#include <linux/init.h>
-+#include <linux/dma-mapping.h>
-+#include <linux/clk.h>
-+#include <asm/uaccess.h>
-+#include <asm/arch/gpio.h>
-+
-+#include "sdum.h"
-+#include "fbcommon.h"
-+#include "dum.h"
-+
-+/* Framebuffers we have */
-+
-+static struct pnx4008_fb_addr {
-+	int fb_type;
-+	long addr_offset;
-+	long fb_length;
-+} fb_addr[] = {
-+	[0] = {
-+		FB_TYPE_YUV, 0, 0xB0000
-+	},
-+	[1] = {
-+		FB_TYPE_RGB, 0xB0000, 0x50000
-+	},
+diff --git a/drivers/net/epic100.c b/drivers/net/epic100.c
+index ee34a16..8dacd0d 100644
+--- a/drivers/net/epic100.c
++++ b/drivers/net/epic100.c
+@@ -19,62 +19,15 @@
+ 
+ 	Information and updates available at
+ 	http://www.scyld.com/network/epic100.html
++	[this link no longer provides anything useful -jgarzik]
+ 
+ 	---------------------------------------------------------------------
+ 
+-	Linux kernel-specific changes:
+-
+-	LK1.1.2 (jgarzik):
+-	* Merge becker version 1.09 (4/08/2000)
+-
+-	LK1.1.3:
+-	* Major bugfix to 1.09 driver (Francis Romieu)
+-
+-	LK1.1.4 (jgarzik):
+-	* Merge becker test version 1.09 (5/29/2000)
+-
+-	LK1.1.5:
+-	* Fix locking (jgarzik)
+-	* Limit 83c175 probe to ethernet-class PCI devices (rgooch)
+-
+-	LK1.1.6:
+-	* Merge becker version 1.11
+-	* Move pci_enable_device before any PCI BAR len checks
+-
+-	LK1.1.7:
+-	* { fill me in }
+-
+-	LK1.1.8:
+-	* ethtool driver info support (jgarzik)
+-
+-	LK1.1.9:
+-	* ethtool media get/set support (jgarzik)
+-
+-	LK1.1.10:
+-	* revert MII transceiver init change (jgarzik)
+-
+-	LK1.1.11:
+-	* implement ETHTOOL_[GS]SET, _NWAY_RST, _[GS]MSGLVL, _GLINK (jgarzik)
+-	* replace some MII-related magic numbers with constants
+-
+-	LK1.1.12:
+-	* fix power-up sequence
+-
+-	LK1.1.13:
+-	* revert version 1.1.12, power-up sequence "fix"
+-
+-	LK1.1.14 (Kryzsztof Halasa):
+-	* fix spurious bad initializations
+-	* pound phy a la SMSC's app note on the subject
+-
+-	AC1.1.14ac
+-	* fix power up/down for ethtool that broke in 1.11
+-
+ */
+ 
+ #define DRV_NAME        "epic100"
+-#define DRV_VERSION     "1.11+LK1.1.14+AC1.1.14"
+-#define DRV_RELDATE     "June 2, 2004"
++#define DRV_VERSION     "2.0"
++#define DRV_RELDATE     "June 27, 2006"
+ 
+ /* The user-configurable values.
+    These may be modified when a driver module is loaded.*/
+@@ -205,19 +158,15 @@ typedef enum {
+ 
+ struct epic_chip_info {
+ 	const char *name;
+-        int io_size;                            /* Needed for I/O region check or ioremap(). */
+         int drv_flags;                          /* Driver use, intended as capability flags. */
+ };
+ 
+ 
+ /* indexed by chip_t */
+ static const struct epic_chip_info pci_id_tbl[] = {
+-	{ "SMSC EPIC/100 83c170",
+-	  EPIC_TOTAL_SIZE, TYPE2_INTR | NO_MII | MII_PWRDWN },
+-	{ "SMSC EPIC/100 83c170",
+-	  EPIC_TOTAL_SIZE, TYPE2_INTR },
+-	{ "SMSC EPIC/C 83c175",
+-	  EPIC_TOTAL_SIZE, TYPE2_INTR | MII_PWRDWN },
++	{ "SMSC EPIC/100 83c170",	TYPE2_INTR | NO_MII | MII_PWRDWN },
++	{ "SMSC EPIC/100 83c170",	TYPE2_INTR },
++	{ "SMSC EPIC/C 83c175",		TYPE2_INTR | MII_PWRDWN },
+ };
+ 
+ 
+@@ -386,8 +335,8 @@ #endif
+ 		goto out;
+ 	irq = pdev->irq;
+ 
+-	if (pci_resource_len(pdev, 0) < pci_id_tbl[chip_idx].io_size) {
+-		printk (KERN_ERR "card %d: no PCI region space\n", card_idx);
++	if (pci_resource_len(pdev, 0) < EPIC_TOTAL_SIZE) {
++		dev_printk(KERN_ERR, &pdev->dev, "no PCI region space\n");
+ 		ret = -ENODEV;
+ 		goto err_out_disable;
+ 	}
+@@ -402,7 +351,7 @@ #endif
+ 
+ 	dev = alloc_etherdev(sizeof (*ep));
+ 	if (!dev) {
+-		printk (KERN_ERR "card %d: no memory for eth device\n", card_idx);
++		dev_printk(KERN_ERR, &pdev->dev, "no memory for eth device\n");
+ 		goto err_out_free_res;
+ 	}
+ 	SET_MODULE_OWNER(dev);
+@@ -414,7 +363,7 @@ #else
+ 	ioaddr = pci_resource_start (pdev, 1);
+ 	ioaddr = (long) ioremap (ioaddr, pci_resource_len (pdev, 1));
+ 	if (!ioaddr) {
+-		printk (KERN_ERR DRV_NAME " %d: ioremap failed\n", card_idx);
++		dev_printk(KERN_ERR, &pdev->dev, "ioremap failed\n");
+ 		goto err_out_free_netdev;
+ 	}
+ #endif
+diff --git a/drivers/net/fealnx.c b/drivers/net/fealnx.c
+index 13eca7e..958ea51 100644
+--- a/drivers/net/fealnx.c
++++ b/drivers/net/fealnx.c
+@@ -124,7 +124,9 @@ MODULE_PARM_DESC(multicast_filter_limit,
+ MODULE_PARM_DESC(options, "fealnx: Bits 0-3: media type, bit 17: full duplex");
+ MODULE_PARM_DESC(full_duplex, "fealnx full duplex setting(s) (1)");
+ 
+-#define MIN_REGION_SIZE 136
++enum {
++	MIN_REGION_SIZE		= 136,
 +};
-+
-+static struct dum_data {
-+	u32 lcd_phys_start;
-+	u32 lcd_virt_start;
-+	u32 slave_phys_base;
-+	u32 *slave_virt_base;
-+	int fb_owning_channel[MAX_DUM_CHANNELS];
-+	struct dumchannel_uf chan_uf_store[MAX_DUM_CHANNELS];
-+} dum_data;
-+
-+/* Different local helper functions */
-+
-+static u32 nof_pixels_dx(struct dum_ch_setup *ch_setup)
-+{
-+	return (ch_setup->xmax - ch_setup->xmin + 1);
-+}
-+
-+static u32 nof_pixels_dy(struct dum_ch_setup *ch_setup)
-+{
-+	return (ch_setup->ymax - ch_setup->ymin + 1);
-+}
-+
-+static u32 nof_pixels_dxy(struct dum_ch_setup *ch_setup)
-+{
-+	return (nof_pixels_dx(ch_setup) * nof_pixels_dy(ch_setup));
-+}
-+
-+static u32 nof_bytes(struct dum_ch_setup *ch_setup)
-+{
-+	u32 r = nof_pixels_dxy(ch_setup);
-+	switch (ch_setup->format) {
-+	case RGB888:
-+	case RGB666:
-+		r *= 4;
-+		break;
-+
-+	default:
-+		r *= 2;
-+		break;
-+	}
-+	return r;
-+}
-+
-+static u32 build_command(int disp_no, u32 reg, u32 val)
-+{
-+	return ((disp_no << 26) | BIT(25) | (val << 16) | (disp_no << 10) |
-+		(reg << 0));
-+}
-+
-+static u32 build_double_index(int disp_no, u32 val)
-+{
-+	return ((disp_no << 26) | (val << 16) | (disp_no << 10) | (val << 0));
-+}
-+
-+static void build_disp_window(struct dum_ch_setup * ch_setup, struct disp_window * dw)
-+{
-+	dw->ymin = ch_setup->ymin;
-+	dw->ymax = ch_setup->ymax;
-+	dw->xmin_l = ch_setup->xmin & 0xFF;
-+	dw->xmin_h = (ch_setup->xmin & BIT(8)) >> 8;
-+	dw->xmax_l = ch_setup->xmax & 0xFF;
-+	dw->xmax_h = (ch_setup->xmax & BIT(8)) >> 8;
-+}
-+static int get_channel(struct dumchannel *p_chan)
-+{
-+	int i = p_chan->channelnr;
-+
-+	if (i < 0 || i > MAX_DUM_CHANNELS)
-+		return -EINVAL;
-+	else {
-+		p_chan->dum_ch_min = DUM_CH_MIN(i);
-+		p_chan->dum_ch_max = DUM_CH_MAX(i);
-+		p_chan->dum_ch_conf = DUM_CH_CONF(i);
-+		p_chan->dum_ch_stat = DUM_CH_STAT(i);
-+		p_chan->dum_ch_ctrl = 0;	/* WriteOnly control register */
-+	}
-+
-+	return 0;
-+}
-+
-+static int put_channel(struct dumchannel chan)
-+{
-+	int i = chan.channelnr;
-+
-+	if (i < 0 || i > MAX_DUM_CHANNELS)
-+		return -EINVAL;
-+	else {
-+		DUM_CH_MIN(i) = chan.dum_ch_min;
-+		DUM_CH_MAX(i) = chan.dum_ch_max;
-+		DUM_CH_CONF(i) = chan.dum_ch_conf;
-+		DUM_CH_CTRL(i) = chan.dum_ch_ctrl;
-+	}
-+
-+	return 0;
-+}
-+
-+static void clear_channel(int channr)
-+{
-+	struct dumchannel chan;
-+
-+	chan.channelnr = channr;
-+	chan.dum_ch_min = 0;
-+	chan.dum_ch_max = 0;
-+	chan.dum_ch_conf = 0;
-+	chan.dum_ch_ctrl = 0;
-+
-+	put_channel(chan);
-+}
-+
-+static int put_cmd_string(struct cmdstring cmds)
-+{
-+	u16 *cmd_str_virtaddr;
-+	int *cmd_ptr0_virtaddr;
-+	int cmd_str_physaddr;
-+
-+	int i = cmds.channelnr;
-+
-+	if (i < 0 || i > MAX_DUM_CHANNELS)
-+		return -EINVAL;
-+	else if ((cmd_ptr0_virtaddr =
-+		  (int *)ioremap_nocache(DUM_COM_BASE,
-+					 sizeof(int) * MAX_DUM_CHANNELS)) ==
-+		 NULL)
-+		return -EIOREMAPFAILED;
-+	else {
-+		cmd_str_physaddr = cmd_ptr0_virtaddr[cmds.channelnr];
-+		if ((cmd_str_virtaddr =
-+		     (u16 *) ioremap_nocache(cmd_str_physaddr,
-+					     sizeof(cmds))) == NULL) {
-+			iounmap(cmd_ptr0_virtaddr);
-+			return -EIOREMAPFAILED;
-+		} else {
-+			int t;
-+			for (t = 0; t < 8; t++)
-+				cmd_str_virtaddr[t] =
-+				    *((u16 *) & (cmds.prestringlen) + t);
-+
-+			for (t = 0; t < cmds.prestringlen / 2; t++)
-+				cmd_str_virtaddr[8 + t] =
-+				    *((u16 *) & (cmds.precmd) + t);
-+
-+			for (t = 0; t < cmds.poststringlen / 2; t++)
-+				cmd_str_virtaddr[8 + t +
-+						 cmds.prestringlen / 2] =
-+				    *((u16 *) & (cmds.postcmd) + t);
-+
-+			iounmap(cmd_ptr0_virtaddr);
-+			iounmap(cmd_str_virtaddr);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static u32 dum_ch_setup(int ch_no, struct dum_ch_setup * ch_setup)
-+{
-+	struct cmdstring cmds_c;
-+	struct cmdstring *cmds = &cmds_c;
-+	struct disp_window dw;
-+	int standard;
-+	u32 orientation = 0;
-+	struct dumchannel chan = { 0 };
-+	int ret;
-+
-+	if ((ch_setup->xmirror) || (ch_setup->ymirror) || (ch_setup->rotate)) {
-+		standard = 0;
-+
-+		orientation = BIT(1);	/* always set 9-bit-bus */
-+		if (ch_setup->xmirror)
-+			orientation |= BIT(4);
-+		if (ch_setup->ymirror)
-+			orientation |= BIT(3);
-+		if (ch_setup->rotate)
-+			orientation |= BIT(0);
-+	} else
-+		standard = 1;
-+
-+	cmds->channelnr = ch_no;
-+
-+	/* build command string header */
-+	if (standard) {
-+		cmds->prestringlen = 32;
-+		cmds->poststringlen = 0;
-+	} else {
-+		cmds->prestringlen = 48;
-+		cmds->poststringlen = 16;
-+	}
-+
-+	cmds->format =
-+	    (u16) ((ch_setup->disp_no << 4) | (BIT(3)) | (ch_setup->format));
-+	cmds->reserved = 0x0;
-+	cmds->startaddr_low = (ch_setup->minadr & 0xFFFF);
-+	cmds->startaddr_high = (ch_setup->minadr >> 16);
-+
-+	if ((ch_setup->minadr == 0) && (ch_setup->maxadr == 0)
-+	    && (ch_setup->xmin == 0)
-+	    && (ch_setup->ymin == 0) && (ch_setup->xmax == 0)
-+	    && (ch_setup->ymax == 0)) {
-+		cmds->pixdatlen_low = 0;
-+		cmds->pixdatlen_high = 0;
-+	} else {
-+		u32 nbytes = nof_bytes(ch_setup);
-+		cmds->pixdatlen_low = (nbytes & 0xFFFF);
-+		cmds->pixdatlen_high = (nbytes >> 16);
-+	}
-+
-+	if (ch_setup->slave_trans)
-+		cmds->pixdatlen_high |= BIT(15);
-+
-+	/* build pre-string */
-+	build_disp_window(ch_setup, &dw);
-+
-+	if (standard) {
-+		cmds->precmd[0] =
-+		    build_command(ch_setup->disp_no, DISP_XMIN_L_REG, 0x99);
-+		cmds->precmd[1] =
-+		    build_command(ch_setup->disp_no, DISP_XMIN_L_REG,
-+				  dw.xmin_l);
-+		cmds->precmd[2] =
-+		    build_command(ch_setup->disp_no, DISP_XMIN_H_REG,
-+				  dw.xmin_h);
-+		cmds->precmd[3] =
-+		    build_command(ch_setup->disp_no, DISP_YMIN_REG, dw.ymin);
-+		cmds->precmd[4] =
-+		    build_command(ch_setup->disp_no, DISP_XMAX_L_REG,
-+				  dw.xmax_l);
-+		cmds->precmd[5] =
-+		    build_command(ch_setup->disp_no, DISP_XMAX_H_REG,
-+				  dw.xmax_h);
-+		cmds->precmd[6] =
-+		    build_command(ch_setup->disp_no, DISP_YMAX_REG, dw.ymax);
-+		cmds->precmd[7] =
-+		    build_double_index(ch_setup->disp_no, DISP_PIXEL_REG);
-+	} else {
-+		if (dw.xmin_l == ch_no)
-+			cmds->precmd[0] =
-+			    build_command(ch_setup->disp_no, DISP_XMIN_L_REG,
-+					  0x99);
-+		else
-+			cmds->precmd[0] =
-+			    build_command(ch_setup->disp_no, DISP_XMIN_L_REG,
-+					  ch_no);
-+
-+		cmds->precmd[1] =
-+		    build_command(ch_setup->disp_no, DISP_XMIN_L_REG,
-+				  dw.xmin_l);
-+		cmds->precmd[2] =
-+		    build_command(ch_setup->disp_no, DISP_XMIN_H_REG,
-+				  dw.xmin_h);
-+		cmds->precmd[3] =
-+		    build_command(ch_setup->disp_no, DISP_YMIN_REG, dw.ymin);
-+		cmds->precmd[4] =
-+		    build_command(ch_setup->disp_no, DISP_XMAX_L_REG,
-+				  dw.xmax_l);
-+		cmds->precmd[5] =
-+		    build_command(ch_setup->disp_no, DISP_XMAX_H_REG,
-+				  dw.xmax_h);
-+		cmds->precmd[6] =
-+		    build_command(ch_setup->disp_no, DISP_YMAX_REG, dw.ymax);
-+		cmds->precmd[7] =
-+		    build_command(ch_setup->disp_no, DISP_1_REG, orientation);
-+		cmds->precmd[8] =
-+		    build_double_index(ch_setup->disp_no, DISP_PIXEL_REG);
-+		cmds->precmd[9] =
-+		    build_double_index(ch_setup->disp_no, DISP_PIXEL_REG);
-+		cmds->precmd[0xA] =
-+		    build_double_index(ch_setup->disp_no, DISP_PIXEL_REG);
-+		cmds->precmd[0xB] =
-+		    build_double_index(ch_setup->disp_no, DISP_PIXEL_REG);
-+		cmds->postcmd[0] =
-+		    build_command(ch_setup->disp_no, DISP_1_REG, BIT(1));
-+		cmds->postcmd[1] =
-+		    build_command(ch_setup->disp_no, DISP_DUMMY1_REG, 1);
-+		cmds->postcmd[2] =
-+		    build_command(ch_setup->disp_no, DISP_DUMMY1_REG, 2);
-+		cmds->postcmd[3] =
-+		    build_command(ch_setup->disp_no, DISP_DUMMY1_REG, 3);
-+	}
-+
-+	if ((ret = put_cmd_string(cmds_c)) != 0) {
-+		return ret;
-+	}
-+
-+	chan.channelnr = cmds->channelnr;
-+	chan.dum_ch_min = ch_setup->dirtybuffer + ch_setup->minadr;
-+	chan.dum_ch_max = ch_setup->dirtybuffer + ch_setup->maxadr;
-+	chan.dum_ch_conf = 0x002;
-+	chan.dum_ch_ctrl = 0x04;
-+
-+	put_channel(chan);
-+
-+	return 0;
-+}
-+
-+static u32 display_open(int ch_no, int auto_update, u32 * dirty_buffer,
-+			u32 * frame_buffer, u32 xpos, u32 ypos, u32 w, u32 h)
-+{
-+
-+	struct dum_ch_setup k;
-+	int ret;
-+
-+	/* keep width & height within display area */
-+	if ((xpos + w) > DISP_MAX_X_SIZE)
-+		w = DISP_MAX_X_SIZE - xpos;
-+
-+	if ((ypos + h) > DISP_MAX_Y_SIZE)
-+		h = DISP_MAX_Y_SIZE - ypos;
-+
-+	/* assume 1 display only */
-+	k.disp_no = 0;
-+	k.xmin = xpos;
-+	k.ymin = ypos;
-+	k.xmax = xpos + (w - 1);
-+	k.ymax = ypos + (h - 1);
-+
-+	/* adjust min and max values if necessary */
-+	if (k.xmin > DISP_MAX_X_SIZE - 1)
-+		k.xmin = DISP_MAX_X_SIZE - 1;
-+	if (k.ymin > DISP_MAX_Y_SIZE - 1)
-+		k.ymin = DISP_MAX_Y_SIZE - 1;
-+
-+	if (k.xmax > DISP_MAX_X_SIZE - 1)
-+		k.xmax = DISP_MAX_X_SIZE - 1;
-+	if (k.ymax > DISP_MAX_Y_SIZE - 1)
-+		k.ymax = DISP_MAX_Y_SIZE - 1;
-+
-+	k.xmirror = 0;
-+	k.ymirror = 0;
-+	k.rotate = 0;
-+	k.minadr = (u32) frame_buffer;
-+	k.maxadr = (u32) frame_buffer + (((w - 1) << 10) | ((h << 2) - 2));
-+	k.pad = PAD_1024;
-+	k.dirtybuffer = (u32) dirty_buffer;
-+	k.format = RGB888;
-+	k.hwdirty = 0;
-+	k.slave_trans = 0;
-+
-+	ret = dum_ch_setup(ch_no, &k);
-+
-+	return ret;
-+}
-+
-+static void lcd_reset(void)
-+{
-+	u32 *dum_pio_base = (u32 *)IO_ADDRESS(PNX4008_PIO_BASE);
-+
-+	udelay(1);
-+	__raw_writel(BIT(19), &dum_pio_base[2]);
-+	udelay(1);
-+	__raw_writel(BIT(19), &dum_pio_base[1]);
-+	udelay(1);
-+}
-+
-+static int dum_init(struct platform_device *pdev)
-+{
-+	struct clk *clk;
-+
-+	/* enable DUM clock */
-+	clk = clk_get(&pdev->dev, "dum_ck");
-+	if (IS_ERR(clk)) {
-+		printk(KERN_ERR "pnx4008_dum: Unable to access DUM clock\n");
-+		return PTR_ERR(clk);
-+	}
-+
-+	clk_set_rate(clk, 1);
-+	clk_put(clk);
-+
-+	DUM_CTRL = V_DUM_RESET;
-+
-+	/* set priority to "round-robin". All other params to "false" */
-+	DUM_CONF = BIT(9);
-+
-+	/* Display 1 */
-+	DUM_WTCFG1 = PNX4008_DUM_WT_CFG;
-+	DUM_RTCFG1 = PNX4008_DUM_RT_CFG;
-+	DUM_TCFG = PNX4008_DUM_T_CFG;
-+
-+	return 0;
-+}
-+
-+static void dum_chan_init(void)
-+{
-+	int i = 0, ch = 0;
-+	u32 *cmdptrs;
-+	u32 *cmdstrings;
-+
-+	DUM_COM_BASE =
-+		CMDSTRING_BASEADDR + BYTES_PER_CMDSTRING * NR_OF_CMDSTRINGS;
-+
-+	if ((cmdptrs =
-+	     (u32 *) ioremap_nocache(DUM_COM_BASE,
-+				     sizeof(u32) * NR_OF_CMDSTRINGS)) == NULL)
-+		return;
-+
-+	for (ch = 0; ch < NR_OF_CMDSTRINGS; ch++)
-+		iowrite32(CMDSTRING_BASEADDR + BYTES_PER_CMDSTRING * ch,
-+			  cmdptrs + ch);
-+
-+	for (ch = 0; ch < MAX_DUM_CHANNELS; ch++)
-+		clear_channel(ch);
-+
-+	/* Clear the cmdstrings */
-+	cmdstrings =
-+	    (u32 *)ioremap_nocache(*cmdptrs,
-+				   BYTES_PER_CMDSTRING * NR_OF_CMDSTRINGS);
-+
-+	if (!cmdstrings)
-+		goto out;
-+
-+	for (i = 0; i < NR_OF_CMDSTRINGS * BYTES_PER_CMDSTRING / sizeof(u32);
-+	     i++)
-+		__raw_writel(0, cmdstrings + i);
-+
-+	iounmap((u32 *)cmdstrings);
-+
-+out:
-+	iounmap((u32 *)cmdptrs);
-+}
-+
-+static void lcd_init(void)
-+{
-+	lcd_reset();
-+
-+	DUM_OUTP_FORMAT1 = 0; /* DUM_OUTP_FORMAT1, RGB666 */
-+
-+	udelay(1);
-+	__raw_writel(V_LCD_STANDBY_OFF, dum_data.slave_virt_base);
-+	udelay(1);
-+	__raw_writel(V_LCD_USE_9BIT_BUS, dum_data.slave_virt_base);
-+	udelay(1);
-+	__raw_writel(V_LCD_SYNC_RISE_L, dum_data.slave_virt_base);
-+	udelay(1);
-+	__raw_writel(V_LCD_SYNC_RISE_H, dum_data.slave_virt_base);
-+	udelay(1);
-+	__raw_writel(V_LCD_SYNC_FALL_L, dum_data.slave_virt_base);
-+	udelay(1);
-+	__raw_writel(V_LCD_SYNC_FALL_H, dum_data.slave_virt_base);
-+	udelay(1);
-+	__raw_writel(V_LCD_SYNC_ENABLE, dum_data.slave_virt_base);
-+	udelay(1);
-+	__raw_writel(V_LCD_DISPLAY_ON, dum_data.slave_virt_base);
-+	udelay(1);
-+}
-+
-+/* Interface exported to framebuffer drivers */
-+
-+int pnx4008_get_fb_addresses(int fb_type, void **virt_addr,
-+			     dma_addr_t *phys_addr, int *fb_length)
-+{
-+	int i;
-+	int ret = -1;
-+	for (i = 0; i < ARRAY_SIZE(fb_addr); i++)
-+		if (fb_addr[i].fb_type == fb_type) {
-+			*virt_addr = (void *)(dum_data.lcd_virt_start +
-+					fb_addr[i].addr_offset);
-+			*phys_addr =
-+			    dum_data.lcd_phys_start + fb_addr[i].addr_offset;
-+			*fb_length = fb_addr[i].fb_length;
-+			ret = 0;
-+			break;
-+		}
-+
-+	return ret;
-+}
-+
-+EXPORT_SYMBOL(pnx4008_get_fb_addresses);
-+
-+int pnx4008_alloc_dum_channel(int dev_id)
-+{
-+	int i = 0;
-+
-+	while ((i < MAX_DUM_CHANNELS) && (dum_data.fb_owning_channel[i] != -1))
-+		i++;
-+
-+	if (i == MAX_DUM_CHANNELS)
-+		return -ENORESOURCESLEFT;
-+	else {
-+		dum_data.fb_owning_channel[i] = dev_id;
+ 
+ /* A chip capabilities table, matching the entries in pci_tbl[] above. */
+ enum chip_capability_flags {
+@@ -146,14 +148,13 @@ enum phy_type_flags {
+ 
+ struct chip_info {
+ 	char *chip_name;
+-	int io_size;
+ 	int flags;
+ };
+ 
+-static const struct chip_info skel_netdrv_tbl[] = {
+-	{"100/10M Ethernet PCI Adapter", 136, HAS_MII_XCVR},
+-	{"100/10M Ethernet PCI Adapter", 136, HAS_CHIP_XCVR},
+-	{"1000/100/10M Ethernet PCI Adapter", 136, HAS_MII_XCVR},
++static const struct chip_info skel_netdrv_tbl[] __devinitdata = {
++ 	{ "100/10M Ethernet PCI Adapter",	HAS_MII_XCVR },
++	{ "100/10M Ethernet PCI Adapter",	HAS_CHIP_XCVR },
++	{ "1000/100/10M Ethernet PCI Adapter",	HAS_MII_XCVR },
+ };
+ 
+ /* Offsets to the Command and Status Registers. */
+@@ -504,13 +505,14 @@ #endif
+ 	
+ 	len = pci_resource_len(pdev, bar);
+ 	if (len < MIN_REGION_SIZE) {
+-		printk(KERN_ERR "%s: region size %ld too small, aborting\n",
+-		       boardname, len);
++		dev_printk(KERN_ERR, &pdev->dev,
++			   "region size %ld too small, aborting\n", len);
+ 		return -ENODEV;
+ 	}
+ 
+ 	i = pci_request_regions(pdev, boardname);
+-	if (i) return i;
++	if (i)
 +		return i;
-+	}
-+}
-+
-+EXPORT_SYMBOL(pnx4008_alloc_dum_channel);
-+
-+int pnx4008_free_dum_channel(int channr, int dev_id)
-+{
-+	if (channr < 0 || channr > MAX_DUM_CHANNELS)
-+		return -EINVAL;
-+	else if (dum_data.fb_owning_channel[channr] != dev_id)
-+		return -EFBNOTOWNER;
-+	else {
-+		clear_channel(channr);
-+		dum_data.fb_owning_channel[channr] = -1;
-+	}
-+
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(pnx4008_free_dum_channel);
-+
-+int pnx4008_get_dum_channel_uf(struct dumchannel_uf *p_chan_uf, int dev_id)
-+{
-+	int i = p_chan_uf->channelnr;
-+
-+	if (i < 0 || i > MAX_DUM_CHANNELS)
-+		return -EINVAL;
-+	else if (dum_data.fb_owning_channel[i] != dev_id)
-+		return -EFBNOTOWNER;
-+	else {
-+		p_chan_uf->dirty = dum_data.chan_uf_store[i].dirty;
-+		p_chan_uf->source = dum_data.chan_uf_store[i].source;
-+		p_chan_uf->x_offset = dum_data.chan_uf_store[i].x_offset;
-+		p_chan_uf->y_offset = dum_data.chan_uf_store[i].y_offset;
-+		p_chan_uf->width = dum_data.chan_uf_store[i].width;
-+		p_chan_uf->height = dum_data.chan_uf_store[i].height;
-+	}
-+
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(pnx4008_get_dum_channel_uf);
-+
-+int pnx4008_put_dum_channel_uf(struct dumchannel_uf chan_uf, int dev_id)
-+{
-+	int i = chan_uf.channelnr;
-+	int ret;
-+
-+	if (i < 0 || i > MAX_DUM_CHANNELS)
-+		return -EINVAL;
-+	else if (dum_data.fb_owning_channel[i] != dev_id)
-+		return -EFBNOTOWNER;
-+	else if ((ret =
-+		  display_open(chan_uf.channelnr, 0, chan_uf.dirty,
-+			       chan_uf.source, chan_uf.y_offset,
-+			       chan_uf.x_offset, chan_uf.height,
-+			       chan_uf.width)) != 0)
-+		return ret;
-+	else {
-+		dum_data.chan_uf_store[i].dirty = chan_uf.dirty;
-+		dum_data.chan_uf_store[i].source = chan_uf.source;
-+		dum_data.chan_uf_store[i].x_offset = chan_uf.x_offset;
-+		dum_data.chan_uf_store[i].y_offset = chan_uf.y_offset;
-+		dum_data.chan_uf_store[i].width = chan_uf.width;
-+		dum_data.chan_uf_store[i].height = chan_uf.height;
-+	}
-+
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(pnx4008_put_dum_channel_uf);
-+
-+int pnx4008_get_dum_channel_config(int channr, int dev_id)
-+{
-+	int ret;
-+	struct dumchannel chan;
-+
-+	if (channr < 0 || channr > MAX_DUM_CHANNELS)
-+		return -EINVAL;
-+	else if (dum_data.fb_owning_channel[channr] != dev_id)
-+		return -EFBNOTOWNER;
-+	else {
-+		chan.channelnr = channr;
-+		if ((ret = get_channel(&chan)) != 0)
-+			return ret;
-+	}
-+
-+	return (chan.dum_ch_conf & DUM_CHANNEL_CFG_MASK);
-+}
-+
-+EXPORT_SYMBOL(pnx4008_get_dum_channel_config);
-+
-+int pnx4008_set_dum_channel_sync(int channr, int val, int dev_id)
-+{
-+	if (channr < 0 || channr > MAX_DUM_CHANNELS)
-+		return -EINVAL;
-+	else if (dum_data.fb_owning_channel[channr] != dev_id)
-+		return -EFBNOTOWNER;
-+	else {
-+		if (val == CONF_SYNC_ON) {
-+			DUM_CH_CONF(channr) |= CONF_SYNCENABLE;
-+			DUM_CH_CONF(channr) |= DUM_CHANNEL_CFG_SYNC_MASK |
-+				DUM_CHANNEL_CFG_SYNC_MASK_SET;
-+		} else if (val == CONF_SYNC_OFF)
-+			DUM_CH_CONF(channr) &= ~CONF_SYNCENABLE;
-+		else
-+			return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(pnx4008_set_dum_channel_sync);
-+
-+int pnx4008_set_dum_chanel_dirty_detect(int channr, int val, int dev_id)
-+{
-+	if (channr < 0 || channr > MAX_DUM_CHANNELS)
-+		return -EINVAL;
-+	else if (dum_data.fb_owning_channel[channr] != dev_id)
-+		return -EFBNOTOWNER;
-+	else {
-+		if (val == CONF_DIRTYDETECTION_ON)
-+			DUM_CH_CONF(channr) |= CONF_DIRTYENABLE;
-+		else if (val == CONF_DIRTYDETECTION_OFF)
-+			DUM_CH_CONF(channr) &= ~CONF_DIRTYENABLE;
-+		else
-+			return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(pnx4008_set_dum_chanel_dirty_detect);
-+
-+int pnx4008_force_update_dum_channel(int channr, int dev_id)
-+{
-+	if (channr < 0 || channr > MAX_DUM_CHANNELS)
-+		return -EINVAL;
-+
-+	else if (dum_data.fb_owning_channel[channr] != dev_id)
-+		return -EFBNOTOWNER;
-+	else
-+		DUM_CH_CTRL(channr) = CTRL_SETDIRTY;
-+
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(pnx4008_force_update_dum_channel);
-+
-+int pnx4008_sdum_mmap(struct fb_info *info, struct vm_area_struct *vma,
-+		      struct device *dev)
-+{
-+	unsigned long off = vma->vm_pgoff << PAGE_SHIFT;
-+
-+	if (off < info->fix.smem_len) {
-+		vma->vm_pgoff += 1;
-+		return dma_mmap_writecombine(dev, vma,
-+				(void *)dum_data.lcd_virt_start,
-+				dum_data.lcd_phys_start,
-+				FB_DMA_SIZE);
-+	}
-+	return -EINVAL;
-+}
-+
-+EXPORT_SYMBOL(pnx4008_sdum_mmap);
-+
-+int pnx4008_set_dum_exit_notification(int dev_id)
-+{
-+	int i;
-+
-+	for (i = 0; i < MAX_DUM_CHANNELS; i++)
-+		if (dum_data.fb_owning_channel[i] == dev_id)
-+			return -ERESOURCESNOTFREED;
-+
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(pnx4008_set_dum_exit_notification);
-+
-+/* Platform device driver for DUM */
-+
-+static int sdum_suspend(struct platform_device *pdev, pm_message_t state)
-+{
-+	int retval = 0;
-+	struct clk *clk;
-+
-+	clk = clk_get(0, "dum_ck");
-+	if (!IS_ERR(clk)) {
-+		clk_set_rate(clk, 0);
-+		clk_put(clk);
-+	} else
-+		retval = PTR_ERR(clk);
-+
-+	/* disable BAC */
-+	DUM_CTRL = V_BAC_DISABLE_IDLE;
-+
-+	/* LCD standby & turn off display */
-+	lcd_reset();
-+
-+	return retval;
-+}
-+
-+static int sdum_resume(struct platform_device *pdev)
-+{
-+	int retval = 0;
-+	struct clk *clk;
-+
-+	clk = clk_get(0, "dum_ck");
-+	if (!IS_ERR(clk)) {
-+		clk_set_rate(clk, 1);
-+		clk_put(clk);
-+	} else
-+		retval = PTR_ERR(clk);
-+
-+	/* wait for BAC disable */
-+	DUM_CTRL = V_BAC_DISABLE_TRIG;
-+
-+	while (DUM_CTRL & BAC_ENABLED)
-+		udelay(10);
-+
-+	/* re-init LCD */
-+	lcd_init();
-+
-+	/* enable BAC and reset MUX */
-+	DUM_CTRL = V_BAC_ENABLE;
-+	udelay(1);
-+	DUM_CTRL = V_MUX_RESET;
-+	return 0;
-+}
-+
-+static int __devinit sdum_probe(struct platform_device *pdev)
-+{
-+	int ret = 0, i = 0;
-+
-+	/* map frame buffer */
-+	dum_data.lcd_virt_start = (u32) dma_alloc_writecombine(&pdev->dev,
-+						       FB_DMA_SIZE,
-+						       &dum_data.lcd_phys_start,
-+						       GFP_KERNEL);
-+
-+	if (!dum_data.lcd_virt_start) {
-+		ret = -ENOMEM;
-+		goto out_3;
-+	}
-+
-+	/* map slave registers */
-+	dum_data.slave_phys_base = PNX4008_DUM_SLAVE_BASE;
-+	dum_data.slave_virt_base =
-+	    (u32 *) ioremap_nocache(dum_data.slave_phys_base, sizeof(u32));
-+
-+	if (dum_data.slave_virt_base == NULL) {
-+		ret = -ENOMEM;
-+		goto out_2;
-+	}
-+
-+	/* initialize DUM and LCD display */
-+	ret = dum_init(pdev);
-+	if (ret)
-+		goto out_1;
-+
-+	dum_chan_init();
-+	lcd_init();
-+
-+	DUM_CTRL = V_BAC_ENABLE;
-+	udelay(1);
-+	DUM_CTRL = V_MUX_RESET;
-+
-+	/* set decode address and sync clock divider */
-+	DUM_DECODE = dum_data.lcd_phys_start & DUM_DECODE_MASK;
-+	DUM_CLK_DIV = PNX4008_DUM_CLK_DIV;
-+
-+	for (i = 0; i < MAX_DUM_CHANNELS; i++)
-+		dum_data.fb_owning_channel[i] = -1;
-+
-+	/*setup wakeup interrupt */
-+	start_int_set_rising_edge(SE_DISP_SYNC_INT);
-+	start_int_ack(SE_DISP_SYNC_INT);
-+	start_int_umask(SE_DISP_SYNC_INT);
-+
-+	return 0;
-+
-+out_1:
-+	iounmap((void *)dum_data.slave_virt_base);
-+out_2:
-+	dma_free_writecombine(&pdev->dev, FB_DMA_SIZE, (void *)dum_data.lcd_virt_start,
-+			      dum_data.lcd_phys_start);
-+out_3:
-+	return ret;
-+}
-+
-+static int sdum_remove(struct platform_device *pdev)
-+{
-+	struct clk *clk;
-+
-+	start_int_mask(SE_DISP_SYNC_INT);
-+
-+	clk = clk_get(0, "dum_ck");
-+	if (!IS_ERR(clk)) {
-+		clk_set_rate(clk, 0);
-+		clk_put(clk);
-+	}
-+
-+	iounmap((void *)dum_data.slave_virt_base);
-+
-+	dma_free_writecombine(&pdev->dev, FB_DMA_SIZE,
-+			(void *)dum_data.lcd_virt_start,
-+			dum_data.lcd_phys_start);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver sdum_driver = {
-+	.driver = {
-+		.name = "sdum",
-+	},
-+	.probe = sdum_probe,
-+	.remove = sdum_remove,
-+	.suspend = sdum_suspend,
-+	.resume = sdum_resume,
-+};
-+
-+int __init sdum_init(void)
-+{
-+	return platform_driver_register(&sdum_driver);
-+}
-+
-+static void __exit sdum_exit(void)
-+{
-+	platform_driver_unregister(&sdum_driver);
-+};
-+
-+module_init(sdum_init);
-+module_exit(sdum_exit);
-+
-+MODULE_LICENSE("GPL");
-Index: linux-2.6.git/drivers/video/pnx4008/sdum.h
-===================================================================
---- /dev/null
-+++ linux-2.6.git/drivers/video/pnx4008/sdum.h
-@@ -0,0 +1,139 @@
-+/*
-+ * Copyright (C) 2005 Philips Semiconductors
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; see the file COPYING.  If not, write to
-+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-+ * Boston, MA 02111-1307, USA, or http://www.gnu.org/licenses/gpl.html
-+*/
-+
-+#define MAX_DUM_CHANNELS	64
-+
-+#define RGB_MEM_WINDOW(x) (0x10000000 + (x)*0x00100000)
-+
-+#define QCIF_OFFSET(x) (((x) == 0) ? 0x00000: ((x) == 1) ? 0x30000: -1)
-+#define CIF_OFFSET(x)  (((x) == 0) ? 0x00000: ((x) == 1) ? 0x60000: -1)
-+
-+#define CTRL_SETDIRTY	 	(0x00000001)
-+#define CONF_DIRTYENABLE	(0x00000020)
-+#define CONF_SYNCENABLE		(0x00000004)
-+
-+#define DIRTY_ENABLED(conf)	((conf) & 0x0020)
-+#define SYNC_ENABLED(conf) 	((conf) & 0x0004)
-+
-+/* Display 1 & 2 Write Timing Configuration */
-+#define PNX4008_DUM_WT_CFG		0x00372000
-+
-+/* Display 1 & 2 Read Timing Configuration */
-+#define PNX4008_DUM_RT_CFG		0x00003A47
-+
-+/* DUM Transit State Timing Configuration */
-+#define PNX4008_DUM_T_CFG		0x1D	/* 29 HCLK cycles */
-+
-+/* DUM Sync count clock divider */
-+#define PNX4008_DUM_CLK_DIV		0x02DD
-+
-+/* Memory size for framebuffer, allocated through dma_alloc_writecombine().
-+ * Must be PAGE aligned
-+ */
-+#define FB_DMA_SIZE (PAGE_ALIGN(SZ_1M + PAGE_SIZE))
-+
-+#define OFFSET_RGBBUFFER (0xB0000)
-+#define OFFSET_YUVBUFFER (0x00000)
-+
-+#define YUVBUFFER (lcd_video_start + OFFSET_YUVBUFFER)
-+#define RGBBUFFER (lcd_video_start + OFFSET_RGBBUFFER)
-+
-+#define CMDSTRING_BASEADDR	(0x00C000)	/* iram */
-+#define BYTES_PER_CMDSTRING	(0x80)
-+#define NR_OF_CMDSTRINGS	(64)
-+
-+#define MAX_NR_PRESTRINGS (0x40)
-+#define MAX_NR_POSTSTRINGS (0x40)
-+
-+/* various mask definitions */
-+#define DUM_CLK_ENABLE 0x01
-+#define DUM_CLK_DISABLE 0
-+#define DUM_DECODE_MASK 0x1FFFFFFF
-+#define DUM_CHANNEL_CFG_MASK 0x01FF
-+#define DUM_CHANNEL_CFG_SYNC_MASK 0xFFFE00FF
-+#define DUM_CHANNEL_CFG_SYNC_MASK_SET 0x0CA00
-+
-+#define SDUM_RETURNVAL_BASE (0x500)
-+
-+#define CONF_SYNC_OFF		(0x602)
-+#define CONF_SYNC_ON		(0x603)
-+
-+#define CONF_DIRTYDETECTION_OFF	(0x600)
-+#define CONF_DIRTYDETECTION_ON	(0x601)
-+
-+/* Set the corresponding bit. */
-+#define BIT(n) (0x1U << (n))
-+
-+struct dumchannel_uf {
-+	int channelnr;
-+	u32 *dirty;
-+	u32 *source;
-+	u32 x_offset;
-+	u32 y_offset;
-+	u32 width;
-+	u32 height;
-+};
-+
+ 	
+ 	irq = pdev->irq;
+ 
+diff --git a/drivers/net/gt96100eth.c b/drivers/net/gt96100eth.c
+index 2d24354..243c9a5 100644
+--- a/drivers/net/gt96100eth.c
++++ b/drivers/net/gt96100eth.c
+@@ -699,7 +699,6 @@ static int __init gt96100_probe1(struct 
+ 	memset(gp, 0, sizeof(*gp)); // clear it
+ 
+ 	gp->port_num = port_num;
+-	gp->io_size = GT96100_ETH_IO_SIZE;
+ 	gp->port_offset = port_num * GT96100_ETH_IO_SIZE;
+ 	gp->phy_addr = phy_addr;
+ 	gp->chip_rev = chip_rev;
+@@ -1531,7 +1530,7 @@ static void gt96100_cleanup_module(void)
+ 				+ sizeof(gt96100_td_t) * TX_RING_SIZE,
+ 				gp->rx_ring);
+ 			free_netdev(gtif->dev);
+-			release_region(gtif->iobase, gp->io_size);
++			release_region(gtif->iobase, GT96100_ETH_IO_SIZE);
+ 		}
+ 	}
+ }
+diff --git a/drivers/net/gt96100eth.h b/drivers/net/gt96100eth.h
+index 395869c..cda81c9 100644
+--- a/drivers/net/gt96100eth.h
++++ b/drivers/net/gt96100eth.h
+@@ -332,7 +332,6 @@ struct gt96100_private {
+ 	mib_counters_t mib;
+ 	struct net_device_stats stats;
+ 
+-	int io_size;
+ 	int port_num;  // 0 or 1
+ 	int chip_rev;
+ 	u32 port_offset;
+@@ -341,7 +340,6 @@ struct gt96100_private {
+ 	u32 last_psr; // last value of the port status register
+ 
+ 	int options;     /* User-settable misc. driver options. */
+-	int drv_flags;
+ 	struct timer_list timer;
+ 	spinlock_t lock; /* Serialise access to device */
+ };
+diff --git a/drivers/net/hamachi.c b/drivers/net/hamachi.c
+index 0ea4cb4..2b91099 100644
+--- a/drivers/net/hamachi.c
++++ b/drivers/net/hamachi.c
+@@ -20,22 +20,15 @@
+ 
+ 	Support and updates available at
+ 	http://www.scyld.com/network/hamachi.html
++	[link no longer provides useful info -jgarzik]
+ 	or
+ 	http://www.parl.clemson.edu/~keithu/hamachi.html
+ 
+-
+-
+-	Linux kernel changelog:
+-
+-	LK1.0.1:
+-	- fix lack of pci_dev<->dev association
+-	- ethtool support (jgarzik)
+-
+ */
+ 
+ #define DRV_NAME	"hamachi"
+-#define DRV_VERSION	"1.01+LK1.0.1"
+-#define DRV_RELDATE	"5/18/2001"
++#define DRV_VERSION	"2.0"
++#define DRV_RELDATE	"June 27, 2006"
+ 
+ 
+ /* A few user-configurable values. */
+diff --git a/drivers/net/natsemi.c b/drivers/net/natsemi.c
+index 5657049..963377c 100644
+--- a/drivers/net/natsemi.c
++++ b/drivers/net/natsemi.c
+@@ -20,120 +20,9 @@
+ 
+ 	Support information and updates available at
+ 	http://www.scyld.com/network/netsemi.html
++	[link no longer provides useful info -jgarzik]
+ 
+ 
+-	Linux kernel modifications:
+-
+-	Version 1.0.1:
+-		- Spinlock fixes
+-		- Bug fixes and better intr performance (Tjeerd)
+-	Version 1.0.2:
+-		- Now reads correct MAC address from eeprom
+-	Version 1.0.3:
+-		- Eliminate redundant priv->tx_full flag
+-		- Call netif_start_queue from dev->tx_timeout
+-		- wmb() in start_tx() to flush data
+-		- Update Tx locking
+-		- Clean up PCI enable (davej)
+-	Version 1.0.4:
+-		- Merge Donald Becker's natsemi.c version 1.07
+-	Version 1.0.5:
+-		- { fill me in }
+-	Version 1.0.6:
+-		* ethtool support (jgarzik)
+-		* Proper initialization of the card (which sometimes
+-		fails to occur and leaves the card in a non-functional
+-		state). (uzi)
+-
+-		* Some documented register settings to optimize some
+-		of the 100Mbit autodetection circuitry in rev C cards. (uzi)
+-
+-		* Polling of the PHY intr for stuff like link state
+-		change and auto- negotiation to finally work properly. (uzi)
+-
+-		* One-liner removal of a duplicate declaration of
+-		netdev_error(). (uzi)
+-
+-	Version 1.0.7: (Manfred Spraul)
+-		* pci dma
+-		* SMP locking update
+-		* full reset added into tx_timeout
+-		* correct multicast hash generation (both big and little endian)
+-			[copied from a natsemi driver version
+-			 from Myrio Corporation, Greg Smith]
+-		* suspend/resume
+-
+-	version 1.0.8 (Tim Hockin <thockin@sun.com>)
+-		* ETHTOOL_* support
+-		* Wake on lan support (Erik Gilling)
+-		* MXDMA fixes for serverworks
+-		* EEPROM reload
+-
+-	version 1.0.9 (Manfred Spraul)
+-		* Main change: fix lack of synchronize
+-		netif_close/netif_suspend against a last interrupt
+-		or packet.
+-		* do not enable superflous interrupts (e.g. the
+-		drivers relies on TxDone - TxIntr not needed)
+-		* wait that the hardware has really stopped in close
+-		and suspend.
+-		* workaround for the (at least) gcc-2.95.1 compiler
+-		problem. Also simplifies the code a bit.
+-		* disable_irq() in tx_timeout - needed to protect
+-		against rx interrupts.
+-		* stop the nic before switching into silent rx mode
+-		for wol (required according to docu).
+-
+-	version 1.0.10:
+-		* use long for ee_addr (various)
+-		* print pointers properly (DaveM)
+-		* include asm/irq.h (?)
+-
+-	version 1.0.11:
+-		* check and reset if PHY errors appear (Adrian Sun)
+-		* WoL cleanup (Tim Hockin)
+-		* Magic number cleanup (Tim Hockin)
+-		* Don't reload EEPROM on every reset (Tim Hockin)
+-		* Save and restore EEPROM state across reset (Tim Hockin)
+-		* MDIO Cleanup (Tim Hockin)
+-		* Reformat register offsets/bits (jgarzik)
+-
+-	version 1.0.12:
+-		* ETHTOOL_* further support (Tim Hockin)
+-
+-	version 1.0.13:
+-		* ETHTOOL_[G]EEPROM support (Tim Hockin)
+-
+-	version 1.0.13:
+-		* crc cleanup (Matt Domsch <Matt_Domsch@dell.com>)
+-
+-	version 1.0.14:
+-		* Cleanup some messages and autoneg in ethtool (Tim Hockin)
+-
+-	version 1.0.15:
+-		* Get rid of cable_magic flag
+-		* use new (National provided) solution for cable magic issue
+-
+-	version 1.0.16:
+-		* call netdev_rx() for RxErrors (Manfred Spraul)
+-		* formatting and cleanups
+-		* change options and full_duplex arrays to be zero
+-		  initialized
+-		* enable only the WoL and PHY interrupts in wol mode
+-
+-	version 1.0.17:
+-		* only do cable_magic on 83815 and early 83816 (Tim Hockin)
+-		* create a function for rx refill (Manfred Spraul)
+-		* combine drain_ring and init_ring (Manfred Spraul)
+-		* oom handling (Manfred Spraul)
+-		* hands_off instead of playing with netif_device_{de,a}ttach
+-		  (Manfred Spraul)
+-		* be sure to write the MAC back to the chip (Manfred Spraul)
+-		* lengthen EEPROM timeout, and always warn about timeouts
+-		  (Manfred Spraul)
+-		* comments update (Manfred)
+-		* do the right thing on a phy-reset (Manfred and Tim)
+-
+ 	TODO:
+ 	* big endian support with CFG:BEM instead of cpu_to_le32
+ */
+@@ -166,8 +55,8 @@ #include <asm/irq.h>
+ #include <asm/uaccess.h>
+ 
+ #define DRV_NAME	"natsemi"
+-#define DRV_VERSION	"1.07+LK1.0.17"
+-#define DRV_RELDATE	"Sep 27, 2002"
++#define DRV_VERSION	"2.0"
++#define DRV_RELDATE	"June 27, 2006"
+ 
+ #define RX_OFFSET	2
+ 
+diff --git a/drivers/net/starfire.c b/drivers/net/starfire.c
+index c158eed..e0f1aaf 100644
+--- a/drivers/net/starfire.c
++++ b/drivers/net/starfire.c
+@@ -22,129 +22,13 @@
+ 
+ 	Support and updates available at
+ 	http://www.scyld.com/network/starfire.html
++	[link no longer provides useful info -jgarzik]
+ 
+-	-----------------------------------------------------------
+-
+-	Linux kernel-specific changes:
+-
+-	LK1.1.1 (jgarzik):
+-	- Use PCI driver interface
+-	- Fix MOD_xxx races
+-	- softnet fixups
+-
+-	LK1.1.2 (jgarzik):
+-	- Merge Becker version 0.15
+-
+-	LK1.1.3 (Andrew Morton)
+-	- Timer cleanups
+-
+-	LK1.1.4 (jgarzik):
+-	- Merge Becker version 1.03
+-
+-	LK1.2.1 (Ion Badulescu <ionut@cs.columbia.edu>)
+-	- Support hardware Rx/Tx checksumming
+-	- Use the GFP firmware taken from Adaptec's Netware driver
+-
+-	LK1.2.2 (Ion Badulescu)
+-	- Backported to 2.2.x
+-
+-	LK1.2.3 (Ion Badulescu)
+-	- Fix the flaky mdio interface
+-	- More compat clean-ups
+-
+-	LK1.2.4 (Ion Badulescu)
+-	- More 2.2.x initialization fixes
+-
+-	LK1.2.5 (Ion Badulescu)
+-	- Several fixes from Manfred Spraul
+-
+-	LK1.2.6 (Ion Badulescu)
+-	- Fixed ifup/ifdown/ifup problem in 2.4.x
+-
+-	LK1.2.7 (Ion Badulescu)
+-	- Removed unused code
+-	- Made more functions static and __init
+-
+-	LK1.2.8 (Ion Badulescu)
+-	- Quell bogus error messages, inform about the Tx threshold
+-	- Removed #ifdef CONFIG_PCI, this driver is PCI only
+-
+-	LK1.2.9 (Ion Badulescu)
+-	- Merged Jeff Garzik's changes from 2.4.4-pre5
+-	- Added 2.2.x compatibility stuff required by the above changes
+-
+-	LK1.2.9a (Ion Badulescu)
+-	- More updates from Jeff Garzik
+-
+-	LK1.3.0 (Ion Badulescu)
+-	- Merged zerocopy support
+-
+-	LK1.3.1 (Ion Badulescu)
+-	- Added ethtool support
+-	- Added GPIO (media change) interrupt support
+-
+-	LK1.3.2 (Ion Badulescu)
+-	- Fixed 2.2.x compatibility issues introduced in 1.3.1
+-	- Fixed ethtool ioctl returning uninitialized memory
+-
+-	LK1.3.3 (Ion Badulescu)
+-	- Initialize the TxMode register properly
+-	- Don't dereference dev->priv after freeing it
+-
+-	LK1.3.4 (Ion Badulescu)
+-	- Fixed initialization timing problems
+-	- Fixed interrupt mask definitions
+-
+-	LK1.3.5 (jgarzik)
+-	- ethtool NWAY_RST, GLINK, [GS]MSGLVL support
+-
+-	LK1.3.6:
+-	- Sparc64 support and fixes (Ion Badulescu)
+-	- Better stats and error handling (Ion Badulescu)
+-	- Use new pci_set_mwi() PCI API function (jgarzik)
+-
+-	LK1.3.7 (Ion Badulescu)
+-	- minimal implementation of tx_timeout()
+-	- correctly shutdown the Rx/Tx engines in netdev_close()
+-	- added calls to netif_carrier_on/off
+-	(patch from Stefan Rompf <srompf@isg.de>)
+-	- VLAN support
+-
+-	LK1.3.8 (Ion Badulescu)
+-	- adjust DMA burst size on sparc64
+-	- 64-bit support
+-	- reworked zerocopy support for 64-bit buffers
+-	- working and usable interrupt mitigation/latency
+-	- reduced Tx interrupt frequency for lower interrupt overhead
+-
+-	LK1.3.9 (Ion Badulescu)
+-	- bugfix for mcast filter
+-	- enable the right kind of Tx interrupts (TxDMADone, not TxDone)
+-
+-	LK1.4.0 (Ion Badulescu)
+-	- NAPI support
+-
+-	LK1.4.1 (Ion Badulescu)
+-	- flush PCI posting buffers after disabling Rx interrupts
+-	- put the chip to a D3 slumber on driver unload
+-	- added config option to enable/disable NAPI
+-
+-	LK1.4.2 (Ion Badulescu)
+-	- finally added firmware (GPL'ed by Adaptec)
+-	- removed compatibility code for 2.2.x
+-
+-	LK1.4.2.1 (Ion Badulescu)
+-	- fixed 32/64 bit issues on i386 + CONFIG_HIGHMEM
+-	- added 32-bit padding to outgoing skb's, removed previous workaround
+-
+-TODO:	- fix forced speed/duplexing code (broken a long time ago, when
+-	somebody converted the driver to use the generic MII code)
+-	- fix VLAN support
+ */
+ 
+ #define DRV_NAME	"starfire"
+-#define DRV_VERSION	"1.03+LK1.4.2.1"
+-#define DRV_RELDATE	"October 3, 2005"
++#define DRV_VERSION	"2.0"
++#define DRV_RELDATE	"June 27, 2006"
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
+@@ -847,7 +731,6 @@ #endif
+ 		goto err_out_free_netdev;
+ 	}
+ 
+-	/* ioremap is borken in Linux-2.2.x/sparc64 */
+ 	base = ioremap(ioaddr, io_size);
+ 	if (!base) {
+ 		printk(KERN_ERR DRV_NAME " %d: cannot remap %#x @ %#lx, aborting\n",
+diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
+index f13b2a1..01ba7f8 100644
+--- a/drivers/net/sundance.c
++++ b/drivers/net/sundance.c
+@@ -16,91 +16,13 @@
+ 
+ 	Support and updates available at
+ 	http://www.scyld.com/network/sundance.html
++	[link no longer provides useful info -jgarzik]
+ 
+-
+-	Version LK1.01a (jgarzik):
+-	- Replace some MII-related magic numbers with constants
+-
+-	Version LK1.02 (D-Link):
+-	- Add new board to PCI ID list
+-	- Fix multicast bug
+-
+-	Version LK1.03 (D-Link):
+-	- New Rx scheme, reduce Rx congestion
+-	- Option to disable flow control
+-
+-	Version LK1.04 (D-Link):
+-	- Tx timeout recovery
+-	- More support for ethtool.
+-
+-	Version LK1.04a:
+-	- Remove unused/constant members from struct pci_id_info
+-	(which then allows removal of 'drv_flags' from private struct)
+-	(jgarzik)
+-	- If no phy is found, fail to load that board (jgarzik)
+-	- Always start phy id scan at id 1 to avoid problems (Donald Becker)
+-	- Autodetect where mii_preable_required is needed,
+-	default to not needed.  (Donald Becker)
+-
+-	Version LK1.04b:
+-	- Remove mii_preamble_required module parameter (Donald Becker)
+-	- Add per-interface mii_preamble_required (setting is autodetected)
+-	  (Donald Becker)
+-	- Remove unnecessary cast from void pointer (jgarzik)
+-	- Re-align comments in private struct (jgarzik)
+-
+-	Version LK1.04c (jgarzik):
+-	- Support bitmapped message levels (NETIF_MSG_xxx), and the
+-	  two ethtool ioctls that get/set them
+-	- Don't hand-code MII ethtool support, use standard API/lib
+-
+-	Version LK1.04d:
+-	- Merge from Donald Becker's sundance.c: (Jason Lunz)
+-		* proper support for variably-sized MTUs
+-		* default to PIO, to fix chip bugs
+-	- Add missing unregister_netdev (Jason Lunz)
+-	- Add CONFIG_SUNDANCE_MMIO config option (jgarzik)
+-	- Better rx buf size calculation (Donald Becker)
+-
+-	Version LK1.05 (D-Link):
+-	- Fix DFE-580TX packet drop issue (for DL10050C)
+-	- Fix reset_tx logic
+-
+-	Version LK1.06 (D-Link):
+-	- Fix crash while unloading driver
+-
+-	Versin LK1.06b (D-Link):
+-	- New tx scheme, adaptive tx_coalesce
+-	
+-	Version LK1.07 (D-Link):
+-	- Fix tx bugs in big-endian machines
+-	- Remove unused max_interrupt_work module parameter, the new 
+-	  NAPI-like rx scheme doesn't need it.
+-	- Remove redundancy get_stats() in intr_handler(), those 
+-	  I/O access could affect performance in ARM-based system
+-	- Add Linux software VLAN support
+-	
+-	Version LK1.08 (Philippe De Muyter phdm@macqel.be):
+-	- Fix bug of custom mac address 
+-	(StationAddr register only accept word write) 
+-
+-	Version LK1.09 (D-Link):
+-	- Fix the flowctrl bug.	
+-	- Set Pause bit in MII ANAR if flow control enabled.	
+-
+-	Version LK1.09a (ICPlus):
+-	- Add the delay time in reading the contents of EEPROM
+-
+-	Version LK1.10 (Philippe De Muyter phdm@macqel.be):
+-	- Make 'unblock interface after Tx underrun' work
+-
+-	Version LK1.11 (Pedro Alejandro Lopez-Valencia palopezv at gmail.com):
+-	- Add support for IC Plus Corporation IP100A chipset
+ */
+ 
+ #define DRV_NAME	"sundance"
+-#define DRV_VERSION	"1.01+LK1.11"
+-#define DRV_RELDATE	"14-Jun-2006"
++#define DRV_VERSION	"1.1"
++#define DRV_RELDATE	"27-Jun-2006"
+ 
+ 
+ /* The user-configurable values.
+@@ -282,15 +204,15 @@ #ifndef CONFIG_SUNDANCE_MMIO
+ #define USE_IO_OPS 1
+ #endif
+ 
+-static struct pci_device_id sundance_pci_tbl[] = {
+-	{0x1186, 0x1002, 0x1186, 0x1002, 0, 0, 0},
+-	{0x1186, 0x1002, 0x1186, 0x1003, 0, 0, 1},
+-	{0x1186, 0x1002, 0x1186, 0x1012, 0, 0, 2},
+-	{0x1186, 0x1002, 0x1186, 0x1040, 0, 0, 3},
+-	{0x1186, 0x1002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4},
+-	{0x13F0, 0x0201, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5},
+-	{0x13F0, 0x0200, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 6},
+-	{0,}
++static const struct pci_device_id sundance_pci_tbl[] = {
++	{ 0x1186, 0x1002, 0x1186, 0x1002, 0, 0, 0 },
++	{ 0x1186, 0x1002, 0x1186, 0x1003, 0, 0, 1 },
++	{ 0x1186, 0x1002, 0x1186, 0x1012, 0, 0, 2 },
++	{ 0x1186, 0x1002, 0x1186, 0x1040, 0, 0, 3 },
++	{ 0x1186, 0x1002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 },
++	{ 0x13F0, 0x0201, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5 },
++	{ 0x13F0, 0x0200, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 6 },
++	{ }
+ };
+ MODULE_DEVICE_TABLE(pci, sundance_pci_tbl);
+ 
+@@ -301,7 +223,7 @@ enum {
+ struct pci_id_info {
+         const char *name;
+ };
+-static const struct pci_id_info pci_id_tbl[] = {
++static const struct pci_id_info pci_id_tbl[] __devinitdata = {
+ 	{"D-Link DFE-550TX FAST Ethernet Adapter"},
+ 	{"D-Link DFE-550FX 100Mbps Fiber-optics Adapter"},
+ 	{"D-Link DFE-580TX 4 port Server Adapter"},
+@@ -309,7 +231,7 @@ static const struct pci_id_info pci_id_t
+ 	{"D-Link DL10050-based FAST Ethernet Adapter"},
+ 	{"Sundance Technology Alta"},
+ 	{"IC Plus Corporation IP100A FAST Ethernet Adapter"},
+-	{NULL,},			/* 0 terminated list. */
++	{ }	/* terminate list. */
+ };
+ 
+ /* This driver was written to use PCI memory space, however x86-oriented
+diff --git a/drivers/net/tulip/winbond-840.c b/drivers/net/tulip/winbond-840.c
+index 602a6e5..a1e3159 100644
+--- a/drivers/net/tulip/winbond-840.c
++++ b/drivers/net/tulip/winbond-840.c
+@@ -224,24 +224,21 @@ static const struct pci_device_id w840_p
+ };
+ MODULE_DEVICE_TABLE(pci, w840_pci_tbl);
+ 
 +enum {
-+	FB_TYPE_YUV,
-+	FB_TYPE_RGB
++	netdev_res_size		= 128,	/* size of PCI BAR resource */
 +};
 +
-+struct cmdstring {
-+	int channelnr;
-+	uint16_t prestringlen;
-+	uint16_t poststringlen;
-+	uint16_t format;
-+	uint16_t reserved;
-+	uint16_t startaddr_low;
-+	uint16_t startaddr_high;
-+	uint16_t pixdatlen_low;
-+	uint16_t pixdatlen_high;
-+	u32 precmd[MAX_NR_PRESTRINGS];
-+	u32 postcmd[MAX_NR_POSTSTRINGS];
+ struct pci_id_info {
+         const char *name;
+-        struct match_info {
+-                int     pci, pci_mask, subsystem, subsystem_mask;
+-                int revision, revision_mask;                            /* Only 8 bits. */
+-        } id;
+-        int io_size;                            /* Needed for I/O region check or ioremap(). */
+-        int drv_flags;                          /* Driver use, intended as capability flags. */
++        int drv_flags;		/* Driver use, intended as capability flags. */
+ };
+-static struct pci_id_info pci_id_tbl[] = {
+-	{"Winbond W89c840",			/* Sometime a Level-One switch card. */
+-	 { 0x08401050, 0xffffffff, 0x81530000, 0xffff0000 },
+-	   128, CanHaveMII | HasBrokenTx | FDXOnNoMII},
+-	{"Winbond W89c840", { 0x08401050, 0xffffffff, },
+-	   128, CanHaveMII | HasBrokenTx},
+-	{"Compex RL100-ATX", { 0x201111F6, 0xffffffff,},
+-	   128, CanHaveMII | HasBrokenTx},
+-	{NULL,},					/* 0 terminated list. */
 +
++static const struct pci_id_info pci_id_tbl[] __devinitdata = {
++	{ 				/* Sometime a Level-One switch card. */
++	  "Winbond W89c840",	CanHaveMII | HasBrokenTx | FDXOnNoMII},
++	{ "Winbond W89c840",	CanHaveMII | HasBrokenTx},
++	{ "Compex RL100-ATX",	CanHaveMII | HasBrokenTx},
++	{ }	/* terminate list. */
+ };
+ 
+ /* This driver was written to use PCI memory space, however some x86 systems
+@@ -399,7 +396,7 @@ static int __devinit w840_probe1 (struct
+ #ifdef USE_IO_OPS
+ 	bar = 0;
+ #endif
+-	ioaddr = pci_iomap(pdev, bar, pci_id_tbl[chip_idx].io_size);
++	ioaddr = pci_iomap(pdev, bar, netdev_res_size);
+ 	if (!ioaddr)
+ 		goto err_out_free_res;
+ 
+diff --git a/drivers/net/tulip/xircom_tulip_cb.c b/drivers/net/tulip/xircom_tulip_cb.c
+index 887d724..8b5f5d8 100644
+--- a/drivers/net/tulip/xircom_tulip_cb.c
++++ b/drivers/net/tulip/xircom_tulip_cb.c
+@@ -10,26 +10,11 @@
+ 	410 Severn Ave., Suite 210
+ 	Annapolis MD 21403
+ 
+-	-----------------------------------------------------------
+-
+-	Linux kernel-specific changes:
+-
+-	LK1.0 (Ion Badulescu)
+-	- Major cleanup
+-	- Use 2.4 PCI API
+-	- Support ethtool
+-	- Rewrite perfect filter/hash code
+-	- Use interrupts for media changes
+-
+-	LK1.1 (Ion Badulescu)
+-	- Disallow negotiation of unsupported full-duplex modes
+ */
+ 
+ #define DRV_NAME	"xircom_tulip_cb"
+-#define DRV_VERSION	"0.91+LK1.1"
+-#define DRV_RELDATE	"October 11, 2001"
+-
+-#define CARDBUS 1
++#define DRV_VERSION	"0.92"
++#define DRV_RELDATE	"June 27, 2006"
+ 
+ /* A few user-configurable values. */
+ 
+@@ -307,10 +292,10 @@ struct xircom_private {
+ 	struct xircom_tx_desc tx_ring[TX_RING_SIZE];
+ 	/* The saved address of a sent-in-place packet/buffer, for skfree(). */
+ 	struct sk_buff* tx_skbuff[TX_RING_SIZE];
+-#ifdef CARDBUS
++
+ 	/* The X3201-3 requires 4-byte aligned tx bufs */
+ 	struct sk_buff* tx_aligned_skbuff[TX_RING_SIZE];
+-#endif
++
+ 	/* The addresses of receive-in-place skbuffs. */
+ 	struct sk_buff* rx_skbuff[RX_RING_SIZE];
+ 	u16 setup_frame[PKT_SETUP_SZ / sizeof(u16)];	/* Pseudo-Tx frame to init address table. */
+@@ -909,10 +894,8 @@ static void xircom_init_ring(struct net_
+ 		tp->tx_skbuff[i] = NULL;
+ 		tp->tx_ring[i].status = 0;
+ 		tp->tx_ring[i].buffer2 = virt_to_bus(&tp->tx_ring[i+1]);
+-#ifdef CARDBUS
+ 		if (tp->chip_id == X3201_3)
+ 			tp->tx_aligned_skbuff[i] = dev_alloc_skb(PKT_BUF_SZ);
+-#endif /* CARDBUS */
+ 	}
+ 	tp->tx_ring[i-1].buffer2 = virt_to_bus(&tp->tx_ring[0]);
+ }
+@@ -932,12 +915,10 @@ xircom_start_xmit(struct sk_buff *skb, s
+ 	entry = tp->cur_tx % TX_RING_SIZE;
+ 
+ 	tp->tx_skbuff[entry] = skb;
+-#ifdef CARDBUS
+ 	if (tp->chip_id == X3201_3) {
+ 		memcpy(tp->tx_aligned_skbuff[entry]->data,skb->data,skb->len);
+ 		tp->tx_ring[entry].buffer1 = virt_to_bus(tp->tx_aligned_skbuff[entry]->data);
+ 	} else
+-#endif
+ 		tp->tx_ring[entry].buffer1 = virt_to_bus(skb->data);
+ 
+ 	if (tp->cur_tx - tp->dirty_tx < TX_RING_SIZE/2) {/* Typical path */
+diff --git a/drivers/net/via-rhine.c b/drivers/net/via-rhine.c
+index c80a4f1..a16b0d6 100644
+--- a/drivers/net/via-rhine.c
++++ b/drivers/net/via-rhine.c
+@@ -25,117 +25,13 @@
+ 	version. He may or may not be interested in bug reports on this
+ 	code. You can find his versions at:
+ 	http://www.scyld.com/network/via-rhine.html
+-
+-
+-	Linux kernel version history:
+-
+-	LK1.1.0:
+-	- Jeff Garzik: softnet 'n stuff
+-
+-	LK1.1.1:
+-	- Justin Guyett: softnet and locking fixes
+-	- Jeff Garzik: use PCI interface
+-
+-	LK1.1.2:
+-	- Urban Widmark: minor cleanups, merges from Becker 1.03a/1.04 versions
+-
+-	LK1.1.3:
+-	- Urban Widmark: use PCI DMA interface (with thanks to the eepro100.c
+-			 code) update "Theory of Operation" with
+-			 softnet/locking changes
+-	- Dave Miller: PCI DMA and endian fixups
+-	- Jeff Garzik: MOD_xxx race fixes, updated PCI resource allocation
+-
+-	LK1.1.4:
+-	- Urban Widmark: fix gcc 2.95.2 problem and
+-	                 remove writel's to fixed address 0x7c
+-
+-	LK1.1.5:
+-	- Urban Widmark: mdio locking, bounce buffer changes
+-	                 merges from Beckers 1.05 version
+-	                 added netif_running_on/off support
+-
+-	LK1.1.6:
+-	- Urban Widmark: merges from Beckers 1.08b version (VT6102 + mdio)
+-	                 set netif_running_on/off on startup, del_timer_sync
+-
+-	LK1.1.7:
+-	- Manfred Spraul: added reset into tx_timeout
+-
+-	LK1.1.9:
+-	- Urban Widmark: merges from Beckers 1.10 version
+-	                 (media selection + eeprom reload)
+-	- David Vrabel:  merges from D-Link "1.11" version
+-	                 (disable WOL and PME on startup)
+-
+-	LK1.1.10:
+-	- Manfred Spraul: use "singlecopy" for unaligned buffers
+-	                  don't allocate bounce buffers for !ReqTxAlign cards
+-
+-	LK1.1.11:
+-	- David Woodhouse: Set dev->base_addr before the first time we call
+-			   wait_for_reset(). It's a lot happier that way.
+-			   Free np->tx_bufs only if we actually allocated it.
+-
+-	LK1.1.12:
+-	- Martin Eriksson: Allow Memory-Mapped IO to be enabled.
+-
+-	LK1.1.13 (jgarzik):
+-	- Add ethtool support
+-	- Replace some MII-related magic numbers with constants
+-
+-	LK1.1.14 (Ivan G.):
+-	- fixes comments for Rhine-III
+-	- removes W_MAX_TIMEOUT (unused)
+-	- adds HasDavicomPhy for Rhine-I (basis: linuxfet driver; my card
+-	  is R-I and has Davicom chip, flag is referenced in kernel driver)
+-	- sends chip_id as a parameter to wait_for_reset since np is not
+-	  initialized on first call
+-	- changes mmio "else if (chip_id==VT6102)" to "else" so it will work
+-	  for Rhine-III's (documentation says same bit is correct)
+-	- transmit frame queue message is off by one - fixed
+-	- adds IntrNormalSummary to "Something Wicked" exclusion list
+-	  so normal interrupts will not trigger the message (src: Donald Becker)
+-	(Roger Luethi)
+-	- show confused chip where to continue after Tx error
+-	- location of collision counter is chip specific
+-	- allow selecting backoff algorithm (module parameter)
+-
+-	LK1.1.15 (jgarzik):
+-	- Use new MII lib helper generic_mii_ioctl
+-
+-	LK1.1.16 (Roger Luethi)
+-	- Etherleak fix
+-	- Handle Tx buffer underrun
+-	- Fix bugs in full duplex handling
+-	- New reset code uses "force reset" cmd on Rhine-II
+-	- Various clean ups
+-
+-	LK1.1.17 (Roger Luethi)
+-	- Fix race in via_rhine_start_tx()
+-	- On errors, wait for Tx engine to turn off before scavenging
+-	- Handle Tx descriptor write-back race on Rhine-II
+-	- Force flushing for PCI posted writes
+-	- More reset code changes
+-
+-	LK1.1.18 (Roger Luethi)
+-	- No filtering multicast in promisc mode (Edward Peng)
+-	- Fix for Rhine-I Tx timeouts
+-
+-	LK1.1.19 (Roger Luethi)
+-	- Increase Tx threshold for unspecified errors
+-
+-	LK1.2.0-2.6 (Roger Luethi)
+-	- Massive clean-up
+-	- Rewrite PHY, media handling (remove options, full_duplex, backoff)
+-	- Fix Tx engine race for good
+-	- Craig Brind: Zero padded aligned buffers for short packets.
++	[link no longer provides useful info -jgarzik]
+ 
+ */
+ 
+ #define DRV_NAME	"via-rhine"
+-#define DRV_VERSION	"1.2.0-2.6"
+-#define DRV_RELDATE	"June-10-2004"
++#define DRV_VERSION	"1.4.0"
++#define DRV_RELDATE	"June-27-2006"
+ 
+ 
+ /* A few user-configurable values.
+@@ -356,12 +252,11 @@ enum rhine_quirks {
+ /* Beware of PCI posted writes */
+ #define IOSYNC	do { ioread8(ioaddr + StationAddr); } while (0)
+ 
+-static struct pci_device_id rhine_pci_tbl[] =
+-{
+-	{0x1106, 0x3043, PCI_ANY_ID, PCI_ANY_ID, 0, 0, }, /* VT86C100A */
+-	{0x1106, 0x3065, PCI_ANY_ID, PCI_ANY_ID, 0, 0, }, /* VT6102 */
+-	{0x1106, 0x3106, PCI_ANY_ID, PCI_ANY_ID, 0, 0, }, /* 6105{,L,LOM} */
+-	{0x1106, 0x3053, PCI_ANY_ID, PCI_ANY_ID, 0, 0, }, /* VT6105M */
++static const struct pci_device_id rhine_pci_tbl[] = {
++	{ 0x1106, 0x3043, PCI_ANY_ID, PCI_ANY_ID, },	/* VT86C100A */
++	{ 0x1106, 0x3065, PCI_ANY_ID, PCI_ANY_ID, },	/* VT6102 */
++	{ 0x1106, 0x3106, PCI_ANY_ID, PCI_ANY_ID, },	/* 6105{,L,LOM} */
++	{ 0x1106, 0x3053, PCI_ANY_ID, PCI_ANY_ID, },	/* VT6105M */
+ 	{ }	/* terminate list */
+ };
+ MODULE_DEVICE_TABLE(pci, rhine_pci_tbl);
+diff --git a/drivers/net/via-velocity.c b/drivers/net/via-velocity.c
+index 09e05fe..7412400 100644
+--- a/drivers/net/via-velocity.c
++++ b/drivers/net/via-velocity.c
+@@ -231,7 +231,8 @@ static int rx_copybreak = 200;
+ module_param(rx_copybreak, int, 0644);
+ MODULE_PARM_DESC(rx_copybreak, "Copy breakpoint for copy-only-tiny-frames");
+ 
+-static void velocity_init_info(struct pci_dev *pdev, struct velocity_info *vptr, struct velocity_info_tbl *info);
++static void velocity_init_info(struct pci_dev *pdev, struct velocity_info *vptr,
++			       const struct velocity_info_tbl *info);
+ static int velocity_get_pci_info(struct velocity_info *, struct pci_dev *pdev);
+ static void velocity_print_info(struct velocity_info *vptr);
+ static int velocity_open(struct net_device *dev);
+@@ -296,9 +297,9 @@ #endif				/* !CONFIG_PM */
+  *	Internal board variants. At the moment we have only one
+  */
+ 
+-static struct velocity_info_tbl chip_info_table[] = {
+-	{CHIP_TYPE_VT6110, "VIA Networking Velocity Family Gigabit Ethernet Adapter", 256, 1, 0x00FFFFFFUL},
+-	{0, NULL}
++static const struct velocity_info_tbl chip_info_table[] __devinitdata = {
++	{CHIP_TYPE_VT6110, "VIA Networking Velocity Family Gigabit Ethernet Adapter", 1, 0x00FFFFFFUL},
++	{ }
+ };
+ 
+ /*
+@@ -306,10 +307,9 @@ static struct velocity_info_tbl chip_inf
+  *	device driver. Used for hotplug autoloading.
+  */
+ 
+-static struct pci_device_id velocity_id_table[] __devinitdata = {
+-	{PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_612X,
+-	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, (unsigned long) chip_info_table},
+-	{0, }
++static const struct pci_device_id velocity_id_table[] __devinitdata = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_612X) },
++	{ }
+ };
+ 
+ MODULE_DEVICE_TABLE(pci, velocity_id_table);
+@@ -343,7 +343,7 @@ static char __devinit *get_chip_name(enu
+ static void __devexit velocity_remove1(struct pci_dev *pdev)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 
+ #ifdef CONFIG_PM
+ 	unsigned long flags;
+@@ -688,21 +688,23 @@ static int __devinit velocity_found1(str
+ 	static int first = 1;
+ 	struct net_device *dev;
+ 	int i;
+-	struct velocity_info_tbl *info = (struct velocity_info_tbl *) ent->driver_data;
++	const struct velocity_info_tbl *info = &chip_info_table[ent->driver_data];
+ 	struct velocity_info *vptr;
+ 	struct mac_regs __iomem * regs;
+ 	int ret = -ENOMEM;
+ 
++	/* FIXME: this driver, like almost all other ethernet drivers,
++	 * can support more than MAX_UNITS.
++	 */
+ 	if (velocity_nics >= MAX_UNITS) {
+-		printk(KERN_NOTICE VELOCITY_NAME ": already found %d NICs.\n", 
+-				velocity_nics);
++		dev_printk(KERN_NOTICE, &pdev->dev, "already found %d NICs.\n", 
++			   velocity_nics);
+ 		return -ENODEV;
+ 	}
+ 
+ 	dev = alloc_etherdev(sizeof(struct velocity_info));
+-
+-	if (dev == NULL) {
+-		printk(KERN_ERR VELOCITY_NAME ": allocate net device failed.\n");
++	if (!dev) {
++		dev_printk(KERN_ERR, &pdev->dev, "allocate net device failed.\n");
+ 		goto out;
+ 	}
+ 	
+@@ -710,7 +712,7 @@ static int __devinit velocity_found1(str
+ 	
+ 	SET_MODULE_OWNER(dev);
+ 	SET_NETDEV_DEV(dev, &pdev->dev);
+-	vptr = dev->priv;
++	vptr = netdev_priv(dev);
+ 
+ 
+ 	if (first) {
+@@ -733,17 +735,17 @@ static int __devinit velocity_found1(str
+ 
+ 	ret = velocity_get_pci_info(vptr, pdev);
+ 	if (ret < 0) {
+-		printk(KERN_ERR VELOCITY_NAME ": Failed to find PCI device.\n");
++		/* error message already printed */
+ 		goto err_disable;
+ 	}
+ 
+ 	ret = pci_request_regions(pdev, VELOCITY_NAME);
+ 	if (ret < 0) {
+-		printk(KERN_ERR VELOCITY_NAME ": Failed to find PCI device.\n");
++		dev_printk(KERN_ERR, &pdev->dev, "No PCI resources.\n");
+ 		goto err_disable;
+ 	}
+ 
+-	regs = ioremap(vptr->memaddr, vptr->io_size);
++	regs = ioremap(vptr->memaddr, VELOCITY_IO_SIZE);
+ 	if (regs == NULL) {
+ 		ret = -EIO;
+ 		goto err_release_res;
+@@ -861,13 +863,14 @@ static void __devinit velocity_print_inf
+  *	discovered.
+  */
+ 
+-static void __devinit velocity_init_info(struct pci_dev *pdev, struct velocity_info *vptr, struct velocity_info_tbl *info)
++static void __devinit velocity_init_info(struct pci_dev *pdev,
++					 struct velocity_info *vptr,
++					 const struct velocity_info_tbl *info)
+ {
+ 	memset(vptr, 0, sizeof(struct velocity_info));
+ 
+ 	vptr->pdev = pdev;
+ 	vptr->chip_id = info->chip_id;
+-	vptr->io_size = info->io_size;
+ 	vptr->num_txq = info->txqueue;
+ 	vptr->multicast_limit = MCAM_SIZE;
+ 	spin_lock_init(&vptr->lock);
+@@ -885,8 +888,7 @@ static void __devinit velocity_init_info
+ 
+ static int __devinit velocity_get_pci_info(struct velocity_info *vptr, struct pci_dev *pdev)
+ {
+-
+-	if(pci_read_config_byte(pdev, PCI_REVISION_ID, &vptr->rev_id) < 0)
++	if (pci_read_config_byte(pdev, PCI_REVISION_ID, &vptr->rev_id) < 0)
+ 		return -EIO;
+ 		
+ 	pci_set_master(pdev);
+@@ -894,24 +896,20 @@ static int __devinit velocity_get_pci_in
+ 	vptr->ioaddr = pci_resource_start(pdev, 0);
+ 	vptr->memaddr = pci_resource_start(pdev, 1);
+ 	
+-	if(!(pci_resource_flags(pdev, 0) & IORESOURCE_IO))
+-	{
+-		printk(KERN_ERR "%s: region #0 is not an I/O resource, aborting.\n",
+-				pci_name(pdev));
++	if (!(pci_resource_flags(pdev, 0) & IORESOURCE_IO)) {
++		dev_printk(KERN_ERR, &pdev->dev,
++			   "region #0 is not an I/O resource, aborting.\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	if((pci_resource_flags(pdev, 1) & IORESOURCE_IO))
+-	{
+-		printk(KERN_ERR "%s: region #1 is an I/O resource, aborting.\n",
+-				pci_name(pdev));
++	if ((pci_resource_flags(pdev, 1) & IORESOURCE_IO)) {
++		dev_printk(KERN_ERR, &pdev->dev,
++			   "region #1 is an I/O resource, aborting.\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	if(pci_resource_len(pdev, 1) < 256)
+-	{
+-		printk(KERN_ERR "%s: region #1 is too small.\n", 
+-				pci_name(pdev));
++	if (pci_resource_len(pdev, 1) < VELOCITY_IO_SIZE) {
++		dev_printk(KERN_ERR, &pdev->dev, "region #1 is too small.\n");
+ 		return -EINVAL;
+ 	}
+ 	vptr->pdev = pdev;
+@@ -1730,7 +1728,7 @@ #endif
+  
+ static int velocity_open(struct net_device *dev)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	int ret;
+ 
+ 	vptr->rx_buf_sz = (dev->mtu <= 1504 ? PKT_BUF_SZ : dev->mtu + 32);
+@@ -1787,7 +1785,7 @@ err_free_desc_rings:
+  
+ static int velocity_change_mtu(struct net_device *dev, int new_mtu)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	unsigned long flags;
+ 	int oldmtu = dev->mtu;
+ 	int ret = 0;
+@@ -1863,7 +1861,7 @@ static void velocity_shutdown(struct vel
+ 
+ static int velocity_close(struct net_device *dev)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 
+ 	netif_stop_queue(dev);
+ 	velocity_shutdown(vptr);
+@@ -1896,7 +1894,7 @@ static int velocity_close(struct net_dev
+  
+ static int velocity_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	int qnum = 0;
+ 	struct tx_desc *td_ptr;
+ 	struct velocity_td_info *tdinfo;
+@@ -2051,7 +2049,7 @@ #endif
+ static int velocity_intr(int irq, void *dev_instance, struct pt_regs *regs)
+ {
+ 	struct net_device *dev = dev_instance;
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	u32 isr_status;
+ 	int max_count = 0;
+ 
+@@ -2106,7 +2104,7 @@ static int velocity_intr(int irq, void *
+  
+ static void velocity_set_multi(struct net_device *dev)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	struct mac_regs __iomem * regs = vptr->mac_regs;
+ 	u8 rx_mode;
+ 	int i;
+@@ -2155,7 +2153,7 @@ static void velocity_set_multi(struct ne
+  
+ static struct net_device_stats *velocity_get_stats(struct net_device *dev)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	
+ 	/* If the hardware is down, don't touch MII */
+ 	if(!netif_running(dev))
+@@ -2198,7 +2196,7 @@ static struct net_device_stats *velocity
+  
+ static int velocity_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	int ret;
+ 
+ 	/* If we are asked for information and the device is power
+@@ -2827,7 +2825,7 @@ static void enable_flow_control_ability(
+  
+ static int velocity_ethtool_up(struct net_device *dev)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	if (!netif_running(dev))
+ 		pci_set_power_state(vptr->pdev, PCI_D0);
+ 	return 0;
+@@ -2843,14 +2841,14 @@ static int velocity_ethtool_up(struct ne
+  
+ static void velocity_ethtool_down(struct net_device *dev)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	if (!netif_running(dev))
+ 		pci_set_power_state(vptr->pdev, PCI_D3hot);
+ }
+ 
+ static int velocity_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	struct mac_regs __iomem * regs = vptr->mac_regs;
+ 	u32 status;
+ 	status = check_connection_type(vptr->mac_regs);
+@@ -2875,7 +2873,7 @@ static int velocity_get_settings(struct 
+ 
+ static int velocity_set_settings(struct net_device *dev, struct ethtool_cmd *cmd)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	u32 curr_status;
+ 	u32 new_status = 0;
+ 	int ret = 0;
+@@ -2898,14 +2896,14 @@ static int velocity_set_settings(struct 
+ 
+ static u32 velocity_get_link(struct net_device *dev)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	struct mac_regs __iomem * regs = vptr->mac_regs;
+ 	return BYTE_REG_BITS_IS_ON(PHYSR0_LINKGD, &regs->PHYSR0)  ? 0 : 1;
+ }
+ 
+ static void velocity_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	strcpy(info->driver, VELOCITY_NAME);
+ 	strcpy(info->version, VELOCITY_VERSION);
+ 	strcpy(info->bus_info, pci_name(vptr->pdev));
+@@ -2913,7 +2911,7 @@ static void velocity_get_drvinfo(struct 
+ 
+ static void velocity_ethtool_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	wol->supported = WAKE_PHY | WAKE_MAGIC | WAKE_UCAST | WAKE_ARP;
+ 	wol->wolopts |= WAKE_MAGIC;
+ 	/*
+@@ -2929,7 +2927,7 @@ static void velocity_ethtool_get_wol(str
+ 
+ static int velocity_ethtool_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 
+ 	if (!(wol->wolopts & (WAKE_PHY | WAKE_MAGIC | WAKE_UCAST | WAKE_ARP)))
+ 		return -EFAULT;
+@@ -2994,7 +2992,7 @@ static struct ethtool_ops velocity_ethto
+  
+ static int velocity_mii_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ {
+-	struct velocity_info *vptr = dev->priv;
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	struct mac_regs __iomem * regs = vptr->mac_regs;
+ 	unsigned long flags;
+ 	struct mii_ioctl_data *miidata = if_mii(ifr);
+diff --git a/drivers/net/via-velocity.h b/drivers/net/via-velocity.h
+index f1b2640..496c3d5 100644
+--- a/drivers/net/via-velocity.h
++++ b/drivers/net/via-velocity.h
+@@ -31,6 +31,8 @@ #define VELOCITY_NAME          "via-velo
+ #define VELOCITY_FULL_DRV_NAM  "VIA Networking Velocity Family Gigabit Ethernet Adapter Driver"
+ #define VELOCITY_VERSION       "1.13"
+ 
++#define VELOCITY_IO_SIZE	256
++
+ #define PKT_BUF_SZ          1540
+ 
+ #define MAX_UNITS           8
+@@ -1191,7 +1193,6 @@ enum chip_type {
+ struct velocity_info_tbl {
+ 	enum chip_type chip_id;
+ 	char *name;
+-	int io_size;
+ 	int txqueue;
+ 	u32 flags;
+ };
+@@ -1751,7 +1752,6 @@ struct velocity_info {
+ 	struct mac_regs __iomem * mac_regs;
+ 	unsigned long memaddr;
+ 	unsigned long ioaddr;
+-	u32 io_size;
+ 
+ 	u8 rev_id;
+ 
+diff --git a/drivers/net/yellowfin.c b/drivers/net/yellowfin.c
+index 569305f..116636b 100644
+--- a/drivers/net/yellowfin.c
++++ b/drivers/net/yellowfin.c
+@@ -19,37 +19,13 @@
+ 
+ 	Support and updates available at
+ 	http://www.scyld.com/network/yellowfin.html
++	[link no longer provides useful info -jgarzik]
+ 
+-
+-	Linux kernel changelog:
+-	-----------------------
+-
+-	LK1.1.1 (jgarzik): Port to 2.4 kernel
+-
+-	LK1.1.2 (jgarzik):
+-	* Merge in becker version 1.05
+-
+-	LK1.1.3 (jgarzik):
+-	* Various cleanups
+-	* Update yellowfin_timer to correctly calculate duplex.
+-	(suggested by Manfred Spraul)
+-
+-	LK1.1.4 (val@nmt.edu):
+-	* Fix three endian-ness bugs
+-	* Support dual function SYM53C885E ethernet chip
+-	
+-	LK1.1.5 (val@nmt.edu):
+-	* Fix forced full-duplex bug I introduced
+-
+-	LK1.1.6 (val@nmt.edu):
+-	* Only print warning on truly "oversized" packets
+-	* Fix theoretical bug on gigabit cards - return to 1.1.3 behavior
+-	
+ */
+ 
+ #define DRV_NAME	"yellowfin"
+-#define DRV_VERSION	"1.05+LK1.1.6"
+-#define DRV_RELDATE	"Feb 11, 2002"
++#define DRV_VERSION	"2.0"
++#define DRV_RELDATE	"Jun 27, 2006"
+ 
+ #define PFX DRV_NAME ": "
+ 
+@@ -239,8 +215,11 @@ enum capability_flags {
+ 	HasMACAddrBug=32, /* Only on early revs.  */
+ 	DontUseEeprom=64, /* Don't read the MAC from the EEPROm. */
+ };
++
+ /* The PCI I/O space extent. */
+-#define YELLOWFIN_SIZE 0x100
++enum {
++	YELLOWFIN_SIZE	= 0x100,
 +};
-+
-+struct dumchannel {
-+	int channelnr;
-+	int dum_ch_min;
-+	int dum_ch_max;
-+	int dum_ch_conf;
-+	int dum_ch_stat;
-+	int dum_ch_ctrl;
-+};
-+
-+int pnx4008_alloc_dum_channel(int dev_id);
-+int pnx4008_free_dum_channel(int channr, int dev_id);
-+
-+int pnx4008_get_dum_channel_uf(struct dumchannel_uf *pChan_uf, int dev_id);
-+int pnx4008_put_dum_channel_uf(struct dumchannel_uf chan_uf, int dev_id);
-+
-+int pnx4008_set_dum_channel_sync(int channr, int val, int dev_id);
-+int pnx4008_set_dum_chanel_dirty_detect(int channr, int val, int dev_id);
-+
-+int pnx4008_force_dum_update_channel(int channr, int dev_id);
-+
-+int pnx4008_get_dum_channel_config(int channr, int dev_id);
-+
-+int pnx4008_sdum_mmap(struct fb_info *info, struct vm_area_struct *vma, struct device *dev);
-+int pnx4008_set_dum_exit_notification(int dev_id);
-+
-+int pnx4008_get_fb_addresses(int fb_type, void **virt_addr,
-+			     dma_addr_t * phys_addr, int *fb_length);
+ 
+ struct pci_id_info {
+         const char *name;
+@@ -248,16 +227,14 @@ struct pci_id_info {
+                 int     pci, pci_mask, subsystem, subsystem_mask;
+                 int revision, revision_mask;                            /* Only 8 bits. */
+         } id;
+-        int io_size;                            /* Needed for I/O region check or ioremap(). */
+         int drv_flags;                          /* Driver use, intended as capability flags. */
+ };
+ 
+ static const struct pci_id_info pci_id_tbl[] = {
+ 	{"Yellowfin G-NIC Gigabit Ethernet", { 0x07021000, 0xffffffff},
+-	 YELLOWFIN_SIZE,
+ 	 FullTxStatus | IsGigabit | HasMulticastBug | HasMACAddrBug | DontUseEeprom},
+ 	{"Symbios SYM83C885", { 0x07011000, 0xffffffff},
+-	 YELLOWFIN_SIZE, HasMII | DontUseEeprom },
++	  HasMII | DontUseEeprom },
+ 	{ }
+ };
+ 

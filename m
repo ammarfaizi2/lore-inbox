@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422693AbWF0Wkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422695AbWF0WlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422693AbWF0Wkl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 18:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422694AbWF0Wkl
+	id S1422695AbWF0WlY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 18:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422697AbWF0WlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 18:40:41 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:36363 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1422693AbWF0Wkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 18:40:40 -0400
-Date: Wed, 28 Jun 2006 00:40:39 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       rmk@arm.linux.org.uk
-Subject: 2.6.17-mm3: arm: *_irq_wake compile error
-Message-ID: <20060627224038.GF13915@stusta.de>
-References: <20060627015211.ce480da6.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060627015211.ce480da6.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Tue, 27 Jun 2006 18:41:24 -0400
+Received: from mail.gmx.net ([213.165.64.21]:49327 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422695AbWF0WlX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 18:41:23 -0400
+X-Authenticated: #704063
+Subject: [Patch] Off by one in drivers/usb/input/yealink.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: Henk.Vergonet@gmail.com
+Content-Type: text/plain
+Date: Wed, 28 Jun 2006 00:41:19 +0200
+Message-Id: <1151448080.16217.3.camel@alice>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-genirq-add-irq-wake-power-management-support.patch causes the following 
-compile error on arm:
+hi,
 
-<--  snip  -->
+another off by one spotted by coverity (id #485),
+we loop exactly one time too often
 
-...
-  CC      init/main.o
-In file included from include/linux/rtc.h:102,
-                 from include/linux/efi.h:19,
-                 from init/main.c:47:
-include/linux/interrupt.h:108: error: conflicting types for 'enable_irq_wake'
-include/asm/irq.h:47: error: previous declaration of 'enable_irq_wake' was here
-include/linux/interrupt.h:113: error: conflicting types for 'disable_irq_wake'
-include/asm/irq.h:46: error: previous declaration of 'disable_irq_wake' was here
-make[1]: *** [init/main.o] Error 1
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- linux-2.6.17-git11/drivers/usb/input/yealink.c.orig	2006-06-28 00:29:46.000000000 +0200
++++ linux-2.6.17-git11/drivers/usb/input/yealink.c	2006-06-28 00:30:04.000000000 +0200
+@@ -350,7 +350,7 @@ static int yealink_do_idle_tasks(struct 
+ 		val = yld->master.b[ix];
+ 		if (val != yld->copy.b[ix])
+ 			goto send_update;
+-	} while (++ix < sizeof(yld->master));
++	} while (++ix < sizeof(yld->master)-1);
+ 
+ 	/* nothing todo, wait a bit and poll for a KEYPRESS */
+ 	yld->stat_ix = 0;
 
 

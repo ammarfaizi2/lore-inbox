@@ -1,83 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422718AbWF0XS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422720AbWF0XSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422718AbWF0XS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 19:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422720AbWF0XS0
+	id S1422720AbWF0XSq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 19:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422721AbWF0XSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 19:18:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24251 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422719AbWF0XSZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 19:18:25 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060627155549.786724cf.akpm@osdl.org> 
-References: <20060627155549.786724cf.akpm@osdl.org>  <18192.1151320860@warthog.cambridge.redhat.com> <17567.31035.471039.999828@cse.unsw.edu.au> <17566.12727.489041.220653@cse.unsw.edu.au> <17564.52290.338084.934211@cse.unsw.edu.au> <15603.1150978967@warthog.cambridge.redhat.com> <553.1151156031@warthog.cambridge.redhat.com> <20946.1151251352@warthog.cambridge.redhat.com> <3087.1151403431@warthog.cambridge.redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, aviro@redhat.com,
-       neilb@suse.de, jblunck@suse.de, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Destroy the dentries contributed by a superblock on unmounting 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 28 Jun 2006 00:18:15 +0100
-Message-ID: <15750.1151450295@warthog.cambridge.redhat.com>
+	Tue, 27 Jun 2006 19:18:45 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56843 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422720AbWF0XSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 19:18:44 -0400
+Date: Wed, 28 Jun 2006 01:18:42 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: Thomas Voegtle <tv@lio96.de>, Chris Wright <chrisw@sous-sol.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16.22
+Message-ID: <20060627231842.GG13915@stusta.de>
+References: <20060622201757.GZ22737@sequoia.sous-sol.org> <Pine.LNX.4.63.0606251347100.31427@er-systems.de> <449ED4D2.7060808@ens-lyon.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <449ED4D2.7060808@ens-lyon.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+On Sun, Jun 25, 2006 at 02:24:18PM -0400, Brice Goglin wrote:
+> Thomas Voegtle wrote:
+> > On Thu, 22 Jun 2006, Chris Wright wrote:
+> >
+> >   
+> >> We (the -stable team) are announcing the release of the 2.6.16.22 kernel.
+> >> The diffstat and short summary of the fixes are below.
+> >>     
+> >
+> >
+> > Perhaps I missed the discussion about it, but why is this not piped 
+> > through linux-kernel-announce?
+> >
+> > It isn't on kernel.org as well so it is hard to track it.
+> >
+> >   
+> 
+> By the way, Adrian, is there still a plan to maintain the 2.6.16.x
+> branch for a long time?
+>...
 
-> Is the cond_resched_lock() here safe?  Once we've dropped that lock, the
-> list cursor `loop' is invalidated?
+Yes.
 
-Yes.  Nothing else is permitted to modify the d_subdirs list.  Not the VFS,
-not the filesystem, not the memory pressure shrinker.
+> Brice
 
-> If all lookup paths to all entries on this list are removed at this time
-> then OK - but these dentries are still on the LRU.
+cu
+Adrian
 
-Ah... but the LRU shrinker may not touch dentries belonging to a filesystem
-that's got s_umount writelocked (eg: one that's in the process of being
-unmounted).  See prune_dcache():
+-- 
 
-		/*
-		 * ...otherwise we need to be sure this filesystem isn't being
-		 * unmounted, otherwise we could race with
-		 * generic_shutdown_super(), and end up holding a reference to
-		 * an inode while the filesystem is unmounted.
-		 * So we try to get s_umount, and make sure s_root isn't NULL.
-		 * (Take a local copy of s_umount to avoid a use-after-free of
-		 * `dentry').
-		 */
-		s_umount = &dentry->d_sb->s_umount;
-		if (down_read_trylock(s_umount)) {
-			if (dentry->d_sb->s_root != NULL) {
-				prune_one_dentry(dentry);
-				up_read(s_umount);
-				continue;
-			}
-			up_read(s_umount);
-		}
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-		spin_unlock(&dentry->d_lock);
-
-> (An answer-via-comment-patch would suit ;))
-
-It is commented already:
-
-/*
- * destroy the dentries attached to a superblock on unmounting
- * - we don't need to use dentry->d_lock, and only need dcache_lock when
- *   removing the dentry from the system lists and hashes because:
- *   - the superblock is detached from all mountings and open files, so the
- *     dentry trees will not be rearranged by the VFS
- *   - s_umount is write-locked, so the memory pressure shrinker will ignore
- *     any dentries belonging to this superblock that it comes across
- *   - the filesystem itself is no longer permitted to rearrange the dentries
- *     in this superblock
- */
-void shrink_dcache_for_umount(struct super_block *sb)
-{
-
-
-Note the point about the memory pressure shrinker.
-
-David

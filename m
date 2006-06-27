@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932806AbWF0JD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932942AbWF0JFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932806AbWF0JD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 05:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932816AbWF0JD1
+	id S932942AbWF0JFa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 05:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933015AbWF0JFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 05:03:27 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62348 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932806AbWF0JD0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 05:03:26 -0400
-Date: Tue, 27 Jun 2006 11:03:05 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       David Brownell <david-b@pacbell.net>,
-       Mattia Dongili <malattia@linux.it>, Jiri Slaby <jirislaby@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, linux-pm@osdl.org
-Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
-Message-ID: <20060627090304.GA29199@elf.ucw.cz>
-References: <20060623042452.GA23232@kroah.com> <Pine.LNX.4.44L0.0606231028570.5966-100000@iolanthe.rowland.org> <20060626235732.GE32008@kroah.com>
+	Tue, 27 Jun 2006 05:05:30 -0400
+Received: from donkey.symmetric.co.nz ([202.21.16.3]:16597 "EHLO
+	donkey.symmetric.co.nz") by vger.kernel.org with ESMTP
+	id S932942AbWF0JF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 05:05:29 -0400
+Message-ID: <44A0F4CC.2000606@symmetric.co.nz>
+Date: Tue, 27 Jun 2006 21:05:16 +1200
+From: Ben Martel <benm@symmetric.co.nz>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060626235732.GE32008@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Patrick McFarland <diablod3@gmail.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Charles Majola <chmj@rootcore.co.za>,
+       Pavel Machek <pavel@ucw.cz>, stephen@blacksapphire.com,
+       kernel list <linux-kernel@vger.kernel.org>, radek.stangel@gmsil.com
+Subject: Re: IPWireless 3G PCMCIA Network Driver and GPL
+References: <20060616094516.GA3432@elf.ucw.cz> <449BEABD.5010305@rootcore.co.za> <1151070837.4549.18.camel@localhost.localdomain> <200606270437.59454.diablod3@gmail.com>
+In-Reply-To: <200606270437.59454.diablod3@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Y'all,
 
-> > > And we also need to be able to handle devices in the device tree that do
-> > > not have a suspend/resume function, or ones that are not attached to any
-> > > bus, without failing the suspend, as obviously they do not care or need
-> > > to worry about the whole issue.
-> > 
-> > Ah, there's the rub.  If a driver doesn't have suspend/resume methods, is 
-> > it because it doesn't need them, or is it because nobody has written them 
-> > yet?  In the latter case, failing the suspend or unbinding the driver are 
-> > the only safe courses.
+I have had a look at the changes to the 2.6.1{6,7} kernel to do with the 
+buffering and I think that this driver will benefit greatly from the 
+changes away from the flip/flop scheme.
+
+When Steve and I originally wrote the driver it always seemed to be 
+limited throughput wise, due to the inefficient char handling it did.
+
+Good luck in the 'hacking it for 2.6.1{6,7} department' let me know if I 
+can help at all :)
+
+BTW: Can someone tell me the version that you are changing - I may have 
+a later version that fixes a problem with the V2 PCMCIA cards from 
+IPWireless/T-Mobile.
+
+    ~benm
+
+Patrick McFarland wrote:
+> On Friday 23 June 2006 09:53, Alan Cox wrote:
+>> Ar Gwe, 2006-06-23 am 15:21 +0200, ysgrifennodd Charles Majola:
+>>> Alan, can you please give me pointers on the tty changes since 2.6.12?
+>> The newest kernels have a replacement set of tty receive functions that
+>> use a new buffering system.
+>>
+>> http://kerneltrap.org/node/5473
+>>
+>> covers the changes briefly. The internals of the buffering changes are
+>> quite complex because Paul did some rather neat things with SMP locking
+>> but the API is nice and simple.
+>>
+>> Its fairly easy to express the old API in terms of the new one if you
+>> are doing compat wrappers as well
 > 
-> No, if it's not there, just expect that it knows what it is doing, and
-> don't fail the thing.  Unless you want to add those methods to _every_
-> driver in the kernel, and that's going to be a lot of work...
+> Actually, its rather neat that something as 'simple' as tty still gets heavily 
+> hacked on every once in awhile.
+> 
 
-I believe 90% of drivers need them, anyway... Idea is that if we
-refuse the suspend, user has dmesg and did not loose his work. If we
-suspend but can't resume due to driver problems, it is slightly more
-interesting to debug, and user lost open applications.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

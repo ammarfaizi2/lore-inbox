@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161211AbWF0Qz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161210AbWF0Q7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161211AbWF0Qz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 12:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161210AbWF0Qz5
+	id S1161210AbWF0Q7L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 12:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161213AbWF0Q7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 12:55:57 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5560 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161208AbWF0Qz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 12:55:56 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrey Savochkin <saw@swsoft.com>, dlezcano@fr.ibm.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       viro@ftp.linux.org.uk
-Subject: Re: [RFC][patch 1/4] Network namespaces: cleanup of dev_base list use
-References: <20060626134945.A28942@castle.nmd.msu.ru>
-	<m1odwguez3.fsf@ebiederm.dsl.xmission.com> <44A0D755.5090204@sw.ru>
-	<m11wtaonqf.fsf@ebiederm.dsl.xmission.com> <44A149F5.2060204@sw.ru>
-Date: Tue, 27 Jun 2006 10:54:45 -0600
-In-Reply-To: <44A149F5.2060204@sw.ru> (Kirill Korotaev's message of "Tue, 27
-	Jun 2006 19:08:37 +0400")
-Message-ID: <m1hd26lesq.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 27 Jun 2006 12:59:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3234 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161210AbWF0Q7J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 12:59:09 -0400
+Date: Tue, 27 Jun 2006 12:58:19 -0400
+From: Dave Jones <davej@redhat.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: list corruption on removal of snd_seq_dummy
+Message-ID: <20060627165819.GC1280@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Takashi Iwai <tiwai@suse.de>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	alsa-devel <alsa-devel@lists.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <200606270808_MC3-1-C391-2F33@compuserve.com> <s5h8xniwz74.wl%tiwai@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5h8xniwz74.wl%tiwai@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@sw.ru> writes:
+On Tue, Jun 27, 2006 at 02:38:39PM +0200, Takashi Iwai wrote:
+ > > > No, list_move() can't move the whole elements without loop.
+ > > > 
+ > > > A solution is
+ > > > 
+ > > >       list_add(B, A);
+ > > >       list_del_init(A);
+ > > > 
+ > > > (although this introduces a bit more code :)
+ > > 
+ > > Shouldn't it be like this?
+ > > 
+ > >         ports_list_first = client->ports_list_head.next;
+ > >         list_del_init(client->ports_list_head);
+ > >         list_splice(ports_list_first, &deleted_list);
+ > 
+ > This requires INIT_LIST_HEAD(&deleted_list) first, so obviously
+ > a longer code :)
 
-> This doesn't support anything. e.g. I caught quite a lot of bugs after Ingo
-> Molnar, but this doesn't make his code "poor". People are people.
-> Anyway, I would be happy to see the typo.
+This is hardly a speed/size critical function. I'd go for readability
+over cute hacks any day.
 
-Look up thread.  You replied to the message where I commented on it.
+		Dave
 
-There are two ways to argue this.
-- It is the linux kernel development style to do small simple
-  obviously patches that copy the maintainer of the code you are
-  changing.
-- Explain why that is the style.
-
-The basic idea is that on a simple patch that is well described, it is
-trivial to check and trivial to verify.
-
-Eric
+-- 
+http://www.codemonkey.org.uk

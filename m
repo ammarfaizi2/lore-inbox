@@ -1,63 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932787AbWF0Jiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWF0Jr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932787AbWF0Jiw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 05:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933385AbWF0Jiw
+	id S1751103AbWF0Jr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 05:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWF0Jr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 05:38:52 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:8969 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S932787AbWF0Jiu
+	Tue, 27 Jun 2006 05:47:59 -0400
+Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:54777
+	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1751070AbWF0Jr6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 05:38:50 -0400
-Message-ID: <20060627133849.E13959@castle.nmd.msu.ru>
-Date: Tue, 27 Jun 2006 13:38:49 +0400
-From: Andrey Savochkin <saw@swsoft.com>
-To: Daniel Lezcano <dlezcano@fr.ibm.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       ebiederm@xmission.com, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <20060627131136.B13959@castle.nmd.msu.ru> <44A0FBAC.7020107@fr.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <44A0FBAC.7020107@fr.ibm.com>; from "Daniel Lezcano" on Tue, Jun 27, 2006 at 11:34:36AM
+	Tue, 27 Jun 2006 05:47:58 -0400
+Message-ID: <003701c699ce$c126b550$b100a8c0@erich2003>
+From: "erich" <erich@areca.com.tw>
+To: "James Bottomley" <James.Bottomley@SteelEye.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, "\"Robert Mueller\"" <robm@fastmail.fm>,
+       <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <dax@gurulabs.com>, <brong@fastmail.fm>, <hch@infradead.org>,
+       <rdunlap@xenotime.net>
+References: <09be01c695b3$2ed8c2c0$c100a8c0@robm> <20060621222826.ff080422.akpm@osdl.org> <1151333338.2673.4.camel@mulgrave.il.steeleye.com>
+Subject: Re: Areca driver recap + status
+Date: Tue, 27 Jun 2006 17:47:47 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="big5";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.2663
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2663
+X-OriginalArrivalTime: 27 Jun 2006 09:41:21.0000 (UTC) FILETIME=[D8B93680:01C699CD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 11:34:36AM +0200, Daniel Lezcano wrote:
-> Andrey Savochkin wrote:
-> > Daniel,
-> > 
-> > On Mon, Jun 26, 2006 at 05:49:41PM +0200, Daniel Lezcano wrote:
-> > 
-> >>>Then you lose the ability for each namespace to have its own routing entries.
-> >>>Which implies that you'll have difficulties with devices that should exist
-> >>>and be visible in one namespace only (like tunnels), as they require IP
-> >>>addresses and route.
-> >>
-> >>I mean instead of having the route tables private to the namespace, the 
-> >>routes have the information to which namespace they are associated.
-> > 
-> > 
-> > I think I understand what you're talking about: you want to make routing
-> > responsible for determining destination namespace ID in addition to route
-> > type (local, unicast etc), nexthop information, and so on.  Right?
-> 
-> Yes.
-> 
-> > 
-> > My point is that if you make namespace tagging at routing time, and
-> > your packets are being routed only once, you lose the ability
-> > to have separate routing tables in each namespace.
-> 
-> Right. What is the advantage of having separate the routing tables ?
+Dear Robert Mueller,
 
-Routing is everything.
-For example, I want namespaces to have their private tunnel devices.
-It means that namespaces should be allowed have private routes of local type,
-private default routes, and so on...
+Does arcmsr still has more than one value per file issue on it?
+Maybe I am miss-understand the means of one value per file.
+Please tell me the issue, thanks.
+About the BE platform, Areca's user on linux sparc platform had ran this 
+driver successfuly.
+But I attempt to install linux system on ppc platform and run this driver 
+for more long time testing this day.
+I will patch PAE issue on pci_map_single again and handle SYNCHRONIZE_CACHE 
+for your request.
 
-	Andrey
+Best Regards
+Erich Chen
+----- Original Message ----- 
+From: "James Bottomley" <James.Bottomley@SteelEye.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <rdunlap@xenotime.net>; <hch@infradead.org>; <erich@areca.com.tw>; 
+<brong@fastmail.fm>; <dax@gurulabs.com>; <linux-kernel@vger.kernel.org>; 
+<linux-scsi@vger.kernel.org>; "Robert Mueller" <robm@fastmail.fm>
+Sent: Monday, June 26, 2006 10:48 PM
+Subject: Re: Areca driver recap + status
+
+
+> On Wed, 2006-06-21 at 22:28 -0700, Andrew Morton wrote:
+>> On Thu, 22 Jun 2006 14:18:23 +1000
+>> "Robert Mueller" <robm@fastmail.fm> wrote:
+>>
+>> > The driver went into 2.6.11-rc3-mm1 here:
+>> > http://marc.theaimsgroup.com/?l=linux-kernel&m=110754432622498&w=2
+>>
+>> One and a half years.
+>>
+>> Would the world end if we just merged the dang thing?
+>
+> Not the world perhaps, but I'm unwilling to concede that if a driver
+> author is given a list of major issues and does nothing, then the driver
+> should go in after everyone gets impatient.
+>
+> The rules for inclusion are elastic and include broad leeway for good
+> behaviour, but this would stretch the elasticity way beyond breaking
+> point.
+>
+> The list of issues is here:
+>
+> http://marc.theaimsgroup.com/?l=linux-scsi&m=114556263632510
+>
+> Most of the serious stuff is fixed with the exception of:
+>
+> - sysfs has more than one value per file
+> - BE platform support
+> - PAE (cast of dma_addr_t to unsigned long) issues.
+> - SYNCHRONIZE_CACHE is ignored.  This is wrong.  The sync cache in the
+> shutdown notifier isn't sufficient.
+>
+> At least the sysfs files have to be fixed before it goes in ... unless
+> you want to be lynched by Greg?
+>
+> What I could do is set up a holding tree for all the fixed ... but -mm
+> is doing a good job of that at the moment.
+>
+> James
+>
+> 
+

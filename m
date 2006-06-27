@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWF0Ife@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWF0Ikg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWF0Ife (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 04:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWF0Ife
+	id S1751239AbWF0Ikg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 04:40:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWF0Ikg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 04:35:34 -0400
-Received: from wr-out-0506.google.com ([64.233.184.233]:41297 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751245AbWF0Ifd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 04:35:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=rbnRXK5Suim5QDqRF+q7PLZuDy0nop7gUi/PW8ckfszqvSWRd5WY3FX7wdZl9L5UYVj+529kVDrj+I1YQm9g2ItTvEj+2NDSyZgMbT4j0/G61SeoykBU0A1BKDbuK44rgsvHNt6BFm2WUYWa2sue4I2CuckS2o3WSJXTBwXgE9g=
-From: Patrick McFarland <diablod3@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IPWireless 3G PCMCIA Network Driver and GPL
-Date: Tue, 27 Jun 2006 04:37:57 -0400
-User-Agent: KMail/1.9.1
-Cc: Charles Majola <chmj@rootcore.co.za>, Pavel Machek <pavel@ucw.cz>,
-       stephen@blacksapphire.com, benm@symmetric.co.nz,
-       kernel list <linux-kernel@vger.kernel.org>, radek.stangel@gmsil.com
-References: <20060616094516.GA3432@elf.ucw.cz> <449BEABD.5010305@rootcore.co.za> <1151070837.4549.18.camel@localhost.localdomain>
-In-Reply-To: <1151070837.4549.18.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 04:40:36 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:732 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751239AbWF0Ikf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 04:40:35 -0400
+Date: Tue, 27 Jun 2006 10:35:44 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hch@infradead.org, swhiteho@redhat.com, torvalds@osdl.org,
+       teigland@redhat.com, pcaulfie@redhat.com, kanderso@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: GFS2 and DLM
+Message-ID: <20060627083544.GA32761@elte.hu>
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <20060623144928.GA32694@infradead.org> <20060626200300.GA15424@elte.hu> <20060627063339.GA27938@elte.hu> <20060627000633.91e06155.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606270437.59454.diablod3@gmail.com>
+In-Reply-To: <20060627000633.91e06155.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 June 2006 09:53, Alan Cox wrote:
-> Ar Gwe, 2006-06-23 am 15:21 +0200, ysgrifennodd Charles Majola:
-> > Alan, can you please give me pointers on the tty changes since 2.6.12?
->
-> The newest kernels have a replacement set of tty receive functions that
-> use a new buffering system.
->
-> http://kerneltrap.org/node/5473
->
-> covers the changes briefly. The internals of the buffering changes are
-> quite complex because Paul did some rather neat things with SMP locking
-> but the API is nice and simple.
->
-> Its fairly easy to express the old API in terms of the new one if you
-> are doing compat wrappers as well
 
-Actually, its rather neat that something as 'simple' as tty still gets heavily 
-hacked on every once in awhile.
+* Andrew Morton <akpm@osdl.org> wrote:
 
--- 
-Patrick McFarland || www.AdTerrasPerAspera.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
-we'd all be running around in darkened rooms, munching magic pills and
-listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
-Inc, 1989
+> On Tue, 27 Jun 2006 08:33:39 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > Isnt this whole episode highly hypocritic to begin with?
+> 
+> Might be, but that's not relevant to GFS2's suitability.
 
+it is relevant to a certain degree, because it creates a (IMO) false 
+impression of merging showstoppers. After months of being in -mm, and 
+after addressing all issues that were raised (and there was a fair 
+amount of review activity December last year iirc), one week prior the 
+close of the merge window a 'huge' list of issues are raised. (after 
+belovingly calling the GFS2 code a "huge mess", to create a positive and 
+productive tone for the review discussion i guess.)
+
+So far in my reading there are only 2 serious ones in that list:
+
+ - tty_* use in cluster-aware quota.c. Firstly, ocfs2 doesnt do quota -
+   which is fair enough, but this also means that there was no in-tree 
+   filesystem to base stuff off. Secondly, the tty_* use was inherited 
+   from fs/quota.c - hardly something i'd consider a fatal sin. Anyway, 
+   despite the mitigating factors it is an arguably lame thing and 
+   it should be (and will be) fixed.
+
+ - GFP_NOFAIL: most other journalling filesystems seem to be doing this
+   or worse. Fixing it is _hard_. Suddenly this becomes a showstopper? 
+   Huh?
+
+(the "use the generic facilities" arguments are only valid if the 
+generic facilities can be used as-is, and if they are just optimal as 
+the one implemented by the filesystem.)
+
+	Ingo

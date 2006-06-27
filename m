@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161219AbWF0RoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161246AbWF0RpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161219AbWF0RoK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 13:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161231AbWF0RoK
+	id S1161246AbWF0RpR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 13:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161231AbWF0RpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 13:44:10 -0400
-Received: from xenotime.net ([66.160.160.81]:25761 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161219AbWF0RoJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 13:44:09 -0400
-Date: Tue, 27 Jun 2006 10:46:49 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: wfg@mail.ustc.edu.cn, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm3: no help text for READAHEAD_ALLOW_OVERHEADS
-Message-Id: <20060627104649.25832e61.rdunlap@xenotime.net>
-In-Reply-To: <20060627144019.GA13915@stusta.de>
-References: <20060627015211.ce480da6.akpm@osdl.org>
-	<20060627091429.GK23314@stusta.de>
-	<20060627134337.GA6117@mail.ustc.edu.cn>
-	<20060627144019.GA13915@stusta.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Jun 2006 13:45:16 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:26296 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161246AbWF0RpP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 13:45:15 -0400
+Message-ID: <44A16E9C.70000@zytor.com>
+Date: Tue, 27 Jun 2006 10:45:00 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       klibc@zytor.com, torvalds@osdl.org
+Subject: Re: klibc and what's the next step?
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <p73r71attww.fsf@verdi.suse.de> <44A166AF.1040205@zytor.com> <200606271940.46634.ak@suse.de>
+In-Reply-To: <200606271940.46634.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jun 2006 16:40:19 +0200 Adrian Bunk wrote:
-
-> On Tue, Jun 27, 2006 at 09:43:37PM +0800, Wu Fengguang wrote:
-> > On Tue, Jun 27, 2006 at 11:14:29AM +0200, Adrian Bunk wrote:
-> > > On Tue, Jun 27, 2006 at 01:52:11AM -0700, Andrew Morton wrote:
-> > > >...
-> > > > Changes since 2.6.17-mm2:
-> > > > +readahead-kconfig-option-readahead_allow_overheads.patch
-> > > >...
-> > > >  readahead updates
-> > > >...
-> > > 
-> > > The READAHEAD_ALLOW_OVERHEADS option lacks a help text.
-> > 
-> > Oh, it just acts as a submenu and a reminder ;)
-> > 
-> > > Additionally, the "default n" is pointless and should be removed.
-> > 
-> > I expect the _extra_ features are useless for normal users.
-> > Your reasoning or feeling?
-> >...
+Andi Kleen wrote:
 > 
-> That's not my point, my point is that if you remove the "default n" 
-> line, nothing changes. The default is still "n", but it's better 
-> readable.
+> But not for LVM where this can be fairly complex.
+> 
+> And next would be probably iSCSI. Maybe it's better to leave some stuff
+> in initramfs. 
+> 
 
-Why is it more readable without the "default n" line?
-One could say that supplying the default "default n" line is clearer
-than having it omitted.
+Of course, and even if it's built into the kernel tree it doesn't have 
+to be monolithic (one binary.)  Current kinit is monolithic (although 
+there are chunks available as standalone binaries, and I have gotten 
+requests to break out more), but that's mostly because I've been 
+concerned about bloating the overall size of the kernel image for 
+embedded people.
 
----
-~Randy
+	-hpa

@@ -1,88 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161339AbWF0Wwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161341AbWF0W4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161339AbWF0Wwm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 18:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161341AbWF0Wwm
+	id S1161341AbWF0W4j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 18:56:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161342AbWF0W4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 18:52:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8668 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161339AbWF0Wwk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 18:52:40 -0400
-Date: Tue, 27 Jun 2006 15:55:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, aviro@redhat.com, neilb@suse.de, jblunck@suse.de,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       dhowells@redhat.com
-Subject: Re: [PATCH] Destroy the dentries contributed by a superblock on
- unmounting
-Message-Id: <20060627155549.786724cf.akpm@osdl.org>
-In-Reply-To: <3087.1151403431@warthog.cambridge.redhat.com>
-References: <18192.1151320860@warthog.cambridge.redhat.com>
-	<17567.31035.471039.999828@cse.unsw.edu.au>
-	<17566.12727.489041.220653@cse.unsw.edu.au>
-	<17564.52290.338084.934211@cse.unsw.edu.au>
-	<15603.1150978967@warthog.cambridge.redhat.com>
-	<553.1151156031@warthog.cambridge.redhat.com>
-	<20946.1151251352@warthog.cambridge.redhat.com>
-	<3087.1151403431@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Jun 2006 18:56:39 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:9960
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1161341AbWF0W4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 18:56:38 -0400
+Message-ID: <44A1B79F.9020204@microgate.com>
+Date: Tue, 27 Jun 2006 17:56:31 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: tty_mutex and tty_old_pgrp
+References: <9e4733910606261538i584e2203o9555d77094de6fe7@mail.gmail.com>
+In-Reply-To: <9e4733910606261538i584e2203o9555d77094de6fe7@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
+Jon Smirl wrote:
+> In tty_io.c there is a comment that tty_mutex needs to be held before
+> changing tty_old_pgrp. If I grep for tty_old_pgrp every place it is
+> changed except for one is protected by tty_mutex.
+> In security/selinux/hooks.c it appears to be changed without holding
+> the lock, is this ok? If it is ok, I can add a comment saying it is.
 > 
-> The attached patch destroys all the dentries attached to a superblock in one go
->  /*
-> + * destroy a single subtree of dentries for unmount
-> + * - see the comments on shrink_dcache_for_umount() for a description of the
-> + *   locking
-> + */
-> +static void shrink_dcache_for_umount_subtree(struct dentry *dentry)
-> +{
-> +	struct dentry *parent;
-> +
-> +	BUG_ON(!IS_ROOT(dentry));
-> +
-> +	/* detach this root from the system */
-> +	spin_lock(&dcache_lock);
-> +	if (!list_empty(&dentry->d_lru)) {
-> +		dentry_stat.nr_unused--;
-> +		list_del_init(&dentry->d_lru);
-> +	}
-> +	__d_drop(dentry);
-> +	spin_unlock(&dcache_lock);
-> +
-> +	for (;;) {
-> +		/* descend to the first leaf in the current subtree */
-> +		while (!list_empty(&dentry->d_subdirs)) {
-> +			struct dentry *loop;
-> +
-> +			/* this is a branch with children - detach all of them
-> +			 * from the system in one go */
-> +			spin_lock(&dcache_lock);
-> +			list_for_each_entry(loop, &dentry->d_subdirs,
-> +					    d_u.d_child) {
-> +				if (!list_empty(&loop->d_lru)) {
-> +					dentry_stat.nr_unused--;
-> +					list_del_init(&loop->d_lru);
-> +				}
-> +
-> +				__d_drop(loop);
-> +				cond_resched_lock(&dcache_lock);
-> +			}
-> +			spin_unlock(&dcache_lock);
+> If someone were to provide me with the proper guidance, I have some
+> time I could spend working on the tty code. For example from an object
+> oriented perspective it doesn't look right to me that
+> disassociate_ctty is a function in the tty layer. It makes more sense
+> to me that this function would be located in the task code.
+> 
+> How could things be rearranged to avoid the need for sys_setsid() and
+> daemonize() to directly manipulate tty_mutex? What exactly is
+> tty_mutex protecting, it appears to be used in multiple contexts.
 
-Is the cond_resched_lock() here safe?  Once we've dropped that lock, the
-list cursor `loop' is invalidated?
+No one has leaped in here with any wisdom, but the people
+who wrote that code may be dead or otherwise employed.
 
-If all lookup paths to all entries on this list are removed at this time
-then OK - but these dentries are still on the LRU..
+If you have knowledge of how those bits work,
+I encourage to you dig through the code and determine
+what needs to be done. It is certainly an area that can
+use more review.
 
-(An answer-via-comment-patch would suit ;))
+I did see a comment that tty_mutex protects the creation
+and destruction of tty structures, so I assume the coverage
+of tty_old_pgrp has some relation to that. Unfortunately,
+I have seen other locks get borrowed for multiple purposes.
+
+--
+Paul
+
 

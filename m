@@ -1,81 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWF0QKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbWF0QMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161145AbWF0QKu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 12:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161143AbWF0QKu
+	id S1161146AbWF0QMR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 12:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161143AbWF0QMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 12:10:50 -0400
-Received: from ns2.lanforge.com ([66.165.47.211]:63905 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S1161141AbWF0QKs (ORCPT
+	Tue, 27 Jun 2006 12:12:16 -0400
+Received: from ns1.suse.de ([195.135.220.2]:5330 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161142AbWF0QMN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 12:10:48 -0400
-Message-ID: <44A157CA.70204@candelatech.com>
-Date: Tue, 27 Jun 2006 09:07:38 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: Herbert Poetzl <herbert@13thfloor.at>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Daniel Lezcano <dlezcano@fr.ibm.com>, Andrey Savochkin <saw@swsoft.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       dev@sw.ru, devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <m1hd27uaxw.fsf@ebiederm.dsl.xmission.com> <20060626183649.GB3368@MAIL.13thfloor.at> <m1u067r9qk.fsf@ebiederm.dsl.xmission.com> <44A05BFD.6030402@candelatech.com> <20060626225440.GA7425@MAIL.13thfloor.at> <44A068E7.6080403@candelatech.com>
-In-Reply-To: <44A068E7.6080403@candelatech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 12:12:13 -0400
+Date: Tue, 27 Jun 2006 09:08:54 -0700
+From: Greg KH <gregkh@suse.de>
+To: Josh Boyer <jwboyer@gmail.com>
+Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pciehp borkage.
+Message-ID: <20060627160854.GA10332@suse.de>
+References: <20060627033749.GB26575@redhat.com> <20060627042750.GA1768@suse.de> <625fc13d0606270519wc506fsa7b1c7e55044ec78@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <625fc13d0606270519wc506fsa7b1c7e55044ec78@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> Herbert Poetzl wrote:
+On Tue, Jun 27, 2006 at 07:19:37AM -0500, Josh Boyer wrote:
+> On 6/26/06, Greg KH <gregkh@suse.de> wrote:
+> >On Mon, Jun 26, 2006 at 11:37:49PM -0400, Dave Jones wrote:
+> >> My head hurts..
+> >>
+> >> drivers/pci/pcie/Kconfig ..
+> >>
+> >> config HOTPLUG_PCI_PCIE
+> >>     tristate "PCI Express Hotplug driver"
+> >>     depends on HOTPLUG_PCI && PCIEPORTBUS && (BROKEN || ACPI)
+> >>
+> >>
+> >>
+> >> but drivers/pci/hotplug/Makefile has..
+> >>
+> >> pciehp-objs     :=  pciehp_core.o   \
+> >>                 pciehp_ctrl.o   \
+> >>                 pciehp_pci.o    \
+> >>                 pciehp_hpc.o
+> >>
+> >> So it gets built regardless of the option, which leaves ppc (among 
+> >others)
+> >> totally busted..
+> >
+> >Yes, this driver does have issues on ppc, see the archives for Anton
+> >trying to fix it up to get it to build.  But as ppc currently doesn't
+> >_have_ pci express hotplug hardware it really doesn't matter much :)
+> >
+> >> In file included from include/acpi/platform/acenv.h:140,
+> >>                  from include/acpi/acpi.h:54,
+> >>                  from drivers/pci/hotplug/pciehp_hpc.c:41:
+> >> include/acpi/platform/aclinux.h:59:22: error: asm/acpi.h: No such file 
+> >or directory
+> >> In file included from include/acpi/acpi.h:55,
+> >>                  from drivers/pci/hotplug/pciehp_hpc.c:41:
+> >> include/acpi/actypes.h:129: error: expected '=', ',', ';', 'asm' or 
+> >'__attribute__' before 'UINT64'
+> >> include/acpi/actypes.h:130: error: expected '=', ',', ';', 'asm' or 
+> >'__attribute__' before 'INT64'
+> >> make[3]: *** [drivers/pci/hotplug/pciehp_hpc.o] Error 1
+> >> make[2]: *** [drivers/pci/hotplug] Error 2
+> >> make[1]: *** [drivers/pci] Error 2
+> >>
+> >>
+> >> Should that Makefile be more along the lines of..
+> >>
+> >> pciehp-$(CONFIG_PCI_PCIE)     :=  pciehp_core.o   \
+> >>                 pciehp_ctrl.o   \
+> >>                 pciehp_pci.o    \
+> >>                 pciehp_hpc.o
+> >>
+> >> perhaps ?
+> >
+> >No, look up a bit higher:
+> >        obj-$(CONFIG_HOTPLUG_PCI_PCIE)          += pciehp.o
+> >
+> >which will build pciehp or not.  Just don't enable the option for now
+> >on ppc please.  Until people sanitize the ACPI headers for non-acpi
+> >arches (which is currently underway...)
 > 
->> On Mon, Jun 26, 2006 at 03:13:17PM -0700, Ben Greear wrote:
-> 
-> 
->> yes, that sounds good to me, any numbers how that
->> affects networking in general (performance wise and
->> memory wise, i.e. caches and hashes) ...
-> 
-> 
-> I'll run some tests later today.  Based on my previous tests,
-> I don't remember any significant overhead.
+> Would it be sane to make the Kconfig refuse to enable the option for
+> archs that this is known to be broken on?
 
-Here's a quick benchmark using my redirect devices (RDD).  Each
-RDD comes in a pair...when you tx on one, the pkt is rx'd on the peer.
-The idea is that it is exactly like two physical ethernet interfaces
-connected by a cross-over cable.
+Sure, no objection from me there.
 
-My test system is a 64-bit dual-core Intel system, 3.013 Ghz processor with 1GB RAM.
-Fairly standard stuff..it's one of the Shuttle XPC systems.
-Kernel is 2.6.16.16 (64-bit).
+thanks,
 
-
-Test setup is:  rdd1 -- rdd2   [bridge]   rdd3 -- rdd4
-
-I am using my proprietary module for the bridge logic...and the default
-bridge should be at least this fast.  I am injecting 1514 byte packets
-on rdd1 and rdd4 with pktgen (bi-directional flow).  My pktgen is also
-receiving the pkts and gathering stats.
-
-This setup sustains 1.7Gbps of generated and received traffic between
-rdd1 and rdd4.
-
-Running only the [bridge] between two 10/100/1000 ports on an Intel PCI-E
-NIC will sustain about 870Mbps (bi-directional) on this system, so the
-virtual devices are quite efficient, as suspected.
-
-I have not yet had time to benchmark the mac-vlans...hopefully later today.
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+greg k-h

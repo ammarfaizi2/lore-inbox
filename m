@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWF0LwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWF0Lwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWF0LwF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 07:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWF0LwE
+	id S932231AbWF0Lwz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 07:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWF0Lwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 07:52:04 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:12196 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932256AbWF0LwD (ORCPT
+	Tue, 27 Jun 2006 07:52:55 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:21214 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932231AbWF0Lwy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 07:52:03 -0400
-Subject: [RFC][PATCH 0/3] Process events biarch bug: Intro
+	Tue, 27 Jun 2006 07:52:54 -0400
+Subject: [RFC][PATCH 1/3] Process events biarch bug: Name process event
+	data union type and annotate for compatibility.
 From: Matt Helsley <matthltc@us.ibm.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
        Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+References: <20060627112644.804066367@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 27 Jun 2006 04:47:01 -0700
-Message-Id: <1151408822.21787.1807.camel@stark>
+Date: Tue, 27 Jun 2006 04:47:47 -0700
+Message-Id: <1151408867.21787.1809.camel@stark>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The events sent by Process Events from a 64-bit kernel are not binary compatible
-with what a 32-bit userspace program would expect to recieve because the timespec
-struct (used to send a timestamp) is not the same. This means that fields stored
-after the timestamp are offset and programs that don't take this into account
-break under these circumstances.
+This patch adds an explicit type to the process events union structure so the
+type may be reused. 
 
-This is a problem for 32-bit userspace programs running with 64-bit kernels on
-ppc64, s390, x86-64.. any "biarch" system.
+Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
+---
+ include/linux/cn_proc.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This series:
+Index: linux-2.6.17-mm3-biarch/include/linux/cn_proc.h
+===================================================================
+--- linux-2.6.17-mm3-biarch.orig/include/linux/cn_proc.h
++++ linux-2.6.17-mm3-biarch/include/linux/cn_proc.h
+@@ -56,11 +56,11 @@ struct proc_event {
+ 		/* "last" is the last process event: exit */
+ 		PROC_EVENT_EXIT = 0x80000000
+ 	} what;
+ 	__u32 cpu;
+ 	struct timespec timestamp;
+-	union { /* must be last field of proc_event struct */
++	union process_event_data { /* must be last field of proc_event struct */
+ 		struct {
+ 			__u32 err;
+ 		} ack;
+ 
+ 		struct fork_proc_event {
 
-1 - Gives a name to the union of the process events structure so it may be used
-	to work around the problem from userspace.
-2 - Comments on the bug and describes a userspace workaround in
-	Documentation/connector/process_events.txt
-3 - Implements a second connector interface without the problem
-	(Removing the old interface or changing the definition would break
-	 binary compatibility)
-
-Compiled, booted, and lightly tested.
-
-Comments or suggestions on alternate approaches would be appreciated.
-
-Cheers,
-	-Matt Helsley
+--
 

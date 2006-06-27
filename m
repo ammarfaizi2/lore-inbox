@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030669AbWF0FG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030689AbWF0FIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030669AbWF0FG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 01:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030680AbWF0EjV
+	id S1030689AbWF0FIG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 01:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030658AbWF0FHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:39:21 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:23003 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030669AbWF0EjL
+	Tue, 27 Jun 2006 01:07:00 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:24539 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030681AbWF0EjW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:39:11 -0400
+	Tue, 27 Jun 2006 00:39:22 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 07/10] [Suspend2] Post suspend context-save routine
-Date: Tue, 27 Jun 2006 14:39:10 +1000
+Subject: [Suspend2][ 10/10] [Suspend2] Atomic restore highlevel routine.
+Date: Tue, 27 Jun 2006 14:39:20 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043909.14546.87298.stgit@nigel.suspend2.net>
+Message-Id: <20060627043919.14546.92958.stgit@nigel.suspend2.net>
 In-Reply-To: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
 References: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,61 +22,77 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At suspend-time, after saving the cpu context using the swsusp code, this
-routine is invoked to save the atomic copy, enter the chosen state
-(possibly suspend to ram), and cleanup if we come back from that state.
+This routine essentially duplicates the swsusp_resume routine, which does
+high level steps of the atomic restore. Rather than modifying that routine
+to include a number of if (suspend2) else clauses, it seemed better to put
+a suspend2ised version here.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/atomic_copy.c |   40 ++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 40 insertions(+), 0 deletions(-)
+ kernel/power/atomic_copy.c |   55 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 55 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/atomic_copy.c b/kernel/power/atomic_copy.c
-index a834623..cb3663c 100644
+index bb5d74f..e4aa9f9 100644
 --- a/kernel/power/atomic_copy.c
 +++ b/kernel/power/atomic_copy.c
-@@ -262,3 +262,43 @@ void copyback_post(void)
- 	suspend_prepare_status(DONT_CLEAR_BAR, "Cleaning up...");
+@@ -380,3 +380,58 @@ enable_irqs:
+ 	return error;
  }
  
 +/*
-+ * suspend_post_context_save: Steps after saving the cpu context.
++ * suspend_atomic_restore
 + *
-+ * Steps taken after saving the CPU state to make the actual
-+ * atomic copy.
-+ *
-+ * Called from swsusp_save in snapshot.c.
++ * Get ready to do the atomic restore. This part gets us into the same
++ * state we are in prior to do calling do_suspend2_lowlevel while
++ * suspending: hotunplugging secondary cpus and freeze processes,
++ * before starting the thread that will do the restore.
 + */
-+
-+int suspend_post_context_save(void)
++int suspend_atomic_restore(void)
 +{
-+	int old_ps1_size = pagedir1.pageset_size;
-+	int old_ps2_size = pagedir2.pageset_size;
-+	
-+	BUG_ON(!irqs_disabled());
++	int error, loop;
 +
-+	suspend_recalculate_image_contents(1);
++	disable_nonboot_cpus();
 +
-+	extra_pd1_pages_used = pagedir1.pageset_size - old_ps1_size;
++	suspend_prepare_status(DONT_CLEAR_BAR,	"Atomic restore preparation");
++	prepare_suspend2_pbe_list();
 +
-+	if ((pagedir1.pageset_size - old_ps1_size) > extra_pd1_pages_allowance) {
-+		abort_suspend("Pageset1 has grown by %d pages."
-+			" Only %d growth is allowed for!\n",
-+			pagedir1.pageset_size - old_ps1_size,
-+			extra_pd1_pages_allowance);
-+		return -1;
++	suspend_cond_pause(1, "Device suspend next.\n");
++
++	if ((error = device_suspend(PMSG_FREEZE))) {
++		printk("Some devices failed to suspend\n");
++		BUG();
 +	}
 +
-+	BUG_ON(old_ps2_size != pagedir2.pageset_size);
++#ifdef CONFIG_HIGHMEM
++	origmap = pageset1_map;
++	copymap = pageset1_copy_map;
++	suspend_init_nosave_zone_table();
++#endif
 +
-+	BUG_ON(!irqs_disabled());
++	state1 = suspend_action;
++	state2 = suspend_debug_state;
++	state3 = console_loglevel;
++	
++	for (loop = 0; loop < 4; loop++)
++		io_speed_save[loop/2][loop%2] =
++			suspend_io_time[loop/2][loop%2];
++	memcpy(suspend_resume_commandline, saved_command_line, COMMAND_LINE_SIZE);
 +
-+	if (!test_action_state(SUSPEND_TEST_FILTER_SPEED) &&
-+	    !test_action_state(SUSPEND_TEST_BIO))
-+		suspend_copy_pageset1();
++	local_irq_disable();
++	if (device_power_down(PMSG_FREEZE))
++		printk(KERN_ERR "Some devices failed to power down. Very bad.\n");
 +
++	local_irq_disable();
 +
-+	return 0;
++	/* We'll ignore saved state, but this gets preempt count (etc) right */
++	save_processor_state();
++	error = swsusp_arch_resume();
++	/* Code below is only ever reached in case of failure. Otherwise
++	 * execution continues at place where swsusp_arch_suspend was called.
++         */
++	BUG();
++	return 1;
 +}
 +
 

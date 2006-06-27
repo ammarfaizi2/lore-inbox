@@ -1,62 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030671AbWF0Eix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWF0FN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030671AbWF0Eix (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 00:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030661AbWF0Eik
+	id S1750785AbWF0FN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 01:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWF0FMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:38:40 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:31702 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030658AbWF0Eib
+	Tue, 27 Jun 2006 01:12:45 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:26070 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030624AbWF0Ehz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:38:31 -0400
+	Tue, 27 Jun 2006 00:37:55 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 08/12] [Suspend2] Encryption resources needed.
-Date: Tue, 27 Jun 2006 14:38:30 +1000
+Subject: [Suspend2][ 11/13] [Suspend2] Compression proc entry data.
+Date: Tue, 27 Jun 2006 14:37:54 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043828.14437.24057.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
-References: <20060627043803.14437.68085.stgit@nigel.suspend2.net>
+Message-Id: <20060627043753.14320.64798.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
+References: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add routines to return the amount of memory and header storage needed for
-the encryption module.
+This patch adds the suspend_proc_data structure that allows the user to
+configure compression support.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/encryption.c |   20 ++++++++++++++++++++
- 1 files changed, 20 insertions(+), 0 deletions(-)
+ kernel/power/compression.c |   43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 43 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/encryption.c b/kernel/power/encryption.c
-index 25db7ba..d12eb47 100644
---- a/kernel/power/encryption.c
-+++ b/kernel/power/encryption.c
-@@ -297,3 +297,23 @@ static int suspend_encrypt_print_debug_s
- 	return len;
+diff --git a/kernel/power/compression.c b/kernel/power/compression.c
+index 924d507..54d54a9 100644
+--- a/kernel/power/compression.c
++++ b/kernel/power/compression.c
+@@ -477,3 +477,46 @@ int suspend_expected_compression_ratio(v
+ 		return 100 - suspend_expected_compression;
  }
  
-+/* encryption_memory_needed
-+ *
-+ * Description:	Tell the caller how much memory we need to operate during
-+ * 		suspend/resume.
-+ * Returns:	Unsigned long. Maximum number of bytes of memory required for
-+ * 		operation.
++/*
++ * data for our proc entries.
 + */
-+static unsigned long suspend_encrypt_memory_needed(void)
++static struct suspend_proc_data proc_params[] = {
 +{
-+	return PAGE_SIZE;
-+}
++	.filename			= "expected_compression",
++	.permissions			= PROC_RW,
++	.type				= SUSPEND_PROC_DATA_INTEGER,
++	.data = {
++		.integer = {
++			.variable	= &suspend_expected_compression,
++			.minimum	= 0,
++			.maximum	= 99,
++		}
++	}
++},
 +
-+static unsigned long suspend_encrypt_storage_needed(void)
 +{
-+	return 4 + strlen(suspend_encryptor_name) +
-+		(suspend_encryptor_save_key_and_iv ?
-+		 (4 + strlen(suspend_encryptor_key) +
-+		  strlen(suspend_encryptor_iv)) : 0);
++	.filename			= "disable_compression",
++	.permissions			= PROC_RW,
++	.type				= SUSPEND_PROC_DATA_INTEGER,
++	.data = {
++		.integer = {
++			.variable	= &suspend_compression_ops.disabled,
++			.minimum	= 0,
++			.maximum	= 1,
++		}
++	}
++},
++
++{
++	.filename			= "compressor",
++	.permissions			= PROC_RW,
++	.type				= SUSPEND_PROC_DATA_STRING,
++	.data = {
++		.string = {
++			.variable	= suspend_compressor_name,
++			.max_length	= 31,
++		}
++	},
 +}
++};
 +
 
 --

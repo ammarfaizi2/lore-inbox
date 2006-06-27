@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWF0MRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWF0MQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWF0MRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 08:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWF0MRQ
+	id S932340AbWF0MQx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 08:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWF0MQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 08:17:16 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:24270 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932335AbWF0MRP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 08:17:15 -0400
-Message-ID: <44A12190.40806@linux.intel.com>
-Date: Tue, 27 Jun 2006 14:16:16 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 27 Jun 2006 08:16:52 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:7827 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932335AbWF0MQv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 08:16:51 -0400
+Date: Tue, 27 Jun 2006 14:16:49 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lib(p)ata SMART support?
+Message-ID: <20060627121649.GL3114@harddisk-recovery.com>
+References: <200606271555.13330.arvidjaar@mail.ru>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org,
-       pavel@suse.cz, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH] binfmt: turn MAX_ARG_PAGES into a sysctl tunable
-References: <1151060089.30819.2.camel@lappy> <20060626095702.8b23263d.akpm@osdl.org> <Pine.LNX.4.64.0606261009190.3747@g5.osdl.org> <20060626223526.GA18579@elte.hu> <Pine.LNX.4.64.0606261555320.3927@g5.osdl.org> <20060627110954.GA23672@elte.hu>
-In-Reply-To: <20060627110954.GA23672@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606271555.13330.arvidjaar@mail.ru>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> at copy_strings_kernel() time we dont yet know where in the target VM to 
-> install the pages. A binformat might want to install all sorts of stuff 
-> on the stack first, before it constructs the envp and copies the strings 
-> themselves. So we dont know the precise alignment needed.
-> 
-> delaying the copying to setup_arg_pages() time does not seem to work 
-> either, because that gets called after the old MM has been destroyed.
-> 
-> [ delaying the copying will also change behavior in error cases - 
->   instead of returning with an error if the string pointers are bad 
->   we'll have to kill the execve()ing process. ]
-> 
-> am i missing something?
+On Tue, Jun 27, 2006 at 03:55:12PM +0400, Andrey Borzenkov wrote:
+> Using legacy drivers I can use any SMART tools out there; HDD does support 
+> SMART. Running libata + pata_ali, smartctl claims device does not support 
+> SMART. This is sort of regression when switching from legacy drivers.
 
-we could always just have the  binfmt use mremap() equivalent to move it 
-into the place it wants...
+Try smartctl -d ata.
+
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,164 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161228AbWF0RXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161233AbWF0RYB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161228AbWF0RXU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 13:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161231AbWF0RXU
+	id S1161233AbWF0RYB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 13:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161232AbWF0RYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 13:23:20 -0400
-Received: from xenotime.net ([66.160.160.81]:3725 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161227AbWF0RXT (ORCPT
+	Tue, 27 Jun 2006 13:24:00 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:19592 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1161233AbWF0RX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 13:23:19 -0400
-Date: Tue, 27 Jun 2006 10:25:57 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Cc: linux-fbdev-devel@lists.sourceforge.net, adaplas@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] [PATCH, trivial] Remove about 50 unneeded
- #includes in fbdev
-Message-Id: <20060627102557.e595c183.rdunlap@xenotime.net>
-In-Reply-To: <9e4733910606271001u2794d1e3ocb123f3cf9476266@mail.gmail.com>
-References: <9e4733910606270919n7819dbc0g8bd5c99f4b911583@mail.gmail.com>
-	<20060627095127.441c543e.rdunlap@xenotime.net>
-	<9e4733910606271001u2794d1e3ocb123f3cf9476266@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 13:23:59 -0400
+Date: Tue, 27 Jun 2006 19:23:53 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Valdis.Kletnieks@vt.edu
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
+In-Reply-To: <Pine.LNX.4.64.0606271903320.12900@scrub.home>
+Message-ID: <Pine.LNX.4.64.0606271919450.17704@scrub.home>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
+ <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>           
+ <Pine.LNX.4.64.0606271212150.17704@scrub.home> <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu>
+ <Pine.LNX.4.64.0606271903320.12900@scrub.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jun 2006 13:01:16 -0400 Jon Smirl wrote:
+Hi,
 
-> On 6/27/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
-> > On Tue, 27 Jun 2006 12:19:07 -0400 Jon Smirl wrote:
-> >
-> > > Remove about 50 unneeded #includes in fbdev
-> >
-> > Does this that
-> > (a) these drivers build without these header files explicitly #included
+On Tue, 27 Jun 2006, Roman Zippel wrote:
+
+> On Tue, 27 Jun 2006, Valdis.Kletnieks@vt.edu wrote:
 > 
-> I checked it this way. There are 2,295 explicit includes in
-> drivers/video. Do you have a tool to automatically determine which
-> APIs are directly used? Many of the fbdev drivers look to be the
-> victim of cut and paste and have a lot of unnecessary includes.
+> > Sorry Roman... This may indeed be a legitimate bugfix, but it doesn't
+> > fix the problem I'm seeing.  I've been doing the mm-bisect polka for a bit,
+> > and have it narrowed down to this set of patches:
+> 
+> I'm afraid the problem is somehow related, in the longer boot log one can 
+> see the edi counting down, so I think it's likely in timespec_add_ns().
+> What's weird is that you can trigger it this easily...
 
-Nope, I don't have such a tool.  I wish we did.
+Could you please try the patch below? This should better locate which of 
+the values goes wrong.
 
-> > or
-> > (b) these drivers don't use *any* APIs or data from these header files?
-> >
-> > They may build (a) but still use the APIs, so (b) is the requirement/target.
-> > (I.e., other header files could suck in the required headers.)
-> >
-> >
-> > > Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
-> > >
-> > > diff --git a/drivers/video/aty/aty128fb.c b/drivers/video/aty/aty128fb.c
-> > > index db878fd..e498a54 100644
-> > > --- a/drivers/video/aty/aty128fb.c
-> > > +++ b/drivers/video/aty/aty128fb.c
-> > > @@ -46,26 +46,14 @@
-> > >   */
-> > >
-> > >
-> > > -#include <linux/config.h>
-> > >  #include <linux/module.h>
-> > >  #include <linux/moduleparam.h>
-> > > -#include <linux/kernel.h>
-> > >  #include <linux/errno.h>
-> > > -#include <linux/string.h>
-> > > -#include <linux/mm.h>
-> > > -#include <linux/tty.h>
-> > > -#include <linux/slab.h>
-> > > -#include <linux/vmalloc.h>
-> > >  #include <linux/delay.h>
-> > > -#include <linux/interrupt.h>
-> > >  #include <asm/uaccess.h>
-> > >   #include <linux/fb.h>
-> > > -#include <linux/init.h>
-> > >  #include <linux/pci.h>
-> > > -#include <linux/ioport.h>
-> > >  #include <linux/console.h>
-> > > -#include <linux/backlight.h>
-> > > -#include <asm/io.h>
-> > >
-> > >   #ifdef CONFIG_PPC_PMAC
-> > >  #include <asm/machdep.h>
-> > > diff --git a/drivers/video/aty/atyfb_base.c b/drivers/video/aty/atyfb_base.c
-> > > index c5185f7..5f4c76c 100644
-> > > --- a/drivers/video/aty/atyfb_base.c
-> > > +++ b/drivers/video/aty/atyfb_base.c
-> > > @@ -49,26 +49,13 @@
-> > >  ******************************************************************************/
-> > >
-> > >
-> > > -#include <linux/config.h>
-> > > -#include <linux/module.h>
-> > > -#include <linux/moduleparam.h>
-> > > -#include <linux/kernel.h>
-> > > -#include <linux/errno.h>
-> > > -#include <linux/string.h>
-> > > -#include <linux/mm.h>
-> > > -#include <linux/slab.h>
-> > > -#include <linux/vmalloc.h>
-> > >  #include <linux/delay.h>
-> > >  #include <linux/console.h>
-> > >   #include <linux/fb.h>
-> > > -#include <linux/init.h>
-> > >  #include <linux/pci.h>
-> > >  #include <linux/interrupt.h>
-> > > -#include <linux/spinlock.h>
-> > > -#include <linux/wait.h>
-> > >  #include <linux/backlight.h>
-> > >
-> > > -#include <asm/io.h>
-> > >  #include <asm/uaccess.h>
-> > >
-> > >  #include <video/mach64.h>
-> > > diff --git a/drivers/video/aty/radeon_base.c b/drivers/video/aty/radeon_base.c
-> > > index c5ecbb0..56445ea 100644
-> > > --- a/drivers/video/aty/radeon_base.c
-> > > +++ b/drivers/video/aty/radeon_base.c
-> > > @@ -52,25 +52,6 @@
-> > >
-> > >  #define RADEON_VERSION       "0.2.0"
-> > >
-> > > -#include <linux/config.h>
-> > > -#include <linux/module.h>
-> > > -#include <linux/moduleparam.h>
-> > > -#include <linux/kernel.h>
-> > > -#include <linux/errno.h>
-> > > -#include <linux/string.h>
-> > > -#include <linux/mm.h>
-> > > -#include <linux/tty.h>
-> > > -#include <linux/slab.h>
-> > > -#include <linux/delay.h>
-> > > -#include <linux/time.h>
-> > > -#include <linux/fb.h>
-> > > -#include <linux/ioport.h>
-> > > -#include <linux/init.h>
-> > > -#include <linux/pci.h>
-> > > -#include <linux/vmalloc.h>
-> > > -#include <linux/device.h>
-> > > -
-> > > -#include <asm/io.h>
-> > >  #include <asm/uaccess.h>
-> > >
-> > >   #ifdef CONFIG_PPC_OF
-> > > diff --git a/drivers/video/aty/radeon_i2c.c b/drivers/video/aty/radeon_i2c.c
-> > > index a9d0414..4855c0a 100644
-> > > --- a/drivers/video/aty/radeon_i2c.c
-> > > +++ b/drivers/video/aty/radeon_i2c.c
-> > > @@ -1,9 +1,3 @@
-> > > -#include <linux/config.h>
-> > > -#include <linux/module.h>
-> > > -#include <linux/kernel.h>
-> > > -#include <linux/sched.h>
-> > > -#include <linux/delay.h>
-> > > -#include <linux/pci.h>
-> > >   #include <linux/fb.h>
+bye, Roman
 
 ---
-~Randy
+ kernel/timer.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+Index: linux-2.6-mm/kernel/timer.c
+===================================================================
+--- linux-2.6-mm.orig/kernel/timer.c	2006-06-27 19:16:13.000000000 +0200
++++ linux-2.6-mm/kernel/timer.c	2006-06-27 19:17:41.000000000 +0200
+@@ -834,6 +834,8 @@ static inline void __get_realtime_clock_
+ 
+ 	} while (read_seqretry(&xtime_lock, seq));
+ 
++	if (ts->tv_nsec < 0 || nsecs < 0)
++		printk("unexpected nsec: %ld,%Ld\n", ts->tv_nsec, nsecs);
+ 	timespec_add_ns(ts, nsecs);
+ }
+ 

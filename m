@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbWF0UKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWF0UKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932564AbWF0UKG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 16:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbWF0UKF
+	id S932565AbWF0UKT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 16:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbWF0UKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 16:10:05 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:64129 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932564AbWF0UKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 16:10:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=cczzbXVgS085l2VskVcIkNjFEzq5c1Su2gZGa8YjypbVVA2La0gt+c4bMNv+eeHRYz8r13+BAZyUPOJlEMU35lSAlmgbFBza2j+xbB6VxVUNp9NYZ3xQgzBsxpzJFFarRoHz+2NvEZ9R146cc37OgPfDGubKUCtzHUAkQMVWrRY=
-Message-ID: <4807377b0606271310h41134de8t8c5f60436d73a988@mail.gmail.com>
-Date: Tue, 27 Jun 2006 13:10:02 -0700
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Linux-Kernel," <linux-kernel@vger.kernel.org>
-Subject: git head x86_64 build breakage
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 27 Jun 2006 16:10:18 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:47235 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S932565AbWF0UKQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 16:10:16 -0400
+Message-Id: <20060627200745.771284000@sous-sol.org>
+User-Agent: quilt/0.45-1
+Date: Tue, 27 Jun 2006 13:07:45 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: [PATCH 00/25] -stable review
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-using a fresh pull of Linus' git, I can't build a kernel right now
-I get this:
-make O=../2.6.18.obj/ all -j5
-  GEN     /home/jbrandeb/2.6.18.obj/Makefile
-scripts/kconfig/conf -s arch/x86_64/Kconfig
-init/Kconfig:3: unknown option "option"
-make[3]: *** [silentoldconfig] Error 1
-make[2]: *** [silentoldconfig] Error 2
-make[1]: *** [include/config/auto.conf] Error 2
-make: *** [all] Error 2
+This is the start of the stable review cycle for the 2.6.17.2 release.
+There are 25 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let us know.  If anyone is a maintainer of the proper subsystem, and
+wants to add a Signed-off-by: line to the patch, please respond with it.
 
-reverting to the v2.6.17 init/Kconfig fixes it.
+These patches are sent out with a number of different people on the
+Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
+to add your name to the list.  If you want to be off the reviewer list,
+also email us.
 
-I kinda stumble around in git, but this appears to be the commit that broke it.
-face4374e288372fba67c865eb0c92337f50d5a4
+Responses should be made by Thu, Jun 29, 20:00 UTC.
+Anything received after that time, might be too late.
 
-Jesse
+thanks,
+
+the -stable release team
+--

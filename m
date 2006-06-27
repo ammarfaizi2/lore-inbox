@@ -1,43 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWF0M7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWF0NCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWF0M7q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 08:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWF0M7p
+	id S932223AbWF0NCh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 09:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWF0NCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 08:59:45 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:60711 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932185AbWF0M7p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 08:59:45 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Morton <akpm@osdl.org>
-cc: James Bottomley <James.Bottomley@SteelEye.com>, stsp@aknet.ru,
-       linux-kernel@vger.kernel.org
-Subject: Re: the creation of boot_cpu_init() is wrong and accessing uninitialised data 
-In-reply-to: Your message of "Mon, 26 Jun 2006 22:03:37 MST."
-             <20060626220337.06014184.akpm@osdl.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 27 Jun 2006 23:00:09 +1000
-Message-ID: <31382.1151413209@ocs3.ocs.com.au>
+	Tue, 27 Jun 2006 09:02:36 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:3553 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932223AbWF0NCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 09:02:35 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Incorrect CPU process accounting using CONFIG_HZ=100
+Date: Tue, 27 Jun 2006 23:02:16 +1000
+User-Agent: KMail/1.9.3
+Cc: Al Boldi <a1426z@gawab.com>, Pavel Machek <pavel@ucw.cz>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+References: <200606211716.01472.a1426z@gawab.com> <20060626160239.GA3257@elf.ucw.cz> <200606271532.33368.a1426z@gawab.com>
+In-Reply-To: <200606271532.33368.a1426z@gawab.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606272302.16950.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton (on Mon, 26 Jun 2006 22:03:37 -0700) wrote:
->It's a bit odd - I think non-zero BSPs happen a bit more often than
->only-on-voyager.
+On Tuesday 27 June 2006 22:32, Al Boldi wrote:
+> Pavel Machek wrote:
+> > On Thu 2006-06-22 20:36:39, Al Boldi wrote:
+> > > Jan Engelhardt wrote:
+> > > > >Setting CONFIG_HZ=100 results in incorrect CPU process accounting.
+> > > > >
+> > > > >This can be seen running top d.1, that shows top, itself, consuming
+> > > > > 0ms CPUtime.
+> > > > >
+> > > > >Will this bug have consequences for sched.c?
+> > > >
+> > > > Works for me, somewhat.
+> > > > TIME+ says 0:00.02 after 70 secs. (Ergo: top is not expensive on this
+> > > > CPU.)
+> > >
+> > > That's what I thought for a long time.  But at closer inspection, top
+> > > d.1 slows down other apps by about the same amount of time at 1000Hz
+> > > and 100Hz, only at 1000Hz it is accounted for whereas at 100Hz it is
+> > > not.
+> >
+> > It is not a bug... it is design decision. If you eat "too little" cpu
+> > time, you'll be accouted 0 msec. That's what happens at 100Hz...
+>
+> Bummer!
+>
+> Meanwhile, can't "too little" cpu time be made relative to CONFIG_HZ?
 
-AFAICR, the BSP is supposed to be logical cpu 0 on all architectures.
-Most architectures assign logical cpu 0 to the BSP, even if the BSP has
-a non-zero hard_smp_processor_id.  ia64 even has this
+It is and that's what you're perceiving as the problem. We only charge tasks 
+in ticks and it's the tick size they get charged with. So at 100HZ if a task 
+is running when a tick fires it gets charged 1% cpu. If it runs for 100 ticks 
+it gets charged with 100% cpu. At 1000HZ it gets charged .1% cpu per tick and 
+so on. The actual problem is that tasks only get charged if they happen to be 
+running at the precise moment the tick fires. Now you could increase the 
+accuracy of this timekeeping but it is expensive and this is exactly the sort 
+of thing that we're saving cpu resources on by running at 100HZ (one of 
+many).
 
-int __cpu_disable(void)
-{
-        int cpu = smp_processor_id();
-
-	/*
-	 * dont permit boot processor for now
-	 */
-	if (cpu == 0 && !bsp_remove_ok) {
-
+-- 
+-ck

@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWF0SEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWF0SFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbWF0SEB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 14:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWF0SEB
+	id S932488AbWF0SFw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 14:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWF0SFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 14:04:01 -0400
-Received: from mga03.intel.com ([143.182.124.21]:42810 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932508AbWF0SEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 14:04:00 -0400
-X-IronPort-AV: i="4.06,183,1149490800"; 
-   d="scan'208"; a="58170236:sNHT4339733132"
-Message-ID: <44A172E5.1030905@intel.com>
-Date: Tue, 27 Jun 2006 11:03:17 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.4 (X11/20060617)
+	Tue, 27 Jun 2006 14:05:52 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38322 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932488AbWF0SFw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 14:05:52 -0400
+Date: Tue, 27 Jun 2006 11:05:46 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: [ZVC 4/4] Inline counters for single processor configurations
+In-Reply-To: <20060627174607.11172.28265.sendpatchset@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0606271104260.11380@schroedinger.engr.sgi.com>
+References: <20060627174551.11172.49700.sendpatchset@schroedinger.engr.sgi.com>
+ <20060627174607.11172.28265.sendpatchset@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: Linas Vepstas <linas@austin.ibm.com>
-CC: netdev@vger.kernel.org, john.ronciak@intel.com, jesse.brandeburg@intel.com,
-       jeffrey.t.kirsher@intel.com, "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: e1000: Janitor: Use #defined values for literals
-References: <20060623163624.GM8866@austin.ibm.com> <449C49F9.6090005@intel.com> <20060627173224.GA31770@austin.ibm.com>
-In-Reply-To: <20060627173224.GA31770@austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Jun 2006 18:03:17.0802 (UTC) FILETIME=[F7BC80A0:01C69A13]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas wrote:
-> On Fri, Jun 23, 2006 at 01:07:21PM -0700, Auke Kok wrote:
->> Linas Vepstas wrote:
->>> Minor janitorial patch: use #defines for literal values.
->>> +	pci_enable_wake(pdev, PCI_D3hot, 0);
->>> +	pci_enable_wake(pdev, PCI_D3cold, 0);
->> I Acked this but that's silly - the patches sent yesterday already change 
->> the code above and this patch is no longer needed (thanks Jesse for 
->> spotting this).
->>
->> This patch would conflict with them so please don't apply.
-> 
-> Maybe there's a backlog in the queue, but I not this is not 
-> yet in 2.6.17-mm3 
+Hmmm.. i386/x86_64 do not convert the adds to incs like ia64. Therefore 
+one can decrease memory usage even further by using atomic_inc/dec 
+explicitly.
 
-It's part of the submission for 2.6.18 I sent to jgarzik on friday, which 
-cleans up this section in the way.
-
-Auke
+Index: linux-2.6.17-mm3/include/linux/vmstat.h
+===================================================================
+--- linux-2.6.17-mm3.orig/include/linux/vmstat.h	2006-06-27 03:53:05.000000000 -0700
++++ linux-2.6.17-mm3/include/linux/vmstat.h	2006-06-27 03:54:16.000000000 -0700
+@@ -186,12 +186,14 @@
+ 
+ static inline void __inc_zone_page_state(struct page *page, enum zone_stat_item item)
+ {
+-	zone_page_state_add(1, page_zone(page), item);
++	atomic_long_inc(&page_zone(page)->vm_stat[item]);
++	atomic_long_inc(&vm_stat[item]);
+ }
+ 
+ static inline void __dec_zone_page_state(struct page *page, enum zone_stat_item item)
+ {
+-	zone_page_state_add(-1, page_zone(page), item);
++	atomic_long_dec(&page_zone(page)->vm_stat[item]);
++	atomic_long_dec(&vm_stat[item]);
+ }
+ 
+ /*

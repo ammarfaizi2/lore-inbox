@@ -1,54 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161224AbWF0RVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161228AbWF0RXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161224AbWF0RVw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 13:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbWF0RVw
+	id S1161228AbWF0RXU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 13:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161231AbWF0RXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 13:21:52 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31663 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161215AbWF0RVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 13:21:50 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrey Savochkin <saw@swsoft.com>
-Cc: dlezcano@fr.ibm.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       serue@us.ibm.com, haveblue@us.ibm.com, clg@fr.ibm.com,
-       Andrew Morton <akpm@osdl.org>, dev@sw.ru, herbert@13thfloor.at,
-       devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk
-Subject: [RFC] Network namespaces a path to mergable code.
-References: <20060626134945.A28942@castle.nmd.msu.ru>
-Date: Tue, 27 Jun 2006 11:20:40 -0600
-In-Reply-To: <20060626134945.A28942@castle.nmd.msu.ru> (Andrey Savochkin's
-	message of "Mon, 26 Jun 2006 13:49:45 +0400")
-Message-ID: <m14py6ldlj.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jun 2006 13:23:20 -0400
+Received: from xenotime.net ([66.160.160.81]:3725 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161227AbWF0RXT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 13:23:19 -0400
+Date: Tue, 27 Jun 2006 10:25:57 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Cc: linux-fbdev-devel@lists.sourceforge.net, adaplas@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] [PATCH, trivial] Remove about 50 unneeded
+ #includes in fbdev
+Message-Id: <20060627102557.e595c183.rdunlap@xenotime.net>
+In-Reply-To: <9e4733910606271001u2794d1e3ocb123f3cf9476266@mail.gmail.com>
+References: <9e4733910606270919n7819dbc0g8bd5c99f4b911583@mail.gmail.com>
+	<20060627095127.441c543e.rdunlap@xenotime.net>
+	<9e4733910606271001u2794d1e3ocb123f3cf9476266@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 27 Jun 2006 13:01:16 -0400 Jon Smirl wrote:
 
-Thinking about this I am going to suggest a slightly different direction
-for get a patchset we can merge.
+> On 6/27/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> > On Tue, 27 Jun 2006 12:19:07 -0400 Jon Smirl wrote:
+> >
+> > > Remove about 50 unneeded #includes in fbdev
+> >
+> > Does this that
+> > (a) these drivers build without these header files explicitly #included
+> 
+> I checked it this way. There are 2,295 explicit includes in
+> drivers/video. Do you have a tool to automatically determine which
+> APIs are directly used? Many of the fbdev drivers look to be the
+> victim of cut and paste and have a lot of unnecessary includes.
 
-First we concentrate on the fundamentals.
-- How we mark a device as belonging to a specific network namespace.
-- How we mark a socket as belonging to a specific network namespace.
+Nope, I don't have such a tool.  I wish we did.
 
-As part of the fundamentals we add a patch to the generic socket code
-that by default will disable it for protocol families that do not indicate
-support for handling network namespaces, on a non-default network namespace.
+> > or
+> > (b) these drivers don't use *any* APIs or data from these header files?
+> >
+> > They may build (a) but still use the APIs, so (b) is the requirement/target.
+> > (I.e., other header files could suck in the required headers.)
+> >
+> >
+> > > Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
+> > >
+> > > diff --git a/drivers/video/aty/aty128fb.c b/drivers/video/aty/aty128fb.c
+> > > index db878fd..e498a54 100644
+> > > --- a/drivers/video/aty/aty128fb.c
+> > > +++ b/drivers/video/aty/aty128fb.c
+> > > @@ -46,26 +46,14 @@
+> > >   */
+> > >
+> > >
+> > > -#include <linux/config.h>
+> > >  #include <linux/module.h>
+> > >  #include <linux/moduleparam.h>
+> > > -#include <linux/kernel.h>
+> > >  #include <linux/errno.h>
+> > > -#include <linux/string.h>
+> > > -#include <linux/mm.h>
+> > > -#include <linux/tty.h>
+> > > -#include <linux/slab.h>
+> > > -#include <linux/vmalloc.h>
+> > >  #include <linux/delay.h>
+> > > -#include <linux/interrupt.h>
+> > >  #include <asm/uaccess.h>
+> > >   #include <linux/fb.h>
+> > > -#include <linux/init.h>
+> > >  #include <linux/pci.h>
+> > > -#include <linux/ioport.h>
+> > >  #include <linux/console.h>
+> > > -#include <linux/backlight.h>
+> > > -#include <asm/io.h>
+> > >
+> > >   #ifdef CONFIG_PPC_PMAC
+> > >  #include <asm/machdep.h>
+> > > diff --git a/drivers/video/aty/atyfb_base.c b/drivers/video/aty/atyfb_base.c
+> > > index c5185f7..5f4c76c 100644
+> > > --- a/drivers/video/aty/atyfb_base.c
+> > > +++ b/drivers/video/aty/atyfb_base.c
+> > > @@ -49,26 +49,13 @@
+> > >  ******************************************************************************/
+> > >
+> > >
+> > > -#include <linux/config.h>
+> > > -#include <linux/module.h>
+> > > -#include <linux/moduleparam.h>
+> > > -#include <linux/kernel.h>
+> > > -#include <linux/errno.h>
+> > > -#include <linux/string.h>
+> > > -#include <linux/mm.h>
+> > > -#include <linux/slab.h>
+> > > -#include <linux/vmalloc.h>
+> > >  #include <linux/delay.h>
+> > >  #include <linux/console.h>
+> > >   #include <linux/fb.h>
+> > > -#include <linux/init.h>
+> > >  #include <linux/pci.h>
+> > >  #include <linux/interrupt.h>
+> > > -#include <linux/spinlock.h>
+> > > -#include <linux/wait.h>
+> > >  #include <linux/backlight.h>
+> > >
+> > > -#include <asm/io.h>
+> > >  #include <asm/uaccess.h>
+> > >
+> > >  #include <video/mach64.h>
+> > > diff --git a/drivers/video/aty/radeon_base.c b/drivers/video/aty/radeon_base.c
+> > > index c5ecbb0..56445ea 100644
+> > > --- a/drivers/video/aty/radeon_base.c
+> > > +++ b/drivers/video/aty/radeon_base.c
+> > > @@ -52,25 +52,6 @@
+> > >
+> > >  #define RADEON_VERSION       "0.2.0"
+> > >
+> > > -#include <linux/config.h>
+> > > -#include <linux/module.h>
+> > > -#include <linux/moduleparam.h>
+> > > -#include <linux/kernel.h>
+> > > -#include <linux/errno.h>
+> > > -#include <linux/string.h>
+> > > -#include <linux/mm.h>
+> > > -#include <linux/tty.h>
+> > > -#include <linux/slab.h>
+> > > -#include <linux/delay.h>
+> > > -#include <linux/time.h>
+> > > -#include <linux/fb.h>
+> > > -#include <linux/ioport.h>
+> > > -#include <linux/init.h>
+> > > -#include <linux/pci.h>
+> > > -#include <linux/vmalloc.h>
+> > > -#include <linux/device.h>
+> > > -
+> > > -#include <asm/io.h>
+> > >  #include <asm/uaccess.h>
+> > >
+> > >   #ifdef CONFIG_PPC_OF
+> > > diff --git a/drivers/video/aty/radeon_i2c.c b/drivers/video/aty/radeon_i2c.c
+> > > index a9d0414..4855c0a 100644
+> > > --- a/drivers/video/aty/radeon_i2c.c
+> > > +++ b/drivers/video/aty/radeon_i2c.c
+> > > @@ -1,9 +1,3 @@
+> > > -#include <linux/config.h>
+> > > -#include <linux/module.h>
+> > > -#include <linux/kernel.h>
+> > > -#include <linux/sched.h>
+> > > -#include <linux/delay.h>
+> > > -#include <linux/pci.h>
+> > >   #include <linux/fb.h>
 
-I think that gives us a path that will allow us to convert the network stack
-one protocol family at a time instead of in one big lump.
-
-Stubbing off the sysfs and sysctl interfaces in the first round for the
-non-default namespaces as you have done should be good enough.
-
-The reason for the suggestion is that most of the work for the protocol
-stacks ipv4 ipv6 af_packet af_unix is largely noise, and simple
-replacement without real design work happening.  Mostly it is just
-tweaking the code to remove global variables, and doing a couple
-lookups.
-
-Eric
+---
+~Randy

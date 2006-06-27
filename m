@@ -1,101 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422734AbWF0XsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422733AbWF0Xw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422734AbWF0XsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 19:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWF0XsI
+	id S1422733AbWF0Xw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 19:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWF0Xw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 19:48:08 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:28855 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1422734AbWF0XsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 19:48:07 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Date: Wed, 28 Jun 2006 09:47:55 +1000
-User-Agent: KMail/1.9.1
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271935.13261.nigel@suspend2.net> <200606280019.32045.rjw@sisk.pl>
-In-Reply-To: <200606280019.32045.rjw@sisk.pl>
+	Tue, 27 Jun 2006 19:52:56 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:65023 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1422733AbWF0Xwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 19:52:55 -0400
+Message-ID: <44A1C4D4.3080805@bigpond.net.au>
+Date: Wed, 28 Jun 2006 09:52:52 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2107915.YBcqhnRpc7";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, Al Boldi <a1426z@gawab.com>,
+       Pavel Machek <pavel@ucw.cz>, Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Incorrect CPU process accounting using CONFIG_HZ=100
+References: <200606211716.01472.a1426z@gawab.com> <20060626160239.GA3257@elf.ucw.cz> <200606271532.33368.a1426z@gawab.com> <200606272302.16950.kernel@kolivas.org>
+In-Reply-To: <200606272302.16950.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606280947.58916.nigel@suspend2.net>
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 27 Jun 2006 23:52:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2107915.YBcqhnRpc7
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Con Kolivas wrote:
+> On Tuesday 27 June 2006 22:32, Al Boldi wrote:
+>> Pavel Machek wrote:
+>>> On Thu 2006-06-22 20:36:39, Al Boldi wrote:
+>>>> Jan Engelhardt wrote:
+>>>>>> Setting CONFIG_HZ=100 results in incorrect CPU process accounting.
+>>>>>>
+>>>>>> This can be seen running top d.1, that shows top, itself, consuming
+>>>>>> 0ms CPUtime.
+>>>>>>
+>>>>>> Will this bug have consequences for sched.c?
+>>>>> Works for me, somewhat.
+>>>>> TIME+ says 0:00.02 after 70 secs. (Ergo: top is not expensive on this
+>>>>> CPU.)
+>>>> That's what I thought for a long time.  But at closer inspection, top
+>>>> d.1 slows down other apps by about the same amount of time at 1000Hz
+>>>> and 100Hz, only at 1000Hz it is accounted for whereas at 100Hz it is
+>>>> not.
+>>> It is not a bug... it is design decision. If you eat "too little" cpu
+>>> time, you'll be accouted 0 msec. That's what happens at 100Hz...
+>> Bummer!
+>>
+>> Meanwhile, can't "too little" cpu time be made relative to CONFIG_HZ?
+> 
+> It is and that's what you're perceiving as the problem. We only charge tasks 
+> in ticks and it's the tick size they get charged with. So at 100HZ if a task 
+> is running when a tick fires it gets charged 1% cpu. If it runs for 100 ticks 
+> it gets charged with 100% cpu. At 1000HZ it gets charged .1% cpu per tick and 
+> so on. The actual problem is that tasks only get charged if they happen to be 
+> running at the precise moment the tick fires. Now you could increase the 
+> accuracy of this timekeeping but it is expensive and this is exactly the sort 
+> of thing that we're saving cpu resources on by running at 100HZ (one of 
+> many).
+> 
 
-Hi.
+It could be (partly) done fairly cheaply in nanoseconds if sched_clock() 
+was reliable enough (but comments on this mail list indicate that it 
+currently isn't) as it is already called in all the right places for 
+getting the total cpu time used (so just a subtraction, addition and 
+assignment).  The reason that I say partly is that splitting the time 
+into "system" and "user" would be a more complex problem.
 
-On Wednesday 28 June 2006 08:19, Rafael J. Wysocki wrote:
-> Hi,
->
-> On Tuesday 27 June 2006 11:35, Nigel Cunningham wrote:
-> > On Tuesday 27 June 2006 19:26, Rafael J. Wysocki wrote:
-> > > > > Now I haven't followed the suspend2 vs swsusp debate very closely,
-> > > > > but it seems to me that your biggest problem with getting this
-> > > > > merged is getting consensus on where exactly this is going. Nobody
-> > > > > wants two different suspend modules in the kernel. So there are t=
-wo
-> > > > > options - suspend2 is deemed the way to go, and it gets merged and
-> > > > > replaces swsusp. Or the other way around - people like swsusp mor=
-e,
-> > > > > and you are doomed to maintain suspend2 outside the tree.
-> > > >
-> > > > Generally, I agree, although my understanding of Rafael and Pavel's
-> > > > mindset is that swsusp is a dead dog and uswsusp is the way they wa=
-nt
-> > > > to see things go. swsusp is only staying for backwards compatabilit=
-y.
-> > > > If that's the case, perhaps we can just replace swsusp with Suspend2
-> > > > and let them have their existing interface for uswsusp. Still not
-> > > > ideal, I agree, but it would be progress.
-> > >
-> > > Well, ususpend needs some core functionality to be provided by the
-> > > kernel, like freezing/thawing processes (this is also used by the STR=
-),
-> > > snapshotting the system memory.  These should be shared with the
-> > > in-kernel suspend, be it swsusp or suspend2.
-> >
-> > If I modify suspend2 so that from now on it replaces swsusp, using
-> > noresume, resume=3D and echo disk > /sys/power/state in a way that's
-> > backward compatible with swsusp and doesn't interfere with uswsusp
-> > support, would you be happy? IIRC, Pavel has said in the past he wishes
-> > I'd just do that, but he's not you of course.
->
-> That depends on how it's done.  For sure, I wouldn't like it to be done in
-> the "everything at once" manner.
+Peter
+PS It's also called already at appropriate places for measuring total 
+sleep and total cpu delay time (i.e. time spent on a run queue waiting 
+to get on to a CPU).
+PPS The task time stamp is also already updated at all the appropriate 
+places for use in this mechanism.
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-I'm not sure I get what you're saying. Do you mean you'd prefer them to=20
-coexist for a time in mainline? If so, I'd point out that suspend2 uses=20
-different parameters at the moment precisely so they can coexist, so that=20
-wouldn't be any change.
-
-Regards,
-
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
-
---nextPart2107915.YBcqhnRpc7
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEocOuN0y+n1M3mo0RAipNAKDKBoMt/ja9DvbiNfY/PziNGpOokACgzisz
-qn9OSACV5Pl2V5kfUBTceiQ=
-=sMGs
------END PGP SIGNATURE-----
-
---nextPart2107915.YBcqhnRpc7--
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

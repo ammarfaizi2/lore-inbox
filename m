@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422738AbWF0Xy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422740AbWF0X5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422738AbWF0Xy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 19:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422740AbWF0Xy3
+	id S1422740AbWF0X5g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 19:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422742AbWF0X5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 19:54:29 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:29350 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422738AbWF0Xy2
+	Tue, 27 Jun 2006 19:57:36 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:131 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1422740AbWF0X5f
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 19:54:28 -0400
-Subject: Re: [RFC][PATCH 3/3] Process events biarch bug: New process events
-	connector value
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Michael Kerrisk <michael.kerrisk@gmx.net>
-In-Reply-To: <1151444382.21787.1858.camel@stark>
-References: <20060627112644.804066367@localhost.localdomain>
-	 <1151408975.21787.1815.camel@stark> <1151435679.1412.16.camel@linuxchandra>
-	 <1151444382.21787.1858.camel@stark>
-Content-Type: text/plain
-Organization: IBM
-Date: Tue, 27 Jun 2006 16:54:25 -0700
-Message-Id: <1151452465.1412.35.camel@linuxchandra>
+	Tue, 27 Jun 2006 19:57:35 -0400
+Date: Tue, 27 Jun 2006 16:57:24 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Thomas Voegtle <tv@lio96.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16.22
+Message-ID: <20060627235724.GK11588@sequoia.sous-sol.org>
+References: <20060622201757.GZ22737@sequoia.sous-sol.org> <Pine.LNX.4.63.0606251347100.31427@er-systems.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0606251347100.31427@er-systems.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-27 at 14:39 -0700, Matt Helsley wrote:
-> On Tue, 2006-06-27 at 12:14 -0700, Chandra Seetharaman wrote:
-> > On Tue, 2006-06-27 at 04:49 -0700, Matt Helsley wrote:
-> > > "Deprecate" existing Process Events connector interface and add a new one
-> > > that works cleanly on biarch platforms.
-> > > 
-> > > Any expansion of the previous event structure would break userspace's ability
-> > > to workaround the biarch incompatibility problem. Hence this patch creates a
-> > > new interface and generates events (for both when necessary).
-> > 
-> > Is there a reason why the # of listeners part is removed (basically the
-> > LISTEN/IGNORE) ? and why as part of this patch ?
+* Thomas Voegtle (tv@lio96.de) wrote:
+> On Thu, 22 Jun 2006, Chris Wright wrote:
+> > We (the -stable team) are announcing the release of the 2.6.16.22 kernel.
+> > The diffstat and short summary of the fixes are below.
 > 
-> 	Michael Kerrisk had some objections to LISTEN/IGNORE and I've been
-> looking into making a connector function that would replace them. They
-> exist primarily to improve performance by avoiding the memory allocation
-> in cn_netlink_send() when there are no listeners.
+> Perhaps I missed the discussion about it, but why is this not piped 
+> through linux-kernel-announce?
 
-If it not related this bug, can you please separate them.
+I stopped making those announcements separately because the automated
+versions were working well.
 
-<snip>
--- 
+> It isn't on kernel.org as well so it is hard to track it.
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Yeah, that's true, the automated logic that tracks that and generates
+the messages doesn't fit well with multiple -stable versions.
 
-
+thanks,
+-chris

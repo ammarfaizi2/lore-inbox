@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030611AbWF0Cmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933329AbWF0Cms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030611AbWF0Cmv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 22:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030609AbWF0Cmu
+	id S933329AbWF0Cms (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 22:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933335AbWF0Cms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 22:42:50 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:16578 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S933331AbWF0Cmr (ORCPT
+	Mon, 26 Jun 2006 22:42:48 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:17858 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S933329AbWF0Cmr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 26 Jun 2006 22:42:47 -0400
-Date: Tue, 27 Jun 2006 11:30:48 +0900
 From: Horms <horms@verge.net.au>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       Neela.Kolli@engenio.com, linux-scsi@vger.kernel.org, mike.miller@hp.com,
-       "Zou, Nanhai" <nanhai.zou@intel.com>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [RFC] [PATCH 2/2] kdump: cciss driver initialization?issue fix
-Message-ID: <20060627023048.GJ2956@verge.net.au>
-References: <m1veqqxyrb.fsf@ebiederm.dsl.xmission.com> <20060626090915.CA8333402A@koto.vergenet.net> <20060626134536.GB8985@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060626134536.GB8985@in.ibm.com>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.11+cvs20060403
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Andrew Morton <akpm@osdl.org>, Neela.Kolli@engenio.com,
+       linux-scsi@vger.kernel.org, mike.miller@hp.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, Vivek Goyal <vgoyal@in.ibm.com>
+Subject: Re: [RFC] [PATCH 2/2] kdump: cciss driver initialization?issue fix
+In-Reply-To: <m11wtcvw5k.fsf@ebiederm.dsl.xmission.com>
+X-Newsgroups: gmane.comp.boot-loaders.fastboot.general,gmane.linux.scsi,gmane.linux.kernel
+User-Agent: tin/1.8.2-20060425 ("Shillay") (UNIX) (Linux/2.6.16-2-686 (i686))
+Message-Id: <20060627024245.9B2E634053@koto.vergenet.net>
+Date: Tue, 27 Jun 2006 11:42:45 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 09:45:36AM -0400, Vivek Goyal wrote:
-> On Mon, Jun 26, 2006 at 06:09:15PM +0900, Horms wrote:
-> > In article <m1veqqxyrb.fsf@ebiederm.dsl.xmission.com> you wrote:
-> > > 
-> > > Not all pci busses support it but there is a standard pci bus reset bit
-> > > in pci bridges.
-> > > 
-> > > I don't know if it would help but it might make sense to have a config
-> > > option that can be used to mark drivers that are known to have problems,
-> > > in these scenarios.
-> > > 
-> > > CONFIG_BRITTLE_INIT perhaps?
-> > > 
-> > > It would at least make it easier for people to see which drivers
-> > > they don't want to use, and give people some incentive to fix things.
-> > 
-> > I believe that MPT Fusion could go on that list.
-> > 
-> > http://permalink.gmane.org/gmane.linux.ports.ia64/14451
-> > 
-> >
+In article <m11wtcvw5k.fsf@ebiederm.dsl.xmission.com> you wrote:
+> Vivek Goyal <vgoyal@in.ibm.com> writes:
 > 
-> Above link does not give details of exact MPT fusion initialization 
-> problems faced on IA64. I faced MPT fusion initialization issues on
-> i386/x86_64 and posted a fix.
+>> On Mon, Jun 26, 2006 at 07:41:00AM +0530, Maneesh Soni wrote:
+>>
+>> Maneesh, Keeping this code under a config option becomes a problem when we
+>> will have a relocatable kernel. At some point of time we got to have
+>> relocatable kernel so that people don't have to build two kernels. In fact
+>> this is becoming a pain area for distros. That's the reason I thought
+>> of making it a command line parameter.
 > 
-> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=9bf0a28c9a24e2cee5deecf89d118254374c75ba
+> Ok. Even if we do this with a command line, we need to have a clean concept.
+> If the concept is ignore devices with a brittle init routine that is compre=
+> hensible
+> and potentially useful for other reasons than crash dumps.
 > 
-> You might want to download and check.
+> If the concept is crashdump it is a poorly defined concept and all of Andre=
+> ws
+> objections apply.
+> 
+>> I remember few months back, Eric had mentioned that he has got patches for
+>> relocatable kernel ready for review for i386 and x86_64. Eric, do you have
+>> any plans to post the patches for review?
+> 
+> I have some code that I keep intending to get to.  It has probably bit
+> rotted since I wrote it, but it shouldn't be too bad to clean up.
+> Unfortunately the whole crashdump thing is fairly low on my priority
+> list.
 
-Thanks, I wasn't aware of that. I'll see if that helps on ia64.
+Hi Eric,
+
+If you have some code to relocate the i386 and x86_64 kernels then I for
+one would really like a chance to look over it.
 
 -- 
 Horms                                           

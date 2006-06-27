@@ -1,94 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbWF0QMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161151AbWF0QM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161146AbWF0QMR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 12:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161143AbWF0QMQ
+	id S1161151AbWF0QM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 12:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161150AbWF0QM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 12:12:16 -0400
-Received: from ns1.suse.de ([195.135.220.2]:5330 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161142AbWF0QMN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 12:12:13 -0400
-Date: Tue, 27 Jun 2006 09:08:54 -0700
-From: Greg KH <gregkh@suse.de>
-To: Josh Boyer <jwboyer@gmail.com>
-Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pciehp borkage.
-Message-ID: <20060627160854.GA10332@suse.de>
-References: <20060627033749.GB26575@redhat.com> <20060627042750.GA1768@suse.de> <625fc13d0606270519wc506fsa7b1c7e55044ec78@mail.gmail.com>
+	Tue, 27 Jun 2006 12:12:59 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:45510 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1161143AbWF0QM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 12:12:58 -0400
+Subject: Re: Areca driver recap + status
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: erich <erich@areca.com.tw>
+Cc: Andrew Morton <akpm@osdl.org>, "\"Robert Mueller\"" <robm@fastmail.fm>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       dax@gurulabs.com, brong@fastmail.fm, hch@infradead.org,
+       rdunlap@xenotime.net
+In-Reply-To: <003701c699ce$c126b550$b100a8c0@erich2003>
+References: <09be01c695b3$2ed8c2c0$c100a8c0@robm>
+	 <20060621222826.ff080422.akpm@osdl.org>
+	 <1151333338.2673.4.camel@mulgrave.il.steeleye.com>
+	 <003701c699ce$c126b550$b100a8c0@erich2003>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 11:12:39 -0500
+Message-Id: <1151424759.3340.39.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <625fc13d0606270519wc506fsa7b1c7e55044ec78@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 07:19:37AM -0500, Josh Boyer wrote:
-> On 6/26/06, Greg KH <gregkh@suse.de> wrote:
-> >On Mon, Jun 26, 2006 at 11:37:49PM -0400, Dave Jones wrote:
-> >> My head hurts..
-> >>
-> >> drivers/pci/pcie/Kconfig ..
-> >>
-> >> config HOTPLUG_PCI_PCIE
-> >>     tristate "PCI Express Hotplug driver"
-> >>     depends on HOTPLUG_PCI && PCIEPORTBUS && (BROKEN || ACPI)
-> >>
-> >>
-> >>
-> >> but drivers/pci/hotplug/Makefile has..
-> >>
-> >> pciehp-objs     :=  pciehp_core.o   \
-> >>                 pciehp_ctrl.o   \
-> >>                 pciehp_pci.o    \
-> >>                 pciehp_hpc.o
-> >>
-> >> So it gets built regardless of the option, which leaves ppc (among 
-> >others)
-> >> totally busted..
-> >
-> >Yes, this driver does have issues on ppc, see the archives for Anton
-> >trying to fix it up to get it to build.  But as ppc currently doesn't
-> >_have_ pci express hotplug hardware it really doesn't matter much :)
-> >
-> >> In file included from include/acpi/platform/acenv.h:140,
-> >>                  from include/acpi/acpi.h:54,
-> >>                  from drivers/pci/hotplug/pciehp_hpc.c:41:
-> >> include/acpi/platform/aclinux.h:59:22: error: asm/acpi.h: No such file 
-> >or directory
-> >> In file included from include/acpi/acpi.h:55,
-> >>                  from drivers/pci/hotplug/pciehp_hpc.c:41:
-> >> include/acpi/actypes.h:129: error: expected '=', ',', ';', 'asm' or 
-> >'__attribute__' before 'UINT64'
-> >> include/acpi/actypes.h:130: error: expected '=', ',', ';', 'asm' or 
-> >'__attribute__' before 'INT64'
-> >> make[3]: *** [drivers/pci/hotplug/pciehp_hpc.o] Error 1
-> >> make[2]: *** [drivers/pci/hotplug] Error 2
-> >> make[1]: *** [drivers/pci] Error 2
-> >>
-> >>
-> >> Should that Makefile be more along the lines of..
-> >>
-> >> pciehp-$(CONFIG_PCI_PCIE)     :=  pciehp_core.o   \
-> >>                 pciehp_ctrl.o   \
-> >>                 pciehp_pci.o    \
-> >>                 pciehp_hpc.o
-> >>
-> >> perhaps ?
-> >
-> >No, look up a bit higher:
-> >        obj-$(CONFIG_HOTPLUG_PCI_PCIE)          += pciehp.o
-> >
-> >which will build pciehp or not.  Just don't enable the option for now
-> >on ppc please.  Until people sanitize the ACPI headers for non-acpi
-> >arches (which is currently underway...)
-> 
-> Would it be sane to make the Kconfig refuse to enable the option for
-> archs that this is known to be broken on?
+On Tue, 2006-06-27 at 17:47 +0800, erich wrote:
+> Does arcmsr still has more than one value per file issue on it?
+> Maybe I am miss-understand the means of one value per file.
 
-Sure, no objection from me there.
+The idea is that sysfs files are named according to their contents, so
+you should be able to cat the file to get the value.  The issue, which
+is very simple to resolve with your driver, is that all the current
+values are preceded by strings, so they have to be parsed to get the
+value instead of just being directly read (I think this is a residue of
+the fact that it's a straight conversion of a single proc file).
 
-thanks,
+James
 
-greg k-h
+

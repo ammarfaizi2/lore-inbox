@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWF0A5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWF0BAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964804AbWF0A5G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 20:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWF0A5G
+	id S1030270AbWF0BAW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 21:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWF0BAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 20:57:06 -0400
-Received: from mail.gmx.net ([213.165.64.21]:59858 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964811AbWF0A5E (ORCPT
+	Mon, 26 Jun 2006 21:00:21 -0400
+Received: from ns.suse.de ([195.135.220.2]:59839 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030270AbWF0BAS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 20:57:04 -0400
-X-Authenticated: #5039886
-Date: Tue, 27 Jun 2006 02:57:18 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386: Fix softirq accounting with 4K stacks
-Message-ID: <20060627005718.GA7127@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200606261856_MC3-1-C384-91D6@compuserve.com>
+	Mon, 26 Jun 2006 21:00:18 -0400
+From: Neil Brown <neilb@suse.de>
+To: Andre Tomt <andre@tomt.net>
+Date: Tue, 27 Jun 2006 11:00:05 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200606261856_MC3-1-C384-91D6@compuserve.com>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17568.33557.175846.567743@cse.unsw.edu.au>
+Cc: Ronald Lembcke <es186@fen-net.de>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: Bug in 2.6.17 / mdadm 2.5.1
+In-Reply-To: message from Andre Tomt on Monday June 26
+References: <20060624104745.GA6352@defiant.crash>
+	<20060625135926.GA6253@defiant.crash>
+	<17567.13099.133933.397389@cse.unsw.edu.au>
+	<44A050A0.7010400@tomt.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.06.26 18:54:00 -0400, Chuck Ebbert wrote:
-> In-Reply-To: <20060625184244.GA11921@atjola.homenet>
+On Monday June 26, andre@tomt.net wrote:
+> Neil Brown wrote:
+> <snip>
+> > Alternately you can apply the following patch to the kernel and
+> > version-1 superblocks should work better.
 > 
-> On Sun, 25 Jun 2006 20:42:44 +0200, Bjorn Steinbrink wrote:
-> 
-> > Btw, which path do apic irqs go? I stumbled across the nmi stuff, but
-> > didn't see anything special for the apic irqs.
-> 
-> arch/i386/kernel/entry.S has the macro BUILD_INTERRUPT(name, nr).
-> 
-> The code that uses this macro is in arch/i386/mach-*/entry_arch.h.
-> 
-> The macro prepends "smp_" to the name passed to the macro and the
-> generated asm code calls that function after saving registers, etc.
-> 
-> arch/i386/kernel/apic.c::apic_intr_init() calls set_intr_gate() to
-> point some of the interrupt gates at the correct functions.
+> -stable material?
 
-Thanks, my view on the code was too cscope-centric and the grep runs
-searched for the full function name.
-That finally explains why calling update_process_times() in
-smp_local_timer_interrupt() makes a difference on UP.
+Maybe.  I'm not sure it exactly qualifies, but I might try sending it
+to them and see what they think.
 
-Björn
+NeilBrown

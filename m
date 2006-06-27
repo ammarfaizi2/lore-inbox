@@ -1,73 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030649AbWF0FFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030653AbWF0FFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030649AbWF0FFv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 01:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030685AbWF0Ejh
+	id S1030653AbWF0FFw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 01:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030668AbWF0EjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:39:37 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:26587 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030684AbWF0Ejf
+	Tue, 27 Jun 2006 00:39:25 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:21979 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030649AbWF0EjE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:39:35 -0400
+	Tue, 27 Jun 2006 00:39:04 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 03/13] [Suspend2] Get and put skbs.
-Date: Tue, 27 Jun 2006 14:39:34 +1000
+Subject: [Suspend2][ 05/10] [Suspend2] Highmem copyback routine.
+Date: Tue, 27 Jun 2006 14:39:03 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043932.14630.93435.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627043923.14630.565.stgit@nigel.suspend2.net>
-References: <20060627043923.14630.565.stgit@nigel.suspend2.net>
+Message-Id: <20060627043902.14546.87518.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
+References: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get and put skbs used to communicate with userspace helpers.
+A routine to restore highmem pages which were atomically copied. We use
+data allocated prior to the atomic restore of lowmem, so also have to do
+this before other processes are allowed to run.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/netlink.c |   31 +++++++++++++++++++++++++++++++
- 1 files changed, 31 insertions(+), 0 deletions(-)
+ kernel/power/atomic_copy.c |   32 ++++++++++++++++++++++++++++++++
+ 1 files changed, 32 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/netlink.c b/kernel/power/netlink.c
-index d169096..82a9f6d 100644
---- a/kernel/power/netlink.c
-+++ b/kernel/power/netlink.c
-@@ -34,3 +34,34 @@ static void suspend_fill_skb_pool(struct
- 	}
+diff --git a/kernel/power/atomic_copy.c b/kernel/power/atomic_copy.c
+index 556e481..e565bf3 100644
+--- a/kernel/power/atomic_copy.c
++++ b/kernel/power/atomic_copy.c
+@@ -136,6 +136,38 @@ static unsigned long __suspend_get_next_
  }
  
-+/* 
-+ * Try to allocate a single skb. If we can't get one, try to use one from
-+ * our pool.
+ /*
++ * copyback_high: Restore highmem pages.
++ *
++ * Iterate through the source and destination bitmaps, restoring
++ * highmem pages that were atomically copied.
 + */
-+static struct sk_buff *suspend_get_skb(struct user_helper_data *uhd)
++void copyback_high(void)
 +{
-+	struct sk_buff *skb =
-+		alloc_skb(NLMSG_SPACE(uhd->skb_size), GFP_ATOMIC);
++	unsigned long *origpage;
++	unsigned long *copypage;
 +
-+	if (skb)
-+		return skb;
++	origoffset = __suspend_get_next_bit_on(origmap, &o_zone_num, -1);
++	copyoffset = __suspend_get_next_bit_on(copymap, &c_zone_num, -1);
 +
-+	skb = uhd->emerg_skbs;
-+	if (skb) {
-+		uhd->pool_level--;
-+		uhd->emerg_skbs = skb->next;
-+		skb->next = NULL;
++	while (o_zone_num < num_zones) {
++		if (zone_nosave[o_zone_num].is_highmem) {
++			origpage = (unsigned long *) kmap_atomic(pfn_to_page(origoffset), KM_USER1);
++			copypage = (unsigned long *) __va(copyoffset << PAGE_SHIFT);
++
++			memcpy(origpage, copypage, PAGE_SIZE);
++
++			kunmap_atomic(origpage, KM_USER1);
++		}
++		
++		origoffset = __suspend_get_next_bit_on(origmap, &o_zone_num, origoffset);
++		copyoffset = __suspend_get_next_bit_on(copymap, &c_zone_num, copyoffset);
 +	}
-+
-+	return skb;
 +}
++#else
++void copyback_high(void) { }
++#endif
 +
-+static void put_skb(struct user_helper_data *uhd, struct sk_buff *skb)
-+{
-+	if (uhd->pool_level < uhd->pool_limit) {
-+		skb->next = uhd->emerg_skbs;
-+		uhd->emerg_skbs = skb;
-+	} else
-+		kfree_skb(skb);
-+}
-+
++/*
+  * prepare_suspend2_pbe_list
+  *
+  * Prepare pageset2 pages for doing the atomic copy. If necessary,
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

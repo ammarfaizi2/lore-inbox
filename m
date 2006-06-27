@@ -1,43 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWF0SJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWF0SKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932513AbWF0SJM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 14:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWF0SJL
+	id S932510AbWF0SKN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 14:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWF0SKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 14:09:11 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:4653 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932519AbWF0SJK convert rfc822-to-8bit
+	Tue, 27 Jun 2006 14:10:13 -0400
+Received: from cobalt.cs.wisc.edu ([128.105.121.30]:5571 "EHLO
+	cobalt.cs.wisc.edu") by vger.kernel.org with ESMTP id S932510AbWF0SKL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 14:09:10 -0400
-Date: Tue, 27 Jun 2006 20:10:45 +0200
-From: Jens Axboe <axboe@suse.de>
+	Tue, 27 Jun 2006 14:10:11 -0400
+Date: Tue, 27 Jun 2006 13:10:10 -0500
+From: Erik Paulson <epaulson@cs.wisc.edu>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.17-git broke suspend!
-Message-ID: <20060627181045.GA32115@suse.de>
+Subject: file changes without updating mtime
+Message-ID: <20060627181010.GE25040@cobalt.cs.wisc.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The git tree from yesterday and as of right now doesn't suspend on my
-laptop. It does it's regular thing, then hits:
+Hello -
 
-[...]
-Stopping tasks:
-===========================================================================================|
-eth1: Going into suspend...
-Class driver suspend failed for cpu0
-Could not power down device `×1x: error -22
-Some devices failed to power down
+I'm seeing file content change without a change to the mtime for that
+file, and I'm trying to understand why. 
 
-Incidentally, /sys/devices/system/cpu/cpu0/ is also empty on this
-kernel. Some new magic option that needs to be enabled? Not suspending
-sucks, cpufreq not working sucks as well (I'm stuck on 800MHz).
+The filesystem is ext3, on a local IDE drive. It's a Centos 4.3 machine,
+with kernel version:  2.6.9-34.0.1.ELsmp
 
--- 
-Jens Axboe
+A shell script that in a loop prints the date, stats the file, and then runs 
+'md5sum' gave me this output:
+
+Fri Jun 23 04:03:24 CDT 2006
+  File: `/var/lib/rpm/__db.001'
+  Size: 16384           Blocks: 32         IO Block: 4096   regular file
+Device: 303h/771d       Inode: 6291609     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2006-06-23 04:00:24.669054993 -0500
+Modify: 2006-06-18 21:42:43.685708137 -0500
+Change: 2006-06-18 21:42:43.685708137 -0500
+37327d016d9741b0d74e4c9bd14d2956  /var/lib/rpm/__db.001
+
+
+Fri Jun 23 04:06:24 CDT 2006
+  File: `/var/lib/rpm/__db.001'
+  Size: 16384           Blocks: 32         IO Block: 4096   regular file
+Device: 303h/771d       Inode: 6291609     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2006-06-23 04:04:51.898420485 -0500
+Modify: 2006-06-18 21:42:43.685708137 -0500
+Change: 2006-06-18 21:42:43.685708137 -0500
+b2b25d452c94bb376f172e1789e8ab6e  /var/lib/rpm/__db.001
+
+
+So something else read the file at 4:04:51, and apparently changed it. 
+
+I know that mtime can be reset, and that may very well be what's going on.
+If that's the case, is there any other way I can from the file metadata
+that it may have changed, short of reading it and checksumming? There are 
+other files that appear to be changing without updating their mtimes - a
+number of the kde screensavers, which I think might be the prelinker.
+
+My end goal is to be able to determine when a file has changed without 
+reading the contents, because I want to read the contents and compare them
+to a previous version. If the content I read is not the same as the content
+I read last time, I want to know if it's intentional or if there has been
+some file corruption. (I am not worried about malicious users changing files
+and hiding their tracks). The way I had hoped to go was to use the mtime
+and filesize, but that appears not to be enough.
+
+Thanks!
+
+-Erik
 

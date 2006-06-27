@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWF0Nkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWF0Nrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWF0Nkf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 09:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWF0Nkf
+	id S932278AbWF0Nrx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 09:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWF0Nrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 09:40:35 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:29313 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932262AbWF0Nke (ORCPT
+	Tue, 27 Jun 2006 09:47:53 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11236 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932278AbWF0Nrw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 09:40:34 -0400
-Message-ID: <44A1354F.6030903@garzik.org>
-Date: Tue, 27 Jun 2006 09:40:31 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 27 Jun 2006 09:47:52 -0400
+Date: Tue, 27 Jun 2006 15:45:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2][ 15/20] [Suspend2] Attempt to freeze processes.
+Message-ID: <20060627134514.GC3019@elf.ucw.cz>
+References: <20060626223446.4050.9897.stgit@nigel.suspend2.net> <20060626223537.4050.72340.stgit@nigel.suspend2.net>
 MIME-Version: 1.0
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: lib(p)ata SMART support?
-References: <200606271555.13330.arvidjaar@mail.ru>
-In-Reply-To: <200606271555.13330.arvidjaar@mail.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060626223537.4050.72340.stgit@nigel.suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Using legacy drivers I can use any SMART tools out there; HDD does support 
-> SMART. Running libata + pata_ali, smartctl claims device does not support 
-> SMART. This is sort of regression when switching from legacy drivers.
+Hi!
 
-If you are using smartmontools, you need to pass "-d ata" to the tools.
+> Call the freezer code to get processes frozen, and abort suspending if that
+> fails. May be called multiple times as we thaw kernel space (only) if we
+> need to free memory to meet constraints.
 
-	Jeff
+Current code seems to free memory without need to thaw/re-freeze
+kernel threads. Have you found bugs in that, or is this unneccessary?
+
+> +static int attempt_to_freeze(void)
+> +{
+> +	int result;
+> +	
+> +	/* Stop processes before checking again */
+> +	thaw_processes(FREEZER_ALL_THREADS);
+> +	suspend_prepare_status(CLEAR_BAR, "Freezing processes");
+> +	result = freeze_processes();
+> +
+> +	if (result) {
+> +		set_result_state(SUSPEND_ABORTED);
+> +		set_result_state(SUSPEND_FREEZING_FAILED);
+> +	} else
+> +		are_frozen = 1;
+> +
+> +	return result;
+> +}
+> +
 
 
-
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

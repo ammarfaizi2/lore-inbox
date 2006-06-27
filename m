@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933445AbWF0Ex4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030700AbWF0Eyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933445AbWF0Ex4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 00:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWF0Exa
+	id S1030700AbWF0Eyl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 00:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030698AbWF0EyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:53:30 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:42971 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933407AbWF0ElU
+	Tue, 27 Jun 2006 00:54:15 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:33755 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933404AbWF0EkV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:41:20 -0400
+	Tue, 27 Jun 2006 00:40:21 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 02/21] [Suspend2] Modify action state.
-Date: Tue, 27 Jun 2006 14:41:18 +1000
+Subject: [Suspend2][ 3/4] [Suspend2] Power down general routine.
+Date: Tue, 27 Jun 2006 14:40:20 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627044117.14883.49112.stgit@nigel.suspend2.net>
-In-Reply-To: <20060627044112.14883.55823.stgit@nigel.suspend2.net>
-References: <20060627044112.14883.55823.stgit@nigel.suspend2.net>
+Message-Id: <20060627044018.14736.91248.stgit@nigel.suspend2.net>
+In-Reply-To: <20060627044010.14736.18813.stgit@nigel.suspend2.net>
+References: <20060627044010.14736.18813.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Modify the suspend_action state in response to a userspace message. This
-variable is an unsigned long treated as bitflags tell us whether to reboot
-instead of powering down, pause between step, log everything and so on.
+Powerdown in whatever way the user specified - rebooting being the
+overriding option, entering an ACPI state the second choice, doing a simple
+power off the third and sitting around in cpu_relax the fallback.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/ui.c |   16 ++++++++++++++++
- 1 files changed, 16 insertions(+), 0 deletions(-)
+ kernel/power/power_off.c |   28 ++++++++++++++++++++++++++++
+ 1 files changed, 28 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/ui.c b/kernel/power/ui.c
-index 1ef8957..b952bf7 100644
---- a/kernel/power/ui.c
-+++ b/kernel/power/ui.c
-@@ -67,3 +67,19 @@ static int progress_granularity = 30;
+diff --git a/kernel/power/power_off.c b/kernel/power/power_off.c
+index 7f7c565..624ab7b 100644
+--- a/kernel/power/power_off.c
++++ b/kernel/power/power_off.c
+@@ -50,3 +50,31 @@ int try_pm_state_powerdown(void)
+ 	return 1;
+ }
  
- DECLARE_WAIT_QUEUE_HEAD(userui_wait_for_key);
- 
-+static void ui_nl_set_state(int n)
++/*
++ * suspend_power_down
++ * Functionality   : Powers down or reboots the computer once the image
++ *                   has been written to disk.
++ * Key Assumptions : Able to reboot/power down via code called or that
++ *                   the warning emitted if the calls fail will be visible
++ *                   to the user (ie printk resumes devices).
++ * Called From     : do_suspend2_suspend_2
++ */
++
++void suspend_power_down(void)
 +{
-+	/* Only let them change certain settings */
-+	static const int suspend_action_mask =
-+		(1 << SUSPEND_REBOOT) | (1 << SUSPEND_PAUSE) | (1 << SUSPEND_SLOW) |
-+		(1 << SUSPEND_LOGALL) | (1 << SUSPEND_SINGLESTEP) |
-+		(1 << SUSPEND_PAUSE_NEAR_PAGESET_END);
++	if (test_action_state(SUSPEND_REBOOT)) {
++		suspend_prepare_status(DONT_CLEAR_BAR, "Ready to reboot.");
++		kernel_restart(NULL);
++	}
 +
-+	suspend_action = (suspend_action & (~suspend_action_mask)) |
-+		(n & suspend_action_mask);
++	suspend_prepare_status(DONT_CLEAR_BAR, "Powering down.");
 +
-+	if (!test_action_state(SUSPEND_PAUSE) &&
-+			!test_action_state(SUSPEND_SINGLESTEP))
-+		wake_up_interruptible(&userui_wait_for_key);
++	if (pm_ops && pm_ops->enter && suspend_powerdown_method && try_pm_state_powerdown())
++		return;
++
++	kernel_power_off();
++	suspend_prepare_status(DONT_CLEAR_BAR, "Powerdown failed");
++	while (1)
++		cpu_relax();
 +}
 +
 

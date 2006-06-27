@@ -1,96 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161204AbWF0Quc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161206AbWF0QwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161204AbWF0Quc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 12:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161203AbWF0Qub
+	id S1161206AbWF0QwE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 12:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161200AbWF0QwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 12:50:31 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:35532 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1161200AbWF0Qu3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 12:50:29 -0400
-Message-ID: <44A161CC.4060002@zurich.ibm.com>
-Date: Tue, 27 Jun 2006 18:50:20 +0200
-From: dirk husemann <hud@zurich.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060607)
-MIME-Version: 1.0
-CC: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion
- in	-mm
-References: <200606270147.16501.ncunningham@linuxmail.org>	<20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au>
-In-Reply-To: <44A14D3D.8060003@wasp.net.au>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig0703A492495508AF57FD9B25"
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 27 Jun 2006 12:52:03 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:58860 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1161205AbWF0QwA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 12:52:00 -0400
+Date: Wed, 28 Jun 2006 01:13:58 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] srcu: RCU variant permitting read-side blocking
+Message-ID: <20060627211358.GA484@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig0703A492495508AF57FD9B25
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hello Paul,
 
-Brad Campbell wrote:
-> Pavel Machek wrote:
->>> Some of the advantages of suspend2 over swsusp and uswsusp are:
->>>
->>> - Speed (Asynchronous I/O and readahead for synchronous I/O)
->>
->> uswsusp should be able to match suspend2's speed. It can do async I/O,=
-
->> etc...
+"Paul E. McKenney" wrote:
 >
-> ARGH!
->
-> And the next version of windows will have all the wonderful features
-> that MacOSX has now so best not upgrade to Mac as you can just wait
-> for the next version of windows.
->
-> suspend2 has it *now*. It works, it's stable.
-exactly my sentiments!! IT JUST WORKS! NOW!
->
-> uswsusp is a great idea, really.. I love it.. but suspend2 is here, it
-> works, it's stable and it's now. Why continue to deprive the
-> mainstream of these features because "uswsusp should".. as yet it
-> doesn't..
-<soapbox>
-and i'm sick and tired of waiting for the pot of suspend gold at the end
-of the kernel rainbow that will eventually be available...could we
-include suspend2 now while the world waits with bated breath for uswsusp
-to emerge?
-</soapbox>
+> +void init_srcu_struct(struct srcu_struct *sp)
+> +{
+> +	int cpu;
+> +
+> +	sp->completed = 0;
+> +	sp->per_cpu_ref = (struct srcu_struct_array *)
+> +			  kmalloc(NR_CPUS * sizeof(*sp->per_cpu_ref),
+> +				  GFP_KERNEL);
+> +	for_each_cpu(cpu) {
+> +		sp->per_cpu_ref[cpu].c[0] = 0;
+> +		sp->per_cpu_ref[cpu].c[1] = 0;
+> +	}
+
+Isn't it simpler to just do:
+
+	sp->per_cpu_ref = kzmalloc(NR_CPUS * sizeof(*sp->per_cpu_ref),
+				GFP_KERNEL);
+
+and drop 'for_each_cpu(cpu)' initialization ?
+
+> +int srcu_read_lock(struct srcu_struct *sp)
+> +{
+> +	int idx;
+> +
+> +	preempt_disable();
+> +	idx = sp->completed & 0x1;
+> +	barrier();
+> +	sp->per_cpu_ref[smp_processor_id()].c[idx]++;
+> +	preempt_enable();
+> +	return idx;
+> +}
+
+Could you explain this 'barrier()' ?
+
+> +void synchronize_srcu(struct srcu_struct *sp)
+> +{
+> +	int cpu;
+> +	int idx;
+> +	int sum;
+> +
+> +	might_sleep();
+> +
+> +	mutex_lock(&sp->mutex);
+> +
+> +	smp_mb();  /* Prevent operations from leaking in. */
+
+Why smp_wmb() is not enough? We are doing synchronize_sched() below
+before reading ->per_cpu_ref, and ->completed is protected by ->mutex.
+
+> +	idx = sp->completed & 0x1;
+> +	sp->completed++;
+
+But srcu_read_lock()'s path and rcu_dereference() doesn't have rmb(),
+and the reader can block, so I can't understand how this all works.
+
+Suppose ->completed == 0,
+
+	WRITER:						READER:
+
+	old = global_ptr;
+	rcu_assign_pointer(global_ptr, new);
+
+	synchronize_srcu:
+
+		locks mutex, does mb,
+		->completed++;
+		
+							srcu_read_lock();
+								// reads ->completed == 1
+								// does .c[1]++
+							ptr = rcu_dereference(global_ptr)
+								// reads the *OLD* value,
+								// because we don't have rmb()
+
+							block_on_something();
 
 
---=20
-Dr Dirk Husemann, Pervasive Computing, IBM Research, Zurich Research Lab
-	hud@zurich.ibm.com --- http://www.zurich.ibm.com/~hud/
-       PGP key: http://www.zurich.ibm.com/~hud/contact/PGP
-  PGP Fingerprint: 983C 48E7 0A78 A313 401C  C4AD 3C0A 278E 6431 A149
-	     Email only authentic if signed with PGP key.
+		synchronize_sched();
+							// ... still blocked ...
 
-Appended to this email is an electronic signature attachment. You can
-ignore it if your email program does not know how to verify such a
-signature. If you'd like to learn more about this topic, www.gnupg.org
-is a good starting point.
+		checks sum_of(.c[0]) == 0, yes
+
+		synchronize_sched();
+							// ... still blocked ...
+
+	kfree(old);
+
+							// wake up
+							do_something(ptr);
 
 
+Also, I can't understand the purpose of 2-nd synchronize_sched() in
+synchronize_srcu().
 
---------------enig0703A492495508AF57FD9B25
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Please help!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Oleg.
 
-iD8DBQFEoWHPPAonjmQxoUkRAp8GAJ9qMJbGCmKwfFiNx4B9L691ojnTbgCgpc3y
-OncwhSnWI7WXOOBVgKu9iDA=
-=ReTo
------END PGP SIGNATURE-----
-
---------------enig0703A492495508AF57FD9B25--

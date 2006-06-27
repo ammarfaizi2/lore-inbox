@@ -1,60 +1,240 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWF0LnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWF0Lox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWF0LnD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 07:43:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWF0LnD
+	id S932248AbWF0Lox (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 07:44:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWF0Lox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 07:43:03 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:5854 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932243AbWF0LnB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 07:43:01 -0400
-Subject: Re: [PATCH] Remove extra local_bh_disable/enable from arch
-	do_softirq
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Paul Mackerras <paulus@samba.org>
-Cc: akpm@osdl.org, mingo@elte.hu, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <17566.32236.368906.227113@cargo.ozlabs.ibm.com>
-References: <17566.32236.368906.227113@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Tue, 27 Jun 2006 13:43:09 +0200
-Message-Id: <1151408589.5390.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 07:44:53 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:28199 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S932248AbWF0Lov (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 07:44:51 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Announce: kdb v4.4 is available for kernel 2.6.17
+Date: Tue, 27 Jun 2006 21:45:15 +1000
+Message-ID: <16552.1151408715@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-25 at 22:13 +1000, Paul Mackerras wrote:
-> At the moment, powerpc and s390 have their own versions of do_softirq
-> which include local_bh_disable() and __local_bh_enable() calls.  They
-> end up calling __do_softirq (in kernel/softirq.c) which also does
-> local_bh_disable/enable.
-> 
-> Apparently the two levels of disable/enable trigger a warning from
-> some validation code that Ingo is working on, and he would like to see
-> the outer level removed.  But to do that, we have to move the
-> account_system_vtime calls that are currently in the arch do_softirq()
-> implementations for powerpc and s390 into the generic __do_softirq()
-> (this is a no-op for other archs because account_system_vtime is
-> defined to be an empty inline function on all other archs).  This
-> patch does that.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Nod, Heiko stumbled over that one as well as he ported the lock
-validator patch. Moving the account_system_vtime call is the correct
-solution.
- 
--- 
-blue skies,
-  Martin.
+KDB (Linux Kernel Debugger) has been updated for kernel 2.6.17.
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+ftp://oss.sgi.com/projects/kdb/download/v4.4/
+ftp://ftp.ocs.com.au/pub/mirrors/oss.sgi.com/projects/kdb/download/v4.4/
 
-"Reality continues to ruin my life." - Calvin.
+Note:  Due to a spam attack, the kdb@oss.sgi.com mailing list is now
+subscriber only.  If you reply to this mail, you may wish to trim
+kdb@oss.sgi.com from the cc: list.
 
+Current versions are :-
+
+  kdb-v4.4-2.6.17-common-1.bz2
+  kdb-v4.4-2.6.17-i386-1.bz2
+  kdb-v4.4-2.6.17-x86_64-1.bz2
+  kdb-v4.4-2.6.17-ia64-1.bz2
+
+SGI is now supporting KDB for x86_64.  Thanks go to Jack Vogel for
+looking after the x86_64 patch in the past.
+
+Changelog extract since kdb-v4.4-2.6.16-common-1.
+
+2006-06-19 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-common-1.
+
+2006-05-31 Keith Owens  <kaos@sgi.com>
+
+	* Break spinlocks for keyboard entry.  Hopefully a temporary hack while
+	  I track down why keyboard entry to KDB is hanging.
+	* kdb v4.4-2.6.17-rc5-common-2.
+
+2006-05-25 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc5-common-1.
+
+2006-05-15 Keith Owens  <kaos@sgi.com>
+
+	* Refresh bfd related files from binutils 2.16.91.0.2.
+	* kdb v4.4-2.6.17-rc4-common-2.
+
+2006-05-12 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc4-common-1.
+
+2006-04-28 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc3-common-1.
+
+2006-04-22 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc2-common-1.
+
+2006-04-11 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc1-common-1.
+
+2006-04-05 Keith Owens  <kaos@sgi.com>
+
+	* More fixes for the timing race with KDB_ENTER_SLAVE.
+	* kdb v4.4-2.6.16-common-5.
+
+2006-03-30 Keith Owens  <kaos@sgi.com>
+
+	* Some code was testing KDB_IS_RUNNING() twice, which left it open to
+	  races.  Cache the result instead.
+	* kdb v4.4-2.6.16-common-4.
+
+2006-03-30 Keith Owens  <kaos@sgi.com>
+
+	* Change CONFIG_LKCD to CONFIG_LKCD_DUMP.
+	* kdb v4.4-2.6.16-common-3.
+
+2006-03-22 Keith Owens  <kaos@sgi.com>
+
+	* Add some more xpc flags.  Dean Nelson, SGI.
+	* Replace open coded counter references with atomic_read().
+	* Pass early_uart_console to early_uart_setup().  Francois
+	  Wellenreiter, Bull.
+	* Replace open code with for_each_online_cpu().
+	* If cpus do not come into kdb after a few seconds then let
+	  architectures send a more forceful interrupt.
+	* Close a timing race with KDB_ENTER_SLAVE.
+	* kdb v4.4-2.6.16-common-2.
+
+
+Changelog extract since kdb-v4.4-2.6.16-i386-1.
+
+2006-06-19 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-i386-1.
+
+2006-05-25 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc5-i386-1.
+
+2006-05-15 Keith Owens  <kaos@sgi.com>
+
+	* Refresh bfd related files from binutils 2.16.91.0.2.
+	* kdb v4.4-2.6.17-rc4-i386-2.
+
+2006-05-12 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc4-i386-1.
+
+2006-04-28 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc3-i386-1.
+
+2006-04-22 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc2-i386-1.
+
+2006-04-11 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc1-i386-1.
+
+2006-03-30 Keith Owens  <kaos@sgi.com>
+
+	* Change CONFIG_LKCD to CONFIG_LKCD_DUMP.
+	* kdb v4.4-2.6.16-i386-3.
+
+2006-03-24 Keith Owens  <kaos@sgi.com>
+
+	* Define a dummy kdba_wait_for_cpus().
+	* kdb v4.4-2.6.16-i386-2.
+
+2006-03-21 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.16-i386-1.
+
+
+Changelog extract since kdb-v4.4-2.6.16-x86_64-1.
+
+2006-06-19 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-x86_64-1.
+
+2006-05-31 Keith Owens  <kaos@sgi.com>
+
+	* Define arch/x86_64/kdb/kdb_cmds.
+	* kdb v4.4-2.6.17-rc5-x86_64-2.
+
+2006-05-25 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc5-x86_64-1.
+
+2006-05-15 Keith Owens  <kaos@sgi.com>
+
+	* Refresh bfd related files from binutils 2.16.91.0.2.
+	* kdb v4.4-2.6.17-rc4-x86_64-2.
+
+2006-05-12 Keith Owens <kaos@sgi.com>
+
+	* kdb v4.4-2.6-17-rc4-x86_64-1.
+
+2006-04-22 Keith Owens <kaos@sgi.com>
+
+	* kdb v4.4-2.6-17-rc2-x86_64-1.
+
+2006-04-13 Keith Owens <kaos@sgi.com>
+
+	* Remove trailing white space.
+	* kdb v4.4-2.6-17-rc1-x86_64-1.
+
+
+Changelog extract since kdb v4.4-2.6.16-ia64-1.
+
+2006-06-19 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-ia64-1.
+
+2006-05-25 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc5-ia64-1.
+
+2006-05-15 Keith Owens  <kaos@sgi.com>
+
+	* Refresh bfd related files from binutils 2.16.91.0.2.
+	* kdb v4.4-2.6.17-rc4-ia64-2.
+
+2006-05-12 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc4-ia64-1.
+
+2006-04-28 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc3-ia64-1.
+
+2006-04-22 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc2-ia64-1.
+
+2006-04-11 Keith Owens  <kaos@sgi.com>
+
+	* kdb v4.4-2.6.17-rc1-ia64-1.
+
+2006-03-30 Keith Owens  <kaos@sgi.com>
+
+	* Change CONFIG_LKCD to CONFIG_LKCD_DUMP.
+	* kdb v4.4-2.6.16-ia64-3.
+
+2006-03-24 Keith Owens  <kaos@sgi.com>
+
+	* Use INIT to interrupt cpus that do not respond to a normal kdb IPI.
+	* Remove KDBA_MCA_TRACE from arch/ia64/kernel/mca.c.
+	* kdb v4.4-2.6.16-ia64-2.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQFEoRpLi4UHNye0ZOoRAhG1AJ0XUg1rd8KAStkeCUOoHV+ycUM2MACgjwiu
+imsfNOlUoNZDgqwhsrzBjDA=
+=KMkV
+-----END PGP SIGNATURE-----
 

@@ -1,80 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbWF0UVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030345AbWF0UVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030343AbWF0UVq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 16:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWF0UVo
+	id S1030345AbWF0UVI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 16:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWF0UVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 16:21:44 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45697 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1030343AbWF0UVd
+	Tue, 27 Jun 2006 16:21:07 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:27777 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1030331AbWF0UVB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 16:21:33 -0400
-Message-Id: <20060627201606.534265000@sous-sol.org>
+	Tue, 27 Jun 2006 16:21:01 -0400
+Message-Id: <20060627201837.477852000@sous-sol.org>
 References: <20060627200745.771284000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 27 Jun 2006 00:00:19 -0700
+Date: Tue, 27 Jun 2006 00:00:25 -0700
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Albert Lee <albertcc@tw.ibm.com>, Tejun Heo <htejun@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH 19/25] libata: minor patch for ATA_DFLAG_PIO
-Content-Disposition: inline; filename=libata-minor-patch-for-ata_dflag_pio.patch
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, neilb@suse.de, schwidefsky@de.ibm.com,
+       vs@namesys.com
+Subject: [PATCH 25/25] generic_file_buffered_write(): deadlock on vectored write
+Content-Disposition: inline; filename=generic_file_buffered_write-deadlock-on-vectored-write.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Tejun Heo <htejun@gmail.com>
+From: Vladimir V. Saveliev <vs@namesys.com>
 
- - With 2.6.17 libata, some PIO-only devices are given DMA commands.
+generic_file_buffered_write() prefaults in user pages in order to avoid
+deadlock on copying from the same page as write goes to.
 
-Changes:
- - Do not clear the ATA_DFLAG_PIO flag in ata_dev_configure().
+However, it looks like there is a problem when write is vectored:
+fault_in_pages_readable brings in current segment or its part (maxlen). 
+OTOH, filemap_copy_from_user_iovec is called to copy number of bytes
+(bytes) which may exceed current segment, so filemap_copy_from_user_iovec
+switches to the next segment which is not brought in yet.  Pagefault is
+generated.  That causes the deadlock if pagefault is for the same page
+write goes to: page being written is locked and not uptodate, pagefault
+will deadlock trying to lock locked page.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
-Signed-off-by: Albert Lee <albertcc@tw.ibm.com>
+[akpm@osdl.org: somewhat rewritten]
+Cc: Neil Brown <neilb@suse.de>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: <stable@kernel.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- drivers/scsi/libata-core.c |    2 +-
- include/linux/libata.h     |    9 ++++++---
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ mm/filemap.c |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- linux-2.6.17.1.orig/drivers/scsi/libata-core.c
-+++ linux-2.6.17.1/drivers/scsi/libata-core.c
-@@ -1229,7 +1229,7 @@ static int ata_dev_configure(struct ata_
- 		       id[84], id[85], id[86], id[87], id[88]);
+--- linux-2.6.17.1.orig/mm/filemap.c
++++ linux-2.6.17.1/mm/filemap.c
+@@ -2004,14 +2004,21 @@ generic_file_buffered_write(struct kiocb
+ 	do {
+ 		unsigned long index;
+ 		unsigned long offset;
+-		unsigned long maxlen;
+ 		size_t copied;
  
- 	/* initialize to-be-configured parameters */
--	dev->flags = 0;
-+	dev->flags &= ~ATA_DFLAG_CFG_MASK;
- 	dev->max_sectors = 0;
- 	dev->cdb_len = 0;
- 	dev->n_sectors = 0;
---- linux-2.6.17.1.orig/include/linux/libata.h
-+++ linux-2.6.17.1/include/linux/libata.h
-@@ -120,9 +120,12 @@ enum {
- 	ATA_SHT_USE_CLUSTERING	= 1,
- 
- 	/* struct ata_device stuff */
--	ATA_DFLAG_LBA48		= (1 << 0), /* device supports LBA48 */
--	ATA_DFLAG_PIO		= (1 << 1), /* device currently in PIO mode */
--	ATA_DFLAG_LBA		= (1 << 2), /* device supports LBA */
-+	ATA_DFLAG_LBA		= (1 << 0), /* device supports LBA */
-+	ATA_DFLAG_LBA48		= (1 << 1), /* device supports LBA48 */
+ 		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
+ 		index = pos >> PAGE_CACHE_SHIFT;
+ 		bytes = PAGE_CACHE_SIZE - offset;
+-		if (bytes > count)
+-			bytes = count;
 +
-+	ATA_DFLAG_CFG_MASK	= (1 << 8) - 1,
++		/* Limit the size of the copy to the caller's write size */
++		bytes = min(bytes, count);
 +
-+	ATA_DFLAG_PIO		= (1 << 8), /* device currently in PIO mode */
++		/*
++		 * Limit the size of the copy to that of the current segment,
++		 * because fault_in_pages_readable() doesn't know how to walk
++		 * segments.
++		 */
++		bytes = min(bytes, cur_iov->iov_len - iov_base);
  
- 	ATA_DEV_UNKNOWN		= 0,	/* unknown device */
- 	ATA_DEV_ATA		= 1,	/* ATA device */
+ 		/*
+ 		 * Bring in the user page that we will copy from _first_.
+@@ -2019,10 +2026,7 @@ generic_file_buffered_write(struct kiocb
+ 		 * same page as we're writing to, without it being marked
+ 		 * up-to-date.
+ 		 */
+-		maxlen = cur_iov->iov_len - iov_base;
+-		if (maxlen > bytes)
+-			maxlen = bytes;
+-		fault_in_pages_readable(buf, maxlen);
++		fault_in_pages_readable(buf, bytes);
+ 
+ 		page = __grab_cache_page(mapping,index,&cached_page,&lru_pvec);
+ 		if (!page) {
 
 --

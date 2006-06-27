@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030637AbWF0EiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030625AbWF0Ehx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030637AbWF0EiM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 00:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030632AbWF0Eh5
+	id S1030625AbWF0Ehx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 00:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030624AbWF0Ehq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:37:57 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:24278 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030619AbWF0Ehp
+	Tue, 27 Jun 2006 00:37:46 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:21206 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933312AbWF0EhZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:37:45 -0400
+	Tue, 27 Jun 2006 00:37:25 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 08/13] [Suspend2] Compression memory and storage usage routines.
-Date: Tue, 27 Jun 2006 14:37:44 +1000
+Subject: [Suspend2][ 02/13] [Suspend2] Allocate compression buffers.
+Date: Tue, 27 Jun 2006 14:37:24 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043743.14320.6281.stgit@nigel.suspend2.net>
+Message-Id: <20060627043722.14320.92176.stgit@nigel.suspend2.net>
 In-Reply-To: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
 References: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,40 +22,76 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Routines to tell the core how much memory and space in the image header is
-required for the compression support.
+The compression module uses a couple of local buffers to cache partially
+filled output pages, and to receive the cryptoapi output. These routines
+are responsible for allocating and freeing those buffers.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/compression.c |   17 +++++++++++++++++
- 1 files changed, 17 insertions(+), 0 deletions(-)
+ kernel/power/compression.c |   53 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 53 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/compression.c b/kernel/power/compression.c
-index 6578e8c..b8005c7 100644
+index 72075d7..3d222b3 100644
 --- a/kernel/power/compression.c
 +++ b/kernel/power/compression.c
-@@ -399,4 +399,21 @@ static int suspend_compress_print_debug_
- 	return len;
- }
+@@ -39,3 +39,56 @@ static unsigned int bufofs;
  
+ static int position = 0;
+        
++/* ---- Local buffer management ---- */
++
 +/* 
-+ * suspend_compress_compression_memory_needed
++ * suspend_compress_allocate_local_buffer
 + *
-+ * Tell the caller how much memory we need to operate during suspend/resume.
-+ * Returns: Unsigned long. Maximum number of bytes of memory required for
-+ * operation.
++ * Allocates a page of memory for buffering output.
++ * Int: Zero if successful, -ENONEM otherwise.
 + */
-+static unsigned long suspend_compress_memory_needed(void)
++static int suspend_compress_allocate_local_buffer(void)
 +{
-+	return 2 * PAGE_SIZE;
++	if (!local_buffer) {
++		local_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
++	
++		if (!local_buffer) {
++			printk(KERN_ERR
++				"Failed to allocate the local buffer for "
++				"suspend2 compression driver.\n");
++			return -ENOMEM;
++		}
++	}
++
++	if (!page_buffer) {
++		page_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
++	
++		if (!page_buffer) {
++			printk(KERN_ERR
++				"Failed to allocate the page buffer for "
++				"suspend2 compression driver.\n");
++			return -ENOMEM;
++		}
++	}
++
++	return 0;
 +}
 +
-+static unsigned long suspend_compress_storage_needed(void)
++/* 
++ * suspend_compress_free_local_buffer
++ *
++ * Frees memory allocated for buffering output.
++ */
++static inline void suspend_compress_free_local_buffer(void)
 +{
-+	return 4 * sizeof(unsigned long) + strlen(suspend_compressor_name) + 1;
++	if (local_buffer)
++		free_page((unsigned long) local_buffer);
++
++	local_buffer = NULL;
++
++	if (page_buffer)
++		free_page((unsigned long) page_buffer);
++
++	page_buffer = NULL;
 +}
 +
- 
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

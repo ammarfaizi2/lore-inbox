@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbWF0TKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160996AbWF0TLg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030286AbWF0TKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWF0TKQ
+	id S1160996AbWF0TLg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWF0TLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:10:16 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:5806 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932254AbWF0TKO (ORCPT
+	Tue, 27 Jun 2006 15:11:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:49298 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932254AbWF0TLe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:10:14 -0400
-Date: Tue, 27 Jun 2006 21:09:19 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dave Jones <davej@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
-In-Reply-To: <1151421452.32186.19.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0606272104500.7853@yvahk01.tjqt.qr>
-References: <20060626151012.GR23314@stusta.de>  <20060626153834.GA18599@redhat.com>
-  <1151336815.3185.61.camel@laptopd505.fenrus.org>  <20060626155439.GB18599@redhat.com>
-  <Pine.LNX.4.61.0606271626470.10810@yvahk01.tjqt.qr>
- <1151421452.32186.19.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Jun 2006 15:11:34 -0400
+Date: Tue, 27 Jun 2006 15:11:25 -0400
+From: Dave Jones <davej@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-git broke suspend!
+Message-ID: <20060627191125.GH7914@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Jens Axboe <axboe@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <20060627181045.GA32115@suse.de> <20060627182014.GB7914@redhat.com> <20060627182646.GB32115@suse.de> <20060627183935.GC7914@redhat.com> <20060627185532.GD32115@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060627185532.GD32115@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > > cli/sti should just be removed, or at least have those drivers marked
->> > > BROKEN... nobody is apparently using them anyway...
->> >
->> >Just ISDN really.
->> >
->> And ISDN is widespread in Germany (besides 56k and DSL(PPPOE)).
->
->Then there should be lots of Germans eager to fix it when it gets dealt
->with.
->
+On Tue, Jun 27, 2006 at 08:55:33PM +0200, Jens Axboe wrote:
 
-/* Heh, heh */
+ > > I don't see any cpufreq stuff in your dmesg at all. 
+ > > Is it definitly on in the config ?
+ > 
+ > Strangely, now /sys/devices/system/cpu/cpu0 also seems to be empty on
+ > this kernel. Wonder what is going on here...
+ > 
+ > CONFIG_CPU_FREQ=y
+ > CONFIG_CPU_FREQ_TABLE=y
+ > # CONFIG_CPU_FREQ_DEBUG is not set
+ > CONFIG_CPU_FREQ_STAT=y
+ > # CONFIG_CPU_FREQ_STAT_DETAILS is not set
+ > CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+ > # CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE is not set
+ > CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+ > CONFIG_CPU_FREQ_GOV_POWERSAVE=m
+ > CONFIG_CPU_FREQ_GOV_USERSPACE=m
+ > CONFIG_CPU_FREQ_GOV_ONDEMAND=m
+ > CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
 
-So what do I need to replace cli/sti with?
+CONFIG_X86_SPEEDSTEP_CENTRINO too ?
 
-Oh btw:
-(linux-2.6.17)
-21:05 shanghai:../drivers/isdn > grep cli'()'  -lr .
-./hardware/avm/t1isa.c
-./hysdn/boardergo.c
-./hysdn/hysdn_proclog.c
-./hysdn/hysdn_sched.c
-./isdnloop/isdnloop.c
+booting with cpufreq.debug=7 should show _some_ info.
+Give that a shot
 
-There does not really seem to be a lot of places (yes, isdnloop is full of 
-it) to change. Especially HISAX has no cli/stis anymore as it seems, 
-which, among AVM stuff, is commonly in use. I am running this one:
-  00:0a.0 Network controller: Tiger Jet Network Inc. Tiger3XX Modem/ISDN 
-  interface (PCI, CONFIG_HISAX_NETJET)
-previously I had a Teledat 100 (ISA, CONFIG_HISAX_SEDLBAUER) but had to 
-replace that when I got a new motherboard with no ISA slots.
+		Dave
 
-
-Have a nice day,
-Jan Engelhardt
 -- 
+http://www.codemonkey.org.uk

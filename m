@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWF0OA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWF0OBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWF0OA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 10:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWF0OA3
+	id S932286AbWF0OBq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 10:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWF0OBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 10:00:29 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:17081 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932283AbWF0OA2 (ORCPT
+	Tue, 27 Jun 2006 10:01:46 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20355 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932286AbWF0OBp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 10:00:28 -0400
-Message-ID: <351416825.25858@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Tue, 27 Jun 2006 21:43:37 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm3: no help text for READAHEAD_ALLOW_OVERHEADS
-Message-ID: <20060627134337.GA6117@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20060627015211.ce480da6.akpm@osdl.org> <20060627091429.GK23314@stusta.de>
+	Tue, 27 Jun 2006 10:01:45 -0400
+Date: Tue, 27 Jun 2006 15:59:04 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2][ 00/13] Compression support.
+Message-ID: <20060627135904.GD3019@elf.ucw.cz>
+References: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060627091429.GK23314@stusta.de>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <20060627043716.14320.30977.stgit@nigel.suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 11:14:29AM +0200, Adrian Bunk wrote:
-> On Tue, Jun 27, 2006 at 01:52:11AM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.17-mm2:
-> > +readahead-kconfig-option-readahead_allow_overheads.patch
-> >...
-> >  readahead updates
-> >...
-> 
-> The READAHEAD_ALLOW_OVERHEADS option lacks a help text.
+Hi!
 
-Oh, it just acts as a submenu and a reminder ;)
+> Patches which implement support for compressing the image. We use
+> cryptoapi. A separate patch adds an LZF compression module, which
+> is much faster than gzip.
 
-> Additionally, the "default n" is pointless and should be removed.
+This is diffstat of compression/encryption patches:
 
-I expect the _extra_ features are useless for normal users.
-Your reasoning or feeling?
+ b/kernel/power/compression.c |   43 +++
+ b/kernel/power/encryption.c  |   49 +++
+ kernel/power/compression.c   |  559 +++++++++++++++++++++++++++++++++++++++++--
+ kernel/power/encryption.c    |  517 +++++++++++++++++++++++++++++++++++++--
+ 4 files changed, 1115 insertions(+), 53 deletions(-)
 
-PS.
-I'll be on a trip and remain silence for about a week, sorry.
+..so we add 1000 lines of code for feature that can very well live in
+userspace. All the filewriters/etc can live in userspace, too.
 
-Wu
+Could we improve suspend.sf.net code instead of trying to merge awful
+lot of code that does not really belong into kernel?
+
+I counted over 300 patches in this series....
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

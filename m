@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbWF0TPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbWF0TQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbWF0TPq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbWF0TPp
+	id S932543AbWF0TQm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbWF0TQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:15:45 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:40131 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932541AbWF0TPo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:15:44 -0400
-Message-ID: <44A183C5.6050002@zytor.com>
-Date: Tue, 27 Jun 2006 12:15:17 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 27 Jun 2006 15:16:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2453 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932543AbWF0TQk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 15:16:40 -0400
+Date: Tue, 27 Jun 2006 12:16:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <greg@kroah.com>
+cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [git pull] Input update for 2.6.17
+In-Reply-To: <Pine.LNX.4.64.0606271131590.3927@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0606271211110.3927@g5.osdl.org>
+References: <200606260235.03718.dtor_core@ameritech.net>
+ <Pine.LNX.4.64.0606262247040.3927@g5.osdl.org> <20060627063734.GA28135@kroah.com>
+ <Pine.LNX.4.64.0606271131590.3927@g5.osdl.org>
 MIME-Version: 1.0
-To: Alex Williamson <alex.williamson@hp.com>
-CC: rmk+serial@arm.linux.org.uk, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 8250 UART backup timer
-References: <1151435054.11285.41.camel@lappy>
-In-Reply-To: <1151435054.11285.41.camel@lappy>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Williamson wrote:
->    The patch below works around a minor bug found in the UART of the
-> remote management card used in many HP ia64 and parisc servers (aka the
-> Diva UARTs).  The problem is that the UART does not reassert the THRE
-> interrupt if it has been previously cleared and the IIR THRI bit is
-> re-enabled.  This can produce a very annoying failure mode when used as
-> a serial console, allowing a boot/reboot to hang indefinitely until an
-> RX interrupt kicks it into working again (ie. an unattended reboot could
-> stall).
-> 
->    To solve this problem, a backup timer is introduced that runs
-> alongside the standard interrupt driven mechanism.  This timer wakes up
-> periodically, checks for a hang condition and gets characters moving
-> again.  This backup mechanism is only enabled if the UART is detected as
-> having this problem, so systems without these UARTs will have no
-> additional overhead.
-> 
->    This version of the patch incorporates previous comments from Pavel
-> and removes races in the bug detection code.  The test is now done
-> before the irq linking to prevent races with interrupt handler clearing
-> the THRE interrupt.  Short delays and syncs are also added to ensure the
-> device is able to update register state before the result is tested.
-> Comments?  Thanks,
-> 
 
-I have seen this same bug in soft UART IP from "a major vendor."
 
-	-hpa
+On Tue, 27 Jun 2006, Linus Torvalds wrote:
+> 
+> > What does the kernel log show right before this happened?
+> > Any chance to enable CONFIG_USB_DEBUG?
+> 
+> Will try.
+
+There were _no_ kernel messages just before the oops. Not even with USB 
+debugging turned on. Of course, they may have been marked "informational", 
+and not shown on the console. Every distribution seems to think that debug 
+messages are more annoying than useful, so they tend to set the console 
+debug level down (even if you boot with "debug" to turn it on!). Gaah!
+
+		Linus

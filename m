@@ -1,129 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWF0TqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbWF0Trm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWF0TqV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWF0TqV
+	id S932547AbWF0Trm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWF0Trm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:46:21 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:46790 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S932201AbWF0TqU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:46:20 -0400
-Subject: Re: [git pull] Input update for 2.6.17
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0606271231440.3927@g5.osdl.org>
-References: <200606260235.03718.dtor_core@ameritech.net>
-	 <Pine.LNX.4.64.0606262247040.3927@g5.osdl.org>
-	 <20060627063734.GA28135@kroah.com>
-	 <Pine.LNX.4.64.0606271131590.3927@g5.osdl.org>
-	 <Pine.LNX.4.64.0606271211110.3927@g5.osdl.org>
-	 <Pine.LNX.4.64.0606271231440.3927@g5.osdl.org>
-Content-Type: text/plain
-Date: Tue, 27 Jun 2006 21:46:33 +0200
-Message-Id: <1151437593.25011.38.camel@localhost>
+	Tue, 27 Jun 2006 15:47:42 -0400
+Received: from xenotime.net ([66.160.160.81]:24254 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932547AbWF0Trl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 15:47:41 -0400
+Date: Tue, 27 Jun 2006 12:50:24 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, adaplas@gmail.com
+Subject: Re: [PATCH] move MAX_NR_CONSOLES from tty.h to vt.h
+Message-Id: <20060627125024.45ad9f91.rdunlap@xenotime.net>
+In-Reply-To: <9e4733910606271203w4ceb6216g92f5fefee654aaf3@mail.gmail.com>
+References: <9e4733910606271203w4ceb6216g92f5fefee654aaf3@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tue, 27 Jun 2006 15:03:50 -0400 Jon Smirl wrote:
 
-> > There were _no_ kernel messages just before the oops. Not even with USB 
-> > debugging turned on. Of course, they may have been marked "informational", 
-> > and not shown on the console. Every distribution seems to think that debug 
-> > messages are more annoying than useful, so they tend to set the console 
-> > debug level down (even if you boot with "debug" to turn it on!). Gaah!
+> MAX_NR_CONSOLES is more of a function of the VT layer than the TTY
+> one. Moving this to vt.h allows all of the framebuffer drivers to
+> remove their dependency on tty.h. Note that console drivers in
+> video/console still depend on tty.h but fbdev drivers should not
+> depend on the tty layer.
 > 
-> Ok, with that fixed, I get
-> 
-> 	hub 4-1:1.0: 300mA power budget left
-> 	hub 5-0:1.0: state 7 ports 2 chg 0000 evt 0000
-> 	hub 4-1:1.0: state 7 ports 3 chg 0000 evt 0008
-> 	usbcore: registered new driver libusual
-> 	usbcore: registered new driver hiddev
-> 	usbhid 5-1:1.0: usb_probe_interface
-> 	usbhid 5-1:1.0: usb_probe_interface - got id
-> 	input: HID 05ac:1000 as /class/input/input0
-> 	input: USB HID v1.11 Keyboard [HID 05ac:1000] on usb-0000:00:1d.3-1
-> 	usbhid 5-1:1.1: usb_probe_interface
-> 	usbhid 5-1:1.1: usb_probe_interface - got id
-> 	input: HID 05ac:1000 as /class/input/input1
-> 	input: USB HID v1.11 Mouse [HID 05ac:1000] on usb-0000:00:1d.3-1
-> 	usbhid 5-2:1.0: usb_probe_interface
-> 	usbhid 5-2:1.0: usb_probe_interface - got id
-> 	drivers/usb/core/file.c: looking for a minor, starting at 96
-> 	PM: Adding info for No Bus:hiddev0
-> 	hiddev96: USB HID v1.11 Device [Apple Computer, Inc. IR Receiver] on usb-0000:00:1d.3-2
-> 	usbhid 1-6.3:1.0: usb_probe_interface
-> 	usbhid 1-6.3:1.0: usb_probe_interface - got id
-> 	drivers/usb/core/file.c: looking for a minor, starting at 96
-> 	PM: Adding info for No Bus:hiddev1
-> 	hiddev97: USB HID v1.11 Device [Apple Cinema Display] on usb-0000:00:1d.7-6.3
-> 	usbhid 4-1.1:1.0: usb_probe_interface
-> 	usbhid 4-1.1:1.0: usb_probe_interface - got id
-> 	input: Mitsumi Electric Apple Optical USB Mouse as /class/input/input2
-> 	input: USB HID v1.10 Mouse [Mitsumi Electric Apple Optical USB Mouse] on usb-0000:00:1d.2-1.1
-> 	usbhid 4-1.3:1.0: usb_probe_interface
-> 	usbhid 4-1.3:1.0: usb_probe_interface - got id
-> 	input: Mitsumi Electric Apple Extended USB Keyboard as /class/input/input3
-> 	input: USB HID v1.10 Keyboard [Mitsumi Electric Apple Extended USB 
-> 	Keyboard] on usb-0000:00:1d.2-1.3
-> 	usbhid 4-1.3:1.1: usb_probe_interface
-> 	usbhid 4-1.3:1.1: usb_probe_interface - got id
-> 	input: Mitsumi Electric Apple Extended USB Keyboard as /class/input/input4
-> 	input: USB HID v1.10 Device [Mitsumi Electric Apple Extended USB Keyboard] on usb-0000:00:1d.2-1.3
-> 	usbcore: registered new driver usbhid
-> 	drivers/usb/input/hid-core.c: v2.6:USB HID core driver
-> 	PNP: No PS/2 controller found. Probing ports directly.
-> 	PM: Adding info for platform:i8042
-> 	i8042.c: No controller found.
-> 	mice: PS/2 mouse device common for all mice
-> 	i2c /dev entries driver
-> 
-> 	... snip snip, mounting root filesystem etc - time passes ..
-> 
-> 	usb 5-1: uhci_result_common: failed with status 440000
-> 	usb 5-1: usbfs: USBDEVFS_CONTROL failed cmd hid2hci rqt 64 rq 0 len 0 ret -84
-> 	usb 5-1: uhci_result_common: failed with status 440000
-> 	usbhid 5-1:1.0: retrying intr urb
-> 	usb 5-1: uhci_result_common: failed with status 440000
-> 	hub 5-0:1.0: state 7 ports 2 chg 0000 evt 0002
-> 	uhci_hcd 0000:00:1d.3: port 1 portsc 008a,00
-> 	hub 5-0:1.0: port 1, status 0100, change 0003, 12 Mb/s
-> 	usb 5-1: USB disconnect, address 2
-> 	usb 5-1: usb_disable_device nuking all URBs
-> 	usb 5-1: unregistering interface 5-1:1.0
-> 	PM: Removing info for No Bus:usbdev5.2_ep81
-> 	 usbdev5.2_ep81: ep_device_release called for usbdev5.2_ep81
-> 
-> followed by the oops:
-> 
-> 	BUG: spinlock bad magic on CPU#0, khubd/131
-> 	BUG: unable to handle kernel paging request at virtual address 6b6b6c0b
-> 	....
-> 
-> which just doesn't tell me anything.
+> Signed-off-by: Jon Smirl <jonsmir@gmail.com>
 
-it is the Bluetooth device of the Mac mini. These devices are HID proxy
-devices. This means they can appear as HID mouse and keyboard or as
-Bluetooth dongle on the USB bus. The HID mode is used for early boot
-stuff where no Bluetooth stack is available and you might wanna use your
-keyboard to change PROM settings etc. Once the Bluetooth stack is ready
-and capable of taking over full responsibility you might wanna switch
-this dongle in HID mode into full HCI mode. This is what hid2hci is
-doing at that point. In the success case you will see the disconnect of
-a HID mouse and keyboard from the USB bus and a new USB Bluetooth dongle
-will appear.
+BTW, what are these other 2 added #includes about?
 
-So the problem seems to be when the HID keyboard and mouse are
-disconnecting.
+> diff --git a/drivers/video/vga16fb.c b/drivers/video/vga16fb.c
+> index 4fd2a27..608fba0 100644
+> --- a/drivers/video/vga16fb.c
+> +++ b/drivers/video/vga16fb.c
+> @@ -15,13 +15,13 @@ #include <linux/kernel.h>
+>  #include <linux/errno.h>
+>  #include <linux/string.h>
+>  #include <linux/mm.h>
+> -#include <linux/tty.h>
+>  #include <linux/slab.h>
+>  #include <linux/delay.h>
+>  #include <linux/fb.h>
+>  #include <linux/ioport.h>
+>  #include <linux/init.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/screen_info.h>
+> 
+>  #include <asm/io.h>
+>  #include <video/vga.h>
+> diff --git a/include/linux/console_struct.h b/include/linux/console_struct.h
+> index f8e5587..25423f7 100644
+> --- a/include/linux/console_struct.h
+> +++ b/include/linux/console_struct.h
+> @@ -9,6 +9,7 @@
+>   * to achieve effects such as fast scrolling by changing the origin.
+>   */
+> 
+> +#include <linux/wait.h>
+>  #include <linux/vt.h>
+> 
+>  struct vt_struct;
 
-Regards
-
-Marcel
-
-
+---
+~Randy

@@ -1,109 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWF0TNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWF0TOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWF0TNP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWF0TNP
+	id S932537AbWF0TOp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbWF0TOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:13:15 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:22723 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932254AbWF0TNO
+	Tue, 27 Jun 2006 15:14:45 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:49829 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932537AbWF0TOn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:13:14 -0400
-Message-ID: <44A18335.7020706@zytor.com>
-Date: Tue, 27 Jun 2006 12:12:53 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Milton Miller <miltonm@bga.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [klibc 00/43] klibc as a historyless patchset
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <29ea762c2af4a4dc3168b6bd980bbf67@bga.com>
-In-Reply-To: <29ea762c2af4a4dc3168b6bd980bbf67@bga.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 27 Jun 2006 15:14:43 -0400
+Subject: Re: [RFC][PATCH 3/3] Process events biarch bug: New process events
+	connector value
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+In-Reply-To: <1151408975.21787.1815.camel@stark>
+References: <20060627112644.804066367@localhost.localdomain>
+	 <1151408975.21787.1815.camel@stark>
+Content-Type: text/plain
+Organization: IBM
+Date: Tue, 27 Jun 2006 12:14:39 -0700
+Message-Id: <1151435679.1412.16.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Milton Miller wrote:
-> As a historyless patchset, this gets the merge all wrong.
+On Tue, 2006-06-27 at 04:49 -0700, Matt Helsley wrote:
+> "Deprecate" existing Process Events connector interface and add a new one
+> that works cleanly on biarch platforms.
 > 
-> If the reason to put this in tree is to keep the kernel just working
-> then there is a great big hole of 40 patches for git bisect to find.
-> 
-> On Jun 25, 2006, at 8:10 PM, H. Peter Anvin wrote:
-> 
->> changes to the
->> main kernel code taken straight from the git history (as it is rather
->> few patches), and additions, grouped by rough divisions.
-> 
-> If they are in the wrong order then that is not good enough.
-> The patch names and descriptions are wrong because the are from
-> the klibc git tree.
-> 
->> 01-add-klibckinit-to-maintainers-file.patch
->> 02-remove-root-mounting-code-from-the-kernel-.patch
->> 03-remove-parts-moved-to-kinit.patch
->> 04-support-klibcarch-being-different-from-the-main-arch.patch
-> This looks to be 04-powerpc-set-klibc-arch
-> 
->> 05-need-to-export-ranlib-from-the-top-makefile.patch
->> 06-re-create-root-dev-too-many-architectures-need-it-.patch
-> Make the "move stuff i need" and make it first
-> 
->> 07-eliminate-unnecessary-whitespace-delta-vs-linus-tree.patch
-> 
-> I didn't look, this corrects whitespace before patching? ok early
-> 
->> 08-klibc-default-initramfs-content-stored-in-usrinitramfs-default.patch
->> 09-kbuild-support-single-targets-for-klibc-and-klibc-programs.patch
->> 10-remove-prototype-for-name-to-dev-t.patch
->> 11-enable-klibc-errlist.patch
-> What does this do?  No Help, no description, and doesn't trigger
-> anything in this patch.
-> 
->> 12-enable-config-klibc-zlib-now-required-to-build-kinit.patch
-> What does this do?  No Help, no description, and doesn't do anything
-> in the curreent patch
+> Any expansion of the previous event structure would break userspace's ability
+> to workaround the biarch incompatibility problem. Hence this patch creates a
+> new interface and generates events (for both when necessary).
 
-usr/klibc/Kbuild:
+Is there a reason why the # of listeners part is removed (basically the
+LISTEN/IGNORE) ? and why as part of this patch ?
 
-libc-$(CONFIG_KLIBC_ZLIB)    += \
-         zlib/adler32.o zlib/compress.o zlib/crc32.o zlib/gzio.o \
-         zlib/uncompr.o zlib/deflate.o zlib/trees.o zlib/zutil.o \
-         zlib/inflate.o zlib/infback.o zlib/inftrees.o zlib/inffast.o
+<snip>
 
-At this point, this is required by kinit, which is why it is not 
-possible to disable.
+> @@ -158,16 +164,15 @@ static int cn_proc_watch_task(struct not
+>  			      void *t)
+>  {
+>  	struct task_struct *task = t;
+>  	struct cn_msg *msg;
+>  	struct proc_event *ev;
+> +	struct proc_event_deprecated *ev_old;
+> +	struct timespec timestamp;
+>  	__u8 buffer[CN_PROC_MSG_SIZE];
+>  	int rc = NOTIFY_OK;
+>  
+> -	if (atomic_read(&proc_event_num_listeners) < 1)
+> -		return rc;
+> -
+>  	msg = (struct cn_msg*)buffer;
+>  	ev = (struct proc_event*)msg->data;
+>  	switch (get_watch_event(val)) {
+>  	case WATCH_TASK_CLONE:
+>  		proc_fork_connector(task, ev);
+> @@ -189,16 +194,26 @@ static int cn_proc_watch_task(struct not
+>  		break;
+>  	}
+>  	if (rc != NOTIFY_OK)
+>  		return rc;
+>  	get_seq(&msg->seq, &ev->cpu);
+> -	ktime_get_ts(&ev->timestamp); /* get high res monotonic timestamp */
+> +	ktime_get_ts(&timestamp); /* get high res monotonic timestamp */
+> +	ev->timestamp_ns = ((__u64)timestamp.tv_sec*(__u64)NSEC_PER_SEC) + (__u64)timestamp.tv_nsec;
+>  	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
+>  	msg->ack = 0; /* not used */
+>  	msg->len = sizeof(*ev);
+>  	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
+>  	/* If cn_netlink_send() fails, drop data */
+> +
+> +	if (atomic_read(&proc_event_num_old_listeners) < 1)
+> +		return rc;
+> +	ev_old = (struct proc_event_deprecated*)msg->data;
+> +	msg->len = sizeof(*ev_old);
 
->> 13-uml-the-klibc-architecture-is-the-underlying-architecture.patch
->> 14-remove-in-kernel-nfsroot-code.patch
->> 15-default-klibcarch--arch.patch
->> 16-sparc64-transmit-arch-specific-options-to-kinit-via-arch-cmd.patch
->> 17-sparc32-transfer-arch-specific-options-to-arch-cmd.patch
->     where is x86 and x86_64 ?
->     oh you deleted and did not put that back
+A comment saying the fields cpu, what, and ack are filled above and is
+valid as is would help.
 
-That's correct; I went around and talked to both x86 and sparc people, 
-and the x86 people uniformly announced rdev support as being obsolete; 
-the sparc people, however, continue to rely on being able to get data 
-from openprom.
+> +	memmove(&ev_old->event_data, &ev->event_data, sizeof(ev->event_data));
+> +	memcpy(&ev_old->timestamp, &timestamp, sizeof(timestamp));
+> +	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
+> +	/* If cn_netlink_send() fails, drop data */
+>  	return rc;
+>  }
+>  
+>  static struct notifier_block __read_mostly cn_proc_nb = {
+>  	.notifier_call = cn_proc_watch_task,
+> @@ -211,20 +226,27 @@ static struct notifier_block __read_most
+>   */
+>  static int __init cn_proc_init(void)
+>  {
+>  	int err;
+>  
+> -	if ((err = cn_add_callback(&cn_proc_event_id, "cn_proc",
+> -	 			   &cn_proc_mcast_ctl))) {
+> -		printk(KERN_WARNING "cn_proc failed to register\n");
+> -		goto out;
+> -	}
+> +	err = cn_add_callback(&cn_proc_event_deprecated_id, "cn_proc_old",
+> +			      &cn_proc_mcast_old_ctl);
+> +	if (err)
+> +		goto error_old;
 
 
->> 18-klibc-inkernel-merge-s390s390x-4.patch
->     This patchname is meaningless.
->     The description in the patch is worse.
->     It looks like it should be 18-s390-set-klibcarch
-> 
-> Hmm... i didn't find the patch removig usr/Makefile, just adding
-> usr/Kbuild.   usr/Kbuild should be a diff against the existing
-> usr/Makefile, whcih can be renamed.
+> +	err = cn_add_callback(&cn_proc_event_id, "cn_proc", NULL);
 
-True.  Git could work this out.
+is this needed if you are not going to have the callback ?
 
-I have been reluctant to spend too much time on packaging, because I've 
-still had the issue of continue to maintain the out-of-tree distribution 
-(which includes usr/Kbuild) indefinitely.  I need to spend some more 
-time scripting.
+> +	if (err)
+> +		goto error;
+should not try to cn_del_callback(&cn_proc_event_id) ?! (goto error_old;
+perhaps)
 
-	-hpa
+>  
+>  	err = register_task_watcher(&cn_proc_nb);
+> -	if (err != 0)
+> -		cn_del_callback(&cn_proc_event_id);
+> -out:
+> +	if (err)
+> +		goto error;
+> +	return err;
+> +error:
+> +	cn_del_callback(&cn_proc_event_id);
+> +error_old:
+> +	cn_del_callback(&cn_proc_event_deprecated_id);
+> +	printk(KERN_WARNING "cn_proc failed to register\n");
+>  	return err;
+>  }
+>  
+<snip>
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
 

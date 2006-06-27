@@ -1,92 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933280AbWF0CEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933289AbWF0CHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933280AbWF0CEK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 22:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933285AbWF0CEK
+	id S933289AbWF0CHg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 22:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933285AbWF0CHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 22:04:10 -0400
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:27030 "HELO
-	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S933280AbWF0CEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 22:04:09 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
-Date: Mon, 26 Jun 2006 19:04:05 -0700
-User-Agent: KMail/1.7.1
-Cc: Alan Stern <stern@rowland.harvard.edu>, Mattia Dongili <malattia@linux.it>,
-       Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-pm@osdl.org, pavel@suse.cz
-References: <20060623042452.GA23232@kroah.com> <Pine.LNX.4.44L0.0606231028570.5966-100000@iolanthe.rowland.org> <20060626235732.GE32008@kroah.com>
-In-Reply-To: <20060626235732.GE32008@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jun 2006 22:07:36 -0400
+Received: from 70-57-128-88.albq.qwest.net ([70.57.128.88]:6536 "EHLO
+	moria.ionkov.net") by vger.kernel.org with ESMTP id S933289AbWF0CHf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jun 2006 22:07:35 -0400
+Date: Mon, 26 Jun 2006 22:18:56 -0600
+From: Latchesar Ionkov <lucho@ionkov.net>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net
+Subject: [PATCH] v9fs: return the correct error when interrupted by signal
+Message-ID: <20060627041856.GA17321@ionkov.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606261904.06102.david-b@pacbell.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 June 2006 4:57 pm, Greg KH wrote:
-> On Fri, Jun 23, 2006 at 10:51:47AM -0400, Alan Stern wrote:
-> > On Thu, 22 Jun 2006, Greg KH wrote:
-> > 
-> > > > Under what scenario could it possibly be legitimate to suspend a
-> > > > usb device -- or interface, or anything else -- with its children
-> > > > remaining active?  The ability to guarantee that could _never_ happen
-> > > > was one of the fundamental motivations for the driver model ...
-> > > 
-> > > I'm not disagreeing with that.  It's just that you are looping all
-> > > struct devices that are attached to a struct usb_device and assuming
-> > > that they are all of type struct usb_interface. ...
-> > 
-> > In fact the code doesn't make that assumption.  It only assumes that the 
-> > dev->power.power_state.event field is set correctly ...
-> 
-> Yes, but it's looking at devices it should _not_ care about.  The USB
-> core should only care about devices it controls, not other devices in
-> the device chain.  Those are for the driver core to handle.
+If a signal interrupts the user process, v9fs sends a flush request to the
+file server and waits for its response. It error code is incorrectly set to
+the error code of the flush message instead of ERESTARTSYS. The patch sets
+the error code to the correct value.
 
-The basic problem is that the driver core does ** NOT ** maintain such
-integrity constraints.  So it's unsafe to remove those checks for cases
-(like USB) where devices get suspended outside transition to "system sleep"
-states like "standby", "suspend-to-ram", and "suspend-to-disk". [1]
+Signed-off-by: Latchesar Ionkov <lucho@ionkov.net>
 
-Go back to my original question:  is there a legitimate scenario where
-that test should fail?  Nobody has come up with even one ...
+---
+commit c675b970b2befed791fa29f606852e205a009e62
+tree 01b2f255baa2245d10e01756e981368a39401669
+parent fcc18e83e1f6fd9fa6b333735bf0fcd530655511
+author Latchesar Ionkov <lucho@ionkov.net> Mon, 26 Jun 2006 11:06:02 -0600
+committer Latchesar Ionkov <lucho@ionkov.net> Mon, 26 Jun 2006 11:06:02 -0600
 
+ fs/9p/mux.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-Even so-called "virtual" devices (talking to abstracted hardware) need to
-quiesce.  And as Adam has pointed out separately, often most of the work to
-quiesce drivers should be at such a "virtual" level.  Most of the time when
-a driver for a "physical" device (touches real registers) does complicated
-work to quiesce, it's because the next level in the driver stack didn't
-create a "virtual" device to package that logic.  As with "eth0".
-
-
-> > > We probably need to keep our own list of interfaces if we want to
-> > > properly walk them now...
-> > 
-> > We do have such a list: udev->actconfig->interface[].
-> 
-> Ah, ok, I thought it was somewhere...  David, why don't we walk that
-> list instead?
-
-Because the type of the child doesn't matter.  If it hasn't suspended,
-the parent must not suspend.  The original point of the driver model was
-to be able to enforce that integrity constraint.
-
-Plus, this way we use the driver model data structures ... in much the
-way the driver model itself would, if it were maintaining such integrity
-constraints.  If the driver model is ever going to fix those issues,
-we'll at least know it has sufficient data at hand.
-
-- Dave
-
-[1] One simple example:  echo 3 > /sys/devices/.../power/state for a
-    device with children that aren't suspended.  The PM core will not
-    detect that error.
-
+diff --git a/fs/9p/mux.c b/fs/9p/mux.c
+index f4407eb..210d2c0 100644
+--- a/fs/9p/mux.c
++++ b/fs/9p/mux.c
+@@ -932,6 +932,8 @@ v9fs_mux_rpc(struct v9fs_mux_data *m, st
+ 					r.rcall || r.err);
+ 			} while (!r.rcall && !r.err && err==-ERESTARTSYS &&
+ 				m->trans->status==Connected && !m->err);
++
++			err = -ERESTARTSYS;
+ 		}
+ 		sigpending = 1;
+ 	}
 

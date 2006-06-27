@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbWF0UKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161255AbWF0ULP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932572AbWF0UKz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 16:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbWF0UKz
+	id S1161255AbWF0ULP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 16:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161257AbWF0ULO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 16:10:55 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:44163 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932567AbWF0UKx
+	Tue, 27 Jun 2006 16:11:14 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:2176 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1161255AbWF0ULM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 16:10:53 -0400
-Message-Id: <20060627200831.308779000@sous-sol.org>
+	Tue, 27 Jun 2006 16:11:12 -0400
+Message-Id: <20060627200856.383191000@sous-sol.org>
 References: <20060627200745.771284000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 27 Jun 2006 00:00:01 -0700
+Date: Tue, 27 Jun 2006 00:00:02 -0700
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Andrey Borzenkov <arvidjaar@mail.ru>
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
        akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "Stuart MacDonald" <stuartm@connecttech.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Russell King <rmk+kernel@arm.linux.org.uk>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 01/25] USB: Whiteheat: fix firmware spurious errors
-Content-Disposition: inline; filename=usb-whiteheat-fix-firmware-spurious-errors.patch
+Subject: [PATCH 02/25] SERIAL: PARPORT_SERIAL should depend on SERIAL_8250_PCI
+Content-Disposition: inline; filename=serial-parport_serial-should-depend-on-serial_8250_pci.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From:  <stuartm@connecttech.com>
+From:	Russell King <rmk+lkml@arm.linux.org.uk>
 
-Attached patch fixes spurious errors during firmware load.
+Since parport_serial uses symbols from 8250_pci, there should
+be a dependency between the configuration symbols for these
+two modules.  Problem reported by Andrey Borzenkov
 
-Signed-off-by: Stuart MacDonald <stuartm@connecttech.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/usb/serial/whiteheat.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.17.1.orig/drivers/usb/serial/whiteheat.c
-+++ linux-2.6.17.1/drivers/usb/serial/whiteheat.c
-@@ -388,7 +388,7 @@ static int whiteheat_attach (struct usb_
- 	if (ret) {
- 		err("%s: Couldn't send command [%d]", serial->type->description, ret);
- 		goto no_firmware;
--	} else if (alen != sizeof(command)) {
-+	} else if (alen != 2) {
- 		err("%s: Send command incomplete [%d]", serial->type->description, alen);
- 		goto no_firmware;
- 	}
-@@ -400,7 +400,7 @@ static int whiteheat_attach (struct usb_
- 	if (ret) {
- 		err("%s: Couldn't get results [%d]", serial->type->description, ret);
- 		goto no_firmware;
--	} else if (alen != sizeof(result)) {
-+	} else if (alen != sizeof(*hw_info) + 1) {
- 		err("%s: Get results incomplete [%d]", serial->type->description, alen);
- 		goto no_firmware;
- 	} else if (result[0] != command[0]) {
+ drivers/parport/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.17.1.orig/drivers/parport/Kconfig
++++ linux-2.6.17.1/drivers/parport/Kconfig
+@@ -48,7 +48,7 @@ config PARPORT_PC
+ 
+ config PARPORT_SERIAL
+ 	tristate "Multi-IO cards (parallel and serial)"
+-	depends on SERIAL_8250 && PARPORT_PC && PCI
++	depends on SERIAL_8250_PCI && PARPORT_PC && PCI
+ 	help
+ 	  This adds support for multi-IO PCI cards that have parallel and
+ 	  serial ports.  You should say Y or M here.  If you say M, the module
 
 --

@@ -1,110 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161094AbWF0PXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161092AbWF0PWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161094AbWF0PXD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 11:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161090AbWF0PXB
+	id S1161092AbWF0PWo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 11:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbWF0PWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 11:23:01 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:12527 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161094AbWF0PXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 11:23:00 -0400
-Subject: Re: [PATCH] kprobes for s390 architecture
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Michael Grundy <grundym@us.ibm.com>, Jan Glauber <jan.glauber@de.ibm.com>,
-       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
-In-Reply-To: <20060624113641.GB10403@osiris.ibm.com>
-References: <20060623150344.GL9446@osiris.boeblingen.de.ibm.com>
-	 <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com>
-	 <20060623222106.GA25410@osiris.ibm.com>
-	 <20060624113641.GB10403@osiris.ibm.com>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Tue, 27 Jun 2006 17:23:09 +0200
-Message-Id: <1151421789.5390.65.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Tue, 27 Jun 2006 11:22:44 -0400
+Received: from wasp.net.au ([203.190.192.17]:40628 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S1161092AbWF0PWo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 11:22:44 -0400
+Message-ID: <44A14D3D.8060003@wasp.net.au>
+Date: Tue, 27 Jun 2006 19:22:37 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       suspend2-devel@lists.suspend2.net
+Subject: Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion
+ in	-mm
+References: <200606270147.16501.ncunningham@linuxmail.org> <20060627133321.GB3019@elf.ucw.cz>
+In-Reply-To: <20060627133321.GB3019@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-24 at 13:36 +0200, Heiko Carstens wrote:
-> > At least this is something that could work... completely untested and might
-> > have some problems that I didn't think of ;)
-> > 
-> > struct capture_data {
-> > 	atomic_t cpus;
-> > 	atomic_t done;
-> > };
-> > 
-> > void capture_wait(void *data)
-> > { 
-> > 	struct capture_data *cap = data;
-> > 
-> > 	atomic_inc(&cap->cpus);
-> > 	while(!atomic_read(&cap->done))
-> > 		cpu_relax();
-> > 	atomic_dec(&cap->cpus);
-> > }
-> > 
-> > void replace_instr(int *a)
-> > {
-> > 	struct capture_data cap;
-> > 
-> > 	preempt_disable();
-> > 	atomic_set(&cap.cpus, 0);
-> > 	atomic_set(&cap.done, 0);
-> > 	smp_call_function(capture_wait, (void *)&cap, 0, 0);
-> > 	while (atomic_read(&cap.cpus) != num_online_cpus() - 1)
-> > 		cpu_relax();
-> > 	*a = 0x42;
-> > 	atomic_inc(&cap.done);
-> > 	while (atomic_read(&cap.cpus))
-> > 		cpu_relax();
-> > 	preempt_enable();
-> > }
+Pavel Machek wrote:
+>> Some of the advantages of suspend2 over swsusp and uswsusp are:
+>>
+>> - Speed (Asynchronous I/O and readahead for synchronous I/O)
 > 
-> Forget this crap. It can easily cause deadlocks with more than two cpus.
+> uswsusp should be able to match suspend2's speed. It can do async I/O,
+> etc...
 
-It is not that bad. Instead of preempt_disable/preempt_enable we need a
-spinlock. Then only one cpu can do this particular smp_call_function
-which will "stop" all other cpus until cap->done has been set.
+ARGH!
 
-> Just do a compare and swap operation on the instruction you want to replace,
-> then do an smp_call_function() with the wait parameter set to 1 and passing
-> a pointer to a function that does nothing but return.
+And the next version of windows will have all the wonderful features that MacOSX has now so best not 
+upgrade to Mac as you can just wait for the next version of windows.
 
-Not good enough. An instruction can be fetched multiple times for a
-single execution (see the other mail). So you have a half executed
-instruction, the cache line is invalidated, a new instruction is written
-and the cache line is recreated to finished the half executed
-instruction. That can easiliy happen on millicoded instructions.
+suspend2 has it *now*. It works, it's stable.
 
-> The cs/csg instruction will make sure that your cpu has exclusive access
-> to the memory region in question and will invalidate the cache lines on all
-> other cpus.
+uswsusp is a great idea, really.. I love it.. but suspend2 is here, it works, it's stable and it's 
+now. Why continue to deprive the mainstream of these features because "uswsusp should".. as yet it 
+doesn't.. and when it does then we can phase out the currently stable, working alternative that has 
+all these features that uswsusp _will_ have, after it's had them for a year or so and its been 
+proven stable. Not only that, I'll be happy to migrate over to it. Until then however, you can pry 
+suspend2.. cold, dead.. blah blah..
 
-That the cache line is invalidated does not mean that you are safe..
+Honestly, I have given up worrying if it's in-kernel or not. Nigel makes it so easy to apply the 
+patches to the current kernels it's a doddle in any case, however I'm sure it would be much easier 
+on everyone if it were in the tree.
 
-> With the following smp_call_function() you can make sure that all other
-> cpus discard everything they have prefetched. Hence there is only a small
-> window between the cs/csg and the return of smp_call_function() where you
-> do not know if other cpus are executing the old or the new instruction.
-
-The serialization is indeed done by the smp_call_function(). No need to
-have a "bcr 15,0" in the called function, the lpsw at the end of the
-interrupt already does the serialization.
-
+Brad (suspend user since 2.2.17 - and suspend2 is a heck of a lot more reliable/usable than the 
+in-kernel version ever has been for me)
 -- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030666AbWF0GUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWF0Gbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030666AbWF0GUl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 02:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030658AbWF0GUl
+	id S932118AbWF0Gbv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 02:31:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWF0Gbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 02:20:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29154 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030667AbWF0GUk (ORCPT
+	Tue, 27 Jun 2006 02:31:51 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:48287 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932118AbWF0Gbv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 02:20:40 -0400
-Date: Mon, 26 Jun 2006 23:20:34 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Edgar Hucek <hostmaster@ed-soft.at>
-cc: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
-In-Reply-To: <44A0CCEA.7030309@ed-soft.at>
-Message-ID: <Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
-References: <44A04F5F.8030405@ed-soft.at> <Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
- <44A0CCEA.7030309@ed-soft.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Jun 2006 02:31:51 -0400
+Date: Mon, 26 Jun 2006 23:28:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Razvan Gavril <razvan.g@plutohome.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB & Sysfs Question ( posible issue )
+Message-ID: <20060627062832.GA27942@kroah.com>
+References: <44A002C3.9000807@plutohome.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44A002C3.9000807@plutohome.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 26, 2006 at 06:52:35PM +0300, Razvan Gavril wrote:
+> If i had a usb-serial device in linux, i can/could find a symlink in 
+> /sys/bus/usb-serial/devices named ttyUSBX that is/was pointing to 
+> another sysfs directory, which is in /sys/device. The directory in the 
+> /device looked something like this : 
+> /devices/pci0000:00/0000:00:02.0/usb1/1-3/1-3:1.0/ttyUSBX . As far i 
+> could figure out the '... usb1/1-3/...' part from the path means that 
+> the device is connected to the port 3 of the 1st usb controler.
 
+Close, but not quite, as you soon discover:
 
-On Tue, 27 Jun 2006, Edgar Hucek wrote:
->
-> So what is your suggestion to get the working funktionality
-> from kernel 2.6.16 back ? 2.6.17 have broken it.
+> I used this for a long of time to uniquely identify phisical usb ports 
+> from a computer, when upgrading to 2.6.17, something strange started to 
+> happen: even if i didn't remove the usb device from a specified port of 
+> a the computer, sometimes when rebooting the usb controlers changed 
+> their numbers in sysfs. A device that was before the reboot 
+> '...usb1/1-3/...' can be now ' ...usb2/2-3...' or '...usb4/4-3...'.
+> 
+> The main idea is that an usb port can't no loger be identified only by 
+> looking on it's sysfs path. Is this a normal behavior ? I'm asking this 
+> as i didn't get this numbering change when using older 2.6 kernel.
 
-I'd really suggest just filling in the e820 table from the EFI information 
-early at boot.
+The first number is just the number of the USB bus.  That bus number is
+simply incremented based on a new USB bus being created.  So, if you
+load the USB controller drivers into the kernel in a different order,
+you get different bus numbering.
 
-(Even better would be for the EFI bootloader on x86 to just fill things in 
-_as_if_ it was filling in e820 data, but that's outside of the kernel, so 
-if you want the _kernel_ to be able to handle native EFI data, do it by 
-just translating it once into e820 mode, and you're done).
+I suggest going one step further up the device chain to the PCI device
+itself.  Use the pci device number, as that is bit of a more stable
+number (but be aware that it can change across reboots, and bios
+upgrades have a tendancy to reorder things, and then there's the mess of
+pci hotplug systems...)
 
-The translation from EFI to e820 format should be very straightforward 
-indeed. I think it's pretty much the same thing with different naming.
+Ideally, to solve this problem the best, you would just look at the
+unique serial number in your usb-serial device, but unfortunatly, a lot
+of them are not unique.  Is this the case for yours?
 
-		Linus
+thanks,
+
+greg k-h

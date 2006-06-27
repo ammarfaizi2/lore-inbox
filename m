@@ -1,63 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422661AbWF0WTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422670AbWF0WTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422661AbWF0WTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 18:19:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWF0WTD
+	id S1422670AbWF0WTv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 18:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422667AbWF0WTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 18:19:03 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:9165 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1422650AbWF0WSk (ORCPT
+	Tue, 27 Jun 2006 18:19:49 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:25784 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030451AbWF0WOx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 18:18:40 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: nigel@suspend2.net
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Date: Wed, 28 Jun 2006 00:19:31 +0200
-User-Agent: KMail/1.9.3
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271126.28898.rjw@sisk.pl> <200606271935.13261.nigel@suspend2.net>
-In-Reply-To: <200606271935.13261.nigel@suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606280019.32045.rjw@sisk.pl>
+	Tue, 27 Jun 2006 18:14:53 -0400
+Subject: [PATCH 07/20] elevate mount count for extended attributes
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
+       serue@us.ibm.com, Dave Hansen <haveblue@us.ibm.com>
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Tue, 27 Jun 2006 15:14:46 -0700
+References: <20060627221436.77CCB048@localhost.localdomain>
+In-Reply-To: <20060627221436.77CCB048@localhost.localdomain>
+Message-Id: <20060627221446.77788715@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tuesday 27 June 2006 11:35, Nigel Cunningham wrote:
-> On Tuesday 27 June 2006 19:26, Rafael J. Wysocki wrote:
-> > > > Now I haven't followed the suspend2 vs swsusp debate very closely, but
-> > > > it seems to me that your biggest problem with getting this merged is
-> > > > getting consensus on where exactly this is going. Nobody wants two
-> > > > different suspend modules in the kernel. So there are two options -
-> > > > suspend2 is deemed the way to go, and it gets merged and replaces
-> > > > swsusp. Or the other way around - people like swsusp more, and you are
-> > > > doomed to maintain suspend2 outside the tree.
-> > >
-> > > Generally, I agree, although my understanding of Rafael and Pavel's
-> > > mindset is that swsusp is a dead dog and uswsusp is the way they want to
-> > > see things go. swsusp is only staying for backwards compatability. If
-> > > that's the case, perhaps we can just replace swsusp with Suspend2 and let
-> > > them have their existing interface for uswsusp. Still not ideal, I agree,
-> > > but it would be progress.
-> >
-> > Well, ususpend needs some core functionality to be provided by the kernel,
-> > like freezing/thawing processes (this is also used by the STR),
-> > snapshotting the system memory.  These should be shared with the in-kernel
-> > suspend, be it swsusp or suspend2.
-> 
-> If I modify suspend2 so that from now on it replaces swsusp, using noresume, 
-> resume= and echo disk > /sys/power/state in a way that's backward compatible 
-> with swsusp and doesn't interfere with uswsusp support, would you be happy? 
-> IIRC, Pavel has said in the past he wishes I'd just do that, but he's not you 
-> of course.
+This basically audits the callers of xattr_permission(), which
+calls permission() and can perform writes to the filesystem.
 
-That depends on how it's done.  For sure, I wouldn't like it to be done in the
-"everything at once" manner.
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
 
-Greetings,
-Rafael
+ lxc-dave/fs/nfsd/nfs4proc.c |    7 ++++++-
+ lxc-dave/fs/xattr.c         |   14 ++++++++++++++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+
+diff -puN fs/nfsd/nfs4proc.c~C-xattr fs/nfsd/nfs4proc.c
+--- lxc/fs/nfsd/nfs4proc.c~C-xattr	2006-06-27 10:40:28.000000000 -0700
++++ lxc-dave/fs/nfsd/nfs4proc.c	2006-06-27 10:40:28.000000000 -0700
+@@ -604,13 +604,18 @@ nfsd4_setattr(struct svc_rqst *rqstp, st
+ 			return status;
+ 		}
+ 	}
++	status = mnt_want_write(current_fh->fh_export->ex_mnt);
++	if (status)
++		return status;
+ 	status = nfs_ok;
+ 	if (setattr->sa_acl != NULL)
+ 		status = nfsd4_set_nfs4_acl(rqstp, current_fh, setattr->sa_acl);
+ 	if (status)
+-		return status;
++		goto out;
+ 	status = nfsd_setattr(rqstp, current_fh, &setattr->sa_iattr,
+ 				0, (time_t)0);
++out:
++	mnt_drop_write(current_fh->fh_export->ex_mnt);
+ 	return status;
+ }
+ 
+diff -puN fs/xattr.c~C-xattr fs/xattr.c
+--- lxc/fs/xattr.c~C-xattr	2006-06-27 10:40:28.000000000 -0700
++++ lxc-dave/fs/xattr.c	2006-06-27 10:40:28.000000000 -0700
+@@ -12,6 +12,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/file.h>
+ #include <linux/xattr.h>
++#include <linux/mount.h>
+ #include <linux/namei.h>
+ #include <linux/security.h>
+ #include <linux/syscalls.h>
+@@ -210,7 +211,11 @@ sys_setxattr(char __user *path, char __u
+ 	error = user_path_walk(path, &nd);
+ 	if (error)
+ 		return error;
++	error = mnt_want_write(nd.mnt);
++	if (error)
++		return error;
+ 	error = setxattr(nd.dentry, name, value, size, flags);
++	mnt_drop_write(nd.mnt);
+ 	path_release(&nd);
+ 	return error;
+ }
+@@ -225,7 +230,11 @@ sys_lsetxattr(char __user *path, char __
+ 	error = user_path_walk_link(path, &nd);
+ 	if (error)
+ 		return error;
++	error = mnt_want_write(nd.mnt);
++	if (error)
++		return error;
+ 	error = setxattr(nd.dentry, name, value, size, flags);
++	mnt_drop_write(nd.mnt);
+ 	path_release(&nd);
+ 	return error;
+ }
+@@ -241,9 +250,14 @@ sys_fsetxattr(int fd, char __user *name,
+ 	f = fget(fd);
+ 	if (!f)
+ 		return error;
++	error = mnt_want_write(f->f_vfsmnt);
++	if (error)
++		goto out_fput;
+ 	dentry = f->f_dentry;
+ 	audit_inode(NULL, dentry->d_inode);
+ 	error = setxattr(dentry, name, value, size, flags);
++	mnt_drop_write(f->f_vfsmnt);
++out_fput:
+ 	fput(f);
+ 	return error;
+ }
+_

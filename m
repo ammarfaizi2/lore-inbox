@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932765AbWF0KZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932884AbWF0KiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932765AbWF0KZF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 06:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932884AbWF0KZE
+	id S932884AbWF0KiP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 06:38:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWF0KiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 06:25:04 -0400
-Received: from aa002msr.fastwebnet.it ([85.18.95.65]:19598 "EHLO
-	aa002msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932765AbWF0KZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 06:25:02 -0400
-Date: Tue, 27 Jun 2006 12:24:57 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ck@vds.kolivas.org
-Subject: Re: 2.6.17-ck1: fcache problem...
-Message-ID: <20060627122457.2cabc4d7@localhost>
-In-Reply-To: <20060627095443.GQ22071@suse.de>
-References: <20060625093534.1700e8b6@localhost>
-	<20060625102837.GC20702@suse.de>
-	<20060625152325.605faf1f@localhost>
-	<20060625174358.GA21513@suse.de>
-	<20060627112105.0b15bfa1@localhost>
-	<20060627095443.GQ22071@suse.de>
-X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
+	Tue, 27 Jun 2006 06:38:14 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:33202 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751270AbWF0KiN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 06:38:13 -0400
+Date: Tue, 27 Jun 2006 12:33:17 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Nathan Scott <nathans@sgi.com>, Christoph Hellwig <hch@infradead.org>,
+       Steven Whitehouse <swhiteho@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       David Teigland <teigland@redhat.com>,
+       Patrick Caulfield <pcaulfie@redhat.com>,
+       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GFS2 and DLM
+Message-ID: <20060627103317.GA18501@elte.hu>
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <20060623144928.GA32694@infradead.org> <20060626200300.GA15424@elte.hu> <20060627063339.GA27938@elte.hu> <20060627181632.A1297906@wobbly.melbourne.sgi.com> <20060627082240.GA672@elte.hu> <84144f020606270141x5a0afd6anfa6008bfcbba5fb@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84144f020606270141x5a0afd6anfa6008bfcbba5fb@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5052]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jun 2006 11:54:44 +0200
-Jens Axboe <axboe@suse.de> wrote:
 
-> > So the problem is that "fcache_close_dev()" have zero chances to run ;)
+* Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+
+> On 6/27/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >and since XFS makes use of KM_SLEEP in 130+ callsites, that means it is
+> >in essence using GFP_NOFAIL massively!
 > 
-> Hmm, you seem to be using an older fcache version. I'll test this and
-> post an updated patch if it doesn't work with the newer version.
+> Yup, it's not just a wrapper, XFS really has its own allocator and the 
+> PF_FSTRANS magic makes it hard to convert to slab proper.
 
-I'm using the one that comes with "2.6.17-ck1" as the subject suggest :)
+AFAICS PF_FSTRANS is mostly just avoidance of having to pass the 
+__GFP_FS flag around:
 
-Anyway I've just seen this in your git tree:
+                if ((current->flags & PF_FSTRANS) || (flags & KM_NOFS))
+                        lflags &= ~__GFP_FS;
 
+Btw., this XFS way of handling PF_FSTRANS in a nested and letting it 
+translate into the clearing of __GFP_FS might just be the proper way of 
+doing it in other FS and IO code too?
 
-@@ -2222,6 +2283,7 @@ static int ext3_remount (struct super_bl
+Conceptually, it is really the property of the general task context that 
+it's "inside a filesystem transaction", not a property of the immediate 
+allocation callsite. I.e. we should transform all uses of GFP_NOFS into 
+PF_FSTRANS save-set/restore calls.
 
-[CUT]
+I'd not be surprised if that also fixed a couple of bugs: it's much more 
+robust and more maintainable to identify the codepaths that are a 
+filesystem operation than to identify all allocations (explicit or 
+implicit) in a codepath that is known to be a filesystem operation 
+(especially in a constantly evolving kernel).
 
-        ext3_init_journal_params(sb, sbi->s_journal);
-
-+       if (fcache_devnum) {
-+               ext3_close_fcache(sb);
-+               ext3_open_fcache(sb, fcache_devnum);
-+       }
-
-
-So I suppose that it's already fixed.
-
-:)
-
--- 
-	Paolo Ornati
-	Linux 2.6.17-ck1 on x86_64
+	Ingo

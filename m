@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWF0SF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWF0SIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932514AbWF0SF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 14:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWF0SF4
+	id S932516AbWF0SIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 14:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWF0SIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 14:05:56 -0400
-Received: from lucidpixels.com ([66.45.37.187]:23739 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932504AbWF0SFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 14:05:55 -0400
-Date: Tue, 27 Jun 2006 14:05:54 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: linux-kernel@vger.kernel.org
-cc: linux-raid@vger.kernel.org
-Subject: When will the Areca RAID driver be merged into mainline?
-Message-ID: <Pine.LNX.4.64.0606271404281.392@p34.internal.lan>
+	Tue, 27 Jun 2006 14:08:16 -0400
+Received: from sccrmhc11.comcast.net ([63.240.77.81]:29089 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932516AbWF0SIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 14:08:15 -0400
+Date: Tue, 27 Jun 2006 13:08:48 -0500
+From: minyard@acm.org
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>
+Subject: [PATCH] IPMI: tidy msghandler timer
+Message-ID: <20060627180847.GA10805@localdomain>
+Reply-To: minyard@acm.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone have an ETA on this? I heard soon but was wondering how soon..?
 
-kernel-version-2.6.x
-kernel-version-2.6.x/arcmsr
-kernel-version-2.6.x/arcmsr/arcmsr.c
-kernel-version-2.6.x/arcmsr/arcmsr.h
-kernel-version-2.6.x/arcmsr/Makefile
-kernel-version-2.6.x/readme.txt
+Tidy up the timer usage in the IPMI driver.
 
-The driver is quite small and non-intrusive, I was wondering what is 
-holding it back getting merged into the official mainline kernel?
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Thanks,
-
-Justin.
+Index: linux-2.6.16/drivers/char/ipmi/ipmi_msghandler.c
+===================================================================
+--- linux-2.6.16.orig/drivers/char/ipmi/ipmi_msghandler.c
++++ linux-2.6.16/drivers/char/ipmi/ipmi_msghandler.c
+@@ -3741,11 +3741,8 @@ static int ipmi_init_msghandler(void)
+ 	proc_ipmi_root->owner = THIS_MODULE;
+ #endif /* CONFIG_PROC_FS */
+ 
+-	init_timer(&ipmi_timer);
+-	ipmi_timer.data = 0;
+-	ipmi_timer.function = ipmi_timeout;
+-	ipmi_timer.expires = jiffies + IPMI_TIMEOUT_JIFFIES;
+-	add_timer(&ipmi_timer);
++	setup_timer(&ipmi_timer, ipmi_timeout, 0);
++	mod_timer(&ipmi_timer, jiffies + IPMI_TIMEOUT_JIFFIES);
+ 
+ 	atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
+ 

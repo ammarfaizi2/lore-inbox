@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWF0UTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbWF0UTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030336AbWF0UTp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 16:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWF0UTp
+	id S1030335AbWF0UTO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 16:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWF0UTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 16:19:45 -0400
-Received: from xenotime.net ([66.160.160.81]:12000 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030336AbWF0UTn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 16:19:43 -0400
-Date: Tue, 27 Jun 2006 13:22:26 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Lukas Jelinek <info@kernel-api.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel API Reference Documentation
-Message-Id: <20060627132226.2401598e.rdunlap@xenotime.net>
-In-Reply-To: <44A1858B.9080102@kernel-api.org>
-References: <44A1858B.9080102@kernel-api.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 16:19:12 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:19073 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1161277AbWF0UTI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 16:19:08 -0400
+Message-Id: <20060627201655.873643000@sous-sol.org>
+References: <20060627200745.771284000@sous-sol.org>
+User-Agent: quilt/0.45-1
+Date: Tue, 27 Jun 2006 00:00:21 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Sam Ravnborg <sam@ravnborg.org>, Nix <nix@esperi.org.uk>
+Subject: [PATCH 21/25] kbuild: Fix 100% initramfs bloat in 2.6.17 versus 2.6.16
+Content-Disposition: inline; filename=kbuild-fix-100-initramfs-bloat-in-2.6.17-versus-2.6.16.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jun 2006 21:22:51 +0200 Lukas Jelinek wrote:
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-> Hello,
-> 
-> a few months ago I looked for something like "Linux Kernel API Reference
-> Documentation". This search was unsuccessful and somebody recommended me
-> to generate this documentation from the kernel headers.
-> 
-> I have used Doxygen for this work. But the headers have needed to be
-> preprocessed by 'sed' using some regexp rules (due to various
-> incompatible comment formats).
-> 
-> Now I decide to share the result worldwide. The current generated
-> "Kernel API Reference" can be found at http://www.kernel-api.org.
-> Although it is very buggy this time I think it may be useful for module
-> developers.
-> 
-> To allow this work to be better, I suggest to establish some rules for
-> writing code comments (especially for function prototypes, data
-> structures etc.) and to add the comments to the kernel headers. The
-> rules should be chosen carefully to be well accepted by various
-> documentation generators (at least by Doxygen).
+From: Nix <nix@esperi.org.uk>
 
-FYI, there are already some kernel-doc rules in
-Documentation/kernel-doc-nano-HOWTO.txt.  These rules work with the
-doc. generator in the kernel tree (scripts/kernel-doc).
-Do you have suggestions for how to make them (the rules) better?
-so that the in-tree kernel doc. will improve...
+When I built 2.6.17 for the first time I was a little surprised to see
+my kernel putting on >500Kb in weight.
 
-Q2:  what do I get when I download one of the tarballs from kernel-api.org?
+It didn't take long to work out that this was because my initramfs's
+contents were being included twice in the cpio image.
 
-Q3:  Can we see your sed scripts?
+A make V=1 makes the problem obvious:
 
-Thanks,
+/bin/sh /usr/packages/linux/versions/i686-loki/scripts/gen_initramfs_list.sh -l  "usr/initramfs" > usr/.initramfs_data.cpio.gz.d
+  /bin/sh /usr/packages/linux/versions/i686-loki/scripts/gen_initramfs_list.sh -o usr/initramfs_data.cpio.gz  -u 0  -g 0  "usr/initramfs"  "usr/initramfs"
+
+Note that doubling-up of the "usr/initramfs", which leads to
+gen_initramfs_list.sh dumping the thing into the cpio archive twice.
+
+The cause is an obvious pasto, fixed thusly:
+
+Signed-off-by: Nick Alcock <nix@esperi.org.uk>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
-~Randy
+ usr/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.17.1.orig/usr/Makefile
++++ linux-2.6.17.1/usr/Makefile
+@@ -33,7 +33,7 @@ ifneq ($(wildcard $(obj)/.initramfs_data
+ endif
+ 
+ quiet_cmd_initfs = GEN     $@
+-      cmd_initfs = $(initramfs) -o $@ $(ramfs-args) $(ramfs-input)
++      cmd_initfs = $(initramfs) -o $@ $(ramfs-args)
+ 
+ targets := initramfs_data.cpio.gz
+ $(deps_initramfs): klibcdirs
+
+--

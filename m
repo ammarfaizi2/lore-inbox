@@ -1,67 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWF0Fwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWF0GCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWF0Fwc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 01:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWF0Fwc
+	id S932112AbWF0GCL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 02:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWF0GCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 01:52:32 -0400
-Received: from www.tglx.de ([213.239.205.147]:60866 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932078AbWF0Fwb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 01:52:31 -0400
-Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200606270212.k5R2CIvh005395@turing-police.cc.vt.edu>
-References: <20060624061914.202fbfb5.akpm@osdl.org>
-	 <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
-	 <1151364429.25491.462.camel@localhost.localdomain>
-	 <200606270212.k5R2CIvh005395@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Tue, 27 Jun 2006 07:54:25 +0200
-Message-Id: <1151387665.25491.475.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 27 Jun 2006 02:02:11 -0400
+Received: from liaag2ac.mx.compuserve.com ([149.174.40.152]:55469 "EHLO
+	liaag2ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932095AbWF0GCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 02:02:08 -0400
+Date: Tue, 27 Jun 2006 01:57:39 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.6.17.1 new perfmon code base, libpfm, pfmon available
+To: "eranian@hpl.hp.com" <eranian@hpl.hp.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       perfctr-devel <perfctr-devel@lists.sourceforge.net>,
+       linux-ia64 <linux-ia64@vger.kernel.org>,
+       perfmon <perfmon@napali.hpl.hp.com>,
+       oprofile-list <oprofile-list@lists.sourceforge.net>
+Message-ID: <200606270159_MC3-1-C391-1A2A@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-26 at 22:12 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 27 Jun 2006 01:27:09 +0200, Thomas Gleixner said:
-> > On Mon, 2006-06-26 at 17:41 -0400, Valdis.Kletnieks@vt.edu wrote:
-> > > On Sat, 24 Jun 2006 06:19:14 PDT, Andrew Morton said:
-> > > > 
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.
-> 17-mm2/
-> > > 
-> > > I'm seeing a 2-minute or so hang at system startup, seems to be hrtimer
-> > > related.  
+In-Reply-To: <20060626223716.GA16082@frankl.hpl.hp.com>
+
+On Mon, 26 Jun 2006 15:37:17 -0700, Stephane Eranian wrote:
+
+> > 32-bit works great.  Unfortunately, pfmon is far too limited for serious kernel
+> > monitoring AFAICT.  E.g. you can't select edge counting instead of cycle
+> > counting.  So you can count how many clock cycles were spent with interrupts
+> 
+> I put in an option to enable this mode, do pfmon --help. I think it's called
+> edge-mask.
+
+Silly me, I was reading the documentation, which doesn't cover this. :)
+It works:
+
+$ pfmon --system-wide -0 -e interrupts_masked_cycles,interrupts_taken --edge-mask 0,1 -t 10
+<session to end in 10 seconds>
+CPU0    16359 INTERRUPTS_MASKED_CYCLES
+CPU0     5006 INTERRUPTS_TAKEN
+
+5006 hardware interrupts in 10 seconds, 16359 interrupt-disable events ==>
+the kernel disabled interrupts 11353 times for critical sections.  To get
+useful results it looks like booting with idle=poll and disabling cpufreq
+is needed, though, since interrupts_masked_cycles (non-edge mode) counts
+even when the CPU is halted:
+
+$ pfmon --system-wide -0 -e interrupts_masked_cycles,cpu_clk_unhalted -t 10
+<session to end in 10 seconds>
+CPU0    352020255 INTERRUPTS_MASKED_CYCLES
+CPU0     65351172 CPU_CLK_UNHALTED
+
+> > And is someone working on kernel profiling tools that use the perfmon2
+> > infrastructure on i386?  I'd like to see kernel-based profiling that lets
+> > you use something like the existing 'readprofile' to retrieve results.  This
+> > would be a lot better than the current timer-based profiling.
 > > 
-> > hrtimer is not really involved here.
+> You can do this on your athlon using pfmon already, you need to enable a
+> different sampling module. Here is an example:
 > 
-> OK, the fact that it was continually in kernel/hrtimer.c was a red herring? :)
+> $ pfmon --smpl-module=inst-hist -ecpu_clk_unhalted -k --long-smpl-period=100000 \
+>      --resolve-addr --system-wide --session-timeout=10
 
-Yup.
+That produces no output except for column headings.  Thinking it was a problem with
+x86_64 32-bit support, I built a p6 version.  I tried both short and long
+periods on both systems with the same result:
 
-> [   24.292902] SELinux: initialized (dev bdev, type bdev), uses genfs_contexts
-> [   24.311432] SELinux: initialized (dev rootfs, type rootfs), uses genfs_contexts
-> [   24.330082] SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
-> [   24.351494] audit(1151368041.674:2): policy loaded auid=4294967295
-> [   24.370664] audit(1151368041.666:3): avc:  granted  { load_policy } for  pid=1 comm="init" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:security_t:s0 tclass=security
+$ pfmon --smpl-module=inst-hist -ecpu_clk_unhalted -k --short-smpl-period=100000 --resolve-addr --system-wide -t 10
+only kernel symbols are resolved in system-wide mode
+<session to end in 10 seconds>
+# counts   %self    %cum code address
+# counts   %self    %cum code address
 
-<snip>
+And here's what it took to get everything working on Pentium II (seems OK, not
+thoroughly tested:)
+_
 
-> [   88.467114]  <c01006c5> kernel_thread_helper+0x5/0xb 
-> [   89.913214] Real Time Clock Driver v1.12ac
-> [   90.489593] audit(1151368108.794:4): avc:  denied  { dac_override } for  pid=452 comm="dmesg" capability=1 scontext=system_u:system_r:dmesg_t:s0 tcontext=system_u:system_r:dmesg_t:s0 tclass=capability
-> 
-> And after that, things move along OK.
+perfmon: add Pentium II support (family 6 model 3 only.)
 
-Hmm, does not help much. Wild guess: Can you turn off CONFIG_RTC and try
-again ?
+--- 2.6.17.1-d4-pfmon.orig/arch/i386/perfmon/perfmon_p6.c
++++ 2.6.17.1-d4-pfmon/arch/i386/perfmon/perfmon_p6.c
+@@ -76,6 +76,9 @@ static int pfm_p6_probe_pmu(void)
+ 	}
+ 
+ 	switch(cpu_data->x86_model) {
++		case 3:
++			PFM_INFO("Pentium II PMU detected");
++			break;
+ 		case 7 ... 11:
+ 			PFM_INFO("P6 core PMU detected");
+ 			break;
+_
 
-	tglx
+libpfm: Add Pentium II support (family 6 model 3 only.)
 
+--- libpfm-3.2-060621.orig/lib/pfmlib_i386_p6.c
++++ libpfm-3.2-060621/lib/pfmlib_i386_p6.c
+@@ -136,6 +136,7 @@ pfm_i386_p6_detect(void)
+ 		return PFMLIB_ERR_NOTSUPP;
+ 
+ 	switch(model) {
++		case 3: /* Pentium II */
+ 		case 7: /* Pentium III Katmai */
+ 		case 8: /* Pentium III Coppermine */
+ 		case 9: /* Mobile Pentium III */
+_
 
+pfmon: don't build gen_ia32 sample module if not configured.
+
+--- pfmon-3.2-060621.orig/pfmon/pfmon_smpl.c
++++ pfmon-3.2-060621/pfmon/pfmon_smpl.c
+@@ -61,6 +61,8 @@ static pfmon_smpl_module_t *smpl_modules
+ #endif
+ #ifdef CONFIG_PFMON_I386_P6
+ 	&detailed_i386_p6_smpl_module, /* must be first for P6 */
++#endif
++#ifdef CONFIG_PFMON_GEN_IA32
+ 	&detailed_gen_ia32_smpl_module, /* must be last for I386 */
+ #endif
+ 	&inst_hist_smpl_module,		/* works for any PMU model */
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

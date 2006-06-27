@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWF0KEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932762AbWF0KOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751314AbWF0KEe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 06:04:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWF0KEe
+	id S932762AbWF0KOD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 06:14:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbWF0KOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 06:04:34 -0400
-Received: from mail.gmx.net ([213.165.64.21]:55951 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751314AbWF0KEc (ORCPT
+	Tue, 27 Jun 2006 06:14:02 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:29841 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932841AbWF0KOA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 06:04:32 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH] i386: Fix softirq accounting with 4K stacks
-From: Mike Galbraith <efault@gmx.de>
-To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       danial_thom@yahoo.com, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060626175844.GA3822@atjola.homenet>
-References: <1151166193.8516.8.camel@Homer.TheSimpsons.net>
-	 <20060624192523.GA3231@atjola.homenet>
-	 <1151211993.8519.6.camel@Homer.TheSimpsons.net>
-	 <20060625111238.GB8223@atjola.homenet>
-	 <20060625142440.GD8223@atjola.homenet>
-	 <1151257451.7858.45.camel@Homer.TheSimpsons.net>
-	 <1151257397.4940.45.camel@laptopd505.fenrus.org>
-	 <20060625184244.GA11921@atjola.homenet>
-	 <1151288602.7470.22.camel@Homer.TheSimpsons.net>
-	 <1151291114.7611.8.camel@Homer.TheSimpsons.net>
-	 <20060626175844.GA3822@atjola.homenet>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 27 Jun 2006 12:09:01 +0200
-Message-Id: <1151402942.7800.32.camel@Homer.TheSimpsons.net>
+	Tue, 27 Jun 2006 06:14:00 -0400
+Date: Tue, 27 Jun 2006 12:08:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Mackerras <paulus@samba.org>
+Cc: akpm@osdl.org, schwidefsky@de.ibm.com, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove extra local_bh_disable/enable from arch do_softirq
+Message-ID: <20060627100856.GA17160@elte.hu>
+References: <17566.32236.368906.227113@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17566.32236.368906.227113@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-26 at 19:58 +0200, Björn Steinbrink wrote:
 
-> The results for the forcedeth driven NIC do not agree though, and your
-> results differ from what I see as well, right? So I'm kinda lost again.
+* Paul Mackerras <paulus@samba.org> wrote:
 
-I'm not.  Not any more.  After much fruitless rummaging, I did some more
-profiling to verify the numbers.  It really does take that much more cpu
-when booted with noapic, nearly 50%!  I've been chasing swamp gas.
+> At the moment, powerpc and s390 have their own versions of do_softirq 
+> which include local_bh_disable() and __local_bh_enable() calls.  They 
+> end up calling __do_softirq (in kernel/softirq.c) which also does 
+> local_bh_disable/enable.
+> 
+> Apparently the two levels of disable/enable trigger a warning from 
+> some validation code that Ingo is working on, and he would like to see 
+> the outer level removed.  But to do that, we have to move the 
+> account_system_vtime calls that are currently in the arch do_softirq() 
+> implementations for powerpc and s390 into the generic __do_softirq() 
+> (this is a no-op for other archs because account_system_vtime is 
+> defined to be an empty inline function on all other archs).  This 
+> patch does that.
+> 
+> Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-Oh well.  I got a warm fuzzy wrt tools cpu usage numbers out of it.
+thanks - this solves the problem nicely.
 
-Stick a fork in this bug, it's done ;-)
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-	-Mike
-
+	Ingo

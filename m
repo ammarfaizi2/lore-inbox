@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030614AbWF0DEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030615AbWF0D1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030614AbWF0DEm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jun 2006 23:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933331AbWF0DEm
+	id S1030615AbWF0D1y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jun 2006 23:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933343AbWF0D1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jun 2006 23:04:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60841 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933296AbWF0DEl (ORCPT
+	Mon, 26 Jun 2006 23:27:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10155 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933331AbWF0D1x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jun 2006 23:04:41 -0400
-Date: Mon, 26 Jun 2006 20:04:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: stsp@aknet.ru, linux-kernel@vger.kernel.org
-Subject: Re: the creation of boot_cpu_init() is wrong and accessing
- uninitialised data
-Message-Id: <20060626200433.bf0292af.akpm@osdl.org>
-In-Reply-To: <1151376313.3443.12.camel@mulgrave.il.steeleye.com>
-References: <1151376313.3443.12.camel@mulgrave.il.steeleye.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 26 Jun 2006 23:27:53 -0400
+Date: Mon, 26 Jun 2006 23:27:38 -0400
+From: Dave Jones <davej@redhat.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: alsa-devel@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: list corruption on removal of snd_seq_dummy
+Message-ID: <20060627032738.GA26575@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Takashi Iwai <tiwai@suse.de>, alsa-devel@lists.sourceforge.net,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060623031526.GB19461@redhat.com> <s5hzmg49mi5.wl%tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hzmg49mi5.wl%tiwai@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jun 2006 21:45:13 -0500
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
+On Fri, Jun 23, 2006 at 12:47:46PM +0200, Takashi Iwai wrote:
+ 
+ > > The code in question is doing..
+ > > 
+ > >         __list_add(&deleted_list,
+ > >                client->ports_list_head.prev,
+ > >                client->ports_list_head.next);
+ > > 
+ > > which looks fishy, as those two elements aren't going to be consecutive,
+ > > as __list_add expects.
+ > 
+ > I think the code behaves correctly but probably misusing __list_add().
+ > It movies the whole entries from an existing list_head A
+ > (clients->ports_list_head) to a new list_head B (deleted_list).
+ > The above is exapnded:
+ > 
+ > 	A->next->prev = B;
+ > 	B->next = A->next;
+ > 	B->prev = A->prev;
+ > 	A->prev->next = B;
+ > 
+ > Any better way to achieve it using standard macros?
 
-> The basic problem with this function is that on most architectures
-> smp_processor_id() is an alias for current_thread_info()->cpu which
-> isn't given its correct value until setup_arch(), so adding a
-> boot_cpu_init() that uses it *before* setup_arch() is called is plain
-> wrong.  You manage to get away with it 99% of the time because its
-> uninitialised value is zero and mostly the id of the booting CPU is
-> zero ... but guess who's got a box currently booting on CPU 1 with no
-> CPU 0?
+Why can't you just list_move() the elements ?
 
-preexisting bug, really.  printk() uses smp_processor_id().  Things like
-spin_lock() will probably do so in certain debug modes.  We finally got
-caught.
+		Dave
 
-> Unfortunately, I can't think of a good solution for what you want to do.
-> The thing that looks most plausible is hard_smp_processor_id() which
-> reads the actual register value of the processor id.  However, on x86
-> (and any other architectures that renumber their CPUs in setup_arch())
-> this will ultimately turn out wrong again.
-
-I think arch code should do it before calling start_kernel(), really.  It's
-just such a basic part of the kernel framework.
-
-A less wholesome but perhaps simpler solution would be to call the new
-setup_smp_processor_id() on entry to start_kernel().
-
+-- 
+http://www.codemonkey.org.uk

@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933076AbWF0Jcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWF0Jer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933076AbWF0Jcr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 05:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933385AbWF0Jcr
+	id S964862AbWF0Jer (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 05:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWF0Jer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 05:32:47 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:53134 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S933076AbWF0Jcq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 05:32:46 -0400
-Date: Tue, 27 Jun 2006 11:28:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [patch] irq: fix arch/i386/kernel/irq.c gcc warning
-Message-ID: <20060627092801.GA4196@elte.hu>
-References: <20060627015211.ce480da6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060627015211.ce480da6.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 27 Jun 2006 05:34:47 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:23311 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S964832AbWF0Jep
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 05:34:45 -0400
+Message-ID: <44A0FBAC.7020107@fr.ibm.com>
+Date: Tue, 27 Jun 2006 11:34:36 +0200
+From: Daniel Lezcano <dlezcano@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrey Savochkin <saw@swsoft.com>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
+       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
+       dev@sw.ru, herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       ebiederm@xmission.com, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <20060627131136.B13959@castle.nmd.msu.ru>
+In-Reply-To: <20060627131136.B13959@castle.nmd.msu.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm3/
-
-> Changes since 2.6.17-mm2:
+Andrey Savochkin wrote:
+> Daniel,
 > 
->  origin.patch
+> On Mon, Jun 26, 2006 at 05:49:41PM +0200, Daniel Lezcano wrote:
+> 
+>>>Then you lose the ability for each namespace to have its own routing entries.
+>>>Which implies that you'll have difficulties with devices that should exist
+>>>and be visible in one namespace only (like tunnels), as they require IP
+>>>addresses and route.
+>>
+>>I mean instead of having the route tables private to the namespace, the 
+>>routes have the information to which namespace they are associated.
+> 
+> 
+> I think I understand what you're talking about: you want to make routing
+> responsible for determining destination namespace ID in addition to route
+> type (local, unicast etc), nexthop information, and so on.  Right?
 
-upstream grew a new compiler warning in i386 irq.c. Patch below fixes 
-it. No change in resulting irq.o code.
+Yes.
 
-	Ingo
+> 
+> My point is that if you make namespace tagging at routing time, and
+> your packets are being routed only once, you lose the ability
+> to have separate routing tables in each namespace.
 
--------------
-Subject: irq: fix arch/i386/kernel/irq.c gcc warning
-From: Ingo Molnar <mingo@elte.hu>
+Right. What is the advantage of having separate the routing tables ?
 
-add parantheses. (code was fine because & has a higher precedence than |,
-but it's a dangerous construct in general and gcc also emits a warning)
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- arch/i386/kernel/irq.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-Index: linux/arch/i386/kernel/irq.c
-===================================================================
---- linux.orig/arch/i386/kernel/irq.c
-+++ linux/arch/i386/kernel/irq.c
-@@ -104,8 +104,8 @@ fastcall unsigned int do_IRQ(struct pt_r
- 		 * softirq checks work in the hardirq context.
- 		 */
- 		irqctx->tinfo.preempt_count =
--			irqctx->tinfo.preempt_count & ~SOFTIRQ_MASK |
--			curctx->tinfo.preempt_count & SOFTIRQ_MASK;
-+			(irqctx->tinfo.preempt_count & ~SOFTIRQ_MASK) |
-+			(curctx->tinfo.preempt_count & SOFTIRQ_MASK);
- 
- 		asm volatile(
- 			"       xchgl   %%ebx,%%esp      \n"

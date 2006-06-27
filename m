@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161254AbWF0TBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932522AbWF0TDf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161254AbWF0TBe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161255AbWF0TBe
+	id S932522AbWF0TDf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWF0TDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:01:34 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:7370 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161254AbWF0TBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:01:33 -0400
-Message-ID: <44A1809F.5030306@sgi.com>
-Date: Tue, 27 Jun 2006 21:01:51 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 27 Jun 2006 15:03:35 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44931 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932522AbWF0TDe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 15:03:34 -0400
+Date: Tue, 27 Jun 2006 21:03:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Brad Campbell <brad@wasp.net.au>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       suspend2-devel@lists.suspend2.net
+Subject: Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion in	-mm
+Message-ID: <20060627190323.GA28863@elf.ucw.cz>
+References: <200606270147.16501.ncunningham@linuxmail.org> <20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au>
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
-Subject: Re: [patch] fix static linking of NFS
-References: <yq04py7j699.fsf@jaguar.mkp.net>	 <1151426029.23773.7.camel@lade.trondhjem.org> <1151426697.23773.10.camel@lade.trondhjem.org>
-In-Reply-To: <1151426697.23773.10.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44A14D3D.8060003@wasp.net.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> On Tue, 2006-06-27 at 12:33 -0400, Trond Myklebust wrote:
->>> Remove __exit declarations from functions called from __init code to
->>> avoid link errors when the __exit section is discarded, eg NFS is
->>> linked statically into the kernel.
->>>
->>> Signed-off-by: Jes Sorensen <jes@sgi.com>
->> Acked-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+On Tue 2006-06-27 19:22:37, Brad Campbell wrote:
+> Pavel Machek wrote:
+> >>Some of the advantages of suspend2 over swsusp and uswsusp are:
+> >>
+> >>- Speed (Asynchronous I/O and readahead for synchronous I/O)
+> >
+> >uswsusp should be able to match suspend2's speed. It can do async I/O,
+> >etc...
 > 
-> Oops... I was a bit too quick there. Could you clean up  the forward
-> declarations in "internal.h" too, please.
+> ARGH!
 > 
-> Cheers,
->   Trond
+> And the next version of windows will have all the wonderful features that 
+> MacOSX has now so best not upgrade to Mac as you can just wait for the next 
+> version of windows.
+> 
+> suspend2 has it *now*. It works, it's stable.
 
-Good point, I didn't notice those because the compiler didn't moan. I'll
-look into doing another patch, but it might not be until Thursday.
+uswsusp also has it *now*, in case you missed it. I just do not do
+benchmark runs all the time, and don't know how fast suspend2
+is. uswsusp already uses normal I/O ... and that is asynchronous.
 
-Cheers,
-Jes
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

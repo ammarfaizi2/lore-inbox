@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030683AbWF0Ejg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030677AbWF0EjU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030683AbWF0Ejg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 00:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030679AbWF0Ej2
+	id S1030677AbWF0EjU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 00:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030678AbWF0EjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 00:39:28 -0400
-Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:21467 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030658AbWF0EjB
+	Tue, 27 Jun 2006 00:39:19 -0400
+Received: from cust9421.vic01.dataco.com.au ([203.171.70.205]:23515 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030677AbWF0EjO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 00:39:01 -0400
+	Tue, 27 Jun 2006 00:39:14 -0400
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [Suspend2][ 04/10] [Suspend2] Prepare pbe list for atomic restore.
-Date: Tue, 27 Jun 2006 14:39:00 +1000
+Subject: [Suspend2][ 08/10] [Suspend2] Atomic copy routine
+Date: Tue, 27 Jun 2006 14:39:13 +1000
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060627043858.14546.24568.stgit@nigel.suspend2.net>
+Message-Id: <20060627043912.14546.41377.stgit@nigel.suspend2.net>
 In-Reply-To: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
 References: <20060627043846.14546.75810.stgit@nigel.suspend2.net>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -22,70 +22,67 @@ User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This routine prepares the list of page backup entries that is used by the
-swsusp lowlevel code in doing the atomic restore.
+When suspending, this routine is used to make the atomic copy of memory.
+Like swsusp, it is done in C.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/atomic_copy.c |   50 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 50 insertions(+), 0 deletions(-)
+ kernel/power/atomic_copy.c |   47 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 47 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/atomic_copy.c b/kernel/power/atomic_copy.c
-index 6d1bc68..556e481 100644
+index cb3663c..75e3beb 100644
 --- a/kernel/power/atomic_copy.c
 +++ b/kernel/power/atomic_copy.c
-@@ -135,3 +135,53 @@ static unsigned long __suspend_get_next_
- 	return counter;
+@@ -302,3 +302,50 @@ int suspend_post_context_save(void)
+ 	return 0;
  }
  
-+/*
-+ * prepare_suspend2_pbe_list
++/* suspend_copy_pageset1: Do the atomic copy of pageset1.
 + *
-+ * Prepare pageset2 pages for doing the atomic copy. If necessary,
-+ * we allocate extra pages.
-+ *
++ * Make the atomic copy of pageset1. We can't use copy_page (as we once did)
++ * because we can't be sure what side effects it has. On my old Duron, with
++ * 3DNOW, kernel_fpu_begin increments preempt count, making our preempt
++ * count at resume time 4 instead of 3.
++ * 
++ * We don't want to call kmap_atomic unconditionally because it has the side
++ * effect of incrementing the preempt count, which will leave it one too high
++ * post resume (the page containing the preempt count will be copied after
++ * its incremented. This is essentially the same problem.
 + */
 +
-+void prepare_suspend2_pbe_list(void)
++void suspend_copy_pageset1(void)
 +{
-+	int orig_pfn, copy_pfn, i = 1;
-+	struct pbe *this_pbe = NULL, *last_pbe = NULL;
++	int i, source_index, dest_index;
 +
-+	orig_pfn = copy_pfn = -1;
++	source_index = get_next_bit_on(pageset1_map, -1);
++	dest_index = get_next_bit_on(pageset1_copy_map, -1);
 +
-+	pagedir_nosave = NULL;
++	for (i = 0; i < pagedir1.pageset_size; i++) {
++		unsigned long *origvirt, *copyvirt;
++		struct page *origpage;
++		int loop = (PAGE_SIZE / sizeof(unsigned long)) - 1;
 +
-+	do {
-+		if (!this_pbe ||
-+		    ((((unsigned long) this_pbe) & (PAGE_SIZE - 1)) 
-+		     + 2 * sizeof(struct pbe)) > PAGE_SIZE) {
-+			/* Get the next page for pbes */
-+			this_pbe = (struct pbe *) suspend_get_nonconflicting_page();
-+			BUG_ON(!this_pbe);
-+			BUG_ON(PagePageset1(virt_to_page(this_pbe)));
-+		} else
-+			this_pbe++;
-+
-+		do {
-+			orig_pfn = get_next_bit_on(pageset1_map, orig_pfn);
-+			if (orig_pfn < 0)
-+				return;
-+			copy_pfn = get_next_bit_on(pageset1_copy_map, copy_pfn);
-+		} while (PageHighMem(pfn_to_page(orig_pfn)));
++		origpage = pfn_to_page(source_index);
 +		
-+		if (!last_pbe)
-+			pagedir_nosave = this_pbe;
++	       	if (PageHighMem(origpage))
++			origvirt = kmap_atomic(origpage, KM_USER0);
 +		else
-+			last_pbe->next = this_pbe;
++			origvirt = page_address(origpage);
 +
-+		last_pbe = this_pbe;
-+		this_pbe->orig_address = (unsigned long) page_address(pfn_to_page(orig_pfn));
-+		this_pbe->address = (unsigned long) page_address(pfn_to_page(copy_pfn));
-+		this_pbe->next = NULL; /* get_nonconflicting_page doesn't get zeroed pages */
++		copyvirt = (unsigned long *) page_address(pfn_to_page(dest_index));
 +
-+		i++;
-+
-+	} while (1);
++		while (loop >= 0) {
++			*(copyvirt + loop) = *(origvirt + loop);
++			loop--;
++		}
++		
++		if (PageHighMem(origpage))
++			kunmap_atomic(origvirt, KM_USER0);
++		
++		source_index = get_next_bit_on(pageset1_map, source_index);
++		dest_index = get_next_bit_on(pageset1_copy_map, dest_index);
++	}
 +}
 +
 

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030474AbWF0WPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422659AbWF0WQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030474AbWF0WPM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 18:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbWF0WPL
+	id S1422659AbWF0WQE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 18:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422655AbWF0WPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 18:15:11 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:36526 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030474AbWF0WPD (ORCPT
+	Tue, 27 Jun 2006 18:15:43 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:24525 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030459AbWF0WOz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 18:15:03 -0400
-Subject: [PATCH 17/20] elevate mnt writers for vfs_unlink() callers
+	Tue, 27 Jun 2006 18:14:55 -0400
+Subject: [PATCH 10/20] unix_find_other() elevate write count for touch_atime()
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
        serue@us.ibm.com, Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Tue, 27 Jun 2006 15:14:54 -0700
+Date: Tue, 27 Jun 2006 15:14:49 -0700
 References: <20060627221436.77CCB048@localhost.localdomain>
 In-Reply-To: <20060627221436.77CCB048@localhost.localdomain>
-Message-Id: <20060627221454.AC12A311@localhost.localdomain>
+Message-Id: <20060627221449.EFF2B632@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -26,39 +26,52 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/namei.c   |    4 ++++
- lxc-dave/ipc/mqueue.c |    5 ++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ lxc-dave/net/unix/af_unix.c |   16 ++++++++++++----
+ 1 files changed, 12 insertions(+), 4 deletions(-)
 
-diff -puN fs/namei.c~C-elevate-writers-vfs_unlink fs/namei.c
---- lxc/fs/namei.c~C-elevate-writers-vfs_unlink	2006-06-27 10:40:34.000000000 -0700
-+++ lxc-dave/fs/namei.c	2006-06-27 10:40:34.000000000 -0700
-@@ -2158,7 +2158,11 @@ static long do_unlinkat(int dfd, const c
- 		inode = dentry->d_inode;
- 		if (inode)
- 			atomic_inc(&inode->i_count);
-+		error = mnt_want_write(nd.mnt);
-+		if (error)
-+			goto exit2;
- 		error = vfs_unlink(nd.dentry->d_inode, dentry);
-+		mnt_drop_write(nd.mnt);
- 	exit2:
- 		dput(dentry);
- 	}
-diff -puN ipc/mqueue.c~C-elevate-writers-vfs_unlink ipc/mqueue.c
---- lxc/ipc/mqueue.c~C-elevate-writers-vfs_unlink	2006-06-27 10:40:34.000000000 -0700
-+++ lxc-dave/ipc/mqueue.c	2006-06-27 10:40:34.000000000 -0700
-@@ -748,8 +748,11 @@ asmlinkage long sys_mq_unlink(const char
- 	inode = dentry->d_inode;
- 	if (inode)
- 		atomic_inc(&inode->i_count);
--
-+	err = mnt_want_write(mqueue_mnt);
-+	if (err)
-+		goto out_err;
- 	err = vfs_unlink(dentry->d_parent->d_inode, dentry);
-+	mnt_drop_write(mqueue_mnt);
- out_err:
- 	dput(dentry);
+diff -puN net/unix/af_unix.c~C-elevate-writers-opens-part4 net/unix/af_unix.c
+--- lxc/net/unix/af_unix.c~C-elevate-writers-opens-part4	2006-06-27 10:40:30.000000000 -0700
++++ lxc-dave/net/unix/af_unix.c	2006-06-27 10:40:30.000000000 -0700
+@@ -686,21 +686,27 @@ static struct sock *unix_find_other(stru
+ 		err = path_lookup(sunname->sun_path, LOOKUP_FOLLOW, &nd);
+ 		if (err)
+ 			goto fail;
++
++		err = mnt_want_write(nd.mnt);
++		if (err)
++			goto put_path_fail;
++
+ 		err = vfs_permission(&nd, MAY_WRITE);
+ 		if (err)
+-			goto put_fail;
++			goto mnt_drop_write_fail;
  
+ 		err = -ECONNREFUSED;
+ 		if (!S_ISSOCK(nd.dentry->d_inode->i_mode))
+-			goto put_fail;
++			goto mnt_drop_write_fail;
+ 		u=unix_find_socket_byinode(nd.dentry->d_inode);
+ 		if (!u)
+-			goto put_fail;
++			goto mnt_drop_write_fail;
+ 
+ 		if (u->sk_type == type)
+ 			touch_atime(nd.mnt, nd.dentry);
+ 
+ 		path_release(&nd);
++		mnt_drop_write(nd.mnt);
+ 
+ 		err=-EPROTOTYPE;
+ 		if (u->sk_type != type) {
+@@ -720,7 +726,9 @@ static struct sock *unix_find_other(stru
+ 	}
+ 	return u;
+ 
+-put_fail:
++mnt_drop_write_fail:
++	mnt_drop_write(nd.mnt);
++put_path_fail:
+ 	path_release(&nd);
+ fail:
+ 	*error=err;
 _

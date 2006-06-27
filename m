@@ -1,184 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422730AbWF0Xm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422739AbWF0XnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422730AbWF0Xm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 19:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422733AbWF0Xm5
+	id S1422739AbWF0XnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 19:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422736AbWF0XnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 19:42:57 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:54509 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1422730AbWF0Xm4 (ORCPT
+	Tue, 27 Jun 2006 19:43:25 -0400
+Received: from minus.inr.ac.ru ([194.67.69.97]:16537 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1422735AbWF0XnX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 19:42:56 -0400
-Date: Tue, 27 Jun 2006 16:43:27 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       stern@rowland.harvard.edu, mingo@elte.hu, tytso@us.ibm.com,
-       dvhltc@us.ibm.com, oleg@tv-sign.ru
-Subject: [PATCH 2/2] srcu-2: add SRCU operations to rcutorture
-Message-ID: <20060627234327.GB2734@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060627233702.GA2696@us.ibm.com>
+	Tue, 27 Jun 2006 19:43:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=sIf+RZyvyNr0N8D4ThIJP69gpfBwEMCmIxvCNtjbxkUtzSrXuw/ts3Ov64kbgdZ3aDOsy9DFPTMOrrN4wlL6tUakEF9Alt14fRTPpLGvvgdzaVH1LqYi5Ldsya2jIjewAW/1XIFvYb0qdWDDI4DzrrJeQKg7l2oHO5B7+1V6ib4=;
+Date: Wed, 28 Jun 2006 03:42:10 +0400
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Herbert Poetzl <herbert@13thfloor.at>,
+       Ben Greear <greearb@candelatech.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Daniel Lezcano <dlezcano@fr.ibm.com>, Andrey Savochkin <saw@swsoft.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
+       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
+       devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+Message-ID: <20060627234210.GA1598@ms2.inr.ac.ru>
+References: <20060627131136.B13959@castle.nmd.msu.ru> <44A0FBAC.7020107@fr.ibm.com> <20060627133849.E13959@castle.nmd.msu.ru> <44A1149E.6060802@fr.ibm.com> <m1sllqn7cb.fsf@ebiederm.dsl.xmission.com> <20060627160241.GB28984@MAIL.13thfloor.at> <m1psgulf4u.fsf@ebiederm.dsl.xmission.com> <44A1689B.7060809@candelatech.com> <20060627225213.GB2612@MAIL.13thfloor.at> <1151449973.24103.51.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060627233702.GA2696@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1151449973.24103.51.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds SRCU operations to rcutorture and updates rcutorture documentation.
+Hello!
 
-Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
----
+> It may look weird, but do application really *need* to see eth0 rather
+> than eth858354?
 
- Documentation/RCU/torture.txt |   15 +++++++
- kernel/rcutorture.c           |   89 ++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 101 insertions(+), 3 deletions(-)
+Applications do not care, humans do. :-)
 
-diff -urpNa -X dontdiff linux-2.6.17-srcu/Documentation/RCU/torture.txt linux-2.6.17-torturesrcu/Documentation/RCU/torture.txt
---- linux-2.6.17-srcu/Documentation/RCU/torture.txt	2006-06-24 12:13:12.000000000 -0700
-+++ linux-2.6.17-torturesrcu/Documentation/RCU/torture.txt	2006-06-26 18:50:33.000000000 -0700
-@@ -118,6 +118,21 @@ o	"Free-Block Circulation": Shows the nu
- 	as it is only incremented if a torture structure's counter
- 	somehow gets incremented farther than it should.
- 
-+Different implementations of RCU can provide implementation-specific
-+additional information.  For example, SRCU provides the following:
-+
-+	srcu-torture: rtc: f8cf46a8 ver: 355 tfle: 0 rta: 356 rtaf: 0 rtf: 346 rtmbe: 0
-+	srcu-torture: Reader Pipe:  559738 939 0 0 0 0 0 0 0 0 0
-+	srcu-torture: Reader Batch:  560434 243 0 0 0 0 0 0 0 0
-+	srcu-torture: Free-Block Circulation:  355 354 353 352 351 350 349 348 347 346 0
-+	srcu-torture: per-CPU(idx=1): 0(0,1) 1(0,1) 2(0,0) 3(0,1)
-+
-+The first four lines are similar to those for RCU.  The last line shows
-+the per-CPU counter state.  The numbers in parentheses are the values
-+of the "old" and "current" counters for the corresponding CPU.  The
-+"idx" value maps the "old" and "current" values to the underlying array,
-+and is useful for debugging.
-+
- 
- USAGE
- 
-diff -urpNa -X dontdiff linux-2.6.17-srcu/kernel/rcutorture.c linux-2.6.17-torturesrcu/kernel/rcutorture.c
---- linux-2.6.17-srcu/kernel/rcutorture.c	2006-06-24 11:52:08.000000000 -0700
-+++ linux-2.6.17-torturesrcu/kernel/rcutorture.c	2006-06-27 07:13:13.000000000 -0700
-@@ -44,6 +44,7 @@
- #include <linux/delay.h>
- #include <linux/byteorder/swabb.h>
- #include <linux/stat.h>
-+#include <linux/srcu.h>
- 
- MODULE_LICENSE("GPL");
- 
-@@ -53,7 +54,7 @@ static int stat_interval;	/* Interval be
- static int verbose;		/* Print more debug info. */
- static int test_no_idle_hz;	/* Test RCU's support for tickless idle CPUs. */
- static int shuffle_interval = 5; /* Interval between shuffles (in sec)*/
--static char *torture_type = "rcu"; /* What to torture. */
-+static char *torture_type = "rcu"; /* What to torture: rcu, srcu. */
- 
- module_param(nreaders, int, 0);
- MODULE_PARM_DESC(nreaders, "Number of RCU reader threads");
-@@ -66,7 +67,7 @@ MODULE_PARM_DESC(test_no_idle_hz, "Test 
- module_param(shuffle_interval, int, 0);
- MODULE_PARM_DESC(shuffle_interval, "Number of seconds between shuffles");
- module_param(torture_type, charp, 0);
--MODULE_PARM_DESC(torture_type, "Type of RCU to torture (rcu, rcu_bh)");
-+MODULE_PARM_DESC(torture_type, "Type of RCU to torture (rcu, rcu_bh, srcu)");
- 
- #define TORTURE_FLAG "-torture:"
- #define PRINTK_STRING(s) \
-@@ -282,8 +283,90 @@ static struct rcu_torture_ops rcu_bh_ops
- 	.name = "rcu_bh"
- };
- 
-+/*
-+ * Definitions for srcu torture testing.
-+ */
-+
-+static struct srcu_struct srcu_ctl;
-+static struct list_head srcu_removed;
-+
-+static void srcu_torture_init(void)
-+{
-+	init_srcu_struct(&srcu_ctl);
-+	INIT_LIST_HEAD(&srcu_removed);
-+}
-+
-+static void srcu_torture_cleanup(void)
-+{
-+	synchronize_srcu(&srcu_ctl);
-+	cleanup_srcu_struct(&srcu_ctl);
-+}
-+
-+static int srcu_torture_read_lock(void)
-+{
-+	return (srcu_read_lock(&srcu_ctl));
-+}
-+
-+static void srcu_torture_read_unlock(int idx)
-+{
-+	srcu_read_unlock(&srcu_ctl, idx);
-+}
-+
-+static int srcu_torture_completed(void)
-+{
-+	return srcu_batches_completed(&srcu_ctl);
-+}
-+
-+static void srcu_torture_deferred_free(struct rcu_torture *p)
-+{
-+	int i;
-+	struct rcu_torture *rp;
-+	struct rcu_torture *rp1;
-+
-+	synchronize_srcu(&srcu_ctl);
-+	list_add(&p->rtort_free, &srcu_removed);
-+	list_for_each_entry_safe(rp, rp1, &srcu_removed, rtort_free) {
-+		i = rp->rtort_pipe_count;
-+		if (i > RCU_TORTURE_PIPE_LEN)
-+			i = RCU_TORTURE_PIPE_LEN;
-+		atomic_inc(&rcu_torture_wcount[i]);
-+		if (++rp->rtort_pipe_count >= RCU_TORTURE_PIPE_LEN) {
-+			rp->rtort_mbtest = 0;
-+			list_del(&rp->rtort_free);
-+			rcu_torture_free(rp);
-+		}
-+	}
-+}
-+
-+int srcu_torture_stats(char *page)
-+{
-+	int cnt = 0;
-+	int cpu;
-+	int idx = srcu_ctl.completed & 0x1;
-+
-+	cnt += sprintf(&page[cnt], "%s%s per-CPU(idx=%d):", torture_type, TORTURE_FLAG, idx);
-+	for_each_cpu(cpu) {
-+		cnt += sprintf(&page[cnt], " %d(%d,%d)", cpu,
-+			       per_cpu_ptr(srcu_ctl.per_cpu_ref, cpu)->c[!idx],
-+			       per_cpu_ptr(srcu_ctl.per_cpu_ref, cpu)->c[idx]);
-+	}
-+	cnt += sprintf(&page[cnt], "\n");
-+	return (cnt);
-+}
-+
-+static struct rcu_torture_ops srcu_ops = {
-+	.init = srcu_torture_init,
-+	.cleanup = srcu_torture_cleanup,
-+	.readlock = srcu_torture_read_lock,
-+	.readunlock = srcu_torture_read_unlock,
-+	.completed = srcu_torture_completed,
-+	.deferredfree = srcu_torture_deferred_free,
-+	.stats = srcu_torture_stats,
-+	.name = "srcu"
-+};
-+
- static struct rcu_torture_ops *torture_ops[] =
--	{ &rcu_ops, &rcu_bh_ops, NULL };
-+	{ &rcu_ops, &rcu_bh_ops, &srcu_ops, NULL };
- 
- /*
-  * RCU torture writer kthread.  Repeatedly substitutes a new structure
+What's about applications they just need to see exactly the same device
+after migration. Not only name, but f.e. also its ifindex. If you do not
+create a separate namespace for netdevices, you will inevitably end up
+with some strange hack sort of VPIDs to translate (or to partition) ifindices
+or to tell that "ping -I eth858354 xxx" is too coimplicated application
+to survive migration.
+
+Alexey

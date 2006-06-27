@@ -1,86 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933094AbWF0JIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWF0JJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933094AbWF0JIz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 05:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933074AbWF0JIy
+	id S1751301AbWF0JJY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 05:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWF0JJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 05:08:54 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:37836 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S933094AbWF0JIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 05:08:54 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Date: Tue, 27 Jun 2006 19:08:46 +1000
-User-Agent: KMail/1.9.1
-Cc: Jens Axboe <axboe@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271727.39474.nigel@suspend2.net> <20060627075341.GA16347@kroah.com>
-In-Reply-To: <20060627075341.GA16347@kroah.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5022062.ZpZobU4IUR";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606271908.50599.nigel@suspend2.net>
+	Tue, 27 Jun 2006 05:09:24 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:33800 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S933397AbWF0JJN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 05:09:13 -0400
+Message-ID: <20060627130911.A13959@castle.nmd.msu.ru>
+Date: Tue, 27 Jun 2006 13:09:11 +0400
+From: Andrey Savochkin <saw@swsoft.com>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Daniel Lezcano <dlezcano@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
+       devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+References: <20060609210202.215291000@localhost.localdomain> <20060609210625.144158000@localhost.localdomain> <20060626134711.A28729@castle.nmd.msu.ru> <449FF5A0.2000403@fr.ibm.com> <20060626192751.A989@castle.nmd.msu.ru> <44A00215.2040608@fr.ibm.com> <m1hd27uaxw.fsf@ebiederm.dsl.xmission.com> <20060626183649.GB3368@MAIL.13thfloor.at> <m1u067r9qk.fsf@ebiederm.dsl.xmission.com> <20060626200225.GA5330@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <20060626200225.GA5330@MAIL.13thfloor.at>; from "Herbert Poetzl" on Mon, Jun 26, 2006 at 10:02:25PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5022062.ZpZobU4IUR
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Herbert,
 
-Hi.
+On Mon, Jun 26, 2006 at 10:02:25PM +0200, Herbert Poetzl wrote:
+> 
+> keep in mind that you actually have three kinds
+> of network traffic on a typical host/guest system:
+> 
+>  - traffic between unit and outside
+>    - host traffic should be quite minimal
+>    - guest traffic will be quite high
+> 
+>  - traffic between host and guest
+>    probably minimal too (only for shared services)
+> 
+>  - traffic between guests
+>    can be as high (or even higher) than the
+>    outbound traffic, just think web guest and
+>    database guest
 
-On Tuesday 27 June 2006 17:53, Greg KH wrote:
-> Well, as your stuff does not have anything to do with "processes",
-> putting it in /proc is not acceptable.
->
-> sysfs is one value per file, and if that matches up to what you need,
-> then it should be fine to use.
+My experience with host-guest systems tells me the opposite:
+outside traffic is a way higher than traffic between guests.
+People put web server and database in different guests not more frequent than
+they put them on separate physical server.
+Unless people are building a really huge system when 1 server can't take the
+whole load, web and database live together and benefit from communications
+over UNIX sockets.
 
-It does.
+Guests are usually comprised of web-db pairs, and people place many such
+guests on a single computer.
 
-> You do need to have some kind of function for every sysfs entry, but you
-> can group common ones together (as the hwmon drivers do.)
+> 
+> > The routing between network namespaces does have the potential to be
+> > more expensive than just a packet trivially coming off the wire into a
+> > socket.
+> 
+> IMHO the routing between network namespaces should
+> not require more than the current local traffic
+> does (i.e. you should be able to achieve loopback
+> speed within an insignificant tolerance) and not
+> nearly the time required for on-wire stuff ...
 
-Ok. I'll take a look.
+I'd like to caution about over-optimizing communications between different
+network namespaces.
+Many optimizations of local traffic (such as high MTU) don't look so
+appealing when you start to think about live migration of namespaces.
 
-> As you will not have a backing "device" to attach your files to, you
-> will probably need to deal with "raw" kobjects, and the learning curve
-> for how to create files in sysfs with them is unfortunatly a bit steep.
-> But there is lots of working examples in the kernel that do this (block
-> devices, md, driver core, etc.), there's plenty of code to copy from to
-> get it to work.
->
-> And if that doesn't look like fun, you can always just use create a new
-> filesystem (only 200 lines of code), or use debugfs.
->
-> good luck,
-
-Ok. I'll give it a go. Thanks for the pointers, Greg.
-
-Regards,
-
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
-
---nextPart5022062.ZpZobU4IUR
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEoPWiN0y+n1M3mo0RAv8aAJ0Q1DtK0TYmRX2J4zJmvlH2JvmxtgCgjmBS
-1c2FrmLxqf0KTCpZu2kDZug=
-=lbZ1
------END PGP SIGNATURE-----
-
---nextPart5022062.ZpZobU4IUR--
+Regards
+	Andrey

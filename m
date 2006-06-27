@@ -1,93 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWF0Gic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWF0Gkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbWF0Gic (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 02:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWF0Gic
+	id S1030275AbWF0Gkr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 02:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWF0Gkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 02:38:32 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:61141 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932249AbWF0Gib (ORCPT
+	Tue, 27 Jun 2006 02:40:47 -0400
+Received: from cantor.suse.de ([195.135.220.2]:35968 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932261AbWF0Gkq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 02:38:31 -0400
-Date: Tue, 27 Jun 2006 08:33:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>,
-       Steven Whitehouse <swhiteho@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       David Teigland <teigland@redhat.com>,
-       Patrick Caulfield <pcaulfie@redhat.com>,
-       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GFS2 and DLM
-Message-ID: <20060627063339.GA27938@elte.hu>
-References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <20060623144928.GA32694@infradead.org> <20060626200300.GA15424@elte.hu>
+	Tue, 27 Jun 2006 02:40:46 -0400
+Date: Mon, 26 Jun 2006 23:37:34 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [git pull] Input update for 2.6.17
+Message-ID: <20060627063734.GA28135@kroah.com>
+References: <200606260235.03718.dtor_core@ameritech.net> <Pine.LNX.4.64.0606262247040.3927@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060626200300.GA15424@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5273]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <Pine.LNX.4.64.0606262247040.3927@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> * Christoph Hellwig <hch@infradead.org> wrote:
+On Mon, Jun 26, 2006 at 11:13:19PM -0700, Linus Torvalds wrote:
 > 
-> > The code uses GFP_NOFAIL for slab allocator calls.  It's been 
-> > pointed out here numerous times that this can't work.  Andrew, what 
-> > about adding a check to slab.c to bail out if someone passes it?
 > 
-> reiserfs, jbd and NTFS are all using GFP_NOFAIL ...
+> On Mon, 26 Jun 2006, Dmitry Torokhov wrote:
+> > 
+> > Please pull from:
+> > 
+> > ????????git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
 > 
-> i dont think this is a huge issue that should block merging.
+> I think this (or USB) may have problems.
+> 
+> I get a spinlock debugging fault with the current kernel on one of my 
+> machines at bootup, with the trace-back being:
+> 
+>   Process: khubd
+> 	spin_bug
+> 	_raw_spin_lock
+> 	_spin_lock
+> 	__mutex_lock_slowpath
+> 	mutex_lock
+> 	input_unregister_device
+> 	hidinput_disconnect
+> 	hid_disconnect
+> 	usb_unbind_interface
+> 	__device_release
+> 	device_release_driver
+> 	bus_remove_device
+> 	device_del
+> 	usb_disable_device
+> 	usb_disconnect
+> 	hub_thread
+> 	kthread
+> 
+> it happens pretty early after bootup, but I don't know what triggers that 
+> usb disconnect (it may be the hand-over from UHCI->EHCI. Greg? Does that 
+> make sense?)
 
-oh, and XFS has this little gem in its journalling code:
+Yes, if you have the UHCI driver loaded first, then when EHCI is loaded,
+it disconnects everything on the bus and re-enumerates it.
 
- fs/xfs/xfs_log.c:
+But EHCI is built into the kernel first, before UHCI, so unless you are
+using modules, nothing should be getting disconnected at boot time.
 
- STATIC void
- xlog_state_ticket_alloc(xlog_t *log)
- {
- [...]
-         /*
-          * The kmem_zalloc may sleep, so we shouldn't be holding the
-          * global lock.  XXXmiken: may want to use zone allocator.
-          */
-         buf = (xfs_caddr_t) kmem_zalloc(NBPP, KM_SLEEP);
+I really doubt you are using modules, so I don't know why it would be
+disconnected.  What does the kernel log show right before this happened?
+Any chance to enable CONFIG_USB_DEBUG?
 
-         s = LOG_LOCK(log);
+thanks,
 
-         /* Attach 1st ticket to Q, so we can keep track of allocated memory */
-         t_list = (xlog_ticket_t *)buf;
-         t_list->t_next = log->l_unmount_free;
- [...]
-
-where kmem_zalloc() may fail!!!
-
-So XFS is apprarently hiding the "journalling allocations must not fail" 
-problem by ... crashing? Wow! Most of the other journalling filesystems 
-loop on the allocator: the honest ones do it via GFP_NOFAIL, others via 
-open-coded infinite retry loops.
-
-Just in case anyone says 'preallocate': that's _hard_ to do in a 
-sophisticated filesystem, which has many dynamic (and delayed) decisions 
-that make the prediction of resource overhead difficult. That's the 
-fundamental reason why basically all journalling filesystems either loop 
-(or the really enterprise quality ones: crash ;) on allocation failure.
-
-Btw., i have just taken a 5 minute tour into XFS, and i found at least 5 
-other problems with the XFS code that are similar in nature to the ones 
-you pointed out. (mostly useless wrappers around Linux functionality) 
-Isnt this whole episode highly hypocritic to begin with?
-
-	Ingo
+greg k-h

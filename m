@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030735AbWF0IAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030747AbWF0ILX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030735AbWF0IAW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 04:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030747AbWF0IAW
+	id S1030747AbWF0ILX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 04:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030749AbWF0ILW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 04:00:22 -0400
-Received: from nn7.excitenetwork.com ([207.159.120.61]:37445 "EHLO myway.com")
-	by vger.kernel.org with ESMTP id S1030735AbWF0IAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 04:00:20 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Calling kernel functions from kprobes/jprobes
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: ID = 67d9deadc6717fb23d486b0daa7f46a6
-Reply-to: samuelkorpi@myway.com
-From: "Samuel" <samuelkorpi@myway.com>
+	Tue, 27 Jun 2006 04:11:22 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:58636 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1030747AbWF0ILW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 04:11:22 -0400
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org, kai@germaschewski.name,
+       "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Fix 100% initramfs bloat in 2.6.17 versus 2.6.16
+References: <87psh3mnay.fsf@hades.wkstn.nix> <87mzbzhk9y.fsf@hades.wkstn.nix>
+	<20060626200107.GA777@mars.ravnborg.org>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: Our Lady of Perpetual Garbage Collection
+Date: Tue, 27 Jun 2006 09:11:13 +0100
+In-Reply-To: <20060626200107.GA777@mars.ravnborg.org> (Sam Ravnborg's message of "26 Jun 2006 21:02:16 +0100")
+Message-ID: <87ac7zggri.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-X-Mailer: PHP
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20060627080021.453306776E@mprdmxin.myway.com>
-Date: Tue, 27 Jun 2006 04:00:21 -0400 (EDT)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 26 Jun 2006, Sam Ravnborg moaned:
+> On Mon, Jun 26, 2006 at 06:57:45PM +0100, Nix wrote:
+>> On 21 Jun 2006, nix@esperi.org.uk stipulated:
+>> > It didn't take long to work out that this was because my initramfs's
+>> > contents were being included twice in the cpio image.
+>> 
+>> Ping? Anyone?
+> It is included in kbuild.git - and Linus has been asked to pull that
+> tree. It is also forwarded to stable@kernel.org for inclusion in next
+> stable release.
 
-Hi,
+Ah. I checked hpa's git tree and the upstream, but for some reason
+not kbuild.git.
 
-I am using kprobes/jprobes to try and understand how IP options are handled in the kernel. From one of these probes I want to call another function inside the kernel, namely ip_options_get_from_user. It is defined in net/ipv4/ip_options.c and declared in include/net/ip.h. I have included the ip.h header file in my probe, but on compilation I get a warning saying the function is undefined. Also, inserting the probe fails - "Unknown symbol in module".
+Sorry for the noise.
 
-Any help would be appreciated.
-
-BR,
-
-Samuel Korpi
-
-_______________________________________________
-No banners. No pop-ups. No kidding.
-Make My Way  your home on the Web - http://www.myway.com
-
-
+-- 
+`NB: Anyone suggesting that we should say "Tibibytes" instead of
+ Terabytes there will be hunted down and brutally slain.
+ That is all.' --- Matthew Wilcox

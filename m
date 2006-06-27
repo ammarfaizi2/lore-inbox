@@ -1,89 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWF0If4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWF0Ife@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWF0If4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 04:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWF0If4
+	id S1751245AbWF0Ife (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 04:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWF0Ife
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 04:35:56 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:13741 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751212AbWF0Ify (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 04:35:54 -0400
-Date: Tue, 27 Jun 2006 10:31:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>,
-       Steven Whitehouse <swhiteho@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       David Teigland <teigland@redhat.com>,
-       Patrick Caulfield <pcaulfie@redhat.com>,
-       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GFS2 and DLM
-Message-ID: <20060627083104.GA550@elte.hu>
-References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <20060623150040.GA1197@infradead.org> <1151080174.3856.1606.camel@quoit.chygwyn.com> <20060623164823.GA12480@infradead.org> <20060626205824.GA16661@elte.hu> <20060627075033.GA21066@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jun 2006 04:35:34 -0400
+Received: from wr-out-0506.google.com ([64.233.184.233]:41297 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751245AbWF0Ifd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 04:35:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=rbnRXK5Suim5QDqRF+q7PLZuDy0nop7gUi/PW8ckfszqvSWRd5WY3FX7wdZl9L5UYVj+529kVDrj+I1YQm9g2ItTvEj+2NDSyZgMbT4j0/G61SeoykBU0A1BKDbuK44rgsvHNt6BFm2WUYWa2sue4I2CuckS2o3WSJXTBwXgE9g=
+From: Patrick McFarland <diablod3@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: IPWireless 3G PCMCIA Network Driver and GPL
+Date: Tue, 27 Jun 2006 04:37:57 -0400
+User-Agent: KMail/1.9.1
+Cc: Charles Majola <chmj@rootcore.co.za>, Pavel Machek <pavel@ucw.cz>,
+       stephen@blacksapphire.com, benm@symmetric.co.nz,
+       kernel list <linux-kernel@vger.kernel.org>, radek.stangel@gmsil.com
+References: <20060616094516.GA3432@elf.ucw.cz> <449BEABD.5010305@rootcore.co.za> <1151070837.4549.18.camel@localhost.localdomain>
+In-Reply-To: <1151070837.4549.18.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060627075033.GA21066@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5056]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200606270437.59454.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 23 June 2006 09:53, Alan Cox wrote:
+> Ar Gwe, 2006-06-23 am 15:21 +0200, ysgrifennodd Charles Majola:
+> > Alan, can you please give me pointers on the tty changes since 2.6.12?
+>
+> The newest kernels have a replacement set of tty receive functions that
+> use a new buffering system.
+>
+> http://kerneltrap.org/node/5473
+>
+> covers the changes briefly. The internals of the buffering changes are
+> quite complex because Paul did some rather neat things with SMP locking
+> but the API is nice and simple.
+>
+> Its fairly easy to express the old API in terms of the new one if you
+> are doing compat wrappers as well
 
-* Christoph Hellwig <hch@infradead.org> wrote:
+Actually, its rather neat that something as 'simple' as tty still gets heavily 
+hacked on every once in awhile.
 
-> ->follow_link needs exactly the same locking as ->readlink.  The whole 
-> point of using generic_readlink is to avoid having the filesystem 
-> reimplement almost the same code twice, once copying to a kernel 
-> buffer and once to a user buffer.
+-- 
+Patrick McFarland || www.AdTerrasPerAspera.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
+we'd all be running around in darkened rooms, munching magic pills and
+listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
+Inc, 1989
 
-yeah, you are right, i confused it with ->follow_link() and was wrong 
-about the locking: generic_readlink() is just a wrapper around 
-->follow_link() and vfs_readlink().
-
-Still, as far as i can see the gfs2 implementation of readlink is faster 
-(and hence a valid solution), because it knows the length of the symlink 
-buffer and hence can avoid the strlen() call in vfs_readlink():
-
- int vfs_readlink(struct dentry *dentry, char __user *buffer, int buflen, const char *link)
- {
-         int len;
-
-         len = PTR_ERR(link);
-         if (IS_ERR(link))
-                 goto out;
-
-         len = strlen(link); <============= [this one]
-
-while gfs2 can do a straight copy to userspace:
-
-        error = gfs2_readlinki(ip, &buf, &len);
-        if (error)
-                return error;
-
-        if (user_size > len - 1)
-                user_size = len - 1;
-
-        if (copy_to_user(user_buf, buf, user_size))
-                error = -EFAULT;
-        else
-                error = user_size;
-
-btw., ocfs2 does not use generic_readlink() either.
-
-> Please read the code before giving such useless comments.  
-
-thank you for the encouragement to participate in VFS review activities, 
-it's really appreciated! It's always a joy taking part in lkml 
-discussions.
-
-	Ingo

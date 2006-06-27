@@ -1,68 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161199AbWF0QqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161194AbWF0Qsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161199AbWF0QqG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 12:46:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161204AbWF0QqG
+	id S1161194AbWF0Qsz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 12:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161203AbWF0Qsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 12:46:06 -0400
-Received: from ns2.suse.de ([195.135.220.15]:64491 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161199AbWF0QqD (ORCPT
+	Tue, 27 Jun 2006 12:48:55 -0400
+Received: from xenotime.net ([66.160.160.81]:50649 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161200AbWF0Qss (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 12:46:03 -0400
-Date: Tue, 27 Jun 2006 09:42:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org, klibc@zytor.com,
-       linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [klibc] klibc and what's the next step?
-Message-ID: <20060627164244.GA7758@kroah.com>
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <44A13512.3010505@garzik.org>
+	Tue, 27 Jun 2006 12:48:48 -0400
+Date: Tue, 27 Jun 2006 09:51:27 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: jonsmirl@gmail.com, adaplas@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] [PATCH, trivial] Remove about 50 unneeded
+ #includes in fbdev
+Message-Id: <20060627095127.441c543e.rdunlap@xenotime.net>
+In-Reply-To: <9e4733910606270919n7819dbc0g8bd5c99f4b911583@mail.gmail.com>
+References: <9e4733910606270919n7819dbc0g8bd5c99f4b911583@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A13512.3010505@garzik.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 09:39:30AM -0400, Jeff Garzik wrote:
-> Roman Zippel wrote:
-> > What I'm more interested in is basically answering the question and where 
-> > I hope to provoke a bit broader discussion: "What's next?"
-> > 
-> > Until recently for most developers klibc was not much more than a cool 
-> > idea, but now we have the first incarnation and now we have to do a 
-> > reality check of how it solves our problems. To say it drastically the 
-> > current patch set as it is does not solve a single real problem yet, it 
-> > only moves them from the kernel to kinit, which may be the first step but 
-> > where to?
-> > 
-> > So what problems are we going to solve now and how? The amount of 
-> > discussion so far is not exactly encouraging. If nobody cares, then there 
-> > don't seem to be any real problems, so why should it be merged at all? Are 
-> > shiny new features more important than functionality?
-> 
-> Well, at least for me...  at boot time we run into various limitations 
-> from the current kernel approach of coding purely userspace activities 
-> in the kernel, simply because a vehicle for implementing early-boot 
-> userland operations did not exist.
-> 
-> This klibc patchkit removes stuff that does not need to be in the 
-> kernel, and provides a platform for improving IP autoconfig, NFS root, 
-> MD/DM root setup, and various other early-boot activities.
-> 
-> A lot of the larger distros have been moving in this direction anyway, 
-> by necessity.  They have been stuffing more and more [needed] logic into 
-> initrd [which is often really initramfs these days], to deal with 
-> complex boot and root-mounting scenarios like iSCSI and multi-path.
+On Tue, 27 Jun 2006 12:19:07 -0400 Jon Smirl wrote:
 
-I second this statement, having a method of implementing early boot
-userspace options is a very good thing to have, and one that the distros
-really want (as they have already been doing it on their own in
-different ways, some using klibc already, others using uclibc, and still
-others using glibc.)  Standardizing on a method to implement this is
-very much needed.
+> Remove about 50 unneeded #includes in fbdev
 
-thanks,
+Does this that
+(a) these drivers build without these header files explicitly #included
+or
+(b) these drivers don't use *any* APIs or data from these header files?
 
-greg k-h
+They may build (a) but still use the APIs, so (b) is the requirement/target.
+(I.e., other header files could suck in the required headers.)
+
+
+> Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
+> 
+> diff --git a/drivers/video/aty/aty128fb.c b/drivers/video/aty/aty128fb.c
+> index db878fd..e498a54 100644
+> --- a/drivers/video/aty/aty128fb.c
+> +++ b/drivers/video/aty/aty128fb.c
+> @@ -46,26 +46,14 @@
+>   */
+> 
+> 
+> -#include <linux/config.h>
+>  #include <linux/module.h>
+>  #include <linux/moduleparam.h>
+> -#include <linux/kernel.h>
+>  #include <linux/errno.h>
+> -#include <linux/string.h>
+> -#include <linux/mm.h>
+> -#include <linux/tty.h>
+> -#include <linux/slab.h>
+> -#include <linux/vmalloc.h>
+>  #include <linux/delay.h>
+> -#include <linux/interrupt.h>
+>  #include <asm/uaccess.h>
+>   #include <linux/fb.h>
+> -#include <linux/init.h>
+>  #include <linux/pci.h>
+> -#include <linux/ioport.h>
+>  #include <linux/console.h>
+> -#include <linux/backlight.h>
+> -#include <asm/io.h>
+> 
+>   #ifdef CONFIG_PPC_PMAC
+>  #include <asm/machdep.h>
+> diff --git a/drivers/video/aty/atyfb_base.c b/drivers/video/aty/atyfb_base.c
+> index c5185f7..5f4c76c 100644
+> --- a/drivers/video/aty/atyfb_base.c
+> +++ b/drivers/video/aty/atyfb_base.c
+> @@ -49,26 +49,13 @@
+>  ******************************************************************************/
+> 
+> 
+> -#include <linux/config.h>
+> -#include <linux/module.h>
+> -#include <linux/moduleparam.h>
+> -#include <linux/kernel.h>
+> -#include <linux/errno.h>
+> -#include <linux/string.h>
+> -#include <linux/mm.h>
+> -#include <linux/slab.h>
+> -#include <linux/vmalloc.h>
+>  #include <linux/delay.h>
+>  #include <linux/console.h>
+>   #include <linux/fb.h>
+> -#include <linux/init.h>
+>  #include <linux/pci.h>
+>  #include <linux/interrupt.h>
+> -#include <linux/spinlock.h>
+> -#include <linux/wait.h>
+>  #include <linux/backlight.h>
+> 
+> -#include <asm/io.h>
+>  #include <asm/uaccess.h>
+> 
+>  #include <video/mach64.h>
+> diff --git a/drivers/video/aty/radeon_base.c b/drivers/video/aty/radeon_base.c
+> index c5ecbb0..56445ea 100644
+> --- a/drivers/video/aty/radeon_base.c
+> +++ b/drivers/video/aty/radeon_base.c
+> @@ -52,25 +52,6 @@
+> 
+>  #define RADEON_VERSION	"0.2.0"
+> 
+> -#include <linux/config.h>
+> -#include <linux/module.h>
+> -#include <linux/moduleparam.h>
+> -#include <linux/kernel.h>
+> -#include <linux/errno.h>
+> -#include <linux/string.h>
+> -#include <linux/mm.h>
+> -#include <linux/tty.h>
+> -#include <linux/slab.h>
+> -#include <linux/delay.h>
+> -#include <linux/time.h>
+> -#include <linux/fb.h>
+> -#include <linux/ioport.h>
+> -#include <linux/init.h>
+> -#include <linux/pci.h>
+> -#include <linux/vmalloc.h>
+> -#include <linux/device.h>
+> -
+> -#include <asm/io.h>
+>  #include <asm/uaccess.h>
+> 
+>   #ifdef CONFIG_PPC_OF
+> diff --git a/drivers/video/aty/radeon_i2c.c b/drivers/video/aty/radeon_i2c.c
+> index a9d0414..4855c0a 100644
+> --- a/drivers/video/aty/radeon_i2c.c
+> +++ b/drivers/video/aty/radeon_i2c.c
+> @@ -1,9 +1,3 @@
+> -#include <linux/config.h>
+> -#include <linux/module.h>
+> -#include <linux/kernel.h>
+> -#include <linux/sched.h>
+> -#include <linux/delay.h>
+> -#include <linux/pci.h>
+>   #include <linux/fb.h>
+> 
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> Linux-fbdev-devel mailing list
+> Linux-fbdev-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel
+> 
+
+
+---
+~Randy

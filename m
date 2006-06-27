@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbWF0TGB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbWF0THQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030282AbWF0TGB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 15:06:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWF0TGB
+	id S932535AbWF0THQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 15:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWF0THP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 15:06:01 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:20370 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932534AbWF0TGA
+	Tue, 27 Jun 2006 15:07:15 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:20882 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932535AbWF0THN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 15:06:00 -0400
-Message-ID: <44A181A1.3090801@drzeus.cx>
-Date: Tue, 27 Jun 2006 21:06:09 +0200
+	Tue, 27 Jun 2006 15:07:13 -0400
+Message-ID: <44A181EC.2010601@drzeus.cx>
+Date: Tue, 27 Jun 2006 21:07:24 +0200
 From: Pierre Ossman <drzeus-list@drzeus.cx>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/21] Series short description
-References: <20060621142323.8857.69197.stgit@poseidon.drzeus.cx>
-In-Reply-To: <20060621142323.8857.69197.stgit@poseidon.drzeus.cx>
+To: Jeff Chua <jeff.chua.linux@gmail.com>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: 2GB or 4GB SD support for Linux 2.6.17?
+References: <b6a2187b0606252154i42b031c7tbc72235e5ad4313c@mail.gmail.com>
+In-Reply-To: <b6a2187b0606252154i42b031c7tbc72235e5ad4313c@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, could you have a look and this and queue it in -mm (so that it
-can be included in 2.6.18)? Russell is busy with other responsibilities
-and I don't want to miss this merge window.
-
-Pierre Ossman wrote:
-> The SD Association decided to release a specification for the SDHCI
-> controllers. This set of patches updates the current driver, which is
-> based on reverse engineering, to comply with the official specification.
+Jeff Chua wrote:
+> I tried both 2GB and 4GB SD card on 2.6.17 and both failed. But 1GB
+> works fine.
 > 
-> It has been tested for quite some time by people on the sdhci-devel list.
-> Although it doesn't solve all known issues, it doesn't cause any new ones.
+
+Known issue and I have a patch sent for review with Russell.
+Unfortunately, he has commitments elsewhere. So we have to be patient a
+bit longer.
 
 Rgds
 Pierre

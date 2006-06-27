@@ -1,88 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422722AbWF0XTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422725AbWF0XXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422722AbWF0XTx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 19:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422723AbWF0XTw
+	id S1422725AbWF0XXk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 19:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422726AbWF0XXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 19:19:52 -0400
-Received: from smeltpunt.science.ru.nl ([131.174.16.145]:18911 "EHLO
-	smeltpunt.science.ru.nl") by vger.kernel.org with ESMTP
-	id S1422722AbWF0XTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 19:19:52 -0400
-From: Sebastian =?iso-8859-1?q?K=FCgler?= <sebas@kde.org>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp / suspend2 reliability (was Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion =?iso-8859-1?q?in=09-mm?=)
-Date: Wed, 28 Jun 2006 01:18:10 +0200
-User-Agent: KMail/1.9.3
-Cc: suspend2-devel@lists.suspend2.net,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-References: <200606270147.16501.ncunningham@linuxmail.org> <200606280039.06296.sebas@kde.org> <20060627225105.GC8642@elf.ucw.cz>
-In-Reply-To: <20060627225105.GC8642@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart7850253.Eq8IzNv5LV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606280118.23270.sebas@kde.org>
+	Tue, 27 Jun 2006 19:23:40 -0400
+Received: from mx2.suse.de ([195.135.220.15]:56490 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422725AbWF0XXi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 19:23:38 -0400
+Date: Tue, 27 Jun 2006 16:20:02 -0700
+From: Greg KH <greg@kroah.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>, linux-pm@osdl.org,
+       Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
+       Mattia Dongili <malattia@linux.it>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
+Message-ID: <20060627232002.GD15225@kroah.com>
+References: <20060623042452.GA23232@kroah.com> <20060626235732.GE32008@kroah.com> <20060627090304.GA29199@elf.ucw.cz> <200606271038.40510.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606271038.40510.david-b@pacbell.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart7850253.Eq8IzNv5LV
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, Jun 27, 2006 at 10:38:39AM -0700, David Brownell wrote:
+> > > > > And we also need to be able to handle devices in the device tree that do
+> > > > > not have a suspend/resume function ...
+> > > >
+> > > > Ah, there's the rub.  If a driver doesn't have suspend/resume methods, is 
+> > > > it because it doesn't need them, or is it because nobody has written them 
+> > > > yet?  In the latter case, failing the suspend or unbinding the driver are 
+> > > > the only safe courses.
+> > > 
+> > > No, if it's not there, just expect that it knows what it is doing, and
+> > > don't fail the thing.  Unless you want to add those methods to _every_
+> > > driver in the kernel, and that's going to be a lot of work...
+> 
+> It seems reasonable to me to require that drivers have at least
+> stub "it's actually OK to do nothing here" suspend/resume methods.
 
-On Wednesday 28 June 2006 00:51, Pavel Machek wrote:
-> On Wed 2006-06-28 00:38:59, Sebastian K=FCgler wrote:
-> > On Wednesday 28 June 2006 00:22, Pavel Machek wrote:
-> > > I do not think suspend2 works on more machines than in-kernel
-> > > swsusp. Problems are in drivers, and drivers are shared.
-> > >
-> > > That means that if you have machine where suspend2 works and swsusp
-> > > does not, please tell me. I do not think there are many of them.
-> >
-> > Maybe not machines, but definitely usage scenarios. I've tried both
-> > implementations lately, and swsusp would often -- especially under high
-> > memory load -- just return from trying, while suspend2 succeeds in
-> > freeing enough memory to be able to suspend _every_ time.
->
-> Refrigerator fixes should help with this one. Does it still happen in
-> 2.6.17?
+No, the point is that these devices have no driver associated with them.
+They are "class" devices, and as such, are virtual.
 
-Last release I tested was 2.6.17-rc6-git7.
+Hm, well, I guess I should go add the suspend callbacks to the class, as
+Linus's core changes is going to be expecting that...
 
-> > Is that something uswsusp is likely to change anytime soon?
->
-> Actually this is common code for both swsusp and uswsusp; yes this
-> should be fixed.
+Anyway, for virtual devices, it often times makes no sense to have a
+suspend function, and as such, they should not be required to provide a
+null function...
 
-In the above mentioned release it definitely is not fixed.
-=2D-=20
-sebas
+thanks,
 
- http://www.kde.org | http://vizZzion.org |  GPG Key ID: 9119 0EF9=20
-=2D - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -=
- -
-If you can't stand the heat, get out of the kitchen. - Harry S. Truman
-
-
---nextPart7850253.Eq8IzNv5LV
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iQEVAwUARKG8vmdNh9WRGQ75AQLFogf+NACzCn6BPyesTZPtgXMS8GQv0D3g1GJK
-JxMIUvk9mOSk+u7UbsNHxp4tVnYwp9UbVu+ke6+NbTD5E/zT6vVb/VBcVRxts2bJ
-lGFahdhSPJm/fzMkRfU7m6fLTPKISsq97K+ry+R9wEYhbP+/dAuBfLNhjrIt7K3i
-0Xn2ctKWxU8DnQ3mR63TXno/B3z+6kpj7Nkdy5VyzD5kAVWKf6klJ1JDCxu8XHnj
-XfRl+5e5dzxztFf84n+5iR0/4sfpOp0MTD9wLSSGPT7eXMijENjIaNGp8J67rShm
-eSNAEQyKOJ9blWxOMf47U8tmzMqIxv6t0qLzN5cmPQ2756TJvQpruw==
-=mD7W
------END PGP SIGNATURE-----
-
---nextPart7850253.Eq8IzNv5LV--
+greg k-h

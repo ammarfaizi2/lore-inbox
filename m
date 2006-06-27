@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161252AbWF0Rqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWF0RsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161252AbWF0Rqg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 13:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161263AbWF0Rqf
+	id S932485AbWF0RsP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 13:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWF0RsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 13:46:35 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:5568 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161252AbWF0RqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 13:46:09 -0400
-Date: Tue, 27 Jun 2006 10:46:01 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
-Message-Id: <20060627174601.11172.18432.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20060627174551.11172.49700.sendpatchset@schroedinger.engr.sgi.com>
-References: <20060627174551.11172.49700.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [ZVC 3/4] Include vmstat.h in mm.h and not in page-flags.h
+	Tue, 27 Jun 2006 13:48:15 -0400
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:52562 "HELO
+	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932485AbWF0RsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 13:48:14 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] get USB suspend to work again on 2.6.17-mm1
+Date: Tue, 27 Jun 2006 10:38:39 -0700
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, linux-pm@osdl.org,
+       Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
+       Mattia Dongili <malattia@linux.it>,
+       Alan Stern <stern@rowland.harvard.edu>
+References: <20060623042452.GA23232@kroah.com> <20060626235732.GE32008@kroah.com> <20060627090304.GA29199@elf.ucw.cz>
+In-Reply-To: <20060627090304.GA29199@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606271038.40510.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move include of vmstat.h into mm.h
+> > > > And we also need to be able to handle devices in the device tree that do
+> > > > not have a suspend/resume function ...
+> > >
+> > > Ah, there's the rub.  If a driver doesn't have suspend/resume methods, is 
+> > > it because it doesn't need them, or is it because nobody has written them 
+> > > yet?  In the latter case, failing the suspend or unbinding the driver are 
+> > > the only safe courses.
+> > 
+> > No, if it's not there, just expect that it knows what it is doing, and
+> > don't fail the thing.  Unless you want to add those methods to _every_
+> > driver in the kernel, and that's going to be a lot of work...
 
-Some inline functions in vmstat.h need inline definitions from mm.h
+It seems reasonable to me to require that drivers have at least
+stub "it's actually OK to do nothing here" suspend/resume methods.
 
-So do the same as we already to for page-flags: Include vmstat.h in
-mm.h where it fits in.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> I believe 90% of drivers need them, anyway... Idea is that if we
+> refuse the suspend, user has dmesg and did not loose his work. If we
+> suspend but can't resume due to driver problems, it is slightly more
+> interesting to debug, and user lost open applications.
 
-Index: linux-2.6.17-mm3/include/linux/mm.h
-===================================================================
---- linux-2.6.17-mm3.orig/include/linux/mm.h	2006-06-27 09:40:23.405892736 -0700
-+++ linux-2.6.17-mm3/include/linux/mm.h	2006-06-27 10:29:56.424844789 -0700
-@@ -4,7 +4,6 @@
- #include <linux/sched.h>
- #include <linux/errno.h>
- #include <linux/capability.h>
--#include <linux/vmstat.h>
- 
- #ifdef __KERNEL__
- 
-@@ -524,6 +523,11 @@ static inline void set_page_links(struct
- 	set_page_section(page, pfn_to_section_nr(pfn));
- }
- 
-+/*
-+ * Some inline functions in vmstat.h depend on page_zone()
-+ */
-+#include <linux/vmstat.h>
-+
- #ifndef CONFIG_DISCONTIGMEM
- /* The array of struct pages - for discontigmem use pgdat->lmem_map */
- extern struct page *mem_map;
-Index: linux-2.6.17-mm3/include/linux/page-flags.h
-===================================================================
---- linux-2.6.17-mm3.orig/include/linux/page-flags.h	2006-06-27 09:40:23.561156562 -0700
-+++ linux-2.6.17-mm3/include/linux/page-flags.h	2006-06-27 10:27:36.956934646 -0700
-@@ -6,7 +6,6 @@
- #define PAGE_FLAGS_H
- 
- #include <linux/types.h>
--#include <linux/vmstat.h>
- 
- /*
-  * Various page->flags bits:
+Or as I put it earlier, a clean failure right at the "suspend/resume
+method missing" point is more robust than unpredictable failures much
+later (long after that actual failure points).
+
+- Dave

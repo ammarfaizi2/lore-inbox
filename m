@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751786AbWF1XqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751787AbWF1XqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751786AbWF1XqW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 19:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWF1XqV
+	id S1751787AbWF1XqS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 19:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751786AbWF1XqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 19:46:21 -0400
-Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:8594 "EHLO
-	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751786AbWF1XqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 19:46:20 -0400
-References: <200606211716.01472.a1426z@gawab.com> <200606272302.16950.kernel@kolivas.org> <44A1C4D4.3080805@bigpond.net.au> <200606282306.14498.a1426z@gawab.com> <44A30F60.6070001@bigpond.net.au>
-Message-ID: <cone.1151538362.930767.14982.501@kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>, Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Incorrect CPU process accounting using
-         =?ISO-8859-1?B?Q09ORklHX0haPTEwMA==?=
-Date: Thu, 29 Jun 2006 09:46:02 +1000
-Mime-Version: 1.0
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-kolivas.org-14982-1151538362-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 28 Jun 2006 19:46:18 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:51815 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751787AbWF1XqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 19:46:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=qKiuBHEUPxJ8yyGX9uGGzs/p2Dc5Xpe+zaXfJgCdLNCnq0rkW3STtr8SsQThiX+HD3FFw7ekMaNqou6Lot2cjSpf+KsLrlEQQK1jd+z3DSA8i6e5KgZJqJ1zAv650tX5SILnLO5Zn9n8k78MStyZTGyDI3PrqkweP9ahn3zezOg=
+Message-ID: <44A314B5.4030301@gmail.com>
+Date: Thu, 29 Jun 2006 07:45:57 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] move MAX_NR_CONSOLES from tty.h to vt.h
+References: <9e4733910606271203w4ceb6216g92f5fefee654aaf3@mail.gmail.com>	 <44A30D9D.5060804@gmail.com> <9e4733910606281639u26fbf62apbb01067a0d99c072@mail.gmail.com>
+In-Reply-To: <9e4733910606281639u26fbf62apbb01067a0d99c072@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-
---=_mimegpg-kolivas.org-14982-1151538362-0001
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-Peter Williams writes:
-
-> Al Boldi wrote:
->> Peter Williams wrote:
-
->> twice:
->> 	1. for external proc monitoring, using a probed approach
->> 	2. for scheduling, using an inlined approach
+Jon Smirl wrote:
+> On 6/28/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+>> Jon Smirl wrote:
+>> > MAX_NR_CONSOLES is more of a function of the VT layer than the TTY
+>> > one. Moving this to vt.h allows all of the framebuffer drivers to
+>> > remove their dependency on tty.h. Note that console drivers in
+>> > video/console still depend on tty.h but fbdev drivers should not
+>> > depend on the tty layer.
+>>
+>> In fact, none of the VT console drivers should have any dependency
+>> on tty.h, only vt.c should.
+>>
+>> I think, the only thing needed by fbcon (and all other drivers in
+>> drivers/video/console) in tty.h is fg_console. We can move that
+>> to vt_kern.h instead.
 > 
-> Not exactly (e.g. there's no separation between user and sys time 
-> available in line) but the possibilities are there.
-> 
->> 
->> Wouldn't merging the two approaches be in the interest of conserving cpu 
->> resources, while at the same time reflecting an accurate view of cpu 
->> utilization?
-> 
-> I think that this would be a worthwhile endeavour once/if sched_clock() 
-> is fixed.  This is especially the case as CPUs get faster as many tasks 
-> may run to completion in less than a tick.
+> Do you want to take over this patch and merge it via your tree? Do you
+> want to move fg_console or do you want me to?
 
-That may not be as simple as it seems. To properly account system v user 
-time using the sched_clock we'd have to hook into arch dependant asm code to 
-know when entering and exiting kernel context. That is far more invasive 
-than the simple on/off runqueue timing we currently do for scheduling 
-accounting.
+You can leave it to me.
 
---
--ck
-
-
---=_mimegpg-kolivas.org-14982-1151538362-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBEoxS7ZUg7+tp6mRURAqFzAJkBWM20gagmqwC0ogng3z9JtRWE7gCfeSqR
-KGHjiq9yK7x4eF0w1xwulzg=
-=+K7Y
------END PGP SIGNATURE-----
-
---=_mimegpg-kolivas.org-14982-1151538362-0001--
+Tony

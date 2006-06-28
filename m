@@ -1,86 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWF1Rlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWF1Rls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751476AbWF1Rlq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWF1Rlq
+	id S1751493AbWF1Rls (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWF1Rls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 13:41:46 -0400
-Received: from gold.veritas.com ([143.127.12.110]:34073 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751476AbWF1Rlp (ORCPT
+	Wed, 28 Jun 2006 13:41:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:18085 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751493AbWF1Rlr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 13:41:45 -0400
-X-IronPort-AV: i="4.06,189,1149490800"; 
-   d="scan'208"; a="61006059:sNHT30620048"
-Date: Wed, 28 Jun 2006 18:41:21 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/5] mm: tracking shared dirty pages
-In-Reply-To: <20060627182814.20891.36856.sendpatchset@lappy>
-Message-ID: <Pine.LNX.4.64.0606281810370.16318@blonde.wat.veritas.com>
-References: <20060627182801.20891.11456.sendpatchset@lappy>
- <20060627182814.20891.36856.sendpatchset@lappy>
+	Wed, 28 Jun 2006 13:41:47 -0400
+Date: Wed, 28 Jun 2006 10:41:43 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: ZVC: Increase threshold for larger processor configurationss
+Message-ID: <Pine.LNX.4.64.0606281038530.22262@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 28 Jun 2006 17:41:45.0002 (UTC) FILETIME=[1F94A0A0:01C69ADA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jun 2006, Peter Zijlstra wrote:
-> @@ -796,6 +797,44 @@ struct shrinker;
->  extern struct shrinker *set_shrinker(int, shrinker_t);
->  extern void remove_shrinker(struct shrinker *shrinker);
->  
-> +#define VM_NOTIFY_NO_PROT	0x01
-> +#define VM_NOTIFY_NO_MKWRITE	0x02
-> +
-> +/*
-> + * Some shared mappigns will want the pages marked read-only
-> + * to track write events. If so, we'll downgrade vm_page_prot
-> + * to the private version (using protection_map[] without the
-> + * VM_SHARED bit).
-> + */
-> +static inline int vma_wants_writenotify(struct vm_area_struct *vma, int flags)
-> +{
-> +	unsigned int vm_flags = vma->vm_flags;
-> +
-> +	/* If it was private or non-writable, the write bit is already clear */
-> +	if ((vm_flags & (VM_WRITE|VM_SHARED)) != ((VM_WRITE|VM_SHARED)))
-> +		return 0;
-> +
-> +	/* The backer wishes to know when pages are first written to? */
-> +	if (!(flags & VM_NOTIFY_NO_MKWRITE) &&
-> +			vma->vm_ops && vma->vm_ops->page_mkwrite)
-> +		return 1;
-> +
-> +	/* The open routine did something to the protections already? */
-> +	if (!(flags & VM_NOTIFY_NO_PROT) &&
-> +			pgprot_val(vma->vm_page_prot) !=
-> +			pgprot_val(protection_map[vm_flags &
-> +				(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)]))
-> +		return 0;
+We detecteded a slight degree of contention with the new zoned VM counters 
+if over 128 processors simultaneously fault anonymous pages. Raising the 
+threshold to 64 fixed the contention issue.
 
-Sorry to be such a bore, but this is far from an improvement.
+So we need to increase the threshhold depending on the number of processors
+in the system. And it may be best to overcompensate a bit.
 
-Try to resist adding flags to condition how a function behaves:
-there are a million places where it's necessary or accepted, but
-avoid it if you reasonably can.  And negative flags are particularly
-hard to understand ("SKIP" would have been easier than "NO").
+We keep the existing threshold of 32 for configurations with less than or
+equal to 64 processors. In the range of 64 to 128 processors we go to a
+threshold of 64. Beyond that we go to 125 (we have to be able to increment
+one beyond the threshold and then better avoid 127 just in case).
 
-Just separate out the pgprot_val check from vma_wants_writenotify,
-making that additional test in the case of do_mmap_pgoff.  Or if
-you prefer, go back to how you had it before, with mprotect_fixup
-making sure that that test will succeed.
+(There are a more scalability improvement possible by utilizing the 
+cacheline when it has been acquired to update all pending counters but I 
+want to first test with a few hundred processors to see if we need those 
+and then we need to figure out if there are bad effects for smaller 
+configurations.)
 
-In the case of page_mkclean, I see no need for vma_wants_writenotify
-at all: you're overdesigning for some imaginary use of page_mkclean.
-Just apply to the VM_SHARED vmas, with page_mkclean_one saying
-	if (!pte_dirty(*pte) && !pte_write(*pte))
-		goto unlock;
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Hugh
+Index: linux-2.6.17-mm3/mm/vmstat.c
+===================================================================
+--- linux-2.6.17-mm3.orig/mm/vmstat.c	2006-06-27 20:24:37.455840645 -0700
++++ linux-2.6.17-mm3/mm/vmstat.c	2006-06-28 10:32:14.441818620 -0700
+@@ -112,7 +112,21 @@ atomic_long_t vm_stat[NR_VM_ZONE_STAT_IT
+ 
+ #ifdef CONFIG_SMP
+ 
++/*
++ * With higher processor counts we need higher threshold to avoid contention.
++ */
++#if NR_CPUS <= 64
+ #define STAT_THRESHOLD 32
++#elif NR_CPUS <= 128
++#define STAT_THRESHOLD 64
++#else
++/*
++ * Use the maximum usable threshhold.
++ * We need to increment one beyond the threshold. To be safe
++ * also avoid 127.
++ */
++#define STAT_THRESHOLD 125
++#endif
+ 
+ /*
+  * Determine pointer to currently valid differential byte given a zone and

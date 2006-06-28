@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWF1Q63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWF1Q7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751461AbWF1Q63 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 12:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWF1Q6Q
+	id S1751453AbWF1Q7U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 12:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWF1Qyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 12:58:16 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:44804 "HELO
+	Wed, 28 Jun 2006 12:54:43 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32772 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751460AbWF1QzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 12:55:24 -0400
-Date: Wed, 28 Jun 2006 18:55:22 +0200
+	id S1751424AbWF1Qy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 12:54:29 -0400
+Date: Wed, 28 Jun 2006 18:54:28 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: johnpol@2ka.mipt.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove drivers/w1/w1_io.h
-Message-ID: <20060628165522.GF13915@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, pazke@donpac.ru
+Cc: linux-kernel@vger.kernel.org, linux-visws-devel@lists.sourceforge.net
+Subject: [-mm patch] arch/i386/mach-visws/setup.c: remove dummy function calls
+Message-ID: <20060628165428.GL13915@stusta.de>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060624061914.202fbfb5.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/w1/w1_io.h is both a subset of drivers/w1/w1.h and no longer 
-#include'd by any file.
-
-This patch therefore removes w1_io.h.
+Thankfully, these dummy function calls are no longer required to avoid 
+warnings - if they weren't eliminated as dead code but accidentially 
+executed there would be a guaranteed NULL dereference.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
- drivers/w1/w1_io.h |   36 ------------------------------------
- 1 file changed, 36 deletions(-)
-
---- linux-2.6.17-mm3-full/drivers/w1/w1_io.h	2006-06-27 11:04:12.000000000 +0200
-+++ /dev/null	2006-04-23 00:42:46.000000000 +0200
-@@ -1,36 +0,0 @@
--/*
-- *	w1_io.h
-- *
-- * Copyright (c) 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-- *
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-- */
+--- linux-2.6.17-mm2-full/arch/i386/mach-visws/setup.c.old	2006-06-27 00:28:06.000000000 +0200
++++ linux-2.6.17-mm2-full/arch/i386/mach-visws/setup.c	2006-06-27 00:37:50.000000000 +0200
+@@ -177,8 +177,4 @@
+ 	add_memory_region(sgivwfb_mem_phys, sgivwfb_mem_size, E820_RESERVED);
+ 
+ 	return "PROM";
 -
--#ifndef __W1_IO_H
--#define __W1_IO_H
--
--#include "w1.h"
--
--u8 w1_triplet(struct w1_master *dev, int bdir);
--void w1_write_8(struct w1_master *, u8);
--int w1_reset_bus(struct w1_master *);
--u8 w1_calc_crc8(u8 *, int);
--void w1_write_block(struct w1_master *, const u8 *, int);
--u8 w1_read_block(struct w1_master *, u8 *, int);
--void w1_search_devices(struct w1_master *dev, w1_slave_found_callback cb);
--int w1_reset_select_slave(struct w1_slave *sl);
--
--#endif /* __W1_IO_H */
+-	/* Remove gcc warnings */
+-	(void) sanitize_e820_map(NULL, NULL);
+-	(void) copy_e820_map(NULL, 0);
+ }
 

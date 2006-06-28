@@ -1,96 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751593AbWF1WKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWF1WTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751593AbWF1WKv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 18:10:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751594AbWF1WKv
+	id S1751210AbWF1WTg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 18:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWF1WTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 18:10:51 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:399 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751585AbWF1WKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 18:10:51 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: [Suspend2][ 15/20] [Suspend2] Attempt to freeze processes.
-Date: Thu, 29 Jun 2006 08:10:43 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-References: <20060626223446.4050.9897.stgit@nigel.suspend2.net> <200606280939.02044.nigel@suspend2.net> <Pine.LNX.4.64.0606281943010.24170@blonde.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.64.0606281943010.24170@blonde.wat.veritas.com>
+	Wed, 28 Jun 2006 18:19:36 -0400
+Received: from smeltpunt.science.ru.nl ([131.174.16.145]:33993 "EHLO
+	smeltpunt.science.ru.nl") by vger.kernel.org with ESMTP
+	id S1751210AbWF1WTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 18:19:35 -0400
+From: Sebastian =?iso-8859-1?q?K=FCgler?= <sebas@kde.org>
+Organization: K Desktop Environment
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: swsusp / suspend2 reliability (was Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion =?iso-8859-1?q?in=09-mm?=)
+Date: Thu, 29 Jun 2006 00:19:16 +0200
+User-Agent: KMail/1.9.3
+Cc: suspend2-devel@lists.suspend2.net,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+References: <200606270147.16501.ncunningham@linuxmail.org> <200606280118.23270.sebas@kde.org> <20060628195316.GB18039@elf.ucw.cz>
+In-Reply-To: <20060628195316.GB18039@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart4175780.brtBgLbhcs";
+  boundary="nextPart1183876.meTDjxW3AH";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606290810.47025.nigel@suspend2.net>
+Message-Id: <200606290019.17298.sebas@kde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4175780.brtBgLbhcs
+--nextPart1183876.meTDjxW3AH
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hi Hugh.
+Hi Pavel,
 
-On Thursday 29 June 2006 04:59, Hugh Dickins wrote:
-> On Wed, 28 Jun 2006, Nigel Cunningham wrote:
-> > On Tuesday 27 June 2006 23:45, Pavel Machek wrote:
-> > > Current code seems to free memory without need to thaw/re-freeze
-> > > kernel threads. Have you found bugs in that, or is this unneccessary?
-> >
-> > Did you read my other email? Try it with a swap file on a journalled
-> > filesystem, in a situation where freeing memory will force the swap file
-> > to be used.
->
-> Hi Nigel,
->
-> I may have missed your "other email" in the avalanche ;)
+On Wednesday 28 June 2006 21:53, Pavel Machek wrote:
+> Okay, can I get some details? Like how much memory does system have,
+> what stress test causes the failure?
 
-:)
-
-> That particular example sounds dubious to me: it may well have been
-> a problem on 2.4, but are you sure that it's still a problem on 2.6?
-
-Yes, I am sure but I'll double check again. What I recall at the moment is =
-a=20
-deadlock in actually writing the page.
-
-> Andrew very nicely rewrote the swapfile handling, to bmap the whole
-> file at swapon time (see setup_swap_extents), and thereafter the only
-> difference between using a swapfile and using a disk partition is that
-> the swapfile blocks may be fragmented into many extents where the disk
-> partition is contiguous.  Much more reliable.
->
-> I don't see how your "journalled filesystem" would affect it at all.
-
-Ok. I'll reproduce it and post the trace. Of course it may be that my=20
-examination was too superficial and the cause is more subtle.
-
-I'm not sure if I'll have time to do this during this week, but I'll leave=
+The machine has 1GB of RAM, filling it up beyond 500MB, maybe 600MB usually=
 =20
-your message marked Todo so I don't forget.
+made swsusp a problem. I'd need to close apps then to be able to suspend.
 
-Thanks for the reply!
+Using suspend2 fixes that for me. I can even decide how much memory I want=
+=20
+suspended, the rest will be reliably discarded. I did a benchmark on two=20
+similar machines swsusp: would take 45 seconds until resume (that's about t=
+he=20
+same time it takes it to boot normally) suspend2 would take 25 seconds (and=
+=20
+have warm caches as a bonus). Not having a progress indicator also doesn't=
+=20
+really help.
 
-Nigel
+Another thing I really like about suspend2 is that I can easily set it up s=
+o=20
+it goes into S3 after writing the image. It would resume much faster then,=
+=20
+and in case it runs out of battery, I can still 'normally' resume from disk=
+=2E=20
+That's incredibly useful, especially since not all devices are known to=20
+completely switch off during S3, and resuming from S3 is generally known to=
+=20
+cause problems. I've yet to see suspend2 failing though.
 
+Is such a disk-backed hibernate also possible with (u)swsusp?
+
+Cheers,
 =2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
+sebas
 
---nextPart4175780.brtBgLbhcs
+ http://www.kde.org | http://vizZzion.org |  GPG Key ID: 9119 0EF9=20
+=2D - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -=
+ -
+So many beautiful women and so little time. - John Barrymore
+
+
+--nextPart1183876.meTDjxW3AH
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-iD8DBQBEov5mN0y+n1M3mo0RAlUHAJkBDlfLN4yp/gymi9jykyqFMKs6KgCfbqs3
-ezg1b0pY5ZLC6PufqofMuvM=
-=STfd
+iQEVAwUARKMAZWdNh9WRGQ75AQJoJAf+N7mgqqj8FCxU7cHpfykQuVfqsf071NZ1
+XpJGvYxB+YQOvHYHl8PvDm+CLaSrg+z2S1VWMuS6bV6C2jfr8BRtBImyF+UNs7zJ
+hVw5T4VOOF0MIhvSsrsabl5xcjZNzhgHLbd71FEwfzms2VS+OzDV08u6aNdhtAte
+IRs4Zm8+l0CxBA4pgbhzicCQD6N9gmqyjlWPgB8hig+kZ3GUJ4ft6CZGFPnuUGl7
+H5hPTD8kEIo4QNoeq/Pzr3G9sU9sOJOGeOkluri6FEFr5xeDKMazuv7xBs0DjDQY
+IhD5RmbAEPhCBLmVwbTu5b4mbRsLFG1vnc22poQnANRaa0JAugGvog==
+=EE23
 -----END PGP SIGNATURE-----
 
---nextPart4175780.brtBgLbhcs--
+--nextPart1183876.meTDjxW3AH--

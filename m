@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932834AbWF1PSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932824AbWF1PTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932834AbWF1PSz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 11:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932824AbWF1PSz
+	id S932824AbWF1PTX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 11:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932830AbWF1PTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 11:18:55 -0400
-Received: from mx1.mail.ru ([194.67.23.121]:38217 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S932582AbWF1PSy (ORCPT
+	Wed, 28 Jun 2006 11:19:23 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:61378 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932824AbWF1PTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 11:18:54 -0400
-Date: Wed, 28 Jun 2006 19:24:50 +0400
-From: Evgeniy Dushistov <dushistov@mail.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH]: ufs: truncate should allocate block for last byte
-Message-ID: <20060628152450.GA16996@rain.homenetwork>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <20060628093851.GA1719@rain.homenetwork> <20060628045029.bc10d333.akpm@osdl.org>
+	Wed, 28 Jun 2006 11:19:22 -0400
+Date: Wed, 28 Jun 2006 23:41:21 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] srcu: RCU variant permitting read-side blocking
+Message-ID: <20060628194121.GA247@oleg>
+References: <20060627211358.GA484@oleg> <20060627185945.GD1286@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060628045029.bc10d333.akpm@osdl.org>
+In-Reply-To: <20060627185945.GD1286@us.ibm.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 04:50:29AM -0700, Andrew Morton wrote:
-> On Wed, 28 Jun 2006 13:38:51 +0400
-> > +	if (unlikely(!page->mapping || !page_has_buffers(page))) {
-> > +		unlock_page(page);
-> > +		page_cache_release(page);
-> > +		goto try_again;/*we really need these buffers*/
-> > +	}
-> > +out:
-> > +	return page;
-> > +}
+On 06/27, Paul E. McKenney wrote:
+>
+> On Wed, Jun 28, 2006 at 01:13:58AM +0400, Oleg Nesterov wrote:
+> > 
+> > Also, I can't understand the purpose of 2-nd synchronize_sched() in
+> > synchronize_srcu().
 > 
-> I think there's a (preexisting) problem here.  When one thread is executing
-> ufs_get_locked_page() while a second thread is running truncate().
-> 
-> If truncate got to the page first, truncate_complete_page() will mark the
-> page !uptodate and will later unlock it.  Now this function gets the page
-> lock and emits a printk (bad) and assumes -EIO (worse).
-> 
-> That scenario might not be possible because of i_mutex coverage, dunno.
-> 
-I suppose this is possible because of 
-a)page may be mapped to hole
-b)sys_msync doesn't use i_mutex
-c)in case of block allocation we can call ufs_get_locked_page
+> This one handles the srcu_read_unlock() analog of the situation you
+> are worried about above.  The reader does not have memory barriers in
+> srcu_read_unlock(), so an access to the data structure might get
+> reordered to follow the decrement of .c[0] -- which would get messed
+> up by the following kfree().
 
-> But if it _is_ possible, it can be simply fixed by doing
-> 
-But you added such check "!page->mapping" into ufs_get_locked_page,
-is it not enough?
+Aha, I see.
 
-> 	lock_page(page);
-> +	if (page->mapping == NULL) {
-> +		/* truncate() got there first */
-> +		page_cache_release(page);
-> +		goto try_again;
-> +	}
-> 
-> That's if it is appropriate to re-instantiate the page at a place which is
-> now outside i_size...
+The last question. The 'srcu-2' you posted today does synchronize_srcu_flip()
+twice. You did it this way because srcu is optimized for readers, otherwise we
+could just add smp_rmb() into srcu_read_lock() - this should solve the problem
+as well.
 
--- 
-/Evgeniy
+Is my understanding correct?
+
+Thanks!
+
+Oleg.
 

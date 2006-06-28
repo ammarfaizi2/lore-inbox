@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161217AbWF1I5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161012AbWF1I6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161217AbWF1I5m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 04:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161240AbWF1I5m
+	id S1161012AbWF1I6I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 04:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161240AbWF1I6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 04:57:42 -0400
-Received: from ns1.suse.de ([195.135.220.2]:28391 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161217AbWF1I5m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 04:57:42 -0400
-From: Andi Kleen <ak@suse.de>
-To: Paul Jackson <pj@sgi.com>
-Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
-Date: Wed, 28 Jun 2006 10:53:15 +0200
-User-Agent: KMail/1.9.3
-Cc: Ingo Molnar <mingo@elte.hu>, 76306.1226@compuserve.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, drepper@redhat.com,
-       roland@redhat.com, jakub@redhat.com
-References: <200606210329_MC3-1-C305-E008@compuserve.com> <20060621081539.GA14227@elte.hu> <20060627224433.fb726e0c.pj@sgi.com>
-In-Reply-To: <20060627224433.fb726e0c.pj@sgi.com>
+	Wed, 28 Jun 2006 04:58:07 -0400
+Received: from mx1.ciphirelabs.net ([217.72.114.64]:59307 "EHLO
+	mx1.ciphirelabs.net") by vger.kernel.org with ESMTP
+	id S1161012AbWF1I6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 04:58:05 -0400
+Message-ID: <44A24434.5020403@ciphirelabs.com>
+Date: Wed, 28 Jun 2006 10:56:20 +0200
+From: Andreas Jellinghaus <aj@ciphirelabs.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       suspend2-devel@lists.suspend2.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: swsusp / suspend2 reliability (was Re: [Suspend2-devel] Re: Suspend2
+ - Request for review & inclusion in	-mm)
+References: <200606270147.16501.ncunningham@linuxmail.org>	<20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au>	<20060627154130.GA31351@rhlx01.fht-esslingen.de> <20060627222234.GP29199@elf.ucw.cz>
+In-Reply-To: <20060627222234.GP29199@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606281053.15681.ak@suse.de>
+X-Ciphire-Security: plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 June 2006 07:44, Paul Jackson wrote:
-> > but my gut feeling is that we should add a proper sys_get_cpu() syscall 
-> 
-> Yes - this should be for more or less all arch's.
+swsusp does not work with swap files. suspend2 does.
 
-The whole point of the original implementation is to do a fast architecture specific call.
-A slow generic call isn't very useful.
+so this is an inprovement. improvements are usually merged,
+unless there is a reason not to.
 
--Andi
- 
+could the discussion focus on current technical reasons why it
+should not be merged? I somehow get the impression there are
+personal preferences or future development strategies, but neither
+looks like a current technical reason to me, and thus should not
+harm merging or not.
+
+Regards, Andreas

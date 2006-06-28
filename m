@@ -1,85 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423293AbWF1L4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423295AbWF1MAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423293AbWF1L4A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 07:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423294AbWF1L4A
+	id S1423295AbWF1MAj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 08:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423296AbWF1MAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 07:56:00 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:178 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1423293AbWF1Lz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 07:55:59 -0400
-To: cmm@us.ibm.com, johann.lombardi@bull.net, adilger@clusterfs.com
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [RFC 2/2] ext2: fix rec_len overflow
-Message-Id: <20060628205551sho@rifu.tnes.nec.co.jp>
-Mime-Version: 1.0
-X-Mailer: WeMail32[2.51] ID:1K0086
-From: sho@tnes.nec.co.jp
-Date: Wed, 28 Jun 2006 20:55:51 +0900
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jun 2006 08:00:39 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:11993 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1423295AbWF1MAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 08:00:38 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: x86_64 restore_image declaration needs asmlinkage?
+Date: Wed, 28 Jun 2006 22:00:32 +1000
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Linux-pm mailing list" <linux-pm@lists.osdl.org>,
+       suspend2-devel@lists.suspend2.net
+References: <200606282048.38746.ncunningham@linuxmail.org> <200606281353.15252.rjw@sisk.pl>
+In-Reply-To: <200606281353.15252.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart5939733.ATl6dilPFm";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200606282200.36268.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch limits ext2_dir_entry_2->rec_len to 65532 to prevent from
-overflow with 64KB blocksize.
+--nextPart5939733.ATl6dilPFm
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+Hi.
 
-Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
----
-diff -upNr -X linux-2.6.17-rc6/Documentation/dontdiff linux-2.6.17-rc6/fs/ext2/dir.c linux-2.6.17-rc6.tmp/fs/ext2/dir.c
---- linux-2.6.17-rc6/fs/ext2/dir.c	2006-06-27 09:05:11.000000000 +0900
-+++ linux-2.6.17-rc6.tmp/fs/ext2/dir.c	2006-06-27 09:05:35.000000000 +0900
-@@ -461,13 +461,21 @@ int ext2_add_link (struct dentry *dentry
- 		kaddr = page_address(page);
- 		dir_end = kaddr + ext2_last_byte(dir, n);
- 		de = (ext2_dirent *)kaddr;
--		kaddr += PAGE_CACHE_SIZE - reclen;
-+		if (chunk_size < EXT2_RECLEN_MAX  )
-+			kaddr += PAGE_CACHE_SIZE - reclen;
-+		else
-+			kaddr += EXT2_RECLEN_MAX - reclen;
- 		while ((char *)de <= kaddr) {
- 			if ((char *)de == dir_end) {
- 				/* We hit i_size */
- 				name_len = 0;
--				rec_len = chunk_size;
--				de->rec_len = cpu_to_le16(chunk_size);
-+				if (chunk_size < EXT2_RECLEN_MAX) {
-+					rec_len = chunk_size;
-+					de->rec_len = cpu_to_le16(chunk_size);
-+				} else {
-+					rec_len = EXT2_RECLEN_MAX;
-+					de->rec_len = cpu_to_le16(EXT2_RECLEN_MAX);
-+				}
- 				de->inode = 0;
- 				goto got_it;
- 			}
-diff -upNr -X linux-2.6.17-rc6/Documentation/dontdiff linux-2.6.17-rc6/include/linux/ext2_fs.h linux-2.6.17-rc6.tmp/include/linux/ext2_fs.h
---- linux-2.6.17-rc6/include/linux/ext2_fs.h	2006-06-27 09:05:15.000000000 +0900
-+++ linux-2.6.17-rc6.tmp/include/linux/ext2_fs.h	2006-06-27 08:49:16.000000000 +0900
-@@ -87,11 +87,16 @@ static inline struct ext2_sb_info *EXT2_
- #define EXT2_LINK_MAX		32000
- 
- /*
-+ * Maximal size of directory entry record length
-+ */
-+#define EXT2_RECLEN_MAX		65532
-+
-+/*
-  * Macro-instructions used to manage several block sizes
-  */
- #define EXT2_MIN_BLOCK_SIZE		1024
--#define	EXT2_MAX_BLOCK_SIZE		4096
--#define EXT2_MIN_BLOCK_LOG_SIZE		  10
-+#define	EXT2_MAX_BLOCK_SIZE		65636
-+#define EXT2_MIN_BLOCK_LOG_SIZE		10
- #ifdef __KERNEL__
- # define EXT2_BLOCK_SIZE(s)		((s)->s_blocksize)
- #else
+On Wednesday 28 June 2006 21:53, Rafael J. Wysocki wrote:
+> Hi,
+>
+> On Wednesday 28 June 2006 12:48, Nigel Cunningham wrote:
+> > I received a report of problems with CONFIG_REGPARM and suspending, that
+> > led me to recheck asm calls and declarations. Not being a guru on these
+> > things, I want to ask advice from those who know more.
+> >
+> > Along the way I noticed that current git has:
+> >
+> > extern asmlinkage int swsusp_arch_suspend(void);
+> > extern asmlinkage int swsusp_arch_resume(void);
+> >
+> > This is right for x86, but for x86_64, we actually call a C routine in
+> > arch/x86_64/kernel/suspend.c, which calls restore_image in
+> > arch/x86_64/kernel/suspend_asm.S. Restore image is declared in suspend.c
+> > as
+> >
+> > extern int restore_image(void);
+> >
+> > should it be:
+> >
+> > extern asmlinkage int restore_image(void);
+> >
+> > Having swsusp_arch_resume declared as asmlinkage doesn't matter, does i=
+t?
+>
+> No, it doesn't.  It would have mattered on i386 if the function had taken
+> any arguments.  AFAICT, on x86_64 it desn't matter at all.
 
+Right. But what about restore_image lacking the asmlinkage? I'm also wonder=
+ing=20
+if that does matter.
 
-Cheers, sho
+Regards,
 
+Nigel
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
 
+--nextPart5939733.ATl6dilPFm
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEom9kN0y+n1M3mo0RAjs7AJ4/q/0+9YrDdjrgTuL1VtSkU03bJwCgxIiC
+yc9U85V7tJCbdrT4Y3eZtK4=
+=EyaI
+-----END PGP SIGNATURE-----
+
+--nextPart5939733.ATl6dilPFm--

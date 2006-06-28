@@ -1,62 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932727AbWF1F6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbWF1F76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932727AbWF1F6N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 01:58:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbWF1F6N
+	id S932654AbWF1F76 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 01:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932729AbWF1F76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 01:58:13 -0400
-Received: from mailgw3.ericsson.se ([193.180.251.60]:64397 "EHLO
-	mailgw3.ericsson.se") by vger.kernel.org with ESMTP
-	id S1161139AbWF1F6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 01:58:11 -0400
-Date: Wed, 28 Jun 2006 01:59:18 -0400
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Sam Vilain <sam@vilain.net>, Andrey Savochkin <saw@swsoft.com>,
-       dlezcano@fr.ibm.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-       herbert@13thfloor.at, devel@openvz.org, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>, Mark Huang <mlhuang@CS.Princeton.EDU>
-Subject: Re: Network namespaces a path to mergable code.
-Message-ID: <20060628055918.GA5614@dolphin.dyn.rnet.lmc.ericsson.se>
-References: <20060626134945.A28942@castle.nmd.msu.ru> <m14py6ldlj.fsf@ebiederm.dsl.xmission.com> <20060627215859.A20679@castle.nmd.msu.ru> <44A1AF37.3070100@vilain.net> <m1ac7xkifn.fsf@ebiederm.dsl.xmission.com>
+	Wed, 28 Jun 2006 01:59:58 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:65037 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932654AbWF1F75
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 01:59:57 -0400
+Date: Wed, 28 Jun 2006 07:58:57 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Michael Grundy <grundym@us.ibm.com>, Jan Glauber <jan.glauber@de.ibm.com>,
+       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
+Subject: Re: [PATCH] kprobes for s390 architecture
+Message-ID: <20060628055857.GA9452@osiris.boeblingen.de.ibm.com>
+References: <20060623150344.GL9446@osiris.boeblingen.de.ibm.com> <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com> <20060623222106.GA25410@osiris.ibm.com> <20060624113641.GB10403@osiris.ibm.com> <1151421789.5390.65.camel@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1ac7xkifn.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
-From: abdallah.chatila@ericsson.com (Abdallah Chatila)
-X-OriginalArrivalTime: 28 Jun 2006 05:58:08.0936 (UTC) FILETIME=[D4D82A80:01C69A77]
-X-Brightmail-Tracker: AAAAAA==
+In-Reply-To: <1151421789.5390.65.camel@localhost>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 10:33:48PM -0600, Eric W. Biederman wrote:
+On Tue, Jun 27, 2006 at 05:23:09PM +0200, Martin Schwidefsky wrote:
+> On Sat, 2006-06-24 at 13:36 +0200, Heiko Carstens wrote:
+> > > At least this is something that could work... completely untested and might
+> > > have some problems that I didn't think of ;)
+> > > 
+> > > struct capture_data {
+> > > 	atomic_t cpus;
+> > > 	atomic_t done;
+> > > };
+> > > 
+> > > void capture_wait(void *data)
+> > > { 
+> > > 	struct capture_data *cap = data;
+> > > 
+> > > 	atomic_inc(&cap->cpus);
+> > > 	while(!atomic_read(&cap->done))
+> > > 		cpu_relax();
+> > > 	atomic_dec(&cap->cpus);
+> > > }
+> > > 
+> > > void replace_instr(int *a)
+> > > {
+> > > 	struct capture_data cap;
+> > > 
+> > > 	preempt_disable();
+> > > 	atomic_set(&cap.cpus, 0);
+> > > 	atomic_set(&cap.done, 0);
+> > > 	smp_call_function(capture_wait, (void *)&cap, 0, 0);
+> > > 	while (atomic_read(&cap.cpus) != num_online_cpus() - 1)
+> > > 		cpu_relax();
+> > > 	*a = 0x42;
+> > > 	atomic_inc(&cap.done);
+> > > 	while (atomic_read(&cap.cpus))
+> > > 		cpu_relax();
+> > > 	preempt_enable();
+> > > }
+> > 
+> > Forget this crap. It can easily cause deadlocks with more than two cpus.
 > 
-> Something to examine here is that if both network devices and sockets
-> are tagged does that still allow implicit network namespace passing.
+> It is not that bad. Instead of preempt_disable/preempt_enable we need a
+> spinlock. Then only one cpu can do this particular smp_call_function
+> which will "stop" all other cpus until cap->done has been set.
 
-I think avoiding implicit network namespace passing expresses more
-power/flexibility plus it would make things clearer to what
-container/namespace a given network resource belongs too.
+CPU0: smp_call_function() -> loops and waits for other cpus
+CPU1: [irqs_enabled] - spin_lock(somelock) -> irq -> capture_wait() -> loop
+CPU2: [irqs_enabled] ----- spin_lock_irqsave(a,..) -> toasted
 
->From our experience with an implementation of network containers [Virtual
-Routing for ipv4/ipv6, with a complete isolation between containers where ip
-addresses can overlap...], there is some problem domain in which you cannot
-afford to duplicate a process/daemon in each container [a big process for
-instance, scalability w.r.t. number of containers etc]
+CPU2 ends up trying to grab the same lock that CPU1 holds, but has interrupts
+disabled and a pending external interrupt because of the smp_call_function()..
 
-By having a proper namespace tag per socket, this can be solved by allowing
-a process running in the host context to create sockets in that namespace
-than moving them to the target guest namespaces [via a special setsockopt
-for instance or unix domain socket as you said].
+> > Just do a compare and swap operation on the instruction you want to replace,
+> > then do an smp_call_function() with the wait parameter set to 1 and passing
+> > a pointer to a function that does nothing but return.
+> Not good enough. An instruction can be fetched multiple times for a
+> single execution (see the other mail). So you have a half executed
+> instruction, the cache line is invalidated, a new instruction is written
+> and the cache line is recreated to finished the half executed
+> instruction. That can easiliy happen on millicoded instructions.
 
-
-Regards
-
-> 
-> Eric
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yes, looks like I was too optimistic. Seems like we really have to go for
+stop_machine_run() unless somebody comes up with a better idea...

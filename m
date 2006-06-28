@@ -1,37 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWF1TWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWF1TWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbWF1TWA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 15:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWF1TWA
+	id S1751055AbWF1TWs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 15:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWF1TWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 15:22:00 -0400
-Received: from gw.goop.org ([64.81.55.164]:37765 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751053AbWF1TV7 (ORCPT
+	Wed, 28 Jun 2006 15:22:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30443 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751051AbWF1TWq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 15:21:59 -0400
-Message-ID: <44A2D6DA.1050607@goop.org>
-Date: Wed, 28 Jun 2006 12:22:02 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Martin J. Bligh" <mbligh@google.com>, mbligh@mbligh.org,
-       linux-kernel@vger.kernel.org, apw@shadowen.org,
-       linuxppc64-dev@ozlabs.org, drfickle@us.ibm.com
-Subject: Re: 2.6.17-mm2
-References: <449D5D36.3040102@google.com>	<449FF3A2.8010907@mbligh.org>	<44A150C9.7020809@mbligh.org>	<20060628034215.c3008299.akpm@osdl.org>	<20060628034748.018eecac.akpm@osdl.org>	<44A29582.7050403@google.com> <20060628121102.638f08d9.akpm@osdl.org>
-In-Reply-To: <20060628121102.638f08d9.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 28 Jun 2006 15:22:46 -0400
+Date: Wed, 28 Jun 2006 12:22:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Evgeniy Dushistov <dushistov@mail.ru>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH]: ufs: truncate should allocate block for last byte
+Message-Id: <20060628122238.65f6296b.akpm@osdl.org>
+In-Reply-To: <20060628152450.GA16996@rain.homenetwork>
+References: <20060628093851.GA1719@rain.homenetwork>
+	<20060628045029.bc10d333.akpm@osdl.org>
+	<20060628152450.GA16996@rain.homenetwork>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Found a way to reproduce it - do `cat /proc/slabinfo > /dev/null' in a
-> tight loop.  With that happening, a little two-way wasn't able to make
-> it through `dbench 4' without soiling the upholstery.  Then bisection-searching.
->   
-It's surprising it was so subtle.  I'd been running with that code for a 
-month or so without a peep of problem...
+On Wed, 28 Jun 2006 19:24:50 +0400
+Evgeniy Dushistov <dushistov@mail.ru> wrote:
 
-    J
+> On Wed, Jun 28, 2006 at 04:50:29AM -0700, Andrew Morton wrote:
+> > On Wed, 28 Jun 2006 13:38:51 +0400
+> > > +	if (unlikely(!page->mapping || !page_has_buffers(page))) {
+> > > +		unlock_page(page);
+> > > +		page_cache_release(page);
+> > > +		goto try_again;/*we really need these buffers*/
+> > > +	}
+> > > +out:
+> > > +	return page;
+> > > +}
+> > 
+> > I think there's a (preexisting) problem here.  When one thread is executing
+> > ufs_get_locked_page() while a second thread is running truncate().
+> > 
+> > If truncate got to the page first, truncate_complete_page() will mark the
+> > page !uptodate and will later unlock it.  Now this function gets the page
+> > lock and emits a printk (bad) and assumes -EIO (worse).
+> > 
+> > That scenario might not be possible because of i_mutex coverage, dunno.
+> > 
+> I suppose this is possible because of 
+> a)page may be mapped to hole
+> b)sys_msync doesn't use i_mutex
+> c)in case of block allocation we can call ufs_get_locked_page
+
+OK.
+
+> > But if it _is_ possible, it can be simply fixed by doing
+> > 
+> But you added such check "!page->mapping" into ufs_get_locked_page,
+> is it not enough?
+
+That is what I was proposing, here:
+
+> > 	lock_page(page);
+> > +	if (page->mapping == NULL) {
+> > +		/* truncate() got there first */
+> > +		page_cache_release(page);
+> > +		goto try_again;
+> > +	}
+

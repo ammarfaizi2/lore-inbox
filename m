@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWF1UFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWF1UGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWF1UFs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 16:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWF1UFs
+	id S1751204AbWF1UGN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 16:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWF1UGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 16:05:48 -0400
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:56981 "EHLO
-	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1751222AbWF1UFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 16:05:46 -0400
-Date: Thu, 29 Jun 2006 01:32:47 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org,
-       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-       Prasanna Panchamukhi <prasanna@in.ibm.com>
-Subject: Re: [PATCH] 2.6.17-rt1 : fix x86_64 oops
-Message-ID: <20060628200247.GA7932@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060627200105.GA13966@in.ibm.com> <20060628182137.GA23979@in.ibm.com> <20060628193256.GA4392@elte.hu>
+	Wed, 28 Jun 2006 16:06:12 -0400
+Received: from mail.gmx.de ([213.165.64.21]:50137 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751204AbWF1UGL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 16:06:11 -0400
+X-Authenticated: #704063
+Subject: [Patch] SKB leak in drivers/isdn/i4l/isdn_x25iface.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: eis@baty.hanse.de
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 28 Jun 2006 22:06:07 +0200
+Message-Id: <1151525167.26804.2.camel@alice>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060628193256.GA4392@elte.hu>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 09:32:56PM +0200, Ingo Molnar wrote:
-> 
-> * Dipankar Sarma <dipankar@in.ibm.com> wrote:
-> 
-> > Turns out that kprobe_flush_task() is called from finish_task_switch() 
-> > with preemption disabled and it uses a converted spin lock. The 
-> > following patch fixed the problem for me and I was able to boot my 
-> > x86_64 box.
-> 
-> ah, subtle problem and nice fix! We are using an RCU trick to delay task 
-> freeing in finish_task_switch(), but kprobe_flush_task() isnt done in 
+hi,
 
-Yes, otherwise it would have been hell to do __put_task_struct()
-with preemption disabled.
+coverity spotted this leak (id #613), when
+we are not configured, we return without
+freeing the allocated skb.
 
-> put_task_struct(). [neither would it be right to flush kprobes there.] 
-> I've released -rt4 with this included.
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-OK, I need to catch up, but I see a lot of oops while running rcutorture
-in my box (rt1). I am investigating this atm.
+--- linux-2.6.17-git11/drivers/isdn/i4l/isdn_x25iface.c.orig	2006-06-28 22:02:38.000000000 +0200
++++ linux-2.6.17-git11/drivers/isdn/i4l/isdn_x25iface.c	2006-06-28 22:03:02.000000000 +0200
+@@ -208,7 +208,7 @@ static int isdn_x25iface_receive(struct 
+  */
+ static int isdn_x25iface_connect_ind(struct concap_proto *cprot)
+ {
+-	struct sk_buff * skb = dev_alloc_skb(1);
++	struct sk_buff * skb;
+ 	enum wan_states *state_p 
+ 	  = &( ( (ix25_pdata_t*) (cprot->proto_data) ) -> state);
+ 	IX25DEBUG( "isdn_x25iface_connect_ind %s \n"
+@@ -220,6 +220,8 @@ static int isdn_x25iface_connect_ind(str
+ 		return -1;
+ 	}
+ 	*state_p = WAN_CONNECTED;
++
++	skb = dev_alloc_skb(1);
+ 	if( skb ){
+ 		*( skb_put(skb, 1) ) = 0x01;
+ 		skb->protocol = x25_type_trans(skb, cprot->net_dev);
 
-Thanks
-Dipankar
+

@@ -1,111 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423280AbWF1L0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423278AbWF1LZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423280AbWF1L0M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 07:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423279AbWF1L0M
+	id S1423278AbWF1LZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 07:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932781AbWF1LZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 07:26:12 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8030 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932775AbWF1L0K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 07:26:10 -0400
-Date: Wed, 28 Jun 2006 13:27:32 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Fengguang Wu <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Lubos Lunak <l.lunak@suse.cz>
-Subject: Re: [PATCH 7/7] iosched: introduce deadline_kick_page()
-Message-ID: <20060628112731.GP32115@suse.de>
-References: <20060624082006.574472632@localhost.localdomain> <20060624082312.833976992@localhost.localdomain> <20060624110104.GP4083@suse.de> <20060625063232.GA5867@mail.ustc.edu.cn>
-Mime-Version: 1.0
+	Wed, 28 Jun 2006 07:25:24 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:2330 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S932775AbWF1LZY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 07:25:24 -0400
+Date: Wed, 28 Jun 2006 13:24:35 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: [patch] lockdep: special s390 print_symbol() version
+Message-ID: <20060628112435.GD9452@osiris.boeblingen.de.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060625063232.GA5867@mail.ustc.edu.cn>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 25 2006, Fengguang Wu wrote:
-> On Sat, Jun 24, 2006 at 01:01:04PM +0200, Jens Axboe wrote:
-> > >  /*
-> > > + * We have a pending read on @page,
-> > > + * find the corresponding request of type READA,
-> > > + * promote it to READ, and reschedule it.
-> > > + */
-> > > +static int
-> > > +deadline_kick_page(struct request_queue *q, struct page *page)
-> > > +{
-> > > +	struct deadline_data *dd = q->elevator->elevator_data;
-> > > +	struct deadline_rq *drq;
-> > > +	struct request *rq;
-> > > +	struct list_head *pos;
-> > > +	struct bio_vec *bvec;
-> > > +	struct bio *bio;
-> > > +	int i;
-> > > +
-> > > +	list_for_each(pos, &dd->fifo_list[READ]) {
-> > > +		drq = list_entry_fifo(pos);
-> > > +		rq = drq->request;
-> > > +		if (rq->flags & (1 << BIO_RW_AHEAD)) {
-> > > +			rq_for_each_bio(bio, rq) {
-> > > +				bio_for_each_segment(bvec, bio, i) {
-> > > +					if (page == bvec->bv_page)
-> > > +						goto found;
-> > > +				}
-> > > +			}
-> > > +		}
-> > > +	}
-> > 
-> > Uh that's horrible!
-> > 
-> > Before we go into further details, I'd like to see some numbers on where
-> > this makes a difference.
-> 
-> Sorry, it is.  It brings non-trivial overhead.
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Sorry for the late reply, apparently spamassassin thought this was
-spam...
+Have a special version of print_symbol() for s390 which clears the most
+significant bit of addr before calling __print_symbol(). This seems to
+be better than checking/changing each place in the kernel that saves an
+instruction pointer.
 
-> This is the oprofile outputs:
-> 
-> reading small files:
->  1245 c01edae4 9         0.1404  deadline_dispatch_requests
->  1253 c01ed4d6 9         0.1404  deadline_queue_empty
->  1338 c01ed3d5 8         0.1248  deadline_kick_page
->  1619 c01ed350 6         0.0936  deadline_add_drq_fifo
->  1707 c01eda62 5         0.0780  deadline_add_request
->  1712 c01ed2e5 5         0.0780  deadline_set_request
->  1867 c01ed871 4         0.0624  deadline_remove_request
->  2242 c01ed9b9 2         0.0312  deadline_add_drq_rb
->  2244 c01edc1e 2         0.0312  deadline_merge
->  2246 c01ed923 2         0.0312  deadline_move_request
->  2249 c01ed232 2         0.0312  deadline_put_request
-> 
-> reading a big file:
->  1330 c01ed3d5 89        0.2926  deadline_kick_page
->  2528 c01edae4 16        0.0526  deadline_dispatch_requests
->  3036 c01ed9b9 8         0.0263  deadline_add_drq_rb
->  3163 c01ed4d6 7         0.0230  deadline_queue_empty
->  3394 c01edc1e 5         0.0164  deadline_merge
->  3399 c01ed923 5         0.0164  deadline_move_request
->  3403 c01ed2e5 5         0.0164  deadline_set_request
->  3707 c01eda62 3         0.0099  deadline_add_request
->  3711 c01ed871 3         0.0099  deadline_remove_request
->  3917 c01ede3c 2         0.0066  deadline_merged_request
->  3920 c01ed232 2         0.0066  deadline_put_request
->  4214 c01ed350 1         0.0033  deadline_add_drq_fifo
-> 
-> The overhead of deadline_kick_page() becomes large when the request is
-> large (256 pages). But I guess there's way to optimize it:
-> - most requests will be consisted of a set of continuous pages, i.e. a
->   range comparison will be sufficient.
-> - for a system with lots of queued requests(>100), maybe the gain can
->   well pay for the overheads?
+Without this the output would look like:
 
-Sorry, there's just no way that something like that is acceptable for
-inclusion. I don't care much about the overhead numbers (I can see from
-the code that it sucks :-), I wanted to see some numbers on what
-scenarios this helps performance and by how much.
+hardirqs last  enabled at (30907): [<80018c6a>] 0x80018c6a
+hardirqs last disabled at (30908): [<8001e48c>] 0x8001e48c
+softirqs last  enabled at (30904): [<8001dc96>] 0x8001dc96
+softirqs last disabled at (30897): [<8001dc50>] 0x8001dc50
 
--- 
-Jens Axboe
+instead of this:
 
+hardirqs last  enabled at (19421): [<80018c72>] cpu_idle+0x176/0x1c4
+hardirqs last disabled at (19422): [<8001e494>] io_no_vtime+0xa/0x1a
+softirqs last  enabled at (19418): [<8001dc9e>] do_softirq+0xa6/0xe8
+softirqs last disabled at (19411): [<8001dc58>] do_softirq+0x60/0xe8
+
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Arjan van de Ven <arjan@infradead.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+
+Patch is against 2.6.17-mm3.
+
+ include/linux/kallsyms.h |    9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+Index: linux-2.6.17-mm3/include/linux/kallsyms.h
+===================================================================
+--- linux-2.6.17-mm3.orig/include/linux/kallsyms.h
++++ linux-2.6.17-mm3/include/linux/kallsyms.h
+@@ -57,11 +57,20 @@ do {						\
+ #define print_fn_descriptor_symbol(fmt, addr) print_symbol(fmt, addr)
+ #endif
+ 
++/* need to clear the most significant bit on s390 31bit */
++#if defined(CONFIG_S390) && !defined(CONFIG_64BIT)
++#define print_symbol(fmt, addr)			\
++do {						\
++	__check_printsym_format(fmt, "");	\
++	__print_symbol(fmt, addr & 0x7fffffff);	\
++} while(0)
++#else
+ #define print_symbol(fmt, addr)			\
+ do {						\
+ 	__check_printsym_format(fmt, "");	\
+ 	__print_symbol(fmt, addr);		\
+ } while(0)
++#endif
+ 
+ #ifndef CONFIG_64BIT
+ #define print_ip_sym(ip)		\

@@ -1,93 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbWF1VFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWF1VRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751531AbWF1VFo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 17:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751532AbWF1VFo
+	id S1751538AbWF1VRL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 17:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWF1VRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 17:05:44 -0400
-Received: from xenotime.net ([66.160.160.81]:11649 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751388AbWF1VFn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 17:05:43 -0400
-Date: Wed, 28 Jun 2006 14:08:25 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Erik Frederiksen <erik_frederiksen@pmc-sierra.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IS_ERR Threshold Value
-Message-Id: <20060628140825.692f31be.rdunlap@xenotime.net>
-In-Reply-To: <1151528227.3904.1110.camel@girvin.pmc-sierra.bc.ca>
-References: <1151528227.3904.1110.camel@girvin.pmc-sierra.bc.ca>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 28 Jun 2006 17:17:11 -0400
+Received: from mga06.intel.com ([134.134.136.21]:27050 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751534AbWF1VRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 17:17:10 -0400
+X-IronPort-AV: i="4.06,189,1149490800"; 
+   d="scan'208"; a="58132336:sNHT1265924800"
+Date: Wed, 28 Jun 2006 14:10:28 -0700
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       alexey.y.starikovskiy@intel.com
+Subject: [RFC] Adding queue_delayed_work_on interface for workqueues
+Message-ID: <20060628141028.A13221@unix-os.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006 14:57:07 -0600 Erik Frederiksen wrote:
 
-> 
-> from include/asm-mips/errno.h
-> #define EDQUOT      1133    /* Quota exceeded */
-> 
-> I noticed that the errno value for EDQUOT on MIPS is considerably larger
-> than all others.  This can lead to a situation where functions using
-> ERR_PTR() to return error codes in pointers cannot return this error
-> code without IS_ERR() thinking that the pointer is valid.  In my case,
-> it caused an alignment exception in the XFS open call when quota has
-> been exceeded in the linux-mips 2.6.14 kernel.  I think that the XFS
-> code has changed enough that this bug isn't in newer versions, though I
-> haven't done a thorough investigation.  
-> 
-> I've supplied a patch that addresses this situation by changing the
-> threshold used by IS_ERR if EMAXERRNO is defined and greater than 1000. 
-> Perhaps permanently raising the threshold value to something >1133 is
-> sufficient.
-> 
-> Looking forward to your feedback.  
-> 
-> Erik Frederiksen
-> Firmware Design Engineer Co-op
-> PMC-Sierra Saskatoon
+This patch is a part of cpufreq patches for ondemand governor optimizations
+and entire series is actually posted to cpufreq mailing list.
+Subject "minor optimizations to ondemand governor"
 
-Hi,
-Peter Anvin mentioned just a few days ago that this threshold value
-should be 4095 for all arches.  I think we need to get that patch
-done & submitted to Andrew for -mm.
+The following patch however is a generic change to workqueue interface and 
+I wanted to get comments on this on lkml.
 
+Thanks,
+Venki
 
-> diff -Nau [ab]/include/linux/err.h
-> --- a/include/linux/err.h       2005-10-30 13:14:22.000000000 -0600
-> +++ b/include/linux/err.h       2006-06-28 10:38:43.000000000 -0600
-> @@ -12,8 +12,23 @@
->   *
->   * This should be a per-architecture thing, to allow different
->   * error and pointer decisions.
-> + *
-> + * Updated by Erik Frederiksen (erik_frederiksen@pmc-sierra.com)
-> + * errno values on MIPS go up to 1133 for EDQUOT.  The threshold
-> + * is adjusted so that returning large errnos in a pointer
-> + * does not result in a valid pointer according to IS_ERR.
->   */
-> -#define IS_ERR_VALUE(x) unlikely((x) > (unsigned long)-1000L)
-> +
-> +#define ERR_PTR_THRESHOLD 1000
-> +#define IS_ERR_VALUE(x) \
-> +       unlikely((x) > (unsigned long)-(long)ERR_PTR_THRESHOLD )
-> +#ifdef EMAXERRNO
-> +# if EMAXERRNO >= ERR_PTR_THRESHOLD
-> +#  undef IS_ERR_VALUE
-> +#  define IS_ERR_VALUE(x) \
-> +       unlikely((x) >= (unsigned long)-(long)EMAXERRNO )
-> +# endif
-> +#endif
->   
->  static inline void *ERR_PTR(long error)
->  {
-> 
-> 
-> -
+Add queue_delayed_work_on() interface for workqueues.
 
----
-~Randy
+Signed-off-by: Alexey Starikovskiy <alexey.y.starikovskiy@intel.com>
+Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+
+Index: linux-2.6.17/include/linux/workqueue.h
+===================================================================
+--- linux-2.6.17.orig/include/linux/workqueue.h
++++ linux-2.6.17/include/linux/workqueue.h
+@@ -63,12 +63,13 @@ extern void destroy_workqueue(struct wor
+ 
+ extern int FASTCALL(queue_work(struct workqueue_struct *wq, struct work_struct *work));
+ extern int FASTCALL(queue_delayed_work(struct workqueue_struct *wq, struct work_struct *work, unsigned long delay));
++extern int FASTCALL(queue_delayed_work_on(int cpu, struct workqueue_struct *wq, struct work_struct *work, unsigned long delay));
+ extern void FASTCALL(flush_workqueue(struct workqueue_struct *wq));
+ 
+ extern int FASTCALL(schedule_work(struct work_struct *work));
+ extern int FASTCALL(schedule_delayed_work(struct work_struct *work, unsigned long delay));
+ 
+-extern int schedule_delayed_work_on(int cpu, struct work_struct *work, unsigned long delay);
++extern int FASTCALL(schedule_delayed_work_on(int cpu, struct work_struct *work, unsigned long delay));
+ extern int schedule_on_each_cpu(void (*func)(void *info), void *info);
+ extern void flush_scheduled_work(void);
+ extern int current_is_keventd(void);
+Index: linux-2.6.17/kernel/workqueue.c
+===================================================================
+--- linux-2.6.17.orig/kernel/workqueue.c
++++ linux-2.6.17/kernel/workqueue.c
+@@ -148,6 +148,27 @@ int fastcall queue_delayed_work(struct w
+ 	return ret;
+ }
+ 
++int fastcall queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
++			struct work_struct *work, unsigned long delay)
++{
++	int ret = 0;
++	struct timer_list *timer = &work->timer;
++
++	if (!test_and_set_bit(0, &work->pending)) {
++		BUG_ON(timer_pending(timer));
++		BUG_ON(!list_empty(&work->entry));
++
++		/* This stores wq for the moment, for the timer_fn */
++		work->wq_data = wq;
++		timer->expires = jiffies + delay;
++		timer->data = (unsigned long)work;
++		timer->function = delayed_work_timer_fn;
++		add_timer_on(timer, cpu);
++		ret = 1;
++	}
++	return ret;
++}
++
+ static void run_workqueue(struct cpu_workqueue_struct *cwq)
+ {
+ 	unsigned long flags;
+@@ -408,24 +429,10 @@ int fastcall schedule_delayed_work(struc
+ 	return queue_delayed_work(keventd_wq, work, delay);
+ }
+ 
+-int schedule_delayed_work_on(int cpu,
++int fastcall schedule_delayed_work_on(int cpu,
+ 			struct work_struct *work, unsigned long delay)
+ {
+-	int ret = 0;
+-	struct timer_list *timer = &work->timer;
+-
+-	if (!test_and_set_bit(0, &work->pending)) {
+-		BUG_ON(timer_pending(timer));
+-		BUG_ON(!list_empty(&work->entry));
+-		/* This stores keventd_wq for the moment, for the timer_fn */
+-		work->wq_data = keventd_wq;
+-		timer->expires = jiffies + delay;
+-		timer->data = (unsigned long)work;
+-		timer->function = delayed_work_timer_fn;
+-		add_timer_on(timer, cpu);
+-		ret = 1;
+-	}
+-	return ret;
++	return queue_delayed_work_on(cpu, keventd_wq, work, delay);
+ }
+ 
+ int schedule_on_each_cpu(void (*func) (void *info), void *info)
+@@ -608,6 +615,7 @@ void init_workqueues(void)
+ EXPORT_SYMBOL_GPL(__create_workqueue);
+ EXPORT_SYMBOL_GPL(queue_work);
+ EXPORT_SYMBOL_GPL(queue_delayed_work);
++EXPORT_SYMBOL_GPL(queue_delayed_work_on);
+ EXPORT_SYMBOL_GPL(flush_workqueue);
+ EXPORT_SYMBOL_GPL(destroy_workqueue);
+ 

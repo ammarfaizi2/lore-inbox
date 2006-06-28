@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWF1MPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423310AbWF1MPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161008AbWF1MPM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 08:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbWF1MPM
+	id S1423310AbWF1MPR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 08:15:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423308AbWF1MPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 08:15:12 -0400
-Received: from cv3.cv.nrao.edu ([192.33.115.2]:62172 "EHLO cv3.cv.nrao.edu")
-	by vger.kernel.org with ESMTP id S1423310AbWF1MPL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 08:15:11 -0400
-Message-ID: <44A272CA.5000209@nrao.edu>
-Date: Wed, 28 Jun 2006 08:15:06 -0400
-From: Rodrigo Amestica <ramestic@nrao.edu>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Wed, 28 Jun 2006 08:15:17 -0400
+Received: from ranger.systems.pipex.net ([62.241.162.32]:55748 "EHLO
+	ranger.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S1161289AbWF1MPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 08:15:15 -0400
+Date: Wed, 28 Jun 2006 13:16:05 +0100 (BST)
+From: Tigran Aivazian <tigran_aivazian@symantec.com>
+X-X-Sender: tigran@ezer.homenet
+To: Greg KH <greg@kroah.com>
+Cc: Shaohua Li <shaohua.li@intel.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       "Van De Ven, Adriaan" <adriaan.van.de.ven@intel.com>,
+       Rajesh Shah <rajesh.shah@intel.com>
+Subject: Re: [PATCH]microcode update driver rewrite - takes 2
+In-Reply-To: <20060627060214.GA27469@kroah.com>
+Message-ID: <Pine.LNX.4.61.0606281314540.2634@ezer.homenet>
+References: <1151376693.21189.52.camel@sli10-desk.sh.intel.com>
+ <20060627060214.GA27469@kroah.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Rodrigo Amestica <ramestic@nrao.edu>
-Subject: vmalloc kernel parameter
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please contact postmaster@cv.nrao.edu for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-101.44, required 5,
-	autolearn=disabled, ALL_TRUSTED -1.44, USER_IN_WHITELIST -100.00)
-X-MailScanner-From: ramestic@nrao.edu
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I'm having troubles when using the vmalloc kernel parameter.
+On Mon, 26 Jun 2006, Greg KH wrote:
+>> 3. add a new attribute 'pf' to help tools check if CPU has latest ucode
+>
+> What does "pf" stand for?
 
-My grub config looks as shown below. If I set vmalloc to anything
-bigger than 128M (the default) then the kernel will not boot and it
-will log the following on the console:
+processor flags.
 
-VFS: Cannot open root device "LABEL=/" or unknown-block(0,0)
-Please append a correct "root=" boot option
-Kernel Panic - not syncing: VFS Unable to mount root fs on
-unknown-block(0,0)
-
-If I specify 128M or less then the kernel will boot just fine and
-/proc/meminfo will show the effect in VmallocTotal.
-
-Any hint on what I'm crashing with?
-
-thanks,
-  Rodrigo
-
-ps: my kernel version is 2.6.15.2, and my machine is a dual opteron
-with 2GB of ram
-
-title with vmalloc
-         root (hd0,0)
-         kernel /boot/vmlinuz ro root=LABEL=/ vmalloc=256M
-         initrd /boot/initrd.img
+Kind regards
+Tigran

@@ -1,80 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932838AbWF1RMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932660AbWF1RNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932838AbWF1RMi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932856AbWF1RMi
+	id S932660AbWF1RNY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932857AbWF1RNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 13:12:38 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:29116 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932838AbWF1RMh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 13:12:37 -0400
-Date: Wed, 28 Jun 2006 10:13:09 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] kernel/rcutorture.c: make code static
-Message-ID: <20060628171309.GE1293@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060627015211.ce480da6.akpm@osdl.org> <20060628165445.GQ13915@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060628165445.GQ13915@stusta.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 28 Jun 2006 13:13:23 -0400
+Received: from ns2.lanforge.com ([66.165.47.211]:38788 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S932856AbWF1RNW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 13:13:22 -0400
+Message-ID: <44A2B7F6.8090702@candelatech.com>
+Date: Wed, 28 Jun 2006 10:10:14 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Lezcano <dlezcano@fr.ibm.com>
+CC: Kirill Korotaev <dev@sw.ru>, Andrey Savochkin <saw@swsoft.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
+       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
+       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       ebiederm@xmission.com, viro@ftp.linux.org.uk, alexey@sw.ru
+Subject: Re: [patch 3/4] Network namespaces: IPv4 FIB/routing in namespaces
+References: <20060626134945.A28942@castle.nmd.msu.ru> <20060626135250.B28942@castle.nmd.msu.ru> <20060626135427.C28942@castle.nmd.msu.ru> <449FF5AE.2040201@fr.ibm.com> <44A28964.2090006@fr.ibm.com> <20060628183015.B31885@castle.nmd.msu.ru> <44A29379.6060609@sw.ru> <44A2B4D7.9080007@fr.ibm.com>
+In-Reply-To: <44A2B4D7.9080007@fr.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 06:54:45PM +0200, Adrian Bunk wrote:
-> This patch makes needlessly global code static.
+Daniel Lezcano wrote:
+> Kirill Korotaev wrote:
+> 
+>>>>>> Structures related to IPv4 rounting (FIB and routing cache)
+>>>>>> are made per-namespace.
+>>>>
+>>>>
+>>>>
+>>>> Hi Andrey,
+>>>>
+>>>> if the ressources are private to the namespace, how do you will 
+>>>> handle NFS mounted before creating the network namespace ? Do you 
+>>>> take care of that or simply assume you can't access NFS anymore ?
+>>>
+>>>
+>>>
+>>>
+>>> This is a question that brings up another level of interaction between
+>>> networking and the rest of kernel code.
+>>> Solution that I use now makes the NFS communication part always run in
+>>> the root namespace.  This is discussable, of course, but it's a far more
+>>> complicated matter than just device lists or routing :)
+>>
+>>
+>> if we had containers (not namespaces) then it would be also possible 
+>> to run NFS in context of the appropriate container and thus each user 
+>> could  mount NFS itself with correct networking context.
 
-Looks good to me -- but have you tested it?  If so, I will ack, otherwise
-I will test and ack/nack depending on the results.
+With a relatively small patch, I was able to make NFS bind to a particular
+local IP (poor man's namespace with existing code).  I also changed it so
+that multiple mounts to the same destination (and with unique local mount
+points) are treated as unique mounts.  This patch was done so that I could
+stress test NFS servers, but similar logic might work for namespace isolation
+as well...
 
-							Thanx, Paul
+Ben
 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  kernel/rcutorture.c |   14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
-> 
-> --- linux-2.6.17-mm3-full/kernel/rcutorture.c.old	2006-06-27 17:59:20.000000000 +0200
-> +++ linux-2.6.17-mm3-full/kernel/rcutorture.c	2006-06-27 18:01:00.000000000 +0200
-> @@ -105,11 +105,11 @@
->  static DEFINE_PER_CPU(long [RCU_TORTURE_PIPE_LEN + 1], rcu_torture_batch) =
->  	{ 0 };
->  static atomic_t rcu_torture_wcount[RCU_TORTURE_PIPE_LEN + 1];
-> -atomic_t n_rcu_torture_alloc;
-> -atomic_t n_rcu_torture_alloc_fail;
-> -atomic_t n_rcu_torture_free;
-> -atomic_t n_rcu_torture_mberror;
-> -atomic_t n_rcu_torture_error;
-> +static atomic_t n_rcu_torture_alloc;
-> +static atomic_t n_rcu_torture_alloc_fail;
-> +static atomic_t n_rcu_torture_free;
-> +static atomic_t n_rcu_torture_mberror;
-> +static atomic_t n_rcu_torture_error;
->  
->  /*
->   * Allocate an element from the rcu_tortures pool.
-> @@ -338,7 +338,7 @@
->  	}
->  }
->  
-> -int srcu_torture_stats(char *page)
-> +static int srcu_torture_stats(char *page)
->  {
->  	int cnt = 0;
->  	int cpu;
-> @@ -567,7 +567,7 @@
->  /* Shuffle tasks such that we allow @rcu_idle_cpu to become idle. A special case
->   * is when @rcu_idle_cpu = -1, when we allow the tasks to run on all CPUs.
->   */
-> -void rcu_torture_shuffle_tasks(void)
-> +static void rcu_torture_shuffle_tasks(void)
->  {
->  	cpumask_t tmp_mask = CPU_MASK_ALL;
->  	int i;
-> 
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

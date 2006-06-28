@@ -1,55 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423276AbWF1LSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423280AbWF1L0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423276AbWF1LSo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 07:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423278AbWF1LSo
+	id S1423280AbWF1L0M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 07:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423279AbWF1L0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 07:18:44 -0400
-Received: from mail-out.m-online.net ([212.18.0.9]:8877 "EHLO
-	mail-out.m-online.net") by vger.kernel.org with ESMTP
-	id S1423276AbWF1LSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 07:18:43 -0400
-X-Auth-Info: 1977qM1NOk5+HstnD78Y72BZm3FDtcxRYQaIV/ccJXc=
-Date: Wed, 28 Jun 2006 13:19:38 +0200
-From: Christian Lohmaier <cloph@openoffice.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Bugme-new] [Bug 6745] New: kernel hangs when trying to read    atip wiith cdrecord
-Message-ID: <20060628111937.GA4126@bm617259.muenchen.org>
+	Wed, 28 Jun 2006 07:26:12 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:8030 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932775AbWF1L0K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 07:26:10 -0400
+Date: Wed, 28 Jun 2006 13:27:32 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Fengguang Wu <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Lubos Lunak <l.lunak@suse.cz>
+Subject: Re: [PATCH 7/7] iosched: introduce deadline_kick_page()
+Message-ID: <20060628112731.GP32115@suse.de>
+References: <20060624082006.574472632@localhost.localdomain> <20060624082312.833976992@localhost.localdomain> <20060624110104.GP4083@suse.de> <20060625063232.GA5867@mail.ustc.edu.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44A22FC3.nail3NU1XXW6C@burner>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060625063232.GA5867@mail.ustc.edu.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006 09:30:22 +0200, Joerg Schilling wrote:
-> Christian Lohmaier wrote:
->>I updated the bug-report with some info I collected from another bug. 
->
->>Apparently my drive sends additional interrupts that confuses the kernel 
->>and make it hang. 
->>The problem is triggered with newer versions of cdrecord (cdrtools 
->>2.01a33 and newer) where cdrecord changed its driver interface. 
+On Sun, Jun 25 2006, Fengguang Wu wrote:
+> On Sat, Jun 24, 2006 at 01:01:04PM +0200, Jens Axboe wrote:
+> > >  /*
+> > > + * We have a pending read on @page,
+> > > + * find the corresponding request of type READA,
+> > > + * promote it to READ, and reschedule it.
+> > > + */
+> > > +static int
+> > > +deadline_kick_page(struct request_queue *q, struct page *page)
+> > > +{
+> > > +	struct deadline_data *dd = q->elevator->elevator_data;
+> > > +	struct deadline_rq *drq;
+> > > +	struct request *rq;
+> > > +	struct list_head *pos;
+> > > +	struct bio_vec *bvec;
+> > > +	struct bio *bio;
+> > > +	int i;
+> > > +
+> > > +	list_for_each(pos, &dd->fifo_list[READ]) {
+> > > +		drq = list_entry_fifo(pos);
+> > > +		rq = drq->request;
+> > > +		if (rq->flags & (1 << BIO_RW_AHEAD)) {
+> > > +			rq_for_each_bio(bio, rq) {
+> > > +				bio_for_each_segment(bvec, bio, i) {
+> > > +					if (page == bvec->bv_page)
+> > > +						goto found;
+> > > +				}
+> > > +			}
+> > > +		}
+> > > +	}
+> > 
+> > Uh that's horrible!
+> > 
+> > Before we go into further details, I'd like to see some numbers on where
+> > this makes a difference.
 > 
-> cdrtools-2.01a33 is extremely old (2 years).
+> Sorry, it is.  It brings non-trivial overhead.
+
+Sorry for the late reply, apparently spamassassin thought this was
+spam...
+
+> This is the oprofile outputs:
 > 
-> It did not introduce new SCSI commands (compared to prevuious versions) and I
-> would be interested why this problem is discussed late.
+> reading small files:
+>  1245 c01edae4 9         0.1404  deadline_dispatch_requests
+>  1253 c01ed4d6 9         0.1404  deadline_queue_empty
+>  1338 c01ed3d5 8         0.1248  deadline_kick_page
+>  1619 c01ed350 6         0.0936  deadline_add_drq_fifo
+>  1707 c01eda62 5         0.0780  deadline_add_request
+>  1712 c01ed2e5 5         0.0780  deadline_set_request
+>  1867 c01ed871 4         0.0624  deadline_remove_request
+>  2242 c01ed9b9 2         0.0312  deadline_add_drq_rb
+>  2244 c01edc1e 2         0.0312  deadline_merge
+>  2246 c01ed923 2         0.0312  deadline_move_request
+>  2249 c01ed232 2         0.0312  deadline_put_request
+> 
+> reading a big file:
+>  1330 c01ed3d5 89        0.2926  deadline_kick_page
+>  2528 c01edae4 16        0.0526  deadline_dispatch_requests
+>  3036 c01ed9b9 8         0.0263  deadline_add_drq_rb
+>  3163 c01ed4d6 7         0.0230  deadline_queue_empty
+>  3394 c01edc1e 5         0.0164  deadline_merge
+>  3399 c01ed923 5         0.0164  deadline_move_request
+>  3403 c01ed2e5 5         0.0164  deadline_set_request
+>  3707 c01eda62 3         0.0099  deadline_add_request
+>  3711 c01ed871 3         0.0099  deadline_remove_request
+>  3917 c01ede3c 2         0.0066  deadline_merged_request
+>  3920 c01ed232 2         0.0066  deadline_put_request
+>  4214 c01ed350 1         0.0033  deadline_add_drq_fifo
+> 
+> The overhead of deadline_kick_page() becomes large when the request is
+> large (256 pages). But I guess there's way to optimize it:
+> - most requests will be consisted of a set of continuous pages, i.e. a
+>   range comparison will be sufficient.
+> - for a system with lots of queued requests(>100), maybe the gain can
+>   well pay for the overheads?
 
-Because that problems only occurs in the combination of recent cdrtools with
-kernel 2.6.x
-I for myself have been using kernel 2.4.x until recently I switched to 2.6.x
+Sorry, there's just no way that something like that is acceptable for
+inclusion. I don't care much about the overhead numbers (I can see from
+the code that it sucks :-), I wanted to see some numbers on what
+scenarios this helps performance and by how much.
 
-> The only new thing with cdrecord-2.01a33 is that it started to transfer more 
-> than 4 bytes with the "read buffer" command. As this is only issued in case that
-> the "read buffer" command did succeed with 4 bytes transfer count and as 
-> cdrecord does not transfer more than the drive advertizes, I am just depending 
-> on a kernel that does not freeze from the SCSI command I am issuing.
-
-OK - thats already a hint. Maybe this helps the kernel-devs.
-
-ciao
-Christian
 -- 
-NP: Papa Roach - Between Angels And Insects
+Jens Axboe
+

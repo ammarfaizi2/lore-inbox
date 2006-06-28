@@ -1,117 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751784AbWF1Xle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbWF1XlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751784AbWF1Xle (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 19:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWF1Xle
+	id S1751779AbWF1XlF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 19:41:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWF1XlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 19:41:34 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:1761 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751783AbWF1Xlb (ORCPT
+	Wed, 28 Jun 2006 19:41:05 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:55770 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751779AbWF1XlC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 19:41:31 -0400
-Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0606281218130.12900@scrub.home>
-References: <20060624061914.202fbfb5.akpm@osdl.org>
-	 <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0606271212150.17704@scrub.home>
-	 <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0606271903320.12900@scrub.home>
-	 <Pine.LNX.4.64.0606271919450.17704@scrub.home>
-	 <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu>
-	 <1151453231.24656.49.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0606281218130.12900@scrub.home>
-Content-Type: text/plain
-Date: Wed, 28 Jun 2006 16:41:24 -0700
-Message-Id: <1151538084.5317.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 28 Jun 2006 19:41:02 -0400
+Message-ID: <44A31381.8090101@garzik.org>
+Date: Wed, 28 Jun 2006 19:40:49 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Marcel Holtmann <marcel@holtmann.org>, Greg KH <greg@kroah.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [git pull] Input update for 2.6.17
+References: <200606260235.03718.dtor_core@ameritech.net>  <Pine.LNX.4.64.0606262247040.3927@g5.osdl.org>  <20060627063734.GA28135@kroah.com>  <Pine.LNX.4.64.0606271131590.3927@g5.osdl.org>  <Pine.LNX.4.64.0606271211110.3927@g5.osdl.org>  <Pine.LNX.4.64.0606271231440.3927@g5.osdl.org> <1151437593.25011.38.camel@localhost> <Pine.LNX.4.64.0606272057160.3927@g5.osdl.org> <Pine.LNX.4.64.0606272114330.3927@g5.osdl.org> <44A229C0.5060702@garzik.org> <Pine.LNX.4.64.0606281502280.12404@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606281502280.12404@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-28 at 12:35 +0200, Roman Zippel wrote:
-> Hi,
+Linus Torvalds wrote:
 > 
-> On Tue, 27 Jun 2006, john stultz wrote:
+> On Wed, 28 Jun 2006, Jeff Garzik wrote:
 > 
-> > > [   92.087113] ACPI: CPU0 (power states: C1[C1] C2[C2])
-> > > [   92.087122] ACPI: Processor [CPU0] (supports 8 throttling states)
-> > > [   92.120270] ACPI: Thermal Zone [THM] (70 C)
-> > > [   72.242000] Time: acpi_pm clocksource has been installed.
-> > > 
-> > > and the timestamps steps back about 20 seconds.... 
-> > 
-> > Yea, that bit is expected. Basically the cpufreq driver is loading, and
-> > when we detect cpufreq changes we mark the TSC as unstable and we fall
-> > back to an alternative clocksource (acpi_pm in your case). At the same
-> > time, sched_clock sees that the TSC is unstable and it falls back to
-> > using jiffies, which causes the small jump in the printk timestamps.
+>> Linus Torvalds wrote:
+>>> Anyway, "urb->transfer_buffer" was initialized with
+>>>
+>>> 	urb->transfer_buffer = skb->data;
+>>>
+>>> and I'm pretty damn sure you're supposed to just kfree() it.
+>> eh?  I would think dev_kfree_skb(), because who knows whether the skb was
+>> cloned, split, data buffer adjusted, destructors need to be called...
 > 
-> Frequency changes are IMO currently the most likely reason for this 
-> behaviour. If the cpu speeds down too much, the adjustment code might 
-> actually attempt to go backwards in time, the old adjustment code might 
-> have survived that, because it reacts slower to changes.
-> The patch below should prevent this.
+> Well, we don't actually have the skb available any more.
 
-I agree cpufreq changes could be the source. However, things still
-aren't making sense, since the accumulation is cycle based to begin
-with, so any cpufreq caused drift in time won't be noticed until NTPd
-starts adjusting the output from current_tick_len().
+You do:
 
-Vladis: I don't want to overwhelm you with patches to try, I think
-Roman's debug patches should help show where the issue is. But if you've
-got the time, try the patch below to quickly see if the cpufreq changes
-are indeed causing the problem.
-
-> Looking through the log file, I noticed other things:
+>         urb->transfer_buffer = skb->data;
+>         urb->transfer_buffer_length = skb->len;
 > 
-> [   17.942330] speedstep: frequency transition measured seems out of range (0 nSec), falling back to a safe one of 500000 nSec.
-> ...
-> [   21.869356] Time: tsc clocksource has been installed.
+>         __fill_isoc_desc(urb, skb->len, le16_to_cpu(husb->isoc_out_ep->desc.wMaxPacketSize));
 > 
-> The speedstep code uses do_gettimeofday() but there is no real clock 
-> source installed, so it gets confused.
-> IMO it would be better to install the PIT timer very early and later avoid 
-> switching to tsc at all, if there is any possibility of speed changes.
+>         _urb->priv = skb;
 
-Hmm. Yea, while I'm not sure this is the issue at hand, it does look
-like I need to get some of the boot ordering worked out here. Using the
-PIT early on probably isn't the best solution as the 18us access latency
-might not be the best for the transition calibration. Currently jiffies
-is the default clocksource until late_initcall time, which was done to
-minimize the clocksource churn at boot time.  I'm not quite recalling
-the details, but I think the motivation was to avoid confusion when
-looking at the dmesg, so we could instead allow clocksources to be
-selected as they load, but disable printing anything to dmesg until
-after late_initcall.
+so it looks like you can grab it out of the 'priv' field.
 
-I'll start working on that.
+And a damned good thing too...
 
-thanks
--john
-
-
-
-
-This patch tries blocking the cpufreq changes to see if its causing the
-accounting issue.
-
-diff --git a/arch/i386/kernel/tsc.c b/arch/i386/kernel/tsc.c
-index 7e0d8da..24af443 100644
---- a/arch/i386/kernel/tsc.c
-+++ b/arch/i386/kernel/tsc.c
-@@ -356,7 +356,7 @@ static int tsc_update_callback(void)
- 	}
- 
- 	/* only update if tsc_khz has changed: */
--	if (current_tsc_khz != tsc_khz) {
-+	if (0 && current_tsc_khz != tsc_khz) {
- 		current_tsc_khz = tsc_khz;
- 		clocksource_tsc.mult = clocksource_khz2mult(current_tsc_khz,
- 							clocksource_tsc.shift);
+	Jeff
 
 

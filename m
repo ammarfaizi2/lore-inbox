@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWF1FpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWF1Fra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbWF1FpX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 01:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWF1FpX
+	id S1422658AbWF1Fra (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 01:47:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422700AbWF1Fr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 01:45:23 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:29931 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964860AbWF1FpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 01:45:22 -0400
-Date: Tue, 27 Jun 2006 22:44:33 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       ak@suse.de, drepper@redhat.com, roland@redhat.com, jakub@redhat.com
-Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
-Message-Id: <20060627224433.fb726e0c.pj@sgi.com>
-In-Reply-To: <20060621081539.GA14227@elte.hu>
-References: <200606210329_MC3-1-C305-E008@compuserve.com>
-	<20060621081539.GA14227@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Wed, 28 Jun 2006 01:47:29 -0400
+Received: from hera.kernel.org ([140.211.167.34]:49352 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1422658AbWF1Fr2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 01:47:28 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: klibc and what's the next step?
+Date: Tue, 27 Jun 2006 22:47:19 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e7t557$u9o$1@terminus.zytor.com>
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <200606271940.46634.ak@suse.de> <44A16E9C.70000@zytor.com> <bda6d13a0606271322x6f2d76f4wfdbc885062d9a145@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1151473639 31033 127.0.0.1 (28 Jun 2006 05:47:19 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 28 Jun 2006 05:47:19 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> but my gut feeling is that we should add a proper sys_get_cpu() syscall 
+Followup to:  <bda6d13a0606271322x6f2d76f4wfdbc885062d9a145@mail.gmail.com>
+By author:    "Joshua Hudson" <joshudson@gmail.com>
+In newsgroup: linux.dev.kernel
+> 
+> BTW, is there a kinit= kernel command line so I can spawn an
+> interactive shell rather than /init?  init= doesn't do it.
+> 
 
-Yes - this should be for more or less all arch's.
+Yes, it's called rdinit=.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+	-hpa

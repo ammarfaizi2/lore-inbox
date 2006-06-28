@@ -1,59 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423315AbWF1M0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423317AbWF1Mdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423315AbWF1M0E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 08:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423316AbWF1M0E
+	id S1423317AbWF1Mdp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 08:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423318AbWF1Mdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 08:26:04 -0400
-Received: from unn-206.superhosting.cz ([82.208.4.206]:9669 "EHLO
-	mail.aiken.cz") by vger.kernel.org with ESMTP id S1423315AbWF1M0D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 08:26:03 -0400
-Message-ID: <44A27569.1020005@kernel-api.org>
-Date: Wed, 28 Jun 2006 14:26:17 +0200
-From: Lukas Jelinek <info@kernel-api.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; cs-CZ; rv:1.7.12) Gecko/20050915
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Martin Waitz <tali@admingilde.org>
-CC: Steven Rostedt <rostedt@goodmis.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel API Reference Documentation
-References: <44A1858B.9080102@kernel-api.org> <20060627132226.2401598e.rdunlap@xenotime.net> <44A1982C.1010008@kernel-api.org> <Pine.LNX.4.58.0606280543270.32286@gandalf.stny.rr.com> <20060628120536.GF19868@admingilde.org>
-In-Reply-To: <20060628120536.GF19868@admingilde.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jun 2006 08:33:45 -0400
+Received: from mivlgu.ru ([81.18.140.87]:23769 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S1423317AbWF1Mdo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 08:33:44 -0400
+Date: Wed, 28 Jun 2006 16:33:39 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Rodrigo Amestica <ramestic@nrao.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vmalloc kernel parameter
+Message-Id: <20060628163339.d2110437.vsu@altlinux.ru>
+In-Reply-To: <44A272CA.5000209@nrao.edu>
+References: <44A272CA.5000209@nrao.edu>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.17; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__28_Jun_2006_16_33_39_+0400_XT0ZjPDMKll9RJ5s"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hoi :)
-> 
-> when I once experimented with doxygen, I used the following script to
-> convert some kerneldoc comments to doxygen syntax:
-> 
-> #!/usr/bin/perl -wpi
-> 
-> use strict;
-> 
-> BEGIN { $::state = 0; }
-> 
-> if ($::state == 0) {
-> 	$::state = 1 if /\/\*\*/;
-> } elsif ($::state == 1) {
-> 	s/(\*\s+)(struct\s+|enum\s+)?\S+ - /$1/;
-> 	s/$/\./ unless /\.$/;
-> 	$::state = 2;
-> } elsif ($::state == 2) {
-> 	s/(\*\s+)\@(\w+):\s+(.*)/$1\\param $2 $3./;
-> 	s/(\s+)[%&\@](\S+)/$1$2/g;
-> }
-> s/\.\.$/./;
-> 
-> $::state = 0 if /\*\//;
-> 
+--Signature=_Wed__28_Jun_2006_16_33_39_+0400_XT0ZjPDMKll9RJ5s
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-A good idea! Thanks. I will try it and compare to the result of my sed
-script.
+On Wed, 28 Jun 2006 08:15:06 -0400 Rodrigo Amestica wrote:
 
-Lukas
+> Hi, I'm having troubles when using the vmalloc kernel parameter.
+>=20
+> My grub config looks as shown below. If I set vmalloc to anything
+> bigger than 128M (the default) then the kernel will not boot and it
+> will log the following on the console:
+>=20
+> VFS: Cannot open root device "LABEL=3D/" or unknown-block(0,0)
+> Please append a correct "root=3D" boot option
+> Kernel Panic - not syncing: VFS Unable to mount root fs on
+> unknown-block(0,0)
+>=20
+> If I specify 128M or less then the kernel will boot just fine and
+> /proc/meminfo will show the effect in VmallocTotal.
+>=20
+> Any hint on what I'm crashing with?
 
+This is a known problem with GRUB: it tries to put initrd at the highest
+possible address in memory, and assumes the standard vmalloc area size.
+You need to trick GRUB into thinking that your machine has less memory
+by using "uppermem 524288" (512M) or even lower - then the initrd data
+will still be accessible for the kernel even with larger vmalloc area.
+
+http://lkml.org/lkml/2005/4/4/283
+http://lists.linbit.com/pipermail/drbd-user/2005-April/002890.html
+
+> ps: my kernel version is 2.6.15.2, and my machine is a dual opteron
+> with 2GB of ram
+>=20
+> title with vmalloc
+>          root (hd0,0)
+
+Add "uppermem 524288" here.
+
+>          kernel /boot/vmlinuz ro root=3DLABEL=3D/ vmalloc=3D256M
+>          initrd /boot/initrd.img
+
+--Signature=_Wed__28_Jun_2006_16_33_39_+0400_XT0ZjPDMKll9RJ5s
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.17 (GNU/Linux)
+
+iD8DBQFEoncmW82GfkQfsqIRAhuvAJwKLcC0+lxClgiJnu73sqYQ4yTO9QCcCKLH
+jWoZaHiEUBTXlZXhCXgAyXc=
+=fFCI
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__28_Jun_2006_16_33_39_+0400_XT0ZjPDMKll9RJ5s--

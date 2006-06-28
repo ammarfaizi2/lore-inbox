@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422946AbWF1C5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423003AbWF1DFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422946AbWF1C5v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 22:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422948AbWF1C5v
+	id S1423003AbWF1DFz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 23:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423002AbWF1DFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 22:57:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24238 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422946AbWF1C5u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 22:57:50 -0400
-Date: Tue, 27 Jun 2006 19:57:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: stsp@aknet.ru, linux-kernel@vger.kernel.org
-Subject: Re: the creation of boot_cpu_init() is wrong and accessing
- uninitialised data
-Message-Id: <20060627195743.ce18afe3.akpm@osdl.org>
-In-Reply-To: <1151462735.5793.2.camel@mulgrave.il.steeleye.com>
-References: <1151376313.3443.12.camel@mulgrave.il.steeleye.com>
-	<20060626200433.bf0292af.akpm@osdl.org>
-	<1151379392.3443.20.camel@mulgrave.il.steeleye.com>
-	<20060626220337.06014184.akpm@osdl.org>
-	<1151419746.3340.13.camel@mulgrave.il.steeleye.com>
-	<20060627170446.30392b00.akpm@osdl.org>
-	<1151462735.5793.2.camel@mulgrave.il.steeleye.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jun 2006 23:05:54 -0400
+Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:54636 "EHLO
+	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1423001AbWF1DFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 23:05:53 -0400
+From: Peter Williams <pwil3058@bigpond.net.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Date: Wed, 28 Jun 2006 13:05:50 +1000
+Message-Id: <20060628030550.15257.67334.sendpatchset@heathwren.pw.nest>
+Subject: [PATCH] sched: fix bug in __migrate_task()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jun 2006 22:45:34 -0400
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
+Problem:
 
-> On Tue, 2006-06-27 at 17:04 -0700, Andrew Morton wrote:
-> > +static void __init __attribute__((weak)) smp_setup_processor_id(void)
-> 
-> If you're really sure this works .. then it looks OK.
+In the function __migrate_task(), deactivate_task() followed by
+activate_task() is used to move the task from one run queue to
+another.  This has two undesirable effects:
 
-We do it quite a lot actually.
-box:/usr/src/linux-2.6.17> grep -r 'attribute.*weak' . | wc -l
-91
+1. The task's priority is recalculated. (Nowhere else in the
+scheduler code is the priority recalculated for a change of CPU.)
 
->  However, I
-> thought weak was a linker attribute, not a compiler one.
+2. The task's time stamp is set to the current time.  At the very least,
+this makes the adjustment of the time stamp before the call to
+deactivate_task() redundant but I believe the problem is more serious
+as the time stamp now holds the time of the queue change instead of
+the time at which the task was woken.  In addition, unless dest_rq is
+the same queue as "current" is on the time stamp could be inaccurate
+due to inter CPU drift.
 
-Yes, it is mainly a linker thing.  But the compiler has to emit the ".weak"
-pseudo-op and not inline the function.
+Solution:
 
->  How does the
-> compiler know if the static inline needs to be incorporated or if a
-> strong symbol is going to override it when the whole thing is linked
-> together at the time it just compiles main.c?
+Replace the call to activate_task() with one to __activate_task().
 
-I didn't mark it inline.
+Signed-off-by: Peter Williams <pwil3058@bigpond.net.au>
 
-If the compiler chose to inline it then that would be rather dumb of it,
-given that it had the weak attribute.  But yes, paranoia says we should be
-tagging this noinline too.
+---
+ kernel/sched.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> > Is that all OK?
-> 
-> I'll give it a whirl tomorrow when I get access to one of the voyager
-> systems in Columbia.
+Index: linux-2.6/kernel/sched.c
+===================================================================
+--- linux-2.6.orig/kernel/sched.c	2006-06-28 11:19:51.000000000 +1000
++++ linux-2.6/kernel/sched.c	2006-06-28 11:58:01.000000000 +1000
+@@ -4504,7 +4504,7 @@ static void __migrate_task(struct task_s
+ 		p->timestamp = p->timestamp - rq_src->timestamp_last_tick
+ 				+ rq_dest->timestamp_last_tick;
+ 		deactivate_task(p, rq_src);
+-		activate_task(p, rq_dest, 0);
++		__activate_task(p, rq_dest);
+ 		if (TASK_PREEMPTS_CURR(p, rq_dest))
+ 			resched_task(rq_dest->curr);
+ 	}
 
-Thanks.
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+ -- Ambrose Bierce

@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751520AbWF1UtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751524AbWF1Uut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751520AbWF1UtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 16:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWF1UtZ
+	id S1751524AbWF1Uut (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 16:50:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751525AbWF1Uut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 16:49:25 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19975 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751519AbWF1UtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 16:49:24 -0400
-Date: Wed, 28 Jun 2006 22:49:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org, James.Bottomley@HansenPartnership.com
-Subject: Re: [2.6 patch] i386: KEXEC must depend on (!SMP && X86_LOCAL_APIC)
-Message-ID: <20060628204922.GM13915@stusta.de>
-References: <20060628165533.GJ13915@stusta.de> <m14py5fajw.fsf@ebiederm.dsl.xmission.com>
+	Wed, 28 Jun 2006 16:50:49 -0400
+Received: from wr-out-0506.google.com ([64.233.184.224]:58252 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751523AbWF1Uus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 16:50:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L12tqOLElTjDNyoYXInrOAUnZTHc+3E/LnK+cho/SebE+V2xmPJ/LDbv8Kw39QT4hW65pFLyZGMxS19fRHO0tMsf45L02ZU1qjqA0My0Bz1t+QwKmik1ksPuSW2ND4u+5SROzactttCTB/19B+N/IQvQB8cNRTbrap0/59M10zU=
+Message-ID: <38b19aa60606281350s21b0355oe0a743fba995af50@mail.gmail.com>
+Date: Wed, 28 Jun 2006 13:50:47 -0700
+From: "Hareesh Nagarajan" <hnagar2@gmail.com>
+To: "Joshua Hudson" <joshudson@gmail.com>
+Subject: Re: losetup behavior
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <bda6d13a0606281313y733d6b63i80f672e233f9aeea@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <m14py5fajw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <38b19aa60606281254v43a7639dl4c74a57503c65dec@mail.gmail.com>
+	 <bda6d13a0606281313y733d6b63i80f672e233f9aeea@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 11:35:15AM -0600, Eric W. Biederman wrote:
-> 
-> Adrian Bunk <bunk@stusta.de> writes:
-> > This patch fixes the following issue with CONFIG_SMP=y and 
-> > CONFIG_X86_VOYAGER=y:
+On 6/28/06, Joshua Hudson <joshudson@gmail.com> wrote:
+> On 6/28/06, Hareesh Nagarajan <hnagar2@gmail.com> wrote:
+> > In my example below I have an image of an entire disk /dev/sda created
+> > using the dd command. The name of the file is foo.img. There are
+> > (internally) 3 partitions. ext2 (root), swap, ext2 (data). I will
+> > extract the third partition, first with dd and show that it works and
+> > then with losetup and show that it doesn't work.
 > >
-> > <--  snip  -->
+> > With dd:
+> > root: / # dd if=foo.img of=part3 bs=512 skip=12402180 count=21141540
+> > (Partition 3 begins at: 12402180 * 512 = 6349916160 bytes from start)
 > >
-> > ...
-> >   CC      arch/i386/kernel/crash.o
-> > arch/i386/kernel/crash.c: In function ‘crash_nmi_callback’:
-> > arch/i386/kernel/crash.c:113: error: implicit declaration of function
-> > ‘disable_local_APIC’
+> > root: / # mount -o loop=/dev/loop0 part3 mypart3/
+> > root: microv3/ # cd mypart3/; ls
+> > blah/ blah-blah/
 > >
-> > <--  snip  -->
-> 
-> I think the patch below more correctly captures the dependency.
-> 
-> In truth that call to disable_local_APIC() is a bug but the kernel
-> isn't ready yet to boot in apic only mode, so it remains until
-> the apic initialization can be moved into init_IRQ.
-> 
-> Does this sound good?
+> > *works*
+> >
+> > With losetup:
+> > root: # losetup -o6349916160 /dev/loop0 foo.img
+> > root: # mount /dev/loop0 mypart3/
+> > mount: you must specify the filesystem type
+> > root: / # mount -t ext2 /dev/loop0 mypart3
+> > mount: wrong fs type, bad option, bad superblock on /dev/loop5,
+> > or too many mounted file systems
+> >
+> > *doesn't work*
+> >
+> If I had to guess, I would say you have an old version of losetup and
+> this is an integer overflow problem. Maybe post an strace of the
+> losetup command that doesn't work. Probably it won't help.
 
-It does compile (I can't test it due to lack of hardware).
+[ CCing: linux-kernel ]
 
-> Eric
+Yeah, upgrading losetup fixed it. apt-get install loop-aes-utils
 
-cu
-Adrian
-
+Thanks,
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+./hareesh

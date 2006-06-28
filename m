@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423159AbWF1FUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423157AbWF1FWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423159AbWF1FUd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 01:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423161AbWF1FTb
+	id S1423157AbWF1FWY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 01:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423180AbWF1FTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 01:19:31 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:2254 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1423159AbWF1FSu
+	Wed, 28 Jun 2006 01:19:24 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:1742 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1423157AbWF1FSr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 01:18:50 -0400
+	Wed, 28 Jun 2006 01:18:47 -0400
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
 Cc: "H. Peter Anvin" <hpa@zytor.com>
-Subject: [klibc 09/31] m32r support for klibc
-Date: Tue, 27 Jun 2006 22:17:09 -0700
-Message-Id: <klibc.200606272217.09@tazenda.hos.anvin.org>
+Subject: [klibc 14/31] ppc support for klibc
+Date: Tue, 27 Jun 2006 22:17:14 -0700
+Message-Id: <klibc.200606272217.14@tazenda.hos.anvin.org>
 In-Reply-To: <klibc.200606272217.00@tazenda.hos.anvin.org>
 References: <klibc.200606272217.00@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The parts of klibc specific to the m32r architecture.
+The parts of klibc specific to the ppc architecture.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit b8481500fe4d3475857c7f8da022d6ac640b9420
-tree a66da10e8168b9c82b0306657ecffd03154f14c5
-parent 2ddc0b5cb0056f213e6e279030e50c1bd223cef6
-author H. Peter Anvin <hpa@zytor.com> Tue, 27 Jun 2006 20:50:39 -0700
-committer H. Peter Anvin <hpa@zytor.com> Tue, 27 Jun 2006 20:50:39 -0700
+commit 9a13243408e848d4e16962bc23bd955ac6222143
+tree 94856a634268566f977b35ee865552fab47b9b27
+parent 72d9123910ed26d4d0f97641e0cfde3edcebf767
+author H. Peter Anvin <hpa@zytor.com> Tue, 27 Jun 2006 20:50:51 -0700
+committer H. Peter Anvin <hpa@zytor.com> Tue, 27 Jun 2006 20:50:51 -0700
 
- usr/include/arch/m32r/klibc/archconfig.h |   14 +++++++++
- usr/include/arch/m32r/klibc/archsetjmp.h |   21 +++++++++++++
- usr/include/arch/m32r/klibc/archsignal.h |   14 +++++++++
- usr/include/arch/m32r/klibc/archstat.h   |   39 +++++++++++++++++++++++++
- usr/klibc/arch/m32r/MCONFIG              |   18 +++++++++++
- usr/klibc/arch/m32r/Makefile.inc         |   19 ++++++++++++
- usr/klibc/arch/m32r/crt0.S               |   24 +++++++++++++++
- usr/klibc/arch/m32r/setjmp.S             |   47 ++++++++++++++++++++++++++++++
- usr/klibc/arch/m32r/syscall.S            |   29 +++++++++++++++++++
- usr/klibc/arch/m32r/sysstub.ph           |   25 ++++++++++++++++
- 10 files changed, 250 insertions(+), 0 deletions(-)
+ usr/include/arch/ppc/klibc/archconfig.h |   14 ++++++++++++
+ usr/include/arch/ppc/klibc/archsetjmp.h |   36 +++++++++++++++++++++++++++++++
+ usr/include/arch/ppc/klibc/archsignal.h |   14 ++++++++++++
+ usr/include/arch/ppc/klibc/archstat.h   |   30 ++++++++++++++++++++++++++
+ usr/klibc/arch/ppc/MCONFIG              |   29 +++++++++++++++++++++++++
+ usr/klibc/arch/ppc/Makefile.inc         |   22 +++++++++++++++++++
+ usr/klibc/arch/ppc/crt0.S               |   23 ++++++++++++++++++++
+ usr/klibc/arch/ppc/setjmp.S             |   34 +++++++++++++++++++++++++++++
+ usr/klibc/arch/ppc/syscall.S            |   16 ++++++++++++++
+ usr/klibc/arch/ppc/sysstub.ph           |   25 ++++++++++++++++++++++
+ 10 files changed, 243 insertions(+), 0 deletions(-)
 
-diff --git a/usr/include/arch/m32r/klibc/archconfig.h b/usr/include/arch/m32r/klibc/archconfig.h
+diff --git a/usr/include/arch/ppc/klibc/archconfig.h b/usr/include/arch/ppc/klibc/archconfig.h
 new file mode 100644
-index 0000000..9489877
+index 0000000..ce04eee
 --- /dev/null
-+++ b/usr/include/arch/m32r/klibc/archconfig.h
++++ b/usr/include/arch/ppc/klibc/archconfig.h
 @@ -0,0 +1,14 @@
 +/*
-+ * include/arch/m32r/klibc/archconfig.h
++ * include/arch/ppc/klibc/archconfig.h
 + *
 + * See include/klibc/sysconfig.h for the options that can be set in
 + * this file.
@@ -63,41 +63,56 @@ index 0000000..9489877
 +/* All defaults */
 +
 +#endif				/* _KLIBC_ARCHCONFIG_H */
-diff --git a/usr/include/arch/m32r/klibc/archsetjmp.h b/usr/include/arch/m32r/klibc/archsetjmp.h
+diff --git a/usr/include/arch/ppc/klibc/archsetjmp.h b/usr/include/arch/ppc/klibc/archsetjmp.h
 new file mode 100644
-index 0000000..d82df9c
+index 0000000..4be9ed6
 --- /dev/null
-+++ b/usr/include/arch/m32r/klibc/archsetjmp.h
-@@ -0,0 +1,21 @@
++++ b/usr/include/arch/ppc/klibc/archsetjmp.h
+@@ -0,0 +1,36 @@
 +/*
-+ * arch/m32r/include/klibc/archsetjmp.h
++ * arch/ppc/include/klibc/archsetjmp.h
 + */
 +
 +#ifndef _KLIBC_ARCHSETJMP_H
 +#define _KLIBC_ARCHSETJMP_H
 +
 +struct __jmp_buf {
-+	unsigned long __r8;
-+	unsigned long __r9;
-+	unsigned long __r10;
-+	unsigned long __r11;
-+	unsigned long __r12;
++	unsigned long __r2;
++	unsigned long __sp;
++	unsigned long __lr;
++	unsigned long __cr;
 +	unsigned long __r13;
 +	unsigned long __r14;
 +	unsigned long __r15;
++	unsigned long __r16;
++	unsigned long __r17;
++	unsigned long __r18;
++	unsigned long __r19;
++	unsigned long __r20;
++	unsigned long __r21;
++	unsigned long __r22;
++	unsigned long __r23;
++	unsigned long __r24;
++	unsigned long __r25;
++	unsigned long __r26;
++	unsigned long __r27;
++	unsigned long __r28;
++	unsigned long __r29;
++	unsigned long __r30;
++	unsigned long __r31;
 +};
 +
 +typedef struct __jmp_buf jmp_buf[1];
 +
-+#endif				/* _KLIBC_ARCHSETJMP_H */
-diff --git a/usr/include/arch/m32r/klibc/archsignal.h b/usr/include/arch/m32r/klibc/archsignal.h
++#endif				/* _SETJMP_H */
+diff --git a/usr/include/arch/ppc/klibc/archsignal.h b/usr/include/arch/ppc/klibc/archsignal.h
 new file mode 100644
-index 0000000..b753026
+index 0000000..9c3ac92
 --- /dev/null
-+++ b/usr/include/arch/m32r/klibc/archsignal.h
++++ b/usr/include/arch/ppc/klibc/archsignal.h
 @@ -0,0 +1,14 @@
 +/*
-+ * arch/m32r/include/klibc/archsignal.h
++ * arch/ppc/include/klibc/archsignal.h
 + *
 + * Architecture-specific signal definitions
 + *
@@ -110,12 +125,12 @@ index 0000000..b753026
 +/* No special stuff for this architecture */
 +
 +#endif
-diff --git a/usr/include/arch/m32r/klibc/archstat.h b/usr/include/arch/m32r/klibc/archstat.h
+diff --git a/usr/include/arch/ppc/klibc/archstat.h b/usr/include/arch/ppc/klibc/archstat.h
 new file mode 100644
-index 0000000..09d3ade
+index 0000000..9e31f4a
 --- /dev/null
-+++ b/usr/include/arch/m32r/klibc/archstat.h
-@@ -0,0 +1,39 @@
++++ b/usr/include/arch/ppc/klibc/archstat.h
+@@ -0,0 +1,30 @@
 +#ifndef _KLIBC_ARCHSTAT_H
 +#define _KLIBC_ARCHSTAT_H
 +
@@ -123,71 +138,73 @@ index 0000000..09d3ade
 +
 +#define _STATBUF_ST_NSEC
 +
-+/* This matches struct stat64 in glibc2.1, hence the absolutely
-+ * insane amounts of padding around dev_t's.
++/* This matches struct stat64 in glibc2.1.
 + */
 +struct stat {
-+	__stdev64	(st_dev);
-+	unsigned char	__pad0[4];
++	__stdev64 (st_dev);		/* Device. */
++	unsigned long long st_ino;	/* File serial number.  */
++	unsigned int st_mode;		/* File mode.  */
++	unsigned int st_nlink;		/* Link count.  */
++	unsigned int st_uid;		/* User ID of the file's owner.  */
++	unsigned int st_gid;		/* Group ID of the file's group. */
++	__stdev64 (st_rdev); 		/* Device number, if device.  */
++	unsigned short int __pad2;
++	long long st_size;		/* Size of file, in bytes.  */
++	long st_blksize;		/* Optimal block size for I/O.  */
 +
-+	unsigned long	__st_ino;
-+
-+	unsigned int	st_mode;
-+	unsigned int	st_nlink;
-+
-+	unsigned long	st_uid;
-+	unsigned long	st_gid;
-+
-+	__stdev64	(st_rdev);
-+	unsigned char	__pad3[4];
-+
-+	long long	st_size;
-+	unsigned long	st_blksize;
-+
-+	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
-+	unsigned long	__pad4;		/* future possible st_blocks high bits */
-+
-+	struct timespec st_atim;
-+	struct timespec st_mtim;
-+	struct timespec st_ctim;
-+
-+	unsigned long long	st_ino;
++	long long st_blocks;		/* Number 512-byte blocks allocated. */
++	struct timespec st_atim;	/* Time of last access.  */
++	struct timespec st_mtim;	/* Time of last modification.  */
++	struct timespec st_ctim;	/* Time of last status change.  */
++	unsigned long int __unused4;
++	unsigned long int __unused5;
 +};
 +
 +#endif
-diff --git a/usr/klibc/arch/m32r/MCONFIG b/usr/klibc/arch/m32r/MCONFIG
+diff --git a/usr/klibc/arch/ppc/MCONFIG b/usr/klibc/arch/ppc/MCONFIG
 new file mode 100644
-index 0000000..2f9db0b
+index 0000000..5410933
 --- /dev/null
-+++ b/usr/klibc/arch/m32r/MCONFIG
-@@ -0,0 +1,18 @@
++++ b/usr/klibc/arch/ppc/MCONFIG
+@@ -0,0 +1,29 @@
 +# -*- makefile -*-
 +#
-+# arch/m32r/MCONFIG
++# arch/ppc/MCONFIG
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
 +# accordingly.
 +#
 +
-+KLIBCOPTFLAGS = -Os
-+KLIBCBITSIZE  = 32
++gcc_m32_option  := $(call cc-option, -m32, )
++
++KLIBCOPTFLAGS	   = -Os
++KLIBCLDFLAGS       = -m elf32ppclinux
++KLIBCARCHREQFLAGS += $(gcc_m32_option)
++
++KLIBCBITSIZE       = 32
 +
 +# Extra linkflags when building the shared version of the library
 +# This address needs to be reachable using normal inter-module
 +# calls, and work on the memory models for this architecture
-+# 224 MB - normal binaries start at 0 (?)
-+# (lib?)gcc on cris seems to insist on producing .init and .fini sections
-+KLIBCSHAREDFLAGS     = --section-start .init=0x0e000100
-diff --git a/usr/klibc/arch/m32r/Makefile.inc b/usr/klibc/arch/m32r/Makefile.inc
++# 256-16 MB - normal binaries start at 256 MB, and jumps are limited
++# to +/- 16 MB
++KLIBCSHAREDFLAGS     = -Ttext 0x0f800200
++
++# The kernel so far has both asm-ppc* and asm-powerpc.
++KLIBCARCHINCFLAGS = -I$(KLIBCKERNELOBJ)arch/$(KLIBCARCH)/include
++
++# The asm include files live in asm-powerpc
++KLIBCASMARCH	= powerpc
+diff --git a/usr/klibc/arch/ppc/Makefile.inc b/usr/klibc/arch/ppc/Makefile.inc
 new file mode 100644
-index 0000000..794aec6
+index 0000000..53d99c4
 --- /dev/null
-+++ b/usr/klibc/arch/m32r/Makefile.inc
-@@ -0,0 +1,19 @@
++++ b/usr/klibc/arch/ppc/Makefile.inc
+@@ -0,0 +1,22 @@
 +# -*- makefile -*-
 +#
-+# arch/m32r/Makefile.inc
++# arch/ppc/Makefile.inc
 +#
 +# Special rules for this architecture.  Note that this is actually
 +# included from the main Makefile, and that pathnames should be
@@ -203,134 +220,110 @@ index 0000000..794aec6
 +	libgcc/__umoddi3.o \
 +	libgcc/__udivmoddi4.o
 +
++
++KLIBCARCHSOOBJS = $(patsubst %.o,%.lo,$(KLIBCARCHOBJS))
++
 +archclean:
-diff --git a/usr/klibc/arch/m32r/crt0.S b/usr/klibc/arch/m32r/crt0.S
+diff --git a/usr/klibc/arch/ppc/crt0.S b/usr/klibc/arch/ppc/crt0.S
 new file mode 100644
-index 0000000..568e5d8
+index 0000000..85b6dca
 --- /dev/null
-+++ b/usr/klibc/arch/m32r/crt0.S
-@@ -0,0 +1,24 @@
++++ b/usr/klibc/arch/ppc/crt0.S
+@@ -0,0 +1,23 @@
 +#
-+# arch/m32r/crt0.S
-+#
-+# Does arch-specific initialization and invokes __libc_init
-+# with the appropriate arguments.
-+#
-+# See __static_init.c or __shared_init.c for the expected
-+# arguments.
++# arch/ppc/crt0.S
 +#
 +
 +	.text
-+	.balign 4
-+	.type	_start,@function
-+	.globl	_start
++	.align 4
++	.type _start,@function
++	.globl _start
 +_start:
-+	/* Save the address of the ELF argument array */
-+	mv	r0, sp
-+
-+	/* atexit() function (assume null) */
-+	xor	r1, r1
-+
++	stwu	1,-16(1)
++	addi	3,1,16
++	/*
++	 * the SVR4abippc.pdf specifies r7 as a pointer to
++	 * a termination function point
++	 * However, Section 8.4.1 of the LSB API docs say that
++	 * The value to be placed into register r7, the termination
++	 * function pointer, is not passed to the process.
++	 * So we stub it out, instead.
++	 */
++	li	4,0
 +	bl	__libc_init
 +
-+	.size _start, .-_start
-diff --git a/usr/klibc/arch/m32r/setjmp.S b/usr/klibc/arch/m32r/setjmp.S
++	.size _start,.-_start
+diff --git a/usr/klibc/arch/ppc/setjmp.S b/usr/klibc/arch/ppc/setjmp.S
 new file mode 100644
-index 0000000..02a25e7
+index 0000000..e02b7da
 --- /dev/null
-+++ b/usr/klibc/arch/m32r/setjmp.S
-@@ -0,0 +1,47 @@
++++ b/usr/klibc/arch/ppc/setjmp.S
+@@ -0,0 +1,34 @@
 +#
-+# arch/m32r/setjmp.S
++# arch/ppc/setjmp.S
 +#
-+# setjmp/longjmp for the M32R architecture
-+#
-+
-+#
-+# The jmp_buf is assumed to contain the following, in order:
-+#	r8-r15
-+#
-+#	Note that r14 is the return address register and
-+#	r15 is the stack pointer.
++# Basic setjmp/longjmp implementation
++# This file was derived from the equivalent file in NetBSD
 +#
 +
 +	.text
-+	.balign 4
-+	.globl	setjmp
-+	.type	setjmp, @function
++	.align 4
++	.type setjmp,@function
++	.globl setjmp
 +setjmp:
-+	st	r8, @r0
-+	st	r9, @+r0
-+	st	r10, @+r0
-+	st	r11, @+r0
-+	st	r12, @+r0
-+	st	r13, @+r0
-+	st	r14, @+r0
-+	st	r15, @+r0
-+	xor	r0, r0
-+	jmp	r14
-+	.size	setjmp,.-setjmp
++        mflr    %r11                    /* save return address */
++        mfcr    %r12                    /* save condition register */
++        mr      %r10,%r1                /* save stack pointer */
++        mr      %r9,%r2                 /* save GPR2 (not needed) */
++        stmw    %r9,0(%r3)              /* save r9..r31 */
++        li      %r3,0                   /* indicate success */
++        blr                             /* return */
 +
-+	.text
-+	.balign 4
-+	.globl	longjmp
-+	.type	longjmp, @function
++	.size setjmp,.-setjmp
++
++	.type longjmp,@function
++	.globl longjmp
 +longjmp:
-+	ld	r8, @r0+
-+	ld	r9, @r0+
-+	ld	r10, @r0+
-+	ld	r11, @r0+
-+	ld	r12, @r0+
-+	ld	r13, @r0+
-+	ld	r14, @r0+
-+	ld	r15, @r0
-+	mv	r0, r1
-+	jmp	r14
++        lmw     %r9,0(%r3)              /* save r9..r31 */
++        mtlr    %r11                    /* restore LR */
++        mtcr    %r12                    /* restore CR */
++        mr      %r2,%r9                 /* restore GPR2 (not needed) */
++        mr      %r1,%r10                /* restore stack */
++        mr      %r3,%r4                 /* get return value */
++        blr                             /* return */
++
 +	.size longjmp,.-longjmp
-diff --git a/usr/klibc/arch/m32r/syscall.S b/usr/klibc/arch/m32r/syscall.S
+diff --git a/usr/klibc/arch/ppc/syscall.S b/usr/klibc/arch/ppc/syscall.S
 new file mode 100644
-index 0000000..a20a336
+index 0000000..0a7c37c
 --- /dev/null
-+++ b/usr/klibc/arch/m32r/syscall.S
-@@ -0,0 +1,29 @@
++++ b/usr/klibc/arch/ppc/syscall.S
+@@ -0,0 +1,16 @@
 +/*
-+ * arch/m32r/syscall.S
++ * arch/ppc/syscall.S
 + *
-+ *     r7 contains the syscall number (set by stub);
-+ * r0..r3 contains arguments 0-3 per standard calling convention;
-+ * r4..r5 contains arguments 4-5, but we have to get those from
-+ *        the stack.
++ * Common error-handling path for system calls.
 + */
 +
-+	.section ".text","ax"
-+	.balign	4
-+	.globl	__syscall_common
-+	.type	__syscall_common,@function
-+__syscall_common:
-+	ld	r4,@sp
-+	ld	r5,@(4,sp)
-+	trap	#2
-+	cmpi	r0, #-4096
-+	bnc	1f
-+	jmp	r14
-+1:
-+	seth	r2,#high(errno)
-+	or3	r2,r2,#low(errno)
-+	neg	r1,r0
-+	st	r1,@r7
-+	ldi	r0,#-1
-+	jmp	r14
-+
-+	.size	__syscall_common,.-__syscall_common
-diff --git a/usr/klibc/arch/m32r/sysstub.ph b/usr/klibc/arch/m32r/sysstub.ph
++	.text
++	.align	2
++	.globl	__syscall_error
++	.type	__syscall_error,@function
++__syscall_error:
++	lis	9,errno@ha
++	stw	3,errno@l(9)
++	li	3,-1
++	blr
++	.size	__syscall_error,.-__syscall_error
+diff --git a/usr/klibc/arch/ppc/sysstub.ph b/usr/klibc/arch/ppc/sysstub.ph
 new file mode 100644
-index 0000000..98dfb9d
+index 0000000..3b3916c
 --- /dev/null
-+++ b/usr/klibc/arch/m32r/sysstub.ph
++++ b/usr/klibc/arch/ppc/sysstub.ph
 @@ -0,0 +1,25 @@
 +# -*- perl -*-
 +#
-+# arch/m32r/sysstub.ph
++# arch/ppc/sysstub.ph
 +#
 +# Script to generate system call stubs
 +#
@@ -341,13 +334,13 @@ index 0000000..98dfb9d
 +    open(OUT, '>', "${outputdir}/${fname}.S");
 +    print OUT "#include <asm/unistd.h>\n";
 +    print OUT "\n";
-+    print OUT "\t.text\n";
-+    print OUT "\t.type\t${fname},\@function\n";
-+    print OUT "\t.globl\t${fname}\n";
-+    print OUT "\t.balign\t4\n";
++    print OUT "\t.type ${fname},\@function\n";
++    print OUT "\t.globl ${fname}\n";
 +    print OUT "${fname}:\n";
-+    print OUT "\tldi\tr7,#__NR_${sname}\n";
-+    print OUT "\tbra\t__syscall_common\n";
++    print OUT "\tli 0,__NR_${sname}\n";
++    print OUT "\tsc\n";
++    print OUT "\tbnslr\n";
++    print OUT "\tb __syscall_error\n";
 +    print OUT "\t.size ${fname},.-${fname}\n";
 +    close(OUT);
 +}

@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWF1Pup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932847AbWF1PvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbWF1Pup (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 11:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932847AbWF1Pup
+	id S932847AbWF1PvA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 11:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWF1PvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 11:50:45 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:6083 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932555AbWF1Puo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 11:50:44 -0400
-Date: Wed, 28 Jun 2006 17:50:48 +0200
-From: Johann Lombardi <johann.lombardi@bull.net>
-To: sho@tnes.nec.co.jp
-Cc: adilger@clusterfs.com, cmm@us.ibm.com, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC 1/2] ext3: enlarge blocksize and fix rec_len overflow
-Message-ID: <20060628155048.GG2893@chiva>
-References: <20060628205238sho@rifu.tnes.nec.co.jp>
+	Wed, 28 Jun 2006 11:51:00 -0400
+Received: from cantor.suse.de ([195.135.220.2]:53442 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932848AbWF1Pu7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 11:50:59 -0400
+To: Keith Owens <kaos@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cpu_up not called for boot cpu
+References: <8054.1151466063@kao2.melbourne.sgi.com>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Jun 2006 17:50:57 +0200
+In-Reply-To: <8054.1151466063@kao2.melbourne.sgi.com>
+Message-ID: <p731wt9xori.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-In-Reply-To: <20060628205238sho@rifu.tnes.nec.co.jp>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 28/06/2006 17:54:45,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 28/06/2006 17:54:46,
-	Serialize complete at 28/06/2006 17:54:46
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Takashi,
+Keith Owens <kaos@sgi.com> writes:
 
-> ext2/ext3_dir_entry_2 has a 16-bit entry(rec_len) and it would overflow
-> with 64KB blocksize.  This patch prevent from overflow by limiting
-> rec_len to 65532.
+> cpu_up() is only called for secondary cpus, not for the boot cpu.  That
+> means that code hooked into the cpu_chain notifier never gets called
+> for the boot cpu, which prevents additional subsystems from taking
+> action for the boot cpu.  So how are additional subsystems meant to be
+> initialised for the boot cpu?
 
-In empty_dir(), offset is incremented by de->rec_len until it reaches
-inode->i_size. I think bad things will happen with a 64kB blocksize since
-the records no longer span the entire directory block.
+They ought to initialize themselves for the already online cpus
+when they start.
 
-AFAICS, there's a similar issue with bh->b_size in ext3_delete_entry().
+Any other way would make them lose CPUs if they were loaded
+after the other CPUs are added.
 
-Cheers,
-
-Johann
+-Andi

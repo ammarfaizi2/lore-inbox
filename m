@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423370AbWF1PHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932823AbWF1PMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423370AbWF1PHw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 11:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423367AbWF1PHv
+	id S932823AbWF1PMF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 11:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932824AbWF1PMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 11:07:51 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:48389 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1422635AbWF1PHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 11:07:50 -0400
-Message-ID: <44A29AF5.4010501@shadowen.org>
-Date: Wed, 28 Jun 2006 16:06:29 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@google.com>
-CC: Andrew Morton <akpm@osdl.org>, mbligh@mbligh.org, jeremy@goop.org,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       drfickle@us.ibm.com
-Subject: Re: 2.6.17-mm2
-References: <449D5D36.3040102@google.com>	<449FF3A2.8010907@mbligh.org>	<44A150C9.7020809@mbligh.org>	<20060628034215.c3008299.akpm@osdl.org> <20060628034748.018eecac.akpm@osdl.org> <44A29582.7050403@google.com>
-In-Reply-To: <44A29582.7050403@google.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 28 Jun 2006 11:12:05 -0400
+Received: from www.osadl.org ([213.239.205.134]:16606 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932823AbWF1PME (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 11:12:04 -0400
+Subject: [PATCH] Fix plist include dependency
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain
+Date: Wed, 28 Jun 2006 17:14:07 +0200
+Message-Id: <1151507648.25491.526.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> Andrew Morton wrote:
-> 
->> On Wed, 28 Jun 2006 03:42:15 -0700
->> Andrew Morton <akpm@osdl.org> wrote:
->>
->>
->>> his is caused by the vsprintf() changes.  Right now, if you do
->>>
->>>     snprintf(buf, 4, "1111111111111");
->>>
->>> the memory at `buf' gets [31 31 31 31 00], which is not good.
->>>
->>> This'll plug it, but I didn't check very hard whether it still has any
->>> off-by-ones, or if breaks the intent of Jeremy's patch.  I think it's
->>> OK..
-> 
-> 
-> Aha, you're a genius! How the hell did you figure that one out?
-> 
-> Andy / Steve ... any chance one of you could kick this through the
-> harness? Against -git10 or so, I'd think
-> 
-> Thanks,
+plist.h uses container_of, which is defined in kernel.h.
+Include kernel.h in plist.h as the kernel.h include does not longer
+happen automatically on all architectures.
 
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
-Suitibly kicked ... against 2.6.17-git10.
+diff --git a/include/linux/plist.h b/include/linux/plist.h
+index 3404fae..b95818a 100644
+--- a/include/linux/plist.h
++++ b/include/linux/plist.h
+@@ -73,6 +73,7 @@
+ #ifndef _LINUX_PLIST_H_
+ #define _LINUX_PLIST_H_
+ 
++#include <linux/kernel.h>
+ #include <linux/list.h>
+ #include <linux/spinlock_types.h>
+ 
 
--apw
 

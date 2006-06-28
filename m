@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161240AbWF1Jvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423247AbWF1JzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161240AbWF1Jvt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 05:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030502AbWF1Jvt
+	id S1423247AbWF1JzL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 05:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423248AbWF1JzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 05:51:49 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:18604 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030499AbWF1Jvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 05:51:48 -0400
-Date: Wed, 28 Jun 2006 05:51:46 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Brian Hsu <brianhsu.hsu@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How to switch to another process at schedule() ?
-In-Reply-To: <615cd8d10606272220w1cfe00b2u62a68d4689b6960d@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0606280547310.32286@gandalf.stny.rr.com>
-References: <615cd8d10606272220w1cfe00b2u62a68d4689b6960d@mail.gmail.com>
+	Wed, 28 Jun 2006 05:55:11 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:23522 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1423247AbWF1JzI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 05:55:08 -0400
+Message-ID: <44A251F2.70707@fr.ibm.com>
+Date: Wed, 28 Jun 2006 11:54:58 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Sam Vilain <sam@vilain.net>, Andrey Savochkin <saw@swsoft.com>,
+       dlezcano@fr.ibm.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, dev@sw.ru, herbert@13thfloor.at,
+       devel@openvz.org, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>, Mark Huang <mlhuang@CS.Princeton.EDU>
+Subject: Re: Network namespaces a path to mergable code.
+References: <20060626134945.A28942@castle.nmd.msu.ru>	<m14py6ldlj.fsf@ebiederm.dsl.xmission.com>	<20060627215859.A20679@castle.nmd.msu.ru>	<44A1AF37.3070100@vilain.net>	<m1ac7xkifn.fsf@ebiederm.dsl.xmission.com>	<44A21F7A.5030807@vilain.net> <m1r719ixb6.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1r719ixb6.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman wrote:
 
-On Wed, 28 Jun 2006, Brian Hsu wrote:
+> Despite what it might look like unix domain sockets do not live in the
+> filesystem.  They store a cookie in the filesystem that roughly
+> corresponds to the port number of an AF_INET socket.  When you open a
+> socket the lookup is done by the cookie retrieved from the filesystem.
 
-> Hi, I'm here again.
->
-> I'm trying to do a homework which teacher ask us impelement a simple
-> EDF scheduling policy.
+unix domain socket lookup uses a path_lookup for sockets in the filesystem
+namespace and a find_by_name for socket in the abstract namespace.
 
-Since this is really homework, you really should ask these questions
-to your teacher or a teachers assistant.
+> So except for their cookies unix domain sockets are always in the
+> network stack.
 
->
-> Following is the code I tried to get it work, but faild.
->
-> ================ Code ========================
->         next = list_entry(queue->next, task_t, run_list);
->
->         if ( next->policy == SCHED_EDF ) {
->
->             struct task_struct * task = list_entry( edf_queue.next, task_t,
->                                                     edf_node );
->
->             if ( task != next ) {
->                 printk ( "Active EDF[%d]\n", task->pid );
->                 printk ( "Deactive EDF[%d]\n", next->pid );
->
->                 // Works Fine.
->                 // But how can I get next back to run queue?
->                 dequeue_task ( task, array );
->                 set_tsk_need_resched ( next );
-> 		enqueue_task_head (task, array);
+what is that cookie ? the file dentry and mnt ref ?
 
-enqueue_task_head only puts the task at the front of it's prio queue.
-If next is higher in priority than task (as it probably is since it was
-picked) than next will be queued again.
+so, ok, the resulting struct sock is part of the network namespace but
+there is a bridge with the filesystem namespace which does not prevent
+other namespaces to do a lookup. the lookup routine needs to be changed,
+this is any way necessary for the abstract namespace.
 
->
->                 // It will hang up if I let the former process stay in queue.
+I think we're reaching the limits of namespaces. It would be much easier
+with a container id in each kernel object we want to isolate.
 
-It hangs because you keep scheduling next (it's has the highest prio)
-but you keep setting need_resched, and thus it goes into the scheduler
-an infinit amount of times.
-
->                 /*
->                 //dequeue_task ( task, array );
->                 //set_tsk_need_resched (next );
->        		enqueue_task_head (task, array);
->                 rq->nr_running++;
->                 */
->                 next = task;
->             }
->         }
-
-
--- Steve
-
+C.

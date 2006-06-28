@@ -1,100 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751487AbWF1RWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWF1R1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751487AbWF1RWn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWF1RWn
+	id S1751263AbWF1R1J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWF1R1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 13:22:43 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:30736 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S1751490AbWF1RWm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 13:22:42 -0400
-Message-ID: <20060628212240.A1833@castle.nmd.msu.ru>
-Date: Wed, 28 Jun 2006 21:22:40 +0400
-From: Andrey Savochkin <saw@swsoft.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: dlezcano@fr.ibm.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       serue@us.ibm.com, haveblue@us.ibm.com, clg@fr.ibm.com,
-       Andrew Morton <akpm@osdl.org>, dev@sw.ru, herbert@13thfloor.at,
-       devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: Network namespaces a path to mergable code.
-References: <20060626134945.A28942@castle.nmd.msu.ru> <m14py6ldlj.fsf@ebiederm.dsl.xmission.com> <20060627215859.A20679@castle.nmd.msu.ru> <m1ejx9kj1r.fsf@ebiederm.dsl.xmission.com> <20060628150605.A29274@castle.nmd.msu.ru> <m1sllpfckx.fsf@ebiederm.dsl.xmission.com>
+	Wed, 28 Jun 2006 13:27:09 -0400
+Received: from mxl145v64.mxlogic.net ([208.65.145.64]:41092 "EHLO
+	p02c11o141.mxlogic.net") by vger.kernel.org with ESMTP
+	id S1751263AbWF1R1H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 13:27:07 -0400
+Date: Wed, 28 Jun 2006 20:14:28 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: stable@kernel.org, openib-general@openib.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Roland Dreier <rolandd@cisco.com>
+Subject: [PATCH -stable] IB/mthca: restore missing PCI registers after reset
+Message-ID: <20060628171428.GF19300@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <m1sllpfckx.fsf@ebiederm.dsl.xmission.com>; from "Eric W. Biederman" on Wed, Jun 28, 2006 at 10:51:26AM
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 28 Jun 2006 17:19:16.0062 (UTC) FILETIME=[FB8CB7E0:01C69AD6]
+X-Spam: [F=0.0189329261; S=0.018(2006062301)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [63.251.237.3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric,
+Hello, stable team!
+The pull of the following fix was requested by Roland Dreier just a couple of
+days before 2.6.17 came out, and so it seems it missed 2.6.17 by a narrow
+margin:
 
-On Wed, Jun 28, 2006 at 10:51:26AM -0600, Eric W. Biederman wrote:
-> Andrey Savochkin <saw@swsoft.com> writes:
-> 
-> > One possible option to resolve this question is to show 2 relatively short
-> > patches just introducing namespaces for sockets in 2 ways: with explicit
-> > function parameters and using implicit current context.
-> > Then people can compare them and vote.
-> > Do you think it's worth the effort?
-> 
-> Given that we have two strong opinions in different directions I think it
-> is worth the effort to resolve this.
+http://lkml.org/lkml/2006/6/13/164
 
-Do you have time to extract necessary parts of your old patch?
-Or you aren't afraid of letting me draft an alternative version of socket
-namespaces basing on your code? :)
+It is now upsteam:
 
-> 
-> In a slightly different vein your second patch introduced a lot
-> of #ifdef CONFIG_NET_NS in C files.  That is something we need to look closely
-> at.
-> 
-> So I think the abstraction that we use to access per network namespace
-> variables needs some work if we are going to allow the ability to compile
-> out all of the namespace code.  The explicit versus implicit lookup is just
-> one dimension of that problem.
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=13aa6ecb47990cfc78e20e347fdd3f1df6189426
 
-This is a good comment.
+As I hear from users about systems where mthca does not work at all without this
+patch, please consider it for -stable.
 
-Those ifdef's mostly correspond to places where we walk over lists
-and need to filter-out entities not belonging to a specific namespace.
-Those places about the same in your and my implementation.
-We can think what we can do with them.
-One trick that I used on several occasions is net_ns_same macro
-which doesn't evalute its arguments if CONFIG_NET_NS not defined,
-and thus can be used without ifdef's.
+Note: Roland Dreier is currently unavailable, and said he will be for a while.
+I am assuming since he ACKed this for 2.6.17 it's good for -stable as well
+as far as he's concerned.
 
-Returning to implicit vs explicit function arguments, I belive that implicit
-arguments are more promising in having zero impact on the code when
-CONFIG_NET_NS is disabled.
-Functions like inet_addr_type will translate into exactly the same code as
-they did without net namespace patches.
+---
 
-> 
-> >> I'm still curious why many of those chunks can't use existing helper
-> >> functions, to be cleaned up.
-> >
-> > What helper functions are you referring to?
-> 
-> Basically most of the device list walker functions live in.
-> net/core/dev.c 
-> 
-> I don't know if the cases you fixed could have used any of those
-> helper functions but it certainly has me asking that question.
-> 
-> A general pattern that happens in cleanups is the discovery
-> that code using an old interface in a problematic way really
-> could be done much better another way.  I didn't dig enough
-> to see if that was the case in any of the code that you changed.
+mthca does not restore the following PCI-X/PCI Express registers after reset:
+  PCI-X device: PCI-X command register
+  PCI-X bridge: upstream and downstream split transaction registers
+  PCI Express : PCI Express device control and link control registers
 
-Well, there is obvious improvement of this kind: many protocols walk over
-device list to find devices with non-NULL protocol specific pointers.
-For example, IPv6, decnet and others do it on module unloading to clean up.
-Those places just ask for some simpler standard way of doing it, but I wasn't
-bold enough for such radical change.
-Do you think I should try?
+This causes instability and/or bad performance on systems where one of
+these registers is set to a non-default value by BIOS.
 
-Best regards
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 
-Andrey
+diff --git a/drivers/infiniband/hw/mthca/mthca_reset.c b/drivers/infiniband/hw/mthca/mthca_reset.c
+index df5e494..f4fddd5 100644
+--- a/drivers/infiniband/hw/mthca/mthca_reset.c
++++ b/drivers/infiniband/hw/mthca/mthca_reset.c
+@@ -49,6 +49,12 @@ int mthca_reset(struct mthca_dev *mdev)
+ 	u32 *hca_header    = NULL;
+ 	u32 *bridge_header = NULL;
+ 	struct pci_dev *bridge = NULL;
++	int bridge_pcix_cap = 0;
++	int hca_pcie_cap = 0;
++	int hca_pcix_cap = 0;
++
++	u16 devctl;
++	u16 linkctl;
+ 
+ #define MTHCA_RESET_OFFSET 0xf0010
+ #define MTHCA_RESET_VALUE  swab32(1)
+@@ -110,6 +116,9 @@ #define MTHCA_RESET_VALUE  swab32(1)
+ 		}
+ 	}
+ 
++	hca_pcix_cap = pci_find_capability(mdev->pdev, PCI_CAP_ID_PCIX);
++	hca_pcie_cap = pci_find_capability(mdev->pdev, PCI_CAP_ID_EXP);
++
+ 	if (bridge) {
+ 		bridge_header = kmalloc(256, GFP_KERNEL);
+ 		if (!bridge_header) {
+@@ -129,6 +138,13 @@ #define MTHCA_RESET_VALUE  swab32(1)
+ 				goto out;
+ 			}
+ 		}
++		bridge_pcix_cap = pci_find_capability(bridge, PCI_CAP_ID_PCIX);
++		if (!bridge_pcix_cap) {
++				err = -ENODEV;
++				mthca_err(mdev, "Couldn't locate HCA bridge "
++					  "PCI-X capability, aborting.\n");
++				goto out;
++		}
+ 	}
+ 
+ 	/* actually hit reset */
+@@ -178,6 +194,20 @@ #define MTHCA_RESET_VALUE  swab32(1)
+ good:
+ 	/* Now restore the PCI headers */
+ 	if (bridge) {
++		if (pci_write_config_dword(bridge, bridge_pcix_cap + 0x8,
++				 bridge_header[(bridge_pcix_cap + 0x8) / 4])) {
++			err = -ENODEV;
++			mthca_err(mdev, "Couldn't restore HCA bridge Upstream "
++				  "split transaction control, aborting.\n");
++			goto out;
++		}
++		if (pci_write_config_dword(bridge, bridge_pcix_cap + 0xc,
++				 bridge_header[(bridge_pcix_cap + 0xc) / 4])) {
++			err = -ENODEV;
++			mthca_err(mdev, "Couldn't restore HCA bridge Downstream "
++				  "split transaction control, aborting.\n");
++			goto out;
++		}
+ 		/*
+ 		 * Bridge control register is at 0x3e, so we'll
+ 		 * naturally restore it last in this loop.
+@@ -203,6 +233,35 @@ good:
+ 		}
+ 	}
+ 
++	if (hca_pcix_cap) {
++		if (pci_write_config_dword(mdev->pdev, hca_pcix_cap,
++				 hca_header[hca_pcix_cap / 4])) {
++			err = -ENODEV;
++			mthca_err(mdev, "Couldn't restore HCA PCI-X "
++				  "command register, aborting.\n");
++			goto out;
++		}
++	}
++
++	if (hca_pcie_cap) {
++		devctl = hca_header[(hca_pcie_cap + PCI_EXP_DEVCTL) / 4];
++		if (pci_write_config_word(mdev->pdev, hca_pcie_cap + PCI_EXP_DEVCTL,
++					   devctl)) {
++			err = -ENODEV;
++			mthca_err(mdev, "Couldn't restore HCA PCI Express "
++				  "Device Control register, aborting.\n");
++			goto out;
++		}
++		linkctl = hca_header[(hca_pcie_cap + PCI_EXP_LNKCTL) / 4];
++		if (pci_write_config_word(mdev->pdev, hca_pcie_cap + PCI_EXP_LNKCTL,
++					   linkctl)) {
++			err = -ENODEV;
++			mthca_err(mdev, "Couldn't restore HCA PCI Express "
++				  "Link control register, aborting.\n");
++			goto out;
++		}
++	}
++
+ 	for (i = 0; i < 16; ++i) {
+ 		if (i * 4 == PCI_COMMAND)
+ 			continue;
+
+
+-- 
+MST

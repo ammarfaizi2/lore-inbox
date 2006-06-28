@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932684AbWF1Bev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932683AbWF1Bh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932684AbWF1Bev (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 21:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbWF1Beu
+	id S932683AbWF1Bh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 21:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWF1Bh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 21:34:50 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:43174 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932681AbWF1Bet (ORCPT
+	Tue, 27 Jun 2006 21:37:29 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:61629 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932683AbWF1Bh2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 21:34:49 -0400
-Message-ID: <44A1DCB7.30806@garzik.org>
-Date: Tue, 27 Jun 2006 21:34:47 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patches] libata update
-References: <20060627012405.GA2666@havoc.gtf.org> <Pine.LNX.4.64.0606271823220.3927@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606271823220.3927@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 27 Jun 2006 21:37:28 -0400
+Subject: Re: [RFC][PATCH 3/3] Process events biarch bug: New process events
+	connector value
+From: Matt Helsley <matthltc@us.ibm.com>
+To: "Chandra S. Seetharaman" <sekharan@us.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Michael Kerrisk <michael.kerrisk@gmx.net>
+In-Reply-To: <1151452465.1412.35.camel@linuxchandra>
+References: <20060627112644.804066367@localhost.localdomain>
+	 <1151408975.21787.1815.camel@stark> <1151435679.1412.16.camel@linuxchandra>
+	 <1151444382.21787.1858.camel@stark> <1151452465.1412.35.camel@linuxchandra>
+Content-Type: text/plain
+Date: Tue, 27 Jun 2006 18:29:11 -0700
+Message-Id: <1151458151.21787.1913.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Tue, 2006-06-27 at 16:54 -0700, Chandra Seetharaman wrote:
+> On Tue, 2006-06-27 at 14:39 -0700, Matt Helsley wrote:
+> > On Tue, 2006-06-27 at 12:14 -0700, Chandra Seetharaman wrote:
+<snip>
+
+> > > Is there a reason why the # of listeners part is removed (basically the
+> > > LISTEN/IGNORE) ? and why as part of this patch ?
+> > 
+> > 	Michael Kerrisk had some objections to LISTEN/IGNORE and I've been
+> > looking into making a connector function that would replace them. They
+> > exist primarily to improve performance by avoiding the memory allocation
+> > in cn_netlink_send() when there are no listeners.
 > 
-> On Mon, 26 Jun 2006, Jeff Garzik wrote:
->> Please pull from 'upstream-linus' branch of
->> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+> If it not related this bug, can you please separate them.
 > 
-> I get a "Already up-to-date".
-> 
-> Did you perhaps forget to push?
+> <snip>
 
-Apparently I had pushed everything except the "bookmark" (the new 
-upstream-linus branch head).
+OK, I'll separate it for the next submission.
 
-It should be there now...
-
-	Jeff
-
-
+Cheers,
+	-Matt Helsley
 

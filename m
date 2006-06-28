@@ -1,93 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWF1Tlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWF1Tr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751111AbWF1Tlp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 15:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWF1Tlp
+	id S1751117AbWF1Tr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 15:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWF1Tr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 15:41:45 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55533 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751114AbWF1Tln (ORCPT
+	Wed, 28 Jun 2006 15:47:27 -0400
+Received: from mail.gmx.de ([213.165.64.21]:40578 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751117AbWF1Tr0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 15:41:43 -0400
-Date: Wed, 28 Jun 2006 21:06:15 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch] i386: cpu_relax() in crash.c and doublefault.c
-Message-ID: <20060628190608.GB9426@elf.ucw.cz>
-References: <200606230343_MC3-1-C33B-67CA@compuserve.com> <20060623083018.GA12273@rhlx01.fht-esslingen.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060623083018.GA12273@rhlx01.fht-esslingen.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 28 Jun 2006 15:47:26 -0400
+X-Authenticated: #704063
+Subject: [Patch] Typo in drivers/net/e1000/e1000_hw.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: jeffrey.t.kirsher@intel.com
+Content-Type: text/plain
+Date: Wed, 28 Jun 2006 21:47:23 +0200
+Message-Id: <1151524043.26393.4.camel@alice>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+hi,
 
-> > Add cpu_relax() to infinite loops in crash.c and
-> > doublefault.c.  This is the safest change.
-> 
-> Thanks for your continued work on this!
-> 
-> What's the reasoning for not running halt() in doublefault_fn()?
-> 
-> 
-> In order to consolidate those places to safely halt a CPU,
-> I could think of (possibly in a header file):
-> 
-> /* very, very safely halt CPU:
->    - do minimal checking in case CPU might already be overheated (unreliable!)
->      (also use inlining to avoid call overhead on an unreliable CPU)
->    - try to use halt() and cpu_relax() very liberally to keep the crashed
->      CPU as cool as possible (crash might have happened due to CPU fan failure!)
->      While ACPI specifies CPU shutdown on over-temperature, we really don't
->      want to rely on this since it might be broken or we simply don't use ACPI
->      mode at all...
-> */ 
-> inline void safely_halt_cpu(int do_minimal_checking)
-> {
-> 	/* inlining will optimize the branching away */
-> 	if (!do_minimal_checking) {
-> 		if (cpu_data[smp_processor_id()].hlt_works_ok)
-> 			for (;;) {
-> 				halt();
+spotted by coverity (id #539), we should use the define
+with which the array is defined. We use min_agc as index
+for e1000_igp_2_cable_length_table[IGP02E1000_AGC_LENGTH_TABLE_SIZE]
+This patch also adds the -1 to make it safe so that we dont read
+past the end of the array.
 
-Should not halt() check that itself?
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-And you probably want to disable interrupts here...
+--- linux-2.6.17-git11/drivers/net/e1000/e1000_hw.c.orig	2006-06-28 21:46:55.000000000 +0200
++++ linux-2.6.17-git11/drivers/net/e1000/e1000_hw.c	2006-06-28 21:47:07.000000000 +0200
+@@ -6012,7 +6012,7 @@ e1000_get_cable_length(struct e1000_hw *
+ {
+     int32_t ret_val;
+     uint16_t agc_value = 0;
+-    uint16_t cur_agc, min_agc = IGP01E1000_AGC_LENGTH_TABLE_SIZE;
++    uint16_t cur_agc, min_agc = IGP02E1000_AGC_LENGTH_TABLE_SIZE - 1;
+     uint16_t max_agc = 0;
+     uint16_t i, phy_data;
+     uint16_t cable_length;
 
-> 				/* halt failed? still make sure to cpu_relax()! */
-> 				cpu_relax();
-> 			}
-> 		else
-> 			for (;;) {
-> 				cpu_relax();
-> 				cpu_relax();
-> 				cpu_relax();
-> 			}
-> 	} else {
-> 		halt();
-> 		/* halt didn't work, so still keep as cool as possible: */
-> 		for (;;) {
-> 			cpu_relax();
-> 			cpu_relax();
-> 			cpu_relax();
-> 		}
-> 	}
-> }
-> 
-> Does my preliminary code even make any sense at all? ;)
-> Might want to cleverly rearrange it to try to get rid of the cpu_relax()
-> duplication while not abandoning any advantage of those different
-> conditions.
 
-									Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

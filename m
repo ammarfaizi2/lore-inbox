@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423228AbWF1IwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161217AbWF1I5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423228AbWF1IwP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 04:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423229AbWF1IwP
+	id S1161217AbWF1I5m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 04:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161240AbWF1I5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 04:52:15 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:476 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1423228AbWF1IwO (ORCPT
+	Wed, 28 Jun 2006 04:57:42 -0400
+Received: from ns1.suse.de ([195.135.220.2]:28391 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161217AbWF1I5m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 04:52:14 -0400
-Date: Wed, 28 Jun 2006 10:47:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Miller <davem@davemloft.net>, tglx@linutronix.de, bunk@stusta.de,
-       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Subject: Re: [patch] genirq: rename desc->handler to desc->chip, sparc64 fix
-Message-ID: <20060628084723.GA14953@elte.hu>
-References: <1151479204.25491.491.camel@localhost.localdomain> <20060628081345.GA12647@elte.hu> <20060628083008.GA14056@elte.hu> <20060628.013940.41192890.davem@davemloft.net> <20060628014807.0694436f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jun 2006 04:57:42 -0400
+From: Andi Kleen <ak@suse.de>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
+Date: Wed, 28 Jun 2006 10:53:15 +0200
+User-Agent: KMail/1.9.3
+Cc: Ingo Molnar <mingo@elte.hu>, 76306.1226@compuserve.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, drepper@redhat.com,
+       roland@redhat.com, jakub@redhat.com
+References: <200606210329_MC3-1-C305-E008@compuserve.com> <20060621081539.GA14227@elte.hu> <20060627224433.fb726e0c.pj@sgi.com>
+In-Reply-To: <20060627224433.fb726e0c.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060628014807.0694436f.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200606281053.15681.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> > > ok, sparc64 needed the rename fix below, but otherwise it built fine on 
-> > > -mm3.
-> > 
-> > Thanks Ingo.
-> > 
-> > Can we get the genirq stuff into Linus's tree soon?
+On Wednesday 28 June 2006 07:44, Paul Jackson wrote:
+> > but my gut feeling is that we should add a proper sys_get_cpu() syscall 
 > 
-> I'm thinking Thursday/Fridayish.  Is that OK?
+> Yes - this should be for more or less all arch's.
 
-fine with me. (Thursday would be slightly better i guess, from a 
-dont-work-on-weekends-too-hard POV.)
+The whole point of the original implementation is to do a fast architecture specific call.
+A slow generic call isn't very useful.
 
-	Ingo
+-Andi
+ 

@@ -1,77 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWF1QpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWF1QsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbWF1QpE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 12:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWF1QpB
+	id S1751361AbWF1QsB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 12:48:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWF1QsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 12:45:01 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:21988 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751361AbWF1QpA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 12:45:00 -0400
-Message-ID: <44A2B200.4010206@zytor.com>
-Date: Wed, 28 Jun 2006 09:44:48 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       klibc@zytor.com
-Subject: Re: [klibc 07/31] i386 support for klibc
-References: <klibc.200606272217.00@tazenda.hos.anvin.org> <klibc.200606272217.07@tazenda.hos.anvin.org> <Pine.LNX.4.61.0606280937150.29068@yvahk01.tjqt.qr> <44A2A147.9020501@zytor.com>
-In-Reply-To: <44A2A147.9020501@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 28 Jun 2006 12:48:01 -0400
+Received: from xenotime.net ([66.160.160.81]:46302 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751361AbWF1QsA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 12:48:00 -0400
+Date: Wed, 28 Jun 2006 09:50:45 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Lukas Jelinek <info@kernel-api.org>
+Cc: ptesarik@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: Kernel API Reference Documentation
+Message-Id: <20060628095045.7522ec7f.rdunlap@xenotime.net>
+In-Reply-To: <44A2B123.7000304@kernel-api.org>
+References: <44A1858B.9080102@kernel-api.org>
+	<1151495225.8127.68.camel@elijah.suse.cz>
+	<44A2749D.7030705@kernel-api.org>
+	<20060628090950.c1862a9e.rdunlap@xenotime.net>
+	<1151511215.8127.74.camel@elijah.suse.cz>
+	<20060628093619.6b9f2b8c.rdunlap@xenotime.net>
+	<44A2B123.7000304@kernel-api.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Jan Engelhardt wrote:
->>> usr/klibc/arch/i386/libgcc/__ashldi3.S   |   29 +++++++
->>> usr/klibc/arch/i386/libgcc/__ashrdi3.S   |   29 +++++++
->>> usr/klibc/arch/i386/libgcc/__lshrdi3.S   |   29 +++++++
->>> usr/klibc/arch/i386/libgcc/__muldi3.S    |   34 ++++++++
->>> usr/klibc/arch/i386/libgcc/__negdi2.S    |   21 +++++
->>
->> No divdi3?
+On Wed, 28 Jun 2006 18:41:07 +0200 Lukas Jelinek wrote:
+
+> >>>>>I looked at
+> >>>>>http://www.kernel-api.org/docs/online/2.6.17/da/dab/structsk__buff.html
+> >>>>>
+> >>>>>and you apparently ignore kernel-doc for structs. Cf.
+> >>>>>include/linux/skbuff.h:177 ff.
+> >>>>
+> >>>>There are several problems. The one you describe is probably caused by a
+> >>>>blank line between the struct and the related comment. Doxygen doesn't
+> >>>>recognize it correctly (and simply ignores the comment).
+> >>>
+> >>>No blank line in this case.
+> >>
+> >>Oh, yes, there is a blank line between the comment and the struct. It's
+> >>a pitty that someone put much effort into writing a usable description,
+> >>which is then not seen. Anyway, should we find all such occurences in
+> >>the kernel tree and fix them, or make a workaround for doxygen?
+> > 
+> > 
+> > Which struct are we talking about here?  I missed it.
+> > 
+> > I guess the easy answer is Both.
+> > However, I'm working on fixing up the kernel tree, so sending
+> > patches is correct IMO.
+> > 
 > 
-> The i386 ones are a bit special... usually the reason I have added 
-> libgcc functions is that on some architectures, gcc has various problems 
-> linking with libgcc in some configurations.  That is not the case on 
-> i386, but some of the libgcc functions are *way* bigger than the need to 
-> be (overall, the quality of code in libgcc seems horrid, across 
-> architectures.)
-> 
-> Since i386 is such an important architecture I added a handful of 
-> assembly functions for stuff that could be done in a very small amount 
-> of space.
-> 
+> We are currently talking about struct sk_buff. And there _is_ a single
+> blank line which avoids to make a relation between the struct and the
+> comment above.
 
-Correction... divdi3, moddi3, udivdi3, umoddi3 and udivmoddi4 are also 
-provided, but are implemented as generic subroutines in C instead of 
-assembly:
+OK, I believed Petr when he stated that, I just wanted to get my
+head screwed on straight.  So its the blank line between
 
-KLIBCARCHOBJS = \
-         arch/$(KLIBCARCH)/socketcall.o \
-         arch/$(KLIBCARCH)/setjmp.o \
-         arch/$(KLIBCARCH)/syscall.o \
-         arch/$(KLIBCARCH)/varsyscall.o \
-         arch/$(KLIBCARCH)/open.o \
-         arch/$(KLIBCARCH)/openat.o \
-         arch/$(KLIBCARCH)/sigreturn.o \
-         arch/$(KLIBCARCH)/vfork.o \
-         arch/$(KLIBCARCH)/libgcc/__ashldi3.o \
-         arch/$(KLIBCARCH)/libgcc/__ashrdi3.o \
-         arch/$(KLIBCARCH)/libgcc/__lshrdi3.o \
-         arch/$(KLIBCARCH)/libgcc/__muldi3.o \
-         arch/$(KLIBCARCH)/libgcc/__negdi2.o \
-         libgcc/__divdi3.o \
-         libgcc/__moddi3.o \
-         libgcc/__udivdi3.o \
-         libgcc/__umoddi3.o \
-         libgcc/__udivmoddi4.o
+ */
+and
+struct sk_buff {
+?
 
-It probably would be more efficient if i386's native division 
-instructions could be exploited, but it hasn't been a pressing issue.
+I don't think the kernel-doc rules cover that case, but
+scripts/kernel-doc handles it, so the Doxygen parser should handle
+it IMO. 
 
-	-hpa
+HTH.
+---
+~Randy

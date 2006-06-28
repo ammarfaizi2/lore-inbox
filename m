@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWF1Rrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWF1RsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbWF1Rrn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWF1Rrn
+	id S1751508AbWF1RsS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWF1RsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 13:47:43 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:18338 "EHLO
+	Wed, 28 Jun 2006 13:48:18 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20130 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751504AbWF1Rrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 13:47:42 -0400
-Subject: Re: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA from
-	Longhaul by rw semaphores
+	id S1751508AbWF1RsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 13:48:17 -0400
+Subject: Re: tty_mutex and tty_old_pgrp
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <gregkh@suse.de>
-Cc: Rafa? Bilski <rafalbilski@interia.pl>, linux-kernel@vger.kernel.org,
-       davej@redhat.com
-In-Reply-To: <20060628173448.GA2371@suse.de>
-References: <44A28AA2.6060306@interia.pl>  <20060628173448.GA2371@suse.de>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Paul Fulghum <paulkf@microgate.com>, lkml <linux-kernel@vger.kernel.org>,
+       "Theodore Ts'o" <tytso@mit.edu>
+In-Reply-To: <9e4733910606281036k53956aaev3d323fbb7a2cb7a9@mail.gmail.com>
+References: <9e4733910606261538i584e2203o9555d77094de6fe7@mail.gmail.com>
+	 <44A1B79F.9020204@microgate.com>
+	 <9e4733910606272029r32255d27we6e8b34a4c2e569@mail.gmail.com>
+	 <1151490240.15166.5.camel@localhost.localdomain>
+	 <9e4733910606281036k53956aaev3d323fbb7a2cb7a9@mail.gmail.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Wed, 28 Jun 2006 19:03:00 +0100
-Message-Id: <1151517780.15166.52.camel@localhost.localdomain>
+Date: Wed, 28 Jun 2006 19:04:25 +0100
+Message-Id: <1151517865.15166.54.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-06-28 am 10:34 -0700, ysgrifennodd Greg KH:
-> Eeek!  You mean the longhaul driver can change the frequency of the PCI
-> bus?  Oh, that's a recipe for disaster...
+Ar Mer, 2006-06-28 am 13:36 -0400, ysgrifennodd Jon Smirl:
+> This selinux code is checking to see if the current process still has
+> access rights to it's controlling tty, right? If it doesn't tty and
+> tty_old_pgrp are nulled out. Does this need locking? 
 
-Not as I understand the docs, and that would be unfixable. Some C3
-setups do however appear to "fall off the bus" during transitions which
-means if BMDMA is active things get confused.
-
-I am still not clear if this is just cache corruption through us not
-listening or whether we genuinely need to halt. In the former case
-flushing and disabling the CPU caches ought to be sufficient.
-
-Alan
+Yes that looks like it needs to the tty lock covering it.
 

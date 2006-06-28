@@ -1,84 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751788AbWF1Xr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751793AbWF1XtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751788AbWF1Xr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 19:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751795AbWF1XrZ
+	id S1751793AbWF1XtO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 19:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWF1XtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 19:47:25 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:28309 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751793AbWF1XrW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 19:47:22 -0400
-Date: Thu, 29 Jun 2006 01:46:28 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Greg KH <greg@kroah.com>
-cc: Jeff Garzik <jeff@garzik.org>, torvalds@osdl.org, klibc@zytor.com,
-       linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [klibc] klibc and what's the next step?
-In-Reply-To: <20060627164244.GA7758@kroah.com>
-Message-ID: <Pine.LNX.4.64.0606281845470.17704@scrub.home>
-References: <klibc.200606251757.00@tazenda.hos.anvin.org>
- <Pine.LNX.4.64.0606271316220.17704@scrub.home> <44A13512.3010505@garzik.org>
- <20060627164244.GA7758@kroah.com>
+	Wed, 28 Jun 2006 19:49:13 -0400
+Received: from mail5.sea5.speakeasy.net ([69.17.117.7]:32657 "EHLO
+	mail5.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751793AbWF1XtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 19:49:11 -0400
+Date: Wed, 28 Jun 2006 19:49:09 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+       Chris Wright <chrisw@sous-sol.org>,
+       David Quigley <dpquigl@tycho.nsa.gov>, gregkh@suse.de
+Subject: [PATCH 3/3] SELinux: Update USB code with new kill_proc_info_as_uid
+In-Reply-To: <Pine.LNX.4.64.0606281943240.17149@d.namei>
+Message-ID: <Pine.LNX.4.64.0606281946561.17159@d.namei>
+References: <Pine.LNX.4.64.0606281943240.17149@d.namei>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: David Quigley <dpquigl@tycho.nsa.gov>
 
-On Tue, 27 Jun 2006, Greg KH wrote:
+This patch updates the USB core to save and pass the sending task secid 
+when sending signals upon AIO completion so that proper security checking 
+can be applied by security modules.
 
-> On Tue, Jun 27, 2006 at 09:39:30AM -0400, Jeff Garzik wrote:
-> > Roman Zippel wrote:
-> > > What I'm more interested in is basically answering the question and where 
-> > > I hope to provoke a bit broader discussion: "What's next?"
-> > > 
-> > > Until recently for most developers klibc was not much more than a cool 
-> > > idea, but now we have the first incarnation and now we have to do a 
-> > > reality check of how it solves our problems. To say it drastically the 
-> > > current patch set as it is does not solve a single real problem yet, it 
-> > > only moves them from the kernel to kinit, which may be the first step but 
-> > > where to?
-> > > 
-> > > So what problems are we going to solve now and how? The amount of 
-> > > discussion so far is not exactly encouraging. If nobody cares, then there 
-> > > don't seem to be any real problems, so why should it be merged at all? Are 
-> > > shiny new features more important than functionality?
-> > 
-> > Well, at least for me...  at boot time we run into various limitations 
-> > from the current kernel approach of coding purely userspace activities 
-> > in the kernel, simply because a vehicle for implementing early-boot 
-> > userland operations did not exist.
-> > 
-> > This klibc patchkit removes stuff that does not need to be in the 
-> > kernel, and provides a platform for improving IP autoconfig, NFS root, 
-> > MD/DM root setup, and various other early-boot activities.
-> > 
-> > A lot of the larger distros have been moving in this direction anyway, 
-> > by necessity.  They have been stuffing more and more [needed] logic into 
-> > initrd [which is often really initramfs these days], to deal with 
-> > complex boot and root-mounting scenarios like iSCSI and multi-path.
-> 
-> I second this statement, having a method of implementing early boot
-> userspace options is a very good thing to have, and one that the distros
-> really want (as they have already been doing it on their own in
-> different ways, some using klibc already, others using uclibc, and still
-> others using glibc.)  Standardizing on a method to implement this is
-> very much needed.
+Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
+Signed-off-by: James Morris <jmorris@namei.org>
 
-I guess this describes pretty much describes the goal and I don't think 
-anyone really disagrees.
-The question is now how do we get there? The current klibc patches give no 
-answer to that, there is no documentation or any prototype, which would 
-give a good idea how to get this stuff into initramfs in a manageable way.
-The current responses indicate that the primary (or at least initial) 
-users would be distributions, but there is no hint how the current klibc 
-stuff can be used by them, which IMO is a serious problem.
-The problem here is that we are about to create a new kernel-userspace 
-interface and considering our track record here, I think it's a really bad 
-idea to go into this practically blind. How will distributions put their 
-stuff into initramfs?
 
-bye, Roman
+Please apply.
+
+---
+
+ drivers/usb/core/devio.c |    6 +++++-
+ drivers/usb/core/inode.c |    2 +-
+ drivers/usb/core/usb.h   |    1 +
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/drivers/usb/core/devio.c linux-2.6.17-mm3-kill/drivers/usb/core/devio.c
+--- linux-2.6.17-mm3/drivers/usb/core/devio.c	2006-06-28 13:58:55.000000000 -0400
++++ linux-2.6.17-mm3-kill/drivers/usb/core/devio.c	2006-06-28 14:32:30.000000000 -0400
+@@ -47,6 +47,7 @@
+ #include <linux/usbdevice_fs.h>
+ #include <linux/cdev.h>
+ #include <linux/notifier.h>
++#include <linux/security.h>
+ #include <asm/uaccess.h>
+ #include <asm/byteorder.h>
+ #include <linux/moduleparam.h>
+@@ -68,6 +69,7 @@ struct async {
+ 	void __user *userbuffer;
+ 	void __user *userurb;
+ 	struct urb *urb;
++	u32 secid;
+ };
+ 
+ static int usbfs_snoop = 0;
+@@ -312,7 +314,7 @@ static void async_completed(struct urb *
+ 		sinfo.si_code = SI_ASYNCIO;
+ 		sinfo.si_addr = as->userurb;
+ 		kill_proc_info_as_uid(as->signr, &sinfo, as->pid, as->uid, 
+-				      as->euid);
++				      as->euid, as->secid);
+ 	}
+ 	snoop(&urb->dev->dev, "urb complete\n");
+ 	snoop_urb(urb, as->userurb);
+@@ -572,6 +574,7 @@ static int usbdev_open(struct inode *ino
+ 	ps->disc_euid = current->euid;
+ 	ps->disccontext = NULL;
+ 	ps->ifclaimed = 0;
++	security_task_getsecid(current, &ps->secid);
+ 	wmb();
+ 	list_add_tail(&ps->list, &dev->filelist);
+ 	file->private_data = ps;
+@@ -1053,6 +1056,7 @@ static int proc_do_submiturb(struct dev_
+ 	as->pid = current->pid;
+ 	as->uid = current->uid;
+ 	as->euid = current->euid;
++	security_task_getsecid(current, &as->secid);
+ 	if (!(uurb->endpoint & USB_DIR_IN)) {
+ 		if (copy_from_user(as->urb->transfer_buffer, uurb->buffer, as->urb->transfer_buffer_length)) {
+ 			free_async(as);
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/drivers/usb/core/inode.c linux-2.6.17-mm3-kill/drivers/usb/core/inode.c
+--- linux-2.6.17-mm3/drivers/usb/core/inode.c	2006-06-28 13:58:55.000000000 -0400
++++ linux-2.6.17-mm3-kill/drivers/usb/core/inode.c	2006-06-28 14:33:00.000000000 -0400
+@@ -700,7 +700,7 @@ static void usbfs_remove_device(struct u
+ 			sinfo.si_errno = EPIPE;
+ 			sinfo.si_code = SI_ASYNCIO;
+ 			sinfo.si_addr = ds->disccontext;
+-			kill_proc_info_as_uid(ds->discsignr, &sinfo, ds->disc_pid, ds->disc_uid, ds->disc_euid);
++			kill_proc_info_as_uid(ds->discsignr, &sinfo, ds->disc_pid, ds->disc_uid, ds->disc_euid, ds->secid);
+ 		}
+ 	}
+ }
+diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/drivers/usb/core/usb.h linux-2.6.17-mm3-kill/drivers/usb/core/usb.h
+--- linux-2.6.17-mm3/drivers/usb/core/usb.h	2006-06-28 13:58:55.000000000 -0400
++++ linux-2.6.17-mm3-kill/drivers/usb/core/usb.h	2006-06-28 14:33:46.000000000 -0400
+@@ -80,6 +80,7 @@ struct dev_state {
+ 	uid_t disc_uid, disc_euid;
+ 	void __user *disccontext;
+ 	unsigned long ifclaimed;
++	u32 secid;
+ };
+ 
+ /* internal notify stuff */

@@ -1,88 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751645AbWF1Wq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751633AbWF1Wql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751645AbWF1Wq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 18:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751649AbWF1Wq4
+	id S1751633AbWF1Wql (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 18:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWF1Wql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 18:46:56 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54726 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751645AbWF1Wqy (ORCPT
+	Wed, 28 Jun 2006 18:46:41 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56006 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751629AbWF1Wqk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 18:46:54 -0400
-Date: Thu, 29 Jun 2006 00:44:28 +0200
+	Wed, 28 Jun 2006 18:46:40 -0400
+Date: Thu, 29 Jun 2006 00:46:25 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: Greg KH <greg@kroah.com>, Jens Axboe <axboe@suse.de>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Message-ID: <20060628224428.GC27526@elf.ucw.cz>
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271858.21810.nigel@suspend2.net> <20060628211114.GC13397@elf.ucw.cz> <200606290825.50674.nigel@suspend2.net>
+To: Sebastian =?iso-8859-1?Q?K=FCgler?= <sebas@kde.org>
+Cc: suspend2-devel@lists.suspend2.net,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: swsusp / suspend2 reliability (was Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion in	-mm)
+Message-ID: <20060628224625.GD27526@elf.ucw.cz>
+References: <200606270147.16501.ncunningham@linuxmail.org> <200606290019.17298.sebas@kde.org> <20060628222417.GA27526@elf.ucw.cz> <200606290038.01733.sebas@kde.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200606290825.50674.nigel@suspend2.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200606290038.01733.sebas@kde.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > So I don't really see the future of suspend2 because of this...
+On Thu 2006-06-29 00:37:57, Sebastian Kügler wrote:
+> On Thursday 29 June 2006 00:24, Pavel Machek wrote:
+> > > > Okay, can I get some details? Like how much memory does system have,
+> > > > what stress test causes the failure?
 > > >
-> > > But what Rafael and Pavel are doing is really only moving the highest
-> > > level of controlling logic to userspace (ok, and maybe compression and
-> > > encryption too). Everything important (freezing other processes, atomic
-> > > copy and the guts of the I/O) is still done by the kernel.
+> > > The machine has 1GB of RAM, filling it up beyond 500MB, maybe 600MB
+> > > usually made swsusp a problem. I'd need to close apps then to be able to
+> > > suspend.
 > >
-> > Can you do the same and move compression/encryption to userspace, too?
-> >
-> > And actually that "highest level" covers >50% of suspend2 code. That
-> > would be around 7K lines of code removed from kernel if you did the
-> > same, and suspend2 patch would be half the size...
+> > I'm pretty sure I do suspending with most of RAM full. You have
+> > big-enough swap partition, right?
 > 
-> That's not true. The compression and encryption support add ~1000 lines, as 
-> you pointed out the other day. If I moved compression and encryption support 
-> to userspace, I'd remove 1000 lines and:
-> 
-> - add more code for getting the pages copied to and from userspace
+> 1 GB, it might not be completely empty though. I probably only hit swsusp 
+> limit much earlier than suspend2's (which after 34 suspend/resume cycles and 
+> heavy use in between I did not hit yet). 
 
-No, if your main loop is already in userspace, you do not need to add
-any more code. And you'd save way more than 1000 lines:
+Okay, can we get bugzilla.kernel.org report? (assigned-to me)
 
-* encryption/compression can be removed
+This really should not happen, and I did not see swsusp fail like that
+for quite a long time. I _could_ make it fail with make -j on kernel,
+and similar crazy loads, but on nothing reasonable.
 
-* but that means that writer plugins/filters can be removed
-
-* if you do compress/encrypt in userspace, you can remove that ugly
-netlink thingie, and just display progress in userspace, too
-
-...and then, image writing can be moved to userspace...
-
-* swapfile support
-
-* partition support
-
-* plus their plugin infrastructure.
-
-> > > If we take the problem one step further, and begin to think about
-> > > checkpointing, they're in even bigger trouble. I'll freely admit that I'd
-> > > have to redesign the way I store data so that random parts of the image
-> > > could be replaced, have hooks in mm to be able to learn what pages need
-> > > have changed and would also need filesystem support to handle that part
-> > > of the problem, but I'd at least be working in the right domain.
-> >
-> > Could you explain? I do not get the checkpointing remark.
-> 
-> Sure. Suspending to disk is a pretty similar problem to checkpointing, except 
-> that you want to continue running afterwards, keep the image and modify it 
-> from time to time based on the changes in memory (having a checkpointing 
-> filesystem too, of course). My point is that modifying uswsusp to do 
-> checkpointing would be far harder precisely because you've pushed the highest 
-> level logic to userspace. It would be far more complicated, if not impossible 
-> for you to make the adjustments to do checkpointing.
-
-Aha, that's probably better done with Xen, anyway :-).
+dmesg from failed run would be nice, too.
 									Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek

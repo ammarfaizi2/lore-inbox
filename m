@@ -1,53 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWF1SNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWF1SMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWF1SNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 14:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWF1SNQ
+	id S1750777AbWF1SMr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 14:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWF1SMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 14:13:16 -0400
-Received: from wr-out-0506.google.com ([64.233.184.225]:50409 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750728AbWF1SNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 14:13:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=p9nveLe/jAulpaZlQxxUAAekXsRfCt/BVdbjCBtInmS+yW2h2/W80dKREjlWkJNUITuOoD9lR0NJN4FWAbHmkJWfPq4IU8cYhVFlAw5BmQ/0qK4K04/E1988Cb1fTObvwJQ+AlzBfeTo7NLDBmgxbzBI8CKvc9mw5GSou2grFf4=
-Message-ID: <9e4733910606281113m2c5fc3bfgcdf5b458f3fbc861@mail.gmail.com>
-Date: Wed, 28 Jun 2006 14:13:13 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: tty_mutex and tty_old_pgrp
-Cc: "Paul Fulghum" <paulkf@microgate.com>, lkml <linux-kernel@vger.kernel.org>,
-       "Theodore Ts'o" <tytso@mit.edu>
-In-Reply-To: <1151517865.15166.54.camel@localhost.localdomain>
+	Wed, 28 Jun 2006 14:12:47 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14255 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750728AbWF1SMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 14:12:45 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrey Savochkin <saw@swsoft.com>
+Cc: dlezcano@fr.ibm.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       serue@us.ibm.com, haveblue@us.ibm.com, clg@fr.ibm.com,
+       Andrew Morton <akpm@osdl.org>, dev@sw.ru, herbert@13thfloor.at,
+       devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: Network namespaces a path to mergable code.
+References: <20060626134945.A28942@castle.nmd.msu.ru>
+	<m14py6ldlj.fsf@ebiederm.dsl.xmission.com>
+	<20060627215859.A20679@castle.nmd.msu.ru>
+	<m1ejx9kj1r.fsf@ebiederm.dsl.xmission.com>
+	<20060628150605.A29274@castle.nmd.msu.ru>
+	<m1sllpfckx.fsf@ebiederm.dsl.xmission.com>
+	<20060628212240.A1833@castle.nmd.msu.ru>
+Date: Wed, 28 Jun 2006 12:11:24 -0600
+In-Reply-To: <20060628212240.A1833@castle.nmd.msu.ru> (Andrey Savochkin's
+	message of "Wed, 28 Jun 2006 21:22:40 +0400")
+Message-ID: <m1r719dub7.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9e4733910606261538i584e2203o9555d77094de6fe7@mail.gmail.com>
-	 <44A1B79F.9020204@microgate.com>
-	 <9e4733910606272029r32255d27we6e8b34a4c2e569@mail.gmail.com>
-	 <1151490240.15166.5.camel@localhost.localdomain>
-	 <9e4733910606281036k53956aaev3d323fbb7a2cb7a9@mail.gmail.com>
-	 <1151517865.15166.54.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/28/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Ar Mer, 2006-06-28 am 13:36 -0400, ysgrifennodd Jon Smirl:
-> > This selinux code is checking to see if the current process still has
-> > access rights to it's controlling tty, right? If it doesn't tty and
-> > tty_old_pgrp are nulled out. Does this need locking?
+Andrey Savochkin <saw@swsoft.com> writes:
+
+>> In a slightly different vein your second patch introduced a lot
+>> of #ifdef CONFIG_NET_NS in C files.  That is something we need to look closely
+>> at.
+>> 
+>> So I think the abstraction that we use to access per network namespace
+>> variables needs some work if we are going to allow the ability to compile
+>> out all of the namespace code.  The explicit versus implicit lookup is just
+>> one dimension of that problem.
 >
-> Yes that looks like it needs to the tty lock covering it.
-I can add the lock.
+> This is a good comment.
+>
+> Those ifdef's mostly correspond to places where we walk over lists
+> and need to filter-out entities not belonging to a specific namespace.
+> Those places about the same in your and my implementation.
+> We can think what we can do with them.
+> One trick that I used on several occasions is net_ns_same macro
+> which doesn't evalute its arguments if CONFIG_NET_NS not defined,
+> and thus can be used without ifdef's.
+>
+> Returning to implicit vs explicit function arguments, I belive that implicit
+> arguments are more promising in having zero impact on the code when
+> CONFIG_NET_NS is disabled.
+> Functions like inet_addr_type will translate into exactly the same code as
+> they did without net namespace patches.
 
-If the task is the session leader and you null out it's controlling
-tty, what about other tasks in the session? I didn't think is was
-legal to have some tasks in a session with tty set and some without
-it.  Should this turn into a disassociate_tty()?
+Which brings us to a basic question.  Does it make sense to have
+a define that completely disables namespace support.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+I know all of the simple namespaces have been implemented like that,
+and it was relatively easy there.  I'm not at all certain in the long
+term we want a configuration option.  Especially if simply enabling
+the code doesn't have an impact on performance.  Which I think is
+a merge requirement anyway.
+
+As for inet_addr_type and friends I do agree that implicit arguments
+make for an easier implementation of CONFIG_NET_NS.  My gut feel
+is though that the code with explicit arguments is probably more
+comprehensible in the long term.  Especially as we find more weird
+exceptions where the process we are running in does not have the correct
+network namespace.
+
+In general unnecessary CONFIG options are a problem because they make
+the entire testing process much harder and make the code harder to
+write (so that both cases work and work cleanly).
+
+So my feeling is that we actually want to kill all of those CONFIG_XXX_NS
+options.
+
+Which simply leaves us with the problem of implementing the code cleanly.
+
+Eric

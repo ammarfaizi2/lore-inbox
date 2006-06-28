@@ -1,89 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751792AbWF1Xqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWF1XrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751792AbWF1Xqx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 19:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWF1Xqx
+	id S1751791AbWF1XrG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 19:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751793AbWF1XrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 19:46:53 -0400
-Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:9958 "EHLO
-	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751792AbWF1Xqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 19:46:51 -0400
-Date: Wed, 28 Jun 2006 19:46:48 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-       Chris Wright <chrisw@sous-sol.org>,
-       David Quigley <dpquigl@tycho.nsa.gov>
-Subject: [PATCH 2/3] SELinux: Add security hook call to kill_proc_info_as_uid
-In-Reply-To: <Pine.LNX.4.64.0606281943240.17149@d.namei>
-Message-ID: <Pine.LNX.4.64.0606281945560.17159@d.namei>
-References: <Pine.LNX.4.64.0606281943240.17149@d.namei>
+	Wed, 28 Jun 2006 19:47:05 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:33396 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751791AbWF1XrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 19:47:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fg1PIeqA8Bp158Oj1dt2yOgbnijJOhUfycIQtXaDAkP41v0o2Q6t1kU70DhtwMksoAfzvla4pIzxsB9FkRqSrnkPNwswgzx5VMvqUUT02P9DQW9L9xH1kPe9b8r8qVJPSjO1J1ULixKEzfzpucFkD3v4alSn0cZbIoEzNbgMDPY=
+Message-ID: <a36005b50606281647i58f2899eo7ae7e95757969d42@mail.gmail.com>
+Date: Wed, 28 Jun 2006 16:47:00 -0700
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: make PROT_WRITE imply PROT_READ
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       "Jason Baron" <jbaron@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060628194913.GA18039@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <fa.PuMM6IwflUYh1MWILO9rb6z4fvY@ifi.uio.no>
+	 <449B42B3.6010908@shaw.ca>
+	 <Pine.LNX.4.64.0606230934360.24102@dhcp83-5.boston.redhat.com>
+	 <1151071581.3204.14.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0606231002150.24102@dhcp83-5.boston.redhat.com>
+	 <1151072280.3204.17.camel@laptopd505.fenrus.org>
+	 <a36005b50606241145q4d1dd17dg85f80e07fb582cdb@mail.gmail.com>
+	 <20060627095632.GA22666@elf.ucw.cz>
+	 <a36005b50606280943l54138e80tbda08e1607136792@mail.gmail.com>
+	 <20060628194913.GA18039@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Quigley <dpquigl@tycho.nsa.gov>
+On 6/28/06, Pavel Machek <pavel@ucw.cz> wrote:
+> mmap() behaviour always was platform-specific, and it happens to be
+> quite strange on i386. So what.
 
-This patch adds a call to the extended security_task_kill hook introduced 
-by the prior patch to the kill_proc_info_as_uid function so that these 
-signals can be properly mediated by security modules. It also updates the 
-existing hook call in check_kill_permission.
-
-Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
-Signed-off-by: James Morris <jmorris@namei.org>
-
-
-Please apply.
-
----
-
-include/linux/sched.h |    2 +-
-kernel/signal.c       |    7 +++++--
-2 files changed, 6 insertions(+), 3 deletions(-)
-
-diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/include/linux/sched.h linux-2.6.17-mm3-kill/include/linux/sched.h
---- linux-2.6.17-mm3/include/linux/sched.h	2006-06-28 13:58:59.000000000 -0400
-+++ linux-2.6.17-mm3-kill/include/linux/sched.h	2006-06-27 14:46:36.000000000 -0400
-@@ -1249,7 +1249,7 @@ extern int force_sig_info(int, struct si
- extern int __kill_pg_info(int sig, struct siginfo *info, pid_t pgrp);
- extern int kill_pg_info(int, struct siginfo *, pid_t);
- extern int kill_proc_info(int, struct siginfo *, pid_t);
--extern int kill_proc_info_as_uid(int, struct siginfo *, pid_t, uid_t, uid_t);
-+extern int kill_proc_info_as_uid(int, struct siginfo *, pid_t, uid_t, uid_t, u32);
- extern void do_notify_parent(struct task_struct *, int);
- extern void force_sig(int, struct task_struct *);
- extern void force_sig_specific(int, struct task_struct *);
-diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/kernel/signal.c linux-2.6.17-mm3-kill/kernel/signal.c
---- linux-2.6.17-mm3/kernel/signal.c	2006-06-28 13:58:59.000000000 -0400
-+++ linux-2.6.17-mm3-kill/kernel/signal.c	2006-06-28 14:34:26.000000000 -0400
-@@ -584,7 +584,7 @@ static int check_kill_permission(int sig
- 	    && !capable(CAP_KILL))
- 		return error;
- 
--	error = security_task_kill(t, info, sig);
-+	error = security_task_kill(t, info, sig, 0);
- 	if (!error)
- 		audit_signal_info(sig, t); /* Let audit system see the signal */
- 	return error;
-@@ -1107,7 +1107,7 @@ kill_proc_info(int sig, struct siginfo *
- 
- /* like kill_proc_info(), but doesn't use uid/euid of "current" */
- int kill_proc_info_as_uid(int sig, struct siginfo *info, pid_t pid,
--		      uid_t uid, uid_t euid)
-+		      uid_t uid, uid_t euid, u32 secid)
- {
- 	int ret = -EINVAL;
- 	struct task_struct *p;
-@@ -1127,6 +1127,9 @@ int kill_proc_info_as_uid(int sig, struc
- 		ret = -EPERM;
- 		goto out_unlock;
- 	}
-+	ret = security_task_kill(p, info, sig, secid);
-+	if (ret)
-+		goto out_unlock;
- 	if (sig && p->sighand) {
- 		unsigned long flags;
- 		spin_lock_irqsave(&p->sighand->siglock, flags);
+Nonsense.  The mmap semantics is specified in POSIX.  If something
+doesn't work as requested it is a bug.  For the specific issue hurting
+x86 and likely others the standard explicitly allows requiring
+PROT_READ to be used or implicitly adding it.  Don't confuse people
+with wrong statement like yours.

@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWF1S72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWF1TJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbWF1S72 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 14:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWF1S72
+	id S1750835AbWF1TJU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 15:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWF1TJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 14:59:28 -0400
-Received: from silver.veritas.com ([143.127.12.111]:18338 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751008AbWF1S71
+	Wed, 28 Jun 2006 15:09:20 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:33495 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750835AbWF1TJT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 14:59:27 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.06,189,1149490800"; 
-   d="scan'208"; a="39614282:sNHT2468820236"
-Date: Wed, 28 Jun 2006 19:59:02 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Nigel Cunningham <nigel@suspend2.net>
-cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2][ 15/20] [Suspend2] Attempt to freeze processes.
-In-Reply-To: <200606280939.02044.nigel@suspend2.net>
-Message-ID: <Pine.LNX.4.64.0606281943010.24170@blonde.wat.veritas.com>
-References: <20060626223446.4050.9897.stgit@nigel.suspend2.net>
- <20060626223537.4050.72340.stgit@nigel.suspend2.net> <20060627134514.GC3019@elf.ucw.cz>
- <200606280939.02044.nigel@suspend2.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 28 Jun 2006 18:59:25.0597 (UTC) FILETIME=[F982FCD0:01C69AE4]
+	Wed, 28 Jun 2006 15:09:19 -0400
+Date: Wed, 28 Jun 2006 14:08:22 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: please revert kthread from loop.c
+Message-ID: <20060628190822.GB17482@sergelap.austin.ibm.com>
+References: <Pine.LNX.4.64.0606261920440.1330@blonde.wat.veritas.com> <20060627054612.GA15657@sergelap.austin.ibm.com> <Pine.LNX.4.64.0606281933300.24170@blonde.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606281933300.24170@blonde.wat.veritas.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006, Nigel Cunningham wrote:
-> On Tuesday 27 June 2006 23:45, Pavel Machek wrote:
-> >
-> > Current code seems to free memory without need to thaw/re-freeze
-> > kernel threads. Have you found bugs in that, or is this unneccessary?
+Quoting Hugh Dickins (hugh@veritas.com):
+> > 	This version has passed parallel runs of the following
+> > 	script (on different devices of course), i.e.
 > 
-> Did you read my other email? Try it with a swap file on a journalled 
-> filesystem, in a situation where freeing memory will force the swap file to 
-> be used.
+> But not good for me.  Gets further e.g. 170 iterations,
+> but then hangs while kthread_stop waits for completion.
 
-Hi Nigel,
+Confounded...
 
-I may have missed your "other email" in the avalanche ;)
+> I haven't investigated further.  Is there really any reason
+> to be messing with what has worked well for so long here?
 
-That particular example sounds dubious to me: it may well have been
-a problem on 2.4, but are you sure that it's still a problem on 2.6?
+Only because loop.c can be compiled as a module, and kernel_thread
+is slated to have it's EXPORT_SYMBOL removed.
 
-Andrew very nicely rewrote the swapfile handling, to bmap the whole
-file at swapon time (see setup_swap_extents), and thereafter the only
-difference between using a swapfile and using a disk partition is that
-the swapfile blocks may be fragmented into many extents where the disk
-partition is contiguous.  Much more reliable.
-
-I don't see how your "journalled filesystem" would affect it at all.
-
-Hugh
+-serge

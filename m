@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932660AbWF1RNY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWF1RPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932660AbWF1RNY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:13:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932857AbWF1RNX
+	id S1751362AbWF1RPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWF1RPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 13:13:23 -0400
-Received: from ns2.lanforge.com ([66.165.47.211]:38788 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S932856AbWF1RNW (ORCPT
+	Wed, 28 Jun 2006 13:15:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6341 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751436AbWF1RPM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 13:13:22 -0400
-Message-ID: <44A2B7F6.8090702@candelatech.com>
-Date: Wed, 28 Jun 2006 10:10:14 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Lezcano <dlezcano@fr.ibm.com>
-CC: Kirill Korotaev <dev@sw.ru>, Andrey Savochkin <saw@swsoft.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       ebiederm@xmission.com, viro@ftp.linux.org.uk, alexey@sw.ru
-Subject: Re: [patch 3/4] Network namespaces: IPv4 FIB/routing in namespaces
-References: <20060626134945.A28942@castle.nmd.msu.ru> <20060626135250.B28942@castle.nmd.msu.ru> <20060626135427.C28942@castle.nmd.msu.ru> <449FF5AE.2040201@fr.ibm.com> <44A28964.2090006@fr.ibm.com> <20060628183015.B31885@castle.nmd.msu.ru> <44A29379.6060609@sw.ru> <44A2B4D7.9080007@fr.ibm.com>
-In-Reply-To: <44A2B4D7.9080007@fr.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jun 2006 13:15:12 -0400
+Date: Wed, 28 Jun 2006 13:15:03 -0400
+From: Dave Jones <davej@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-git broke suspend!
+Message-ID: <20060628171503.GD23396@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Jens Axboe <axboe@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <20060627181045.GA32115@suse.de> <20060627182014.GB7914@redhat.com> <20060627182646.GB32115@suse.de> <20060627183935.GC7914@redhat.com> <20060627185532.GD32115@suse.de> <20060627191125.GH7914@redhat.com> <20060628080519.GN32115@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060628080519.GN32115@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Lezcano wrote:
-> Kirill Korotaev wrote:
-> 
->>>>>> Structures related to IPv4 rounting (FIB and routing cache)
->>>>>> are made per-namespace.
->>>>
->>>>
->>>>
->>>> Hi Andrey,
->>>>
->>>> if the ressources are private to the namespace, how do you will 
->>>> handle NFS mounted before creating the network namespace ? Do you 
->>>> take care of that or simply assume you can't access NFS anymore ?
->>>
->>>
->>>
->>>
->>> This is a question that brings up another level of interaction between
->>> networking and the rest of kernel code.
->>> Solution that I use now makes the NFS communication part always run in
->>> the root namespace.  This is discussable, of course, but it's a far more
->>> complicated matter than just device lists or routing :)
->>
->>
->> if we had containers (not namespaces) then it would be also possible 
->> to run NFS in context of the appropriate container and thus each user 
->> could  mount NFS itself with correct networking context.
+On Wed, Jun 28, 2006 at 10:05:19AM +0200, Jens Axboe wrote:
+ > On Tue, Jun 27 2006, Dave Jones wrote:
+ > > On Tue, Jun 27, 2006 at 08:55:33PM +0200, Jens Axboe wrote:
+ > > 
+ > >  > > I don't see any cpufreq stuff in your dmesg at all. 
+ > >  > > Is it definitly on in the config ?
+ > >  > 
+ > >  > Strangely, now /sys/devices/system/cpu/cpu0 also seems to be empty on
+ > >  > this kernel. Wonder what is going on here...
+ > >  > 
+ > >  > CONFIG_CPU_FREQ=y
+ > >  > CONFIG_CPU_FREQ_TABLE=y
+ > >  > # CONFIG_CPU_FREQ_DEBUG is not set
+ > >  > CONFIG_CPU_FREQ_STAT=y
+ > >  > # CONFIG_CPU_FREQ_STAT_DETAILS is not set
+ > >  > CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+ > >  > # CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE is not set
+ > >  > CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+ > >  > CONFIG_CPU_FREQ_GOV_POWERSAVE=m
+ > >  > CONFIG_CPU_FREQ_GOV_USERSPACE=m
+ > >  > CONFIG_CPU_FREQ_GOV_ONDEMAND=m
+ > >  > CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
+ > > 
+ > > CONFIG_X86_SPEEDSTEP_CENTRINO too ?
+ > > 
+ > > booting with cpufreq.debug=7 should show _some_ info.
+ > > Give that a shot
+ > 
+ > Ok, foudn the problem, it was indeed a missing .config setting. I had
+ > acpi processor as =m, and apparently some of the later kernels then
+ > don't allow CPU_FREQ_ACPI_TABLES=y and just helpfully deleted the
+ > option. Fixing that up makes everything work again!
 
-With a relatively small patch, I was able to make NFS bind to a particular
-local IP (poor man's namespace with existing code).  I also changed it so
-that multiple mounts to the same destination (and with unique local mount
-points) are treated as unique mounts.  This patch was done so that I could
-stress test NFS servers, but similar logic might work for namespace isolation
-as well...
+Ouch, that's a nasty trap for someone to fall into.
+I'm glad you figured out what was happening, but I'm
+concerned that a lot of users building their own kernels
+may not be able to do the same.
 
-Ben
+Hmm, not sure what the right fix is though.
+
+		Dave
 
 -- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+http://www.codemonkey.org.uk

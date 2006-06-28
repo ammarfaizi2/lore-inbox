@@ -1,118 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWF1RkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWF1Rlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751501AbWF1RkK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWF1RkK
+	id S1751476AbWF1Rlq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWF1Rlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 13:40:10 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:51692 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1751437AbWF1RkH (ORCPT
+	Wed, 28 Jun 2006 13:41:46 -0400
+Received: from gold.veritas.com ([143.127.12.110]:34073 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751476AbWF1Rlp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 13:40:07 -0400
-Date: Wed, 28 Jun 2006 19:40:06 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andrey Savochkin <saw@swsoft.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, dlezcano@fr.ibm.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
-       dev@sw.ru, devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: Network namespaces a path to mergable code.
-Message-ID: <20060628174005.GE6440@MAIL.13thfloor.at>
-Mail-Followup-To: Andrey Savochkin <saw@swsoft.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>, dlezcano@fr.ibm.com,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	serue@us.ibm.com, haveblue@us.ibm.com, clg@fr.ibm.com,
-	Andrew Morton <akpm@osdl.org>, dev@sw.ru, devel@openvz.org,
-	sam@vilain.net, viro@ftp.linux.org.uk,
-	Alexey Kuznetsov <alexey@sw.ru>
-References: <20060626134945.A28942@castle.nmd.msu.ru> <m14py6ldlj.fsf@ebiederm.dsl.xmission.com> <20060627215859.A20679@castle.nmd.msu.ru> <m1ejx9kj1r.fsf@ebiederm.dsl.xmission.com> <20060628150605.A29274@castle.nmd.msu.ru> <m1sllpfckx.fsf@ebiederm.dsl.xmission.com> <20060628212240.A1833@castle.nmd.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060628212240.A1833@castle.nmd.msu.ru>
-User-Agent: Mutt/1.5.6i
+	Wed, 28 Jun 2006 13:41:45 -0400
+X-IronPort-AV: i="4.06,189,1149490800"; 
+   d="scan'208"; a="61006059:sNHT30620048"
+Date: Wed, 28 Jun 2006 18:41:21 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 1/5] mm: tracking shared dirty pages
+In-Reply-To: <20060627182814.20891.36856.sendpatchset@lappy>
+Message-ID: <Pine.LNX.4.64.0606281810370.16318@blonde.wat.veritas.com>
+References: <20060627182801.20891.11456.sendpatchset@lappy>
+ <20060627182814.20891.36856.sendpatchset@lappy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 28 Jun 2006 17:41:45.0002 (UTC) FILETIME=[1F94A0A0:01C69ADA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 09:22:40PM +0400, Andrey Savochkin wrote:
-> Hi Eric,
-> 
-> On Wed, Jun 28, 2006 at 10:51:26AM -0600, Eric W. Biederman wrote:
-> > Andrey Savochkin <saw@swsoft.com> writes:
-> > 
-> > > One possible option to resolve this question is to show 2
-> > > relatively short patches just introducing namespaces for sockets
-> > > in 2 ways: with explicit function parameters and using implicit
-> > > current context. Then people can compare them and vote. Do you
-> > > think it's worth the effort?
-> >
-> > Given that we have two strong opinions in different directions I
-> > think it is worth the effort to resolve this.
->
-> Do you have time to extract necessary parts of your old patch? Or you
-> aren't afraid of letting me draft an alternative version of socket
-> namespaces basing on your code? :)
->
-> > In a slightly different vein your second patch introduced a lot of
-> > #ifdef CONFIG_NET_NS in C files. That is something we need to look
-> > closely at.
-> >
-> > So I think the abstraction that we use to access per network
-> > namespace variables needs some work if we are going to allow the
-> > ability to compile out all of the namespace code. The explicit
-> > versus implicit lookup is just one dimension of that problem.
-> This is a good comment.
-> 
-> Those ifdef's mostly correspond to places where we walk over lists and
-> need to filter-out entities not belonging to a specific namespace.
-> Those places about the same in your and my implementation. We can
-> think what we can do with them. One trick that I used on several
-> occasions is net_ns_same macro which doesn't evalute its arguments if
-> CONFIG_NET_NS not defined, and thus can be used without ifdef's.
+On Tue, 27 Jun 2006, Peter Zijlstra wrote:
+> @@ -796,6 +797,44 @@ struct shrinker;
+>  extern struct shrinker *set_shrinker(int, shrinker_t);
+>  extern void remove_shrinker(struct shrinker *shrinker);
+>  
+> +#define VM_NOTIFY_NO_PROT	0x01
+> +#define VM_NOTIFY_NO_MKWRITE	0x02
+> +
+> +/*
+> + * Some shared mappigns will want the pages marked read-only
+> + * to track write events. If so, we'll downgrade vm_page_prot
+> + * to the private version (using protection_map[] without the
+> + * VM_SHARED bit).
+> + */
+> +static inline int vma_wants_writenotify(struct vm_area_struct *vma, int flags)
+> +{
+> +	unsigned int vm_flags = vma->vm_flags;
+> +
+> +	/* If it was private or non-writable, the write bit is already clear */
+> +	if ((vm_flags & (VM_WRITE|VM_SHARED)) != ((VM_WRITE|VM_SHARED)))
+> +		return 0;
+> +
+> +	/* The backer wishes to know when pages are first written to? */
+> +	if (!(flags & VM_NOTIFY_NO_MKWRITE) &&
+> +			vma->vm_ops && vma->vm_ops->page_mkwrite)
+> +		return 1;
+> +
+> +	/* The open routine did something to the protections already? */
+> +	if (!(flags & VM_NOTIFY_NO_PROT) &&
+> +			pgprot_val(vma->vm_page_prot) !=
+> +			pgprot_val(protection_map[vm_flags &
+> +				(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)]))
+> +		return 0;
 
-yes, I think almost all of those cases can be avoided
-while making the code even more readable by using
-proper preprocessor (or even inline) mechanisms
+Sorry to be such a bore, but this is far from an improvement.
 
-> Returning to implicit vs explicit function arguments, I belive that
-> implicit arguments are more promising in having zero impact on the
-> code when CONFIG_NET_NS is disabled. Functions like inet_addr_type
-> will translate into exactly the same code as they did without net
-> namespace patches.
+Try to resist adding flags to condition how a function behaves:
+there are a million places where it's necessary or accepted, but
+avoid it if you reasonably can.  And negative flags are particularly
+hard to understand ("SKIP" would have been easier than "NO").
 
-maybe a preprocessor wrapper can help here too ...
+Just separate out the pgprot_val check from vma_wants_writenotify,
+making that additional test in the case of do_mmap_pgoff.  Or if
+you prefer, go back to how you had it before, with mprotect_fixup
+making sure that that test will succeed.
 
-> > >> I'm still curious why many of those chunks can't use existing helper
-> > >> functions, to be cleaned up.
-> > >
-> > > What helper functions are you referring to?
-> > 
-> > Basically most of the device list walker functions live in.
-> > net/core/dev.c 
-> > 
-> > I don't know if the cases you fixed could have used any of those
-> > helper functions but it certainly has me asking that question.
-> > 
-> > A general pattern that happens in cleanups is the discovery
-> > that code using an old interface in a problematic way really
-> > could be done much better another way.  I didn't dig enough
-> > to see if that was the case in any of the code that you changed.
-> 
-> Well, there is obvious improvement of this kind: many protocols walk
-> over device list to find devices with non-NULL protocol specific
-> pointers. For example, IPv6, decnet and others do it on module
-> unloading to clean up. Those places just ask for some simpler standard
-> way of doing it, but I wasn't bold enough for such radical change.
+In the case of page_mkclean, I see no need for vma_wants_writenotify
+at all: you're overdesigning for some imaginary use of page_mkclean.
+Just apply to the VM_SHARED vmas, with page_mkclean_one saying
+	if (!pte_dirty(*pte) && !pte_write(*pte))
+		goto unlock;
 
-> Do you think I should try?
-
-IMHO it could not hurt to have some kind of protocol
-helper library functions or macros ...
-
-best,
-Herbert
-
-> Best regards
-> 
-> Andrey
+Hugh

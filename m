@@ -1,108 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423353AbWF1OTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423352AbWF1OTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423353AbWF1OTW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 10:19:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423357AbWF1OTS
+	id S1423352AbWF1OTG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 10:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423354AbWF1OTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 10:19:18 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:17821 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1423353AbWF1OTN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 10:19:13 -0400
-Date: Wed, 28 Jun 2006 16:19:10 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] i4l remove unneeded include/linux/isdn/tpam.h
-Message-ID: <20060628141910.GA27943@pingi.kke.suse.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+	Wed, 28 Jun 2006 10:19:05 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:6670 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S1423352AbWF1OTC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 10:19:02 -0400
+Message-ID: <20060628181900.A31885@castle.nmd.msu.ru>
+Date: Wed, 28 Jun 2006 18:19:00 +0400
+From: Andrey Savochkin <saw@swsoft.com>
+To: hadi@cyberus.ca
+Cc: Herbert Poetzl <herbert@13thfloor.at>, Alexey Kuznetsov <alexey@sw.ru>,
+       viro@ftp.linux.org.uk, sam@vilain.net, devel@openvz.org, dev@sw.ru,
+       Andrew Morton <akpm@osdl.org>, clg@fr.ibm.com, serue@us.ibm.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Daniel Lezcano <dlezcano@fr.ibm.com>,
+       Ben Greear <greearb@candelatech.com>, Dave Hansen <haveblue@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+References: <m1sllqn7cb.fsf@ebiederm.dsl.xmission.com> <20060627160241.GB28984@MAIL.13thfloor.at> <m1psgulf4u.fsf@ebiederm.dsl.xmission.com> <44A1689B.7060809@candelatech.com> <20060627225213.GB2612@MAIL.13thfloor.at> <1151449973.24103.51.camel@localhost.localdomain> <20060627234210.GA1598@ms2.inr.ac.ru> <m1mzbyj6ft.fsf@ebiederm.dsl.xmission.com> <20060628133640.GB5088@MAIL.13thfloor.at> <1151502803.5203.101.camel@jzny2>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.16.13-4-smp x86_64
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <1151502803.5203.101.camel@jzny2>; from "jamal" on Wed, Jun 28, 2006 at 09:53:23AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The TPAM isdn driver was removed in 2.6.12, but include/linux/isdn/tpam.h
-was missed.
+Hi Jamal,
 
-Signed-off-by: Karsten Keil <kkeil@suse.de>
+On Wed, Jun 28, 2006 at 09:53:23AM -0400, jamal wrote:
+> 
+> On Wed, 2006-28-06 at 15:36 +0200, Herbert Poetzl wrote:
+> 
+> > note: personally I'm absolutely not against virtualizing
+> > the device names so that each guest can have a separate
+> > name space for devices, but there should be a way to
+> > 'see' _and_ 'identify' the interfaces from outside
+> > (i.e. host or spectator context)
+> > 
+> 
+> Makes sense for the host side to have naming convention tied
+> to the guest. Example as a prefix: guest0-eth0. Would it not
+> be interesting to have the host also manage these interfaces
+> via standard tools like ip or ifconfig etc? i.e if i admin up
+> guest0-eth0, then the user in guest0 will see its eth0 going
+> up.
 
----
+Seeing guestXX-eth0 interfaces by standard tools has certain attractive
+sides.  But it creates a lot of undesired side effects.
 
- include/linux/isdn/tpam.h |   55 ---------------------------------------------
- 1 files changed, 0 insertions(+), 55 deletions(-)
- delete mode 100644 include/linux/isdn/tpam.h
+For example, ntpd queries all network devices by the same ioctls as ifconfig,
+and creates separate sockets bound to IP addresses of each device, which is
+certainly not desired with namespaces.
 
-54a748ce0ae237bd14cafc9e38316df51d55869c
-diff --git a/include/linux/isdn/tpam.h b/include/linux/isdn/tpam.h
-deleted file mode 100644
-index d18dd0d..0000000
---- a/include/linux/isdn/tpam.h
-+++ /dev/null
-@@ -1,55 +0,0 @@
--/* $Id: tpam.h,v 1.1.2.1 2001/06/08 08:23:46 kai Exp $
-- *
-- * Turbo PAM ISDN driver for Linux. (Kernel Driver)
-- *
-- * Copyright 2001 Stelian Pop <stelian.pop@fr.alcove.com>, Alc?ve
-- *
-- * For all support questions please contact: <support@auvertech.fr>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2, or (at your option)
-- * any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-- *
-- */
--
--#ifndef _TPAM_H_
--#define _TPAM_H_
--
--#include <linux/types.h>
--
--/* IOCTL commands */
--#define TPAM_CMD_DSPLOAD	0x0001
--#define TPAM_CMD_DSPSAVE	0x0002
--#define TPAM_CMD_DSPRUN		0x0003
--#define TPAM_CMD_LOOPMODEON	0x0004
--#define TPAM_CMD_LOOPMODEOFF	0x0005
--
--/* addresses of debug information zones on board */
--#define TPAM_TRAPAUDIT_REGISTER		0x005493e4
--#define TPAM_NCOAUDIT_REGISTER		0x00500000
--#define TPAM_MSGAUDIT_REGISTER		0x008E30F0
--
--/* length of debug information zones on board */
--#define TPAM_TRAPAUDIT_LENGTH		10000
--#define TPAM_NCOAUDIT_LENGTH		300000
--#define TPAM_NCOAUDIT_COUNT		30
--#define TPAM_MSGAUDIT_LENGTH		60000
--
--/* IOCTL load/save parameter */
--typedef struct tpam_dsp_ioctl {
--	__u32 address;	/* address to load/save data */
--	__u32 data_len;	/* size of data to be loaded/saved */
--	__u8 data[0];	/* data */
--} tpam_dsp_ioctl;
--
--#endif /* _TPAM_H_ */
+Or more subtle question: do you want hotplug events to be generated when
+guest0-eth0 interface comes up in the root namespace, and standard scripts
+to try to set some IP address on this interface?..
 
+In my opinion, the downside of this scheme overweights possible advantages,
+and I'm personally quite happy with running commands with switched namespace,
+like
+vzctl exec guest0 ip addr list
+vzctl exec guest0 ip link set eth0 up
+and so on.
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Best regards
+
+Andrey

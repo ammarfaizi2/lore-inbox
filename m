@@ -1,211 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWF1N5f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030503AbWF1OFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWF1N5f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 09:57:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423330AbWF1N5e
+	id S1030503AbWF1OFT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 10:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030490AbWF1OFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 09:57:34 -0400
-Received: from smtp4.poczta.interia.pl ([80.48.65.7]:7328 "EHLO
-	smtp4.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S1750877AbWF1N5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 09:57:34 -0400
-Message-ID: <44A28AA2.6060306@interia.pl>
-Date: Wed, 28 Jun 2006 15:56:50 +0200
-From: =?ISO-8859-2?Q?Rafa=B3_Bilski?= <rafalbilski@interia.pl>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Wed, 28 Jun 2006 10:05:19 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24547 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1423337AbWF1OFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 10:05:17 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Sam Vilain <sam@vilain.net>, Andrey Savochkin <saw@swsoft.com>,
+       dlezcano@fr.ibm.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, dev@sw.ru, herbert@13thfloor.at,
+       devel@openvz.org, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>, Mark Huang <mlhuang@CS.Princeton.EDU>
+Subject: Re: Network namespaces a path to mergable code.
+References: <20060626134945.A28942@castle.nmd.msu.ru>
+	<m14py6ldlj.fsf@ebiederm.dsl.xmission.com>
+	<20060627215859.A20679@castle.nmd.msu.ru>
+	<44A1AF37.3070100@vilain.net>
+	<m1ac7xkifn.fsf@ebiederm.dsl.xmission.com>
+	<44A21F7A.5030807@vilain.net>
+	<m1r719ixb6.fsf@ebiederm.dsl.xmission.com> <44A251F2.70707@fr.ibm.com>
+Date: Wed, 28 Jun 2006 08:03:41 -0600
+In-Reply-To: <44A251F2.70707@fr.ibm.com> (Cedric Le Goater's message of "Wed,
+	28 Jun 2006 11:54:58 +0200")
+Message-ID: <m1bqsdidhe.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA from Longhaul
- by rw semaphores
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
-X-EMID: 46c48acc
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	This patch will allow Longhaul cpufreq driver to change frequency
-without breaking BMDMA. In order to work properly it needs:
-- adding rw_semaphore to pci_device and bus structures - this is
-patch below,
-- Longhaul should find host bridge and lock write on bus before
-frequency change,
-- device driver support - device should lock read its bus before
-starting DMA transfer. I have curently implemented this for ide
-layer (tested with via82cxxx), libata (not tested, but this is similar
-code to ide) and VIA Rhine network card driver.
-	I don't know if this is acceptable infrastructure, but I hope it is
-less horrible then last. Is this infrastructure at all?
+Cedric Le Goater <clg@fr.ibm.com> writes:
 
-	This patch is adding 2 functions to pci structures: "acquire" and
-"release". Driver calls "acquire" before starting transfer, with
-PCI_ACQUIRE_EXCLUSIVE if it needs exclusive access to device (bus is
-always PCI_ACQUIRE_SHARED) or with PCI_ACQUIRE_SHARED if device have
-own hardware queue. Ide and libata are using PCI_ACQUIRE_EXCLUSIVE.
-VIA Rhine driver is using PCI_ACQUIRE_SHARED.
-	Note: "acquire" may sleep. But in Linux 2.6 we can use
-workqueues and I'm using them.
+> Eric W. Biederman wrote:
+>
+>> Despite what it might look like unix domain sockets do not live in the
+>> filesystem.  They store a cookie in the filesystem that roughly
+>> corresponds to the port number of an AF_INET socket.  When you open a
+>> socket the lookup is done by the cookie retrieved from the filesystem.
+>
+> unix domain socket lookup uses a path_lookup for sockets in the filesystem
+> namespace and a find_by_name for socket in the abstract namespace.
 
-Signed-off-by: Rafa³ Bilski <rafalbilski@interia.pl>
+Right.  And the abstract namespace does nothing with the current
+filesystem.
 
----
+>> So except for their cookies unix domain sockets are always in the
+>> network stack.
+>
+> what is that cookie ? the file dentry and mnt ref ?
 
-diff -uprN -X linux-2.6.17-vanilla/Documentation/dontdiff linux-2.6.17-vanilla/drivers/pci/probe.c linux-2.6.17/drivers/pci/probe.c
---- linux-2.6.17-vanilla/drivers/pci/probe.c	2006-06-18 03:49:35.000000000 +0200
-+++ linux-2.6.17/drivers/pci/probe.c	2006-06-28 09:03:20.000000000 +0200
-@@ -9,6 +9,7 @@
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <linux/cpumask.h>
-+#include <linux/rwsem.h>
- #include "pci.h"
- 
- #define CARDBUS_LATENCY_TIMER	176	/* secondary latency timer */
-@@ -315,6 +316,34 @@ void __devinit pci_read_bridge_bases(str
- 	}
- }
- 
-+/**
-+ * Generic bus locking
-+ */
-+
-+#ifdef CONFIG_X86_LONGHAUL
-+static void pci_bus_acquire(struct pci_bus *bus, int flags)
-+{
-+	if (bus->parent && bus->parent->acquire)
-+		bus->parent->acquire(bus->parent, PCI_ACQUIRE_SHARED);
-+	if (flags & PCI_ACQUIRE_EXCLUSIVE) {
-+		down_write(&bus->access_sem);
-+	} else {
-+		down_read(&bus->access_sem);
-+	}
-+}
-+
-+static void pci_bus_release(struct pci_bus *bus, int flags)
-+{
-+	if (flags & PCI_ACQUIRE_EXCLUSIVE) {
-+		up_write(&bus->access_sem);
-+	} else {
-+		up_read(&bus->access_sem);
-+	}
-+	if (bus->parent && bus->parent->release)
-+		bus->parent->release(bus->parent, PCI_ACQUIRE_SHARED);
-+}
-+#endif
-+
- static struct pci_bus * __devinit pci_alloc_bus(void)
- {
- 	struct pci_bus *b;
-@@ -324,6 +353,12 @@ static struct pci_bus * __devinit pci_al
- 		INIT_LIST_HEAD(&b->node);
- 		INIT_LIST_HEAD(&b->children);
- 		INIT_LIST_HEAD(&b->devices);
-+
-+#ifdef CONFIG_X86_LONGHAUL
-+		init_rwsem(&b->access_sem);
-+		b->acquire = &pci_bus_acquire;
-+	    	b->release = &pci_bus_release;
-+#endif
- 	}
- 	return b;
- }
-@@ -622,6 +657,34 @@ static void pci_read_irq(struct pci_dev 
- }
- 
- /**
-+ * Generic device locking
-+ */
-+
-+#ifdef CONFIG_X86_LONGHAUL
-+static void pci_generic_acquire(struct pci_dev *dev, int flags)
-+{
-+	if (dev->bus && dev->bus->acquire)
-+		dev->bus->acquire(dev->bus, PCI_ACQUIRE_SHARED);
-+	if (flags & PCI_ACQUIRE_EXCLUSIVE) {
-+		down_write(&dev->access_sem);
-+	} else {
-+		down_read(&dev->access_sem);
-+	}
-+}
-+
-+static void pci_generic_release(struct pci_dev *dev, int flags)
-+{
-+	if (flags & PCI_ACQUIRE_EXCLUSIVE) {
-+		up_write(&dev->access_sem);
-+	} else {
-+		up_read(&dev->access_sem);
-+	}
-+	if (dev->bus && dev->bus->release)
-+		dev->bus->release(dev->bus, PCI_ACQUIRE_SHARED);
-+}
-+#endif
-+
-+/**
-  * pci_setup_device - fill in class and map information of a device
-  * @dev: the device structure to fill
-  *
-@@ -638,6 +701,11 @@ static int pci_setup_device(struct pci_d
- 	sprintf(pci_name(dev), "%04x:%02x:%02x.%d", pci_domain_nr(dev->bus),
- 		dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
- 
-+#ifdef CONFIG_X86_LONGHAUL
-+	init_rwsem(&dev->access_sem);
-+	dev->acquire = &pci_generic_acquire;
-+	dev->release = &pci_generic_release;
-+#endif
- 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class);
- 	class >>= 8;				    /* upper 3 bytes */
- 	dev->class = class;
-diff -uprN -X linux-2.6.17-vanilla/Documentation/dontdiff linux-2.6.17-vanilla/include/linux/pci.h linux-2.6.17/include/linux/pci.h
---- linux-2.6.17-vanilla/include/linux/pci.h	2006-06-18 03:49:35.000000000 +0200
-+++ linux-2.6.17/include/linux/pci.h	2006-06-28 08:49:46.000000000 +0200
-@@ -52,6 +52,7 @@
- #include <linux/list.h>
- #include <linux/errno.h>
- #include <linux/device.h>
-+#include <linux/rwsem.h>
- 
- /* File state for mmap()s on /proc/bus/pci/X/Y */
- enum pci_mmap_state {
-@@ -169,6 +170,13 @@ struct pci_dev {
- 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
- 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
- 	struct bin_attribute *res_attr[DEVICE_COUNT_RESOURCE]; /* sysfs file for resources */
-+#ifdef CONFIG_X86_LONGHAUL
-+	struct rw_semaphore	access_sem;	/* Access control to device */
-+	void (*acquire) (struct pci_dev *dev, int flags);
-+	void (*release) (struct pci_dev *dev, int flags);
-+#define PCI_ACQUIRE_SHARED		0
-+#define PCI_ACQUIRE_EXCLUSIVE		(1 << 0)
-+#endif
- };
- 
- #define pci_dev_g(n) list_entry(n, struct pci_dev, global_list)
-@@ -226,7 +234,6 @@ struct pci_bus {
- 	struct pci_dev	*self;		/* bridge device as seen by parent */
- 	struct resource	*resource[PCI_BUS_NUM_RESOURCES];
- 					/* address space routed to this bus */
--
- 	struct pci_ops	*ops;		/* configuration access functions */
- 	void		*sysdata;	/* hook for sys-specific extension */
- 	struct proc_dir_entry *procdir;	/* directory entry in /proc/bus/pci */
-@@ -244,6 +251,11 @@ struct pci_bus {
- 	struct class_device	class_dev;
- 	struct bin_attribute	*legacy_io; /* legacy I/O for this bus */
- 	struct bin_attribute	*legacy_mem; /* legacy mem */
-+#ifdef CONFIG_X86_LONGHAUL
-+	struct rw_semaphore	access_sem;	/* Access control to bus */
-+	void (*acquire) (struct pci_bus *bus, int flags);
-+	void (*release) (struct pci_bus *bus, int flags);
-+#endif
- };
- 
- #define pci_bus_b(n)	list_entry(n, struct pci_bus, node)
+The socket entry in the filesystem but really the socket
+inode number in that entry.  This entry has nothing to with dentry's
+or mount refs so if I read the correctly every path to that socket
+should yield the same entry.
 
+> so, ok, the resulting struct sock is part of the network namespace but
+> there is a bridge with the filesystem namespace which does not prevent
+> other namespaces to do a lookup. the lookup routine needs to be changed,
+> this is any way necessary for the abstract namespace.
 
+Yep.
 
+> I think we're reaching the limits of namespaces. It would be much easier
+> with a container id in each kernel object we want to isolate.
 
-----------------------------------------------------------------------
-PS. Fajny portal... >>> http://link.interia.pl/f196a
+Nope.  Except for the fact that names are peculiar (sockets, network
+device names, IP address, routes...) the network stack splits quite cleanly.
 
+I did all of this in a proof of concept mode several months ago and
+the code is still sitting in my git tree on kernel.org.  I even got
+the generic stack reference counting fixed.
+
+Eric

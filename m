@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWF1QoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWF1QpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWF1QoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 12:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWF1QoZ
+	id S1751377AbWF1QpE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 12:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWF1QpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 12:44:25 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:18819 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751347AbWF1QoY
+	Wed, 28 Jun 2006 12:45:01 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:21988 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751361AbWF1QpA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 12:44:24 -0400
-Date: Wed, 28 Jun 2006 09:42:30 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, torvalds@osdl.org,
-       Ben Collins <bcollins@ubuntu.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Justin Forbes <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Robert Hancock <hancockr@shaw.ca>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Jody McIntyre <scjody@modernduck.com>,
-       Chuck Wolber <chuckw@quantumlinux.com>, stable@kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [stable] Re: [PATCH 18/25] ohci1394: Fix broken suspend/resume in ohci1394
-Message-ID: <20060628164230.GN11588@sequoia.sous-sol.org>
-References: <20060627200745.771284000@sous-sol.org> <20060627201539.350588000@sous-sol.org> <44A1AC3D.6080801@s5r6.in-berlin.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A1AC3D.6080801@s5r6.in-berlin.de>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 28 Jun 2006 12:45:00 -0400
+Message-ID: <44A2B200.4010206@zytor.com>
+Date: Wed, 28 Jun 2006 09:44:48 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       klibc@zytor.com
+Subject: Re: [klibc 07/31] i386 support for klibc
+References: <klibc.200606272217.00@tazenda.hos.anvin.org> <klibc.200606272217.07@tazenda.hos.anvin.org> <Pine.LNX.4.61.0606280937150.29068@yvahk01.tjqt.qr> <44A2A147.9020501@zytor.com>
+In-Reply-To: <44A2A147.9020501@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stefan Richter (stefanr@s5r6.in-berlin.de) wrote:
-> This patch is OK. (Although unlike one might expect from reading the 
-> patch title, there is still a lot to do for full suspend/resume 
-> functionality in ohci1394.) Just FYI, here is my reply to Robert's 
-> initial patch submission:
+H. Peter Anvin wrote:
+> Jan Engelhardt wrote:
+>>> usr/klibc/arch/i386/libgcc/__ashldi3.S   |   29 +++++++
+>>> usr/klibc/arch/i386/libgcc/__ashrdi3.S   |   29 +++++++
+>>> usr/klibc/arch/i386/libgcc/__lshrdi3.S   |   29 +++++++
+>>> usr/klibc/arch/i386/libgcc/__muldi3.S    |   34 ++++++++
+>>> usr/klibc/arch/i386/libgcc/__negdi2.S    |   21 +++++
+>>
+>> No divdi3?
+> 
+> The i386 ones are a bit special... usually the reason I have added 
+> libgcc functions is that on some architectures, gcc has various problems 
+> linking with libgcc in some configurations.  That is not the case on 
+> i386, but some of the libgcc functions are *way* bigger than the need to 
+> be (overall, the quality of code in libgcc seems horrid, across 
+> architectures.)
+> 
+> Since i386 is such an important architecture I added a handful of 
+> assembly functions for stuff that could be done in a very small amount 
+> of space.
+> 
 
-I see, thanks for the extra info.
+Correction... divdi3, moddi3, udivdi3, umoddi3 and udivmoddi4 are also 
+provided, but are implemented as generic subroutines in C instead of 
+assembly:
 
-thanks,
--chris
+KLIBCARCHOBJS = \
+         arch/$(KLIBCARCH)/socketcall.o \
+         arch/$(KLIBCARCH)/setjmp.o \
+         arch/$(KLIBCARCH)/syscall.o \
+         arch/$(KLIBCARCH)/varsyscall.o \
+         arch/$(KLIBCARCH)/open.o \
+         arch/$(KLIBCARCH)/openat.o \
+         arch/$(KLIBCARCH)/sigreturn.o \
+         arch/$(KLIBCARCH)/vfork.o \
+         arch/$(KLIBCARCH)/libgcc/__ashldi3.o \
+         arch/$(KLIBCARCH)/libgcc/__ashrdi3.o \
+         arch/$(KLIBCARCH)/libgcc/__lshrdi3.o \
+         arch/$(KLIBCARCH)/libgcc/__muldi3.o \
+         arch/$(KLIBCARCH)/libgcc/__negdi2.o \
+         libgcc/__divdi3.o \
+         libgcc/__moddi3.o \
+         libgcc/__udivdi3.o \
+         libgcc/__umoddi3.o \
+         libgcc/__udivmoddi4.o
+
+It probably would be more efficient if i386's native division 
+instructions could be exploited, but it hasn't been a pressing issue.
+
+	-hpa

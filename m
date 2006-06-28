@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423285AbWF1LrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423283AbWF1LsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423285AbWF1LrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 07:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423286AbWF1LrJ
+	id S1423283AbWF1LsS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 07:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423287AbWF1LsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 07:47:09 -0400
-Received: from styx.suse.cz ([82.119.242.94]:39098 "EHLO elijah.suse.cz")
-	by vger.kernel.org with ESMTP id S1423285AbWF1LrI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 07:47:08 -0400
-Subject: Re: Kernel API Reference Documentation
-From: Petr Tesarik <ptesarik@suse.cz>
-To: Lukas Jelinek <info@kernel-api.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44A1858B.9080102@kernel-api.org>
-References: <44A1858B.9080102@kernel-api.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: SuSE CR
-Date: Wed, 28 Jun 2006 13:47:05 +0200
-Message-Id: <1151495225.8127.68.camel@elijah.suse.cz>
+	Wed, 28 Jun 2006 07:48:17 -0400
+Received: from aa003msr.fastwebnet.it ([85.18.95.66]:41382 "EHLO
+	aa003msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1423283AbWF1LsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 07:48:17 -0400
+Date: Wed, 28 Jun 2006 13:48:04 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: "Dmitry Torokhov" <dtor_core@ameritech.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: broken auto-repeat on PS/2 keyboard
+Message-ID: <20060628134804.681a2fb0@localhost>
+In-Reply-To: <20060628133630.e7e1f754.khali@linux-fr.org>
+References: <20060627162733.551f844f@localhost>
+	<d120d5000606271034l693567a3r23d892204d5fd3f7@mail.gmail.com>
+	<20060628133630.e7e1f754.khali@linux-fr.org>
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-27 at 21:22 +0200, Lukas Jelinek wrote:
-> Hello,
+On Wed, 28 Jun 2006 13:36:30 +0200
+Jean Delvare <khali@linux-fr.org> wrote:
+
+> Hi Dmitry,
 > 
-> a few months ago I looked for something like "Linux Kernel API Reference
-> Documentation". This search was unsuccessful and somebody recommended me
-> to generate this documentation from the kernel headers.
+> > > with current git kernel keyboard repeat for my plain PS/2 keyboard
+> > > stopped working.
+> > >
+> > > Reverting
+> > >        0ae051a19092d36112b5ba60ff8b5df7a5d5d23b
+> > >
+> > > fixes the problem...
+> > 
+> > Thank you for identifying the problem commit. Please try the attached
+> > patch, it should fix the problem.
 > 
-> I have used Doxygen for this work. But the headers have needed to be
-> preprocessed by 'sed' using some regexp rules (due to various
-> incompatible comment formats).
-> 
-> Now I decide to share the result worldwide. The current generated
-> "Kernel API Reference" can be found at http://www.kernel-api.org.
-> Although it is very buggy this time I think it may be useful for module
-> developers.
+> Fixed it for me as well, thanks! Can this fix be pushed upstream now?
 
-I looked at
-http://www.kernel-api.org/docs/online/2.6.17/da/dab/structsk__buff.html
+http://groups.google.it/group/linux.kernel/browse_frm/thread/17700355fcda1923/05f38a40a23d0ef1?lnk=st&q=group%3Alinux.kernel+author%3ADmitry&rnum=1&hl=en#05f38a40a23d0ef1
 
-and you apparently ignore kernel-doc for structs. Cf.
-include/linux/skbuff.h:177 ff.
-
-Regards,
-Petr Tesarik
-
+-- 
+	Paolo Ornati
+	Linux 2.6.17-ga39727f2-dirty on x86_64

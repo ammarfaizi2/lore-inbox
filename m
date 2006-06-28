@@ -1,79 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932820AbWF1Oww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932818AbWF1Ow4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932820AbWF1Oww (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 10:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932818AbWF1Oww
+	id S932818AbWF1Ow4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 10:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932823AbWF1Owz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 10:52:52 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43982 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932809AbWF1Owu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 10:52:50 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Herbert Poetzl <herbert@13thfloor.at>,
-       Ben Greear <greearb@candelatech.com>,
-       Daniel Lezcano <dlezcano@fr.ibm.com>, Andrey Savochkin <saw@swsoft.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-       devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-References: <20060626192751.A989@castle.nmd.msu.ru>
-	<44A00215.2040608@fr.ibm.com>
-	<20060627131136.B13959@castle.nmd.msu.ru>
-	<44A0FBAC.7020107@fr.ibm.com>
-	<20060627133849.E13959@castle.nmd.msu.ru>
-	<44A1149E.6060802@fr.ibm.com>
-	<m1sllqn7cb.fsf@ebiederm.dsl.xmission.com>
-	<20060627160241.GB28984@MAIL.13thfloor.at>
-	<m1psgulf4u.fsf@ebiederm.dsl.xmission.com>
-	<44A1689B.7060809@candelatech.com>
-	<20060627225213.GB2612@MAIL.13thfloor.at>
-	<1151449973.24103.51.camel@localhost.localdomain>
-Date: Wed, 28 Jun 2006 08:51:33 -0600
-In-Reply-To: <1151449973.24103.51.camel@localhost.localdomain> (Dave Hansen's
-	message of "Tue, 27 Jun 2006 16:12:52 -0700")
-Message-ID: <m1mzbxgwp6.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 28 Jun 2006 10:52:55 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:5868 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S932817AbWF1Owx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 10:52:53 -0400
+Date: Wed, 28 Jun 2006 16:52:51 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, serue@us.ibm.com
+Subject: Re: [PATCH 00/20] Mount writer count and read-only bind mounts (v3)
+Message-ID: <20060628145251.GF5572@MAIL.13thfloor.at>
+Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	viro@ftp.linux.org.uk, serue@us.ibm.com
+References: <20060627221436.77CCB048@localhost.localdomain> <20060627183822.667d9d49.akpm@osdl.org> <1151459436.24103.70.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1151459436.24103.70.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
+On Tue, Jun 27, 2006 at 06:50:36PM -0700, Dave Hansen wrote:
+> On Tue, 2006-06-27 at 18:38 -0700, Andrew Morton wrote:
+> > On Tue, 27 Jun 2006 15:14:36 -0700
+> > > One note: the previous patches all worked this way:
+> > > 
+> > > 	mount --bind -o ro /source /dest
+> > > 
+> > > These patches have changed that behavior.  It now requires two steps:
+> > > 
+> > > 	mount --bind /source /dest
+> > > 	mount -o remount,ro  /dest
+> > 
+> > That seems a step backwards.
+> 
+> It is, in a way.  But, it keeps the bind mounting process itself a much
+> simpler operation in the kernel.  The --bind operation itself stays just
+> a matter of copying a vfsmount.  Otherwise, you end up trying to manage
+> a bunch of state transitions if, for instance, the source vfsmount is
+> r/w and the bind is requested to be r/o.
 
-> On Wed, 2006-06-28 at 00:52 +0200, Herbert Poetzl wrote:
->> seriously, what I think Eric meant was that it
->> might be nice (especially for migration purposes)
->> to keep the device namespace completely virtualized
->> and not just isolated ...
->
-> It might be nice, but it is probably unneeded for an initial
-> implementation.  In practice, a cluster doing
-> checkpoint/restart/migration will already have a system in place for
-> assigning unique IPs or other identifiers to each container.  It could
-> just as easily make sure to assign unique network device names to
-> containers.
->
-> The issues really only come into play when you have an unstructured set
-> of machines and you want to migrate between them without having prepared
-> them with any kind of unique net device names beforehand.
->
-> It may look weird, but do application really *need* to see eth0 rather
-> than eth858354?
+the actual issue is that the sys_mount() only allows
+to pass 'positive' flags, and not 'negative' ones
+(i.e. you can add flags, but you cannot remove flags
+on a mount) which makes is somewhat complicated to
+handle, especially with rbind mounts which would
+replace/apply the given flags to _all_ vfsmounts
 
-Actually there is a very practical reason we don't need to preserve device
-names across a migration event between machines, is the only sane thing
-to do is to generate a hotplug event that says you have removed the old
-interface and added a new interface.
+IMHO the best solution would be to have a new syscall
+sys_mount2(), which passes a flag set to be added
+and another one to be removed, but I doubt that will
+be accepted ... 
 
-My expectation is that during migration you will wind up with add and
-remove events for all of your hardware devices.  But most applications
-because they do not access hardware devices directly will not care.
+> Plus, the previous behavior was only established by the original
+> out-of-tree patches from vserver.  
 
-I haven't looked closely but I suspect this is one area where a container
-style approach will be noticeably different from a Xen or Vmware style
-approach.
+> Herbert, this doesn't cause you too much of a headache, right?
 
-Eric
+ah, no, I'm used to "we want A", "here is A", "no
+we actually want B", "okay here is B", "no, no, you
+got it wrong, make it C", "hrmp, okay here is C",
+"sorry C is not acceptable, maybe A would be a good
+alternative?" :)
+
+> > > Since the last revision, the locking in faccessat() and
+> > > mnt_is_readonly() has been changed to fix a race which might have
+> > > caused a false-negative mount-is-readonly return when faccessat()
+> > > is called while another two processes are racing to make a mount
+> > > readonly.
+> > > 
+> > umm, what's it all for?
+> 
+> Mostly for vserver, for now.  They allow a filesystem to be r/w, but
+> have r/o views into it.  This is really handy so that every vserver can
+> use a common install but still allow the administrator to update it.
+
+although it is used in Linux-VServer and similar
+setups on a regular basis, many folks not using that
+consider it useful too, here are a few scenarios:
+
+ - you want to enhance security by making certain
+   parts of your filesystem read-only e.g.
+   /etc /usr /sbin ... but you do not want to have
+   separate filesystems for that
+
+ - you have certain areas e.g. /var/spool/mail
+   where you do not want atime to be recorded, but
+   you do not want to disable it for the entire
+   filesystem
+
+ - you want to share a directory with other users
+   in a read only manner (but you ahve to feed the
+   data into that dir (somehow)
+
+HTC,
+Herbert
+
+> -- Dave

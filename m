@@ -1,53 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423200AbWF1HyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030468AbWF1H4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423200AbWF1HyE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 03:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030471AbWF1HyE
+	id S1030468AbWF1H4S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 03:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWF1H4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 03:54:04 -0400
-Received: from mx2.suse.de ([195.135.220.15]:17623 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030468AbWF1HyD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 03:54:03 -0400
-Message-ID: <44A23598.4020108@suse.de>
-Date: Wed, 28 Jun 2006 09:54:00 +0200
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Wed, 28 Jun 2006 03:56:18 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:45585 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1030468AbWF1H4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 03:56:17 -0400
+Date: Wed, 28 Jun 2006 09:55:22 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Keith Owens <kaos@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cpu_up not called for boot cpu
+Message-ID: <20060628075522.GB9452@osiris.boeblingen.de.ibm.com>
+References: <8054.1151466063@kao2.melbourne.sgi.com>
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Gerd Hoffmann <kraxel@suse.de>, Andi Kleen <ak@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] x86_64: x86_64 version of the smp alternative patch.
-References: <200606261900.k5QJ0k9J028243@hera.kernel.org> <20060627175741.GF1280@redhat.com>
-In-Reply-To: <20060627175741.GF1280@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8054.1151466063@kao2.melbourne.sgi.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This has one behaviour slightly different to the i386 version however.
-> If you boot an SMP machine it does this..
-> 
-> SMP: Allowing 4 CPUs, 2 hotplug CPUs
-> Initializing CPU#0
-> CPU: Physical Processor ID: 0
-> CPU: Processor Core ID: 0
-> CPU0: Thermal monitoring enabled (TM1)
-> SMP alternatives: switching to UP code
-> ..
-> SMP alternatives: switching to SMP code
-> Booting processor 1/2 APIC 0x1
-> Initializing CPU#1
+On Wed, Jun 28, 2006 at 01:41:03PM +1000, Keith Owens wrote:
+> cpu_up() is only called for secondary cpus, not for the boot cpu.  That
+> means that code hooked into the cpu_chain notifier never gets called
+> for the boot cpu, which prevents additional subsystems from taking
+> action for the boot cpu.  So how are additional subsystems meant to be
+> initialised for the boot cpu?
 
-i386 shows the same behavior btw, but with CPU_HOTPLUG=y only.  "booting
-the second CPU" is just a special case of "plugging in a CPU" then, that
-is where the double-switch comes from.
-
-cheers,
-
-  Gerd
-
--- 
-Gerd Hoffmann <kraxel@suse.de>
-http://www.suse.de/~kraxel/julika-dora.jpeg
+Looks like you need to add your subsystem's call to do_pre_smp_initcalls().

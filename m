@@ -1,60 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932831AbWF1O5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932817AbWF1O6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932831AbWF1O5r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 10:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932823AbWF1O5r
+	id S932817AbWF1O6k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 10:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932822AbWF1O6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 10:57:47 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38378 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932285AbWF1O5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 10:57:46 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>, Sam Vilain <sam@vilain.net>,
-       Andrey Savochkin <saw@swsoft.com>, dlezcano@fr.ibm.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       haveblue@us.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-       herbert@13thfloor.at, devel@openvz.org, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>, Mark Huang <mlhuang@CS.Princeton.EDU>
-Subject: Re: Network namespaces a path to mergable code.
-References: <20060626134945.A28942@castle.nmd.msu.ru>
-	<m14py6ldlj.fsf@ebiederm.dsl.xmission.com>
-	<20060627215859.A20679@castle.nmd.msu.ru>
-	<44A1AF37.3070100@vilain.net>
-	<m1ac7xkifn.fsf@ebiederm.dsl.xmission.com>
-	<44A21F7A.5030807@vilain.net>
-	<m1r719ixb6.fsf@ebiederm.dsl.xmission.com> <44A251F2.70707@fr.ibm.com>
-	<m1bqsdidhe.fsf@ebiederm.dsl.xmission.com>
-	<20060628141539.GA32736@sergelap.austin.ibm.com>
-Date: Wed, 28 Jun 2006 08:56:26 -0600
-In-Reply-To: <20060628141539.GA32736@sergelap.austin.ibm.com> (Serge
-	E. Hallyn's message of "Wed, 28 Jun 2006 09:15:39 -0500")
-Message-ID: <m1irmlgwh1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jun 2006 10:58:40 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:65434 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932817AbWF1O6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 10:58:38 -0400
+Subject: [RFC][PATCH] mm: fixup do_wp_page()
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606231933060.7524@blonde.wat.veritas.com>
+References: <20060619175243.24655.76005.sendpatchset@lappy>
+	 <20060619175253.24655.96323.sendpatchset@lappy>
+	 <Pine.LNX.4.64.0606222126310.26805@blonde.wat.veritas.com>
+	 <1151019590.15744.144.camel@lappy>
+	 <Pine.LNX.4.64.0606231933060.7524@blonde.wat.veritas.com>
+Content-Type: text/plain
+Date: Wed, 28 Jun 2006 16:58:31 +0200
+Message-Id: <1151506711.5383.24.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
+On Fri, 2006-06-23 at 20:06 +0100, Hugh Dickins wrote:
 
-> Quoting Eric W. Biederman (ebiederm@xmission.com):
->> > I think we're reaching the limits of namespaces. It would be much easier
->> > with a container id in each kernel object we want to isolate.
->> 
->> Nope.  Except for the fact that names are peculiar (sockets, network
->> device names, IP address, routes...) the network stack splits quite cleanly.
->> 
->> I did all of this in a proof of concept mode several months ago and
->> the code is still sitting in my git tree on kernel.org.  I even got
->> the generic stack reference counting fixed.
->> 
->> Eric
->
-> Which branch?
+> But grrr, sigh, damn, argh - I now realize it's right to the first
+> order (normal case) and to the second order (ptrace poke), but not
+> to the third order (ptrace poke anon page here to be COWed -
+> perhaps can't occur without intervening mprotects).
+> 
+> That's not an issue for you at all (there are other places which
+> are inconsistent on whether such pages are private or shared e.g.
+> copy_one_pte does not wrprotect them), but could be a problem for
+> David's page_mkwrite - there's a danger of passing it an anonymous
+> page, which (depending on what the ->page_mkwrite actually does)
+> could go seriously wrong.
+> 
+> I guess it ought to be restructured
+> 	if (PageAnon(old_page)) {
+> 		...
+> 	} else if (shared writable vma) {
+> 		...
+> 	}
+> and a patch to do that should precede your dirty page patches
+> (and the only change your dirty page patches need add here on top
+> of that would be the dirty_page = old_page, get_page(dirty_page)).
+> 
+> Oh, it looks like Linus is keen to go ahead with your patches in
+> 2.6.18, so in that case it'll be easier to go ahead with the patch
+> as you have it, and fix up this order-3 issue on top afterwards -
+> it's not something testers are going to be hitting every day,
+> especially without any ->page_mkwrite implementations.
 
-It should be the proof-of-concept branch.  It is a development branch so the
-history is ugly but the result was fairly decent.
+How about something like this? This should make all anonymous write
+faults do as before the page_mkwrite patch.
 
-Eric
+As for copy_one_pte(), I'm not sure what you meant, shared writable
+anonymous pages need not be write protected as far as I can see.
+If you meant to say, anonymous or file-backed, then copy_one_pte() still
+does the right thing. If the source is untouched/clean it will still be
+wrprotected and this state will be copied, if its dirtied and made
+writeable we don't need the notification anymore anyway and hence the
+regular copy is still correct.
+
+Peter
+
+---
+ mm/memory.c |   19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+Index: linux-2.6-dirty/mm/memory.c
+===================================================================
+--- linux-2.6-dirty.orig/mm/memory.c	2006-06-28 13:16:15.000000000 +0200
++++ linux-2.6-dirty/mm/memory.c	2006-06-28 16:18:51.000000000 +0200
+@@ -1466,11 +1466,21 @@ static int do_wp_page(struct mm_struct *
+ 		goto gotten;
+ 
+ 	/*
+-	 * Only catch write-faults on shared writable pages, read-only
+-	 * shared pages can get COWed by get_user_pages(.write=1, .force=1).
++	 * Take out anonymous pages first, anonymous shared vmas are
++	 * not accountable.
+ 	 */
+-	if (unlikely((vma->vm_flags & (VM_WRITE|VM_SHARED)) ==
++	if (PageAnon(old_page)) {
++		if (!TestSetPageLocked(old_page)) {
++			reuse = can_share_swap_page(old_page);
++			unlock(old_page);
++		}
++	} else if (unlikely((vma->vm_flags & (VM_WRITE|VM_SHARED)) ==
+ 					(VM_WRITE|VM_SHARED))) {
++		/*
++		 * Only catch write-faults on shared writable pages,
++		 * read-only shared pages can get COWed by
++		 * get_user_pages(.write=1, .force=1).
++		 */
+ 		if (vma->vm_ops && vma->vm_ops->page_mkwrite) {
+ 			/*
+ 			 * Notify the address space that the page is about to
+@@ -1502,9 +1512,6 @@ static int do_wp_page(struct mm_struct *
+ 		dirty_page = old_page;
+ 		get_page(dirty_page);
+ 		reuse = 1;
+-	} else if (PageAnon(old_page) && !TestSetPageLocked(old_page)) {
+-		reuse = can_share_swap_page(old_page);
+-		unlock_page(old_page);
+ 	}
+ 
+ 	if (reuse) {
+
+

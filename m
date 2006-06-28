@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423343AbWF1ORz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423355AbWF1OTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423343AbWF1ORz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 10:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423348AbWF1ORy
+	id S1423355AbWF1OTS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 10:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423356AbWF1OTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 10:17:54 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:3771 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1423343AbWF1ORx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 10:17:53 -0400
-Date: Wed, 28 Jun 2006 16:17:47 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] s390: remove export of sys_call_table
-Message-ID: <20060628141747.GD14375@skybase>
-MIME-Version: 1.0
+	Wed, 28 Jun 2006 10:19:17 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:61931 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1423354AbWF1OTN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 10:19:13 -0400
+Date: Wed, 28 Jun 2006 16:19:12 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Daniel Lezcano <dlezcano@fr.ibm.com>
+Cc: Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
+       devel@openvz.org, sam@vilain.net, ebiederm@xmission.com,
+       viro@ftp.linux.org.uk
+Subject: Re: [patch 3/4] Network namespaces: IPv4 FIB/routing in namespaces
+Message-ID: <20060628141912.GC5572@MAIL.13thfloor.at>
+Mail-Followup-To: Daniel Lezcano <dlezcano@fr.ibm.com>,
+	Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+	clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
+	devel@openvz.org, sam@vilain.net, ebiederm@xmission.com,
+	viro@ftp.linux.org.uk
+References: <20060626134945.A28942@castle.nmd.msu.ru> <20060626135250.B28942@castle.nmd.msu.ru> <20060626135427.C28942@castle.nmd.msu.ru> <449FF5AE.2040201@fr.ibm.com> <44A28964.2090006@fr.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <44A28964.2090006@fr.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+On Wed, Jun 28, 2006 at 03:51:32PM +0200, Daniel Lezcano wrote:
+> Daniel Lezcano wrote:
+> >Andrey Savochkin wrote:
+> >
+> >>Structures related to IPv4 rounting (FIB and routing cache)
+> >>are made per-namespace.
+> 
+> Hi Andrey,
+> 
+> if the ressources are private to the namespace, how do you will 
+> handle NFS mounted before creating the network namespace ? 
+> Do you take care of that or simply assume you can't access NFS anymore ?
 
-[S390] remove export of sys_call_table
+considering that many providers put their guests
+on NFS (or similar) filers, and run them on nodes
+(for distributing the CPU load), that is indeed an
+interesting question ...
 
-Remove export of the sys_call_table symbol to prevent the misuse of it.
+what will happen to AOE or iSCSI btw?
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+best,
+Herbert
 
- arch/s390/kernel/entry.S   |    1 -
- arch/s390/kernel/entry64.S |    2 --
- 2 files changed, 3 deletions(-)
-
-diff -urpN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-patched/arch/s390/kernel/entry64.S
---- linux-2.6/arch/s390/kernel/entry64.S	2006-06-28 16:16:28.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/entry64.S	2006-06-28 16:16:43.000000000 +0200
-@@ -993,7 +993,6 @@ cleanup_io_leave_insn:
-                .quad  __critical_end
- 
- #define SYSCALL(esa,esame,emu)	.long esame
--	.globl  sys_call_table
- sys_call_table:
- #include "syscalls.S"
- #undef SYSCALL
-@@ -1001,7 +1000,6 @@ sys_call_table:
- #ifdef CONFIG_COMPAT
- 
- #define SYSCALL(esa,esame,emu)	.long emu
--	.globl  sys_call_table_emu
- sys_call_table_emu:
- #include "syscalls.S"
- #undef SYSCALL
-diff -urpN linux-2.6/arch/s390/kernel/entry.S linux-2.6-patched/arch/s390/kernel/entry.S
---- linux-2.6/arch/s390/kernel/entry.S	2006-06-28 16:16:28.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/entry.S	2006-06-28 16:16:43.000000000 +0200
-@@ -1019,7 +1019,6 @@ cleanup_io_leave_insn:
-                .long  cleanup_critical
- 
- #define SYSCALL(esa,esame,emu)	.long esa
--	.globl  sys_call_table
- sys_call_table:
- #include "syscalls.S"
- #undef SYSCALL
+> Regards
+> 
+>  -Daniel

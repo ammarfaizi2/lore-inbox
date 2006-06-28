@@ -1,114 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWF1KjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423271AbWF1Kml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWF1KjD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 06:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932764AbWF1KjD
+	id S1423271AbWF1Kml (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 06:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423272AbWF1Kmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 06:39:03 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:52623 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932176AbWF1KjC (ORCPT
+	Wed, 28 Jun 2006 06:42:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1464 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423271AbWF1Kmk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 06:39:02 -0400
-Date: Wed, 28 Jun 2006 12:35:29 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
-In-Reply-To: <1151453231.24656.49.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.64.0606281218130.12900@scrub.home>
-References: <20060624061914.202fbfb5.akpm@osdl.org> 
- <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu> 
- <Pine.LNX.4.64.0606271212150.17704@scrub.home> 
- <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu> 
- <Pine.LNX.4.64.0606271903320.12900@scrub.home>  <Pine.LNX.4.64.0606271919450.17704@scrub.home>
-  <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu>
- <1151453231.24656.49.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 Jun 2006 06:42:40 -0400
+Date: Wed, 28 Jun 2006 03:42:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: mbligh@mbligh.org, mbligh@google.com, linux-kernel@vger.kernel.org,
+       apw@shadowen.org, linuxppc64-dev@ozlabs.org
+Subject: Re: 2.6.17-mm2
+Message-Id: <20060628034215.c3008299.akpm@osdl.org>
+In-Reply-To: <44A150C9.7020809@mbligh.org>
+References: <449D5D36.3040102@google.com>
+	<449FF3A2.8010907@mbligh.org>
+	<44A150C9.7020809@mbligh.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 27 Jun 2006 08:37:45 -0700
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
 
-On Tue, 27 Jun 2006, john stultz wrote:
+> SMP NR_CPUS=32 NUMA
+> Modules linked in:
+> NIP: C0000000000A311C LR: C0000000000A30D4 CTR: C0000000000A3024
+> REGS: c0000007725b38d0 TRAP: 0300   Not tainted  (2.6.17-mm3-autokern1)
+> MSR: 8000000000001032 <ME,IR,DR>  CR: 28224424  XER: 00000000
+> DAR: 000000077BCC6180, DSISR: 0000000040000000
+> TASK = c00000002fc74670[29812] 'cp' THREAD: c0000007725b0000 CPU: 2
+> GPR00: 0000000000000000 C0000007725B3B50 C00000000063B828 C00000001E303EC0
+> GPR04: 0000000000000010 0000000000000000 0000000000000000 FFFFFFFFFFFFFFFD
+> GPR08: 0000000000000001 0000000000000000 000000077BCC6180 0000000000000000
+> GPR12: 0000000000000000 C00000000051FF80 0000000000000000 0000000000000001
+> GPR16: 0000000000000000 0000000000000004 0000000000020000 0000000000000000
+> GPR20: 0000000000000000 0000000000000000 C0000007759F9D00 0000000000000000
+> GPR24: 0000000000000E42 0000000000000000 000000000000474A C00000001E30F300
+> GPR28: 0000000000000000 0000000000000000 C000000000537288 C00000001E303E80
+> NIP [C0000000000A311C] .s_show+0xf8/0x364
+> LR [C0000000000A30D4] .s_show+0xb0/0x364
+> Call Trace:
+> [C0000007725B3B50] [C0000000000A3334] .s_show+0x310/0x364 (unreliable)
+> [C0000007725B3C20] [C0000000000D5E84] .seq_read+0x2f4/0x450
+> [C0000007725B3D00] [C0000000000AADF8] .vfs_read+0xe0/0x1b4
+> [C0000007725B3D90] [C0000000000AAFD4] .sys_read+0x54/0x98
+> [C0000007725B3E30] [C00000000000871C] syscall_exit+0x0/0x40
 
-> > [   92.087113] ACPI: CPU0 (power states: C1[C1] C2[C2])
-> > [   92.087122] ACPI: Processor [CPU0] (supports 8 throttling states)
-> > [   92.120270] ACPI: Thermal Zone [THM] (70 C)
-> > [   72.242000] Time: acpi_pm clocksource has been installed.
-> > 
-> > and the timestamps steps back about 20 seconds.... 
-> 
-> Yea, that bit is expected. Basically the cpufreq driver is loading, and
-> when we detect cpufreq changes we mark the TSC as unstable and we fall
-> back to an alternative clocksource (acpi_pm in your case). At the same
-> time, sched_clock sees that the TSC is unstable and it falls back to
-> using jiffies, which causes the small jump in the printk timestamps.
+This is caused by the vsprintf() changes.  Right now, if you do
 
-Frequency changes are IMO currently the most likely reason for this 
-behaviour. If the cpu speeds down too much, the adjustment code might 
-actually attempt to go backwards in time, the old adjustment code might 
-have survived that, because it reacts slower to changes.
-The patch below should prevent this.
+	snprintf(buf, 4, "1111111111111");
 
-Looking through the log file, I noticed other things:
+the memory at `buf' gets [31 31 31 31 00], which is not good.
 
-[   17.942330] speedstep: frequency transition measured seems out of range (0 nSec), falling back to a safe one of 500000 nSec.
-...
-[   21.869356] Time: tsc clocksource has been installed.
+This'll plug it, but I didn't check very hard whether it still has any
+off-by-ones, or if breaks the intent of Jeremy's patch.  I think it's OK..
 
-The speedstep code uses do_gettimeofday() but there is no real clock 
-source installed, so it gets confused.
-IMO it would be better to install the PIT timer very early and later avoid 
-switching to tsc at all, if there is any possibility of speed changes.
-
-bye, Roman
-
-
-
----
- include/linux/clocksource.h |    4 +++-
- kernel/timer.c              |    6 ++++++
- 2 files changed, 9 insertions(+), 1 deletion(-)
-
-Index: linux-2.6-mm/include/linux/clocksource.h
-===================================================================
---- linux-2.6-mm.orig/include/linux/clocksource.h	2006-06-28 11:53:01.000000000 +0200
-+++ linux-2.6-mm/include/linux/clocksource.h	2006-06-28 12:14:30.000000000 +0200
-@@ -55,7 +55,7 @@ struct clocksource {
- 	int rating;
- 	cycle_t (*read)(void);
- 	cycle_t mask;
--	u32 mult;
-+	u32 mult, mult_min;
- 	u32 shift;
- 	int (*update_callback)(void);
- 	int is_continuous;
-@@ -169,6 +169,8 @@ static inline void clocksource_calculate
- 	tmp += c->mult/2;
- 	do_div(tmp, c->mult);
+--- a/lib/vsprintf.c~c
++++ a/lib/vsprintf.c
+@@ -259,7 +259,9 @@ int vsnprintf(char *buf, size_t size, co
+ 	int len;
+ 	unsigned long long num;
+ 	int i, base;
+-	char *str, *end, c;
++	char *str;		/* Where we're writing to */
++	char *end;		/* The last byte we can write to */
++	char c;
+ 	const char *s;
  
-+	c->mult_min = max(c->mult >> 2, 1u);
-+
- 	c->cycle_interval = (cycle_t)tmp;
- 	if (c->cycle_interval == 0)
- 		c->cycle_interval = 1;
-Index: linux-2.6-mm/kernel/timer.c
-===================================================================
---- linux-2.6-mm.orig/kernel/timer.c	2006-06-28 11:55:12.000000000 +0200
-+++ linux-2.6-mm/kernel/timer.c	2006-06-28 12:13:50.000000000 +0200
-@@ -1053,6 +1053,12 @@ static __always_inline int clocksource_b
- 	if (sign > 0 ? error > *interval : error < *interval)
- 		adj++;
+ 	int flags;		/* flags to number() */
+@@ -283,12 +285,12 @@ int vsnprintf(char *buf, size_t size, co
+ 	}
  
-+	if (sign < 0 && unlikely(clock->mult < clock->mult_min + (1 << adj))) {
-+		if (clock->mult <= clock->mult_min)
-+			return 0;
-+		adj = fls(clock->mult - clock->mult_min) - 1;
-+	}
-+
- 	*interval <<= adj;
- 	*offset <<= adj;
- 	return sign << adj;
+ 	str = buf;
+-	end = buf + size;
++	end = buf + size - 1;
+ 
+ 	/* Make sure end is always >= buf */
+-	if (end < buf) {
++	if (end < buf - 1) {
+ 		end = ((void *) ~0ull);
+-		size = end - buf;
++		size = end - buf + 1;
+ 	}
+ 
+ 	for (; *fmt ; ++fmt) {
+_
+

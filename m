@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751548AbWF1VT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751547AbWF1VVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751548AbWF1VT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 17:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751549AbWF1VT6
+	id S1751547AbWF1VVb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 17:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751549AbWF1VVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 17:19:58 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33949 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751547AbWF1VT5 (ORCPT
+	Wed, 28 Jun 2006 17:21:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45475 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751535AbWF1VVa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 17:19:57 -0400
-Date: Wed, 28 Jun 2006 23:19:38 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
+	Wed, 28 Jun 2006 17:21:30 -0400
+Date: Wed, 28 Jun 2006 14:24:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-git broke suspend!
-Message-ID: <20060628211937.GA30373@elf.ucw.cz>
-References: <20060627181045.GA32115@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060627181045.GA32115@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Subject: Re: grep /proc/slabinfo + rm -rf => lockup
+Message-Id: <20060628142452.5842b126.akpm@osdl.org>
+In-Reply-To: <20060628210523.GA7555@martell.zuzino.mipt.ru>
+References: <20060628210523.GA7555@martell.zuzino.mipt.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue 2006-06-27 20:10:45, Jens Axboe wrote:
-> Hi,
-> 
-> The git tree from yesterday and as of right now doesn't suspend on my
-> laptop. It does it's regular thing, then hits:
-> 
-> [...]
-> Stopping tasks:
-> ===========================================================================================|
-> eth1: Going into suspend...
-> Class driver suspend failed for cpu0
-> Could not power down device `×1x: error -22
-                              ~~~~
+Alexey Dobriyan <adobriyan@gmail.com> wrote:
+>
+> VT1: while true; do grep xfs /proc/slabinfo; done
+> VT2: rm -rf linux-vanilla
 
-Someone fails to initialize device name properly? :-(. Can you try
-with minimum drivers?
+Yup, we have a buffer overrun in /proc/slabinfo.
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+From: Andrew Morton <akpm@osdl.org>
+
+The recent vsnprintf() fix introduced an off-by-one, and it's now possible to
+overrun the target buffer by one byte.  Fix it so that local variable `end'
+_really_ points at the last writeable byte.
+
+[jeremy@goop.org: make the `size==0' case work properly]
+Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ lib/vsprintf.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff -puN lib/vsprintf.c~vsnprintf-fix lib/vsprintf.c
+--- a/lib/vsprintf.c~vsnprintf-fix
++++ a/lib/vsprintf.c
+@@ -259,7 +259,9 @@ int vsnprintf(char *buf, size_t size, co
+ 	int len;
+ 	unsigned long long num;
+ 	int i, base;
+-	char *str, *end, c;
++	char *str;		/* Where we're writing to */
++	char *end;		/* The terminal '\0' (if any) */
++	char c;
+ 	const char *s;
+ 
+ 	int flags;		/* flags to number() */
+@@ -283,7 +285,10 @@ int vsnprintf(char *buf, size_t size, co
+ 	}
+ 
+ 	str = buf;
+-	end = buf + size;
++	if (size > 0)
++		end = buf + size - 1;
++	else
++		end = buf;
+ 
+ 	/* Make sure end is always >= buf */
+ 	if (end < buf) {
+_
+

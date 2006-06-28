@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWF1Pcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422687AbWF1Pbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWF1Pcf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 11:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932840AbWF1Pce
+	id S1422687AbWF1Pbw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 11:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423320AbWF1Pbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 11:32:34 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:6832 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932164AbWF1Pcd
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 11:32:33 -0400
-Subject: Re: PATA driver patch for 2.6.17
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kevin Radloff <radsaq@gmail.com>
-Cc: Linux-Kernel@vger.kernel.org
-In-Reply-To: <3b0ffc1f0606280825t7d84f4d9u3ce1e5a97dc849aa@mail.gmail.com>
-References: <1150740947.2871.42.camel@localhost.localdomain>
-	 <3b0ffc1f0606250823h49ec5c9cy180d4941d6c9c8b@mail.gmail.com>
-	 <3b0ffc1f0606280825t7d84f4d9u3ce1e5a97dc849aa@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 28 Jun 2006 16:48:50 +0100
-Message-Id: <1151509731.15166.31.camel@localhost.localdomain>
+	Wed, 28 Jun 2006 11:31:52 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:2252 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1422687AbWF1Pbv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 11:31:51 -0400
+Date: Wed, 28 Jun 2006 08:32:25 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] srcu: RCU variant permitting read-side blocking
+Message-ID: <20060628153225.GB1293@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060627211358.GA484@oleg> <20060627185945.GD1286@us.ibm.com> <20060628194121.GA247@oleg>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060628194121.GA247@oleg>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-06-28 am 11:25 -0400, ysgrifennodd Kevin Radloff:
-> Ick, apparently I wasn't running what I was thought I was running. It
-> appears that the only reason pata_pcmcia was working at all was
-> because I was still using the 2.6.17-rc4-ide1 version of the patch (on
-> 2.6.17 final). The 2.6.17-ide1 version of pata_pcmcia fails like so
-> (with my usual 1GB Sandisk card):
+On Wed, Jun 28, 2006 at 11:41:21PM +0400, Oleg Nesterov wrote:
+> On 06/27, Paul E. McKenney wrote:
+> >
+> > On Wed, Jun 28, 2006 at 01:13:58AM +0400, Oleg Nesterov wrote:
+> > > 
+> > > Also, I can't understand the purpose of 2-nd synchronize_sched() in
+> > > synchronize_srcu().
+> > 
+> > This one handles the srcu_read_unlock() analog of the situation you
+> > are worried about above.  The reader does not have memory barriers in
+> > srcu_read_unlock(), so an access to the data structure might get
+> > reordered to follow the decrement of .c[0] -- which would get messed
+> > up by the following kfree().
+> 
+> Aha, I see.
 
-Yep. There are some uglies with the pcmcia layer. Fixed in the devel
-tree for a while
+Fortunately, we understood opposite sides of the problem, so, taken
+together, we have it covered.  ;-)
 
-Alan
+Now we just need to figure out how to find the problems that both of
+us missed!
 
+> The last question. The 'srcu-2' you posted today does synchronize_srcu_flip()
+> twice. You did it this way because srcu is optimized for readers, otherwise we
+> could just add smp_rmb() into srcu_read_lock() - this should solve the problem
+> as well.
+> 
+> Is my understanding correct?
+
+Exactly correct!!!
+
+							Thanx, Paul

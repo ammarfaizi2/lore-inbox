@@ -1,253 +1,409 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161013AbWF1NUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422625AbWF1NbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161013AbWF1NUc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 09:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161099AbWF1NUc
+	id S1422625AbWF1NbV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 09:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423323AbWF1NbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 09:20:32 -0400
-Received: from aa001msr.fastwebnet.it ([85.18.95.64]:747 "EHLO
-	aa001msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1161013AbWF1NUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 09:20:31 -0400
-Date: Wed, 28 Jun 2006 15:19:55 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Unkillable process in last git -- 100% reproducible
-Message-ID: <20060628151955.0acdb39a@localhost>
-In-Reply-To: <20060628150943.78e91871@localhost>
-References: <20060628142918.1b2c25c3@localhost>
-	<20060628145349.53873ccc@localhost>
-	<20060628150943.78e91871@localhost>
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
+	Wed, 28 Jun 2006 09:31:21 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:24549 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S1422625AbWF1NbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 09:31:19 -0400
+To: cmm@us.ibm.com, adilger@clusterfs.com, jitendra@linsyssoft.com
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: [RFC][PATCH]add ext3_fileblk_t for file relative offset
+Message-Id: <20060628223109sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=MP_q9JT.3I6erh.IcLrr8xnO+o
+X-Mailer: WeMail32[2.51] ID:1K0086
+From: sho@tnes.nec.co.jp
+Date: Wed, 28 Jun 2006 22:31:09 +0900
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---MP_q9JT.3I6erh.IcLrr8xnO+o
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi all,
 
-On Wed, 28 Jun 2006 15:09:43 +0200
-Paolo Ornati <ornati@fastwebnet.it> wrote:
+On May 26, 2006, I wrote: 
+> On May 26, 2006, Mingming wrote:
+>> As we have discussed before, it's saner to define ext3 fs blocks type
+>> and group block type and then fix the kernel ext3 block variable type
+>> bugs....So above patches from me are going to be replaced by a new
+>> set of ext3 filesystem blocks patches, I have sent out a RFC to the
+>> ext2-devel list in the last few weeks:
+>
+> I agree. But the aim of this fix is to keep as much compatibility as
+> possible by making only >2TB file incompatible(RO). So I didn't add
+> typedef for ext3 block type.
+>
+> Now I'm working on changing the type of variables related to block,
+> including ext3_fileblk_t. I'll send the update patches later.
 
-> On Wed, 28 Jun 2006 14:53:49 +0200
-> Paolo Ornati <ornati@fastwebnet.it> wrote:
-> 
-> > > [  430.083347] localedef     R  running task       0  8577   8558  8578               (NOTLB)
-> > > [  430.083352] gzip          X ffff81001e612ee0     0  8578   8577                     (L-TLB)
-> > > [  430.083358] ffff81001395bef8 ffff81001fd1a310 0000000000000246 ffff81001e612ee0 
-> > > [  430.083362]        ffff81001e4c0080 ffff81001e612ee0 ffff81001e4c0258 0000000000000001 
-> > > [  430.083366]        0000000000000046 0000000000000046 ffff81001395bf18 0000000000000010 
-> > > [  430.083370] Call Trace: <ffffffff80227f6f>{do_exit+2378} <ffffffff802628e9>{vfs_write+288}
-> > > [  430.083379]        <ffffffff80228065>{sys_exit_group+0} <ffffffff80209806>{system_call+126}
-> > 
-> > do_exit() -- kernel/exit.c
-> > 
-> > 0xffffffff80227f66 <do_exit+2369>:      mov    %rax,0x18(%rbp)
-> > 0xffffffff80227f6a <do_exit+2373>:      callq  0xffffffff8048b850 <schedule>
-> > 0xffffffff80227f6f <do_exit+2378>:      ud2a
-> > 0xffffffff80227f71 <do_exit+2380>:      pushq  $0xffffffff804b7821
-> > 0xffffffff80227f76 <do_exit+2385>:      retq   $0x3ba
-> > 0xffffffff80227f79 <do_exit+2388>:      jmp    0xffffffff80227f79 <do_exit+2388>
-> 
-> 
-> that is the end of the function:
-> 
-> ...
->         schedule();
->         BUG();
->         /* Avoid "noreturn function does return".  */
->         for (;;) ;
-> }
-> 
-> 
-> So the questions are two:
-> 
-> 1) why schedule() didn't work?
-> 
-> 2) why the process is looping around "ud2a" (placed by BUG()) and
-> presumibly throwing a lot of "invalid opcode" exceptions?
-
-It seems that the first mail didn't hit LKML (maybe it was too big),
-here it is (stripped):
-
-------------------------------------------------------------------------
-Running "localedef" triggers an infinite loop in kernel mode (or
-something) --> localdef becomes unkillable.
-
-This is dmesg after pressing ALT+SysRQ+T three times:
-
-[CUT]
-
-KERNEL:
-
---
-	Paolo Ornati
-	Linux 2.6.17-ga39727f2-dirty on x86_64
-	                      ^^^^^^^
-
-The -dirty is because of a fix to PS2 Keyboard auto-repeat, nothing else.
-------------------------------------------------------------------------
+I've finished this work finally.
 
 
-Full config attached.
---MP_q9JT.3I6erh.IcLrr8xnO+o
-Content-Type: application/x-gzip; name=config.gz
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=config.gz
+In Mingming's patch set, the single type `ext3_fsblk_t' deal with two
+different values, which are file relative offset and filesystem
+relative offset.  I think it is confusing.
 
-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
+Therefore I added "ext3_fileblk_t" for file relative offset.
+It makes maintenance easier and code clearer if file size
+needs to be larger.
+ext3_fileblk_t is unsigned long which is the maximum size of
+current type for file relative offset.
 
---MP_q9JT.3I6erh.IcLrr8xnO+o--
+For example:
+static unsigned long blocks_for_truncate(struct inode *inode)
+{
+	unsigned long needed;  <- for file relative offset
+
+
+This patch applies on top of Mingming's patches which were posted at:
+  http://marc.theaimsgroup.com/?l=ext2-devel&m=114981607414944&w=2
+
+
+Signed-off-by: Takashi Sato <sho@tnes.nec.co.jp>
+---
+diff -Nurp -x CVS ../../linux-2.6.17.org/fs/ext3/dir.c linux-2.6.17-rc6-48bitext3/fs/ext3/dir.c
+--- ../../linux-2.6.17.org/fs/ext3/dir.c	2006-06-19 17:29:39.000000000 +0800
++++ linux-2.6.17-rc6-48bitext3/fs/ext3/dir.c	2006-06-20 14:58:51.000000000 +0800
+@@ -126,7 +126,7 @@ static int ext3_readdir(struct file * fi
+ 	offset = filp->f_pos & (sb->s_blocksize - 1);
+ 
+ 	while (!error && !stored && filp->f_pos < inode->i_size) {
+-		unsigned long blk = filp->f_pos >> EXT3_BLOCK_SIZE_BITS(sb);
++		ext3_fileblk_t blk = filp->f_pos >> EXT3_BLOCK_SIZE_BITS(sb);
+ 		struct buffer_head map_bh;
+ 		struct buffer_head *bh = NULL;
+ 
+diff -Nurp -x CVS ../../linux-2.6.17.org/fs/ext3/inode.c linux-2.6.17-rc6-48bitext3/fs/ext3/inode.c
+--- ../../linux-2.6.17.org/fs/ext3/inode.c	2006-06-19 17:31:49.000000000 +0800
++++ linux-2.6.17-rc6-48bitext3/fs/ext3/inode.c	2006-06-21 10:46:24.000000000 +0800
+@@ -105,7 +105,7 @@ int ext3_forget(handle_t *handle, int is
+  */
+ static unsigned long blocks_for_truncate(struct inode *inode) 
+ {
+-	unsigned long needed;
++	ext3_fileblk_t needed;
+ 
+ 	needed = inode->i_blocks >> (inode->i_sb->s_blocksize_bits - 9);
+ 
+@@ -282,7 +282,7 @@ static int verify_chain(Indirect *from, 
+  */
+ 
+ static int ext3_block_to_path(struct inode *inode,
+-			long i_block, int offsets[4], int *boundary)
++			ext3_fileblk_t i_block, int offsets[4], int *boundary)
+ {
+ 	int ptrs = EXT3_ADDR_PER_BLOCK(inode->i_sb);
+ 	int ptrs_bits = EXT3_ADDR_PER_BLOCK_BITS(inode->i_sb);
+@@ -445,7 +445,7 @@ static ext3_fsblk_t ext3_find_near(struc
+  *	stores it in *@goal and returns zero.
+  */
+ 
+-static ext3_fsblk_t ext3_find_goal(struct inode *inode, long block,
++static ext3_fsblk_t ext3_find_goal(struct inode *inode, ext3_fileblk_t block,
+ 		Indirect chain[4], Indirect *partial)
+ {
+ 	struct ext3_block_alloc_info *block_i;
+@@ -680,7 +680,7 @@ failed:
+  * chain to new block and return 0.
+  */
+ static int ext3_splice_branch(handle_t *handle, struct inode *inode,
+-			long block, Indirect *where, int num, int blks)
++			ext3_fileblk_t block, Indirect *where, int num, int blks)
+ {
+ 	int i;
+ 	int err = 0;
+@@ -784,7 +784,7 @@ err_out:
+  * return < 0, error case.
+  */
+ int ext3_get_blocks_handle(handle_t *handle, struct inode *inode,
+-		sector_t iblock, unsigned long maxblocks,
++		ext3_fileblk_t iblock, unsigned long maxblocks,
+ 		struct buffer_head *bh_result,
+ 		int create, int extend_disksize)
+ {
+@@ -996,7 +996,7 @@ get_block:
+  * `handle' can be NULL if create is zero
+  */
+ struct buffer_head *ext3_getblk(handle_t *handle, struct inode *inode,
+-				long block, int create, int *errp)
++				ext3_fileblk_t block, int create, int *errp)
+ {
+ 	struct buffer_head dummy;
+ 	int fatal = 0, err;
+@@ -1060,7 +1060,7 @@ err:
+ }
+ 
+ struct buffer_head *ext3_bread(handle_t *handle, struct inode *inode,
+-			       int block, int create, int *err)
++			       ext3_fileblk_t block, int create, int *err)
+ {
+ 	struct buffer_head * bh;
+ 
+@@ -1759,7 +1759,8 @@ int ext3_block_truncate_page(handle_t *h
+ {
+ 	ext3_fsblk_t index = from >> PAGE_CACHE_SHIFT;
+ 	unsigned offset = from & (PAGE_CACHE_SIZE-1);
+-	unsigned blocksize, iblock, length, pos;
++	unsigned blocksize, length, pos;
++	ext3_fileblk_t iblock;
+ 	struct inode *inode = mapping->host;
+ 	struct buffer_head *bh;
+ 	int err = 0;
+@@ -2232,7 +2233,7 @@ void ext3_truncate(struct inode *inode)
+ 	Indirect *partial;
+ 	__le32 nr = 0;
+ 	int n;
+-	long last_block;
++	ext3_fileblk_t last_block;
+ 	unsigned blocksize = inode->i_sb->s_blocksize;
+ 	struct page *page;
+ 
+diff -Nurp -x CVS ../../linux-2.6.17.org/fs/ext3/namei.c linux-2.6.17-rc6-48bitext3/fs/ext3/namei.c
+--- ../../linux-2.6.17.org/fs/ext3/namei.c	2006-03-20 13:53:29.000000000 +0800
++++ linux-2.6.17-rc6-48bitext3/fs/ext3/namei.c	2006-06-20 14:58:51.000000000 +0800
+@@ -51,7 +51,7 @@
+ 
+ static struct buffer_head *ext3_append(handle_t *handle,
+ 					struct inode *inode,
+-					u32 *block, int *err)
++					ext3_fileblk_t *block, int *err)
+ {
+ 	struct buffer_head *bh;
+ 
+@@ -144,8 +144,8 @@ struct dx_map_entry
+ };
+ 
+ #ifdef CONFIG_EXT3_INDEX
+-static inline unsigned dx_get_block (struct dx_entry *entry);
+-static void dx_set_block (struct dx_entry *entry, unsigned value);
++static inline ext3_fileblk_t dx_get_block (struct dx_entry *entry);
++static void dx_set_block (struct dx_entry *entry, ext3_fileblk_t value);
+ static inline unsigned dx_get_hash (struct dx_entry *entry);
+ static void dx_set_hash (struct dx_entry *entry, unsigned value);
+ static unsigned dx_get_count (struct dx_entry *entries);
+@@ -166,7 +166,7 @@ static void dx_sort_map(struct dx_map_en
+ static struct ext3_dir_entry_2 *dx_move_dirents (char *from, char *to,
+ 		struct dx_map_entry *offsets, int count);
+ static struct ext3_dir_entry_2* dx_pack_dirents (char *base, int size);
+-static void dx_insert_block (struct dx_frame *frame, u32 hash, u32 block);
++static void dx_insert_block (struct dx_frame *frame, u32 hash, ext3_fileblk_t block);
+ static int ext3_htree_next_block(struct inode *dir, __u32 hash,
+ 				 struct dx_frame *frame,
+ 				 struct dx_frame *frames, 
+@@ -181,12 +181,12 @@ static int ext3_dx_add_entry(handle_t *h
+  * Mask them off for now.
+  */
+ 
+-static inline unsigned dx_get_block (struct dx_entry *entry)
++static inline ext3_fileblk_t dx_get_block (struct dx_entry *entry)
+ {
+ 	return le32_to_cpu(entry->block) & 0x00ffffff;
+ }
+ 
+-static inline void dx_set_block (struct dx_entry *entry, unsigned value)
++static inline void dx_set_block (struct dx_entry *entry, ext3_fileblk_t value)
+ {
+ 	entry->block = cpu_to_le32(value);
+ }
+@@ -244,7 +244,7 @@ static void dx_show_index (char * label,
+         printk("%s index ", label);
+         for (i = 0; i < n; i++)
+         {
+-                printk("%x->%u ", i? dx_get_hash(entries + i): 0, dx_get_block(entries + i));
++                printk("%x->%lu ", i? dx_get_hash(entries + i): 0, dx_get_block(entries + i));
+         }
+         printk("\n");
+ }
+@@ -297,7 +297,7 @@ struct stats dx_show_entries(struct dx_h
+ 	printk("%i indexed blocks...\n", count);
+ 	for (i = 0; i < count; i++, entries++)
+ 	{
+-		u32 block = dx_get_block(entries), hash = i? dx_get_hash(entries): 0;
++		ext3_fileblk_t block = dx_get_block(entries), hash = i? dx_get_hash(entries): 0;
+ 		u32 range = i < count - 1? (dx_get_hash(entries + 1) - hash): ~hash;
+ 		struct stats stats;
+ 		printk("%s%3u:%03u hash %8x/%8x ",levels?"":"   ", i, block, hash, range);
+@@ -534,7 +534,7 @@ static inline struct ext3_dir_entry_2 *e
+  * into the tree.  If there is an error it is returned in err.
+  */
+ static int htree_dirblock_to_tree(struct file *dir_file,
+-				  struct inode *dir, int block,
++				  struct inode *dir, ext3_fileblk_t block,
+ 				  struct dx_hash_info *hinfo,
+ 				  __u32 start_hash, __u32 start_minor_hash)
+ {
+@@ -542,7 +542,7 @@ static int htree_dirblock_to_tree(struct
+ 	struct ext3_dir_entry_2 *de, *top;
+ 	int err, count = 0;
+ 
+-	dxtrace(printk("In htree dirblock_to_tree: block %d\n", block));
++	dxtrace(printk("In htree dirblock_to_tree: block %lu\n", block));
+ 	if (!(bh = ext3_bread (NULL, dir, block, 0, &err)))
+ 		return err;
+ 
+@@ -585,7 +585,8 @@ int ext3_htree_fill_tree(struct file *di
+ 	struct ext3_dir_entry_2 *de;
+ 	struct dx_frame frames[2], *frame;
+ 	struct inode *dir;
+-	int block, err;
++	ext3_fileblk_t block;
++	int err;
+ 	int count = 0;
+ 	int ret;
+ 	__u32 hashval;
+@@ -713,7 +714,7 @@ static void dx_sort_map (struct dx_map_e
+ 	} while(more);
+ }
+ 
+-static void dx_insert_block(struct dx_frame *frame, u32 hash, u32 block)
++static void dx_insert_block(struct dx_frame *frame, u32 hash, ext3_fileblk_t block)
+ {
+ 	struct dx_entry *entries = frame->entries;
+ 	struct dx_entry *old = frame->at, *new = old + 1;
+@@ -810,13 +811,14 @@ static struct buffer_head * ext3_find_en
+ 	struct super_block * sb;
+ 	struct buffer_head * bh_use[NAMEI_RA_SIZE];
+ 	struct buffer_head * bh, *ret = NULL;
+-	unsigned long start, block, b;
++	ext3_fileblk_t start, block, b;
+ 	int ra_max = 0;		/* Number of bh's in the readahead
+ 				   buffer, bh_use[] */
+ 	int ra_ptr = 0;		/* Current index into readahead
+ 				   buffer */
+ 	int num = 0;
+-	int nblocks, i, err;
++	ext3_fileblk_t nblocks;
++	int i, err;
+ 	struct inode *dir = dentry->d_parent->d_inode;
+ 	int namelen;
+ 	const u8 *name;
+@@ -927,7 +929,7 @@ static struct buffer_head * ext3_dx_find
+ 	struct dx_frame frames[2], *frame;
+ 	struct ext3_dir_entry_2 *de, *top;
+ 	struct buffer_head *bh;
+-	unsigned long block;
++	ext3_fileblk_t block;
+ 	int retval;
+ 	int namelen = dentry->d_name.len;
+ 	const u8 *name = dentry->d_name.name;
+@@ -1107,7 +1109,7 @@ static struct ext3_dir_entry_2 *do_split
+ 	unsigned blocksize = dir->i_sb->s_blocksize;
+ 	unsigned count, continued;
+ 	struct buffer_head *bh2;
+-	u32 newblock;
++	ext3_fileblk_t newblock;
+ 	u32 hash2;
+ 	struct dx_map_entry *map;
+ 	char *data1 = (*bh)->b_data, *data2;
+@@ -1148,7 +1150,7 @@ static struct ext3_dir_entry_2 *do_split
+ 	dx_sort_map (map, count);
+ 	hash2 = map[split].hash;
+ 	continued = hash2 == map[split - 1].hash;
+-	dxtrace(printk("Split block %i at %x, %i/%i\n",
++	dxtrace(printk("Split block %lu at %x, %i/%i\n",
+ 		dx_get_block(frame->at), hash2, split, count-split));
+ 
+ 	/* Fancy dance to stay within two buffers */
+@@ -1296,7 +1298,7 @@ static int make_indexed_dir(handle_t *ha
+ 	int		retval;
+ 	unsigned	blocksize;
+ 	struct dx_hash_info hinfo;
+-	u32		block;
++	ext3_fileblk_t		block;
+ 	struct fake_dirent *fde;
+ 
+ 	blocksize =  dir->i_sb->s_blocksize;
+@@ -1380,7 +1382,7 @@ static int ext3_add_entry (handle_t *han
+ #endif
+ 	unsigned blocksize;
+ 	unsigned nlen, rlen;
+-	u32 block, blocks;
++	ext3_fileblk_t block, blocks;
+ 
+ 	sb = dir->i_sb;
+ 	blocksize = sb->s_blocksize;
+@@ -1463,7 +1465,7 @@ static int ext3_dx_add_entry(handle_t *h
+ 		       dx_get_count(entries), dx_get_limit(entries)));
+ 	/* Need to split index? */
+ 	if (dx_get_count(entries) == dx_get_limit(entries)) {
+-		u32 newblock;
++		ext3_fileblk_t newblock;
+ 		unsigned icount = dx_get_count(entries);
+ 		int levels = frame - frames;
+ 		struct dx_entry *entries2;
+diff -Nurp -x CVS ../../linux-2.6.17.org/fs/ext3/super.c linux-2.6.17-rc6-48bitext3/fs/ext3/super.c
+--- ../../linux-2.6.17.org/fs/ext3/super.c	2006-06-19 17:31:49.000000000 +0800
++++ linux-2.6.17-rc6-48bitext3/fs/ext3/super.c	2006-06-20 14:58:51.000000000 +0800
+@@ -2577,7 +2577,7 @@ static ssize_t ext3_quota_read(struct su
+ 			       size_t len, loff_t off)
+ {
+ 	struct inode *inode = sb_dqopt(sb)->files[type];
+-	sector_t blk = off >> EXT3_BLOCK_SIZE_BITS(sb);
++	ext3_fileblk_t blk = off >> EXT3_BLOCK_SIZE_BITS(sb);
+ 	int err = 0;
+ 	int offset = off & (sb->s_blocksize - 1);
+ 	int tocopy;
+@@ -2615,7 +2615,7 @@ static ssize_t ext3_quota_write(struct s
+ 				const char *data, size_t len, loff_t off)
+ {
+ 	struct inode *inode = sb_dqopt(sb)->files[type];
+-	sector_t blk = off >> EXT3_BLOCK_SIZE_BITS(sb);
++	ext3_fileblk_t blk = off >> EXT3_BLOCK_SIZE_BITS(sb);
+ 	int err = 0;
+ 	int offset = off & (sb->s_blocksize - 1);
+ 	int tocopy;
+diff -Nurp -x CVS ../../linux-2.6.17.org/include/linux/ext3_fs.h linux-2.6.17-rc6-48bitext3/include/linux/ext3_fs.h
+--- ../../linux-2.6.17.org/include/linux/ext3_fs.h	2006-06-19 17:31:49.000000000 +0800
++++ linux-2.6.17-rc6-48bitext3/include/linux/ext3_fs.h	2006-06-20 14:59:41.000000000 +0800
+@@ -897,10 +897,10 @@ extern unsigned long ext3_count_free (st
+ /* inode.c */
+ int ext3_forget(handle_t *handle, int is_metadata, struct inode *inode,
+ 		struct buffer_head *bh, ext3_fsblk_t blocknr);
+-struct buffer_head * ext3_getblk (handle_t *, struct inode *, long, int, int *);
+-struct buffer_head * ext3_bread (handle_t *, struct inode *, int, int, int *);
++struct buffer_head * ext3_getblk (handle_t *, struct inode *, ext3_fileblk_t, int, int *);
++struct buffer_head * ext3_bread (handle_t *, struct inode *, ext3_fileblk_t, int, int *);
+ int ext3_get_blocks_handle(handle_t *handle, struct inode *inode,
+-	sector_t iblock, unsigned long maxblocks, struct buffer_head *bh_result,
++	ext3_fileblk_t iblock, unsigned long maxblocks, struct buffer_head *bh_result,
+ 	int create, int extend_disksize);
+ 
+ extern void ext3_read_inode (struct inode *);
+diff -Nurp -x CVS ../../linux-2.6.17.org/include/linux/ext3_fs_i.h linux-2.6.17-rc6-48bitext3/include/linux/ext3_fs_i.h
+--- ../../linux-2.6.17.org/include/linux/ext3_fs_i.h	2006-06-19 17:31:20.000000000 +0800
++++ linux-2.6.17-rc6-48bitext3/include/linux/ext3_fs_i.h	2006-06-20 14:59:41.000000000 +0800
+@@ -27,6 +27,9 @@ typedef int ext3_grpblk_t;
+ /* data type for filesystem-wide blocks number */
+ typedef sector_t ext3_fsblk_t;
+ 
++/* data type for block offset of file */
++typedef unsigned long ext3_fileblk_t;
++
+ #define E3FSBLK SECTOR_FMT
+ 
+ struct ext3_reserve_window {
+@@ -50,7 +53,7 @@ struct ext3_block_alloc_info {
+ 	 * most-recently-allocated block in this file.
+ 	 * We use this for detecting linearly ascending allocation requests.
+ 	 */
+-	__u32                   last_alloc_logical_block;
++	ext3_fileblk_t                   last_alloc_logical_block;
+ 	/*
+ 	 * Was i_next_alloc_goal in ext3_inode_info
+ 	 * is the *physical* companion to i_next_alloc_block.
+@@ -102,7 +105,7 @@ struct ext3_inode_info {
+ 	/* block reservation info */
+ 	struct ext3_block_alloc_info *i_block_alloc_info;
+ 
+-	__u32	i_dir_start_lookup;
++	ext3_fileblk_t	i_dir_start_lookup;
+ #ifdef CONFIG_EXT3_FS_XATTR
+ 	/*
+ 	 * Extended attributes can be read independently of the main file
+
+
+Cheers, sho
+

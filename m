@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWF1Utm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751520AbWF1UtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751522AbWF1Utm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 16:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWF1Utm
+	id S1751520AbWF1UtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 16:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWF1UtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 16:49:42 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23775 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751519AbWF1Utl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 16:49:41 -0400
-Date: Wed, 28 Jun 2006 22:48:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2][ 3/4] [Suspend2] Correct kernel/power/smp.c credit.
-Message-ID: <20060628204847.GA13397@elf.ucw.cz>
-References: <20060626164637.10641.63979.stgit@nigel.suspend2.net> <20060626164647.10641.37727.stgit@nigel.suspend2.net>
+	Wed, 28 Jun 2006 16:49:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19975 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751519AbWF1UtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 16:49:24 -0400
+Date: Wed, 28 Jun 2006 22:49:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@HansenPartnership.com
+Subject: Re: [2.6 patch] i386: KEXEC must depend on (!SMP && X86_LOCAL_APIC)
+Message-ID: <20060628204922.GM13915@stusta.de>
+References: <20060628165533.GJ13915@stusta.de> <m14py5fajw.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060626164647.10641.37727.stgit@nigel.suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <m14py5fajw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue 2006-06-27 02:46:48, Nigel Cunningham wrote:
-> Modify kernel/power/smp.c credit to my current address.
-
-> Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
-
-ACK on this one... if you have similar easy stuff, please retransmit
-just that.
-							Pavel
-
-> diff --git a/kernel/power/smp.c b/kernel/power/smp.c
-> index 5957312..c102e7c 100644
-> --- a/kernel/power/smp.c
-> +++ b/kernel/power/smp.c
-> @@ -2,7 +2,7 @@
->   * drivers/power/smp.c - Functions for stopping other CPUs.
->   *
->   * Copyright 2004 Pavel Machek <pavel@suse.cz>
-> - * Copyright (C) 2002-2003 Nigel Cunningham <ncunningham@clear.net.nz>
-> + * Copyright (C) 2002-2003 Nigel Cunningham <nigel@suspend2.net>
->   *
->   * This file is released under the GPLv2.
->   */
+On Wed, Jun 28, 2006 at 11:35:15AM -0600, Eric W. Biederman wrote:
 > 
-> --
-> Nigel Cunningham		nigel at suspend2 dot net
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Adrian Bunk <bunk@stusta.de> writes:
+> > This patch fixes the following issue with CONFIG_SMP=y and 
+> > CONFIG_X86_VOYAGER=y:
+> >
+> > <--  snip  -->
+> >
+> > ...
+> >   CC      arch/i386/kernel/crash.o
+> > arch/i386/kernel/crash.c: In function ‘crash_nmi_callback’:
+> > arch/i386/kernel/crash.c:113: error: implicit declaration of function
+> > ‘disable_local_APIC’
+> >
+> > <--  snip  -->
+> 
+> I think the patch below more correctly captures the dependency.
+> 
+> In truth that call to disable_local_APIC() is a bug but the kernel
+> isn't ready yet to boot in apic only mode, so it remains until
+> the apic initialization can be moved into init_IRQ.
+> 
+> Does this sound good?
+
+It does compile (I can't test it due to lack of hardware).
+
+> Eric
+
+cu
+Adrian
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,120 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422742AbWF1AB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422746AbWF1AEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422742AbWF1AB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 20:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422743AbWF1AB3
+	id S1422746AbWF1AEh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 20:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422745AbWF1AEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 20:01:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36481 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422742AbWF1AB2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 20:01:28 -0400
-Date: Tue, 27 Jun 2006 17:04:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: stsp@aknet.ru, linux-kernel@vger.kernel.org
-Subject: Re: the creation of boot_cpu_init() is wrong and accessing
- uninitialised data
-Message-Id: <20060627170446.30392b00.akpm@osdl.org>
-In-Reply-To: <1151419746.3340.13.camel@mulgrave.il.steeleye.com>
-References: <1151376313.3443.12.camel@mulgrave.il.steeleye.com>
-	<20060626200433.bf0292af.akpm@osdl.org>
-	<1151379392.3443.20.camel@mulgrave.il.steeleye.com>
-	<20060626220337.06014184.akpm@osdl.org>
-	<1151419746.3340.13.camel@mulgrave.il.steeleye.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Jun 2006 20:04:37 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:15058 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S1422744AbWF1AEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 20:04:36 -0400
+X-ORBL: [64.216.106.128]
+Message-ID: <44A1C78C.4090401@ksu.edu>
+Date: Tue, 27 Jun 2006 19:04:28 -0500
+From: "Scott J. Harmon" <harmon@ksu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060601)
+MIME-Version: 1.0
+To: Sergey Vlasov <vsu@altlinux.ru>
+CC: linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
+Subject: Re: acpi gets wrong interrupt for via sata in 2.6.16.17
+References: <449DE6BA.2050206@ksu.edu> <20060625132457.4b0922b4.vsu@altlinux.ru>
+In-Reply-To: <20060625132457.4b0922b4.vsu@altlinux.ru>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
->
-> > > However, introducing setup_smp_processor_id() will also work ... I'll
-> > > see if I can do it in an easy way.
-> > 
-> > It's a bit odd - I think non-zero BSPs happen a bit more often than
-> > only-on-voyager.
+
+
+Sergey Vlasov wrote:
+> On Sat, 24 Jun 2006 20:28:26 -0500 Scott J. Harmon wrote:
 > 
-> OK, here's the patch that adds this API then.
+>> The short: something that came in 2.6.16.17 has caused my sata to no
+>> longer work correctly (by work correctly, I mean actually be able to
+>> detect any drives).  I'm no expert, but it seems that it is getting the
+>> wrong interrupt.  In 2.6.16.16 it works fine with the exact same config.
+>>  It also works fine if I append 'pci=noacpi'.  This has still happens in
+>> 2.6.17.
 > 
-> James
+> I assume that your root filesystem is on a SATA disk, and therefore you
+> don't have an easy way to extract dmesg from a broken kernel?
 > 
-> Index: voyager-init-2.6/include/linux/smp.h
-> ===================================================================
-> --- voyager-init-2.6.orig/include/linux/smp.h	2006-06-27 09:20:42.000000000 -0500
-> +++ voyager-init-2.6/include/linux/smp.h	2006-06-27 09:23:23.000000000 -0500
-> @@ -74,6 +74,15 @@
->   */
->  void smp_prepare_boot_cpu(void);
->  
-> +/*
-> + * Some architectures use current_thread_info()->cpu to get the
-> + * CPU, so for the boot CPU this has to be set up really early.  Thus
-> + * this hook is used to initialise the value if necessary
-> + */
-> +#ifndef ARCH_HAS_SMP_SETUP_PROCESSOR_ID
-> +void smp_setup_processor_id(void) { }
-> +#endif
+>> Here is the output of lspci:
+>>
+>> scott@amdg:~$ /sbin/lspci
+>> 00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400/KT600 AGP]
+>> Host Bridge (rev 80)
+>> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
+>> 00:07.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5705
+>> Gigabit Ethernet (rev 03)
+>> 00:0d.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host
+>> Controller (rev 46)
+>> 00:0e.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+>> 00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID
+>> Controller (rev 80)
+>> 00:0f.1 IDE interface: VIA Technologies, Inc.
+>> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+>> 00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>> Controller (rev 81)
+>> 00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>> Controller (rev 81)
+>> 00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>> Controller (rev 81)
+>> 00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>> Controller (rev 81)
+>> 00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+>> 00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge
+>> [KT600/K8T800/K8T890 South]
+>> 01:00.0 VGA compatible controller: nVidia Corporation NV15DDR [GeForce2
+>> Ti] (rev a4)
+> 
+> Try to revert these patches:
+> 
+> http://kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=commitdiff_plain;h=dc0f369552b491d1578e8a8c6f6512e17246241c
+> 
+> http://kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=commitdiff_plain;h=c72493379d4aaac49ad3366987db1e118bb4f5ba
+> 
+> (revert in the above order - these are two patches which depend on each
+> other, you need to revert both).  You can try it both with 2.6.16.17
+> and 2.6.17.
 
-That wants to be `static inline'.
+Ok, reverting these two patches caused ACPI to function again here.  Let
+me know if there is anything else you need from me to get this fixed in
+mainline.
 
+> 
+> Chris: seems that the SATA subdevice (1106:3149) also needs the quirk,
+> like EHCI, sound and builtin network.
 
-But still.  __attribute__((weak)) is wonderful for this sort of thing. 
-Methinks it's much neater to do:
+Thanks,
 
-
-diff -puN init/main.c~add-smp_setup_processor_id init/main.c
---- a/init/main.c~add-smp_setup_processor_id
-+++ a/init/main.c
-@@ -454,10 +454,17 @@ static void __init boot_cpu_init(void)
- 	cpu_set(cpu, cpu_possible_map);
- }
- 
-+static void __init __attribute__((weak)) smp_setup_processor_id(void)
-+{
-+}
-+
- asmlinkage void __init start_kernel(void)
- {
- 	char * command_line;
- 	extern struct kernel_param __start___param[], __stop___param[];
-+
-+	smp_setup_processor_id();
-+
- /*
-  * Interrupts are still disabled. Do necessary setups, then
-  * enable them
-diff -puN arch/i386/mach-voyager/voyager_smp.c~add-smp_setup_processor_id arch/i386/mach-voyager/voyager_smp.c
---- a/arch/i386/mach-voyager/voyager_smp.c~add-smp_setup_processor_id
-+++ a/arch/i386/mach-voyager/voyager_smp.c
-@@ -1938,3 +1938,9 @@ smp_cpus_done(unsigned int max_cpus)
- {
- 	zap_low_mappings();
- }
-+
-+void __init
-+smp_setup_processor_id(void)
-+{
-+	current_thread_info()->cpu = hard_smp_processor_id();
-+}
-diff -puN include/linux/smp.h~add-smp_setup_processor_id include/linux/smp.h
---- a/include/linux/smp.h~add-smp_setup_processor_id
-+++ a/include/linux/smp.h
-@@ -125,4 +125,6 @@ static inline void smp_send_reschedule(i
- #define put_cpu()		preempt_enable()
- #define put_cpu_no_resched()	preempt_enable_no_resched()
- 
-+void smp_setup_processor_id(void);
-+
- #endif /* __LINUX_SMP_H */
-_
-
-
-Note that I moved the call to smp_setup_processor_id() to be super-early. 
-Before the lock_kernel(), before everything.  It seems better that way. 
-And there's lockdep init stuff in -mm which is called immediately on entry
-to start_kernel() which might want to use smp_processor_id().
-
-Is that all OK?
+Scott.
+-- 
+"Computer Science is no more about computers than astronomy is about
+telescopes." - Edsger Dijkstra

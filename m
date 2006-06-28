@@ -1,84 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423273AbWF1KsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932772AbWF1Ksl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423273AbWF1KsH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 06:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932764AbWF1KsG
+	id S932772AbWF1Ksl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 06:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932764AbWF1Ksl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 06:48:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19641 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932772AbWF1KsF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 06:48:05 -0400
-Date: Wed, 28 Jun 2006 03:47:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: mbligh@mbligh.org, jeremy@goop.org, mbligh@google.com,
-       linux-kernel@vger.kernel.org, apw@shadowen.org,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: 2.6.17-mm2
-Message-Id: <20060628034748.018eecac.akpm@osdl.org>
-In-Reply-To: <20060628034215.c3008299.akpm@osdl.org>
-References: <449D5D36.3040102@google.com>
-	<449FF3A2.8010907@mbligh.org>
-	<44A150C9.7020809@mbligh.org>
-	<20060628034215.c3008299.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jun 2006 06:48:41 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:33227 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S932772AbWF1Ksk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 06:48:40 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Linux-pm mailing list" <linux-pm@lists.osdl.org>,
+       suspend2-devel@lists.suspend2.net
+Subject: x86_64 restore_image declaration needs asmlinkage?
+Date: Wed, 28 Jun 2006 20:48:34 +1000
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1420535.EvX7lUtGpV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200606282048.38746.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006 03:42:15 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+--nextPart1420535.EvX7lUtGpV
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> his is caused by the vsprintf() changes.  Right now, if you do
-> 
-> 	snprintf(buf, 4, "1111111111111");
-> 
-> the memory at `buf' gets [31 31 31 31 00], which is not good.
-> 
-> This'll plug it, but I didn't check very hard whether it still has any
-> off-by-ones, or if breaks the intent of Jeremy's patch.  I think it's OK..
+Hi.
 
-That diff was against an older kernel and doesn't apply.  This is against
-mainline:
+I received a report of problems with CONFIG_REGPARM and suspending, that le=
+d=20
+me to recheck asm calls and declarations. Not being a guru on these things,=
+ I=20
+want to ask advice from those who know more.
 
---- a/lib/vsprintf.c~vsnprintf-fix
-+++ a/lib/vsprintf.c
-@@ -259,7 +259,9 @@ int vsnprintf(char *buf, size_t size, co
- 	int len;
- 	unsigned long long num;
- 	int i, base;
--	char *str, *end, c;
-+	char *str;		/* Where we're writing to */
-+	char *end;		/* The last byte we can write to */
-+	char c;
- 	const char *s;
- 
- 	int flags;		/* flags to number() */
-@@ -283,12 +285,12 @@ int vsnprintf(char *buf, size_t size, co
- 	}
- 
- 	str = buf;
--	end = buf + size;
-+	end = buf + size - 1;
- 
- 	/* Make sure end is always >= buf */
--	if (end < buf) {
-+	if (end < buf - 1) {
- 		end = ((void *)-1);
--		size = end - buf;
-+		size = end - buf + 1;
- 	}
- 
- 	for (; *fmt ; ++fmt) {
-@@ -494,7 +496,6 @@ int vsnprintf(char *buf, size_t size, co
- 	/* the trailing null byte doesn't count towards the total */
- 	return str-buf;
- }
--
- EXPORT_SYMBOL(vsnprintf);
- 
- /**
-_
+Along the way I noticed that current git has:
 
+extern asmlinkage int swsusp_arch_suspend(void);
+extern asmlinkage int swsusp_arch_resume(void);
+
+This is right for x86, but for x86_64, we actually call a C routine in=20
+arch/x86_64/kernel/suspend.c, which calls restore_image in=20
+arch/x86_64/kernel/suspend_asm.S. Restore image is declared in suspend.c as=
+=20
+
+extern int restore_image(void);
+
+should it be:
+
+extern asmlinkage int restore_image(void);
+
+Having swsusp_arch_resume declared as asmlinkage doesn't matter, does it?
+
+Regards,
+
+Nigel
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
+
+--nextPart1420535.EvX7lUtGpV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEol6GN0y+n1M3mo0RAheSAKCzlOA4dWc0hw1vQR+Gsq9I1u2tzQCgo3dK
+9abTdhPjYny1S4EbYXjHTag=
+=xGWS
+-----END PGP SIGNATURE-----
+
+--nextPart1420535.EvX7lUtGpV--

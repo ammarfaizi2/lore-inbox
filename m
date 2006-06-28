@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932795AbWF1NhB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932803AbWF1NmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932795AbWF1NhB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 09:37:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932805AbWF1Ng7
+	id S932803AbWF1NmI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 09:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932805AbWF1NmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 09:36:59 -0400
-Received: from mail6.sea5.speakeasy.net ([69.17.117.8]:9962 "EHLO
-	mail6.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932795AbWF1Ngt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 09:36:49 -0400
-Date: Wed, 28 Jun 2006 09:36:46 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: ralf@linux-mips.org
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] SELinux/MIPS: Add security hooks to mips-mt {get,set}affinity
-Message-ID: <Pine.LNX.4.64.0606280934080.12338@d.namei>
+	Wed, 28 Jun 2006 09:42:07 -0400
+Received: from yzordderrex.netnoteinc.com ([212.17.35.167]:37853 "EHLO
+	yzordderrex.lincor.com") by vger.kernel.org with ESMTP
+	id S932803AbWF1NmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 09:42:06 -0400
+Message-ID: <44A28646.4020408@draigBrady.com>
+Date: Wed, 28 Jun 2006 14:38:14 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Erik Paulson <epaulson@cs.wisc.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: file changes without updating mtime
+References: <20060627181010.GE25040@cobalt.cs.wisc.edu>
+In-Reply-To: <20060627181010.GE25040@cobalt.cs.wisc.edu>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Quigley <dpquigl@tycho.nsa.gov>
+Perhaps you could create a filesystem wrapper module
+or Linux Security module or equivalent to intercept write/truncate etc.
+to invalidate an extended attribute containing a checksum.
 
-This patch adds LSM hooks into the setaffinity and getaffinity functions 
-for the mips architecture to enable security modules to control these 
-operations between tasks with different security attributes. This 
-implementation uses the existing task_setscheduler and task_getscheduler 
-LSM hooks.
+This extended attribute could be updated from userspace periodically,
+and your userspace program would compare those checksums.
 
-Please apply.
+That would be generally useful. For example rsync could
+use it to very quickly determine if it needed to sync file contents.
 
-Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: James Morris <jmorris@namei.org>
+See also http://lkml.org/lkml/2006/5/17/138
 
----
+Note also files mounted loopback and modified don't
+have their mtime updated either. Perhaps the patch
+referenced above addresses that?
 
- arch/mips/kernel/mips-mt.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/arch/mips/kernel/mips-mt.c linux-2.6.17-mm3-affiniy/arch/mips/kernel/mips-mt.c
---- linux-2.6.17-mm3/arch/mips/kernel/mips-mt.c	2006-06-17 21:49:35.000000000 -0400
-+++ linux-2.6.17-mm3-affiniy/arch/mips/kernel/mips-mt.c	2006-06-27 15:47:46.000000000 -0400
-@@ -95,6 +95,10 @@ asmlinkage long mipsmt_sys_sched_setaffi
- 		goto out_unlock;
- 	}
- 
-+	retval = security_task_setscheduler(p, 0, NULL);
-+	if (retval)
-+		goto out_unlock;
-+
- 	/* Record new user-specified CPU set for future reference */
- 	p->thread.user_cpus_allowed = new_mask;
- 
-@@ -140,8 +144,9 @@ asmlinkage long mipsmt_sys_sched_getaffi
- 	p = find_process_by_pid(pid);
- 	if (!p)
- 		goto out_unlock;
--
--	retval = 0;
-+	retval = security_task_getscheduler(p);
-+	if (retval)
-+		goto out_unlock;
- 
- 	cpus_and(mask, p->thread.user_cpus_allowed, cpu_possible_map);
-
-
+Pádraig.

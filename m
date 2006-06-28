@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932712AbWF1Dnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932714AbWF1DuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932712AbWF1Dnu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 23:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbWF1Dnu
+	id S932714AbWF1DuS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 23:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932716AbWF1DuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 23:43:50 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:26925 "EHLO
-	asav10.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S932712AbWF1Dnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 23:43:49 -0400
+	Tue, 27 Jun 2006 23:50:18 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:61997 "EHLO
+	asav04.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S932714AbWF1DuR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 23:50:17 -0400
 X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AR4FAP+VoUSBSg
+X-IronPort-Anti-Spam-Result: AR4FANyXoUSBSg
 From: Dmitry Torokhov <dtor@insightbb.com>
-To: Eric Sesterhenn <snakebyte@gmx.de>
-Subject: Re: [Patch] Overrun in drivers/input/joystick/db9.c
-Date: Tue, 27 Jun 2006 23:43:01 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [git pull] Input update for 2.6.17
+Date: Tue, 27 Jun 2006 23:50:15 -0400
 User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
-References: <1151446574.15289.7.camel@alice>
-In-Reply-To: <1151446574.15289.7.camel@alice>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200606272343.02309.dtor@insightbb.com>
+Message-Id: <200606272350.15948.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 June 2006 18:16, Eric Sesterhenn wrote:
-> hi,
-> 
-> coverity spotted this overrun (#id 483), we assign 
-> db9_mode = &db9_modes[mode]; some lines before, so
-> if we use mode as index again we might get past the
-> array once mode is greater than DB9_MAX_PAD/2,
-> besides this this patch changes the code to what
-> the author possibly intended it to do.
->
+Linus,
 
-Applied, thank you.
+Please pull from:
+
+        git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+
+or
+        master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
+
+It fixes broken hardware autorepeat in atkbd, adds a new key mapping
+to wistron driver and fixes buffer overrun in db9.
+
+Diffstat:
+
+ joystick/db9.c      |    2 +-
+ keyboard/atkbd.c    |    2 +-
+ misc/wistron_btns.c |   19 +++++++++++++++++++
+ 3 files changed, 21 insertions(+), 2 deletions(-)
+
+Changelog:
+
+Dmitry Torokhov:
+      Input: atkbd - fix hardware autorepeat
+
+Eric Sesterhenn:
+      Input: db9 - fix potential buffer overrun
+
+Frank de Lange:
+      Input: wistron - add mapping for Wistron MS 2111
 
 -- 
 Dmitry

@@ -1,58 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWF1PCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWF1PFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWF1PCn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 11:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWF1PCl
+	id S1751123AbWF1PFG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 11:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWF1PFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 11:02:41 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:5017 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751196AbWF1PCk (ORCPT
+	Wed, 28 Jun 2006 11:05:05 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:25545 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S1751123AbWF1PFC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 11:02:40 -0400
-Date: Wed, 28 Jun 2006 10:02:19 -0500
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
-       mcthomps@us.ibm.com, toml@us.ibm.com, yoder1@us.ibm.com,
-       James Morris <jmorris@namei.org>, "Stephen C. Tweedie" <sct@redhat.com>,
-       Erez Zadok <ezk@cs.sunysb.edu>, David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 10/13: eCryptfs] Mmap operations
-Message-ID: <20060628150219.GB2802@us.ibm.com>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
-References: <20060513033742.GA18598@hellewell.homeip.net> <20060513034708.GJ18631@hellewell.homeip.net> <84144f020606280716y2bea236du2ea84018e15a7d0a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jun 2006 11:05:02 -0400
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH] fix kbuild module names (was: Re: oom-killer problem)
+Date: Wed, 28 Jun 2006 17:06:15 +0200
+User-Agent: KMail/1.7.2
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <84144f020606280716y2bea236du2ea84018e15a7d0a@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200606281706.15514.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-03.tornado.cablecom.ch 1378;
+	Body=3 Fuz1=3 Fuz2=3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 05:16:34PM +0300, Pekka Enberg wrote:
-> On 5/13/06, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
-> >+static struct page *ecryptfs_get1page(struct file *file, int index)
-> >+{
-> >+       struct page *page;
-> >+       struct dentry *dentry;
-> >+       struct inode *inode;
-> >+       struct address_space *mapping;
-> >+
-> >+       dentry = file->f_dentry;
-> >+       inode = dentry->d_inode;
-> >+       mapping = inode->i_mapping;
-> >+       page = read_cache_page(mapping, index,
-> >+                              (filler_t *)mapping->a_ops->readpage,
-> >+                              (void *)file);
-> >+       if (IS_ERR(page))
-> >+               goto out;
-> >+       wait_on_page_locked(page);
-> 
-> Why no check for PageUptodate?
+hi
 
-It happens, but a bit later. ecryptfs_get1page() is called from
-write_zeros(). Then write_zeros() calls ecryptfs_prepare_write(),
-which does a PageUptodate() check.
+had a look again. this one on top of "kbuild: fix make -rR breakage" (ie. revert
+the revert) should fix the module nameing.
 
-Mike
+Sam if you agree, please add your signed-off-by and forward to Linus.
+
+rgds
+-daniel
+
+---
+
+[PATCH] kbuild: fix module names
+
+commit e5c44fd88c146755da6941d047de4d97651404a9 (kbuild: fix make -rR breakage)
+replaced the usage of the $(*F) variable with $(basetarget) which is defined as
+	 basetarget = $(basename $(notdir $@))
+to get the same, but without using the stem $(*F) because make not always
+correctly supplys it. the problem are the module names which depend on the name
+of 'foo.mod.o'. the original usage of the stem $(*F) gave 'foo' in this case, but
+the new $(basetarget) does not. example from a
+	make -p SUBDIRS=drivers/pcmcia modules
+
+	drivers/pcmcia/pcmcia.mod.o: drivers/pcmcia/pcmcia.mod.c FORCE
+	#  Implicit rule search has not been done.
+	#  Implicit/static pattern stem: `drivers/pcmcia/pcmcia'
+	#  Last modified 2006-06-28 16:00:14
+	#  File has been updated.
+	#  Successfully updated.
+	# automatic
+	# @ := drivers/pcmcia/pcmcia.mod.o
+	# automatic
+	# % :=
+	# automatic
+	# * := drivers/pcmcia/pcmcia
+	[snip]
+
+so the stem for 'drivers/pcmcia/pcmcia.mod.o' is just 'drivers/pcmcia/pcmcia' which
+gives the correct module name. so to get back the "old" behaviour without using the
+stem do an additional patsubst to get rid of the '.mod'
+
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index ac5f275..af3c1b6 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -15,7 +15,7 @@ depfile = $(subst $(comma),_,$(@D)/.$(@F
+ ###
+ # basetarget equals the filename of the target with no extension.
+ # So 'foo/bar.o' becomes 'bar'
+-basetarget = $(basename $(notdir $@))
++basetarget = $(patsubst %.mod,%,$(basename $(notdir $@)))
+ 
+ ###
+ # Escape single quote for use in echo statements
+
+
+

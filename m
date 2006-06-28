@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWF1Sla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWF1SoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750928AbWF1Sla (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 14:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWF1Sla
+	id S1750942AbWF1SoT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 14:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWF1SoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 14:41:30 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:8155 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750935AbWF1Sl3 (ORCPT
+	Wed, 28 Jun 2006 14:44:19 -0400
+Received: from gw.goop.org ([64.81.55.164]:57299 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1750794AbWF1SoS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 14:41:29 -0400
-Date: Wed, 28 Jun 2006 13:40:23 -0500
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: akpm@osdl.org
-Cc: Adrian Bunk <bunk@stusta.de>,
-       Phillip Hellewell <phillip@hellewell.homeip.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] fs/ecryptfs/: possible cleanups
-Message-ID: <20060628184023.GF14557@us.ibm.com>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
-References: <20060627015211.ce480da6.akpm@osdl.org> <20060628165525.GG13915@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060628165525.GG13915@stusta.de>
-User-Agent: Mutt/1.5.9i
+	Wed, 28 Jun 2006 14:44:18 -0400
+Message-ID: <44A2CE04.80606@goop.org>
+Date: Wed, 28 Jun 2006 11:44:20 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Ram Pai <linuxram@us.ibm.com>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: 2.6.17-mm3: segvs in modpost with out-of-tree modules
+References: <44A2B37F.4030500@goop.org> <20060628112925.f96fcfc4.akpm@osdl.org>
+In-Reply-To: <20060628112925.f96fcfc4.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 06:55:25PM +0200, Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - make needlessly global functions static
-> - there's usually no reason for functions in C files to be marked as
->   inline - gcc usually knows best whether or not to inline a function
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Andrew Morton wrote:
+> On Wed, 28 Jun 2006 09:51:11 -0700
+> Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>   
+>> I haven't really looked at yet, but I was hoping someone had already 
+>> tracked it down.
+>>     
+>
+> Not that I'm aware of.
 
-Acked-by: Michael Halcrow <mhalcrow@us.ibm.com>
+OK, it wasn't really a bug; I had an old Modules.symvers lying around 
+the madwifi tree from a previous build against an earlier kernel.  But 
+modpost seems all pretty fragile...
+
+    J

@@ -1,97 +1,311 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWF1SUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWF1SYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWF1SUk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 14:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWF1SUk
+	id S1750825AbWF1SYF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 14:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWF1SYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 14:20:40 -0400
-Received: from gold.veritas.com ([143.127.12.110]:11614 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750759AbWF1SUj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 14:20:39 -0400
+	Wed, 28 Jun 2006 14:24:04 -0400
+Received: from mga02.intel.com ([134.134.136.20]:7587 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750825AbWF1SYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 14:24:01 -0400
 X-IronPort-AV: i="4.06,189,1149490800"; 
-   d="scan'208"; a="61007356:sNHT32922952"
-Date: Wed, 28 Jun 2006 19:20:10 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [RFC][PATCH] mm: fixup do_wp_page()
-In-Reply-To: <1151506711.5383.24.camel@lappy>
-Message-ID: <Pine.LNX.4.64.0606281847540.16379@blonde.wat.veritas.com>
-References: <20060619175243.24655.76005.sendpatchset@lappy> 
- <20060619175253.24655.96323.sendpatchset@lappy> 
- <Pine.LNX.4.64.0606222126310.26805@blonde.wat.veritas.com> 
- <1151019590.15744.144.camel@lappy>  <Pine.LNX.4.64.0606231933060.7524@blonde.wat.veritas.com>
- <1151506711.5383.24.camel@lappy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 28 Jun 2006 18:20:39.0090 (UTC) FILETIME=[8ECE3120:01C69ADF]
+   d="scan'208"; a="58051936:sNHT53313232"
+Subject: [PATCH 002 of 006] raid5: Move check parity operations to a work
+	queue
+From: Dan Williams <dan.j.williams@intel.com>
+To: NeilBrown <neilb@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 28 Jun 2006 11:23:59 -0700
+Message-Id: <1151519039.2232.64.camel@dwillia2-linux.ch.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006, Peter Zijlstra wrote:
-> 
-> How about something like this? This should make all anonymous write
-> faults do as before the page_mkwrite patch.
+This patch adds 'check parity' capabilities to the work queue and fixes
+'queue_raid_work'.
 
-Yes, I believe your patch below is just how it should be.
+Also, raid5_do_soft_block_ops now accesses the stripe state under the
+lock to ensure that it is never out of sync with handle_stripe5.
 
-> As for copy_one_pte(), I'm not sure what you meant, shared writable
-> anonymous pages need not be write protected as far as I can see.
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 
-Anonymous pages in a shared writable vma, got there via ptrace poke.
-They're in a curious limbo between private and shared.  You can
-reasonably argue that the page was supposed to be shared in the first
-place, so although it's now become private, it's reasonable for it to
-remain shared at least between parent and child.  I don't disagree.
+ drivers/md/raid5.c         |  123 ++++++++++++++++++++++++++++++++++-----------
+ include/linux/raid/raid5.h |   25 ++++++---
+ 2 files changed, 113 insertions(+), 35 deletions(-)
 
-But if it's then swapped out under memory pressure, and brought back
-in, it will be treated as an ordinary anonymous page, write-protected,
-and once parent or child makes a modification, will cease to be shared
-between parent and child.  Not a big deal to lose sleep over, but
-such pages do behave inconsistently.
-
-Hugh
-
-> --- linux-2.6-dirty.orig/mm/memory.c	2006-06-28 13:16:15.000000000 +0200
-> +++ linux-2.6-dirty/mm/memory.c	2006-06-28 16:18:51.000000000 +0200
-> @@ -1466,11 +1466,21 @@ static int do_wp_page(struct mm_struct *
->  		goto gotten;
->  
->  	/*
-> -	 * Only catch write-faults on shared writable pages, read-only
-> -	 * shared pages can get COWed by get_user_pages(.write=1, .force=1).
-> +	 * Take out anonymous pages first, anonymous shared vmas are
-> +	 * not accountable.
->  	 */
-> -	if (unlikely((vma->vm_flags & (VM_WRITE|VM_SHARED)) ==
-> +	if (PageAnon(old_page)) {
-> +		if (!TestSetPageLocked(old_page)) {
-> +			reuse = can_share_swap_page(old_page);
-> +			unlock(old_page);
-> +		}
-> +	} else if (unlikely((vma->vm_flags & (VM_WRITE|VM_SHARED)) ==
->  					(VM_WRITE|VM_SHARED))) {
-> +		/*
-> +		 * Only catch write-faults on shared writable pages,
-> +		 * read-only shared pages can get COWed by
-> +		 * get_user_pages(.write=1, .force=1).
-> +		 */
->  		if (vma->vm_ops && vma->vm_ops->page_mkwrite) {
->  			/*
->  			 * Notify the address space that the page is about to
-> @@ -1502,9 +1512,6 @@ static int do_wp_page(struct mm_struct *
->  		dirty_page = old_page;
->  		get_page(dirty_page);
->  		reuse = 1;
-> -	} else if (PageAnon(old_page) && !TestSetPageLocked(old_page)) {
-> -		reuse = can_share_swap_page(old_page);
-> -		unlock_page(old_page);
->  	}
->  
->  	if (reuse) {
+===================================================================
+Index: linux-2.6-raid/drivers/md/raid5.c
+===================================================================
+--- linux-2.6-raid.orig/drivers/md/raid5.c	2006-06-28 09:52:07.000000000 -0700
++++ linux-2.6-raid/drivers/md/raid5.c	2006-06-28 10:35:23.000000000 -0700
+@@ -1289,7 +1289,7 @@
+ 	if (locked > 0) {
+ 		set_bit(R5_LOCKED, &sh->dev[pd_idx].flags);
+ 		clear_bit(R5_UPTODATE, &sh->dev[pd_idx].flags);
+-		sh->ops.queue_count++;
++		sh->ops.pending++;
+ 	} else if (locked == 0)
+ 		set_bit(R5_UPTODATE, &sh->dev[pd_idx].flags);
+ 
+@@ -1300,6 +1300,37 @@
+ 	return locked;
+ }
+ 
++static int handle_check_operations5(struct stripe_head *sh, int start_n)
++{
++	int complete=0, work_queued = -EBUSY;
++
++	if (test_bit(STRIPE_OP_CHECK, &sh->state) &&
++			test_bit(STRIPE_OP_CHECK_Done, &sh->ops.state)) {
++				clear_bit(STRIPE_OP_CHECK, &sh->state);
++				clear_bit(STRIPE_OP_CHECK_Done, &sh->ops.state);
++				complete = 1;
++	}
++
++	if (start_n == 0) {
++		/* enter stage 1 of parity check operation */
++		set_bit(STRIPE_OP_CHECK, &sh->state);
++		set_bit(STRIPE_OP_CHECK_Gen, &sh->ops.state);
++		work_queued = 1;
++	} else if (complete)
++		work_queued = 0;
++
++	if (work_queued > 0) {
++		clear_bit(R5_UPTODATE, &sh->dev[sh->pd_idx].flags);
++		sh->ops.pending++;
++	}
++
++	PRINTK("%s: stripe %llu start: %d complete: %d op_state: %lx\n",
++		__FUNCTION__, (unsigned long long)sh->sector,
++		start_n == 0, complete, sh->ops.state);
++
++	return work_queued;
++}
++
+ 
+ /*
+  * Each stripe/dev can have one or more bion attached.
+@@ -1406,11 +1437,11 @@
+ /* must be called under the stripe lock */
+ static void queue_raid_work(struct stripe_head *sh)
+ {
+-	if (--sh->ops.queue_count == 0) {
++	if (!test_bit(STRIPE_OP_QUEUED, &sh->state) && sh->ops.pending) {
++		set_bit(STRIPE_OP_QUEUED, &sh->state);
+ 		atomic_inc(&sh->count);
+ 		queue_work(sh->raid_conf->block_ops_queue, &sh->ops.work);
+-	} else if (sh->ops.queue_count < 0)
+-		sh->ops.queue_count = 0;
++	}
+ }
+ 
+ /*
+@@ -1423,16 +1454,17 @@
+ 	int i, pd_idx = sh->pd_idx, disks = sh->disks, count = 1;
+ 	void *ptr[MAX_XOR_BLOCKS];
+ 	struct bio *chosen;
+-	int overlap=0, new_work=0, written=0;
+-	unsigned long state, ops_state;
++	int overlap=0, work=0, written=0;
++	unsigned long state, ops_state, ops_state_orig;
+ 
+ 	/* take a snapshot of what needs to be done at this point in time */
+ 	spin_lock(&sh->lock);
+ 	state = sh->state;
+-	ops_state = sh->ops.state;
++	ops_state_orig = ops_state = sh->ops.state;
+ 	spin_unlock(&sh->lock);
+ 
+ 	if (test_bit(STRIPE_OP_RMW, &state)) {
++		BUG_ON(test_bit(STRIPE_OP_RCW, &state));
+ 		PRINTK("%s: stripe %llu STRIPE_OP_RMW op_state: %lx\n",
+ 			__FUNCTION__, (unsigned long long)sh->sector,
+ 			ops_state);
+@@ -1483,14 +1515,14 @@
+ 			if (count != 1)
+ 				xor_block(count, STRIPE_SIZE, ptr);
+ 
+-			/* signal completion and acknowledge the last state seen
+-			 * by sh->ops.state
+-			 */
++			work++;
+ 			set_bit(STRIPE_OP_RMW_Done, &ops_state);
+-			set_bit(STRIPE_OP_RMW_ParityPre, &ops_state);
+ 		}
+ 
+-	} else if (test_bit(STRIPE_OP_RCW, &state)) {
++	}
++
++	if (test_bit(STRIPE_OP_RCW, &state)) {
++		BUG_ON(test_bit(STRIPE_OP_RMW, &state));
+ 		PRINTK("%s: stripe %llu STRIPE_OP_RCW op_state: %lx\n",
+ 			__FUNCTION__, (unsigned long long)sh->sector,
+ 			ops_state);
+@@ -1527,20 +1559,47 @@
+ 			if (count != 1)
+ 				xor_block(count, STRIPE_SIZE, ptr);
+ 
+-			/* signal completion and acknowledge the last state seen
+-			 * by sh->ops.state
+-			 */
++			work++;
+ 			set_bit(STRIPE_OP_RCW_Done, &ops_state);
+-			set_bit(STRIPE_OP_RCW_Drain, &ops_state);
+ 
+ 		}
+ 	}
+ 
++	if (test_bit(STRIPE_OP_CHECK, &state)) {
++		PRINTK("%s: stripe %llu STRIPE_OP_CHECK op_state: %lx\n",
++		__FUNCTION__, (unsigned long long)sh->sector,
++		ops_state);
++
++		ptr[0] = page_address(sh->dev[pd_idx].page);
++
++		if (test_and_clear_bit(STRIPE_OP_CHECK_Gen, &ops_state)) {
++			for (i=disks; i--;)
++				if (i != pd_idx) {
++					ptr[count++] = page_address(sh->dev[i].page);
++					check_xor();
++				}
++			if (count != 1)
++				xor_block(count, STRIPE_SIZE, ptr);
++
++			set_bit(STRIPE_OP_CHECK_Verify, &ops_state);
++		}
++		if (test_and_clear_bit(STRIPE_OP_CHECK_Verify, &ops_state)) {
++			if (page_is_zero(sh->dev[pd_idx].page))
++				set_bit(STRIPE_OP_CHECK_IsZero, &ops_state);
++
++			work++;
++			set_bit(STRIPE_OP_CHECK_Done, &ops_state);
++		}
++	}
++
+ 	spin_lock(&sh->lock);
+-	/* Update the state of operations, by XORing we clear the stage 1 requests
+-	 * while preserving new requests.
++	/* Update the state of operations:
++	 * -clear incoming requests
++	 * -preserve output status (i.e. done status / check result)
++	 * -preserve requests added since 'ops_state_orig' was set
+ 	 */
+-	sh->ops.state ^= ops_state;
++	sh->ops.state ^= (ops_state_orig & ~STRIPE_OP_COMPLETION_MASK);
++	sh->ops.state |= ops_state;
+ 
+ 	if (written)
+ 		for (i=disks ; i-- ;) {
+@@ -1556,7 +1615,8 @@
+ 				wake_up(&sh->raid_conf->wait_for_overlap);
+ 		}
+ 
+-	sh->ops.queue_count += new_work;
++	sh->ops.pending -= work;
++	clear_bit(STRIPE_OP_QUEUED, &sh->state);
+ 	set_bit(STRIPE_HANDLE, &sh->state);
+ 	queue_raid_work(sh);
+ 	spin_unlock(&sh->lock);
+@@ -1941,17 +2001,24 @@
+ 	 * Any reads will already have been scheduled, so we just see if enough data
+ 	 * is available
+ 	 */
+-	if (syncing && locked == 0 &&
+-	    !test_bit(STRIPE_INSYNC, &sh->state)) {
++	if ((syncing && locked == 0 &&
++	    !test_bit(STRIPE_INSYNC, &sh->state)) ||
++	    	test_bit(STRIPE_OP_CHECK, &sh->state)) {
++		int work_queued = 0, result = 0;
++
+ 		set_bit(STRIPE_HANDLE, &sh->state);
+ 		if (failed == 0) {
+-			BUG_ON(uptodate != disks);
+-			compute_parity5(sh, CHECK_PARITY);
+-			uptodate--;
+-			if (page_is_zero(sh->dev[sh->pd_idx].page)) {
++			BUG_ON(!test_bit(STRIPE_OP_CHECK, &sh->state) &&
++				(uptodate != disks));
++			work_queued = handle_check_operations5(sh,
++							uptodate == disks);
++			result = test_and_clear_bit(STRIPE_OP_CHECK_IsZero, &sh->ops.state);
++			if (work_queued > 0) {
++				uptodate--;
++			} else if (result && work_queued == 0) {
+ 				/* parity is correct (on disc, not in buffer any more) */
+ 				set_bit(STRIPE_INSYNC, &sh->state);
+-			} else {
++			} else if (!result && work_queued == 0) {
+ 				conf->mddev->resync_mismatches += STRIPE_SECTORS;
+ 				if (test_bit(MD_RECOVERY_CHECK, &conf->mddev->recovery))
+ 					/* don't try to repair!! */
+@@ -1962,7 +2029,7 @@
+ 				}
+ 			}
+ 		}
+-		if (!test_bit(STRIPE_INSYNC, &sh->state)) {
++		if (!test_bit(STRIPE_INSYNC, &sh->state) && work_queued == 0) {
+ 			/* either failed parity check, or recovery is happening */
+ 			if (failed==0)
+ 				failed_num = sh->pd_idx;
+Index: linux-2.6-raid/include/linux/raid/raid5.h
+===================================================================
+--- linux-2.6-raid.orig/include/linux/raid/raid5.h	2006-06-28 10:34:54.000000000 -0700
++++ linux-2.6-raid/include/linux/raid/raid5.h	2006-06-28 10:35:23.000000000 -0700
+@@ -147,7 +147,7 @@
+ 	int			bm_seq;	/* sequence number for bitmap flushes */
+ 	int			disks;			/* disks in stripe */
+ 	struct stripe_operations {
+-		int			queue_count;	/* if == 0 places stripe in the workqueue */
++		int			pending;	/* number of operations requested */
+ 		unsigned long		state;		/* state of block operations */
+ 		struct work_struct	work;		/* work queue descriptor */
+ 		#ifdef CONFIG_DMA_ENGINE
+@@ -208,14 +208,16 @@
+ #define	STRIPE_OP_COMPUTE	16
+ #define	STRIPE_OP_COMPUTE2	17 /* RAID-6 only */
+ #define	STRIPE_OP_BIOFILL	18
++#define	STRIPE_OP_QUEUED	19
+ 
+ /*
+  * These flags are communication markers between the handle_stripe[5|6]
+  * routine and the block operations work queue
+- * - The _End definitions are a signal from handle_stripe to the work queue to
++ * - The *_End definitions are a signal from handle_stripe to the work queue to
+  *   to ensure the completion of the operation so the results can be committed
+  *   to disk
+- * - The _Done definitions signal completion from work queue to handle_stripe
++ * - The *_Done definitions signal completion from work queue to handle_stripe
++ * - STRIPE_OP_CHECK_IsZero signals parity correctness to handle_stripe
+  * - All other definitions are service requests for the work queue
+  */
+ #define	STRIPE_OP_RCW_Drain		0
+@@ -231,12 +233,21 @@
+ #define	STRIPE_OP_CHECK_Verify		10
+ #define	STRIPE_OP_CHECK_End		11
+ #define	STRIPE_OP_CHECK_Done		12
+-#define	STRIPE_OP_COMPUTE_Prep		13
+-#define	STRIPE_OP_COMPUTE_Parity	14
+-#define	STRIPE_OP_COMPUTE_End		15
+-#define	STRIPE_OP_COMPUTE_Done		16
++#define	STRIPE_OP_CHECK_IsZero		13
++#define	STRIPE_OP_COMPUTE_Prep		14
++#define	STRIPE_OP_COMPUTE_Parity	15
++#define	STRIPE_OP_COMPUTE_End		16
++#define	STRIPE_OP_COMPUTE_Done		17
+ 
+ /*
++ * Bit mask for status bits set by the work queue thread
++ */
++#define	STRIPE_OP_COMPLETION_MASK 	(1 << STRIPE_OP_RCW_Done |\
++						1 << STRIPE_OP_RMW_Done |\
++						1 << STRIPE_OP_CHECK_Done |\
++						1 << STRIPE_OP_CHECK_IsZero |\
++						1 << STRIPE_OP_COMPUTE_Done)
++/*
+  * Plugging:
+  *
+  * To improve write throughput, we need to delay the handling of some

@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWF1Qyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbWF1Qzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751424AbWF1Qyv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 12:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWF1Qyr
+	id S1751468AbWF1Qzg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 12:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWF1Qze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 12:54:47 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35076 "HELO
+	Wed, 28 Jun 2006 12:55:34 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:43012 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751432AbWF1Qyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 12:54:41 -0400
-Date: Wed, 28 Jun 2006 18:54:40 +0200
+	id S1751452AbWF1QzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 12:55:10 -0400
+Date: Wed, 28 Jun 2006 18:55:10 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
-Subject: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-Message-ID: <20060628165440.GO13915@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] typo fixes: indepedent -> independent
+Message-ID: <20060628165510.GZ13915@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,39 +21,70 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, using an undeclared function gives a compile warning, but it 
-can lead to a nasty to debug runtime stack corruptions if the prototype 
-of the function is different from what gcc guessed.
-
-With -Werror-implicit-function-declaration we are getting an immediate
-compile error instead.
-
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- Makefile                               |    3 ++-
- drivers/input/joystick/iforce/Makefile |    2 --
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ arch/ia64/Kconfig    |    2 +-
+ arch/powerpc/Kconfig |    2 +-
+ arch/ppc/Kconfig     |    2 +-
+ arch/sh/Kconfig      |    2 +-
+ arch/x86_64/Kconfig  |    2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
---- linux-2.6.17-mm3-full/Makefile.old	2006-06-27 11:06:51.000000000 +0200
-+++ linux-2.6.17-mm3-full/Makefile	2006-06-27 11:07:12.000000000 +0200
-@@ -317,7 +317,8 @@
- CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
+--- linux-2.6.17-mm3-full/arch/ia64/Kconfig.old	2006-06-27 20:42:36.000000000 +0200
++++ linux-2.6.17-mm3-full/arch/ia64/Kconfig	2006-06-27 20:43:13.000000000 +0200
+@@ -438,7 +438,7 @@
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is indepedent of the system firmware.   And like a reboot
++	  but it is independent of the system firmware.   And like a reboot
+ 	  you can start any kernel with it, not just Linux.
  
- CFLAGS          := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
--                   -fno-strict-aliasing -fno-common
-+                   -fno-strict-aliasing -fno-common \
-+		   -Werror-implicit-function-declaration
- AFLAGS          := -D__ASSEMBLY__
+ 	  The name comes from the similiarity to the exec system call.
+--- linux-2.6.17-mm3-full/arch/powerpc/Kconfig.old	2006-06-27 20:43:19.000000000 +0200
++++ linux-2.6.17-mm3-full/arch/powerpc/Kconfig	2006-06-27 20:43:22.000000000 +0200
+@@ -628,7 +628,7 @@
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is indepedent of the system firmware.   And like a reboot
++	  but it is independent of the system firmware.   And like a reboot
+ 	  you can start any kernel with it, not just Linux.
  
- # Read KERNELRELEASE from include/config/kernel.release (if it exists)
---- linux-2.6.17-mm3-full/drivers/input/joystick/iforce/Makefile.old	2006-06-27 11:07:20.000000000 +0200
-+++ linux-2.6.17-mm3-full/drivers/input/joystick/iforce/Makefile	2006-06-27 11:07:32.000000000 +0200
-@@ -16,5 +16,3 @@
- ifeq ($(CONFIG_JOYSTICK_IFORCE_USB),y)
- 	iforce-objs += iforce-usb.o
- endif
--
--EXTRA_CFLAGS = -Werror-implicit-function-declaration
+ 	  The name comes from the similiarity to the exec system call.
+--- linux-2.6.17-mm3-full/arch/ppc/Kconfig.old	2006-06-27 20:43:30.000000000 +0200
++++ linux-2.6.17-mm3-full/arch/ppc/Kconfig	2006-06-27 20:43:33.000000000 +0200
+@@ -219,7 +219,7 @@
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is indepedent of the system firmware.   And like a reboot
++	  but it is independent of the system firmware.   And like a reboot
+ 	  you can start any kernel with it, not just Linux.
+ 
+ 	  The name comes from the similiarity to the exec system call.
+--- linux-2.6.17-mm3-full/arch/sh/Kconfig.old	2006-06-27 20:43:44.000000000 +0200
++++ linux-2.6.17-mm3-full/arch/sh/Kconfig	2006-06-27 20:43:47.000000000 +0200
+@@ -465,7 +465,7 @@
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is indepedent of the system firmware.  And like a reboot
++	  but it is independent of the system firmware.  And like a reboot
+ 	  you can start any kernel with it, not just Linux.
+ 
+ 	  The name comes from the similiarity to the exec system call.
+--- linux-2.6.17-mm3-full/arch/x86_64/Kconfig.old	2006-06-27 20:43:55.000000000 +0200
++++ linux-2.6.17-mm3-full/arch/x86_64/Kconfig	2006-06-27 20:43:58.000000000 +0200
+@@ -467,7 +467,7 @@
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is indepedent of the system firmware.   And like a reboot
++	  but it is independent of the system firmware.   And like a reboot
+ 	  you can start any kernel with it, not just Linux.
+ 
+ 	  The name comes from the similiarity to the exec system call.
 

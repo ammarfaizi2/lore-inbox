@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423341AbWF1OOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbWF1OPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423341AbWF1OOr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 10:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423343AbWF1OOr
+	id S1161033AbWF1OPF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 10:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161003AbWF1OPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 10:14:47 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:37893 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1423341AbWF1OOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 10:14:46 -0400
-Date: Wed, 28 Jun 2006 16:13:39 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] s390: remove unused macros from binfmt_elf32.c
-Message-ID: <20060628141339.GC14375@skybase>
+	Wed, 28 Jun 2006 10:15:04 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:59596 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1423343AbWF1OPA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 10:15:00 -0400
+Message-ID: <44A28EDE.5070707@fr.ibm.com>
+Date: Wed, 28 Jun 2006 16:14:54 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.17-mm3
+References: <20060627015211.ce480da6.akpm@osdl.org>
+In-Reply-To: <20060627015211.ce480da6.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Cedric Le Goater <clg@fr.ibm.com>
+Subject: [s390] fix compile issue when stacktrace is not configured
 
-[S390] remove unused macros from binfmt_elf32.c
+Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
 
-The two macros NEW_TO_OLD_UID and NEW_TO_OLD_GID in binfmt_elf32.c
-are not used by any code. Remove them.
-
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
+ arch/s390/kernel/Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
- arch/s390/kernel/binfmt_elf32.c |    5 -----
- 1 files changed, 5 deletions(-)
+Index: 2.6.17-mm3/arch/s390/kernel/Makefile
+===================================================================
+--- 2.6.17-mm3.orig/arch/s390/kernel/Makefile
++++ 2.6.17-mm3/arch/s390/kernel/Makefile
+@@ -4,7 +4,7 @@
 
-diff -urpN linux-2.6/arch/s390/kernel/binfmt_elf32.c linux-2.6-patched/arch/s390/kernel/binfmt_elf32.c
---- linux-2.6/arch/s390/kernel/binfmt_elf32.c	2006-06-18 03:49:35.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/binfmt_elf32.c	2006-06-28 14:43:52.000000000 +0200
-@@ -177,11 +177,6 @@ struct elf_prpsinfo32
- 
- #include <linux/highuid.h>
- 
--#undef NEW_TO_OLD_UID
--#undef NEW_TO_OLD_GID
--#define NEW_TO_OLD_UID(uid) ((uid) > 65535) ? (u16)overflowuid : (u16)(uid)
--#define NEW_TO_OLD_GID(gid) ((gid) > 65535) ? (u16)overflowgid : (u16)(gid) 
--
- #define elf_addr_t	u32
- /*
- #define init_elf_binfmt init_elf32_binfmt
+ EXTRA_AFLAGS	:= -traditional
+
+-obj-y	:=  bitmap.o traps.o time.o process.o stacktrace.o \
++obj-y	:=  bitmap.o traps.o time.o process.o \
+             setup.o sys_s390.o ptrace.o signal.o cpcmd.o ebcdic.o \
+             semaphore.o s390_ext.o debug.o profile.o irq.o reipl_diag.o
+
+@@ -21,6 +21,7 @@ obj-$(CONFIG_COMPAT)		+= compat_linux.o
+ obj-$(CONFIG_BINFMT_ELF32)	+= binfmt_elf32.o
+
+ obj-$(CONFIG_VIRT_TIMER)	+= vtime.o
++obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+
+ # Kexec part
+ S390_KEXEC_OBJS := machine_kexec.o crash.o

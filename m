@@ -1,35 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423221AbWF1JYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030493AbWF1J2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423221AbWF1JYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 05:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030487AbWF1JYg
+	id S1030493AbWF1J2f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 05:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030492AbWF1J2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 05:24:36 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:33692
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030360AbWF1JYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 05:24:35 -0400
-Date: Wed, 28 Jun 2006 02:24:33 -0700 (PDT)
-Message-Id: <20060628.022433.71087107.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: mingo@elte.hu, tglx@linutronix.de, bunk@stusta.de,
-       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Subject: Re: [patch] genirq: rename desc->handler to desc->chip, sparc64 fix
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060628014807.0694436f.akpm@osdl.org>
-References: <20060628083008.GA14056@elte.hu>
-	<20060628.013940.41192890.davem@davemloft.net>
-	<20060628014807.0694436f.akpm@osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 28 Jun 2006 05:28:35 -0400
+Received: from smtp4.poczta.interia.pl ([80.48.65.7]:25748 "EHLO
+	smtp4.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S1030487AbWF1J2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 05:28:34 -0400
+Date: Wed, 28 Jun 2006 11:28:28 +0200
+From: Marcin Glogowski <marcin.glogowski@interia.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Question about buffer.c
+Message-Id: <20060628112828.fbcc4a86.marcin.glogowski@interia.pl>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.19; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-EMID: d020aacc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Wed, 28 Jun 2006 01:48:07 -0700
+Hi,
+I have big problem with my filesystem based on squash (also ROM) compressed filesystem.
+My problem is when I'm copying something from mounted loop device the buffer cache memory is growing up - I want to disable block caching because Linux is killing processess because of the buffered inodes.
+Please tell me how to remove free list or touched buffer heads, or how to set the minimum cache size.
+I tried to delete the bh with the brelse(bh); function but the /proc/memory shows that the buffer head wasn't released.
+Is there an alternative for the getblk or ll_rw_block functions that don't use cache memory?
+Best regards,
+Marcin Glogowski
 
-> I'm thinking Thursday/Fridayish.  Is that OK?
+----------------------------------------------------------------------
+PS. Fajny portal... >>> http://link.interia.pl/f196a
 
-Sure :)

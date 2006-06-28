@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751658AbWF1Wzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751753AbWF1XCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751658AbWF1Wzw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 18:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWF1Wzw
+	id S1751753AbWF1XCP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 19:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWF1XCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 18:55:52 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:2075 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751654AbWF1Wzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 18:55:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=Oqcl0AiznWaIymcY7k7xjYSnbiXPvvJbl0jYTOqI0SP1QzAjmrv0aL51YddumdY7rg9RzcP5mBYu9ZX0aMdQQeeHbixkSX5iJe82VO491nB1teZiHZFl4T9EKCvRg1n6HChbabl3xVPhzLTcIJ86yGedYn/p5c+g3le1TlI5EPY=
-Message-ID: <ee9e417a0606281555k3d954236y82b11336098762be@mail.gmail.com>
-Date: Wed, 28 Jun 2006 15:55:49 -0700
-From: "Russ Cox" <rsc@swtch.com>
-To: "Eric Sesterhenn" <snakebyte@gmx.de>
-Subject: Re: [V9fs-developer] [Patch] Dead code in fs/9p/vfs_inode.c
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net
-In-Reply-To: <1151535167.28311.1.camel@alice>
+	Wed, 28 Jun 2006 19:02:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49089 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751753AbWF1XCO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 19:02:14 -0400
+Date: Wed, 28 Jun 2006 16:02:06 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Wim Van Sebroeck <wim@iguana.be>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [WATCHDOG] v2.6.17 watchdog patches
+In-Reply-To: <20060628193145.GA2738@infomag.infomag.iguana.be>
+Message-ID: <Pine.LNX.4.64.0606281600300.12404@g5.osdl.org>
+References: <20060628193145.GA2738@infomag.infomag.iguana.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1151535167.28311.1.camel@alice>
-X-Google-Sender-Auth: 8897f57b315b6c86
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> coverity (id #971) found some dead code. In all error
-> cases ret is NULL, so we can remove the if statement.
->
-> Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
->
-> --- linux-2.6.17-git11/fs/9p/vfs_inode.c.orig   2006-06-29 00:50:53.000000000 +0200
-> +++ linux-2.6.17-git11/fs/9p/vfs_inode.c        2006-06-29 00:51:11.000000000 +0200
-> @@ -386,9 +386,6 @@ v9fs_inode_from_fid(struct v9fs_session_
->
->  error:
->         kfree(fcall);
-> -       if (ret)
-> -               iput(ret);
-> -
->         return ERR_PTR(err);
->  }
 
-What about when someone changes the code and does have ret != NULL here?
-This seems like reasonable defensive programming to me.
 
-Is the official LK policy that we can't have code that trips coverity
-checks like this?
+On Wed, 28 Jun 2006, Wim Van Sebroeck wrote:
+> 
+> Please pull from 'master' branch of
+> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
+> or if master.kernel.org hasn't synced up yet:
+> 	master.kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
 
-Russ
+Btw, you're apparently not signing off on the patches as you apply them to 
+your tree.
+
+It looks like the sequence up to you is properly signed off, but you 
+should close it off to make the committer field match the whole sign-off 
+chain:
+
+> Author: Randy Dunlap <rdunlap@xenotime.net>
+> Date:   Sun May 21 20:58:10 2006 -0700
+> 
+>     [WATCHDOG] Documentation/watchdog update
+>     
+>     Documentation/watchdog/:
+>     Expose example and tool source files in the Documentation/ directory in
+>     their own files instead of being buried (almost hidden) in readme/txt files.
+>     
+>     This will make them more visible/usable to users who may need
+>     to use them, to developers who may need to test with them, and
+>     to janitors who would update them if they were more visible.
+>     
+>     Also, if any of these possibly should not be in the kernel tree at
+>     all, it will be clearer that they are here and we can discuss if
+>     they should be removed.
+>     
+>     Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+>     Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+>     Signed-off-by: Andrew Morton <akpm@osdl.org>
+
+It went from Randy to Win to Andrew and then to you, but your sign-off is 
+missing..
+
+		Linus

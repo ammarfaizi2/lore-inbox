@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423247AbWF1JzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423252AbWF1KBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423247AbWF1JzL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 05:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423248AbWF1JzL
+	id S1423252AbWF1KBi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 06:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423254AbWF1KBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 05:55:11 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:23522 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1423247AbWF1JzI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 05:55:08 -0400
-Message-ID: <44A251F2.70707@fr.ibm.com>
-Date: Wed, 28 Jun 2006 11:54:58 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 28 Jun 2006 06:01:38 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:29417 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1423252AbWF1KBh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 06:01:37 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Lukas Jelinek <info@kernel-api.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel API Reference Documentation
+References: <44A1858B.9080102@kernel-api.org>
+	<20060627132226.2401598e.rdunlap@xenotime.net>
+	<44A1982C.1010008@kernel-api.org>
+	<Pine.LNX.4.58.0606280543270.32286@gandalf.stny.rr.com>
+X-Yow: Yow!
+Date: Wed, 28 Jun 2006 12:01:22 +0200
+In-Reply-To: <Pine.LNX.4.58.0606280543270.32286@gandalf.stny.rr.com> (Steven
+	Rostedt's message of "Wed, 28 Jun 2006 05:44:40 -0400 (EDT)")
+Message-ID: <jesllp8uq5.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Sam Vilain <sam@vilain.net>, Andrey Savochkin <saw@swsoft.com>,
-       dlezcano@fr.ibm.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>, dev@sw.ru, herbert@13thfloor.at,
-       devel@openvz.org, viro@ftp.linux.org.uk,
-       Alexey Kuznetsov <alexey@sw.ru>, Mark Huang <mlhuang@CS.Princeton.EDU>
-Subject: Re: Network namespaces a path to mergable code.
-References: <20060626134945.A28942@castle.nmd.msu.ru>	<m14py6ldlj.fsf@ebiederm.dsl.xmission.com>	<20060627215859.A20679@castle.nmd.msu.ru>	<44A1AF37.3070100@vilain.net>	<m1ac7xkifn.fsf@ebiederm.dsl.xmission.com>	<44A21F7A.5030807@vilain.net> <m1r719ixb6.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1r719ixb6.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+Steven Rostedt <rostedt@goodmis.org> writes:
 
-> Despite what it might look like unix domain sockets do not live in the
-> filesystem.  They store a cookie in the filesystem that roughly
-> corresponds to the port number of an AF_INET socket.  When you open a
-> socket the lookup is done by the cookie retrieved from the filesystem.
+> Here's a version that gets rid of a lot of confusing backslashes:
+>
+> /^\(\s\)*#endif/ {
 
-unix domain socket lookup uses a path_lookup for sockets in the filesystem
-namespace and a find_by_name for socket in the abstract namespace.
+You can get rid of even more of them.
 
-> So except for their cookies unix domain sockets are always in the
-> network stack.
+/^\s*#endif/ {
 
-what is that cookie ? the file dentry and mnt ref ?
+Andreas.
 
-so, ok, the resulting struct sock is part of the network namespace but
-there is a bridge with the filesystem namespace which does not prevent
-other namespaces to do a lookup. the lookup routine needs to be changed,
-this is any way necessary for the abstract namespace.
-
-I think we're reaching the limits of namespaces. It would be much easier
-with a container id in each kernel object we want to isolate.
-
-C.
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

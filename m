@@ -1,82 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423317AbWF1Mdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423321AbWF1Mm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423317AbWF1Mdp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 08:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423318AbWF1Mdp
+	id S1423321AbWF1Mm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 08:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423322AbWF1Mm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 08:33:45 -0400
-Received: from mivlgu.ru ([81.18.140.87]:23769 "EHLO mail.mivlgu.ru")
-	by vger.kernel.org with ESMTP id S1423317AbWF1Mdo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 08:33:44 -0400
-Date: Wed, 28 Jun 2006 16:33:39 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Rodrigo Amestica <ramestic@nrao.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vmalloc kernel parameter
-Message-Id: <20060628163339.d2110437.vsu@altlinux.ru>
-In-Reply-To: <44A272CA.5000209@nrao.edu>
-References: <44A272CA.5000209@nrao.edu>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.17; i586-alt-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__28_Jun_2006_16_33_39_+0400_XT0ZjPDMKll9RJ5s"
+	Wed, 28 Jun 2006 08:42:29 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:13793 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1423321AbWF1Mm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 08:42:28 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: "Rahul Karnik" <rahul@genebrew.com>
+Subject: Re: [Suspend2][ 0/9] Extents support.
+Date: Wed, 28 Jun 2006 22:42:21 +1000
+User-Agent: KMail/1.9.1
+Cc: "Jens Axboe" <axboe@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel@vger.kernel.org
+References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271739.13453.nigel@suspend2.net> <b29067a0606280428tff7b9dcp66bac3f2b83f4cc6@mail.gmail.com>
+In-Reply-To: <b29067a0606280428tff7b9dcp66bac3f2b83f4cc6@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart8597459.S8Ea0lr7bV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200606282242.26072.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__28_Jun_2006_16_33_39_+0400_XT0ZjPDMKll9RJ5s
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
+--nextPart8597459.S8Ea0lr7bV
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Wed, 28 Jun 2006 08:15:06 -0400 Rodrigo Amestica wrote:
+Hi.
 
-> Hi, I'm having troubles when using the vmalloc kernel parameter.
->=20
-> My grub config looks as shown below. If I set vmalloc to anything
-> bigger than 128M (the default) then the kernel will not boot and it
-> will log the following on the console:
->=20
-> VFS: Cannot open root device "LABEL=3D/" or unknown-block(0,0)
-> Please append a correct "root=3D" boot option
-> Kernel Panic - not syncing: VFS Unable to mount root fs on
-> unknown-block(0,0)
->=20
-> If I specify 128M or less then the kernel will boot just fine and
-> /proc/meminfo will show the effect in VmallocTotal.
->=20
-> Any hint on what I'm crashing with?
+On Wednesday 28 June 2006 21:28, Rahul Karnik wrote:
+> On 6/27/06, Nigel Cunningham <nigel@suspend2.net> wrote:
+> > Suspend2 is a
+> > reimplementation of swsusp, not a series of incremental modifications. =
+It
+> > uses completely different methods for writing the image, storing the
+> > metadata and so on. Until recently, the only thing it shared with swsusp
+> > was the refrigerator and driver model calls, and even now the sharing of
+> > lowlevel code is only a tiny fraction of all that is done.
+>
+> This is something I don't understand. Why can you not submit patches
+> that simply do things like "change method for writing image" and
+> reduce the difference between suspend2 and mainline? It may be more
+> work, but I think you will find that incremental changes are a lot
+> easier for people to review and merge.
 
-This is a known problem with GRUB: it tries to put initrd at the highest
-possible address in memory, and assumes the standard vmalloc area size.
-You need to trick GRUB into thinking that your machine has less memory
-by using "uppermem 524288" (512M) or even lower - then the initrd data
-will still be accessible for the kernel even with larger vmalloc area.
+It's because it's all so interconnected. Adding the modular infrastructure =
+is=20
+useless without something to use the modules. Changing to use the pageflags=
+=20
+functionality requires modifications in both the preparation of the image a=
+nd=20
+in the I/O. There are bits that could be done incrementally, but they're=20
+minor. I did start with the same codebase that Pavel forked, but then did=20
+substantial rewrites in going from the betas to 1.0 and to 2.0.
 
-http://lkml.org/lkml/2005/4/4/283
-http://lists.linbit.com/pipermail/drbd-user/2005-April/002890.html
+Thanks for the email.
 
-> ps: my kernel version is 2.6.15.2, and my machine is a dual opteron
-> with 2GB of ram
->=20
-> title with vmalloc
->          root (hd0,0)
+Nigel
+=2D-=20
+See http://www.suspend2.net for Howtos, FAQs, mailing
+lists, wiki and bugzilla info.
 
-Add "uppermem 524288" here.
-
->          kernel /boot/vmlinuz ro root=3DLABEL=3D/ vmalloc=3D256M
->          initrd /boot/initrd.img
-
---Signature=_Wed__28_Jun_2006_16_33_39_+0400_XT0ZjPDMKll9RJ5s
+--nextPart8597459.S8Ea0lr7bV
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.17 (GNU/Linux)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFEoncmW82GfkQfsqIRAhuvAJwKLcC0+lxClgiJnu73sqYQ4yTO9QCcCKLH
-jWoZaHiEUBTXlZXhCXgAyXc=
-=fFCI
+iD8DBQBEonkyN0y+n1M3mo0RAkIGAJ0d9E1RBy3ApdMQY2wFFUnPkgMUPQCcCp57
+TAxPr8d2x4QL72lcp6OeabA=
+=JwO9
 -----END PGP SIGNATURE-----
 
---Signature=_Wed__28_Jun_2006_16_33_39_+0400_XT0ZjPDMKll9RJ5s--
+--nextPart8597459.S8Ea0lr7bV--

@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423224AbWF1IrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423226AbWF1Ive@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423224AbWF1IrS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 04:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423227AbWF1IrS
+	id S1423226AbWF1Ive (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 04:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423227AbWF1Ive
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 04:47:18 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53464 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1423224AbWF1IrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 04:47:17 -0400
-Subject: Re: +
-	keys-allow-in-kernel-key-requestor-to-pass-auxiliary-data-to-upcaller.patch
-	added to -mm tree
-From: Arjan van de Ven <arjan@infradead.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, dhowells@redhat.com, kwc@citi.umich.edu
-In-Reply-To: <200606272332.k5RNWf43018630@shell0.pdx.osdl.net>
-References: <200606272332.k5RNWf43018630@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Wed, 28 Jun 2006 10:47:14 +0200
-Message-Id: <1151484434.3153.13.camel@laptopd505.fenrus.org>
+	Wed, 28 Jun 2006 04:51:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10652 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423226AbWF1Ivd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 04:51:33 -0400
+Date: Wed, 28 Jun 2006 01:48:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Miller <davem@davemloft.net>
+Cc: mingo@elte.hu, tglx@linutronix.de, bunk@stusta.de,
+       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+Subject: Re: [patch] genirq: rename desc->handler to desc->chip, sparc64 fix
+Message-Id: <20060628014807.0694436f.akpm@osdl.org>
+In-Reply-To: <20060628.013940.41192890.davem@davemloft.net>
+References: <1151479204.25491.491.camel@localhost.localdomain>
+	<20060628081345.GA12647@elte.hu>
+	<20060628083008.GA14056@elte.hu>
+	<20060628.013940.41192890.davem@davemloft.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 28 Jun 2006 01:39:40 -0700 (PDT)
+David Miller <davem@davemloft.net> wrote:
 
-> +/*****************************************************************************/
-> +/*
-> + * request a key with auxiliary data for the upcaller
-> + * - search the process's keyrings
-> + * - check the list of keys being created or updated
-> + * - call out to userspace for a key if supplementary info was provided
-> + */
-> +struct key *request_key2(struct key_type *type,
-> +			 const char *description,
-> +			 const char *callout_info,
-> +			 void *aux)
-> +{
-> +	return request_key_and_link(type, description, callout_info, aux,
-> +				    NULL, KEY_ALLOC_IN_QUOTA);
-> +
-> +} /* end request_key2() */
-> +
-> +EXPORT_SYMBOL(request_key2);
+> From: Ingo Molnar <mingo@elte.hu>
+> Date: Wed, 28 Jun 2006 10:30:08 +0200
+> 
+> > 
+> > * Ingo Molnar <mingo@elte.hu> wrote:
+> > 
+> > > > > OK, so I moved the above lines inside #ifdef CONFIG_GENERIC_HARDIRQS (diff
+> > > > > did a strange-looking thing with it):
+> > > > 
+> > > > Yeah, but its nevertheless correct. :)
+> > > 
+> > > lets hope it builds sparc64 & co too.
+> > > 
+> > > /me goes to try
+> > 
+> > ok, sparc64 needed the rename fix below, but otherwise it built fine on 
+> > -mm3.
+> 
+> Thanks Ingo.
+> 
+> Can we get the genirq stuff into Linus's tree soon?
 
-
-that's a pretty dire name ..... request_key_with_data() or even
-__request_key() would have been better..
-
-and also since this is new, linux specific thing, shouldn't this be a
-_GPL export?
-
-
+I'm thinking Thursday/Fridayish.  Is that OK?

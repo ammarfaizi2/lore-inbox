@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbWF1Ay7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbWF1BFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932594AbWF1Ay7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 20:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbWF1Ay6
+	id S932651AbWF1BFM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 21:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWF1BFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 20:54:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20879 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932594AbWF1Ay5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 20:54:57 -0400
-Date: Tue, 27 Jun 2006 17:57:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, hugh@veritas.com,
-       dhowells@redhat.com, a.p.zijlstra@chello.nl, christoph@lameter.com,
-       mbligh@google.com, npiggin@suse.de, torvalds@osdl.org
-Subject: Re: [PATCH 1/5] mm: tracking shared dirty pages
-Message-Id: <20060627175747.521c6733.akpm@osdl.org>
-In-Reply-To: <20060627182814.20891.36856.sendpatchset@lappy>
-References: <20060627182801.20891.11456.sendpatchset@lappy>
-	<20060627182814.20891.36856.sendpatchset@lappy>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Jun 2006 21:05:12 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:11670 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932651AbWF1BFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 21:05:10 -0400
+Message-ID: <44A1D5E5.3020903@acm.org>
+Date: Tue, 27 Jun 2006 20:05:41 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>,
+       Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH] watchdog: add pretimeout ioctl
+References: <20060627182225.GD10805@localdomain> <1151434785.32186.56.camel@localhost.localdomain>
+In-Reply-To: <1151434785.32186.56.camel@localhost.localdomain>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+Alan Cox wrote:
+> Ar Maw, 2006-06-27 am 13:22 -0500, ysgrifennodd minyard@acm.org:
+>   
+>> Some watchdog timers support the concept of a "pretimeout" which
+>> occurs some time before the real timeout.  The pretimeout can
+>> be delivered via an interrupt or NMI and can be used to panic
+>> the system when it occurs (so you get useful information instead
+>> of a blind reboot).
+>>     
 >
-> Tracking of dirty pages in shared writeable mmap()s.
+> All watchdogs can do pre-timeouts in software so possibly this should
+> use a software fallback as well if you want good coverage ?
+>   
+I hadn't thought of that, but a software emulator could be used with
+this interface, but it doesn't really help with hard lockups.  This is
+primarily intended to set up watchdogs that can delver an NMI,
+since even if the machine is hard-locked the NMI will come through.
+Of course, there's all kinds of problems with getting the NMI to a
+useful handler, but that's another story.
 
-I mangled this a bit to fit it on top of Christoph's vm counters rewrite
-(mm/page-writeback.c).
-
-I worry about the changes to __set_page_dirty_nobuffers() and
-test_clear_page_dirty().
-
-They both already require that the page be locked (or that the
-address_space be otherwise pinned).  But I'm not sure we get that right at
-present.  With these changes, our exposure to that gets worse, and we
-additionally are exposed to the possibility of the page itself being
-reclaimed, and not just the address_space.
-
-So ho hum.  I'll stick this:
-
---- a/mm/page-writeback.c~mm-tracking-shared-dirty-pages-checks
-+++ a/mm/page-writeback.c
-@@ -625,6 +625,7 @@ EXPORT_SYMBOL(write_one_page);
-  */
- int __set_page_dirty_nobuffers(struct page *page)
- {
-+	WARN_ON_ONCE(!PageLocked(page));
- 	if (!TestSetPageDirty(page)) {
- 		struct address_space *mapping = page_mapping(page);
- 		struct address_space *mapping2;
-@@ -722,6 +723,7 @@ int test_clear_page_dirty(struct page *p
- 	struct address_space *mapping = page_mapping(page);
- 	unsigned long flags;
- 
-+	WARN_ON_ONCE(!PageLocked(page));
- 	if (mapping) {
- 		write_lock_irqsave(&mapping->tree_lock, flags);
- 		if (TestClearPageDirty(page)) {
-_
-
-in there.
+-Corey

@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWF1Ub5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWF1Utm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbWF1Ub5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 16:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWF1Ub5
+	id S1751522AbWF1Utm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 16:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWF1Utm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 16:31:57 -0400
-Received: from mail.suse.de ([195.135.220.2]:3715 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751418AbWF1Ub4 (ORCPT
+	Wed, 28 Jun 2006 16:49:42 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23775 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751519AbWF1Utl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 16:31:56 -0400
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH] x86_64: Move export symbols to their C functions
-Date: Wed, 28 Jun 2006 22:31:44 +0200
-User-Agent: KMail/1.9.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200606261902.k5QJ2R93008443@hera.kernel.org> <20060628195632.GH23396@redhat.com> <20060628201348.GI23396@redhat.com>
-In-Reply-To: <20060628201348.GI23396@redhat.com>
+	Wed, 28 Jun 2006 16:49:41 -0400
+Date: Wed, 28 Jun 2006 22:48:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2][ 3/4] [Suspend2] Correct kernel/power/smp.c credit.
+Message-ID: <20060628204847.GA13397@elf.ucw.cz>
+References: <20060626164637.10641.63979.stgit@nigel.suspend2.net> <20060626164647.10641.37727.stgit@nigel.suspend2.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606282231.44938.ak@suse.de>
+In-Reply-To: <20060626164647.10641.37727.stgit@nigel.suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 June 2006 22:13, Dave Jones wrote:
-> On Wed, Jun 28, 2006 at 03:56:32PM -0400, Dave Jones wrote:
->  > On Wed, Jun 28, 2006 at 09:52:20PM +0200, Andi Kleen wrote:
->  >  > 
->  >  > > These two exports were never re-added, which broke modular oprofile.
->  >  > 
->  >  > Everybody and their dog sent patches for that by now and I assume
->  >  > Linus already merged Andrew's version
->  > 
->  > Ah, didn't see them, and my tree seems to be stale.
->  > Yes, looks fixed.
+On Tue 2006-06-27 02:46:48, Nigel Cunningham wrote:
+> Modify kernel/power/smp.c credit to my current address.
+
+> Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+
+ACK on this one... if you have similar easy stuff, please retransmit
+just that.
+							Pavel
+
+> diff --git a/kernel/power/smp.c b/kernel/power/smp.c
+> index 5957312..c102e7c 100644
+> --- a/kernel/power/smp.c
+> +++ b/kernel/power/smp.c
+> @@ -2,7 +2,7 @@
+>   * drivers/power/smp.c - Functions for stopping other CPUs.
+>   *
+>   * Copyright 2004 Pavel Machek <pavel@suse.cz>
+> - * Copyright (C) 2002-2003 Nigel Cunningham <ncunningham@clear.net.nz>
+> + * Copyright (C) 2002-2003 Nigel Cunningham <nigel@suspend2.net>
+>   *
+>   * This file is released under the GPLv2.
+>   */
 > 
-> Actually, I take that back, I was looking at the wrong tree (again).
-> It's not fixed in Linus tree yet in a git pull from a few minutes ago.
+> --
+> Nigel Cunningham		nigel at suspend2 dot net
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-At least Andrew has already sent the patch. I assume it will
-get in if it hasn't already.
-
--Andi
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

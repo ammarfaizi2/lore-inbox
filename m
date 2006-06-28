@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWF1UFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWF1UFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWF1UFK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 16:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWF1UFK
+	id S1751213AbWF1UFs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 16:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWF1UFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 16:05:10 -0400
-Received: from relay01.pair.com ([209.68.5.15]:29958 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S1751190AbWF1UFI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 16:05:08 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Wed, 28 Jun 2006 15:05:06 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Pavel Machek <pavel@ucw.cz>
-cc: Ulrich Drepper <drepper@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
-       Jason Baron <jbaron@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: make PROT_WRITE imply PROT_READ
-In-Reply-To: <20060628194913.GA18039@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.64.0606281502580.23249@turbotaz.ourhouse>
-References: <fa.PuMM6IwflUYh1MWILO9rb6z4fvY@ifi.uio.no> <449B42B3.6010908@shaw.ca>
- <Pine.LNX.4.64.0606230934360.24102@dhcp83-5.boston.redhat.com>
- <1151071581.3204.14.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0606231002150.24102@dhcp83-5.boston.redhat.com>
- <1151072280.3204.17.camel@laptopd505.fenrus.org>
- <a36005b50606241145q4d1dd17dg85f80e07fb582cdb@mail.gmail.com>
- <20060627095632.GA22666@elf.ucw.cz> <a36005b50606280943l54138e80tbda08e1607136792@mail.gmail.com>
- <20060628194913.GA18039@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 28 Jun 2006 16:05:48 -0400
+Received: from ausmtp05.au.ibm.com ([202.81.18.154]:56981 "EHLO
+	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1751222AbWF1UFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 16:05:46 -0400
+Date: Thu, 29 Jun 2006 01:32:47 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       Prasanna Panchamukhi <prasanna@in.ibm.com>
+Subject: Re: [PATCH] 2.6.17-rt1 : fix x86_64 oops
+Message-ID: <20060628200247.GA7932@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060627200105.GA13966@in.ibm.com> <20060628182137.GA23979@in.ibm.com> <20060628193256.GA4392@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060628193256.GA4392@elte.hu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006, Pavel Machek wrote:
+On Wed, Jun 28, 2006 at 09:32:56PM +0200, Ingo Molnar wrote:
+> 
+> * Dipankar Sarma <dipankar@in.ibm.com> wrote:
+> 
+> > Turns out that kprobe_flush_task() is called from finish_task_switch() 
+> > with preemption disabled and it uses a converted spin lock. The 
+> > following patch fixed the problem for me and I was able to boot my 
+> > x86_64 box.
+> 
+> ah, subtle problem and nice fix! We are using an RCU trick to delay task 
+> freeing in finish_task_switch(), but kprobe_flush_task() isnt done in 
 
-> On Wed 2006-06-28 09:43:22, Ulrich Drepper wrote:
->> On 6/27/06, Pavel Machek <pavel@ucw.cz> wrote:
->>> Usability for "normal" C applications is probably not too high... so
->>> why not work around it in glibc, if at all?
->>
->> Because it wouldn't affect all b inaries.  Existing code could still
->> cause the problem.  Also, there are other callers of the syscalls
->
-> _There is no problem_.
->
-> mmap() behaviour always was platform-specific, and it happens to be
-> quite strange on i386. So what.
+Yes, otherwise it would have been hell to do __put_task_struct()
+with preemption disabled.
 
-Hell, IIRC, on ConvexOS 11, the second argument to mmap() is a /pointer/ 
-to the length.
+> put_task_struct(). [neither would it be right to flush kprobes there.] 
+> I've released -rt4 with this included.
 
->> (direct, other libcs, etc).  The only reliable way to get rid of this
->> problem is to enforce it in the kernel.  Since the kernel cannot make
->> sense of this setting in all situations it is IMO even necessary since
->> you really don't want to have anything as unstable as this code.
->
-> Current kernel behaviour is useful for specialized apps. If you do not
-> want to see that weirdness in regular c application, work around it in
-> glibc.
-> 									Pavel
->
+OK, I need to catch up, but I see a lot of oops while running rcutorture
+in my box (rt1). I am investigating this atm.
 
-Thanks,
-Chase
+Thanks
+Dipankar

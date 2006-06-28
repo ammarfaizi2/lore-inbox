@@ -1,88 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751773AbWF1XXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751775AbWF1XYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751773AbWF1XXP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 19:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751774AbWF1XXP
+	id S1751775AbWF1XYW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 19:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWF1XYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 19:23:15 -0400
-Received: from omta03sl.mx.bigpond.com ([144.140.92.155]:63650 "EHLO
-	omta03sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751773AbWF1XXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 19:23:14 -0400
-Message-ID: <44A30F60.6070001@bigpond.net.au>
-Date: Thu, 29 Jun 2006 09:23:12 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 28 Jun 2006 19:24:22 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:46413 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751777AbWF1XYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 19:24:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=MiE9oBgtQkhpL96N6HE7a4G3h8XAC7rQPQIOqVr5zObihxrdlRvQojv8bvgwaoqM0dKbCqxshV+zKOJ5Vng+KbVzP0nrOXjiiqJ1qMx/lAcAuA2/TFN6n5IWxStN1YI+QQhP/V3j5kY4gGix1oWKzlO+xunrwIcThA6sR8LI+rY=
+Message-ID: <ee9e417a0606281624t23f5ccc2qd095b9bf993a0861@mail.gmail.com>
+Date: Wed, 28 Jun 2006 16:24:19 -0700
+From: "Russ Cox" <rsc@swtch.com>
+To: "Eric Sesterhenn / Snakebyte" <snakebyte@gmx.de>
+Subject: Re: [V9fs-developer] [Patch] Dead code in fs/9p/vfs_inode.c
+Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net
+In-Reply-To: <20060628231627.GA28463@alice>
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Con Kolivas <kernel@kolivas.org>
-Subject: Re: Incorrect CPU process accounting using CONFIG_HZ=100
-References: <200606211716.01472.a1426z@gawab.com> <200606272302.16950.kernel@kolivas.org> <44A1C4D4.3080805@bigpond.net.au> <200606282306.14498.a1426z@gawab.com>
-In-Reply-To: <200606282306.14498.a1426z@gawab.com>
-Content-Type: text/plain; charset=windows-1256; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 28 Jun 2006 23:23:12 +0000
+Content-Disposition: inline
+References: <1151535167.28311.1.camel@alice>
+	 <ee9e417a0606281555k3d954236y82b11336098762be@mail.gmail.com>
+	 <20060628231627.GA28463@alice>
+X-Google-Sender-Auth: b577d39be705952b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Peter Williams wrote:
->> Con Kolivas wrote:
->>> On Tuesday 27 June 2006 22:32, Al Boldi wrote:
->>>> Pavel Machek wrote:
->>>>> On Thu 2006-06-22 20:36:39, Al Boldi wrote:
->>>>>> Jan Engelhardt wrote:
->>>>>>>> Setting CONFIG_HZ=100 results in incorrect CPU process accounting.
->>>>>>>>
->>>>>>>> This can be seen running top d.1, that shows top, itself, consuming
->>>>>>>> 0ms CPUtime.
->>>>>>>>
->>>>>>>> Will this bug have consequences for sched.c?
->>>>>>> Works for me, somewhat.
->>>>>>> TIME+ says 0:00.02 after 70 secs. (Ergo: top is not expensive on
->>>>>>> this CPU.)
->>>>>> That's what I thought for a long time.  But at closer inspection, top
->>>>>> d.1 slows down other apps by about the same amount of time at 1000Hz
->>>>>> and 100Hz, only at 1000Hz it is accounted for whereas at 100Hz it is
->>>>>> not.
->>>>> It is not a bug... it is design decision. If you eat "too little" cpu
->>>>> time, you'll be accouted 0 msec. That's what happens at 100Hz...
->>>> Bummer!
->>>>
->>> The actual problem is that tasks
->>> only get charged if they happen to be running at the precise moment the
->>> tick fires. Now you could increase the accuracy of this timekeeping but
->>> it is expensive and this is exactly the sort of thing that we're saving
->>> cpu resources on by running at 100HZ (one of many).
->> It could be (partly) done fairly cheaply in nanoseconds if sched_clock()
->> was reliable enough (but comments on this mail list indicate that it
->> currently isn't) as it is already called in all the right places for
->> getting the total cpu time used (so just a subtraction, addition and
->> assignment).  The reason that I say partly is that splitting the time
->> into "system" and "user" would be a more complex problem.
-> 
-> If I am reading this correctly, then the kernel is accounting process times 
-> twice:
-> 	1. for external proc monitoring, using a probed approach
-> 	2. for scheduling, using an inlined approach
+> If this is whats agreed upon I will no longer send patches for
+> such bugs, and mark them as ignore in the coverity system.
+> But I guess it makes also sense to remove unused code, because I
+> am not sure if gcc can figure out to remove it. In this case
+> the generated object file is 10 bytes smaller.
 
-Not exactly (e.g. there's no separation between user and sys time 
-available in line) but the possibilities are there.
+I wasn't necessarily speaking for the group so much as I was interested
+in how coverity was being used and what the rules were.
+Thanks for the info.
 
-> 
-> Wouldn't merging the two approaches be in the interest of conserving cpu 
-> resources, while at the same time reflecting an accurate view of cpu 
-> utilization?
-
-I think that this would be a worthwhile endeavour once/if sched_clock() 
-is fixed.  This is especially the case as CPUs get faster as many tasks 
-may run to completion in less than a tick.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Russ

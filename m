@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWF1QFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWF1QHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWF1QFR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 12:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWF1QFR
+	id S1751326AbWF1QHF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 12:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWF1QHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 12:05:17 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:27090 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751272AbWF1QFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 12:05:14 -0400
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Hawkes <hawkes@sgi.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Tony Luck <tony.luck@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
-       Dan Higgins <djh@sgi.com>, Jeremy Higdon <jeremy@sgi.com>
-In-Reply-To: <005e01c69ac9$a55e1bf0$6f00a8c0@comcast.net>
-References: <20060627220139.3168.69409.sendpatchset@tomahawk.engr.sgi.com>
-	 <1151483994.3153.5.camel@laptopd505.fenrus.org>
-	 <005e01c69ac9$a55e1bf0$6f00a8c0@comcast.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 28 Jun 2006 17:21:08 +0100
-Message-Id: <1151511668.15166.34.camel@localhost.localdomain>
+	Wed, 28 Jun 2006 12:07:05 -0400
+Received: from xenotime.net ([66.160.160.81]:16569 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751326AbWF1QHE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 12:07:04 -0400
+Date: Wed, 28 Jun 2006 09:09:50 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Lukas Jelinek <info@kernel-api.org>
+Cc: ptesarik@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: Kernel API Reference Documentation
+Message-Id: <20060628090950.c1862a9e.rdunlap@xenotime.net>
+In-Reply-To: <44A2749D.7030705@kernel-api.org>
+References: <44A1858B.9080102@kernel-api.org>
+	<1151495225.8127.68.camel@elijah.suse.cz>
+	<44A2749D.7030705@kernel-api.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-06-28 am 08:43 -0700, ysgrifennodd John Hawkes:
-> > #define HZ sysconf(_SC_CLK_TCK)
+On Wed, 28 Jun 2006 14:22:53 +0200 Lukas Jelinek wrote:
+
+> > 
+> > I looked at
+> > http://www.kernel-api.org/docs/online/2.6.17/da/dab/structsk__buff.html
+> > 
+> > and you apparently ignore kernel-doc for structs. Cf.
+> > include/linux/skbuff.h:177 ff.
+> > 
+> > Regards,
+> > Petr Tesarik
+> > 
 > 
-> That did occur to me.  It obviously does get the correct value.  The downside
-> is that one of those crufty apps that thinks it is using "HZ" as a constant
-> will instead be invoking a more costly syscall.  Should we care about the
-> resulting performance impact?
+> There are several problems. The one you describe is probably caused by a
+> blank line between the struct and the related comment. Doxygen doesn't
+> recognize it correctly (and simply ignores the comment).
 
-Given that HZ can be cached by glibc the performance impact is minimal
-for most cases. The bigger problem will be code that does things with HZ
-that only work on compile time evaluation. At least for those you'll
-break at compile time.
+No blank line in this case.
 
-Either way its kind of irrelevant, the ABI set HZ. Its done, there are
-plenty of ways to change the kernel HZ without confusing userspace.
+And since you read the kernel-doc HOWTO, you now know that
+struct, enum, and typedef may have kernel-doc notations, right?
 
-Alan
-
+Thanks,
+---
+~Randy

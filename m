@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423202AbWF1H3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423199AbWF1H3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423202AbWF1H3M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 03:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423203AbWF1H3M
+	id S1423199AbWF1H3h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 03:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423204AbWF1H3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 03:29:12 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:59582 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1423202AbWF1H3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 03:29:10 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Wed, 28 Jun 2006 09:29:07 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Bugme-new] [Bug 6745] New: kernel hangs when trying to read  
- atip wiith cdrecord
-Message-ID: <44A22FC3.nail3NU1XXW6C@burner>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 28 Jun 2006 03:29:37 -0400
+Received: from aa002msr.fastwebnet.it ([85.18.95.65]:6838 "EHLO
+	aa002msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1423199AbWF1H3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 03:29:35 -0400
+Date: Wed, 28 Jun 2006 09:29:32 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: dtor_core@ameritech.net
+Cc: dmitry.torokhov@gmail.com,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: broken auto-repeat on PS/2 keyboard
+Message-ID: <20060628092932.18b07b43@localhost>
+In-Reply-To: <d120d5000606271034l693567a3r23d892204d5fd3f7@mail.gmail.com>
+References: <20060627162733.551f844f@localhost>
+	<d120d5000606271034l693567a3r23d892204d5fd3f7@mail.gmail.com>
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Lohmaier wrote:
->I updated the bug-report with some info I collected from another bug. 
+On Tue, 27 Jun 2006 13:34:26 -0400
+"Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
 
->Apparently my drive sends additional interrupts that confuses the kernel 
->and make it hang. 
->The problem is triggered with newer versions of cdrecord (cdrtools 
->2.01a33 and newer) where cdrecord changed its driver interface. 
+> Paolo,
+> 
+> Thank you for identifying the problem commit. Please try the attached
+> patch, it should fix the problem.
 
-cdrtools-2.01a33 is extremely old (2 years).
-
-It did not introduce new SCSI commands (compared to prevuious versions) and I
-would be interested why this problem is discussed late.
-
-The only new thing with cdrecord-2.01a33 is that it started to transfer more 
-than 4 bytes with the "read buffer" command. As this is only issued in case that
-the "read buffer" command did succeed with 4 bytes transfer count and as 
-cdrecord does not transfer more than the drive advertizes, I am just depending 
-on a kernel that does not freeze from the SCSI command I am issuing.
-
-
-Jörg
+It works :)
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+	Paolo Ornati
+	Linux 2.6.17-ga39727f2-dirty on x86_64

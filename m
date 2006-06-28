@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbWF1H1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030454AbWF1H2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030428AbWF1H1y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 03:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030438AbWF1H1y
+	id S1030454AbWF1H2L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 03:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030438AbWF1H2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 03:27:54 -0400
-Received: from mga02.intel.com ([134.134.136.20]:62323 "EHLO
+	Wed, 28 Jun 2006 03:28:11 -0400
+Received: from mga02.intel.com ([134.134.136.20]:43623 "EHLO
 	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030428AbWF1H1x convert rfc822-to-8bit (ORCPT
+	id S1030454AbWF1H2J convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 03:27:53 -0400
+	Wed, 28 Jun 2006 03:28:09 -0400
 X-IronPort-AV: i="4.06,186,1149490800"; 
-   d="scan'208"; a="57766359:sNHT219825753"
+   d="scan'208"; a="57766509:sNHT72646651"
 X-MimeOLE: Produced By Microsoft Exchange V6.5
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Subject: RE: [1/4] ACPI C-States: accounting of sleep states
-Date: Wed, 28 Jun 2006 03:27:47 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6DCECED@hdsmsx411.amr.corp.intel.com>
+Subject: RE: [2/4] ACPI C-States: bm_activity improvements
+Date: Wed, 28 Jun 2006 03:27:57 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6DCECEE@hdsmsx411.amr.corp.intel.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: [1/4] ACPI C-States: accounting of sleep states
-Thread-Index: AcaT6Ur4nTzT5CPdTd2FO+AQAyOT4QGmwrKQ
+Thread-Topic: [2/4] ACPI C-States: bm_activity improvements
+Thread-Index: AcaT6NL+v+PH59OCRYyPANrNAHyS7gGm4kFw
 From: "Brown, Len" <len.brown@intel.com>
 To: "Dominik Brodowski" <linux@dominikbrodowski.net>,
        "Thomas Gleixner" <tglx@timesys.com>
 Cc: "Con Kolivas" <kernel@kolivas.org>, "Ingo Molnar" <mingo@elte.hu>,
        "LKML" <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
        "john stultz" <johnstul@us.ibm.com>
-X-OriginalArrivalTime: 28 Jun 2006 07:27:49.0320 (UTC) FILETIME=[5BCD9C80:01C69A84]
+X-OriginalArrivalTime: 28 Jun 2006 07:27:59.0383 (UTC) FILETIME=[61CD1A70:01C69A84]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -43,80 +43,93 @@ thanks,
 >From: linux-kernel-owner@vger.kernel.org 
 >[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
 >Dominik Brodowski
->Sent: Monday, June 19, 2006 5:29 PM
+>Sent: Monday, June 19, 2006 5:30 PM
 >To: Thomas Gleixner; Brown, Len
 >Cc: Con Kolivas; Ingo Molnar; LKML; Andrew Morton; john stultz
->Subject: [1/4] ACPI C-States: accounting of sleep states
+>Subject: [2/4] ACPI C-States: bm_activity improvements
 >
->Track the actual time spent in C-States (C2 upwards, we can't
->determine this for C1), not only the number of invocations. This is
->especially useful for dynamic ticks / "tickless systems", but is also
->of interest on normal systems, as any interrupt activity leads to
->C-States being exited, not only the timer interrupt.
+>Do not assume there was bus mastering activity if the idle 
+>handler didn't
+>get called, as there's only reason to not enter C3-type sleep 
+>if there is
+>bus master activity going on. Only for the "promotion" into 
+>C3-type sleep
+>bus mastering activity is taken into account, and there only 
+>current bus
+>mastering activity, and not pure guessing should lead to the 
+>decision on
+>whether to enter C3-type sleep or not.
 >
->The time is being measured in PM timer ticks, so an increase 
->by one equals
->279 nanoseconds.
+>Also, as bm_activity is a jiffy-based bitmask (bit 0: bus 
+>mastering activity
+>during this juffy, bit 31: bus mastering activity 31 jiffies 
+>ago), fix the
+>setting of bit 0, as it might be called multiple times within 
+>one jiffy.
 >
 >Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 >
 >---
 >
-> drivers/acpi/processor_idle.c |   10 ++++++----
-> include/acpi/processor.h      |    1 +
-> 2 files changed, 7 insertions(+), 4 deletions(-)
+> drivers/acpi/processor_idle.c |   18 ++++++------------
+> 1 files changed, 6 insertions(+), 12 deletions(-)
 >
->3997a08ff5aa0553dfff81801c3690a5c91ac7bc
+>2e1b29fabc1085e1ab5b05dcac5d59e82c633668
 >diff --git a/drivers/acpi/processor_idle.c 
 >b/drivers/acpi/processor_idle.c
->index 80fa434..4f166fa 100644
+>index 4f166fa..29470e1 100644
 >--- a/drivers/acpi/processor_idle.c
 >+++ b/drivers/acpi/processor_idle.c
->@@ -322,8 +322,6 @@ static void acpi_processor_idle(void)
-> 		cx = &pr->power.states[ACPI_STATE_C1];
-> #endif
+>@@ -3,7 +3,7 @@
+>  *
+>  *  Copyright (C) 2001, 2002 Andy Grover <andrew.grover@intel.com>
+>  *  Copyright (C) 2001, 2002 Paul Diefenbaugh 
+><paul.s.diefenbaugh@intel.com>
+>- *  Copyright (C) 2004       Dominik Brodowski <linux@brodo.de>
+>+ *  Copyright (C) 2004, 2005 Dominik Brodowski <linux@brodo.de>
+>  *  Copyright (C) 2004  Anil S Keshavamurthy 
+><anil.s.keshavamurthy@intel.com>
+>  *  			- Added processor hotplug support
+>  *  Copyright (C) 2005  Venkatesh Pallipadi 
+><venkatesh.pallipadi@intel.com>
+>@@ -261,21 +261,15 @@ static void acpi_processor_idle(void)
+> 		u32 bm_status = 0;
+> 		unsigned long diff = jiffies - 
+>pr->power.bm_check_timestamp;
 > 
->-	cx->usage++;
->-
-> 	/*
-> 	 * Sleep:
-> 	 * ------
->@@ -421,6 +419,9 @@ static void acpi_processor_idle(void)
-> 		local_irq_enable();
-> 		return;
-> 	}
->+	cx->usage++;
->+	if ((cx->type != ACPI_STATE_C1) && (sleep_ticks > 0))
->+		cx->time += sleep_ticks;
+>-		if (diff > 32)
+>-			diff = 32;
+>+		if (diff > 31)
+>+			diff = 31;
 > 
-> 	next_state = pr->power.state;
+>-		while (diff) {
+>-			/* if we didn't get called, assume 
+>there was busmaster activity */
+>-			diff--;
+>-			if (diff)
+>-				pr->power.bm_activity |= 0x1;
+>-			pr->power.bm_activity <<= 1;
+>-		}
+>+		pr->power.bm_activity <<= diff;
 > 
->@@ -1055,9 +1056,10 @@ static int acpi_processor_power_seq_show
-> 		else
-> 			seq_puts(seq, "demotion[--] ");
+> 		acpi_get_register(ACPI_BITREG_BUS_MASTER_STATUS,
+> 				  &bm_status, ACPI_MTX_DO_NOT_LOCK);
+> 		if (bm_status) {
+>-			pr->power.bm_activity++;
+>+			pr->power.bm_activity |= 0x1;
+> 			acpi_set_register(ACPI_BITREG_BUS_MASTER_STATUS,
+> 					  1, ACPI_MTX_DO_NOT_LOCK);
+> 		}
+>@@ -287,7 +281,7 @@ static void acpi_processor_idle(void)
+> 		else if (errata.piix4.bmisx) {
+> 			if ((inb_p(errata.piix4.bmisx + 0x02) & 0x01)
+> 			    || (inb_p(errata.piix4.bmisx + 
+>0x0A) & 0x01))
+>-				pr->power.bm_activity++;
+>+				pr->power.bm_activity |= 0x1;
+> 		}
 > 
->-		seq_printf(seq, "latency[%03d] usage[%08d]\n",
->+		seq_printf(seq, "latency[%03d] usage[%08d] 
->duration[%020llu]\n",
-> 			   pr->power.states[i].latency,
->-			   pr->power.states[i].usage);
->+			   pr->power.states[i].usage,
->+			   pr->power.states[i].time);
-> 	}
-> 
->       end:
->diff --git a/include/acpi/processor.h b/include/acpi/processor.h
->index badf027..ca0e031 100644
->--- a/include/acpi/processor.h
->+++ b/include/acpi/processor.h
->@@ -51,6 +51,7 @@ struct acpi_processor_cx {
-> 	u32 latency_ticks;
-> 	u32 power;
-> 	u32 usage;
->+	u64 time;
-> 	struct acpi_processor_cx_policy promotion;
-> 	struct acpi_processor_cx_policy demotion;
-> };
+> 		pr->power.bm_check_timestamp = jiffies;
 >-- 
 >1.2.4
 >

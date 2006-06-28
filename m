@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932843AbWF1PnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932846AbWF1PqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932843AbWF1PnV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 11:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932846AbWF1PnV
+	id S932846AbWF1PqH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 11:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932847AbWF1PqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 11:43:21 -0400
-Received: from are.twiddle.net ([64.81.246.98]:44737 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S932843AbWF1PnV (ORCPT
+	Wed, 28 Jun 2006 11:46:07 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:45198 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932846AbWF1PqG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 11:43:21 -0400
-Date: Wed, 28 Jun 2006 08:43:20 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: Re: [klibc 04/31] alpha support for klibc
-Message-ID: <20060628154320.GA18511@twiddle.net>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel@vger.kernel.org, klibc@zytor.com
-References: <klibc.200606272217.00@tazenda.hos.anvin.org> <klibc.200606272217.04@tazenda.hos.anvin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <klibc.200606272217.04@tazenda.hos.anvin.org>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 28 Jun 2006 11:46:06 -0400
+Message-ID: <005e01c69ac9$a55e1bf0$6f00a8c0@comcast.net>
+From: "John Hawkes" <hawkes@sgi.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: "Tony Luck" <tony.luck@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       "Jack Steiner" <steiner@sgi.com>, "Dan Higgins" <djh@sgi.com>,
+       "Jeremy Higdon" <jeremy@sgi.com>
+References: <20060627220139.3168.69409.sendpatchset@tomahawk.engr.sgi.com> <1151483994.3153.5.camel@laptopd505.fenrus.org>
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+Date: Wed, 28 Jun 2006 08:43:46 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 10:17:04PM -0700, H. Peter Anvin wrote:
-> +# Special CFLAGS for the divide code
-> +DIVCFLAGS = $(KLIBCREQFLAGS) $(KLIBCARCHREQFLAGS) \
-> +	-O3 -fomit-frame-pointer -fcall-saved-1 -fcall-saved-2 \
-> +	-fcall-saved-3 -fcall-saved-4 -fcall-saved-5 -fcall-saved-6 \
-> +	-fcall-saved-7 -fcall-saved-8 -ffixed-15 -fcall-saved-16 \
-> +	-fcall-saved-17 -fcall-saved-18 -fcall-saved-19 -fcall-saved-20 \
-> +	-fcall-saved-21 -fcall-saved-22 -ffixed-23 -fcall-saved-24 \
-> +	-ffixed-25 -ffixed-27
+From: "Arjan van de Ven" <arjan@infradead.org>
+...
+> ok why not define the userspace HZ to
+>
+> #define HZ sysconf(_SC_CLK_TCK)
 
-These routines absolutely cannot be written in C.  The return value
-goes in a different register, which you cannot modify via compiler
-flags.  Please use the hand-coded assembly from linux/arch/alpha/lib/.
+That did occur to me.  It obviously does get the correct value.  The downside
+is that one of those crufty apps that thinks it is using "HZ" as a constant
+will instead be invoking a more costly syscall.  Should we care about the
+resulting performance impact?
 
+I vote for Arjan's solution.
 
-r~
+John Hawkes
+

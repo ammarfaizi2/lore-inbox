@@ -1,100 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423368AbWF1OoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932819AbWF1Oq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423368AbWF1OoV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 10:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423370AbWF1OoV
+	id S932819AbWF1Oq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 10:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932817AbWF1Oq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 10:44:21 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:44513 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1423368AbWF1OoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 10:44:20 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=R3KEnTpEn28C7IuWRb4JOdnow8vPvJrqTfpLq2mGL4MAHEcQubgKXUjcWvjSY9kT/
-	M70994sWeinRPPVEbeYIg==
-Message-ID: <44A29582.7050403@google.com>
-Date: Wed, 28 Jun 2006 07:43:14 -0700
-From: "Martin J. Bligh" <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
+	Wed, 28 Jun 2006 10:46:26 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:6276 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932819AbWF1OqZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 10:46:25 -0400
+Date: Wed, 28 Jun 2006 07:46:09 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Luck, Tony" <tony.luck@intel.com>,
+       hawkes@sgi.com, Tony Luck <tony.luck@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
+       Dan Higgins <djh@sgi.com>, Jeremy Higdon <jeremy@sgi.com>
+Subject: RE: [PATCH] ia64: change usermode HZ to 250
+In-Reply-To: <1151490843.3153.28.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0606280742570.19387@schroedinger.engr.sgi.com>
+References: <617E1C2C70743745A92448908E030B2A27F855@scsmsx411.amr.corp.intel.com>
+  <1151484210.3153.10.camel@laptopd505.fenrus.org> 
+ <1151491677.15166.13.camel@localhost.localdomain> <1151490843.3153.28.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: mbligh@mbligh.org, jeremy@goop.org, linux-kernel@vger.kernel.org,
-       apw@shadowen.org, linuxppc64-dev@ozlabs.org, drfickle@us.ibm.com
-Subject: Re: 2.6.17-mm2
-References: <449D5D36.3040102@google.com>	<449FF3A2.8010907@mbligh.org>	<44A150C9.7020809@mbligh.org>	<20060628034215.c3008299.akpm@osdl.org> <20060628034748.018eecac.akpm@osdl.org>
-In-Reply-To: <20060628034748.018eecac.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 28 Jun 2006 03:42:15 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
+On Wed, 28 Jun 2006, Arjan van de Ven wrote:
+
+> On Wed, 2006-06-28 at 11:47 +0100, Alan Cox wrote:
+> > Ar Mer, 2006-06-28 am 10:43 +0200, ysgrifennodd Arjan van de Ven:
+> > > I would hope not; it's a pretty big regression for the telco space
+> > > (which really wants 1 or 2 msec delays) so I hope/assume all the
+> > > enterprise distributions (which ia64 specially cares about) stick to the
+> > > old 1024 value...
+> > 
+> > 250 is also really bad for multimedia people. They would much rather
+> > have 300 than 250 as it divides nicely by 50 and by 60 for frame rates.
 > 
-> 
->>his is caused by the vsprintf() changes.  Right now, if you do
->>
->>	snprintf(buf, 4, "1111111111111");
->>
->>the memory at `buf' gets [31 31 31 31 00], which is not good.
->>
->>This'll plug it, but I didn't check very hard whether it still has any
->>off-by-ones, or if breaks the intent of Jeremy's patch.  I think it's OK..
+> yup I know; I proposed that back when this was discussed but lost that
+> argument ;(
 
-Aha, you're a genius! How the hell did you figure that one out?
+Maybe try again? I think we were not aware of that issue when the patch 
+was submitted. And we had trouble following arguments in the flood of 
+messages that followed.
 
-Andy / Steve ... any chance one of you could kick this through the
-harness? Against -git10 or so, I'd think
-
-Thanks,
-
-M.
-
-> That diff was against an older kernel and doesn't apply.  This is against
-> mainline:
-> 
-> --- a/lib/vsprintf.c~vsnprintf-fix
-> +++ a/lib/vsprintf.c
-> @@ -259,7 +259,9 @@ int vsnprintf(char *buf, size_t size, co
->  	int len;
->  	unsigned long long num;
->  	int i, base;
-> -	char *str, *end, c;
-> +	char *str;		/* Where we're writing to */
-> +	char *end;		/* The last byte we can write to */
-> +	char c;
->  	const char *s;
->  
->  	int flags;		/* flags to number() */
-> @@ -283,12 +285,12 @@ int vsnprintf(char *buf, size_t size, co
->  	}
->  
->  	str = buf;
-> -	end = buf + size;
-> +	end = buf + size - 1;
->  
->  	/* Make sure end is always >= buf */
-> -	if (end < buf) {
-> +	if (end < buf - 1) {
->  		end = ((void *)-1);
-> -		size = end - buf;
-> +		size = end - buf + 1;
->  	}
->  
->  	for (; *fmt ; ++fmt) {
-> @@ -494,7 +496,6 @@ int vsnprintf(char *buf, size_t size, co
->  	/* the trailing null byte doesn't count towards the total */
->  	return str-buf;
->  }
-> -
->  EXPORT_SYMBOL(vsnprintf);
->  
->  /**
-> _
-> 
+You could also simply add a HZ choice of 300.
 

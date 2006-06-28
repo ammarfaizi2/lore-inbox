@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWF1Fra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWF1Fwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422658AbWF1Fra (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 01:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422700AbWF1Fr3
+	id S964807AbWF1Fwz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 01:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWF1Fwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 01:47:29 -0400
-Received: from hera.kernel.org ([140.211.167.34]:49352 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1422658AbWF1Fr2 (ORCPT
+	Wed, 28 Jun 2006 01:52:55 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:9174 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S964807AbWF1Fwy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 01:47:28 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: klibc and what's the next step?
-Date: Tue, 27 Jun 2006 22:47:19 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e7t557$u9o$1@terminus.zytor.com>
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <200606271940.46634.ak@suse.de> <44A16E9C.70000@zytor.com> <bda6d13a0606271322x6f2d76f4wfdbc885062d9a145@mail.gmail.com>
+	Wed, 28 Jun 2006 01:52:54 -0400
+Date: Wed, 28 Jun 2006 09:49:45 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Subject: Re: [RFC][PATCH 0/3] Process events biarch bug: Intro
+Message-ID: <20060628054945.GA12276@2ka.mipt.ru>
+References: <1151408822.21787.1807.camel@stark> <20060627123325.GA26716@2ka.mipt.ru> <1151444391.21787.1860.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1151473639 31033 127.0.0.1 (28 Jun 2006 05:47:19 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 28 Jun 2006 05:47:19 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <1151444391.21787.1860.camel@stark>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 28 Jun 2006 09:49:48 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <bda6d13a0606271322x6f2d76f4wfdbc885062d9a145@mail.gmail.com>
-By author:    "Joshua Hudson" <joshudson@gmail.com>
-In newsgroup: linux.dev.kernel
+On Tue, Jun 27, 2006 at 02:39:51PM -0700, Matt Helsley (matthltc@us.ibm.com) wrote:
+> > Btw, __u64 is not the best choice for some arches too due to it's
+> > alignment (64bit code requires u64 to be aligned to 64 bit, while 32bit
+> > code will only align it to 32 bits), so you will need 
+> > attribute ((aligned(8)))) for your own ___u64.
 > 
-> BTW, is there a kinit= kernel command line so I can spawn an
-> interactive shell rather than /init?  init= doesn't do it.
-> 
+> 	Fixing the alignment would be a good idea. Though setting it to 8 would
+> introduce 4 unused bytes at the end of the structure.
 
-Yes, it's called rdinit=.
+Otherwise your code will not work, although u64 is supposed to be fixed
+size, due to it's alignment problems it can not be used as is.
+Split timestamp into two 32bit values and everything will be ok.
 
-	-hpa
+> Cheers,
+> 	-Matt Helsley
+
+-- 
+	Evgeniy Polyakov

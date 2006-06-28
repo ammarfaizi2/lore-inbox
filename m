@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbWF1GzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbWF1Gw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932694AbWF1GzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 02:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932747AbWF1GzP
+	id S1030459AbWF1Gw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 02:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932749AbWF1Gw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 02:55:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44519 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932694AbWF1GzO (ORCPT
+	Wed, 28 Jun 2006 02:52:29 -0400
+Received: from styx.suse.cz ([82.119.242.94]:52181 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932694AbWF1Gw3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 02:55:14 -0400
-Date: Tue, 27 Jun 2006 23:55:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nanhai.zou@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] jbd commit code deadloop when installing Linux
-Message-Id: <20060627235500.8c2c290e.akpm@osdl.org>
-In-Reply-To: <20060628063859.GA9726@elte.hu>
-References: <1151470123.6052.17.camel@linux-znh>
-	<20060627234005.dda13686.akpm@osdl.org>
-	<20060628063859.GA9726@elte.hu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 28 Jun 2006 02:52:29 -0400
+Date: Wed, 28 Jun 2006 08:52:04 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Marko Macek <Marko.Macek@gmx.net>, thoffman@arnor.net,
+       vanackere@lif.univ-mrs.fr, linux-kernel@vger.kernel.org
+Subject: Re: USB input ati_remote autorepeat problem
+Message-ID: <20060628065204.GC5546@suse.cz>
+References: <44A18C38.7040504@gmx.net> <29495f1d0606271446y79ffef0aiffe445ee9e3909cd@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <29495f1d0606271446y79ffef0aiffe445ee9e3909cd@mail.gmail.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006 08:38:59 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+On Tue, Jun 27, 2006 at 02:46:39PM -0700, Nish Aravamudan wrote:
+> On 6/27/06, Marko Macek <Marko.Macek@gmx.net> wrote:
+> >Hello!
+> >
+> >I have problems with autorepeat in ati_remote (drivers/usb/input) driver
+> >in "recent" kernels: all keys start repeating immediately without some
+> >delay.
+> >
+> >This makes some things, like changing the channel prev/next or toggling
+> >fullscreen, etc... impossible/hard.
+> >
+> >The problem seems to be related to FILTER_TIME and HZ=250 (which I
+> >forgot to change).
+> >
+> >FILTER_TIME is defined to HZ / 20, and since 250 is not divisible by 20,
+> >the time will be too short to ignore enough events.
+> >
+> >Defining FILTER_TIME to HZ / 20 + 1 seems to fix things, but I'm not
+> >sure if there are any bad side effects.
+> 
+> Can you try just defining it to msecs_to_jiffies(50)? That should
+> handle the various HZ cases just fine.
+ 
+Indeed, that would be thr right solution. Even better would be to 
 
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > > We see system hang in ext3 jbd code
-> > > when Linux install program anaconda copying 
-> > > packages. 
-> > > 
-> > > That is because anaconda is invoked from linuxrc 
-> > > in initrd when system_state is still SYSTEM_BOOTING.
-> 
-> [ argh ...! ]
+	#define	FILTER_TIME	50	/* 50 msec */
 
-That's what I thought  ;)
+and later use
 
-> > > Thus the cond_resched checks in  journal_commit_transaction 
-> > > will always return 1 without actually schedule, 
-> > > then the system fall into deadloop.
-> > 
-> > That's a bug in cond_resched().
-> > 
-> > Something like this..
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
-> 
+	msecs_to_jiffies(FILTER_TIME)
 
-Thanks.  Zou, it'd be great if you could test this in your setup, please. 
-I've tagged it as 2.6.17.x material.
+in the code.
+
+-- 
+Vojtech Pavlik
+Director SuSE Labs

@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932676AbWF1Bii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932685AbWF1BmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932676AbWF1Bii (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 21:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWF1Bii
+	id S932685AbWF1BmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 21:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932686AbWF1BmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 21:38:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46232 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932676AbWF1Bih (ORCPT
+	Tue, 27 Jun 2006 21:42:16 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:3306 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932685AbWF1BmP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 21:38:37 -0400
-Date: Tue, 27 Jun 2006 18:38:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
-       serue@us.ibm.com, haveblue@us.ibm.com
-Subject: Re: [PATCH 00/20] Mount writer count and read-only bind mounts (v3)
-Message-Id: <20060627183822.667d9d49.akpm@osdl.org>
-In-Reply-To: <20060627221436.77CCB048@localhost.localdomain>
-References: <20060627221436.77CCB048@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Tue, 27 Jun 2006 21:42:15 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Daniel Ritz <daniel.ritz-ml@swissonline.ch>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: oom-killer problem 
+In-reply-to: Your message of "Tue, 27 Jun 2006 18:15:46 MST."
+             <Pine.LNX.4.64.0606271807570.3927@g5.osdl.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 28 Jun 2006 11:42:13 +1000
+Message-ID: <5920.1151458933@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jun 2006 15:14:36 -0700
-Dave Hansen <haveblue@us.ibm.com> wrote:
+Linus Torvalds (on Tue, 27 Jun 2006 18:15:46 -0700 (PDT)) wrote:
+>
+>
+>On Tue, 27 Jun 2006, Daniel Ritz wrote:
+>>  
+>>  # Default for not multi-part modules
+>> -modname = $(basetarget)
+>> +modname = $(basename $(basetarget))
+>
+>Is there some way to make it clear _what_ the suffix we expect to remove 
+>actually is in GNU make? Ie the "shell" kind of "basename" logic.
+>
+>Ie, I'd personally be happier with a 
+>
+>	modname = $(basename $(basetarget) .mod)
+>
+>kind of thing (yeah, this obviously does _not_ work)
 
-> I think these are ready for -mm.  They've gone through a few revisions
-> and a week or two of normal burn-in testing.  
-> 
-> ---
-> 
-> The following series implements read-only bind mounts.  This feature
-> allows a read-only view into a read-write filesystem.  In the process
-> of doing that, it also provides infrastructure for keeping track of
-> the number of writers to any given mount.  New in this version is that
-> if that number is non-zero, remounts from r/w to r/o are not allowed.  
-> 
-> This set does not take the previously tried approach of pushing down
-> the vfsmount structure deeply into call paths, such that it might be
-> checked in functions like permission(), may_create() and may_open().
-> Instead, it does checks near the entry points in the kernel, bumping
-> a reference count in the vfsmount structure.  I've also eliminated
-> the use of the MNT_RDONLY flag.  It was redundant since we have the
-> reference count.
-> 
-> This set also makes no attempt to keep the return codes for these
-> r/o bind mounts the same as for a real r/o filesystem or device.
-> It would require significantly more code and be quite a bit more
-> invasive.  Unless there is a very strong reason to do so, I believe
-> it isn't worth the trouble.
-> 
-> One note: the previous patches all worked this way:
-> 
-> 	mount --bind -o ro /source /dest
-> 
-> These patches have changed that behavior.  It now requires two steps:
-> 
-> 	mount --bind /source /dest
-> 	mount -o remount,ro  /dest
+modname = $(patsubst %.mod,%,$(basetarget))
 
-That seems a step backwards.
+should do it (untested).
 
-> Since the last revision, the locking in faccessat() and
-> mnt_is_readonly() has been changed to fix a race which might have
-> caused a false-negative mount-is-readonly return when faccessat()
-> is called while another two processes are racing to make a mount
-> readonly.
-> 
-> Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-
-umm, what's it all for?

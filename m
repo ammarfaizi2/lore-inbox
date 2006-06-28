@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWF1PCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWF1PCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWF1PCk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 11:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWF1PCk
+	id S1751196AbWF1PCn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 11:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWF1PCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 11:02:40 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:61876 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751070AbWF1PCj (ORCPT
+	Wed, 28 Jun 2006 11:02:41 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:5017 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751196AbWF1PCk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 11:02:39 -0400
-Date: Wed, 28 Jun 2006 10:01:42 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Al Viro <viro@ftp.linux.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, serue@us.ibm.com
-Subject: Re: [PATCH 20/20] honor r/w changes at do_remount() time
-Message-ID: <20060628150142.GA17543@sergelap.austin.ibm.com>
-References: <20060627221436.77CCB048@localhost.localdomain> <20060627221457.04ADBF71@localhost.localdomain> <20060628051935.GA29920@ftp.linux.org.uk> <20060628144104.GE5572@MAIL.13thfloor.at>
+	Wed, 28 Jun 2006 11:02:40 -0400
+Date: Wed, 28 Jun 2006 10:02:19 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mcthomps@us.ibm.com, toml@us.ibm.com, yoder1@us.ibm.com,
+       James Morris <jmorris@namei.org>, "Stephen C. Tweedie" <sct@redhat.com>,
+       Erez Zadok <ezk@cs.sunysb.edu>, David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 10/13: eCryptfs] Mmap operations
+Message-ID: <20060628150219.GB2802@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20060513033742.GA18598@hellewell.homeip.net> <20060513034708.GJ18631@hellewell.homeip.net> <84144f020606280716y2bea236du2ea84018e15a7d0a@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060628144104.GE5572@MAIL.13thfloor.at>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <84144f020606280716y2bea236du2ea84018e15a7d0a@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Herbert Poetzl (herbert@13thfloor.at):
-> On Wed, Jun 28, 2006 at 06:19:35AM +0100, Al Viro wrote:
-> > On Tue, Jun 27, 2006 at 03:14:57PM -0700, Dave Hansen wrote:
-> > > 
-> > > Originally from: Herbert Poetzl <herbert@13thfloor.at>
-> > > 
-> > > This is the core of the read-only bind mount patch set.
-> > > 
-> > > Note that this does _not_ add a "ro" option directly to
-> > > the bind mount operation.  If you require such a mount,
-> > > you must first do the bind, then follow it up with a
-> > > 'mount -o remount,ro' operation.
-> >  
-> > I guess the fundamental problem I have with that approach is that it's
-> > a cop-out - we just declare rw state of vfsmount independent from that
-> > of filesystem and add a "if a flag is set, act upon vfsmount".
+On Wed, Jun 28, 2006 at 05:16:34PM +0300, Pekka Enberg wrote:
+> On 5/13/06, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
+> >+static struct page *ecryptfs_get1page(struct file *file, int index)
+> >+{
+> >+       struct page *page;
+> >+       struct dentry *dentry;
+> >+       struct inode *inode;
+> >+       struct address_space *mapping;
+> >+
+> >+       dentry = file->f_dentry;
+> >+       inode = dentry->d_inode;
+> >+       mapping = inode->i_mapping;
+> >+       page = read_cache_page(mapping, index,
+> >+                              (filler_t *)mapping->a_ops->readpage,
+> >+                              (void *)file);
+> >+       if (IS_ERR(page))
+> >+               goto out;
+> >+       wait_on_page_locked(page);
 > 
-> IMHO the read only check has to be done twice, i.e
-> once for the superblock and a second time for the
-> particular vfs mount, similar, the procfs mounts
-> entry shows the combination (logical and) of the
-> write ability ...
+> Why no check for PageUptodate?
 
-Shouldn't the vfsmount rw flag being set imply superblock rw?
+It happens, but a bit later. ecryptfs_get1page() is called from
+write_zeros(). Then write_zeros() calls ecryptfs_prepare_write(),
+which does a PageUptodate() check.
 
--serge
+Mike

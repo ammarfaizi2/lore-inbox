@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423307AbWF1MRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWF1MVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423307AbWF1MRN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 08:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423308AbWF1MRM
+	id S1161009AbWF1MVE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 08:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161289AbWF1MVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 08:17:12 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:26325 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1423307AbWF1MRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 08:17:11 -0400
+	Wed, 28 Jun 2006 08:21:04 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:21477 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161009AbWF1MVC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 08:21:02 -0400
+Date: Wed, 28 Jun 2006 14:15:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [patch] lockdep: special s390 print_symbol() version
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, mingo@elte.hu,
-       arjan@infradead.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060628051124.22607c8f.akpm@osdl.org>
-References: <20060628112435.GD9452@osiris.boeblingen.de.ibm.com>
-	 <20060628120635.GE9452@osiris.boeblingen.de.ibm.com>
-	 <20060628051124.22607c8f.akpm@osdl.org>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Wed, 28 Jun 2006 14:17:20 +0200
-Message-Id: <1151497040.5428.50.camel@localhost>
+Message-ID: <20060628121524.GA22131@elte.hu>
+References: <20060628112435.GD9452@osiris.boeblingen.de.ibm.com> <20060628120635.GE9452@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060628120635.GE9452@osiris.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5004]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-28 at 05:11 -0700, Andrew Morton wrote:
-> On Wed, 28 Jun 2006 14:06:35 +0200
-> Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-> 
-> > Martin made me just aware of __builtin_extract_return_addr() which will
-> > do the trick as well and avoids adding yet another ifdef.
-> 
-> Does gcc-3.2 support that?
 
-It was present in every version of gcc we used, even 2.95.3 had it.
+* Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
--- 
-blue skies,
-  Martin.
+> +static inline void print_symbol(const char *fmt, unsigned long addr)
+> +{
+> +	__check_printsym_format(fmt, "");
+> +	__print_symbol(fmt, (unsigned long)
+> +		       __builtin_extract_return_addr((void *)addr));
+> +}
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+yeah, this looks better i think than the #ifdef variant.
 
-"Reality continues to ruin my life." - Calvin.
-
-
+	Ingo

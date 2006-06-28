@@ -1,64 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbWF1H77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbWF1IA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030476AbWF1H77 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 03:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWF1H77
+	id S1030479AbWF1IA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 04:00:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423209AbWF1IA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 03:59:59 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:13525 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030476AbWF1H76 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 03:59:58 -0400
-Date: Wed, 28 Jun 2006 09:55:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Zou Nan hai <nanhai.zou@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] jbd commit code deadloop when installing Linux
-Message-ID: <20060628075511.GA11948@elte.hu>
-References: <1151470123.6052.17.camel@linux-znh> <20060627234005.dda13686.akpm@osdl.org> <20060628063859.GA9726@elte.hu> <20060627235500.8c2c290e.akpm@osdl.org> <1151473582.6052.28.camel@linux-znh> <20060628004029.efcc8a03.akpm@osdl.org>
+	Wed, 28 Jun 2006 04:00:28 -0400
+Received: from lana.hrz.tu-chemnitz.de ([134.109.132.3]:21951 "EHLO
+	lana.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S1423208AbWF1IA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 04:00:26 -0400
+Date: Wed, 28 Jun 2006 10:00:25 +0200
+From: Ingo van Lil <inguin@gmx.de>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: Serial: UART_BUG_TXEN race conditions
+Message-ID: <20060628080025.GA22725@csn.tu-chemnitz.de>
+References: <20060626220747.zmkyd4smqs0o044s@mail.tu-chemnitz.de> <20060626202536.GJ21272@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060628004029.efcc8a03.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5102]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060626202536.GJ21272@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: --- Start der SpamAssassin 3.1.2 Textanalyse (-1.4 Punkte)
+	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
+	-1.4 ALL_TRUSTED            Nachricht wurde nur ueber vertrauenswuerdige Rechner
+	weitergeleitet
+	--- Ende der SpamAssassin Textanalyse
+X-Scan-Signature: 54eda96f4aacf00656d591f16f252d14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 26, 2006 at 09:25:36PM +0100, Russell King wrote:
 
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> > However I think cond_resched_lock and cond_resched_softirq also need fix
-> > to make the semantic consistent.
-> > 
-> > Please check the following patch.
-> > 
+> > 1. What if the IIR actually equals UART_IIR_THRI at that point? The
+> >    read access will clear the interrupt condition and the workaround
+> >    will effect the actual opposite of its intention: Neither
+> >    serial8250_start_tx() nor the interrupt handler will start
+> >    transmitting characters for the ring buffer.
 > 
-> Ah.  I think the return value from these functions should mean 
-> "something disruptive happened", if you like.
-> 
-> See, the callers of cond_resched_lock() aren't interested in whether 
-> cond_resched_lock() actually called schedule().  They want to know 
-> whether cond_resched_lock() dropped the lock.  Because if the lock was 
-> dropped, the caller needs to take some special action, regardless of 
-> whether schedule() was finally called.
+> Gah, looks like you're right - reading the IIR will clear the transmit
+> pending interrupt, so we should probably just load the transmitter up
+> with characters anyway if the TEMT bit is set.
 
-indeed ...!
+Proposed patch. It's my first submission, I hope it meets this list's
+standards.
+The patch drops the buggy UART detection and always writes a first load
+of characters into the transmitter FIFO if it's currently idle. This
+should be fine for both well-behaved and broken UARTs.
 
-> So I think the patch I queued is OK, agree?
+Cheers,
+Ingo
 
-yeah.
 
-i think the really-right-fix would be to get rid of that SYSTEM_BOOTING 
-ugliness though ... I'm quite a bit uneasy about us doing different 
-things for an initrd app than for fully booted apps.
+Signed-off-by: Ingo van Lil <inguin@gmx.de>
+---
 
-	Ingo
+diff -u linux-2.6.17.1/drivers/serial/8250.c.orig linux-2.6.17.1/drivers/serial/8250.c
+--- linux-2.6.17.1/drivers/serial/8250.c.orig	2006-06-27 21:37:41.000000000 +0200
++++ linux-2.6.17.1/drivers/serial/8250.c	2006-06-27 21:56:20.000000000 +0200
+@@ -1119,18 +1119,13 @@
+ static void serial8250_start_tx(struct uart_port *port)
+ {
+ 	struct uart_8250_port *up = (struct uart_8250_port *)port;
++	unsigned char lsr;
+ 
+ 	if (!(up->ier & UART_IER_THRI)) {
+ 		up->ier |= UART_IER_THRI;
+ 		serial_out(up, UART_IER, up->ier);
+-
+-		if (up->bugs & UART_BUG_TXEN) {
+-			unsigned char lsr, iir;
+-			lsr = serial_in(up, UART_LSR);
+-			iir = serial_in(up, UART_IIR);
+-			if (lsr & UART_LSR_TEMT && iir & UART_IIR_NO_INT)
+-				transmit_chars(up);
+-		}
++		lsr = serial_in(up, UART_LSR);
++		if (lsr & UART_LSR_TEMT) transmit_chars(up);
+ 	}
+ 
+ 	/*
+@@ -1529,7 +1524,6 @@
+ {
+ 	struct uart_8250_port *up = (struct uart_8250_port *)port;
+ 	unsigned long flags;
+-	unsigned char lsr, iir;
+ 	int retval;
+ 
+ 	up->capabilities = uart_config[up->port.type].flags;
+@@ -1634,25 +1628,6 @@
+ 
+ 	serial8250_set_mctrl(&up->port, up->port.mctrl);
+ 
+-	/*
+-	 * Do a quick test to see if we receive an
+-	 * interrupt when we enable the TX irq.
+-	 */
+-	serial_outp(up, UART_IER, UART_IER_THRI);
+-	lsr = serial_in(up, UART_LSR);
+-	iir = serial_in(up, UART_IIR);
+-	serial_outp(up, UART_IER, 0);
+-
+-	if (lsr & UART_LSR_TEMT && iir & UART_IIR_NO_INT) {
+-		if (!(up->bugs & UART_BUG_TXEN)) {
+-			up->bugs |= UART_BUG_TXEN;
+-			pr_debug("ttyS%d - enabling bad tx status workarounds\n",
+-				 port->line);
+-		}
+-	} else {
+-		up->bugs &= ~UART_BUG_TXEN;
+-	}
+-
+ 	spin_unlock_irqrestore(&up->port.lock, flags);
+ 
+ 	/*
+diff -u linux-2.6.17.1/drivers/serial/8250.h.orig linux-2.6.17.1/drivers/serial/8250.h
+--- linux-2.6.17.1/drivers/serial/8250.h.orig	2006-06-27 21:46:13.000000000 +0200
++++ linux-2.6.17.1/drivers/serial/8250.h	2006-06-27 21:46:35.000000000 +0200
+@@ -48,8 +48,7 @@
+ #define UART_CAP_UUE	(1 << 12)	/* UART needs IER bit 6 set (Xscale) */
+ 
+ #define UART_BUG_QUOT	(1 << 0)	/* UART has buggy quot LSB */
+-#define UART_BUG_TXEN	(1 << 1)	/* UART has buggy TX IIR status */
+-#define UART_BUG_NOMSR	(1 << 2)	/* UART has buggy MSR status bits (Au1x00) */
++#define UART_BUG_NOMSR	(1 << 1)	/* UART has buggy MSR status bits (Au1x00) */
+ 
+ #define PROBE_RSA	(1 << 0)
+ #define PROBE_ANY	(~0)

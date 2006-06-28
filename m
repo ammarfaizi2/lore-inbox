@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWF1Sle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWF1Sla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbWF1Sle (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 14:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWF1Sle
+	id S1750928AbWF1Sla (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 14:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWF1Sla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 14:41:34 -0400
-Received: from gold.veritas.com ([143.127.12.110]:56376 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750942AbWF1Sld (ORCPT
+	Wed, 28 Jun 2006 14:41:30 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:8155 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750935AbWF1Sl3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 14:41:33 -0400
-X-IronPort-AV: i="4.06,189,1149490800"; 
-   d="scan'208"; a="61008003:sNHT29366616"
-Date: Wed, 28 Jun 2006 19:41:10 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Wed, 28 Jun 2006 14:41:29 -0400
+Date: Wed, 28 Jun 2006 13:40:23 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: akpm@osdl.org
+Cc: Adrian Bunk <bunk@stusta.de>,
+       Phillip Hellewell <phillip@hellewell.homeip.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: please revert kthread from loop.c
-In-Reply-To: <20060627054612.GA15657@sergelap.austin.ibm.com>
-Message-ID: <Pine.LNX.4.64.0606281933300.24170@blonde.wat.veritas.com>
-References: <Pine.LNX.4.64.0606261920440.1330@blonde.wat.veritas.com>
- <20060627054612.GA15657@sergelap.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 28 Jun 2006 18:41:33.0293 (UTC) FILETIME=[7A5E61D0:01C69AE2]
+Subject: Re: [-mm patch] fs/ecryptfs/: possible cleanups
+Message-ID: <20060628184023.GF14557@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20060627015211.ce480da6.akpm@osdl.org> <20060628165525.GG13915@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060628165525.GG13915@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jun 2006, Serge E. Hallyn wrote:
+On Wed, Jun 28, 2006 at 06:55:25PM +0200, Adrian Bunk wrote:
+> This patch contains the following possible cleanups:
+> - make needlessly global functions static
+> - there's usually no reason for functions in C files to be marked as
+>   inline - gcc usually knows best whether or not to inline a function
 > 
-> Very sorry.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-No problem, just something I happened to notice, that's all.
-
-> Subject: [PATCH] kthread: convert loop.c to use kthread
-> 
-> Convert loop.c to use kthread in place of the deprecated
-> kernel_thread.
-> 
-> Update: Keep the lo_done completion to indicate when the
-> 	loop_thread is ready.  Otherwise a user gets the
-> 	go-ahead early and may start an ioctl before
-> 	loop_thread is in fact ready.
-> 
-> 	Also fix some other bugs including misnaming the thread,
-> 	found by Andrew Morton, and not setting lo->thread as
-> 	pointed out by Hugh Dickins.
-> 
-> 	This version has passed parallel runs of the following
-> 	script (on different devices of course), i.e.
-
-But not good for me.  Gets further e.g. 170 iterations,
-but then hangs while kthread_stop waits for completion.
-
-I haven't investigated further.  Is there really any reason
-to be messing with what has worked well for so long here?
-
-Hugh
+Acked-by: Michael Halcrow <mhalcrow@us.ibm.com>

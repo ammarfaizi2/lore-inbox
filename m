@@ -1,104 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751554AbWF1V3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751557AbWF1Vay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751554AbWF1V3r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 17:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbWF1V3r
+	id S1751557AbWF1Vay (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 17:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751558AbWF1Vay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 17:29:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22949 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751553AbWF1V3q (ORCPT
+	Wed, 28 Jun 2006 17:30:54 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:53944 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751555AbWF1Vax (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 17:29:46 -0400
-Date: Wed, 28 Jun 2006 14:32:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: linux-kernel@vger.kernel.org, davej@redhat.com,
-       alexey.y.starikovskiy@intel.com
-Subject: Re: [RFC] Adding queue_delayed_work_on interface for workqueues
-Message-Id: <20060628143242.486f9b15.akpm@osdl.org>
-In-Reply-To: <20060628141028.A13221@unix-os.sc.intel.com>
-References: <20060628141028.A13221@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jun 2006 17:30:53 -0400
+Message-ID: <44A2F50D.8030306@engr.sgi.com>
+Date: Wed, 28 Jun 2006 14:30:53 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: nagar@watson.ibm.com, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
+References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com>	<20060609042129.ae97018c.akpm@osdl.org>	<4489EE7C.3080007@watson.ibm.com>	<449999D1.7000403@engr.sgi.com>	<44999A98.8030406@engr.sgi.com>	<44999F5A.2080809@watson.ibm.com>	<4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>	<20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>	<20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>	<20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>	<44A01A50.1050403@sgi.com>	<20060626105548.edef4c64.akpm@osdl.org>	<44A020CD.30903@watson.ibm.com>	<20060626111249.7aece36e.akpm@osdl.org>	<44A026ED.8080903@sgi.com> <20060626113959.839d72bc.akpm@osdl.org>
+In-Reply-To: <20060626113959.839d72bc.akpm@osdl.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Venkatesh Pallipadi <venkatesh.pallipadi@intel.com> wrote:
->
+Hi Andrew,
+
+Testing with all delay-accounting patches as been in your 2.6.27-mm3
+tree as of 6/26 afternoon (ie, including the send-tgid-once, and
+avoid-sending-without-listeners patches), i do not see measurable
+performance difference with and without tgid processing when the
+exit rate was controlled to around 1000 exit/sec.
+
+As a result i am OK to not include a design of a system-wise
+init-time configuration option (for per-thread group data processing)
+in the taskstats interface.
+
+The ENOBUFS i experienced in my testing would start to happen
+when exit rate at around 14000 exits/sec. While our fields confirmed
+that a 1000 threads exit/sec was a real, i have no reason to be
+concerned of 14000 exits/sec rate. ;)
+
+Regards,
+ - jay
+
+
+Andrew Morton wrote:
+> On Mon, 26 Jun 2006 11:26:53 -0700
+> Jay Lan <jlan@sgi.com> wrote:
 > 
-> This patch is a part of cpufreq patches for ondemand governor optimizations
-> and entire series is actually posted to cpufreq mailing list.
-> Subject "minor optimizations to ondemand governor"
 > 
-> The following patch however is a generic change to workqueue interface and 
-> I wanted to get comments on this on lkml.
+>>>OK, please send the patch and I'll plan on sending this lot to Linus
+>>>Thursdayish.
+>>
+>>These new patches are fresh out of Shailabh's stove (well, i have
+>>seen one, but not the other yet) and i have not had chance to look
+>>at them yet. No need to rush, does it?
 > 
-> ...
->
-> Add queue_delayed_work_on() interface for workqueues.
+> 
+> Thursday's a long way off ;)
+> 
+> As long as we have a high level of confidence that any remaining issues
+> will be fixed within a few weeks, this code is OK for a merge.
+> 
+> There's a general agreement that the kernel needs this feature - people
+> have been mucking around with it for years.  Let's put the effort in and
+> make it happen.
 
-It looks sensible to me.
-
-> +extern int FASTCALL(queue_delayed_work_on(int cpu, struct workqueue_struct *wq, struct work_struct *work, unsigned long delay));
-
-Please wrap at 80-cols.
-
-I wouldn't bother making this FASTCALL.  It's an ugly thing, and why this
-particular function?  And this isn't fastpath stuff.
-
->  
-> -extern int schedule_delayed_work_on(int cpu, struct work_struct *work, unsigned long delay);
-> +extern int FASTCALL(schedule_delayed_work_on(int cpu, struct work_struct *work, unsigned long delay));
-
-Ditto.
-
->  }
->  
-> +int fastcall queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
-> +			struct work_struct *work, unsigned long delay)
-> +{
-> +	int ret = 0;
-> +	struct timer_list *timer = &work->timer;
-> +
-> +	if (!test_and_set_bit(0, &work->pending)) {
-> +		BUG_ON(timer_pending(timer));
-> +		BUG_ON(!list_empty(&work->entry));
-> +
-> +		/* This stores wq for the moment, for the timer_fn */
-> +		work->wq_data = wq;
-> +		timer->expires = jiffies + delay;
-> +		timer->data = (unsigned long)work;
-> +		timer->function = delayed_work_timer_fn;
-> +		add_timer_on(timer, cpu);
-> +		ret = 1;
-> +	}
-> +	return ret;
-> +}
-
-Feel free to add some kernel-doc for this function ;)
-
-> @@ -608,6 +615,7 @@ void init_workqueues(void)
->  EXPORT_SYMBOL_GPL(__create_workqueue);
->  EXPORT_SYMBOL_GPL(queue_work);
->  EXPORT_SYMBOL_GPL(queue_delayed_work);
-> +EXPORT_SYMBOL_GPL(queue_delayed_work_on);
->  EXPORT_SYMBOL_GPL(flush_workqueue);
->  EXPORT_SYMBOL_GPL(destroy_workqueue);
-
-Opinions vary a bit, but I think we mostly prefer to put the
-EXPORT_SYMBOL()s at the site of the thing which is being exported:
-
-foo()
-{
-}
-EXPORT_SYMBOL(foo);
-
-because it keeps all the info in the same place.  (We don't declare
-functions to be static or to return char* or to be __init at a different
-place in the source file..).
-
-Then again, it's legit to follow existing local style too.  Someone will
-come along later and fix it all in a single hit.  Whatever.
 

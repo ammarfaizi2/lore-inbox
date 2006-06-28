@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932823AbWF1PMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932834AbWF1PSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932823AbWF1PMF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 11:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932824AbWF1PMF
+	id S932834AbWF1PSz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 11:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932824AbWF1PSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 11:12:05 -0400
-Received: from www.osadl.org ([213.239.205.134]:16606 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932823AbWF1PME (ORCPT
+	Wed, 28 Jun 2006 11:18:55 -0400
+Received: from mx1.mail.ru ([194.67.23.121]:38217 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S932582AbWF1PSy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 11:12:04 -0400
-Subject: [PATCH] Fix plist include dependency
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
+	Wed, 28 Jun 2006 11:18:54 -0400
+Date: Wed, 28 Jun 2006 19:24:50 +0400
+From: Evgeniy Dushistov <dushistov@mail.ru>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Date: Wed, 28 Jun 2006 17:14:07 +0200
-Message-Id: <1151507648.25491.526.camel@localhost.localdomain>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH]: ufs: truncate should allocate block for last byte
+Message-ID: <20060628152450.GA16996@rain.homenetwork>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <20060628093851.GA1719@rain.homenetwork> <20060628045029.bc10d333.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060628045029.bc10d333.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-plist.h uses container_of, which is defined in kernel.h.
-Include kernel.h in plist.h as the kernel.h include does not longer
-happen automatically on all architectures.
+On Wed, Jun 28, 2006 at 04:50:29AM -0700, Andrew Morton wrote:
+> On Wed, 28 Jun 2006 13:38:51 +0400
+> > +	if (unlikely(!page->mapping || !page_has_buffers(page))) {
+> > +		unlock_page(page);
+> > +		page_cache_release(page);
+> > +		goto try_again;/*we really need these buffers*/
+> > +	}
+> > +out:
+> > +	return page;
+> > +}
+> 
+> I think there's a (preexisting) problem here.  When one thread is executing
+> ufs_get_locked_page() while a second thread is running truncate().
+> 
+> If truncate got to the page first, truncate_complete_page() will mark the
+> page !uptodate and will later unlock it.  Now this function gets the page
+> lock and emits a printk (bad) and assumes -EIO (worse).
+> 
+> That scenario might not be possible because of i_mutex coverage, dunno.
+> 
+I suppose this is possible because of 
+a)page may be mapped to hole
+b)sys_msync doesn't use i_mutex
+c)in case of block allocation we can call ufs_get_locked_page
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> But if it _is_ possible, it can be simply fixed by doing
+> 
+But you added such check "!page->mapping" into ufs_get_locked_page,
+is it not enough?
 
-diff --git a/include/linux/plist.h b/include/linux/plist.h
-index 3404fae..b95818a 100644
---- a/include/linux/plist.h
-+++ b/include/linux/plist.h
-@@ -73,6 +73,7 @@
- #ifndef _LINUX_PLIST_H_
- #define _LINUX_PLIST_H_
- 
-+#include <linux/kernel.h>
- #include <linux/list.h>
- #include <linux/spinlock_types.h>
- 
+> 	lock_page(page);
+> +	if (page->mapping == NULL) {
+> +		/* truncate() got there first */
+> +		page_cache_release(page);
+> +		goto try_again;
+> +	}
+> 
+> That's if it is appropriate to re-instantiate the page at a place which is
+> now outside i_size...
 
+-- 
+/Evgeniy
 

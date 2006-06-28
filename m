@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWF1ThF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWF1Thm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWF1ThF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 15:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWF1ThF
+	id S1751099AbWF1Thm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 15:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWF1Thm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 15:37:05 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:29783 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751095AbWF1ThB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 15:37:01 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=IdvGfIEbuPwn5XjCI27VIKR6edR2tLQsohA+BX7ZaOcJAePxbeDUT9An/VTwHlt33
-	lxZkoPzt9XVxyAvQDDItg==
-Message-ID: <44A2DA40.40502@google.com>
-Date: Wed, 28 Jun 2006 12:36:32 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: mbligh@mbligh.org, jeremy@goop.org, linux-kernel@vger.kernel.org,
-       apw@shadowen.org, linuxppc64-dev@ozlabs.org, drfickle@us.ibm.com
-Subject: Re: 2.6.17-mm2
-References: <449D5D36.3040102@google.com>	<449FF3A2.8010907@mbligh.org>	<44A150C9.7020809@mbligh.org>	<20060628034215.c3008299.akpm@osdl.org>	<20060628034748.018eecac.akpm@osdl.org>	<44A29582.7050403@google.com> <20060628121102.638f08d9.akpm@osdl.org>
-In-Reply-To: <20060628121102.638f08d9.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jun 2006 15:37:42 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:61888 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751099AbWF1Thl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 15:37:41 -0400
+Date: Wed, 28 Jun 2006 21:32:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       Prasanna Panchamukhi <prasanna@in.ibm.com>
+Subject: Re: [PATCH] 2.6.17-rt1 : fix x86_64 oops
+Message-ID: <20060628193256.GA4392@elte.hu>
+References: <20060627200105.GA13966@in.ibm.com> <20060628182137.GA23979@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060628182137.GA23979@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>How the hell did you figure that one out?
-> 
-> Found a way to reproduce it - do `cat /proc/slabinfo > /dev/null' in a
-> tight loop.  With that happening, a little two-way wasn't able to make
-> it through `dbench 4' without soiling the upholstery.  Then bisection-searching.
 
-Aha. we probably trigger it because the automated test harness dumps a
-bunch of crap out of /proc before and after running dbench then ;-)
+* Dipankar Sarma <dipankar@in.ibm.com> wrote:
 
-Thanks!
+> Turns out that kprobe_flush_task() is called from finish_task_switch() 
+> with preemption disabled and it uses a converted spin lock. The 
+> following patch fixed the problem for me and I was able to boot my 
+> x86_64 box.
 
-M.
+ah, subtle problem and nice fix! We are using an RCU trick to delay task 
+freeing in finish_task_switch(), but kprobe_flush_task() isnt done in 
+put_task_struct(). [neither would it be right to flush kprobes there.] 
+I've released -rt4 with this included.
+
+	Ingo

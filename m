@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWF1RAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWF1RAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbWF1RAG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:00:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWF1Q7r
+	id S1751432AbWF1RAI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWF1Q7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 12:59:47 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:35844 "HELO
+	Wed, 28 Jun 2006 12:59:44 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40452 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751429AbWF1Qyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 12:54:43 -0400
-Date: Wed, 28 Jun 2006 18:54:42 +0200
+	id S1751437AbWF1Qy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 12:54:59 -0400
+Date: Wed, 28 Jun 2006 18:54:58 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [-mm patch] make drivers/scsi/aic7xxx/aic79xx_core.:ahd_set_tags() static
-Message-ID: <20060628165442.GP13915@stusta.de>
-References: <20060627015211.ce480da6.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] kernel/printk.c: remove unused exports
+Message-ID: <20060628165458.GU13915@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060627015211.ce480da6.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 01:52:11AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.17-mm2:
->...
->  git-scsi-misc.patch
->...
->  git trees.
->...
-
-ahd_set_tags() can now become static.
+This patch removes the following unused EXPORT_SYMBOL's:
+- console_printk
+- is_console_locked
+- __printk_ratelimit
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/scsi/aic7xxx/aic79xx.h      |    5 -----
- drivers/scsi/aic7xxx/aic79xx_core.c |    2 +-
- 2 files changed, 1 insertion(+), 6 deletions(-)
+@Andrew:
+If anyone is considered maintainer of this code, please tell me who it 
+is so that I can send this patch to him instead of you.
 
---- linux-2.6.17-mm3-full/drivers/scsi/aic7xxx/aic79xx.h.old	2006-06-27 17:46:00.000000000 +0200
-+++ linux-2.6.17-mm3-full/drivers/scsi/aic7xxx/aic79xx.h	2006-06-27 17:46:08.000000000 +0200
-@@ -1427,11 +1427,6 @@
- 	AHD_QUEUE_TAGGED
- } ahd_queue_alg;
+This patch was already sent on:
+- 22 Jun 2006
+- 16 May 2006
+- 1 May 2006
+- 18 Apr 2006
+- 11 Apr 2006
+
+ kernel/printk.c |    4 ----
+ 1 file changed, 4 deletions(-)
+
+--- linux-2.6.17-rc1-mm2-full/kernel/printk.c.old	2006-04-11 01:20:32.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/kernel/printk.c	2006-04-11 01:21:54.000000000 +0200
+@@ -52,8 +52,6 @@
+ 	DEFAULT_CONSOLE_LOGLEVEL,	/* default_console_loglevel */
+ };
  
--void			ahd_set_tags(struct ahd_softc *ahd,
--				     struct scsi_cmnd *cmd,
--				     struct ahd_devinfo *devinfo,
--				     ahd_queue_alg alg);
+-EXPORT_SYMBOL(console_printk);
 -
- /**************************** Target Mode *************************************/
- #ifdef AHD_TARGET_MODE
- void		ahd_send_lstate_events(struct ahd_softc *,
---- linux-2.6.17-mm3-full/drivers/scsi/aic7xxx/aic79xx_core.c.old	2006-06-27 17:46:17.000000000 +0200
-+++ linux-2.6.17-mm3-full/drivers/scsi/aic7xxx/aic79xx_core.c	2006-06-27 17:46:27.000000000 +0200
-@@ -3877,7 +3877,7 @@
  /*
-  * Update the current state of tagged queuing for a given target.
-  */
--void
-+static void
- ahd_set_tags(struct ahd_softc *ahd, struct scsi_cmnd *cmd,
- 	     struct ahd_devinfo *devinfo, ahd_queue_alg alg)
+  * Low lever drivers may need that to know if they can schedule in
+  * their unblank() callback or not. So let's export it.
+@@ -728,7 +726,6 @@
  {
+ 	return console_locked;
+ }
+-EXPORT_SYMBOL(is_console_locked);
+ 
+ /**
+  * release_console_sem - unlock the console system
+@@ -1033,7 +1030,6 @@
+ 	spin_unlock_irqrestore(&ratelimit_lock, flags);
+ 	return 0;
+ }
+-EXPORT_SYMBOL(__printk_ratelimit);
+ 
+ /* minimum time in jiffies between messages */
+ int printk_ratelimit_jiffies = 5 * HZ;
 

@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWF1QHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWF1QLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWF1QHF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 12:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWF1QHF
+	id S1751337AbWF1QLj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 12:11:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWF1QLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 12:07:05 -0400
-Received: from xenotime.net ([66.160.160.81]:16569 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751326AbWF1QHE (ORCPT
+	Wed, 28 Jun 2006 12:11:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40884 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751322AbWF1QLi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 12:07:04 -0400
-Date: Wed, 28 Jun 2006 09:09:50 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Lukas Jelinek <info@kernel-api.org>
-Cc: ptesarik@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Kernel API Reference Documentation
-Message-Id: <20060628090950.c1862a9e.rdunlap@xenotime.net>
-In-Reply-To: <44A2749D.7030705@kernel-api.org>
-References: <44A1858B.9080102@kernel-api.org>
-	<1151495225.8127.68.camel@elijah.suse.cz>
-	<44A2749D.7030705@kernel-api.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jun 2006 12:11:38 -0400
+Message-ID: <44A2AA2B.3090101@osdl.org>
+Date: Wed, 28 Jun 2006 09:11:23 -0700
+From: John Daiker <jdaiker@osdl.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: John Hawkes <hawkes@sgi.com>, Arjan van de Ven <arjan@infradead.org>,
+       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
+       Jeremy Higdon <jeremy@sgi.com>
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+References: <20060627220139.3168.69409.sendpatchset@tomahawk.engr.sgi.com>	 <1151483994.3153.5.camel@laptopd505.fenrus.org>	 <005e01c69ac9$a55e1bf0$6f00a8c0@comcast.net> <1151511668.15166.34.camel@localhost.localdomain>
+In-Reply-To: <1151511668.15166.34.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006 14:22:53 +0200 Lukas Jelinek wrote:
+Alan Cox wrote:
+> Ar Mer, 2006-06-28 am 08:43 -0700, ysgrifennodd John Hawkes:
+>   
+>>> #define HZ sysconf(_SC_CLK_TCK)
+>>>       
+>> That did occur to me.  It obviously does get the correct value.  The downside
+>> is that one of those crufty apps that thinks it is using "HZ" as a constant
+>> will instead be invoking a more costly syscall.  Should we care about the
+>> resulting performance impact?
+>>     
+>
+> Given that HZ can be cached by glibc the performance impact is minimal
+> for most cases. The bigger problem will be code that does things with HZ
+> that only work on compile time evaluation. At least for those you'll
+> break at compile time.
+>
+> Either way its kind of irrelevant, the ABI set HZ. Its done, there are
+> plenty of ways to change the kernel HZ without confusing userspace.
+>
+> Alan
+>
+>   
+Alan, I agree with Arjan's solution as well.  From a very novice point 
+of view, it makes sense to #define HZ as a syscall (which it technically 
+should be anyway, right?).  Any performance hit isn't our problem... 
+people should have been using the syscall to begin with... we're just 
+forcing it on them this way!  :-)  That's my $0.02
 
-> > 
-> > I looked at
-> > http://www.kernel-api.org/docs/online/2.6.17/da/dab/structsk__buff.html
-> > 
-> > and you apparently ignore kernel-doc for structs. Cf.
-> > include/linux/skbuff.h:177 ff.
-> > 
-> > Regards,
-> > Petr Tesarik
-> > 
-> 
-> There are several problems. The one you describe is probably caused by a
-> blank line between the struct and the related comment. Doxygen doesn't
-> recognize it correctly (and simply ignores the comment).
-
-No blank line in this case.
-
-And since you read the kernel-doc HOWTO, you now know that
-struct, enum, and typedef may have kernel-doc notations, right?
-
-Thanks,
----
-~Randy
+John Daiker

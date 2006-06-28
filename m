@@ -1,83 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751636AbWF1WjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWF1WkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751636AbWF1WjF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 18:39:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751638AbWF1WjE
+	id S1751637AbWF1WkP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 18:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWF1WkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 18:39:04 -0400
-Received: from smeltpunt.science.ru.nl ([131.174.16.145]:19914 "EHLO
-	smeltpunt.science.ru.nl") by vger.kernel.org with ESMTP
-	id S1751637AbWF1WjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 18:39:03 -0400
-From: Sebastian =?iso-8859-1?q?K=FCgler?= <sebas@kde.org>
-Organization: K Desktop Environment
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp / suspend2 reliability (was Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion =?iso-8859-1?q?in=09-mm?=)
-Date: Thu, 29 Jun 2006 00:37:57 +0200
-User-Agent: KMail/1.9.3
-Cc: suspend2-devel@lists.suspend2.net,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-References: <200606270147.16501.ncunningham@linuxmail.org> <200606290019.17298.sebas@kde.org> <20060628222417.GA27526@elf.ucw.cz>
-In-Reply-To: <20060628222417.GA27526@elf.ucw.cz>
+	Wed, 28 Jun 2006 18:40:14 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:59815 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751637AbWF1WkM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 18:40:12 -0400
+Message-ID: <44A3053F.9040600@zytor.com>
+Date: Wed, 28 Jun 2006 15:39:59 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1238998.hRgyJxoDHD";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: Erik Frederiksen <erik_frederiksen@pmc-sierra.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: IS_ERR Threshold Value
+References: <1151528227.3904.1110.camel@girvin.pmc-sierra.bc.ca> <20060628140825.692f31be.rdunlap@xenotime.net>
+In-Reply-To: <20060628140825.692f31be.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606290038.01733.sebas@kde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1238998.hRgyJxoDHD
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Randy.Dunlap wrote:
+> On Wed, 28 Jun 2006 14:57:07 -0600 Erik Frederiksen wrote:
+> 
+>> from include/asm-mips/errno.h
+>> #define EDQUOT      1133    /* Quota exceeded */
+>>
+>> I noticed that the errno value for EDQUOT on MIPS is considerably larger
+>> than all others.  This can lead to a situation where functions using
+>> ERR_PTR() to return error codes in pointers cannot return this error
+>> code without IS_ERR() thinking that the pointer is valid.  In my case,
+>> it caused an alignment exception in the XFS open call when quota has
+>> been exceeded in the linux-mips 2.6.14 kernel.  I think that the XFS
+>> code has changed enough that this bug isn't in newer versions, though I
+>> haven't done a thorough investigation.  
+>>
+>> I've supplied a patch that addresses this situation by changing the
+>> threshold used by IS_ERR if EMAXERRNO is defined and greater than 1000. 
+>> Perhaps permanently raising the threshold value to something >1133 is
+>> sufficient.
+>>
+>> Looking forward to your feedback.  
+>>
+>> Erik Frederiksen
+>> Firmware Design Engineer Co-op
+>> PMC-Sierra Saskatoon
+> 
+> Hi,
+> Peter Anvin mentioned just a few days ago that this threshold value
+> should be 4095 for all arches.  I think we need to get that patch
+> done & submitted to Andrew for -mm.
+> 
 
-On Thursday 29 June 2006 00:24, Pavel Machek wrote:
-> > > Okay, can I get some details? Like how much memory does system have,
-> > > what stress test causes the failure?
-> >
-> > The machine has 1GB of RAM, filling it up beyond 500MB, maybe 600MB
-> > usually made swsusp a problem. I'd need to close apps then to be able to
-> > suspend.
->
-> I'm pretty sure I do suspending with most of RAM full. You have
-> big-enough swap partition, right?
+Indeed.
 
-1 GB, it might not be completely empty though. I probably only hit swsusp=20
-limit much earlier than suspend2's (which after 34 suspend/resume cycles an=
-d=20
-heavy use in between I did not hit yet).=20
-=2D-=20
-sebas
-
- http://www.kde.org | http://vizZzion.org |  GPG Key ID: 9119 0EF9=20
-=2D - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -=
- -
-Mohandas K. Gandhi often changed his mind publicly. An aide once asked him =
-how=20
-he could so freely contradict this week what he had said just last week. Th=
-e=20
-great man replied that it was because this week he knew better.
-
-
---nextPart1238998.hRgyJxoDHD
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iQEVAwUARKMEyWdNh9WRGQ75AQK/tgf+IkvVGYHvMKLMTi6P45wYh9UjMWQQ+2Uy
-7qUO/namYKdda9tCoXPGjVr6AU73uFYG7k1yMzxE6XTsX15pPzRTK0nU70WHnEco
-yIihVZmTSD++2saXHGJ/zQSOnFdmhkx0TThDFUxrvmSDIl1UklGKQ/nEUVSmUSvQ
-2gF2K3QA3LLLIsvz/0sXgjMYwkAL2uizhIED8bOPO6KpVxShbV05bRsKoUgYpFrI
-d/9tI7Pf4/o8xmYoFhgd1NP+0tHC6FjAeBkHNQbSe/4QEjak3XneVhoBwy9VypvJ
-iOZ5al1oa2FaDTXhXokGw307DTHlqr7yeWw4SKMyP57l2vw51NabSg==
-=EHkA
------END PGP SIGNATURE-----
-
---nextPart1238998.hRgyJxoDHD--
+	-hpa

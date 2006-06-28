@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWF1TWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWF1T0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751055AbWF1TWs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 15:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWF1TWr
+	id S1751028AbWF1T0h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 15:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWF1T0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 15:22:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30443 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751051AbWF1TWq (ORCPT
+	Wed, 28 Jun 2006 15:26:37 -0400
+Received: from mail.charite.de ([160.45.207.131]:16264 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S1751024AbWF1T0g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 15:22:46 -0400
-Date: Wed, 28 Jun 2006 12:22:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Evgeniy Dushistov <dushistov@mail.ru>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH]: ufs: truncate should allocate block for last byte
-Message-Id: <20060628122238.65f6296b.akpm@osdl.org>
-In-Reply-To: <20060628152450.GA16996@rain.homenetwork>
-References: <20060628093851.GA1719@rain.homenetwork>
-	<20060628045029.bc10d333.akpm@osdl.org>
-	<20060628152450.GA16996@rain.homenetwork>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jun 2006 15:26:36 -0400
+Date: Wed, 28 Jun 2006 21:26:34 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: radeonfb: corrupted screen on bootup
+Message-ID: <20060628192634.GJ28018@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200606282118.27750.mb@bu3sch.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200606282118.27750.mb@bu3sch.de>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006 19:24:50 +0400
-Evgeniy Dushistov <dushistov@mail.ru> wrote:
+* Michael Buesch <mb@bu3sch.de>:
 
-> On Wed, Jun 28, 2006 at 04:50:29AM -0700, Andrew Morton wrote:
-> > On Wed, 28 Jun 2006 13:38:51 +0400
-> > > +	if (unlikely(!page->mapping || !page_has_buffers(page))) {
-> > > +		unlock_page(page);
-> > > +		page_cache_release(page);
-> > > +		goto try_again;/*we really need these buffers*/
-> > > +	}
-> > > +out:
-> > > +	return page;
-> > > +}
-> > 
-> > I think there's a (preexisting) problem here.  When one thread is executing
-> > ufs_get_locked_page() while a second thread is running truncate().
-> > 
-> > If truncate got to the page first, truncate_complete_page() will mark the
-> > page !uptodate and will later unlock it.  Now this function gets the page
-> > lock and emits a printk (bad) and assumes -EIO (worse).
-> > 
-> > That scenario might not be possible because of i_mutex coverage, dunno.
-> > 
-> I suppose this is possible because of 
-> a)page may be mapped to hole
-> b)sys_msync doesn't use i_mutex
-> c)in case of block allocation we can call ufs_get_locked_page
+> I have a weird error with my PowerBook G4, which
+> has a radeon card. I am using radeonfb.
+> After bootup, the screen sometimes looks like it is melting.
+> I made a video to show you what is going on:
+> http://bu3sch.de/misc/after_boot.avi  (6.1 MB)
 
-OK.
+The same SOMETIMES happens to me as well (Medion Laptop GD96400 with
+an ATI card and the "radeon" driver from X.org), but I use the vesafb,
+since the radeonfb won't recognize my card.
 
-> > But if it _is_ possible, it can be simply fixed by doing
-> > 
-> But you added such check "!page->mapping" into ufs_get_locked_page,
-> is it not enough?
+> But here comes the interresting part:
+> If I switch back into the console, the screen becomes
+> normal again and I can continue to work as usual.
 
-That is what I was proposing, here:
+Same here.
+ 
+> I am suspecting some initialization routine bug.
 
-> > 	lock_page(page);
-> > +	if (page->mapping == NULL) {
-> > +		/* truncate() got there first */
-> > +		page_cache_release(page);
-> > +		goto try_again;
-> > +	}
+Yep.
 
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

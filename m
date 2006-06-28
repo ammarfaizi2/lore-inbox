@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423310AbWF1MPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423307AbWF1MRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423310AbWF1MPR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 08:15:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423308AbWF1MPR
+	id S1423307AbWF1MRN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 08:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423308AbWF1MRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 08:15:17 -0400
-Received: from ranger.systems.pipex.net ([62.241.162.32]:55748 "EHLO
-	ranger.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S1161289AbWF1MPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 08:15:15 -0400
-Date: Wed, 28 Jun 2006 13:16:05 +0100 (BST)
-From: Tigran Aivazian <tigran_aivazian@symantec.com>
-X-X-Sender: tigran@ezer.homenet
-To: Greg KH <greg@kroah.com>
-Cc: Shaohua Li <shaohua.li@intel.com>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       "Van De Ven, Adriaan" <adriaan.van.de.ven@intel.com>,
-       Rajesh Shah <rajesh.shah@intel.com>
-Subject: Re: [PATCH]microcode update driver rewrite - takes 2
-In-Reply-To: <20060627060214.GA27469@kroah.com>
-Message-ID: <Pine.LNX.4.61.0606281314540.2634@ezer.homenet>
-References: <1151376693.21189.52.camel@sli10-desk.sh.intel.com>
- <20060627060214.GA27469@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 28 Jun 2006 08:17:12 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:26325 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1423307AbWF1MRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 08:17:11 -0400
+Subject: Re: [patch] lockdep: special s390 print_symbol() version
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, mingo@elte.hu,
+       arjan@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060628051124.22607c8f.akpm@osdl.org>
+References: <20060628112435.GD9452@osiris.boeblingen.de.ibm.com>
+	 <20060628120635.GE9452@osiris.boeblingen.de.ibm.com>
+	 <20060628051124.22607c8f.akpm@osdl.org>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Wed, 28 Jun 2006 14:17:20 +0200
+Message-Id: <1151497040.5428.50.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jun 2006, Greg KH wrote:
->> 3. add a new attribute 'pf' to help tools check if CPU has latest ucode
->
-> What does "pf" stand for?
+On Wed, 2006-06-28 at 05:11 -0700, Andrew Morton wrote:
+> On Wed, 28 Jun 2006 14:06:35 +0200
+> Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> 
+> > Martin made me just aware of __builtin_extract_return_addr() which will
+> > do the trick as well and avoids adding yet another ifdef.
+> 
+> Does gcc-3.2 support that?
 
-processor flags.
+It was present in every version of gcc we used, even 2.95.3 had it.
 
-Kind regards
-Tigran
+-- 
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
+

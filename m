@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932781AbWF1Lg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932785AbWF1Li1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932781AbWF1Lg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 07:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932783AbWF1Lg1
+	id S932785AbWF1Li1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 07:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932786AbWF1Li1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 07:36:27 -0400
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:34310 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932781AbWF1Lg0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 07:36:26 -0400
-Date: Wed, 28 Jun 2006 13:36:30 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: "Dmitry Torokhov" <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, "Paolo Ornati" <ornati@fastwebnet.it>
-Subject: Re: broken auto-repeat on PS/2 keyboard
-Message-Id: <20060628133630.e7e1f754.khali@linux-fr.org>
-In-Reply-To: <d120d5000606271034l693567a3r23d892204d5fd3f7@mail.gmail.com>
-References: <20060627162733.551f844f@localhost>
-	<d120d5000606271034l693567a3r23d892204d5fd3f7@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jun 2006 07:38:27 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:65482 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932785AbWF1Li0
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Wed, 28 Jun 2006 07:38:26 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17570.26897.378682.724475@gargle.gargle.HOWL>
+Date: Wed, 28 Jun 2006 15:33:37 +0400
+To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <6694B22B6436BC43B429958787E4549802394A55@mssmsx402nb>
+References: <6694B22B6436BC43B429958787E4549802394A55@mssmsx402nb>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+Ananiev, Leonid I writes:
+ > >From Leonid Ananiev
 
-> > with current git kernel keyboard repeat for my plain PS/2 keyboard
-> > stopped working.
-> >
-> > Reverting
-> >        0ae051a19092d36112b5ba60ff8b5df7a5d5d23b
-> >
-> > fixes the problem...
-> 
-> Thank you for identifying the problem commit. Please try the attached
-> patch, it should fix the problem.
+Hello,
 
-Fixed it for me as well, thanks! Can this fix be pushed upstream now?
-The lack of repeat was a real pain.
+ > 
+ > Moving dirty pages balancing from user to kernel thread pdfludh entirely
+ > reduces extra long write(2) latencies, increases performance.
+ > 
 
--- 
-Jean Delvare
+[...]
+
+ > 	The benchmarks IOzone and Sysbench for file size 50% and 120% of
+ > RAM size on Pentium4, Xeon, Itanium have reported write and mix
+ > throughput increasing about 25%. The described Iozone > 0.1 sec write(2)
+
+Results are impressive.
+
+Wouldn't this interfere with current->backing_dev_info logic? This field
+is set by __generic_file_aio_write_nolock() and checked by
+may_write_to_queue() to force heavy writes to do more pageout. Maybe
+pdflush threads should set this field too?
+
+ > latencies are deleted. The condition writeback_in_progress() is tested
+ > earlier now. As a result extra pdflush works are not created and number
+ > of context switches increasing is inside variation limites.
+
+Nikita.

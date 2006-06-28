@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWF1RAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWF1RCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751440AbWF1RAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWF1Q7m
+	id S1751480AbWF1RCY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWF1Q7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 12:59:42 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39684 "HELO
+	Wed, 28 Jun 2006 12:59:30 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:42756 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751432AbWF1Qyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 12:54:55 -0400
-Date: Wed, 28 Jun 2006 18:54:55 +0200
+	id S1751451AbWF1QzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 12:55:08 -0400
+Date: Wed, 28 Jun 2006 18:55:07 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dwmw2@infradead.org, jffs-dev@axis.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/jffs2/: make 2 functions static
-Message-ID: <20060628165455.GT13915@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] typo fixes: disadvantadge -> disadvantage
+Message-ID: <20060628165507.GY13915@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,53 +21,34 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes two needlessly global functions static.
-
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
-This patch was already sent on:
-- 22 Jun 2006
+ Documentation/arm/IXP4xx         |    2 +-
+ include/asm-arm/arch-ixp4xx/io.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
- fs/jffs2/malloc.c   |    2 +-
- fs/jffs2/nodelist.h |    2 --
- fs/jffs2/scan.c     |    4 ++--
- 3 files changed, 3 insertions(+), 5 deletions(-)
-
---- linux-2.6.17-mm1-full/fs/jffs2/malloc.c.old	2006-06-22 11:31:15.000000000 +0200
-+++ linux-2.6.17-mm1-full/fs/jffs2/malloc.c	2006-06-22 11:31:23.000000000 +0200
-@@ -190,7 +190,7 @@
- 	kmem_cache_free(tmp_dnode_info_slab, x);
- }
- 
--struct jffs2_raw_node_ref *jffs2_alloc_refblock(void)
-+static struct jffs2_raw_node_ref *jffs2_alloc_refblock(void)
- {
- 	struct jffs2_raw_node_ref *ret;
- 
---- linux-2.6.17-mm1-full/fs/jffs2/nodelist.h.old	2006-06-22 11:31:31.000000000 +0200
-+++ linux-2.6.17-mm1-full/fs/jffs2/nodelist.h	2006-06-22 11:31:38.000000000 +0200
-@@ -427,8 +427,6 @@
- /* scan.c */
- int jffs2_scan_medium(struct jffs2_sb_info *c);
- void jffs2_rotate_lists(struct jffs2_sb_info *c);
--int jffs2_fill_scan_buf(struct jffs2_sb_info *c, void *buf,
--				uint32_t ofs, uint32_t len);
- struct jffs2_inode_cache *jffs2_scan_make_ino_cache(struct jffs2_sb_info *c, uint32_t ino);
- int jffs2_scan_classify_jeb(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
- int jffs2_scan_dirty_space(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb, uint32_t size);
---- linux-2.6.17-mm1-full/fs/jffs2/scan.c.old	2006-06-22 11:31:47.000000000 +0200
-+++ linux-2.6.17-mm1-full/fs/jffs2/scan.c	2006-06-22 11:32:11.000000000 +0200
-@@ -274,8 +274,8 @@
- 	return ret;
- }
- 
--int jffs2_fill_scan_buf (struct jffs2_sb_info *c, void *buf,
--				uint32_t ofs, uint32_t len)
-+static int jffs2_fill_scan_buf(struct jffs2_sb_info *c, void *buf,
-+			       uint32_t ofs, uint32_t len)
- {
- 	int ret;
- 	size_t retlen;
+--- linux-2.6.17-mm3-full/Documentation/arm/IXP4xx.old	2006-06-27 20:44:39.000000000 +0200
++++ linux-2.6.17-mm3-full/Documentation/arm/IXP4xx	2006-06-27 20:44:58.000000000 +0200
+@@ -85,7 +85,7 @@
+ 2) If > 64MB of memory space is required, the IXP4xx can be 
+    configured to use indirect registers to access PCI This allows 
+    for up to 128MB (0x48000000 to 0x4fffffff) of memory on the bus. 
+-   The disadvantadge of this is that every PCI access requires 
++   The disadvantage of this is that every PCI access requires 
+    three local register accesses plus a spinlock, but in some 
+    cases the performance hit is acceptable. In addition, you cannot 
+    mmap() PCI devices in this case due to the indirect nature
+--- linux-2.6.17-mm3-full/include/asm-arm/arch-ixp4xx/io.h.old	2006-06-27 20:45:06.000000000 +0200
++++ linux-2.6.17-mm3-full/include/asm-arm/arch-ixp4xx/io.h	2006-06-27 20:45:09.000000000 +0200
+@@ -38,7 +38,7 @@
+  * 2) If > 64MB of memory space is required, the IXP4xx can be configured
+  *    to use indirect registers to access PCI (as we do below for I/O
+  *    transactions). This allows for up to 128MB (0x48000000 to 0x4fffffff)
+- *    of memory on the bus. The disadvantadge of this is that every 
++ *    of memory on the bus. The disadvantage of this is that every 
+  *    PCI access requires three local register accesses plus a spinlock,
+  *    but in some cases the performance hit is acceptable. In addition,
+  *    you cannot mmap() PCI devices in this case.
 

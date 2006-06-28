@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWF1AZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbWF1AiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWF1AZI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jun 2006 20:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWF1AZI
+	id S932591AbWF1AiM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jun 2006 20:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWF1AiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jun 2006 20:25:08 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:29345 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932407AbWF1AZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jun 2006 20:25:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NXOI7h/vQrlucDQgem/hM9v88RB+molu22Ofm0NCY8UCKx7WF2Nkys81lSHvM9nKAanpsL75SOtURmdK3ADMU0OPNszGa0/kEtwrrwpWwS0XyRHa/9vZwbxcH8NnDqucJK3U4Ug131VdWt4EHPFY4osEhrC5E/T44/0h4US5HDo=
-Message-ID: <4807377b0606271725u678901a1h8d9d6776b82db3b4@mail.gmail.com>
-Date: Tue, 27 Jun 2006 17:25:05 -0700
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Subject: Re: git head x86_64 build breakage
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060627214306.GB372@mars.ravnborg.org>
+	Tue, 27 Jun 2006 20:38:12 -0400
+Received: from sccrmhc14.comcast.net ([63.240.77.84]:17661 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S932591AbWF1AiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jun 2006 20:38:12 -0400
+Message-ID: <44A1CF94.8030404@acm.org>
+Date: Tue, 27 Jun 2006 19:38:44 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+       wim@iguana.be
+Subject: Re: [PATCH] watchdog: add pretimeout ioctl
+References: <20060627182225.GD10805@localdomain> <20060627172908.2116a1fa.akpm@osdl.org>
+In-Reply-To: <20060627172908.2116a1fa.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4807377b0606271310h41134de8t8c5f60436d73a988@mail.gmail.com>
-	 <20060627214306.GB372@mars.ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/27/06, Sam Ravnborg <sam@ravnborg.org> wrote:
-> On Tue, Jun 27, 2006 at 01:10:02PM -0700, Jesse Brandeburg wrote:
-> > using a fresh pull of Linus' git, I can't build a kernel right now
-> > I get this:
-> > make O=../2.6.18.obj/ all -j5
-> >  GEN     /home/jbrandeb/2.6.18.obj/Makefile
-> > scripts/kconfig/conf -s arch/x86_64/Kconfig
-> > init/Kconfig:3: unknown option "option"
-> > make[3]: *** [silentoldconfig] Error 1
-> > make[2]: *** [silentoldconfig] Error 2
-> > make[1]: *** [include/config/auto.conf] Error 2
-> > make: *** [all] Error 2
-> >
-> > reverting to the v2.6.17 init/Kconfig fixes it.
-> Look like you did not get kconfig rebuild.
-> Try to delete scripts/kconfig/* in your ../2.6.18.obj/ directory and let
-> me know if this fixes it.
-> It this is a proper fix I need to look into why kconfig binaries was not
-> rebuild.
+Oops, my bad, yes, it's already there.  Sorry about that.
 
-Ah, that worked, I was definitely re-using a directory I had built in
-before.  I guess maybe it didn't figure out the dependency somehow.
+-Corey
 
-so to repro (this is pseudo-git, i couldn't figure out how to test
-this without starting all over)
-git checkout v2.6.17
-make O=../foo.obj all
-git checkout HEAD
-make O=../foo.obj all
-<boom>
+Andrew Morton wrote:
+> minyard@acm.org wrote:
+>   
+>> Some watchdog timers support the concept of a "pretimeout" which
+>> occurs some time before the real timeout.  The pretimeout can
+>> be delivered via an interrupt or NMI and can be used to panic
+>> the system when it occurs (so you get useful information instead
+>> of a blind reboot).
+>>
+>> The IPMI watchdog has had this built in, but this creates a standard
+>> mechanism for all watchdogs and switches the IPMI driver over to it.
+>>     
+>
+> This patch seems to be kinda-sorta already half-present in Wim's
+> development tree.  Could you take a look at what's in 2.6.17-mm3, see if
+> any additional work is needed and if so, send a patch against that?
+>
+> Then we can feed it all in when (or after) Wim does his 2.6.18 merge, which
+> is hopefully soon..
+>   
 
-Thanks!
- Jesse

@@ -1,84 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423321AbWF1Mm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932607AbWF1Mxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423321AbWF1Mm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 08:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423322AbWF1Mm3
+	id S932607AbWF1Mxx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 08:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932786AbWF1Mxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 08:42:29 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:13793 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1423321AbWF1Mm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 08:42:28 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: "Rahul Karnik" <rahul@genebrew.com>
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Date: Wed, 28 Jun 2006 22:42:21 +1000
-User-Agent: KMail/1.9.1
-Cc: "Jens Axboe" <axboe@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271739.13453.nigel@suspend2.net> <b29067a0606280428tff7b9dcp66bac3f2b83f4cc6@mail.gmail.com>
-In-Reply-To: <b29067a0606280428tff7b9dcp66bac3f2b83f4cc6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart8597459.S8Ea0lr7bV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 28 Jun 2006 08:53:49 -0400
+Received: from aa001msr.fastwebnet.it ([85.18.95.64]:2765 "EHLO
+	aa001msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S932607AbWF1Mxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 08:53:48 -0400
+Date: Wed, 28 Jun 2006 14:53:49 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Unkillable process in last git -- 100% reproducible
+Message-ID: <20060628145349.53873ccc@localhost>
+In-Reply-To: <20060628142918.1b2c25c3@localhost>
+References: <20060628142918.1b2c25c3@localhost>
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606282242.26072.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart8597459.S8Ea0lr7bV
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, 28 Jun 2006 14:29:18 +0200
+Paolo Ornati <ornati@fastwebnet.it> wrote:
 
-Hi.
+> [  430.083347] localedef     R  running task       0  8577   8558  8578               (NOTLB)
+> [  430.083352] gzip          X ffff81001e612ee0     0  8578   8577                     (L-TLB)
+> [  430.083358] ffff81001395bef8 ffff81001fd1a310 0000000000000246 ffff81001e612ee0 
+> [  430.083362]        ffff81001e4c0080 ffff81001e612ee0 ffff81001e4c0258 0000000000000001 
+> [  430.083366]        0000000000000046 0000000000000046 ffff81001395bf18 0000000000000010 
+> [  430.083370] Call Trace: <ffffffff80227f6f>{do_exit+2378} <ffffffff802628e9>{vfs_write+288}
+> [  430.083379]        <ffffffff80228065>{sys_exit_group+0} <ffffffff80209806>{system_call+126}
 
-On Wednesday 28 June 2006 21:28, Rahul Karnik wrote:
-> On 6/27/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > Suspend2 is a
-> > reimplementation of swsusp, not a series of incremental modifications. =
-It
-> > uses completely different methods for writing the image, storing the
-> > metadata and so on. Until recently, the only thing it shared with swsusp
-> > was the refrigerator and driver model calls, and even now the sharing of
-> > lowlevel code is only a tiny fraction of all that is done.
->
-> This is something I don't understand. Why can you not submit patches
-> that simply do things like "change method for writing image" and
-> reduce the difference between suspend2 and mainline? It may be more
-> work, but I think you will find that incremental changes are a lot
-> easier for people to review and merge.
+do_exit() -- kernel/exit.c
 
-It's because it's all so interconnected. Adding the modular infrastructure =
-is=20
-useless without something to use the modules. Changing to use the pageflags=
-=20
-functionality requires modifications in both the preparation of the image a=
-nd=20
-in the I/O. There are bits that could be done incrementally, but they're=20
-minor. I did start with the same codebase that Pavel forked, but then did=20
-substantial rewrites in going from the betas to 1.0 and to 2.0.
+0xffffffff80227f66 <do_exit+2369>:      mov    %rax,0x18(%rbp)
+0xffffffff80227f6a <do_exit+2373>:      callq  0xffffffff8048b850 <schedule>
+0xffffffff80227f6f <do_exit+2378>:      ud2a
+0xffffffff80227f71 <do_exit+2380>:      pushq  $0xffffffff804b7821
+0xffffffff80227f76 <do_exit+2385>:      retq   $0x3ba
+0xffffffff80227f79 <do_exit+2388>:      jmp    0xffffffff80227f79 <do_exit+2388>
 
-Thanks for the email.
-
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
-
---nextPart8597459.S8Ea0lr7bV
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEonkyN0y+n1M3mo0RAkIGAJ0d9E1RBy3ApdMQY2wFFUnPkgMUPQCcCp57
-TAxPr8d2x4QL72lcp6OeabA=
-=JwO9
------END PGP SIGNATURE-----
-
---nextPart8597459.S8Ea0lr7bV--
+-- 
+	Paolo Ornati
+	Linux 2.6.17-ga39727f2-dirty on x86_64

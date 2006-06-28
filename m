@@ -1,65 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751664AbWF1Xep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751772AbWF1Xhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751664AbWF1Xep (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 19:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWF1Xep
+	id S1751772AbWF1Xhf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 19:37:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbWF1Xhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 19:34:45 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:31317 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751664AbWF1Xeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 19:34:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ZnfxPOYzUuAbCC5InkrVImsmZXnZ2oImch3lx+yZj5Fsyig6z2jloZKhHzEfnIHKZPRiZ+SqfRdCKjBH4tmFEmIDjLZdLwEx0HZDjHG+qkOCi6YiDM9weLpS5rk0eLqfzXccOMhwZwmDHXv9E0jIjqPGso5hJ6LbtOQMp/UyvJ0=
-Message-ID: <a44ae5cd0606281634o45795e89y8789e670448f52e3@mail.gmail.com>
-Date: Wed, 28 Jun 2006 16:34:43 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.17-mm3 -- NULL pointer dereference at virtual address 00000020 / EIP is at prism2_registers_proc_read+0x22/0x2ff [hostap_cs]
+	Wed, 28 Jun 2006 19:37:35 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:1953 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1751772AbWF1Xhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 19:37:35 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Subject: Re: [Suspend2][ 0/9] Extents support.
+Date: Thu, 29 Jun 2006 09:37:27 +1000
+User-Agent: KMail/1.9.1
+Cc: "Rahul Karnik" <rahul@genebrew.com>, "Jens Axboe" <axboe@suse.de>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606282242.26072.nigel@suspend2.net> <84144f020606280742v348bdf53w96bd790362abaff9@mail.gmail.com>
+In-Reply-To: <84144f020606280742v348bdf53w96bd790362abaff9@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1345679.Y2AiGdoMg9";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <200606290937.31174.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BUG: unable to handle kernel NULL pointer dereference at virtual
-address 00000020
- printing eip:
-f8d21f6e
-*pde = 00000000
-Oops: 0000 [#1]
-4K_STACKS PREEMPT
-last sysfs file: /devices/system/cpu/cpu0/cpufreq/scaling_setspeed
-Modules linked in: sg sd_mod usb_storage libusual pcnet_cs 8390
-aha152x_cs scsi_transport_spi ohci_hcd hostap_cs hostap binfmt_misc
-i915 drm ipv6 speedstep_centrino cpufreq_powersave cpufreq_performance
-cpufreq_conservative video thermal button nls_ascii nls_cp437 vfat fat
-nls_utf8 ntfs nls_base md_mod sr_mod sbp2 scsi_mod parport_pc lp
-parport snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm_oss
-snd_mixer_oss snd_pcm snd_timer ehci_hcd pcspkr evdev iTCO_wdt sdhci
-mmc_core uhci_hcd usbcore psmouse snd ipw2200 rtc intel_agp agpgart
-ohci1394 ieee1394 soundcore snd_page_alloc 8139too
-CPU:    0
-EIP:    0060:[<f8d21f6e>]    Not tainted VLI
-EFLAGS: 00210246   (2.6.17-mm3miles #15)
-EIP is at prism2_registers_proc_read+0x22/0x2ff [hostap_cs]
-eax: 00000000   ebx: f8d21f4c   ecx: 00000000   edx: e884ef64
-esi: d5bd04e4   edi: db8ce000   ebp: e884ef38   esp: e884ef2c
-ds: 007b   es: 007b   ss: 0068
-Process cat (pid: 2219, ti=e884e000 task=cdd3e870 task.ti=e884e000)
-Stack: f8d21f4c 00000400 db8ce000 e884ef78 c1090c8b 00000400 e884ef68 d5bd04e4
-       00000400 0806c000 cac1123c 00000000 00000400 f7b6b838 00000000 00000000
-       dc8ff844 c1090b8c 0806c000 e884ef94 c105fe38 e884efa0 00000400 dc8ff844
-Call Trace:
- [<c1090c8b>] proc_file_read+0xff/0x218
- [<c105fe38>] vfs_read+0xa9/0x158
- [<c1060207>] sys_read+0x3b/0x60
- [<c1002d6d>] sysenter_past_esp+0x56/0x8d
-Code: c8 8d 65 f4 5b 5e 5f 5d c3 55 89 e5 57 56 53 89 c7 8b 75 10 85
-c9 74 10 8b 45 0c c7 00 01 00 00 00 31 c0 e9 d8 02 00 00 8b 46 14 <8b>
-50 20 66 ed 0f b7 c0 50 68 03 4a d2 f8 57 e8 42 46 3d c8 8d
-EIP: [<f8d21f6e>] prism2_registers_proc_read+0x22/0x2ff [hostap_cs]
-SS:ESP 0068:e884ef2c
+--nextPart1345679.Y2AiGdoMg9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi.
+
+On Thursday 29 June 2006 00:42, Pekka Enberg wrote:
+> Hi Nigel,
+>
+> On 6/28/06, Nigel Cunningham <nigel@suspend2.net> wrote:
+> > It's because it's all so interconnected. Adding the modular
+> > infrastructure is useless without something to use the modules. Changing
+> > to use the pageflags functionality requires modifications in both the
+> > preparation of the image and in the I/O. There are bits that could be
+> > done incrementally, but they're minor. I did start with the same codeba=
+se
+> > that Pavel forked, but then did substantial rewrites in going from the
+> > betas to 1.0 and to 2.0.
+>
+> Hmm, so, if you leave out the controversial in-kernel stuff like, user
+> interface bits, "extensible API", compression, and crypto, are you
+> saying there's nothing in suspend2 that can be merged separately?
+
+My point was that the architecture of Suspend2 is fundamentally different t=
+o=20
+that of swsusp. Suspend2 features could potentially be added to swsusp, but=
+=20
+it would require a lot of work on swsusp. I've worked hard to make Suspend2=
+=20
+clean and ready for merging. I'm not claiming it's perfect (we've already=20
+seen a few cleanups I missed), but I fail to see why I should be made to do=
+=20
+even more work on the old version when I've already said that getting from =
+it=20
+to Suspend2 involved substantial rewrites. Sure, I know where I'd be headed=
+,=20
+but it would be a huge waste of time and effort.
+
+Regards,
+
+Nigel
+=2D-=20
+See http://www.suspend2.net for Howtos, FAQs, mailing
+lists, wiki and bugzilla info.
+
+--nextPart1345679.Y2AiGdoMg9
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEoxK7N0y+n1M3mo0RAlYTAKDPskm8Zk1eLLrbVLa/4VmTYRvvyQCbB2QY
+opN7gTS9cFU9xQm4vlrP/sY=
+=k2A0
+-----END PGP SIGNATURE-----
+
+--nextPart1345679.Y2AiGdoMg9--

@@ -1,41 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWF1T4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWF1T7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWF1T4k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 15:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWF1T4k
+	id S1751175AbWF1T7V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 15:59:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWF1T7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 15:56:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15839 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751143AbWF1T4j (ORCPT
+	Wed, 28 Jun 2006 15:59:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15242 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751175AbWF1T7T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 15:56:39 -0400
-Date: Wed, 28 Jun 2006 15:56:32 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64: Move export symbols to their C functions
-Message-ID: <20060628195632.GH23396@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200606261902.k5QJ2R93008443@hera.kernel.org> <20060628193841.GA22587@redhat.com> <200606282152.20698.ak@suse.de>
+	Wed, 28 Jun 2006 15:59:19 -0400
+Date: Wed, 28 Jun 2006 12:58:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: a.p.zijlstra@chello.nl, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       dhowells@redhat.com, christoph@lameter.com, mbligh@google.com,
+       npiggin@suse.de, torvalds@osdl.org
+Subject: Re: [PATCH 1/5] mm: tracking shared dirty pages
+Message-Id: <20060628125854.b4e390d5.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606282039020.26373@blonde.wat.veritas.com>
+References: <20060627182801.20891.11456.sendpatchset@lappy>
+	<20060627182814.20891.36856.sendpatchset@lappy>
+	<20060627175747.521c6733.akpm@osdl.org>
+	<Pine.LNX.4.64.0606282039020.26373@blonde.wat.veritas.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606282152.20698.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 09:52:20PM +0200, Andi Kleen wrote:
- > 
- > > These two exports were never re-added, which broke modular oprofile.
- > 
- > Everybody and their dog sent patches for that by now and I assume
- > Linus already merged Andrew's version
+On Wed, 28 Jun 2006 20:49:42 +0100 (BST)
+Hugh Dickins <hugh@veritas.com> wrote:
 
-Ah, didn't see them, and my tree seems to be stale.
-Yes, looks fixed.
+> On Tue, 27 Jun 2006, Andrew Morton wrote:
+> > Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+> > >
+> > > Tracking of dirty pages in shared writeable mmap()s.
+> > 
+> > I mangled this a bit to fit it on top of Christoph's vm counters rewrite
+> > (mm/page-writeback.c).
+> > 
+> > I worry about the changes to __set_page_dirty_nobuffers() and
+> > test_clear_page_dirty().
+> > 
+> > They both already require that the page be locked (or that the
+> > address_space be otherwise pinned).  But I'm not sure we get that right at
+> > present.  With these changes, our exposure to that gets worse, and we
+> > additionally are exposed to the possibility of the page itself being
+> > reclaimed, and not just the address_space.
+> > 
+> > So ho hum.  I'll stick this:
+> > 
+> > --- a/mm/page-writeback.c~mm-tracking-shared-dirty-pages-checks
+> > +++ a/mm/page-writeback.c
+> > @@ -625,6 +625,7 @@ EXPORT_SYMBOL(write_one_page);
+> >   */
+> >  int __set_page_dirty_nobuffers(struct page *page)
+> >  {
+> > +	WARN_ON_ONCE(!PageLocked(page));
+> 
+> I expect this warning to fire: __set_page_dirty_nobuffers is very
+> careful about page->mapping, it knows it might change precisely
+> because we often don't have PageLocked here.
 
-		Dave
--- 
-http://www.codemonkey.org.uk
+Yes, that's misplaced.  It was a consequence of me incorrectly fixing a
+reject storm.
+
+> >  	if (!TestSetPageDirty(page)) {
+> >  		struct address_space *mapping = page_mapping(page);
+> >  		struct address_space *mapping2;
+> > @@ -722,6 +723,7 @@ int test_clear_page_dirty(struct page *p
+> >  	struct address_space *mapping = page_mapping(page);
+> >  	unsigned long flags;
+> >  
+> > +	WARN_ON_ONCE(!PageLocked(page));
+> 
+> I don't expect this warning to fire: I checked a month or two ago,
+> and just checked again, I believe all paths have PageLocked here.
+> If not, we certainly do want to know about it.
+
+I've fixed it all up now and all is quiet. Looks OK.

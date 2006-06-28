@@ -1,329 +1,372 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWF1RCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWF1RBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751488AbWF1RCn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWF1Q71
+	id S1751459AbWF1RBK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWF1Q7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 12:59:27 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:42500 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751450AbWF1QzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 12:55:06 -0400
-Date: Wed, 28 Jun 2006 18:55:05 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] typo fixes: aquire -> acquire
-Message-ID: <20060628165504.GX13915@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+	Wed, 28 Jun 2006 12:59:34 -0400
+Received: from rtsoft3.corbina.net ([85.21.88.6]:4910 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S1751459AbWF1Q6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 12:58:39 -0400
+Date: Wed, 28 Jun 2006 20:58:39 +0400
+From: Vitaly Bordug <vbordug@ru.mvista.com>
+To: Li Yang-r58472 <LeoLi@freescale.com>
+Cc: "'Paul Mackerras'" <paulus@samba.org>, linuxppc-dev@ozlabs.org,
+       Phillips Kim-R1AAHA <Kim.Phillips@freescale.com>,
+       Chu hanjin-r52514 <Hanjin.Chu@freescale.com>,
+       Yin Olivia-r63875 <Hong-Hua.Yin@freescale.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/7] powerpc: Add mpc8360epb platform support
+Message-ID: <20060628205839.1e12a5a4@vitb.ru.mvista.com>
+In-Reply-To: <9FCDBA58F226D911B202000BDBAD467306E04FD2@zch01exm40.ap.freescale.net>
+References: <9FCDBA58F226D911B202000BDBAD467306E04FD2@zch01exm40.ap.freescale.net>
+Organization: MontaVista software, Inc.
+X-Mailer: Sylpheed-Claws 2.0.0cvs8 (GTK+ 2.6.10; i686-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Wed, 28 Jun 2006 22:23:03 +0800
+Li Yang-r58472 <LeoLi@freescale.com> wrote:
 
----
+> The patch adds mpc8360e MDS Processor Board support.
+Far too short comment I guess.. There should be some information at least, what u-boot modifications are required, what family being introduced, etc.
 
- Documentation/digiepca.txt                                   |    2 
- Documentation/sound/alsa/DocBook/writing-an-alsa-driver.tmpl |    2 
- drivers/char/isicom.c                                        |    4 -
- drivers/media/video/bt8xx/bttvp.h                            |    2 
- drivers/net/qla3xxx.c                                        |    2 
- drivers/scsi/qla2xxx/qla_def.h                               |    2 
- fs/befs/linuxvfs.c                                           |   38 +++++-----
- fs/cifs/file.c                                               |    2 
- fs/gfs2/recovery.c                                           |    2 
- fs/jfs/jfs_txnmgr.c                                          |    2 
- fs/reiser4/plugin/file/cryptcompress.c                       |    2 
- sound/oss/dmabuf.c                                           |    6 -
- 12 files changed, 33 insertions(+), 33 deletions(-)
+> 
+> Signed-off-by: Li Yang <leoli@freescale.com>
+> Signed-off-by: Yin Olivia <hong-hua.yin@freescale.com>
+> Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+> 
+> ---
+>  arch/powerpc/platforms/83xx/Kconfig       |   13 ++
+>  arch/powerpc/platforms/83xx/Makefile      |    1 
+>  arch/powerpc/platforms/83xx/mpc8360e_pb.c |  213 +++++++++++++++++++++++++++++
+>  arch/powerpc/platforms/83xx/mpc8360e_pb.h |   31 ++++
+>  4 files changed, 258 insertions(+), 0 deletions(-)
+> 
+> diff --git a/arch/powerpc/platforms/83xx/Kconfig b/arch/powerpc/platforms/83xx/Kconfig
+> index 7675e67..04c4508 100644
+> --- a/arch/powerpc/platforms/83xx/Kconfig
+> +++ b/arch/powerpc/platforms/83xx/Kconfig
+> @@ -16,6 +16,13 @@ config MPC834x_SYS
+>  	  3 PCI slots.  The PIBs PCI initialization is the bootloader's
+>  	  responsiblilty.
+>  
+> +config MPC8360E_PB
+> +	bool "Freescale MPC8360E PB"
+> +	select DEFAULT_UIMAGE
+> +	select QUICC_ENGINE
+> +	help
+> +	  This option enables support for the MPC836x EMDS Processor Board.
+> +
+>  endchoice
 
---- linux-2.6.17-mm3-full/Documentation/digiepca.txt.old	2006-06-27 20:39:06.000000000 +0200
-+++ linux-2.6.17-mm3-full/Documentation/digiepca.txt	2006-06-27 20:39:21.000000000 +0200
-@@ -2,7 +2,7 @@
- http://www.digi.com for PCI cards.  They no longer maintain this driver,
- and have no 2.6 driver for ISA cards.
- 
--This driver requires a number of user-space tools.  They can be aquired from
-+This driver requires a number of user-space tools.  They can be acquired from
- http://www.digi.com, but only works with 2.4 kernels.
- 
- 
---- linux-2.6.17-mm3-full/Documentation/sound/alsa/DocBook/writing-an-alsa-driver.tmpl.old	2006-06-27 20:39:29.000000000 +0200
-+++ linux-2.6.17-mm3-full/Documentation/sound/alsa/DocBook/writing-an-alsa-driver.tmpl	2006-06-27 20:39:33.000000000 +0200
-@@ -3048,7 +3048,7 @@
-         </para>
- 
-         <para>
--          If you aquire a spinlock in the interrupt handler, and the
-+          If you acquire a spinlock in the interrupt handler, and the
-         lock is used in other pcm callbacks, too, then you have to
-         release the lock before calling
-         <function>snd_pcm_period_elapsed()</function>, because
---- linux-2.6.17-mm3-full/drivers/char/isicom.c.old	2006-06-27 20:39:40.000000000 +0200
-+++ linux-2.6.17-mm3-full/drivers/char/isicom.c	2006-06-27 20:39:46.000000000 +0200
-@@ -245,7 +245,7 @@
- 	printk(KERN_WARNING "ISICOM: Failed to lock Card (0x%lx)\n",
- 		card->base);
- 
--	return 0;	/* Failed to aquire the card! */
-+	return 0;	/* Failed to acquire the card! */
- }
- 
- static int lock_card_at_interrupt(struct isi_board *card)
-@@ -262,7 +262,7 @@
- 			spin_unlock_irqrestore(&card->card_lock, card->flags);
- 	}
- 	/* Failing in interrupt is an acceptable event */
--	return 0;	/* Failed to aquire the card! */
-+	return 0;	/* Failed to acquire the card! */
- }
- 
- static void unlock_card(struct isi_board *card)
---- linux-2.6.17-mm3-full/drivers/media/video/bt8xx/bttvp.h.old	2006-06-27 20:39:55.000000000 +0200
-+++ linux-2.6.17-mm3-full/drivers/media/video/bt8xx/bttvp.h	2006-06-27 20:39:58.000000000 +0200
-@@ -360,7 +360,7 @@
- 	int mbox_csel;
- 
- 	/* risc memory management data
--	   - must aquire s_lock before changing these
-+	   - must acquire s_lock before changing these
- 	   - only the irq handler is supported to touch top + bottom + vcurr */
- 	struct btcx_riscmem     main;
- 	struct bttv_buffer      *screen;    /* overlay             */
---- linux-2.6.17-mm3-full/drivers/net/qla3xxx.c.old	2006-06-27 20:40:10.000000000 +0200
-+++ linux-2.6.17-mm3-full/drivers/net/qla3xxx.c	2006-06-27 20:40:14.000000000 +0200
-@@ -2953,7 +2953,7 @@
- 		ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
- 	} else {
- 		printk(KERN_ERR PFX
--		       "%s: Could not aquire driver lock.\n",
-+		       "%s: Could not acquire driver lock.\n",
- 		       ndev->name);
- 		goto err_lock;
- 	}
---- linux-2.6.17-mm3-full/drivers/scsi/qla2xxx/qla_def.h.old	2006-06-27 20:40:21.000000000 +0200
-+++ linux-2.6.17-mm3-full/drivers/scsi/qla2xxx/qla_def.h	2006-06-27 20:40:25.000000000 +0200
-@@ -2139,7 +2139,7 @@
- 	mempool_t	*srb_mempool;
- 
- 	/* This spinlock is used to protect "io transactions", you must
--	 * aquire it before doing any IO to the card, eg with RD_REG*() and
-+	 * acquire it before doing any IO to the card, eg with RD_REG*() and
- 	 * WRT_REG*() for the duration of your entire commandtransaction.
- 	 *
- 	 * This spinlock is of lower priority than the io request lock.
---- linux-2.6.17-mm3-full/fs/befs/linuxvfs.c.old	2006-06-27 20:40:33.000000000 +0200
-+++ linux-2.6.17-mm3-full/fs/befs/linuxvfs.c	2006-06-27 20:40:37.000000000 +0200
-@@ -325,7 +325,7 @@
- 	if (!bh) {
- 		befs_error(sb, "unable to read inode block - "
- 			   "inode = %lu", inode->i_ino);
--		goto unaquire_none;
-+		goto unacquire_none;
- 	}
- 
- 	raw_inode = (befs_inode *) bh->b_data;
-@@ -334,7 +334,7 @@
- 
- 	if (befs_check_inode(sb, raw_inode, inode->i_ino) != BEFS_OK) {
- 		befs_error(sb, "Bad inode: %lu", inode->i_ino);
--		goto unaquire_bh;
-+		goto unacquire_bh;
- 	}
- 
- 	inode->i_mode = (umode_t) fs32_to_cpu(sb, raw_inode->mode);
-@@ -402,17 +402,17 @@
- 		befs_error(sb, "Inode %lu is not a regular file, "
- 			   "directory or symlink. THAT IS WRONG! BeFS has no "
- 			   "on disk special files", inode->i_ino);
--		goto unaquire_bh;
-+		goto unacquire_bh;
- 	}
- 
- 	brelse(bh);
- 	befs_debug(sb, "<--- befs_read_inode()");
- 	return;
- 
--      unaquire_bh:
-+      unacquire_bh:
- 	brelse(bh);
- 
--      unaquire_none:
-+      unacquire_none:
- 	make_bad_inode(inode);
- 	befs_debug(sb, "<--- befs_read_inode() - Bad inode");
- 	return;
-@@ -761,14 +761,14 @@
- 		printk(KERN_ERR
- 		       "BeFS(%s): Unable to allocate memory for private "
- 		       "portion of superblock. Bailing.\n", sb->s_id);
--		goto unaquire_none;
-+		goto unacquire_none;
- 	}
- 	befs_sb = BEFS_SB(sb);
- 	memset(befs_sb, 0, sizeof(befs_sb_info));
- 
- 	if (!parse_options((char *) data, &befs_sb->mount_opts)) {
- 		befs_error(sb, "cannot parse mount options");
--		goto unaquire_priv_sbp;
-+		goto unacquire_priv_sbp;
- 	}
- 
- 	befs_debug(sb, "---> befs_fill_super()");
-@@ -794,7 +794,7 @@
- 
- 	if (!(bh = sb_bread(sb, sb_block))) {
- 		befs_error(sb, "unable to read superblock");
--		goto unaquire_priv_sbp;
-+		goto unacquire_priv_sbp;
- 	}
- 
- 	/* account for offset of super block on x86 */
-@@ -809,20 +809,20 @@
- 	}
- 
- 	if (befs_load_sb(sb, disk_sb) != BEFS_OK)
--		goto unaquire_bh;
-+		goto unacquire_bh;
- 
- 	befs_dump_super_block(sb, disk_sb);
- 
- 	brelse(bh);
- 
- 	if (befs_check_sb(sb) != BEFS_OK)
--		goto unaquire_priv_sbp;
-+		goto unacquire_priv_sbp;
- 
- 	if( befs_sb->num_blocks > ~((sector_t)0) ) {
- 		befs_error(sb, "blocks count: %Lu "
- 			"is larger than the host can use",
- 			befs_sb->num_blocks);
--		goto unaquire_priv_sbp;
-+		goto unacquire_priv_sbp;
- 	}
- 
- 	/*
-@@ -838,7 +838,7 @@
- 	if (!sb->s_root) {
- 		iput(root);
- 		befs_error(sb, "get root inode failed");
--		goto unaquire_priv_sbp;
-+		goto unacquire_priv_sbp;
- 	}
- 
- 	/* load nls library */
-@@ -860,13 +860,13 @@
- 
- 	return 0;
- /*****************/
--      unaquire_bh:
-+      unacquire_bh:
- 	brelse(bh);
- 
--      unaquire_priv_sbp:
-+      unacquire_priv_sbp:
- 	kfree(sb->s_fs_info);
- 
--      unaquire_none:
-+      unacquire_none:
- 	sb->s_fs_info = NULL;
- 	return -EINVAL;
- }
-@@ -925,18 +925,18 @@
- 
- 	err = befs_init_inodecache();
- 	if (err)
--		goto unaquire_none;
-+		goto unacquire_none;
- 
- 	err = register_filesystem(&befs_fs_type);
- 	if (err)
--		goto unaquire_inodecache;
-+		goto unacquire_inodecache;
- 
- 	return 0;
- 
--unaquire_inodecache:
-+unacquire_inodecache:
- 	befs_destroy_inodecache();
- 
--unaquire_none:
-+unacquire_none:
- 	return err;
- }
- 
---- linux-2.6.17-mm3-full/fs/cifs/file.c.old	2006-06-27 20:40:46.000000000 +0200
-+++ linux-2.6.17-mm3-full/fs/cifs/file.c	2006-06-27 20:40:49.000000000 +0200
-@@ -324,7 +324,7 @@
- 	return rc;
- }
- 
--/* Try to reaquire byte range locks that were released when session */
-+/* Try to reacquire byte range locks that were released when session */
- /* to server was lost */
- static int cifs_relock_file(struct cifsFileInfo *cifsFile)
- {
---- linux-2.6.17-mm3-full/fs/jfs/jfs_txnmgr.c.old	2006-06-27 20:40:57.000000000 +0200
-+++ linux-2.6.17-mm3-full/fs/jfs/jfs_txnmgr.c	2006-06-27 20:41:00.000000000 +0200
-@@ -842,7 +842,7 @@
- 	TXN_UNLOCK();
- 	release_metapage(mp);
- 	TXN_LOCK();
--	xtid = tlck->tid;	/* reaquire after dropping TXN_LOCK */
-+	xtid = tlck->tid;	/* reacquire after dropping TXN_LOCK */
- 
- 	jfs_info("txLock: in waitLock, tid = %d, xtid = %d, lid = %d",
- 		 tid, xtid, lid);
---- linux-2.6.17-mm3-full/fs/gfs2/recovery.c.old	2006-06-27 20:41:07.000000000 +0200
-+++ linux-2.6.17-mm3-full/fs/gfs2/recovery.c	2006-06-27 20:41:29.000000000 +0200
-@@ -438,7 +438,7 @@
- 		fs_info(sdp, "jid=%u: Trying to acquire journal lock...\n",
- 			jd->jd_jid);
- 
--		/* Aquire the journal lock so we can do recovery */
-+		/* Acquire the journal lock so we can do recovery */
- 
- 		error = gfs2_glock_nq_num(sdp, jd->jd_jid, &gfs2_journal_glops,
- 					  LM_ST_EXCLUSIVE,
---- linux-2.6.17-mm3-full/fs/reiser4/plugin/file/cryptcompress.c.old	2006-06-27 20:41:36.000000000 +0200
-+++ linux-2.6.17-mm3-full/fs/reiser4/plugin/file/cryptcompress.c	2006-06-27 20:41:48.000000000 +0200
-@@ -3112,7 +3112,7 @@
- 	return result;
- }
- 
--/* Append or expand hole in two steps (exclusive access should be aquired!)
-+/* Append or expand hole in two steps (exclusive access should be acquired!)
-    1) write zeroes to the current real cluster,
-    2) expand hole via fake clusters (just increase i_size) */
- static int
---- linux-2.6.17-mm3-full/sound/oss/dmabuf.c.old	2006-06-27 20:42:01.000000000 +0200
-+++ linux-2.6.17-mm3-full/sound/oss/dmabuf.c	2006-06-27 20:42:08.000000000 +0200
-@@ -547,7 +547,7 @@
- 	}
- 	return 0;
- }
--/* aquires lock */
-+/* acquires lock */
- int DMAbuf_getrdbuffer(int dev, char **buf, int *len, int dontblock)
- {
- 	struct audio_operations *adev = audio_devs[dev];
-@@ -821,7 +821,7 @@
- 	*size = len & ~SAMPLE_ROUNDUP;
- 	return (*size > 0);
- }
--/* aquires lock  */
-+/* acquires lock  */
- int DMAbuf_getwrbuffer(int dev, char **buf, int *size, int dontblock)
- {
- 	struct audio_operations *adev = audio_devs[dev];
-@@ -855,7 +855,7 @@
- 	spin_unlock_irqrestore(&dmap->lock,flags);
- 	return 0;
- }
--/* has to aquire dmap->lock */
-+/* has to acquire dmap->lock */
- int DMAbuf_move_wrpointer(int dev, int l)
- {
- 	struct audio_operations *adev = audio_devs[dev];
+I don't think this is really required option. I guess 836x + QUICC_ENGINE should be enough (with a proviso that 8360 won't boot without qe.
+
+>  
+>  config MPC834x
+> @@ -24,4 +31,10 @@ config MPC834x
+>  	select PPC_INDIRECT_PCI
+>  	default y if MPC834x_SYS
+>  
+> +config MPC836x
+> +	bool
+> +	select PPC_UDBG_16550
+
+debug option made default?
+> +	select PPC_INDIRECT_PCI
+> +	default y if MPC8360E_PB
+> +
+>  endmenu
+> diff --git a/arch/powerpc/platforms/83xx/Makefile b/arch/powerpc/platforms/83xx/Makefile
+> index 5c72367..0c9ea5c 100644
+> --- a/arch/powerpc/platforms/83xx/Makefile
+> +++ b/arch/powerpc/platforms/83xx/Makefile
+> @@ -4,3 +4,4 @@ #
+>  obj-y				:= misc.o
+>  obj-$(CONFIG_PCI)		+= pci.o
+>  obj-$(CONFIG_MPC834x_SYS)	+= mpc834x_sys.o
+> +obj-$(CONFIG_MPC8360E_PB)	+= mpc8360e_pb.o
+> diff --git a/arch/powerpc/platforms/83xx/mpc8360e_pb.c b/arch/powerpc/platforms/83xx/mpc8360e_pb.c
+> new file mode 100644
+> index 0000000..b4ddb0a
+> --- /dev/null
+> +++ b/arch/powerpc/platforms/83xx/mpc8360e_pb.c
+> @@ -0,0 +1,213 @@
+> +/*
+> + * Copyright (C) Freescale Semicondutor, Inc. 2006. All rights reserved.
+> + *
+> + * Author: Li Yang <LeoLi@freescale.com>
+> + *	   Yin Olivia <Hong-hua.Yin@freescale.com>
+> + *
+> + * Description:
+> + * MPC8360E MDS PB board specific routines. 
+> + *
+> + * Changelog: 
+> + * Jun 21, 2006	Initial version
+> + *
+No changelog entries for new files please... git tracks it good enough.
+
+> + * This program is free software; you can redistribute  it and/or modify it
+> + * under  the terms of  the GNU General  Public License as published by the
+> + * Free Software Foundation;  either version 2 of the  License, or (at your
+> + * option) any later version.
+> + */
+> +
+> +#include <linux/config.h>
+> +#include <linux/stddef.h>
+> +#include <linux/kernel.h>
+> +#include <linux/init.h>
+> +#include <linux/errno.h>
+> +#include <linux/reboot.h>
+> +#include <linux/pci.h>
+> +#include <linux/kdev_t.h>
+> +#include <linux/major.h>
+> +#include <linux/console.h>
+> +#include <linux/delay.h>
+> +#include <linux/seq_file.h>
+> +#include <linux/root_dev.h>
+> +#include <linux/initrd.h>
+> +
+> +#include <asm/system.h>
+> +#include <asm/atomic.h>
+> +#include <asm/time.h>
+> +#include <asm/io.h>
+> +#include <asm/machdep.h>
+> +#include <asm/ipic.h>
+> +#include <asm/bootinfo.h>
+> +#include <asm/irq.h>
+> +#include <asm/prom.h>
+> +#include <asm/udbg.h>
+> +#include <sysdev/fsl_soc.h>
+> +#ifdef CONFIG_QUICC_ENGINE
+> +#include <asm/immap_qe.h>
+> +#include <asm/qe_ic.h>
+> +#endif				/* CONFIG_QUICC_ENGINE */
+> +#include "mpc83xx.h"
+> +#include "mpc8360e_pb.h"
+> +
+> +#undef DEBUG
+> +
+
+hmmm? Does it relate nicely with below ?
+> +#ifdef DEBUG
+> +#define DBG(fmt...) udbg_printf(fmt)
+> +#else
+> +#define DBG(fmt...)
+> +#endif
+> +
+> +
+> +#ifndef CONFIG_PCI
+> +unsigned long isa_io_base = 0;
+> +unsigned long isa_mem_base = 0;
+> +#endif
+> +
+> +#ifdef CONFIG_QUICC_ENGINE
+> +extern void qe_reset(void);
+> +extern int par_io_of_config(struct device_node *np);
+> +#endif	/* CONFIG_QUICC_ENGINE */
+
+I bet this should go to the .h file...
+> +
+> +/* ************************************************************************
+> + *
+> + * Setup the architecture
+> + *
+> + */
+> +static void __init mpc8360_sys_setup_arch(void)
+> +{
+> +	struct device_node *np;
+> +	
+> +#ifdef CONFIG_QUICC_ENGINE
+> +	u8 *bcsr_regs;
+> +#endif
+> +
+> +	if (ppc_md.progress)
+> +		ppc_md.progress("mpc8360_sys_setup_arch()", 0);
+> +
+> +	np = of_find_node_by_type(NULL, "cpu");
+> +	if (np != 0) {
+> +		unsigned int *fp =
+> +		    (int *)get_property(np, "clock-frequency", NULL);
+> +		if (fp != 0)
+> +			loops_per_jiffy = *fp / HZ;
+> +		else
+> +			loops_per_jiffy = 50000000 / HZ;
+> +		of_node_put(np);
+> +	}
+> +#ifdef CONFIG_PCI
+> +	for (np = NULL; (np = of_find_node_by_type(np, "pci")) != NULL;)
+> +		add_bridge(np);
+> +
+> +	ppc_md.pci_swizzle = common_swizzle;
+> +	ppc_md.pci_exclude_device = mpc83xx_exclude_device;
+> +#endif
+> +
+> +#ifdef CONFIG_QUICC_ENGINE
+> +	qe_reset();
+> +
+> +	for (np = NULL; (np = of_find_node_by_name(np, "ucc")) != NULL;)
+> +		par_io_of_config(np);
+> +	
+> +	/* Reset the Ethernet PHY */
+> +	bcsr_regs = (u8 *) ioremap(BCSR_PHYS_ADDR, BCSR_SIZE);
+> +	bcsr_regs[9] &= ~0x20;
+> +	udelay(1000);
+> +	bcsr_regs[9] |= 0x20;
+> +	iounmap(bcsr_regs);
+> +
+And if we have a design, which do not contain real ethernet UCC usage? Or UCC geth is disabled somehow explicitly? Stuff like that normally goes to the callback that is going to be triggered upon Etherbet init.
+
+
+> +#endif				/* CONFIG_QUICC_ENGINE */
+> +
+> +#ifdef CONFIG_BLK_DEV_INITRD
+> +	if (initrd_start)
+> +		ROOT_DEV = Root_RAM0;
+> +	else
+> +#endif
+> +#ifdef  CONFIG_ROOT_NFS
+> +		ROOT_DEV = Root_NFS;
+> +#else
+> +		ROOT_DEV = Root_HDA1;
+> +#endif
+> +}
+> +
+> +void __init mpc8360_sys_init_IRQ(void)
+> +{
+> +	u8 senses[8] = {
+> +		0,		/* EXT 0 */
+> +		IRQ_SENSE_LEVEL,	/* EXT 1 */
+> +		IRQ_SENSE_LEVEL,	/* EXT 2 */
+> +		0,		/* EXT 3 */
+> +#ifdef CONFIG_PCI
+> +		IRQ_SENSE_LEVEL,	/* EXT 4 */
+> +		IRQ_SENSE_LEVEL,	/* EXT 5 */
+> +		IRQ_SENSE_LEVEL,	/* EXT 6 */
+> +		IRQ_SENSE_LEVEL,	/* EXT 7 */
+> +#else
+> +		0,		/* EXT 4 */
+> +		0,		/* EXT 5 */
+> +		0,		/* EXT 6 */
+> +		0,		/* EXT 7 */
+> +#endif
+> +	};
+> +
+> +	ipic_init(get_immrbase() + 0x00700, 0, 0, senses, 8);
+> +
+> +	/* Initialize the default interrupt mapping priorities,
+> +	 * in case the boot rom changed something on us.
+> +	 */
+> +	ipic_set_default_priority();
+> +
+> +#ifdef CONFIG_QUICC_ENGINE
+> +	qe_ic_init(get_qe_base() + 0x00000080,
+> +		   (QE_IC_LOW_SIGNAL | QE_IC_HIGH_SIGNAL), QE_IRQ_OFFSET);
+> +#endif				/* CONFIG_QUICC_ENGINE */
+> +}
+> +
+> +#if defined(CONFIG_I2C_MPC) && defined(CONFIG_SENSORS_DS1374)
+> +extern ulong ds1374_get_rtc_time(void);
+> +extern int ds1374_set_rtc_time(ulong);
+> +
+> +static int __init mpc8360_rtc_hookup(void)
+> +{
+> +	struct timespec tv;
+> +
+> +	ppc_md.get_rtc_time = ds1374_get_rtc_time;
+> +	ppc_md.set_rtc_time = ds1374_set_rtc_time;
+> +
+> +	tv.tv_nsec = 0;
+> +	tv.tv_sec = (ppc_md.get_rtc_time) ();
+> +	do_settimeofday(&tv);
+> +
+> +	return 0;
+> +}
+> +
+> +late_initcall(mpc8360_rtc_hookup);
+> +#endif
+> +
+> +/*
+> + * Called very early, MMU is off, device-tree isn't unflattened
+> + */
+> +static int __init mpc8360_sys_probe(void)
+> +{
+> +	char *model = of_get_flat_dt_prop(of_get_flat_dt_root(),
+> +					  "model", NULL);
+> +	if (model == NULL)
+> +		return 0;
+> +	if (strcmp(model, "MPC8360EPB"))
+> +		return 0;
+> +
+> +	DBG("MPC8360EMDS-PB found\n");
+> +
+> +	return 1;
+> +}
+> +
+> +define_machine(mpc8360_sys) {
+> +	.name 		= "MPC8360E PB",
+> +	.probe 		= mpc8360_sys_probe,
+> +	.setup_arch 	= mpc8360_sys_setup_arch,
+> +	.init_IRQ 	= mpc8360_sys_init_IRQ,
+> +	.get_irq 	= ipic_get_irq,
+> +	.restart 	= mpc83xx_restart,
+> +	.time_init 	= mpc83xx_time_init,
+> +	.calibrate_decr	= generic_calibrate_decr,
+> +	.progress 	= udbg_progress,
+> +};
+> diff --git a/arch/powerpc/platforms/83xx/mpc8360e_pb.h b/arch/powerpc/platforms/83xx/mpc8360e_pb.h
+> new file mode 100644
+> index 0000000..4243f4a
+> --- /dev/null
+> +++ b/arch/powerpc/platforms/83xx/mpc8360e_pb.h
+> @@ -0,0 +1,31 @@
+> +/*
+> + * Copyright (C) Freescale Semicondutor, Inc. 2006. All rights reserved.
+> + *
+> + * Author: Li Yang <LeoLi@freescale.com>
+> + *	   Yin Olivia <Hong-hua.Yin@freescale.com>
+> + *
+> + * Description:
+> + * MPC8360E MDS PB board specific header. 
+> + *
+> + * Changelog: 
+> + * Jun 21, 2006	Initial version
+> + *
+> + * This program is free software; you can redistribute  it and/or modify it
+> + * under  the terms of  the GNU General  Public License as published by the
+> + * Free Software Foundation;  either version 2 of the  License, or (at your
+> + * option) any later version.
+> + *
+> + */
+> +
+> +#ifndef __MACH_MPC83XX_SYS_H__
+> +#define __MACH_MPC83XX_SYS_H__
+> +
+> +#define BCSR_PHYS_ADDR		((uint)0xf8000000)
+> +#define BCSR_SIZE		((uint)(32 * 1024))
+> +
+> +#define PIRQA	MPC83xx_IRQ_EXT4
+> +#define PIRQB	MPC83xx_IRQ_EXT5
+> +#define PIRQC	MPC83xx_IRQ_EXT6
+> +#define PIRQD	MPC83xx_IRQ_EXT7
+> +
+
+Hrm, isn't PCI irq stuff encoded to the dts? Upper pci-related defines seem redundant...
+
+> +#endif				/* __MACH_MPC83XX_SYS_H__ */
+>  
+> _______________________________________________
+> Linuxppc-dev mailing list
+> Linuxppc-dev@ozlabs.org
+> https://ozlabs.org/mailman/listinfo/linuxppc-dev
+> 
+> 
+
+
+-- 
+Sincerely, 
+Vitaly

@@ -1,82 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWF1T7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWF1T7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWF1T7V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 15:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWF1T7V
+	id S1751150AbWF1T7H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 15:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWF1T7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 15:59:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15242 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751175AbWF1T7T (ORCPT
+	Wed, 28 Jun 2006 15:59:07 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37814 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751150AbWF1T66 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 15:59:19 -0400
-Date: Wed, 28 Jun 2006 12:58:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: a.p.zijlstra@chello.nl, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       dhowells@redhat.com, christoph@lameter.com, mbligh@google.com,
-       npiggin@suse.de, torvalds@osdl.org
-Subject: Re: [PATCH 1/5] mm: tracking shared dirty pages
-Message-Id: <20060628125854.b4e390d5.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606282039020.26373@blonde.wat.veritas.com>
-References: <20060627182801.20891.11456.sendpatchset@lappy>
-	<20060627182814.20891.36856.sendpatchset@lappy>
-	<20060627175747.521c6733.akpm@osdl.org>
-	<Pine.LNX.4.64.0606282039020.26373@blonde.wat.veritas.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jun 2006 15:58:58 -0400
+Date: Wed, 28 Jun 2006 21:58:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andreas Jellinghaus <aj@ciphirelabs.com>
+Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       suspend2-devel@lists.suspend2.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: swsusp / suspend2 reliability (was Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion in	-mm)
+Message-ID: <20060628195844.GD18039@elf.ucw.cz>
+References: <200606270147.16501.ncunningham@linuxmail.org> <20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au> <20060627154130.GA31351@rhlx01.fht-esslingen.de> <20060627222234.GP29199@elf.ucw.cz> <44A24434.5020403@ciphirelabs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44A24434.5020403@ciphirelabs.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006 20:49:42 +0100 (BST)
-Hugh Dickins <hugh@veritas.com> wrote:
-
-> On Tue, 27 Jun 2006, Andrew Morton wrote:
-> > Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> > >
-> > > Tracking of dirty pages in shared writeable mmap()s.
-> > 
-> > I mangled this a bit to fit it on top of Christoph's vm counters rewrite
-> > (mm/page-writeback.c).
-> > 
-> > I worry about the changes to __set_page_dirty_nobuffers() and
-> > test_clear_page_dirty().
-> > 
-> > They both already require that the page be locked (or that the
-> > address_space be otherwise pinned).  But I'm not sure we get that right at
-> > present.  With these changes, our exposure to that gets worse, and we
-> > additionally are exposed to the possibility of the page itself being
-> > reclaimed, and not just the address_space.
-> > 
-> > So ho hum.  I'll stick this:
-> > 
-> > --- a/mm/page-writeback.c~mm-tracking-shared-dirty-pages-checks
-> > +++ a/mm/page-writeback.c
-> > @@ -625,6 +625,7 @@ EXPORT_SYMBOL(write_one_page);
-> >   */
-> >  int __set_page_dirty_nobuffers(struct page *page)
-> >  {
-> > +	WARN_ON_ONCE(!PageLocked(page));
+On Wed 2006-06-28 10:56:20, Andreas Jellinghaus wrote:
+> swsusp does not work with swap files. suspend2 does.
 > 
-> I expect this warning to fire: __set_page_dirty_nobuffers is very
-> careful about page->mapping, it knows it might change precisely
-> because we often don't have PageLocked here.
+> so this is an inprovement. improvements are usually merged,
+> unless there is a reason not to.
 
-Yes, that's misplaced.  It was a consequence of me incorrectly fixing a
-reject storm.
+> could the discussion focus on current technical reasons why it
+> should not be merged? I somehow get the impression there are
+> personal preferences or future development strategies, but neither
+> looks like a current technical reason to me, and thus should not
+> harm merging or not.
 
-> >  	if (!TestSetPageDirty(page)) {
-> >  		struct address_space *mapping = page_mapping(page);
-> >  		struct address_space *mapping2;
-> > @@ -722,6 +723,7 @@ int test_clear_page_dirty(struct page *p
-> >  	struct address_space *mapping = page_mapping(page);
-> >  	unsigned long flags;
-> >  
-> > +	WARN_ON_ONCE(!PageLocked(page));
-> 
-> I don't expect this warning to fire: I checked a month or two ago,
-> and just checked again, I believe all paths have PageLocked here.
-> If not, we certainly do want to know about it.
+suspend2 uses /proc -- vetoed by Greg. For more reasons, see archives.
 
-I've fixed it all up now and all is quiet. Looks OK.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

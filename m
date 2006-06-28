@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWF1Qeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWF1QlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbWF1Qeg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 12:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWF1Qeg
+	id S1751380AbWF1QlM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 12:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWF1QlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 12:34:36 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:14274 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751382AbWF1Qee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 12:34:34 -0400
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Daiker <jdaiker@osdl.org>
-Cc: John Hawkes <hawkes@sgi.com>, Arjan van de Ven <arjan@infradead.org>,
-       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
-       Jeremy Higdon <jeremy@sgi.com>
-In-Reply-To: <44A2AA2B.3090101@osdl.org>
-References: <20060627220139.3168.69409.sendpatchset@tomahawk.engr.sgi.com>
-	 <1151483994.3153.5.camel@laptopd505.fenrus.org>
-	 <005e01c69ac9$a55e1bf0$6f00a8c0@comcast.net>
-	 <1151511668.15166.34.camel@localhost.localdomain>
-	 <44A2AA2B.3090101@osdl.org>
-Content-Type: text/plain
+	Wed, 28 Jun 2006 12:41:12 -0400
+Received: from unn-206.superhosting.cz ([82.208.4.206]:13281 "EHLO
+	mail.aiken.cz") by vger.kernel.org with ESMTP id S1751380AbWF1QlK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 12:41:10 -0400
+Message-ID: <44A2B123.7000304@kernel-api.org>
+Date: Wed, 28 Jun 2006 18:41:07 +0200
+From: Lukas Jelinek <info@kernel-api.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; cs-CZ; rv:1.7.12) Gecko/20050915
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: Petr Tesarik <ptesarik@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel API Reference Documentation
+References: <44A1858B.9080102@kernel-api.org>	<1151495225.8127.68.camel@elijah.suse.cz>	<44A2749D.7030705@kernel-api.org>	<20060628090950.c1862a9e.rdunlap@xenotime.net>	<1151511215.8127.74.camel@elijah.suse.cz> <20060628093619.6b9f2b8c.rdunlap@xenotime.net>
+In-Reply-To: <20060628093619.6b9f2b8c.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Wed, 28 Jun 2006 17:50:38 +0100
-Message-Id: <1151513438.15166.41.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-06-28 am 09:11 -0700, ysgrifennodd John Daiker: 
-> people should have been using the syscall to begin with... we're just 
-> forcing it on them this way!  :-)  That's my $0.02
+>>>>>I looked at
+>>>>>http://www.kernel-api.org/docs/online/2.6.17/da/dab/structsk__buff.html
+>>>>>
+>>>>>and you apparently ignore kernel-doc for structs. Cf.
+>>>>>include/linux/skbuff.h:177 ff.
+>>>>
+>>>>There are several problems. The one you describe is probably caused by a
+>>>>blank line between the struct and the related comment. Doxygen doesn't
+>>>>recognize it correctly (and simply ignores the comment).
+>>>
+>>>No blank line in this case.
+>>
+>>Oh, yes, there is a blank line between the comment and the struct. It's
+>>a pitty that someone put much effort into writing a usable description,
+>>which is then not seen. Anyway, should we find all such occurences in
+>>the kernel tree and fix them, or make a workaround for doxygen?
+> 
+> 
+> Which struct are we talking about here?  I missed it.
+> 
+> I guess the easy answer is Both.
+> However, I'm working on fixing up the kernel tree, so sending
+> patches is correct IMO.
+> 
 
-In the cached HZ case there will be no performance hit of measure
-anyway. The bigger problem is existing user space. That is why we've
-always kept the user visible HZ based values the same when changing the
-kernel HZ. You can't automatically regenerate all the old binaries you
-might otherwise break.
+We are currently talking about struct sk_buff. And there _is_ a single
+blank line which avoids to make a relation between the struct and the
+comment above.
 
-Performance is only a minor issue, and I doubt anyone who cared about
-performance would be using ia-64 anyway
-
-[Grabs coat and exits..]
-
+Lukas
 

@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWF1RRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751486AbWF1RRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbWF1RRz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWF1RRz
+	id S1751486AbWF1RRh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWF1RRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 13:17:55 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:17669 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751438AbWF1RRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 13:17:53 -0400
-Date: Wed, 28 Jun 2006 19:17:51 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] kernel/rcutorture.c: make code static
-Message-ID: <20060628171751.GK13915@stusta.de>
-References: <20060627015211.ce480da6.akpm@osdl.org> <20060628165445.GQ13915@stusta.de> <20060628171309.GE1293@us.ibm.com>
+	Wed, 28 Jun 2006 13:17:37 -0400
+Received: from gw.goop.org ([64.81.55.164]:63468 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751478AbWF1RRf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 13:17:35 -0400
+Message-ID: <44A2B9AF.50803@goop.org>
+Date: Wed, 28 Jun 2006 10:17:35 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060628171309.GE1293@us.ibm.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: 2.6.17-mm3: swsusp fails when process is debugged by ptrace
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 10:13:09AM -0700, Paul E. McKenney wrote:
-> On Wed, Jun 28, 2006 at 06:54:45PM +0200, Adrian Bunk wrote:
-> > This patch makes needlessly global code static.
-> 
-> Looks good to me -- but have you tested it?  If so, I will ack, otherwise
-> I will test and ack/nack depending on the results.
+If I try to suspend the machine while a process debug-stopped by ptrace, 
+suspend fails:
 
-I've only tested the compilation (which should be enough considering the 
-nature of the patch).
+PM: Preparing system for mem sleep
+Freezing cpus ...
+Breaking affinity for irq 0
+Breaking affinity for irq 1
+Breaking affinity for irq 12
+Breaking affinity for irq 23
+CPU 1 is now offline
+SMP alternatives: switching to UP code
+CPU1 is down
+Stopping tasks: ==========================================================================================================================================================
+ stopping tasks timed out after 20 seconds (13 tasks remaining):
+  khubd
+  kseriod
+  pdflush
+  pdflush
+  kswapd0
+  kprefetchd
+  pccardd
+  kirqd
+  kjournald
+  kauditd
+  knodemgrd_0
+  kjournald
+  test-vsnprintf
+Restarting tasks...<6> Strange, khubd not stopped
+ Strange, kseriod not stopped
+ Strange, pdflush not stopped
+ Strange, pdflush not stopped
+ Strange, kswapd0 not stopped
+ Strange, kprefetchd not stopped
+ Strange, pccardd not stopped
+ Strange, kirqd not stopped
+ Strange, kjournald not stopped
+ Strange, kauditd not stopped
+ Strange, knodemgrd_0 not stopped
+ Strange, kjournald not stopped
+ Strange, test-vsnprintf not stopped
+ done
+Thawing cpus ...
 
-> 							Thanx, Paul
+In this case, test-vsnprintf is stopped in a breakpoint in gdb.  If I 
+quit it, then suspend works as expected.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+    J
 

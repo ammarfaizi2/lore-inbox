@@ -1,50 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423217AbWF1ISo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWF1IgU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423217AbWF1ISo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 04:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423218AbWF1ISo
+	id S1030473AbWF1IgU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 04:36:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbWF1IgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 04:18:44 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:57275 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1423217AbWF1ISn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 04:18:43 -0400
-Date: Wed, 28 Jun 2006 10:13:45 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@osdl.org>, bunk@stusta.de,
-       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Subject: Re: 2.6.17-mm3: arm: *_irq_wake compile error
-Message-ID: <20060628081345.GA12647@elte.hu>
-References: <20060627015211.ce480da6.akpm@osdl.org> <20060627224038.GF13915@stusta.de> <1151478544.25491.485.camel@localhost.localdomain> <20060628001208.2b034afd.akpm@osdl.org> <1151479204.25491.491.camel@localhost.localdomain>
+	Wed, 28 Jun 2006 04:36:20 -0400
+Received: from mga03.intel.com ([143.182.124.21]:30288 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1030473AbWF1IgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 04:36:19 -0400
+X-IronPort-AV: i="4.06,186,1149490800"; 
+   d="scan'208"; a="58502447:sNHT42535150"
+Subject: Re: [Patch] jbd commit code deadloop when installing Linux
+From: Zou Nan hai <nanhai.zou@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mingo@elte.hu, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060628010422.dc73b7e9.akpm@osdl.org>
+References: <1151470123.6052.17.camel@linux-znh>
+	 <20060627234005.dda13686.akpm@osdl.org> <20060628063859.GA9726@elte.hu>
+	 <20060627235500.8c2c290e.akpm@osdl.org>
+	 <1151473582.6052.28.camel@linux-znh>
+	 <20060628004029.efcc8a03.akpm@osdl.org>
+	 <1151474577.6052.33.camel@linux-znh>
+	 <20060628010422.dc73b7e9.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1151477429.6052.42.camel@linux-znh>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151479204.25491.491.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 28 Jun 2006 14:50:29 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Thomas Gleixner <tglx@linutronix.de> wrote:
-
-> On Wed, 2006-06-28 at 00:12 -0700, Andrew Morton wrote:
-> > OK, so I moved the above lines inside #ifdef CONFIG_GENERIC_HARDIRQS (diff
-> > did a strange-looking thing with it):
+On Wed, 2006-06-28 at 16:04, Andrew Morton wrote:
+> On 28 Jun 2006 14:02:57 +0800
+> Zou Nan hai <nanhai.zou@intel.com> wrote:
 > 
-> Yeah, but its nevertheless correct. :)
+> > > > However I think cond_resched_lock and cond_resched_softirq also need fix
+> > > > to make the semantic consistent.
+> > > > 
+> > > > Please check the following patch.
+> > > > 
+> > > 
+> > > Ah.  I think the return value from these functions should mean "something
+> > > disruptive happened", if you like.
+> > > 
+> > > See, the callers of cond_resched_lock() aren't interested in whether
+> > > cond_resched_lock() actually called schedule().  They want to know whether
+> > > cond_resched_lock() dropped the lock.  Because if the lock was dropped, the
+> > > caller needs to take some special action, regardless of whether schedule()
+> > > was finally called.
+> > > 
+> > > So I think the patch I queued is OK, agree?
+> > 
+> >   I am afraid the code like cond_resched_lock check in
+> > fs/jbd/checkpoint.c log_do_checkpoint may fall into endless retry in
+> > some condition, will it?
+> 
+> Oh crap, yes.  If need_resched() and system_state==SYSTEM_BOOTING then
+> cond_resched_lock() will drop the lock but won't schedule.  So it'll return
+> true but won't clear need_resched() and the caller will lock up.
+> 
+> So if cond_resched_foo() ends up dropping the lock it _must_ call
+> schedule() to clear need_resched().
+> 
+> So, how about this (it needs some code comments!)
+> 
+> 
 
-lets hope it builds sparc64 & co too.
+ The patch works for the install test env.
+ However I still have some concern on cond_resched_lock(), on an UP 
+kernel it will return 1 if schedule happen, but actually it does not
+drop any lock, that semantic seems to be different to SMP kernel. 
 
-/me goes to try
+Though the only code I found that checks the return value of
+cond_resched_lock is in checkpoint.c...
 
-	Ingo
+Zou Nan hai 
+

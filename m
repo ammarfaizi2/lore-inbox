@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932824AbWF1PTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932836AbWF1PVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932824AbWF1PTX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 11:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932830AbWF1PTX
+	id S932836AbWF1PVy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 11:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932837AbWF1PVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 11:19:23 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:61378 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932824AbWF1PTW (ORCPT
+	Wed, 28 Jun 2006 11:21:54 -0400
+Received: from cv3.cv.nrao.edu ([192.33.115.2]:30875 "EHLO cv3.cv.nrao.edu")
+	by vger.kernel.org with ESMTP id S932836AbWF1PVw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 11:19:22 -0400
-Date: Wed, 28 Jun 2006 23:41:21 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] srcu: RCU variant permitting read-side blocking
-Message-ID: <20060628194121.GA247@oleg>
-References: <20060627211358.GA484@oleg> <20060627185945.GD1286@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060627185945.GD1286@us.ibm.com>
-User-Agent: Mutt/1.5.11
+	Wed, 28 Jun 2006 11:21:52 -0400
+Message-ID: <44A29E85.9000902@nrao.edu>
+Date: Wed, 28 Jun 2006 11:21:41 -0400
+From: Rodrigo Amestica <ramestic@nrao.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Sergey Vlasov <vsu@altlinux.ru>
+CC: linux-kernel@vger.kernel.org, Rodrigo Amestica <ramestic@nrao.edu>
+Subject: Re: vmalloc kernel parameter
+References: <44A272CA.5000209@nrao.edu> <20060628163339.d2110437.vsu@altlinux.ru>
+In-Reply-To: <20060628163339.d2110437.vsu@altlinux.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: Please contact postmaster@cv.nrao.edu for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-101.44, required 5,
+	autolearn=disabled, ALL_TRUSTED -1.44, USER_IN_WHITELIST -100.00)
+X-MailScanner-From: ramestic@nrao.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/27, Paul E. McKenney wrote:
->
-> On Wed, Jun 28, 2006 at 01:13:58AM +0400, Oleg Nesterov wrote:
-> > 
-> > Also, I can't understand the purpose of 2-nd synchronize_sched() in
-> > synchronize_srcu().
+Hi Sergey, many thanks for the reply.
+
+I saw those links before but I did not get their full meaning.
+
+By setting uppermem to 512M it does actually work. However, now I'm trying to 
+reserve RAM for DMA sake. For that I use mem=1899M; where 1899 comes from the 
+total memory reported under normal booting less 128M, which are the Megs that 
+I'm trying to reserve.
+
+It seems that by adding mem to the boot line goes into conflicting with the 
+uppermem+vmalloc arrangement.
+
+Without providing more details on what's actually happening can you tell that 
+there is something wrong on what I'm trying to do?
+
+Would switching to lilo help any?
+
+thanks,
+  Rodrigo
+
+Sergey Vlasov wrote:
 > 
-> This one handles the srcu_read_unlock() analog of the situation you
-> are worried about above.  The reader does not have memory barriers in
-> srcu_read_unlock(), so an access to the data structure might get
-> reordered to follow the decrement of .c[0] -- which would get messed
-> up by the following kfree().
-
-Aha, I see.
-
-The last question. The 'srcu-2' you posted today does synchronize_srcu_flip()
-twice. You did it this way because srcu is optimized for readers, otherwise we
-could just add smp_rmb() into srcu_read_lock() - this should solve the problem
-as well.
-
-Is my understanding correct?
-
-Thanks!
-
-Oleg.
-
+> This is a known problem with GRUB: it tries to put initrd at the highest
+> possible address in memory, and assumes the standard vmalloc area size.
+> You need to trick GRUB into thinking that your machine has less memory
+> by using "uppermem 524288" (512M) or even lower - then the initrd data
+> will still be accessible for the kernel even with larger vmalloc area.
+> 
+> http://lkml.org/lkml/2005/4/4/283
+> http://lists.linbit.com/pipermail/drbd-user/2005-April/002890.html
+> 
+>> ps: my kernel version is 2.6.15.2, and my machine is a dual opteron
+>> with 2GB of ram
+>>
+>> title with vmalloc
+>>          root (hd0,0)
+> 
+> Add "uppermem 524288" here.
+> 
+>>          kernel /boot/vmlinuz ro root=LABEL=/ vmalloc=256M
+>>          initrd /boot/initrd.img

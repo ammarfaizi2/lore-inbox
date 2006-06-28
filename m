@@ -1,104 +1,407 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423180AbWF1FXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423170AbWF1F1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423180AbWF1FXv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 01:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423167AbWF1FXM
+	id S1423170AbWF1F1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 01:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423175AbWF1F1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 01:23:12 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:6350 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1423179AbWF1FTX
+	Wed, 28 Jun 2006 01:27:08 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:4302 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1423170AbWF1FTJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 01:19:23 -0400
+	Wed, 28 Jun 2006 01:19:09 -0400
 From: "H. Peter Anvin" <hpa@zytor.com>
 To: linux-kernel@vger.kernel.org, klibc@zytor.com
 Cc: "H. Peter Anvin" <hpa@zytor.com>
-Subject: [klibc 23/31] kinit: replacement for in-kernel do_mount, ipconfig, nfsroot
-Date: Tue, 27 Jun 2006 22:17:23 -0700
-Message-Id: <klibc.200606272217.23@tazenda.hos.anvin.org>
+Subject: [klibc 15/31] ppc64 support for klibc
+Date: Tue, 27 Jun 2006 22:17:15 -0700
+Message-Id: <klibc.200606272217.15@tazenda.hos.anvin.org>
 In-Reply-To: <klibc.200606272217.00@tazenda.hos.anvin.org>
 References: <klibc.200606272217.00@tazenda.hos.anvin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[klibc] kinit: replacement for in-kernel do_mount, ipconfig, nfsroot
-
-kinit provides the default root-mounting code.  It should be
-compatible with the in-kernel root-mounting code (modulo bugs); it
-also provides a few minor enhancements.
+The parts of klibc specific to the ppc64 architecture.
 
 Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
 ---
-commit b202cbd956d9433d6e00cabb63546773c10680a9
-tree 6fb0cdbd124476c88d5711add5f4a6c4bc0770f3
-parent 8c5226a0f242be0fc40dad16236b511292115e1b
-author H. Peter Anvin <hpa@zytor.com> Tue, 27 Jun 2006 20:51:07 -0700
-committer H. Peter Anvin <hpa@zytor.com> Tue, 27 Jun 2006 20:51:07 -0700
+commit 951675b371b8e1b50a37f0f779e53b73316e9f11
+tree 4619e41b5539f18140a0e972ce45cfb03707a091
+parent 9a13243408e848d4e16962bc23bd955ac6222143
+author H. Peter Anvin <hpa@zytor.com> Tue, 27 Jun 2006 20:50:52 -0700
+committer H. Peter Anvin <hpa@zytor.com> Tue, 27 Jun 2006 20:50:52 -0700
 
- usr/kinit/Kbuild                    |   28 +
- usr/kinit/README                    |    9 
- usr/kinit/devname.c                 |  114 +++++
- usr/kinit/do_mounts.c               |  221 ++++++++++
- usr/kinit/do_mounts.h               |   48 ++
- usr/kinit/do_mounts_md.c            |  398 ++++++++++++++++++
- usr/kinit/do_mounts_mtd.c           |   44 ++
- usr/kinit/fstype/Kbuild             |   25 +
- usr/kinit/fstype/cramfs_fs.h        |   85 ++++
- usr/kinit/fstype/ext2_fs.h          |   79 ++++
- usr/kinit/fstype/ext3_fs.h          |   92 ++++
- usr/kinit/fstype/fstype.c           |  296 ++++++++++++++
- usr/kinit/fstype/fstype.h           |   23 +
- usr/kinit/fstype/jfs_superblock.h   |  114 +++++
- usr/kinit/fstype/luks_fs.h          |   44 ++
- usr/kinit/fstype/lvm2_sb.h          |   18 +
- usr/kinit/fstype/main.c             |   58 +++
- usr/kinit/fstype/minix_fs.h         |   85 ++++
- usr/kinit/fstype/reiserfs_fs.h      |   69 +++
- usr/kinit/fstype/romfs_fs.h         |   56 +++
- usr/kinit/fstype/swap_fs.h          |   18 +
- usr/kinit/fstype/xfs_sb.h           |   16 +
- usr/kinit/getarg.c                  |   57 +++
- usr/kinit/getintfile.c              |   30 +
- usr/kinit/initrd.c                  |  199 +++++++++
- usr/kinit/ipconfig/Kbuild           |   31 +
- usr/kinit/ipconfig/README           |  103 +++++
- usr/kinit/ipconfig/bootp_packet.h   |   34 ++
- usr/kinit/ipconfig/bootp_proto.c    |  213 ++++++++++
- usr/kinit/ipconfig/bootp_proto.h    |    8 
- usr/kinit/ipconfig/dhcp_proto.c     |  212 ++++++++++
- usr/kinit/ipconfig/dhcp_proto.h     |   18 +
- usr/kinit/ipconfig/ipconfig.h       |   35 ++
- usr/kinit/ipconfig/main.c           |  758 +++++++++++++++++++++++++++++++++++
- usr/kinit/ipconfig/netdev.c         |  251 ++++++++++++
- usr/kinit/ipconfig/netdev.h         |   83 ++++
- usr/kinit/ipconfig/packet.c         |  286 +++++++++++++
- usr/kinit/ipconfig/packet.h         |    9 
- usr/kinit/kinit.c                   |  330 +++++++++++++++
- usr/kinit/kinit.h                   |   73 +++
- usr/kinit/name_to_dev.c             |  202 +++++++++
- usr/kinit/nfsmount/Kbuild           |   27 +
- usr/kinit/nfsmount/README.locking   |   26 +
- usr/kinit/nfsmount/dummypmap.c      |  188 +++++++++
- usr/kinit/nfsmount/dummypmap.h      |   13 +
- usr/kinit/nfsmount/dummypmap_test.c |    2 
- usr/kinit/nfsmount/main.c           |  263 ++++++++++++
- usr/kinit/nfsmount/mount.c          |  357 ++++++++++++++++
- usr/kinit/nfsmount/nfsmount.h       |   39 ++
- usr/kinit/nfsmount/portmap.c        |   73 +++
- usr/kinit/nfsmount/sunrpc.c         |  253 ++++++++++++
- usr/kinit/nfsmount/sunrpc.h         |   99 +++++
- usr/kinit/nfsroot.c                 |  113 +++++
- usr/kinit/open.c                    |   18 +
- usr/kinit/ramdisk_load.c            |  271 +++++++++++++
- usr/kinit/readfile.c                |   86 ++++
- usr/kinit/resume.c                  |   75 +++
- usr/kinit/run-init/Kbuild           |   25 +
- usr/kinit/run-init/run-init.c       |   95 ++++
- usr/kinit/run-init/run-init.h       |   38 ++
- usr/kinit/run-init/runinitlib.c     |  216 ++++++++++
- usr/kinit/xpio.c                    |   51 ++
- usr/kinit/xpio.h                    |   11 +
- 63 files changed, 7211 insertions(+), 0 deletions(-)
+ usr/include/arch/ppc64/klibc/archconfig.h |   12 ++++
+ usr/include/arch/ppc64/klibc/archsetjmp.h |   36 ++++++++++++
+ usr/include/arch/ppc64/klibc/archsignal.h |   14 +++++
+ usr/include/arch/ppc64/klibc/archstat.h   |   27 +++++++++
+ usr/klibc/arch/ppc64/MCONFIG              |   26 +++++++++
+ usr/klibc/arch/ppc64/Makefile.inc         |   25 +++++++++
+ usr/klibc/arch/ppc64/crt0.S               |   32 +++++++++++
+ usr/klibc/arch/ppc64/setjmp.S             |   85 +++++++++++++++++++++++++++++
+ usr/klibc/arch/ppc64/syscall.c            |   14 +++++
+ usr/klibc/arch/ppc64/sysstub.ph           |   31 +++++++++++
+ 10 files changed, 302 insertions(+), 0 deletions(-)
 
-Patch suppressed due to size (185 K), available at:
-http://www.kernel.org/pub/linux/kernel/people/hpa/klibc-patchset/23-kinit-replacement-for-in-kernel-do-mount-ipconfig-nfsroot.patch
+diff --git a/usr/include/arch/ppc64/klibc/archconfig.h b/usr/include/arch/ppc64/klibc/archconfig.h
+new file mode 100644
+index 0000000..27c5630
+--- /dev/null
++++ b/usr/include/arch/ppc64/klibc/archconfig.h
+@@ -0,0 +1,12 @@
++/*
++ * include/arch/ppc64/klibc/archconfig.h
++ *
++ * See include/klibc/sysconfig.h for the options that can be set in this file.
++ */
++
++#ifndef _KLIBC_ARCHCONFIG_H
++#define _KLIBC_ARCHCONFIG_H
++
++#define _KLIBC_USE_RT_SIG 1
++
++#endif				/* _KLIBC_ARCHCONFIG_H */
+diff --git a/usr/include/arch/ppc64/klibc/archsetjmp.h b/usr/include/arch/ppc64/klibc/archsetjmp.h
+new file mode 100644
+index 0000000..d227728
+--- /dev/null
++++ b/usr/include/arch/ppc64/klibc/archsetjmp.h
+@@ -0,0 +1,36 @@
++/*
++ * arch/ppc64/include/klibc/archsetjmp.h
++ */
++
++#ifndef _KLIBC_ARCHSETJMP_H
++#define _KLIBC_ARCHSETJMP_H
++
++struct __jmp_buf {
++	unsigned long __r2;
++	unsigned long __sp;
++	unsigned long __lr;
++	unsigned long __cr;
++	unsigned long __r13;
++	unsigned long __r14;
++	unsigned long __r15;
++	unsigned long __r16;
++	unsigned long __r17;
++	unsigned long __r18;
++	unsigned long __r19;
++	unsigned long __r20;
++	unsigned long __r21;
++	unsigned long __r22;
++	unsigned long __r23;
++	unsigned long __r24;
++	unsigned long __r25;
++	unsigned long __r26;
++	unsigned long __r27;
++	unsigned long __r28;
++	unsigned long __r29;
++	unsigned long __r30;
++	unsigned long __r31;
++};
++
++typedef struct __jmp_buf jmp_buf[1];
++
++#endif				/* _SETJMP_H */
+diff --git a/usr/include/arch/ppc64/klibc/archsignal.h b/usr/include/arch/ppc64/klibc/archsignal.h
+new file mode 100644
+index 0000000..2c4cef0
+--- /dev/null
++++ b/usr/include/arch/ppc64/klibc/archsignal.h
+@@ -0,0 +1,14 @@
++/*
++ * arch/ppc64/include/klibc/archsignal.h
++ *
++ * Architecture-specific signal definitions
++ *
++ */
++
++#ifndef _KLIBC_ARCHSIGNAL_H
++#define _KLIBC_ARCHSIGNAL_H
++
++#include <asm/signal.h>
++/* No special stuff for this architecture */
++
++#endif
+diff --git a/usr/include/arch/ppc64/klibc/archstat.h b/usr/include/arch/ppc64/klibc/archstat.h
+new file mode 100644
+index 0000000..491316c
+--- /dev/null
++++ b/usr/include/arch/ppc64/klibc/archstat.h
+@@ -0,0 +1,27 @@
++#ifndef _KLIBC_ARCHSTAT_H
++#define _KLIBC_ARCHSTAT_H
++
++#include <klibc/stathelp.h>
++
++#define _STATBUF_ST_NSEC
++
++struct stat {
++	__stdev64	(st_dev);
++	ino_t		st_ino;
++	nlink_t		st_nlink;
++	mode_t		st_mode;
++	uid_t 		st_uid;
++	gid_t 		st_gid;
++	__stdev64	(st_rdev);
++	off_t		st_size;
++	unsigned long  	st_blksize;
++	unsigned long  	st_blocks;
++	struct timespec st_atim;	/* Time of last access.  */
++	struct timespec st_mtim;	/* Time of last modification.  */
++	struct timespec st_ctim;	/* Time of last status change.  */
++	unsigned long  	__unused4;
++	unsigned long  	__unused5;
++	unsigned long  	__unused6;
++};
++
++#endif
+diff --git a/usr/klibc/arch/ppc64/MCONFIG b/usr/klibc/arch/ppc64/MCONFIG
+new file mode 100644
+index 0000000..6d8e136
+--- /dev/null
++++ b/usr/klibc/arch/ppc64/MCONFIG
+@@ -0,0 +1,26 @@
++# -*- makefile -*-
++#
++# arch/ppc64/MCONFIG
++#
++# Special rules for this architecture.  Note that this is actually
++# included from the main Makefile, and that pathnames should be
++# accordingly.
++#
++
++KLIBCARCHREQFLAGS = -m64 -mcall-aixdesc
++KLIBCOPTFLAGS     = -Os
++KLIBCBITSIZE      = 64
++KLIBCLDFLAGS      = -m elf64ppc
++
++# Extra linkflags when building the shared version of the library
++# This address needs to be reachable using normal inter-module
++# calls, and work on the memory models for this architecture
++# 256-16 MB - normal binaries start at 256 MB, and jumps are limited
++# to +/- 16 MB
++KLIBCSHAREDFLAGS     = -Ttext 0x0f000200
++
++# The kernel so far has both asm-ppc* and asm-powerpc.
++KLIBCARCHINCFLAGS = -I$(KLIBCKERNELOBJ)arch/$(KLIBCARCH)/include
++
++# The asm include files live in asm-powerpc
++KLIBCASMARCH	= powerpc
+diff --git a/usr/klibc/arch/ppc64/Makefile.inc b/usr/klibc/arch/ppc64/Makefile.inc
+new file mode 100644
+index 0000000..80f6be5
+--- /dev/null
++++ b/usr/klibc/arch/ppc64/Makefile.inc
+@@ -0,0 +1,25 @@
++# -*- makefile -*-
++#
++# arch/ppc64/Makefile.inc
++#
++# Special rules for this architecture.  Note that this is actually
++# included from the main Makefile, and that pathnames should be
++# accordingly.
++#
++
++KLIBCARCHOBJS = \
++	arch/$(KLIBCARCH)/setjmp.o \
++	arch/$(KLIBCARCH)/syscall.o
++
++KLIBCARCHSOOBJS = $(patsubst %.o,%.lo,$(KLIBCARCHOBJS))
++
++INTERP_O = interp1.o
++
++interp.o: interp1.o klibc.got
++	$(LD) $(KLIBCLDFLAGS) -r -o $@ interp1.o klibc.got
++
++klibc.got: $(SOHASH)
++	$(OBJCOPY) -j .got $< $@
++
++archclean:
++	rm -f klibc.got
+diff --git a/usr/klibc/arch/ppc64/crt0.S b/usr/klibc/arch/ppc64/crt0.S
+new file mode 100644
+index 0000000..a7776a1
+--- /dev/null
++++ b/usr/klibc/arch/ppc64/crt0.S
+@@ -0,0 +1,32 @@
++#
++# arch/ppc64/crt0.S
++#
++# void _start(void)
++# {
++#    /* Divine up argc, argv, and envp */
++#    environ = envp;
++#    exit(main(argc, argv, envp));
++# }
++#
++
++	.section ".toc","aw"
++.LC0:	.tc	environ[TC],environ
++
++	.section ".opd","aw"
++	.align 3
++	.globl _start
++_start:
++	.quad	._start
++	.quad	.TOC.@tocbase, 0
++
++	.text
++	.globl	._start
++	.type	._start,@function
++._start:
++	stdu    %r1,-32(%r1)
++	addi    %r3,%r1,32
++	li	%r4,0		/* fini (unused) */
++	b 	.__libc_init
++	nop
++
++	.size _start,.-_start
+diff --git a/usr/klibc/arch/ppc64/setjmp.S b/usr/klibc/arch/ppc64/setjmp.S
+new file mode 100644
+index 0000000..30db419
+--- /dev/null
++++ b/usr/klibc/arch/ppc64/setjmp.S
+@@ -0,0 +1,85 @@
++#
++# arch/ppc64/setjmp.S
++#
++# Basic setjmp/longjmp implementation
++#
++
++	.text
++	.align 4
++
++	.section ".opd","aw"
++setjmp:
++	.quad	.setjmp,.TOC.@tocbase,0
++	.previous
++	.size	setjmp,24
++	.type	.setjmp,@function
++	.globl	setjmp
++	.globl	.setjmp
++.setjmp:
++	mflr	%r11			/* save return address */
++	mfcr	%r12			/* save condition register */
++	std	%r2,0(%r3)		/* save TOC pointer (not needed) */
++	stdu	%r1,8(%r3)		/* save stack pointer */
++	stdu	%r11,8(%r3)
++	stdu	%r12,8(%r3)
++	stdu	%r13,8(%r3)		/* save caller saved regs */
++	stdu	%r14,8(%r3)
++	stdu	%r15,8(%r3)
++	stdu	%r16,8(%r3)
++	stdu	%r17,8(%r3)
++	stdu	%r18,8(%r3)
++	stdu	%r19,8(%r3)
++	stdu	%r20,8(%r3)
++	stdu	%r21,8(%r3)
++	stdu	%r22,8(%r3)
++	stdu	%r23,8(%r3)
++	stdu	%r24,8(%r3)
++	stdu	%r25,8(%r3)
++	stdu	%r26,8(%r3)
++	stdu	%r27,8(%r3)
++	stdu	%r28,8(%r3)
++	stdu	%r29,8(%r3)
++	stdu	%r30,8(%r3)
++	std	%r31,8(%r3)
++	li	%r3,0			/* indicate success */
++	blr				/* return */
++
++	.size .setjmp,.-.setjmp
++	.section ".opd","aw"
++longjmp:
++	.quad	.longjmp,.TOC.@tocbase,0
++	.previous
++	.size	longjmp,24
++	.type	.longjmp,@function
++	.globl	longjmp
++	.globl	.longjmp
++.longjmp:
++	ld	%r2,0(%r3)		/* restore TOC pointer (not needed) */
++	ldu	%r1,8(%r3)		/* restore stack */
++	ldu	%r11,8(%r3)
++	ldu	%r12,8(%r3)
++	ldu	%r13,8(%r3)		/* restore caller saved regs */
++	ldu	%r14,8(%r3)
++	ldu	%r15,8(%r3)
++	ldu	%r16,8(%r3)
++	ldu	%r17,8(%r3)
++	ldu	%r18,8(%r3)
++	ldu	%r19,8(%r3)
++	ldu	%r20,8(%r3)
++	ldu	%r21,8(%r3)
++	ldu	%r22,8(%r3)
++	ldu	%r23,8(%r3)
++	ldu	%r24,8(%r3)
++	ldu	%r25,8(%r3)
++	ldu	%r26,8(%r3)
++	ldu	%r27,8(%r3)
++	ldu	%r28,8(%r3)
++	ldu	%r29,8(%r3)
++	ldu	%r30,8(%r3)
++	ld	%r31,8(%r3)
++	mtlr	%r11			/* restore LR */
++	mtcr	%r12			/* restore CR */
++	mr	%r3,%r4			/* get return value */
++	blr				/* return */
++
++	.size .longjmp,.-.longjmp
+diff --git a/usr/klibc/arch/ppc64/syscall.c b/usr/klibc/arch/ppc64/syscall.c
+new file mode 100644
+index 0000000..a5895fe
+--- /dev/null
++++ b/usr/klibc/arch/ppc64/syscall.c
+@@ -0,0 +1,14 @@
++/*
++ * arch/ppc64/syscall.c
++ *
++ * Common error-handling path for system calls.
++ * The return value from __syscall_error becomes the
++ * return value from the system call.
++ */
++#include <errno.h>
++
++long int __syscall_error(long int err)
++{
++	errno = err;
++	return -1;
++}
+diff --git a/usr/klibc/arch/ppc64/sysstub.ph b/usr/klibc/arch/ppc64/sysstub.ph
+new file mode 100644
+index 0000000..9ee9370
+--- /dev/null
++++ b/usr/klibc/arch/ppc64/sysstub.ph
+@@ -0,0 +1,31 @@
++# -*- perl -*-
++#
++# arch/ppc64/sysstub.ph
++#
++# Script to generate system call stubs
++#
++
++sub make_sysstub($$$$$@) {
++    my($outputdir, $fname, $type, $sname, $stype, @args) = @_;
++
++    open(OUT, '>', "${outputdir}/${fname}.S");
++    print OUT "#include <asm/unistd.h>\n";
++    print OUT "\n";
++    print OUT "\t.globl ${fname}\n";
++    print OUT "\t.section \".opd\",\"aw\"\n";
++    print OUT "\t.align 3\n";
++    print OUT "${fname}:\n";
++    print OUT "\t.quad .${fname},.TOC.\@tocbase,0\n";
++    print OUT "\t.text\n";
++    print OUT "\t.type .${fname},\@function\n";
++    print OUT "\t.globl .${fname}\n";
++    print OUT ".${fname}:\n";
++    print OUT "\tli 0,__NR_${sname}\n";
++    print OUT "\tsc\n";
++    print OUT "\tbnslr\n";
++    print OUT "\tb .__syscall_error\n";
++    print OUT "\t.size .${fname},.-.${fname}\n";
++    close(OUT);
++}
++
++1;

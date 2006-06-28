@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423187AbWF1FWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423163AbWF1FVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423187AbWF1FWV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 01:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423157AbWF1FVx
+	id S1423163AbWF1FVG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 01:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423184AbWF1FUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 01:21:53 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:6862 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1423168AbWF1FTZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 01:19:25 -0400
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: linux-kernel@vger.kernel.org, klibc@zytor.com
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Subject: [klibc 25/31] Miscellaneous utilities for klibc
-Date: Tue, 27 Jun 2006 22:17:25 -0700
-Message-Id: <klibc.200606272217.25@tazenda.hos.anvin.org>
-In-Reply-To: <klibc.200606272217.00@tazenda.hos.anvin.org>
-References: <klibc.200606272217.00@tazenda.hos.anvin.org>
+	Wed, 28 Jun 2006 01:20:33 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:63619 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1423163AbWF1FUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 01:20:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Mis/dprEH6AsFupYFgjb5c9zcZ3NKhEglzXazQalTS8T/1AzohZnOc1ooOuZl59L8AhQtsF7PQsJHMpHNk+68d2KXcpaJw89eg3CyetvPZR9+F2AXrsDB7G8yu6DixsOgh9MOrqw7F62xlaT92m8EZzSVg7+pI5yQal3ZL81g4M=
+Message-ID: <615cd8d10606272220w1cfe00b2u62a68d4689b6960d@mail.gmail.com>
+Date: Wed, 28 Jun 2006 05:20:00 +0000
+From: "Brian Hsu" <brianhsu.hsu@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to switch to another process at schedule() ?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[klibc] Miscellaneous utilities for klibc
+Hi, I'm here again.
 
-A collection of minor utilities for klibc.
+I'm trying to do a homework which teacher ask us impelement a simple
+EDF scheduling policy.
+Now I have maintain a EDF process link-list successfully, and the
+link-list is well sorted too.
 
-Signed-off-by: H. Peter Anvin <hpa@zytor.com>
+Then I went to schedule() function, add something like this:
 
----
-commit 99753ec67ac082f5f4fdb07e7b985bba84cf4b4c
-tree 758bb62c89686ff8a71f6022c15be6f02723a9d4
-parent 412867937f3298c6ab1b4a3d6fc8050214a1b7c0
-author H. Peter Anvin <hpa@zytor.com> Tue, 27 Jun 2006 20:51:10 -0700
-committer H. Peter Anvin <hpa@zytor.com> Tue, 27 Jun 2006 20:51:10 -0700
+What I want to do is if the scheduler selected an EDF process as next process,
+I will like to do is compare this process with the first one process
+in EDF link-list.
 
- usr/Kbuild             |    2 
- usr/utils/Kbuild       |   62 ++++++
- usr/utils/cat.c        |  329 ++++++++++++++++++++++++++++++
- usr/utils/chroot.c     |   25 ++
- usr/utils/dd.c         |  533 ++++++++++++++++++++++++++++++++++++++++++++++++
- usr/utils/false.c      |    4 
- usr/utils/file_mode.c  |  143 +++++++++++++
- usr/utils/file_mode.h  |    1 
- usr/utils/halt.c       |   55 +++++
- usr/utils/insmod.c     |  140 +++++++++++++
- usr/utils/ln.c         |   77 +++++++
- usr/utils/minips.c     |  508 ++++++++++++++++++++++++++++++++++++++++++++++
- usr/utils/mkdir.c      |  150 ++++++++++++++
- usr/utils/mkfifo.c     |   71 ++++++
- usr/utils/mknod.c      |   58 +++++
- usr/utils/mount_main.c |  105 +++++++++
- usr/utils/mount_opts.c |   94 ++++++++
- usr/utils/mount_opts.h |   21 ++
- usr/utils/nuke.c       |  134 ++++++++++++
- usr/utils/pivot_root.c |   19 ++
- usr/utils/sleep.c      |   25 ++
- usr/utils/true.c       |    4 
- usr/utils/umount.c     |   45 ++++
- usr/utils/uname.c      |  154 ++++++++++++++
- 24 files changed, 2758 insertions(+), 1 deletions(-)
+If it is same process, then we have nothing to do, just context switch
+to new process
+because it has the earlist deadline.
 
-Patch suppressed due to size (65 K), available at:
-http://www.kernel.org/pub/linux/kernel/people/hpa/klibc-patchset/25-miscellaneous-utilities-for-klibc.patch
+But if it is not the same process, I would like to replace the "next"
+process by the first
+process in the EDF linked-list.
+
+I have tried some method, but still can get it work. The following one
+works fine,
+but when the process has earlier deadline exit, the former process
+would not get back
+to run queue.
+
+What sould I check now?
+
+Following is the code I tried to get it work, but faild.
+
+================ Code ========================
+        next = list_entry(queue->next, task_t, run_list);
+
+        if ( next->policy == SCHED_EDF ) {
+
+            struct task_struct * task = list_entry( edf_queue.next, task_t,
+                                                    edf_node );
+
+            if ( task != next ) {
+                printk ( "Active EDF[%d]\n", task->pid );
+                printk ( "Deactive EDF[%d]\n", next->pid );
+
+                // Works Fine.
+                // But how can I get next back to run queue?
+                dequeue_task ( task, array );
+                set_tsk_need_resched ( next );
+		enqueue_task_head (task, array);
+
+                // It will hang up if I let the former process stay in queue.
+                /*
+                //dequeue_task ( task, array );
+                //set_tsk_need_resched (next );
+       		enqueue_task_head (task, array);
+                rq->nr_running++;
+                */
+                next = task;
+            }
+        }
+====================== End ==========================

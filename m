@@ -1,66 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWF1RiB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWF1RkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751492AbWF1RiB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:38:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWF1RiB
+	id S1751501AbWF1RkK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWF1RkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 13:38:01 -0400
-Received: from mail.suse.de ([195.135.220.2]:26583 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751492AbWF1RiA (ORCPT
+	Wed, 28 Jun 2006 13:40:10 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:51692 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1751437AbWF1RkH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 13:38:00 -0400
-Date: Wed, 28 Jun 2006 10:34:48 -0700
-From: Greg KH <gregkh@suse.de>
-To: Rafa? Bilski <rafalbilski@interia.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA from Longhaul by rw semaphores
-Message-ID: <20060628173448.GA2371@suse.de>
-References: <44A28AA2.6060306@interia.pl>
+	Wed, 28 Jun 2006 13:40:07 -0400
+Date: Wed, 28 Jun 2006 19:40:06 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Andrey Savochkin <saw@swsoft.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, dlezcano@fr.ibm.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
+       haveblue@us.ibm.com, clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>,
+       dev@sw.ru, devel@openvz.org, sam@vilain.net, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: Network namespaces a path to mergable code.
+Message-ID: <20060628174005.GE6440@MAIL.13thfloor.at>
+Mail-Followup-To: Andrey Savochkin <saw@swsoft.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>, dlezcano@fr.ibm.com,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	serue@us.ibm.com, haveblue@us.ibm.com, clg@fr.ibm.com,
+	Andrew Morton <akpm@osdl.org>, dev@sw.ru, devel@openvz.org,
+	sam@vilain.net, viro@ftp.linux.org.uk,
+	Alexey Kuznetsov <alexey@sw.ru>
+References: <20060626134945.A28942@castle.nmd.msu.ru> <m14py6ldlj.fsf@ebiederm.dsl.xmission.com> <20060627215859.A20679@castle.nmd.msu.ru> <m1ejx9kj1r.fsf@ebiederm.dsl.xmission.com> <20060628150605.A29274@castle.nmd.msu.ru> <m1sllpfckx.fsf@ebiederm.dsl.xmission.com> <20060628212240.A1833@castle.nmd.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44A28AA2.6060306@interia.pl>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060628212240.A1833@castle.nmd.msu.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 03:56:50PM +0200, Rafa? Bilski wrote:
-> 	This patch will allow Longhaul cpufreq driver to change frequency
-> without breaking BMDMA. In order to work properly it needs:
-> - adding rw_semaphore to pci_device and bus structures - this is
-> patch below,
-> - Longhaul should find host bridge and lock write on bus before
-> frequency change,
+On Wed, Jun 28, 2006 at 09:22:40PM +0400, Andrey Savochkin wrote:
+> Hi Eric,
+> 
+> On Wed, Jun 28, 2006 at 10:51:26AM -0600, Eric W. Biederman wrote:
+> > Andrey Savochkin <saw@swsoft.com> writes:
+> > 
+> > > One possible option to resolve this question is to show 2
+> > > relatively short patches just introducing namespaces for sockets
+> > > in 2 ways: with explicit function parameters and using implicit
+> > > current context. Then people can compare them and vote. Do you
+> > > think it's worth the effort?
+> >
+> > Given that we have two strong opinions in different directions I
+> > think it is worth the effort to resolve this.
+>
+> Do you have time to extract necessary parts of your old patch? Or you
+> aren't afraid of letting me draft an alternative version of socket
+> namespaces basing on your code? :)
+>
+> > In a slightly different vein your second patch introduced a lot of
+> > #ifdef CONFIG_NET_NS in C files. That is something we need to look
+> > closely at.
+> >
+> > So I think the abstraction that we use to access per network
+> > namespace variables needs some work if we are going to allow the
+> > ability to compile out all of the namespace code. The explicit
+> > versus implicit lookup is just one dimension of that problem.
+> This is a good comment.
+> 
+> Those ifdef's mostly correspond to places where we walk over lists and
+> need to filter-out entities not belonging to a specific namespace.
+> Those places about the same in your and my implementation. We can
+> think what we can do with them. One trick that I used on several
+> occasions is net_ns_same macro which doesn't evalute its arguments if
+> CONFIG_NET_NS not defined, and thus can be used without ifdef's.
 
-Eeek!  You mean the longhaul driver can change the frequency of the PCI
-bus?  Oh, that's a recipe for disaster...
+yes, I think almost all of those cases can be avoided
+while making the code even more readable by using
+proper preprocessor (or even inline) mechanisms
 
-> - device driver support - device should lock read its bus before
-> starting DMA transfer. I have curently implemented this for ide
-> layer (tested with via82cxxx), libata (not tested, but this is similar
-> code to ide) and VIA Rhine network card driver.
-> 	I don't know if this is acceptable infrastructure, but I hope it is
-> less horrible then last. Is this infrastructure at all?
+> Returning to implicit vs explicit function arguments, I belive that
+> implicit arguments are more promising in having zero impact on the
+> code when CONFIG_NET_NS is disabled. Functions like inet_addr_type
+> will translate into exactly the same code as they did without net
+> namespace patches.
 
-No, it's a hack :)
+maybe a preprocessor wrapper can help here too ...
 
-No, this is not acceptable.  What exactly do you want to do here?  Make
-sure the PCI drivers are not doing DMA when the longhaul driver wants to
-change the pci bus speed?
+> > >> I'm still curious why many of those chunks can't use existing helper
+> > >> functions, to be cleaned up.
+> > >
+> > > What helper functions are you referring to?
+> > 
+> > Basically most of the device list walker functions live in.
+> > net/core/dev.c 
+> > 
+> > I don't know if the cases you fixed could have used any of those
+> > helper functions but it certainly has me asking that question.
+> > 
+> > A general pattern that happens in cleanups is the discovery
+> > that code using an old interface in a problematic way really
+> > could be done much better another way.  I didn't dig enough
+> > to see if that was the case in any of the code that you changed.
+> 
+> Well, there is obvious improvement of this kind: many protocols walk
+> over device list to find devices with non-NULL protocol specific
+> pointers. For example, IPv6, decnet and others do it on module
+> unloading to clean up. Those places just ask for some simpler standard
+> way of doing it, but I wasn't bold enough for such radical change.
 
-How often will this bus change happen?
+> Do you think I should try?
 
-Does it really save battery?
+IMHO it could not hurt to have some kind of protocol
+helper library functions or macros ...
 
-Will all PCI devices work properly at different speeds from what they
-originally thought they were running at?
+best,
+Herbert
 
-And what about PCI devices that always do DMA?  (think USB controllers,
-they can easily saturate the PCI bus all the time).
-
-Why not just suspend all PCI devices make the bus change, and then
-resume them?  That would require no PCI core, or driver changes.
-
-thanks,
-
-greg k-h
+> Best regards
+> 
+> Andrey

@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWF1RtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWF1Rtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751510AbWF1RtH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 13:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWF1RtG
+	id S1751511AbWF1Rtt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 13:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWF1Rtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 13:49:06 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:61362 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751510AbWF1RtF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 13:49:05 -0400
-Date: Wed, 28 Jun 2006 10:49:41 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] kernel/rcutorture.c: make code static
-Message-ID: <20060628174941.GF1293@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060627015211.ce480da6.akpm@osdl.org> <20060628165445.GQ13915@stusta.de> <20060628171309.GE1293@us.ibm.com> <20060628171751.GK13915@stusta.de>
-Mime-Version: 1.0
+	Wed, 28 Jun 2006 13:49:49 -0400
+Received: from unn-206.superhosting.cz ([82.208.4.206]:49076 "EHLO
+	mail.aiken.cz") by vger.kernel.org with ESMTP id S1751511AbWF1Rts
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 13:49:48 -0400
+Message-ID: <44A2C130.7060904@kernel-api.org>
+Date: Wed, 28 Jun 2006 19:49:36 +0200
+From: Lukas Jelinek <info@kernel-api.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; cs-CZ; rv:1.7.12) Gecko/20050915
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: ptesarik@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: Kernel API Reference Documentation
+References: <44A1858B.9080102@kernel-api.org>	<1151495225.8127.68.camel@elijah.suse.cz>	<44A2749D.7030705@kernel-api.org>	<20060628090950.c1862a9e.rdunlap@xenotime.net>	<1151511215.8127.74.camel@elijah.suse.cz>	<20060628093619.6b9f2b8c.rdunlap@xenotime.net>	<44A2B123.7000304@kernel-api.org> <20060628095045.7522ec7f.rdunlap@xenotime.net>
+In-Reply-To: <20060628095045.7522ec7f.rdunlap@xenotime.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060628171751.GK13915@stusta.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 07:17:51PM +0200, Adrian Bunk wrote:
-> On Wed, Jun 28, 2006 at 10:13:09AM -0700, Paul E. McKenney wrote:
-> > On Wed, Jun 28, 2006 at 06:54:45PM +0200, Adrian Bunk wrote:
-> > > This patch makes needlessly global code static.
-> > 
-> > Looks good to me -- but have you tested it?  If so, I will ack, otherwise
-> > I will test and ack/nack depending on the results.
 > 
-> I've only tested the compilation (which should be enough considering the 
-> nature of the patch).
+> 
+> OK, I believed Petr when he stated that, I just wanted to get my
+> head screwed on straight.  So its the blank line between
+> 
+>  */
+> and
+> struct sk_buff {
+> ?
 
-Perhaps it should be, but I am paranoid.  Too many ways for compilers,
-include files, and CPP macros to play tricks.  I will test it.
+Exactly.
 
-							Thanx, Paul
+
+> 
+> I don't think the kernel-doc rules cover that case, but
+> scripts/kernel-doc handles it, so the Doxygen parser should handle
+> it IMO. 
+> 
+
+Doxygen should handle it but doesn't do so.
+
+Lukas
+

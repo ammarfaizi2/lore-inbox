@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423252AbWF1KBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbWF1KIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423252AbWF1KBi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 06:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423254AbWF1KBi
+	id S1030499AbWF1KIE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 06:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030500AbWF1KIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 06:01:38 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:29417 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1423252AbWF1KBh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 06:01:37 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Lukas Jelinek <info@kernel-api.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel API Reference Documentation
-References: <44A1858B.9080102@kernel-api.org>
-	<20060627132226.2401598e.rdunlap@xenotime.net>
-	<44A1982C.1010008@kernel-api.org>
-	<Pine.LNX.4.58.0606280543270.32286@gandalf.stny.rr.com>
-X-Yow: Yow!
-Date: Wed, 28 Jun 2006 12:01:22 +0200
-In-Reply-To: <Pine.LNX.4.58.0606280543270.32286@gandalf.stny.rr.com> (Steven
-	Rostedt's message of "Wed, 28 Jun 2006 05:44:40 -0400 (EDT)")
-Message-ID: <jesllp8uq5.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 28 Jun 2006 06:08:04 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31174 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030499AbWF1KID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 06:08:03 -0400
+Subject: Re: tty_mutex and tty_old_pgrp
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Paul Fulghum <paulkf@microgate.com>, lkml <linux-kernel@vger.kernel.org>,
+       "Theodore Ts'o" <tytso@mit.edu>
+In-Reply-To: <9e4733910606272029r32255d27we6e8b34a4c2e569@mail.gmail.com>
+References: <9e4733910606261538i584e2203o9555d77094de6fe7@mail.gmail.com>
+	 <44A1B79F.9020204@microgate.com>
+	 <9e4733910606272029r32255d27we6e8b34a4c2e569@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 28 Jun 2006 11:24:00 +0100
+Message-Id: <1151490240.15166.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> writes:
+Ar Maw, 2006-06-27 am 23:29 -0400, ysgrifennodd Jon Smirl:
+> Why does this need to be protected? exit.c
+> 	mutex_lock(&tty_mutex);
+> 	current->signal->tty = NULL;
+> 	mutex_unlock(&tty_mutex);
 
-> Here's a version that gets rid of a lot of confusing backslashes:
->
-> /^\(\s\)*#endif/ {
+It races against things like a third party haungup of the controlling
+tty session if the lock is not held.
 
-You can get rid of even more of them.
+> After looking at all of this for a couple of hours it looks to me like
+> tty_mutex could be removed if ref counts were used to control when the
+> tty_struct gets destroyed. 
 
-/^\s*#endif/ {
+You would still want memory barriers and to audit the time things took
+effect as there is a fairly defined ordering involved here. Fully
+refcounting ttys would not be a bad thing but would require some driver
+work because the driver level objects hung off a tty are often not
+dynamically allocated and are not themselves refcounted so would get
+corrupted if the tty object was freed and a new one allocated and opened
+in the meantime.
 
-Andreas.
+Alan
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

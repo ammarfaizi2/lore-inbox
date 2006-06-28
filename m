@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161136AbWF1F4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932727AbWF1F6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161136AbWF1F4T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 01:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161139AbWF1F4T
+	id S932727AbWF1F6N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 01:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbWF1F6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 01:56:19 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4027 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161136AbWF1F4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 01:56:18 -0400
-Date: Wed, 28 Jun 2006 06:56:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       herbert@13thfloor.at, viro@ftp.linux.org.uk, serue@us.ibm.com
-Subject: Re: [PATCH 00/20] Mount writer count and read-only bind mounts (v3)
-Message-ID: <20060628055611.GA4023@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, herbert@13thfloor.at,
-	viro@ftp.linux.org.uk, serue@us.ibm.com
-References: <20060627221436.77CCB048@localhost.localdomain> <20060627183822.667d9d49.akpm@osdl.org> <1151459436.24103.70.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Wed, 28 Jun 2006 01:58:13 -0400
+Received: from mailgw3.ericsson.se ([193.180.251.60]:64397 "EHLO
+	mailgw3.ericsson.se") by vger.kernel.org with ESMTP
+	id S1161139AbWF1F6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 01:58:11 -0400
+Date: Wed, 28 Jun 2006 01:59:18 -0400
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Sam Vilain <sam@vilain.net>, Andrey Savochkin <saw@swsoft.com>,
+       dlezcano@fr.ibm.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
+       herbert@13thfloor.at, devel@openvz.org, viro@ftp.linux.org.uk,
+       Alexey Kuznetsov <alexey@sw.ru>, Mark Huang <mlhuang@CS.Princeton.EDU>
+Subject: Re: Network namespaces a path to mergable code.
+Message-ID: <20060628055918.GA5614@dolphin.dyn.rnet.lmc.ericsson.se>
+References: <20060626134945.A28942@castle.nmd.msu.ru> <m14py6ldlj.fsf@ebiederm.dsl.xmission.com> <20060627215859.A20679@castle.nmd.msu.ru> <44A1AF37.3070100@vilain.net> <m1ac7xkifn.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1151459436.24103.70.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <m1ac7xkifn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
+From: abdallah.chatila@ericsson.com (Abdallah Chatila)
+X-OriginalArrivalTime: 28 Jun 2006 05:58:08.0936 (UTC) FILETIME=[D4D82A80:01C69A77]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 06:50:36PM -0700, Dave Hansen wrote:
-> > umm, what's it all for?
+On Tue, Jun 27, 2006 at 10:33:48PM -0600, Eric W. Biederman wrote:
 > 
-> Mostly for vserver, for now.  They allow a filesystem to be r/w, but
-> have r/o views into it.  This is really handy so that every vserver can
-> use a common install but still allow the administrator to update it.
+> Something to examine here is that if both network devices and sockets
+> are tagged does that still allow implicit network namespace passing.
 
-It's useful for much more then just containers.  Even with a plain chroot
-or just any real multi-user system it's massively useful.
+I think avoiding implicit network namespace passing expresses more
+power/flexibility plus it would make things clearer to what
+container/namespace a given network resource belongs too.
 
+>From our experience with an implementation of network containers [Virtual
+Routing for ipv4/ipv6, with a complete isolation between containers where ip
+addresses can overlap...], there is some problem domain in which you cannot
+afford to duplicate a process/daemon in each container [a big process for
+instance, scalability w.r.t. number of containers etc]
+
+By having a proper namespace tag per socket, this can be solved by allowing
+a process running in the host context to create sockets in that namespace
+than moving them to the target guest namespaces [via a special setsockopt
+for instance or unix domain socket as you said].
+
+
+Regards
+
+> 
+> Eric
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

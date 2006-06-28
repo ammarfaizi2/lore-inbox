@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932775AbWF1L2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932774AbWF1Lbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932775AbWF1L2l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 07:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932777AbWF1L2l
+	id S932774AbWF1Lbh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 07:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932777AbWF1Lbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 07:28:41 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:52436 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932775AbWF1L2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 07:28:40 -0400
-Message-ID: <b29067a0606280428tff7b9dcp66bac3f2b83f4cc6@mail.gmail.com>
-Date: Wed, 28 Jun 2006 07:28:38 -0400
-From: "Rahul Karnik" <rahul@genebrew.com>
-To: nigel@suspend2.net
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Cc: "Jens Axboe" <axboe@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200606271739.13453.nigel@suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 28 Jun 2006 07:31:37 -0400
+Received: from baardmijt.demon.nl ([212.238.157.49]:46259 "EHLO
+	baardmijt.demon.nl") by vger.kernel.org with ESMTP id S932774AbWF1Lbg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 07:31:36 -0400
+Date: Wed, 28 Jun 2006 13:31:28 +0200
+From: Tim Dijkstra <newsuser@famdijkstra.org>
+To: linux-kernel@vger.kernel.org
+Cc: suspend2-devel@lists.suspend2.net
+Subject: Re: [Suspend2-devel] Re: Suspend2 - Request for review & inclusion
+ in	-mm
+Message-ID: <20060628133128.09983d2f@orfeo.nikhef.nl>
+In-Reply-To: <1e1a7e1b0606280228y6c4a0d19p12f8112d216d1aba@mail.gmail.com>
+References: <200606270147.16501.ncunningham@linuxmail.org>
+	<20060627133321.GB3019@elf.ucw.cz>
+	<44A14D3D.8060003@wasp.net.au>
+	<200606271940.23934.jaroslav@aster.pl>
+	<1e1a7e1b0606280228y6c4a0d19p12f8112d216d1aba@mail.gmail.com>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net>
-	 <200606271539.29540.nigel@suspend2.net>
-	 <20060627070505.GH22071@suse.de>
-	 <200606271739.13453.nigel@suspend2.net>
+X-Spam-Score: -5.3
+X-Spam-Report: ---- Start SpamAssassin results
+	-5.3 points, 5.0 required
+	-3.3 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	0.6 AWL                    AWL: From: address is in the auto white-list
+	---- End of SpamAssassin results
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/27/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> Suspend2 is a
-> reimplementation of swsusp, not a series of incremental modifications. It
-> uses completely different methods for writing the image, storing the metadata
-> and so on. Until recently, the only thing it shared with swsusp was the
-> refrigerator and driver model calls, and even now the sharing of lowlevel
-> code is only a tiny fraction of all that is done.
+On Wed, 28 Jun 2006 19:28:17 +1000
+James <iphitus@gmail.com> wrote:
 
-This is something I don't understand. Why can you not submit patches
-that simply do things like "change method for writing image" and
-reduce the difference between suspend2 and mainline? It may be more
-work, but I think you will find that incremental changes are a lot
-easier for people to review and merge.
+> People dont want promises of something working soon, they want it
+> working now. And it's not like suspend2 is a half baked hack, it works
+> well for more people than any other solution and works reliably. It's
+> going to be months, if not years before uswsusp is ready, working, and
+> as feature complete as suspend2 is now, whereas suspend2 has been
+> working for me for more than 2 years.
 
-Right now, it seems like Linus and Andrew have only two choices:
+First of all, I have nothing against suspend2, and I think the relevant people
+should judge it fairly. I don't understand however why people in this thread 
+keep implying that uswsusp doesn't work. On all three machines I tested it on, 
+it worked fine.
 
-1. Ignore your submission
-2. Merge all of suspend2
+It is true maybe that it is less feature complete, but the only major drawback
+that the current uswsusp implementation has at the moment (IMHO) is that it only 
+supports writing to swap.
 
-We have had complete reworks of entire subsystems in the 2.6 series
-without problems, simply because the effort was taken to make the
-changes incrementally.
+I think one important reason why people have good experiences with suspend2, is 
+because it comes with a nice hibernate script, which has a module blacklist.
+This list will hide the fact that some drivers will make your system hang, and
+that is independent of the suspend2 or uswsusp.
 
-> Could I ask what might be a dumb question in this regard - why isn't Reiser4
-> going through the same process?
+The CVS version of the hibernate script has some support for uswsusp btw.
 
-reiser4 has been in -mm for quite a while without being merged into
-mainline. I don't think you want the same fate for suspend2.
-
-Finally, I just want to say I appreciate all the effort you (and Pavel
-and Rafael) are putting into suspend-to-disk. It is critical
-functionality for me and I think we can get both a well functioning
-and maintainable implementation.
-
-Thanks,
-Rahul
--- 
-Rahul Karnik
-rahul@genebrew.com
+grts Tim

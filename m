@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933089AbWF2XKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933083AbWF2XRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933089AbWF2XKH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 19:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933083AbWF2XKG
+	id S933083AbWF2XRy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 19:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933087AbWF2XRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 19:10:06 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:63129 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S933081AbWF2XKE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 19:10:04 -0400
-Date: Fri, 30 Jun 2006 01:05:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Dave Jones <davej@redhat.com>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.6.17-mm4
-Message-ID: <20060629230517.GA18838@elte.hu>
-References: <20060629013643.4b47e8bd.akpm@osdl.org> <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com> <20060629204330.GC13619@redhat.com> <20060629210950.GA300@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060629210950.GA300@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 29 Jun 2006 19:17:53 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:8037 "EHLO
+	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S933083AbWF2XRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 19:17:52 -0400
+Date: Thu, 29 Jun 2006 17:17:38 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA from Longhaul
+ by rw semaphores
+In-reply-to: <fa.lpmuYQxc6OV7Bh11JMM/FzqVWyY@ifi.uio.no>
+To: =?ISO-8859-2?Q?Rafa=B3_Bilski?= <rafalbilski@interia.pl>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Message-id: <44A45F92.8000904@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-2; format=flowed
+Content-transfer-encoding: 8BIT
+References: <fa.lpmuYQxc6OV7Bh11JMM/FzqVWyY@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> i'm too hunting use-after-free bugs - the ones fixed below fix certain 
-> crashes, but i'm still seeing a nasty one.
+Rafa³ Bilski wrote:
+>> It needs there to be no bus mastering occuring at the time
+>> of a CPU speed transition. Though I'm unable to find the part that me
+> ntions
+>> this in the specs I have right now.
 > 
-> the crash is independent on lockdep enabled or disabled. See:
+>> Dave
 > 
->   http://redhat.com/~mingo/misc/
+> "Once this is set, the processor will switch to the
+> value in [26:23] on the next AUTOHALT transition. The duration of the A
+> UTOHALT
+> should be >=1ms to ensure the CPU's internal PLL is resynchronized. F
+> or AUTOHALT, this means interrupts must be disabled except for the time ti
+> ck, which should be reset to >=1ms. Care must be taken to avoid other sys
+> tem events that could interfere with this operation. A few examples are 
+> snooping, NMI, INIT, SMI and FLUSH."
 > 
-> for the config and the crash.log.
+> For CPU's with Longhaul MSR this time is equal to 200us.
 
-ok, managed to debug the reason for this crash via .config bisecting, 
-it's caused by:
+That really is a rather horrible design on their part. Who the hell at 
+VIA thought this was a good idea?
 
-   CONFIG_SCSI_PATA_QDI=y
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-which is a new option in -mm4. Disabling it makes the -mm4 allyesconfig 
-bzImage work again.
-
-and running qdi_init() either causes memory corruption, or it causes 
-something to be misprogrammed on the motherboard (something wrt. irq 
-routing perhaps), which crashes the box afterwards. (but that happens 
-dozens of initcalls later, so the breakage is subtle)
-
-it does things like:
-
-        static const unsigned long qd_port[2] = { 0x30, 0xB0 };
-        static const unsigned long ide_port[2] = { 0x170, 0x1F0 };
-
-        [...]
-                unsigned long port = qd_port[i];
-        [...]
-                        r = inb_p(port);
-                        outb_p(0x19, port);
-                        res = inb_p(port);
-                        outb_p(r, port);
-
-so it reads/writes port 0x30 and 0xb0. Are those used by something else 
-on modern hardware?
-
-i know, i shouldnt be running an ancient Vesa Local Bus driver's init 
-routine, but still, the allyesconfig bzImage is quite useful in finding 
-various bugs ...
-
-	Ingo

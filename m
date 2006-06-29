@@ -1,52 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbWF2VCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932633AbWF2VE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932640AbWF2VCE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 17:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932645AbWF2VCE
+	id S932633AbWF2VE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 17:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWF2VE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 17:02:04 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:5819 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932641AbWF2VCC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:02:02 -0400
-Date: Thu, 29 Jun 2006 22:57:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Andrew Morton <akpm@osdl.org>, Michael Tokarev <mjt@tls.msk.ru>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] small kernel/sched.c cleanup
-Message-ID: <20060629205712.GA31945@elte.hu>
-References: <20060613195509.GF24167@rhlx01.fht-esslingen.de> <448F2C97.2090103@tls.msk.ru> <20060629194320.GA11245@rhlx01.fht-esslingen.de> <20060629201746.GA32142@rhlx01.fht-esslingen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060629201746.GA32142@rhlx01.fht-esslingen.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 29 Jun 2006 17:04:29 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:8650 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S932633AbWF2VE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 17:04:28 -0400
+In-Reply-To: <20060629235625.5a8880a0@localhost.localdomain>
+References: <9FCDBA58F226D911B202000BDBAD467306E04FE2@zch01exm40.ap.freescale.net> <8A7E4B7C-8744-47FF-90FA-9B68C5187CEE@freescale.com> <20060629225131.43b9ed59@localhost.localdomain> <C45A575E-1283-4299-A403-BE46B13AEF9C@freescale.com> <20060629235625.5a8880a0@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <E5D17B54-D345-4859-A9B0-62F038A694EF@freescale.com>
+Cc: Li Yang-r58472 <LeoLi@freescale.com>,
+       Yin Olivia-r63875 <Hong-Hua.Yin@freescale.com>,
+       "linux-kernel@vger.kernel.org Mailing List" 
+	<linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Chu hanjin-r52514 <Hanjin.Chu@freescale.com>, jeff@garzik.org
+Content-Transfer-Encoding: 7bit
+From: Andy Fleming <afleming@freescale.com>
+Subject: Re: [PATCH 1/7] powerpc: Add mpc8360epb platform support
+Date: Thu, 29 Jun 2006 16:04:21 -0500
+To: Vitaly Bordug <vbordug@ru.mvista.com>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
+On Jun 29, 2006, at 14:56, Vitaly Bordug wrote:
 
-> - constify and optimize stat_nam (thanks to Michael Tokarev!)
-> - spelling and comment fixes
-> 
-> Run-tested on 2.6.17-mm4.
-> 
-> Signed-off-by: Andreas Mohr <andi@lisas.de>
+> On Thu, 29 Jun 2006 14:18:51 -0500
+> Andy Fleming wrote:
+>
+>>
+>> On Jun 29, 2006, at 13:51, Vitaly Bordug wrote:
+>>
+>>> On Thu, 29 Jun 2006 13:03:23 -0500
+>>> Andy Fleming wrote:
+>>>
+>>> [snip]
+>>>>>>> +	iounmap(bcsr_regs);
+>>>>>>> +
+>>>>>> And if we have a design, which do not contain real ethernet UCC
+>>>>>> usage? Or UCC
+>>>>>> geth is disabled somehow explicitly? Stuff like that normally
+>>>>>> goes to the
+>>>>>> callback that is going to be triggered upon Etherbet init.
+>>>>> I will move it.
+>>>>
+>>>>
+>>>> Wait...no.  I don't understand Vitaly's objection.  If someone
+>>>> creates a board with an 8360 that doesn't use the UCC ethernet,
+>>>> they can create a separate board file.  This is the board-specific
+>>>> code, and it is perfectly acceptable for it to reset the PHY like
+>>>> this. What ethernet callback could be used?
+>>>>
+>>>
+>>> I am sort of against the unconditional trigger of the ethernet-
+>>> specific stuff,
+>>> dependless if UCC eth is really wanted in specific configuration.
+>>>
+>>> For stuff like that I'd make a function (to setup low-level
+>>> stuff), and pass it
+>>> via platform_info to the eth driver, so that really
+>>> driver-specific things happen in driver context only.
+>>>
+>>> Yes this is board specific file, and virtually everything needed
+>>> for the board can take place here.
+>>> But usually BCSR acts as a toggle for a several things, and IOW, I
+>>> see it more correct to trigger those stuff from the respective
+>>> drivers (using a callback passed through platform_info)
+>>
+>>
+>> Callbacks are fairly evil.  And the driver most certainly cannot
+>> know about the BCSR, since there may or may not even *be* a BCSR on
+>> any given board with a QE.  The PHY only needs to be reset once,
+>> during initialization.  On some boards, there is no need to trigger
+>> some sort of reset, or enable any PHYs.  I'm still not sure why this
+>> should be the domain of the device driver, since it's a board option.
+>>
+>
+> Well. The driver does not need to know anything about bcsr. All it  
+> needs to do is to execute the function pointer filled in bsp code,  
+> if one exists (If nothing needs to be tweaked in bsp level for a  
+> driver, just no need to fill that function pointer). For instance,  
+> in PQ2 uart, usb and fcc need to be enabled by bcsr before could be  
+> actually utilized, so say fs_enet does all needed upon startup,  
+> without messing with board setup code.
+> The same does cpm uart...
+>
+> In case of this particular board, it is not that bad. But I dislike  
+> the concept to execute the code in common (for this board) path,  
+> not depending if UCC eth disabled in config explicitly.
 
-looks good to me.
+Well, let me try to see if I understand the two approaches being  
+pondered:
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+1) Use a callback.
 
-	Ingo
+Inside the platform info device-specific structure, we create a  
+callback.  Something like enet_info->board_init().  The board boots,  
+and in the initialization function for that board, the callback is  
+assigned to be a function which does the appropriate board-specific  
+initialization.  Actually, it makes sure to do this for every device  
+which requires such initialization.  Then, later, the devices are  
+registered, and matched up with appropriate drivers.  Those drivers  
+make sure to invoke enet_info->board_init() before they do anything  
+hw related.
+
+2) Let board init code do it
+
+The board boots, and in the initialization function for that board,  
+it checks to see if the device exists (by searching the device tree),  
+and if so, does any board-specific initialization (in this case,  
+configuring the board register to enable the PHY for that device).   
+The devices are registered, and matched with appropriate drivers.   
+Those drivers operate, blissfully unaware that there was ever any  
+danger the board wasn't set up.
+
+Andy
+
+

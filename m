@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWF2Umq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbWF2Unj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbWF2Umq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWF2Ump
+	id S932470AbWF2Unj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWF2Unj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:42:45 -0400
-Received: from outbound-mail-17.bluehost.com ([70.98.111.232]:28036 "HELO
-	outbound-mail-17.bluehost.com") by vger.kernel.org with SMTP
-	id S932465AbWF2Umo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:42:44 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: "Robert Nagy" <robert.nagy@gmail.com>
-Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
-Date: Thu, 29 Jun 2006 13:42:38 -0700
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <39f633820606290818g1978866ap@mail.gmail.com> <200606291132.51866.jbarnes@virtuousgeek.org> <39f633820606291212v40b0016cl@mail.gmail.com>
-In-Reply-To: <39f633820606291212v40b0016cl@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jun 2006 16:43:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36821 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932470AbWF2Unh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 16:43:37 -0400
+Date: Thu, 29 Jun 2006 16:43:30 -0400
+From: Dave Jones <davej@redhat.com>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.17-mm4
+Message-ID: <20060629204330.GC13619@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org
+References: <20060629013643.4b47e8bd.akpm@osdl.org> <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606291342.38580.jbarnes@virtuousgeek.org>
-X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 71.198.43.183 authed with jbarnes@virtuousgeek.org}
+In-Reply-To: <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, June 29, 2006 12:12 pm, Robert Nagy wrote:
-> I've tried the diff but there is no difference.
-> I've also tried to use the EFI driver from Intel, but that did not
-> work either.
+On Thu, Jun 29, 2006 at 10:39:33PM +0200, Michal Piotrowski wrote:
 
-I've just been informed that megaraid has command ring addressing 
-limitations, so you may not be able to use this card in PCI-X mode at 
-all, at least on your Altix.  You can force it into PCI mode by putting 
-an old PCI device in the same bus though, I think, that might get things 
-working (without my patch).
+ > This looks very strange.
+ > 
+ > BUG: unable to handle kernel paging request at virtual address 6b6b6c07
 
-Jesse
+Looks like a use after free.
+
+ > printing eip:
+ > c0138594
+ > *pde=00000000
+ > Oops: 0002 [#1]
+ > 4K_STACK PREEMPT SMP
+ > last sysfs file /class/net/eth0/address
+ > Modules linked in: ipv6 af_packet ipt_REJECT xt_tcpudp x_tables
+ > p4_clockmod speedstep_lib binfmt_misc
+ > 
+ > (gdb) list *0xc0138594
+ > 0xc0138594 is in __lock_acquire (include2/asm/atomic.h:96).
+ > warning: Source file is more recent than executable.
+
+got a backtrace ?
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

@@ -1,99 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWF2URt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWF2UT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWF2URt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWF2URs
+	id S932070AbWF2UT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWF2UT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:17:48 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:4795 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751290AbWF2URr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:17:47 -0400
-Date: Thu, 29 Jun 2006 22:17:46 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Michael Tokarev <mjt@tls.msk.ru>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH -mm] small kernel/sched.c cleanup
-Message-ID: <20060629201746.GA32142@rhlx01.fht-esslingen.de>
-References: <20060613195509.GF24167@rhlx01.fht-esslingen.de> <448F2C97.2090103@tls.msk.ru> <20060629194320.GA11245@rhlx01.fht-esslingen.de>
+	Thu, 29 Jun 2006 16:19:26 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2466 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932070AbWF2UTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 16:19:25 -0400
+Subject: Re: [v4l-dvb-maintainer] [2.6 patch] VIDEO_V4L1 shouldn't be
+	user-visible
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060629192124.GD19712@stusta.de>
+References: <20060629192124.GD19712@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 29 Jun 2006 17:18:37 -0300
+Message-Id: <1151612317.3728.34.camel@praia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060629194320.GA11245@rhlx01.fht-esslingen.de>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- constify and optimize stat_nam (thanks to Michael Tokarev!)
-- spelling and comment fixes
+Adrian,
 
-Run-tested on 2.6.17-mm4.
+Em Qui, 2006-06-29 às 21:21 +0200, Adrian Bunk escreveu:
+> VIDEO_V4L1 is an implementation detail that shouldn't be user-visible.
 
-Signed-off-by: Andreas Mohr <andi@lisas.de>
+Nack. 
 
+V4L1 is an obsolete api, just like OSS, marked at
+feature-removal-schedule.txt to be removed on July (probably, we might
+need to postpone this, but this is another question). 
 
-diff -urN linux-2.6.17-mm4.orig/kernel/sched.c linux-2.6.17-mm4.my/kernel/sched.c
---- linux-2.6.17-mm4.orig/kernel/sched.c	2006-06-29 11:57:17.000000000 +0200
-+++ linux-2.6.17-mm4.my/kernel/sched.c	2006-06-29 21:48:22.000000000 +0200
-@@ -3418,7 +3418,7 @@
- 
- #ifdef CONFIG_PREEMPT
- /*
-- * this is is the entry point to schedule() from in-kernel preemption
-+ * this is the entry point to schedule() from in-kernel preemption
-  * off of preempt_enable.  Kernel preemptions off return from interrupt
-  * occur there and call schedule directly.
-  */
-@@ -3461,7 +3461,7 @@
- EXPORT_SYMBOL(preempt_schedule);
- 
- /*
-- * this is is the entry point to schedule() from kernel preemption
-+ * this is the entry point to schedule() from kernel preemption
-  * off of irq context.
-  * Note, that this is called and return with irqs disabled. This will
-  * protect us against recursive calling from irq.
-@@ -3473,7 +3473,7 @@
- 	struct task_struct *task = current;
- 	int saved_lock_depth;
- #endif
--	/* Catch callers which need to be fixed*/
-+	/* Catch callers which need to be fixed */
- 	BUG_ON(ti->preempt_count || !irqs_disabled());
- 
- need_resched:
-@@ -4689,7 +4689,7 @@
- 	return list_entry(p->sibling.next,struct task_struct,sibling);
- }
- 
--static const char *stat_nam[] = { "R", "S", "D", "T", "t", "Z", "X" };
-+static const char stat_nam[] = "RSDTtZX";
- 
- static void show_task(struct task_struct *p)
- {
-@@ -4697,12 +4697,9 @@
- 	unsigned long free = 0;
- 	unsigned state;
- 
--	printk("%-13.13s ", p->comm);
- 	state = p->state ? __ffs(p->state) + 1 : 0;
--	if (state < ARRAY_SIZE(stat_nam))
--		printk(stat_nam[state]);
--	else
--		printk("?");
-+	printk("%-13.13s %c", p->comm,
-+		state < sizeof(stat_nam) - 1 ? stat_nam[state] : '?');
- #if (BITS_PER_LONG == 32)
- 	if (state == TASK_RUNNING)
- 		printk(" running ");
-@@ -5929,7 +5926,7 @@
- 	cache = vmalloc(max_size);
- 	if (!cache) {
- 		printk("could not vmalloc %d bytes for cache!\n", 2*max_size);
--		return 1000000; // return 1 msec on very small boxen
-+		return 1000000; /* return 1 msec on very small boxen */
- 	}
- 
- 	while (size <= max_size) {
+This API have serious trouble on handling video and audio standards used
+on analog world and should be discontinued in favor of V4L2 API. Like
+ALSA have, V4L2 drivers also have a compatibility driver that changes
+calls from legacy userspace applications into newer V4L2 calls (of
+course losing several features, working fine only for a few video
+standards that were supported by V4L1).
+
+Cheers, 
+Mauro.
+

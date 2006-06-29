@@ -1,114 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWF2TUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWF2TUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWF2TUV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 15:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWF2TUU
+	id S932268AbWF2TUX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 15:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWF2TUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 15:20:20 -0400
-Received: from [141.84.69.5] ([141.84.69.5]:22544 "HELO mailout.stusta.mhn.de")
-	by vger.kernel.org with SMTP id S932263AbWF2TUS (ORCPT
+	Thu, 29 Jun 2006 15:20:23 -0400
+Received: from [141.84.69.5] ([141.84.69.5]:23312 "HELO mailout.stusta.mhn.de")
+	by vger.kernel.org with SMTP id S932268AbWF2TUW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 15:20:18 -0400
-Date: Thu, 29 Jun 2006 21:19:37 +0200
+	Thu, 29 Jun 2006 15:20:22 -0400
+Date: Thu, 29 Jun 2006 21:19:40 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fix ISTALLION=y
-Message-ID: <20060629191937.GK19712@stusta.de>
+Subject: [RFC: 2.6 patch] kernel/sys.c: remove unused exports
+Message-ID: <20060629191940.GL19712@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the following problems:
-
-<--  snip  -->
-
-...
-  CC      drivers/char/istallion.o
-drivers/char/istallion.c: In function ‘stli_initbrds’:
-drivers/char/istallion.c:4150: error: implicit declaration of function ‘stli_parsebrd’
-drivers/char/istallion.c:4150: error: ‘stli_brdsp’ undeclared (first use in this function)
-drivers/char/istallion.c:4150: error: (Each undeclared identifier is reported only once
-drivers/char/istallion.c:4150: error: for each function it appears in.)
-drivers/char/istallion.c:4164: error: implicit declaration of function ‘stli_argbrds’
-
-<--  snip  -->
-
-While I was at it, I also removed the #ifdef MODULE around the 
-initialation code to allow it to perhaps work when built into the 
-kernel and made a needlessly global function static.
+This patch removes the following unused exports:
+- EXPORT_SYMBOL:
+  - in_egroup_p
+- EXPORT_SYMBOL_GPL's:
+  - kernel_restart
+  - kernel_halt
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/char/istallion.c |   17 ++---------------
- 1 file changed, 2 insertions(+), 15 deletions(-)
+@Andrew:
+If anyone is considered maintainer of this code, please tell me who it 
+is so that I can send this patch to him instead of you.
 
---- linux-2.6.17-mm4-full/drivers/char/istallion.c.old	2006-06-29 11:36:43.000000000 +0200
-+++ linux-2.6.17-mm4-full/drivers/char/istallion.c	2006-06-29 11:49:32.000000000 +0200
-@@ -283,7 +283,6 @@
+This patch was already sent on:
+- 23 Jun 2006
+- 16 May 2006
+
+ kernel/sys.c |    5 -----
+ 1 file changed, 5 deletions(-)
+
+--- linux-2.6.17-rc4-mm1-full/kernel/sys.c.old	2006-05-16 14:20:27.000000000 +0200
++++ linux-2.6.17-rc4-mm1-full/kernel/sys.c	2006-05-16 14:20:47.000000000 +0200
+@@ -615,7 +615,6 @@
+ 	printk(".\n");
+ 	machine_restart(cmd);
+ }
+-EXPORT_SYMBOL_GPL(kernel_restart);
  
- /*****************************************************************************/
- 
--#ifdef MODULE
- /*
-  *	Define some string labels for arguments passed from the module
-  *	load line. These allow for easy board definitions, and easy
-@@ -382,8 +381,6 @@
- module_param_array(board3, charp, NULL, 0);
- MODULE_PARM_DESC(board3, "Board 3 config -> name[,ioaddr[,memaddr]");
- 
--#endif
--
- /*
-  *	Set up a default memory address table for EISA board probing.
-  *	The default addresses are all bellow 1Mbyte, which has to be the
-@@ -644,14 +641,8 @@
-  *	Prototype all functions in this driver!
-  */
- 
--#ifdef MODULE
--static void	stli_argbrds(void);
- static int	stli_parsebrd(stlconf_t *confp, char **argp);
--
--static unsigned long	stli_atol(char *str);
--#endif
--
--int		stli_init(void);
-+static int	stli_init(void);
- static int	stli_open(struct tty_struct *tty, struct file *filp);
- static void	stli_close(struct tty_struct *tty, struct file *filp);
- static int	stli_write(struct tty_struct *tty, const unsigned char *buf, int count);
-@@ -787,8 +778,6 @@
- 
- static struct class *istallion_class;
- 
--#ifdef MODULE
--
- /*
-  *	Loadable module initialization stuff.
-  */
-@@ -958,8 +947,6 @@
- 	return(1);
+ /**
+  *	kernel_kexec - reboot the system
+@@ -657,8 +656,6 @@
+ 	machine_halt();
  }
  
--#endif
+-EXPORT_SYMBOL_GPL(kernel_halt);
 -
- /*****************************************************************************/
+ /**
+  *	kernel_power_off - power_off the system
+  *
+@@ -1665,8 +1662,6 @@
+ 	return retval;
+ }
  
- static int stli_open(struct tty_struct *tty, struct file *filp)
-@@ -4698,7 +4685,7 @@
+-EXPORT_SYMBOL(in_egroup_p);
+-
+ DECLARE_RWSEM(uts_sem);
  
- /*****************************************************************************/
- 
--int __init stli_init(void)
-+static int __init stli_init(void)
- {
- 	int i;
- 	printk(KERN_INFO "%s: version %s\n", stli_drvtitle, stli_drvversion);
+ EXPORT_SYMBOL(uts_sem);
 

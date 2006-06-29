@@ -1,159 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWF2TXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWF2TYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWF2TXb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 15:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWF2TWy
+	id S932302AbWF2TYR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 15:24:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWF2TYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 15:22:54 -0400
-Received: from [141.84.69.5] ([141.84.69.5]:35344 "HELO mailout.stusta.mhn.de")
-	by vger.kernel.org with SMTP id S932266AbWF2TWR (ORCPT
+	Thu, 29 Jun 2006 15:24:08 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41891 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932296AbWF2TXp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 15:22:17 -0400
-Date: Thu, 29 Jun 2006 21:21:21 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: [2.6 patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060629192121.GC19712@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+	Thu, 29 Jun 2006 15:23:45 -0400
+Date: Thu, 29 Jun 2006 12:23:20 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: akpm@osdl.org, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com,
+       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
+       hadi@cyberus.ca, netdev@vger.kernel.org
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+Message-Id: <20060629122320.c239a8be.pj@sgi.com>
+In-Reply-To: <44A425A7.2060900@watson.ibm.com>
+References: <44892610.6040001@watson.ibm.com>
+	<449999D1.7000403@engr.sgi.com>
+	<44999A98.8030406@engr.sgi.com>
+	<44999F5A.2080809@watson.ibm.com>
+	<4499D7CD.1020303@engr.sgi.com>
+	<449C2181.6000007@watson.ibm.com>
+	<20060623141926.b28a5fc0.akpm@osdl.org>
+	<449C6620.1020203@engr.sgi.com>
+	<20060623164743.c894c314.akpm@osdl.org>
+	<449CAA78.4080902@watson.ibm.com>
+	<20060623213912.96056b02.akpm@osdl.org>
+	<449CD4B3.8020300@watson.ibm.com>
+	<44A01A50.1050403@sgi.com>
+	<20060626105548.edef4c64.akpm@osdl.org>
+	<44A020CD.30903@watson.ibm.com>
+	<20060626111249.7aece36e.akpm@osdl.org>
+	<44A026ED.8080903@sgi.com>
+	<20060626113959.839d72bc.akpm@osdl.org>
+	<44A2F50D.8030306@engr.sgi.com>
+	<20060628145341.529a61ab.akpm@osdl.org>
+	<44A2FC72.9090407@engr.sgi.com>
+	<20060629014050.d3bf0be4.pj@sgi.com>
+	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
+	<20060629094408.360ac157.pj@sgi.com>
+	<20060629110107.2e56310b.akpm@osdl.org>
+	<44A425A7.2060900@watson.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+Shailabh wrote:
+> First off, just a reminder that this is inherently a netlink flow
+> control issue...which was being exacerbated earlier by taskstats
+> decision to send per-tgid data (no longer the case).
+> 
+> But I'd like to know whats our target here ? How many messages
+> per second do we want to be able to be sent and received without
+> risking any loss of data ? Netlink will lose messages at a high
+> enough rate so the design point will need to be known a bit.
 
-I was profiling the scheduler on x86 and noticed some overhead related 
-to SECCOMP, and indeed, SECCOMP runs disable_tsc() at _every_ 
-context-switch:
+Perhaps its not so much an issue of the design rate, as an issue of
+how we deal with hitting the limit.  Sooner or later, perhaps due to
+operator error, almost any implementable rate will be exceeded.
 
-        if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
-                handle_io_bitmap(next, tss);
+Ideally, we would both of the remedies that Andrew mentioned,
+rephrasing:
+ 1) a way for a customer who needs a higher rate to scale
+    the useful resources he can apply to the collection, and
+ 2) a clear indicator when the supported rate was exceeded
+    anyway.
 
-        disable_tsc(prev_p, next_p);
+> For statistics type usage of the genetlink/netlink, I would have
+> thought that userspace, provided it is reliably informed about the loss
+> of data through ENOBUFS, could take measures to just account for the
+> missing data and carry on ?
 
-        return prev_p;
+If that's so, then the ENOBUFS error may well meet my remedy (2) above,
+leaving just the question of how a customer could scale to higher
+rates, if they found it was worth doing so.
 
-these are a couple of instructions in the hottest scheduler codepath!
-
-x86_64 already removed disable_tsc() from switch_to(), but i think the 
-right solution is to turn SECCOMP off by default.
-
-besides the runtime overhead, there are a couple of other reasons as 
-well why this should be done:
-
- - CONFIG_SECCOMP=y adds 836 bytes of bloat to the kernel:
-
-       text    data     bss     dec     hex filename
-    4185360  867112  391012 5443484  530f9c vmlinux-noseccomp
-    4185992  867316  391012 5444320  5312e0 vmlinux-seccomp
-
- - virtually nobody seems to be using it (but cpushare.com, which seems
-   pretty inactive)
-
- - users/distributions can still turn it on if they want it
-
- - http://www.cpushare.com/legal seems to suggest that it is pursuing a
-   software patent to utilize the seccomp concept in a distributed 
-   environment, and seems to give a promise that 'end users' will not be
-   affected by that patent. How about non-end-users [i.e. server-side]?
-   Has the Linux kernel become a vehicle for a propriety server-side
-   feature, with every Linux user paying the price of it?
-
-so the patch below just does the minimal common-sense change: turn it 
-off by default.
-
-Adrian Bunk:
-I've removed the superfluous "default n"'s the original patch introduced.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
-----
-
-This patch was already sent on:
-- 26 Jun 2006
-- 27 Apr 2006
-- 19 Apr 2006
-- 11 Apr 2006
-- 10 Mar 2006
-- 29 Jan 2006
-- 21 Jan 2006
-
-This patch was sent by Ingo Molnar on:
-- 9 Jan 2006
-
-Index: linux/arch/i386/Kconfig
-===================================================================
---- linux.orig/arch/i386/Kconfig
-+++ linux/arch/i386/Kconfig
-@@ -637,7 +637,6 @@ config REGPARM
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/mips/Kconfig
-===================================================================
---- linux.orig/arch/mips/Kconfig
-+++ linux/arch/mips/Kconfig
-@@ -1787,7 +1787,6 @@ config BINFMT_ELF32
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS && BROKEN
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/powerpc/Kconfig
-===================================================================
---- linux.orig/arch/powerpc/Kconfig
-+++ linux/arch/powerpc/Kconfig
-@@ -666,7 +666,6 @@ endif
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/ppc/Kconfig
-===================================================================
---- linux.orig/arch/ppc/Kconfig
-+++ linux/arch/ppc/Kconfig
-@@ -1127,7 +1127,6 @@ endif
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/sparc64/Kconfig
-===================================================================
---- linux.orig/arch/sparc64/Kconfig
-+++ linux/arch/sparc64/Kconfig
-@@ -64,7 +64,6 @@ endchoice
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/x86_64/Kconfig
-===================================================================
---- linux.orig/arch/x86_64/Kconfig
-+++ linux/arch/x86_64/Kconfig
-@@ -466,7 +466,6 @@ config PHYSICAL_START
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

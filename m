@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWF2UDF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWF2UFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWF2UDF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWF2UDF
+	id S932388AbWF2UFa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWF2UF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:03:05 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:39061
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932374AbWF2UDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:03:03 -0400
-Date: Thu, 29 Jun 2006 13:03:02 -0700 (PDT)
-Message-Id: <20060629.130302.84973515.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] make net/core/skbuff.c:skb_release_data() static
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060629192020.GR19712@stusta.de>
-References: <20060623105623.GT9111@stusta.de>
-	<20060623.040115.108744369.davem@davemloft.net>
-	<20060629192020.GR19712@stusta.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 29 Jun 2006 16:05:29 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:33164
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932382AbWF2UF2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 16:05:28 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: "John W. Linville" <linville@tuxdriver.com>
+Subject: Re: [Ubuntu PATCH] Broadcom wireless patch, PCIE/Mactel support
+Date: Thu, 29 Jun 2006 22:04:57 +0200
+User-Agent: KMail/1.9.1
+References: <44909A3F.4090905@oracle.com> <20060615133220.57d8dd26@localhost> <20060629195456.GG24463@tuxdriver.com>
+In-Reply-To: <20060629195456.GG24463@tuxdriver.com>
+Cc: Stefano Brivio <stefano.brivio@polimi.it>,
+       Randy Dunlap <randy.dunlap@oracle.com>,
+       lkml <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>,
+       mb@bu3sch.de, akpm <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606292204.58103.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Thu, 29 Jun 2006 21:20:20 +0200
-
-> On Fri, Jun 23, 2006 at 04:01:15AM -0700, David Miller wrote:
-> > From: Adrian Bunk <bunk@stusta.de>
-> > Date: Fri, 23 Jun 2006 12:56:23 +0200
+On Thursday 29 June 2006 21:55, John W. Linville wrote:
+> On Thu, Jun 15, 2006 at 01:32:20PM +0200, Stefano Brivio wrote:
+> > On Wed, 14 Jun 2006 16:22:39 -0700
+> > Randy Dunlap <randy.dunlap@oracle.com> wrote:
 > > 
-> > > skb_release_data() no longer has any users in other files.
+> > > From: Matthew Garrett <mjg59@srcf.ucam.org>
 > > > 
-> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > > Broadcom wireless patch, PCIE/Mactel support
+> > > 
+> > > http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=1373a8487e911b5ee204f4422ddea00929c8a4cc
+> > > 
+> > > This patch adds support for PCIE cores to the bcm43xx driver. This is
+> > > needed for wireless to work on the Intel imacs. I've submitted it to
+> > > bcm43xx upstream.
 > > 
-> > If you are going to do this, you need to remove the reference
-> > in arch/x86_64/kernel/functionlist too.
+> > NACK.
+> > This has been superseded by my patchset:
+> > http://www.mail-archive.com/bcm43xx-dev@lists.berlios.de/msg01267.html
 > > 
-> > Thanks.
+> > I'm still waiting for more testing so I didn't request merging to mainline
 > 
-> Corrected patch below.
+> Are these patches coming soon?
 
-Applied, thanks.
+No, we don't have hardware to test it.
+
+So if someone knows a PCIe Broadcom WLAN card... ;)
+
+-- 
+Greetings Michael.

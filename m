@@ -1,115 +1,487 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWF2D0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751666AbWF2DdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbWF2D0y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 23:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWF2D0y
+	id S1751666AbWF2DdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 23:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWF2DdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 23:26:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59531 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750980AbWF2D0w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 23:26:52 -0400
-Date: Wed, 28 Jun 2006 20:17:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: eranian@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       perfmon@napali.hpl.hp.com
-Subject: Re: perfmon2 vector argument question
-Message-Id: <20060628201708.08af034c.akpm@osdl.org>
-In-Reply-To: <20060619204012.GE26378@frankl.hpl.hp.com>
-References: <20060619204012.GE26378@frankl.hpl.hp.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jun 2006 23:33:24 -0400
+Received: from de01egw01.freescale.net ([192.88.165.102]:48891 "EHLO
+	de01egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S1751666AbWF2DdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 23:33:24 -0400
+Message-ID: <9FCDBA58F226D911B202000BDBAD467306E19B76@zch01exm40.ap.freescale.net>
+From: Zhang Wei-r63237 <Wei.Zhang@freescale.com>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: RE: Please pull from 'for_paulus' branch of powerpc
+Date: Thu, 29 Jun 2006 11:33:18 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 13:40:12 -0700
-Stephane Eranian <eranian@hpl.hp.com> wrote:
+> 
+> On Jun 28, 2006, at 1:26 AM, Zhang Wei-r63237 wrote:
+> 
+> > Hi, Kumar,
+> >
+> > Why moving these codes from pci.c to mpc86xx_hpcn.c? It's 
+> not must be.
+> > These functions relate to PCI device of MPC8641D HPCn platform.
+> > And we can also see the 'DECLARE_PCI_FIXUP_HEADER()' declaration in 
+> > pci.c of Powermac platform.
+> 
+> The point for moving is 86xx/pci.c should apply to all 86xx 
+> systems, not just the HPCn system.
+> 
+> - kumar
 
-> Hello,
-> 
-> The current perfmon2 API allows applications to pass vectors of arguments to
-> certain calls, in particular to the 3 functions to read/write PMU registers. 
-> This approach was chosen because it is very flexible and allows applications
-> to modify either multiple or a single register in one call. It is extensible
-> because there is no implicit knowledge of the actual number of registers supported
-> by the underlying hardware.
-> 
-> Before entering the actual system call, the argument vector must be copied
-> into a kernel buffer. This is required by convention for security and also
-> fault reasons. The famous copy_from_user() and copy_to_user() are invoked.
-> This must be done before interrupts are masked.
-> 
-> Vectors can have different sizes depending on the measurement, the PMU model.
-> Yet, the vector must be copied into a kernel-level buffer. Today, we allocate
-> the kernel-memory on demand based on the size of the vector. We use
-> kmalloc/kfree. Of course, to avoid any abuse, we limit the size of the
-> allocated region via a perfmon2 tunable in sysfs. By default, it is set
-> to a page.
-> 
-> This implementation has worked fairly well, yet it costs some performance
-> because kmalloc/kfree are expensive (especially kfree). Also it may seem
-> overkill to malloc a page for small vectors.
-> 
-> I have run some experiments lately and they verified that kmalloc/kfree and
-> copy to/from user account for a very large portion of the cost of calls with
-> multiple registers (I tried with 4). For the copies it is hard to avoid
-> them. One thing we could do is to try and reduce the size of the structs.
-> Today, both struct pfarg_pmd and struct pfarg_pmc have reserved fields
-> for future extensions so that we can extend without breaking the ABI.
-> It may be possible to reduce those a little bit.
-> 
-> There are several ways to amortize or eliminate the kmalloc/kfree. First of
-> all, it is important to understand that multiple threads may call into a 
-> particular context at any time. All they need is access to the file descriptor.
-> 
-> An alternative that I have explored is to start from the hypothesis that
-> most vectors are small. If they are small enough, we could avoid the
-> kmalloc/kfree by using a buffer allocated on the stack. One could say
-> if the vector is less than 8 elements, then use the stack buffer. If not, then
-> go down the expensive path of kmalloc/kfree. I tried this experiment and got
-> over 20% improvement for pfm_read_pmds(). I chose 8 as the threshold. The
-> downside of this approach is that kernel stack space is limited and we should
-> avoid allocating large buffers on it. The pfarg_pmd struct is about 176 bytes
-> whereas pfarg_pmc_t is about 48 bytes. With 8 elements we reach 1408 bytes and
-> this is true for all architectures including i386 where default kernel stack
-> is 2 pages (8kB). Of course, the stack buffer could be adjusted per object
-> type and per-architecture. The downside is that if you need to use kmalloc
-> the stack space is still consumed.
-> 
-> It is important to note that we cannot use a kernel buffer of one element and simply
-> loop over the vector. Because the copy_from/copy_to must be done without locks nor
-> interrupt masked. So one  would have to copy, lock, do the perfmon call, unlock, copy
-> and loop for the next element.
-> 
-> Another approach that was suggested to me is to allocate on demand but not kfree
-> systematically when the call terminates. In other words, we amortize the cost
-> of the allocation by keeping the buffer around for the next caller. To make
-> this work, we would have to decompose the spin_lock_irq*() into spin_*lock()
-> and local_irq_*able() to avoid a race condition. For the first caller the
-> buffer would be allocated to fit the size (up to a certain limit like today).
-> When the call terminates, the buffer is kept via a pointer in the perfmon
-> context. The next caller, would check the pointer and size, if the buffer
-> is big enough, copy_user could proceed directly, otherwise a new buffer would
-> be allocated. That would also work assuming it is OKAY to copy_user with some locks
-> held. I can see one issue with this approach as some malicious user could create
-> lots of contexts and make one call for each to max out the argument vector limit for
-> each. If you have 1024 descriptors and the limit is 1 page/context, it could allocate
-> 1024 kernel pages (non-pageable) for nothing. Today, we do not have a global tuneable
-> for the argument vector size limit. Adding one would be costly because multiple threads
-> could potentially contend for it and therefore we would need yet another lock.
-> 
-> I do not see another approach at this point.
-> 
-> Does someone have something else to propose?
-> 
-> If not, what is your opinion of the two approaches above?
-> 
+The codes of moving is for PCI devices, it's for HPCn system now, but it's also fit for the same PCI chips in the other 86xx system and the same chip should keep the same setting in 86xx platforms, I think so.
 
-The first approach should be fine - we do that in lots of places, such as
-in core_sys_select().
+Even though other 86xx platforms have no these PCI chips, these codes will not take effect.
 
-Applications mut be calling this thing at a heck of a rate for kfree()
-overhead to matter.  I trust CONFIG_DEBUG_SLAB wasn't turned on...
+And we can also see the similar solution in pSeries and PowerMac platforms pci.c file. The function 'fixup_winbond_82c105' in pseries/pci.c is for the Winbond 82c105 IDE controller on p610. (pSeries have only p610? :-D ) The function 'fixup_k2_sata' in powermac/pci.c is for K2-SATA. (K2-SATA chip is in all PowerMac machine? ;-) )
+
+The moving will make the mpc86xx_hpcn.c more fat.
+
+Thanks,
+Zhang Wei
+
+> 
+> >> -----Original Message-----
+> >> From: linuxppc-dev-bounces+wei.zhang=freescale.com@ozlabs.org
+> >> [mailto:linuxppc-dev-bounces+wei.zhang=freescale.com@ozlabs.or
+> >> g] On Behalf Of Kumar Gala
+> >> Sent: Wednesday, June 28, 2006 2:01 PM
+> >> To: Paul Mackerras
+> >> Cc: linuxppc-dev@ozlabs.org; linux-kernel@vger.kernel.org
+> >> Subject: Please pull from 'for_paulus' branch of powerpc
+> >>
+> >> Please pull from 'for_paulus' branch of 
+> >> master.kernel.org:/pub/scm/linux/kernel/git/galak/powerpc.git
+> >>
+> >> to receive the following updates:
+> >>
+> >>  arch/powerpc/kernel/cputable.c             |   12 --
+> >>  arch/powerpc/platforms/86xx/mpc86xx.h      |    8 +
+> >>  arch/powerpc/platforms/86xx/mpc86xx_hpcn.c |  128
+> >> +++++++++++++++++++++++++--
+> >>  arch/powerpc/platforms/86xx/mpc86xx_smp.c  |    9 -
+> >>  arch/powerpc/platforms/86xx/pci.c          |  136
+> >> +----------------------------
+> >>  include/asm-powerpc/mpc86xx.h              |    4
+> >>  6 files changed, 138 insertions(+), 159 deletions(-)
+> >>
+> >> Kumar Gala:
+> >>       powerpc: minor cleanups for mpc86xx
+> >>
+> >> diff --git a/arch/powerpc/kernel/cputable.c 
+> >> b/arch/powerpc/kernel/cputable.c index 1c11488..abf7d42 100644
+> >> --- a/arch/powerpc/kernel/cputable.c
+> >> +++ b/arch/powerpc/kernel/cputable.c
+> >> @@ -722,18 +722,6 @@ #if CLASSIC_PPC
+> >>  		.oprofile_type		= PPC_OPROFILE_G4,
+> >>  		.platform		= "ppc7450",
+> >>  	},
+> >> -        {       /* 8641 */
+> >> -               .pvr_mask               = 0xffffffff,
+> >> -               .pvr_value              = 0x80040010,
+> >> -               .cpu_name               = "8641",
+> >> -               .cpu_features           = CPU_FTRS_7447A,
+> >> -               .cpu_user_features      = COMMON_USER |
+> >> PPC_FEATURE_HAS_ALTIVEC_COMP,
+> >> -               .icache_bsize           = 32,
+> >> -               .dcache_bsize           = 32,
+> >> -               .num_pmcs               = 6,
+> >> -               .cpu_setup              = __setup_cpu_745x
+> >> -        },
+> >> -
+> >>  	{	/* 82xx (8240, 8245, 8260 are all 603e cores) */
+> >>  		.pvr_mask		= 0x7fff0000,
+> >>  		.pvr_value		= 0x00810000,
+> >> diff --git a/arch/powerpc/platforms/86xx/mpc86xx.h
+> >> b/arch/powerpc/platforms/86xx/mpc86xx.h
+> >> index e3c9e4f..2834462 100644
+> >> --- a/arch/powerpc/platforms/86xx/mpc86xx.h
+> >> +++ b/arch/powerpc/platforms/86xx/mpc86xx.h
+> >> @@ -15,11 +15,13 @@ #define __MPC86XX_H__
+> >>   * mpc86xx_* files. Mostly for use by mpc86xx_setup().
+> >>   */
+> >>
+> >> -extern int __init add_bridge(struct device_node *dev);
+> >> +extern int add_bridge(struct device_node *dev);
+> >>
+> >> -extern void __init setup_indirect_pcie(struct 
+> pci_controller *hose,
+> >> +extern int mpc86xx_exclude_device(u_char bus, u_char devfn);
+> >> +
+> >> +extern void setup_indirect_pcie(struct pci_controller *hose,
+> >>  				       u32 cfg_addr, u32
+> >> cfg_data); -extern void __init
+> >> setup_indirect_pcie_nomap(struct pci_controller *hose,
+> >> +extern void setup_indirect_pcie_nomap(struct pci_controller *hose,
+> >>  					     void __iomem *cfg_addr,
+> >>  					     void __iomem *cfg_data);
+> >>
+> >> diff --git a/arch/powerpc/platforms/86xx/mpc86xx_hpcn.c
+> >> b/arch/powerpc/platforms/86xx/mpc86xx_hpcn.c
+> >> index 483c21d..ac7f418 100644
+> >> --- a/arch/powerpc/platforms/86xx/mpc86xx_hpcn.c
+> >> +++ b/arch/powerpc/platforms/86xx/mpc86xx_hpcn.c
+> >> @@ -36,6 +36,7 @@ #include <asm/mpic.h>  #include 
+> <sysdev/fsl_soc.h>
+> >>
+> >>  #include "mpc86xx.h"
+> >> +#include "mpc8641_hpcn.h"
+> >>
+> >>  #ifndef CONFIG_PCI
+> >>  unsigned long isa_io_base = 0;
+> >> @@ -186,17 +187,130 @@ mpc86xx_map_irq(struct pci_dev *dev, uns
+> >>  	return PCI_IRQ_TABLE_LOOKUP + I8259_OFFSET;  }
+> >>
+> >> +static void __devinit quirk_ali1575(struct pci_dev *dev) {
+> >> +	unsigned short temp;
+> >> +
+> >> +	/*
+> >> +	 * ALI1575 interrupts route table setup:
+> >> +	 *
+> >> +	 * IRQ pin   IRQ#
+> >> +	 * PIRQA ---- 3
+> >> +	 * PIRQB ---- 4
+> >> +	 * PIRQC ---- 5
+> >> +	 * PIRQD ---- 6
+> >> +	 * PIRQE ---- 9
+> >> +	 * PIRQF ---- 10
+> >> +	 * PIRQG ---- 11
+> >> +	 * PIRQH ---- 12
+> >> +	 *
+> >> +	 * interrupts for PCI slot0 -- PIRQA / PIRQB / PIRQC / PIRQD
+> >> +	 *                PCI slot1 -- PIRQB / PIRQC / PIRQD / PIRQA
+> >> +	 */
+> >> +	pci_write_config_dword(dev, 0x48, 0xb9317542);
+> >> +
+> >> +	/* USB 1.1 OHCI controller 1, interrupt: PIRQE */
+> >> +	pci_write_config_byte(dev, 0x86, 0x0c);
+> >> +
+> >> +	/* USB 1.1 OHCI controller 2, interrupt: PIRQF */
+> >> +	pci_write_config_byte(dev, 0x87, 0x0d);
+> >> +
+> >> +	/* USB 1.1 OHCI controller 3, interrupt: PIRQH */
+> >> +	pci_write_config_byte(dev, 0x88, 0x0f);
+> >> +
+> >> +	/* USB 2.0 controller, interrupt: PIRQ7 */
+> >> +	pci_write_config_byte(dev, 0x74, 0x06);
+> >> +
+> >> +	/* Audio controller, interrupt: PIRQE */
+> >> +	pci_write_config_byte(dev, 0x8a, 0x0c);
+> >> +
+> >> +	/* Modem controller, interrupt: PIRQF */
+> >> +	pci_write_config_byte(dev, 0x8b, 0x0d);
+> >> +
+> >> +	/* HD audio controller, interrupt: PIRQG */
+> >> +	pci_write_config_byte(dev, 0x8c, 0x0e);
+> >> +
+> >> +	/* Serial ATA interrupt: PIRQD */
+> >> +	pci_write_config_byte(dev, 0x8d, 0x0b);
+> >> +
+> >> +	/* SMB interrupt: PIRQH */
+> >> +	pci_write_config_byte(dev, 0x8e, 0x0f);
+> >> +
+> >> +	/* PMU ACPI SCI interrupt: PIRQH */
+> >> +	pci_write_config_byte(dev, 0x8f, 0x0f);
+> >> +
+> >> +	/* Primary PATA IDE IRQ: 14
+> >> +	 * Secondary PATA IDE IRQ: 15
+> >> +	 */
+> >> +	pci_write_config_byte(dev, 0x44, 0x3d);
+> >> +	pci_write_config_byte(dev, 0x75, 0x0f);
+> >> +
+> >> +	/* Set IRQ14 and IRQ15 to legacy IRQs */
+> >> +	pci_read_config_word(dev, 0x46, &temp);
+> >> +	temp |= 0xc000;
+> >> +	pci_write_config_word(dev, 0x46, temp);
+> >> +
+> >> +	/* Set i8259 interrupt trigger
+> >> +	 * IRQ 3:  Level
+> >> +	 * IRQ 4:  Level
+> >> +	 * IRQ 5:  Level
+> >> +	 * IRQ 6:  Level
+> >> +	 * IRQ 7:  Level
+> >> +	 * IRQ 9:  Level
+> >> +	 * IRQ 10: Level
+> >> +	 * IRQ 11: Level
+> >> +	 * IRQ 12: Level
+> >> +	 * IRQ 14: Edge
+> >> +	 * IRQ 15: Edge
+> >> +	 */
+> >> +	outb(0xfa, 0x4d0);
+> >> +	outb(0x1e, 0x4d1);
+> >> +}
+> >>
+> >> -int
+> >> -mpc86xx_exclude_device(u_char bus, u_char devfn)
+> >> +static void __devinit quirk_uli5288(struct pci_dev *dev)
+> >>  {
+> >> -#if !defined(CONFIG_PCI)
+> >> -	if (bus == 0 && PCI_SLOT(devfn) == 0)
+> >> -		return PCIBIOS_DEVICE_NOT_FOUND;
+> >> -#endif
+> >> +	unsigned char c;
+> >> +
+> >> +	pci_read_config_byte(dev,0x83,&c);
+> >> +	c |= 0x80;
+> >> +	pci_write_config_byte(dev, 0x83, c);
+> >> +
+> >> +	pci_write_config_byte(dev, 0x09, 0x01);
+> >> +	pci_write_config_byte(dev, 0x0a, 0x06);
+> >> +
+> >> +	pci_read_config_byte(dev,0x83,&c);
+> >> +	c &= 0x7f;
+> >> +	pci_write_config_byte(dev, 0x83, c);
+> >>
+> >> -	return PCIBIOS_SUCCESSFUL;
+> >> +	pci_read_config_byte(dev,0x84,&c);
+> >> +	c |= 0x01;
+> >> +	pci_write_config_byte(dev, 0x84, c);
+> >>  }
+> >> +
+> >> +static void __devinit quirk_uli5229(struct pci_dev *dev) {
+> >> +	unsigned short temp;
+> >> +	pci_write_config_word(dev, 0x04, 0x0405);
+> >> +	pci_read_config_word(dev, 0x4a, &temp);
+> >> +	temp |= 0x1000;
+> >> +	pci_write_config_word(dev, 0x4a, temp); }
+> >> +
+> >> +static void __devinit early_uli5249(struct pci_dev *dev) {
+> >> +	unsigned char temp;
+> >> +	pci_write_config_word(dev, 0x04, 0x0007);
+> >> +	pci_read_config_byte(dev, 0x7c, &temp);
+> >> +	pci_write_config_byte(dev, 0x7c, 0x80);
+> >> +	pci_write_config_byte(dev, 0x09, 0x01);
+> >> +	pci_write_config_byte(dev, 0x7c, temp);
+> >> +	dev->class |= 0x1;
+> >> +}
+> >> +
+> >> +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_AL, 0x1575, 
+> quirk_ali1575); 
+> >> +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_AL, 0x5288, 
+> quirk_uli5288); 
+> >> +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_AL, 0x5229, 
+> quirk_uli5229); 
+> >> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AL, 0x5249, early_uli5249);
+> >>  #endif /* CONFIG_PCI */
+> >>
+> >>
+> >> diff --git a/arch/powerpc/platforms/86xx/mpc86xx_smp.c
+> >> b/arch/powerpc/platforms/86xx/mpc86xx_smp.c
+> >> index 944ec4b..9cca3d1 100644
+> >> --- a/arch/powerpc/platforms/86xx/mpc86xx_smp.c
+> >> +++ b/arch/powerpc/platforms/86xx/mpc86xx_smp.c
+> >> @@ -34,8 +34,8 @@ extern unsigned long __secondary_hold_ac static 
+> >> void __init  smp_86xx_release_core(int nr)  {
+> >> -	void *mcm_vaddr;
+> >> -	unsigned long vaddr, pcr;
+> >> +	__be32 __iomem *mcm_vaddr;
+> >> +	unsigned long pcr;
+> >>
+> >>  	if (nr < 0 || nr >= NR_CPUS)
+> >>  		return;
+> >> @@ -45,10 +45,9 @@ smp_86xx_release_core(int nr)
+> >>  	 */
+> >>  	mcm_vaddr = ioremap(get_immrbase() + MPC86xx_MCM_OFFSET,
+> >>  			    MPC86xx_MCM_SIZE);
+> >> -	vaddr = (unsigned long)mcm_vaddr +  MCM_PORT_CONFIG_OFFSET;
+> >> -	pcr = in_be32((volatile unsigned *)vaddr);
+> >> +	pcr = in_be32(mcm_vaddr + (MCM_PORT_CONFIG_OFFSET >> 2));
+> >>  	pcr |= 1 << (nr + 24);
+> >> -	out_be32((volatile unsigned *)vaddr, pcr);
+> >> +	out_be32(mcm_vaddr + (MCM_PORT_CONFIG_OFFSET >> 2), pcr);
+> >>  }
+> >>
+> >>
+> >> diff --git a/arch/powerpc/platforms/86xx/pci.c
+> >> b/arch/powerpc/platforms/86xx/pci.c
+> >> index 5180df7..0d8b340 100644
+> >> --- a/arch/powerpc/platforms/86xx/pci.c
+> >> +++ b/arch/powerpc/platforms/86xx/pci.c
+> >> @@ -122,15 +122,12 @@ static void __init setup_pcie_atmu(struc  
+> >> static void __init mpc86xx_setup_pcie(struct pci_controller *hose, 
+> >> u32 pcie_offset, u32 pcie_size)  {
+> >> -	volatile struct ccsr_pex *pcie;
+> >>  	u16 cmd;
+> >>  	unsigned int temps;
+> >>
+> >>  	DBG("PCIE host controller register offset 0x%08x, size 
+> 0x%08x.\n",
+> >>  			pcie_offset, pcie_size);
+> >>
+> >> -	pcie = ioremap(pcie_offset, pcie_size);
+> >> -
+> >>  	early_read_config_word(hose, 0, 0, PCI_COMMAND, &cmd);
+> >>  	cmd |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | 
+> PCI_COMMAND_MEMORY
+> >>  	    | PCI_COMMAND_IO;
+> >> @@ -144,6 +141,14 @@ mpc86xx_setup_pcie(struct pci_controller
+> >>  	early_write_config_dword(hose, 0, 0, PCI_PRIMARY_BUS, temps);  }
+> >>
+> >> +int mpc86xx_exclude_device(u_char bus, u_char devfn) {
+> >> +	if (bus == 0 && PCI_SLOT(devfn) == 0)
+> >> +		return PCIBIOS_DEVICE_NOT_FOUND;
+> >> +
+> >> +	return PCIBIOS_SUCCESSFUL;
+> >> +}
+> >> +
+> >>  int __init add_bridge(struct device_node *dev)  {
+> >>  	int len;
+> >> @@ -198,128 +203,3 @@ int __init add_bridge(struct device_node
+> >>
+> >>  	return 0;
+> >>  }
+> >> -
+> >> -static void __devinit quirk_ali1575(struct pci_dev *dev) -{
+> >> -	unsigned short temp;
+> >> -
+> >> -	/*
+> >> -	 * ALI1575 interrupts route table setup:
+> >> -	 *
+> >> -	 * IRQ pin   IRQ#
+> >> -	 * PIRQA ---- 3
+> >> -	 * PIRQB ---- 4
+> >> -	 * PIRQC ---- 5
+> >> -	 * PIRQD ---- 6
+> >> -	 * PIRQE ---- 9
+> >> -	 * PIRQF ---- 10
+> >> -	 * PIRQG ---- 11
+> >> -	 * PIRQH ---- 12
+> >> -	 *
+> >> -	 * interrupts for PCI slot0 -- PIRQA / PIRQB / PIRQC / PIRQD
+> >> -	 *                PCI slot1 -- PIRQB / PIRQC / PIRQD / PIRQA
+> >> -	 */
+> >> -	pci_write_config_dword(dev, 0x48, 0xb9317542);
+> >> -
+> >> -	/* USB 1.1 OHCI controller 1, interrupt: PIRQE */
+> >> -	pci_write_config_byte(dev, 0x86, 0x0c);
+> >> -
+> >> -	/* USB 1.1 OHCI controller 2, interrupt: PIRQF */
+> >> -	pci_write_config_byte(dev, 0x87, 0x0d);
+> >> -
+> >> -	/* USB 1.1 OHCI controller 3, interrupt: PIRQH */
+> >> -	pci_write_config_byte(dev, 0x88, 0x0f);
+> >> -
+> >> -	/* USB 2.0 controller, interrupt: PIRQ7 */
+> >> -	pci_write_config_byte(dev, 0x74, 0x06);
+> >> -
+> >> -	/* Audio controller, interrupt: PIRQE */
+> >> -	pci_write_config_byte(dev, 0x8a, 0x0c);
+> >> -
+> >> -	/* Modem controller, interrupt: PIRQF */
+> >> -	pci_write_config_byte(dev, 0x8b, 0x0d);
+> >> -
+> >> -	/* HD audio controller, interrupt: PIRQG */
+> >> -	pci_write_config_byte(dev, 0x8c, 0x0e);
+> >> -
+> >> -	/* Serial ATA interrupt: PIRQD */
+> >> -	pci_write_config_byte(dev, 0x8d, 0x0b);
+> >> -
+> >> -	/* SMB interrupt: PIRQH */
+> >> -	pci_write_config_byte(dev, 0x8e, 0x0f);
+> >> -
+> >> -	/* PMU ACPI SCI interrupt: PIRQH */
+> >> -	pci_write_config_byte(dev, 0x8f, 0x0f);
+> >> -
+> >> -	/* Primary PATA IDE IRQ: 14
+> >> -	 * Secondary PATA IDE IRQ: 15
+> >> -	 */
+> >> -	pci_write_config_byte(dev, 0x44, 0x3d);
+> >> -	pci_write_config_byte(dev, 0x75, 0x0f);
+> >> -
+> >> -	/* Set IRQ14 and IRQ15 to legacy IRQs */
+> >> -	pci_read_config_word(dev, 0x46, &temp);
+> >> -	temp |= 0xc000;
+> >> -	pci_write_config_word(dev, 0x46, temp);
+> >> -
+> >> -	/* Set i8259 interrupt trigger
+> >> -	 * IRQ 3:  Level
+> >> -	 * IRQ 4:  Level
+> >> -	 * IRQ 5:  Level
+> >> -	 * IRQ 6:  Level
+> >> -	 * IRQ 7:  Level
+> >> -	 * IRQ 9:  Level
+> >> -	 * IRQ 10: Level
+> >> -	 * IRQ 11: Level
+> >> -	 * IRQ 12: Level
+> >> -	 * IRQ 14: Edge
+> >> -	 * IRQ 15: Edge
+> >> -	 */
+> >> -	outb(0xfa, 0x4d0);
+> >> -	outb(0x1e, 0x4d1);
+> >> -}
+> >> -
+> >> -static void __devinit quirk_uli5288(struct pci_dev *dev) -{
+> >> -	unsigned char c;
+> >> -
+> >> -	pci_read_config_byte(dev,0x83,&c);
+> >> -	c |= 0x80;
+> >> -	pci_write_config_byte(dev, 0x83, c);
+> >> -
+> >> -	pci_write_config_byte(dev, 0x09, 0x01);
+> >> -	pci_write_config_byte(dev, 0x0a, 0x06);
+> >> -
+> >> -	pci_read_config_byte(dev,0x83,&c);
+> >> -	c &= 0x7f;
+> >> -	pci_write_config_byte(dev, 0x83, c);
+> >> -
+> >> -	pci_read_config_byte(dev,0x84,&c);
+> >> -	c |= 0x01;
+> >> -	pci_write_config_byte(dev, 0x84, c);
+> >> -}
+> >> -
+> >> -static void __devinit quirk_uli5229(struct pci_dev *dev) -{
+> >> -	unsigned short temp;
+> >> -	pci_write_config_word(dev, 0x04, 0x0405);
+> >> -	pci_read_config_word(dev, 0x4a, &temp);
+> >> -	temp |= 0x1000;
+> >> -	pci_write_config_word(dev, 0x4a, temp);
+> >> -}
+> >> -
+> >> -static void __devinit early_uli5249(struct pci_dev *dev) -{
+> >> -	unsigned char temp;
+> >> -	pci_write_config_word(dev, 0x04, 0x0007);
+> >> -	pci_read_config_byte(dev, 0x7c, &temp);
+> >> -	pci_write_config_byte(dev, 0x7c, 0x80);
+> >> -	pci_write_config_byte(dev, 0x09, 0x01);
+> >> -	pci_write_config_byte(dev, 0x7c, temp);
+> >> -	dev->class |= 0x1;
+> >> -}
+> >> -
+> >> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_AL, 0x1575, 
+> quirk_ali1575); 
+> >> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_AL,
+> >> 0x5288, quirk_uli5288);
+> >> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_AL, 0x5229, 
+> quirk_uli5229); 
+> >> -DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AL,
+> >> 0x5249, early_uli5249); diff --git
+> >> a/include/asm-powerpc/mpc86xx.h
+> >> b/include/asm-powerpc/mpc86xx.h index d0a6718..00d72a7 100644
+> >> --- a/include/asm-powerpc/mpc86xx.h
+> >> +++ b/include/asm-powerpc/mpc86xx.h
+> >> @@ -20,10 +20,6 @@ #include <asm/mmu.h>
+> >>
+> >>  #ifdef CONFIG_PPC_86xx
+> >>
+> >> -#ifdef CONFIG_MPC8641_HPCN
+> >> -#include <platforms/86xx/mpc8641_hpcn.h> -#endif
+> >> -
+> >>  #define _IO_BASE        isa_io_base
+> >>  #define _ISA_MEM_BASE   isa_mem_base
+> >>  #ifdef CONFIG_PCI
+> >>
+> >> _______________________________________________
+> >> Linuxppc-dev mailing list
+> >> Linuxppc-dev@ozlabs.org
+> >> https://ozlabs.org/mailman/listinfo/linuxppc-dev
+> >>
+> 

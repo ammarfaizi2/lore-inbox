@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWF2Ap7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWF2Ari@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWF2Ap7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 20:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWF2Ap7
+	id S932102AbWF2Ari (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 20:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWF2Ari
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 20:45:59 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:16363 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932096AbWF2Ap7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 20:45:59 -0400
-Message-ID: <44A322BB.2010006@zytor.com>
-Date: Wed, 28 Jun 2006 17:45:47 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 28 Jun 2006 20:47:38 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:9378 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932102AbWF2Arh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 20:47:37 -0400
+Date: Wed, 28 Jun 2006 17:47:17 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, penberg@cs.helsinki.fi, marcelo@kvack.org,
+       paulmck@us.ibm.com, nickpiggin@yahoo.com.au, tytso@mit.edu, dgc@sgi.com,
+       ak@suse.de
+Subject: Re: [RFC 0/4] Object reclaim via the slab allocator V1
+In-Reply-To: <20060628174329.20adbc2a.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0606281741380.24393@schroedinger.engr.sgi.com>
+References: <20060619184651.23130.62875.sendpatchset@schroedinger.engr.sgi.com>
+ <20060628174329.20adbc2a.akpm@osdl.org>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       klibc@zytor.com
-Subject: Re: [klibc 07/31] i386 support for klibc
-References: <klibc.200606272217.00@tazenda.hos.anvin.org> <klibc.200606272217.07@tazenda.hos.anvin.org> <Pine.LNX.4.61.0606280937150.29068@yvahk01.tjqt.qr> <44A2A147.9020501@zytor.com> <Pine.LNX.4.64.0606290207580.17704@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0606290207580.17704@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
+On Wed, 28 Jun 2006, Andrew Morton wrote:
+
+> > 2. A destructor was provided during kmem_cache_create().
+> >    If SLAB_DTOR_FREE is passed in the flags of the destructor
+> >    then a best effort attempt will be made to free that object.
+> > 
 > 
-> On Wed, 28 Jun 2006, H. Peter Anvin wrote:
+> It would be better to make the higher-level code register callbacks for
+> this sort of thing.  That code knows how to determine if an object is
+> freeable, can manage aging info, etc.
+
+The destructor is such a callback.
+
+> > For slab we check all the objects in the slab. If all object have
+> > a refcount of one then we free all the objects and return the pages of the
+> > object to the page allocator.
 > 
->> The i386 ones are a bit special... usually the reason I have added libgcc
->> functions is that on some architectures, gcc has various problems linking with
->> libgcc in some configurations.
-> 
-> If gcc has problems to link its own libgcc you really have a serious 
-> problem...
+> That seems like quite a drawback.  A single refcount=2 object on the page
+> means that nothing gets freed from that page at all.  It'd be easy
+> (especially with dcache) to do tons of work without achieving anything.
 
-The way libgcc is handled inside gcc is, indeed, completely screwed up; 
-even the gcc people admit that.  They pretty much don't have a way to 
-handle the effects of compiler options on libgcc, especially the ones 
-that affect binary compatibility.
+We will always reclaim a few object from each page. See the patch.
 
-However, that affects only a small minority of configurations (MIPS is one.)
+Single refcount=2 objects could also be detected and we could try to free 
+them.
 
-> The standard libgcc may not be as small as you like, but it still should 
-> be the first choice. If there is a problem with it, the gcc people do 
-> accept patches.
+> a) compact dentries by copying them around or, perhaps,
 
-That's just an asinine statement.  Under that logic we should just 
-forget about the kernel and go hack the gcc bugs du jour; we certainly 
-have enough workarounds for gcc bugs in the kernel.
+Since we free some dentries in each block they will be effectively be 
+moved because they get reallocated in a current slab block.
 
-There is absolutely nothing wrong with providing an override for a 
-function which has well-defined semantics.  If new functions are needed, 
-they are pulled from libgcc.
+> b) make dentry reclaim be guided by the dcache tree: do a bottom-up
+>    reclaim, or a top-down reclaim when we hit a directory, etc.  Something
+>    which understands the graph rather than the plain global LRU.
 
-	-hpa
+The callback can make that determination and could trigger these events.
+The callback notifies the higher layers that it would be advantageous to 
+free this element. The higher layers can then analyze the situation and 
+either free or give up.
+

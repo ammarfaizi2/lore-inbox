@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWF2Qu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWF2Qx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWF2Qu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 12:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWF2Qu0
+	id S1750966AbWF2Qx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 12:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWF2Qx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 12:50:26 -0400
-Received: from [141.84.69.5] ([141.84.69.5]:9231 "HELO mailout.stusta.mhn.de")
-	by vger.kernel.org with SMTP id S1750959AbWF2QuZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 12:50:25 -0400
-Date: Thu, 29 Jun 2006 18:49:44 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: mitr@volny.cz, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/input/misc/wistron_btns.c: section fixes
-Message-ID: <20060629164944.GE19712@stusta.de>
-References: <20060626103509.GQ23314@stusta.de> <200606260750.32863.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606260750.32863.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Thu, 29 Jun 2006 12:53:57 -0400
+Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:23310 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S1750964AbWF2Qx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 12:53:57 -0400
+Date: Thu, 29 Jun 2006 12:52:49 -0400
+From: Matt LaPlante <laplam@rpi.edu>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: rdunlap@xenotime.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Attack of "the the"s in /arch
+Message-Id: <20060629125249.4ad83383.laplam@rpi.edu>
+In-Reply-To: <20060629100457.4ed45d7e@localhost>
+References: <000001c69b31$64186160$fe01a8c0@cyberdogt42>
+	<20060628213924.50f29a4a.rdunlap@xenotime.net>
+	<20060629011651.1543b42b.laplam@rpi.edu>
+	<20060628230305.c9eaf6a9.rdunlap@xenotime.net>
+	<20060629024805.63f8054c.laplam@rpi.edu>
+	<20060629100457.4ed45d7e@localhost>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 12:53:01 -0400
+	(not processed: message from trusted or authenticated source)
+X-Return-Path: laplam@rpi.edu
+X-Envelope-From: laplam@rpi.edu
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 12:53:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2006 at 07:50:31AM -0400, Dmitry Torokhov wrote:
-> On Monday 26 June 2006 06:35, Adrian Bunk wrote:
-> > This patch contains the following fixes:
-> > - it doesn't make sense to mark a variable on the stack as __initdata
-> > - struct dmi_ids is using the __init dmi_matched()
+On Thu, 29 Jun 2006 10:04:57 +0200
+Paolo Ornati <ornati@fastwebnet.it> wrote:
+
+> On Thu, 29 Jun 2006 02:48:05 -0400
+> Matt LaPlante <laplam@rpi.edu> wrote:
 > 
-> Since when did static variables become allocated on stack?
+> > I'll CC: to Linus and hope for the best.
+> 
+> Since Linus receives a lot of mails the best option was to send it to
+> "trivial@kernel.org":
+> 
+> Documentation/SubmittingPatches:
+> -----
+> For small patches you may want to CC the Trivial Patch Monkey
+> trivial@kernel.org managed by Adrian Bunk; which collects "trivial"
+> patches. Trivial patches must qualify for one of the following rules:
+>  Spelling fixes in documentation
+>  Spelling fixes which could break grep(1).
+>  Warning fixes (cluttering with useless warnings is bad)
+> ...
+> -----
+> 
+> :)
+> 
+> -- 
+> 	Paolo Ornati
+> 	Linux 2.6.17.1 on x86_64
+> 
 
-Only when I miss the static...
+Thanks for the pointer, I will do this from now on.  I was reading the patch submission info at http://www.kernel.org/pub/linux/docs/lkml/, and it does not suggest this (it goes Maintainer> Linus | Alan Cox), so I did not know.  Maybe this address could be added either to maintainers or the lkml page?
 
-> Dmitry
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-
+Matt LaPlante
+CCNP, CCDP, A+, Linux+, CQS
+laplam@rpi.edu
 

@@ -1,208 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751873AbWF2MJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751874AbWF2MMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751873AbWF2MJj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 08:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751874AbWF2MJj
+	id S1751874AbWF2MMM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 08:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751875AbWF2MMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 08:09:39 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:64703 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751873AbWF2MJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 08:09:38 -0400
-Date: Thu, 29 Jun 2006 08:09:24 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Esben Nielsen <nielsen.esben@googlemail.com>
-cc: Milan Svoboda <msvoboda@ra.rockwell.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Deepak Saxena <dsaxena@plexity.net>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [BUG] Linux-2.6.17-rt3 on arm ixdp465
-In-Reply-To: <Pine.LNX.4.64.0606291334540.10401@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0606290803190.25935@gandalf.stny.rr.com>
-References: <OF92240490.78BE8F01-ONC125719C.0037A4FD-C125719C.00389E07@ra.rockwell.com>
- <Pine.LNX.4.64.0606291334540.10401@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jun 2006 08:12:12 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:7214 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751874AbWF2MML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 08:12:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=OIP3rVaG2b38RgI2zr+Akx8w8evWsYD7TATMmhmFvuY9/8GZCgxHhWe56GyyzL/zx6UnxoCcmVzNHU5fqUQAAwuT1NTfnv4nApWQXjNh5QPv28vzvotsMs64t/X8dhLHsFN4GCpVDwCLzJAMBl/yeNluAnBlmau8ulFj3bLN/bY=
+Date: Thu, 29 Jun 2006 14:12:10 +0200
+From: Paolo Ornati <ornati@gmail.com>
+To: jensmh@gmx.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@kernel.org, Paolo Ornati <ornati@fastwebnet.it>
+Subject: Re: [PATCH] Documentation: remove duplicate cleanups
+Message-ID: <20060629141210.0f30a1a6@localhost>
+In-Reply-To: <200606291402.21287.jensmh@gmx.de>
+References: <20060629134002.1b06257c@localhost>
+	<200606291402.21287.jensmh@gmx.de>
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 29 Jun 2006 14:02:18 +0200
+jensmh@gmx.de wrote:
 
+> > diff --git a/Documentation/block/as-iosched.txt b/Documentation/block/as-iosched.txt
+> > index 6f47332..ed24cdd 100644
+> > --- a/Documentation/block/as-iosched.txt
+> > +++ b/Documentation/block/as-iosched.txt
+> > @@ -111,7 +111,7 @@ or if the next request in the queue is "
+> >  just completed request, it is dispatched immediately.  Otherwise,
+> >  statistics (average think time, average seek distance) on the process
+> >  that submitted the just completed request are examined.  If it seems
+> > -likely that that process will submit another request soon, and that
+> 
+> old version is correct, I think.
 
-On Thu, 29 Jun 2006, Esben Nielsen wrote:
+me too (I've exagerated a bit in killing duplicates ;)
 
->
-> On Thu, 29 Jun 2006, Milan Svoboda wrote:
->
->
-> It seems that dma_unmap_single() on arm contains
->  	local_irq_save(flags);
->
->  	unmap_single(dev, dma_addr, size, dir);
->
->  	local_irq_restore(flags);
->
+> 
+> > +likely that process will submit another request soon, and that
+> >  request is likely to be near the just completed request, then the IO
+> >  scheduler will stop dispatching more read requests for up time (antic_expire)
+> >  milliseconds, hoping that process will submit a new request near the one
+> 
+> 
+> > diff --git a/Documentation/exception.txt b/Documentation/exception.txt
+> > index 3cb39ad..75aaa6e 100644
+> > --- a/Documentation/exception.txt
+> > +++ b/Documentation/exception.txt
+> > @@ -10,7 +10,7 @@ int verify_area(int type, const void * a
+> >  function (which has since been replaced by access_ok()).
+> >  
+> >  This function verified that the memory area starting at address 
+> > -addr and of size size was accessible for the operation specified 
+> 
+> maybe old version is correct.
 
-Yeah I saw this too.
+yes
 
-> I don't know the dma code on arm. It doesn't look like a per-cpu code but it
-> seems to me that it is not SMP safe and therefore not preempt-realtime
-> safe, either.
->
-> The hard thing is to figure out which datastructures exactly is protected
-> by those irq-disable and put in a spinlock..
->
-> I added Deepak Saxena on CC as he seems to be the last one who touched the
-> file.
->
+> 
+> > +addr and of size was accessible for the operation specified
+> >  in type (read or write). To do this, verify_read had to look up the 
+> >  virtual memory area (vma) that contained the address addr. In the 
+> >  normal case (correctly working program), this test was successful. 
+> > diff --git a/Documentation/fb/fbcon.txt b/Documentation/fb/fbcon.txt
+> > index f373df1..4a9739a 100644
+> > --- a/Documentation/fb/fbcon.txt
+> > +++ b/Documentation/fb/fbcon.txt
+> > @@ -150,7 +150,7 @@ C. Boot options
+> >  
+> >  C. Attaching, Detaching and Unloading
+> >  
+> > -Before going on on how to attach, detach and unload the framebuffer console, an
+> 
+> not sure here, I'm not a native english speaker.
 
-Well, the following patch may not be the best but I don't see it being any
-worse than what is already there.  I don't have any arm platforms or even
-an arm compiler, so I haven't even tested this patch with a compile.  But
-it should be at least a temporary fix.
+yes, the old one looks correct
 
--- Steve
+> 
+> > +Before going on how to attach, detach and unload the framebuffer console, an
+> >  illustration of the dependencies may help.
+> >  
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-Index: linux-2.6.17-rt4/arch/arm/common/dmabounce.c
-===================================================================
---- linux-2.6.17-rt4.orig/arch/arm/common/dmabounce.c	2006-06-29 07:56:54.000000000 -0400
-+++ linux-2.6.17-rt4/arch/arm/common/dmabounce.c	2006-06-29 08:04:42.000000000 -0400
-@@ -386,6 +386,8 @@ sync_single(struct device *dev, dma_addr
-
- /* ************************************************** */
-
-+static DEFINE_SPINLOCK(dma_lock);
-+
- /*
-  * see if a buffer address is in an 'unsafe' range.  if it is
-  * allocate a 'safe' buffer and copy the unsafe buffer into it.
-@@ -404,11 +406,11 @@ dma_map_single(struct device *dev, void
-
- 	BUG_ON(dir == DMA_NONE);
-
--	local_irq_save(flags);
-+	spin_lock_irqsave(&dma_lock, flags);
-
- 	dma_addr = map_single(dev, ptr, size, dir);
-
--	local_irq_restore(flags);
-+	spin_unlock_irqrestore(&dma_lock, flags);
-
- 	return dma_addr;
- }
-@@ -431,11 +433,11 @@ dma_unmap_single(struct device *dev, dma
-
- 	BUG_ON(dir == DMA_NONE);
-
--	local_irq_save(flags);
-+	spin_lock_irqsave(&dma_lock, flags);
-
- 	unmap_single(dev, dma_addr, size, dir);
-
--	local_irq_restore(flags);
-+	spin_unlock_irqrestore(&dma_lock, flags);
- }
-
- int
-@@ -450,7 +452,7 @@ dma_map_sg(struct device *dev, struct sc
-
- 	BUG_ON(dir == DMA_NONE);
-
--	local_irq_save(flags);
-+	spin_lock_irqsave(&dma_lock, flags);
-
- 	for (i = 0; i < nents; i++, sg++) {
- 		struct page *page = sg->page;
-@@ -462,7 +464,7 @@ dma_map_sg(struct device *dev, struct sc
- 			map_single(dev, ptr, length, dir);
- 	}
-
--	local_irq_restore(flags);
-+	spin_unlock_irqrestore(&dma_lock, flags);
-
- 	return nents;
- }
-@@ -479,7 +481,7 @@ dma_unmap_sg(struct device *dev, struct
-
- 	BUG_ON(dir == DMA_NONE);
-
--	local_irq_save(flags);
-+	spin_lock_irqsave(&dma_lock, flags);
-
- 	for (i = 0; i < nents; i++, sg++) {
- 		dma_addr_t dma_addr = sg->dma_address;
-@@ -488,7 +490,7 @@ dma_unmap_sg(struct device *dev, struct
- 		unmap_single(dev, dma_addr, length, dir);
- 	}
-
--	local_irq_restore(flags);
-+	spin_unlock_irqrestore(&dma_lock, flags);
- }
-
- void
-@@ -500,11 +502,11 @@ dma_sync_single_for_cpu(struct device *d
- 	dev_dbg(dev, "%s(ptr=%p,size=%d,dir=%x)\n",
- 		__func__, (void *) dma_addr, size, dir);
-
--	local_irq_save(flags);
-+	spin_lock_irqsave(&dma_lock, flags);
-
- 	sync_single(dev, dma_addr, size, dir);
-
--	local_irq_restore(flags);
-+	spin_unlock_irqrestore(&dma_lock, flags);
- }
-
- void
-@@ -516,11 +518,11 @@ dma_sync_single_for_device(struct device
- 	dev_dbg(dev, "%s(ptr=%p,size=%d,dir=%x)\n",
- 		__func__, (void *) dma_addr, size, dir);
-
--	local_irq_save(flags);
-+	spin_lock_irqsave(&dma_lock, flags);
-
- 	sync_single(dev, dma_addr, size, dir);
-
--	local_irq_restore(flags);
-+	spin_unlock_irqrestore(&dma_lock, flags);
- }
-
- void
-@@ -535,7 +537,7 @@ dma_sync_sg_for_cpu(struct device *dev,
-
- 	BUG_ON(dir == DMA_NONE);
-
--	local_irq_save(flags);
-+	spin_lock_irqsave(&dma_lock, flags);
-
- 	for (i = 0; i < nents; i++, sg++) {
- 		dma_addr_t dma_addr = sg->dma_address;
-@@ -544,7 +546,7 @@ dma_sync_sg_for_cpu(struct device *dev,
- 		sync_single(dev, dma_addr, length, dir);
- 	}
-
--	local_irq_restore(flags);
-+	spin_unlock_irqrestore(&dma_lock, flags);
- }
-
- void
-@@ -559,7 +561,7 @@ dma_sync_sg_for_device(struct device *de
-
- 	BUG_ON(dir == DMA_NONE);
-
--	local_irq_save(flags);
-+	spin_lock_irqsave(&dma_lock, flags);
-
- 	for (i = 0; i < nents; i++, sg++) {
- 		dma_addr_t dma_addr = sg->dma_address;
-@@ -568,7 +570,7 @@ dma_sync_sg_for_device(struct device *de
- 		sync_single(dev, dma_addr, length, dir);
- 	}
-
--	local_irq_restore(flags);
-+	spin_unlock_irqrestore(&dma_lock, flags);
- }
-
- static int
+-- 
+	Paolo Ornati
+	Linux 2.6.17.1 on x86_64

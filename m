@@ -1,80 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWF2MYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWF2MZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWF2MYM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 08:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751717AbWF2MYM
+	id S932489AbWF2MZy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 08:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932896AbWF2MZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 08:24:12 -0400
-Received: from ns.suse.de ([195.135.220.2]:17795 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751295AbWF2MYL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 08:24:11 -0400
-Date: Thu, 29 Jun 2006 14:23:55 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i4l:add some checks for valid drvid and driver pointer
-Message-ID: <20060629122355.GA10273@pingi.kke.suse.de>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20060629111629.GB9501@pingi.kke.suse.de> <1151580572.3122.30.camel@laptopd505.fenrus.org>
+	Thu, 29 Jun 2006 08:25:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14604 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932489AbWF2MZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 08:25:53 -0400
+Date: Thu, 29 Jun 2006 13:25:41 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Milan Svoboda <msvoboda@ra.rockwell.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Deepak Saxena <dsaxena@plexity.net>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [BUG] Linux-2.6.17-rt3 on arm ixdp465
+Message-ID: <20060629122541.GB9709@flint.arm.linux.org.uk>
+Mail-Followup-To: Steven Rostedt <rostedt@goodmis.org>,
+	Esben Nielsen <nielsen.esben@googlemail.com>,
+	Milan Svoboda <msvoboda@ra.rockwell.com>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Deepak Saxena <dsaxena@plexity.net>, Ingo Molnar <mingo@elte.hu>,
+	Thomas Gleixner <tglx@linutronix.de>
+References: <OF92240490.78BE8F01-ONC125719C.0037A4FD-C125719C.00389E07@ra.rockwell.com> <Pine.LNX.4.64.0606291334540.10401@localhost.localdomain> <Pine.LNX.4.58.0606290803190.25935@gandalf.stny.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1151580572.3122.30.camel@laptopd505.fenrus.org>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.16.13-4-smp x86_64
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.58.0606290803190.25935@gandalf.stny.rr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 29, 2006 at 01:29:31PM +0200, Arjan van de Ven wrote:
-> On Thu, 2006-06-29 at 13:16 +0200, Karsten Keil wrote:
-> > If all drivers go away before all ISDN network interfaces are closed we got
-> > a OOps on removing interfaces, this patch avoid it.
-> > 
-> > Signed-off-by: Karsten Keil <kkeil@suse.de>
-> > 
-> > diff -ur linux-2.6.4.org/drivers/isdn/i4l/isdn_common.c linux-2.6.4/drivers/isdn/i4l/isdn_common.c
-> > --- linux-2.6.4.org/drivers/isdn/i4l/isdn_common.c	2004-03-11 03:55:25.000000000 +0100
-> > +++ linux-2.6.4/drivers/isdn/i4l/isdn_common.c	2004-03-30 18:35:38.000000000 +0200
-> > @@ -341,6 +341,16 @@
-> >  		printk(KERN_WARNING "isdn_command command(%x) driver -1\n", cmd->command);
-> >  		return(1);
-> >  	}
-> > +	if (!dev->drv[cmd->driver]) {
-> > +		printk(KERN_WARNING "isdn_command command(%x) dev->drv[%d] NULL\n",
-> > +			cmd->command, cmd->driver);
-> > +		return(1);
-> > +	}
+On Thu, Jun 29, 2006 at 08:09:24AM -0400, Steven Rostedt wrote:
 > 
-> Hi,
 > 
-> if this is a "legal" condition, you really shouldn't printk about it. If
-> it's not a normal legal condition, this isn't a fix but a hacky
-> workaround ;)
+> On Thu, 29 Jun 2006, Esben Nielsen wrote:
 > 
-
-I also was thinking about removing the printk, they are in my patch for some
-time to prove (which runs for long time on my systems) that this are legal
-conditions. But you are correct, now it should be removed, no need to spam
-syslog.
-
-> Also..  return is not a function, so return 1; is the preferred form,
-> not return(1)..
+> >
+> > On Thu, 29 Jun 2006, Milan Svoboda wrote:
+> >
+> >
+> > It seems that dma_unmap_single() on arm contains
+> >  	local_irq_save(flags);
+> >
+> >  	unmap_single(dev, dma_addr, size, dir);
+> >
+> >  	local_irq_restore(flags);
+> >
 > 
+> Yeah I saw this too.
+> 
+> > I don't know the dma code on arm. It doesn't look like a per-cpu code but it
+> > seems to me that it is not SMP safe and therefore not preempt-realtime
+> > safe, either.
+> >
+> > The hard thing is to figure out which datastructures exactly is protected
+> > by those irq-disable and put in a spinlock..
+> >
+> > I added Deepak Saxena on CC as he seems to be the last one who touched the
+> > file.
+> >
+> 
+> Well, the following patch may not be the best but I don't see it being any
+> worse than what is already there.  I don't have any arm platforms or even
+> an arm compiler, so I haven't even tested this patch with a compile.  But
+> it should be at least a temporary fix.
 
-OK
-
-(I don't know why, but for me return() looks better, but that pure
-private taste)
-
-
-So I will send a new patch.
+Guys, look at what's in the latest -git from Linus.
 
 -- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

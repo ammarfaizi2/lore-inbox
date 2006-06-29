@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751866AbWF2KqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751864AbWF2KrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751866AbWF2KqO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 06:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751864AbWF2KqO
+	id S1751864AbWF2KrG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 06:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751868AbWF2KrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 06:46:14 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:14567 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751355AbWF2KqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 06:46:13 -0400
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jes Sorensen <jes@sgi.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, John Daiker <jdaiker@osdl.org>,
-       John Hawkes <hawkes@sgi.com>, Arjan van de Ven <arjan@infradead.org>,
-       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
-       Jeremy Higdon <jeremy@sgi.com>
-In-Reply-To: <yq04py4i9p7.fsf@jaguar.mkp.net>
-References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
-	 <yq04py4i9p7.fsf@jaguar.mkp.net>
-Content-Type: text/plain
+	Thu, 29 Jun 2006 06:47:05 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:5614 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S1751864AbWF2KrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 06:47:04 -0400
+Message-ID: <04d401c69b69$581db0d0$4168010a@bsd.tnes.nec.co.jp>
+From: "Takashi Sato" <sho@tnes.nec.co.jp>
+To: "Andreas Dilger" <adilger@clusterfs.com>,
+       "Johann Lombardi" <johann.lombardi@bull.net>
+Cc: <ext2-devel@lists.sourceforge.net>, <cmm@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>
+References: <20060628205238sho@rifu.tnes.nec.co.jp><20060628155048.GG2893@chiva> <20060628202421.GL5318@schatzie.adilger.int>
+Subject: Re: [Ext2-devel] [RFC 1/2] ext3: enlarge blocksize and fix rec_lenoverflow
+Date: Thu, 29 Jun 2006 19:46:52 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-Date: Thu, 29 Jun 2006 12:02:08 +0100
-Message-Id: <1151578928.23785.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-06-29 am 05:37 -0400, ysgrifennodd Jes Sorensen:
-> You have my vote for that one. Anything else is just going to cause
-> those broken userapps to continue doing the wrong thing. We should
-> really do this on all archs though.
+Hi,
 
-No need, all current mainstream architectures expose a constant user HZ.
+> On Jun 28, 2006  17:50 +0200, Johann Lombardi wrote:
+>> ext2/ext3_dir_entry_2 has a 16-bit entry(rec_len) and it would overflow
+>> with 64KB blocksize.  This patch prevent from overflow by limiting
+>> rec_len to 65532.
+> 
+> Having a max rec_len of 65532 is rather unfortunate, since the dir
+> blocks always need to filled with dir entries.
 
-Alan
+Oh, that's right.
 
+> 65536 - 65532 = 4, and
+> the minimum ext3_dir_entry size is 8 bytes.  I would instead make this
+> maybe 64 bytes less so that there is room for a filename in the "tail"
+> dir_entry.
+
+What does "64 bytes" mean?
+Do you mean that the following dummy entry should be added
+at the tail of the directory block?
+
+struct ext3_dir_entry_2 {
+ __le32 inode   = 0
+ __le16 rec_len = 16
+ __u8 name_len  = 4
+ __u8 file_type = 0
+ char name      = "dir_end"
+};
+
+Cheers, sho 

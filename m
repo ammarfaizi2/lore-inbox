@@ -1,68 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932644AbWF2VHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWF2VIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932644AbWF2VHX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 17:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWF2VHW
+	id S932635AbWF2VIF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 17:08:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbWF2VIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 17:07:22 -0400
-Received: from watts.utsl.gen.nz ([202.78.240.73]:63664 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S932551AbWF2VHT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:07:19 -0400
-Message-ID: <44A44124.5010602@vilain.net>
-Date: Fri, 30 Jun 2006 09:07:48 +1200
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060521)
+	Thu, 29 Jun 2006 17:08:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52963 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932635AbWF2VIC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 17:08:02 -0400
+Date: Thu, 29 Jun 2006 17:00:05 -0400 (EDT)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp83-5.boston.redhat.com
+To: Pavel Machek <pavel@suse.cz>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ulrich Drepper <drepper@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: make PROT_WRITE imply PROT_READ
+In-Reply-To: <20060629172036.GB2947@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.64.0606291655030.10034@dhcp83-5.boston.redhat.com>
+References: <1151071581.3204.14.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.64.0606231002150.24102@dhcp83-5.boston.redhat.com>
+ <1151072280.3204.17.camel@laptopd505.fenrus.org>
+ <a36005b50606241145q4d1dd17dg85f80e07fb582cdb@mail.gmail.com>
+ <20060627095632.GA22666@elf.ucw.cz> <a36005b50606280943l54138e80tbda08e1607136792@mail.gmail.com>
+ <20060628194913.GA18039@elf.ucw.cz> <a36005b50606281647i58f2899eo7ae7e95757969d42@mail.gmail.com>
+ <20060629073033.GF27526@elf.ucw.cz> <1151582323.23785.16.camel@localhost.localdomain>
+ <20060629172036.GB2947@elf.ucw.cz>
 MIME-Version: 1.0
-To: hadi@cyberus.ca
-Cc: Herbert Poetzl <herbert@13thfloor.at>, Alexey Kuznetsov <alexey@sw.ru>,
-       viro@ftp.linux.org.uk, devel@openvz.org, dev@sw.ru,
-       Andrew Morton <akpm@osdl.org>, clg@fr.ibm.com, serue@us.ibm.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrey Savochkin <saw@swsoft.com>, Daniel Lezcano <dlezcano@fr.ibm.com>,
-       Ben Greear <greearb@candelatech.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-References: <20060627133849.E13959@castle.nmd.msu.ru>	 <44A1149E.6060802@fr.ibm.com> <m1sllqn7cb.fsf@ebiederm.dsl.xmission.com>	 <20060627160241.GB28984@MAIL.13thfloor.at>	 <m1psgulf4u.fsf@ebiederm.dsl.xmission.com>	 <44A1689B.7060809@candelatech.com>	 <20060627225213.GB2612@MAIL.13thfloor.at>	 <1151449973.24103.51.camel@localhost.localdomain>	 <20060627234210.GA1598@ms2.inr.ac.ru>	 <m1mzbyj6ft.fsf@ebiederm.dsl.xmission.com>	 <20060628133640.GB5088@MAIL.13thfloor.at> <1151502803.5203.101.camel@jzny2>
-In-Reply-To: <1151502803.5203.101.camel@jzny2>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
->> note: personally I'm absolutely not against virtualizing
->> the device names so that each guest can have a separate
->> name space for devices, but there should be a way to
->> 'see' _and_ 'identify' the interfaces from outside
->> (i.e. host or spectator context)
->>
->>     
->
-> Makes sense for the host side to have naming convention tied
-> to the guest. Example as a prefix: guest0-eth0. Would it not
-> be interesting to have the host also manage these interfaces
-> via standard tools like ip or ifconfig etc? i.e if i admin up
-> guest0-eth0, then the user in guest0 will see its eth0 going
-> up.
 
-That particular convention only works if you have network namespaces and
-UTS namespaces tightly bound.  We plan to have them separate - so for
-that to work, each network namespace could have an arbitrary "prefix"
-that determines what the interface name will look like from the outside
-when combined.  We'd have to be careful about length limits.
+On Thu, 29 Jun 2006, Pavel Machek wrote:
 
-And guest0-eth0 doesn't necessarily make sense; it's not really an
-ethernet interface, more like a tun or something.
+> Hi!
+> 
+> > > > PROT_READ to be used or implicitly adding it.  Don't confuse people
+> > > > with wrong statement like yours.
+> > > 
+> > > Can you quote part of POSIX where it says that PROT_WRITE must imply
+> > > PROT_READ?
+> > 
+> > I don't believe POSIX cares either way
+> > 
+> > "An implementation may permit accesses other than those specified by
+> > prot; however, if the Memory Protection option is supported, the
+> > implementation shall not permit a write to succeed where PROT_WRITE has
+> > not been set or shall not permit any access where PROT_NONE alone has
+> > been set."
+> > 
+> > However the current behaviour of "write to map read might work some days
+> > depending on the execution order of instructions" (and in some cases the
+> > order that the specific CPU does its tests for access rights) is not
+> > sane, not conducive to application stability and not good practice.
+> 
+> Well, some architectures may have working PROT_WRITE without
+> PROT_READ. If you are careful and code your userland application in
+> assembly, it should work okay.
+> 
+> On processors where that combination depends randomly depending on
+> phase of moon (i386, apparently), I guess change is okay. But the
+> patch disabled PROT_WRITE w/o PROT_READ on _all_ processors.
+> 
+> 								Pavel
+> 
 
-So, an equally good convention might be to use sequential prefixes on
-the host, like "tun", "dummy", or a new prefix - then a property of that
-is what the name of the interface is perceived to be to those who are in
-the corresponding network namespace.
 
-Then the pragmatic question becomes how to correlate what you see from
-`ip addr list' to guests.
+ok, the following patch should make x86 self-consistent, making PROT_WRITE 
+imply PROT_READ.
 
-Sam.
+i can produce patches for other architectures, if people agree with this 
+approach.
+
+thanks,
+
+-Jason
+
+
+--- linux-2.6/arch/i386/mm/fault.c.bak	2006-06-29 16:48:25.000000000 -0400
++++ linux-2.6/arch/i386/mm/fault.c	2006-06-29 16:49:51.000000000 -0400
+@@ -449,7 +449,7 @@
+ 		case 1:		/* read, present */
+ 			goto bad_area;
+ 		case 0:		/* read, not present */
+-			if (!(vma->vm_flags & (VM_READ | VM_EXEC)))
++			if (!(vma->vm_flags & (VM_READ | VM_EXEC | VM_WRITE)))
+ 				goto bad_area;
+ 	}
+ 

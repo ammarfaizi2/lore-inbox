@@ -1,86 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWF2SBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWF2SDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWF2SBV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 14:01:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWF2SBU
+	id S1751218AbWF2SDO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 14:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWF2SDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 14:01:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3777 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751227AbWF2SBR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 14:01:17 -0400
-Date: Thu, 29 Jun 2006 11:01:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com, nagar@watson.ibm.com,
-       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-Message-Id: <20060629110107.2e56310b.akpm@osdl.org>
-In-Reply-To: <20060629094408.360ac157.pj@sgi.com>
-References: <44892610.6040001@watson.ibm.com>
-	<20060609042129.ae97018c.akpm@osdl.org>
-	<4489EE7C.3080007@watson.ibm.com>
-	<449999D1.7000403@engr.sgi.com>
-	<44999A98.8030406@engr.sgi.com>
-	<44999F5A.2080809@watson.ibm.com>
-	<4499D7CD.1020303@engr.sgi.com>
-	<449C2181.6000007@watson.ibm.com>
-	<20060623141926.b28a5fc0.akpm@osdl.org>
-	<449C6620.1020203@engr.sgi.com>
-	<20060623164743.c894c314.akpm@osdl.org>
-	<449CAA78.4080902@watson.ibm.com>
-	<20060623213912.96056b02.akpm@osdl.org>
-	<449CD4B3.8020300@watson.ibm.com>
-	<44A01A50.1050403@sgi.com>
-	<20060626105548.edef4c64.akpm@osdl.org>
-	<44A020CD.30903@watson.ibm.com>
-	<20060626111249.7aece36e.akpm@osdl.org>
-	<44A026ED.8080903@sgi.com>
-	<20060626113959.839d72bc.akpm@osdl.org>
-	<44A2F50D.8030306@engr.sgi.com>
-	<20060628145341.529a61ab.akpm@osdl.org>
-	<44A2FC72.9090407@engr.sgi.com>
-	<20060629014050.d3bf0be4.pj@sgi.com>
-	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
-	<20060629094408.360ac157.pj@sgi.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 29 Jun 2006 14:03:14 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:41110 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S1751218AbWF2SDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 14:03:13 -0400
+In-Reply-To: <9FCDBA58F226D911B202000BDBAD467306E04FE2@zch01exm40.ap.freescale.net>
+References: <9FCDBA58F226D911B202000BDBAD467306E04FE2@zch01exm40.ap.freescale.net>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8A7E4B7C-8744-47FF-90FA-9B68C5187CEE@freescale.com>
+Cc: "'Vitaly Bordug'" <vbordug@ru.mvista.com>,
+       Phillips Kim-R1AAHA <Kim.Phillips@freescale.com>,
+       Yin Olivia-r63875 <Hong-Hua.Yin@freescale.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@ozlabs.org, "'Paul Mackerras'" <paulus@samba.org>,
+       Chu hanjin-r52514 <Hanjin.Chu@freescale.com>
 Content-Transfer-Encoding: 7bit
+From: Andy Fleming <afleming@freescale.com>
+Subject: Re: [PATCH 1/7] powerpc: Add mpc8360epb platform support
+Date: Thu, 29 Jun 2006 13:03:23 -0500
+To: Li Yang-r58472 <LeoLi@freescale.com>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 09:44:08 -0700
-Paul Jackson <pj@sgi.com> wrote:
 
-> > You're probably correct on that model. However, it all depends on the actual
-> > workload. Are people who actually have large-CPU (>256) systems actually
-> > running fork()-heavy things like webservers on them, or are they running things
-> > like database servers and computations, which tend to have persistent
-> > processes?
-> 
-> It may well be mostly as you say - the large-CPU systems not running
-> the fork() heavy jobs.
-> 
-> Sooner or later, someone will want to run a fork()-heavy job on a
-> large-CPU system.  On a 1024 CPU system, it would apparently take
-> just 14 exits/sec/CPU to hit this bottleneck, if Jay's number of
-> 14000 applied.
-> 
-> Chris Sturdivant's reply is reasonable -- we'll hit it sooner or later,
-> and deal with it then.
-> 
+On Jun 29, 2006, at 04:28, Li Yang-r58472 wrote:
 
-I agree, and I'm viewing this as blocking the taskstats merge.  Because if
-this _is_ a problem then it's a big one because fixing it will be
-intrusive, and might well involve userspace-visible changes.
+>>> +config MPC8360E_PB
+>>> +	bool "Freescale MPC8360E PB"
+>>> +	select DEFAULT_UIMAGE
+>>> +	select QUICC_ENGINE
+>>> +	help
+>>> +	  This option enables support for the MPC836x EMDS Processor  
+>>> Board.
+>>> +
+>>>  endchoice
+>>
+>> I don't think this is really required option. I guess 836x +  
+>> QUICC_ENGINE should
+>> be enough (with a proviso that 8360 won't boot without qe.
+>
+> We select a board and the board implies cpu family and soc  
+> feature.  That will be better for users rather than expecting them  
+> to know the very detail.
 
-The only ways I can see of fixing the problem generally are to either
 
-a) throw more CPU(s) at stats collection: allow userspace to register for
-   "stats generated by CPU N", then run a stats collection daemon on each
-   CPU or
+Yeah, this seems fine to me.  In order to eliminate this option, we'd  
+need to merge 8360 PB support with the existing board support for  
+83xx.  A laudable goal, but not what the 83xx maintainer has  
+currently requested.
 
-b) make the kernel recognise when it's getting overloaded and switch to
-   some degraded mode where it stops trying to send all the data to
-   userspace - just send a summary, or a "we goofed" message or something.
+
+
+>>> diff --git a/arch/powerpc/platforms/83xx/mpc8360e_pb.c
+>> b/arch/powerpc/platforms/83xx/mpc8360e_pb.c
+>>> new file mode 100644
+>>> index 0000000..b4ddb0a
+>>> --- /dev/null
+>>> +++ b/arch/powerpc/platforms/83xx/mpc8360e_pb.c
+>>> @@ -0,0 +1,213 @@
+>>> +/*
+>>> + * Copyright (C) Freescale Semicondutor, Inc. 2006. All rights  
+>>> reserved.
+>>> + *
+>>> + * Author: Li Yang <LeoLi@freescale.com>
+>>> + *	   Yin Olivia <Hong-hua.Yin@freescale.com>
+>>> + *
+>>> + * Description:
+>>> + * MPC8360E MDS PB board specific routines.
+>>> + *
+>>> + * Changelog:
+>>> + * Jun 21, 2006	Initial version
+>>> + *
+>> No changelog entries for new files please... git tracks it good  
+>> enough.
+>
+> This is Freescale protocol.  If it is not welcomed, we will change it.
+
+
+Yeah, this is one of the problems with the protocol.
+
+
+
+>>> +#ifdef CONFIG_QUICC_ENGINE
+>>> +	qe_reset();
+>>> +
+>>> +	for (np = NULL; (np = of_find_node_by_name(np, "ucc")) != NULL;)
+>>> +		par_io_of_config(np);
+>>> +
+>>> +	/* Reset the Ethernet PHY */
+>>> +	bcsr_regs = (u8 *) ioremap(BCSR_PHYS_ADDR, BCSR_SIZE);
+>>> +	bcsr_regs[9] &= ~0x20;
+>>> +	udelay(1000);
+>>> +	bcsr_regs[9] |= 0x20;
+>>> +	iounmap(bcsr_regs);
+>>> +
+>> And if we have a design, which do not contain real ethernet UCC  
+>> usage? Or UCC
+>> geth is disabled somehow explicitly? Stuff like that normally goes  
+>> to the
+>> callback that is going to be triggered upon Etherbet init.
+> I will move it.
+
+
+Wait...no.  I don't understand Vitaly's objection.  If someone  
+creates a board with an 8360 that doesn't use the UCC ethernet, they  
+can create a separate board file.  This is the board-specific code,  
+and it is perfectly acceptable for it to reset the PHY like this.   
+What ethernet callback could be used?
+
+Andy

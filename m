@@ -1,72 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751841AbWF2AZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751835AbWF2A1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751841AbWF2AZR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 20:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751842AbWF2AZR
+	id S1751835AbWF2A1M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 20:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751844AbWF2A1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 20:25:17 -0400
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:47749 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751841AbWF2AZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 20:25:15 -0400
-Message-ID: <44A31DE8.20100@bigpond.net.au>
-Date: Thu, 29 Jun 2006 10:25:12 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 28 Jun 2006 20:27:12 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61616 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751835AbWF2A1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 20:27:09 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Daniel Lezcano <dlezcano@fr.ibm.com>
+Cc: Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
+       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       viro@ftp.linux.org.uk, Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: Network namespaces a path to mergable code.
+References: <20060626134945.A28942@castle.nmd.msu.ru>
+	<m14py6ldlj.fsf@ebiederm.dsl.xmission.com>
+	<20060627215859.A20679@castle.nmd.msu.ru>
+	<m1ejx9kj1r.fsf@ebiederm.dsl.xmission.com>
+	<20060628150605.A29274@castle.nmd.msu.ru>
+	<44A2FA66.5070303@fr.ibm.com>
+Date: Wed, 28 Jun 2006 18:25:40 -0600
+In-Reply-To: <44A2FA66.5070303@fr.ibm.com> (Daniel Lezcano's message of "Wed,
+	28 Jun 2006 23:53:42 +0200")
+Message-ID: <m11wt8erjv.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>, Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Incorrect CPU process accounting using         CONFIG_HZ=100
-References: <200606211716.01472.a1426z@gawab.com> <200606272302.16950.kernel@kolivas.org> <44A1C4D4.3080805@bigpond.net.au> <200606282306.14498.a1426z@gawab.com> <44A30F60.6070001@bigpond.net.au> <cone.1151538362.930767.14982.501@kolivas.org>
-In-Reply-To: <cone.1151538362.930767.14982.501@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 29 Jun 2006 00:25:13 +0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> Peter Williams writes:
-> 
->> Al Boldi wrote:
->>> Peter Williams wrote:
-> 
->>> twice:
->>>     1. for external proc monitoring, using a probed approach
->>>     2. for scheduling, using an inlined approach
+Daniel Lezcano <dlezcano@fr.ibm.com> writes:
+
+> Andrey Savochkin wrote:
+>
+>> Ok, fine.
+>> Now I'm working on socket code.
+>> We still have a question about implicit vs explicit function parameters.
+>> This question becomes more important for sockets: if we want to allow to use
+>> sockets belonging to namespaces other than the current one, we need to do
+>> something about it.
+>> One possible option to resolve this question is to show 2 relatively short
+>> patches just introducing namespaces for sockets in 2 ways: with explicit
+>> function parameters and using implicit current context.
+>> Then people can compare them and vote.
+>> Do you think it's worth the effort?
 >>
->> Not exactly (e.g. there's no separation between user and sys time 
->> available in line) but the possibilities are there.
->>
->>>
->>> Wouldn't merging the two approaches be in the interest of conserving 
->>> cpu resources, while at the same time reflecting an accurate view of 
->>> cpu utilization?
->>
->> I think that this would be a worthwhile endeavour once/if 
->> sched_clock() is fixed.  This is especially the case as CPUs get 
->> faster as many tasks may run to completion in less than a tick.
-> 
-> That may not be as simple as it seems. To properly account system v user 
-> time using the sched_clock we'd have to hook into arch dependant asm 
-> code to know when entering and exiting kernel context. That is far more 
-> invasive than the simple on/off runqueue timing we currently do for 
-> scheduling accounting.
+>
+> The attached patch can have some part interesting for you for the socket
+> tagging. It is in the IPV4 isolation (part 5/6). With this and the private
+> routing table you will probably have a good IPV4 isolation.
+> This patch partially isolates ipv4 by adding the network namespace
+> structure in the structure sock, bind bucket and skbuf.
 
-Yes, it is a problem and we may have to do something approximate like 
-counting ticks for sys time and subtracting that from the total to get 
-user time when reporting the times to user space (only a bit more 
-complex to make sure we don't end up with negative times).
+Ugh.  skbuf sounds very wrong.  Per packet overhead?
 
-How is it intended to handle this problem in the tickless kernel?
+> When a socket
+> is created, the pointer to the network namespace is stored in the
+> struct sock and the socket belongs to the namespace by this way. That
+> allows to identify sockets related to a namespace for lookup and
+> procfs. 
+>
+> The lookup is extended with a network namespace pointer, in
+> order to identify listen points binded to the same port. That allows
+> to have several applications binded to INADDR_ANY:port in different
+> network namespace without conflicting. The bind is checked against
+> port and network namespace.
 
-Peter
-PS It's all moot until sched_clock() is fixed anyway.
-PPS Recent kernels (-mm ones at least) keep a sched_time in nsecs for 
-each task but I've no idea what it's used for.
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Yes.  If we don't duplicate the hash table we need to extend the lookup.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+> When an outgoing packet has the loopback destination addres, the
+> skbuff is filled with the network namespace. So the loopback packets
+> never go outside the namespace. This approach facilitate the migration
+> of loopback because identification is done by network namespace and
+> not by address. The loopback has been benchmarked by tbench and the
+> overhead is roughly 1.5 %
+
+Ugh.  1.5% is noticeable.
+
+I think it is cheaper to have one loopback device per namespace.
+Which removes the need for a skbuff tag.
+
+Eric

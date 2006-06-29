@@ -1,91 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWF2Nsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWF2Nxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWF2Nsq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 09:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWF2Nsq
+	id S1750719AbWF2Nxw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 09:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWF2Nxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 09:48:46 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:33440 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750703AbWF2Nsp (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 09:48:45 -0400
-Message-Id: <200606291348.k5TDm8t8003750@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Paolo Ornati <ornati@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org, Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       jensmh@gmx.de
-Subject: Re: [PATCH] Documentation: remove duplicate cleanups
-In-Reply-To: Your message of "Thu, 29 Jun 2006 15:11:55 +0200."
-             <20060629151155.5609d59f@localhost>
-From: Valdis.Kletnieks@vt.edu
-References: <20060629134002.1b06257c@localhost>
-            <20060629151155.5609d59f@localhost>
+	Thu, 29 Jun 2006 09:53:52 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:14506 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750719AbWF2Nxt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 09:53:49 -0400
+Date: Thu, 29 Jun 2006 15:49:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] kernel/lockdep.c: possible cleanups
+Message-ID: <20060629134903.GA6706@elte.hu>
+References: <20060627015211.ce480da6.akpm@osdl.org> <20060628165500.GV13915@stusta.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1151588887_2928P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 29 Jun 2006 09:48:07 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060628165500.GV13915@stusta.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1151588887_2928P
-Content-Type: text/plain; charset=us-ascii
 
-On Thu, 29 Jun 2006 15:11:55 +0200, Paolo Ornati said:
+* Adrian Bunk <bunk@stusta.de> wrote:
 
-> -                        matches the field we filled in in the struct
-> +                        matches the field we filled in the struct
->                          video_device when registering.</entry>
-> ------------
+> On Tue, Jun 27, 2006 at 01:52:11AM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.17-mm2:
+> >...
+> > +lockdep-core.patch
+> >...
+> >  Locking validator
+> >...
 > 
-> I'm not 100% sure of this.
+> This patch contains the following possible cleanups:
+> - make the needlessly global variable lockdep_init_error static
+> - make the needlessly global lockdep_print_held_locks() static
+> - #if 0 the unused global print_lock_classes()
+>   (this also implies to #if 0 some static functions)
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Both are technically correct.  The original should be parsed (the field we
-filled in) (in the struct).  The revision changes it to 'the field we filled'.
-Probably should change, just to avoid 'Paris in the the spring' effects...
+thanks!
 
->  Note that ALL kernel parameters listed below are CASE SENSITIVE, and that
-> -a trailing = on the name of any parameter states that that parameter will
-> +a trailing = on the name of any parameter states that parameter will
+  Acked-by: Ingo Molnar <mingo@elte.hu>
 
-> The old one looks correct.
+i sent a followup cleanup patch to Andrew that removes those #if 0 
+sections for real. Let me know if/when you find anything else.
 
-Again, both are technically correct, but the change should be made...
-
-> -caches are expected to be coherent, there's no guarantee that that coherency
-> +caches are expected to be coherent, there's no guarantee that coherency
->  will be ordered.  This means that whilst changes made on one CPU will
-
-> Not sure.
-
-Again, should change, unless we want to emphasize "that *THAT* coherency
-will be ordered" (as opposed to some other concurrenly applicable coherency).
-
->  The driver is not real good at the moment for finding the card.  You can
->  'help' it by changing the order of the potential addresses in the structure
-> -found in the pt_init() function so the address of where the card is is put
-> +found in the pt_init() function so the address of where the card is put
->  first.
-
-> The old one looks correct.
-
-Only by virtue of incredibly poor sentence structure originally.
-
-"so the address of the card is put first." would be simpler and better.
-
-
-
---==_Exmh_1151588887_2928P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEo9oXcC3lWbTT17ARAiQcAKCVxPFaZZ41X8lHUPnGTbJjlSAo0QCg7ZFi
-2DFxYg3ZgM4BnC/vqTScMg0=
-=IO+y
------END PGP SIGNATURE-----
-
---==_Exmh_1151588887_2928P--
+	Ingo

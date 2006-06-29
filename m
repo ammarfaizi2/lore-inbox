@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWF2Ujp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWF2UkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbWF2Ujp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWF2Ujp
+	id S932436AbWF2UkM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWF2UkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:39:45 -0400
-Received: from mail.charite.de ([160.45.207.131]:28647 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S932445AbWF2Ujo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:39:44 -0400
-Date: Thu, 29 Jun 2006 22:39:42 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm one process gets stuck in infinite loop in the kernel.
-Message-ID: <20060629203942.GE20456@charite.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Helge Hafting <helge.hafting@aitel.hist.no>,
-	linux-kernel@vger.kernel.org
-References: <20060629013643.4b47e8bd.akpm@osdl.org> <44A3B8A0.4070601@aitel.hist.no> <20060629104117.e96df3da.akpm@osdl.org>
+	Thu, 29 Jun 2006 16:40:11 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:28121 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932436AbWF2UkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 16:40:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mouKFv2HE9qtWgpnnASLMjpWjBhkcVNz5W8x/N8HOyvOaZpGm9wnU6Z+b34wzHBP5ltoTj2a+LSxV2TpBFelLVciuJOH9mxNMTVOUq27O2SIrQtr6qgel7Pi5HSWxfSBdTSzx6pLASgCEGAgsmvSkJ0k8yLMDXlLCqR+2m1fmyw=
+Message-ID: <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com>
+Date: Thu, 29 Jun 2006 22:39:33 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-mm4
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20060629013643.4b47e8bd.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060629104117.e96df3da.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <20060629013643.4b47e8bd.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton <akpm@osdl.org>:
+Hi,
 
-> > I have seen this both with mm2, m33 and mm4.
-> > Suddenly, the load meter jumps.
-> > Using ps & top, I see one process using 100% cpu.
-> > This is always a process that was exiting, this tend to happen
-> > when I close applications, or doing debian upgrades which
-> > runs lots of short-lived processes.
-> > 
-> > I believe it is running in the kernel, ps lists it with stat "RN"
-> > and it cannot be killed, not even with kill -9 from root.
+On 29/06/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm4/
+>
+>
 
-I see exactly the same here.
+This looks very strange.
 
-> Please generate a kernel profile when it happens so we can see
-> where it got stuck.
+BUG: unable to handle kernel paging request at virtual address 6b6b6c07
+printing eip:
+c0138594
+*pde=00000000
+Oops: 0002 [#1]
+4K_STACK PREEMPT SMP
+last sysfs file /class/net/eth0/address
+Modules linked in: ipv6 af_packet ipt_REJECT xt_tcpudp x_tables
+p4_clockmod speedstep_lib binfmt_misc
 
-Do I need to compile the kernel with profiling for this:> 
-> <boot with profile=1>
-to work? And is "profile=1" a boot parameter?
+(gdb) list *0xc0138594
+0xc0138594 is in __lock_acquire (include2/asm/atomic.h:96).
+warning: Source file is more recent than executable.
+
+91       *
+92       * Atomically increments @v by 1.
+93       */
+94      static __inline__ void atomic_inc(atomic_t *v)
+95      {
+96              __asm__ __volatile__(
+97                      LOCK_PREFIX "incl %0"
+98                      :"=m" (v->counter)
+99                      :"m" (v->counter));
+100     }
+
+Here is a config file
+http://www.stardust.webpages.pl/files/mm/2.6.17-mm4/mm-config
+
+Regards,
+Michal
 
 -- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

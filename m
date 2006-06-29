@@ -1,33 +1,1258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWF2Ra5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWF2Rb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbWF2Ra5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 13:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWF2Ra5
+	id S1751083AbWF2Rb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 13:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWF2Rb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 13:30:57 -0400
-Received: from 8.ctyme.com ([69.50.231.8]:5806 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S1751068AbWF2Ra5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 13:30:57 -0400
-Message-ID: <44A40E50.5040901@perkel.com>
-Date: Thu, 29 Jun 2006 10:30:56 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Thu, 29 Jun 2006 13:31:27 -0400
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:57066 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751083AbWF2Rb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 13:31:26 -0400
+Date: Thu, 29 Jun 2006 13:25:42 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [rfc] Compressing those annoying .configs
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200606291328_MC3-1-C3C3-5BF1@compuserve.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: AMD AM2 Sempron vs. Athlon - Confused
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com"
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm confused and I thought if anyone would know it would be people here.
+All those huge .config files posted to the list can be compressed
+with this simple awk program.  It leaves the config human-readable
+while reducing size by ~40%.  Sample output is below.  Decompression
+program is equally trivial but not yet written...
 
-So - in the AM2 world, what's the difference between Sempron and Athlon 
-processors? I look at the specs and they look really similar. Pricing is 
-even weirder with lower spec Semprons costing more than higher spec Athlons?
 
-And - can Linux kernels run on these new processors and motherboards or 
-is this just too new to mess with?
+function clear_pending() {
+	len = 0
+	curval = ""
+}
 
+function get_config(ln, pos) {
+	temp = substr(ln, pos)
+	end = index(temp, "=")
+	if (end == 0)
+		end = index(temp, " ")
+	config = substr(temp, 0, end - 1)
+	val = substr(temp, end + 1)
+}
+
+function print_comma() {
+	printf ", "
+	len = len + 2
+}
+
+function close_line() {
+	if (len > 0) {
+		printf "\n"
+		clear_pending()
+	}
+}
+
+function begin_line(str) {
+	close_line()
+	printf "%s: ", str
+	len = length(str) + 2
+	curval = str
+}
+
+function print_config() {
+	printf "%s", config
+	len = len + length(config)
+	next
+}
+
+BEGIN {
+	clear_pending()
+}
+
+substr($0, 0, 7) == "CONFIG_" {
+	get_config($0, 8)
+	if (val == curval && len + 2 + length(config) <= 71)
+		print_comma()
+	else
+		begin_line(val)
+	print_config()
+}
+
+substr($0, 0, 9) == "# CONFIG_" {
+	get_config($0, 10)
+	if (curval == "not set" && len + 2 + length(config) <= 71)
+		print_comma()
+	else
+		begin_line("not set")
+	print_config()
+}
+
+{
+	close_line()
+	print $0
+	next
+}
+
+END {
+	close_line()
+}
+
+
+And here's the output:
+
+#
+# Automatically generated make config: don't edit
+# Linux kernel version: 2.6.17.1
+# Sat Jun 24 10:46:06 2006
+#
+y: X86_32, SEMAPHORE_SLEEPERS, X86, MMU, GENERIC_ISA_DMA, GENERIC_IOMAP
+y: GENERIC_HWEIGHT, ARCH_MAY_HAVE_PC_FDC, DMI
+
+#
+# Code maturity level options
+#
+y: EXPERIMENTAL, BROKEN_ON_SMP
+32: INIT_ENV_ARG_LIMIT
+
+#
+# General setup
+#
+"-32-pfmon": LOCALVERSION
+not set: LOCALVERSION_AUTO
+y: SWAP, SYSVIPC, POSIX_MQUEUE, BSD_PROCESS_ACCT
+not set: BSD_PROCESS_ACCT_V3
+y: SYSCTL, AUDIT, AUDITSYSCALL, IKCONFIG, IKCONFIG_PROC
+not set: RELAY
+"": INITRAMFS_SOURCE
+y: UID16, VM86
+not set: CC_OPTIMIZE_FOR_SIZE, EMBEDDED
+y: KALLSYMS
+not set: KALLSYMS_ALL, KALLSYMS_EXTRA_PASS
+y: HOTPLUG, PRINTK, BUG, ELF_CORE, BASE_FULL, FUTEX, EPOLL, SHMEM, SLAB
+not set: TINY_SHMEM
+0: BASE_SMALL
+not set: SLOB
+
+#
+# Loadable module support
+#
+not set: MODULES
+
+#
+# Block layer
+#
+y: LBD
+not set: BLK_DEV_IO_TRACE, LSF
+
+#
+# IO Schedulers
+#
+y: IOSCHED_NOOP, IOSCHED_AS, IOSCHED_DEADLINE, IOSCHED_CFQ
+not set: DEFAULT_AS, DEFAULT_DEADLINE
+y: DEFAULT_CFQ
+not set: DEFAULT_NOOP
+"cfq": DEFAULT_IOSCHED
+
+#
+# Processor type and features
+#
+not set: SMP
+y: X86_PC
+not set: X86_ELAN, X86_VOYAGER, X86_NUMAQ, X86_SUMMIT, X86_BIGSMP
+not set: X86_VISWS, X86_GENERICARCH, X86_ES7000, M386, M486, M586
+not set: M586TSC, M586MMX, M686, MPENTIUMII, MPENTIUMIII, MPENTIUMM
+not set: MPENTIUM4, MK6, MK7
+y: MK8
+not set: MCRUSOE, MEFFICEON, MWINCHIPC6, MWINCHIP2, MWINCHIP3D
+not set: MGEODEGX1, MGEODE_LX, MCYRIXIII, MVIAC3_2, X86_GENERIC
+y: X86_CMPXCHG, X86_XADD
+6: X86_L1_CACHE_SHIFT
+y: RWSEM_XCHGADD_ALGORITHM, GENERIC_CALIBRATE_DELAY, X86_WP_WORKS_OK
+y: X86_INVLPG, X86_BSWAP, X86_POPAD_OK, X86_CMPXCHG64, X86_GOOD_APIC
+y: X86_INTEL_USERCOPY, X86_USE_PPRO_CHECKSUM, X86_TSC
+not set: HPET_TIMER
+y: PREEMPT_NONE
+not set: PREEMPT_VOLUNTARY, PREEMPT
+y: X86_UP_APIC, X86_UP_IOAPIC, X86_LOCAL_APIC, X86_IO_APIC, X86_MCE
+not set: X86_MCE_NONFATAL, X86_MCE_P4THERMAL, TOSHIBA, I8K
+not set: X86_REBOOTFIXUPS, MICROCODE
+y: X86_MSR, X86_CPUID
+
+#
+# Firmware Drivers
+#
+y: EDD
+not set: DELL_RBU, DCDBAS
+y: NOHIGHMEM
+not set: HIGHMEM4G, HIGHMEM64G
+0xC0000000: PAGE_OFFSET
+y: ARCH_FLATMEM_ENABLE, ARCH_SPARSEMEM_ENABLE, ARCH_SELECT_MEMORY_MODEL
+y: SELECT_MEMORY_MODEL, FLATMEM_MANUAL
+not set: DISCONTIGMEM_MANUAL, SPARSEMEM_MANUAL
+y: FLATMEM, FLAT_NODE_MEM_MAP, SPARSEMEM_STATIC
+4: SPLIT_PTLOCK_CPUS
+not set: MATH_EMULATION
+y: MTRR
+not set: EFI
+y: REGPARM
+not set: SECCOMP, HZ_100
+y: HZ_250
+not set: HZ_1000
+250: HZ
+not set: KEXEC
+0x100000: PHYSICAL_START
+
+#
+# Hardware Performance Monitoring support
+#
+y: PERFMON
+not set: PERFMON_P6, PERFMON_P4, PERFMON_GEN_IA32
+y: I386_PERFMON_K8
+
+#
+# Power management options (ACPI, APM)
+#
+y: PM, PM_LEGACY, PM_DEBUG
+not set: SOFTWARE_SUSPEND
+
+#
+# ACPI (Advanced Configuration and Power Interface) Support
+#
+y: ACPI, ACPI_SLEEP, ACPI_SLEEP_PROC_FS
+not set: ACPI_SLEEP_PROC_SLEEP
+y: ACPI_AC, ACPI_BATTERY, ACPI_BUTTON, ACPI_VIDEO, ACPI_HOTKEY
+y: ACPI_FAN, ACPI_PROCESSOR, ACPI_THERMAL
+not set: ACPI_ASUS, ACPI_IBM, ACPI_TOSHIBA
+0: ACPI_BLACKLIST_YEAR
+not set: ACPI_DEBUG
+y: ACPI_EC, ACPI_POWER, ACPI_SYSTEM, X86_PM_TIMER
+not set: ACPI_CONTAINER
+
+#
+# APM (Advanced Power Management) BIOS Support
+#
+not set: APM
+
+#
+# CPU Frequency scaling
+#
+y: CPU_FREQ, CPU_FREQ_TABLE
+not set: CPU_FREQ_DEBUG
+y: CPU_FREQ_STAT
+not set: CPU_FREQ_STAT_DETAILS
+y: CPU_FREQ_DEFAULT_GOV_PERFORMANCE
+not set: CPU_FREQ_DEFAULT_GOV_USERSPACE
+y: CPU_FREQ_GOV_PERFORMANCE
+not set: CPU_FREQ_GOV_POWERSAVE
+y: CPU_FREQ_GOV_USERSPACE
+not set: CPU_FREQ_GOV_ONDEMAND, CPU_FREQ_GOV_CONSERVATIVE
+
+#
+# CPUFreq processor drivers
+#
+not set: X86_ACPI_CPUFREQ, X86_POWERNOW_K6, X86_POWERNOW_K7
+y: X86_POWERNOW_K8, X86_POWERNOW_K8_ACPI
+not set: X86_GX_SUSPMOD, X86_SPEEDSTEP_CENTRINO, X86_SPEEDSTEP_ICH
+not set: X86_SPEEDSTEP_SMI, X86_P4_CLOCKMOD, X86_CPUFREQ_NFORCE2
+not set: X86_LONGRUN
+
+#
+# shared options
+#
+not set: X86_ACPI_CPUFREQ_PROC_INTF, X86_SPEEDSTEP_LIB
+
+#
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+#
+y: PCI
+not set: PCI_GOBIOS, PCI_GOMMCONFIG, PCI_GODIRECT
+y: PCI_GOANY, PCI_BIOS, PCI_DIRECT, PCI_MMCONFIG, PCIEPORTBUS, PCI_MSI
+not set: PCI_DEBUG
+y: ISA_DMA_API
+not set: ISA, MCA, SCx200
+
+#
+# PCCARD (PCMCIA/CardBus) support
+#
+y: PCCARD
+not set: PCMCIA_DEBUG
+y: PCMCIA
+not set: PCMCIA_LOAD_CIS
+y: PCMCIA_IOCTL, CARDBUS
+
+#
+# PC-card bridges
+#
+y: YENTA, YENTA_O2, YENTA_RICOH, YENTA_TI, YENTA_ENE_TUNE
+y: YENTA_TOSHIBA
+not set: PD6729, I82092
+y: PCCARD_NONSTATIC
+
+#
+# PCI Hotplug Support
+#
+not set: HOTPLUG_PCI
+
+#
+# Executable file formats
+#
+y: BINFMT_ELF, BINFMT_AOUT
+not set: BINFMT_MISC
+
+#
+# Networking
+#
+y: NET
+
+#
+# Networking options
+#
+not set: NETDEBUG
+y: PACKET, PACKET_MMAP, UNIX, XFRM, XFRM_USER, NET_KEY, INET
+not set: IP_MULTICAST, IP_ADVANCED_ROUTER
+y: IP_FIB_HASH
+not set: IP_PNP, NET_IPIP, NET_IPGRE, ARPD
+y: SYN_COOKIES
+not set: INET_AH, INET_ESP, INET_IPCOMP, INET_XFRM_TUNNEL, INET_TUNNEL
+y: INET_DIAG, INET_TCP_DIAG
+not set: TCP_CONG_ADVANCED
+y: TCP_CONG_BIC
+
+#
+# IP: Virtual Server Configuration
+#
+not set: IP_VS, IPV6, INET6_XFRM_TUNNEL, INET6_TUNNEL
+y: NETFILTER
+not set: NETFILTER_DEBUG
+
+#
+# Core Netfilter Configuration
+#
+not set: NETFILTER_NETLINK
+y: NETFILTER_XTABLES, NETFILTER_XT_TARGET_CLASSIFY
+y: NETFILTER_XT_TARGET_MARK
+not set: NETFILTER_XT_TARGET_NFQUEUE
+y: NETFILTER_XT_TARGET_NOTRACK
+not set: NETFILTER_XT_MATCH_COMMENT
+y: NETFILTER_XT_MATCH_CONNTRACK
+not set: NETFILTER_XT_MATCH_DCCP, NETFILTER_XT_MATCH_ESP
+y: NETFILTER_XT_MATCH_HELPER, NETFILTER_XT_MATCH_LENGTH
+y: NETFILTER_XT_MATCH_LIMIT, NETFILTER_XT_MATCH_MAC
+y: NETFILTER_XT_MATCH_MARK
+not set: NETFILTER_XT_MATCH_POLICY
+y: NETFILTER_XT_MATCH_MULTIPORT, NETFILTER_XT_MATCH_PKTTYPE
+y: NETFILTER_XT_MATCH_REALM
+not set: NETFILTER_XT_MATCH_SCTP
+y: NETFILTER_XT_MATCH_STATE, NETFILTER_XT_MATCH_STRING
+y: NETFILTER_XT_MATCH_TCPMSS
+
+#
+# IP: Netfilter Configuration
+#
+y: IP_NF_CONNTRACK
+not set: IP_NF_CT_ACCT, IP_NF_CONNTRACK_MARK, IP_NF_CONNTRACK_EVENTS
+not set: IP_NF_CT_PROTO_SCTP
+y: IP_NF_FTP, IP_NF_IRC
+not set: IP_NF_NETBIOS_NS, IP_NF_TFTP, IP_NF_AMANDA, IP_NF_PPTP
+not set: IP_NF_H323, IP_NF_QUEUE
+y: IP_NF_IPTABLES, IP_NF_MATCH_IPRANGE, IP_NF_MATCH_TOS
+not set: IP_NF_MATCH_RECENT, IP_NF_MATCH_ECN, IP_NF_MATCH_DSCP
+not set: IP_NF_MATCH_AH
+y: IP_NF_MATCH_TTL
+not set: IP_NF_MATCH_OWNER
+y: IP_NF_MATCH_ADDRTYPE, IP_NF_MATCH_HASHLIMIT, IP_NF_FILTER
+y: IP_NF_TARGET_REJECT, IP_NF_TARGET_LOG
+not set: IP_NF_TARGET_ULOG
+y: IP_NF_TARGET_TCPMSS, IP_NF_NAT, IP_NF_NAT_NEEDED
+y: IP_NF_TARGET_MASQUERADE, IP_NF_TARGET_REDIRECT, IP_NF_TARGET_NETMAP
+y: IP_NF_TARGET_SAME
+not set: IP_NF_NAT_SNMP_BASIC
+y: IP_NF_NAT_IRC, IP_NF_NAT_FTP, IP_NF_MANGLE, IP_NF_TARGET_TOS
+not set: IP_NF_TARGET_ECN, IP_NF_TARGET_DSCP
+y: IP_NF_TARGET_TTL, IP_NF_RAW, IP_NF_ARPTABLES, IP_NF_ARPFILTER
+y: IP_NF_ARP_MANGLE
+
+#
+# DCCP Configuration (EXPERIMENTAL)
+#
+not set: IP_DCCP
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+not set: IP_SCTP
+
+#
+# TIPC Configuration (EXPERIMENTAL)
+#
+not set: TIPC, ATM, BRIDGE, VLAN_8021Q, DECNET, LLC2, IPX, ATALK, X25
+not set: LAPB, NET_DIVERT, ECONET, WAN_ROUTER
+
+#
+# QoS and/or fair queueing
+#
+y: NET_SCHED, NET_SCH_CLK_JIFFIES
+not set: NET_SCH_CLK_GETTIMEOFDAY, NET_SCH_CLK_CPU
+
+#
+# Queueing/Scheduling
+#
+y: NET_SCH_CBQ, NET_SCH_HTB, NET_SCH_HFSC, NET_SCH_PRIO, NET_SCH_RED
+y: NET_SCH_SFQ
+not set: NET_SCH_TEQL
+y: NET_SCH_TBF, NET_SCH_GRED, NET_SCH_DSMARK
+not set: NET_SCH_NETEM
+y: NET_SCH_INGRESS
+
+#
+# Classification
+#
+y: NET_CLS, NET_CLS_BASIC
+not set: NET_CLS_TCINDEX, NET_CLS_ROUTE4
+y: NET_CLS_ROUTE, NET_CLS_FW, NET_CLS_U32
+not set: CLS_U32_PERF, CLS_U32_MARK, NET_CLS_RSVP, NET_CLS_RSVP6
+not set: NET_EMATCH, NET_CLS_ACT, NET_CLS_POLICE, NET_CLS_IND
+y: NET_ESTIMATOR
+
+#
+# Network testing
+#
+not set: NET_PKTGEN, HAMRADIO, IRDA, BT, IEEE80211
+y: WIRELESS_EXT
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+y: STANDALONE
+not set: PREVENT_FIRMWARE_BUILD
+y: FW_LOADER
+not set: DEBUG_DRIVER
+
+#
+# Connector - unified userspace <-> kernelspace linker
+#
+not set: CONNECTOR
+
+#
+# Memory Technology Devices (MTD)
+#
+not set: MTD
+
+#
+# Parallel port support
+#
+not set: PARPORT
+
+#
+# Plug and Play support
+#
+y: PNP
+not set: PNP_DEBUG
+
+#
+# Protocols
+#
+y: PNPACPI
+
+#
+# Block devices
+#
+not set: BLK_DEV_FD, BLK_CPQ_DA, BLK_CPQ_CISS_DA, BLK_DEV_DAC960
+not set: BLK_DEV_UMEM, BLK_DEV_COW_COMMON
+y: BLK_DEV_LOOP, BLK_DEV_CRYPTOLOOP
+not set: BLK_DEV_NBD, BLK_DEV_SX8, BLK_DEV_UB, BLK_DEV_RAM
+not set: BLK_DEV_INITRD
+y: CDROM_PKTCDVD
+8: CDROM_PKTCDVD_BUFFERS
+not set: CDROM_PKTCDVD_WCACHE, ATA_OVER_ETH
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+y: IDE, BLK_DEV_IDE
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+not set: BLK_DEV_IDE_SATA, BLK_DEV_HD_IDE
+y: BLK_DEV_IDEDISK, IDEDISK_MULTI_MODE
+not set: BLK_DEV_IDECS
+y: BLK_DEV_IDECD
+not set: BLK_DEV_IDETAPE, BLK_DEV_IDEFLOPPY
+y: BLK_DEV_IDESCSI, IDE_TASK_IOCTL
+
+#
+# IDE chipset support/bugfixes
+#
+not set: IDE_GENERIC, BLK_DEV_CMD640, BLK_DEV_IDEPNP
+y: BLK_DEV_IDEPCI, IDEPCI_SHARE_IRQ
+not set: BLK_DEV_OFFBOARD
+y: BLK_DEV_GENERIC
+not set: BLK_DEV_OPTI621, BLK_DEV_RZ1000
+y: BLK_DEV_IDEDMA_PCI
+not set: BLK_DEV_IDEDMA_FORCED
+y: IDEDMA_PCI_AUTO
+not set: IDEDMA_ONLYDISK, BLK_DEV_AEC62XX, BLK_DEV_ALI15X3
+not set: BLK_DEV_AMD74XX
+y: BLK_DEV_ATIIXP
+not set: BLK_DEV_CMD64X, BLK_DEV_TRIFLEX, BLK_DEV_CY82C693
+not set: BLK_DEV_CS5520, BLK_DEV_CS5530, BLK_DEV_CS5535, BLK_DEV_HPT34X
+not set: BLK_DEV_HPT366, BLK_DEV_SC1200, BLK_DEV_PIIX, BLK_DEV_IT821X
+not set: BLK_DEV_NS87415, BLK_DEV_PDC202XX_OLD, BLK_DEV_PDC202XX_NEW
+not set: BLK_DEV_SVWKS, BLK_DEV_SIIMAGE, BLK_DEV_SIS5513
+not set: BLK_DEV_SLC90E66, BLK_DEV_TRM290, BLK_DEV_VIA82CXXX, IDE_ARM
+y: BLK_DEV_IDEDMA
+not set: IDEDMA_IVB
+y: IDEDMA_AUTO
+not set: BLK_DEV_HD
+
+#
+# SCSI device support
+#
+not set: RAID_ATTRS
+y: SCSI, SCSI_PROC_FS
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+y: BLK_DEV_SD
+not set: CHR_DEV_ST, CHR_DEV_OSST
+y: BLK_DEV_SR
+not set: BLK_DEV_SR_VENDOR
+y: CHR_DEV_SG
+not set: CHR_DEV_SCH
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+not set: SCSI_MULTI_LUN
+y: SCSI_CONSTANTS, SCSI_LOGGING
+
+#
+# SCSI Transport Attributes
+#
+not set: SCSI_SPI_ATTRS, SCSI_FC_ATTRS, SCSI_ISCSI_ATTRS
+not set: SCSI_SAS_ATTRS
+
+#
+# SCSI low-level drivers
+#
+not set: ISCSI_TCP, BLK_DEV_3W_XXXX_RAID, SCSI_3W_9XXX, SCSI_ACARD
+not set: SCSI_AACRAID, SCSI_AIC7XXX, SCSI_AIC7XXX_OLD, SCSI_AIC79XX
+not set: SCSI_DPT_I2O, SCSI_ADVANSYS, MEGARAID_NEWGEN, MEGARAID_LEGACY
+not set: MEGARAID_SAS, SCSI_SATA, SCSI_BUSLOGIC, SCSI_DMX3191D
+not set: SCSI_EATA, SCSI_FUTURE_DOMAIN, SCSI_GDTH, SCSI_IPS
+not set: SCSI_INITIO, SCSI_INIA100, SCSI_SYM53C8XX_2, SCSI_IPR
+not set: SCSI_QLOGIC_1280, SCSI_QLA_FC, SCSI_LPFC, SCSI_DC395x
+not set: SCSI_DC390T, SCSI_NSP32, SCSI_DEBUG
+
+#
+# Multi-device support (RAID and LVM)
+#
+not set: MD
+
+#
+# Fusion MPT device support
+#
+not set: FUSION, FUSION_SPI, FUSION_FC, FUSION_SAS
+
+#
+# IEEE 1394 (FireWire) support
+#
+y: IEEE1394
+
+#
+# Subsystem Options
+#
+not set: IEEE1394_VERBOSEDEBUG, IEEE1394_OUI_DB
+y: IEEE1394_EXTRA_CONFIG_ROMS, IEEE1394_CONFIG_ROM_IP1394
+not set: IEEE1394_EXPORT_FULL_API
+
+#
+# Device Drivers
+#
+y: IEEE1394_PCILYNX, IEEE1394_OHCI1394
+
+#
+# Protocol Drivers
+#
+y: IEEE1394_VIDEO1394, IEEE1394_SBP2
+not set: IEEE1394_SBP2_PHYS_DMA, IEEE1394_ETH1394
+y: IEEE1394_DV1394, IEEE1394_RAWIO
+
+#
+# I2O device support
+#
+not set: I2O
+
+#
+# Network device support
+#
+y: NETDEVICES, DUMMY
+not set: BONDING, EQUALIZER
+y: TUN
+not set: NET_SB1000
+
+#
+# ARCnet devices
+#
+not set: ARCNET
+
+#
+# PHY device support
+#
+not set: PHYLIB
+
+#
+# Ethernet (10 or 100Mbit)
+#
+y: NET_ETHERNET, MII
+not set: HAPPYMEAL, SUNGEM, CASSINI, NET_VENDOR_3COM
+
+#
+# Tulip family network device support
+#
+not set: NET_TULIP, HP100
+y: NET_PCI
+not set: PCNET32, AMD8111_ETH, ADAPTEC_STARFIRE, B44, FORCEDETH, DGRS
+not set: EEPRO100, E100, FEALNX, NATSEMI, NE2K_PCI, 8139CP
+y: 8139TOO
+not set: 8139TOO_PIO, 8139TOO_TUNE_TWISTER, 8139TOO_8129
+not set: 8139_OLD_RX_RESET, SIS900, EPIC100, SUNDANCE, TLAN, VIA_RHINE
+
+#
+# Ethernet (1000 Mbit)
+#
+not set: ACENIC, DL2K, E1000, NS83820, HAMACHI, YELLOWFIN, R8169
+not set: SIS190, SKGE, SKY2, SK98LIN, VIA_VELOCITY, TIGON3, BNX2
+
+#
+# Ethernet (10000 Mbit)
+#
+not set: CHELSIO_T1, IXGB, S2IO
+
+#
+# Token Ring devices
+#
+not set: TR
+
+#
+# Wireless LAN (non-hamradio)
+#
+y: NET_RADIO
+not set: NET_WIRELESS_RTNETLINK
+
+#
+# Obsolete Wireless cards support (pre-802.11)
+#
+not set: STRIP, PCMCIA_WAVELAN, PCMCIA_NETWAVE
+
+#
+# Wireless 802.11 Frequency Hopping cards support
+#
+not set: PCMCIA_RAYCS
+
+#
+# Wireless 802.11b ISA/PCI cards support
+#
+not set: IPW2100, IPW2200, AIRO, HERMES, ATMEL
+
+#
+# Wireless 802.11b Pcmcia/Cardbus cards support
+#
+not set: AIRO_CS, PCMCIA_WL3501
+
+#
+# Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support
+#
+not set: PRISM54, HOSTAP
+y: NET_WIRELESS
+
+#
+# PCMCIA network device support
+#
+not set: NET_PCMCIA
+
+#
+# Wan interfaces
+#
+not set: WAN, FDDI, HIPPI
+y: PPP, PPP_MULTILINK, PPP_FILTER, PPP_ASYNC, PPP_SYNC_TTY, PPP_DEFLATE
+y: PPP_BSDCOMP
+not set: PPP_MPPE
+y: PPPOE
+not set: SLIP, NET_FC, SHAPER
+y: NETCONSOLE, NETPOLL
+not set: NETPOLL_RX, NETPOLL_TRAP
+y: NET_POLL_CONTROLLER
+
+#
+# ISDN subsystem
+#
+not set: ISDN
+
+#
+# Telephony Support
+#
+not set: PHONE
+
+#
+# Input device support
+#
+y: INPUT
+
+#
+# Userland interfaces
+#
+y: INPUT_MOUSEDEV
+not set: INPUT_MOUSEDEV_PSAUX
+1024: INPUT_MOUSEDEV_SCREEN_X
+768: INPUT_MOUSEDEV_SCREEN_Y
+not set: INPUT_JOYDEV, INPUT_TSDEV
+y: INPUT_EVDEV
+not set: INPUT_EVBUG
+
+#
+# Input Device Drivers
+#
+y: INPUT_KEYBOARD, KEYBOARD_ATKBD
+not set: KEYBOARD_SUNKBD, KEYBOARD_LKKBD, KEYBOARD_XTKBD
+not set: KEYBOARD_NEWTON
+y: INPUT_MOUSE, MOUSE_PS2
+not set: MOUSE_SERIAL, MOUSE_VSXXXAA, INPUT_JOYSTICK
+y: INPUT_TOUCHSCREEN, TOUCHSCREEN_GUNZE
+not set: TOUCHSCREEN_ELO, TOUCHSCREEN_MTOUCH, TOUCHSCREEN_MK712
+y: INPUT_MISC
+not set: INPUT_PCSPKR, INPUT_WISTRON_BTNS, INPUT_UINPUT
+
+#
+# Hardware I/O ports
+#
+y: SERIO, SERIO_I8042, SERIO_SERPORT
+not set: SERIO_CT82C710, SERIO_PCIPS2
+y: SERIO_LIBPS2
+not set: SERIO_RAW
+y: GAMEPORT
+not set: GAMEPORT_NS558, GAMEPORT_L4, GAMEPORT_EMU10K1, GAMEPORT_FM801
+
+#
+# Character devices
+#
+y: VT, VT_CONSOLE, HW_CONSOLE
+not set: SERIAL_NONSTANDARD
+
+#
+# Serial drivers
+#
+y: SERIAL_8250, SERIAL_8250_CONSOLE, SERIAL_8250_PCI, SERIAL_8250_PNP
+y: SERIAL_8250_CS
+2: SERIAL_8250_NR_UARTS, SERIAL_8250_RUNTIME_UARTS
+not set: SERIAL_8250_EXTENDED
+
+#
+# Non-8250 serial port support
+#
+y: SERIAL_CORE, SERIAL_CORE_CONSOLE
+not set: SERIAL_JSM
+y: UNIX98_PTYS
+not set: LEGACY_PTYS
+
+#
+# IPMI
+#
+not set: IPMI_HANDLER
+
+#
+# Watchdog Cards
+#
+y: WATCHDOG
+not set: WATCHDOG_NOWAYOUT
+
+#
+# Watchdog Device Drivers
+#
+y: SOFT_WATCHDOG
+not set: ACQUIRE_WDT, ADVANTECH_WDT, ALIM1535_WDT, ALIM7101_WDT
+not set: SC520_WDT, EUROTECH_WDT, IB700_WDT, IBMASR, WAFER_WDT
+not set: I6300ESB_WDT, I8XX_TCO, SC1200_WDT, 60XX_WDT, SBC8360_WDT
+not set: CPU5_WDT, W83627HF_WDT, W83877F_WDT, W83977F_WDT, MACHZ_WDT
+not set: SBC_EPX_C3_WATCHDOG
+
+#
+# PCI-based Watchdog Cards
+#
+not set: PCIPCWATCHDOG, WDTPCI
+
+#
+# USB-based Watchdog Cards
+#
+not set: USBPCWATCHDOG, HW_RANDOM
+y: NVRAM, RTC
+not set: DTLK, R3964, APPLICOM, SONYPI
+
+#
+# Ftape, the floppy tape device driver
+#
+not set: FTAPE
+y: AGP
+not set: AGP_ALI, AGP_ATI, AGP_AMD
+y: AGP_AMD64
+not set: AGP_INTEL, AGP_NVIDIA, AGP_SIS, AGP_SWORKS, AGP_VIA
+not set: AGP_EFFICEON, DRM
+
+#
+# PCMCIA character devices
+#
+not set: SYNCLINK_CS, CARDMAN_4000, CARDMAN_4040, MWAVE, CS5535_GPIO
+not set: RAW_DRIVER, HPET, HANGCHECK_TIMER
+
+#
+# TPM devices
+#
+not set: TCG_TPM, TELCLOCK
+
+#
+# I2C support
+#
+y: I2C, I2C_CHARDEV
+
+#
+# I2C Algorithms
+#
+y: I2C_ALGOBIT, I2C_ALGOPCF, I2C_ALGOPCA
+
+#
+# I2C Hardware Bus support
+#
+not set: I2C_ALI1535, I2C_ALI1563, I2C_ALI15X3, I2C_AMD756, I2C_AMD8111
+not set: I2C_I801, I2C_I810, I2C_PIIX4
+y: I2C_ISA
+not set: I2C_NFORCE2, I2C_PARPORT_LIGHT, I2C_PROSAVAGE, I2C_SAVAGE4
+not set: SCx200_ACB, I2C_SIS5595, I2C_SIS630, I2C_SIS96X, I2C_VIA
+not set: I2C_VIAPRO, I2C_VOODOO3, I2C_PCA_ISA
+
+#
+# Miscellaneous I2C Chip support
+#
+y: SENSORS_DS1337, SENSORS_DS1374, SENSORS_EEPROM
+not set: SENSORS_PCF8574, SENSORS_PCA9539, SENSORS_PCF8591
+not set: SENSORS_MAX6875, I2C_DEBUG_CORE, I2C_DEBUG_ALGO, I2C_DEBUG_BUS
+not set: I2C_DEBUG_CHIP
+
+#
+# SPI support
+#
+not set: SPI, SPI_MASTER
+
+#
+# Dallas's 1-wire bus
+#
+not set: W1
+
+#
+# Hardware Monitoring support
+#
+y: HWMON, HWMON_VID, SENSORS_ADM1021
+not set: SENSORS_ADM1025, SENSORS_ADM1026, SENSORS_ADM1031
+not set: SENSORS_ADM9240, SENSORS_ASB100, SENSORS_ATXP1
+y: SENSORS_DS1621
+not set: SENSORS_F71805F, SENSORS_FSCHER, SENSORS_FSCPOS
+y: SENSORS_GL518SM
+not set: SENSORS_GL520SM
+y: SENSORS_IT87
+not set: SENSORS_LM63
+y: SENSORS_LM75
+not set: SENSORS_LM77, SENSORS_LM78, SENSORS_LM80, SENSORS_LM83
+not set: SENSORS_LM85, SENSORS_LM87, SENSORS_LM90
+y: SENSORS_LM92
+not set: SENSORS_MAX1619, SENSORS_PC87360, SENSORS_SIS5595
+not set: SENSORS_SMSC47M1, SENSORS_SMSC47B397, SENSORS_VIA686A
+not set: SENSORS_VT8231, SENSORS_W83781D, SENSORS_W83792D
+not set: SENSORS_W83L785TS
+y: SENSORS_W83627HF
+not set: SENSORS_W83627EHF, SENSORS_HDAPS, HWMON_DEBUG_CHIP
+
+#
+# Misc devices
+#
+not set: IBM_ASM
+
+#
+# Multimedia devices
+#
+not set: VIDEO_DEV
+y: VIDEO_V4L2
+
+#
+# Digital Video Broadcasting Devices
+#
+not set: DVB, USB_DABUSB
+
+#
+# Graphics support
+#
+y: FB, FB_CFB_FILLRECT, FB_CFB_COPYAREA, FB_CFB_IMAGEBLIT
+not set: FB_MACMODES, FB_FIRMWARE_EDID, FB_MODE_HELPERS
+not set: FB_TILEBLITTING, FB_CIRRUS, FB_PM2, FB_CYBER2000, FB_ARC
+not set: FB_ASILIANT, FB_IMSTT
+y: FB_VGA16
+not set: FB_VESA
+y: VIDEO_SELECT
+not set: FB_HGA, FB_S1D13XXX, FB_NVIDIA, FB_RIVA, FB_I810, FB_INTEL
+not set: FB_MATROX, FB_RADEON, FB_ATY128, FB_ATY, FB_SAVAGE, FB_SIS
+not set: FB_NEOMAGIC, FB_KYRO, FB_3DFX, FB_VOODOO1, FB_CYBLA
+not set: FB_TRIDENT, FB_GEODE, FB_VIRTUAL
+
+#
+# Console display driver support
+#
+y: VGA_CONSOLE
+not set: VGACON_SOFT_SCROLLBACK
+y: DUMMY_CONSOLE, FRAMEBUFFER_CONSOLE
+not set: FRAMEBUFFER_CONSOLE_ROTATION, FONTS
+y: FONT_8x8, FONT_8x16
+
+#
+# Logo configuration
+#
+not set: LOGO, BACKLIGHT_LCD_SUPPORT
+
+#
+# Sound
+#
+y: SOUND
+
+#
+# Advanced Linux Sound Architecture
+#
+y: SND, SND_TIMER, SND_PCM, SND_SEQUENCER
+not set: SND_SEQ_DUMMY
+y: SND_OSSEMUL, SND_MIXER_OSS, SND_PCM_OSS, SND_PCM_OSS_PLUGINS
+y: SND_SEQUENCER_OSS, SND_RTCTIMER, SND_SEQ_RTCTIMER_DEFAULT
+not set: SND_DYNAMIC_MINORS
+y: SND_SUPPORT_OLD_API, SND_VERBOSE_PROCFS
+not set: SND_VERBOSE_PRINTK
+y: SND_DEBUG, SND_DEBUG_DETECT
+not set: SND_PCM_XRUN_DEBUG
+
+#
+# Generic devices
+#
+y: SND_AC97_CODEC, SND_AC97_BUS
+not set: SND_DUMMY, SND_VIRMIDI, SND_MTPAV, SND_SERIAL_U16550
+not set: SND_MPU401
+
+#
+# PCI devices
+#
+not set: SND_AD1889, SND_ALS300, SND_ALS4000, SND_ALI5451
+y: SND_ATIIXP, SND_ATIIXP_MODEM
+not set: SND_AU8810, SND_AU8820, SND_AU8830, SND_AZT3328, SND_BT87X
+not set: SND_CA0106, SND_CMIPCI, SND_CS4281, SND_CS46XX
+not set: SND_CS5535AUDIO, SND_EMU10K1, SND_EMU10K1X, SND_ENS1370
+not set: SND_ENS1371, SND_ES1938, SND_ES1968, SND_FM801, SND_HDA_INTEL
+not set: SND_HDSP, SND_HDSPM, SND_ICE1712, SND_ICE1724, SND_INTEL8X0
+not set: SND_INTEL8X0M, SND_KORG1212, SND_MAESTRO3, SND_MIXART
+not set: SND_NM256, SND_PCXHR, SND_RIPTIDE, SND_RME32, SND_RME96
+not set: SND_RME9652, SND_SONICVIBES, SND_TRIDENT, SND_VIA82XX
+not set: SND_VIA82XX_MODEM, SND_VX222, SND_YMFPCI
+
+#
+# USB devices
+#
+not set: SND_USB_AUDIO, SND_USB_USX2Y
+
+#
+# PCMCIA devices
+#
+not set: SND_VXPOCKET, SND_PDAUDIOCF
+
+#
+# Open Sound System
+#
+not set: SOUND_PRIME
+
+#
+# USB support
+#
+y: USB_ARCH_HAS_HCD, USB_ARCH_HAS_OHCI, USB_ARCH_HAS_EHCI, USB
+not set: USB_DEBUG
+
+#
+# Miscellaneous USB options
+#
+y: USB_DEVICEFS
+not set: USB_BANDWIDTH, USB_DYNAMIC_MINORS, USB_SUSPEND, USB_OTG
+
+#
+# USB Host Controller Drivers
+#
+y: USB_EHCI_HCD, USB_EHCI_SPLIT_ISO, USB_EHCI_ROOT_HUB_TT
+not set: USB_ISP116X_HCD, USB_OHCI_HCD, USB_UHCI_HCD, USB_SL811_HCD
+
+#
+# USB Device Class drivers
+#
+not set: USB_ACM, USB_PRINTER
+
+#
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support'
+#
+
+#
+# may also be needed; see USB_STORAGE Help for more information
+#
+y: USB_STORAGE
+not set: USB_STORAGE_DEBUG, USB_STORAGE_DATAFAB, USB_STORAGE_FREECOM
+not set: USB_STORAGE_ISD200, USB_STORAGE_DPCM, USB_STORAGE_USBAT
+not set: USB_STORAGE_SDDR09, USB_STORAGE_SDDR55, USB_STORAGE_JUMPSHOT
+not set: USB_STORAGE_ALAUDA, USB_LIBUSUAL
+
+#
+# USB Input Devices
+#
+y: USB_HID, USB_HIDINPUT
+not set: USB_HIDINPUT_POWERBOOK, HID_FF, USB_HIDDEV, USB_AIPTEK
+not set: USB_WACOM, USB_ACECAD, USB_KBTAB, USB_POWERMATE
+not set: USB_TOUCHSCREEN, USB_YEALINK, USB_XPAD, USB_ATI_REMOTE
+not set: USB_ATI_REMOTE2, USB_KEYSPAN_REMOTE, USB_APPLETOUCH
+
+#
+# USB Imaging devices
+#
+not set: USB_MDC800, USB_MICROTEK
+
+#
+# USB Network Adapters
+#
+not set: USB_CATC, USB_KAWETH, USB_PEGASUS, USB_RTL8150, USB_USBNET
+not set: USB_ZD1201, USB_MON
+
+#
+# USB port drivers
+#
+
+#
+# USB Serial Converter support
+#
+not set: USB_SERIAL
+
+#
+# USB Miscellaneous drivers
+#
+not set: USB_EMI62, USB_EMI26, USB_AUERSWALD, USB_RIO500, USB_LEGOTOWER
+not set: USB_LCD, USB_LED, USB_CYTHERM, USB_PHIDGETKIT
+not set: USB_PHIDGETSERVO, USB_IDMOUSE, USB_SISUSBVGA, USB_LD, USB_TEST
+
+#
+# USB DSL modem support
+#
+
+#
+# USB Gadget Support
+#
+not set: USB_GADGET
+
+#
+# MMC/SD Card support
+#
+y: MMC
+not set: MMC_DEBUG
+y: MMC_BLOCK
+not set: MMC_SDHCI, MMC_WBSD
+
+#
+# LED devices
+#
+not set: NEW_LEDS
+
+#
+# LED drivers
+#
+
+#
+# LED Triggers
+#
+
+#
+# InfiniBand support
+#
+not set: INFINIBAND
+
+#
+# EDAC - error detection and reporting (RAS) (EXPERIMENTAL)
+#
+not set: EDAC
+
+#
+# Real Time Clock
+#
+y: RTC_LIB, RTC_CLASS, RTC_HCTOSYS
+"rtc0": RTC_HCTOSYS_DEVICE
+
+#
+# RTC interfaces
+#
+y: RTC_INTF_SYSFS, RTC_INTF_PROC, RTC_INTF_DEV
+
+#
+# RTC drivers
+#
+not set: RTC_DRV_X1205
+y: RTC_DRV_DS1672
+not set: RTC_DRV_PCF8563, RTC_DRV_RS5C372
+y: RTC_DRV_M48T86
+not set: RTC_DRV_TEST
+
+#
+# File systems
+#
+not set: EXT2_FS
+y: EXT3_FS, EXT3_FS_XATTR, EXT3_FS_POSIX_ACL
+not set: EXT3_FS_SECURITY
+y: JBD
+not set: JBD_DEBUG
+y: FS_MBCACHE
+not set: REISERFS_FS
+y: JFS_FS, JFS_POSIX_ACL
+not set: JFS_SECURITY, JFS_DEBUG, JFS_STATISTICS
+y: FS_POSIX_ACL
+not set: XFS_FS, OCFS2_FS, MINIX_FS, ROMFS_FS
+y: INOTIFY
+not set: QUOTA
+y: DNOTIFY
+not set: AUTOFS_FS, AUTOFS4_FS, FUSE_FS
+
+#
+# CD-ROM/DVD Filesystems
+#
+y: ISO9660_FS, JOLIET, ZISOFS, ZISOFS_FS, UDF_FS, UDF_NLS
+
+#
+# DOS/FAT/NT Filesystems
+#
+y: FAT_FS
+not set: MSDOS_FS
+y: VFAT_FS
+437: FAT_DEFAULT_CODEPAGE
+"iso8859-1": FAT_DEFAULT_IOCHARSET
+not set: NTFS_FS
+
+#
+# Pseudo filesystems
+#
+y: PROC_FS, PROC_KCORE, SYSFS, TMPFS
+not set: HUGETLBFS, HUGETLB_PAGE
+y: RAMFS
+not set: CONFIGFS_FS
+
+#
+# Miscellaneous filesystems
+#
+not set: ADFS_FS, AFFS_FS, HFS_FS, HFSPLUS_FS, BEFS_FS, BFS_FS, EFS_FS
+not set: CRAMFS, VXFS_FS, HPFS_FS, QNX4FS_FS, SYSV_FS, UFS_FS
+
+#
+# Network File Systems
+#
+not set: NFS_FS, NFSD
+y: SMB_FS, SMB_NLS_DEFAULT
+"cp437": SMB_NLS_REMOTE
+not set: CIFS, NCP_FS, CODA_FS, AFS_FS, 9P_FS
+
+#
+# Partition Types
+#
+not set: PARTITION_ADVANCED
+y: MSDOS_PARTITION
+
+#
+# Native Language Support
+#
+y: NLS
+"utf8": NLS_DEFAULT
+y: NLS_CODEPAGE_437
+not set: NLS_CODEPAGE_737, NLS_CODEPAGE_775
+y: NLS_CODEPAGE_850
+not set: NLS_CODEPAGE_852, NLS_CODEPAGE_855, NLS_CODEPAGE_857
+not set: NLS_CODEPAGE_860, NLS_CODEPAGE_861, NLS_CODEPAGE_862
+not set: NLS_CODEPAGE_863, NLS_CODEPAGE_864, NLS_CODEPAGE_865
+not set: NLS_CODEPAGE_866, NLS_CODEPAGE_869, NLS_CODEPAGE_936
+not set: NLS_CODEPAGE_950, NLS_CODEPAGE_932, NLS_CODEPAGE_949
+not set: NLS_CODEPAGE_874, NLS_ISO8859_8, NLS_CODEPAGE_1250
+not set: NLS_CODEPAGE_1251
+y: NLS_ASCII, NLS_ISO8859_1
+not set: NLS_ISO8859_2, NLS_ISO8859_3, NLS_ISO8859_4, NLS_ISO8859_5
+not set: NLS_ISO8859_6, NLS_ISO8859_7, NLS_ISO8859_9, NLS_ISO8859_13
+not set: NLS_ISO8859_14, NLS_ISO8859_15, NLS_KOI8_R, NLS_KOI8_U
+y: NLS_UTF8
+
+#
+# Instrumentation Support
+#
+y: PROFILING
+not set: OPROFILE
+
+#
+# Kernel hacking
+#
+not set: PRINTK_TIME
+y: MAGIC_SYSRQ, DEBUG_KERNEL
+17: LOG_BUF_SHIFT
+y: DETECT_SOFTLOCKUP
+not set: SCHEDSTATS, DEBUG_SLAB, DEBUG_MUTEXES, DEBUG_SPINLOCK
+not set: DEBUG_SPINLOCK_SLEEP, DEBUG_KOBJECT
+y: DEBUG_BUGVERBOSE
+not set: DEBUG_INFO, DEBUG_FS, DEBUG_VM
+y: FRAME_POINTER
+not set: UNWIND_INFO
+y: FORCED_INLINING
+not set: RCU_TORTURE_TEST
+y: EARLY_PRINTK
+not set: DEBUG_STACKOVERFLOW, DEBUG_STACK_USAGE
+2: STACK_BACKTRACE_COLS
+not set: DEBUG_PAGEALLOC, DEBUG_RODATA, 4KSTACKS
+y: X86_FIND_SMP_CONFIG, X86_MPPARSE, DOUBLEFAULT
+
+#
+# Security options
+#
+not set: KEYS, SECURITY
+
+#
+# Cryptographic options
+#
+y: CRYPTO, CRYPTO_HMAC, CRYPTO_NULL
+not set: CRYPTO_MD4, CRYPTO_MD5, CRYPTO_SHA1
+y: CRYPTO_SHA256, CRYPTO_SHA512
+not set: CRYPTO_WP512, CRYPTO_TGR192
+y: CRYPTO_DES
+not set: CRYPTO_BLOWFISH, CRYPTO_TWOFISH, CRYPTO_SERPENT
+y: CRYPTO_AES, CRYPTO_AES_586
+not set: CRYPTO_CAST5, CRYPTO_CAST6, CRYPTO_TEA, CRYPTO_ARC4
+not set: CRYPTO_KHAZAD, CRYPTO_ANUBIS
+y: CRYPTO_DEFLATE
+not set: CRYPTO_MICHAEL_MIC
+y: CRYPTO_CRC32C
+not set: CRYPTO_TEST
+
+#
+# Hardware crypto devices
+#
+not set: CRYPTO_DEV_PADLOCK
+
+#
+# Library routines
+#
+y: CRC_CCITT, CRC16, CRC32, LIBCRC32C, ZLIB_INFLATE, ZLIB_DEFLATE
+y: TEXTSEARCH, TEXTSEARCH_KMP, TEXTSEARCH_BM, TEXTSEARCH_FSM
+y: GENERIC_HARDIRQS, GENERIC_IRQ_PROBE, X86_BIOS_REBOOT, KTIME_SCALAR
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

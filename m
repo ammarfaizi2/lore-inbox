@@ -1,32 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbWF2GWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932627AbWF2G0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932586AbWF2GWy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 02:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbWF2GWy
+	id S932627AbWF2G0m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 02:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932628AbWF2G0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 02:22:54 -0400
-Received: from [220.227.188.61] ([220.227.188.61]:9156 "EHLO
-	gateway.innomedia.soft.net") by vger.kernel.org with ESMTP
-	id S932586AbWF2GWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 02:22:53 -0400
-Message-ID: <44A371EA.6080900@innomedia.soft.net>
-Date: Thu, 29 Jun 2006 11:53:38 +0530
-From: Dipti Ranjan Tarai <dipti@innomedia.soft.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
+	Thu, 29 Jun 2006 02:26:42 -0400
+Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:40202 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S932627AbWF2G0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 02:26:41 -0400
+Date: Thu, 29 Jun 2006 02:26:23 -0400
+From: Matt LaPlante <laplam@rpi.edu>
 To: linux-kernel@vger.kernel.org
-Subject: pdflush consume 100% of cpu utilization.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Roman Zippel <zippel@linux-m68k.org>
+Subject: [PATCH] Kconfig: Typos in net/sched/Kconfig
+Message-Id: <20060629022623.67ba2cbc.laplam@rpi.edu>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 02:26:34 -0400
+	(not processed: message from trusted or authenticated source)
+X-Return-Path: laplam@rpi.edu
+X-Envelope-From: laplam@rpi.edu
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 02:26:35 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-        I am using Fedora Core-3 with kernel 2.6.10 to develop a 
-loadable module. when I am trying a huge amount of I/O,  pdflush daemon 
-consume 100% of cpu utilization.  Due to this it reduce the module 
-performance. So please give any suggestion how to tune pdflush daemon  
-or is there any patch required for this.
+Fix typos in net/sched/Kconfig.  And yes, its "queuing" in the dictionary.com. :)
 
-Regards
-Dipti Ranjan Tarai
+-
+Matt LaPlante
+CCNP, CCDP, A+, Linux+, CQS
+laplam@rpi.edu
+
+--
+
+--- a/net/sched/Kconfig	2006-06-20 05:31:55.000000000 -0400
++++ b/net/sched/Kconfig	2006-06-29 02:26:33.000000000 -0400
+@@ -2,14 +2,14 @@
+ # Traffic control configuration.
+ # 
+ 
+-menu "QoS and/or fair queueing"
++menu "QoS and/or fair queuing"
+ 
+ config NET_SCHED
+-	bool "QoS and/or fair queueing"
++	bool "QoS and/or fair queuing"
+ 	---help---
+ 	  When the kernel has several packets to send out over a network
+ 	  device, it has to decide which ones to send first, which ones to
+-	  delay, and which ones to drop. This is the job of the queueing
++	  delay, and which ones to drop. This is the job of the queuing
+ 	  disciplines, several different algorithms for how to do this
+ 	  "fairly" have been proposed.
+ 
+@@ -98,12 +98,12 @@
+ 
+ endchoice
+ 
+-comment "Queueing/Scheduling"
++comment "Queuing/Scheduling"
+ 
+ config NET_SCH_CBQ
+-	tristate "Class Based Queueing (CBQ)"
++	tristate "Class Based Queuing (CBQ)"
+ 	---help---
+-	  Say Y here if you want to use the Class-Based Queueing (CBQ) packet
++	  Say Y here if you want to use the Class-Based Queuing (CBQ) packet
+ 	  scheduling algorithm. This algorithm classifies the waiting packets
+ 	  into a tree-like hierarchy of classes; the leaves of this tree are
+ 	  in turn scheduled by separate algorithms.
+@@ -111,7 +111,7 @@
+ 	  See the top of <file:net/sched/sch_cbq.c> for more details.
+ 
+ 	  CBQ is a commonly used scheduler, so if you're unsure, you should
+-	  say Y here. Then say Y to all the queueing algorithms below that you
++	  say Y here. Then say Y to all the queuing algorithms below that you
+ 	  want to use as leaf disciplines.
+ 
+ 	  To compile this code as a module, choose M here: the
+@@ -155,7 +155,7 @@
+ 	  module will be called sch_atm.
+ 
+ config NET_SCH_PRIO
+-	tristate "Multi Band Priority Queueing (PRIO)"
++	tristate "Multi Band Priority Queuing (PRIO)"
+ 	---help---
+ 	  Say Y here if you want to use an n-band priority queue packet
+ 	  scheduler.
+@@ -175,9 +175,9 @@
+ 	  module will be called sch_red.
+ 
+ config NET_SCH_SFQ
+-	tristate "Stochastic Fairness Queueing (SFQ)"
++	tristate "Stochastic Fairness Queuing (SFQ)"
+ 	---help---
+-	  Say Y here if you want to use the Stochastic Fairness Queueing (SFQ)
++	  Say Y here if you want to use the Stochastic Fairness Queuing (SFQ)
+ 	  packet scheduling algorithm .
+ 
+ 	  See the top of <file:net/sched/sch_sfq.c> for more details.
+@@ -189,7 +189,7 @@
+ 	tristate "True Link Equalizer (TEQL)"
+ 	---help---
+ 	  Say Y here if you want to use the True Link Equalizer (TLE) packet
+-	  scheduling algorithm. This queueing discipline allows the combination
++	  scheduling algorithm. This queuing discipline allows the combination
+ 	  of several physical devices into one virtual device.
+ 
+ 	  See the top of <file:net/sched/sch_teql.c> for more details.
+@@ -305,7 +305,7 @@
+ 	tristate "Universal 32bit comparisons w/ hashing (U32)"
+ 	select NET_CLS
+ 	---help---
+-	  Say Y here to be able to classify packetes using a universal
++	  Say Y here to be able to classify packets using a universal
+ 	  32bit pieces based comparison scheme.
+ 
+ 	  To compile this code as a module, choose M here: the
+@@ -485,7 +485,7 @@
+         tristate "IPtables targets"
+         depends on NET_CLS_ACT && NETFILTER && IP_NF_IPTABLES
+         ---help---
+-	  Say Y here to be able to invoke iptables targets after succesful
++	  Say Y here to be able to invoke iptables targets after successful
+ 	  classification.
+ 
+ 	  To compile this code as a module, choose M here: the
+@@ -537,8 +537,8 @@
+ 	---help---
+ 	  Say Y here to allow using rate estimators to estimate the current
+ 	  rate-of-flow for network devices, queues, etc. This module is
+-	  automaticaly selected if needed but can be selected manually for
+-	  statstical purposes.
++	  automatically selected if needed but can be selected manually for
++	  statistical purposes.
+ 
+ endif # NET_SCHED
+ 
+

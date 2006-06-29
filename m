@@ -1,87 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751835AbWF2A1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751847AbWF2AfD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751835AbWF2A1M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 20:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751844AbWF2A1M
+	id S1751847AbWF2AfD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 20:35:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751848AbWF2AfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 20:27:12 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61616 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751835AbWF2A1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 20:27:09 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Daniel Lezcano <dlezcano@fr.ibm.com>
-Cc: Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       viro@ftp.linux.org.uk, Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: Network namespaces a path to mergable code.
-References: <20060626134945.A28942@castle.nmd.msu.ru>
-	<m14py6ldlj.fsf@ebiederm.dsl.xmission.com>
-	<20060627215859.A20679@castle.nmd.msu.ru>
-	<m1ejx9kj1r.fsf@ebiederm.dsl.xmission.com>
-	<20060628150605.A29274@castle.nmd.msu.ru>
-	<44A2FA66.5070303@fr.ibm.com>
-Date: Wed, 28 Jun 2006 18:25:40 -0600
-In-Reply-To: <44A2FA66.5070303@fr.ibm.com> (Daniel Lezcano's message of "Wed,
-	28 Jun 2006 23:53:42 +0200")
-Message-ID: <m11wt8erjv.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 28 Jun 2006 20:35:03 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:30161 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751847AbWF2AfB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 20:35:01 -0400
+Date: Wed, 28 Jun 2006 17:34:46 -0700
+Message-Id: <200606290034.k5T0YkCw028911@terminus.zytor.com>
+Newsgroups: linux.dev.kernel
+Subject: Re: klibc and what's the next step?
+Summary: 
+Expires: 
+References: <Pine.LNX.4.64.0606271316220.17704@scrub.home> <f5e0f599448456bcbf2699994f0bbc76@bga.com> <Pine.LNX.4.64.0606290117220.17704@scrub.home>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Followup-To: 
+Distribution: 
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Keywords: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Milton Miller <miltonm@bga.com>, LKML <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Lezcano <dlezcano@fr.ibm.com> writes:
+Followup to:  <Pine.LNX.4.64.0606290117220.17704@scrub.home>
+By author:    Roman Zippel <zippel@linux-m68k.org>
+In newsgroup: linux.dev.kernel
+> > 
+> > * There is concern about how much is bloat, where do we draw the line 
+> > for in-kernel
+> 
+> That actually wouldn't be my initial concern. Otherwise I'm happy to point 
+> out kernel bloat, but here it's more important to prototype a mechanism. 
+> In this case bloat can still be fixed later, as it's rather isolated 
+> behind a standard API.
+> 
 
-> Andrey Savochkin wrote:
->
->> Ok, fine.
->> Now I'm working on socket code.
->> We still have a question about implicit vs explicit function parameters.
->> This question becomes more important for sockets: if we want to allow to use
->> sockets belonging to namespaces other than the current one, we need to do
->> something about it.
->> One possible option to resolve this question is to show 2 relatively short
->> patches just introducing namespaces for sockets in 2 ways: with explicit
->> function parameters and using implicit current context.
->> Then people can compare them and vote.
->> Do you think it's worth the effort?
->>
->
-> The attached patch can have some part interesting for you for the socket
-> tagging. It is in the IPV4 isolation (part 5/6). With this and the private
-> routing table you will probably have a good IPV4 isolation.
-> This patch partially isolates ipv4 by adding the network namespace
-> structure in the structure sock, bind bucket and skbuf.
+First of all, I don't think there is any significant amount of bloat
+(in the sense of a larger kernel image.)  I'm not saying kinit-based
+kernel images are *smaller*, but they shouldn't be significantly
+larger.
 
-Ugh.  skbuf sounds very wrong.  Per packet overhead?
+Additionally, you can trivially exclude it in entirety by overriding
+initramfs_source.txt, if you are providing your own initramfs, which a
+lot of people do nowadays.
 
-> When a socket
-> is created, the pointer to the network namespace is stored in the
-> struct sock and the socket belongs to the namespace by this way. That
-> allows to identify sockets related to a namespace for lookup and
-> procfs. 
->
-> The lookup is extended with a network namespace pointer, in
-> order to identify listen points binded to the same port. That allows
-> to have several applications binded to INADDR_ANY:port in different
-> network namespace without conflicting. The bind is checked against
-> port and network namespace.
+> > * There is concern about duplicating user space utilities.  We moved 
+> > the kernel broken md assemble instead of getting the current one from 
+> > mdadm, and that should be part of mdadm package.
+> 
+> The problem here is twofold. First, duplication means extra maintenance 
+> overhead, various version of the copies have to be kept in sync. The 
+> temptation to fix only the kernel version without updating the normal 
+> version could be quite big, so that users might not realize they have 
+> broken tools until they e.g. try reconfigure the system.
+> Second, whatever we deliver with the kernel, might become part of kernel 
+> API (e.g. config files), which needs to be supported for a long time. 
+> Compatibility code can accumulate rather quickly.
 
-Yes.  If we don't duplicate the hash table we need to extend the lookup.
+The code currently in kinit is trying to be as closely compatible with
+the mainstream kernel as practical -- a drop-in replacement.  Thus, I
+have actively avoided making radical changes, and have in fact jumped
+through hoops trying to stay as close to the current model as humanly
+possible unless incredibly obsolete (rdev on x86, everyone I've talked
+to agrees it's not worth supporting; it would be trivial if it's ever
+an issue.)
 
-> When an outgoing packet has the loopback destination addres, the
-> skbuff is filled with the network namespace. So the loopback packets
-> never go outside the namespace. This approach facilitate the migration
-> of loopback because identification is done by network namespace and
-> not by address. The loopback has been benchmarked by tbench and the
-> overhead is roughly 1.5 %
+I definitely agree -- and I'm sure Neil does as well -- that the md
+code should be rewritten, but as long as the whole thing is maintained
+by me out of tree I want to minimize the delta.
 
-Ugh.  1.5% is noticeable.
+The whole point of this exercise is that it gives us a platform by
+which to reduce the maintenance of multiple different code bases.
+Kernel programming is completely different than user-space
+programming, it's poorly understood, and it is much more difficult.
+With klibc, it's trivial to share code with even fairly large
+userspace projects (e.g. udev); furthermore it is trivial to create
+standalone components (e.g. nfsmount) which can not only be tested
+standalone, but actually used by customized userspaces, thus
+improving code reuse and reducing overall complexity.
 
-I think it is cheaper to have one loopback device per namespace.
-Which removes the need for a skbuff tag.
+> > * Some distributions are already using klibc and have been.  They see 
+> > the reason to merge is to have the canonical api with the kernel to 
+> > avoid version mismatch.
+> 
+> klibc will continue as independent project anyway, so it should not be 
+> difficult to include from the kernel whatever the distribution provides. 
+> It would help avoiding possible problems with mixing binaries built from 
+> different libraries.
 
-Eric
+As long as klibc/kinit is not merged, the current code will have to be
+maintained.  This means maintaining in-kernel ipconfig, nfsroot, and
+it pretty much dooms the possibility of getting stuff like md detect
+and partition discovery rewritten.
+
+The utility of klibc is thus greatly diminished by not having it in
+the mainline kernel tree.  Its performance in -mm so far has shown
+that it works just fine.
+
+Incidentally, there is one more reason for klibc which hasn't gotten
+much mention, but it provides a prototype userspace for kernel
+developers to:
+
+  a) test new features (or at least a significant subset thereof), and
+  b) document, in code, a recommended way for the more advanced libcs
+     to make new features available to userspace, in the form of
+     headers and the like.
+
+	-hpa
+

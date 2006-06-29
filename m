@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751860AbWF2LIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbWF2LK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751860AbWF2LIY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 07:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751868AbWF2LIY
+	id S932729AbWF2LK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 07:10:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbWF2LK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 07:08:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11425 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751860AbWF2LIX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 07:08:23 -0400
-Date: Thu, 29 Jun 2006 04:08:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: mmilenko@us.ibm.com, linux-kernel@vger.kernel.org, davej@codemonkey.org.uk,
-       hpa@zytor.com
-Subject: Re: [2.6 PATCH] Exporting mmu_cr4_features again for i386 & x86_64
-Message-Id: <20060629040801.734ca23c.akpm@osdl.org>
-In-Reply-To: <200606291255.36206.ak@suse.de>
-References: <OF692619AF.8A926C55-ON8725719B.007C1C06-8625719B.007E27C7@us.ibm.com>
-	<200606291255.36206.ak@suse.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 29 Jun 2006 07:10:26 -0400
+Received: from [82.133.102.210] ([82.133.102.210]:1690 "EHLO
+	cockermouth.uk.xensource.com") by vger.kernel.org with ESMTP
+	id S932729AbWF2LKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 07:10:25 -0400
+Date: Thu, 29 Jun 2006 12:10:17 +0100
+From: Emmanuel Ackaouy <ack@xensource.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Emmanuel Ackaouy <ack@xensource.com>, linux-kernel@vger.kernel.org,
+       schwidefsky@de.ibm.com
+Subject: Re: [PATCH] no_idle_hz (s390/xen) 2.6.16.13: fix next_timer_interrupt() when timer pending
+Message-ID: <20060629111016.GA18989@cockermouth.uk.xensource.com>
+References: <20060629101436.GA18542@cockermouth.uk.xensource.com> <1151576482.3122.17.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1151576482.3122.17.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 12:55:36 +0200
-Andi Kleen <ak@suse.de> wrote:
+On Thu, Jun 29, 2006 at 12:21:22PM +0200, Arjan van de Ven wrote:
+> Did you intend to push this patch for -stable or for the next version of
+> Linux? In general if you wanted to do the later, it's a good idea to
+> make a patch against the latest tree rather than a really old one....
+> While if you meant the former you probably want to at least CC
+> stable@vger.kernel.org .... 
 
-> On Thursday 29 June 2006 01:01, Milena Milenkovic wrote:
-> > Hi all,
-> > 
-> > The mmu_cr4_features variable was "unexported" in 2.6.12 kernel
-> > (A patch submitted by Adrian Bunk, [2.6 patch] unexport mmu_cr4_features).
-> 
-> Normal policy is to unexport symbols that are not used in the core 
-> kernel.
-> 
-> However I think there is a deprecation policy with prior 
-> warning that might not have been followed here.
+Well that will teach me to be lazy... I assumed this code hadn't
+moved but I see there's an equivalent fix already in place in
+2.6.17.
 
-We have EXPORT_UNUSED_SYMBOL() and EXPORT_UNUSED_SYMBOL_GPL() as of this
-morning.  We can convert unused exports to use those and users will get a
-nasty warning at modprobe-time when they use the exported symbols.
-
+Apologies for the noise.

@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWF2MvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWF2M4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWF2MvO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 08:51:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWF2MvO
+	id S1750839AbWF2M4I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 08:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWF2M4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 08:51:14 -0400
-Received: from smtp4.poczta.interia.pl ([80.48.65.7]:15136 "EHLO
-	smtp4.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S1750817AbWF2MvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 08:51:14 -0400
-Message-ID: <44A3CCB0.7080208@interia.pl>
-Date: Thu, 29 Jun 2006 14:50:56 +0200
-From: =?ISO-8859-2?Q?Rafa=B3_Bilski?= <rafalbilski@interia.pl>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060628)
+	Thu, 29 Jun 2006 08:56:08 -0400
+Received: from jaguar.mkp.net ([192.139.46.146]:51603 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S1750718AbWF2M4G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 08:56:06 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Luck, Tony" <tony.luck@intel.com>,
+       John Daiker <jdaiker@osdl.org>, John Hawkes <hawkes@sgi.com>,
+       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
+       Jeremy Higdon <jeremy@sgi.com>
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
+	<yq04py4i9p7.fsf@jaguar.mkp.net>
+	<1151578928.23785.0.camel@localhost.localdomain>
+	<44A3AFFB.2000203@sgi.com>
+	<1151578513.3122.22.camel@laptopd505.fenrus.org>
+From: Jes Sorensen <jes@sgi.com>
+Date: 29 Jun 2006 08:56:05 -0400
+In-Reply-To: <1151578513.3122.22.camel@laptopd505.fenrus.org>
+Message-ID: <yq0veqkgly2.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA from	Longhaul
- by rw semaphores
-References: <44A2C9A7.6060703@interia.pl> <1151581077.23785.9.camel@localhost.localdomain> <44A3C17F.3060204@etpmod.phys.tue.nl>
-In-Reply-To: <44A3C17F.3060204@etpmod.phys.tue.nl>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
-X-EMID: 14d1cacc
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bart Hartgers napisa³(a):
-> Alan Cox wrote:
->> Ar Mer, 2006-06-28 am 20:25 +0200, ysgrifennodd Rafa³ Bilski:
->>> AUTOHALT, this means interrupts must be disabled except for the time tick, 
->>> which should be reset to >=1ms. Care must be taken to avoid other system events 
->>> that could interfere with this operation. A few examples are snooping, NMI, 
->>> INIT, SMI and FLUSH."
->> "snooping". So we do need the cache sorting out.
->>
-> 
-> If I understand correctly, trouble occurs when the processor tries to
-> snoop? Would disabling (via MSR) and flushing the caches before changing
-> the frequency help in that case?
-> 
-> Groeten,
-> Bart
-> 
+>>>>> "Arjan" == Arjan van de Ven <arjan@infradead.org> writes:
 
-I will check that. If this was so simple all this time...
-I hope this "few examples" aren't many more.
+Arjan> read what Alan said: the HZ exposed to userspace is
+Arjan> *constant*. For example, the i386 user visible HZ is 100, even
+Arjan> if the kernel runs at a HZ of 250 or 1000.... Just when a HZ
+Arjan> value gets exposed to userspace, it's transformed into a HZ=100
+Arjan> based value.
 
-Rafa³
+Arjan> And that's not a distribution thing, that's the kernel.org
+Arjan> kernel honoring the stable-userspace-interface contract, and
+Arjan> common sense..
 
+See what you mean, thanks.
 
-----------------------------------------------------------------------
-PS. Fajny portal... >>> http://link.interia.pl/f196a
-
+Jes

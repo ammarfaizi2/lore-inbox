@@ -1,114 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWF2VOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbWF2VPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbWF2VOh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 17:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWF2VOg
+	id S932652AbWF2VPR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 17:15:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWF2VPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 17:14:36 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:17621 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932464AbWF2VOe (ORCPT
+	Thu, 29 Jun 2006 17:15:16 -0400
+Received: from mail.gmx.de ([213.165.64.21]:16024 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932661AbWF2VPO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:14:34 -0400
-Date: Thu, 29 Jun 2006 23:09:50 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Dave Jones <davej@redhat.com>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.17-mm4
-Message-ID: <20060629210950.GA300@elte.hu>
-References: <20060629013643.4b47e8bd.akpm@osdl.org> <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com> <20060629204330.GC13619@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060629204330.GC13619@redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 29 Jun 2006 17:15:14 -0400
+Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
+       rlrevell@joe-job.com, linuxppc-dev@ozlabs.org
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Thu, 29 Jun 2006 23:15:13 +0200
+From: "Gerhard Pircher" <gerhard_pircher@gmx.net>
+In-Reply-To: <s5hfyhopb0s.wl%tiwai@suse.de>
+Message-ID: <20060629211513.64980@gmx.net>
+MIME-Version: 1.0
+References: <20060628202753.198630@gmx.net> <s5hfyhopb0s.wl%tiwai@suse.de>
+Subject: Re: [Alsa-devel] RFC: dma_mmap_coherent() for powerpc/ppc architecture
+ and ALSA?
+To: Takashi Iwai <tiwai@suse.de>
+X-Authenticated: #6097454
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Dave Jones <davej@redhat.com> wrote:
+-------- Original-Nachricht --------
+Datum: Thu, 29 Jun 2006 11:27:15 +0200
+Von: Takashi Iwai <tiwai@suse.de>
+An: Gerhard Pircher <gerhard_pircher@gmx.net>
+Betreff: Re: [Alsa-devel] RFC: dma_mmap_coherent() for powerpc/ppc architecture and ALSA?
 
-> On Thu, Jun 29, 2006 at 10:39:33PM +0200, Michal Piotrowski wrote:
+> At Wed, 28 Jun 2006 22:27:53 +0200,
+> Gerhard Pircher wrote:
+> > 
+> > Hi,
+> > 
+> > It took a little bit longer to integrate the patch, as I didn't figure
+> out  first how to implement the __dma_mmap_coherent() function for PPC
+> systems with CONFIG_NOT_COHERENT_CACHE defined. :)
+> > 
+> > Unfortunately my system still crashes within snd_pcm_mmap_data_nopage() 
+> > (sound/core/pcm_native.c), as you can see below. I guess it tries to
+> remap 
+> > a DMA buffer allocated by the not cache coherent DMA memory allocation 
+> > function in arch/ppc/kernel/dma-mapping.c.
 > 
->  > This looks very strange.
->  > 
->  > BUG: unable to handle kernel paging request at virtual address 6b6b6c07
+> Strange, nopage will be never called if you apply my patch and modify
+> to use dma_mmap_coherent().
 > 
-> Looks like a use after free.
+> 
+> Takashi
+> 
+That's indeed strange! I'm sure that the new code is called by the sound drivers. Should snd_pcm_mmap_data_nopage() not be used at all anymore, or are there any cases that could still trigger a call of snd_pcm_mmap_data_nopage()?
 
-i'm too hunting use-after-free bugs - the ones fixed below fix certain 
-crashes, but i'm still seeing a nasty one.
+Gerhard
 
-the crash is independent on lockdep enabled or disabled. See:
+-- 
 
-  http://redhat.com/~mingo/misc/
 
-for the config and the crash.log.
-
-	Ingo
-
------------------
-Subject: fix platform_device_put/del mishaps
-From: Ingo Molnar <mingo@elte.hu>
-
-this fixes drivers/char/pc8736x_gpio.c and drivers/char/scx200_gpio.c
-to use the platform_device_del/put ops correctly.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- drivers/char/pc8736x_gpio.c |    5 +++--
- drivers/char/scx200_gpio.c  |    6 +++---
- 2 files changed, 6 insertions(+), 5 deletions(-)
-
-Index: linux/drivers/char/pc8736x_gpio.c
-===================================================================
---- linux.orig/drivers/char/pc8736x_gpio.c
-+++ linux/drivers/char/pc8736x_gpio.c
-@@ -319,9 +319,10 @@ static int __init pc8736x_gpio_init(void
- 	return 0;
- 
- undo_platform_dev_add:
--	platform_device_put(pdev);
-+	platform_device_del(pdev);
- undo_platform_dev_alloc:
--	kfree(pdev);
-+	platform_device_put(pdev);
-+
- 	return rc;
- }
- 
-Index: linux/drivers/char/scx200_gpio.c
-===================================================================
---- linux.orig/drivers/char/scx200_gpio.c
-+++ linux/drivers/char/scx200_gpio.c
-@@ -126,9 +126,10 @@ static int __init scx200_gpio_init(void)
- undo_chrdev_region:
- 	unregister_chrdev_region(dev, num_pins);
- undo_platform_device_add:
--	platform_device_put(pdev);
-+	platform_device_del(pdev);
- undo_malloc:
--	kfree(pdev);
-+	platform_device_put(pdev);
-+
- 	return rc;
- }
- 
-@@ -136,7 +137,6 @@ static void __exit scx200_gpio_cleanup(v
- {
- 	kfree(scx200_devices);
- 	unregister_chrdev_region(MKDEV(major, 0), num_pins);
--	platform_device_put(pdev);
- 	platform_device_unregister(pdev);
- 	/* kfree(pdev); */
- }
+Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!
+Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer

@@ -1,88 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751670AbWF2DKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWF2DL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751670AbWF2DKU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 23:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751675AbWF2DKU
+	id S1750997AbWF2DL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 23:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751675AbWF2DL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 23:10:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22152 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751670AbWF2DKS (ORCPT
+	Wed, 28 Jun 2006 23:11:57 -0400
+Received: from dvhart.com ([64.146.134.43]:56230 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750997AbWF2DL4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 23:10:18 -0400
-Date: Wed, 28 Jun 2006 20:09:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, penberg@cs.helsinki.fi, marcelo@kvack.org,
-       paulmck@us.ibm.com, nickpiggin@yahoo.com.au, tytso@mit.edu, dgc@sgi.com,
-       ak@suse.de
-Subject: Re: [RFC 0/4] Object reclaim via the slab allocator V1
-Message-Id: <20060628200942.6eea8ae5.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606281741380.24393@schroedinger.engr.sgi.com>
-References: <20060619184651.23130.62875.sendpatchset@schroedinger.engr.sgi.com>
-	<20060628174329.20adbc2a.akpm@osdl.org>
-	<Pine.LNX.4.64.0606281741380.24393@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jun 2006 23:11:56 -0400
+Message-ID: <44A344E6.7040200@mbligh.org>
+Date: Wed, 28 Jun 2006 20:11:34 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: nigel@suspend2.net
+Cc: Pavel Machek <pavel@suse.cz>, Greg KH <greg@kroah.com>,
+       Jens Axboe <axboe@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2][ 0/9] Extents support.
+References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606271858.21810.nigel@suspend2.net> <20060628211114.GC13397@elf.ucw.cz> <200606290825.50674.nigel@suspend2.net>
+In-Reply-To: <200606290825.50674.nigel@suspend2.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006 17:47:17 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
-
-> On Wed, 28 Jun 2006, Andrew Morton wrote:
+> That's not true. The compression and encryption support add ~1000 lines, as 
+> you pointed out the other day. If I moved compression and encryption support 
+> to userspace, I'd remove 1000 lines and:
 > 
-> > > 2. A destructor was provided during kmem_cache_create().
-> > >    If SLAB_DTOR_FREE is passed in the flags of the destructor
-> > >    then a best effort attempt will be made to free that object.
-> > > 
-> > 
-> > It would be better to make the higher-level code register callbacks for
-> > this sort of thing.  That code knows how to determine if an object is
-> > freeable, can manage aging info, etc.
+> - add more code for getting the pages copied to and from userspace
+> - require the user to get and build $LIBRARIES for doing the compression
+> - require the user to get and build $HELPER for doing the interface to 
+> Suspend2
+> - fail to leverage the perfectly good cryptoapi routines that are already 
+> there
+> - slow the whole process down because I'd now have a copy to userspace for 
+> every page being compressed/encrypted and a copy from userspace for every 
+> output page.
+> - make life more complicated for distro maintainers and users because they'd 
+> have another set of dependencies to worry about and mess with.
 > 
-> The destructor is such a callback.
+> I'm not saying it's impossible. I'm just saying it would make suspending more 
+> complicated, at least potentially slower and more of a pain for everyone.
 
-I was, of course, referring to the unpleasant requirement that the object
-layout start with an atomic_t.
+Thanks for actually thinking through about the implications of pushing
+yet another subsystem out into userspace. Most people don't seem to
+bother ;-(
 
-
-> > > For slab we check all the objects in the slab. If all object have
-> > > a refcount of one then we free all the objects and return the pages of the
-> > > object to the page allocator.
-> > 
-> > That seems like quite a drawback.  A single refcount=2 object on the page
-> > means that nothing gets freed from that page at all.  It'd be easy
-> > (especially with dcache) to do tons of work without achieving anything.
-> 
-> We will always reclaim a few object from each page. See the patch.
-
-I read the description.
-
-> Single refcount=2 objects could also be detected and we could try to free 
-> them.
-> 
-> > a) compact dentries by copying them around or, perhaps,
-> 
-> Since we free some dentries in each block they will be effectively be 
-> moved because they get reallocated in a current slab block.
-
-By performing a disk read.  That is not compaction - it is eviction.
-
-> > b) make dentry reclaim be guided by the dcache tree: do a bottom-up
-> >    reclaim, or a top-down reclaim when we hit a directory, etc.  Something
-> >    which understands the graph rather than the plain global LRU.
-> 
-> The callback can make that determination and could trigger these events.
-> The callback notifies the higher layers that it would be advantageous to 
-> free this element. The higher layers can then analyze the situation and 
-> either free or give up.
-
-How do you propose handling the locking?  dcache is passed a bare pointer
-and no locks are held, but it is guaranteed that the object won't be freed
-while it's playing with it?
-
-If so, take dcache_lock and then validate the object's current state in
-some manner?
+M.
 

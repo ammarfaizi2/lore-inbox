@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932965AbWF2V6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933011AbWF2WBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932965AbWF2V6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 17:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932946AbWF2V6O
+	id S933011AbWF2WBt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 18:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932989AbWF2WBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 17:58:14 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:34959 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932878AbWF2VoJ (ORCPT
+	Thu, 29 Jun 2006 18:01:45 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:12178 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932975AbWF2WBk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:44:09 -0400
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: [PATCH 16 of 39] IB/ipath - enable freeze mode when shutting down
-	device
-X-Mercurial-Node: fd5e733f02aceffe3434f9f4a11bdbb89a0f26b5
-Message-Id: <fd5e733f02aceffe3434.1151617267@eng-12.pathscale.com>
-In-Reply-To: <patchbomb.1151617251@eng-12.pathscale.com>
-Date: Thu, 29 Jun 2006 14:41:07 -0700
+	Thu, 29 Jun 2006 18:01:40 -0400
+Subject: Re: [PATCH 38 of 39] IB/ipath - More changes to support InfiniPath
+	on PowerPC 970 systems
 From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
+To: David Miller <davem@davemloft.net>
+Cc: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
        netdev@vger.kernel.org
+In-Reply-To: <20060629.145319.71091846.davem@davemloft.net>
+References: <patchbomb.1151617251@eng-12.pathscale.com>
+	 <c22b6c244d5db77f7b1d.1151617289@eng-12.pathscale.com>
+	 <20060629.145319.71091846.davem@davemloft.net>
+Content-Type: text/plain
+Date: Thu, 29 Jun 2006 15:01:39 -0700
+Message-Id: <1151618499.10886.26.camel@chalcedony.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Dave Olson <dave.olson@qlogic.com>
-Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
+On Thu, 2006-06-29 at 14:53 -0700, David Miller wrote:
+> From: Bryan O'Sullivan <bos@pathscale.com>
+> Date: Thu, 29 Jun 2006 14:41:29 -0700
+> 
+> >  ipath_core-$(CONFIG_X86_64) += ipath_wc_x86_64.o
+> > +ipath_core-$(CONFIG_PPC64) += ipath_wc_ppc64.o
+> 
+> Again, don't put these kinds of cpu specific functions
+> into the infiniband driver.  They are potentially globally
+> useful, not something only Infiniband might want to do.
 
-diff -r 125471ee6c68 -r fd5e733f02ac drivers/infiniband/hw/ipath/ipath_driver.c
---- a/drivers/infiniband/hw/ipath/ipath_driver.c	Thu Jun 29 14:33:25 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_driver.c	Thu Jun 29 14:33:25 2006 -0700
-@@ -1656,7 +1656,7 @@ void ipath_shutdown_device(struct ipath_
- 	/* disable IBC */
- 	dd->ipath_control &= ~INFINIPATH_C_LINKENABLE;
- 	ipath_write_kreg(dd, dd->ipath_kregs->kr_control,
--			 dd->ipath_control);
-+			 dd->ipath_control | INFINIPATH_C_FREEZEMODE);
- 
- 	/*
- 	 * clear SerdesEnable and turn the leds off; do this here because
+The support for write combining in the kernel is not in a state where
+that makes any sense at the moment.  Also, this is a single-statement
+function.
+
+	<b
+

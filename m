@@ -1,144 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932627AbWF2G0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932664AbWF2Ge4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932627AbWF2G0m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 02:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932628AbWF2G0m
+	id S932664AbWF2Ge4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 02:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWF2Ge4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 02:26:42 -0400
-Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:40202 "EHLO
-	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
-	id S932627AbWF2G0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 02:26:41 -0400
-Date: Thu, 29 Jun 2006 02:26:23 -0400
-From: Matt LaPlante <laplam@rpi.edu>
-To: linux-kernel@vger.kernel.org
-Cc: Roman Zippel <zippel@linux-m68k.org>
-Subject: [PATCH] Kconfig: Typos in net/sched/Kconfig
-Message-Id: <20060629022623.67ba2cbc.laplam@rpi.edu>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 02:26:34 -0400
-	(not processed: message from trusted or authenticated source)
-X-Return-Path: laplam@rpi.edu
-X-Envelope-From: laplam@rpi.edu
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 02:26:35 -0400
+	Thu, 29 Jun 2006 02:34:56 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:56533 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932664AbWF2Gez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 02:34:55 -0400
+Date: Thu, 29 Jun 2006 02:34:53 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Greg Bledsoe <greg.bledsoe@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: pmap, smap, process memory utilization
+In-Reply-To: <dba10b900606280855g6d415441y92c46ca83c74a469@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0606290220220.19156@gandalf.stny.rr.com>
+References: <dba10b900606271140o64b60c97kecb8177f801ff9f4@mail.gmail.com> 
+ <Pine.LNX.4.58.0606280511320.32286@gandalf.stny.rr.com>
+ <dba10b900606280855g6d415441y92c46ca83c74a469@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix typos in net/sched/Kconfig.  And yes, its "queuing" in the dictionary.com. :)
 
--
-Matt LaPlante
-CCNP, CCDP, A+, Linux+, CQS
-laplam@rpi.edu
+On Wed, 28 Jun 2006, Greg Bledsoe wrote:
 
---
+>
+> Thank you.  This information is extremely difficult to find without
+> digging into kernel code, which I certainly wish I had time to do, but
+> don't, and particulars of how many aspects of memory management happen
+> seems to be nonexistant.  I would like to document this aspect, at
+> least, as well as I am able and post somewhere to add to the worlds'
+> global knowledge pool on this subject, and prevent the lkml from
+> getting bugged about this anymore.
 
---- a/net/sched/Kconfig	2006-06-20 05:31:55.000000000 -0400
-+++ b/net/sched/Kconfig	2006-06-29 02:26:33.000000000 -0400
-@@ -2,14 +2,14 @@
- # Traffic control configuration.
- # 
- 
--menu "QoS and/or fair queueing"
-+menu "QoS and/or fair queuing"
- 
- config NET_SCHED
--	bool "QoS and/or fair queueing"
-+	bool "QoS and/or fair queuing"
- 	---help---
- 	  When the kernel has several packets to send out over a network
- 	  device, it has to decide which ones to send first, which ones to
--	  delay, and which ones to drop. This is the job of the queueing
-+	  delay, and which ones to drop. This is the job of the queuing
- 	  disciplines, several different algorithms for how to do this
- 	  "fairly" have been proposed.
- 
-@@ -98,12 +98,12 @@
- 
- endchoice
- 
--comment "Queueing/Scheduling"
-+comment "Queuing/Scheduling"
- 
- config NET_SCH_CBQ
--	tristate "Class Based Queueing (CBQ)"
-+	tristate "Class Based Queuing (CBQ)"
- 	---help---
--	  Say Y here if you want to use the Class-Based Queueing (CBQ) packet
-+	  Say Y here if you want to use the Class-Based Queuing (CBQ) packet
- 	  scheduling algorithm. This algorithm classifies the waiting packets
- 	  into a tree-like hierarchy of classes; the leaves of this tree are
- 	  in turn scheduled by separate algorithms.
-@@ -111,7 +111,7 @@
- 	  See the top of <file:net/sched/sch_cbq.c> for more details.
- 
- 	  CBQ is a commonly used scheduler, so if you're unsure, you should
--	  say Y here. Then say Y to all the queueing algorithms below that you
-+	  say Y here. Then say Y to all the queuing algorithms below that you
- 	  want to use as leaf disciplines.
- 
- 	  To compile this code as a module, choose M here: the
-@@ -155,7 +155,7 @@
- 	  module will be called sch_atm.
- 
- config NET_SCH_PRIO
--	tristate "Multi Band Priority Queueing (PRIO)"
-+	tristate "Multi Band Priority Queuing (PRIO)"
- 	---help---
- 	  Say Y here if you want to use an n-band priority queue packet
- 	  scheduler.
-@@ -175,9 +175,9 @@
- 	  module will be called sch_red.
- 
- config NET_SCH_SFQ
--	tristate "Stochastic Fairness Queueing (SFQ)"
-+	tristate "Stochastic Fairness Queuing (SFQ)"
- 	---help---
--	  Say Y here if you want to use the Stochastic Fairness Queueing (SFQ)
-+	  Say Y here if you want to use the Stochastic Fairness Queuing (SFQ)
- 	  packet scheduling algorithm .
- 
- 	  See the top of <file:net/sched/sch_sfq.c> for more details.
-@@ -189,7 +189,7 @@
- 	tristate "True Link Equalizer (TEQL)"
- 	---help---
- 	  Say Y here if you want to use the True Link Equalizer (TLE) packet
--	  scheduling algorithm. This queueing discipline allows the combination
-+	  scheduling algorithm. This queuing discipline allows the combination
- 	  of several physical devices into one virtual device.
- 
- 	  See the top of <file:net/sched/sch_teql.c> for more details.
-@@ -305,7 +305,7 @@
- 	tristate "Universal 32bit comparisons w/ hashing (U32)"
- 	select NET_CLS
- 	---help---
--	  Say Y here to be able to classify packetes using a universal
-+	  Say Y here to be able to classify packets using a universal
- 	  32bit pieces based comparison scheme.
- 
- 	  To compile this code as a module, choose M here: the
-@@ -485,7 +485,7 @@
-         tristate "IPtables targets"
-         depends on NET_CLS_ACT && NETFILTER && IP_NF_IPTABLES
-         ---help---
--	  Say Y here to be able to invoke iptables targets after succesful
-+	  Say Y here to be able to invoke iptables targets after successful
- 	  classification.
- 
- 	  To compile this code as a module, choose M here: the
-@@ -537,8 +537,8 @@
- 	---help---
- 	  Say Y here to allow using rate estimators to estimate the current
- 	  rate-of-flow for network devices, queues, etc. This module is
--	  automaticaly selected if needed but can be selected manually for
--	  statstical purposes.
-+	  automatically selected if needed but can be selected manually for
-+	  statistical purposes.
- 
- endif # NET_SCHED
- 
+The problem you will find with any document of this kind is that the
+kernel is constantly changing.  Who's going to keep the document up
+to date?
+
+>
+> This leads me to the question though, of how the kernel keeps track of
+> this information overall to report accurately via free and vmstat.
+
+free reads /proc/meminfo which your can see how this is done from
+linux-2.6.17/fs/proc/proc_misc.c: meminfo_read_proc
+
+vmstat gets its info from /proc/stat and you can see how that is done
+from linux-2.6.17/fs/proc/proc_misc.c: show_stat
+
+> Does it just keep an overall count on the fly as memory is allocated?
+
+Yes and this is not process specific, but low level from any allocation.
+
+> And, getting ahead of myself, if that can be done, is it just
+> considered too expensive to keep a similar acount for each proccess?
+
+What do you really want to know?  A process is abstract.  It's memory
+can be physical, shared, a file or in swap. Its memory may not even be
+allocated until it actually tries to use it.  So what exactly do you
+need?
+
+I'm bringing this up because too many managers want this information
+and they don't know why.  Why do they want to know how much memory a
+process is using?  Is it to see if it has a memory leak?  Is it just
+to know how much it uses? If that is the case, then the virtual map
+from /proc/PID/maps should be a good way to know.  It shows the shared
+libraries, so you can take that into account.  And all the other memory
+it maps has the potential to be real.  Otherwise, why would it map it?
+
+Chances are, a process  wont use all the memory shown in maps, but
+if you are afraid of running out of memory, then take the conservative
+approach and give that answer.
+
+> That seems to be what I am hearing in previous lkml discussions.
+>
+> Also, since it seems virtually impossible to get this data on a
+> per-process basis, does smap suffer from these same difficulties, as
+> it seems to calculate this information when asked, and not keep it
+> from process start time.
+
+I don't know anything about smap.
+
+-- Steve
 

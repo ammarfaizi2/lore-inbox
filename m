@@ -1,83 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWF2S5K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWF2TBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751269AbWF2S5K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 14:57:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWF2S5K
+	id S932155AbWF2TBK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 15:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWF2TBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 14:57:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13527 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751269AbWF2S5I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 14:57:08 -0400
-Date: Thu, 29 Jun 2006 11:57:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ZVC: Increase threshold for larger processor configurationss
-Message-Id: <20060629115705.ede2c63c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606291116500.27926@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0606281038530.22262@schroedinger.engr.sgi.com>
-	<20060628154911.6e035153.akpm@osdl.org>
-	<Pine.LNX.4.64.0606291116500.27926@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 29 Jun 2006 15:01:09 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:2705 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932155AbWF2TBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 15:01:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=b1B5kigq4AaytGy6WJtvD2oxa7+gkOnCaBXZeya+PgrP4y5H17YSg23NmFDJBTmetDLpZhI2fN4DeqZVKYO3S7LNy79oxL4hsTD7STTu1xwzmH1tydjUQiRzn7hv6iBCGTxQRAe4pxYEYAfNZiwE5M/idpNkisvMHK7HaOv2yMo=
+Message-ID: <a44ae5cd0606291201v659b4235sfa9941aa3b18e766@mail.gmail.com>
+Date: Thu, 29 Jun 2006 12:01:06 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.17-mm3 -- BUG: illegal lock usage -- illegal {softirq-on-W} -> {in-softirq-R} usage.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 11:22:45 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
+[ BUG: illegal lock usage! ]
+----------------------------
+illegal {softirq-on-W} -> {in-softirq-R} usage.
+java_vm/4418 [HC0[0]:SC1[1]:HE1:SE0] takes:
+ (&sk->sk_dst_lock){---?}, at: [<c119d0a9>] sk_dst_check+0x1b/0xe6
+{softirq-on-W} state was registered at:
+  [<c102d1c8>] lock_acquire+0x60/0x80
+  [<c12012d7>] _write_lock+0x23/0x32
+  [<c11ddbe7>] inet_bind+0x16c/0x1cc
+  [<c119ae58>] sys_bind+0x61/0x80
+  [<c119b465>] sys_socketcall+0x7d/0x186
+  [<c1002d6d>] sysenter_past_esp+0x56/0x8d
+irq event stamp: 11052
+hardirqs last  enabled at (11052): [<c105d454>] kmem_cache_alloc+0x89/0xa6
+hardirqs last disabled at (11051): [<c105d405>] kmem_cache_alloc+0x3a/0xa6
+softirqs last  enabled at (11040): [<c11a506d>] dev_queue_xmit+0x224/0x24b
+softirqs last disabled at (11041): [<c1004a64>] do_softirq+0x58/0xbd
 
-> On Wed, 28 Jun 2006, Andrew Morton wrote:
-> 
-> > An alternative would be to calculate stat_threshold at runtime, based on
-> > the cpu_possible count (I guess).  Or even:
-> > 
-> > static inline int stat_threshold(void)
-> > {
-> > #if NR_CPUS <= 32
-> > 	return 32;
-> > #else
-> > 	return dynamically_calculated_stat_threshold;
-> > #endif
-> > }
-> 
-> Thats one more memory reference. Hmmm... We could place the threshold in 
-> the same cacheline. That would also open up the possbiliity of dynamically 
-> calculating the threshold.
+other info that might help us debug this:
+1 lock held by java_vm/4418:
+ #0:  (af_family_keys + (sk)->sk_family#4){-+..}, at: [<f93c9281>]
+tcp_v6_rcv+0x308/0x7b7 [ipv6]
 
-yup.
-
-> > Did you consider my earlier suggestion about these counters?  That, over the
-> > short-term, they tend to count in only one direction?  So we can do
-> > 
-> > 	if (x > STAT_THRESHOLD) {
-> > 		zone_page_state_add(x + STAT_THRESHOLD/2, zone, item);
-> > 		x = -STAT_THRESHOLD/2;
-> > 	} else if (x < -STAT_THRESHOLD) {
-> > 		zone_page_state_add(x - STAT_THRESHOLD/2, zone, item);
-> > 		x = STAT_THRESHOLD;
-> > 	}
-> > 
-> > that'll give an decrease in contention while not consuming any extra
-> > storage and while (I think) increasing accuracy.
-> 
-> Uhh... We are overcompensating right? Pretty funky idea that is new to me 
-> and that would require some thought.
-
-See inbox ;)
-
-> This would basically increase the stepping by 50% if we are only going in 
-> one direction.
-
-yes.
-
-> If we are doing a mixture of allocations and deallocations (or pages being 
-> marked dirty / undirty, mapping unmapping) then this may potentially
-> increase the number of updates and therefore the cacheline contentions.
-
-Yes.  I'd handwavingly contend that this is a rare situation.
-
-A lot of the counters only ever count in one direction!  So we could even
-skew them by an entire STAT_THRESHOLD.
+stack backtrace:
+ [<c1003502>] show_trace_log_lvl+0x54/0xfd
+ [<c1003b6a>] show_trace+0xd/0x10
+ [<c1003c0e>] dump_stack+0x19/0x1b
+ [<c102b833>] print_usage_bug+0x1cc/0x1d9
+ [<c102bd34>] mark_lock+0x193/0x360
+ [<c102c94a>] __lock_acquire+0x3b7/0x970
+ [<c102d1c8>] lock_acquire+0x60/0x80
+ [<c12013eb>] _read_lock+0x23/0x32
+ [<c119d0a9>] sk_dst_check+0x1b/0xe6
+ [<f93ae479>] ip6_dst_lookup+0x31/0x172 [ipv6]
+ [<f93c7065>] tcp_v6_send_synack+0x10f/0x238 [ipv6]
+ [<f93c7dc5>] tcp_v6_conn_request+0x281/0x2c7 [ipv6]
+ [<c11cca33>] tcp_rcv_state_process+0x5d/0xbde
+ [<f93c7414>] tcp_v6_do_rcv+0x26d/0x384 [ipv6]
+ [<f93c96d6>] tcp_v6_rcv+0x75d/0x7b7 [ipv6]
+ [<f93afadd>] ip6_input+0x201/0x2d1 [ipv6]
+ [<f93b002d>] ipv6_rcv+0x190/0x1bf [ipv6]
+ [<c11a3200>] netif_receive_skb+0x2e6/0x37f
+ [<c11a4b81>] process_backlog+0x80/0x112
+ [<c11a4c9e>] net_rx_action+0x8b/0x1e8
+ [<c101a711>] __do_softirq+0x55/0xb0
+ [<c1004a64>] do_softirq+0x58/0xbd
+ [<c101a978>] local_bh_enable+0xd0/0x107
+ [<c11a506d>] dev_queue_xmit+0x224/0x24b
+ [<c11a9bb8>] neigh_resolve_output+0x1e2/0x20e
+ [<f93add64>] ip6_output2+0x1de/0x1fc [ipv6]
+ [<f93ae41e>] ip6_output+0x69c/0x6c6 [ipv6]
+ [<f93aeb58>] ip6_xmit+0x22b/0x295 [ipv6]
+ [<f93cc893>] inet6_csk_xmit+0x200/0x20e [ipv6]
+ [<c11cea04>] tcp_transmit_skb+0x5de/0x60c
+ [<c11d0cd7>] tcp_connect+0x2bb/0x31a
+ [<f93c894a>] tcp_v6_connect+0x520/0x655 [ipv6]
+ [<c11dd889>] inet_stream_connect+0x83/0x20f
+ [<c119adda>] sys_connect+0x67/0x84
+ [<c119b474>] sys_socketcall+0x8c/0x186
+ [<c1002d6d>] sysenter_past_esp+0x56/0x8d

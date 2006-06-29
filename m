@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWF2UIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWF2UJi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbWF2UIe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:08:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWF2UIe
+	id S932392AbWF2UJi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:09:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWF2UJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:08:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10122 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932390AbWF2UId (ORCPT
+	Thu, 29 Jun 2006 16:09:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30399 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932392AbWF2UJg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:08:33 -0400
-Date: Thu, 29 Jun 2006 13:06:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] kernel/sys.c: remove unused exports
-Message-Id: <20060629130633.3da327b6.akpm@osdl.org>
-In-Reply-To: <20060629195828.GF19712@stusta.de>
-References: <20060629191940.GL19712@stusta.de>
-	<20060629123608.a2a5c5c0.akpm@osdl.org>
-	<20060629124400.ee22dfbf.akpm@osdl.org>
-	<20060629195828.GF19712@stusta.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 29 Jun 2006 16:09:36 -0400
+Date: Thu, 29 Jun 2006 16:09:25 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       linux-kernel@vger.kernel.org, alexey.y.starikovskiy@intel.com
+Subject: Re: [RFC] Adding queue_delayed_work_on interface for workqueues
+Message-ID: <20060629200925.GB13619@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+	linux-kernel@vger.kernel.org, alexey.y.starikovskiy@intel.com
+References: <20060628141028.A13221@unix-os.sc.intel.com> <20060628143242.486f9b15.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060628143242.486f9b15.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 21:58:28 +0200
-Adrian Bunk <bunk@stusta.de> wrote:
+On Wed, Jun 28, 2006 at 02:32:42PM -0700, Andrew Morton wrote:
 
-> On Thu, Jun 29, 2006 at 12:44:00PM -0700, Andrew Morton wrote:
-> > On Thu, 29 Jun 2006 12:36:08 -0700
-> > Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> > > On Thu, 29 Jun 2006 21:19:40 +0200
-> > > Adrian Bunk <bunk@stusta.de> wrote:
-> > > 
-> > > > This patch removes the following unused exports:
-> > > > - EXPORT_SYMBOL:
-> > > >   - in_egroup_p
-> > > > - EXPORT_SYMBOL_GPL's:
-> > > >   - kernel_restart
-> > > >   - kernel_halt
-> > > 
-> > > Switch 'em to EXPORT_UNUSED_SYMBOL and I'll stop dropping your patches ;)
-> > > 
-> > 
-> > If doing this, I'd suggest it be done thusly:
-> > 
-> > EXPORT_UNUSED_SYMBOL(in_egroup_p);	/* June 2006 */
-> > 
-> > to aid later decision-making.
-> 
-> I had some bad experiences with following processes you suggest the 
-> doesn't remove the symbol immediately:
-> 
-> As you wanted me to do, I scheduled the EXPORT_SYMBOL(insert_resource) 
-> for removal on 2 May 2005 with both __deprecated_for_modules and an 
-> entry in feature-removal-schedule.txt with the target date April 2006.
-> 
-> On 11 Apr 2006, I sent the patch to implement this scheduled removal.
-> 
-> As of today, the latter patch is still stuck in -mm (which isn't better 
-> than having it dropped) although it's long overdue.
+ > > This patch is a part of cpufreq patches for ondemand governor optimizations
+ > > and entire series is actually posted to cpufreq mailing list.
+ > > Subject "minor optimizations to ondemand governor"
+ > > 
+ > > The following patch however is a generic change to workqueue interface and 
+ > > I wanted to get comments on this on lkml.
+ > > 
+ > > ...
+ > >
+ > > Add queue_delayed_work_on() interface for workqueues.
+ > 
+ > It looks sensible to me.
 
-Blame Greg ;)
+*nod*, same here.
 
-> Do you understand why I distrust your "to aid later decision-making"?
+As (for now) cpufreq is the only user of this, any objection to
+me marshalling this through the cpufreq tree (+ the cleanups you
+suggested of course) ?
 
-You'll cope.
+		Dave
 
-> Can you state publically "If there's still no in-kernel user after six 
-> months, the removal is automatically ACK'ed."?
-
-6 or 12.  We haven't decided.  6 sounds OK.  If nobody complains.  If
-they do, we rethink a particular export.
+-- 
+http://www.codemonkey.org.uk

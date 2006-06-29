@@ -1,105 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751830AbWF2AQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751836AbWF2ASF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751830AbWF2AQn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 20:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWF2AQn
+	id S1751836AbWF2ASF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 20:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751837AbWF2ASE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 20:16:43 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:4995 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751830AbWF2AQm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 20:16:42 -0400
-Date: Wed, 28 Jun 2006 17:16:28 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: James Morris <jmorris@namei.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-       David Quigley <dpquigl@tycho.nsa.gov>
-Subject: Re: [PATCH 1/3] SELinux: Extend task_kill hook to handle signals sent by AIO completion
-Message-ID: <20060629001628.GQ11588@sequoia.sous-sol.org>
-References: <Pine.LNX.4.64.0606281943240.17149@d.namei>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606281943240.17149@d.namei>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 28 Jun 2006 20:18:04 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:60099 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751836AbWF2ASD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 20:18:03 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=jQfqMrp82fA/TEfhUvFthBN2ajWHrbLTZyeHvHO7OKmMg1PVFzAaooF5J6+sJr6vj
+	ZePMddIgLWV+U9e4IqeJw==
+Message-ID: <44A31BFE.3000504@google.com>
+Date: Wed, 28 Jun 2006 17:17:02 -0700
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Bligh <mbligh@google.com>
+CC: Andrew Morton <akpm@osdl.org>, mbligh@mbligh.org, jeremy@goop.org,
+       linux-kernel@vger.kernel.org, apw@shadowen.org,
+       linuxppc64-dev@ozlabs.org, drfickle@us.ibm.com
+Subject: Re: 2.6.17-mm2
+References: <449D5D36.3040102@google.com>	<449FF3A2.8010907@mbligh.org>	<44A150C9.7020809@mbligh.org>	<20060628034215.c3008299.akpm@osdl.org>	<20060628034748.018eecac.akpm@osdl.org>	<44A29582.7050403@google.com> <20060628121102.638f08d9.akpm@osdl.org> <44A2DA40.40502@google.com>
+In-Reply-To: <44A2DA40.40502@google.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Morris (jmorris@namei.org) wrote:
-> From: David Quigley <dpquigl@tycho.nsa.gov>
-> 
-> This patch extends the security_task_kill hook to handle signals sent by 
-> AIO completion.  In this case, the secid of the task responsible for the 
-> signal needs to be obtained and saved earlier, so a 
-> security_task_getsecid() hook is added, and then this saved value is 
-> passed subsequently to the extended task_kill hook for use in checking.
-> 
-> Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
-> Signed-off-by: James Morris <jmorris@namei.org>
+Martin Bligh wrote:
+>>> How the hell did you figure that one out?
+>>
+>>
+>> Found a way to reproduce it - do `cat /proc/slabinfo > /dev/null' in a
+>> tight loop.  With that happening, a little two-way wasn't able to make
+>> it through `dbench 4' without soiling the upholstery.  Then 
+>> bisection-searching.
 > 
 > 
-> Please apply.
-> 
-> ---
-> 
->  include/linux/security.h |   23 +++++++++++++++++++----
->  security/dummy.c         |    6 +++++-
->  security/selinux/hooks.c |   21 +++++++++++++++++----
->  3 files changed, 41 insertions(+), 9 deletions(-)
-> 
-> diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/include/linux/security.h linux-2.6.17-mm3-kill/include/linux/security.h
-> --- linux-2.6.17-mm3/include/linux/security.h	2006-06-28 13:58:59.000000000 -0400
-> +++ linux-2.6.17-mm3-kill/include/linux/security.h	2006-06-28 15:24:54.000000000 -0400
-> @@ -567,6 +567,9 @@ struct swap_info_struct;
->   *	@p.
->   *	@p contains the task_struct for the process.
->   *	Return 0 if permission is granted.
-> + * @task_getsecid:
-> + *	Retrieve the security identifier of the process @p.
-> + *	@p contains the task_struct for the process and place is into @secid.
->   * @task_setgroups:
->   *	Check permission before setting the supplementary group set of the
->   *	current process.
-> @@ -615,6 +618,7 @@ struct swap_info_struct;
->   *	@p contains the task_struct for process.
->   *	@info contains the signal information.
->   *	@sig contains the signal value.
-> + *	@secid contains the sid of the process where the signal originated
->   *	Return 0 if permission is granted.
->   * @task_wait:
->   *	Check permission before allowing a process to reap a child process @p
-> @@ -1218,6 +1222,7 @@ struct security_operations {
->  	int (*task_setpgid) (struct task_struct * p, pid_t pgid);
->  	int (*task_getpgid) (struct task_struct * p);
->  	int (*task_getsid) (struct task_struct * p);
-> +	void (*task_getsecid) (struct task_struct * p, u32 * secid);
+> Aha. we probably trigger it because the automated test harness dumps a
+> bunch of crap out of /proc before and after running dbench then ;-)
 
-Why not just:
-	u32 (*task_getsecid) (struct task_struct *p);
+OK, your patch does seem to fix it for the automated tests. Not 100%
+reliable, since it was a little intermittent before, but it looks
+good.
 
->  	int (*task_setgroups) (struct group_info *group_info);
->  	int (*task_setnice) (struct task_struct * p, int nice);
->  	int (*task_setioprio) (struct task_struct * p, int ioprio);
-> @@ -1227,7 +1232,7 @@ struct security_operations {
->  	int (*task_getscheduler) (struct task_struct * p);
->  	int (*task_movememory) (struct task_struct * p);
->  	int (*task_kill) (struct task_struct * p,
-> -			  struct siginfo * info, int sig);
-> +			  struct siginfo * info, int sig, u32 secid);
+Thanks to both Andrew and Andy.
 
-This breaks the build, which breaks bisection.  Be nice to avoid that
-since there's no reason the patches couldn't split that way.
-
-> diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-mm3/security/selinux/hooks.c linux-2.6.17-mm3-kill/security/selinux/hooks.c
-> --- linux-2.6.17-mm3/security/selinux/hooks.c	2006-06-28 13:58:59.000000000 -0400
-> +++ linux-2.6.17-mm3-kill/security/selinux/hooks.c	2006-06-28 14:40:00.000000000 -0400
-> @@ -45,6 +45,7 @@
->  #include <linux/kd.h>
->  #include <linux/netfilter_ipv4.h>
->  #include <linux/netfilter_ipv6.h>
-> +#include <linux/selinux.h>
-
-It's already included.
-
-thanks,
+M.

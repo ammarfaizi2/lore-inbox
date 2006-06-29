@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932975AbWF2WDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933029AbWF2WFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932975AbWF2WDP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 18:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932989AbWF2WCw
+	id S933029AbWF2WFv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 18:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933017AbWF2WFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 18:02:52 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:33679 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932812AbWF2VoJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:44:09 -0400
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: [PATCH 11 of 39] IB/ipath - return an error for unknown multicast GID
-X-Mercurial-Node: 1e1f3da0e78d32f2a733b0f36a83fb7772b852df
-Message-Id: <1e1f3da0e78d32f2a733.1151617262@eng-12.pathscale.com>
-In-Reply-To: <patchbomb.1151617251@eng-12.pathscale.com>
-Date: Thu, 29 Jun 2006 14:41:02 -0700
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
+	Thu, 29 Jun 2006 18:05:09 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49888
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932829AbWF2WFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 18:05:03 -0400
+Date: Thu, 29 Jun 2006 15:04:17 -0700 (PDT)
+Message-Id: <20060629.150417.78710870.davem@davemloft.net>
+To: bos@pathscale.com
+Cc: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
        netdev@vger.kernel.org
+Subject: Re: [PATCH 38 of 39] IB/ipath - More changes to support InfiniPath
+ on PowerPC 970 systems
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1151618499.10886.26.camel@chalcedony.pathscale.com>
+References: <c22b6c244d5db77f7b1d.1151617289@eng-12.pathscale.com>
+	<20060629.145319.71091846.davem@davemloft.net>
+	<1151618499.10886.26.camel@chalcedony.pathscale.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Robert Walsh <robert.walsh@qlogic.com>
-Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
+From: Bryan O'Sullivan <bos@pathscale.com>
+Date: Thu, 29 Jun 2006 15:01:39 -0700
 
-diff -r 160e5cf91761 -r 1e1f3da0e78d drivers/infiniband/hw/ipath/ipath_verbs_mcast.c
---- a/drivers/infiniband/hw/ipath/ipath_verbs_mcast.c	Thu Jun 29 14:33:25 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_verbs_mcast.c	Thu Jun 29 14:33:25 2006 -0700
-@@ -273,7 +273,7 @@ int ipath_multicast_detach(struct ib_qp 
- 	while (1) {
- 		if (n == NULL) {
- 			spin_unlock_irqrestore(&mcast_lock, flags);
--			ret = 0;
-+			ret = -EINVAL;
- 			goto bail;
- 		}
- 
+> The support for write combining in the kernel is not in a state where
+> that makes any sense at the moment.
+
+Please fix the generic code if it doesn't provide the facility
+you need at the moment.  Don't shoe horn it into your driver
+just to make up for that.

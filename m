@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbWF2VPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWF2VRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932652AbWF2VPR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 17:15:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWF2VPQ
+	id S932533AbWF2VRW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 17:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWF2VRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 17:15:16 -0400
-Received: from mail.gmx.de ([213.165.64.21]:16024 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932661AbWF2VPO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:15:14 -0400
-Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
-       rlrevell@joe-job.com, linuxppc-dev@ozlabs.org
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Thu, 29 Jun 2006 23:15:13 +0200
-From: "Gerhard Pircher" <gerhard_pircher@gmx.net>
-In-Reply-To: <s5hfyhopb0s.wl%tiwai@suse.de>
-Message-ID: <20060629211513.64980@gmx.net>
-MIME-Version: 1.0
-References: <20060628202753.198630@gmx.net> <s5hfyhopb0s.wl%tiwai@suse.de>
-Subject: Re: [Alsa-devel] RFC: dma_mmap_coherent() for powerpc/ppc architecture
- and ALSA?
-To: Takashi Iwai <tiwai@suse.de>
-X-Authenticated: #6097454
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 8bit
+	Thu, 29 Jun 2006 17:17:21 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:11432
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932533AbWF2VRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 17:17:20 -0400
+Date: Thu, 29 Jun 2006 14:17:03 -0700 (PDT)
+Message-Id: <20060629.141703.59468770.davem@davemloft.net>
+To: mingo@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: SA_TRIGGER_* vs. SA_SAMPLE_RANDOM
+From: David Miller <davem@davemloft.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
--------- Original-Nachricht --------
-Datum: Thu, 29 Jun 2006 11:27:15 +0200
-Von: Takashi Iwai <tiwai@suse.de>
-An: Gerhard Pircher <gerhard_pircher@gmx.net>
-Betreff: Re: [Alsa-devel] RFC: dma_mmap_coherent() for powerpc/ppc architecture and ALSA?
+Since SA_SAMPLE_RANDOM is defined as "SA_RESTART", it
+could be just about any value.
 
-> At Wed, 28 Jun 2006 22:27:53 +0200,
-> Gerhard Pircher wrote:
-> > 
-> > Hi,
-> > 
-> > It took a little bit longer to integrate the patch, as I didn't figure
-> out  first how to implement the __dma_mmap_coherent() function for PPC
-> systems with CONFIG_NOT_COHERENT_CACHE defined. :)
-> > 
-> > Unfortunately my system still crashes within snd_pcm_mmap_data_nopage() 
-> > (sound/core/pcm_native.c), as you can see below. I guess it tries to
-> remap 
-> > a DMA buffer allocated by the not cache coherent DMA memory allocation 
-> > function in arch/ppc/kernel/dma-mapping.c.
-> 
-> Strange, nopage will be never called if you apply my patch and modify
-> to use dma_mmap_coherent().
-> 
-> 
-> Takashi
-> 
-That's indeed strange! I'm sure that the new code is called by the sound drivers. Should snd_pcm_mmap_data_nopage() not be used at all anymore, or are there any cases that could still trigger a call of snd_pcm_mmap_data_nopage()?
+On sparc, it's value is "2", so it aliases some of
+the SA_TRIGGER_* defines the new genirq code adds.
+And therefore we get a bunch of these on sparc64:
 
-Gerhard
+[   16.650540] setup_irq(2) SA_TRIGGERset. No set_type function available
 
--- 
+(btw: missing space in the kernel log message between 'SA_TRIGGER'
+      and 'set' :-)
 
+I can't see any reason why SA_SAMPLE_RANDOM is set to
+a signal mask value, or why IRQ flags are defined in
+linux/signal.h :-)
 
-Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!
-Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer
+Anyways, probably the best bet for now is to define
+SA_SAMPLE_RANDOM explicitly to some value instead of
+relying on the arbitrary platform definition of SA_RANDOM.
+
+Ingo could you cook up and submit a patch which does this?
+Thanks.

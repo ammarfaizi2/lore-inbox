@@ -1,56 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932734AbWF2Hnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932743AbWF2HtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932734AbWF2Hnh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 03:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbWF2Hnh
+	id S932743AbWF2HtU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 03:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbWF2HtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 03:43:37 -0400
-Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:11275 "EHLO
-	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
-	id S932734AbWF2Hng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 03:43:36 -0400
-Date: Thu, 29 Jun 2006 03:42:29 -0400
-From: Matt LaPlante <laplam@rpi.edu>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] Kconfig: Typos in net/sched/Kconfig
-Message-Id: <20060629034229.80f706d9.laplam@rpi.edu>
-In-Reply-To: <20060629003740.f981c117.rdunlap@xenotime.net>
-References: <20060629022623.67ba2cbc.laplam@rpi.edu>
-	<20060629003740.f981c117.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 29 Jun 2006 03:49:20 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:63521 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932743AbWF2HtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 03:49:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=DLkmswvyyI6PaDuKqvG1r20wHGpUpgZMDhJHD1VZP0uhX1RDEziPQkNfTFUkOLSPe/szcoKbA4qcX238OshbOnn2K1BET4X9Vvh1JxRsY11KpQ+lfaGCet5R3w/jMSeDrM7ZxIlDXCp7On+SBKUFIq6RlYcHmaFF7N2btOPuQyU=
+Message-ID: <44A3870C.20602@innova-card.com>
+Date: Thu, 29 Jun 2006 09:53:48 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Franck <vagabon.xyz@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Mel Gorman <mel@skynet.ie>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 6/7] bootmem: use pfn/page conversion macros
+References: <449FDD02.2090307@innova-card.com>	 <1151344691.10877.44.camel@localhost.localdomain>	 <44A12A85.50303@innova-card.com> <1151436397.24103.27.camel@localhost.localdomain>
+In-Reply-To: <1151436397.24103.27.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 03:42:39 -0400
-	(not processed: message from trusted or authenticated source)
-X-Return-Path: laplam@rpi.edu
-X-Envelope-From: laplam@rpi.edu
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 03:42:41 -0400
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 00:37:40 -0700
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+Dave Hansen wrote:
+> On Tue, 2006-06-27 at 14:54 +0200, Franck Bui-Huu wrote:
+>>  static void __init free_bootmem_core(bootmem_data_t *bdata, unsigned
+>> long addr,
+>>                                      unsigned long size)
+>>  {
+>> +       unsigned long sidx, eidx;
+>>         unsigned long i;
+>> -       unsigned long start;
+>> +
+>>         /*
+>>          * round down end of usable mem, partially free pages are
+>>          * considered reserved.
+>>          */
+>> -       unsigned long sidx;
+>> -       unsigned long eidx = (addr + size -
+>> bdata->node_boot_start)/PAGE_SIZE;
+>> -       unsigned long end = (addr + size)/PAGE_SIZE;
+>> -
+>>         BUG_ON(!size);
+>> -       BUG_ON(end > bdata->node_low_pfn);
+>> +       BUG_ON(PFN_DOWN(addr + size) > bdata->node_low_pfn);
+> 
+> In general, I like these kinds of conversions.  But, in this case, I
+> think it makes the code harder to read.  Those intermediate variables
+> are really nice and I think they make the code much more readable.  
+> 
+> Do you really prefer:
+> 
+>        BUG_ON(PFN_DOWN(addr + size) > bdata->node_low_pfn)
+> 
+> over
+> 
+>        BUG_ON(end > bdata->node_low_pfn);
+> 
 
-> On Thu, 29 Jun 2006 02:26:23 -0400 Matt LaPlante wrote:
+It depends of the context. Generally, I think you're right but in that
+case I prefer the first case. Why ? because "addr + size" is not a
+complex expression, it's quite easy to understand what it means. And
+secondly the place where "end" is defined made me think that it was
+used all along the function but its use was very punctual.
+
+> Also, these do a bit more than just conversions to using the pfn/page
+> macros.  With this much churn, it is more than possible that bugs can
+> creep in.  How about a bit more restrictive conversion to the PFN_
+> macros, first?
 > 
-> > Fix typos in net/sched/Kconfig.  And yes, its "queuing" in the dictionary.com. :)
+> Oh, and if you're going to chew through it later, feel free to make
+> things like sidx into decent variable names. ;)
 > 
-> Check how it is spelled in computer science books, e.g.,
-> see the list at
->   http://www2.uwindsor.ca/~hlynka/qonline.html
-> 
-> OK, it seems to be either way, but +e seems to be ahead
-> of -e.
-> 
-> ---
-> ~Randy
+> Is everybody else OK with this code churn?  It doesn't appear that there
+> is too much in -mm pending in this area.
 > 
 
-This is one of those times when I don't want to touch the english language with a 10 foot pole.  On that note, it's almost 4 am and I'm going to bed...I'll resubmit this sans-queuewhatever tomorrow.  Thanks for the feedback.
+It seems that bootmem allocator doesn't get a lot of interest...
+Should we stop this work ? 
 
--
-Matt
-
+		Franck

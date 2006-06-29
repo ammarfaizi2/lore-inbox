@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751828AbWF2ALL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751834AbWF2AOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751828AbWF2ALL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 20:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWF2ALK
+	id S1751834AbWF2AOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 20:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751835AbWF2AOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 20:11:10 -0400
-Received: from gw.goop.org ([64.81.55.164]:38857 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751828AbWF2ALJ (ORCPT
+	Wed, 28 Jun 2006 20:14:25 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:43669 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751834AbWF2AOY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 20:11:09 -0400
-Message-ID: <44A31A9F.3030102@goop.org>
-Date: Wed, 28 Jun 2006 17:11:11 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Wed, 28 Jun 2006 20:14:24 -0400
+Date: Thu, 29 Jun 2006 02:14:07 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       klibc@zytor.com
+Subject: Re: [klibc 07/31] i386 support for klibc
+In-Reply-To: <44A2A147.9020501@zytor.com>
+Message-ID: <Pine.LNX.4.64.0606290207580.17704@scrub.home>
+References: <klibc.200606272217.00@tazenda.hos.anvin.org>
+ <klibc.200606272217.07@tazenda.hos.anvin.org> <Pine.LNX.4.61.0606280937150.29068@yvahk01.tjqt.qr>
+ <44A2A147.9020501@zytor.com>
 MIME-Version: 1.0
-To: Andy Gay <andy@andynet.net>
-CC: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: USB driver for Sierra Wireless EM5625/MC5720 1xEVDO modules
-References: <1151537247.3285.278.camel@tahini.andynet.net>
-In-Reply-To: <1151537247.3285.278.camel@tahini.andynet.net>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Gay wrote:
-> - these modules present 3 bulk EPs, the 2nd & 3rd can be used for
-> control & status monitoring while data transfer is in progress on the
-> 1st EP. This is useful (and necessary for my application) so we need to
-> increase the port count.
->   
-Ooh, can you share the details of those EPs?  Is your application public?
+Hi,
 
-> So what should I do next? I see a few possibilities, assuming anyone is
-> interested in this:
->
-> - I could post a diff from Greg's driver. But I don't have hardware to
-> test whether my changes will break it for the other devices that it
-> supports;
->   
-Well, it is specifically an airprime driver.  My card also presents 
-another two endpoints, but I don't know what to do with them, so I 
-haven't worried about them too much.  If they all talk the same thing, 
-then they may as well be in the same driver.
+On Wed, 28 Jun 2006, H. Peter Anvin wrote:
 
-Are you proposing adding some more protocol knowledge to airprime, or 
-just make those EPs appear as more serial ports?
+> The i386 ones are a bit special... usually the reason I have added libgcc
+> functions is that on some architectures, gcc has various problems linking with
+> libgcc in some configurations.
 
-Thanks,
-    J
+If gcc has problems to link its own libgcc you really have a serious 
+problem...
+The standard libgcc may not be as small as you like, but it still should 
+be the first choice. If there is a problem with it, the gcc people do 
+accept patches.
+
+bye, Roman

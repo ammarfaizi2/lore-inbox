@@ -1,67 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWF2RGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWF2RGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750995AbWF2RGV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 13:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWF2RGU
+	id S1751006AbWF2RGr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 13:06:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbWF2RGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 13:06:20 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:16587 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750995AbWF2RGU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 13:06:20 -0400
-Message-ID: <44A40874.20202@us.ibm.com>
-Date: Thu, 29 Jun 2006 10:05:56 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>, kamezawa.hiroyu@jp.fujitsu.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: 2.6.17-git14 compile failure & fix
-Content-Type: multipart/mixed;
- boundary="------------080009020106060302030003"
+	Thu, 29 Jun 2006 13:06:47 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:11752 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751006AbWF2RGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 13:06:46 -0400
+Date: Thu, 29 Jun 2006 13:22:03 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Paolo Ornati <ornati@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-v2] Documentation: remove duplicated words
+Message-ID: <20060629132203.A6460@mail.kroptech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060629164128.5ba9d264@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080009020106060302030003
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Paolo Ornati <ornati@fastwebnet.it> wrote:
+> 
+> Remove every (hopefully) duplicated word under Documentation/ and do
+> other small cleanups.
+> 
+> Examples:
+> 	"and and" --> "and"
+> 	"in in" --> "in"
+> 	...
 
-Hi,
+When the duplicatation was due to a typo, removing the duplicate is the
+not the correct fix. Additionally, there are cases where the text
+actually reads better (or no worse) with the duplication in place.
 
-I get "unknown definition" compile failure while compiling 2.6.17-git14
-with CONFIG_MEMORY_HOTPLUG. (kernel/resource.c line: 243) -
-due to recent changes to it.
+> -                        matches the field we filled in in the struct
+> +                        matches the field we filled in the struct
 
-Here is the patch to fix it. I can't take credit for the patch, since its
-part of GregKH resource_t  patches :)
+Should probably be left as is: "matches the field we (filled in) in
+the struct"
 
-Thanks,
-Badari
+> -device. Individual PCI device drivers that have been converted the the current
+> +device. Individual PCI device drivers that have been converted the current
 
+First "the" is actually a typo for "to".
 
+> -  a directory entry.  The directory entry requested carries name name
+> +  a directory entry.  The directory entry requested carries name
+>    and Venus will search the directory identified by cfs_lookup_in.VFid.
 
---------------080009020106060302030003
-Content-Type: text/plain;
- name="define-resource-size.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="define-resource-size.patch"
+Suspect first "name" should be "the".
 
-Index: linux-2.6.17/include/linux/types.h
-===================================================================
---- linux-2.6.17.orig/include/linux/types.h	2006-06-29 09:53:00.000000000 -0700
-+++ linux-2.6.17/include/linux/types.h	2006-06-29 09:58:21.000000000 -0700
-@@ -177,6 +177,8 @@ typedef __u64 __bitwise __be64;
- 
- #ifdef __KERNEL__
- typedef unsigned __bitwise__ gfp_t;
-+
-+typedef unsigned long resource_size_t;
- #endif
- 
- struct ustat {
+> -       The CPU to SPU communation mailbox. It is write-only can can be written
+> +       The CPU to SPU communation mailbox. It is write-only can be written 
 
---------------080009020106060302030003--
+First "can" should be "and".
+
+>  This doesn't seem important in the one button case, but is quite important
+> -for for example mouse movement, where you don't want the X and Y values
+> +for example mouse movement, where you don't want the X and Y values
+>  to be interpreted separately, because that'd result in a different movement.
+
+Probably should be rephrased in general. Author probably intended it to
+be parsed as "...but is quite important for, for example, mouse
+movement...".
+
+> -a trailing = on the name of any parameter states that that parameter will
+> +a trailing = on the name of any parameter states that parameter will
+
+Again, "states that (that parameter)" while not great English is
+probably exactly what the author intended.
+
+>  Life isn't quite as simple as it may appear above, however: for while the
+> -caches are expected to be coherent, there's no guarantee that that coherency
+> +caches are expected to be coherent, there's no guarantee that coherency
+>  will be ordered.  This means that whilst changes made on one CPU will
+
+And again: "...no guarantee that (that coherency) will be...".
+
+...possibly more; this is as far as I got.
+
+--Adam
 

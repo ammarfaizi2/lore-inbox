@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWF2SjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWF2Sug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWF2SjV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 14:39:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWF2SjV
+	id S1751260AbWF2Sug (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 14:50:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWF2Sug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 14:39:21 -0400
-Received: from mail3.uklinux.net ([80.84.72.33]:43160 "EHLO mail3.uklinux.net")
-	by vger.kernel.org with ESMTP id S1751257AbWF2SjU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 14:39:20 -0400
-Date: Thu, 29 Jun 2006 19:53:43 +0100
-From: John Rigg <lk@sound-man.co.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.17-rt4 x86_64 unknown symbol monotonic_clock
-Message-ID: <20060629185343.GA2947@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 29 Jun 2006 14:50:36 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:56978 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751260AbWF2Suf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 14:50:35 -0400
+Message-ID: <44A4210D.4060000@drzeus.cx>
+Date: Thu, 29 Jun 2006 20:50:53 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Jeff Chua <jeff.chua.linux@gmail.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2GB or 4GB SD support for Linux 2.6.17?
+References: <b6a2187b0606252154i42b031c7tbc72235e5ad4313c@mail.gmail.com>	 <44A181EC.2010601@drzeus.cx> <b6a2187b0606281916y5d19485ave073bf924c9d3552@mail.gmail.com>
+In-Reply-To: <b6a2187b0606281916y5d19485ave073bf924c9d3552@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Jeff Chua wrote:
+> Pierre,
+>
+> Please repost the patch or send it to me. I'm very keen to test it. I
+> know the SDs are working as I can read from using an USB card reader.
+>
 
-I'm still getting this warning from `make modules_install':
+Please don't top post.
 
-WARNING: /lib/modules/2.6.17-rt4/kernel/drivers/char/hangcheck-timer.ko \
-needs unknown symbol monotonic_clock
+Patch can be found here:
 
-The patch below appears to fix it.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114980773206129&w=2
 
-John
+Rgds
+Pierre
 
-
-diff -uprN linux-2.6.17-rt4/arch/x86_64/kernel/time.c linux-2.6.17-rt4-patched/arch/x86_64/kernel/time.c
---- linux-2.6.17-rt4/arch/x86_64/kernel/time.c	2006-06-29 19:38:29.000000000 +0100
-+++ linux-2.6.17-rt4-patched/arch/x86_64/kernel/time.c	2006-06-29 19:37:06.000000000 +0100
-@@ -247,6 +247,15 @@ unsigned long long sched_clock(void)
- 	return cycles_2_ns(a);
- }
- 
-+/*
-+ * Monotonic_clock - returns # of nanoseconds passed since time_init()
-+ */
-+unsigned long long monotonic_clock(void)
-+{
-+	return sched_clock();
-+}
-+EXPORT_SYMBOL(monotonic_clock);
-+
- static int tsc_unstable;
- 
- static inline int check_tsc_unstable(void)

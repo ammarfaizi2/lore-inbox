@@ -1,60 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932870AbWF2Jop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932874AbWF2Jur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932870AbWF2Jop (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 05:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932874AbWF2Jop
+	id S932874AbWF2Jur (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 05:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932879AbWF2Jur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 05:44:45 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:56250 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932870AbWF2Joo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 05:44:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fGtL9VerQPHdcGtvZ2aMJHwq+Sa5/7e+HKNdI3thrRmlYtnk3FkpzQU+bwFc76StR+9rGRm5pm8D2WqeflPJHgX9zE5cf45lKT3XW5apGkUx2oJtEtNKE0KgfB/YZrEiwYi5oWDJGz4v4ScLF64gdCFZPRfUxNOevfPXXvAiP5g=
-Message-ID: <40f323d00606290244y26898d1bk1c21a40a71b0ed9b@mail.gmail.com>
-Date: Thu, 29 Jun 2006 11:44:43 +0200
-From: "Benoit Boissinot" <bboissin@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.17-mm4
-Cc: linux-kernel@vger.kernel.org, "Chris Leech" <christopher.leech@intel.com>
-In-Reply-To: <20060629013643.4b47e8bd.akpm@osdl.org>
+	Thu, 29 Jun 2006 05:50:47 -0400
+Received: from [141.84.69.5] ([141.84.69.5]:39435 "HELO mailout.stusta.mhn.de")
+	by vger.kernel.org with SMTP id S932874AbWF2Juq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 05:50:46 -0400
+Date: Thu, 29 Jun 2006 11:49:44 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: perex@suse.cz
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fix the SND_FM801_TEA575X dependencies
+Message-ID: <20060629094944.GA29056@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060629013643.4b47e8bd.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/29/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm4/
->
->
-> - The RAID patches have been dropped due to testing failures in -mm3.
->
-> - The SCSI Attached Storage tree (git-sas.patch) has been restored.
->
+CONFIG_SND_FM801=y, CONFIG_SND_FM801_TEA575X=m resulted in the following 
+compile error:
 
-Fix a warning in ioatdma:
+<--  snip  -->
 
-drivers/dma/ioatdma.c: In function 'ioat_init_module':
-drivers/dma/ioatdma.c:830: warning: control reaches end of non-void function
+...
+  LD      vmlinux
+sound/built-in.o: In function `snd_fm801_free':
+fm801.c:(.text+0x3c15b): undefined reference to `snd_tea575x_exit'
+sound/built-in.o: In function `snd_card_fm801_probe':
+fm801.c:(.text+0x3cfde): undefined reference to `snd_tea575x_init'
+make: *** [vmlinux] Error 1
 
-Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+<--  snip  -->
 
-Index: linux/drivers/dma/ioatdma.c
-===================================================================
---- linux.orig/drivers/dma/ioatdma.c
-+++ linux/drivers/dma/ioatdma.c
-@@ -826,7 +826,7 @@ static int __init ioat_init_module(void)
- 	/* if forced, worst case is that rmmod hangs */
- 	__unsafe(THIS_MODULE);
+This patch fixes kernel Bugzilla #6458.
 
--	pci_module_init(&ioat_pci_drv);
-+	return pci_module_init(&ioat_pci_drv);
- }
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
- module_init(ioat_init_module);
+---
+
+ sound/pci/Kconfig |   14 ++++++++------
+ sound/pci/fm801.c |    2 +-
+ 2 files changed, 9 insertions(+), 7 deletions(-)
+
+--- linux-2.6.17-mm3-full/sound/pci/Kconfig.old	2006-06-28 18:47:02.000000000 +0200
++++ linux-2.6.17-mm3-full/sound/pci/Kconfig	2006-06-28 19:03:58.000000000 +0200
+@@ -323,17 +323,19 @@
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called snd-fm801.
+ 
+-config SND_FM801_TEA575X
+-	tristate "ForteMedia FM801 + TEA5757 tuner"
++config SND_FM801_TEA575X_BOOL
++	bool "ForteMedia FM801 + TEA5757 tuner"
+ 	depends on SND_FM801
+-        select VIDEO_DEV
+ 	help
+ 	  Say Y here to include support for soundcards based on the ForteMedia
+ 	  FM801 chip with a TEA5757 tuner connected to GPIO1-3 pins (Media
+-	  Forte SF256-PCS-02).
++	  Forte SF256-PCS-02) into the snd-fm801 driver.
+ 
+-	  To compile this driver as a module, choose M here: the module
+-	  will be called snd-fm801-tea575x.
++config SND_FM801_TEA575X
++       tristate
++       depends on SND_FM801_TEA575X_BOOL
++       default SND_FM801
++       select VIDEO_DEV
+ 
+ config SND_HDA_INTEL
+ 	tristate "Intel HD Audio"
+--- linux-2.6.17-mm3-full/sound/pci/fm801.c.old	2006-06-28 18:50:29.000000000 +0200
++++ linux-2.6.17-mm3-full/sound/pci/fm801.c	2006-06-28 19:05:35.000000000 +0200
+@@ -35,7 +35,7 @@
+ 
+ #include <asm/io.h>
+ 
+-#if (defined(CONFIG_SND_FM801_TEA575X) || defined(CONFIG_SND_FM801_TEA575X_MODULE)) && (defined(CONFIG_VIDEO_DEV) || defined(CONFIG_VIDEO_DEV_MODULE))
++#ifdef CONFIG_SND_FM801_TEA575X_BOOL
+ #include <sound/tea575x-tuner.h>
+ #define TEA575X_RADIO 1
+ #endif
+

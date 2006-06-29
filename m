@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWF2Jay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932808AbWF2Jhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWF2Jay (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 05:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932776AbWF2Jay
+	id S932808AbWF2Jhn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 05:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932804AbWF2Jhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 05:30:54 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:23769 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932076AbWF2Jax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 05:30:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=jKv981dyDkh18tvR2/gy+hhjCUDPB820j0NX5FEpy+0GZ1r/GFXRnTktG2nkJWYYRB0ni8065td5PaPFHqtKDf15043ekKGeOJ+kasWWt2hWhAP6jcnLkngBTpzJWuAcUgOxl4ZsRqHgmo2ThPNoyIP0tT8fCKrcsEiLmLYENC4=
-Message-ID: <44A39DB8.6070705@gmail.com>
-Date: Thu, 29 Jun 2006 17:30:32 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Thu, 29 Jun 2006 05:37:43 -0400
+Received: from jaguar.mkp.net ([192.139.46.146]:43154 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S932796AbWF2Jhm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 05:37:42 -0400
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "John Daiker" <jdaiker@osdl.org>,
+       "John Hawkes" <hawkes@sgi.com>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Tony Luck" <tony.luck@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       "Jack Steiner" <steiner@sgi.com>, "Dan Higgins" <djh@sgi.com>,
+       "Jeremy Higdon" <jeremy@sgi.com>
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
+From: Jes Sorensen <jes@sgi.com>
+Date: 29 Jun 2006 05:37:40 -0400
+In-Reply-To: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
+Message-ID: <yq04py4i9p7.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       "Randy. Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [PATCH] remove include of screen_info.h from tty.h
-References: <9e4733910606271352y4a9668e0n76536fc84771674@mail.gmail.com>
-In-Reply-To: <9e4733910606271352y4a9668e0n76536fc84771674@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> screen_info.h doesn't have anything to do with the tty layer and
-> shouldn't be included by tty.h. This patches removes the include and
-> modifies all users to directly include screen_info.h. struct
-> screen_info is mainly used to communicate with the console drivers in
-> drivers/video/console. Note that this patch touches every arch and I
-> have no way of testing it. If there is a mistake the worst thing that
-> will happen is a compile error.
+>>>>> "Tony" == Luck, Tony <tony.luck@intel.com> writes:
 
-Can you resubmit this, even as an attachment. I think there's extra
-whitespace and I couldn't get this to apply.
+Tony> Removing it completely might be better, it may force people to
+Tony> look at how they are using HZ.  But there are probably many old
+Tony> programs that have:
 
-Tony
+After reading through the discussion that was what I kept coming back
+to.
+
+Tony> #ifndef HZ #define HZ 60 #endif
+
+Tony> So this won't catch them.
+
+Tony> The ultimate safe solution might be:
+
+Tony> #define HZ Fix your program to use sysconf(_SC_CLK_TCK)! \ (and
+Tony> BTW, you should not include kernel headers)
+
+Tony> Which is highly likely to cause a compile failure (but should at
+Tony> least provide a clue to the user on what they should do).
+
+You have my vote for that one. Anything else is just going to cause
+those broken userapps to continue doing the wrong thing. We should
+really do this on all archs though.
+
+Cheers,
+Jes

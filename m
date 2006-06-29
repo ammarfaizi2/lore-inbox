@@ -1,104 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932742AbWF2LLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932671AbWF2LOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932742AbWF2LLl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 07:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932881AbWF2LLl
+	id S932671AbWF2LOy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 07:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932883AbWF2LOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 07:11:41 -0400
-Received: from [141.84.69.5] ([141.84.69.5]:14604 "HELO mailout.stusta.mhn.de")
-	by vger.kernel.org with SMTP id S932742AbWF2LLk (ORCPT
+	Thu, 29 Jun 2006 07:14:54 -0400
+Received: from ns1.suse.de ([195.135.220.2]:39400 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932671AbWF2LOy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 07:11:40 -0400
-Date: Thu, 29 Jun 2006 13:10:58 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: Re: [Alsa-devel] [2.6 patch] fix the SND_FM801_TEA575X dependencies
-Message-ID: <20060629111058.GB29056@stusta.de>
-References: <20060629094944.GA29056@stusta.de> <s5hzmfwns9e.wl%tiwai@suse.de>
-MIME-Version: 1.0
+	Thu, 29 Jun 2006 07:14:54 -0400
+Date: Thu, 29 Jun 2006 13:14:51 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] i4l make PCMCIA for all cards working with shared IRQ
+Message-ID: <20060629111451.GA9501@pingi.kke.suse.de>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5hzmfwns9e.wl%tiwai@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060403
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.16.13-4-smp x86_64
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 29, 2006 at 12:57:49PM +0200, Takashi Iwai wrote:
-> At Thu, 29 Jun 2006 11:49:44 +0200,
-> Adrian Bunk wrote:
-> > 
-> > CONFIG_SND_FM801=y, CONFIG_SND_FM801_TEA575X=m resulted in the following 
-> > compile error:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   LD      vmlinux
-> > sound/built-in.o: In function `snd_fm801_free':
-> > fm801.c:(.text+0x3c15b): undefined reference to `snd_tea575x_exit'
-> > sound/built-in.o: In function `snd_card_fm801_probe':
-> > fm801.c:(.text+0x3cfde): undefined reference to `snd_tea575x_init'
-> > make: *** [vmlinux] Error 1
-> > 
-> > <--  snip  -->
-> > 
-> > This patch fixes kernel Bugzilla #6458.
-> > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> Could it be a simplier one like below?
+most current laptops do not work without allowing shared cardbus IRQs.
+This patch enables IRQ sharing, so these cards work again.
+This was tested with shared and none shared cardbus IRQs on different laptops
+without problems.
 
+Signed-off-by: Karsten Keil <kkeil@suse.de>
 
-Your patch would in the case of SND_FM801=m:
-- build snd-tea575x-tuner.o statically into the kernel
-- set VIDEO_DEV=y
+---
 
+ drivers/isdn/hardware/avm/b1pcmcia.c |    2 +-
+ drivers/isdn/hisax/sedlbauer_cs.c    |    2 +-
+ drivers/isdn/hisax/teles3.c          |    1 +
+ 3 files changed, 3 insertions(+), 2 deletions(-)
 
-> Takashi
-> 
-> 
-> diff -r cd7256009b28 sound/pci/Kconfig
-> --- a/sound/pci/Kconfig	Wed Jun 28 16:39:36 2006 +0200
-> +++ b/sound/pci/Kconfig	Thu Jun 29 12:54:08 2006 +0200
-> @@ -461,16 +461,13 @@ config SND_FM801
->  	  will be called snd-fm801.
->  
->  config SND_FM801_TEA575X
-> -	tristate "ForteMedia FM801 + TEA5757 tuner"
-> +	bool "TEA5757 tuner support on ForteMedia FM801"
->  	depends on SND_FM801
->          select VIDEO_DEV
->  	help
->  	  Say Y here to include support for soundcards based on the ForteMedia
->  	  FM801 chip with a TEA5757 tuner connected to GPIO1-3 pins (Media
->  	  Forte SF256-PCS-02).
-> -
-> -	  To compile this driver as a module, choose M here: the module
-> -	  will be called snd-fm801-tea575x.
->  
->  config SND_HDA_INTEL
->  	tristate "Intel HD Audio"
-> diff -r cd7256009b28 sound/pci/fm801.c
-> --- a/sound/pci/fm801.c	Wed Jun 28 16:39:36 2006 +0200
-> +++ b/sound/pci/fm801.c	Thu Jun 29 12:54:08 2006 +0200
-> @@ -35,7 +35,7 @@
->  
->  #include <asm/io.h>
->  
-> -#if (defined(CONFIG_SND_FM801_TEA575X) || defined(CONFIG_SND_FM801_TEA575X_MODULE)) && (defined(CONFIG_VIDEO_DEV) || defined(CONFIG_VIDEO_DEV_MODULE))
-> +#ifdef CONFIG_SND_FM801_TEA575X
->  #include <sound/tea575x-tuner.h>
->  #define TEA575X_RADIO 1
->  #endif
-
-cu
-Adrian
-
+2a8cbb08c1dacd5acffb6c16df03b48e9e74c361
+diff --git a/drivers/isdn/hardware/avm/b1pcmcia.c b/drivers/isdn/hardware/avm/b1pcmcia.c
+index 9746cc5..ad50251 100644
+--- a/drivers/isdn/hardware/avm/b1pcmcia.c
++++ b/drivers/isdn/hardware/avm/b1pcmcia.c
+@@ -82,7 +82,7 @@ static int b1pcmcia_add_card(unsigned in
+ 	card->irq = irq;
+ 	card->cardtype = cardtype;
+ 
+-	retval = request_irq(card->irq, b1_interrupt, 0, card->name, card);
++	retval = request_irq(card->irq, b1_interrupt, SA_SHIRQ, card->name, card);
+ 	if (retval) {
+ 		printk(KERN_ERR "b1pcmcia: unable to get IRQ %d.\n",
+ 		       card->irq);
+diff --git a/drivers/isdn/hisax/sedlbauer_cs.c b/drivers/isdn/hisax/sedlbauer_cs.c
+index 9bb18f3..f9c14a2 100644
+--- a/drivers/isdn/hisax/sedlbauer_cs.c
++++ b/drivers/isdn/hisax/sedlbauer_cs.c
+@@ -164,7 +164,7 @@ static int sedlbauer_probe(struct pcmcia
+     link->priv = local;
+ 
+     /* Interrupt setup */
+-    link->irq.Attributes = IRQ_TYPE_EXCLUSIVE;
++    link->irq.Attributes = IRQ_TYPE_DYNAMIC_SHARING|IRQ_FIRST_SHARED;
+     link->irq.IRQInfo1 = IRQ_LEVEL_ID;
+     link->irq.Handler = NULL;
+ 
+diff --git a/drivers/isdn/hisax/teles3.c b/drivers/isdn/hisax/teles3.c
+index a3eaf4d..090abd1 100644
+--- a/drivers/isdn/hisax/teles3.c
++++ b/drivers/isdn/hisax/teles3.c
+@@ -369,6 +369,7 @@ setup_teles3(struct IsdnCard *card)
+ 			       cs->hw.teles3.hscx[1] + 96);
+ 			return (0);
+ 		}
++		cs->irq_flags |= SA_SHIRQ; /* cardbus can share */
+ 	} else {
+ 		if (cs->hw.teles3.cfg_reg) {
+ 			if (cs->typ == ISDN_CTYPE_COMPAQ_ISA) {
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Karsten Keil
+SuSE Labs
+ISDN development

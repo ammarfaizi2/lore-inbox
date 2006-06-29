@@ -1,116 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751611AbWF2Fdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWF2Fk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751611AbWF2Fdh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 01:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWF2Fdg
+	id S1751321AbWF2Fk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 01:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWF2Fk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 01:33:36 -0400
-Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:26890 "EHLO
-	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
-	id S1751609AbWF2Fdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 01:33:36 -0400
-Date: Thu, 29 Jun 2006 01:32:47 -0400
-From: Matt LaPlante <laplam@rpi.edu>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] KConfig: Spellchecking 'similarity' and 'independent'
-Message-Id: <20060629013247.c301a5ba.laplam@rpi.edu>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 01:32:55 -0400
-	(not processed: message from trusted or authenticated source)
-X-Return-Path: laplam@rpi.edu
-X-Envelope-From: laplam@rpi.edu
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 01:32:57 -0400
+	Thu, 29 Jun 2006 01:40:27 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:49925 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1751321AbWF2Fk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 01:40:26 -0400
+Date: Thu, 29 Jun 2006 13:38:17 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Pdraig Brady <P@draigBrady.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: util-linux status
+In-Reply-To: <44A153F2.1050806@draigBrady.com>
+Message-ID: <Pine.LNX.4.64.0606291335240.3913@raven.themaw.net>
+References: <44A13AFE.3080107@draigBrady.com> <20060627153158.GB13915@stusta.de>
+ <44A153F2.1050806@draigBrady.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="822748257-340694688-1151559497=:3913"
+X-themaw-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-2.599,
+	required 5, autolearn=not spam, BAYES_00 -2.60)
+X-themaw-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Several KConfig files had 'similarity' and 'independent' spelled incorrectly...
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
--
-Matt LaPlante
-CCNP, CCDP, A+, Linux+, CQS
-laplam@rpi.edu
+--822748257-340694688-1151559497=:3913
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
---
+On Tue, 27 Jun 2006, P=E1draig Brady wrote:
 
-diff -ru a/arch/i386/Kconfig b/arch/i386/Kconfig
---- a/arch/i386/Kconfig	2006-06-29 00:23:23.000000000 -0400
-+++ b/arch/i386/Kconfig	2006-06-29 00:40:56.000000000 -0400
-@@ -737,7 +737,7 @@
- 	  but it is independent of the system firmware.   And like a reboot
- 	  you can start any kernel with it, not just Linux.
- 
--	  The name comes from the similiarity to the exec system call.
-+	  The name comes from the similarity to the exec system call.
- 
- 	  It is an ongoing process to be certain the hardware in a machine
- 	  is properly shutdown, so do not be surprised if this code does not
-diff -ru a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
---- a/arch/powerpc/Kconfig	2006-06-29 00:23:24.000000000 -0400
-+++ b/arch/powerpc/Kconfig	2006-06-29 00:40:56.000000000 -0400
-@@ -624,10 +624,10 @@
- 	help
- 	  kexec is a system call that implements the ability to shutdown your
- 	  current kernel, and to start another kernel.  It is like a reboot
--	  but it is indepedent of the system firmware.   And like a reboot
-+	  but it is independent of the system firmware.   And like a reboot
- 	  you can start any kernel with it, not just Linux.
- 
--	  The name comes from the similiarity to the exec system call.
-+	  The name comes from the similarity to the exec system call.
- 
- 	  It is an ongoing process to be certain the hardware in a machine
- 	  is properly shutdown, so do not be surprised if this code does not
-diff -ru a/arch/ppc/Kconfig b/arch/ppc/Kconfig
---- a/arch/ppc/Kconfig	2006-06-29 00:23:24.000000000 -0400
-+++ b/arch/ppc/Kconfig	2006-06-29 00:40:56.000000000 -0400
-@@ -219,10 +219,10 @@
- 	help
- 	  kexec is a system call that implements the ability to shutdown your
- 	  current kernel, and to start another kernel.  It is like a reboot
--	  but it is indepedent of the system firmware.   And like a reboot
-+	  but it is independent of the system firmware.   And like a reboot
- 	  you can start any kernel with it, not just Linux.
- 
--	  The name comes from the similiarity to the exec system call.
-+	  The name comes from the similarity to the exec system call.
- 
- 	  It is an ongoing process to be certain the hardware in a machine
- 	  is properly shutdown, so do not be surprised if this code does not
-diff -ru a/arch/sh/Kconfig b/arch/sh/Kconfig
---- a/arch/sh/Kconfig	2006-06-20 05:31:55.000000000 -0400
-+++ b/arch/sh/Kconfig	2006-06-29 00:40:56.000000000 -0400
-@@ -465,10 +465,10 @@
- 	help
- 	  kexec is a system call that implements the ability to shutdown your
- 	  current kernel, and to start another kernel.  It is like a reboot
--	  but it is indepedent of the system firmware.  And like a reboot
-+	  but it is independent of the system firmware.  And like a reboot
- 	  you can start any kernel with it, not just Linux.
- 
--	  The name comes from the similiarity to the exec system call.
-+	  The name comes from the similarity to the exec system call.
- 
- 	  It is an ongoing process to be certain the hardware in a machine
- 	  is properly shutdown, so do not be surprised if this code does not
-diff -ru a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
---- a/arch/x86_64/Kconfig	2006-06-29 00:23:24.000000000 -0400
-+++ b/arch/x86_64/Kconfig	2006-06-29 00:40:56.000000000 -0400
-@@ -459,10 +459,10 @@
- 	help
- 	  kexec is a system call that implements the ability to shutdown your
- 	  current kernel, and to start another kernel.  It is like a reboot
--	  but it is indepedent of the system firmware.   And like a reboot
-+	  but it is independent of the system firmware.   And like a reboot
- 	  you can start any kernel with it, not just Linux.
- 
--	  The name comes from the similiarity to the exec system call.
-+	  The name comes from the similarity to the exec system call.
- 
- 	  It is an ongoing process to be certain the hardware in a machine
- 	  is properly shutdown, so do not be surprised if this code does not
+> Adrian Bunk wrote:
+> > What is missing in your timeline are the 2.13-pre releases that contain=
+=20
+> > everything I've done.
+>=20
+> Ah thanks! I missed this directory:
+> http://www.kernel.org/pub/linux/utils/util-linux/testing/
+>=20
+> > But I know I have a big backlog of util-linux emails, and I hope having=
+=20
+> > soon some spare time for handing them.
+>=20
+> Cool. I still think it would be worth setting up a mailing list.
+> There are a lot of tools there that will generate a lot of mail,
+> as you've experienced.
 
+There are lots of applications in util-linux.
+Setting up a mailing list may give you the oppertunity to enlist help.
+If you could speead the work load that would have to be a win.
+
+Ian
+
+--822748257-340694688-1151559497=:3913--

@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWF2LxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWF2LxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWF2LxN (ORCPT <rfc822;willy@w.ods.org>);
+	id S964803AbWF2LxN (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 29 Jun 2006 07:53:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWF2LxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Thu, 29 Jun 2006 07:53:13 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15625 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964791AbWF2LxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20620 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964803AbWF2LxM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 29 Jun 2006 07:53:12 -0400
-Date: Thu, 29 Jun 2006 12:53:01 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Milan Svoboda <msvoboda@ra.rockwell.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Esben Nielsen <nielsen.esben@googlemail.com>
-Subject: Re: [BUG] Linux-2.6.17-rt3 on arm ixdp465
-Message-ID: <20060629115301.GA9709@flint.arm.linux.org.uk>
-Mail-Followup-To: Milan Svoboda <msvoboda@ra.rockwell.com>,
-	Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-	Esben Nielsen <nielsen.esben@googlemail.com>
-References: <OF92240490.78BE8F01-ONC125719C.0037A4FD-C125719C.00389E07@ra.rockwell.com>
+Subject: Re: [PATCH] Kconfig: Typos in fs/Kconfig
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matt LaPlante <laplam@rpi.edu>
+Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <20060629020052.f73d7ca1.laplam@rpi.edu>
+References: <20060629020052.f73d7ca1.laplam@rpi.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 29 Jun 2006 13:09:39 +0100
+Message-Id: <1151582979.23785.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF92240490.78BE8F01-ONC125719C.0037A4FD-C125719C.00389E07@ra.rockwell.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 29, 2006 at 12:17:50PM +0200, Milan Svoboda wrote:
-> BUG: scheduling with irqs disabled: softirq-net-rx//0x00000000/6
-> caller is schedule+0x10/0x114
-> [<c0024e24>] (dump_stack+0x0/0x28) from [<c01ae528>] (schedule+0xf8/0x114)
-> [<c01ae430>] (schedule+0x0/0x114) from [<c01afb60>] 
-> (rt_lock_slowlock+0x100/0x240)
->  r5 = C01F070C  r4 = C4150000
-> [<c01afa60>] (rt_lock_slowlock+0x0/0x240) from [<c01aff28>] 
-> (__lock_text_start+0x18/0x1c)
-> [<c01aff10>] (__lock_text_start+0x0/0x1c) from [<c0078b08>] 
-> (kfree+0x2c/0x84)
-> [<c0078adc>] (kfree+0x0/0x84) from [<c002aab0>] 
-> (dma_unmap_single+0x110/0x1a8)
->  r5 = C4124BE0  r4 = C7C4B6E0
-> [<c002a9a0>] (dma_unmap_single+0x0/0x1a8) from [<c012766c>] 
-> (e100_poll+0x2e0/0x59c)
+Ar Iau, 2006-06-29 am 02:00 -0400, ysgrifennodd Matt LaPlante:
+> Fix several typos in fs/Kconfig
 
-Might be fixed in the latest kernel.
+Some wrong, some right.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> -	tristate "Ext3 journalling file system support"
+> +	tristate "Ext3 journaling file system support"
+
+There is actually no such word in the dictionaries I have access to
+(including the OED). An -ing form would be "-lling" in British English
+and ext3 is maintained in the UK which is probably why it uses "lling".
+This was discussed at length about three years ago and the lling was the
+decision taken at the end of the thread.
+
+>  	select JBD
+>  	help
+>  	  This is the journaling version of the Second extended file system
+
+That one ought to get fixed instead if anything to be consistent.
+
+> @@ -831,7 +831,7 @@
+>  
+>  	Some system agents rely on the information in sysfs to operate.
+>  	/sbin/hotplug uses device and object attributes in sysfs to assist in
+> -	delegating policy decisions, like persistantly naming devices.
+> +	delegating policy decisions, like persistently naming devices.
+
+Persistantly is also correct. Both forms are valid English
+
+> -	  levelling, compression and support for hard links. You cannot use
+> +	  leveling, compression and support for hard links. You cannot use
+
+levelling with double ll is also correct English. Single "l" is an
+Americanism. Please stop trying to "Americanise" the Kconfig files and
+just fix actual errors.
+
+>  config JFFS2_CMODE_PRIORITY
+>          bool "priority"
+>          help
+> -          Tries the compressors in a predefinied order and chooses the first
+
+Appears to be a genuine fix 
+
+>  
+>  config JFFS2_CMODE_SIZE
+> @@ -1892,7 +1892,7 @@
+>  	  If you say Y here, you will get an experimental Andrew File System
+>  	  driver. It currently only supports unsecured read-only AFS access.
+>  
+> -	  See <file:Documentation/filesystems/afs.txt> for more intormation.
+> +	  See <file:Documentation/filesystems/afs.txt> for more information.
+
+Likewise
+
+

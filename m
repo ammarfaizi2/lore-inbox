@@ -1,47 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933015AbWF2WGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933041AbWF2WKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933015AbWF2WGO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 18:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933017AbWF2WGJ
+	id S933041AbWF2WKv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 18:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933040AbWF2WKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 18:06:09 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48352
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932928AbWF2WEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 18:04:05 -0400
-Date: Thu, 29 Jun 2006 15:03:19 -0700 (PDT)
-Message-Id: <20060629.150319.104035601.davem@davemloft.net>
-To: bos@pathscale.com
-Cc: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH 39 of 39] IB/ipath - use streaming copy in RDMA
- interrupt handler to reduce packet loss
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1151618377.10886.23.camel@chalcedony.pathscale.com>
-References: <1b00209ef20a0e7893d8.1151617290@eng-12.pathscale.com>
-	<20060629.145027.41636491.davem@davemloft.net>
-	<1151618377.10886.23.camel@chalcedony.pathscale.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 29 Jun 2006 18:10:51 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:52616 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S933041AbWF2WKt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 18:10:49 -0400
+Message-ID: <44A44FB4.6040405@watson.ibm.com>
+Date: Thu, 29 Jun 2006 18:09:56 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jay Lan <jlan@sgi.com>
+CC: Paul Jackson <pj@sgi.com>, akpm@osdl.org, Valdis.Kletnieks@vt.edu,
+       jlan@engr.sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+References: <44892610.6040001@watson.ibm.com>	<4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>	<20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>	<20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>	<20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>	<44A01A50.1050403@sgi.com>	<20060626105548.edef4c64.akpm@osdl.org>	<44A020CD.30903@watson.ibm.com>	<20060626111249.7aece36e.akpm@osdl.org>	<44A026ED.8080903@sgi.com>	<20060626113959.839d72bc.akpm@osdl.org>	<44A2F50D.8030306@engr.sgi.com>	<20060628145341.529a61ab.akpm@osdl.org>	<44A2FC72.9090407@engr.sgi.com>	<20060629014050.d3bf0be4.pj@sgi.com>	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>	<20060629094408.360ac157.pj@sgi.com>	<20060629110107.2e56310b.akpm@osdl.org>	<20060629112642.66f35dd5.pj@sgi.com>	<44A426DC.9090009@watson.ibm.com> <20060629124148.48d4c9ad.pj@sgi.com> <44A4492E.6090307@watson.ibm.com> <44A44C27.7020100@sgi.com>
+In-Reply-To: <44A44C27.7020100@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bryan O'Sullivan <bos@pathscale.com>
-Date: Thu, 29 Jun 2006 14:59:37 -0700
+Jay Lan wrote:
+> Shailabh Nagar wrote:
+> 
+>> Paul Jackson wrote:
+>>
+>>> Shailabh wrote:
+>>>  
+>>>
+>>>> I suppose this is because cpuset's offer some middle ground between
+>>>> collecting data per-cpu vs. collecting it for all cpus ?
+>>>>   
+>>>
+>>>
+>>>
+>>> Yes - well said.  And I have this strange tendency to see all the
+>>> worlds problems as opportunities for cpuset solutions <grin>.
+>>>
+>>>  
+>>>
+>>>> What happens when someone is using cpusets on such a machine and
+>>>> changes its membership in response to other needs.  All taskstats
+>>>> users would need to monitor for such changes and adjust their
+>>>> processing....seems like unnecessary tying up of two unrelated
+>>>> concepts.
+>>>>   
+>>>
+>>>
+>>>
+>>> I would not expect taskstat users to monitor for such changes.
+>>> I'd expect them to monitor the stats from whatever is in the
+>>> cpuset they named.  If a task moves out of that cpuset to another,
+>>> then tough -- that task will no longer be monitored by that
+>>> particular monitoring request.
+>>>
+>>> Cpusets do provide a convenient middle ground, as you say, which
+>>> is really useful for reducing scaling issues such as this one to
+>>> a managable size.
+>>>
+>>> Per-cpu is too fine grained, and per-system too coarse.
+>>>
+>>> An unnecessary tying - yes.  But perhaps a useful one.
+>>>  
+>>>
+>> The idea of collecting stats for a group of cpus rather than all (or
+>> one) seems attractive.
+>> But cpusets doesnt :-)
+>>
+>> How about if we did something simple like
+>> having a separate listen group (within genetlink) for a reasonably
+>> large number of cpus
+>> and have all the messages from those cpus multicast to the listeners
+>> of that group alone ?
+>>
+>> e.g. currently we have only one TASKSTATS_LISTEN_GROUP
+>> we could reserve the following
+>>    TASKSTATS_LISTEN_GROUP_0
+>>    TASKSTATS_LISTEN_GROUP_1....
+>>
+>> where GROUP_0 handles cpus numbered 0-63 (or 31)....etc.
+>>
+>> Advantages would be
+>>
+>> 1. Most users would still need to listen to the one group as they do
+>> in the current design and others could listen to more, scaling up
+>> their userspace listening daemons
+>> as appropriate (e.g. one daemon per listening group).
+>>
+>> 2. Userspace could be saved the bother of having too many streams of
+>> per-cpu data and reassemble them
+>> in the order they were generated.
+>>
+>> The moment we talk of splitting up the data stream generated by the
+>> kernel I suppose we have to do some
+>> kind of timestamping so reassembly in the same order can be done. I
+>> can't see this mattering for the likes of
+>> delay accounting and CSA but for future taskstats users, who knows.
+> 
+> 
+> Timestamp of the taskstats messages or timestamp of the exiting task?
 
-> It could, indeed.  In fact, we had that discussion here before I sent
-> this patch in.  It presumably wants to live in lib/, and acquire a more
-> generic name.  What name will capture the uncached-read-but-cached-write
-> semantics in a useful fashion?  memcpy_nc?
+I meant a timestamp of the taskstats message...though the latter
+(timestamp of exiting task) would also be ok since that would be called
+at the same location in the exit path for each exit message sent.
 
-I'm not good with names :-)
+> I include an exit_time field for the task as part of "Common
+> Accounting Fields" in my csa_taskstats patch i sent to you. So, we
+> have both start_time and exit_time.
 
-Note that there also might be cases where using such a memcpy
-variant might be the wrong thing to do.  For example, for a very
-tightly coupled CMT cpu implementation which has the memory controller,
-L2 cache, PCI controller, etc. all on the same die and the PCI controller
-makes use of the L2 cache just like the cpu threads do, using this
-kind of memcpy would always be the wrong thing to do.
+Yes, that sort of thing should do. We would just need to generalize to the
+taskstats layer.
+
+Thanks,
+Shailabh
+> 
+> Thanks,
+>  - jay
+> 
+>>
+>>
+>> --Shailabh
+>>
+>>
+> 
+

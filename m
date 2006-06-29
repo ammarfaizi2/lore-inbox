@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWF2OJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWF2ONE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWF2OJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 10:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWF2OJ4
+	id S1750751AbWF2ONE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 10:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWF2OND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 10:09:56 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:46683 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750737AbWF2OJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 10:09:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=UQ7H9GdzLXuRPfGa4iBHfBYDlsT1oXUlohw0FfkF+lMmeILzLj80pkNpZoc0CM0J6S4t/qNo8w7OeKXbMSWpDX4lMoLw2XN0YSQYhCcEeYkX010p5PWSdz6AN8V1czGsINNSRyBHjLeN2qp1kbE7Co1Jd3s882U2QkEjgrE57KU=
-Message-ID: <787b0d920606290709k255c6c24k6d3dd502d85bd1ca@mail.gmail.com>
-Date: Thu, 29 Jun 2006 10:09:54 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: akpm@osdl.org, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
-       hawkes@sgi.com, jdaiker@osdl.org, jes@sgi.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       tony.luck@gmail.com, tony.luck@intel.com
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
+	Thu, 29 Jun 2006 10:13:03 -0400
+Received: from smtp4.poczta.interia.pl ([80.48.65.7]:48770 "EHLO
+	smtp4.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S1750751AbWF2ONC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 10:13:02 -0400
+Message-ID: <44A3DFDB.7050202@interia.pl>
+Date: Thu, 29 Jun 2006 16:12:43 +0200
+From: =?ISO-8859-2?Q?Rafa=B3_Bilski?= <rafalbilski@interia.pl>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060628)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Bart Hartgers <bart@etpmod.phys.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA from	Longhaul
+ by rw semaphores
+References: <44A2C9A7.6060703@interia.pl> <1151581077.23785.9.camel@localhost.localdomain> <44A3C17F.3060204@etpmod.phys.tue.nl>
+In-Reply-To: <44A3C17F.3060204@etpmod.phys.tue.nl>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
+X-EMID: a80a8acc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fixing param.h to have #define HZ sysconf(_SC_CLK_TCK) sounds
-> like a plausible solution, many incorrect uses will be fixed
-> automagically by the next rebuild.  But some more obscure usages
-> of HZ may not compile (which is good, then they can be fixed
-> properly) or worse may compile, but not do the right thing.
+> If I understand correctly, trouble occurs when the processor tries to
+> snoop? Would disabling (via MSR) and flushing the caches before changing
+> the frequency help in that case?
+> 
+> Groeten,
+> Bart
+> 
 
-This makes compiles fail on one of the non-glibc libraries,
-either uClibc or dietlibc, which does not provide sysconf.
+CPU is VIA C3 in EBGA "Nehemiah" core 6.9.8.
+I'm using flush_cache_all(). Is there anything more powerfull?
+I'm using MSR_VIA_FCR.
+I can disable L2 cache (or at least I think so) - this doesn't help.
+I can't disable L1 cache - processor stops when I'm trying to set 
+I-cache or D-cache disable bit.
 
-The order in which procps tries things is:
+Thanks
+Rafa³
 
-1. walk off the end of environ to get the ELF notes
-2. /proc/uptime to /proc/stat ratio
-3. HZ
-4. lame guess based on endianness and word size
 
-I do not want sysconf. It is is an unreliable piece of shit
-that gives me poor guesses instead of returning appropriate
-error codes. It does this swell job while being damn slow.
-I can do no worse with my own random guess.
+----------------------------------------------------------------------
+PS. Fajny portal... >>> http://link.interia.pl/f196a
 
-(on my TODO list: count CPUs myself, because glibc often
-thinks there are zero -- and this is not an error code)
-
-> The ultimate safe solution might be:
->
-> #define HZ Fix your program to use sysconf(_SC_CLK_TCK)! \
->       (and BTW, you should not include kernel headers)
->
-> Which is highly likely to cause a compile failure (but should
-> at least provide a clue to the user on what they should do).
-
-This breaks perfectly fine code, except that it will be yet one more
-thing for people to patch out when making headers for userspace.

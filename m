@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWF2Qti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWF2Qu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWF2Qti (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 12:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWF2Qti
+	id S1750961AbWF2Qu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 12:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWF2Qu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 12:49:38 -0400
-Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:15118 "EHLO
-	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
-	id S1750950AbWF2Qth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 12:49:37 -0400
-Date: Thu, 29 Jun 2006 12:49:01 -0400
-From: Matt LaPlante <laplam@rpi.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, trivial@kernel.org
-Subject: Re: [PATCH] Kconfig: Typos in net/sched/Kconfig
-Message-Id: <20060629124901.5f8987ff.laplam@rpi.edu>
-In-Reply-To: <1151582487.23785.20.camel@localhost.localdomain>
-References: <20060629022623.67ba2cbc.laplam@rpi.edu>
-	<1151582487.23785.20.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 12:49:11 -0400
-	(not processed: message from trusted or authenticated source)
-X-Return-Path: laplam@rpi.edu
-X-Envelope-From: laplam@rpi.edu
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 12:49:12 -0400
+	Thu, 29 Jun 2006 12:50:26 -0400
+Received: from [141.84.69.5] ([141.84.69.5]:9231 "HELO mailout.stusta.mhn.de")
+	by vger.kernel.org with SMTP id S1750959AbWF2QuZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 12:50:25 -0400
+Date: Thu, 29 Jun 2006 18:49:44 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: mitr@volny.cz, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/input/misc/wistron_btns.c: section fixes
+Message-ID: <20060629164944.GE19712@stusta.de>
+References: <20060626103509.GQ23314@stusta.de> <200606260750.32863.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606260750.32863.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 13:01:27 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> Ar Iau, 2006-06-29 am 02:26 -0400, ysgrifennodd Matt LaPlante:
-> > Fix typos in net/sched/Kconfig.  And yes, its "queuing" in the dictionary.com. :)
+On Mon, Jun 26, 2006 at 07:50:31AM -0400, Dmitry Torokhov wrote:
+> On Monday 26 June 2006 06:35, Adrian Bunk wrote:
+> > This patch contains the following fixes:
+> > - it doesn't make sense to mark a variable on the stack as __initdata
+> > - struct dmi_ids is using the __init dmi_matched()
 > 
-> Dictionary.com is incomplete. Please use a proper reference if you are
-> going to fix "spelling" errors.
-> 
-> The Oxford English Dictionary lists both forms as correct.
-> 
-> Alan
-> 
+> Since when did static variables become allocated on stack?
 
-It seems many references are incomplete in some way or another.  But I don't disagree, I will try to use a more robust source of the english language (I had actually checked multiple previously, and apparently they were equally deficient).  The new patch:
+Only when I miss the static...
 
--
-Matt LaPlante
+> Dmitry
 
---
+cu
+Adrian
 
---- a/net/sched/Kconfig	2006-06-20 05:31:55.000000000 -0400
-+++ b/net/sched/Kconfig	2006-06-29 02:26:33.000000000 -0400
-@@ -305,7 +305,7 @@
- 	tristate "Universal 32bit comparisons w/ hashing (U32)"
- 	select NET_CLS
- 	---help---
--	  Say Y here to be able to classify packetes using a universal
-+	  Say Y here to be able to classify packets using a universal
- 	  32bit pieces based comparison scheme.
- 
- 	  To compile this code as a module, choose M here: the
-@@ -485,7 +485,7 @@
-         tristate "IPtables targets"
-         depends on NET_CLS_ACT && NETFILTER && IP_NF_IPTABLES
-         ---help---
--	  Say Y here to be able to invoke iptables targets after succesful
-+	  Say Y here to be able to invoke iptables targets after successful
- 	  classification.
- 
- 	  To compile this code as a module, choose M here: the
-@@ -537,8 +537,8 @@
- 	---help---
- 	  Say Y here to allow using rate estimators to estimate the current
- 	  rate-of-flow for network devices, queues, etc. This module is
--	  automaticaly selected if needed but can be selected manually for
--	  statstical purposes.
-+	  automatically selected if needed but can be selected manually for
-+	  statistical purposes.
- 
- endif # NET_SCHED
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

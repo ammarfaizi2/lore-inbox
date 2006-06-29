@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWF2Pk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWF2Pmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWF2Pk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 11:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWF2Pk4
+	id S1750813AbWF2Pmb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 11:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWF2Pmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 11:40:56 -0400
-Received: from smtp4.poczta.interia.pl ([80.48.65.7]:46669 "EHLO
-	smtp4.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S1750809AbWF2Pkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 11:40:55 -0400
-Message-ID: <44A3F476.5010400@interia.pl>
-Date: Thu, 29 Jun 2006 17:40:38 +0200
-From: =?ISO-8859-2?Q?Rafa=B3_Bilski?= <rafalbilski@interia.pl>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060628)
+	Thu, 29 Jun 2006 11:42:31 -0400
+Received: from [141.84.69.5] ([141.84.69.5]:31758 "HELO mailout.stusta.mhn.de")
+	by vger.kernel.org with SMTP id S1750810AbWF2Pma (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 11:42:30 -0400
+Date: Thu, 29 Jun 2006 17:41:48 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Samuel.Ortiz@nokia.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, ralf@linux-mips.org,
+       linux-mips@linux-mips.org, Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+Subject: [2.6 patch] fix the AU1000_FIR dependencies
+Message-ID: <20060629154148.GA19712@stusta.de>
 MIME-Version: 1.0
-To: Bart Hartgers <bart@etpmod.phys.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA from	Longhaul
- by rw semaphores
-References: <44A2C9A7.6060703@interia.pl> <1151581077.23785.9.camel@localhost.localdomain> <44A3C17F.3060204@etpmod.phys.tue.nl> <44A3DFDB.7050202@interia.pl> <44A3EB45.1000507@etpmod.phys.tue.nl>
-In-Reply-To: <44A3EB45.1000507@etpmod.phys.tue.nl>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
-X-EMID: 37d1cacc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Rafa³,
-> 
-> Any code to show? Just in case... ;-)
-> 
-> Groeten,
-> Bart
-> 
+This patch fixes the AU1000_FIR dependencies.
 
-I'm using this for L2 cache:
-	preempt_disable();
-	local_irq_save(flags);
-	rdmsr(MSR_VIA_FCR, lo, hi);
-	flush_cache_all();
-	wrmsr(MSR_VIA_FCR, lo | 1 << 8, hi);
-and this doesn't stop the processor, but when I'm adding
-1 << 13 or 1 << 14 CPU stops. I have tried
-	flush_cache_all();
-	wrmsr(MSR_VIA_FCR, lo | 1 << 8, hi);
-	flush_cache_all();
-	wrmsr(MSR_VIA_FCR, lo | 1 << 8 | 1 << 13, hi);
-and
-	flush_cache_all();
-	wrmsr(MSR_VIA_FCR, lo | 1 << 8 | 1 << 13, hi);
-and more, but result was always the same.
+Spotted by Jean-Luc Leger.
 
-I will be very gratefull if You tell me what I'm doing wrong.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Rafa³
+---
 
+This patch was already sent on:
+- 15 Apr 2006
 
-----------------------------------------------------------------------
-PS. Fajny portal... >>> http://link.interia.pl/f196a
+--- linux-2.6.17-rc1-mm2-full/drivers/net/irda/Kconfig.old	2006-04-15 16:17:36.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/drivers/net/irda/Kconfig	2006-04-15 16:18:06.000000000 +0200
+@@ -350,7 +350,7 @@
+ 
+ config AU1000_FIR
+ 	tristate "Alchemy Au1000 SIR/FIR"
+-	depends on MIPS_AU1000 && IRDA
++	depends on SOC_AU1000 && IRDA
+ 
+ config SMC_IRCC_FIR
+ 	tristate "SMSC IrCC (EXPERIMENTAL)"
 

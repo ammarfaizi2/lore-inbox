@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWF2Rmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWF2Rqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWF2Rmn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 13:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWF2Rmn
+	id S1751091AbWF2Rqh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 13:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWF2Rqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 13:42:43 -0400
-Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:54030 "EHLO
-	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
-	id S1751100AbWF2Rmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 13:42:42 -0400
-Date: Thu, 29 Jun 2006 13:42:21 -0400
-From: Matt LaPlante <laplam@rpi.edu>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Documentation/IPMI typos
-Message-Id: <20060629134221.9460671e.laplam@rpi.edu>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 29 Jun 2006 13:46:37 -0400
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:55993 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751091AbWF2Rqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 13:46:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=2ETlIQJAS7/XHvGA5cJEMEkhiC8sYywC3eER8iluNRbo3mK4Rom1VscTicvOCd8ywfosSyBZHnVsGwFLV8QlXQdsDr7XG7dfw8RQnnoXZjPHEhOaxer27VZ8d6MNLCn13rimx3yDUTAwqsbqar8/fE+2SQbRn6RA1XrvH4oA/58=  ;
+Message-ID: <44A411F8.2020404@yahoo.com.au>
+Date: Fri, 30 Jun 2006 03:46:32 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Greg Bledsoe <greg.bledsoe@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: pmap, smap, process memory utilization
+References: <dba10b900606271140o64b60c97kecb8177f801ff9f4@mail.gmail.com>  <Pine.LNX.4.58.0606280511320.32286@gandalf.stny.rr.com> <dba10b900606280855g6d415441y92c46ca83c74a469@mail.gmail.com> <Pine.LNX.4.58.0606290220220.19156@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0606290220220.19156@gandalf.stny.rr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 13:42:31 -0400
-	(not processed: message from trusted or authenticated source)
-X-Return-Path: laplam@rpi.edu
-X-Envelope-From: laplam@rpi.edu
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 13:42:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two typos in Documentation/IPMI...  Alan, if you could just verify the first please.
+Steven Rostedt wrote:
+> On Wed, 28 Jun 2006, Greg Bledsoe wrote:
+
+>>That seems to be what I am hearing in previous lkml discussions.
+>>
+>>Also, since it seems virtually impossible to get this data on a
+>>per-process basis, does smap suffer from these same difficulties, as
+>>it seems to calculate this information when asked, and not keep it
+>>from process start time.
+
+Hi Greg,
+
+smap should do what you want. Rss is total memory used, and the
+following 4 fields are the type of pages used -- shared meaning
+it is mapped by more than one process.
 
 -- 
-Matt LaPlante
-CCNP, CCDP, A+, Linux+, CQS
-laplam@rpi.edu
-
--
-
---- b/Documentation/IPMI.txt	2006-06-29 01:36:01.000000000 -0400
-+++ a/Documentation/IPMI.txt	2006-06-29 01:40:21.000000000 -0400
-@@ -10,7 +10,7 @@
- It provides for dynamic discovery of sensors in the system and the
- ability to monitor the sensors and be informed when the sensor's
- values change or go outside certain boundaries.  It also has a
--standardized database for field-replacable units (FRUs) and a watchdog
-+standardized database for field-replaceable units (FRUs) and a watchdog
- timer.
- 
- To use this, you need an interface to an IPMI controller in your
-@@ -64,7 +64,7 @@
- IPMI defines a standard watchdog timer.  You can enable this with the
- 'IPMI Watchdog Timer' config option.  If you compile the driver into
- the kernel, then via a kernel command-line option you can have the
--watchdog timer start as soon as it intitializes.  It also have a lot
-+watchdog timer start as soon as it initializes.  It also have a lot
- of other options, see the 'Watchdog' section below for more details.
- Note that you can also have the watchdog continue to run if it is
- closed (by default it is disabled on close).  Go into the 'Watchdog
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

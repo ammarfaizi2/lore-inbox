@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWF2Svo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWF2Sy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWF2Svo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 14:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWF2Svn
+	id S1751266AbWF2Sy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 14:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWF2Sy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 14:51:43 -0400
-Received: from rtsoft3.corbina.net ([85.21.88.6]:14390 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S1751264AbWF2Svn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 14:51:43 -0400
-Date: Thu, 29 Jun 2006 22:51:31 +0400
-From: Vitaly Bordug <vbordug@ru.mvista.com>
-To: Andy Fleming <afleming@freescale.com>
-Cc: Li Yang-r58472 <LeoLi@freescale.com>,
-       Phillips Kim-R1AAHA <Kim.Phillips@freescale.com>,
-       Yin Olivia-r63875 <Hong-Hua.Yin@freescale.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@ozlabs.org, "'Paul Mackerras'" <paulus@samba.org>,
-       Chu hanjin-r52514 <Hanjin.Chu@freescale.com>
-Subject: Re: [PATCH 1/7] powerpc: Add mpc8360epb platform support
-Message-ID: <20060629225131.43b9ed59@localhost.localdomain>
-In-Reply-To: <8A7E4B7C-8744-47FF-90FA-9B68C5187CEE@freescale.com>
-References: <9FCDBA58F226D911B202000BDBAD467306E04FE2@zch01exm40.ap.freescale.net>
-	<8A7E4B7C-8744-47FF-90FA-9B68C5187CEE@freescale.com>
-X-Mailer: Sylpheed-Claws 2.3.0cvs16 (GTK+ 2.8.19; i686-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jun 2006 14:54:29 -0400
+Received: from smtp4.poczta.interia.pl ([80.48.65.7]:62733 "EHLO
+	smtp4.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S1751266AbWF2Sy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 14:54:28 -0400
+Message-ID: <44A421D7.7050901@interia.pl>
+Date: Thu, 29 Jun 2006 20:54:15 +0200
+From: =?ISO-8859-2?Q?Rafa=B3_Bilski?= <rafalbilski@interia.pl>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060628)
+MIME-Version: 1.0
+To: Bart Hartgers <bart@etpmod.phys.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA from	Longhaul
+ by rw semaphores
+References: <44A2C9A7.6060703@interia.pl> <1151581077.23785.9.camel@localhost.localdomain> <44A3C17F.3060204@etpmod.phys.tue.nl> <44A3DFDB.7050202@interia.pl> <44A3EEDC.30006@etpmod.phys.tue.nl>
+In-Reply-To: <44A3EEDC.30006@etpmod.phys.tue.nl>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
+X-EMID: 2eef6acc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 13:03:23 -0500
-Andy Fleming wrote:
-
-[snip]
-> >>> +	iounmap(bcsr_regs);
-> >>> +
-> >> And if we have a design, which do not contain real ethernet UCC  
-> >> usage? Or UCC
-> >> geth is disabled somehow explicitly? Stuff like that normally
-> >> goes to the
-> >> callback that is going to be triggered upon Etherbet init.
-> > I will move it.
-> 
-> 
-> Wait...no.  I don't understand Vitaly's objection.  If someone  
-> creates a board with an 8360 that doesn't use the UCC ethernet, they  
-> can create a separate board file.  This is the board-specific code,  
-> and it is perfectly acceptable for it to reset the PHY like this.   
-> What ethernet callback could be used?
+> Maybe you need to do something with the cache bits in CR0 as well. It
+> could be something like that. Hardware can be stuborn. I remember the
+> old Winchips (C3 predecessors) hanging when trying to disable caching of
+> plain ram via MCR's for instance.
 > 
 
-I am sort of against the unconditional trigger of the ethernet-specific stuff,
-dependless if UCC eth is really wanted in specific configuration.
+I did it like in chapter 10.5.3. Result is exacly the same - processor 
+stops. If I set NW flag CPU is still going, but I have "exception in 
+interrupt" message.
+I'm starting thinking that this will not work for "Nehemiah" core.
 
-For stuff like that I'd make a function (to setup low-level stuff), and pass it 
-via platform_info to the eth driver, so that really driver-specific things happen in driver context only.
+Thanks
+Rafa³
 
-Yes this is board specific file, and virtually everything needed for the board can take place here. 
-But usually BCSR acts as a toggle for a several things, and IOW, I see it more correct to trigger those stuff from the respective drivers (using a callback passed through platform_info)
 
--Vitaly
+----------------------------------------------------------------------
+PS. Fajny portal... >>> http://link.interia.pl/f196a
+

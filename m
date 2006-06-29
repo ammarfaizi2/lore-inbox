@@ -1,139 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWF2DXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWF2D0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbWF2DXb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 23:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWF2DXb
+	id S1750980AbWF2D0y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 23:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWF2D0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 23:23:31 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:42152 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750836AbWF2DXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 23:23:30 -0400
-Date: Thu, 29 Jun 2006 12:21:41 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] solve config broken: undefined reference to `online_page'
-Cc: Andy Whitcroft <apw@shadowen.org>, Dave Hansen <haveblue@us.ibm.com>,
-       Toralf Foerster <toralf.foerster@gmx.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-In-Reply-To: <20060628110338.9B6A.Y-GOTO@jp.fujitsu.com>
-References: <44A1204F.3070704@shadowen.org> <20060628110338.9B6A.Y-GOTO@jp.fujitsu.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060629114417.2A02.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+	Wed, 28 Jun 2006 23:26:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59531 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750980AbWF2D0w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 23:26:52 -0400
+Date: Wed, 28 Jun 2006 20:17:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: eranian@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       perfmon@napali.hpl.hp.com
+Subject: Re: perfmon2 vector argument question
+Message-Id: <20060628201708.08af034c.akpm@osdl.org>
+In-Reply-To: <20060619204012.GE26378@frankl.hpl.hp.com>
+References: <20060619204012.GE26378@frankl.hpl.hp.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew-san.
+On Mon, 19 Jun 2006 13:40:12 -0700
+Stephane Eranian <eranian@hpl.hp.com> wrote:
 
-I made a small patch for compile error of 2.6.17(.1).
-If CONFIG_HIGHMEM is not set and CONFIG_MEMORY_HOTPLUG is set on i386
-box, the trouble occurs. Its trouble report is here.
-http://marc.theaimsgroup.com/?t=115104987100003&r=1&w=2
+> Hello,
+> 
+> The current perfmon2 API allows applications to pass vectors of arguments to
+> certain calls, in particular to the 3 functions to read/write PMU registers. 
+> This approach was chosen because it is very flexible and allows applications
+> to modify either multiple or a single register in one call. It is extensible
+> because there is no implicit knowledge of the actual number of registers supported
+> by the underlying hardware.
+> 
+> Before entering the actual system call, the argument vector must be copied
+> into a kernel buffer. This is required by convention for security and also
+> fault reasons. The famous copy_from_user() and copy_to_user() are invoked.
+> This must be done before interrupts are masked.
+> 
+> Vectors can have different sizes depending on the measurement, the PMU model.
+> Yet, the vector must be copied into a kernel-level buffer. Today, we allocate
+> the kernel-memory on demand based on the size of the vector. We use
+> kmalloc/kfree. Of course, to avoid any abuse, we limit the size of the
+> allocated region via a perfmon2 tunable in sysfs. By default, it is set
+> to a page.
+> 
+> This implementation has worked fairly well, yet it costs some performance
+> because kmalloc/kfree are expensive (especially kfree). Also it may seem
+> overkill to malloc a page for small vectors.
+> 
+> I have run some experiments lately and they verified that kmalloc/kfree and
+> copy to/from user account for a very large portion of the cost of calls with
+> multiple registers (I tried with 4). For the copies it is hard to avoid
+> them. One thing we could do is to try and reduce the size of the structs.
+> Today, both struct pfarg_pmd and struct pfarg_pmc have reserved fields
+> for future extensions so that we can extend without breaking the ABI.
+> It may be possible to reduce those a little bit.
+> 
+> There are several ways to amortize or eliminate the kmalloc/kfree. First of
+> all, it is important to understand that multiple threads may call into a 
+> particular context at any time. All they need is access to the file descriptor.
+> 
+> An alternative that I have explored is to start from the hypothesis that
+> most vectors are small. If they are small enough, we could avoid the
+> kmalloc/kfree by using a buffer allocated on the stack. One could say
+> if the vector is less than 8 elements, then use the stack buffer. If not, then
+> go down the expensive path of kmalloc/kfree. I tried this experiment and got
+> over 20% improvement for pfm_read_pmds(). I chose 8 as the threshold. The
+> downside of this approach is that kernel stack space is limited and we should
+> avoid allocating large buffers on it. The pfarg_pmd struct is about 176 bytes
+> whereas pfarg_pmc_t is about 48 bytes. With 8 elements we reach 1408 bytes and
+> this is true for all architectures including i386 where default kernel stack
+> is 2 pages (8kB). Of course, the stack buffer could be adjusted per object
+> type and per-architecture. The downside is that if you need to use kmalloc
+> the stack space is still consumed.
+> 
+> It is important to note that we cannot use a kernel buffer of one element and simply
+> loop over the vector. Because the copy_from/copy_to must be done without locks nor
+> interrupt masked. So one  would have to copy, lock, do the perfmon call, unlock, copy
+> and loop for the next element.
+> 
+> Another approach that was suggested to me is to allocate on demand but not kfree
+> systematically when the call terminates. In other words, we amortize the cost
+> of the allocation by keeping the buffer around for the next caller. To make
+> this work, we would have to decompose the spin_lock_irq*() into spin_*lock()
+> and local_irq_*able() to avoid a race condition. For the first caller the
+> buffer would be allocated to fit the size (up to a certain limit like today).
+> When the call terminates, the buffer is kept via a pointer in the perfmon
+> context. The next caller, would check the pointer and size, if the buffer
+> is big enough, copy_user could proceed directly, otherwise a new buffer would
+> be allocated. That would also work assuming it is OKAY to copy_user with some locks
+> held. I can see one issue with this approach as some malicious user could create
+> lots of contexts and make one call for each to max out the argument vector limit for
+> each. If you have 1024 descriptors and the limit is 1 page/context, it could allocate
+> 1024 kernel pages (non-pageable) for nothing. Today, we do not have a global tuneable
+> for the argument vector size limit. Adding one would be costly because multiple threads
+> could potentially contend for it and therefore we would need yet another lock.
+> 
+> I do not see another approach at this point.
+> 
+> Does someone have something else to propose?
+> 
+> If not, what is your opinion of the two approaches above?
+> 
 
-At first, I wanted to send stable kernel which is 2.6.17.x.
-But, Documentation/stable_kernel_rules.txt says that config
-broken trouble is not acceptable for it. So, I would like to send
-this to 2.6.18-rcX.
+The first approach should be fine - we do that in lots of places, such as
+in core_sys_select().
 
-Please apply.
-
-Thanks.
-
------
-
-Memory hotplug code of i386 adds memory to only highmem.
-So, if CONFIG_HIGHMEM is not set, CONFIG_MEMORY_HOTPLUG shouldn't be
-set. Otherwise, it causes compile error.
-
-In addition, many architecture can't use memory hotplug feature yet.
-So, I introduce CONFIG_ARCH_ENABLE_MEMORY_HOTPLUG.
-
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-
----
- arch/i386/Kconfig    |    3 +++
- arch/ia64/Kconfig    |    3 +++
- arch/powerpc/Kconfig |    3 +++
- arch/x86_64/Kconfig  |    2 ++
- mm/Kconfig           |    2 +-
- 5 files changed, 12 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.17/mm/Kconfig
-===================================================================
---- linux-2.6.17.orig/mm/Kconfig	2006-06-26 14:19:11.000000000 +0900
-+++ linux-2.6.17/mm/Kconfig	2006-06-27 16:54:56.000000000 +0900
-@@ -115,7 +115,7 @@ config SPARSEMEM_EXTREME
- # eventually, we can have this option just 'select SPARSEMEM'
- config MEMORY_HOTPLUG
- 	bool "Allow for memory hot-add"
--	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND
-+	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND && ARCH_ENABLE_MEMORY_HOTPLUG
- 
- comment "Memory hotplug is currently incompatible with Software Suspend"
- 	depends on SPARSEMEM && HOTPLUG && SOFTWARE_SUSPEND
-Index: linux-2.6.17/arch/i386/Kconfig
-===================================================================
---- linux-2.6.17.orig/arch/i386/Kconfig	2006-06-21 15:05:17.000000000 +0900
-+++ linux-2.6.17/arch/i386/Kconfig	2006-06-27 16:44:01.000000000 +0900
-@@ -762,6 +762,9 @@ config HOTPLUG_CPU
- 	  enable suspend on SMP systems. CPUs can be controlled through
- 	  /sys/devices/system/cpu.
- 
-+config ARCH_ENABLE_MEMORY_HOTPLUG
-+	def_bool y
-+	depends on HIGHMEM
- 
- endmenu
- 
-Index: linux-2.6.17/arch/ia64/Kconfig
-===================================================================
---- linux-2.6.17.orig/arch/ia64/Kconfig	2006-06-21 15:05:18.000000000 +0900
-+++ linux-2.6.17/arch/ia64/Kconfig	2006-06-27 16:52:51.000000000 +0900
-@@ -270,6 +270,9 @@ config HOTPLUG_CPU
- 	  can be controlled through /sys/devices/system/cpu/cpu#.
- 	  Say N if you want to disable CPU hotplug.
- 
-+config ARCH_ENABLE_MEMORY_HOTPLUG
-+	def_bool y
-+
- config SCHED_SMT
- 	bool "SMT scheduler support"
- 	depends on SMP
-Index: linux-2.6.17/arch/powerpc/Kconfig
-===================================================================
---- linux-2.6.17.orig/arch/powerpc/Kconfig	2006-06-21 15:05:29.000000000 +0900
-+++ linux-2.6.17/arch/powerpc/Kconfig	2006-06-27 16:54:35.000000000 +0900
-@@ -599,6 +599,9 @@ config HOTPLUG_CPU
- 
- 	  Say N if you are unsure.
- 
-+config ARCH_ENABLE_MEMORY_HOTPLUG
-+	def_bool y
-+
- config KEXEC
- 	bool "kexec system call (EXPERIMENTAL)"
- 	depends on PPC_MULTIPLATFORM && EXPERIMENTAL
-Index: linux-2.6.17/arch/x86_64/Kconfig
-===================================================================
---- linux-2.6.17.orig/arch/x86_64/Kconfig	2006-06-21 15:05:40.000000000 +0900
-+++ linux-2.6.17/arch/x86_64/Kconfig	2006-06-27 16:55:41.000000000 +0900
-@@ -369,6 +369,8 @@ config HOTPLUG_CPU
- 		can be controlled through /sys/devices/system/cpu/cpu#.
- 		Say N if you want to disable CPU hotplug.
- 
-+config ARCH_ENABLE_MEMORY_HOTPLUG
-+	def_bool y
- 
- config HPET_TIMER
- 	bool
-
--- 
-Yasunori Goto 
-
-
+Applications mut be calling this thing at a heck of a rate for kfree()
+overhead to matter.  I trust CONFIG_DEBUG_SLAB wasn't turned on...

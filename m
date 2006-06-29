@@ -1,176 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWF2UNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWF2UQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932404AbWF2UNN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWF2UNN
+	id S1751289AbWF2UQd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWF2UQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:13:13 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:20689 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932404AbWF2UNM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:13:12 -0400
-Date: Thu, 29 Jun 2006 16:12:43 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Jeff Garzik <jeff@garzik.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] 64bit resource: fix up printks for resources in ide drivers
-Message-ID: <20060629201243.GA9945@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <200606291800.k5TI0qfD002870@hera.kernel.org> <44A42CD9.8050200@garzik.org> <20060629195110.GA3429@suse.de>
+	Thu, 29 Jun 2006 16:16:33 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:53662 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751289AbWF2UQb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 16:16:31 -0400
+Date: Thu, 29 Jun 2006 22:11:45 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       Prasanna Panchamukhi <prasanna@in.ibm.com>
+Subject: Re: [PATCH] 2.6.17-rt1 : fix x86_64 oops
+Message-ID: <20060629201144.GA24287@elte.hu>
+References: <20060627200105.GA13966@in.ibm.com> <20060628182137.GA23979@in.ibm.com> <20060628193256.GA4392@elte.hu> <20060628200247.GA7932@in.ibm.com> <20060629142442.GA11546@elte.hu> <20060629163236.GD1294@us.ibm.com> <20060629194145.GA2327@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060629195110.GA3429@suse.de>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060629194145.GA2327@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 29, 2006 at 12:51:10PM -0700, Greg KH wrote:
-> On Thu, Jun 29, 2006 at 03:41:13PM -0400, Jeff Garzik wrote:
-> > Linux Kernel Mailing List wrote:
-> > >commit 08f46de9a0e7c293db34cf44f9451d18ef609770
-> > >tree 83c28b79165adee350aad8cb9d4e2e59486acf56
-> > >parent 176dfc633bbe4e03f4557d2beeefb4f0cc7f0efa
-> > >author Greg Kroah-Hartman <gregkh@suse.de> Tue, 13 Jun 2006 05:15:59 -0700
-> > >committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 27 Jun 2006 23:23:59 
-> > >-0700
-> > >
-> > >[PATCH] 64bit resource: fix up printks for resources in ide drivers
-> > >
-> > >This is needed if we wish to change the size of the resource structures.
-> > >
-> > >Based on an original patch from Vivek Goyal <vgoyal@in.ibm.com>
-> > >
-> > >Cc: Vivek Goyal <vgoyal@in.ibm.com>
-> > >Signed-off-by: Andrew Morton <akpm@osdl.org>
-> > >Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > >
-> > > drivers/ide/pci/aec62xx.c      |    3 ++-
-> > > drivers/ide/pci/cmd64x.c       |    3 ++-
-> > > drivers/ide/pci/hpt34x.c       |    2 +-
-> > > drivers/ide/pci/pdc202xx_new.c |    4 ++--
-> > > drivers/ide/pci/pdc202xx_old.c |    4 ++--
-> > > 5 files changed, 9 insertions(+), 7 deletions(-)
-> > >
-> > >diff --git a/drivers/ide/pci/aec62xx.c b/drivers/ide/pci/aec62xx.c
-> > >index c743e68..8d5b872 100644
-> > >--- a/drivers/ide/pci/aec62xx.c
-> > >+++ b/drivers/ide/pci/aec62xx.c
-> > >@@ -254,7 +254,8 @@ static unsigned int __devinit init_chips
-> > > 
-> > > 	if (dev->resource[PCI_ROM_RESOURCE].start) {
-> > > 		pci_write_config_dword(dev, PCI_ROM_ADDRESS, 
-> > > 		dev->resource[PCI_ROM_RESOURCE].start | 
-> > > 		PCI_ROM_ADDRESS_ENABLE);
-> > >-		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n", name, 
-> > >dev->resource[PCI_ROM_RESOURCE].start);
-> > >+		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n", name,
-> > >+			(unsigned 
-> > >long)dev->resource[PCI_ROM_RESOURCE].start);
-> > > 	}
-> > > 
-> > > 	if (bus_speed <= 33)
-> > >diff --git a/drivers/ide/pci/cmd64x.c b/drivers/ide/pci/cmd64x.c
-> > >index 3d9c7af..9828039 100644
-> > >--- a/drivers/ide/pci/cmd64x.c
-> > >+++ b/drivers/ide/pci/cmd64x.c
-> > >@@ -609,7 +609,8 @@ static unsigned int __devinit init_chips
-> > > #ifdef __i386__
-> > > 	if (dev->resource[PCI_ROM_RESOURCE].start) {
-> > > 		pci_write_config_dword(dev, PCI_ROM_ADDRESS, 
-> > > 		dev->resource[PCI_ROM_RESOURCE].start | 
-> > > 		PCI_ROM_ADDRESS_ENABLE);
-> > >-		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n", name, 
-> > >dev->resource[PCI_ROM_RESOURCE].start);
-> > >+		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n", name,
-> > >+			(unsigned 
-> > >long)dev->resource[PCI_ROM_RESOURCE].start);
-> > > 	}
-> > > #endif
-> > > 
-> > >diff --git a/drivers/ide/pci/hpt34x.c b/drivers/ide/pci/hpt34x.c
-> > >index be334da..7da5502 100644
-> > >--- a/drivers/ide/pci/hpt34x.c
-> > >+++ b/drivers/ide/pci/hpt34x.c
-> > >@@ -176,7 +176,7 @@ static unsigned int __devinit init_chips
-> > > 			pci_write_config_dword(dev, PCI_ROM_ADDRESS,
-> > > 				dev->resource[PCI_ROM_RESOURCE].start | 
-> > > 				PCI_ROM_ADDRESS_ENABLE);
-> > > 			printk(KERN_INFO "HPT345: ROM enabled at 0x%08lx\n",
-> > >-				dev->resource[PCI_ROM_RESOURCE].start);
-> > >+				(unsigned 
-> > >long)dev->resource[PCI_ROM_RESOURCE].start);
-> > > 		}
-> > > 		pci_write_config_byte(dev, PCI_LATENCY_TIMER, 0xF0);
-> > > 	} else {
-> > >diff --git a/drivers/ide/pci/pdc202xx_new.c 
-> > >b/drivers/ide/pci/pdc202xx_new.c
-> > >index acd6317..20d5965 100644
-> > >--- a/drivers/ide/pci/pdc202xx_new.c
-> > >+++ b/drivers/ide/pci/pdc202xx_new.c
-> > >@@ -313,8 +313,8 @@ static unsigned int __devinit init_chips
-> > > 	if (dev->resource[PCI_ROM_RESOURCE].start) {
-> > > 		pci_write_config_dword(dev, PCI_ROM_ADDRESS,
-> > > 			dev->resource[PCI_ROM_RESOURCE].start | 
-> > > 			PCI_ROM_ADDRESS_ENABLE);
-> > >-		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n",
-> > >-			name, dev->resource[PCI_ROM_RESOURCE].start);
-> > >+		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n", name,
-> > >+			(unsigned 
-> > >long)dev->resource[PCI_ROM_RESOURCE].start);
-> > > 	}
-> > > 
-> > > #ifdef CONFIG_PPC_PMAC
-> > >diff --git a/drivers/ide/pci/pdc202xx_old.c 
-> > >b/drivers/ide/pci/pdc202xx_old.c
-> > >index 22d1754..ffbef74 100644
-> > >--- a/drivers/ide/pci/pdc202xx_old.c
-> > >+++ b/drivers/ide/pci/pdc202xx_old.c
-> > >@@ -544,8 +544,8 @@ static unsigned int __devinit init_chips
-> > > 	if (dev->resource[PCI_ROM_RESOURCE].start) {
-> > > 		pci_write_config_dword(dev, PCI_ROM_ADDRESS,
-> > > 			dev->resource[PCI_ROM_RESOURCE].start | 
-> > > 			PCI_ROM_ADDRESS_ENABLE);
-> > >-		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n",
-> > >-			name, dev->resource[PCI_ROM_RESOURCE].start);
-> > >+		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n", name,
-> > >+			(unsigned 
-> > >long)dev->resource[PCI_ROM_RESOURCE].start);
+
+* Paul E. McKenney <paulmck@us.ibm.com> wrote:
+
+> > This was on i386, x86_64, or on something else?
 > > 
-> > Why cast to unsigned long here?  Won't that truncate the data in certain 
-> > cases, now that it is 64bit?
-> > 
-> > Other printk patches seem to use unsigned long long, as I would expect.
+> > Ah!  This would have been a CONFIG_PREEMPT build, right?
 > 
-> Yes it will truncate stuff.  Vivek, any reason you did it this way for
-> the ide drivers?
->
+> OK, I ran this with both torture types (rcu and rcu_bh) on i386 with 
+> CONFIG_PREEMPT=y on 2.6.17-mm4 and didn't see any "scheduling while 
+> atomic" oopses -- or any other oopses, for that matter.
+> 
+> Here is the .config file I used.  What am I missing here?
 
-Initially I had kept it unsigned long long but later changed to unsigned long
-because of following response from Alan Cox.
+hm, i'm seeing some other types of crashes too - so rcutorture could 
+just have been collateral damage. It was on i386, an allyesconfig 
+bzImage kernel.
 
-[start]
-
->               pci_write_config_dword(dev, PCI_ROM_ADDRESS,
-dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
-> -             printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n", name,
-dev->resource[PCI_ROM_RESOURCE].start);
-> +             printk(KERN_INFO "%s: ROM enabled at 0x%016llx\n", name,
-> +                     (unsigned long
-long)dev->resource[PCI_ROM_RESOURCE].start);
-
-NAK - if the resource is 64bit then the pci_write_config_dword is also
-insufficient. Ditto for each other example.
-
-We actually know the PCI resources for these are 32bit so this change
-shouldn't be needed. You might want to stick a (u32) or (unsigned long)
-cast in and leave it at that.
-
-As far as I can tell all the ROM whacking code is bogus anyway
-
-[end]
-
-Thanks
-Vivek
+	Ingo

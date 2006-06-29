@@ -1,127 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWF2T4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWF2T7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbWF2T4u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 15:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWF2T4u
+	id S932358AbWF2T7N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 15:59:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWF2T7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 15:56:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41350 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932262AbWF2T4s (ORCPT
+	Thu, 29 Jun 2006 15:59:12 -0400
+Received: from [141.84.69.5] ([141.84.69.5]:56080 "HELO mailout.stusta.mhn.de")
+	by vger.kernel.org with SMTP id S932358AbWF2T7K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 15:56:48 -0400
-Date: Thu, 29 Jun 2006 12:56:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: miles.lane@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.17-mm3 -- BUG: illegal lock usage -- illegal {softirq-on-W}
- -> {in-softirq-R} usage.
-Message-Id: <20060629125640.d828a0b3.akpm@osdl.org>
-In-Reply-To: <1151610155.3122.65.camel@laptopd505.fenrus.org>
-References: <a44ae5cd0606291201v659b4235sfa9941aa3b18e766@mail.gmail.com>
-	<20060629122608.440d474c.akpm@osdl.org>
-	<1151610155.3122.65.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jun 2006 15:59:10 -0400
+Date: Thu, 29 Jun 2006 21:58:28 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] kernel/sys.c: remove unused exports
+Message-ID: <20060629195828.GF19712@stusta.de>
+References: <20060629191940.GL19712@stusta.de> <20060629123608.a2a5c5c0.akpm@osdl.org> <20060629124400.ee22dfbf.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060629124400.ee22dfbf.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 21:42:34 +0200
-Arjan van de Ven <arjan@infradead.org> wrote:
+On Thu, Jun 29, 2006 at 12:44:00PM -0700, Andrew Morton wrote:
+> On Thu, 29 Jun 2006 12:36:08 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > On Thu, 29 Jun 2006 21:19:40 +0200
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > 
+> > > This patch removes the following unused exports:
+> > > - EXPORT_SYMBOL:
+> > >   - in_egroup_p
+> > > - EXPORT_SYMBOL_GPL's:
+> > >   - kernel_restart
+> > >   - kernel_halt
+> > 
+> > Switch 'em to EXPORT_UNUSED_SYMBOL and I'll stop dropping your patches ;)
+> > 
+> 
+> If doing this, I'd suggest it be done thusly:
+> 
+> EXPORT_UNUSED_SYMBOL(in_egroup_p);	/* June 2006 */
+> 
+> to aid later decision-making.
 
-> On Thu, 2006-06-29 at 12:26 -0700, Andrew Morton wrote:
-> > On Thu, 29 Jun 2006 12:01:06 -0700
-> > "Miles Lane" <miles.lane@gmail.com> wrote:
-> > 
-> > > [ BUG: illegal lock usage! ]
-> > > ----------------------------
-> > 
-> > This is claiming that we're taking sk->sk_dst_lock in a deadlockable manner.
-> > 
-> > > illegal {softirq-on-W} -> {in-softirq-R} usage.
-> > 
-> > It found someone doing write_lock(sk_dst_lock) with softirqs enabled, but
-> > someone else takes read_lock(dst_lock) inside softirqs.
-> > 
-> > > java_vm/4418 [HC0[0]:SC1[1]:HE1:SE0] takes:
-> > >  (&sk->sk_dst_lock){---?}, at: [<c119d0a9>] sk_dst_check+0x1b/0xe6
-> > > {softirq-on-W} state was registered at:
-> > >   [<c102d1c8>] lock_acquire+0x60/0x80
-> > >   [<c12012d7>] _write_lock+0x23/0x32
-> > >   [<c11ddbe7>] inet_bind+0x16c/0x1cc
-> > >   [<c119ae58>] sys_bind+0x61/0x80
-> > >   [<c119b465>] sys_socketcall+0x7d/0x186
-> > >   [<c1002d6d>] sysenter_past_esp+0x56/0x8d
-> > 
-> > 	inet_bind()
-> > 	->sk_dst_get
-> > 	  ->read_lock(&sk->sk_dst_lock)
-> 
-> actually write_lock() not read_lock()
-> 
+I had some bad experiences with following processes you suggest the 
+doesn't remove the symbol immediately:
 
-static inline struct dst_entry *
-sk_dst_get(struct sock *sk)
-{
-	struct dst_entry *dst;
+As you wanted me to do, I scheduled the EXPORT_SYMBOL(insert_resource) 
+for removal on 2 May 2005 with both __deprecated_for_modules and an 
+entry in feature-removal-schedule.txt with the target date April 2006.
 
-	read_lock(&sk->sk_dst_lock);
+On 11 Apr 2006, I sent the patch to implement this scheduled removal.
 
-> > 
-> > > irq event stamp: 11052
-> > > hardirqs last  enabled at (11052): [<c105d454>] kmem_cache_alloc+0x89/0xa6
-> > > hardirqs last disabled at (11051): [<c105d405>] kmem_cache_alloc+0x3a/0xa6
-> > > softirqs last  enabled at (11040): [<c11a506d>] dev_queue_xmit+0x224/0x24b
-> > > softirqs last disabled at (11041): [<c1004a64>] do_softirq+0x58/0xbd
-> > > 
-> > > other info that might help us debug this:
-> > > 1 lock held by java_vm/4418:
-> > >  #0:  (af_family_keys + (sk)->sk_family#4){-+..}, at: [<f93c9281>]
-> > > tcp_v6_rcv+0x308/0x7b7 [ipv6]
-> > 
-> > 	softirq
-> > 	->ip6_dst_lookup
-> > 	  ->sk_dst_check
-> > 	    ->sk_dst_reset
-> > 	      ->write_lock(&sk->sk_dst_lock);
-> 
-> write_lock.. or read_lock() ? 
+As of today, the latter patch is still stuck in -mm (which isn't better 
+than having it dropped) although it's long overdue.
 
-static inline void
-sk_dst_reset(struct sock *sk)
-{
-	write_lock(&sk->sk_dst_lock);
+Do you understand why I distrust your "to aid later decision-making"?
 
-> > 
-> > > stack backtrace:
-> > >  [<c1003502>] show_trace_log_lvl+0x54/0xfd
-> > >  [<c1003b6a>] show_trace+0xd/0x10
-> > >  [<c1003c0e>] dump_stack+0x19/0x1b
-> > >  [<c102b833>] print_usage_bug+0x1cc/0x1d9
-> > >  [<c102bd34>] mark_lock+0x193/0x360
-> > >  [<c102c94a>] __lock_acquire+0x3b7/0x970
-> > >  [<c102d1c8>] lock_acquire+0x60/0x80
-> > >  [<c12013eb>] _read_lock+0x23/0x32
-> 
-> backtrace says read lock to me ...
-> > >  [<c119d0a9>] sk_dst_check+0x1b/0xe6
-> > >  [<f93ae479>] ip6_dst_lookup+0x31/0x172 [ipv6]
-> > >  [<f93c7065>] tcp_v6_send_synack+0x10f/0x238 [ipv6]
-> > >  [<f93c7dc5>] tcp_v6_conn_request+0x281/0x2c7 [ipv6]
-> > >  [<c11cca33>] tcp_rcv_state_process+0x5d/0xbde
-> 
-> 
-> > So the allegation is that if a softirq runs sk_dst_reset() while
-> > process-context code is running sk_dst_set(), we'll do write_lock() while
-> > holding read_lock().  
-> 
-> hmm or...
-> 
-> we're doing a write_lock(), then an interrupt can happen that triggers
-> the softirq that triggers the read_lock(), which will deadlock because
-> we interrupted the writer...
-> 
+Can you state publically "If there's still no in-kernel user after six 
+months, the removal is automatically ACK'ed."?
 
-either way ain't good ;)
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

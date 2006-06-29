@@ -1,39 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932969AbWF2VzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932964AbWF2Vys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932969AbWF2VzK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 17:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932901AbWF2Vyu
+	id S932964AbWF2Vys (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 17:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932966AbWF2VyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 17:54:50 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:61134
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932967AbWF2VyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:54:06 -0400
-Date: Thu, 29 Jun 2006 14:53:19 -0700 (PDT)
-Message-Id: <20060629.145319.71091846.davem@davemloft.net>
-To: bos@pathscale.com
-Cc: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH 38 of 39] IB/ipath - More changes to support InfiniPath
- on PowerPC 970 systems
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <c22b6c244d5db77f7b1d.1151617289@eng-12.pathscale.com>
-References: <patchbomb.1151617251@eng-12.pathscale.com>
-	<c22b6c244d5db77f7b1d.1151617289@eng-12.pathscale.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 29 Jun 2006 17:54:07 -0400
+Received: from damned.travellingkiwi.com ([81.6.239.220]:13867 "EHLO
+	damned.travellingkiwi.com") by vger.kernel.org with ESMTP
+	id S932955AbWF2Vxx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 17:53:53 -0400
+From: Hamish <hamish@travellingkiwi.com>
+Organization: TravellingKiwi Systems
+To: linux-kernel@vger.kernel.org
+Subject: Re: SATA hangs...
+Date: Thu, 29 Jun 2006 22:53:46 +0100
+User-Agent: KMail/1.9.1
+References: <200606232134.42231.hamish@travellingkiwi.com> <20060624100957.73fff572@localhost> <200606242330.48248.hamish@travellingkiwi.com>
+In-Reply-To: <200606242330.48248.hamish@travellingkiwi.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3243964.Abg2gdrLgO";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200606292253.50409.hamish@travellingkiwi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bryan O'Sullivan <bos@pathscale.com>
-Date: Thu, 29 Jun 2006 14:41:29 -0700
+--nextPart3243964.Abg2gdrLgO
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
->  ipath_core-$(CONFIG_X86_64) += ipath_wc_x86_64.o
-> +ipath_core-$(CONFIG_PPC64) += ipath_wc_ppc64.o
+On Saturday 24 June 2006 23:30, you wrote:
+> On Saturday 24 June 2006 09:09, you wrote:
+> > On Sat, 24 Jun 2006 09:36:59 +0200
+> >
+> > Paolo Ornati <ornati@fastwebnet.it> wrote:
+> > > > > I'm having problems with a SATA drive on an ASUS A8V deluxe
+> > > > > motherboard under kernel 2.6.17... In fact it's happened under
+> > > > > every (Vanilla) kernel I've ever run on this server (Back to
+> > > > > 2.6.14). (It's just over a year old. It didn't used to experience
+> > > > > the same load as it does now, so I'm currently assuming it's load
+> > > > > related...
+> > >
+> > > I think I've hit something similar yesterday, with 2.6.17.1...
+> >
+> > I was thinking that I've recently enabled CONFIG_PREEMPT (usually I
+> > was just using CONFIG_PREEMPT_VOLUNTARY).
+> >
+> > Maybe is totally unrelated but... for Hamish: what is/was your PREEMPT
+> > config?
+>
+> Hmm...
+>
+> damned stats # gzip -dc /proc/config.gz |grep -i preempt
+> # CONFIG_PREEMPT_NONE is not set
+> # CONFIG_PREEMPT_VOLUNTARY is not set
+> CONFIG_PREEMPT=3Dy
+> CONFIG_PREEMPT_BKL=3Dy
+> CONFIG_DEBUG_PREEMPT=3Dy
+> damned stats #
+>
+> I also tried 2.6.17-mm but that dies in reiserfs claiming a bug in bitmap=
+=2Ec
+>
+> I'll try a re-compile of 2.7.17.1 vanilla with no pre-empt & see how it
+> goes.
+>
 
-Again, don't put these kinds of cpu specific functions
-into the infiniband driver.  They are potentially globally
-useful, not something only Infiniband might want to do.
+Well, I turned off pre-empt, and haven't struck a problem since in almost a=
+=20
+week.
+
+H
+
+--nextPart3243964.Abg2gdrLgO
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBEpEvuwRzSEdQQDooRAuvgAKCMm3/tHTopeaEq1DSl9PZIe2/XZACgnChv
+XYsMkwItZ17eNCfUPU6ooWo=
+=vpeK
+-----END PGP SIGNATURE-----
+
+--nextPart3243964.Abg2gdrLgO--

@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWF2TqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWF2TsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWF2TqB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 15:46:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWF2TqB
+	id S932353AbWF2TsX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 15:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWF2TsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 15:46:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56705 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932340AbWF2TqA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 15:46:00 -0400
-Date: Thu, 29 Jun 2006 12:44:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] kernel/sys.c: remove unused exports
-Message-Id: <20060629124400.ee22dfbf.akpm@osdl.org>
-In-Reply-To: <20060629123608.a2a5c5c0.akpm@osdl.org>
-References: <20060629191940.GL19712@stusta.de>
-	<20060629123608.a2a5c5c0.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 29 Jun 2006 15:48:23 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28651
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932353AbWF2TsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 15:48:21 -0400
+Date: Thu, 29 Jun 2006 12:48:21 -0700 (PDT)
+Message-Id: <20060629.124821.03110823.davem@davemloft.net>
+To: snakebyte@gmx.de
+Cc: eis@baty.hanse.de, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] SKB leak in drivers/isdn/i4l/isdn_x25iface.c
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1151525167.26804.2.camel@alice>
+References: <1151525167.26804.2.camel@alice>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 12:36:08 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+From: Eric Sesterhenn <snakebyte@gmx.de>
+Date: Wed, 28 Jun 2006 22:06:07 +0200
 
-> On Thu, 29 Jun 2006 21:19:40 +0200
-> Adrian Bunk <bunk@stusta.de> wrote:
+> hi,
 > 
-> > This patch removes the following unused exports:
-> > - EXPORT_SYMBOL:
-> >   - in_egroup_p
-> > - EXPORT_SYMBOL_GPL's:
-> >   - kernel_restart
-> >   - kernel_halt
+> coverity spotted this leak (id #613), when
+> we are not configured, we return without
+> freeing the allocated skb.
 > 
-> Switch 'em to EXPORT_UNUSED_SYMBOL and I'll stop dropping your patches ;)
-> 
+> Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-If doing this, I'd suggest it be done thusly:
-
-EXPORT_UNUSED_SYMBOL(in_egroup_p);	/* June 2006 */
-
-to aid later decision-making.
+Applied, thanks.

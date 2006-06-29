@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWF2SWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWF2S0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWF2SWt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 14:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWF2SWt
+	id S1751244AbWF2S0I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 14:26:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWF2S0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 14:22:49 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:62684 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751242AbWF2SWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 14:22:49 -0400
-Date: Thu, 29 Jun 2006 11:22:45 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ZVC: Increase threshold for larger processor configurationss
-In-Reply-To: <20060628154911.6e035153.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0606291116500.27926@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0606281038530.22262@schroedinger.engr.sgi.com>
- <20060628154911.6e035153.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jun 2006 14:26:07 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:54915 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751244AbWF2S0G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 14:26:06 -0400
+Date: Thu, 29 Jun 2006 11:24:07 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, vs@namesys.com, neilb@suse.de,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Randy Dunlap <rdunlap@xenotime.net>, Dave Jones <davej@redhat.com>,
+       schwidefsky@de.ibm.com, Chuck Wolber <chuckw@quantumlinux.com>,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [stable] [PATCH 25/25] generic_file_buffered_write(): deadlock on vectored write
+Message-ID: <20060629182407.GZ11588@sequoia.sous-sol.org>
+References: <20060627200745.771284000@sous-sol.org> <20060627201837.477852000@sous-sol.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060627201837.477852000@sous-sol.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jun 2006, Andrew Morton wrote:
-
-> An alternative would be to calculate stat_threshold at runtime, based on
-> the cpu_possible count (I guess).  Or even:
+* Chris Wright (chrisw@sous-sol.org) wrote:
+> From: Vladimir V. Saveliev <vs@namesys.com>
 > 
-> static inline int stat_threshold(void)
-> {
-> #if NR_CPUS <= 32
-> 	return 32;
-> #else
-> 	return dynamically_calculated_stat_threshold;
-> #endif
-> }
-
-Thats one more memory reference. Hmmm... We could place the threshold in 
-the same cacheline. That would also open up the possbiliity of dynamically 
-calculating the threshold.
-
-> Did you consider my earlier suggestion about these counters?  That, over the
-> short-term, they tend to count in only one direction?  So we can do
+> generic_file_buffered_write() prefaults in user pages in order to avoid
+> deadlock on copying from the same page as write goes to.
 > 
-> 	if (x > STAT_THRESHOLD) {
-> 		zone_page_state_add(x + STAT_THRESHOLD/2, zone, item);
-> 		x = -STAT_THRESHOLD/2;
-> 	} else if (x < -STAT_THRESHOLD) {
-> 		zone_page_state_add(x - STAT_THRESHOLD/2, zone, item);
-> 		x = STAT_THRESHOLD;
-> 	}
-> 
-> that'll give an decrease in contention while not consuming any extra
-> storage and while (I think) increasing accuracy.
+> However, it looks like there is a problem when write is vectored:
+> fault_in_pages_readable brings in current segment or its part (maxlen). 
+> OTOH, filemap_copy_from_user_iovec is called to copy number of bytes
+> (bytes) which may exceed current segment, so filemap_copy_from_user_iovec
+> switches to the next segment which is not brought in yet.  Pagefault is
+> generated.  That causes the deadlock if pagefault is for the same page
+> write goes to: page being written is locked and not uptodate, pagefault
+> will deadlock trying to lock locked page.
 
-Uhh... We are overcompensating right? Pretty funky idea that is new to me 
-and that would require some thought.
+This is dropped for now, as it causes another problem with 0 length
+iovecs.  Andrew has written a fix and once it's baked in Linus' tree for
+a bit we can take back this one plus the fix.
 
-This would basically increase the stepping by 50% if we are only going in 
-one direction.
-
-If we are doing a mixture of allocations and deallocations (or pages being 
-marked dirty / undirty, mapping unmapping) then this may potentially
-increase the number of updates and therefore the cacheline contentions.
+thanks,
+-chris

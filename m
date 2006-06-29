@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751700AbWF2CQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWF2Cba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751700AbWF2CQt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 22:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751691AbWF2CQt
+	id S1750982AbWF2Cba (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 22:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWF2Cb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 22:16:49 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:45528 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750831AbWF2CQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 22:16:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RtAK/9QhLlJ82RgW3vkOeLqVm7Gjt4P5qdEKRMT5xux/Xquzi7RNd102fJ3lNmgfoOKuv25zj9gVzpZ3xpUtLWpadXPO1n20fG+4aIHDbjZ1LHO7Yp/7a73EBodcuqDRGJTcOX9HkDNOvMndECExbKIec0KZ/pqizktn3w9dS9g=
-Message-ID: <b6a2187b0606281916y5d19485ave073bf924c9d3552@mail.gmail.com>
-Date: Thu, 29 Jun 2006 10:16:47 +0800
-From: "Jeff Chua" <jeff.chua.linux@gmail.com>
-To: "Pierre Ossman" <drzeus-list@drzeus.cx>
-Subject: Re: 2GB or 4GB SD support for Linux 2.6.17?
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "Russell King" <rmk+lkml@arm.linux.org.uk>
-In-Reply-To: <44A181EC.2010601@drzeus.cx>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <b6a2187b0606252154i42b031c7tbc72235e5ad4313c@mail.gmail.com>
-	 <44A181EC.2010601@drzeus.cx>
+	Wed, 28 Jun 2006 22:31:29 -0400
+Received: from vms042pub.verizon.net ([206.46.252.42]:20163 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1750982AbWF2Cb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 22:31:29 -0400
+Date: Wed, 28 Jun 2006 22:31:24 -0400
+From: Andy Gay <andy@andynet.net>
+Subject: Re: USB driver for Sierra Wireless EM5625/MC5720 1xEVDO modules
+In-reply-to: <44A31A9F.3030102@goop.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Message-id: <1151548284.3285.299.camel@tahini.andynet.net>
+MIME-version: 1.0
+X-Mailer: Evolution 2.4.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1151537247.3285.278.camel@tahini.andynet.net>
+	<44A31A9F.3030102@goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre,
+On Wed, 2006-06-28 at 17:11 -0700, Jeremy Fitzhardinge wrote:
+> Andy Gay wrote:
+> > - these modules present 3 bulk EPs, the 2nd & 3rd can be used for
+> > control & status monitoring while data transfer is in progress on the
+> > 1st EP. This is useful (and necessary for my application) so we need to
+> > increase the port count.
+> >   
+> Ooh, can you share the details of those EPs?
+Probably not, but I'll check. The customer I'm developing for is a
+Sierra OEM, so they're probably under an NDA.
 
-Please repost the patch or send it to me. I'm very keen to test it. I
-know the SDs are working as I can read from using an USB card reader.
+The useful port is the second one, it talks a Sierra protocol called CnS
+(control and status). You could google for that, I guess. Or ask Sierra
+nicely :)
 
-Thanks, Jeff.
+>   Is your application public?
 
-
-On 6/28/06, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
-> Jeff Chua wrote:
-> > I tried both 2GB and 4GB SD card on 2.6.17 and both failed. But 1GB
-> > works fine.
+> 
+> > So what should I do next? I see a few possibilities, assuming anyone is
+> > interested in this:
 > >
->
-> Known issue and I have a patch sent for review with Russell.
-> Unfortunately, he has commitments elsewhere. So we have to be patient a
-> bit longer.
->
-> Rgds
-> Pierre
->
+> > - I could post a diff from Greg's driver. But I don't have hardware to
+> > test whether my changes will break it for the other devices that it
+> > supports;
+> >   
+> Well, it is specifically an airprime driver.  My card also presents 
+> another two endpoints, but I don't know what to do with them, so I 
+> haven't worried about them too much.  If they all talk the same thing, 
+> then they may as well be in the same driver.
+I'd think so too, but I can't test that my changes won't break things
+for other cards. Just being cautious here...
+> 
+> Are you proposing adding some more protocol knowledge to airprime, or 
+> just make those EPs appear as more serial ports?
+They are just serial ports, there's nothing special the driver can or
+should do with them. I just changed the driver so you can get to them.
+
+The main change I made to Greg's driver is to fix the memory leak - it
+leaks 16k per endpoint for each open(), that made it unusable on the
+very limited memory embedded platform I'm developing for.
+> 
+> Thanks,
+>     J
+

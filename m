@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932646AbWF2XWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWF2XcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932646AbWF2XWh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 19:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933091AbWF2XWh
+	id S1751300AbWF2XcW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 19:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWF2XcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 19:22:37 -0400
-Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:6106 "EHLO
-	smtpq3.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S932646AbWF2XWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 19:22:36 -0400
-Message-ID: <44A46130.8090102@keyaccess.nl>
-Date: Fri, 30 Jun 2006 01:24:32 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
+	Thu, 29 Jun 2006 19:32:22 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:35726 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751300AbWF2XcV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 19:32:21 -0400
+Date: Fri, 30 Jun 2006 01:27:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
-CC: Gregoire Favre <gregoire.favre@gmail.com>, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@codemonkey.org.uk>, Gerd Hoffmann <kraxel@suse.de>
-Subject: Re: 2.6.17-mm4 undefined reference to `alternatives_smp_module_del'
-References: <20060629122721.GA18671@gmail.com> <20060629154247.1bf8eccf.akpm@osdl.org>
-In-Reply-To: <20060629154247.1bf8eccf.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm4
+Message-ID: <20060629232739.GA28306@elte.hu>
+References: <20060629013643.4b47e8bd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060629013643.4b47e8bd.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5001]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
 
-> <looks at davej>
-> 
-> That patch is pretty yuk anyway
-> 
->  void module_arch_cleanup(struct module *mod)
->  {
-> +#ifdef CONFIG_SMP
-> 	alternatives_smp_module_del(mod);
-> +#endif
->  }
-> 
-> Should be a stub in a header file, which would fix this problem too.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Gerd Hoffmann already did this and I suppose it's in some upstream tree 
-somewhere:
+> +profile-likely-unlikely-macros.patch
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114743413932319&w=2
+CONFIG_PROFILE_LIKELY doesnt quite work:
 
-Rene.
+ Low memory ends at vaddr f7e00000
+ node 0 will remap to vaddr f7e00000 - f8000000
+ High memory starts at vaddr f7e00000
+ found SMP MP-table at 000f5680
+ NX (Execute Disable) protection: active
+ Unknown interrupt or fault at EIP 00000060 c1d9f264 00000002
+ Unknown interrupt or fault at EIP 00000060 c0100295 0000f264
+ Unknown interrupt or fault at EIP 00000060 c0100295 00000294
+ Unknown interrupt or fault at EIP 00000060 c0100295 00000294
+ Unknown interrupt or fault at EIP 00000060 c0100295 00000294
+ Unknown interrupt or fault at EIP 00000060 c0100295 00000294
 
+disabling it makes these go away.
+
+	Ingo

@@ -1,64 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbWF2UtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWF2UwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932517AbWF2UtM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWF2UtL
+	id S1751299AbWF2UwN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWF2UwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:49:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40664 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932508AbWF2UtJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:49:09 -0400
-Date: Thu, 29 Jun 2006 16:49:05 -0400
-From: Dave Jones <davej@redhat.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.17-mm4
-Message-ID: <20060629204905.GF13619@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org
-References: <20060629013643.4b47e8bd.akpm@osdl.org> <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com> <20060629204330.GC13619@redhat.com> <6bffcb0e0606291346s64530db4g1c9c33da9cf34e73@mail.gmail.com>
-Mime-Version: 1.0
+	Thu, 29 Jun 2006 16:52:13 -0400
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:48542 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751299AbWF2UwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 16:52:12 -0400
+Date: Thu, 29 Jun 2006 13:52:13 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>, gregkh@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 64bit Resource: finally enable 64bit resource sizes
+Message-ID: <20060629205213.GA3534@tuatara.stupidest.org>
+References: <200606291801.k5TI12br003227@hera.kernel.org> <20060629204206.GA3010@tuatara.stupidest.org> <20060629204527.GD13619@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6bffcb0e0606291346s64530db4g1c9c33da9cf34e73@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060629204527.GD13619@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 29, 2006 at 10:46:24PM +0200, Michal Piotrowski wrote:
- > On 29/06/06, Dave Jones <davej@redhat.com> wrote:
- > >On Thu, Jun 29, 2006 at 10:39:33PM +0200, Michal Piotrowski wrote:
- > >
- > > > This looks very strange.
- > > >
- > > > BUG: unable to handle kernel paging request at virtual address 6b6b6c07
- > >
- > >Looks like a use after free.
- > >
- > > > printing eip:
- > > > c0138594
- > > > *pde=00000000
- > > > Oops: 0002 [#1]
- > > > 4K_STACK PREEMPT SMP
- > > > last sysfs file /class/net/eth0/address
- > > > Modules linked in: ipv6 af_packet ipt_REJECT xt_tcpudp x_tables
- > > > p4_clockmod speedstep_lib binfmt_misc
- > > >
- > > > (gdb) list *0xc0138594
- > > > 0xc0138594 is in __lock_acquire (include2/asm/atomic.h:96).
- > > > warning: Source file is more recent than executable.
- > >
- > >got a backtrace ?
- > 
- > Unfortunately no.
+On Thu, Jun 29, 2006 at 04:45:27PM -0400, Dave Jones wrote:
 
-nothing useful from 'bt' from that gdb prompt ?
+Yeah I just test and it does the right think for iamd64
 
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+> +config RESOURCES_64BIT
+> +       bool "64 bit Memory and IO resources (EXPERIMENTAL)" if (!64BIT && EXPERIMENTAL)
+> +       default 64BIT
+                  ^^^^^ ?
+is that right?

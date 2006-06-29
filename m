@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWF2SOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWF2SO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbWF2SOk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 14:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWF2SOk
+	id S1751234AbWF2SO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 14:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWF2SO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 14:14:40 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:19072 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751238AbWF2SOi
+	Thu, 29 Jun 2006 14:14:26 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:52997 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751234AbWF2SOZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 14:14:38 -0400
-Date: Thu, 29 Jun 2006 11:12:16 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Michael Tokarev <mjt@tls.msk.ru>, Chris Wright <chrisw@sous-sol.org>,
-       linux-kernel@vger.kernel.org, stable@kernel.org,
-       Andrey Borzenkov <arvidjaar@mail.ru>,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris@amavis.tls.msk.ru, Wedgwood@vger.kernel.org
-Subject: Re: [PATCH 07/13] SERIAL: PARPORT_SERIAL should depend on SERIAL_8250_PCI
-Message-ID: <20060629181216.GY11588@sequoia.sous-sol.org>
-References: <20060620114527.934114000@sous-sol.org> <20060620114733.957367000@sous-sol.org> <44A40E68.9080906@tls.msk.ru> <20060629173710.GE9709@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Jun 2006 14:14:25 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Marc Perkel <marc@perkel.com>
+Subject: Re: AMD AM2 Sempron vs. Athlon - Confused
+Date: Thu, 29 Jun 2006 19:14:39 +0100
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <44A40E50.5040901@perkel.com>
+In-Reply-To: <44A40E50.5040901@perkel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060629173710.GE9709@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200606291914.39951.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Russell King (rmk+lkml@arm.linux.org.uk) wrote:
-> On Thu, Jun 29, 2006 at 09:31:20PM +0400, Michael Tokarev wrote:
-> > I've no idea how this patch slipped into 2.6.16 -stable queue in the
-> > first place... ;)
+On Thursday 29 June 2006 18:30, Marc Perkel wrote:
+> I'm confused and I thought if anyone would know it would be people here.
+>
+> So - in the AM2 world, what's the difference between Sempron and Athlon
+> processors?
 
-When Russell sent the patch to stable he said "For the stable branches"
-which I took to mean both 2.6.16 and 2.6.17, so I added to both.
+That I'm aware of, Semprons have smaller L2 caches. You want an Athlon.
 
-> Probably because I didn't pay enough attention to the review mails.
-> I wasn't expecting it to go into 2.6.16, so thought little of it.
+> I look at the specs and they look really similar. Pricing is 
+> even weirder with lower spec Semprons costing more than higher spec
+> Athlons?
 
-I'll add a revert patch for 2.6.16.  Sound OK?
--chris
+I've not seen this, but my understanding is that AMD's PR numbering scheme 
+can't be used to compare between processor lines. i.e., a Sempron 3000+ is 
+not faster than an Athlon 2800+..
+
+> And - can Linux kernels run on these new processors and motherboards or
+> is this just too new to mess with?
+
+Should just work. I've seen Linux booted on an AM2 board, but I don't 
+currently own one.
+
+-- 
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

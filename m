@@ -1,133 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933041AbWF2WKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933043AbWF2WKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933041AbWF2WKv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 18:10:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933040AbWF2WKv
+	id S933043AbWF2WKb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 18:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933041AbWF2WKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 18:10:51 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:52616 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S933041AbWF2WKt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 18:10:49 -0400
-Message-ID: <44A44FB4.6040405@watson.ibm.com>
-Date: Thu, 29 Jun 2006 18:09:56 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jay Lan <jlan@sgi.com>
-CC: Paul Jackson <pj@sgi.com>, akpm@osdl.org, Valdis.Kletnieks@vt.edu,
-       jlan@engr.sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>	<20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>	<20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>	<20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>	<44A01A50.1050403@sgi.com>	<20060626105548.edef4c64.akpm@osdl.org>	<44A020CD.30903@watson.ibm.com>	<20060626111249.7aece36e.akpm@osdl.org>	<44A026ED.8080903@sgi.com>	<20060626113959.839d72bc.akpm@osdl.org>	<44A2F50D.8030306@engr.sgi.com>	<20060628145341.529a61ab.akpm@osdl.org>	<44A2FC72.9090407@engr.sgi.com>	<20060629014050.d3bf0be4.pj@sgi.com>	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>	<20060629094408.360ac157.pj@sgi.com>	<20060629110107.2e56310b.akpm@osdl.org>	<20060629112642.66f35dd5.pj@sgi.com>	<44A426DC.9090009@watson.ibm.com> <20060629124148.48d4c9ad.pj@sgi.com> <44A4492E.6090307@watson.ibm.com> <44A44C27.7020100@sgi.com>
-In-Reply-To: <44A44C27.7020100@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 29 Jun 2006 18:10:30 -0400
+Received: from rtsoft3.corbina.net ([85.21.88.6]:20279 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S933040AbWF2WK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 18:10:28 -0400
+Date: Fri, 30 Jun 2006 02:10:17 +0400
+From: Vitaly Bordug <vbordug@ru.mvista.com>
+To: Andy Fleming <afleming@freescale.com>
+Cc: Li Yang-r58472 <LeoLi@freescale.com>,
+       Yin Olivia-r63875 <Hong-Hua.Yin@freescale.com>,
+       "linux-kernel@vger.kernel.org Mailing List" 
+	<linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Chu hanjin-r52514 <Hanjin.Chu@freescale.com>
+Subject: Re: [PATCH 1/7] powerpc: Add mpc8360epb platform support
+Message-ID: <20060630021017.18d0ddc3@localhost.localdomain>
+In-Reply-To: <E5D17B54-D345-4859-A9B0-62F038A694EF@freescale.com>
+References: <9FCDBA58F226D911B202000BDBAD467306E04FE2@zch01exm40.ap.freescale.net>
+	<8A7E4B7C-8744-47FF-90FA-9B68C5187CEE@freescale.com>
+	<20060629225131.43b9ed59@localhost.localdomain>
+	<C45A575E-1283-4299-A403-BE46B13AEF9C@freescale.com>
+	<20060629235625.5a8880a0@localhost.localdomain>
+	<E5D17B54-D345-4859-A9B0-62F038A694EF@freescale.com>
+X-Mailer: Sylpheed-Claws 2.3.0cvs16 (GTK+ 2.8.19; i686-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan wrote:
-> Shailabh Nagar wrote:
-> 
->> Paul Jackson wrote:
->>
->>> Shailabh wrote:
->>>  
->>>
->>>> I suppose this is because cpuset's offer some middle ground between
->>>> collecting data per-cpu vs. collecting it for all cpus ?
->>>>   
->>>
->>>
->>>
->>> Yes - well said.  And I have this strange tendency to see all the
->>> worlds problems as opportunities for cpuset solutions <grin>.
->>>
->>>  
->>>
->>>> What happens when someone is using cpusets on such a machine and
->>>> changes its membership in response to other needs.  All taskstats
->>>> users would need to monitor for such changes and adjust their
->>>> processing....seems like unnecessary tying up of two unrelated
->>>> concepts.
->>>>   
->>>
->>>
->>>
->>> I would not expect taskstat users to monitor for such changes.
->>> I'd expect them to monitor the stats from whatever is in the
->>> cpuset they named.  If a task moves out of that cpuset to another,
->>> then tough -- that task will no longer be monitored by that
->>> particular monitoring request.
->>>
->>> Cpusets do provide a convenient middle ground, as you say, which
->>> is really useful for reducing scaling issues such as this one to
->>> a managable size.
->>>
->>> Per-cpu is too fine grained, and per-system too coarse.
->>>
->>> An unnecessary tying - yes.  But perhaps a useful one.
->>>  
->>>
->> The idea of collecting stats for a group of cpus rather than all (or
->> one) seems attractive.
->> But cpusets doesnt :-)
->>
->> How about if we did something simple like
->> having a separate listen group (within genetlink) for a reasonably
->> large number of cpus
->> and have all the messages from those cpus multicast to the listeners
->> of that group alone ?
->>
->> e.g. currently we have only one TASKSTATS_LISTEN_GROUP
->> we could reserve the following
->>    TASKSTATS_LISTEN_GROUP_0
->>    TASKSTATS_LISTEN_GROUP_1....
->>
->> where GROUP_0 handles cpus numbered 0-63 (or 31)....etc.
->>
->> Advantages would be
->>
->> 1. Most users would still need to listen to the one group as they do
->> in the current design and others could listen to more, scaling up
->> their userspace listening daemons
->> as appropriate (e.g. one daemon per listening group).
->>
->> 2. Userspace could be saved the bother of having too many streams of
->> per-cpu data and reassemble them
->> in the order they were generated.
->>
->> The moment we talk of splitting up the data stream generated by the
->> kernel I suppose we have to do some
->> kind of timestamping so reassembly in the same order can be done. I
->> can't see this mattering for the likes of
->> delay accounting and CSA but for future taskstats users, who knows.
-> 
-> 
-> Timestamp of the taskstats messages or timestamp of the exiting task?
+On Thu, 29 Jun 2006 16:04:21 -0500
+Andy Fleming wrote:
 
-I meant a timestamp of the taskstats message...though the latter
-(timestamp of exiting task) would also be ok since that would be called
-at the same location in the exit path for each exit message sent.
-
-> I include an exit_time field for the task as part of "Common
-> Accounting Fields" in my csa_taskstats patch i sent to you. So, we
-> have both start_time and exit_time.
-
-Yes, that sort of thing should do. We would just need to generalize to the
-taskstats layer.
-
-Thanks,
-Shailabh
 > 
-> Thanks,
->  - jay
+> On Jun 29, 2006, at 14:56, Vitaly Bordug wrote:
 > 
->>
->>
->> --Shailabh
->>
->>
+> > On Thu, 29 Jun 2006 14:18:51 -0500
+> > Andy Fleming wrote:
+> >
+> >>
+> >> On Jun 29, 2006, at 13:51, Vitaly Bordug wrote:
+> >>
+> >>> On Thu, 29 Jun 2006 13:03:23 -0500
+> >>> Andy Fleming wrote:
+> >>>
+> >>> [snip]
+> >>>>>>> +	iounmap(bcsr_regs);
+> >>>>>>> +
+> >>>>>> And if we have a design, which do not contain real ethernet UCC
+> >>>>>> usage? Or UCC
+> >>>>>> geth is disabled somehow explicitly? Stuff like that normally
+> >>>>>> goes to the
+> >>>>>> callback that is going to be triggered upon Etherbet init.
+> >>>>> I will move it.
+> >>>>
+> >>>>
+> >>>> Wait...no.  I don't understand Vitaly's objection.  If someone
+> >>>> creates a board with an 8360 that doesn't use the UCC ethernet,
+> >>>> they can create a separate board file.  This is the
+> >>>> board-specific code, and it is perfectly acceptable for it to
+> >>>> reset the PHY like this. What ethernet callback could be used?
+> >>>>
+> >>>
+> >>> I am sort of against the unconditional trigger of the ethernet-
+> >>> specific stuff,
+> >>> dependless if UCC eth is really wanted in specific configuration.
+> >>>
+> >>> For stuff like that I'd make a function (to setup low-level
+> >>> stuff), and pass it
+> >>> via platform_info to the eth driver, so that really
+> >>> driver-specific things happen in driver context only.
+> >>>
+> >>> Yes this is board specific file, and virtually everything needed
+> >>> for the board can take place here.
+> >>> But usually BCSR acts as a toggle for a several things, and IOW, I
+> >>> see it more correct to trigger those stuff from the respective
+> >>> drivers (using a callback passed through platform_info)
+> >>
+> >>
+> >> Callbacks are fairly evil.  And the driver most certainly cannot
+> >> know about the BCSR, since there may or may not even *be* a BCSR on
+> >> any given board with a QE.  The PHY only needs to be reset once,
+> >> during initialization.  On some boards, there is no need to trigger
+> >> some sort of reset, or enable any PHYs.  I'm still not sure why
+> >> this should be the domain of the device driver, since it's a board
+> >> option.
+> >>
+> >
+> > Well. The driver does not need to know anything about bcsr. All it  
+> > needs to do is to execute the function pointer filled in bsp code,  
+> > if one exists (If nothing needs to be tweaked in bsp level for a  
+> > driver, just no need to fill that function pointer). For instance,  
+> > in PQ2 uart, usb and fcc need to be enabled by bcsr before could
+> > be actually utilized, so say fs_enet does all needed upon startup,  
+> > without messing with board setup code.
+> > The same does cpm uart...
+> >
+> > In case of this particular board, it is not that bad. But I
+> > dislike the concept to execute the code in common (for this board)
+> > path, not depending if UCC eth disabled in config explicitly.
+> 
+> Well, let me try to see if I understand the two approaches being  
+> pondered:
+> 
+Yes, just right.
+
+> 1) Use a callback.
+> 
+> Inside the platform info device-specific structure, we create a  
+> callback.  Something like enet_info->board_init().  The board boots,  
+> and in the initialization function for that board, the callback is  
+> assigned to be a function which does the appropriate board-specific  
+> initialization.  Actually, it makes sure to do this for every device  
+> which requires such initialization.  Then, later, the devices are  
+> registered, and matched up with appropriate drivers.  Those drivers  
+> make sure to invoke enet_info->board_init() before they do anything  
+> hw related.
+> 
+> 2) Let board init code do it
+> 
+> The board boots, and in the initialization function for that board,  
+> it checks to see if the device exists (by searching the device
+> tree), and if so, does any board-specific initialization (in this
+> case, configuring the board register to enable the PHY for that
+> device). The devices are registered, and matched with appropriate
+> drivers. Those drivers operate, blissfully unaware that there was
+> ever any danger the board wasn't set up.
 > 
 
+Sounds fine, but there are some corner cases. 
+In case, really familiar to 8xx people, the board actually has devices, but 
+they simply do not operate simultaneously (because of hw, or there are conflicting pin options)
+
+So the only way to work in such a case is to craft proper kconfig for say, secondary Eth off, 2-nd uart on and vice versa.  BSP code could be aware of that, and make/do not make hw tweaks up to #ifdefs. The way for BSP code to put needed stuff into the function, hereby telling the driver to execute it upon setup before accessing hw seems more consistent way for me. 
+
+Again, I agree it may be extra for this particular board. But we are speaking about the concept... That sort of things is used within fs_enet and cpm_uart drivers already in the stock tree.
+
+-Vitaly

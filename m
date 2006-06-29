@@ -1,50 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWF2F1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751611AbWF2Fdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWF2F1E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 01:27:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWF2F1E
+	id S1751611AbWF2Fdh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 01:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWF2Fdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 01:27:04 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:50627 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932190AbWF2F1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 01:27:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=XeZh1tYT6NPlGbK7K5gKaR7ejxfQ01LqgRGnZNLMm/PbO7R4kCrIJdnLGcTqitkJPF2XkPnLu7aTrZPsW2YOspGrj8XmunPPtg5pZMdoE/Vvjv+zrZq00yQ5iUpYVYHR9sZWdaseXzPdQB22fj273twKYOxj3eYKFW80gd7P3Es=
-Message-ID: <84144f020606282227x662bdd48read6218cf2bab8fc@mail.gmail.com>
-Date: Thu, 29 Jun 2006 08:27:01 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Russ Cox" <rsc@swtch.com>
-Subject: Re: [V9fs-developer] [Patch] Dead code in fs/9p/vfs_inode.c
-Cc: "Eric Sesterhenn" <snakebyte@gmx.de>, linux-kernel@vger.kernel.org,
-       v9fs-developer@lists.sourceforge.net
-In-Reply-To: <ee9e417a0606281555k3d954236y82b11336098762be@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 29 Jun 2006 01:33:36 -0400
+Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:26890 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S1751609AbWF2Fdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 01:33:36 -0400
+Date: Thu, 29 Jun 2006 01:32:47 -0400
+From: Matt LaPlante <laplam@rpi.edu>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] KConfig: Spellchecking 'similarity' and 'independent'
+Message-Id: <20060629013247.c301a5ba.laplam@rpi.edu>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1151535167.28311.1.camel@alice>
-	 <ee9e417a0606281555k3d954236y82b11336098762be@mail.gmail.com>
-X-Google-Sender-Auth: 04f07fea4ad5de12
+X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 01:32:55 -0400
+	(not processed: message from trusted or authenticated source)
+X-Return-Path: laplam@rpi.edu
+X-Envelope-From: laplam@rpi.edu
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 01:32:57 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/29/06, Russ Cox <rsc@swtch.com> wrote:
-> >  error:
-> >         kfree(fcall);
-> > -       if (ret)
-> > -               iput(ret);
-> > -
-> >         return ERR_PTR(err);
-> >  }
->
-> What about when someone changes the code and does have ret != NULL here?
-> This seems like reasonable defensive programming to me.
+Several KConfig files had 'similarity' and 'independent' spelled incorrectly...
 
-Well, you're not supposed to change code without auditing for things
-like this anyway. Also, I fail to see why/how you would change
-v9fs_inode_from_fid() for that to happen?  I'd say kill the check.
+-
+Matt LaPlante
+CCNP, CCDP, A+, Linux+, CQS
+laplam@rpi.edu
 
-                                                   Pekka
+--
+
+diff -ru a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	2006-06-29 00:23:23.000000000 -0400
++++ b/arch/i386/Kconfig	2006-06-29 00:40:56.000000000 -0400
+@@ -737,7 +737,7 @@
+ 	  but it is independent of the system firmware.   And like a reboot
+ 	  you can start any kernel with it, not just Linux.
+ 
+-	  The name comes from the similiarity to the exec system call.
++	  The name comes from the similarity to the exec system call.
+ 
+ 	  It is an ongoing process to be certain the hardware in a machine
+ 	  is properly shutdown, so do not be surprised if this code does not
+diff -ru a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+--- a/arch/powerpc/Kconfig	2006-06-29 00:23:24.000000000 -0400
++++ b/arch/powerpc/Kconfig	2006-06-29 00:40:56.000000000 -0400
+@@ -624,10 +624,10 @@
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is indepedent of the system firmware.   And like a reboot
++	  but it is independent of the system firmware.   And like a reboot
+ 	  you can start any kernel with it, not just Linux.
+ 
+-	  The name comes from the similiarity to the exec system call.
++	  The name comes from the similarity to the exec system call.
+ 
+ 	  It is an ongoing process to be certain the hardware in a machine
+ 	  is properly shutdown, so do not be surprised if this code does not
+diff -ru a/arch/ppc/Kconfig b/arch/ppc/Kconfig
+--- a/arch/ppc/Kconfig	2006-06-29 00:23:24.000000000 -0400
++++ b/arch/ppc/Kconfig	2006-06-29 00:40:56.000000000 -0400
+@@ -219,10 +219,10 @@
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is indepedent of the system firmware.   And like a reboot
++	  but it is independent of the system firmware.   And like a reboot
+ 	  you can start any kernel with it, not just Linux.
+ 
+-	  The name comes from the similiarity to the exec system call.
++	  The name comes from the similarity to the exec system call.
+ 
+ 	  It is an ongoing process to be certain the hardware in a machine
+ 	  is properly shutdown, so do not be surprised if this code does not
+diff -ru a/arch/sh/Kconfig b/arch/sh/Kconfig
+--- a/arch/sh/Kconfig	2006-06-20 05:31:55.000000000 -0400
++++ b/arch/sh/Kconfig	2006-06-29 00:40:56.000000000 -0400
+@@ -465,10 +465,10 @@
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is indepedent of the system firmware.  And like a reboot
++	  but it is independent of the system firmware.  And like a reboot
+ 	  you can start any kernel with it, not just Linux.
+ 
+-	  The name comes from the similiarity to the exec system call.
++	  The name comes from the similarity to the exec system call.
+ 
+ 	  It is an ongoing process to be certain the hardware in a machine
+ 	  is properly shutdown, so do not be surprised if this code does not
+diff -ru a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
+--- a/arch/x86_64/Kconfig	2006-06-29 00:23:24.000000000 -0400
++++ b/arch/x86_64/Kconfig	2006-06-29 00:40:56.000000000 -0400
+@@ -459,10 +459,10 @@
+ 	help
+ 	  kexec is a system call that implements the ability to shutdown your
+ 	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is indepedent of the system firmware.   And like a reboot
++	  but it is independent of the system firmware.   And like a reboot
+ 	  you can start any kernel with it, not just Linux.
+ 
+-	  The name comes from the similiarity to the exec system call.
++	  The name comes from the similarity to the exec system call.
+ 
+ 	  It is an ongoing process to be certain the hardware in a machine
+ 	  is properly shutdown, so do not be surprised if this code does not
+

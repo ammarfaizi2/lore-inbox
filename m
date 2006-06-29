@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751801AbWF1X7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751824AbWF2AFH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751801AbWF1X7P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 19:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751800AbWF1X7O
+	id S1751824AbWF2AFH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 20:05:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWF2AFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 19:59:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1744 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751799AbWF1X7N (ORCPT
+	Wed, 28 Jun 2006 20:05:06 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:39061 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751824AbWF2AFC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 19:59:13 -0400
-Date: Wed, 28 Jun 2006 16:55:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-cc: Marcel Holtmann <marcel@holtmann.org>, Greg KH <greg@kroah.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [git pull] Input update for 2.6.17
-In-Reply-To: <44A31381.8090101@garzik.org>
-Message-ID: <Pine.LNX.4.64.0606281651240.12404@g5.osdl.org>
-References: <200606260235.03718.dtor_core@ameritech.net> 
- <Pine.LNX.4.64.0606262247040.3927@g5.osdl.org>  <20060627063734.GA28135@kroah.com>
-  <Pine.LNX.4.64.0606271131590.3927@g5.osdl.org>  <Pine.LNX.4.64.0606271211110.3927@g5.osdl.org>
-  <Pine.LNX.4.64.0606271231440.3927@g5.osdl.org> <1151437593.25011.38.camel@localhost>
- <Pine.LNX.4.64.0606272057160.3927@g5.osdl.org> <Pine.LNX.4.64.0606272114330.3927@g5.osdl.org>
- <44A229C0.5060702@garzik.org> <Pine.LNX.4.64.0606281502280.12404@g5.osdl.org>
- <44A31381.8090101@garzik.org>
+	Wed, 28 Jun 2006 20:05:02 -0400
+Date: Thu, 29 Jun 2006 02:04:43 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Andi Kleen <ak@suse.de>, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel@vger.kernel.org, klibc@zytor.com, torvalds@osdl.org
+Subject: Re: klibc and what's the next step?
+In-Reply-To: <44A16E9C.70000@zytor.com>
+Message-ID: <Pine.LNX.4.64.0606290156590.17704@scrub.home>
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <p73r71attww.fsf@verdi.suse.de>
+ <44A166AF.1040205@zytor.com> <200606271940.46634.ak@suse.de> <44A16E9C.70000@zytor.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Tue, 27 Jun 2006, H. Peter Anvin wrote:
 
-On Wed, 28 Jun 2006, Jeff Garzik wrote:
-> 
-> You do:
-> 
-> >         urb->transfer_buffer = skb->data;
-> >         urb->transfer_buffer_length = skb->len;
+> > But not for LVM where this can be fairly complex.
 > > 
-> >         __fill_isoc_desc(urb, skb->len,
-> > le16_to_cpu(husb->isoc_out_ep->desc.wMaxPacketSize));
-> > 
-> >         _urb->priv = skb;
+> > And next would be probably iSCSI. Maybe it's better to leave some stuff
+> > in initramfs. 
 > 
-> so it looks like you can grab it out of the 'priv' field.
-> 
-> And a damned good thing too...
+> Of course, and even if it's built into the kernel tree it doesn't have to be
+> monolithic (one binary.)  Current kinit is monolithic (although there are
+> chunks available as standalone binaries, and I have gotten requests to break
+> out more), but that's mostly because I've been concerned about bloating the
+> overall size of the kernel image for embedded people.
 
-Yeah, you'd have to do something like
+If you are concerned about this simply keep the whole thing optional. 
+Embedded application usually know their boot device and they don't need no 
+fancy initramfs.
 
-	struct _urb *_urb = container_of(urb, struct _urb, urb);
-
-first. However, it also turns out that some other code-paths are _also_ 
-filling "urb->transfer_buffer", and those are indeed using a kmalloc'ed 
-buffer (hci_usb_isoc_rx_submit()).
-
-So the proper thing to do is probably along the lines of
-
-	static void free_transfer_buffer(struct urb *urb)
-	{
-		struct _urb *_urb = container_of(urb, struct _urb, urb);
-
-		if (_urb->priv) {
-			kfree_skb((struct sk_buff *) _urb->priv);
-			_urb->priv = NULL;
-			urb->transfer_buffer = NULL;
-			return;
-		}
-		kfree(urb->transfer_buffer);
-		urb->transfer_buffer = NULL;
-	}
-
-or whatever. I dunno. I ended up just uncommenting the "kfree()" in my 
-code, to see that it doesn't oops any more (and it doesn't).
-
-		Linus
+bye, Roman

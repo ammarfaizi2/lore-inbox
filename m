@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWF2KDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751663AbWF2KOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751332AbWF2KDd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 06:03:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751663AbWF2KDd
+	id S1751663AbWF2KOv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 06:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751814AbWF2KOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 06:03:33 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:30378 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751332AbWF2KDc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 06:03:32 -0400
-From: Andi Kleen <ak@suse.de>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: Alsa update in mainline broke ATI-IXP sound driver II
-Date: Thu, 29 Jun 2006 12:03:22 +0200
-User-Agent: KMail/1.9.3
-Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-References: <200606252139.36002.ak@suse.de> <200606262028.31807.ak@suse.de> <s5hmzbz92i6.wl%tiwai@suse.de>
-In-Reply-To: <s5hmzbz92i6.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jun 2006 06:14:50 -0400
+Received: from [82.133.102.210] ([82.133.102.210]:18421 "EHLO
+	cockermouth.uk.xensource.com") by vger.kernel.org with ESMTP
+	id S1751663AbWF2KOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 06:14:50 -0400
+Date: Thu, 29 Jun 2006 11:14:36 +0100
+From: Emmanuel Ackaouy <ack@xensource.com>
+To: linux-kernel@vger.kernel.org
+Cc: schwidefsky@de.ibm.com
+Subject: [PATCH] no_idle_hz (s390/xen) 2.6.16.13: fix next_timer_interrupt() when timer pending
+Message-ID: <20060629101436.GA18542@cockermouth.uk.xensource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606291203.22773.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 June 2006 20:48, Takashi Iwai wrote:
-> At Mon, 26 Jun 2006 20:28:31 +0200,
-> Andi Kleen wrote:
-> > 
-> > 
-> > > OK, and still you get the same error like:
-> > > 
-> > > 	ALSA lib confmisc.c:672:(snd_func_card_driver) cannot find card '0'
-> > > 	...
-> > > ??
-> > 
-> > Yes.
-> > 
-> > > Any change if you set CONFIG_SND_DYNAMIC_MINORS=y ?
-> > 
-> > With that it finally works. Thanks.
-> > 
-> > Still can it be fixed?
-> 
-> Well, the bug shall be fixed :)
-> 
-> Unfortunately I cannot reproduce this on my systems that are all based
-> on SUSE 10.1, and the latest 2.6.17-git works fine even
-> CONFIG_SND_DYNAMIC_MINORS=n as far as I've tested.
-> 
-> Could you check the strace and what open error occurs?
-> I suppose it's /dev/snd/controlC0, but don't figure out exactly.
+Fix next_timer_interrupt() to return the expired timeout of any
+pending timer instead of the default "nothing scheduled" timeout
+value of jiffies+MAX_JIFFY_OFFSET. See comment in patch for details.
 
-Sorry for the delay
-
-(as root) I get
-
-5184  open("/dev/snd/controlC0", O_RDONLY) = -1 EACCES (Permission denied)
-5184  open("/dev/snd/controlC1", O_RDONLY) = -1 EACCES (Permission denied)
-... (upto 31) ...
-5184  open("/dev/sound/dsp", O_WRONLY|O_NONBLOCK) = -1 ENOENT (No such file or d
-5184  open("/dev/dsp", O_WRONLY|O_NONBLOCK) = -1 EACCES (Permission denied)
-
-ccontrol0 is
-crw-------  1 andi audio 116, 6 2006-06-29 11:49 /dev/snd/controlC0
-
-It also doesn't work as andi
-
-I stuck printks to the EACCES in sound/* and they don't trigger so it must
-be somewhere else.
+Signed-off-by: Emmanuel Ackaouy <ack@xensource.com>
 
 
--Andi
+diff -pruN pristine-linux-2.6.16.13/kernel/timer.c linux-2.6.16.13-xen/kernel/timer.c
+--- pristine-linux-2.6.16.13/kernel/timer.c	2006-05-02 22:38:44.000000000 +0100
++++ linux-2.6.16.13-xen/kernel/timer.c	2006-06-28 21:38:58.000000000 +0100
+@@ -555,7 +555,17 @@ found:
+ 	}
+ 	spin_unlock(&base->t_base.lock);
+ 
+-	if (time_before(hr_expires, expires))
++	/*
++	 * If timers are pending, "expires" will be in the recent past
++	 * of "jiffies". If there are no hr_timers registered, "hr_expires"
++	 * will be "jiffies + MAX_JIFFY_OFFSET"; this is *just* short of being
++	 * considered to be before "jiffies". This makes it very likely that
++	 * "hr_expires" *will* be considered to be before "expires".
++	 * So we must check when there are pending timers (expires <= jiffies)
++	 * to ensure that we don't accidently tell the caller that there is
++	 * nothing scheduled until half an epoch (MAX_JIFFY_OFFSET)!
++	 */
++	if (time_before(jiffies, expires) && time_before(hr_expires, expires))
+ 		return hr_expires;
+ 
+ 	return expires;

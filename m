@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751824AbWF2AFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751826AbWF2AFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751824AbWF2AFH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 20:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWF2AFG
+	id S1751826AbWF2AFA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 20:05:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWF2AE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 20:05:06 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:39061 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751824AbWF2AFC (ORCPT
+	Wed, 28 Jun 2006 20:04:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17106 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751822AbWF2AE6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 20:05:02 -0400
-Date: Thu, 29 Jun 2006 02:04:43 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Andi Kleen <ak@suse.de>, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, klibc@zytor.com, torvalds@osdl.org
-Subject: Re: klibc and what's the next step?
-In-Reply-To: <44A16E9C.70000@zytor.com>
-Message-ID: <Pine.LNX.4.64.0606290156590.17704@scrub.home>
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <p73r71attww.fsf@verdi.suse.de>
- <44A166AF.1040205@zytor.com> <200606271940.46634.ak@suse.de> <44A16E9C.70000@zytor.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 Jun 2006 20:04:58 -0400
+Date: Wed, 28 Jun 2006 17:08:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Miles Lane" <miles.lane@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "John W. Linville" <linville@tuxdriver.com>,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.17-mm3 -- NULL pointer dereference at virtual address
+ 00000020 / EIP is at prism2_registers_proc_read+0x22/0x2ff [hostap_cs]
+Message-Id: <20060628170809.374cafcf.akpm@osdl.org>
+In-Reply-To: <a44ae5cd0606281634o45795e89y8789e670448f52e3@mail.gmail.com>
+References: <a44ae5cd0606281634o45795e89y8789e670448f52e3@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Miles Lane" <miles.lane@gmail.com> wrote:
+>
+> BUG: unable to handle kernel NULL pointer dereference at virtual
+> address 00000020
+>  printing eip:
+> f8d21f6e
+> *pde = 00000000
+> Oops: 0000 [#1]
+> 4K_STACKS PREEMPT
+> last sysfs file: /devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+> Modules linked in: sg sd_mod usb_storage libusual pcnet_cs 8390
+> aha152x_cs scsi_transport_spi ohci_hcd hostap_cs hostap binfmt_misc
+> i915 drm ipv6 speedstep_centrino cpufreq_powersave cpufreq_performance
+> cpufreq_conservative video thermal button nls_ascii nls_cp437 vfat fat
+> nls_utf8 ntfs nls_base md_mod sr_mod sbp2 scsi_mod parport_pc lp
+> parport snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm_oss
+> snd_mixer_oss snd_pcm snd_timer ehci_hcd pcspkr evdev iTCO_wdt sdhci
+> mmc_core uhci_hcd usbcore psmouse snd ipw2200 rtc intel_agp agpgart
+> ohci1394 ieee1394 soundcore snd_page_alloc 8139too
+> CPU:    0
+> EIP:    0060:[<f8d21f6e>]    Not tainted VLI
+> EFLAGS: 00210246   (2.6.17-mm3miles #15)
+> EIP is at prism2_registers_proc_read+0x22/0x2ff [hostap_cs]
+> eax: 00000000   ebx: f8d21f4c   ecx: 00000000   edx: e884ef64
+> esi: d5bd04e4   edi: db8ce000   ebp: e884ef38   esp: e884ef2c
+> ds: 007b   es: 007b   ss: 0068
+> Process cat (pid: 2219, ti=e884e000 task=cdd3e870 task.ti=e884e000)
+> Stack: f8d21f4c 00000400 db8ce000 e884ef78 c1090c8b 00000400 e884ef68 d5bd04e4
+>        00000400 0806c000 cac1123c 00000000 00000400 f7b6b838 00000000 00000000
+>        dc8ff844 c1090b8c 0806c000 e884ef94 c105fe38 e884efa0 00000400 dc8ff844
+> Call Trace:
+>  [<c1090c8b>] proc_file_read+0xff/0x218
+>  [<c105fe38>] vfs_read+0xa9/0x158
+>  [<c1060207>] sys_read+0x3b/0x60
+>  [<c1002d6d>] sysenter_past_esp+0x56/0x8d
+> Code: c8 8d 65 f4 5b 5e 5f 5d c3 55 89 e5 57 56 53 89 c7 8b 75 10 85
+> c9 74 10 8b 45 0c c7 00 01 00 00 00 31 c0 e9 d8 02 00 00 8b 46 14 <8b>
+> 50 20 66 ed 0f b7 c0 50 68 03 4a d2 f8 57 e8 42 46 3d c8 8d
+> EIP: [<f8d21f6e>] prism2_registers_proc_read+0x22/0x2ff [hostap_cs]
+> SS:ESP 0068:e884ef2c
 
-On Tue, 27 Jun 2006, H. Peter Anvin wrote:
+local_info_t.dev is NULL in prism2_registers_proc_read().
 
-> > But not for LVM where this can be fairly complex.
-> > 
-> > And next would be probably iSCSI. Maybe it's better to leave some stuff
-> > in initramfs. 
-> 
-> Of course, and even if it's built into the kernel tree it doesn't have to be
-> monolithic (one binary.)  Current kinit is monolithic (although there are
-> chunks available as standalone binaries, and I have gotten requests to break
-> out more), but that's mostly because I've been concerned about bloating the
-> overall size of the kernel image for embedded people.
+Can you please provide a step-by-step means by which others can reproduce
+this?
 
-If you are concerned about this simply keep the whole thing optional. 
-Embedded application usually know their boot device and they don't need no 
-fancy initramfs.
-
-bye, Roman

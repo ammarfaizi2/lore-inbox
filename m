@@ -1,51 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932811AbWF2Vlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932826AbWF2VmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932811AbWF2Vlt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 17:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932809AbWF2Vls
+	id S932826AbWF2VmS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 17:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932812AbWF2VmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 17:41:48 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:5254 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932805AbWF2Vlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:41:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=t0yXwUdFqSzZoMwdV7IVmw8ceSO8WOGLPWmUzEyVimkIMXFKIkHDJ2UjxQBUuvV2Z4dSvweZWk+qZwMtwhVVj+ZEzKFiIp8k9wOv0vv3orcLqJsc6E5kiSVveN5qkZHrb42cgXXPbyDU4CxrtrqbeYTro7Vs3kS3pvFhNHGeVZU=
-Message-ID: <6bffcb0e0606291441u4f90e4b2ieb0cdf38fc29d486@mail.gmail.com>
-Date: Thu, 29 Jun 2006 23:41:43 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.17-mm4
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20060629135826.20328067.akpm@osdl.org>
+	Thu, 29 Jun 2006 17:42:15 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:16693 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S932806AbWF2VmL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 17:42:11 -0400
+Message-ID: <44A4492E.6090307@watson.ibm.com>
+Date: Thu, 29 Jun 2006 17:42:06 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: akpm@osdl.org, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com,
+       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+References: <44892610.6040001@watson.ibm.com>	<44999A98.8030406@engr.sgi.com>	<44999F5A.2080809@watson.ibm.com>	<4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>	<20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>	<20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>	<20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>	<44A01A50.1050403@sgi.com>	<20060626105548.edef4c64.akpm@osdl.org>	<44A020CD.30903@watson.ibm.com>	<20060626111249.7aece36e.akpm@osdl.org>	<44A026ED.8080903@sgi.com>	<20060626113959.839d72bc.akpm@osdl.org>	<44A2F50D.8030306@engr.sgi.com>	<20060628145341.529a61ab.akpm@osdl.org>	<44A2FC72.9090407@engr.sgi.com>	<20060629014050.d3bf0be4.pj@sgi.com>	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>	<20060629094408.360ac157.pj@sgi.com>	<20060629110107.2e56310b.akpm@osdl.org>	<20060629112642.66f35dd5.pj@sgi.com>	<44A426DC.9090009@watson.ibm.com> <20060629124148.48d4c9ad.pj@sgi.com>
+In-Reply-To: <20060629124148.48d4c9ad.pj@sgi.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060629013643.4b47e8bd.akpm@osdl.org>
-	 <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com>
-	 <20060629204330.GC13619@redhat.com>
-	 <6bffcb0e0606291346s64530db4g1c9c33da9cf34e73@mail.gmail.com>
-	 <20060629135826.20328067.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29/06/06, Andrew Morton <akpm@osdl.org> wrote:
-[snip]
-> OK.  Perhaps try setting 8k stacks?
+Paul Jackson wrote:
+
+>Shailabh wrote:
+>  
 >
-> Disable lockdep?
+>>I suppose this is because cpuset's offer some middle ground between 
+>>collecting data per-cpu vs. collecting it for all cpus ?
+>>    
+>>
 >
+>Yes - well said.  And I have this strange tendency to see all the
+>worlds problems as opportunities for cpuset solutions <grin>.
+>
+>  
+>
+>>What happens when someone is using cpusets on such a machine and
+>>changes its membership in response to other needs.  All taskstats
+>>users would need to monitor for such changes and adjust their
+>>processing....seems like unnecessary tying up of two unrelated
+>>concepts.
+>>    
+>>
+>
+>I would not expect taskstat users to monitor for such changes.
+>I'd expect them to monitor the stats from whatever is in the
+>cpuset they named.  If a task moves out of that cpuset to another,
+>then tough -- that task will no longer be monitored by that
+>particular monitoring request.
+>
+>Cpusets do provide a convenient middle ground, as you say, which
+>is really useful for reducing scaling issues such as this one to
+>a managable size.
+>
+>Per-cpu is too fine grained, and per-system too coarse.
+>
+>An unnecessary tying - yes.  But perhaps a useful one.
+>  
+>
+The idea of collecting stats for a group of cpus rather than all (or 
+one) seems attractive.
+But cpusets doesnt :-)
 
-I don't see that now. I will try to reproduce this with a previous
-config + Ingo's "Ignore loglevel on printks" patch.
+How about if we did something simple like
+having a separate listen group (within genetlink) for a reasonably large 
+number of cpus
+and have all the messages from those cpus multicast to the listeners of 
+that group alone ?
 
-Regards,
-Michal
+e.g. currently we have only one TASKSTATS_LISTEN_GROUP
+we could reserve the following
+    TASKSTATS_LISTEN_GROUP_0
+    TASKSTATS_LISTEN_GROUP_1....
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+where GROUP_0 handles cpus numbered 0-63 (or 31)....etc.
+
+Advantages would be
+
+1. Most users would still need to listen to the one group as they do
+in the current design and others could listen to more, scaling up their 
+userspace listening daemons
+as appropriate (e.g. one daemon per listening group).
+
+2. Userspace could be saved the bother of having too many streams of 
+per-cpu data and reassemble them
+in the order they were generated.
+
+The moment we talk of splitting up the data stream generated by the 
+kernel I suppose we have to do some
+kind of timestamping so reassembly in the same order can be done. I 
+can't see this mattering for the likes of
+delay accounting and CSA but for future taskstats users, who knows.
+
+
+--Shailabh
+
+

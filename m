@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWF2ShE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWF2SjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWF2ShE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 14:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWF2ShE
+	id S932066AbWF2SjV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 14:39:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWF2SjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 14:37:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8143 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751089AbWF2ShC (ORCPT
+	Thu, 29 Jun 2006 14:39:21 -0400
+Received: from mail3.uklinux.net ([80.84.72.33]:43160 "EHLO mail3.uklinux.net")
+	by vger.kernel.org with ESMTP id S1751257AbWF2SjU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 14:37:02 -0400
-Date: Thu, 29 Jun 2006 11:36:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Greg KH <gregkh@suse.de>, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
-       kamezawa.hiroyu@jp.fujitsu.com
-Subject: Re: 2.6.17-git14 compile failure & fix
-In-Reply-To: <20060629112952.c7231034.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0606291135320.12404@g5.osdl.org>
-References: <44A40874.20202@us.ibm.com> <20060629172016.GA23736@suse.de>
- <20060629112952.c7231034.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jun 2006 14:39:20 -0400
+Date: Thu, 29 Jun 2006 19:53:43 +0100
+From: John Rigg <lk@sound-man.co.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.17-rt4 x86_64 unknown symbol monotonic_clock
+Message-ID: <20060629185343.GA2947@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ingo,
+
+I'm still getting this warning from `make modules_install':
+
+WARNING: /lib/modules/2.6.17-rt4/kernel/drivers/char/hangcheck-timer.ko \
+needs unknown symbol monotonic_clock
+
+The patch below appears to fix it.
+
+John
 
 
-On Thu, 29 Jun 2006, Andrew Morton wrote:
-> > 
-> > Linus, here's the summary again below if you want to pull.  When you
-> > merge, there might be some conflicts you have to handle, but hey, you
-> > can test out your new git merge code :)
-> 
-> Yes, please let's get this in.
-
-It was part of this mornings merge-queue, and is pushed out now.
-
-		Linus
+diff -uprN linux-2.6.17-rt4/arch/x86_64/kernel/time.c linux-2.6.17-rt4-patched/arch/x86_64/kernel/time.c
+--- linux-2.6.17-rt4/arch/x86_64/kernel/time.c	2006-06-29 19:38:29.000000000 +0100
++++ linux-2.6.17-rt4-patched/arch/x86_64/kernel/time.c	2006-06-29 19:37:06.000000000 +0100
+@@ -247,6 +247,15 @@ unsigned long long sched_clock(void)
+ 	return cycles_2_ns(a);
+ }
+ 
++/*
++ * Monotonic_clock - returns # of nanoseconds passed since time_init()
++ */
++unsigned long long monotonic_clock(void)
++{
++	return sched_clock();
++}
++EXPORT_SYMBOL(monotonic_clock);
++
+ static int tsc_unstable;
+ 
+ static inline int check_tsc_unstable(void)

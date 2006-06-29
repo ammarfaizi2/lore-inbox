@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933083AbWF2XRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932646AbWF2XWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933083AbWF2XRy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 19:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933087AbWF2XRx
+	id S932646AbWF2XWh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 19:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933091AbWF2XWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 19:17:53 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:8037 "EHLO
-	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S933083AbWF2XRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 19:17:52 -0400
-Date: Thu, 29 Jun 2006 17:17:38 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA from Longhaul
- by rw semaphores
-In-reply-to: <fa.lpmuYQxc6OV7Bh11JMM/FzqVWyY@ifi.uio.no>
-To: =?ISO-8859-2?Q?Rafa=B3_Bilski?= <rafalbilski@interia.pl>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Message-id: <44A45F92.8000904@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-2; format=flowed
-Content-transfer-encoding: 8BIT
-References: <fa.lpmuYQxc6OV7Bh11JMM/FzqVWyY@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Thu, 29 Jun 2006 19:22:37 -0400
+Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:6106 "EHLO
+	smtpq3.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932646AbWF2XWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 19:22:36 -0400
+Message-ID: <44A46130.8090102@keyaccess.nl>
+Date: Fri, 30 Jun 2006 01:24:32 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Gregoire Favre <gregoire.favre@gmail.com>, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@codemonkey.org.uk>, Gerd Hoffmann <kraxel@suse.de>
+Subject: Re: 2.6.17-mm4 undefined reference to `alternatives_smp_module_del'
+References: <20060629122721.GA18671@gmail.com> <20060629154247.1bf8eccf.akpm@osdl.org>
+In-Reply-To: <20060629154247.1bf8eccf.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafa³ Bilski wrote:
->> It needs there to be no bus mastering occuring at the time
->> of a CPU speed transition. Though I'm unable to find the part that me
-> ntions
->> this in the specs I have right now.
-> 
->> Dave
-> 
-> "Once this is set, the processor will switch to the
-> value in [26:23] on the next AUTOHALT transition. The duration of the A
-> UTOHALT
-> should be >=1ms to ensure the CPU's internal PLL is resynchronized. F
-> or AUTOHALT, this means interrupts must be disabled except for the time ti
-> ck, which should be reset to >=1ms. Care must be taken to avoid other sys
-> tem events that could interfere with this operation. A few examples are 
-> snooping, NMI, INIT, SMI and FLUSH."
-> 
-> For CPU's with Longhaul MSR this time is equal to 200us.
+Andrew Morton wrote:
 
-That really is a rather horrible design on their part. Who the hell at 
-VIA thought this was a good idea?
+> <looks at davej>
+> 
+> That patch is pretty yuk anyway
+> 
+>  void module_arch_cleanup(struct module *mod)
+>  {
+> +#ifdef CONFIG_SMP
+> 	alternatives_smp_module_del(mod);
+> +#endif
+>  }
+> 
+> Should be a stub in a header file, which would fix this problem too.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Gerd Hoffmann already did this and I suppose it's in some upstream tree 
+somewhere:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114743413932319&w=2
+
+Rene.
 

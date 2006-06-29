@@ -1,57 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWF2XcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWF2Xdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbWF2XcW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 19:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWF2XcW
+	id S1751309AbWF2Xdw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 19:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWF2Xdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 19:32:22 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:35726 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751300AbWF2XcV (ORCPT
+	Thu, 29 Jun 2006 19:33:52 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:44446 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751309AbWF2Xdv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 19:32:21 -0400
-Date: Fri, 30 Jun 2006 01:27:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm4
-Message-ID: <20060629232739.GA28306@elte.hu>
-References: <20060629013643.4b47e8bd.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060629013643.4b47e8bd.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 29 Jun 2006 19:33:51 -0400
+Date: Fri, 30 Jun 2006 01:33:01 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Milton Miller <miltonm@bga.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: klibc and what's the next step?
+In-Reply-To: <200606290034.k5T0YkCw028911@terminus.zytor.com>
+Message-ID: <Pine.LNX.4.64.0606300038410.12900@scrub.home>
+References: <Pine.LNX.4.64.0606271316220.17704@scrub.home>
+ <f5e0f599448456bcbf2699994f0bbc76@bga.com> <Pine.LNX.4.64.0606290117220.17704@scrub.home>
+ <200606290034.k5T0YkCw028911@terminus.zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Andrew Morton <akpm@osdl.org> wrote:
+On Wed, 28 Jun 2006, H. Peter Anvin wrote:
 
-> +profile-likely-unlikely-macros.patch
+> > > * There is concern about how much is bloat, where do we draw the line 
+> > > for in-kernel
+> > 
+> > That actually wouldn't be my initial concern. Otherwise I'm happy to point 
+> > out kernel bloat, but here it's more important to prototype a mechanism. 
+> > In this case bloat can still be fixed later, as it's rather isolated 
+> > behind a standard API.
+> 
+> First of all, I don't think there is any significant amount of bloat
+> (in the sense of a larger kernel image.)  I'm not saying kinit-based
+> kernel images are *smaller*, but they shouldn't be significantly
+> larger.
 
-CONFIG_PROFILE_LIKELY doesnt quite work:
+As I said, IMO it's not an immediate issue.
 
- Low memory ends at vaddr f7e00000
- node 0 will remap to vaddr f7e00000 - f8000000
- High memory starts at vaddr f7e00000
- found SMP MP-table at 000f5680
- NX (Execute Disable) protection: active
- Unknown interrupt or fault at EIP 00000060 c1d9f264 00000002
- Unknown interrupt or fault at EIP 00000060 c0100295 0000f264
- Unknown interrupt or fault at EIP 00000060 c0100295 00000294
- Unknown interrupt or fault at EIP 00000060 c0100295 00000294
- Unknown interrupt or fault at EIP 00000060 c0100295 00000294
- Unknown interrupt or fault at EIP 00000060 c0100295 00000294
+> The code currently in kinit is trying to be as closely compatible with
+> the mainstream kernel as practical -- a drop-in replacement.  Thus, I
+> have actively avoided making radical changes,
 
-disabling it makes these go away.
+The point is, this also makes it its largest problem - it adds no 
+immediate value, you add a lot of infrastructure without a single user. 
+There is practically nothing, where one could say "Yes, that looks like a 
+good way to go forward."
 
-	Ingo
+As it looks like it's distribution which are mostly interested in this. 
+Have you talked with any distribution maintainer to find out what they 
+need and what they want to put initramfs? What are the exact problems 
+which distributions have and how do you want to solve them?
+Here it should be not that difficult to prototype any new mechanism and
+whether it uses an initrd or initramfs is not important initially. From 
+this it would be a lot easier to see what is required from the kernel. 
+
+> I definitely agree -- and I'm sure Neil does as well -- that the md
+> code should be rewritten, but as long as the whole thing is maintained
+> by me out of tree I want to minimize the delta.
+
+The question should rather be: how can Neil maintain it out of tree?
+How do we avoid having to split all utils into a klibc version and the 
+normal version?
+
+> The whole point of this exercise is that it gives us a platform by
+> which to reduce the maintenance of multiple different code bases.
+> Kernel programming is completely different than user-space
+> programming, it's poorly understood, and it is much more difficult.
+> With klibc, it's trivial to share code with even fairly large
+> userspace projects (e.g. udev); furthermore it is trivial to create
+> standalone components (e.g. nfsmount) which can not only be tested
+> standalone, but actually used by customized userspaces, thus
+> improving code reuse and reducing overall complexity.
+
+Nobody really disagrees with this, but _how_ do you want to do this?
+Do you just expect that by throwing a lot of source into the kernel all of 
+this will solve itself?
+
+> > klibc will continue as independent project anyway, so it should not be 
+> > difficult to include from the kernel whatever the distribution provides. 
+> > It would help avoiding possible problems with mixing binaries built from 
+> > different libraries.
+> 
+> As long as klibc/kinit is not merged, the current code will have to be
+> maintained.  This means maintaining in-kernel ipconfig, nfsroot, and
+> it pretty much dooms the possibility of getting stuff like md detect
+> and partition discovery rewritten.
+
+What has klibc to do with kinit? This rather suggest both are interrelated 
+projects, why should one be dependent on the other?
+
+> The utility of klibc is thus greatly diminished by not having it in
+> the mainline kernel tree.  Its performance in -mm so far has shown
+> that it works just fine.
+
+That just says, it doesn't create new problems, but it still doesn't say 
+anything about how you want to solve any of the existing problems without 
+creating a whole bunch of new problems.
+
+> Incidentally, there is one more reason for klibc which hasn't gotten
+> much mention, but it provides a prototype userspace for kernel
+> developers to:
+> 
+>   a) test new features (or at least a significant subset thereof), and
+>   b) document, in code, a recommended way for the more advanced libcs
+>      to make new features available to userspace, in the form of
+>      headers and the like.
+
+Why has this to be distributed with the kernel? It sounds like it can be 
+nicely maintained independently.
+
+bye, Roman

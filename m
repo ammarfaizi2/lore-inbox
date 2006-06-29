@@ -1,38 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751686AbWF2Cqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWF2DAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751686AbWF2Cqa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 22:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbWF2Cqa
+	id S1751390AbWF2DAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 23:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWF2DAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 22:46:30 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:46492
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751472AbWF2Cq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 22:46:29 -0400
-Date: Wed, 28 Jun 2006 19:46:27 -0700 (PDT)
-Message-Id: <20060628.194627.74748190.davem@davemloft.net>
-To: cat@zip.com.au
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.17.1: fails to fully get webpage
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060629015915.GH2149@zip.com.au>
-References: <20060629015915.GH2149@zip.com.au>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 28 Jun 2006 23:00:09 -0400
+Received: from wr-out-0506.google.com ([64.233.184.228]:37289 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750980AbWF2DAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 23:00:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=p//9qbL5u/0X7bPlFljSvNmy3xX6tDfkfiavbWMTSsBCchys1QejfMQ91tjso5BJV2lzGSb5IPtX+fCmlSOpRVIVb0C3BJ1UuVIPyznufd7EQFjXpi7YEQjadzwKdiA7Sdu65ID2oZiytp6FY/nLy802SCEe60s+oBA9c8c+5m0=
+Message-ID: <ef88c0e00606282000l1c63216dx9ecd5f53a41cde8c@mail.gmail.com>
+Date: Wed, 28 Jun 2006 20:00:06 -0700
+From: "Ken Brush" <kbrush@gmail.com>
+To: "Andy Gay" <andy@andynet.net>
+Subject: Re: [linux-usb-devel] USB driver for Sierra Wireless EM5625/MC5720 1xEVDO modules
+Cc: "Greg KH" <gregkh@suse.de>, "Jeremy Fitzhardinge" <jeremy@goop.org>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <1151537247.3285.278.camel@tahini.andynet.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1151537247.3285.278.camel@tahini.andynet.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: CaT <cat@zip.com.au>
-Date: Thu, 29 Jun 2006 11:59:15 +1000
+On 6/28/06, Andy Gay <andy@andynet.net> wrote:
+> I have adapted the modified Airprime driver that Greg posted a few weeks
+> ago to add support for these 2 modules.
+>
+> That driver works for these modules if the USB IDs are added, and fixes
+> the throughput problems in the earlier driver. I had to make some
+> changes though -
+>
+> - there's a memory leak because the transfer buffers are kmalloc'ed
+> every time the device is opened, but they're never freed;
+>
+> - these modules present 3 bulk EPs, the 2nd & 3rd can be used for
+> control & status monitoring while data transfer is in progress on the
+> 1st EP. This is useful (and necessary for my application) so we need to
+> increase the port count.
+>
+> So what should I do next? I see a few possibilities, assuming anyone is
+> interested in this:
+>
+> - I could post a diff from Greg's driver. But I don't have hardware to
+> test whether my changes will break it for the other devices that it
+> supports;
+>
+> - I could post it as a new driver for just these 2 modules, using some
+> other name;
+>
+> - I could post it as a replacement for Greg's driver (which isn't yet in
+> the official sources, I think), including all the USB IDs, if someone
+> can test it for the other devices.
 
-> Now I found a thread about tcp window scaling affecting the loading of
-> some sites but I fail to load the above site with
-> /proc/sys/net/ipv4/tcp_adv_win_scale set to 6 and 2 under 2.6.17.1
-> whilst it works just fine with the /proc entry set to either 7, 6 or 2
-> under 2.6.16.18.
+I'd be willing to test it out on my aircard 580 if you post it.
 
-You must have misread those threads.  To work around the problem,
-you don't modify tcp_adv_win_scale, instead what you do is set
-tcp_window_scaling to 0.
+-Ken

@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWF2JLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751859AbWF2JSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbWF2JLG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 05:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbWF2JLF
+	id S1751859AbWF2JSR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 05:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWF2JSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 05:11:05 -0400
-Received: from gate.crashing.org ([63.228.1.57]:39913 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751369AbWF2JLE (ORCPT
+	Thu, 29 Jun 2006 05:18:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9858 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751859AbWF2JSP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 05:11:04 -0400
-Subject: Re: Please pull from 'for_paulus' branch of powerpc
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: Zhang Wei-r63237 <Wei.Zhang@freescale.com>, linuxppc-dev@ozlabs.org,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <BDF5A6D5-E7F4-4CDF-9B34-13A66A0B7C99@kernel.crashing.org>
-References: <9FCDBA58F226D911B202000BDBAD467306E19B76@zch01exm40.ap.freescale.net>
-	 <BDF5A6D5-E7F4-4CDF-9B34-13A66A0B7C99@kernel.crashing.org>
-Content-Type: text/plain
-Date: Thu, 29 Jun 2006 19:10:52 +1000
-Message-Id: <1151572252.28229.21.camel@localhost.localdomain>
+	Thu, 29 Jun 2006 05:18:15 -0400
+Date: Thu, 29 Jun 2006 02:18:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: i386 IPI handlers running with hardirq_count == 0
+Message-Id: <20060629021800.9a1e16f4.akpm@osdl.org>
+In-Reply-To: <26704.1151571677@kao2.melbourne.sgi.com>
+References: <26704.1151571677@kao2.melbourne.sgi.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 29 Jun 2006 19:01:17 +1000
+Keith Owens <kaos@ocs.com.au> wrote:
 
-> > Even though other 86xx platforms have no these PCI chips, these  
-> > codes will not take effect.
+> Macro arch/i386/kernel/entry.S::BUILD_INTERRUPT generates the code to
+> handle an IPI and call the corresponding smp_<name> C code.
+> BUILD_INTERRUPT does not update the hardirq_count for the interrupted
+> task, that is left to the C code.  Some of the C IPI handlers do not
+> call irq_enter(), so they are running in IRQ context but the
+> hardirq_count field does not reflect this.  For example,
+> smp_invalidate_interrupt does not set the hardirq count.
 > 
-> Its code bloat for systems that dont need it.
+> What is the best fix, change BUILD_INTERRUPT to adjust the hardirq
+> count or audit all the C handlers to ensure that they call irq_enter()?
+> 
 
-Well... it depends :) If it's totally unlikely to ever have this chip in
-those platforms, then yes. But if it's common enough, it's fair to have
-the quirk in a generic place (provided that Whang is right and the fixup
-is indeed the same for all 86xx platforms)
-
-Ben.
-
+The IPI handlers run with IRQs disabled.  Do we need a fix?
 

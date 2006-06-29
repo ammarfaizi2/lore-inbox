@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933111AbWF2Xq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWF2XyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933111AbWF2Xq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 19:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933110AbWF2Xq1
+	id S1751312AbWF2XyV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 19:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWF2XyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 19:46:27 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:26762
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S933108AbWF2Xq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 19:46:26 -0400
-Date: Thu, 29 Jun 2006 16:46:23 -0700 (PDT)
-Message-Id: <20060629.164623.59469884.davem@davemloft.net>
-To: bos@pathscale.com
-Cc: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH 39 of 39] IB/ipath - use streaming copy in RDMA
- interrupt handler to reduce packet loss
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1151624063.10886.34.camel@chalcedony.pathscale.com>
-References: <1151618377.10886.23.camel@chalcedony.pathscale.com>
-	<20060629.150319.104035601.davem@davemloft.net>
-	<1151624063.10886.34.camel@chalcedony.pathscale.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 29 Jun 2006 19:54:21 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:40388 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751312AbWF2XyU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 19:54:20 -0400
+Message-ID: <44A4681B.8020406@zytor.com>
+Date: Thu, 29 Jun 2006 16:54:03 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       klibc@zytor.com
+Subject: Re: [klibc 07/31] i386 support for klibc
+References: <klibc.200606272217.00@tazenda.hos.anvin.org> <klibc.200606272217.07@tazenda.hos.anvin.org> <Pine.LNX.4.61.0606280937150.29068@yvahk01.tjqt.qr> <44A2A147.9020501@zytor.com> <Pine.LNX.4.64.0606290207580.17704@scrub.home> <44A322BB.2010006@zytor.com> <Pine.LNX.4.64.0606300133050.12900@scrub.home>
+In-Reply-To: <Pine.LNX.4.64.0606300133050.12900@scrub.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bryan O'Sullivan <bos@pathscale.com>
-Date: Thu, 29 Jun 2006 16:34:23 -0700
+Roman Zippel wrote:
 
-> I'm not quite following you, though I assume you're referring to Niagara
-> or Rock :-)  Are you saying a memcpy_nc would do worse than plain
-> memcpy, or worse than some other memcpy-like routine?
+>> The way libgcc is handled inside gcc is, indeed, completely screwed up; even
+>> the gcc people admit that.  They pretty much don't have a way to handle the
+>> effects of compiler options on libgcc, especially the ones that affect binary
+>> compatibility.
+> 
+> Nobody said it's perfect. Especially the last point speaks against 
+> multiple versions of the same library, as it makes it hard to mix 
+> binaries/libraries. With a single kinit binary it's not really a problem 
+> yet, but will it stay this way?
 
-It would do worse than memcpy.
+What on earth are you talking about?
 
-If you bypass the L2 cache, it's pointless because the next
-agent (PCI controller, CPU thread, etc.) is going to need the
-data in the L2 cache.
+a. The semantics of these functions are well-defined, stable, and 
+documented in the gcc documentation.  It's not like they have 
+compiler-version-specific definitions that could change.
 
-It's better in that kind of setup to eat the L2 cache miss overhead in
-memcpy since memcpy can usually prefetch and store buffer in order to
-absorb some of the L2 miss costs.
+b. For static binaries, this is no issue.  klibc is shared, not dynamic 
+(thus eliminating the need for a space-consuming dynamic linker), but it 
+also means that there is no cross-version calling; each build of the 
+shared klibc library has a hashed filename, thus allowing multiple 
+versions of klibc to coexist if absolutely necessary.
+
+Either way, this is a red herring.
+
+>>> The standard libgcc may not be as small as you like, but it still should be
+>>> the first choice. If there is a problem with it, the gcc people do accept
+>>> patches.
+>> That's just an asinine statement.  Under that logic we should just forget
+>> about the kernel and go hack the gcc bugs du jour; we certainly have enough
+>> workarounds for gcc bugs in the kernel.
+> 
+> Sorry, but I can't follow this logic.
+
+I'm not entirely surprised.
+
+	-hpa

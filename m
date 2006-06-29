@@ -1,76 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWF2T7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWF2UAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWF2T7N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 15:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWF2T7M
+	id S932175AbWF2UAM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWF2UAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 15:59:12 -0400
-Received: from [141.84.69.5] ([141.84.69.5]:56080 "HELO mailout.stusta.mhn.de")
-	by vger.kernel.org with SMTP id S932358AbWF2T7K (ORCPT
+	Thu, 29 Jun 2006 16:00:12 -0400
+Received: from agmk.net ([217.73.31.38]:45065 "EHLO mail.agmk.net")
+	by vger.kernel.org with ESMTP id S932175AbWF2UAK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 15:59:10 -0400
-Date: Thu, 29 Jun 2006 21:58:28 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] kernel/sys.c: remove unused exports
-Message-ID: <20060629195828.GF19712@stusta.de>
-References: <20060629191940.GL19712@stusta.de> <20060629123608.a2a5c5c0.akpm@osdl.org> <20060629124400.ee22dfbf.akpm@osdl.org>
+	Thu, 29 Jun 2006 16:00:10 -0400
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
+To: linux-kernel@vger.kernel.org
+Subject: PCI-E based framebuffers...
+Date: Thu, 29 Jun 2006 22:00:04 +0200
+User-Agent: KMail/1.9.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <20060629124400.ee22dfbf.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200606292200.05050.pluto@agmk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 29, 2006 at 12:44:00PM -0700, Andrew Morton wrote:
-> On Thu, 29 Jun 2006 12:36:08 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > On Thu, 29 Jun 2006 21:19:40 +0200
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > 
-> > > This patch removes the following unused exports:
-> > > - EXPORT_SYMBOL:
-> > >   - in_egroup_p
-> > > - EXPORT_SYMBOL_GPL's:
-> > >   - kernel_restart
-> > >   - kernel_halt
-> > 
-> > Switch 'em to EXPORT_UNUSED_SYMBOL and I'll stop dropping your patches ;)
-> > 
-> 
-> If doing this, I'd suggest it be done thusly:
-> 
-> EXPORT_UNUSED_SYMBOL(in_egroup_p);	/* June 2006 */
-> 
-> to aid later decision-making.
+Hi,
 
-I had some bad experiences with following processes you suggest the 
-doesn't remove the symbol immediately:
+A few weeks ago I bought a PCI-E based radeon (X550).
+Unfortunatelly radeonfb still can't handle such devices
+due to maintainer's -ENOTIME. Is it possible to change
+that (any working PCI-E fbs) in the near future?
 
-As you wanted me to do, I scheduled the EXPORT_SYMBOL(insert_resource) 
-for removal on 2 May 2005 with both __deprecated_for_modules and an 
-entry in feature-removal-schedule.txt with the target date April 2006.
-
-On 11 Apr 2006, I sent the patch to implement this scheduled removal.
-
-As of today, the latter patch is still stuck in -mm (which isn't better 
-than having it dropped) although it's long overdue.
-
-Do you understand why I distrust your "to aid later decision-making"?
-
-Can you state publically "If there's still no in-kernel user after six 
-months, the removal is automatically ACK'ed."?
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Reagrds,
+Paweł.

@@ -1,91 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751713AbWF2HZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751750AbWF2H3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751713AbWF2HZN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 03:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751756AbWF2HZM
+	id S1751750AbWF2H3a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 03:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751752AbWF2H3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 03:25:12 -0400
-Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:58634 "EHLO
-	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
-	id S1751713AbWF2HZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 03:25:11 -0400
-Date: Thu, 29 Jun 2006 03:24:54 -0400
-From: Matt LaPlante <laplam@rpi.edu>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] Kconfig: Typos in fs/Kconfig
-Message-Id: <20060629032454.f5e941f7.laplam@rpi.edu>
-In-Reply-To: <20060629002036.ef53a483.rdunlap@xenotime.net>
-References: <20060629020052.f73d7ca1.laplam@rpi.edu>
-	<20060629002036.ef53a483.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 03:25:04 -0400
-	(not processed: message from trusted or authenticated source)
-X-Return-Path: laplam@rpi.edu
-X-Envelope-From: laplam@rpi.edu
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 03:25:05 -0400
+	Thu, 29 Jun 2006 03:29:30 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8335 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751687AbWF2H33 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 03:29:29 -0400
+Date: Thu, 29 Jun 2006 09:29:15 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Con Kolivas <kernel@kolivas.org>, Al Boldi <a1426z@gawab.com>,
+       linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Incorrect CPU process accounting using         CONFIG_HZ=100
+Message-ID: <20060629072915.GE27526@elf.ucw.cz>
+References: <200606211716.01472.a1426z@gawab.com> <200606272302.16950.kernel@kolivas.org> <44A1C4D4.3080805@bigpond.net.au> <200606282306.14498.a1426z@gawab.com> <44A30F60.6070001@bigpond.net.au> <cone.1151538362.930767.14982.501@kolivas.org> <44A31DE8.20100@bigpond.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44A31DE8.20100@bigpond.net.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 00:20:36 -0700
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+Hi!
 
-> On Thu, 29 Jun 2006 02:00:52 -0400 Matt LaPlante wrote:
+> >>>Wouldn't merging the two approaches be in the interest of conserving 
+> >>>cpu resources, while at the same time reflecting an accurate view of 
+> >>>cpu utilization?
+> >>
+> >>I think that this would be a worthwhile endeavour once/if 
+> >>sched_clock() is fixed.  This is especially the case as CPUs get 
+> >>faster as many tasks may run to completion in less than a tick.
+> >
+> >That may not be as simple as it seems. To properly account system v user 
+> >time using the sched_clock we'd have to hook into arch dependant asm 
+> >code to know when entering and exiting kernel context. That is far more 
+> >invasive than the simple on/off runqueue timing we currently do for 
+> >scheduling accounting.
 > 
-> > Fix several typos in fs/Kconfig
-> > 
-> > -
-> > --- b/fs/Kconfig	2006-06-29 01:35:36.000000000 -0400
-> > +++ a/fs/Kconfig	2006-06-29 01:58:52.000000000 -0400
-> > @@ -69,7 +69,7 @@
-> >  	default y
-> >  
-> >  config EXT3_FS
-> > -	tristate "Ext3 journalling file system support"
-> > +	tristate "Ext3 journaling file system support"
-> 
-> Some dictionaries spell it either way, but it should be spelled
-> consistently (see 3 lines below).
+> Yes, it is a problem and we may have to do something approximate like 
+> counting ticks for sys time and subtracting that from the total to get 
+> user time when reporting the times to user space (only a bit more 
+> complex to make sure we don't end up with negative times).
 
-You are correct, I went with the above since it did appear below and was the default in my references.  We can always swap and change the below.
+Yes, please.
 
-> 
-> >  	select JBD
-> >  	help
-> >  	  This is the journaling version of the Second extended file system
-> 
-> > @@ -1059,13 +1059,13 @@
-> >  	  to be made available to the user in the /proc/fs/jffs/ directory.
-> >  
-> >  config JFFS2_FS
-> > -	tristate "Journalling Flash File System v2 (JFFS2) support"
-> > +	tristate "Journaling Flash File System v2 (JFFS2) support"
-> >  	select CRC32
-> >  	depends on MTD
-> >  	help
-> > -	  JFFS2 is the second generation of the Journalling Flash File System
-> > +	  JFFS2 is the second generation of the Journaling Flash File System
-> >  	  for use on diskless embedded devices. It provides improved wear
-> > -	  levelling, compression and support for hard links. You cannot use
-> > +	  leveling, compression and support for hard links. You cannot use
-> 
-> either spelling is OK.
+> How is it intended to handle this problem in the tickless kernel?
 
-This was my error, I tried to use at least two sources for the others but in this case apparently my initial spell checker was ignorant and I forgot to check elsewhere.  Can be left as is.
-
-> 
-> >  	  this on normal block devices, only on 'MTD' devices.
-> >  
-> >  	  Further information on the design and implementation of JFFS2 is
-> 
-> ---
-> ~Randy
-> 
-
--
-Matt
-
+Even our "tickless" kernels do tick while CPU is busy.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

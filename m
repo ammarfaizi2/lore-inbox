@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932690AbWF2Kze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932709AbWF2K4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932690AbWF2Kze (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 06:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbWF2Kzd
+	id S932709AbWF2K4u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 06:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932770AbWF2K4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 06:55:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:39595 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932556AbWF2Kzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 06:55:32 -0400
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jes Sorensen <jes@sgi.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Luck, Tony" <tony.luck@intel.com>,
-       John Daiker <jdaiker@osdl.org>, John Hawkes <hawkes@sgi.com>,
-       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
-       Jeremy Higdon <jeremy@sgi.com>
-In-Reply-To: <44A3AFFB.2000203@sgi.com>
-References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
-	 <yq04py4i9p7.fsf@jaguar.mkp.net>
-	 <1151578928.23785.0.camel@localhost.localdomain> <44A3AFFB.2000203@sgi.com>
-Content-Type: text/plain
-Date: Thu, 29 Jun 2006 12:55:13 +0200
-Message-Id: <1151578513.3122.22.camel@laptopd505.fenrus.org>
+	Thu, 29 Jun 2006 06:56:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19870 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932729AbWF2K4t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 06:56:49 -0400
+Date: Thu, 29 Jun 2006 03:56:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: perex@suse.cz, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [ALSA PATCH] HG repo sync
+Message-Id: <20060629035627.a073290f.akpm@osdl.org>
+In-Reply-To: <s5h4py4p7lz.wl%tiwai@suse.de>
+References: <Pine.LNX.4.61.0606291138030.10575@tm8103-a.perex-int.cz>
+	<20060629025306.455c89ce.akpm@osdl.org>
+	<s5h4py4p7lz.wl%tiwai@suse.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-29 at 12:48 +0200, Jes Sorensen wrote:
-> Alan Cox wrote:
-> > Ar Iau, 2006-06-29 am 05:37 -0400, ysgrifennodd Jes Sorensen:
-> >> You have my vote for that one. Anything else is just going to cause
-> >> those broken userapps to continue doing the wrong thing. We should
-> >> really do this on all archs though.
-> > 
-> > No need, all current mainstream architectures expose a constant user HZ.
+On Thu, 29 Jun 2006 12:40:56 +0200
+Takashi Iwai <tiwai@suse.de> wrote:
+
+> >  The tree I
+> > get from
+> > git+ssh://master.kernel.org/pub/scm/linux/kernel/git/perex/alsa-current.git
+> > has quite different changes in it.
 > 
-Hi,
+> Yes, alsa-current git contains more changes currently in ALSA HG
+> repo.  alsa git contains only (safe and important) changes for
+> upstream.
 
-> But you are still going to have the issue where someone installs their
-> own kernel and apps will break because of this?
+I'll grab the mercurial tree, assuming that has everything in it?
 
-to answer that question with one word: no.
-
-read what Alan said: the HZ exposed to userspace is *constant*. For
-example, the i386 user visible HZ is 100, even if the kernel runs at a
-HZ of 250 or 1000.... Just when a HZ value gets exposed to userspace,
-it's transformed into a HZ=100 based value.
-
-And that's not a distribution thing, that's the kernel.org kernel
-honoring the stable-userspace-interface contract, and common sense..
-
-Greetings,
-   Arjan van de Ven
-
+How does one turn that into a patch against mainline?

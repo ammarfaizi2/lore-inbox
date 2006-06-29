@@ -1,104 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWF2GBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbWF2GL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWF2GBr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 02:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWF2GBr
+	id S932534AbWF2GL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 02:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbWF2GL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 02:01:47 -0400
-Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:31242 "EHLO
-	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
-	id S932211AbWF2GBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 02:01:46 -0400
-Date: Thu, 29 Jun 2006 02:00:52 -0400
-From: Matt LaPlante <laplam@rpi.edu>
-To: linux-kernel@vger.kernel.org
-Cc: Roman Zippel <zippel@linux-m68k.org>
-Subject: [PATCH] Kconfig: Typos in fs/Kconfig
-Message-Id: <20060629020052.f73d7ca1.laplam@rpi.edu>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 02:01:02 -0400
-	(not processed: message from trusted or authenticated source)
-X-Return-Path: laplam@rpi.edu
-X-Envelope-From: laplam@rpi.edu
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 02:01:03 -0400
+	Thu, 29 Jun 2006 02:11:57 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:3046 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S932534AbWF2GL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 02:11:56 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: "Joshua Hudson" <joshudson@gmail.com>
+Subject: Re: Kernelsources writeable for everyone?!
+References: <200606242000.51024.damage@rooties.de>
+	<20060624181702.GG27946@ftp.linux.org.uk>
+	<1151198452.6508.10.camel@mjollnir> <449E216E.8010508@sbcglobal.net>
+	<bda6d13a0606251309x3e07e9feoad777d9a062f923f@mail.gmail.com>
+cc: linux-kernel@vger.kernel.org
+Date: Wed, 28 Jun 2006 23:11:55 -0700
+In-Reply-To: <bda6d13a0606251309x3e07e9feoad777d9a062f923f@mail.gmail.com>
+	(Joshua Hudson's message of "Sun, 25 Jun 2006 13:09:09 -0700")
+Message-ID: <7v4py4wkwk.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix several typos in fs/Kconfig
+"Joshua Hudson" <joshudson@gmail.com> writes:
 
--
-Matt LaPlante
-CCNP, CCDP, A+, Linux+, CQS
-laplam@rpi.edu
+> I feel like asking how they initially get set to world-writable. To me
+> it means that the tree that is being tarred up for distribution is
+> world-writible. I sure hope that it is a single-user box.
 
---
+It is _not_ coming from a working tree at all.
 
---- b/fs/Kconfig	2006-06-29 01:35:36.000000000 -0400
-+++ a/fs/Kconfig	2006-06-29 01:58:52.000000000 -0400
-@@ -69,7 +69,7 @@
- 	default y
- 
- config EXT3_FS
--	tristate "Ext3 journalling file system support"
-+	tristate "Ext3 journaling file system support"
- 	select JBD
- 	help
- 	  This is the journaling version of the Second extended file system
-@@ -831,7 +831,7 @@
- 
- 	Some system agents rely on the information in sysfs to operate.
- 	/sbin/hotplug uses device and object attributes in sysfs to assist in
--	delegating policy decisions, like persistantly naming devices.
-+	delegating policy decisions, like persistently naming devices.
- 
- 	sysfs is currently used by the block subsystem to mount the root
- 	partition.  If sysfs is disabled you must specify the boot device on
-@@ -1036,7 +1036,7 @@
- 	  module will be called efs.
- 
- config JFFS_FS
--	tristate "Journalling Flash File System (JFFS) support"
-+	tristate "Journaling Flash File System (JFFS) support"
- 	depends on MTD
- 	help
- 	  JFFS is the Journaling Flash File System developed by Axis
-@@ -1059,13 +1059,13 @@
- 	  to be made available to the user in the /proc/fs/jffs/ directory.
- 
- config JFFS2_FS
--	tristate "Journalling Flash File System v2 (JFFS2) support"
-+	tristate "Journaling Flash File System v2 (JFFS2) support"
- 	select CRC32
- 	depends on MTD
- 	help
--	  JFFS2 is the second generation of the Journalling Flash File System
-+	  JFFS2 is the second generation of the Journaling Flash File System
- 	  for use on diskless embedded devices. It provides improved wear
--	  levelling, compression and support for hard links. You cannot use
-+	  leveling, compression and support for hard links. You cannot use
- 	  this on normal block devices, only on 'MTD' devices.
- 
- 	  Further information on the design and implementation of JFFS2 is
-@@ -1209,7 +1209,7 @@
- config JFFS2_CMODE_PRIORITY
-         bool "priority"
-         help
--          Tries the compressors in a predefinied order and chooses the first
-+          Tries the compressors in a predefined order and chooses the first
-           successful one.
- 
- config JFFS2_CMODE_SIZE
-@@ -1892,7 +1892,7 @@
- 	  If you say Y here, you will get an experimental Andrew File System
- 	  driver. It currently only supports unsecured read-only AFS access.
- 
--	  See <file:Documentation/filesystems/afs.txt> for more intormation.
-+	  See <file:Documentation/filesystems/afs.txt> for more information.
- 
- 	  If unsure, say N.
- 
+git-tar-tree generates the tar image from a git tree object, and
+when it does so, it deliberately sets the mode bits to 0666/0777
+so that umask of the people who extract the tarball is honored.
+In very early days once we made a mistake of generating the tar
+archive with more restrictive permission bits (I think it was
+0644 or 0755) which was very impolite way to annoy people with
+002 umask.
 

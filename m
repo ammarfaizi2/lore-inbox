@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWF2Q7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWF2Q71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbWF2Q7V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 12:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWF2Q7V
+	id S1750972AbWF2Q71 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 12:59:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWF2Q71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 12:59:21 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:10898 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1750973AbWF2Q7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 12:59:20 -0400
-Subject: Re: the creation of boot_cpu_init() is wrong and accessing
-	uninitialised data
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: stsp@aknet.ru, linux-kernel@vger.kernel.org
-In-Reply-To: <1151536204.3377.51.camel@mulgrave.il.steeleye.com>
-References: <1151376313.3443.12.camel@mulgrave.il.steeleye.com>
-	 <20060626200433.bf0292af.akpm@osdl.org>
-	 <1151379392.3443.20.camel@mulgrave.il.steeleye.com>
-	 <20060626220337.06014184.akpm@osdl.org>
-	 <1151419746.3340.13.camel@mulgrave.il.steeleye.com>
-	 <20060627170446.30392b00.akpm@osdl.org>
-	 <1151462735.5793.2.camel@mulgrave.il.steeleye.com>
-	 <20060627195743.ce18afe3.akpm@osdl.org>
-	 <1151536204.3377.51.camel@mulgrave.il.steeleye.com>
-Content-Type: text/plain
-Date: Thu, 29 Jun 2006 12:58:55 -0400
-Message-Id: <1151600336.6186.9.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jun 2006 12:59:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46762 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750972AbWF2Q7Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 12:59:25 -0400
+Date: Thu, 29 Jun 2006 09:58:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+cc: Jean Delvare <khali@linux-fr.org>, Greg KH <gregkh@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Regression in -git / [PATCH] i2c-i801.c: don't pci_disable_device()
+ after it was just enabled
+In-Reply-To: <200606291830.15027.daniel.ritz-ml@swissonline.ch>
+Message-ID: <Pine.LNX.4.64.0606290956410.12404@g5.osdl.org>
+References: <200606271840.56044.daniel.ritz-ml@swissonline.ch>
+ <20060629140419.23822395.khali@linux-fr.org> <200606291830.15027.daniel.ritz-ml@swissonline.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-28 at 19:10 -0400, James Bottomley wrote:
-> I'm still compiling, so might have the results later this evening.
-
-Actually, ran into a 53c700 driver problem, but I can now verify that
-this patch works on voyager when booting with a non-zero CPU.
-
-James
 
 
+On Thu, 29 Jun 2006, Daniel Ritz wrote:
+> > 
+> > Do you have any idea why disabling the SMBus causes the problem you
+> > observe? Could be that your BIOS attempts to use the SMBus at power
+> 
+> no idea. the last message that is display is "Shutdown: hda" then the
+> cursor blinks for 2 more seconds, then complete freeze. also enabling
+> all the debugging options in driver model, pm, i2c does not give me anything
+> more (it should...the messages during boot are there)...
+
+The SMBus devices may well be used by ACPI (or even SMM, although that is 
+probably rare these days).
+
+I don't actually think we should necessarily shut off motherboard devices 
+like that, for this reason.
+
+		Linus

@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWF2RUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWF2RVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbWF2RUy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 13:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWF2RUy
+	id S1751077AbWF2RVY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 13:21:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWF2RVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 13:20:54 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64952 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751073AbWF2RUx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 13:20:53 -0400
-Date: Thu, 29 Jun 2006 19:20:37 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ulrich Drepper <drepper@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
-       Jason Baron <jbaron@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: make PROT_WRITE imply PROT_READ
-Message-ID: <20060629172036.GB2947@elf.ucw.cz>
-References: <1151071581.3204.14.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0606231002150.24102@dhcp83-5.boston.redhat.com> <1151072280.3204.17.camel@laptopd505.fenrus.org> <a36005b50606241145q4d1dd17dg85f80e07fb582cdb@mail.gmail.com> <20060627095632.GA22666@elf.ucw.cz> <a36005b50606280943l54138e80tbda08e1607136792@mail.gmail.com> <20060628194913.GA18039@elf.ucw.cz> <a36005b50606281647i58f2899eo7ae7e95757969d42@mail.gmail.com> <20060629073033.GF27526@elf.ucw.cz> <1151582323.23785.16.camel@localhost.localdomain>
+	Thu, 29 Jun 2006 13:21:24 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:62667 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751077AbWF2RVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 13:21:23 -0400
+Date: Thu, 29 Jun 2006 10:20:52 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, penberg@cs.helsinki.fi, marcelo@kvack.org,
+       paulmck@us.ibm.com, nickpiggin@yahoo.com.au, tytso@mit.edu, dgc@sgi.com,
+       ak@suse.de
+Subject: Re: [RFC 0/4] Object reclaim via the slab allocator V1
+In-Reply-To: <20060628200942.6eea8ae5.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0606291017120.27705@schroedinger.engr.sgi.com>
+References: <20060619184651.23130.62875.sendpatchset@schroedinger.engr.sgi.com>
+ <20060628174329.20adbc2a.akpm@osdl.org> <Pine.LNX.4.64.0606281741380.24393@schroedinger.engr.sgi.com>
+ <20060628200942.6eea8ae5.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151582323.23785.16.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 28 Jun 2006, Andrew Morton wrote:
 
-> > > PROT_READ to be used or implicitly adding it.  Don't confuse people
-> > > with wrong statement like yours.
+> > > It would be better to make the higher-level code register callbacks for
+> > > this sort of thing.  That code knows how to determine if an object is
+> > > freeable, can manage aging info, etc.
 > > 
-> > Can you quote part of POSIX where it says that PROT_WRITE must imply
-> > PROT_READ?
+> > The destructor is such a callback.
 > 
-> I don't believe POSIX cares either way
+> I was, of course, referring to the unpleasant requirement that the object
+> layout start with an atomic_t.
+
+Is that such a problem? It reduces the amount of indirect function calls 
+needed.
+
+> > Since we free some dentries in each block they will be effectively be 
+> > moved because they get reallocated in a current slab block.
 > 
-> "An implementation may permit accesses other than those specified by
-> prot; however, if the Memory Protection option is supported, the
-> implementation shall not permit a write to succeed where PROT_WRITE has
-> not been set or shall not permit any access where PROT_NONE alone has
-> been set."
+> By performing a disk read.  That is not compaction - it is eviction.
+
+Right. If we could directly migrate objects then it would be faster. Think 
+about this as swap migration. Later we can get more sophisticated.
+
+> > The callback can make that determination and could trigger these events.
+> > The callback notifies the higher layers that it would be advantageous to 
+> > free this element. The higher layers can then analyze the situation and 
+> > either free or give up.
 > 
-> However the current behaviour of "write to map read might work some days
-> depending on the execution order of instructions" (and in some cases the
-> order that the specific CPU does its tests for access rights) is not
-> sane, not conducive to application stability and not good practice.
+> How do you propose handling the locking?  dcache is passed a bare pointer
+> and no locks are held, but it is guaranteed that the object won't be freed
+> while it's playing with it?
 
-Well, some architectures may have working PROT_WRITE without
-PROT_READ. If you are careful and code your userland application in
-assembly, it should work okay.
+The reference counter can be used to insure that the object is not freed.
 
-On processors where that combination depends randomly depending on
-phase of moon (i386, apparently), I guess change is okay. But the
-patch disabled PROT_WRITE w/o PROT_READ on _all_ processors.
+> If so, take dcache_lock and then validate the object's current state in
+> some manner?
 
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Right. I am not clear on how exactly to do that. These actions would need 
+to be particular to an object type. I just dealt with the slab 
+side of things and I think this is the bare minimum to get us started 
+along this road.
+
+Got an enhanced version of it here but this is all not ready for prime 
+time and needs some more thought. Maybe we can talk about it in Ottawa.
+

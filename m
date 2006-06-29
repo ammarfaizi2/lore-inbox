@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWF2Q71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWF2RAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWF2Q71 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 12:59:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWF2Q71
+	id S1750986AbWF2RAx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 13:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWF2RAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 12:59:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46762 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750972AbWF2Q7Z (ORCPT
+	Thu, 29 Jun 2006 13:00:53 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:29483 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1750985AbWF2RAv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 12:59:25 -0400
-Date: Thu, 29 Jun 2006 09:58:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-cc: Jean Delvare <khali@linux-fr.org>, Greg KH <gregkh@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Regression in -git / [PATCH] i2c-i801.c: don't pci_disable_device()
- after it was just enabled
-In-Reply-To: <200606291830.15027.daniel.ritz-ml@swissonline.ch>
-Message-ID: <Pine.LNX.4.64.0606290956410.12404@g5.osdl.org>
-References: <200606271840.56044.daniel.ritz-ml@swissonline.ch>
- <20060629140419.23822395.khali@linux-fr.org> <200606291830.15027.daniel.ritz-ml@swissonline.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jun 2006 13:00:51 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Andi Kleen <ak@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: i386 IPI handlers running with hardirq_count == 0 
+In-reply-to: Your message of "29 Jun 2006 13:25:38 +0200."
+             <p73wtb0w6dp.fsf@verdi.suse.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 30 Jun 2006 03:00:42 +1000
+Message-ID: <9914.1151600442@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen (on 29 Jun 2006 13:25:38 +0200) wrote:
+>Andrew Morton <akpm@osdl.org> writes:
+>
+>> On Thu, 29 Jun 2006 19:01:17 +1000
+>> Keith Owens <kaos@ocs.com.au> wrote:
+>> 
+>> > Macro arch/i386/kernel/entry.S::BUILD_INTERRUPT generates the code to
+>> > handle an IPI and call the corresponding smp_<name> C code.
+>> > BUILD_INTERRUPT does not update the hardirq_count for the interrupted
+>> > task, that is left to the C code.  Some of the C IPI handlers do not
+>> > call irq_enter(), so they are running in IRQ context but the
+>> > hardirq_count field does not reflect this.  For example,
+>> > smp_invalidate_interrupt does not set the hardirq count.
+>> > 
+>> > What is the best fix, change BUILD_INTERRUPT to adjust the hardirq
+>> > count or audit all the C handlers to ensure that they call irq_enter()?
+>> > 
+>> 
+>> The IPI handlers run with IRQs disabled.  Do we need a fix?
+>
+>They have to because if there was another interrupt it would execute
+>IRET and then clear the NMI flag in the hardware and allow nested NMIs 
+>which would cause all sorts of problems.
+>
+>The only reason to change it would be complex callbacks in the
+>current handlers using notifier chains. Maybe if they're that complex they 
+>should become simpler? 
 
+My question has nothing to do with NMI.  I am querying inconsistent
+behaviour amongst normal IPIs, this list :-
 
-On Thu, 29 Jun 2006, Daniel Ritz wrote:
-> > 
-> > Do you have any idea why disabling the SMBus causes the problem you
-> > observe? Could be that your BIOS attempts to use the SMBus at power
-> 
-> no idea. the last message that is display is "Shutdown: hda" then the
-> cursor blinks for 2 more seconds, then complete freeze. also enabling
-> all the debugging options in driver model, pm, i2c does not give me anything
-> more (it should...the messages during boot are there)...
+i386 function                   irq_enter?
+smp_apic_timer_interrupt           yes
+smp_call_function_interrupt        yes
+smp_error_interrupt                yes
+smp_invalidate_interrupt           no - why
+smp_reschedule_interrupt           no (does not need it)
+smp_spurious_interrupt             yes
+smp_thermal_interrupt              yes
 
-The SMBus devices may well be used by ACPI (or even SMM, although that is 
-probably rare these days).
+x86_64 function                 irq_enter?
+mce_threshold_interrupt            yes
+smp_apic_timer_interrupt           yes
+smp_call_function_interrupt        yes
+smp_error_interrupt                yes
+smp_invalidate_interrupt           no - why
+smp_reschedule_interrupt           no (does not need it)
+smp_spurious_interrupt             yes
+smp_thermal_interrupt              yes
 
-I don't actually think we should necessarily shut off motherboard devices 
-like that, for this reason.
+That is just the mach-default list, I have not checked the platforms
+like voyager.
 
-		Linus

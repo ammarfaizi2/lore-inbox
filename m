@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWF2SO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWF2SRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbWF2SO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 14:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWF2SO0
+	id S1751115AbWF2SRt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 14:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWF2SRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 14:14:26 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:52997 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751234AbWF2SOZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 14:14:25 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Marc Perkel <marc@perkel.com>
-Subject: Re: AMD AM2 Sempron vs. Athlon - Confused
-Date: Thu, 29 Jun 2006 19:14:39 +0100
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <44A40E50.5040901@perkel.com>
-In-Reply-To: <44A40E50.5040901@perkel.com>
+	Thu, 29 Jun 2006 14:17:49 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:59999 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751115AbWF2SRs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 14:17:48 -0400
+Message-ID: <44A41946.7070201@tls.msk.ru>
+Date: Thu, 29 Jun 2006 22:17:42 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Chris Wright <chrisw@sous-sol.org>
+CC: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Andrey Borzenkov <arvidjaar@mail.ru>,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>
+Subject: Re: [PATCH 07/13] SERIAL: PARPORT_SERIAL should depend on SERIAL_8250_PCI
+References: <20060620114527.934114000@sous-sol.org> <20060620114733.957367000@sous-sol.org> <44A40E68.9080906@tls.msk.ru> <20060629173710.GE9709@flint.arm.linux.org.uk> <20060629181216.GY11588@sequoia.sous-sol.org>
+In-Reply-To: <20060629181216.GY11588@sequoia.sous-sol.org>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606291914.39951.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 June 2006 18:30, Marc Perkel wrote:
-> I'm confused and I thought if anyone would know it would be people here.
->
-> So - in the AM2 world, what's the difference between Sempron and Athlon
-> processors?
+[Blah.. the CC list went wrong while copying original email from
+ lkml.org.  That was entirely my fault, and I'm terrible sorry
+ for that.  Erroneous entries removed.  But the CC list is still
+ too long...]
 
-That I'm aware of, Semprons have smaller L2 caches. You want an Athlon.
+Chris Wright wrote:
+> * Russell King (rmk+lkml@arm.linux.org.uk) wrote:
+>> On Thu, Jun 29, 2006 at 09:31:20PM +0400, Michael Tokarev wrote:
+>>> I've no idea how this patch slipped into 2.6.16 -stable queue in the
+>>> first place... ;)
+> 
+> When Russell sent the patch to stable he said "For the stable branches"
+> which I took to mean both 2.6.16 and 2.6.17, so I added to both.
 
-> I look at the specs and they look really similar. Pricing is 
-> even weirder with lower spec Semprons costing more than higher spec
-> Athlons?
+Aha!
 
-I've not seen this, but my understanding is that AMD's PR numbering scheme 
-can't be used to compare between processor lines. i.e., a Sempron 3000+ is 
-not faster than an Athlon 2800+..
+>> Probably because I didn't pay enough attention to the review mails.
+>> I wasn't expecting it to go into 2.6.16, so thought little of it.
+> 
+> I'll add a revert patch for 2.6.16.  Sound OK?
 
-> And - can Linux kernels run on these new processors and motherboards or
-> is this just too new to mess with?
+Well, it definitely should be reverted for 2.6.16, yes.
 
-Should just work. I've seen Linux booted on an AM2 board, but I don't 
-currently own one.
+Thanks.
 
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+/mjt

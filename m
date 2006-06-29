@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbWF2Kzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932690AbWF2Kze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932617AbWF2Kzy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 06:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932709AbWF2Kzy
+	id S932690AbWF2Kze (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 06:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbWF2Kzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 06:55:54 -0400
-Received: from mail.suse.de ([195.135.220.2]:45541 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932617AbWF2Kzx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 06:55:53 -0400
-From: Andi Kleen <ak@suse.de>
-To: Milena Milenkovic <mmilenko@us.ibm.com>
-Subject: Re: [2.6 PATCH] Exporting mmu_cr4_features again for i386 & x86_64
-Date: Thu, 29 Jun 2006 12:55:36 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk, hpa@zytor.com
-References: <OF692619AF.8A926C55-ON8725719B.007C1C06-8625719B.007E27C7@us.ibm.com>
-In-Reply-To: <OF692619AF.8A926C55-ON8725719B.007C1C06-8625719B.007E27C7@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Thu, 29 Jun 2006 06:55:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:39595 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932556AbWF2Kzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 06:55:32 -0400
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Luck, Tony" <tony.luck@intel.com>,
+       John Daiker <jdaiker@osdl.org>, John Hawkes <hawkes@sgi.com>,
+       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
+       Jeremy Higdon <jeremy@sgi.com>
+In-Reply-To: <44A3AFFB.2000203@sgi.com>
+References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
+	 <yq04py4i9p7.fsf@jaguar.mkp.net>
+	 <1151578928.23785.0.camel@localhost.localdomain> <44A3AFFB.2000203@sgi.com>
+Content-Type: text/plain
+Date: Thu, 29 Jun 2006 12:55:13 +0200
+Message-Id: <1151578513.3122.22.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606291255.36206.ak@suse.de>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 June 2006 01:01, Milena Milenkovic wrote:
-> Hi all,
+On Thu, 2006-06-29 at 12:48 +0200, Jes Sorensen wrote:
+> Alan Cox wrote:
+> > Ar Iau, 2006-06-29 am 05:37 -0400, ysgrifennodd Jes Sorensen:
+> >> You have my vote for that one. Anything else is just going to cause
+> >> those broken userapps to continue doing the wrong thing. We should
+> >> really do this on all archs though.
+> > 
+> > No need, all current mainstream architectures expose a constant user HZ.
 > 
-> The mmu_cr4_features variable was "unexported" in 2.6.12 kernel
-> (A patch submitted by Adrian Bunk, [2.6 patch] unexport mmu_cr4_features).
+Hi,
 
-Normal policy is to unexport symbols that are not used in the core 
-kernel.
+> But you are still going to have the issue where someone installs their
+> own kernel and apps will break because of this?
 
-However I think there is a deprecation policy with prior 
-warning that might not have been followed here.
+to answer that question with one word: no.
 
-> However, this variable is needed if a loadable kernel module wants to 
-> enable
-> access to performance counters from user space.
+read what Alan said: the HZ exposed to userspace is *constant*. For
+example, the i386 user visible HZ is 100, even if the kernel runs at a
+HZ of 250 or 1000.... Just when a HZ value gets exposed to userspace,
+it's transformed into a HZ=100 based value.
 
-Ok I guess it's a reasonable request (although we will likely
-eventually add a standard API for this and then it might 
-be removed again) 
+And that's not a distribution thing, that's the kernel.org kernel
+honoring the stable-userspace-interface contract, and common sense..
 
+Greetings,
+   Arjan van de Ven
 
--Andi

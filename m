@@ -1,50 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWF2Rqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWF2Rti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWF2Rqh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 13:46:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWF2Rqh
+	id S1751110AbWF2Rti (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 13:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWF2Rti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 13:46:37 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:55993 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751091AbWF2Rqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 13:46:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=2ETlIQJAS7/XHvGA5cJEMEkhiC8sYywC3eER8iluNRbo3mK4Rom1VscTicvOCd8ywfosSyBZHnVsGwFLV8QlXQdsDr7XG7dfw8RQnnoXZjPHEhOaxer27VZ8d6MNLCn13rimx3yDUTAwqsbqar8/fE+2SQbRn6RA1XrvH4oA/58=  ;
-Message-ID: <44A411F8.2020404@yahoo.com.au>
-Date: Fri, 30 Jun 2006 03:46:32 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 29 Jun 2006 13:49:38 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19879 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751110AbWF2Rth (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 13:49:37 -0400
+Date: Thu, 29 Jun 2006 19:48:38 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Thomas Gleixner <tglx@timesys.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick and dynamic HZ -V4
+Message-ID: <20060629174838.GA1695@elf.ucw.cz>
+References: <1150747581.29299.75.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Greg Bledsoe <greg.bledsoe@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: pmap, smap, process memory utilization
-References: <dba10b900606271140o64b60c97kecb8177f801ff9f4@mail.gmail.com>  <Pine.LNX.4.58.0606280511320.32286@gandalf.stny.rr.com> <dba10b900606280855g6d415441y92c46ca83c74a469@mail.gmail.com> <Pine.LNX.4.58.0606290220220.19156@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0606290220220.19156@gandalf.stny.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1150747581.29299.75.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> On Wed, 28 Jun 2006, Greg Bledsoe wrote:
+Hi!
 
->>That seems to be what I am hearing in previous lkml discussions.
->>
->>Also, since it seems virtually impossible to get this data on a
->>per-process basis, does smap suffer from these same difficulties, as
->>it seems to calculate this information when asked, and not keep it
->>from process start time.
+> An updated patchset is available from:
+> 
+> http://www.tglx.de/projects/hrtimers/2.6.17/patch-2.6.17-hrt-dyntick4.patch
+> 
+> http://www.tglx.de/projects/hrtimers/2.6.17/patch-2.6.17-hrt-dyntick4.patches.tar.bz2
 
-Hi Greg,
+I briefly tested -dyntick5 on my thinkpad, and it seems to work
+okay... but timer still seems to tick at 250Hz.
 
-smap should do what you want. Rss is total memory used, and the
-following 4 fields are the type of pages used -- shared meaning
-it is mapped by more than one process.
+I have
+
+CONFIG_NO_HZ=y
+CONFIG_NO_IDLE_HZ=y
+CONFIG_HIGH_RES_RESOLUTION=1000
+# CONFIG_HZ_100 is not set
+CONFIG_HZ_250=y
+# CONFIG_HZ_1000 is not set
+CONFIG_HZ=250
+
+root@amd:/proc/sys# cat /proc/interrupts ; sleep 10; cat
+/proc/interrupts
+           CPU0
+  0:      66865          XT-PIC  timer
+  1:       1473          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  8:          1          XT-PIC  rtc
+  9:        249          XT-PIC  acpi
+ 11:        214          XT-PIC  ohci1394, yenta, yenta,
+ehci_hcd:usb1, uhci_hcd:usb2, uhci_hcd:usb3,
+uhci_hcd:usb4, Intel 82801DB-ICH4, eth0
+ 12:        641          XT-PIC  i8042
+ 14:       2476          XT-PIC  ide0
+NMI:          0
+LOC:          0
+ERR:          0
+MIS:          0
+           CPU0
+  0:      69374          XT-PIC  timer
+  1:       1474          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  8:          1          XT-PIC  rtc
+  9:        249          XT-PIC  acpi
+ 11:        219          XT-PIC  ohci1394, yenta, yenta,
+ehci_hcd:usb1, uhci_hcd:usb2, uhci_hcd:usb3,
+uhci_hcd:usb4, Intel 82801DB-ICH4, eth0
+ 12:        641          XT-PIC  i8042
+ 14:       2491          XT-PIC  ide0
+NMI:          0
+LOC:          0
+ERR:          0
+MIS:          0
+root@amd:/proc/sys#
+
+...am I doing something wrong?
+									Pavel
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

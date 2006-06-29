@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWF2UxD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWF2UzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbWF2UxD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:53:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWF2UxB
+	id S932527AbWF2UzP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWF2UzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:53:01 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:46298 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932487AbWF2Uw7 (ORCPT
+	Thu, 29 Jun 2006 16:55:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54432 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932527AbWF2UzM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:52:59 -0400
-Date: Thu, 29 Jun 2006 16:52:53 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: fix implicit declaration on cell.
-Message-ID: <20060629205253.GA22153@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Thu, 29 Jun 2006 16:55:12 -0400
+Date: Thu, 29 Jun 2006 13:58:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Cc: davej@redhat.com, michal.k.k.piotrowski@gmail.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.17-mm4
+Message-Id: <20060629135826.20328067.akpm@osdl.org>
+In-Reply-To: <6bffcb0e0606291346s64530db4g1c9c33da9cf34e73@mail.gmail.com>
+References: <20060629013643.4b47e8bd.akpm@osdl.org>
+	<6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com>
+	<20060629204330.GC13619@redhat.com>
+	<6bffcb0e0606291346s64530db4g1c9c33da9cf34e73@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Only fails with -Werror-implicit-function-declaration, but 
- it should still be fixed).
+"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+>
+> On 29/06/06, Dave Jones <davej@redhat.com> wrote:
+> > On Thu, Jun 29, 2006 at 10:39:33PM +0200, Michal Piotrowski wrote:
+> >
+> >  > This looks very strange.
+> >  >
+> >  > BUG: unable to handle kernel paging request at virtual address 6b6b6c07
+> >
+> > Looks like a use after free.
+> >
+> >  > printing eip:
+> >  > c0138594
+> >  > *pde=00000000
+> >  > Oops: 0002 [#1]
+> >  > 4K_STACK PREEMPT SMP
+> >  > last sysfs file /class/net/eth0/address
+> >  > Modules linked in: ipv6 af_packet ipt_REJECT xt_tcpudp x_tables
+> >  > p4_clockmod speedstep_lib binfmt_misc
+> >  >
+> >  > (gdb) list *0xc0138594
+> >  > 0xc0138594 is in __lock_acquire (include2/asm/atomic.h:96).
+> >  > warning: Source file is more recent than executable.
+> >
+> > got a backtrace ?
+> 
+> Unfortunately no.
+> 
 
-arch/powerpc/platforms/cell/setup.c:145: error: implicit declaration of function 'udbg_init_rtas_console'
+How irritating.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+CONFIG_FRAME_POINTER=y
+# CONFIG_UNWIND_INFO is not set
 
---- linux-2.6.17.noarch/arch/powerpc/platforms/cell/setup.c~	2006-06-29 16:50:23.000000000 -0400
-+++ linux-2.6.17.noarch/arch/powerpc/platforms/cell/setup.c	2006-06-29 16:51:07.000000000 -0400
-@@ -50,6 +50,7 @@
- #include <asm/irq.h>
- #include <asm/spu.h>
- #include <asm/spu_priv1.h>
-+#include <asm/udbg.h>
- 
- #include "interrupt.h"
- #include "iommu.h"
+OK.  Perhaps try setting 8k stacks?
 
--- 
-http://www.codemonkey.org.uk
+Disable lockdep?

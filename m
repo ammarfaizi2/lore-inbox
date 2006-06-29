@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWF2SRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWF2SVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWF2SRt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 14:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWF2SRt
+	id S1751245AbWF2SVm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 14:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWF2SVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 14:17:49 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:59999 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1751115AbWF2SRs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 14:17:48 -0400
-Message-ID: <44A41946.7070201@tls.msk.ru>
-Date: Thu, 29 Jun 2006 22:17:42 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Andrey Borzenkov <arvidjaar@mail.ru>,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>
-Subject: Re: [PATCH 07/13] SERIAL: PARPORT_SERIAL should depend on SERIAL_8250_PCI
-References: <20060620114527.934114000@sous-sol.org> <20060620114733.957367000@sous-sol.org> <44A40E68.9080906@tls.msk.ru> <20060629173710.GE9709@flint.arm.linux.org.uk> <20060629181216.GY11588@sequoia.sous-sol.org>
-In-Reply-To: <20060629181216.GY11588@sequoia.sous-sol.org>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 29 Jun 2006 14:21:42 -0400
+Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:11279 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S1751245AbWF2SVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 14:21:42 -0400
+Date: Thu, 29 Jun 2006 14:20:39 -0400
+From: Matt LaPlante <laplam@rpi.edu>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@kernel.org
+Subject: [PATCH] net/ipv4/netfilter/Kconfig typo (Bugzilla #6753)
+Message-Id: <20060629142039.c9954c45.laplam@rpi.edu>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 14:20:51 -0400
+	(not processed: message from trusted or authenticated source)
+X-Return-Path: laplam@rpi.edu
+X-Envelope-From: laplam@rpi.edu
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 14:20:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Blah.. the CC list went wrong while copying original email from
- lkml.org.  That was entirely my fault, and I'm terrible sorry
- for that.  Erroneous entries removed.  But the CC list is still
- too long...]
+This patch fixes bugzilla #6753, a typo in the netfilter Kconfig
 
-Chris Wright wrote:
-> * Russell King (rmk+lkml@arm.linux.org.uk) wrote:
->> On Thu, Jun 29, 2006 at 09:31:20PM +0400, Michael Tokarev wrote:
->>> I've no idea how this patch slipped into 2.6.16 -stable queue in the
->>> first place... ;)
-> 
-> When Russell sent the patch to stable he said "For the stable branches"
-> which I took to mean both 2.6.16 and 2.6.17, so I added to both.
+-- 
+Matt LaPlante
+CCNP, CCDP, A+, Linux+, CQS
+laplam@rpi.edu
 
-Aha!
+--
 
->> Probably because I didn't pay enough attention to the review mails.
->> I wasn't expecting it to go into 2.6.16, so thought little of it.
-> 
-> I'll add a revert patch for 2.6.16.  Sound OK?
+--- a/net/ipv4/netfilter/Kconfig	2006-06-29 14:07:38.000000000 -0400
++++ b/net/ipv4/netfilter/Kconfig	2006-06-29 14:18:00.000000000 -0400
+@@ -332,7 +332,7 @@
+ 	help
+ 	  This option adds a new iptables `hashlimit' match.  
+ 
+-	  As opposed to `limit', this match dynamically crates a hash table
++	  As opposed to `limit', this match dynamically creates a hash table
+ 	  of limit buckets, based on your selection of source/destination
+ 	  ip addresses and/or ports.
+ 
 
-Well, it definitely should be reverted for 2.6.16, yes.
-
-Thanks.
-
-/mjt

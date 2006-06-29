@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWF2Pj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWF2Pk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWF2Pj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 11:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWF2Pj2
+	id S1750809AbWF2Pk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 11:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWF2Pk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 11:39:28 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41120 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750807AbWF2Pj2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 11:39:28 -0400
-Subject: Re: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA
-	from	Longhaul by rw semaphores
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Thu, 29 Jun 2006 11:40:56 -0400
+Received: from smtp4.poczta.interia.pl ([80.48.65.7]:46669 "EHLO
+	smtp4.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S1750809AbWF2Pkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 11:40:55 -0400
+Message-ID: <44A3F476.5010400@interia.pl>
+Date: Thu, 29 Jun 2006 17:40:38 +0200
+From: =?ISO-8859-2?Q?Rafa=B3_Bilski?= <rafalbilski@interia.pl>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060628)
+MIME-Version: 1.0
 To: Bart Hartgers <bart@etpmod.phys.tue.nl>
-Cc: =?UTF-8?Q?Rafa=C5=82?= Bilski <rafalbilski@interia.pl>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44A3EEDC.30006@etpmod.phys.tue.nl>
-References: <44A2C9A7.6060703@interia.pl>
-	 <1151581077.23785.9.camel@localhost.localdomain>
-	 <44A3C17F.3060204@etpmod.phys.tue.nl> <44A3DFDB.7050202@interia.pl>
-	 <44A3EEDC.30006@etpmod.phys.tue.nl>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Thu, 29 Jun 2006 16:55:51 +0100
-Message-Id: <1151596551.23785.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (Longhaul 1/5) PCI: Protect bus master DMA from	Longhaul
+ by rw semaphores
+References: <44A2C9A7.6060703@interia.pl> <1151581077.23785.9.camel@localhost.localdomain> <44A3C17F.3060204@etpmod.phys.tue.nl> <44A3DFDB.7050202@interia.pl> <44A3EB45.1000507@etpmod.phys.tue.nl>
+In-Reply-To: <44A3EB45.1000507@etpmod.phys.tue.nl>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
+X-EMID: 37d1cacc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-06-29 am 17:16 +0200, ysgrifennodd Bart Hartgers:
-> RafaÅ‚ Bilski wrote:
-> > CPU is VIA C3 in EBGA "Nehemiah" core 6.9.8.
-> > I'm using flush_cache_all(). Is there anything more powerfull?
-> > I'm using MSR_VIA_FCR.
-> > I can disable L2 cache (or at least I think so) - this doesn't help.
-> > I can't disable L1 cache - processor stops when I'm trying to set 
-> > I-cache or D-cache disable bit.
+> Hi Rafa³,
+> 
+> Any code to show? Just in case... ;-)
+> 
+> Groeten,
+> Bart
+> 
 
-If you can flush any cached writes to RAM before you do the changeover
-and after you disabled interrupts then it ought to be sufficient to
-invalidate the cache just before re-enabling everything.
+I'm using this for L2 cache:
+	preempt_disable();
+	local_irq_save(flags);
+	rdmsr(MSR_VIA_FCR, lo, hi);
+	flush_cache_all();
+	wrmsr(MSR_VIA_FCR, lo | 1 << 8, hi);
+and this doesn't stop the processor, but when I'm adding
+1 << 13 or 1 << 14 CPU stops. I have tried
+	flush_cache_all();
+	wrmsr(MSR_VIA_FCR, lo | 1 << 8, hi);
+	flush_cache_all();
+	wrmsr(MSR_VIA_FCR, lo | 1 << 8 | 1 << 13, hi);
+and
+	flush_cache_all();
+	wrmsr(MSR_VIA_FCR, lo | 1 << 8 | 1 << 13, hi);
+and more, but result was always the same.
 
-The reason I make that claim is that you know nobody will be DMAing over
-the pages of memory you use for the speed change itself. Might need a
-little care with the stack that is all.
+I will be very gratefull if You tell me what I'm doing wrong.
+
+Rafa³
 
 
-Alan
+----------------------------------------------------------------------
+PS. Fajny portal... >>> http://link.interia.pl/f196a
 

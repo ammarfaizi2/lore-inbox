@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWF2UzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWF2U4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932527AbWF2UzP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:55:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWF2UzO
+	id S932540AbWF2U4I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbWF2U4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:55:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54432 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932527AbWF2UzM (ORCPT
+	Thu, 29 Jun 2006 16:56:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23004 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932540AbWF2U4F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:55:12 -0400
-Date: Thu, 29 Jun 2006 13:58:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: davej@redhat.com, michal.k.k.piotrowski@gmail.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.17-mm4
-Message-Id: <20060629135826.20328067.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0606291346s64530db4g1c9c33da9cf34e73@mail.gmail.com>
-References: <20060629013643.4b47e8bd.akpm@osdl.org>
-	<6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com>
-	<20060629204330.GC13619@redhat.com>
-	<6bffcb0e0606291346s64530db4g1c9c33da9cf34e73@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 29 Jun 2006 16:56:05 -0400
+Date: Thu, 29 Jun 2006 16:55:57 -0400
+From: Dave Jones <davej@redhat.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Greg KH <greg@kroah.com>, gregkh@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 64bit Resource: finally enable 64bit resource sizes
+Message-ID: <20060629205557.GG13619@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Chris Wedgwood <cw@f00f.org>, Greg KH <greg@kroah.com>,
+	gregkh@suse.de,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200606291801.k5TI12br003227@hera.kernel.org> <20060629204206.GA3010@tuatara.stupidest.org> <20060629204527.GD13619@redhat.com> <20060629205213.GA3534@tuatara.stupidest.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060629205213.GA3534@tuatara.stupidest.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
->
-> On 29/06/06, Dave Jones <davej@redhat.com> wrote:
-> > On Thu, Jun 29, 2006 at 10:39:33PM +0200, Michal Piotrowski wrote:
-> >
-> >  > This looks very strange.
-> >  >
-> >  > BUG: unable to handle kernel paging request at virtual address 6b6b6c07
-> >
-> > Looks like a use after free.
-> >
-> >  > printing eip:
-> >  > c0138594
-> >  > *pde=00000000
-> >  > Oops: 0002 [#1]
-> >  > 4K_STACK PREEMPT SMP
-> >  > last sysfs file /class/net/eth0/address
-> >  > Modules linked in: ipv6 af_packet ipt_REJECT xt_tcpudp x_tables
-> >  > p4_clockmod speedstep_lib binfmt_misc
-> >  >
-> >  > (gdb) list *0xc0138594
-> >  > 0xc0138594 is in __lock_acquire (include2/asm/atomic.h:96).
-> >  > warning: Source file is more recent than executable.
-> >
-> > got a backtrace ?
-> 
-> Unfortunately no.
-> 
+On Thu, Jun 29, 2006 at 01:52:13PM -0700, Chris Wedgwood wrote:
+ > On Thu, Jun 29, 2006 at 04:45:27PM -0400, Dave Jones wrote:
+ > 
+ > Yeah I just test and it does the right think for iamd64
+ > 
+ > > +config RESOURCES_64BIT
+ > > +       bool "64 bit Memory and IO resources (EXPERIMENTAL)" if (!64BIT && EXPERIMENTAL)
+ > > +       default 64BIT
+ >                   ^^^^^ ?
+ > is that right?
 
-How irritating.
+arch/x86_64/Kconfig has ..
 
-CONFIG_FRAME_POINTER=y
-# CONFIG_UNWIND_INFO is not set
+config 64BIT
+    def_bool y
 
-OK.  Perhaps try setting 8k stacks?
+so why not ?
 
-Disable lockdep?
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

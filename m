@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWF2UGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWF2UIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbWF2UGs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWF2UGs
+	id S932390AbWF2UIe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWF2UIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:06:48 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:51592 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932385AbWF2UGr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:06:47 -0400
-Date: Thu, 29 Jun 2006 15:06:44 -0500
-To: Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       Rajesh Shah <rajesh.shah@intel.com>,
-       "Ronciak, John" <john.ronciak@intel.com>,
-       Grant Grundler <grundler@parisc-linux.org>,
-       "bibo,mao" <bibo.mao@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       netdev@vger.kernel.org, akpm@osdl.org
-Subject: Subject: [PATCH 1/2]: e100 disable device on PCI error
-Message-ID: <20060629200644.GA29526@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+	Thu, 29 Jun 2006 16:08:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10122 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932390AbWF2UId (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 16:08:33 -0400
+Date: Thu, 29 Jun 2006 13:06:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] kernel/sys.c: remove unused exports
+Message-Id: <20060629130633.3da327b6.akpm@osdl.org>
+In-Reply-To: <20060629195828.GF19712@stusta.de>
+References: <20060629191940.GL19712@stusta.de>
+	<20060629123608.a2a5c5c0.akpm@osdl.org>
+	<20060629124400.ee22dfbf.akpm@osdl.org>
+	<20060629195828.GF19712@stusta.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 29 Jun 2006 21:58:28 +0200
+Adrian Bunk <bunk@stusta.de> wrote:
 
-A recent patch in -mm3 titled 
-  "gregkh-pci-pci-don-t-enable-device-if-already-enabled.patch"
-causes pci_enable_device() to be a no-op if the kernel thinks
-that the device is already enabled.  This change breaks the
-PCI error recovery mechanism in the e100 device driver, since, 
-after PCI slot reset, the card is no longer enabled. This is 
-a trivial fix for this problem. Tested.
+> On Thu, Jun 29, 2006 at 12:44:00PM -0700, Andrew Morton wrote:
+> > On Thu, 29 Jun 2006 12:36:08 -0700
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > On Thu, 29 Jun 2006 21:19:40 +0200
+> > > Adrian Bunk <bunk@stusta.de> wrote:
+> > > 
+> > > > This patch removes the following unused exports:
+> > > > - EXPORT_SYMBOL:
+> > > >   - in_egroup_p
+> > > > - EXPORT_SYMBOL_GPL's:
+> > > >   - kernel_restart
+> > > >   - kernel_halt
+> > > 
+> > > Switch 'em to EXPORT_UNUSED_SYMBOL and I'll stop dropping your patches ;)
+> > > 
+> > 
+> > If doing this, I'd suggest it be done thusly:
+> > 
+> > EXPORT_UNUSED_SYMBOL(in_egroup_p);	/* June 2006 */
+> > 
+> > to aid later decision-making.
+> 
+> I had some bad experiences with following processes you suggest the 
+> doesn't remove the symbol immediately:
+> 
+> As you wanted me to do, I scheduled the EXPORT_SYMBOL(insert_resource) 
+> for removal on 2 May 2005 with both __deprecated_for_modules and an 
+> entry in feature-removal-schedule.txt with the target date April 2006.
+> 
+> On 11 Apr 2006, I sent the patch to implement this scheduled removal.
+> 
+> As of today, the latter patch is still stuck in -mm (which isn't better 
+> than having it dropped) although it's long overdue.
 
-Please submit uptream.
+Blame Greg ;)
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+> Do you understand why I distrust your "to aid later decision-making"?
 
-----
- drivers/net/e100.c |    1 +
- 1 file changed, 1 insertion(+)
+You'll cope.
 
-Index: linux-2.6.17-mm3/drivers/net/e100.c
-===================================================================
---- linux-2.6.17-mm3.orig/drivers/net/e100.c	2006-06-27 11:39:08.000000000 -0500
-+++ linux-2.6.17-mm3/drivers/net/e100.c	2006-06-29 14:18:40.000000000 -0500
-@@ -2742,6 +2742,7 @@ static pci_ers_result_t e100_io_error_de
- 	/* Detach; put netif into state similar to hotplug unplug. */
- 	netif_poll_enable(netdev);
- 	netif_device_detach(netdev);
-+	pci_disable_device(pdev);
- 
- 	/* Request a slot reset. */
- 	return PCI_ERS_RESULT_NEED_RESET;
+> Can you state publically "If there's still no in-kernel user after six 
+> months, the removal is automatically ACK'ed."?
+
+6 or 12.  We haven't decided.  6 sounds OK.  If nobody complains.  If
+they do, we rethink a particular export.

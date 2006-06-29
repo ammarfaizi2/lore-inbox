@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751826AbWF2AFA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751831AbWF2AHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751826AbWF2AFA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 20:05:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWF2AE7
+	id S1751831AbWF2AHc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 20:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWF2AHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 20:04:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17106 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751822AbWF2AE6 (ORCPT
+	Wed, 28 Jun 2006 20:07:32 -0400
+Received: from gate.crashing.org ([63.228.1.57]:49637 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751829AbWF2AHb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 20:04:58 -0400
-Date: Wed, 28 Jun 2006 17:08:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Miles Lane" <miles.lane@gmail.com>
-Cc: linux-kernel@vger.kernel.org, "John W. Linville" <linville@tuxdriver.com>,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.17-mm3 -- NULL pointer dereference at virtual address
- 00000020 / EIP is at prism2_registers_proc_read+0x22/0x2ff [hostap_cs]
-Message-Id: <20060628170809.374cafcf.akpm@osdl.org>
-In-Reply-To: <a44ae5cd0606281634o45795e89y8789e670448f52e3@mail.gmail.com>
-References: <a44ae5cd0606281634o45795e89y8789e670448f52e3@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 28 Jun 2006 20:07:31 -0400
+Subject: Re: radeonfb: corrupted screen on bootup
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <200606282118.27750.mb@bu3sch.de>
+References: <200606282118.27750.mb@bu3sch.de>
+Content-Type: text/plain
+Date: Thu, 29 Jun 2006 10:07:11 +1000
+Message-Id: <1151539632.4044.49.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Miles Lane" <miles.lane@gmail.com> wrote:
->
-> BUG: unable to handle kernel NULL pointer dereference at virtual
-> address 00000020
->  printing eip:
-> f8d21f6e
-> *pde = 00000000
-> Oops: 0000 [#1]
-> 4K_STACKS PREEMPT
-> last sysfs file: /devices/system/cpu/cpu0/cpufreq/scaling_setspeed
-> Modules linked in: sg sd_mod usb_storage libusual pcnet_cs 8390
-> aha152x_cs scsi_transport_spi ohci_hcd hostap_cs hostap binfmt_misc
-> i915 drm ipv6 speedstep_centrino cpufreq_powersave cpufreq_performance
-> cpufreq_conservative video thermal button nls_ascii nls_cp437 vfat fat
-> nls_utf8 ntfs nls_base md_mod sr_mod sbp2 scsi_mod parport_pc lp
-> parport snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm_oss
-> snd_mixer_oss snd_pcm snd_timer ehci_hcd pcspkr evdev iTCO_wdt sdhci
-> mmc_core uhci_hcd usbcore psmouse snd ipw2200 rtc intel_agp agpgart
-> ohci1394 ieee1394 soundcore snd_page_alloc 8139too
-> CPU:    0
-> EIP:    0060:[<f8d21f6e>]    Not tainted VLI
-> EFLAGS: 00210246   (2.6.17-mm3miles #15)
-> EIP is at prism2_registers_proc_read+0x22/0x2ff [hostap_cs]
-> eax: 00000000   ebx: f8d21f4c   ecx: 00000000   edx: e884ef64
-> esi: d5bd04e4   edi: db8ce000   ebp: e884ef38   esp: e884ef2c
-> ds: 007b   es: 007b   ss: 0068
-> Process cat (pid: 2219, ti=e884e000 task=cdd3e870 task.ti=e884e000)
-> Stack: f8d21f4c 00000400 db8ce000 e884ef78 c1090c8b 00000400 e884ef68 d5bd04e4
->        00000400 0806c000 cac1123c 00000000 00000400 f7b6b838 00000000 00000000
->        dc8ff844 c1090b8c 0806c000 e884ef94 c105fe38 e884efa0 00000400 dc8ff844
-> Call Trace:
->  [<c1090c8b>] proc_file_read+0xff/0x218
->  [<c105fe38>] vfs_read+0xa9/0x158
->  [<c1060207>] sys_read+0x3b/0x60
->  [<c1002d6d>] sysenter_past_esp+0x56/0x8d
-> Code: c8 8d 65 f4 5b 5e 5f 5d c3 55 89 e5 57 56 53 89 c7 8b 75 10 85
-> c9 74 10 8b 45 0c c7 00 01 00 00 00 31 c0 e9 d8 02 00 00 8b 46 14 <8b>
-> 50 20 66 ed 0f b7 c0 50 68 03 4a d2 f8 57 e8 42 46 3d c8 8d
-> EIP: [<f8d21f6e>] prism2_registers_proc_read+0x22/0x2ff [hostap_cs]
-> SS:ESP 0068:e884ef2c
+On Wed, 2006-06-28 at 21:18 +0200, Michael Buesch wrote:
+> Hi,
+> 
+> I have a weird error with my PowerBook G4, which
+> has a radeon card. I am using radeonfb.
+> After bootup, the screen sometimes looks like it is melting.
+> I made a video to show you what is going on:
+> http://bu3sch.de/misc/after_boot.avi  (6.1 MB)
+> 
+> It does only happen sometimes. I could not find
+> a way to reproduce it.
+> If I start X after boot with a melting screen, X is also
+> melting:
+> http://bu3sch.de/misc/after_x_switch.avi  (6.6 MB)
+> 
+> But here comes the interresting part:
+> If I switch back into the console, the screen becomes
+> normal again and I can continue to work as usual.
+> 
+> I am suspecting some initialization routine bug.
+> It never happened when booting into OSX.
 
-local_info_t.dev is NULL in prism2_registers_proc_read().
+It's a known issue. There is some black magic with the flat panel that
+we don't have quite right... If I tweak the timings to get it right on
+one machine (well, apparently, difficult to make sure if the problem
+happens once every week), it will probably break anohter. I've been
+trying to get ATI to tell me what should be done but to no avail so
+far...
 
-Can you please provide a step-by-step means by which others can reproduce
-this?
+It's basically that sometimes, the LCD doesn't "catch" the signal.
+Usually just turning it off/on fixes it (which is what a mode change
+does, sometimes a console switch, or a blank/unblank... or turn the
+backlight all the way down to blank the screen and back up).
+
+Ben.
+
 

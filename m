@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWF2UWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWF2U1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWF2UWo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWF2UWn
+	id S932408AbWF2U1E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWF2U1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:22:43 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:32187 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932408AbWF2UWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:22:42 -0400
-Date: Thu, 29 Jun 2006 22:17:52 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+	Thu, 29 Jun 2006 16:27:04 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:47541 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932408AbWF2U1C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 16:27:02 -0400
+Date: Thu, 29 Jun 2006 14:27:00 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Daniel Phillips <phillips@google.com>
+Cc: Johann Lombardi <johann.lombardi@bull.net>, sho@tnes.nec.co.jp,
+       cmm@us.ibm.com, ext2-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: i386 IPI handlers running with hardirq_count == 0
-Message-ID: <20060629201752.GA25300@elte.hu>
-References: <p73wtb0w6dp.fsf@verdi.suse.de> <9914.1151600442@ocs3.ocs.com.au>
+Subject: Re: [RFC 1/2] ext3: enlarge blocksize and fix rec_len overflow
+Message-ID: <20060629202700.GD5318@schatzie.adilger.int>
+Mail-Followup-To: Daniel Phillips <phillips@google.com>,
+	Johann Lombardi <johann.lombardi@bull.net>, sho@tnes.nec.co.jp,
+	cmm@us.ibm.com, ext2-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20060628205238sho@rifu.tnes.nec.co.jp> <20060628155048.GG2893@chiva> <20060628202421.GL5318@schatzie.adilger.int> <44A417A3.80001@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9914.1151600442@ocs3.ocs.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5127]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <44A417A3.80001@google.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Keith Owens <kaos@ocs.com.au> wrote:
-
-> My question has nothing to do with NMI.  I am querying inconsistent 
-> behaviour amongst normal IPIs, this list :-
+On Jun 29, 2006  11:10 -0700, Daniel Phillips wrote:
+> Andreas Dilger wrote:
+> >On Jun 28, 2006  17:50 +0200, Johann Lombardi wrote:
+> >>ext2/ext3_dir_entry_2 has a 16-bit entry(rec_len) and it would overflow
+> >>with 64KB blocksize.  This patch prevent from overflow by limiting
+> >>rec_len to 65532.
+> >
+> >Having a max rec_len of 65532 is rather unfortunate, since the dir
+> >blocks always need to filled with dir entries.  65536 - 65532 = 4, and
+> >the minimum ext3_dir_entry size is 8 bytes.  I would instead make this
+> >maybe 64 bytes less so that there is room for a filename in the "tail"
+> >dir_entry.
 > 
-> i386 function                   irq_enter?
-> smp_apic_timer_interrupt           yes
-> smp_call_function_interrupt        yes
-> smp_error_interrupt                yes
-> smp_invalidate_interrupt           no - why
-> smp_reschedule_interrupt           no (does not need it)
-> smp_spurious_interrupt             yes
-> smp_thermal_interrupt              yes
-> 
-> x86_64 function                 irq_enter?
-> mce_threshold_interrupt            yes
-> smp_apic_timer_interrupt           yes
-> smp_call_function_interrupt        yes
-> smp_error_interrupt                yes
-> smp_invalidate_interrupt           no - why
-> smp_reschedule_interrupt           no (does not need it)
-> smp_spurious_interrupt             yes
-> smp_thermal_interrupt              yes
+> Then why not introduce a little symmetry by making max rec_len 2**15 and
+> treat big directory blocks as an array of smaller ones?  I dimly recall
+> the page-cache oriented Ext2 dir code already does this.
 
-irq_enter() is mostly just for the purpose of in_interrupt()/in_irq() to 
-work as expected, not much else. [also the timer code assumes that 
-update_process_times() is called in a HARDIRQ_OFFSET elevated context, 
-so the apic timer IRQ needs irq_enter() too.] The 
-smp_invalidate_interrupt() and smp_reschedule_interrupt() is 
-performance-critical and they dont need irq_enter()/irq_exit().
+I have no objection to this at all, but I think it will lead to a slightly
+more complex implementation.  We even discussed in the distant past to
+make large directories a series of 4kB "chunks", for fs blocksize >= 4kB.
+This has negative implications for large filenames because the internal
+free space fragmentation is high, but has the advantage that it might
+eventually still be usable if we can get blocksize > PAGE_SIZE.
 
-Since smp_call_function_interrupt() can be called with driver-supplied 
-function vectors, it's best to keep the irq_enter()/exit there. [for 
-example mm/slab.c has some in_interrupt() sanity checks.] Obviously 
-do_IRQ() itself needs irq_enter()/exit() too - plus the APIC timer irq 
-as mentioned above.
- 
-Otherwise, the rest of the SMP functions technically dont need 
-irq_enter()/irq_exit(). [i.e. threshold, error, spurious and thermal] We 
-could remove it from them.
+The difficulty is that when freeing dir entires you would have to be
+concerned with a merging a dir_entry that is spanning the middle
+of a 2^16 block.
 
-	Ingo
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751750AbWF2H3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751752AbWF2Hay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751750AbWF2H3a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 03:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751752AbWF2H3a
+	id S1751752AbWF2Hay (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 03:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751758AbWF2Hay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 03:29:30 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8335 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751687AbWF2H33 (ORCPT
+	Thu, 29 Jun 2006 03:30:54 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9359 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751752AbWF2Hax (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 03:29:29 -0400
-Date: Thu, 29 Jun 2006 09:29:15 +0200
+	Thu, 29 Jun 2006 03:30:53 -0400
+Date: Thu, 29 Jun 2006 09:30:33 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Con Kolivas <kernel@kolivas.org>, Al Boldi <a1426z@gawab.com>,
-       linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Incorrect CPU process accounting using         CONFIG_HZ=100
-Message-ID: <20060629072915.GE27526@elf.ucw.cz>
-References: <200606211716.01472.a1426z@gawab.com> <200606272302.16950.kernel@kolivas.org> <44A1C4D4.3080805@bigpond.net.au> <200606282306.14498.a1426z@gawab.com> <44A30F60.6070001@bigpond.net.au> <cone.1151538362.930767.14982.501@kolivas.org> <44A31DE8.20100@bigpond.net.au>
+To: Ulrich Drepper <drepper@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Jason Baron <jbaron@redhat.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: make PROT_WRITE imply PROT_READ
+Message-ID: <20060629073033.GF27526@elf.ucw.cz>
+References: <449B42B3.6010908@shaw.ca> <Pine.LNX.4.64.0606230934360.24102@dhcp83-5.boston.redhat.com> <1151071581.3204.14.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0606231002150.24102@dhcp83-5.boston.redhat.com> <1151072280.3204.17.camel@laptopd505.fenrus.org> <a36005b50606241145q4d1dd17dg85f80e07fb582cdb@mail.gmail.com> <20060627095632.GA22666@elf.ucw.cz> <a36005b50606280943l54138e80tbda08e1607136792@mail.gmail.com> <20060628194913.GA18039@elf.ucw.cz> <a36005b50606281647i58f2899eo7ae7e95757969d42@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44A31DE8.20100@bigpond.net.au>
+In-Reply-To: <a36005b50606281647i58f2899eo7ae7e95757969d42@mail.gmail.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >>>Wouldn't merging the two approaches be in the interest of conserving 
-> >>>cpu resources, while at the same time reflecting an accurate view of 
-> >>>cpu utilization?
-> >>
-> >>I think that this would be a worthwhile endeavour once/if 
-> >>sched_clock() is fixed.  This is especially the case as CPUs get 
-> >>faster as many tasks may run to completion in less than a tick.
-> >
-> >That may not be as simple as it seems. To properly account system v user 
-> >time using the sched_clock we'd have to hook into arch dependant asm 
-> >code to know when entering and exiting kernel context. That is far more 
-> >invasive than the simple on/off runqueue timing we currently do for 
-> >scheduling accounting.
+On Wed 2006-06-28 16:47:00, Ulrich Drepper wrote:
+> On 6/28/06, Pavel Machek <pavel@ucw.cz> wrote:
+> >mmap() behaviour always was platform-specific, and it happens to be
+> >quite strange on i386. So what.
 > 
-> Yes, it is a problem and we may have to do something approximate like 
-> counting ticks for sys time and subtracting that from the total to get 
-> user time when reporting the times to user space (only a bit more 
-> complex to make sure we don't end up with negative times).
+> Nonsense.  The mmap semantics is specified in POSIX.  If something
+> doesn't work as requested it is a bug.  For the specific issue hurting
+> x86 and likely others the standard explicitly allows requiring
+> PROT_READ to be used or implicitly adding it.  Don't confuse people
+> with wrong statement like yours.
 
-Yes, please.
-
-> How is it intended to handle this problem in the tickless kernel?
-
-Even our "tickless" kernels do tick while CPU is busy.
+Can you quote part of POSIX where it says that PROT_WRITE must imply
+PROT_READ?
 								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek

@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWF2Rcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWF2RhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWF2Rcu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 13:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWF2Rcu
+	id S1751096AbWF2RhV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 13:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWF2RhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 13:32:50 -0400
-Received: from [141.84.69.5] ([141.84.69.5]:34575 "HELO mailout.stusta.mhn.de")
-	by vger.kernel.org with SMTP id S1751088AbWF2Rct (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 13:32:49 -0400
-Date: Thu, 29 Jun 2006 19:32:06 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-       juha.yrjola@solidboot.com
-Subject: Re: [2.6 patch] make drivers/mtd/cmdlinepart.c:mtdpart_setup() static
-Message-ID: <20060629173206.GF19712@stusta.de>
-References: <20060626220215.GI23314@stusta.de> <1151416141.17609.140.camel@hades.cambridge.redhat.com>
-MIME-Version: 1.0
+	Thu, 29 Jun 2006 13:37:21 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64777 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751096AbWF2RhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 13:37:20 -0400
+Date: Thu, 29 Jun 2006 18:37:11 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, Andrey Borzenkov <arvidjaar@mail.ru>,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris@amavis.tls.msk.ru, Wedgwood@vger.kernel.org
+Subject: Re: [PATCH 07/13] SERIAL: PARPORT_SERIAL should depend on SERIAL_8250_PCI
+Message-ID: <20060629173710.GE9709@flint.arm.linux.org.uk>
+Mail-Followup-To: Michael Tokarev <mjt@tls.msk.ru>,
+	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+	stable@kernel.org, Andrey Borzenkov <arvidjaar@mail.ru>,
+	Justin Forbes <jmforbes@linuxtx.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+	Dave Jones <davej@redhat.com>,
+	Chuck Wolber <chuckw@quantumlinux.com>, Chris@amavis.tls.msk.ru,
+	Wedgwood@vger.kernel.org
+References: <20060620114527.934114000@sous-sol.org> <20060620114733.957367000@sous-sol.org> <44A40E68.9080906@tls.msk.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1151416141.17609.140.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <44A40E68.9080906@tls.msk.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 02:49:00PM +0100, David Woodhouse wrote:
-> On Tue, 2006-06-27 at 00:02 +0200, Adrian Bunk wrote:
-> > This patch makes the needlessly global mtdpart_setup() static.
-> > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > 
-> > --- linux-2.6.17-mm2-full/drivers/mtd/cmdlinepart.c.old 2006-06-26 23:18:39.000000000 +0200
-> > +++ linux-2.6.17-mm2-full/drivers/mtd/cmdlinepart.c     2006-06-26 23:18:51.000000000 +0200
-> > @@ -346,7 +346,7 @@
-> >   *
-> >   * This function needs to be visible for bootloaders.
-> >   */
-> > -int mtdpart_setup(char *s)
-> > +static int mtdpart_setup(char *s) 
-> 
-> Patch lacks sufficient explanation. Explain the relevance of the comment
-> immediately above the function declaration, in the context of your
-> patch. Explain your decision to change the behaviour, but not change the
-> comment itself.
+On Thu, Jun 29, 2006 at 09:31:20PM +0400, Michael Tokarev wrote:
+> I've no idea how this patch slipped into 2.6.16 -stable queue in the
+> first place... ;)
 
-My explanation regarding the relevance of the comment is that it seems 
-to be nonsense.
-
-Do I miss something, or why and how should a bootloader access 
-in-kernel functions?
-
-> Think. Or you will be replaced with a small shell script.
-
-No problem, I'm waiting for your submission of Adrian 1.0 ;-)
-
-> dwmw2
-
-cu
-Adrian
+Probably because I didn't pay enough attention to the review mails.
+I wasn't expecting it to go into 2.6.16, so thought little of it.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

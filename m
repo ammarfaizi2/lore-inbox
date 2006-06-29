@@ -1,81 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWF2O1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWF2O3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWF2O1F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 10:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWF2O1F
+	id S1750755AbWF2O3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 10:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWF2O3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 10:27:05 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:57748 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750736AbWF2O1D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 10:27:03 -0400
-Date: Thu, 29 Jun 2006 07:27:41 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Josh Triplett <josht@vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Dipkanar Sarma <dipankar@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Samuel Ortiz <samuel@sortiz.org>
-Subject: Re: [PATCH] irda: Fix RCU lock pairing on error path
-Message-ID: <20060629142741.GA1294@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <1151542602.18723.19.camel@josh-work.beaverton.ibm.com>
+	Thu, 29 Jun 2006 10:29:25 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:31175 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750755AbWF2O3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 10:29:24 -0400
+Date: Thu, 29 Jun 2006 16:24:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       Prasanna Panchamukhi <prasanna@in.ibm.com>
+Subject: Re: [PATCH] 2.6.17-rt1 : fix x86_64 oops
+Message-ID: <20060629142442.GA11546@elte.hu>
+References: <20060627200105.GA13966@in.ibm.com> <20060628182137.GA23979@in.ibm.com> <20060628193256.GA4392@elte.hu> <20060628200247.GA7932@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1151542602.18723.19.camel@josh-work.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060628200247.GA7932@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 05:56:41PM -0700, Josh Triplett wrote:
-> irlan_client_discovery_indication calls rcu_read_lock and rcu_read_unlock, but
-> returns without unlocking in an error case.  Fix that by replacing the return
-> with a goto so that the rcu_read_unlock always gets executed.
 
-Good catch!!!  Looks good from an RCU viewpoint, in fact, looks absolutely
-necessary to permit IRDA to work in debug mode, particularly in either
-a CONFIG_PREEMPT or a -rt kernel.
+* Dipankar Sarma <dipankar@in.ibm.com> wrote:
 
-One question below, but up to the maintainer.  ;-)
+> OK, I need to catch up, but I see a lot of oops while running 
+> rcutorture in my box (rt1). I am investigating this atm.
 
-							Thanx, Paul
+fyi, 2.6.17-mm4 throws tons of these:
 
-Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
-> Signed-off-by: Josh Triplett <josh@freedesktop.org>
-> 
-> ---
-> 
->  net/irda/irlan/irlan_client.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
-> 
-> e20ab96944814489277c3bfd4e69133854ab01e9
-> diff --git a/net/irda/irlan/irlan_client.c b/net/irda/irlan/irlan_client.c
-> index f8e6cb0..5ce7d2e 100644
-> --- a/net/irda/irlan/irlan_client.c
-> +++ b/net/irda/irlan/irlan_client.c
-> @@ -173,13 +173,14 @@ void irlan_client_discovery_indication(d
->  	rcu_read_lock();
->  	self = irlan_get_any();
->  	if (self) {
-> -		IRDA_ASSERT(self->magic == IRLAN_MAGIC, return;);
-> +		IRDA_ASSERT(self->magic == IRLAN_MAGIC, goto out;);
->  
->  		IRDA_DEBUG(1, "%s(), Found instance (%08x)!\n", __FUNCTION__ ,
->  		      daddr);
->  		
->  		irlan_client_wakeup(self, saddr, daddr);
->  	}
-> +out:
+ BUG: scheduling while atomic: rcu_torture_rea/0x00010000/1471
+  [<c0106123>] show_trace+0xd/0x10
+  [<c010613d>] dump_stack+0x17/0x1a
+  [<c123b4e2>] schedule+0x61/0xc61
+  [<c015f380>] rcu_torture_reader+0x12e/0x17e
+  [<c014101f>] kthread+0xc4/0xf0
+  [<c0102005>] kernel_thread_helper+0x5/0xb
 
-Should the above label instead be as follows?
-
-	IRDA_ASSERT_LABEL(out:)
-
-Just in case some variant of gcc, sparse, or whatever complains about
-labels that don't have a corresponding goto (in CONFIG_IRDA_DEBUG=n
-builds).
-
->  	rcu_read_unlock();
->  }
->  	
-> 
-> 
+	Ingo

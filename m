@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbWF2U5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWF2U5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbWF2U5J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWF2U5J
+	id S932548AbWF2U5o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWF2U5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:57:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32673 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932544AbWF2U5G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:57:06 -0400
-Date: Thu, 29 Jun 2006 14:00:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm one process gets stuck in infinite loop in the
- kernel.
-Message-Id: <20060629140024.57d94629.akpm@osdl.org>
-In-Reply-To: <20060629203942.GE20456@charite.de>
-References: <20060629013643.4b47e8bd.akpm@osdl.org>
-	<44A3B8A0.4070601@aitel.hist.no>
-	<20060629104117.e96df3da.akpm@osdl.org>
-	<20060629203942.GE20456@charite.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 29 Jun 2006 16:57:43 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:61973 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932551AbWF2U5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 16:57:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oJ8Q1BmlcH5TfQ0oNx6bvfn22vcWbyWR1iZNHKWcnIwpyauz5mANCZ1jXiz702z5D4kpyjsZdmWBRtTl3ESLd9LXehp4/ObuGDx+dS6I+FKmi1r7Zx+9eUAqUEQkGhG34VSz76GYsOkrCxy7VQJv0qU88KOkglOqPv1jJqB6PBk=
+Message-ID: <6bffcb0e0606291357n7b228035leb5af94833e3a68c@mail.gmail.com>
+Date: Thu, 29 Jun 2006 22:57:40 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Dave Jones" <davej@redhat.com>,
+       "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.17-mm4
+In-Reply-To: <20060629204905.GF13619@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060629013643.4b47e8bd.akpm@osdl.org>
+	 <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com>
+	 <20060629204330.GC13619@redhat.com>
+	 <6bffcb0e0606291346s64530db4g1c9c33da9cf34e73@mail.gmail.com>
+	 <20060629204905.GF13619@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Hildebrandt <Ralf.Hildebrandt@charite.de> wrote:
+On 29/06/06, Dave Jones <davej@redhat.com> wrote:
+> On Thu, Jun 29, 2006 at 10:46:24PM +0200, Michal Piotrowski wrote:
+>  > On 29/06/06, Dave Jones <davej@redhat.com> wrote:
+>  > >On Thu, Jun 29, 2006 at 10:39:33PM +0200, Michal Piotrowski wrote:
+>  > >
+>  > > > This looks very strange.
+>  > > >
+>  > > > BUG: unable to handle kernel paging request at virtual address 6b6b6c07
+>  > >
+>  > >Looks like a use after free.
+>  > >
+>  > > > printing eip:
+>  > > > c0138594
+>  > > > *pde=00000000
+>  > > > Oops: 0002 [#1]
+>  > > > 4K_STACK PREEMPT SMP
+>  > > > last sysfs file /class/net/eth0/address
+>  > > > Modules linked in: ipv6 af_packet ipt_REJECT xt_tcpudp x_tables
+>  > > > p4_clockmod speedstep_lib binfmt_misc
+>  > > >
+>  > > > (gdb) list *0xc0138594
+>  > > > 0xc0138594 is in __lock_acquire (include2/asm/atomic.h:96).
+>  > > > warning: Source file is more recent than executable.
+>  > >
+>  > >got a backtrace ?
+>  >
+>  > Unfortunately no.
 >
-> * Andrew Morton <akpm@osdl.org>:
-> 
-> > > I have seen this both with mm2, m33 and mm4.
-> > > Suddenly, the load meter jumps.
-> > > Using ps & top, I see one process using 100% cpu.
-> > > This is always a process that was exiting, this tend to happen
-> > > when I close applications, or doing debian upgrades which
-> > > runs lots of short-lived processes.
-> > > 
-> > > I believe it is running in the kernel, ps lists it with stat "RN"
-> > > and it cannot be killed, not even with kill -9 from root.
-> 
-> I see exactly the same here.
-> 
-> > Please generate a kernel profile when it happens so we can see
-> > where it got stuck.
-> 
-> Do I need to compile the kernel with profiling for this:> 
+> nothing useful from 'bt' from that gdb prompt ?
 
-Nope.
+(gdb) bt
+No stack.
 
-> > <boot with profile=1>
-> to work? And is "profile=1" a boot parameter?
+>
+>                 Dave
+>
+> --
+> http://www.codemonkey.org.uk
+>
 
-Yes, profile=1 is a boot parameter.
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

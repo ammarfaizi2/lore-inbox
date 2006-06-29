@@ -1,86 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWF2NgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWF2Nsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWF2NgL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 09:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWF2NgL
+	id S1750703AbWF2Nsq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 09:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWF2Nsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 09:36:11 -0400
-Received: from pih-relay05.plus.net ([212.159.14.132]:38340 "EHLO
-	pih-relay05.plus.net") by vger.kernel.org with ESMTP
-	id S1750710AbWF2NgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 09:36:09 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+	Thu, 29 Jun 2006 09:48:46 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:33440 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750703AbWF2Nsp (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 09:48:45 -0400
+Message-Id: <200606291348.k5TDm8t8003750@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
 To: Paolo Ornati <ornati@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@kernel.org, Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       jensmh@gmx.de
 Subject: Re: [PATCH] Documentation: remove duplicate cleanups
-Date: Thu, 29 Jun 2006 14:35:39 +0100
-User-Agent: KMail/1.9.3
-Cc: jensmh@gmx.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org, Paolo Ornati <ornati@fastwebnet.it>
-References: <20060629134002.1b06257c@localhost> <200606291339.11733.s0348365@sms.ed.ac.uk> <20060629150545.167c0abb@localhost>
-In-Reply-To: <20060629150545.167c0abb@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+In-Reply-To: Your message of "Thu, 29 Jun 2006 15:11:55 +0200."
+             <20060629151155.5609d59f@localhost>
+From: Valdis.Kletnieks@vt.edu
+References: <20060629134002.1b06257c@localhost>
+            <20060629151155.5609d59f@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1151588887_2928P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606291435.39879.s0348365@sms.ed.ac.uk>
+Date: Thu, 29 Jun 2006 09:48:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 June 2006 14:05, Paolo Ornati wrote:
-> On Thu, 29 Jun 2006 13:39:11 +0100
->
-> Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > On Thursday 29 June 2006 13:12, Paolo Ornati wrote:
-> > > On Thu, 29 Jun 2006 14:02:18 +0200
-> > >
-> > > jensmh@gmx.de wrote:
-> > > > > diff --git a/Documentation/block/as-iosched.txt
-> > > > > b/Documentation/block/as-iosched.txt index 6f47332..ed24cdd 100644
-> > > > > --- a/Documentation/block/as-iosched.txt
-> > > > > +++ b/Documentation/block/as-iosched.txt
-> > > > > @@ -111,7 +111,7 @@ or if the next request in the queue is "
-> > > > >  just completed request, it is dispatched immediately.  Otherwise,
-> > > > >  statistics (average think time, average seek distance) on the
-> > > > > process that submitted the just completed request are examined.  If
-> > > > > it seems -likely that that process will submit another request
-> > > > > soon, and that
-> > > >
-> > > > old version is correct, I think.
-> > >
-> > > me too (I've exagerated a bit in killing duplicates ;)
-> >
-> > "that the process"
->
-> Are you sure?
-> To me it makes more sense the old one when read in the context.
+--==_Exmh_1151588887_2928P
+Content-Type: text/plain; charset=us-ascii
 
-Actually the context made me think otherwise, look:
+On Thu, 29 Jun 2006 15:11:55 +0200, Paolo Ornati said:
 
-"Otherwise, statistics (average think time, average seek distance) on **the** 
-process that submitted the just completed.."
+> -                        matches the field we filled in in the struct
+> +                        matches the field we filled in the struct
+>                          video_device when registering.</entry>
+> ------------
+> 
+> I'm not 100% sure of this.
 
-[snip]
-> > I disagree. The cleanup's either an improvement, or the sentence should
-> > be rewritten, "Before continuing with how to attach, detect and unload
-> > the framebuffer.."
-> >
-> > I think if you're going to improve the quality of documentation, there's
-> > no harm to make minor grammatical improvements. Duplicate words are
-> > almost always a bad thing, and they really disrupt reading flow.
->
-> Maybe, but I'll probably make more danger than anything.
->
-> For now I just want to eliminate the wrong duplicates and keep the
-> correct ones.
+Both are technically correct.  The original should be parsed (the field we
+filled in) (in the struct).  The revision changes it to 'the field we filled'.
+Probably should change, just to avoid 'Paris in the the spring' effects...
 
-It's arguable whether there are any "correct" duplicates in a well formed 
-sentence in English. However, I'm inclined to agree with "as few changes as 
-possible", so disregard.
+>  Note that ALL kernel parameters listed below are CASE SENSITIVE, and that
+> -a trailing = on the name of any parameter states that that parameter will
+> +a trailing = on the name of any parameter states that parameter will
 
--- 
-Cheers,
-Alistair.
+> The old one looks correct.
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Again, both are technically correct, but the change should be made...
+
+> -caches are expected to be coherent, there's no guarantee that that coherency
+> +caches are expected to be coherent, there's no guarantee that coherency
+>  will be ordered.  This means that whilst changes made on one CPU will
+
+> Not sure.
+
+Again, should change, unless we want to emphasize "that *THAT* coherency
+will be ordered" (as opposed to some other concurrenly applicable coherency).
+
+>  The driver is not real good at the moment for finding the card.  You can
+>  'help' it by changing the order of the potential addresses in the structure
+> -found in the pt_init() function so the address of where the card is is put
+> +found in the pt_init() function so the address of where the card is put
+>  first.
+
+> The old one looks correct.
+
+Only by virtue of incredibly poor sentence structure originally.
+
+"so the address of the card is put first." would be simpler and better.
+
+
+
+--==_Exmh_1151588887_2928P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEo9oXcC3lWbTT17ARAiQcAKCVxPFaZZ41X8lHUPnGTbJjlSAo0QCg7ZFi
+2DFxYg3ZgM4BnC/vqTScMg0=
+=IO+y
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1151588887_2928P--

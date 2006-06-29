@@ -1,90 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932964AbWF2Vys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932901AbWF2VzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932964AbWF2Vys (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 17:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932966AbWF2VyH
+	id S932901AbWF2VzL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 17:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932970AbWF2VzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 17:54:07 -0400
-Received: from damned.travellingkiwi.com ([81.6.239.220]:13867 "EHLO
-	damned.travellingkiwi.com") by vger.kernel.org with ESMTP
-	id S932955AbWF2Vxx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:53:53 -0400
-From: Hamish <hamish@travellingkiwi.com>
-Organization: TravellingKiwi Systems
-To: linux-kernel@vger.kernel.org
-Subject: Re: SATA hangs...
-Date: Thu, 29 Jun 2006 22:53:46 +0100
-User-Agent: KMail/1.9.1
-References: <200606232134.42231.hamish@travellingkiwi.com> <20060624100957.73fff572@localhost> <200606242330.48248.hamish@travellingkiwi.com>
-In-Reply-To: <200606242330.48248.hamish@travellingkiwi.com>
+	Thu, 29 Jun 2006 17:55:08 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37549 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932969AbWF2Vy4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 17:54:56 -0400
+Message-ID: <44A44C27.7020100@sgi.com>
+Date: Thu, 29 Jun 2006 14:54:47 -0700
+From: Jay Lan <jlan@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3243964.Abg2gdrLgO";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, Valdis.Kletnieks@vt.edu,
+       jlan@engr.sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+References: <44892610.6040001@watson.ibm.com>	<44999F5A.2080809@watson.ibm.com>	<4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>	<20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>	<20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>	<20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>	<44A01A50.1050403@sgi.com>	<20060626105548.edef4c64.akpm@osdl.org>	<44A020CD.30903@watson.ibm.com>	<20060626111249.7aece36e.akpm@osdl.org>	<44A026ED.8080903@sgi.com>	<20060626113959.839d72bc.akpm@osdl.org>	<44A2F50D.8030306@engr.sgi.com>	<20060628145341.529a61ab.akpm@osdl.org>	<44A2FC72.9090407@engr.sgi.com>	<20060629014050.d3bf0be4.pj@sgi.com>	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>	<20060629094408.360ac157.pj@sgi.com>	<20060629110107.2e56310b.akpm@osdl.org>	<20060629112642.66f35dd5.pj@sgi.com>	<44A426DC.9090009@watson.ibm.com> <20060629124148.48d4c9ad.pj@sgi.com> <44A4492E.6090307@watson.ibm.com>
+In-Reply-To: <44A4492E.6090307@watson.ibm.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606292253.50409.hamish@travellingkiwi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3243964.Abg2gdrLgO
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Shailabh Nagar wrote:
+> Paul Jackson wrote:
+> 
+>> Shailabh wrote:
+>>  
+>>
+>>> I suppose this is because cpuset's offer some middle ground between 
+>>> collecting data per-cpu vs. collecting it for all cpus ?
+>>>   
+>>
+>>
+>> Yes - well said.  And I have this strange tendency to see all the
+>> worlds problems as opportunities for cpuset solutions <grin>.
+>>
+>>  
+>>
+>>> What happens when someone is using cpusets on such a machine and
+>>> changes its membership in response to other needs.  All taskstats
+>>> users would need to monitor for such changes and adjust their
+>>> processing....seems like unnecessary tying up of two unrelated
+>>> concepts.
+>>>   
+>>
+>>
+>> I would not expect taskstat users to monitor for such changes.
+>> I'd expect them to monitor the stats from whatever is in the
+>> cpuset they named.  If a task moves out of that cpuset to another,
+>> then tough -- that task will no longer be monitored by that
+>> particular monitoring request.
+>>
+>> Cpusets do provide a convenient middle ground, as you say, which
+>> is really useful for reducing scaling issues such as this one to
+>> a managable size.
+>>
+>> Per-cpu is too fine grained, and per-system too coarse.
+>>
+>> An unnecessary tying - yes.  But perhaps a useful one.
+>>  
+>>
+> The idea of collecting stats for a group of cpus rather than all (or 
+> one) seems attractive.
+> But cpusets doesnt :-)
+> 
+> How about if we did something simple like
+> having a separate listen group (within genetlink) for a reasonably large 
+> number of cpus
+> and have all the messages from those cpus multicast to the listeners of 
+> that group alone ?
+> 
+> e.g. currently we have only one TASKSTATS_LISTEN_GROUP
+> we could reserve the following
+>    TASKSTATS_LISTEN_GROUP_0
+>    TASKSTATS_LISTEN_GROUP_1....
+> 
+> where GROUP_0 handles cpus numbered 0-63 (or 31)....etc.
+> 
+> Advantages would be
+> 
+> 1. Most users would still need to listen to the one group as they do
+> in the current design and others could listen to more, scaling up their 
+> userspace listening daemons
+> as appropriate (e.g. one daemon per listening group).
+> 
+> 2. Userspace could be saved the bother of having too many streams of 
+> per-cpu data and reassemble them
+> in the order they were generated.
+> 
+> The moment we talk of splitting up the data stream generated by the 
+> kernel I suppose we have to do some
+> kind of timestamping so reassembly in the same order can be done. I 
+> can't see this mattering for the likes of
+> delay accounting and CSA but for future taskstats users, who knows.
 
-On Saturday 24 June 2006 23:30, you wrote:
-> On Saturday 24 June 2006 09:09, you wrote:
-> > On Sat, 24 Jun 2006 09:36:59 +0200
-> >
-> > Paolo Ornati <ornati@fastwebnet.it> wrote:
-> > > > > I'm having problems with a SATA drive on an ASUS A8V deluxe
-> > > > > motherboard under kernel 2.6.17... In fact it's happened under
-> > > > > every (Vanilla) kernel I've ever run on this server (Back to
-> > > > > 2.6.14). (It's just over a year old. It didn't used to experience
-> > > > > the same load as it does now, so I'm currently assuming it's load
-> > > > > related...
-> > >
-> > > I think I've hit something similar yesterday, with 2.6.17.1...
-> >
-> > I was thinking that I've recently enabled CONFIG_PREEMPT (usually I
-> > was just using CONFIG_PREEMPT_VOLUNTARY).
-> >
-> > Maybe is totally unrelated but... for Hamish: what is/was your PREEMPT
-> > config?
->
-> Hmm...
->
-> damned stats # gzip -dc /proc/config.gz |grep -i preempt
-> # CONFIG_PREEMPT_NONE is not set
-> # CONFIG_PREEMPT_VOLUNTARY is not set
-> CONFIG_PREEMPT=3Dy
-> CONFIG_PREEMPT_BKL=3Dy
-> CONFIG_DEBUG_PREEMPT=3Dy
-> damned stats #
->
-> I also tried 2.6.17-mm but that dies in reiserfs claiming a bug in bitmap=
-=2Ec
->
-> I'll try a re-compile of 2.7.17.1 vanilla with no pre-empt & see how it
-> goes.
->
+Timestamp of the taskstats messages or timestamp of the exiting task?
+I include an exit_time field for the task as part of "Common
+Accounting Fields" in my csa_taskstats patch i sent to you. So, we
+have both start_time and exit_time.
 
-Well, I turned off pre-empt, and haven't struck a problem since in almost a=
-=20
-week.
+Thanks,
+  - jay
 
-H
+> 
+> 
+> --Shailabh
+> 
+> 
 
---nextPart3243964.Abg2gdrLgO
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBEpEvuwRzSEdQQDooRAuvgAKCMm3/tHTopeaEq1DSl9PZIe2/XZACgnChv
-XYsMkwItZ17eNCfUPU6ooWo=
-=vpeK
------END PGP SIGNATURE-----
-
---nextPart3243964.Abg2gdrLgO--

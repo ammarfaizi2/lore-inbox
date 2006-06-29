@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751740AbWF2FT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWF2FTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751740AbWF2FT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 01:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWF2FT2
+	id S932162AbWF2FTf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 01:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWF2FTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 01:19:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5771 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751740AbWF2FT1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 01:19:27 -0400
-Date: Thu, 29 Jun 2006 01:19:23 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Jim Cromie <jim.cromie@gmail.com>
-Subject: Re: [PATCH] chardev: GPIO for SCx200 & PC-8736x: add proper Kconfig, Makefile entries
-Message-ID: <20060629051923.GA6334@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Jim Cromie <jim.cromie@gmail.com>
-References: <200606280201.k5S21OY5014423@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Jun 2006 01:19:35 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:28600 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932162AbWF2FTe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 01:19:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=T0HPWTuc5jXo9QG4uuGQvjD8HKVBKAFQrQiw6uBRvULCl8NfyaJlqSgJaD4ReC7dN9k5XBW5Sgy7fKr8sP7TSo7UwQzrkDF7ROWMK/yyMuxp7j41WcdhoaFILIT/o6ZeTAQWTFA6vTvopKeFFdyfln6yv9PHzlaG4ESkJhurYek=
+Message-ID: <84144f020606282219n269fffe2i27bdd789758cc268@mail.gmail.com>
+Date: Thu, 29 Jun 2006 08:19:32 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: nigel@suspend2.net
+Subject: Re: [Suspend2][ 0/9] Extents support.
+Cc: "Rahul Karnik" <rahul@genebrew.com>, "Jens Axboe" <axboe@suse.de>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+In-Reply-To: <200606290937.31174.nigel@suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200606280201.k5S21OY5014423@hera.kernel.org>
-User-Agent: Mutt/1.4.2.1i
+References: <20060626165404.11065.91833.stgit@nigel.suspend2.net>
+	 <200606282242.26072.nigel@suspend2.net>
+	 <84144f020606280742v348bdf53w96bd790362abaff9@mail.gmail.com>
+	 <200606290937.31174.nigel@suspend2.net>
+X-Google-Sender-Auth: 301ba04257ce409e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 02:01:24AM +0000, Linux Kernel wrote:
- > commit 7a8e2a5ea4cf43c0edd6db56a156549edb0eee98
- > tree 42a88e7f8de0c22011b8e75fb96255e5360380d8
- > parent 23916a8e3d8f41aa91474e834ac99808b197c39e
- > author Jim Cromie <jim.cromie@gmail.com> Tue, 27 Jun 2006 16:54:27 -0700
- > committer Linus Torvalds <torvalds@g5.osdl.org> Wed, 28 Jun 2006 07:32:43 -0700
- > 
- > [PATCH] chardev: GPIO for SCx200 & PC-8736x: add proper Kconfig, Makefile entries
- > 
- > Replace the temp makefile hacks with proper CONFIG entries, which are also
- > added to Kconfig.
- >  ....
- > +
- > +config NSC_GPIO
- > +	tristate "NatSemi Base GPIO Support"
- > +	# selected by SCx200_GPIO and PC8736x_GPIO
- > +	# what about 2 selectors differing: m != y
- > +	help
- > +	  Common support used (and needed) by scx200_gpio and
- > +	  pc8736x_gpio drivers.  If those drivers are built as
- > +	  modules, this one will be too, named nsc_gpio
- 
-AFAICT, this is x86 only, so the patch below is needed to stop
-this new option showing up on PPC, IA64, etc..
+On 6/29/06, Nigel Cunningham <nigel@suspend2.net> wrote:
+> Sure, I know where I'd be headed, but it would be a huge waste of time and effort.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+Perhaps to you Nigel.  For the rest of us reviewing your patches, it's
+much better.  I suspect it would be better for the users down the road
+as well.  I don't know if you realize it, but what you're doing now
+is, "here's a big chunck of code, take it or leave it".  And at least
+historically people have had hard time doing getting stuff merged like
+that.
 
---- linux-2.6.17.noarch/drivers/char/Kconfig~	2006-06-29 01:17:35.000000000 -0400
-+++ linux-2.6.17.noarch/drivers/char/Kconfig	2006-06-29 01:17:55.000000000 -0400
-@@ -963,6 +963,7 @@ config PC8736x_GPIO
- 
- config NSC_GPIO
- 	tristate "NatSemi Base GPIO Support"
-+	depends on X86_32
- 	# selected by SCx200_GPIO and PC8736x_GPIO
- 	# what about 2 selectors differing: m != y
- 	help
-
--- 
-http://www.codemonkey.org.uk
+                                                           Pekka

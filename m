@@ -1,106 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWF2TKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWF2TMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWF2TKf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 15:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWF2TKf
+	id S932256AbWF2TMm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 15:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWF2TMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 15:10:35 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:6613 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932251AbWF2TKe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 15:10:34 -0400
-Message-ID: <44A425A7.2060900@watson.ibm.com>
-Date: Thu, 29 Jun 2006 15:10:31 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Thu, 29 Jun 2006 15:12:42 -0400
+Received: from wx-out-0102.google.com ([66.249.82.198]:51095 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932256AbWF2TMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 15:12:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=g+r6rKCYKdJ1Re662sUQkbD4G7H83uN4fm0qqMuFRpb3T0kxmnwCr9SzvF0CvqLxfktO3IUsVVCG3wsQ4tjoUQX16Yum5Ci43f+lgCRnFf9u/Suu38gkPlKd42QAWrbmTP6S4YKFMkCsTSxRZieVFa5g78LGqq7BBgtaFylWQ9I=
+Message-ID: <39f633820606291212v40b0016cl@mail.gmail.com>
+Date: Thu, 29 Jun 2006 21:12:40 +0200
+From: "Robert Nagy" <robert.nagy@gmail.com>
+To: "Jesse Barnes" <jbarnes@virtuousgeek.org>
+Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200606291132.51866.jbarnes@virtuousgeek.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Paul Jackson <pj@sgi.com>, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com,
-       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
-       Jamal <hadi@cyberus.ca>, netdev <netdev@vger.kernel.org>
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609042129.ae97018c.akpm@osdl.org>	<4489EE7C.3080007@watson.ibm.com>	<449999D1.7000403@engr.sgi.com>	<44999A98.8030406@engr.sgi.com>	<44999F5A.2080809@watson.ibm.com>	<4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>	<20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>	<20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>	<20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>	<44A01A50.1050403@sgi.com>	<20060626105548.edef4c64.akpm@osdl.org>	<44A020CD.30903@watson.ibm.com>	<20060626111249.7aece36e.akpm@osdl.org>	<44A026ED.8080903@sgi.com>	<20060626113959.839d72bc.akpm@osdl.org>	<44A2F50D.8030306@engr.sgi.com>	<20060628145341.529a61ab.akpm@osdl.org>	<44A2FC72.9090407@engr.sgi.com>	<20060629014050.d3bf0be4.pj@sgi.com>	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>	<20060629094408.360ac157.pj@sgi.com> <20060629110107.2e56310b.akpm@osdl.org>
-In-Reply-To: <20060629110107.2e56310b.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <39f633820606290818g1978866ap@mail.gmail.com>
+	 <200606291132.51866.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+I've tried the diff but there is no difference.
+I've also tried to use the EFI driver from Intel, but that did not work either.
 
->On Thu, 29 Jun 2006 09:44:08 -0700
->Paul Jackson <pj@sgi.com> wrote:
+2006/6/29, Jesse Barnes <jbarnes@virtuousgeek.org>:
+> On Thursday, June 29, 2006 8:18 am, Robert Nagy wrote:
+> > Hi,
+> >
+> > Distribution: Debian testing/unstable
+> > Hardware Environment: SGI Altix 350, 2xItanium 2, EFI (read dmesg)
+> > http://bsd.hu/~robert/altix.dmesg
+> > http://bsd.hu/~robert/altix.kconf
+> >
+> > Problem Description: I've installed an Intel(r) RAID Controller
+> > SRCU42X (PCI-X) controller to this machine.
+> > http://www.intel.com/design/servers/raid/srcu42x/index.htm
+> > I've never used such a controller so if someone has any idea about
+> > this please tell me. The dmesg will show everyhing, but:
+> >
+> > megaraid cmm: 2.20.2.6 (Release Date: Mon Mar 7 00:01:03 EST 2005)
+> > megaraid: 2.20.4.8 (Release Date: Mon Apr 11 12:27:22 EST 2006)
+> > megaraid: probe new device 0x1000:0x0407:0x8086:0x0532: bus 2:slot
+> > 0:func 0 megaraid: out of memory, megaraid_alloc_cmd_packets 965
+> > megaraid: maibox adapter did not initialize
 >
->  
+> IIRC some Altix boxes don't support 32 bit DMA for PCI-X devices.  Based
+> on the initialization code I looked at (just a quick scan), it looks
+> like the command packet initialization is done before the switch to a 64
+> bit DMA mask, which might cause the failure you see here.  You can try
+> this patch out (totally untested).  It's not fully correct, it should
+> probably try 64 bit first then fall back to 32 bit if that fails then
+> give up, and the other 64 bit DMA mask call should probably be removed.
 >
->>>You're probably correct on that model. However, it all depends on the actual
->>>workload. Are people who actually have large-CPU (>256) systems actually
->>>running fork()-heavy things like webservers on them, or are they running things
->>>like database servers and computations, which tend to have persistent
->>>processes?
->>>      
->>>
->>It may well be mostly as you say - the large-CPU systems not running
->>the fork() heavy jobs.
->>
->>Sooner or later, someone will want to run a fork()-heavy job on a
->>large-CPU system.  On a 1024 CPU system, it would apparently take
->>just 14 exits/sec/CPU to hit this bottleneck, if Jay's number of
->>14000 applied.
->>
->>Chris Sturdivant's reply is reasonable -- we'll hit it sooner or later,
->>and deal with it then.
->>
->>    
->>
+> Anyway, good luck.  If this one doesn't work you'll have to talk with one
+> of the SGI guys and get some more debug info about the allocation
+> failure for the command packets.
 >
->I agree, and I'm viewing this as blocking the taskstats merge.  Because if
->this _is_ a problem then it's a big one because fixing it will be
->intrusive, and might well involve userspace-visible changes.
->  
+> Jesse
 >
-First off, just a reminder that this is inherently a netlink flow 
-control issue...which was being exacerbated
-earlier by taskstats decision to send per-tgid data (no longer the case).
-
-But I'd like to know whats our target here ? How many messages per 
-second do we want to be able to be sent
-and received without risking any loss of data ? Netlink will lose 
-messages at a high enough rate so the design point
-will need to be known a bit.
-
-For statistics type usage of the genetlink/netlink, I would have thought 
-that userspace, provided it is reliably informed
-about the loss of data through ENOBUFS, could take measures to just 
-account for the missing data and carry on ?
-
-
-
-
->The only ways I can see of fixing the problem generally are to either
 >
->a) throw more CPU(s) at stats collection: allow userspace to register for
->   "stats generated by CPU N", then run a stats collection daemon on each
->   CPU or
->  
 >
->b) make the kernel recognise when it's getting overloaded and switch to
->   some degraded mode where it stops trying to send all the data to
->   userspace - just send a summary, or a "we goofed" message or something.
->  
->
-One of the unused features of genetlink that's meant for high volume 
-data output from the kernel is
-the "dump" callback of a genetlink connection. Essentially kernel space 
-keeps getting provided sk_buffs
-to fill which the netlink layer then supplies to user space (over time I 
-guess ?)
-
-But whatever we do, there's going to be some limit so its useful to 
-decide what the design point should be ?
-
-Adding Jamal for his thoughts on netlink's flow control in the context 
-of genetlink.
-
---Shailabh

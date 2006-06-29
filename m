@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWF2DAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWF2DIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbWF2DAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 23:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWF2DAJ
+	id S1751351AbWF2DIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 23:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWF2DIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 23:00:09 -0400
-Received: from wr-out-0506.google.com ([64.233.184.228]:37289 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750980AbWF2DAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 23:00:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=p//9qbL5u/0X7bPlFljSvNmy3xX6tDfkfiavbWMTSsBCchys1QejfMQ91tjso5BJV2lzGSb5IPtX+fCmlSOpRVIVb0C3BJ1UuVIPyznufd7EQFjXpi7YEQjadzwKdiA7Sdu65ID2oZiytp6FY/nLy802SCEe60s+oBA9c8c+5m0=
-Message-ID: <ef88c0e00606282000l1c63216dx9ecd5f53a41cde8c@mail.gmail.com>
-Date: Wed, 28 Jun 2006 20:00:06 -0700
-From: "Ken Brush" <kbrush@gmail.com>
-To: "Andy Gay" <andy@andynet.net>
-Subject: Re: [linux-usb-devel] USB driver for Sierra Wireless EM5625/MC5720 1xEVDO modules
-Cc: "Greg KH" <gregkh@suse.de>, "Jeremy Fitzhardinge" <jeremy@goop.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <1151537247.3285.278.camel@tahini.andynet.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jun 2006 23:08:16 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:51727 "EHLO
+	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S1751351AbWF2DIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 23:08:15 -0400
+Date: Thu, 29 Jun 2006 13:09:23 +1000
+From: CaT <cat@zip.com.au>
+To: David Miller <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.17.1: fails to fully get webpage
+Message-ID: <20060629030923.GI2149@zip.com.au>
+References: <20060629015915.GH2149@zip.com.au> <20060628.194627.74748190.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1151537247.3285.278.camel@tahini.andynet.net>
+In-Reply-To: <20060628.194627.74748190.davem@davemloft.net>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/28/06, Andy Gay <andy@andynet.net> wrote:
-> I have adapted the modified Airprime driver that Greg posted a few weeks
-> ago to add support for these 2 modules.
->
-> That driver works for these modules if the USB IDs are added, and fixes
-> the throughput problems in the earlier driver. I had to make some
-> changes though -
->
-> - there's a memory leak because the transfer buffers are kmalloc'ed
-> every time the device is opened, but they're never freed;
->
-> - these modules present 3 bulk EPs, the 2nd & 3rd can be used for
-> control & status monitoring while data transfer is in progress on the
-> 1st EP. This is useful (and necessary for my application) so we need to
-> increase the port count.
->
-> So what should I do next? I see a few possibilities, assuming anyone is
-> interested in this:
->
-> - I could post a diff from Greg's driver. But I don't have hardware to
-> test whether my changes will break it for the other devices that it
-> supports;
->
-> - I could post it as a new driver for just these 2 modules, using some
-> other name;
->
-> - I could post it as a replacement for Greg's driver (which isn't yet in
-> the official sources, I think), including all the USB IDs, if someone
-> can test it for the other devices.
+On Wed, Jun 28, 2006 at 07:46:27PM -0700, David Miller wrote:
+> From: CaT <cat@zip.com.au>
+> Date: Thu, 29 Jun 2006 11:59:15 +1000
+> 
+> > Now I found a thread about tcp window scaling affecting the loading of
+> > some sites but I fail to load the above site with
+> > /proc/sys/net/ipv4/tcp_adv_win_scale set to 6 and 2 under 2.6.17.1
+> > whilst it works just fine with the /proc entry set to either 7, 6 or 2
+> > under 2.6.16.18.
+> 
+> You must have misread those threads.  To work around the problem,
+> you don't modify tcp_adv_win_scale, instead what you do is set
+> tcp_window_scaling to 0.
 
-I'd be willing to test it out on my aircard 580 if you post it.
+Yup. Must've. Just tried it now and setting tcp_window_scaling to 0
+makes the site load. Sorry about that. Looks like I'll have to remember
+to make sure that gets set to zero on any servers I wind up having to
+upgrade to 2.6.17 and beyond.
 
--Ken
+Bugger. :/
+
+-- 
+    "To the extent that we overreact, we proffer the terrorists the
+    greatest tribute."
+    	- High Court Judge Michael Kirby

@@ -1,77 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWF2Rbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWF2Rcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbWF2Rbb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 13:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWF2Rbb
+	id S1751088AbWF2Rcu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 13:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWF2Rcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 13:31:31 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:13406 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1751086AbWF2Rb3 (ORCPT
+	Thu, 29 Jun 2006 13:32:50 -0400
+Received: from [141.84.69.5] ([141.84.69.5]:34575 "HELO mailout.stusta.mhn.de")
+	by vger.kernel.org with SMTP id S1751088AbWF2Rct (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 13:31:29 -0400
-Message-ID: <44A40E68.9080906@tls.msk.ru>
-Date: Thu, 29 Jun 2006 21:31:20 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Mail/News 1.5 (X11/20060318)
+	Thu, 29 Jun 2006 13:32:49 -0400
+Date: Thu, 29 Jun 2006 19:32:06 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+       juha.yrjola@solidboot.com
+Subject: Re: [2.6 patch] make drivers/mtd/cmdlinepart.c:mtdpart_setup() static
+Message-ID: <20060629173206.GF19712@stusta.de>
+References: <20060626220215.GI23314@stusta.de> <1151416141.17609.140.camel@hades.cambridge.redhat.com>
 MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Andrey Borzenkov <arvidjaar@mail.ru>,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris@amavis.tls.msk.ru, Wedgwood@vger.kernel.org
-Subject: Re: [PATCH 07/13] SERIAL: PARPORT_SERIAL should depend on SERIAL_8250_PCI
-References: <20060620114527.934114000@sous-sol.org> <20060620114733.957367000@sous-sol.org>
-In-Reply-To: <20060620114733.957367000@sous-sol.org>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1151416141.17609.140.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote at Tue, 20 Jun 2006 00:00:07 -0700:
-
-> -stable review patch.  If anyone has any objections, please let us know.
-> ------------------
-> From:	Russell King <rmk+lkml@arm.linux.org.uk>
+On Tue, Jun 27, 2006 at 02:49:00PM +0100, David Woodhouse wrote:
+> On Tue, 2006-06-27 at 00:02 +0200, Adrian Bunk wrote:
+> > This patch makes the needlessly global mtdpart_setup() static.
+> > 
+> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 
+> > --- linux-2.6.17-mm2-full/drivers/mtd/cmdlinepart.c.old 2006-06-26 23:18:39.000000000 +0200
+> > +++ linux-2.6.17-mm2-full/drivers/mtd/cmdlinepart.c     2006-06-26 23:18:51.000000000 +0200
+> > @@ -346,7 +346,7 @@
+> >   *
+> >   * This function needs to be visible for bootloaders.
+> >   */
+> > -int mtdpart_setup(char *s)
+> > +static int mtdpart_setup(char *s) 
 > 
-> Since parport_serial uses symbols from 8250_pci, there should
-> be a dependency between the configuration symbols for these
-> two modules.  Problem reported by Andrey Borzenkov
-> 
-> Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> ---
->  drivers/parport/Kconfig |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> --- linux-2.6.16.21.orig/drivers/parport/Kconfig
-> +++ linux-2.6.16.21/drivers/parport/Kconfig
-> @@ -48,7 +48,7 @@ config PARPORT_PC
->  
->  config PARPORT_SERIAL
->  	tristate "Multi-IO cards (parallel and serial)"
-> -	depends on SERIAL_8250 && PARPORT_PC && PCI
-> +	depends on SERIAL_8250_PCI && PARPORT_PC && PCI
->  	help
->  	  This adds support for multi-IO PCI cards that have parallel and
->  	  serial ports.  You should say Y or M here.  If you say M, the module
+> Patch lacks sufficient explanation. Explain the relevance of the comment
+> immediately above the function declaration, in the context of your
+> patch. Explain your decision to change the behaviour, but not change the
+> comment itself.
 
-Hmm.  I just found out that this patch makes our serial+parallel PCI cards unusable..
-because.. well.. because it effectively turns parport_serial OFF, without a way to
-select it either as a module or built-in.  Because on 2.6.16, there's NO such
-config symbol - SERIAL_8250_PCI.  Ie, the original Kconfig was right, but this
-change just broke (disabled) parport_serial module completely.
+My explanation regarding the relevance of the comment is that it seems 
+to be nonsense.
 
-In contrast, in 2.6.17 (as Andrey Borzenkov correctly pointed out), this change IS
-needed (see eg. http://lkml.org/lkml/2006/6/18/117).
+Do I miss something, or why and how should a bootloader access 
+in-kernel functions?
 
-I've no idea how this patch slipped into 2.6.16 -stable queue in the first place... ;)
+> Think. Or you will be replaced with a small shell script.
 
-Thanks.
+No problem, I'm waiting for your submission of Adrian 1.0 ;-)
 
-/mjt
+> dwmw2
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

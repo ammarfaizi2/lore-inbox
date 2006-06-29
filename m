@@ -1,100 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWF2F6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWF2GBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWF2F6t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 01:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWF2F6t
+	id S932211AbWF2GBr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 02:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWF2GBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 01:58:49 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:60295 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751582AbWF2F6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 01:58:48 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Date: Thu, 29 Jun 2006 15:44:14 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rahul Karnik" <rahul@genebrew.com>, "Jens Axboe" <axboe@suse.de>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606290937.31174.nigel@suspend2.net> <84144f020606282219n269fffe2i27bdd789758cc268@mail.gmail.com>
-In-Reply-To: <84144f020606282219n269fffe2i27bdd789758cc268@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1684670.7iPNciId43";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 29 Jun 2006 02:01:47 -0400
+Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:31242 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S932211AbWF2GBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 02:01:46 -0400
+Date: Thu, 29 Jun 2006 02:00:52 -0400
+From: Matt LaPlante <laplam@rpi.edu>
+To: linux-kernel@vger.kernel.org
+Cc: Roman Zippel <zippel@linux-m68k.org>
+Subject: [PATCH] Kconfig: Typos in fs/Kconfig
+Message-Id: <20060629020052.f73d7ca1.laplam@rpi.edu>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606291544.18392.nigel@suspend2.net>
+X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 02:01:02 -0400
+	(not processed: message from trusted or authenticated source)
+X-Return-Path: laplam@rpi.edu
+X-Envelope-From: laplam@rpi.edu
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 02:01:03 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1684670.7iPNciId43
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Fix several typos in fs/Kconfig
 
-Hi.
+-
+Matt LaPlante
+CCNP, CCDP, A+, Linux+, CQS
+laplam@rpi.edu
 
-On Thursday 29 June 2006 15:19, Pekka Enberg wrote:
-> On 6/29/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > Sure, I know where I'd be headed, but it would be a huge waste of time
-> > and effort.
->
-> Perhaps to you Nigel.  For the rest of us reviewing your patches, it's
-> much better.  I suspect it would be better for the users down the road
-> as well.  I don't know if you realize it, but what you're doing now
-> is, "here's a big chunck of code, take it or leave it".  And at least
-> historically people have had hard time doing getting stuff merged like
-> that.
+--
 
-I did try really hard not to do that (big chunk of code, take it or leave i=
-t).=20
-That's why it's split up into so many little patches. The problem seems to =
-be=20
-that it's not split up in the way some people wanted, rather than not split=
-=20
-up at all. I want to make it easier on you guys, but it just seems to me li=
-ke=20
-regardless of what I do, it's not the right thing.
+--- b/fs/Kconfig	2006-06-29 01:35:36.000000000 -0400
++++ a/fs/Kconfig	2006-06-29 01:58:52.000000000 -0400
+@@ -69,7 +69,7 @@
+ 	default y
+ 
+ config EXT3_FS
+-	tristate "Ext3 journalling file system support"
++	tristate "Ext3 journaling file system support"
+ 	select JBD
+ 	help
+ 	  This is the journaling version of the Second extended file system
+@@ -831,7 +831,7 @@
+ 
+ 	Some system agents rely on the information in sysfs to operate.
+ 	/sbin/hotplug uses device and object attributes in sysfs to assist in
+-	delegating policy decisions, like persistantly naming devices.
++	delegating policy decisions, like persistently naming devices.
+ 
+ 	sysfs is currently used by the block subsystem to mount the root
+ 	partition.  If sysfs is disabled you must specify the boot device on
+@@ -1036,7 +1036,7 @@
+ 	  module will be called efs.
+ 
+ config JFFS_FS
+-	tristate "Journalling Flash File System (JFFS) support"
++	tristate "Journaling Flash File System (JFFS) support"
+ 	depends on MTD
+ 	help
+ 	  JFFS is the Journaling Flash File System developed by Axis
+@@ -1059,13 +1059,13 @@
+ 	  to be made available to the user in the /proc/fs/jffs/ directory.
+ 
+ config JFFS2_FS
+-	tristate "Journalling Flash File System v2 (JFFS2) support"
++	tristate "Journaling Flash File System v2 (JFFS2) support"
+ 	select CRC32
+ 	depends on MTD
+ 	help
+-	  JFFS2 is the second generation of the Journalling Flash File System
++	  JFFS2 is the second generation of the Journaling Flash File System
+ 	  for use on diskless embedded devices. It provides improved wear
+-	  levelling, compression and support for hard links. You cannot use
++	  leveling, compression and support for hard links. You cannot use
+ 	  this on normal block devices, only on 'MTD' devices.
+ 
+ 	  Further information on the design and implementation of JFFS2 is
+@@ -1209,7 +1209,7 @@
+ config JFFS2_CMODE_PRIORITY
+         bool "priority"
+         help
+-          Tries the compressors in a predefinied order and chooses the first
++          Tries the compressors in a predefined order and chooses the first
+           successful one.
+ 
+ config JFFS2_CMODE_SIZE
+@@ -1892,7 +1892,7 @@
+ 	  If you say Y here, you will get an experimental Andrew File System
+ 	  driver. It currently only supports unsecured read-only AFS access.
+ 
+-	  See <file:Documentation/filesystems/afs.txt> for more intormation.
++	  See <file:Documentation/filesystems/afs.txt> for more information.
+ 
+ 	  If unsure, say N.
+ 
 
-I can understand wanting small changes to swsusp to transform it into=20
-suspend2, but I also understand that I've spent approximately 5 years of=20
-developing from the point Pavel forked the code base until today, and part =
-of=20
-that has been two complete reworkings of the way in which the data is store=
-d=20
-and the thing operates - irreducible complexity that just doesn't fit into=
-=20
-the incremental change model. So I'm trying to do what seems to me to be th=
-e=20
-next best thing. Having arranged functions that deal with particular parts =
-of=20
-the system into individual files, I've broken the files up into logical par=
-ts=20
-and submitted them in groups. If we consider the more primitive parts first=
-,=20
-then move to the increasingly abstract operations (or vice versa), I think=
-=20
-we'll have a good approach with what's already done.
-
-Regards,
-
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
-
---nextPart1684670.7iPNciId43
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEo2iyN0y+n1M3mo0RAhqhAKDMKitN3V6ovlIT/DPb35bQK4OQiQCg8vKr
-HrVaGAIhYP31T3jkm78qDT8=
-=XmhF
------END PGP SIGNATURE-----
-
---nextPart1684670.7iPNciId43--

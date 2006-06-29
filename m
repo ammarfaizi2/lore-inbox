@@ -1,51 +1,252 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932670AbWF2GrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932696AbWF2Gs0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932670AbWF2GrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 02:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbWF2GrJ
+	id S932696AbWF2Gs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 02:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbWF2Gs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 02:47:09 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:3532 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932670AbWF2GrG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 02:47:06 -0400
-Date: Thu, 29 Jun 2006 08:42:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Andrew Morton <akpm@osdl.org>, David Miller <davem@davemloft.net>,
-       tglx@linutronix.de, bunk@stusta.de, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk
-Subject: Re: [patch] genirq: rename desc->handler to desc->chip, sparc64 fix
-Message-ID: <20060629064213.GA26355@elte.hu>
-References: <1151479204.25491.491.camel@localhost.localdomain> <20060628081345.GA12647@elte.hu> <20060628083008.GA14056@elte.hu> <20060628.013940.41192890.davem@davemloft.net> <20060628014807.0694436f.akpm@osdl.org> <17571.24072.340523.225237@cargo.ozlabs.ibm.com>
+	Thu, 29 Jun 2006 02:48:26 -0400
+Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:47114 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S932696AbWF2GsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 02:48:25 -0400
+Date: Thu, 29 Jun 2006 02:48:05 -0400
+From: Matt LaPlante <laplam@rpi.edu>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Attack of "the the"s in /arch
+Message-Id: <20060629024805.63f8054c.laplam@rpi.edu>
+In-Reply-To: <20060628230305.c9eaf6a9.rdunlap@xenotime.net>
+References: <000001c69b31$64186160$fe01a8c0@cyberdogt42>
+	<20060628213924.50f29a4a.rdunlap@xenotime.net>
+	<20060629011651.1543b42b.laplam@rpi.edu>
+	<20060628230305.c9eaf6a9.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17571.24072.340523.225237@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 02:48:14 -0400
+	(not processed: message from trusted or authenticated source)
+X-Return-Path: laplam@rpi.edu
+X-Envelope-From: laplam@rpi.edu
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Thu, 29 Jun 2006 02:48:14 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 28 Jun 2006 23:03:05 -0700
+"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
 
-* Paul Mackerras <paulus@samba.org> wrote:
-
-> > I'm thinking Thursday/Fridayish.  Is that OK?
+> On Thu, 29 Jun 2006 01:16:51 -0400 Matt LaPlante wrote:
 > 
-> I'm not sure that leaves me time to get Ben H's powerpc genirq stuff 
-> into the powerpc.git tree and get Linus to pull before the end of the 
-> merge window...
+> > Trying again, this time with sylpheed...
+> 
+> Yep, that worked, applies cleanly.
+> 
+> ---
+> ~Randy
+> 
 
-The genirq changes on powerpc qualify as fixes i think - would that help 
-the logistics of this merge?
+Thanks Randy.  Since this patch spans maintainers, I'll CC: to Linus and hope for the best.
 
-	Ingo
+Patch (Re)Description: The patch below corrects multiple occurances of "the the" typos across several files, both in source comments and KConfig files.  There is no actual code changed, only text.  Note this only affects the /arch directory, and I believe I could find many more elsewhere. :)
+
+-
+Matt LaPlante
+CCNP, CCDP, A+, Linux+, CQS
+laplam@rpi.edu
+
+--
+
+diff -ru a/arch/arm/mach-lh7a40x/arch-lpd7a40x.c b/arch/arm/mach-lh7a40x/arch-lpd7a40x.c
+--- a/arch/arm/mach-lh7a40x/arch-lpd7a40x.c	2006-06-28 23:20:26.000000000 -0400
++++ b/arch/arm/mach-lh7a40x/arch-lpd7a40x.c	2006-06-28 23:45:49.000000000 -0400
+@@ -163,7 +163,7 @@
+ 	/* CPLD doesn't have ack capability, but some devices may */
+ 
+ #if defined (CPLD_INTMASK_TOUCH)
+-	/* The touch control *must* mask the the interrupt because the
++	/* The touch control *must* mask the interrupt because the
+ 	 * interrupt bit is read by the driver to determine if the pen
+ 	 * is still down. */
+ 	if (irq == IRQ_TOUCH)
+diff -ru a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	2006-06-28 23:20:26.000000000 -0400
++++ b/arch/i386/Kconfig	2006-06-28 23:39:21.000000000 -0400
+@@ -667,7 +667,7 @@
+ 	depends on ACPI
+ 	default n
+ 	---help---
+-	This enables the the kernel to boot on EFI platforms using
++	This enables the kernel to boot on EFI platforms using
+ 	system configuration information passed to it from the firmware.
+ 	This also enables the kernel to use any EFI runtime services that are
+ 	available (such as the EFI variable services).
+diff -ru a/arch/i386/pci/fixup.c b/arch/i386/pci/fixup.c
+--- a/arch/i386/pci/fixup.c	2006-06-20 05:31:55.000000000 -0400
++++ b/arch/i386/pci/fixup.c	2006-06-28 23:39:21.000000000 -0400
+@@ -393,7 +393,7 @@
+  * We pretend to bring them out of full D3 state, and restore the proper
+  * IRQ, PCI cache line size, and BARs, otherwise the device won't function
+  * properly.  In some cases, the device will generate an interrupt on
+- * the wrong IRQ line, causing any devices sharing the the line it's
++ * the wrong IRQ line, causing any devices sharing the line it's
+  * *supposed* to use to be disabled by the kernel's IRQ debug code.
+  */
+ static u16 toshiba_line_size;
+diff -ru a/arch/ia64/sn/kernel/xpnet.c b/arch/ia64/sn/kernel/xpnet.c
+--- a/arch/ia64/sn/kernel/xpnet.c	2006-06-20 05:31:55.000000000 -0400
++++ b/arch/ia64/sn/kernel/xpnet.c	2006-06-28 23:45:48.000000000 -0400
+@@ -226,7 +226,7 @@
+ 	skb_put(skb, (msg->size - msg->leadin_ignore - msg->tailout_ignore));
+ 
+ 	/*
+-	 * Move the data over from the the other side.
++	 * Move the data over from the other side.
+ 	 */
+ 	if ((XPNET_VERSION_MINOR(msg->version) == 1) &&
+ 						(msg->embedded_bytes != 0)) {
+diff -ru a/arch/m68knommu/Kconfig b/arch/m68knommu/Kconfig
+--- a/arch/m68knommu/Kconfig	2006-06-28 23:20:26.000000000 -0400
++++ b/arch/m68knommu/Kconfig	2006-06-28 23:39:21.000000000 -0400
+@@ -495,7 +495,7 @@
+ 	hex "Address of the base of system vectors"
+ 	default "0"
+ 	help
+-	  Define the address of the the system vectors. Commonly this is
++	  Define the address of the system vectors. Commonly this is
+ 	  put at the start of RAM, but it doesn't have to be. On ColdFire
+ 	  platforms this address is programmed into the VBR register, thus
+ 	  actually setting the address to use.
+diff -ru a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
+--- a/arch/mips/mm/tlbex.c	2006-06-20 05:31:55.000000000 -0400
++++ b/arch/mips/mm/tlbex.c	2006-06-28 23:44:22.000000000 -0400
+@@ -1214,7 +1214,7 @@
+ 	 * Overflow check: For the 64bit handler, we need at least one
+ 	 * free instruction slot for the wrap-around branch. In worst
+ 	 * case, if the intended insertion point is a delay slot, we
+-	 * need three, with the the second nop'ed and the third being
++	 * need three, with the second nop'ed and the third being
+ 	 * unused.
+ 	 */
+ #ifdef CONFIG_32BIT
+diff -ru a/arch/parisc/kernel/entry.S b/arch/parisc/kernel/entry.S
+--- a/arch/parisc/kernel/entry.S	2006-06-20 05:31:55.000000000 -0400
++++ b/arch/parisc/kernel/entry.S	2006-06-28 23:44:22.000000000 -0400
+@@ -942,8 +942,8 @@
+ 	 * to "proper" values now (otherwise we'll wind up restoring
+ 	 * whatever was last stored in the task structure, which might
+ 	 * be inconsistent if an interrupt occured while on the gateway
+-	 * page) Note that we may be "trashing" values the user put in
+-	 * them, but we don't support the the user changing them.
++	 * page). Note that we may be "trashing" values the user put in
++	 * them, but we don't support the user changing them.
+ 	 */
+ 
+ 	STREG   %r0,PT_SR2(%r16)
+diff -ru a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+--- a/arch/powerpc/Kconfig	2006-06-28 23:20:27.000000000 -0400
++++ b/arch/powerpc/Kconfig	2006-06-28 23:39:21.000000000 -0400
+@@ -958,7 +958,7 @@
+ 	depends on ADVANCED_OPTIONS && NOT_COHERENT_CACHE
+ 	help
+ 	  This option allows you to set the base virtual address
+-	  of the the consistent memory pool.  This pool of virtual
++	  of the consistent memory pool.  This pool of virtual
+ 	  memory is used to make consistent memory allocations.
+ 
+ config CONSISTENT_START
+@@ -969,7 +969,7 @@
+ 	bool "Set custom consistent memory pool size"
+ 	depends on ADVANCED_OPTIONS && NOT_COHERENT_CACHE
+ 	help
+-	  This option allows you to set the size of the the
++	  This option allows you to set the size of the
+ 	  consistent memory pool.  This pool of virtual memory
+ 	  is used to make consistent memory allocations.
+ 
+diff -ru a/arch/ppc/Kconfig b/arch/ppc/Kconfig
+--- a/arch/ppc/Kconfig	2006-06-28 23:20:27.000000000 -0400
++++ b/arch/ppc/Kconfig	2006-06-28 23:39:21.000000000 -0400
+@@ -1342,7 +1342,7 @@
+ 	depends on ADVANCED_OPTIONS && NOT_COHERENT_CACHE
+ 	help
+ 	  This option allows you to set the base virtual address
+-	  of the the consistent memory pool.  This pool of virtual
++	  of the consistent memory pool.  This pool of virtual
+ 	  memory is used to make consistent memory allocations.
+ 
+ config CONSISTENT_START
+@@ -1353,7 +1353,7 @@
+ 	bool "Set custom consistent memory pool size"
+ 	depends on ADVANCED_OPTIONS && NOT_COHERENT_CACHE
+ 	help
+-	  This option allows you to set the size of the the
++	  This option allows you to set the size of the
+ 	  consistent memory pool.  This pool of virtual memory
+ 	  is used to make consistent memory allocations.
+ 
+diff -ru a/arch/um/drivers/line.c b/arch/um/drivers/line.c
+--- a/arch/um/drivers/line.c	2006-06-20 05:31:55.000000000 -0400
++++ b/arch/um/drivers/line.c	2006-06-28 23:44:21.000000000 -0400
+@@ -498,7 +498,7 @@
+ }
+ 
+ /* Common setup code for both startup command line and mconsole initialization.
+- * @lines contains the the array (of size @num) to modify;
++ * @lines contains the array (of size @num) to modify;
+  * @init is the setup string;
+  */
+ 
+diff -ru a/arch/um/include/sysdep-x86_64/ptrace_user.h b/arch/um/include/sysdep-x86_64/ptrace_user.h
+--- a/arch/um/include/sysdep-x86_64/ptrace_user.h	2006-06-20 05:31:55.000000000 -0400
++++ b/arch/um/include/sysdep-x86_64/ptrace_user.h	2006-06-28 23:47:48.000000000 -0400
+@@ -55,7 +55,7 @@
+ #define PTRACE_OLDSETOPTIONS 21
+ #endif
+ 
+-/* These are before the system call, so the the system call number is RAX
++/* These are before the system call, so the system call number is RAX
+  * rather than ORIG_RAX, and arg4 is R10 rather than RCX
+  */
+ #define REGS_SYSCALL_NR PT_INDEX(RAX)
+diff -ru a/arch/um/Makefile b/arch/um/Makefile
+--- a/arch/um/Makefile	2006-06-20 05:31:55.000000000 -0400
++++ b/arch/um/Makefile	2006-06-28 23:39:21.000000000 -0400
+@@ -102,7 +102,7 @@
+ define archhelp
+   echo '* linux		- Binary kernel image (./linux) - for backward'
+   echo '		   compatibility only, this creates a hard link to the'
+-  echo '		   real kernel binary, the the "vmlinux" binary you'
++  echo '		   real kernel binary, the "vmlinux" binary you'
+   echo '		   find in the kernel root.'
+ endef
+ 
+diff -ru a/arch/v850/kernel/entry.S b/arch/v850/kernel/entry.S
+--- a/arch/v850/kernel/entry.S	2006-06-20 05:31:55.000000000 -0400
++++ b/arch/v850/kernel/entry.S	2006-06-28 23:41:24.000000000 -0400
+@@ -195,7 +195,7 @@
+ 	sst.w	lp, PTO+PT_GPR(GPR_LP)[ep];				      \
+ 	type ## _STATE_SAVER
+ /* Pop a register state pushed by PUSH_STATE, except for the stack pointer,
+-   from the the stack.  */
++   from the stack.  */
+ #define POP_STATE(type)							      \
+ 	mov	sp, ep;							      \
+ 	type ## _STATE_RESTORER;					      \
+diff -ru a/arch/xtensa/lib/usercopy.S b/arch/xtensa/lib/usercopy.S
+--- a/arch/xtensa/lib/usercopy.S	2006-06-20 05:31:55.000000000 -0400
++++ b/arch/xtensa/lib/usercopy.S	2006-06-28 23:47:48.000000000 -0400
+@@ -5,10 +5,10 @@
+  *
+  *  DO NOT COMBINE this function with <arch/xtensa/lib/hal/memcopy.S>.
+  *  It needs to remain separate and distinct.  The hal files are part
+- *  of the the Xtensa link-time HAL, and those files may differ per
++ *  of the Xtensa link-time HAL, and those files may differ per
+  *  processor configuration.  Patching the kernel for another
+  *  processor configuration includes replacing the hal files, and we
+- *  could loose the special functionality for accessing user-space
++ *  could lose the special functionality for accessing user-space
+  *  memory during such a patch.  We sacrifice a little code space here
+  *  in favor to simplify code maintenance.
+  *
+

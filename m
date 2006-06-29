@@ -1,128 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932883AbWF2LQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932890AbWF2LTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932883AbWF2LQc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 07:16:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932885AbWF2LQc
+	id S932890AbWF2LTG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 07:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932888AbWF2LTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 07:16:32 -0400
-Received: from mx1.suse.de ([195.135.220.2]:48616 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932883AbWF2LQb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 07:16:31 -0400
-Date: Thu, 29 Jun 2006 13:16:29 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] i4l:add some checks for valid drvid and driver pointer
-Message-ID: <20060629111629.GB9501@pingi.kke.suse.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+	Thu, 29 Jun 2006 07:19:05 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55176 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932890AbWF2LS7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 07:18:59 -0400
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jes Sorensen <jes@sgi.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, John Daiker <jdaiker@osdl.org>,
+       John Hawkes <hawkes@sgi.com>, Arjan van de Ven <arjan@infradead.org>,
+       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>,
+       Jeremy Higdon <jeremy@sgi.com>
+In-Reply-To: <44A3AFFB.2000203@sgi.com>
+References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
+	 <yq04py4i9p7.fsf@jaguar.mkp.net>
+	 <1151578928.23785.0.camel@localhost.localdomain> <44A3AFFB.2000203@sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 29 Jun 2006 12:34:59 +0100
+Message-Id: <1151580899.23785.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.16.13-4-smp x86_64
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If all drivers go away before all ISDN network interfaces are closed we got
-a OOps on removing interfaces, this patch avoid it.
+Ar Iau, 2006-06-29 am 12:48 +0200, ysgrifennodd Jes Sorensen:
+> > No need, all current mainstream architectures expose a constant user HZ.
+> 
+> But you are still going to have the issue where someone installs their
+> own kernel and apps will break because of this? Getting the distros to
+> stop publishing a constant HZ is probably the right solution, but more
+> difficult :(
 
-Signed-off-by: Karsten Keil <kkeil@suse.de>
+Read what I said - "all current mainstream architectures expose a
+constant user HZ".
 
-diff -ur linux-2.6.4.org/drivers/isdn/i4l/isdn_common.c linux-2.6.4/drivers/isdn/i4l/isdn_common.c
---- linux-2.6.4.org/drivers/isdn/i4l/isdn_common.c	2004-03-11 03:55:25.000000000 +0100
-+++ linux-2.6.4/drivers/isdn/i4l/isdn_common.c	2004-03-30 18:35:38.000000000 +0200
-@@ -341,6 +341,16 @@
- 		printk(KERN_WARNING "isdn_command command(%x) driver -1\n", cmd->command);
- 		return(1);
- 	}
-+	if (!dev->drv[cmd->driver]) {
-+		printk(KERN_WARNING "isdn_command command(%x) dev->drv[%d] NULL\n",
-+			cmd->command, cmd->driver);
-+		return(1);
-+	}
-+	if (!dev->drv[cmd->driver]->interface) {
-+		printk(KERN_WARNING "isdn_command command(%x) dev->drv[%d]->interface NULL\n",
-+			cmd->command, cmd->driver);
-+		return(1);
-+	}
- 	if (cmd->command == ISDN_CMD_SETL2) {
- 		int idx = isdn_dc2minor(cmd->driver, cmd->arg & 255);
- 		unsigned long l2prot = (cmd->arg >> 8) & 255;
-@@ -1798,6 +1808,11 @@
- {
- 	int i;
+The HZ used by the kernel is independant of the HZ seen for /proc etc
 
-+	if ((di < 0) || (ch < 0)) {
-+		printk(KERN_WARNING "%s: called with invalid drv(%d) or channel(%d)\n",
-+			__FUNCTION__, di, ch);
-+		return;
-+	}
- 	for (i = 0; i < ISDN_MAX_CHANNELS; i++)
- 		if (((!usage) || ((dev->usage[i] & ISDN_USAGE_MASK) == usage)) &&
- 		    (dev->drvmap[i] == di) &&
-@@ -1813,7 +1828,8 @@
- 			dev->v110[i] = NULL;
- // 20.10.99 JIM, try to reinitialize v110 !
- 			isdn_info_update();
--			skb_queue_purge(&dev->drv[di]->rpqueue[ch]);
-+			if (dev->drv[di])
-+				skb_queue_purge(&dev->drv[di]->rpqueue[ch]);
- 		}
- }
 
----
 
- drivers/isdn/i4l/isdn_common.c |   18 +++++++++++++++++-
- 1 files changed, 17 insertions(+), 1 deletions(-)
-
-6e755043580f8092019117eef0efcb4aada25e1f
-diff --git a/drivers/isdn/i4l/isdn_common.c b/drivers/isdn/i4l/isdn_common.c
-index b26e509..eb21063 100644
---- a/drivers/isdn/i4l/isdn_common.c
-+++ b/drivers/isdn/i4l/isdn_common.c
-@@ -340,6 +340,16 @@ isdn_command(isdn_ctrl *cmd)
- 		printk(KERN_WARNING "isdn_command command(%x) driver -1\n", cmd->command);
- 		return(1);
- 	}
-+	if (!dev->drv[cmd->driver]) {
-+		printk(KERN_WARNING "isdn_command command(%x) dev->drv[%d] NULL\n",
-+			cmd->command, cmd->driver);
-+		return(1);
-+	}
-+	if (!dev->drv[cmd->driver]->interface) {
-+		printk(KERN_WARNING "isdn_command command(%x) dev->drv[%d]->interface NULL\n",
-+			cmd->command, cmd->driver);
-+		return(1);
-+	}
- 	if (cmd->command == ISDN_CMD_SETL2) {
- 		int idx = isdn_dc2minor(cmd->driver, cmd->arg & 255);
- 		unsigned long l2prot = (cmd->arg >> 8) & 255;
-@@ -1903,6 +1913,11 @@ isdn_free_channel(int di, int ch, int us
- {
- 	int i;
- 
-+	if ((di < 0) || (ch < 0)) {
-+		printk(KERN_WARNING "%s: called with invalid drv(%d) or channel(%d)\n",
-+			__FUNCTION__, di, ch);
-+		return;
-+	}
- 	for (i = 0; i < ISDN_MAX_CHANNELS; i++)
- 		if (((!usage) || ((dev->usage[i] & ISDN_USAGE_MASK) == usage)) &&
- 		    (dev->drvmap[i] == di) &&
-@@ -1918,7 +1933,8 @@ isdn_free_channel(int di, int ch, int us
- 			dev->v110[i] = NULL;
- // 20.10.99 JIM, try to reinitialize v110 !
- 			isdn_info_update();
--			skb_queue_purge(&dev->drv[di]->rpqueue[ch]);
-+			if (dev->drv[di])
-+				skb_queue_purge(&dev->drv[di]->rpqueue[ch]);
- 		}
- }
- 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development

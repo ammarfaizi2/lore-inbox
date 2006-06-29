@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWF2OGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWF2OJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWF2OGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 10:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWF2OGP
+	id S1750744AbWF2OJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 10:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWF2OJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 10:06:15 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:20783 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750733AbWF2OGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 10:06:14 -0400
+	Thu, 29 Jun 2006 10:09:56 -0400
+Received: from nz-out-0102.google.com ([64.233.162.196]:46683 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750737AbWF2OJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 10:09:55 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=Qp2GqSUJdOSrpsfNeGdI4kNC2t2isM5ath6hIWv+nMqamP3mzOfUnKdQrSYBgrJuqmtAsQ69wH0yJdHwNyuTW4kmUxwbVlB14aCvsbrZtXkJdVj/yQNeszOGvMmJ2BuffiHeSWnwCV9BBDVCiJ98pEmQIQ3zNmbNV0XX2E0X4lc=
-Date: Thu, 29 Jun 2006 16:06:11 +0200
-From: Paolo Ornati <ornati@gmail.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: jensmh@gmx.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org, Paolo Ornati <ornati@fastwebnet.it>
-Subject: Re: [PATCH] Documentation: remove duplicate cleanups
-Message-ID: <20060629160611.73a90bf2@localhost>
-In-Reply-To: <200606291435.39879.s0348365@sms.ed.ac.uk>
-References: <20060629134002.1b06257c@localhost>
-	<200606291339.11733.s0348365@sms.ed.ac.uk>
-	<20060629150545.167c0abb@localhost>
-	<200606291435.39879.s0348365@sms.ed.ac.uk>
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=UQ7H9GdzLXuRPfGa4iBHfBYDlsT1oXUlohw0FfkF+lMmeILzLj80pkNpZoc0CM0J6S4t/qNo8w7OeKXbMSWpDX4lMoLw2XN0YSQYhCcEeYkX010p5PWSdz6AN8V1czGsINNSRyBHjLeN2qp1kbE7Co1Jd3s882U2QkEjgrE57KU=
+Message-ID: <787b0d920606290709k255c6c24k6d3dd502d85bd1ca@mail.gmail.com>
+Date: Thu, 29 Jun 2006 10:09:54 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: akpm@osdl.org, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       hawkes@sgi.com, jdaiker@osdl.org, jes@sgi.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       tony.luck@gmail.com, tony.luck@intel.com
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jun 2006 14:35:39 +0100
-Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> Fixing param.h to have #define HZ sysconf(_SC_CLK_TCK) sounds
+> like a plausible solution, many incorrect uses will be fixed
+> automagically by the next rebuild.  But some more obscure usages
+> of HZ may not compile (which is good, then they can be fixed
+> properly) or worse may compile, but not do the right thing.
 
-> Actually the context made me think otherwise, look:
-> 
-> "Otherwise, statistics (average think time, average seek distance) on **the** 
-> process that submitted the just completed.."
+This makes compiles fail on one of the non-glibc libraries,
+either uClibc or dietlibc, which does not provide sysconf.
 
-"the process" and "that process" are in two different periods, doesn't
-it matter?
+The order in which procps tries things is:
 
-Otherwise,
- statistics (average think time, average seek distance) on **the process**
- that submitted the just completed request are examined**.**  If it seems
--likely that **that process** will submit another request soon, and that
+1. walk off the end of environ to get the ELF notes
+2. /proc/uptime to /proc/stat ratio
+3. HZ
+4. lame guess based on endianness and word size
 
-In the second period "that process" refers clearly to "the process"
-defined in the first period, while "process" looks pretty generic.
+I do not want sysconf. It is is an unreliable piece of shit
+that gives me poor guesses instead of returning appropriate
+error codes. It does this swell job while being damn slow.
+I can do no worse with my own random guess.
 
-No?
+(on my TODO list: count CPUs myself, because glibc often
+thinks there are zero -- and this is not an error code)
 
--- 
-	Paolo Ornati
-	Linux 2.6.17.1 on x86_64
+> The ultimate safe solution might be:
+>
+> #define HZ Fix your program to use sysconf(_SC_CLK_TCK)! \
+>       (and BTW, you should not include kernel headers)
+>
+> Which is highly likely to cause a compile failure (but should
+> at least provide a clue to the user on what they should do).
+
+This breaks perfectly fine code, except that it will be yet one more
+thing for people to patch out when making headers for userspace.

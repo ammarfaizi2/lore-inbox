@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932873AbWF2Jmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932870AbWF2Jop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932873AbWF2Jmu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 05:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932874AbWF2Jmu
+	id S932870AbWF2Jop (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 05:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932874AbWF2Jop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 05:42:50 -0400
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:14171 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP id S932873AbWF2Jmt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 05:42:49 -0400
-Message-ID: <44A3A08D.6060502@fr.ibm.com>
-Date: Thu, 29 Jun 2006 11:42:37 +0200
-From: Daniel Lezcano <dlezcano@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 29 Jun 2006 05:44:45 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:56250 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932870AbWF2Joo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 05:44:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fGtL9VerQPHdcGtvZ2aMJHwq+Sa5/7e+HKNdI3thrRmlYtnk3FkpzQU+bwFc76StR+9rGRm5pm8D2WqeflPJHgX9zE5cf45lKT3XW5apGkUx2oJtEtNKE0KgfB/YZrEiwYi5oWDJGz4v4ScLF64gdCFZPRfUxNOevfPXXvAiP5g=
+Message-ID: <40f323d00606290244y26898d1bk1c21a40a71b0ed9b@mail.gmail.com>
+Date: Thu, 29 Jun 2006 11:44:43 +0200
+From: "Benoit Boissinot" <bboissin@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-mm4
+Cc: linux-kernel@vger.kernel.org, "Chris Leech" <christopher.leech@intel.com>
+In-Reply-To: <20060629013643.4b47e8bd.akpm@osdl.org>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
-       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       viro@ftp.linux.org.uk, Alexey Kuznetsov <alexey@sw.ru>
-Subject: Re: Network namespaces a path to mergable code.
-References: <20060626134945.A28942@castle.nmd.msu.ru>	<m14py6ldlj.fsf@ebiederm.dsl.xmission.com>	<20060627215859.A20679@castle.nmd.msu.ru>	<m1ejx9kj1r.fsf@ebiederm.dsl.xmission.com>	<20060628150605.A29274@castle.nmd.msu.ru>	<44A2FA66.5070303@fr.ibm.com> <m11wt8erjv.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m11wt8erjv.fsf@ebiederm.dsl.xmission.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060629013643.4b47e8bd.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
->>When an outgoing packet has the loopback destination addres, the
->>skbuff is filled with the network namespace. So the loopback packets
->>never go outside the namespace. This approach facilitate the migration
->>of loopback because identification is done by network namespace and
->>not by address. The loopback has been benchmarked by tbench and the
->>overhead is roughly 1.5 %
-> 
-> 
-> Ugh.  1.5% is noticeable.
+On 6/29/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm4/
+>
+>
+> - The RAID patches have been dropped due to testing failures in -mm3.
+>
+> - The SCSI Attached Storage tree (git-sas.patch) has been restored.
+>
 
-We will see with all private network namespace ...
-> 
-> I think it is cheaper to have one loopback device per namespace.
-> Which removes the need for a skbuff tag.
+Fix a warning in ioatdma:
 
-Yes, probably.
+drivers/dma/ioatdma.c: In function 'ioat_init_module':
+drivers/dma/ioatdma.c:830: warning: control reaches end of non-void function
+
+Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+
+Index: linux/drivers/dma/ioatdma.c
+===================================================================
+--- linux.orig/drivers/dma/ioatdma.c
++++ linux/drivers/dma/ioatdma.c
+@@ -826,7 +826,7 @@ static int __init ioat_init_module(void)
+ 	/* if forced, worst case is that rmmod hangs */
+ 	__unsafe(THIS_MODULE);
+
+-	pci_module_init(&ioat_pci_drv);
++	return pci_module_init(&ioat_pci_drv);
+ }
+
+ module_init(ioat_init_module);

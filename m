@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWF2MZy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWF2M1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbWF2MZy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 08:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932896AbWF2MZy
+	id S1750725AbWF2M1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 08:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWF2M1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 08:25:54 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14604 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932489AbWF2MZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 08:25:53 -0400
-Date: Thu, 29 Jun 2006 13:25:41 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Esben Nielsen <nielsen.esben@googlemail.com>,
-       Milan Svoboda <msvoboda@ra.rockwell.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Deepak Saxena <dsaxena@plexity.net>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [BUG] Linux-2.6.17-rt3 on arm ixdp465
-Message-ID: <20060629122541.GB9709@flint.arm.linux.org.uk>
-Mail-Followup-To: Steven Rostedt <rostedt@goodmis.org>,
-	Esben Nielsen <nielsen.esben@googlemail.com>,
-	Milan Svoboda <msvoboda@ra.rockwell.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Deepak Saxena <dsaxena@plexity.net>, Ingo Molnar <mingo@elte.hu>,
-	Thomas Gleixner <tglx@linutronix.de>
-References: <OF92240490.78BE8F01-ONC125719C.0037A4FD-C125719C.00389E07@ra.rockwell.com> <Pine.LNX.4.64.0606291334540.10401@localhost.localdomain> <Pine.LNX.4.58.0606290803190.25935@gandalf.stny.rr.com>
+	Thu, 29 Jun 2006 08:27:46 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:40525 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750725AbWF2M1p convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 08:27:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:subject:message-id:mime-version:content-type:content-disposition:x-operating-system:user-agent:content-transfer-encoding:from;
+        b=FfG16GLoLpAoEh7iuiVGXU5A3h4+UaHJjIXRwPua2nnr50P3H/Eau/0nOT2bhfEEcw5uk0Tk0rGpGbXAxl1AlDQSEy2Ln7bwaoI951qCdtVdGNR4oE2CLMfn0IdGDNo4d/lwjpuTDIQTKRdBbdBuFqy4sX5AHuZF2JnldR+QwzU=
+Date: Thu, 29 Jun 2006 14:27:22 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17-mm4 undefined reference to `alternatives_smp_module_del'
+Message-ID: <20060629122721.GA18671@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0606290803190.25935@gandalf.stny.rr.com>
-User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.6.17-mm4
+User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8BIT
+From: Gregoire Favre <gregoire.favre@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 29, 2006 at 08:09:24AM -0400, Steven Rostedt wrote:
-> 
-> 
-> On Thu, 29 Jun 2006, Esben Nielsen wrote:
-> 
-> >
-> > On Thu, 29 Jun 2006, Milan Svoboda wrote:
-> >
-> >
-> > It seems that dma_unmap_single() on arm contains
-> >  	local_irq_save(flags);
-> >
-> >  	unmap_single(dev, dma_addr, size, dir);
-> >
-> >  	local_irq_restore(flags);
-> >
-> 
-> Yeah I saw this too.
-> 
-> > I don't know the dma code on arm. It doesn't look like a per-cpu code but it
-> > seems to me that it is not SMP safe and therefore not preempt-realtime
-> > safe, either.
-> >
-> > The hard thing is to figure out which datastructures exactly is protected
-> > by those irq-disable and put in a spinlock..
-> >
-> > I added Deepak Saxena on CC as he seems to be the last one who touched the
-> > file.
-> >
-> 
-> Well, the following patch may not be the best but I don't see it being any
-> worse than what is already there.  I don't have any arm platforms or even
-> an arm compiler, so I haven't even tested this patch with a compile.  But
-> it should be at least a temporary fix.
+Hello,
 
-Guys, look at what's in the latest -git from Linus.
+just tried to compil 2.6.17-mm4 under amd64 and it fails with :
 
+  AR      arch/x86_64/lib/lib.a
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+arch/x86_64/kernel/built-in.o: In function `module_arch_cleanup':
+(.text.module_arch_cleanup+0x1): undefined reference to `alternatives_smp_module_del'
+arch/x86_64/kernel/built-in.o: In function `module_finalize':
+(.text.module_finalize+0xe8): undefined reference to `alternatives_smp_module_add'
+make: *** [.tmp_vmlinux1] Error 1
+
+
+Please CC to me if some more info are needed as I am not on this list.
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Grégoire FAVRE  http://gregoire.favre.googlepages.com  http://www.gnupg.org

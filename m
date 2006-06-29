@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWF2UJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWF2ULR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbWF2UJi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 16:09:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWF2UJi
+	id S932397AbWF2ULR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 16:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWF2ULR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 16:09:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30399 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932392AbWF2UJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 16:09:36 -0400
-Date: Thu, 29 Jun 2006 16:09:25 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       linux-kernel@vger.kernel.org, alexey.y.starikovskiy@intel.com
-Subject: Re: [RFC] Adding queue_delayed_work_on interface for workqueues
-Message-ID: <20060629200925.GB13619@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-	linux-kernel@vger.kernel.org, alexey.y.starikovskiy@intel.com
-References: <20060628141028.A13221@unix-os.sc.intel.com> <20060628143242.486f9b15.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 29 Jun 2006 16:11:17 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:18066 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932396AbWF2ULP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 16:11:15 -0400
+Date: Thu, 29 Jun 2006 15:11:13 -0500
+To: Jesse Brandeburg <jesse.brandeburg@intel.com>,
+       Rajesh Shah <rajesh.shah@intel.com>,
+       "Ronciak, John" <john.ronciak@intel.com>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       "bibo,mao" <bibo.mao@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       netdev@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH 2/2]: e1000 disable device on PCI error
+Message-ID: <20060629201113.GB29526@austin.ibm.com>
+References: <20060629200644.GA29526@austin.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060628143242.486f9b15.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060629200644.GA29526@austin.ibm.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 02:32:42PM -0700, Andrew Morton wrote:
 
- > > This patch is a part of cpufreq patches for ondemand governor optimizations
- > > and entire series is actually posted to cpufreq mailing list.
- > > Subject "minor optimizations to ondemand governor"
- > > 
- > > The following patch however is a generic change to workqueue interface and 
- > > I wanted to get comments on this on lkml.
- > > 
- > > ...
- > >
- > > Add queue_delayed_work_on() interface for workqueues.
- > 
- > It looks sensible to me.
+Same as last patch, but for the e1000 gigabit card.
 
-*nod*, same here.
+A recent patch in -mm3 titled 
+ "gregkh-pci-pci-don-t-enable-device-if-already-enabled.patch"
+causes pci_enable_device() to be a no-op if the kernel thinks
+that the device is already enabled.  This change breaks the
+PCI error recovery mechanism in the e1000 device driver, since, 
+after PCI slot reset, the card is no longer enabled. This is 
+a trivial fix for this problem. Tested.
 
-As (for now) cpufreq is the only user of this, any objection to
-me marshalling this through the cpufreq tree (+ the cleanups you
-suggested of course) ?
+Please submit uptream.
 
-		Dave
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
--- 
-http://www.codemonkey.org.uk
+----
+ drivers/net/e1000/e1000_main.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+Index: linux-2.6.17-mm3/drivers/net/e1000/e1000_main.c
+===================================================================
+--- linux-2.6.17-mm3.orig/drivers/net/e1000/e1000_main.c	2006-06-27 12:30:02.000000000 -0500
++++ linux-2.6.17-mm3/drivers/net/e1000/e1000_main.c	2006-06-29 14:52:29.000000000 -0500
+@@ -4640,6 +4640,7 @@ static pci_ers_result_t e1000_io_error_d
+ 
+ 	if (netif_running(netdev))
+ 		e1000_down(adapter);
++	pci_disable_device(pdev);
+ 
+ 	/* Request a slot slot reset. */
+ 	return PCI_ERS_RESULT_NEED_RESET;

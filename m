@@ -1,90 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWF2SdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWF2ShE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWF2SdD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 14:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWF2SdC
+	id S1751089AbWF2ShE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 14:37:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWF2ShE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 14:33:02 -0400
-Received: from outbound-mail-28.bluehost.com ([67.138.240.198]:464 "HELO
-	outbound-mail-28.bluehost.com") by vger.kernel.org with SMTP
-	id S1751253AbWF2SdB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 14:33:01 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: "Robert Nagy" <robert.nagy@gmail.com>
-Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
-Date: Thu, 29 Jun 2006 11:32:51 -0700
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <39f633820606290818g1978866ap@mail.gmail.com>
-In-Reply-To: <39f633820606290818g1978866ap@mail.gmail.com>
+	Thu, 29 Jun 2006 14:37:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8143 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751089AbWF2ShC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 14:37:02 -0400
+Date: Thu, 29 Jun 2006 11:36:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Greg KH <gregkh@suse.de>, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: 2.6.17-git14 compile failure & fix
+In-Reply-To: <20060629112952.c7231034.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0606291135320.12404@g5.osdl.org>
+References: <44A40874.20202@us.ibm.com> <20060629172016.GA23736@suse.de>
+ <20060629112952.c7231034.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_TzBpEd1LMDbxL6s"
-Message-Id: <200606291132.51866.jbarnes@virtuousgeek.org>
-X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 71.198.43.183 authed with jbarnes@virtuousgeek.org}
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_TzBpEd1LMDbxL6s
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Thursday, June 29, 2006 8:18 am, Robert Nagy wrote:
-> Hi,
->
-> Distribution: Debian testing/unstable
-> Hardware Environment: SGI Altix 350, 2xItanium 2, EFI (read dmesg)
-> http://bsd.hu/~robert/altix.dmesg
-> http://bsd.hu/~robert/altix.kconf
->
-> Problem Description: I've installed an Intel(r) RAID Controller
-> SRCU42X (PCI-X) controller to this machine.
-> http://www.intel.com/design/servers/raid/srcu42x/index.htm
-> I've never used such a controller so if someone has any idea about
-> this please tell me. The dmesg will show everyhing, but:
->
-> megaraid cmm: 2.20.2.6 (Release Date: Mon Mar 7 00:01:03 EST 2005)
-> megaraid: 2.20.4.8 (Release Date: Mon Apr 11 12:27:22 EST 2006)
-> megaraid: probe new device 0x1000:0x0407:0x8086:0x0532: bus 2:slot
-> 0:func 0 megaraid: out of memory, megaraid_alloc_cmd_packets 965
-> megaraid: maibox adapter did not initialize
 
-IIRC some Altix boxes don't support 32 bit DMA for PCI-X devices.  Based 
-on the initialization code I looked at (just a quick scan), it looks 
-like the command packet initialization is done before the switch to a 64 
-bit DMA mask, which might cause the failure you see here.  You can try 
-this patch out (totally untested).  It's not fully correct, it should 
-probably try 64 bit first then fall back to 32 bit if that fails then 
-give up, and the other 64 bit DMA mask call should probably be removed.
+On Thu, 29 Jun 2006, Andrew Morton wrote:
+> > 
+> > Linus, here's the summary again below if you want to pull.  When you
+> > merge, there might be some conflicts you have to handle, but hey, you
+> > can test out your new git merge code :)
+> 
+> Yes, please let's get this in.
 
-Anyway, good luck.  If this one doesn't work you'll have to talk with one 
-of the SGI guys and get some more debug info about the allocation 
-failure for the command packets.
+It was part of this mornings merge-queue, and is pushed out now.
 
-Jesse
-
---Boundary-00=_TzBpEd1LMDbxL6s
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="megaraid-dma-mask-hack.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="megaraid-dma-mask-hack.patch"
-
-diff --git a/drivers/scsi/megaraid/megaraid_mbox.c b/drivers/scsi/megaraid/megaraid_mbox.c
-index b7caf60..032a3d7 100644
---- a/drivers/scsi/megaraid/megaraid_mbox.c
-+++ b/drivers/scsi/megaraid/megaraid_mbox.c
-@@ -457,7 +457,7 @@ megaraid_probe_one(struct pci_dev *pdev,
- 
- 	// Setup the default DMA mask. This would be changed later on
- 	// depending on hardware capabilities
--	if (pci_set_dma_mask(adapter->pdev, DMA_32BIT_MASK) != 0) {
-+	if (pci_set_dma_mask(adapter->pdev, DMA_64BIT_MASK) != 0) {
- 
- 		con_log(CL_ANN, (KERN_WARNING
- 			"megaraid: pci_set_dma_mask failed:%d\n", __LINE__));
-
---Boundary-00=_TzBpEd1LMDbxL6s--
+		Linus

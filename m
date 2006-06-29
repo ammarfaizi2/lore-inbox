@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWF2TMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWF2TPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWF2TMm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 15:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWF2TMm
+	id S932198AbWF2TPo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 15:15:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWF2TPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 15:12:42 -0400
-Received: from wx-out-0102.google.com ([66.249.82.198]:51095 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932256AbWF2TMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 15:12:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=g+r6rKCYKdJ1Re662sUQkbD4G7H83uN4fm0qqMuFRpb3T0kxmnwCr9SzvF0CvqLxfktO3IUsVVCG3wsQ4tjoUQX16Yum5Ci43f+lgCRnFf9u/Suu38gkPlKd42QAWrbmTP6S4YKFMkCsTSxRZieVFa5g78LGqq7BBgtaFylWQ9I=
-Message-ID: <39f633820606291212v40b0016cl@mail.gmail.com>
-Date: Thu, 29 Jun 2006 21:12:40 +0200
-From: "Robert Nagy" <robert.nagy@gmail.com>
-To: "Jesse Barnes" <jbarnes@virtuousgeek.org>
-Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200606291132.51866.jbarnes@virtuousgeek.org>
+	Thu, 29 Jun 2006 15:15:44 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:30655 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932198AbWF2TPn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 15:15:43 -0400
+Message-ID: <44A426DC.9090009@watson.ibm.com>
+Date: Thu, 29 Jun 2006 15:15:40 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com,
+       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+References: <44892610.6040001@watson.ibm.com>	<4489EE7C.3080007@watson.ibm.com>	<449999D1.7000403@engr.sgi.com>	<44999A98.8030406@engr.sgi.com>	<44999F5A.2080809@watson.ibm.com>	<4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>	<20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>	<20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>	<20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>	<44A01A50.1050403@sgi.com>	<20060626105548.edef4c64.akpm@osdl.org>	<44A020CD.30903@watson.ibm.com>	<20060626111249.7aece36e.akpm@osdl.org>	<44A026ED.8080903@sgi.com>	<20060626113959.839d72bc.akpm@osdl.org>	<44A2F50D.8030306@engr.sgi.com>	<20060628145341.529a61ab.akpm@osdl.org>	<44A2FC72.9090407@engr.sgi.com>	<20060629014050.d3bf0be4.pj@sgi.com>	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>	<20060629094408.360ac157.pj@sgi.com>	<20060629110107.2e56310b.akpm@osdl.org> <20060629112642.66f35dd5.pj@sgi.com>
+In-Reply-To: <20060629112642.66f35dd5.pj@sgi.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <39f633820606290818g1978866ap@mail.gmail.com>
-	 <200606291132.51866.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tried the diff but there is no difference.
-I've also tried to use the EFI driver from Intel, but that did not work either.
+Paul Jackson wrote:
 
-2006/6/29, Jesse Barnes <jbarnes@virtuousgeek.org>:
-> On Thursday, June 29, 2006 8:18 am, Robert Nagy wrote:
-> > Hi,
-> >
-> > Distribution: Debian testing/unstable
-> > Hardware Environment: SGI Altix 350, 2xItanium 2, EFI (read dmesg)
-> > http://bsd.hu/~robert/altix.dmesg
-> > http://bsd.hu/~robert/altix.kconf
-> >
-> > Problem Description: I've installed an Intel(r) RAID Controller
-> > SRCU42X (PCI-X) controller to this machine.
-> > http://www.intel.com/design/servers/raid/srcu42x/index.htm
-> > I've never used such a controller so if someone has any idea about
-> > this please tell me. The dmesg will show everyhing, but:
-> >
-> > megaraid cmm: 2.20.2.6 (Release Date: Mon Mar 7 00:01:03 EST 2005)
-> > megaraid: 2.20.4.8 (Release Date: Mon Apr 11 12:27:22 EST 2006)
-> > megaraid: probe new device 0x1000:0x0407:0x8086:0x0532: bus 2:slot
-> > 0:func 0 megaraid: out of memory, megaraid_alloc_cmd_packets 965
-> > megaraid: maibox adapter did not initialize
+>Andrew wrote:
+>  
 >
-> IIRC some Altix boxes don't support 32 bit DMA for PCI-X devices.  Based
-> on the initialization code I looked at (just a quick scan), it looks
-> like the command packet initialization is done before the switch to a 64
-> bit DMA mask, which might cause the failure you see here.  You can try
-> this patch out (totally untested).  It's not fully correct, it should
-> probably try 64 bit first then fall back to 32 bit if that fails then
-> give up, and the other 64 bit DMA mask call should probably be removed.
+>>a) throw more CPU(s) at stats collection: allow userspace to register for
+>>   "stats generated by CPU N", then run a stats collection daemon on each
+>>   CPU or
+>>    
+>>
 >
-> Anyway, good luck.  If this one doesn't work you'll have to talk with one
-> of the SGI guys and get some more debug info about the allocation
-> failure for the command packets.
+>I wonder if we could make the collector per-cpuset.
+>  
 >
-> Jesse
->
->
->
+I suppose this is because cpuset's offer some middle ground between 
+collecting data per-cpu
+vs. collecting it for all cpus ?
+
+What happens when someone is using cpusets on such a machine and changes 
+its membership
+in response to other needs. All taskstats users would need to monitor 
+for such changes and
+adjust their processing....seems like unnecessary tying up of two 
+unrelated concepts.
+
+--Shailabh
+
+
+

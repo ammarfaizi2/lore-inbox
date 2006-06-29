@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933104AbWF2Xot@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933111AbWF2Xq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933104AbWF2Xot (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 19:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933105AbWF2Xos
+	id S933111AbWF2Xq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 19:46:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933110AbWF2Xq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 19:44:48 -0400
-Received: from smtp2.pp.htv.fi ([213.243.153.35]:7045 "EHLO smtp2.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S933104AbWF2Xoq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 19:44:46 -0400
-Date: Fri, 30 Jun 2006 09:56:07 +0300
-From: Samuel Ortiz <samuel@sortiz.org>
-To: Adrian Bunk <bunk@stusta.de>, "David S. Miller" <davem@davemloft.net>
-Cc: Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, ralf@linux-mips.org,
-       linux-mips@linux-mips.org, Jean-Luc Leger <reiga@dspnet.fr.eu.org>,
-       irda-users@lists.sourceforge.net
-Subject: [PATCH 2/2] [IrDA] Fix the AU1000 FIR dependencies
-Message-ID: <20060630065607.GB4729@sortiz.org>
-Reply-To: Samuel Ortiz <samuel@sortiz.org>
-References: <20060629154148.GA19712@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060629154148.GA19712@stusta.de>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Thu, 29 Jun 2006 19:46:27 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:26762
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S933108AbWF2Xq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 19:46:26 -0400
+Date: Thu, 29 Jun 2006 16:46:23 -0700 (PDT)
+Message-Id: <20060629.164623.59469884.davem@davemloft.net>
+To: bos@pathscale.com
+Cc: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH 39 of 39] IB/ipath - use streaming copy in RDMA
+ interrupt handler to reduce packet loss
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1151624063.10886.34.camel@chalcedony.pathscale.com>
+References: <1151618377.10886.23.camel@chalcedony.pathscale.com>
+	<20060629.150319.104035601.davem@davemloft.net>
+	<1151624063.10886.34.camel@chalcedony.pathscale.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+From: Bryan O'Sullivan <bos@pathscale.com>
+Date: Thu, 29 Jun 2006 16:34:23 -0700
 
-AU1000 FIR is broken, it should depend on SOC_AU1000.
+> I'm not quite following you, though I assume you're referring to Niagara
+> or Rock :-)  Are you saying a memcpy_nc would do worse than plain
+> memcpy, or worse than some other memcpy-like routine?
 
-Spotted by Jean-Luc Leger.
+It would do worse than memcpy.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Samuel Ortiz <samuel@sortiz.org>
----
- drivers/net/irda/Kconfig |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+If you bypass the L2 cache, it's pointless because the next
+agent (PCI controller, CPU thread, etc.) is going to need the
+data in the L2 cache.
 
-diff --git a/drivers/net/irda/Kconfig b/drivers/net/irda/Kconfig
-index d2ce489..e9e6d99 100644
---- a/drivers/net/irda/Kconfig
-+++ b/drivers/net/irda/Kconfig
-@@ -350,7 +350,7 @@ config TOSHIBA_FIR
- 
- config AU1000_FIR
- 	tristate "Alchemy Au1000 SIR/FIR"
--	depends on MIPS_AU1000 && IRDA
-+	depends on SOC_AU1000 && IRDA
- 
- config SMC_IRCC_FIR
- 	tristate "SMSC IrCC (EXPERIMENTAL)"
--- 
-1.4.0
-
+It's better in that kind of setup to eat the L2 cache miss overhead in
+memcpy since memcpy can usually prefetch and store buffer in order to
+absorb some of the L2 miss costs.

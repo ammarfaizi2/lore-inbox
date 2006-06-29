@@ -1,91 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWF2Dzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWF2D6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWF2Dzn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 23:55:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWF2Dzn
+	id S932137AbWF2D6K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 23:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWF2D6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 23:55:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28561 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932075AbWF2Dzn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 23:55:43 -0400
-Date: Wed, 28 Jun 2006 20:55:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-...: looong writeouts
-Message-Id: <20060628205539.f7e1c43b.akpm@osdl.org>
-In-Reply-To: <20060624151531.GA7565@martell.zuzino.mipt.ru>
-References: <20060624151531.GA7565@martell.zuzino.mipt.ru>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jun 2006 23:58:10 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:60468 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932137AbWF2D6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 23:58:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NQRZSw7mkb39Y1K6GlDblnKPL4BGHsf1KMxkpW2kc9vIMfcX3UZIj9E92PazeS2P7GiobUhmVuhmEpmmxGroWm4Z3HyoB2FJd/w4T0ysFwtLM2gGojjROsNQCt5vrjCB2GqKPRm4Acfie27Jh5L7Wj0MIui6SQmhSvzBZb6toPE=
+Message-ID: <3e1162e60606282058w74fac5c0oc8f4e34716ce8884@mail.gmail.com>
+Date: Wed, 28 Jun 2006 20:58:06 -0700
+From: "David Leimbach" <leimy2k@gmail.com>
+To: "Eric Sesterhenn / Snakebyte" <snakebyte@gmx.de>
+Subject: Re: [V9fs-developer] [Patch] Dead code in fs/9p/vfs_inode.c
+Cc: "Russ Cox" <rsc@swtch.com>, linux-kernel@vger.kernel.org,
+       v9fs-developer@lists.sourceforge.net
+In-Reply-To: <20060628231627.GA28463@alice>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1151535167.28311.1.camel@alice>
+	 <ee9e417a0606281555k3d954236y82b11336098762be@mail.gmail.com>
+	 <20060628231627.GA28463@alice>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Jun 2006 19:15:31 +0400
-Alexey Dobriyan <adobriyan@gmail.com> wrote:
+On 6/28/06, Eric Sesterhenn / Snakebyte <snakebyte@gmx.de> wrote:
+> * Russ Cox (rsc@swtch.com) wrote:
+> > >coverity (id #971) found some dead code. In all error
+> > >cases ret is NULL, so we can remove the if statement.
+> > >
+> > >Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+> > >
+> > >--- linux-2.6.17-git11/fs/9p/vfs_inode.c.orig   2006-06-29
+> > >00:50:53.000000000 +0200
+> > >+++ linux-2.6.17-git11/fs/9p/vfs_inode.c        2006-06-29
+> > >00:51:11.000000000 +0200
+> > >@@ -386,9 +386,6 @@ v9fs_inode_from_fid(struct v9fs_session_
+> > >
+> > > error:
+> > >        kfree(fcall);
+> > >-       if (ret)
+> > >-               iput(ret);
+> > >-
+> > >        return ERR_PTR(err);
+> > > }
+> >
+> > What about when someone changes the code and does have ret != NULL here?
+> > This seems like reasonable defensive programming to me.
+> >
+> > Is the official LK policy that we can't have code that trips coverity
+> > checks like this?
+>
+> If this is whats agreed upon I will no longer send patches for
+> such bugs, and mark them as ignore in the coverity system.
+> But I guess it makes also sense to remove unused code, because I
+> am not sure if gcc can figure out to remove it. In this case
+> the generated object file is 10 bytes smaller.
+>
+> Eric
+>
 
-> Immediate problem: from time to time post 2.6.17 kernel [1] decides that it
-> really really needs disk.
-> 
-> 	[kernel compilation goes as usual]
-> 	  CC [M]  fs/xfs/xfs_inode.o
-> 	[compilation blocks for ~10 seconds, disk LED is red]
-> 	[then it continues]
-> 
-> Again, from time to time saving 2k file makes vi inoperational for same
-> period.
-> 
-> Scheduler is CFQ, fs is reiserfs mounted with noatime, notail. 2.6.17-rc
-> and 2.6.17 kernels were OK.
-> 
-> It occured only several times in 4 hours.
-> 
-> [1] 2.6.17-95eaa5fa8eb2c345244acd5f65b200b115ae8c65 to be precise
-> 
-> 
-> Probably related problem below:
-> 
-> During 2.6.17-rc cycle CFQ subjectively became less F.
-> 
-> 	[   unpacking  ]
-> 	[kernel tarball]
-> 		.
-> 		.
-> 		.
-> 		.
-> 		.
-> 		.
-> 		.		[:wq on little file]
-> 		.
-> 		.
-> 		.
-> 		.
-> 		.
-> 		.
-> 	[              ]
-> 
-> IIRC, on 2.6.16 that :wq took say 0.5 sec, on late 2.6.17-rc it was
-> several times slower. I don't have numbers but it was psychologically
-> noticeable, but not BFD.
-> 
+I wonder if anyone cares about those 10 bytes more than the fact that
+the code that generates them is written in a defensive manner. :-)
 
-There have been quite a few CFQ changes.
+I'd be willing to give up 10 bytes to know that if things changed in
+the future that check is still there :-)
 
-It'd help if you can come up with a simple test case which others can use
-to reproduce this.  Say,
-
-while true
-do
-	dd if=/dev/zero of=foo bs-1M count=1000 conv=notrunc
-done &
-
-versus
-
-time dd if=/dev/zero of=bar bs=16k count=1 conv=fsync
-
-or something like that.
-
-Thanks.
+Seems like a fairly meaningless optimization to me.  No offense
+intended toward Eric/Snakebyte, just that sometimes things that seem
+like they are optimizations and fixes end up not being either.

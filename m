@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932889AbWF2LZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932894AbWF2LZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932889AbWF2LZF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 07:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932888AbWF2LZF
+	id S932894AbWF2LZu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 07:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932895AbWF2LZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 07:25:05 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:9370 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932889AbWF2LZD (ORCPT
+	Thu, 29 Jun 2006 07:25:50 -0400
+Received: from mx2.suse.de ([195.135.220.15]:63410 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932894AbWF2LZt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 07:25:03 -0400
-Date: Thu, 29 Jun 2006 13:24:42 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
-In-Reply-To: <1151538084.5317.26.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0606291316280.12900@scrub.home>
-References: <20060624061914.202fbfb5.akpm@osdl.org> 
- <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu> 
- <Pine.LNX.4.64.0606271212150.17704@scrub.home> 
- <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu> 
- <Pine.LNX.4.64.0606271903320.12900@scrub.home>  <Pine.LNX.4.64.0606271919450.17704@scrub.home>
-  <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu> 
- <1151453231.24656.49.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.64.0606281218130.12900@scrub.home>
- <1151538084.5317.26.camel@localhost.localdomain>
+	Thu, 29 Jun 2006 07:25:49 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>, kaos@sgi.com
+Subject: Re: i386 IPI handlers running with hardirq_count == 0
+References: <26704.1151571677@kao2.melbourne.sgi.com>
+	<20060629021800.9a1e16f4.akpm@osdl.org>
+From: Andi Kleen <ak@suse.de>
+Date: 29 Jun 2006 13:25:38 +0200
+In-Reply-To: <20060629021800.9a1e16f4.akpm@osdl.org>
+Message-ID: <p73wtb0w6dp.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton <akpm@osdl.org> writes:
 
-On Wed, 28 Jun 2006, john stultz wrote:
+> On Thu, 29 Jun 2006 19:01:17 +1000
+> Keith Owens <kaos@ocs.com.au> wrote:
+> 
+> > Macro arch/i386/kernel/entry.S::BUILD_INTERRUPT generates the code to
+> > handle an IPI and call the corresponding smp_<name> C code.
+> > BUILD_INTERRUPT does not update the hardirq_count for the interrupted
+> > task, that is left to the C code.  Some of the C IPI handlers do not
+> > call irq_enter(), so they are running in IRQ context but the
+> > hardirq_count field does not reflect this.  For example,
+> > smp_invalidate_interrupt does not set the hardirq count.
+> > 
+> > What is the best fix, change BUILD_INTERRUPT to adjust the hardirq
+> > count or audit all the C handlers to ensure that they call irq_enter()?
+> > 
+> 
+> The IPI handlers run with IRQs disabled.  Do we need a fix?
 
-> I agree cpufreq changes could be the source. However, things still
-> aren't making sense, since the accumulation is cycle based to begin
-> with, so any cpufreq caused drift in time won't be noticed until NTPd
-> starts adjusting the output from current_tick_len().
+They have to because if there was another interrupt it would execute
+IRET and then clear the NMI flag in the hardware and allow nested NMIs 
+which would cause all sorts of problems.
 
-Indeed, AFAICT the clock should just run too fast, that leaves pretty much 
-only the update function doing something I didn't expect.
+The only reason to change it would be complex callbacks in the
+current handlers using notifier chains. Maybe if they're that complex they 
+should become simpler? 
 
-> Vladis: I don't want to overwhelm you with patches to try, I think
-> Roman's debug patches should help show where the issue is. But if you've
-> got the time, try the patch below to quickly see if the cpufreq changes
-> are indeed causing the problem.
-
-Another change that might help: Valdis, could you add another call to 
-printk_clock_info() at the end of update_wall_time() after 
-clocksource_calculate_interval()?
-
-> Hmm. Yea, while I'm not sure this is the issue at hand, it does look
-> like I need to get some of the boot ordering worked out here. Using the
-> PIT early on probably isn't the best solution as the 18us access latency
-> might not be the best for the transition calibration.
-
-Since it shouldn't be used much I don't think it matters and it could 
-also be HPET, basically whoever provides the timer interrupt.
-
-bye, Roman
+-Andi

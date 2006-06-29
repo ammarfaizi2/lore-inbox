@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751732AbWF2Epm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751731AbWF2Ep6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751732AbWF2Epm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 00:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbWF2Epm
+	id S1751731AbWF2Ep6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 00:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWF2Ep5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 00:45:42 -0400
-Received: from xenotime.net ([66.160.160.81]:39091 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751731AbWF2Epl (ORCPT
+	Thu, 29 Jun 2006 00:45:57 -0400
+Received: from xenotime.net ([66.160.160.81]:47027 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932190AbWF2Ep4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 00:45:41 -0400
-Date: Wed, 28 Jun 2006 21:48:27 -0700
+	Thu, 29 Jun 2006 00:45:56 -0400
+Date: Wed, 28 Jun 2006 21:48:38 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: dwmw2@infradead.org, linux-mtd@lists.infradead.org, akpm <akpm@osdl.org>
-Subject: [PATCH 1/2] MTD: fix all kernel-doc warnings
-Message-Id: <20060628214827.c8a189c6.rdunlap@xenotime.net>
+Subject: [PATCH 2/2] MTD: kernel-doc fixes + additions
+Message-Id: <20060628214838.606bb18a.rdunlap@xenotime.net>
 Organization: YPO4
 X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -25,185 +25,268 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Fix all kernel-doc warnings in MTD headers and source files:
-- add some missing struct fields;
-- correct some function parameter names;
-- use kernel-doc format for function doc. headers;
-- nand_ecc.c contains only exported interfaces, no internal ones;
+Fix some kernel-doc typos/spellos.
+Use kernel-doc syntax in places where it was almost used.
+Correct/add struct, struct field, and function param names where needed.
 
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- Documentation/DocBook/mtdnand.tmpl |    4 +++-
- drivers/mtd/nand/nand_base.c       |   16 ++++++++--------
- drivers/mtd/nand/nand_ecc.c        |    3 +--
- include/linux/mtd/nand.h           |   13 ++++++++++---
- 4 files changed, 22 insertions(+), 14 deletions(-)
+ Documentation/DocBook/mtdnand.tmpl |    7 +--
+ include/linux/mtd/bbm.h            |   35 +++++++++-------
+ include/linux/mtd/mtd.h            |    4 -
+ include/linux/mtd/nand.h           |    3 -
+ include/linux/mtd/onenand.h        |   77 +++++++++++++++++++++----------------
+ include/mtd/mtd-abi.h              |    2 
+ 6 files changed, 69 insertions(+), 59 deletions(-)
 
---- linux-2617-g13.orig/include/linux/mtd/nand.h
-+++ linux-2617-g13/include/linux/mtd/nand.h
-@@ -202,7 +202,7 @@ typedef enum {
- struct nand_chip;
- 
- /**
-- * struct nand_hw_control - Control structure for hardware controller (e.g ECC generator) shared among independend devices
-+ * struct nand_hw_control - Control structure for hardware controller (e.g ECC generator) shared among independent devices
-  * @lock:               protection lock
-  * @active:		the mtd device which holds the controller currently
-  * @wq:			wait queue to sleep on if a NAND operation is in progress
-@@ -223,12 +223,15 @@ struct nand_hw_control {
-  * @total:	total number of ecc bytes per page
-  * @prepad:	padding information for syndrome based ecc generators
-  * @postpad:	padding information for syndrome based ecc generators
-+ * @layout:	ECC layout control struct pointer
-  * @hwctl:	function to control hardware ecc generator. Must only
-  *		be provided if an hardware ECC is available
-  * @calculate:	function for ecc calculation or readback from ecc hardware
-  * @correct:	function for ecc correction, matching to ecc generator (sw/hw)
-  * @read_page:	function to read a page according to the ecc generator requirements
-  * @write_page:	function to write a page according to the ecc generator requirements
-+ * @read_oob:	function to read chip OOB data
-+ * @write_oob:	function to write chip OOB data
-  */
- struct nand_ecc_ctrl {
- 	nand_ecc_modes_t	mode;
-@@ -300,11 +303,15 @@ struct nand_buffers {
-  * @cmdfunc:		[REPLACEABLE] hardwarespecific function for writing commands to the chip
-  * @waitfunc:		[REPLACEABLE] hardwarespecific function for wait on ready
-  * @ecc:		[BOARDSPECIFIC] ecc control ctructure
-+ * @buffers:		buffer structure for read/write
-+ * @hwcontrol:		platform-specific hardware control structure
-+ * @ops:		oob operation operands
-  * @erase_cmd:		[INTERN] erase command write function, selectable due to AND support
-  * @scan_bbt:		[REPLACEABLE] function to scan bad block table
-  * @chip_delay:		[BOARDSPECIFIC] chip dependent delay for transfering data from array to read regs (tR)
-  * @wq:			[INTERN] wait queue to sleep on if a NAND operation is in progress
-  * @state:		[INTERN] the current state of the NAND device
-+ * @oob_poi:		poison value buffer
-  * @page_shift:		[INTERN] number of address bits in a page (column address bits)
-  * @phys_erase_shift:	[INTERN] number of address bits in a physical eraseblock
-  * @bbt_erase_shift:	[INTERN] number of address bits in a bbt entry
-@@ -521,7 +528,7 @@ extern int nand_do_read(struct mtd_info 
-  * struct platform_nand_chip - chip level device structure
-  *
-  * @nr_chips:		max. number of chips to scan for
-- * @chip_offs:		chip number offset
-+ * @chip_offset:	chip number offset
-  * @nr_partitions:	number of partitions pointed to by partitions (or zero)
-  * @partitions:		mtd partition list
-  * @chip_delay:		R/B delay value in us
-@@ -546,7 +553,7 @@ struct platform_nand_chip {
-  * @hwcontrol:		platform specific hardware control structure
-  * @dev_ready:		platform specific function to read ready/busy pin
-  * @select_chip:	platform specific chip select function
-- * @priv_data:		private data to transport driver specific settings
-+ * @priv:		private data to transport driver specific settings
-  *
-  * All fields are optional and depend on the hardware driver requirements
-  */
---- linux-2617-g13.orig/drivers/mtd/nand/nand_base.c
-+++ linux-2617-g13/drivers/mtd/nand/nand_base.c
-@@ -155,7 +155,7 @@ static u16 nand_read_word(struct mtd_inf
- /**
-  * nand_select_chip - [DEFAULT] control CE line
-  * @mtd:	MTD device structure
-- * @chip:	chipnumber to select, -1 for deselect
-+ * @chipnr:	chipnumber to select, -1 for deselect
-  *
-  * Default select function for 1 chip devices.
-  */
-@@ -542,7 +542,6 @@ static void nand_command(struct mtd_info
-  * Send command to NAND device. This is the version for the new large page
-  * devices We dont have the separate regions as we have in the small page
-  * devices.  We must emulate NAND_CMD_READOOB to keep the code compatible.
-- *
-  */
- static void nand_command_lp(struct mtd_info *mtd, unsigned int command,
- 			    int column, int page_addr)
-@@ -656,7 +655,7 @@ static void nand_command_lp(struct mtd_i
- 
- /**
-  * nand_get_device - [GENERIC] Get chip for selected access
-- * @this:	the nand chip descriptor
-+ * @chip:	the nand chip descriptor
-  * @mtd:	MTD device structure
-  * @new_state:	the state which is requested
-  *
-@@ -696,13 +695,12 @@ nand_get_device(struct nand_chip *chip, 
- /**
-  * nand_wait - [DEFAULT]  wait until the command is done
-  * @mtd:	MTD device structure
-- * @this:	NAND chip structure
-+ * @chip:	NAND chip structure
-  *
-  * Wait for command done. This applies to erase and program only
-  * Erase can take up to 400ms and program up to 20ms according to
-  * general NAND and SmartMedia specs
-- *
--*/
-+ */
- static int nand_wait(struct mtd_info *mtd, struct nand_chip *chip)
- {
- 
-@@ -896,6 +894,7 @@ static int nand_read_page_syndrome(struc
- /**
-  * nand_transfer_oob - [Internal] Transfer oob to client buffer
-  * @chip:	nand chip structure
-+ * @oob:	oob destination address
-  * @ops:	oob ops structure
-  */
- static uint8_t *nand_transfer_oob(struct nand_chip *chip, uint8_t *oob,
-@@ -946,6 +945,7 @@ static uint8_t *nand_transfer_oob(struct
-  *
-  * @mtd:	MTD device structure
-  * @from:	offset to read from
-+ * @ops:	oob ops structure
-  *
-  * Internal function. Called with chip held.
-  */
-@@ -1760,7 +1760,7 @@ static int nand_do_write_oob(struct mtd_
- /**
-  * nand_write_oob - [MTD Interface] NAND write data and/or out-of-band
-  * @mtd:	MTD device structure
-- * @from:	offset to read from
-+ * @to:		offset to write to
-  * @ops:	oob operation description structure
-  */
- static int nand_write_oob(struct mtd_info *mtd, loff_t to,
-@@ -2055,7 +2055,7 @@ static void nand_sync(struct mtd_info *m
- /**
-  * nand_block_isbad - [MTD Interface] Check if block at offset is bad
-  * @mtd:	MTD device structure
-- * @ofs:	offset relative to mtd start
-+ * @offs:	offset relative to mtd start
-  */
- static int nand_block_isbad(struct mtd_info *mtd, loff_t offs)
- {
---- linux-2617-g13.orig/drivers/mtd/nand/nand_ecc.c
-+++ linux-2617-g13/drivers/mtd/nand/nand_ecc.c
-@@ -65,8 +65,7 @@ static const u_char nand_ecc_precalc_tab
+--- linux-2617-g13.orig/Documentation/DocBook/mtdnand.tmpl
++++ linux-2617-g13/Documentation/DocBook/mtdnand.tmpl
+@@ -109,7 +109,7 @@
+ 		for most of the implementations. These functions can be replaced by the
+ 		board driver if neccecary. Those functions are called via pointers in the
+ 		NAND chip description structure. The board driver can set the functions which
+-		should be replaced by board dependend functions before calling nand_scan().
++		should be replaced by board dependent functions before calling nand_scan().
+ 		If the function pointer is NULL on entry to nand_scan() then the pointer
+ 		is set to the default function which is suitable for the detected chip type.
+ 		</para></listitem>
+@@ -133,7 +133,7 @@
+ 	  	[REPLACEABLE]</para><para>
+ 		Replaceable members hold hardware related functions which can be 
+ 		provided by the board driver. The board driver can set the functions which
+-		should be replaced by board dependend functions before calling nand_scan().
++		should be replaced by board dependent functions before calling nand_scan().
+ 		If the function pointer is NULL on entry to nand_scan() then the pointer
+ 		is set to the default function which is suitable for the detected chip type.
+ 		</para></listitem>
+@@ -156,9 +156,8 @@
+      	<title>Basic board driver</title>
+ 	<para>
+ 		For most boards it will be sufficient to provide just the
+-		basic functions and fill out some really board dependend
++		basic functions and fill out some really board dependent
+ 		members in the nand chip description structure.
+-		See drivers/mtd/nand/skeleton for reference.
+ 	</para>
+ 	<sect1>
+ 		<title>Basic defines</title>
+--- linux-2617-g13.orig/include/mtd/mtd-abi.h
++++ linux-2617-g13/include/mtd/mtd-abi.h
+@@ -133,7 +133,7 @@ struct nand_ecclayout {
  };
  
  /**
-- * nand_calculate_ecc - [NAND Interface] Calculate 3 byte ECC code
-- *			for 256 byte block
-+ * nand_calculate_ecc - [NAND Interface] Calculate 3-byte ECC for 256-byte block
-  * @mtd:	MTD block structure
-  * @dat:	raw data
-  * @ecc_code:	buffer for ECC
---- linux-2617-g13.orig/Documentation/DocBook/mtdnand.tmpl
-+++ linux-2617-g13/Documentation/DocBook/mtdnand.tmpl
-@@ -1295,7 +1295,9 @@ in this page</entry>
-      </para>
- !Idrivers/mtd/nand/nand_base.c
- !Idrivers/mtd/nand/nand_bbt.c
--!Idrivers/mtd/nand/nand_ecc.c
-+<!-- No internal functions for kernel-doc:
-+X!Idrivers/mtd/nand/nand_ecc.c
-+-->
-   </chapter>
+- * struct mtd_ecc_stats - error correction status
++ * struct mtd_ecc_stats - error correction stats
+  *
+  * @corrected:	number of corrected bits
+  * @failed:	number of uncorrectable errors
+--- linux-2617-g13.orig/include/linux/mtd/bbm.h
++++ linux-2617-g13/include/linux/mtd/bbm.h
+@@ -19,21 +19,21 @@
  
-   <chapter id="credits">
+ /**
+  * struct nand_bbt_descr - bad block table descriptor
+- * @param options	options for this descriptor
+- * @param pages		the page(s) where we find the bbt, used with
++ * @options:		options for this descriptor
++ * @pages:		the page(s) where we find the bbt, used with
+  * 			option BBT_ABSPAGE when bbt is searched,
+  * 			then we store the found bbts pages here.
+  *			Its an array and supports up to 8 chips now
+- * @param offs		offset of the pattern in the oob area of the page
+- * @param veroffs	offset of the bbt version counter in the oob are of the page
+- * @param version	version read from the bbt page during scan
+- * @param len		length of the pattern, if 0 no pattern check is performed
+- * @param maxblocks	maximum number of blocks to search for a bbt. This number of
+- *			blocks is reserved at the end of the device
++ * @offs:		offset of the pattern in the oob area of the page
++ * @veroffs:		offset of the bbt version counter in the oob area of the page
++ * @version:		version read from the bbt page during scan
++ * @len:		length of the pattern, if 0 no pattern check is performed
++ * @maxblocks:		maximum number of blocks to search for a bbt. This
++ *			number of blocks is reserved at the end of the device
+  *			where the tables are written.
+- * @param reserved_block_code	if non-0, this pattern denotes a reserved
++ * @reserved_block_code: if non-0, this pattern denotes a reserved
+  *			(rather than bad) block in the stored bbt
+- * @param pattern	pattern to identify bad block table or factory marked
++ * @pattern:		pattern to identify bad block table or factory marked
+  *			good / bad blocks, can be NULL, if len = 0
+  *
+  * Descriptor for the bad block table marker and the descriptor for the
+@@ -93,12 +93,15 @@ struct nand_bbt_descr {
+ #define ONENAND_BADBLOCK_POS	0
+ 
+ /**
+- * struct bbt_info - [GENERIC] Bad Block Table data structure
+- * @param bbt_erase_shift	[INTERN] number of address bits in a bbt entry
+- * @param badblockpos		[INTERN] position of the bad block marker in the oob area
+- * @param bbt			[INTERN] bad block table pointer
+- * @param badblock_pattern	[REPLACEABLE] bad block scan pattern used for initial bad block scan
+- * @param priv			[OPTIONAL] pointer to private bbm date
++ * struct bbm_info - [GENERIC] Bad Block Table data structure
++ * @bbt_erase_shift:	[INTERN] number of address bits in a bbt entry
++ * @badblockpos:	[INTERN] position of the bad block marker in the oob area
++ * @options:		options for this descriptor
++ * @bbt:		[INTERN] bad block table pointer
++ * @isbad_bbt:		function to determine if a block is bad
++ * @badblock_pattern:	[REPLACEABLE] bad block scan pattern used for
++ *			initial bad block scan
++ * @priv:		[OPTIONAL] pointer to private bbm date
+  */
+ struct bbm_info {
+ 	int bbt_erase_shift;
+--- linux-2617-g13.orig/include/linux/mtd/mtd.h
++++ linux-2617-g13/include/linux/mtd/mtd.h
+@@ -77,11 +77,11 @@ typedef enum {
+  *
+  * @len:	number of bytes to write/read. When a data buffer is given
+  *		(datbuf != NULL) this is the number of data bytes. When
+- +		no data buffer is available this is the number of oob bytes.
++ *		no data buffer is available this is the number of oob bytes.
+  *
+  * @retlen:	number of bytes written/read. When a data buffer is given
+  *		(datbuf != NULL) this is the number of data bytes. When
+- +		no data buffer is available this is the number of oob bytes.
++ *		no data buffer is available this is the number of oob bytes.
+  *
+  * @ooblen:	number of oob bytes per page
+  * @ooboffs:	offset of oob data in the oob area (only relevant when
+--- linux-2617-g13.orig/include/linux/mtd/nand.h
++++ linux-2617-g13/include/linux/mtd/nand.h
+@@ -407,7 +407,6 @@ struct nand_chip {
+ 
+ /**
+  * struct nand_flash_dev - NAND Flash Device ID Structure
+- *
+  * @name:	Identify the device type
+  * @id:		device ID code
+  * @pagesize:	Pagesize in bytes. Either 256 or 512 or 0
+@@ -526,7 +525,6 @@ extern int nand_do_read(struct mtd_info 
+ 
+ /**
+  * struct platform_nand_chip - chip level device structure
+- *
+  * @nr_chips:		max. number of chips to scan for
+  * @chip_offset:	chip number offset
+  * @nr_partitions:	number of partitions pointed to by partitions (or zero)
+@@ -549,7 +547,6 @@ struct platform_nand_chip {
+ 
+ /**
+  * struct platform_nand_ctrl - controller level device structure
+- *
+  * @hwcontrol:		platform specific hardware control structure
+  * @dev_ready:		platform specific function to read ready/busy pin
+  * @select_chip:	platform specific chip select function
+--- linux-2617-g13.orig/include/linux/mtd/onenand.h
++++ linux-2617-g13/include/linux/mtd/onenand.h
+@@ -23,7 +23,7 @@ extern int onenand_scan(struct mtd_info 
+ /* Free resources held by the OneNAND device */
+ extern void onenand_release(struct mtd_info *mtd);
+ 
+-/**
++/*
+  * onenand_state_t - chip states
+  * Enumeration for OneNAND flash chip state
+  */
+@@ -42,9 +42,9 @@ typedef enum {
+ 
+ /**
+  * struct onenand_bufferram - OneNAND BufferRAM Data
+- * @param block		block address in BufferRAM
+- * @param page		page address in BufferRAM
+- * @param valid		valid flag
++ * @block:		block address in BufferRAM
++ * @page:		page address in BufferRAM
++ * @valid:		valid flag
+  */
+ struct onenand_bufferram {
+ 	int block;
+@@ -54,32 +54,43 @@ struct onenand_bufferram {
+ 
+ /**
+  * struct onenand_chip - OneNAND Private Flash Chip Data
+- * @param base		[BOARDSPECIFIC] address to access OneNAND
+- * @param chipsize	[INTERN] the size of one chip for multichip arrays
+- * @param device_id	[INTERN] device ID
+- * @param verstion_id	[INTERN] version ID
+- * @param options	[BOARDSPECIFIC] various chip options. They can partly be set to inform onenand_scan about
+- * @param erase_shift	[INTERN] number of address bits in a block
+- * @param page_shift	[INTERN] number of address bits in a page
+- * @param ppb_shift	[INTERN] number of address bits in a pages per block
+- * @param page_mask	[INTERN] a page per block mask
+- * @param bufferam_index	[INTERN] BufferRAM index
+- * @param bufferam	[INTERN] BufferRAM info
+- * @param readw		[REPLACEABLE] hardware specific function for read short
+- * @param writew	[REPLACEABLE] hardware specific function for write short
+- * @param command	[REPLACEABLE] hardware specific function for writing commands to the chip
+- * @param wait		[REPLACEABLE] hardware specific function for wait on ready
+- * @param read_bufferram	[REPLACEABLE] hardware specific function for BufferRAM Area
+- * @param write_bufferram	[REPLACEABLE] hardware specific function for BufferRAM Area
+- * @param read_word	[REPLACEABLE] hardware specific function for read register of OneNAND
+- * @param write_word	[REPLACEABLE] hardware specific function for write register of OneNAND
+- * @param scan_bbt	[REPLACEALBE] hardware specific function for scaning Bad block Table
+- * @param chip_lock	[INTERN] spinlock used to protect access to this structure and the chip
+- * @param wq		[INTERN] wait queue to sleep on if a OneNAND operation is in progress
+- * @param state		[INTERN] the current state of the OneNAND device
+- * @param ecclayout	[REPLACEABLE] the default ecc placement scheme
+- * @param bbm		[REPLACEABLE] pointer to Bad Block Management
+- * @param priv		[OPTIONAL] pointer to private chip date
++ * @base:		[BOARDSPECIFIC] address to access OneNAND
++ * @chipsize:		[INTERN] the size of one chip for multichip arrays
++ * @device_id:		[INTERN] device ID
++ * @density_mask:	chip density, used for DDP devices
++ * @verstion_id:	[INTERN] version ID
++ * @options:		[BOARDSPECIFIC] various chip options. They can
++ *			partly be set to inform onenand_scan about
++ * @erase_shift:	[INTERN] number of address bits in a block
++ * @page_shift:		[INTERN] number of address bits in a page
++ * @ppb_shift:		[INTERN] number of address bits in a pages per block
++ * @page_mask:		[INTERN] a page per block mask
++ * @bufferram_index:	[INTERN] BufferRAM index
++ * @bufferram:		[INTERN] BufferRAM info
++ * @readw:		[REPLACEABLE] hardware specific function for read short
++ * @writew:		[REPLACEABLE] hardware specific function for write short
++ * @command:		[REPLACEABLE] hardware specific function for writing
++ *			commands to the chip
++ * @wait:		[REPLACEABLE] hardware specific function for wait on ready
++ * @read_bufferram:	[REPLACEABLE] hardware specific function for BufferRAM Area
++ * @write_bufferram:	[REPLACEABLE] hardware specific function for BufferRAM Area
++ * @read_word:		[REPLACEABLE] hardware specific function for read
++ *			register of OneNAND
++ * @write_word:		[REPLACEABLE] hardware specific function for write
++ *			register of OneNAND
++ * @mmcontrol:		sync burst read function
++ * @block_markbad:	function to mark a block as bad
++ * @scan_bbt:		[REPLACEALBE] hardware specific function for scanning
++ *			Bad block Table
++ * @chip_lock:		[INTERN] spinlock used to protect access to this
++ *			structure and the chip
++ * @wq:			[INTERN] wait queue to sleep on if a OneNAND
++ *			operation is in progress
++ * @state:		[INTERN] the current state of the OneNAND device
++ * @page_buf:		data buffer
++ * @ecclayout:		[REPLACEABLE] the default ecc placement scheme
++ * @bbm:		[REPLACEABLE] pointer to Bad Block Management
++ * @priv:		[OPTIONAL] pointer to private chip date
+  */
+ struct onenand_chip {
+ 	void __iomem		*base;
+@@ -147,9 +158,9 @@ struct onenand_chip {
+ #define ONENAND_MFR_SAMSUNG	0xec
+ 
+ /**
+- * struct nand_manufacturers - NAND Flash Manufacturer ID Structure
+- * @param name:		Manufacturer name
+- * @param id:		manufacturer ID code of device.
++ * struct onenand_manufacturers - NAND Flash Manufacturer ID Structure
++ * @name:	Manufacturer name
++ * @id:		manufacturer ID code of device.
+ */
+ struct onenand_manufacturers {
+         int id;
 
 
 ---

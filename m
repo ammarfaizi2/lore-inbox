@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWF2PFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWF2PGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWF2PFm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 11:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWF2PFm
+	id S1750788AbWF2PGK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 11:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWF2PGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 11:05:42 -0400
-Received: from mail.tmr.com ([64.65.253.246]:25538 "EHLO pixels.tmr.com")
-	by vger.kernel.org with ESMTP id S1750770AbWF2PFl (ORCPT
+	Thu, 29 Jun 2006 11:06:10 -0400
+Received: from mail.tmr.com ([64.65.253.246]:26562 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S1750784AbWF2PFr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 11:05:41 -0400
-Message-ID: <44A3E898.1020202@tmr.com>
-Date: Thu, 29 Jun 2006 10:50:00 -0400
+	Thu, 29 Jun 2006 11:05:47 -0400
+Message-ID: <44A3E5F6.6020607@tmr.com>
+Date: Thu, 29 Jun 2006 10:38:46 -0400
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
 MIME-Version: 1.0
-To: CaT <cat@zip.com.au>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.17.1: fails to fully get webpage
-References: <20060629015915.GH2149@zip.com.au> <20060628.194627.74748190.davem@davemloft.net> <20060629030923.GI2149@zip.com.au> <20060628.204709.41634813.davem@davemloft.net> <20060629041827.GJ2149@zip.com.au>
-In-Reply-To: <20060629041827.GJ2149@zip.com.au>
+To: Junio C Hamano <junkio@cox.net>
+CC: linux-kernel@vger.kernel.org, "Joshua Hudson" <joshudson@gmail.com>
+Subject: Re: Kernelsources writeable for everyone?!
+References: <200606242000.51024.damage@rooties.de>	<20060624181702.GG27946@ftp.linux.org.uk>	<1151198452.6508.10.camel@mjollnir> <449E216E.8010508@sbcglobal.net>	<bda6d13a0606251309x3e07e9feoad777d9a062f923f@mail.gmail.com> <7v4py4wkwk.fsf@assigned-by-dhcp.cox.net>
+In-Reply-To: <7v4py4wkwk.fsf@assigned-by-dhcp.cox.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CaT wrote:
-> On Wed, Jun 28, 2006 at 08:47:09PM -0700, David Miller wrote:
->> You can save yourself that hassle by informing the site admin
->> of the affected site that they have a firewall that misinterprets
->> the RFC standard window scaling field of the TCP headers.  These
->> devices assume it is zero because they don't remember the window
->> scale negotiated at the beginning of the TCP connection.
->>
->> Your TCP performance will suffer greatly if you disable window
->> scaling across the board.  It means that only a 64K window will
->> be usable by TCP, and you'll not be able to fill the pipe.
->>
->> Please don't use a screwdriver to pound in a nail :)
+Junio C Hamano wrote:
+> "Joshua Hudson" <joshudson@gmail.com> writes:
 > 
-> Indeed. The hassle I'm thinking of is the reverse situation (and please
-> correct me if this does not apply). Say for example I run a web server.
-> I have customers and they have customers (lets call them CCs :). Somewhere
-> along the path between me and CCs there is such a misbehaving device.
-> The CCs try to get to my customers website and fail (I assume). If my
-> assumption is right, what's the probability of the CCs ever informing my
-> customer that there is a problem? I think it's more likely they would
-> just move on to another site offering the same thing, especially since
-> they would mostlikely need to load the site in order to get the
-> appropriate contact details.
+>> I feel like asking how they initially get set to world-writable. To me
+>> it means that the tree that is being tarred up for distribution is
+>> world-writible. I sure hope that it is a single-user box.
 > 
-> Basically the mostlikely end-result is I don't know what there is a
-> problem and my customer doesn't know that there is a problem but they're
-> just not getting as many hits to their site that they otherwise would.
+> It is _not_ coming from a working tree at all.
 > 
-> Ofcourse, this all depends if such a situation is possible. If it is
-> possible would it affect dns and mail in a similar manner too?
+> git-tar-tree generates the tar image from a git tree object, and
+> when it does so, it deliberately sets the mode bits to 0666/0777
+> so that umask of the people who extract the tarball is honored.
+> In very early days once we made a mistake of generating the tar
+> archive with more restrictive permission bits (I think it was
+> 0644 or 0755) which was very impolite way to annoy people with
+> 002 umask.
 > 
-I'm glad David Miller clarified this, because I was about to send a 
-"don't do that" followup ;-)
-
-But your example is misleading, or at least doesn't reflect customers I 
-know. While a few clients with broken network connections may be 
-unhappy, disabling scaling will make your web server really, really, 
-slow, and that will make everyone unhappy. Particularly if the web 
-content is flash or 2MB jpegs, or other ill-chosen stuff. You don't want 
-people to think you are running at dial-up speeds.
+I have my unpack/build directory set to a group ownership which prevents 
+"just anyone" from writing, and have the "setgid" bit on (mode 2775) 
+which interestingly propagates. So everything has the same group, and 
+you can set your umask to do what you want. I want everything world 
+readable, writable by group. YMMV.
 
 -- 
 Bill Davidsen <davidsen@tmr.com>

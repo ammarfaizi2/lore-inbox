@@ -1,105 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751746AbWF2HLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751748AbWF2HRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751746AbWF2HLj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 03:11:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751624AbWF2HLj
+	id S1751748AbWF2HRv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 03:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751713AbWF2HRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 03:11:39 -0400
-Received: from mkedef1.rockwellautomation.com ([208.22.104.18]:60979 "EHLO
-	ranasmtp01.ra.rockwell.com") by vger.kernel.org with ESMTP
-	id S1751746AbWF2HLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 03:11:39 -0400
-To: Esben Nielsen <nielsen.esben@googlemail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Linux-2.6.17-rt3 on arm ixdp465
-MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF333B3CA3.DCE515CC-ONC125719C.00265C3B-C125719C.0026A1E2@ra.rockwell.com>
-From: Milan Svoboda <msvoboda@ra.rockwell.com>
-Date: Thu, 29 Jun 2006 09:01:23 +0200
-X-MIMETrack: Serialize by Router on RANASMTP01/NorthAmerica/RA/Rockwell(Release 6.5.4FP1|June
- 19, 2005) at 06/29/2006 02:12:26 AM,
-	Serialize complete at 06/29/2006 02:12:26 AM
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 29 Jun 2006 03:17:51 -0400
+Received: from xenotime.net ([66.160.160.81]:33941 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751223AbWF2HRu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 03:17:50 -0400
+Date: Thu, 29 Jun 2006 00:20:36 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Matt LaPlante <laplam@rpi.edu>
+Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH] Kconfig: Typos in fs/Kconfig
+Message-Id: <20060629002036.ef53a483.rdunlap@xenotime.net>
+In-Reply-To: <20060629020052.f73d7ca1.laplam@rpi.edu>
+References: <20060629020052.f73d7ca1.laplam@rpi.edu>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> # 
-> # Tulip family network device support 
-> # 
-> # CONFIG_NET_TULIP is not set 
-> # CONFIG_HP100 is not set 
-> CONFIG_NET_PCI=y 
-> # CONFIG_PCNET32 is not set 
-> # CONFIG_AMD8111_ETH is not set 
-> # CONFIG_ADAPTEC_STARFIRE is not set 
-> # CONFIG_B44 is not set 
-> # CONFIG_FORCEDETH is not set 
-> # CONFIG_DGRS is not set 
-> CONFIG_EEPRO100=y 
-> # CONFIG_E100 is not set 
-> # CONFIG_FEALNX is not set 
+On Thu, 29 Jun 2006 02:00:52 -0400 Matt LaPlante wrote:
 
-I use "old" eepro100 network device driver...
+> Fix several typos in fs/Kconfig
+> 
+> -
+> --- b/fs/Kconfig	2006-06-29 01:35:36.000000000 -0400
+> +++ a/fs/Kconfig	2006-06-29 01:58:52.000000000 -0400
+> @@ -69,7 +69,7 @@
+>  	default y
+>  
+>  config EXT3_FS
+> -	tristate "Ext3 journalling file system support"
+> +	tristate "Ext3 journaling file system support"
 
-Thank you for your answer, I look at it too...
+Some dictionaries spell it either way, but it should be spelled
+consistently (see 3 lines below).
 
-Milan
+>  	select JBD
+>  	help
+>  	  This is the journaling version of the Second extended file system
 
+> @@ -1059,13 +1059,13 @@
+>  	  to be made available to the user in the /proc/fs/jffs/ directory.
+>  
+>  config JFFS2_FS
+> -	tristate "Journalling Flash File System v2 (JFFS2) support"
+> +	tristate "Journaling Flash File System v2 (JFFS2) support"
+>  	select CRC32
+>  	depends on MTD
+>  	help
+> -	  JFFS2 is the second generation of the Journalling Flash File System
+> +	  JFFS2 is the second generation of the Journaling Flash File System
+>  	  for use on diskless embedded devices. It provides improved wear
+> -	  levelling, compression and support for hard links. You cannot use
+> +	  leveling, compression and support for hard links. You cannot use
 
+either spelling is OK.
 
+>  	  this on normal block devices, only on 'MTD' devices.
+>  
+>  	  Further information on the design and implementation of JFFS2 is
 
-
-
-Esben Nielsen <nielsen.esben@googlemail.com>
-06/28/2006 07:02 PM
-
- 
-        To:     Milan Svoboda <msvoboda@ra.rockwell.com>
-        cc:     linux-kernel@vger.kernel.org
-        Subject:        Re: [BUG] Linux-2.6.17-rt3 on arm ixdp465
-
-
-On Wed, 28 Jun 2006, Milan Svoboda wrote:
-
-> Hello,
->
-> I tried this kernel on arm ixdp465, it works well, but I got many
-> of these messages:
->
-> BUG: scheduling with irqs disabled: IRQ 25/0x00000000/683
-> caller is rt_lock_slowlock+0xd8/0x1c8
-> BUG: scheduling with irqs disabled: IRQ 25/0x00000000/683
-> caller is rt_lock_slowlock+0xd8/0x1c8
-> BUG: scheduling with irqs disabled: IRQ 25/0x00000000/683
-> caller is rt_lock_slowlock+0xd8/0x1c8
-> BUG: scheduling with irqs disabled: IRQ 25/0x00000000/683
-> caller is rt_lock_slowlock+0xd8/0x1c8
-> BUG: scheduling with irqs disabled: IRQ 25/0x00000000/683
-> caller is rt_lock_slowlock+0xd8/0x1c8
->
-> # cat /proc/interrupts
->           CPU0
-> 5:      29620   IXP4xx Timer Tick
-> 15:        876   serial
-> 25:       3813   eth0
-> Err:          0
->
-
-Looks like a bug in your ethernet driver, which is?
-It could be that that driver is not SMP compliant and uses irq 
-disable/enable
-as locking method instead of a spinlock.
-
-Esben
-
-> PS: Please CC me, I'm not subscribed...
->
-> Best Regards,
-> Milan Svoboda
->
->
->
-
-
-
+---
+~Randy

@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932868AbWF2JkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932873AbWF2Jmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932868AbWF2JkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 05:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932865AbWF2JkQ
+	id S932873AbWF2Jmu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 05:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932874AbWF2Jmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 05:40:16 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:9888
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932864AbWF2JkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 05:40:13 -0400
-Message-Id: <44A3BC2F.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Thu, 29 Jun 2006 11:40:31 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Shaohua Li" <shaohua.li@intel.com>
-Cc: "Rajesh Shah" <rajesh.shah@intel.com>, "Greg KH" <greg@kroah.com>,
-       "arjan" <arjan@linux.intel.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Tigran Aivazian" <tigran@veritas.com>,
-       "lkml" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]microcode update driver rewrite - takes 2
-References: <1151376693.21189.52.camel@sli10-desk.sh.intel.com>
- <20060627060214.GA27469@kroah.com>
- <1151396103.21189.75.camel@sli10-desk.sh.intel.com>
- <1151569119.21189.106.camel@sli10-desk.sh.intel.com>
- <44A3B38F.76E4.0078.0@novell.com>
- <1151572535.21189.109.camel@sli10-desk.sh.intel.com>
-In-Reply-To: <1151572535.21189.109.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 29 Jun 2006 05:42:50 -0400
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:14171 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP id S932873AbWF2Jmt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 05:42:49 -0400
+Message-ID: <44A3A08D.6060502@fr.ibm.com>
+Date: Thu, 29 Jun 2006 11:42:37 +0200
+From: Daniel Lezcano <dlezcano@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Andrey Savochkin <saw@swsoft.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, serue@us.ibm.com, haveblue@us.ibm.com,
+       clg@fr.ibm.com, Andrew Morton <akpm@osdl.org>, dev@sw.ru,
+       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       viro@ftp.linux.org.uk, Alexey Kuznetsov <alexey@sw.ru>
+Subject: Re: Network namespaces a path to mergable code.
+References: <20060626134945.A28942@castle.nmd.msu.ru>	<m14py6ldlj.fsf@ebiederm.dsl.xmission.com>	<20060627215859.A20679@castle.nmd.msu.ru>	<m1ejx9kj1r.fsf@ebiederm.dsl.xmission.com>	<20060628150605.A29274@castle.nmd.msu.ru>	<44A2FA66.5070303@fr.ibm.com> <m11wt8erjv.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m11wt8erjv.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Shaohua Li <shaohua.li@intel.com> 29.06.06 11:15 >>>
->On Thu, 2006-06-29 at 11:03 +0200, Jan Beulich wrote:
->> I'm not having a problem removing the messages if the current state can be obtained
->> elsewhere.
->> 
->> Looking at the patch I see at least one problem (in more than one place) - before
->> accessing data, you should check that the relevant piece to be read is entirely within
->> range. You should not (as done at least once) rely on copy_from_user() failing - the
->> data may be readable, but out of bounds wrt. the information in the headers (or the
->> header sizes themselves).
->Can you please give me more details? I had a lot of checks there if the
->size is incorrect.
+Eric W. Biederman wrote:
+>>When an outgoing packet has the loopback destination addres, the
+>>skbuff is filled with the network namespace. So the loopback packets
+>>never go outside the namespace. This approach facilitate the migration
+>>of loopback because identification is done by network namespace and
+>>not by address. The loopback has been benchmarked by tbench and the
+>>overhead is roughly 1.5 %
+> 
+> 
+> Ugh.  1.5% is noticeable.
 
-Ah, yes, I missed the sanity checking function. That seems to take care of what I thought
-was missing elsewhere.
+We will see with all private network namespace ...
+> 
+> I think it is cheaper to have one loopback device per namespace.
+> Which removes the need for a skbuff tag.
 
-Jan
+Yes, probably.

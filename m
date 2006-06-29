@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751833AbWF2AWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751841AbWF2AZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751833AbWF2AWl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jun 2006 20:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751839AbWF2AWl
+	id S1751841AbWF2AZR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jun 2006 20:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751842AbWF2AZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jun 2006 20:22:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4034 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751833AbWF2AWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jun 2006 20:22:40 -0400
-Subject: Re: [GIT *] make headers_install
-From: David Woodhouse <dwmw2@infradead.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: torvalds@osdl.org, akpm@osdl.org, sam@ravnborg.org, arnd@arndb.de,
-       jbailey@ubuntu.com, Tim Yamin <plasmaroo@gentoo.org>,
-       Bernhard Rosenkraenzer <bero@arklinux.org>, alan@lxorguk.ukuu.org.uk,
-       Thorsten Kukuk <kukuk@suse.de>, Clint Adams <schizo@debian.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060628234450.GB5074@linux-mips.org>
-References: <1151446372.6394.295.camel@pmac.infradead.org>
-	 <20060628234450.GB5074@linux-mips.org>
-Content-Type: text/plain
-Date: Thu, 29 Jun 2006 01:22:01 +0100
-Message-Id: <1151540522.18930.16.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
+	Wed, 28 Jun 2006 20:25:17 -0400
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:47749 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751841AbWF2AZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jun 2006 20:25:15 -0400
+Message-ID: <44A31DE8.20100@bigpond.net.au>
+Date: Thu, 29 Jun 2006 10:25:12 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@ucw.cz>, Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Incorrect CPU process accounting using         CONFIG_HZ=100
+References: <200606211716.01472.a1426z@gawab.com> <200606272302.16950.kernel@kolivas.org> <44A1C4D4.3080805@bigpond.net.au> <200606282306.14498.a1426z@gawab.com> <44A30F60.6070001@bigpond.net.au> <cone.1151538362.930767.14982.501@kolivas.org>
+In-Reply-To: <cone.1151538362.930767.14982.501@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 29 Jun 2006 00:25:13 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-29 at 00:44 +0100, Ralf Baechle wrote:
-> Thanks for the time you've been pouring into this.  Copying kernel
-> header into applications clearly didn't work too well, especially for
-> arch stuff (two dozen and counting ...) it was a pain and each
-> distribution had different sets of hacked kernel headers.
+Con Kolivas wrote:
+> Peter Williams writes:
+> 
+>> Al Boldi wrote:
+>>> Peter Williams wrote:
+> 
+>>> twice:
+>>>     1. for external proc monitoring, using a probed approach
+>>>     2. for scheduling, using an inlined approach
+>>
+>> Not exactly (e.g. there's no separation between user and sys time 
+>> available in line) but the possibilities are there.
+>>
+>>>
+>>> Wouldn't merging the two approaches be in the interest of conserving 
+>>> cpu resources, while at the same time reflecting an accurate view of 
+>>> cpu utilization?
+>>
+>> I think that this would be a worthwhile endeavour once/if 
+>> sched_clock() is fixed.  This is especially the case as CPUs get 
+>> faster as many tasks may run to completion in less than a tick.
+> 
+> That may not be as simple as it seems. To properly account system v user 
+> time using the sched_clock we'd have to hook into arch dependant asm 
+> code to know when entering and exiting kernel context. That is far more 
+> invasive than the simple on/off runqueue timing we currently do for 
+> scheduling accounting.
 
-The technical part wasn't very time-consuming at all. Arnd provided the
-basic implementation, and I just tweaked it a little to use unifdef and
-be a bit more selective about what we export. It's probably taken less
-time than it would have done to get Fedora's 'glibc-kernheaders' package
-into shape manually the way it always used to be done -- and it'll
-_certainly_ be a Godsend for future updates.
+Yes, it is a problem and we may have to do something approximate like 
+counting ticks for sys time and subtracting that from the total to get 
+user time when reporting the times to user space (only a bit more 
+complex to make sure we don't end up with negative times).
 
-The time-consuming part was chasing up those who look after similar
-packages in other distributions and making sure they were happy enough
-with the principle too -- tracking them down on IRC when they ignored my
-emails.
+How is it intended to handle this problem in the tickless kernel?
 
-The current hurdle seems to be getting Linus to take it or at least
-comment, now that everyone _else_ seems to be fairly much in agreement.
-I'm hoping we don't have to let it drag on till the Kernel Summit.
-
+Peter
+PS It's all moot until sched_clock() is fixed anyway.
+PPS Recent kernels (-mm ones at least) keep a sched_time in nsecs for 
+each task but I've no idea what it's used for.
 -- 
-dwmw2
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,118 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932901AbWF2VzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932953AbWF2V4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932901AbWF2VzL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 17:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932970AbWF2VzI
+	id S932953AbWF2V4N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 17:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932946AbWF2VxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 17:55:08 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37549 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932969AbWF2Vy4 (ORCPT
+	Thu, 29 Jun 2006 17:53:00 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:36495 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932901AbWF2VoK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:54:56 -0400
-Message-ID: <44A44C27.7020100@sgi.com>
-Date: Thu, 29 Jun 2006 14:54:47 -0700
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
+	Thu, 29 Jun 2006 17:44:10 -0400
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, Valdis.Kletnieks@vt.edu,
-       jlan@engr.sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<44999F5A.2080809@watson.ibm.com>	<4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>	<20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>	<20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>	<20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>	<44A01A50.1050403@sgi.com>	<20060626105548.edef4c64.akpm@osdl.org>	<44A020CD.30903@watson.ibm.com>	<20060626111249.7aece36e.akpm@osdl.org>	<44A026ED.8080903@sgi.com>	<20060626113959.839d72bc.akpm@osdl.org>	<44A2F50D.8030306@engr.sgi.com>	<20060628145341.529a61ab.akpm@osdl.org>	<44A2FC72.9090407@engr.sgi.com>	<20060629014050.d3bf0be4.pj@sgi.com>	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>	<20060629094408.360ac157.pj@sgi.com>	<20060629110107.2e56310b.akpm@osdl.org>	<20060629112642.66f35dd5.pj@sgi.com>	<44A426DC.9090009@watson.ibm.com> <20060629124148.48d4c9ad.pj@sgi.com> <44A4492E.6090307@watson.ibm.com>
-In-Reply-To: <44A4492E.6090307@watson.ibm.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Subject: [PATCH 22 of 39] IB/ipath - fix lost interrupts on HT-400
+X-Mercurial-Node: 811021b6c112f8616d73da530ea90c737649b2c3
+Message-Id: <811021b6c112f8616d73.1151617273@eng-12.pathscale.com>
+In-Reply-To: <patchbomb.1151617251@eng-12.pathscale.com>
+Date: Thu, 29 Jun 2006 14:41:13 -0700
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar wrote:
-> Paul Jackson wrote:
-> 
->> Shailabh wrote:
->>  
->>
->>> I suppose this is because cpuset's offer some middle ground between 
->>> collecting data per-cpu vs. collecting it for all cpus ?
->>>   
->>
->>
->> Yes - well said.  And I have this strange tendency to see all the
->> worlds problems as opportunities for cpuset solutions <grin>.
->>
->>  
->>
->>> What happens when someone is using cpusets on such a machine and
->>> changes its membership in response to other needs.  All taskstats
->>> users would need to monitor for such changes and adjust their
->>> processing....seems like unnecessary tying up of two unrelated
->>> concepts.
->>>   
->>
->>
->> I would not expect taskstat users to monitor for such changes.
->> I'd expect them to monitor the stats from whatever is in the
->> cpuset they named.  If a task moves out of that cpuset to another,
->> then tough -- that task will no longer be monitored by that
->> particular monitoring request.
->>
->> Cpusets do provide a convenient middle ground, as you say, which
->> is really useful for reducing scaling issues such as this one to
->> a managable size.
->>
->> Per-cpu is too fine grained, and per-system too coarse.
->>
->> An unnecessary tying - yes.  But perhaps a useful one.
->>  
->>
-> The idea of collecting stats for a group of cpus rather than all (or 
-> one) seems attractive.
-> But cpusets doesnt :-)
-> 
-> How about if we did something simple like
-> having a separate listen group (within genetlink) for a reasonably large 
-> number of cpus
-> and have all the messages from those cpus multicast to the listeners of 
-> that group alone ?
-> 
-> e.g. currently we have only one TASKSTATS_LISTEN_GROUP
-> we could reserve the following
->    TASKSTATS_LISTEN_GROUP_0
->    TASKSTATS_LISTEN_GROUP_1....
-> 
-> where GROUP_0 handles cpus numbered 0-63 (or 31)....etc.
-> 
-> Advantages would be
-> 
-> 1. Most users would still need to listen to the one group as they do
-> in the current design and others could listen to more, scaling up their 
-> userspace listening daemons
-> as appropriate (e.g. one daemon per listening group).
-> 
-> 2. Userspace could be saved the bother of having too many streams of 
-> per-cpu data and reassemble them
-> in the order they were generated.
-> 
-> The moment we talk of splitting up the data stream generated by the 
-> kernel I suppose we have to do some
-> kind of timestamping so reassembly in the same order can be done. I 
-> can't see this mattering for the likes of
-> delay accounting and CSA but for future taskstats users, who knows.
+Do an extra check to see if in-memory tail changed while processing
+packets, and if so, going back through the loop again (but only once
+per call to ipath_kreceive()).   In practice, this seems to be enough
+to guarantee that if we crossed the clearing of an interrupt at start of
+ipath_intr with a scheduled tail register update, that we'll process the
+"extra" packet that lost the interrupt because we cleared it just as it
+was about to arrive.
 
-Timestamp of the taskstats messages or timestamp of the exiting task?
-I include an exit_time field for the task as part of "Common
-Accounting Fields" in my csa_taskstats patch i sent to you. So, we
-have both start_time and exit_time.
+Signed-off-by: Dave Olson <dave.olson@qlogic.com>
+Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
 
-Thanks,
-  - jay
-
-> 
-> 
-> --Shailabh
-> 
-> 
-
+diff -r 1a4350d895c9 -r 811021b6c112 drivers/infiniband/hw/ipath/ipath_driver.c
+--- a/drivers/infiniband/hw/ipath/ipath_driver.c	Thu Jun 29 14:33:26 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_driver.c	Thu Jun 29 14:33:26 2006 -0700
+@@ -870,7 +870,7 @@ void ipath_kreceive(struct ipath_devdata
+ 	const u32 maxcnt = dd->ipath_rcvhdrcnt * rsize;	/* words */
+ 	u32 etail = -1, l, hdrqtail;
+ 	struct ips_message_header *hdr;
+-	u32 eflags, i, etype, tlen, pkttot = 0, updegr=0;
++	u32 eflags, i, etype, tlen, pkttot = 0, updegr=0, reloop=0;
+ 	static u64 totcalls;	/* stats, may eventually remove */
+ 	char emsg[128];
+ 
+@@ -885,9 +885,11 @@ void ipath_kreceive(struct ipath_devdata
+ 		goto bail;
+ 
+ 	l = dd->ipath_port0head;
+-	if (l == (u32)le64_to_cpu(*dd->ipath_hdrqtailptr))
++	hdrqtail = (u32) le64_to_cpu(*dd->ipath_hdrqtailptr);
++	if (l == hdrqtail)
+ 		goto done;
+ 
++reloop:
+ 	/* read only once at start for performance */
+ 	hdrqtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
+ 
+@@ -1011,7 +1013,7 @@ void ipath_kreceive(struct ipath_devdata
+ 		 */
+ 		if (l == hdrqtail || (i && !(i&0xf))) {
+ 			u64 lval;
+-			if (l == hdrqtail) /* want interrupt only on last */
++			if (l == hdrqtail) /* PE-800 interrupt only on last */
+ 				lval = dd->ipath_rhdrhead_intr_off | l;
+ 			else
+ 				lval = l;
+@@ -1021,6 +1023,23 @@ void ipath_kreceive(struct ipath_devdata
+ 						       etail, 0);
+ 				updegr = 0;
+ 			}
++		}
++	}
++
++	if (!dd->ipath_rhdrhead_intr_off && !reloop) {
++		/* HT-400 workaround; we can have a race clearing chip
++		 * interrupt with another interrupt about to be delivered,
++		 * and can clear it before it is delivered on the GPIO
++		 * workaround.  By doing the extra check here for the
++		 * in-memory tail register updating while we were doing
++		 * earlier packets, we "almost" guarantee we have covered
++		 * that case.
++		 */
++		u32 hqtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
++		if (hqtail != hdrqtail) {
++			hdrqtail = hqtail;
++			reloop = 1; /* loop 1 extra time at most */
++			goto reloop;
+ 		}
+ 	}
+ 
+diff -r 1a4350d895c9 -r 811021b6c112 drivers/infiniband/hw/ipath/ipath_intr.c
+--- a/drivers/infiniband/hw/ipath/ipath_intr.c	Thu Jun 29 14:33:26 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_intr.c	Thu Jun 29 14:33:26 2006 -0700
+@@ -766,7 +766,7 @@ irqreturn_t ipath_intr(int irq, void *da
+ 	u32 istat, chk0rcv = 0;
+ 	ipath_err_t estat = 0;
+ 	irqreturn_t ret;
+-	u32 p0bits, oldhead;
++	u32 oldhead, curtail;
+ 	static unsigned unexpected = 0;
+ 	static const u32 port0rbits = (1U<<INFINIPATH_I_RCVAVAIL_SHIFT) |
+ 		 (1U<<INFINIPATH_I_RCVURG_SHIFT);
+@@ -809,15 +809,16 @@ irqreturn_t ipath_intr(int irq, void *da
+ 	 * lose intr for later packets that arrive while we are processing.
+ 	 */
+ 	oldhead = dd->ipath_port0head;
+-	if (oldhead != (u32) le64_to_cpu(*dd->ipath_hdrqtailptr)) {
++	curtail = (u32)le64_to_cpu(*dd->ipath_hdrqtailptr);
++	if (oldhead != curtail) {
+ 		if (dd->ipath_flags & IPATH_GPIO_INTR) {
+ 			ipath_write_kreg(dd, dd->ipath_kregs->kr_gpio_clear,
+ 					 (u64) (1 << 2));
+-			p0bits = port0rbits | INFINIPATH_I_GPIO;
++			istat = port0rbits | INFINIPATH_I_GPIO;
+ 		}
+ 		else
+-			p0bits = port0rbits;
+-		ipath_write_kreg(dd, dd->ipath_kregs->kr_intclear, p0bits);
++			istat = port0rbits;
++		ipath_write_kreg(dd, dd->ipath_kregs->kr_intclear, istat);
+ 		ipath_kreceive(dd);
+ 		if (oldhead != dd->ipath_port0head) {
+ 			ipath_stats.sps_fastrcvint++;
+@@ -827,7 +828,6 @@ irqreturn_t ipath_intr(int irq, void *da
+ 	}
+  
+ 	istat = ipath_read_kreg32(dd, dd->ipath_kregs->kr_intstatus);
+-	p0bits = port0rbits;
+ 
+ 	if (unlikely(!istat)) {
+ 		ipath_stats.sps_nullintr++;
+@@ -890,19 +890,19 @@ irqreturn_t ipath_intr(int irq, void *da
+ 		else {
+ 			/* Clear GPIO status bit 2 */
+ 			ipath_write_kreg(dd, dd->ipath_kregs->kr_gpio_clear,
+-					 (u64) (1 << 2));
+-			p0bits |= INFINIPATH_I_GPIO;
++					(u64) (1 << 2));
+ 			chk0rcv = 1;
+ 		}
+ 	}
+-	chk0rcv |= istat & p0bits;
+-
+-	/*
+-	 * clear the ones we will deal with on this round
+-	 * We clear it early, mostly for receive interrupts, so we
+-	 * know the chip will have seen this by the time we process
+-	 * the queue, and will re-interrupt if necessary.  The processor
+-	 * itself won't take the interrupt again until we return.
++	chk0rcv |= istat & port0rbits;
++
++	/*
++	 * Clear the interrupt bits we found set, unless they are receive
++	 * related, in which case we already cleared them above, and don't
++	 * want to clear them again, because we might lose an interrupt.
++	 * Clear it early, so we "know" know the chip will have seen this by
++	 * the time we process the queue, and will re-interrupt if necessary.
++	 * The processor itself won't take the interrupt again until we return.
+ 	 */
+ 	ipath_write_kreg(dd, dd->ipath_kregs->kr_intclear, istat);
+ 

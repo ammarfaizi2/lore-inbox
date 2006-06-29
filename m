@@ -1,206 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932768AbWF2Vho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932773AbWF2VhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932768AbWF2Vho (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 17:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932766AbWF2VhH
+	id S932773AbWF2VhF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 17:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932758AbWF2VhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 17:37:07 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:24800 "EHLO
+	Thu, 29 Jun 2006 17:37:01 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:23264 "EHLO
 	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932754AbWF2Vgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 17:36:36 -0400
-Message-Id: <200606292136.k5TLaaFx010822@ccure.user-mode-linux.org>
+	id S932757AbWF2Vgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 17:36:37 -0400
+Message-Id: <200606292136.k5TLaY7N010817@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 7/9] UML - Remove stray file
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 6/9] UML - Remove unneeded time definitions
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 29 Jun 2006 17:36:36 -0400
+Date: Thu, 29 Jun 2006 17:36:34 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgot to remove arch/um/kernel/time.c when it was mostly moved to 
-arch/um/os-Linux.
+Remove um_time() and um_stime() syscalls since they are identical to
+system-wide ones.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Index: linux-2.6.16-rc-mm/arch/um/kernel/time.c
+Index: linux-2.6.17/arch/um/kernel/time_kern.c
 ===================================================================
---- linux-2.6.16-rc-mm.orig/arch/um/kernel/time.c	2006-06-26 17:50:17.000000000 -0400
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,172 +0,0 @@
--/* 
-- * Copyright (C) 2000, 2001, 2002 Jeff Dike (jdike@karaya.com)
-- * Licensed under the GPL
-- */
--
--#include <stdio.h>
--#include <stdlib.h>
--#include <unistd.h>
--#include <time.h>
--#include <sys/time.h>
--#include <signal.h>
--#include <errno.h>
--#include "user_util.h"
--#include "kern_util.h"
--#include "user.h"
--#include "process.h"
--#include "time_user.h"
--#include "kern_constants.h"
--#include "os.h"
--
--/* XXX This really needs to be declared and initialized in a kernel file since
-- * it's in <linux/time.h>
-- */
--extern struct timespec wall_to_monotonic;
--
--extern struct timeval xtime;
--
--struct timeval local_offset = { 0, 0 };
--
--void timer(void)
+--- linux-2.6.17.orig/arch/um/kernel/time_kern.c	2006-06-29 11:45:07.000000000 -0400
++++ linux-2.6.17/arch/um/kernel/time_kern.c	2006-06-29 11:45:07.000000000 -0400
+@@ -142,16 +142,6 @@ irqreturn_t um_timer(int irq, void *dev,
+ 	return IRQ_HANDLED;
+ }
+ 
+-long um_time(int __user *tloc)
 -{
--	gettimeofday(&xtime, NULL);
--	timeradd(&xtime, &local_offset, &xtime);
+-	long ret = get_time() / NSEC_PER_SEC;
+-
+-	if((tloc != NULL) && put_user(ret, tloc))
+-		return -EFAULT;
+-
+-	return ret;
 -}
 -
--static void set_interval(int timer_type)
+ void do_gettimeofday(struct timeval *tv)
+ {
+ 	unsigned long long nsecs = get_time();
+@@ -180,18 +170,6 @@ static inline void set_time(unsigned lon
+ 	clock_was_set();
+ }
+ 
+-long um_stime(int __user *tptr)
 -{
--	int usec = 1000000/hz();
--	struct itimerval interval = ((struct itimerval) { { 0, usec },
--							  { 0, usec } });
+-	int value;
 -
--	if(setitimer(timer_type, &interval, NULL) == -1)
--		panic("setitimer failed - errno = %d\n", errno);
+-	if (get_user(value, tptr))
+-                return -EFAULT;
+-
+-	set_time((unsigned long long) value * NSEC_PER_SEC);
+-
+-	return 0;
 -}
 -
--void enable_timer(void)
--{
--	set_interval(ITIMER_VIRTUAL);
--}
+ int do_settimeofday(struct timespec *tv)
+ {
+ 	set_time((unsigned long long) tv->tv_sec * NSEC_PER_SEC + tv->tv_nsec);
+Index: linux-2.6.17/arch/um/sys-i386/sys_call_table.S
+===================================================================
+--- linux-2.6.17.orig/arch/um/sys-i386/sys_call_table.S	2006-06-29 11:39:24.000000000 -0400
++++ linux-2.6.17/arch/um/sys-i386/sys_call_table.S	2006-06-29 11:45:07.000000000 -0400
+@@ -7,8 +7,6 @@
+ #define sys_vm86old sys_ni_syscall
+ #define sys_vm86 sys_ni_syscall
+ 
+-#define sys_stime um_stime
+-#define sys_time um_time
+ #define old_mmap old_mmap_i386
+ 
+ #include "../../i386/kernel/syscall_table.S"
+Index: linux-2.6.17/arch/um/sys-x86_64/syscall_table.c
+===================================================================
+--- linux-2.6.17.orig/arch/um/sys-x86_64/syscall_table.c	2006-06-29 11:39:24.000000000 -0400
++++ linux-2.6.17/arch/um/sys-x86_64/syscall_table.c	2006-06-29 11:45:07.000000000 -0400
+@@ -20,12 +20,6 @@
+ /*#define sys_set_thread_area sys_ni_syscall
+ #define sys_get_thread_area sys_ni_syscall*/
+ 
+-/* For __NR_time. The x86-64 name hopefully will change from sys_time64 to
+- * sys_time (since the current situation is bogus). I've sent a patch to cleanup
+- * this. Remove below the obsoleted line. */
+-#define sys_time64 um_time
+-#define sys_time um_time
 -
--void prepare_timer(void * ptr)
--{
--	int usec = 1000000/hz();
--	*(struct itimerval *)ptr = ((struct itimerval) { { 0, usec },
--							 { 0, usec }});
--}
--
--void disable_timer(void)
--{
--	struct itimerval disable = ((struct itimerval) { { 0, 0 }, { 0, 0 }});
--	if((setitimer(ITIMER_VIRTUAL, &disable, NULL) < 0) ||
--	   (setitimer(ITIMER_REAL, &disable, NULL) < 0))
--		printk("disnable_timer - setitimer failed, errno = %d\n",
--		       errno);
--	/* If there are signals already queued, after unblocking ignore them */
--	set_handler(SIGALRM, SIG_IGN, 0, -1);
--	set_handler(SIGVTALRM, SIG_IGN, 0, -1);
--}
--
--void switch_timers(int to_real)
--{
--	struct itimerval disable = ((struct itimerval) { { 0, 0 }, { 0, 0 }});
--	struct itimerval enable = ((struct itimerval) { { 0, 1000000/hz() },
--							{ 0, 1000000/hz() }});
--	int old, new;
--
--	if(to_real){
--		old = ITIMER_VIRTUAL;
--		new = ITIMER_REAL;
--	}
--	else {
--		old = ITIMER_REAL;
--		new = ITIMER_VIRTUAL;
--	}
--
--	if((setitimer(old, &disable, NULL) < 0) ||
--	   (setitimer(new, &enable, NULL)))
--		printk("switch_timers - setitimer failed, errno = %d\n",
--		       errno);
--}
--
--void uml_idle_timer(void)
--{
--	if(signal(SIGVTALRM, SIG_IGN) == SIG_ERR)
--		panic("Couldn't unset SIGVTALRM handler");
--	
--	set_handler(SIGALRM, (__sighandler_t) alarm_handler, 
--		    SA_RESTART, SIGUSR1, SIGIO, SIGWINCH, SIGVTALRM, -1);
--	set_interval(ITIMER_REAL);
--}
--
--extern void ktime_get_ts(struct timespec *ts);
--#define do_posix_clock_monotonic_gettime(ts) ktime_get_ts(ts)
--
--void time_init(void)
--{
--	struct timespec now;
--
--	if(signal(SIGVTALRM, boot_timer_handler) == SIG_ERR)
--		panic("Couldn't set SIGVTALRM handler");
--	set_interval(ITIMER_VIRTUAL);
--
--	do_posix_clock_monotonic_gettime(&now);
--	wall_to_monotonic.tv_sec = -now.tv_sec;
--	wall_to_monotonic.tv_nsec = -now.tv_nsec;
--}
--
--/* Defined in linux/ktimer.h, which can't be included here */
--#define clock_was_set()		do { } while (0)
--
--void do_gettimeofday(struct timeval *tv)
--{
--	unsigned long flags;
--
--	flags = time_lock();
--	gettimeofday(tv, NULL);
--	timeradd(tv, &local_offset, tv);
--	time_unlock(flags);
--	clock_was_set();
--}
--
--int do_settimeofday(struct timespec *tv)
--{
--	struct timeval now;
--	unsigned long flags;
--	struct timeval tv_in;
--
--	if ((unsigned long) tv->tv_nsec >= UM_NSEC_PER_SEC)
--		return -EINVAL;
--
--	tv_in.tv_sec = tv->tv_sec;
--	tv_in.tv_usec = tv->tv_nsec / 1000;
--
--	flags = time_lock();
--	gettimeofday(&now, NULL);
--	timersub(&tv_in, &now, &local_offset);
--	time_unlock(flags);
--
--	return(0);
--}
--
--void idle_sleep(int secs)
--{
--	struct timespec ts;
--
--	ts.tv_sec = secs;
--	ts.tv_nsec = 0;
--	nanosleep(&ts, NULL);
--}
--
--/* XXX This partly duplicates init_irq_signals */
--
--void user_time_init(void)
--{
--	set_handler(SIGVTALRM, (__sighandler_t) alarm_handler,
--		    SA_ONSTACK | SA_RESTART, SIGUSR1, SIGIO, SIGWINCH,
--		    SIGALRM, SIGUSR2, -1);
--	set_handler(SIGALRM, (__sighandler_t) alarm_handler,
--		    SA_ONSTACK | SA_RESTART, SIGUSR1, SIGIO, SIGWINCH,
--		    SIGVTALRM, SIGUSR2, -1);
--	set_interval(ITIMER_VIRTUAL);
--}
+ /* On UML we call it this way ("old" means it's not mmap2) */
+ #define sys_mmap old_mmap
+ /* On x86-64 sys_uname is actually sys_newuname plus a compatibility trick.
 

@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWF3XXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWF3Vuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWF3XXm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 19:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWF3XXm
+	id S1750890AbWF3Vuo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 17:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWF3Vuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 19:23:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19365 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932233AbWF3XXl (ORCPT
+	Fri, 30 Jun 2006 17:50:44 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33702 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750890AbWF3Vuo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 19:23:41 -0400
-Date: Fri, 30 Jun 2006 16:26:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Manuel Lauss <mano@roarinelk.homelinux.net>
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: 2.6.17-mm4
-Message-Id: <20060630162625.2fe3b6cc.akpm@osdl.org>
-In-Reply-To: <44A57970.7020501@roarinelk.homelinux.net>
-References: <20060629013643.4b47e8bd.akpm@osdl.org>
-	<44A57970.7020501@roarinelk.homelinux.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 30 Jun 2006 17:50:44 -0400
+Date: Fri, 30 Jun 2006 14:47:15 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: stable@kernel.org, torvalds@osdl.org
+Subject: Linux 2.6.16.23
+Message-ID: <20060630214715.GA12143@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manuel Lauss <mano@roarinelk.homelinux.net> wrote:
->
-> Hello,
-> 
-> With the attached .config, the kernel reliably panics when someone
-> issues a 'sync' (or the kernel decides to write back its buffers):
-> 
-> reiser4 panicked cowardly: reiser4[sync(8465)]: commit_current_atom (fs/reiser4/txnmgr.c:1062)[zam-597]:
-> Kernel panic - not syncing: reiser4[sync(8465)]: commit_current_atom (fs/reiser4/txnmgr.c:1062)[zam-597]:
-> 
-> (this is all that is printed)
-> 
-> This happens only with Reiser4 and libata ata_piix driver; it does not
-> happen with Reiser4 and 'old' IDE piix driver. Other fs are also not
-> affected. I have no idea how to track this, I hope someone else does :)
-> 
-> Hardware is a pentium-m laptop with ICH4 pata.
-> 
+We (the -stable team) are announcing the release of the 2.6.16.23 kernel.
+Another SCTP remote crash fix, CVE-2006-2934, and a revert of a Kconfig
+change that should have have gone into the 2.6.16-stable tree.
 
-Interesting, thanks.
+I'll also be replying to this message with a copy of the patch between
+2.6.16.22 and 2.6.16.23, as it is small enough to do so.
 
-My guess would be that there's a difference in the way in which the two
-drivers handle write barriers, and the new driver has confused the reiser4
-code.
+The updated 2.6.16.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
 
-Are you able to identify any earlier -mm kernel which ran OK with reiser4
-and ata_piix?
+thanks,
 
+greg k-h
+
+--------
+
+ Makefile                                     |    2 +-
+ drivers/parport/Kconfig                      |    2 +-
+ net/ipv4/netfilter/ip_conntrack_proto_sctp.c |    2 +-
+ net/netfilter/nf_conntrack_proto_sctp.c      |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+Summary of changes from v2.6.16.22 to v2.6.16.23
+================================================
+
+Chris Wright:
+      revert PARPORT_SERIAL should depend on SERIAL_8250_PCI patch
+
+Greg Kroah-Hartman:
+      Linux 2.6.16.23
+
+Patrick McHardy:
+      NETFILTER: SCTP conntrack: fix crash triggered by packet without chunks [CVE-2006-2934]

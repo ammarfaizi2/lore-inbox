@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWF3KAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWF3KMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWF3KAp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 06:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWF3KAp
+	id S1750999AbWF3KMq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 06:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWF3KMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 06:00:45 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:11155 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750715AbWF3KAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 06:00:44 -0400
-Subject: Re: kernel module debugging question
-From: Arjan van de Ven <arjan@infradead.org>
-To: "s.a." <sancelot@free.fr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44A518D7.2060105@free.fr>
-References: <44A518D7.2060105@free.fr>
-Content-Type: text/plain
-Date: Fri, 30 Jun 2006 12:00:42 +0200
-Message-Id: <1151661642.11434.23.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 30 Jun 2006 06:12:46 -0400
+Received: from liaag1ag.mx.compuserve.com ([149.174.40.33]:3507 "EHLO
+	liaag1ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750832AbWF3KMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 06:12:45 -0400
+Date: Fri, 30 Jun 2006 06:07:05 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.6.17-mm4
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200606300609_MC3-1-C3D7-6B49@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-30 at 12:28 +0000, s.a. wrote:
-> Hi,
-> I have got the following fault , can you provide me with more details
-> about the problem ?
-> Best Regards
+In-Reply-To: <20060629232739.GA28306@elte.hu>
 
-Hi,
+On Fri, 30 Jun 2006 01:27:39 +0200, Ingo Molnar wrote:
 
-you disabled CONFIG_KALLSYMS in your kernel configuration, which means
-the backtrace isn't really useful for anyone to look at (unless you run
-ksymoops with the exact System.map)... the problem is that it only shows
-the addresses of the bad guys, but not the names. Those addresses are
-different for each compilation, and you can use YOUR System.map file to
-decode. However it's a lot more robust to let the kernel decode it for
-you by enabling CONFIG_KALLSYMS....
+> > +profile-likely-unlikely-macros.patch
+> 
+> CONFIG_PROFILE_LIKELY doesnt quite work:
+> 
+>  Low memory ends at vaddr f7e00000
+>  node 0 will remap to vaddr f7e00000 - f8000000
+>  High memory starts at vaddr f7e00000
+>  found SMP MP-table at 000f5680
+>  NX (Execute Disable) protection: active
+>  Unknown interrupt or fault at EIP 00000060 c1d9f264 00000002
+>  Unknown interrupt or fault at EIP 00000060 c0100295 0000f264
+>  Unknown interrupt or fault at EIP 00000060 c0100295 00000294
+>  Unknown interrupt or fault at EIP 00000060 c0100295 00000294
+>  Unknown interrupt or fault at EIP 00000060 c0100295 00000294
+>  Unknown interrupt or fault at EIP 00000060 c0100295 00000294
+> 
+> disabling it makes these go away.
 
-Greetings,
-    Arjan van de Ven
+Can you find out what source line belongs to c1d9f264?
 
+arch/i386/kernel/head.S::ignore_int(), which produced those messages,
+is horribly broken.  The first fault was likely a page fault attempting
+to write to some unmapped area.  Since page fault pushes an error code
+onto the stack and ignore_int() doesn't pop it because it has no idea
+whether one is there, it attempts to return to cs:eip f264:00000002
+which causes segment-not-present for segment index f264 in the GDT.
+Same thing then happens when _that_ tries to return to 0295:0000f264;
+now we are into infinite recursion. Eventually the stack will overflow
+and more fun errors will occur...
 
+Is this worth fixing?  We could get nice diagnostics for page fault
+here by writing a handler for early init code.
 
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

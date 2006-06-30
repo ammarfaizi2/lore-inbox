@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932767AbWF3Qb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWF3Qhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932767AbWF3Qb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 12:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932790AbWF3Qb5
+	id S1750767AbWF3Qhd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 12:37:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWF3Qhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 12:31:57 -0400
-Received: from relay01.pair.com ([209.68.5.15]:25349 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S932767AbWF3Qb4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 12:31:56 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Fri, 30 Jun 2006 11:31:54 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Magnus Damm <magnus.damm@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: .exit.text section in vmlinux
-In-Reply-To: <aec7e5c30606292354x3831f550y9ac2387f2fa56679@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0606301111370.21298@turbotaz.ourhouse>
-References: <aec7e5c30606292354x3831f550y9ac2387f2fa56679@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 30 Jun 2006 12:37:33 -0400
+Received: from mxl145v64.mxlogic.net ([208.65.145.64]:4570 "EHLO
+	p02c11o141.mxlogic.net") by vger.kernel.org with ESMTP
+	id S1750767AbWF3Qhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 12:37:32 -0400
+Date: Fri, 30 Jun 2006 19:31:08 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: akpm@osdl.org, Roland Dreier <rdreier@cisco.com>,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH 0 of 39] ipath - bug fixes, performance enhancements,and portability improvements
+Message-ID: <20060630163108.GA24882@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <patchbomb.1151617251@eng-12.pathscale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <patchbomb.1151617251@eng-12.pathscale.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 30 Jun 2006 16:35:54.0359 (UTC) FILETIME=[41A3D870:01C69C63]
+X-Spam: [F=0.0100000000; S=0.010(2006062901)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [63.251.237.3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jun 2006, Magnus Damm wrote:
+Quoting r. Bryan O'Sullivan <bos@pathscale.com>:
+> Subject: [PATCH 0 of 39] ipath - bug fixes, performance enhancements,and portability improvements
+> 
+> Hi, Andrew -
+> 
+> These patches bring the ipath driver up to date with a number of bug fixes,
+> performance improvements, and better PowerPC support.  There are a few
+> whitespace and formatting patches in the series, but they're all self-
+> contained.  The patches have been tested internally, and shouldn't contain
+> anything controversial.
+> 
+> My hope is that they'll sit in -mm for a little bit, and make it into
+> an early 2.6.18 -rc kernel.
 
-> Hi guys,
->
-> I understand why ".exit.text" is present in the case of modules, but I
-> can't get my head around why it is included in the vmlinux file.
-> Functions like the ones below puzzle me:
->
-> kernel/configs.c: static void __exit ikconfig_cleanup(void)
-> drivers/net/ne2k-pci.c: static void __exit ne2k_pci_cleanup(void)
-> drivers/net/ne2k-pci.c: static void __devexit ne2k_pci_remove_one
-> (struct pci_dev *pdev)
->
-> I can see how the last "__devexit" function might be called during
-> some hotplug event, but are the two "__exit" functions ever going to
-> be called from the kernel? Since my kernel is configured without
-> CONFIG_HOTPLUG both both "__exit" and "__devexit"  end up in the
-> ".exit.text" section.
->
-> The linker script arch/i386/kernel/vmlinux.lds.S mentions the following:
->
->  /* .exit.text is discard at runtime, not link time, to deal with references
->     from .altinstructions and .eh_frame */
+OK, next week I'll put these into my tree, too.
+Bryan, as far as I can see there were some comments with regard to patches 38
+and 39 in the series. Will you be sending updated revisions of these?
 
-.altinstructions is for alternatives code (code that is rewritten at 
-runtime based on some factor such as UP-vs-SMP). .eh_frame has call 
-framing information used for unwinding. I think it's copied into the 
-vsyscall page (not entirely familiar with this mechanism though).
-
-> The text above seems to answer my question, but I cannot say I fully
-> understand the comment. I'd appreciate if someone could explain a bit
-> more if possible.
->
-> Ok, so the section should be discarded at runtime. Sounds ok. But
-> where in the code is this section discarded? -ENOSYS?
-
-When you see "Freeing unused kernel memory", the memory between 
-__init_begin and __init_end (as marked in vmlinux.ld.S) is released. See 
-arch-specific mm/init.c.
-
-> Thanks,
->
-> / magnus
-
-Thanks,
-Chase
+-- 
+MST

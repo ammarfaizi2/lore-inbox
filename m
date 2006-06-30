@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWF3MYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbWF3MXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbWF3MYh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 08:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWF3MYh
+	id S932504AbWF3MXU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 08:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWF3MXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 08:24:37 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33703 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932221AbWF3MYg
+	Fri, 30 Jun 2006 08:23:20 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:19625 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S932504AbWF3MXS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 08:24:36 -0400
-Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <20060630014050.GI19712@stusta.de>
-References: <20060629192121.GC19712@stusta.de>
-	 <1151628246.22380.58.camel@mindpipe>
-	 <20060629180706.64a58f95.akpm@osdl.org>  <20060630014050.GI19712@stusta.de>
-Content-Type: text/plain
+	Fri, 30 Jun 2006 08:23:18 -0400
+Message-ID: <44A517B4.4010500@fr.ibm.com>
+Date: Fri, 30 Jun 2006 14:23:16 +0200
+From: Daniel Lezcano <dlezcano@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: Cedric Le Goater <clg@fr.ibm.com>, Sam Vilain <sam@vilain.net>,
+       hadi@cyberus.ca, Herbert Poetzl <herbert@13thfloor.at>,
+       Alexey Kuznetsov <alexey@sw.ru>, viro@ftp.linux.org.uk,
+       devel@openvz.org, dev@sw.ru, Andrew Morton <akpm@osdl.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrey Savochkin <saw@swsoft.com>, Ben Greear <greearb@candelatech.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: strict isolation of net interfaces
+References: <m1psgulf4u.fsf@ebiederm.dsl.xmission.com> <44A1689B.7060809@candelatech.com> <20060627225213.GB2612@MAIL.13thfloor.at> <1151449973.24103.51.camel@localhost.localdomain> <20060627234210.GA1598@ms2.inr.ac.ru> <m1mzbyj6ft.fsf@ebiederm.dsl.xmission.com> <20060628133640.GB5088@MAIL.13thfloor.at> <1151502803.5203.101.camel@jzny2> <44A44124.5010602@vilain.net> <44A450D1.2030405@fr.ibm.com> <20060630023947.GA24726@sergelap.austin.ibm.com>
+In-Reply-To: <20060630023947.GA24726@sergelap.austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 30 Jun 2006 13:39:19 +0100
-Message-Id: <1151671159.31392.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-06-30 am 03:40 +0200, ysgrifennodd Adrian Bunk:
-> > I am stolidly letting the arch maintainers and the developer of this
-> > feature work out what to do.
+Serge E. Hallyn wrote:
+> Quoting Cedric Le Goater (clg@fr.ibm.com):
 > 
-> Andrea is proud of getting a patent for the server part [1], so I doubt 
-> he would be happy with no longer having the client part defaulting to Y...
+>>we could work on virtualizing the net interfaces in the host, map them to
+>>eth0 or something in the guest and let the guest handle upper network layers ?
+>>
+>>lo0 would just be exposed relying on skbuff tagging to discriminate traffic
+>>between guests.
+> 
+> 
+> This seems to me the preferable way.  We create a full virtual net
+> device for each new container, and fully virtualize the device
+> namespace.
 
-If Andrea has clear personal business interests in that decision then
-perhaps you could make the case he shouldn't make the decision as to
-whether it should be Y or not, or that someone should review it. No big
-deal. There are lots of uses for that code. None of them appear
-interesting 8)
+I have a few questions about all the network isolation stuff:
 
-I don't think its actually important because distributions make their
-own decisions about such questions and most of the running kernels are
-distribution ones. 
+   * What level of isolation is wanted for the network ? network devices 
+? IPv4/IPv6 ? TCP/UDP ?
 
-As to patented code for the kernel. That itself is a non-issue providing
-the patent owner or someone with permission from them submitted the
-code. The law recognizes that you cannot go around making promises
-(estoppel) and then trying to sue people for acting on them. The GPL
-likewise makes this clear.
+   * How is handled the incoming packets from the network ? I mean what 
+will be mecanism to dispatch the packet to the right virtual device ?
 
-> It might sound a bit strange that although Alan Cox and Linus Torvalds 
-> even wrote an open letter to the President of the European Parliament
-> calling "Software patents are also the utmost threat to the development 
-> of Linux and other free software products" [2]...
+   * How to handle the SO_BINDTODEVICE socket option ?
 
-The Red Hat position on patents is on the web site, along with the
-permissions for GPL use. It makes clear the view we have on patents for
-software.
+   * Has the virtual device a different MAC address ? How to manage it 
+with the real MAC address on the system ? How to manage ARP, ICMP, 
+multicasting and IP ?
 
-Alan
+It seems for me, IMHO that will require a lot of translation and 
+browsing table. It will probably add a very significant overhead.
+
+    * How to handle NFS access mounted outside of the container ?
+
+    * How to handle ICMP_REDIRECT ?
+
+Regards
+
+
+
+
+
+
 

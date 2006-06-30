@@ -1,99 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWF3USA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWF3XIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbWF3USA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 16:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWF3USA
+	id S932195AbWF3XIh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 19:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWF3XIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 16:18:00 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:39328 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S1750923AbWF3UR7 (ORCPT
+	Fri, 30 Jun 2006 19:08:37 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:44701 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S932195AbWF3XIg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 16:17:59 -0400
-Date: Fri, 30 Jun 2006 22:17:52 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: linux-kernel@vger.kernel.org
-Subject: [git pull] PCMCIA updates and fixes for 2.6.18
-Message-ID: <20060630201752.GA9978@dominikbrodowski.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Jun 2006 19:08:36 -0400
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] cardbus: revert IO window limit
+Date: Sat, 1 Jul 2006 01:09:39 +0200
+User-Agent: KMail/1.7.2
+Cc: Alessio Sangalli <alesan@manoweb.com>, Dave Jones <davej@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200607010003.31324.daniel.ritz-ml@swissonline.ch> <Pine.LNX.4.64.0606301516140.12404@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606301516140.12404@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200607010109.40486.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-06.tornado.cablecom.ch 1378;
+	Body=7 Fuz1=7 Fuz2=7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[fwd to linux-kernel]
+On Saturday 01 July 2006 00.18, Linus Torvalds wrote:
+> 
+> On Sat, 1 Jul 2006, Daniel Ritz wrote:
+> > 
+> > nope. but from the docs available i would _guess_ this thing is really
+> > similar to the 82443BX/82371AB combination. at least the SMBus base address
+> > register is hidden at the very same place (32bit at 0x90 in function 3 of the
+> > "south" brigde)...so the attached little patch might be enough to fix things...
+> 
+> Alessio has PCI ID 8086:7194, which is not the 82443MX_3, so you'd need 
+> something like this instead (but yes, it might indeed be the standard 
+> PIIX4 quirks).
+> 
 
-Linus,
+errm...no. the SMBus device is in device 00:07.3 (power management controller)...
+and that has ID 8086:719b (from his lspci -vvx output)...
 
-The PCMCIA updates for 2.6.18 are available at
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/brodo/pcmcia-2.6/
-
-Please pull from that location. The diffstat and list of changes follows,
-the individual diffs are sent (at least) to the linux-pcmcia list.
-
-Thanks,
-	Dominik
-
-----
- Documentation/pcmcia/crc32hash.c        |   32 ++++++++++++
- Documentation/pcmcia/devicetable.txt    |   36 +------------
- drivers/char/pcmcia/cm4000_cs.c         |    7 --
- drivers/ide/legacy/ide-cs.c             |   81 +++++++++++++++++++++++++++----
- drivers/net/pcmcia/com20020_cs.c        |    5 +
- drivers/net/wireless/hostap/hostap_cs.c |    2 
- drivers/pcmcia/at91_cf.c                |   75 ++++++++++++++++++++++------
- drivers/pcmcia/au1000_db1x00.c          |    2 
- drivers/pcmcia/cs.c                     |   29 ++++++-----
- drivers/pcmcia/pcmcia_resource.c        |   27 ++++++----
- drivers/pcmcia/ti113x.h                 |    1 
- drivers/pcmcia/yenta_socket.c           |   83 +++++++++++++++++++++++++++++++-
- drivers/serial/serial_cs.c              |    1 
- include/linux/pci_ids.h                 |    1 
- 14 files changed, 291 insertions(+), 91 deletions(-)
-----
-Al Viro:
-      kill open-coded offsetof in cm4000_cs.c ZERO_DEV()
-
-Alan Cox:
-      pcmcia: warn if driver requests exclusive, but gets a shared IRQ
-
-Alex Williamson:
-      pcmcia: TI PCIxx12 CardBus controller support
-
-Arjan van de Ven:
-      pcmcia: fix deadlock in pcmcia_parse_events
-
-Bernhard Kaindl:
-      yenta: fix hidden PCI bus numbers
-
-Daniel Ritz:
-      yenta: do power-up only after socket is configured
-
-David Brownell:
-      pcmcia: at91_cf suspend/resume/wakeup
-
-Domen Puncer:
-      au1xxx: pcmcia: fix __init called from non-init
-
-Dominik Brodowski:
-      pcmcia: another ID for serial_cs.c
-
-Komuro:
-      pcmcia: hostap_cs.c - 0xc00f,0x0000 conflicts with pcnet_cs
-
-Marc Sowen:
-      com20020_cs: more device support
-
-Randy Dunlap:
-      pcmcia: expose tool in pcmcia/Documentation/pcmcia/
-      pcmcia: fix kernel-doc function name
-
-Serge E. Hallyn:
-      pcmcia: convert pcmcia_cs to kthread
-
-Thomas Kleffel:
-      pcmcia: Make ide_cs work with the memory space of CF-Cards if IO space is not available
-
+rgds
+-daniel

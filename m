@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWF3SRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932997AbWF3SVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbWF3SRU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 14:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWF3SRU
+	id S932997AbWF3SVr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 14:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932999AbWF3SVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 14:17:20 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:57472 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S964838AbWF3SRT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 14:17:19 -0400
-Date: Fri, 30 Jun 2006 11:16:26 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Re: Linux 2.6.17.3
-Message-ID: <20060630181626.GO11588@sequoia.sous-sol.org>
-References: <20060630181553.GN11588@sequoia.sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060630181553.GN11588@sequoia.sous-sol.org>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 30 Jun 2006 14:21:47 -0400
+Received: from mail.gmx.net ([213.165.64.21]:24011 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932997AbWF3SVp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 14:21:45 -0400
+Cc: linuxppc-dev@ozlabs.org, rlrevell@joe-job.com,
+       alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Fri, 30 Jun 2006 20:21:44 +0200
+From: "Gerhard Pircher" <gerhard_pircher@gmx.net>
+In-Reply-To: <s5hwtaz9fdr.wl%tiwai@suse.de>
+Message-ID: <20060630182144.27980@gmx.net>
+MIME-Version: 1.0
+References: <20060628202753.198630@gmx.net>	<s5hfyhopb0s.wl%tiwai@suse.de>
+	<20060629211513.64980@gmx.net> <s5hwtaz9fdr.wl%tiwai@suse.de>
+Subject: Re: [Alsa-devel] RFC: dma_mmap_coherent() for powerpc/ppc architecture
+ and ALSA?
+To: Takashi Iwai <tiwai@suse.de>
+X-Authenticated: #6097454
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 7b3837f..8c72521 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 17
--EXTRAVERSION = .2
-+EXTRAVERSION = .3
- NAME=Crazed Snow-Weasel
- 
- # *DOCUMENTATION*
-diff --git a/net/ipv4/netfilter/ip_conntrack_proto_sctp.c b/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-index 0416073..2d3612c 100644
---- a/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-+++ b/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-@@ -254,7 +254,7 @@ static int do_basic_checks(struct ip_con
- 	}
- 
- 	DEBUGP("Basic checks passed\n");
--	return 0;
-+	return count == 0;
- }
- 
- static int new_state(enum ip_conntrack_dir dir,
-diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
-index 0c6da49..9dab81d 100644
---- a/net/netfilter/nf_conntrack_proto_sctp.c
-+++ b/net/netfilter/nf_conntrack_proto_sctp.c
-@@ -259,7 +259,7 @@ static int do_basic_checks(struct nf_con
- 	}
- 
- 	DEBUGP("Basic checks passed\n");
--	return 0;
-+	return count == 0;
- }
- 
- static int new_state(enum ip_conntrack_dir dir,
+-------- Original-Nachricht --------
+Datum: Fri, 30 Jun 2006 11:12:00 +0200
+Von: Takashi Iwai <tiwai@suse.de>
+An: Gerhard Pircher <gerhard_pircher@gmx.net>
+Betreff: Re: [Alsa-devel] RFC: dma_mmap_coherent() for powerpc/ppc architecture and ALSA?
+> 
+> What is the type of buffer are you using?  If it's a buffer
+> pre-allocated via snd_pcm_lib_preallocate*() with SNDRV_DMA_TYPE_DEV,
+> there should be no snd_pcm_mmap_data_nopage call.  For other types,
+> there can be.  For example, the patch still doesn't solve the problems
+> with drivers using sg-buffer.
+> 
+I added a debug output and it shows a buffer of SNDRV_DMA_TYPE_DEV_SG type. Well, then I'll hack the kernel to use the normal DMA allocation functions for ALSA instead of the non cache coherent ones and will wait until the ALSA core has been adapted for dma_mmap_coherent().
+
+Or what would have to be done to get it working for SG buffers?
+
+Thanks!
+
+Gerhard
+
+-- 
+
+
+Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!
+Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer

@@ -1,68 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932849AbWF3Rgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWF3RgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932849AbWF3Rgb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 13:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932854AbWF3Rga
+	id S932425AbWF3RgK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 13:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932854AbWF3RgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 13:36:30 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57325 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932849AbWF3Rg3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 13:36:29 -0400
-Date: Fri, 30 Jun 2006 19:36:05 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: Greg KH <greg@kroah.com>, Jens Axboe <axboe@suse.de>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2][ 0/9] Extents support.
-Message-ID: <20060630173605.GA4464@elf.ucw.cz>
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606290825.50674.nigel@suspend2.net> <20060628224428.GC27526@elf.ucw.cz> <200606290914.58784.nigel@suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606290914.58784.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 30 Jun 2006 13:36:10 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5331 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932849AbWF3RgI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 13:36:08 -0400
+Subject: Re: 2.6.17-mm4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20060630172713.GH32729@redhat.com>
+References: <20060629013643.4b47e8bd.akpm@osdl.org>
+	 <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com>
+	 <20060629204330.GC13619@redhat.com> <20060629210950.GA300@elte.hu>
+	 <20060629230517.GA18838@elte.hu>
+	 <1151662073.31392.4.camel@localhost.localdomain>
+	 <1151661242.11434.20.camel@laptopd505.fenrus.org>
+	 <1151669670.31392.16.camel@localhost.localdomain>
+	 <20060630172713.GH32729@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 30 Jun 2006 18:52:13 +0100
+Message-Id: <1151689933.31392.69.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > That's not true. The compression and encryption support add ~1000 lines,
-> > > as you pointed out the other day. If I moved compression and encryption
-> > > support to userspace, I'd remove 1000 lines and:
-> > >
-> > > - add more code for getting the pages copied to and from userspace
-> >
-> > No, if your main loop is already in userspace, you do not need to add
-> > any more code. And you'd save way more than 1000 lines:
-> >
-> > * encryption/compression can be removed
-> >
-> > * but that means that writer plugins/filters can be removed
-> >
-> > * if you do compress/encrypt in userspace, you can remove that ugly
-> > netlink thingie, and just display progress in userspace, too
-> >
-> > ...and then, image writing can be moved to userspace...
-> >
-> > * swapfile support
-> >
-> > * partition support
-> >
-> > * plus their plugin infrastructure.
+Ar Gwe, 2006-06-30 am 13:27 -0400, ysgrifennodd Dave Jones:
+>   surely no-one made an acpi aware vlb machine :)
 > 
-> That's going way beyond your inital suggestion. And you haven't responded to 
-> the other points (which have instead been deleted).
+> There are probably other creative ways.
 
-Well, you were arguing that in uswsusp only "thin layer" is in
-userspace, and I think I've just shown you it is more thick than you
-think.
+And the not-so-creative simple one which is how old IDE addresses much
+of this:
 
-Of course I deleted your other points, or did you really want me to
-argue with "copying from userspace is slow"? Hint: memory is 3GB/sec,
-while disk is 50MB/sec.
-									Pavel
+Date: Fri Jun 30 16:39:20 2006 +0100
+Subject: [PATCH 13/20] My name is Ingo Molnar, you killed my make allyesconfig, prepare to die
+
+Teach the qdi driver to be more polite about probing when compiled in
+so that people who make allyesconfig don't get burned.
+
+Alan
+
+Signed-off-by: Alan Cox <alan@redhat.com>
+
+
+---
+
+ drivers/scsi/pata_qdi.c |   15 +++++++++++++--
+ 1 files changed, 13 insertions(+), 2 deletions(-)
+
+12b633d45a8600147314c2ce33b28f92f52c92bd
+diff --git a/drivers/scsi/pata_qdi.c b/drivers/scsi/pata_qdi.c
+index ca6fef0..f8fc0ef 100644
+--- a/drivers/scsi/pata_qdi.c
++++ b/drivers/scsi/pata_qdi.c
+@@ -26,7 +26,7 @@
+ #include <linux/platform_device.h>
+ 
+ #define DRV_NAME "pata_qdi"
+-#define DRV_VERSION "0.2.3"
++#define DRV_VERSION "0.2.4"
+ 
+ #define NR_HOST 4	/* Two 6580s */
+ 
+@@ -41,7 +41,13 @@ struct qdi_data {
+ 
+ static struct ata_host_set *qdi_host[NR_HOST];
+ static struct qdi_data qdi_data[NR_HOST];
+-static int nr_qdi_host = 0;
++static int nr_qdi_host;
++
++#ifdef MODULE
++static int probe_qdi = 1;
++#else
++static int probe_qdi;
++#endif
+ 
+ static void qdi6500_set_piomode(struct ata_port *ap, struct ata_device *adev)
+ {
+@@ -302,6 +308,9 @@ static __init int qdi_init(void)
+ 	int ct = 0;
+ 	int i;
+ 	
++	if (probe_qdi == 0)
++		return;
++	
+ 	/*
+  	 *	Check each possible QD65xx base address
+ 	 */
+@@ -390,3 +399,5 @@ MODULE_VERSION(DRV_VERSION);
+ module_init(qdi_init);
+ module_exit(qdi_exit);
+ 
++module_param(probe_qdi, int, 0);
++
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+1.2.GIT
+
+

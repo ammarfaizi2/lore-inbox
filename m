@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWF3CV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWF3C0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWF3CV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 22:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWF3CV5
+	id S1750785AbWF3C0A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 22:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWF3C0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 22:21:57 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48316 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750732AbWF3CV4 (ORCPT
+	Thu, 29 Jun 2006 22:26:00 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:56508 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750785AbWF3CZ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 22:21:56 -0400
-Date: Thu, 29 Jun 2006 19:21:29 -0700
+	Thu, 29 Jun 2006 22:25:58 -0400
+Date: Thu, 29 Jun 2006 19:25:26 -0700
 From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: nagar@watson.ibm.com, akpm@osdl.org, Valdis.Kletnieks@vt.edu,
+To: Andrew Morton <akpm@osdl.org>
+Cc: nagar@watson.ibm.com, hadi@cyberus.ca, Valdis.Kletnieks@vt.edu,
        jlan@engr.sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-Message-Id: <20060629192129.f9d799ca.pj@sgi.com>
-In-Reply-To: <20060629173805.f189de1a.pj@sgi.com>
+Message-Id: <20060629192526.360aa579.pj@sgi.com>
+In-Reply-To: <20060629180502.3987a98e.akpm@osdl.org>
 References: <44892610.6040001@watson.ibm.com>
+	<20060623141926.b28a5fc0.akpm@osdl.org>
 	<449C6620.1020203@engr.sgi.com>
 	<20060623164743.c894c314.akpm@osdl.org>
 	<449CAA78.4080902@watson.ibm.com>
@@ -37,13 +38,12 @@ References: <44892610.6040001@watson.ibm.com>
 	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
 	<20060629094408.360ac157.pj@sgi.com>
 	<20060629110107.2e56310b.akpm@osdl.org>
-	<20060629112642.66f35dd5.pj@sgi.com>
-	<44A426DC.9090009@watson.ibm.com>
-	<20060629124148.48d4c9ad.pj@sgi.com>
-	<44A4492E.6090307@watson.ibm.com>
-	<20060629152319.cfffe0d6.pj@sgi.com>
-	<44A46C6C.1090405@watson.ibm.com>
-	<20060629173805.f189de1a.pj@sgi.com>
+	<44A425A7.2060900@watson.ibm.com>
+	<20060629123338.0d355297.akpm@osdl.org>
+	<44A43187.3090307@watson.ibm.com>
+	<1151621692.8922.4.camel@jzny2>
+	<44A47285.6060307@watson.ibm.com>
+	<20060629180502.3987a98e.akpm@osdl.org>
 Organization: SGI
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -52,61 +52,16 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh wrote:
-> The overhead of creating cpusets just for this
-> reason seems excessive when the need is only to
-> reduce the number of sockets to monitor
+Andrew wrote:
+> Like, a single message which says "20,000 sub-millisecond-runtime tasks
+> exited in the past second" or something.
 
-As I reread this thread, some of my ancient interactions with process
-accounting come to mind again.
+System wide accumulation of such data in the exit() code path still
+risks being a bottleneck, just a bit later on.
 
-K.I.S.S. - keep it simple, I'm telling myself.
-
-I'm also thinking that since this is a system wide stat tool, it
-wants to minimize interactions with other mechanisms.
-
-Hog tying cpusets and process accounting together seems just
-plain weird, and risks imposing conflicting demands on the cpuset
-configuration of a system.
-
-Please be so kind as to forget I suggested that ;).
-
-
-How about a simple way to disable collection on specified CPUs.
-
-Collecting this sort of data makes sense for certain managed system
-situations, where one chooses to spend some portion of the system
-tracking the rest of it.
-
-Collecting it may put an intolerable performance impact on pedal to
-the metal maximum performance beasts running on dedicated cpus/nodes.
-
-
-I propose a per-cpu boolean flag to disable collection.
-
-If this flag is set on the cpu on which a task happens to be when
-exiting, then we just drop that data on the floor, silently, with no
-accumulation, as quickly as we can, avoiding any system-wide locks.
-
-Then I could run a managed job mix, collecting accounting data, on
-some nodes, while running dedicated performance beasts on other nodes,
-without the accounting interfering with the performance beasts.
-
-Independently, the cpuset friendly customers could make use of cpusets
-to help manage which jobs were on which cpus, so that they collected
-their accounting data as desired.  But no need for the accounting
-system to be aware of that, past the state of its per-cpu flag.
-
-Such a flag reduces the need for further (over) designing this to
-handle the extreme case.  If someone has such an extreme case, they
-can turn off collecting on some cpus, to get a handle on the situation.
-
-This could be done as a variant of your idea for multiple
-TASKSTATS_LISTEN_GROUP's.  Essentially, for now, we would have two
-GROUP's - one that drops the data on the floor, and one that collects
-it.  Each cpu is in either one or the other group.  Later on, when the
-need arises, we add support for more GROUP's that can actually collect
-data.
+I'm more inclined now to look for ways to disable collection on some
+CPUs, and/or to allow for multiple streams in the future, as need be,
+along the lines of Shailabh's multiple TASKSTATS_LISTEN_GROUPs.
 
 -- 
                   I won't rest till it's the best ...

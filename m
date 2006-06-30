@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWF3IBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWF3IOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751466AbWF3IBL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 04:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWF3IBL
+	id S1751469AbWF3IOc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 04:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWF3IOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 04:01:11 -0400
-Received: from mx1.suse.de ([195.135.220.2]:62890 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751466AbWF3IBK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 04:01:10 -0400
-Message-ID: <44A4DA33.5050707@suse.de>
-Date: Fri, 30 Jun 2006 10:00:51 +0200
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Milton Miller <miltonm@bga.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: klibc and what's the next step?
-References: <Pine.LNX.4.64.0606271316220.17704@scrub.home> <f5e0f599448456bcbf2699994f0bbc76@bga.com> <Pine.LNX.4.64.0606290117220.17704@scrub.home> <200606290034.k5T0YkCw028911@terminus.zytor.com> <Pine.LNX.4.64.0606300038410.12900@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0606300038410.12900@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 30 Jun 2006 04:14:32 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:13274 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751469AbWF3IOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 04:14:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=GfpfcEm08pO1Oa2+foMc3Ys5HMxU/gqD4gSI1dMbFKvNDq3KDNmsFfzzMbunpqWimWc8yTUAQIYKx6SrlUEQBfSTroNYsH+Pwlz0cRXVbbX2/WeQp76BresCStUBpVGd85y9WcHr4PLPQyh3SmQPNqbwC8FOd6i/hCa8zmIBaoc=
+Date: Fri, 30 Jun 2006 10:14:28 +0200
+From: Paolo Ornati <ornati@gmail.com>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: Paolo Ornati <ornati@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-v2] Documentation: remove duplicated words
+Message-ID: <20060630101428.25f92377@localhost>
+In-Reply-To: <20060629132203.A6460@mail.kroptech.com>
+References: <20060629164128.5ba9d264@localhost>
+	<20060629132203.A6460@mail.kroptech.com>
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+On Thu, 29 Jun 2006 13:22:03 -0400
+Adam Kropelin <akropel1@rochester.rr.com> wrote:
 
-> As it looks like it's distribution which are mostly interested in this. 
-> Have you talked with any distribution maintainer to find out what they 
-> need and what they want to put initramfs? What are the exact problems 
-> which distributions have and how do you want to solve them?
+> > Remove every (hopefully) duplicated word under Documentation/ and do
+> > other small cleanups.
+> > 
+> > Examples:
+> > 	"and and" --> "and"
+> > 	"in in" --> "in"
+> > 	...
+> 
+> When the duplicatation was due to a typo, removing the duplicate is the
+> not the correct fix. Additionally, there are cases where the text
+> actually reads better (or no worse) with the duplication in place.
 
-Well, we already have an initramfs, and it can do quite some stuff the
-current kernel doesn't do.  Here is a (probably incomplete) list:
+Ok, thanks a lot.
 
-  * load kernel modules needed to access and mount the root filesystem
-    (block device driver, filesystem module, device mapper, ...)
-  * raid/lvm2/evms setup.
-  * iscsi setup.
-  * fsck root filesystem before mounting it.
-  * setup /dev in tmpfs (using udev).
+I've redone the whole thing and I'll send an updated patch with ONLY
+changes I'm sure about (=trivial).
 
-> How do we avoid having to split all utils into a klibc version and the 
-> normal version?
-
-That is a big question.  Latest suse doesn't use klibc any more.  Older
-versions had a bunch of static klibc-based binaries for some utilities,
-i.e. insmod, udev, sh.  Sometimes you needed glibc because one of the
-tools needed in initramfs had no klibc-version (rootfs-on-lvm case for
-example).  After adding the "fsck rootfs" feature (I think) we had glibc
-on the initramfs in almost all cases.  So if you end up with glibc in
-initramfs anyway, what is the point of having klibc?
-
-One advantage of merging klibc as-is is that it becomes much more
-visible and receives more testing.  And it is probably easier to make
-utility maintainers support building with klibc then (instead of forking
-a klibc version of every utility).  That still leaves some maintaining
-questions though, because we likely end up with some utilities coming
-bundled with the kernel (sh, nfsmount, kinit, ...) and some not (lvm2, ...).
-
-just my 2 cent,
-
-  Gerd
+I've intentionally left out things I'm not sure about to fix as much as
+possible without breaking anything (and to avoid others to re-read the
+long patch every time).
 
 -- 
-Gerd Hoffmann <kraxel@suse.de>
-http://www.suse.de/~kraxel/julika-dora.jpeg
+	Paolo Ornati
+	Linux 2.6.17.1 on x86_64

@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWF3LBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWF3LG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750964AbWF3LBY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 07:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWF3LBY
+	id S1750968AbWF3LG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 07:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWF3LG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 07:01:24 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:19922 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1750803AbWF3LBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 07:01:23 -0400
-Date: Fri, 30 Jun 2006 13:01:21 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Dave Jones <davej@redhat.com>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.17-mm4
-Message-ID: <20060630110121.GA26844@rhlx01.fht-esslingen.de>
-References: <20060629013643.4b47e8bd.akpm@osdl.org> <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com> <20060629204330.GC13619@redhat.com> <20060629210950.GA300@elte.hu> <20060629230517.GA18838@elte.hu> <1151662073.31392.4.camel@localhost.localdomain> <1151661242.11434.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Jun 2006 07:06:56 -0400
+Received: from wr-out-0506.google.com ([64.233.184.227]:38773 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750772AbWF3LG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 07:06:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=o22Ilxts6UClCEGFMCek5PcEu7y1t1DrKAjr0koL2rtn6nO2D2QrkWNh6eUnpAJ/tLKHlIIlwm54Hr2c1rK7UlAQjRWlKwOZDOELRKat2OlcQfSrjnnWo7c6IFtZkBcOF54uB5kEm0fxnrG8515cNA6DbqkLhbxwG/It30JTwzc=
+From: Patrick McFarland <diablod3@gmail.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Proposal and plan for ext2/3 future development work
+Date: Fri, 30 Jun 2006 07:09:27 -0400
+User-Agent: KMail/1.9.1
+References: <E1Fvjsh-0008Uw-85@candygram.thunk.org>
+In-Reply-To: <E1Fvjsh-0008Uw-85@candygram.thunk.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1151661242.11434.20.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+Message-Id: <200606300709.27879.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 28 June 2006 19:55, you wrote:
+> Given the recent discussion on LKML two weeks ago, it is clear that many
+> people feel they have a stake in the future development plans of the
+> ext2/ext3 filesystem, as it one of the most popular and commonly used
+> filesystems, particular amongst the kernel development community.  For
+> this reason, the stakes are higher than it would be for other
+> filesystems.  
 
-On Fri, Jun 30, 2006 at 11:54:02AM +0200, Arjan van de Ven wrote:
-> On Fri, 2006-06-30 at 11:07 +0100, Alan Cox wrote:
-> > Not especially. Perhaps the best thing to do here would be to make qdi
-> > compiled into the kernel (as opposed to modular) only do so if
-> > "probe_qdi=1" or similar is set.
-> 
-> another quick hack is to check for vesa lb... eg if pci is present, skip
-> this thing entirely :)
+http://en.wikipedia.org/wiki/Ext4
 
-Eh? You haven't really heard of those quite popular ISA/VLB/PCI 486 combo
-boards, now have you? ;)
-(IIRC I had one of those things a looooong time ago)
+-- 
+Patrick McFarland || www.AdTerrasPerAspera.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
+we'd all be running around in darkened rooms, munching magic pills and
+listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
+Inc, 1989
 
-Andreas Mohr

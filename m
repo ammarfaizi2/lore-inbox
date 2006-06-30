@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWF3LG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWF3LYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750968AbWF3LG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 07:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWF3LG4
+	id S1750860AbWF3LYE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 07:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWF3LYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 07:06:56 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:38773 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750772AbWF3LG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 07:06:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=o22Ilxts6UClCEGFMCek5PcEu7y1t1DrKAjr0koL2rtn6nO2D2QrkWNh6eUnpAJ/tLKHlIIlwm54Hr2c1rK7UlAQjRWlKwOZDOELRKat2OlcQfSrjnnWo7c6IFtZkBcOF54uB5kEm0fxnrG8515cNA6DbqkLhbxwG/It30JTwzc=
-From: Patrick McFarland <diablod3@gmail.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Proposal and plan for ext2/3 future development work
-Date: Fri, 30 Jun 2006 07:09:27 -0400
-User-Agent: KMail/1.9.1
-References: <E1Fvjsh-0008Uw-85@candygram.thunk.org>
-In-Reply-To: <E1Fvjsh-0008Uw-85@candygram.thunk.org>
+	Fri, 30 Jun 2006 07:24:04 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18836 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750860AbWF3LYB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 07:24:01 -0400
+Date: Fri, 30 Jun 2006 13:23:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch] remove obsolete swsusp_encrypt
+Message-ID: <20060630112354.GB669@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606300709.27879.diablod3@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 June 2006 19:55, you wrote:
-> Given the recent discussion on LKML two weeks ago, it is clear that many
-> people feel they have a stake in the future development plans of the
-> ext2/ext3 filesystem, as it one of the most popular and commonly used
-> filesystems, particular amongst the kernel development community.  For
-> this reason, the stakes are higher than it would be for other
-> filesystems.  
+Remove SWSUSP_ENCRYPT config option; it is no longer implemented.
 
-http://en.wikipedia.org/wiki/Ext4
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+
+---
+commit 123d26a90b044be080ac096f25dd5bca629a72c4
+tree 3e47b18b2cf69111d2d9aaca669d9548e2406a90
+parent ee84a7fdcd1b872198532639da1fabecc522576d
+author <pavel@amd.ucw.cz> Fri, 30 Jun 2006 13:22:02 +0200
+committer <pavel@amd.ucw.cz> Fri, 30 Jun 2006 13:22:02 +0200
+
+ kernel/power/Kconfig |   12 ------------
+ 1 files changed, 0 insertions(+), 12 deletions(-)
+
+diff --git a/kernel/power/Kconfig b/kernel/power/Kconfig
+index 857b4fa..ae44a70 100644
+--- a/kernel/power/Kconfig
++++ b/kernel/power/Kconfig
+@@ -100,18 +100,6 @@ config PM_STD_PARTITION
+ 	  suspended image to. It will simply pick the first available swap 
+ 	  device.
+ 
+-config SWSUSP_ENCRYPT
+-	bool "Encrypt suspend image"
+-	depends on SOFTWARE_SUSPEND && CRYPTO=y && (CRYPTO_AES=y || CRYPTO_AES_586=y || CRYPTO_AES_X86_64=y)
+-	default ""
+-	---help---
+-	  To prevent data gathering from swap after resume you can encrypt
+-	  the suspend image with a temporary key that is deleted on
+-	  resume.
+-
+-	  Note that the temporary key is stored unencrypted on disk while the
+-	  system is suspended.
+-
+ config SUSPEND_SMP
+ 	bool
+ 	depends on HOTPLUG_CPU && X86 && PM
 
 -- 
-Patrick McFarland || www.AdTerrasPerAspera.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
-we'd all be running around in darkened rooms, munching magic pills and
-listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
-Inc, 1989
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

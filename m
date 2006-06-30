@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWF3Ify@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWF3Iol@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbWF3Ify (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 04:35:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWF3Ify
+	id S932132AbWF3Iol (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 04:44:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWF3Iol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 04:35:54 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:41145 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932134AbWF3Ifx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 04:35:53 -0400
-Subject: Re: make PROT_WRITE imply PROT_READ
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ulrich Drepper <drepper@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Jason Baron <jbaron@redhat.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <a36005b50606292048y2436282cv909a264b4fb7b909@mail.gmail.com>
-References: <fa.PuMM6IwflUYh1MWILO9rb6z4fvY@ifi.uio.no>
-	 <449B42B3.6010908@shaw.ca>
-	 <Pine.LNX.4.64.0606230934360.24102@dhcp83-5.boston.redhat.com>
-	 <1151071581.3204.14.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0606231002150.24102@dhcp83-5.boston.redhat.com>
-	 <1151072280.3204.17.camel@laptopd505.fenrus.org>
-	 <a36005b50606241145q4d1dd17dg85f80e07fb582cdb@mail.gmail.com>
-	 <20060627095632.GA22666@elf.ucw.cz>
-	 <a36005b50606280943l54138e80tbda08e1607136792@mail.gmail.com>
-	 <1151568930.3122.0.camel@laptopd505.fenrus.org>
-	 <a36005b50606292048y2436282cv909a264b4fb7b909@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 30 Jun 2006 10:35:45 +0200
-Message-Id: <1151656545.11434.8.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 30 Jun 2006 04:44:41 -0400
+Received: from wx-out-0102.google.com ([66.249.82.194]:12819 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932132AbWF3Iok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 04:44:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OyipBKnuwOWYpvD0aikX4ow8Z7XbxZ5/178EWny25Cs5IDsdtbPKndxfgi/jOX6xmaBNCUH/S98aasr/n1+WhAmN856zPoSDCVa1y+Sa7J07hg1As+ZyvDn9jqdQsdj1UfJg8GmwVEjHlouYxrYb0EdzqQXkwbOm51g4QYmgRM4=
+Message-ID: <39f633820606300144h21671f1agafb55d9972b9e40f@mail.gmail.com>
+Date: Fri, 30 Jun 2006 10:44:39 +0200
+From: "Robert Nagy" <robert.nagy@gmail.com>
+To: "Jesse Barnes" <jbarnes@virtuousgeek.org>
+Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200606291217.00040.jbarnes@virtuousgeek.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <39f633820606290818g1978866ap@mail.gmail.com>
+	 <200606291132.51866.jbarnes@virtuousgeek.org>
+	 <39f633820606291212v40b0016cl@mail.gmail.com>
+	 <200606291217.00040.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-29 at 20:48 -0700, Ulrich Drepper wrote:
-> On 6/29/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > the thing is.. you can say EXACTLY the same about PROT_EXEC.. not all
-> > processors support enforcing that.. so should we just always imply
-> > PROT_EXEC as well?
-> 
-> There is a fundamental difference: not setting PROT_EXEC has no
-> negative side effects.  You might be able to execute code and it just
-> works.
-> 
-> With PROT_READ this is not the case, there _are_ side effects which are visible.
+I know that it only works in EFI context. But I haven't seen the disk
+attached to it. I am going to try forcing it to PCI mode.
 
-there are side effects which are visible with PROT_EXEC too, and even
-the same kind...
-
-with PROT_READ you may read even if you didn't specify it
-with PROT_EXEC you may execute even if you didn't specifiy it
-
-apps like JVM's forgot PROT_EXEC and break when the hardware enforces it
-apps that forget PROT_READ break when the kernel/hardware enforce it
-
-not too much difference....
-
-
+2006/6/29, Jesse Barnes <jbarnes@virtuousgeek.org>:
+> On Thursday, June 29, 2006 12:12 pm, Robert Nagy wrote:
+> > I've tried the diff but there is no difference.
+> > I've also tried to use the EFI driver from Intel, but that did not
+> > work either.
+>
+> Yeah, using the EFI driver won't help at all, as it's only available in
+> EFI context (it might let you boot of the raid but that's about it).
+>
+> If you applied the diff and recompiled the megaraid driver and still got
+> the same error, I'm not sure what the problem is....
+>
+> Jesse
+>

@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932997AbWF3SVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932999AbWF3SVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932997AbWF3SVr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 14:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932999AbWF3SVr
+	id S932999AbWF3SVz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 14:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933000AbWF3SVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 14:21:47 -0400
-Received: from mail.gmx.net ([213.165.64.21]:24011 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932997AbWF3SVp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 14:21:45 -0400
-Cc: linuxppc-dev@ozlabs.org, rlrevell@joe-job.com,
-       alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Fri, 30 Jun 2006 20:21:44 +0200
-From: "Gerhard Pircher" <gerhard_pircher@gmx.net>
-In-Reply-To: <s5hwtaz9fdr.wl%tiwai@suse.de>
-Message-ID: <20060630182144.27980@gmx.net>
+	Fri, 30 Jun 2006 14:21:54 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:31395 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932999AbWF3SVx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 14:21:53 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=rTj858/0vL9b4RfTPiNrm7J2ESksZNernAMaXWPr3xiFBdS3+VIhiI4MzliPpwAF0
+	fJLGH2rrp5C7hXP3hdcZw==
+Message-ID: <44A56B45.6050506@google.com>
+Date: Fri, 30 Jun 2006 11:19:49 -0700
+From: Daniel Phillips <phillips@google.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-References: <20060628202753.198630@gmx.net>	<s5hfyhopb0s.wl%tiwai@suse.de>
-	<20060629211513.64980@gmx.net> <s5hwtaz9fdr.wl%tiwai@suse.de>
-Subject: Re: [Alsa-devel] RFC: dma_mmap_coherent() for powerpc/ppc architecture
- and ALSA?
-To: Takashi Iwai <tiwai@suse.de>
-X-Authenticated: #6097454
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 8bit
+To: Johann Lombardi <johann.lombardi@bull.net>
+CC: Andreas Dilger <adilger@clusterfs.com>, sho@tnes.nec.co.jp, cmm@us.ibm.com,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 1/2] ext3: enlarge blocksize and fix rec_len overflow
+References: <20060628205238sho@rifu.tnes.nec.co.jp> <20060628155048.GG2893@chiva> <20060628202421.GL5318@schatzie.adilger.int> <44A417A3.80001@google.com> <20060629202700.GD5318@schatzie.adilger.int> <44A450BB.60105@google.com> <20060630093113.GA2702@chiva>
+In-Reply-To: <20060630093113.GA2702@chiva>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--------- Original-Nachricht --------
-Datum: Fri, 30 Jun 2006 11:12:00 +0200
-Von: Takashi Iwai <tiwai@suse.de>
-An: Gerhard Pircher <gerhard_pircher@gmx.net>
-Betreff: Re: [Alsa-devel] RFC: dma_mmap_coherent() for powerpc/ppc architecture and ALSA?
+Johann Lombardi wrote:
+>>>I have no objection to this at all, but I think it will lead to a slightly
+>>>more complex implementation.  We even discussed in the distant past to
+>>>make large directories a series of 4kB "chunks", for fs blocksize >= 4kB.
+>>>This has negative implications for large filenames because the internal
+>>>free space fragmentation is high, but has the advantage that it might
+>>>eventually still be usable if we can get blocksize > PAGE_SIZE.
+>>>
+>>>The difficulty is that when freeing dir entires you would have to be
+>>>concerned with a merging a dir_entry that is spanning the middle
+>>>of a 2^16 block.
+>>
+>>That is easy, just don't let an entry span subblocks by not letting
+>>delete merge past the end of a subblock, just a minor tweak.  New block
+>>initialization needs an outer loop on subblocks and that's it, I think.
 > 
-> What is the type of buffer are you using?  If it's a buffer
-> pre-allocated via snd_pcm_lib_preallocate*() with SNDRV_DMA_TYPE_DEV,
-> there should be no snd_pcm_mmap_data_nopage call.  For other types,
-> there can be.  For example, the patch still doesn't solve the problems
-> with drivers using sg-buffer.
 > 
-I added a debug output and it shows a buffer of SNDRV_DMA_TYPE_DEV_SG type. Well, then I'll hack the kernel to use the normal DMA allocation functions for ALSA instead of the non cache coherent ones and will wait until the ALSA core has been adapted for dma_mmap_coherent().
+> I've been working on a patch implementing this feature. It currently works w/o 
+> htree.
+> With dir_index, the difficulty is that an entry can span subblocks after a leaf
+> block split.
 
-Or what would have to be done to get it working for SG buffers?
+Argh, hoist by my own petard!  That is not the only problem - we also need
+to represent 64K empty records for the index blocks.  These issues need to
+be dealt with in order to go past 64K blocks, and then we have so many
+entries per block we probably want to rethink the leaf format anyway.  OK,
+just to handle the 64K case, what is wrong with treating 0 as 64K?
 
-Thanks!
+Regards,
 
-Gerhard
+Daniel
 
--- 
-
-
-Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!
-Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer

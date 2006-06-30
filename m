@@ -1,244 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWF3HKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWF3HSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWF3HKi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 03:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWF3HKh
+	id S1751216AbWF3HSP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 03:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWF3HSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 03:10:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17112 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932084AbWF3HKh (ORCPT
+	Fri, 30 Jun 2006 03:18:15 -0400
+Received: from tornado.reub.net ([202.89.145.182]:65423 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1751216AbWF3HSO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 03:10:37 -0400
-Date: Fri, 30 Jun 2006 00:10:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Gay <andy@andynet.net>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
- transfers
-Message-Id: <20060630001021.2b49d4bd.akpm@osdl.org>
-In-Reply-To: <1151646482.3285.410.camel@tahini.andynet.net>
-References: <1151646482.3285.410.camel@tahini.andynet.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 Jun 2006 03:18:14 -0400
+Message-ID: <44A4D036.1040501@reub.net>
+Date: Fri, 30 Jun 2006 19:18:14 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 3.0a1 (Windows/20060623)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm4
+References: <20060629013643.4b47e8bd.akpm@osdl.org>	<44A3BD65.3070201@reub.net> <20060629105215.02587a67.akpm@osdl.org>
+In-Reply-To: <20060629105215.02587a67.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jun 2006 01:48:02 -0400
-Andy Gay <andy@andynet.net> wrote:
 
+
+On 30/06/2006 5:52 a.m., Andrew Morton wrote:
+> On Thu, 29 Jun 2006 23:45:41 +1200
+> Reuben Farrelly <reuben-lkml@reub.net> wrote:
 > 
-> Adapted from an earlier patch by Greg KH <gregkh@suse.de>.
-> That patch added multiple read urbs and larger transfer buffers to allow
-> data transfers at full EvDO speed.
+>>
+>> On 29/06/2006 8:36 p.m., Andrew Morton wrote:
+>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm4/
+>>>
+>>>
+>>> - The RAID patches have been dropped due to testing failures in -mm3.
+>>>
+>>> - The SCSI Attached Storage tree (git-sas.patch) has been restored.
+>> This at the end of shutdown:
+>>
+>> Sending all processes the TERM signal...
+>> Sending all processes the KILL signal...
+>> Saving random seed:
+>> Syncing hardware clock to system time
+>> Turning off swap:
+>> Unmounting file systems:  ----------- [cut here ] --------- [please bite here ] 
+>> ---------
+>> Kernel BUG at fs/dcache.c:600
+>> invalid opcode: 0000 [1] SMP
+>> last sysfs file: /block/fd0/dev
+>> CPU 0
+>> Modules linked in: hidp rfcomm l2cap bluetooth ipv6 ip_gre binfmt_misc ide_cd 
+>> i2c_i801 cdrom serio_raw ide_disk
+>> Pid: 4216, comm: umount Not tainted 2.6.17-mm4 #1
+>> RIP: 0010:[<ffffffff802c4f91>]  [<ffffffff802c4f91>] 
+>> shrink_dcache_for_umount_subtree+0x151/0x260
+>> RSP: 0018:ffff810034bc7db8  EFLAGS: 00010202
+>> RAX: 0000000000000001 RBX: ffff81003e8ce928 RCX: ffff810001df1a00
+>> RDX: 00000000000000b8 RSI: ffffffff8025e9b1 RDI: ffff81002542eba8
+>> RBP: ffff810034bc7dd8 R08: 0000000000000000 R09: ffff81003dd1e970
+>> R10: ffff81003dd1e970 R11: ffff81003dd1e960 R12: ffff81003e8ce928
+>> R13: ffff81002542ebb8 R14: ffff81003f6466c0 R15: 0000000000000000
+>> FS:  00002b032cff3750(0000) GS:ffffffff80686000(0000) knlGS:0000000000000000
+>> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+>> CR2: 00002b032cbc6000 CR3: 00000000284ac000 CR4: 00000000000006e0
+>> Process umount (pid: 4216, threadinfo ffff810034bc6000, task ffff810037f8d750)
+>> Stack:  ffff81003e1d5c00 ffff81003e1d5c00 ffffffff80584960 ffff810034bc7ec8
+>>   ffff810034bc7df8 ffffffff802c5324 00000000000001e0 ffff81003e1d5c00
+>>   ffff810034bc7e28 ffffffff802bdd64 ffff81003f6466c0 ffff810037d6bcc0
+>> Call Trace:
+>>   [<ffffffff802c5324>] shrink_dcache_for_umount+0x37/0x63
+>>   [<ffffffff802bdd64>] generic_shutdown_super+0x24/0x14f
+>>   [<ffffffff802bdeb5>] kill_block_super+0x26/0x3b
+>>   [<ffffffff802bdf7f>] deactivate_super+0x4a/0x6b
+>>   [<ffffffff8022e08f>] mntput_no_expire+0x56/0x8e
+>>   [<ffffffff802334f1>] path_release_on_umount+0x1d/0x2c
+>>   [<ffffffff802c72b1>] sys_umount+0x251/0x28c
+>>   [<ffffffff8022e0db>] fput+0x14/0x19
+>>   [<ffffffff80223ae8>] filp_close+0x68/0x76
+>>   [<ffffffff8026014a>] system_call+0x7e/0x83
+>>
 > 
-> This version includes additional device IDs and fixes a memory leak in
-> the transfer buffer allocation.
+> Thanks.  Probably
+> destroy-the-dentries-contributed-by-a-superblock-on-unmounting.patch went
+> wrong, possibly an interaction between
+> destroy-the-dentries-contributed-by-a-superblock-on-unmounting.patch and
+> ro-bind-mounts-*.patch.
 > 
-> Some (maybe all?) of the supported devices present multiple bulk endpoints,
-> the additional EPs can be used for control and status functions.
-> This version allocates 3 EPs by default, that can be changed using
-> the 'endpoints' module parameter.
+> If you have time, please:
 > 
-> Tested with Sierra Wireless EM5625 and MC5720 embedded modules.
-> 
-> Device ID (0x0c88, 0x17da) for the Kyocera Wireless KPC650/Passport
-> was added but is not yet tested.
-> 
-> ...
->
-> +static void airprime_read_bulk_callback(struct urb *urb, struct pt_regs *regs)
-> +{
-> +	struct usb_serial_port *port = urb->context;
-> +	unsigned char *data = urb->transfer_buffer;
-> +	struct tty_struct *tty;
-> +	int result;
-> +
-> +	dbg("%s - port %d", __FUNCTION__, port->number);
-> +
-> +	if (urb->status) {
-> +		dbg("%s - nonzero read bulk status received: %d",
-> +		    __FUNCTION__, urb->status);
-> +		/* something happened, so free up the memory for this urb /*
-> +		if (urb->transfer_buffer) {
-> +			kfree (urb->transfer_buffer);
-> +			urb->transfer_buffer = NULL;
-> +		}
-> +		return;
-> +	}
-> +	usb_serial_debug_data(debug, &port->dev, __FUNCTION__, urb->actual_length, data);
-> +
-> +	tty = port->tty;
-> +	if (tty && urb->actual_length) {
-> +		tty_buffer_request_room(tty, urb->actual_length);
-> +		tty_insert_flip_string(tty, data, urb->actual_length);
+> - Confirm that it is reproducible.
 
-Is it correct to ignore the return value from those two functions?
+It is.  3 out of 3 times that I booted into -mm4, that oops has appeared on 
+shutdown.
 
-> +		tty_flip_buffer_push(tty);
-> +	}
-> +	/* should this use GFP_KERNEL? */
-> +	result = usb_submit_urb(urb, GFP_ATOMIC);
+> - If it is, test http://www.zip.com.au/~akpm/linux/patches/stuff/rf.bz2. 
+>   That's a patch against 2.6.17.  It's basically -mm4, with
+>   ro-bind-mounts-*.patch removed (and with x86[_64] generic IRQ wired up). 
+>   If that fails in the same way, we know that
+>   destroy-the-dentries-contributed-by-a-superblock-on-unmounting.patch is
+>   the bad guy.
 
-If possible, yep.
+It oopsed again the fourth time which was built with rf.tar.gz, so it looks like 
+it's not that patch.  It's definitely the same oops though, the call trace is 
+identical.  I changed the version number slightly to identify it:
 
-> ...
->
-> +static int airprime_open(struct usb_serial_port *port, struct file *filp)
-> +{
-> +	struct airprime_private *priv = usb_get_serial_port_data(port);
-> +	struct usb_serial *serial = port->serial;
-> +	struct urb *urb;
-> +	char *buffer;
-> +	int i;
-> +	int result = 0;
-> +
-> +	dbg("%s - port %d", __FUNCTION__, port->number);
-> +
-> +	/* initialize our private data structure if it isn't already created */
-> +	if (!priv) {
-> +		priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-> +		if (!priv)
-> +			return -ENOMEM;
-> +		spin_lock_init(&priv->lock);
-> +		usb_set_serial_port_data(port, priv);
-> +	}
-> +	/* TODO handle error conditions better, right now we leak memory */
-> +	for (i = 0; i < NUM_READ_URBS; ++i) {
-> +		buffer = kmalloc(buffer_size, GFP_KERNEL);
-> +		if (!buffer) {
-> +			dev_err(&port->dev, "%s - out of memory.\n",
-> +				__FUNCTION__);
-> +			return -ENOMEM;
-> +		}
-> +		urb = usb_alloc_urb(0, GFP_KERNEL);
-> +		if (!urb) {
-> +			dev_err(&port->dev, "%s - no more urbs?\n",
-> +				__FUNCTION__);
-> +			return -ENOMEM;
-> +		}
-> +		usb_fill_bulk_urb(urb, serial->dev,
-> +				  usb_rcvbulkpipe(serial->dev,
-> +						  port->bulk_out_endpointAddress),
-> +				  buffer, buffer_size,
-> +				  airprime_read_bulk_callback, port);
-> +		result = usb_submit_urb(urb, GFP_KERNEL);
-> +		if (result) {
-> +			dev_err(&port->dev,
-> +				"%s - failed submitting read urb %d for port %d, error %d\n",
-> +				__FUNCTION__, i, port->number, result);
-> +			return result;
-> +		}
-> +		/* fun with reference counting, when this urb is finished, the
-> +		 * host driver will free it up automatically */
-> +		/* don't do this here, we need the urb to stay around until the close
-> +		   function can take care of it */
-> +		//usb_free_urb (urb);
-> +		/* instead remember this urb so we can kill it when the
-> +		   port is closed */
-> +		priv->read_urbp[i] = urb;
-> +	}
-> +	return result;
-> +}
-> +
+[Linux version 2.6.17-mm4-rf (root@tornado.reub.net) (gcc version 4.1.1 20060619 
+(Red Hat 4.1.1-5)) #1 SMP Fri Jun 30 11:40:30 NZST 2006]
 
-This function leaks memory all over the place if something goes wrong.
-
-Please redesign it to have a single `return' statement.  You'll find that'll
-help avoid leaks now and during any later enhancements.
+Unmounting file systems:  ----------- [cut here ] --------- [please bite here ] 
+---------
+Kernel BUG at fs/dcache.c:600
+invalid opcode: 0000 [1] SMP
+last sysfs file: /kernel/uevent_seqnum
+CPU 0
+Modules linked in: binfmt_misc ide_cd serio_raw i2c_i801 cdrom ide_disk
+Pid: 1465, comm: umount Not tainted 2.6.17-mm4-rf #1
+RIP: 0010:[<ffffffff802c48a1>]  [<ffffffff802c48a1>] 
+shrink_dcache_for_umount_subtree+0x151/0x260
+RSP: 0018:ffff81003e05ddb8  EFLAGS: 00010202
+RAX: 0000000000000001 RBX: ffff81003f642d80 RCX: ffff81003f642d98
+RDX: ffff810001eb3d08 RSI: 0000000000000296 RDI: ffffffff8068c900
+RBP: ffff81003e05ddd8 R08: 0000000000000000 R09: ffff81003e6a0970
+R10: ffff81003e6a0970 R11: ffff81003e6a0960 R12: ffff81003f642300
+R13: ffff81003f642de0 R14: ffff810037d18580 R15: 0000000000000000
+FS:  00002b014b2a6750(0000) GS:ffffffff80682000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00002b014ae79000 CR3: 000000003e6eb000 CR4: 00000000000006e0
+Process umount (pid: 1465, threadinfo ffff81003e05c000, task ffff81003e11c8c0)
+Stack:  ffff81003e0ca000 ffff81003e0ca000 ffffffff80583b60 ffff81003e05dec8
+  ffff81003e05ddf8 ffffffff802c4c34 ffff81003e05de18 ffff81003e0ca000
+  ffff81003e05de28 ffffffff802bd894 ffff810037d18580 ffff810037d8ccc0
+Call Trace:
+  [<ffffffff802c4c34>] shrink_dcache_for_umount+0x37/0x63
+  [<ffffffff802bd894>] generic_shutdown_super+0x24/0x14f
+  [<ffffffff802bd9e5>] kill_block_super+0x26/0x3b
+  [<ffffffff802bdaaf>] deactivate_super+0x4a/0x6b
+  [<ffffffff8022deef>] mntput_no_expire+0x56/0x8e
+  [<ffffffff80233341>] path_release_on_umount+0x1d/0x2c
+  [<ffffffff802c6bc1>] sys_umount+0x251/0x28c
+  [<ffffffff8022df3b>] fput+0x14/0x19
+  [<ffffffff80223948>] filp_close+0x68/0x76
+  [<ffffffff8025fbfa>] system_call+0x7e/0x83
 
 
-> +{
-> +	struct airprime_private *priv = usb_get_serial_port_data(port);
-> +	int i;
-> +
-> +	dbg("%s - port %d", __FUNCTION__, port->number);
-> +
-> +	/* killing the urb will invoke read_bulk_callback() with an error status,
-> +	   so the transfer buffer will be freed there */
-> +	for (i = 0; i < NUM_READ_URBS; ++i) {
-> +		usb_kill_urb (priv->read_urbp[i]);
-> +		usb_free_urb (priv->read_urbp[i]);
-> +	}
-> +
-> +	/* free up private structure? */
+Code: 0f 0b 68 4e 51 4b 80 c2 58 02 4c 8b 63 28 4c 39 e3 75 05 45
+RIP  [<ffffffff802c48a1>] shrink_dcache_for_umount_subtree+0x151/0x260
+  RSP <ffff81003e05ddb8>
+  /etc/rc6.d/S01reboot: line 14:  1465 Segmentation fault      "$@"
 
-Yes please ;)
 
-> +}
-> +
-> +static int airprime_write(struct usb_serial_port *port,
-> +			  const unsigned char *buf, int count)
-> +{
-> +	struct airprime_private *priv = usb_get_serial_port_data(port);
-> +	struct usb_serial *serial = port->serial;
-> +	struct urb *urb;
-> +	unsigned char *buffer;
-> +	unsigned long flags;
-> +	int status;
-> +	dbg("%s - port %d", __FUNCTION__, port->number);
-> +
-> +	spin_lock_irqsave(&priv->lock, flags);
-> +	if (priv->outstanding_urbs > NUM_WRITE_URBS) {
-> +		spin_unlock_irqrestore(&priv->lock, flags);
-> +		dbg("%s - write limit hit\n", __FUNCTION__);
-> +		return 0;
-> +	}
-> +	spin_unlock_irqrestore(&priv->lock, flags);
-> +	buffer = kmalloc(count, GFP_ATOMIC);
-> +	if (!buffer) {
-> +		dev_err(&port->dev, "out of memory\n");
-> +		return -ENOMEM;
-> +	}
-> +	urb = usb_alloc_urb(0, GFP_ATOMIC);
-> +	if (!urb) {
-> +		dev_err(&port->dev, "no more free urbs\n");
-> +		kfree (buffer);
-> +		return -ENOMEM;
-> +	}
-> +	memcpy (buffer, buf, count);
-> +
-> +	usb_serial_debug_data(debug, &port->dev, __FUNCTION__, count, buffer);
-> +
-> +	usb_fill_bulk_urb(urb, serial->dev,
-> +			  usb_sndbulkpipe(serial->dev,
-> +					  port->bulk_out_endpointAddress),
-> +			  buffer, count,
-> +			  airprime_write_bulk_callback, port);
-> +
-> +	/* send it down the pipe */
-> +	status = usb_submit_urb(urb, GFP_ATOMIC);
-> +	if (status) {
-> +		dev_err(&port->dev,
-> +			"%s - usb_submit_urb(write bulk) failed with status = %d\n",
-> +			__FUNCTION__, status);
-> +		count = status;
-> +		kfree (buffer);
-> +	} else {
-> +		spin_lock_irqsave(&priv->lock, flags);
-> +		++priv->outstanding_urbs;
-> +		spin_unlock_irqrestore(&priv->lock, flags);
-> +	}
-> +	/* we are done with this urb, so let the host driver
-> +	 * really free it when it is finished with it */
-> +	usb_free_urb (urb);
-> +	return count;
-> +}
+reuben
 
-Is usb_serial_driver.write() really called in a context in which it is
-forced to use GFP_ATOMIC?
-
-Again, implementing this function as single-exit would make it easier to
-maintain.
-
-> +MODULE_PARM_DESC(debug, "Debug enabled or not");
-
-Just "Debug enabled".
-
-> +module_param(buffer_size, int, 0);
-> +MODULE_PARM_DESC(buffer_size, "Size of the transfer buffers");
-
-Units?
 

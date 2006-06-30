@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWGAATE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbWF3VRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWGAATE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 20:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWGAATE
+	id S932609AbWF3VRO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 17:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932641AbWF3VRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 20:19:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25016 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750834AbWGAATC (ORCPT
+	Fri, 30 Jun 2006 17:17:14 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:42436 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932609AbWF3VRM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 20:19:02 -0400
-Date: Fri, 30 Jun 2006 17:22:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: jesse.brandeburg@gmail.com, linux-kernel@vger.kernel.org,
-       johnstul@us.ibm.com
-Subject: Re: 2.6.17-mm4
-Message-Id: <20060630172222.39c000ec.akpm@osdl.org>
-In-Reply-To: <20060630171212.50630182.akpm@osdl.org>
-References: <20060629013643.4b47e8bd.akpm@osdl.org>
-	<4807377b0606291053g602f3413gb3a60d1432a62242@mail.gmail.com>
-	<20060629120518.e47e73a9.akpm@osdl.org>
-	<4807377b0606301653n68bee302t33c2cc28b8c5040@mail.gmail.com>
-	<20060630171212.50630182.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 Jun 2006 17:17:12 -0400
+Message-ID: <44A594D5.4040906@garzik.org>
+Date: Fri, 30 Jun 2006 17:17:09 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Alexis Bruemmer <alexisb@us.ibm.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] aic94xx: disable split completion timer/setting by default
+References: <1151701856.16075.59.camel@localhost.localdomain>
+In-Reply-To: <1151701856.16075.59.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Have you tried
-> earlyprintk=vga or, better, earlyprintk=serial,ttyS0,9600?
+Alexis Bruemmer wrote:
+> The aic94xx driver will lock up under heavy load with a split completion
+> error.  There is a split completion timer/setting which should be
+> disabled by default but is not.  This patch fixes this problem.
+> 
+> Signed-off-by: Adaptec
+> Acked-by: Alexis Bruemmer <alexisb@us.ibm.com>
 
-Or, cruder, put a `for(;;);' at the start of timekeeping_init(), check that
-it doesn't reboot.  Then move it to the end of timekeeping_init(), check
-that it does reboot then keep going until we identify the offending
-statement.
+There are various aic94xx driver bits floating about, and I'm worried 
+that it will stay forever outside the kernel.org tree.
+
+Can you (a) make sure to CC linux-scsi@vger.kernel.org on all aic94xx 
+patches, and (b) work with James Bottomley and the crew to get it 
+working with the upstream tree?
+
+	Jeff
+
+
 

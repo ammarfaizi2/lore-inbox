@@ -1,99 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWGAC6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751580AbWF3Xxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWGAC6n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 22:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWGAC6n
+	id S1751580AbWF3Xxh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 19:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWF3Xxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 22:58:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32733 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751214AbWGAC6l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 22:58:41 -0400
-Date: Fri, 30 Jun 2006 19:43:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: pj@sgi.com, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com, balbir@in.ibm.com,
-       csturtiv@sgi.com, linux-kernel@vger.kernel.org, hadi@cyberus.ca,
-       netdev@vger.kernel.org
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-Message-Id: <20060630194353.1cc96ce4.akpm@osdl.org>
-In-Reply-To: <44A5DBE7.2020704@watson.ibm.com>
-References: <44892610.6040001@watson.ibm.com>
-	<4499D7CD.1020303@engr.sgi.com>
-	<449C2181.6000007@watson.ibm.com>
-	<20060623141926.b28a5fc0.akpm@osdl.org>
-	<449C6620.1020203@engr.sgi.com>
-	<20060623164743.c894c314.akpm@osdl.org>
-	<449CAA78.4080902@watson.ibm.com>
-	<20060623213912.96056b02.akpm@osdl.org>
-	<449CD4B3.8020300@watson.ibm.com>
-	<44A01A50.1050403@sgi.com>
-	<20060626105548.edef4c64.akpm@osdl.org>
-	<44A020CD.30903@watson.ibm.com>
-	<20060626111249.7aece36e.akpm@osdl.org>
-	<44A026ED.8080903@sgi.com>
-	<20060626113959.839d72bc.akpm@osdl.org>
-	<44A2F50D.8030306@engr.sgi.com>
-	<20060628145341.529a61ab.akpm@osdl.org>
-	<44A2FC72.9090407@engr.sgi.com>
-	<20060629014050.d3bf0be4.pj@sgi.com>
-	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
-	<20060629094408.360ac157.pj@sgi.com>
-	<20060629110107.2e56310b.akpm@osdl.org>
-	<44A57310.3010208@watson.ibm.com>
-	<44A5770F.3080206@watson.ibm.com>
-	<20060630155030.5ea1faba.akpm@osdl.org>
-	<44A5DBE7.2020704@watson.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 Jun 2006 19:53:37 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:27154 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751275AbWF3Xxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 19:53:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LkyJL3DLAi1wyh965KFU/FRgBtLkDTDIQQPeDG+wRR9CNwgcj1wV1iCsViMKyzHzNqUqbDzVGEaH7175TyZVsxXcu15L4WQfD4PBWS5mz0HlewTnfzy4k3ZBxq+p9xxjZjnG+0iJnDokO4ACSjuemwHRD9vqODKdgpg9A4i+eQ4=
+Message-ID: <4807377b0606301653n68bee302t33c2cc28b8c5040@mail.gmail.com>
+Date: Fri, 30 Jun 2006 16:53:34 -0700
+From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-mm4
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060629120518.e47e73a9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060629013643.4b47e8bd.akpm@osdl.org>
+	 <4807377b0606291053g602f3413gb3a60d1432a62242@mail.gmail.com>
+	 <20060629120518.e47e73a9.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jun 2006 22:20:23 -0400
-Shailabh Nagar <nagar@watson.ibm.com> wrote:
-
-> >If we're going to abuse nl_pid then how about we design things so that
-> >nl_pid is treated as two 16-bit words - one word is the start CPU and the
-> >other word is the end cpu?
+On 6/29/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Thu, 29 Jun 2006 10:53:03 -0700
+> "Jesse Brandeburg" <jesse.brandeburg@gmail.com> wrote:
+>
+> > can't boot 2.6.17-mm4 on x86_64 Intel 7520 platform.
+> > instant reboot after printing:
+> >   Booting 'Red Hat Enterprise Linux AS (2.6.17-mm4-jesse)'
 > >
-> >Or, if a 65536-CPU limit is too scary, make the bottom 8 bits of nl_pid be
-> >the number of CPUS (ie: TASKSTATS_CPUS_PER_SET) and the top 24 bits is the
-> >starting CPU.  
+> > root (hd0,0)
+> >  Filesystem type is ext2fs, partition type 0x83
+> > kernel /vmlinuz-2.6.17-mm4-jesse ro root=LABEL=/1 rhgb hdc=none video=atyfb:102
+> > 4x768M-32@70 console=ttyS0,115200n8 console=tty1 panic=30
+> >    [Linux-bzImage, setup=0x1e00, size=0x199883]
+> > initrd /initrd-2.6.17-mm4-jesse.img
+> >    [Linux-initrd @ 0x37efd000, 0xf2da8 bytes]
 > >
-> ><avoids mentioning nl_pad>
-> >
-> >It'd be better to use a cpumask, of course..
-> >  
-> >
-> All these options mean each listener gets to pick a "custom" range of 
-> cpus to listen on, 
-> rather than choose one of pre-defined ranges (even if the pre-defined 
-> ranges can change
-> by a configurable TASKSTATS_CPUS_PER_SET). Which means the kernel side 
-> has to
-> figure out which of the listeners cpu range includes the currently 
-> exiting task's cpu. To do
-> this, we'll need a callback from the binding of the netlink socket (so 
-> taskstats can maintain
-> the cpu -> nl_pid mappings at any exit).
-> The current genetlink interface doesn't have that kind of flexibility 
-> (though it can be added
-> I'm sure).
-> 
-> Seems a bit involved if the primary aim is to restrict the number of 
-> cpus that one listener
->  wants to listen, rather than be able to pick which ones.
-> 
-> A configurable range won't suffice ?
-> 
+> > ie no kernel output
+>
+> Your .config works OK on my x86_64 box.  Wanna swap? ;)
+>
+> > where should i start to debug?  I can do a bisect pretty easily too
+> > using git if necessary.
+>
+> That would be great, thanks.  Your options are to do a git bisect using
+>
+> git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git#v2.6.17-mm4
+>
+> (Beware that the mm-to-git trees have had a few problem reports and I'm not
+> aware of anyone previously using them for a bisect).
+>
+> or to install quilt and use
+> http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
 
-Set aside the implementation details and ask "what is a good design"?
+had to pull in linus' tree in order to get the latest 2.6.17 label,
+bisect complete, this patch appeared to make the problem
+ad596171ed635c51a9eef829187af100cbf8dcf7 is first bad commit
+diff-tree ad596171ed635c51a9eef829187af100cbf8dcf7 (from
+734efb467b31e56c2f9430590a9aa867ecf3eea1)
+Author: john stultz <johnstul@us.ibm.com>
+Date:   Mon Jun 26 00:25:06 2006 -0700
 
-A kernel-wide constant, whether determined at build-time or by a /proc poke
-isn't a nice design.
+    [PATCH] Time: Use clocksource infrastructure for update_wall_time
 
-Can we permit userspace to send in a netlink message describing a cpumask? 
-That's back-compatible.
+    Modify the update_wall_time function so it increments time using the
+    clocksource abstraction instead of jiffies.  Since the only
+clocksource driver
+    currently provided is the jiffies clocksource, this should result in no
+    functional change.  Additionally, a timekeeping_init and timekeeping_resume
+    function has been added to initialize and maintain some of the new
+timekeping
+    state.
 
+    [hirofumi@mail.parknet.co.jp: fixlet]
+    Signed-off-by: John Stultz <johnstul@us.ibm.com>
+    Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+
+:040000 040000 3ea3b4140ffa318c20513d596eb063430760822a
+30d3669ec72a2a9edc69a72fadfb4158bd17d6fe M      include
+:040000 040000 5c222365dd5b1fdbfebabd40106732b9bfcc3f0d
+adbb7244617875fe7e0f3014e90808ddf6115976 M      init
+:040000 040000 24c5fcb7f26396cf231c7ab06ddc8fb187ebe5d4
+8157df180abe5f6f058c050f1d017b46334f5c8f M      kernel
+
+however i cannot revert this patch from -mm4 because of conflicts ( i
+might be able to revert a specific set of patches from mm)

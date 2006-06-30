@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWF3XFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWF3XXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbWF3XFB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 19:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWF3XFB
+	id S932376AbWF3XXm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 19:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWF3XXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 19:05:01 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:7777 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1750802AbWF3XFA (ORCPT
+	Fri, 30 Jun 2006 19:23:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19365 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932233AbWF3XXl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 19:05:00 -0400
-Message-ID: <44A5AE17.4080106@tls.msk.ru>
-Date: Sat, 01 Jul 2006 03:04:55 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Roman Zippel <zippel@linux-m68k.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org, klibc@zytor.com, torvalds@osdl.org
-Subject: Re: klibc and what's the next step?
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060630181131.GA1709@elf.ucw.cz>
-In-Reply-To: <20060630181131.GA1709@elf.ucw.cz>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 30 Jun 2006 19:23:41 -0400
+Date: Fri, 30 Jun 2006 16:26:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Manuel Lauss <mano@roarinelk.homelinux.net>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: 2.6.17-mm4
+Message-Id: <20060630162625.2fe3b6cc.akpm@osdl.org>
+In-Reply-To: <44A57970.7020501@roarinelk.homelinux.net>
+References: <20060629013643.4b47e8bd.akpm@osdl.org>
+	<44A57970.7020501@roarinelk.homelinux.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-[klibc/kinit in kernel]
-> I'd like to eventually move swsusp out of kernel, and klibc means I
-> may be able to do that without affecting users. Being in kinit is good
-> enough, because I can actually share single source between kinit
-> version and suspend.sf.net version.
+Manuel Lauss <mano@roarinelk.homelinux.net> wrote:
+>
+> Hello,
+> 
+> With the attached .config, the kernel reliably panics when someone
+> issues a 'sync' (or the kernel decides to write back its buffers):
+> 
+> reiser4 panicked cowardly: reiser4[sync(8465)]: commit_current_atom (fs/reiser4/txnmgr.c:1062)[zam-597]:
+> Kernel panic - not syncing: reiser4[sync(8465)]: commit_current_atom (fs/reiser4/txnmgr.c:1062)[zam-597]:
+> 
+> (this is all that is printed)
+> 
+> This happens only with Reiser4 and libata ata_piix driver; it does not
+> happen with Reiser4 and 'old' IDE piix driver. Other fs are also not
+> affected. I have no idea how to track this, I hope someone else does :)
+> 
+> Hardware is a pentium-m laptop with ICH4 pata.
+> 
 
-Heh.  Take a look at anyone who's using real initramfs for their boot
-process.  Not initrd, not kernel-without-any-preboot-fs, but real
-initramfs.  For them, if kinit/klibc will be in kernel, nothing changes,
-because their initramfs *replaces* in-kernel code and future supplied-
-with-kernel-klibc-based-kinit.  So if you'll move swsusp into kinit,
-it WILL break setups for those users!.. ;)
+Interesting, thanks.
 
-And with time, amount of such users increases.  Because everyone's
-switching from initrd to initramfs; or because everyone's starting
-using initramfs (not initrd as "obsolete") since their systems now
-require some sort of custom stuff while mounting root (like firmware
-loading, or device-mapper setup for sata pseudo-raids, or whatever).
+My guess would be that there's a difference in the way in which the two
+drivers handle write barriers, and the new driver has confused the reiser4
+code.
 
-Oh well.
+Are you able to identify any earlier -mm kernel which ran OK with reiser4
+and ata_piix?
 
-/mjt

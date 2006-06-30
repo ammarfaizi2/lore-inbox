@@ -1,123 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbWF3CUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWF3CV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932674AbWF3CUt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 22:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWF3CUs
+	id S1750732AbWF3CV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 22:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWF3CV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 22:20:48 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:58755 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1750732AbWF3CUs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 22:20:48 -0400
-Date: Thu, 29 Jun 2006 19:20:23 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
-       Andy Whitcroft <apw@shadowen.org>, Dave Hansen <haveblue@us.ibm.com>,
-       Toralf Foerster <toralf.foerster@gmx.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [PATCH] solve config broken: undefined reference to `online_page'
-Message-ID: <20060630022023.GD11977@sequoia.sous-sol.org>
-References: <44A1204F.3070704@shadowen.org> <20060628110338.9B6A.Y-GOTO@jp.fujitsu.com> <20060629114417.2A02.Y-GOTO@jp.fujitsu.com> <20060630021407.GC11977@sequoia.sous-sol.org>
+	Thu, 29 Jun 2006 22:21:57 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48316 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750732AbWF3CV4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 22:21:56 -0400
+Date: Thu, 29 Jun 2006 19:21:29 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: nagar@watson.ibm.com, akpm@osdl.org, Valdis.Kletnieks@vt.edu,
+       jlan@engr.sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+Message-Id: <20060629192129.f9d799ca.pj@sgi.com>
+In-Reply-To: <20060629173805.f189de1a.pj@sgi.com>
+References: <44892610.6040001@watson.ibm.com>
+	<449C6620.1020203@engr.sgi.com>
+	<20060623164743.c894c314.akpm@osdl.org>
+	<449CAA78.4080902@watson.ibm.com>
+	<20060623213912.96056b02.akpm@osdl.org>
+	<449CD4B3.8020300@watson.ibm.com>
+	<44A01A50.1050403@sgi.com>
+	<20060626105548.edef4c64.akpm@osdl.org>
+	<44A020CD.30903@watson.ibm.com>
+	<20060626111249.7aece36e.akpm@osdl.org>
+	<44A026ED.8080903@sgi.com>
+	<20060626113959.839d72bc.akpm@osdl.org>
+	<44A2F50D.8030306@engr.sgi.com>
+	<20060628145341.529a61ab.akpm@osdl.org>
+	<44A2FC72.9090407@engr.sgi.com>
+	<20060629014050.d3bf0be4.pj@sgi.com>
+	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
+	<20060629094408.360ac157.pj@sgi.com>
+	<20060629110107.2e56310b.akpm@osdl.org>
+	<20060629112642.66f35dd5.pj@sgi.com>
+	<44A426DC.9090009@watson.ibm.com>
+	<20060629124148.48d4c9ad.pj@sgi.com>
+	<44A4492E.6090307@watson.ibm.com>
+	<20060629152319.cfffe0d6.pj@sgi.com>
+	<44A46C6C.1090405@watson.ibm.com>
+	<20060629173805.f189de1a.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060630021407.GC11977@sequoia.sous-sol.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Wright (chrisw@sous-sol.org) wrote:
-> This patch didn't
-> quite apply to 2.6.17.2, so I fixed it up, could you double check
-> please?
+Shailabh wrote:
+> The overhead of creating cpusets just for this
+> reason seems excessive when the need is only to
+> reduce the number of sockets to monitor
 
-Bah, the refreshed patch attached.  Sorry about the noise.
+As I reread this thread, some of my ancient interactions with process
+accounting come to mind again.
 
-thanks,
--chris
---
-> From cc57637b0b015fb5d70dbbec740de516d33af07d Mon Sep 17 00:00:00 2001
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-Subject: solve config broken: undefined reference to `online_page'
+K.I.S.S. - keep it simple, I'm telling myself.
 
-Memory hotplug code of i386 adds memory to only highmem.  So, if
-CONFIG_HIGHMEM is not set, CONFIG_MEMORY_HOTPLUG shouldn't be set.
-Otherwise, it causes compile error.
+I'm also thinking that since this is a system wide stat tool, it
+wants to minimize interactions with other mechanisms.
 
-In addition, many architecture can't use memory hotplug feature yet.  So, I
-introduce CONFIG_ARCH_ENABLE_MEMORY_HOTPLUG.
+Hog tying cpusets and process accounting together seems just
+plain weird, and risks imposing conflicting demands on the cpuset
+configuration of a system.
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: <stable@kernel.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
- arch/i386/Kconfig    |    3 +++
- arch/ia64/Kconfig    |    3 +++
- arch/powerpc/Kconfig |    3 +++
- arch/x86_64/Kconfig  |    2 ++
- mm/Kconfig           |    2 +-
- 5 files changed, 12 insertions(+), 1 deletion(-)
+Please be so kind as to forget I suggested that ;).
 
---- linux-2.6.17.2.orig/arch/i386/Kconfig
-+++ linux-2.6.17.2/arch/i386/Kconfig
-@@ -765,6 +765,9 @@ config HOTPLUG_CPU
- 
- endmenu
- 
-+config ARCH_ENABLE_MEMORY_HOTPLUG
-+	def_bool y
-+	depends on HIGHMEM
- 
- menu "Power management options (ACPI, APM)"
- 	depends on !X86_VOYAGER
---- linux-2.6.17.2.orig/arch/ia64/Kconfig
-+++ linux-2.6.17.2/arch/ia64/Kconfig
-@@ -270,6 +270,9 @@ config HOTPLUG_CPU
- 	  can be controlled through /sys/devices/system/cpu/cpu#.
- 	  Say N if you want to disable CPU hotplug.
- 
-+config ARCH_ENABLE_MEMORY_HOTPLUG
-+	def_bool y
-+
- config SCHED_SMT
- 	bool "SMT scheduler support"
- 	depends on SMP
---- linux-2.6.17.2.orig/arch/powerpc/Kconfig
-+++ linux-2.6.17.2/arch/powerpc/Kconfig
-@@ -599,6 +599,9 @@ config HOTPLUG_CPU
- 
- 	  Say N if you are unsure.
- 
-+config ARCH_ENABLE_MEMORY_HOTPLUG
-+	def_bool y
-+
- config KEXEC
- 	bool "kexec system call (EXPERIMENTAL)"
- 	depends on PPC_MULTIPLATFORM && EXPERIMENTAL
---- linux-2.6.17.2.orig/arch/x86_64/Kconfig
-+++ linux-2.6.17.2/arch/x86_64/Kconfig
-@@ -369,6 +369,8 @@ config HOTPLUG_CPU
- 		can be controlled through /sys/devices/system/cpu/cpu#.
- 		Say N if you want to disable CPU hotplug.
- 
-+config ARCH_ENABLE_MEMORY_HOTPLUG
-+	def_bool y
- 
- config HPET_TIMER
- 	bool
---- linux-2.6.17.2.orig/mm/Kconfig
-+++ linux-2.6.17.2/mm/Kconfig
-@@ -115,7 +115,7 @@ config SPARSEMEM_EXTREME
- # eventually, we can have this option just 'select SPARSEMEM'
- config MEMORY_HOTPLUG
- 	bool "Allow for memory hot-add"
--	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND
-+	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND && ARCH_ENABLE_MEMORY_HOTPLUG
- 
- comment "Memory hotplug is currently incompatible with Software Suspend"
- 	depends on SPARSEMEM && HOTPLUG && SOFTWARE_SUSPEND
+
+How about a simple way to disable collection on specified CPUs.
+
+Collecting this sort of data makes sense for certain managed system
+situations, where one chooses to spend some portion of the system
+tracking the rest of it.
+
+Collecting it may put an intolerable performance impact on pedal to
+the metal maximum performance beasts running on dedicated cpus/nodes.
+
+
+I propose a per-cpu boolean flag to disable collection.
+
+If this flag is set on the cpu on which a task happens to be when
+exiting, then we just drop that data on the floor, silently, with no
+accumulation, as quickly as we can, avoiding any system-wide locks.
+
+Then I could run a managed job mix, collecting accounting data, on
+some nodes, while running dedicated performance beasts on other nodes,
+without the accounting interfering with the performance beasts.
+
+Independently, the cpuset friendly customers could make use of cpusets
+to help manage which jobs were on which cpus, so that they collected
+their accounting data as desired.  But no need for the accounting
+system to be aware of that, past the state of its per-cpu flag.
+
+Such a flag reduces the need for further (over) designing this to
+handle the extreme case.  If someone has such an extreme case, they
+can turn off collecting on some cpus, to get a handle on the situation.
+
+This could be done as a variant of your idea for multiple
+TASKSTATS_LISTEN_GROUP's.  Essentially, for now, we would have two
+GROUP's - one that drops the data on the floor, and one that collects
+it.  Each cpu is in either one or the other group.  Later on, when the
+need arises, we add support for more GROUP's that can actually collect
+data.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

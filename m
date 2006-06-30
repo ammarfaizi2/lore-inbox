@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751724AbWF3JbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWF3JlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751724AbWF3JbK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 05:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751717AbWF3JbK
+	id S932130AbWF3JlM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 05:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWF3JlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 05:31:10 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:7386 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751724AbWF3JbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 05:31:08 -0400
-Date: Fri, 30 Jun 2006 11:31:14 +0200
-From: Johann Lombardi <johann.lombardi@bull.net>
-To: Daniel Phillips <phillips@google.com>,
-       Andreas Dilger <adilger@clusterfs.com>, sho@tnes.nec.co.jp
-Cc: cmm@us.ibm.com, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC 1/2] ext3: enlarge blocksize and fix rec_len overflow
-Message-ID: <20060630093113.GA2702@chiva>
-References: <20060628205238sho@rifu.tnes.nec.co.jp> <20060628155048.GG2893@chiva> <20060628202421.GL5318@schatzie.adilger.int> <44A417A3.80001@google.com> <20060629202700.GD5318@schatzie.adilger.int> <44A450BB.60105@google.com>
+	Fri, 30 Jun 2006 05:41:12 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:38790 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932130AbWF3JlL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 05:41:11 -0400
+Message-ID: <44A4F1B1.1060406@openvz.org>
+Date: Fri, 30 Jun 2006 13:41:05 +0400
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-In-Reply-To: <44A450BB.60105@google.com>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/06/2006 11:35:11,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/06/2006 11:35:13,
-	Serialize complete at 30/06/2006 11:35:13
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       marcelo.tosatti@cyclades.com, devel@openvz.org,
+       "Vasily Averin" <vvs@sw.ru>, "Andrey Savochkin" <saw@sawoct.com>,
+       Monakhov Dmintiy <dmonakhov@sw.ru>
+Subject: [PATCH] EXT3: ext3 block bitmap leakage
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew, Chris,
 
-> >I have no objection to this at all, but I think it will lead to a slightly
-> >more complex implementation.  We even discussed in the distant past to
-> >make large directories a series of 4kB "chunks", for fs blocksize >= 4kB.
-> >This has negative implications for large filenames because the internal
-> >free space fragmentation is high, but has the advantage that it might
-> >eventually still be usable if we can get blocksize > PAGE_SIZE.
-> >
-> >The difficulty is that when freeing dir entires you would have to be
-> >concerned with a merging a dir_entry that is spanning the middle
-> >of a 2^16 block.
-> 
-> That is easy, just don't let an entry span subblocks by not letting
-> delete merge past the end of a subblock, just a minor tweak.  New block
-> initialization needs an outer loop on subblocks and that's it, I think.
+this bug is not relevant for 2.6.17 and later.
+However, it is relevant for all 2.4.x and <2.6.17 kernels,
+so I think this can be of interest to some people and worth commiting to 
+2.6.16.x
 
-I've been working on a patch implementing this feature. It currently works w/o 
-htree.
-With dir_index, the difficulty is that an entry can span subblocks after a leaf
-block split.
 
-Cheers,
 
-Johann
+This patch fixes ext3 block bitmap leakage,
+which leads to the following fsck messages on
+_healthy_ filesystem:
+Block bitmap differences:  -64159 -73707
+
+All kernels up to 2.6.17 have this bug.
+
+Found by
+   Vasily Averin <vvs@sw.ru> and Andrey Savochkin <saw@sawoct.com>
+Test case triggered the issue was created by
+   Dmitry Monakhov <dmonakhov@sw.ru>
+
+Signed-Off-By: Vasiliy Averin <vvs@sw.ru>
+Signed-Off-By: Andrey Savochkin <saw@sawoct.com>
+Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+CC: Dmitry Monakhov <dmonakhov@sw.ru>
+
+--- ./fs/ext3/inode.c.e3crp	2006-06-28 05:22:40.000000000 +0400
++++ ./fs/ext3/inode.c	2006-06-27 13:31:20.000000000 +0400
+@@ -585,6 +585,7 @@ static int ext3_alloc_branch(handle_t *h
+
+  	branch[0].key = cpu_to_le32(parent);
+  	if (parent) {
++		keys = 1;
+  		for (n = 1; n < num; n++) {
+  			struct buffer_head *bh;
+  			/* Allocate the next block */
+

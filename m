@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWF3Iqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWF3Ixd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWF3Iqt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 04:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWF3Iqt
+	id S932140AbWF3Ixd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 04:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWF3Ixd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 04:46:49 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:9960 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932089AbWF3Iqs (ORCPT
+	Fri, 30 Jun 2006 04:53:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17803 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932140AbWF3Ixd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 04:46:48 -0400
-Date: Fri, 30 Jun 2006 12:46:30 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Michael Kerrisk <michael.kerrisk@gmx.net>,
-       Albert Cahalan <acahalan@gmail.com>
-Subject: Re: [RFC][PATCH 3/3] Process events biarch bug: New process events connector value
-Message-ID: <20060630084630.GA27593@2ka.mipt.ru>
-References: <20060627112644.804066367@localhost.localdomain> <1151408975.21787.1815.camel@stark> <1151435679.1412.16.camel@linuxchandra> <1151444382.21787.1858.camel@stark> <20060628055326.GB12276@2ka.mipt.ru>
+	Fri, 30 Jun 2006 04:53:33 -0400
+Date: Fri, 30 Jun 2006 01:52:51 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: andy@andynet.net, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
+Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
+ transfers
+Message-Id: <20060630015251.e6a4e526.zaitcev@redhat.com>
+In-Reply-To: <20060630001021.2b49d4bd.akpm@osdl.org>
+References: <1151646482.3285.410.camel@tahini.andynet.net>
+	<20060630001021.2b49d4bd.akpm@osdl.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060628055326.GB12276@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 30 Jun 2006 12:46:42 +0400 (MSD)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
->I haven't yet seen a good explanation of what this is or does,
->but I suspect it may be useful for the "top" program or for a
->debugger. In either case, I am a highly interested party.
->I maintain top as part of the procps package. People pay me to
->hack on debuggers.
+On Fri, 30 Jun 2006 00:10:21 -0700, Andrew Morton <akpm@osdl.org> wrote:
 
->Mind pointing me to some documentation and an explanation of why
->the feature was added? Is there a man page? (there should be)
+> > +static void airprime_read_bulk_callback(struct urb *urb, struct pt_regs *regs)
+>.......
+> > +	/* should this use GFP_KERNEL? */
+> > +	result = usb_submit_urb(urb, GFP_ATOMIC);
+> 
+> If possible, yep.
 
-There are a lot of goodies for process accounting there.
-One can find initial draft with detailed description of the project 
-goals at http://lwn.net/Articles/153694/
+You can't be serious. It's a callback function we're discussing here,
+and you even quoted it.
 
--- 
-	Evgeniy Polyakov
+> > +	/* free up private structure? */
+> 
+> Yes please ;)
+
++1
+
+> Is usb_serial_driver.write() really called in a context in which it is
+> forced to use GFP_ATOMIC?
+
+There are cases when it is. It happens when a line discipline does it.
+The n_tty does it if the line is in cooked mode, which is the default.
+n_hdlc does it always, though I have no idea if this is applicable
+to airprime. I think PPP writes from a tasklet as well.
+
+The idea to allocate a URB for every little user write bothers me as
+well. It was a dirty code thrown together quickly by someone who could
+not be bothered to use a circular buffer and two URBs. It was fine
+for the visor.c, but the Airprime is a higher performance card, and it
+can be used in a home gateway with a low-power CPU. I'm not happy.
+
+-- Pete

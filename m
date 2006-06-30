@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933098AbWF2XmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933103AbWF2XoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933098AbWF2XmY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 19:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933100AbWF2XmY
+	id S933103AbWF2XoR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 19:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933104AbWF2XoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 19:42:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56767 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S933098AbWF2XmX (ORCPT
+	Thu, 29 Jun 2006 19:44:16 -0400
+Received: from smtp1.pp.htv.fi ([213.243.153.37]:4002 "EHLO smtp1.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S933103AbWF2XoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 19:42:23 -0400
-Date: Thu, 29 Jun 2006 19:42:09 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Rene Herman <rene.herman@keyaccess.nl>, gregoire.favre@gmail.com,
-       linux-kernel@vger.kernel.org, kraxel@suse.de
-Subject: Re: 2.6.17-mm4 undefined reference to `alternatives_smp_module_del'
-Message-ID: <20060629234209.GA30801@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Rene Herman <rene.herman@keyaccess.nl>, gregoire.favre@gmail.com,
-	linux-kernel@vger.kernel.org, kraxel@suse.de
-References: <20060629122721.GA18671@gmail.com> <20060629154247.1bf8eccf.akpm@osdl.org> <44A46130.8090102@keyaccess.nl> <20060629164054.3b2e07d4.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 29 Jun 2006 19:44:14 -0400
+Date: Fri, 30 Jun 2006 09:55:34 +0300
+From: Samuel Ortiz <samuel@sortiz.org>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       Josh Triplett <josht@vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Dipkanar Sarma <dipankar@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org,
+       irda-users@lists.sourceforge.net
+Subject: [PATCH 1/2] [IrDA] Fix RCU lock pairing on error path
+Message-ID: <20060630065534.GA4729@sortiz.org>
+Reply-To: Samuel Ortiz <samuel@sortiz.org>
+References: <1151542602.18723.19.camel@josh-work.beaverton.ibm.com> <20060629142741.GA1294@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060629164054.3b2e07d4.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060629142741.GA1294@us.ibm.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 29, 2006 at 04:40:54PM -0700, Andrew Morton wrote:
+Hi Dave,
 
- > > > Should be a stub in a header file, which would fix this problem too.
- > > 
- > > Gerd Hoffmann already did this and I suppose it's in some upstream tree 
- > > somewhere:
- > I'd say it got lost.
- > 
- > > http://marc.theaimsgroup.com/?l=linux-kernel&m=114743413932319&w=2
+irlan_client_discovery_indication calls rcu_read_lock and rcu_read_unlock, but
+returns without unlocking in an error case.  Fix that by replacing the return
+with a goto so that the rcu_read_unlock always gets executed.
 
-Ha, I was just reconstructing the exact same patch.
+Signed-off-by: Josh Triplett <josh@freedesktop.org>
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
+Signed-off-by: Samuel Ortiz samuel@sortiz.org <>
+---
+ net/irda/irlan/irlan_client.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
- > <snarf>
-
-Yay!
-
-		Dave
-
-
+diff --git a/net/irda/irlan/irlan_client.c b/net/irda/irlan/irlan_client.c
+index f8e6cb0..95cf123 100644
+--- a/net/irda/irlan/irlan_client.c
++++ b/net/irda/irlan/irlan_client.c
+@@ -173,13 +173,14 @@ void irlan_client_discovery_indication(d
+ 	rcu_read_lock();
+ 	self = irlan_get_any();
+ 	if (self) {
+-		IRDA_ASSERT(self->magic == IRLAN_MAGIC, return;);
++		IRDA_ASSERT(self->magic == IRLAN_MAGIC, goto out;);
+ 
+ 		IRDA_DEBUG(1, "%s(), Found instance (%08x)!\n", __FUNCTION__ ,
+ 		      daddr);
+ 		
+ 		irlan_client_wakeup(self, saddr, daddr);
+ 	}
++IRDA_ASSERT_LABEL(out:)
+ 	rcu_read_unlock();
+ }
+ 	
 -- 
-http://www.codemonkey.org.uk
+1.4.0
+

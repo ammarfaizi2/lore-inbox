@@ -1,81 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWF3Rzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWF3SAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbWF3Rzz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 13:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWF3Rzz
+	id S1751842AbWF3SAk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 14:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWF3SAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 13:55:55 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8684 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751172AbWF3Rzy (ORCPT
+	Fri, 30 Jun 2006 14:00:40 -0400
+Received: from mail.gmx.net ([213.165.64.21]:44779 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751842AbWF3SAh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 13:55:54 -0400
-Date: Fri, 30 Jun 2006 19:55:23 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Rahul Karnik <rahul@genebrew.com>,
-       Jens Axboe <axboe@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+	Fri, 30 Jun 2006 14:00:37 -0400
+X-Authenticated: #14349625
+Subject: Re: Measuring tools - top and interrupts
+From: Mike Galbraith <efault@gmx.de>
+To: danial_thom@yahoo.com
+Cc: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
        linux-kernel@vger.kernel.org
-Subject: suspend2 merge [was Re: [Suspend2][ 0/9] Extents support.]
-Message-ID: <20060630175523.GA5939@elf.ucw.cz>
-References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606282242.26072.nigel@suspend2.net> <84144f020606280742v348bdf53w96bd790362abaff9@mail.gmail.com> <200606290937.31174.nigel@suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606290937.31174.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060630134149.11464.qmail@web33302.mail.mud.yahoo.com>
+References: <20060630134149.11464.qmail@web33302.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Fri, 30 Jun 2006 20:03:18 +0200
+Message-Id: <1151690598.8395.1.camel@Homer.TheSimpsons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > It's because it's all so interconnected. Adding the modular
-> > > infrastructure is useless without something to use the modules. Changing
-> > > to use the pageflags functionality requires modifications in both the
-> > > preparation of the image and in the I/O. There are bits that could be
-> > > done incrementally, but they're minor. I did start with the same codebase
-> > > that Pavel forked, but then did substantial rewrites in going from the
-> > > betas to 1.0 and to 2.0.
-> >
-> > Hmm, so, if you leave out the controversial in-kernel stuff like, user
-> > interface bits, "extensible API", compression, and crypto, are you
-> > saying there's nothing in suspend2 that can be merged separately?
+On Fri, 2006-06-30 at 06:41 -0700, Danial Thom wrote:
 > 
-> My point was that the architecture of Suspend2 is fundamentally different to 
-> that of swsusp. Suspend2 features could potentially be added to swsusp, but 
-> it would require a lot of work on swsusp. I've worked hard to make
+> --- Mike Galbraith <efault@gmx.de> wrote:
+> 
+> > On Sun, 2006-06-25 at 13:45 -0700, Danial Thom
+> > wrote:
+> > 
+> > > I think the one thing we can surmise from
+> > this
+> > > thread is that you can't rely on kernel usage
+> > > statistics to be accurate, as its likely that
+> > > there are many, many cases that don't work
+> > > properly. It was always wrong in 2.4 as well.
+> > 
+> > Once identified, problems tend to get fixed. 
+> > This one will probably be
+> > history soon.  You know the old saying
+> > though... "There are lies, there
+> > are _damn_ lies, and then there are
+> > _statistics_".
+> 
+> The usefulness of statistics is a function of the
+> breadth of understand of the person interpreting
+> them. 
+> 
+> But I don't think that applies here, because we
+> are not questioning the conclusions from the
+> statistics, only the accuracy of the gathering.
+> Its a completely different thing to say, for
+> example, that population growth is due to too
+> many babies when it might be immigration or a
+> reduction in the death rate, than it is to say
+> that the numbers gathered are simply wrong.
+> 
+> The truth is that you guys can't be bothered
+> unless the numbers are so far off that its an
+> embarrasment.
 
-That is how kernel development works, I'm afraid. It is better to let
-someone do lot of work than to have to merge 14000 lines in one go.
+Hey, let's play hide and go fuck yourself.  Tag, you're it.
 
-It sucks if that "someone" is you, I guess.
+*plonk*
 
-Kernel development works by evolution, unless there's really good
-reason not to. And no "swap file support for suspend" is not good
-enough reason. Maybe suspend2 was designed to be nice, fast, and full
-of features; unfortunately it was not designed to be
-mergeable. Oops. I believe you even stated that you do not want it
-merged at one point.
+	-Mike
 
-There are two possible ways forward:
-
-1. suspend2 stays out of tree, pretty much forever. (Or as long as you
-are interested).
-
-2. suspend2 gets complete rewrite, using code that is already present
-in kernel to maximum extent. Yes, you need to do "evolution", merge
-quickly, and make clear improvement with each patch. You also have to
-explain why your patch is neccessary -- why current code can not do
-the job. Fortunately for you,all the neccessary support is already in
-tree. Only piece missing is "save whole image", and Rafael actually
-has patch for that -- but that patch was deemed too dangerous.
-
-Now, I'm sorry you wasted lots of work splitting patches
-function-by-function, but watching lkml for a while would probably
-tell you how mergeable patches look, and I believe I was pretty clear
-that splitting suspend2 is not the _only_ requirement to get it
-merged.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

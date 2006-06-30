@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWF3Mpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbWF3MwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbWF3Mpj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 08:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbWF3Mpj
+	id S932593AbWF3MwE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 08:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWF3MwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 08:45:39 -0400
-Received: from mx03.cybersurf.com ([209.197.145.106]:20870 "EHLO
-	mx03.cybersurf.com") by vger.kernel.org with ESMTP id S932578AbWF3Mph
+	Fri, 30 Jun 2006 08:52:04 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:57478 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932596AbWF3MwC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 08:45:37 -0400
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, csturtiv@sgi.com,
-       balbir@in.ibm.com, jlan@engr.sgi.com, Valdis.Kletnieks@vt.edu,
-       pj@sgi.com, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <44A49418.5080103@watson.ibm.com>
-References: <44892610.6040001@watson.ibm.com>
-	 <20060623164743.c894c314.akpm@osdl.org>	 <449CAA78.4080902@watson.ibm.com>
-	 <20060623213912.96056b02.akpm@osdl.org>	 <449CD4B3.8020300@watson.ibm.com>
-	 <44A01A50.1050403@sgi.com>	 <20060626105548.edef4c64.akpm@osdl.org>
-	 <44A020CD.30903@watson.ibm.com>	 <20060626111249.7aece36e.akpm@osdl.org>
-	 <44A026ED.8080903@sgi.com>	 <20060626113959.839d72bc.akpm@osdl.org>
-	 <44A2F50D.8030306@engr.sgi.com>	 <20060628145341.529a61ab.akpm@osdl.org>
-	 <44A2FC72.9090407@engr.sgi.com>	 <20060629014050.d3bf0be4.pj@sgi.com>
-	 <200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
-	 <20060629094408.360ac157.pj@sgi.com>
-	 <20060629110107.2e56310b.akpm@osdl.org>	<44A425A7.2060900@watson.ibm.com>
-	 <20060629123338.0d355297.akpm@osdl.org>	<44A43187.3090307@watson.ibm.com>
-	 <1151621692.8922.4.camel@jzny2>	<44A47285.6060307@watson.ibm.com>
-	 <20060629180502.3987a98e.akpm@osdl.or! g> <44A47A3E.5070809@watson.ibm.com>
-	 <1151631048.8922.139.camel@jzny2>  <44A49418.5080103@watson.ibm.com>
-Content-Type: text/plain
-Organization: unknown
-Date: Fri, 30 Jun 2006 08:45:28 -0400
-Message-Id: <1151671528.8922.149.camel@jzny2>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Fri, 30 Jun 2006 08:52:02 -0400
+Message-ID: <44A51D88.70608@aitel.hist.no>
+Date: Fri, 30 Jun 2006 14:48:08 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm one process gets stuck in infinite loop in the kernel.
+References: <20060629013643.4b47e8bd.akpm@osdl.org>	<44A3B8A0.4070601@aitel.hist.no> <20060629104117.e96df3da.akpm@osdl.org>
+In-Reply-To: <20060629104117.e96df3da.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-29-06 at 23:01 -0400, Shailabh Nagar wrote:
-> jamal wrote:
+Andrew Morton wrote:
+> On Thu, 29 Jun 2006 13:25:20 +0200
+> Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+>
+>   
+>> I have seen this both with mm2, m33 and mm4.
+>>     
+Correction, m22 and mm3 only so far.
+>> Suddenly, the load meter jumps.
+>> Using ps & top, I see one process using 100% cpu.
+>> This is always a process that was exiting, this tend to happen
+>> when I close applications, or doing debian upgrades which
+>> runs lots of short-lived processes.
+>>
+>> I believe it is running in the kernel, ps lists it with stat "RN"
+>> and it cannot be killed, not even with kill -9 from root.
+>>
+>> Something wrong with process termination?
+>>
+>>     
+>
+> Please generate a kernel profile when it happens so we can see
+> where it got stuck.
+>
+> <boot with profile=1>
+> <wait for it to happen>
+>   
+Unfortunately, I could not provoke it with profile=1.
+At least, deinstalling and reinstalling texlive
+a few times was not enough. 
 
-> >  
-> >
-> >>As long as the user is willing to pay the price in terms of memory,
-> >>    
-> >>
-> >
-> >You may wanna draw a line to the upper limit - maybe even allocate slab
-> >space.
-> >  
-> >
-> Didn't quite understand...could you please elaborate ?
-> Today we have a slab cache from which the taskstats structure gets 
-> allocated at the beginning
-> of the exit() path.
-> The upper limit to which you refer is the amount of slab memory the user 
-> is willing to be used
-> to store the bursty traffic ?
-> 
+If it bothers me more, I'll try to find a better way to reproduce it.
+If it don't happen again, lets hope it was a hw hiccup.
 
-I think you have it fine already if you have a slab - as long as you
-know you will run out of space and have some strategy to deal with
-such boundary conditions. I was only reacting to your statement
-"As long as the user is willing to pay the price in terms of memory"
-I think you meant that a user could adjust the slab size on bootup etc,
-but it is finite in size.
-
-cheers,
-jamal
-
+Helge Hafting

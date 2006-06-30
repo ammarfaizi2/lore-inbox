@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWF3LYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWF3LSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbWF3LYE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 07:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWF3LYE
+	id S1750865AbWF3LSo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 07:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWF3LSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 07:24:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18836 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750860AbWF3LYB (ORCPT
+	Fri, 30 Jun 2006 07:18:44 -0400
+Received: from [64.62.148.172] ([64.62.148.172]:29969 "EHLO arnor.apana.org.au")
+	by vger.kernel.org with ESMTP id S1750823AbWF3LSo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 07:24:01 -0400
-Date: Fri, 30 Jun 2006 13:23:54 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch] remove obsolete swsusp_encrypt
-Message-ID: <20060630112354.GB669@elf.ucw.cz>
-MIME-Version: 1.0
+	Fri, 30 Jun 2006 07:18:44 -0400
+Date: Fri, 30 Jun 2006 21:17:34 +1000
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [patch] lockdep, annotate slocks: turn lockdep off for them
+Message-ID: <20060630111734.GA22202@gondor.apana.org.au>
+References: <a44ae5cd0606291201v659b4235sfa9941aa3b18e766@mail.gmail.com> <20060630065041.GB6572@elte.hu> <20060630072231.GB7057@elte.hu> <20060630091850.GA10713@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060630091850.GA10713@elte.hu>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove SWSUSP_ENCRYPT config option; it is no longer implemented.
+On Fri, Jun 30, 2006 at 11:18:50AM +0200, Ingo Molnar wrote:
+> 
+> Herbert, do the acquire/release semantics as expressed in the 
+> lockdep-annotate-slock.patch match sk_lock semantics?
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
----
-commit 123d26a90b044be080ac096f25dd5bca629a72c4
-tree 3e47b18b2cf69111d2d9aaca669d9548e2406a90
-parent ee84a7fdcd1b872198532639da1fabecc522576d
-author <pavel@amd.ucw.cz> Fri, 30 Jun 2006 13:22:02 +0200
-committer <pavel@amd.ucw.cz> Fri, 30 Jun 2006 13:22:02 +0200
-
- kernel/power/Kconfig |   12 ------------
- 1 files changed, 0 insertions(+), 12 deletions(-)
-
-diff --git a/kernel/power/Kconfig b/kernel/power/Kconfig
-index 857b4fa..ae44a70 100644
---- a/kernel/power/Kconfig
-+++ b/kernel/power/Kconfig
-@@ -100,18 +100,6 @@ config PM_STD_PARTITION
- 	  suspended image to. It will simply pick the first available swap 
- 	  device.
+I think it should be fine.
  
--config SWSUSP_ENCRYPT
--	bool "Encrypt suspend image"
--	depends on SOFTWARE_SUSPEND && CRYPTO=y && (CRYPTO_AES=y || CRYPTO_AES_586=y || CRYPTO_AES_X86_64=y)
--	default ""
--	---help---
--	  To prevent data gathering from swap after resume you can encrypt
--	  the suspend image with a temporary key that is deleted on
--	  resume.
--
--	  Note that the temporary key is stored unencrypted on disk while the
--	  system is suspended.
--
- config SUSPEND_SMP
- 	bool
- 	depends on HOTPLUG_CPU && X86 && PM
+> @@ -250,9 +283,18 @@ int sk_receive_skb(struct sock *sk, stru
+>  	skb->dev = NULL;
+>  
+>  	bh_lock_sock(sk);
+> -	if (!sock_owned_by_user(sk))
+> +	if (!sock_owned_by_user(sk)) {
+> +		/*
+> +		 * trylock + unlock semantics:
+> +		 */
+> +		spin_release(&sk->sk_lock.slock.dep_map, 1, _RET_IP_);
+> +		mutex_acquire(&sk->sk_lock.dep_map, 0, 1, _RET_IP_);
 
+Although it would seem that keeping the spin lock would fit the actual
+semantics better.  I suppose there must be a technical reason why this
+wouldn't work.
+
+Cheers,
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

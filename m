@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWF3AD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932821AbWF3ADp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWF3AD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 20:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWF3AD1
+	id S932821AbWF3ADp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 20:03:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932886AbWF3ADo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 20:03:27 -0400
-Received: from mail.kroah.org ([69.55.234.183]:9168 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751331AbWF3AD0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 20:03:26 -0400
-Date: Thu, 29 Jun 2006 16:57:28 -0700
-From: Greg KH <gregkh@suse.de>
-To: James Morris <jmorris@namei.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-       David Quigley <dpquigl@tycho.nsa.gov>
-Subject: Re: [PATCH 3/3] SELinux: Update USB code with new kill_proc_info_as_uid
-Message-ID: <20060629235728.GB7546@suse.de>
-References: <Pine.LNX.4.64.0606281943240.17149@d.namei> <Pine.LNX.4.64.0606281946561.17159@d.namei>
+	Thu, 29 Jun 2006 20:03:44 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:61103
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932821AbWF3ADm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 20:03:42 -0400
+Date: Thu, 29 Jun 2006 17:03:40 -0700 (PDT)
+Message-Id: <20060629.170340.55510056.davem@davemloft.net>
+To: samuel@sortiz.org
+Cc: bunk@stusta.de, akpm@osdl.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, ralf@linux-mips.org,
+       linux-mips@linux-mips.org, reiga@dspnet.fr.eu.org,
+       irda-users@lists.sourceforge.net
+Subject: Re: [PATCH 2/2] [IrDA] Fix the AU1000 FIR dependencies
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060630065607.GB4729@sortiz.org>
+References: <20060629154148.GA19712@stusta.de>
+	<20060630065607.GB4729@sortiz.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606281946561.17159@d.namei>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 07:49:09PM -0400, James Morris wrote:
-> From: David Quigley <dpquigl@tycho.nsa.gov>
-> 
-> This patch updates the USB core to save and pass the sending task secid 
-> when sending signals upon AIO completion so that proper security checking 
-> can be applied by security modules.
-> 
-> Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
-> Signed-off-by: James Morris <jmorris@namei.org>
+From: Samuel Ortiz <samuel@sortiz.org>
+Date: Fri, 30 Jun 2006 09:56:07 +0300
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> AU1000 FIR is broken, it should depend on SOC_AU1000.
+> 
+> Spotted by Jean-Luc Leger.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Signed-off-by: Samuel Ortiz <samuel@sortiz.org>
+
+Applied, thanks.

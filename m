@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWF3K06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWF3K1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWF3K06 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 06:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWF3K06
+	id S932350AbWF3K1i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 06:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWF3K1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 06:26:58 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:9109 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932271AbWF3K05 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 06:26:57 -0400
-Date: Fri, 30 Jun 2006 12:22:10 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-mm4
-Message-ID: <20060630102210.GC16567@elte.hu>
-References: <200606300609_MC3-1-C3D7-6B49@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606300609_MC3-1-C3D7-6B49@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 30 Jun 2006 06:27:37 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:48264 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S932350AbWF3K1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 06:27:36 -0400
+Message-ID: <9FCDBA58F226D911B202000BDBAD467306E04FF2@zch01exm40.ap.freescale.net>
+From: Li Yang-r58472 <LeoLi@freescale.com>
+To: "'Vitaly Bordug'" <vbordug@ru.mvista.com>
+Cc: "'Paul Mackerras'" <paulus@samba.org>, linuxppc-dev@ozlabs.org,
+       Phillips Kim-R1AAHA <Kim.Phillips@freescale.com>,
+       Chu hanjin-r52514 <Hanjin.Chu@freescale.com>,
+       Yin Olivia-r63875 <Hong-Hua.Yin@freescale.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 1/7] powerpc: Add mpc8360epb platform support
+Date: Fri, 30 Jun 2006 18:27:28 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> -----Original Message-----
+> From: Vitaly Bordug [mailto:vbordug@ru.mvista.com]
+> Sent: Thursday, June 29, 2006 12:59 AM
+> To: Li Yang-r58472
+> Cc: 'Paul Mackerras'; linuxppc-dev@ozlabs.org; Phillips Kim-R1AAHA; Chu
+> hanjin-r52514; Yin Olivia-r63875; 'linux-kernel@vger.kernel.org'
+> Subject: Re: [PATCH 1/7] powerpc: Add mpc8360epb platform support
+> 
+> On Wed, 28 Jun 2006 22:23:03 +0800
+> Li Yang-r58472 <LeoLi@freescale.com> wrote:
+> 
+[snip]
+> 
+> >
+> >  config MPC834x
+> > @@ -24,4 +31,10 @@ config MPC834x
+> >  	select PPC_INDIRECT_PCI
+> >  	default y if MPC834x_SYS
+> >
+> > +config MPC836x
+> > +	bool
+> > +	select PPC_UDBG_16550
+> 
+> debug option made default?
 
-* Chuck Ebbert <76306.1226@compuserve.com> wrote:
+I'm afraid this is needed to boot.  83xx family platforms need it to initialize early console.  And it does appear in several defconfigs of other platforms.
+> > +	select PPC_INDIRECT_PCI
+> > +	default y if MPC8360E_PB
+> > +
+> >  endmenu
 
-> In-Reply-To: <20060629232739.GA28306@elte.hu>
-> 
-> On Fri, 30 Jun 2006 01:27:39 +0200, Ingo Molnar wrote:
-> 
-> > > +profile-likely-unlikely-macros.patch
-> > 
-> > CONFIG_PROFILE_LIKELY doesnt quite work:
-> > 
-> >  Low memory ends at vaddr f7e00000
-> >  node 0 will remap to vaddr f7e00000 - f8000000
-> >  High memory starts at vaddr f7e00000
-> >  found SMP MP-table at 000f5680
-> >  NX (Execute Disable) protection: active
-> >  Unknown interrupt or fault at EIP 00000060 c1d9f264 00000002
-> >  Unknown interrupt or fault at EIP 00000060 c0100295 0000f264
-> >  Unknown interrupt or fault at EIP 00000060 c0100295 00000294
-> >  Unknown interrupt or fault at EIP 00000060 c0100295 00000294
-> >  Unknown interrupt or fault at EIP 00000060 c0100295 00000294
-> >  Unknown interrupt or fault at EIP 00000060 c0100295 00000294
-> > 
-> > disabling it makes these go away.
-> 
-> Can you find out what source line belongs to c1d9f264?
-> 
-> arch/i386/kernel/head.S::ignore_int(), which produced those messages, 
-> is horribly broken.  The first fault was likely a page fault 
-> attempting to write to some unmapped area.  Since page fault pushes an 
-> error code onto the stack and ignore_int() doesn't pop it because it 
-> has no idea whether one is there, it attempts to return to cs:eip 
-> f264:00000002 which causes segment-not-present for segment index f264 
-> in the GDT. Same thing then happens when _that_ tries to return to 
-> 0295:0000f264; now we are into infinite recursion. Eventually the 
-> stack will overflow and more fun errors will occur...
-> 
-> Is this worth fixing?  We could get nice diagnostics for page fault 
-> here by writing a handler for early init code.
-
-yes, it's worth fixing if it doesnt complicate that code too much - i 
-run across such early init faults every couple of weeks when hacking 
-various code. (Maybe just some generic 'dump 64 bytes of the top of the 
-stack' would be enough too. Early-bootup is fragile enough already.)
-
-	Ingo

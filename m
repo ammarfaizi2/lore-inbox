@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932697AbWF3QbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932767AbWF3Qb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932697AbWF3QbV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 12:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932767AbWF3QbV
+	id S932767AbWF3Qb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 12:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932790AbWF3Qb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 12:31:21 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:19985 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S932697AbWF3QbU (ORCPT
+	Fri, 30 Jun 2006 12:31:57 -0400
+Received: from relay01.pair.com ([209.68.5.15]:25349 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S932767AbWF3Qb4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 12:31:20 -0400
-Date: Fri, 30 Jun 2006 18:31:14 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       perex@suse.cz, Olaf Hering <olh@suse.de>
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-Message-ID: <20060630163114.GA12874@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	James Courtier-Dutton <James@superbug.co.uk>,
-	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-	alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	perex@suse.cz, Olaf Hering <olh@suse.de>
-References: <20060629192128.GE19712@stusta.de> <44A54D8E.3000002@superbug.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A54D8E.3000002@superbug.co.uk>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 30 Jun 2006 12:31:56 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Fri, 30 Jun 2006 11:31:54 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Magnus Damm <magnus.damm@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: .exit.text section in vmlinux
+In-Reply-To: <aec7e5c30606292354x3831f550y9ac2387f2fa56679@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0606301111370.21298@turbotaz.ourhouse>
+References: <aec7e5c30606292354x3831f550y9ac2387f2fa56679@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 30, 2006 at 05:13:02PM +0100, James Courtier-Dutton wrote:
-> Adrian Bunk wrote:
-> >- ALSA #1735 (OSS emulation 4-channel mode rear channels not working)
-> 
-> As the MAINTAINER of EMU10K1, I am happy for EMU10K1 driver to be 
-> removed from the kernel.
-> 
-> ALSA #1735 is now closed. All the apps the user was trying also support 
-> ALSA natively now, so OSS is not needed.
+On Fri, 30 Jun 2006, Magnus Damm wrote:
 
-Are you joking ?
+> Hi guys,
+>
+> I understand why ".exit.text" is present in the case of modules, but I
+> can't get my head around why it is included in the vmlinux file.
+> Functions like the ones below puzzle me:
+>
+> kernel/configs.c: static void __exit ikconfig_cleanup(void)
+> drivers/net/ne2k-pci.c: static void __exit ne2k_pci_cleanup(void)
+> drivers/net/ne2k-pci.c: static void __devexit ne2k_pci_remove_one
+> (struct pci_dev *pdev)
+>
+> I can see how the last "__devexit" function might be called during
+> some hotplug event, but are the two "__exit" functions ever going to
+> be called from the kernel? Since my kernel is configured without
+> CONFIG_HOTPLUG both both "__exit" and "__devexit"  end up in the
+> ".exit.text" section.
+>
+> The linker script arch/i386/kernel/vmlinux.lds.S mentions the following:
+>
+>  /* .exit.text is discard at runtime, not link time, to deal with references
+>     from .altinstructions and .eh_frame */
 
-  OG.
+.altinstructions is for alternatives code (code that is rewritten at 
+runtime based on some factor such as UP-vs-SMP). .eh_frame has call 
+framing information used for unwinding. I think it's copied into the 
+vsyscall page (not entirely familiar with this mechanism though).
+
+> The text above seems to answer my question, but I cannot say I fully
+> understand the comment. I'd appreciate if someone could explain a bit
+> more if possible.
+>
+> Ok, so the section should be discarded at runtime. Sounds ok. But
+> where in the code is this section discarded? -ENOSYS?
+
+When you see "Freeing unused kernel memory", the memory between 
+__init_begin and __init_end (as marked in vmlinux.ld.S) is released. See 
+arch-specific mm/init.c.
+
+> Thanks,
+>
+> / magnus
+
+Thanks,
+Chase

@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751802AbWF3QNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWF3QOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751802AbWF3QNx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 12:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWF3QNx
+	id S932265AbWF3QOY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 12:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWF3QOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 12:13:53 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:14741 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751797AbWF3QNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 12:13:52 -0400
-Date: Fri, 30 Jun 2006 18:13:51 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH -mm] ide_end_drive_cmd(): avoid instruction pipeline stall
-Message-ID: <20060630161351.GA17434@rhlx01.fht-esslingen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Jun 2006 12:14:24 -0400
+Received: from wx-out-0102.google.com ([66.249.82.196]:2846 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932265AbWF3QOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 12:14:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HNDpdJzkfbB9Hu0rGZRxc02sHjKYKg2ouzsW9luv+NMIBE7t1PTU/sCKzIdbcqMlAaHr3W3WUlKEwVOLURtU/7VDTPG99ExYlJmmTIxqK2goBIw6ZFdTWKNpYyPgeYKLyumy+B3rP4XCK+j/Y6YEOHAs7C/lappMA/LaBjCXkz0=
+Message-ID: <39f633820606300914i170c9a25i24e834efc36703f5@mail.gmail.com>
+Date: Fri, 30 Jun 2006 18:14:21 +0200
+From: "Robert Nagy" <robert.nagy@gmail.com>
+To: "Jesse Barnes" <jbarnes@virtuousgeek.org>
+Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200606300906.47077.jbarnes@virtuousgeek.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+References: <39f633820606290818g1978866ap@mail.gmail.com>
+	 <200606291342.38580.jbarnes@virtuousgeek.org>
+	 <39f633820606300507h68333a66xb6750e7d6cd652b1@mail.gmail.com>
+	 <200606300906.47077.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use an independently-formatted "unsigned int" for data instead of a
-restrictive "u16" to avoid instruction fetch pipeline stalls
-probably caused by the byte calculations later.
+no i do not have kdb. and i cannot even boot the box now. is there any
+way to disable the megaraid driver with an argument?
 
-
-ide_end_drive_cmd() uses an u16 variable for the result of an INW()
-which it then does some byte masking operations on.
-On my P3/700, this results in a highly visible IFU_MEM_STALL oprofile blip
-when doing a simple "load 30 larger GUI apps in parallel" benchmark
-(which takes about 1:30 or so, BTW):
-The ide_end_drive_cmd() IFU_MEM_STALL amounts to 0.59% of all IFU_MEM_STALL
-events during the profiling, with this opcode line amounting to > 95%
-IFU_MEM_STALL within the function itself.
-
-Replacing the u16 by an architecture-independently formatted unsigned int
-to ease the byte-masking operations:
-
-	/* no u16 here: caused severe IFU_MEM_STALL! */
-	unsigned int data                               = hwif->INW(IDE_DATA_REG);
-	args->tfRegister[IDE_DATA_OFFSET]       = (data) & 0xFF;
-	args->hobRegister[IDE_DATA_OFFSET]      = (data >> 8) & 0xFF;
-
-completely puts ide_end_drive_cmd() off the IFU_MEM_STALL radar during
-repeated profiling attempts (after a fresh reboot with the modified kernel),
-as opposed to having been the *top* oprofile trace item before.
-
-I suppose that this is something like a textbook example of why it's
-sometimes not beneficial to not use native-sized (i.e., 32bit) variables,
-right?
-
-Run-tested on 2.6.17-mm4.
-
-Signed-off-by: Andreas Mohr <andi@lisas.de>
-
-
-diff -urN linux-2.6.17-mm4.orig/drivers/ide/ide-io.c linux-2.6.17-mm4.my/drivers/ide/ide-io.c
---- linux-2.6.17-mm4.orig/drivers/ide/ide-io.c	2006-06-29 11:57:12.000000000 +0200
-+++ linux-2.6.17-mm4.my/drivers/ide/ide-io.c	2006-06-30 11:54:12.000000000 +0200
-@@ -397,7 +397,8 @@
- 			
- 		if (args) {
- 			if (args->tf_in_flags.b.data) {
--				u16 data				= hwif->INW(IDE_DATA_REG);
-+				/* no u16 here: caused severe IFU_MEM_STALL! */
-+				unsigned int data				= hwif->INW(IDE_DATA_REG);
- 				args->tfRegister[IDE_DATA_OFFSET]	= (data) & 0xFF;
- 				args->hobRegister[IDE_DATA_OFFSET]	= (data >> 8) & 0xFF;
- 			}
+2006/6/30, Jesse Barnes <jbarnes@virtuousgeek.org>:
+> On Friday, June 30, 2006 5:07 am, Robert Nagy wrote:
+> > I've tried that with two different cards. Now the error is different.
+> > Even the firmware boots on the controller but then the machine resets.
+> > Same thing happens if I load the EFI driver but that drops me to the
+> > debugger. More info can be found at http://pastebin.ca/75652
+> >
+> > megaraid cmm: 2.20.2.6 (Release Date: Mon Mar 7 00:01:03 EST 2005)
+> > megaraid: 2.20.4.8 (Release Date: Mon Apr 11 12:27:22 EST 2006)
+> > megaraid: probe new device 0x1000:0x0407:0x8086:0x0532: bus 2:slot
+> > 0:func 0 ACPI: PCI Interrupt 0002:02:00.0[A]: no GSI
+> > megaraid mailbox: wait for FW to boot [ok]
+> > Entered OS MCA handler. PSP=20000000fff21120 cpu=0 monarch=1
+> > All OS MCA slaves have reached rendezvous
+>
+> This is what happens when you have PCI card in the bus next to your RAID
+> card and run without my patch?  Hm...  this might be a regular driver
+> bug.  Interesting that this driver might do an msleep right after the
+> [ok] is printed.  Do you have kdb builtin to your kernel?  If so, maybe
+> you could get a backtrace.  Otherwise you could put in some printk
+> statements to see if we can figure out where the MCA is occuring...
+>
+> Jesse
+>

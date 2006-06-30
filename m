@@ -1,42 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWF3AQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWF3AQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWF3AQI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 20:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWF3AQG
+	id S1751319AbWF3AQx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 20:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWF3AQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 20:16:06 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:13366 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751319AbWF3AQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 20:16:04 -0400
-Message-ID: <44A46D3B.6060703@watson.ibm.com>
-Date: Thu, 29 Jun 2006 20:15:55 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: akpm@osdl.org, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com,
-       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>	<20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>	<20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>	<20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>	<44A01A50.1050403@sgi.com>	<20060626105548.edef4c64.akpm@osdl.org>	<44A020CD.30903@watson.ibm.com>	<20060626111249.7aece36e.akpm@osdl.org>	<44A026ED.8080903@sgi.com>	<20060626113959.839d72bc.akpm@osdl.org>	<44A2F50D.8030306@engr.sgi.com>	<20060628145341.529a61ab.akpm@osdl.org>	<44A2FC72.9090407@engr.sgi.com>	<20060629014050.d3bf0be4.pj@sgi.com>	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>	<20060629094408.360ac157.pj@sgi.com>	<20060629110107.2e56310b.akpm@osdl.org>	<20060629112642.66f35dd5.pj@sgi.com>	<44A426DC.9090009@watson.ibm.com>	<20060629124148.48d4c9ad.pj@sgi.com>	<44A4492E.6090307@watson.ibm.com> <20060629152319.cfffe0d6.pj@sgi.com>
-In-Reply-To: <20060629152319.cfffe0d6.pj@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 29 Jun 2006 20:16:52 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:11461 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751319AbWF3AQu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 20:16:50 -0400
+Subject: [RFC][Update 0/16]extents and 48bit ext3/4 patches
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Thu, 29 Jun 2006 17:16:47 -0700
+Message-Id: <1151626608.6601.66.camel@dyn9047017069.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
+Hello!
 
->
->If the collectors are grouped along natural job boundaries, there might
->not be any need to combine multiple streams, hence no need for the
->timestamps you mention. 
->
-Nope...as long as there are users who are using cpusets ONLY as a means 
-of reducing sockets
-to listen to, timestamps will be needed. Userspace can of course, choose 
-to combine or not.
+Here is the updated ext3/4 patches to support 48bit ext4 filesystem.
 
+http://ext2.sourceforge.net/48bitext3/patches/latest/
+
+Changes since last post includes
+
+- bug fixes in 64bit JBD changes, which breaks non-extents 32 bit ext3
+filesystem
+- sync up on disk super block structure with e2fsprogs
+- add initial handing of uninitialized extents
+- removed 32 bit ext3 bug fixes patches from this series as they are
+folded to current linus git tree.
+
+
+Patches against 2.6.17-git13, tested on both 32 bit and 64 bit arch,
+survived fsx test on 32bit ext3(mounted w/o extent, with CONFIG_LBD
+enabled) and 48 bit ext4(mounted with extents).
+
+Appreciate any comments and feedbacks.
+
+Thanks,
+
+Mingming
+
+-------------------------------------
+patch series:
+
+#------------------------
+# base extent support (32bit)
+#------------------------
+ext3-extents.patch
+#------------------------
+# 48bit ext3 patches
+#-------------------------
+# 64 bit in-kernel block number support
+#
+#sector_t type format string for all arch
+sector_fmt.patch
+#support >32 bit fs block type in kernel (convert ext3_fsblk_t to sector_t)
+ext3_fsblk_sector_t.patch
+#
+#48 bit extent map patches
+#
+ext3-extents-48bit.patch
+ext3-extents-ext3_fsblk_t.patch
+ext3-unitialized-extent-handling.patch
+#
+# 64bit JBD support
+#
+64bit_jbd_core.patch
+jbd-avoid-blk-overflow-write-journal-metadata-tag.patch
+jbd-read-32bit-tag-fix.patch
+jbd-cleanup-journal_tag_bytes.patch
+sector_t-jbd.patch
+jbd-revoke-32bit-shift-fix.patch
+#
+# 48 bit on-disk xttar support
+#
+ext3_48bit_i_file_acl.patch
+#
+# 64bit on-disk sb metadata changes
+#
+64bit-metadata.patch
+64bit-incompat-flag-change.patch
+ext3-sb-struc-sync-with-e2fsprog.patch
 
 

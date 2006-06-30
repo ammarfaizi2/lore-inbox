@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWF3QOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWF3QO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbWF3QOY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 12:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWF3QOY
+	id S932273AbWF3QO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 12:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWF3QO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 12:14:24 -0400
-Received: from wx-out-0102.google.com ([66.249.82.196]:2846 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932265AbWF3QOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 12:14:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HNDpdJzkfbB9Hu0rGZRxc02sHjKYKg2ouzsW9luv+NMIBE7t1PTU/sCKzIdbcqMlAaHr3W3WUlKEwVOLURtU/7VDTPG99ExYlJmmTIxqK2goBIw6ZFdTWKNpYyPgeYKLyumy+B3rP4XCK+j/Y6YEOHAs7C/lappMA/LaBjCXkz0=
-Message-ID: <39f633820606300914i170c9a25i24e834efc36703f5@mail.gmail.com>
-Date: Fri, 30 Jun 2006 18:14:21 +0200
-From: "Robert Nagy" <robert.nagy@gmail.com>
-To: "Jesse Barnes" <jbarnes@virtuousgeek.org>
-Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200606300906.47077.jbarnes@virtuousgeek.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 12:14:57 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:25578 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932273AbWF3QOz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 12:14:55 -0400
+Date: Fri, 30 Jun 2006 11:14:42 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Daniel Lezcano <dlezcano@fr.ibm.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Sam Vilain <sam@vilain.net>,
+       hadi@cyberus.ca, Herbert Poetzl <herbert@13thfloor.at>,
+       Alexey Kuznetsov <alexey@sw.ru>, viro@ftp.linux.org.uk,
+       devel@openvz.org, dev@sw.ru, Andrew Morton <akpm@osdl.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrey Savochkin <saw@swsoft.com>, Ben Greear <greearb@candelatech.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: strict isolation of net interfaces
+Message-ID: <20060630161442.GA27210@sergelap.austin.ibm.com>
+References: <1151449973.24103.51.camel@localhost.localdomain> <20060627234210.GA1598@ms2.inr.ac.ru> <m1mzbyj6ft.fsf@ebiederm.dsl.xmission.com> <20060628133640.GB5088@MAIL.13thfloor.at> <1151502803.5203.101.camel@jzny2> <44A44124.5010602@vilain.net> <44A450D1.2030405@fr.ibm.com> <20060630023947.GA24726@sergelap.austin.ibm.com> <44A517B4.4010500@fr.ibm.com> <m1veqibu8n.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <39f633820606290818g1978866ap@mail.gmail.com>
-	 <200606291342.38580.jbarnes@virtuousgeek.org>
-	 <39f633820606300507h68333a66xb6750e7d6cd652b1@mail.gmail.com>
-	 <200606300906.47077.jbarnes@virtuousgeek.org>
+In-Reply-To: <m1veqibu8n.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-no i do not have kdb. and i cannot even boot the box now. is there any
-way to disable the megaraid driver with an argument?
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> This whole debate on network devices show up in multiple network namespaces
+> is just silly.  The only reason for wanting that appears to be better management.
 
-2006/6/30, Jesse Barnes <jbarnes@virtuousgeek.org>:
-> On Friday, June 30, 2006 5:07 am, Robert Nagy wrote:
-> > I've tried that with two different cards. Now the error is different.
-> > Even the firmware boots on the controller but then the machine resets.
-> > Same thing happens if I load the EFI driver but that drops me to the
-> > debugger. More info can be found at http://pastebin.ca/75652
-> >
-> > megaraid cmm: 2.20.2.6 (Release Date: Mon Mar 7 00:01:03 EST 2005)
-> > megaraid: 2.20.4.8 (Release Date: Mon Apr 11 12:27:22 EST 2006)
-> > megaraid: probe new device 0x1000:0x0407:0x8086:0x0532: bus 2:slot
-> > 0:func 0 ACPI: PCI Interrupt 0002:02:00.0[A]: no GSI
-> > megaraid mailbox: wait for FW to boot [ok]
-> > Entered OS MCA handler. PSP=20000000fff21120 cpu=0 monarch=1
-> > All OS MCA slaves have reached rendezvous
->
-> This is what happens when you have PCI card in the bus next to your RAID
-> card and run without my patch?  Hm...  this might be a regular driver
-> bug.  Interesting that this driver might do an msleep right after the
-> [ok] is printed.  Do you have kdb builtin to your kernel?  If so, maybe
-> you could get a backtrace.  Otherwise you could put in some printk
-> statements to see if we can figure out where the MCA is occuring...
->
-> Jesse
->
+A damned good reason.  Clearly we want the parent namespace to be able
+to control what the child can do.  So whatever interface a child gets,
+the parent should be able to somehow address.  Simple iptables rules
+controlling traffic between it's own netdevice and the one it hands it's
+children seem a good option.
+
+> We have deeper issues like can we do a reasonable implementation without a
+> network device showing up in multiple namespaces.
+
+Isn't that the same issue?
+
+> If we can get layer 2 level isolation working without measurable overhead
+> with one namespace per device it may be worth revisiting things.  Until
+> then it is a side issue at best.
+
+Ok, and in the meantime we can all use the network part of the bsdjail
+lsm?  :)
+
+-serge

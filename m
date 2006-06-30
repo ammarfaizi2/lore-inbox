@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWF3Ixd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWF3I4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWF3Ixd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 04:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWF3Ixd
+	id S932148AbWF3I4d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 04:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWF3I4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 04:53:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17803 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932140AbWF3Ixd (ORCPT
+	Fri, 30 Jun 2006 04:56:32 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:13489 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932141AbWF3I4b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 04:53:33 -0400
-Date: Fri, 30 Jun 2006 01:52:51 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: andy@andynet.net, gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
-Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
- transfers
-Message-Id: <20060630015251.e6a4e526.zaitcev@redhat.com>
-In-Reply-To: <20060630001021.2b49d4bd.akpm@osdl.org>
-References: <1151646482.3285.410.camel@tahini.andynet.net>
-	<20060630001021.2b49d4bd.akpm@osdl.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 Jun 2006 04:56:31 -0400
+Message-ID: <44A4E72D.2060105@fr.ibm.com>
+Date: Fri, 30 Jun 2006 10:56:13 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: Sam Vilain <sam@vilain.net>, hadi@cyberus.ca,
+       Herbert Poetzl <herbert@13thfloor.at>, Alexey Kuznetsov <alexey@sw.ru>,
+       viro@ftp.linux.org.uk, devel@openvz.org, dev@sw.ru,
+       Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Andrey Savochkin <saw@swsoft.com>,
+       Daniel Lezcano <dlezcano@fr.ibm.com>,
+       Ben Greear <greearb@candelatech.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: strict isolation of net interfaces
+References: <m1psgulf4u.fsf@ebiederm.dsl.xmission.com> <44A1689B.7060809@candelatech.com> <20060627225213.GB2612@MAIL.13thfloor.at> <1151449973.24103.51.camel@localhost.localdomain> <20060627234210.GA1598@ms2.inr.ac.ru> <m1mzbyj6ft.fsf@ebiederm.dsl.xmission.com> <20060628133640.GB5088@MAIL.13thfloor.at> <1151502803.5203.101.camel@jzny2> <44A44124.5010602@vilain.net> <44A450D1.2030405@fr.ibm.com> <20060630023947.GA24726@sergelap.austin.ibm.com>
+In-Reply-To: <20060630023947.GA24726@sergelap.austin.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jun 2006 00:10:21 -0700, Andrew Morton <akpm@osdl.org> wrote:
-
-> > +static void airprime_read_bulk_callback(struct urb *urb, struct pt_regs *regs)
->.......
-> > +	/* should this use GFP_KERNEL? */
-> > +	result = usb_submit_urb(urb, GFP_ATOMIC);
+Serge E. Hallyn wrote:
 > 
-> If possible, yep.
+> The last one in your diagram confuses me - why foo0:1?  I would
+> have thought it'd be
 
-You can't be serious. It's a callback function we're discussing here,
-and you even quoted it.
+just thinking aloud. I thought that any kind/type of interface could be
+mapped from host to guest.
 
-> > +	/* free up private structure? */
+> host                  |  guest 0  |  guest 1  |  guest2
+> ----------------------+-----------+-----------+--------------
+>   |                   |           |           |
+>   |-> l0      <-------+-> lo0 ... | lo0       | lo0
+>   |                   |           |           |
+>   |-> eth0            |           |           |
+>   |                   |           |           |
+>   |-> veth0  <--------+-> eth0    |           |
+>   |                   |           |           |
+>   |-> veth1  <--------+-----------+-----------+-> eth0
+>   |                   |           |           |
+>   |-> veth2   <-------+-----------+-> eth0    |
 > 
-> Yes please ;)
-
-+1
-
-> Is usb_serial_driver.write() really called in a context in which it is
-> forced to use GFP_ATOMIC?
-
-There are cases when it is. It happens when a line discipline does it.
-The n_tty does it if the line is in cooked mode, which is the default.
-n_hdlc does it always, though I have no idea if this is applicable
-to airprime. I think PPP writes from a tasklet as well.
-
-The idea to allocate a URB for every little user write bothers me as
-well. It was a dirty code thrown together quickly by someone who could
-not be bothered to use a circular buffer and two URBs. It was fine
-for the visor.c, but the Airprime is a higher performance card, and it
-can be used in a home gateway with a low-power CPU. I'm not happy.
-
--- Pete
+> I think we should avoid using device aliases, as trying to do
+> something like giving eth0:1 to guest1 and eth0:2 to guest2
+> while hiding eth0:1 from guest2 requires some uglier code (as
+> I recall) than working with full devices.  In other words,
+> if a namespace can see eth0, and eth0:2 exists, it should always
+> see eth0:2.
+> 
+> So conceptually using a full virtual net device per container
+> certainly seems cleaner to me, and it seems like it should be
+> simpler by way of statistics gathering etc, but are there actually
+> any real gains?  Or is the support for multiple IPs per device
+> actually enough?
+> 
+> Herbert, is this basically how ngnet is supposed to work?

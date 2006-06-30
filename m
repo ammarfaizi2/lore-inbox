@@ -1,16 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933181AbWF3ASt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWF3AUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933181AbWF3ASt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 20:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933165AbWF3ASR
+	id S964797AbWF3AUN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 20:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWF3ATn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 20:18:17 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:29391 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S933175AbWF3ASG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 20:18:06 -0400
-Subject: [RFC][Update][Patch 8/16]Avoid potential block overflow when
-	writing journal metadata tags
+	Thu, 29 Jun 2006 20:19:43 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:1236 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964790AbWF3ATb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 20:19:31 -0400
+Subject: [RFC][Update][Patch 16/16]Update ext3 superblock definition
 From: Mingming Cao <cmm@us.ibm.com>
 Reply-To: cmm@us.ibm.com
 To: linux-kernel@vger.kernel.org
@@ -20,75 +19,51 @@ In-Reply-To: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
 References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
 Content-Type: text/plain
 Organization: IBM LTC
-Date: Thu, 29 Jun 2006 17:18:04 -0700
-Message-Id: <1151626685.6601.78.camel@dyn9047017069.beaverton.ibm.com>
+Date: Thu, 29 Jun 2006 17:19:29 -0700
+Message-Id: <1151626769.6601.87.camel@dyn9047017069.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When writing block numbers into a journal descriptor block, don't write
-the top 32 bits of a tag unless we're using a 64-bit journal.  That
-avoids any possibility of overflowing off the end of the descriptor
-block in the case where the last 32-bit tag only just fits into the
-descriptor block.
-
-Also cleans up the tag handling slightly by introducing new macros for
-the size of 32- and 64-bit descriptor tags.
+The ext3 on-disk superblock definition in the kernel is lagging
+behind some e2fsprogs-only fields (the backup of the journal inode,
+and the mkfs timestamp), leading to the high bits of the fs size
+being declared in a field already reserved by e2fsprogs.  Bring them
+back in sync.
 
 Signed-off-by: Stephen Tweedie <sct@redhat.com>
-Acked-by: Badari Pulavarty <pbadari@us.ibm.com>
 
 
 ---
 
- linux-2.6.17-ming/fs/jbd/commit.c     |   11 ++++++-----
- linux-2.6.17-ming/include/linux/jbd.h |    3 +++
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ linux-2.6.17-ming/include/linux/ext3_fs.h |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-diff -puN fs/jbd/commit.c~jbd-avoid-blk-overflow-write-journal-metadata-tag fs/jbd/commit.c
---- linux-2.6.17/fs/jbd/commit.c~jbd-avoid-blk-overflow-write-journal-metadata-tag	2006-06-28 16:46:58.783710948 -0700
-+++ linux-2.6.17-ming/fs/jbd/commit.c	2006-06-28 16:46:58.791710030 -0700
-@@ -160,10 +160,12 @@ static int journal_write_commit_record(j
- 	return (ret == -EIO);
- }
+diff -puN include/linux/ext3_fs.h~ext3-sb-struc-sync-with-e2fsprog include/linux/ext3_fs.h
+--- linux-2.6.17/include/linux/ext3_fs.h~ext3-sb-struc-sync-with-e2fsprog	2006-06-28 16:47:18.377462723 -0700
++++ linux-2.6.17-ming/include/linux/ext3_fs.h	2006-06-28 16:47:18.381462264 -0700
+@@ -532,13 +532,15 @@ struct ext3_super_block {
+ 	__u8	s_def_hash_version;	/* Default hash version to use */
+ 	__u8	s_reserved_char_pad;
+ 	__u16	s_reserved_word_pad;
+-	__le32	s_default_mount_opts;
++/*100*/	__le32	s_default_mount_opts;
+ 	__le32	s_first_meta_bg; 	/* First metablock block group */
++	__le32	s_mkfs_time;		/* When the filesystem was created */
++	__le32	s_jnl_blocks[17]; 	/* Backup of the journal inode */
+ 	/* 64bit support valid if EXT3_FEATURE_COMPAT_64BIT */
+-	__le32	s_blocks_count_hi;	/* Blocks count */
+-/*100*/	__le32	s_r_blocks_count_hi;	/* Reserved blocks count */
++/*150*/	__le32	s_blocks_count_hi;	/* Blocks count */
++	__le32	s_r_blocks_count_hi;	/* Reserved blocks count */
+ 	__le32	s_free_blocks_count_hi;	/* Free blocks count */
+-	__u32	s_reserved[187];	/* Padding to the end of the block */
++	__u32	s_reserved[169];	/* Padding to the end of the block */
+ };
  
--static inline void write_split_be64(__be32 *high, __be32 *low, u64 val)
-+static inline void write_tag_block(int tag_bytes, journal_block_tag_t *tag,
-+				   sector_t block)
- {
--	*low = cpu_to_be32(val & (u32)~0);
--	*high = cpu_to_be32(val >> 32);
-+	tag->t_blocknr = cpu_to_be32(block & (u32)~0);
-+	if (tag_bytes > JBD_TAG_SIZE32)
-+		tag->t_blocknr_high = cpu_to_be32((block >> 31) >> 1);
- }
  
- /*
-@@ -560,8 +562,7 @@ write_out_data:
- 			tag_flag |= JFS_FLAG_SAME_UUID;
- 
- 		tag = (journal_block_tag_t *) tagp;
--		write_split_be64(&tag->t_blocknr_high, &tag->t_blocknr,
--				jh2bh(jh)->b_blocknr);
-+		write_tag_block(tag_bytes, tag, jh2bh(jh)->b_blocknr);
- 		tag->t_flags = cpu_to_be32(tag_flag);
- 		tagp += tag_bytes;
- 		space_left -= tag_bytes;
-diff -puN include/linux/jbd.h~jbd-avoid-blk-overflow-write-journal-metadata-tag include/linux/jbd.h
---- linux-2.6.17/include/linux/jbd.h~jbd-avoid-blk-overflow-write-journal-metadata-tag	2006-06-28 16:46:58.787710489 -0700
-+++ linux-2.6.17-ming/include/linux/jbd.h	2006-06-28 16:46:58.793709801 -0700
-@@ -159,6 +159,9 @@ typedef struct journal_block_tag_s
- 	__be32		t_blocknr_high; /* most-significant high 32bits. */
- } journal_block_tag_t;
- 
-+#define JBD_TAG_SIZE32 (offsetof(journal_block_tag_t, t_blocknr_high))
-+#define JBD_TAG_SIZE64 (sizeof(journal_block_tag_t))
-+
- /* 
-  * The revoke descriptor: used on disk to describe a series of blocks to
-  * be revoked from the log 
 
 _
 

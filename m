@@ -1,51 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWF3XVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWF3Wxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbWF3XVd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 19:21:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWF3XVc
+	id S932169AbWF3Wxd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 18:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWF3Wxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 19:21:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32164 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932150AbWF3XVc (ORCPT
+	Fri, 30 Jun 2006 18:53:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22684 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932106AbWF3Wxc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 19:21:32 -0400
-Date: Fri, 30 Jun 2006 16:21:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-cc: Alessio Sangalli <alesan@manoweb.com>, Dave Jones <davej@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cardbus: revert IO window limit
-In-Reply-To: <200607010109.40486.daniel.ritz-ml@swissonline.ch>
-Message-ID: <Pine.LNX.4.64.0606301614470.12404@g5.osdl.org>
-References: <200607010003.31324.daniel.ritz-ml@swissonline.ch>
- <Pine.LNX.4.64.0606301516140.12404@g5.osdl.org> <200607010109.40486.daniel.ritz-ml@swissonline.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 30 Jun 2006 18:53:32 -0400
+Date: Fri, 30 Jun 2006 15:56:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: pj@sgi.com, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com, balbir@in.ibm.com,
+       csturtiv@sgi.com, linux-kernel@vger.kernel.org, hadi@cyberus.ca,
+       netdev@vger.kernel.org
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+Message-Id: <20060630155612.36189ced.akpm@osdl.org>
+In-Reply-To: <44A57310.3010208@watson.ibm.com>
+References: <44892610.6040001@watson.ibm.com>
+	<449999D1.7000403@engr.sgi.com>
+	<44999A98.8030406@engr.sgi.com>
+	<44999F5A.2080809@watson.ibm.com>
+	<4499D7CD.1020303@engr.sgi.com>
+	<449C2181.6000007@watson.ibm.com>
+	<20060623141926.b28a5fc0.akpm@osdl.org>
+	<449C6620.1020203@engr.sgi.com>
+	<20060623164743.c894c314.akpm@osdl.org>
+	<449CAA78.4080902@watson.ibm.com>
+	<20060623213912.96056b02.akpm@osdl.org>
+	<449CD4B3.8020300@watson.ibm.com>
+	<44A01A50.1050403@sgi.com>
+	<20060626105548.edef4c64.akpm@osdl.org>
+	<44A020CD.30903@watson.ibm.com>
+	<20060626111249.7aece36e.akpm@osdl.org>
+	<44A026ED.8080903@sgi.com>
+	<20060626113959.839d72bc.akpm@osdl.org>
+	<44A2F50D.8030306@engr.sgi.com>
+	<20060628145341.529a61ab.akpm@osdl.org>
+	<44A2FC72.9090407@engr.sgi.com>
+	<20060629014050.d3bf0be4.pj@sgi.com>
+	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
+	<20060629094408.360ac157.pj@sgi.com>
+	<20060629110107.2e56310b.akpm@osdl.org>
+	<44A57310.3010208@watson.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 1 Jul 2006, Daniel Ritz wrote:
+Shailabh Nagar <nagar@watson.ibm.com> wrote:
+>
+> Based on previous discussions, the above solutions can be expanded/modified to:
 > 
-> errm...no. the SMBus device is in device 00:07.3 (power management controller)...
-> and that has ID 8086:719b (from his lspci -vvx output)...
+> a) allow userspace to listen to a group of cpus instead of all. Multiple
+> collection daemons can distribute the load as you pointed out. Doing collection
+> by cpu groups rather than individual cpus reduces the aggregation burden on
+> userspace (and scales better with NR_CPUS)
+> 
+> b) do flow control on the kernel send side. This can involve buffering and sending
+> later (to handle bursty case) or dropping (to handle sustained load) as pointed out
+> by you, Jamal in other threads.
+> 
+> c) increase receiver's socket buffer. This can and should always be done but no
+> involvement needed.
+> 
+> 
+> With regards to taskstats changes to handle the problem and its impact on userspace
+> visible changes,
+> 
+> a) will change userspace
+> b) will be transparent.
+> c) is immaterial going forward (except perhaps as a change in Documentation)
+> 
+> 
+> I'm sending a patch that demonstrates how a) can be done quite simply
+> and a patch for b) is in progress.
+> 
+> If the approach suggested in patch a) is acceptable (and I'll provide the testing, stability
+> results once comments on it are largely over), could taskstats acceptance in 2.6.18 go ahead
+> and patch b) be added later (solution outline has already been provided and a prelim patch should
+> be out by eod)
 
-Ahh, right. 
+Throwing more CPUs at the problem makes heaps of sense.
 
-Alessio, try Daniel's patch. We'd love to hear if it works, and in 
-particular what the dmesg output is (if it does work, it should print out 
-something like
-
-	PIIX4 ACPI PIO at 2000-203f
-	PIIX4 SMB PIO at 2040-204f
-
-and perhaps even a few "PIIX4 devres X" lines..)
-
-Alessio, it might also make sense to try to enable ACPI if you haven't 
-done so - not because you need to use it, but because sometimes the ACPI 
-table parsing also ends up exposing these kinds of things..
-
-		Linus
+It's not necessarily a userspace-incompatible change.  As long as userspace
+sets nl_pid to 0x00000000, future kernel revisions can treat that as "all
+CPUs".  Or userspace can be forward-compatible by setting nl_pid to
+0xffff0000, or whatever.

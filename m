@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWF3Iol@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWF3Iqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWF3Iol (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 04:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWF3Iol
+	id S932089AbWF3Iqt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 04:46:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWF3Iqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 04:44:41 -0400
-Received: from wx-out-0102.google.com ([66.249.82.194]:12819 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932132AbWF3Iok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 04:44:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OyipBKnuwOWYpvD0aikX4ow8Z7XbxZ5/178EWny25Cs5IDsdtbPKndxfgi/jOX6xmaBNCUH/S98aasr/n1+WhAmN856zPoSDCVa1y+Sa7J07hg1As+ZyvDn9jqdQsdj1UfJg8GmwVEjHlouYxrYb0EdzqQXkwbOm51g4QYmgRM4=
-Message-ID: <39f633820606300144h21671f1agafb55d9972b9e40f@mail.gmail.com>
-Date: Fri, 30 Jun 2006 10:44:39 +0200
-From: "Robert Nagy" <robert.nagy@gmail.com>
-To: "Jesse Barnes" <jbarnes@virtuousgeek.org>
-Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200606291217.00040.jbarnes@virtuousgeek.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 04:46:49 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:9960 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932089AbWF3Iqs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 04:46:48 -0400
+Date: Fri, 30 Jun 2006 12:46:30 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Michael Kerrisk <michael.kerrisk@gmx.net>,
+       Albert Cahalan <acahalan@gmail.com>
+Subject: Re: [RFC][PATCH 3/3] Process events biarch bug: New process events connector value
+Message-ID: <20060630084630.GA27593@2ka.mipt.ru>
+References: <20060627112644.804066367@localhost.localdomain> <1151408975.21787.1815.camel@stark> <1151435679.1412.16.camel@linuxchandra> <1151444382.21787.1858.camel@stark> <20060628055326.GB12276@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-References: <39f633820606290818g1978866ap@mail.gmail.com>
-	 <200606291132.51866.jbarnes@virtuousgeek.org>
-	 <39f633820606291212v40b0016cl@mail.gmail.com>
-	 <200606291217.00040.jbarnes@virtuousgeek.org>
+In-Reply-To: <20060628055326.GB12276@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 30 Jun 2006 12:46:42 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know that it only works in EFI context. But I haven't seen the disk
-attached to it. I am going to try forcing it to PCI mode.
+Albert Cahalan wrote:
+>I haven't yet seen a good explanation of what this is or does,
+>but I suspect it may be useful for the "top" program or for a
+>debugger. In either case, I am a highly interested party.
+>I maintain top as part of the procps package. People pay me to
+>hack on debuggers.
 
-2006/6/29, Jesse Barnes <jbarnes@virtuousgeek.org>:
-> On Thursday, June 29, 2006 12:12 pm, Robert Nagy wrote:
-> > I've tried the diff but there is no difference.
-> > I've also tried to use the EFI driver from Intel, but that did not
-> > work either.
->
-> Yeah, using the EFI driver won't help at all, as it's only available in
-> EFI context (it might let you boot of the raid but that's about it).
->
-> If you applied the diff and recompiled the megaraid driver and still got
-> the same error, I'm not sure what the problem is....
->
-> Jesse
->
+>Mind pointing me to some documentation and an explanation of why
+>the feature was added? Is there a man page? (there should be)
+
+There are a lot of goodies for process accounting there.
+One can find initial draft with detailed description of the project 
+goals at http://lwn.net/Articles/153694/
+
+-- 
+	Evgeniy Polyakov

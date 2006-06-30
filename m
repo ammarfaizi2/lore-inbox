@@ -1,139 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWF3ApI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWF3Ars@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbWF3ApI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 20:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWF3ApH
+	id S964828AbWF3Ars (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 20:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWF3Arr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 20:45:07 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45699 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751366AbWF3ApE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 20:45:04 -0400
-Date: Thu, 29 Jun 2006 17:39:56 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Linux 2.6.17.2
-Message-ID: <20060630003956.GE11588@sequoia.sous-sol.org>
+	Thu, 29 Jun 2006 20:47:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:65408 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964829AbWF3Aro (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 20:47:44 -0400
+Date: Thu, 29 Jun 2006 17:50:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ben Dooks <ben@fluff.org.uk>
+Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: [RFC] RTC: class driver for Samsung S3C series SoC
+Message-Id: <20060629175018.10ac28c8.akpm@osdl.org>
+In-Reply-To: <20060629225325.GA11799@home.fluff.org>
+References: <20060629225325.GA11799@home.fluff.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.17.2 kernel.
-Assorted fixes, see the diffstat and short summary of the fixes below.
+Ben Dooks <ben@fluff.org.uk> wrote:
+>
+> This is a renamed and tested version of the
+> previous S3C24XX RTC class driver.
+> 
+> The driver has been renamed from the original
+> s3c2410-rtc, which is now too narrow for the
+> range of devices supported.
+> 
+> The rtc-s3c has been chosen as there is the
+> distinct possibility of this driver being
+> carried forward into newer Samsung SoC
+> silicon.
+> 
+> +#undef S3C24XX_VA_RTC
+> +#define S3C24XX_VA_RTC s3c_rtc_base
 
-I'll also be replying to this message with a copy of the patch between
-2.6.17.1 and 2.6.17.2, as it is small enough to do so.
+This appears to be unused?
 
-The updated 2.6.17.y git tree can be found at:
- 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.17.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+> +static int s3c_rtc_open(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct rtc_device *rtc_dev = platform_get_drvdata(pdev);
+> +	int ret;
+> +
+> +	ret = request_irq(s3c_rtc_alarmno, s3c_rtc_alarmirq,
+> +			  SA_INTERRUPT,  "s3c2410-rtc alarm", rtc_dev);
+> +
+> +	if (ret)
+> +		dev_err(dev, "IRQ%d error %d\n", s3c_rtc_alarmno, ret);
 
-thanks,
--chris
+I suspect you wanted a `return ret;' here.
 
---------
+> +	ret = request_irq(s3c_rtc_tickno, s3c_rtc_tickirq,
+> +			  SA_INTERRUPT,  "s3c2410-rtc tick", rtc_dev);
+> +
+> +	if (ret) {
+> +		dev_err(dev, "IRQ%d error %d\n", s3c_rtc_tickno, ret);
+> +		goto tick_err;
+> +	}
+> +
+> +	return ret;
+> +
+> + tick_err:
+> +	free_irq(s3c_rtc_alarmno, rtc_dev);
+> +	return ret;
+> +}
 
- Makefile                                    |    2 -
- arch/sparc/mm/iommu.c                       |    3 +-
- arch/um/kernel/time_kern.c                  |    2 -
- drivers/ide/ide-io.c                        |    2 -
- drivers/ieee1394/ohci1394.c                 |    3 ++
- drivers/input/input.c                       |    2 -
- drivers/net/wireless/bcm43xx/bcm43xx_main.c |   28 ++++++++++-----------
- drivers/parport/Kconfig                     |    2 -
- drivers/scsi/libata-core.c                  |    2 -
- drivers/usb/serial/whiteheat.c              |    4 +--
- fs/ntfs/file.c                              |   13 +++++----
- include/asm-i386/alternative.h              |    2 +
- include/linux/libata.h                      |    9 ++++--
- include/linux/pfkeyv2.h                     |    2 -
- include/net/sctp/structs.h                  |    3 +-
- kernel/exit.c                               |    2 -
- lib/idr.c                                   |   16 +++++++++---
- net/core/ethtool.c                          |    3 +-
- net/ipv6/addrconf.c                         |   37 ++++++++++++++++++++++++----
- net/sctp/input.c                            |    3 +-
- net/sctp/ipv6.c                             |    6 +++-
- net/sctp/outqueue.c                         |    1 
- net/sctp/protocol.c                         |    8 +++++-
- net/sctp/sm_statefuns.c                     |   10 ++++++-
- net/sctp/socket.c                           |   28 +++++++++++++++++++--
- net/sctp/ulpevent.c                         |   30 +++++++++++++++++++++-
- usr/Makefile                                |    3 --
- 27 files changed, 171 insertions(+), 55 deletions(-)
+Are you sure you want spaces in the interrupt identifiers?  It'll make
+parsing of /proc/interrupts harder, although I don't know that we're at all
+consistent about that.
 
-Summary of changes from v2.6.17.1 to v2.6.17.2
-================================================
 
-Al Boldi:
-      ide-io: increase timeout value to allow for slave wakeup
+From: Andrew Morton <akpm@osdl.org>
 
-Anton Altaparmakov:
-      NTFS: Critical bug fix (affects MIPS and possibly others)
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-Anton Blanchard:
-      Link error when futexes are disabled on 64bit architectures
+ drivers/rtc/rtc-s3c.c |   36 ++++++++++++++----------------------
+ 1 files changed, 14 insertions(+), 22 deletions(-)
 
-Chris Wright:
-      Linux 2.6.17.2
-
-David Miller:
-      SCTP: Reset rtt_in_progress for the chunk when processing its sack.
-      SPARC32: Fix iommu_flush_iotlb end address
-
-Herbert Xu:
-      ETHTOOL: Fix UFO typo
-
-Jeff Dike:
-      UML: fix uptime
-
-Kirill Smelkov:
-      x86: compile fix for asm-i386/alternatives.h
-
-Michael Buesch:
-      bcm43xx: init fix for possible Machine Check
-
-Neil Horman:
-      SCTP: Fix persistent slowdown in sctp when a gap ack consumes rx buffer.
-
-Nickolay:
-      kbuild: bugfix with initramfs
-
-Richard Purdie:
-      Input: return correct size when reading modalias attribute
-
-Robert Hancock:
-      ohci1394: Fix broken suspend/resume in ohci1394
-
-Sonny Rao:
-      idr: fix race in idr code
-
-Stuart MacDonald:
-      USB: Whiteheat: fix firmware spurious errors
-
-Tejun Heo:
-      libata: minor patch for ATA_DFLAG_PIO
-
-Tsutomu Fujii:
-      SCTP: Send only 1 window update SACK per message.
-
-Tushar Gohad:
-      PFKEYV2: Fix inconsistent typing in struct sadb_x_kmprivate.
-
-Vlad Yasevich:
-      SCTP: Limit association max_retrans setting in setsockopt.
-      SCTP: Reject sctp packets with broadcast addresses.
-
-YOSHIFUJI Hideaki:
-      IPV6: Sum real space for RTAs.
-      IPV6 ADDRCONF: Fix default source address selection without CONFIG_IPV6_PRIVACY
-
-Łukasz Stelmach:
-      IPV6: Fix source address selection.
+diff -puN drivers/rtc/rtc-s3c.c~rtc-class-driver-for-samsung-s3c-series-soc-tidy drivers/rtc/rtc-s3c.c
+--- a/drivers/rtc/rtc-s3c.c~rtc-class-driver-for-samsung-s3c-series-soc-tidy
++++ a/drivers/rtc/rtc-s3c.c
+@@ -34,9 +34,6 @@
+ /* I have yet to find an S3C implementation with more than one
+  * of these rtc blocks in */
+ 
+-#undef S3C24XX_VA_RTC
+-#define S3C24XX_VA_RTC s3c_rtc_base
+-
+ static struct resource *s3c_rtc_mem;
+ 
+ static void __iomem *s3c_rtc_base;
+@@ -45,6 +42,7 @@ static int s3c_rtc_tickno  = NO_IRQ;
+ static int s3c_rtc_freq    = 1;
+ 
+ static DEFINE_SPINLOCK(s3c_rtc_pie_lock);
++static unsigned int tick_count;
+ 
+ /* IRQ Handlers */
+ 
+@@ -56,8 +54,6 @@ static irqreturn_t s3c_rtc_alarmirq(int 
+ 	return IRQ_HANDLED;
+ }
+ 
+-static unsigned int tick_count;
+-
+ static irqreturn_t s3c_rtc_tickirq(int irq, void *id, struct pt_regs *r)
+ {
+ 	struct rtc_device *rdev = id;
+@@ -153,7 +149,6 @@ static int s3c_rtc_gettime(struct device
+ 	return 0;
+ }
+ 
+-
+ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
+ {
+ 	/* the rtc gets round the y2k problem by just not supporting it */
+@@ -193,29 +188,25 @@ static int s3c_rtc_getalarm(struct devic
+ 
+ 	/* decode the alarm enable field */
+ 
+-	if (alm_en & S3C2410_RTCALM_SECEN) {
++	if (alm_en & S3C2410_RTCALM_SECEN)
+ 		BCD_TO_BIN(alm_tm->tm_sec);
+-	} else {
++	else
+ 		alm_tm->tm_sec = 0xff;
+-	}
+ 
+-	if (alm_en & S3C2410_RTCALM_MINEN) {
++	if (alm_en & S3C2410_RTCALM_MINEN)
+ 		BCD_TO_BIN(alm_tm->tm_min);
+-	} else {
++	else
+ 		alm_tm->tm_min = 0xff;
+-	}
+ 
+-	if (alm_en & S3C2410_RTCALM_HOUREN) {
++	if (alm_en & S3C2410_RTCALM_HOUREN)
+ 		BCD_TO_BIN(alm_tm->tm_hour);
+-	} else {
++	else
+ 		alm_tm->tm_hour = 0xff;
+-	}
+ 
+-	if (alm_en & S3C2410_RTCALM_DAYEN) {
++	if (alm_en & S3C2410_RTCALM_DAYEN)
+ 		BCD_TO_BIN(alm_tm->tm_mday);
+-	} else {
++	else
+ 		alm_tm->tm_mday = 0xff;
+-	}
+ 
+ 	if (alm_en & S3C2410_RTCALM_MONEN) {
+ 		BCD_TO_BIN(alm_tm->tm_mon);
+@@ -224,11 +215,10 @@ static int s3c_rtc_getalarm(struct devic
+ 		alm_tm->tm_mon = 0xff;
+ 	}
+ 
+-	if (alm_en & S3C2410_RTCALM_YEAREN) {
++	if (alm_en & S3C2410_RTCALM_YEAREN)
+ 		BCD_TO_BIN(alm_tm->tm_year);
+-	} else {
++	else
+ 		alm_tm->tm_year = 0xffff;
+-	}
+ 
+ 	return 0;
+ }
+@@ -352,8 +342,10 @@ static int s3c_rtc_open(struct device *d
+ 	ret = request_irq(s3c_rtc_alarmno, s3c_rtc_alarmirq,
+ 			  SA_INTERRUPT,  "s3c2410-rtc alarm", rtc_dev);
+ 
+-	if (ret)
++	if (ret) {
+ 		dev_err(dev, "IRQ%d error %d\n", s3c_rtc_alarmno, ret);
++		return ret;
++	}
+ 
+ 	ret = request_irq(s3c_rtc_tickno, s3c_rtc_tickirq,
+ 			  SA_INTERRUPT,  "s3c2410-rtc tick", rtc_dev);
+_
 

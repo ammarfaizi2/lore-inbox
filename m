@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751839AbWF3S4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751856AbWF3S4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751839AbWF3S4M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 14:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWF3S4M
+	id S1751856AbWF3S4O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 14:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWF3S4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 14:56:12 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:61118 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751839AbWF3Szy (ORCPT
+	Fri, 30 Jun 2006 14:56:14 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:39383 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1751414AbWF3Szx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 14:55:54 -0400
-Date: Fri, 30 Jun 2006 20:51:15 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: John Rigg <lk@sound-man.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rt4 x86_64 unknown symbol monotonic_clock
-Message-ID: <20060630185115.GC29566@elte.hu>
-References: <20060629185343.GA2947@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Jun 2006 14:55:53 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] IRQ: warning message cleanup
+Date: Fri, 30 Jun 2006 12:55:48 -0600
+User-Agent: KMail/1.8.3
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060629185343.GA2947@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200606301255.48552.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Make warnings more consistent.
 
-* John Rigg <lk@sound-man.co.uk> wrote:
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-> Hi Ingo,
-> 
-> I'm still getting this warning from `make modules_install':
-> 
-> WARNING: 
-> /lib/modules/2.6.17-rt4/kernel/drivers/char/hangcheck-timer.ko \ needs 
-> unknown symbol monotonic_clock
-
-oops ...
-
-> The patch below appears to fix it.
-
-thanks, applied.
-
-	Ingo
+Index: work-mm7/kernel/irq/manage.c
+===================================================================
+--- work-mm7.orig/kernel/irq/manage.c	2006-06-30 11:59:13.000000000 -0600
++++ work-mm7/kernel/irq/manage.c	2006-06-30 12:17:42.000000000 -0600
+@@ -115,7 +115,7 @@
+ 	spin_lock_irqsave(&desc->lock, flags);
+ 	switch (desc->depth) {
+ 	case 0:
+-		printk(KERN_WARNING "Unablanced enable_irq(%d)\n", irq);
++		printk(KERN_WARNING "Unbalanced enable for IRQ %d\n", irq);
+ 		WARN_ON(1);
+ 		break;
+ 	case 1: {
+@@ -268,9 +268,10 @@
+ 				 * SA_TRIGGER_* but the PIC does not support
+ 				 * multiple flow-types?
+ 				 */
+-				printk(KERN_WARNING "setup_irq(%d) SA_TRIGGER"
+-				       "set. No set_type function available\n",
+-				       irq);
++				printk(KERN_WARNING "No SA_TRIGGER set_type "
++				       "function for IRQ %d (%s)\n", irq,
++				       desc->chip ? desc->chip->name :
++				       "unknown");
+ 		} else
+ 			compat_irq_chip_set_default_handler(desc);
+ 
+@@ -300,7 +301,7 @@
+ mismatch:
+ 	spin_unlock_irqrestore(&desc->lock, flags);
+ 	if (!(new->flags & SA_PROBEIRQ)) {
+-		printk(KERN_ERR "%s: irq handler mismatch\n", __FUNCTION__);
++		printk(KERN_ERR "IRQ handler type mismatch for IRQ %d\n", irq);
+ 		dump_stack();
+ 	}
+ 	return -EBUSY;
+@@ -374,7 +375,7 @@
+ 			kfree(action);
+ 			return;
+ 		}
+-		printk(KERN_ERR "Trying to free free IRQ%d\n", irq);
++		printk(KERN_ERR "Trying to free already-free IRQ %d\n", irq);
+ 		spin_unlock_irqrestore(&desc->lock, flags);
+ 		return;
+ 	}

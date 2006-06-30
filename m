@@ -1,100 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWF3V6D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWF3UUB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWF3V6D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 17:58:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWF3V6D
+	id S932119AbWF3UUB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 16:20:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWF3UUB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 17:58:03 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:42120 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751212AbWF3V6B
+	Fri, 30 Jun 2006 16:20:01 -0400
+Received: from mx02.cybersurf.com ([209.197.145.105]:52205 "EHLO
+	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S1751125AbWF3UT7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 17:58:01 -0400
-Date: Fri, 30 Jun 2006 23:54:05 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm one process gets stuck in infinite loop in the kernel.
-Message-ID: <20060630215405.GA9744@aitel.hist.no>
-References: <20060629013643.4b47e8bd.akpm@osdl.org> <44A3B8A0.4070601@aitel.hist.no> <20060629104117.e96df3da.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060629104117.e96df3da.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Fri, 30 Jun 2006 16:19:59 -0400
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       csturtiv@sgi.com, balbir@in.ibm.com, jlan@engr.sgi.com,
+       Valdis.Kletnieks@vt.edu, Paul Jackson <pj@sgi.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <44A5770F.3080206@watson.ibm.com>
+References: <44892610.6040001@watson.ibm.com>
+	 <4489EE7C.3080007@watson.ibm.com>	<449999D1.7000403@engr.sgi.com>
+	 <44999A98.8030406@engr.sgi.com>	<44999F5A.2080809@watson.ibm.com>
+	 <4499D7CD.1020303@engr.sgi.com>	<449C2181.6000007@watson.ibm.com>
+	 <20060623141926.b28a5fc0.akpm@osdl.org>	<449C6620.1020203@engr.sgi.com>
+	 <20060623164743.c894c314.akpm@osdl.org>	<449CAA78.4080902@watson.ibm.com>
+	 <20060623213912.96056b02.akpm@osdl.org>	<449CD4B3.8020300@watson.ibm.com>
+	 <44A01A50.1050403@sgi.com>	<20060626105548.edef4c64.akpm@osdl.org>
+	 <44A020CD.30903@watson.ibm.com>	<20060626111249.7aece36e.akpm@osdl.org>
+	 <44A026ED.8080903@sgi.com>	<20060626113959.839d72bc.akpm@osdl.org>
+	 <44A2F50D.8030306@engr.sgi.com>	<20060628145341.529a61ab.akpm@osdl.org>
+	 <44A2FC72.9090407@engr.sgi.com>	<20060629014050.d3bf0be4.pj@sgi.com>
+	 <200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
+	 <20060629094408.360ac157.pj@sgi.com>
+	 <20060629110107.2e56310b.akpm@osdl.org> <44A57310.3010208@watson.ibm.com>
+	 <44A5770F.3080206@watson.ibm.com>
+Content-Type: text/plain
+Organization: unknown
+Date: Fri, 30 Jun 2006 16:19:55 -0400
+Message-Id: <1151698795.5270.247.camel@jzny2>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 29, 2006 at 10:41:17AM -0700, Andrew Morton wrote:
-> On Thu, 29 Jun 2006 13:25:20 +0200
-> Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+On Fri, 2006-30-06 at 15:10 -0400, Shailabh Nagar wrote:
+
 > 
-> > I have seen this both with mm2, m33 and mm4.
-> > Suddenly, the load meter jumps.
-> > Using ps & top, I see one process using 100% cpu.
-> > This is always a process that was exiting, this tend to happen
-> > when I close applications, or doing debian upgrades which
-> > runs lots of short-lived processes.
-> > 
-> > I believe it is running in the kernel, ps lists it with stat "RN"
-> > and it cannot be killed, not even with kill -9 from root.
-> > 
-> > Something wrong with process termination?
-> > 
+> Also to get feedback on this kind of usage of the nl_pid field, the
+> approach etc.
 > 
-> Please generate a kernel profile when it happens so we can see
-> where it got stuck.
-> 
-> <boot with profile=1>
-> <wait for it to happen>
-> readprofile -r
-> sleep 10
-> readprofile -n -v -m /boot/System.map | sort -n -k 3 | tail -40
 
-It was easier to reproduce on my home machine, running mm2.
-I followed the recipe above, except typing manually means
-the wait was more than 10s.
+It does not look unreasonable. I think you may have issues when you have
+multiple such sockets opened within a single process. But 
+do some testing and see how it goes.
 
-Output from the pipe above:
-ffffffff801f9050 do_get_write_access                          210,0170
-ffffffff80111c20 __do_softirq                                 280,1591
-ffffffff8012e0e0 vm_stat_account                              280,2917
-ffffffff80194890 search_exception_tables                      491,5312
-ffffffff801f1380 ext3_journal_start_sb                        821,0250
-ffffffff801fd670 __log_space_left                             892,7812
-ffffffff8010bf50 __wake_up_bit                               1252,6042
-ffffffff8010c2f0 put_page                                    1412,9375
-ffffffff8010dd30 mark_page_accessed                          1732,1625
-ffffffff801a3340 __filemap_copy_from_user_iovec_inatomic     1951,7411
-ffffffff801643f0 cond_resched                                2001,5625
-ffffffff8015f241 error_exit                                  2431,8409
-ffffffff801a5dd0 balance_dirty_pages_ratelimited_nr          2580,5375
-ffffffff801f9aa0 journal_start                               3211,0559
-ffffffff8011ac00 page_waitqueue                              3813,9688
-ffffffff80139ea0 generic_commit_write                        4254,4271
-ffffffff80117500 __block_commit_write                        4902,3558
-ffffffff8010b320 __down_read_trylock                         50210,4583
-ffffffff8013d100 block_prepare_write                         57712,0208
-ffffffff80121800 __up_read                                   5833,3125
-ffffffff80117bc0 unlock_page                                 69214,4167
-ffffffff801fd710 journal_blocks_per_page                     83426,0625
-ffffffff8012e0c0 __wake_up                                   89427,9375
-ffffffff80109d70 kmem_cache_alloc                           112617,5938
-ffffffff801e78b0 walk_page_buffers                          12657,1875
-ffffffff801ea920 ext3_ordered_commit_write                  13525,2812
-ffffffff801074c0 kmem_cache_free                            15807,5962
-ffffffff801f11e0 __ext3_journal_stop                        169617,6667
-ffffffff801f96b0 start_this_handle                          18711,8562
-ffffffff801f8e50 journal_stop                               19063,7227
-ffffffff801eacf0 ext3_prepare_write                         19915,9256
-ffffffff80113440 find_lock_page                             205314,2569
-ffffffff8010f690 generic_file_buffered_write                21391,2612
-ffffffff8010deb0 __block_prepare_write                      22841,9291
-ffffffff801e85c0 ext3_writepage_trans_blocks                279919,4375
-ffffffff80166356 bad_gs                                     33520,4129
-ffffffff80179070 search_extable                             386834,5357
-ffffffff8010b400 find_vma                                   420137,5089
-ffffffff8010a180 do_page_fault                             107535,1302
-0000000000000000 total                                     516580,0124
-
-
+cheers,
+jamal
 

@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWF3Szo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751839AbWF3S4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbWF3Szo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 14:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751818AbWF3Szo
+	id S1751839AbWF3S4M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 14:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWF3S4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 14:55:44 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:3543 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1751046AbWF3Szm (ORCPT
+	Fri, 30 Jun 2006 14:56:12 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:61118 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751839AbWF3Szy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 14:55:42 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] IRQ: Use SA_PERCPU_IRQ, not IRQ_PER_CPU, for irqaction.flags
-Date: Fri, 30 Jun 2006 12:55:37 -0600
-User-Agent: KMail/1.8.3
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 14:55:54 -0400
+Date: Fri, 30 Jun 2006 20:51:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: John Rigg <lk@sound-man.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rt4 x86_64 unknown symbol monotonic_clock
+Message-ID: <20060630185115.GC29566@elte.hu>
+References: <20060629185343.GA2947@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606301255.37638.bjorn.helgaas@hp.com>
+In-Reply-To: <20060629185343.GA2947@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IRQ_PER_CPU is a bit in the struct irq_desc "status" field, not
-in the struct irqaction "flags", so the previous code checked the
-wrong bit.
 
-SA_PERCPU_IRQ is only used by drivers/char/mmtimer.c for SGI ia64 boxes.
+* John Rigg <lk@sound-man.co.uk> wrote:
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+> Hi Ingo,
+> 
+> I'm still getting this warning from `make modules_install':
+> 
+> WARNING: 
+> /lib/modules/2.6.17-rt4/kernel/drivers/char/hangcheck-timer.ko \ needs 
+> unknown symbol monotonic_clock
 
-Index: work-mm7/kernel/irq/manage.c
-===================================================================
---- work-mm7.orig/kernel/irq/manage.c	2006-06-30 11:52:21.000000000 -0600
-+++ work-mm7/kernel/irq/manage.c	2006-06-30 11:59:13.000000000 -0600
-@@ -237,7 +237,8 @@
- 
- #if defined(CONFIG_IRQ_PER_CPU) && defined(SA_PERCPU_IRQ)
- 		/* All handlers must agree on per-cpuness */
--		if ((old->flags & IRQ_PER_CPU) != (new->flags & IRQ_PER_CPU))
-+		if ((old->flags & SA_PERCPU_IRQ) !=
-+		    (new->flags & SA_PERCPU_IRQ))
- 			goto mismatch;
- #endif
- 
+oops ...
+
+> The patch below appears to fix it.
+
+thanks, applied.
+
+	Ingo

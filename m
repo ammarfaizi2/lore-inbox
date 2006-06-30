@@ -1,49 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWF3Fgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWF3FpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWF3Fgu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 01:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWF3Fgu
+	id S1751120AbWF3FpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 01:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWF3FpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 01:36:50 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:26310 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751104AbWF3Fgu (ORCPT
+	Fri, 30 Jun 2006 01:45:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46468 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751120AbWF3FpY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 01:36:50 -0400
-From: Timothy Shimmin <tes@sgi.com>
-Organization: SGI
-To: Nathan Scott <nathans@sgi.com>
-Subject: Re: BUG: held lock freed! with 2.6.17-mm3 and 2.6.17-mm4
-Date: Fri, 30 Jun 2006 15:35:40 +1000
-User-Agent: KMail/1.8.2
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>, xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-References: <20060629203809.GD20456@charite.de> <20060630081420.A1371683@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060630081420.A1371683@wobbly.melbourne.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 01:45:24 -0400
+Date: Fri, 30 Jun 2006 01:45:18 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       linux-kernel@vger.kernel.org, alexey.y.starikovskiy@intel.com
+Subject: Re: [RFC] Adding queue_delayed_work_on interface for workqueues
+Message-ID: <20060630054518.GF32729@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+	linux-kernel@vger.kernel.org, alexey.y.starikovskiy@intel.com
+References: <20060628141028.A13221@unix-os.sc.intel.com> <20060628143242.486f9b15.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606301535.40890.tes@sgi.com>
+In-Reply-To: <20060628143242.486f9b15.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 June 2006 8:14 am, Nathan Scott wrote:
-> On Thu, Jun 29, 2006 at 10:38:09PM +0200, Ralf Hildebrandt wrote:
-> > 2.6.17-mm3 and mm4 both report a "BUG: held lock freed!" while booting
-> > up. Find the two dmesg outputs attached.
->
-> Thanks Ralf,
->
-> >From the traces, looks like it happens during the unlinked inode list
->
-> processing, just after log recovery (I assume you crashed / rebooted
-> without unmounting before this boot?).  Tim, do you see any situation
-> in recovery where we might have freed an inode while it was locked?
+On Wed, Jun 28, 2006 at 02:32:42PM -0700, Andrew Morton wrote:
 
-Had a look but I can't see anything apparent at this stage,
-let's run our unlink recovery test on the -mm tree next week,
-which should expose the bug.
+ > > +extern int FASTCALL(queue_delayed_work_on(int cpu, struct workqueue_struct *wq, struct work_struct *work, unsigned long delay));
+ > 
+ > Please wrap at 80-cols.
 
---Tim
+fixed up
 
+ > I wouldn't bother making this FASTCALL.  It's an ugly thing, and why this
+ > particular function?  And this isn't fastpath stuff.
+
+fixed up
+
+ > > -extern int schedule_delayed_work_on(int cpu, struct work_struct *work, unsigned long delay);
+ > > +extern int FASTCALL(schedule_delayed_work_on(int cpu, struct work_struct *work, unsigned long delay));
+ > 
+ > Ditto.
+
+ditto :)
+
+ > >  }
+ > >  
+ > > +int fastcall queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
+ > > +			struct work_struct *work, unsigned long delay)
+ > > +{
+ > > +}
+ > 
+ > Feel free to add some kernel-doc for this function ;)
+
+Venki, I'm lazy and it's past my bedtime, send a follow-up diff please ?
+
+ > > @@ -608,6 +615,7 @@ void init_workqueues(void)
+ > >  EXPORT_SYMBOL_GPL(__create_workqueue);
+ > >  EXPORT_SYMBOL_GPL(queue_work);
+ > >  EXPORT_SYMBOL_GPL(queue_delayed_work);
+ > > +EXPORT_SYMBOL_GPL(queue_delayed_work_on);
+ > >  EXPORT_SYMBOL_GPL(flush_workqueue);
+ > >  EXPORT_SYMBOL_GPL(destroy_workqueue);
+ > 
+ > Opinions vary a bit, but I think we mostly prefer to put the
+ > EXPORT_SYMBOL()s at the site of the thing which is being exported:
+ >.. 
+ > Then again, it's legit to follow existing local style too.  Someone will
+ > come along later and fix it all in a single hit.  Whatever.
+
+That someone was me. I did it as a follow-on for Venki's series.
+
+All pushed out to cpufreq.git
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

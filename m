@@ -1,154 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWF3MG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWF3MHd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWF3MG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 08:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWF3MG2
+	id S932197AbWF3MHd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 08:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWF3MHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 08:06:28 -0400
-Received: from ns2.suse.de ([195.135.220.15]:49624 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932180AbWF3MG1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 08:06:27 -0400
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: eranian@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 16/16] 2.6.17-rc6 perfmon2 patch for review: modified x86_64 files
-References: <200606150907.k5F97kCC008264@frankl.hpl.hp.com>
-From: Andi Kleen <ak@suse.de>
-Date: 30 Jun 2006 14:06:24 +0200
-In-Reply-To: <200606150907.k5F97kCC008264@frankl.hpl.hp.com>
-Message-ID: <p73odwax2yn.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 30 Jun 2006 08:07:32 -0400
+Received: from wx-out-0102.google.com ([66.249.82.199]:10 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932197AbWF3MHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 08:07:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KVaNGY9H2BL4ej7xrlVgEuPLSWgIX7RGOamrNyJLGy99N4gbRzMWyBbtejZThhgiE+ak3NwG0Q95bg5WXKIL2qOMEkliQoRieLKUtjfVbwirdb00tQOrI6jcWcYQ6E9TAwdspFWoxN+wHCHzrpgXH3+uhKMgXC7tGcVjRMWA+DM=
+Message-ID: <39f633820606300507h68333a66xb6750e7d6cd652b1@mail.gmail.com>
+Date: Fri, 30 Jun 2006 14:07:31 +0200
+From: "Robert Nagy" <robert.nagy@gmail.com>
+To: "Jesse Barnes" <jbarnes@virtuousgeek.org>
+Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200606291342.38580.jbarnes@virtuousgeek.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <39f633820606290818g1978866ap@mail.gmail.com>
+	 <200606291132.51866.jbarnes@virtuousgeek.org>
+	 <39f633820606291212v40b0016cl@mail.gmail.com>
+	 <200606291342.38580.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Eranian <eranian@frankl.hpl.hp.com> writes:
+I've tried that with two different cards. Now the error is different.
+Even the firmware boots on the controller but then the machine resets.
+Same thing happens if I load the EFI driver but that drops me to the debugger.
+More info can be found at http://pastebin.ca/75652
 
-> This patch contains the modified files for x86_64 (AMD and Intel EM64T).
-> 
+megaraid cmm: 2.20.2.6 (Release Date: Mon Mar 7 00:01:03 EST 2005)
+megaraid: 2.20.4.8 (Release Date: Mon Apr 11 12:27:22 EST 2006)
+megaraid: probe new device 0x1000:0x0407:0x8086:0x0532: bus 2:slot 0:func 0
+ACPI: PCI Interrupt 0002:02:00.0[A]: no GSI
+megaraid mailbox: wait for FW to boot [ok]
+Entered OS MCA handler. PSP=20000000fff21120 cpu=0 monarch=1
+All OS MCA slaves have reached rendezvous
 
-Description/rationale/what you changed/why/etc. missing here...
-
-In general your patches would be easier to review if you used diff -p
-
-The patch is too big and should be split into smaller pieces.
-
->  	.quad sys_sync_file_range
->  	.quad sys_tee
->  	.quad compat_sys_vmsplice
-> +   	.quad sys_pfm_create_context
-> +       	.quad sys_pfm_write_pmcs
-> +       	.quad sys_pfm_write_pmds
-> +       	.quad sys_pfm_read_pmds		/* 320 */
-> +       	.quad sys_pfm_load_context
-> +       	.quad sys_pfm_start
-> +       	.quad sys_pfm_stop
-> +       	.quad sys_pfm_restart
-> +       	.quad sys_pfm_create_evtsets	/* 325 */
-> +       	.quad sys_pfm_getinfo_evtsets
-> +       	.quad sys_pfm_delete_evtsets
-> +  	.quad sys_pfm_unload_context
-
-I suppose all these system calls need separate review. 
-The indentation is unusual
-
-
-I trust you tested they are all 32bit emulation clean.
->  	/*
-> diff -ur linux-2.6.17-rc6.orig/arch/x86_64/kernel/nmi.c linux-2.6.17-rc6/arch/x86_64/kernel/nmi.c
-> --- linux-2.6.17-rc6.orig/arch/x86_64/kernel/nmi.c	2006-06-08 01:42:31.000000000 -0700
-> +++ linux-2.6.17-rc6/arch/x86_64/kernel/nmi.c	2006-06-08 01:49:22.000000000 -0700
-> @@ -248,6 +248,7 @@
->  	old_owner = lapic_nmi_owner;
->  	lapic_nmi_owner |= LAPIC_NMI_RESERVED;
->  	spin_unlock(&lapic_nmi_owner_lock);
-> +
-
-?? 
-
->  		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
->  		if (!p->thread.io_bitmap_ptr) {
-> @@ -482,6 +486,8 @@
->  		if (err) 
->  			goto out;
->  	}
-> +
-> +
-
-?? 
-
->  	err = 0;
->  out:
->  	if (err && p->thread.io_bitmap_ptr) {
-> @@ -615,6 +621,7 @@
->  			memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
->  		}
->  	}
-> +	pfm_ctxswin(next_p);
-
-You definitely add far too much code to the context switch.
-
-Please fold the existing debug register check and the existing 
-io bitmap check together into a single bitmap test and do the individual checks
-then only inside that if (). The non debug case is supposed to be fast
-and not weighted down by so many checks.
-
->  	}
-> +	/*
-> +	 * must be done before signals
-> +	 */
-> +	pfm_handle_work();
-
-The comment is not very enlightening. 
-
-Also this should be inside the usual bitmap checks.
-
-
-> diff -ur linux-2.6.17-rc6.orig/include/asm-x86_64/hw_irq.h linux-2.6.17-rc6/include/asm-x86_64/hw_irq.h
-> --- linux-2.6.17-rc6.orig/include/asm-x86_64/hw_irq.h	2006-03-19 21:53:29.000000000 -0800
-> +++ linux-2.6.17-rc6/include/asm-x86_64/hw_irq.h	2006-06-08 01:49:22.000000000 -0700
-> @@ -67,6 +67,7 @@
->   * sources per level' errata.
->   */
->  #define LOCAL_TIMER_VECTOR	0xef
-> +#define LOCAL_PERFMON_VECTOR	0xee
->  
->  /*
->   * First APIC vector available to drivers: (vectors 0x30-0xee)
-> @@ -74,7 +75,7 @@
->   * levels. (0x80 is the syscall vector)
->   */
->  #define FIRST_DEVICE_VECTOR	0x31
-> -#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in irq.h */
-> +#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in irq.h */
->  
->  
->  #ifndef __ASSEMBLY__
-> diff -ur linux-2.6.17-rc6.orig/include/asm-x86_64/irq.h linux-2.6.17-rc6/include/asm-x86_64/irq.h
-> --- linux-2.6.17-rc6.orig/include/asm-x86_64/irq.h	2006-03-19 21:53:29.000000000 -0800
-> +++ linux-2.6.17-rc6/include/asm-x86_64/irq.h	2006-06-08 01:49:22.000000000 -0700
-> @@ -29,7 +29,7 @@
->   */
->  #define NR_VECTORS 256
->  
-> -#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in hw_irq.h */
-> +#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in hw_irq.h */
->  
->  #ifdef CONFIG_PCI_MSI
->  #define NR_IRQS FIRST_SYSTEM_VECTOR
-> Only in linux-2.6.17-rc6/include/asm-x86_64: perfmon.h
-> Only in linux-2.6.17-rc6/include/asm-x86_64: perfmon_em64t_pebs_smpl.h
-> diff -ur linux-2.6.17-rc6.orig/include/asm-x86_64/system.h linux-2.6.17-rc6/include/asm-x86_64/system.h
-> --- linux-2.6.17-rc6.orig/include/asm-x86_64/system.h	2006-06-08 01:42:36.000000000 -0700
-> +++ linux-2.6.17-rc6/include/asm-x86_64/system.h	2006-06-08 01:49:22.000000000 -0700
-> @@ -27,6 +27,7 @@
->  	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
->  
->  #define switch_to(prev,next,last) \
-> +	pfm_ctxswout(prev);							  \
-
-No way. At best please a single shared test in the context switch as described above, not a multitude
-of different hooks all over the fast paths. This should be in __switch_to()
-
--Andi
+2006/6/29, Jesse Barnes <jbarnes@virtuousgeek.org>:
+> On Thursday, June 29, 2006 12:12 pm, Robert Nagy wrote:
+> > I've tried the diff but there is no difference.
+> > I've also tried to use the EFI driver from Intel, but that did not
+> > work either.
+>
+> I've just been informed that megaraid has command ring addressing
+> limitations, so you may not be able to use this card in PCI-X mode at
+> all, at least on your Altix.  You can force it into PCI mode by putting
+> an old PCI device in the same bus though, I think, that might get things
+> working (without my patch).
+>
+> Jesse
+>

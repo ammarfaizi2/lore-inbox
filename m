@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWF3Cks@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWF3CoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWF3Cks (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 22:40:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWF3Ckr
+	id S1751436AbWF3CoP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 22:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWF3CoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 22:40:47 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:61483 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S1750808AbWF3Ckq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 22:40:46 -0400
-X-IronPort-AV: i="4.06,193,1149490800"; 
-   d="scan'208"; a="326583669:sNHT30866844"
-To: Greg KH <gregkh@suse.de>
-Cc: Andy Gay <andy@andynet.net>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: USB driver for Sierra Wireless EM5625/MC5720 1xEVDO modules
-X-Message-Flag: Warning: May contain useful information
-References: <1151537247.3285.278.camel@tahini.andynet.net>
-	<20060630021332.GB30911@suse.de>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 29 Jun 2006 19:40:44 -0700
-In-Reply-To: <20060630021332.GB30911@suse.de> (Greg KH's message of "Thu, 29 Jun 2006 19:13:32 -0700")
-Message-ID: <adabqsbfjrn.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 30 Jun 2006 02:40:45.0168 (UTC) FILETIME=[963C1700:01C69BEE]
-Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Thu, 29 Jun 2006 22:44:14 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:42191 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751431AbWF3CoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 22:44:13 -0400
+Date: Thu, 29 Jun 2006 19:43:44 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nagar@watson.ibm.com, hadi@cyberus.ca, Valdis.Kletnieks@vt.edu,
+       jlan@engr.sgi.com, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+Message-Id: <20060629194344.6a29dba7.pj@sgi.com>
+In-Reply-To: <20060629193500.d4676f13.akpm@osdl.org>
+References: <44892610.6040001@watson.ibm.com>
+	<449CAA78.4080902@watson.ibm.com>
+	<20060623213912.96056b02.akpm@osdl.org>
+	<449CD4B3.8020300@watson.ibm.com>
+	<44A01A50.1050403@sgi.com>
+	<20060626105548.edef4c64.akpm@osdl.org>
+	<44A020CD.30903@watson.ibm.com>
+	<20060626111249.7aece36e.akpm@osdl.org>
+	<44A026ED.8080903@sgi.com>
+	<20060626113959.839d72bc.akpm@osdl.org>
+	<44A2F50D.8030306@engr.sgi.com>
+	<20060628145341.529a61ab.akpm@osdl.org>
+	<44A2FC72.9090407@engr.sgi.com>
+	<20060629014050.d3bf0be4.pj@sgi.com>
+	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
+	<20060629094408.360ac157.pj@sgi.com>
+	<20060629110107.2e56310b.akpm@osdl.org>
+	<44A425A7.2060900@watson.ibm.com>
+	<20060629123338.0d355297.akpm@osdl.org>
+	<44A43187.3090307@watson.ibm.com>
+	<1151621692.8922.4.camel@jzny2>
+	<44A47285.6060307@watson.ibm.com>
+	<20060629180502.3987a98e.akpm@osdl.org>
+	<20060629192526.360aa579.pj@sgi.com>
+	<20060629193500.d4676f13.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > or:
- >   - send a patch against 2.6.17 that is my changes + your fixes to
- >     actually make it work.
- > 
- > My patch was just a "throw it out there and see what works or not", as I
- > don't even have the device to test it with.
+Andrew wrote:
+> Nah.  Stick it in the same cacheline as tasklist_lock (I'm amazed that
+> we've continued to get away with a global lock for that).
 
-I would love to see such a patch.  I have a Kyocera KPC650 and I would
-love to get better performance with it under Linux...
+Yes - a bit amazing.  But no sense compounding the problem now.
 
- - R.
+We shouldn't be adding global locks/modifiable data in the
+fork/exit code path if we can help it, without at least
+providing some simple way to ameliorate the problem when
+folks do start hitting it.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

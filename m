@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbWGABPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWF3Usj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932571AbWGABPw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 21:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbWGABPw
+	id S932227AbWF3Usj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 16:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWF3Usj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 21:15:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9673 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932571AbWGABPv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 21:15:51 -0400
-Date: Fri, 30 Jun 2006 18:19:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ltuikov@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sched.h: increment TASK_COMM_LEN to 20 bytes
-Message-Id: <20060630181915.638166c2.akpm@osdl.org>
-In-Reply-To: <20060701010606.4694.qmail@web31809.mail.mud.yahoo.com>
-References: <20060701010606.4694.qmail@web31809.mail.mud.yahoo.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 30 Jun 2006 16:48:39 -0400
+Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:37583 "EHLO
+	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
+	id S932227AbWF3Usi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 16:48:38 -0400
+Date: Fri, 30 Jun 2006 13:40:32 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
+Message-ID: <20060630204032.GB22835@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200606301435_MC3-1-C3DD-5B3E@compuserve.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606301435_MC3-1-C3DD-5B3E@compuserve.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben Tuikov <ltuikov@yahoo.com> wrote:
->
-> It is 4 byte aligned anyway.
+Chuck,
 
-That's a 64-bitism.  And 32-bit machines are more space-sensitive.
-
->  This way we can use
-> up to 19+1 chars.
+On Fri, Jun 30, 2006 at 02:33:49PM -0400, Chuck Ebbert wrote:
+> In-Reply-To: <200606301541.22928.ak@suse.de>
 > 
-> Signed-off-by: Luben Tuikov <ltuikov@yahoo.com>
-> ---
->  include/linux/sched.h |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+> On Fri, 30 Jun 2006 15:41:22 +0200, Andi Kleen wrote:
 > 
-> diff --git a/include/linux/sched.h b/include/linux/sched.h
-> index 18f12cb..3fc11bc 100644
-> --- a/include/linux/sched.h
-> +++ b/include/linux/sched.h
-> @@ -154,7 +154,7 @@ #define set_current_state(state_value)		
->  	set_mb(current->state, (state_value))
->  
->  /* Task command name length */
-> -#define TASK_COMM_LEN 16
-> +#define TASK_COMM_LEN 20
+> > > So why do we need care about context switch in cpu-wide mode?
+> > > It is because we support a mode where the idle thread is excluded
+> > > from cpu-wide monitoring. This is very useful to distinguish 
+> > > 'useful kernel work' from 'idle'. 
+> > 
+> > I don't quite see the point because on x86 the PMU doesn't run
+> > during C states anyways. So you get idle excluded automatically.
+> 
+> Looks like it does run:
+> 
+> $ pfmon -ecpu_clk_unhalted,interrupts_masked_cycles -k --system-wide -t 10
+> <session to end in 10 seconds>
+> CPU0     60351837 CPU_CLK_UNHALTED
+> CPU0    346548229 INTERRUPTS_MASKED_CYCLES
+> 
+> The CPU spent ~60 million clocks unhalted and ~350 million with interrupts
+> disabled.  (This is an idle 1.6GHz Turion64 machine.)
+> 
 
-So this is basically "increase size of comm[] by 4 bytes, happens to be
-zero-cost on 64-bit machines".
+As Andi is suggesting, I think this may depends on how the BIOS implements
+the low-power state. I have tried the same command on my dual Opteron 250
+2.4GHz and I get:
+$ pfmon --us-c -ecpu_clk_unhalted,interrupts_masked_cycles -k --system-wide -t 10
+<session to end in 10 seconds>
+CPU0                     9,520,303 CPU_CLK_UNHALTED
+CPU0                     3,726,315 INTERRUPTS_MASKED_CYCLES
+CPU1                    21,268,151 CPU_CLK_UNHALTED
+CPU1                    14,515,389 INTERRUPTS_MASKED_CYCLES
 
-We do occasionally hit task_struct.comm[] truncation, when people use
-"too-long-a-name%d" for their kernel thread names.  But we seem to manage.
+That's without idle=poll.
 
+-- 
+
+-Stephane

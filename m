@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWF3Sma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWF3Sr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbWF3Sma (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 14:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933021AbWF3Sma
+	id S932086AbWF3Sr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 14:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932995AbWF3Sr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 14:42:30 -0400
-Received: from ns2.suse.de ([195.135.220.15]:20629 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932363AbWF3Sm3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 14:42:29 -0400
-From: Andi Kleen <ak@suse.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
-Date: Fri, 30 Jun 2006 20:42:23 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephane Eranian <eranian@hpl.hp.com>
-References: <200606301435_MC3-1-C3DD-5B3E@compuserve.com>
-In-Reply-To: <200606301435_MC3-1-C3DD-5B3E@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 14:47:56 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62730 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932086AbWF3Srz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 14:47:55 -0400
+Date: Fri, 30 Jun 2006 19:47:45 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: David Miller <davem@davemloft.net>, mingo@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: SA_TRIGGER_* vs. SA_SAMPLE_RANDOM
+Message-ID: <20060630184745.GA13429@flint.arm.linux.org.uk>
+Mail-Followup-To: Thomas Gleixner <tglx@linutronix.de>,
+	David Miller <davem@davemloft.net>, mingo@redhat.com,
+	linux-kernel@vger.kernel.org
+References: <20060629.141703.59468770.davem@davemloft.net> <1151676007.25491.712.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606302042.23661.ak@suse.de>
+In-Reply-To: <1151676007.25491.712.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 June 2006 20:33, Chuck Ebbert wrote:
-> In-Reply-To: <200606301541.22928.ak@suse.de>
-> 
-> On Fri, 30 Jun 2006 15:41:22 +0200, Andi Kleen wrote:
-> 
-> > > So why do we need care about context switch in cpu-wide mode?
-> > > It is because we support a mode where the idle thread is excluded
-> > > from cpu-wide monitoring. This is very useful to distinguish 
-> > > 'useful kernel work' from 'idle'. 
+On Fri, Jun 30, 2006 at 04:00:07PM +0200, Thomas Gleixner wrote:
+> On Thu, 2006-06-29 at 14:17 -0700, David Miller wrote:
+> > Since SA_SAMPLE_RANDOM is defined as "SA_RESTART", it
+> > could be just about any value.
 > > 
-> > I don't quite see the point because on x86 the PMU doesn't run
-> > during C states anyways. So you get idle excluded automatically.
+> > On sparc, it's value is "2", so it aliases some of
+> > the SA_TRIGGER_* defines the new genirq code adds.
+> > And therefore we get a bunch of these on sparc64:
+> > 
+> > [   16.650540] setup_irq(2) SA_TRIGGERset. No set_type function available
+> > 
+> > (btw: missing space in the kernel log message between 'SA_TRIGGER'
+> >       and 'set' :-)
+> > 
+> > I can't see any reason why SA_SAMPLE_RANDOM is set to
+> > a signal mask value, or why IRQ flags are defined in
+> > linux/signal.h :-)
+> > 
+> > Anyways, probably the best bet for now is to define
+> > SA_SAMPLE_RANDOM explicitly to some value instead of
+> > relying on the arbitrary platform definition of SA_RANDOM.
+> > 
+> > Ingo could you cook up and submit a patch which does this?
+> > Thanks.
 > 
-> Looks like it does run:
+> We have the same hassle with SA_INTERRUPT. The question arises, if we
+> should move the SA_XX flags for interrupts completely out of the signal
+> SA name space. Rename to IRQ_xxx and put them into interrupt.h.
 
-I'm pretty sure it doesn't. You can see it by watching 
-the frequency of the perfctr mode NMI watchdog in /proc/interrupts 
-under different loads.
+It would probably be sensible, but isn't there rather a lot of
+drivers to update?  We could do it as a transitional thing -
+#define the old SA_* names to the new in interrupt.h for a while.
 
-When the system is idle the frequency goes down and increases
-when the system is busy. I also got confirmation of this behaviour
-from both Intel and AMD. C states > 0 are not supposed to run
-the performance counters.
-
-Are you sure you didn't boot with poll=idle? Otherwise something must
-be wrong with your measurements.
-
--Andi
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932968AbWF3V3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbWF3VQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932968AbWF3V3O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 17:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933020AbWF3V3O
+	id S932618AbWF3VQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 17:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbWF3VQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 17:29:14 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:52883 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932968AbWF3V3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 17:29:14 -0400
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-From: Lee Revell <rlrevell@joe-job.com>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: James Courtier-Dutton <James@superbug.co.uk>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, perex@suse.cz,
-       Olaf Hering <olh@suse.de>
-In-Reply-To: <20060630163114.GA12874@dspnet.fr.eu.org>
-References: <20060629192128.GE19712@stusta.de>
-	 <44A54D8E.3000002@superbug.co.uk> <20060630163114.GA12874@dspnet.fr.eu.org>
-Content-Type: text/plain
-Date: Fri, 30 Jun 2006 17:29:26 -0400
-Message-Id: <1151702966.32444.57.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 17:16:27 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19384 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932590AbWF3VQ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 17:16:26 -0400
+Date: Fri, 30 Jun 2006 23:16:17 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Johan Vromans <jvromans@squirrel.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: Re: swsusp problems with 2.6.17-1.2139_FC5
+Message-ID: <20060630211617.GC1717@elf.ucw.cz>
+References: <m2irmj9937.fsf@phoenix.squirrel.nl> <20060630180141.GC9225@elf.ucw.cz> <m2y7vetmvn.fsf@phoenix.squirrel.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2y7vetmvn.fsf@phoenix.squirrel.nl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-30 at 18:31 +0200, Olivier Galibert wrote:
-> On Fri, Jun 30, 2006 at 05:13:02PM +0100, James Courtier-Dutton wrote:
-> > Adrian Bunk wrote:
-> > >- ALSA #1735 (OSS emulation 4-channel mode rear channels not working)
-> > 
-> > As the MAINTAINER of EMU10K1, I am happy for EMU10K1 driver to be 
-> > removed from the kernel.
-> > 
-> > ALSA #1735 is now closed. All the apps the user was trying also support 
-> > ALSA natively now, so OSS is not needed.
+Hi!
+
+> > Stop right here. Can you reproduce the problem without ATI driver?
+> > Reproducing it on vanilla kernel (not -FC5) would be nice, too.
 > 
-> Are you joking ?
+> A lot of suspend/reboot/resumes later...
 > 
+> The problem does not seem to be related to the ATI driver, but whether
+> or not the pm-suspend program is used. With the Xorg driver I get the
+> same problem when I suspend with
 
-Even if you reject this argument, the bug is in ALSA's in-kernel OSS
-emulation, not the emu10k1 driver.
+>   echo shutdown > /sys/power/disk; echo disk > /sys/power/state
+> 
+> When I use pm-hibernate suspend/resume seems works okay (with Xorg and
+> ATI driver).
 
-As sound hardware gets dumber and cheaper, kernel OSS emulation will
-become increasingly useless.  The cheap onboard devices (and even mid
-range stuff like the SBLive! 24 bit) require sample rate conversion,
-mixing, and even volume control to be handled in software.  ALSA's
-in-kernel OSS emulation does not have these features and never will.
+What is pm-suspend and pm-hibernate, anyway?
 
-(I wish the authors of Skype, Flash, TeamSpeak, Enemy Territory, and
-other proprietary OSS-only apps would understand this ;-)
+> With 2.6.16, I did not have the need to use pm-hibernate. So something
+> changed here.
 
-Lee
+Okay, find out 
 
+> As mentioned in my OP using pm-hibernate does not give any feedback
+> what is going on (except for the disk led). I find this annoying.
+> Another annoyance is that pm-hibernate locks this kernel for the next
+> reboot, so it is not possible to boot something else and resume
+> later.
+
+grub lockup is a distro problem. Turn up console loglevel to see  the
+messages.
+
+> Apart from that, suspend/resume is a life saver!
+> 
+> (Now it would be nice to get suspend to memory working. It seems to
+> suspend okay, but I haven't found out how to resume...)
+
+Resume is always harder :-). Is resume completely broken, or does it
+"only" break video?
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

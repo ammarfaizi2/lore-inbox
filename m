@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751799AbWF3RAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751807AbWF3RIL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751799AbWF3RAc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 13:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751803AbWF3RAc
+	id S1751807AbWF3RIL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 13:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWF3RIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 13:00:32 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:54497 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751749AbWF3RAb (ORCPT
+	Fri, 30 Jun 2006 13:08:10 -0400
+Received: from ns.suse.de ([195.135.220.2]:39298 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751807AbWF3RIJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 13:00:31 -0400
-Subject: Re: [PATCH 0 of 39] ipath - bug fixes, performance
-	enhancements,and portability improvements
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: akpm@osdl.org, Roland Dreier <rdreier@cisco.com>,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20060630163108.GA24882@mellanox.co.il>
-References: <patchbomb.1151617251@eng-12.pathscale.com>
-	 <20060630163108.GA24882@mellanox.co.il>
-Content-Type: text/plain
-Date: Fri, 30 Jun 2006 10:00:31 -0700
-Message-Id: <1151686831.2194.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Fri, 30 Jun 2006 13:08:09 -0400
+From: Andi Kleen <ak@suse.de>
+To: eranian@hpl.hp.com
+Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
+Date: Fri, 30 Jun 2006 19:08:03 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <200606230913.k5N9D73v032387@frankl.hpl.hp.com> <200606301633.35818.ak@suse.de> <20060630160203.GH22381@frankl.hpl.hp.com>
+In-Reply-To: <20060630160203.GH22381@frankl.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606301908.03934.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-30 at 19:31 +0300, Michael S. Tsirkin wrote:
+On Friday 30 June 2006 18:02, Stephane Eranian wrote:
+> Andi,
+> 
+> As a first step, I am looking at implementing a TIF_DEBUG
+> for x86-64. AFAIK, debug registers must not be inherited on
+> fork().
 
-> OK, next week I'll put these into my tree, too.
+Why not?  Especially for threads you probably want them
+in the new thread too.
 
-Thanks.  The first 37 are in -mm; the last two you can drop until I sort
-them out.
-
-	<b
-
+-Andi

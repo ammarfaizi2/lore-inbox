@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWF3JlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWF3Jnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWF3JlM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 05:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWF3JlM
+	id S932165AbWF3Jnd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 05:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWF3Jnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 05:41:12 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:38790 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932130AbWF3JlL (ORCPT
+	Fri, 30 Jun 2006 05:43:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58004 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932165AbWF3Jnb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 05:41:11 -0400
-Message-ID: <44A4F1B1.1060406@openvz.org>
-Date: Fri, 30 Jun 2006 13:41:05 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       marcelo.tosatti@cyclades.com, devel@openvz.org,
-       "Vasily Averin" <vvs@sw.ru>, "Andrey Savochkin" <saw@sawoct.com>,
-       Monakhov Dmintiy <dmonakhov@sw.ru>
-Subject: [PATCH] EXT3: ext3 block bitmap leakage
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 30 Jun 2006 05:43:31 -0400
+Date: Fri, 30 Jun 2006 02:43:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: arjan@infradead.org, schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/2] add __[start|end]_rodata sections to
+ asm-generic/sections.h
+Message-Id: <20060630024321.71832c54.akpm@osdl.org>
+In-Reply-To: <20060630090321.GA9457@osiris.boeblingen.de.ibm.com>
+References: <20060630090321.GA9457@osiris.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, Chris,
+On Fri, 30 Jun 2006 11:03:21 +0200
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
-this bug is not relevant for 2.6.17 and later.
-However, it is relevant for all 2.4.x and <2.6.17 kernels,
-so I think this can be of interest to some people and worth commiting to 
-2.6.16.x
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 
+> Add __start_rodata and __end_rodata to sections.h to avoid extern declarations.
+> Needed by s390 code (see following patch).
+>
+> Cc: Arjan van de Ven <arjan@infradead.org>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+> 
+>  include/asm-generic/sections.h |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
+> index 0b49f9e..962cad7 100644
+> --- a/include/asm-generic/sections.h
+> +++ b/include/asm-generic/sections.h
+> @@ -14,5 +14,6 @@ extern char _end[];
+>  extern char __per_cpu_start[], __per_cpu_end[];
+>  extern char __kprobes_text_start[], __kprobes_text_end[];
+>  extern char __initdata_begin[], __initdata_end[];
+> +extern char __start_rodata[], __end_rodata[];
+>  
 
+OK.  I'll queue this up and will clean up x86, parisc and x86_64 to suit.
 
-
-This patch fixes ext3 block bitmap leakage,
-which leads to the following fsck messages on
-_healthy_ filesystem:
-Block bitmap differences:  -64159 -73707
-
-All kernels up to 2.6.17 have this bug.
-
-Found by
-   Vasily Averin <vvs@sw.ru> and Andrey Savochkin <saw@sawoct.com>
-Test case triggered the issue was created by
-   Dmitry Monakhov <dmonakhov@sw.ru>
-
-Signed-Off-By: Vasiliy Averin <vvs@sw.ru>
-Signed-Off-By: Andrey Savochkin <saw@sawoct.com>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
-CC: Dmitry Monakhov <dmonakhov@sw.ru>
-
---- ./fs/ext3/inode.c.e3crp	2006-06-28 05:22:40.000000000 +0400
-+++ ./fs/ext3/inode.c	2006-06-27 13:31:20.000000000 +0400
-@@ -585,6 +585,7 @@ static int ext3_alloc_branch(handle_t *h
-
-  	branch[0].key = cpu_to_le32(parent);
-  	if (parent) {
-+		keys = 1;
-  		for (n = 1; n < num; n++) {
-  			struct buffer_head *bh;
-  			/* Allocate the next block */
+The second patch could go via the shiny new s390 git tree if you like.  Or
+I can handle it, but I don't know if it's a for-2.6.18 thing.
 

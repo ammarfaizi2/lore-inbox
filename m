@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWF3UQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWF3WS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWF3UQs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 16:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWF3UQs
+	id S1751076AbWF3WS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 18:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWF3WS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 16:16:48 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:18413 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750801AbWF3UQs (ORCPT
+	Fri, 30 Jun 2006 18:18:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41361 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750771AbWF3WS6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 16:16:48 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-mm4
-Date: Fri, 30 Jun 2006 22:16:53 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060629013643.4b47e8bd.akpm@osdl.org>
-In-Reply-To: <20060629013643.4b47e8bd.akpm@osdl.org>
+	Fri, 30 Jun 2006 18:18:58 -0400
+Date: Fri, 30 Jun 2006 15:18:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+cc: Alessio Sangalli <alesan@manoweb.com>, Dave Jones <davej@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cardbus: revert IO window limit
+In-Reply-To: <200607010003.31324.daniel.ritz-ml@swissonline.ch>
+Message-ID: <Pine.LNX.4.64.0606301516140.12404@g5.osdl.org>
+References: <200607010003.31324.daniel.ritz-ml@swissonline.ch>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606302216.54056.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 June 2006 10:36, Andrew Morton wrote:
+
+
+On Sat, 1 Jul 2006, Daniel Ritz wrote:
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm4/
-> 
-> 
-> - The RAID patches have been dropped due to testing failures in -mm3.
-> 
-> - The SCSI Attached Storage tree (git-sas.patch) has been restored.
+> nope. but from the docs available i would _guess_ this thing is really
+> similar to the 82443BX/82371AB combination. at least the SMBus base address
+> register is hidden at the very same place (32bit at 0x90 in function 3 of the
+> "south" brigde)...so the attached little patch might be enough to fix things...
 
-It doesn't compile for me on a non-SMP x86_64.  Appended is a patch that fixes
-this (it only reverts one change between -mm3 and -mm4, though).
+Alessio has PCI ID 8086:7194, which is not the 82443MX_3, so you'd need 
+something like this instead (but yes, it might indeed be the standard 
+PIIX4 quirks).
 
-Greetings,
-Rafael
+		Linus
 
-
- arch/i386/kernel/alternative.c |    6 ------
- 1 files changed, 6 deletions(-)
-
-Index: linux-2.6.17-mm4/arch/i386/kernel/alternative.c
-===================================================================
---- linux-2.6.17-mm4.orig/arch/i386/kernel/alternative.c
-+++ linux-2.6.17-mm4/arch/i386/kernel/alternative.c
-@@ -168,7 +168,6 @@ void apply_alternatives(struct alt_instr
- 	}
+---
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 4364d79..0c073b4 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -401,6 +401,7 @@ static void __devinit quirk_piix4_acpi(s
+ 	piix4_io_quirk(dev, "PIIX4 devres J", 0x7c, 1 << 20);
  }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371AB_3,	quirk_piix4_acpi );
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82440MX_0,	quirk_piix4_acpi );
  
--#ifdef CONFIG_SMP
- static void alternatives_smp_save(struct alt_instr *start, struct alt_instr *end)
- {
- 	struct alt_instr *a;
-@@ -338,8 +337,6 @@ void alternatives_smp_switch(int smp)
- 	}
- 	spin_unlock_irqrestore(&smp_alt, flags);
- }
--#endif
--
- 
- void __init alternative_instructions(void)
- {
-@@ -352,8 +349,6 @@ void __init alternative_instructions(voi
- 	}
- 	apply_alternatives(__alt_instructions, __alt_instructions_end);
- 
--#ifdef CONFIG_SMP
--
- 	/* switch to patch-once-at-boottime-only mode and free the
- 	 * tables in case we know the number of CPUs will never ever
- 	 * change */
-@@ -385,5 +380,4 @@ void __init alternative_instructions(voi
- 					    _text, _etext);
- 		alternatives_smp_switch(0);
- 	}
--#endif
- }
+ /*
+  * ICH4, ICH4-M, ICH5, ICH5-M ACPI: Three IO regions pointed to by longwords at
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index 9ae6b1a..889d4da 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -2205,6 +2205,7 @@ #define PCI_DEVICE_ID_INTEL_82443LX_1	0x
+ #define PCI_DEVICE_ID_INTEL_82443BX_0	0x7190
+ #define PCI_DEVICE_ID_INTEL_82443BX_1	0x7191
+ #define PCI_DEVICE_ID_INTEL_82443BX_2	0x7192
++#define PCI_DEVICE_ID_INTEL_82440MX_0	0x7194
+ #define PCI_DEVICE_ID_INTEL_440MX	0x7195
+ #define PCI_DEVICE_ID_INTEL_440MX_6	0x7196
+ #define PCI_DEVICE_ID_INTEL_82443MX_0	0x7198

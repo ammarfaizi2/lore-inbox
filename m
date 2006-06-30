@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932631AbWF3N7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWF3OMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932631AbWF3N7b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 09:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWF3N7b
+	id S932173AbWF3OMi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 10:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWF3OMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 09:59:31 -0400
-Received: from pat.uio.no ([129.240.10.4]:31654 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932631AbWF3N7a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 09:59:30 -0400
-Subject: Re: [RFC] [PATCH] do_sys_truncate: call do_truncate with
-	ATTR_MTIME|ATTR_CTIME
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-Cc: lkml <Linux-Kernel@vger.kernel.org>
-In-Reply-To: <1151674409.6499.52.camel@tribesman.namesys.com>
-References: <1151674409.6499.52.camel@tribesman.namesys.com>
-Content-Type: text/plain
-Date: Fri, 30 Jun 2006 09:59:15 -0400
-Message-Id: <1151675955.2276.5.camel@lade.trondhjem.org>
+	Fri, 30 Jun 2006 10:12:38 -0400
+Received: from ninilchik.quanstro.net ([66.92.161.167]:49058 "EHLO
+	medicine-bow.quanstro.net") by vger.kernel.org with ESMTP
+	id S932173AbWF3OMi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 10:12:38 -0400
+From: erik quanstrom <quanstro@quanstro.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Latchesar Ionkov <lionkov@gmail.com>
+CC: Eric Sesterhenn <snakebyte@gmx.de>, Russ Cox <rsc@swtch.com>,
+       linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net
+References: <1151535167.28311.1.camel@alice>
+	<ee9e417a0606281555k3d954236y82b11336098762be@mail.gmail.com>
+	<Pine.LNX.4.61.0606291300010.30453@yvahk01.tjqt.qr>
+	<f158dc670606290816p4a7add09mf6742d632ec12d28@mail.gmail.com>
+	<Pine.LNX.4.61.0606301544001.2313@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.181, required 12,
-	autolearn=disabled, AWL 1.63, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <Pine.LNX.4.61.0606301544001.2313@yvahk01.tjqt.qr>
+Subject: Re: [V9fs-developer] [Patch] Dead code in fs/9p/vfs_inode.c
+Message-Id: <20060630141220.BDD1B1B4F87@medicine-bow.quanstro.net>
+Date: Fri, 30 Jun 2006 09:12:20 -0500 (CDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-30 at 17:33 +0400, Vladimir V. Saveliev wrote:
-> Hello
-> 
-> do_sys_ftruncate calls do_truncate with time_attrs set to ATTR_MTIME|
-> ATTR_CTIME. Is there a reason for do_sys_truncate to not set time_attrs
-> to the same value or it is a bug?
+saving ten bytes once is not a good reason to do much of anything
+in an era of multi-megabyte embedded devices.
 
-It would be a bug.
+i think the argument against code written in speculation is that
+it confuses what the code does right now, may never be used and
+if used, may be used in a situation that masks a real error.
 
-In the case of truncate(), the filesystem has to decide if the file size
-will actually change. If it does, then it has to update mtime/ctime. In
-the case of ftruncate(), it would appear that the filesystem always has
-to update mtime/ctime on success, so it is appropriate to call
-do_truncate with ATTR_MTIME/ATTR_CTIME.
+- erik
 
-Cheers,
-  Trond
+Jan Engelhardt <jengelh@linux01.gwdg.de> writes
 
-> email message attachment (do_truncate-time_attrs.patch)
-> > -------- Forwarded Message --------
-> > Subject: No Subject
-> > Date: Fri, 30 Jun 2006 17:33:29 +0400
-> > 
-
+| 
+| 
+| > The comment is longer than the 10 bytes we save :)
+| 
+| But comments are not compiled into the final binary,
+| which is what I wanted to point out. So you always
+| save your 10 bytes in the object file.
+| 
+| 
+| Jan Engelhardt

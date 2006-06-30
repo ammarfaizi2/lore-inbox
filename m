@@ -1,73 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933074AbWGAAM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbWF3VME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933074AbWGAAM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 20:12:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933113AbWGAAM4
+	id S932559AbWF3VME (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 17:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWF3VME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 20:12:56 -0400
-Received: from xenotime.net ([66.160.160.81]:15546 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S933074AbWGAAMz (ORCPT
+	Fri, 30 Jun 2006 17:12:04 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:1193 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932559AbWF3VMC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 20:12:55 -0400
-Date: Fri, 30 Jun 2006 17:15:42 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, len.brown@intel.com, torvalds <torvalds@osdl.org>
-Subject: Re: ACPI: Device [kobj-name] is not power manageable
-Message-Id: <20060630171542.ebd05bb4.rdunlap@xenotime.net>
-In-Reply-To: <200606302359.k5UNxPJ1002907@hera.kernel.org>
-References: <200606302359.k5UNxPJ1002907@hera.kernel.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Fri, 30 Jun 2006 17:12:02 -0400
+Subject: [PATCH] aic94xx: disable split completion timer/setting by default
+From: Alexis Bruemmer <alexisb@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 30 Jun 2006 14:10:56 -0700
+Message-Id: <1151701856.16075.59.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jun 2006 23:59:25 GMT Linux Kernel Mailing List wrote:
+The aic94xx driver will lock up under heavy load with a split completion
+error.  There is a split completion timer/setting which should be
+disabled by default but is not.  This patch fixes this problem.
 
-> commit 64dedfb8fdbbc4fabb8c131e4b597cd4bc7f3881
-> tree 7ef0c5e0574bc94fe4d25bb5994b31938205e7cf
-> parent 9e7e2c047503db5a094ab30c7b4b8a5a0a324915
-> author Jae-hyeon Park <hpark@tuhep.phys.tohoku.ac.jp> Tue, 27 Jun 2006 06:34:03 -0400
-> committer Len Brown <len.brown@intel.com> Tue, 27 Jun 2006 08:00:40 -0400
-> 
-> ACPI: Device [kobj-name] is not power manageable
-> 
-> print kobj name in this message.
-> lenb changed to use printk.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> Signed-off-by: Len Brown <len.brown@intel.com>
-> 
->  drivers/acpi/bus.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
-> index 917bf23..f4a36d3 100644
-> --- a/drivers/acpi/bus.c
-> +++ b/drivers/acpi/bus.c
-> @@ -196,7 +196,8 @@ int acpi_bus_set_power(acpi_handle handl
->  	/* Make sure this is a valid target state */
->  
->  	if (!device->flags.power_manageable) {
-> -		ACPI_INFO((AE_INFO, "Device is not power manageable"));
-> +		printk(KERN_DEBUG "Device `[%s]is not power manageable",
-> +				device->kobj.name);
->  		return_VALUE(-ENODEV);
->  	}
->  	/*
-> -
+Signed-off-by: Adaptec
+Acked-by: Alexis Bruemmer <alexisb@us.ibm.com>
 
-Andrew, can you send Linus the typo correction patch for this??
-or should I?
+----------
+
+Index: aic94xx-sas-2.6-patched/drivers/scsi/aic94xx/aic94xx_hwi.c
+===================================================================
+--- aic94xx-sas-2.6-patched.orig/drivers/scsi/aic94xx/aic94xx_hwi.c	2006-06-23 11:12:01.000000000 -0700
++++ aic94xx-sas-2.6-patched/drivers/scsi/aic94xx/aic94xx_hwi.c	2006-06-29 12:10:08.000000000 -0700
+@@ -604,11 +604,26 @@
+ int asd_init_hw(struct asd_ha_struct *asd_ha)
+ {
+ 	int err;
++	u32 v;
+ 
+ 	err = asd_init_sw(asd_ha);
+ 	if (err)
+ 		return err;
+ 
++	err = pci_read_config_dword(asd_ha->pcidev, PCIC_HSTPCIX_CNTRL, &v);
++	if (err) {
++		asd_printk("couldn't read PCIC_HSTPCIX_CNTRL of %s\n",
++			   pci_name(asd_ha->pcidev));
++		return err;
++	}
++	pci_write_config_dword(asd_ha->pcidev, PCIC_HSTPCIX_CNTRL,
++					v | SC_TMR_DIS);
++	if (err) {
++		asd_printk("couldn't disable split completion timer of %s\n",
++			   pci_name(asd_ha->pcidev));
++		return err;
++	}
++
+ 	err = asd_read_ocm(asd_ha);
+ 	if (err) {
+ 		asd_printk("couldn't read ocm(%d)\n", err);
+Index: aic94xx-sas-2.6-patched/drivers/scsi/aic94xx/aic94xx_reg_def.h
+===================================================================
+--- aic94xx-sas-2.6-patched.orig/drivers/scsi/aic94xx/aic94xx_reg_def.h	2006-06-23 11:12:01.000000000 -0700
++++ aic94xx-sas-2.6-patched/drivers/scsi/aic94xx/aic94xx_reg_def.h	2006-06-29 11:57:49.000000000 -0700
+@@ -1787,6 +1787,7 @@
+ #define PCIC_HSTPCIX_CNTRL	0xA0
+ 
+ #define 	REWIND_DIS		0x0800
++#define		SC_TMR_DIS		0x04000000
+ 
+ #define PCIC_MBAR0_MASK	0xA8
+ #define		PCIC_MBAR0_SIZE_MASK 	0x1FFFE000
 
 
-s/`//
-s/]/] /
-
-Hm, needs a \n too.
-
-~Randy

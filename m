@@ -1,106 +1,244 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWF3HJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWF3HKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWF3HJs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 03:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWF3HJr
+	id S932084AbWF3HKi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 03:10:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWF3HKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 03:09:47 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:47020 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932083AbWF3HJq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 03:09:46 -0400
-Message-ID: <44A4CE21.30009@tw.ibm.com>
-Date: Fri, 30 Jun 2006 15:09:21 +0800
-From: Albert Lee <albertcc@tw.ibm.com>
-Reply-To: albertl@mail.com
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: matthieu castet <castet.matthieu@free.fr>
-CC: Jeff Garzik <jeff@garzik.org>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl, htejun@gmail.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Unicorn Chang <uchang@tw.ibm.com>, Doug Maxey <dwm@maxeymade.com>
-Subject: Re: + via-pata-controller-xfer-fixes.patch added to -mm tree
-References: <200606242214.k5OMEHCU005963@shell0.pdx.osdl.net> <449DBE88.5020809@garzik.org> <449DBFFD.2010700@garzik.org> <449E5445.60008@free.fr>
-In-Reply-To: <449E5445.60008@free.fr>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 30 Jun 2006 03:10:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17112 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932084AbWF3HKh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 03:10:37 -0400
+Date: Fri, 30 Jun 2006 00:10:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Gay <andy@andynet.net>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
+ transfers
+Message-Id: <20060630001021.2b49d4bd.akpm@osdl.org>
+In-Reply-To: <1151646482.3285.410.camel@tahini.andynet.net>
+References: <1151646482.3285.410.camel@tahini.andynet.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-matthieu castet wrote:
-> Jeff Garzik wrote:
+On Fri, 30 Jun 2006 01:48:02 -0400
+Andy Gay <andy@andynet.net> wrote:
+
 > 
->> Data point #3 (or #0...):
->>
->> This appears to be a _device_ that sends its interrupt early.
-
-Hi,
-
-I've tested the 4KUS CDR-6S48 drive + Promise pdc20275 controller
-with current libata upstream (to be 2.6.18. I guess current upstream doesn't
-have the via-pata-controller-xfer-fixes.patch). However, cannot reproduce
-the early interrupt problem on my machine.
-
->>
->> If that is the case, the device may appear on any controller, not just
->> VIA, and we would have to handle it globally via a device special-case
->> in libata-core.
->>
+> Adapted from an earlier patch by Greg KH <gregkh@suse.de>.
+> That patch added multiple read urbs and larger transfer buffers to allow
+> data transfers at full EvDO speed.
 > 
-> For the record, the cdrom writer that need this quirk on pata via, works
-> on pata sil680.
-> But 3 microsecond is very short, and the problem could be hidden by the
-> controller, or other stuffs.
+> This version includes additional device IDs and fixes a memory leak in
+> the transfer buffer allocation.
 > 
+> Some (maybe all?) of the supported devices present multiple bulk endpoints,
+> the additional EPs can be used for control and status functions.
+> This version allocates 3 EPs by default, that can be changed using
+> the 'endpoints' module parameter.
 > 
+> Tested with Sierra Wireless EM5625 and MC5720 embedded modules.
+> 
+> Device ID (0x0c88, 0x17da) for the Kyocera Wireless KPC650/Passport
+> was added but is not yet tested.
+> 
+> ...
+>
+> +static void airprime_read_bulk_callback(struct urb *urb, struct pt_regs *regs)
+> +{
+> +	struct usb_serial_port *port = urb->context;
+> +	unsigned char *data = urb->transfer_buffer;
+> +	struct tty_struct *tty;
+> +	int result;
+> +
+> +	dbg("%s - port %d", __FUNCTION__, port->number);
+> +
+> +	if (urb->status) {
+> +		dbg("%s - nonzero read bulk status received: %d",
+> +		    __FUNCTION__, urb->status);
+> +		/* something happened, so free up the memory for this urb /*
+> +		if (urb->transfer_buffer) {
+> +			kfree (urb->transfer_buffer);
+> +			urb->transfer_buffer = NULL;
+> +		}
+> +		return;
+> +	}
+> +	usb_serial_debug_data(debug, &port->dev, __FUNCTION__, urb->actual_length, data);
+> +
+> +	tty = port->tty;
+> +	if (tty && urb->actual_length) {
+> +		tty_buffer_request_room(tty, urb->actual_length);
+> +		tty_insert_flip_string(tty, data, urb->actual_length);
 
-If it is the problem of the specific ATAPI device, all controllers
-should be affected, not only VIA. So, strange not seeing the problem on
-Promise.
+Is it correct to ignore the return value from those two functions?
 
-Could you please test the current libata-upstream tree and
-turn on ATA_DEBUG and ATA_VERBOSE_DEBUG in include/linux/libata.h.
+> +		tty_flip_buffer_push(tty);
+> +	}
+> +	/* should this use GFP_KERNEL? */
+> +	result = usb_submit_urb(urb, GFP_ATOMIC);
 
-If possible, could you also submit the libata log related to the
-early/lost irq.
+If possible, yep.
 
-(Heard about the ATAPI early interrupt problem, but never had chance to see
-how libata behaves with such device. Really curious about this problem.)
+> ...
+>
+> +static int airprime_open(struct usb_serial_port *port, struct file *filp)
+> +{
+> +	struct airprime_private *priv = usb_get_serial_port_data(port);
+> +	struct usb_serial *serial = port->serial;
+> +	struct urb *urb;
+> +	char *buffer;
+> +	int i;
+> +	int result = 0;
+> +
+> +	dbg("%s - port %d", __FUNCTION__, port->number);
+> +
+> +	/* initialize our private data structure if it isn't already created */
+> +	if (!priv) {
+> +		priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+> +		if (!priv)
+> +			return -ENOMEM;
+> +		spin_lock_init(&priv->lock);
+> +		usb_set_serial_port_data(port, priv);
+> +	}
+> +	/* TODO handle error conditions better, right now we leak memory */
+> +	for (i = 0; i < NUM_READ_URBS; ++i) {
+> +		buffer = kmalloc(buffer_size, GFP_KERNEL);
+> +		if (!buffer) {
+> +			dev_err(&port->dev, "%s - out of memory.\n",
+> +				__FUNCTION__);
+> +			return -ENOMEM;
+> +		}
+> +		urb = usb_alloc_urb(0, GFP_KERNEL);
+> +		if (!urb) {
+> +			dev_err(&port->dev, "%s - no more urbs?\n",
+> +				__FUNCTION__);
+> +			return -ENOMEM;
+> +		}
+> +		usb_fill_bulk_urb(urb, serial->dev,
+> +				  usb_rcvbulkpipe(serial->dev,
+> +						  port->bulk_out_endpointAddress),
+> +				  buffer, buffer_size,
+> +				  airprime_read_bulk_callback, port);
+> +		result = usb_submit_urb(urb, GFP_KERNEL);
+> +		if (result) {
+> +			dev_err(&port->dev,
+> +				"%s - failed submitting read urb %d for port %d, error %d\n",
+> +				__FUNCTION__, i, port->number, result);
+> +			return result;
+> +		}
+> +		/* fun with reference counting, when this urb is finished, the
+> +		 * host driver will free it up automatically */
+> +		/* don't do this here, we need the urb to stay around until the close
+> +		   function can take care of it */
+> +		//usb_free_urb (urb);
+> +		/* instead remember this urb so we can kill it when the
+> +		   port is closed */
+> +		priv->read_urbp[i] = urb;
+> +	}
+> +	return result;
+> +}
+> +
 
-Thanks,
+This function leaks memory all over the place if something goes wrong.
 
-Albert
----
-boot dmesg of the CDR-6S48 on my box.
-xfer mode set to UDMA/33 without problem.
-
-pata_pdc2027x 0000:02:05.0: version 0.74-ac3
-ACPI: PCI Interrupt 0000:02:05.0[A] -> Link [LNK1] -> GSI 10 (level, low) -> IRQ 10
-pata_pdc2027x 0000:02:05.0: PLL input clock 16740 kHz
-ata3: PATA max UDMA/133 cmd 0xE09E17C0 ctl 0xE09E1FDA bmdma 0xE09E1000 irq 10
-ata4: PATA max UDMA/133 cmd 0xE09E15C0 ctl 0xE09E1DDA bmdma 0xE09E1008 irq 10
-scsi2 : pata_pdc2027x
-ata3.00: configured for UDMA/33
-ata3.01: configured for UDMA/33
-scsi3 : pata_pdc2027x
-ata4.00: configured for UDMA/33
-  Vendor: LITE-ON   Model: CD-RW SOHR-5238S  Rev: 4S07
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-  Vendor: HL-DT-ST  Model: DVDRAM GSA-4163B  Rev: A101
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-  Vendor: CD-RW     Model: CDR-6S48          Rev: 2SG1
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-sr0: scsi3-mmc drive: 93x/52x writer cd/rw xa/form2 cdda tray
-Uniform CD-ROM driver Revision: 3.20
-sr 2:0:0:0: Attached scsi CD-ROM sr0
-sr1: scsi3-mmc drive: 40x/40x writer dvd-ram cd/rw xa/form2 cdda tray
-sr 2:0:1:0: Attached scsi CD-ROM sr1
-sr2: scsi3-mmc drive: 48x/48x writer cd/rw xa/form2 cdda tray
-sr 3:0:0:0: Attached scsi CD-ROM sr2
+Please redesign it to have a single `return' statement.  You'll find that'll
+help avoid leaks now and during any later enhancements.
 
 
+> +{
+> +	struct airprime_private *priv = usb_get_serial_port_data(port);
+> +	int i;
+> +
+> +	dbg("%s - port %d", __FUNCTION__, port->number);
+> +
+> +	/* killing the urb will invoke read_bulk_callback() with an error status,
+> +	   so the transfer buffer will be freed there */
+> +	for (i = 0; i < NUM_READ_URBS; ++i) {
+> +		usb_kill_urb (priv->read_urbp[i]);
+> +		usb_free_urb (priv->read_urbp[i]);
+> +	}
+> +
+> +	/* free up private structure? */
 
+Yes please ;)
+
+> +}
+> +
+> +static int airprime_write(struct usb_serial_port *port,
+> +			  const unsigned char *buf, int count)
+> +{
+> +	struct airprime_private *priv = usb_get_serial_port_data(port);
+> +	struct usb_serial *serial = port->serial;
+> +	struct urb *urb;
+> +	unsigned char *buffer;
+> +	unsigned long flags;
+> +	int status;
+> +	dbg("%s - port %d", __FUNCTION__, port->number);
+> +
+> +	spin_lock_irqsave(&priv->lock, flags);
+> +	if (priv->outstanding_urbs > NUM_WRITE_URBS) {
+> +		spin_unlock_irqrestore(&priv->lock, flags);
+> +		dbg("%s - write limit hit\n", __FUNCTION__);
+> +		return 0;
+> +	}
+> +	spin_unlock_irqrestore(&priv->lock, flags);
+> +	buffer = kmalloc(count, GFP_ATOMIC);
+> +	if (!buffer) {
+> +		dev_err(&port->dev, "out of memory\n");
+> +		return -ENOMEM;
+> +	}
+> +	urb = usb_alloc_urb(0, GFP_ATOMIC);
+> +	if (!urb) {
+> +		dev_err(&port->dev, "no more free urbs\n");
+> +		kfree (buffer);
+> +		return -ENOMEM;
+> +	}
+> +	memcpy (buffer, buf, count);
+> +
+> +	usb_serial_debug_data(debug, &port->dev, __FUNCTION__, count, buffer);
+> +
+> +	usb_fill_bulk_urb(urb, serial->dev,
+> +			  usb_sndbulkpipe(serial->dev,
+> +					  port->bulk_out_endpointAddress),
+> +			  buffer, count,
+> +			  airprime_write_bulk_callback, port);
+> +
+> +	/* send it down the pipe */
+> +	status = usb_submit_urb(urb, GFP_ATOMIC);
+> +	if (status) {
+> +		dev_err(&port->dev,
+> +			"%s - usb_submit_urb(write bulk) failed with status = %d\n",
+> +			__FUNCTION__, status);
+> +		count = status;
+> +		kfree (buffer);
+> +	} else {
+> +		spin_lock_irqsave(&priv->lock, flags);
+> +		++priv->outstanding_urbs;
+> +		spin_unlock_irqrestore(&priv->lock, flags);
+> +	}
+> +	/* we are done with this urb, so let the host driver
+> +	 * really free it when it is finished with it */
+> +	usb_free_urb (urb);
+> +	return count;
+> +}
+
+Is usb_serial_driver.write() really called in a context in which it is
+forced to use GFP_ATOMIC?
+
+Again, implementing this function as single-exit would make it easier to
+maintain.
+
+> +MODULE_PARM_DESC(debug, "Debug enabled or not");
+
+Just "Debug enabled".
+
+> +module_param(buffer_size, int, 0);
+> +MODULE_PARM_DESC(buffer_size, "Size of the transfer buffers");
+
+Units?
 

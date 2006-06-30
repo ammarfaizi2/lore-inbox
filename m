@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751807AbWF3RIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751626AbWF3RKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751807AbWF3RIL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 13:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWF3RIK
+	id S1751626AbWF3RKy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 13:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751822AbWF3RKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 13:08:10 -0400
-Received: from ns.suse.de ([195.135.220.2]:39298 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751807AbWF3RIJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 13:08:09 -0400
-From: Andi Kleen <ak@suse.de>
-To: eranian@hpl.hp.com
-Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
-Date: Fri, 30 Jun 2006 19:08:03 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <200606230913.k5N9D73v032387@frankl.hpl.hp.com> <200606301633.35818.ak@suse.de> <20060630160203.GH22381@frankl.hpl.hp.com>
-In-Reply-To: <20060630160203.GH22381@frankl.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 30 Jun 2006 13:10:53 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57992 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751626AbWF3RKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 13:10:52 -0400
+Subject: Re: [PATCH -mm] ide_end_drive_cmd(): avoid instruction pipeline
+	stall
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Andrew Morton <akpm@osdl.org>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-ide@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060630161351.GA17434@rhlx01.fht-esslingen.de>
+References: <20060630161351.GA17434@rhlx01.fht-esslingen.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606301908.03934.ak@suse.de>
+Date: Fri, 30 Jun 2006 18:26:56 +0100
+Message-Id: <1151688416.31392.66.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 June 2006 18:02, Stephane Eranian wrote:
-> Andi,
-> 
-> As a first step, I am looking at implementing a TIF_DEBUG
-> for x86-64. AFAIK, debug registers must not be inherited on
-> fork().
+Ar Gwe, 2006-06-30 am 18:13 +0200, ysgrifennodd Andreas Mohr:
+> Use an independently-formatted "unsigned int" for data instead of a
+> restrictive "u16" to avoid instruction fetch pipeline stalls
+> probably caused by the byte calculations later.
 
-Why not?  Especially for threads you probably want them
-in the new thread too.
+drivers/ide is on its way out. I'm also curious that this shows up given
+that the inw() is going to cause a PCI sequence and stall the CPU
+entirely for ages anyway.
 
--Andi
+NAK because
+1. This is a gcc problem
+2. Not everyone is using an intel x86-32 box which has such problems
+3. IDE is in life-support mode and the relatives are already planning
+the flowers.
+
+Alan

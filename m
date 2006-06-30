@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932763AbWF3QVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932697AbWF3QbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932763AbWF3QVc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 12:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932767AbWF3QVb
+	id S932697AbWF3QbV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 12:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932767AbWF3QbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 12:21:31 -0400
-Received: from outbound-mail-45.bluehost.com ([70.96.188.14]:59339 "HELO
-	outbound-mail-45.bluehost.com") by vger.kernel.org with SMTP
-	id S932763AbWF3QVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 12:21:31 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: "Robert Nagy" <robert.nagy@gmail.com>
-Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
-Date: Fri, 30 Jun 2006 09:21:24 -0700
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <39f633820606290818g1978866ap@mail.gmail.com> <200606300906.47077.jbarnes@virtuousgeek.org> <39f633820606300914i170c9a25i24e834efc36703f5@mail.gmail.com>
-In-Reply-To: <39f633820606300914i170c9a25i24e834efc36703f5@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 12:31:21 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:19985 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S932697AbWF3QbU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 12:31:20 -0400
+Date: Fri, 30 Jun 2006 18:31:14 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: James Courtier-Dutton <James@superbug.co.uk>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       perex@suse.cz, Olaf Hering <olh@suse.de>
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
+Message-ID: <20060630163114.GA12874@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	James Courtier-Dutton <James@superbug.co.uk>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+	alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	perex@suse.cz, Olaf Hering <olh@suse.de>
+References: <20060629192128.GE19712@stusta.de> <44A54D8E.3000002@superbug.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606300921.24909.jbarnes@virtuousgeek.org>
-X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 71.198.43.183 authed with jbarnes@virtuousgeek.org}
+In-Reply-To: <44A54D8E.3000002@superbug.co.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, June 30, 2006 9:14 am, Robert Nagy wrote:
-> no i do not have kdb. and i cannot even boot the box now. is there any
-> way to disable the megaraid driver with an argument?
+On Fri, Jun 30, 2006 at 05:13:02PM +0100, James Courtier-Dutton wrote:
+> Adrian Bunk wrote:
+> >- ALSA #1735 (OSS emulation 4-channel mode rear channels not working)
+> 
+> As the MAINTAINER of EMU10K1, I am happy for EMU10K1 driver to be 
+> removed from the kernel.
+> 
+> ALSA #1735 is now closed. All the apps the user was trying also support 
+> ALSA natively now, so OSS is not needed.
 
-Not that I know of.  But you can use your system controller to disable 
-the PCI slot containing the RAID card... that should let you boot.  I 
-don't remember what the command is, but you can type 'help' at your L1 
-or L2 prompt.
+Are you joking ?
 
-Jesse
+  OG.

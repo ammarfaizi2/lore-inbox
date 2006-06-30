@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWF3QH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWF3QKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbWF3QH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 12:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWF3QH4
+	id S1751423AbWF3QKS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 12:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWF3QKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 12:07:56 -0400
-Received: from outbound-mail-07.bluehost.com ([67.138.240.207]:42884 "HELO
-	outbound-mail-07.bluehost.com") by vger.kernel.org with SMTP
-	id S1751348AbWF3QH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 12:07:56 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: "Robert Nagy" <robert.nagy@gmail.com>
-Subject: Re: Intel RAID Controller SRCU42X in SGI Altix 350
-Date: Fri, 30 Jun 2006 09:07:53 -0700
-User-Agent: KMail/1.9.3
+	Fri, 30 Jun 2006 12:10:17 -0400
+Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:4802 "EHLO
+	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1751423AbWF3QKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 12:10:15 -0400
+Date: Fri, 30 Jun 2006 09:02:03 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org
-References: <39f633820606290818g1978866ap@mail.gmail.com> <200606291217.00040.jbarnes@virtuousgeek.org> <39f633820606300144h21671f1agafb55d9972b9e40f@mail.gmail.com>
-In-Reply-To: <39f633820606300144h21671f1agafb55d9972b9e40f@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
+Message-ID: <20060630160203.GH22381@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200606230913.k5N9D73v032387@frankl.hpl.hp.com> <200606301541.22928.ak@suse.de> <20060630141248.GC22381@frankl.hpl.hp.com> <200606301633.35818.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606300907.53880.jbarnes@virtuousgeek.org>
-X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 71.198.43.183 authed with jbarnes@virtuousgeek.org}
+In-Reply-To: <200606301633.35818.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, June 30, 2006 1:44 am, Robert Nagy wrote:
-> I know that it only works in EFI context. But I haven't seen the disk
-> attached to it. I am going to try forcing it to PCI mode.
+Andi,
 
-Ah ok, just as a sanity check?  It's been awhile since I looked at the 
-EFI driver API, it could very well have problems on a machine like Altix 
-due to memory mapping constraints and such.
+As a first step, I am looking at implementing a TIF_DEBUG
+for x86-64. AFAIK, debug registers must not be inherited on
+fork().
 
-Jesse
+In copy_thread(), I do not see the place where the child's
+debug registers (or just debugreg7) are cleared to avoid
+reloading the parents values in __switch_to() if debugreg7
+is not 0. I believe the debug registers values are copied
+in dup_task_struct().
+
+Am I missing something?
+
+--
+-Stephane

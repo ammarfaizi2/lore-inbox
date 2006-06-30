@@ -1,66 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932999AbWF3SVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933016AbWF3SXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932999AbWF3SVz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 14:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933000AbWF3SVy
+	id S933016AbWF3SXy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 14:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933013AbWF3SXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 14:21:54 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:31395 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932999AbWF3SVx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 14:21:53 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=rTj858/0vL9b4RfTPiNrm7J2ESksZNernAMaXWPr3xiFBdS3+VIhiI4MzliPpwAF0
-	fJLGH2rrp5C7hXP3hdcZw==
-Message-ID: <44A56B45.6050506@google.com>
-Date: Fri, 30 Jun 2006 11:19:49 -0700
-From: Daniel Phillips <phillips@google.com>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
+	Fri, 30 Jun 2006 14:23:52 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27352 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S933002AbWF3SXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 14:23:50 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: hadi@cyberus.ca
+Cc: Andrey Savochkin <saw@swsoft.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Dave Hansen <haveblue@us.ibm.com>, Ben Greear <greearb@candelatech.com>,
+       Daniel Lezcano <dlezcano@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, serue@us.ibm.com, clg@fr.ibm.com,
+       Andrew Morton <akpm@osdl.org>, dev@sw.ru, devel@openvz.org,
+       viro@ftp.linux.org.uk, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam@vilain.net>
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+References: <m1psgulf4u.fsf@ebiederm.dsl.xmission.com>
+	<44A1689B.7060809@candelatech.com>
+	<20060627225213.GB2612@MAIL.13thfloor.at>
+	<1151449973.24103.51.camel@localhost.localdomain>
+	<20060627234210.GA1598@ms2.inr.ac.ru>
+	<m1mzbyj6ft.fsf@ebiederm.dsl.xmission.com>
+	<20060628133640.GB5088@MAIL.13thfloor.at>
+	<1151502803.5203.101.camel@jzny2> <44A44124.5010602@vilain.net>
+	<1151626552.8922.70.camel@jzny2>
+	<20060630114551.A20191@castle.nmd.msu.ru>
+	<1151675452.5270.10.camel@jzny2>
+Date: Fri, 30 Jun 2006 12:22:24 -0600
+In-Reply-To: <1151675452.5270.10.camel@jzny2> (hadi@cyberus.ca's message of
+	"Fri, 30 Jun 2006 09:50:52 -0400")
+Message-ID: <m13bdmbj1b.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Johann Lombardi <johann.lombardi@bull.net>
-CC: Andreas Dilger <adilger@clusterfs.com>, sho@tnes.nec.co.jp, cmm@us.ibm.com,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC 1/2] ext3: enlarge blocksize and fix rec_len overflow
-References: <20060628205238sho@rifu.tnes.nec.co.jp> <20060628155048.GG2893@chiva> <20060628202421.GL5318@schatzie.adilger.int> <44A417A3.80001@google.com> <20060629202700.GD5318@schatzie.adilger.int> <44A450BB.60105@google.com> <20060630093113.GA2702@chiva>
-In-Reply-To: <20060630093113.GA2702@chiva>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johann Lombardi wrote:
->>>I have no objection to this at all, but I think it will lead to a slightly
->>>more complex implementation.  We even discussed in the distant past to
->>>make large directories a series of 4kB "chunks", for fs blocksize >= 4kB.
->>>This has negative implications for large filenames because the internal
->>>free space fragmentation is high, but has the advantage that it might
->>>eventually still be usable if we can get blocksize > PAGE_SIZE.
->>>
->>>The difficulty is that when freeing dir entires you would have to be
->>>concerned with a merging a dir_entry that is spanning the middle
->>>of a 2^16 block.
->>
->>That is easy, just don't let an entry span subblocks by not letting
->>delete merge past the end of a subblock, just a minor tweak.  New block
->>initialization needs an outer loop on subblocks and that's it, I think.
-> 
-> 
-> I've been working on a patch implementing this feature. It currently works w/o 
-> htree.
-> With dir_index, the difficulty is that an entry can span subblocks after a leaf
-> block split.
+jamal <hadi@cyberus.ca> writes:
 
-Argh, hoist by my own petard!  That is not the only problem - we also need
-to represent 64K empty records for the index blocks.  These issues need to
-be dealt with in order to go past 64K blocks, and then we have so many
-entries per block we probably want to rethink the leaf format anyway.  OK,
-just to handle the 64K case, what is wrong with treating 0 as 64K?
+>> > > Then the pragmatic question becomes how to correlate what you see from
+>> > > `ip addr list' to guests.
+>> > 
+>> > on the host ip addr and the one seen on the guest side are the same.
+>> > Except one is seen (on the host) on guest0-eth0 and another is seen 
+>> > on eth0 (on guest).
+>> 
+>> Then what to do if the host system has 10.0.0.1 as a private address on eth3,
+>> and then interfaces guest1-tun0 and guest2-tun0 both get address 10.0.0.1
+>> when each guest has added 10.0.0.1 to their tun0 device?
+>
+> Yes, that would be a conflict that needs to be resolved. If you look at
+> ip addresses as also belonging to namespaces, then it should work, no?
+> i am assuming a tag at the ifa table level.
 
-Regards,
+Yes.  The conception is that everything belongs to the namespace,
+so it looks like you have multiple instances of the network stack.
 
-Daniel
+Which means through existing interfaces it would be a real problem
+if a network device showed up in more than one network stack as
+that would confuse things.
 
+Basically the reading and configuration through existing interfaces
+is expected to be in the namespace as well which is where the difficulty
+shows up.
+
+When you get serious about splitting up roots powers this becomes a real
+advantage.  Because you might want to have one person responsible for
+what would normally be eth0 and another person responsible for eth1.
+
+Anyway Jamal can you see the problem the aliases present to the implementation?
+
+Eric

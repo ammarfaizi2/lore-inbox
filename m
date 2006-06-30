@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWF3MDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWF3MEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWF3MDE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 08:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWF3MDE
+	id S932170AbWF3MEq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 08:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWF3MEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 08:03:04 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:62634 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932113AbWF3MDD
+	Fri, 30 Jun 2006 08:04:46 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:39823 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932170AbWF3MEp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 08:03:03 -0400
-Subject: Re: [2.6 patch] mm/util.c: EXPORT_UNUSED_SYMBOL
+	Fri, 30 Jun 2006 08:04:45 -0400
+Subject: Re: make PROT_WRITE imply PROT_READ
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060630113251.GR19712@stusta.de>
-References: <20060630113251.GR19712@stusta.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Ulrich Drepper <drepper@gmail.com>, Pavel Machek <pavel@ucw.cz>,
+       Jason Baron <jbaron@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1151656545.11434.8.camel@laptopd505.fenrus.org>
+References: <fa.PuMM6IwflUYh1MWILO9rb6z4fvY@ifi.uio.no>
+	 <449B42B3.6010908@shaw.ca>
+	 <Pine.LNX.4.64.0606230934360.24102@dhcp83-5.boston.redhat.com>
+	 <1151071581.3204.14.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0606231002150.24102@dhcp83-5.boston.redhat.com>
+	 <1151072280.3204.17.camel@laptopd505.fenrus.org>
+	 <a36005b50606241145q4d1dd17dg85f80e07fb582cdb@mail.gmail.com>
+	 <20060627095632.GA22666@elf.ucw.cz>
+	 <a36005b50606280943l54138e80tbda08e1607136792@mail.gmail.com>
+	 <1151568930.3122.0.camel@laptopd505.fenrus.org>
+	 <a36005b50606292048y2436282cv909a264b4fb7b909@mail.gmail.com>
+	 <1151656545.11434.8.camel@laptopd505.fenrus.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Fri, 30 Jun 2006 13:17:34 +0100
-Message-Id: <1151669854.31392.19.camel@localhost.localdomain>
+Date: Fri, 30 Jun 2006 13:20:59 +0100
+Message-Id: <1151670059.31392.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-06-30 am 13:32 +0200, ysgrifennodd Adrian Bunk:
->  }
-> -EXPORT_SYMBOL(strndup_user);
-> +EXPORT_UNUSED_SYMBOL(strndup_user);  /*  June 2006  */
+Ar Gwe, 2006-06-30 am 10:35 +0200, ysgrifennodd Arjan van de Ven:
+> apps like JVM's forgot PROT_EXEC and break when the hardware enforces it
+> apps that forget PROT_READ break when the kernel/hardware enforce it
+> 
+> not too much difference....
 
-Adrian, will you please differentiate between symbols which are
-logically part of an API and symbols that were for some purpose and are
-not now being used.
+There is quite a difference. The _EXEC case behaves predictably for the
+platforms that support it. At least I am not aware of cases that is not
+true. The _READ case without the fault handling patch behaves
+unpredictably depending on the precise ordering of events on a clean
+page. 
 
-This sort of symbol removal/marking is just causing noise and confusion
-without actually doing anything useful, unlike the many symbols that
-genuinely were exported for some weird reason and were no longer needed.
+Alan
 

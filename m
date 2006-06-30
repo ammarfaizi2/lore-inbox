@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWF3LSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWF3Lbn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750865AbWF3LSo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 07:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWF3LSo
+	id S1750904AbWF3Lbn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 07:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750963AbWF3Lbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 07:18:44 -0400
-Received: from [64.62.148.172] ([64.62.148.172]:29969 "EHLO arnor.apana.org.au")
-	by vger.kernel.org with ESMTP id S1750823AbWF3LSo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 07:18:44 -0400
-Date: Fri, 30 Jun 2006 21:17:34 +1000
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch] lockdep, annotate slocks: turn lockdep off for them
-Message-ID: <20060630111734.GA22202@gondor.apana.org.au>
-References: <a44ae5cd0606291201v659b4235sfa9941aa3b18e766@mail.gmail.com> <20060630065041.GB6572@elte.hu> <20060630072231.GB7057@elte.hu> <20060630091850.GA10713@elte.hu>
-Mime-Version: 1.0
+	Fri, 30 Jun 2006 07:31:43 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:11528 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750904AbWF3Lbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 07:31:43 -0400
+Date: Fri, 30 Jun 2006 13:31:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] kernel/sysctl.c: EXPORT_UNUSED_SYMBOL
+Message-ID: <20060630113141.GK19712@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060630091850.GA10713@elte.hu>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 30, 2006 at 11:18:50AM +0200, Ingo Molnar wrote:
-> 
-> Herbert, do the acquire/release semantics as expressed in the 
-> lockdep-annotate-slock.patch match sk_lock semantics?
+This patch marks an unsed export as EXPORT_UNUSED_SYMBOL.
 
-I think it should be fine.
- 
-> @@ -250,9 +283,18 @@ int sk_receive_skb(struct sock *sk, stru
->  	skb->dev = NULL;
->  
->  	bh_lock_sock(sk);
-> -	if (!sock_owned_by_user(sk))
-> +	if (!sock_owned_by_user(sk)) {
-> +		/*
-> +		 * trylock + unlock semantics:
-> +		 */
-> +		spin_release(&sk->sk_lock.slock.dep_map, 1, _RET_IP_);
-> +		mutex_acquire(&sk->sk_lock.dep_map, 0, 1, _RET_IP_);
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Although it would seem that keeping the spin lock would fit the actual
-semantics better.  I suppose there must be a technical reason why this
-wouldn't work.
+--- linux-2.6.17-mm4-full/kernel/sysctl.c.old	2006-06-30 02:34:13.000000000 +0200
++++ linux-2.6.17-mm4-full/kernel/sysctl.c	2006-06-30 02:34:39.000000000 +0200
+@@ -2746,7 +2746,7 @@
+ EXPORT_SYMBOL(proc_dointvec);
+ EXPORT_SYMBOL(proc_dointvec_jiffies);
+ EXPORT_SYMBOL(proc_dointvec_minmax);
+-EXPORT_SYMBOL(proc_dointvec_userhz_jiffies);
++EXPORT_UNUSED_SYMBOL(proc_dointvec_userhz_jiffies);  /*  June 2006  */
+ EXPORT_SYMBOL(proc_dointvec_ms_jiffies);
+ EXPORT_SYMBOL(proc_dostring);
+ EXPORT_SYMBOL(proc_doulongvec_minmax);
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

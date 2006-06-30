@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932967AbWF3TKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWF3TNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932967AbWF3TKv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 15:10:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933095AbWF3TKu
+	id S932380AbWF3TNi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 15:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933059AbWF3TNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 15:10:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32204 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932967AbWF3TKu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 15:10:50 -0400
-Date: Fri, 30 Jun 2006 12:10:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alessio Sangalli <alesan@manoweb.com>
-cc: Andrew Morton <akpm@osdl.org>, alan@lxorguk.ukuu.org.uk,
-       penberg@cs.Helsinki.FI, linux-kernel@vger.kernel.org,
-       ink@jurassic.park.msu.ru, dtor_core@ameritech.net
-Subject: Re: [PATCH] cardbus: revert IO window limit
-In-Reply-To: <449B0B3C.2020904@manoweb.com>
-Message-ID: <Pine.LNX.4.64.0606301200400.12404@g5.osdl.org>
-References: <Pine.LNX.4.58.0606220947250.15059@sbz-30.cs.Helsinki.FI>
- <20060622001104.9e42fc54.akpm@osdl.org> <1150976158.15275.148.camel@localhost.localdomain>
- <Pine.LNX.4.64.0606220917080.5498@g5.osdl.org> <20060622093606.2b3b1eb7.akpm@osdl.org>
- <Pine.LNX.4.64.0606221005410.5498@g5.osdl.org> <449B0B3C.2020904@manoweb.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 30 Jun 2006 15:13:38 -0400
+Received: from mail.timesys.com ([65.117.135.102]:20618 "EHLO
+	postfix.timesys.com") by vger.kernel.org with ESMTP id S932380AbWF3TNh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 15:13:37 -0400
+Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick and
+	dynamic HZ -V4
+From: Thomas Gleixner <tglx@timesys.com>
+Reply-To: tglx@timesys.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+In-Reply-To: <20060630180720.GA1689@elf.ucw.cz>
+References: <1150747581.29299.75.camel@localhost.localdomain>
+	 <20060629174838.GA1695@elf.ucw.cz>
+	 <1151607796.25491.677.camel@localhost.localdomain>
+	 <20060630180720.GA1689@elf.ucw.cz>
+Content-Type: text/plain
+Date: Fri, 30 Jun 2006 21:15:49 +0200
+Message-Id: <1151694950.25491.757.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 22 Jun 2006, Alessio Sangalli wrote:
+On Fri, 2006-06-30 at 20:07 +0200, Pavel Machek wrote:
+> Hi!
 > 
-> # /sbin/lspci -vvx
-> 00:00.0 Host bridge: Intel Corp. 82440MX Host Bridge (rev 01)
->         Subsystem: Compaq Computer Corporation: Unknown device 000d
->         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
->         Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
->         Latency: 64
-> 00: 86 80 94 71 06 00 00 22 01 00 00 06 00 40 80 00
-> 10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 11 0e 0d 00
-> 30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > > I briefly tested -dyntick5 on my thinkpad, and it seems to work
+> > > okay... but timer still seems to tick at 250Hz.
+> > 
+> > > ...am I doing something wrong?
+> > 
+> > can you send me the bootlog and your .config file please ?
+> 
+> ...attached. (I do not have to enable anything in sysfs/commandline to
+> enable noidlehz, right?).
 
-Ok. We don't actually have any quirks at all for the 82440MX, and that's 
-almost certainly _not_ because it doesn't do something strange (all Intel 
-host bridges have magic IO ranges), but simply because we haven't hit it 
-yet.
+Right. 
 
-And I can't find the docs for the PCI config space for that dang thing.
+You trapped into the no apic on SMP trap. I did not come around to fix
+that yet. What happens that you don't have lapic on the commandline and
+BIOS has lapic disabled. Therefor Linux switches to IPI broadcasting if
+the PIT interrupt, which does not work with idle_hz and highres timer as
+those are per cpu. I will fix that for SMP kernels which bring up only
+one CPU.
 
-I bet that there's some magic SMBus IO-range that the 440MX decodes using 
-a special magic config setting.
+You can work around that for now by either using an UP kernel or
+enabling local APIC, which is recommended anyway because the APIC timer
+is faster to access and has longer max time than PIT.
 
-Has anybody found the config space docs for the 82440MX? 
+> On a related note, swapoff -a, echo disk > /sys/power/state is enough
+> to kill the machine in timer_resume code with this patch applied.
+> 									Pavel
 
-		Linus
+Will look into that. Thanks,
+
+	tglx
+
+

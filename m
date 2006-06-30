@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbWF3Szk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWF3Szo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbWF3Szk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 14:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751818AbWF3Szk
+	id S1751046AbWF3Szo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 14:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751818AbWF3Szo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 14:55:40 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:52969 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751040AbWF3Szj (ORCPT
+	Fri, 30 Jun 2006 14:55:44 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:3543 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1751046AbWF3Szm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 14:55:39 -0400
-Date: Fri, 30 Jun 2006 20:50:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Esben Nielsen <nielsen.esben@googlemail.com>,
-       Milan Svoboda <msvoboda@ra.rockwell.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Deepak Saxena <dsaxena@plexity.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [BUG] Linux-2.6.17-rt3 on arm ixdp465
-Message-ID: <20060630185046.GB29566@elte.hu>
-References: <OF92240490.78BE8F01-ONC125719C.0037A4FD-C125719C.00389E07@ra.rockwell.com> <Pine.LNX.4.64.0606291334540.10401@localhost.localdomain> <Pine.LNX.4.58.0606290803190.25935@gandalf.stny.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Jun 2006 14:55:42 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] IRQ: Use SA_PERCPU_IRQ, not IRQ_PER_CPU, for irqaction.flags
+Date: Fri, 30 Jun 2006 12:55:37 -0600
+User-Agent: KMail/1.8.3
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0606290803190.25935@gandalf.stny.rr.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200606301255.37638.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+IRQ_PER_CPU is a bit in the struct irq_desc "status" field, not
+in the struct irqaction "flags", so the previous code checked the
+wrong bit.
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+SA_PERCPU_IRQ is only used by drivers/char/mmtimer.c for SGI ia64 boxes.
 
-> Well, the following patch may not be the best but I don't see it being 
-> any worse than what is already there.  I don't have any arm platforms 
-> or even an arm compiler, so I haven't even tested this patch with a 
-> compile.  But it should be at least a temporary fix.
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-thanks - i've applied this to -rt, we'll drop it once we rebase to 
-2.6.18-rc.
-
-	Ingo
+Index: work-mm7/kernel/irq/manage.c
+===================================================================
+--- work-mm7.orig/kernel/irq/manage.c	2006-06-30 11:52:21.000000000 -0600
++++ work-mm7/kernel/irq/manage.c	2006-06-30 11:59:13.000000000 -0600
+@@ -237,7 +237,8 @@
+ 
+ #if defined(CONFIG_IRQ_PER_CPU) && defined(SA_PERCPU_IRQ)
+ 		/* All handlers must agree on per-cpuness */
+-		if ((old->flags & IRQ_PER_CPU) != (new->flags & IRQ_PER_CPU))
++		if ((old->flags & SA_PERCPU_IRQ) !=
++		    (new->flags & SA_PERCPU_IRQ))
+ 			goto mismatch;
+ #endif
+ 

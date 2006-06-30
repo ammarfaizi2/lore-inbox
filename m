@@ -1,43 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933137AbWF3TVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWF3TWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933137AbWF3TVK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 15:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWF3TVK
+	id S932168AbWF3TWg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 15:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933097AbWF3TWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 15:21:10 -0400
-Received: from www.osadl.org ([213.239.205.134]:53911 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S933140AbWF3TVH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 15:21:07 -0400
-Subject: Re: [PATCH] IRQ: Use SA_PERCPU_IRQ, not IRQ_PER_CPU, for
-	irqaction.flags
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200606301255.37638.bjorn.helgaas@hp.com>
-References: <200606301255.37638.bjorn.helgaas@hp.com>
-Content-Type: text/plain
-Date: Fri, 30 Jun 2006 21:23:21 +0200
-Message-Id: <1151695401.25491.759.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 30 Jun 2006 15:22:36 -0400
+Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:51362 "EHLO
+	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932168AbWF3TWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 15:22:35 -0400
+Date: Fri, 30 Jun 2006 15:17:14 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU
+  context switch
+To: Andi Kleen <ak@suse.de>
+Cc: Stephane Eranian <eranian@hpl.hp.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200606301519_MC3-1-C3E0-AD22@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-30 at 12:55 -0600, Bjorn Helgaas wrote:
-> IRQ_PER_CPU is a bit in the struct irq_desc "status" field, not
-> in the struct irqaction "flags", so the previous code checked the
-> wrong bit.
+In-Reply-To: <200606302042.23661.ak@suse.de>
+
+On Fri, 30 Jun 2006 20:42:23 +0200. Andi Kleen wrote:
+
+> > > I don't quite see the point because on x86 the PMU doesn't run
+> > > during C states anyways. So you get idle excluded automatically.
+> > 
+> > Looks like it does run:
 > 
-> SA_PERCPU_IRQ is only used by drivers/char/mmtimer.c for SGI ia64 boxes.
-> 
-> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+> I'm pretty sure it doesn't. You can see it by watching 
+> the frequency of the perfctr mode NMI watchdog in /proc/interrupts 
+> under different loads.
+>
+> When the system is idle the frequency goes down and increases
+> when the system is busy.
 
-Doh, good catch.
+But that is using cpu_clk_unhalted (isn't it?)  If so, it would slow down
+when the system is idle.
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+The BIOS writer's guide, Ch. 10.2, says only events outside of the
+processor, like northbridge DMA accesses, stop counting during halt.
+(And by definition cpu_clk_unhalted.)
 
+> Are you sure you didn't boot with poll=idle?
 
+$ pfmon --smpl-module=inst-hist --smpl-show-function --smpl-show-top=40 \
+  -ecpu_clk_unhalted -k --long-smpl-period=10000 --resolve-addr --system-wide -t 10
+only kernel symbols are resolved in system-wide mode
+<session to end in 10 seconds>
+# counts   %self    %cum code address
+    2501  85.42%  85.42% __do_softirq<kernel>
+     222   7.58%  93.00% acpi_processor_idle<kernel>   <========
+     100   3.42%  96.41% ehci_watchdog<kernel>
+      39   1.33%  97.75% ehci_hub_status_data<kernel>
+
+I'm pretty sure. :)  Looking at that pile of code in acpi_processor_idle
+and the way it disables interrupts I think I'll switch to idle=halt, though.
+
+> Otherwise something must be wrong with your measurements.
+
+In that case it's all Stephane's fault: he wrote the code!
+
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

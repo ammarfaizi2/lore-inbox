@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWF3Kv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWF3LBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbWF3Kv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 06:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWF3Kv7
+	id S1750964AbWF3LBY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 07:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWF3LBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 06:51:59 -0400
-Received: from javad.com ([216.122.176.236]:24842 "EHLO javad.com")
-	by vger.kernel.org with ESMTP id S932308AbWF3Kv7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 06:51:59 -0400
-From: Sergei Organov <osv@javad.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
- transfers
-References: <1151646482.3285.410.camel@tahini.andynet.net>
-	<20060630001021.2b49d4bd.akpm@osdl.org>
-Date: Fri, 30 Jun 2006 14:51:33 +0400
-In-Reply-To: <20060630001021.2b49d4bd.akpm@osdl.org> (Andrew Morton's
- message
-	of "Fri, 30 Jun 2006 00:10:21 -0700")
-Message-ID: <874py2apca.fsf@javad.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Fri, 30 Jun 2006 07:01:24 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:19922 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1750803AbWF3LBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 07:01:23 -0400
+Date: Fri, 30 Jun 2006 13:01:21 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Dave Jones <davej@redhat.com>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.17-mm4
+Message-ID: <20060630110121.GA26844@rhlx01.fht-esslingen.de>
+References: <20060629013643.4b47e8bd.akpm@osdl.org> <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com> <20060629204330.GC13619@redhat.com> <20060629210950.GA300@elte.hu> <20060629230517.GA18838@elte.hu> <1151662073.31392.4.camel@localhost.localdomain> <1151661242.11434.20.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1151661242.11434.20.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
-> On Fri, 30 Jun 2006 01:48:02 -0400
-> Andy Gay <andy@andynet.net> wrote:
-[...]
->> +	if (tty && urb->actual_length) {
->> +		tty_buffer_request_room(tty, urb->actual_length);
->> +		tty_insert_flip_string(tty, data, urb->actual_length);
->
-> Is it correct to ignore the return value from those two functions?
+Hi,
 
-In fact, according to Alan Cox answer, the first call is useless here at
-all, i.e., tty_buffer_request_room() is for subsequent
-tty_insert_flip_char() calls in a loop, not for
-tty_insert_flip_string(). tty_insert_flip_string() calls
-tty_buffer_request_room() itself, and does it in a loop in attempt to
-find as much memory as possible.
+On Fri, Jun 30, 2006 at 11:54:02AM +0200, Arjan van de Ven wrote:
+> On Fri, 2006-06-30 at 11:07 +0100, Alan Cox wrote:
+> > Not especially. Perhaps the best thing to do here would be to make qdi
+> > compiled into the kernel (as opposed to modular) only do so if
+> > "probe_qdi=1" or similar is set.
+> 
+> another quick hack is to check for vesa lb... eg if pci is present, skip
+> this thing entirely :)
 
-tty_insert_flip_string() returns number of bytes it has actually
-inserted, but I don't believe one can do much if it returns less than
-has been requested as it means that we are out of kernel memory.
+Eh? You haven't really heard of those quite popular ISA/VLB/PCI 486 combo
+boards, now have you? ;)
+(IIRC I had one of those things a looooong time ago)
 
-Overall, it seems it should be just:
-
-+	if (tty && urb->actual_length) {
-+		tty_insert_flip_string(tty, data, urb->actual_length);
-
--- 
-Sergei.
+Andreas Mohr

@@ -1,87 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWF3M7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWF3NCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbWF3M7I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 08:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWF3M7I
+	id S932583AbWF3NCn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 09:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbWF3NCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 08:59:08 -0400
-Received: from mx1.suse.de ([195.135.220.2]:60624 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932065AbWF3M7H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 08:59:07 -0400
-To: eranian@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
-References: <200606230913.k5N9D73v032387@frankl.hpl.hp.com>
-	<p73fyhmx1zv.fsf@verdi.suse.de>
-	<20060630123629.GA22381@frankl.hpl.hp.com>
-From: Andi Kleen <ak@suse.de>
-Date: 30 Jun 2006 14:59:05 +0200
-In-Reply-To: <20060630123629.GA22381@frankl.hpl.hp.com>
-Message-ID: <p73bqsax0iu.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 30 Jun 2006 09:02:42 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:33775 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S932583AbWF3NCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 09:02:42 -0400
+Message-ID: <9FCDBA58F226D911B202000BDBAD467306E04FF6@zch01exm40.ap.freescale.net>
+From: Li Yang-r58472 <LeoLi@freescale.com>
+To: "'Paul Mackerras'" <paulus@samba.org>
+Cc: linuxppc-dev@ozlabs.org,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] powerpc:Fix rheap alignment problem
+Date: Fri, 30 Jun 2006 21:02:35 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Eranian <eranian@hpl.hp.com> writes:
+Honour alignment parameter in the rheap allocator.
+Remove compile warning.
 
-> Andi,
-> 
-> Thanks for your feedback. I will make the changes you
-> requested.
-> 
-> About the context switch code, what about I do the following
-> in __switch_to():
-> 
-> __kprobes struct task_struct *
-> __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
-> {
->         struct thread_struct *prev = &prev_p->thread,
->                                  *next = &next_p->thread;
->         int cpu = smp_processor_id();
->         struct tss_struct *tss = &per_cpu(init_tss, cpu);
-> 
->         if (unlikely(__get_cpu_var(pmu_ctx) || next_p->pfm_context))
->                 __pfm_ctxswout(prev_p, next_p);
-> 
->         /*
->          * Reload esp0, LDT and the page table pointer:
->          */
->         tss->rsp0 = next->rsp0;
-> 
-> There is now a single hook and a conditional branch.
-> this is similar to what you have with the debug registers.
+Signed-off-by: Pantelis Antoniou <pantelis@embeddedalley.com>
+Signed-off-by: Li Yang <leoli@freescale.com>
 
-It's still more than there was before. Also __get_cpu_var 
-is quite a lot of instructions.
+---
+ arch/powerpc/lib/Makefile |    1 +
+ arch/powerpc/lib/rheap.c  |   24 ++++++++++++++++++++----
+ include/asm-ppc/rheap.h   |    4 ++++
+ 3 files changed, 25 insertions(+), 4 deletions(-)
 
-I would suggest you borrow some bits in one of the process
-or thread info flags and then do a single test
+diff --git a/arch/powerpc/lib/Makefile b/arch/powerpc/lib/Makefile
+index 34f5c2e..136a892 100644
+--- a/arch/powerpc/lib/Makefile
++++ b/arch/powerpc/lib/Makefile
+@@ -11,6 +11,7 @@ obj-y			+= bitops.o
+ obj-$(CONFIG_PPC64)	+= checksum_64.o copypage_64.o copyuser_64.o \
+ 			   memcpy_64.o usercopy_64.o mem_64.o string.o \
+ 			   strcase.o
++obj-$(CONFIG_QUICC_ENGINE) += rheap.o
+ obj-$(CONFIG_PPC_ISERIES) += e2a.o
+ obj-$(CONFIG_XMON)	+= sstep.o
+ 
+diff --git a/arch/powerpc/lib/rheap.c b/arch/powerpc/lib/rheap.c
+index 31e5118..57bf991 100644
+--- a/arch/powerpc/lib/rheap.c
++++ b/arch/powerpc/lib/rheap.c
+@@ -423,17 +423,21 @@ void *rh_detach_region(rh_info_t * info,
+ 	return (void *)s;
+ }
+ 
+-void *rh_alloc(rh_info_t * info, int size, const char *owner)
++void *rh_alloc_align(rh_info_t * info, int size, int alignment, const char *owner)
+ {
+ 	struct list_head *l;
+ 	rh_block_t *blk;
+ 	rh_block_t *newblk;
+ 	void *start;
+ 
+-	/* Validate size */
+-	if (size <= 0)
++	/* Validate size, (must be power of two) */
++	if (size <= 0 || (alignment & (alignment - 1)) != 0)
+ 		return ERR_PTR(-EINVAL);
+ 
++	/* given alignment larger that default rheap alignment */
++	if (alignment > info->alignment)
++		size += alignment - 1;
++
+ 	/* Align to configured alignment */
+ 	size = (size + (info->alignment - 1)) & ~(info->alignment - 1);
+ 
+@@ -476,15 +480,27 @@ void *rh_alloc(rh_info_t * info, int siz
+ 
+ 	attach_taken_block(info, newblk);
+ 
++	/* for larger alignment return fixed up pointer  */
++	/* this is no problem with the deallocator since */
++	/* we scan for pointers that lie in the blocks   */
++	if (alignment > info->alignment)
++		start = (void *)(((unsigned long)start + alignment - 1) &
++				~(alignment - 1));
++
+ 	return start;
+ }
+ 
++void *rh_alloc(rh_info_t * info, int size, const char *owner)
++{
++	return rh_alloc_align(info, size, info->alignment, owner);
++}
++
+ /* allocate at precisely the given address */
+ void *rh_alloc_fixed(rh_info_t * info, void *start, int size, const char *owner)
+ {
+ 	struct list_head *l;
+ 	rh_block_t *blk, *newblk1, *newblk2;
+-	unsigned long s, e, m, bs, be;
++	unsigned long s, e, m, bs = 0, be = 0;
+ 
+ 	/* Validate size */
+ 	if (size <= 0)
+diff --git a/include/asm-ppc/rheap.h b/include/asm-ppc/rheap.h
+index e6ca1f6..65b9322 100644
+--- a/include/asm-ppc/rheap.h
++++ b/include/asm-ppc/rheap.h
+@@ -62,6 +62,10 @@ extern int rh_attach_region(rh_info_t * 
+ /* Detach a free region */
+ extern void *rh_detach_region(rh_info_t * info, void *start, int size);
+ 
++/* Allocate the given size from the remote heap (with alignment) */
++extern void *rh_alloc_align(rh_info_t * info, int size, int alignment,
++		const char *owner);
++
+ /* Allocate the given size from the remote heap */
+ extern void *rh_alloc(rh_info_t * info, int size, const char *owner);
 
-if (unlikely(thr->flags & (DEBUG|PERFMON)) != 0) { 
-        if (flags & DEBUG)
-                ... do debug ...
-        if (flags & PERFMON)
-                ... do perfmon ...
-}
+--
+Leo Li
+Freescale Semiconductor
 
-[which you're at it you can probably add ioports in there too -
-improving existing code is always a good thing]
+LeoLi@freescale.com 
 
-Ideally flags is in some cache line that is already 
-touched during context switch. If not you might need
-to change the layout.
-
-It's ok to put the do_perfmon stuff into a separate noinline
-function because that will disturb the register allocation
-in the caller less.
-
-I would suggest doing this in separate preparing patches that
-first just do it for existing facilities.
-
--Andi
-
-P.S.: My comments probably apply to the i386 versions too
-although I haven't read them.

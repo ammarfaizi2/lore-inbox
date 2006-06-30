@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932790AbWF3R1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932849AbWF3Rgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932790AbWF3R1h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 13:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbWF3R1h
+	id S932849AbWF3Rgb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 13:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932854AbWF3Rga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 13:27:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58554 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932301AbWF3R1g (ORCPT
+	Fri, 30 Jun 2006 13:36:30 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57325 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932849AbWF3Rg3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 13:27:36 -0400
-Date: Fri, 30 Jun 2006 13:27:13 -0400
-From: Dave Jones <davej@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.17-mm4
-Message-ID: <20060630172713.GH32729@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org
-References: <20060629013643.4b47e8bd.akpm@osdl.org> <6bffcb0e0606291339s69a16bc5ie108c0b8d4e29ed6@mail.gmail.com> <20060629204330.GC13619@redhat.com> <20060629210950.GA300@elte.hu> <20060629230517.GA18838@elte.hu> <1151662073.31392.4.camel@localhost.localdomain> <1151661242.11434.20.camel@laptopd505.fenrus.org> <1151669670.31392.16.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Fri, 30 Jun 2006 13:36:29 -0400
+Date: Fri, 30 Jun 2006 19:36:05 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: Greg KH <greg@kroah.com>, Jens Axboe <axboe@suse.de>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2][ 0/9] Extents support.
+Message-ID: <20060630173605.GA4464@elf.ucw.cz>
+References: <20060626165404.11065.91833.stgit@nigel.suspend2.net> <200606290825.50674.nigel@suspend2.net> <20060628224428.GC27526@elf.ucw.cz> <200606290914.58784.nigel@suspend2.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1151669670.31392.16.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200606290914.58784.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 30, 2006 at 01:14:30PM +0100, Alan Cox wrote:
- > Ar Gwe, 2006-06-30 am 11:54 +0200, ysgrifennodd Arjan van de Ven:
- > > another quick hack is to check for vesa lb... eg if pci is present, skip
- > > this thing entirely :)
- > 
- > Not really, many people made VLB/PCI combo boards.
+Hi!
 
-- check the pci version (I'm pretty sure these were pre PCI 2.0 ?)
-- check for dmi existance
-  DMI came after VLB didn't it?  Even if not, the BIOS date may
-  give clues. I don't recall VLB after 1996 or so.
-- check for acpi existance.
-  surely no-one made an acpi aware vlb machine :)
+> > > That's not true. The compression and encryption support add ~1000 lines,
+> > > as you pointed out the other day. If I moved compression and encryption
+> > > support to userspace, I'd remove 1000 lines and:
+> > >
+> > > - add more code for getting the pages copied to and from userspace
+> >
+> > No, if your main loop is already in userspace, you do not need to add
+> > any more code. And you'd save way more than 1000 lines:
+> >
+> > * encryption/compression can be removed
+> >
+> > * but that means that writer plugins/filters can be removed
+> >
+> > * if you do compress/encrypt in userspace, you can remove that ugly
+> > netlink thingie, and just display progress in userspace, too
+> >
+> > ...and then, image writing can be moved to userspace...
+> >
+> > * swapfile support
+> >
+> > * partition support
+> >
+> > * plus their plugin infrastructure.
+> 
+> That's going way beyond your inital suggestion. And you haven't responded to 
+> the other points (which have instead been deleted).
 
-There are probably other creative ways.
+Well, you were arguing that in uswsusp only "thin layer" is in
+userspace, and I think I've just shown you it is more thick than you
+think.
 
-		Dave
-
+Of course I deleted your other points, or did you really want me to
+argue with "copying from userspace is slow"? Hint: memory is 3GB/sec,
+while disk is 50MB/sec.
+									Pavel
 -- 
-http://www.codemonkey.org.uk
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

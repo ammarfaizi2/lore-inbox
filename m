@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932982AbWF3SCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932988AbWF3SDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932982AbWF3SCM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 14:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932984AbWF3SCM
+	id S932988AbWF3SDE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 14:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932987AbWF3SDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 14:02:12 -0400
-Received: from xenotime.net ([66.160.160.81]:50922 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932982AbWF3SCK (ORCPT
+	Fri, 30 Jun 2006 14:03:03 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36064 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932986AbWF3SDA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 14:02:10 -0400
-Date: Fri, 30 Jun 2006 11:04:52 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, tali@admingilde.org
-Subject: [PATCH] kernel-doc: make man/text mode function output same
-Message-Id: <20060630110452.e11d6f04.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 14:03:00 -0400
+Date: Fri, 30 Jun 2006 20:01:41 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Johan Vromans <jvromans@squirrel.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: Re: swsusp problems with 2.6.17-1.2139_FC5
+Message-ID: <20060630180141.GC9225@elf.ucw.cz>
+References: <m2irmj9937.fsf@phoenix.squirrel.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2irmj9937.fsf@phoenix.squirrel.nl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Hi!
 
-Make output of function descriptions in text mode match contents
-of 'man' mode by adding Name: plus function-short-description ("purpose")
-and changing Function: to Synopsis:.
+> swsusp has problems resumeing after upgrading my Acer Travelmate
+> 4001WLMi from 2.6.16 to 2.6.17. Note that I'm running a Fedora 5
+> kernel, with the ATI proprietary video driver.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- scripts/kernel-doc |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+Stop right here. Can you reproduce the problem without ATI driver?
+Reproducing it on vanilla kernel (not -FC5) would be nice, too.
 
---- linux-2617-g13.orig/scripts/kernel-doc
-+++ linux-2617-g13/scripts/kernel-doc
-@@ -1118,7 +1118,10 @@ sub output_function_text(%) {
-     my %args = %{$_[0]};
-     my ($parameter, $section);
- 
--    print "Function:\n\n";
-+    print "Name:\n\n";
-+    print $args{'function'}." - ".$args{'purpose'}."\n";
-+
-+    print "\nSynopsis:\n\n";
-     my $start=$args{'functiontype'}." ".$args{'function'}." (";
-     print $start;
-     my $count = 0;
+								Pavel
 
-
----
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

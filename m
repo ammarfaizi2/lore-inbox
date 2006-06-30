@@ -1,67 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWF3CQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbWF3CUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbWF3CQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 22:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWF3CQ5
+	id S932674AbWF3CUt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 22:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWF3CUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 22:16:57 -0400
-Received: from ns1.suse.de ([195.135.220.2]:8841 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751411AbWF3CQ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 22:16:56 -0400
-Date: Thu, 29 Jun 2006 19:13:32 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andy Gay <andy@andynet.net>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: USB driver for Sierra Wireless EM5625/MC5720 1xEVDO modules
-Message-ID: <20060630021332.GB30911@suse.de>
-References: <1151537247.3285.278.camel@tahini.andynet.net>
+	Thu, 29 Jun 2006 22:20:48 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:58755 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1750732AbWF3CUs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 22:20:48 -0400
+Date: Thu, 29 Jun 2006 19:20:23 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Andy Whitcroft <apw@shadowen.org>, Dave Hansen <haveblue@us.ibm.com>,
+       Toralf Foerster <toralf.foerster@gmx.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH] solve config broken: undefined reference to `online_page'
+Message-ID: <20060630022023.GD11977@sequoia.sous-sol.org>
+References: <44A1204F.3070704@shadowen.org> <20060628110338.9B6A.Y-GOTO@jp.fujitsu.com> <20060629114417.2A02.Y-GOTO@jp.fujitsu.com> <20060630021407.GC11977@sequoia.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1151537247.3285.278.camel@tahini.andynet.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060630021407.GC11977@sequoia.sous-sol.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 28, 2006 at 07:27:27PM -0400, Andy Gay wrote:
-> I have adapted the modified Airprime driver that Greg posted a few weeks
-> ago to add support for these 2 modules.
-> 
-> That driver works for these modules if the USB IDs are added, and fixes
-> the throughput problems in the earlier driver. I had to make some
-> changes though -
-> 
-> - there's a memory leak because the transfer buffers are kmalloc'ed
-> every time the device is opened, but they're never freed;
-> 
-> - these modules present 3 bulk EPs, the 2nd & 3rd can be used for
-> control & status monitoring while data transfer is in progress on the
-> 1st EP. This is useful (and necessary for my application) so we need to
-> increase the port count.
-> 
-> So what should I do next? I see a few possibilities, assuming anyone is
-> interested in this:
-> 
-> - I could post a diff from Greg's driver. But I don't have hardware to
-> test whether my changes will break it for the other devices that it
-> supports;
-> 
-> - I could post it as a new driver for just these 2 modules, using some
-> other name;
-> 
-> - I could post it as a replacement for Greg's driver (which isn't yet in
-> the official sources, I think), including all the USB IDs, if someone
-> can test it for the other devices.
+* Chris Wright (chrisw@sous-sol.org) wrote:
+> This patch didn't
+> quite apply to 2.6.17.2, so I fixed it up, could you double check
+> please?
 
-or:
-  - send a patch against 2.6.17 that is my changes + your fixes to
-    actually make it work.
-
-My patch was just a "throw it out there and see what works or not", as I
-don't even have the device to test it with.
+Bah, the refreshed patch attached.  Sorry about the noise.
 
 thanks,
+-chris
+--
+> From cc57637b0b015fb5d70dbbec740de516d33af07d Mon Sep 17 00:00:00 2001
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+Subject: solve config broken: undefined reference to `online_page'
 
-greg k-h
+Memory hotplug code of i386 adds memory to only highmem.  So, if
+CONFIG_HIGHMEM is not set, CONFIG_MEMORY_HOTPLUG shouldn't be set.
+Otherwise, it causes compile error.
+
+In addition, many architecture can't use memory hotplug feature yet.  So, I
+introduce CONFIG_ARCH_ENABLE_MEMORY_HOTPLUG.
+
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: <stable@kernel.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+ arch/i386/Kconfig    |    3 +++
+ arch/ia64/Kconfig    |    3 +++
+ arch/powerpc/Kconfig |    3 +++
+ arch/x86_64/Kconfig  |    2 ++
+ mm/Kconfig           |    2 +-
+ 5 files changed, 12 insertions(+), 1 deletion(-)
+
+--- linux-2.6.17.2.orig/arch/i386/Kconfig
++++ linux-2.6.17.2/arch/i386/Kconfig
+@@ -765,6 +765,9 @@ config HOTPLUG_CPU
+ 
+ endmenu
+ 
++config ARCH_ENABLE_MEMORY_HOTPLUG
++	def_bool y
++	depends on HIGHMEM
+ 
+ menu "Power management options (ACPI, APM)"
+ 	depends on !X86_VOYAGER
+--- linux-2.6.17.2.orig/arch/ia64/Kconfig
++++ linux-2.6.17.2/arch/ia64/Kconfig
+@@ -270,6 +270,9 @@ config HOTPLUG_CPU
+ 	  can be controlled through /sys/devices/system/cpu/cpu#.
+ 	  Say N if you want to disable CPU hotplug.
+ 
++config ARCH_ENABLE_MEMORY_HOTPLUG
++	def_bool y
++
+ config SCHED_SMT
+ 	bool "SMT scheduler support"
+ 	depends on SMP
+--- linux-2.6.17.2.orig/arch/powerpc/Kconfig
++++ linux-2.6.17.2/arch/powerpc/Kconfig
+@@ -599,6 +599,9 @@ config HOTPLUG_CPU
+ 
+ 	  Say N if you are unsure.
+ 
++config ARCH_ENABLE_MEMORY_HOTPLUG
++	def_bool y
++
+ config KEXEC
+ 	bool "kexec system call (EXPERIMENTAL)"
+ 	depends on PPC_MULTIPLATFORM && EXPERIMENTAL
+--- linux-2.6.17.2.orig/arch/x86_64/Kconfig
++++ linux-2.6.17.2/arch/x86_64/Kconfig
+@@ -369,6 +369,8 @@ config HOTPLUG_CPU
+ 		can be controlled through /sys/devices/system/cpu/cpu#.
+ 		Say N if you want to disable CPU hotplug.
+ 
++config ARCH_ENABLE_MEMORY_HOTPLUG
++	def_bool y
+ 
+ config HPET_TIMER
+ 	bool
+--- linux-2.6.17.2.orig/mm/Kconfig
++++ linux-2.6.17.2/mm/Kconfig
+@@ -115,7 +115,7 @@ config SPARSEMEM_EXTREME
+ # eventually, we can have this option just 'select SPARSEMEM'
+ config MEMORY_HOTPLUG
+ 	bool "Allow for memory hot-add"
+-	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND
++	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND && ARCH_ENABLE_MEMORY_HOTPLUG
+ 
+ comment "Memory hotplug is currently incompatible with Software Suspend"
+ 	depends on SPARSEMEM && HOTPLUG && SOFTWARE_SUSPEND

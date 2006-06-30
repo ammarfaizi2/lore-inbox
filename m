@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933059AbWF3TOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933069AbWF3TRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933059AbWF3TOu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 15:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933069AbWF3TOt
+	id S933069AbWF3TRE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 15:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933074AbWF3TRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 15:14:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:52438 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S933140AbWF3TOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 15:14:49 -0400
-Subject: Re: [v4l-dvb-maintainer] [2.6 patch] VIDEO_V4L1 shouldn't be
-	user-visible
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>, v4l-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <9e4733910606291759t140e1ea7yf14cca699988cd50@mail.gmail.com>
-References: <20060629192124.GD19712@stusta.de>
-	 <1151612317.3728.34.camel@praia> <20060629210829.GG19712@stusta.de>
-	 <1151617411.3728.66.camel@praia>
-	 <9e4733910606291759t140e1ea7yf14cca699988cd50@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 30 Jun 2006 16:14:34 -0300
-Message-Id: <1151694874.2006.7.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 30 Jun 2006 15:17:04 -0400
+Received: from mail01hq.adic.com ([63.81.117.10]:37187 "EHLO MAIL01HQ.adic.com")
+	by vger.kernel.org with ESMTP id S933069AbWF3TRC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 15:17:02 -0400
+Message-ID: <44A578AC.3010709@xfs.org>
+Date: Fri, 30 Jun 2006 14:17:00 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Badari Pulavarty <pbadari@us.ibm.com>, Jeff Garzik <jeff@garzik.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Proposal and plan for ext2/3 future development work
+References: <E1Fvjsh-0008Uw-85@candygram.thunk.org> <44A47B0D.7020308@garzik.org> <20060630015903.GE11640@ca-server1.us.oracle.com> <1151687586.339.5.camel@dyn9047017100.beaverton.ibm.com> <20060630182457.GH11640@ca-server1.us.oracle.com>
+In-Reply-To: <20060630182457.GH11640@ca-server1.us.oracle.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Jun 2006 19:17:01.0702 (UTC) FILETIME=[C3D35260:01C69C79]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qui, 2006-06-29 às 20:59 -0400, Jon Smirl escreveu:
-> On 6/29/06, Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
-> > Also, on V4L side, the V4L1 api is stopping V4L development. V4L API 2
-> > is already at kernel since the beginning of kernel 2.6 series, and fixes
-> > several flaws at the old api (V4L1 API were designed on 2.1 series).
-> > Still now, most applications still implement only V4L1, and people do
-> > submit newer v4l1 drivers to us.
-> >
-> > We do really go ahead, making V4L2 API the standard.
+Joel Becker wrote:
+> On Fri, Jun 30, 2006 at 10:13:06AM -0700, Badari Pulavarty wrote:
+>> I tried adding "delayed allocation" for ext3 earlier. Yes. VFS level
+>> infrastructure would be nice. But, I haven't found much that we can
+>> do at VFS - which is common across all the filesystems (except
+>> mpage_writepage(s) handling). Most of the stuff is specific to 
+>> filesystem implementation (even though it could be common) - coming
+>> out with VFS level interfaces to suite all the different filesystem
+>> delalloc would be *interesting* exercise.
 > 
-> I don't think anyone would complain about dropping V4L1 if the people
-> pushing V4L2 were to port the 25 or so drivers that depend on V4L1 to
-> the V4L2 API.
-We are working on it. The issue will be someone to test all those
-drivers for the obsolete hardwares.
-> As long as those V4L1 dependent drivers are around
-> people are going to want to keep using V4L1. You may want to consider
-> building some in-kernel compatibility APIs into V4L2 to make porting
-> those drivers easier.
-Most of changes are just trivial. Just one will requre more work, since
-it is related to newer mmap methods on V4L2.
-> 
-Cheers, 
-Mauro.
+> 	Well, to be fair, I'm just going by what little I know about
+> XFS.  They maintain a cache of all pages waiting on delayed allocation
+> for writepack.  Why have this entire cache (hash, list, whatever) when
+> we could create some state on in the pagecache?  We save a large chunk
+> of memory and some complex writeback code.  I suspect you were thinking
+> of this when you said "mpage_writepage(s) handling".  But this is a
+> large complexity win if we can do it.
 
+
+No, XFS does not do this, when it gets asked to write out a page which is
+delayed alloc, it goes and converts the delayed alloc extent to real disk
+space. It then uses the page cache/buffer heads to find all the contiguous
+pages which it can turn into a singe disk I/O. The code is made more complex
+by other possible states for the data. The only information internal to XFS
+though is its extent structures.
+
+Steve

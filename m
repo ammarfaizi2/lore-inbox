@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933100AbWF2Xnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933104AbWF2Xot@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933100AbWF2Xnt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 19:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933102AbWF2Xnt
+	id S933104AbWF2Xot (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 19:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933105AbWF2Xos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 19:43:49 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:48798 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S933100AbWF2Xns (ORCPT
+	Thu, 29 Jun 2006 19:44:48 -0400
+Received: from smtp2.pp.htv.fi ([213.243.153.35]:7045 "EHLO smtp2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S933104AbWF2Xoq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 19:43:48 -0400
-Date: Fri, 30 Jun 2006 01:43:35 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       klibc@zytor.com
-Subject: Re: [klibc 07/31] i386 support for klibc
-In-Reply-To: <44A322BB.2010006@zytor.com>
-Message-ID: <Pine.LNX.4.64.0606300133050.12900@scrub.home>
-References: <klibc.200606272217.00@tazenda.hos.anvin.org>
- <klibc.200606272217.07@tazenda.hos.anvin.org> <Pine.LNX.4.61.0606280937150.29068@yvahk01.tjqt.qr>
- <44A2A147.9020501@zytor.com> <Pine.LNX.4.64.0606290207580.17704@scrub.home>
- <44A322BB.2010006@zytor.com>
+	Thu, 29 Jun 2006 19:44:46 -0400
+Date: Fri, 30 Jun 2006 09:56:07 +0300
+From: Samuel Ortiz <samuel@sortiz.org>
+To: Adrian Bunk <bunk@stusta.de>, "David S. Miller" <davem@davemloft.net>
+Cc: Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, ralf@linux-mips.org,
+       linux-mips@linux-mips.org, Jean-Luc Leger <reiga@dspnet.fr.eu.org>,
+       irda-users@lists.sourceforge.net
+Subject: [PATCH 2/2] [IrDA] Fix the AU1000 FIR dependencies
+Message-ID: <20060630065607.GB4729@sortiz.org>
+Reply-To: Samuel Ortiz <samuel@sortiz.org>
+References: <20060629154148.GA19712@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060629154148.GA19712@stusta.de>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Dave,
 
-On Wed, 28 Jun 2006, H. Peter Anvin wrote:
+AU1000 FIR is broken, it should depend on SOC_AU1000.
 
-> > On Wed, 28 Jun 2006, H. Peter Anvin wrote:
-> > 
-> > > The i386 ones are a bit special... usually the reason I have added libgcc
-> > > functions is that on some architectures, gcc has various problems linking
-> > > with
-> > > libgcc in some configurations.
-> > 
-> > If gcc has problems to link its own libgcc you really have a serious
-> > problem...
-> 
-> The way libgcc is handled inside gcc is, indeed, completely screwed up; even
-> the gcc people admit that.  They pretty much don't have a way to handle the
-> effects of compiler options on libgcc, especially the ones that affect binary
-> compatibility.
+Spotted by Jean-Luc Leger.
 
-Nobody said it's perfect. Especially the last point speaks against 
-multiple versions of the same library, as it makes it hard to mix 
-binaries/libraries. With a single kinit binary it's not really a problem 
-yet, but will it stay this way?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Samuel Ortiz <samuel@sortiz.org>
+---
+ drivers/net/irda/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-> > The standard libgcc may not be as small as you like, but it still should be
-> > the first choice. If there is a problem with it, the gcc people do accept
-> > patches.
-> 
-> That's just an asinine statement.  Under that logic we should just forget
-> about the kernel and go hack the gcc bugs du jour; we certainly have enough
-> workarounds for gcc bugs in the kernel.
+diff --git a/drivers/net/irda/Kconfig b/drivers/net/irda/Kconfig
+index d2ce489..e9e6d99 100644
+--- a/drivers/net/irda/Kconfig
++++ b/drivers/net/irda/Kconfig
+@@ -350,7 +350,7 @@ config TOSHIBA_FIR
+ 
+ config AU1000_FIR
+ 	tristate "Alchemy Au1000 SIR/FIR"
+-	depends on MIPS_AU1000 && IRDA
++	depends on SOC_AU1000 && IRDA
+ 
+ config SMC_IRCC_FIR
+ 	tristate "SMSC IrCC (EXPERIMENTAL)"
+-- 
+1.4.0
 
-Sorry, but I can't follow this logic.
-
-bye, Roman

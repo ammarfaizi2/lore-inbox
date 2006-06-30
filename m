@@ -1,74 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWF3Tzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWF3UEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWF3Tzw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 15:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWF3Tzw
+	id S1750970AbWF3UEq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 16:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWF3UEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 15:55:52 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:63958 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1751241AbWF3Tzv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 15:55:51 -0400
-Subject: Re: [PATCH] SELinux: Add security hook definition for getioprio
-	and insert hooks
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: James Morris <jmorris@namei.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       David Quigley <dpquigl@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
-In-Reply-To: <20060630193730.GC17589@sergelap.austin.ibm.com>
-References: <Pine.LNX.4.64.0606291702380.26876@d.namei>
-	 <20060630193730.GC17589@sergelap.austin.ibm.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 30 Jun 2006 15:58:20 -0400
-Message-Id: <1151697500.29428.71.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 16:04:46 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:3855 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1750969AbWF3UEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 16:04:45 -0400
+To: Andy Gay <andy@andynet.net>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO	transfers
+X-Message-Flag: Warning: May contain useful information
+References: <1151646482.3285.410.camel@tahini.andynet.net>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 30 Jun 2006 13:04:42 -0700
+In-Reply-To: <1151646482.3285.410.camel@tahini.andynet.net> (Andy Gay's message of "Fri, 30 Jun 2006 01:48:02 -0400")
+Message-ID: <ada7j2yfm05.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 30 Jun 2006 20:04:43.0750 (UTC) FILETIME=[6DBD3060:01C69C80]
+Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-30 at 14:37 -0500, Serge E. Hallyn wrote:
-> Quoting James Morris (jmorris@namei.org):
-> ...
-> > +static int get_task_ioprio(struct task_struct *p)
-> > +{
-> > +	int ret;
-> > +
-> > +	ret = security_task_getioprio(p);
-> > +	if (ret)
-> > +		goto out;
-> > +	ret = p->ioprio;
-> > +out:
-> > +	return ret;
-> > +}
-> ...
-> >  			do_each_task_pid(who, PIDTYPE_PGID, p) {
-> > +				tmpio = get_task_ioprio(p);
-> > +				if (tmpio < 0)
-> > +					continue;
-> >  				if (ret == -ESRCH)
-> > -					ret = p->ioprio;
-> > +					ret = tmpio;
-> >  				else
-> > -					ret = ioprio_best(ret, p->ioprio);
-> > +					ret = ioprio_best(ret, tmpio);
-> ...
-> > + * @task_getioprio
-> > + *	Check permission before getting the ioprio value of @p.
-> > + *	@p contains the task_struct of process.
-> > + *	Return 0 if permission is granted.
-> 
-> A return value >0 is a problem here but isn't mentioned.  the
-> get_task_ioprio() helper will return the the security_task_getioprio()
-> return value in htat case, but the do_each_task_pid loop will take it
-> as a valid return value.
+ > +		/* something happened, so free up the memory for this urb /*
 
-True, but that isn't limited to that hook - think what happens if
-inode_permission returns an arbitrary positive integer. 
-
--- 
-Stephen Smalley
-National Security Agency
-
+an obvious glitch here at the end of the line...

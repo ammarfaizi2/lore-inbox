@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWF3QNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751802AbWF3QNx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932672AbWF3QNH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 12:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWF3QNH
+	id S1751802AbWF3QNx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 12:13:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWF3QNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 12:13:07 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:34575 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751799AbWF3QNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 12:13:05 -0400
-Message-ID: <44A54D8E.3000002@superbug.co.uk>
-Date: Fri, 30 Jun 2006 17:13:02 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, perex@suse.cz,
-       Olaf Hering <olh@suse.de>
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-References: <20060629192128.GE19712@stusta.de>
-In-Reply-To: <20060629192128.GE19712@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 12:13:53 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:14741 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1751797AbWF3QNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 12:13:52 -0400
+Date: Fri, 30 Jun 2006 18:13:51 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [PATCH -mm] ide_end_drive_cmd(): avoid instruction pipeline stall
+Message-ID: <20060630161351.GA17434@rhlx01.fht-esslingen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> Now that I've sent the first round of actually removing the code for OSS 
-> drivers where ALSA drivers without regressions exist for the same 
-> hardware, it's time for a second round amongst the remaining drivers.
->
->
-> SOUND_EMU10K1
-> - ALSA #1735 (OSS emulation 4-channel mode rear channels not working)
-> - ALSA #1782 (really poor sound with my SB Live 1024 and ALSA)
->   
+Use an independently-formatted "unsigned int" for data instead of a
+restrictive "u16" to avoid instruction fetch pipeline stalls
+probably caused by the byte calculations later.
 
-As the MAINTAINER of EMU10K1, I am happy for EMU10K1 driver to be 
-removed from the kernel.
 
-ALSA #1735 is now closed. All the apps the user was trying also support 
-ALSA natively now, so OSS is not needed.
-ALSA #1782 requires more information from the user. I am expecting this 
-to be a configuration problem, and not a driver problem.
+ide_end_drive_cmd() uses an u16 variable for the result of an INW()
+which it then does some byte masking operations on.
+On my P3/700, this results in a highly visible IFU_MEM_STALL oprofile blip
+when doing a simple "load 30 larger GUI apps in parallel" benchmark
+(which takes about 1:30 or so, BTW):
+The ide_end_drive_cmd() IFU_MEM_STALL amounts to 0.59% of all IFU_MEM_STALL
+events during the profiling, with this opcode line amounting to > 95%
+IFU_MEM_STALL within the function itself.
 
+Replacing the u16 by an architecture-independently formatted unsigned int
+to ease the byte-masking operations:
+
+	/* no u16 here: caused severe IFU_MEM_STALL! */
+	unsigned int data                               = hwif->INW(IDE_DATA_REG);
+	args->tfRegister[IDE_DATA_OFFSET]       = (data) & 0xFF;
+	args->hobRegister[IDE_DATA_OFFSET]      = (data >> 8) & 0xFF;
+
+completely puts ide_end_drive_cmd() off the IFU_MEM_STALL radar during
+repeated profiling attempts (after a fresh reboot with the modified kernel),
+as opposed to having been the *top* oprofile trace item before.
+
+I suppose that this is something like a textbook example of why it's
+sometimes not beneficial to not use native-sized (i.e., 32bit) variables,
+right?
+
+Run-tested on 2.6.17-mm4.
+
+Signed-off-by: Andreas Mohr <andi@lisas.de>
+
+
+diff -urN linux-2.6.17-mm4.orig/drivers/ide/ide-io.c linux-2.6.17-mm4.my/drivers/ide/ide-io.c
+--- linux-2.6.17-mm4.orig/drivers/ide/ide-io.c	2006-06-29 11:57:12.000000000 +0200
++++ linux-2.6.17-mm4.my/drivers/ide/ide-io.c	2006-06-30 11:54:12.000000000 +0200
+@@ -397,7 +397,8 @@
+ 			
+ 		if (args) {
+ 			if (args->tf_in_flags.b.data) {
+-				u16 data				= hwif->INW(IDE_DATA_REG);
++				/* no u16 here: caused severe IFU_MEM_STALL! */
++				unsigned int data				= hwif->INW(IDE_DATA_REG);
+ 				args->tfRegister[IDE_DATA_OFFSET]	= (data) & 0xFF;
+ 				args->hobRegister[IDE_DATA_OFFSET]	= (data >> 8) & 0xFF;
+ 			}

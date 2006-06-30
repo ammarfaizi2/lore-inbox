@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWF3LdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWF3Ldq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWF3LdB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 07:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWF3LdA
+	id S1750898AbWF3Ldq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 07:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWF3LdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 07:33:00 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:16392 "HELO
+	Fri, 30 Jun 2006 07:33:07 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:14856 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751624AbWF3Lc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 07:32:57 -0400
-Date: Fri, 30 Jun 2006 13:32:56 +0200
+	id S1750915AbWF3Lcl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 07:32:41 -0400
+Date: Fri, 30 Jun 2006 13:32:40 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/read_write.c: EXPORT_UNUSED_SYMBOL
-Message-ID: <20060630113256.GS19712@stusta.de>
+Subject: [2.6 patch] mm/memory.c: EXPORT_UNUSED_SYMBOL
+Message-ID: <20060630113240.GP19712@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,15 +26,15 @@ This patch marks an unused export as EXPORT_UNUSED_SYMBOL.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.17-mm4-full/fs/read_write.c.old	2006-06-30 02:58:56.000000000 +0200
-+++ linux-2.6.17-mm4-full/fs/read_write.c	2006-06-30 02:59:15.000000000 +0200
-@@ -436,7 +436,7 @@
- 	return seg;
+--- linux-2.6.17-mm4-full/mm/memory.c.old	2006-06-30 02:51:59.000000000 +0200
++++ linux-2.6.17-mm4-full/mm/memory.c	2006-06-30 02:52:26.000000000 +0200
+@@ -1863,7 +1863,7 @@
+ 
+ 	return 0;
  }
+-EXPORT_SYMBOL(vmtruncate_range);
++EXPORT_UNUSED_SYMBOL(vmtruncate_range);  /*  June 2006  */
  
--EXPORT_SYMBOL(iov_shorten);
-+EXPORT_UNUSED_SYMBOL(iov_shorten);  /*  June 2006  */
- 
- /* A write operation does a read from user space and vice versa */
- #define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
+ /* 
+  * Primitive swap readahead code. We simply read an aligned block of
 

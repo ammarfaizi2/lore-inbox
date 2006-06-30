@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbWF3DDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWF3DP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbWF3DDG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jun 2006 23:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWF3DDG
+	id S1751457AbWF3DP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jun 2006 23:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbWF3DP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jun 2006 23:03:06 -0400
-Received: from mail.kroah.org ([69.55.234.183]:63172 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964937AbWF3DDB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jun 2006 23:03:01 -0400
-Date: Thu, 29 Jun 2006 20:02:43 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andy Gay <andy@andynet.net>
-Cc: Roland Dreier <rdreier@cisco.com>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: USB driver for Sierra Wireless EM5625/MC5720 1xEVDO modules
-Message-ID: <20060630030243.GB5049@suse.de>
-References: <1151537247.3285.278.camel@tahini.andynet.net> <20060630021332.GB30911@suse.de> <adabqsbfjrn.fsf@cisco.com> <1151635897.3285.394.camel@tahini.andynet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151635897.3285.394.camel@tahini.andynet.net>
-User-Agent: Mutt/1.5.11
+	Thu, 29 Jun 2006 23:15:56 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:9697 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751449AbWF3DPy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jun 2006 23:15:54 -0400
+Message-ID: <44A49759.9070305@zytor.com>
+Date: Thu, 29 Jun 2006 20:15:37 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: cmm@us.ibm.com
+CC: linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC][Update][Patch 12/16]Fix undefined ">> 32" in revoke code
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <1151626725.6601.82.camel@dyn9047017069.beaverton.ibm.com>
+In-Reply-To: <1151626725.6601.82.camel@dyn9047017069.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 29, 2006 at 10:51:37PM -0400, Andy Gay wrote:
-> On Thu, 2006-06-29 at 19:40 -0700, Roland Dreier wrote:
-> >  > or:
-> >  >   - send a patch against 2.6.17 that is my changes + your fixes to
-> >  >     actually make it work.
-> >  > 
-> >  > My patch was just a "throw it out there and see what works or not", as I
-> >  > don't even have the device to test it with.
-> > 
-> > I would love to see such a patch.  I have a Kyocera KPC650 and I would
-> > love to get better performance with it under Linux...
-> Hmm. That's not one of the current list of devices this driver supports.
-> Is it a usb-serial interface like the other Airprime stuff?
+Mingming Cao wrote:
+> "val >> 32" is undefined if val is a 32-bit value, so this code is
+> broken if CONFIG_LBD is not set.  Make it safe for that case.
+> 
+> Signed-off-by: Stephen Tweedie <sct@redhat.com>
+> Signed-off-by: Mingming Cao <cmm@us.ibm.com>
+> 
+> 
+> ---
+> 
+>  linux-2.6.17-ming/fs/jbd/revoke.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff -puN fs/jbd/revoke.c~jbd-revoke-32bit-shift-fix fs/jbd/revoke.c
+> --- linux-2.6.17/fs/jbd/revoke.c~jbd-revoke-32bit-shift-fix	2006-06-28 16:47:09.695458913 -0700
+> +++ linux-2.6.17-ming/fs/jbd/revoke.c	2006-06-28 16:47:09.699458454 -0700
+> @@ -110,7 +110,7 @@ static inline int hash(journal_t *journa
+>  {
+>  	struct jbd_revoke_table_s *table = journal->j_revoke;
+>  	int hash_shift = table->hash_shift;
+> -	int hash = (int)block ^ (int)(block >> 32);
+> +	int hash = (int)block ^ (int)((block >> 31) >> 1);
+>  
 
-Here's the needed line to support this device, someone has already sent
-me a patch adding it:
+It might be better to code it as:
 
-        { USB_DEVICE(0x0c88, 0x17da) }, /* Kyocera Wireless KPC650/Passport */
+	(int)((u64)block >> 32)
 
-thanks,
+... which gcc can trivially recognize as 0 if block is 32 bits.  Not 
+sure if it can do that with the code above.
 
-greg k-h
+	-hpa

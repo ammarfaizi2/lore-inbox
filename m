@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWF3J5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWF3KAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWF3J5y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 05:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWF3J5y
+	id S1750715AbWF3KAp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 06:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWF3KAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 05:57:54 -0400
-Received: from LNeuilly-152-21-64-8.w80-15.abo.wanadoo.fr ([80.15.165.8]:2795
-	"EHLO serveur2.macsoft-sa.com") by vger.kernel.org with ESMTP
-	id S932491AbWF3J5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 05:57:53 -0400
-Message-ID: <44A518D7.2060105@free.fr>
-Date: Fri, 30 Jun 2006 12:28:07 +0000
-From: "s.a." <sancelot@free.fr>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060608)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel module debugging question 
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 30 Jun 2006 06:00:45 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:11155 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750715AbWF3KAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 06:00:44 -0400
+Subject: Re: kernel module debugging question
+From: Arjan van de Ven <arjan@infradead.org>
+To: "s.a." <sancelot@free.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44A518D7.2060105@free.fr>
+References: <44A518D7.2060105@free.fr>
+Content-Type: text/plain
+Date: Fri, 30 Jun 2006 12:00:42 +0200
+Message-Id: <1151661642.11434.23.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have got the following fault , can you provide me with more details
-about the problem ?
-Best Regards
-Steph
+On Fri, 2006-06-30 at 12:28 +0000, s.a. wrote:
+> Hi,
+> I have got the following fault , can you provide me with more details
+> about the problem ?
+> Best Regards
 
-general protection fault: 0000 [#1]
-PREEMPT
-Modules linked in: nls_iso8859_1 nls_cp437 i915 rtcan_sja1000 e100
-usb_storage eepro100 mii rtc unix
-CPU:    0
-EIP:    0060:[<c0103112>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.16.19-ipipe #1)
-EIP is at sysenter_exit+0xf/0x11
-eax: 00000010   ebx: 00000000   ecx: b7d1223c   edx: ffffe410
-esi: b7d122cc   edi: 00000000   ebp: 00000000   esp: dc1a7fbc
-ds: 007b   es: 007b   ss: 0068
-Process EnvoiPDO0 (pid: 1879, threadinfo=dc1a6000 task=de35d030)
-Stack: <0>00000000 b7d122cc 00000000 b7d122cc 00000000 b7d12268 00000010
-0000007b
-       0000007b 0802022b ffffe410 00000073 00000206 b7d1223c 0000007b
-00000000
-       00000000
-Call Trace:
-Code: 44 24 18 e8 81 ca 03 00 fb 8b 4d 08 66 f7 c1 ff fe 0f 85 4e 01 00
-00 e8 ed ea 00 00 8b 44 24 18 8b 54 24 28 8b 4c 24 34 31 ed fb <0f> 35
-50 fc 06 1e 50 55 57 56 52 51 53 ba 7b 00 00 00 8e da 8e
- <0>general protection fault: 0000 [#2]
-PREEMPT
-Modules linked in: nls_iso8859_1 nls_cp437 i915 rtcan_sja1000 e100
-usb_storage eepro100 mii rtc unix
-CPU:    0
-EIP:    0060:[<c0103112>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.16.19-ipipe #1)
-EIP is at sysenter_exit+0xf/0x11
-eax: 00000000   ebx: 00000000   ecx: b7ce6a2c   edx: ffffe410
-esi: 00669627   edi: 00000000   ebp: 00000000   esp: d704ffbc
-ds: 007b   es: 007b   ss: 0068
-Process Automat (pid: 1882, threadinfo=d704e000 task=d701b030)
-Stack: <0>00000000 00000001 b7d8a660 00669627 00000000 b7ce6a58 00000000
-2801007b
-       0000007b 0801022b ffffe410 00000073 00000206 b7ce6a2c 0000007b
-00000000
-       00000000
-Call Trace:
-Code: 44 24 18 e8 81 ca 03 00 fb 8b 4d 08 66 f7 c1 ff fe 0f 85 4e 01 00
-00 e8 ed ea 00 00 8b 44 24 18 8b 54 24 28 8b 4c 24 34 31 ed fb <0f> 35
-50 fc 06 1e 50 55 57 56 52 51 53 ba 7b 00 00 00 8e da 8e
- 
+Hi,
+
+you disabled CONFIG_KALLSYMS in your kernel configuration, which means
+the backtrace isn't really useful for anyone to look at (unless you run
+ksymoops with the exact System.map)... the problem is that it only shows
+the addresses of the bad guys, but not the names. Those addresses are
+different for each compilation, and you can use YOUR System.map file to
+decode. However it's a lot more robust to let the kernel decode it for
+you by enabling CONFIG_KALLSYMS....
+
+Greetings,
+    Arjan van de Ven
+
+
+

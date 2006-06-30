@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbWF3T2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933063AbWF3ThV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964946AbWF3T2b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 15:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWF3T2b
+	id S933063AbWF3ThV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 15:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933074AbWF3ThV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 15:28:31 -0400
-Received: from mga03.intel.com ([143.182.124.21]:50588 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S964924AbWF3T23 convert rfc822-to-8bit (ORCPT
+	Fri, 30 Jun 2006 15:37:21 -0400
+Received: from cantor.suse.de ([195.135.220.2]:46229 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S933063AbWF3ThU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 15:28:29 -0400
-X-IronPort-AV: i="4.06,197,1149490800"; 
-   d="scan'208"; a="59873989:sNHT16029881"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 30 Jun 2006 15:37:20 -0400
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
+Date: Fri, 30 Jun 2006 21:37:15 +0200
+User-Agent: KMail/1.9.3
+Cc: Stephane Eranian <eranian@hpl.hp.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200606301519_MC3-1-C3E0-AD22@compuserve.com>
+In-Reply-To: <200606301519_MC3-1-C3E0-AD22@compuserve.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH -mm 5/6] cpu_relax(): use in ACPI lock
-Date: Fri, 30 Jun 2006 15:28:29 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6E16C60@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH -mm 5/6] cpu_relax(): use in ACPI lock
-Thread-Index: AcaVdf2pmyy+6swvR2OHtk6I9jIxJAAAHfBQAAJif1ABvl1z0A==
-From: "Brown, Len" <len.brown@intel.com>
-To: "Moore, Robert" <robert.moore@intel.com>,
-       "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>
-Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 30 Jun 2006 19:28:28.0365 (UTC) FILETIME=[5D1BC7D0:01C69C7B]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606302137.15644.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I may be interpreting this incorrectly, but are you 
->> busy-waiting on the ACPI Global Lock to become free?
 
-No.
+> But that is using cpu_clk_unhalted (isn't it?)  If so, it would slow down
+> when the system is idle.
+> The BIOS writer's guide, Ch. 10.2, says only events outside of the
+> processor, 
 
->Loop may be correctly waiting for the owner/pending bit to be 
->set, just checking, I don't remember all the bit values.
+The other events don't happen by definition. 
 
-Yes.
+If the system is C1 idle there are no cache misses, no pipe line events,
+nothing - just cache snoops and waiting for interrupts and TSC
+ticking.
 
-__acpi_acquire_global_lock is basically a lock-try
-and set the pending bit on failure.
+> like northbridge DMA accesses, stop counting during halt. 
+> (And by definition cpu_clk_unhalted.)
 
-bit 0 is the PENDING bit
-bit 1 is the OWNED bit
+It also depends on which C state and how the BIOS implements your C state.
 
-so the loop is doing this:
+e.g. there is C1/C2/C3 and then there are various modi of C1
+(HLT aka C1 is actually some SMM code in the BIOS that does different
+stuff). 
+ 
+I think there is at least one mode that ramps down large parts of the
+CPU (it's called C1 clock ramping - that is what has caused the TSC
+sync problems on some dual core systems).
 
-	old = lock_value
-try_again:
-	new = OWNED
-	if (old & OWNED)
-		new |= PENDING
-	cmpxchg(lock_value, old, new)
-	if (old != new) goto try_again;
+I guess your BIOS is not very aggressive in its SMM code in
+disabling the CPU.
 
-	return(!(new & PENDING)) /* ACQUIRED or not */
+C2/C3 also depend on SMM code, but when implemented should definitely
+stop everything.
+ 
+Intel also has different implementations of C1/C2/C3 depending
+on CPU and BIOS. Especially lowend code 
 
+But I still maintain something must be wrong with your 
+measurements.
 
-so we loop only if somebody else changed the lock_value
-to be different from old at the same time this code did.
-
-if the lock were held, we simply set the pending bit
-and return that we failed to acquire the lock.
-
--Len
+-Andi

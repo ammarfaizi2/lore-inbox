@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWF3WCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWF3XoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWF3WCk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 18:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWF3WCj
+	id S932213AbWF3XoL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 19:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWF3XoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 18:02:39 -0400
-Received: from mxout.hispeed.ch ([62.2.95.247]:58077 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S1751257AbWF3WCj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 18:02:39 -0400
-From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-To: Alessio Sangalli <alesan@manoweb.com>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] cardbus: revert IO window limit
-Date: Sat, 1 Jul 2006 00:03:30 +0200
-User-Agent: KMail/1.7.2
-Cc: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 30 Jun 2006 19:44:10 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:39580 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932213AbWF3XoJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 19:44:09 -0400
+Subject: Re: Proposal and plan for ext2/3 future development work
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Patrick McFarland <diablod3@gmail.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <200606300709.27879.diablod3@gmail.com>
+References: <E1Fvjsh-0008Uw-85@candygram.thunk.org>
+	 <200606300709.27879.diablod3@gmail.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Fri, 30 Jun 2006 16:44:06 -0700
+Message-Id: <1151711047.4611.57.camel@dyn9047017069.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607010003.31324.daniel.ritz-ml@swissonline.ch>
-X-DCC-spamcheck-01.tornado.cablecom.ch-Metrics: smtp-07.tornado.cablecom.ch 1377;
-	Body=7 Fuz1=7 Fuz2=7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok. We don't actually have any quirks at all for the 82440MX, and that's 
-> almost certainly _not_ because it doesn't do something strange (all Intel 
-> host bridges have magic IO ranges), but simply because we haven't hit it 
-> yet.
+On Fri, 2006-06-30 at 07:09 -0400, Patrick McFarland wrote:
+> On Wednesday 28 June 2006 19:55, you wrote:
+> > Given the recent discussion on LKML two weeks ago, it is clear that many
+> > people feel they have a stake in the future development plans of the
+> > ext2/ext3 filesystem, as it one of the most popular and commonly used
+> > filesystems, particular amongst the kernel development community.  For
+> > this reason, the stakes are higher than it would be for other
+> > filesystems.  
 > 
-> And I can't find the docs for the PCI config space for that dang thing.
+> http://en.wikipedia.org/wiki/Ext4
 > 
-> I bet that there's some magic SMBus IO-range that the 440MX decodes using 
-> a special magic config setting.
-> 
-> Has anybody found the config space docs for the 82440MX? 
 
-nope. but from the docs available i would _guess_ this thing is really
-similar to the 82443BX/82371AB combination. at least the SMBus base address
-register is hidden at the very same place (32bit at 0x90 in function 3 of the
-"south" brigde)...so the attached little patch might be enough to fix things...
+Thanks, another wiki page for this project is hosted at:
+http://fedoraproject.org/wiki/ext3-devel
 
-Alessio, could you try that one on top of a kernel that shows the problem?
+Current patch set is at
+http://ext2.sourceforge.net/48bitext3/patches/latest/
 
-rgds
--daniel
+and current e2fsprogs patch set is at 
+http://ext2.sourceforge.net/48bitext3/patches/e2fsprogs/48bit-
+e2fsprogs-1.39/
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 4364d79..1d26a64 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -401,6 +401,8 @@ static void __devinit quirk_piix4_acpi(s
- 	piix4_io_quirk(dev, "PIIX4 devres J", 0x7c, 1 << 20);
- }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371AB_3,	quirk_piix4_acpi );
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82443MX_3,	quirk_piix4_acpi );
-+
- 
- /*
-  * ICH4, ICH4-M, ICH5, ICH5-M ACPI: Three IO regions pointed to by longwords at

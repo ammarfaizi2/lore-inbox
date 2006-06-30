@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933068AbWGAALA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWF3WPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933068AbWGAALA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 20:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933074AbWGAALA
+	id S1751151AbWF3WPy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 18:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWF3WPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 20:11:00 -0400
-Received: from gate.crashing.org ([63.228.1.57]:43670 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S933068AbWGAAK7 (ORCPT
+	Fri, 30 Jun 2006 18:15:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64400 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751151AbWF3WPx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 20:10:59 -0400
-Subject: Re: SA_TRIGGER_* vs. SA_SAMPLE_RANDOM
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: tglx@linutronix.de
-Cc: David Miller <davem@davemloft.net>, mingo@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1151676007.25491.712.camel@localhost.localdomain>
-References: <20060629.141703.59468770.davem@davemloft.net>
-	 <1151676007.25491.712.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sat, 01 Jul 2006 10:10:29 +1000
-Message-Id: <1151712629.27137.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 18:15:53 -0400
+Date: Fri, 30 Jun 2006 15:15:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Jones <davej@redhat.com>,
+       "Asit K. Mallick" <asit.k.mallick@intel.com>,
+       Shaohua Li <shaohua.li@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>
+cc: Alessio Sangalli <alesan@manoweb.com>, Andrew Morton <akpm@osdl.org>,
+       alan@lxorguk.ukuu.org.uk, penberg@cs.Helsinki.FI,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ink@jurassic.park.msu.ru, dtor_core@ameritech.net
+Subject: Re: [PATCH] cardbus: revert IO window limit
+In-Reply-To: <20060630192609.GQ32729@redhat.com>
+Message-ID: <Pine.LNX.4.64.0606301458520.12404@g5.osdl.org>
+References: <Pine.LNX.4.58.0606220947250.15059@sbz-30.cs.Helsinki.FI>
+ <20060622001104.9e42fc54.akpm@osdl.org> <1150976158.15275.148.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0606220917080.5498@g5.osdl.org> <20060622093606.2b3b1eb7.akpm@osdl.org>
+ <Pine.LNX.4.64.0606221005410.5498@g5.osdl.org> <449B0B3C.2020904@manoweb.com>
+ <Pine.LNX.4.64.0606301200400.12404@g5.osdl.org> <20060630191914.GP32729@redhat.com>
+ <20060630192609.GQ32729@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> We have the same hassle with SA_INTERRUPT. The question arises, if we
-> should move the SA_XX flags for interrupts completely out of the signal
-> SA name space. Rename to IRQ_xxx and put them into interrupt.h.
 
-Agreed. In addition, if you look specifically at triggers, I've seen so
-far:
+On Fri, 30 Jun 2006, Dave Jones wrote:
+>  > 
+>  > http://www.codemonkey.org.uk/cruft/440/
+>  > There's an assortment of docs for the other flavour Intel PCIsets from
+>  > that era in the same dir.
+> 
+> Hrmm, actually that seems to have everything *but* config space definitions.
 
- - The new SA_* trigger stuff
- - The IRQ_TYPE_* stuff
- - The definitions of bits in struct resource of interrupts in ioport.h
- - The old IRQ_LEVEL
- - Various arch specific things that duplicate it again
+Yeah, I found those on the intel site too, but nothing with config space 
+access info.
 
-In addition, it's different bits with different organisation (for
-example, the IRQ_TYPE can express dual edge), etc... 
+It's surprising, actually. I usually have no trouble finding chipset 
+config space info for intel chipsets.
 
-In my new powerpc IRQ rework, I'm wiping out our own definitions for
-triggers and using IRQ_TYPE_* accross the range. I'm howveer not using
-the SA_* stuff at all at this point (that is, I'm neither converting the
-trigger type of a given interrupt to SA_* and putting it in the
-action/desc, nor honoring the SA_* triggers passed in request_irq at
-this point). It might be nice to do so, but I find that there is just
-way too much confusion at the moment.
+Adding a few Intel people to the list, in the hope that they would know at 
+least the right person to ask.
 
-Ben.
+Guys: the problem is that the 440MX (PCI ID: 8086:7194) seems to have some 
+magic IO register stuff again (probably ACPI or SMBus as usual), and we 
+don't know about them, and we don't have a quirk, so when the cardbus IO 
+range gets allocated, it can clash and cause trouble.
 
+No docs seem to say _what_ the magic IO addresses are.. Pls help!
 
+		Linus

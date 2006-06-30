@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751626AbWF3RKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWF3RLC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751626AbWF3RKy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 13:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751822AbWF3RKx
+	id S932094AbWF3RLC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 13:11:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWF3RLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 13:10:53 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57992 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751626AbWF3RKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 13:10:52 -0400
-Subject: Re: [PATCH -mm] ide_end_drive_cmd(): avoid instruction pipeline
-	stall
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Andrew Morton <akpm@osdl.org>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-ide@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060630161351.GA17434@rhlx01.fht-esslingen.de>
-References: <20060630161351.GA17434@rhlx01.fht-esslingen.de>
+	Fri, 30 Jun 2006 13:11:01 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:14235 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932094AbWF3RK7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 13:10:59 -0400
+Subject: Re: Proposal and plan for ext2/3 future development work
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: Jeff Garzik <jeff@garzik.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060630015903.GE11640@ca-server1.us.oracle.com>
+References: <E1Fvjsh-0008Uw-85@candygram.thunk.org>
+	 <44A47B0D.7020308@garzik.org>
+	 <20060630015903.GE11640@ca-server1.us.oracle.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 30 Jun 2006 18:26:56 +0100
-Message-Id: <1151688416.31392.66.camel@localhost.localdomain>
+Date: Fri, 30 Jun 2006 10:13:06 -0700
+Message-Id: <1151687586.339.5.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-06-30 am 18:13 +0200, ysgrifennodd Andreas Mohr:
-> Use an independently-formatted "unsigned int" for data instead of a
-> restrictive "u16" to avoid instruction fetch pipeline stalls
-> probably caused by the byte calculations later.
+On Thu, 2006-06-29 at 18:59 -0700, Joel Becker wrote:
+> On Thu, Jun 29, 2006 at 09:14:53PM -0400, Jeff Garzik wrote:
+> > Agreed overall, though specifically for delayed allocation I think 
+> > that's an ext4 thing:
+> > 
+> > * First off, I'm a big fan of delalloc, and (like extents) definitely 
+> > want to see the feature implemented
+> > * Delayed allocation, properly done, requires careful interaction with 
+> > VM writeback (memory pressure or normal writeout), and may require some 
+> > minor changes to generic code in fs/* and mm/*
+> 
+> 	To be honest, I'd like to see more delayed allocation
+> infrastructure in the VFS itself.  XFS has to maintain an entire chunk
+> of state for it, and I suspect ext4 will as well.  I'd love to get
+> delayed allocation into OCFS2 someday.  Why not move to where we can
+> share the in-memory accounting code?
+> 	Now, we'd probably want to start by prototyping it in ext4
+> directly.  Once it's stable as a filesystem feature, we can see where
+> XFS and ext4 overlap, etc, etc.  But I'd like to keep a more generic
+> direction in mind.
 
-drivers/ide is on its way out. I'm also curious that this shows up given
-that the inw() is going to cause a PCI sequence and stall the CPU
-entirely for ages anyway.
+I tried adding "delayed allocation" for ext3 earlier. Yes. VFS level
+infrastructure would be nice. But, I haven't found much that we can
+do at VFS - which is common across all the filesystems (except
+mpage_writepage(s) handling). Most of the stuff is specific to 
+filesystem implementation (even though it could be common) - coming
+out with VFS level interfaces to suite all the different filesystem
+delalloc would be *interesting* exercise.
 
-NAK because
-1. This is a gcc problem
-2. Not everyone is using an intel x86-32 box which has such problems
-3. IDE is in life-support mode and the relatives are already planning
-the flowers.
+If you have ideas on what are the common/generic stuff we can do in
+VFS - I can take a look at it again :)
 
-Alan
+Thanks,
+Badari
+

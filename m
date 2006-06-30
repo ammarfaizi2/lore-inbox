@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWF3SAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751829AbWF3SAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751842AbWF3SAk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 14:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWF3SAk
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 14:00:40 -0400
-Received: from mail.gmx.net ([213.165.64.21]:44779 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751842AbWF3SAh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1751829AbWF3SAh (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 30 Jun 2006 14:00:37 -0400
-X-Authenticated: #14349625
-Subject: Re: Measuring tools - top and interrupts
-From: Mike Galbraith <efault@gmx.de>
-To: danial_thom@yahoo.com
-Cc: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060630134149.11464.qmail@web33302.mail.mud.yahoo.com>
-References: <20060630134149.11464.qmail@web33302.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 30 Jun 2006 20:03:18 +0200
-Message-Id: <1151690598.8395.1.camel@Homer.TheSimpsons.net>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWF3SAh
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 30 Jun 2006 14:00:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55479 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751837AbWF3SAf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 14:00:35 -0400
+Date: Fri, 30 Jun 2006 11:00:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: andi@rhlx01.fht-esslingen.de, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] ide_end_drive_cmd(): avoid instruction pipeline
+ stall
+Message-Id: <20060630110018.f45b40e2.akpm@osdl.org>
+In-Reply-To: <1151688416.31392.66.camel@localhost.localdomain>
+References: <20060630161351.GA17434@rhlx01.fht-esslingen.de>
+	<1151688416.31392.66.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-30 at 06:41 -0700, Danial Thom wrote:
-> 
-> --- Mike Galbraith <efault@gmx.de> wrote:
-> 
-> > On Sun, 2006-06-25 at 13:45 -0700, Danial Thom
-> > wrote:
-> > 
-> > > I think the one thing we can surmise from
-> > this
-> > > thread is that you can't rely on kernel usage
-> > > statistics to be accurate, as its likely that
-> > > there are many, many cases that don't work
-> > > properly. It was always wrong in 2.4 as well.
-> > 
-> > Once identified, problems tend to get fixed. 
-> > This one will probably be
-> > history soon.  You know the old saying
-> > though... "There are lies, there
-> > are _damn_ lies, and then there are
-> > _statistics_".
-> 
-> The usefulness of statistics is a function of the
-> breadth of understand of the person interpreting
-> them. 
-> 
-> But I don't think that applies here, because we
-> are not questioning the conclusions from the
-> statistics, only the accuracy of the gathering.
-> Its a completely different thing to say, for
-> example, that population growth is due to too
-> many babies when it might be immigration or a
-> reduction in the death rate, than it is to say
-> that the numbers gathered are simply wrong.
-> 
-> The truth is that you guys can't be bothered
-> unless the numbers are so far off that its an
-> embarrasment.
+On Fri, 30 Jun 2006 18:26:56 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Hey, let's play hide and go fuck yourself.  Tag, you're it.
+> Ar Gwe, 2006-06-30 am 18:13 +0200, ysgrifennodd Andreas Mohr:
+> > Use an independently-formatted "unsigned int" for data instead of a
+> > restrictive "u16" to avoid instruction fetch pipeline stalls
+> > probably caused by the byte calculations later.
+> 
+> drivers/ide is on its way out.
 
-*plonk*
+Like sound/oss ;)
 
-	-Mike
+> I'm also curious that this shows up given
+> that the inw() is going to cause a PCI sequence and stall the CPU
+> entirely for ages anyway.
+
+I guess because he was profiling for IFU_MEM_STALL, not for wall-time.
+
+> NAK because
+> 1. This is a gcc problem
+> 2. Not everyone is using an intel x86-32 box which has such problems
+> 3. IDE is in life-support mode and the relatives are already planning
+> the flowers.
+
+Well.  If the patch breaks anything we can dine on hats for a month.  Seems
+pretty inoffensive to me.
 

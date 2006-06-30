@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751856AbWF3S4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWF3TAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751856AbWF3S4O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 14:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWF3S4O
+	id S932145AbWF3TAp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 15:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933069AbWF3TAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 14:56:14 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:39383 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1751414AbWF3Szx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 14:55:53 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] IRQ: warning message cleanup
-Date: Fri, 30 Jun 2006 12:55:48 -0600
-User-Agent: KMail/1.8.3
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jun 2006 15:00:44 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43026 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S933056AbWF3TAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 15:00:42 -0400
+Date: Fri, 30 Jun 2006 20:00:30 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       Milan Svoboda <msvoboda@ra.rockwell.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Deepak Saxena <dsaxena@plexity.net>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [BUG] Linux-2.6.17-rt3 on arm ixdp465
+Message-ID: <20060630190030.GB13429@flint.arm.linux.org.uk>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Esben Nielsen <nielsen.esben@googlemail.com>,
+	Milan Svoboda <msvoboda@ra.rockwell.com>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Deepak Saxena <dsaxena@plexity.net>,
+	Thomas Gleixner <tglx@linutronix.de>
+References: <OF92240490.78BE8F01-ONC125719C.0037A4FD-C125719C.00389E07@ra.rockwell.com> <Pine.LNX.4.64.0606291334540.10401@localhost.localdomain> <Pine.LNX.4.58.0606290803190.25935@gandalf.stny.rr.com> <20060630185046.GB29566@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606301255.48552.bjorn.helgaas@hp.com>
+In-Reply-To: <20060630185046.GB29566@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make warnings more consistent.
+On Fri, Jun 30, 2006 at 08:50:46PM +0200, Ingo Molnar wrote:
+> 
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+> > Well, the following patch may not be the best but I don't see it being 
+> > any worse than what is already there.  I don't have any arm platforms 
+> > or even an arm compiler, so I haven't even tested this patch with a 
+> > compile.  But it should be at least a temporary fix.
+> 
+> thanks - i've applied this to -rt, we'll drop it once we rebase to 
+> 2.6.18-rc.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Why not apply the one already in mainline which _has_ been tested to
+fix this issue!?!?!
 
-Index: work-mm7/kernel/irq/manage.c
-===================================================================
---- work-mm7.orig/kernel/irq/manage.c	2006-06-30 11:59:13.000000000 -0600
-+++ work-mm7/kernel/irq/manage.c	2006-06-30 12:17:42.000000000 -0600
-@@ -115,7 +115,7 @@
- 	spin_lock_irqsave(&desc->lock, flags);
- 	switch (desc->depth) {
- 	case 0:
--		printk(KERN_WARNING "Unablanced enable_irq(%d)\n", irq);
-+		printk(KERN_WARNING "Unbalanced enable for IRQ %d\n", irq);
- 		WARN_ON(1);
- 		break;
- 	case 1: {
-@@ -268,9 +268,10 @@
- 				 * SA_TRIGGER_* but the PIC does not support
- 				 * multiple flow-types?
- 				 */
--				printk(KERN_WARNING "setup_irq(%d) SA_TRIGGER"
--				       "set. No set_type function available\n",
--				       irq);
-+				printk(KERN_WARNING "No SA_TRIGGER set_type "
-+				       "function for IRQ %d (%s)\n", irq,
-+				       desc->chip ? desc->chip->name :
-+				       "unknown");
- 		} else
- 			compat_irq_chip_set_default_handler(desc);
- 
-@@ -300,7 +301,7 @@
- mismatch:
- 	spin_unlock_irqrestore(&desc->lock, flags);
- 	if (!(new->flags & SA_PROBEIRQ)) {
--		printk(KERN_ERR "%s: irq handler mismatch\n", __FUNCTION__);
-+		printk(KERN_ERR "IRQ handler type mismatch for IRQ %d\n", irq);
- 		dump_stack();
- 	}
- 	return -EBUSY;
-@@ -374,7 +375,7 @@
- 			kfree(action);
- 			return;
- 		}
--		printk(KERN_ERR "Trying to free free IRQ%d\n", irq);
-+		printk(KERN_ERR "Trying to free already-free IRQ %d\n", irq);
- 		spin_unlock_irqrestore(&desc->lock, flags);
- 		return;
- 	}
+Am I talking to myself here?  I've said this three times now, including
+this message.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

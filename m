@@ -1,60 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933163AbWF3Vyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWF3USA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933163AbWF3Vyb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 17:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933160AbWF3Vyb
+	id S1751013AbWF3USA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 16:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWF3USA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 17:54:31 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:27031 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S933223AbWF3Vya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 17:54:30 -0400
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-From: Lee Revell <rlrevell@joe-job.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Olivier Galibert <galibert@pobox.com>, alsa-devel@alsa-project.org,
-       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
-       perex@suse.cz, Olaf Hering <olh@suse.de>,
-       James Courtier-Dutton <James@superbug.co.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <1151703286.11434.61.camel@laptopd505.fenrus.org>
-References: <20060629192128.GE19712@stusta.de>
-	 <44A54D8E.3000002@superbug.co.uk> <20060630163114.GA12874@dspnet.fr.eu.org>
-	 <1151702966.32444.57.camel@mindpipe>
-	 <1151703286.11434.61.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Fri, 30 Jun 2006 17:54:37 -0400
-Message-Id: <1151704479.32444.72.camel@mindpipe>
+	Fri, 30 Jun 2006 16:18:00 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:39328 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1750923AbWF3UR7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 16:17:59 -0400
+Date: Fri, 30 Jun 2006 22:17:52 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: linux-kernel@vger.kernel.org
+Subject: [git pull] PCMCIA updates and fixes for 2.6.18
+Message-ID: <20060630201752.GA9978@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-30 at 23:34 +0200, Arjan van de Ven wrote:
-> On Fri, 2006-06-30 at 17:29 -0400, Lee Revell wrote:
-> > As sound hardware gets dumber and cheaper, kernel OSS emulation will
-> > become increasingly useless.  The cheap onboard devices (and even mid
-> > range stuff like the SBLive! 24 bit) require sample rate conversion,
-> > mixing, and even volume control to be handled in software.  ALSA's
-> > in-kernel OSS emulation does not have these features and never will.
-> > 
-> > (I wish the authors of Skype, Flash, TeamSpeak, Enemy Territory, and
-> > other proprietary OSS-only apps would understand this ;-)
-> 
-> 
-> maybe it's time to start printing a warning to users of OSS api (rate
-> limited etc etc)
+[fwd to linux-kernel]
 
-It might help, but I'm not so sure.  The users have been complaining for
-years (the most common complaint by far on #alsa is that OSS apps block
-the soundcard) but these vendors don't seem to listen.  I doubt that
-complaints in the kernel log will have an effect if they won't listen to
-their users.
+Linus,
 
-I've heard that one reason they won't port to ALSA is that they think
-the in-kernel OSS emulation will be "fixed" someday.  Maybe we need to
-make it clearer that this won't happen?
+The PCMCIA updates for 2.6.18 are available at
 
-Lee
+	git://git.kernel.org/pub/scm/linux/kernel/git/brodo/pcmcia-2.6/
+
+Please pull from that location. The diffstat and list of changes follows,
+the individual diffs are sent (at least) to the linux-pcmcia list.
+
+Thanks,
+	Dominik
+
+----
+ Documentation/pcmcia/crc32hash.c        |   32 ++++++++++++
+ Documentation/pcmcia/devicetable.txt    |   36 +------------
+ drivers/char/pcmcia/cm4000_cs.c         |    7 --
+ drivers/ide/legacy/ide-cs.c             |   81 +++++++++++++++++++++++++++----
+ drivers/net/pcmcia/com20020_cs.c        |    5 +
+ drivers/net/wireless/hostap/hostap_cs.c |    2 
+ drivers/pcmcia/at91_cf.c                |   75 ++++++++++++++++++++++------
+ drivers/pcmcia/au1000_db1x00.c          |    2 
+ drivers/pcmcia/cs.c                     |   29 ++++++-----
+ drivers/pcmcia/pcmcia_resource.c        |   27 ++++++----
+ drivers/pcmcia/ti113x.h                 |    1 
+ drivers/pcmcia/yenta_socket.c           |   83 +++++++++++++++++++++++++++++++-
+ drivers/serial/serial_cs.c              |    1 
+ include/linux/pci_ids.h                 |    1 
+ 14 files changed, 291 insertions(+), 91 deletions(-)
+----
+Al Viro:
+      kill open-coded offsetof in cm4000_cs.c ZERO_DEV()
+
+Alan Cox:
+      pcmcia: warn if driver requests exclusive, but gets a shared IRQ
+
+Alex Williamson:
+      pcmcia: TI PCIxx12 CardBus controller support
+
+Arjan van de Ven:
+      pcmcia: fix deadlock in pcmcia_parse_events
+
+Bernhard Kaindl:
+      yenta: fix hidden PCI bus numbers
+
+Daniel Ritz:
+      yenta: do power-up only after socket is configured
+
+David Brownell:
+      pcmcia: at91_cf suspend/resume/wakeup
+
+Domen Puncer:
+      au1xxx: pcmcia: fix __init called from non-init
+
+Dominik Brodowski:
+      pcmcia: another ID for serial_cs.c
+
+Komuro:
+      pcmcia: hostap_cs.c - 0xc00f,0x0000 conflicts with pcnet_cs
+
+Marc Sowen:
+      com20020_cs: more device support
+
+Randy Dunlap:
+      pcmcia: expose tool in pcmcia/Documentation/pcmcia/
+      pcmcia: fix kernel-doc function name
+
+Serge E. Hallyn:
+      pcmcia: convert pcmcia_cs to kthread
+
+Thomas Kleffel:
+      pcmcia: Make ide_cs work with the memory space of CF-Cards if IO space is not available
 

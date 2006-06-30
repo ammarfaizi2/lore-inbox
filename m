@@ -1,83 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751550AbWF3WjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWF3WXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751550AbWF3WjY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 18:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751549AbWF3WjY
+	id S1751074AbWF3WXN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 18:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWF3WXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 18:39:24 -0400
-Received: from xenotime.net ([66.160.160.81]:61933 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751513AbWF3WjY (ORCPT
+	Fri, 30 Jun 2006 18:23:13 -0400
+Received: from www.osadl.org ([213.239.205.134]:9882 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751074AbWF3WXM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 18:39:24 -0400
-Date: Fri, 30 Jun 2006 15:42:10 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, tali@admingilde.org
-Subject: [PATCH] kernel-doc: consistent text/man mode output
-Message-Id: <20060630154210.98e6ad03.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Fri, 30 Jun 2006 18:23:12 -0400
+Subject: Re: SA_TRIGGER_* vs. SA_SAMPLE_RANDOM
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: David Miller <davem@davemloft.net>
+Cc: rmk+lkml@arm.linux.org.uk, mingo@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060630.133123.84974324.davem@davemloft.net>
+References: <20060630184745.GA13429@flint.arm.linux.org.uk>
+	 <20060630.132128.26278530.davem@davemloft.net>
+	 <1151699247.25491.806.camel@localhost.localdomain>
+	 <20060630.133123.84974324.davem@davemloft.net>
+Content-Type: text/plain
+Date: Sat, 01 Jul 2006 00:25:27 +0200
+Message-Id: <1151706327.25491.847.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-06-30 at 13:31 -0700, David Miller wrote:
+> From: Thomas Gleixner <tglx@linutronix.de>
+> Date: Fri, 30 Jun 2006 22:27:27 +0200
+> 
+> > I'll cook it up tomorrow.
+> 
+> Thanks a lot Thomas. :)
 
-Add a space between data type and struct field name in man-mode
-bitfield struct output so that they don't run together.
+That's what I came up with:
 
-For text-mode struct output, print the struct 'purpose' or
-short description (as done in man-mode output).
+SA_INTERRUPT		IRQF_IRQS_DISABLED
+SA_SAMPLE_RANDOM	IRQF_SAMPLE_RANDOM
+SA_SHIRQ		IRQF_SHARE_IRQ
+SA_PROBEIRQ		IRQF_PROBE_IRQ
+SA_TRIGGER_LOW		IRQF_TRIGGER_LOW
+SA_TRIGGER_HIGH		IRQF_TRIGGER_HIGH
+SA_TRIGGER_FALLING	IRQF_TRIGGER_FALLING
+SA_TRIGGER_RISING	IRQF_TRIGGER_RISING
+SA_TRIGGER_MASK		IRQF_TRIGGER_MASK
+SA_TIMER		IRQF_TIMER
 
-For text-mode enum output, print the enum 'purpose' or
-short description (as done in man-mode output).
+It affects only 720 files :)
 
-For text-mode typedfe output, print the typedef 'purpose' or
-short description (as done in man-mode output).
-
----
- scripts/kernel-doc |    8 +++++---
- 1 files changed, 5 insertions(+), 3 deletions(-)
-
---- linux-2617-g13.orig/scripts/kernel-doc
-+++ linux-2617-g13/scripts/kernel-doc
-@@ -1056,7 +1056,8 @@ sub output_struct_man(%) {
- 	    # pointer-to-function
- 	    print ".BI \"    ".$1."\" ".$parameter." \") (".$2.")"."\"\n;\n";
- 	} elsif ($type =~ m/^(.*?)\s*(:.*)/) {
--	    print ".BI \"    ".$1."\" ".$parameter.$2." \""."\"\n;\n";
-+	    # bitfield
-+	    print ".BI \"    ".$1."\ \" ".$parameter.$2." \""."\"\n;\n";
- 	} else {
- 	    $type =~ s/([^\*])$/$1 /;
- 	    print ".BI \"    ".$type."\" ".$parameter." \""."\"\n;\n";
-@@ -1172,6 +1173,7 @@ sub output_enum_text(%) {
-     my $count;
-     print "Enum:\n\n";
- 
-+    print "enum ".$args{'enum'}." - ".$args{'purpose'}."\n\n";
-     print "enum ".$args{'enum'}." {\n";
-     $count = 0;
-     foreach $parameter (@{$args{'parameterlist'}}) {
-@@ -1200,7 +1202,7 @@ sub output_typedef_text(%) {
-     my $count;
-     print "Typedef:\n\n";
- 
--    print "typedef ".$args{'typedef'}."\n";
-+    print "typedef ".$args{'typedef'}." - ".$args{'purpose'}."\n";
-     output_section_text(@_);
- }
- 
-@@ -1209,7 +1211,7 @@ sub output_struct_text(%) {
-     my %args = %{$_[0]};
-     my ($parameter);
- 
--    print $args{'type'}." ".$args{'struct'}.":\n\n";
-+    print $args{'type'}." ".$args{'struct'}." - ".$args{'purpose'}."\n\n";
-     print $args{'type'}." ".$args{'struct'}." {\n";
-     foreach $parameter (@{$args{'parameterlist'}}) {
- 	if ($parameter =~ /^#/) {
+	tglx
 
 
----

@@ -1,34 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWGATrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWGAK3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWGATrF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 15:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751921AbWGATrF
+	id S932379AbWGAK3z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 06:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWGAK3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 15:47:05 -0400
-Received: from thunk.org ([69.25.196.29]:12689 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751920AbWGATrD (ORCPT
+	Sat, 1 Jul 2006 06:29:55 -0400
+Received: from thunk.org ([69.25.196.29]:40373 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932379AbWGAK3z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 15:47:03 -0400
-Date: Sat, 1 Jul 2006 11:05:07 -0400
+	Sat, 1 Jul 2006 06:29:55 -0400
+Date: Sat, 1 Jul 2006 06:29:35 -0400
 From: Theodore Tso <tytso@mit.edu>
-To: Jeff Bailey <jbailey@ubuntu.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-       klibc@zytor.com, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [klibc] klibc and what's the next step?
-Message-ID: <20060701150506.GA10517@thunk.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Proposal and plan for ext2/3 future development work
+Message-ID: <20060701102935.GA12468@thunk.org>
 Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Jeff Bailey <jbailey@ubuntu.com>, "H. Peter Anvin" <hpa@zytor.com>,
-	Michael Tokarev <mjt@tls.msk.ru>,
-	Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-	klibc@zytor.com, linux-kernel@vger.kernel.org,
-	Pavel Machek <pavel@ucw.cz>
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060630181131.GA1709@elf.ucw.cz> <44A5AE17.4080106@tls.msk.ru> <44A5B07E.9040007@zytor.com> <1151751417.2553.8.camel@localhost.localdomain>
+	Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <E1Fvjsh-0008Uw-85@candygram.thunk.org> <p73sllnvsej.fsf@verdi.suse.de> <20060630151432.GA21675@thunk.org> <20060701094206.GA17588@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1151751417.2553.8.camel@localhost.localdomain>
+In-Reply-To: <20060701094206.GA17588@stusta.de>
 User-Agent: Mutt/1.5.11
 X-SA-Exim-Connect-IP: <locally generated>
 X-SA-Exim-Mail-From: tytso@thunk.org
@@ -36,44 +30,30 @@ X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 01, 2006 at 06:56:57AM -0400, Jeff Bailey wrote:
+On Sat, Jul 01, 2006 at 11:42:06AM +0200, Adrian Bunk wrote:
+> > There were a lot of people who were concerned that simply marking it
+> > CONFIG_EXPERIMENTAL might not be enough for to make it very clear that
+> > the filesystem format is still changing.  In order to address this
+> > concern, we want /etc/fstab to make it abundantly clear that the
+> > filesystem format itself is not necessarily stable, and that new
+> > features are being added that might not be supported on older
+> > kernels.
+> >...
 > 
-> The Ubuntu initramfs doesn't use kinit, and it would be nice if we
-> weren't forced to.  We do a number of things in our initramfs (like a
-> userspace bootsplace) which we need done before most of the things kinit
-> wants to do take place.
+> What about a dependency on CONFIG_BROKEN?
 > 
+> This will require everyone who wants to use it to manually edit the 
+> Kconfig file for removing the dependency - which sounds like a good 
+> idea.
 
-This is going to be a problem given that people are hell-bent at
-chucking functionality out of the kernel into userspace.  If various
-distributions insist on having their own initramfs/initrd, we're going
-to have a maintenance headache where future kernel versions won't work
-on distro kernels, which is going to be painful for kernel developers
-that want to stay on the bleeding edge.  We are already seeing the
-beginnings of this, where the the fact that modern kernels expect the
-distro initramfs will wait for the SCSI probe to finish after loading
-modules and trying to mount the root filesystem has caused RHEL4
-system to be incompatible with modern kernels.  
-
-Fortunately there is a workaround by not building the MPT Fusion
-device driver as a module, but if Pavel succeeds in ejecting software
-suspend into userspace, and preventing suspend2 from getting merged,
-*and* distro's insist on doing their own thing with initramfs, we are
-going to be headed for a major trainwreck.
-
-Personally, I would be happier with keeping things like suspend2 in
-the kernel, since I don't think the hellish compatibility problems
-with non-reviewed kernel functionality that has been ejected into
-userspace is really worth it --- but if we *are* going to go down the
-route pushing everything into userspace, it is going to be critical
-that distro's buy into using a kernel initialization system which is
-shipped with the kernel, and can be updated without being tied a
-particular distro's non-standard "value add".  Maybe that means we
-need to have hooks so that the distro's can add their non-standard
-"value add" without breaking the ability for users to upgrade to newer
-kernels.  But either way, we're going to have to decide which way
-we're going to go, and if we're going to go down the blind
-in-userspace-good-in-kernel-bad approach, the distro's are going to
-have to cooperate or it's going to be a mess.
+It's not broken; just experimental.  I think CONFIG_EXPERIMENTAL is
+accurately describes the status of fs/ext4 as we plan it.  Patches
+will be reviewed and tested via quilt series and/or git trees before
+they get pushed to fs/ext4, so the expectation isn't that data will be
+lost; only that if you want to downgrade to an earlier kernel, and
+explicitly enable the latest bleeding edge feature, you might have to
+do some work first.  (Which might be dump/reformat/restore, or it
+might be "tune2fs -O ^new_feature /dev/sdXX; e2fsck /dev/sdXX" with a
+development snapshot of e2fsprogs.)
 
 						- Ted

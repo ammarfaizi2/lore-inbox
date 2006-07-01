@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWGAJ0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbWGAJmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbWGAJ0M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 05:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWGAJ0M
+	id S932603AbWGAJmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 05:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWGAJmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 05:26:12 -0400
-Received: from gate.perex.cz ([85.132.177.35]:54765 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S932477AbWGAJ0L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 05:26:11 -0400
-Date: Sat, 1 Jul 2006 11:26:08 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Olivier Galibert <galibert@pobox.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       James Courtier-Dutton <James@superbug.co.uk>,
-       Adrian Bunk <bunk@stusta.de>, LKML <linux-kernel@vger.kernel.org>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Olaf Hering <olh@suse.de>
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-In-Reply-To: <20060701073133.GA99126@dspnet.fr.eu.org>
-Message-ID: <Pine.LNX.4.61.0607011118420.8553@tm8103.perex-int.cz>
-References: <20060629192128.GE19712@stusta.de> <44A54D8E.3000002@superbug.co.uk>
- <20060630163114.GA12874@dspnet.fr.eu.org> <1151702966.32444.57.camel@mindpipe>
- <20060701073133.GA99126@dspnet.fr.eu.org>
+	Sat, 1 Jul 2006 05:42:09 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:38160 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932603AbWGAJmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 05:42:08 -0400
+Date: Sat, 1 Jul 2006 11:42:06 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Theodore Tso <tytso@mit.edu>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Proposal and plan for ext2/3 future development work
+Message-ID: <20060701094206.GA17588@stusta.de>
+References: <E1Fvjsh-0008Uw-85@candygram.thunk.org> <p73sllnvsej.fsf@verdi.suse.de> <20060630151432.GA21675@thunk.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060630151432.GA21675@thunk.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Jul 2006, Olivier Galibert wrote:
-
-> On Fri, Jun 30, 2006 at 05:29:26PM -0400, Lee Revell wrote:
-> > Even if you reject this argument, the bug is in ALSA's in-kernel OSS
-> > emulation, not the emu10k1 driver.
+On Fri, Jun 30, 2006 at 11:14:32AM -0400, Theodore Tso wrote:
+> On Fri, Jun 30, 2006 at 12:39:48PM +0200, Andi Kleen wrote:
+> > "Theodore Ts'o" <tytso@mit.edu> writes:
+> > > 
+> > > 1) The creation of a new filesystem codebase in the 2.6 kernel tree in
+> > > /usr/src/linux/fs/ext4 that will initially register itself as the
+> > > "ext3dev" 
+> > 
+> > Why not call it ext4 from the beginning too? Calling the directory
+> > differently from the file system can only cause confusion.
+> > 
+> > I assume if it's marked very experimental people who value their data
+> > will avoid it for the time being.
 > 
-> That's irrelevant.  You can't remove the oss emu10k1 driver in favor
-> of alsa's until alsa provides an equivalent interface.  That's a basic
-> compatibility requirement.
+> There were a lot of people who were concerned that simply marking it
+> CONFIG_EXPERIMENTAL might not be enough for to make it very clear that
+> the filesystem format is still changing.  In order to address this
+> concern, we want /etc/fstab to make it abundantly clear that the
+> filesystem format itself is not necessarily stable, and that new
+> features are being added that might not be supported on older
+> kernels.
+>...
 
-Sorry, but the OSS interface is not an issue for the emu10k1 driver. It 
-already supports multi-open, because emu10k1/emu10k2 chip supports more 
-voices in hardware. Lee was speaking about cheap versions of Sound Blaster 
-cards and they are not supported with the OSS emu10k1 linux driver, too.
+What about a dependency on CONFIG_BROKEN?
 
-> > ALSA's in-kernel OSS emulation does not have these features and
-> > never will.
-> 
-> "Never" is terribly long.
+This will require everyone who wants to use it to manually edit the 
+Kconfig file for removing the dependency - which sounds like a good 
+idea.
 
-The questions is which feature is missing from the ALSA emu10k1 driver. 
-Personally, I don't know about any, except some extra features like 
-rear/center/lfe channel binding, but the old OSS app binaries does not 
-know about them, so it's no worth to care.
+> 							- Ted
 
-In my opinion, the OSS emu10k1 driver is ready to be removed unless 
-someone notify us about any missing feature.
+cu
+Adrian
 
-					Thanks,
-						Jaroslav
+-- 
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

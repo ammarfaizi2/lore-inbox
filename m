@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWGAWFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWGAWU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbWGAWFW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 18:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWGAWFV
+	id S1750893AbWGAWU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 18:20:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbWGAWU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 18:05:21 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:1928 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751191AbWGAWFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 18:05:20 -0400
-Subject: Re: [PATCH] Include __param section in read-only data range
-From: Arjan van de Ven <arjan@infradead.org>
-To: Marcelo Tosatti <marcelo@kvack.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060701215913.GA4298@dmt>
-References: <20060701215913.GA4298@dmt>
-Content-Type: text/plain
-Date: Sun, 02 Jul 2006 00:05:18 +0200
-Message-Id: <1151791518.3195.68.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 1 Jul 2006 18:20:59 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:63877 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750868AbWGAWU6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 18:20:58 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Battery-related regression between 2.6.17-git3 and 2.6.17-git6
+Date: Sun, 2 Jul 2006 00:21:15 +0200
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200607020021.15040.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-01 at 18:59 -0300, Marcelo Tosatti wrote:
-> Hi,
-> 
-> The param section is an array of "kernel_param" structures, storing only
-> constant data: pointer to name, permission of the variable pointed to by
-> (void *)arg and pointers to set/get methods.
-> 
-> Move end_rodata down to include __param section in the read-only range
-> used by CONFIG_DEBUG_RODATA.
-> 
-> Signed-off-by: Marcelo Tosatti <marcelo@kvack.org>
+Hi,
 
-Acked-by: Arjan van de Ven <arjan@linux.intel.com>
+With the recent -git on my box (Asus L5D, x86_64 SUSE 10) the powersave
+demon is apparently unable to get the battery status, although the data in
+/proc/acpi/battery/BAT0 seem to be correct.  As a result, battery status
+notification via kpowersave doesn't work and it's hard to notice when the
+battery is low/critical.
 
+So far I have verified that this feature works fine with 2.6.17-git3 and
+doesn't work with 2.6.17-git6 (-git5 doesn't compile here).
+
+I'll try to get more information tomorrow (unless someone in the know has
+an idea of what's up ;-) ).
+
+Greetings,
+Rafael

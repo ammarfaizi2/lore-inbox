@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWGAO7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWGAL4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbWGAO7t (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 10:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWGAO71
+	id S1750938AbWGAL4J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 07:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWGAL4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 10:59:27 -0400
-Received: from mail.gmx.net ([213.165.64.21]:62136 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751878AbWGAO6C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 10:58:02 -0400
-X-Authenticated: #428038
-Date: Sat, 1 Jul 2006 16:57:55 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       David Luyer <david@luyer.net>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: emergency or init=/bin/sh mode and terminal signals
-Message-ID: <20060701145755.GB29190@merlin.emma.line.org>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	David Luyer <david@luyer.net>,
-	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
-	linux-kernel@vger.kernel.org
-References: <20060619220920.GB5788@implementation.residence.ens-lyon.fr> <C0BD782F.CF80%david@luyer.net> <20060620080435.GA4347@implementation.labri.fr>
+	Sat, 1 Jul 2006 07:56:08 -0400
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:33229 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750938AbWGAL4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 07:56:08 -0400
+Date: Sat, 1 Jul 2006 07:51:58 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: RFC: unlazy fpu for frequent fpu users
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200607010753_MC3-1-C3ED-2040@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060620080435.GA4347@implementation.labri.fr>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11-2006-06-08
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006, Samuel Thibault wrote:
+In-Reply-To: <1151705536.11434.69.camel@laptopd505.fenrus.org>
 
-> > Also, the above doesn't help people specifying "init=/bin/sh" on the
-> > command line (as per the original post subject).  The real solution
-> > is for them to specify a different init= or run/exec something to set
-> > up their tty and session once logged in.
+On Sat, 01 Jul 2006 00:12:16 +0200, Arjan van de Ven wrote:
+
+> right now the kernel on x86-64 has a 100% lazy fpu behavior: after
+> *every* context switch a trap is taken for the first FPU use to restore
+> the FPU context lazily. This is of course great for applications that
+> have very sporadic or no FPU use (since then you avoid doing the
+> expensive save/restore all the time). However for very frequent FPU
+> users... you take an extra trap every context switch.
 > 
-> Yes. And the problem is that people usually don't know about sessions
-> etc, and will just grumble "linux can't work".
+> The patch below adds a simple heuristic to this code: After 5
+> consecutive context switches of FPU use, the lazy behavior is disabled
+> and the context gets restored every context switch. If the app indeed
+> uses the FPU, the trap is avoided. (the chance of the 6th time slice
+> using FPU after the previous 5 having done so are quite high obviously).
+> 
 
-Nothing prevents a distributor from providing a proper alternative boot
-script to set up the session and launch the shell, and particularly
-there is nothing to prevent them from adding a proper boot menu entry
-for that rescue system...
+You can do better that that.  FXSR doesn't destroy the FPU contents; if
+you track the context carefully you can completely avoid the restore.
+This requires keeping a per-cpu variable that holds a pointer to the
+thread that last used the FPU and a per-thread variable containing the
+CPU number on which the thread last used FP math. Unfortunately this
+won't work in x86_64 because of the 'fxsave information leak' workaround.
+
+> --- linux-2.6.17-sleazyfpu.orig/arch/x86_64/kernel/process.c
+> +++ linux-2.6.17-sleazyfpu/arch/x86_64/kernel/process.c
+> @@ -515,6 +515,9 @@ __switch_to(struct task_struct *prev_p, 
+>       int cpu = smp_processor_id();  
+>       struct tss_struct *tss = &per_cpu(init_tss, cpu);
+>  
+> +     /* prefetch the fxsave area into the cache */
+> +     prefetch(&next->i387.fxsave);
+> +
+>       /*
+>        * Reload esp0, LDT and the page table pointer:
+>        */
+
+This prefetch is probably a bad idea.  I ported your patch to i386 and it was
+actually slower until I changed it:
+
++       if (next_p->fpu_counter > 5)
++               /* prefetch the fxsave area into the cache */
++               prefetch(&next->i387.fxsave);
++
+
+Now it's ~.4% faster.  The test was an FP program doing a simple benchmark
+while a non-FP program ran in a tight loop.
 
 -- 
-Matthias Andree
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

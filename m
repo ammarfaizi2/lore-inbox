@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWF3VDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWGADiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWF3VDs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 17:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWF3VDs
+	id S932456AbWGADiN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 23:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWGADiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 17:03:48 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:23440 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932069AbWF3VDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 17:03:47 -0400
-Subject: Re: SATA in 2.6.17 vs 2.6.15 (x86/ICH6)
-From: Lee Revell <rlrevell@joe-job.com>
-To: William Thompson <wt@electro-mechanical.com>
+	Fri, 30 Jun 2006 23:38:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27623 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932355AbWGADiH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 23:38:07 -0400
+Date: Fri, 30 Jun 2006 20:34:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060630184156.GA8086@electro-mechanical.com>
-References: <20060630184156.GA8086@electro-mechanical.com>
-Content-Type: text/plain
-Date: Fri, 30 Jun 2006 17:04:00 -0400
-Message-Id: <1151701440.32444.44.camel@mindpipe>
+Subject: Re: [2.6 patch] mm/fremap.c: EXPORT_UNUSED_SYMBOL
+Message-Id: <20060630203453.81700a1f.akpm@osdl.org>
+In-Reply-To: <20060630113153.GM19712@stusta.de>
+References: <20060630113153.GM19712@stusta.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-30 at 14:41 -0400, William Thompson wrote:
-> *** I'm not on the list, please always keep me in CC ***
-> 
-> The speed of SATA in 2.6.17 is significantly lower in my test than 2.6.15.
-> 
-> In .15, I would see over 10mb/sec avg writing over 16,000 files (~2.4gb) to a
-> fat32 partition.
-> 
-> In .17, I see it start at 2-3mb/sec and work it's way down to 500kb/sec
-> towards the end.  Even the system is not as responsive (The system's / is a
-> tmpfs which all programs, including /usr, are stored), not even when using
-> ssh.
-> 
-> I used the same .config in .17 as I did with .15 (make oldconfig)
+On Fri, 30 Jun 2006 13:31:53 +0200
+Adrian Bunk <bunk@stusta.de> wrote:
 
-What does the oprofile output look like for both cases?
+> This patch marks an unused export as EXPORT_UNUSED_SYMBOL.
+> 
+> -EXPORT_SYMBOL(install_page);
+> +EXPORT_UNUSED_SYMBOL(install_page);  /*  June 2006  */
 
-Lee
+install_page() is a library function which any implementation of
+vm_operations_struct.populate() will need to be able to call.
 
+Please drop.

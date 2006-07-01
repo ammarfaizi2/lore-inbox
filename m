@@ -1,333 +1,679 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWGASS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751932AbWGAV2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWGASS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 14:18:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbWGASS3
+	id S1751932AbWGAV2b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 17:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751892AbWGAV2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 14:18:29 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:10515 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750841AbWGASS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 14:18:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=k+hSucO3If5kWQbeM7+RtVi5NIRxzsr+EscBdZaiyHnqC02QzbgmaS4Vpqb+7SBn99jinLbNXp5BcHdei75qGZvu01g6+I5aDV2Iqy4tXtXAbFZk7UlnKXl6CWZhroIdxzYrPd1l1N2mJ2iiC9UB50bl26v7Rm8AJIoha5OGl4k=
-Message-ID: <4807377b0607011118g2727d23aq11f84a48950aad43@mail.gmail.com>
-Date: Sat, 1 Jul 2006 11:18:26 -0700
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.17-mm4
-Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-In-Reply-To: <20060630175241.29c4323d.akpm@osdl.org>
+	Sat, 1 Jul 2006 17:28:31 -0400
+Received: from mga01.intel.com ([192.55.52.88]:22094 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751227AbWGAV23 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 17:28:29 -0400
+X-IronPort-AV: i="4.06,198,1149490800"; 
+   d="scan'208"; a="92103516:sNHT295513113"
+From: Len Brown <len.brown@intel.com>
+Organization: Intel Open Source Technology Center
+To: torvalds@osdl.org
+Subject: [GIT PATCH] ACPI for 2.6.18 -- partie trois
+Date: Sat, 1 Jul 2006 17:30:23 -0400
+User-Agent: KMail/1.8.2
+Cc: akpm@osdl.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200606230437.50845.len.brown@intel.com> <200606300220.39405.len.brown@intel.com>
+In-Reply-To: <200606300220.39405.len.brown@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060629013643.4b47e8bd.akpm@osdl.org>
-	 <4807377b0606291053g602f3413gb3a60d1432a62242@mail.gmail.com>
-	 <20060629120518.e47e73a9.akpm@osdl.org>
-	 <4807377b0606301653n68bee302t33c2cc28b8c5040@mail.gmail.com>
-	 <20060630171212.50630182.akpm@osdl.org>
-	 <4807377b0606301717t35d783cbgad6d67daeb163f5a@mail.gmail.com>
-	 <20060630175241.29c4323d.akpm@osdl.org>
+Message-Id: <200607011730.24361.len.brown@intel.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/30/06, Andrew Morton <akpm@osdl.org> wrote:
-> "Jesse Brandeburg" <jesse.brandeburg@gmail.com> wrote:
-> >
-> > >
-> > > I guess it has to be dying in timekeeping_init().  Have you tried
-> > > earlyprintk=vga or, better, earlyprintk=serial,ttyS0,9600?
-> >
-> > wish you would have said that earlier, i looked in
-> > kernel-parameters.txt and didn't find earlyprinkt when searching for
-> > debug :-(
->
-> sorry.
->
-> > two traces follow, one with the stock 2.6.17-mm4 kernel and the other
-> > with the bisect kernel.
-> >
-> >
-> > Linux version 2.6.17-mm4-jesse (root@lindenhurst-2.jf.intel.com) (gcc version 3.
-> > 4.4 20050721 (Red Hat 3.4.4-2)) #1 SMP Thu Jun 29 08:53:59 PDT 2006
-> > BIOS-provided physical RAM map:
-> >  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-> >  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-> >  BIOS-e820: 00000000000ebaf0 - 0000000000100000 (reserved)
-> >  BIOS-e820: 0000000000100000 - 000000005ffd0000 (usable)
-> >  BIOS-e820: 000000005ffd0000 - 000000005ffdf000 (ACPI data)
-> >  BIOS-e820: 000000005ffdf000 - 0000000060000000 (ACPI NVS)
-> >  BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
-> >  BIOS-e820: 00000000ffc00000 - 0000000100000000 (reserved)
-> > kernel direct mapping tables up to 100000000 @ 8000-d000
-> > DMI not present or invalid.
-> > No NUMA configuration found
-> > Faking a node at 0000000000000000-000000005ffd0000
-> > Bootmem setup node 0 0000000000000000-000000005ffd0000
-> > ACPI: PM-Timer IO Port: 0x408
-> > ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-> > Processor #0 15:3 APIC version 20
-> > ACPI: LAPIC (acpi_id[0x02] lapic_id[0x06] enabled)
-> > Processor #6 15:3 APIC version 20
-> > ACPI: LAPIC (acpi_id[0x03] lapic_id[0x01] enabled)
-> > Processor #1 15:3 APIC version 20
-> > ACPI: LAPIC (acpi_id[0x04] lapic_id[0x07] enabled)
-> > Processor #7 15:3 APIC version 20
-> > ACPI: IOAPIC (id[0x08] address[0xfec00000] gsi_base[0])
-> > IOAPIC[0]: apic_id 8, version 32, address 0xfec00000, GSI 0-23
-> > ACPI: IOAPIC (id[0x09] address[0xfec80000] gsi_base[24])
-> > IOAPIC[1]: apic_id 9, version 32, address 0xfec80000, GSI 24-47
-> > ACPI: IOAPIC (id[0x0a] address[0xfec80400] gsi_base[48])
-> > IOAPIC[2]: apic_id 10, version 32, address 0xfec80400, GSI 48-71
-> > ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-> > ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
-> > Setting APIC routing to flat
-> > ACPI: HPET id: 0x8086a202 base: 0xfed00000
-> > Using ACPI (MADT) for SMP configuration information
-> > Allocating PCI resources starting at 68000000 (gap: 60000000:80000000)
-> > Built 1 zonelists.  Total pages: 386918
-> > Kernel command line: ro root=LABEL=/1 rhgb hdc=none video=atyfb:1024x768M-32@70
-> > console=ttyS0,115200n8 console=tty1 panic=30 earlyprintk=serial,ttyS0,115200 ini
-> > tcall_debug debug
-> > ide_setup: hdc=none
-> > Initializing CPU#0
-> > PID hash table entries: 4096 (order: 12, 32768 bytes)
-> > time.c: Using 14.318180 MHz WALL HPET GTOD HPET/TSC timer.
-> > time.c: Detected 3600.267 MHz processor.
-> > Unable to handle kernel NULL pointer dereference at 0000000000000034 RIP:
-> >  [<ffffffff8103396a>] do_timer+0x40/0x556
-> > PGD 0
-> > Oops: 0000 [1] SMP
-> > last sysfs file:
-> > CPU 0
-> > Modules linked in:
-> > Pid: 0, comm: swapper Not tainted 2.6.17-mm4-jesse #1
-> > RIP: 0010:[<ffffffff8103396a>]  [<ffffffff8103396a>] do_timer+0x40/0x556
-> > RSP: 0018:ffffffff8130ce80  EFLAGS: 00010002
-> > RAX: 0000000000000000 RBX: 000000000036ef8b RCX: 0000005135618814
-> > RDX: 0000000000000000 RSI: 00000000001233fd RDI: ffffffff813adec8
-> > RBP: 0000000000000000 R08: 00000000fffffffe R09: 0000000000000000
-> > R10: 0000000000000000 R11: 0000000000000246 R12: 00000000000019fb
-> > R13: 0000000000000000 R14: ffffffff813adec8 R15: ffffffff813adec8
-> > FS:  0000000000000000(0000) GS:ffffffff813a0000(0000) knlGS:0000000000000000
-> > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> > CR2: 0000000000000034 CR3: 0000000001001000 CR4: 00000000000006a0
-> > Process swapper (pid: 0, threadinfo ffffffff813ac000, task ffffffff8128be00)
-> > Stack:  0000000000000000 0000000000000000 0000000000000001 0000000000000000
-> >  0000000000000000 000000000036ef8b 0000000000000000 00000000000019fb
-> >  0000000000000000 ffffffff813adec8 ffffffff813adec8 ffffffff8100d442
-> > Call Trace:
-> >  <IRQ> [<ffffffff8100d442>] main_timer_handler+0x1ed/0x3ad
-> >  [<ffffffff8100d614>] timer_interrupt+0x12/0x27
-> >  [<ffffffff8105076a>] handle_IRQ_event+0x29/0x5a
-> >  [<ffffffff81050837>] __do_IRQ+0x9c/0xfd
-> >  [<ffffffff8100bf27>] do_IRQ+0x63/0x71
-> >  [<ffffffff810098b8>] ret_from_intr+0x0/0xa
-> >  <EOI>
->
-> Right.  This kernel presumably has the shiny new stack unwinding code
-> enabled, so we didn't get half the backtrace (dammit).  Are you able to
-> recall whether the 2.6.17-mm4 build had CONFIG_UNWIND_INFO enabled?
+Hi Linus,
 
-it was in my original .config in this thread, CONFIG_UNWIND_INFO not defined.
+please pull from: 
 
-> > Code: 8b 4a 34 48 d3 e0 48 01 42 58 48 8b 2d b5 3b 31 00 4c 8b 6d
-> > RIP  [<ffffffff8103396a>] do_timer+0x40/0x556
-> >  RSP <ffffffff8130ce80>
-> > CR2: 0000000000000034
-> >  <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
-> >
-> > and with the bisect kernel, slightly different
-> > Bootdata ok (command line is ro root=LABEL=/1 rhgb hdc=none video=atyfb:1024x768
-> > M-32@70 console=ttyS0,115200n8 console=tty1 panic=30 earlyprintk=serial,ttyS0,11
-> > 5200 initcall_debug debug)
-> > Linux version 2.6.17-bisect (root@lindenhurst-2.jf.intel.com) (gcc version 3.4.4
-> >  20050721 (Red Hat 3.4.4-2)) #15 SMP Fri Jun 30 16:09:50 PDT 2006
-> > BIOS-provided physical RAM map:
-> >  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-> >  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-> >  BIOS-e820: 00000000000ebaf0 - 0000000000100000 (reserved)
-> >  BIOS-e820: 0000000000100000 - 000000005ffd0000 (usable)
-> >  BIOS-e820: 000000005ffd0000 - 000000005ffdf000 (ACPI data)
-> >  BIOS-e820: 000000005ffdf000 - 0000000060000000 (ACPI NVS)
-> >  BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
-> >  BIOS-e820: 00000000ffc00000 - 0000000100000000 (reserved)
-> > kernel direct mapping tables up to 100000000 @ 8000-8000
-> > DMI not present or invalid.
-> > ACPI: PM-Timer IO Port: 0x408
-> > ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-> > Processor #0 15:3 APIC version 20
-> > ACPI: LAPIC (acpi_id[0x02] lapic_id[0x06] enabled)
-> > Processor #6 15:3 APIC version 20
-> > ACPI: LAPIC (acpi_id[0x03] lapic_id[0x01] enabled)
-> > Processor #1 15:3 APIC version 20
-> > ACPI: LAPIC (acpi_id[0x04] lapic_id[0x07] enabled)
-> > Processor #7 15:3 APIC version 20
-> > ACPI: IOAPIC (id[0x08] address[0xfec00000] gsi_base[0])
-> > IOAPIC[0]: apic_id 8, version 32, address 0xfec00000, GSI 0-23
-> > ACPI: IOAPIC (id[0x09] address[0xfec80000] gsi_base[24])
-> > IOAPIC[1]: apic_id 9, version 32, address 0xfec80000, GSI 24-47
-> > ACPI: IOAPIC (id[0x0a] address[0xfec80400] gsi_base[48])
-> > IOAPIC[2]: apic_id 10, version 32, address 0xfec80400, GSI 48-71
-> > ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-> > ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
-> > Setting APIC routing to flat
-> > ACPI: HPET id: 0x8086a202 base: 0xfed00000
-> > Using ACPI (MADT) for SMP configuration information
-> > Allocating PCI resources starting at 68000000 (gap: 60000000:80000000)
-> > Checking aperture...
-> > Built 1 zonelists.  Total pages: 385592
-> > Kernel command line: ro root=LABEL=/1 rhgb hdc=none video=atyfb:1024x768M-32@70
-> > console=ttyS0,115200n8 console=tty1 panic=30 earlyprintk=serial,ttyS0,115200 ini
-> > tcall_debug debug
-> > ide_setup: hdc=none
-> > Initializing CPU#0
-> > PID hash table entries: 4096 (order: 12, 32768 bytes)
-> > time.c: Using 14.318180 MHz WALL HPET GTOD HPET/TSC timer.
-> > time.c: Detected 3600.266 MHz processor.
-> > Unable to handle kernel NULL pointer dereference at 0000000000000020 RIP:
-> > <ffffffff80236e71>{do_timer+49}
-> > PGD 0
-> > Oops: 0000 [1] SMP
-> > CPU 0
-> > Modules linked in:
-> > Pid: 0, comm: swapper Not tainted 2.6.17-bisect #15
-> > RIP: 0010:[<ffffffff80236e71>] <ffffffff80236e71>{do_timer+49}
-> > RSP: 0018:ffffffff80564e98  EFLAGS: 00010002
-> > RAX: 0000000000000000 RBX: 000000000036ef8a RCX: 00000064e38a4032
-> > RDX: 0000000000000000 RSI: 00000000001233fe RDI: ffffffff805f3e48
-> > RBP: ffffffff80564eb8 R08: 0000000000000036 R09: 0000000000000000
-> > R10: ffffffff805f3e70 R11: 0000000000000000 R12: 0000000000000000
-> > R13: 00000000000019fa R14: 0000000000000001 R15: ffffffff805f3e48
-> > FS:  0000000000000000(0000) GS:ffffffff805e5000(0000) knlGS:0000000000000000
-> > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> > CR2: 0000000000000020 CR3: 0000000000201000 CR4: 00000000000006a0
-> > Process swapper (pid: 0, threadinfo ffffffff805f2000, task ffffffff804adb00)
-> > Stack: 000000000036ef8a 0000000000000000 00000000000019fa 0000000000000000
-> >        ffffffff80564ef8 ffffffff8020e1c3 0000000000000000 ffffffff804afb00
-> >        0000000000000000 ffffffff805f3e48
-> > Call Trace: <IRQ> <ffffffff8020e1c3>{main_timer_handler+547}
-> >        <ffffffff8020e445>{timer_interrupt+21} <ffffffff802569e3>{handle_IRQ_even
-> > t+51}
-> >        <ffffffff80256ae2>{__do_IRQ+178} <ffffffff8020cd65>{do_IRQ+69}
-> >        <ffffffff8020a1aa>{ret_from_intr+0} <EOI> <ffffffff8043f7b3>{_spin_unlock
-> > _irqrestore+19}
-> >        <ffffffff80256e8e>{setup_irq+222} <ffffffff805fc33e>{time_init+990}
-> >        <ffffffff805f577a>{start_kernel+250} <ffffffff805f5295>{_sinittext+661}
-> >
-> > Code: ff 50 20 4c 8b 2d 3d 2b 36 00 48 8b 15 3e 2b 36 00 49 89 c4
-> > RIP <ffffffff80236e71>{do_timer+49} RSP <ffffffff80564e98>
-> > CR2: 0000000000000020
-> >  <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
->
-> And this is the traditional backtrace which is actually useful.
->
-> You've hit about seventeen bugs all at the same time here :(
+git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git release
 
-:-) just trying to help.
+This adds a "Smart Battery" support for systems that  do not have the
+newer "ACPI Control Method" battery that Linux already supports.
+The ACPI_SBS is marked EXPERIMENTAL because it is new to upstream.
 
->
-> - There's something wrong in do_timer().  Everything's been inlined so
->   it's hard to tell where it oopsed.  If you're able to build with
->   CONFIG_DEBUG_INFO and do
->
->         gdb vmlinux
->         (gdb) l *0xNNNNNNNNN
->
->   where NNNNNNNN is the oopsing RIP address then it'll tell us the
->   file-n-line.
+This updates the acpi_asus driver to 0.30 -- a version that at least one distro
+is shipping already.
 
-this is from a kernel one build later (one that works)
-(gdb) l *0xffffffff80236e71
-0xffffffff80236e71 is in do_timer (include/linux/clocksource.h:128).
-123      *
-124      * Uses the clocksource to return the current cycle_t value
-125      */
-126     static inline cycle_t read_clocksource(struct clocksource *cs)
-127     {
-128             return cs->read();
-129     }
-130
-131     /**
-132      * cyc2ns - converts clocksource cycles to nanoseconds
+Plus some misc cleanups, and a couple of workarounds for broken BIOS.
 
-> - Somebody enabled local interrupts.  The early boot code is _supposed_ to
->   hold interrupts off until start_kernel() does local_irq_eanble().  But we do
->   heaps of things which make that unreliable.
->
->   We don't know where this happened, and fixing that might make the oops go
->   away.
->
-> <thinks some more>
->
-> I suspect that either local interrupts were enabled before you entered
-> time_init(), or something under time_init() went and enabled interrupts, and
-> the kernel will crash if it takes a timer interrupt before timekeeping_init()
-> has run.
->
-> As an experiment, try adding a local_irq_disable() in start_kernel(), just
-> before it calls time_init().
+thanks!
 
-see the other message where reordering the time_init seemed to fix the
-issue.  But to answer your question, local_irq_disable() before
-time_init also fixes it.
+-Len
 
-diff --git a/init/main.c b/init/main.c
-index 9a970d3..3768c80 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -489,6 +489,7 @@ asmlinkage void __init start_kernel(void
-        init_timers();
-        hrtimers_init();
-        softirq_init();
-+       local_irq_disable();
-        time_init();
-        timekeeping_init();
+ps. a plain patch is also available here:
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.17/acpi-release-20060623-2.6.17.diff.gz
 
+ arch/ia64/kernel/acpi-ext.c       |    2 
+ arch/ia64/kernel/acpi.c           |   12 
+ drivers/acpi/Kconfig              |   12 
+ drivers/acpi/Makefile             |    2 
+ drivers/acpi/ac.c                 |   32 
+ drivers/acpi/acpi_memhotplug.c    |   18 
+ drivers/acpi/asus_acpi.c          |  335 +++-
+ drivers/acpi/battery.c            |   46 
+ drivers/acpi/button.c             |   10 
+ drivers/acpi/cm_sbs.c             |  131 +
+ drivers/acpi/container.c          |    2 
+ drivers/acpi/fan.c                |   10 
+ drivers/acpi/glue.c               |    8 
+ drivers/acpi/i2c_ec.c             |  406 +++++
+ drivers/acpi/i2c_ec.h             |   23 
+ drivers/acpi/namespace/nsxfeval.c |    2 
+ drivers/acpi/numa.c               |    4 
+ drivers/acpi/osl.c                |    9 
+ drivers/acpi/pci_link.c           |   15 
+ drivers/acpi/pci_root.c           |   20 
+ drivers/acpi/power.c              |   22 
+ drivers/acpi/processor_idle.c     |    2 
+ drivers/acpi/processor_perflib.c  |    6 
+ drivers/acpi/sbs.c                | 1766 ++++++++++++++++++++++++++
+ drivers/acpi/scan.c               |    4 
+ drivers/acpi/system.c             |    4 
+ drivers/acpi/thermal.c            |   57 
+ drivers/acpi/utilities/utalloc.c  |    4 
+ drivers/acpi/utilities/utcache.c  |    2 
+ drivers/acpi/utils.c              |    4 
+ drivers/acpi/video.c              |   76 -
+ include/acpi/acmacros.h           |    2 
+ include/acpi/acpiosxf.h           |    2 
+ 33 files changed, 2732 insertions(+), 318 deletions(-)
 
+through these commits:
 
-> This stuff really really sucks.
->
-> One guess would be that something under time_init()->setup_irq() is enabling
-> interrupts.  You could sprinkle
->
->         if (!irqs_disabled() printk("%s:%d: BAD", __FILE__, __LINE__);
->
-> throughout kernel/irq/manage.c:setup_irq().
-time.c: Using 14.318180 MHz WALL HPET GTOD HPET/TSC timer.
-time.c: Detected 3600.281 MHz processor.
-kernel/irq/manage.c:188: BAD bc irqs_enabled
-kernel/irq/manage.c:204: BAD bc irqs_enabled
-Unable to handle kernel NULL pointer dereference at 0000000000000020 RIP:
-<ffffffff80236e71>{do_timer+49}
+Christian Lupien:
+      ACPI: handle AC notify event on broken BIOS
 
- here is the diff that printed the above
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index 1279e34..4a5b895 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -185,6 +185,7 @@ int setup_irq(unsigned int irq, struct i
-         * so we have to be careful not to interfere with a
-         * running system.
-         */
-+       if (!irqs_disabled()) printk("%s:%d: BAD bc irqs_enabled\n",
-__FILE__, __LINE__);
-        if (new->flags & SA_SAMPLE_RANDOM) {
-                /*
-                 * This function might sleep, we want to call it first,
-@@ -200,6 +201,7 @@ int setup_irq(unsigned int irq, struct i
-        /*
-         * The following block of code has to be executed atomically
-         */
-+       if (!irqs_disabled()) printk("%s:%d: BAD bc irqs_enabled\n",
-__FILE__, __LINE__);
-        spin_lock_irqsave(&desc->lock,flags);
-        p = &desc->action;
-        if ((old = *p) != NULL) {
+Karol Kozimor:
+      ACPI: asus_acpi: misc cleanups
+      ACPI: asus_acpi: support A3G
+      ACPI: asus_acpi: LED display support
+      ACPI: asus_acpi: support W3400N
+      ACPI: asus_acpi: support A4G
+      ACPI: asus_acpi: handle internal Bluetooth / support W5A
+      ACPI: asus_acpi: support L5D
+      ACPI: asus_acpi: rework model detection
+      ACPI: asus_acpi: add S1N WLED control
+      ACPI: asus_acpi: add S1N WLED control
+      ACPI: asus_acpi: correct M6N/M6R display nodes
 
-> Boy we've made a mess in there.
+Len Brown:
+      ACPI: delete acpi_os_free(), use kfree() directly
+      ACPI: remove function tracing macros from drivers/acpi/*.c
 
-hm, let me know if I can get you more info.
+Patrick Mochel:
+      ACPI: ac: Add struct acpi_device to struct acpi_ac.
+      ACPI: acpi_memhotplug: add struct acpi_device to struct acpi_memory_device.
+      ACPI: battery: add struct acpi_device to struct acpi_battery.
+      ACPI: fan: add struct acpi_device to struct acpi_fan.
+      ACPI: pci root: add struct acpi_device to struct acpi_pci_root.
+      ACPI: thermal: add struct acpi_device to struct acpi_thermal.
+      ACPI: power: add struct acpi_device to struct acpi_power_resource
+      ACPI: video: add struct acpi_device to struct acpi_video_bus.
+      ACPI: ac: Use acpi_device's handle instead of driver's
+      ACPI: acpi_memhotplug: Use acpi_device's handle instead of driver's
+      ACPI: battery: Use acpi_device's handle instead of driver's
+      ACPI: button: Use acpi_device's handle instead of driver's
+      ACPI: fan: Use acpi_device's handle instead of driver's
+      ACPI: pci_link: Use acpi_device's handle instead of driver's
+      ACPI: pci_root: Use acpi_device's handle instead of driver's
+      ACPI: power: Use acpi_device's handle instead of driver's
+      ACPI: thermal: Use acpi_device's handle instead of driver's
+      ACPI: video: Use acpi_device's handle instead of driver's
+      ACPI: ac: Remove unneeded acpi_handle from driver.
+      ACPI: acpi_memhotplug: Remove unneeded acpi_handle from driver.
+      ACPI: battery: Remove unneeded acpi_handle from driver.
+      ACPI: button: Remove unneeded acpi_handle from driver.
+      ACPI: fan: Remove unneeded acpi_handle from driver.
+      ACPI: pci_link: Remove unneeded acpi_handle from driver.
+      ACPI: pci_root: Remove unneeded acpi_handle from driver.
+      ACPI: power: Remove unneeded acpi_handle from driver.
+      ACPI: thermal: Remove unneeded acpi_handle from driver.
+      ACPI: video: Remove unneeded acpi_handle from driver.
+
+Rich Townsend:
+      ACPI: add support for Smart Battery
+
+Vladimir Lebedev:
+      ACPI: handle battery notify event on broken BIOS
+
+with this log:
+
+commit 309b0f125a22ee34c8f6962677255f7bf6af5e3d
+Merge: d0e5f39... 635227e...
+Author: Len Brown <len.brown@intel.com>
+Date:   Sat Jul 1 17:21:39 2006 -0400
+
+    Pull smart-battery into release branch
+
+commit d0e5f39f1ee2e55d140064bb6d74c8bad25d71d0
+Merge: 361ea93... 9fdae72...
+Author: Len Brown <len.brown@intel.com>
+Date:   Sat Jul 1 17:21:26 2006 -0400
+
+    Pull bugzilla-3241 into release branch
+
+commit 361ea93cbff0e42cbc6a0f3c7a8238db9ed15648
+Merge: 5f765b8... 9becf5b...
+Author: Len Brown <len.brown@intel.com>
+Date:   Sat Jul 1 17:20:40 2006 -0400
+
+    Pull asus_acpi-0.30 into release branch
+
+commit 5f765b8d68fe99c8a575265d81c62382893e1e8a
+Merge: b197ba3... d07a857...
+Author: Len Brown <len.brown@intel.com>
+Date:   Sat Jul 1 17:19:34 2006 -0400
+
+    Pull acpi_device_handle_cleanup into release branch
+
+commit b197ba3c70638a3a2ae39296781912f26ac0f991
+Merge: fc25465... 02438d8...
+Author: Len Brown <len.brown@intel.com>
+Date:   Sat Jul 1 17:19:08 2006 -0400
+
+    Pull acpi_os_free into release branch
+
+commit 635227ee89929a6e2920fc8aa1cd48f7225d3d93
+Author: Len Brown <len.brown@intel.com>
+Date:   Sat Jul 1 16:48:23 2006 -0400
+
+    ACPI: remove function tracing macros from drivers/acpi/*.c
+    
+    a few invocations appeared due to the SBS and other patches.
+    
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 3f86b83243d59bb50caf5938d284d22e10d082a4
+Author: Rich Townsend <rhdt@bartol.udel.edu>
+Date:   Sat Jul 1 11:36:54 2006 -0400
+
+    ACPI: add support for Smart Battery
+    
+    Most batteries today are ACPI "Control Method" batteries,
+    but some models ship with the older "Smart Battery"
+    that requires this code.
+    
+    Rich Townsend and Bruno Ducrot were the original authors.
+    Vladimir Lebedev updated to run on latest kernel.
+    
+    http://bugzilla.kernel.org/show_bug.cgi?id=3734
+    
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 9becf5b91ec7b600a3cfea12724165aaaf4d4527
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:15:00 2006 -0400
+
+    ACPI: asus_acpi: correct M6N/M6R display nodes
+    
+    This patch switches back the display nodes for M6R and M6N -- this happened
+    a while ago when a patch was misapplied (only the in-tree version was
+    affected).
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 9fdae727645215d4dbb88912b9a176ef87911a05
+Author: Vladimir Lebedev <vladimir.p.lebedev@intel.com>
+Date:   Tue Jun 27 04:49:00 2006 -0400
+
+    ACPI: handle battery notify event on broken BIOS
+    
+    http://bugzilla.kernel.org/show_bug.cgi?id=3241
+    
+    Signed-off-by: Vladimir Lebedev <vladimir.p.lebedev@intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 03d782524e2d0511317769521c8d5daadbab8482
+Author: Christian Lupien <lupien@physique.usherbrooke.ca>
+Date:   Thu Aug 19 01:26:00 2004 -0400
+
+    ACPI: handle AC notify event on broken BIOS
+    
+    http://bugzilla.kernel.org/show_bug.cgi?id=3241
+    
+    updated by Vladimir Lebedev
+    
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 37672d4c5263d54ee4302f55242f6fd5317b0f9f
+Merge: b2f71ba... 2df8386...
+Author: Len Brown <len.brown@intel.com>
+Date:   Sat Jul 1 11:06:01 2006 -0400
+
+    Pull asus_acpi-0.30 into release branch
+
+commit b2f71bade430d468398167d696731bf770de2db8
+Merge: ba290ab... d07a857...
+Author: Len Brown <len.brown@intel.com>
+Date:   Sat Jul 1 11:05:19 2006 -0400
+
+    Pull acpi_device_handle_cleanup into release branch
+
+commit 2df8386cec47520b76822cb39d96709f5d353cf8
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:15:00 2006 -0400
+
+    ACPI: asus_acpi: add S1N WLED control
+    
+    This patch switches back the display nodes for M6R and M6N -- this happened
+    a while ago when a patch was misapplied (only the in-tree version was
+    affected).
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 96d1142084281ae4601fab02be061e1267e431a3
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:13:00 2006 -0400
+
+    ACPI: asus_acpi: add S1N WLED control
+    
+    This small patch adds back WLED control for S1N models, this was
+    accidentally removed a while ago.
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit ffab0d9507dc527ff6d704ec5e7e7ccfee119fb1
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:11:00 2006 -0400
+
+    ACPI: asus_acpi: rework model detection
+    
+    This patch reworks laptop model detection.
+    
+    This addresses the Samsung P30 issue, where the INIT method would return no
+    object, but the implicit return in the AML interpreter would confuse the
+    driver. It also accounts for a newer batch of Asus models whose INIT
+    returns ACPI_TYPE_BUFFER instead of STRING.
+    
+    The handling is now much leaner, if we get a buffer or a string, we check
+    against known values, in every other case we use a different path
+    (currently DSDT signatures). The bulk of this patch is separating the
+    string matching from asus_hotk_get_info() into a separate function.
+    
+    This patch properly fixes http://bugme.osdl.org/show_bug.cgi?id=5067 and
+    http://bugme.osdl.org/show_bug.cgi?id=5092 and makes the driver fully
+    functional again with acpi=strict on all machines.
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit ebccb84810729f0e86a83a65681ba2de45ff84d8
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:08:00 2006 -0400
+
+    ACPI: asus_acpi: support L5D
+    
+    This patch adds support for Asus L5D and thus fixes
+    http://bugme.osdl.org/show_bug.cgi?id=4695
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit e067aaa7612c273d4bfd70d1bd8d80313a57685c
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:07:00 2006 -0400
+
+    ACPI: asus_acpi: handle internal Bluetooth / support W5A
+    
+    This patch creates a new file named "bluetooth" under /proc/acpi/asus/.
+    This file controls both the internal Bluetooth adapter's presence on the
+    USB bus and the associated LED.
+    
+    echo 1 > /proc/acpi/asus/bluetooth to enable, 0 to disable.
+    
+    Additionally, the patch add support for Asus W5A, the first model that uses
+    this feature.
+    
+    Patch originally by Fernando A. P. Gomes.
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit f78c589d108f4b06a012817536c9ced37f473eae
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:06:00 2006 -0400
+
+    ACPI: asus_acpi: support A4G
+    
+    This patch adds support for Asus A4G.
+    Originally by Giuseppe Rota.
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit c067a7899790ed4c03b00ed186c6e3b6a3964379
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:05:00 2006 -0400
+
+    ACPI: asus_acpi: support W3400N
+    
+    This patch adds support for Asus W3400N.
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 42cb891295795ed9b3048c8922d93f7a71f63968
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:04:00 2006 -0400
+
+    ACPI: asus_acpi: LED display support
+    
+    This patch adds handling for front LED displays found on W1N and the like.
+    Additionally, W1N is given its own model_data instance.
+    
+    Patch originally by Éric Burghard.
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit ed2cb07b2bb04f14793cdeecb0b384374e979525
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:03:00 2006 -0400
+
+    ACPI: asus_acpi: support A3G
+    
+    This patch adds support for Asus A3G.
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit a170a5317c0298538deb170028376ec1631acc2f
+Author: Karol Kozimor <sziwan@hell.org.pl>
+Date:   Fri Jun 30 19:03:00 2006 -0400
+
+    ACPI: asus_acpi: misc cleanups
+    
+    This patch updates the version string, copyright notices and does
+    whitespace cleanup (it looks weird, blame Lindent).
+    
+    Signed-off-by: Karol Kozimor <sziwan@hell.org.pl>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit ba290ab7dace8b3339c0cc86c221d48eed21e956
+Merge: 9262e91... 02438d8...
+Author: Len Brown <len.brown@intel.com>
+Date:   Fri Jun 30 20:07:01 2006 -0400
+
+    Pull kmalloc into release branch
+
+commit 02438d8771ae6a4b215938959827692026380bf9
+Author: Len Brown <len.brown@intel.com>
+Date:   Fri Jun 30 03:19:10 2006 -0400
+
+    ACPI: delete acpi_os_free(), use kfree() directly
+    
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit d07a8577f695c807977af003b6e75f996e01a15f
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:52 2006 -0400
+
+    ACPI: video: Remove unneeded acpi_handle from driver.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 8a4444bf5a3fd890441e6cbd5022a3c24edbe69a
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:51 2006 -0400
+
+    ACPI: thermal: Remove unneeded acpi_handle from driver.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 14747204055d4b8fb2f8517beca91985ac617c17
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:51 2006 -0400
+
+    ACPI: power: Remove unneeded acpi_handle from driver.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 432bfaba7d4e70483fc5af164e020066f4921bff
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:51 2006 -0400
+
+    ACPI: pci_root: Remove unneeded acpi_handle from driver.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit e0e4e117d4c898b0df749d5b88c86955151abf53
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:50 2006 -0400
+
+    ACPI: pci_link: Remove unneeded acpi_handle from driver.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 579c896cc91434e4feb938f780eba580c93fa0da
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:50 2006 -0400
+
+    ACPI: fan: Remove unneeded acpi_handle from driver.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 6c689537726ec665246d2f60c48475be2efac2d0
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:50 2006 -0400
+
+    ACPI: button: Remove unneeded acpi_handle from driver.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 39cb61e26771891f843cb433ee6febd9159bce73
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:49 2006 -0400
+
+    ACPI: battery: Remove unneeded acpi_handle from driver.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 9453ece92688fedd7755d2ea54b2efe88822a91b
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:49 2006 -0400
+
+    ACPI: acpi_memhotplug: Remove unneeded acpi_handle from driver.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 1b5b8b81bddd1c5dcf690f43422e20b0e964c349
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:49 2006 -0400
+
+    ACPI: ac: Remove unneeded acpi_handle from driver.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 901302688cb85b49a9551ec1f6aa86fb081ae49e
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:48 2006 -0400
+
+    ACPI: video: Use acpi_device's handle instead of driver's
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 38ba7c9ed2e1a222103332031f76c28b726573f5
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:48 2006 -0400
+
+    ACPI: thermal: Use acpi_device's handle instead of driver's
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 5fbc19efdbedf9c9125774f66f80d6a6ccce4566
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:43 2006 -0400
+
+    ACPI: power: Use acpi_device's handle instead of driver's
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 2d1e0a02f16f84c2358843d91d6ca0131a0587ce
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:43 2006 -0400
+
+    ACPI: pci_root: Use acpi_device's handle instead of driver's
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 67a7136573b24a0d1f85a4aab131558a02910d25
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:42 2006 -0400
+
+    ACPI: pci_link: Use acpi_device's handle instead of driver's
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit dc8c2b2744f8563aa5feb07488e4cc207a70ac70
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:42 2006 -0400
+
+    ACPI: fan: Use acpi_device's handle instead of driver's
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 27b1d3e85b1dfd9037d3fbb98b2e2aacca01da39
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:42 2006 -0400
+
+    ACPI: button: Use acpi_device's handle instead of driver's
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 3b073ec3667ee63e35b66752a30eeedef1e1e772
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:41 2006 -0400
+
+    ACPI: battery: Use acpi_device's handle instead of driver's
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit b863278523f7adbacb9e34133f4b6397cdab9977
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:41 2006 -0400
+
+    ACPI: acpi_memhotplug: Use acpi_device's handle instead of driver's
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit a6ba5ebef91a59fabd45962e576c02468dbcd33f
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:41 2006 -0400
+
+    ACPI: ac: Use acpi_device's handle instead of driver's
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit e6afa0de1476290a876dfd1237a97cce7735581c
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:40 2006 -0400
+
+    ACPI: video: add struct acpi_device to struct acpi_video_bus.
+    
+    - Use it instead of acpi_bus_get_device() in acpi_video_bus_notify()
+      and use the one from struct acpi_video_device in
+      acpi_video_device_notify().
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 415985728895ba3127116bc4f999caf94420ed85
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:40 2006 -0400
+
+    ACPI: power: add struct acpi_device to struct acpi_power_resource
+    
+    - Use it instead of acpi_bus_get_device() where we can..
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 8348e1b19a06b1932f65e84e1d59be29e1626c2b
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:40 2006 -0400
+
+    ACPI: thermal: add struct acpi_device to struct acpi_thermal.
+    
+    - Use it instead of acpi_bus_get_device() where we can..
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 32917e5b589d813c9dc0f2d140d8c52898ddb6fb
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:39 2006 -0400
+
+    ACPI: pci root: add struct acpi_device to struct acpi_pci_root.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 74b142e0fe039fcde42030c064763577e11ca004
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:39 2006 -0400
+
+    ACPI: fan: add struct acpi_device to struct acpi_fan.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 145def84a177c01cf3cc6cfbb67a029f39a8ac35
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:39 2006 -0400
+
+    ACPI: battery: add struct acpi_device to struct acpi_battery.
+    
+    - Use it instead of acpi_bus_get_device()..
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 3b74863df5d46f794052b5ee010cfc8fd66819dd
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:38 2006 -0400
+
+    ACPI: acpi_memhotplug: add struct acpi_device to struct acpi_memory_device.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit af96179a8298832cc58be212d0e4988d8a1e11bf
+Author: Patrick Mochel <mochel@linux.intel.com>
+Date:   Fri May 19 16:54:32 2006 -0400
+
+    ACPI: ac: Add struct acpi_device to struct acpi_ac.
+    
+    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>

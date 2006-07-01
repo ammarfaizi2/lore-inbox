@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWGADhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751879AbWGAAco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWGADhu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 23:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWGADhu
+	id S1751879AbWGAAco (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 20:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751883AbWGAAco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 23:37:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9703 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932250AbWGADht (ORCPT
+	Fri, 30 Jun 2006 20:32:44 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:20426 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751879AbWGAAcn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 23:37:49 -0400
-Date: Fri, 30 Jun 2006 20:34:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] kernel/sysctl.c: EXPORT_UNUSED_SYMBOL
-Message-Id: <20060630203436.5728ea86.akpm@osdl.org>
-In-Reply-To: <20060630113141.GK19712@stusta.de>
-References: <20060630113141.GK19712@stusta.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 Jun 2006 20:32:43 -0400
+Message-ID: <44A5C2A9.8070709@garzik.org>
+Date: Fri, 30 Jun 2006 20:32:41 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: akpm@osdl.org, linux@dominikbrodowski.net,
+       Netdev List <netdev@vger.kernel.org>
+Subject: Re: [PATCH] com20020_cs: more device support
+References: <200607010001.k6101HI9009640@hera.kernel.org>
+In-Reply-To: <200607010001.k6101HI9009640@hera.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jun 2006 13:31:41 +0200
-Adrian Bunk <bunk@stusta.de> wrote:
+For the nth time, drivers/net patches should at least be CC'd to netdev 
+and me.
 
-> --- linux-2.6.17-mm4-full/kernel/sysctl.c.old	2006-06-30 02:34:13.000000000 +0200
-> +++ linux-2.6.17-mm4-full/kernel/sysctl.c	2006-06-30 02:34:39.000000000 +0200
-> @@ -2746,7 +2746,7 @@
->  EXPORT_SYMBOL(proc_dointvec);
->  EXPORT_SYMBOL(proc_dointvec_jiffies);
->  EXPORT_SYMBOL(proc_dointvec_minmax);
-> -EXPORT_SYMBOL(proc_dointvec_userhz_jiffies);
-> +EXPORT_UNUSED_SYMBOL(proc_dointvec_userhz_jiffies);  /*  June 2006  */
->  EXPORT_SYMBOL(proc_dointvec_ms_jiffies);
->  EXPORT_SYMBOL(proc_dostring);
->  EXPORT_SYMBOL(proc_doulongvec_minmax);
+	Jeff
 
-That export is integral to this API.  Please drop.
+
+

@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbWGAJmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932848AbWGARdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932603AbWGAJmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 05:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWGAJmJ
+	id S932848AbWGARdY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 13:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932855AbWGARdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 05:42:09 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:38160 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932603AbWGAJmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 05:42:08 -0400
-Date: Sat, 1 Jul 2006 11:42:06 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Theodore Tso <tytso@mit.edu>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Proposal and plan for ext2/3 future development work
-Message-ID: <20060701094206.GA17588@stusta.de>
-References: <E1Fvjsh-0008Uw-85@candygram.thunk.org> <p73sllnvsej.fsf@verdi.suse.de> <20060630151432.GA21675@thunk.org>
+	Sat, 1 Jul 2006 13:33:24 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:38879 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932848AbWGARdX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 13:33:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jm+GC/2z4KiDIcH2PpEHZuC/xUTFC6UWhAG13FmALVpdqG97JswyiSCjN9WnDKxWMyk3TO7BFhwX6nGzt7oy1mQD7Ff6kxBZ8Qxz/F04z0W6OAbV8l/xBXStHBe15aKqK2sCaii9qiEmFZ0/Ytqt+tO7+LpLW6eMbQoYZtnkZTc=
+Message-ID: <4807377b0607011033s3e329d7cy1081fb6c8be41e9b@mail.gmail.com>
+Date: Sat, 1 Jul 2006 10:33:22 -0700
+From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
+To: "john stultz" <johnstul@us.ibm.com>
+Subject: Re: 2.6.17-mm4
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1151713862.16221.2.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060630151432.GA21675@thunk.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <20060629013643.4b47e8bd.akpm@osdl.org>
+	 <4807377b0606291053g602f3413gb3a60d1432a62242@mail.gmail.com>
+	 <20060629120518.e47e73a9.akpm@osdl.org>
+	 <4807377b0606301653n68bee302t33c2cc28b8c5040@mail.gmail.com>
+	 <20060630171212.50630182.akpm@osdl.org>
+	 <4807377b0606301717t35d783cbgad6d67daeb163f5a@mail.gmail.com>
+	 <1151713862.16221.2.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 30, 2006 at 11:14:32AM -0400, Theodore Tso wrote:
-> On Fri, Jun 30, 2006 at 12:39:48PM +0200, Andi Kleen wrote:
-> > "Theodore Ts'o" <tytso@mit.edu> writes:
-> > > 
-> > > 1) The creation of a new filesystem codebase in the 2.6 kernel tree in
-> > > /usr/src/linux/fs/ext4 that will initially register itself as the
-> > > "ext3dev" 
-> > 
-> > Why not call it ext4 from the beginning too? Calling the directory
-> > differently from the file system can only cause confusion.
-> > 
-> > I assume if it's marked very experimental people who value their data
-> > will avoid it for the time being.
-> 
-> There were a lot of people who were concerned that simply marking it
-> CONFIG_EXPERIMENTAL might not be enough for to make it very clear that
-> the filesystem format is still changing.  In order to address this
-> concern, we want /etc/fstab to make it abundantly clear that the
-> filesystem format itself is not necessarily stable, and that new
-> features are being added that might not be supported on older
-> kernels.
->...
+On 6/30/06, john stultz <johnstul@us.ibm.com> wrote:
+> >  <IRQ> [<ffffffff8100d442>] main_timer_handler+0x1ed/0x3ad
+> >  [<ffffffff8100d614>] timer_interrupt+0x12/0x27
+> >  [<ffffffff8105076a>] handle_IRQ_event+0x29/0x5a
+> >  [<ffffffff81050837>] __do_IRQ+0x9c/0xfd
+> >  [<ffffffff8100bf27>] do_IRQ+0x63/0x71
+> >  [<ffffffff810098b8>] ret_from_intr+0x0/0xa
+> >  <EOI>
+>
+> Hmmm. From that trace I suspect something is enabling interrupts (likely
+> in time_init) before timekeeping_init() has chosen the clocksource.
+>
+> Does the following workaround the issue?
+>
+> thanks
+> -john
+>
+> diff --git a/init/main.c b/init/main.c
+> index ae04eb7..41adc97 100644
+> --- a/init/main.c
+> +++ b/init/main.c
+> @@ -497,8 +497,8 @@ asmlinkage void __init start_kernel(void
+>         init_timers();
+>         hrtimers_init();
+>         softirq_init();
+> -       time_init();
+>         timekeeping_init();
+> +       time_init();
+>
+>         /*
+>          * HACK ALERT! This is early. We're enabling the console before
+>
 
-What about a dependency on CONFIG_BROKEN?
-
-This will require everyone who wants to use it to manually edit the 
-Kconfig file for removing the dependency - which sounds like a good 
-idea.
-
-> 							- Ted
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Yes it works, the previously failing bisect kernel boots with this
+change. I'll take a look through andrew's suggestions next.

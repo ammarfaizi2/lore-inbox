@@ -1,84 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWGAX3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWGAXer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWGAX3z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 19:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWGAX3z
+	id S932092AbWGAXer (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 19:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWGAXer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 19:29:55 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:24257 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932085AbWGAX3y (ORCPT
-	<rfc822;linux-kernel@VGER.KERNEL.ORG>);
-	Sat, 1 Jul 2006 19:29:54 -0400
-Date: Sat, 1 Jul 2006 07:45:35 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: marcelo@kvack.org
-Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
-       Vasily Averin <vvs@sw.ru>, Andrey Savochkin <saw@sawoct.com>,
-       Dmitry Monakhov <dmonakhov@sw.ru>, Roberto Nibali <ratz@drugphish.ch>
-Subject: [PATCH-2.4] EXT3: ext3 block bitmap leakage
-Message-ID: <20060701054535.GA1459@1wt.eu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 1 Jul 2006 19:34:47 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:17145 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932092AbWGAXeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 19:34:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FXq/PbhrlgKizGv8VsJKnja0um5YRIJSNRlSEBy5iR0OmzcyWHfBJwnyA0fuznycuK1Vjmmz3jsjqABzEgYdy7sp8eOvGfORisZ3QI71iE5jlhR4dXJvEYY8Psopq6N2bVZPo2n1LembDsnXTfDWF0XDtvjfXQd14XQuz93rkuI=
+Message-ID: <a44ae5cd0607011634q35855478j12e84e77850461a7@mail.gmail.com>
+Date: Sat, 1 Jul 2006 16:34:37 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Subject: Re: 2.6.17-mm5 -- Busted toolchain? -- usr/klibc/exec_l.c:59: undefined reference to `__stack_chk_fail'
+Cc: "Arjan van de Ven" <arjan@infradead.org>, "Andrew Morton" <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <20060701230635.GA19114@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+References: <a44ae5cd0607011409m720dd23dvf178a133c2060b6d@mail.gmail.com>
+	 <1151788673.3195.58.camel@laptopd505.fenrus.org>
+	 <a44ae5cd0607011425n18266b02s81b3d87988895555@mail.gmail.com>
+	 <1151789342.3195.60.camel@laptopd505.fenrus.org>
+	 <a44ae5cd0607011537o1cf00545td19e568dcb9c06c1@mail.gmail.com>
+	 <a44ae5cd0607011556t65b22b06m317baa9a47ff962@mail.gmail.com>
+	 <20060701230635.GA19114@mars.ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On 7/1/06, Sam Ravnborg <sam@ravnborg.org> wrote:
+>  >> > > >
+> > >> > > >   KLIBCLD usr/klibc/libc.so
+> > >> > > > usr/klibc/execl.o: In function `execl':
+> ...
+>  >
+> > >https://wiki.ubuntu.com/GccSsp
+> > >
+> > >It appears that Ubuntu's Edgy Eft (the development tree) now contains
+> > >"Stack Smashing Protection" enabled by default.  I found a web page
+> > >that states that -fno-stack-protector can be used to disable this
+> > >functionality.  Interestingly, another web page stated that SSP has
+> > >been enabled in Redhat compilers for a long time and is now also
+> > >enabled in Debian SID.  Perhaps -fno-stack-protector should be added
+> > >to the kernel build be default?
+> >
+> > Darn it.  I don't seem to know how to get -fno-stack-protector to
+> > work.  I ran:
+> > export CFLAGS=-fno-stack-protector
+> > make mrproper
+> > cp ../.config .
+> > make oldconfig
+> > CFLAGS=-fno-stack-protector make all install modules modules_install
+> >
+> > But I am still getting the errors.  Anyone know what I am doing wrong?
+>
+> For klibc you need to patch scripts/Kbuild.klibc
+>
+> Appending it to KLIBCWARNFLAGS seems the right place.
+>
+> Do you know from what gcc version we can start using -fno-stack-protector?
 
-we missed this patch sent by Kirill Korotaev on LKML. Fortunately, Roberto
-noticed it and forwarded it to me.
+This fixed is for me.  Andrew, would this be appropriate to merge into
+your tree?
 
-Since it's been there for a very long time, there's no emergency, but the
-problem looks real and the fix seems to be confirmed, so if you have not
-closed 2.4.33 yet, it might be worth merging it too.
-
-Here it is as a git patch, but I've queued it in -upstream if you prefer.
-
-Cheers,
-Willy
-
-
->From nobody Mon Sep 17 00:00:00 2001
-From: Kirill Korotaev <dev@openvz.org>
-Date: Fri, 30 Jun 2006 13:41:05 +0400
-Subject: [PATCH] EXT3: ext3 block bitmap leakage
-
-This patch fixes ext3 block bitmap leakage,
-which leads to the following fsck messages on
-_healthy_ filesystem:
-Block bitmap differences:  -64159 -73707
-
-All kernels up to 2.6.17 have this bug.
-
-Found by
-   Vasily Averin <vvs@sw.ru> and Andrey Savochkin <saw@sawoct.com>
-Test case triggered the issue was created by
-   Dmitry Monakhov <dmonakhov@sw.ru>
-
-Signed-Off-By: Vasiliy Averin <vvs@sw.ru>
-Signed-Off-By: Andrey Savochkin <saw@sawoct.com>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
-CC: Dmitry Monakhov <dmonakhov@sw.ru>
-
----
-
- fs/ext3/inode.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-8c6f6cf38bc9b04edc69c2869ae1e6c584584b4f
-diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
-index bcd86f6..d8f5a9b 100644
---- a/fs/ext3/inode.c
-+++ b/fs/ext3/inode.c
-@@ -570,6 +570,7 @@ static int ext3_alloc_branch(handle_t *h
- 
- 	branch[0].key = cpu_to_le32(parent);
- 	if (parent) {
-+		keys = 1;
- 		for (n = 1; n < num; n++) {
- 			struct buffer_head *bh;
- 			/* Allocate the next block */
--- 
-1.3.3
-
+--- scripts/Kbuild.klibc.old    2006-07-01 16:32:55.000000000 -0700
++++ scripts/Kbuild.klibc        2006-07-01 16:28:59.000000000 -0700
+@@ -51,7 +51,7 @@
+ KLIBCREQFLAGS     :=
+ KLIBCARCHREQFLAGS :=
+ KLIBCOPTFLAGS     :=
+-KLIBCWARNFLAGS    := -W -Wall -Wno-sign-compare -Wno-unused-parameter
++KLIBCWARNFLAGS    := -W -Wall -Wno-sign-compare -Wno-unused-parameter
+-fno-stack-protector
+ KLIBCSHAREDFLAGS  :=
+ KLIBCBITSIZE      :=
+ KLIBCLDFLAGS      :=

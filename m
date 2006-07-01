@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWGAXMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751563AbWGAXMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWGAXMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 19:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWGAXMZ
+	id S1751563AbWGAXMS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 19:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWGAXMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 19:12:25 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:32927 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751428AbWGAXMY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 19:12:24 -0400
-Message-ID: <44A7011B.6000702@zytor.com>
-Date: Sat, 01 Jul 2006 16:11:23 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Sat, 1 Jul 2006 19:12:18 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:51972 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751563AbWGAXMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 19:12:17 -0400
+Date: Sun, 2 Jul 2006 01:12:16 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Cc: alsa-devel@alsa-project.org, perex@suse.cz, Olaf Hering <olh@suse.de>,
+       linuxppc-dev@ozlabs.org, Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: OSS driver removal, 2nd round
+Message-ID: <20060701231216.GG17588@stusta.de>
+References: <20060629192128.GE19712@stusta.de>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Miles Lane <miles.lane@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-mm5 -- Busted toolchain? -- usr/klibc/exec_l.c:59: undefined
- reference to `__stack_chk_fail'
-References: <a44ae5cd0607011409m720dd23dvf178a133c2060b6d@mail.gmail.com> <1151788673.3195.58.camel@laptopd505.fenrus.org> <a44ae5cd0607011425n18266b02s81b3d87988895555@mail.gmail.com> <1151789342.3195.60.camel@laptopd505.fenrus.org> <a44ae5cd0607011537o1cf00545td19e568dcb9c06c1@mail.gmail.com> <a44ae5cd0607011556t65b22b06m317baa9a47ff962@mail.gmail.com> <20060701230635.GA19114@mars.ravnborg.org>
-In-Reply-To: <20060701230635.GA19114@mars.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060629192128.GE19712@stusta.de>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
+On Thu, Jun 29, 2006 at 09:21:28PM +0200, Adrian Bunk wrote:
+
+> Now that I've sent the first round of actually removing the code for OSS 
+> drivers where ALSA drivers without regressions exist for the same 
+> hardware, it's time for a second round amongst the remaining drivers.
 > 
-> For klibc you need to patch scripts/Kbuild.klibc
 > 
-> Appending it to KLIBCWARNFLAGS seems the right place.
+> Removing OSS drivers where ALSA drivers for the same hardware exists has 
+> two reasons:
+> 
+> 1. remove obsolete and mostly unmaintained code
+> 2. get bugs in the ALSA drivers reported that weren't previously
+>    reported due to the possible workaround of using the OSS drivers
+> 
+> 
+> The list below divides the OSS drivers into the following three
+> categories:
+> 1. ALSA drivers for the same hardware
+> 2. ALSA drivers for the same hardware with known problems
+> 3. no ALSA drivers for the same hardware
+> 
+> 
+> My proposed timeline is:
+> - 2.6.18: let the drivers under 1. in the list below depend on
+>           OSS_OBSOLETE_DRIVER
+> - 2.6.20: remove the options depending on OSS_OBSOLETE_DRIVER
+> - 2.6.22: remove the code for the drivers that were depending on
+>           OSS_OBSOLETE_DRIVER from the kernel tree
+>...
+> 2. ALSA drivers for the same hardware with known problems
+> 
+> DMASOUND_PMAC
+> - Olaf Hering regarding regressions in SND_POWERMAC:
+>   Some tumbler models work only after one plug/unplug cycle of
+>   the headphone. early powerbooks report/handle the mute settings
+>   incorrectly. there are likely more bugs.
+>...
 
-KLIBCREQFLAGS, rather.
+Could anyone tell me whether there are still regressions in ALSA 
+compared to DMASOUND_PMAC, and if yes give me bug numbers in the 
+ALSA BTS so that I can track them?
 
-> Do you know from what gcc version we can start using -fno-stack-protector?
+TIA
+Adrian
 
-Isn't there a macro to test if gcc supports a specific option already?
+-- 
 
-Either way, I can also add __stack_chk_fail() as an alias for abort(), 
-for people who actually want the feature.
-
-	-hpa
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

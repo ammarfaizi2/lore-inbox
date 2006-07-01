@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWF3Vuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWGAAwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbWF3Vuo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 17:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWF3Vuo
+	id S932147AbWGAAwe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 20:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751886AbWGAAwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 17:50:44 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33702 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750890AbWF3Vuo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 17:50:44 -0400
-Date: Fri, 30 Jun 2006 14:47:15 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: stable@kernel.org, torvalds@osdl.org
-Subject: Linux 2.6.16.23
-Message-ID: <20060630214715.GA12143@kroah.com>
-Mime-Version: 1.0
+	Fri, 30 Jun 2006 20:52:34 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54938 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751884AbWGAAwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 20:52:33 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: hadi@cyberus.ca
+Cc: Sam Vilain <sam@vilain.net>, Herbert Poetzl <herbert@13thfloor.at>,
+       viro@ftp.linux.org.uk, devel@openvz.org, dev@sw.ru,
+       Andrew Morton <akpm@osdl.org>, clg@fr.ibm.com, serue@us.ibm.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Daniel Lezcano <dlezcano@fr.ibm.com>,
+       Ben Greear <greearb@candelatech.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@swsoft.com>
+Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
+References: <m1psgulf4u.fsf@ebiederm.dsl.xmission.com>
+	<44A1689B.7060809@candelatech.com>
+	<20060627225213.GB2612@MAIL.13thfloor.at>
+	<1151449973.24103.51.camel@localhost.localdomain>
+	<20060627234210.GA1598@ms2.inr.ac.ru>
+	<m1mzbyj6ft.fsf@ebiederm.dsl.xmission.com>
+	<20060628133640.GB5088@MAIL.13thfloor.at>
+	<1151502803.5203.101.camel@jzny2> <44A44124.5010602@vilain.net>
+	<1151626552.8922.70.camel@jzny2>
+	<20060630114551.A20191@castle.nmd.msu.ru>
+	<1151675452.5270.10.camel@jzny2>
+	<m13bdmbj1b.fsf@ebiederm.dsl.xmission.com>
+	<1151704319.5270.317.camel@jzny2>
+Date: Fri, 30 Jun 2006 18:50:20 -0600
+In-Reply-To: <1151704319.5270.317.camel@jzny2> (hadi@cyberus.ca's message of
+	"Fri, 30 Jun 2006 17:51:58 -0400")
+Message-ID: <m1u0629mib.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.16.23 kernel.
-Another SCTP remote crash fix, CVE-2006-2934, and a revert of a Kconfig
-change that should have have gone into the 2.6.16-stable tree.
+jamal <hadi@cyberus.ca> writes:
 
-I'll also be replying to this message with a copy of the patch between
-2.6.16.22 and 2.6.16.23, as it is small enough to do so.
+> On Fri, 2006-30-06 at 12:22 -0600, Eric W. Biederman wrote:
+>
+>> 
+>> Anyway Jamal can you see the problem the aliases present to the
+> implementation?
+>> 
+>
+> I think more than anything i may have a different view of things and no
+> code ;-> And you are trying to restore order in the discussion - so my
+> wild ideas dont help. If you guys have a meeting somewhere like this
+> coming OLS I will come over and disrupt your meeting ;-> I actually have
+> attempted to implement things like virtual routers but you guys seem way
+> ahead of anywhere i was.
 
-The updated 2.6.16.y git tree can be found at:
- 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+Currently I think we have both a talk, and a BOFH at OLS plus probably
+a little time at kernel summit.
 
-thanks,
-
-greg k-h
-
---------
-
- Makefile                                     |    2 +-
- drivers/parport/Kconfig                      |    2 +-
- net/ipv4/netfilter/ip_conntrack_proto_sctp.c |    2 +-
- net/netfilter/nf_conntrack_proto_sctp.c      |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
-
-Summary of changes from v2.6.16.22 to v2.6.16.23
-================================================
-
-Chris Wright:
-      revert PARPORT_SERIAL should depend on SERIAL_8250_PCI patch
-
-Greg Kroah-Hartman:
-      Linux 2.6.16.23
-
-Patrick McHardy:
-      NETFILTER: SCTP conntrack: fix crash triggered by packet without chunks [CVE-2006-2934]
+Eric

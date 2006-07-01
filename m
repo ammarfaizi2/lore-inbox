@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWGAAwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbWGAAeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWGAAwe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 20:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751886AbWGAAwe
+	id S932483AbWGAAeK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 20:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbWGAAeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 20:52:34 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54938 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751884AbWGAAwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 20:52:33 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: hadi@cyberus.ca
-Cc: Sam Vilain <sam@vilain.net>, Herbert Poetzl <herbert@13thfloor.at>,
-       viro@ftp.linux.org.uk, devel@openvz.org, dev@sw.ru,
-       Andrew Morton <akpm@osdl.org>, clg@fr.ibm.com, serue@us.ibm.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Daniel Lezcano <dlezcano@fr.ibm.com>,
-       Ben Greear <greearb@candelatech.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@swsoft.com>
-Subject: Re: [patch 2/6] [Network namespace] Network device sharing by view
-References: <m1psgulf4u.fsf@ebiederm.dsl.xmission.com>
-	<44A1689B.7060809@candelatech.com>
-	<20060627225213.GB2612@MAIL.13thfloor.at>
-	<1151449973.24103.51.camel@localhost.localdomain>
-	<20060627234210.GA1598@ms2.inr.ac.ru>
-	<m1mzbyj6ft.fsf@ebiederm.dsl.xmission.com>
-	<20060628133640.GB5088@MAIL.13thfloor.at>
-	<1151502803.5203.101.camel@jzny2> <44A44124.5010602@vilain.net>
-	<1151626552.8922.70.camel@jzny2>
-	<20060630114551.A20191@castle.nmd.msu.ru>
-	<1151675452.5270.10.camel@jzny2>
-	<m13bdmbj1b.fsf@ebiederm.dsl.xmission.com>
-	<1151704319.5270.317.camel@jzny2>
-Date: Fri, 30 Jun 2006 18:50:20 -0600
-In-Reply-To: <1151704319.5270.317.camel@jzny2> (hadi@cyberus.ca's message of
-	"Fri, 30 Jun 2006 17:51:58 -0400")
-Message-ID: <m1u0629mib.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 30 Jun 2006 20:34:10 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:25802 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932083AbWGAAeI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 20:34:08 -0400
+Message-ID: <44A5C2FC.9000908@garzik.org>
+Date: Fri, 30 Jun 2006 20:34:04 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>, linux@dominikbrodowski.net,
+       Netdev List <netdev@vger.kernel.org>,
+       "John W. Linville" <linville@tuxdriver.com>
+Subject: Re: [PATCH] pcmcia: hostap_cs.c - 0xc00f,0x0000 conflicts with pcnet_cs
+References: <200607010001.k610165k008843@hera.kernel.org>
+In-Reply-To: <200607010001.k610165k008843@hera.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal <hadi@cyberus.ca> writes:
+Linux Kernel Mailing List wrote:
+> commit fd99ddd0701385344eadaf2daa6abbc5fb086750
+> tree 013d75048f086edfa7a89ac3f3301dde13017817
+> parent 0db6095d4ff8918350797dfe299d572980e82fa0
+> author Komuro <komurojun-mbn@nifty.com> Mon, 17 Apr 2006 21:41:21 +0900
+> committer Dominik Brodowski <linux@dominikbrodowski.net> Fri, 30 Jun 2006 22:09:12 +0200
+> 
+> [PATCH] pcmcia: hostap_cs.c - 0xc00f,0x0000 conflicts with pcnet_cs
+> 
+> Comment out the ID 0xc00f,0x0000 in hostap_cs.c, as it conflicts with the
+> pcnet_cs driver.
+> 
+> Signed-off-by: komurojun-mbn@nifty.com
+> Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+> 
+>  drivers/net/wireless/hostap/hostap_cs.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
 
-> On Fri, 2006-30-06 at 12:22 -0600, Eric W. Biederman wrote:
->
->> 
->> Anyway Jamal can you see the problem the aliases present to the
-> implementation?
->> 
->
-> I think more than anything i may have a different view of things and no
-> code ;-> And you are trying to restore order in the discussion - so my
-> wild ideas dont help. If you guys have a meeting somewhere like this
-> coming OLS I will come over and disrupt your meeting ;-> I actually have
-> attempted to implement things like virtual routers but you guys seem way
-> ahead of anywhere i was.
+drivers/net/wireless stuff should go through netdev and John Linville.
 
-Currently I think we have both a talk, and a BOFH at OLS plus probably
-a little time at kernel summit.
+I'm going to go out on a limb, and guess that Linville never saw this patch?
 
-Eric
+	Jeff
+
+

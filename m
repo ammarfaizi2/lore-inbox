@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWGAUKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932855AbWGARkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbWGAUKE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 16:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWGAUKE
+	id S932855AbWGARkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 13:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932943AbWGARkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 16:10:04 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:49837 "EHLO
-	asav07.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S932416AbWGAUKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 16:10:00 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Aa4HANxwpkSBSg
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: sound connector detection
-Date: Sat, 1 Jul 2006 16:09:58 -0400
-User-Agent: KMail/1.9.3
-Cc: alsa-devel@lists.sourceforge.net,
-       linux-input <linux-input@atrey.karlin.mff.cuni.cz>,
-       Richard Purdie <rpurdie@rpsys.net>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <1151671786.13412.6.camel@localhost>
-In-Reply-To: <1151671786.13412.6.camel@localhost>
+	Sat, 1 Jul 2006 13:40:25 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:45473 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932855AbWGARkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 13:40:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=bLNAofUm1X8oWYFmpkmgzyYyBRvGi66U7ClDfi4JYa2E0vkwbiA30OjyzG6djNhkJnAZN5Ql8BSGNaJnBtjcBmeXEw22KjpFEgnBtrBjiYBOKl50M+8h3EC8ckv6bWLfs1IURvMI0BjNeybRZBl3a+3qKMf9s5oj/6u06me7u5U=  ;
+Message-ID: <44A6B387.80207@yahoo.com.au>
+Date: Sun, 02 Jul 2006 03:40:23 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
+Subject: Re: [patch 0/2] sLeAZY FPU feature
+References: <1151773893.3195.45.camel@laptopd505.fenrus.org>
+In-Reply-To: <1151773893.3195.45.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607011609.59426.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 June 2006 08:49, Johannes Berg wrote:
+Arjan van de Ven wrote:
 > Hi,
 > 
-> One Apple machines I have with snd-aoa the situation that the alsa
-> driver can detect changes in in/output connector state ("is headphone
-> plugged in" etc.) and currently surfaces it through a read-only alsa
-> mixer element. That isn't really ideal since nothing is prepared to
-> handle such events, hence I provide an additional control that allows an
-> in-kernel toggle from speakers to headphone on headphone plug (and vice
-> versa).
+> the two patches in this series (the x86-64 on by me, the i386 one by
+> Chuck Ebbert) change how the lazy fpu feature works. In the current
+> situation, we are 100% lazy, meaning that after every context switch,
+> the application takes a trap on the first FPU use, which then restores
+> the FPU context.
 > 
-> I'd really like to see this handled in userspace (additionally or
-> possibly event instead), since there are complications especially with
-> input (line-in) detection and user preferences of what should happen
-> then. The number of cases can become large, especially when throwing in
-> digital and combo connectors that aren't handled yet.
+> The sLeAZY FPU patch changes this behavior; if a process has used the
+> FPU for 5 stints at a row, the behavior becomes proactive and the FPU
+> context is restored during the regular context switch already. This
+> means we can avoid the trap.
 > 
-> Now, is it appropriate to create an input device for the state of these
-> things and add new constants like SW_LINEIN_INSERTED,
-> SW_LINEOUT_INSERTED, SW_OPTICALOUT_INSERTED, SW_OPTICALIN_INSERTED and
-> if so, how do I reflect the fact that on some machines optical and
-> analog input/output is mutually exclusive, while on others it isn't?
-> That would probably require another SW_COMBO_IN/OUT set...
+> The underlying assumption is that if a process uses 5 times consecutive,
+> it's likely to do it the 6th and later times as well (eg it's not a
+> one-off behavior).
 > 
-> Or should I simply stick with (a) read-only mixer control(s), and for
-> the mutually exclusive case create a tristate (none, optical, analog)
-> one? But SW_HEADPHONE_INSERT already exists, so we may want to do this
-> identically on different machines.
+> There is a limit built in; this proactive behavior resets after 255
+> times, so that when a process is long lived and chances behavior, it'll
+> still get the right behavior (for performance) after some time.
 > 
+> Chuck measured a +/- 0.4% performance gain, and my experiments show a
+> similar improvement.
 
-Hi Johannes,
-
-I am not too happy with putting this kind of switches into input layer,
-it should be reserved for "real" buttons, ones that user can explicitely
-push or toggle (lid switch is on the edge here but it and sleep button
-are used for similar purposes so it makes sense to have it in input layer
-too). But "cable X connected" kind of events is too much [for input layer,
-there could well be a separate layer for it]. If we go this way we'd have
-to move cable detection code from network to input layer as well ;)
+What sort of test? Any idea of the results for a best case microbenchmark
+(something like two threads ping-pong a couple of futexes between them,
+in between doing a single FPU op)
 
 -- 
-Dmitry
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

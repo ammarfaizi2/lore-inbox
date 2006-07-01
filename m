@@ -1,43 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933145AbWGASJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWGAVKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933145AbWGASJt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 14:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933073AbWGASJs
+	id S932592AbWGAVKG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 17:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWGAVKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 14:09:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:64129 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S933145AbWGASJr (ORCPT
+	Sat, 1 Jul 2006 17:10:06 -0400
+Received: from xenotime.net ([66.160.160.81]:44486 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751930AbWGAVKE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 14:09:47 -0400
-Date: Sat, 1 Jul 2006 14:09:30 -0400
-From: Dave Jones <davej@redhat.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Daniel Drake <dsd@gentoo.org>, LKML <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: Eeek! page_mapcount(page) went negative! (-1)
-Message-ID: <20060701180930.GE15810@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Daniel Drake <dsd@gentoo.org>, LKML <linux-kernel@vger.kernel.org>,
-	Arjan van de Ven <arjan@infradead.org>
-References: <44A6AB99.8060407@gentoo.org> <44A6B11B.9080204@yahoo.com.au>
+	Sat, 1 Jul 2006 17:10:04 -0400
+Date: Sat, 1 Jul 2006 14:12:48 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: jvromans@squirrel.nl
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: SMBus access
+Message-Id: <20060701141248.822c0902.rdunlap@xenotime.net>
+In-Reply-To: <20060701141015.a4922e86.rdunlap@xenotime.net>
+References: <m2irmhjb5t.fsf@phoenix.squirrel.nl>
+	<20060701141015.a4922e86.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A6B11B.9080204@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 02, 2006 at 03:30:03AM +1000, Nick Piggin wrote:
- > Oh. I see Arjan's pointed out it is using the nvidia driver (how
- > did he figure that out?).
+On Sat, 1 Jul 2006 14:10:15 -0700 Randy.Dunlap wrote:
 
-intuition. The process was X, and there have been reports of
-the nvidia driver triggering this in Fedora bugzilla as well
-as other places.
+> On Sat, 01 Jul 2006 22:57:34 +0200 Johan Vromans wrote:
+> 
+> > To get battery readings on some laptops it is necessary to interface
+> > with the SMBus that hangs of the EC. However, the current
+> > implementation of the EC driver does not permit other modules 
+> > read/write access. 
+> > 
+> > A trivial solution is to change acpi_ec_read/write from static to
+> > nonstatic, and export the symbols so other modules can use them.
+> > 
+> > Would there be any objections to apply this change?
+> 
+> a.  patch should also be sent to linux-acpi@vger.kernel.org (cc-ed)
+> b.  patch does not apply cleanly to latest kernel
 
-		Dave
+Sorry, my bad.  It does apply cleanly (part d. below fooled my
+scripts...)
 
--- 
-http://www.codemonkey.org.uk
+> c.  missing Signed-off-by: line (see Documentation/SubmittingPatches)
+> d.  incorrect patch filename directory level (see SubmittingPatches)
+> 
+> 
+> 
+> > -- Johan
+> > 
+> > --- drivers/acpi/ec.c~	2006-04-17 13:40:49.000000000 +0200
+> > +++ drivers/acpi/ec.c	2006-04-22 17:49:13.000000000 +0200
+> > @@ -305,20 +305,22 @@
+> >  }
+> >  #endif /* ACPI_FUTURE_USAGE */
+> >  
+> > -static int acpi_ec_read(union acpi_ec *ec, u8 address, u32 * data)
+> > +int acpi_ec_read(union acpi_ec *ec, u8 address, u32 * data)
+> >  {
+> >  	if (acpi_ec_poll_mode)
+> >  		return acpi_ec_poll_read(ec, address, data);
+> >  	else
+> >  		return acpi_ec_intr_read(ec, address, data);
+> >  }
+> > -static int acpi_ec_write(union acpi_ec *ec, u8 address, u8 data)
+> > +EXPORT_SYMBOL(acpi_ec_read);
+> > +int acpi_ec_write(union acpi_ec *ec, u8 address, u8 data)
+> >  {
+> >  	if (acpi_ec_poll_mode)
+> >  		return acpi_ec_poll_write(ec, address, data);
+> >  	else
+> >  		return acpi_ec_intr_write(ec, address, data);
+> >  }
+> > +EXPORT_SYMBOL(acpi_ec_write);
+> >  static int acpi_ec_poll_read(union acpi_ec *ec, u8 address, u32 * data)
+> >  {
+> >  	acpi_status status = AE_OK;
+> > -
+> 
+> 
+> ---
+> ~Randy
+
+
+---
+~Randy

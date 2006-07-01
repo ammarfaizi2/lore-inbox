@@ -1,785 +1,403 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751544AbWGAPKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWGAK6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751544AbWGAPKN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 11:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751899AbWGAPJq
+	id S932452AbWGAK6i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 06:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbWGAK6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 11:09:46 -0400
-Received: from www.osadl.org ([213.239.205.134]:51876 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751544AbWGAO5X (ORCPT
+	Sat, 1 Jul 2006 06:58:38 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:37308 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932452AbWGAK6h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 10:57:23 -0400
-Message-Id: <20060701145226.463775000@cruncher.tec.linutronix.de>
-References: <20060701145211.856500000@cruncher.tec.linutronix.de>
-Date: Sat, 01 Jul 2006 14:54:52 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>
-Subject: [RFC][patch 28/44] drivers/char: Use the new IRQF_ constansts
-Content-Disposition: inline; filename=irqflags-drivers-char.patch
+	Sat, 1 Jul 2006 06:58:37 -0400
+Date: Sat, 1 Jul 2006 12:58:32 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Sam Ravnborg <sam@mars.ravnborg.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PATCH] kbuild updates
+Message-ID: <20060701105832.GA16563@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
- drivers/char/amiserial.c             |    2 -
- drivers/char/applicom.c              |    4 +-
- drivers/char/cyclades.c              |    8 ++---
- drivers/char/esp.c                   |    2 -
- drivers/char/ftape/lowlevel/fdc-io.c |    2 -
- drivers/char/hpet.c                  |    2 -
- drivers/char/hvc_console.c           |    2 -
- drivers/char/hvcs.c                  |    2 -
- drivers/char/hvsi.c                  |    2 -
- drivers/char/ip2/ip2main.c           |    6 ++--
- drivers/char/ipmi/ipmi_si_intf.c     |    4 +-
- drivers/char/isicom.c                |    4 +-
- drivers/char/ite_gpio.c              |    2 -
- drivers/char/mbcs.c                  |    6 ++--
- drivers/char/mmtimer.c               |    2 -
- drivers/char/mxser.c                 |    2 -
- drivers/char/nwbutton.c              |    2 -
- drivers/char/qtronix.c               |    2 -
- drivers/char/riscom8.c               |    2 -
- drivers/char/rtc.c                   |    6 ++--
- drivers/char/s3c2410-rtc.c           |    4 +-
- drivers/char/snsc.c                  |    2 -
- drivers/char/snsc_event.c            |    2 -
- drivers/char/sonypi.c                |    2 -
- drivers/char/specialix.c             |    4 +-
- drivers/char/stallion.c              |    4 +-
- drivers/char/sx.c                    |    4 +-
- drivers/char/synclink.c              |    2 -
- drivers/char/synclink_gt.c           |    2 -
- drivers/char/synclinkmp.c            |    2 -
- drivers/char/tlclk.c                 |    2 -
- drivers/char/tpm/tpm_tis.c           |    4 +-
- drivers/char/vme_scc.c               |   48 +++++++++++++++++------------------
- drivers/char/watchdog/eurotechwdt.c  |    2 -
- drivers/char/watchdog/mpcore_wdt.c   |    2 -
- drivers/char/watchdog/wdt.c          |    2 -
- drivers/char/watchdog/wdt_pci.c      |    2 -
- 37 files changed, 77 insertions(+), 77 deletions(-)
+Please pull from:
+	git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
 
-Index: linux-2.6.git/drivers/char/amiserial.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/amiserial.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/amiserial.c	2006-07-01 16:51:39.000000000 +0200
-@@ -2051,7 +2051,7 @@ static int __init rs_init(void)
+It contains a few fixes and enhancements.
+With this ia64 now builds cleanly again - and this fix may also help others since arguments specified by CFLAGS_file.o := xxx is now processed correct
+in all cases. Previously it could cause problems when full path was specified.
+
+It also introduces a nice modpost enhancement so we now warn if a module
+uses a symbol that is marked UNUSED.
+
+note - the changes in arch/um/ is related to the 'ia64' fix.
+
+There are a few kbuild issues to be sorted out but that will be after
+-rc1. The list as I recall it atm:
+- kconfig is not preperly rebuild when kconfig changes
+- A few more section checks needs to be introduced as per akpm request
+- a few bugzilla entries needs to be addressed
+- initramfs is attempted build when usign an external file as input
+- mrproper left-overs in arch/arm (akpm)
+- fix __FILE__ gets expanded to absolute pathname
+
+	Sam
+
+Sam Ravnborg:
+      kbuild: fix ia64 breakage after introducing make -rR
+      kbuild: fix segv in modpost
+      kbuild: warn when a moduled uses a symbol marked UNUSED
+
+Samuel Thibault:
+      kconfig: enhancing accessibility of lxdialog
+
+ Makefile                             |    2 -
+ arch/um/scripts/Makefile.rules       |    4 +
+ scripts/Kbuild.include               |    4 +
+ scripts/Makefile.build               |    2 -
+ scripts/Makefile.host                |    6 +-
+ scripts/Makefile.lib                 |    6 +-
+ scripts/Makefile.modpost             |    2 -
+ scripts/kconfig/lxdialog/checklist.c |    7 ++-
+ scripts/mod/modpost.c                |   94 +++++++++++++++++++++++++---------
+ scripts/mod/modpost.h                |    2 +
+ 10 files changed, 91 insertions(+), 38 deletions(-)
+
+Since all patches has been on lkml before as individual patches here is
+a combined diff.
+
+
+diff --git a/Makefile b/Makefile
+index e9560c6..935a9d6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1352,7 +1352,7 @@ quiet_cmd_rmfiles = $(if $(wildcard $(rm
  
- 	/* set ISRs, and then disable the rx interrupts */
- 	request_irq(IRQ_AMIGA_TBE, ser_tx_int, 0, "serial TX", state);
--	request_irq(IRQ_AMIGA_RBF, ser_rx_int, SA_INTERRUPT, "serial RX", state);
-+	request_irq(IRQ_AMIGA_RBF, ser_rx_int, IRQF_DISABLED, "serial RX", state);
+ a_flags = -Wp,-MD,$(depfile) $(AFLAGS) $(AFLAGS_KERNEL) \
+ 	  $(NOSTDINC_FLAGS) $(CPPFLAGS) \
+-	  $(modkern_aflags) $(EXTRA_AFLAGS) $(AFLAGS_$(*F).o)
++	  $(modkern_aflags) $(EXTRA_AFLAGS) $(AFLAGS_$(basetarget).o)
  
- 	/* turn off Rx and Tx interrupts */
- 	custom.intena = IF_RBF | IF_TBE;
-Index: linux-2.6.git/drivers/char/applicom.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/applicom.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/applicom.c	2006-07-01 16:51:39.000000000 +0200
-@@ -229,7 +229,7 @@ static int __init applicom_init(void)
- 			continue;
- 		}
+ quiet_cmd_as_o_S = AS      $@
+ cmd_as_o_S       = $(CC) $(a_flags) -c -o $@ $<
+diff --git a/arch/um/scripts/Makefile.rules b/arch/um/scripts/Makefile.rules
+index 1347dc6..813077f 100644
+--- a/arch/um/scripts/Makefile.rules
++++ b/arch/um/scripts/Makefile.rules
+@@ -8,7 +8,7 @@ USER_OBJS += $(filter %_user.o,$(obj-y) 
+ USER_OBJS := $(foreach file,$(USER_OBJS),$(obj)/$(file))
  
--		if (request_irq(dev->irq, &ac_interrupt, SA_SHIRQ, "Applicom PCI", &dummy)) {
-+		if (request_irq(dev->irq, &ac_interrupt, IRQF_SHARED, "Applicom PCI", &dummy)) {
- 			printk(KERN_INFO "Could not allocate IRQ %d for PCI Applicom device.\n", dev->irq);
- 			iounmap(RamIO);
- 			pci_disable_device(dev);
-@@ -276,7 +276,7 @@ static int __init applicom_init(void)
- 		printk(KERN_NOTICE "Applicom ISA card found at mem 0x%lx, irq %d\n", mem + (LEN_RAM_IO*i), irq);
+ $(USER_OBJS:.o=.%): \
+-	c_flags = -Wp,-MD,$(depfile) $(USER_CFLAGS) $(CFLAGS_$(*F).o)
++	c_flags = -Wp,-MD,$(depfile) $(USER_CFLAGS) $(CFLAGS_$(basetarget).o)
+ $(USER_OBJS) : CHECKFLAGS := -D__linux__ -Dlinux -D__STDC__ \
+ 	-Dunix -D__unix__ -D__$(SUBARCH)__
  
- 		if (!numisa) {
--			if (request_irq(irq, &ac_interrupt, SA_SHIRQ, "Applicom ISA", &dummy)) {
-+			if (request_irq(irq, &ac_interrupt, IRQF_SHARED, "Applicom ISA", &dummy)) {
- 				printk(KERN_WARNING "Could not allocate IRQ %d for ISA Applicom device.\n", irq);
- 				iounmap(RamIO);
- 				apbs[boardno - 1].RamIO = NULL;
-Index: linux-2.6.git/drivers/char/cyclades.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/cyclades.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/cyclades.c	2006-07-01 16:51:39.000000000 +0200
-@@ -4612,7 +4612,7 @@ cy_detect_isa(void)
+@@ -17,7 +17,7 @@ # using it directly.
+ UNPROFILE_OBJS := $(foreach file,$(UNPROFILE_OBJS),$(obj)/$(file))
  
-                 /* allocate IRQ */
-                 if(request_irq(cy_isa_irq, cyy_interrupt,
--				   SA_INTERRUPT, "Cyclom-Y", &cy_card[j]))
-+				   IRQF_DISABLED, "Cyclom-Y", &cy_card[j]))
-                 {
-                         printk("Cyclom-Y/ISA found at 0x%lx ",
-                                 (unsigned long) cy_isa_address);
-@@ -4785,7 +4785,7 @@ cy_detect_pci(void)
+ $(UNPROFILE_OBJS:.o=.%): \
+-	c_flags = -Wp,-MD,$(depfile) $(call unprofile,$(USER_CFLAGS)) $(CFLAGS_$(*F).o)
++	c_flags = -Wp,-MD,$(depfile) $(call unprofile,$(USER_CFLAGS)) $(CFLAGS_$(basetarget).o)
+ $(UNPROFILE_OBJS) : CHECKFLAGS := -D__linux__ -Dlinux -D__STDC__ \
+ 	-Dunix -D__unix__ -D__$(SUBARCH)__
  
-                 /* allocate IRQ */
-                 if(request_irq(cy_pci_irq, cyy_interrupt,
--		        SA_SHIRQ, "Cyclom-Y", &cy_card[j]))
-+		        IRQF_SHARED, "Cyclom-Y", &cy_card[j]))
-                 {
-                         printk("Cyclom-Y/PCI found at 0x%lx ",
- 			    (ulong) cy_pci_phys2);
-@@ -4965,7 +4965,7 @@ cy_detect_pci(void)
-                 /* allocate IRQ only if board has an IRQ */
- 		if( (cy_pci_irq != 0) && (cy_pci_irq != 255) ) {
- 		    if(request_irq(cy_pci_irq, cyz_interrupt,
--			SA_SHIRQ, "Cyclades-Z", &cy_card[j]))
-+			IRQF_SHARED, "Cyclades-Z", &cy_card[j]))
- 		    {
-                         printk("Cyclom-8Zo/PCI found at 0x%lx ",
- 			    (ulong) cy_pci_phys2);
-@@ -5059,7 +5059,7 @@ cy_detect_pci(void)
-                 /* allocate IRQ only if board has an IRQ */
- 		if( (cy_pci_irq != 0) && (cy_pci_irq != 255) ) {
- 		    if(request_irq(cy_pci_irq, cyz_interrupt,
--			SA_SHIRQ, "Cyclades-Z", &cy_card[j]))
-+			IRQF_SHARED, "Cyclades-Z", &cy_card[j]))
- 		    {
-                         printk("Cyclom-Ze/PCI found at 0x%lx ",
- 			    (ulong) cy_pci_phys2);
-Index: linux-2.6.git/drivers/char/esp.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/esp.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/esp.c	2006-07-01 16:51:39.000000000 +0200
-@@ -883,7 +883,7 @@ static int startup(struct esp_struct * i
- 	 * Allocate the IRQ
- 	 */
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index b0d067b..2180c88 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -13,6 +13,10 @@ # contain a comma
+ depfile = $(subst $(comma),_,$(@D)/.$(@F).d)
  
--	retval = request_irq(info->irq, rs_interrupt_single, SA_SHIRQ,
-+	retval = request_irq(info->irq, rs_interrupt_single, IRQF_SHARED,
- 			     "esp serial", info);
+ ###
++# filename of target with directory and extension stripped
++basetarget = $(basename $(notdir $@))
++
++###
+ # Escape single quote for use in echo statements
+ escsq = $(subst $(squote),'\$(squote)',$1)
  
- 	if (retval) {
-Index: linux-2.6.git/drivers/char/hpet.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/hpet.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/hpet.c	2006-07-01 16:51:39.000000000 +0200
-@@ -395,7 +395,7 @@ static int hpet_ioctl_ieon(struct hpet_d
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+index 02a7eea..3cb445c 100644
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -117,7 +117,7 @@ quiet_modtag := $(empty)   $(empty)
+ $(obj-m)              : quiet_modtag := [M]
  
- 		sprintf(devp->hd_name, "hpet%d", (int)(devp - hpetp->hp_dev));
- 		irq_flags = devp->hd_flags & HPET_SHARED_IRQ
--						? SA_SHIRQ : SA_INTERRUPT;
-+						? IRQF_SHARED : IRQF_DISABLED;
- 		if (request_irq(irq, hpet_interrupt, irq_flags,
- 				devp->hd_name, (void *)devp)) {
- 			printk(KERN_ERR "hpet: IRQ %d is not free\n", irq);
-Index: linux-2.6.git/drivers/char/hvc_console.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/hvc_console.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/hvc_console.c	2006-07-01 16:51:39.000000000 +0200
-@@ -346,7 +346,7 @@ static int hvc_open(struct tty_struct *t
- 	spin_unlock_irqrestore(&hp->lock, flags);
- 	/* check error, fallback to non-irq */
- 	if (irq != NO_IRQ)
--		rc = request_irq(irq, hvc_handle_interrupt, SA_INTERRUPT, "hvc_console", hp);
-+		rc = request_irq(irq, hvc_handle_interrupt, IRQF_DISABLED, "hvc_console", hp);
+ # Default for not multi-part modules
+-modname = $(*F)
++modname = $(basetarget)
  
- 	/*
- 	 * If the request_irq() fails and we return an error.  The tty layer
-Index: linux-2.6.git/drivers/char/hvcs.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/hvcs.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/hvcs.c	2006-07-01 16:51:39.000000000 +0200
-@@ -899,7 +899,7 @@ static int hvcs_enable_device(struct hvc
- 	 * the conn was registered and now.
- 	 */
- 	if (!(rc = request_irq(irq, &hvcs_handle_interrupt,
--				SA_INTERRUPT, "ibmhvcs", hvcsd))) {
-+				IRQF_DISABLED, "ibmhvcs", hvcsd))) {
- 		/*
- 		 * It is possible the vty-server was removed after the irq was
- 		 * requested but before we have time to enable interrupts.
-Index: linux-2.6.git/drivers/char/hvsi.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/hvsi.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/hvsi.c	2006-07-01 16:51:39.000000000 +0200
-@@ -1168,7 +1168,7 @@ static int __init hvsi_init(void)
- 		struct hvsi_struct *hp = &hvsi_ports[i];
- 		int ret = 1;
+ $(multi-objs-m)         : modname = $(modname-multi)
+ $(multi-objs-m:.o=.i)   : modname = $(modname-multi)
+diff --git a/scripts/Makefile.host b/scripts/Makefile.host
+index 2b066d1..18ecd4d 100644
+--- a/scripts/Makefile.host
++++ b/scripts/Makefile.host
+@@ -80,8 +80,10 @@ obj-dirs += $(host-objdirs)
+ #####
+ # Handle options to gcc. Support building with separate output directory
  
--		ret = request_irq(hp->virq, hvsi_interrupt, SA_INTERRUPT, "hvsi", hp);
-+		ret = request_irq(hp->virq, hvsi_interrupt, IRQF_DISABLED, "hvsi", hp);
- 		if (ret)
- 			printk(KERN_ERR "HVSI: couldn't reserve irq 0x%x (error %i)\n",
- 				hp->virq, ret);
-Index: linux-2.6.git/drivers/char/isicom.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/isicom.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/isicom.c	2006-07-01 16:51:39.000000000 +0200
-@@ -1614,14 +1614,14 @@ static int __devinit isicom_register_isr
- 	const unsigned int index)
+-_hostc_flags   = $(HOSTCFLAGS)   $(HOST_EXTRACFLAGS)   $(HOSTCFLAGS_$(*F).o)
+-_hostcxx_flags = $(HOSTCXXFLAGS) $(HOST_EXTRACXXFLAGS) $(HOSTCXXFLAGS_$(*F).o)
++_hostc_flags   = $(HOSTCFLAGS)   $(HOST_EXTRACFLAGS)   \
++                 $(HOSTCFLAGS_$(basetarget).o)
++_hostcxx_flags = $(HOSTCXXFLAGS) $(HOST_EXTRACXXFLAGS) \
++                 $(HOSTCXXFLAGS_$(basetarget).o)
+ 
+ ifeq ($(KBUILD_SRC),)
+ __hostc_flags	= $(_hostc_flags)
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index 2cb4935..fc498fe 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -82,12 +82,12 @@ # Note: It's possible that one object ge
+ #       than one module. In that case KBUILD_MODNAME will be set to foo_bar,
+ #       where foo and bar are the name of the modules.
+ name-fix = $(subst $(comma),_,$(subst -,_,$1))
+-basename_flags = -D"KBUILD_BASENAME=KBUILD_STR($(call name-fix,$(*F)))"
++basename_flags = -D"KBUILD_BASENAME=KBUILD_STR($(call name-fix,$(basetarget)))"
+ modname_flags  = $(if $(filter 1,$(words $(modname))),\
+                  -D"KBUILD_MODNAME=KBUILD_STR($(call name-fix,$(modname)))")
+ 
+-_c_flags       = $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o)
+-_a_flags       = $(AFLAGS) $(EXTRA_AFLAGS) $(AFLAGS_$(*F).o)
++_c_flags       = $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$(basetarget).o)
++_a_flags       = $(AFLAGS) $(EXTRA_AFLAGS) $(AFLAGS_$(basetarget).o)
+ _cpp_flags     = $(CPPFLAGS) $(EXTRA_CPPFLAGS) $(CPPFLAGS_$(@F))
+ 
+ # If building the kernel in a separate objtree expand all occurrences
+diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
+index 576cce5..a495502 100644
+--- a/scripts/Makefile.modpost
++++ b/scripts/Makefile.modpost
+@@ -72,7 +72,7 @@ # Declare generated files as targets for
+ # Step 5), compile all *.mod.c files
+ 
+ # modname is set to make c_flags define KBUILD_MODNAME
+-modname = $(*F)
++modname = $(notdir $(@:.mod.o=))
+ 
+ quiet_cmd_cc_o_c = CC      $@
+       cmd_cc_o_c = $(CC) $(c_flags) $(CFLAGS_MODULE)	\
+diff --git a/scripts/kconfig/lxdialog/checklist.c b/scripts/kconfig/lxdialog/checklist.c
+index be0200e..7988641 100644
+--- a/scripts/kconfig/lxdialog/checklist.c
++++ b/scripts/kconfig/lxdialog/checklist.c
+@@ -187,9 +187,12 @@ int dialog_checklist(const char *title, 
+ 
+ 	/* Print the list */
+ 	for (i = 0; i < max_choice; i++) {
+-		print_item(list, items[(scroll + i) * 3 + 1],
+-			   status[i + scroll], i, i == choice);
++		if (i != choice)
++			print_item(list, items[(scroll + i) * 3 + 1],
++				   status[i + scroll], i, 0);
+ 	}
++	print_item(list, items[(scroll + choice) * 3 + 1],
++		   status[choice + scroll], choice, 1);
+ 
+ 	print_arrows(dialog, choice, item_no, scroll,
+ 		     box_y, box_x + check_x + 5, list_height);
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index 0dd1617..dfde0e8 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -24,7 +24,10 @@ static int all_versions = 0;
+ /* If we are modposting external module set to 1 */
+ static int external_module = 0;
+ /* How a symbol is exported */
+-enum export {export_plain, export_gpl, export_gpl_future, export_unknown};
++enum export {
++	export_plain,      export_unused,     export_gpl,
++	export_unused_gpl, export_gpl_future, export_unknown
++};
+ 
+ void fatal(const char *fmt, ...)
  {
- 	struct isi_board *board = pci_get_drvdata(pdev);
--	unsigned long irqflags = SA_INTERRUPT;
-+	unsigned long irqflags = IRQF_DISABLED;
- 	int retval = -EINVAL;
- 
- 	if (!board->base)
- 		goto end;
- 
- 	if (board->isa == NO)
--		irqflags |= SA_SHIRQ;
-+		irqflags |= IRQF_SHARED;
- 
- 	retval = request_irq(board->irq, isicom_interrupt, irqflags,
- 		ISICOM_NAME, board);
-Index: linux-2.6.git/drivers/char/ite_gpio.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/ite_gpio.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/ite_gpio.c	2006-07-01 16:51:39.000000000 +0200
-@@ -397,7 +397,7 @@ int __init ite_gpio_init(void)
- 		init_waitqueue_head(&ite_gpio_wait[i]);
- 	}
- 
--	if (request_irq(ite_gpio_irq, ite_gpio_irq_handler, SA_SHIRQ, "gpio", 0) < 0) {
-+	if (request_irq(ite_gpio_irq, ite_gpio_irq_handler, IRQF_SHARED, "gpio", 0) < 0) {
- 		misc_deregister(&ite_gpio_miscdev);
- 		release_region(ite_gpio_base, 0x1c);
- 		return 0;
-Index: linux-2.6.git/drivers/char/mbcs.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/mbcs.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/mbcs.c	2006-07-01 16:51:39.000000000 +0200
-@@ -592,7 +592,7 @@ static int mbcs_intr_alloc(struct cx_dev
- 	getdma->intrHostDest = sn_irq->irq_xtalkaddr;
- 	getdma->intrVector = sn_irq->irq_irq;
- 	if (request_irq(sn_irq->irq_irq,
--			(void *)mbcs_completion_intr_handler, SA_SHIRQ,
-+			(void *)mbcs_completion_intr_handler, IRQF_SHARED,
- 			"MBCS get intr", (void *)soft)) {
- 		tiocx_irq_free(soft->get_sn_irq);
- 		return -EAGAIN;
-@@ -608,7 +608,7 @@ static int mbcs_intr_alloc(struct cx_dev
- 	putdma->intrHostDest = sn_irq->irq_xtalkaddr;
- 	putdma->intrVector = sn_irq->irq_irq;
- 	if (request_irq(sn_irq->irq_irq,
--			(void *)mbcs_completion_intr_handler, SA_SHIRQ,
-+			(void *)mbcs_completion_intr_handler, IRQF_SHARED,
- 			"MBCS put intr", (void *)soft)) {
- 		tiocx_irq_free(soft->put_sn_irq);
- 		free_irq(soft->get_sn_irq->irq_irq, soft);
-@@ -628,7 +628,7 @@ static int mbcs_intr_alloc(struct cx_dev
- 	algo->intrHostDest = sn_irq->irq_xtalkaddr;
- 	algo->intrVector = sn_irq->irq_irq;
- 	if (request_irq(sn_irq->irq_irq,
--			(void *)mbcs_completion_intr_handler, SA_SHIRQ,
-+			(void *)mbcs_completion_intr_handler, IRQF_SHARED,
- 			"MBCS algo intr", (void *)soft)) {
- 		tiocx_irq_free(soft->algo_sn_irq);
- 		free_irq(soft->put_sn_irq->irq_irq, soft);
-Index: linux-2.6.git/drivers/char/mxser.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/mxser.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/mxser.c	2006-07-01 16:51:39.000000000 +0200
-@@ -94,7 +94,7 @@
- #define RELEVANT_IFLAG(iflag)	(iflag & (IGNBRK|BRKINT|IGNPAR|PARMRK|INPCK|\
- 					  IXON|IXOFF))
- 
--#define IRQ_T(info) ((info->flags & ASYNC_SHARE_IRQ) ? SA_SHIRQ : SA_INTERRUPT)
-+#define IRQ_T(info) ((info->flags & ASYNC_SHARE_IRQ) ? IRQF_SHARED : IRQF_DISABLED)
- 
- #define C168_ASIC_ID    1
- #define C104_ASIC_ID    2
-Index: linux-2.6.git/drivers/char/nwbutton.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/nwbutton.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/nwbutton.c	2006-07-01 16:51:39.000000000 +0200
-@@ -223,7 +223,7 @@ static int __init nwbutton_init(void)
- 		return -EBUSY;
- 	}
- 
--	if (request_irq (IRQ_NETWINDER_BUTTON, button_handler, SA_INTERRUPT,
-+	if (request_irq (IRQ_NETWINDER_BUTTON, button_handler, IRQF_DISABLED,
- 			"nwbutton", NULL)) {
- 		printk (KERN_WARNING "nwbutton: IRQ %d is not free.\n",
- 				IRQ_NETWINDER_BUTTON);
-Index: linux-2.6.git/drivers/char/qtronix.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/qtronix.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/qtronix.c	2006-07-01 16:51:39.000000000 +0200
-@@ -144,7 +144,7 @@ void __init init_qtronix_990P_kbd(void)
- 	cir_port_init(cir);
- 
- 	retval = request_irq(IT8172_CIR0_IRQ, kbd_int_handler, 
--			(unsigned long )(SA_INTERRUPT|SA_SHIRQ), 
-+			(unsigned long )(IRQF_DISABLED|IRQF_SHARED), 
- 			(const char *)"Qtronix IR Keyboard", (void *)cir);
- 
- 	if (retval) {
-Index: linux-2.6.git/drivers/char/riscom8.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/riscom8.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/riscom8.c	2006-07-01 16:51:39.000000000 +0200
-@@ -625,7 +625,7 @@ static inline int rc_setup_board(struct 
- 	if (bp->flags & RC_BOARD_ACTIVE) 
- 		return 0;
- 	
--	error = request_irq(bp->irq, rc_interrupt, SA_INTERRUPT,
-+	error = request_irq(bp->irq, rc_interrupt, IRQF_DISABLED,
- 			    "RISCom/8", NULL);
- 	if (error) 
- 		return error;
-Index: linux-2.6.git/drivers/char/rtc.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/rtc.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/rtc.c	2006-07-01 16:51:39.000000000 +0200
-@@ -220,7 +220,7 @@ static inline unsigned char rtc_is_updat
- 
- #ifdef RTC_IRQ
- /*
-- *	A very tiny interrupt handler. It runs with SA_INTERRUPT set,
-+ *	A very tiny interrupt handler. It runs with IRQF_DISABLED set,
-  *	but there is possibility of conflicting with the set_rtc_mmss()
-  *	call (the rtc irq and the timer irq can easily run at the same
-  *	time in two different CPUs). So we need to serialize
-@@ -958,7 +958,7 @@ found:
- 	 * XXX Interrupt pin #7 in Espresso is shared between RTC and
- 	 * PCI Slot 2 INTA# (and some INTx# in Slot 1).
- 	 */
--	if (request_irq(rtc_irq, rtc_interrupt, SA_SHIRQ, "rtc", (void *)&rtc_port)) {
-+	if (request_irq(rtc_irq, rtc_interrupt, IRQF_SHARED, "rtc", (void *)&rtc_port)) {
- 		printk(KERN_ERR "rtc: cannot register IRQ %d\n", rtc_irq);
- 		return -EIO;
- 	}
-@@ -976,7 +976,7 @@ no_irq:
- 		rtc_int_handler_ptr = rtc_interrupt;
- 	}
- 
--	if(request_irq(RTC_IRQ, rtc_int_handler_ptr, SA_INTERRUPT, "rtc", NULL)) {
-+	if(request_irq(RTC_IRQ, rtc_int_handler_ptr, IRQF_DISABLED, "rtc", NULL)) {
- 		/* Yeah right, seeing as irq 8 doesn't even hit the bus. */
- 		printk(KERN_ERR "rtc: IRQ %d is not free.\n", RTC_IRQ);
- 		release_region(RTC_PORT(0), RTC_IO_EXTENT);
-Index: linux-2.6.git/drivers/char/s3c2410-rtc.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/s3c2410-rtc.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/s3c2410-rtc.c	2006-07-01 16:51:39.000000000 +0200
-@@ -341,13 +341,13 @@ static int s3c2410_rtc_open(void)
- 	int ret;
- 
- 	ret = request_irq(s3c2410_rtc_alarmno, s3c2410_rtc_alarmirq,
--			  SA_INTERRUPT,  "s3c2410-rtc alarm", NULL);
-+			  IRQF_DISABLED,  "s3c2410-rtc alarm", NULL);
- 
- 	if (ret)
- 		printk(KERN_ERR "IRQ%d already in use\n", s3c2410_rtc_alarmno);
- 
- 	ret = request_irq(s3c2410_rtc_tickno, s3c2410_rtc_tickirq,
--			  SA_INTERRUPT,  "s3c2410-rtc tick", NULL);
-+			  IRQF_DISABLED,  "s3c2410-rtc tick", NULL);
- 
- 	if (ret) {
- 		printk(KERN_ERR "IRQ%d already in use\n", s3c2410_rtc_tickno);
-Index: linux-2.6.git/drivers/char/snsc.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/snsc.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/snsc.c	2006-07-01 16:51:39.000000000 +0200
-@@ -105,7 +105,7 @@ scdrv_open(struct inode *inode, struct f
- 
- 	/* hook this subchannel up to the system controller interrupt */
- 	rv = request_irq(SGI_UART_VECTOR, scdrv_interrupt,
--			 SA_SHIRQ | SA_INTERRUPT,
-+			 IRQF_SHARED | IRQF_DISABLED,
- 			 SYSCTL_BASENAME, sd);
- 	if (rv) {
- 		ia64_sn_irtr_close(sd->sd_nasid, sd->sd_subch);
-Index: linux-2.6.git/drivers/char/snsc_event.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/snsc_event.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/snsc_event.c	2006-07-01 16:51:39.000000000 +0200
-@@ -310,7 +310,7 @@ scdrv_event_init(struct sysctl_data_s *s
- 
- 	/* hook event subchannel up to the system controller interrupt */
- 	rv = request_irq(SGI_UART_VECTOR, scdrv_event_interrupt,
--			 SA_SHIRQ | SA_INTERRUPT,
-+			 IRQF_SHARED | IRQF_DISABLED,
- 			 "system controller events", event_sd);
- 	if (rv) {
- 		printk(KERN_WARNING "%s: irq request failed (%d)\n",
-Index: linux-2.6.git/drivers/char/sonypi.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/sonypi.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/sonypi.c	2006-07-01 16:51:39.000000000 +0200
-@@ -1282,7 +1282,7 @@ static int __devinit sonypi_setup_irq(st
- 	while (irq_list->irq) {
- 
- 		if (!request_irq(irq_list->irq, sonypi_irq,
--				 SA_SHIRQ, "sonypi", sonypi_irq)) {
-+				 IRQF_SHARED, "sonypi", sonypi_irq)) {
- 			dev->irq = irq_list->irq;
- 			dev->bits = irq_list->bits;
- 			return 0;
-Index: linux-2.6.git/drivers/char/specialix.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/specialix.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/specialix.c	2006-07-01 16:51:39.000000000 +0200
-@@ -1015,9 +1015,9 @@ static inline int sx_setup_board(struct 
- 		return 0;
- 
- 	if (bp->flags & SX_BOARD_IS_PCI)
--		error = request_irq(bp->irq, sx_interrupt, SA_INTERRUPT | SA_SHIRQ, "specialix IO8+", bp);
-+		error = request_irq(bp->irq, sx_interrupt, IRQF_DISABLED | IRQF_SHARED, "specialix IO8+", bp);
+@@ -191,7 +194,9 @@ static struct {
+ 	enum export export;
+ } export_list[] = {
+ 	{ .str = "EXPORT_SYMBOL",            .export = export_plain },
++	{ .str = "EXPORT_UNUSED_SYMBOL",     .export = export_unused },
+ 	{ .str = "EXPORT_SYMBOL_GPL",        .export = export_gpl },
++	{ .str = "EXPORT_UNUSED_SYMBOL_GPL", .export = export_unused_gpl },
+ 	{ .str = "EXPORT_SYMBOL_GPL_FUTURE", .export = export_gpl_future },
+ 	{ .str = "(unknown)",                .export = export_unknown },
+ };
+@@ -205,6 +210,8 @@ static const char *export_str(enum expor
+ static enum export export_no(const char * s)
+ {
+ 	int i;
++	if (!s)
++		return export_unknown;
+ 	for (i = 0; export_list[i].export != export_unknown; i++) {
+ 		if (strcmp(export_list[i].str, s) == 0)
+ 			return export_list[i].export;
+@@ -216,8 +223,12 @@ static enum export export_from_sec(struc
+ {
+ 	if (sec == elf->export_sec)
+ 		return export_plain;
++	else if (sec == elf->export_unused_sec)
++		return export_unused;
+ 	else if (sec == elf->export_gpl_sec)
+ 		return export_gpl;
++	else if (sec == elf->export_unused_gpl_sec)
++		return export_unused_gpl;
+ 	else if (sec == elf->export_gpl_future_sec)
+ 		return export_gpl_future;
  	else
--		error = request_irq(bp->irq, sx_interrupt, SA_INTERRUPT, "specialix IO8+", bp);
-+		error = request_irq(bp->irq, sx_interrupt, IRQF_DISABLED, "specialix IO8+", bp);
+@@ -366,8 +377,12 @@ static void parse_elf(struct elf_info *i
+ 			info->modinfo_len = sechdrs[i].sh_size;
+ 		} else if (strcmp(secname, "__ksymtab") == 0)
+ 			info->export_sec = i;
++		else if (strcmp(secname, "__ksymtab_unused") == 0)
++			info->export_unused_sec = i;
+ 		else if (strcmp(secname, "__ksymtab_gpl") == 0)
+ 			info->export_gpl_sec = i;
++		else if (strcmp(secname, "__ksymtab_unused_gpl") == 0)
++			info->export_unused_gpl_sec = i;
+ 		else if (strcmp(secname, "__ksymtab_gpl_future") == 0)
+ 			info->export_gpl_future_sec = i;
  
- 	if (error)
- 		return error;
-Index: linux-2.6.git/drivers/char/stallion.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/stallion.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/stallion.c	2006-07-01 16:51:39.000000000 +0200
-@@ -2302,7 +2302,7 @@ static inline int stl_initeio(stlbrd_t *
- 	brdp->nrpanels = 1;
- 	brdp->state |= BRD_FOUND;
- 	brdp->hwid = status;
--	if (request_irq(brdp->irq, stl_intr, SA_SHIRQ, name, brdp) != 0) {
-+	if (request_irq(brdp->irq, stl_intr, IRQF_SHARED, name, brdp) != 0) {
- 		printk("STALLION: failed to register interrupt "
- 		    "routine for %s irq=%d\n", name, brdp->irq);
- 		rc = -ENODEV;
-@@ -2512,7 +2512,7 @@ static inline int stl_initech(stlbrd_t *
- 		outb((brdp->ioctrlval | ECH_BRDDISABLE), brdp->ioctrl);
+@@ -1085,38 +1100,64 @@ void buf_write(struct buffer *buf, const
+ 	buf->pos += len;
+ }
  
- 	brdp->state |= BRD_FOUND;
--	if (request_irq(brdp->irq, stl_intr, SA_SHIRQ, name, brdp) != 0) {
-+	if (request_irq(brdp->irq, stl_intr, IRQF_SHARED, name, brdp) != 0) {
- 		printk("STALLION: failed to register interrupt "
- 		    "routine for %s irq=%d\n", name, brdp->irq);
- 		i = -ENODEV;
-Index: linux-2.6.git/drivers/char/sx.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/sx.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/sx.c	2006-07-01 16:51:39.000000000 +0200
-@@ -1993,7 +1993,7 @@ static int sx_init_board (struct sx_boar
- 		if(board->irq > 0) {
- 			/* fixed irq, probably PCI */
- 			if(sx_irqmask & (1 << board->irq)) { /* may we use this irq? */
--				if(request_irq(board->irq, sx_interrupt, SA_SHIRQ | SA_INTERRUPT, "sx", board)) {
-+				if(request_irq(board->irq, sx_interrupt, IRQF_SHARED | IRQF_DISABLED, "sx", board)) {
- 					printk(KERN_ERR "sx: Cannot allocate irq %d.\n", board->irq);
- 					board->irq = 0;
- 				}
-@@ -2005,7 +2005,7 @@ static int sx_init_board (struct sx_boar
- 			int irqmask = sx_irqmask & (IS_SX_BOARD(board) ? SX_ISA_IRQ_MASK : SI2_ISA_IRQ_MASK);
- 			for(irqnr = 15; irqnr > 0; irqnr--)
- 				if(irqmask & (1 << irqnr))
--					if(! request_irq(irqnr, sx_interrupt, SA_SHIRQ | SA_INTERRUPT, "sx", board))
-+					if(! request_irq(irqnr, sx_interrupt, IRQF_SHARED | IRQF_DISABLED, "sx", board))
- 						break;
- 			if(! irqnr)
- 				printk(KERN_ERR "sx: Cannot allocate IRQ.\n");
-Index: linux-2.6.git/drivers/char/synclink.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/synclink.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/synclink.c	2006-07-01 16:51:39.000000000 +0200
-@@ -8150,7 +8150,7 @@ static int __devinit synclink_init_one (
- 				
- 	info->bus_type = MGSL_BUS_TYPE_PCI;
- 	info->io_addr_size = 8;
--	info->irq_flags = SA_SHIRQ;
-+	info->irq_flags = IRQF_SHARED;
+-void check_license(struct module *mod)
++static void check_for_gpl_usage(enum export exp, const char *m, const char *s)
++{
++	const char *e = is_vmlinux(m) ?"":".ko";
++
++	switch (exp) {
++	case export_gpl:
++		fatal("modpost: GPL-incompatible module %s%s "
++		      "uses GPL-only symbol '%s'\n", m, e, s);
++		break;
++	case export_unused_gpl:
++		fatal("modpost: GPL-incompatible module %s%s "
++		      "uses GPL-only symbol marked UNUSED '%s'\n", m, e, s);
++		break;
++	case export_gpl_future:
++		warn("modpost: GPL-incompatible module %s%s "
++		      "uses future GPL-only symbol '%s'\n", m, e, s);
++		break;
++	case export_plain:
++	case export_unused:
++	case export_unknown:
++		/* ignore */
++		break;
++	}
++}
++
++static void check_for_unused(enum export exp, const char* m, const char* s)
++{
++	const char *e = is_vmlinux(m) ?"":".ko";
++
++	switch (exp) {
++	case export_unused:
++	case export_unused_gpl:
++		warn("modpost: module %s%s "
++		      "uses symbol '%s' marked UNUSED\n", m, e, s);
++		break;
++	default:
++		/* ignore */
++		break;
++	}
++}
++
++static void check_exports(struct module *mod)
+ {
+ 	struct symbol *s, *exp;
  
- 	if (dev->device == 0x0210) {
- 		/* Version 1 PCI9030 based universal PCI adapter */
-Index: linux-2.6.git/drivers/char/synclink_gt.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/synclink_gt.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/synclink_gt.c	2006-07-01 16:51:39.000000000 +0200
-@@ -3343,7 +3343,7 @@ static struct slgt_info *alloc_dev(int a
- 		info->phys_reg_addr = pci_resource_start(pdev,0);
+ 	for (s = mod->unres; s; s = s->next) {
+ 		const char *basename;
+-		if (mod->gpl_compatible == 1) {
+-			/* GPL-compatible modules may use all symbols */
+-			continue;
+-		}
+ 		exp = find_symbol(s->name);
+ 		if (!exp || exp->module == mod)
+ 			continue;
+ 		basename = strrchr(mod->name, '/');
+ 		if (basename)
+ 			basename++;
+-		switch (exp->export) {
+-			case export_gpl:
+-				fatal("modpost: GPL-incompatible module %s "
+-				      "uses GPL-only symbol '%s'\n",
+-				 basename ? basename : mod->name,
+-				exp->name);
+-				break;
+-			case export_gpl_future:
+-				warn("modpost: GPL-incompatible module %s "
+-				      "uses future GPL-only symbol '%s'\n",
+-				      basename ? basename : mod->name,
+-				      exp->name);
+-				break;
+-			case export_plain: /* ignore */ break;
+-			case export_unknown: /* ignore */ break;
+-		}
++		else
++			basename = mod->name;
++		if (!mod->gpl_compatible)
++			check_for_gpl_usage(exp->export, basename, exp->name);
++		check_for_unused(exp->export, basename, exp->name);
+         }
+ }
  
- 		info->bus_type = MGSL_BUS_TYPE_PCI;
--		info->irq_flags = SA_SHIRQ;
-+		info->irq_flags = IRQF_SHARED;
+@@ -1271,7 +1312,7 @@ static void write_if_changed(struct buff
+ }
  
- 		info->init_error = -1; /* assume error, set to 0 on successful init */
- 	}
-Index: linux-2.6.git/drivers/char/synclinkmp.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/synclinkmp.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/synclinkmp.c	2006-07-01 16:51:39.000000000 +0200
-@@ -3835,7 +3835,7 @@ static SLMP_INFO *alloc_dev(int adapter_
- 		info->phys_statctrl_base &= ~(PAGE_SIZE-1);
+ /* parse Module.symvers file. line format:
+- * 0x12345678<tab>symbol<tab>module[<tab>export]
++ * 0x12345678<tab>symbol<tab>module[[<tab>export]<tab>something]
+  **/
+ static void read_dump(const char *fname, unsigned int kernel)
+ {
+@@ -1284,7 +1325,7 @@ static void read_dump(const char *fname,
+ 		return;
  
- 		info->bus_type = MGSL_BUS_TYPE_PCI;
--		info->irq_flags = SA_SHIRQ;
-+		info->irq_flags = IRQF_SHARED;
- 
- 		init_timer(&info->tx_timer);
- 		info->tx_timer.data = (unsigned long)info;
-Index: linux-2.6.git/drivers/char/tlclk.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/tlclk.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/tlclk.c	2006-07-01 16:51:39.000000000 +0200
-@@ -208,7 +208,7 @@ static int tlclk_open(struct inode *inod
- 	/* This device is wired through the FPGA IO space of the ATCA blade
- 	 * we can't share this IRQ */
- 	result = request_irq(telclk_interrupt, &tlclk_interrupt,
--			     SA_INTERRUPT, "telco_clock", tlclk_interrupt);
-+			     IRQF_DISABLED, "telco_clock", tlclk_interrupt);
- 	if (result == -EBUSY) {
- 		printk(KERN_ERR "tlclk: Interrupt can't be reserved.\n");
- 		return -EBUSY;
-Index: linux-2.6.git/drivers/char/vme_scc.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/vme_scc.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/vme_scc.c	2006-07-01 16:51:39.000000000 +0200
-@@ -203,13 +203,13 @@ static int mvme147_scc_init(void)
- 	port->datap = port->ctrlp + 1;
- 	port->port_a = &scc_ports[0];
- 	port->port_b = &scc_ports[1];
--	request_irq(MVME147_IRQ_SCCA_TX, scc_tx_int, SA_INTERRUPT,
-+	request_irq(MVME147_IRQ_SCCA_TX, scc_tx_int, IRQF_DISABLED,
- 		            "SCC-A TX", port);
--	request_irq(MVME147_IRQ_SCCA_STAT, scc_stat_int, SA_INTERRUPT,
-+	request_irq(MVME147_IRQ_SCCA_STAT, scc_stat_int, IRQF_DISABLED,
- 		            "SCC-A status", port);
--	request_irq(MVME147_IRQ_SCCA_RX, scc_rx_int, SA_INTERRUPT,
-+	request_irq(MVME147_IRQ_SCCA_RX, scc_rx_int, IRQF_DISABLED,
- 		            "SCC-A RX", port);
--	request_irq(MVME147_IRQ_SCCA_SPCOND, scc_spcond_int, SA_INTERRUPT,
-+	request_irq(MVME147_IRQ_SCCA_SPCOND, scc_spcond_int, IRQF_DISABLED,
- 		            "SCC-A special cond", port);
- 	{
- 		SCC_ACCESS_INIT(port);
-@@ -230,13 +230,13 @@ static int mvme147_scc_init(void)
- 	port->datap = port->ctrlp + 1;
- 	port->port_a = &scc_ports[0];
- 	port->port_b = &scc_ports[1];
--	request_irq(MVME147_IRQ_SCCB_TX, scc_tx_int, SA_INTERRUPT,
-+	request_irq(MVME147_IRQ_SCCB_TX, scc_tx_int, IRQF_DISABLED,
- 		            "SCC-B TX", port);
--	request_irq(MVME147_IRQ_SCCB_STAT, scc_stat_int, SA_INTERRUPT,
-+	request_irq(MVME147_IRQ_SCCB_STAT, scc_stat_int, IRQF_DISABLED,
- 		            "SCC-B status", port);
--	request_irq(MVME147_IRQ_SCCB_RX, scc_rx_int, SA_INTERRUPT,
-+	request_irq(MVME147_IRQ_SCCB_RX, scc_rx_int, IRQF_DISABLED,
- 		            "SCC-B RX", port);
--	request_irq(MVME147_IRQ_SCCB_SPCOND, scc_spcond_int, SA_INTERRUPT,
-+	request_irq(MVME147_IRQ_SCCB_SPCOND, scc_spcond_int, IRQF_DISABLED,
- 		            "SCC-B special cond", port);
- 	{
- 		SCC_ACCESS_INIT(port);
-@@ -273,13 +273,13 @@ static int mvme162_scc_init(void)
- 	port->datap = port->ctrlp + 2;
- 	port->port_a = &scc_ports[0];
- 	port->port_b = &scc_ports[1];
--	request_irq(MVME162_IRQ_SCCA_TX, scc_tx_int, SA_INTERRUPT,
-+	request_irq(MVME162_IRQ_SCCA_TX, scc_tx_int, IRQF_DISABLED,
- 		            "SCC-A TX", port);
--	request_irq(MVME162_IRQ_SCCA_STAT, scc_stat_int, SA_INTERRUPT,
-+	request_irq(MVME162_IRQ_SCCA_STAT, scc_stat_int, IRQF_DISABLED,
- 		            "SCC-A status", port);
--	request_irq(MVME162_IRQ_SCCA_RX, scc_rx_int, SA_INTERRUPT,
-+	request_irq(MVME162_IRQ_SCCA_RX, scc_rx_int, IRQF_DISABLED,
- 		            "SCC-A RX", port);
--	request_irq(MVME162_IRQ_SCCA_SPCOND, scc_spcond_int, SA_INTERRUPT,
-+	request_irq(MVME162_IRQ_SCCA_SPCOND, scc_spcond_int, IRQF_DISABLED,
- 		            "SCC-A special cond", port);
- 	{
- 		SCC_ACCESS_INIT(port);
-@@ -300,13 +300,13 @@ static int mvme162_scc_init(void)
- 	port->datap = port->ctrlp + 2;
- 	port->port_a = &scc_ports[0];
- 	port->port_b = &scc_ports[1];
--	request_irq(MVME162_IRQ_SCCB_TX, scc_tx_int, SA_INTERRUPT,
-+	request_irq(MVME162_IRQ_SCCB_TX, scc_tx_int, IRQF_DISABLED,
- 		            "SCC-B TX", port);
--	request_irq(MVME162_IRQ_SCCB_STAT, scc_stat_int, SA_INTERRUPT,
-+	request_irq(MVME162_IRQ_SCCB_STAT, scc_stat_int, IRQF_DISABLED,
- 		            "SCC-B status", port);
--	request_irq(MVME162_IRQ_SCCB_RX, scc_rx_int, SA_INTERRUPT,
-+	request_irq(MVME162_IRQ_SCCB_RX, scc_rx_int, IRQF_DISABLED,
- 		            "SCC-B RX", port);
--	request_irq(MVME162_IRQ_SCCB_SPCOND, scc_spcond_int, SA_INTERRUPT,
-+	request_irq(MVME162_IRQ_SCCB_SPCOND, scc_spcond_int, IRQF_DISABLED,
- 		            "SCC-B special cond", port);
- 
- 	{
-@@ -341,13 +341,13 @@ static int bvme6000_scc_init(void)
- 	port->datap = port->ctrlp + 4;
- 	port->port_a = &scc_ports[0];
- 	port->port_b = &scc_ports[1];
--	request_irq(BVME_IRQ_SCCA_TX, scc_tx_int, SA_INTERRUPT,
-+	request_irq(BVME_IRQ_SCCA_TX, scc_tx_int, IRQF_DISABLED,
- 		            "SCC-A TX", port);
--	request_irq(BVME_IRQ_SCCA_STAT, scc_stat_int, SA_INTERRUPT,
-+	request_irq(BVME_IRQ_SCCA_STAT, scc_stat_int, IRQF_DISABLED,
- 		            "SCC-A status", port);
--	request_irq(BVME_IRQ_SCCA_RX, scc_rx_int, SA_INTERRUPT,
-+	request_irq(BVME_IRQ_SCCA_RX, scc_rx_int, IRQF_DISABLED,
- 		            "SCC-A RX", port);
--	request_irq(BVME_IRQ_SCCA_SPCOND, scc_spcond_int, SA_INTERRUPT,
-+	request_irq(BVME_IRQ_SCCA_SPCOND, scc_spcond_int, IRQF_DISABLED,
- 		            "SCC-A special cond", port);
- 	{
- 		SCC_ACCESS_INIT(port);
-@@ -368,13 +368,13 @@ static int bvme6000_scc_init(void)
- 	port->datap = port->ctrlp + 4;
- 	port->port_a = &scc_ports[0];
- 	port->port_b = &scc_ports[1];
--	request_irq(BVME_IRQ_SCCB_TX, scc_tx_int, SA_INTERRUPT,
-+	request_irq(BVME_IRQ_SCCB_TX, scc_tx_int, IRQF_DISABLED,
- 		            "SCC-B TX", port);
--	request_irq(BVME_IRQ_SCCB_STAT, scc_stat_int, SA_INTERRUPT,
-+	request_irq(BVME_IRQ_SCCB_STAT, scc_stat_int, IRQF_DISABLED,
- 		            "SCC-B status", port);
--	request_irq(BVME_IRQ_SCCB_RX, scc_rx_int, SA_INTERRUPT,
-+	request_irq(BVME_IRQ_SCCB_RX, scc_rx_int, IRQF_DISABLED,
- 		            "SCC-B RX", port);
--	request_irq(BVME_IRQ_SCCB_SPCOND, scc_spcond_int, SA_INTERRUPT,
-+	request_irq(BVME_IRQ_SCCB_SPCOND, scc_spcond_int, IRQF_DISABLED,
- 		            "SCC-B special cond", port);
- 
- 	{
-Index: linux-2.6.git/drivers/char/ftape/lowlevel/fdc-io.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/ftape/lowlevel/fdc-io.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/ftape/lowlevel/fdc-io.c	2006-07-01 16:51:39.000000000 +0200
-@@ -1268,7 +1268,7 @@ static int fdc_grab_irq_and_dma(void)
- 		/*  Get fast interrupt handler.
- 		 */
- 		if (request_irq(fdc.irq, ftape_interrupt,
--				SA_INTERRUPT, "ft", ftape_id)) {
-+				IRQF_DISABLED, "ft", ftape_id)) {
- 			TRACE_ABORT(-EIO, ft_t_bug,
- 				    "Unable to grab IRQ%d for ftape driver",
- 				    fdc.irq);
-Index: linux-2.6.git/drivers/char/ip2/ip2main.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/ip2/ip2main.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/ip2/ip2main.c	2006-07-01 16:51:39.000000000 +0200
-@@ -491,8 +491,8 @@ static struct tty_operations ip2_ops = {
- /* initialisation of the devices and driver structures, and registers itself  */
- /* with the relevant kernel modules.                                          */
- /******************************************************************************/
--/* SA_INTERRUPT- if set blocks all interrupts else only this line */
--/* SA_SHIRQ    - for shared irq PCI or maybe EISA only */
-+/* IRQF_DISABLED - if set blocks all interrupts else only this line */
-+/* IRQF_SHARED    - for shared irq PCI or maybe EISA only */
- /* SA_RANDOM   - can be source for cert. random number generators */
- #define IP2_SA_FLAGS	0
- 
-@@ -753,7 +753,7 @@ retry:
- 				if (have_requested_irq(ip2config.irq[i]))
- 					continue;
- 				rc = request_irq( ip2config.irq[i], ip2_interrupt,
--					IP2_SA_FLAGS | (ip2config.type[i] == PCI ? SA_SHIRQ : 0),
-+					IP2_SA_FLAGS | (ip2config.type[i] == PCI ? IRQF_SHARED : 0),
- 					pcName, (void *)&pcName);
- 				if (rc) {
- 					printk(KERN_ERR "IP2: an request_irq failed: error %d\n",rc);
-Index: linux-2.6.git/drivers/char/ipmi/ipmi_si_intf.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/ipmi/ipmi_si_intf.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/ipmi/ipmi_si_intf.c	2006-07-01 16:51:39.000000000 +0200
-@@ -1041,7 +1041,7 @@ static int std_irq_setup(struct smi_info
- 	if (info->si_type == SI_BT) {
- 		rv = request_irq(info->irq,
- 				 si_bt_irq_handler,
--				 SA_INTERRUPT,
-+				 IRQF_DISABLED,
- 				 DEVICE_NAME,
- 				 info);
- 		if (!rv)
-@@ -1051,7 +1051,7 @@ static int std_irq_setup(struct smi_info
- 	} else
- 		rv = request_irq(info->irq,
- 				 si_irq_handler,
--				 SA_INTERRUPT,
-+				 IRQF_DISABLED,
- 				 DEVICE_NAME,
- 				 info);
- 	if (rv) {
-Index: linux-2.6.git/drivers/char/tpm/tpm_tis.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/tpm/tpm_tis.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/tpm/tpm_tis.c	2006-07-01 16:51:39.000000000 +0200
-@@ -522,7 +522,7 @@ static int __devinit tpm_tis_pnp_init(st
- 			iowrite8(i, chip->vendor.iobase +
- 				    TPM_INT_VECTOR(chip->vendor.locality));
- 			if (request_irq
--			    (i, tis_int_probe, SA_SHIRQ,
-+			    (i, tis_int_probe, IRQF_SHARED,
- 			     chip->vendor.miscdev.name, chip) != 0) {
- 				dev_info(chip->dev,
- 					 "Unable to request irq: %d for probe\n",
-@@ -557,7 +557,7 @@ static int __devinit tpm_tis_pnp_init(st
- 			 chip->vendor.iobase +
- 			 TPM_INT_VECTOR(chip->vendor.locality));
- 		if (request_irq
--		    (chip->vendor.irq, tis_int_handler, SA_SHIRQ,
-+		    (chip->vendor.irq, tis_int_handler, IRQF_SHARED,
- 		     chip->vendor.miscdev.name, chip) != 0) {
- 			dev_info(chip->dev,
- 				 "Unable to request irq: %d for use\n",
-Index: linux-2.6.git/drivers/char/watchdog/eurotechwdt.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/watchdog/eurotechwdt.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/watchdog/eurotechwdt.c	2006-07-01 16:51:39.000000000 +0200
-@@ -420,7 +420,7 @@ static int __init eurwdt_init(void)
- 		goto out;
+ 	while ((line = get_next_line(&pos, file, size))) {
+-		char *symname, *modname, *d, *export;
++		char *symname, *modname, *d, *export, *end;
+ 		unsigned int crc;
+ 		struct module *mod;
+ 		struct symbol *s;
+@@ -1297,7 +1338,8 @@ static void read_dump(const char *fname,
+ 		*modname++ = '\0';
+ 		if ((export = strchr(modname, '\t')) != NULL)
+ 			*export++ = '\0';
+-
++		if (export && ((end = strchr(export, '\t')) != NULL))
++			*end = '\0';
+ 		crc = strtoul(line, &d, 16);
+ 		if (*symname == '\0' || *modname == '\0' || *d != '\0')
+ 			goto fail;
+@@ -1396,7 +1438,7 @@ int main(int argc, char **argv)
+ 	for (mod = modules; mod; mod = mod->next) {
+ 		if (mod->skip)
+ 			continue;
+-		check_license(mod);
++		check_exports(mod);
  	}
  
--	ret = request_irq(irq, eurwdt_interrupt, SA_INTERRUPT, "eurwdt", NULL);
-+	ret = request_irq(irq, eurwdt_interrupt, IRQF_DISABLED, "eurwdt", NULL);
- 	if(ret) {
- 		printk(KERN_ERR "eurwdt: IRQ %d is not free.\n", irq);
- 		goto outmisc;
-Index: linux-2.6.git/drivers/char/watchdog/mpcore_wdt.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/watchdog/mpcore_wdt.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/watchdog/mpcore_wdt.c	2006-07-01 16:51:39.000000000 +0200
-@@ -355,7 +355,7 @@ static int __devinit mpcore_wdt_probe(st
- 		goto err_misc;
- 	}
- 
--	ret = request_irq(wdt->irq, mpcore_wdt_fire, SA_INTERRUPT, "mpcore_wdt", wdt);
-+	ret = request_irq(wdt->irq, mpcore_wdt_fire, IRQF_DISABLED, "mpcore_wdt", wdt);
- 	if (ret) {
- 		dev_printk(KERN_ERR, _dev, "cannot register IRQ%d for watchdog\n", wdt->irq);
- 		goto err_irq;
-Index: linux-2.6.git/drivers/char/watchdog/wdt.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/watchdog/wdt.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/watchdog/wdt.c	2006-07-01 16:51:39.000000000 +0200
-@@ -580,7 +580,7 @@ static int __init wdt_init(void)
- 		goto out;
- 	}
- 
--	ret = request_irq(irq, wdt_interrupt, SA_INTERRUPT, "wdt501p", NULL);
-+	ret = request_irq(irq, wdt_interrupt, IRQF_DISABLED, "wdt501p", NULL);
- 	if(ret) {
- 		printk(KERN_ERR "wdt: IRQ %d is not free.\n", irq);
- 		goto outreg;
-Index: linux-2.6.git/drivers/char/watchdog/wdt_pci.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/watchdog/wdt_pci.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/watchdog/wdt_pci.c	2006-07-01 16:51:39.000000000 +0200
-@@ -617,7 +617,7 @@ static int __devinit wdtpci_init_one (st
- 		goto out_pci;
- 	}
- 
--	if (request_irq (irq, wdtpci_interrupt, SA_INTERRUPT | SA_SHIRQ,
-+	if (request_irq (irq, wdtpci_interrupt, IRQF_DISABLED | IRQF_SHARED,
- 			 "wdt_pci", &wdtpci_miscdev)) {
- 		printk (KERN_ERR PFX "IRQ %d is not free\n", irq);
- 		goto out_reg;
-Index: linux-2.6.git/drivers/char/mmtimer.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/mmtimer.c	2006-07-01 16:51:20.000000000 +0200
-+++ linux-2.6.git/drivers/char/mmtimer.c	2006-07-01 16:51:39.000000000 +0200
-@@ -687,7 +687,7 @@ static int __init mmtimer_init(void)
- 	mmtimer_femtoperiod = ((unsigned long)1E15 + sn_rtc_cycles_per_second /
- 			       2) / sn_rtc_cycles_per_second;
- 
--	if (request_irq(SGI_MMTIMER_VECTOR, mmtimer_interrupt, SA_PERCPU_IRQ, MMTIMER_NAME, NULL)) {
-+	if (request_irq(SGI_MMTIMER_VECTOR, mmtimer_interrupt, IRQF_PERCPU, MMTIMER_NAME, NULL)) {
- 		printk(KERN_WARNING "%s: unable to allocate interrupt.",
- 			MMTIMER_NAME);
- 		return -1;
-
---
-
+ 	for (mod = modules; mod; mod = mod->next) {
+diff --git a/scripts/mod/modpost.h b/scripts/mod/modpost.h
+index 2b00c60..d398c61 100644
+--- a/scripts/mod/modpost.h
++++ b/scripts/mod/modpost.h
+@@ -117,7 +117,9 @@ struct elf_info {
+ 	Elf_Sym      *symtab_start;
+ 	Elf_Sym      *symtab_stop;
+ 	Elf_Section  export_sec;
++	Elf_Section  export_unused_sec;
+ 	Elf_Section  export_gpl_sec;
++	Elf_Section  export_unused_gpl_sec;
+ 	Elf_Section  export_gpl_future_sec;
+ 	const char   *strtab;
+ 	char	     *modinfo;

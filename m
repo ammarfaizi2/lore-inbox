@@ -1,88 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWGAQwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbWGAPEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWGAQwk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 12:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWGAQwk
+	id S932496AbWGAPEV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 11:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751810AbWGAO5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 12:52:40 -0400
-Received: from crystal.sipsolutions.net ([195.210.38.204]:16852 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S1751296AbWGAQwj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 12:52:39 -0400
-Subject: sound connector detection
-From: Johannes Berg <johannes@sipsolutions.net>
-To: alsa-devel@lists.sourceforge.net
-Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>,
-       Richard Purdie <rpurdie@rpsys.net>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-40N0pjsu+KkSc2WFXDhS"
-Date: Fri, 30 Jun 2006 14:49:46 +0200
-Message-Id: <1151671786.13412.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-X-sips-origin: submit
+	Sat, 1 Jul 2006 10:57:35 -0400
+Received: from www.osadl.org ([213.239.205.134]:32420 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751533AbWGAO5E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 10:57:04 -0400
+Message-Id: <20060701145224.601140000@cruncher.tec.linutronix.de>
+References: <20060701145211.856500000@cruncher.tec.linutronix.de>
+Date: Sat, 01 Jul 2006 14:54:33 -0000
+From: Thomas Gleixner <tglx@linutronix.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       David Miller <davem@davemloft.net>, geert@linux-m68k.org
+Subject: [RFC][patch 12/44] M68K: Use the new IRQF_ constansts
+Content-Disposition: inline; filename=irqflags-m68k.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-40N0pjsu+KkSc2WFXDhS
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Use the new IRQF_ constants and remove the SA_INTERRUPT define
 
-Hi,
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+ arch/m68k/amiga/amiints.c    |    2 +-
+ arch/m68k/amiga/cia.c        |    2 +-
+ arch/m68k/kernel/ints.c      |    2 +-
+ include/asm-m68k/floppy.h    |    4 ++--
+ include/asm-m68k/irq.h       |    4 ++--
+ include/asm-m68k/signal.h    |    2 --
+ include/asm-m68k/sun3xflop.h |    3 ++-
+ 7 files changed, 9 insertions(+), 10 deletions(-)
 
-One Apple machines I have with snd-aoa the situation that the alsa
-driver can detect changes in in/output connector state ("is headphone
-plugged in" etc.) and currently surfaces it through a read-only alsa
-mixer element. That isn't really ideal since nothing is prepared to
-handle such events, hence I provide an additional control that allows an
-in-kernel toggle from speakers to headphone on headphone plug (and vice
-versa).
+Index: linux-2.6.git/include/asm-m68k/floppy.h
+===================================================================
+--- linux-2.6.git.orig/include/asm-m68k/floppy.h	2006-07-01 16:51:25.000000000 +0200
++++ linux-2.6.git/include/asm-m68k/floppy.h	2006-07-01 16:51:34.000000000 +0200
+@@ -88,8 +88,8 @@ static __inline__ void fd_outb(unsigned 
+ static int fd_request_irq(void)
+ {
+ 	if(MACH_IS_Q40)
+-		return request_irq(FLOPPY_IRQ, floppy_hardint,SA_INTERRUPT,
+-						   "floppy", floppy_hardint);
++		return request_irq(FLOPPY_IRQ, floppy_hardint,
++				   IRQF_DISABLED, "floppy", floppy_hardint);
+ 	else if(MACH_IS_SUN3X)
+ 		return sun3xflop_request_irq();
+ 	return -ENXIO;
+Index: linux-2.6.git/include/asm-m68k/irq.h
+===================================================================
+--- linux-2.6.git.orig/include/asm-m68k/irq.h	2006-07-01 16:51:25.000000000 +0200
++++ linux-2.6.git/include/asm-m68k/irq.h	2006-07-01 16:51:34.000000000 +0200
+@@ -67,8 +67,8 @@ struct pt_regs;
+ 
+ /*
+  * various flags for request_irq() - the Amiga now uses the standard
+- * mechanism like all other architectures - SA_INTERRUPT and SA_SHIRQ
+- * are your friends.
++ * mechanism like all other architectures - IRQF_DISABLED and 
++ * IRQF_SHARED are your friends.
+  */
+ #ifndef MACH_AMIGA_ONLY
+ #define IRQ_FLG_LOCK	(0x0001)	/* handler is not replaceable	*/
+Index: linux-2.6.git/include/asm-m68k/signal.h
+===================================================================
+--- linux-2.6.git.orig/include/asm-m68k/signal.h	2006-07-01 16:51:25.000000000 +0200
++++ linux-2.6.git/include/asm-m68k/signal.h	2006-07-01 16:51:34.000000000 +0200
+@@ -74,7 +74,6 @@ typedef unsigned long sigset_t;
+  * SA_FLAGS values:
+  *
+  * SA_ONSTACK indicates that a registered stack_t will be used.
+- * SA_INTERRUPT is a no-op, but left due to historical reasons. Use the
+  * SA_RESTART flag to get restarting signals (which were the default long ago)
+  * SA_NOCLDSTOP flag to turn off SIGCHLD when children stop.
+  * SA_RESETHAND clears the handler when the signal is delivered.
+@@ -94,7 +93,6 @@ typedef unsigned long sigset_t;
+ 
+ #define SA_NOMASK	SA_NODEFER
+ #define SA_ONESHOT	SA_RESETHAND
+-#define SA_INTERRUPT	0x20000000 /* dummy -- ignored */
+ 
+ /*
+  * sigaltstack controls
+Index: linux-2.6.git/include/asm-m68k/sun3xflop.h
+===================================================================
+--- linux-2.6.git.orig/include/asm-m68k/sun3xflop.h	2006-07-01 16:51:25.000000000 +0200
++++ linux-2.6.git/include/asm-m68k/sun3xflop.h	2006-07-01 16:51:34.000000000 +0200
+@@ -208,7 +208,8 @@ static int sun3xflop_request_irq(void)
+ 
+ 	if(!once) {
+ 		once = 1;
+-		error = request_irq(FLOPPY_IRQ, sun3xflop_hardint, SA_INTERRUPT, "floppy", NULL);
++		error = request_irq(FLOPPY_IRQ, sun3xflop_hardint,
++				    IRQF_DISABLED, "floppy", NULL);
+ 		return ((error == 0) ? 0 : -1);
+ 	} else return 0;
+ }
+Index: linux-2.6.git/arch/m68k/amiga/amiints.c
+===================================================================
+--- linux-2.6.git.orig/arch/m68k/amiga/amiints.c	2006-07-01 16:51:25.000000000 +0200
++++ linux-2.6.git/arch/m68k/amiga/amiints.c	2006-07-01 16:51:34.000000000 +0200
+@@ -22,7 +22,7 @@
+  *
+  * 07/08/99: rewamp of the interrupt handling - we now have two types of
+  *           interrupts, normal and fast handlers, fast handlers being
+- *           marked with SA_INTERRUPT and runs with all other interrupts
++ *           marked with IRQF_DISABLED and runs with all other interrupts
+  *           disabled. Normal interrupts disable their own source but
+  *           run with all other interrupt sources enabled.
+  *           PORTS and EXTER interrupts are always shared even if the
+Index: linux-2.6.git/arch/m68k/amiga/cia.c
+===================================================================
+--- linux-2.6.git.orig/arch/m68k/amiga/cia.c	2006-07-01 16:51:25.000000000 +0200
++++ linux-2.6.git/arch/m68k/amiga/cia.c	2006-07-01 16:51:34.000000000 +0200
+@@ -176,5 +176,5 @@ void __init cia_init_IRQ(struct ciabase 
+ 	/* override auto int and install CIA handler */
+ 	m68k_setup_irq_controller(&auto_irq_controller, base->handler_irq, 1);
+ 	m68k_irq_startup(base->handler_irq);
+-	request_irq(base->handler_irq, cia_handler, SA_SHIRQ, base->name, base);
++	request_irq(base->handler_irq, cia_handler, IRQF_SHARED, base->name, base);
+ }
+Index: linux-2.6.git/arch/m68k/kernel/ints.c
+===================================================================
+--- linux-2.6.git.orig/arch/m68k/kernel/ints.c	2006-07-01 16:51:25.000000000 +0200
++++ linux-2.6.git/arch/m68k/kernel/ints.c	2006-07-01 16:51:34.000000000 +0200
+@@ -192,7 +192,7 @@ int setup_irq(unsigned int irq, struct i
+ 	prev = irq_list + irq;
+ 	if (*prev) {
+ 		/* Can't share interrupts unless both agree to */
+-		if (!((*prev)->flags & node->flags & SA_SHIRQ)) {
++		if (!((*prev)->flags & node->flags & IRQF_SHARED)) {
+ 			spin_unlock_irqrestore(&contr->lock, flags);
+ 			return -EBUSY;
+ 		}
 
-I'd really like to see this handled in userspace (additionally or
-possibly event instead), since there are complications especially with
-input (line-in) detection and user preferences of what should happen
-then. The number of cases can become large, especially when throwing in
-digital and combo connectors that aren't handled yet.
-
-Now, is it appropriate to create an input device for the state of these
-things and add new constants like SW_LINEIN_INSERTED,
-SW_LINEOUT_INSERTED, SW_OPTICALOUT_INSERTED, SW_OPTICALIN_INSERTED and
-if so, how do I reflect the fact that on some machines optical and
-analog input/output is mutually exclusive, while on others it isn't?
-That would probably require another SW_COMBO_IN/OUT set...
-
-Or should I simply stick with (a) read-only mixer control(s), and for
-the mutually exclusive case create a tristate (none, optical, analog)
-one? But SW_HEADPHONE_INSERT already exists, so we may want to do this
-identically on different machines.
-
-Comments appreciated.
-
-johannes
-
---=-40N0pjsu+KkSc2WFXDhS
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
-
-iQIVAwUARKUd56Vg1VMiehFYAQJSrhAAoYwqB9k9CMHPuh1uXNbhYxdQCFdTlo48
-RwS5UV4lQzag78s0/uB9eJ1gOjWVTMsX1fSoLg6kmkN5WT4jKZUCJ2z2FpqGIodl
-kiNdlDUq3A/NLFP2d6BoiI0u4IRrEuVHQlOcSUXi+wNZVMLMitgkAA1BuWE5XxbA
-y2WyrUrJnkqO3YZEXRDL70RggduXtJIt5auU9a1ov4mXhf5huHPKi9BP8j/+M25G
-rlOuPh6hnD/PBE1jbS9m/v7et0f3HTrSzM71ZAwvTosfxrUKQg7UuZpbxWIR46ef
-yyvGb3T8cQKYNUrQ9QJGOy+WGCPBezheYNsPgA2WbFPH0dMQsu/K5HxZ0Jbhzgma
-iWykA0WwmMy1xj6D7IjzLgxiBxtVuiLOmi79QS9GjqT5h/ZvrfxCIomlLIleoIgN
-rrztcnMTgKDq4fvdbgk38uqjhkBt4PNychogXo7gdSQ1xukwrlYL4deO37+ydfNL
-jBIVk7Y/rwZEc7Z9BzUsOn+aB0mNoITsU2vn6CoW6Sbwmm5Cx2zPjVYr0S01vdN3
-ho3cw3/RUt3mgSsG2rKFsq2KJOt43ZoZR35CO7aAmZCbYlTce5ZYLD03FAssBoGq
-MIXAVaHVD1Z3+6DjYhVrj4S00UodfS7BGvtjSZvec/JfbUOjR8P9IREP6omp28iV
-5q/CIqbFcqk=
-=apAP
------END PGP SIGNATURE-----
-
---=-40N0pjsu+KkSc2WFXDhS--
+--
 

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751635AbWGAPsI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933145AbWGASJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751635AbWGAPsI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 11:48:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751720AbWGAPsH
+	id S933145AbWGASJt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 14:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933073AbWGASJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 11:48:07 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:4828 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751635AbWGAPsG (ORCPT
+	Sat, 1 Jul 2006 14:09:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:64129 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933145AbWGASJr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 11:48:06 -0400
-Message-ID: <44A6991B.9000907@garzik.org>
-Date: Sat, 01 Jul 2006 11:47:39 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Jeff Bailey <jbailey@ubuntu.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-       klibc@zytor.com, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [klibc] klibc and what's the next step?
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060630181131.GA1709@elf.ucw.cz> <44A5AE17.4080106@tls.msk.ru> <44A5B07E.9040007@zytor.com> <1151751417.2553.8.camel@localhost.localdomain>
-In-Reply-To: <1151751417.2553.8.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Sat, 1 Jul 2006 14:09:47 -0400
+Date: Sat, 1 Jul 2006 14:09:30 -0400
+From: Dave Jones <davej@redhat.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Daniel Drake <dsd@gentoo.org>, LKML <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: Eeek! page_mapcount(page) went negative! (-1)
+Message-ID: <20060701180930.GE15810@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Daniel Drake <dsd@gentoo.org>, LKML <linux-kernel@vger.kernel.org>,
+	Arjan van de Ven <arjan@infradead.org>
+References: <44A6AB99.8060407@gentoo.org> <44A6B11B.9080204@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44A6B11B.9080204@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Bailey wrote:
-> The Ubuntu initramfs doesn't use kinit, and it would be nice if we
-> weren't forced to.  We do a number of things in our initramfs (like a
-> userspace bootsplace) which we need done before most of the things kinit
-> wants to do take place.
+On Sun, Jul 02, 2006 at 03:30:03AM +1000, Nick Piggin wrote:
+ > Oh. I see Arjan's pointed out it is using the nvidia driver (how
+ > did he figure that out?).
 
-You would be required to perform the same duties as kinit (is the list 
-of steps documented?), but not strictly required to use hpa's 
-incarnation of kinit+klibc.
+intuition. The process was X, and there have been reports of
+the nvidia driver triggering this in Fedora bugzilla as well
+as other places.
 
-	Jeff
+		Dave
 
-
+-- 
+http://www.codemonkey.org.uk

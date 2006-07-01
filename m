@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWGAJRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbWGAPCB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbWGAJRA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 05:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWGAJRA
+	id S932589AbWGAPCB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 11:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751904AbWGAO5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 05:17:00 -0400
-Received: from sullivan.realtime.net ([205.238.132.76]:11792 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id S932469AbWGAJRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 05:17:00 -0400
-Date: Sat, 1 Jul 2006 04:16:56 -0500 (CDT)
-Message-Id: <200607010916.k619GuxT005076@sullivan.realtime.net>
-From: Milton Miller <miltonm@bga.com>
-Subject: [KBUILD] allow any PHONY in if_changed_dep
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: <linux-kernel@vger.kernel.org>
+	Sat, 1 Jul 2006 10:57:42 -0400
+Received: from www.osadl.org ([213.239.205.134]:29860 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751518AbWGAO5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 10:57:00 -0400
+Message-Id: <20060701145224.370665000@cruncher.tec.linutronix.de>
+References: <20060701145211.856500000@cruncher.tec.linutronix.de>
+Date: Sat, 01 Jul 2006 14:54:30 -0000
+From: Thomas Gleixner <tglx@linutronix.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       David Miller <davem@davemloft.net>
+Subject: [RFC][patch 10/44] M32R: Use the new IRQF_ constansts
+Content-Disposition: inline; filename=irqflags-m32r.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While all the if_changed family filter $(PHONY) from the list of newer
-files, if_changed_dep was only filtering FORCE from the list of all
-dependents.  This resulted in forced recompile every time.
 
-Signed-off-by: Milton Miller <miltonm@bga.com>
+Use the new IRQF_ constants and remove the SA_INTERRUPT define
 
---- 
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+ arch/m32r/kernel/time.c   |    2 +-
+ include/asm-m32r/signal.h |    2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-Sam,
-
-I have been working on some cleanups in arch/powerpc/boot/Makefile,
-switching to if_changed and friends.  There are rules to copy headers
-from the kernel environment to the boot environment, applying slight
-cleanups.
-
-Currently a subset of the c files depend on the headers, and there is
-a manual dependency on the headers.  I was trying to get if_changed_dep
-to depend only on the headers actually used, but copy all needed headers
-before compiling any C files in the zImage code.  
-
-Does the following patch look ok to you?   It removes all PHONY targets
-from the list of all dependents, not just FORCE.  I'm thinking the clause
-is to catch files haven't been generated and therefore are not newer but
-are still required.  If you want to build every time you can just call cmd.
-
-milton
-
-Two excerpts from the proposed makefile follow:
-
-> -$(addprefix $(obj)/,$(zlib) main.o): $(addprefix $(obj)/,$(zliblinuxheader)) $(addprefix $(obj)/,$(zlibheader))
-> -#$(addprefix $(obj)/,main.o): $(addprefix $(obj)/,zlib.h)
-> +linuxheader := zlib.h zconf.h zutil.h
-> 
-> [ $(obj-boot): %.o: %.c ]
->
-> +$(obj-boot):  COPYHEADERS
-> +COPYHEADERS:	$(addprefix $(obj)/,$(linuxheader) $(zlibheader))
-> +PHONY	+= COPYHEADERS
-
-
-Index: kernel/scripts/Kbuild.include
+Index: linux-2.6.git/include/asm-m32r/signal.h
 ===================================================================
---- kernel.orig/scripts/Kbuild.include	2006-07-01 00:58:38.926249877 -0500
-+++ kernel/scripts/Kbuild.include	2006-07-01 01:02:00.909937514 -0500
-@@ -131,7 +131,7 @@ if_changed = $(if $(strip $(filter-out $
- # execute the command and also postprocess generated .d dependencies
- # file
- if_changed_dep = $(if $(strip $(filter-out $(PHONY),$?)  \
--		$(filter-out FORCE $(wildcard $^),$^)    \
-+		$(filter-out $(PHONY) $(wildcard $^),$^)    \
- 	$(call arg-check, $(cmd_$(1)), $(cmd_$@)) ),     \
- 	@set -e; \
- 	$(echo-cmd) $(cmd_$(1)); \
+--- linux-2.6.git.orig/include/asm-m32r/signal.h	2006-07-01 16:51:26.000000000 +0200
++++ linux-2.6.git/include/asm-m32r/signal.h	2006-07-01 16:51:33.000000000 +0200
+@@ -81,7 +81,6 @@ typedef unsigned long sigset_t;
+  * SA_FLAGS values:
+  *
+  * SA_ONSTACK indicates that a registered stack_t will be used.
+- * SA_INTERRUPT is a no-op, but left due to historical reasons. Use the
+  * SA_RESTART flag to get restarting signals (which were the default long ago)
+  * SA_NOCLDSTOP flag to turn off SIGCHLD when children stop.
+  * SA_RESETHAND clears the handler when the signal is delivered.
+@@ -101,7 +100,6 @@ typedef unsigned long sigset_t;
+ 
+ #define SA_NOMASK	SA_NODEFER
+ #define SA_ONESHOT	SA_RESETHAND
+-#define SA_INTERRUPT	0x20000000 /* dummy -- ignored */
+ 
+ #define SA_RESTORER	0x04000000
+ 
+Index: linux-2.6.git/arch/m32r/kernel/time.c
+===================================================================
+--- linux-2.6.git.orig/arch/m32r/kernel/time.c	2006-07-01 16:51:26.000000000 +0200
++++ linux-2.6.git/arch/m32r/kernel/time.c	2006-07-01 16:51:33.000000000 +0200
+@@ -237,7 +237,7 @@ irqreturn_t timer_interrupt(int irq, voi
+ 	return IRQ_HANDLED;
+ }
+ 
+-struct irqaction irq0 = { timer_interrupt, SA_INTERRUPT, CPU_MASK_NONE,
++struct irqaction irq0 = { timer_interrupt, IRQF_DISABLED, CPU_MASK_NONE,
+ 			  "MFT2", NULL, NULL };
+ 
+ void __init time_init(void)
+
+--
+

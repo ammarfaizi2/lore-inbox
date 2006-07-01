@@ -1,65 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWGAAVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWGAA2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750967AbWGAAVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 20:21:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWGAAVJ
+	id S1751448AbWGAA2x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 20:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751706AbWGAA2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 20:21:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5049 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750967AbWGAAVI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 20:21:08 -0400
-Date: Fri, 30 Jun 2006 17:24:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, torvalds@osdl.org
-Subject: Re: ACPI: Device [kobj-name] is not power manageable
-Message-Id: <20060630172431.3422e268.akpm@osdl.org>
-In-Reply-To: <20060630171542.ebd05bb4.rdunlap@xenotime.net>
-References: <200606302359.k5UNxPJ1002907@hera.kernel.org>
-	<20060630171542.ebd05bb4.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 30 Jun 2006 20:28:53 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:55212 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751448AbWGAA2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 20:28:52 -0400
+Subject: BCM5700 driver?
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain
+Date: Fri, 30 Jun 2006 20:28:51 -0400
+Message-Id: <1151713731.32444.92.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
->
-> Andrew, can you send Linus the typo correction patch for this??
-> or should I?
+Anyone know what the status of this driver is?  I found this 5 year old
+thread that concluded the code is not mergeable and would need a lot of
+work:
 
-Is OK, I have a couple of post-acpi-merge fixlets queued which I'll be
-sending in the next batch.
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0106.1/0453.html
 
-diff -puN drivers/acpi/acpi_memhotplug.c~acpi-printk-fix drivers/acpi/acpi_memhotplug.c
---- a/drivers/acpi/acpi_memhotplug.c~acpi-printk-fix
-+++ a/drivers/acpi/acpi_memhotplug.c
-@@ -248,7 +248,7 @@ static int acpi_memory_enable_device(str
- 		num_enabled++;
- 	}
- 	if (!num_enabled) {
--		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "\nadd_memory failed\n"));
-+		printk(KERN_ERR PREFIX "add_memory failed\n");
- 		mem_device->state = MEMORY_INVALID_STATE;
- 		return -EINVAL;
- 	}
-_
+I guess it never happened? ;-)
 
-
-and
-
---- a/drivers/acpi/bus.c~acpi-identify-which-device-is-not-power-manageable
-+++ a/drivers/acpi/bus.c
-@@ -192,7 +192,7 @@ int acpi_bus_set_power(acpi_handle handl
- 	/* Make sure this is a valid target state */
- 
- 	if (!device->flags.power_manageable) {
--		printk(KERN_DEBUG "Device `[%s]is not power manageable",
-+		printk(KERN_DEBUG "Device `[%s]' is not power manageable",
- 				device->kobj.name);
- 		return -ENODEV;
- 	}
-_
+Lee
 

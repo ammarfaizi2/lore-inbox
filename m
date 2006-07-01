@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWGAO4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWGAHVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWGAO4u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 10:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWGAO4u
+	id S932523AbWGAHVe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 03:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbWGAHVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 10:56:50 -0400
-Received: from www.osadl.org ([213.239.205.134]:17316 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751366AbWGAO4u (ORCPT
+	Sat, 1 Jul 2006 03:21:33 -0400
+Received: from gate.crashing.org ([63.228.1.57]:13722 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932523AbWGAHVd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 10:56:50 -0400
-Message-Id: <20060701145211.856500000@cruncher.tec.linutronix.de>
-Date: Sat, 01 Jul 2006 14:54:18 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>
-Subject: [RFC][patch 00/44] Consolidate irq_action flags
+	Sat, 1 Jul 2006 03:21:33 -0400
+Subject: Re: [PATCH] powerpc:Fix rheap alignment problem
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux powerpc <linuxppcleo@gmail.com>
+Cc: Rune Torgersen <runet@innovsys.com>, Li Yang-r58472 <LeoLi@freescale.com>,
+       linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <a0bc9bf80606302335p7ba227afwf69dc42e2eada64b@mail.gmail.com>
+References: <9FCDBA58F226D911B202000BDBAD467306E04FF6@zch01exm40.ap.freescale.net>
+	 <1151709194.27137.2.camel@localhost.localdomain>
+	 <DCEAAC0833DD314AB0B58112AD99B93B07B36E@ismail.innsys.innovsys.com>
+	 <a0bc9bf80606302335p7ba227afwf69dc42e2eada64b@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 01 Jul 2006 17:21:06 +1000
+Message-Id: <1151738466.27137.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The recent interrupt rework introduced bit value conflicts with sparc.
-Instead of introducing new architecture flags mess, move the interrupt
-SA_ flags out of the signal namespace and replace them by interrupt
-related flags.
+On Sat, 2006-07-01 at 14:35 +0800, Linux powerpc wrote:
+> Yes, it was used for allocating dual port RAM for CPM.  And now we are
+> adding QE support to powerpc arch which need to use rheap(QE is next
+> generation for CPM).  Please see the patches I <leoli@freescale.com>
+> just posted for 8360epb support.  Moreover, previous CPM support is
+> adding to powerpc arch too. 
 
-This allows to remove the obsolete SA_INTERRUPT flag and clean up
-the bit field values.
+Ok, well, I don't have anything specifically against that code, I was
+just wondering if it may not duplicate something we already have (yet
+another space allocator basically)... 
 
-The patch was mostly created by a script, manually fixed up and reviewed.
-Compile tested on various platforms. Boot tested on i386/x86_64
+Ben.
 
-	tglx
---
 

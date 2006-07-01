@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWGAWw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWGAWzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWGAWw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 18:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWGAWw4
+	id S1751368AbWGAWzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 18:55:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWGAWzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 18:52:56 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:20952 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751371AbWGAWwz (ORCPT
+	Sat, 1 Jul 2006 18:55:16 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:35285 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751368AbWGAWzO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 18:52:55 -0400
-Date: Sun, 2 Jul 2006 00:51:45 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Arjan van de Ven <arjan@infradead.org>,
-       Olivier Galibert <galibert@pobox.com>,
-       James Courtier-Dutton <James@superbug.co.uk>,
-       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       perex@suse.cz, Olaf Hering <olh@suse.de>
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-In-Reply-To: <1151762066.11897.5.camel@mindpipe>
-Message-ID: <Pine.LNX.4.61.0607020051280.14511@yvahk01.tjqt.qr>
-References: <20060629192128.GE19712@stusta.de>  <44A54D8E.3000002@superbug.co.uk>
- <20060630163114.GA12874@dspnet.fr.eu.org>  <1151702966.32444.57.camel@mindpipe>
-  <1151703286.11434.61.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.61.0607011048360.25773@yvahk01.tjqt.qr> <1151762066.11897.5.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 1 Jul 2006 18:55:14 -0400
+Date: Sat, 1 Jul 2006 18:54:48 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Grant Wilson <grant.wilson@zen.co.uk>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@suse.de>, linux-scsi@vger.kernel.org
+Subject: Re: 2.6.17-mm5
+Message-ID: <20060701225448.GB12703@havoc.gtf.org>
+References: <20060701033524.3c478698.akpm@osdl.org> <20060701142419.GB28750@tlg.swandive.local> <20060701143047.b3975472.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060701143047.b3975472.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I cannot really use my onboard snd-intel8x0 because it lacks volume
->> control on Master/PCM (= blows every headphone away), etc.
->> 00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS]
->> AC'97 Sound Controller (rev a0)
->
->ALSA should provide a master volume, it's only the kernel OSS emulation
->that cannot control the volume on such devices.  If ALSA does not give
->you volume controls, please file a bug report.
->
-https://bugtrack.alsa-project.org/alsa-bug/view.php?id=2250
+On Sat, Jul 01, 2006 at 02:30:47PM -0700, Andrew Morton wrote:
+> Grant Wilson <grant.wilson@zen.co.uk> wrote:
+> > [  155.226233] Oops: 0000 [1] PREEMPT SMP 
+
+Also, would be nice to re-test without preempt.
+
+Disabling preempt _continues_ to fix (bandaid?) problems...
+
+	Jeff
 
 
-Jan Engelhardt
--- 
+

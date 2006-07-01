@@ -1,86 +1,228 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751707AbWGAUdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWGAO4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751707AbWGAUdA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 16:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751924AbWGAUc7
+	id S1751373AbWGAO4w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 10:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWGAO4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 16:32:59 -0400
-Received: from mail.charite.de ([160.45.207.131]:15832 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1751539AbWGAUc6 (ORCPT
+	Sat, 1 Jul 2006 10:56:52 -0400
+Received: from www.osadl.org ([213.239.205.134]:18340 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751367AbWGAO4v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 16:32:58 -0400
-Date: Sat, 1 Jul 2006 22:32:56 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: 2.6.17-mm5 -  ACPI Exception (acpi_processor-0272): AE_BAD_PARAMETER, Invalid _PSS data [20060623]
-Message-ID: <20060701203256.GD13558@charite.de>
-Mail-Followup-To: "Brown, Len" <len.brown@intel.com>,
-	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-References: <CFF307C98FEABE47A452B27C06B85BB6E58B72@hdsmsx411.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6E58B72@hdsmsx411.amr.corp.intel.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Sat, 1 Jul 2006 10:56:51 -0400
+Message-Id: <20060701145223.318475000@cruncher.tec.linutronix.de>
+References: <20060701145211.856500000@cruncher.tec.linutronix.de>
+Date: Sat, 01 Jul 2006 14:54:19 -0000
+From: Thomas Gleixner <tglx@linutronix.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       David Miller <davem@davemloft.net>
+Subject: [RFC][patch 01/44] Consolidate flags for request_irq
+Content-Disposition: inline; filename=irqflags-base.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Brown, Len <len.brown@intel.com>:
-> 1. message was always there, but was disabled before.
-> 
-> 	Please build a previous kernel that doesn't show
-> 	this message (say 2.6.17) with CONFIG_ACPI_DEBUG=y
-> 	and report if you see the same message.
-> 
-> 	Note that the patch that enabled these messages
-> 	had been in mm before for several months
-> 	and just dropped out for a bit before -mm4,
-> 	so you might see this in earlier -mm's too.
 
-2.6.17.3:
+Move the interrupt related SA_ flags out of linux/signal.h and rename
+them to IRQF_ . This moves the interrupt related flags out of the signal
+namespace and allows to remove the architecture dependencies.
 
-Jul  1 22:23:40 knarzkiste kernel: powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.60.2)
-Jul  1 22:23:40 knarzkiste kernel: acpi_utils-0066 [04] extract_package       : Invalid 'package' argument
-Jul  1 22:23:40 knarzkiste kernel: acpi_processor-0277 [03] processor_get_performa: Invalid _PSS data
-Jul  1 22:23:40 knarzkiste kernel: powernow-k8:    0 : fid 0x0 (800 MHz), vid 0x12 (1100 mV)
-Jul  1 22:23:40 knarzkiste kernel: powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0x4 (1450 mV)
-Jul  1 22:23:40 knarzkiste kernel: cpu_init done, current fid 0x8, vid 0x2
-Jul  1 22:23:40 knarzkiste kernel: powernow-k8: ph2 null fid transition 0x8
+SA_INTERRUPT is not needed by userspace and glibc so it can be removed
+safely. The existing SA_ constants are kept for easy transition and will
+be removed after a 6 month grace period.
 
-So you were right.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+ Documentation/feature-removal-schedule.txt |    9 ++++
+ include/linux/interrupt.h                  |   47 ++++++++++++++++++++++++
+ include/linux/irq.h                        |   55 ++++++++++++++---------------
+ include/linux/signal.h                     |   26 -------------
+ 4 files changed, 83 insertions(+), 54 deletions(-)
 
-> 2. Some other regression
-> 
-> 	Lets hope not.
-> 
-> In any case, it would be good to get to the root cause.
-> Please open a bugzilla here:
-> http://bugzilla.kernel.org/enter_bug.cgi?product=ACPI
-> and attach the output from acpidump found in the
-> latest pmtools here:
-> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
-
-Done
+Index: linux-2.6.git/include/linux/interrupt.h
+===================================================================
+--- linux-2.6.git.orig/include/linux/interrupt.h	2006-07-01 16:51:30.000000000 +0200
++++ linux-2.6.git/include/linux/interrupt.h	2006-07-01 16:51:30.000000000 +0200
+@@ -14,6 +14,53 @@
+ #include <asm/ptrace.h>
+ #include <asm/system.h>
  
-> After the above, you might also check for an updated BIOS.
++/*
++ * These correspond to the IORESOURCE_IRQ_* defines in
++ * linux/ioport.h to select the interrupt line behaviour.  When
++ * requesting an interrupt without specifying a IRQF_TRIGGER, the
++ * setting should be assumed to be "as already configured", which
++ * may be as per machine or firmware initialisation.
++ */
++#define IRQF_TRIGGER_NONE	0x00000000
++#define IRQF_TRIGGER_RISING	0x00000001
++#define IRQF_TRIGGER_FALLING	0x00000002
++#define IRQF_TRIGGER_HIGH	0x00000004
++#define IRQF_TRIGGER_LOW	0x00000008
++#define IRQF_TRIGGER_MASK	(IRQF_TRIGGER_HIGH | IRQF_TRIGGER_LOW | \
++				 IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING)
++#define IRQF_TRIGGER_PROBE	0x00000010
++
++/*
++ * These flags used only by the kernel as part of the
++ * irq handling routines.
++ *
++ * IRQF_DISABLED - keep irqs disabled when calling the action handler
++ * IRQF_SAMPLE_RANDOM - irq is used to feed the random generator
++ * IRQF_SHARED - allow sharing the irq among several devices
++ * IRQF_PROBE_SHARED - set by callers when they expect sharing mismatches to occur
++ * IRQF_TIMER - Flag to mark this interrupt as timer interrupt
++ */
++#define IRQF_DISABLED		0x00000020
++#define IRQF_SAMPLE_RANDOM	0x00000040
++#define IRQF_SHARED		0x00000080
++#define IRQF_PROBE_SHARED	0x00000100
++#define IRQF_TIMER		0x00000200
++
++/*
++ * Migration helpers. Scheduled for removal in 1/2007
++ * Do not use for new code !
++ */
++#define SA_INTERRUPT		IRQF_DISABLED
++#define SA_SAMPLE_RANDOM	IRQF_SAMPLE_RANDOM
++#define SA_SHIRQ		IRQF_SHARED
++#define SA_PROBEIRQ		IRQF_PROBE_SHARED
++
++#define SA_TRIGGER_LOW		IRQF_TRIGGER_LOW
++#define SA_TRIGGER_HIGH		IRQF_TRIGGER_HIGH
++#define SA_TRIGGER_FALLING	IRQF_TRIGGER_FALLING
++#define SA_TRIGGER_RISING	IRQF_TRIGGER_RISING
++#define SA_TRIGGER_MASK		IRQF_TRIGGER_MASK
++
+ struct irqaction {
+ 	irqreturn_t (*handler)(int, void *, struct pt_regs *);
+ 	unsigned long flags;
+Index: linux-2.6.git/include/linux/signal.h
+===================================================================
+--- linux-2.6.git.orig/include/linux/signal.h	2006-07-01 16:51:30.000000000 +0200
++++ linux-2.6.git/include/linux/signal.h	2006-07-01 16:51:30.000000000 +0200
+@@ -9,32 +9,6 @@
+ #include <linux/spinlock.h>
+ 
+ /*
+- * These values of sa_flags are used only by the kernel as part of the
+- * irq handling routines.
+- *
+- * SA_INTERRUPT is also used by the irq handling routines.
+- * SA_SHIRQ is for shared interrupt support on PCI and EISA.
+- * SA_PROBEIRQ is set by callers when they expect sharing mismatches to occur
+- */
+-#define SA_SAMPLE_RANDOM	SA_RESTART
+-#define SA_SHIRQ		0x04000000
+-#define SA_PROBEIRQ		0x08000000
+-
+-/*
+- * As above, these correspond to the IORESOURCE_IRQ_* defines in
+- * linux/ioport.h to select the interrupt line behaviour.  When
+- * requesting an interrupt without specifying a SA_TRIGGER, the
+- * setting should be assumed to be "as already configured", which
+- * may be as per machine or firmware initialisation.
+- */
+-#define SA_TRIGGER_LOW		0x00000008
+-#define SA_TRIGGER_HIGH		0x00000004
+-#define SA_TRIGGER_FALLING	0x00000002
+-#define SA_TRIGGER_RISING	0x00000001
+-#define SA_TRIGGER_MASK	(SA_TRIGGER_HIGH|SA_TRIGGER_LOW|\
+-				 SA_TRIGGER_RISING|SA_TRIGGER_FALLING)
+-
+-/*
+  * Real Time signals may be queued.
+  */
+ 
+Index: linux-2.6.git/Documentation/feature-removal-schedule.txt
+===================================================================
+--- linux-2.6.git.orig/Documentation/feature-removal-schedule.txt	2006-07-01 16:51:30.000000000 +0200
++++ linux-2.6.git/Documentation/feature-removal-schedule.txt	2006-07-01 16:51:30.000000000 +0200
+@@ -257,3 +257,12 @@ Why:	Code does no longer build since at 
+ Who:	Ralf Baechle <ralf@linux-mips.org>
+ 
+ ---------------------------
++
++What:	Interrupt only SA_* flags
++When:	Januar 2007
++Why:	The interrupt related SA_* flags are replaced by IRQF_* to move them
++	out of the signal namespace.
++
++Who:	Thomas Gleixner <tglx@linutronix.de>
++
++---------------------------
+Index: linux-2.6.git/include/linux/irq.h
+===================================================================
+--- linux-2.6.git.orig/include/linux/irq.h	2006-07-01 16:51:30.000000000 +0200
++++ linux-2.6.git/include/linux/irq.h	2006-07-01 16:51:30.000000000 +0200
+@@ -24,41 +24,40 @@
+ 
+ /*
+  * IRQ line status.
++ *
++ * Bits 0-16 are reserved for the IRQF_* bits in linux/interrupt.h
++ *
++ * IRQ types
+  */
+-#define IRQ_INPROGRESS	1	/* IRQ handler active - do not enter! */
+-#define IRQ_DISABLED	2	/* IRQ disabled - do not enter! */
+-#define IRQ_PENDING	4	/* IRQ pending - replay on enable */
+-#define IRQ_REPLAY	8	/* IRQ has been replayed but not acked yet */
+-#define IRQ_AUTODETECT	16	/* IRQ is being autodetected */
+-#define IRQ_WAITING	32	/* IRQ not yet seen - for autodetection */
+-#define IRQ_LEVEL	64	/* IRQ level triggered */
+-#define IRQ_MASKED	128	/* IRQ masked - shouldn't be seen again */
++#define IRQ_TYPE_NONE		0x00000000	/* Default, unspecified type */
++#define IRQ_TYPE_EDGE_RISING	0x00000001	/* Edge rising type */
++#define IRQ_TYPE_EDGE_FALLING	0x00000002	/* Edge falling type */
++#define IRQ_TYPE_EDGE_BOTH (IRQ_TYPE_EDGE_FALLING | IRQ_TYPE_EDGE_RISING)
++#define IRQ_TYPE_LEVEL_HIGH	0x00000004	/* Level high type */
++#define IRQ_TYPE_LEVEL_LOW	0x00000008	/* Level low type */
++#define IRQ_TYPE_SENSE_MASK	0x0000000f	/* Mask of the above */
++#define IRQ_TYPE_PROBE		0x00000010	/* Probing in progress */
++
++/* Internal flags */
++#define IRQ_INPROGRESS		0x00010000	/* IRQ handler active - do not enter! */
++#define IRQ_DISABLED		0x00020000	/* IRQ disabled - do not enter! */
++#define IRQ_PENDING		0x00040000	/* IRQ pending - replay on enable */
++#define IRQ_REPLAY		0x00080000	/* IRQ has been replayed but not acked yet */
++#define IRQ_AUTODETECT		0x00100000	/* IRQ is being autodetected */
++#define IRQ_WAITING		0x00200000	/* IRQ not yet seen - for autodetection */
++#define IRQ_LEVEL		0x00400000	/* IRQ level triggered */
++#define IRQ_MASKED		0x00800000	/* IRQ masked - shouldn't be seen again */
+ #ifdef CONFIG_IRQ_PER_CPU
+-# define IRQ_PER_CPU	256	/* IRQ is per CPU */
++# define IRQ_PER_CPU		0x01000000	/* IRQ is per CPU */
+ # define CHECK_IRQ_PER_CPU(var) ((var) & IRQ_PER_CPU)
+ #else
+ # define CHECK_IRQ_PER_CPU(var) 0
+ #endif
+ 
+-#define IRQ_NOPROBE	512	/* IRQ is not valid for probing */
+-#define IRQ_NOREQUEST	1024	/* IRQ cannot be requested */
+-#define IRQ_NOAUTOEN	2048	/* IRQ will not be enabled on request irq */
+-#define IRQ_DELAYED_DISABLE \
+-			4096	/* IRQ disable (masking) happens delayed. */
+-
+-/*
+- * IRQ types, see also include/linux/interrupt.h
+- */
+-#define IRQ_TYPE_NONE		0x0000		/* Default, unspecified type */
+-#define IRQ_TYPE_EDGE_RISING	0x0001		/* Edge rising type */
+-#define IRQ_TYPE_EDGE_FALLING	0x0002		/* Edge falling type */
+-#define IRQ_TYPE_EDGE_BOTH (IRQ_TYPE_EDGE_FALLING | IRQ_TYPE_EDGE_RISING)
+-#define IRQ_TYPE_LEVEL_HIGH	0x0004		/* Level high type */
+-#define IRQ_TYPE_LEVEL_LOW	0x0008		/* Level low type */
+-#define IRQ_TYPE_SENSE_MASK	0x000f		/* Mask of the above */
+-#define IRQ_TYPE_SIMPLE		0x0010		/* Simple type */
+-#define IRQ_TYPE_PERCPU		0x0020		/* Per CPU type */
+-#define IRQ_TYPE_PROBE		0x0040		/* Probing in progress */
++#define IRQ_NOPROBE		0x02000000	/* IRQ is not valid for probing */
++#define IRQ_NOREQUEST		0x04000000	/* IRQ cannot be requested */
++#define IRQ_NOAUTOEN		0x08000000	/* IRQ will not be enabled on request irq */
++#define IRQ_DELAYED_DISABLE	0x10000000	/* IRQ disable (masking) happens delayed. */
+ 
+ struct proc_dir_entry;
+ 
 
-Updates are a bit hard, without windows :(
+--
 
--- 
-_________________________________________________
-
-  Charité - Universitätsmedizin Berlin
-_________________________________________________
-
-  Ralf Hildebrandt
-   i.A. Geschäftsbereich Informationsmanagement
-   Campus Benjamin Franklin
-   Hindenburgdamm 30 | Berlin
-   Tel. +49 30 450 570155 | Fax +49 30 450 570962
-   Ralf.Hildebrandt@charite.de
-   http://www.charite.de

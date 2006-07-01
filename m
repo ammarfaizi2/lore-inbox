@@ -1,59 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWGAX1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWGAX3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWGAX1U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 19:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWGAX1U
+	id S932085AbWGAX3z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 19:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWGAX3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 19:27:20 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:23190 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751197AbWGAX1U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 19:27:20 -0400
-Message-ID: <44A704A4.8080402@zytor.com>
-Date: Sat, 01 Jul 2006 16:26:28 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Sam Ravnborg <sam@ravnborg.org>, Miles Lane <miles.lane@gmail.com>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-mm5 -- Busted toolchain? -- usr/klibc/exec_l.c:59: undefined
- reference to `__stack_chk_fail'
-References: <a44ae5cd0607011409m720dd23dvf178a133c2060b6d@mail.gmail.com> <1151788673.3195.58.camel@laptopd505.fenrus.org> <a44ae5cd0607011425n18266b02s81b3d87988895555@mail.gmail.com> <1151789342.3195.60.camel@laptopd505.fenrus.org> <a44ae5cd0607011537o1cf00545td19e568dcb9c06c1@mail.gmail.com> <a44ae5cd0607011556t65b22b06m317baa9a47ff962@mail.gmail.com> <20060701230635.GA19114@mars.ravnborg.org> <44A7011B.6000702@zytor.com>
-In-Reply-To: <44A7011B.6000702@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 1 Jul 2006 19:29:55 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:24257 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932085AbWGAX3y (ORCPT
+	<rfc822;linux-kernel@VGER.KERNEL.ORG>);
+	Sat, 1 Jul 2006 19:29:54 -0400
+Date: Sat, 1 Jul 2006 07:45:35 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: marcelo@kvack.org
+Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
+       Vasily Averin <vvs@sw.ru>, Andrey Savochkin <saw@sawoct.com>,
+       Dmitry Monakhov <dmonakhov@sw.ru>, Roberto Nibali <ratz@drugphish.ch>
+Subject: [PATCH-2.4] EXT3: ext3 block bitmap leakage
+Message-ID: <20060701054535.GA1459@1wt.eu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Sam Ravnborg wrote:
->>
->> For klibc you need to patch scripts/Kbuild.klibc
->>
->> Appending it to KLIBCWARNFLAGS seems the right place.
-> 
-> KLIBCREQFLAGS, rather.
-> 
->> Do you know from what gcc version we can start using 
->> -fno-stack-protector?
-> 
-> Isn't there a macro to test if gcc supports a specific option already?
-> 
-> Either way, I can also add __stack_chk_fail() as an alias for abort(), 
-> for people who actually want the feature.
-> 
+Hi Marcelo,
 
-I looked at it again, and it looks like gcc depends on the TLS ABI in 
-order to pick the value of the cookie.  That makes it a potentially lot 
-more cantankerous option; I would like to be able to support stack-smash 
-checking in klibc, but if it means implementing TLS on all 
-architectures, then that would really defeat the purpose (and we should 
-add -fno-stack-protector to KLIBCREQFLAGS.)
+we missed this patch sent by Kirill Korotaev on LKML. Fortunately, Roberto
+noticed it and forwarded it to me.
 
-Arjan: I see a few stack-protector-related have your name on it, do you 
-have any details on implementation constraints for this across 
-architectures?
+Since it's been there for a very long time, there's no emergency, but the
+problem looks real and the fix seems to be confirmed, so if you have not
+closed 2.4.33 yet, it might be worth merging it too.
 
-	-hpa
+Here it is as a git patch, but I've queued it in -upstream if you prefer.
+
+Cheers,
+Willy
+
+
+>From nobody Mon Sep 17 00:00:00 2001
+From: Kirill Korotaev <dev@openvz.org>
+Date: Fri, 30 Jun 2006 13:41:05 +0400
+Subject: [PATCH] EXT3: ext3 block bitmap leakage
+
+This patch fixes ext3 block bitmap leakage,
+which leads to the following fsck messages on
+_healthy_ filesystem:
+Block bitmap differences:  -64159 -73707
+
+All kernels up to 2.6.17 have this bug.
+
+Found by
+   Vasily Averin <vvs@sw.ru> and Andrey Savochkin <saw@sawoct.com>
+Test case triggered the issue was created by
+   Dmitry Monakhov <dmonakhov@sw.ru>
+
+Signed-Off-By: Vasiliy Averin <vvs@sw.ru>
+Signed-Off-By: Andrey Savochkin <saw@sawoct.com>
+Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+CC: Dmitry Monakhov <dmonakhov@sw.ru>
+
+---
+
+ fs/ext3/inode.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+8c6f6cf38bc9b04edc69c2869ae1e6c584584b4f
+diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
+index bcd86f6..d8f5a9b 100644
+--- a/fs/ext3/inode.c
++++ b/fs/ext3/inode.c
+@@ -570,6 +570,7 @@ static int ext3_alloc_branch(handle_t *h
+ 
+ 	branch[0].key = cpu_to_le32(parent);
+ 	if (parent) {
++		keys = 1;
+ 		for (n = 1; n < num; n++) {
+ 			struct buffer_head *bh;
+ 			/* Allocate the next block */
+-- 
+1.3.3
+

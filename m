@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751813AbWGAPGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWGAIZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751813AbWGAPGn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 11:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWGAPG3
+	id S932447AbWGAIZU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 04:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWGAIZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 11:06:29 -0400
-Received: from www.osadl.org ([213.239.205.134]:61092 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751813AbWGAO5d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 10:57:33 -0400
-Message-Id: <20060701145227.433791000@cruncher.tec.linutronix.de>
-References: <20060701145211.856500000@cruncher.tec.linutronix.de>
-Date: Sat, 01 Jul 2006 14:55:02 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, matthew@wil.cx
-Subject: [RFC][patch 36/44] PARISC: Use the new IRQF_ constansts
-Content-Disposition: inline; filename=irqflags-drivers-parisc.patch
+	Sat, 1 Jul 2006 04:25:20 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:26304 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932447AbWGAIZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 04:25:20 -0400
+Subject: Re: [PATCH] FIX and enable EDAC sysfs operation
+From: Arjan van de Ven <arjan@infradead.org>
+To: Doug Thompson <norsk5@yahoo.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060701002936.65377.qmail@web50112.mail.yahoo.com>
+References: <20060701002936.65377.qmail@web50112.mail.yahoo.com>
+Content-Type: text/plain
+Date: Sat, 01 Jul 2006 10:25:14 +0200
+Message-Id: <1151742314.3195.7.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-06-30 at 17:29 -0700, Doug Thompson wrote:
+> The sysfs is now enabled in this patch, with a minimal set of control and attribute
+> files for examining EDAC state and for enabling/disabling the memory and PCI
+> operations.
+> 
 
-Use the new IRQF_ constants and remove the SA_INTERRUPT define
+unfortunately this is still buggy ;-(
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
- drivers/parisc/eisa.c    |    2 +-
- drivers/parisc/superio.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+> +/* No memory to release for this kobj */
+>  static void edac_csrow_instance_release(struct kobject *kobj)
+>  {
+>  	struct csrow_info *cs;
+>  
+> -	debugf1("%s()\n", __func__);
+>  	cs = container_of(kobj, struct csrow_info, kobj);
+>  	complete(&cs->kobj_complete);
+>  }
 
-Index: linux-2.6.git/drivers/parisc/eisa.c
-===================================================================
---- linux-2.6.git.orig/drivers/parisc/eisa.c	2006-07-01 16:51:13.000000000 +0200
-+++ linux-2.6.git/drivers/parisc/eisa.c	2006-07-01 16:51:46.000000000 +0200
-@@ -340,7 +340,7 @@ static int __devinit eisa_probe(struct p
- 	}
- 	pcibios_register_hba(&eisa_dev.hba);
- 
--	result = request_irq(dev->irq, eisa_irq, SA_SHIRQ, "EISA", &eisa_dev);
-+	result = request_irq(dev->irq, eisa_irq, IRQF_SHARED, "EISA", &eisa_dev);
- 	if (result) {
- 		printk(KERN_ERR "EISA: request_irq failed!\n");
- 		return result;
-Index: linux-2.6.git/drivers/parisc/superio.c
-===================================================================
---- linux-2.6.git.orig/drivers/parisc/superio.c	2006-07-01 16:51:13.000000000 +0200
-+++ linux-2.6.git/drivers/parisc/superio.c	2006-07-01 16:51:46.000000000 +0200
-@@ -271,7 +271,7 @@ superio_init(struct pci_dev *pcidev)
- 	else
- 		printk(KERN_ERR PFX "USB regulator not initialized!\n");
- 
--	if (request_irq(pdev->irq, superio_interrupt, SA_INTERRUPT,
-+	if (request_irq(pdev->irq, superio_interrupt, IRQF_DISABLED,
- 			SUPERIO, (void *)sio)) {
- 
- 		printk(KERN_ERR PFX "could not get irq\n");
 
---
+because this is still invalid behavior!
+
 

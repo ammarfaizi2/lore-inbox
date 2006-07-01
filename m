@@ -1,77 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWGAL4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWGARRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750938AbWGAL4J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 07:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWGAL4I
+	id S932383AbWGARRT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 13:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWGARRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 07:56:08 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:33229 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750938AbWGAL4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 07:56:08 -0400
-Date: Sat, 1 Jul 2006 07:51:58 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: RFC: unlazy fpu for frequent fpu users
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200607010753_MC3-1-C3ED-2040@compuserve.com>
+	Sat, 1 Jul 2006 13:17:19 -0400
+Received: from mail.parknet.jp ([210.171.160.80]:4623 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S932383AbWGARRS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 13:17:18 -0400
+X-AuthUser: hirofumi@parknet.jp
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fat: cleanup fat_get_block(s)
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 02 Jul 2006 02:17:13 +0900
+Message-ID: <87odw9jld2.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <1151705536.11434.69.camel@laptopd505.fenrus.org>
+get_blocks() was removed. So, this removes it on fat, and will take
+advantage of the multi block mapping.
 
-On Sat, 01 Jul 2006 00:12:16 +0200, Arjan van de Ven wrote:
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+---
 
-> right now the kernel on x86-64 has a 100% lazy fpu behavior: after
-> *every* context switch a trap is taken for the first FPU use to restore
-> the FPU context lazily. This is of course great for applications that
-> have very sporadic or no FPU use (since then you avoid doing the
-> expensive save/restore all the time). However for very frequent FPU
-> users... you take an extra trap every context switch.
-> 
-> The patch below adds a simple heuristic to this code: After 5
-> consecutive context switches of FPU use, the lazy behavior is disabled
-> and the context gets restored every context switch. If the app indeed
-> uses the FPU, the trap is avoided. (the chance of the 6th time slice
-> using FPU after the previous 5 having done so are quite high obviously).
-> 
+ fs/fat/inode.c |   29 ++++++++++++-----------------
+ 1 file changed, 12 insertions(+), 17 deletions(-)
 
-You can do better that that.  FXSR doesn't destroy the FPU contents; if
-you track the context carefully you can completely avoid the restore.
-This requires keeping a per-cpu variable that holds a pointer to the
-thread that last used the FPU and a per-thread variable containing the
-CPU number on which the thread last used FP math. Unfortunately this
-won't work in x86_64 because of the 'fxsave information leak' workaround.
-
-> --- linux-2.6.17-sleazyfpu.orig/arch/x86_64/kernel/process.c
-> +++ linux-2.6.17-sleazyfpu/arch/x86_64/kernel/process.c
-> @@ -515,6 +515,9 @@ __switch_to(struct task_struct *prev_p, 
->       int cpu = smp_processor_id();  
->       struct tss_struct *tss = &per_cpu(init_tss, cpu);
->  
-> +     /* prefetch the fxsave area into the cache */
-> +     prefetch(&next->i387.fxsave);
-> +
->       /*
->        * Reload esp0, LDT and the page table pointer:
->        */
-
-This prefetch is probably a bad idea.  I ported your patch to i386 and it was
-actually slower until I changed it:
-
-+       if (next_p->fpu_counter > 5)
-+               /* prefetch the fxsave area into the cache */
-+               prefetch(&next->i387.fxsave);
+diff -puN fs/fat/inode.c~fat-get_block-cleanup fs/fat/inode.c
+--- linux-2.6/fs/fat/inode.c~fat-get_block-cleanup	2006-06-29 22:43:48.000000000 +0900
++++ linux-2.6-hirofumi/fs/fat/inode.c	2006-06-29 22:43:48.000000000 +0900
+@@ -50,14 +50,14 @@ static int fat_add_cluster(struct inode 
+ 	return err;
+ }
+ 
+-static int __fat_get_blocks(struct inode *inode, sector_t iblock,
+-			    unsigned long *max_blocks,
+-			    struct buffer_head *bh_result, int create)
++static inline int __fat_get_block(struct inode *inode, sector_t iblock,
++				  unsigned long *max_blocks,
++				  struct buffer_head *bh_result, int create)
+ {
+ 	struct super_block *sb = inode->i_sb;
+ 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+-	sector_t phys;
+ 	unsigned long mapped_blocks;
++	sector_t phys;
+ 	int err, offset;
+ 
+ 	err = fat_bmap(inode, iblock, &phys, &mapped_blocks);
+@@ -73,7 +73,7 @@ static int __fat_get_blocks(struct inode
+ 
+ 	if (iblock != MSDOS_I(inode)->mmu_private >> sb->s_blocksize_bits) {
+ 		fat_fs_panic(sb, "corrupted file size (i_pos %lld, %lld)",
+-			     MSDOS_I(inode)->i_pos, MSDOS_I(inode)->mmu_private);
++			MSDOS_I(inode)->i_pos, MSDOS_I(inode)->mmu_private);
+ 		return -EIO;
+ 	}
+ 
+@@ -93,34 +93,29 @@ static int __fat_get_blocks(struct inode
+ 	err = fat_bmap(inode, iblock, &phys, &mapped_blocks);
+ 	if (err)
+ 		return err;
 +
-
-Now it's ~.4% faster.  The test was an FP program doing a simple benchmark
-while a non-FP program ran in a tight loop.
-
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+ 	BUG_ON(!phys);
+ 	BUG_ON(*max_blocks != mapped_blocks);
+ 	set_buffer_new(bh_result);
+ 	map_bh(bh_result, sb, phys);
++
+ 	return 0;
+ }
+ 
+-static int fat_get_blocks(struct inode *inode, sector_t iblock,
+-			  struct buffer_head *bh_result, int create)
++static int fat_get_block(struct inode *inode, sector_t iblock,
++			 struct buffer_head *bh_result, int create)
+ {
+ 	struct super_block *sb = inode->i_sb;
+-	int err;
+ 	unsigned long max_blocks = bh_result->b_size >> inode->i_blkbits;
++	int err;
+ 
+-	err = __fat_get_blocks(inode, iblock, &max_blocks, bh_result, create);
++	err = __fat_get_block(inode, iblock, &max_blocks, bh_result, create);
+ 	if (err)
+ 		return err;
+ 	bh_result->b_size = max_blocks << sb->s_blocksize_bits;
+ 	return 0;
+ }
+ 
+-static int fat_get_block(struct inode *inode, sector_t iblock,
+-			 struct buffer_head *bh_result, int create)
+-{
+-	unsigned long max_blocks = 1;
+-	return __fat_get_blocks(inode, iblock, &max_blocks, bh_result, create);
+-}
+-
+ static int fat_writepage(struct page *page, struct writeback_control *wbc)
+ {
+ 	return block_write_full_page(page, fat_get_block, wbc);
+@@ -188,7 +183,7 @@ static ssize_t fat_direct_IO(int rw, str
+ 	 * condition of fat_get_block() and ->truncate().
+ 	 */
+ 	return blockdev_direct_IO(rw, iocb, inode, inode->i_sb->s_bdev, iov,
+-				  offset, nr_segs, fat_get_blocks, NULL);
++				  offset, nr_segs, fat_get_block, NULL);
+ }
+ 
+ static sector_t _fat_bmap(struct address_space *mapping, sector_t block)
+_

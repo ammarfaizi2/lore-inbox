@@ -1,54 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWGALmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWGAKvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932550AbWGALmx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 07:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932869AbWGALmw
+	id S1750745AbWGAKvO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 06:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWGAKvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 07:42:52 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:21134 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932550AbWGALmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 07:42:52 -0400
-Subject: Re: [2.6 patch] EXPORT_UNUSED_SYMBOL{,GPL}
-	{,un}register_die_notifier
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1151754849.7087.3.camel@localhost.localdomain>
-References: <20060630113317.GV19712@stusta.de>
-	 <20060630203546.93a7bd87.akpm@osdl.org>
-	 <1151754849.7087.3.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sat, 01 Jul 2006 13:42:39 +0200
-Message-Id: <1151754159.3195.25.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 1 Jul 2006 06:51:14 -0400
+Received: from ns.suse.de ([195.135.220.2]:31210 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750745AbWGAKvN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 06:51:13 -0400
+From: Neil Brown <neilb@suse.de>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Date: Sat, 1 Jul 2006 20:51:03 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-ID: <17574.21399.979888.127483@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Weird RAID/SATA problem [ once was Re: 2.6.17-mm3 ]
+In-Reply-To: message from Reuben Farrelly on Saturday July 1
+References: <20060630105401.2dc1d3f3.akpm@osdl.org>
+	<44A5C1D5.20200@reub.net>
+	<17573.50871.307879.557218@cse.unsw.edu.au>
+	<44A5D079.6070505@reub.net>
+	<17573.55937.866300.638738@cse.unsw.edu.au>
+	<44A6390E.1030608@reub.net>
+	<17574.15295.828980.278323@cse.unsw.edu.au>
+	<44A64BD8.90906@reub.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-01 at 12:54 +0100, Alan Cox wrote:
-> Ar Gwe, 2006-06-30 am 20:35 -0700, ysgrifennodd Andrew Morton:
-> > On Fri, 30 Jun 2006 13:33:17 +0200
-> > Adrian Bunk <bunk@stusta.de> wrote:
+On Saturday July 1, reuben-lkml@reub.net wrote:
+> >>
+> >> md: super_written gets error=-5, uptodate=0
+> >>
+> >> messages on the console that didn't seem to want to stop...
 > > 
-> > > -EXPORT_SYMBOL(register_die_notifier);
-> > > +EXPORT_UNUSED_SYMBOL(register_die_notifier);  /*  June 2006  */
-> > > -EXPORT_SYMBOL(unregister_die_notifier);
-> > > +EXPORT_UNUSED_SYMBOL(unregister_die_notifier);  /*  June 2006  */
+> > '5' == EIO 
 > > 
-> > I'd expect there are any number of low-level debugging quick-hacky modules
-> > around which want to hook into here.
+> > We try to write the superblock and we get EIO - something wrong somewhere.
 > > 
-> > We can try it I guess, but I expect we'll hear about it.
+> > What sort of device are we writing to here?  What controller, what
+> > driver (if you know), what drives?
 > 
-> Some of the cluster modules use it too for fast failover.
+> The two raid-1 disks are the Seagate ST380817AS SATA disks on the onboard
+> controller.  The motherboard is an Intel D945GNT motherboard.  See dmesg..
+> 
+> > Can you write to the device without using md?
+> 
+> Yes.
+> 
 
-which ones?
+So... When md writes a superblock to this device, it reliably (or
+close to reliably) gets EIO.  When mkfs writes, it works fine.
 
-the gfs ones are in -mm and aren't using it...
+Only difference I can think of is still barriers... Does this patch
+make any difference?
+
+NeilBrown
+
+(For readers on linux-kernel who are wondering where the history of
+this thread is - you won't find it.  We were having a discussion in
+private and finally got embarrassed about keeping such gems to
+ourselves so we decided to share)
 
 
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./drivers/md/md.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff .prev/drivers/md/md.c ./drivers/md/md.c
+--- .prev/drivers/md/md.c	2006-07-01 12:12:14.000000000 +1000
++++ ./drivers/md/md.c	2006-07-01 20:48:44.000000000 +1000
+@@ -454,7 +454,7 @@ void md_super_write(mddev_t *mddev, mdk_
+ 	bio->bi_rw = rw;
+ 
+ 	atomic_inc(&mddev->pending_writes);
+-	if (!test_bit(BarriersNotsupp, &rdev->flags)) {
++	if (0 && !test_bit(BarriersNotsupp, &rdev->flags)) {
+ 		struct bio *rbio;
+ 		rw |= (1<<BIO_RW_BARRIER);
+ 		rbio = bio_clone(bio, GFP_NOIO);

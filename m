@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWGALCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbWGAJd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWGALCV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 07:02:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWGALCV
+	id S932542AbWGAJd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 05:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWGAJd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 07:02:21 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:20874 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932243AbWGALCU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 07:02:20 -0400
-Date: Sat, 1 Jul 2006 12:58:22 +0200
-To: Andrew Morton <akpm@osdl.org>
+	Sat, 1 Jul 2006 05:33:56 -0400
+Received: from www.osadl.org ([213.239.205.134]:15776 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932542AbWGAJdz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 05:33:55 -0400
+Subject: Re: Q: locking mechanisms
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Urs Thuermann <urs@isnogud.escape.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm one process gets stuck in infinite loop in the kernel.
-Message-ID: <20060701105822.GA10714@aitel.hist.no>
-References: <20060629013643.4b47e8bd.akpm@osdl.org> <44A3B8A0.4070601@aitel.hist.no> <20060629104117.e96df3da.akpm@osdl.org> <20060630215405.GA9744@aitel.hist.no> <20060630165532.5eadf286.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060630165532.5eadf286.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <m2odw9g937.fsf@janus.isnogud.escape.de>
+References: <m2odw9g937.fsf@janus.isnogud.escape.de>
+Content-Type: text/plain
+Date: Sat, 01 Jul 2006 11:36:11 +0200
+Message-Id: <1151746571.25491.850.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 30, 2006 at 04:55:32PM -0700, Andrew Morton wrote:
-> Helge Hafting <helgehaf@aitel.hist.no> wrote:
-> 
-> Oh.  This is probably the generic_file_buffer_write() hang, due to
-> zero-length iovec segments.
-> 
-> If so, the below should fix it up.
+Urs,
 
-I have not been able to reproduce the problem on mm4, so perhaps
-it went away.  Do you want me to test this patch on mm2 anyway?
+On Sat, 2006-07-01 at 07:58 +0200, Urs Thuermann wrote:
+> So my question is, is it really necessary for the list traversal to be
+> atomic, i.e. to disable preemption?  According to "Linux Device
+> Drivers", this is needed for the callback function, so it can be
+> called after the scheduler has been run on all CPUs and no reader is
+> still accessing the list item to be freed.  Is it right, that the
+> rcu_read_lock() wouldn't be necessary if I only would call
+> list_add_rcu() and list_del_rcu() since these make atomic changes and
+> can run in parallel anyway, even with rcu_read_lock(), on a SMP
+> system?
 
-Helge Hafting
+Does Documentation/listRCU.txt answer your questions ?
+
+	tglx
+
+

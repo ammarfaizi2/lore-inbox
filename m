@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932943AbWGARpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWGAOKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932943AbWGARpX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 13:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932947AbWGARpX
+	id S1751336AbWGAOKf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 10:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWGAOKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 13:45:23 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:6885 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932943AbWGARpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 13:45:22 -0400
-Subject: Re: Eeek! page_mapcount(page) went negative! (-1)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Daniel Drake <dsd@gentoo.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1151775860.12026.7.camel@mindpipe>
-References: <44A6AB99.8060407@gentoo.org>
-	 <1151773620.3195.39.camel@laptopd505.fenrus.org>
-	 <1151775860.12026.7.camel@mindpipe>
-Content-Type: text/plain
-Date: Sat, 01 Jul 2006 19:45:18 +0200
-Message-Id: <1151775918.3195.52.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 1 Jul 2006 10:10:35 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:13778 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751336AbWGAOKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 10:10:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=guvGT60sTqdnbREAvnfbgDOx9a0Xs1mmRWG7v16Y2Ia3MFLGVazuBGMQKRsX1EBV/ab/7t+L+20A/pPjPR23M2/cSfwGz2X43sww7jNmvp+e0tpmK2YzyU7oOF2D9JN5CiDHiRu/qUnLYm4WlRgljPw15JjzWjvxG/h4x/tHfMk=
+Message-ID: <a44ae5cd0607010710h227ce03fv8a98702a04306f7f@mail.gmail.com>
+Date: Sat, 1 Jul 2006 07:10:33 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Herbert Xu" <herbert@gondor.apana.org.au>
+Subject: Re: [patch] lockdep, annotate slocks: turn lockdep off for them
+Cc: "Arjan van de Ven" <arjan@infradead.org>, "Ingo Molnar" <mingo@elte.hu>,
+       "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060701140750.GA7342@gondor.apana.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <20060630065041.GB6572@elte.hu> <20060630091850.GA10713@elte.hu>
+	 <20060630111734.GA22202@gondor.apana.org.au>
+	 <20060630113758.GA18504@elte.hu>
+	 <a44ae5cd0606301321y6ce6b7dbo2b405d3d76a670f1@mail.gmail.com>
+	 <20060630203804.GA1950@elte.hu>
+	 <a44ae5cd0606301545s33496174lcd7136d8bf41897@mail.gmail.com>
+	 <1151746867.3195.19.camel@laptopd505.fenrus.org>
+	 <a44ae5cd0607010706k74c30a9ey6b7eac49d11e7827@mail.gmail.com>
+	 <20060701140750.GA7342@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-01 at 13:44 -0400, Lee Revell wrote:
-> On Sat, 2006-07-01 at 19:07 +0200, Arjan van de Ven wrote:
-> > On Sat, 2006-07-01 at 18:06 +0100, Daniel Drake wrote:
-> > > A user at http://bugs.gentoo.org/138366 reported a one-off crash on x86 
-> > > with 2.6.16.19. Here's hoping it might be useful to somebody:
-> > 
-> > does this happen too when the user stops using the binary nvidia driver?
-> > 
-> 
-> Shouldn't all BUGs include the state of the tainted flags?
+Doh!  User error.  I did a dry-run to make sure it'd apply and forgot
+to run again without it.  I'll fix and restest.
 
-unless the reporter edits those away ;)
-(same for the module list)
-
-
+Sorry,
+       Miles

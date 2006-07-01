@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751926AbWGAUM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWGAJBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751926AbWGAUM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 16:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751927AbWGAUM5
+	id S932472AbWGAJBu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 05:01:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbWGAJBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 16:12:57 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:13838 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751926AbWGAUM4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 16:12:56 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: Eeek! page_mapcount(page) went negative! (-1)
-Date: Sat, 1 Jul 2006 21:13:23 +0100
-User-Agent: KMail/1.9.3
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Daniel Drake <dsd@gentoo.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-References: <44A6AB99.8060407@gentoo.org> <44A6B11B.9080204@yahoo.com.au> <20060701180930.GE15810@redhat.com>
-In-Reply-To: <20060701180930.GE15810@redhat.com>
+	Sat, 1 Jul 2006 05:01:50 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:15574 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932472AbWGAJBt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 05:01:49 -0400
+Date: Sat, 1 Jul 2006 11:01:42 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: ltuikov@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sched.h: increment TASK_COMM_LEN to 20 bytes
+In-Reply-To: <20060630183744.310f3f0d.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0607011056590.25773@yvahk01.tjqt.qr>
+References: <20060630181915.638166c2.akpm@osdl.org>
+ <20060701012658.14951.qmail@web31803.mail.mud.yahoo.com>
+ <20060630183744.310f3f0d.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607012113.23053.s0348365@sms.ed.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 01 July 2006 19:09, Dave Jones wrote:
-> On Sun, Jul 02, 2006 at 03:30:03AM +1000, Nick Piggin wrote:
->  > Oh. I see Arjan's pointed out it is using the nvidia driver (how
->  > did he figure that out?).
+>> 
+>> I think incrementing it would be a good thing, plus other things
+>> may want to represent 8 bytes as a character array to be the name
+>> of a task thread.
 >
-> intuition. The process was X, and there have been reports of
-> the nvidia driver triggering this in Fedora bugzilla as well
-> as other places.
+>OK, that's a reason.  Being able to map a kernel thread onto a particular
+>device is useful.
+>
+Eh, that is not the case for some ATM.
 
-Also if you check the original bug report, there's video_cards_nvidia in the 
-USE flags, which I think includes nvidia-glx (proprietary code).
+Do "migration", "ksoftirqd", "watchdog", "events", "kblockd" and "aio" map 
+to a particular device besides possibly "CPU"?
 
+"xfslogd", "xfsdatad", and "rpciod" also have one thread per CPU rather 
+than per-device or per-mount.
+
+"pdflush" even has a variable number of threads running, depending on load. 
+One thread may serve many mounts/devices, or - I have seen this - eight 
+instances manage two mounts.
+
+
+Jan Engelhardt
 -- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

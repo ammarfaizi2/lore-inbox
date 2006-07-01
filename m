@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWGAEqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWGAOGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWGAEqS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 00:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWGAEqS
+	id S1751228AbWGAOGf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 10:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWGAOGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 00:46:18 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:975 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932181AbWGAEqR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 00:46:17 -0400
-Message-ID: <44A5FE17.1000607@garzik.org>
-Date: Sat, 01 Jul 2006 00:46:15 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: ltuikov@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sched.h: increment TASK_COMM_LEN to 20 bytes
-References: <20060630181915.638166c2.akpm@osdl.org>	<20060701012658.14951.qmail@web31803.mail.mud.yahoo.com> <20060630183744.310f3f0d.akpm@osdl.org>
-In-Reply-To: <20060630183744.310f3f0d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 1 Jul 2006 10:06:34 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:47331 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751228AbWGAOGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 10:06:33 -0400
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
+From: Lee Revell <rlrevell@joe-job.com>
+To: James Courtier-Dutton <James@superbug.co.uk>
+Cc: Olivier Galibert <galibert@pobox.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, perex@suse.cz,
+       Olaf Hering <olh@suse.de>
+In-Reply-To: <44A6279C.3000100@superbug.co.uk>
+References: <20060629192128.GE19712@stusta.de>
+	 <44A54D8E.3000002@superbug.co.uk> <20060630163114.GA12874@dspnet.fr.eu.org>
+	 <1151702966.32444.57.camel@mindpipe>
+	 <20060701073133.GA99126@dspnet.fr.eu.org> <44A6279C.3000100@superbug.co.uk>
+Content-Type: text/plain
+Date: Sat, 01 Jul 2006 09:52:40 -0400
+Message-Id: <1151761961.11897.3.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Luben Tuikov <ltuikov@yahoo.com> wrote:
->>> We do occasionally hit task_struct.comm[] truncation, when people use
->>> "too-long-a-name%d" for their kernel thread names.  But we seem to manage.
->> It would be especially helpful if you want to name a task thread
->> the NAA IEEE Registered name format (16 chars, globally unique), for things
->> like FC, SAS, etc.  This way you can identify the task thread with
->> the device bearing the NAA IEEE name.
->>
->> Currently just last character is cut off, since TASK_COMM_LEN is 15+1.
->>
->> I think incrementing it would be a good thing, plus other things
->> may want to represent 8 bytes as a character array to be the name
->> of a task thread.
+On Sat, 2006-07-01 at 08:43 +0100, James Courtier-Dutton wrote:
+> Olivier Galibert wrote:
+> > On Fri, Jun 30, 2006 at 05:29:26PM -0400, Lee Revell wrote:
+> >> Even if you reject this argument, the bug is in ALSA's in-kernel OSS
+> >> emulation, not the emu10k1 driver.
+> > 
+> > That's irrelevant.  You can't remove the oss emu10k1 driver in favor
+> > of alsa's until alsa provides an equivalent interface.  That's a basic
+> > compatibility requirement.
+> > 
+> > 
+> >> ALSA's in-kernel OSS emulation does not have these features and
+> >> never will.
+> > 
+> > "Never" is terribly long.
+> > 
+> >   OG.
 > 
-> OK, that's a reason.  Being able to map a kernel thread onto a particular
-> device is useful.
+> "Never" probably only means terribly long. :-)
+> 
+> If one takes the ALSA todo list, that is massive (it is so long in fact,
+> that we have not had time to write it all down!), sort it by priority,
+> then divide by the amount of ALSA developers time available, for this
+> particular feature, the time to implementation is getting very close to
+> "Never".
 
-But will it wind up this way, when the does-not-exist-yet-upstream code 
-appears?
+The reason I say "never" is because it would either require moving
+alsa-lib into the kernel (long ago rejected), or devising some system to
+redirect operations on /dev/dsp back into userspace to alsa-lib.  It
+seems insane for the audio path to be
+userspace->kernel->userspace->kernel and I'm pretty sure this idea was
+also rejected a while back.
 
-I would think it would make more sense to increase the size of the key 
-task structure only when there are justified, merged users in the kernel.
-
-	Jeff
-
-
+Lee
 

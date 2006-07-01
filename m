@@ -1,121 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932971AbWGAGAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751878AbWGAPJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932971AbWGAGAL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 02:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932979AbWGAGAK
+	id S1751878AbWGAPJW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 11:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWGAPIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 02:00:10 -0400
-Received: from o2.escape.de ([194.120.234.254]:10708 "EHLO oker.escape.de")
-	by vger.kernel.org with ESMTP id S932971AbWGAGAI (ORCPT
+	Sat, 1 Jul 2006 11:08:51 -0400
+Received: from www.osadl.org ([213.239.205.134]:54948 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751837AbWGAO5Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 02:00:08 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Q: locking mechanisms
-From: Urs Thuermann <urs@isnogud.escape.de>
-Date: 01 Jul 2006 07:58:20 +0200
-Message-ID: <m2odw9g937.fsf@janus.isnogud.escape.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 1 Jul 2006 10:57:25 -0400
+Message-Id: <20060701145226.813774000@cruncher.tec.linutronix.de>
+References: <20060701145211.856500000@cruncher.tec.linutronix.de>
+Date: Sat, 01 Jul 2006 14:54:56 -0000
+From: Thomas Gleixner <tglx@linutronix.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       David Miller <davem@davemloft.net>, bcollins@debian.org
+Subject: [RFC][patch 31/44] firewire: Use the new IRQF_ constansts
+Content-Disposition: inline; filename=irqflags-drivers-firewire.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I need to lock concurrent access to a list and I am unsure what the
-best locking mechanism is in this case.
 
-I have 3 functions which access the list, 2 functions called from a
-syscall, i.e. in process context, need write access, and one called
-from the softirq for network packet reception.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+ drivers/ieee1394/ohci1394.c |    4 ++--
+ drivers/ieee1394/pcilynx.c  |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-Currently, I have something like this (much simplified):
+Index: linux-2.6.git/drivers/ieee1394/ohci1394.c
+===================================================================
+--- linux-2.6.git.orig/drivers/ieee1394/ohci1394.c	2006-07-01 16:51:18.000000000 +0200
++++ linux-2.6.git/drivers/ieee1394/ohci1394.c	2006-07-01 16:51:41.000000000 +0200
+@@ -3392,12 +3392,12 @@ static int __devinit ohci1394_pci_probe(
+ 	spin_lock_init(&ohci->event_lock);
+ 
+ 	/*
+-	 * interrupts are disabled, all right, but... due to SA_SHIRQ we
++	 * interrupts are disabled, all right, but... due to IRQF_SHARED we
+ 	 * might get called anyway.  We'll see no event, of course, but
+ 	 * we need to get to that "no event", so enough should be initialized
+ 	 * by that point.
+ 	 */
+-	if (request_irq(dev->irq, ohci_irq_handler, SA_SHIRQ,
++	if (request_irq(dev->irq, ohci_irq_handler, IRQF_SHARED,
+ 			 OHCI1394_DRIVER_NAME, ohci))
+ 		FAIL(-ENOMEM, "Failed to allocate shared interrupt %d", dev->irq);
+ 
+Index: linux-2.6.git/drivers/ieee1394/pcilynx.c
+===================================================================
+--- linux-2.6.git.orig/drivers/ieee1394/pcilynx.c	2006-07-01 16:51:18.000000000 +0200
++++ linux-2.6.git/drivers/ieee1394/pcilynx.c	2006-07-01 16:51:41.000000000 +0200
+@@ -1253,7 +1253,7 @@ static int __devinit add_card(struct pci
+ 
+ 	sprintf (irq_buf, "%d", dev->irq);
+ 
+-        if (!request_irq(dev->irq, lynx_irq_handler, SA_SHIRQ,
++        if (!request_irq(dev->irq, lynx_irq_handler, IRQF_SHARED,
+                          PCILYNX_DRIVER_NAME, lynx)) {
+                 PRINT(KERN_INFO, lynx->id, "allocated interrupt %s", irq_buf);
+                 lynx->state = have_intr;
 
-	HLIST_HEAD(head);
-	rwlock_t lock = RW_LOCK_UNLOCKED;
-    
-	add_item(...)  /* called_from_syscall */
-	{
-		...
-		write_lock_bh(&lock);
-		some_read_operations_on_the_list();
-		if (some_condition) {
-			p = kmalloc(...);
-			initialize(p);
-			hlist_add_head(p->list, &head);
-		}
-		write_unlock_bh(&lock);
-	}
-    
-	del_item(...)  /* called_from_syscall */
-	{
-		...
-		write_lock_bh(&lock);
-		p = find_item_to_delete();
-		hlist_del(p->list);
-		kfree(p);
-		write_unlock_bh(&lock);
-	}
-    
-	receive_function(...)
-	{
-		...
-		read_lock(&lock);
-		hlist_for_each_entry(p, n, &head, list) {
-			deliver_packet_to_recv_queue(p);
-		}
-		read_unlock(&lock);
-	}
+--
 
-The problem here is, that the receive_function() may have to wait very
-long for the lock while the add_item() function holds the lock and
-blocks in the call to kmalloc().  For some reasons it's not easy to
-move the kmalloc() outside the locked region.
-
-I have also thought about using RCU.  But I don't understand it
-toroughly enough.
-
-The straight-forward way would be to remove the calls to write_lock(),
-replace the list operations by their _rcu counterpart, and replace the
-calls to read_lock/read_unlock by calls to rcu_read_lock/rcu_read_unlock,
-and replace the call to kfree() by a call to call_rcu(..., kfree, p);
-Right?
-
-This would make the list traversal for packet delivery atomic, by
-disabling preemption on that CPU.  However, since the list may contain
-quite a number of receivers, preemption may be disabled for a time
-longer than I'd like it to.
-
-So my question is, is it really necessary for the list traversal to be
-atomic, i.e. to disable preemption?  According to "Linux Device
-Drivers", this is needed for the callback function, so it can be
-called after the scheduler has been run on all CPUs and no reader is
-still accessing the list item to be freed.  Is it right, that the
-rcu_read_lock() wouldn't be necessary if I only would call
-list_add_rcu() and list_del_rcu() since these make atomic changes and
-can run in parallel anyway, even with rcu_read_lock(), on a SMP
-system?
-
-If so, I could possibly find another way to kfree() the list item when
-no one is still using it.  Without the need to disable preemption for
-too long a time.
-
-
-Yet another solution would be to have two locks, one to synchronize
-multiple processes trying to modify the list, similar to the code
-above, and a rwlock to synchronize between writes from the processes
-and the softirq routine receiving packets.  The receiving function
-would use read_lock as in the code above, and the del_item() function
-would get a write-lock just for the two lines
-
-    write_lock_bh(&other_lock);
-    hlist_del(p->list)
-    kfree(p)
-    write_unlock_bh(&other_lock)
-
-However, if possible, I would prefer avoiding a second lock.
-
-BTW, while working on this I thought about two functions I would like
-to see in the kernel:  upgrade a read_lock to write_lock and downgrade
-a write_lock to read_lock.
-
-
-urs

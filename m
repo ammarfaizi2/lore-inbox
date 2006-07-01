@@ -1,100 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbWGAPBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWGAJ0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932587AbWGAPBV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 11:01:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWGAO5r
+	id S932477AbWGAJ0M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 05:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWGAJ0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 10:57:47 -0400
-Received: from www.osadl.org ([213.239.205.134]:26532 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751462AbWGAO44 (ORCPT
+	Sat, 1 Jul 2006 05:26:12 -0400
+Received: from gate.perex.cz ([85.132.177.35]:54765 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932477AbWGAJ0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 10:56:56 -0400
-Message-Id: <20060701145224.022214000@cruncher.tec.linutronix.de>
-References: <20060701145211.856500000@cruncher.tec.linutronix.de>
-Date: Sat, 01 Jul 2006 14:54:27 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>, ysato@users.sourceforge.jp
-Subject: [RFC][patch 07/44] H8300: Use the new IRQF_ constansts
-Content-Disposition: inline; filename=irqflags-h8300.patch
+	Sat, 1 Jul 2006 05:26:11 -0400
+Date: Sat, 1 Jul 2006 11:26:08 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       James Courtier-Dutton <James@superbug.co.uk>,
+       Adrian Bunk <bunk@stusta.de>, LKML <linux-kernel@vger.kernel.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Olaf Hering <olh@suse.de>
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
+In-Reply-To: <20060701073133.GA99126@dspnet.fr.eu.org>
+Message-ID: <Pine.LNX.4.61.0607011118420.8553@tm8103.perex-int.cz>
+References: <20060629192128.GE19712@stusta.de> <44A54D8E.3000002@superbug.co.uk>
+ <20060630163114.GA12874@dspnet.fr.eu.org> <1151702966.32444.57.camel@mindpipe>
+ <20060701073133.GA99126@dspnet.fr.eu.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 1 Jul 2006, Olivier Galibert wrote:
 
-Use the new IRQF_ constants and remove the SA_INTERRUPT define
+> On Fri, Jun 30, 2006 at 05:29:26PM -0400, Lee Revell wrote:
+> > Even if you reject this argument, the bug is in ALSA's in-kernel OSS
+> > emulation, not the emu10k1 driver.
+> 
+> That's irrelevant.  You can't remove the oss emu10k1 driver in favor
+> of alsa's until alsa provides an equivalent interface.  That's a basic
+> compatibility requirement.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
- arch/h8300/kernel/ints.c       |    4 ++--
- arch/h8300/platform/h8s/ints.c |    4 ++--
- include/asm-h8300/signal.h     |    2 --
- 3 files changed, 4 insertions(+), 6 deletions(-)
+Sorry, but the OSS interface is not an issue for the emu10k1 driver. It 
+already supports multi-open, because emu10k1/emu10k2 chip supports more 
+voices in hardware. Lee was speaking about cheap versions of Sound Blaster 
+cards and they are not supported with the OSS emu10k1 linux driver, too.
 
-Index: linux-2.6.git/include/asm-h8300/signal.h
-===================================================================
---- linux-2.6.git.orig/include/asm-h8300/signal.h	2006-07-01 16:51:27.000000000 +0200
-+++ linux-2.6.git/include/asm-h8300/signal.h	2006-07-01 16:51:32.000000000 +0200
-@@ -74,7 +74,6 @@ typedef unsigned long sigset_t;
-  * SA_FLAGS values:
-  *
-  * SA_ONSTACK indicates that a registered stack_t will be used.
-- * SA_INTERRUPT is a no-op, but left due to historical reasons. Use the
-  * SA_RESTART flag to get restarting signals (which were the default long ago)
-  * SA_NOCLDSTOP flag to turn off SIGCHLD when children stop.
-  * SA_RESETHAND clears the handler when the signal is delivered.
-@@ -94,7 +93,6 @@ typedef unsigned long sigset_t;
- 
- #define SA_NOMASK	SA_NODEFER
- #define SA_ONESHOT	SA_RESETHAND
--#define SA_INTERRUPT	0x20000000 /* dummy -- ignored */
- 
- #define SA_RESTORER	0x04000000
- 
-Index: linux-2.6.git/arch/h8300/kernel/ints.c
-===================================================================
---- linux-2.6.git.orig/arch/h8300/kernel/ints.c	2006-07-01 16:51:27.000000000 +0200
-+++ linux-2.6.git/arch/h8300/kernel/ints.c	2006-07-01 16:51:32.000000000 +0200
-@@ -158,7 +158,7 @@ int request_irq(unsigned int irq, 
- 	irq_handle->devname = devname;
- 	irq_list[irq] = irq_handle;
- 
--	if (irq_handle->flags & SA_SAMPLE_RANDOM)
-+	if (irq_handle->flags & IRQF_SAMPLE_RANDOM)
- 		rand_initialize_irq(irq);
- 
- 	enable_irq(irq);
-@@ -222,7 +222,7 @@ asmlinkage void process_int(int irq, str
- 		if (irq_list[irq]) {
- 			irq_list[irq]->handler(irq, irq_list[irq]->dev_id, fp);
- 			irq_list[irq]->count++;
--			if (irq_list[irq]->flags & SA_SAMPLE_RANDOM)
-+			if (irq_list[irq]->flags & IRQF_SAMPLE_RANDOM)
- 				add_interrupt_randomness(irq);
- 		}
- 	} else {
-Index: linux-2.6.git/arch/h8300/platform/h8s/ints.c
-===================================================================
---- linux-2.6.git.orig/arch/h8300/platform/h8s/ints.c	2006-07-01 16:51:27.000000000 +0200
-+++ linux-2.6.git/arch/h8300/platform/h8s/ints.c	2006-07-01 16:51:32.000000000 +0200
-@@ -192,7 +192,7 @@ int request_irq(unsigned int irq,
- 	irq_handle->dev_id  = dev_id;
- 	irq_handle->devname = devname;
- 	irq_list[irq] = irq_handle;
--	if (irq_handle->flags & SA_SAMPLE_RANDOM)
-+	if (irq_handle->flags & IRQF_SAMPLE_RANDOM)
- 		rand_initialize_irq(irq);
- 	
- 	/* enable interrupt */
-@@ -270,7 +270,7 @@ asmlinkage void process_int(unsigned lon
- 		if (irq_list[vec]) {
- 			irq_list[vec]->handler(vec, irq_list[vec]->dev_id, fp);
- 			irq_list[vec]->count++;
--			if (irq_list[vec]->flags & SA_SAMPLE_RANDOM)
-+			if (irq_list[vec]->flags & IRQF_SAMPLE_RANDOM)
- 				add_interrupt_randomness(vec);
- 		}
- 	} else {
+> > ALSA's in-kernel OSS emulation does not have these features and
+> > never will.
+> 
+> "Never" is terribly long.
 
---
+The questions is which feature is missing from the ALSA emu10k1 driver. 
+Personally, I don't know about any, except some extra features like 
+rear/center/lfe channel binding, but the old OSS app binaries does not 
+know about them, so it's no worth to care.
 
+In my opinion, the OSS emu10k1 driver is ready to be removed unless 
+someone notify us about any missing feature.
+
+					Thanks,
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWGAK1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWGAOes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbWGAK1q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 06:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWGAK1q
+	id S1751038AbWGAOes (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 10:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWGAOes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 06:27:46 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:20563 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1750881AbWGAK1p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 06:27:45 -0400
-Message-ID: <44A64E1B.2030501@tls.msk.ru>
-Date: Sat, 01 Jul 2006 14:27:39 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@google.com>,
-       Johann Lombardi <johann.lombardi@bull.net>, sho@tnes.nec.co.jp,
-       cmm@us.ibm.com, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC 1/2] ext3: enlarge blocksize and fix rec_len overflow
-References: <20060628205238sho@rifu.tnes.nec.co.jp> <20060628155048.GG2893@chiva> <20060628202421.GL5318@schatzie.adilger.int> <44A417A3.80001@google.com> <20060629202700.GD5318@schatzie.adilger.int> <44A450BB.60105@google.com> <20060630093113.GA2702@chiva> <44A56B45.6050506@google.com> <20060701083950.GB5355@schatzie.adilger.int>
-In-Reply-To: <20060701083950.GB5355@schatzie.adilger.int>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 1 Jul 2006 10:34:48 -0400
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:7541 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751038AbWGAOer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 10:34:47 -0400
+In-Reply-To: <20060701102557.GA14013@lst.de>
+References: <9FCDBA58F226D911B202000BDBAD467306E04FF6@zch01exm40.ap.freescale.net> <1151709194.27137.2.camel@localhost.localdomain> <DCEAAC0833DD314AB0B58112AD99B93B07B36E@ismail.innsys.innovsys.com> <a0bc9bf80606302335p7ba227afwf69dc42e2eada64b@mail.gmail.com> <1151738466.27137.24.camel@localhost.localdomain> <20060701102557.GA14013@lst.de>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <C4F75531-D046-42EF-AAF7-D45B84DA1720@kernel.crashing.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>,
+       "linux-kernel@vger.kernel.org mailing list" 
+	<linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Pantelis Antoniou <pantelis.antoniou@gmail.com>
 Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] powerpc:Fix rheap alignment problem
+Date: Sat, 1 Jul 2006 09:34:45 -0500
+To: Christoph Hellwig <hch@lst.de>
+X-Mailer: Apple Mail (2.750)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> On Jun 30, 2006  11:19 -0700, Daniel Phillips wrote:
->> OK, just to handle the 64K case, what is wrong with treating 0 as 64K?
-> 
-> Hmm, good question - it's impossible to have a valid rec_len of 0 bytes.
-> There would need to be some special casing in the directory handling code.
-> Also, it breaks some of the directory sanity checking, and since "0" is
-> a common corruption pattern it isn't great to use.  We could instead use
-> 0xfffc to mean 0x10000 since they are virtually the same value and the
-> error checking is safe.  It isn't possible to have this as a valid value.
 
-I understand the wishes to extend the filesystem capabilities which are
-now becoming limited. I understand sometimes it's relatively easy to
-"extend the width" of some on-disk fields this way.
+On Jul 1, 2006, at 5:25 AM, Christoph Hellwig wrote:
 
-But.
+> On Sat, Jul 01, 2006 at 05:21:06PM +1000, Benjamin Herrenschmidt  
+> wrote:
+>> On Sat, 2006-07-01 at 14:35 +0800, Linux powerpc wrote:
+>>> Yes, it was used for allocating dual port RAM for CPM.  And now  
+>>> we are
+>>> adding QE support to powerpc arch which need to use rheap(QE is next
+>>> generation for CPM).  Please see the patches I <leoli@freescale.com>
+>>> just posted for 8360epb support.  Moreover, previous CPM support is
+>>> adding to powerpc arch too.
+>>
+>> Ok, well, I don't have anything specifically against that code, I was
+>> just wondering if it may not duplicate something we already have (yet
+>> another space allocator basically)...
+>
+> Yepp.  Without looking at the rheap allocator in deatail, any reason
+> it can't use lib/genalloc.c?
 
-Isn't this sort of kludges (in a normally numeric field of a limited width,
-introduce special normally-impossible values to mean different values) are
-the ways to complicate things (code) and confuse various tools and people
-for too much, making the whole thing just broken by design?
+Doing a quick glance at lib/genalloc.c I dont see any reason we  
+couldn't use it.  However, Panto will know best, since he wrote rheap.
 
-A line should be drawn somewhere.  When, after breaking (and thus "fixing")
-some currently present limit, we change internal semantics in an ugly way,
-maybe it's really better to change original design and introduce new,
-somehow incompatible filesystem instead?
-
-Please excuse me if this my comment is entirely beyong the point, because,
-well.. to be fair, I don't quite understand what's the whole talk about,
-I'm just reading the above (quoted) email out of context... ;)
-
-/mjt
+- k

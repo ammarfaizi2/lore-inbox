@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWGAHMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWGAKya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbWGAHMa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 03:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWGAHMa
+	id S932157AbWGAKya (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 06:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWGAKyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 03:12:30 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:28385 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932191AbWGAHM3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 03:12:29 -0400
-Date: Sat, 1 Jul 2006 09:07:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: [patch] pi-futex: futex_wake() lockup fix
-Message-ID: <20060701070746.GA22457@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5122]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sat, 1 Jul 2006 06:54:05 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:2029 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1750938AbWGAKyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 06:54:00 -0400
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [PATCH 2 of 2] Add a MAINTAINERS entry for Calgary
+X-Mercurial-Node: fb5f1c67954816b63e542ea4d80f5a2b294ca10c
+Message-Id: <fb5f1c67954816b63e54.1151751238@rhun.haifa.ibm.com>
+In-Reply-To: <patchbomb.1151751236@rhun.haifa.ibm.com>
+Date: Sat,  1 Jul 2006 13:53:58 +0300
+From: muli@il.ibm.com
+To: ak@suse.de
+Cc: muli@il.ibm.com, jdmason@us.ibm.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: pi-futex: futex_wake() lockup fix
-From: Ingo Molnar <mingo@elte.hu>
+# HG changeset patch
+# User Muli Ben-Yehuda <muli@il.ibm.com>
+# Node ID fb5f1c67954816b63e542ea4d80f5a2b294ca10c
+# Parent  c4bd0cdcce626b9edc0b4fa3e94c8d9666cf977a
+Add a MAINTAINERS entry for Calgary
 
-fix futex_wake() exit condition bug when handling the robust-list with 
-PI futexes on them.
+Signed-Off-By: Muli Ben-Yehuda <muli@il.ibm.com>
+Signed-Off-By: Jon Mason <jdmason@us.ibm.com>
 
-(reported by Ulrich Drepper, debugged by the lock validator.)
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/futex.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-Index: linux/kernel/futex.c
-===================================================================
---- linux.orig/kernel/futex.c
-+++ linux/kernel/futex.c
-@@ -646,8 +646,10 @@ static int futex_wake(u32 __user *uaddr,
+diff -r c4bd0cdcce62 -r fb5f1c679548 MAINTAINERS
+--- a/MAINTAINERS	Sat Jul 01 13:39:52 2006 +0300
++++ b/MAINTAINERS	Sat Jul 01 13:40:56 2006 +0300
+@@ -606,6 +606,15 @@ L:	video4linux-list@redhat.com
+ L:	video4linux-list@redhat.com
+ W:	http://linuxtv.org
+ T:	git kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
++S:	Maintained
++
++CALGARY x86-64 IOMMU
++P:	Muli Ben-Yehuda
++M:	muli@il.ibm.com
++P:	Jon D. Mason
++M:	jdmason@us.ibm.com
++L:	linux-kernel@vger.kernel.org
++L:	discuss@x86-64.org
+ S:	Maintained
  
- 	list_for_each_entry_safe(this, next, head, list) {
- 		if (match_futex (&this->key, &key)) {
--			if (this->pi_state)
--				return -EINVAL;
-+			if (this->pi_state) {
-+				ret = -EINVAL;
-+				break;
-+			}
- 			wake_futex(this);
- 			if (++ret >= nr_wake)
- 				break;
+ COMMON INTERNET FILE SYSTEM (CIFS)

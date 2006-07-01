@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWGALjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932943AbWGARpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWGALjp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 07:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWGALjp
+	id S932943AbWGARpX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 13:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932947AbWGARpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 07:39:45 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50906 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964851AbWGALjo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 07:39:44 -0400
-Subject: Re: [2.6 patch] EXPORT_UNUSED_SYMBOL{,GPL}
-	{,un}register_die_notifier
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060630203546.93a7bd87.akpm@osdl.org>
-References: <20060630113317.GV19712@stusta.de>
-	 <20060630203546.93a7bd87.akpm@osdl.org>
+	Sat, 1 Jul 2006 13:45:23 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:6885 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932943AbWGARpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 13:45:22 -0400
+Subject: Re: Eeek! page_mapcount(page) went negative! (-1)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Daniel Drake <dsd@gentoo.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1151775860.12026.7.camel@mindpipe>
+References: <44A6AB99.8060407@gentoo.org>
+	 <1151773620.3195.39.camel@laptopd505.fenrus.org>
+	 <1151775860.12026.7.camel@mindpipe>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 01 Jul 2006 12:54:08 +0100
-Message-Id: <1151754849.7087.3.camel@localhost.localdomain>
+Date: Sat, 01 Jul 2006 19:45:18 +0200
+Message-Id: <1151775918.3195.52.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-06-30 am 20:35 -0700, ysgrifennodd Andrew Morton:
-> On Fri, 30 Jun 2006 13:33:17 +0200
-> Adrian Bunk <bunk@stusta.de> wrote:
+On Sat, 2006-07-01 at 13:44 -0400, Lee Revell wrote:
+> On Sat, 2006-07-01 at 19:07 +0200, Arjan van de Ven wrote:
+> > On Sat, 2006-07-01 at 18:06 +0100, Daniel Drake wrote:
+> > > A user at http://bugs.gentoo.org/138366 reported a one-off crash on x86 
+> > > with 2.6.16.19. Here's hoping it might be useful to somebody:
+> > 
+> > does this happen too when the user stops using the binary nvidia driver?
+> > 
 > 
-> > -EXPORT_SYMBOL(register_die_notifier);
-> > +EXPORT_UNUSED_SYMBOL(register_die_notifier);  /*  June 2006  */
-> > -EXPORT_SYMBOL(unregister_die_notifier);
-> > +EXPORT_UNUSED_SYMBOL(unregister_die_notifier);  /*  June 2006  */
-> 
-> I'd expect there are any number of low-level debugging quick-hacky modules
-> around which want to hook into here.
-> 
-> We can try it I guess, but I expect we'll hear about it.
+> Shouldn't all BUGs include the state of the tainted flags?
 
-Some of the cluster modules use it too for fast failover.
+unless the reporter edits those away ;)
+(same for the module list)
 
-Alan
 

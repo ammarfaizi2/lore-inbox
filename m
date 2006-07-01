@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbWGAPCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751813AbWGAPGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932589AbWGAPCB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 11:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751904AbWGAO5m
+	id S1751813AbWGAPGn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 11:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWGAPG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 10:57:42 -0400
-Received: from www.osadl.org ([213.239.205.134]:29860 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751518AbWGAO5A (ORCPT
+	Sat, 1 Jul 2006 11:06:29 -0400
+Received: from www.osadl.org ([213.239.205.134]:61092 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751813AbWGAO5d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 10:57:00 -0400
-Message-Id: <20060701145224.370665000@cruncher.tec.linutronix.de>
+	Sat, 1 Jul 2006 10:57:33 -0400
+Message-Id: <20060701145227.433791000@cruncher.tec.linutronix.de>
 References: <20060701145211.856500000@cruncher.tec.linutronix.de>
-Date: Sat, 01 Jul 2006 14:54:30 -0000
+Date: Sat, 01 Jul 2006 14:55:02 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>
-Subject: [RFC][patch 10/44] M32R: Use the new IRQF_ constansts
-Content-Disposition: inline; filename=irqflags-m32r.patch
+       David Miller <davem@davemloft.net>, matthew@wil.cx
+Subject: [RFC][patch 36/44] PARISC: Use the new IRQF_ constansts
+Content-Disposition: inline; filename=irqflags-drivers-parisc.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -26,43 +26,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Use the new IRQF_ constants and remove the SA_INTERRUPT define
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
- arch/m32r/kernel/time.c   |    2 +-
- include/asm-m32r/signal.h |    2 --
- 2 files changed, 1 insertion(+), 3 deletions(-)
+ drivers/parisc/eisa.c    |    2 +-
+ drivers/parisc/superio.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Index: linux-2.6.git/include/asm-m32r/signal.h
+Index: linux-2.6.git/drivers/parisc/eisa.c
 ===================================================================
---- linux-2.6.git.orig/include/asm-m32r/signal.h	2006-07-01 16:51:26.000000000 +0200
-+++ linux-2.6.git/include/asm-m32r/signal.h	2006-07-01 16:51:33.000000000 +0200
-@@ -81,7 +81,6 @@ typedef unsigned long sigset_t;
-  * SA_FLAGS values:
-  *
-  * SA_ONSTACK indicates that a registered stack_t will be used.
-- * SA_INTERRUPT is a no-op, but left due to historical reasons. Use the
-  * SA_RESTART flag to get restarting signals (which were the default long ago)
-  * SA_NOCLDSTOP flag to turn off SIGCHLD when children stop.
-  * SA_RESETHAND clears the handler when the signal is delivered.
-@@ -101,7 +100,6 @@ typedef unsigned long sigset_t;
+--- linux-2.6.git.orig/drivers/parisc/eisa.c	2006-07-01 16:51:13.000000000 +0200
++++ linux-2.6.git/drivers/parisc/eisa.c	2006-07-01 16:51:46.000000000 +0200
+@@ -340,7 +340,7 @@ static int __devinit eisa_probe(struct p
+ 	}
+ 	pcibios_register_hba(&eisa_dev.hba);
  
- #define SA_NOMASK	SA_NODEFER
- #define SA_ONESHOT	SA_RESETHAND
--#define SA_INTERRUPT	0x20000000 /* dummy -- ignored */
- 
- #define SA_RESTORER	0x04000000
- 
-Index: linux-2.6.git/arch/m32r/kernel/time.c
+-	result = request_irq(dev->irq, eisa_irq, SA_SHIRQ, "EISA", &eisa_dev);
++	result = request_irq(dev->irq, eisa_irq, IRQF_SHARED, "EISA", &eisa_dev);
+ 	if (result) {
+ 		printk(KERN_ERR "EISA: request_irq failed!\n");
+ 		return result;
+Index: linux-2.6.git/drivers/parisc/superio.c
 ===================================================================
---- linux-2.6.git.orig/arch/m32r/kernel/time.c	2006-07-01 16:51:26.000000000 +0200
-+++ linux-2.6.git/arch/m32r/kernel/time.c	2006-07-01 16:51:33.000000000 +0200
-@@ -237,7 +237,7 @@ irqreturn_t timer_interrupt(int irq, voi
- 	return IRQ_HANDLED;
- }
+--- linux-2.6.git.orig/drivers/parisc/superio.c	2006-07-01 16:51:13.000000000 +0200
++++ linux-2.6.git/drivers/parisc/superio.c	2006-07-01 16:51:46.000000000 +0200
+@@ -271,7 +271,7 @@ superio_init(struct pci_dev *pcidev)
+ 	else
+ 		printk(KERN_ERR PFX "USB regulator not initialized!\n");
  
--struct irqaction irq0 = { timer_interrupt, SA_INTERRUPT, CPU_MASK_NONE,
-+struct irqaction irq0 = { timer_interrupt, IRQF_DISABLED, CPU_MASK_NONE,
- 			  "MFT2", NULL, NULL };
+-	if (request_irq(pdev->irq, superio_interrupt, SA_INTERRUPT,
++	if (request_irq(pdev->irq, superio_interrupt, IRQF_DISABLED,
+ 			SUPERIO, (void *)sio)) {
  
- void __init time_init(void)
+ 		printk(KERN_ERR PFX "could not get irq\n");
 
 --
 

@@ -1,23 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWGAMNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWGAJlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWGAMNd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 08:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWGAMNd
+	id S932490AbWGAJlR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 05:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWGAJlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 08:13:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:18092 "EHLO
+	Sat, 1 Jul 2006 05:41:17 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:19423 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750957AbWGAMNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 08:13:32 -0400
-Subject: Re: RFC: unlazy fpu for frequent fpu users
+	id S932490AbWGAJlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 05:41:16 -0400
+Subject: Re: [patch] lockdep, annotate slocks: turn lockdep off for them
 From: Arjan van de Ven <arjan@infradead.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200607010753_MC3-1-C3ED-2040@compuserve.com>
-References: <200607010753_MC3-1-C3ED-2040@compuserve.com>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Herbert Xu <herbert@gondor.apana.org.au>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <a44ae5cd0606301545s33496174lcd7136d8bf41897@mail.gmail.com>
+References: <a44ae5cd0606291201v659b4235sfa9941aa3b18e766@mail.gmail.com>
+	 <20060630065041.GB6572@elte.hu> <20060630072231.GB7057@elte.hu>
+	 <20060630091850.GA10713@elte.hu>
+	 <20060630111734.GA22202@gondor.apana.org.au>
+	 <20060630113758.GA18504@elte.hu>
+	 <a44ae5cd0606301321y6ce6b7dbo2b405d3d76a670f1@mail.gmail.com>
+	 <20060630203804.GA1950@elte.hu>
+	 <a44ae5cd0606301545s33496174lcd7136d8bf41897@mail.gmail.com>
 Content-Type: text/plain
-Date: Sat, 01 Jul 2006 14:13:30 +0200
-Message-Id: <1151756010.3195.31.camel@laptopd505.fenrus.org>
+Date: Sat, 01 Jul 2006 11:41:06 +0200
+Message-Id: <1151746867.3195.19.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -26,47 +34,61 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> You can do better that that.  FXSR doesn't destroy the FPU contents; if
-> you track the context carefully you can completely avoid the restore.
-> This requires keeping a per-cpu variable that holds a pointer to the
-
-
-to be honest, while I like the idea, it does scare me from a security
-point of view, both in terms of leaks and in terms of injecting bad
-stuff. 
-
-> > --- linux-2.6.17-sleazyfpu.orig/arch/x86_64/kernel/process.c
-> > +++ linux-2.6.17-sleazyfpu/arch/x86_64/kernel/process.c
-> > @@ -515,6 +515,9 @@ __switch_to(struct task_struct *prev_p, 
-> >       int cpu = smp_processor_id();  
-> >       struct tss_struct *tss = &per_cpu(init_tss, cpu);
-> >  
-> > +     /* prefetch the fxsave area into the cache */
-> > +     prefetch(&next->i387.fxsave);
-> > +
-> >       /*
-> >        * Reload esp0, LDT and the page table pointer:
-> >        */
+On Fri, 2006-06-30 at 15:45 -0700, Miles Lane wrote:
+> Okay, I rebuilt my kernel with your combo patch applied.
+> Then, I inserted my US Robotics USR2210 PCMCIA wifi card,
+> ran "pccardutil eject", popped out the card and then inserted
+> a Compaq iPaq wifi card.  This triggered the following.
 > 
-> This prefetch is probably a bad idea.  I ported your patch to i386 and it was
-> actually slower until I changed it:
+> [ INFO: possible circular locking dependency detected ]
+> -------------------------------------------------------
+> syslogd/1886 is trying to acquire lock:
+>  (&dev->queue_lock){-+..}, at: [<c11a50b5>] dev_queue_xmit+0x120/0x24b
 > 
-> +       if (next_p->fpu_counter > 5)
-> +               /* prefetch the fxsave area into the cache */
-> +               prefetch(&next->i387.fxsave);
-> +
+> but task is already holding lock:
+>  (&dev->_xmit_lock){-+..}, at: [<c11a5118>] dev_queue_xmit+0x183/0x24b
 > 
-> Now it's ~.4% faster.  The test was an FP program doing a simple benchmark
-> while a non-FP program ran in a tight loop.
+> which lock already depends on the new lock.
 
-nice! I sort of am not a big fan of if .. prefetch() but if it shows
-gain... then you convinced me. 0.4% is roughly the same order I saw.
-It's not gigantic but it's almost free to do so it may be worth it
-anyway... 
-Can you send me your patch so that I can integrate it (and I'll port
-your if() to the prefetch)... 
 
-Greetings,
-    Arjan van de Ven
+ok this appears to be hostap playing games... it has 2 network devices
+for one piece of hardware and one calls the other via the networking
+layer; there is thankfully a natural ordering between the two, so just
+making the slave one a separate type ought to make this work.
+
+Can you test the patch below?
+
+---
+ drivers/net/wireless/hostap/hostap_hw.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+Index: linux-2.6.17-mm4/drivers/net/wireless/hostap/hostap_hw.c
+===================================================================
+--- linux-2.6.17-mm4.orig/drivers/net/wireless/hostap/hostap_hw.c
++++ linux-2.6.17-mm4/drivers/net/wireless/hostap/hostap_hw.c
+@@ -3096,6 +3096,14 @@ static void prism2_clear_set_tim_queue(l
+ }
+ 
+ 
++/*
++ * HostAP uses two layers of net devices, where the inner
++ * layer gets called all the time from the outer layer.
++ * This is a natural nesting, which needs a split lock type.
++ */
++static struct lock_class_key hostap_netdev_xmit_lock_key;
++
++
+ static struct net_device *
+ prism2_init_local_data(struct prism2_helper_functions *funcs, int card_idx,
+ 		       struct device *sdev)
+@@ -3260,6 +3268,8 @@ while (0)
+ 	SET_NETDEV_DEV(dev, sdev);
+ 	if (ret >= 0)
+ 		ret = register_netdevice(dev);
++
++	lockdep_set_class(&dev->_xmit_lock, &hostap_netdev_xmit_lock_key);
+ 	rtnl_unlock();
+ 	if (ret < 0) {
+ 		printk(KERN_WARNING "%s: register netdevice failed!\n",
+
 

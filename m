@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751863AbWGAQdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWGALmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751863AbWGAQdE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 12:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWGAQdE
+	id S932550AbWGALmx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 07:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932869AbWGALmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 12:33:04 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:11488 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S1751536AbWGAQdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 12:33:03 -0400
-Date: Sat, 1 Jul 2006 18:33:01 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: ext4 features
-Message-ID: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	Theodore Ts'o <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11-2006-06-13
+	Sat, 1 Jul 2006 07:42:52 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:21134 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932550AbWGALmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 07:42:52 -0400
+Subject: Re: [2.6 patch] EXPORT_UNUSED_SYMBOL{,GPL}
+	{,un}register_die_notifier
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1151754849.7087.3.camel@localhost.localdomain>
+References: <20060630113317.GV19712@stusta.de>
+	 <20060630203546.93a7bd87.akpm@osdl.org>
+	 <1151754849.7087.3.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sat, 01 Jul 2006 13:42:39 +0200
+Message-Id: <1151754159.3195.25.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I would like to know which new features are planed to be incorported by
-ext4. So far I only read about supporting bigger filesystems to fit
-recent hardware developments. So are there any other big goals for ext4?
+On Sat, 2006-07-01 at 12:54 +0100, Alan Cox wrote:
+> Ar Gwe, 2006-06-30 am 20:35 -0700, ysgrifennodd Andrew Morton:
+> > On Fri, 30 Jun 2006 13:33:17 +0200
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > 
+> > > -EXPORT_SYMBOL(register_die_notifier);
+> > > +EXPORT_UNUSED_SYMBOL(register_die_notifier);  /*  June 2006  */
+> > > -EXPORT_SYMBOL(unregister_die_notifier);
+> > > +EXPORT_UNUSED_SYMBOL(unregister_die_notifier);  /*  June 2006  */
+> > 
+> > I'd expect there are any number of low-level debugging quick-hacky modules
+> > around which want to hook into here.
+> > 
+> > We can try it I guess, but I expect we'll hear about it.
+> 
+> Some of the cluster modules use it too for fast failover.
 
-What I personally would like to see most in ext4 are
+which ones?
 
-        * checksums for data
-        * and snapshots on filesystem basis
+the gfs ones are in -mm and aren't using it...
 
-But I guess that this is way out of scope for ext4.
 
-        Thomas

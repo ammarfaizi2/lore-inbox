@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751868AbWGAPG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWGALGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751868AbWGAPG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 11:06:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751529AbWGAPGX
+	id S932512AbWGALGH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 07:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbWGALGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 11:06:23 -0400
-Received: from www.osadl.org ([213.239.205.134]:64164 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751903AbWGAO5e (ORCPT
+	Sat, 1 Jul 2006 07:06:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19403 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932512AbWGALGG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 10:57:34 -0400
-Message-Id: <20060701145227.663650000@cruncher.tec.linutronix.de>
-References: <20060701145211.856500000@cruncher.tec.linutronix.de>
-Date: Sat, 01 Jul 2006 14:55:04 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>
-Subject: [RFC][patch 38/44] rio: Use the new IRQF_ constansts
-Content-Disposition: inline; filename=irqflags-drivers-rio.patch
+	Sat, 1 Jul 2006 07:06:06 -0400
+Date: Sat, 1 Jul 2006 04:05:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm one process gets stuck in infinite loop in the
+ kernel.
+Message-Id: <20060701040558.fe8967b7.akpm@osdl.org>
+In-Reply-To: <20060701105822.GA10714@aitel.hist.no>
+References: <20060629013643.4b47e8bd.akpm@osdl.org>
+	<44A3B8A0.4070601@aitel.hist.no>
+	<20060629104117.e96df3da.akpm@osdl.org>
+	<20060630215405.GA9744@aitel.hist.no>
+	<20060630165532.5eadf286.akpm@osdl.org>
+	<20060701105822.GA10714@aitel.hist.no>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 1 Jul 2006 12:58:22 +0200
+Helge Hafting <helgehaf@aitel.hist.no> wrote:
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
- drivers/char/rio/rio_linux.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> On Fri, Jun 30, 2006 at 04:55:32PM -0700, Andrew Morton wrote:
+> > Helge Hafting <helgehaf@aitel.hist.no> wrote:
+> > 
+> > Oh.  This is probably the generic_file_buffer_write() hang, due to
+> > zero-length iovec segments.
+> > 
+> > If so, the below should fix it up.
+> 
+> I have not been able to reproduce the problem on mm4, so perhaps
+> it went away.  Do you want me to test this patch on mm2 anyway?
+> 
 
-Index: linux-2.6.git/drivers/char/rio/rio_linux.c
-===================================================================
---- linux-2.6.git.orig/drivers/char/rio/rio_linux.c	2006-07-01 16:51:12.000000000 +0200
-+++ linux-2.6.git/drivers/char/rio/rio_linux.c	2006-07-01 16:51:46.000000000 +0200
-@@ -1119,7 +1119,7 @@ static int __init rio_init(void)
- 	for (i = 0; i < p->RIONumHosts; i++) {
- 		hp = &p->RIOHosts[i];
- 		if (hp->Ivec) {
--			int mode = SA_SHIRQ;
-+			int mode = IRQF_SHARED;
- 			if (hp->Ivec & 0x8000) {
- 				mode = 0;
- 				hp->Ivec &= 0x7fff;
-
---
-
+No, that'll be the cause, thanks.

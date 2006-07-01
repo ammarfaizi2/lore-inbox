@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932855AbWGARkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWGAFhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932855AbWGARkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 13:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932943AbWGARkZ
+	id S932381AbWGAFhK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 01:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWGAFhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 13:40:25 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:45473 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932855AbWGARkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 13:40:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=bLNAofUm1X8oWYFmpkmgzyYyBRvGi66U7ClDfi4JYa2E0vkwbiA30OjyzG6djNhkJnAZN5Ql8BSGNaJnBtjcBmeXEw22KjpFEgnBtrBjiYBOKl50M+8h3EC8ckv6bWLfs1IURvMI0BjNeybRZBl3a+3qKMf9s5oj/6u06me7u5U=  ;
-Message-ID: <44A6B387.80207@yahoo.com.au>
-Date: Sun, 02 Jul 2006 03:40:23 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-Subject: Re: [patch 0/2] sLeAZY FPU feature
-References: <1151773893.3195.45.camel@laptopd505.fenrus.org>
-In-Reply-To: <1151773893.3195.45.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 1 Jul 2006 01:37:10 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:48061 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932381AbWGAFhI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 01:37:08 -0400
+Date: Sat, 1 Jul 2006 07:32:18 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [patch] lockdep, annotate slocks: turn lockdep off for them
+Message-ID: <20060701053218.GA11195@elte.hu>
+References: <a44ae5cd0606291201v659b4235sfa9941aa3b18e766@mail.gmail.com> <20060630065041.GB6572@elte.hu> <20060630072231.GB7057@elte.hu> <20060630091850.GA10713@elte.hu> <20060630111734.GA22202@gondor.apana.org.au> <20060630113758.GA18504@elte.hu> <a44ae5cd0606301321y6ce6b7dbo2b405d3d76a670f1@mail.gmail.com> <20060630203804.GA1950@elte.hu> <a44ae5cd0606301545s33496174lcd7136d8bf41897@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a44ae5cd0606301545s33496174lcd7136d8bf41897@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> Hi,
-> 
-> the two patches in this series (the x86-64 on by me, the i386 one by
-> Chuck Ebbert) change how the lazy fpu feature works. In the current
-> situation, we are 100% lazy, meaning that after every context switch,
-> the application takes a trap on the first FPU use, which then restores
-> the FPU context.
-> 
-> The sLeAZY FPU patch changes this behavior; if a process has used the
-> FPU for 5 stints at a row, the behavior becomes proactive and the FPU
-> context is restored during the regular context switch already. This
-> means we can avoid the trap.
-> 
-> The underlying assumption is that if a process uses 5 times consecutive,
-> it's likely to do it the 6th and later times as well (eg it's not a
-> one-off behavior).
-> 
-> There is a limit built in; this proactive behavior resets after 255
-> times, so that when a process is long lived and chances behavior, it'll
-> still get the right behavior (for performance) after some time.
-> 
-> Chuck measured a +/- 0.4% performance gain, and my experiments show a
-> similar improvement.
 
-What sort of test? Any idea of the results for a best case microbenchmark
-(something like two threads ping-pong a couple of futexes between them,
-in between doing a single FPU op)
+* Miles Lane <miles.lane@gmail.com> wrote:
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> Okay, I rebuilt my kernel with your combo patch applied. Then, I 
+> inserted my US Robotics USR2210 PCMCIA wifi card, ran "pccardutil 
+> eject", popped out the card and then inserted a Compaq iPaq wifi card.  
+> This triggered the following.
+
+ok - but the ipv6 one went away, which is good. Will have a look at this 
+new one.
+
+	Ingo

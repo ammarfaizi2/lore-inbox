@@ -1,50 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWGAXOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWGAXQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWGAXOB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 19:14:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWGAXOA
+	id S1751323AbWGAXQs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 19:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWGAXQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 19:14:00 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:47291 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750735AbWGAXN7 (ORCPT
+	Sat, 1 Jul 2006 19:16:48 -0400
+Received: from gate.crashing.org ([63.228.1.57]:25248 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751308AbWGAXQr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 19:13:59 -0400
-Date: Sat, 1 Jul 2006 09:31:33 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: James Courtier-Dutton <James@superbug.co.uk>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, perex@suse.cz,
-       Olaf Hering <olh@suse.de>
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-Message-ID: <20060701073133.GA99126@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Lee Revell <rlrevell@joe-job.com>,
-	James Courtier-Dutton <James@superbug.co.uk>,
-	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-	alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	perex@suse.cz, Olaf Hering <olh@suse.de>
-References: <20060629192128.GE19712@stusta.de> <44A54D8E.3000002@superbug.co.uk> <20060630163114.GA12874@dspnet.fr.eu.org> <1151702966.32444.57.camel@mindpipe>
+	Sat, 1 Jul 2006 19:16:47 -0400
+Subject: Re: faulty 64-bit resource printk fixup in macio_asic.c
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Paul Collins <paul@briny.ondioline.org>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+In-Reply-To: <878xndqwph.fsf@briny.internal.ondioline.org>
+References: <878xndqwph.fsf@briny.internal.ondioline.org>
+Content-Type: text/plain
+Date: Sun, 02 Jul 2006 09:16:22 +1000
+Message-Id: <1151795782.19419.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151702966.32444.57.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 30, 2006 at 05:29:26PM -0400, Lee Revell wrote:
-> Even if you reject this argument, the bug is in ALSA's in-kernel OSS
-> emulation, not the emu10k1 driver.
+On Sat, 2006-07-01 at 23:30 +1000, Paul Collins wrote:
+> Hi Greg,
+> 
+> The patch titled "64bit resource: fix up printks for resources in misc
+> drivers", committed as e29419fffceb8ec36def3c922040e1ca7bcd3de5 in
+> Linus's tree, causes my PowerBook to Oops early in boot and udev to
+> not function.
 
-That's irrelevant.  You can't remove the oss emu10k1 driver in favor
-of alsa's until alsa provides an equivalent interface.  That's a basic
-compatibility requirement.
+For now, I'd suggest reverting it. The MacIO resources always fit in 32
+bits, thus we can "use" that knowledge here and only print 8 digits.
 
+Ben.
 
-> ALSA's in-kernel OSS emulation does not have these features and
-> never will.
+>   Unable to handle kernel paging request for data at address 0x6f000000
+>   Faulting instruction address: 0xc00c901c
+>   Oops: Kernel access of bad area, sig: 11 [#1]
+>   PREEMPT 
+>   Modules linked in:
+>   NIP: C00C901C LR: C00C901C CTR: C00C8F78
+>   REGS: efed5db0 TRAP: 0300   Not tainted  (2.6.17-g9262e914)
+>   MSR: 00009032 <EE,ME,IR,DR>  CR: 22000484  XER: 20000000
+>   DAR: 6F000000, DSISR: 40000000
+>   TASK = efe97240[378] 'udevtrigger' THREAD: efed4000
+>   GPR00: C00C901C EFED5E60 EFE97240 00000000 CFC0BB40 00010001 CFC0BB40 C02E9754 
+>   GPR08: 00000000 00000001 EFFE8EA4 EFED4000 44000428 1001D140 100D0000 100D0000 
+>   GPR16: 00000000 100EBF08 100D0000 100B0000 100D0000 100B0000 100EBEA8 100EC068 
+>   GPR24: 00000000 EFEEDA20 C0DF7880 EFED4000 CFC0BB40 EFEEDA20 C0DF78D0 6F000000 
+>   NIP [C00C901C] sysfs_open_file+0xa4/0x284
+>   LR [C00C901C] sysfs_open_file+0xa4/0x284
+>   Call Trace:
+>   [EFED5E60] [C00C901C] sysfs_open_file+0xa4/0x284 (unreliable)
+>   [EFED5E90] [C007D6A8] __dentry_open+0x108/0x2a4
+>   [EFED5EC0] [C007D988] do_filp_open+0x5c/0x78
+>   [EFED5F20] [C007D9FC] do_sys_open+0x58/0xf8
+>   [EFED5F40] [C000FDB8] ret_from_syscall+0x0/0x38
+>   --- Exception: c01 at 0xff248d8
+>       LR = 0xffb525c
+>   Instruction dump:
+>   3be0ffea 812b0050 83c90014 419e007c 2f9e0000 419e006c 83fe0004 2f9f0000 
+>   419e0080 38600001 4bf5b229 4809726d <801f0000> 3ba00000 2f800002 419e0024 
+>    <6>note: udevtrigger[378] exited with preempt_count 1
+> 
+> 
+> The only hunk of that commit affecting my configuration is this one,
+> which when reverted lets my machine work again.
+> 
+> diff --git a/drivers/macintosh/macio_asic.c b/drivers/macintosh/macio_asic.c
+> index 431bd37..c687ac7 100644
+> --- a/drivers/macintosh/macio_asic.c
+> +++ b/drivers/macintosh/macio_asic.c
+> @@ -428,10 +428,10 @@ #endif
+>  
+>  	/* MacIO itself has a different reg, we use it's PCI base */
+>  	if (np == chip->of_node) {
+> -		sprintf(dev->ofdev.dev.bus_id, "%1d.%08lx:%.*s",
+> +		sprintf(dev->ofdev.dev.bus_id, "%1d.%016llx:%.*s",
+>  			chip->lbus.index,
+>  #ifdef CONFIG_PCI
+> -			pci_resource_start(chip->lbus.pdev, 0),
+> +			(unsigned long long)pci_resource_start(chip->lbus.pdev, 0),
+>  #else
+>  			0, /* NuBus may want to do something better here */
+>  #endif
+> 
+> 
+> When applied, this hunk yields
+> 
+> 	/* MacIO itself has a different reg, we use it's PCI base */
+> 	if (np == chip->of_node) {
+> 		sprintf(dev->ofdev.dev.bus_id, "%1d.%016llx:%.*s",
+> 			chip->lbus.index,
+> #ifdef CONFIG_PCI
+> 			(unsigned long long)pci_resource_start(chip->lbus.pdev, 0),
+> #else
+> 			0, /* NuBus may want to do something better here */
+> #endif
+> 			MAX_NODE_NAME_SIZE, np->name);
+> 
+> 
+> Since dev->ofdev.dev is a struct device, bus_id is 20 bytes, of which
+> 19 are consumed by "%1d.%016llx:".  But the field width used by "%.*s"
+> is MAX_NODE_NAME_SIZE, which is 8.
+> 
+> drivers/macintosh/macio_asic.c:36:#define MAX_NODE_NAME_SIZE (BUS_ID_SIZE - 12)
+> 
+> So I think the sprintf overflows bus_id and clobbers the next few
+> bytes of struct device.
+> 
+> I'm not sure what the right thing to do is.  Making bus_id bigger will
+> cost everyone, but right now with bus_id at 20 bytes, there's no room
+> after the colon for any of np->name.
+> 
 
-"Never" is terribly long.
-
-  OG.

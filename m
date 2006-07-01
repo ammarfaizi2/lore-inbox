@@ -1,23 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWGAVKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751894AbWGASlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932592AbWGAVKG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 17:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWGAVKG
+	id S1751894AbWGASlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 14:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWGASlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 17:10:06 -0400
-Received: from xenotime.net ([66.160.160.81]:44486 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751930AbWGAVKE (ORCPT
+	Sat, 1 Jul 2006 14:41:25 -0400
+Received: from xenotime.net ([66.160.160.81]:49105 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751277AbWGASlZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 17:10:04 -0400
-Date: Sat, 1 Jul 2006 14:12:48 -0700
+	Sat, 1 Jul 2006 14:41:25 -0400
+Date: Sat, 1 Jul 2006 11:44:09 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: jvromans@squirrel.nl
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: SMBus access
-Message-Id: <20060701141248.822c0902.rdunlap@xenotime.net>
-In-Reply-To: <20060701141015.a4922e86.rdunlap@xenotime.net>
-References: <m2irmhjb5t.fsf@phoenix.squirrel.nl>
-	<20060701141015.a4922e86.rdunlap@xenotime.net>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: akpm@osdl.org, erik_frederiksen@pmc-sierra.com,
+       linux-kernel@vger.kernel.org, hpa@zytor.com
+Subject: Re: IS_ERR Threshold Value
+Message-Id: <20060701114409.ed320be0.rdunlap@xenotime.net>
+In-Reply-To: <20060629181013.GA18777@linux-mips.org>
+References: <1151528227.3904.1110.camel@girvin.pmc-sierra.bc.ca>
+	<20060628140825.692f31be.rdunlap@xenotime.net>
+	<20060629181013.GA18777@linux-mips.org>
 Organization: YPO4
 X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -26,65 +28,50 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Jul 2006 14:10:15 -0700 Randy.Dunlap wrote:
+On Thu, 29 Jun 2006 19:10:13 +0100 Ralf Baechle wrote:
 
-> On Sat, 01 Jul 2006 22:57:34 +0200 Johan Vromans wrote:
+> On Wed, Jun 28, 2006 at 02:08:25PM -0700, Randy.Dunlap wrote:
 > 
-> > To get battery readings on some laptops it is necessary to interface
-> > with the SMBus that hangs of the EC. However, the current
-> > implementation of the EC driver does not permit other modules 
-> > read/write access. 
-> > 
-> > A trivial solution is to change acpi_ec_read/write from static to
-> > nonstatic, and export the symbols so other modules can use them.
-> > 
-> > Would there be any objections to apply this change?
+> > Hi,
+> > Peter Anvin mentioned just a few days ago that this threshold value
+> > should be 4095 for all arches.  I think we need to get that patch
+> > done & submitted to Andrew for -mm.
 > 
-> a.  patch should also be sent to linux-acpi@vger.kernel.org (cc-ed)
-> b.  patch does not apply cleanly to latest kernel
+> So here the patch is:
+> 
+>  o Raise the maximum error number in IS_ERR_VALUE to 4095.
+>  o Make that number available as a new constant MAX_ERRNO.
+> 
+> Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+> 
+> diff --git a/include/linux/err.h b/include/linux/err.h
+> index ff71d2a..cd3b367 100644
+> --- a/include/linux/err.h
+> +++ b/include/linux/err.h
+> @@ -13,7 +13,9 @@ #include <asm/errno.h>
+>   * This should be a per-architecture thing, to allow different
+>   * error and pointer decisions.
+>   */
+> -#define IS_ERR_VALUE(x) unlikely((x) > (unsigned long)-1000L)
+> +#define MAX_ERRNO	4095
+> +
+> +#define IS_ERR_VALUE(x) unlikely((x) >= (unsigned long)-MAX_ERRNO)
+>  
+>  static inline void *ERR_PTR(long error)
+>  {
 
-Sorry, my bad.  It does apply cleanly (part d. below fooled my
-scripts...)
+Are changes also needed in asm-*/unistd.h::syscall_return() macros?
+or is syscall_return() just not used?
 
-> c.  missing Signed-off-by: line (see Documentation/SubmittingPatches)
-> d.  incorrect patch filename directory level (see SubmittingPatches)
-> 
-> 
-> 
-> > -- Johan
-> > 
-> > --- drivers/acpi/ec.c~	2006-04-17 13:40:49.000000000 +0200
-> > +++ drivers/acpi/ec.c	2006-04-22 17:49:13.000000000 +0200
-> > @@ -305,20 +305,22 @@
-> >  }
-> >  #endif /* ACPI_FUTURE_USAGE */
-> >  
-> > -static int acpi_ec_read(union acpi_ec *ec, u8 address, u32 * data)
-> > +int acpi_ec_read(union acpi_ec *ec, u8 address, u32 * data)
-> >  {
-> >  	if (acpi_ec_poll_mode)
-> >  		return acpi_ec_poll_read(ec, address, data);
-> >  	else
-> >  		return acpi_ec_intr_read(ec, address, data);
-> >  }
-> > -static int acpi_ec_write(union acpi_ec *ec, u8 address, u8 data)
-> > +EXPORT_SYMBOL(acpi_ec_read);
-> > +int acpi_ec_write(union acpi_ec *ec, u8 address, u8 data)
-> >  {
-> >  	if (acpi_ec_poll_mode)
-> >  		return acpi_ec_poll_write(ec, address, data);
-> >  	else
-> >  		return acpi_ec_intr_write(ec, address, data);
-> >  }
-> > +EXPORT_SYMBOL(acpi_ec_write);
-> >  static int acpi_ec_poll_read(union acpi_ec *ec, u8 address, u32 * data)
-> >  {
-> >  	acpi_status status = AE_OK;
-> > -
-> 
-> 
-> ---
-> ~Randy
+e.g.,
+arm26 uses -125 to detect error
+arm uses -129 to detect error
+frv uses -4095 to detect error
+i386 uses -129
+h8300, m32r, s390, sh64, v850 use -125
+m68k[nommu] uses -125
+sh uses -124
+x86_64 uses -127
 
 
 ---

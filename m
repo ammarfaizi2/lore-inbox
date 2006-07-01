@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWF3Wbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWGAAVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWF3Wbj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jun 2006 18:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWF3Wbj
+	id S1750967AbWGAAVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jun 2006 20:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWGAAVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jun 2006 18:31:39 -0400
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:28839 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751342AbWF3Wbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jun 2006 18:31:38 -0400
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: unlazy fpu for frequent fpu users
-X-Message-Flag: Warning: May contain useful information
-References: <1151705536.11434.69.camel@laptopd505.fenrus.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 30 Jun 2006 15:31:36 -0700
-In-Reply-To: <1151705536.11434.69.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Sat, 01 Jul 2006 00:12:16 +0200")
-Message-ID: <ada7j2ye0mv.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 30 Jun 2006 22:31:37.0713 (UTC) FILETIME=[F3453610:01C69C94]
-Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Fri, 30 Jun 2006 20:21:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5049 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750967AbWGAAVI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jun 2006 20:21:08 -0400
+Date: Fri, 30 Jun 2006 17:24:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, torvalds@osdl.org
+Subject: Re: ACPI: Device [kobj-name] is not power manageable
+Message-Id: <20060630172431.3422e268.akpm@osdl.org>
+In-Reply-To: <20060630171542.ebd05bb4.rdunlap@xenotime.net>
+References: <200606302359.k5UNxPJ1002907@hera.kernel.org>
+	<20060630171542.ebd05bb4.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > +	/* prefetch the fxsave area into the cache */
- > +	prefetch(&next->i387.fxsave);
+"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+>
+> Andrew, can you send Linus the typo correction patch for this??
+> or should I?
 
-This chunk is not obviously related to the rest of the patch, and
-perhaps needs additional justification.
+Is OK, I have a couple of post-acpi-merge fixlets queued which I'll be
+sending in the next batch.
 
-And the comment getting pretty close to
+diff -puN drivers/acpi/acpi_memhotplug.c~acpi-printk-fix drivers/acpi/acpi_memhotplug.c
+--- a/drivers/acpi/acpi_memhotplug.c~acpi-printk-fix
++++ a/drivers/acpi/acpi_memhotplug.c
+@@ -248,7 +248,7 @@ static int acpi_memory_enable_device(str
+ 		num_enabled++;
+ 	}
+ 	if (!num_enabled) {
+-		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "\nadd_memory failed\n"));
++		printk(KERN_ERR PREFIX "add_memory failed\n");
+ 		mem_device->state = MEMORY_INVALID_STATE;
+ 		return -EINVAL;
+ 	}
+_
 
-	/* set i to 2 */
-	i = 2;
 
-territory ;)
+and
 
- - R.
+--- a/drivers/acpi/bus.c~acpi-identify-which-device-is-not-power-manageable
++++ a/drivers/acpi/bus.c
+@@ -192,7 +192,7 @@ int acpi_bus_set_power(acpi_handle handl
+ 	/* Make sure this is a valid target state */
+ 
+ 	if (!device->flags.power_manageable) {
+-		printk(KERN_DEBUG "Device `[%s]is not power manageable",
++		printk(KERN_DEBUG "Device `[%s]' is not power manageable",
+ 				device->kobj.name);
+ 		return -ENODEV;
+ 	}
+_
+

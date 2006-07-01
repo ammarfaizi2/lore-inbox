@@ -1,120 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWGAXQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWGAX1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWGAXQs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 19:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWGAXQs
+	id S1751197AbWGAX1U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 19:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWGAX1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 19:16:48 -0400
-Received: from gate.crashing.org ([63.228.1.57]:25248 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751308AbWGAXQr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 19:16:47 -0400
-Subject: Re: faulty 64-bit resource printk fixup in macio_asic.c
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Collins <paul@briny.ondioline.org>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-In-Reply-To: <878xndqwph.fsf@briny.internal.ondioline.org>
-References: <878xndqwph.fsf@briny.internal.ondioline.org>
-Content-Type: text/plain
-Date: Sun, 02 Jul 2006 09:16:22 +1000
-Message-Id: <1151795782.19419.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 1 Jul 2006 19:27:20 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:23190 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751197AbWGAX1U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 19:27:20 -0400
+Message-ID: <44A704A4.8080402@zytor.com>
+Date: Sat, 01 Jul 2006 16:26:28 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: Sam Ravnborg <sam@ravnborg.org>, Miles Lane <miles.lane@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-mm5 -- Busted toolchain? -- usr/klibc/exec_l.c:59: undefined
+ reference to `__stack_chk_fail'
+References: <a44ae5cd0607011409m720dd23dvf178a133c2060b6d@mail.gmail.com> <1151788673.3195.58.camel@laptopd505.fenrus.org> <a44ae5cd0607011425n18266b02s81b3d87988895555@mail.gmail.com> <1151789342.3195.60.camel@laptopd505.fenrus.org> <a44ae5cd0607011537o1cf00545td19e568dcb9c06c1@mail.gmail.com> <a44ae5cd0607011556t65b22b06m317baa9a47ff962@mail.gmail.com> <20060701230635.GA19114@mars.ravnborg.org> <44A7011B.6000702@zytor.com>
+In-Reply-To: <44A7011B.6000702@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-01 at 23:30 +1000, Paul Collins wrote:
-> Hi Greg,
+H. Peter Anvin wrote:
+> Sam Ravnborg wrote:
+>>
+>> For klibc you need to patch scripts/Kbuild.klibc
+>>
+>> Appending it to KLIBCWARNFLAGS seems the right place.
 > 
-> The patch titled "64bit resource: fix up printks for resources in misc
-> drivers", committed as e29419fffceb8ec36def3c922040e1ca7bcd3de5 in
-> Linus's tree, causes my PowerBook to Oops early in boot and udev to
-> not function.
-
-For now, I'd suggest reverting it. The MacIO resources always fit in 32
-bits, thus we can "use" that knowledge here and only print 8 digits.
-
-Ben.
-
->   Unable to handle kernel paging request for data at address 0x6f000000
->   Faulting instruction address: 0xc00c901c
->   Oops: Kernel access of bad area, sig: 11 [#1]
->   PREEMPT 
->   Modules linked in:
->   NIP: C00C901C LR: C00C901C CTR: C00C8F78
->   REGS: efed5db0 TRAP: 0300   Not tainted  (2.6.17-g9262e914)
->   MSR: 00009032 <EE,ME,IR,DR>  CR: 22000484  XER: 20000000
->   DAR: 6F000000, DSISR: 40000000
->   TASK = efe97240[378] 'udevtrigger' THREAD: efed4000
->   GPR00: C00C901C EFED5E60 EFE97240 00000000 CFC0BB40 00010001 CFC0BB40 C02E9754 
->   GPR08: 00000000 00000001 EFFE8EA4 EFED4000 44000428 1001D140 100D0000 100D0000 
->   GPR16: 00000000 100EBF08 100D0000 100B0000 100D0000 100B0000 100EBEA8 100EC068 
->   GPR24: 00000000 EFEEDA20 C0DF7880 EFED4000 CFC0BB40 EFEEDA20 C0DF78D0 6F000000 
->   NIP [C00C901C] sysfs_open_file+0xa4/0x284
->   LR [C00C901C] sysfs_open_file+0xa4/0x284
->   Call Trace:
->   [EFED5E60] [C00C901C] sysfs_open_file+0xa4/0x284 (unreliable)
->   [EFED5E90] [C007D6A8] __dentry_open+0x108/0x2a4
->   [EFED5EC0] [C007D988] do_filp_open+0x5c/0x78
->   [EFED5F20] [C007D9FC] do_sys_open+0x58/0xf8
->   [EFED5F40] [C000FDB8] ret_from_syscall+0x0/0x38
->   --- Exception: c01 at 0xff248d8
->       LR = 0xffb525c
->   Instruction dump:
->   3be0ffea 812b0050 83c90014 419e007c 2f9e0000 419e006c 83fe0004 2f9f0000 
->   419e0080 38600001 4bf5b229 4809726d <801f0000> 3ba00000 2f800002 419e0024 
->    <6>note: udevtrigger[378] exited with preempt_count 1
+> KLIBCREQFLAGS, rather.
 > 
+>> Do you know from what gcc version we can start using 
+>> -fno-stack-protector?
 > 
-> The only hunk of that commit affecting my configuration is this one,
-> which when reverted lets my machine work again.
+> Isn't there a macro to test if gcc supports a specific option already?
 > 
-> diff --git a/drivers/macintosh/macio_asic.c b/drivers/macintosh/macio_asic.c
-> index 431bd37..c687ac7 100644
-> --- a/drivers/macintosh/macio_asic.c
-> +++ b/drivers/macintosh/macio_asic.c
-> @@ -428,10 +428,10 @@ #endif
->  
->  	/* MacIO itself has a different reg, we use it's PCI base */
->  	if (np == chip->of_node) {
-> -		sprintf(dev->ofdev.dev.bus_id, "%1d.%08lx:%.*s",
-> +		sprintf(dev->ofdev.dev.bus_id, "%1d.%016llx:%.*s",
->  			chip->lbus.index,
->  #ifdef CONFIG_PCI
-> -			pci_resource_start(chip->lbus.pdev, 0),
-> +			(unsigned long long)pci_resource_start(chip->lbus.pdev, 0),
->  #else
->  			0, /* NuBus may want to do something better here */
->  #endif
-> 
-> 
-> When applied, this hunk yields
-> 
-> 	/* MacIO itself has a different reg, we use it's PCI base */
-> 	if (np == chip->of_node) {
-> 		sprintf(dev->ofdev.dev.bus_id, "%1d.%016llx:%.*s",
-> 			chip->lbus.index,
-> #ifdef CONFIG_PCI
-> 			(unsigned long long)pci_resource_start(chip->lbus.pdev, 0),
-> #else
-> 			0, /* NuBus may want to do something better here */
-> #endif
-> 			MAX_NODE_NAME_SIZE, np->name);
-> 
-> 
-> Since dev->ofdev.dev is a struct device, bus_id is 20 bytes, of which
-> 19 are consumed by "%1d.%016llx:".  But the field width used by "%.*s"
-> is MAX_NODE_NAME_SIZE, which is 8.
-> 
-> drivers/macintosh/macio_asic.c:36:#define MAX_NODE_NAME_SIZE (BUS_ID_SIZE - 12)
-> 
-> So I think the sprintf overflows bus_id and clobbers the next few
-> bytes of struct device.
-> 
-> I'm not sure what the right thing to do is.  Making bus_id bigger will
-> cost everyone, but right now with bus_id at 20 bytes, there's no room
-> after the colon for any of np->name.
+> Either way, I can also add __stack_chk_fail() as an alias for abort(), 
+> for people who actually want the feature.
 > 
 
+I looked at it again, and it looks like gcc depends on the TLS ABI in 
+order to pick the value of the cookie.  That makes it a potentially lot 
+more cantankerous option; I would like to be able to support stack-smash 
+checking in klibc, but if it means implementing TLS on all 
+architectures, then that would really defeat the purpose (and we should 
+add -fno-stack-protector to KLIBCREQFLAGS.)
+
+Arjan: I see a few stack-protector-related have your name on it, do you 
+have any details on implementation constraints for this across 
+architectures?
+
+	-hpa

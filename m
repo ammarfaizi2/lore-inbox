@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWGAXNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWGAXOB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWGAXNB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 19:13:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWGAXNB
+	id S1751126AbWGAXOB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 19:14:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWGAXOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 19:13:01 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:33211 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932081AbWGAXM7 (ORCPT
+	Sat, 1 Jul 2006 19:14:00 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:47291 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750735AbWGAXN7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 19:12:59 -0400
-Date: Sat, 1 Jul 2006 19:07:30 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features
-Message-ID: <20060701170729.GB8763@irc.pl>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	Theodore Ts'o <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
+	Sat, 1 Jul 2006 19:13:59 -0400
+Date: Sat, 1 Jul 2006 09:31:33 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: James Courtier-Dutton <James@superbug.co.uk>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, perex@suse.cz,
+       Olaf Hering <olh@suse.de>
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
+Message-ID: <20060701073133.GA99126@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Lee Revell <rlrevell@joe-job.com>,
+	James Courtier-Dutton <James@superbug.co.uk>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+	alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	perex@suse.cz, Olaf Hering <olh@suse.de>
+References: <20060629192128.GE19712@stusta.de> <44A54D8E.3000002@superbug.co.uk> <20060630163114.GA12874@dspnet.fr.eu.org> <1151702966.32444.57.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Bn2rw/3z4jIqBvZU"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1151702966.32444.57.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 30, 2006 at 05:29:26PM -0400, Lee Revell wrote:
+> Even if you reject this argument, the bug is in ALSA's in-kernel OSS
+> emulation, not the emu10k1 driver.
 
---Bn2rw/3z4jIqBvZU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, Jul 01, 2006 at 06:33:01PM +0200, Thomas Glanzmann wrote:
-> Hello,
-> I would like to know which new features are planed to be incorported by
-> ext4. So far I only read about supporting bigger filesystems to fit
-> recent hardware developments. So are there any other big goals for ext4?
->=20
-> What I personally would like to see most in ext4 are
->=20
->         * checksums for data
-
-  Checksums are not very useful for themselves. They are useful when we
-have other copy of data (think raid mirroring) so data can be
-reconstructed from working copy.
-
->         * and snapshots on filesystem basis
-
-  What's wrong with DM snapshots?
-
---=20
-Tomasz Torcz            There exists no separation between gods and men:
-zdzichu@irc.-nie.spam-.pl   one blends softly casual into the other.
+That's irrelevant.  You can't remove the oss emu10k1 driver in favor
+of alsa's until alsa provides an equivalent interface.  That's a basic
+compatibility requirement.
 
 
---Bn2rw/3z4jIqBvZU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> ALSA's in-kernel OSS emulation does not have these features and
+> never will.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
+"Never" is terribly long.
 
-iD8DBQFEpqvRThhlKowQALQRAujzAJ9Kz1DxbvIZ9WN4VVhYbVp2yT4kegCfXBwn
-AnDRykhehW4Zp3RFDjO1w/o=
-=WYaK
------END PGP SIGNATURE-----
-
---Bn2rw/3z4jIqBvZU--
+  OG.

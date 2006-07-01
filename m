@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWGAQ3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbWGAJdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWGAQ3b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 12:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWGAQ3b
+	id S932528AbWGAJdI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 05:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbWGAJdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 12:29:31 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:1163 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750747AbWGAQ3b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 12:29:31 -0400
-Date: Sat, 1 Jul 2006 18:25:32 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au, mingo@redhat.com
-Subject: Re: 2.6.17-mm4 raid bugs & traces
-Message-ID: <20060701162532.GA14933@aitel.hist.no>
-References: <20060629013643.4b47e8bd.akpm@osdl.org> <20060701111153.GA10855@aitel.hist.no>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060701111153.GA10855@aitel.hist.no>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Sat, 1 Jul 2006 05:33:08 -0400
+Received: from MailBox.iNES.RO ([80.86.96.21]:2025 "EHLO mailbox.ines.ro")
+	by vger.kernel.org with ESMTP id S932528AbWGAJdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 05:33:07 -0400
+Subject: Re: suspend2 merge [was Re: [Suspend2][ 0/9] Extents support.]
+From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Nigel Cunningham <nigel@suspend2.net>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Rahul Karnik <rahul@genebrew.com>, Jens Axboe <axboe@suse.de>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060630175523.GA5939@elf.ucw.cz>
+References: <20060626165404.11065.91833.stgit@nigel.suspend2.net>
+	 <200606282242.26072.nigel@suspend2.net>
+	 <84144f020606280742v348bdf53w96bd790362abaff9@mail.gmail.com>
+	 <200606290937.31174.nigel@suspend2.net>  <20060630175523.GA5939@elf.ucw.cz>
+Content-Type: text/plain
+Organization: iNES Group
+Date: Sat, 01 Jul 2006 12:31:59 +0300
+Message-Id: <1151746319.9498.4.camel@DustPuppy.LNX.RO>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
+X-BitDefender-Scanner: Clean, Agent: BitDefender Milter 1.6.2 on MailBox.iNES.RO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-More mm4 raid-1 troubles.
-
-This time, the kernel panicked upon shutdown.  I was able
-to write down the call trace:
-
-process swapper
-
-super_written
-__end_that_request_first
-blk_ordered_complete
-scsi_end_request
-scsi_io_completion
-blk_done_softirq
-__do_softirq
-call_softirq
-
-RIP:md_error
-RSP:ffffffff80765e00
-CR2:0000000000000048
-
-<0> kernel panic - not syncing: Aiee, killing interrupt handler
-
-Hw involved:
-Three raid-1, two on plain scsi and one on SATA.
-Each raid-1 consists of two partitions.  This time,
-each md device was running in degraded mode.
+On Fri, 2006-06-30 at 19:55 +0200, Pavel Machek wrote:
+> Now, I'm sorry you wasted lots of work splitting patches
+> function-by-function, but watching lkml for a while would probably
+> tell you how mergeable patches look, and I believe I was pretty clear
+> that splitting suspend2 is not the _only_ requirement to get it
+> merged.
 
 
-Booting into 2.6.15 in order to re-add devices and sync the RAID,
-I get only 2768K/sec reconstruction speed on SATA, still
-1108 minutes (18 hours) to go. :-( 
-Odd, as 2.6.17mm4 resynced this in 50min, but hit a
-write error (real or imagined?) immediately afterwards.
+The other requirement is to be implemented in userspace ?
+(sorry, couldn't resisist...)
 
-The other older devices, on plain scsi, resynced much faster.
-19381K/sec
+-- 
+Cioby
 
-More than a little irritating, I need the SATA raid-1 to be in sync
-so lilo can install mm5 for me. 18 hours. 
 
-Looks like 2.6.17mm4 doesn't like mirror devices?
-
-Helge Hafting

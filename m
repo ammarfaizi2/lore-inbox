@@ -1,129 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbWGAPDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751896AbWGAO6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751497AbWGAPDa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 11:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbWGAPDI
+	id S1751896AbWGAO6j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 10:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751868AbWGAO6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 11:03:08 -0400
-Received: from www.osadl.org ([213.239.205.134]:10405 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751855AbWGAO5k (ORCPT
+	Sat, 1 Jul 2006 10:58:10 -0400
+Received: from www.osadl.org ([213.239.205.134]:48036 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751621AbWGAO5S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 10:57:40 -0400
-Message-Id: <20060701145228.136251000@cruncher.tec.linutronix.de>
+	Sat, 1 Jul 2006 10:57:18 -0400
+Message-Id: <20060701145225.996178000@cruncher.tec.linutronix.de>
 References: <20060701145211.856500000@cruncher.tec.linutronix.de>
-Date: Sat, 01 Jul 2006 14:55:09 -0000
+Date: Sat, 01 Jul 2006 14:54:47 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       David Miller <davem@davemloft.net>
-Subject: [RFC][patch 42/44] video: Use the new IRQF_ constansts
-Content-Disposition: inline; filename=irqflags-drivers-video.patch
+       David Miller <davem@davemloft.net>, ak@suse.de
+Subject: [RFC][patch 24/44] x86_64: Use the new IRQF_ constansts
+Content-Disposition: inline; filename=irqflags-x86_64.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
- drivers/video/arcfb.c                |    2 +-
- drivers/video/aty/atyfb_base.c       |    2 +-
- drivers/video/au1200fb.c             |    2 +-
- drivers/video/matrox/matroxfb_base.c |    2 +-
- drivers/video/pxafb.c                |    2 +-
- drivers/video/s3c2410fb.c            |    2 +-
- drivers/video/sa1100fb.c             |    2 +-
- 7 files changed, 7 insertions(+), 7 deletions(-)
+Use the new IRQF_ constants and remove the SA_INTERRUPT define
 
-Index: linux-2.6.git/drivers/video/arcfb.c
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+ arch/x86_64/kernel/time.c   |    2 +-
+ include/asm-x86_64/floppy.h |    8 ++++----
+ include/asm-x86_64/signal.h |    2 --
+ 3 files changed, 5 insertions(+), 7 deletions(-)
+
+Index: linux-2.6.git/include/asm-x86_64/floppy.h
 ===================================================================
---- linux-2.6.git.orig/drivers/video/arcfb.c	2006-07-01 16:51:09.000000000 +0200
-+++ linux-2.6.git/drivers/video/arcfb.c	2006-07-01 16:51:49.000000000 +0200
-@@ -561,7 +561,7 @@ static int __init arcfb_probe(struct pla
- 	platform_set_drvdata(dev, info);
- 	if (irq) {
- 		par->irq = irq;
--		if (request_irq(par->irq, &arcfb_interrupt, SA_SHIRQ,
-+		if (request_irq(par->irq, &arcfb_interrupt, IRQF_SHARED,
- 				"arcfb", info)) {
- 			printk(KERN_INFO
- 				"arcfb: Failed req IRQ %d\n", par->irq);
-Index: linux-2.6.git/drivers/video/au1200fb.c
+--- linux-2.6.git.orig/include/asm-x86_64/floppy.h	2006-07-01 16:51:21.000000000 +0200
++++ linux-2.6.git/include/asm-x86_64/floppy.h	2006-07-01 16:51:38.000000000 +0200
+@@ -144,11 +144,11 @@ static int vdma_get_dma_residue(unsigned
+ static int fd_request_irq(void)
+ {
+ 	if(can_use_virtual_dma)
+-		return request_irq(FLOPPY_IRQ, floppy_hardint,SA_INTERRUPT,
+-						   "floppy", NULL);
++		return request_irq(FLOPPY_IRQ, floppy_hardint,
++				   IRQF_DISABLED, "floppy", NULL);
+ 	else
+-		return request_irq(FLOPPY_IRQ, floppy_interrupt, SA_INTERRUPT,
+-				   "floppy", NULL);
++		return request_irq(FLOPPY_IRQ, floppy_interrupt,
++				   IRQF_DISABLED, "floppy", NULL);
+ }
+ 
+ static unsigned long dma_mem_alloc(unsigned long size)
+Index: linux-2.6.git/include/asm-x86_64/signal.h
 ===================================================================
---- linux-2.6.git.orig/drivers/video/au1200fb.c	2006-07-01 16:51:09.000000000 +0200
-+++ linux-2.6.git/drivers/video/au1200fb.c	2006-07-01 16:51:49.000000000 +0200
-@@ -1694,7 +1694,7 @@ static int au1200fb_drv_probe(struct dev
+--- linux-2.6.git.orig/include/asm-x86_64/signal.h	2006-07-01 16:51:21.000000000 +0200
++++ linux-2.6.git/include/asm-x86_64/signal.h	2006-07-01 16:51:38.000000000 +0200
+@@ -83,7 +83,6 @@ typedef unsigned long sigset_t;
+  * SA_FLAGS values:
+  *
+  * SA_ONSTACK indicates that a registered stack_t will be used.
+- * SA_INTERRUPT is a no-op, but left due to historical reasons. Use the
+  * SA_RESTART flag to get restarting signals (which were the default long ago)
+  * SA_NOCLDSTOP flag to turn off SIGCHLD when children stop.
+  * SA_RESETHAND clears the handler when the signal is delivered.
+@@ -103,7 +102,6 @@ typedef unsigned long sigset_t;
  
- 	/* Now hook interrupt too */
- 	if ((ret = request_irq(AU1200_LCD_INT, au1200fb_handle_irq,
--		 	  SA_INTERRUPT | SA_SHIRQ, "lcd", (void *)dev)) < 0) {
-+		 	  IRQF_DISABLED | IRQF_SHARED, "lcd", (void *)dev)) < 0) {
- 		print_err("fail to request interrupt line %d (err: %d)",
- 			  AU1200_LCD_INT, ret);
- 		goto failed;
-Index: linux-2.6.git/drivers/video/pxafb.c
+ #define SA_NOMASK	SA_NODEFER
+ #define SA_ONESHOT	SA_RESETHAND
+-#define SA_INTERRUPT	0x20000000 /* dummy -- ignored */
+ 
+ #define SA_RESTORER	0x04000000
+ 
+Index: linux-2.6.git/arch/x86_64/kernel/time.c
 ===================================================================
---- linux-2.6.git.orig/drivers/video/pxafb.c	2006-07-01 16:51:09.000000000 +0200
-+++ linux-2.6.git/drivers/video/pxafb.c	2006-07-01 16:51:49.000000000 +0200
-@@ -1334,7 +1334,7 @@ int __init pxafb_probe(struct platform_d
- 		goto failed;
- 	}
+--- linux-2.6.git.orig/arch/x86_64/kernel/time.c	2006-07-01 16:51:21.000000000 +0200
++++ linux-2.6.git/arch/x86_64/kernel/time.c	2006-07-01 16:51:38.000000000 +0200
+@@ -889,7 +889,7 @@ int __init time_setup(char *str)
+ }
  
--	ret = request_irq(IRQ_LCD, pxafb_handle_irq, SA_INTERRUPT, "LCD", fbi);
-+	ret = request_irq(IRQ_LCD, pxafb_handle_irq, IRQF_DISABLED, "LCD", fbi);
- 	if (ret) {
- 		dev_err(&dev->dev, "request_irq failed: %d\n", ret);
- 		ret = -EBUSY;
-Index: linux-2.6.git/drivers/video/s3c2410fb.c
-===================================================================
---- linux-2.6.git.orig/drivers/video/s3c2410fb.c	2006-07-01 16:51:09.000000000 +0200
-+++ linux-2.6.git/drivers/video/s3c2410fb.c	2006-07-01 16:51:49.000000000 +0200
-@@ -735,7 +735,7 @@ static int __init s3c2410fb_probe(struct
+ static struct irqaction irq0 = {
+-	timer_interrupt, SA_INTERRUPT, CPU_MASK_NONE, "timer", NULL, NULL
++	timer_interrupt, IRQF_DISABLED, CPU_MASK_NONE, "timer", NULL, NULL
+ };
  
- 	dprintk("got LCD region\n");
- 
--	ret = request_irq(irq, s3c2410fb_irq, SA_INTERRUPT, pdev->name, info);
-+	ret = request_irq(irq, s3c2410fb_irq, IRQF_DISABLED, pdev->name, info);
- 	if (ret) {
- 		dev_err(&pdev->dev, "cannot get irq %d - err %d\n", irq, ret);
- 		ret = -EBUSY;
-Index: linux-2.6.git/drivers/video/sa1100fb.c
-===================================================================
---- linux-2.6.git.orig/drivers/video/sa1100fb.c	2006-07-01 16:51:09.000000000 +0200
-+++ linux-2.6.git/drivers/video/sa1100fb.c	2006-07-01 16:51:49.000000000 +0200
-@@ -1472,7 +1472,7 @@ static int __init sa1100fb_probe(struct 
- 	if (ret)
- 		goto failed;
- 
--	ret = request_irq(irq, sa1100fb_handle_irq, SA_INTERRUPT,
-+	ret = request_irq(irq, sa1100fb_handle_irq, IRQF_DISABLED,
- 			  "LCD", fbi);
- 	if (ret) {
- 		printk(KERN_ERR "sa1100fb: request_irq failed: %d\n", ret);
-Index: linux-2.6.git/drivers/video/aty/atyfb_base.c
-===================================================================
---- linux-2.6.git.orig/drivers/video/aty/atyfb_base.c	2006-07-01 16:51:09.000000000 +0200
-+++ linux-2.6.git/drivers/video/aty/atyfb_base.c	2006-07-01 16:51:49.000000000 +0200
-@@ -1567,7 +1567,7 @@ static int aty_enable_irq(struct atyfb_p
- 	u32 int_cntl;
- 
- 	if (!test_and_set_bit(0, &par->irq_flags)) {
--		if (request_irq(par->irq, aty_irq, SA_SHIRQ, "atyfb", par)) {
-+		if (request_irq(par->irq, aty_irq, IRQF_SHARED, "atyfb", par)) {
- 			clear_bit(0, &par->irq_flags);
- 			return -EINVAL;
- 		}
-Index: linux-2.6.git/drivers/video/matrox/matroxfb_base.c
-===================================================================
---- linux-2.6.git.orig/drivers/video/matrox/matroxfb_base.c	2006-07-01 16:51:09.000000000 +0200
-+++ linux-2.6.git/drivers/video/matrox/matroxfb_base.c	2006-07-01 16:51:49.000000000 +0200
-@@ -233,7 +233,7 @@ int matroxfb_enable_irq(WPMINFO int reen
- 
- 	if (!test_and_set_bit(0, &ACCESS_FBINFO(irq_flags))) {
- 		if (request_irq(ACCESS_FBINFO(pcidev)->irq, matrox_irq,
--				SA_SHIRQ, "matroxfb", MINFO)) {
-+				IRQF_SHARED, "matroxfb", MINFO)) {
- 			clear_bit(0, &ACCESS_FBINFO(irq_flags));
- 			return -EINVAL;
- 		}
+ void __init time_init(void)
 
 --
 

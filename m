@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWGAWwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWGAWw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751376AbWGAWwY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 18:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWGAWwY
+	id S1751371AbWGAWw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 18:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWGAWw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 18:52:24 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:13525 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751346AbWGAWwX (ORCPT
+	Sat, 1 Jul 2006 18:52:56 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:20952 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751371AbWGAWwz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 18:52:23 -0400
-Date: Sat, 1 Jul 2006 18:52:12 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Neil Brown <neilb@suse.de>,
-       Reuben Farrelly <reuben-lkml@reub.net>,
-       Grant Wilson <grant.wilson@zen.co.uk>
-Subject: Re: 2.6.17-mm5 dislikes raid-1, just like mm4
-Message-ID: <20060701225212.GA12703@havoc.gtf.org>
-References: <20060701033524.3c478698.akpm@osdl.org> <20060701181455.GA16412@aitel.hist.no> <20060701152258.bea091a6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060701152258.bea091a6.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 1 Jul 2006 18:52:55 -0400
+Date: Sun, 2 Jul 2006 00:51:45 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       Olivier Galibert <galibert@pobox.com>,
+       James Courtier-Dutton <James@superbug.co.uk>,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       perex@suse.cz, Olaf Hering <olh@suse.de>
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
+In-Reply-To: <1151762066.11897.5.camel@mindpipe>
+Message-ID: <Pine.LNX.4.61.0607020051280.14511@yvahk01.tjqt.qr>
+References: <20060629192128.GE19712@stusta.de>  <44A54D8E.3000002@superbug.co.uk>
+ <20060630163114.GA12874@dspnet.fr.eu.org>  <1151702966.32444.57.camel@mindpipe>
+  <1151703286.11434.61.camel@laptopd505.fenrus.org> 
+ <Pine.LNX.4.61.0607011048360.25773@yvahk01.tjqt.qr> <1151762066.11897.5.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 01, 2006 at 03:22:58PM -0700, Andrew Morton wrote:
-> Helge Hafting <helgehaf@aitel.hist.no> wrote:
-> > kjournald starting.  Commit interval 5 seconds
-> > EXT3-fs: mounted filesystem with ordered data mode.
-> >   Vendor: USB2.0    Model:       HS-CF       Rev: 1.64
-> >   Type:   Direct-Access                      ANSI SCSI revision: 00
-> > sd 3:0:0:0: Attached scsi removable disk sdf
-> > sd 3:0:0:0: Attached scsi generic sg5 type 0
-> >   Vendor: USB2.0    Model:       HS-MS       Rev: 1.64
-> >   Type:   Direct-Access                      ANSI SCSI revision: 00
-> > sd 3:0:0:1: Attached scsi removable disk sdg
-> > sd 3:0:0:1: Attached scsi generic sg6 type 0
-> >   Vendor: USB2.0    Model:       HS-SM       Rev: 1.64
-> >   Type:   Direct-Access                      ANSI SCSI revision: 00
-> > sd 3:0:0:2: Attached scsi removable disk sdh
-> > sd 3:0:0:2: Attached scsi generic sg7 type 0
-> >   Vendor: USB2.0    Model:       HS-SD/MMC   Rev: 1.64
-> >   Type:   Direct-Access                      ANSI SCSI revision: 00
-
-> I assume this is still the broken-barriers bug.  Thanks for all the help on
-> this, guys.  More is to be asked for, I'm afraid.
-> 
-> I've prepared a tree which is basically 2.6.17-mm5, only the git-scsi-misc
-> and git-libata-all trees have been omitted.  It's at 
-
-What does USB storage have to do with SATA?
-
-	Jeff
+>> I cannot really use my onboard snd-intel8x0 because it lacks volume
+>> control on Master/PCM (= blows every headphone away), etc.
+>> 00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS]
+>> AC'97 Sound Controller (rev a0)
+>
+>ALSA should provide a master volume, it's only the kernel OSS emulation
+>that cannot control the volume on such devices.  If ALSA does not give
+>you volume controls, please file a bug report.
+>
+https://bugtrack.alsa-project.org/alsa-bug/view.php?id=2250
 
 
-
+Jan Engelhardt
+-- 

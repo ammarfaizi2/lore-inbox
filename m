@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWGAOJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWGAQ3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWGAOJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jul 2006 10:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWGAOJ3
+	id S1750747AbWGAQ3b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jul 2006 12:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWGAQ3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jul 2006 10:09:29 -0400
-Received: from [64.62.148.172] ([64.62.148.172]:31502 "EHLO arnor.apana.org.au")
-	by vger.kernel.org with ESMTP id S1751152AbWGAOJ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jul 2006 10:09:28 -0400
-Date: Sun, 2 Jul 2006 00:07:50 +1000
-To: Miles Lane <miles.lane@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] lockdep, annotate slocks: turn lockdep off for them
-Message-ID: <20060701140750.GA7342@gondor.apana.org.au>
-References: <20060630065041.GB6572@elte.hu> <20060630072231.GB7057@elte.hu> <20060630091850.GA10713@elte.hu> <20060630111734.GA22202@gondor.apana.org.au> <20060630113758.GA18504@elte.hu> <a44ae5cd0606301321y6ce6b7dbo2b405d3d76a670f1@mail.gmail.com> <20060630203804.GA1950@elte.hu> <a44ae5cd0606301545s33496174lcd7136d8bf41897@mail.gmail.com> <1151746867.3195.19.camel@laptopd505.fenrus.org> <a44ae5cd0607010706k74c30a9ey6b7eac49d11e7827@mail.gmail.com>
-Mime-Version: 1.0
+	Sat, 1 Jul 2006 12:29:31 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:1163 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750747AbWGAQ3b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jul 2006 12:29:31 -0400
+Date: Sat, 1 Jul 2006 18:25:32 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au, mingo@redhat.com
+Subject: Re: 2.6.17-mm4 raid bugs & traces
+Message-ID: <20060701162532.GA14933@aitel.hist.no>
+References: <20060629013643.4b47e8bd.akpm@osdl.org> <20060701111153.GA10855@aitel.hist.no>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a44ae5cd0607010706k74c30a9ey6b7eac49d11e7827@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <20060701111153.GA10855@aitel.hist.no>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 01, 2006 at 07:06:22AM -0700, Miles Lane wrote:
->
-> >@@ -3260,6 +3268,8 @@ while (0)
-> >        SET_NETDEV_DEV(dev, sdev);
-> >        if (ret >= 0)
-> >                ret = register_netdevice(dev);
-> >+
-> >+       lockdep_set_class(&dev->_xmit_lock, &hostap_netdev_xmit_lock_key);
-> >        rtnl_unlock();
-> >        if (ret < 0) {
-> >                printk(KERN_WARNING "%s: register netdevice failed!\n",
-> 
-> After rebuilding with this patch, I still get the lockdep message.
-> Everything is the same except now the "other info" section reads:
+More mm4 raid-1 troubles.
 
-Perhaps the same trick needs to be applied to the queue lock?
+This time, the kernel panicked upon shutdown.  I was able
+to write down the call trace:
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+process swapper
+
+super_written
+__end_that_request_first
+blk_ordered_complete
+scsi_end_request
+scsi_io_completion
+blk_done_softirq
+__do_softirq
+call_softirq
+
+RIP:md_error
+RSP:ffffffff80765e00
+CR2:0000000000000048
+
+<0> kernel panic - not syncing: Aiee, killing interrupt handler
+
+Hw involved:
+Three raid-1, two on plain scsi and one on SATA.
+Each raid-1 consists of two partitions.  This time,
+each md device was running in degraded mode.
+
+
+Booting into 2.6.15 in order to re-add devices and sync the RAID,
+I get only 2768K/sec reconstruction speed on SATA, still
+1108 minutes (18 hours) to go. :-( 
+Odd, as 2.6.17mm4 resynced this in 50min, but hit a
+write error (real or imagined?) immediately afterwards.
+
+The other older devices, on plain scsi, resynced much faster.
+19381K/sec
+
+More than a little irritating, I need the SATA raid-1 to be in sync
+so lilo can install mm5 for me. 18 hours. 
+
+Looks like 2.6.17mm4 doesn't like mirror devices?
+
+Helge Hafting

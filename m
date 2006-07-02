@@ -1,85 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWGBX04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWGBX2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWGBX04 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 19:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWGBX04
+	id S1750718AbWGBX2D (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 19:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWGBX2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 19:26:56 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:51159 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750716AbWGBX0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 19:26:55 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Mon, 3 Jul 2006 01:26:38 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 17/19] ieee1394: nodemgr: convert nodemgr_serialize semaphore
- to mutex
-To: Ben Collins <bcollins@ubuntu.com>
-cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <tkrat.8d67352567e525c1@s5r6.in-berlin.de>
-Message-ID: <tkrat.270fe1c963068126@s5r6.in-berlin.de>
-References: <tkrat.8d67352567e525c1@s5r6.in-berlin.de>
+	Sun, 2 Jul 2006 19:28:03 -0400
+Received: from dvhart.com ([64.146.134.43]:11945 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750718AbWGBX2C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 19:28:02 -0400
+Message-ID: <44A8567B.2010309@mbligh.org>
+Date: Sun, 02 Jul 2006 16:27:55 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (0.906) AWL,BAYES_50
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: 2.6.17-mm5
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another trivial sem2mutex conversion.
+Panic on NUMA-Q (mm4 was fine). Presumably some new scheduler patch
 
-Side note:  nodemgr_serialize's purpose, when introduced in linux1394's
-revision 529 in July 2002, was to protect several data structures which
-are now largely handled by or together with Linux' driver core and are
-now protected by the LDM's own mechanisms.  It may very well be possible
-to remove this mutex now.  But fully parallelized node scanning is on
-our long-term TODO list anyway; the mutex will certainly go away then.
-
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
-Index: linux/drivers/ieee1394/nodemgr.c
-===================================================================
---- linux.orig/drivers/ieee1394/nodemgr.c	2006-07-02 12:23:05.000000000 +0200
-+++ linux/drivers/ieee1394/nodemgr.c	2006-07-02 12:23:42.000000000 +0200
-@@ -158,7 +158,7 @@ static struct csr1212_bus_ops nodemgr_cs
-  * but now we are much simpler because of the LDM.
-  */
- 
--static DECLARE_MUTEX(nodemgr_serialize);
-+static DEFINE_MUTEX(nodemgr_serialize);
- 
- struct host_info {
- 	struct hpsb_host *host;
-@@ -1621,7 +1621,7 @@ static int nodemgr_host_thread(void *__h
- 		if (kthread_should_stop())
- 			goto exit;
- 
--		if (down_interruptible(&nodemgr_serialize)) {
-+		if (mutex_lock_interruptible(&nodemgr_serialize)) {
- 			if (try_to_freeze())
- 				continue;
- 			goto exit;
-@@ -1650,7 +1650,7 @@ static int nodemgr_host_thread(void *__h
- 		if (!nodemgr_check_irm_capability(host, reset_cycles) ||
- 		    !nodemgr_do_irm_duties(host, reset_cycles)) {
- 			reset_cycles++;
--			up(&nodemgr_serialize);
-+			mutex_unlock(&nodemgr_serialize);
- 			continue;
- 		}
- 		reset_cycles = 0;
-@@ -1668,10 +1668,10 @@ static int nodemgr_host_thread(void *__h
- 		/* Update some of our sysfs symlinks */
- 		nodemgr_update_host_dev_links(host);
- 
--		up(&nodemgr_serialize);
-+		mutex_unlock(&nodemgr_serialize);
- 	}
- unlock_exit:
--	up(&nodemgr_serialize);
-+	mutex_unlock(&nodemgr_serialize);
- exit:
- 	HPSB_VERBOSE("NodeMgr: Exiting thread");
- 	return 0;
-
+divide error: 0000 [#1]
+8K_STACKS SMP 
+last sysfs file: 
+Modules linked in:
+CPU:    1
+EIP:    0060:[<c0112b6e>]    Not tainted VLI
+EFLAGS: 00010046   (2.6.17-mm5-autokern1 #1) 
+EIP is at find_busiest_group+0x1a3/0x47c
+eax: 00000000   ebx: 00000007   ecx: 00000000   edx: 00000000
+esi: 00000000   edi: e75ff264   ebp: e7405ec8   esp: e7405e58
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, ti=e7404000 task=c13f8560 task.ti=e7404000)
+Stack: e75ff264 00000010 c0119020 00000000 00000000 00000000 00000000 00000000 
+       ffffffff 00000000 00000000 00000001 00000001 00000001 00000080 00000000 
+       00000000 00000200 00000020 00000080 00000000 00000000 e75ff260 c1364960 
+Call Trace:
+ [<c0119020>] vprintk+0x5f/0x213
+ [<c0112efb>] load_balance+0x54/0x1d6
+ [<c011332d>] rebalance_tick+0xc5/0xe3
+ [<c01137a3>] scheduler_tick+0x2cb/0x2d3
+ [<c01215b4>] update_process_times+0x51/0x5d
+ [<c010c224>] smp_apic_timer_interrupt+0x5a/0x61
+ [<c0102d5b>] apic_timer_interrupt+0x1f/0x24
+ [<c01006c0>] default_idle+0x0/0x59
+ [<c01006f1>] default_idle+0x31/0x59
+ [<c0100791>] cpu_idle+0x64/0x79
+Code: 00 5b 83 f8 1f 89 c6 5f 0f 8e 63 ff ff ff 8b 45 e0 8b 55 e8 01 45 dc 8b 4a 08 89 c2 01 4d d4 c1 e2 07 89 d0 31 d2 89 ce c1 ee 07 <f7> f1 83 7d 9c 00 89 45 e0 74 17 89 45 d8 8b 55 e8 8b 4d a4 8b 
+EIP: [<c0112b6e>] find_busiest_group+0x1a3/0x47c SS:ESP 0068:e7405e58
 

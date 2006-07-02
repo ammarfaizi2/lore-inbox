@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWGBVMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWGBVPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbWGBVMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 17:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWGBVMY
+	id S1750743AbWGBVPb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 17:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWGBVPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 17:12:24 -0400
-Received: from smtp-vbr3.xs4all.nl ([194.109.24.23]:52239 "EHLO
-	smtp-vbr3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1750843AbWGBVMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 17:12:23 -0400
-From: Johan Vromans <jvromans@squirrel.nl>
+	Sun, 2 Jul 2006 17:15:31 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:20404 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750743AbWGBVPb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 17:15:31 -0400
+Date: Sun, 2 Jul 2006 23:15:19 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Udo van den Heuvel <udovdh@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Oops / BUG? (2.6.17.2 on VIA Epia CL6000)
+In-Reply-To: <1151840308.3111.14.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0607022313550.5218@yvahk01.tjqt.qr>
+References: <44A7AADB.8040106@xs4all.nl>  <1151839268.3111.10.camel@laptopd505.fenrus.org>
+  <44A7ACF2.4070304@xs4all.nl> <1151840308.3111.14.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17576.14005.767262.868190@phoenix.squirrel.nl>
-Date: Sun, 2 Jul 2006 23:12:21 +0200
-To: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: RFC [PATCH] acpi: allow SMBus access
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Johan Vromans <jvromans@squirrel.nl>
+>> > Hi,
+>> > 
+>> > something really bad happened (the processor jumped into hyperspace);
+>> > however it looks like automatic symbol resolving isn't working;
+>> > could you check if CONFIG_KALLSYMS is enabled in your kernel config?
+>> > With that enabled, debugability tends to go up bigtime since at least
+>> > the backtrace becomes human readable...
+>> 
+>> I have:
+>> 
+>> CONFIG_KALLSYMS=y
+>
+>Hoi,
+>
+>hmmmmm then something really bad happened, so bad that even the
+>backtrace is corrupted ;(
 
-To get battery readings on some laptops it is necessary to interface
-with the SMBus that hangs of the EC. However, the current
-implementation of the EC driver does not permit other modules
-read/write access.
+How about adding this one?
+	CONFIG_FRAME_POINTER=y
+Compiling things without frame pointer on 
+userspace (yes, userspace) makes debugging impossible, I wonder how the 
+kernel can do it without FPs.
+And if you got time on your hands
+	CONFIG_UNWIND_INFO=y
 
-A trivial solution is to change acpi_ec_read/write from static to
-nonstatic, and export the symbols so other modules can use them.
 
-This patch is based on the current 2.6.17 kernel sources.
-
-Signed-off-by: Johan Vromans <jvromans@squirrel.nl>
----
-
---- linux-2.6.17.i686/drivers/acpi/ec.c.orig	2006-07-02 22:46:35.000000000 +0200
-+++ linux-2.6.17.i686/drivers/acpi/ec.c	2006-06-27 10:03:19.000000000 +0200
-@@ -305,20 +305,22 @@ end:
- }
- #endif /* ACPI_FUTURE_USAGE */
- 
--static int acpi_ec_read(union acpi_ec *ec, u8 address, u32 * data)
-+int acpi_ec_read(union acpi_ec *ec, u8 address, u32 * data)
- {
- 	if (acpi_ec_poll_mode)
- 		return acpi_ec_poll_read(ec, address, data);
- 	else
- 		return acpi_ec_intr_read(ec, address, data);
- }
--static int acpi_ec_write(union acpi_ec *ec, u8 address, u8 data)
-+EXPORT_SYMBOL(acpi_ec_read);
-+int acpi_ec_write(union acpi_ec *ec, u8 address, u8 data)
- {
- 	if (acpi_ec_poll_mode)
- 		return acpi_ec_poll_write(ec, address, data);
- 	else
- 		return acpi_ec_intr_write(ec, address, data);
- }
-+EXPORT_SYMBOL(acpi_ec_write);
- static int acpi_ec_poll_read(union acpi_ec *ec, u8 address, u32 * data)
- {
- 	acpi_status status = AE_OK;
-
+Jan Engelhardt
 -- 
-Johan

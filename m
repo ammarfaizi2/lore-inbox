@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751881AbWGBIVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWGBIgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751881AbWGBIVf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 04:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751882AbWGBIVe
+	id S1750934AbWGBIgp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 04:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWGBIgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 04:21:34 -0400
-Received: from web32013.mail.mud.yahoo.com ([68.142.207.110]:12173 "HELO
-	web32013.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751881AbWGBIVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 04:21:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=iiXwkYFQ90Z+++iDjJc9pwJw1rfBS6BF00x/q1ef8YwO/GH2qw7xdhoO5/cdAASBzvx00j1i7xdlxeMKQMugqT1/Qg3h9xXMbYi9WMcFxWAR4rPwf4WeNSYEKzYpSZlYvCOIyFCe5FRjm664auH3nq4dFB/fpm5iO1lt+KAgoGk=  ;
-Message-ID: <20060702082133.23309.qmail@web32013.mail.mud.yahoo.com>
-Date: Sun, 2 Jul 2006 01:21:33 -0700 (PDT)
-From: Congjun Yang <congjuny@yahoo.com>
-Subject: Re: keyboard raw mode
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
-In-Reply-To: <200607011004.01317.dtor@insightbb.com>
+	Sun, 2 Jul 2006 04:36:45 -0400
+Received: from smtp4-g19.free.fr ([212.27.42.30]:8405 "EHLO smtp4-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750796AbWGBIgo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 04:36:44 -0400
+Message-ID: <44A78599.9060405@free.fr>
+Date: Sun, 02 Jul 2006 10:36:41 +0200
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060620 Debian/1.7.13-0.2
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: albertl@mail.com
+CC: Jeff Garzik <jeff@garzik.org>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       B.Zolnierkiewicz@elka.pw.edu.pl, htejun@gmail.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Unicorn Chang <uchang@tw.ibm.com>, Doug Maxey <dwm@maxeymade.com>
+Subject: Re: + via-pata-controller-xfer-fixes.patch added to -mm tree
+References: <200606242214.k5OMEHCU005963@shell0.pdx.osdl.net> <449DBE88.5020809@garzik.org> <449DBFFD.2010700@garzik.org> <449E5445.60008@free.fr> <44A4CE21.30009@tw.ibm.com> <1151654134.44a4d8f6dc320@imp5-g19.free.fr> <44A4E01D.8020604@tw.ibm.com>
+In-Reply-To: <44A4E01D.8020604@tw.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.9-22.EL(CentOS 4.2) is what I currently use.
-2.4.20 was where I first saw, in keyboard.c, the
-workaround that throws away a second break code.
+Hi Albert,
 
-I think I like the new design for the user input
-system: separate the protocol layer from the raw port.
-But, would it be nice for the atkbd driver to still
-provide a raw (or passthrough) mode?
-
-Thanks,
-Congjun Yang
-
---- Dmitry Torokhov <dtor@insightbb.com> wrote:
-
-> On Saturday 01 July 2006 05:55, Jan-Benedict Glaw
-> wrote:
-> >   * All protocol drivers (eg. the atkbd driver)
-> will *never* ever
-> >     stuff the raw I/O anywhere.
+Albert Lee wrote:
+> castet.matthieu@free.fr wrote:
 > 
-> Actually some of them do via EV_MSC/MSC_RAW events.
-> So raw code should be
-> available through evdev nodes and also on x86
-> keyboard driver in raw mode
-> should also pass raw data through (from atkbd only).
+>>
+>>>Could you please test the current libata-upstream tree and
+>>>turn on ATA_DEBUG and ATA_VERBOSE_DEBUG in include/linux/libata.h.
+>>>
+>>
+>>Is there a easy way to get libata-upstream tree ?
+>>Do I need to install git for that or there are some snapshots somewhere ?
+>>
+>>
 > 
-> Congjun, what 2.6.x kernel have you tried?
 > 
-> -- 
-> Dmitry
+> Hi Matthieu,
 > 
+> Tejun has a patch against 2.6.17:
+> http://home-tj.org/files/libata-tj-stable/libata-tj-2.6.17-20060625-1.tar.bz2
+> 
+I don't know if I did someting wrong, but it didn't apply cleanly.
+So I enable the trace on lastest -mm kernel and I disable the via quirk.
+
+But the printk in the interrupt handler takes some times and hides the 
+altstatus delay.
+
+I will try to send you a trace, where I move the printk at the end of 
+the interrupt handler.
 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Matthieu
+
+

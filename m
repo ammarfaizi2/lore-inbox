@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWGBGzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWGBHix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWGBGzc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 02:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWGBGzc
+	id S1751396AbWGBHix (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 03:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWGBHix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 02:55:32 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:23045 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1750879AbWGBGzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 02:55:31 -0400
-Message-ID: <44A76DDF.4020307@superbug.co.uk>
-Date: Sun, 02 Jul 2006 07:55:27 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060609)
-MIME-Version: 1.0
-To: James Courtier-Dutton <James@superbug.co.uk>
-CC: Olivier Galibert <galibert@pobox.com>, Lee Revell <rlrevell@joe-job.com>,
-       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       perex@suse.cz, Olaf Hering <olh@suse.de>
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-References: <20060629192128.GE19712@stusta.de> <44A54D8E.3000002@superbug.co.uk> <20060630163114.GA12874@dspnet.fr.eu.org> <1151702966.32444.57.camel@mindpipe> <20060701073133.GA99126@dspnet.fr.eu.org> <44A6279C.3000100@superbug.co.uk>
-In-Reply-To: <44A6279C.3000100@superbug.co.uk>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 2 Jul 2006 03:38:53 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:45025 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751057AbWGBHix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 03:38:53 -0400
+Subject: Re: [2.6 patch] EXPORT_UNUSED_SYMBOL{,GPL}
+	{,un}register_die_notifier
+From: Arjan van de Ven <arjan@infradead.org>
+To: Keith Owens <kaos@sgi.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3662.1151820545@ocs3.ocs.com.au>
+References: <3662.1151820545@ocs3.ocs.com.au>
+Content-Type: text/plain
+Date: Sun, 02 Jul 2006 09:38:46 +0200
+Message-Id: <1151825926.3111.0.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Courtier-Dutton wrote:
-> "Never" probably only means terribly long. :-)
+On Sun, 2006-07-02 at 16:09 +1000, Keith Owens wrote:
+> Adrian Bunk (on Fri, 30 Jun 2006 13:33:17 +0200) wrote:
+> >This patch marks {,un}register_die_notifier as 
+> >EXPORT_UNUSED_SYMBOL{,GPL}.
 > 
+> KDB needs that.
 
-There is in fact one implementation method that we would like to
-implement, but currently we don't know how, so some input from people
-from this list might be helpful.
+is kdb is strict module or does it need extra patches anyway?
 
-There is an ALSA tool called aoss.
-What this does is hook any calls the application does to
-fopen/fwrite/fread/fclose/open/close/read/write/ioctl etc. and detects
-any calls to open /dev/dsp and /dev/mixer and diverts them to use
-alsa-lib. This therefore manages to divert the applications use of
-/dev/dsp before it even reaches the kernel. This therefore gives the
-application full use of all the alsa-lib features. So, for example,
-4-channel output would work in this mode. But, and this is the bit we
-need help with, if the application uses dlopen to dynamically open a
-plugin, the plugin's calls to open/close/read/write etc. are not hooked,
-so the application fails.
-
-Is there any way to also hook the IO calls of dlopened plugins?
-
-James

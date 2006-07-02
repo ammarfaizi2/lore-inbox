@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751699AbWGBHmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751881AbWGBIVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751699AbWGBHmP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 03:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751532AbWGBHmP
+	id S1751881AbWGBIVf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 04:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751882AbWGBIVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 03:42:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:47841 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751145AbWGBHmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 03:42:14 -0400
-Subject: Re: 2.6.17-mm5 -- Busted toolchain? -- usr/klibc/exec_l.c:59:
-	undefined reference to `__stack_chk_fail'
-From: Arjan van de Ven <arjan@infradead.org>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <a44ae5cd0607011537o1cf00545td19e568dcb9c06c1@mail.gmail.com>
-References: <a44ae5cd0607011409m720dd23dvf178a133c2060b6d@mail.gmail.com>
-	 <1151788673.3195.58.camel@laptopd505.fenrus.org>
-	 <a44ae5cd0607011425n18266b02s81b3d87988895555@mail.gmail.com>
-	 <1151789342.3195.60.camel@laptopd505.fenrus.org>
-	 <a44ae5cd0607011537o1cf00545td19e568dcb9c06c1@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 02 Jul 2006 09:42:10 +0200
-Message-Id: <1151826131.3111.5.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 2 Jul 2006 04:21:34 -0400
+Received: from web32013.mail.mud.yahoo.com ([68.142.207.110]:12173 "HELO
+	web32013.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751881AbWGBIVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 04:21:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=iiXwkYFQ90Z+++iDjJc9pwJw1rfBS6BF00x/q1ef8YwO/GH2qw7xdhoO5/cdAASBzvx00j1i7xdlxeMKQMugqT1/Qg3h9xXMbYi9WMcFxWAR4rPwf4WeNSYEKzYpSZlYvCOIyFCe5FRjm664auH3nq4dFB/fpm5iO1lt+KAgoGk=  ;
+Message-ID: <20060702082133.23309.qmail@web32013.mail.mud.yahoo.com>
+Date: Sun, 2 Jul 2006 01:21:33 -0700 (PDT)
+From: Congjun Yang <congjuny@yahoo.com>
+Subject: Re: keyboard raw mode
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
+In-Reply-To: <200607011004.01317.dtor@insightbb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.6.9-22.EL(CentOS 4.2) is what I currently use.
+2.4.20 was where I first saw, in keyboard.c, the
+workaround that throws away a second break code.
 
-> https://wiki.ubuntu.com/GccSsp
+I think I like the new design for the user input
+system: separate the protocol layer from the raw port.
+But, would it be nice for the atkbd driver to still
+provide a raw (or passthrough) mode?
+
+Thanks,
+Congjun Yang
+
+--- Dmitry Torokhov <dtor@insightbb.com> wrote:
+
+> On Saturday 01 July 2006 05:55, Jan-Benedict Glaw
+> wrote:
+> >   * All protocol drivers (eg. the atkbd driver)
+> will *never* ever
+> >     stuff the raw I/O anywhere.
 > 
-> It appears that Ubuntu's Edgy Eft (the development tree) now contains
-> "Stack Smashing Protection" enabled by default.  I found a web page
-> that states that -fno-stack-protector can be used to disable this
-> functionality.  Interestingly, another web page stated that SSP has
-> been enabled in Redhat compilers for a long time and is now also
-> enabled in Debian SID.  Perhaps -fno-stack-protector should be added
-> to the kernel build be default?
+> Actually some of them do via EV_MSC/MSC_RAW events.
+> So raw code should be
+> available through evdev nodes and also on x86
+> keyboard driver in raw mode
+> should also pass raw data through (from atkbd only).
+> 
+> Congjun, what 2.6.x kernel have you tried?
+> 
+> -- 
+> Dmitry
+> 
 
 
-gcc 4.1 and later have this feature yes.
-HOWEVER the gcc people were not stupid, they did not force this on
-people, they require you to put -fstack-protector on the commandline.
-Debian and RH/Fedora do this.
-If Ubuntu patched gcc rather than just putting it in the build
-environment... then you should switch to a less braindead distribution
-really ;)
-or at least ask them to fix this.
-
-Greetings,
-   Arjan van de Ven
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,41 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWGBRjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWGBRjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWGBRjj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 13:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWGBRjj
+	id S1751444AbWGBRjw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 13:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWGBRjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 13:39:39 -0400
-Received: from gw03.mail.saunalahti.fi ([195.197.172.111]:46526 "EHLO
-	gw03.mail.saunalahti.fi") by vger.kernel.org with ESMTP
-	id S1751387AbWGBRjh (ORCPT <rfc822;<linux-kernel@vger.kernel.org>>);
-	Sun, 2 Jul 2006 13:39:37 -0400
-From: Jan Knutar <jk-lkml@sci.fi>
-To: John Heffner <jheffner@psc.edu>
-Subject: Re: 2.6.17: networking bug??
-Date: Sun, 2 Jul 2006 20:39:06 +0300
-User-Agent: KMail/1.6.2
-Cc: Mark Lord <lkml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       davem@davemloft.net
-References: <448EC6F3.3060002@rtr.ca> <448EF45B.2080601@rtr.ca> <448EF85E.50405@psc.edu>
-In-Reply-To: <448EF85E.50405@psc.edu>
+	Sun, 2 Jul 2006 13:39:52 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43419 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751444AbWGBRjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 13:39:51 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Edgar Hucek <hostmaster@ed-soft.at>,
+       LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
+References: <44A04F5F.8030405@ed-soft.at>
+	<Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
+	<44A0CCEA.7030309@ed-soft.at>
+	<Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
+	<44A304C1.2050304@zytor.com>
+Date: Sun, 02 Jul 2006 11:39:16 -0600
+In-Reply-To: <44A304C1.2050304@zytor.com> (H. Peter Anvin's message of "Wed,
+	28 Jun 2006 15:37:53 -0700")
+Message-ID: <m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607022039.06166.jk-lkml@sci.fi>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 June 2006 20:39, John Heffner wrote:
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-> The best thing you can do is try to find this broken box and inform its 
-> owner that it needs to be fixed.  (If you can find out what it is, I'd 
-> be interested to know.)  In the meantime, disabling window scaling will 
-> work around the problem for you.
+> Linus Torvalds wrote:
+>> On Tue, 27 Jun 2006, Edgar Hucek wrote:
+>>> So what is your suggestion to get the working funktionality
+>>> from kernel 2.6.16 back ? 2.6.17 have broken it.
+>> I'd really suggest just filling in the e820 table from the EFI information
+>> early at boot.
+>> (Even better would be for the EFI bootloader on x86 to just fill things in
+>> _as_if_ it was filling in e820 data, but that's outside of the kernel, so if
+>> you want the _kernel_ to be able to handle native EFI data, do it by just
+>> translating it once into e820 mode, and you're done).
+>> The translation from EFI to e820 format should be very straightforward
+>> indeed. I think it's pretty much the same thing with different naming.
+>>
+>
+> You probably don't want to put it in the bootloader.  The kernel is easier to
+> upgrade than the bootloader, which is easier to upgrade than the firmware, so it
+> makes more sense for the kernel to be as self-sufficient as is possible, or at
+> least practical.
 
-I was bit by this "networking bug" too. The broken box turned out to be
-the OpenBSD box I was trying to connect to.
+Regardless it would be nice if the efi implementation hacks were removed.
 
-The owner removed scrub from pf.conf, and connectivity was restored.
+My favorite is this one in init/main.c 
+#ifdef CONFIG_X86
+	if (efi_enabled)
+		efi_enter_virtual_mode();
+#endif
+
+Which pretty much guarantees efi won't be a distro supported feature
+any time soon because it breaks kexec the ability of a kexec'd kernel
+to boot and thus crash dump support. Or it does if you ever use efi
+callbacks, and if you don't use efi callbacks there is no point in
+calling that function.  Why are efi callbacks not always done in
+physical mode?
+
+Eric
+
+

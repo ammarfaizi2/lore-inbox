@@ -1,83 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWGBN7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWGBOKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbWGBN7j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 09:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWGBN7i
+	id S1750724AbWGBOKU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 10:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWGBOKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 09:59:38 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:37792 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750724AbWGBN7h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 09:59:37 -0400
-Message-ID: <44A7D13B.5020608@tw.ibm.com>
-Date: Sun, 02 Jul 2006 21:59:23 +0800
-From: Albert Lee <albertcc@tw.ibm.com>
-Reply-To: albertl@mail.com
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Sun, 2 Jul 2006 10:10:20 -0400
+Received: from www346.sakura.ne.jp ([202.181.99.66]:49931 "EHLO
+	www346.sakura.ne.jp") by vger.kernel.org with ESMTP
+	id S1750724AbWGBOKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 10:10:19 -0400
+Message-ID: <44A7D349.4040705@ak.jp.nec.com>
+Date: Sun, 02 Jul 2006 23:08:09 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       matthieu castet <castet.matthieu@free.fr>
-CC: albertl@mail.com, Jeff Garzik <jeff@garzik.org>, akpm@osdl.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl, htejun@gmail.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Unicorn Chang <uchang@tw.ibm.com>, Doug Maxey <dwm@maxeymade.com>
-Subject: Re: + via-pata-controller-xfer-fixes.patch added to -mm tree
-References: <200606242214.k5OMEHCU005963@shell0.pdx.osdl.net>	 <449DBE88.5020809@garzik.org> <449DBFFD.2010700@garzik.org>	 <449E5445.60008@free.fr>  <44A4CE21.30009@tw.ibm.com> <1151661803.31392.1.camel@localhost.localdomain>
-In-Reply-To: <1151661803.31392.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: David Woodhouse <dwmw2@infradead.org>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, Adrian Bunk <bunk@stusta.de>,
+       jffs-dev@axis.com, linux-kernel@vger.kernel.org
+Subject: Re: unused fs/jffs2/acl.c:jffs2_clear_acl()
+References: <20060629130133.GC29056@stusta.de> <1151586970.16413.16.camel@pmac.infradead.org> <44A3E354.6050001@ak.jp.nec.com>
+In-Reply-To: <44A3E354.6050001@ak.jp.nec.com>
+Content-Type: multipart/mixed;
+ boundary="------------080700000005090906070101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Gwe, 2006-06-30 am 15:09 +0800, ysgrifennodd Albert Lee:
+This is a multi-part message in MIME format.
+--------------080700000005090906070101
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
+
+[JFFS2][XATTR] Fix memory leak in POSIX-ACL support
+
+* jffs2-xattr-v6.2-02-fix-posix_acl-memory-leak.patch
+
+jffs2_clear_acl() which releases acl caches allocated by kmalloc()
+was defined but it was never called. Thus, we faced to the risk
+of memory leaking.
+
+This patch plugs jffs2_clear_acl() into jffs2_do_clear_inode().
+It ensures to release acl cache when inode is cleared.
+
+Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+
+Thanks,
+
+KaiGai Kohei wrote:
+> David Woodhouse wrote:
 > 
->>If it is the problem of the specific ATAPI device, all controllers
->>should be affected, not only VIA. So, strange not seeing the problem on
->>Promise.
+>>On Thu, 2006-06-29 at 15:01 +0200, Adrian Bunk wrote:
+>>
+>>
+>>>it might not have been intended that jffs2_clear_acl() in Linus' tree
+>>>is unused?
+>>
+>>
+>>I suspect you're right -- thanks for pointing it out.
+>>
+>>Kaigai-san?
 > 
 > 
-> That may be because of the way the chips handle buffering of interrupt
-> delivery and readahead/writebehind. I have two traces on the ALi
-> chipsets that look like the delayed response problem.
+> I'm sorry, it's a serious BUG.
+> When an inode is cleared, jffs2_clear_acl() should be called
+> to release on-memory ACL. Because the current implementation
+> didn't care about this cleaning-up, we have memory-leaking.
 > 
+> Please wait a patch for a while.
 > 
-> 
+> Thanks,
 
-Understood. Thanks for the explanation. Checked Matthieu's log, and yes
-it does look like early interrupt. Matthieu's Sil680 has no such problem.
-Also the problem is not reproducible with the same CD-RW drive on my
-Promise 20275 chip. So, the explanation makes sense.
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
-BTW, even for VIA, the early irq problem occur on 'set features - xfer mode'
-but IDENTIFY works ok. Just curious, does the ALi chip have the same
-symptom? i.e. Besides the 'set features' command, are there any other
-commands affected by the early irq problem? Say, any other PIO non-data
-commands?
+--------------080700000005090906070101
+Content-Type: text/plain;
+ name="jffs2-xattr-v6.2-02-fix-posix_acl-memory-leak.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="jffs2-xattr-v6.2-02-fix-posix_acl-memory-leak.patch"
 
---
-albert
-
-(The relevant part from Matthieu's log.)
-
-ata_dev_set_xfermode: set features - xfer mode
-ata4: ata_dev_select: ENTER, ata4: device 1, wait 1
-ata_tf_load_pio: feat 0x3 nsect 0x42 lba 0x0 0x0 0x0
-ata_tf_load_pio: device 0xB0
-ata_exec_command_pio: ata4: cmd 0xEF
-ata_host_intr: ata4: protocol 1 task_state 3  <=== early irq
-ata_port_flush_task: ENTER
-ata_port_flush_task: flush #1
-ata4: ata_port_flush_task: flush #2
-ata4: ata_port_flush_task: EXIT
-__ata_port_freeze: ata4 port frozen
-ata4.01: qc timeout (cmd 0xef)
-ata_dev_set_xfermode: EXIT, err_mask=4
-ata4.01: failed to set xfermode (err_mask=0x4)
-ata4.01: limiting speed to UDMA/25
-ata4: failed to recover some devices, retrying in 5 secs
-__ata_port_freeze: ata4 port frozen
-
-
+ZGlmZiAtLWdpdCBhL2ZzL2pmZnMyL2FjbC5jIGIvZnMvamZmczIvYWNsLmMKaW5kZXggOWMy
+MDc3ZS4uMGFlM2NkMSAxMDA2NDQKLS0tIGEvZnMvamZmczIvYWNsLmMKKysrIGIvZnMvamZm
+czIvYWNsLmMKQEAgLTM0NSwxMCArMzQ1LDggQEAgaW50IGpmZnMyX2luaXRfYWNsKHN0cnVj
+dCBpbm9kZSAqaW5vZGUsIAogCXJldHVybiByYzsKIH0KIAotdm9pZCBqZmZzMl9jbGVhcl9h
+Y2woc3RydWN0IGlub2RlICppbm9kZSkKK3ZvaWQgamZmczJfY2xlYXJfYWNsKHN0cnVjdCBq
+ZmZzMl9pbm9kZV9pbmZvICpmKQogewotCXN0cnVjdCBqZmZzMl9pbm9kZV9pbmZvICpmID0g
+SkZGUzJfSU5PREVfSU5GTyhpbm9kZSk7Ci0KIAlpZiAoZi0+aV9hY2xfYWNjZXNzICYmIGYt
+PmlfYWNsX2FjY2VzcyAhPSBKRkZTMl9BQ0xfTk9UX0NBQ0hFRCkgewogCQlwb3NpeF9hY2xf
+cmVsZWFzZShmLT5pX2FjbF9hY2Nlc3MpOwogCQlmLT5pX2FjbF9hY2Nlc3MgPSBKRkZTMl9B
+Q0xfTk9UX0NBQ0hFRDsKZGlmZiAtLWdpdCBhL2ZzL2pmZnMyL2FjbC5oIGIvZnMvamZmczIv
+YWNsLmgKaW5kZXggODg5M2JkMS4uZmEzMjdkYiAxMDA2NDQKLS0tIGEvZnMvamZmczIvYWNs
+LmgKKysrIGIvZnMvamZmczIvYWNsLmgKQEAgLTMwLDcgKzMwLDcgQEAgI2RlZmluZSBKRkZT
+Ml9BQ0xfTk9UX0NBQ0hFRCAoKHZvaWQgKiktMQogZXh0ZXJuIGludCBqZmZzMl9wZXJtaXNz
+aW9uKHN0cnVjdCBpbm9kZSAqLCBpbnQsIHN0cnVjdCBuYW1laWRhdGEgKik7CiBleHRlcm4g
+aW50IGpmZnMyX2FjbF9jaG1vZChzdHJ1Y3QgaW5vZGUgKik7CiBleHRlcm4gaW50IGpmZnMy
+X2luaXRfYWNsKHN0cnVjdCBpbm9kZSAqLCBzdHJ1Y3QgaW5vZGUgKik7Ci1leHRlcm4gdm9p
+ZCBqZmZzMl9jbGVhcl9hY2woc3RydWN0IGlub2RlICopOworZXh0ZXJuIHZvaWQgamZmczJf
+Y2xlYXJfYWNsKHN0cnVjdCBqZmZzMl9pbm9kZV9pbmZvICopOwogCiBleHRlcm4gc3RydWN0
+IHhhdHRyX2hhbmRsZXIgamZmczJfYWNsX2FjY2Vzc194YXR0cl9oYW5kbGVyOwogZXh0ZXJu
+IHN0cnVjdCB4YXR0cl9oYW5kbGVyIGpmZnMyX2FjbF9kZWZhdWx0X3hhdHRyX2hhbmRsZXI7
+CkBAIC00MCw2ICs0MCw2IEBAICNlbHNlCiAjZGVmaW5lIGpmZnMyX3Blcm1pc3Npb24gTlVM
+TAogI2RlZmluZSBqZmZzMl9hY2xfY2htb2QoaW5vZGUpCQkoMCkKICNkZWZpbmUgamZmczJf
+aW5pdF9hY2woaW5vZGUsZGlyKQkoMCkKLSNkZWZpbmUgamZmczJfY2xlYXJfYWNsKGlub2Rl
+KQorI2RlZmluZSBqZmZzMl9jbGVhcl9hY2woZikKIAogI2VuZGlmCS8qIENPTkZJR19KRkZT
+Ml9GU19QT1NJWF9BQ0wgKi8KZGlmZiAtLWdpdCBhL2ZzL2pmZnMyL3JlYWRpbm9kZS5jIGIv
+ZnMvamZmczIvcmVhZGlub2RlLmMKaW5kZXggY2MxODk5Mi4uMjY2NDIzYiAxMDA2NDQKLS0t
+IGEvZnMvamZmczIvcmVhZGlub2RlLmMKKysrIGIvZnMvamZmczIvcmVhZGlub2RlLmMKQEAg
+LTk2OCw2ICs5NjgsNyBAQCB2b2lkIGpmZnMyX2RvX2NsZWFyX2lub2RlKHN0cnVjdCBqZmZz
+Ml9zCiAJc3RydWN0IGpmZnMyX2Z1bGxfZGlyZW50ICpmZCwgKmZkczsKIAlpbnQgZGVsZXRl
+ZDsKIAorCWpmZnMyX2NsZWFyX2FjbChmKTsKIAlqZmZzMl94YXR0cl9kZWxldGVfaW5vZGUo
+YywgZi0+aW5vY2FjaGUpOwogCWRvd24oJmYtPnNlbSk7CiAJZGVsZXRlZCA9IGYtPmlub2Nh
+Y2hlICYmICFmLT5pbm9jYWNoZS0+bmxpbms7Cg==
+--------------080700000005090906070101--

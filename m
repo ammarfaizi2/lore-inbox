@@ -1,82 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932701AbWGBQxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWGBRAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932701AbWGBQxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 12:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbWGBQxQ
+	id S1751085AbWGBRAs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 13:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWGBRAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 12:53:16 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37850 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932701AbWGBQxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 12:53:16 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] kernel/sys.c: remove unused exports
-References: <20060629191940.GL19712@stusta.de>
-	<20060629123608.a2a5c5c0.akpm@osdl.org>
-	<20060629124400.ee22dfbf.akpm@osdl.org>
-	<20060629195828.GF19712@stusta.de>
-	<20060629130633.3da327b6.akpm@osdl.org>
-	<20060629211807.GH19712@stusta.de>
-Date: Sun, 02 Jul 2006 10:52:22 -0600
-In-Reply-To: <20060629211807.GH19712@stusta.de> (Adrian Bunk's message of
-	"Thu, 29 Jun 2006 23:18:08 +0200")
-Message-ID: <m1ejx47xvd.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sun, 2 Jul 2006 13:00:48 -0400
+Received: from smtpout07-01.prod.mesa1.secureserver.net ([64.202.165.230]:16620
+	"HELO smtpout07-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1751085AbWGBRAs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 13:00:48 -0400
+Message-ID: <44A7FBBE.9070809@seclark.us>
+Date: Sun, 02 Jul 2006 13:00:46 -0400
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: isa_memcpy_fromio
+References: <44A732E3.10202@seclark.us>	<1151834671.14346.5.camel@localhost.localdomain> <20060702090713.bd3a2e68.rdunlap@xenotime.net>
+In-Reply-To: <20060702090713.bd3a2e68.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
+Randy.Dunlap wrote:
 
-> On Thu, Jun 29, 2006 at 01:06:33PM -0700, Andrew Morton wrote:
->> On Thu, 29 Jun 2006 21:58:28 +0200
->> Adrian Bunk <bunk@stusta.de> wrote:
->> 
->> > On Thu, Jun 29, 2006 at 12:44:00PM -0700, Andrew Morton wrote:
->> > > On Thu, 29 Jun 2006 12:36:08 -0700
->> > > Andrew Morton <akpm@osdl.org> wrote:
->> > > 
->> > > > On Thu, 29 Jun 2006 21:19:40 +0200
->> > > > Adrian Bunk <bunk@stusta.de> wrote:
->> > > > 
->> > > > > - EXPORT_SYMBOL_GPL's:
->> > > > >   - kernel_restart
->> > > > >   - kernel_halt
->> > > > 
+>On Sun, 02 Jul 2006 11:04:31 +0100 Alan Cox wrote:
+>
+>  
+>
+>>Ar Sad, 2006-07-01 am 22:43 -0400, ysgrifennodd Stephen Clark:
+>>    
+>>
+>>>Hello,
+>>>
+>>>what has isa_memcpy_fromio() changed to in kernel 2.6.17 from 2.6.16
+>>>      
+>>>
+>>It was always meant as a transition interface (although it survived
+>>incredibly long). All code that uses the ioremap is unaffected: ie
+>>
+>>	foo = ioremap(isa_addr, len);
+>>	memcpy_fromio(foo + bar, buf, len2)
+>>    
+>>
+>
+>Stephen,
+>There were only 3 drivers in 2.6.16 that used isa_memcpy_fromio().
+>You can look at how they were changed for 2.6.17.
+>
+>drivers/net/hp100.c and hp-plus.c
+>drivers/scsi/g_NCR5380.c
+>
+>---
+>~Randy
+>
+>  
+>
+Thanks to everyone who replied - I am using a module from source forge, 
+on my hp laptop,
+called omnibook. It allows me to turn off the back light on my n5430. 
+Below is the
+function that uses isa_memcpy_fromio().
 
-So I can comment on kernel_restart and kernel_halt.
-I think I come about as close as it comes to a maintainer
-of the reboot infrastructure, and I did write those two functions.
+static int __init dmi_iterate(void (*decode)(struct dmi_header *))
+{
+    u8 buf[15];
+    u32 fp=0xF0000;
 
-The problem is they were created to address is several different
-places in the kernel were performing reboots or halts and
-did it inconsistently.  with the result that most localized bug
-fixes would trigger a bug in another code path.
+#ifdef CONFIG_SIMNOW
+    /*
+     *      Skip on x86/64 with simnow. Will eventually go away
+     *      If you see this ifdef in 2.6pre mail me !
+     */
+    return -1;
+#endif
 
-At the time the functions machine_halt, and machine_reboot were
-exported functions.  So when I did the conversions I preserved
-the presence of the export.
+    while( fp < 0xFFFFF)
+    {
+        isa_memcpy_fromio(buf, fp, 15);
+        if(memcmp(buf, "_DMI_", 5)==0 && dmi_checksum(buf))
+        {
+            u16 num=buf[13]<<8|buf[12];
+            u16 len=buf[7]<<8|buf[6];
+            u32 base=buf[11]<<24|buf[10]<<16|buf[9]<<8|buf[8];
 
-After all of the dust settled I think only the swap suspend
-code calls into that and that code can't be built modular
-so I think removing the exports are ok.
+            if(dmi_table(base,len,num,decode)==0)
+                return 0;
+        }
+        fp+=16;
+    }
+    return -1;
+}
 
-The other places that were calling into these code paths
-are now calling emergency_restart().
+Would someone recommend how this should be changed?
 
-Enough dust has settled and I can't spot any inappropriate
-users in the kernel right now so removing those two exports sounds
-fine with me.  We can always add them again if we get modular users.
+Thanks,
+Steve
 
-As long as we are not encouraging people to reinvent this interface
-badly again  I have no problems.  If I could think of an appropriate
-reason why people would calls these interfaces other than in a watchdog driver
-I would worry about people calling emergency_restart when the really wanted
-kernel_restart, but didn't because they didn't have the export available.
+-- 
 
-Eric
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
 

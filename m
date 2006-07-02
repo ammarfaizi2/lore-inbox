@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWGBFNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWGBFRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbWGBFNq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 01:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWGBFNq
+	id S932125AbWGBFRe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 01:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWGBFRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 01:13:46 -0400
-Received: from tornado.reub.net ([202.89.145.182]:61396 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S932120AbWGBFNp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 01:13:45 -0400
-Message-ID: <44A7560B.3050000@reub.net>
-Date: Sun, 02 Jul 2006 17:13:47 +1200
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 3.0a1 (Windows/20060701)
+	Sun, 2 Jul 2006 01:17:34 -0400
+Received: from smtp107.biz.mail.re2.yahoo.com ([206.190.52.176]:62839 "HELO
+	smtp107.biz.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932125AbWGBFRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 01:17:34 -0400
+From: Pantelis Antoniou <pantelis.antoniou@gmail.com>
+To: "Rune Torgersen" <runet@innovsys.com>
+Subject: Re: [PATCH] powerpc:Fix rheap alignment problem
+Date: Sun, 2 Jul 2006 08:18:26 +0300
+User-Agent: KMail/1.8.2
+Cc: "Kumar Gala" <galak@kernel.crashing.org>,
+       "linuxppc-dev list" <linuxppc-dev@ozlabs.org>,
+       "Paul Mackerras" <paulus@samba.org>, linux-kernel@vger.kernel.org
+References: <9FCDBA58F226D911B202000BDBAD467306E04FF6@zch01exm40.ap.freescale.net> <200607011750.05019.pantelis.antoniou@gmail.com> <DCEAAC0833DD314AB0B58112AD99B93B07B36F@ismail.innsys.innovsys.com>
+In-Reply-To: <DCEAAC0833DD314AB0B58112AD99B93B07B36F@ismail.innsys.innovsys.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Neil Brown <neilb@suse.de>,
-       Grant Wilson <grant.wilson@zen.co.uk>
-Subject: Re: 2.6.17-mm5 dislikes raid-1, just like mm4
-References: <20060701033524.3c478698.akpm@osdl.org>	<20060701181455.GA16412@aitel.hist.no> <20060701152258.bea091a6.akpm@osdl.org>
-In-Reply-To: <20060701152258.bea091a6.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607020818.27603.pantelis.antoniou@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2/07/2006 10:22 a.m., Andrew Morton wrote:
-> I assume this is still the broken-barriers bug.  Thanks for all the help on
-> this, guys.  More is to be asked for, I'm afraid.
+On Sunday 02 July 2006 06:54, Rune Torgersen wrote:
+> From: Pantelis Antoniou
+> Sent: Sat 7/1/2006 9:50 AM
+> >Since genalloc is the blessed linux thing it might be best to use that & remove
+> >rheap completely. Oh well...
 > 
-> I've prepared a tree which is basically 2.6.17-mm5, only the git-scsi-misc
-> and git-libata-all trees have been omitted.  It's at 
+> Two problems with genalloc that I can see (for CPM programming):
+> 1) (minor) Does not have a way to specify alignment (genalloc does it for you)
+> 2) (major problerm, at least for me) Does not have a way to allocate a specified address in the pool.
 > 
-> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.17-mm5-no-sata-scsi.bz2
+> 2 is needed esp when programming MCC drivers, since a lot of the datastructures must be in DP RAM _and_ be in a specific spot. And if you cannot tell the allocator that I am using a specific address, then the allocator might very well give somebody else that portion of RAM. The only solution without a fixed allocator is to allocate ALL memory in the DP RAM and use your own allocator. 
 > 
-> (That's a diff against 2.6.17)
-> 
-> If that kernel works, then the next step is to test
-> 
-> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.17-mm5-no-scsi.bz2
-> 
-> which is 2.6.17-mm5 without git-scsi-misc, but with git-libata-all.
 
-Just for kicks, after testing those two trees (see previous email) I took my 
-2.6.17-mm5 without git-scsi-misc and then patched git-scsi-misc.patch back in, 
-rebuilt and rebooted and noted that RAID broke again.  Reverted the patch and it 
-all worked.
+Yeah, that too.
 
-So I can conclude that definitely and reproduceably that's the one.........
+Too bad there are no main tree drivers like that, but they do exist.
 
-reuben
+One could conceivably hack genalloc to do that, but will end up with
+something complex too.
 
+BTW, there are other uEngine based architectures with similar alignment
+requirements.
 
+So in conclusion, for the in-tree drivers genalloc is sufficient as an cpm memory allocator.
+For some out of tree drivers, it is not.
+
+Pantelis

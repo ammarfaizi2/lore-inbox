@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWGBPLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWGBP3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWGBPLd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 11:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWGBPLd
+	id S932317AbWGBP3I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 11:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWGBP3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 11:11:33 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:52000 "EHLO
-	asav05.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S932267AbWGBPLc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 11:11:32 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Aa4HAAN9p0SBSg
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Congjun Yang <congjuny@yahoo.com>
-Subject: Re: keyboard raw mode
-Date: Sun, 2 Jul 2006 11:11:29 -0400
-User-Agent: KMail/1.9.3
-Cc: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
-References: <20060702082133.23309.qmail@web32013.mail.mud.yahoo.com>
-In-Reply-To: <20060702082133.23309.qmail@web32013.mail.mud.yahoo.com>
+	Sun, 2 Jul 2006 11:29:08 -0400
+Received: from lb01nat09.inode.at ([62.99.145.9]:31696 "EHLO mx.inode.at")
+	by vger.kernel.org with ESMTP id S932317AbWGBP3H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 11:29:07 -0400
+Date: Sun, 2 Jul 2006 17:29:26 +0200 (CEST)
+From: Dominik Hackl <dominik@hackl.dhs.org>
+X-X-Sender: dominik@mercury.foo
+To: torvalds@osdl.org
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] nfs: procfs fix
+Message-ID: <Pine.LNX.4.61.0607021549550.6987@mercury.foo>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607021111.30386.dtor@insightbb.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 July 2006 04:21, Congjun Yang wrote:
-> 2.6.9-22.EL(CentOS 4.2) is what I currently use.
-> 2.4.20 was where I first saw, in keyboard.c, the
-> workaround that throws away a second break code.
-> 
 
-I think it should work in 2.6.9... The change was put in in summer
-of 2004, 2.6.9 was released in fall...
 
-Try booting with atkbd.softraw=0 to turn off software rawmode
-emulation and I think you will see all the codes from your
-device.
+This patch fixes a bug in fs/nfs which makes it impossible to build nfs 
+without having procfs enabled.
 
-> I think I like the new design for the user input
-> system: separate the protocol layer from the raw port.
-> But, would it be nice for the atkbd driver to still
-> provide a raw (or passthrough) mode?
-> 
 
-It does ;)
 
--- 
-Dmitry
+        Signed-off-by: Dominik Hackl <dominik@hackl.dhs.org>
+
+
+
+diff -pruN linux-2.6.17-git20.orig/fs/nfs/internal.h linux-2.6.17-git20/fs/nfs/internal.h
+--- linux-2.6.17-git20.orig/fs/nfs/internal.h	2006-07-02 15:18:02.000000000 +0200
++++ linux-2.6.17-git20/fs/nfs/internal.h	2006-07-02 15:27:13.000000000 +0200
+@@ -81,9 +81,9 @@ extern struct file_system_type clone_nfs
+ #ifdef CONFIG_NFS_V4
+ extern struct file_system_type clone_nfs4_fs_type;
+ #endif
+-#ifdef CONFIG_PROC_FS
++
+ extern struct rpc_stat nfs_rpcstat;
+-#endif
++
+ extern int __init register_nfs_fs(void);
+ extern void __exit unregister_nfs_fs(void);
+ 

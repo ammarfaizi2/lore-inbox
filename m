@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWGBRmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWGBRpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWGBRmx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 13:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751683AbWGBRmx
+	id S932341AbWGBRpf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 13:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751712AbWGBRpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 13:42:53 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:50885 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751569AbWGBRmw
+	Sun, 2 Jul 2006 13:45:35 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:1723 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751683AbWGBRpe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 13:42:52 -0400
-Message-ID: <44A8058D.3030905@zytor.com>
-Date: Sun, 02 Jul 2006 10:42:37 -0700
+	Sun, 2 Jul 2006 13:45:34 -0400
+Message-ID: <44A80614.3090802@zytor.com>
+Date: Sun, 02 Jul 2006 10:44:52 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Edgar Hucek <hostmaster@ed-soft.at>,
-       LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
-References: <44A04F5F.8030405@ed-soft.at>	<Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>	<44A0CCEA.7030309@ed-soft.at>	<Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>	<44A304C1.2050304@zytor.com> <m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
+To: Robert Hancock <hancockr@shaw.ca>
+CC: Miles Lane <miles.lane@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-mm5 -- Busted toolchain? -- usr/klibc/exec_l.c:59: undefined
+ reference to `__stack_chk_fail'
+References: <fa.iPhEst5K48JbrGWRr3l3/GEBesY@ifi.uio.no> <fa.iffnN5wM1UwqtCYhmqLAkGCMC2o@ifi.uio.no> <44A802FE.2020203@shaw.ca>
+In-Reply-To: <44A802FE.2020203@shaw.ca>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-
->>>
->> You probably don't want to put it in the bootloader.  The kernel is easier to
->> upgrade than the bootloader, which is easier to upgrade than the firmware, so it
->> makes more sense for the kernel to be as self-sufficient as is possible, or at
->> least practical.
+Robert Hancock wrote:
+> Miles Lane wrote:
+>> Well, from the web page referenced at the top of this message, you
+>> can see that they are already aware of these issues:
+>>
+>> Cons:
+>>    *      It breaks current upstream kernel builds and potentially
+>> other direct usages of gcc. Kernel is by far the most important use
+>> case. Upstream should change the default options to build with
+>> -fno-stack-protector by default.
+>>    *      It is not conformant to upstream gcc behaviour.
 > 
-> Regardless it would be nice if the efi implementation hacks were removed.
- >
-> My favorite is this one in init/main.c 
-> #ifdef CONFIG_X86
-> 	if (efi_enabled)
-> 		efi_enter_virtual_mode();
-> #endif
-> 
-> Which pretty much guarantees efi won't be a distro supported feature
-> any time soon because it breaks kexec the ability of a kexec'd kernel
-> to boot and thus crash dump support. Or it does if you ever use efi
-> callbacks, and if you don't use efi callbacks there is no point in
-> calling that function.  Why are efi callbacks not always done in
-> physical mode?
+> I don't see why the kernel should have to insert compile flags to 
+> counteract any random non-default compile flags that the system may 
+> decide to insert. I think the way Ubuntu has done this is broken, they 
+> are essentially changing the default settings on the compiler in a way 
+> which breaks the kernel due to needing external libraries.
 > 
 
-If nothing else, they should be isolated, and in the early kernel build 
-a datastructure like the e820 data structure, so the downstream kernel 
-doesn't deal with it.
-
-I have no idea what the above does; it sounds to me like something that 
-should be possible to do differently, though.
+There is a good answer to that question, and that is, the kernel is the 
+special case.  It DOES make sense to let the distribution set the 
+default to whatever they think the end user should use for applications. 
+  The kernel can deal with it easily enough.
 
 	-hpa
-

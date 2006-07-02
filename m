@@ -1,31 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWGBGJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbWGBGKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWGBGJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 02:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWGBGJ4
+	id S932580AbWGBGKE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 02:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932590AbWGBGKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 02:09:56 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:58971 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932415AbWGBGJ4 (ORCPT
+	Sun, 2 Jul 2006 02:10:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2535 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932573AbWGBGKA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 02:09:56 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] EXPORT_UNUSED_SYMBOL{,GPL} {,un}register_die_notifier 
-In-reply-to: Your message of "Fri, 30 Jun 2006 13:33:17 +0200."
-             <20060630113317.GV19712@stusta.de> 
+	Sun, 2 Jul 2006 02:10:00 -0400
+Date: Sat, 1 Jul 2006 23:09:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Cc: helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, neilb@suse.de, grant.wilson@zen.co.uk
+Subject: Re: 2.6.17-mm5 dislikes raid-1, just like mm4
+Message-Id: <20060701230939.3da420be.akpm@osdl.org>
+In-Reply-To: <44A74F0C.6040904@reub.net>
+References: <20060701033524.3c478698.akpm@osdl.org>
+	<20060701181455.GA16412@aitel.hist.no>
+	<20060701152258.bea091a6.akpm@osdl.org>
+	<44A74F0C.6040904@reub.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 02 Jul 2006 16:09:05 +1000
-Message-ID: <3662.1151820545@ocs3.ocs.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk (on Fri, 30 Jun 2006 13:33:17 +0200) wrote:
->This patch marks {,un}register_die_notifier as 
->EXPORT_UNUSED_SYMBOL{,GPL}.
+On Sun, 02 Jul 2006 16:43:56 +1200
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
 
-KDB needs that.
+> 
+> 
+> On 2/07/2006 10:22 a.m., Andrew Morton wrote:
+> > On Sat, 1 Jul 2006 20:14:55 +0200
+> > Helge Hafting <helgehaf@aitel.hist.no> wrote:
+> > 
+> >> I  just got mm5 up, and it has the same problem as mm4.
+> >> Raid-1 does not work. I used 2.6.16 to resync my raids,
+> >> and booted into 2.6.17-mm5.
+> <snip>
+> >> As we see, the md devices are assembled, then the filesystems are
+> >> mounted and swap turned on.  Then all three md devices fail a 
+> >> partition at the same time.  Somehow, I don't believe that
+> >> is correct. ;-)
+> >>
+> > 
+> > I assume this is still the broken-barriers bug.  Thanks for all the help on
+> > this, guys.  More is to be asked for, I'm afraid.
+> > 
+> > I've prepared a tree which is basically 2.6.17-mm5, only the git-scsi-misc
+> > and git-libata-all trees have been omitted.  It's at 
+> > 
+> > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.17-mm5-no-sata-scsi.bz2
+> > 
+> > (That's a diff against 2.6.17)
+> 
+> Works.
+> 
+> > If that kernel works, then the next step is to test
+> > 
+> > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.17-mm5-no-scsi.bz2
+> > 
+> > which is 2.6.17-mm5 without git-scsi-misc, but with git-libata-all.
+> 
+> Works.  I'm running it now and it looks to be all fine (including the 
+> workaround/fix for MSI)
+> 
+> In both cases I rebooted twice with each kernel to be sure it wasn't a one-off.
+> 
+> This then must point to git-scsi-misc being implicated, if not the source.......
+> 
 
+Yep, everything points to that, thanks.

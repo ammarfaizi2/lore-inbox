@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWGBNGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWGBNGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWGBNGu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 09:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWGBNGt
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 09:06:49 -0400
-Received: from smtp1-g19.free.fr ([212.27.42.27]:20192 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751274AbWGBNGs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1750753AbWGBNGs (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 2 Jul 2006 09:06:48 -0400
-Message-ID: <44A7C4E5.6020202@free.fr>
-Date: Sun, 02 Jul 2006 15:06:45 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060620 Debian/1.7.13-0.2
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: albertl@mail.com
-CC: Jeff Garzik <jeff@garzik.org>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl, htejun@gmail.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Unicorn Chang <uchang@tw.ibm.com>, Doug Maxey <dwm@maxeymade.com>
-Subject: Re: + via-pata-controller-xfer-fixes.patch added to -mm tree
-References: <200606242214.k5OMEHCU005963@shell0.pdx.osdl.net> <449DBE88.5020809@garzik.org> <449DBFFD.2010700@garzik.org> <449E5445.60008@free.fr> <44A4CE21.30009@tw.ibm.com> <1151654134.44a4d8f6dc320@imp5-g19.free.fr> <44A4E01D.8020604@tw.ibm.com> <44A78599.9060405@free.fr> <44A7A0C8.80108@free.fr> <44A7C00A.7040001@tw.ibm.com>
-In-Reply-To: <44A7C00A.7040001@tw.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWGBNGs
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 2 Jul 2006 09:06:48 -0400
+Received: from www.osadl.org ([213.239.205.134]:63153 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1750753AbWGBNGr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 09:06:47 -0400
+Subject: Re: [RFC][patch 01/44] Consolidate flags for request_irq
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, benh@kernel.crashing.org,
+       davem@davemloft.net
+In-Reply-To: <20060701174939.8b10f129.akpm@osdl.org>
+References: <20060701145211.856500000@cruncher.tec.linutronix.de>
+	 <20060701145223.318475000@cruncher.tec.linutronix.de>
+	 <20060701174939.8b10f129.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 02 Jul 2006 15:09:07 +0200
+Message-Id: <1151845747.25491.879.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Albert Lee wrote:
-> Hi Matthieu,
+On Sat, 2006-07-01 at 17:49 -0700, Andrew Morton wrote:
+> On Sat, 01 Jul 2006 14:54:19 -0000
+> Thomas Gleixner <tglx@linutronix.de> wrote:
 > 
-> Thanks for the log. But could you please keep the 
-> VPRINTK() in the entrance of ata_host_intr()
-If I do that, everything works correctly : the printk should take more 
-than 3 us, and the altsatus is not busy when we read it.
-Here is the log without moving the printk : 
-http://castet.matthieu.free.fr/tmp/ata_log.orig
+> > Move the interrupt related SA_ flags out of linux/signal.h and rename
+> > them to IRQF_ . This moves the interrupt related flags out of the signal
+> > namespace and allows to remove the architecture dependencies.
+> > 
+> > SA_INTERRUPT is not needed by userspace and glibc so it can be removed
+> > safely. The existing SA_ constants are kept for easy transition and will
+> > be removed after a 6 month grace period.
+> 
+> You seem to have removed SA_PERCPU_IRQ without replacing it.
+> 
+> drivers/char/mmtimer.c: In function `mmtimer_init':
+> drivers/char/mmtimer.c:690: error: `IRQF_PERCPU' undeclared (first use in this function)
+> drivers/char/mmtimer.c:690: error: (Each undeclared identifier is reported only once
+> drivers/char/mmtimer.c:690: error: for each function it appears in.)
 
-The only thing I could do is to move the printk between altstatus and 
-status check and add one in idle_irq.
+should go after
 
-Will it be usefull for you ?
+#define IRQF_TIMER             0x00000200
++defibe IRQF_PERCPU		0x00000400
+
+	tglx
 
 
-Matthieu.
 

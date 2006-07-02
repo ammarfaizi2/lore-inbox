@@ -1,30 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932668AbWGBSqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932641AbWGBSr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932668AbWGBSqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 14:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932691AbWGBSqZ
+	id S932641AbWGBSr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 14:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932691AbWGBSr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 14:46:25 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51640 "EHLO
+	Sun, 2 Jul 2006 14:47:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:53688 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932668AbWGBSqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 14:46:24 -0400
-Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
+	id S932641AbWGBSr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 14:47:28 -0400
+Subject: Re: 2.6.17-mm2
 From: Arjan van de Ven <arjan@infradead.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Linus Torvalds <torvalds@osdl.org>,
-       Edgar Hucek <hostmaster@ed-soft.at>,
-       LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <m11wt3983j.fsf@ebiederm.dsl.xmission.com>
-References: <44A04F5F.8030405@ed-soft.at>
-	 <Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
-	 <44A0CCEA.7030309@ed-soft.at>
-	 <Pine.LNX.4.64.0606262318341.3927@g5.osdl.org> <44A304C1.2050304@zytor.com>
-	 <m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com> <44A8058D.3030905@zytor.com>
-	 <m11wt3983j.fsf@ebiederm.dsl.xmission.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, akpm@osdl.org, rjw@sisk.pl,
+       davej@redhat.com, linux-kernel@vger.kernel.org, sekharan@us.ibm.com,
+       rusty@rustcorp.com.au, sam@ravnborg.org
+In-Reply-To: <20060702114233.7880cf12.rdunlap@xenotime.net>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
+	 <20060624172014.GB26273@redhat.com> <20060624143440.0931b4f1.akpm@osdl.org>
+	 <200606251051.55355.rjw@sisk.pl> <20060625032243.fcce9e2e.akpm@osdl.org>
+	 <20060625081610.9b0a775a.akpm@osdl.org>
+	 <20060630003813.e1003a93.rdunlap@xenotime.net>
+	 <20060702101146.GA26924@flint.arm.linux.org.uk>
+	 <20060702114233.7880cf12.rdunlap@xenotime.net>
 Content-Type: text/plain
-Date: Sun, 02 Jul 2006 20:46:12 +0200
-Message-Id: <1151865973.3111.33.camel@laptopd505.fenrus.org>
+Date: Sun, 02 Jul 2006 20:47:06 +0200
+Message-Id: <1151866026.3111.35.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -33,11 +34,13 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2006-07-02 at 11:42 -0700, Randy.Dunlap wrote:
+> 
+> Only if we have a policy of not exporting __init or __initdata or
+> __exit.  Are we there yet??
 
-> Although I am surprised we could not just make that query by looking
-> at the resources.  Possibly we are too early in boot.
+__exit is harder, but __init and __initdata is obvious; those are tossed
+out of memory before you can even load a module so exporting those HAS
+to be a bug; no excuse possible.
 
-the problem in this specific case is that you try to compare the
-resource info (more or less, indirectly) to the memory map, and abort if
-there's a discrepancy, as a sanity check against b0rked bioses. 
 

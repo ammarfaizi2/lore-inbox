@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWGBJ72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWGBKEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWGBJ72 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 05:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWGBJ72
+	id S1750796AbWGBKEA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 06:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbWGBKEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 05:59:28 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:61402 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932239AbWGBJ71 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 05:59:27 -0400
-Date: Sun, 2 Jul 2006 11:58:37 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: James Courtier-Dutton <James@superbug.co.uk>
-cc: Olivier Galibert <galibert@pobox.com>, Lee Revell <rlrevell@joe-job.com>,
-       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       perex@suse.cz, Olaf Hering <olh@suse.de>
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-In-Reply-To: <44A76DDF.4020307@superbug.co.uk>
-Message-ID: <Pine.LNX.4.61.0607021153220.5276@yvahk01.tjqt.qr>
-References: <20060629192128.GE19712@stusta.de> <44A54D8E.3000002@superbug.co.uk>
- <20060630163114.GA12874@dspnet.fr.eu.org> <1151702966.32444.57.camel@mindpipe>
- <20060701073133.GA99126@dspnet.fr.eu.org> <44A6279C.3000100@superbug.co.uk>
- <44A76DDF.4020307@superbug.co.uk>
+	Sun, 2 Jul 2006 06:04:00 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:32017 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1750796AbWGBKD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 06:03:59 -0400
+Message-ID: <44A799E4.5010803@shadowen.org>
+Date: Sun, 02 Jul 2006 11:03:16 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm5
+References: <20060701033524.3c478698.akpm@osdl.org>
+In-Reply-To: <20060701033524.3c478698.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->There is an ALSA tool called aoss.
->What this does is hook any calls the application does to
->fopen/fwrite/fread/fclose/open/close/read/write/ioctl etc. and detects
->any calls to open /dev/dsp and /dev/mixer and diverts them to use
->alsa-lib. This therefore manages to divert the applications use of
->/dev/dsp before it even reaches the kernel. This therefore gives the
->application full use of all the alsa-lib features. So, for example,
->4-channel output would work in this mode. But, and this is the bit we
->need help with, if the application uses dlopen to dynamically open a
->plugin, the plugin's calls to open/close/read/write etc. are not hooked,
->so the application fails.
->
->Is there any way to also hook the IO calls of dlopened plugins?
->
-Well you could patch the affected plugin's .dynstr table so that it should at
-best try to call a function that has not yet been defined somewhere else (like
-open); IOW, you change the .dynstr entry from 'open' to say 'my_open', and
-regularly include libmy.so through e.g. LD_PRELOAD.
+Seems that we have some kind of schedular balance panic, I want to say
+back as this seems very familiar.  Seems to be affecting the multi-node
+NUMA-Q systems here.  The single node ones appear unaffected.
 
-Of course the MD5 won't match afterwards, but I think the plugin should execute
-as usual afterwards, since .dynstr is something no app should rely on.
+Nothing jumps out of the patch list.  Any suggestions as to what to rip
+out :)
 
+-apw
 
-Jan Engelhardt
--- 
+divide error: 0000 [#1]
+8K_STACKS SMP
+last sysfs file:
+Modules linked in:
+CPU:    3
+EIP:    0060:[<c0112b6e>]    Not tainted VLI
+EFLAGS: 00010046   (2.6.17-mm5-autokern1 #1)
+EIP is at find_busiest_group+0x1a3/0x47c
+eax: 00000000   ebx: 00000007   ecx: 00000000   edx: 00000000
+esi: 00000000   edi: e7677264   ebp: e74a3ec8   esp: e74a3e58
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, ti=e74a2000 task=e7485030 task.ti=e74a2000)
+Stack: e7677264 00000010 c0119020 00000000 00000000 00000000 00000000
+00000000
+       ffffffff 00000000 00000000 00000001 00000001 00000001 00000080
+00000000
+       00000000 00000200 00000020 00000080 00000000 00000000 e7677260
+c13dc960
+Call Trace:
+ [<c0119020>] vprintk+0x5f/0x213
+ [<c0112efb>] load_balance+0x54/0x1d6
+ [<c011332d>] rebalance_tick+0xc5/0xe3
+ [<c01137a3>] scheduler_tick+0x2cb/0x2d3
+ [<c01215b4>] update_process_times+0x51/0x5d
+ [<c010c224>] smp_apic_timer_interrupt+0x5a/0x61
+ [<c0102d5b>] apic_timer_interrupt+0x1f/0x24
+ [<c01006c0>] default_idle+0x0/0x59
+ [<c01006f1>] default_idle+0x31/0x59
+ [<c0100791>] cpu_idle+0x64/0x79
+Code: 00 5b 83 f8 1f 89 c6 5f 0f 8e 63 ff ff ff 8b 45 e0 8b 55 e8 01 45
+dc 8b 4a 08 89 c2 01 4d d4 c1 e2 07 89 d0 31 d2 89 ce c1 ee 07 <f7> f1
+83 7d 9c 00 89 45 e0 74 17 89 45 d8 8b 55 e8 8b 4d a4 8b
+EIP: [<c0112b6e>] find_busiest_group+0x1a3/0x47c SS:ESP 0068:e74a3e58
+ <0>Kernel panic - not syncing: Fatal exception in interrupt

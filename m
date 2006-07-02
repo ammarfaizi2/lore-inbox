@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWGBRLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWGBRbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWGBRLT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 13:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWGBRLS
+	id S1751285AbWGBRbq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 13:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWGBRbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 13:11:18 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:31452 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S932122AbWGBRLS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 13:11:18 -0400
-Date: Sun, 2 Jul 2006 17:15:20 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       erik_frederiksen@pmc-sierra.com, linux-kernel@vger.kernel.org
-Subject: Re: IS_ERR Threshold Value
-Message-ID: <20060702161520.GA15791@linux-mips.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A6F5E3.8000300@zytor.com>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 2 Jul 2006 13:31:45 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:45791 "EHLO
+	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751285AbWGBRbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 13:31:45 -0400
+Date: Sun, 02 Jul 2006 11:31:42 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: 2.6.17-mm5 -- Busted toolchain? -- usr/klibc/exec_l.c:59:
+ undefined reference to `__stack_chk_fail'
+In-reply-to: <fa.iffnN5wM1UwqtCYhmqLAkGCMC2o@ifi.uio.no>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Message-id: <44A802FE.2020203@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.iPhEst5K48JbrGWRr3l3/GEBesY@ifi.uio.no>
+ <fa.iffnN5wM1UwqtCYhmqLAkGCMC2o@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So MAX_ERRNO of EMAXERRNO which was also being used in assembler code.
-Other architectures may have the same issue, so I propose wrapping the
-C parts with #ifndef __ASSEMBLY__ to keep as happy.
+Miles Lane wrote:
+> Well, from the web page referenced at the top of this message, you
+> can see that they are already aware of these issues:
+> 
+> Cons:
+>    *      It breaks current upstream kernel builds and potentially
+> other direct usages of gcc. Kernel is by far the most important use
+> case. Upstream should change the default options to build with
+> -fno-stack-protector by default.
+>    *      It is not conformant to upstream gcc behaviour.
 
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+I don't see why the kernel should have to insert compile flags to 
+counteract any random non-default compile flags that the system may 
+decide to insert. I think the way Ubuntu has done this is broken, they 
+are essentially changing the default settings on the compiler in a way 
+which breaks the kernel due to needing external libraries.
 
-diff --git a/include/linux/err.h b/include/linux/err.h
-index cd3b367..1ab1d44 100644
---- a/include/linux/err.h
-+++ b/include/linux/err.h
-@@ -15,6 +15,8 @@ #include <asm/errno.h>
-  */
- #define MAX_ERRNO	4095
- 
-+#ifndef __ASSEMBLY__
-+
- #define IS_ERR_VALUE(x) unlikely((x) >= (unsigned long)-MAX_ERRNO)
- 
- static inline void *ERR_PTR(long error)
-@@ -32,4 +34,6 @@ static inline long IS_ERR(const void *pt
- 	return IS_ERR_VALUE((unsigned long)ptr);
- }
- 
-+#endif
-+
- #endif /* _LINUX_ERR_H */
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

@@ -1,48 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWGBQJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932701AbWGBQxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932514AbWGBQJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 12:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWGBQJ6
+	id S932701AbWGBQxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 12:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbWGBQxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 12:09:58 -0400
-Received: from xenotime.net ([66.160.160.81]:18056 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932514AbWGBQJ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 12:09:58 -0400
-Date: Sun, 2 Jul 2006 09:12:42 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: yh@bizmail.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6 config for module load
-Message-Id: <20060702091242.f2b9fd4b.rdunlap@xenotime.net>
-In-Reply-To: <44A7B3C2.5030208@bizmail.com.au>
-References: <44A7B3C2.5030208@bizmail.com.au>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Jul 2006 12:53:16 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37850 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932701AbWGBQxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 12:53:16 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] kernel/sys.c: remove unused exports
+References: <20060629191940.GL19712@stusta.de>
+	<20060629123608.a2a5c5c0.akpm@osdl.org>
+	<20060629124400.ee22dfbf.akpm@osdl.org>
+	<20060629195828.GF19712@stusta.de>
+	<20060629130633.3da327b6.akpm@osdl.org>
+	<20060629211807.GH19712@stusta.de>
+Date: Sun, 02 Jul 2006 10:52:22 -0600
+In-Reply-To: <20060629211807.GH19712@stusta.de> (Adrian Bunk's message of
+	"Thu, 29 Jun 2006 23:18:08 +0200")
+Message-ID: <m1ejx47xvd.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 02 Jul 2006 21:53:38 +1000 Jim wrote:
+Adrian Bunk <bunk@stusta.de> writes:
 
-> Hello,
-> 
-> I have a device driver which can be configurated in kernel 2.4 to be a 
-> loadable module. But, in kernel 2.6, I made it as tristate in Kconfig. 
-> On make menuconfig list, I can only select it to [*]NewModule for kernel 
-> built-in, I cannot select it to [M]NewModule for loadable module 
-> (neither did I press key M or Space key produce [M]). Is it wrong to 
-> specify tristate in Kconfig to make a loadable module in kernel 2.6? Or 
-> what was I missing in kernel 2.6 config?
+> On Thu, Jun 29, 2006 at 01:06:33PM -0700, Andrew Morton wrote:
+>> On Thu, 29 Jun 2006 21:58:28 +0200
+>> Adrian Bunk <bunk@stusta.de> wrote:
+>> 
+>> > On Thu, Jun 29, 2006 at 12:44:00PM -0700, Andrew Morton wrote:
+>> > > On Thu, 29 Jun 2006 12:36:08 -0700
+>> > > Andrew Morton <akpm@osdl.org> wrote:
+>> > > 
+>> > > > On Thu, 29 Jun 2006 21:19:40 +0200
+>> > > > Adrian Bunk <bunk@stusta.de> wrote:
+>> > > > 
+>> > > > > - EXPORT_SYMBOL_GPL's:
+>> > > > >   - kernel_restart
+>> > > > >   - kernel_halt
+>> > > > 
 
-Tristate is OK.  Of course, you will also need
-CONFIG_MODULES=y
-to enable module support.  Is that enabled?
+So I can comment on kernel_restart and kernel_halt.
+I think I come about as close as it comes to a maintainer
+of the reboot infrastructure, and I did write those two functions.
 
-There are a few hundred examples of tristate loadable modules
-in Kconfig files that you could look at.
+The problem is they were created to address is several different
+places in the kernel were performing reboots or halts and
+did it inconsistently.  with the result that most localized bug
+fixes would trigger a bug in another code path.
 
----
-~Randy
+At the time the functions machine_halt, and machine_reboot were
+exported functions.  So when I did the conversions I preserved
+the presence of the export.
+
+After all of the dust settled I think only the swap suspend
+code calls into that and that code can't be built modular
+so I think removing the exports are ok.
+
+The other places that were calling into these code paths
+are now calling emergency_restart().
+
+Enough dust has settled and I can't spot any inappropriate
+users in the kernel right now so removing those two exports sounds
+fine with me.  We can always add them again if we get modular users.
+
+As long as we are not encouraging people to reinvent this interface
+badly again  I have no problems.  If I could think of an appropriate
+reason why people would calls these interfaces other than in a watchdog driver
+I would worry about people calling emergency_restart when the really wanted
+kernel_restart, but didn't because they didn't have the export available.
+
+Eric
+

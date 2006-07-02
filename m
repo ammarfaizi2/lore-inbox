@@ -1,114 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWGBRAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWGBRH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbWGBRAs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 13:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWGBRAs
+	id S1751191AbWGBRH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 13:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWGBRH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 13:00:48 -0400
-Received: from smtpout07-01.prod.mesa1.secureserver.net ([64.202.165.230]:16620
-	"HELO smtpout07-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1751085AbWGBRAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 13:00:48 -0400
-Message-ID: <44A7FBBE.9070809@seclark.us>
-Date: Sun, 02 Jul 2006 13:00:46 -0400
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
+	Sun, 2 Jul 2006 13:07:28 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:24867 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751191AbWGBRH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 13:07:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ps4JikX0o0NXcGJj8XwLb/fU4IdMdzNvDoSB1P917/TG/A+1Dx0pkzHi74B+7qBbTyljvhTn4WKaTq5Naw262aFJ3ufBF2QudtWVYLs7pjM44w2iMPz4+NDb4/SRPw+24FLR4hOnN9JQ5u++ltR1kSlpyp0Qen2XNJEkUimz9WQ=
+Message-ID: <a44ae5cd0607021007v52dac771n86c25c3bff491152@mail.gmail.com>
+Date: Sun, 2 Jul 2006 10:07:27 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: 2.6.17-mm5 -- Busted toolchain? -- usr/klibc/exec_l.c:59: undefined reference to `__stack_chk_fail'
+Cc: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1151826131.3111.5.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: isa_memcpy_fromio
-References: <44A732E3.10202@seclark.us>	<1151834671.14346.5.camel@localhost.localdomain> <20060702090713.bd3a2e68.rdunlap@xenotime.net>
-In-Reply-To: <20060702090713.bd3a2e68.rdunlap@xenotime.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <a44ae5cd0607011409m720dd23dvf178a133c2060b6d@mail.gmail.com>
+	 <1151788673.3195.58.camel@laptopd505.fenrus.org>
+	 <a44ae5cd0607011425n18266b02s81b3d87988895555@mail.gmail.com>
+	 <1151789342.3195.60.camel@laptopd505.fenrus.org>
+	 <a44ae5cd0607011537o1cf00545td19e568dcb9c06c1@mail.gmail.com>
+	 <1151826131.3111.5.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-
->On Sun, 02 Jul 2006 11:04:31 +0100 Alan Cox wrote:
+On 7/2/06, Arjan van de Ven <arjan@infradead.org> wrote:
 >
->  
+> > https://wiki.ubuntu.com/GccSsp
+> >
+> > It appears that Ubuntu's Edgy Eft (the development tree) now contains
+> > "Stack Smashing Protection" enabled by default.  I found a web page
+> > that states that -fno-stack-protector can be used to disable this
+> > functionality.  Interestingly, another web page stated that SSP has
+> > been enabled in Redhat compilers for a long time and is now also
+> > enabled in Debian SID.  Perhaps -fno-stack-protector should be added
+> > to the kernel build be default?
 >
->>Ar Sad, 2006-07-01 am 22:43 -0400, ysgrifennodd Stephen Clark:
->>    
->>
->>>Hello,
->>>
->>>what has isa_memcpy_fromio() changed to in kernel 2.6.17 from 2.6.16
->>>      
->>>
->>It was always meant as a transition interface (although it survived
->>incredibly long). All code that uses the ioremap is unaffected: ie
->>
->>	foo = ioremap(isa_addr, len);
->>	memcpy_fromio(foo + bar, buf, len2)
->>    
->>
 >
->Stephen,
->There were only 3 drivers in 2.6.16 that used isa_memcpy_fromio().
->You can look at how they were changed for 2.6.17.
->
->drivers/net/hp100.c and hp-plus.c
->drivers/scsi/g_NCR5380.c
->
->---
->~Randy
->
->  
->
-Thanks to everyone who replied - I am using a module from source forge, 
-on my hp laptop,
-called omnibook. It allows me to turn off the back light on my n5430. 
-Below is the
-function that uses isa_memcpy_fromio().
+> gcc 4.1 and later have this feature yes.
+> HOWEVER the gcc people were not stupid, they did not force this on
+> people, they require you to put -fstack-protector on the commandline.
+> Debian and RH/Fedora do this.
+> If Ubuntu patched gcc rather than just putting it in the build
+> environment... then you should switch to a less braindead distribution
+> really ;)
+> or at least ask them to fix this.
 
-static int __init dmi_iterate(void (*decode)(struct dmi_header *))
-{
-    u8 buf[15];
-    u32 fp=0xF0000;
+Well, from the web page referenced at the top of this message, you
+can see that they are already aware of these issues:
 
-#ifdef CONFIG_SIMNOW
-    /*
-     *      Skip on x86/64 with simnow. Will eventually go away
-     *      If you see this ifdef in 2.6pre mail me !
-     */
-    return -1;
-#endif
+Cons:
+    *      It breaks current upstream kernel builds and potentially
+other direct usages of gcc. Kernel is by far the most important use
+case. Upstream should change the default options to build with
+-fno-stack-protector by default.
+    *      It is not conformant to upstream gcc behaviour.
 
-    while( fp < 0xFFFFF)
-    {
-        isa_memcpy_fromio(buf, fp, 15);
-        if(memcmp(buf, "_DMI_", 5)==0 && dmi_checksum(buf))
-        {
-            u16 num=buf[13]<<8|buf[12];
-            u16 len=buf[7]<<8|buf[6];
-            u32 base=buf[11]<<24|buf[10]<<16|buf[9]<<8|buf[8];
+You can reach the key people who are working on this for Ubuntu here:
+Matt Zimmerman -- mdz at ubuntu dot com
+Martin Pitt -- martin.pitt at ubuntu dot com
 
-            if(dmi_table(base,len,num,decode)==0)
-                return 0;
-        }
-        fp+=16;
-    }
-    return -1;
-}
+Perhaps you can convince them to back out this functional change?
 
-Would someone recommend how this should be changed?
+Does this mean that you don't want to see these fno-stack-protector
+patches go into Andrew's tree?
 
-Thanks,
-Steve
-
--- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
-
+            Miles

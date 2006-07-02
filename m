@@ -1,146 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWGBKcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWGBKfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbWGBKcp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 06:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWGBKco
+	id S932278AbWGBKfV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 06:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWGBKfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 06:32:44 -0400
-Received: from smtp6-g19.free.fr ([212.27.42.36]:24760 "EHLO smtp6-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750932AbWGBKcn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 06:32:43 -0400
-Message-ID: <44A7A0C8.80108@free.fr>
-Date: Sun, 02 Jul 2006 12:32:40 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060620 Debian/1.7.13-0.2
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: albertl@mail.com
-CC: Jeff Garzik <jeff@garzik.org>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl, htejun@gmail.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Unicorn Chang <uchang@tw.ibm.com>, Doug Maxey <dwm@maxeymade.com>
-Subject: Re: + via-pata-controller-xfer-fixes.patch added to -mm tree
-References: <200606242214.k5OMEHCU005963@shell0.pdx.osdl.net> <449DBE88.5020809@garzik.org> <449DBFFD.2010700@garzik.org> <449E5445.60008@free.fr> <44A4CE21.30009@tw.ibm.com> <1151654134.44a4d8f6dc320@imp5-g19.free.fr> <44A4E01D.8020604@tw.ibm.com> <44A78599.9060405@free.fr>
-In-Reply-To: <44A78599.9060405@free.fr>
-Content-Type: multipart/mixed;
- boundary="------------010306050305060706060604"
+	Sun, 2 Jul 2006 06:35:21 -0400
+Received: from alephnull.demon.nl ([83.160.184.112]:65499 "EHLO
+	xi.wantstofly.org") by vger.kernel.org with ESMTP id S932278AbWGBKfU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 06:35:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; s=1148133259;
+	d=wantstofly.org;
+	h=date:from:to:cc:subject:message-id:mime-version:content-type:
+	content-disposition:user-agent;
+	b=EegQJl0Zj7u58lDbGYece2Q9O7yHbpc4C2aDbZH8yq8VAJ6KyhZ6bHbgLUB9p
+	Vf2NetX6sT1Cbl68yFvF9qoqg==
+Date: Sun, 2 Jul 2006 12:35:18 +0200
+From: Lennert Buytenhek <buytenh@wantstofly.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: rmk@arm.linux.org.uk
+Subject: [PATCH,RFC] make valid_mmap_phys_addr_range() take a pfn
+Message-ID: <20060702103518.GC30730@xi.wantstofly.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010306050305060706060604
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Newer ARMs have a 40 bit physical address space, but mapping physical
+memory above 4G needs a special page table format which we (currently?)
+do not use for userspace mappings, so what happens instead is that
+mapping an address >= 4G will happily discard the upper bits and wrap.
 
-matthieu castet wrote:
-> Hi Albert,
-> 
-> Albert Lee wrote:
-> 
->> castet.matthieu@free.fr wrote:
->>
->>>
->>>> Could you please test the current libata-upstream tree and
->>>> turn on ATA_DEBUG and ATA_VERBOSE_DEBUG in include/linux/libata.h.
->>>>
->>>
->>> Is there a easy way to get libata-upstream tree ?
->>> Do I need to install git for that or there are some snapshots 
->>> somewhere ?
->>>
->>>
->>
->>
->> Hi Matthieu,
->>
->> Tejun has a patch against 2.6.17:
->> http://home-tj.org/files/libata-tj-stable/libata-tj-2.6.17-20060625-1.tar.bz2 
->>
->>
-> I don't know if I did someting wrong, but it didn't apply cleanly.
-> So I enable the trace on lastest -mm kernel and I disable the via quirk.
-> 
-> But the printk in the interrupt handler takes some times and hides the 
-> altstatus delay.
-> 
-> I will try to send you a trace, where I move the printk at the end of 
-> the interrupt handler.
-> 
-> 
-After apllying the following patch to -mm, I got 
-http://castet.matthieu.free.fr/tmp/ata_log
+There is a valid_mmap_phys_addr_range() arch hook where we could check
+for >= 4G addresses and deny the mapping, but this hook takes an unsigned
+long address:
 
-Matthieu
+	static inline int valid_mmap_phys_addr_range(unsigned long addr, size_t size);
 
+And drivers/char/mem.c:mmap_mem() calls it like this:
 
---------------010306050305060706060604
-Content-Type: text/plain;
- name="test_trace"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="test_trace"
+	static int mmap_mem(struct file * file, struct vm_area_struct * vma)
+	{
+		size_t size = vma->vm_end - vma->vm_start;
 
-Index: linux-2.6.16/drivers/scsi/libata-core.c
+		if (!valid_mmap_phys_addr_range(vma->vm_pgoff << PAGE_SHIFT, size))
+
+So that's not much help either.
+
+This patch makes the hook take a pfn instead of a phys address -- how
+does that look?
+
+Signed-off-by: Lennert Buytenhek <buytenh@wantstofly.org>
+
+Index: linux-2.6.17-git16/drivers/char/mem.c
 ===================================================================
---- linux-2.6.16.orig/drivers/scsi/libata-core.c	2006-07-02 10:32:33.000000000 +0200
-+++ linux-2.6.16/drivers/scsi/libata-core.c	2006-07-02 10:38:03.000000000 +0200
-@@ -4722,9 +4722,6 @@
- {
- 	u8 status, host_stat = 0;
- 
--	VPRINTK("ata%u: protocol %d task_state %d\n",
--		ap->id, qc->tf.protocol, ap->hsm_task_state);
--
- 	/* Check whether we are expecting interrupt in this state */
- 	switch (ap->hsm_task_state) {
- 	case HSM_ST_FIRST:
-@@ -4780,6 +4777,9 @@
- 	ap->ops->irq_clear(ap);
- 
- 	ata_hsm_move(ap, qc, status, 0);
-+	VPRINTK("ata%u: protocol %d task_state %d\n",
-+		ap->id, qc->tf.protocol, ap->hsm_task_state);
-+
- 	return 1;	/* irq handled */
- 
- idle_irq:
-@@ -4792,6 +4792,9 @@
- 		return 1;
- 	}
- #endif
-+	VPRINTK("ata%u: protocol %d task_state %d\n",
-+		ap->id, qc->tf.protocol, ap->hsm_task_state);
-+
- 	return 0;	/* irq not handled */
+--- linux-2.6.17-git16.orig/drivers/char/mem.c
++++ linux-2.6.17-git16/drivers/char/mem.c
+@@ -96,7 +96,7 @@ static inline int valid_phys_addr_range(
+ 	return 1;
  }
  
-Index: linux-2.6.16/drivers/scsi/pata_via.c
+-static inline int valid_mmap_phys_addr_range(unsigned long addr, size_t size)
++static inline int valid_mmap_phys_addr_range(unsigned long pfn, size_t size)
+ {
+ 	return 1;
+ }
+@@ -243,7 +243,7 @@ static int mmap_mem(struct file * file, 
+ {
+ 	size_t size = vma->vm_end - vma->vm_start;
+ 
+-	if (!valid_mmap_phys_addr_range(vma->vm_pgoff << PAGE_SHIFT, size))
++	if (!valid_mmap_phys_addr_range(vma->vm_pgoff, size))
+ 		return -EINVAL;
+ 
+ 	vma->vm_page_prot = phys_mem_access_prot(file, vma->vm_pgoff,
+Index: linux-2.6.17-git16/arch/ia64/kernel/efi.c
 ===================================================================
---- linux-2.6.16.orig/drivers/scsi/pata_via.c	2006-07-01 19:38:41.000000000 +0200
-+++ linux-2.6.16/drivers/scsi/pata_via.c	2006-07-01 19:38:54.000000000 +0200
-@@ -324,7 +324,7 @@
- 				continue;
- 			if (!(qc->flags & ATA_QCFLAG_ACTIVE))
- 				continue;
--			if (qc->tf.command == ATA_CMD_SET_FEATURES &&
-+			if (0 && qc->tf.command == ATA_CMD_SET_FEATURES &&
- 					qc->tf.feature == SETFEATURES_XFER) {
- 				/*
- 				 * With some ATAPI devices (CDR-6S48, ...), the
-Index: linux-2.6.16/include/linux/libata.h
+--- linux-2.6.17-git16.orig/arch/ia64/kernel/efi.c
++++ linux-2.6.17-git16/arch/ia64/kernel/efi.c
+@@ -760,7 +760,7 @@ valid_phys_addr_range (unsigned long phy
+ }
+ 
+ int
+-valid_mmap_phys_addr_range (unsigned long phys_addr, unsigned long size)
++valid_mmap_phys_addr_range (unsigned long pfn, unsigned long size)
+ {
+ 	/*
+ 	 * MMIO regions are often missing from the EFI memory map.
+Index: linux-2.6.17-git16/arch/ia64/pci/pci.c
 ===================================================================
---- linux-2.6.16.orig/include/linux/libata.h	2006-07-01 19:37:51.000000000 +0200
-+++ linux-2.6.16/include/linux/libata.h	2006-07-01 19:38:24.000000000 +0200
-@@ -43,6 +43,8 @@
- #undef ATA_DEBUG		/* debugging output */
- #undef ATA_VERBOSE_DEBUG	/* yet more debugging output */
- #undef ATA_IRQ_TRAP		/* define to ack screaming irqs */
-+#define ATA_DEBUG
-+#define ATA_VERBOSE_DEBUG
- #undef ATA_NDEBUG		/* define to disable quick runtime checks */
- #define ATA_ENABLE_PATA		/* define to enable PATA support in some
- 				 * low-level drivers */
-
---------------010306050305060706060604--
+--- linux-2.6.17-git16.orig/arch/ia64/pci/pci.c
++++ linux-2.6.17-git16/arch/ia64/pci/pci.c
+@@ -651,7 +651,7 @@ pci_mmap_legacy_page_range(struct pci_bu
+ 	 * Avoid attribute aliasing.  See Documentation/ia64/aliasing.txt
+ 	 * for more details.
+ 	 */
+-	if (!valid_mmap_phys_addr_range(vma->vm_pgoff << PAGE_SHIFT, size))
++	if (!valid_mmap_phys_addr_range(vma->vm_pgoff, size))
+ 		return -EINVAL;
+ 	prot = phys_mem_access_prot(NULL, vma->vm_pgoff, size,
+ 				    vma->vm_page_prot);
+Index: linux-2.6.17-git16/include/asm-ia64/io.h
+===================================================================
+--- linux-2.6.17-git16.orig/include/asm-ia64/io.h
++++ linux-2.6.17-git16/include/asm-ia64/io.h
+@@ -90,7 +90,7 @@ phys_to_virt (unsigned long address)
+ #define ARCH_HAS_VALID_PHYS_ADDR_RANGE
+ extern u64 kern_mem_attribute (unsigned long phys_addr, unsigned long size);
+ extern int valid_phys_addr_range (unsigned long addr, size_t count); /* efi.c */
+-extern int valid_mmap_phys_addr_range (unsigned long addr, size_t count);
++extern int valid_mmap_phys_addr_range (unsigned long pfn, size_t count);
+ 
+ /*
+  * The following two macros are deprecated and scheduled for removal.

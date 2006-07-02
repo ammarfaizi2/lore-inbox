@@ -1,66 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWGBW7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWGBXAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWGBW7t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 18:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWGBW7t
+	id S1751412AbWGBXAo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 19:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWGBXAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 18:59:49 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:35797 "EHLO
+	Sun, 2 Jul 2006 19:00:43 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:45013 "EHLO
 	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751357AbWGBW7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 18:59:47 -0400
+	id S1751470AbWGBXAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 19:00:41 -0400
 X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Mon, 3 Jul 2006 00:59:26 +0200 (CEST)
+Date: Mon, 3 Jul 2006 01:00:24 +0200 (CEST)
 From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 04/19] ieee1394: skip dummy loop in build_speed_map
+Subject: [PATCH 05/19] ieee1394: replace __inline__ by inline
 To: Ben Collins <bcollins@ubuntu.com>
 cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 In-Reply-To: <tkrat.8d67352567e525c1@s5r6.in-berlin.de>
-Message-ID: <tkrat.d55652338cfc5eb2@s5r6.in-berlin.de>
+Message-ID: <tkrat.807d7660a9468da5@s5r6.in-berlin.de>
 References: <tkrat.8d67352567e525c1@s5r6.in-berlin.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; CHARSET=us-ascii
 Content-Disposition: INLINE
-X-Spam-Score: (-0.341) AWL,BAYES_05
+X-Spam-Score: (-0.244) AWL,BAYES_20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The last loop in ieee1394 core's speed calculation is not required
-unless ieee1394.h::IEEE1394_SPEED_MAX is changed from its current value
-of 3.
-
 Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 ---
-Index: linux/drivers/ieee1394/ieee1394.h
+Index: linux-2.6.17-mm5/drivers/ieee1394/ieee1394_types.h
 ===================================================================
---- linux.orig/drivers/ieee1394/ieee1394.h	2006-07-02 12:02:06.000000000 +0200
-+++ linux/drivers/ieee1394/ieee1394.h	2006-07-02 12:11:23.000000000 +0200
-@@ -77,6 +77,8 @@ extern const char *hpsb_speedto_str[];
- #define SELFID_PORT_NCONN        0x1
- #define SELFID_PORT_NONE         0x0
+--- linux-2.6.17-mm5.orig/drivers/ieee1394/ieee1394_types.h	2006-07-01 10:56:29.000000000 +0200
++++ linux-2.6.17-mm5/drivers/ieee1394/ieee1394_types.h	2006-07-02 13:39:34.000000000 +0200
+@@ -75,7 +75,7 @@ typedef u16 arm_length_t;
  
-+#define SELFID_SPEED_UNKNOWN		0x3	/* 1394b PHY */
-+
- #define PHYPACKET_LINKON			0x40000000
- #define PHYPACKET_PHYCONFIG_R			0x00800000
- #define PHYPACKET_PHYCONFIG_T			0x00400000
-Index: linux/drivers/ieee1394/ieee1394_core.c
+ #ifdef __BIG_ENDIAN
+ 
+-static __inline__ void *memcpy_le32(u32 *dest, const u32 *__src, size_t count)
++static inline void *memcpy_le32(u32 *dest, const u32 *__src, size_t count)
+ {
+         void *tmp = dest;
+ 	u32 *src = (u32 *)__src;
+Index: linux-2.6.17-mm5/drivers/ieee1394/ohci1394.c
 ===================================================================
---- linux.orig/drivers/ieee1394/ieee1394_core.c	2006-07-02 12:02:04.000000000 +0200
-+++ linux/drivers/ieee1394/ieee1394_core.c	2006-07-02 12:11:23.000000000 +0200
-@@ -355,10 +355,12 @@ static void build_speed_map(struct hpsb_
- 		}
- 	}
+--- linux-2.6.17-mm5.orig/drivers/ieee1394/ohci1394.c	2006-07-01 20:30:01.000000000 +0200
++++ linux-2.6.17-mm5/drivers/ieee1394/ohci1394.c	2006-07-02 13:39:34.000000000 +0200
+@@ -2598,8 +2598,9 @@ static const int TCODE_SIZE[16] = {20, 0
+  * Determine the length of a packet in the buffer
+  * Optimization suggested by Pascal Drolet <pascal.drolet@informission.ca>
+  */
+-static __inline__ int packet_length(struct dma_rcv_ctx *d, int idx, quadlet_t *buf_ptr,
+-			 int offset, unsigned char tcode, int noswap)
++static inline int packet_length(struct dma_rcv_ctx *d, int idx,
++				quadlet_t *buf_ptr, int offset,
++				unsigned char tcode, int noswap)
+ {
+ 	int length = -1;
  
-+#if SELFID_SPEED_UNKNOWN != IEEE1394_SPEED_MAX
- 	/* assume maximum speed for 1394b PHYs, nodemgr will correct it */
- 	for (n = 0; n < nodecount; n++)
--		if (speedcap[n] == 3)
-+		if (speedcap[n] == SELFID_SPEED_UNKNOWN)
- 			speedcap[n] = IEEE1394_SPEED_MAX;
-+#endif
- }
+Index: linux-2.6.17-mm5/drivers/ieee1394/sbp2.c
+===================================================================
+--- linux-2.6.17-mm5.orig/drivers/ieee1394/sbp2.c	2006-07-01 20:39:25.000000000 +0200
++++ linux-2.6.17-mm5/drivers/ieee1394/sbp2.c	2006-07-02 13:39:34.000000000 +0200
+@@ -356,7 +356,7 @@ static const struct {
+ /*
+  * Converts a buffer from be32 to cpu byte ordering. Length is in bytes.
+  */
+-static __inline__ void sbp2util_be32_to_cpu_buffer(void *buffer, int length)
++static inline void sbp2util_be32_to_cpu_buffer(void *buffer, int length)
+ {
+ 	u32 *temp = buffer;
  
+@@ -369,7 +369,7 @@ static __inline__ void sbp2util_be32_to_
+ /*
+  * Converts a buffer from cpu to be32 byte ordering. Length is in bytes.
+  */
+-static __inline__ void sbp2util_cpu_to_be32_buffer(void *buffer, int length)
++static inline void sbp2util_cpu_to_be32_buffer(void *buffer, int length)
+ {
+ 	u32 *temp = buffer;
  
 
 

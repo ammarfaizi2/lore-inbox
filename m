@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWGBSGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWGBSNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964848AbWGBSGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 14:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWGBSGP
+	id S964856AbWGBSNI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 14:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWGBSNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 14:06:15 -0400
-Received: from gw.goop.org ([64.81.55.164]:55491 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S964848AbWGBSGP (ORCPT
+	Sun, 2 Jul 2006 14:13:08 -0400
+Received: from smtpout08-04.prod.mesa1.secureserver.net ([64.202.165.12]:45743
+	"HELO smtpout08-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S964856AbWGBSNH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 14:06:15 -0400
-Message-ID: <44A80B20.1090702@goop.org>
-Date: Sun, 02 Jul 2006 11:06:24 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Sun, 2 Jul 2006 14:13:07 -0400
+Message-ID: <44A80CB1.6060107@seclark.us>
+Date: Sun, 02 Jul 2006 14:13:05 -0400
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk
-Subject: Re: Suspend to RAM regression tracked down
-References: <1151837268.5358.10.camel@idefix.homelinux.org>
-In-Reply-To: <1151837268.5358.10.camel@idefix.homelinux.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: Arjan van de Ven <arjan@infradead.org>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: isa_memcpy_fromio
+References: <44A732E3.10202@seclark.us>	 <1151834671.14346.5.camel@localhost.localdomain>	 <20060702090713.bd3a2e68.rdunlap@xenotime.net>	 <44A7FBBE.9070809@seclark.us> <1151861865.3111.23.camel@laptopd505.fenrus.org>
+In-Reply-To: <1151861865.3111.23.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean-Marc Valin wrote:
-> A while ago, I reported a suspend to RAM regression (fail to resume). I
-> have since then tracked down the regression to the changes between
-> 2.6.12-rc5-git5 and 2.6.12-rc5-git6. On my laptop, I have only been able
-> to reproduce the problem with the ondemand cpufreq governor, but I've
-> head of another user with the same (Dell D600) laptop having problem
-> with the userspace governor as well. All the details are actually
-> http://bugzilla.kernel.org/show_bug.cgi?id=6166 but it seems like it's
-> being ignored. It's currently assigned to the ACPI category, but maybe
-> it belongs to cpufreq? Anyone can help here?
->   
+Arjan van de Ven wrote:
 
-There was a race in ondemand and conservative which made them lock up on 
-resume (possibly only on SMP systems though).  There's a patch for that 
-in current -mm, but I suspect there's another problem (still haven't had 
-any time to track it down).
+>>Would someone recommend how this should be changed?
+>>
+>>    
+>>
+>
+>Hi,
+>
+>the kernel already has a full DMI decoder, this module appears to just
+>try to duplicate it (at least judging on the snippet you pasted). It'd
+>be a lot better if the module would just use the existing DMI layer...
+>If it did that then it doesn't need isa_memcpy_fromio() *at all*...
+>
+>see the drivers/firmware/dmi_scan.c file for the linux DMI layer code.
+>
+>Greetings,
+>   Arjan van de Ven
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Hi,
 
-The workaround is to switch to one of the performance/powersave/user 
-governors just before suspend, and restore the governor on resume.
+Your right - I didn't even look at the beginning of the module - since I 
+was just compiling
+it after upgrading to 2.6.17-1.2139_FC5.
 
-    J
+ From the beginning of the file:
+/*
+ * dmi.c -- to get DMI information
+ *
+ * This code originally came from file arch/i386/kernel/dmi_scan.c from
+ * Linux kernel version 2.4.18
+ *
+
+Thanks,
+Steve
+
+-- 
+
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
 

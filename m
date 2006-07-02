@@ -1,117 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWGBKfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWGBKlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWGBKfV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 06:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWGBKfV
+	id S932235AbWGBKlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 06:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWGBKlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 06:35:21 -0400
-Received: from alephnull.demon.nl ([83.160.184.112]:65499 "EHLO
-	xi.wantstofly.org") by vger.kernel.org with ESMTP id S932278AbWGBKfU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 06:35:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; s=1148133259;
-	d=wantstofly.org;
-	h=date:from:to:cc:subject:message-id:mime-version:content-type:
-	content-disposition:user-agent;
-	b=EegQJl0Zj7u58lDbGYece2Q9O7yHbpc4C2aDbZH8yq8VAJ6KyhZ6bHbgLUB9p
-	Vf2NetX6sT1Cbl68yFvF9qoqg==
-Date: Sun, 2 Jul 2006 12:35:18 +0200
-From: Lennert Buytenhek <buytenh@wantstofly.org>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: rmk@arm.linux.org.uk
-Subject: [PATCH,RFC] make valid_mmap_phys_addr_range() take a pfn
-Message-ID: <20060702103518.GC30730@xi.wantstofly.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sun, 2 Jul 2006 06:41:07 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:39953 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S932235AbWGBKlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 06:41:06 -0400
+Message-ID: <44A7A29A.9050908@shadowen.org>
+Date: Sun, 02 Jul 2006 11:40:26 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm5
+References: <20060701033524.3c478698.akpm@osdl.org>	<44A799E4.5010803@shadowen.org> <20060702031457.f5995b38.akpm@osdl.org>
+In-Reply-To: <20060702031457.f5995b38.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Newer ARMs have a 40 bit physical address space, but mapping physical
-memory above 4G needs a special page table format which we (currently?)
-do not use for userspace mappings, so what happens instead is that
-mapping an address >= 4G will happily discard the upper bits and wrap.
+Andrew Morton wrote:
+> On Sun, 02 Jul 2006 11:03:16 +0100
+> Andy Whitcroft <apw@shadowen.org> wrote:
+> 
+> 
+>>Seems that we have some kind of schedular balance panic, I want to say
+>>back as this seems very familiar.  Seems to be affecting the multi-node
+>>NUMA-Q systems here.  The single node ones appear unaffected.
+>>
+>>Nothing jumps out of the patch list.  Any suggestions as to what to rip
+>>out :)
+>>
+>>-apw
+>>
+>>divide error: 0000 [#1]
+>>8K_STACKS SMP
+>>last sysfs file:
+>>Modules linked in:
+>>CPU:    3
+>>EIP:    0060:[<c0112b6e>]    Not tainted VLI
+>>EFLAGS: 00010046   (2.6.17-mm5-autokern1 #1)
+>>EIP is at find_busiest_group+0x1a3/0x47c
+>>eax: 00000000   ebx: 00000007   ecx: 00000000   edx: 00000000
+>>esi: 00000000   edi: e7677264   ebp: e74a3ec8   esp: e74a3e58
+>>ds: 007b   es: 007b   ss: 0068
+>>Process swapper (pid: 0, ti=e74a2000 task=e7485030 task.ti=e74a2000)
+>>Stack: e7677264 00000010 c0119020 00000000 00000000 00000000 00000000
+>>00000000
+>>       ffffffff 00000000 00000000 00000001 00000001 00000001 00000080
+>>00000000
+>>       00000000 00000200 00000020 00000080 00000000 00000000 e7677260
+>>c13dc960
+>>Call Trace:
+>> [<c0119020>] vprintk+0x5f/0x213
+>> [<c0112efb>] load_balance+0x54/0x1d6
+>> [<c011332d>] rebalance_tick+0xc5/0xe3
+>> [<c01137a3>] scheduler_tick+0x2cb/0x2d3
+>> [<c01215b4>] update_process_times+0x51/0x5d
+>> [<c010c224>] smp_apic_timer_interrupt+0x5a/0x61
+>> [<c0102d5b>] apic_timer_interrupt+0x1f/0x24
+>> [<c01006c0>] default_idle+0x0/0x59
+>> [<c01006f1>] default_idle+0x31/0x59
+>> [<c0100791>] cpu_idle+0x64/0x79
+>>Code: 00 5b 83 f8 1f 89 c6 5f 0f 8e 63 ff ff ff 8b 45 e0 8b 55 e8 01 45
+>>dc 8b 4a 08 89 c2 01 4d d4 c1 e2 07 89 d0 31 d2 89 ce c1 ee 07 <f7> f1
+>>83 7d 9c 00 89 45 e0 74 17 89 45 d8 8b 55 e8 8b 4d a4 8b
+>>EIP: [<c0112b6e>] find_busiest_group+0x1a3/0x47c SS:ESP 0068:e74a3e58
+>> <0>Kernel panic - not syncing: Fatal exception in interrupt
+> 
+> 
+> Well there are only a handful of divides in find_busiest_group().  Wanna
+> have a poke around in gdb and work out which one you're hitting?
 
-There is a valid_mmap_phys_addr_range() arch hook where we could check
-for >= 4G addresses and deny the mapping, but this hook takes an unsigned
-long address:
+Sure I'll see what information I can get on this one.
 
-	static inline int valid_mmap_phys_addr_range(unsigned long addr, size_t size);
-
-And drivers/char/mem.c:mmap_mem() calls it like this:
-
-	static int mmap_mem(struct file * file, struct vm_area_struct * vma)
-	{
-		size_t size = vma->vm_end - vma->vm_start;
-
-		if (!valid_mmap_phys_addr_range(vma->vm_pgoff << PAGE_SHIFT, size))
-
-So that's not much help either.
-
-This patch makes the hook take a pfn instead of a phys address -- how
-does that look?
-
-Signed-off-by: Lennert Buytenhek <buytenh@wantstofly.org>
-
-Index: linux-2.6.17-git16/drivers/char/mem.c
-===================================================================
---- linux-2.6.17-git16.orig/drivers/char/mem.c
-+++ linux-2.6.17-git16/drivers/char/mem.c
-@@ -96,7 +96,7 @@ static inline int valid_phys_addr_range(
- 	return 1;
- }
- 
--static inline int valid_mmap_phys_addr_range(unsigned long addr, size_t size)
-+static inline int valid_mmap_phys_addr_range(unsigned long pfn, size_t size)
- {
- 	return 1;
- }
-@@ -243,7 +243,7 @@ static int mmap_mem(struct file * file, 
- {
- 	size_t size = vma->vm_end - vma->vm_start;
- 
--	if (!valid_mmap_phys_addr_range(vma->vm_pgoff << PAGE_SHIFT, size))
-+	if (!valid_mmap_phys_addr_range(vma->vm_pgoff, size))
- 		return -EINVAL;
- 
- 	vma->vm_page_prot = phys_mem_access_prot(file, vma->vm_pgoff,
-Index: linux-2.6.17-git16/arch/ia64/kernel/efi.c
-===================================================================
---- linux-2.6.17-git16.orig/arch/ia64/kernel/efi.c
-+++ linux-2.6.17-git16/arch/ia64/kernel/efi.c
-@@ -760,7 +760,7 @@ valid_phys_addr_range (unsigned long phy
- }
- 
- int
--valid_mmap_phys_addr_range (unsigned long phys_addr, unsigned long size)
-+valid_mmap_phys_addr_range (unsigned long pfn, unsigned long size)
- {
- 	/*
- 	 * MMIO regions are often missing from the EFI memory map.
-Index: linux-2.6.17-git16/arch/ia64/pci/pci.c
-===================================================================
---- linux-2.6.17-git16.orig/arch/ia64/pci/pci.c
-+++ linux-2.6.17-git16/arch/ia64/pci/pci.c
-@@ -651,7 +651,7 @@ pci_mmap_legacy_page_range(struct pci_bu
- 	 * Avoid attribute aliasing.  See Documentation/ia64/aliasing.txt
- 	 * for more details.
- 	 */
--	if (!valid_mmap_phys_addr_range(vma->vm_pgoff << PAGE_SHIFT, size))
-+	if (!valid_mmap_phys_addr_range(vma->vm_pgoff, size))
- 		return -EINVAL;
- 	prot = phys_mem_access_prot(NULL, vma->vm_pgoff, size,
- 				    vma->vm_page_prot);
-Index: linux-2.6.17-git16/include/asm-ia64/io.h
-===================================================================
---- linux-2.6.17-git16.orig/include/asm-ia64/io.h
-+++ linux-2.6.17-git16/include/asm-ia64/io.h
-@@ -90,7 +90,7 @@ phys_to_virt (unsigned long address)
- #define ARCH_HAS_VALID_PHYS_ADDR_RANGE
- extern u64 kern_mem_attribute (unsigned long phys_addr, unsigned long size);
- extern int valid_phys_addr_range (unsigned long addr, size_t count); /* efi.c */
--extern int valid_mmap_phys_addr_range (unsigned long addr, size_t count);
-+extern int valid_mmap_phys_addr_range (unsigned long pfn, size_t count);
- 
- /*
-  * The following two macros are deprecated and scheduled for removal.
+-apw

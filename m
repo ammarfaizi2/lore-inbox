@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWGBWw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWGBWyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751016AbWGBWw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 18:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWGBWw5
+	id S1751060AbWGBWyv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 18:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWGBWyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 18:52:57 -0400
-Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:9871 "EHLO
-	idefix.homelinux.org") by vger.kernel.org with ESMTP
-	id S1751016AbWGBWw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 18:52:57 -0400
-Subject: Re: Suspend to RAM regression tracked down
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk
-In-Reply-To: <44A80B20.1090702@goop.org>
-References: <1151837268.5358.10.camel@idefix.homelinux.org>
-	 <44A80B20.1090702@goop.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
-Date: Mon, 03 Jul 2006 08:52:44 +1000
-Message-Id: <1151880764.5358.32.camel@idefix.homelinux.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 2 Jul 2006 18:54:51 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:17365 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751053AbWGBWyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 18:54:51 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Mon, 3 Jul 2006 00:54:38 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 01/19] ieee1394: sbp2: enable auto spin-up for Maxtor disks
+To: Ben Collins <bcollins@ubuntu.com>
+cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <tkrat.8d67352567e525c1@s5r6.in-berlin.de>
+Message-ID: <tkrat.257693ae9d8cf587@s5r6.in-berlin.de>
+References: <tkrat.8d67352567e525c1@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (0.903) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There was a race in ondemand and conservative which made them lock up on 
-> resume (possibly only on SMP systems though).  There's a patch for that 
-> in current -mm, but I suspect there's another problem (still haven't had 
-> any time to track it down).
+At least Maxtor OneTouch III require a "start stop unit" command after
+auto spin-down before the next access can proceed.  This patch activates
+the responsible code in scsi_mod for all Maxtor SBP-2 disks.
+https://bugzilla.novell.com/show_bug.cgi?id=183011
 
-Any link to the patch and the thread about the problem (if any)? Also,
-was the race introduced in 2.6.12-rc5-git6? If not, it's a completely
-different problem because my machine worked fine with 2.6.12-rc5-git5.
+Maybe that should be done for all SBP-2 disks, but better be cautious.
 
-	Jean-Marc
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+Index: linux/drivers/ieee1394/sbp2.c
+===================================================================
+--- linux.orig/drivers/ieee1394/sbp2.c	2006-07-01 09:37:55.000000000 +0200
++++ linux/drivers/ieee1394/sbp2.c	2006-07-01 09:41:33.000000000 +0200
+@@ -2515,6 +2515,9 @@ static int sbp2scsi_slave_configure(stru
+ 		sdev->skip_ms_page_8 = 1;
+ 	if (scsi_id->workarounds & SBP2_WORKAROUND_FIX_CAPACITY)
+ 		sdev->fix_capacity = 1;
++	if (scsi_id->ne->guid_vendor_id == 0x0010b9 && /* Maxtor's OUI */
++	    (sdev->type == TYPE_DISK || sdev->type == TYPE_RBC))
++		sdev->allow_restart = 1;
+ 	return 0;
+ }
+ 
+
+

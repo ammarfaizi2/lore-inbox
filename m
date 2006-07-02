@@ -1,25 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWGBP7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWGBQE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbWGBP7E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 11:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWGBP7E
+	id S932510AbWGBQE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 12:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWGBQE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 11:59:04 -0400
-Received: from xenotime.net ([66.160.160.81]:11245 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932498AbWGBP7B (ORCPT
+	Sun, 2 Jul 2006 12:04:28 -0400
+Received: from xenotime.net ([66.160.160.81]:56194 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932510AbWGBQE2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 11:59:01 -0400
-Date: Sun, 2 Jul 2006 09:01:45 -0700
+	Sun, 2 Jul 2006 12:04:28 -0400
+Date: Sun, 2 Jul 2006 09:07:13 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Johan Vromans <jvromans@squirrel.nl>
-Cc: jvromans@squirrel.nl, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: SMBus access
-Message-Id: <20060702090145.7fd8317d.rdunlap@xenotime.net>
-In-Reply-To: <m24py0e6uj.fsf@phoenix.squirrel.nl>
-References: <m2irmhjb5t.fsf@phoenix.squirrel.nl>
-	<20060701141015.a4922e86.rdunlap@xenotime.net>
-	<m24py0e6uj.fsf@phoenix.squirrel.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Stephen.Clark@seclark.us, linux-kernel@vger.kernel.org
+Subject: Re: isa_memcpy_fromio
+Message-Id: <20060702090713.bd3a2e68.rdunlap@xenotime.net>
+In-Reply-To: <1151834671.14346.5.camel@localhost.localdomain>
+References: <44A732E3.10202@seclark.us>
+	<1151834671.14346.5.camel@localhost.localdomain>
 Organization: YPO4
 X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -28,24 +26,25 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 02 Jul 2006 10:41:56 +0200 Johan Vromans wrote:
+On Sun, 02 Jul 2006 11:04:31 +0100 Alan Cox wrote:
 
-> "Randy.Dunlap" <rdunlap@xenotime.net> writes:
+> Ar Sad, 2006-07-01 am 22:43 -0400, ysgrifennodd Stephen Clark:
+> > Hello,
+> > 
+> > what has isa_memcpy_fromio() changed to in kernel 2.6.17 from 2.6.16
 > 
-> > a.  patch should also be sent to linux-acpi@vger.kernel.org (cc-ed)
-> > b.  patch does not apply cleanly to latest kernel
-> > c.  missing Signed-off-by: line (see Documentation/SubmittingPatches)
-> > d.  incorrect patch filename directory level (see SubmittingPatches)
+> It was always meant as a transition interface (although it survived
+> incredibly long). All code that uses the ioremap is unaffected: ie
 > 
-> All procedural issues, than can easily be solved.
+> 	foo = ioremap(isa_addr, len);
+> 	memcpy_fromio(foo + bar, buf, len2)
 
-Agreed.
+Stephen,
+There were only 3 drivers in 2.6.16 that used isa_memcpy_fromio().
+You can look at how they were changed for 2.6.17.
 
-> So I take it there
-> are no technical/philosophical/emotional/ethical objections against
-> this change?
-
-We are still waiting for feedback/comments to determine that.
+drivers/net/hp100.c and hp-plus.c
+drivers/scsi/g_NCR5380.c
 
 ---
 ~Randy

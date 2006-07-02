@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWGBSFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWGBSGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWGBSFT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 14:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWGBSFT
+	id S964848AbWGBSGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 14:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWGBSGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 14:05:19 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:24253 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964841AbWGBSFR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 14:05:17 -0400
-Message-ID: <44A80AB5.9060101@zytor.com>
-Date: Sun, 02 Jul 2006 11:04:37 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Sun, 2 Jul 2006 14:06:15 -0400
+Received: from gw.goop.org ([64.81.55.164]:55491 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S964848AbWGBSGP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 14:06:15 -0400
+Message-ID: <44A80B20.1090702@goop.org>
+Date: Sun, 02 Jul 2006 11:06:24 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-mm5 -- Busted toolchain? --	usr/klibc/exec_l.c:59:	undefined
- reference to `__stack_chk_fail'
-References: <a44ae5cd0607011409m720dd23dvf178a133c2060b6d@mail.gmail.com>	 <1151788673.3195.58.camel@laptopd505.fenrus.org>	 <a44ae5cd0607011425n18266b02s81b3d87988895555@mail.gmail.com>	 <1151789342.3195.60.camel@laptopd505.fenrus.org>	 <a44ae5cd0607011537o1cf00545td19e568dcb9c06c1@mail.gmail.com>	 <1151826131.3111.5.camel@laptopd505.fenrus.org>	 <a44ae5cd0607021007v52dac771n86c25c3bff491152@mail.gmail.com>	 <1151861523.3111.19.camel@laptopd505.fenrus.org>	 <44A80471.1020406@zytor.com> <1151862632.3111.25.camel@laptopd505.fenrus.org>
-In-Reply-To: <1151862632.3111.25.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk
+Subject: Re: Suspend to RAM regression tracked down
+References: <1151837268.5358.10.camel@idefix.homelinux.org>
+In-Reply-To: <1151837268.5358.10.camel@idefix.homelinux.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>>
->> Obviously, but at that time we should enable -fno-stack-protector vs 
-> 
-> -fno-stack-protector doesn't even exist afaics; simply because gcc has
-> this as a positive commandline option only..
+Jean-Marc Valin wrote:
+> A while ago, I reported a suspend to RAM regression (fail to resume). I
+> have since then tracked down the regression to the changes between
+> 2.6.12-rc5-git5 and 2.6.12-rc5-git6. On my laptop, I have only been able
+> to reproduce the problem with the ondemand cpufreq governor, but I've
+> head of another user with the same (Dell D600) laptop having problem
+> with the userspace governor as well. All the details are actually
+> http://bugzilla.kernel.org/show_bug.cgi?id=6166 but it seems like it's
+> being ignored. It's currently assigned to the ACPI category, but maybe
+> it belongs to cpufreq? Anyone can help here?
+>   
 
-You actively have to fight gcc's internals to make a boolean option 
-positive only, and that's a good thing.  The only reason it's possible 
-at all are as a way to deal with multistate options.
+There was a race in ondemand and conservative which made them lock up on 
+resume (possibly only on SMP systems though).  There's a patch for that 
+in current -mm, but I suspect there's another problem (still haven't had 
+any time to track it down).
 
-	-hpa
+The workaround is to switch to one of the performance/powersave/user 
+governors just before suspend, and restore the governor on resume.
+
+    J
+

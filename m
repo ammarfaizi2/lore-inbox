@@ -1,41 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932691AbWGBSrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932745AbWGBSsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932691AbWGBSrd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 14:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932717AbWGBSrd
+	id S932745AbWGBSsr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 14:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932754AbWGBSsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 14:47:33 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:32170 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932691AbWGBSrc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 14:47:32 -0400
-Date: Sun, 2 Jul 2006 20:47:20 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, akpm@osdl.org, rjw@sisk.pl,
-       davej@redhat.com, linux-kernel@vger.kernel.org, sekharan@us.ibm.com,
-       rusty@rustcorp.com.au
-Subject: Re: 2.6.17-mm2
-Message-ID: <20060702184720.GB7987@mars.ravnborg.org>
-References: <20060624061914.202fbfb5.akpm@osdl.org> <20060624172014.GB26273@redhat.com> <20060624143440.0931b4f1.akpm@osdl.org> <200606251051.55355.rjw@sisk.pl> <20060625032243.fcce9e2e.akpm@osdl.org> <20060625081610.9b0a775a.akpm@osdl.org> <20060630003813.e1003a93.rdunlap@xenotime.net> <20060702101146.GA26924@flint.arm.linux.org.uk> <20060702114233.7880cf12.rdunlap@xenotime.net>
-Mime-Version: 1.0
+	Sun, 2 Jul 2006 14:48:46 -0400
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:25209 "EHLO
+	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
+	id S932745AbWGBSsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 14:48:45 -0400
+To: Andy Gay <andy@andynet.net>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO	transfers
+X-Message-Flag: Warning: May contain useful information
+References: <1151646482.3285.410.camel@tahini.andynet.net>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Sun, 02 Jul 2006 11:48:40 -0700
+In-Reply-To: <1151646482.3285.410.camel@tahini.andynet.net> (Andy Gay's message of "Fri, 30 Jun 2006 01:48:02 -0400")
+Message-ID: <adad5cnderb.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060702114233.7880cf12.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 02 Jul 2006 18:48:43.0563 (UTC) FILETIME=[247B5FB0:01C69E08]
+Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Only if we have a policy of not exporting __init or __initdata or
-> __exit.  Are we there yet??
-
-On the principle of minimum suprise we shall no allow exported symbols
-to magically disappear. Only some architectures do get rid of .init and
-therefore a module may work with architecture one, but not architecture
-two which is very unpredictable.
-
-It should be established as a rule better now than later that this is a
-no-go.
-
-	Sam
+this works well on my kyocera kpc650 -- throughput is up to about 1
+mbit/sec vs. ~250 kbit/sec with the stock airprime driver.

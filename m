@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWGBNjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWGBNl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWGBNjb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 09:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWGBNjb
+	id S1751420AbWGBNl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 09:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWGBNl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 09:39:31 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:1691 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751386AbWGBNja (ORCPT
+	Sun, 2 Jul 2006 09:41:57 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:25728 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751420AbWGBNl5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 09:39:30 -0400
-Date: Sun, 2 Jul 2006 15:34:51 +0200
+	Sun, 2 Jul 2006 09:41:57 -0400
+Date: Sun, 2 Jul 2006 15:37:18 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.17-mm4 + hostap + pcmcia + lockdep -- possible recursive locking detected -- (af_callback_keys + sk->sk_family#3){-.-?}, at: [<c119d8db>] sock_def_readable+0x15/0x69
-Message-ID: <20060702133451.GA27425@elte.hu>
-References: <a44ae5cd0607011804i2326c350ta6262feec1e6805e@mail.gmail.com> <20060702132946.GA25420@elte.hu>
+To: pageexec@freemail.hu
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [PATCH] i386: clean up user_mode() use
+Message-ID: <20060702133718.GA27549@elte.hu>
+References: <44A7BE17.23657.2D6F894E@pageexec.freemail.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060702132946.GA25420@elte.hu>
+In-Reply-To: <44A7BE17.23657.2D6F894E@pageexec.freemail.hu>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
+X-ELTE-SpamScore: 0.1
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
 	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.2 AWL                    AWL: From: address is in the auto white-list
+	[score: 0.5010]
+	0.1 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+* pageexec@freemail.hu <pageexec@freemail.hu> wrote:
 
-> * Miles Lane <miles.lane@gmail.com> wrote:
+> on i386 there're two macros used for testing the userland execution 
+> mode: user_mode() and user_mode_vm(), which is not intuitive as on 
+> many (all?) other architectures there's only user_mode() and 
+> architecture independent code is written with user_mode() only, and 
+> even on i386 someone can make the wrong assumption that user_mode() 
+> works as it does on other archs.
 > 
-> > I have patches for hostap, pcmcia and lockdep applied to this kernel. 
-> > These patches are the ones resulting from several recent message 
-> > threads. I just noticed this in my kernel log:
-> > 
-> > [ INFO: possible recursive locking detected ]
-> > ---------------------------------------------
+> two cases in point: 
+> drivers/oprofile/cpu_buffer.c:oprofile_add_sample() uses user_mode() 
+> which can lead to incorrect results if the interrupted task was in v86 
+> mode with a code segment fooling the user_mode() selector RPL check. 
+> also, arch/i386/kernel/kprobes.c:kprobe_exceptions_notify() used to 
+> use user_mode() whereas it really meant user_mode_vm(), this is in 
+> fact incorrect until 2.6.17.
 > 
-> ok, lockdep should allow same-class read-lock recursion too, because 
-> it's used by real code and is being relied upon. Could you try the patch 
-> below? [...]
+> to avoid such mistakes in the future, the suggested solution is to 
+> make user_mode() on i386 consistent with the generic expectation and 
+> make it detect any user mode execution context, that is, it should 
+> take the role of user_mode_vm() and a new user_mode_novm() is 
+> introduced for the i386 specific cases where v86 mode can be excluded. 
+> in short, the patch simply does a
+> 
+>   user_mode_vm -> user_mode
+>   user_mode    -> user_mode_novm
+> 
+> substitution as appropriate.
+> 
+> Signed-off-by: PaX Team <pageexec@freemail.hu>
 
-the patches are also included in the latest -mm5 combo patch at:
+agreed!
 
-  http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-mm5.patch
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
 	Ingo

@@ -1,70 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWGBKEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWGBKMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWGBKEA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 06:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbWGBKEA
+	id S1751019AbWGBKMB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 06:12:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWGBKMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 06:04:00 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:32017 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1750796AbWGBKD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 06:03:59 -0400
-Message-ID: <44A799E4.5010803@shadowen.org>
-Date: Sun, 02 Jul 2006 11:03:16 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm5
-References: <20060701033524.3c478698.akpm@osdl.org>
-In-Reply-To: <20060701033524.3c478698.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Jul 2006 06:12:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20240 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751019AbWGBKMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 06:12:00 -0400
+Date: Sun, 2 Jul 2006 11:11:46 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Andrew Morton <akpm@osdl.org>, rjw@sisk.pl, davej@redhat.com,
+       linux-kernel@vger.kernel.org, sekharan@us.ibm.com,
+       rusty@rustcorp.com.au, sam@ravnborg.org
+Subject: Re: 2.6.17-mm2
+Message-ID: <20060702101146.GA26924@flint.arm.linux.org.uk>
+Mail-Followup-To: "Randy.Dunlap" <rdunlap@xenotime.net>,
+	Andrew Morton <akpm@osdl.org>, rjw@sisk.pl, davej@redhat.com,
+	linux-kernel@vger.kernel.org, sekharan@us.ibm.com,
+	rusty@rustcorp.com.au, sam@ravnborg.org
+References: <20060624061914.202fbfb5.akpm@osdl.org> <20060624172014.GB26273@redhat.com> <20060624143440.0931b4f1.akpm@osdl.org> <200606251051.55355.rjw@sisk.pl> <20060625032243.fcce9e2e.akpm@osdl.org> <20060625081610.9b0a775a.akpm@osdl.org> <20060630003813.e1003a93.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060630003813.e1003a93.rdunlap@xenotime.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems that we have some kind of schedular balance panic, I want to say
-back as this seems very familiar.  Seems to be affecting the multi-node
-NUMA-Q systems here.  The single node ones appear unaffected.
+On Fri, Jun 30, 2006 at 12:38:13AM -0700, Randy.Dunlap wrote:
+> Until modpost (or whatever) can do this, here are a few that
+> a shell script has found for me by examing source code only --
+> may contain some false reports:
+> 
+> ./arch/arm/mach-at91rm9200/gpio.c:81:EXPORT_SYMBOL(at91_set_A_periph)
+> ./arch/arm/mach-at91rm9200/gpio.c:67:int __init_or_module at91_set_A_periph(unsigned pin, int use_pullup)
+> 
+> ./arch/arm/mach-at91rm9200/gpio.c:101:EXPORT_SYMBOL(at91_set_B_periph);
+> ./arch/arm/mach-at91rm9200/gpio.c:87:int __init_or_module at91_set_B_periph(unsigned pin, int use_pullup)
+> 
+> ./arch/arm/mach-at91rm9200/gpio.c:122:EXPORT_SYMBOL(at91_set_gpio_input);
+> ./arch/arm/mach-at91rm9200/gpio.c:108:int __init_or_module at91_set_gpio_input(unsigned pin, int use_pullup)
+> 
+> ./arch/arm/mach-at91rm9200/gpio.c:144:EXPORT_SYMBOL(at91_set_gpio_output);
+> ./arch/arm/mach-at91rm9200/gpio.c:129:int __init_or_module at91_set_gpio_output(unsigned pin, int value)
+> 
+> ./arch/arm/mach-at91rm9200/gpio.c:160:EXPORT_SYMBOL(at91_set_deglitch);
+> ./arch/arm/mach-at91rm9200/gpio.c:150:int __init_or_module at91_set_deglitch(unsigned pin, int is_on)
+> 
+> ./arch/arm/mach-at91rm9200/gpio.c:177:EXPORT_SYMBOL(at91_set_multi_drive);
+> ./arch/arm/mach-at91rm9200/gpio.c:166:int __init_or_module at91_set_multi_drive(unsigned pin, int is_on)
+>
+> ./arch/arm/plat-omap/mux.c:196:EXPORT_SYMBOL(omap_cfg_reg);
+> ./arch/arm/plat-omap/mux.c:58:int __init_or_module omap_cfg_reg(const unsigned long index)
+> 
 
-Nothing jumps out of the patch list.  Any suggestions as to what to rip
-out :)
+These would appear to be false:
 
--apw
+#ifdef CONFIG_MODULES
+#define __init_or_module
+#define __initdata_or_module
+#else
+#define __init_or_module __init
+#define __initdata_or_module __initdata
+#endif /*CONFIG_MODULES*/
 
-divide error: 0000 [#1]
-8K_STACKS SMP
-last sysfs file:
-Modules linked in:
-CPU:    3
-EIP:    0060:[<c0112b6e>]    Not tainted VLI
-EFLAGS: 00010046   (2.6.17-mm5-autokern1 #1)
-EIP is at find_busiest_group+0x1a3/0x47c
-eax: 00000000   ebx: 00000007   ecx: 00000000   edx: 00000000
-esi: 00000000   edi: e7677264   ebp: e74a3ec8   esp: e74a3e58
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, ti=e74a2000 task=e7485030 task.ti=e74a2000)
-Stack: e7677264 00000010 c0119020 00000000 00000000 00000000 00000000
-00000000
-       ffffffff 00000000 00000000 00000001 00000001 00000001 00000080
-00000000
-       00000000 00000200 00000020 00000080 00000000 00000000 e7677260
-c13dc960
-Call Trace:
- [<c0119020>] vprintk+0x5f/0x213
- [<c0112efb>] load_balance+0x54/0x1d6
- [<c011332d>] rebalance_tick+0xc5/0xe3
- [<c01137a3>] scheduler_tick+0x2cb/0x2d3
- [<c01215b4>] update_process_times+0x51/0x5d
- [<c010c224>] smp_apic_timer_interrupt+0x5a/0x61
- [<c0102d5b>] apic_timer_interrupt+0x1f/0x24
- [<c01006c0>] default_idle+0x0/0x59
- [<c01006f1>] default_idle+0x31/0x59
- [<c0100791>] cpu_idle+0x64/0x79
-Code: 00 5b 83 f8 1f 89 c6 5f 0f 8e 63 ff ff ff 8b 45 e0 8b 55 e8 01 45
-dc 8b 4a 08 89 c2 01 4d d4 c1 e2 07 89 d0 31 d2 89 ce c1 ee 07 <f7> f1
-83 7d 9c 00 89 45 e0 74 17 89 45 d8 8b 55 e8 8b 4d a4 8b
-EIP: [<c0112b6e>] find_busiest_group+0x1a3/0x47c SS:ESP 0068:e74a3e58
- <0>Kernel panic - not syncing: Fatal exception in interrupt
+and:
+
+#else /* !CONFIG_MODULES... */
+#define EXPORT_SYMBOL(sym)
+#define EXPORT_SYMBOL_GPL(sym)
+#define EXPORT_SYMBOL_GPL_FUTURE(sym)
+#define EXPORT_UNUSED_SYMBOL(sym)
+#define EXPORT_UNUSED_SYMBOL_GPL(sym)
+
+means that in the modules case, they aren't marked as __init and are
+exported, but in the non-modular case they are marked as __init but
+not exported.
+
+Hence, export symbols marked as __init_or_module is safe.
+
+> ./arch/arm/mach-imx/generic.c:196:EXPORT_SYMBOL(imx_set_mmc_info);
+> ./arch/arm/mach-imx/generic.c:192:void __init imx_set_mmc_info(struct imxmmc_platform_data *info)
+> 
+> ./arch/arm/mach-imx/generic.c:204:EXPORT_SYMBOL(set_imx_fb_info);
+> ./arch/arm/mach-imx/generic.c:200:void __init set_imx_fb_info(struct imxfb_mach_info *hard_imx_fb_info)
+>
+> ./sound/i2c/l3/uda1341.c:929:EXPORT_SYMBOL(snd_chip_uda1341_mixer_new);
+> ./sound/i2c/l3/uda1341.c:769:int __init snd_chip_uda1341_mixer_new(struct snd_card *card, struct l3_client **clntp)
+
+These are definitely buggy.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,157 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932822AbWGBTzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWGBT40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932822AbWGBTzF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 15:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932841AbWGBTzF
+	id S1750700AbWGBT40 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 15:56:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWGBT4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 15:55:05 -0400
-Received: from vixis.sumodave.com ([88.96.16.138]:20329 "EHLO
-	vixis.sumodave.com") by vger.kernel.org with ESMTP id S932822AbWGBTzC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 15:55:02 -0400
-Date: Sun, 2 Jul 2006 20:54:59 +0100
-From: Daniel Walrond <linux@djw.org.uk>
+	Sun, 2 Jul 2006 15:56:24 -0400
+Received: from mail.gmx.de ([213.165.64.21]:26085 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750700AbWGBT4W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 15:56:22 -0400
+X-Authenticated: #5082238
+From: "Carsten Otto" <c-otto@gmx.de>
+Date: Sun, 2 Jul 2006 21:56:19 +0200
 To: linux-kernel@vger.kernel.org
-Subject: via_sata drive command timeout on EPIA 8000 SP
-Message-ID: <20060702195459.GB28120@vixis.sumodave.com>
+Subject: Re: Huge problem with XFS/iCH7R
+Message-ID: <20060702195619.GB4098@localhost.halifax.rwth-aachen.de>
+Reply-To: c-otto@gmx.de
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060702195145.GA4098@localhost.halifax.rwth-aachen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060702195145.GA4098@localhost.halifax.rwth-aachen.de>
+X-GnuGP-Key: http://c-otto.de/pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I'm getting some drive command timeouts on a pair of SATA disks in a VIA
-EPIA 8000 SP. I've ran the a smart extended test one of the disks and
-that came back with no error. The disks are new.
+--eAbsdosE1cNLO4uF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I first saw problems with the default 2.6.8 kernel which comes with
-Debian Sarge where I saw the follwoing errors:
+On Sun, Jul 02, 2006 at 09:51:45PM +0200, Carsten Otto wrote:
+> If I do a soft reset (using Magic Key u, then b) the BIOS does not detect
+> exactly one drive (which is the one shown in the error message I guess).
+> After a hard reset all drives are found, but I have to do a raid resync a=
+nd
+> xfs_repair (at least, sometimes the raid needs to be tricked into startin=
+g).
 
-Jun 28 22:07:39 homm kernel: EXT3-fs error (device md0):
-ext3_free_blocks: Freeing blocks not in datazone - block = 3466911703,
-count = 1
-Jun 28 22:07:39 homm kernel: Remounting filesystem read-only
-Jun 28 22:07:39 homm kernel: EXT3-fs error (device md0):
-ext3_free_blocks: Freeing blocks not in datazone - block = 2998170450,
-count = 1
-[...]
+I forgot to add:
+Even after a xfs_repair sometimes another directly following run of
+xfs_check or xfs_repair finds errors.
+Currently I have problems deleting files from lost+found:
+rm: cannot remove directory `lost+found//2171932973': Directory not
+empty
+I ran xfs_check only a few hours ago and it did not show any output
+(which is good).
+--=20
+Carsten Otto
+c-otto@gmx.de
+www.c-otto.de
 
-The freeing blocks error repeated many times. This happend more than
-once. I upgrade to 2.6.17.1 which seemed good. Later I got the following
-errors:
+--eAbsdosE1cNLO4uF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Jun 29 09:59:10 homm kernel: ata2: command 0xea timeout, stat 0x51
-host_stat 0x0
-Jun 29 09:59:10 homm kernel: ata2: translated ATA stat/err 0x51/04 to
-SCSI SK/ASC/ASCQ 0xb/00/00
-Jun 29 09:59:10 homm kernel: ata2: status=0x51 { DriveReady SeekComplete
-Error }
-Jun 29 09:59:10 homm kernel: ata2: error=0x04 { DriveStatusError }
-Jun 29 13:49:35 homm kernel: ata2: command 0xea timeout, stat 0x51
-host_stat 0x0
-Jun 29 13:49:35 homm kernel: ata2: translated ATA stat/err 0x51/04 to
-SCSI SK/ASC/ASCQ 0xb/00/00
-Jun 29 13:49:35 homm kernel: ata2: status=0x51 { DriveReady SeekComplete
-Error }
-Jun 29 13:49:35 homm kernel: ata2: error=0x04 { DriveStatusError }
-Jun 29 13:54:05 homm kernel: ata2: command 0xea timeout, stat 0x51
-host_stat 0x0
-Jun 29 13:54:05 homm kernel: ata2: translated ATA stat/err 0x51/04 to
-SCSI SK/ASC/ASCQ 0xb/00/00
-Jun 29 13:54:05 homm kernel: ata2: status=0x51 { DriveReady SeekComplete
-Error }
-Jun 29 13:54:05 homm kernel: ata2: error=0x04 { DriveStatusError }
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-Then later with a different kernel to work with Xen, using 2.6.16.22 I
-get very similar errors for the other disk:
+iD8DBQFEqCTjjUF4jpCSQBQRAr9MAJ9NDXea4YGKUyxGK9kjyKal0apP9wCgk2Ph
+r9LtYTGXTAMjjhr+/p3PGho=
+=vOwY
+-----END PGP SIGNATURE-----
 
-Jul  2 16:05:31 homm kernel: ata1: command 0x35 timeout, stat 0x51
-host_stat 0x2 1
-Jul  2 16:05:31 homm kernel: ata1: translated ATA stat/err 0x51/04 to
-SCSI SK/ASC/ASCQ 0xb/00/00
-Jul  2 16:05:31 homm kernel: ata1: status=0x51 { DriveReady SeekComplete
-Error }
-Jul  2 16:05:31 homm kernel: ata1: error=0x04 { DriveStatusError }
-Jul  2 16:05:31 homm kernel: sd 0:0:0:0: SCSI error: return code =
-0x8000002
-Jul  2 16:05:31 homm kernel: sda: Current: sense key=0xb
-Jul  2 16:05:31 homm kernel:     ASC=0x0 ASCQ=0x0
-Jul  2 16:05:31 homm kernel: end_request: I/O error, dev sda, sector
-18368916
-Jul  2 16:05:31 homm kernel: raid1: Disk failure on sda3, disabling
-device. 
-Jul  2 16:05:31 homm kernel: ^IOperation continuing on 1 devices
-Jul  2 16:05:31 homm kernel: RAID1 conf printout:
-Jul  2 16:05:31 homm kernel:  --- wd:1 rd:2
-Jul  2 16:05:31 homm kernel:  disk 0, wo:1, o:0, dev:sda3
-
-
->From my dmesg:
-
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-VP_IDE: IDE controller at PCI slot 0000:00:0f.1
-ACPI: PCI Interrupt 0000:00:0f.1[A] -> Link [LNKA] -> GSI 10 (level,
-low) -> IRQ 10
-PCI: VIA IRQ fixup for 0000:00:0f.1, from 255 to 10
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt8237 (rev 00) IDE UDMA133 controller on pci0000:00:0f.1
-    ide0: BM-DMA at 0xcc00-0xcc07, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xcc08-0xcc0f, BIOS settings: hdc:pio, hdd:pio
-Probing IDE interface ide0...
-Probing IDE interface ide1...
-Probing IDE interface ide0...
-Probing IDE interface ide1...
-libata version 1.20 loaded.
-sata_via 0000:00:0f.0: version 1.1
-ACPI: PCI Interrupt 0000:00:0f.0[B] -> Link [LNKB] -> GSI 11 (level,
-low) -> IRQ 11
-sata_via 0000:00:0f.0: routed to hard irq line 11
-ata1: SATA max UDMA/133 cmd 0xB400 ctl 0xB802 bmdma 0xC400 irq 11
-ata2: SATA max UDMA/133 cmd 0xBC00 ctl 0xC002 bmdma 0xC408 irq 11
-ata1: SATA link up 1.5 Gbps (SStatus 113)
-ata1: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3469 86:3c01 87:4003
-88:203f
-ata1: dev 0 ATA-6, max UDMA/100, 625142448 sectors: LBA48
-ata1: dev 0 configured for UDMA/100
-scsi0 : sata_via
-ata2: SATA link up 1.5 Gbps (SStatus 113)
-ata2: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3469 86:3c01 87:4003
-88:203f
-ata2: dev 0 ATA-6, max UDMA/100, 625142448 sectors: LBA48
-ata2: dev 0 configured for UDMA/100
-scsi1 : sata_via
-  Vendor: ATA       Model: WDC WD3200SD-01K  Rev: 08.0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: ATA       Model: WDC WD3200SD-01K  Rev: 08.0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 625142448 512-byte hdwr sectors (320073 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-SCSI device sda: 625142448 512-byte hdwr sectors (320073 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3
-sd 0:0:0:0: Attached scsi disk sda
-SCSI device sdb: 625142448 512-byte hdwr sectors (320073 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 3a 00 00
-SCSI device sdb: drive cache: write back
-SCSI device sdb: 625142448 512-byte hdwr sectors (320073 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 3a 00 00
-SCSI device sdb: drive cache: write back
- sdb: sdb1 sdb2 sdb3
-sd 1:0:0:0: Attached scsi disk sdb
-
-
-Any clues to what could be wrong?
-
-
-Dan
+--eAbsdosE1cNLO4uF--

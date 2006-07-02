@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWGBLUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWGBLVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWGBLUc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 07:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWGBLUb
+	id S964845AbWGBLVL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 07:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWGBLVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 07:20:31 -0400
-Received: from admingilde.org ([213.95.32.146]:45271 "EHLO mail.admingilde.org")
-	by vger.kernel.org with ESMTP id S964835AbWGBLUb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 07:20:31 -0400
-Date: Sun, 2 Jul 2006 13:20:29 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] kernel-doc MAINTAINERS
-Message-ID: <20060702112028.GD25630@admingilde.org>
-Mail-Followup-To: "Randy.Dunlap" <rdunlap@xenotime.net>,
-	lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-References: <20060701193116.6b7bc7ae.rdunlap@xenotime.net>
+	Sun, 2 Jul 2006 07:21:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:44517 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964845AbWGBLVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 07:21:10 -0400
+Subject: Re: Oops / BUG? (2.6.17.2 on VIA Epia CL6000)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Udo van den Heuvel <udovdh@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org, Folkert van Heusden <folkert@vanheusden.com>
+In-Reply-To: <44A7AADB.8040106@xs4all.nl>
+References: <44A7AADB.8040106@xs4all.nl>
+Content-Type: text/plain
+Date: Sun, 02 Jul 2006 13:21:08 +0200
+Message-Id: <1151839268.3111.10.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VMt1DrMGOVs3KQwf"
-Content-Disposition: inline
-In-Reply-To: <20060701193116.6b7bc7ae.rdunlap@xenotime.net>
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2006-07-02 at 13:15 +0200, Udo van den Heuvel wrote:
+> Hello,
+> 
+> On my otherwise stable Via EPIA CL6000 I experienced an OOPS.
+> Hardware should be OK. I was unable to reproduce the event, so far.
+> In what part of the kernel did things go wrong?
+> What can I do to help fix the bug? (if it is indeed a bug)
 
---VMt1DrMGOVs3KQwf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-On Sat, Jul 01, 2006 at 07:31:16PM -0700, Randy.Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
->=20
-> Martin says that I can add self to MAINTAINERS.
->=20
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-Acked-by: Martin Waitz <tali@admingilde.org>
+something really bad happened (the processor jumped into hyperspace);
+however it looks like automatic symbol resolving isn't working;
+could you check if CONFIG_KALLSYMS is enabled in your kernel config?
+With that enabled, debugability tends to go up bigtime since at least
+the backtrace becomes human readable...
 
---=20
-Martin Waitz
+Greetings,
+    Arjan van de Ven
 
---VMt1DrMGOVs3KQwf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEp6v8j/Eaxd/oD7IRArvwAJ0Xsm+w7Qndw+RHi9C4kA6iq25yigCfXr2a
-7B2xwFsosaJ1+dhm+GsroIg=
-=vZfM
------END PGP SIGNATURE-----
-
---VMt1DrMGOVs3KQwf--

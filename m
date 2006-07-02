@@ -1,47 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932832AbWGBTYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932813AbWGBTvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932832AbWGBTYz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 15:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932841AbWGBTYz
+	id S932813AbWGBTvt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 15:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932841AbWGBTvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 15:24:55 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:46087 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S932832AbWGBTYy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 15:24:54 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jordi Pina <pinucset@gmail.com>
-Subject: Re: Webcam in Sony Vaio FE21S
-Date: Sun, 2 Jul 2006 20:25:21 +0100
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <200607022110.15696.pinucset@gmail.com>
-In-Reply-To: <200607022110.15696.pinucset@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Jul 2006 15:51:49 -0400
+Received: from mail.gmx.net ([213.165.64.21]:37098 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932813AbWGBTvs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 15:51:48 -0400
+X-Authenticated: #5082238
+From: "Carsten Otto" <c-otto@gmx.de>
+Date: Sun, 2 Jul 2006 21:51:45 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Huge problem with XFS/iCH7R
+Message-ID: <20060702195145.GA4098@localhost.halifax.rwth-aachen.de>
+Reply-To: c-otto@gmx.de
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
 Content-Disposition: inline
-Message-Id: <200607022025.21101.s0348365@sms.ed.ac.uk>
+X-GnuGP-Key: http://c-otto.de/pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 July 2006 20:10, Jordi Pina wrote:
-> Hi,
->
-> I have a Sony Vaio FE21S Laptop wich has a webcam, it's detected like this:
->
-> Bus 005 Device 003: ID 0ac8:c002 Z-Star Microelectronics Corp.
 
-A bit of googling and it looks like this camera might use an Spca/Zr chipset, 
-which are supported by http://mxhaard.free.fr/spca5xx.html
+--J/dobhs11T7y2rNN
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That said, your camera isn't listed specifically, so it might need some work. 
-Probably worth contacting the maintainer about it.
+Hi there!
 
--- 
-Cheers,
-Alistair.
+(System specs below)
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Short summary:
+System (with software raid 5, XFS, four disks connected to AHCI
+controller) crashes very often and loses data.
+
+My system crashes every few days, at the moment daily. The message shown
+is (the drive changes about every time, I do not see a pattern here):
+---
+ata4: handling error/timeout
+ata4: port reset, p_is 0 is 0 pis 0 cmd c017 tf 7f ss 0 se 0
+ata4: status=3D0x50 { DriveReady SeekComplete }
+sdd: Current: sense key=3D0x0
+	ASC=3D0x0 ASCQ=3D0x0
+Info fid=3D0x0
+---
+Although according to this message only one of four drives failed (in
+software RAID5) the system does not do anything useful. Hitting enter at
+the login prompt does cause the password prompt to appear and no service
+responds.
+
+If I do a soft reset (using Magic Key u, then b) the BIOS does not detect
+exactly one drive (which is the one shown in the error message I guess).
+After a hard reset all drives are found, but I have to do a raid resync and
+xfs_repair (at least, sometimes the raid needs to be tricked into starting).
+
+This problem occured with all kernels (all vanilla), starting with
+2.6.16.something up to 2.6.17.2.
+I checked all four drives with a Maxtor tool, all drives are fine.
+The temperature is not a problem, all drives are stable at about 35=B0C.
+I replaced the SATA cables several times.
+
+Some images showing the errors on screen are here:
+http://c-otto.de/fehler/
+
+I'd like to know what component causes this problem and how I can solve
+it.
+
+Please tell me if you need further information!
+
+System specs:
+- Intel iCH7R on Foxconn 945P7AA-EKRS2
+- Pentium D 805 (2.66 GHz, 1MB Cache, Dual Core)
+- 4x Maxtor 7V300F0 (MaXLine Plus III 300 GB; Sata 2; 16 MB Cache)
+- 2 GB RAM
+
+PS: Please include me in CC as I do not read the whole LKML.
+
+Thanks a lot,
+--=20
+Carsten Otto
+c-otto@gmx.de
+www.c-otto.de
+
+--J/dobhs11T7y2rNN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEqCPRjUF4jpCSQBQRAtTPAJ4+Ky53Zr/7xN62poPa7/1FXSnveACeODlG
+LsXLenK+DJXHgqD475FpOo8=
+=niEm
+-----END PGP SIGNATURE-----
+
+--J/dobhs11T7y2rNN--

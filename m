@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWGBPGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWGBPG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbWGBPGr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 11:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWGBPGr
+	id S932248AbWGBPG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 11:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWGBPG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 11:06:47 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:30156 "EHLO
+	Sun, 2 Jul 2006 11:06:59 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:31180 "EHLO
 	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932215AbWGBPGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 11:06:46 -0400
-Subject: Re: 2.6.17-mm5 dislikes raid-1, just like mm4
+	id S932248AbWGBPG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 11:06:58 -0400
+Subject: Re: the creation of boot_cpu_init() is wrong and accessing
+	uninitialised data
 From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Grant Wilson <grant.wilson@zen.co.uk>
-Cc: Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Neil Brown <neilb@suse.de>
-In-Reply-To: <44A7D82A.80909@zen.co.uk>
-References: <20060701033524.3c478698.akpm@osdl.org>
-	 <20060701181455.GA16412@aitel.hist.no>
-	 <20060701152258.bea091a6.akpm@osdl.org>  <44A7560B.3050000@reub.net>
-	 <1151848394.3558.2.camel@mulgrave.il.steeleye.com>
-	 <44A7D82A.80909@zen.co.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, stsp@aknet.ru, linux-kernel@vger.kernel.org
+In-Reply-To: <m1zmfs83fx.fsf@ebiederm.dsl.xmission.com>
+References: <1151376313.3443.12.camel@mulgrave.il.steeleye.com>
+	 <20060626200433.bf0292af.akpm@osdl.org>
+	 <1151379392.3443.20.camel@mulgrave.il.steeleye.com>
+	 <20060626220337.06014184.akpm@osdl.org>
+	 <1151419746.3340.13.camel@mulgrave.il.steeleye.com>
+	 <20060627170446.30392b00.akpm@osdl.org>
+	 <1151462735.5793.2.camel@mulgrave.il.steeleye.com>
+	 <20060627195743.ce18afe3.akpm@osdl.org>
+	 <1151536204.3377.51.camel@mulgrave.il.steeleye.com>
+	 <1151600336.6186.9.camel@mulgrave.il.steeleye.com>
+	 <m1zmfs83fx.fsf@ebiederm.dsl.xmission.com>
 Content-Type: text/plain
-Date: Sun, 02 Jul 2006 10:06:28 -0500
-Message-Id: <1151852788.3558.10.camel@mulgrave.il.steeleye.com>
+Date: Sun, 02 Jul 2006 10:06:41 -0500
+Message-Id: <1151852801.3558.13.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-02 at 15:28 +0100, Grant Wilson wrote:
-> With the patch applied to 2.6.17-mm5 my RAID-1 is up and running on both
-> SATA drives with no problems.
+On Sun, 2006-07-02 at 08:52 -0600, Eric W. Biederman wrote:
+> What is the point of using a non-zero logical cpu id?
+> I don't care about the apic id or the equivalent.
 
-That's great, thanks.  Now we know what the problem patch is, I'd like
-to try an 11th our correction of the logic fault in the original.  Could
-you try this patch against original -mm (by reversing the previous
-patch).  I think it should correct the problem?
+Logical CPUs were just an artifact to get dense CPU maps, which is now
+no longer necessary.  There are architectures which have never used
+logical CPUs.  For them, the boot CPU is whatever the BIOS says it is.
 
-Thanks,
+> There are cases like machine_shutdown where we care about who
+> the boot cpu is so we can reboot on that cpu.
+
+That's not at all safe:  one of the standard times for CPUs to be
+deconfigured is on boot.  It's really not a good idea to rely on finding
+the same CPU back again to boot on.
+
+> As far as I know 
+> the kernel has not abstraction to describe the boot cpu
+> except for giving it logical cpu id 0.  Has an abstraction
+> been added that I'm not aware of?
+
+The kernel has never had an abstraction requiring logical CPUs, let
+alone one requiring that the boot CPU be numbered zero.
 
 James
-
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index bf5191f..08af9aa 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -920,22 +920,20 @@ void scsi_io_completion(struct scsi_cmnd
- 	 * Next deal with any sectors which we were able to correctly
- 	 * handle.
- 	 */
--	if (good_bytes > 0) {
--		SCSI_LOG_HLCOMPLETE(1, printk("%ld sectors total, "
--					      "%d bytes done.\n",
--					      req->nr_sectors, good_bytes));
--		SCSI_LOG_HLCOMPLETE(1, printk("use_sg is %d\n", cmd->use_sg));
--
--		if (clear_errors)
--			req->errors = 0;
--
--		/* A number of bytes were successfully read.  If there
--		 * is leftovers and there is some kind of error
--		 * (result != 0), retry the rest.
--		 */
--		if (scsi_end_request(cmd, 1, good_bytes, !!result) == NULL)
--			return;
--	}
-+	SCSI_LOG_HLCOMPLETE(1, printk("%ld sectors total, "
-+				      "%d bytes done.\n",
-+				      req->nr_sectors, good_bytes));
-+	SCSI_LOG_HLCOMPLETE(1, printk("use_sg is %d\n", cmd->use_sg));
-+
-+	if (clear_errors)
-+		req->errors = 0;
-+
-+	/* A number of bytes were successfully read.  If there
-+	 * are leftovers and there is some kind of error
-+	 * (result != 0), retry the rest.
-+	 */
-+	if (scsi_end_request(cmd, 1, good_bytes, result == 0) == NULL)
-+		return;
- 
- 	/* good_bytes = 0, or (inclusive) there were leftovers and
- 	 * result = 0, so scsi_end_request couldn't retry.
 
 

@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWGBT40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWGBUPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWGBT40 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 15:56:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWGBT4Y
+	id S1750707AbWGBUPw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 16:15:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWGBUPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 15:56:24 -0400
-Received: from mail.gmx.de ([213.165.64.21]:26085 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750700AbWGBT4W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 15:56:22 -0400
-X-Authenticated: #5082238
-From: "Carsten Otto" <c-otto@gmx.de>
-Date: Sun, 2 Jul 2006 21:56:19 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: Huge problem with XFS/iCH7R
-Message-ID: <20060702195619.GB4098@localhost.halifax.rwth-aachen.de>
-Reply-To: c-otto@gmx.de
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060702195145.GA4098@localhost.halifax.rwth-aachen.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
+	Sun, 2 Jul 2006 16:15:52 -0400
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:13445 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750707AbWGBUPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 16:15:52 -0400
+Date: Sun, 2 Jul 2006 16:10:55 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH] i386: clean up user_mode() use
+To: Ingo Molnar <mingo@elte.hu>
+Cc: pageexec <pageexec@freemail.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200607021612_MC3-1-C3FD-CC89@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060702195145.GA4098@localhost.halifax.rwth-aachen.de>
-X-GnuGP-Key: http://c-otto.de/pubkey.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In-Reply-To: <20060702133718.GA27549@elte.hu>
 
---eAbsdosE1cNLO4uF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sun, 2 Jul 2006 15:37:18 +0200, Ingo Molnar wrote:
 
-On Sun, Jul 02, 2006 at 09:51:45PM +0200, Carsten Otto wrote:
-> If I do a soft reset (using Magic Key u, then b) the BIOS does not detect
-> exactly one drive (which is the one shown in the error message I guess).
-> After a hard reset all drives are found, but I have to do a raid resync a=
-nd
-> xfs_repair (at least, sometimes the raid needs to be tricked into startin=
-g).
+> > to avoid such mistakes in the future, the suggested solution is to 
+> > make user_mode() on i386 consistent with the generic expectation and 
+> > make it detect any user mode execution context, that is, it should 
+> > take the role of user_mode_vm() and a new user_mode_novm() is 
+> > introduced for the i386 specific cases where v86 mode can be excluded. 
+> > in short, the patch simply does a
+> > 
+> >   user_mode_vm -> user_mode
+> >   user_mode    -> user_mode_novm
+> > 
+> > substitution as appropriate.
+> > 
+> > Signed-off-by: PaX Team <pageexec@freemail.hu>
+> 
+> agreed!
+> 
+> Acked-by: Ingo Molnar <mingo@elte.hu>
 
-I forgot to add:
-Even after a xfs_repair sometimes another directly following run of
-xfs_check or xfs_repair finds errors.
-Currently I have problems deleting files from lost+found:
-rm: cannot remove directory `lost+found//2171932973': Directory not
-empty
-I ran xfs_check only a few hours ago and it did not show any output
-(which is good).
---=20
-Carsten Otto
-c-otto@gmx.de
-www.c-otto.de
+Please make that second one
 
---eAbsdosE1cNLO4uF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+        user_mode_novm86
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+Otherwise people might think it means "user mode no virtual memory."
 
-iD8DBQFEqCTjjUF4jpCSQBQRAr9MAJ9NDXea4YGKUyxGK9kjyKal0apP9wCgk2Ph
-r9LtYTGXTAMjjhr+/p3PGho=
-=vOwY
------END PGP SIGNATURE-----
-
---eAbsdosE1cNLO4uF--
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

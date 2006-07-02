@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWGBUrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWGBVIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWGBUrU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 16:47:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWGBUrU
+	id S1750783AbWGBVIM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 17:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWGBVIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 16:47:20 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:52617 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1750759AbWGBUrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 16:47:19 -0400
-To: Andy Gay <andy@andynet.net>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, Ken Brush <kbrush@gmail.com>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO transfers
-X-Message-Flag: Warning: May contain useful information
-References: <1151646482.3285.410.camel@tahini.andynet.net>
-	<adad5cnderb.fsf@cisco.com>
-	<1151872141.3285.486.camel@tahini.andynet.net>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sun, 02 Jul 2006 13:47:13 -0700
-In-Reply-To: <1151872141.3285.486.camel@tahini.andynet.net> (Andy Gay's message of "Sun, 02 Jul 2006 16:29:01 -0400")
-Message-ID: <adazmfrbupa.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Sun, 2 Jul 2006 17:08:12 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:34709 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750783AbWGBVIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 17:08:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DQlv/0OL2OAPKNedr3Gx7u6nAYNcsHAZ4eYyGLvdu0E10bvBcwFWUVOi8mRow0SHbG+Zq0CxMwkFwQkksXfbd2++6zpHVb2U0uA69A2bUTFEE319gJsRxsUmnupAGDRMiuqf4jnmGYKiSLV5JUHig1mXni59VXOeZUJNUjkO4vQ=
+Message-ID: <20f65d530607021408w3d95853l1f74f2d2dbcd5486@mail.gmail.com>
+Date: Mon, 3 Jul 2006 09:08:10 +1200
+From: "Keith Chew" <keith.chew@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: rwlock bad magic, spinlock recursion, spinlock lockup on CPU#0 &
+In-Reply-To: <20f65d530606302250q79c485b9y8dfc4d032e4dc091@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 02 Jul 2006 20:47:17.0794 (UTC) FILETIME=[B4E4E020:01C69E18]
-Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20f65d530606302250q79c485b9y8dfc4d032e4dc091@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > I don't know which of these devices present multiple EPs though. Can you
- > send me the appropriate section from 'cat /proc/bus/usb/devices'?
+>
+> Previously, we were constantly getting hard freezes on kernel
+> 2.6.14.2. After upgrading to 2.6.16.18, things were very stable (no
+> crashes for days instead of hours). But today we managed to catch a
+> hard freeze via serial console. Can anone help us track this one
+> please?
+>
 
-Sure, no problem:
+It turns out that the RAM socket is not in contact with the RAM
+securely (poorly designed hardware), we reinserted the RAM, and are
+not experiencing freezes anymore.
 
-T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=0c88 ProdID=17da Rev= 0.00
-S:  Manufacturer=Qualcomm, Incorporated
-S:  Product=Qualcomm CDMA Technologies MSM
-C:* #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=airprime
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=128ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:  If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=airprime
-E:  Ad=84(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+Regards
+Keith

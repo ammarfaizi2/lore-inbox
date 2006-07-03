@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWGCT4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWGCUAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbWGCT4F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 15:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWGCT4F
+	id S1751271AbWGCUAM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 16:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWGCUAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 15:56:05 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:55564 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751268AbWGCT4E
+	Mon, 3 Jul 2006 16:00:12 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:33703 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751271AbWGCUAK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 15:56:04 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-mm6
-Date: Mon, 3 Jul 2006 20:56:28 +0100
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060703030355.420c7155.akpm@osdl.org> <200607032027.21879.s0348365@sms.ed.ac.uk> <20060703123920.ff1a497a.akpm@osdl.org>
-In-Reply-To: <20060703123920.ff1a497a.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 3 Jul 2006 16:00:10 -0400
+Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
+From: john stultz <johnstul@us.ibm.com>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Valdis.Kletnieks@vt.edu,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1151891783.5922.4.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
+	 <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.64.0606271212150.17704@scrub.home>
+	 <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.64.0606271903320.12900@scrub.home>
+	 <Pine.LNX.4.64.0606271919450.17704@scrub.home>
+	 <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu>
+	 <1151453231.24656.49.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0606281218130.12900@scrub.home>
+	 <Pine.LNX.4.64.0606281335380.17704@scrub.home>
+	 <200606292307.k5TN7MGD011615@turing-police.cc.vt.edu>
+	 <1151695569.5375.22.camel@localhost.localdomain>
+	 <200606302104.k5UL41vs004400@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.64.0607030256581.17704@scrub.home>
+	 <1151891783.5922.4.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Content-Type: text/plain
+Date: Mon, 03 Jul 2006 12:59:43 -0700
+Message-Id: <1151956783.5325.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607032056.28556.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 July 2006 20:39, Andrew Morton wrote:
-> On Mon, 3 Jul 2006 20:27:21 +0100
->
-> Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > On Monday 03 July 2006 11:03, Andrew Morton wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.
-> > >6.17 -mm6/
-> >
-> > Doesn't boot reliably as an x86-64 kernel on my X2 system, 3/4 times it
-> > oopses horribly. Is there some way to supress an oops flood so I can get
-> > a decent picture of it with vga=extended? Right now I get two useless
-> > oopses after the first (probably useful) one.
->
-> Try adding `pause_on_oops=100000' to the kernel boot command line.
+On Sun, 2006-07-02 at 18:56 -0700, Daniel Walker wrote:
+> On Mon, 2006-07-03 at 03:13 +0200, Roman Zippel wrote:
+> I was reviewing these new ntp adjustment functions, and it seems like it
+> would be a lot easier to just switch to a better clocksource. These new
+> functions seems to compensate for a clock that has a high rating but is
+> actually quite poor..
 
-(Trimmed Nathan)
+Not quite. The issue is that the adjustment that the ntpd makes is quite
+fine grained, and some clocksources while quite stable, might not be
+able to make such a fine adjustment. So the extra error accounting just
+allows us to keep track and compensate for the resolution differences.
 
-Helped somewhat, but I'm still missing a bit at the top.
+Does that make sense?
 
-http://devzero.co.uk/~alistair/oops-20060703/
+thanks
+-john
 
-Apologies for the poor quality photos.
 
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

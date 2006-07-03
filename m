@@ -1,64 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWGCCdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWGCCkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750887AbWGCCdo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 22:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWGCCdo
+	id S1750726AbWGCCkT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 22:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWGCCkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 22:33:44 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:18212 "EHLO
-	asav08.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S1750791AbWGCCdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 22:33:43 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Aa4HAMUdqESBSg
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Subject: Re: [RFC] Apple Motion Sensor driver
-Date: Sun, 2 Jul 2006 22:33:41 -0400
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
-       khali@linux-fr.org, linux-kernel@killerfox.forkbomb.ch,
-       benh@kernel.crashing.org, johannes@sipsolutions.net, stelian@popies.net,
-       chainsaw@gentoo.org
-References: <20060702222649.GA13411@hansmi.ch>
-In-Reply-To: <20060702222649.GA13411@hansmi.ch>
+	Sun, 2 Jul 2006 22:40:18 -0400
+Received: from mga02.intel.com ([134.134.136.20]:53900 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750726AbWGCCkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jul 2006 22:40:17 -0400
+X-IronPort-AV: i="4.06,199,1149490800"; 
+   d="scan'208"; a="59763298:sNHT627133822"
+Message-ID: <44A882D3.9000208@intel.com>
+Date: Mon, 03 Jul 2006 02:37:07 +0000
+From: "bibo, mao" <bibo.mao@intel.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
+       Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       Jim Keniston <jkenisto@us.ibm.com>,
+       SystemTAP <systemtap@sources.redhat.com>, bibo.mao@intel.com
+Subject: [PATCH] IA64 kprobe invalidate icache of jump buffer
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607022233.42055.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Michael,
+Hi,
 
-On Sunday 02 July 2006 18:26, Michael Hanselmann wrote:
-> 
-> +
-> +	if (x)
-> +		*x = tmpx;
-> +	if (y)
-> +		*y = tmpy;
-> +	if (z)
-> +		*z = tmpz;
+   Kprobe inserts breakpoint instruction in probepoint and then jumps
+to instruction slot when breakpoint is hit, the instruction slot icache
+must be consistent with dcache. Here is the patch which invalidates
+instruction slot icache area.
+   Without this patch, in some machines there will be fault when executing
+instruction slot where icache content is inconsistent with dcache.This patch
+is based on 2.6.17 version.	
 
+Signed-off-by: bibo,mao <bibo.mao@intel.com>
 
-All callers of ams_sensors use all 3 arguments, why bother with temps?
+thanks
+bibo,mao          
 
-> +
-> +	ams.idev->name = "Apple Motion Sensor";
-> +	ams.idev->id.bustype = BUS_I2C;
+ arch/ia64/kernel/kprobes.c    |    9 +++++++++
+ include/asm-i386/kprobes.h    |    1 +
+ include/asm-ia64/kprobes.h    |    1 +
+ include/asm-powerpc/kprobes.h |    1 +
+ include/asm-sparc64/kprobes.h |    1 +
+ include/asm-x86_64/kprobes.h  |    1 +
+ kernel/kprobes.c              |    1 +
+ 7 files changed, 15 insertions(+)
 
-Should it be always BUS_I2C? Maybe it should be BUS_HOST in case of PMU?
-
-> +	ams.idev->id.vendor = 0;
-
-Please add:
-
-	ams.idev->cdev.dev = &ams.of_dev->dev;
-
-so that the input device has a proper parent in sysfs hierarchy.
-
--- 
-Dmitry
+----------------------------------------------------------------------------
+diff -Nruap 2.6.17.org/arch/ia64/kernel/kprobes.c 2.6.17/arch/ia64/kernel/kprobes.c
+--- 2.6.17.org/arch/ia64/kernel/kprobes.c	2006-06-29 03:50:15.000000000 +0800
++++ 2.6.17/arch/ia64/kernel/kprobes.c	2006-07-03 02:43:16.000000000 +0800
+@@ -449,11 +449,20 @@ int __kprobes arch_prepare_kprobe(struct
+ 	return 0;
+ }
+ 
++void __kprobes flush_insn_slot(struct kprobe *p)
++{
++	unsigned long arm_addr;
++
++	arm_addr = ((unsigned long)&p->opcode.bundle) & ~0xFULL;
++	flush_icache_range(arm_addr, arm_addr + sizeof(bundle_t));
++}
++
+ void __kprobes arch_arm_kprobe(struct kprobe *p)
+ {
+ 	unsigned long addr = (unsigned long)p->addr;
+ 	unsigned long arm_addr = addr & ~0xFULL;
+ 
++	flush_insn_slot(p);
+ 	memcpy((char *)arm_addr, &p->ainsn.insn.bundle, sizeof(bundle_t));
+ 	flush_icache_range(arm_addr, arm_addr + sizeof(bundle_t));
+ }
+diff -Nruap 2.6.17.org/include/asm-i386/kprobes.h 2.6.17/include/asm-i386/kprobes.h
+--- 2.6.17.org/include/asm-i386/kprobes.h	2006-06-29 03:50:18.000000000 +0800
++++ 2.6.17/include/asm-i386/kprobes.h	2006-06-30 02:32:17.000000000 +0800
+@@ -44,6 +44,7 @@ typedef u8 kprobe_opcode_t;
+ 
+ #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)pentry
+ #define ARCH_SUPPORTS_KRETPROBES
++#define flush_insn_slot(p)	do { } while (0)
+ 
+ void arch_remove_kprobe(struct kprobe *p);
+ void kretprobe_trampoline(void);
+diff -Nruap 2.6.17.org/include/asm-ia64/kprobes.h 2.6.17/include/asm-ia64/kprobes.h
+--- 2.6.17.org/include/asm-ia64/kprobes.h	2006-03-27 14:41:22.000000000 +0800
++++ 2.6.17/include/asm-ia64/kprobes.h	2006-06-30 02:33:04.000000000 +0800
+@@ -124,5 +124,6 @@ static inline void jprobe_return(void)
+ }
+ extern void invalidate_stacked_regs(void);
+ extern void flush_register_stack(void);
++extern void flush_insn_slot(struct kprobe *p);
+ 
+ #endif				/* _ASM_KPROBES_H */
+diff -Nruap 2.6.17.org/include/asm-powerpc/kprobes.h 2.6.17/include/asm-powerpc/kprobes.h
+--- 2.6.17.org/include/asm-powerpc/kprobes.h	2006-03-27 14:41:22.000000000 +0800
++++ 2.6.17/include/asm-powerpc/kprobes.h	2006-06-30 02:32:34.000000000 +0800
+@@ -50,6 +50,7 @@ typedef unsigned int kprobe_opcode_t;
+ 			IS_TWI(instr) || IS_TDI(instr))
+ 
+ #define ARCH_SUPPORTS_KRETPROBES
++#define flush_insn_slot(p)	do { } while (0)
+ void kretprobe_trampoline(void);
+ extern void arch_remove_kprobe(struct kprobe *p);
+ 
+diff -Nruap 2.6.17.org/include/asm-sparc64/kprobes.h 2.6.17/include/asm-sparc64/kprobes.h
+--- 2.6.17.org/include/asm-sparc64/kprobes.h	2006-03-27 14:41:23.000000000 +0800
++++ 2.6.17/include/asm-sparc64/kprobes.h	2006-06-30 02:32:50.000000000 +0800
+@@ -13,6 +13,7 @@ typedef u32 kprobe_opcode_t;
+ 
+ #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)pentry
+ #define arch_remove_kprobe(p)	do {} while (0)
++#define flush_insn_slot(p)	do { } while (0)
+ 
+ /* Architecture specific copy of original instruction*/
+ struct arch_specific_insn {
+diff -Nruap 2.6.17.org/include/asm-x86_64/kprobes.h 2.6.17/include/asm-x86_64/kprobes.h
+--- 2.6.17.org/include/asm-x86_64/kprobes.h	2006-03-27 14:41:23.000000000 +0800
++++ 2.6.17/include/asm-x86_64/kprobes.h	2006-06-30 02:32:05.000000000 +0800
+@@ -43,6 +43,7 @@ typedef u8 kprobe_opcode_t;
+ 
+ #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)pentry
+ #define ARCH_SUPPORTS_KRETPROBES
++#define flush_insn_slot(p)	do { } while (0)
+ 
+ void kretprobe_trampoline(void);
+ extern void arch_remove_kprobe(struct kprobe *p);
+diff -Nruap 2.6.17.org/kernel/kprobes.c 2.6.17/kernel/kprobes.c
+--- 2.6.17.org/kernel/kprobes.c	2006-06-29 03:50:19.000000000 +0800
++++ 2.6.17/kernel/kprobes.c	2006-07-03 02:42:37.000000000 +0800
+@@ -388,6 +388,7 @@ static int __kprobes add_new_kprobe(stru
+ static inline void add_aggr_kprobe(struct kprobe *ap, struct kprobe *p)
+ {
+ 	copy_kprobe(p, ap);
++	flush_insn_slot(ap);
+ 	ap->addr = p->addr;
+ 	ap->pre_handler = aggr_pre_handler;
+ 	ap->post_handler = aggr_post_handler;

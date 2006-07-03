@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWGCWw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWGCWxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWGCWw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 18:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWGCWw4
+	id S932174AbWGCWxH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 18:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWGCWxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 18:52:56 -0400
-Received: from mail.tmr.com ([64.65.253.246]:4519 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S932164AbWGCWwz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 18:52:55 -0400
-Message-ID: <44A9A196.1010602@tmr.com>
-Date: Mon, 03 Jul 2006 19:00:38 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Mon, 3 Jul 2006 18:53:07 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:12467 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932174AbWGCWxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 18:53:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=b2O2OOunVfdAcct+M5VGL0UUYI0NA1dIx1z6gPqEpgcVGHNeB4iZpXhPeeXViyxeWzONkHikX+2EaRHNjNvyd/bS/DISw02XzTXKa27NVJr3KV/0hiQ4wny5a0i08dv9ZEV0rvxrfNTCerTLImlh3fOB3awA3+kISR6/yGxxLbA=
+Message-ID: <44A99FE5.6020806@gmail.com>
+Date: Tue, 04 Jul 2006 00:53:02 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>            <44A98D5A.5030508@tmr.com> <200607032150.k63LoM4H027543@turing-police.cc.vt.edu>
-In-Reply-To: <200607032150.k63LoM4H027543@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@suse.cz>,
+       linux-pm@osdl.org
+Subject: Re: swsusp regression
+References: <44A99DFB.50106@gmail.com>
+In-Reply-To: <44A99DFB.50106@gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
+Jiri Slaby napsal(a):
+> Hello,
+> 
+> when suspending machine with hyperthreading, only Freezing cpus appears and then
 
->On Mon, 03 Jul 2006 17:34:18 EDT, Bill Davidsen said:
->  
->
->>I think he is talking about another problem. RAID addresses detectable
->>failures at the hardware level. I believe that he wants validation after
->>the data is returned (without error) from the device. While in most
->>cases if what you wrote and what you read don't match it's memory,
->>improving the chances of catching the error is useful, given that
->>non-server often lacks ECC on memory, or people buy cheaper non-parity
->>memory.
->>    
->>
->
->There's other issues as well.  Why do people run 'tripwire' on boxes that
->have RAID on them?
->  
->
-What has RAID got to do with detecting hacking?
+Note: suspending to disk; done by:
+echo reboot > /sys/power/disk
+echo disk > /sys/power/state
 
+> it loops somewhere. I tried to catch some more info by pressing sysrq-p. Here
+> are some captures:
+> http://www.fi.muni.cz/~xslaby/sklad/03072006074.gif
+> http://www.fi.muni.cz/~xslaby/sklad/03072006075.gif
+
+One more from some previous kernels (cutted sysrq-t):
+http://www.fi.muni.cz/~xslaby/sklad/22062006046.jpg
+
+regards,
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
-
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

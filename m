@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWGCJCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWGCJDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbWGCJCP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 05:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWGCJCP
+	id S1750990AbWGCJDx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 05:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWGCJDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 05:02:15 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:34319 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S1750940AbWGCJCO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 05:02:14 -0400
-Subject: Re: [RFC] Apple Motion Sensor driver
-From: Stelian Pop <stelian@popies.net>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org, khali@linux-fr.org,
-       linux-kernel@killerfox.forkbomb.ch, benh@kernel.crashing.org,
-       johannes@sipsolutions.net, chainsaw@gentoo.org
-In-Reply-To: <20060703065628.GA21113@hansmi.ch>
-References: <20060702222649.GA13411@hansmi.ch>
-	 <20060702201415.791c6eb2.akpm@osdl.org>  <20060703065628.GA21113@hansmi.ch>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Mon, 03 Jul 2006 11:02:11 +0200
-Message-Id: <1151917331.10711.8.camel@localhost.localdomain>
+	Mon, 3 Jul 2006 05:03:52 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27918 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750778AbWGCJDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 05:03:52 -0400
+Date: Mon, 3 Jul 2006 10:03:43 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, torvalds@osdl.org, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] genirq: ARM dyntick cleanup
+Message-ID: <20060703090343.GA31274@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
+	torvalds@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
+References: <1151885928.24611.24.camel@localhost.localdomain> <20060702173527.cbdbf0e1.akpm@osdl.org> <20060703074155.GA28235@flint.arm.linux.org.uk> <20060703005542.62df5673.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060703005542.62df5673.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le lundi 03 juillet 2006 à 08:56 +0200, Michael Hanselmann a écrit :
-> Hello Andrew
+On Mon, Jul 03, 2006 at 12:55:42AM -0700, Andrew Morton wrote:
+> On Mon, 3 Jul 2006 08:41:55 +0100
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 > 
-> On Sun, Jul 02, 2006 at 08:14:15PM -0700, Andrew Morton wrote:
-> > On Mon, 3 Jul 2006 00:26:49 +0200
-> > Michael Hanselmann <linux-kernel@hansmi.ch> wrote:
+> > On Sun, Jul 02, 2006 at 05:35:27PM -0700, Andrew Morton wrote:
+> > > This is not exactly a thing of beauty either.  It's much cleaner to use
+> > > __attribute__((weak)), but that will add an empty call-return to everyone's
+> > > interrupts.
+> > 
+> > Let's not go overboard with the weak stuff - it does not get removed
+> > at link time, so it remains as dead code in the kernel image.
 > 
-> > > Below you find the latest revision of my AMS driver.
+> Well.
 > 
-> > I was about to merge the below, then this comes along.  Now what?
+> void handle_dynamic_tick(struct irqaction *action)
+> {
+> }
 > 
-> > From: Stelian Pop <stelian@popies.net>
-> 
-> > This driver provides support for the Apple Motion Sensor (ams), which
-> > provides an accelerometer and other misc.  data.  Some Apple PowerBooks
-> 
-> I just noticed yesterday that Stelian sent a patch to lkml in May. My
-> work is based on his separate driver from his website.
-> 
-> Given the fact that my driver includes all of his functionality and that
-> replacing his with mine later in the process would mean to remove whole
-> files again, I'd suggest to wait until I've fixed the outstanding issues
-> (as seen in this thread) and then to merge mine.
+> consumes one byte, doesn't it?  That's not very far overboard ;)
 
-I have no problems with this approach. I'll take a look at your patch
-ASAP.
+ROTFL!
 
-Stelian.
+All the word isn't x86.  On ARM it's 3 words for the stack setup and
+one for the tear down, so 16 bytes, assuming the function doesn't
+return a value.  If it does, add another 4 bytes.
+
+So, on ARM potentially 16 to 20 bytes per weak function.  That's a
+1600% to 2000% increase on your estimate.
+
+(Unfortunately we have to tell the compiler to always generate stack
+frames otherwise we can't get call traces out of the kernel.)
+
 -- 
-Stelian Pop <stelian@popies.net>
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

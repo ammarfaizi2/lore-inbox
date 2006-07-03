@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWGCWJO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWGCWK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbWGCWJO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 18:09:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWGCWJN
+	id S1750741AbWGCWK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 18:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWGCWK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 18:09:13 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:54765 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932142AbWGCWJM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 18:09:12 -0400
-Subject: Re: 2.6.17-mm5 + pcmcia/hostap/8139too patches -- inconsistent
-	{hardirq-on-W} -> {in-hardirq-W} usage
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Miles Lane <miles.lane@gmail.com>, mingo@elte.hu,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1151963034.3108.59.camel@laptopd505.fenrus.org>
-References: <a44ae5cd0607031431q8dcc698j1c447b1d51c7cc75@mail.gmail.com>
-	 <1151963034.3108.59.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Jul 2006 23:25:57 +0100
-Message-Id: <1151965557.16528.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 3 Jul 2006 18:10:58 -0400
+Received: from viefep14-int.chello.at ([213.46.255.14]:7462 "EHLO
+	viefep14-int.chello.at") by vger.kernel.org with ESMTP
+	id S1750741AbWGCWK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 18:10:58 -0400
+Date: Tue, 4 Jul 2006 00:11:17 +0200
+From: Hungerburg <lklm@lazy.shacknet.nu>
+To: linux-kernel@vger.kernel.org
+Subject: thank you, xfs team
+Message-ID: <20060703221117.GA27898@lazy.shacknet.nu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-07-03 am 23:43 +0200, ysgrifennodd Arjan van de Ven:
-> The ne2000 drivers use disable_irq as a poor mans locking construct;
-> make sure lockdep knows about these.
+hello there,
 
-Actually they use it as a locking construct because the kernel lacks the
-constructs it needs (or did when the work was done). We don't have a 
+I hope this is not the wrong place, yet I have to write this now, before
+I forget about it:
 
-spin_lock_disable_irq(lock, n)
+I had to swap a dying harddrive. after receiving many mails from the
+smart daemon, recent kernel patches to xfs made me aware of the full
+extent of the problem.
 
-construct which some other OS's do. There are also good reasons for not
-having one given so few drivers realy need it.
+keywords:
+- XFS internal error XFS_WANT_CORRUPTED_RETURN
+- Device: /dev/hda, 1 Currently unreadable (pending) sectors
+- Device: /dev/hda, 1 Offline uncorrectable sectors
 
-The underlying problem is that the NE2K chips are slow, especially some
-of the ones nailed to PCI with FPGA glue. So slow that worst case taking
-a spinlock and uploading a packet drops characters at 9600 baud serial.
+the tools to copy what is still there (data) are a boon - they require
+some reading, but the thing is doable (xfs_copy to good disk, then
+xfs_dump from there)
 
-The driver disables the on chip IRQ, which for 99.9% of cases then
-ensures we don't get further interrupts, then takes the lock. An IRQ
-running in parallel on another CPU also holds the lock so that much is
-fine.
- 
-However: the people at Intel designed the original APIC bus to be
-somewhat slow, asynchronous and also without a guaranteed "one message
-send, one message receive" sematic of any kind.
+yours
 
-That means we have a corner case where we also have to
-disable_irq_nosync to ensure that an IRQ that left the 8390 but has not
-yet arrived at the processor doesn't race with us and lock up the box.
-PCI posting is not the issue here, the IRQ bus is itself even more async
-than that.
+Hungerburg
 
-Doing that work means our tx path doesn't totally trash the machine in
-these cases.
-
-Alan
+-- 
+||| | | | | |  |  |  |   http://arton.cunst.net/   |  |  |  | | | | | |||
 

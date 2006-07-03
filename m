@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWGCVtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWGCVu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750996AbWGCVtj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 17:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWGCVtj
+	id S1751007AbWGCVu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 17:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWGCVu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 17:49:39 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:26640 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1750996AbWGCVti
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 17:49:38 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-mm6
-Date: Mon, 3 Jul 2006 22:50:02 +0100
-User-Agent: KMail/1.9.3
+	Mon, 3 Jul 2006 17:50:29 -0400
+Received: from pool-71-254-76-103.ronkva.east.verizon.net ([71.254.76.103]:59076
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751004AbWGCVu2 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 17:50:28 -0400
+Message-Id: <200607032150.k63LoM4H027543@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Bill Davidsen <davidsen@tmr.com>
 Cc: linux-kernel@vger.kernel.org
-References: <20060703030355.420c7155.akpm@osdl.org> <200607032136.55259.s0348365@sms.ed.ac.uk> <20060703135419.7c58f318.akpm@osdl.org>
-In-Reply-To: <20060703135419.7c58f318.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: ext4 features
+In-Reply-To: Your message of "Mon, 03 Jul 2006 17:34:18 EDT."
+             <44A98D5A.5030508@tmr.com>
+From: Valdis.Kletnieks@vt.edu
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
+            <44A98D5A.5030508@tmr.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1151963422_4949P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607032250.02054.s0348365@sms.ed.ac.uk>
+Date: Mon, 03 Jul 2006 17:50:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 July 2006 21:54, Andrew Morton wrote:
-> On Mon, 3 Jul 2006 21:36:55 +0100
-> Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > On Monday 03 July 2006 21:17, Andrew Morton wrote:
-> > > On Mon, 3 Jul 2006 20:56:28 +0100
-> > > Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > > > On Monday 03 July 2006 20:39, Andrew Morton wrote:
-[snip]
-> > > > > Try adding `pause_on_oops=100000' to the kernel boot command line.
-> > > >
-> > > > (Trimmed Nathan)
-> > > >
-> > > > Helped somewhat, but I'm still missing a bit at the top.
-> > > >
-> > > > http://devzero.co.uk/~alistair/oops-20060703/
-> > >
-> > > That is irritating.  This should get us more info:
-> >
-> > Indeed, thanks.
-> >
-> > Try the same URL again, I've uploaded 3,4,5 from a couple of reboots. I
-> > still think I'm missing something at the top, but 3 is the earliest I
-> > could snap.
->
-> Getting better.
->
-> It would kinda help if pause_on_oops() was actually implemented on x86_64..
+--==_Exmh_1151963422_4949P
+Content-Type: text/plain; charset=us-ascii
 
-Doesn't help (work?).
+On Mon, 03 Jul 2006 17:34:18 EDT, Bill Davidsen said:
+> I think he is talking about another problem. RAID addresses detectable
+> failures at the hardware level. I believe that he wants validation after
+> the data is returned (without error) from the device. While in most
+> cases if what you wrote and what you read don't match it's memory,
+> improving the chances of catching the error is useful, given that
+> non-server often lacks ECC on memory, or people buy cheaper non-parity
+> memory.
 
-[alistair] 22:47 [~] strings /boot/vmlinuz-2.6.17-mm6 | grep 2.6.17-mm6
-2.6.17-mm6 (alistair@damocles) #3 SMP PREEMPT Mon Jul 3 22:39:54 BST 2006
+There's other issues as well.  Why do people run 'tripwire' on boxes that
+have RAID on them?
 
-[alistair] 22:48 [~] cat /boot/grub/menu.lst | grep -C1 mm6
-# testing
-title Linux 2.6.17-mm6
-root (hd0,0)
-kernel /boot/vmlinuz-2.6.17-mm6 vga=extended root=/dev/sda1 
-pause_on_oops=100000
+--==_Exmh_1151963422_4949P
+Content-Type: application/pgp-signature
 
-I'm fairly sure I booted a kernel with your patch and that should be the right 
-cmdline flag.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
--- 
-Cheers,
-Alistair.
+iD8DBQFEqZEecC3lWbTT17ARAg9WAJ9V8gw6TlmVOPgyT6cTMxxdRMe8ygCggwQb
+xVOAxw2a03p3lCEambW5e5E=
+=uQbH
+-----END PGP SIGNATURE-----
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+--==_Exmh_1151963422_4949P--

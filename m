@@ -1,55 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWGCMUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWGCM1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWGCMUq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 08:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWGCMUq
+	id S1750754AbWGCM1V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 08:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWGCM1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 08:20:46 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:61108 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750706AbWGCMUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 08:20:45 -0400
-Message-ID: <44A90B9A.5080805@de.ibm.com>
-Date: Mon, 03 Jul 2006 14:20:42 +0200
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Mon, 3 Jul 2006 08:27:21 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:21833 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750754AbWGCM1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 08:27:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=e3gCLz2w/jh8QP0X8QhGw5+/cnWQsBDE4dHKaj6QhSemFma9IHMKw7UNHq39CCDUKCpnElgnKoVpgVUifrdLk7k0OH+F2y9QpYiHq+ez0pRZLO0BJMAI+claFsKQ6/rwxyM7Tfc7hWBsU+WEKhRgUmpLUCJGXonso9zO254B49w=
+Message-ID: <44A90D2A.6060004@gmail.com>
+Date: Mon, 03 Jul 2006 14:27:22 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: viro@zeniv.linux.org.uk, Jens Axboe <axboe@suse.de>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH/RFC] partitions: let partitions inherit policy from disk
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, tigran@veritas.com,
+       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
+Subject: Re: 2.6.17-mm6
+References: <20060703030355.420c7155.akpm@osdl.org>	<6bffcb0e0607030350l497fdeb9ucb924e883fdad29@mail.gmail.com> <20060703035644.eccdd078.akpm@osdl.org> <44A9013C.6070902@gmail.com>
+In-Reply-To: <44A9013C.6070902@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to suggest to change the partition code in
-fs/partitions/check.c to initialize a newly detected partition's policy
-field with that of the containing block device (see patch below).
+> Andrew Morton wrote:
+>> On Mon, 3 Jul 2006 12:50:26 +0200
+>> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+>>
+>>> Hi,
+>>>
+>>> On 03/07/06, Andrew Morton <akpm@osdl.org> wrote:
+>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
+>>>>
+>>> Something is missing in drivers/base/firmware_class.c?
+>>>
+>>> WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
+>>> needs unknown symbol release_firmware
+>>> WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
+>>> needs unknown symbol request_firmware
+>>> WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
+>>> needs unknown symbol release_firmware
+>>> WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
+>>> needs unknown symbol request_firmware
+>>>
+>> Presumably you'll need CONFIG_FW_LOADER?
+>>
+> 
+> Yes, thanks. How about this patch?
+> 
 
-My reasoning is that function set_disk_ro() in block/genhd.c
-modifies the policy field (read-only indicator) of a disk and all
-contained partitions. When a partition is detected after the call to
-set_disk_ro(), the policy field of this partition will currently not
-inherit the disk's policy field. This behavior poses a problem in cases
-where a block device can be 'logically de- and reactivated' like e.g.
-the s390 DASD driver because partition detection may run after the
-policy field has been modified.
+Here is an updated version of this patch.
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Regards,
+Michal
 
-Initialize the policy field of partitions with that of the containing
-block device.
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)
 
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
----
-diff -Naurp linux-2.6.17/fs/partitions/check.c linux-2.6.17b/fs/partitions/check.c
---- linux-2.6.17/fs/partitions/check.c	2006-06-18 03:49:35.000000000 +0200
-+++ linux-2.6.17b/fs/partitions/check.c	2006-07-03 12:49:13.000000000 +0200
-@@ -348,6 +348,7 @@ void add_partition(struct gendisk *disk,
- 	p->start_sect = start;-
- 	p->nr_sects = len;
- 	p->partno = part;
-+	p->policy = disk->policy;
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
- 	devfs_mk_bdev(MKDEV(disk->major, disk->first_minor + part),
- 			S_IFBLK|S_IRUSR|S_IWUSR,
+diff -uprN -X linux-mm/Documentation/dontdiff linux-mm-clean/arch/i386/Kconfig linux-mm/arch/i386/Kconfig
+--- linux-mm-clean/arch/i386/Kconfig	2006-07-03 12:35:16.000000000 +0200
++++ linux-mm/arch/i386/Kconfig	2006-07-03 14:07:15.000000000 +0200
+@@ -399,9 +399,9 @@ config X86_REBOOTFIXUPS
+
+ config MICROCODE
+ 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
++	depends on FW_LOADER
+ 	---help---
+-	  If you say Y here and also to "/dev file system support" in the
+-	  'File systems' section, you will be able to update the microcode on
++	  If you say Y here, you will be able to update the microcode on
+ 	  Intel processors in the IA32 family, e.g. Pentium Pro, Pentium II,
+ 	  Pentium III, Pentium 4, Xeon etc.  You will obviously need the
+ 	  actual microcode binary data itself which is not shipped with the
+

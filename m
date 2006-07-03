@@ -1,114 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWGCAQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWGCASJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWGCAQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 20:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWGCAQ0
+	id S1750752AbWGCASJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 20:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWGCASJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 20:16:26 -0400
-Received: from www.osadl.org ([213.239.205.134]:61368 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1750744AbWGCAQZ (ORCPT
+	Sun, 2 Jul 2006 20:18:09 -0400
+Received: from www.osadl.org ([213.239.205.134]:63160 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1750752AbWGCASH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 20:16:25 -0400
-Subject: [PATCH] genirq: ARM dyntick cleanup
+	Sun, 2 Jul 2006 20:18:07 -0400
+Subject: [PATCH] genirq:fixup missing SA_PERCPU replacement
 From: Thomas Gleixner <tglx@linutronix.de>
 Reply-To: tglx@linutronix.de
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
-Date: Mon, 03 Jul 2006 02:18:48 +0200
-Message-Id: <1151885928.24611.24.camel@localhost.localdomain>
+Date: Mon, 03 Jul 2006 02:20:32 +0200
+Message-Id: <1151886032.24611.28.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus: "The hacks in kernel/irq/handle.c are really horrid. REALLY
-horrid."
-
-They are indeed. Move the dyntick quirks to ARM where they belong.
+The irqflags consolidation converted SA_PERCPU_IRQ to IRQF_PERCPU but
+did not define the new constant.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
-Index: linux-2.6.git/include/asm-arm/hw_irq.h
+Index: linux-2.6.git/include/linux/interrupt.h
 ===================================================================
---- linux-2.6.git.orig/include/asm-arm/hw_irq.h	2006-07-03 00:13:24.000000000 +0200
-+++ linux-2.6.git/include/asm-arm/hw_irq.h	2006-07-03 00:52:04.000000000 +0200
-@@ -6,4 +6,15 @@
+--- linux-2.6.git.orig/include/linux/interrupt.h	2006-07-02 23:38:32.000000000 +0200
++++ linux-2.6.git/include/linux/interrupt.h	2006-07-03 01:57:20.000000000 +0200
+@@ -45,6 +45,7 @@
+ #define IRQF_SHARED		0x00000080
+ #define IRQF_PROBE_SHARED	0x00000100
+ #define IRQF_TIMER		0x00000200
++#define IRQF_PERCPU		0x00000400
  
- #include <asm/mach/irq.h>
- 
-+#if defined(CONFIG_NO_IDLE_HZ)
-+# include <asm/dyntick.h>
-+# define handle_dynamic_tick(action)					\
-+	if (!(action->flags & SA_TIMER) && system_timer->dyn_tick) {	\
-+		write_seqlock(&xtime_lock);				\
-+		if (system_timer->dyn_tick->state & DYN_TICK_ENABLED)	\
-+			system_timer->dyn_tick->handler(irq, 0, regs);	\
-+		write_sequnlock(&xtime_lock);				\
-+	}
-+#endif
-+
- #endif
-Index: linux-2.6.git/include/linux/irq.h
-===================================================================
---- linux-2.6.git.orig/include/linux/irq.h	2006-07-03 00:13:24.000000000 +0200
-+++ linux-2.6.git/include/linux/irq.h	2006-07-03 00:49:01.000000000 +0200
-@@ -182,6 +182,10 @@ extern int setup_irq(unsigned int irq, s
- 
- #ifdef CONFIG_GENERIC_HARDIRQS
- 
-+#ifndef handle_dynamic_tick
-+# define handle_dynamic_tick(a)		do { } while (0)
-+#endif
-+
- #ifdef CONFIG_SMP
- static inline void set_native_irq_info(int irq, cpumask_t mask)
- {
-Index: linux-2.6.git/kernel/irq/handle.c
-===================================================================
---- linux-2.6.git.orig/kernel/irq/handle.c	2006-07-03 00:13:24.000000000 +0200
-+++ linux-2.6.git/kernel/irq/handle.c	2006-07-03 00:47:47.000000000 +0200
-@@ -16,10 +16,6 @@
- #include <linux/interrupt.h>
- #include <linux/kernel_stat.h>
- 
--#if defined(CONFIG_NO_IDLE_HZ) && defined(CONFIG_ARM)
--#include <asm/dyntick.h>
--#endif
--
- #include "internals.h"
- 
- /**
-@@ -133,14 +129,7 @@ irqreturn_t handle_IRQ_event(unsigned in
- 	irqreturn_t ret, retval = IRQ_NONE;
- 	unsigned int status = 0;
- 
--#if defined(CONFIG_NO_IDLE_HZ) && defined(CONFIG_ARM)
--	if (!(action->flags & SA_TIMER) && system_timer->dyn_tick != NULL) {
--		write_seqlock(&xtime_lock);
--		if (system_timer->dyn_tick->state & DYN_TICK_ENABLED)
--			system_timer->dyn_tick->handler(irq, 0, regs);
--		write_sequnlock(&xtime_lock);
--	}
--#endif
-+	handle_dynamic_tick(action);
- 
- 	if (!(action->flags & IRQF_DISABLED))
- 		local_irq_enable();
-Index: linux-2.6.git/include/asm-arm/mach/time.h
-===================================================================
---- linux-2.6.git.orig/include/asm-arm/mach/time.h	2006-06-21 08:32:46.000000000 +0200
-+++ linux-2.6.git/include/asm-arm/mach/time.h	2006-07-03 00:54:07.000000000 +0200
-@@ -69,6 +69,7 @@ extern void timer_tick(struct pt_regs *)
  /*
-  * Kernel time keeping support.
-  */
-+struct timespec;
- extern int (*set_rtc)(void);
- extern void save_time_delta(struct timespec *delta, struct timespec *rtc);
- extern void restore_time_delta(struct timespec *delta, struct timespec *rtc);
+  * Migration helpers. Scheduled for removal in 1/2007
+@@ -54,6 +55,7 @@
+ #define SA_SAMPLE_RANDOM	IRQF_SAMPLE_RANDOM
+ #define SA_SHIRQ		IRQF_SHARED
+ #define SA_PROBEIRQ		IRQF_PROBE_SHARED
++#define SA_PERCPU		IRQF_PERCPU
+ 
+ #define SA_TRIGGER_LOW		IRQF_TRIGGER_LOW
+ #define SA_TRIGGER_HIGH		IRQF_TRIGGER_HIGH
+Index: linux-2.6.git/kernel/irq/manage.c
+===================================================================
+--- linux-2.6.git.orig/kernel/irq/manage.c	2006-07-02 23:38:32.000000000 +0200
++++ linux-2.6.git/kernel/irq/manage.c	2006-07-03 01:58:45.000000000 +0200
+@@ -234,7 +234,7 @@ int setup_irq(unsigned int irq, struct i
+ 		    ((old->flags ^ new->flags) & IRQF_TRIGGER_MASK))
+ 			goto mismatch;
+ 
+-#if defined(CONFIG_IRQ_PER_CPU) && defined(IRQF_PERCPU)
++#if defined(CONFIG_IRQ_PER_CPU)
+ 		/* All handlers must agree on per-cpuness */
+ 		if ((old->flags & IRQF_PERCPU) !=
+ 		    (new->flags & IRQF_PERCPU))
+@@ -250,7 +250,7 @@ int setup_irq(unsigned int irq, struct i
+ 	}
+ 
+ 	*p = new;
+-#if defined(CONFIG_IRQ_PER_CPU) && defined(IRQF_PERCPU)
++#if defined(CONFIG_IRQ_PER_CPU)
+ 	if (new->flags & IRQF_PERCPU)
+ 		desc->status |= IRQ_PER_CPU;
+ #endif
 
 

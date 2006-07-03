@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWGCQJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWGCQT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWGCQJb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 12:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWGCQJb
+	id S932092AbWGCQT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 12:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbWGCQT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 12:09:31 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:47257 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932084AbWGCQJa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 12:09:30 -0400
-Message-ID: <44A9412B.1070602@zytor.com>
-Date: Mon, 03 Jul 2006 09:09:15 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: akpm@osdl.org, ralf@linux-mips.org, erik_frederiksen@pmc-sierra.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] consistently use MAX_ERRNO in __syscall_return
-References: <1151528227.3904.1110.camel@girvin.pmc-sierra.bc.ca>	<20060628140825.692f31be.rdunlap@xenotime.net>	<20060629181013.GA18777@linux-mips.org>	<20060701114409.ed320be0.rdunlap@xenotime.net>	<44A6F5E3.8000300@zytor.com>	<20060702112722.74b5adff.rdunlap@xenotime.net>	<20060703003941.2f5fe722.akpm@osdl.org>	<44A931C1.7060604@zytor.com> <20060703084233.0fc3921a.rdunlap@xenotime.net>
-In-Reply-To: <20060703084233.0fc3921a.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jul 2006 12:19:28 -0400
+Received: from vms042pub.verizon.net ([206.46.252.42]:31121 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932092AbWGCQT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 12:19:27 -0400
+Date: Mon, 03 Jul 2006 12:19:20 -0400
+From: Andy Gay <andy@andynet.net>
+Subject: Re: [linux-usb-devel] [PATCH] Airprime driver improvements to	allow
+ full speed EvDO transfers
+In-reply-to: <ef88c0e00607030843q3cf32c1q40ae8fa8055b025f@mail.gmail.com>
+To: Ken Brush <kbrush@gmail.com>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Message-id: <1151943561.3285.517.camel@tahini.andynet.net>
+MIME-version: 1.0
+X-Mailer: Evolution 2.4.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1151646482.3285.410.camel@tahini.andynet.net>
+	<ef88c0e00607030843q3cf32c1q40ae8fa8055b025f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
->>>>  
->>>>  #define NR_syscalls 318
->>>> +#include <linux/err.h>
->>> include/linux/err.h: Assembler messages:
->>> include/linux/err.h:20: Error: no such instruction: `static inline void *ERR_PTR(long error)'
->>> include/linux/err.h:21: Error: junk at end of line, first unrecognized character is `{'
->>> include/linux/err.h:22: Error: no such instruction: `return (void *)error'
->>> include/linux/err.h:23: Error: junk at end of line, first unrecognized character is `}'
->>> include/linux/err.h:25: Error: no such instruction: `static inline long PTR_ERR(const void *ptr)'
->>> include/linux/err.h:26: Error: junk at end of line, first unrecognized character is `{'
->>> include/linux/err.h:27: Error: no such instruction: `return (long)ptr'
->>> include/linux/err.h:28: Error: junk at end of line, first unrecognized character is `}'
->>> include/linux/err.h:30: Error: no such instruction: `static inline long IS_ERR(const void *ptr)'
->>> include/linux/err.h:31: Error: junk at end of line, first unrecognized character is `{'
->>> include/linux/err.h:32: Error: no such instruction: `return unlikely(((unsigned long)ptr)>=(unsigned long)-4095)'
->>> include/linux/err.h:33: Error: junk at end of line, first unrecognized character is `}'
->>> distcc[7619] ERROR: compile (null) on localhost failed
->>> make[1]: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 1
->>> make: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 2
+On Mon, 2006-07-03 at 08:43 -0700, Ken Brush wrote:
+> On 6/29/06, Andy Gay <andy@andynet.net> wrote:
+> >
+> > Adapted from an earlier patch by Greg KH <gregkh@suse.de>.
+> > That patch added multiple read urbs and larger transfer buffers to allow
+> > data transfers at full EvDO speed.
+> >
+> > This version includes additional device IDs and fixes a memory leak in
+> > the transfer buffer allocation.
+> >
+> > Some (maybe all?) of the supported devices present multiple bulk endpoints,
+> > the additional EPs can be used for control and status functions.
+> > This version allocates 3 EPs by default, that can be changed using
+> > the 'endpoints' module parameter.
+> >
+> > Tested with Sierra Wireless EM5625 and MC5720 embedded modules.
+> >
 > 
-> Built for me on i386 and x86_64.
-> 
->> unlikely() shouldn't be used in code exported to user space.  At least 
->> one architecture simply open-codes the __builtin_expect(); or we could
->> introduce __likely() and __unlikely() for the benefit of userspace.
-> 
-> How did you determine that this had something to do with
-> userspace?
-> 
+> With my aircard 580, I get 6 TTYUSB devices and a Urb too big message.
+> You should probably take the 580 out of the driver unless someone
+> actually has one and it works for them.
+Well, that's the easy way out :)
+But I'm willing to try to debug this, if you're game.
 
-The vsyscalls are userspace code.  Doesn't mean they operate by 
-userspace naming rules, of course, but still...
+I don't know how it could see 6 EPs, unless you specify endpoints=6 when
+you load the module. Maybe it sees it as 2 devices somehow?
+Can you send me the relevant part of 'cat /proc/bus/usb/devices'?
 
-	-hpa
+Also the dmesg where you get the 'urb too big'. You could also try to
+load the module with debug enabled.
+
+> 
+> -Ken
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWGCUAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWGCUHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWGCUAM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 16:00:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWGCUAM
+	id S1751277AbWGCUHY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 16:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWGCUHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 16:00:12 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:33703 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751271AbWGCUAK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 16:00:10 -0400
-Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
-From: john stultz <johnstul@us.ibm.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Valdis.Kletnieks@vt.edu,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1151891783.5922.4.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-References: <20060624061914.202fbfb5.akpm@osdl.org>
-	 <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0606271212150.17704@scrub.home>
-	 <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0606271903320.12900@scrub.home>
-	 <Pine.LNX.4.64.0606271919450.17704@scrub.home>
-	 <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu>
-	 <1151453231.24656.49.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0606281218130.12900@scrub.home>
-	 <Pine.LNX.4.64.0606281335380.17704@scrub.home>
-	 <200606292307.k5TN7MGD011615@turing-police.cc.vt.edu>
-	 <1151695569.5375.22.camel@localhost.localdomain>
-	 <200606302104.k5UL41vs004400@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0607030256581.17704@scrub.home>
-	 <1151891783.5922.4.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-Content-Type: text/plain
-Date: Mon, 03 Jul 2006 12:59:43 -0700
-Message-Id: <1151956783.5325.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jul 2006 16:07:24 -0400
+Received: from web32015.mail.mud.yahoo.com ([68.142.207.112]:6744 "HELO
+	web32015.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751277AbWGCUHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 16:07:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=nPpQq29JQNV2E8EDPPl2xoLlq0XPRRSyQ5JZdhVpwDmgjLaLqJ1VMzJ9bQ6zcd/2wv59jS0K0foM/qJrE5RRWr/yQvSlXOF6xRnDieJfeS479xZDAtVG8shVuIKTVTpibGUeICxvuvNIL4qVBB0hnvMNY7joWu2L1q9TnHjCEM8=  ;
+Message-ID: <20060703200723.85857.qmail@web32015.mail.mud.yahoo.com>
+Date: Mon, 3 Jul 2006 13:07:23 -0700 (PDT)
+From: Congjun Yang <congjuny@yahoo.com>
+Subject: Re: keyboard raw mode
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
+In-Reply-To: <200607021111.30386.dtor@insightbb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-02 at 18:56 -0700, Daniel Walker wrote:
-> On Mon, 2006-07-03 at 03:13 +0200, Roman Zippel wrote:
-> I was reviewing these new ntp adjustment functions, and it seems like it
-> would be a lot easier to just switch to a better clocksource. These new
-> functions seems to compensate for a clock that has a high rating but is
-> actually quite poor..
+AWESOME!!! (except that atkbd still complains about
+unknown keycodes;)
 
-Not quite. The issue is that the adjustment that the ntpd makes is quite
-fine grained, and some clocksources while quite stable, might not be
-able to make such a fine adjustment. So the extra error accounting just
-allows us to keep track and compensate for the resolution differences.
+--- Dmitry Torokhov <dtor@insightbb.com> wrote:
 
-Does that make sense?
+> On Sunday 02 July 2006 04:21, Congjun Yang wrote:
+> > 2.6.9-22.EL(CentOS 4.2) is what I currently use.
+> > 2.4.20 was where I first saw, in keyboard.c, the
+> > workaround that throws away a second break code.
+> > 
+> 
+> I think it should work in 2.6.9... The change was
+> put in in summer
+> of 2004, 2.6.9 was released in fall...
+> 
+> Try booting with atkbd.softraw=0 to turn off
+> software rawmode
+> emulation and I think you will see all the codes
+> from your
+> device.
+> 
+> > I think I like the new design for the user input
+> > system: separate the protocol layer from the raw
+> port.
+> > But, would it be nice for the atkbd driver to
+> still
+> > provide a raw (or passthrough) mode?
+> > 
+> 
+> It does ;)
+> 
+> -- 
+> Dmitry
+> 
 
-thanks
--john
 
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWGCP4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWGCQF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWGCP4W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 11:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWGCP4W
+	id S932079AbWGCQF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 12:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWGCQF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 11:56:22 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:30693 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932083AbWGCP4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 11:56:21 -0400
-Date: Mon, 3 Jul 2006 08:55:48 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: akpm@osdl.org, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com,
-       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
-       hadi@cyberus.ca, netdev@vger.kernel.org
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-Message-Id: <20060703085548.8db09dff.pj@sgi.com>
-In-Reply-To: <44A93179.2080303@watson.ibm.com>
-References: <44892610.6040001@watson.ibm.com>
-	<449C6620.1020203@engr.sgi.com>
-	<20060623164743.c894c314.akpm@osdl.org>
-	<449CAA78.4080902@watson.ibm.com>
-	<20060623213912.96056b02.akpm@osdl.org>
-	<449CD4B3.8020300@watson.ibm.com>
-	<44A01A50.1050403@sgi.com>
-	<20060626105548.edef4c64.akpm@osdl.org>
-	<44A020CD.30903@watson.ibm.com>
-	<20060626111249.7aece36e.akpm@osdl.org>
-	<44A026ED.8080903@sgi.com>
-	<20060626113959.839d72bc.akpm@osdl.org>
-	<44A2F50D.8030306@engr.sgi.com>
-	<20060628145341.529a61ab.akpm@osdl.org>
-	<44A2FC72.9090407@engr.sgi.com>
-	<20060629014050.d3bf0be4.pj@sgi.com>
-	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
-	<20060629094408.360ac157.pj@sgi.com>
-	<20060629110107.2e56310b.akpm@osdl.org>
-	<44A57310.3010208@watson.ibm.com>
-	<44A5770F.3080206@watson.ibm.com>
-	<20060630155030.5ea1faba.akpm@osdl.org>
-	<44A5DBE7.2020704@watson.ibm.com>
-	<44A5EDE6.3010605@watson.ibm.com>
-	<20060702215350.2c1de596.pj@sgi.com>
-	<44A93179.2080303@watson.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jul 2006 12:05:58 -0400
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:39108 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S932079AbWGCQF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 12:05:57 -0400
+Date: Mon, 03 Jul 2006 12:05:35 -0400
+From: Ben Collins <bcollins@ubuntu.com>
+Subject: Re: [PATCH 00/19] ieee1394: misc updates
+In-reply-to: <tkrat.8d67352567e525c1@s5r6.in-berlin.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Message-id: <1151942735.4864.32.camel@grayson>
+Organization: Ubuntu
+MIME-version: 1.0
+X-Mailer: Evolution 2.6.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <tkrat.8d67352567e525c1@s5r6.in-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh wrote:
-> Yes. If no one registers to listen on a particular CPU, data from tasks 
-> exiting on that cpu is not sent out at all.
+On Mon, 2006-07-03 at 00:53 +0200, Stefan Richter wrote:
+> Hi Ben,
+> 
+> here are a few new, updated, or resent patches, most of them janitorial.
+> I created them against 2.6.17-git18 but tested on 2.6.16.x. If they are
+> OK with you, please apply them to your 1394 tree (after you resynced from
+> Linus) for Andrew to pull eventually.
 
-Excellent.
+All patches applied to the linux1394.git:
 
+master.kernel.org:/pub/scm/linux/kernel/git/bcollins/linux1394-2.6.git
 
-> So I chose to use the "cpulist" ascii format that has been helpfully 
-> provided in include/linux/cpumask.h (by whom I wonder :-)
-
-Excellent.
+It's up-to-date with Linus's tree as well.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Ubuntu     - http://www.ubuntu.com/
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+SwissDisk  - http://www.swissdisk.com/
+

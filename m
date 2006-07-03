@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWGCU01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWGCUc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWGCU01 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 16:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbWGCU01
+	id S1751048AbWGCUc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 16:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWGCUc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 16:26:27 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:56210 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751066AbWGCU00
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 16:26:26 -0400
-Date: Mon, 3 Jul 2006 22:22:19 +0200
-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features
-Message-ID: <20060703202219.GA9707@aitel.hist.no>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl>
+	Mon, 3 Jul 2006 16:32:26 -0400
+Received: from tornado.reub.net ([202.89.145.182]:8402 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1751048AbWGCUcZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 16:32:25 -0400
+Message-ID: <44A97EBA.8070501@reub.net>
+Date: Tue, 04 Jul 2006 08:31:54 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 3.0a1 (Windows/20060702)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060701181702.GC8763@irc.pl>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Helge Hafting <helgehaf@aitel.hist.no>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, greg@kroah.com, brice@myri.com
+Subject: Re: 2.6.17-mm6
+References: <20060703030355.420c7155.akpm@osdl.org>	<44A8F8D2.1030101@reub.net>	<20060703043954.0807c3f2.akpm@osdl.org>	<44A90276.4050108@reub.net> <20060703132104.9b6b85d7.akpm@osdl.org>
+In-Reply-To: <20060703132104.9b6b85d7.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 01, 2006 at 08:17:02PM +0200, Tomasz Torcz wrote:
-> On Sat, Jul 01, 2006 at 07:47:16PM +0200, Thomas Glanzmann wrote:
-> > Hello,
-> > 
-> > > Checksums are not very useful for themselves. They are useful when we
-> > > have other copy of data (think raid mirroring) so data can be
-> > > reconstructed from working copy.
-> > 
-> > it would be possible to identify data corruption.
-> > 
+
+
+On 4/07/2006 8:21 a.m., Andrew Morton wrote:
+> On Mon, 03 Jul 2006 23:41:42 +1200
+> Reuben Farrelly <reuben-lkml@reub.net> wrote:
 > 
->   Yes, but what good is identification? We could only return I/O error.
-> Ability to fix corruption (like ZFS) is the real killer.
+>> Allocate Port Service[0000:00:1c.0:pcie0]
+>> Allocate Port Service[0000:00:1c.0:pcie0]
+> 
+> Turns out that we have a rogue patch coming in from the powerpc tree.  This
+> should fix it, thanks.
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/hot-fixes/git-powerpc-revert-bogus-vsnprintf-change.patch
 
-Isn't that what we have RAID-1/5/6 for?  
+That has fixed it.  All looking fine now..
 
-Helge Hafting
-
+reuben

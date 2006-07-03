@@ -1,57 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWGDFPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbWGDFTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWGDFPG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 01:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWGDFPG
+	id S1750895AbWGDFTx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 01:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWGDFTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 01:15:06 -0400
-Received: from mxl145v68.mxlogic.net ([208.65.145.68]:26044 "EHLO
-	p02c11o145.mxlogic.net") by vger.kernel.org with ESMTP
-	id S1750830AbWGDFPE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 01:15:04 -0400
-Date: Tue, 4 Jul 2006 07:55:47 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Anton Blanchard <anton@samba.org>
-Cc: eli@mellanox.co.il, David Miller <davem@davemloft.net>, bos@pathscale.com,
-       akpm@osdl.org, Roland Dreier <rdreier@cisco.com>,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, matthew@wil.cx, ak@suse.de, ak@muc.de,
-       vojtech@suse.cz
-Subject: Re: [PATCH 38 of 39] IB/ipath - More changes to support InfiniPath on PowerPC 970 systems
-Message-ID: <20060704045547.GA4325@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <c22b6c244d5db77f7b1d.1151617289@eng-12.pathscale.com> <20060629.145319.71091846.davem@davemloft.net> <1151618499.10886.26.camel@chalcedony.pathscale.com> <20060629.150417.78710870.davem@davemloft.net> <20060703222506.GD31081@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060703222506.GD31081@krispykreme>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 04 Jul 2006 05:00:30.0609 (UTC) FILETIME=[C5FFD810:01C69F26]
-X-Spam: [F=0.0100000000; S=0.010(2006062901)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [63.251.237.3]
+	Tue, 4 Jul 2006 01:19:53 -0400
+Received: from sullivan.realtime.net ([205.238.132.76]:17164 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id S1750895AbWGDFTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 01:19:53 -0400
+Message-Id: <200607040519.k645JdoW014585@sullivan.realtime.net>
+From: Milton Miller <miltonm@bga.com>
+Subject: [PATCH] simplfy bh_lru_install
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Jes Sorensen <jes@sgi.com>
+Date: Mon,  3 Jul 2006 11:37:43 -0400 (EDT)
+In-Reply-To: <yq0mzbqhfdp.fsf@jaguar.mkp.net>
+References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Anton Blanchard <anton@samba.org>:
-> Subject: Re: [PATCH 38 of 39] IB/ipath - More changes to support InfiniPath on PowerPC 970 systems
-> 
->  
-> Hi,
-> 
-> > Please fix the generic code if it doesn't provide the facility
-> > you need at the moment.  Don't shoe horn it into your driver
-> > just to make up for that.
-> 
-> Ive had 3 drivers asking for write combining recently so I agree this is
-> a good idea. How about ioremap_wc as suggested by Willy:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=114374741828040&w=2
+While looking at Jes' patch "reduce IPI noise due to /dev/cdrom open/close"
+I took a look at what the bh_lru code was doing.
 
-Hmm ... I think ioremap_wc isn't sufficient by itself to make drivers using
-write-combined memory, portable.  Here's another thread on a related subject:
+ * The LRU management algorithm is dopey-but-simple.  Sorry.
 
-http://lkml.org/lkml/2006/2/24/347
+Umm.. yes.
 
--- 
-MST
+That in and out loop caused me to stare a bit.
+
+lru_lookup_install, aka adding to lru cache, is building a second
+array on the stack and then calling memcpy at the end to replace
+the data.  Sure its in cache, but we already did all the loads 
+and stores once.
+
+The in and out arrays are always the same length, and we only allow
+an entry in once.  So we know that we either push all down, and the
+last one is the evictee, or we find the entry in there previously
+and free that slot, leaving a copyloop.
+
+But I'm sure the compiler can't determine that, because it doesn't
+know about the insert-uniquely assertion.
+
+It also has a special case for its already at the top.  But since
+we did a lookup before __find_get_block_slow, that is surely a rare
+special case.
+
+Maybe it was designed to be called it on every lookup.
+
+The lookup case does a move to top pulling the previous entrys down
+one by one to the former spot, and inserting at the top, which is
+sane.  Why not do a push down here here?
+
+And while here, we can stop if we hit a NULL entry too, we will not
+have any stragglers underneath.
+
+Here is a totally untested patch.  Well, it compiles.  In the for
+loop next is also assigned to bh for the bh = NULL case the compiler
+pointed out.
+
+Signed-off-by: Milton Miller <miltonm@bga.com>
+
+--- linux-2.6.17/fs/buffer.c.orig	2006-07-04 00:04:16.000000000 -0400
++++ linux-2.6.17/fs/buffer.c	2006-07-04 00:52:01.000000000 -0400
+@@ -1347,41 +1347,35 @@ static inline void check_irqs_on(void)
+  */
+ static void bh_lru_install(struct buffer_head *bh)
+ {
+-	struct buffer_head *evictee = NULL;
++	struct buffer_head *next, *prev;
+ 	struct bh_lru *lru;
++	int i;
+ 
+ 	check_irqs_on();
+ 	bh_lru_lock();
+ 	lru = &__get_cpu_var(bh_lrus);
+-	if (lru->bhs[0] != bh) {
+-		struct buffer_head *bhs[BH_LRU_SIZE];
+-		int in;
+-		int out = 0;
+ 
+-		get_bh(bh);
+-		bhs[out++] = bh;
+-		for (in = 0; in < BH_LRU_SIZE; in++) {
+-			struct buffer_head *bh2 = lru->bhs[in];
+-
+-			if (bh2 == bh) {
+-				__brelse(bh2);
+-			} else {
+-				if (out >= BH_LRU_SIZE) {
+-					BUG_ON(evictee != NULL);
+-					evictee = bh2;
+-				} else {
+-					bhs[out++] = bh2;
+-				}
+-			}
+-		}
+-		while (out < BH_LRU_SIZE)
+-			bhs[out++] = NULL;
+-		memcpy(lru->bhs, bhs, sizeof(bhs));
++	/* Push down, looking for duplicate as we go. last is freed */
++	for (i = 0, next = prev = bh; i < BH_LRU_SIZE && prev;
++			i++, prev = next) {
++		next = lru->bhs[i];
++		if (unlikely(next == bh))
++			break;
++		lru->bhs[i] = prev;
++	}
++
++#ifdef DEBUG
++	/* ++i to avoid finding the entry we know */
++	for (++i; i < BH_LRU_SIZE; i++) {
++		BUG_ON(lru->bhs[i] == bh);
++		if (!next)
++			BUG_ON(lru->bhs[i]);
+ 	}
++#endif
++
+ 	bh_lru_unlock();
+ 
+-	if (evictee)
+-		__brelse(evictee);
++	brelse(next);
+ }
+ 
+ /*

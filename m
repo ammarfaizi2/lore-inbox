@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWGCXdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWGCXfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWGCXdF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 19:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWGCXdE
+	id S932116AbWGCXfI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 19:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWGCXfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 19:33:04 -0400
-Received: from mx2.suse.de ([195.135.220.15]:43972 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932120AbWGCXdC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 19:33:02 -0400
-Date: Mon, 3 Jul 2006 16:29:27 -0700
-From: Greg KH <greg@kroah.com>
-To: Daniel Bonekeeper <thehazard@gmail.com>
-Cc: Alon Bar-Lev <alon.barlev@gmail.com>, kernelnewbies@nl.linux.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Driver for Microsoft USB Fingerprint Reader
-Message-ID: <20060703232927.GA19111@kroah.com>
-References: <e1e1d5f40607022351y4af6e709n1ba886604a13656b@mail.gmail.com> <9e0cf0bf0607030304n62991dafk19f09e41d69e9ab0@mail.gmail.com> <e1e1d5f40607031104o2b8003c8qfa725ae1d276b27f@mail.gmail.com> <44A95F12.8080208@gmail.com> <e1e1d5f40607031353l48826d5bi51558d9f8e12ba3@mail.gmail.com> <20060703214509.GA5629@kroah.com> <e1e1d5f40607031511l5445f338t449bf8840e8caf80@mail.gmail.com> <20060703222645.GA22855@kroah.com> <e1e1d5f40607031624w245e5f70g2ae8f5d0e9d357c4@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e1e1d5f40607031624w245e5f70g2ae8f5d0e9d357c4@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Mon, 3 Jul 2006 19:35:08 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:17690 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932116AbWGCXfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 19:35:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=rmMu3KNV1uBKY5Gn1f7K+/Z4rZXnl08T7D/pCAzu6vVSxGOnkkP0xXdinHxKlEyvbZqzZNGY9UaE+VP31CIppy8/uaLwFabO60uWPtuyZFpRw3bcYSr1gjUJy3rcsdCXYpS0F3hfJBspEv1Si3jx3jr01/k/D7f9lqSG5lGd/XI=
+Message-ID: <44A9A9BB.5090901@gmail.com>
+Date: Tue, 04 Jul 2006 01:35:00 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp regression
+References: <44A99DFB.50106@gmail.com> <20060703224936.GT1674@elf.ucw.cz>
+In-Reply-To: <20060703224936.GT1674@elf.ucw.cz>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 07:24:30PM -0400, Daniel Bonekeeper wrote:
-> I think that I didn't make myself clear on that... let me try to
-> explain on what I'm thinking to do. Let's take as example Dan's driver
-> at http://prdownload.berlios.de/dpfp/dpfp-driver-0.1.2.tar.bz2.
+Pavel Machek napsal(a):
+> Hi!
 > 
-> On our usb_device_id, we specify the vendor of the device, etc. We
-> could also (I don't know if this is the best place to do that) specify
-> which kind of device is it (printer, storage, fingerprint reader, HID,
-> etc).
-
-No, why would we want to do that?
-
-> Let's suppose that we have some #define's or a enum that specify
-> the hundreds of different device types (is that possible ? :) Nothing
-> that a USB_GENERIC can't solve lol).
+>> when suspending machine with hyperthreading, only Freezing cpus appears and then
+>> it loops somewhere. 
 > 
-> enum usb_device_type {
-> 	USB_DEVICE_SCANNER,
-> 	USB_DEVICE_KEYBOARD,
-> 	USB_DEVICE_MOUSE,
-> 	USB_DEVICE_FINGERPRINT_READER,
-> 	USB_DEVICE_GENERIC,
-> 	...
-> };
-
-No, please see the USB layer for why we don't need this.
-
-> So our usb_device_id array could also include the kind of device and a
-> pointer to our structure describing the device capabilities, something
-> like:
+> Does it fail to freeze, or just lock up at that point?
 > 
-> static struct usb_devcap_fingerprint_reader
-> usb_devcap_fingerprint_reader_mskeyboard = {
-> 	.width = 100,
-> 	.height = 100,
-> 	.colors = 2,
-> 	.cap_encrypted_output = 0,
-> 	.image_type = FINGEPRINT_IMAGE_BMP,
-> }
-> 
-> static struct usb_device_id dpfp_table[] = {
-> 	{
-> 		/* Microsoft Keyboard with Fingerprint reader */
-> 		USB_DEVICE(0x045e, 0x00bb),
-> 		.driver_info = DPFP_TYPE_URU4000B,
-> 		USB_DEVICE_FINGERPRINT_READER,
-> 		(usb_devcap_fingerprint_reader *) 
-> 		usb_devcap_fingerprint_reader_mskeyboard,
-> 	},
-> 	{}	/* terminating null entry */
-> };
+> Does it work okay in UP mode?
 
-Yes, that's fine to do.
+Seems to be fine. Going to try restore stopmachine from 2.6.17...
 
-I'll await a real patch before critiquing anything else :)
-
-thanks,
-
-greg k-h
+regards,
+-- 
+Jiri Slaby        www.fi.muni.cz/~xslaby/
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E
+<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>

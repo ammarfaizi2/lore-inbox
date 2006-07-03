@@ -1,60 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWGCN2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWGCNbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWGCN2G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 09:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWGCN2G
+	id S1751156AbWGCNbI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 09:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWGCNbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 09:28:06 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:42644 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S1751143AbWGCN2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 09:28:05 -0400
-Message-ID: <44A91ABA.8060304@s5r6.in-berlin.de>
-Date: Mon, 03 Jul 2006 15:25:14 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-CC: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org, khali@linux-fr.org,
-       linux-kernel@killerfox.forkbomb.ch, benh@kernel.crashing.org,
-       johannes@sipsolutions.net, chainsaw@gentoo.org
-Subject: Re: [RFC] Apple Motion Sensor driver
-References: <20060702222649.GA13411@hansmi.ch> <1151921567.10711.22.camel@localhost.localdomain> <20060703104547.GA25342@hansmi.ch>
-In-Reply-To: <20060703104547.GA25342@hansmi.ch>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jul 2006 09:31:08 -0400
+Received: from crystal.sipsolutions.net ([195.210.38.204]:63445 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S1751156AbWGCNbH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 09:31:07 -0400
+Subject: Re: sound connector detection
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: alsa-devel@lists.sourceforge.net,
+       linux-input <linux-input@atrey.karlin.mff.cuni.cz>,
+       Richard Purdie <rpurdie@rpsys.net>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200607011609.59426.dtor@insightbb.com>
+References: <1151671786.13412.6.camel@localhost>
+	 <200607011609.59426.dtor@insightbb.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PVFLRZH4A1JZ/0hZMsOG"
+Date: Mon, 03 Jul 2006 15:30:14 +0200
+Message-Id: <1151933414.20701.38.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+X-sips-origin: submit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Hanselmann wrote:
-> On Mon, Jul 03, 2006 at 12:12:47PM +0200, Stelian Pop wrote:
->> > +
->> > +static DEVICE_ATTR(mouse, S_IRUGO | S_IWUSR,
->> > +	ams_mouse_show_mouse, ams_mouse_store_mouse);
 
-[I think the following discussion is about ams_show_xyz, not
-ams_mouse_show_mouse.]
+--=-PVFLRZH4A1JZ/0hZMsOG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->> I would prefer three different files for x, y and z instead of a single
->> one... 
-> 
-> Because of the way the values are calculated with orientation, that
-> would mean that if a program needs all three, either all values are read
-> three times or the ams_sensors function gets much more complicated.
-> 
-> To prevent it from having to read them three times in a row, I joined
-> all three values.
 
-I don't know what a software will be doing with it, but "displacement"
-(and its time derivatives "velocity", "acceleration", "jerk") is a
-vector. Why not write the component-wise representation of the vector
-into a single sysfs attribute? Especially if this keeps the kernel code
-simple and small. I suppose even userspace code which evaluates the
-attribute is in many cases simpler (and more precise anyway) if only a
-single attribute is used.
--- 
-Stefan Richter
--=====-=-==- -==- ===--
-http://arcgraph.de/sr/
+> I am not too happy with putting this kind of switches into input layer,
+> it should be reserved for "real" buttons, ones that user can explicitely
+> push or toggle (lid switch is on the edge here but it and sleep button
+> are used for similar purposes so it makes sense to have it in input layer
+> too). But "cable X connected" kind of events is too much [for input layer=
+,
+> there could well be a separate layer for it]. If we go this way we'd have
+> to move cable detection code from network to input layer as well ;)
+
+I sort of see the point. But I think it is indeed unfortunate that we
+have all these events scattered throughout. I could live with the
+current approach abusing the alsa mixer API, but there's little point in
+making that element user-visible. So maybe I just need some new alsa
+definitions here.
+
+Although, come to think of it, a daemon keeping the mixer open blocks
+unloading the module. I suppose I'd rather have it the other way around
+like the eventdev system does -- the device goes away and all reads to
+it fail.
+
+johannes
+
+--=-PVFLRZH4A1JZ/0hZMsOG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIVAwUARKkb46Vg1VMiehFYAQJnlA/+JdhQWfauif68lgvDBj49O+G2QI9zUfXB
++x1QcFfQAsloL2fpBpcTMbeCEwuVyQSMn4apoBeBmH3K9iT1DVkRiOrP8tKwcog7
+6KVlkwrxUVda3u8ZiWZS02OZRbgiK2XA/3Is2gE/k1DhDPxLRVvR9LSAy5DBizsE
+q2lz8qIqWhm8RmtZE3Hc9l4jb9C13fTa1fw9XhSg9gxoFRfuhF0N/9pdGPlaahaU
+V1pv3yTlEeOePItlstjfsfp8JsBJGOaa3cVS3IddXuviBHT33CgcRN0zgtD6ixgj
+kPUEZ/FgHRELAZdUExZyj3J+QKA8UBXUMSgfifWtSOUscxvb4og3BHO5MIeRHxBB
+YxxXzxXsbOzP/4EN3aIDz2AOMMG6h2TT9WKbMTGD8TGp5MSZvdypTjIFHLK1jX/l
+q/4kjaPitpNRjqeCNBWb3lan8awDdJFxJCXMrd7mxbVST1ZEFC0dThCQ6SRymvo0
+RPfoICSKMcbZYaIsNkm37aOgbvtdjAZEzodxVGj1YTyqLCbByvKf29u8f9ksJNEG
+ADu2tZHihzKNy+p53KY0Gyr/IJ3v1Ih6ZRwBjSdpipmp2RJ3seJF7X/VQuIVJnlF
+gPnYxMwupR57lUki7vgwACqsSSBh2Hvqh3DcT0+zbrjM1PIp2msMPkGNCEJdWgci
+1ai2kyiTaHU=
+=j9iO
+-----END PGP SIGNATURE-----
+
+--=-PVFLRZH4A1JZ/0hZMsOG--
+

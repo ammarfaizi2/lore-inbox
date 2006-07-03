@@ -1,296 +1,623 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWGCJ6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWGCKEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbWGCJ6H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 05:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWGCJ6H
+	id S1751073AbWGCKEE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 06:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWGCKEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 05:58:07 -0400
-Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:61078 "EHLO
-	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1751006AbWGCJ6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 05:58:05 -0400
-Date: Mon, 3 Jul 2006 02:49:48 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
-Message-ID: <20060703094948.GA4460@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200606230913.k5N9D73v032387@frankl.hpl.hp.com> <p73fyhmx1zv.fsf@verdi.suse.de> <20060630123629.GA22381@frankl.hpl.hp.com> <p73bqsax0iu.fsf@verdi.suse.de>
+	Mon, 3 Jul 2006 06:04:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15841 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751065AbWGCKEC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 06:04:02 -0400
+Date: Mon, 3 Jul 2006 03:03:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17-mm6
+Message-Id: <20060703030355.420c7155.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="uAKRQypu60I7Lcqm"
-Content-Disposition: inline
-In-Reply-To: <p73bqsax0iu.fsf@verdi.suse.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
 
-Andi,
 
-Here is a first cut at the patch to simplify the context
-switch for the common case and also touch 2 cachelines (instead of 3).
-There are 2 new TIF flags. I just tried this on x86_64 but I believe
-we could do the same on i386.
+- A major update to the e1000 driver.
 
-Is that what you were thinking about?
+- 1394 updates
 
-Thanks
 
-On Fri, Jun 30, 2006 at 02:59:05PM +0200, Andi Kleen wrote:
-> Stephane Eranian <eranian@hpl.hp.com> writes:
-> 
-> > Andi,
-> > 
-> > Thanks for your feedback. I will make the changes you
-> > requested.
-> > 
-> > About the context switch code, what about I do the following
-> > in __switch_to():
-> > 
-> > __kprobes struct task_struct *
-> > __switch_to(struct task_struct *prev_p, struct task_struct *next_p)
-> > {
-> >         struct thread_struct *prev = &prev_p->thread,
-> >                                  *next = &next_p->thread;
-> >         int cpu = smp_processor_id();
-> >         struct tss_struct *tss = &per_cpu(init_tss, cpu);
-> > 
-> >         if (unlikely(__get_cpu_var(pmu_ctx) || next_p->pfm_context))
-> >                 __pfm_ctxswout(prev_p, next_p);
-> > 
-> >         /*
-> >          * Reload esp0, LDT and the page table pointer:
-> >          */
-> >         tss->rsp0 = next->rsp0;
-> > 
-> > There is now a single hook and a conditional branch.
-> > this is similar to what you have with the debug registers.
-> 
-> It's still more than there was before. Also __get_cpu_var 
-> is quite a lot of instructions.
-> 
-> I would suggest you borrow some bits in one of the process
-> or thread info flags and then do a single test
-> 
-> if (unlikely(thr->flags & (DEBUG|PERFMON)) != 0) { 
->         if (flags & DEBUG)
->                 ... do debug ...
->         if (flags & PERFMON)
->                 ... do perfmon ...
-> }
-> 
-> [which you're at it you can probably add ioports in there too -
-> improving existing code is always a good thing]
-> 
-> Ideally flags is in some cache line that is already 
-> touched during context switch. If not you might need
-> to change the layout.
-> 
-> It's ok to put the do_perfmon stuff into a separate noinline
-> function because that will disturb the register allocation
-> in the caller less.
-> 
-> I would suggest doing this in separate preparing patches that
-> first just do it for existing facilities.
-> 
-> -Andi
-> 
-> P.S.: My comments probably apply to the i386 versions too
-> although I haven't read them.
 
--- 
+Boilerplate:
 
--Stephane
+- See the `hot-fixes' directory for any important updates to this patchset.
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="tif.diff"
+- To fetch an -mm tree using git, use (for example)
 
-diff -urNp linux-2.6.17.2.orig/arch/x86_64/ia32/ptrace32.c linux-2.6.17.2-tif/arch/x86_64/ia32/ptrace32.c
---- linux-2.6.17.2.orig/arch/x86_64/ia32/ptrace32.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17.2-tif/arch/x86_64/ia32/ptrace32.c	2006-06-30 09:02:16.000000000 -0700
-@@ -118,6 +118,10 @@ static int putreg32(struct task_struct *
- 			if ((0x5454 >> ((val >> (16 + 4*i)) & 0xf)) & 1)
- 			       return -EIO;
- 		child->thread.debugreg7 = val; 
-+		if (val)
-+			set_tsk_thread_flag(child, TIF_DEBUG);
-+		else
-+			clear_tsk_thread_flag(child, TIF_DEBUG);
- 		break; 
- 		    
- 	default:
-diff -urNp linux-2.6.17.2.orig/arch/x86_64/kernel/ioport.c linux-2.6.17.2-tif/arch/x86_64/kernel/ioport.c
---- linux-2.6.17.2.orig/arch/x86_64/kernel/ioport.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17.2-tif/arch/x86_64/kernel/ioport.c	2006-07-03 02:06:59.000000000 -0700
-@@ -56,6 +56,7 @@ asmlinkage long sys_ioperm(unsigned long
- 
- 		memset(bitmap, 0xff, IO_BITMAP_BYTES);
- 		t->io_bitmap_ptr = bitmap;
-+		set_thread_flag(TIF_IO_BITMAP);
- 	}
- 
- 	/*
-diff -urNp linux-2.6.17.2.orig/arch/x86_64/kernel/process.c linux-2.6.17.2-tif/arch/x86_64/kernel/process.c
---- linux-2.6.17.2.orig/arch/x86_64/kernel/process.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17.2-tif/arch/x86_64/kernel/process.c	2006-07-03 02:35:25.000000000 -0700
-@@ -356,6 +356,7 @@ void exit_thread(void)
- 		 */
- 		memset(tss->io_bitmap, 0xff, t->io_bitmap_max);
- 		t->io_bitmap_max = 0;
-+		clear_thread_flag(TIF_IO_BITMAP);
- 		put_cpu();
- 	}
- }
-@@ -366,7 +367,7 @@ void flush_thread(void)
- 	struct thread_info *t = current_thread_info();
- 
- 	if (t->flags & _TIF_ABI_PENDING)
--		t->flags ^= (_TIF_ABI_PENDING | _TIF_IA32);
-+		t->flags ^= (_TIF_ABI_PENDING | _TIF_IA32 | _TIF_DEBUG);
- 
- 	tsk->thread.debugreg0 = 0;
- 	tsk->thread.debugreg1 = 0;
-@@ -459,7 +460,7 @@ int copy_thread(int nr, unsigned long cl
- 	asm("mov %%es,%0" : "=m" (p->thread.es));
- 	asm("mov %%ds,%0" : "=m" (p->thread.ds));
- 
--	if (unlikely(me->thread.io_bitmap_ptr != NULL)) { 
-+	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) { 
- 		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
- 		if (!p->thread.io_bitmap_ptr) {
- 			p->thread.io_bitmap_max = 0;
-@@ -467,6 +468,7 @@ int copy_thread(int nr, unsigned long cl
- 		}
- 		memcpy(p->thread.io_bitmap_ptr, me->thread.io_bitmap_ptr,
- 				IO_BITMAP_BYTES);
-+		set_tsk_thread_flag(p, TIF_IO_BITMAP);
- 	} 
- 
- 	/*
-@@ -484,7 +486,7 @@ int copy_thread(int nr, unsigned long cl
- 	}
- 	err = 0;
- out:
--	if (err && p->thread.io_bitmap_ptr) {
-+	if (err && test_tsk_thread_flag(p, TIF_IO_BITMAP)) {
- 		kfree(p->thread.io_bitmap_ptr);
- 		p->thread.io_bitmap_max = 0;
- 	}
-@@ -584,38 +586,34 @@ __switch_to(struct task_struct *prev_p, 
- 		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
- 
- 	/*
--	 * Now maybe reload the debug registers
-+	 * Now maybe reload the debug registers and handle I/O bitmaps
- 	 */
--	if (unlikely(next->debugreg7)) {
--		loaddebug(next, 0);
--		loaddebug(next, 1);
--		loaddebug(next, 2);
--		loaddebug(next, 3);
--		/* no 4 and 5 */
--		loaddebug(next, 6);
--		loaddebug(next, 7);
--	}
--
-+	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
-+		|| test_tsk_thread_flag(prev_p, TIF_IO_BITMAP)) {
- 
--	/* 
--	 * Handle the IO bitmap 
--	 */ 
--	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr)) {
--		if (next->io_bitmap_ptr)
-+		if (test_tsk_thread_flag(next_p, TIF_DEBUG)) {
-+			loaddebug(next, 0);
-+			loaddebug(next, 1);
-+			loaddebug(next, 2);
-+			loaddebug(next, 3);
-+			/* no 4 and 5 */
-+			loaddebug(next, 6);
-+			loaddebug(next, 7);
-+		}
-+		if (test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
- 			/*
- 			 * Copy the relevant range of the IO bitmap.
- 			 * Normally this is 128 bytes or less:
-  			 */
- 			memcpy(tss->io_bitmap, next->io_bitmap_ptr,
--				max(prev->io_bitmap_max, next->io_bitmap_max));
--		else {
-+			       max(prev->io_bitmap_max, next->io_bitmap_max));
-+		} else if (test_tsk_thread_flag(prev_p, TIF_IO_BITMAP)) {
- 			/*
- 			 * Clear any possible leftover bits:
- 			 */
- 			memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
- 		}
- 	}
--
- 	return prev_p;
- }
- 
-diff -urNp linux-2.6.17.2.orig/arch/x86_64/kernel/ptrace.c linux-2.6.17.2-tif/arch/x86_64/kernel/ptrace.c
---- linux-2.6.17.2.orig/arch/x86_64/kernel/ptrace.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17.2-tif/arch/x86_64/kernel/ptrace.c	2006-06-30 09:30:57.000000000 -0700
-@@ -420,9 +420,16 @@ long arch_ptrace(struct task_struct *chi
- 				if ((0x5554 >> ((data >> (16 + 4*i)) & 0xf)) & 1)
- 					break;
- 			if (i == 4) {
--				child->thread.debugreg7 = data;
-+			  child->thread.debugreg7 = data;
-+			  if (data) {
-+				pr_info("set TIF_DEBUG for [%d]\n", child->pid);
-+			  	set_tsk_thread_flag(child, TIF_DEBUG);
-+			  } else {
-+				pr_info("clear TIF_DEBUG for [%d]\n", child->pid);
-+			  	clear_tsk_thread_flag(child, TIF_DEBUG);
-+			}
- 			  ret = 0;
--		  }
-+		  	}
- 		  break;
- 		}
- 		break;
-diff -urNp linux-2.6.17.2.orig/include/asm-x86_64/thread_info.h linux-2.6.17.2-tif/include/asm-x86_64/thread_info.h
---- linux-2.6.17.2.orig/include/asm-x86_64/thread_info.h	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17.2-tif/include/asm-x86_64/thread_info.h	2006-07-03 02:32:25.000000000 -0700
-@@ -106,6 +106,8 @@ static inline struct thread_info *stack_
- #define TIF_FORK		18	/* ret_from_fork */
- #define TIF_ABI_PENDING		19
- #define TIF_MEMDIE		20
-+#define TIF_DEBUG		21	/* uses debug registers */
-+#define TIF_IO_BITMAP		22	/* uses I/O bitmap */
- 
- #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
- #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
-@@ -119,6 +121,8 @@ static inline struct thread_info *stack_
- #define _TIF_IA32		(1<<TIF_IA32)
- #define _TIF_FORK		(1<<TIF_FORK)
- #define _TIF_ABI_PENDING	(1<<TIF_ABI_PENDING)
-+#define _TIF_DEBUG		(1<<TIF_DEBUG)
-+#define _TIF_IO_BITMAP		(1<<TIF_IO_BITMAP)
- 
- /* work to do on interrupt/exception return */
- #define _TIF_WORK_MASK \
-@@ -126,6 +130,9 @@ static inline struct thread_info *stack_
- /* work to do on any return to user space */
- #define _TIF_ALLWORK_MASK (0x0000FFFF & ~_TIF_SECCOMP)
- 
-+/* flags to check in __switch_to() */
-+#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP)
-+
- #define PREEMPT_ACTIVE     0x10000000
- 
- /*
+  git fetch git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git v2.6.16-rc2-mm1
 
---uAKRQypu60I7Lcqm--
+- -mm kernel commit activity can be reviewed by subscribing to the
+  mm-commits mailing list.
+
+        echo "subscribe mm-commits" | mail majordomo@vger.kernel.org
+
+- If you hit a bug in -mm and it is not obvious which patch caused it, it is
+  most valuable if you can perform a bisection search to identify which patch
+  introduced the bug.  Instructions for this process are at
+
+        http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
+
+  But beware that this process takes some time (around ten rebuilds and
+  reboots), so consider reporting the bug first and if we cannot immediately
+  identify the faulty patch, then perform the bisection search.
+
+- When reporting bugs, please try to Cc: the relevant maintainer and mailing
+  list on any email.
+
+
+
+
+Changes since 2.6.17-mm5:
+
+
+ origin.patch
+ git-acpi.patch
+ git-alsa.patch
+ git-cpufreq.patch
+ git-geode.patch
+ git-gfs2.patch
+ git-ia64.patch
+ git-ia64-fixup.patch
+ git-infiniband.patch
+ git-jfs.patch
+ git-kbuild.patch
+ git-klibc.patch
+ git-hdrinstall2.patch
+ git-libata-all.patch
+ git-mtd.patch
+ git-netdev-all.patch
+ git-e1000.patch
+ git-nfs.patch
+ git-ocfs2.patch
+ git-pcmcia-fixup.patch
+ git-powerpc.patch
+ git-sas.patch
+ git-scsi-misc.patch
+ git-scsi-target.patch
+ git-supertrak.patch
+ git-watchdog.patch
+ git-wireless.patch
+ git-xfs.patch
+ git-cryptodev.patch
+
+ git trees.
+
+-pi-futex-fix-mm_struct-memory-leak.patch
+-irq-use-sa_percpu_irq-not-irq_per_cpu-for-irqactionflags.patch
+-irq-warning-message-cleanup.patch
+-edac-bug-fix-module-names-quoted-in-sysfs.patch
+-pi-futex-futex_wake-lockup-fix.patch
+-acpi-identify-which-device-is-not-power-manageable.patch
+-pnpacpi-support-shareable-interrupts.patch
+-serial-allow-shared-8250_pnp-interrupts.patch
+-ib-ipath-name-zero-counter-offsets-so-its-clear.patch
+-ib-ipath-update-copyrights-and-other-strings-to.patch
+-ib-ipath-share-more-common-code-between-rc-and-uc.patch
+-ib-ipath-fix-an-indenting-problem.patch
+-ib-ipath-fix-shared-receive-queues-for-rc.patch
+-ib-ipath-allow-diags-on-any-unit.patch
+-ib-ipath-update-some-comments-and-fix-typos.patch
+-ib-ipath-remove-some-duplicate-code.patch
+-ib-ipath-dont-allow-resources-to-be-created-with.patch
+-ib-ipath-fix-some-memory-leaks-on-failure-paths.patch
+-ib-ipath-return-an-error-for-unknown-multicast-gid.patch
+-ib-ipath-report-correct-device-identification.patch
+-ib-ipath-enforce-device-resource-limits.patch
+-ib-ipath-removed-unused-field-ipath_kregvirt-from.patch
+-ib-ipath-print-better-debug-info-when-handling.patch
+-ib-ipath-enable-freeze-mode-when-shutting-down.patch
+-ib-ipath-use-more-appropriate-gfp-flags.patch
+-ib-ipath-use-vmalloc-to-allocate-struct.patch
+-ib-ipath-memory-management-cleanups.patch
+-ib-ipath-reduce-overhead-on-receive-interrupts.patch
+-ib-ipath-fixed-bug-9776.patch
+-ib-ipath-fix-lost-interrupts-on-ht-400.patch
+-ib-ipath-disallow-send-of-invalid-packet-sizes.patch
+-ib-ipath-dont-confuse-the-max-message-size-with.patch
+-ib-ipath-removed-redundant-statements.patch
+-ib-ipath-check-for-valid-lid-and-multicast-lids.patch
+-ib-ipath-fixes-to-performance-get-counters-for-ib.patch
+-ib-ipath-rc-receive-interrupt-performance-changes.patch
+-ib-ipath-purge-sps_lid-and-sps_mlid-arrays.patch
+-ib-ipath-drop-the-stats-sysfs-attribute-group.patch
+-ib-ipath-support-more-models-of-infinipath-hardware.patch
+-ib-ipath-read-write-correct-sizes-through-diag.patch
+-ib-ipath-fix-a-bug-that-results-in-addresses-near.patch
+-ib-ipath-remove-some-if-0-code-related-to.patch
+-ib-ipath-ignore-receive-queue-size-if-srq-is.patch
+-ib-ipath-namespace-cleanup-replace-ips-with-ipath.patch
+-enhancing-accessibility-of-lxdialog.patch
+-mmc-check-sdhci-base-clock.patch
+-mmc-print-device-id.patch
+-mmc-support-for-multiple-voltages.patch
+-mmc-fix-timeout-loops-in-sdhci.patch
+-mmc-fix-sdhci-reset-timeout.patch
+-mmc-proper-timeout-handling.patch
+-mmc-correct-register-order.patch
+-mmc-fix-interrupt-handling.patch
+-mmc-fix-sdhci-pio-routines.patch
+-mmc-avoid-sdhci-dma-boundaries.patch
+-mmc-test-for-invalid-block-size.patch
+-mmc-check-only-relevant-inhibit-bits.patch
+-mmc-check-controller-version.patch
+-mmc-reset-sdhci-controller-early.patch
+-mmc-more-dma-capabilities-tests.patch
+-mmc-support-controller-specific-quirks.patch
+-mmc-version-bump-sdhci.patch
+-mmc-add-sdhci-controller-ids.patch
+-mmc-quirk-for-broken-reset.patch
+-mmc-force-dma-on-some-controllers.patch
+-mmc-remove-duplicate-error-message.patch
+-typo-in-drivers-net-e1000-e1000_hwc.patch
+-fix-implicit-declaration-on-cell.patch
+-xfs-pass-inode-to-xfs_ioc_space.patch
+-smp-alternatives-skip-with-up-kernels.patch
+-uml-make-copy__user-atomic.patch
+-uml-fix-not_dead_yet-when-directory-is-in-bad-state.patch
+-uml-rename-and-improve-actually_do_remove.patch
+-binfmt_elf-fix-checks-for-bad-address.patch
+-binfmt_elf-fix-checks-for-bad-address-fix.patch
+-ufs-truncate-should-allocate-block-for-last-byte.patch
+-fix-is_err-threshold-value.patch
+-rtc-class-driver-for-samsung-s3c-series-soc.patch
+-rtc-class-driver-for-samsung-s3c-series-soc-tidy.patch
+-hotcpu_notifier-fixes.patch
+-add-___rodata-sections-to-asm-generic-sectionsh.patch
+-add-___rodata-sections-to-asm-generic-sectionsh-fix.patch
+-s390-put-sys_call_table-into-rodata-section-and-write-protect-it.patch
+-reiserfs-update-ctime-and-mtime-on-expanding-truncate.patch
+-kernel-doc-consistent-text-man-mode-output.patch
+-fix-problem-with-atapi-dma-on-it8212-in-linux.patch
+-kernel-doc-make-man-text-mode-function-output-same.patch
+-drivers-block-nbdc-compile-fix.patch
+-pnp-suppress-request_irq-warning.patch
+
+ Merged into mainline or a subsystem tree.
+
++time-initialisation-fix.patch
++genirq-ia64-cleanup.patch
++lockdep-special-s390-print_symbol-version.patch
++bcm43xx-netlink-deadlock-fix.patch
++uml-build-fix.patch
++pnpacpi-support-shareable-interrupts.patch
++serial-allow-shared-8250_pnp-interrupts.patch
++zvc-zone_reclaim-leave-1%-of-unmapped-pagecache-pages-for-file-i-o.patch
++binfmt_elf-fix-checks-for-bad-address.patch
++kernel-doc-maintainers.patch
++add-mike-isely-as-pvrusb2-maintainer.patch
++fbdev-add-framebuffer-and-display-update-module-support.patch
++vt-decrement-ref-count-of-the-vt-backend-on-deallocation.patch
++make-more-file_operation-structs-static.patch
++sparc-i8042-build-fix.patch
+
+ 2.6.18-rc1 queue
+
+-lockdep-core-improve-bug-messages.patch
+-lockdep-core-add-set_class_and_name.patch
+-lockdep-core-add-set_class_and_name-fix.patch
+
+ Folded into lockdep-core.patch
+
++lockdep-allow-read_lock-recursion-of-same-class.patch
+
+ Lockdep feature.
+
+-lockdep-annotate-blkdev-nesting-fix.patch
+
+ Folded into lockdep-annotate-blkdev-nesting.patch
+
+-lockdep-annotate-sk_locks-fix.patch
+
+ Folded into lockdep-annotate-sk_locks.patch
+
++lockdep-annotate-hostap-netdev-xmit_lock.patch
+
+ Lockdep false-positive avoidance.
+
++sparc-resource-warning-fixes.patch
+
+ sparc warning fix
+
++git-ia64-fixup.patch
+
+ Fix rejects in git-ia64.patch
+
++ieee1394-sbp2-enable-auto-spin-up-for-maxtor-disks.patch
++ieee1394-fix-calculation-of-csr-expire.patch
++ieee1394-fix-cosmetic-problem-in-speed-probe.patch
++ieee1394-skip-dummy-loop-in-build_speed_map.patch
++ieee1394-replace-__inline__-by-inline.patch
++ieee1394-coding-style-and-comment-fixes-in-midlayer.patch
++ieee1394-update-include-directives-in-midlayer-header.patch
++ieee1394-remove-redundant-code-from-ieee1394_hotplugh.patch
++ieee1394-remove-unused-macros-hpsb_panic-and.patch
++ieee1394-clean-up-declarations-of-hpsb__config_rom.patch
++ieee1394-dv1394-sem2mutex-conversion.patch
++ieee1394-raw1394-remove-redundant-counting-semaphore.patch
++ieee1394-nodemgr-remove-unnecessary-includes.patch
++ieee1394-nodemgr-do-not-spawn-kernel_thread-for-sysfs.patch
++ieee1394-nodemgr-make-module-parameter-ignore_drivers.patch
++ieee1394-nodemgr-switch-to-kthread-api-replace-reset.patch
++ieee1394-nodemgr-convert-nodemgr_serialize-semaphore.patch
++ieee1394-fix-kerneldoc-of-hpsb_alloc_host.patch
++ieee1394-shrink-tlabel-pools-remove-tpool-semaphores.patch
+
+ 1394 updates
+
+-revert-sparc-build-breakage.patch
+
+ Unneeded.
+
++git-e1000-fixup.patch
+
+ Fix reject in git-e1000.patch
+
++e1000-irq-naming-update.patch
+
+ Update e1000 to the new IRQ naming scheme.
+
++net-adduse-poison-defines.patch
++atm-adduse-poison-defines.patch
+
+ net cleanups
+
++revert-gregkh-pci-msi-drop-pci_msi_quirk.patch
++revert-gregkh-pci-msi-stop-inheriting-bus-flags-and-check-root-chipset-bus-flags-instead.patch
++revert-gregkh-pci-msi-factorize-common-msi-detection-code-from-pci_enable_msi-and-msix.patch
++revert-gregkh-pci-msi-blacklist-pci-e-chipsets-depending-on-hypertransport-msi-capabality.patch
++revert-gregkh-pci-msi-rename-pci_cap_id_ht_irqconf-into-pci_cap_id_ht.patch
++revert-gregkh-pci-msi-merge-existing-msi-disabling-quirks.patch
+
+ Revert some bad patches from the PCI tree.
+
++git-scsi-misc-fixup.patch
+
+ Fix reject due to git-scsi-misc.patch
+
+-make-drivers-scsi-aic7xxx-aic79xx_coreahd_set_tags-static.patch
+
+ Dropped (accidentally, I think).
+
+-my-name-is-ingo-molnar-you-killed-my-make-allyesconfig-prepare-to-die.patch
+
+ Ditto.
+
++x86_64-mm-remove-un-set_nmi_callback-and-reserve-release_lapic_nmi-functions.patch
++x86_64-mm-add-abilty-to-enable-disable-nmi-watchdog-from-sysfs.patch
++x86_64-mm-add-abilty-to-enable-disable-nmi-watchdog-from-procfs-update.patch
++x86_64-mm-x86_64-mm-remove-un-set_nmi_callback-and-reserve-release_lapic_nmi-functions-x86-fix.patch
++x86_64-mm-x86_64-mm-remove-un-set_nmi_callback-and-reserve-release_lapic_nmi-functions-x86-fix-fix.patch
++x86_64-mm-x86_64-mm-remove-un-set_nmi_callback-and-reserve-release_lapic_nmi-functions-x86_64-fix.patch
++x86_64-mm-allow-users-to-force-a-panic-on-nmi.patch
++x86_64-mm-x86-clean-up-nmi-panic-messages.patch
++x86_64-mm-x86-nmi-fix.patch
++x86_64-mm-x86-nmi-fix-2.patch
++x86_64-mm-make-functions-static.patch
++x86_64-mm-kdump-x86_64-nmi-event-notification-fix.patch
++x86_64-mm-kdump-i386-nmi-event-notification-fix.patch
++x86_64-mm-i386-enable-nmi-wdog.patch
++x86_64-mm-add-nmi-watchdog-support-for-new-intel-cpus.patch
+
+ x86_64 tree updates
+
++mm-x86_64-mm-init-rdtscp-warning-fix.patch
+
+ Fix it.
+
++sleazy-fpu-feature-x86_64-support.patch
++sleazy-fpu-feature-x86_64-support-fix.patch
++sleazy-fpu-feature-i386-support.patch
+
+ Speed up floating point handling a bit.
+
++x86_64-fix-calgary-copyright-statements-per-ibm-guidelines.patch
++x86_64-add-a-maintainers-entry-for-calgary.patch
+
+ x86_64 updates.
+
+-mm-tracking-shared-dirty-pages-update.patch
+
+ Folded into mm-tracking-shared-dirty-pages.patch
+
+-mm-msync-cleanup-fix.patch
+
+ Folded into mm-msync-cleanup.patch
+
++x86-re-enable-generic-numa.patch
+
+ Permit x86-on-NUMA
+
+ fix-boot-on-efi-32-bit-machines.patch
+
++ia64-kprobe-invalidate-icache-of-jump-buffer.patch
+
+ ia64 kprobes fix
+
+-apple-motion-sensor-driver-update.patch
+-apple-motion-sensor-driver-update-2.patch
+
+ Folded into apple-motion-sensor-driver.patch
+
++fat-cleanup-fat_get_blocks.patch
++make-valid_mmap_phys_addr_range-take-a-pfn.patch
++valid_mmap_phys_addr_range-cleanup.patch
++char-rtc-handle-memory-mapped-chips-properly.patch
++char-rtc-handle-memory-mapped-chips-properly-cleanup.patch
++inode_diet-replace-inodeugeneric_ip-with-inodei_private.patch
++inode-diet-move-i_pipe-into-a-union.patch
++inode-diet-move-i_bdev-into-a-union.patch
++inode-diet-move-i_cdev-into-a-union.patch
++inode-diet-eliminate-i_blksize-and-use-a-per-superblock-default.patch
++inode-diet-fix-size-of-i_blkbits-i_version-and-i_dnotify_mask.patch
++reiserfsfix-journaling-issue-regarding-fsync.patch
++x86-microcode-microcode-driver-cleanup.patch
++x86-microcode-microcode-driver-cleanup-tidy.patch
++x86-microcode-using-request_firmware-to-pull-microcode.patch
++x86-microcode-add-sysfs-and-hotplug-support.patch
++x86-microcode-add-sysfs-and-hotplug-support-fix.patch
+
+ Misc updates.
+
+-reiserfs-reorganize-bitmap-loading-functions-fix.patch
+-reiserfs-reorganize-bitmap-loading-functions-fix2.patch
+
+ Folded into reiserfs-reorganize-bitmap-loading-functions.patch
+
+-reiserfs-on-demand-bitmap-loading-fix.patch
+
+ Folded into reiserfs-on-demand-bitmap-loading.patch
+
+-per-task-delay-accounting-setup-fix-1.patch
+-per-task-delay-accounting-setup-fix-2.patch
+
+ Folded into per-task-delay-accounting-setup.patch
+
+-per-task-delay-accounting-sync-block-i-o-and-swapin-delay-collection-fix-1.patch
+
+ Folded into per-task-delay-accounting-sync-block-i-o-and-swapin-delay-collection.patch
+
+-per-task-delay-accounting-cpu-delay-collection-via-schedstats-fix-1.patch
+
+ Folded into per-task-delay-accounting-cpu-delay-collection-via-schedstats.patch
+
+-per-task-delay-accounting-taskstats-interface-fix-1.patch
+-per-task-delay-accounting-taskstats-interface-fix-2.patch
+-per-task-delay-accounting-taskstats-interface-tidy.patch
+
+ Folded into per-task-delay-accounting-taskstats-interface.patch
+
+-per-task-delay-accounting-proc-export-of-aggregated-block-i-o-delays-warning-fix.patch
+
+ Folded into per-task-delay-accounting-proc-export-of-aggregated-block-i-o-delays.patch
+
+-delay-accounting-taskstats-interface-send-tgid-once-fixes.patch
+-delay-accounting-taskstats-interface-send-tgid-once-locking.patch
+
+ Folded into delay-accounting-taskstats-interface-send-tgid-once.patch
+
+-ecryptfs-fs-makefile-and-fs-kconfig-remove-ecrypt_debug-from-fs-kconfig.patch
+
+ Folded into ecryptfs-fs-makefile-and-fs-kconfig.patch
+
+-ecryptfs-main-module-functions-uint16_t-u16.patch
+
+ Folded into ecryptfs-main-module-functions.patch
+
+-ecryptfs-header-declarations-update.patch
+-ecryptfs-header-declarations-update-convert-signed-data-types-to-unsigned-data-types.patch
+-ecryptfs-header-declarations-remove-unnecessary-ifndefs.patch
+
+ Folded into ecryptfs-header-declarations.patch
+
+-ecryptfs-superblock-operations-ecryptfs_statfs-api-change.patch
+
+ Folded into ecryptfs-superblock-operations.patch
+
+-ecryptfs-file-operations-remove-null-==-syntax.patch
+-ecryptfs-file-operations-remove-extraneous-read-of-inode-size-from-header.patch
+-ecryptfs-file-operations-fix.patch
+-ecryptfs-file-operations-fix-premature-release-of-file_info-memory.patch
+
+ Folded into ecryptfs-file-operations.patch
+
+-mark-address_space_operations-const-vs-ecryptfs-mmap-operations.patch
+
+ Folded into ecryptfs-mmap-operations.patch
+
+-ecryptfs-crypto-functions-fix-filesize-on-hard-link-creation.patch
+
+ Folded into ecryptfs-crypto-functions.patch
+
+-ecryptfs-more-elegant-aes-key-size-manipulation-tidy.patch
+
+ Folded into ecryptfs-more-elegant-aes-key-size-manipulation.patch
+
+-ecryptfs-validate-packet-length-prior-to-parsing-add-comments-fix.patch
+
+ Folded into ecryptfs-validate-packet-length-prior-to-parsing-add-comments.patch
+
++inode-diet-move-i_pipe-into-a-union-ecryptfs.patch
++inode-diet-eliminate-i_blksize-and-use-a-per-superblock-default-ecryptfs.patch
+
+ Fix ecryptfs for the inode-shrinkage patches.
+
+-namespaces-utsname-switch-to-using-uts-namespaces-alpha-fix.patch
+-namespaces-utsname-switch-to-using-uts-namespaces-cleanup.patch
+
+ Folded into namespaces-utsname-switch-to-using-uts-namespaces.patch
+
+-namespaces-utsname-use-init_utsname-when-appropriate-cifs-update.patch
+
+ Folded into namespaces-utsname-use-init_utsname-when-appropriate.patch
+
+-namespaces-utsname-implement-utsname-namespaces-export.patch
+-namespaces-utsname-implement-utsname-namespaces-dont-include-compileh.patch
+-namespaces-utsname-implement-utsname-namespaces-remove-unused-exit_utsname.patch
+
+ Folded into namespaces-utsname-implement-utsname-namespaces.patch
+
+-namespaces-utsname-sysctl-hack-cleanup.patch
+-namespaces-utsname-sysctl-hack-cleanup-2.patch
+-namespaces-utsname-sysctl-hack-cleanup-2-fix.patch
+
+ Folded into namespaces-utsname-sysctl-hack.patch
+
+-namespaces-utsname-implement-clone_newuts-flag-tidy.patch
+
+ Folded into namespaces-utsname-implement-clone_newuts-flag.patch
+
+-ipc-namespace-core-fix.patch
+-ipc-namespace-core-unshare-fix.patch
+
+ Folded into ipc-namespace-core.patch
+
+-ipc-namespace-utils-compilation-fix.patch
+
+ Folded into ipc-namespace-utils.patch
+
+-task-watchers-task-watchers-tidy.patch
+
+ Folded into task-watchers-task-watchers.patch
+
+-task-watchers-add-support-for-per-task-watchers-warning-fix.patch
+
+ Folded into task-watchers-add-support-for-per-task-watchers.patch
+
+-task-watchers-register-semundo-task-watcher-cleanup.patch
+
+ Folded into task-watchers-register-semundo-task-watcher.patch
+
+-readahead-kconfig-option-readahead_allow_overheads.patch
+
+ Folded into readahead-kconfig-options.patch
+
+-readahead-state-based-method-routines-no-ra_flag_eof-on-single-page-file.patch
+
+ Folded into readahead-state-based-method-routines.patch
+
+-readahead-state-based-method-readahead-state-based-method-stand-alone-size-limit-code.patch
+-readahead-state-based-method-aging-accounting-readahead-kconfig-option-readahead_smooth_aging.patch
+
+ Folded into readahead-state-based-method.patch
+
+-readahead-context-based-method-apply-stream_shift-size-limits-to-contexta-method.patch
+-readahead-context-based-method-fix-remain-counting.patch
+-readahead-context-based-method-slow-start.patch
+
+ Folded into readahead-context-based-method.patch
+
+-readahead-initial-method-guiding-sizes-aggressive-initial-sizes.patch
+
+ Folded into readahead-initial-method-guiding-sizes.patch
+
+-readahead-backward-prefetching-method-add-use-case-comment.patch
+
+ Folded into readahead-backward-prefetching-method.patch
+
+-readahead-call-scheme-fix-fastcall.patch
+-readahead-call-scheme-no-fastcall-for-readahead_cache_hit.patch
+-readahead-call-scheme-no-fastcall-for-readahead_cache_hit-kconfig-option-readahead_hit_feedback.patch
+
+ Folded into readahead-call-scheme.patch
+
++inode_diet-replace-inodeugeneric_ip-with-inodei_private-reiser4.patch
++inode-diet-eliminate-i_blksize-and-use-a-per-superblock-default-reiser4.patch
+
+ Fix reiser4 for the inode-diet patches
+
++vt-remove-vt-specific-declarations-and-definitions-from-fix.patch
+
+ Fix vt-remove-vt-specific-declarations-and-definitions-from.patch
+
++tty-remove-include-of-screen_infoh-from-ttyh-fix.patch
++tty-remove-include-of-screen_infoh-from-ttyh-fix-fix.patch
+
+ Fix tty-remove-include-of-screen_infoh-from-ttyh.patch
+
++md-oops-workaround.patch
+
+ Work around an oops in MD. (triggered by the now-hopefully-fixed barrier bug).
+
+-statistics-infrastructure-update-1.patch
+
+-statistics-infrastructure-update-2.patch
+-statistics-infrastructure-update-3.patch
+-statistics-infrastructure-update-4.patch
+-statistics-infrastructure-update-5.patch
+-statistics-infrastructure-update-6.patch
+-statistics-infrastructure-update-7.patch
+-statistics-infrastructure-update-8.patch
+
+ Folded into Folded into statistics-infrastructure.patch
+
+-genirq-add-chip-eoi-fastack-fasteoi-x86_64.patch
+
+ Folded into genirq-convert-the-x86_64-architecture-to-irq-chips.patch
+
+-genirq-convert-the-i386-architecture-to-irq-chips-fix-2.patch
+-genirq-add-chip-eoi-fastack-fasteoi-x86.patch
+
+ Folded into genirq-convert-the-i386-architecture-to-irq-chips.patch
+
+-genirq-x86_64-irq-reenable-migrating-irqs-to-other-cpus-fix.patch
+
+ Folded into genirq-x86_64-irq-reenable-migrating-irqs-to-other-cpus.patch
+
+-genirq-msi-simplify-msi-enable-and-disable-fix.patch
+
+ Folded into genirq-msi-simplify-msi-enable-and-disable.patch
+
+-genirq-ia64-irq-dynamic-irq-support-fix.patch
+
+ Folded into genirq-ia64-irq-dynamic-irq-support.patch
+
+-genirq-i386-irq-dynamic-irq-support-fix.patch
+
+ Folded into genirq-i386-irq-dynamic-irq-support.patch
+
++genirq-msi-only-build-msi-apicc-on-ia64-fix.patch
+
+ Folded into genirq-msi-only-build-msi-apicc-on-ia64.patch
+
+-genirq-i386-irq-remove-the-msi-assumption-that-irq-==-vector-fix.patch
+-genirq-i386-irq-remove-the-msi-assumption-that-irq-==-vector-fix-tidies.patch
+
+ Folded into genirq-i386-irq-remove-the-msi-assumption-that-irq-==-vector.patch
+
+-srcu-rcu-variant-permitting-read-side-blocking-fixes.patch
+
+ Folded into srcu-rcu-variant-permitting-read-side-blocking.patch
+
+-srcu-add-srcu-operations-to-rcutorture-fix.patch
+-srcu-add-srcu-operations-to-rcutorture-tidy-2.patch
+
+ Folded into srcu-add-srcu-operations-to-rcutorture.patch
+
+-srcu-2-add-srcu-operations-to-rcutorture-fix.patch
+
+ Folded into srcu-2-add-srcu-operations-to-rcutorture.patch
+
+-export_unused_symbolgpl-unregister_die_notifier.patch
+
+ Dropped.
+
+
+
+All 704 patches:
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/patch-list
+
+

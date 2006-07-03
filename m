@@ -1,122 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWGCPiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWGCPjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbWGCPiu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 11:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWGCPiu
+	id S1751199AbWGCPjt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 11:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWGCPjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 11:38:50 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:49829 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932077AbWGCPit (ORCPT
+	Mon, 3 Jul 2006 11:39:48 -0400
+Received: from xenotime.net ([66.160.160.81]:45753 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751199AbWGCPjs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 11:38:49 -0400
-Message-ID: <351941126.25373@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Mon, 3 Jul 2006 23:39:30 +0800
-From: Fengguang Wu <fengguang.wu@gmail.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New readahead - ups and downs new test
-Message-ID: <20060703153930.GC5874@mail.ustc.edu.cn>
-Mail-Followup-To: Fengguang Wu <fengguang.wu@gmail.com>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	Helge Hafting <helge.hafting@aitel.hist.no>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <44A12D84.5010400@aitel.hist.no> <20060702235516.GA6034@mail.ustc.edu.cn> <20060703135027.GA4440@aitel.hist.no>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060703135027.GA4440@aitel.hist.no>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Mon, 3 Jul 2006 11:39:48 -0400
+Date: Mon, 3 Jul 2006 08:42:33 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: akpm@osdl.org, ralf@linux-mips.org, erik_frederiksen@pmc-sierra.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] consistently use MAX_ERRNO in __syscall_return
+Message-Id: <20060703084233.0fc3921a.rdunlap@xenotime.net>
+In-Reply-To: <44A931C1.7060604@zytor.com>
+References: <1151528227.3904.1110.camel@girvin.pmc-sierra.bc.ca>
+	<20060628140825.692f31be.rdunlap@xenotime.net>
+	<20060629181013.GA18777@linux-mips.org>
+	<20060701114409.ed320be0.rdunlap@xenotime.net>
+	<44A6F5E3.8000300@zytor.com>
+	<20060702112722.74b5adff.rdunlap@xenotime.net>
+	<20060703003941.2f5fe722.akpm@osdl.org>
+	<44A931C1.7060604@zytor.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 03:50:27PM +0200, Helge Hafting wrote:
-> On Mon, Jul 03, 2006 at 07:55:16AM +0800, Fengguang Wu wrote:
-> > Hi Helge,
-> > 
-> > On Tue, Jun 27, 2006 at 03:07:16PM +0200, Helge Hafting wrote:
-> > > I made my own little io-intensive test, that shows a case where
-> > > performance drops.
-> > > 
-> > > I boot the machine, and starts "debsums", a debian utility that
-> > > checksums every file managed by debian package management.
-> > > As soon as the machine starts swapping, I also start
-> > > start a process that applies an mm-patch to the kernel tree, and
-> > > times this.
-> > > 
-> > > This patching took 1m28s with cold cache, without debsums running.
-> > > With the 2.6.15 kernel (old readahead), and debsums running, this
-> > > took 2m20s to complete, and 360kB in swap at the worst.
-> > > 
-> > > With the new readahead in 2.6.17-mm3 I get 6m22s for patching,
-> > > and 22MB in swap at the most.  Runs with mm1 and mm2 were
-> > > similiar, 5-6 minutes patching and 22MB swap.
-> > > 
-> > > My patching clearly takes more times this way.  I don't know
-> > > if debsums improved though, it could be as simple as a fairness
-> > > issue.  Memory pressure definitely went up.
-> > 
-> > There are a lot changes between 2.6.15 and 2.6.17-mmX. Would you use
-> > the single 2.6.17-mm5 kernel for benchmarking? It's easy:
-> > 
-> >         - select old readahead:
-> >                 echo 1 > /proc/sys/vm/readahead_ratio
-> > 
-> >         - select new readahead:
-> >                 echo 50 > /proc/sys/vm/readahead_ratio
-> > 
-> >
-> I just tried this with 2.5.17-mm5.  I did in on a faster
-> machine (opteron cpu, but still 512MB) so don't compare with
-> my previous test which ran on a pentium-IV.
-> Single cpu in both cases.
-> 
-> Test procdure:
-> 1. Reboot, log in through xdm
-> 2. run vmstat 10 for swap monitoring
-> 3. time debsums -s
-> 4. As soon as the machine touches swap, launch
->    time bzcat 2.6.15-mm5.bz2 | patch -p1
-> 
-> In either case, testing starts with 320MB free memory after boot,
-> which debsums caching eats in about a minute and swapping starts.
-> Then I start the patching, which finished before debsums.
-> 
-> Old readahed:
-> Max swap was 700kB, but it dropped back to 244kB after 10s
-> and stayed there.  
-> Patch timing:
-> real    0m37.662s
-> user    0m5.002s
-> sys     0m2.023s
-> debsums timing:
-> real    5m50.333s
-> user    0m21.127s
-> sys     0m14.506s
-> 
-> New readahead:
-> Max swap: 244kB.  (On another try it jumped to 816kB and then fell back
-> to 244kB).
-> patch timing:
-> real    0m40.951s
-> user    0m5.043s
-> sys     0m2.061s
-> debsums timing:
-> real    5m46.555s
-> user    0m21.195s
-> sys     0m13.918s
-> 
-> Timing and memory load seems to be almost identical this time,
-> perhaps this is a load where the type of readahead doesn't
-> matter.  
+On Mon, 03 Jul 2006 08:03:29 -0700 H. Peter Anvin wrote:
 
-Thanks. You are right, the readahead logic won't affect the swap cache.
-Nor will the readahead size, I guess. But to be sure, you can do one
-more test on it with the following command, using the same 2.5.17-mm5:
+> Andrew Morton wrote:
+> > On Sun, 2 Jul 2006 11:27:22 -0700
+> > "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> > 
+> >> --- linux-2617-g20.orig/include/asm-i386/unistd.h
+> >> +++ linux-2617-g20/include/asm-i386/unistd.h
+> >> @@ -327,14 +327,15 @@
+> >>  #ifdef __KERNEL__
+> >>  
+> >>  #define NR_syscalls 318
+> >> +#include <linux/err.h>
+> > 
+> > include/linux/err.h: Assembler messages:
+> > include/linux/err.h:20: Error: no such instruction: `static inline void *ERR_PTR(long error)'
+> > include/linux/err.h:21: Error: junk at end of line, first unrecognized character is `{'
+> > include/linux/err.h:22: Error: no such instruction: `return (void *)error'
+> > include/linux/err.h:23: Error: junk at end of line, first unrecognized character is `}'
+> > include/linux/err.h:25: Error: no such instruction: `static inline long PTR_ERR(const void *ptr)'
+> > include/linux/err.h:26: Error: junk at end of line, first unrecognized character is `{'
+> > include/linux/err.h:27: Error: no such instruction: `return (long)ptr'
+> > include/linux/err.h:28: Error: junk at end of line, first unrecognized character is `}'
+> > include/linux/err.h:30: Error: no such instruction: `static inline long IS_ERR(const void *ptr)'
+> > include/linux/err.h:31: Error: junk at end of line, first unrecognized character is `{'
+> > include/linux/err.h:32: Error: no such instruction: `return unlikely(((unsigned long)ptr)>=(unsigned long)-4095)'
+> > include/linux/err.h:33: Error: junk at end of line, first unrecognized character is `}'
+> > distcc[7619] ERROR: compile (null) on localhost failed
+> > make[1]: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 1
+> > make: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 2
 
-        blockdev --setra /dev/hda1 256
+Built for me on i386 and x86_64.
 
-Please replace /dev/hda1 with the root device on your system, thanks.
+> unlikely() shouldn't be used in code exported to user space.  At least 
+> one architecture simply open-codes the __builtin_expect(); or we could
+> introduce __likely() and __unlikely() for the benefit of userspace.
 
-Wu
+How did you determine that this had something to do with
+userspace?
+
+---
+~Randy

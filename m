@@ -1,50 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWGCQna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWGCQun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750915AbWGCQna (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 12:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWGCQna
+	id S1750935AbWGCQun (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 12:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWGCQun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 12:43:30 -0400
-Received: from mga02.intel.com ([134.134.136.20]:3342 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750913AbWGCQna convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 12:43:30 -0400
-X-IronPort-AV: i="4.06,201,1149490800"; 
-   d="scan'208"; a="60007257:sNHT14341320"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: Re: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
-Date: Mon, 3 Jul 2006 20:43:22 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC053FD4@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
-Thread-Index: Acaev8wSo5wvAe8IQxGHODDj04XRTQ==
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Jul 2006 16:43:27.0510 (UTC) FILETIME=[CEFA7360:01C69EBF]
+	Mon, 3 Jul 2006 12:50:43 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:24157 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750935AbWGCQum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 12:50:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:reply-to:to:content-type:date:message-id:mime-version:x-mailer;
+        b=S0FCI+ydLudrrzgnZciUXrFIuXtH9MCSkTf82QTqeOjBxY0e25AZPAZ1yfuMQg9ZjERtOWXv7vrJqJWR+/Y922KvKe3YX988DynnnmD5ZNUq0Wb+GcWethj08gjb8XdXjVHN1alDMwHEN/iMjfvzJActHyHXNa70M+3ka8jco5c=
+Subject: Documentation/initrd.txt update
+From: Guilherme Destefani <guilhermedestefani@gmail.com>
+Reply-To: linux-kernel@vger.kernel.org, guilhermedestefani@gmail.com
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-NPi+2mzSfYCxYmCUEYaN"
+Date: Mon, 03 Jul 2006 13:50:37 -0300
+Message-Id: <1151945437.5699.13.camel@homemfera.perkons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Nikita Danilov writes:
-> Wouldn't this interfere with current->backing_dev_info logic?
 
-The proposed patch does not modify that logic.
+--=-NPi+2mzSfYCxYmCUEYaN
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> Maybe pdflush threads should set this field too?
+The cpio initrd isn't documented in
+linux-2.6.17/Documentation/initrd.txt.
+(but it is in
+linux-2.6.17/Documentation/filesystems/ramfs-rootfs-initramfs.txt)
+initrd.txt shouldn't be updated?
 
-If pdflush sets current->backing_dev_info it means to ignore congested
-device state.
-It will not help to get reclaimed memory for pdflush but will increase
-congestion, and pdflush will be dependent from swapping out process
-using congested queue. The queue may be just congested because of memory
-for queue. Other page could be better candidate for memory reclamation.
+Two possible updates follow, use patch -p1 inside the kernel tree.
 
-So, pdflush should not set this field.
+--=-NPi+2mzSfYCxYmCUEYaN
+Content-Description: 
+Content-Disposition: inline; filename=Documentation_initrd.txt.use_patch_p1_option1.patch
+Content-Type: text/x-patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Leonid
+--- linux-2.6.17.old/Documentation/initrd.txt	2006-06-17 22:49:35.000000000 -0300
++++ linux-2.6.17/Documentation/initrd.txt	2006-07-03 13:29:00.000000000 -0300
+@@ -104,11 +104,13 @@
+ Third, you have to create the RAM disk image. This is done by creating a
+ file system on a block device, copying files to it as needed, and then
+ copying the content of the block device to the initrd file. With recent
+-kernels, at least three types of devices are suitable for that:
++kernels, at least four types of devices are suitable for that:
+ 
+  - a floppy disk (works everywhere but it's painfully slow)
+  - a RAM disk (fast, but allocates physical memory)
+  - a loopback device (the most elegant solution)
++ - a cpio containing the initrd files, described in
++   Documentation/filesystems/ramfs-rootfs-initramfs.txt
+ 
+ We'll describe the loopback device method:
+ 
+
+--=-NPi+2mzSfYCxYmCUEYaN
+Content-Description: 
+Content-Disposition: inline; filename=Documentation_initrd.txt.use_patch_p1_option2.patch
+Content-Type: text/x-patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.6.17.old/Documentation/initrd.txt	2006-07-03 13:25:35.000000000 -0300
++++ linux-2.6.17/Documentation/initrd.txt	2006-07-03 13:39:54.000000000 -0300
+@@ -140,6 +140,25 @@
+     compressed
+     # gzip -9 initrd
+ 
++It is also possible to use a cpio archive (instead of a file system), 
++and pack all the files inside it.
++The kernel will create a ramdisk, unpack the contents of the initrd
++ and execute /init.
++
++To create such a file:
++
++ 1) Enter the directory containig the unpacked initrd files:
++    # cd /path/to/initrd
++ 2) Create the cpio file (whithout any leading path).
++ 3) Create a cpio file.
++ 4) Compress it with gzip to save space.
++    steps 2,3 and 4 can be archieved with:
++    find -printf "%P\n" |cpio -oc | gzip -9 > /full_path_to/initrd.img
++    |-------step 2------|-step 3--|------------step 4-----------------|
++
++Or use usr/gen_init_cpio
++(see Documentation/filesystems/ramfs-rootfs-initramfs.txt)
++
+ For experimenting with initrd, you may want to take a rescue floppy and
+ only add a symbolic link from /linuxrc to /bin/sh. Alternatively, you
+ can try the experimental newlib environment [2] to create a small
+
+--=-NPi+2mzSfYCxYmCUEYaN--
+

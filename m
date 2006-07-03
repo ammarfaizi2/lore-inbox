@@ -1,120 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWGCEyX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWGCFWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWGCEyX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 00:54:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWGCEyW
+	id S1750733AbWGCFWF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 01:22:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWGCFWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 00:54:22 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:25008 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751334AbWGCEyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 00:54:21 -0400
-Date: Sun, 2 Jul 2006 21:53:50 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: akpm@osdl.org, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com,
-       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
-       hadi@cyberus.ca, netdev@vger.kernel.org
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-Message-Id: <20060702215350.2c1de596.pj@sgi.com>
-In-Reply-To: <44A5EDE6.3010605@watson.ibm.com>
-References: <44892610.6040001@watson.ibm.com>
-	<449C6620.1020203@engr.sgi.com>
-	<20060623164743.c894c314.akpm@osdl.org>
-	<449CAA78.4080902@watson.ibm.com>
-	<20060623213912.96056b02.akpm@osdl.org>
-	<449CD4B3.8020300@watson.ibm.com>
-	<44A01A50.1050403@sgi.com>
-	<20060626105548.edef4c64.akpm@osdl.org>
-	<44A020CD.30903@watson.ibm.com>
-	<20060626111249.7aece36e.akpm@osdl.org>
-	<44A026ED.8080903@sgi.com>
-	<20060626113959.839d72bc.akpm@osdl.org>
-	<44A2F50D.8030306@engr.sgi.com>
-	<20060628145341.529a61ab.akpm@osdl.org>
-	<44A2FC72.9090407@engr.sgi.com>
-	<20060629014050.d3bf0be4.pj@sgi.com>
-	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
-	<20060629094408.360ac157.pj@sgi.com>
-	<20060629110107.2e56310b.akpm@osdl.org>
-	<44A57310.3010208@watson.ibm.com>
-	<44A5770F.3080206@watson.ibm.com>
-	<20060630155030.5ea1faba.akpm@osdl.org>
-	<44A5DBE7.2020704@watson.ibm.com>
-	<20060630194353.1cc96ce4.akpm@osdl.or!
- g>
-	<44A5EDE6.3010605@watson.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Mon, 3 Jul 2006 01:22:05 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:11419 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750733AbWGCFWE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 01:22:04 -0400
+Date: Mon, 3 Jul 2006 07:17:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-mm5 -- Busted toolchain? -- usr/klibc/exec_l.c:59: undefined reference to `__stack_chk_fail'
+Message-ID: <20060703051723.GA13415@elte.hu>
+References: <a44ae5cd0607011409m720dd23dvf178a133c2060b6d@mail.gmail.com> <1151788673.3195.58.camel@laptopd505.fenrus.org> <a44ae5cd0607011425n18266b02s81b3d87988895555@mail.gmail.com> <1151789342.3195.60.camel@laptopd505.fenrus.org> <a44ae5cd0607011537o1cf00545td19e568dcb9c06c1@mail.gmail.com> <1151826131.3111.5.camel@laptopd505.fenrus.org> <a44ae5cd0607021007v52dac771n86c25c3bff491152@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a44ae5cd0607021007v52dac771n86c25c3bff491152@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh wrote:
-> Sends a separate "registration" message with cpumask to listen to. 
-> Kernel stores (real) pid and cpumask.
 
-Question:
-=========
+* Miles Lane <miles.lane@gmail.com> wrote:
 
-Ah - good.
+> >If Ubuntu patched gcc rather than just putting it in the build
+> >environment... then you should switch to a less braindead distribution
+> >really ;)
 
-So this means that I could configure a system with a fork/exit
-intensive, performance critical job on some dedicated CPUs, and be able
-to collect taskstat data from tasks exiting on the -other- CPUS, while
-avoiding collecting data from this special job, thus avoiding any
-taskstat collection performance impact on said job.
+> Well, from the web page referenced at the top of this message, you can 
+> see that they are already aware of these issues:
+> 
+> Cons:
+>    *      It breaks current upstream kernel builds and potentially
+> other direct usages of gcc. Kernel is by far the most important use
+> case. Upstream should change the default options to build with
+> -fno-stack-protector by default.
+>    *      It is not conformant to upstream gcc behaviour.
 
-If I'm understanding this correctly, excellent.
+i think the only sane way for a generic distro to introduce an intrusive 
+security feature is a 3-phase process:
 
-Caveat:
-=======
+ #1 - introduce the new security option
+ #2 - increase use of it gradually, map all the exceptions on the way 
+ #3 - once exceptions are mapped widely enough, switch the option to 
+      default-on
 
-Passing cpumasks across the kernel-user boundary can be tricky.
+this makes the introduction of security seemless/gradual to 
+users/developers, without compromising on the end goal of having the 
+security feature on by default.
 
-Historically, Unix has a long tradition of boloxing up the passing
-of variable length data types across the kernel-user boundary.
+Ubuntu seems to have opted to go to phase #3 directly, which is no doubt 
+quite brutal but it's their choice. In any case, whichever methodology 
+is used the kernel got flagged as an "exception" and we should help this 
+security effort and change the kernel: i.e. lets apply the 
+-fno-stack-protector flag to the kernel build.
 
-We've got perhaps a half dozen ways of getting these masks out of the
-kernel, and three ways of getting them (or the similar nodemasks) back
-into the kernel.  The three ways being used in the sched_setaffinity
-system call, the mbind and set_mempolicy system calls, and the cpuset
-file system.
-
-All three of these ways have their controversial details:
- * The kernel cpumask mask size needed for sched_setaffinity calls is
-   not trivially available to userland.
- * The nodemask bit size is off by one in the mbind and set_mempolicy
-   calls.
- * The CPU and Node masks are ascii, not binary, in the cpuset calls.
-
-One option that might make sense for these task stat registrations
-would be to:
- 1) make the kernel/sched.c get_user_cpu_mask() routine generic,
-    moving it to non-static lib/*.c code, and
- 2) provide a sensible way for user space to query the size of
-    the kernel cpumask (and perhaps nodemask while you're at it.)
-
-Currently, the best way I know for user space to query the kernels
-cpumask and nodemask size is to examine the length of the ascii
-string values labeled "Cpus_allowed:" and "Mems_allowed:" in the file
-/proc/self/status.  These ascii strings always require exactly nine
-ascii chars to express each 32 bits of kernel mask code, if you include
-in the count the trailing ',' comma or '\n' newline after each eight
-ascii character word.
-
-Probing /proc/self/status fields for these mask sizes is rather
-unobvious and indirect, and requires caching the result if you care at
-all about performance.  Userland code in support of your taskstat
-facility might be better served by a more obvious way to size cpumasks.
-
-... unless of course you're inclined to pass cpumasks formatted as
-    ascii strings, in which case speak up, as I'd be delighted to
-    throw in my 2 cents on how to do that ;).
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+	Ingo

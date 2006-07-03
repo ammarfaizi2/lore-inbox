@@ -1,44 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWGCUsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWGCUtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWGCUsi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 16:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWGCUsi
+	id S932105AbWGCUtS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 16:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWGCUtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 16:48:38 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62481 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932098AbWGCUsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 16:48:36 -0400
-Date: Mon, 3 Jul 2006 21:48:30 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [Ubuntu PATCH] Build mmc_block into mmc_core directly
-Message-ID: <20060703204830.GA24978@flint.arm.linux.org.uk>
-Mail-Followup-To: Randy Dunlap <randy.dunlap@oracle.com>,
-	lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-References: <44A98210.2060208@oracle.com>
+	Mon, 3 Jul 2006 16:49:17 -0400
+Received: from ns2.suse.de ([195.135.220.15]:58804 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932102AbWGCUtQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 16:49:16 -0400
+Date: Mon, 3 Jul 2006 13:45:19 -0700
+From: Greg KH <greg@kroah.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Linux ACPI <linux-acpi@vger.kernel.org>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Battery-related regression between 2.6.17-git3 and 2.6.17-git6
+Message-ID: <20060703204519.GA11289@kroah.com>
+References: <200607020021.15040.rjw@sisk.pl> <200607032139.22488.rjw@sisk.pl> <20060703194440.GA10461@kroah.com> <200607032226.04094.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44A98210.2060208@oracle.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200607032226.04094.rjw@sisk.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 01:46:08PM -0700, Randy Dunlap wrote:
-> Build mmc_block into mmc_core directly.
+On Mon, Jul 03, 2006 at 10:26:03PM +0200, Rafael J. Wysocki wrote:
+> On Monday 03 July 2006 21:44, Greg KH wrote:
+> > On Mon, Jul 03, 2006 at 09:39:22PM +0200, Rafael J. Wysocki wrote:
+> > > On Monday 03 July 2006 20:00, Greg KH wrote:
+> > > > On Mon, Jul 03, 2006 at 01:16:45PM +0200, Rafael J. Wysocki wrote:
+> > > > > Hi,
+> > > > > 
+> > > > > On Sunday 02 July 2006 11:15, Rafael J. Wysocki wrote:
+> > > > > > On Sunday 02 July 2006 00:21, Rafael J. Wysocki wrote:
+> > > > > > > With the recent -git on my box (Asus L5D, x86_64 SUSE 10) the powersave
+> > > > > > > demon is apparently unable to get the battery status, although the data in
+> > > > > > > /proc/acpi/battery/BAT0 seem to be correct.  As a result, battery status
+> > > > > > > notification via kpowersave doesn't work and it's hard to notice when the
+> > > > > > > battery is low/critical.
+> > > > > > > 
+> > > > > > > So far I have verified that this feature works fine with 2.6.17-git3 and
+> > > > > > > doesn't work with 2.6.17-git6 (-git5 doesn't compile here).
+> > > > > > > 
+> > > > > > > I'll try to get more information tomorrow (unless someone in the know has
+> > > > > > > an idea of what's up ;-) ).
+> > > > > > 
+> > > > > > I've verified that the problem first appeared in 2.6.17-git4.
+> > > > > 
+> > > > > Apparently this happens because powersaved takes the battery status
+> > > > > information from hald and the following kernel changes make hald crash on
+> > > > > my system:
+> > > > > 
+> > > > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=43104f1da88f5335e9a45695df92a735ad550dda
+> > > > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=bd00949647ddcea47ce4ea8bb2cfcfc98ebf9f2a
+> > > > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=c182274ffe1277f4e7c564719a696a37cacf74ea
+> > > > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=9bde7497e0b54178c317fac47a18be7f948dd471
+> > > > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=36679ea59846d8f34a48f71ca1a37671ca0ad3c5
+> > > > > 
+> > > > > (ie. after reverting them hald works again).
+> > > > 
+> > > > Ick, that should not cause any problems, as sysfs should look identical
+> > > > to how it was before those patches.  Except that the /sys/class/usb/
+> > > > stuff is now symlinks instead of real directories, but HAL has had to
+> > > > handle that for a long time now (and it's even documented in
+> > > > Documentation/ABI/testing/sysfs-class)
+> > > 
+> > > Well, apparently one of them happens to trigger a buffer overflow in "my"
+> > > version of hal. ;-)
+> > > 
+> > > > Can you tell me exactly which of the above patches breaks HAL?
+> > > 
+> > > That would be quite a bit of testing and now I'm sure it's a hal issue.
+> > 
+> > git bisect would help out a lot.  Or just ask the HAL developers, they
+> > might know.
 > 
-> Bug Reference:
-> https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/30335
+> Anyway I'd have to compile and test at least a couple of kernels.
+> [For the record: I'm quite sure that 36679ea59846d8f34a48f71ca1a37671ca0ad3c5
+> and 9bde7497e0b54178c317fac47a18be7f948dd471 together break hal on
+> my system; this seems to be related to endpoints' paths in sysfs.]
 
-NAK.  If it's missing the modalias then it needs to be added.  But more
-the question is why isn't the driver being automatically loaded.
-Probably because hotplug doesn't know enough about the MMC subsystem.
-Unfortunately I'm at rather a loss what's required with hotplug because
-it isn't something I actually use or come into contact with.
+I don't understand why that would break HAL, we are just adding new
+devices to the sysfs device tree, which the kernel is free to do at any
+time.  HAL should not care about that.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Oh, and 36679ea59846d8f34a48f71ca1a37671ca0ad3c5 is just an internal api
+change, it does not affect userspace in any way.  So I don't see how
+that would have anything to do with HAL at all.
+
+thanks,
+
+greg k-h

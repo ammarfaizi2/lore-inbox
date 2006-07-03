@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWGCSUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWGCSXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWGCSUV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 14:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWGCSUV
+	id S932099AbWGCSXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 14:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWGCSXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 14:20:21 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:31908 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932088AbWGCSUV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 14:20:21 -0400
-Date: Mon, 3 Jul 2006 11:16:21 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andy Gay <andy@andynet.net>
-Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, Ken Brush <kbrush@gmail.com>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO transfers
-Message-ID: <20060703181621.GA8448@suse.de>
-References: <1151646482.3285.410.camel@tahini.andynet.net> <adad5cnderb.fsf@cisco.com> <1151872141.3285.486.camel@tahini.andynet.net> <20060703170040.GA15315@suse.de> <1151949329.3285.545.camel@tahini.andynet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 Jul 2006 14:23:09 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:65147 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932099AbWGCSXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 14:23:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=a7Wcnzxl0PARxd90vMwdjV5E9TgSOWjnjjG0yuBBwrFVCwlDji4HbLIHHguNxtOoVc/xdXEVxyEnLAF/dWMrrlOPqkeCYWokIGwWHqtr7IFPIfrkxgqd4AgDg24lT12YqGO6C+EtgN1bKoojYcihIy+5B4TUmyK8L58k11/SqqM=
+Message-ID: <bda6d13a0607031123p78a60f90u385be194e1623856@mail.gmail.com>
+Date: Mon, 3 Jul 2006 11:23:06 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 20/20] honor r/w changes at do_remount() time
+In-Reply-To: <20060703174804.GD29920@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1151949329.3285.545.camel@tahini.andynet.net>
-User-Agent: Mutt/1.5.11
+References: <20060627221436.77CCB048@localhost.localdomain>
+	 <20060627221457.04ADBF71@localhost.localdomain>
+	 <20060628051935.GA29920@ftp.linux.org.uk>
+	 <1151947814.11159.147.camel@localhost.localdomain>
+	 <20060703174804.GD29920@ftp.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 01:55:28PM -0400, Andy Gay wrote:
-> On Mon, 2006-07-03 at 10:00 -0700, Greg KH wrote:
-> > Yes, this driver is already split into 2 different ones (look in the
-> > recent -mm releases).  Sierra wants to have their devices be in their
-> > own driver, as the chip is a little different from the other ones.  This
-> > means that those devices are now controlled by a driver called "sierra"
-> > and the other devices still are working with the airprime driver.
-> > 
-> > This should hopefully fix the different endpoint issue, and allow new
-> > devices to be supported properly, as Sierra Wireless is now maintaining
-> > that driver.
-> Aha, good news. So this patch is already obsolete, for the Sierra stuff
-> anyway. And as I only have Sierra kit to work with, I reckon I should
-> drop out of this now.
+On 7/3/06, Al Viro <viro@ftp.linux.org.uk> wrote:
+> On Mon, Jul 03, 2006 at 10:30:14AM -0700, Dave Hansen wrote:
+> > On Wed, 2006-06-28 at 06:19 +0100, Al Viro wrote:
+> > >         * make the moments when i_nlink hits 0 bump the superblock writers
+> > > count; drop it when such sucker gets freed on final iput.
+> >
+> > Could you elaborate on this one a bit?
+> >
+> > I assume that there are rules that once i_nlink hits 0, it never goes
+> > back up again.  It seems that a whole bunch (if not all) of the
+> > individual filesystems do things to it.  Is it really necessary to go
+> > into all of those looking for the places that i_nlink hits 0?  Seems
+> > like it would be an awful lot of patching.
 
-No, not at all.  I'll gladly add your patch to the sierra driver, if you
-say it works for your devices.
-
-> I did make some changes to the last patch to do the cleanup stuff in the
-> open function, do you want to see those?
-
-Yes, please send the latest version, and I'll apply it.
-
-thanks,
-
-greg k-h
+That would be a poor assumption. Somebody could do ln /proc/pid/fd/3
+/mnt/newname at this point.  In my personal filesystem, there is an
+ioctl that does the equivalent of link(handle, "path"). Both of these
+allow the link count to rise from zero.

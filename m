@@ -1,63 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWGCGca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWGCGtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbWGCGca (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 02:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWGCGca
+	id S1750732AbWGCGtf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 02:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWGCGtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 02:32:30 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58539 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750833AbWGCGc3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 02:32:29 -0400
-Date: Mon, 3 Jul 2006 16:32:16 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: c-otto@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: Huge problem with XFS/iCH7R
-Message-ID: <20060703163216.B1474487@wobbly.melbourne.sgi.com>
-References: <20060702195145.GA4098@localhost.halifax.rwth-aachen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060702195145.GA4098@localhost.halifax.rwth-aachen.de>; from c-otto@gmx.de on Sun, Jul 02, 2006 at 09:51:45PM +0200
+	Mon, 3 Jul 2006 02:49:35 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:48793 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S1750732AbWGCGte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 02:49:34 -0400
+Message-ID: <9FCDBA58F226D911B202000BDBAD467306E04FFF@zch01exm40.ap.freescale.net>
+From: Li Yang-r58472 <LeoLi@freescale.com>
+To: "'Pantelis Antoniou'" <pantelis.antoniou@gmail.com>,
+       Rune Torgersen <runet@innovsys.com>
+Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] powerpc:Fix rheap alignment problem
+Date: Mon, 3 Jul 2006 14:49:26 +0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 02, 2006 at 09:51:45PM +0200, Carsten Otto wrote:
-> Hi there!
+Buddy allocation is good in general, but doesn't mean it fits best in any condition.  In this case for managing DPRAM/MURAM in Freescale soc, in most case we only put buffer descriptor in DPRAM.  That means the alloc/free only occurs on initialization and unloading of the driver.  So there are not supposed to be a lot of free operations.  Buddy allocation will cause more internal fragment, in my humble opinion.  And a free-list allocation is best fit in this case.
+
+
+Best Regards,
+Leo
+> -----Original Message-----
+> From: linuxppc-dev-bounces+leoli=freescale.com@ozlabs.org
+> [mailto:linuxppc-dev-bounces+leoli=freescale.com@ozlabs.org] On Behalf Of
+> Pantelis Antoniou
+> Sent: Sunday, July 02, 2006 1:18 PM
+> To: Rune Torgersen
+> Cc: linuxppc-dev list; Paul Mackerras; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] powerpc:Fix rheap alignment problem
 > 
-> (System specs below)
+> On Sunday 02 July 2006 06:54, Rune Torgersen wrote:
+> > From: Pantelis Antoniou
+> > Sent: Sat 7/1/2006 9:50 AM
+> > >Since genalloc is the blessed linux thing it might be best to use that &
+> remove
+> > >rheap completely. Oh well...
+> >
+> > Two problems with genalloc that I can see (for CPM programming):
+> > 1) (minor) Does not have a way to specify alignment (genalloc does it for
+> you)
+> > 2) (major problerm, at least for me) Does not have a way to allocate a specified
+> address in the pool.
+> >
+> > 2 is needed esp when programming MCC drivers, since a lot of the datastructures
+> must be in DP RAM _and_ be in a specific spot. And if you cannot tell the
+> allocator that I am using a specific address, then the allocator might very
+> well give somebody else that portion of RAM. The only solution without a fixed
+> allocator is to allocate ALL memory in the DP RAM and use your own allocator.
+> >
 > 
-> Short summary:
-> System (with software raid 5, XFS, four disks connected to AHCI
-> controller) crashes very often and loses data.
+> Yeah, that too.
 > 
-> My system crashes every few days, at the moment daily. The message shown
-> is (the drive changes about every time, I do not see a pattern here):
-> ---
-> ata4: handling error/timeout
-> ata4: port reset, p_is 0 is 0 pis 0 cmd c017 tf 7f ss 0 se 0
-> ata4: status=0x50 { DriveReady SeekComplete }
-> sdd: Current: sense key=0x0
-> 	ASC=0x0 ASCQ=0x0
-> Info fid=0x0
-
-FWIW, the above look like hardware/driver problems.
-
-> http://c-otto.de/fehler/
-
-Your first issue there is the XFS dir2 regression discussed recently
-here and on xfs@oss.sgi.com - there's a patch available for that and
-it's likely to be included in the next -stable release.
-
-> I'd like to know what component causes this problem and how I can solve
-> it.
-
-The initial problem (above) and three-of-four of your photos look
-unrelated to XFS, but that first image is indicating a (now fixed)
-XFS problem - so, looks like you have multiple issues there.
-
-cheers.
-
--- 
-Nathan
+> Too bad there are no main tree drivers like that, but they do exist.
+> 
+> One could conceivably hack genalloc to do that, but will end up with
+> something complex too.
+> 
+> BTW, there are other uEngine based architectures with similar alignment
+> requirements.
+> 
+> So in conclusion, for the in-tree drivers genalloc is sufficient as an cpm
+> memory allocator.
+> For some out of tree drivers, it is not.
+> 
+> Pantelis
+> _______________________________________________
+> Linuxppc-dev mailing list
+> Linuxppc-dev@ozlabs.org
+> https://ozlabs.org/mailman/listinfo/linuxppc-dev

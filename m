@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWGCPjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWGCPnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWGCPjt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 11:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWGCPjs
+	id S932080AbWGCPnO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 11:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWGCPnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 11:39:48 -0400
-Received: from xenotime.net ([66.160.160.81]:45753 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751199AbWGCPjs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 11:39:48 -0400
-Date: Mon, 3 Jul 2006 08:42:33 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: akpm@osdl.org, ralf@linux-mips.org, erik_frederiksen@pmc-sierra.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] consistently use MAX_ERRNO in __syscall_return
-Message-Id: <20060703084233.0fc3921a.rdunlap@xenotime.net>
-In-Reply-To: <44A931C1.7060604@zytor.com>
-References: <1151528227.3904.1110.camel@girvin.pmc-sierra.bc.ca>
-	<20060628140825.692f31be.rdunlap@xenotime.net>
-	<20060629181013.GA18777@linux-mips.org>
-	<20060701114409.ed320be0.rdunlap@xenotime.net>
-	<44A6F5E3.8000300@zytor.com>
-	<20060702112722.74b5adff.rdunlap@xenotime.net>
-	<20060703003941.2f5fe722.akpm@osdl.org>
-	<44A931C1.7060604@zytor.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 3 Jul 2006 11:43:14 -0400
+Received: from wr-out-0506.google.com ([64.233.184.226]:59240 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932080AbWGCPnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 11:43:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NxscQ74UVxegfNoegx9W0meZITIdKMZ5n2L8uf0J5E7oVT1sux2wir9kC/ozkpKVzb9VVYm56S0ELBwuKtdtdBhAw610M4me1PfAz7bAZnL7Gva1yz3lvb0NCTkoVFCBgNz6U+DaUJmNQN0bDKMuQzZQL+hZ0PaGSjeSB5QFHZ0=
+Message-ID: <ef88c0e00607030843q3cf32c1q40ae8fa8055b025f@mail.gmail.com>
+Date: Mon, 3 Jul 2006 08:43:13 -0700
+From: "Ken Brush" <kbrush@gmail.com>
+To: "Andy Gay" <andy@andynet.net>
+Subject: Re: [linux-usb-devel] [PATCH] Airprime driver improvements to allow full speed EvDO transfers
+Cc: "Greg KH" <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <1151646482.3285.410.camel@tahini.andynet.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1151646482.3285.410.camel@tahini.andynet.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 03 Jul 2006 08:03:29 -0700 H. Peter Anvin wrote:
+On 6/29/06, Andy Gay <andy@andynet.net> wrote:
+>
+> Adapted from an earlier patch by Greg KH <gregkh@suse.de>.
+> That patch added multiple read urbs and larger transfer buffers to allow
+> data transfers at full EvDO speed.
+>
+> This version includes additional device IDs and fixes a memory leak in
+> the transfer buffer allocation.
+>
+> Some (maybe all?) of the supported devices present multiple bulk endpoints,
+> the additional EPs can be used for control and status functions.
+> This version allocates 3 EPs by default, that can be changed using
+> the 'endpoints' module parameter.
+>
+> Tested with Sierra Wireless EM5625 and MC5720 embedded modules.
+>
 
-> Andrew Morton wrote:
-> > On Sun, 2 Jul 2006 11:27:22 -0700
-> > "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-> > 
-> >> --- linux-2617-g20.orig/include/asm-i386/unistd.h
-> >> +++ linux-2617-g20/include/asm-i386/unistd.h
-> >> @@ -327,14 +327,15 @@
-> >>  #ifdef __KERNEL__
-> >>  
-> >>  #define NR_syscalls 318
-> >> +#include <linux/err.h>
-> > 
-> > include/linux/err.h: Assembler messages:
-> > include/linux/err.h:20: Error: no such instruction: `static inline void *ERR_PTR(long error)'
-> > include/linux/err.h:21: Error: junk at end of line, first unrecognized character is `{'
-> > include/linux/err.h:22: Error: no such instruction: `return (void *)error'
-> > include/linux/err.h:23: Error: junk at end of line, first unrecognized character is `}'
-> > include/linux/err.h:25: Error: no such instruction: `static inline long PTR_ERR(const void *ptr)'
-> > include/linux/err.h:26: Error: junk at end of line, first unrecognized character is `{'
-> > include/linux/err.h:27: Error: no such instruction: `return (long)ptr'
-> > include/linux/err.h:28: Error: junk at end of line, first unrecognized character is `}'
-> > include/linux/err.h:30: Error: no such instruction: `static inline long IS_ERR(const void *ptr)'
-> > include/linux/err.h:31: Error: junk at end of line, first unrecognized character is `{'
-> > include/linux/err.h:32: Error: no such instruction: `return unlikely(((unsigned long)ptr)>=(unsigned long)-4095)'
-> > include/linux/err.h:33: Error: junk at end of line, first unrecognized character is `}'
-> > distcc[7619] ERROR: compile (null) on localhost failed
-> > make[1]: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 1
-> > make: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 2
+With my aircard 580, I get 6 TTYUSB devices and a Urb too big message.
+You should probably take the 580 out of the driver unless someone
+actually has one and it works for them.
 
-Built for me on i386 and x86_64.
-
-> unlikely() shouldn't be used in code exported to user space.  At least 
-> one architecture simply open-codes the __builtin_expect(); or we could
-> introduce __likely() and __unlikely() for the benefit of userspace.
-
-How did you determine that this had something to do with
-userspace?
-
----
-~Randy
+-Ken

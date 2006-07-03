@@ -1,86 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWGCMwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWGCNHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750924AbWGCMwA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 08:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWGCMwA
+	id S1751101AbWGCNHb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 09:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWGCNHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 08:52:00 -0400
-Received: from poup.poupinou.org ([195.101.94.96]:51734 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S1750913AbWGCMv7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 08:51:59 -0400
-Date: Mon, 3 Jul 2006 14:51:56 +0200
-To: Johan Vromans <jvromans@squirrel.nl>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: RFC [PATCH] acpi: allow SMBus access
-Message-ID: <20060703125156.GD17014@poupinou.org>
-References: <17576.14005.767262.868190@phoenix.squirrel.nl> <20060703082217.GB17014@poupinou.org> <m2mzbrj5yp.fsf@phoenix.squirrel.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 Jul 2006 09:07:31 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:3968 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751101AbWGCNHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 09:07:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gN4y4hc83++RDtMyrwn8QCB186okbGhZaDmz/DvenlCo7wFtzA4TXbKueWsz1Ou/dGZQ5952I7SBuBCSx7GoXAdwfgT19H5SxQNB1MR+/BBFkHXf01koMOWAUCCGfJk5US/GzG8vKN5htqysQxOdxFruoV3CG3BOy3zen2Y0xTI=
+Message-ID: <a44ae5cd0607030607y290edaa9ud492eb819d383329@mail.gmail.com>
+Date: Mon, 3 Jul 2006 06:07:29 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: 2.6.17-mm5 -- Busted toolchain? -- usr/klibc/exec_l.c:59: undefined reference to `__stack_chk_fail'
+Cc: "Arjan van de Ven" <arjan@infradead.org>, "Andrew Morton" <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060703051723.GA13415@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m2mzbrj5yp.fsf@phoenix.squirrel.nl>
-User-Agent: Mutt/1.5.9i
-From: Bruno Ducrot <ducrot@poupinou.org>
+References: <a44ae5cd0607011409m720dd23dvf178a133c2060b6d@mail.gmail.com>
+	 <1151788673.3195.58.camel@laptopd505.fenrus.org>
+	 <a44ae5cd0607011425n18266b02s81b3d87988895555@mail.gmail.com>
+	 <1151789342.3195.60.camel@laptopd505.fenrus.org>
+	 <a44ae5cd0607011537o1cf00545td19e568dcb9c06c1@mail.gmail.com>
+	 <1151826131.3111.5.camel@laptopd505.fenrus.org>
+	 <a44ae5cd0607021007v52dac771n86c25c3bff491152@mail.gmail.com>
+	 <20060703051723.GA13415@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 01:14:22PM +0200, Johan Vromans wrote:
-> Bruno Ducrot <ducrot@poupinou.org> writes:
-> 
-> > I don't think this patch is correct, or else I would have already
-> > asked this patch being added to mainline.
-> 
-> You've been standing at the origins of where this patch came from. Can
-> you provide a better alternative?
-> 
+On 7/2/06, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Miles Lane <miles.lane@gmail.com> wrote:
+>
+> > >If Ubuntu patched gcc rather than just putting it in the build
+> > >environment... then you should switch to a less braindead distribution
+> > >really ;)
+>
+> > Well, from the web page referenced at the top of this message, you can
+> > see that they are already aware of these issues:
+> >
+> > Cons:
+> >    *      It breaks current upstream kernel builds and potentially
+> > other direct usages of gcc. Kernel is by far the most important use
+> > case. Upstream should change the default options to build with
+> > -fno-stack-protector by default.
+> >    *      It is not conformant to upstream gcc behaviour.
+>
+> i think the only sane way for a generic distro to introduce an intrusive
+> security feature is a 3-phase process:
+>
+>  #1 - introduce the new security option
+>  #2 - increase use of it gradually, map all the exceptions on the way
+>  #3 - once exceptions are mapped widely enough, switch the option to
+>       default-on
+>
+> this makes the introduction of security seemless/gradual to
+> users/developers, without compromising on the end goal of having the
+> security feature on by default.
+>
+> Ubuntu seems to have opted to go to phase #3 directly, which is no doubt
+> quite brutal but it's their choice. In any case, whichever methodology
+> is used the kernel got flagged as an "exception" and we should help this
+> security effort and change the kernel: i.e. lets apply the
+> -fno-stack-protector flag to the kernel build.
 
-If you want this patch to be applied, I think you should at least
-mark ec_read/ec_write being obsolete and maybe provide a
-solution for drivers who use those functions, as for example
-sonypi.  Having two very same kind of access for the EC is
-not good IMHO.
+Well, I see that Andrew has accepted (mm5)
+the -fno-stack-protector patch for the Makefile, but klibc remains
+unpatched (scripts/Kbuild.klibc and usr/klibc/arch/i386/MCONFIG).
+Would the right person in this dialog submit those changes to Andrew?
 
-In fact why I didn't submitted this patch myself is because
-I wanted to provide a real bus access via the EC driver, including
-the interrupt driven ones.
-
-Something like that :
-
-int acpi_ec_register(struct acpi_ec_driver *child);
-int acpi_ec_unregister(struct acpi_ec_driver *child);
-
-The struct acpi_ec_driver should be something like that:
-
-struct acpi_ec_driver {
-	acpi_handle	ec_handle;
-	acpi_handle	handle;
-	unsigned long	uid;
-	unsigned long	query;
-	int (*acpi_ec_query_handler) (???);
-	...
-	/* maybe a private space somewhere */
-	void *private;
-}
-
-
-reading/writing may pass perhaps via an exported acpi_ec_(read|write)()
-functions, but the real key would have to be able to register a function
-in order to trigger the acpi_ec_query_handler function member when the EC
-receive the interrupt for the query number ->query instead of the _Qxx
-method provided by the OEM.  Please look at ACPI 3.0 specification,
-more precisely "5.6.2.2.2 Dispatching to an ACPI-aware Device Driver",
-and the whole chapter 12 (ACPI Embedded Controller Interface Specification).
-
-We may have then an access to the ACPI EC HC SMbus with a interrupt
-driven driver, which imho is the correct approach: we will be sure
-a _Qxx method provided by the bios writer will interferre with our
-SMbus driver.
-
-Unfortunately I don't have anymore the time to provide this support
-for Linux.
-
--- 
-Bruno Ducrot
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+Many thanks,
+        Miles

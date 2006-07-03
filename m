@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWGCVzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWGCV4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWGCVzh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 17:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWGCVzh
+	id S932136AbWGCV4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 17:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWGCV4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 17:55:37 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:25778 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932083AbWGCVzg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 17:55:36 -0400
-Subject: Re: ext4 features
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Tomasz Torcz <zdzichu@irc.pl>, Helge Hafting <helgehaf@aitel.hist.no>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1151960503.3108.55.camel@laptopd505.fenrus.org>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
-	 <20060701170729.GB8763@irc.pl>
-	 <20060701174716.GC24570@cip.informatik.uni-erlangen.de>
-	 <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
-	 <20060703205523.GA17122@irc.pl>
-	 <1151960503.3108.55.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Jul 2006 23:12:00 +0100
-Message-Id: <1151964720.16528.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 3 Jul 2006 17:56:25 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:56978 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932136AbWGCV4S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 17:56:18 -0400
+Date: Mon, 3 Jul 2006 14:56:11 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
+       Con Kolivas <kernel@kolivas.org>, Marcelo Tosatti <marcelo@kvack.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Lameter <clameter@sgi.com>, Andi Kleen <ak@suse.de>
+Message-Id: <20060703215611.7566.34076.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
+References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [RFC 7/8] Fix strange uses of MAX_NR_ZONES
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-07-03 am 23:01 +0200, ysgrifennodd Arjan van de Ven:
-> raid is great for protecting against individual disks or sectors going
-> bad. But raid, especially high performance implementations, do not
-> checksum data or detect corruptions. 
-> 
-> They're different purpose with almost zero overlap in purpose or even
-> goal...
+Fix strange uses of MAX_NR_ZONES
 
-Same layer though - checksums are really a device mapper type problem
-rather than an fs type problem.
+Sometimes we use MAX_NR_ZONES - x to refer to a zone. Make that
+explicit.
 
-Alan
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
+Index: linux-2.6.17-mm6/arch/x86_64/mm/init.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/x86_64/mm/init.c	2006-07-03 13:47:14.329487884 -0700
++++ linux-2.6.17-mm6/arch/x86_64/mm/init.c	2006-07-03 14:33:13.479261596 -0700
+@@ -536,7 +536,7 @@ int memory_add_physaddr_to_nid(u64 start
+ int arch_add_memory(int nid, u64 start, u64 size)
+ {
+ 	struct pglist_data *pgdat = NODE_DATA(nid);
+-	struct zone *zone = pgdat->node_zones + MAX_NR_ZONES-2;
++	struct zone *zone = pgdat->node_zones + ZONE_NORMAL;
+ 	unsigned long start_pfn = start >> PAGE_SHIFT;
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+ 	int ret;
+Index: linux-2.6.17-mm6/arch/i386/mm/init.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/i386/mm/init.c	2006-07-03 13:47:12.740718955 -0700
++++ linux-2.6.17-mm6/arch/i386/mm/init.c	2006-07-03 14:33:13.481214600 -0700
+@@ -657,7 +657,7 @@ void __init mem_init(void)
+ int arch_add_memory(int nid, u64 start, u64 size)
+ {
+ 	struct pglist_data *pgdata = &contig_page_data;
+-	struct zone *zone = pgdata->node_zones + MAX_NR_ZONES-1;
++	struct zone *zone = pgdata->node_zones + ZONE_HIGHMEM;
+ 	unsigned long start_pfn = start >> PAGE_SHIFT;
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+ 

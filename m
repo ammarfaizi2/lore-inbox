@@ -1,54 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWGCLUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWGCL0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWGCLUb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 07:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWGCLUb
+	id S1750810AbWGCL0A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 07:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWGCL0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 07:20:31 -0400
-Received: from bay0-omc3-s30.bay0.hotmail.com ([65.54.246.230]:25723 "EHLO
-	bay0-omc3-s30.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751032AbWGCLUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 07:20:31 -0400
-Message-ID: <BAY12-F103F7CD6483C2055E69AF298700@phx.gbl>
-X-Originating-IP: [196.28.250.19]
-X-Originating-Email: [babiya_traore0016@hotmail.com]
-Reply-To: babiyatraore001@latinmail.com
-From: "babiya traore" <babiya_traore0016@hotmail.com>
-Subject: RE: USED RAILS (R50-R65) FOR SALE 
-Date: Mon, 03 Jul 2006 11:20:29 +0000
+	Mon, 3 Jul 2006 07:26:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33669 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750810AbWGCLZ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 07:25:59 -0400
+Date: Mon, 3 Jul 2006 04:25:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, brice@myri.com
+Subject: Re: 2.6.17-mm6
+Message-Id: <20060703042525.ab17f936.akpm@osdl.org>
+In-Reply-To: <44A8F8D2.1030101@reub.net>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<44A8F8D2.1030101@reub.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-X-OriginalArrivalTime: 03 Jul 2006 11:20:30.0386 (UTC) FILETIME=[B14FF920:01C69E92]
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir/Madam,
+On Mon, 03 Jul 2006 23:00:34 +1200
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
 
-RE: USED RAILS (R50-R65) FOR SALE
+> 
+> 
+> On 3/07/2006 10:03 p.m., Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
+> > 
+> > 
+> > - A major update to the e1000 driver.
+> > 
+> > - 1394 updates
+> 
+> 
+> audit: initializing netlink socket (disabled)
+> audit(1151924044.008:1): initialized
+> SELinux:  Registering netfilter hooks
+> Initializing Cryptographic API
+> io scheduler noop registered
+> io scheduler anticipatory registered
+> io scheduler deadline registered (default)
+> PCI: Setting latency timer of device 0000:00:1c.0 to 64
+> assign_interrupt_mode Found MSI capability
+> Allocate Port Service[0000:00:1c.0:pcie0]
+> Allocate Port Service[0000:00:1c.0:pcie0]
 
-Our company is the direct selling mandates to Burkina Faso Railway 
-Corporation and have in stock up to 1.4 Million Metric Tons of Used Rails 
-(R50-R65) for clearance sale, at very reasonable prices. the available rails 
-are located in five different Rail Yards in the country.
+Looks like the enumeration of the PCIE devices failed to increment something.
 
-This clearance sale is necessitated by the impending privatization of the 
-Corporation and the need to decongest our rail yards in preparation for the 
-privatization.
+> kobject_add failed for 0000:00:1c.0:pcie0 with -EEXIST, don't try to register 
+> things with the same name in the same directory.
+> 
+> Call Trace:
+>   [<ffffffff80358298>] kobject_put+0x19/0x21
+>   [<ffffffff80358741>] kobject_add+0x181/0x1ac
+>   [<ffffffff803aa378>] device_add+0x88/0x4b9
+>   [<ffffffff803aa7c2>] device_register+0x19/0x27
+>   [<ffffffff80363e90>] pcie_port_device_register+0x3a0/0x3de
+>   [<ffffffff8042fa10>] pcibios_set_master+0x7f/0x86
+>   [<ffffffff80364004>] pcie_portdrv_probe+0x64/0x80
+>   [<ffffffff803612ac>] pci_device_probe+0x4d/0x78
+>   [<ffffffff803ac08f>] driver_probe_device+0x5c/0xb4
+>   [<ffffffff803ac1c9>] __driver_attach+0x67/0xb9
+>   [<ffffffff803ac162>] __driver_attach+0x0/0xb9
+>   [<ffffffff803aba4f>] bus_for_each_dev+0x4f/0x79
+>   [<ffffffff803abfbc>] driver_attach+0x1c/0x1e
+>   [<ffffffff803ab61a>] bus_add_driver+0x7a/0x143
+>   [<ffffffff803ac463>] driver_register+0x9f/0xa6
+>   [<ffffffff80361497>] __pci_register_driver+0x59/0x7e
+>   [<ffffffff806b7a57>] pcie_portdrv_init+0x1c/0x30
+>   [<ffffffff80267f3e>] init+0x14e/0x2d0
+>   [<ffffffff80260a12>] child_rip+0x8/0x12
+>   [<ffffffff80267df0>] init+0x0/0x2d0
+>   [<ffffffff80260a0a>] child_rip+0x0/0x12
+> 
+> The trace shows up 5 times in quick succession, all traces looking the same.......
+> 
+> Box otherwise boots up OK.
 
-Prices are negotiable on FOB, CNF and CIF basis. Site inspection, physical 
-verification and confirmation of product quality and quantity are allowed 
-before signing of contract. Offers are invited from serious end buyers or 
-Agents that has access to serious potential end users/buyers
-
-Sincerely,
-
-Dr.BABIYA TRAORE
-SOCIMEX-BURKINA
-01 BP 1506 OUAGA 01
-BURKINA FASO.
-
-_________________________________________________________________
-MSN Hotmail sur i-mode™ : envoyez et recevez des e-mails depuis votre 
-téléphone portable ! http://www.msn.fr/hotmailimode/
+I'd be supecting the changes in drivers/base/core.c.  Does 2.6.17-git19 do
+the same thing?
 

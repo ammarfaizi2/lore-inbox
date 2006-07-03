@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWGCLgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWGCLg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbWGCLgp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 07:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWGCLgo
+	id S1751106AbWGCLg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 07:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWGCLg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 07:36:44 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:60354 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1751120AbWGCLgn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 07:36:43 -0400
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       tony.luck@intel.com, linux-ia64@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [RFC][patch 09/44] IA64: Use the new IRQF_ constansts
-References: <20060701145211.856500000@cruncher.tec.linutronix.de>
-	<20060701145224.258259000@cruncher.tec.linutronix.de>
-From: Jes Sorensen <jes@sgi.com>
-Date: 03 Jul 2006 07:36:42 -0400
-In-Reply-To: <20060701145224.258259000@cruncher.tec.linutronix.de>
-Message-ID: <yq0r712hqd1.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Mon, 3 Jul 2006 07:36:27 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:1209 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751106AbWGCLg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 07:36:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Aai3GWMJyif4G8O+pm2oZbGye3fuBefHuEg8IOm3Q1HHuWETLfNT4DFL/bZZrSUsw8d8AEpfPaLgyb/FpvJkBL0IkzG/IKSZR87gcvtAshfk3caAfLSFoWAcNLcv3TYugYZrfrX7UxeNifnYBskHb+2SUD5GPZGBmmjNYAFlZNs=
+Message-ID: <44A9013C.6070902@gmail.com>
+Date: Mon, 03 Jul 2006 13:36:28 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: tigran@veritas.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6
+References: <20060703030355.420c7155.akpm@osdl.org>	<6bffcb0e0607030350l497fdeb9ucb924e883fdad29@mail.gmail.com> <20060703035644.eccdd078.akpm@osdl.org>
+In-Reply-To: <20060703035644.eccdd078.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Thomas" == Thomas Gleixner <tglx@linutronix.de> writes:
+Andrew Morton wrote:
+> On Mon, 3 Jul 2006 12:50:26 +0200
+> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+> 
+>> Hi,
+>>
+>> On 03/07/06, Andrew Morton <akpm@osdl.org> wrote:
+>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
+>>>
+>> Something is missing in drivers/base/firmware_class.c?
+>>
+>> WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
+>> needs unknown symbol release_firmware
+>> WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
+>> needs unknown symbol request_firmware
+>> WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
+>> needs unknown symbol release_firmware
+>> WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
+>> needs unknown symbol request_firmware
+>>
+> 
+> Presumably you'll need CONFIG_FW_LOADER?
+> 
 
-Thomas> Use the new IRQF_ constants and remove the SA_INTERRUPT define
+Yes, thanks. How about this patch?
 
-Hi Thomas,
+Regards,
+Michal
 
-You forgot to remove the duplicate define of IRQF_PERCPU from
-include/asm-ia64/irq.h when you introduced the one in
-include/linux/interrupt.h.
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)
 
-On ia64, without this patch, building Linus' git tree spits out
-compile warnings left right and center (harmless ones though).
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
 
-I checked the ia64 code and I don't see any place that actually relied
-on the old define or hardcoded it in asm, but I could be wrong of
-course.
+diff -uprN -X linux-mm/Documentation/dontdiff linux-mm-clean/arch/i386/Kconfig linux-mm/arch/i386/Kconfig
+--- linux-mm-clean/arch/i386/Kconfig	2006-07-03 12:35:16.000000000 +0200
++++ linux-mm/arch/i386/Kconfig	2006-07-03 13:26:51.000000000 +0200
+@@ -399,6 +399,7 @@ config X86_REBOOTFIXUPS
 
-It compiles, it boots, Enterprise Ready<tm>!
+ config MICROCODE
+ 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
++	depends on FW_LOADER
+ 	---help---
+ 	  If you say Y here and also to "/dev file system support" in the
+ 	  'File systems' section, you will be able to update the microcode on
 
-Linus and/or Tony, please apply.
-
-Cheers,
-Jes
-
-Remove duplicate define of IRQF_PERCPU which is now defined in
-include/linux/interrupt.h
-
-Signed-off-by: Jes Sorensen <jes@sgi.com>
-
----
- include/asm-ia64/irq.h |    2 --
- 1 file changed, 2 deletions(-)
-
-Index: linux-2.6/include/asm-ia64/irq.h
-===================================================================
---- linux-2.6.orig/include/asm-ia64/irq.h
-+++ linux-2.6/include/asm-ia64/irq.h
-@@ -14,8 +14,6 @@
- #define NR_IRQS		256
- #define NR_IRQ_VECTORS	NR_IRQS
- 
--#define IRQF_PERCPU	0x02000000
--
- static __inline__ int
- irq_canonicalize (int irq)
- {

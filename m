@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWGCWuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWGCWvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWGCWuu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 18:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWGCWut
+	id S932175AbWGCWvD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 18:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWGCWvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 18:50:49 -0400
-Received: from mx2.suse.de ([195.135.220.15]:12225 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932171AbWGCWus (ORCPT
+	Mon, 3 Jul 2006 18:51:03 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50071 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932175AbWGCWvA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 18:50:48 -0400
-Date: Mon, 3 Jul 2006 15:47:19 -0700
-From: Greg KH <greg@kroah.com>
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC] change netdevice to use struct device instead of struct class_device
-Message-ID: <20060703224719.GA14176@kroah.com>
+	Mon, 3 Jul 2006 18:51:00 -0400
+Date: Tue, 4 Jul 2006 08:50:44 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Hungerburg <lklm@lazy.shacknet.nu>
+Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
+Subject: Re: thank you, xfs team
+Message-ID: <20060704085044.B1462688@wobbly.melbourne.sgi.com>
+References: <20060703221117.GA27898@lazy.shacknet.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060703221117.GA27898@lazy.shacknet.nu>; from lklm@lazy.shacknet.nu on Tue, Jul 04, 2006 at 12:11:17AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a patch here that converts the network device structure to use
-the struct device instead of struct class_device structure.  It's a bit
-too big to post here, so it's at:
-	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/network-class_device-to-device.patch
+On Tue, Jul 04, 2006 at 12:11:17AM +0200, Hungerburg wrote:
+> hello there,
+> 
+> I hope this is not the wrong place, yet I have to write this now, before
+> I forget about it:
 
-I can split it out, but then it will not build for the intermediate
-steps, which 'git bisect' users might not appreciate.  If you all want
-me to break it up to make it easier to review, please let me know and
-I'll be glad to do it.
+xfs@oss.sgi.com is the best place.
 
-With this patch applied, sysfs now looks like:
- $ tree /sys/class/net/
- /sys/class/net/
- |-- eth0 -> ../../devices/pci0000:00/0000:00:02.0/0000:01:00.2/0000:03:0e.0/eth0
- |-- gerg -> ../../devices/pci0000:00/0000:00:02.0/0000:01:00.2/0000:03:0c.0/gerg
- `-- lo -> ../../devices/lo
+> I had to swap a dying harddrive. after receiving many mails from the
+> smart daemon, recent kernel patches to xfs made me aware of the full
+> extent of the problem.
 
-Instead of the different directories being in /sys/class/net.
+Hmm, the second part of that sentence doesn't make sense to me.
 
-What this buys us is now the different network devices can be called by
-the core when the system is shutting down or restoring, with the
-suspend/resume changes that Linus has written (and are now in -mm).
-This can be used by the network core to stop the queue, or whatever else
-it desires.
+> keywords:
+> - XFS internal error XFS_WANT_CORRUPTED_RETURN
+> - Device: /dev/hda, 1 Currently unreadable (pending) sectors
+> - Device: /dev/hda, 1 Offline uncorrectable sectors
 
-Other good things happen with this, as the network devices are now real
-devices, instead of the second-class citizens that "class_device" was.
-(which is one reason why I'm getting rid of class_device entirely).
+This looks like expected behaviour - XFS shut down the filesystem on
+detecting IO errors on filesystem metadata blocks.
 
-The patch needs some other changes to the driver core that are also in
-my git tree, and included in the -mm release.  Specifically these
-patches are needed:
-	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/driver/device-groups.patch
-	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/driver/device-class-parent.patch
-	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/driver/device-class-attr.patch
-	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/driver/device_rename.patch
+> the tools to copy what is still there (data) are a boon - they require
+> some reading, but the thing is doable (xfs_copy to good disk, then
+> xfs_dump from there)
 
-And if you are curious, the suspend stuff from Linus is at:
-	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/driver/suspend-infrastructure-cleanup-and-extension.patch
+OK, good to hear.
 
-I can gladly keep this in my tree (due to the previously mentioned
-requirements) and eventually merge it with Linus after 2.6.18 is out, if
-no one objects to it.
+cheers.
 
-thanks,
-
-greg k-h
-
-p.s. That bonding code!  WTF is going on with poking around in the
-     internals of krefs?  And why are you returning more than one value
-     from a sysfs file?  I thought I asked that this stuff be fixed up a
-     long time ago?
+-- 
+Nathan

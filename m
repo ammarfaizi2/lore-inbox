@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWGCRk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWGCRsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWGCRk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 13:40:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWGCRk3
+	id S1751227AbWGCRsK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 13:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWGCRsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 13:40:29 -0400
-Received: from titanium.sabren.com ([67.19.173.4]:55943 "EHLO
-	titanium.sabren.com") by vger.kernel.org with ESMTP
-	id S1751225AbWGCRk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 13:40:28 -0400
-Date: Mon, 3 Jul 2006 19:40:16 +0200
-From: Grzegorz Adam Hankiewicz <gradha@titanium.sabren.com>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Allen Martin <AMartin@nvidia.com>
-Subject: Re: Linux kernel 2.6.10 sata_nv.c stops working on my hardware
-Message-ID: <20060703174016.GA8904@noir>
-Reply-To: linux-kernel@vger.kernel.org
-Mail-Followup-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Allen Martin <AMartin@nvidia.com>
-References: <20060702133125.GB2606@noir> <DBFABB80F7FD3143A911F9E6CFD477B014AD8D80@hqemmail02.nvidia.com>
-MIME-Version: 1.0
+	Mon, 3 Jul 2006 13:48:10 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:19428 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751227AbWGCRsJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 13:48:09 -0400
+Date: Mon, 3 Jul 2006 18:48:04 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, herbert@13thfloor.at,
+       serue@us.ibm.com
+Subject: Re: [PATCH 20/20] honor r/w changes at do_remount() time
+Message-ID: <20060703174804.GD29920@ftp.linux.org.uk>
+References: <20060627221436.77CCB048@localhost.localdomain> <20060627221457.04ADBF71@localhost.localdomain> <20060628051935.GA29920@ftp.linux.org.uk> <1151947814.11159.147.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B014AD8D80@hqemmail02.nvidia.com>
-X-Accept-Language: es,en
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <1151947814.11159.147.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-07-02, Allen Martin <AMartin@nvidia.com> wrote:
-> Can you try 2.6.13 with 2.6.12 libata and the sata_nv with
-> ATA_FLAG_SATA_RESET?  Probably the thing that changed in 2.6.13
-> that made your system unhappy was in libata.
+On Mon, Jul 03, 2006 at 10:30:14AM -0700, Dave Hansen wrote:
+> On Wed, 2006-06-28 at 06:19 +0100, Al Viro wrote:
+> >         * make the moments when i_nlink hits 0 bump the superblock writers
+> > count; drop it when such sucker gets freed on final iput. 
+> 
+> Could you elaborate on this one a bit?  
+> 
+> I assume that there are rules that once i_nlink hits 0, it never goes
+> back up again.  It seems that a whole bunch (if not all) of the
+> individual filesystems do things to it.  Is it really necessary to go
+> into all of those looking for the places that i_nlink hits 0?  Seems
+> like it would be an awful lot of patching.
 
-Shouldn't I see the changes between 2.6.9 and 2.6.10 which is
-when the ATA_FLAG_SATA_RESET flag was removed, and thus the kernel
-stopped working on the system?
-
-> What was the model number of your SATA drive?  SATA_RESET shouldn't
-> really be necessary if the drive is well behaving.
-
-Maxtor 300GB sata I, 6V300F0 - VA111630 - V60EA5F6 and 6V300F0 -
-VA111630 - V60EYSY6. Is this the info you wanted?
+Not that much...  That happens in three methods (->unlink(), ->rename(),
+->rmdir()) and yes, we really want to track those.  Think for a minute
+and you'll see why - we don't want to allow remount ro when there is
+a pending truncate/freeing inode.

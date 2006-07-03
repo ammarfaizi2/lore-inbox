@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWGCKkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWGCKjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWGCKkI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 06:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWGCKkH
+	id S1751086AbWGCKjk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 06:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWGCKjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 06:40:07 -0400
-Received: from colin.muc.de ([193.149.48.1]:51462 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1751096AbWGCKkH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 06:40:07 -0400
-Date: 3 Jul 2006 12:40:05 +0200
-Date: Mon, 3 Jul 2006 12:40:05 +0200
-From: Andi Kleen <ak@muc.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: drepper@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] pselect/ppoll support on x86_64
-Message-ID: <20060703104005.GB5415@muc.de>
-References: <1151919711.3000.82.camel@pmac.infradead.org> <1151920035.3000.88.camel@pmac.infradead.org>
+	Mon, 3 Jul 2006 06:39:40 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:16005 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1751086AbWGCKjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 06:39:40 -0400
+Subject: Re: [PATCH 1/2] Support TIF_RESTORE_SIGMASK on x86_64
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ak@muc.de, drepper@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060703031937.274aa506.akpm@osdl.org>
+References: <1151919711.3000.82.camel@pmac.infradead.org>
+	 <20060703031937.274aa506.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 03 Jul 2006 11:39:31 +0100
+Message-Id: <1151923171.12290.6.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151920035.3000.88.camel@pmac.infradead.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 10:47:15AM +0100, David Woodhouse wrote:
-> This adds support for the pselect and ppoll system calls on x86_64. 
-> 
-> Andi suggests that it might be too late for the 2.6.18 merge window -- I
-> disagree. I consider it a bug fix, since I don't think we intend x86_64
-> to be a secondary architecture and lag behind i386 and PowerPC in its
-> system call support. Andi's TIF_RESTORE_SIGMASK implementation is
-> heavily based on the i386 version, where it's had lots of testing
-> already.
+On Mon, 2006-07-03 at 03:19 -0700, Andrew Morton wrote:
+> Could you please describe the signal mask fix? 
 
-I've got burned badly by these patches last time and the 2.6.18 merge
-window is closed.
+@@ -583,7 +583,7 @@
+        if (!user_mode(regs))
+                return;
 
-I'll add them for testing, but it's 2.6.19 material.
+-       if (!test_thread_flag(TIF_RESTORE_SIGMASK))
++       if (test_thread_flag(TIF_RESTORE_SIGMASK))
+                oldset = &current->saved_sigmask;
+        else
+                oldset = &current->blocked;
 
--Andi
+
+>  Is that likely to have caused the above symptoms?
+
+Yeah, it'll screw up the signal mask all over the place. 
+cf. https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=180567
+also https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=179228
+
+> Should we be setting TASK_INTERRUPTIBLE before releasing that lock?
+
+Before releasing current->sighand->siglock? Nah, schedule() will check
+for pending signals -- it's not like racing with a wake_up() 
+
+-- 
+dwmw2
+

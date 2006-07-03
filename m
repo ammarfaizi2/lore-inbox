@@ -1,210 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWGCPd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWGCPiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWGCPd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 11:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWGCPd4
+	id S932077AbWGCPiu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 11:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWGCPiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 11:33:56 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:37060 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1751199AbWGCPd4 (ORCPT
+	Mon, 3 Jul 2006 11:38:50 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:49829 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932077AbWGCPit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 11:33:56 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: [patch] reduce IPI noise due to /dev/cdrom open/close
-From: Jes Sorensen <jes@sgi.com>
-Date: 03 Jul 2006 11:33:54 -0400
-Message-ID: <yq0mzbqhfdp.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Mon, 3 Jul 2006 11:38:49 -0400
+Message-ID: <351941126.25373@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Mon, 3 Jul 2006 23:39:30 +0800
+From: Fengguang Wu <fengguang.wu@gmail.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New readahead - ups and downs new test
+Message-ID: <20060703153930.GC5874@mail.ustc.edu.cn>
+Mail-Followup-To: Fengguang Wu <fengguang.wu@gmail.com>,
+	Helge Hafting <helgehaf@aitel.hist.no>,
+	Helge Hafting <helge.hafting@aitel.hist.no>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <44A12D84.5010400@aitel.hist.no> <20060702235516.GA6034@mail.ustc.edu.cn> <20060703135027.GA4440@aitel.hist.no>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060703135027.GA4440@aitel.hist.no>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jul 03, 2006 at 03:50:27PM +0200, Helge Hafting wrote:
+> On Mon, Jul 03, 2006 at 07:55:16AM +0800, Fengguang Wu wrote:
+> > Hi Helge,
+> > 
+> > On Tue, Jun 27, 2006 at 03:07:16PM +0200, Helge Hafting wrote:
+> > > I made my own little io-intensive test, that shows a case where
+> > > performance drops.
+> > > 
+> > > I boot the machine, and starts "debsums", a debian utility that
+> > > checksums every file managed by debian package management.
+> > > As soon as the machine starts swapping, I also start
+> > > start a process that applies an mm-patch to the kernel tree, and
+> > > times this.
+> > > 
+> > > This patching took 1m28s with cold cache, without debsums running.
+> > > With the 2.6.15 kernel (old readahead), and debsums running, this
+> > > took 2m20s to complete, and 360kB in swap at the worst.
+> > > 
+> > > With the new readahead in 2.6.17-mm3 I get 6m22s for patching,
+> > > and 22MB in swap at the most.  Runs with mm1 and mm2 were
+> > > similiar, 5-6 minutes patching and 22MB swap.
+> > > 
+> > > My patching clearly takes more times this way.  I don't know
+> > > if debsums improved though, it could be as simple as a fairness
+> > > issue.  Memory pressure definitely went up.
+> > 
+> > There are a lot changes between 2.6.15 and 2.6.17-mmX. Would you use
+> > the single 2.6.17-mm5 kernel for benchmarking? It's easy:
+> > 
+> >         - select old readahead:
+> >                 echo 1 > /proc/sys/vm/readahead_ratio
+> > 
+> >         - select new readahead:
+> >                 echo 50 > /proc/sys/vm/readahead_ratio
+> > 
+> >
+> I just tried this with 2.5.17-mm5.  I did in on a faster
+> machine (opteron cpu, but still 512MB) so don't compare with
+> my previous test which ran on a pentium-IV.
+> Single cpu in both cases.
+> 
+> Test procdure:
+> 1. Reboot, log in through xdm
+> 2. run vmstat 10 for swap monitoring
+> 3. time debsums -s
+> 4. As soon as the machine touches swap, launch
+>    time bzcat 2.6.15-mm5.bz2 | patch -p1
+> 
+> In either case, testing starts with 320MB free memory after boot,
+> which debsums caching eats in about a minute and swapping starts.
+> Then I start the patching, which finished before debsums.
+> 
+> Old readahed:
+> Max swap was 700kB, but it dropped back to 244kB after 10s
+> and stayed there.  
+> Patch timing:
+> real    0m37.662s
+> user    0m5.002s
+> sys     0m2.023s
+> debsums timing:
+> real    5m50.333s
+> user    0m21.127s
+> sys     0m14.506s
+> 
+> New readahead:
+> Max swap: 244kB.  (On another try it jumped to 816kB and then fell back
+> to 244kB).
+> patch timing:
+> real    0m40.951s
+> user    0m5.043s
+> sys     0m2.061s
+> debsums timing:
+> real    5m46.555s
+> user    0m21.195s
+> sys     0m13.918s
+> 
+> Timing and memory load seems to be almost identical this time,
+> perhaps this is a load where the type of readahead doesn't
+> matter.  
 
-Certain applications cause a lot of IPI noise due to them constantly
-doing open/close on /dev/cdrom. hald is a particularly annoying case
-of this. However since every distribution insists on shipping it, it's
-one of those that are hard to get rid of :(
+Thanks. You are right, the readahead logic won't affect the swap cache.
+Nor will the readahead size, I guess. But to be sure, you can do one
+more test on it with the following command, using the same 2.5.17-mm5:
 
-Anyway, this patch reduces the IPI noise by keeping a cpumask of CPUs
-which have items in the bh lru and only flushing on the relevant
-CPUs. On systems with larger CPU counts it's quite normal that only a
-few CPUs are actively doing block IO, so spewing IPIs everywhere to
-flush this is unnecessary.
+        blockdev --setra /dev/hda1 256
 
-I also switched the code to use schedule_on_each_cpu() as suggested by
-Andrew, and I made the API there more flexible by introducing
-schedule_on_each_cpu_mask().
+Please replace /dev/hda1 with the root device on your system, thanks.
 
-Cheers,
-Jes
-
-Introduce more flexible schedule_on_each_cpu_mask() API allowing one
-to specify a CPU mask to schedule on and implement
-schedule_on_each_cpu_mask() on top of it.
-
-Use a cpumask to keep track of which CPUs have items in the per CPU
-buffer_head lru. Let invalidate_bh_lrus() use the new cpumask API to
-limit the number of cross-CPU calls when a block device is
-open/closed.
-
-This significantly reduces IPI noise on large CPU number systems which
-are running hald.
-
-Signed-off-by: Jes Sorensen <jes@sgi.com>
-
-
----
- fs/buffer.c               |   23 +++++++++++++++++++----
- include/linux/workqueue.h |    3 +++
- kernel/workqueue.c        |   31 +++++++++++++++++++++++++++----
- 3 files changed, 49 insertions(+), 8 deletions(-)
-
-Index: linux-2.6/fs/buffer.c
-===================================================================
---- linux-2.6.orig/fs/buffer.c
-+++ linux-2.6/fs/buffer.c
-@@ -1323,6 +1323,7 @@ struct bh_lru {
- };
- 
- static DEFINE_PER_CPU(struct bh_lru, bh_lrus) = {{ NULL }};
-+static cpumask_t lru_in_use;
- 
- #ifdef CONFIG_SMP
- #define bh_lru_lock()	local_irq_disable()
-@@ -1352,9 +1353,14 @@ static void bh_lru_install(struct buffer
- 	lru = &__get_cpu_var(bh_lrus);
- 	if (lru->bhs[0] != bh) {
- 		struct buffer_head *bhs[BH_LRU_SIZE];
--		int in;
--		int out = 0;
-+		int in, out, cpu;
- 
-+		cpu = raw_smp_processor_id();
-+		/* Test first to avoid cache lines bouncing around */
-+		if (!cpu_isset(cpu, lru_in_use))
-+			cpu_set(cpu, lru_in_use);
-+
-+		out = 0;
- 		get_bh(bh);
- 		bhs[out++] = bh;
- 		for (in = 0; in < BH_LRU_SIZE; in++) {
-@@ -1500,19 +1506,28 @@ EXPORT_SYMBOL(__bread);
-  */
- static void invalidate_bh_lru(void *arg)
- {
--	struct bh_lru *b = &get_cpu_var(bh_lrus);
-+	struct bh_lru *b;
- 	int i;
- 
-+	local_irq_disable();
-+	b = &get_cpu_var(bh_lrus);
- 	for (i = 0; i < BH_LRU_SIZE; i++) {
- 		brelse(b->bhs[i]);
- 		b->bhs[i] = NULL;
- 	}
- 	put_cpu_var(bh_lrus);
-+	local_irq_enable();
- }
- 	
- static void invalidate_bh_lrus(void)
- {
--	on_each_cpu(invalidate_bh_lru, NULL, 1, 1);
-+	/*
-+	 * Need to hand down a copy of the mask or we wouldn't be run
-+	 * anywhere due to the original mask being cleared
-+	 */
-+	cpumask_t mask = lru_in_use;
-+	cpus_clear(lru_in_use);
-+	schedule_on_each_cpu_mask(invalidate_bh_lru, NULL, mask);
- }
- 
- void set_bh_page(struct buffer_head *bh,
-Index: linux-2.6/include/linux/workqueue.h
-===================================================================
---- linux-2.6.orig/include/linux/workqueue.h
-+++ linux-2.6/include/linux/workqueue.h
-@@ -8,6 +8,7 @@
- #include <linux/timer.h>
- #include <linux/linkage.h>
- #include <linux/bitops.h>
-+#include <linux/cpumask.h>
- 
- struct workqueue_struct;
- 
-@@ -70,6 +71,8 @@ extern int FASTCALL(schedule_delayed_wor
- 
- extern int schedule_delayed_work_on(int cpu, struct work_struct *work, unsigned long delay);
- extern int schedule_on_each_cpu(void (*func)(void *info), void *info);
-+extern int schedule_on_each_cpu_mask(void (*func)(void *info),
-+				     void *info, cpumask_t mask);
- extern void flush_scheduled_work(void);
- extern int current_is_keventd(void);
- extern int keventd_up(void);
-Index: linux-2.6/kernel/workqueue.c
-===================================================================
---- linux-2.6.orig/kernel/workqueue.c
-+++ linux-2.6/kernel/workqueue.c
-@@ -429,9 +429,11 @@ int schedule_delayed_work_on(int cpu,
- }
- 
- /**
-- * schedule_on_each_cpu - call a function on each online CPU from keventd
-+ * schedule_on_each_cpu_mask -  call a function on each online CPU in the
-+ *				mask from keventd
-  * @func: the function to call
-  * @info: a pointer to pass to func()
-+ * @mask: a cpumask_t of CPUs to schedule on
-  *
-  * Returns zero on success.
-  * Returns -ve errno on failure.
-@@ -440,7 +442,8 @@ int schedule_delayed_work_on(int cpu,
-  *
-  * schedule_on_each_cpu() is very slow.
-  */
--int schedule_on_each_cpu(void (*func)(void *info), void *info)
-+int
-+schedule_on_each_cpu_mask(void (*func)(void *info), void *info, cpumask_t mask)
- {
- 	int cpu;
- 	struct work_struct *works;
-@@ -451,14 +454,34 @@ int schedule_on_each_cpu(void (*func)(vo
- 
- 	for_each_online_cpu(cpu) {
- 		INIT_WORK(per_cpu_ptr(works, cpu), func, info);
--		__queue_work(per_cpu_ptr(keventd_wq->cpu_wq, cpu),
--				per_cpu_ptr(works, cpu));
-+		if (cpu_isset(cpu, mask))
-+			__queue_work(per_cpu_ptr(keventd_wq->cpu_wq, cpu),
-+				     per_cpu_ptr(works, cpu));
- 	}
- 	flush_workqueue(keventd_wq);
- 	free_percpu(works);
- 	return 0;
- }
- 
-+/**
-+ * schedule_on_each_cpu_mask -  call a function on each online CPU from keventd
-+ *
-+ * @func: the function to call
-+ * @info: a pointer to pass to func()
-+ *
-+ * Returns zero on success.
-+ * Returns -ve errno on failure.
-+ *
-+ * Appears to be racy against CPU hotplug.
-+ *
-+ * schedule_on_each_cpu() is very slow.
-+ */
-+int
-+schedule_on_each_cpu(void (*func)(void *info), void *info)
-+{
-+	return schedule_on_each_cpu_mask(func, info, CPU_MASK_ALL);
-+}
-+
- void flush_scheduled_work(void)
- {
- 	flush_workqueue(keventd_wq);
+Wu

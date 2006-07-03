@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWGCIxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWGCJCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWGCIxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 04:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWGCIxQ
+	id S1750940AbWGCJCP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 05:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWGCJCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 04:53:16 -0400
-Received: from gate.crashing.org ([63.228.1.57]:12204 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750757AbWGCIxQ (ORCPT
+	Mon, 3 Jul 2006 05:02:15 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:34319 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S1750940AbWGCJCO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 04:53:16 -0400
+	Mon, 3 Jul 2006 05:02:14 -0400
 Subject: Re: [RFC] Apple Motion Sensor driver
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
-       linux-kernel@killerfox.forkbomb.ch, johannes@sipsolutions.net,
-       stelian@popies.net, chainsaw@gentoo.org
-In-Reply-To: <20060703092958.8ca17e53.khali@linux-fr.org>
+From: Stelian Pop <stelian@popies.net>
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       lm-sensors@lm-sensors.org, khali@linux-fr.org,
+       linux-kernel@killerfox.forkbomb.ch, benh@kernel.crashing.org,
+       johannes@sipsolutions.net, chainsaw@gentoo.org
+In-Reply-To: <20060703065628.GA21113@hansmi.ch>
 References: <20060702222649.GA13411@hansmi.ch>
-	 <20060703092958.8ca17e53.khali@linux-fr.org>
-Content-Type: text/plain
-Date: Mon, 03 Jul 2006 18:52:15 +1000
-Message-Id: <1151916736.19419.40.camel@localhost.localdomain>
+	 <20060702201415.791c6eb2.akpm@osdl.org>  <20060703065628.GA21113@hansmi.ch>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Mon, 03 Jul 2006 11:02:11 +0200
+Message-Id: <1151917331.10711.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I'd rather leave it out for now, and merge it when it has a chance to
-> work. Merging non-working code is confusing at best.
-
-:)
-
-> > I want this driver to be included in -mm as soon as possible, to get
-> > test feedback and to get it included in 2.6.19 (or maybe 2.6.18? Who
-> > knows. ;)). Thus I'd like to get your comments, suggestions, etc. on it.
+Le lundi 03 juillet 2006 à 08:56 +0200, Michael Hanselmann a écrit :
+> Hello Andrew
 > 
-> 2.6.19 at best.
-
-Oh, it's just a driver update for some powermac specific thingy, so
-depending how long 2.6.18 takes, I have no problem as the powermac
-maintainer letting that in once it's been properly fixed and reviewed.
-(Which I don't have time to do right now neither, but possibly later).
-
-There shouldn't be significant changes to the i2c side of it from
-Stelian's driver anyway, more like a new backend using the PMU.
-
-> > +config SENSORS_AMS
-> > +	tristate "Motion sensor driver"
-> > +	default y
+> On Sun, Jul 02, 2006 at 08:14:15PM -0700, Andrew Morton wrote:
+> > On Mon, 3 Jul 2006 00:26:49 +0200
+> > Michael Hanselmann <linux-kernel@hansmi.ch> wrote:
 > 
-> No, not everyone has this device. We don't have a default for other
-> hardware monitoring drivers.
+> > > Below you find the latest revision of my AMS driver.
 > 
-> This should depend on HWMON, and probably EXPERIMENTAL too, until it
-> gets some wider testing.
+> > I was about to merge the below, then this comes along.  Now what?
 > 
-> Also please respect the alphabetical order.
+> > From: Stelian Pop <stelian@popies.net>
+> 
+> > This driver provides support for the Apple Motion Sensor (ams), which
+> > provides an accelerometer and other misc.  data.  Some Apple PowerBooks
+> 
+> I just noticed yesterday that Stelian sent a patch to lkml in May. My
+> work is based on his separate driver from his website.
+> 
+> Given the fact that my driver includes all of his functionality and that
+> replacing his with mine later in the process would mean to remove whole
+> files again, I'd suggest to wait until I've fixed the outstanding issues
+> (as seen in this thread) and then to merge mine.
 
-It can stay default y as lons as it depends on PPC_PMAC (which it should
-do anyway)
+I have no problems with this approach. I'll take a look at your patch
+ASAP.
 
-> If you are going to have many source files and a composite module,
-> please create your own subdirectory under drivers/hwmon and put all
-> your stuff here. The kernel build system is notoriously bad at handling
-> multiple composite modules within the same subdirectory.
-
-Agreed.
-
-Cheers,
-Ben.
-
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>
 

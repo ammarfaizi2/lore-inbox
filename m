@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWGCTvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWGCT4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWGCTvl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 15:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWGCTvl
+	id S1751268AbWGCT4F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 15:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWGCT4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 15:51:41 -0400
-Received: from md2.t-2.net ([84.255.209.71]:32346 "EHLO md2.t-2.net")
-	by vger.kernel.org with ESMTP id S1751268AbWGCTvl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 15:51:41 -0400
-Subject: LTT patch for 2.6.16
-From: Samo Pogacnik <samo_pogacnik@t-2.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 03 Jul 2006 21:59:59 +0200
-Message-Id: <1151956800.3466.22.camel@racek>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Mon, 3 Jul 2006 15:56:05 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:55564 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751268AbWGCT4E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 15:56:04 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-mm6
+Date: Mon, 3 Jul 2006 20:56:28 +0100
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <20060703030355.420c7155.akpm@osdl.org> <200607032027.21879.s0348365@sms.ed.ac.uk> <20060703123920.ff1a497a.akpm@osdl.org>
+In-Reply-To: <20060703123920.ff1a497a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Junkmail-Status: score=10/50, host=md2.t-2.net
-X-Junkmail-SD-Raw: score=unknown,
-	refid=str=0001.0A090204.44A9733D.002B,ss=1,fgs=0,
-	ip=84.255.254.67,
-	so=2006-03-30 10:46:40,
-	dmn=5.2.4/2006-05-04
+Content-Disposition: inline
+Message-Id: <200607032056.28556.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If someone is interested, here is modified version of the 2.6.9/10 ltt
-patch for the newer 2.6.16 kernel. This kernel now supports (simplified)
-relayfs implementation, which has been used by this patch. Patch is
-still far from being complete and bug free, but looks usable to me on my
-i386 Nehemiah target, together with a slightly modified ltt-0.9.6-pre5
-userspace tracing tools. 
+On Monday 03 July 2006 20:39, Andrew Morton wrote:
+> On Mon, 3 Jul 2006 20:27:21 +0100
+>
+> Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > On Monday 03 July 2006 11:03, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.
+> > >6.17 -mm6/
+> >
+> > Doesn't boot reliably as an x86-64 kernel on my X2 system, 3/4 times it
+> > oopses horribly. Is there some way to supress an oops flood so I can get
+> > a decent picture of it with vga=extended? Right now I get two useless
+> > oopses after the first (probably useful) one.
+>
+> Try adding `pause_on_oops=100000' to the kernel boot command line.
 
-Patch URL: http://84.255.254.67/ltt-linux-2.6.16.patch
-Tools URL: http://84.255.254.67/ltt-0.9.6-pre5.tar.gz
+(Trimmed Nathan)
 
-Current status of functionality:
+Helped somewhat, but I'm still missing a bit at the top.
 
-0. Current patch only supports i386 architecture specifics, since I
-wanted to limit the area of needed modifications and I would like to
-explore if it is sensible to remove all those spreaded trace points
-around the kernel by using different mechanism. Anyway, at current state
-other architectures should not be to difficult to add, by adjusting
-arcitecture specifics of the 2.6.9 ltt kernel patch, for example.
+http://devzero.co.uk/~alistair/oops-20060703/
 
-1. Locking and lockless options of the tracedaemon tool result in the
-same operation within the kernel, except for the different startup
-requirements mostly enforced by original tracedaemon. Basicaly subbuffer
-switches (together with writing start buffer and end buffer events) and
-subbuffer space reservation for each event are being hopefully protected
-with a spinlock.
+Apologies for the poor quality photos.
 
-2. Multiple starting and stopping of collecting events has been
-protected and synchronised via an extra semaphore.
+-- 
+Cheers,
+Alistair.
 
-3. Timestamping works via gettimaofday (defined as generic) and via TSC
-counter on i386 (defined as arch specific). This functionality was
-collected in separate files, that can be patched and used separately
-from ltt.
-
-4. Works in either tracer (tracedaemon running for the time duration
-specified - no subbuffer overwrite) or flight recorder (tracedaemon run
-just to collect current buffer content of circular subbuffers -
-overwrite relayfs operation) tracing mode.
-
-5. Only one tracer started at once.
-
-6. SMP - per cpu files need to be checked and cleaned.
-
-7. Both tracer and flight recorder modes collect all events by default.
-
-8. Custom events can be seen in both tracing modes.
-
-
-If something has not been done correctly, please let me know.
-
-Finally, many thanks to original authors of LTT as well as to all Linux
-community for the oportunity to use, modify and learn from your source
-code.
-
-regards, Samo
-
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

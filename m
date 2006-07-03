@@ -1,110 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWGCUkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWGCUkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWGCUkE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 16:40:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWGCUkE
+	id S1751112AbWGCUkS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 16:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWGCUkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 16:40:04 -0400
-Received: from wr-out-0506.google.com ([64.233.184.238]:336 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751104AbWGCUkB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 16:40:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=delzKbkYNcZuqpkbUTAsBrpvgoJCxeOajXj5fekKwmzp3i0pPfZYC/kDXX/nzLHfmBJbtaTi6bPzgARpH+3FQVkcvSW9Jwk4I8YJmzgfBPVT5lfuwicX8fEzIurEr/S+phaUauaI8wCf5/DnWxSnREm9PmjXN4AdEN9DSQ2oZ7Q=
-Date: Mon, 3 Jul 2006 16:39:58 -0400
-From: Thomas Tuttle <thinkinginbinary@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problems porting asus_acpi to LED subsystem
-Message-ID: <20060703203958.GA8093@phoenix>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+	Mon, 3 Jul 2006 16:40:17 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:58514 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751112AbWGCUkQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 16:40:16 -0400
+Date: Mon, 3 Jul 2006 22:36:09 +0200
+To: Fengguang Wu <fengguang.wu@gmail.com>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New readahead - ups and downs new test
+Message-ID: <20060703203609.GB9707@aitel.hist.no>
+References: <44A12D84.5010400@aitel.hist.no> <20060702235516.GA6034@mail.ustc.edu.cn> <20060703135027.GA4440@aitel.hist.no> <20060703153930.GC5874@mail.ustc.edu.cn>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060703153930.GC5874@mail.ustc.edu.cn>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 03, 2006 at 11:39:30PM +0800, Fengguang Wu wrote:
+> On Mon, Jul 03, 2006 at 03:50:27PM +0200, Helge Hafting wrote:
+> > On Mon, Jul 03, 2006 at 07:55:16AM +0800, Fengguang Wu wrote:
+> > > Hi Helge,
+> > > 
+> > > On Tue, Jun 27, 2006 at 03:07:16PM +0200, Helge Hafting wrote:
+> > > > I made my own little io-intensive test, that shows a case where
+> > > > performance drops.
+> > > > 
+> > > > I boot the machine, and starts "debsums", a debian utility that
+> > > > checksums every file managed by debian package management.
+> > > > As soon as the machine starts swapping, I also start
+> > > > start a process that applies an mm-patch to the kernel tree, and
+> > > > times this.
+> > > > 
+> > > > This patching took 1m28s with cold cache, without debsums running.
+> > > > With the 2.6.15 kernel (old readahead), and debsums running, this
+> > > > took 2m20s to complete, and 360kB in swap at the worst.
+> > > > 
+> > > > With the new readahead in 2.6.17-mm3 I get 6m22s for patching,
+> > > > and 22MB in swap at the most.  Runs with mm1 and mm2 were
+> > > > similiar, 5-6 minutes patching and 22MB swap.
+> > > > 
+> > > > My patching clearly takes more times this way.  I don't know
+> > > > if debsums improved though, it could be as simple as a fairness
+> > > > issue.  Memory pressure definitely went up.
+> > > 
+> > > There are a lot changes between 2.6.15 and 2.6.17-mmX. Would you use
+> > > the single 2.6.17-mm5 kernel for benchmarking? It's easy:
+> > > 
+> > >         - select old readahead:
+> > >                 echo 1 > /proc/sys/vm/readahead_ratio
+> > > 
+> > >         - select new readahead:
+> > >                 echo 50 > /proc/sys/vm/readahead_ratio
+> > > 
+> > >
+> > I just tried this with 2.5.17-mm5.  I did in on a faster
+> > machine (opteron cpu, but still 512MB) so don't compare with
+> > my previous test which ran on a pentium-IV.
+> > Single cpu in both cases.
+> > 
+> > Test procdure:
+> > 1. Reboot, log in through xdm
+> > 2. run vmstat 10 for swap monitoring
+> > 3. time debsums -s
+> > 4. As soon as the machine touches swap, launch
+> >    time bzcat 2.6.15-mm5.bz2 | patch -p1
+> > 
+> > In either case, testing starts with 320MB free memory after boot,
+> > which debsums caching eats in about a minute and swapping starts.
+> > Then I start the patching, which finished before debsums.
+> > 
+> > Old readahed:
+> > Max swap was 700kB, but it dropped back to 244kB after 10s
+> > and stayed there.  
+> > Patch timing:
+> > real    0m37.662s
+> > user    0m5.002s
+> > sys     0m2.023s
+> > debsums timing:
+> > real    5m50.333s
+> > user    0m21.127s
+> > sys     0m14.506s
+> > 
+> > New readahead:
+> > Max swap: 244kB.  (On another try it jumped to 816kB and then fell back
+> > to 244kB).
+> > patch timing:
+> > real    0m40.951s
+> > user    0m5.043s
+> > sys     0m2.061s
+> > debsums timing:
+> > real    5m46.555s
+> > user    0m21.195s
+> > sys     0m13.918s
+> > 
+> > Timing and memory load seems to be almost identical this time,
+> > perhaps this is a load where the type of readahead doesn't
+> > matter.  
+> 
+> Thanks. You are right, the readahead logic won't affect the swap cache.
+> Nor will the readahead size, I guess. But to be sure, you can do one
+> more test on it with the following command, using the same 2.5.17-mm5:
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, I did not expect readahead to directly affect swap, but there was
+this very noticeable difference on the pentium-IV machine.  
+Different io patterns & disk head movement patterns may alter timing
+and make the memory pressure situation seem different (and more/less
+data coming in as readahead might affect memory pressure also.)
+369k vs 22M swap is a lot.
 
-Summary:
+I have found an important difference between the two machines,
+the one with the big differences with/without new readahead
+has /usr and /usr/src on the same physical disk, although
+separate partitions.  That makes for _lots_ of head movement,
+when bzcat & patch is operating on /usr/src and debsums
+is reading /usr.
 
-I'm trying to link asus_acpi into the LED subsystem.  My set_brightness
-callback evaluates an ACPI method to set the LED state.  It works fine
-manually changing the brightness, but when the callback is called by a
-timer (using the timer or ide-disk triggers), it eventually causes an
-Oops.  I can post my code or the Oops if it would help.  I'm new at
-kernel coding, and I'm not on the list, so please CC me on any reply.
-Sorry if this isn't appropriate on the list.
+That machine is not available for testing right now, but I'll
+re-do my test with/without new readahed with a kernel source
+tree on the same device as /usr.
 
-Long version:
+> 
+>         blockdev --setra /dev/hda1 256
+> 
+Using blockdev --getra on the two disks that holds /usr and
+/usr/src gives me 2048.  So, now we get a test with 1/8 
+of the normal readahead?
 
-I have an Asus laptop with two LED's that are supported by the asus_acpi
-driver, and I'm trying to link the asus_acpi driver's LED features
-(currently available only with a /proc interface) into the new LED
-subsystem.
+Results: Swap went up to 500k and was down at the usual 244k
+10s later.
 
-I tried to do this, by registering two LED devices with the LED
-subsystem when the asus_acpi device is created.  This works, and the LED
-devices show up in /sys/class/leds/.  I can change the brightness by
-hand, by writing /sys/class/leds/asus:mail/brightness.  But if I try to
-set the trigger to something that uses a timer, like ide-disk or timer,
-it eventually causes an Oops.  I will try to capture the actual text of
-the message, but the last one involved a stack of acpi_* functions,
-followed by a couple of timer functions, the last being schedule_timer.
+patch timing:
+real    0m38.265s
+user    0m5.010s
+sys     0m2.097s
 
-I haven't written any kernel code before, and I can't figure out what
-I'm doing wrong.  The two functions that I created as the brightness_set
-methods for the LED devices are essentially identical to the two used by
-asus_acpi itself for the /proc interface.  All I can guess is that
-either the ACPI methods are taking too long to run and the timer is
-firing a new event while the old one is still running (but I don't
-believe it is this, because timer_function in ledtrig-timer only
-restarts the timer after it changes the LED value), or that the timer is
-going off while the kernel is accessing something else with ACPI, and
-things are getting corrupted.  Is there a way to schedule the ACPI call
-that changes the LED state so it doesn't happen until it's "safe", or is
-there some lock I should be acquiring before I change the LED state?
+debsums timing:
+real    5m48.367s
+user    0m21.015s
+sys     0m13.950s
 
-Alternatively, should the led timer trigger be more careful about when
-it calls the LED set_brightness methods?  I don't know if there is a
-convention for the context of that call--is it my responsibility to
-ensure I'm not fiddling with ACPI stuff, or is it the timer's
-responsibility to call my set_brightness method at a "good time"?
+Seems --setra made no difference.
 
-I'm sorry for posting to LKML with an issue like this, since I should
-probably be able to figure it out myself, but I'm new at this and eager
-to get this working.  I can post my code somewhere if anyone wants to
-look at it.  (It's only about 20 lines added to asus_acpi.c.)
+I'll copy the kernel tree to /usr, to see if anything interesting
+happes when the two processes actually compete for the
+same device.  That's what got so different last time, although with
+differing kernel versions.
 
-I'm not subscribed to the list, so I'd appreciate a CC on any reply.
-I'll also keep an eye on the archives, just in case.
+Helge Hafting
 
-Thanks,
-
-Thomas Tuttle
-
---=20
-Thomas Tuttle (thinkinginbinary@gmail.com)
-A List Apart: For people who make websites. alistapart.com
-aim/y!m:thinkinginbinary; icq:198113263; jabber:thinkinginbinary@jabber.org
-msn: thinkinginbinary@hotmail.com; pgp: 0xAF5112C6
-
---bg08WKrSYDhXBjb5
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFEqYCe/UG6u69REsYRAuDXAJ9gTMGtmfaBGi+oYPqaVqO5B0ogfQCgidML
-6hPv9unsata2eFpzOPYYvUU=
-=POQj
------END PGP SIGNATURE-----
-
---bg08WKrSYDhXBjb5--

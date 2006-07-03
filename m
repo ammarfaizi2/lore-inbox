@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWGCWAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWGCWAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbWGCWAE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 18:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWGCWAB
+	id S932138AbWGCWAi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 18:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWGCWAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 18:00:01 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:15310 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932137AbWGCWAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 18:00:00 -0400
+	Mon, 3 Jul 2006 18:00:37 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:16550 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932138AbWGCWAg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 18:00:36 -0400
 Subject: Re: ext4 features
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Tomasz Torcz <zdzichu@irc.pl>, Helge Hafting <helgehaf@aitel.hist.no>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1151964720.16528.22.camel@localhost.localdomain>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>, arjan@infradead.org,
+       zdzichu@irc.pl, helgehaf@aitel.hist.no, sithglan@stud.uni-erlangen.de,
+       tytso@mit.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <20060703232547.2d54ab9b.diegocg@gmail.com>
 References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
 	 <20060701170729.GB8763@irc.pl>
 	 <20060701174716.GC24570@cip.informatik.uni-erlangen.de>
 	 <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
 	 <20060703205523.GA17122@irc.pl>
 	 <1151960503.3108.55.camel@laptopd505.fenrus.org>
-	 <1151964720.16528.22.camel@localhost.localdomain>
+	 <44A9904F.7060207@wolfmountaingroup.com>
+	 <20060703232547.2d54ab9b.diegocg@gmail.com>
 Content-Type: text/plain
-Date: Mon, 03 Jul 2006 23:59:56 +0200
-Message-Id: <1151963996.3108.61.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Date: Mon, 03 Jul 2006 23:17:13 +0100
+Message-Id: <1151965033.16528.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-03 at 23:12 +0100, Alan Cox wrote:
-> Ar Llu, 2006-07-03 am 23:01 +0200, ysgrifennodd Arjan van de Ven:
-> > raid is great for protecting against individual disks or sectors going
-> > bad. But raid, especially high performance implementations, do not
-> > checksum data or detect corruptions. 
-> > 
-> > They're different purpose with almost zero overlap in purpose or even
-> > goal...
+Ar Llu, 2006-07-03 am 23:25 +0200, ysgrifennodd Diego Calleja:
+> > Add a salvagable file system to ext4, i.e. when a file is deleted, you 
+> > just rename it and move it to a directory called DELETED.SAV and recycle 
+> > the files as people allocate new ones.  Easy to do (internal "mv" of 
 > 
-> Same layer though - checksums are really a device mapper type problem
-> rather than an fs type problem.
+> 
+> Easily doable in userspace, why bother with kernel programming
 
-file payload checksums.. I'd agree
-filesystem metadata.. there checksums do provide value 
+To get the semantics you need and avoid rewriting all of user space. At
+the moment some GNU apps support this type of stuff but its not in the
+core libraries so it isn't generalised.
 
+There are some big problems with "deleted" however and doing it in
+kernel space. A lot of programs just overwrite data. You would have to
+look for things like O_TRUNC on a file open and ftruncate.
+
+The ftruncate case is particularly ugly because there are programs that
+do lots of ftruncate calls as they run and don't neccessarily
+"overwrite" data but are merely trimming logs or database files. 
+
+To add to the fun the 'old' file needs to be the one which ends up with
+a new inode number and the like.
+
+Alan

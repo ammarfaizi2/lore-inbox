@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWGCPBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWGCPEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWGCPBP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 11:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWGCPBP
+	id S932072AbWGCPEw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 11:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWGCPEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 11:01:15 -0400
-Received: from pool-72-66-205-146.ronkva.east.verizon.net ([72.66.205.146]:24261
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751012AbWGCPBO (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 11:01:14 -0400
-Message-Id: <200607031500.k63F0rO2014091@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-Cc: Daniel Bonekeeper <thehazard@gmail.com>, kernelnewbies@nl.linux.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Driver for Microsoft USB Fingerprint Reader
-In-Reply-To: Your message of "Mon, 03 Jul 2006 14:44:10 +0300."
-             <44A9030A.1020106@gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <e1e1d5f40607022351y4af6e709n1ba886604a13656b@mail.gmail.com>
-            <44A9030A.1020106@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1151938852_4949P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 3 Jul 2006 11:04:52 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:29327 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932072AbWGCPEv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 11:04:51 -0400
+Message-ID: <44A931C1.7060604@zytor.com>
+Date: Mon, 03 Jul 2006 08:03:29 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, ralf@linux-mips.org,
+       erik_frederiksen@pmc-sierra.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] consistently use MAX_ERRNO in __syscall_return
+References: <1151528227.3904.1110.camel@girvin.pmc-sierra.bc.ca>	<20060628140825.692f31be.rdunlap@xenotime.net>	<20060629181013.GA18777@linux-mips.org>	<20060701114409.ed320be0.rdunlap@xenotime.net>	<44A6F5E3.8000300@zytor.com>	<20060702112722.74b5adff.rdunlap@xenotime.net> <20060703003941.2f5fe722.akpm@osdl.org>
+In-Reply-To: <20060703003941.2f5fe722.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Jul 2006 11:00:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1151938852_4949P
-Content-Type: text/plain; charset=us-ascii
+Andrew Morton wrote:
+> On Sun, 2 Jul 2006 11:27:22 -0700
+> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> 
+>> --- linux-2617-g20.orig/include/asm-i386/unistd.h
+>> +++ linux-2617-g20/include/asm-i386/unistd.h
+>> @@ -327,14 +327,15 @@
+>>  #ifdef __KERNEL__
+>>  
+>>  #define NR_syscalls 318
+>> +#include <linux/err.h>
+> 
+> include/linux/err.h: Assembler messages:
+> include/linux/err.h:20: Error: no such instruction: `static inline void *ERR_PTR(long error)'
+> include/linux/err.h:21: Error: junk at end of line, first unrecognized character is `{'
+> include/linux/err.h:22: Error: no such instruction: `return (void *)error'
+> include/linux/err.h:23: Error: junk at end of line, first unrecognized character is `}'
+> include/linux/err.h:25: Error: no such instruction: `static inline long PTR_ERR(const void *ptr)'
+> include/linux/err.h:26: Error: junk at end of line, first unrecognized character is `{'
+> include/linux/err.h:27: Error: no such instruction: `return (long)ptr'
+> include/linux/err.h:28: Error: junk at end of line, first unrecognized character is `}'
+> include/linux/err.h:30: Error: no such instruction: `static inline long IS_ERR(const void *ptr)'
+> include/linux/err.h:31: Error: junk at end of line, first unrecognized character is `{'
+> include/linux/err.h:32: Error: no such instruction: `return unlikely(((unsigned long)ptr)>=(unsigned long)-4095)'
+> include/linux/err.h:33: Error: junk at end of line, first unrecognized character is `}'
+> distcc[7619] ERROR: compile (null) on localhost failed
+> make[1]: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 1
+> make: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 2
 
-On Mon, 03 Jul 2006 14:44:10 +0300, Alon Bar-Lev said:
+unlikely() shouldn't be used in code exported to user space.  At least 
+one architecture simply open-codes the __builtin_expect(); or we could
+introduce __likely() and __unlikely() for the benefit of userspace.
 
-> I hate when vendors like ATI, Conexant and UPEK publish binary drivers
-> without publishing the chipset spec... They should decide whether
-> their IP is on the software part or on the hardware part, if it is on
-> the hardware part, they are making money in selling the hardware. If
-> it is on the software part, there is no reason why not providing the
-> information for others to write software to work with the primitive
-> hardware. So in either case there should be full hardware interface
-> disclosure.
-
-That's all fine and good, if the hardware design is entirely either
-stuff designed to open specs (for instance, the actual PCI interface
-chips, which *have* to behave a given way for the PCI bus to work) or
-your own design.
-
-Things get much more difficult if your hardware design ends up incorporating
-somebody else's intellectual property, and they insist on such obfuscation
-as part of the licensing terms.  You then have two choices:
-
-1) Refuse to build and sell the board under such onerous requirements.
-
-2) Realize that 95% of the computers that could possibly use your board
-are running Windows and don't care about an open-source driver *anyhow*,
-accept the fact that you'll not be able to sell to that last 5%, and
-build it anyhow...
-
-Only one of these choices generates revenue for your company.
-
---==_Exmh_1151938852_4949P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEqTEkcC3lWbTT17ARAszLAJ4uHODWXjewKBRv+Azx96a+cKOztwCgpNbz
-Ozx89Hs1wzXCpM1/iD8vxKE=
-=v52+
------END PGP SIGNATURE-----
-
---==_Exmh_1151938852_4949P--
+	-hpa

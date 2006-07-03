@@ -1,78 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWGCUza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWGCVB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWGCUza (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 16:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWGCUza
+	id S932107AbWGCVB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 17:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWGCVB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 16:55:30 -0400
-Received: from nsm.pl ([195.34.211.229]:53783 "EHLO nsm.pl")
-	by vger.kernel.org with ESMTP id S932115AbWGCUz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 16:55:29 -0400
-Date: Mon, 3 Jul 2006 22:55:23 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+	Mon, 3 Jul 2006 17:01:59 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:48835 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932107AbWGCVB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 17:01:58 -0400
 Subject: Re: ext4 features
-Message-ID: <20060703205523.GA17122@irc.pl>
-Mail-Followup-To: Helge Hafting <helgehaf@aitel.hist.no>,
-	Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	Theodore Ts'o <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tomasz Torcz <zdzichu@irc.pl>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060703205523.GA17122@irc.pl>
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
+	 <20060701170729.GB8763@irc.pl>
+	 <20060701174716.GC24570@cip.informatik.uni-erlangen.de>
+	 <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
+	 <20060703205523.GA17122@irc.pl>
+Content-Type: text/plain
+Date: Mon, 03 Jul 2006 23:01:43 +0200
+Message-Id: <1151960503.3108.55.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
-Content-Disposition: inline
-In-Reply-To: <20060703202219.GA9707@aitel.hist.no>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jul 03, 2006 at 10:22:19PM +0200, Helge Hafting wrote:
-> On Sat, Jul 01, 2006 at 08:17:02PM +0200, Tomasz Torcz wrote:
-> > On Sat, Jul 01, 2006 at 07:47:16PM +0200, Thomas Glanzmann wrote:
-> > > Hello,
-> > >=20
-> > > > Checksums are not very useful for themselves. They are useful when =
-we
-> > > > have other copy of data (think raid mirroring) so data can be
-> > > > reconstructed from working copy.
-> > >=20
-> > > it would be possible to identify data corruption.
-> > >=20
-> >=20
-> >   Yes, but what good is identification? We could only return I/O error.
-> > Ability to fix corruption (like ZFS) is the real killer.
->=20
-> Isn't that what we have RAID-1/5/6 for? =20
-
-  ZFS was already called ,,blatant layering violation''. ;)
-Yes,that what RAID is for. And if we want checksums in filesystem,
-that's the best way to utilise them.
-
---=20
-Tomasz Torcz                 Morality must always be based on practicality.
-zdzichu@irc.-nie.spam-.pl                -- Baron Vladimir Harkonnen
+>   ZFS was already called ,,blatant layering violation''. ;)
+> Yes,that what RAID is for. And if we want checksums in filesystem,
+> that's the best way to utilise them.
 
 
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Hi,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
+checksums have a very different purpose than raid.
 
-iD8DBQFEqYQ7ThhlKowQALQRAgzIAKCWdKQrjl0ftWw2zfbEmQ6OBDNg6QCfaA6o
-JOPPcoyrHSj7/b/ixFJMAeQ=
-=SdSI
------END PGP SIGNATURE-----
+checksums are great at detecting corruption. And yes, corruption can
+happen even if you have raid, for many many reasons. Detecting means
+knowing when to not trust something, when to go for the backup tapes...
 
---AhhlLboLdkugWU4S--
+raid is great for protecting against individual disks or sectors going
+bad. But raid, especially high performance implementations, do not
+checksum data or detect corruptions. 
+
+They're different purpose with almost zero overlap in purpose or even
+goal...
+

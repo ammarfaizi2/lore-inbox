@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWGCRsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWGCRz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWGCRsK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 13:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWGCRsK
+	id S1751226AbWGCRz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 13:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWGCRz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 13:48:10 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:19428 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751227AbWGCRsJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 13:48:09 -0400
-Date: Mon, 3 Jul 2006 18:48:04 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, herbert@13thfloor.at,
-       serue@us.ibm.com
-Subject: Re: [PATCH 20/20] honor r/w changes at do_remount() time
-Message-ID: <20060703174804.GD29920@ftp.linux.org.uk>
-References: <20060627221436.77CCB048@localhost.localdomain> <20060627221457.04ADBF71@localhost.localdomain> <20060628051935.GA29920@ftp.linux.org.uk> <1151947814.11159.147.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151947814.11159.147.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Mon, 3 Jul 2006 13:55:56 -0400
+Received: from vms042pub.verizon.net ([206.46.252.42]:41451 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751226AbWGCRz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 13:55:56 -0400
+Date: Mon, 03 Jul 2006 13:55:28 -0400
+From: Andy Gay <andy@andynet.net>
+Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
+	transfers
+In-reply-to: <20060703170040.GA15315@suse.de>
+To: Greg KH <gregkh@suse.de>
+Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, Ken Brush <kbrush@gmail.com>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+Message-id: <1151949329.3285.545.camel@tahini.andynet.net>
+MIME-version: 1.0
+X-Mailer: Evolution 2.4.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1151646482.3285.410.camel@tahini.andynet.net>
+	<adad5cnderb.fsf@cisco.com> <1151872141.3285.486.camel@tahini.andynet.net>
+	<20060703170040.GA15315@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 10:30:14AM -0700, Dave Hansen wrote:
-> On Wed, 2006-06-28 at 06:19 +0100, Al Viro wrote:
-> >         * make the moments when i_nlink hits 0 bump the superblock writers
-> > count; drop it when such sucker gets freed on final iput. 
+On Mon, 2006-07-03 at 10:00 -0700, Greg KH wrote:
+> Yes, this driver is already split into 2 different ones (look in the
+> recent -mm releases).  Sierra wants to have their devices be in their
+> own driver, as the chip is a little different from the other ones.  This
+> means that those devices are now controlled by a driver called "sierra"
+> and the other devices still are working with the airprime driver.
 > 
-> Could you elaborate on this one a bit?  
-> 
-> I assume that there are rules that once i_nlink hits 0, it never goes
-> back up again.  It seems that a whole bunch (if not all) of the
-> individual filesystems do things to it.  Is it really necessary to go
-> into all of those looking for the places that i_nlink hits 0?  Seems
-> like it would be an awful lot of patching.
+> This should hopefully fix the different endpoint issue, and allow new
+> devices to be supported properly, as Sierra Wireless is now maintaining
+> that driver.
+Aha, good news. So this patch is already obsolete, for the Sierra stuff
+anyway. And as I only have Sierra kit to work with, I reckon I should
+drop out of this now.
+I did make some changes to the last patch to do the cleanup stuff in the
+open function, do you want to see those?
 
-Not that much...  That happens in three methods (->unlink(), ->rename(),
-->rmdir()) and yes, we really want to track those.  Think for a minute
-and you'll see why - we don't want to allow remount ro when there is
-a pending truncate/freeing inode.
+> Hope this helps,
+> 
+Sure does!
+
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

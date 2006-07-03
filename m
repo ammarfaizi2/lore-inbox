@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWGCRz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWGCSEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWGCRz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 13:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWGCRz4
+	id S1751231AbWGCSEr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 14:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWGCSEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 13:55:56 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:41451 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751226AbWGCRz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 13:55:56 -0400
-Date: Mon, 03 Jul 2006 13:55:28 -0400
-From: Andy Gay <andy@andynet.net>
-Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
-	transfers
-In-reply-to: <20060703170040.GA15315@suse.de>
-To: Greg KH <gregkh@suse.de>
-Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, Ken Brush <kbrush@gmail.com>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Message-id: <1151949329.3285.545.camel@tahini.andynet.net>
-MIME-version: 1.0
-X-Mailer: Evolution 2.4.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1151646482.3285.410.camel@tahini.andynet.net>
-	<adad5cnderb.fsf@cisco.com> <1151872141.3285.486.camel@tahini.andynet.net>
-	<20060703170040.GA15315@suse.de>
+	Mon, 3 Jul 2006 14:04:47 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:59042 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751228AbWGCSEq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 14:04:46 -0400
+Date: Mon, 3 Jul 2006 11:00:53 -0700
+From: Greg KH <greg@kroah.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Linux ACPI <linux-acpi@vger.kernel.org>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Battery-related regression between 2.6.17-git3 and 2.6.17-git6
+Message-ID: <20060703180053.GA16787@kroah.com>
+References: <200607020021.15040.rjw@sisk.pl> <200607021115.44739.rjw@sisk.pl> <200607031316.46034.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607031316.46034.rjw@sisk.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-03 at 10:00 -0700, Greg KH wrote:
-> Yes, this driver is already split into 2 different ones (look in the
-> recent -mm releases).  Sierra wants to have their devices be in their
-> own driver, as the chip is a little different from the other ones.  This
-> means that those devices are now controlled by a driver called "sierra"
-> and the other devices still are working with the airprime driver.
+On Mon, Jul 03, 2006 at 01:16:45PM +0200, Rafael J. Wysocki wrote:
+> Hi,
 > 
-> This should hopefully fix the different endpoint issue, and allow new
-> devices to be supported properly, as Sierra Wireless is now maintaining
-> that driver.
-Aha, good news. So this patch is already obsolete, for the Sierra stuff
-anyway. And as I only have Sierra kit to work with, I reckon I should
-drop out of this now.
-I did make some changes to the last patch to do the cleanup stuff in the
-open function, do you want to see those?
-
-> Hope this helps,
+> On Sunday 02 July 2006 11:15, Rafael J. Wysocki wrote:
+> > On Sunday 02 July 2006 00:21, Rafael J. Wysocki wrote:
+> > > With the recent -git on my box (Asus L5D, x86_64 SUSE 10) the powersave
+> > > demon is apparently unable to get the battery status, although the data in
+> > > /proc/acpi/battery/BAT0 seem to be correct.  As a result, battery status
+> > > notification via kpowersave doesn't work and it's hard to notice when the
+> > > battery is low/critical.
+> > > 
+> > > So far I have verified that this feature works fine with 2.6.17-git3 and
+> > > doesn't work with 2.6.17-git6 (-git5 doesn't compile here).
+> > > 
+> > > I'll try to get more information tomorrow (unless someone in the know has
+> > > an idea of what's up ;-) ).
+> > 
+> > I've verified that the problem first appeared in 2.6.17-git4.
 > 
-Sure does!
+> Apparently this happens because powersaved takes the battery status
+> information from hald and the following kernel changes make hald crash on
+> my system:
+> 
+> http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=43104f1da88f5335e9a45695df92a735ad550dda
+> http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=bd00949647ddcea47ce4ea8bb2cfcfc98ebf9f2a
+> http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=c182274ffe1277f4e7c564719a696a37cacf74ea
+> http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=9bde7497e0b54178c317fac47a18be7f948dd471
+> http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=36679ea59846d8f34a48f71ca1a37671ca0ad3c5
+> 
+> (ie. after reverting them hald works again).
 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Ick, that should not cause any problems, as sysfs should look identical
+to how it was before those patches.  Except that the /sys/class/usb/
+stuff is now symlinks instead of real directories, but HAL has had to
+handle that for a long time now (and it's even documented in
+Documentation/ABI/testing/sysfs-class)
 
+Can you tell me exactly which of the above patches breaks HAL?
+
+Which version of HAL are you using?  I have 0.5.7 here and it works just
+fine.
+
+And why would they even matter?  The battery is not a USB device...
+
+confused,
+
+greg k-h

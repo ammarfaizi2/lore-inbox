@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWGCVE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWGCVH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWGCVE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 17:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWGCVE4
+	id S932125AbWGCVH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 17:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWGCVH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 17:04:56 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:7312 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S932123AbWGCVE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 17:04:56 -0400
-Date: Mon, 3 Jul 2006 15:04:55 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       axboe <axboe@suse.de>, jejb <James.Bottomley@SteelEye.com>,
-       scsi <linux-scsi@vger.kernel.org>
-Subject: Re: [Ubuntu PATCH] CDROMEJECT cannot eject some devices
-Message-ID: <20060703210455.GD1605@parisc-linux.org>
-References: <44A98220.2000007@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A98220.2000007@oracle.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 3 Jul 2006 17:07:57 -0400
+Received: from ns1.soleranetworks.com ([70.103.108.67]:11245 "EHLO
+	ns1.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S932125AbWGCVH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 17:07:56 -0400
+Message-ID: <44A9904F.7060207@wolfmountaingroup.com>
+Date: Mon, 03 Jul 2006 15:46:55 -0600
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Tomasz Torcz <zdzichu@irc.pl>, Helge Hafting <helgehaf@aitel.hist.no>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>	 <20060701170729.GB8763@irc.pl>	 <20060701174716.GC24570@cip.informatik.uni-erlangen.de>	 <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>	 <20060703205523.GA17122@irc.pl> <1151960503.3108.55.camel@laptopd505.fenrus.org>
+In-Reply-To: <1151960503.3108.55.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 01:46:24PM -0700, Randy Dunlap wrote:
-> 
-> Fix the bug where CDROMEJECT cannot eject some devices.
+Arjan van de Ven wrote:
 
-> --- linux-2617-g21.orig/block/scsi_ioctl.c
-> +++ linux-2617-g21/block/scsi_ioctl.c
-> @@ -501,7 +501,7 @@ static int __blk_send_generic(request_qu
->  	struct request *rq;
->  	int err;
+>>  ZFS was already called ,,blatant layering violation''. ;)
+>>Yes,that what RAID is for. And if we want checksums in filesystem,
+>>that's the best way to utilise them.
+>>    
+>>
+>
+>
+>Hi,
+>
+>checksums have a very different purpose than raid.
+>
+>checksums are great at detecting corruption. And yes, corruption can
+>happen even if you have raid, for many many reasons. Detecting means
+>knowing when to not trust something, when to go for the backup tapes...
+>
+>raid is great for protecting against individual disks or sectors going
+>bad. But raid, especially high performance implementations, do not
+>checksum data or detect corruptions. 
+>
+>They're different purpose with almost zero overlap in purpose or even
+>goal...
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 >  
-> -	rq = blk_get_request(q, WRITE, __GFP_WAIT);
-> +	rq = blk_get_request(q, READ, __GFP_WAIT);
+>
+Add a salvagable file system to ext4, i.e. when a file is deleted, you 
+just rename it and move it to a directory called DELETED.SAV and recycle 
+the files as people allocate new ones.  Easy to do (internal "mv" of 
+file to another directory) and modification of the allocation bitmaps.  
+Very simple and will pay off big.  If you need help designing it, just 
+ask me.
 
-I don't believe this hunk is necessary for mainline.  IIRC, there was a
-bug around length checks vs read vs write which is now fixed.
-Presumably it's still needed in Ubuntu's kernel though.
-
+Jeff

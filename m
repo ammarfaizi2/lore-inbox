@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWGCWts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWGCWuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWGCWts (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 18:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWGCWts
+	id S932170AbWGCWuW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 18:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWGCWuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 18:49:48 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28103 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932169AbWGCWtr (ORCPT
+	Mon, 3 Jul 2006 18:50:22 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:56796 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S932170AbWGCWuU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 18:49:47 -0400
-Date: Tue, 4 Jul 2006 00:49:36 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp regression
-Message-ID: <20060703224936.GT1674@elf.ucw.cz>
-References: <44A99DFB.50106@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A99DFB.50106@gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 3 Jul 2006 18:50:20 -0400
+From: Zach Brown <zach.brown@oracle.com>
+To: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Message-Id: <20060703225019.7379.96075.sendpatchset@tetsuo.zabbo.net>
+Subject: [PATCH] mthca: initialize send and receive queue locks separately
+Date: Mon,  3 Jul 2006 15:50:20 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+mthca: initialize send and receive queue locks separately
 
-> when suspending machine with hyperthreading, only Freezing cpus appears and then
-> it loops somewhere. 
+lockdep identifies a lock by the call site of its initialization.  By
+initializing the send and receive queue locks in mthca_wq_init() we confuse
+lockdep.  It warns that that the ordered acquiry of both locks in
+mthca_modify_qp() is recursive acquiry of one lock:
 
-Does it fail to freeze, or just lock up at that point?
+=============================================
+[ INFO: possible recursive locking detected ]
+---------------------------------------------
+modprobe/1192 is trying to acquire lock:
+ (&wq->lock){....}, at: [<f892b4db>] mthca_modify_qp+0x60/0xa7b [ib_mthca]
+but task is already holding lock:
+ (&wq->lock){....}, at: [<f892b4ce>] mthca_modify_qp+0x53/0xa7b [ib_mthca]
 
-Does it work okay in UP mode?
+Initializing the locks separately in mthca_alloc_qp_common() stops the warning
+and will let lockdep enforce proper ordering on paths that acquire both locks.
 
-> I tried to catch some more info by pressing sysrq-p. Here
-> are some captures:
-> http://www.fi.muni.cz/~xslaby/sklad/03072006074.gif
-> http://www.fi.muni.cz/~xslaby/sklad/03072006075.gif
-> 
-> It was working just perfect in 2.6.17-rcX-mmXs, but from 2.6.17-mmX times (maybe
-> X>=3) it doesn't sleep anymore -- I may be lucky sometimes, and it is successful
-> also in 2.6.17-mm5, but most time everything I get is Freezing and nothing is
-> frozen but fishes in my fridge.
+Signed-off-by: Zach Brown <zach.brown@oracle.com>
+---
 
-:-).
-									Pavel
+ drivers/infiniband/hw/mthca/mthca_qp.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Index: 2.6.17-mm6/drivers/infiniband/hw/mthca/mthca_qp.c
+===================================================================
+--- 2.6.17-mm6.orig/drivers/infiniband/hw/mthca/mthca_qp.c	2006-07-03 08:41:16.000000000 -0400
++++ 2.6.17-mm6/drivers/infiniband/hw/mthca/mthca_qp.c	2006-07-03 10:05:52.000000000 -0400
+@@ -224,7 +224,7 @@
+ 
+ static void mthca_wq_init(struct mthca_wq *wq)
+ {
+-	spin_lock_init(&wq->lock);
++	/* mthca_alloc_qp_common() initializes the locks */
+ 	wq->next_ind  = 0;
+ 	wq->last_comp = wq->max - 1;
+ 	wq->head      = 0;
+@@ -1114,6 +1114,9 @@
+ 	qp->sq_policy    = send_policy;
+ 	mthca_wq_init(&qp->sq);
+ 	mthca_wq_init(&qp->rq);
++	/* these are initialized separately so lockdep can tell them apart */
++	spin_lock_init(&qp->sq.lock);
++	spin_lock_init(&qp->rq.lock);
+ 
+ 	ret = mthca_map_memfree(dev, qp);
+ 	if (ret)

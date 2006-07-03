@@ -1,131 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbWGCJ2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWGCJhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbWGCJ2H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 05:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWGCJ2H
+	id S1750922AbWGCJhj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 05:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbWGCJhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 05:28:07 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:38635 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751042AbWGCJ2G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 05:28:06 -0400
-Date: Mon, 3 Jul 2006 11:26:53 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: James Courtier-Dutton <James@superbug.co.uk>, alsa-devel@alsa-project.org,
-       linux-kernel@vger.kernel.org, Olivier Galibert <galibert@pobox.com>,
-       perex@suse.cz, Olaf Hering <olh@suse.de>, Adrian Bunk <bunk@stusta.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-In-Reply-To: <1151874979.25802.31.camel@mindpipe>
-Message-ID: <Pine.LNX.4.61.0607031123350.22261@yvahk01.tjqt.qr>
-References: <20060629192128.GE19712@stusta.de>  <44A54D8E.3000002@superbug.co.uk>
- <20060630163114.GA12874@dspnet.fr.eu.org>  <1151702966.32444.57.camel@mindpipe>
-  <20060701073133.GA99126@dspnet.fr.eu.org> <44A6279C.3000100@superbug.co.uk>
-  <44A76DDF.4020307@superbug.co.uk>  <Pine.LNX.4.61.0607021153220.5276@yvahk01.tjqt.qr>
-  <1151854092.12026.39.camel@mindpipe>  <Pine.LNX.4.61.0607022304230.5218@yvahk01.tjqt.qr>
- <1151874979.25802.31.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 3 Jul 2006 05:37:39 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:61839 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750921AbWGCJhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 05:37:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=FHmYzrlRp3ihWHP0HbOSYUNiHaZQDF69h1RzEhiq9K4y7csXfZTU7FnaiWwSWd45ODYWI63c6YCDd+3IBdSjn4dvcTyp02s0OnYDy/TbJUITvW3JM+jmgpfnACuUaoTI8Ha2zyMQs3CEZSuO6aj4T0n5GFwHrM5wm5N9HuTDimQ=
+Date: Mon, 3 Jul 2006 13:37:54 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] cris: switch to iminor/imajor
+Message-ID: <20060703093754.GB7581@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 
->> We do not reverse engineer the .text section, but change the .dynstr 
->> section that is specific to the ELF format. I doubt any app out there md5s 
->> itself.
->
->It's possible.  They certainly try very hard to thwart reverse
->engineers.
->
->http://www.secdev.org/conf/skype_BHEU06.handout.pdf
->
+From: Eric Sesterhenn <snakebyte@gmx.de>
 
-Here is your POC for the manipulation of dynstr (and therefore, interception of
-library calls without interfering with redefining/overriden libc names like
-memory debuggers and AOSS do).
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-skype-1.2.0.18.tar.bz2
+ arch/cris/arch-v10/drivers/eeprom.c      |    4 ++--
+ arch/cris/arch-v10/drivers/gpio.c        |    2 +-
+ arch/cris/arch-v32/drivers/cryptocop.c   |    2 +-
+ arch/cris/arch-v32/drivers/gpio.c        |    2 +-
+ arch/cris/arch-v32/drivers/sync_serial.c |   12 ++++++------
+ 5 files changed, 11 insertions(+), 11 deletions(-)
 
-.dynsym table (0x2f80), as printed per "HT"
-0130 global   func     00000000 0000007c *undefined  writ
-05b9 global   func     00000000 0000007c *undefined  open
-074d global   func     00000000 0000007c *undefined  read
+--- a/arch/cris/arch-v10/drivers/eeprom.c
++++ b/arch/cris/arch-v10/drivers/eeprom.c
+@@ -450,9 +450,9 @@ int __init eeprom_init(void)
+ static int eeprom_open(struct inode * inode, struct file * file)
+ {
+ 
+-  if(MINOR(inode->i_rdev) != EEPROM_MINOR_NR)
++  if(iminor(inode) != EEPROM_MINOR_NR)
+      return -ENXIO;
+-  if(MAJOR(inode->i_rdev) != EEPROM_MAJOR_NR)
++  if(imajor(inode) != EEPROM_MAJOR_NR)
+      return -ENXIO;
+ 
+   if( eeprom.size > 0 )
+--- a/arch/cris/arch-v10/drivers/gpio.c
++++ b/arch/cris/arch-v10/drivers/gpio.c
+@@ -435,7 +435,7 @@ static int
+ gpio_open(struct inode *inode, struct file *filp)
+ {
+ 	struct gpio_private *priv;
+-	int p = MINOR(inode->i_rdev);
++	int p = iminor(inode);
+ 
+ 	if (p > GPIO_MINOR_LAST)
+ 		return -EINVAL;
+--- a/arch/cris/arch-v32/drivers/cryptocop.c
++++ b/arch/cris/arch-v32/drivers/cryptocop.c
+@@ -2302,7 +2302,7 @@ static int cryptocop_job_setup(struct cr
+ 
+ static int cryptocop_open(struct inode *inode, struct file *filp)
+ {
+-	int p = MINOR(inode->i_rdev);
++	int p = iminor(inode);
+ 
+ 	if (p != CRYPTOCOP_MINOR) return -EINVAL;
+ 
+--- a/arch/cris/arch-v32/drivers/gpio.c
++++ b/arch/cris/arch-v32/drivers/gpio.c
+@@ -418,7 +418,7 @@ static int
+ gpio_open(struct inode *inode, struct file *filp)
+ {
+ 	struct gpio_private *priv;
+-	int p = MINOR(inode->i_rdev);
++	int p = iminor(inode);
+ 
+ 	if (p > GPIO_MINOR_LAST)
+ 		return -EINVAL;
+--- a/arch/cris/arch-v32/drivers/sync_serial.c
++++ b/arch/cris/arch-v32/drivers/sync_serial.c
+@@ -340,7 +340,7 @@ static inline int sync_data_avail_to_end
+ 
+ static int sync_serial_open(struct inode *inode, struct file *file)
+ {
+-	int dev = MINOR(inode->i_rdev);
++	int dev = iminor(inode);
+ 	sync_port* port;
+ 	reg_dma_rw_cfg cfg = {.en = regk_dma_yes};
+ 	reg_dma_rw_intr_mask intr_mask = {.data = regk_dma_yes};
+@@ -486,7 +486,7 @@ static int sync_serial_open(struct inode
+ 
+ static int sync_serial_release(struct inode *inode, struct file *file)
+ {
+-	int dev = MINOR(inode->i_rdev);
++	int dev = iminor(inode);
+ 	sync_port* port;
+ 
+ 	if (dev < 0 || dev >= NUMBER_OF_PORTS || !ports[dev].enabled)
+@@ -504,7 +504,7 @@ static int sync_serial_release(struct in
+ 
+ static unsigned int sync_serial_poll(struct file *file, poll_table *wait)
+ {
+-	int dev = MINOR(file->f_dentry->d_inode->i_rdev);
++	int dev = iminor(file->f_dentry->d_inode);
+ 	unsigned int mask = 0;
+ 	sync_port* port;
+ 	DEBUGPOLL( static unsigned int prev_mask = 0; );
+@@ -531,7 +531,7 @@ static int sync_serial_ioctl(struct inod
+ 		  unsigned int cmd, unsigned long arg)
+ {
+ 	int return_val = 0;
+-	int dev = MINOR(file->f_dentry->d_inode->i_rdev);
++	int dev = iminor(file->f_dentry->d_inode);
+ 	sync_port* port;
+ 	reg_sser_rw_tr_cfg tr_cfg;
+ 	reg_sser_rw_rec_cfg rec_cfg;
+@@ -789,7 +789,7 @@ static int sync_serial_ioctl(struct inod
+ static ssize_t sync_serial_write(struct file * file, const char * buf,
+                                  size_t count, loff_t *ppos)
+ {
+-	int dev = MINOR(file->f_dentry->d_inode->i_rdev);
++	int dev = iminor(file->f_dentry->d_inode);
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	sync_port *port;
+ 	unsigned long c, c1;
+@@ -919,7 +919,7 @@ static ssize_t sync_serial_write(struct 
+ static ssize_t sync_serial_read(struct file * file, char * buf,
+ 				size_t count, loff_t *ppos)
+ {
+-	int dev = MINOR(file->f_dentry->d_inode->i_rdev);
++	int dev = iminor(file->f_dentry->d_inode);
+ 	int avail;
+ 	sync_port *port;
+ 	unsigned char* start;
 
-.dynsym table (absaddr 0x2f80):
-ofs     absaddr stringptr
-+0x0130 0x4280  0xe0c0
-+0x05b9 0x8b10  0xddbc
-+0x074d 0xa450  0xdff0
-
-.dynstr table (absaddr 0xa750):
-ofs     absaddr name
-+0xe0c0 0x18810 write
-+0xddbc 0x1850c open  (note it is part of "fdopen")
-+0xdff0 0x18740 read
-
-Change to w2ite, o2en, r2en. Implement w2ite(), o2en(), r2()en and fdo2en() in
-an extra library. Load that via LD_PRELOAD.
-
----extra.c---
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-
-int o2en(const char *path, int flags, mode_t mode) {
-    int ret = open(path, flags, mode);
-    printf("open(\"%s\", %x, %04o) = %d\n", path, flags, (int)mode, ret);
-    return ret;
-}
-
-FILE *fdo2en(int fd, const char *mode) {
-    FILE *ret = fdopen(fd, mode);
-    printf("fdopen(%d, \"%s\") = %#p\n", fd, mode, ret);
-    return ret;
-}
-
-ssize_t r2ad(int fd, void *buf, size_t count) {
-    ssize_t ret = read(fd, buf, count);
-    printf("read(%d, %#p, %zu) = %zd\n", fd, buf, count, ret);
-    return ret;
-}
-
-ssize_t w2ite(int fd, const void *buf, size_t count) {
-    ssize_t ret = write(fd, buf, count);
-    printf("write(%d, %#p, %zu) = %zd\n", fd, buf, count, ret);
-    return ret;
-}
-
----eof---
-11:21 linux01:~ > cc extra.c -Wall -o extra.so -shared
-11:21 linux01:~ > export LD_PRELOAD=$PWD/extra.so
-write(4, 0xbfffe82b, 1) = 1
-write(4, 0x8a211d0, 26) = 26
-read(4, 0x8a27620, 2048) = 4
-write(4, 0x8a211d0, 7) = 7
-read(4, 0x8a31750, 2048) = 260
-read(4, 0x8a31f60, 2048) = -1
-read(4, 0x8a31f60, 2048) = 82
-read(4, 0x8a32770, 2048) = -1
-read(4, 0x8a32770, 2048) = 256
-read(4, 0x8a31f60, 2048) = -1
-open("/home/jengelh/.Skype/shared.lck", 8041, 0777) = 8
-open("/home/jengelh/.Skype/shared.xml", 8000, 0777) = 9
-read(9, 0x8a3c900, 168) = 168
-open("/dev/urandom", 0, 0004) = 8
-read(8, 0xbfffe760, 8) = 8
-open("/dev/urandom", 0, 0004) = 8
-read(8, 0xbfffe760, 8) = 8
-open("/dev/urandom", 0, 1051125610) = 8
-read(8, 0xbfffe7a0, 8) = 8
-open("/dev/urandom", 0, 1051131340) = 8
-read(8, 0xbfffe7a0, 8) = 8
-
-
-W.W.W.W.W.
-
-
-Jan Engelhardt
--- 

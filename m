@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWGCHtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWGCHz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWGCHtt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 03:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWGCHtt
+	id S1750760AbWGCHz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 03:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWGCHz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 03:49:49 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:62300 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750707AbWGCHts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 03:49:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=EcZltVqad1yIWKfUZiAYbr2I7dbNpig0sth1r0kBt8VLedONe+sGKc5bvT7zFfwbbA0SzgD08q4tSJJkSyz6eRnQFGH8F6BkyyDcdWkFgnCjNwt4UmESKGUEYRxrbUNMEdPyjkbcVotpDWkdmfvRSsuWawT+qitmE7Q/0jJopv4=
-Message-ID: <aec7e5c30607030049j30444da9h563f8246547400f3@mail.gmail.com>
-Date: Mon, 3 Jul 2006 16:49:46 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: 8250_pci.c, parport_serial.c, __devinit and !CONFIG_HOTPLUG
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 3 Jul 2006 03:55:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46018 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750760AbWGCHzz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 03:55:55 -0400
+Date: Mon, 3 Jul 2006 00:55:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: tglx@linutronix.de, torvalds@osdl.org, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] genirq: ARM dyntick cleanup
+Message-Id: <20060703005542.62df5673.akpm@osdl.org>
+In-Reply-To: <20060703074155.GA28235@flint.arm.linux.org.uk>
+References: <1151885928.24611.24.camel@localhost.localdomain>
+	<20060702173527.cbdbf0e1.akpm@osdl.org>
+	<20060703074155.GA28235@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, 3 Jul 2006 08:41:55 +0100
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-I've spotted a case where functions marked as __devinit may be used
-after being freed.
+> On Sun, Jul 02, 2006 at 05:35:27PM -0700, Andrew Morton wrote:
+> > This is not exactly a thing of beauty either.  It's much cleaner to use
+> > __attribute__((weak)), but that will add an empty call-return to everyone's
+> > interrupts.
+> 
+> Let's not go overboard with the weak stuff - it does not get removed
+> at link time, so it remains as dead code in the kernel image.
 
-8250_pci.c contains find_quirk() which is accessing
-pci_serial_quirks[]. The functions pointed to by
-pci_serial_quirks[x].init are marked as __devinit.
+Well.
 
-8250_pci.c exports pciserial_init_ports() which is using find_quirk().
-pciserial_init_ports() may be used after __devinit data has been freed
-from the module.
+void handle_dynamic_tick(struct irqaction *action)
+{
+}
 
-If parport_serial gets loaded after 8250_pci and CONFIG_HOTPLUG is
-disabled and the quirk table is matching then we might call a
-non-existing function.
+consumes one byte, doesn't it?  That's not very far overboard ;)
 
-I may of course be wrong, but it does look like a use-after-free
-problem to me. I discovered this by running modpost on a vmlinux that
-contains relocation information.
-
-/ magnus
+And we can optimise away that byte by doing what we do with cond_syscall().

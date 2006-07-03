@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWGCWO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWGCWRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbWGCWO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 18:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWGCWO5
+	id S932153AbWGCWRT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 18:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWGCWRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 18:14:57 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:23963 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750988AbWGCWO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 18:14:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dDQ5tuNODhW72Pfz/gDZeOYg74DlQmln9ssR17c36sRiCUUKL+s2o8p5Qu7p4WxmqqqHazdrHjDis50aNiLw+pq3sgW5S61HaeoTmYnjuOy09WO7EmIykYcXI3XIJ8/GsK/TETkUgokk9MMWiZ0NEMwENsb6RNterbDDgfQSysM=
-Message-ID: <6bffcb0e0607031514r6e14c68am5964f07265e0caeb@mail.gmail.com>
-Date: Tue, 4 Jul 2006 00:14:55 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: romit.linux@gmail.com
-Subject: Re: CONFIG for udev to work?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200607040332.48506.romit.linux@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jul 2006 18:17:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:49072 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932153AbWGCWRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 18:17:18 -0400
+Date: Mon, 3 Jul 2006 23:17:12 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Hugh Dickins <hugh@veritas.com>, Con Kolivas <kernel@kolivas.org>,
+       Marcelo Tosatti <marcelo@kvack.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC 0/8] Reduce MAX_NR_ZONES and remove useless zones.
+Message-ID: <20060703221712.GB14273@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
+	akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
+	Con Kolivas <kernel@kolivas.org>,
+	Marcelo Tosatti <marcelo@kvack.org>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>
+References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200607040332.48506.romit.linux@gmail.com>
+In-Reply-To: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jul 03, 2006 at 02:55:34PM -0700, Christoph Lameter wrote:
+> I keep seeing zones on various platforms that are never used and wonder
+> why we compile support for them into the kernel.
+> 
+> IA64 on SGI for example only uses ZONE_DMA other IA64 platforms can
+> also use ZONE_NORMAL.
 
-On 04/07/06, Romit <romit.linux@gmail.com> wrote:
-> Hi,
->
->     I sent a query to linux-hotplug-devel a few days back but did not get any
-> reply, so I am posting it here.
-> I upgraded from 2.6.13-15  to 2.6.17.1 and I can't see any UEVENT message
-> generation. I am running udevmonitor and it is just blocking on receiving
-> UEVENT from the kernel even after I insert a usb keyboard/ usb storage / usb
-> bluetooth dongle.
-> I am running SUSE LINUX 10.0.
-> I am sure that I am missing some CONFIG iitem. All I want to know is what
-> arethem essential items that I need to enable for udev to work.Kindly let me
-> know what CONFIG item I am missing.
+Which btw is utterly wrong.  It should have a 4GB ZONE_DMA32 and everything
+else in ZONE_NORMAL.
 
-Documentation/Changes
+That doesn't mean I want to discourage this patchset, quite contrary.
+But please fix this oddity aswell.
 
-"udev            071                     # udevinfo -V"
-
->
-> Thanks in advance
-> -Romit
->
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

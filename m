@@ -1,86 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWGCTis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWGCTjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbWGCTis (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 15:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWGCTis
+	id S1751254AbWGCTjb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 15:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWGCTjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 15:38:48 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:30612 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751252AbWGCTiq (ORCPT
+	Mon, 3 Jul 2006 15:39:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35724 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751254AbWGCTja (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 15:38:46 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Battery-related regression between 2.6.17-git3 and 2.6.17-git6
-Date: Mon, 3 Jul 2006 21:39:22 +0200
-User-Agent: KMail/1.9.3
-Cc: Linux ACPI <linux-acpi@vger.kernel.org>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <200607020021.15040.rjw@sisk.pl> <200607031316.46034.rjw@sisk.pl> <20060703180053.GA16787@kroah.com>
-In-Reply-To: <20060703180053.GA16787@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 3 Jul 2006 15:39:30 -0400
+Date: Mon, 3 Jul 2006 12:39:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org, Nathan Scott <nathans@sgi.com>
+Subject: Re: 2.6.17-mm6
+Message-Id: <20060703123920.ff1a497a.akpm@osdl.org>
+In-Reply-To: <200607032027.21879.s0348365@sms.ed.ac.uk>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<200607032027.21879.s0348365@sms.ed.ac.uk>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607032139.22488.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 July 2006 20:00, Greg KH wrote:
-> On Mon, Jul 03, 2006 at 01:16:45PM +0200, Rafael J. Wysocki wrote:
-> > Hi,
-> > 
-> > On Sunday 02 July 2006 11:15, Rafael J. Wysocki wrote:
-> > > On Sunday 02 July 2006 00:21, Rafael J. Wysocki wrote:
-> > > > With the recent -git on my box (Asus L5D, x86_64 SUSE 10) the powersave
-> > > > demon is apparently unable to get the battery status, although the data in
-> > > > /proc/acpi/battery/BAT0 seem to be correct.  As a result, battery status
-> > > > notification via kpowersave doesn't work and it's hard to notice when the
-> > > > battery is low/critical.
-> > > > 
-> > > > So far I have verified that this feature works fine with 2.6.17-git3 and
-> > > > doesn't work with 2.6.17-git6 (-git5 doesn't compile here).
-> > > > 
-> > > > I'll try to get more information tomorrow (unless someone in the know has
-> > > > an idea of what's up ;-) ).
-> > > 
-> > > I've verified that the problem first appeared in 2.6.17-git4.
-> > 
-> > Apparently this happens because powersaved takes the battery status
-> > information from hald and the following kernel changes make hald crash on
-> > my system:
-> > 
-> > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=43104f1da88f5335e9a45695df92a735ad550dda
-> > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=bd00949647ddcea47ce4ea8bb2cfcfc98ebf9f2a
-> > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=c182274ffe1277f4e7c564719a696a37cacf74ea
-> > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=9bde7497e0b54178c317fac47a18be7f948dd471
-> > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=36679ea59846d8f34a48f71ca1a37671ca0ad3c5
-> > 
-> > (ie. after reverting them hald works again).
+On Mon, 3 Jul 2006 20:27:21 +0100
+Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+
+> On Monday 03 July 2006 11:03, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17
+> >-mm6/
 > 
-> Ick, that should not cause any problems, as sysfs should look identical
-> to how it was before those patches.  Except that the /sys/class/usb/
-> stuff is now symlinks instead of real directories, but HAL has had to
-> handle that for a long time now (and it's even documented in
-> Documentation/ABI/testing/sysfs-class)
+> Doesn't boot reliably as an x86-64 kernel on my X2 system, 3/4 times it oopses 
+> horribly. Is there some way to supress an oops flood so I can get a decent 
+> picture of it with vga=extended? Right now I get two useless oopses after the 
+> first (probably useful) one.
 
-Well, apparently one of them happens to trigger a buffer overflow in "my"
-version of hal. ;-)
+Try adding `pause_on_oops=100000' to the kernel boot command line.
 
-> Can you tell me exactly which of the above patches breaks HAL?
+> The one time I did get it to boot, I get a lockdep problem (possibly already 
+> reported, if so I'm sorry);
+> 
+>  =============================================
+>  [ INFO: possible recursive locking detected ]
+>  ---------------------------------------------
+>  mount/1095 is trying to acquire lock:
+>   (&(&ip->i_lock)->mr_lock){----}, at: [<ffffffff80328ef7>] 
+> xfs_ilock+0x67/0xa0
+> 
+>  but task is already holding lock:
+>   (&(&ip->i_lock)->mr_lock){----}, at: [<ffffffff80328ef7>] 
+> xfs_ilock+0x67/0xa0
+> 
+>  other info that might help us debug this:
+>  2 locks held by mount/1095:
+>   #0:  (&inode->i_mutex){--..}, at: [<ffffffff8026ead5>] mutex_lock+0x25/0x30
+>   #1:  (&(&ip->i_lock)->mr_lock){----}, at: [<ffffffff80328ef7>] 
+> xfs_ilock+0x67/0xa0
+> 
+>  stack backtrace:
+> 
+>  Call Trace:
+>   [<ffffffff8027479e>] show_trace+0xae/0x280
+>   [<ffffffff80274985>] dump_stack+0x15/0x20
+>   [<ffffffff802afa06>] __lock_acquire+0x936/0xcd0
+>   [<ffffffff802afe28>] lock_acquire+0x88/0xc0
+>   [<ffffffff802abe49>] down_write+0x39/0x50
+>   [<ffffffff80328ef7>] xfs_ilock+0x67/0xa0
+>   [<ffffffff80329b3a>] xfs_iget+0x2da/0x760
+>   [<ffffffff80341804>] xfs_trans_iget+0xc4/0x150
+>   [<ffffffff8032df8e>] xfs_ialloc+0x9e/0x4d0
+>   [<ffffffff803423df>] xfs_dir_ialloc+0x7f/0x2d0
+>   [<ffffffff80348e24>] xfs_create+0x364/0x6d0
+>   [<ffffffff80352e9a>] xfs_vn_mknod+0x16a/0x300
+>   [<ffffffff8035304b>] xfs_vn_create+0xb/0x10
+>   [<ffffffff8023f92d>] vfs_create+0x8d/0xf0
+>   [<ffffffff8021cd42>] open_namei+0x1c2/0x700
+>   [<ffffffff80229e32>] do_filp_open+0x22/0x50
+>   [<ffffffff8021b78a>] do_sys_open+0x5a/0xf0
+>   [<ffffffff80235e5b>] sys_open+0x1b/0x20
+>   [<ffffffff8026894e>] system_call+0x7e/0x83
+>   [<000000337b1ac6e2>]
+>  XFS mounting filesystem sdb1
 
-That would be quite a bit of testing and now I'm sure it's a hal issue.
+That could be deliberate nesting of the same lock in XFS.  Or it could be a
+false-positive due to an earlier oops.
 
-> Which version of HAL are you using?  I have 0.5.7 here and it works just
-> fine.
-
-0.5.4 :-(
-
-> And why would they even matter?  The battery is not a USB device...
-
-No, it's not, but if hald is not running, powersaved cannot get the battery
-status from it.  Well ...
-
-Thanks,
-Rafael

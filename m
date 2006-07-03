@@ -1,406 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWGCFa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWGCFm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbWGCFa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 01:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWGCFa0
+	id S1751347AbWGCFm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 01:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWGCFm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 01:30:26 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:6831 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S1751041AbWGCFaZ (ORCPT
+	Mon, 3 Jul 2006 01:42:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16547 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751347AbWGCFm4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 01:30:25 -0400
-Date: Mon, 3 Jul 2006 11:59:17 +0900
-From: Horms <horms@verge.net.au>
-To: linux-kernel@vger.kernel.org
-Cc: Adrian Bunk <trivial@kernel.org>, Magnus Damm <damm@opensource.se>
-Subject: [PATCH] nfs: Update Documentation/nfsroot.txt to include dhcp, syslinux and isolinux
-Message-ID: <20060703025915.GA31075@verge.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+	Mon, 3 Jul 2006 01:42:56 -0400
+Date: Sun, 2 Jul 2006 22:42:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: mbligh@mbligh.org, linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: [patch] sched: fix macro -> inline function conversion bug
+Message-Id: <20060702224247.21e8aa8f.akpm@osdl.org>
+In-Reply-To: <20060703052538.GB13415@elte.hu>
+References: <44A8567B.2010309@mbligh.org>
+	<20060702164113.6dc1cd6c.akpm@osdl.org>
+	<20060703052538.GB13415@elte.hu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Document the ip command a little differently to make the
-  interaction between defaults and autoconfiguration a little clearer
-  (I hope)
+On Mon, 3 Jul 2006 07:25:39 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-* Update autoconfiguration the current set of options, including DHCP
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > On Sun, 02 Jul 2006 16:27:55 -0700
+> > "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+> > 
+> > > Panic on NUMA-Q (mm4 was fine). Presumably some new scheduler patch
+> > > 
+> > > divide error: 0000 [#1]
+> > > 8K_STACKS SMP 
+> > > last sysfs file: 
+> > > Modules linked in:
+> > > CPU:    1
+> > > EIP:    0060:[<c0112b6e>]    Not tainted VLI
+> > > EFLAGS: 00010046   (2.6.17-mm5-autokern1 #1) 
+> > > EIP is at find_busiest_group+0x1a3/0x47c
+> > > eax: 00000000   ebx: 00000007   ecx: 00000000   edx: 00000000
+> > > esi: 00000000   edi: e75ff264   ebp: e7405ec8   esp: e7405e58
+> > > ds: 007b   es: 007b   ss: 0068
+> > > Process swapper (pid: 0, ti=e7404000 task=c13f8560 task.ti=e7404000)
+> > > Stack: e75ff264 00000010 c0119020 00000000 00000000 00000000 00000000 00000000 
+> > >        ffffffff 00000000 00000000 00000001 00000001 00000001 00000080 00000000 
+> > >        00000000 00000200 00000020 00000080 00000000 00000000 e75ff260 c1364960 
+> > > Call Trace:
+> > >  [<c0119020>] vprintk+0x5f/0x213
+> > >  [<c0112efb>] load_balance+0x54/0x1d6
+> > >  [<c011332d>] rebalance_tick+0xc5/0xe3
+> > >  [<c01137a3>] scheduler_tick+0x2cb/0x2d3
+> > >  [<c01215b4>] update_process_times+0x51/0x5d
+> > >  [<c010c224>] smp_apic_timer_interrupt+0x5a/0x61
+> > >  [<c0102d5b>] apic_timer_interrupt+0x1f/0x24
+> > >  [<c01006c0>] default_idle+0x0/0x59
+> > >  [<c01006f1>] default_idle+0x31/0x59
+> > >  [<c0100791>] cpu_idle+0x64/0x79
+> > > Code: 00 5b 83 f8 1f 89 c6 5f 0f 8e 63 ff ff ff 8b 45 e0 8b 55 e8 01 45 dc 8b 4a 08 89 c2 01 4d d4 c1 e2 07 89 d0 31 d2 89 ce c1 ee 07 <f7> f1 83 7d 9c 00 89 45 e0 74 17 89 45 d8 8b 55 e8 8b 4d a4 8b 
+> > > EIP: [<c0112b6e>] find_busiest_group+0x1a3/0x47c SS:ESP 0068:e7405e58
+> > 
+> > Yes, Andy's reporting that too.  I asked him to identify the 
+> > file-n-line and he ran away on me.
+> 
+> i checked the scheduler queue and nothing jumped out at me, except the 
+> cleanup bug fixed by the patch below. (which should be harmless in this 
+> particular case - nr_running should never be smaller than 0 or larger 
+> than ~4 billion. A fix is warranted nevertheless.)
 
-* Update the boot methods to add syslinux and isolinux, and remove
-  dd of=/dev/fd0 which is no longer supported by linux
-
-* Add a referance to initramfs along side initrd.
-  Should the latter and its document be removed some time soon?
-
-* Various cleanups to put the text consistently into the thrid person
-
-* Reformated a bit to fit into 80 columns a bit more nicely
-
-* Should the bootloaders documentation be removed or split
-  into a separate documentation, it seems somewhat out of scope
-
-Signed-Off-By: Horms <horms@verge.net.au>
-
- Documentation/nfsroot.txt |  275 ++++++++++++++++++++++++++-------------------
- 1 file changed, 160 insertions(+), 115 deletions(-)
-
-diff --git a/Documentation/nfsroot.txt b/Documentation/nfsroot.txt
-index d56dc71..82177ec 100644
---- a/Documentation/nfsroot.txt
-+++ b/Documentation/nfsroot.txt
-@@ -4,15 +4,16 @@ Mounting the root filesystem via NFS (nf
- Written 1996 by Gero Kuhlmann <gero@gkminix.han.de>
- Updated 1997 by Martin Mares <mj@atrey.karlin.mff.cuni.cz>
- Updated 2006 by Nico Schottelius <nico-kernel-nfsroot@schottelius.org>
-+Updated 2006 by Horms <horms@verge.net.au>
- 
- 
- 
--If you want to use a diskless system, as an X-terminal or printer
--server for example, you have to put your root filesystem onto a
--non-disk device. This can either be a ramdisk (see initrd.txt in
--this directory for further information) or a filesystem mounted
--via NFS. The following text describes on how to use NFS for the
--root filesystem. For the rest of this text 'client' means the
-+In order to use a diskless system, such as an X-terminal or printer server
-+for example, it is necessary for the root filesystem to be present on a
-+non-disk device. This may be an initramfs (see Documentation/filesystems/
-+ramfs-rootfs-initramfs.txt), a ramdisk (see Documenation/initrd.txt) or a
-+filesystem mounted via NFS. The following text describes on how to use NFS
-+for the root filesystem. For the rest of this text 'client' means the
- diskless system, and 'server' means the NFS server.
- 
- 
-@@ -21,11 +22,13 @@ diskless system, and 'server' means the 
- 1.) Enabling nfsroot capabilities
-     -----------------------------
- 
--In order to use nfsroot you have to select support for NFS during
--kernel configuration. Note that NFS cannot be loaded as a module
--in this case. The configuration script will then ask you whether
--you want to use nfsroot, and if yes what kind of auto configuration
--system you want to use. Selecting both BOOTP and RARP is safe.
-+In order to use nfsroot, NFS client support needs to be selected as
-+built-in during configuration. Once this has been selected, the nfsroot
-+option will become available, which should also be selected.
-+
-+In the networking options, kernel level autoconfiguration can be selected,
-+along with the types of autoconfiguration to support. Selecting all of
-+DHCP, BOOTP and RARP is safe.
- 
- 
- 
-@@ -33,11 +36,10 @@ system you want to use. Selecting both B
- 2.) Kernel command line
-     -------------------
- 
--When the kernel has been loaded by a boot loader (either by loadlin,
--LILO or a network boot program) it has to be told what root fs device
--to use, and where to find the server and the name of the directory
--on the server to mount as root. This can be established by a couple
--of kernel command line parameters:
-+When the kernel has been loaded by a boot loader (see below) it needs to be
-+told what root fs device to use. And in the case of nfsroot, where to find
-+both the server and the name of the directory on the server to mount as root.
-+This can be established using the following kernel command line parameters:
- 
- 
- root=/dev/nfs
-@@ -49,23 +51,21 @@ root=/dev/nfs
- 
- nfsroot=[<server-ip>:]<root-dir>[,<nfs-options>]
- 
--  If the `nfsroot' parameter is NOT given on the command line, the default
--  "/tftpboot/%s" will be used.
-+  If the `nfsroot' parameter is NOT given on the command line,
-+  the default "/tftpboot/%s" will be used.
- 
--  <server-ip>	Specifies the IP address of the NFS server. If this field
--		is not given, the default address as determined by the
--		`ip' variable (see below) is used. One use of this
--		parameter is for example to allow using different servers
--		for RARP and NFS. Usually you can leave this blank.
-+  <server-ip>	Specifies the IP address of the NFS server. 
-+		The default address is determined by the `ip' parameter
-+		(see below). This parameter allows the use of different
-+		servers for IP autoconfiguration and NFS.
- 
--  <root-dir>	Name of the directory on the server to mount as root. If
--		there is a "%s" token in the string, the token will be
--		replaced by the ASCII-representation of the client's IP
--		address.
-+  <root-dir>	Name of the directory on the server to mount as root.
-+		If there is a "%s" token in the string, it will be
-+		replaced by the ASCII-representation of the client's
-+		IP address.
- 
-   <nfs-options>	Standard NFS options. All options are separated by commas.
--		If the options field is not given, the following defaults
--		will be used:
-+		The following defaults are used:
- 			port		= as given by server portmap daemon
- 			rsize		= 1024
- 			wsize		= 1024
-@@ -81,129 +81,174 @@ nfsroot=[<server-ip>:]<root-dir>[,<nfs-o
- ip=<client-ip>:<server-ip>:<gw-ip>:<netmask>:<hostname>:<device>:<autoconf>
- 
-   This parameter tells the kernel how to configure IP addresses of devices
--  and also how to set up the IP routing table. It was originally called `nfsaddrs',
--  but now the boot-time IP configuration works independently of NFS, so it
--  was renamed to `ip' and the old name remained as an alias for compatibility
--  reasons.
-+  and also how to set up the IP routing table. It was originally called
-+  `nfsaddrs', but now the boot-time IP configuration works independently of
-+  NFS, so it was renamed to `ip' and the old name remained as an alias for
-+  compatibility reasons.
- 
-   If this parameter is missing from the kernel command line, all fields are
-   assumed to be empty, and the defaults mentioned below apply. In general
--  this means that the kernel tries to configure everything using both
--  RARP and BOOTP (depending on what has been enabled during kernel confi-
--  guration, and if both what protocol answer got in first).
-+  this means that the kernel tries to configure everything using
-+  autoconfiguration.
- 
--  <client-ip>	IP address of the client. If empty, the address will either
--		be determined by RARP or BOOTP. What protocol is used de-
--		pends on what has been enabled during kernel configuration
--		and on the <autoconf> parameter. If this parameter is not
--		empty, neither RARP nor BOOTP will be used.
-+  The <autoconf> parameter can appear alone as the value to the `ip'
-+  parameter (without all the ':' characters before) in which case auto-
-+  configuration is used.
-+
-+  <client-ip>	IP address of the client. 
-+  
-+  		Default:  Determined using autoconfiguration.
- 
-   <server-ip>	IP address of the NFS server. If RARP is used to determine
- 		the client address and this parameter is NOT empty only
--		replies from the specified server are accepted. To use
--		different RARP and NFS server, specify your RARP server
--		here (or leave it blank), and specify your NFS server in
--		the `nfsroot' parameter (see above). If this entry is blank
--		the address of the server is used which answered the RARP
--		or BOOTP request.
--
--  <gw-ip>	IP address of a gateway if the server is on a different
--		subnet. If this entry is empty no gateway is used and the
--		server is assumed to be on the local network, unless a
--		value has been received by BOOTP.
--
--  <netmask>	Netmask for local network interface. If this is empty,
-+		replies from the specified server are accepted.
-+
-+		Only required for for NFS root. That is autoconfiguration
-+		will not be triggered if it is missing and NFS root is not
-+		in operation.
-+
-+		Default: Determined using autoconfiguration.
-+		         The address of the autoconfiguration server is used.
-+
-+  <gw-ip>	IP address of a gateway if the server is on a different subnet.
-+
-+		Default: Determined using autoconfiguration.
-+
-+  <netmask>	Netmask for local network interface. If unspecified
- 		the netmask is derived from the client IP address assuming
--		classful addressing, unless overridden in BOOTP reply.
-+		classful addressing.
- 
--  <hostname>	Name of the client. If empty, the client IP address is
--		used in ASCII notation, or the value received by BOOTP.
-+		Default:  Determined using autoconfiguration.
- 
--  <device>	Name of network device to use. If this is empty, all
--		devices are used for RARP and BOOTP requests, and the
--		first one we receive a reply on is configured. If you have
--		only one device, you can safely leave this blank.
-+  <hostname>	Name of the client. May be supplied by autoconfiguration,
-+  		but its absence will not trigger autoconfiguration.
- 
--  <autoconf>	Method to use for autoconfiguration. If this is either
--		'rarp' or 'bootp', the specified protocol is used.
--		If the value is 'both' or empty, both protocols are used
--		so far as they have been enabled during kernel configura-
--		tion. 'off' means no autoconfiguration.
-+  		Default: Client IP address is used in ASCII notation.
- 
--  The <autoconf> parameter can appear alone as the value to the `ip'
--  parameter (without all the ':' characters before) in which case auto-
--  configuration is used.
-+  <device>	Name of network device to use.
- 
-+		Default: If the host only has one device, it is used.
-+			 Otherwise the device is determined using
-+			 autoconfiguration. This is done by sending
-+			 autoconfiguration requests out of all devices,
-+			 and using the device that received the first reply.
- 
-+  <autoconf>	Method to use for autoconfiguration. In the case of options
-+                which specify multiple autoconfiguration protocols,
-+		requests are sent using all protocols, and the first one
-+		to reply is used. 
- 
-+		Only autoconfiguration protocols that have been compiled
-+		into the kernel will be used, regardless of the value of
-+		this option.
- 
--3.) Kernel loader
--    -------------
-+                  off or none: don't use autoconfiguration (default)
-+		  on or any:   use any protocol available in the kernel
-+		  dhcp:        use DHCP
-+		  bootp:       use BOOTP
-+		  rarp:        use RARP
-+		  both:        use both BOOTP and RARP but not DHCP 
-+		               (old option kept for backwards compatibility)
- 
--To get the kernel into memory different approaches can be used. They
--depend on what facilities are available:
-+                Default: any
- 
- 
--3.1)  Writing the kernel onto a floppy using dd:
--	As always you can just write the kernel onto a floppy using dd,
--	but then it's not possible to use kernel command lines at all.
--	To substitute the 'root=' parameter, create a dummy device on any
--	linux system with major number 0 and minor number 255 using mknod:
- 
--		mknod /dev/boot255 c 0 255
- 
--	Then copy the kernel zImage file onto a floppy using dd:
-+3.) Boot Loader
-+    ----------
- 
--		dd if=/usr/src/linux/arch/i386/boot/zImage of=/dev/fd0
-+To get the kernel into memory different approaches can be used.
-+They depend on various facilities being available:
- 
--	And finally use rdev to set the root device:
- 
--		rdev /dev/fd0 /dev/boot255
-+3.1)  Booting from a floppy using syslinux
- 
--	You can then remove the dummy device /dev/boot255 again. There
--	is no real device available for it.
--	The other two kernel command line parameters cannot be substi-
--	tuted with rdev. Therefore, using this method the kernel will
--	by default use RARP and/or BOOTP, and if it gets an answer via
--	RARP will mount the directory /tftpboot/<client-ip>/ as its
--	root. If it got a BOOTP answer the directory name in that answer
--	is used.
-+	When building kernels, an easy way to create a boot floppy that uses
-+	syslinux is to use the zdisk or bzdisk make targets which use
-+      	and bzimage images respectively. Both targets accept the
-+     	FDARGS parameter which can be used to set the kernel command line.
-+
-+	e.g. 
-+	   make bzdisk FDARGS="root=/dev/nfs"
-+
-+   	Note that the user running this command will need to have
-+     	access to the floppy drive device, /dev/fd0
-+
-+     	For more information on syslinux, including how to create bootdisks
-+     	for prebuilt kernels, see http://syslinux.zytor.com/
-+
-+	N.B: Previously it was possible to write a kernel directly to
-+	     a floppy using dd, configure the boot device using rdev, and
-+	     boot using the resulting floppy. Linux no longer supports this
-+	     method of booting.
-+
-+3.2) Booting from a cdrom using isolinux
-+
-+     	When building kernels, an easy way to create a bootable cdrom that
-+     	uses isolinux is to use the isoimage target which uses a bzimage
-+     	image. Like zdisk and bzdisk, this target accepts the FDARGS
-+     	parameter which can be used to set the kernel command line.
-+
-+	e.g.
-+	  make isoimage FDARGS="root=/dev/nfs"
-+
-+     	The resulting iso image will be arch/<ARCH>/boot/image.iso
-+     	This can be written to a cdrom using a variety of tools including
-+     	cdrecord.
-+
-+	e.g.
-+	  cdrecord dev=ATAPI:1,0,0 arch/i386/boot/image.iso
-+
-+     	For more information on isolinux, including how to create bootdisks
-+     	for prebuilt kernels, see http://syslinux.zytor.com/
- 
- 3.2) Using LILO
--	When using LILO you can specify all necessary command line
--	parameters with the 'append=' command in the LILO configuration
--	file. However, to use the 'root=' command you also need to
--	set up a dummy device as described in 3.1 above. For how to use
--	LILO and its 'append=' command please refer to the LILO
--	documentation.
-+	When using LILO all the necessary command line parameters may be
-+	specified using the 'append=' directive in the LILO configuration
-+	file. 
-+	
-+	However, to use the 'root=' directive you also need to create 
-+	a dummy root device, which may be removed after LILO is run.
-+
-+	mknod /dev/boot255 c 0 255
-+	
-+	For information on configuring LILO, please refer to its documentation.
- 
- 3.3) Using GRUB
--	When you use GRUB, you simply append the parameters after the kernel
--	specification: "kernel <kernel> <parameters>" (without the quotes).
-+	When using GRUB, kernel parameter are simply appended after the kernel
-+	specification: kernel <kernel> <parameters>
- 
- 3.4) Using loadlin
--	When you want to boot Linux from a DOS command prompt without
--	having a local hard disk to mount as root, you can use loadlin.
--	I was told that it works, but haven't used it myself yet. In
--	general you should be able to create a kernel command line simi-
--	lar to how LILO is doing it. Please refer to the loadlin docu-
--	mentation for further information.
-+	loadlin may be used to boot Linux from a DOS command prompt without
-+	requiring a local hard disk to mount as root. This has not been
-+	thoroughly tested by the authors of this document, but in general
-+	it should be possible configure the kernel command line similarly
-+	to the configuration of LILO.
-+	
-+	Please refer to the loadlin documentation for further information.
- 
- 3.5) Using a boot ROM
--	This is probably the most elegant way of booting a diskless
--	client. With a boot ROM the kernel gets loaded using the TFTP
--	protocol. As far as I know, no commercial boot ROMs yet
--	support booting Linux over the network, but there are two
--	free implementations of a boot ROM available on sunsite.unc.edu
--	and its mirrors. They are called 'netboot-nfs' and 'etherboot'.
--	Both contain everything you need to boot a diskless Linux client.
-+	This is probably the most elegant way of booting a diskless client.
-+	With a boot ROM the kernel is loaded using the TFTP protocol. The
-+	authors of this document are not aware of any no commercial boot
-+	ROMs that support booting Linux over the network. However, there
-+	are two free implementations of a boot ROM, netboot-nfs and
-+	etherboot, both of which are available on sunsite.unc.edu, and both
-+	of which contain everything you need to boot a diskless Linux client.
- 
- 3.6) Using pxelinux
--	Using pxelinux you specify the kernel you built with
-+	Pxelinux may be used to boot linux using the PXE boot loader
-+	which is present on many modern network cards.
-+
-+	When using pxelinux, the kernel image is specified using
- 	"kernel <relative-path-below /tftpboot>". The nfsroot parameters
- 	are passed to the kernel by adding them to the "append" line.
--	You may perhaps also want to fine tune the console output,
--	see Documentation/serial-console.txt for serial console help.
-+	It is common to use serial console in conjunction with pxeliunx,
-+	see Documentation/serial-console.txt for more information.
-+
-+	For more information on isolinux, including how to create bootdisks
-+	for prebuilt kernels, see http://syslinux.zytor.com/
- 
- 
- 
+Did you work out which divide is getting the div-by-zero?  I started at it
+a bit and wasn't sure - am getting wildly different code generation over
+here.

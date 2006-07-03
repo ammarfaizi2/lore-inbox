@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWGCLzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWGCMHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbWGCLzp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 07:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWGCLzp
+	id S1751131AbWGCMHv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 08:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWGCMHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 07:55:45 -0400
-Received: from gate.crashing.org ([63.228.1.57]:61869 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750702AbWGCLzp (ORCPT
+	Mon, 3 Jul 2006 08:07:51 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:55739 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751131AbWGCMHv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 07:55:45 -0400
-Subject: Re: OSS driver removal, 2nd round
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, perex@suse.cz,
-       Olaf Hering <olh@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20060629192128.GE19712@stusta.de>
-References: <20060629192128.GE19712@stusta.de>
-Content-Type: text/plain
-Date: Mon, 03 Jul 2006 21:52:59 +1000
-Message-Id: <1151927579.13828.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jul 2006 08:07:51 -0400
+Date: Mon, 3 Jul 2006 14:07:40 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: ltuikov@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sched.h: increment TASK_COMM_LEN to 20 bytes
+In-Reply-To: <20060630181915.638166c2.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0607011102030.25773@yvahk01.tjqt.qr>
+References: <20060701010606.4694.qmail@web31809.mail.mud.yahoo.com>
+ <20060630181915.638166c2.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+>We do occasionally hit task_struct.comm[] truncation, when people use
+>"too-long-a-name%d" for their kernel thread names.  But we seem to manage.
+>
 
-> DMASOUND_PMAC
-> - Olaf Hering regarding regressions in SND_POWERMAC:
->   Some tumbler models work only after one plug/unplug cycle of
->   the headphone. early powerbooks report/handle the mute settings
->   incorrectly. there are likely more bugs.
+Maybe this one can help?
 
-dmasound_pmac is crippled with bugs too... We should look at reported
-bug reports on snd-powermac (and snd-aoa which replaces the later for
-recent machines) and kill dmasound-pmac. I'm ok with that. snd-aoa is
-the only one to be properly maintained anyway, we'll add support for
-older machines to it over time and hopefully, it's a much saner codebase
-in the first place so handling weird machines regressions will be
-easier.
+Have kthread_create() print a warning message if the command name is 
+going to be truncated, for ease of development.
 
-Ben.
+diff --fast -dpru linux-2.6.17~/kernel/kthread.c linux-2.6.17+/kernel/kthread.c
+--- linux-2.6.17~/kernel/kthread.c	2006-06-06 02:57:02.000000000 +0200
++++ linux-2.6.17+/kernel/kthread.c	2006-07-01 11:08:57.687698000 +0200
+@@ -147,8 +147,11 @@ struct task_struct *kthread_create(int (
+ 	if (!IS_ERR(create.result)) {
+ 		va_list args;
+ 		va_start(args, namefmt);
+-		vsnprintf(create.result->comm, sizeof(create.result->comm),
+-			  namefmt, args);
++		if(vsnprintf(create.result->comm, sizeof(create.result->comm),
++		  namefmt, args) != strlen(create.result->comm))
++			printk(KERN_WARNING "kthread_create: command name of "
++			  "pid %d truncated to \"%s\"\n", create.result->pid,
++			  create.result->comm);
+ 		va_end(args);
+ 	}
+ 
+#<<eof>>
 
 
+Jan Engelhardt
+-- 

@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWGCLbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWGCLgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750905AbWGCLbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 07:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbWGCLbZ
+	id S1751127AbWGCLgp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 07:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWGCLgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 07:31:25 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:23568 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S1750866AbWGCLbZ (ORCPT
+	Mon, 3 Jul 2006 07:36:44 -0400
+Received: from jaguar.mkp.net ([192.139.46.146]:60354 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S1751120AbWGCLgn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 07:31:25 -0400
-Subject: Re: [RFC] Apple Motion Sensor driver
-From: Stelian Pop <stelian@popies.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org, khali@linux-fr.org,
-       linux-kernel@killerfox.forkbomb.ch, johannes@sipsolutions.net,
-       chainsaw@gentoo.org
-In-Reply-To: <1151923799.19419.49.camel@localhost.localdomain>
-References: <20060702222649.GA13411@hansmi.ch>
-	 <1151921567.10711.22.camel@localhost.localdomain>
-	 <20060703104547.GA25342@hansmi.ch>
-	 <1151923799.19419.49.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Mon, 03 Jul 2006 13:31:18 +0200
-Message-Id: <1151926278.10711.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+	Mon, 3 Jul 2006 07:36:43 -0400
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       tony.luck@intel.com, linux-ia64@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [RFC][patch 09/44] IA64: Use the new IRQF_ constansts
+References: <20060701145211.856500000@cruncher.tec.linutronix.de>
+	<20060701145224.258259000@cruncher.tec.linutronix.de>
+From: Jes Sorensen <jes@sgi.com>
+Date: 03 Jul 2006 07:36:42 -0400
+In-Reply-To: <20060701145224.258259000@cruncher.tec.linutronix.de>
+Message-ID: <yq0r712hqd1.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le lundi 03 juillet 2006 à 20:49 +1000, Benjamin Herrenschmidt a écrit :
-> On Mon, 2006-07-03 at 12:45 +0200, Michael Hanselmann wrote:
-> > On Mon, Jul 03, 2006 at 12:12:47PM +0200, Stelian Pop wrote:
-> > > > +
-> > > > +static DEVICE_ATTR(mouse, S_IRUGO | S_IWUSR,
-> > > > +	ams_mouse_show_mouse, ams_mouse_store_mouse);
-> > 
-> > > I would prefer three different files for x, y and z instead of a single
-> > > one... 
-> > 
-> > Because of the way the values are calculated with orientation, that
-> > would mean that if a program needs all three, either all values are read
-> > three times or the ams_sensors function gets much more complicated.
-> > 
-> > To prevent it from having to read them three times in a row, I joined
-> > all three values.
-> > 
-> > Do you think I should rewrite the ams_sensors function to only get the
-> > correct value?
-> 
-> Cache the values and only re-read from the hardware after a given amount
-> of time has elapsed ?
+>>>>> "Thomas" == Thomas Gleixner <tglx@linutronix.de> writes:
 
-Seems to be a good idea indeed.
+Thomas> Use the new IRQF_ constants and remove the SA_INTERRUPT define
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+Hi Thomas,
 
+You forgot to remove the duplicate define of IRQF_PERCPU from
+include/asm-ia64/irq.h when you introduced the one in
+include/linux/interrupt.h.
+
+On ia64, without this patch, building Linus' git tree spits out
+compile warnings left right and center (harmless ones though).
+
+I checked the ia64 code and I don't see any place that actually relied
+on the old define or hardcoded it in asm, but I could be wrong of
+course.
+
+It compiles, it boots, Enterprise Ready<tm>!
+
+Linus and/or Tony, please apply.
+
+Cheers,
+Jes
+
+Remove duplicate define of IRQF_PERCPU which is now defined in
+include/linux/interrupt.h
+
+Signed-off-by: Jes Sorensen <jes@sgi.com>
+
+---
+ include/asm-ia64/irq.h |    2 --
+ 1 file changed, 2 deletions(-)
+
+Index: linux-2.6/include/asm-ia64/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-ia64/irq.h
++++ linux-2.6/include/asm-ia64/irq.h
+@@ -14,8 +14,6 @@
+ #define NR_IRQS		256
+ #define NR_IRQ_VECTORS	NR_IRQS
+ 
+-#define IRQF_PERCPU	0x02000000
+-
+ static __inline__ int
+ irq_canonicalize (int irq)
+ {

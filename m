@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWGCXKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWGCXLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbWGCXKn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 19:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWGCXKn
+	id S1751017AbWGCXLH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 19:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWGCXLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 19:10:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22978 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750982AbWGCXKm (ORCPT
+	Mon, 3 Jul 2006 19:11:07 -0400
+Received: from igw1.zrnko.cz ([81.31.45.160]:49613 "EHLO anubis.fi.muni.cz")
+	by vger.kernel.org with ESMTP id S1751032AbWGCXLG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 19:10:42 -0400
-Date: Mon, 3 Jul 2006 16:10:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: jirislaby@gmail.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       linux-pm@osdl.org
-Subject: Re: swsusp regression
-Message-Id: <20060703161034.a5c4fba9.akpm@osdl.org>
-In-Reply-To: <44A99FE5.6020806@gmail.com>
-References: <44A99DFB.50106@gmail.com>
-	<44A99FE5.6020806@gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jul 2006 19:11:06 -0400
+Date: Tue, 4 Jul 2006 01:11:21 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Linux kernel 2.6.17-git14 and PCI suspend/resume
+Message-ID: <20060703231121.GB2752@mail.muni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 04 Jul 2006 00:53:02 +0159
-Jiri Slaby <jirislaby@gmail.com> wrote:
+Hello,
 
-> Jiri Slaby napsal(a):
-> > Hello,
-> > 
-> > when suspending machine with hyperthreading, only Freezing cpus appears and then
-> 
-> Note: suspending to disk; done by:
-> echo reboot > /sys/power/disk
-> echo disk > /sys/power/state
-> 
-> > it loops somewhere. I tried to catch some more info by pressing sysrq-p. Here
-> > are some captures:
-> > http://www.fi.muni.cz/~xslaby/sklad/03072006074.gif
-> > http://www.fi.muni.cz/~xslaby/sklad/03072006075.gif
-> 
-> One more from some previous kernels (cutted sysrq-t):
-> http://www.fi.muni.cz/~xslaby/sklad/22062006046.jpg
-> 
+in this kernel I'm seeing these messages after S3 resume:
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset f (was 4020205, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset e (was 0, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset d (was dc, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset c (was 0, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset b (was 19671043, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset a (was 0, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset 9 (was 0, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset 8 (was 0, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset 7 (was 0, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset 6 (was 0, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset 5 (was 0, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset 4 (was fe8fd800, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset 3 (was 804000, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset 2 (was c001008, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset 1 (was 2100006, writing ffffffff)
+kernel: PM: Writing back config space on device 0000:01:01.1 at offset 0 (was 5521180, writing ffffffff)
 
-If you replace kernel/stop_machine.c with the version from 2.6.17, does it
-help?
+Which actually mess up PCI config space (and sdhci driver is unable to set up
+MMC device correctly). Do you have any idea what to try?
 
+These messages appear for devices that are not handled by any loaded module.
+
+-- 
+Luká¹ Hejtmánek

@@ -1,112 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWGCV5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWGCV6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWGCV5J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 17:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWGCV4f
+	id S932123AbWGCV6X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 17:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWGCV6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 17:56:35 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:27040 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932114AbWGCVz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 17:55:58 -0400
-Date: Mon, 3 Jul 2006 14:55:45 -0700 (PDT)
+	Mon, 3 Jul 2006 17:58:21 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49298 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932106AbWGCVz4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 17:55:56 -0400
+Date: Mon, 3 Jul 2006 14:55:50 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
        Con Kolivas <kernel@kolivas.org>, Marcelo Tosatti <marcelo@kvack.org>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
        Christoph Lameter <clameter@sgi.com>, Andi Kleen <ak@suse.de>
-Message-Id: <20060703215545.7566.79158.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20060703215550.7566.79975.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC 2/8] Make display of highmem counters conditional on CONFIG_HIGHMEM
+Subject: [RFC 3/8] Move HIGHMEM counter into highmem.c/.h
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change HIGHMEM dependent texts and make display of highmem counters optional
+Move highmem counters into highmem.c/.h
 
-Some texts are depending on CONFIG_HIGHMEM.
-
-Remove those strings and remove the display of zero highmem values if
-CONFIG_HIGHMEM is not set.
+Move the totalhigh_pages definition into highmem.c/.h
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.17-mm6/drivers/base/node.c
+Index: linux-2.6.17-mm6/include/linux/highmem.h
 ===================================================================
---- linux-2.6.17-mm6.orig/drivers/base/node.c	2006-07-03 13:47:14.847034002 -0700
-+++ linux-2.6.17-mm6/drivers/base/node.c	2006-07-03 14:00:54.064935322 -0700
-@@ -54,10 +54,12 @@ static ssize_t node_read_meminfo(struct 
- 		       "Node %d MemUsed:      %8lu kB\n"
- 		       "Node %d Active:       %8lu kB\n"
- 		       "Node %d Inactive:     %8lu kB\n"
-+#ifdef CONFIG_HIGHMEM
- 		       "Node %d HighTotal:    %8lu kB\n"
- 		       "Node %d HighFree:     %8lu kB\n"
- 		       "Node %d LowTotal:     %8lu kB\n"
- 		       "Node %d LowFree:      %8lu kB\n"
-+#endif
- 		       "Node %d Dirty:        %8lu kB\n"
- 		       "Node %d Writeback:    %8lu kB\n"
- 		       "Node %d FilePages:    %8lu kB\n"
-@@ -72,10 +74,12 @@ static ssize_t node_read_meminfo(struct 
- 		       nid, K(i.totalram - i.freeram),
- 		       nid, K(active),
- 		       nid, K(inactive),
-+#ifdef CONFIG_HIGHMEM
- 		       nid, K(i.totalhigh),
- 		       nid, K(i.freehigh),
- 		       nid, K(i.totalram - i.totalhigh),
- 		       nid, K(i.freeram - i.freehigh),
-+#endif
- 		       nid, K(node_page_state(nid, NR_FILE_DIRTY)),
- 		       nid, K(node_page_state(nid, NR_WRITEBACK)),
- 		       nid, K(node_page_state(nid, NR_FILE_PAGES)),
-Index: linux-2.6.17-mm6/fs/proc/proc_misc.c
+--- linux-2.6.17-mm6.orig/include/linux/highmem.h	2006-07-03 13:47:21.556579985 -0700
++++ linux-2.6.17-mm6/include/linux/highmem.h	2006-07-03 14:03:39.168021629 -0700
+@@ -24,11 +24,14 @@ static inline void flush_kernel_dcache_p
+ 
+ /* declarations for linux/mm/highmem.c */
+ unsigned int nr_free_highpages(void);
++extern unsigned long totalhigh_pages;
+ 
+ #else /* CONFIG_HIGHMEM */
+ 
+ static inline unsigned int nr_free_highpages(void) { return 0; }
+ 
++#define totalhigh_pages 0
++
+ static inline void *kmap(struct page *page)
+ {
+ 	might_sleep();
+Index: linux-2.6.17-mm6/include/linux/swap.h
 ===================================================================
---- linux-2.6.17-mm6.orig/fs/proc/proc_misc.c	2006-07-03 13:47:19.547915149 -0700
-+++ linux-2.6.17-mm6/fs/proc/proc_misc.c	2006-07-03 14:01:28.790330184 -0700
-@@ -157,10 +157,12 @@ static int meminfo_read_proc(char *page,
- 		"SwapCached:   %8lu kB\n"
- 		"Active:       %8lu kB\n"
- 		"Inactive:     %8lu kB\n"
-+#ifdef CONFIG_HIGHMEM
- 		"HighTotal:    %8lu kB\n"
- 		"HighFree:     %8lu kB\n"
- 		"LowTotal:     %8lu kB\n"
- 		"LowFree:      %8lu kB\n"
-+#endif
- 		"SwapTotal:    %8lu kB\n"
- 		"SwapFree:     %8lu kB\n"
- 		"Dirty:        %8lu kB\n"
-@@ -183,10 +185,12 @@ static int meminfo_read_proc(char *page,
- 		K(total_swapcache_pages),
- 		K(active),
- 		K(inactive),
-+#ifdef CONFIG_HIGHMEM
- 		K(i.totalhigh),
- 		K(i.freehigh),
- 		K(i.totalram-i.totalhigh),
- 		K(i.freeram-i.freehigh),
-+#endif
- 		K(i.totalswap),
- 		K(i.freeswap),
- 		K(global_page_state(NR_FILE_DIRTY)),
+--- linux-2.6.17-mm6.orig/include/linux/swap.h	2006-07-03 13:47:22.066314085 -0700
++++ linux-2.6.17-mm6/include/linux/swap.h	2006-07-03 14:03:39.168998131 -0700
+@@ -162,7 +162,6 @@ extern void swapin_readahead(swp_entry_t
+ 
+ /* linux/mm/page_alloc.c */
+ extern unsigned long totalram_pages;
+-extern unsigned long totalhigh_pages;
+ extern unsigned long totalreserve_pages;
+ extern long nr_swap_pages;
+ extern unsigned int nr_free_pages(void);
 Index: linux-2.6.17-mm6/mm/page_alloc.c
 ===================================================================
---- linux-2.6.17-mm6.orig/mm/page_alloc.c	2006-07-03 13:58:32.611757801 -0700
-+++ linux-2.6.17-mm6/mm/page_alloc.c	2006-07-03 14:03:19.964129358 -0700
-@@ -1394,9 +1394,13 @@ void show_free_areas(void)
+--- linux-2.6.17-mm6.orig/mm/page_alloc.c	2006-07-03 14:03:19.964129358 -0700
++++ linux-2.6.17-mm6/mm/page_alloc.c	2006-07-03 14:03:39.170951135 -0700
+@@ -51,7 +51,6 @@ EXPORT_SYMBOL(node_online_map);
+ nodemask_t node_possible_map __read_mostly = NODE_MASK_ALL;
+ EXPORT_SYMBOL(node_possible_map);
+ unsigned long totalram_pages __read_mostly;
+-unsigned long totalhigh_pages __read_mostly;
+ unsigned long totalreserve_pages __read_mostly;
+ long nr_swap_pages;
+ int percpu_pagelist_fraction;
+Index: linux-2.6.17-mm6/mm/shmem.c
+===================================================================
+--- linux-2.6.17-mm6.orig/mm/shmem.c	2006-07-03 13:47:22.646356337 -0700
++++ linux-2.6.17-mm6/mm/shmem.c	2006-07-03 14:03:39.171927638 -0700
+@@ -45,6 +45,7 @@
+ #include <linux/namei.h>
+ #include <linux/ctype.h>
+ #include <linux/migrate.h>
++#include <linux/highmem.h>
  
- 	get_zone_counts(&active, &inactive, &free);
+ #include <asm/uaccess.h>
+ #include <asm/div64.h>
+Index: linux-2.6.17-mm6/mm/highmem.c
+===================================================================
+--- linux-2.6.17-mm6.orig/mm/highmem.c	2006-07-03 13:47:22.613155266 -0700
++++ linux-2.6.17-mm6/mm/highmem.c	2006-07-03 14:03:39.172904140 -0700
+@@ -46,6 +46,7 @@ static void *mempool_alloc_pages_isa(gfp
+  */
+ #ifdef CONFIG_HIGHMEM
  
-+#ifdef CONFIG_HIGHMEM
- 	printk("Free pages: %11ukB (%ukB HighMem)\n",
- 		K(nr_free_pages()),
- 		K(nr_free_highpages()));
-+#else
-+	printk("Free pages: %11ukB\n", K(nr_free_pages()));
-+#endif
- 
- 	printk("Active:%lu inactive:%lu dirty:%lu writeback:%lu "
- 		"unstable:%lu free:%u slab:%lu mapped:%lu pagetables:%lu\n",
++unsigned long totalhigh_pages __read_mostly;
+ static int pkmap_count[LAST_PKMAP];
+ static unsigned int last_pkmap_nr;
+ static  __cacheline_aligned_in_smp DEFINE_SPINLOCK(kmap_lock);

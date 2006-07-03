@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWGCKu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWGCKwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWGCKu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 06:50:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWGCKu1
+	id S1750790AbWGCKwW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 06:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWGCKwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 06:50:27 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:29512 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750790AbWGCKu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 06:50:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SuyTS2ZS0+L35Sgcw9jv2u4++MKvL3S2vvfjawEbEsfBAECksQ274izL48G2ZbcJUPriGoJnN5fYH8ha0TPmXB3ey5Nq/Uy4DmmL8tdyYHefkv054BBIUo5KvQ55I35isuYS4qqfbgqydwVXH68XqGw22Ar3CQhUfeHx0yKwNlQ=
-Message-ID: <6bffcb0e0607030350l497fdeb9ucb924e883fdad29@mail.gmail.com>
-Date: Mon, 3 Jul 2006 12:50:26 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.17-mm6
-Cc: "Tigran Aivazian" <tigran@veritas.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060703030355.420c7155.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 3 Jul 2006 06:52:22 -0400
+Received: from gate.crashing.org ([63.228.1.57]:10413 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750790AbWGCKwW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 06:52:22 -0400
+Subject: Re: [RFC] Apple Motion Sensor driver
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+Cc: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org,
+       lm-sensors@lm-sensors.org, khali@linux-fr.org,
+       linux-kernel@killerfox.forkbomb.ch, johannes@sipsolutions.net,
+       chainsaw@gentoo.org
+In-Reply-To: <20060703104547.GA25342@hansmi.ch>
+References: <20060702222649.GA13411@hansmi.ch>
+	 <1151921567.10711.22.camel@localhost.localdomain>
+	 <20060703104547.GA25342@hansmi.ch>
+Content-Type: text/plain
+Date: Mon, 03 Jul 2006 20:49:59 +1000
+Message-Id: <1151923799.19419.49.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060703030355.420c7155.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2006-07-03 at 12:45 +0200, Michael Hanselmann wrote:
+> On Mon, Jul 03, 2006 at 12:12:47PM +0200, Stelian Pop wrote:
+> > > +
+> > > +static DEVICE_ATTR(mouse, S_IRUGO | S_IWUSR,
+> > > +	ams_mouse_show_mouse, ams_mouse_store_mouse);
+> 
+> > I would prefer three different files for x, y and z instead of a single
+> > one... 
+> 
+> Because of the way the values are calculated with orientation, that
+> would mean that if a program needs all three, either all values are read
+> three times or the ams_sensors function gets much more complicated.
+> 
+> To prevent it from having to read them three times in a row, I joined
+> all three values.
+> 
+> Do you think I should rewrite the ams_sensors function to only get the
+> correct value?
 
-On 03/07/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
->
+Cache the values and only re-read from the hardware after a given amount
+of time has elapsed ?
 
-Something is missing in drivers/base/firmware_class.c?
+> Thanks,
+> Michael
+> 
+> (All other issues, including those in the other mails, are clear and
+> will be addressed by a new patch)
 
-WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
-needs unknown symbol release_firmware
-WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
-needs unknown symbol request_firmware
-WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
-needs unknown symbol release_firmware
-WARNING: /lib/modules/2.6.17-mm6/kernel/arch/i386/kernel/microcode.ko
-needs unknown symbol request_firmware
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

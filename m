@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWGCXTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWGCXYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWGCXTs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 19:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWGCXTs
+	id S932082AbWGCXYm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 19:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWGCXYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 19:19:48 -0400
-Received: from ns1.suse.de ([195.135.220.2]:43149 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932067AbWGCXTr (ORCPT
+	Mon, 3 Jul 2006 19:24:41 -0400
+Received: from mail.suse.de ([195.135.220.2]:2958 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932082AbWGCXYl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 19:19:47 -0400
-Date: Mon, 3 Jul 2006 16:16:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] change netdevice to use struct device instead of struct class_device
-Message-ID: <20060703231610.GA18352@kroah.com>
-References: <20060703224719.GA14176@kroah.com> <44A9A345.8040706@garzik.org>
+	Mon, 3 Jul 2006 19:24:41 -0400
+Date: Mon, 3 Jul 2006 16:21:09 -0700
+From: Greg KH <gregkh@suse.de>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel 2.6.17-git14 and PCI suspend/resume
+Message-ID: <20060703232109.GA18605@suse.de>
+References: <20060703231121.GB2752@mail.muni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44A9A345.8040706@garzik.org>
+In-Reply-To: <20060703231121.GB2752@mail.muni.cz>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 07:07:49PM -0400, Jeff Garzik wrote:
-> Greg KH wrote:
-> >I have a patch here that converts the network device structure to use
-> >the struct device instead of struct class_device structure.  It's a bit
-> >too big to post here, so it's at:
-> >	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/network-class_device-to-device.patch
+On Tue, Jul 04, 2006 at 01:11:21AM +0200, Lukas Hejtmanek wrote:
+> Hello,
 > 
-> So....  this is a userspace ABI change, then?
+> in this kernel I'm seeing these messages after S3 resume:
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset f (was 4020205, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset e (was 0, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset d (was dc, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset c (was 0, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset b (was 19671043, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset a (was 0, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset 9 (was 0, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset 8 (was 0, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset 7 (was 0, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset 6 (was 0, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset 5 (was 0, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset 4 (was fe8fd800, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset 3 (was 804000, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset 2 (was c001008, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset 1 (was 2100006, writing ffffffff)
+> kernel: PM: Writing back config space on device 0000:01:01.1 at offset 0 (was 5521180, writing ffffffff)
+> 
+> Which actually mess up PCI config space (and sdhci driver is unable to set up
+> MMC device correctly). Do you have any idea what to try?
 
-No, not really.  According to Documentation/ABI/testing/sysfs-class all
-code that uses /sys/class/foo/ needs to be able to handle the fact that
-those entries might be symlinks and not just directories.  Everything
-that I know of already works properly because the input layer has had
-symlinks in /sys/class/input for quite some time now.
+When suspending, pci_save_state() would have saved off those values (all
+1s) which is what it is restoring.  That function gets called if there
+is no driver specific suspend function to call.  On suspend, is there
+any driver loaded for the device?
 
-Do you know of any tools that use /sys/class/net/ that can not handle
-symlinks there?  I've been running this on my boxes for about a week now
-with no noticeable issues.  Renaming interfaces works just fine too.
+And what type of PCI device is this?
+
+> These messages appear for devices that are not handled by any loaded module.
+
+Ick.
+
+Any chance you can test -mm and see if that helps with suspend/resume?
+Linus's new suspend framework is in there, and that's the way forward
+for these kinds of issues.
 
 thanks,
 

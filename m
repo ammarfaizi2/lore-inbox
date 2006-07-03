@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWGCA2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWGCAfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWGCA2S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jul 2006 20:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWGCA2S
+	id S1750813AbWGCAfk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jul 2006 20:35:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWGCAfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jul 2006 20:28:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51915 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750788AbWGCA2R (ORCPT
+	Sun, 2 Jul 2006 20:35:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41677 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750813AbWGCAfk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jul 2006 20:28:17 -0400
-Date: Sun, 2 Jul 2006 17:28:02 -0700
+	Sun, 2 Jul 2006 20:35:40 -0400
+Date: Sun, 2 Jul 2006 17:35:27 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: tglx@linutronix.de
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [PATCH] genirq:fixup missing SA_PERCPU replacement
-Message-Id: <20060702172802.2b84a426.akpm@osdl.org>
-In-Reply-To: <1151886032.24611.28.camel@localhost.localdomain>
-References: <1151886032.24611.28.camel@localhost.localdomain>
+Cc: torvalds@osdl.org, mingo@elte.hu, rmk+lkml@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] genirq: ARM dyntick cleanup
+Message-Id: <20060702173527.cbdbf0e1.akpm@osdl.org>
+In-Reply-To: <1151885928.24611.24.camel@localhost.localdomain>
+References: <1151885928.24611.24.camel@localhost.localdomain>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,72 +25,70 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 03 Jul 2006 02:20:32 +0200
+On Mon, 03 Jul 2006 02:18:48 +0200
 Thomas Gleixner <tglx@linutronix.de> wrote:
 
-> The irqflags consolidation converted SA_PERCPU_IRQ to IRQF_PERCPU but
-> did not define the new constant.
+> Linus: "The hacks in kernel/irq/handle.c are really horrid. REALLY
+> horrid."
 > 
-
-No, I fixed that up (you were cc'ed).  Only I fixed it up the "old" way,
-by putting it in include/asm-ia64/irq.h.
-
+> They are indeed. Move the dyntick quirks to ARM where they belong.
 > 
-> Index: linux-2.6.git/include/linux/interrupt.h
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> 
+> Index: linux-2.6.git/include/asm-arm/hw_irq.h
 > ===================================================================
-> --- linux-2.6.git.orig/include/linux/interrupt.h	2006-07-02 23:38:32.000000000 +0200
-> +++ linux-2.6.git/include/linux/interrupt.h	2006-07-03 01:57:20.000000000 +0200
-> @@ -45,6 +45,7 @@
->  #define IRQF_SHARED		0x00000080
->  #define IRQF_PROBE_SHARED	0x00000100
->  #define IRQF_TIMER		0x00000200
-> +#define IRQF_PERCPU		0x00000400
+> --- linux-2.6.git.orig/include/asm-arm/hw_irq.h	2006-07-03 00:13:24.000000000 +0200
+> +++ linux-2.6.git/include/asm-arm/hw_irq.h	2006-07-03 00:52:04.000000000 +0200
+> @@ -6,4 +6,15 @@
 >  
->  /*
->   * Migration helpers. Scheduled for removal in 1/2007
-> @@ -54,6 +55,7 @@
->  #define SA_SAMPLE_RANDOM	IRQF_SAMPLE_RANDOM
->  #define SA_SHIRQ		IRQF_SHARED
->  #define SA_PROBEIRQ		IRQF_PROBE_SHARED
-> +#define SA_PERCPU		IRQF_PERCPU
+>  #include <asm/mach/irq.h>
 >  
->  #define SA_TRIGGER_LOW		IRQF_TRIGGER_LOW
->  #define SA_TRIGGER_HIGH		IRQF_TRIGGER_HIGH
-> Index: linux-2.6.git/kernel/irq/manage.c
-> ===================================================================
-> --- linux-2.6.git.orig/kernel/irq/manage.c	2006-07-02 23:38:32.000000000 +0200
-> +++ linux-2.6.git/kernel/irq/manage.c	2006-07-03 01:58:45.000000000 +0200
-> @@ -234,7 +234,7 @@ int setup_irq(unsigned int irq, struct i
->  		    ((old->flags ^ new->flags) & IRQF_TRIGGER_MASK))
->  			goto mismatch;
->  
-> -#if defined(CONFIG_IRQ_PER_CPU) && defined(IRQF_PERCPU)
-> +#if defined(CONFIG_IRQ_PER_CPU)
->  		/* All handlers must agree on per-cpuness */
->  		if ((old->flags & IRQF_PERCPU) !=
->  		    (new->flags & IRQF_PERCPU))
-> @@ -250,7 +250,7 @@ int setup_irq(unsigned int irq, struct i
->  	}
->  
->  	*p = new;
-> -#if defined(CONFIG_IRQ_PER_CPU) && defined(IRQF_PERCPU)
-> +#if defined(CONFIG_IRQ_PER_CPU)
->  	if (new->flags & IRQF_PERCPU)
->  		desc->status |= IRQ_PER_CPU;
+> +#if defined(CONFIG_NO_IDLE_HZ)
+> +# include <asm/dyntick.h>
+> +# define handle_dynamic_tick(action)					\
+> +	if (!(action->flags & SA_TIMER) && system_timer->dyn_tick) {	\
+> +		write_seqlock(&xtime_lock);				\
+> +		if (system_timer->dyn_tick->state & DYN_TICK_ENABLED)	\
+> +			system_timer->dyn_tick->handler(irq, 0, regs);	\
+> +		write_sequnlock(&xtime_lock);				\
+> +	}
+> +#endif
+> +
 >  #endif
+> Index: linux-2.6.git/include/linux/irq.h
+> ===================================================================
+> --- linux-2.6.git.orig/include/linux/irq.h	2006-07-03 00:13:24.000000000 +0200
+> +++ linux-2.6.git/include/linux/irq.h	2006-07-03 00:49:01.000000000 +0200
+> @@ -182,6 +182,10 @@ extern int setup_irq(unsigned int irq, s
+>  
+>  #ifdef CONFIG_GENERIC_HARDIRQS
+>  
+> +#ifndef handle_dynamic_tick
+> +# define handle_dynamic_tick(a)		do { } while (0)
+> +#endif
+> +
+>  #ifdef CONFIG_SMP
+>  static inline void set_native_irq_info(int irq, cpumask_t mask)
+>  {
 
-This is of course better, but we'll also need:
+This is not exactly a thing of beauty either.  It's much cleaner to use
+__attribute__((weak)), but that will add an empty call-return to everyone's
+interrupts.
 
---- a/include/asm-ia64/irq.h~a
-+++ a/include/asm-ia64/irq.h
-@@ -14,8 +14,6 @@
- #define NR_IRQS		256
- #define NR_IRQ_VECTORS	NR_IRQS
- 
--#define IRQF_PERCPU	0x02000000
--
- static __inline__ int
- irq_canonicalize (int irq)
- {
-_
+The requirement "if you implement this then you must do so as a macro" is a
+bit regrettable.  The ARCH_HAS_HANDLE_DYNAMIC_TICK approach would eliminate
+that requirement.
 
+
+
+btw, is this, from include/linux/irq.h:
+
+/*
+ * Please do not include this file in generic code.  There is currently
+ * no requirement for any architecture to implement anything held
+ * within this file.
+ *
+ * Thanks. --rmk
+ */
+
+still true?

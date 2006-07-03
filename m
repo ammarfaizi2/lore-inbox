@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWGCEFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWGCElW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbWGCEFI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 00:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWGCEFI
+	id S1751305AbWGCElW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 00:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWGCElW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 00:05:08 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:5418 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751181AbWGCEFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 00:05:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=fY2o6OnajkQf60UAexVZ87OgSG5cXr4X7IDlI965/h027nIK3qFPo1F703GlDkwJawRjRH0V35zNMjilMW4tcicpgBOL6baR6Mg0tBN5jVvHjU3MU7cRxPvmvIlEgSCwmLWvAo5Df/5Ek7bOmMbPnAh4yIGx3+jggFn0DQFuLAY=
-Message-ID: <4ae3c140607022105t30570e1an2549d8ea07388388@mail.gmail.com>
-Date: Mon, 3 Jul 2006 00:05:05 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: How to explain a strange NFS behavior
-Cc: linux-fsdevel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jul 2006 00:41:22 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:28101 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751305AbWGCElV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 00:41:21 -0400
+Date: Mon, 3 Jul 2006 06:36:11 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: pageexec@freemail.hu, Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] i386: clean up user_mode() use
+Message-ID: <20060703043611.GA12438@elte.hu>
+References: <200607021612_MC3-1-C3FD-CC89@compuserve.com> <44A85518.24327.2FBD646A@pageexec.freemail.hu> <Pine.LNX.4.64.0607021433320.12404@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607021433320.12404@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, folks,
 
-I benchmarked NFS V3 and found a strange thing. I benchmarked with
-command "tar xvf linux-2.6.12.tar" and record the total time as well
-as the time used on several important system calls. NFS directory is
-exported in async mode. The result is listed below:
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-		number of        NFS3           NFS3
-                being called	1st run		 2nd run	     Ext3
-                                       (ms)             (ms)
-      (ms)
+> On Sun, 2 Jul 2006, pageexec@freemail.hu wrote:
+> > 
+> > the fact that arch *independent* code makes use of user_mode() was 
+> > apparently lost on you.
+> 
+> Argh. Yes, there's one single use, apparently.
+> 
+> Sad.
 
-stat64 		23		   1249		  64484		       35
-fstat64		11		   2078		  5399		        4
-utime  		18436		1290737	     1266746		169427
-open   		17371		2747423	     3160002		913427
-read   		20802		 7269517      11566103		10036876
-write  		54784		 611536		723411		   1594104
-close  		17386		26698315     12052766		61096
-mmap2  		5		17		  21		        15
-munmap 		8	       122		136		       82
----------------------------------------------------------------------------------------------------
-Total time:			  37s		    25s		          22s
+but even for new non-generic per-arch code a couple of security holes 
+were introduced due to the existing semantics of user_mode(). So this 
+indeed changes semantics and it's totally intentional.
 
-Note that I added some fast communication mechanisms to make NFS
-client and server communicate very fast.
+so i think we should bite the bullet and should apply this patch. We 
+have a constant influx of user_mode() using code and as practice has 
+shown it, people dont really consider the vm86 angle of it.
 
-Now the problem is: the second run of NFS was much faster than the
-first run. Because I didn't flush the disk cache at the server side,
-intuitively I think the performance difference should come from the
-sys_read() as the tar file data should be already in disk cache for
-the second run. However, the results showed that sys_read in the
-second run was even slower than the first run. BUT, sys_close of the
-second run was much faster!  Why? I am really confused.
-
-Please help!
-
-Also, I ran the same benchmark on ext3, it spent more time on sys_read
-and sys_write, but sys_close was much faster. I guess that's because
-NFS and Ext3 use different running model. NFS always tried to cache
-data at client side and flush data  until file is closed. This can
-send a lot of data to the server in a bursty manner. On the contrary,
-the ext3 file system periodically flush data to disk and amotizes the
-data write cost and make disk write executed with untar
-simultaneously.  Is this the real reason? If not, how to explain these
-interesting running patterns of NFS and Ext3?
-
-Again, many thanks for kind help!
-
-xin
+	Ingo

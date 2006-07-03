@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWGCIY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWGCIZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWGCIY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 04:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWGCIY2
+	id S1750909AbWGCIZf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 04:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbWGCIZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 04:24:28 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:12563 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1750724AbWGCIY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 04:24:28 -0400
-Message-ID: <44A8D410.5010001@shadowen.org>
-Date: Mon, 03 Jul 2006 09:23:44 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Mon, 3 Jul 2006 04:25:35 -0400
+Received: from hu-out-0102.google.com ([72.14.214.207]:2745 "EHLO
+	hu-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750909AbWGCIZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 04:25:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=QFyIPFy2ZnbZFwGLr0xMbYkp6KBP7K0lRdMCw/zk3lthC0B/7O4djP0jywopnvSFQftwACgEWgGz02sqldtEc7c39cIVE48eUSXgopAyd2pNiPVV93bsNPGlOqFAqZ8n1tNo4nQH1QeTQAypUUbwpxtpCoydGlwBjWiUXeh0Ag4=
+Message-ID: <a44ae5cd0607030125l770086e1wdbbc8e8306ce94ca@mail.gmail.com>
+Date: Mon, 3 Jul 2006 01:25:33 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+Subject: 2.6.17-mm5 -- inconsistent {in-softirq-W} -> {softirq-on-W} usage.
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm5
-References: <44A8567B.2010309@mbligh.org> <20060702164113.6dc1cd6c.akpm@osdl.org>
-In-Reply-To: <20060702164113.6dc1cd6c.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Sun, 02 Jul 2006 16:27:55 -0700
-> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-> 
-> 
->>Panic on NUMA-Q (mm4 was fine). Presumably some new scheduler patch
->>
->>divide error: 0000 [#1]
->>8K_STACKS SMP 
->>last sysfs file: 
->>Modules linked in:
->>CPU:    1
->>EIP:    0060:[<c0112b6e>]    Not tainted VLI
->>EFLAGS: 00010046   (2.6.17-mm5-autokern1 #1) 
->>EIP is at find_busiest_group+0x1a3/0x47c
->>eax: 00000000   ebx: 00000007   ecx: 00000000   edx: 00000000
->>esi: 00000000   edi: e75ff264   ebp: e7405ec8   esp: e7405e58
->>ds: 007b   es: 007b   ss: 0068
->>Process swapper (pid: 0, ti=e7404000 task=c13f8560 task.ti=e7404000)
->>Stack: e75ff264 00000010 c0119020 00000000 00000000 00000000 00000000 00000000 
->>       ffffffff 00000000 00000000 00000001 00000001 00000001 00000080 00000000 
->>       00000000 00000200 00000020 00000080 00000000 00000000 e75ff260 c1364960 
->>Call Trace:
->> [<c0119020>] vprintk+0x5f/0x213
->> [<c0112efb>] load_balance+0x54/0x1d6
->> [<c011332d>] rebalance_tick+0xc5/0xe3
->> [<c01137a3>] scheduler_tick+0x2cb/0x2d3
->> [<c01215b4>] update_process_times+0x51/0x5d
->> [<c010c224>] smp_apic_timer_interrupt+0x5a/0x61
->> [<c0102d5b>] apic_timer_interrupt+0x1f/0x24
->> [<c01006c0>] default_idle+0x0/0x59
->> [<c01006f1>] default_idle+0x31/0x59
->> [<c0100791>] cpu_idle+0x64/0x79
->>Code: 00 5b 83 f8 1f 89 c6 5f 0f 8e 63 ff ff ff 8b 45 e0 8b 55 e8 01 45 dc 8b 4a 08 89 c2 01 4d d4 c1 e2 07 89 d0 31 d2 89 ce c1 ee 07 <f7> f1 83 7d 9c 00 89 45 e0 74 17 89 45 d8 8b 55 e8 8b 4d a4 8b 
->>EIP: [<c0112b6e>] find_busiest_group+0x1a3/0x47c SS:ESP 0068:e7405e58
-> 
-> 
-> Yes, Andy's reporting that too.  I asked him to identify the file-n-line
-> and he ran away on me.
+[ INFO: inconsistent lock state ]
+---------------------------------
+inconsistent {in-softirq-W} -> {softirq-on-W} usage.
+modprobe/2881 [HC0[0]:SC0[0]:HE1:SE1] takes:
+ (&dev->_xmit_lock){-+..}, at: [<c11ad5cb>] netpoll_send_skb+0x79/0xea
+{in-softirq-W} state was registered at:
+  [<c102d152>] lock_acquire+0x60/0x80
+  [<c1200376>] _spin_lock+0x23/0x32
+  [<c11af282>] dev_watchdog+0x14/0xb1
+  [<c101dab2>] run_timer_softirq+0xf2/0x14a
+  [<c101a691>] __do_softirq+0x55/0xb0
+  [<c1004a8d>] do_softirq+0x58/0xbd
+irq event stamp: 3780
+hardirqs last  enabled at (3779): [<c1200800>] _spin_unlock_irqrestore+0x36/0x59
+hardirqs last disabled at (3780): [<c1200581>] _spin_lock_irqsave+0xf/0x3c
+softirqs last  enabled at (3544): [<c101a6e7>] __do_softirq+0xab/0xb0
+softirqs last disabled at (3535): [<c1004a8d>] do_softirq+0x58/0xbd
 
-I went away to debug it, but then had to skip out to a BBQ.  Its
-definatly the cpu_power on the group being zero.
+other info that might help us debug this:
+1 lock held by modprobe/2881:
+ #0:  (&dev->_xmit_lock){-+..}, at: [<c11ad5cb>] netpoll_send_skb+0x79/0xea
 
-group->cpu_power ZERO => c3150920
-
-/me gives Ingo's patch a spin.
-
--apw
+stack backtrace:
+ [<c1003502>] show_trace_log_lvl+0x54/0xfd
+ [<c1003b6a>] show_trace+0xd/0x10
+ [<c1003c0e>] dump_stack+0x19/0x1b
+ [<c102b7c7>] print_usage_bug+0x1cc/0x1d9
+ [<c102bd71>] mark_lock+0x23c/0x360
+ [<c102bedc>] mark_held_locks+0x47/0x65
+ [<c102bfe9>] trace_hardirqs_on+0xef/0x119
+ [<c1200845>] _spin_unlock_irq+0x22/0x43
+ [<f9099d31>] rtl8139_start_xmit+0xd9/0xff [8139too]
+ [<c11ad5ea>] netpoll_send_skb+0x98/0xea
+ [<c11ae2ef>] netpoll_send_udp+0x1e8/0x1f1
+ [<f93160cd>] write_msg+0x40/0x67 [netconsole]
+ [<c1015e8d>] __call_console_drivers+0x45/0x51
+ [<c1015ee7>] _call_console_drivers+0x4e/0x52
+ [<c1016003>] release_console_sem+0x118/0x1ed
+ [<c1016364>] register_console+0x190/0x197
+ [<f9316079>] init_netconsole+0x60/0x74 [netconsole]
+ [<c1033794>] sys_init_module+0x12cc/0x14b1
+ [<c1002d6d>] sysenter_past_esp+0x56/0x8d
+netconsole: network logging started

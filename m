@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWGCXuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWGCXr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWGCXuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 19:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWGCXuP
+	id S932122AbWGCXr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 19:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWGCXr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 19:50:15 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:29241 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932292AbWGCXuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 19:50:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=PyNIKGW9gM82jlcBbKQUXQcGUDm157GxRV7mUnTM8nrNDG+cBz04yxGmcyeqxrDXOehjR7E8EJiV7o9f364wJvPN+n0C7vfRHzArTvfoaj36EHfmRRUWEKNR84cU+PCzP1hMBcCt5Ul8vusDNkA5HLB+IZl9h+46PLCC3sE/iVA=
-Message-ID: <44A9AD48.5020400@gmail.com>
-Date: Tue, 04 Jul 2006 01:50:09 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Mon, 3 Jul 2006 19:47:26 -0400
+Received: from ns.suse.de ([195.135.220.2]:48527 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932122AbWGCXrZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 19:47:25 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [RFC 0/8] Reduce MAX_NR_ZONES and remove useless zones.
+Date: Tue, 4 Jul 2006 01:47:10 +0200
+User-Agent: KMail/1.9.3
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
+       Con Kolivas <kernel@kolivas.org>, Marcelo Tosatti <marcelo@kvack.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com> <20060703221712.GB14273@infradead.org> <Pine.LNX.4.64.0607031624210.8547@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0607031624210.8547@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org
-Subject: Re: swsusp regression
-References: <44A99DFB.50106@gmail.com>	<44A99FE5.6020806@gmail.com> <20060703161034.a5c4fba9.akpm@osdl.org>
-In-Reply-To: <20060703161034.a5c4fba9.akpm@osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607040147.10995.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton napsal(a):
-> On Tue, 04 Jul 2006 00:53:02 +0159
-> Jiri Slaby <jirislaby@gmail.com> wrote:
-> 
->> Jiri Slaby napsal(a):
->>> Hello,
->>>
->>> when suspending machine with hyperthreading, only Freezing cpus appears and then
->> Note: suspending to disk; done by:
->> echo reboot > /sys/power/disk
->> echo disk > /sys/power/state
->>
->>> it loops somewhere. I tried to catch some more info by pressing sysrq-p. Here
->>> are some captures:
->>> http://www.fi.muni.cz/~xslaby/sklad/03072006074.gif
->>> http://www.fi.muni.cz/~xslaby/sklad/03072006075.gif
->> One more from some previous kernels (cutted sysrq-t):
->> http://www.fi.muni.cz/~xslaby/sklad/22062006046.jpg
->>
-> 
-> If you replace kernel/stop_machine.c with the version from 2.6.17, does it
-> help?
 
-Yup. It seems so.
+> So we want to change the definition of ZONE_DMA to refer to the first 16MB 
+> only? ZONE_DMA32 is always a 4GB border? (Andy disagrees about DMA32 see 
+> his message!).
 
-regards,
--- 
-Jiri Slaby        www.fi.muni.cz/~xslaby/
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
-<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
+Hmm?  I didn't write anything about DMA32. Just noted a minor comment thinko about
+highmem.
+
+> It seems to me that DMA can be run on ZONE_NORMAL. ZONE_DMAxx is used for 
+> situations in which DMA cannot be done to all of memory. ZONE_DMA allows 
+> an architecture to define a single exception zone that ends at 
+> MAX_DMA_ADDRESS (which is arch specific).
+
+It's really architecture dependent. The portable interfaces are 
+dma_alloc_* and suitable device masks and the architecture should sort
+out then what zone to use.
+
+I would say nearly everybody who uses GFP_DMA directly outside 
+{arch,asm}/* is wrong.
+
+-Andi

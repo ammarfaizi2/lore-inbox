@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWGCRZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWGCR1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbWGCRZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 13:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWGCRZ0
+	id S1751214AbWGCR1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 13:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWGCR1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 13:25:26 -0400
-Received: from gw.goop.org ([64.81.55.164]:13746 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751210AbWGCRZ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 13:25:26 -0400
-Message-ID: <44A95319.1010705@goop.org>
-Date: Mon, 03 Jul 2006 10:25:45 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: Sergey Vlasov <vsu@altlinux.ru>
-CC: Reuben Farrelly <reuben-lkml@reub.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, greg@kroah.com, brice@myri.com
-Subject: Re: 2.6.17-mm6
-References: <20060703030355.420c7155.akpm@osdl.org>	<44A8F8D2.1030101@reub.net> <20060703162958.d980ee6e.vsu@altlinux.ru>
-In-Reply-To: <20060703162958.d980ee6e.vsu@altlinux.ru>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Mon, 3 Jul 2006 13:27:16 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:52624 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751214AbWGCR1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 13:27:15 -0400
+Subject: Re: [PATCH] genirq: ARM dyntick cleanup
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, mingo@elte.hu,
+       rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0607031007421.12404@g5.osdl.org>
+References: <1151885928.24611.24.camel@localhost.localdomain>
+	 <20060702173527.cbdbf0e1.akpm@osdl.org>
+	 <Pine.LNX.4.64.0607031007421.12404@g5.osdl.org>
+Content-Type: text/plain
+Date: Mon, 03 Jul 2006 19:27:07 +0200
+Message-Id: <1151947627.3108.39.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergey Vlasov wrote:
-> These names are truncated - they should end with two hex digits:
->
-> 	snprintf(device->bus_id, sizeof(device->bus_id), "%s:pcie%02x",
-> 		 pci_name(parent), get_descriptor_id(port_type, service_type));
->
-> Names were truncated at 18 characters, but sizeof(device->bus_id) is 20
-> currently, so these names should just fit there.  I see that snprintf()
-> was changed recently - maybe there is some off-by-one bug there?
->   
+On Mon, 2006-07-03 at 10:13 -0700, Linus Torvalds wrote:
+>         #ifndef xyzzy
+>         #define zyzzy() /* empty */
+>         #endif
+> 
 
-There was for a while, but it should be OK in -mm6.  Perhaps there's a 
-stray patch hanging around in this kernel?
+now if you write it as
 
-    J
+#define zyzzy() do { ; } while (0)
+
+it even works in a
+
+if (foo())
+	zyzzy();
+bar();
+
+scenario 
+
+(I know you know that, just pointing that out before people copy your
+example :-)
+

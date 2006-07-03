@@ -1,79 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWGCSEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWGCSIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWGCSEw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 14:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWGCSEw
+	id S932073AbWGCSIA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 14:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWGCSIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 14:04:52 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:61314 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751229AbWGCSEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 14:04:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=O2iqgpxLfpk7RiP7YzhkCaTuyqv8KkrmcjxNvfgG+HGaub8UIlqmHlrS5rl54z6B97ZMJIyHcPHnp/JCrml8KJI4Ejz4VcI5ac+kj9HLfglNIOa8+8w5rtESZSC/wFak9WBpBereK5QuVruwCqWTRker3JnxS6EtHPSHMmbaTN4=
-Message-ID: <e1e1d5f40607031104o2b8003c8qfa725ae1d276b27f@mail.gmail.com>
-Date: Mon, 3 Jul 2006 14:04:50 -0400
-From: "Daniel Bonekeeper" <thehazard@gmail.com>
-To: "Alon Bar-Lev" <alon.barlev@gmail.com>
-Subject: Re: Driver for Microsoft USB Fingerprint Reader
-Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-In-Reply-To: <9e0cf0bf0607030304n62991dafk19f09e41d69e9ab0@mail.gmail.com>
+	Mon, 3 Jul 2006 14:08:00 -0400
+Received: from gw.goop.org ([64.81.55.164]:26311 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932073AbWGCSH7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 14:07:59 -0400
+Message-ID: <44A95D0F.5090406@goop.org>
+Date: Mon, 03 Jul 2006 11:08:15 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
+To: Andy Gay <andy@andynet.net>
+CC: Greg KH <gregkh@suse.de>, Roland Dreier <rdreier@cisco.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       Ken Brush <kbrush@gmail.com>
+Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
+ transfers
+References: <1151646482.3285.410.camel@tahini.andynet.net>	<adad5cnderb.fsf@cisco.com> <1151872141.3285.486.camel@tahini.andynet.net>	<20060703170040.GA15315@suse.de> <1151949329.3285.545.camel@tahini.andynet.net>
+In-Reply-To: <1151949329.3285.545.camel@tahini.andynet.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <e1e1d5f40607022351y4af6e709n1ba886604a13656b@mail.gmail.com>
-	 <9e0cf0bf0607030304n62991dafk19f09e41d69e9ab0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alon !
-Unfortunately I don't have an accessible thinkpad laptop (luckly the
-external usb devices may work the same way). From the USB readers at
-http://www.upek.com/products/usb.asp, which one do you think that fits
-better the hardware on your laptop ?
+Andy Gay wrote:
+> Aha, good news. So this patch is already obsolete, for the Sierra stuff
+> anyway. And as I only have Sierra kit to work with, I reckon I should
+> drop out of this now.
+> I did make some changes to the last patch to do the cleanup stuff in the
+> open function, do you want to see those?
+>   
+The Sierra driver as it stands is very bare-bones; it doesn't yet have 
+the larger buffers.  So for now, I'll keep using the airprime one until 
+sierra gets up to speed (though it seems like they should have a fair 
+amount of common code).
 
-I was looking for any place that sells those devices and I could not
-find any online (even though I found lots of SDK and matching engines
-that supports them, like VeriFinger).
-
-Is there any place where I can buy one of those readers ?
-
-Daniel
-
-On 7/3/06, Alon Bar-Lev <alon.barlev@gmail.com> wrote:
-> On 7/3/06, Daniel Bonekeeper <thehazard@gmail.com> wrote:
-> > Hello everybody.
-> >
-> > I would like to develop a driver for any kind of fingerprint reader
-> > that currently doesn't have a driver for linux, and I'm open for
-> > suggestions on which device I should use. My first thought was the
-> > microsoft usb fingerprint reader
-> > (http://www.geeks.com/details.asp?invtid=DG2-00002-DT&cpc=SCH) because
-> > it's a new device (and, of course, doesn't have any driver for linux),
-> > it's cheap, and it's from MS (read "would be fun" =)
->
-> Please consider UPEK reader.
-> It is available on all new Thinkpad laptops, and the vendor provides
-> only binary drivers.
->
-> http://www.upek.com/support/dl_linux_bsp.asp
->
-> I hate when vendors like ATI, Conexant and UPEK publish binary drivers
-> without publishing the chipset spec... They should decide whether
-> their IP is on the software part or on the hardware part, if it is on
-> the hardware part, they are making money in selling the hardware. If
-> it is on the software part, there is no reason why not providing the
-> information for others to write software to work with the primitive
-> hardware. So in either case there should be full hardware interface
-> disclosure.
->
-> Best Regards and Goodluck!
-> Alon Bar-Lev.
->
-
-
--- 
-What this world needs is a good five-dollar plasma weapon.
+    J

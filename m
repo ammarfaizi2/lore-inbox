@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWGCWbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWGCWhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWGCWbp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 18:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWGCWbp
+	id S932158AbWGCWhf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 18:37:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWGCWhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 18:31:45 -0400
-Received: from ara.aytolacoruna.es ([195.55.102.196]:15069 "EHLO
-	mx.aytolacoruna.es") by vger.kernel.org with ESMTP id S1751110AbWGCWbo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 18:31:44 -0400
-Date: Tue, 4 Jul 2006 00:31:28 +0200
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: awe64 isa pnp ALSA problems since 2.6.17
-Message-ID: <20060703223128.GA2423@pul.manty.net>
-References: <20060630205703.GA2840@pul.manty.net> <s5hd5cmtx61.wl%tiwai@suse.de>
+	Mon, 3 Jul 2006 18:37:35 -0400
+Received: from mail.tmr.com ([64.65.253.246]:15002 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S1751110AbWGCWhe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 18:37:34 -0400
+Message-ID: <44A99C72.7070602@tmr.com>
+Date: Mon, 03 Jul 2006 18:38:42 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hd5cmtx61.wl%tiwai@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060403
+To: =?UTF-8?B?xLBzbWFpbCBEw7ZubWV6?= <ismail@pardus.org.tr>
+CC: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
+       Olivier Galibert <galibert@pobox.com>, Adrian Bunk <bunk@stusta.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Olaf Hering <olh@suse.de>,
+       James Courtier-Dutton <James@superbug.co.uk>, perex@suse.cz
+Subject: Re: OSS driver removal, 2nd round
+References: <20060629192128.GE19712@stusta.de>	<200607010042.15765.ismail@pardus.org.tr>	<1151704572.32444.74.camel@mindpipe> <200607010249.05140.ismail@pardus.org.tr>
+In-Reply-To: <200607010249.05140.ismail@pardus.org.tr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The patch should fix the error above.
+İsmail Dönmez wrote:
+> Cumartesi 1 Temmuz 2006 00:56 tarihinde, Lee Revell şunları yazmıştı: 
+>> On Sat, 2006-07-01 at 00:42 +0300, İsmail Dönmez wrote:
+>>> Cumartesi 1 Temmuz 2006 00:29 tarihinde şunları yazmıştınız:
+>>>> (I wish the authors of Skype, Flash, TeamSpeak, Enemy Territory, and
+>>>> other proprietary OSS-only apps would understand this ;-)
+>>> New skype beta supports Alsa, doesn't work ATM but its a great step in
+>>> that direction and Flash9 for Linux will use Alsa.
+>> Really?  Got a link?  Last I heard about Flash was that their lawyers
+>> won't let them link to LGPL libraries which would rule out ALSA support.
+> 
+> Hear from the lead developer for Flash Linux : 
+> http://blogs.adobe.com/penguin.swf/2006/06/week_in_review_1.html
+> 
+Is that right? After years of negative comments about Flash and OSS, as 
+soon as it's converted to ALSA v1 api that going out in 2.6.18?
 
-I have applied your patch, did a make mrproper and then compiled again, I'm
-still getting the very same message:
-
-setup_irq: irq handler mismatch
- <c0123883> setup_irq+0xe5/0xfb  <c01bfcb5> pnp_test_handler+0x0/0x6
- <c0123904> request_irq+0x6b/0x8b  <c01bfe75> pnp_check_irq+0xb8/0x12f
- <c01bfcb5> pnp_test_handler+0x0/0x6  <c01c085b> pnp_assign_irq+0xd7/0xf4
- <c01c0aed> pnp_assign_resources+0x1bc/0x23a  <c01c0bcc>
-pnp_auto_config_dev+0x6
-1/0x8f
- <c01c0c19> pnp_activate_dev+0x1f/0x46  <d08de81b>
-snd_sb16_pnp_detect+0x1ae/0x3
-4f [snd_sbawe]
- <c01bf3f5> card_probe+0xb1/0x104  <c01bf4c8>
-pnp_register_card_driver+0x80/0x90
- <d085a070> alsa_card_sb16_init+0x70/0xae [snd_sbawe]  <c01223c2>
-sys_init_modul
-e+0x1103/0x1272
- <c01024b3> syscall_call+0x7/0xb 
-pnp: Device 00:01.00 activated.
-pnp: Device 00:01.02 activated.
-
-Thanks.
-
-Regards...
 -- 
-Manty/BestiaTester -> http://manty.net
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.
+

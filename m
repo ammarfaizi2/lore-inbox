@@ -1,96 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWGCUZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWGCU01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWGCUZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 16:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbWGCUZ1
+	id S1751066AbWGCU01 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 16:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbWGCU01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 16:25:27 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:57236 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750844AbWGCUZZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 16:25:25 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Battery-related regression between 2.6.17-git3 and 2.6.17-git6
-Date: Mon, 3 Jul 2006 22:26:03 +0200
-User-Agent: KMail/1.9.3
-Cc: Linux ACPI <linux-acpi@vger.kernel.org>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <200607020021.15040.rjw@sisk.pl> <200607032139.22488.rjw@sisk.pl> <20060703194440.GA10461@kroah.com>
-In-Reply-To: <20060703194440.GA10461@kroah.com>
+	Mon, 3 Jul 2006 16:26:27 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:56210 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751066AbWGCU00
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 16:26:26 -0400
+Date: Mon, 3 Jul 2006 22:22:19 +0200
+To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+Message-ID: <20060703202219.GA9707@aitel.hist.no>
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607032226.04094.rjw@sisk.pl>
+In-Reply-To: <20060701181702.GC8763@irc.pl>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 July 2006 21:44, Greg KH wrote:
-> On Mon, Jul 03, 2006 at 09:39:22PM +0200, Rafael J. Wysocki wrote:
-> > On Monday 03 July 2006 20:00, Greg KH wrote:
-> > > On Mon, Jul 03, 2006 at 01:16:45PM +0200, Rafael J. Wysocki wrote:
-> > > > Hi,
-> > > > 
-> > > > On Sunday 02 July 2006 11:15, Rafael J. Wysocki wrote:
-> > > > > On Sunday 02 July 2006 00:21, Rafael J. Wysocki wrote:
-> > > > > > With the recent -git on my box (Asus L5D, x86_64 SUSE 10) the powersave
-> > > > > > demon is apparently unable to get the battery status, although the data in
-> > > > > > /proc/acpi/battery/BAT0 seem to be correct.  As a result, battery status
-> > > > > > notification via kpowersave doesn't work and it's hard to notice when the
-> > > > > > battery is low/critical.
-> > > > > > 
-> > > > > > So far I have verified that this feature works fine with 2.6.17-git3 and
-> > > > > > doesn't work with 2.6.17-git6 (-git5 doesn't compile here).
-> > > > > > 
-> > > > > > I'll try to get more information tomorrow (unless someone in the know has
-> > > > > > an idea of what's up ;-) ).
-> > > > > 
-> > > > > I've verified that the problem first appeared in 2.6.17-git4.
-> > > > 
-> > > > Apparently this happens because powersaved takes the battery status
-> > > > information from hald and the following kernel changes make hald crash on
-> > > > my system:
-> > > > 
-> > > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=43104f1da88f5335e9a45695df92a735ad550dda
-> > > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=bd00949647ddcea47ce4ea8bb2cfcfc98ebf9f2a
-> > > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=c182274ffe1277f4e7c564719a696a37cacf74ea
-> > > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=9bde7497e0b54178c317fac47a18be7f948dd471
-> > > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=36679ea59846d8f34a48f71ca1a37671ca0ad3c5
-> > > > 
-> > > > (ie. after reverting them hald works again).
-> > > 
-> > > Ick, that should not cause any problems, as sysfs should look identical
-> > > to how it was before those patches.  Except that the /sys/class/usb/
-> > > stuff is now symlinks instead of real directories, but HAL has had to
-> > > handle that for a long time now (and it's even documented in
-> > > Documentation/ABI/testing/sysfs-class)
+On Sat, Jul 01, 2006 at 08:17:02PM +0200, Tomasz Torcz wrote:
+> On Sat, Jul 01, 2006 at 07:47:16PM +0200, Thomas Glanzmann wrote:
+> > Hello,
 > > 
-> > Well, apparently one of them happens to trigger a buffer overflow in "my"
-> > version of hal. ;-)
+> > > Checksums are not very useful for themselves. They are useful when we
+> > > have other copy of data (think raid mirroring) so data can be
+> > > reconstructed from working copy.
 > > 
-> > > Can you tell me exactly which of the above patches breaks HAL?
+> > it would be possible to identify data corruption.
 > > 
-> > That would be quite a bit of testing and now I'm sure it's a hal issue.
 > 
-> git bisect would help out a lot.  Or just ask the HAL developers, they
-> might know.
+>   Yes, but what good is identification? We could only return I/O error.
+> Ability to fix corruption (like ZFS) is the real killer.
 
-Anyway I'd have to compile and test at least a couple of kernels.
-[For the record: I'm quite sure that 36679ea59846d8f34a48f71ca1a37671ca0ad3c5
-and 9bde7497e0b54178c317fac47a18be7f948dd471 together break hal on
-my system; this seems to be related to endpoints' paths in sysfs.]
+Isn't that what we have RAID-1/5/6 for?  
 
-> > > Which version of HAL are you using?  I have 0.5.7 here and it works just
-> > > fine.
-> > 
-> > 0.5.4 :-(
-> 
-> Can you upgrade to a newer version?  SuSE 10.1 is out which should work
-> just fine...
+Helge Hafting
 
-Yes, it should.  Still, I think I'll try to upgrade hal alone first.
-
-Thanks,
-Rafael

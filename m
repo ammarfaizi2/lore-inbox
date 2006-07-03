@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWGCUqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWGCUsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWGCUqw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 16:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWGCUqv
+	id S932098AbWGCUsi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 16:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWGCUsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 16:46:51 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:5812 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751291AbWGCUq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 16:46:26 -0400
-Message-ID: <44A98283.9020607@oracle.com>
-Date: Mon, 03 Jul 2006 13:48:03 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: samuel@sortiz.org, lkml <linux-kernel@vger.kernel.org>
-CC: akpm <akpm@osdl.org>, netdev <netdev@vger.kernel.org>
-Subject: [Ubuntu PATCH] via-ircc: fix memory leak
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Mon, 3 Jul 2006 16:48:38 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62481 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932098AbWGCUsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 16:48:36 -0400
+Date: Mon, 3 Jul 2006 21:48:30 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [Ubuntu PATCH] Build mmc_block into mmc_core directly
+Message-ID: <20060703204830.GA24978@flint.arm.linux.org.uk>
+Mail-Followup-To: Randy Dunlap <randy.dunlap@oracle.com>,
+	lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+References: <44A98210.2060208@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44A98210.2060208@oracle.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Chuck Short <chuck@maggie>
+On Mon, Jul 03, 2006 at 01:46:08PM -0700, Randy Dunlap wrote:
+> Build mmc_block into mmc_core directly.
+> 
+> Bug Reference:
+> https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/30335
 
-[UBUNTU: via-ircc] Fix memory leak.
+NAK.  If it's missing the modalias then it needs to be added.  But more
+the question is why isn't the driver being automatically loaded.
+Probably because hotplug doesn't know enough about the MMC subsystem.
+Unfortunately I'm at rather a loss what's required with hotplug because
+it isn't something I actually use or come into contact with.
 
-Coverity id# 653
-
-patch location:
-http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=a1f34cb68b16807ed9d5ebb0f6a6ec5ff8a5fc78
-
-Signed-off-by: Chuck Short <zulcss@gmail.com>
-Signed-off-by: Ben Collins <bcollins@ubuntu.com>
----
- drivers/net/irda/via-ircc.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
---- linux-2617-g21.orig/drivers/net/irda/via-ircc.c
-+++ linux-2617-g21/drivers/net/irda/via-ircc.c
-@@ -1220,8 +1220,13 @@ static int upload_rxdata(struct via_ircc
- 
- 	IRDA_DEBUG(2, "%s(): len=%x\n", __FUNCTION__, len);
- 
-+	if ((len - 4) < 2) {
-+		self->stats.rx_dropped++;
-+		return FALSE;
-+	}
-+
- 	skb = dev_alloc_skb(len + 1);
--	if ((skb == NULL) || ((len - 4) < 2)) {
-+	if (skb == NULL) {
- 		self->stats.rx_dropped++;
- 		return FALSE;
- 	}
-
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

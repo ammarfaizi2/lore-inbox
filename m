@@ -1,91 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWGCRJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWGCRNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWGCRJx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 13:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWGCRJx
+	id S1751202AbWGCRNi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 13:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWGCRNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 13:09:53 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:38814 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751202AbWGCRJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 13:09:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Zbr9zwH8s701IO/ZyBIomgUe79DcEiHP+UEtyf/vqFCyQ6EcTUJccizJ7lA82tD34CHM2o6qAYB9hX1jnA2yprXC5ITCcV/IrZFMxk37D5Uy8oEKfr8JUoudS8kT0ZoGQ3/cqKDwR/nBbYhr2AnFCc6uU28OnEOrU0PRzdBMeIo=
-Message-ID: <44A94F5D.4050206@gmail.com>
-Date: Mon, 03 Jul 2006 20:09:49 +0300
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060620)
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Daniel Bonekeeper <thehazard@gmail.com>, kernelnewbies@nl.linux.org,
+	Mon, 3 Jul 2006 13:13:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8667 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751202AbWGCRNi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 13:13:38 -0400
+Date: Mon, 3 Jul 2006 10:13:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: tglx@linutronix.de, mingo@elte.hu, rmk+lkml@arm.linux.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: Driver for Microsoft USB Fingerprint Reader
-References: <e1e1d5f40607022351y4af6e709n1ba886604a13656b@mail.gmail.com>            <44A9030A.1020106@gmail.com> <200607031500.k63F0rO2014091@turing-police.cc.vt.edu>
-In-Reply-To: <200607031500.k63F0rO2014091@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] genirq: ARM dyntick cleanup
+In-Reply-To: <20060702173527.cbdbf0e1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0607031007421.12404@g5.osdl.org>
+References: <1151885928.24611.24.camel@localhost.localdomain>
+ <20060702173527.cbdbf0e1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 03 Jul 2006 14:44:10 +0300, Alon Bar-Lev said:
+
+
+On Sun, 2 Jul 2006, Andrew Morton wrote:
 > 
->> I hate when vendors like ATI, Conexant and UPEK publish binary drivers
->> without publishing the chipset spec... They should decide whether
->> their IP is on the software part or on the hardware part, if it is on
->> the hardware part, they are making money in selling the hardware. If
->> it is on the software part, there is no reason why not providing the
->> information for others to write software to work with the primitive
->> hardware. So in either case there should be full hardware interface
->> disclosure.
-> 
-> That's all fine and good, if the hardware design is entirely either
-> stuff designed to open specs (for instance, the actual PCI interface
-> chips, which *have* to behave a given way for the PCI bus to work) or
-> your own design.
-> 
-> Things get much more difficult if your hardware design ends up incorporating
-> somebody else's intellectual property, and they insist on such obfuscation
-> as part of the licensing terms.  You then have two choices:
-> 
-> 1) Refuse to build and sell the board under such onerous requirements.
-> 
-> 2) Realize that 95% of the computers that could possibly use your board
-> are running Windows and don't care about an open-source driver *anyhow*,
-> accept the fact that you'll not be able to sell to that last 5%, and
-> build it anyhow...
-> 
-> Only one of these choices generates revenue for your company.
+> The requirement "if you implement this then you must do so as a macro" is a
+> bit regrettable.  The ARCH_HAS_HANDLE_DYNAMIC_TICK approach would eliminate
+> that requirement.
 
-This is not the situation in ATI, Conexant and UPK. They all 
-manufacture chips, and they claim that the interface of the 
-chip is their IP. I cannot accept this.
+Btw, this is WRONG.
 
-Let's take the Conexant case, I bought a computer (Thinkpad) 
-with their modem. This means that I've paid for the hardware 
-part.
+The whole "ARCH_HAS_XYZZY" is nothing but crap. It's totally unreadable, 
+compared to the _much_ simpler
 
-Now this chip should be very primitive, it only allow the 
-basic hardware support for software to produce the necessary 
-waves.
+	#ifndef xyzzy
+	#define zyzzy() /* empty */
+	#endif
 
-They supply drivers for Windows for free, but they have sold 
-the chip interface to 3rd party that sells!!! drivers for Linux.
+which is a hell of a lot more obvious to everybody involved, not to 
+mention being a lot easier to "grep" for (try it - "grep xyzzy" ends up 
+showing _exactly_ what is going on for cases like this, unlike the 
+ARCH_HAS_XYZZY crap).
 
-They admit that they need no more money for the sale, but 
-they don't publish the chip interface to allow others to 
-develop appropriate software.
+And no, it does not require implementing xyzzy as a macro AT ALL. 
 
-The secret should be on the software... But still they 
-continue to limit the usage of the chip people payed money for.
+You can very easily just do
 
-And until now I did not discuss the low quality level of the 
-linux binary drivers!
+	/*
+	 * We have a very complex xyzzy, we don't even want to
+	 * inline it!
+	 */
+	extern void xyxxy(...);
 
-The same goes for ATI and others.
+	/* Tell the rest of the world that we do it! */
+	#define xyzzy xyzzy
 
-Best Regards,
-Alon Bar-Lev.
+and you're now all set. No need for a new stupid name like ARCH_HAS_XYZZY, 
+which adds _nothing_ but unnecessary complexity ("What was the condition 
+for using that symbol again?" and ungreppability).
 
+WE SHOULD GET RID OF ARCH_HAS_XYZZY. It's a disease.
+
+			Linus

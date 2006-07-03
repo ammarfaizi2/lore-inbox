@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWGCUps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWGCUqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWGCUps (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 16:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWGCUps
+	id S1751290AbWGCUqT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 16:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWGCUqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 16:45:48 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:64434 "EHLO
+	Mon, 3 Jul 2006 16:46:14 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:11955 "EHLO
 	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751265AbWGCUpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 16:45:40 -0400
-Message-ID: <44A98250.6060508@oracle.com>
-Date: Mon, 03 Jul 2006 13:47:12 -0700
+	id S932066AbWGCUpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 16:45:50 -0400
+Message-ID: <44A98261.1000300@oracle.com>
+Date: Mon, 03 Jul 2006 13:47:29 -0700
 From: Randy Dunlap <randy.dunlap@oracle.com>
 User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
 To: lkml <linux-kernel@vger.kernel.org>
-CC: akpm <akpm@osdl.org>, davej@codemonkey.org.uk
-Subject: [Ubuntu PATCH] Add Dothan frequency tables for speedstep
+CC: James@superbug.demon.co.uk, akpm <akpm@osdl.org>
+Subject: [Ubuntu PATCH] FIx no mpu401 interface can cause hard freeze
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 X-Brightmail-Tracker: AAAAAQAAAAI=
@@ -27,134 +27,241 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Patch to Add Dothan frequency tables for speedstep.
+This patch fixes the remaining instances in our tree where a non-
+existent mpu401 interface can cause a hard freeze when i/o is issued.
 
-Does this conflict with other Dothan handling?
+This commit closes Malone #34831.
+
+Bug: https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/34831
 
 patch location:
-http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=1db7baafb2d8f9d1356802bb112826bd866221b4
+http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=b422309cdd980cfefe99379796c04e961d3c1544
 
 ---
- arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c |   89 ++++++++++++++++++++++
- 1 file changed, 89 insertions(+)
+ sound/pci/emu10k1/emu10k1x.c  |   35 +++++++++++++++++++++++++----------
+ sound/pci/emu10k1/emumpu401.c |   35 +++++++++++++++++++++++++----------
+ 2 files changed, 50 insertions(+), 20 deletions(-)
 
---- linux-2617-g21.orig/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
-+++ linux-2617-g21/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
-@@ -196,6 +196,82 @@ static struct cpufreq_frequency_table ba
- 	OP(1700, 1484),
- 	{ .frequency = CPUFREQ_TABLE_END }
- };
-+
-+#undef OP
-+
-+/* Dothan processor datasheet 30218903.pdf defines 4 voltages for each
-+   frequency (VID#A through VID#D) - this macro allows us to define all
-+   of these but we only use the VID#C voltages at compile time - this may
-+   need some work if we want to select the voltage profile at runtime. */
-+
-+#define OP(mhz, mva, mvb, mvc, mvd)					\
-+	{								\
-+		.frequency = (mhz) * 1000,				\
-+		.index = (((mhz)/100) << 8) | ((mvc - 700) / 16)       	\
-+	}
-+
-+/* Intel Pentium M processor 715 / 1.50GHz (Dothan) */
-+static struct cpufreq_frequency_table dothan_1500[] =
-+{
-+	OP( 600,  988,  988,  988,  988),
-+	OP( 800, 1068, 1068, 1068, 1052),
-+	OP(1000, 1148, 1148, 1132, 1116),
-+	OP(1200, 1228, 1212, 1212, 1180),
-+	OP(1500, 1340, 1324, 1308, 1276),
-+	{ .frequency = CPUFREQ_TABLE_END }
-+};
-+
-+/* Intel Pentium M processor 725 / 1.60GHz (Dothan) */
-+static struct cpufreq_frequency_table dothan_1600[] =
-+{
-+	OP( 600,  988,  988,  988,  988),
-+	OP( 800, 1068, 1068, 1052, 1052),
-+	OP(1000, 1132, 1132, 1116, 1116),
-+	OP(1200, 1212, 1196, 1180, 1164),
-+	OP(1400, 1276, 1260, 1244, 1228),
-+	OP(1600, 1340, 1324, 1308, 1276),
-+	{ .frequency = CPUFREQ_TABLE_END }
-+};
-+
-+/* Intel Pentium M processor 735 / 1.70GHz (Dothan) */
-+static struct cpufreq_frequency_table dothan_1700[] =
-+{
-+	OP( 600,  988,  988,  988,  988),
-+	OP( 800, 1052, 1052, 1052, 1052),
-+	OP(1000, 1116, 1116, 1116, 1100),
-+	OP(1200, 1180, 1180, 1164, 1148),
-+	OP(1400, 1244, 1244, 1228, 1212),
-+	OP(1700, 1340, 1324, 1308, 1276),
-+	{ .frequency = CPUFREQ_TABLE_END }
-+};
-+
-+/* Intel Pentium M processor 745 / 1.80GHz (Dothan) */
-+static struct cpufreq_frequency_table dothan_1800[] =
-+{
-+	OP( 600,  988,  988,  988,  988),
-+	OP( 800, 1052, 1052, 1052, 1036),
-+	OP(1000, 1116, 1100, 1100, 1084),
-+	OP(1200, 1164, 1164, 1148, 1132),
-+	OP(1400, 1228, 1212, 1212, 1180),
-+	OP(1600, 1292, 1276, 1260, 1228),
-+	OP(1800, 1340, 1324, 1308, 1276),
-+	{ .frequency = CPUFREQ_TABLE_END }
-+};
-+
-+/* Intel Pentium M processor 755 / 2.00GHz (Dothan) */
-+static struct cpufreq_frequency_table dothan_2000[] =
-+{
-+	OP( 600,  988,  988,  988,  988),
-+	OP( 800, 1052, 1036, 1036, 1036),
-+	OP(1000, 1100, 1084, 1084, 1084),
-+	OP(1200, 1148, 1132, 1132, 1116),
-+	OP(1400, 1196, 1180, 1180, 1164),
-+	OP(1600, 1244, 1228, 1228, 1196),
-+	OP(1800, 1292, 1276, 1276, 1244),
-+	OP(2000, 1340, 1324, 1308, 1276),
-+	{ .frequency = CPUFREQ_TABLE_END }
-+};
-+
- #undef OP
- 
- #define _BANIAS(cpuid, max, name)	\
-@@ -206,6 +282,13 @@ static struct cpufreq_frequency_table ba
+--- linux-2617-g21.orig/sound/pci/emu10k1/emu10k1x.c
++++ linux-2617-g21/sound/pci/emu10k1/emu10k1x.c
+@@ -1286,7 +1286,7 @@ static void snd_emu10k1x_midi_interrupt(
+ 	do_emu10k1x_midi_interrupt(emu, &emu->midi, status);
  }
- #define BANIAS(max)	_BANIAS(&cpu_ids[CPU_BANIAS], max, #max)
  
-+#define DOTHAN(cpuid, max, name)	\
-+{	.cpu_id		= cpuid,	\
-+	.model_name	= "Intel(R) Pentium(R) M processor " name "GHz", \
-+	.max_freq	= (max)*1000,	\
-+	.op_points	= dothan_##max,	\
-+}
-+
- /* CPU models, their operating frequency range, and freq/voltage
-    operating points */
- static struct cpu_model models[] =
-@@ -219,6 +302,11 @@ static struct cpu_model models[] =
- 	BANIAS(1500),
- 	BANIAS(1600),
- 	BANIAS(1700),
-+	DOTHAN(&cpu_ids[CPU_DOTHAN_B0], 1500, "1.50"),
-+	DOTHAN(&cpu_ids[CPU_DOTHAN_B0], 1600, "1.60"),
-+	DOTHAN(&cpu_ids[CPU_DOTHAN_B0], 1700, "1.70"),
-+	DOTHAN(&cpu_ids[CPU_DOTHAN_B0], 1800, "1.80"),
-+	DOTHAN(&cpu_ids[CPU_DOTHAN_B0], 2000, "2.00"),
- 
- 	/* NULL model_name is a wildcard */
- 	{ &cpu_ids[CPU_DOTHAN_A1], NULL, 0, NULL },
-@@ -231,6 +319,7 @@ static struct cpu_model models[] =
- };
- #undef _BANIAS
- #undef BANIAS
-+#undef DOTHAN
- 
- static int centrino_cpu_init_table(struct cpufreq_policy *policy)
+-static void snd_emu10k1x_midi_cmd(struct emu10k1x * emu,
++static int snd_emu10k1x_midi_cmd(struct emu10k1x * emu,
+ 				  struct emu10k1x_midi *midi, unsigned char cmd, int ack)
  {
+ 	unsigned long flags;
+@@ -1312,11 +1312,14 @@ static void snd_emu10k1x_midi_cmd(struct
+ 		ok = 1;
+ 	}
+ 	spin_unlock_irqrestore(&midi->input_lock, flags);
+-	if (!ok)
++	if (!ok) {
+ 		snd_printk(KERN_ERR "midi_cmd: 0x%x failed at 0x%lx (status = 0x%x, data = 0x%x)!!!\n",
+ 			   cmd, emu->port,
+ 			   mpu401_read_stat(emu, midi),
+ 			   mpu401_read_data(emu, midi));
++		return 1;
++	}
++	return 0;
+ }
+ 
+ static int snd_emu10k1x_midi_input_open(struct snd_rawmidi_substream *substream)
+@@ -1332,12 +1335,17 @@ static int snd_emu10k1x_midi_input_open(
+ 	midi->substream_input = substream;
+ 	if (!(midi->midi_mode & EMU10K1X_MIDI_MODE_OUTPUT)) {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+-		snd_emu10k1x_midi_cmd(emu, midi, MPU401_RESET, 1);
+-		snd_emu10k1x_midi_cmd(emu, midi, MPU401_ENTER_UART, 1);
++		if (snd_emu10k1x_midi_cmd(emu, midi, MPU401_RESET, 1))
++			goto error_out;
++		if (snd_emu10k1x_midi_cmd(emu, midi, MPU401_ENTER_UART, 1))
++			goto error_out;
+ 	} else {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+ 	}
+ 	return 0;
++
++error_out:
++	return -EIO;
+ }
+ 
+ static int snd_emu10k1x_midi_output_open(struct snd_rawmidi_substream *substream)
+@@ -1353,12 +1361,17 @@ static int snd_emu10k1x_midi_output_open
+ 	midi->substream_output = substream;
+ 	if (!(midi->midi_mode & EMU10K1X_MIDI_MODE_INPUT)) {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+-		snd_emu10k1x_midi_cmd(emu, midi, MPU401_RESET, 1);
+-		snd_emu10k1x_midi_cmd(emu, midi, MPU401_ENTER_UART, 1);
++		if (snd_emu10k1x_midi_cmd(emu, midi, MPU401_RESET, 1))
++			goto error_out;
++		if (snd_emu10k1x_midi_cmd(emu, midi, MPU401_ENTER_UART, 1))
++			goto error_out;
+ 	} else {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+ 	}
+ 	return 0;
++
++error_out:
++	return -EIO;
+ }
+ 
+ static int snd_emu10k1x_midi_input_close(struct snd_rawmidi_substream *substream)
+@@ -1366,6 +1379,7 @@ static int snd_emu10k1x_midi_input_close
+ 	struct emu10k1x *emu;
+ 	struct emu10k1x_midi *midi = substream->rmidi->private_data;
+ 	unsigned long flags;
++	int err = 0;
+ 
+ 	emu = midi->emu;
+ 	snd_assert(emu, return -ENXIO);
+@@ -1375,11 +1389,11 @@ static int snd_emu10k1x_midi_input_close
+ 	midi->substream_input = NULL;
+ 	if (!(midi->midi_mode & EMU10K1X_MIDI_MODE_OUTPUT)) {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+-		snd_emu10k1x_midi_cmd(emu, midi, MPU401_RESET, 0);
++		err = snd_emu10k1x_midi_cmd(emu, midi, MPU401_RESET, 0);
+ 	} else {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+ 	}
+-	return 0;
++	return err;
+ }
+ 
+ static int snd_emu10k1x_midi_output_close(struct snd_rawmidi_substream *substream)
+@@ -1387,6 +1401,7 @@ static int snd_emu10k1x_midi_output_clos
+ 	struct emu10k1x *emu;
+ 	struct emu10k1x_midi *midi = substream->rmidi->private_data;
+ 	unsigned long flags;
++	int err = 0;
+ 
+ 	emu = midi->emu;
+ 	snd_assert(emu, return -ENXIO);
+@@ -1396,11 +1411,11 @@ static int snd_emu10k1x_midi_output_clos
+ 	midi->substream_output = NULL;
+ 	if (!(midi->midi_mode & EMU10K1X_MIDI_MODE_INPUT)) {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+-		snd_emu10k1x_midi_cmd(emu, midi, MPU401_RESET, 0);
++		err = snd_emu10k1x_midi_cmd(emu, midi, MPU401_RESET, 0);
+ 	} else {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+ 	}
+-	return 0;
++	return err;
+ }
+ 
+ static void snd_emu10k1x_midi_input_trigger(struct snd_rawmidi_substream *substream, int up)
+--- linux-2617-g21.orig/sound/pci/emu10k1/emumpu401.c
++++ linux-2617-g21/sound/pci/emu10k1/emumpu401.c
+@@ -116,7 +116,7 @@ static void snd_emu10k1_midi_interrupt2(
+ 	do_emu10k1_midi_interrupt(emu, &emu->midi2, status);
+ }
+ 
+-static void snd_emu10k1_midi_cmd(struct snd_emu10k1 * emu, struct snd_emu10k1_midi *midi, unsigned char cmd, int ack)
++static int snd_emu10k1_midi_cmd(struct snd_emu10k1 * emu, struct snd_emu10k1_midi *midi, unsigned char cmd, int ack)
+ {
+ 	unsigned long flags;
+ 	int timeout, ok;
+@@ -141,11 +141,14 @@ static void snd_emu10k1_midi_cmd(struct 
+ 		ok = 1;
+ 	}
+ 	spin_unlock_irqrestore(&midi->input_lock, flags);
+-	if (!ok)
++	if (!ok) {
+ 		snd_printk(KERN_ERR "midi_cmd: 0x%x failed at 0x%lx (status = 0x%x, data = 0x%x)!!!\n",
+ 			   cmd, emu->port,
+ 			   mpu401_read_stat(emu, midi),
+ 			   mpu401_read_data(emu, midi));
++		return 1;
++	}
++	return 0;
+ }
+ 
+ static int snd_emu10k1_midi_input_open(struct snd_rawmidi_substream *substream)
+@@ -161,12 +164,17 @@ static int snd_emu10k1_midi_input_open(s
+ 	midi->substream_input = substream;
+ 	if (!(midi->midi_mode & EMU10K1_MIDI_MODE_OUTPUT)) {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+-		snd_emu10k1_midi_cmd(emu, midi, MPU401_RESET, 1);
+-		snd_emu10k1_midi_cmd(emu, midi, MPU401_ENTER_UART, 1);
++		if (snd_emu10k1_midi_cmd(emu, midi, MPU401_RESET, 1))
++			goto error_out;
++		if (snd_emu10k1_midi_cmd(emu, midi, MPU401_ENTER_UART, 1))
++			goto error_out;
+ 	} else {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+ 	}
+ 	return 0;
++
++error_out:
++	return -EIO;
+ }
+ 
+ static int snd_emu10k1_midi_output_open(struct snd_rawmidi_substream *substream)
+@@ -182,12 +190,17 @@ static int snd_emu10k1_midi_output_open(
+ 	midi->substream_output = substream;
+ 	if (!(midi->midi_mode & EMU10K1_MIDI_MODE_INPUT)) {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+-		snd_emu10k1_midi_cmd(emu, midi, MPU401_RESET, 1);
+-		snd_emu10k1_midi_cmd(emu, midi, MPU401_ENTER_UART, 1);
++		if (snd_emu10k1_midi_cmd(emu, midi, MPU401_RESET, 1))
++			goto error_out;
++		if (snd_emu10k1_midi_cmd(emu, midi, MPU401_ENTER_UART, 1))
++			goto error_out;
+ 	} else {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+ 	}
+ 	return 0;
++
++error_out:
++	return -EIO;
+ }
+ 
+ static int snd_emu10k1_midi_input_close(struct snd_rawmidi_substream *substream)
+@@ -195,6 +208,7 @@ static int snd_emu10k1_midi_input_close(
+ 	struct snd_emu10k1 *emu;
+ 	struct snd_emu10k1_midi *midi = (struct snd_emu10k1_midi *)substream->rmidi->private_data;
+ 	unsigned long flags;
++	int err = 0;
+ 
+ 	emu = midi->emu;
+ 	snd_assert(emu, return -ENXIO);
+@@ -204,11 +218,11 @@ static int snd_emu10k1_midi_input_close(
+ 	midi->substream_input = NULL;
+ 	if (!(midi->midi_mode & EMU10K1_MIDI_MODE_OUTPUT)) {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+-		snd_emu10k1_midi_cmd(emu, midi, MPU401_RESET, 0);
++		err = snd_emu10k1_midi_cmd(emu, midi, MPU401_RESET, 0);
+ 	} else {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+ 	}
+-	return 0;
++	return err;
+ }
+ 
+ static int snd_emu10k1_midi_output_close(struct snd_rawmidi_substream *substream)
+@@ -216,6 +230,7 @@ static int snd_emu10k1_midi_output_close
+ 	struct snd_emu10k1 *emu;
+ 	struct snd_emu10k1_midi *midi = (struct snd_emu10k1_midi *)substream->rmidi->private_data;
+ 	unsigned long flags;
++	int err = 0;
+ 
+ 	emu = midi->emu;
+ 	snd_assert(emu, return -ENXIO);
+@@ -225,11 +240,11 @@ static int snd_emu10k1_midi_output_close
+ 	midi->substream_output = NULL;
+ 	if (!(midi->midi_mode & EMU10K1_MIDI_MODE_INPUT)) {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+-		snd_emu10k1_midi_cmd(emu, midi, MPU401_RESET, 0);
++		err = snd_emu10k1_midi_cmd(emu, midi, MPU401_RESET, 0);
+ 	} else {
+ 		spin_unlock_irqrestore(&midi->open_lock, flags);
+ 	}
+-	return 0;
++	return err;
+ }
+ 
+ static void snd_emu10k1_midi_input_trigger(struct snd_rawmidi_substream *substream, int up)
 

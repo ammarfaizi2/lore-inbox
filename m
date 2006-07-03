@@ -1,103 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWGCVoB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWGCVqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWGCVoB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 17:44:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWGCVoB
+	id S1750890AbWGCVqY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 17:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWGCVqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 17:44:01 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:19887 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750852AbWGCVoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 17:44:00 -0400
-Subject: Re: 2.6.17-mm5 + pcmcia/hostap/8139too patches -- inconsistent
-	{hardirq-on-W} -> {in-hardirq-W} usage
-From: Arjan van de Ven <arjan@infradead.org>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: mingo@elte.hu, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <a44ae5cd0607031431q8dcc698j1c447b1d51c7cc75@mail.gmail.com>
-References: <a44ae5cd0607031431q8dcc698j1c447b1d51c7cc75@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 03 Jul 2006 23:43:54 +0200
-Message-Id: <1151963034.3108.59.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 3 Jul 2006 17:46:24 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:3731 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750865AbWGCVqY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 17:46:24 -0400
+Date: Mon, 3 Jul 2006 23:42:17 +0200
+To: Fengguang Wu <fengguang.wu@gmail.com>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New readahead - ups and downs new test. Vm oddities.
+Message-ID: <20060703214217.GA10699@aitel.hist.no>
+References: <44A12D84.5010400@aitel.hist.no> <20060702235516.GA6034@mail.ustc.edu.cn> <20060703135027.GA4440@aitel.hist.no> <20060703153930.GC5874@mail.ustc.edu.cn>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060703153930.GC5874@mail.ustc.edu.cn>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-03 at 14:31 -0700, Miles Lane wrote:
-> inconsistent {hardirq-on-W} -> {in-hardirq-W} usage.
-> swapper/0 [HC1[1]:SC1[2]:HE0:SE0] takes:
->  (&ei_local->page_lock){++..}, at: [<f935079f>] ei_interrupt+0x49/0x294 [8390]
-> {hardirq-on-W} state was registered at:
->   [<c102d152>] lock_acquire+0x60/0x80
->   [<c1200376>] _spin_lock+0x23/0x32
+I have now re-run my tests (parallel debsums and
+bzcat+patch) this time with everything on the same device
+so as to get competition for io.
 
-fun.. you have many strange network cards :-)
+New and old readahead didn't make much difference this time
+either, so it seems that my idea about readahead
+problems were wrong.  Which is good, as the new readahead
+improves so many other things.
 
-ok I'm not quite happy about this one yet, but can you try this patch?
+Results with new readahead using one disk device:
+Swap went up to 32M, dropped to 244k when testing ended.
+patch timing:
+real    6m8.451s
+user    0m5.183s
+sys     0m2.897s
+debsums timing:
+real    7m42.851s
+user    0m21.172s
+sys     0m13.642s
+
+Results with old readahead, one disk device:
+Swap went to 32M, dropped to 244k when testing ended.
+timings:
+patch:
+real    6m18.191s
+user    0m5.226s
+sys     0m2.724s
+debsums:
+real    7m49.860s
+user    0m21.243s
+sys     0m14.268s
+A tiny bit slower, but very little.
 
 
-The ne2000 drivers use disable_irq as a poor mans locking construct;
-make sure lockdep knows about these.
-NOTE NOTE: the ne2000 driver calls these *from interrupt context*.
-That's a new situation that needs to be analyzed for correctness still;
-it feels really wrong to me (but then again so does disable_irq() tricks
-in general)
+No surprise that everyting is slower when using a single
+disk instead of two.  
 
+The swap difference from using two disks is striking though.
+Nothing to do with readahead, but
+why 32M swap when using one disk, and 244k swap when using two?
 
-Andrew: once testing completes and I've looked at it more I'll resend
-with a proper description + signed-off line
+The amount of data processed is the same either way,
+is the VM very timing-sensitive?
 
----
- drivers/net/8390.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-Index: linux-2.6.17-mm4/drivers/net/8390.c
-===================================================================
---- linux-2.6.17-mm4.orig/drivers/net/8390.c
-+++ linux-2.6.17-mm4/drivers/net/8390.c
-@@ -299,7 +299,7 @@ static int ei_start_xmit(struct sk_buff 
- 	 *	Slow phase with lock held.
- 	 */
- 	 
--	disable_irq_nosync(dev->irq);
-+	disable_irq_nosync_lockdep(dev->irq);
- 	
- 	spin_lock(&ei_local->page_lock);
- 	
-@@ -338,7 +338,7 @@ static int ei_start_xmit(struct sk_buff 
- 		netif_stop_queue(dev);
- 		outb_p(ENISR_ALL, e8390_base + EN0_IMR);
- 		spin_unlock(&ei_local->page_lock);
--		enable_irq(dev->irq);
-+		enable_irq_lockdep(dev->irq);
- 		ei_local->stat.tx_errors++;
- 		return 1;
- 	}
-@@ -379,7 +379,7 @@ static int ei_start_xmit(struct sk_buff 
- 	outb_p(ENISR_ALL, e8390_base + EN0_IMR);
- 	
- 	spin_unlock(&ei_local->page_lock);
--	enable_irq(dev->irq);
-+	enable_irq_lockdep(dev->irq);
- 
- 	dev_kfree_skb (skb);
- 	ei_local->stat.tx_bytes += send_length;
-@@ -505,9 +505,9 @@ irqreturn_t ei_interrupt(int irq, void *
- #ifdef CONFIG_NET_POLL_CONTROLLER
- void ei_poll(struct net_device *dev)
- {
--	disable_irq(dev->irq);
-+	disable_irq_lockdep(dev->irq);
- 	ei_interrupt(dev->irq, dev, NULL);
--	enable_irq(dev->irq);
-+	enable_irq_lockdep(dev->irq);
- }
- #endif
- 
-
+Helge Hafting
 

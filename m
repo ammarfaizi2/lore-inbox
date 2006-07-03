@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWGCNNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWGCNQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751123AbWGCNNF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 09:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWGCNNF
+	id S1751141AbWGCNQp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 09:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWGCNQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 09:13:05 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:38617 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751123AbWGCNNE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 09:13:04 -0400
-Message-ID: <44A917D8.6050304@fr.ibm.com>
-Date: Mon, 03 Jul 2006 15:12:56 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Mon, 3 Jul 2006 09:16:45 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:15209 "EHLO
+	asav05.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751141AbWGCNQo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 09:16:44 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Aa4HAPe0qESBSg
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Stelian Pop <stelian@popies.net>
+Subject: Re: [RFC] Apple Motion Sensor driver
+Date: Mon, 3 Jul 2006 09:16:36 -0400
+User-Agent: KMail/1.9.3
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Michael Hanselmann <linux-kernel@hansmi.ch>,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
+       khali@linux-fr.org, linux-kernel@killerfox.forkbomb.ch,
+       johannes@sipsolutions.net, chainsaw@gentoo.org
+References: <20060702222649.GA13411@hansmi.ch> <1151923799.19419.49.camel@localhost.localdomain> <1151926278.10711.25.camel@localhost.localdomain>
+In-Reply-To: <1151926278.10711.25.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Martin Peschke <mp3@de.ibm.com>
-Subject: Re: 2.6.17-mm6
-References: <20060703030355.420c7155.akpm@osdl.org> <44A90A62.8050202@fr.ibm.com> <20060703121732.GC9420@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20060703121732.GC9420@osiris.boeblingen.de.ibm.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607030916.37896.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heiko Carstens wrote:
->> the statistic infrastructure is required when compiling the ZFCP driver on
->> zSeries.
->> ---
->>  drivers/scsi/Kconfig |    1 +
->>  1 file changed, 1 insertion(+)
->>
->> Index: 2.6.17-mm6/drivers/scsi/Kconfig
->> ===================================================================
->> --- 2.6.17-mm6.orig/drivers/scsi/Kconfig
->> +++ 2.6.17-mm6/drivers/scsi/Kconfig
->> @@ -2200,6 +2200,7 @@ config ZFCP
->>  	tristate "FCP host bus adapter driver for IBM eServer zSeries"
->>  	depends on S390 && QDIO && SCSI
->>  	select SCSI_FC_ATTRS
->> +	select STATISTICS
->>  	help
->>            If you want to access SCSI devices attached to your IBM eServer
->>            zSeries by means of Fibre Channel interfaces say Y.
+On Monday 03 July 2006 07:31, Stelian Pop wrote:
+> Le lundi 03 juillet 2006 à 20:49 +1000, Benjamin Herrenschmidt a écrit :
+> > On Mon, 2006-07-03 at 12:45 +0200, Michael Hanselmann wrote:
+> > > On Mon, Jul 03, 2006 at 12:12:47PM +0200, Stelian Pop wrote:
+> > > > > +
+> > > > > +static DEVICE_ATTR(mouse, S_IRUGO | S_IWUSR,
+> > > > > +	ams_mouse_show_mouse, ams_mouse_store_mouse);
+> > > 
+> > > > I would prefer three different files for x, y and z instead of a single
+> > > > one... 
+> > > 
+> > > Because of the way the values are calculated with orientation, that
+> > > would mean that if a program needs all three, either all values are read
+> > > three times or the ams_sensors function gets much more complicated.
+> > > 
+> > > To prevent it from having to read them three times in a row, I joined
+> > > all three values.
+> > > 
+> > > Do you think I should rewrite the ams_sensors function to only get the
+> > > correct value?
+> > 
+> > Cache the values and only re-read from the hardware after a given amount
+> > of time has elapsed ?
 > 
-> That's the wrong approach. We rather need some no-op defines that make
-> this compile for !CONFIG_STATISTICS. Martin is working on it, I think.
+> Seems to be a good idea indeed.
+>
 
-yes, you're right.
+But what is the purpose of that attribute anyway? I'd just drop it completely. 
 
-My approach is the shortest path to fix this -mm6 :
-
-statistics-infrastructure-exploitation-zfcp.patch
-
-thanks,
-
-C.
-
-
+-- 
+Dmitry

@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWGCV4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWGCV4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWGCV4f (ORCPT <rfc822;willy@w.ods.org>);
+	id S932129AbWGCV4f (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 3 Jul 2006 17:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWGCV4d
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWGCV42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 17:56:33 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:32416 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932137AbWGCV4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 17:56:24 -0400
-Date: Mon, 3 Jul 2006 14:56:16 -0700 (PDT)
+	Mon, 3 Jul 2006 17:56:28 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:54674 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932129AbWGCV4J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 17:56:09 -0400
+Date: Mon, 3 Jul 2006 14:56:00 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
        Con Kolivas <kernel@kolivas.org>, Marcelo Tosatti <marcelo@kvack.org>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
        Christoph Lameter <clameter@sgi.com>, Andi Kleen <ak@suse.de>
-Message-Id: <20060703215616.7566.56782.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20060703215600.7566.62802.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC 8/8] Fix i386 SRAT check for MAX_NR_ZONES
+Subject: [RFC 5/8] swap_prefetch: Make use of ZONE_HIGHMEM dependend on CONFIG_HIGHMEM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

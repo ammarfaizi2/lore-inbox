@@ -1,134 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWGCKMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWGCKUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbWGCKMx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 06:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWGCKMx
+	id S1751074AbWGCKUM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 06:20:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWGCKUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 06:12:53 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:15364 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S1750911AbWGCKMw (ORCPT
+	Mon, 3 Jul 2006 06:20:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5349 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751074AbWGCKUL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 06:12:52 -0400
-Subject: Re: [RFC] Apple Motion Sensor driver
-From: Stelian Pop <stelian@popies.net>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
-       khali@linux-fr.org, linux-kernel@killerfox.forkbomb.ch,
-       benh@kernel.crashing.org, johannes@sipsolutions.net,
-       chainsaw@gentoo.org
-In-Reply-To: <20060702222649.GA13411@hansmi.ch>
-References: <20060702222649.GA13411@hansmi.ch>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Mon, 03 Jul 2006 12:12:47 +0200
-Message-Id: <1151921567.10711.22.camel@localhost.localdomain>
+	Mon, 3 Jul 2006 06:20:11 -0400
+Date: Mon, 3 Jul 2006 03:19:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: ak@muc.de, drepper@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] Support TIF_RESTORE_SIGMASK on x86_64
+Message-Id: <20060703031937.274aa506.akpm@osdl.org>
+In-Reply-To: <1151919711.3000.82.camel@pmac.infradead.org>
+References: <1151919711.3000.82.camel@pmac.infradead.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le lundi 03 juillet 2006 à 00:26 +0200, Michael Hanselmann a écrit :
+On Mon, 03 Jul 2006 10:41:51 +0100
+David Woodhouse <dwmw2@infradead.org> wrote:
 
-> [AMS patch]
+> We need TIF_RESTORE_SIGMASK in order to support ppoll() and pselect()
+> system calls. This patch originally came from Andi, and was based
+> heavily on David Howells' implementation of same on i386. I fixed a typo
+> which was causing do_signal() to use the wrong signal mask.
+> 
 
-Okay, I've tried the driver and it oopsed on rmmod:
+We struggled with these patches quite a lot when they were in Andi's tree. 
+My test box would get stuck during kernel compiles and Andi could never
+reproduce it.
 
-Unable to handle kernel paging request for data at address 0x00000000
-Faulting instruction address: 0xc01cfd1c
-Oops: Kernel access of bad area, sig: 11 [#1]
+<digs back through emails>
 
-Modules linked in: ams nfsd exportfs lockd sunrpc appletouch bcm43xx ohci1394 ie ee80211softmac ieee80211 pcmcia ieee80211_crypt yenta_socket rsrc_nonstatic pcmc ia_core ohci_hcd ehci_hcd
-NIP: C01CFD1C LR: C01CFCFC CTR: C01CFC6C
-REGS: c48b9d90 TRAP: 0300   Not tainted  (2.6.17.2)
-MSR: 00009032 <EE,ME,IR,DR>  CR: 22004422  XER: 20000000
-DAR: 00000000, DSISR: 42000000
-TASK = dd79b340[26173] 'rmmod' THREAD: c48b8000
-GPR00: 00100100 C48B9E40 DD79B340 C0CDA828 C00F4CD0 00000001 C48B8000 F22451F8
-GPR08: 00000000 00200200 00000000 F2245238 00000000 1001A188 100D0000 00000000
-GPR16: 00000000 10104308 100D0000 100B0000 100D0000 100B0000 10013008 00000000
-GPR24: C0380000 C0380000 EFFCCC88 C0350000 C0CDA828 F22450D0 00000000 F22450B8
-NIP [C01CFD1C] i2c_detach_client+0xb0/0x16c
-LR [C01CFCFC] i2c_detach_client+0x90/0x16c
-Call Trace:
-[C48B9E40] [DDF8077C] 0xddf8077c (unreliable)
-[C48B9E60] [F2242984] ams_i2c_detach+0x20/0x60 [ams]
-[C48B9E80] [C01D1024] i2c_del_driver+0x60/0x1d0
-[C48B9EB0] [F22429DC] ams_i2c_exit+0x18/0x28 [ams]
-[C48B9EC0] [F2242428] cleanup_module+0x58/0xd4 [ams]
-[C48B9ED0] [C0045C70] sys_delete_module+0x180/0x1e8
-[C48B9F40] [C000EE7C] ret_from_syscall+0x0/0x38
---- Exception: c01 at 0xff7320c
-    LR = 0x1000103c
-Instruction dump:
-3b9c0028 3bbf0018 7f83e378 480c4839 38ff0140 815f0140 3c000010 81070004
-60000100 3d200020 397f0180 61290200 <91480000> 3c80c038 7fa3eb78 901f0140
+x:/home/akpm> ps aux|grep make
+akpm      5064  0.0  0.0 40844 1112 pts/0    S+   17:30   0:00 make -j 6 CC= gcc bzImage modules
+akpm      5364  0.0  0.0     0    0 pts/0    Z+   17:30   0:00 [make] <defunct>
+akpm      5381  0.1  0.0     0    0 pts/0    Z+   17:30   0:00 [make] <defunct>
+akpm      5451  0.0  0.0     0    0 pts/0    Z+   17:30   0:00 [make] <defunct>
+akpm      5480  0.0  0.0     0    0 pts/0    Z+   17:30   0:00 [make] <defunct>
+akpm      6004  0.0  0.0 41496  608 pts/1    S+   17:32   0:00 grep make
 
-I haven't had the time too look into the issue yet. 
+make          S ffff81017683fdc8     0  5064   5056  5364               (NOTLB)
+ffff81017683fdc8 ffff81017aa7ca98 ffff81017982d4b8 ffff810178b7f810 
+       0000000080168760 ffff81000705baa0 ffff81017fc0b480 ffff810179a24790 
+       000000037aa7caa0 0000000000008944 
+Call Trace: <ffffffff803cd4d4>{_spin_unlock+19} <ffffffff80178feb>{pipe_wait+119}
+       <ffffffff8013eff9>{autoremove_wake_function+0} <ffffffff8013eff9>{autoremove_wake_function+0}
+       <ffffffff8017934a>{pipe_readv+621} <ffffffff801793f1>{pipe_read+30}
+       <ffffffff8016d29b>{vfs_read+175} <ffffffff8016d5fc>{sys_read+71}
+       <ffffffff8010aa5e>{system_call+126}
+make          X ffff810176389ed8     0  5364   5064          5381       (L-TLB)
+ffff810176389ed8 ffff810176389e28 ffffffff803cd4a4 0000000000000000 
+       ffff810175596850 ffff810176389ed8 0000000000000003 ffff810175596850 
+       0000000300040001 000000000000c50a 
+Call Trace: <ffffffff803cd4a4>{_spin_unlock_irqrestore+27}
+       <ffffffff803cd4d4>{_spin_unlock+19} <ffffffff8012e5c5>{do_exit+2225}
+       <ffffffff8016c00a>{sys_chdir+90} <ffffffff8012e6dc>{sys_exit_group+0}
+       <ffffffff8012e6ee>{sys_exit_group+18} <ffffffff8010aa5e>{system_call+126}
+make          X ffff810175199ed8     0  5381   5064          5451  5364 (L-TLB)
+ffff810175199ed8 ffff810175199e28 ffffffff803cd4a4 0000000000000000 
+       ffff810179a930c0 ffff810175199ed8 0000000000000002 ffff810179a930c0 
+       0000000200040001 000000000000ca4c 
+Call Trace: <ffffffff803cd4a4>{_spin_unlock_irqrestore+27}
+       <ffffffff803cd4d4>{_spin_unlock+19} <ffffffff8012e5c5>{do_exit+2225}
+       <ffffffff8016c00a>{sys_chdir+90} <ffffffff8012e6dc>{sys_exit_group+0}
+       <ffffffff8012e6ee>{sys_exit_group+18} <ffffffff8010aa5e>{system_call+126}
+make          X ffff810176249ed8     0  5451   5064          5480  5381 (L-TLB)
+ffff810176249ed8 ffff810176249e28 ffffffff803cd4a4 0000000000000000 
+       ffff8101790fe7d0 ffff810176249ed8 0000000000000001 ffff8101790fe7d0 
+       0000000100040001 000000000000d408 
+Call Trace: <ffffffff803cd4a4>{_spin_unlock_irqrestore+27}
+       <ffffffff803cd4d4>{_spin_unlock+19} <ffffffff8012e5c5>{do_exit+2225}
+       <ffffffff8016c00a>{sys_chdir+90} <ffffffff8012e6dc>{sys_exit_group+0}
+       <ffffffff8012e6ee>{sys_exit_group+18} <ffffffff8010aa5e>{system_call+126}
+make          X ffff810174f91ed8     0  5480   5064                5451 (L-TLB)
+ffff810174f91ed8 ffff810174f91e28 ffffffff803cd4a4 0000000000000046 
+       ffff810178b7f810 ffff810174f91ed8 0000000000000001 ffff810178b7f810 
+       0000000100040001 00000000000106aa 
+Call Trace: <ffffffff803cd4a4>{_spin_unlock_irqrestore+27}
+       <ffffffff803cd4d4>{_spin_unlock+19} <ffffffff8012e5c5>{do_exit+2225}
+       <ffffffff8016c00a>{sys_chdir+90} <ffffffff8012e6dc>{sys_exit_group+0}
+       <ffffffff8012e6ee>{sys_exit_group+18} <ffffffff8010aa5e>{system_call+126}
 
-Below are a few comments on the patch:
 
-> +	/* calibrated null values */
-> +	int xcalib, ycalib;
+It seems OK now with these patches.
 
-Add zcalib too for movement on z-axis.
+Could you please describe the signal mask fix?  Is that likely to have
+caused the above symptoms?
 
-> +		input_report_abs(ams.idev, ABS_X, x - ams.xcalib);
-> +		input_report_abs(ams.idev, ABS_Y, y - ams.ycalib);
+>  asmlinkage long
+> -sys32_sigsuspend(int history0, int history1, old_sigset_t mask,
+> -		 struct pt_regs *regs)
+> +sys32_sigsuspend(int history0, int history1, old_sigset_t mask)
+>  {
+> -	sigset_t saveset;
+> -
+>  	mask &= _BLOCKABLE;
+>  	spin_lock_irq(&current->sighand->siglock);
+> -	saveset = current->blocked;
+> +	current->saved_sigmask = current->blocked;
+>  	siginitset(&current->blocked, mask);
+>  	recalc_sigpending();
+>  	spin_unlock_irq(&current->sighand->siglock);
+>  
+> -	regs->rax = -EINTR;
+> -	while (1) {
+> -		current->state = TASK_INTERRUPTIBLE;
+> -		schedule();
+> -		if (do_signal(regs, &saveset))
+> -			return -EINTR;
+> -	}
+> +	current->state = TASK_INTERRUPTIBLE;
+> +	schedule();
+> +	set_thread_flag(TIF_RESTORE_SIGMASK);
+> +	return -ERESTARTNOHAND;
+>  }
 
-Ditto, ABS_Z...
-
-> +	input_set_abs_params(ams.idev, ABS_X, -50, 50, 3, 0);
-> +	input_set_abs_params(ams.idev, ABS_Y, -50, 50, 3, 0);
-
-And here...
-
-> +static ssize_t ams_mouse_store_mouse(struct device *dev,
-> +	struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	int oldmouse = mouse;
-> +
-> +	if (sscanf(buf, "%d\n", &mouse) != 1)
-> +		return -EINVAL;
-> +
-> +	mouse = !!mouse;
-> +
-> +	if (oldmouse != mouse) {
-> +		mutex_lock(&ams.lock);
-> +
-> +		if (mouse)
-> +			ams_mouse_enable();
-> +		else
-> +			ams_mouse_disable();
-> +
-> +		mutex_unlock(&ams.lock);
-> +	}
-
-No need for oldmouse here. Just call ams_mouse_enable() or disable() in
-every case.
-
-> +
-> +static DEVICE_ATTR(mouse, S_IRUGO | S_IWUSR,
-> +	ams_mouse_show_mouse, ams_mouse_store_mouse);
-
-I would prefer three different files for x, y and z instead of a single
-one... 
-
-> +	result = ams_sensor_attach();
-> +	if (result < 0) {
-> +		goto exit;
-> +	}
-
-No need for braces.
-
-> +config SENSORS_AMS_MOUSE
-> +	bool "Support for mouse mode with motion sensor"
-> +	depends on SENSORS_AMS && INPUT
-> +	help
-> +	  Support for mouse emulation with motion sensor.
-
-Is it really necessary to have a config option here ?
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+Should we be setting TASK_INTERRUPTIBLE before releasing that lock?
 

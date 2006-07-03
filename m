@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWGCVu3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWGCVyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWGCVu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 17:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWGCVu3
+	id S1751105AbWGCVyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 17:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWGCVyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 17:50:29 -0400
-Received: from pool-71-254-76-103.ronkva.east.verizon.net ([71.254.76.103]:59076
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751004AbWGCVu2 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 17:50:28 -0400
-Message-Id: <200607032150.k63LoM4H027543@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-In-Reply-To: Your message of "Mon, 03 Jul 2006 17:34:18 EDT."
-             <44A98D5A.5030508@tmr.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
-            <44A98D5A.5030508@tmr.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1151963422_4949P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 3 Jul 2006 17:54:15 -0400
+Received: from gw.goop.org ([64.81.55.164]:50099 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751094AbWGCVyO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 17:54:14 -0400
+Message-ID: <44A9920F.5030109@goop.org>
+Date: Mon, 03 Jul 2006 14:54:23 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-mm3: swsusp fails when process is debugged by ptrace
+References: <44A2B9AF.50803@goop.org> <20060628212616.GB30373@elf.ucw.cz> <44A2FA20.3020809@goop.org> <20060703213353.GC1674@elf.ucw.cz>
+In-Reply-To: <20060703213353.GC1674@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Jul 2006 17:50:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1151963422_4949P
-Content-Type: text/plain; charset=us-ascii
+Pavel Machek wrote:
+> So... does signal_wake_up(p, 1) fix it?
+>   
 
-On Mon, 03 Jul 2006 17:34:18 EDT, Bill Davidsen said:
-> I think he is talking about another problem. RAID addresses detectable
-> failures at the hardware level. I believe that he wants validation after
-> the data is returned (without error) from the device. While in most
-> cases if what you wrote and what you read don't match it's memory,
-> improving the chances of catching the error is useful, given that
-> non-server often lacks ECC on memory, or people buy cheaper non-parity
-> memory.
+I'll try it out.
 
-There's other issues as well.  Why do people run 'tripwire' on boxes that
-have RAID on them?
+> I'm afraid there may be more problems lurking in the refrigerator.
+>
+> (If this is going to take more than few mail iterations... perhaps you
+> should start bug at bugzilla.kernel.org?)
+>   
+http://bugzilla.kernel.org/show_bug.cgi?id=6787
 
---==_Exmh_1151963422_4949P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEqZEecC3lWbTT17ARAg9WAJ9V8gw6TlmVOPgyT6cTMxxdRMe8ygCggwQb
-xVOAxw2a03p3lCEambW5e5E=
-=uQbH
------END PGP SIGNATURE-----
-
---==_Exmh_1151963422_4949P--
+    J

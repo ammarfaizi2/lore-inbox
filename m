@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWGCHdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWGCHkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbWGCHdO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 03:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWGCHdO
+	id S1750708AbWGCHkA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 03:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWGCHkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 03:33:14 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:44215 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750870AbWGCHdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 03:33:13 -0400
-Date: Mon, 3 Jul 2006 09:32:02 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, Martin Peschke <mpeschke@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm5
-Message-ID: <20060703073202.GA9420@osiris.boeblingen.de.ibm.com>
-References: <20060701033524.3c478698.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060701033524.3c478698.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Mon, 3 Jul 2006 03:40:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21182 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750708AbWGCHj7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 03:39:59 -0400
+Date: Mon, 3 Jul 2006 00:39:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: hpa@zytor.com, ralf@linux-mips.org, erik_frederiksen@pmc-sierra.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] consistently use MAX_ERRNO in __syscall_return
+Message-Id: <20060703003941.2f5fe722.akpm@osdl.org>
+In-Reply-To: <20060702112722.74b5adff.rdunlap@xenotime.net>
+References: <1151528227.3904.1110.camel@girvin.pmc-sierra.bc.ca>
+	<20060628140825.692f31be.rdunlap@xenotime.net>
+	<20060629181013.GA18777@linux-mips.org>
+	<20060701114409.ed320be0.rdunlap@xenotime.net>
+	<44A6F5E3.8000300@zytor.com>
+	<20060702112722.74b5adff.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  LD      .tmp_vmlinux1
-drivers/s390/built-in.o(.text+0x587f2): In function `zfcp_ccw_set_online':
-: undefined reference to `statistic_create'
-drivers/s390/built-in.o(.text+0x58838): In function `zfcp_ccw_set_online':
-: undefined reference to `statistic_remove'
-drivers/s390/built-in.o(.text+0x58954): In function `zfcp_ccw_set_offline':
-: undefined reference to `statistic_remove'
-drivers/s390/built-in.o(.text+0x603e0): In function `zfcp_erp_thread':
-: undefined reference to `statistic_add'
-drivers/s390/built-in.o(.text+0x60676): In function `zfcp_erp_thread':
-: undefined reference to `statistic_add'
-drivers/s390/built-in.o(.text+0x62000): In function `zfcp_qdio_response_handler':
-: undefined reference to `statistic_add'
-drivers/s390/built-in.o(.text+0x622b2): In function `zfcp_qdio_sbals_from_sg':
-: undefined reference to `statistic_add'
-drivers/s390/built-in.o(.text+0x6258a): In function `zfcp_qdio_sbals_from_scsicmnd':
-: undefined reference to `statistic_add'
-drivers/s390/built-in.o(.text+0x6280c): more undefined references to `statistic_add' follow
-make: *** [.tmp_vmlinux1] Error 1
+On Sun, 2 Jul 2006 11:27:22 -0700
+"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
 
-Guess there is a couple of do {} while(0) defines missing in
-include/linux/statistic.h for the !CONFIG_STATISTICS case. Martin?
+> --- linux-2617-g20.orig/include/asm-i386/unistd.h
+> +++ linux-2617-g20/include/asm-i386/unistd.h
+> @@ -327,14 +327,15 @@
+>  #ifdef __KERNEL__
+>  
+>  #define NR_syscalls 318
+> +#include <linux/err.h>
+
+include/linux/err.h: Assembler messages:
+include/linux/err.h:20: Error: no such instruction: `static inline void *ERR_PTR(long error)'
+include/linux/err.h:21: Error: junk at end of line, first unrecognized character is `{'
+include/linux/err.h:22: Error: no such instruction: `return (void *)error'
+include/linux/err.h:23: Error: junk at end of line, first unrecognized character is `}'
+include/linux/err.h:25: Error: no such instruction: `static inline long PTR_ERR(const void *ptr)'
+include/linux/err.h:26: Error: junk at end of line, first unrecognized character is `{'
+include/linux/err.h:27: Error: no such instruction: `return (long)ptr'
+include/linux/err.h:28: Error: junk at end of line, first unrecognized character is `}'
+include/linux/err.h:30: Error: no such instruction: `static inline long IS_ERR(const void *ptr)'
+include/linux/err.h:31: Error: junk at end of line, first unrecognized character is `{'
+include/linux/err.h:32: Error: no such instruction: `return unlikely(((unsigned long)ptr)>=(unsigned long)-4095)'
+include/linux/err.h:33: Error: junk at end of line, first unrecognized character is `}'
+distcc[7619] ERROR: compile (null) on localhost failed
+make[1]: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 1
+make: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 2
+

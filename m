@@ -1,111 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWGEHGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWGEHKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbWGEHGz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 03:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWGEHGz
+	id S932091AbWGEHKk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 03:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWGEHKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 03:06:55 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:24921 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1751053AbWGEHGy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 03:06:54 -0400
-Message-ID: <44AB650A.7070807@tls.msk.ru>
-Date: Wed, 05 Jul 2006 11:06:50 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [RFC] MODALIAS support for SCSI devices (try 1)
-References: <20060704203410.5B70391F1@gandalf.tls.msk.ru> <20060704214427.5CB9248B8F4@tzec.mtu.ru>
-In-Reply-To: <20060704214427.5CB9248B8F4@tzec.mtu.ru>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jul 2006 03:10:40 -0400
+Received: from sullivan.realtime.net ([205.238.132.76]:24593 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id S932091AbWGEHKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 03:10:39 -0400
+Message-Id: <200607050701.k6571l5R018078@sullivan.realtime.net>
+From: Milton Miller <miltonm@bga.com>
+Subject: [PATCH] simplfy bh_lru_install
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Jes Sorensen <jes@sgi.com>
+Date: Mon,  3 Jul 2006 11:37:43 -0400 (EDT)
+References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>,
+	<200607040519.k645JdoW014585@sullivan.realtime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov wrote:
-[]
->> The modalias format is like this:
->>
->>  scsi:type-0x04
+Oops, previous version forgot to do get_bh().  Still not tested.
 
-That's actually scsi:t-0x04 in the patch.  But it makes no real
-difference and is trivial to adjust.
+While looking at Jes' patch "reduce IPI noise due to /dev/cdrom open/close"
+I took a look at what the bh_lru code was doing.
 
->> (for TYPE_WORM, handled by sr.c now).
->>
->> Several comments.
->>
->> o This hexadecimal type value is because all TYPE_XXX constants
->>   in include/scsi/scsi.h are given in hex, but __stringify() will
->>   not convert them to decimal (so it will NOT be scsi:type-4).
->>   Since it does not really matter in which format it is, while
->>   both modalias in module and modalias attribute match each other,
->>   I descided to go for that 0x%02x format (and added a comment in
->>   include/scsi/scsi.h to keep them that way), instead of changing
->>   them all to decimal.
-> 
-> well, I started with the same but then changed my mind.
-> 
-> - is it possible that in future some more information may be added? Like
-> vendor ID, product ID or whatever? At least in one case SCSI type is not
-> enough to distinguish between drivers (st vs. osst Onstream tapes).
+ * The LRU management algorithm is dopey-but-simple.  Sorry.
 
-Yeah, as mentioned in my second comment - it's the same as 8139cp vs
-8139too drivers.
+Umm.. yes.
 
-But sure it's possible to change the things in the future, since it's
-all internal to kernel - the only requirement is that modalias device
-attribute should match module alias attributes.
+That in and out loop caused me to stare a bit.
 
-> - it makes sense to redo bus matching then; which requires some sort of
-> explicit ID table anyway.
+lru_lookup_install, aka adding to lru cache, is building a second
+array on the stack and then calling memcpy at the end to replace
+the data.  Sure its in cache, but we already did all the loads 
+and stores once.
 
-Oh well.  I don't think it's worth the effort really.  Only 4 drivers so
-far (sd, sr, st and osst).  The only reason to try harder is to avoid
-loading of osst for non-osst tapes.  But I don't think it's a big deal
-to load osst module -- it's harmless, and after all, it's always possible
-to "blacklist" it on a particular machine, just like some people do with
-8139cp module.
+The in and out arrays are always the same length, and we only allow
+an entry in once.  So we know that we either push all down, and the
+last one is the evictee, or we find the entry in there previously
+and free that slot, leaving a copyloop.
 
-> Unfortunately I do not have the patch ready as yet; may be end of week.
-> 
->> o There was no .uevent routine for SCSI bus.  It might be a good
->>   idea to add some more ueven environment variables in there.
->>
->> o osst.c driver handles tapes too, like st.c, but only SOME tapes.
->>   With this setup, hotplug scripts (or whatever is used by the
->>   user) will try to load both st and osst modules for all SCSI
->>   tapes found, because both modules have scsi:type-0x01 alias).
->>   It is not harmful, but one extra module is no good either.
->>   It is possible to solve this, by exporting more info in
->>   modalias attribute, including vendor and device identification
->>   strings, so that modalias becomes something like
->>     scsi:type-0x12:vendor-Adaptec LTD:device-OnStream Tape Drive
->>   and having that, match for all 3 attributes, not only device
->>   type.  But oh well, vendor and device strings may be large,
->>   and they do contain spaces and whatnot.
->>   So I left them for now, awaiting for comments first.
-> 
-> We can go the PCMCIA way that stores string hashes; like in
-> 
->         Identification: manf_id: 0x0156 card_id: 0x0002
->                         function: 6 (network)
->                         prod_id(1): "TOSHIBA" (0xb4585a1a)
->                         prod_id(2): "Wireless LAN Card" (0x0b537c13)
->                         prod_id(3): "Version 01.01" (0xd27deb1a)
->                         prod_id(4): --- (---)
+But I'm sure the compiler can't determine that, because it doesn't
+know about the insert-uniquely assertion.
 
-BTW, a question for osst folks (Willem Riede?) -- why osst checks for
-both vendor and device strings, isn't it sufficient to just check vendor
-for "OnStream" ?  Just curious maybe...
+It also has a special case for its already at the top.  But since
+we did a lookup before __find_get_block_slow, that is surely a rare
+special case.
 
-> strictly speaking, modalias real value is not relevant, we are going to
-> do "modprobe $modalias" anyway without even looking at it.
+Maybe it was designed to be called it on every lookup.
 
-Sure thing - that's why I said it makes no difference whenever to use
-hex or dec values.
+The lookup case does a move to top pulling the previous entrys down
+one by one to the former spot, and inserting at the top, which is
+sane.  Why not do a push down here here?
 
-/mjt
+And while here, we can stop if we hit a NULL entry too, we will not
+have any stragglers underneath.
+
+Here is a totally untested patch.  Well, it compiles.  In the for
+loop next is also assigned to bh for the bh = NULL case the compiler
+pointed out.
+
+Signed-off-by: Milton Miller <miltonm@bga.com>
+
+--- linux-2.6.17/fs/buffer.c.orig	2006-07-04 00:04:16.000000000 -0400
++++ linux-2.6.17/fs/buffer.c	2006-07-05 01:50:27.000000000 -0400
+@@ -1347,41 +1347,36 @@ static inline void check_irqs_on(void)
+  */
+ static void bh_lru_install(struct buffer_head *bh)
+ {
+-	struct buffer_head *evictee = NULL;
++	struct buffer_head *next, *prev;
+ 	struct bh_lru *lru;
++	int i;
+ 
+ 	check_irqs_on();
+ 	bh_lru_lock();
+ 	lru = &__get_cpu_var(bh_lrus);
+-	if (lru->bhs[0] != bh) {
+-		struct buffer_head *bhs[BH_LRU_SIZE];
+-		int in;
+-		int out = 0;
+ 
+-		get_bh(bh);
+-		bhs[out++] = bh;
+-		for (in = 0; in < BH_LRU_SIZE; in++) {
+-			struct buffer_head *bh2 = lru->bhs[in];
+-
+-			if (bh2 == bh) {
+-				__brelse(bh2);
+-			} else {
+-				if (out >= BH_LRU_SIZE) {
+-					BUG_ON(evictee != NULL);
+-					evictee = bh2;
+-				} else {
+-					bhs[out++] = bh2;
+-				}
+-			}
+-		}
+-		while (out < BH_LRU_SIZE)
+-			bhs[out++] = NULL;
+-		memcpy(lru->bhs, bhs, sizeof(bhs));
++	get_bh(bh);
++	/* Push down, looking for duplicate as we go. last is freed */
++	for (i = 0, next = prev = bh; i < BH_LRU_SIZE && prev;
++			i++, prev = next) {
++		next = lru->bhs[i];
++		if (unlikely(next == bh))
++			break;
++		lru->bhs[i] = prev;
++	}
++
++#ifdef DEBUG
++	/* ++i to avoid finding the entry we know */
++	for (++i; i < BH_LRU_SIZE; i++) {
++		BUG_ON(lru->bhs[i] == bh);
++		if (!next)
++			BUG_ON(lru->bhs[i]);
+ 	}
++#endif
++
+ 	bh_lru_unlock();
+ 
+-	if (evictee)
+-		__brelse(evictee);
++	brelse(next);
+ }
+ 
+ /*

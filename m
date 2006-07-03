@@ -1,93 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWGCN2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWGCN2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWGCN2V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 09:28:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWGCN2V
+	id S1751143AbWGCN2G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 09:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWGCN2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 09:28:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47592 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751153AbWGCN2U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 09:28:20 -0400
-Subject: Re: GFS2 and DLM
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org, torvalds@osdl.org,
-       teigland@redhat.com, pcaulfie@redhat.com, kanderso@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060627083544.GA32761@elte.hu>
-References: <1150805833.3856.1356.camel@quoit.chygwyn.com>
-	 <20060623144928.GA32694@infradead.org> <20060626200300.GA15424@elte.hu>
-	 <20060627063339.GA27938@elte.hu> <20060627000633.91e06155.akpm@osdl.org>
-	 <20060627083544.GA32761@elte.hu>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Mon, 03 Jul 2006 14:40:17 +0100
-Message-Id: <1151934017.3856.1687.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Mon, 3 Jul 2006 09:28:06 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:42644 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S1751143AbWGCN2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 09:28:05 -0400
+Message-ID: <44A91ABA.8060304@s5r6.in-berlin.de>
+Date: Mon, 03 Jul 2006 15:25:14 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+CC: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org,
+       lm-sensors@lm-sensors.org, khali@linux-fr.org,
+       linux-kernel@killerfox.forkbomb.ch, benh@kernel.crashing.org,
+       johannes@sipsolutions.net, chainsaw@gentoo.org
+Subject: Re: [RFC] Apple Motion Sensor driver
+References: <20060702222649.GA13411@hansmi.ch> <1151921567.10711.22.camel@localhost.localdomain> <20060703104547.GA25342@hansmi.ch>
+In-Reply-To: <20060703104547.GA25342@hansmi.ch>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Michael Hanselmann wrote:
+> On Mon, Jul 03, 2006 at 12:12:47PM +0200, Stelian Pop wrote:
+>> > +
+>> > +static DEVICE_ATTR(mouse, S_IRUGO | S_IWUSR,
+>> > +	ams_mouse_show_mouse, ams_mouse_store_mouse);
 
-On Tue, 2006-06-27 at 10:35 +0200, Ingo Molnar wrote:
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > On Tue, 27 Jun 2006 08:33:39 +0200
-> > Ingo Molnar <mingo@elte.hu> wrote:
-> > 
-> > > Isnt this whole episode highly hypocritic to begin with?
-> > 
-> > Might be, but that's not relevant to GFS2's suitability.
-> 
-> it is relevant to a certain degree, because it creates a (IMO) false 
-> impression of merging showstoppers. After months of being in -mm, and 
-> after addressing all issues that were raised (and there was a fair 
-> amount of review activity December last year iirc), one week prior the 
-> close of the merge window a 'huge' list of issues are raised. (after 
-> belovingly calling the GFS2 code a "huge mess", to create a positive and 
-> productive tone for the review discussion i guess.)
-> 
-> So far in my reading there are only 2 serious ones in that list:
-> 
->  - tty_* use in cluster-aware quota.c. Firstly, ocfs2 doesnt do quota -
->    which is fair enough, but this also means that there was no in-tree 
->    filesystem to base stuff off. Secondly, the tty_* use was inherited 
->    from fs/quota.c - hardly something i'd consider a fatal sin. Anyway, 
->    despite the mitigating factors it is an arguably lame thing and 
->    it should be (and will be) fixed.
-> 
-This one is now fixed in the git tree:
-    git://git.kernel.org/pub/scm/linux/kernel/git/steve/gfs2-2.6.git
-Also fixed/changed in this tree is:
+[I think the following discussion is about ams_show_xyz, not
+ams_mouse_show_mouse.]
 
- o Mark GFS2 file_operations const
- o Mark GFS2 address_space_operations const
- o Update gfs2_statfs() API in line with change in Linus' tree
- o Update gfs2_get_sb() API in line with change in Linus' tree (thanks
-to Andrew Morton for this one)
- o Updated to latest Linus tree
-
-So I think that brings the code back uptodate after my holiday last
-week.
-
->  - GFP_NOFAIL: most other journalling filesystems seem to be doing this
->    or worse. Fixing it is _hard_. Suddenly this becomes a showstopper? 
->    Huh?
+>> I would prefer three different files for x, y and z instead of a single
+>> one... 
 > 
-> (the "use the generic facilities" arguments are only valid if the 
-> generic facilities can be used as-is, and if they are just optimal as 
-> the one implemented by the filesystem.)
+> Because of the way the values are calculated with orientation, that
+> would mean that if a program needs all three, either all values are read
+> three times or the ams_sensors function gets much more complicated.
 > 
-> 	Ingo
-I believe that this point is now resolved (so far as GFS2 going upstream
-is concerned) from the discussions that have gone on in my absence. Its
-obviously still an ongoing concern for a number of filesystems, not just
-GFS2 and I'll be working on ways to reduce the current "nofail"
-allocation calls in the future,
+> To prevent it from having to read them three times in a row, I joined
+> all three values.
 
-Steve.
-
-
+I don't know what a software will be doing with it, but "displacement"
+(and its time derivatives "velocity", "acceleration", "jerk") is a
+vector. Why not write the component-wise representation of the vector
+into a single sysfs attribute? Especially if this keeps the kernel code
+simple and small. I suppose even userspace code which evaluates the
+attribute is in many cases simpler (and more precise anyway) if only a
+single attribute is used.
+-- 
+Stefan Richter
+-=====-=-==- -==- ===--
+http://arcgraph.de/sr/

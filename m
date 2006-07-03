@@ -1,94 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWGCMfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWGCMsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWGCMfV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 08:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWGCMfV
+	id S1750938AbWGCMsc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 08:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWGCMsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 08:35:21 -0400
-Received: from tornado.reub.net ([202.89.145.182]:64452 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1750841AbWGCMfU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 08:35:20 -0400
-Message-ID: <44A90EE7.2010806@reub.net>
-Date: Tue, 04 Jul 2006 00:34:47 +1200
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 3.0a1 (Windows/20060702)
+	Mon, 3 Jul 2006 08:48:31 -0400
+Received: from out3.smtp.messagingengine.com ([66.111.4.27]:1505 "EHLO
+	out3.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1750938AbWGCMsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 08:48:31 -0400
+X-Sasl-enc: qGqXu2rGmSQ66YFGMv7bQHOFk8Y103IMp9RJrgrXJb2Z 1151930908
+Date: Mon, 3 Jul 2006 09:48:23 -0300
+From: Henrique de Moraes Holschuh <hmh@debian.org>
+To: lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net, Stelian Pop <stelian@popies.net>,
+       Michael Hanselmann <linux-kernel@hansmi.ch>
+Subject: Generic interface for accelerometers (AMS, HDAPS, ...)
+Message-ID: <20060703124823.GA18821@khazad-dum.debian.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, greg@kroah.com, brice@myri.com
-Subject: Re: 2.6.17-mm6
-References: <20060703030355.420c7155.akpm@osdl.org>	<44A8F8D2.1030101@reub.net> <20060703042525.ab17f936.akpm@osdl.org>
-In-Reply-To: <20060703042525.ab17f936.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We have now (or we are about to have, anyway) two drivers that export
+accelerometer data: IBM's HDAPS, and Apple's AMS.  More accelerometer
+drivers could be coming in the future.
 
+Both drivers export one common set of data (accelerometer output), and some
+extra information that is not related to acellerometers.  Both have at least
+two functionality goals in common: to export accelerometer data to
+userspace, and also to allow somehow for HD head parking when the
+accelerometer detects a potentially incoming impact.
 
-On 3/07/2006 11:25 p.m., Andrew Morton wrote:
-> On Mon, 03 Jul 2006 23:00:34 +1200
-> Reuben Farrelly <reuben-lkml@reub.net> wrote:
-> 
->>
->> On 3/07/2006 10:03 p.m., Andrew Morton wrote:
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
->>>
->>>
->>> - A major update to the e1000 driver.
->>>
->>> - 1394 updates
->>
->> audit: initializing netlink socket (disabled)
->> audit(1151924044.008:1): initialized
->> SELinux:  Registering netfilter hooks
->> Initializing Cryptographic API
->> io scheduler noop registered
->> io scheduler anticipatory registered
->> io scheduler deadline registered (default)
->> PCI: Setting latency timer of device 0000:00:1c.0 to 64
->> assign_interrupt_mode Found MSI capability
->> Allocate Port Service[0000:00:1c.0:pcie0]
->> Allocate Port Service[0000:00:1c.0:pcie0]
-> 
-> Looks like the enumeration of the PCIE devices failed to increment something.
-> 
->> kobject_add failed for 0000:00:1c.0:pcie0 with -EEXIST, don't try to register 
->> things with the same name in the same directory.
->>
->> Call Trace:
->>   [<ffffffff80358298>] kobject_put+0x19/0x21
->>   [<ffffffff80358741>] kobject_add+0x181/0x1ac
->>   [<ffffffff803aa378>] device_add+0x88/0x4b9
->>   [<ffffffff803aa7c2>] device_register+0x19/0x27
->>   [<ffffffff80363e90>] pcie_port_device_register+0x3a0/0x3de
->>   [<ffffffff8042fa10>] pcibios_set_master+0x7f/0x86
->>   [<ffffffff80364004>] pcie_portdrv_probe+0x64/0x80
->>   [<ffffffff803612ac>] pci_device_probe+0x4d/0x78
->>   [<ffffffff803ac08f>] driver_probe_device+0x5c/0xb4
->>   [<ffffffff803ac1c9>] __driver_attach+0x67/0xb9
->>   [<ffffffff803ac162>] __driver_attach+0x0/0xb9
->>   [<ffffffff803aba4f>] bus_for_each_dev+0x4f/0x79
->>   [<ffffffff803abfbc>] driver_attach+0x1c/0x1e
->>   [<ffffffff803ab61a>] bus_add_driver+0x7a/0x143
->>   [<ffffffff803ac463>] driver_register+0x9f/0xa6
->>   [<ffffffff80361497>] __pci_register_driver+0x59/0x7e
->>   [<ffffffff806b7a57>] pcie_portdrv_init+0x1c/0x30
->>   [<ffffffff80267f3e>] init+0x14e/0x2d0
->>   [<ffffffff80260a12>] child_rip+0x8/0x12
->>   [<ffffffff80267df0>] init+0x0/0x2d0
->>   [<ffffffff80260a0a>] child_rip+0x0/0x12
->>
->> The trace shows up 5 times in quick succession, all traces looking the same.......
->>
->> Box otherwise boots up OK.
-> 
-> I'd be supecting the changes in drivers/base/core.c.  Does 2.6.17-git19 do
-> the same thing?
+User­space utilities that interface to accelerometers like hdapsd and
+smackpad could benefit from a common interface, so that they work with
+HDAPS, AMS, and any other future accelerometer drivers.
 
-No. It seems to be fine.
+If any kernel-space functionality needed by HDAPS and AMS is also shared, we
+would have benefits there too.  Some examples I can think of are: generic HD
+queue-freeze and HD head parking, and a generic acellerometer-driven
+joystick event interface.  This would also enable generic userspace
+notifiers that the HD heads have been parked, etc.
 
-I'll post a dmesg from that too if you like.
+I am posting this message as a head's up for the two projects (HDAPS, AMS)
+to make sure that they are actively aware of each other.  I do so in hope
+that we can work in a joint, generic interface and port both drivers to this
+new interface in the near future, and also that we can make as much
+functionality shared between the two drivers as possible.
 
-Reuben
-
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

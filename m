@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWGCMHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWGCMOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWGCMHv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 08:07:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWGCMHv
+	id S1751140AbWGCMOA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 08:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWGCMOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 08:07:51 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:55739 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751131AbWGCMHv (ORCPT
+	Mon, 3 Jul 2006 08:14:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23697 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751140AbWGCMOA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 08:07:51 -0400
-Date: Mon, 3 Jul 2006 14:07:40 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: ltuikov@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sched.h: increment TASK_COMM_LEN to 20 bytes
-In-Reply-To: <20060630181915.638166c2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0607011102030.25773@yvahk01.tjqt.qr>
-References: <20060701010606.4694.qmail@web31809.mail.mud.yahoo.com>
- <20060630181915.638166c2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 3 Jul 2006 08:14:00 -0400
+Date: Mon, 3 Jul 2006 05:10:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, brice@myri.com
+Subject: Re: 2.6.17-mm6
+Message-Id: <20060703051041.3ddf3cf1.akpm@osdl.org>
+In-Reply-To: <44A90276.4050108@reub.net>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<44A8F8D2.1030101@reub.net>
+	<20060703043954.0807c3f2.akpm@osdl.org>
+	<44A90276.4050108@reub.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->We do occasionally hit task_struct.comm[] truncation, when people use
->"too-long-a-name%d" for their kernel thread names.  But we seem to manage.
->
+On Mon, 03 Jul 2006 23:41:42 +1200
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
 
-Maybe this one can help?
+> On 3/07/2006 11:39 p.m., Andrew Morton wrote:
+> > On Mon, 03 Jul 2006 23:00:34 +1200
+> > Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> > 
+> >> Allocate Port Service[0000:00:1c.0:pcie0]
+> >> Allocate Port Service[0000:00:1c.0:pcie0]
+> > 
+> > Could we have the full dmesg please?
+> 
+> Sure:
 
-Have kthread_create() print a warning message if the command name is 
-going to be truncated, for ease of development.
-
-diff --fast -dpru linux-2.6.17~/kernel/kthread.c linux-2.6.17+/kernel/kthread.c
---- linux-2.6.17~/kernel/kthread.c	2006-06-06 02:57:02.000000000 +0200
-+++ linux-2.6.17+/kernel/kthread.c	2006-07-01 11:08:57.687698000 +0200
-@@ -147,8 +147,11 @@ struct task_struct *kthread_create(int (
- 	if (!IS_ERR(create.result)) {
- 		va_list args;
- 		va_start(args, namefmt);
--		vsnprintf(create.result->comm, sizeof(create.result->comm),
--			  namefmt, args);
-+		if(vsnprintf(create.result->comm, sizeof(create.result->comm),
-+		  namefmt, args) != strlen(create.result->comm))
-+			printk(KERN_WARNING "kthread_create: command name of "
-+			  "pid %d truncated to \"%s\"\n", create.result->pid,
-+			  create.result->comm);
- 		va_end(args);
- 	}
- 
-#<<eof>>
-
-
-Jan Engelhardt
--- 
+Still stumped.  Could we have the dmesg for 2.6.17?

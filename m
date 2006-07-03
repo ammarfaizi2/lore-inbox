@@ -1,128 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbWGDFTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWGDFV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750895AbWGDFTx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 01:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWGDFTx
+	id S1750991AbWGDFV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 01:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWGDFV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 01:19:53 -0400
-Received: from sullivan.realtime.net ([205.238.132.76]:17164 "EHLO
+	Tue, 4 Jul 2006 01:21:26 -0400
+Received: from sullivan.realtime.net ([205.238.132.76]:59911 "EHLO
 	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id S1750895AbWGDFTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 01:19:53 -0400
-Message-Id: <200607040519.k645JdoW014585@sullivan.realtime.net>
+	id S1750838AbWGDFV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 01:21:26 -0400
+Message-Id: <200607040516.k645GFTj014564@sullivan.realtime.net>
 From: Milton Miller <miltonm@bga.com>
-Subject: [PATCH] simplfy bh_lru_install
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jes Sorensen <jes@sgi.com>
+Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
+To: Jes Sorensen <jes@sgi.com>, Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 Date: Mon,  3 Jul 2006 11:37:43 -0400 (EDT)
 In-Reply-To: <yq0mzbqhfdp.fsf@jaguar.mkp.net>
 References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While looking at Jes' patch "reduce IPI noise due to /dev/cdrom open/close"
-I took a look at what the bh_lru code was doing.
+On Mon Jul 03 2006 - 11:37:43 EST,  Jes Sorensen wrote:
+> Certain applications cause a lot of IPI noise due to them constantly
+> doing open/close on /dev/cdrom. hald is a particularly annoying case
+> of this. However since every distribution insists on shipping it, it's
+> one of those that are hard to get rid of :(
+> 
+> Anyway, this patch reduces the IPI noise by keeping a cpumask of CPUs
+> which have items in the bh lru and only flushing on the relevant
+> CPUs. On systems with larger CPU counts it's quite normal that only a
+> few CPUs are actively doing block IO, so spewing IPIs everywhere to
+> flush this is unnecessary.
+> 
+
+Ok we are optimizing for the low but not zero traffic case ... 
+
+
+> + cpu = raw_smp_processor_id();
+> + /* Test first to avoid cache lines bouncing around */
+> + if (!cpu_isset(cpu, lru_in_use))
+> + cpu_set(cpu, lru_in_use);
+
+Being set when local array is filled, under local locking only, but its
+a set_bit and ok.
+
+
+> static void invalidate_bh_lrus(void)
+> {
+> - on_each_cpu(invalidate_bh_lru, NULL, 1, 1);
+> + /*
+> + * Need to hand down a copy of the mask or we wouldn't be run
+> + * anywhere due to the original mask being cleared
+> + */
+> + cpumask_t mask = lru_in_use;
+> + cpus_clear(lru_in_use);
+> + schedule_on_each_cpu_mask(invalidate_bh_lru, NULL, mask);
+> }
+
+
+But that is totally racy!
+
+Another cpu could set its bit between the assignment to mask and
+the call to cpus_clear.
+
+Which means we end up with cpus holding a bh in their lru but no
+idea which ones.
+
+Unfornately clearing the bit in the callback means we pass the cpu
+mask around twice (once to clear, and later to set as we start
+freeing bhs again).
+
+Although that is probably not much worse than scanning other cpus'
+per-cpu data for NULL (and I would probably just scan 8 pointers
+rather than add another per-cpu something is cached flag).
+
+
+I don't like the idea of invalidate_bdev (say due to openers going
+to zero) running against one device causing a buffer to be left
+artificially busy on another device, causing a page to be left
+around.
+
+If you want to cut down on the cache line passing, then putting
+the cpu mask in the bdev (for "I have cached a bh on this bdev
+sometime") might be useful.  You could even do a bdev specific
+lru kill, but then we get into the next topic.
+
+
+And now for the "what is that code doing?" part of this review:
 
  * The LRU management algorithm is dopey-but-simple.  Sorry.
 
 Umm.. yes.
 
-That in and out loop caused me to stare a bit.
+(but time for a new subject).
 
-lru_lookup_install, aka adding to lru cache, is building a second
-array on the stack and then calling memcpy at the end to replace
-the data.  Sure its in cache, but we already did all the loads 
-and stores once.
-
-The in and out arrays are always the same length, and we only allow
-an entry in once.  So we know that we either push all down, and the
-last one is the evictee, or we find the entry in there previously
-and free that slot, leaving a copyloop.
-
-But I'm sure the compiler can't determine that, because it doesn't
-know about the insert-uniquely assertion.
-
-It also has a special case for its already at the top.  But since
-we did a lookup before __find_get_block_slow, that is surely a rare
-special case.
-
-Maybe it was designed to be called it on every lookup.
-
-The lookup case does a move to top pulling the previous entrys down
-one by one to the former spot, and inserting at the top, which is
-sane.  Why not do a push down here here?
-
-And while here, we can stop if we hit a NULL entry too, we will not
-have any stragglers underneath.
-
-Here is a totally untested patch.  Well, it compiles.  In the for
-loop next is also assigned to bh for the bh = NULL case the compiler
-pointed out.
-
-Signed-off-by: Milton Miller <miltonm@bga.com>
-
---- linux-2.6.17/fs/buffer.c.orig	2006-07-04 00:04:16.000000000 -0400
-+++ linux-2.6.17/fs/buffer.c	2006-07-04 00:52:01.000000000 -0400
-@@ -1347,41 +1347,35 @@ static inline void check_irqs_on(void)
-  */
- static void bh_lru_install(struct buffer_head *bh)
- {
--	struct buffer_head *evictee = NULL;
-+	struct buffer_head *next, *prev;
- 	struct bh_lru *lru;
-+	int i;
- 
- 	check_irqs_on();
- 	bh_lru_lock();
- 	lru = &__get_cpu_var(bh_lrus);
--	if (lru->bhs[0] != bh) {
--		struct buffer_head *bhs[BH_LRU_SIZE];
--		int in;
--		int out = 0;
- 
--		get_bh(bh);
--		bhs[out++] = bh;
--		for (in = 0; in < BH_LRU_SIZE; in++) {
--			struct buffer_head *bh2 = lru->bhs[in];
--
--			if (bh2 == bh) {
--				__brelse(bh2);
--			} else {
--				if (out >= BH_LRU_SIZE) {
--					BUG_ON(evictee != NULL);
--					evictee = bh2;
--				} else {
--					bhs[out++] = bh2;
--				}
--			}
--		}
--		while (out < BH_LRU_SIZE)
--			bhs[out++] = NULL;
--		memcpy(lru->bhs, bhs, sizeof(bhs));
-+	/* Push down, looking for duplicate as we go. last is freed */
-+	for (i = 0, next = prev = bh; i < BH_LRU_SIZE && prev;
-+			i++, prev = next) {
-+		next = lru->bhs[i];
-+		if (unlikely(next == bh))
-+			break;
-+		lru->bhs[i] = prev;
-+	}
-+
-+#ifdef DEBUG
-+	/* ++i to avoid finding the entry we know */
-+	for (++i; i < BH_LRU_SIZE; i++) {
-+		BUG_ON(lru->bhs[i] == bh);
-+		if (!next)
-+			BUG_ON(lru->bhs[i]);
- 	}
-+#endif
-+
- 	bh_lru_unlock();
- 
--	if (evictee)
--		__brelse(evictee);
-+	brelse(next);
- }
- 
- /*
+milton
+[sorry for the whitespace munging]

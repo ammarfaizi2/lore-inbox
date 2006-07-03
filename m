@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWGCKjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWGCKpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbWGCKjk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 06:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWGCKjk
+	id S1750719AbWGCKpu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 06:45:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWGCKpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 06:39:40 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:16005 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751086AbWGCKjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 06:39:40 -0400
-Subject: Re: [PATCH 1/2] Support TIF_RESTORE_SIGMASK on x86_64
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@muc.de, drepper@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20060703031937.274aa506.akpm@osdl.org>
-References: <1151919711.3000.82.camel@pmac.infradead.org>
-	 <20060703031937.274aa506.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 03 Jul 2006 11:39:31 +0100
-Message-Id: <1151923171.12290.6.camel@pmac.infradead.org>
+	Mon, 3 Jul 2006 06:45:50 -0400
+Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:38685 "EHLO
+	hansmi.home.forkbomb.ch") by vger.kernel.org with ESMTP
+	id S1750719AbWGCKpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 06:45:49 -0400
+Date: Mon, 3 Jul 2006 12:45:47 +0200
+From: Michael Hanselmann <linux-kernel@hansmi.ch>
+To: Stelian Pop <stelian@popies.net>
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
+       khali@linux-fr.org, linux-kernel@killerfox.forkbomb.ch,
+       benh@kernel.crashing.org, johannes@sipsolutions.net,
+       chainsaw@gentoo.org
+Subject: Re: [RFC] Apple Motion Sensor driver
+Message-ID: <20060703104547.GA25342@hansmi.ch>
+References: <20060702222649.GA13411@hansmi.ch> <1151921567.10711.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1151921567.10711.22.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-03 at 03:19 -0700, Andrew Morton wrote:
-> Could you please describe the signal mask fix? 
+On Mon, Jul 03, 2006 at 12:12:47PM +0200, Stelian Pop wrote:
+> > +
+> > +static DEVICE_ATTR(mouse, S_IRUGO | S_IWUSR,
+> > +	ams_mouse_show_mouse, ams_mouse_store_mouse);
 
-@@ -583,7 +583,7 @@
-        if (!user_mode(regs))
-                return;
+> I would prefer three different files for x, y and z instead of a single
+> one... 
 
--       if (!test_thread_flag(TIF_RESTORE_SIGMASK))
-+       if (test_thread_flag(TIF_RESTORE_SIGMASK))
-                oldset = &current->saved_sigmask;
-        else
-                oldset = &current->blocked;
+Because of the way the values are calculated with orientation, that
+would mean that if a program needs all three, either all values are read
+three times or the ams_sensors function gets much more complicated.
 
+To prevent it from having to read them three times in a row, I joined
+all three values.
 
->  Is that likely to have caused the above symptoms?
+Do you think I should rewrite the ams_sensors function to only get the
+correct value?
 
-Yeah, it'll screw up the signal mask all over the place. 
-cf. https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=180567
-also https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=179228
+Thanks,
+Michael
 
-> Should we be setting TASK_INTERRUPTIBLE before releasing that lock?
-
-Before releasing current->sighand->siglock? Nah, schedule() will check
-for pending signals -- it's not like racing with a wake_up() 
-
--- 
-dwmw2
-
+(All other issues, including those in the other mails, are clear and
+will be addressed by a new patch)

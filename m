@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWGCVbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWGCVbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWGCVbN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 17:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWGCVbN
+	id S1750886AbWGCVbs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 17:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWGCVbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 17:31:13 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:54858 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750747AbWGCVbN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 17:31:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=nGB5rgebbk0PRo7pvX+IbJC/4cgdAW0XMNnmK2+C+w/QyJtj6HcSQ94MlTVTIXsJYS8JSynLadyJXtJ7u2lElVSyrqS2dy7KeD3MwjzlFpKUWHTAakQTrz/gViuAUYmsZ5OFCFcUjR8bAVYKiKi6PYQ/LClX8FeFPYWcaKAaQEg=
-Message-ID: <a44ae5cd0607031431q8dcc698j1c447b1d51c7cc75@mail.gmail.com>
-Date: Mon, 3 Jul 2006 14:31:12 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       "Arjan van de Ven" <arjan@infradead.org>
-Subject: 2.6.17-mm5 + pcmcia/hostap/8139too patches -- inconsistent {hardirq-on-W} -> {in-hardirq-W} usage
-MIME-Version: 1.0
+	Mon, 3 Jul 2006 17:31:47 -0400
+Received: from main.gmane.org ([80.91.229.2]:33959 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750857AbWGCVbq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 17:31:46 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: ext4 features
+Date: Mon, 03 Jul 2006 17:34:18 -0400
+Message-ID: <44A98D5A.5030508@tmr.com>
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: mail.tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
+In-Reply-To: <20060703202219.GA9707@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-inconsistent {hardirq-on-W} -> {in-hardirq-W} usage.
-swapper/0 [HC1[1]:SC1[2]:HE0:SE0] takes:
- (&ei_local->page_lock){++..}, at: [<f935079f>] ei_interrupt+0x49/0x294 [8390]
-{hardirq-on-W} state was registered at:
-  [<c102d152>] lock_acquire+0x60/0x80
-  [<c1200376>] _spin_lock+0x23/0x32
-  [<f9350d30>] ei_start_xmit+0xa6/0x236 [8390]
-  [<c11a2715>] dev_hard_start_xmit+0x1c4/0x221
-  [<c11af1b5>] __qdisc_run+0xcc/0x185
-  [<c11a411e>] dev_queue_xmit+0x140/0x22e
-  [<f93a89f1>] mld_sendpack+0x1a0/0x26a [ipv6]
-  [<f93a95cb>] mld_ifc_timer_expire+0x1d6/0x1fd [ipv6]
-  [<c101dab2>] run_timer_softirq+0xf2/0x14a
-  [<c101a691>] __do_softirq+0x55/0xb0
-  [<c1004a8d>] do_softirq+0x58/0xbd
-irq event stamp: 952615
-hardirqs last  enabled at (952614): [<c1200800>]
-_spin_unlock_irqrestore+0x36/0x59
-hardirqs last disabled at (952615): [<c1002fcf>] common_interrupt+0x1b/0x2c
-softirqs last  enabled at (952574): [<c101a6e7>] __do_softirq+0xab/0xb0
-softirqs last disabled at (952579): [<c1004a8d>] do_softirq+0x58/0xbd
+Helge Hafting wrote:
+> On Sat, Jul 01, 2006 at 08:17:02PM +0200, Tomasz Torcz wrote:
+>> On Sat, Jul 01, 2006 at 07:47:16PM +0200, Thomas Glanzmann wrote:
+>>> Hello,
+>>>
+>>>> Checksums are not very useful for themselves. They are useful when we
+>>>> have other copy of data (think raid mirroring) so data can be
+>>>> reconstructed from working copy.
+>>> it would be possible to identify data corruption.
+>>>
+>>   Yes, but what good is identification? We could only return I/O error.
+>> Ability to fix corruption (like ZFS) is the real killer.
+> 
+> Isn't that what we have RAID-1/5/6 for?  
 
-other info that might help us debug this:
-1 lock held by swapper/0:
- #0:  (&dev->_xmit_lock){-...}, at: [<c11af146>] __qdisc_run+0x5d/0x185
+I think he is talking about another problem. RAID addresses detectable 
+failures at the hardware level. I believe that he wants validation after 
+the data is returned (without error) from the device. While in most 
+cases if what you wrote and what you read don't match it's memory, 
+improving the chances of catching the error is useful, given that 
+non-server often lacks ECC on memory, or people buy cheaper non-parity 
+memory.
 
-stack backtrace:
- [<c1003502>] show_trace_log_lvl+0x54/0xfd
- [<c1003b6a>] show_trace+0xd/0x10
- [<c1003c0e>] dump_stack+0x19/0x1b
- [<c102b7c7>] print_usage_bug+0x1cc/0x1d9
- [<c102bbbf>] mark_lock+0x8a/0x360
- [<c102c8ac>] __lock_acquire+0x38f/0x970
- [<c102d152>] lock_acquire+0x60/0x80
- [<c1200376>] _spin_lock+0x23/0x32
- [<f935079f>] ei_interrupt+0x49/0x294 [8390]
- [<f94983fa>] ei_irq_wrapper+0xb/0x1d [pcnet_cs]
- [<c103f133>] handle_IRQ_event+0x20/0x50
- [<c104026d>] handle_level_irq+0x76/0xc1
- [<c1004bc2>] do_IRQ+0xd0/0xf6
- [<c1002fd9>] common_interrupt+0x25/0x2c
+-- 
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.
+

@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWGCVss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWGCVtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750944AbWGCVss (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 17:48:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWGCVss
+	id S1750996AbWGCVtj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 17:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWGCVtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 17:48:48 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:65466 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750944AbWGCVsr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 17:48:47 -0400
-Date: Mon, 3 Jul 2006 14:45:09 -0700
-From: Greg KH <greg@kroah.com>
-To: Daniel Bonekeeper <thehazard@gmail.com>
-Cc: Alon Bar-Lev <alon.barlev@gmail.com>, kernelnewbies@nl.linux.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Driver for Microsoft USB Fingerprint Reader
-Message-ID: <20060703214509.GA5629@kroah.com>
-References: <e1e1d5f40607022351y4af6e709n1ba886604a13656b@mail.gmail.com> <9e0cf0bf0607030304n62991dafk19f09e41d69e9ab0@mail.gmail.com> <e1e1d5f40607031104o2b8003c8qfa725ae1d276b27f@mail.gmail.com> <44A95F12.8080208@gmail.com> <e1e1d5f40607031353l48826d5bi51558d9f8e12ba3@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 Jul 2006 17:49:39 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:26640 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1750996AbWGCVti
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 17:49:38 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-mm6
+Date: Mon, 3 Jul 2006 22:50:02 +0100
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <20060703030355.420c7155.akpm@osdl.org> <200607032136.55259.s0348365@sms.ed.ac.uk> <20060703135419.7c58f318.akpm@osdl.org>
+In-Reply-To: <20060703135419.7c58f318.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <e1e1d5f40607031353l48826d5bi51558d9f8e12ba3@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200607032250.02054.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A: No.
-Q: Should I include quotations after my reply?
+On Monday 03 July 2006 21:54, Andrew Morton wrote:
+> On Mon, 3 Jul 2006 21:36:55 +0100
+> Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > On Monday 03 July 2006 21:17, Andrew Morton wrote:
+> > > On Mon, 3 Jul 2006 20:56:28 +0100
+> > > Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > > > On Monday 03 July 2006 20:39, Andrew Morton wrote:
+[snip]
+> > > > > Try adding `pause_on_oops=100000' to the kernel boot command line.
+> > > >
+> > > > (Trimmed Nathan)
+> > > >
+> > > > Helped somewhat, but I'm still missing a bit at the top.
+> > > >
+> > > > http://devzero.co.uk/~alistair/oops-20060703/
+> > >
+> > > That is irritating.  This should get us more info:
+> >
+> > Indeed, thanks.
+> >
+> > Try the same URL again, I've uploaded 3,4,5 from a couple of reboots. I
+> > still think I'm missing something at the top, but 3 is the earliest I
+> > could snap.
+>
+> Getting better.
+>
+> It would kinda help if pause_on_oops() was actually implemented on x86_64..
 
-On Mon, Jul 03, 2006 at 04:53:43PM -0400, Daniel Bonekeeper wrote:
-> hahahaha I wish I could... well, you are _always_ welcome to donate me
-> yours ! =P
-> I'll try more later to get one of those readers...
-> 
-> Reading Greg's comment, now I'm in doubt if this should really be in
-> kernel mode or at userspace. Since there is no standard (AFAIK) for
-> those readers, how should it be done ?
+Doesn't help (work?).
 
-It all depends on what you want the userspace interface to be.
+[alistair] 22:47 [~] strings /boot/vmlinuz-2.6.17-mm6 | grep 2.6.17-mm6
+2.6.17-mm6 (alistair@damocles) #3 SMP PREEMPT Mon Jul 3 22:39:54 BST 2006
 
-> Another thing: where can I find documentation about the USB
-> architecture ?
+[alistair] 22:48 [~] cat /boot/grub/menu.lst | grep -C1 mm6
+# testing
+title Linux 2.6.17-mm6
+root (hd0,0)
+kernel /boot/vmlinuz-2.6.17-mm6 vga=extended root=/dev/sda1 
+pause_on_oops=100000
 
-www.usb.org for the USB specs.  See the kernel built-in documentation
-for a full document on how the Linux USB layer works.
+I'm fairly sure I booted a kernel with your patch and that should be the right 
+cmdline flag.
 
-> For example, I suppose that some (or all) USB devices may have DMA
-> capabilities... how is this done ?
+-- 
+Cheers,
+Alistair.
 
-Heh, no, USB can't do DMA at all.  Why would you think they could?  It's
-a serial bus that just streams data across it at relativly slow speeds.
-
-thanks,
-
-greg k-h
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

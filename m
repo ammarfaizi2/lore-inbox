@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWGEOZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWGEOZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbWGEOZo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 10:25:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWGEOZo
+	id S964872AbWGEOZa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 10:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWGEOZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 10:25:44 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:32130 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S964874AbWGEOZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 10:25:43 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: ext4 features (salvage)
-To: artusemrys@sbcglobal.net,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Reply-To: 7eggert@gmx.de
-Date: Wed, 05 Jul 2006 16:09:19 +0200
-References: <6tVcC-1e1-79@gated-at.bofh.it> <6tVcC-1e1-81@gated-at.bofh.it> <6tVcC-1e1-83@gated-at.bofh.it> <6tWib-2Ly-7@gated-at.bofh.it> <6uDdv-7bs-3@gated-at.bofh.it> <6uDGF-7Nj-47@gated-at.bofh.it> <6uDQb-8e8-9@gated-at.bofh.it> <6uDQb-8e8-13@gated-at.bofh.it> <6uE9y-d1-1@gated-at.bofh.it> <6uPom-87W-23@gated-at.bofh.it> <6uRq6-2Dl-9@gated-at.bofh.it> <6uRJx-30t-5@gated-at.bofh.it> <6uVN4-AN-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1Fy84X-0000p0-JD@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+	Wed, 5 Jul 2006 10:25:29 -0400
+Received: from main.gmane.org ([80.91.229.2]:43662 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964872AbWGEOZ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 10:25:29 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Marc D Ronell <mronell@alumni.upenn.edu>
+Subject: Re: CONFIG for udev to work?
+Date: Mon, 03 Jul 2006 21:47:20 -0400
+Message-ID: <871wt23zvb.fsf@corps.glidepath.invalid>
+References: <200607040332.48506.romit.linux@gmail.com> <6bffcb0e0607031514r6e14c68am5964f07265e0caeb@mail.gmail.com>
+ <200607040357.14123.romit.linux@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+Cc: romit.linux@gmail.com
+X-Gmane-NNTP-Posting-Host: dialup-4.156.42.193.dial1.boston1.level3.net
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+Cancel-Lock: sha1:g6+P7RtjpWEy97hN6VQWjm5AFH8=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Frost <artusemrys@sbcglobal.net> wrote:
+Romit <romit.linux@gmail.com> writes:
 
-> We silently keep files around in many filesystems, at least until
-> whatever reclamation process runs.  The delete event doesn't itself
-> generally purge the data from disk.  However, this is a matter of simple
-> tools doing simple things.  Designing an intentional structure around
-> not actually deleting deleted files, but keeping them around just in
-> case may be lauded as "user-friendly", but it is counter-intuitive.  It
-> is cleverness over clarity, good design smothered under feature demand.
+> Hi Michal,
+>              Thanks. I checked the udev version and it is 068. Meanwhile, what 
+> I did was I booted into 2.6.13-15 and
+> zcat /proc/config.gz > $(KERN_SOURCEDIR_2.6.17.1)/
+> and then ran 
+> make xconfig.
+>
+> Ofcourse there were some CONFIG options that were present in 2.6.13-15 and 
+> missing in 2.6.17.1 and vice versa but once I resolved those and built the 
+> kernel, udev seems to be working. So I did not upgrade udev to 071 but still 
+> it works. I think there should be some CONFIG option that I am missing. I am 
+> not sure which one. 
+> Thanks again,
+> -Romit
+>
 
-[...]
+What  version  of  /lib/libsysfs  are  you using?   I  think  udev  is
+dependent on this library.  Perhaps an upgrade will help.
 
-> If you have to add a "really delete, I mean it" command, you're breaking
-> fundamental assumptions.
+Marc
 
-Even without the patch, you can't guarantee that nobody will create a link
-just before the supposed-to-be-final unlink(), or copies the file around.
-Having undelete() will just make this risk very obvious.
-
-BTW: If you really want to delete files, use shred.
-
-
-[...]
-> Why add non-free space to the free space count, when we're intentionally
-> keeping those files?  If you have to be counter-intuitive, why go the
-> second counter of hiding it from the user who "wants us to keep and
-> index his deleted files"?
-
-It is free space, but it can be unfreed in order to
-a) restore the data (on demand)
-b) store new data (automatically, no tool needed)
-
-If b happens before a, it's called bad luck.
-
-This concept is fundamentally different from keeping a recycle bin
-of 10 % disksize for each of the 20 users (adding up to 200 % of the
-disk size), which is well-known from a colorfull "operating" system.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
-
-http://david.woodhou.se/why-not-spf.html

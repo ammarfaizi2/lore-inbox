@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWGDBCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWGDBER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWGDBCb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 21:02:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWGDBCb
+	id S1751348AbWGDBER (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 21:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWGDBER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 21:02:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36575 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751270AbWGDBCa (ORCPT
+	Mon, 3 Jul 2006 21:04:17 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:55999 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751348AbWGDBER (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 21:02:30 -0400
-Date: Mon, 3 Jul 2006 18:01:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: hadi@cyberus.ca, pj@sgi.com, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com,
-       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-Message-Id: <20060703180151.56f61b31.akpm@osdl.org>
-In-Reply-To: <44A9BC4D.7030803@watson.ibm.com>
-References: <44892610.6040001@watson.ibm.com>
-	<20060623164743.c894c314.akpm@osdl.org>
-	<449CAA78.4080902@watson.ibm.com>
-	<20060623213912.96056b02.akpm@osdl.org>
-	<449CD4B3.8020300@watson.ibm.com>
-	<44A01A50.1050403@sgi.com>
-	<20060626105548.edef4c64.akpm@osdl.org>
-	<44A020CD.30903@watson.ibm.com>
-	<20060626111249.7aece36e.akpm@osdl.org>
-	<44A026ED.8080903@sgi.com>
-	<20060626113959.839d72bc.akpm@osdl.org>
-	<44A2F50D.8030306@engr.sgi.com>
-	<20060628145341.529a61ab.akpm@osdl.org>
-	<44A2FC72.9090407@engr.sgi.com>
-	<20060629014050.d3bf0be4.pj@sgi.com>
-	<200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
-	<20060629094408.360ac157.pj@sgi.com>
-	<20060629110107.2e56310b.akpm@osdl.org>
-	<44A57310.3010208@watson.ibm.com>
-	<44A5770F.3080206@watson.ibm.com>
-	<20060630155030.5ea1faba.akpm@osdl.org>
-	<44A5DBE7.2020704@watson.ibm.com>
-	<44A5EDE6.3010605@watson.ibm.com>
-	<20060630205148.4f66b125.akpm@osdl.org>
-	<44A9881F.7030103@watson.ibm.com>
-	<44A9BC4D.7030803@watson.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 3 Jul 2006 21:04:17 -0400
+Message-ID: <44A9BE75.9020706@garzik.org>
+Date: Mon, 03 Jul 2006 21:03:49 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, Tomasz Torcz <zdzichu@irc.pl>,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features (checksums)
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>	<20060701170729.GB8763@irc.pl>	<20060701174716.GC24570@cip.informatik.uni-erlangen.de>	<20060701181702.GC8763@irc.pl>	<20060703202219.GA9707@aitel.hist.no>	<20060703205523.GA17122@irc.pl>	<1151960503.3108.55.camel@laptopd505.fenrus.org>	<1151964720.16528.22.camel@localhost.localdomain> <17577.43190.724583.146845@cse.unsw.edu.au>
+In-Reply-To: <17577.43190.724583.146845@cse.unsw.edu.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 03 Jul 2006 20:54:37 -0400
-Shailabh Nagar <nagar@watson.ibm.com> wrote:
+Neil Brown wrote:
+> Can't say I agree with this layering distinction.
+> It's been some years that I've felt that most 'logical volume
+> management' really belongs in the filesystem.
+> Why have a dm that chops devices up in to segments and assembles them to
+> look like a big device, only to have that big device chopped up and
+> presented as files.  Seems like double handling to me.
 
-> > What happens when a listener exits without doing deregistration
-> > (or if the listener attempts to register another cpumask while a current
-> > registration is still active).
-> >
-> ( Jamal, your thoughts on this problem would be appreciated)
-> 
-> Problem is that we have a listener task which has "registered" with 
-> taskstats and caused
-> its pid to be stored in various per-cpu lists of listeners. Later, when 
-> some other task exits on a given cpu, its exit data is sent using 
-> genlmsg_unicast on each pid present on that cpu's list.
-> 
-> If the listener exits without doing a "deregister", its pid continues to 
-> be kept around, obviously not a good thing. So we need some way of 
-> detecting the situation (task is no longer listening on
-> these cpus events) that is efficient.
+Agreed, and allow me to take an even more radical position:
 
-Also need to address the case where the listener has closed off his file
-descriptor but continues to run.
+I've long felt that things like snapshotting and mirroring made a lot of 
+sense at the filesystem level -- as do layered filesystems, just like we 
+layer block devices.
 
-So hooking into listener's exit() isn't appropriate - the teardown is
-associated with the lifetime of the fd, not of the process.  If we do that,
-exit() gets handled for free.  
+Block device drivers (MD, DM) get ever more complicated, and ultimately 
+become mini-filesystems themselves.  The metadata managed by blkdev 
+drivers continues to increase in complexity.  What is represented to the 
+upper layer as a contiguous run of bytes is really, under the hood, 
+chunks of data coalesced logically -- just like files in a filesystem.
+
+The more complex that blkdev drivers become, the more and more they will 
+look like filesystems.
+
+	Jeff
+
+
+

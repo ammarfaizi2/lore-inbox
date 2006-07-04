@@ -1,99 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWGDSc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWGDSc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbWGDSc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 14:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWGDSc4
+	id S932326AbWGDSc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 14:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWGDSc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 14:32:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54679 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932295AbWGDScz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 14:32:57 -0400
+Received: from thunk.org ([69.25.196.29]:33706 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932326AbWGDScz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 4 Jul 2006 14:32:55 -0400
-Subject: Re: [2.6.17-git22] lock debugging output
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-Cc: akpm@osdl.org, mingo@elte.hu, Linux Kernel <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-In-Reply-To: <5a4c581d0607041113o2993cbf5m7011b2a06e96d974@mail.gmail.com>
-References: <5a4c581d0607041113o2993cbf5m7011b2a06e96d974@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 04 Jul 2006 20:32:46 +0200
-Message-Id: <1152037966.3109.91.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Date: Mon, 3 Jul 2006 21:02:40 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+Message-ID: <20060704010240.GD6317@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Arjan van de Ven <arjan@linux.intel.com>
+On Sat, Jul 01, 2006 at 06:33:01PM +0200, Thomas Glanzmann wrote:
+> I would like to know which new features are planed to be incorported by
+> ext4. So far I only read about supporting bigger filesystems to fit
+> recent hardware developments. So are there any other big goals for ext4?
 
-On Tue, 2006-07-04 at 20:13 +0200, Alessandro Suardi wrote:
-> Hoping gmail doesn't mess it too badly...
+Some of the ideas which have been tossed about include:
+
+	* nanosecond timestamps, and support for time beyond the 2038
+	* extents (better performance, faster fsck times)
+	* persistent preallocation (valid bit in the extent)
+	* larger extended attributes
+	* checksums for metadata
+
+... but the list of features are not necessarily fixed; if you have a
+great ideas, patches are always appreciated.  :-)
+
+> What I personally would like to see most in ext4 are
 > 
-> eth0: tg3 (BCM5751 Gbit Ethernet)
-> eth1: ipw2200 (Intel PRO/Wireless 2200BG)
-> 
-> Sequence:
->  1. boot with eth0 disconnected (eth1 doesn't come up on boot)
->  2. ifup eth1, bring wpa-supplicant up
->  3. run 'dig' ---> <lock debug info gets printed on console>
+>         * checksums for data
 
+One of the more interesting ways of implementing this is that newer
+disks will be providing a facility (at the SCSI layer, and presumably
+eventually for SATA drives as well) where a checksum and some
+"application" (read: filesystem) data.  The way this works, as I
+understand it, is that the OS provides the sector-level checksum as
+part of the write operation, which is then checked by the disk before
+it is written (to catch corruption at the bus level) and written on
+the disk.  On a read operation, the checksum is read, and the data
+verified at the disk, as well as being passed back to the OS, so the
+OS can do end-to-end level checksum checking.  More interestingly,
+there is space for "applation level" (read: filesystem) tagged data,
+which we could use to store information about the inode # and logical
+block # that a particular data blocks is associated with.  This would
+allow for a much better recoverability from the inode table getting
+trashed.  
 
-this appears to be a real deadlock:
+(Of course, the amount of time it would take to recover such a file
+via this method for future terrabyte and pedabyte filesystems is such
+that restoring from backup tapes is almost always going to be faster.
+So such a scheme would only be used when some Ph.D. student has ten
+years of thesis research on a disk with no backups and then
+accidentally runs mkfs on the wrong partition.....  of course, one
+could argue that such a stupid student doesnt *deserve* to get a Ph.D.  :-)
 
-the SO_BINDTODEVICE ioctl calls sk_dst_reset(), which looks like this:
-static inline void
-sk_dst_reset(struct sock *sk)
-{
-        write_lock(&sk->sk_dst_lock);
-        __sk_dst_reset(sk);
-        write_unlock(&sk->sk_dst_lock);
-}
+>         * and snapshots on filesystem basis
 
-now... ipv6 does this in softirq context:
-  [<c028cf72>] sk_dst_check+0x1b/0xe6
-  [<f8ce1305>] ip6_dst_lookup+0x31/0x16d [ipv6]
-  [<f8cf3338>] icmpv6_send+0x332/0x549 [ipv6]
-  [<f8cf09a1>] udpv6_rcv+0x4ab/0x4d6 [ipv6]
-  [<f8ce2900>] ip6_input+0x19c/0x228 [ipv6]
-  [<f8ce2d61>] ipv6_rcv+0x188/0x1b7 [ipv6]
-  [<c02925b7>] netif_receive_skb+0x18d/0x1d8
-  [<c0293d6a>] process_backlog+0x80/0xf9
-  [<c0293f43>] net_rx_action+0x80/0x174
-  [<c01162fd>] __do_softirq+0x46/0x9c
-  [<c01040e6>] do_softirq+0x4d/0xac
+This requires a filesystem that is designed from the get-go to support
+snapshots.  So yes, it's lilely not going to happen for ext4.
+Although, if you have a really clever idea, feel free to post patches
+or a detailed technical proposal for how to achieve such a goal.  :-)
 
-where sk_dst_check() takes the same lock for read.
-
-that looks like a real deadlock to me... 
-the most obvious low impact solution is to make sk_dst_reset use an
-irqsave variant; patch for that is attached below. I'll leave it to the
-networking people to say if that's the real right approach
-
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-
----
- include/net/sock.h |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.17-mm6/include/net/sock.h
-===================================================================
---- linux-2.6.17-mm6.orig/include/net/sock.h
-+++ linux-2.6.17-mm6/include/net/sock.h
-@@ -1025,9 +1025,10 @@ __sk_dst_reset(struct sock *sk)
- static inline void
- sk_dst_reset(struct sock *sk)
- {
--	write_lock(&sk->sk_dst_lock);
-+	unsigned long flags;
-+	write_lock_irqsave(&sk->sk_dst_lock, flags);
- 	__sk_dst_reset(sk);
--	write_unlock(&sk->sk_dst_lock);
-+	write_unlock_irqrestore(&sk->sk_dst_lock, flags);
- }
- 
- extern struct dst_entry *__sk_dst_check(struct sock *sk, u32 cookie);
-
-
+						- Ted

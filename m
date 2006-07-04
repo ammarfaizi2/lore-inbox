@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWGDId6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWGDIdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbWGDId6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 04:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWGDId6
+	id S932117AbWGDIdw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 04:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWGDIdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 04:33:58 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:23956 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932119AbWGDId5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 04:33:57 -0400
-Message-ID: <44AA27DA.9070501@sgi.com>
-Date: Tue, 04 Jul 2006 10:33:30 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
+	Tue, 4 Jul 2006 04:33:52 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:21006 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S932117AbWGDIdv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 04:33:51 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-mm6
+Date: Tue, 4 Jul 2006 09:34:14 +0100
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <20060703030355.420c7155.akpm@osdl.org> <200607032250.02054.s0348365@sms.ed.ac.uk> <20060703163121.4ea22076.akpm@osdl.org>
+In-Reply-To: <20060703163121.4ea22076.akpm@osdl.org>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Milton Miller <miltonm@bga.com>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
-References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>	 <200607040516.k645GFTj014564@sullivan.realtime.net>	 <44AA1D09.7080308@sgi.com> <1151999591.3109.8.camel@laptopd505.fenrus.org>	 <44AA2301.2030400@sgi.com> <1152001399.3109.12.camel@laptopd505.fenrus.org>
-In-Reply-To: <1152001399.3109.12.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607040934.14592.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Tue, 2006-07-04 at 10:12 +0200, Jes Sorensen wrote:
->> Guess the question is, is there a way we can detect when media has
->> been
->> inserted without doing open/close on the device constantly? 
-> 
-> they could just keep the device open.... at least until media is
-> inserted
+On Tuesday 04 July 2006 00:31, Andrew Morton wrote:
+[snip]
+> > > > > > Helped somewhat, but I'm still missing a bit at the top.
+> > > > > >
+> > > > > > http://devzero.co.uk/~alistair/oops-20060703/
+> > > > >
+> > > > > That is irritating.  This should get us more info:
+> > > >
+> > > > Indeed, thanks.
+> > > >
+> > > > Try the same URL again, I've uploaded 3,4,5 from a couple of reboots.
+> > > > I still think I'm missing something at the top, but 3 is the earliest
+> > > > I could snap.
+> > >
+> > > Getting better.
+> > >
+> > > It would kinda help if pause_on_oops() was actually implemented on
+> > > x86_64..
+> >
+> > Doesn't help (work?).
+> >
+> > [alistair] 22:47 [~] strings /boot/vmlinuz-2.6.17-mm6 | grep 2.6.17-mm6
+> > 2.6.17-mm6 (alistair@damocles) #3 SMP PREEMPT Mon Jul 3 22:39:54 BST 2006
+> >
+> > [alistair] 22:48 [~] cat /boot/grub/menu.lst | grep -C1 mm6
+> > # testing
+> > title Linux 2.6.17-mm6
+> > root (hd0,0)
+> > kernel /boot/vmlinuz-2.6.17-mm6 vga=extended root=/dev/sda1
+> > pause_on_oops=100000
+> >
+> > I'm fairly sure I booted a kernel with your patch and that should be the
+> > right cmdline flag.
+>
+> OK, x86_64 is significantly different from x86 in that area (better).  Have
+> a tested version...
 
-Yup, I will see how much it requires to make it do that.
+This one worked, thanks. Try the same URL again, I've uploaded two better 
+shots 6,7 that capture the first oops. Unfortunately, I have a pair of oopses 
+that interchange every couple of boots, so I've included both ;-)
 
-> also they should poll at most every 10 seconds; anything more frequent
-> is just braindead...
+I suggest Andi picks up that debugging patch, it worked for me.
 
-But of course, then your camera's picture card isn't detected within a
-microsecond of your inserting it into the cardreader! Really can't have
-that!
-
+-- 
 Cheers,
-Jes
+Alistair.
 
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

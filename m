@@ -1,43 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWGDFuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWGDFv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbWGDFuT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 01:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWGDFuT
+	id S1751146AbWGDFv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 01:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWGDFv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 01:50:19 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:27113 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751043AbWGDFuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 01:50:18 -0400
-Date: Tue, 4 Jul 2006 14:52:13 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hugh@veritas.com,
-       kernel@kolivas.org, marcelo@kvack.org, nickpiggin@yahoo.com.au,
-       clameter@sgi.com, ak@suse.de
-Subject: Re: [RFC 8/8] Fix i386 SRAT check for MAX_NR_ZONES
-Message-Id: <20060704145213.75cc5cf5.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060703215616.7566.56782.sendpatchset@schroedinger.engr.sgi.com>
-References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
-	<20060703215616.7566.56782.sendpatchset@schroedinger.engr.sgi.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 4 Jul 2006 01:51:58 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:19423 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751146AbWGDFv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 01:51:57 -0400
+Date: Tue, 04 Jul 2006 14:51:04 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [Patch:BUG] oversight of copy pgdat array on each node for ia64's memory hotplug.
+Cc: "Luck, Tony" <tony.luck@intel.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060704143906.8350.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jul 2006 14:56:16 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
+Hello.
 
-> swap_prefetch: Make use of ZONE_HIGHMEM conditional
-> 
+I found a bug in memory hot-add code for ia64.
 
-This patch is same to 
-[RFC 5/8] swap_prefetch: Make use of ZONE_HIGHMEM dependend on CONFIG_HIGHMEM
+IA64's code has copies of pgdat's array on each node to reduce memory
+access over crossing node. This array is used by NODE_DATA() macro.
+When new node is hot-added, this pgdat's array should be updated and
+copied on new node too.
 
-please check. I think what you intended was patch against chunk_to_zones().
+However, I used for_each_online_node() in scatter_node_data() to copy
+it. This meant its array is not copied on new node.
+Because initialization of structures for new node was halfway,
+so online_node_map couldn't be set at this time.
 
--Kame
+To copy arrays on new node, I changed it to check value of
+pgdat_list[] which is source array of copies.
+I tested this patch with my Memory Hotadd emulation on Tiger4.
+This patch is for 2.6.17-git20.
+
+Please apply.
+
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+---
+
+ arch/ia64/mm/discontig.c |   17 +++++++++++++----
+ 1 files changed, 13 insertions(+), 4 deletions(-)
+
+Index: pgdattest1/arch/ia64/mm/discontig.c
+===================================================================
+--- pgdattest1.orig/arch/ia64/mm/discontig.c	2006-07-03 15:41:30.000000000 +0900
++++ pgdattest1/arch/ia64/mm/discontig.c	2006-07-03 15:44:48.000000000 +0900
+@@ -313,10 +313,19 @@ static void __meminit scatter_node_data(
+ 	pg_data_t **dst;
+ 	int node;
+ 
+-	for_each_online_node(node) {
+-		dst = LOCAL_DATA_ADDR(pgdat_list[node])->pg_data_ptrs;
+-		memcpy(dst, pgdat_list, sizeof(pgdat_list));
+-	}
++	/*
++	 * for_each_online_map() can't be used at here.
++	 * node_online_map is not set for hot-added node at this time,
++	 * because here is halfway of initilization of new node's structure.
++	 * If for_each_online_node() is used, new node's pg_data_ptrs will
++	 * be not initialized. Insted of using it, pgdat_list[] is checked.
++	 */
++	for_each_node(node)
++		if (pgdat_list[node]){
++			dst = LOCAL_DATA_ADDR(pgdat_list[node])->pg_data_ptrs;
++			memcpy(dst, pgdat_list, sizeof(pgdat_list));
++		}
++
+ }
+ 
+ /**
+
+-- 
+Yasunori Goto 
+
 

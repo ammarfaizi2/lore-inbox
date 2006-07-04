@@ -1,113 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWGDQSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWGDQXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWGDQSX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 12:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWGDQSX
+	id S932267AbWGDQXt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 12:23:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWGDQXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 12:18:23 -0400
-Received: from smtp112.sbc.mail.re2.yahoo.com ([68.142.229.93]:6561 "HELO
-	smtp112.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932244AbWGDQSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 12:18:22 -0400
-Message-ID: <44AA954D.3030009@sbcglobal.net>
-Date: Tue, 04 Jul 2006 11:20:29 -0500
-From: Matthew Frost <artusemrys@sbcglobal.net>
-Reply-To: artusemrys@sbcglobal.net
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features (salvage)
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>	 <20060701170729.GB8763@irc.pl>	 <20060701174716.GC24570@cip.informatik.uni-erlangen.de>	 <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>	 <20060703205523.GA17122@irc.pl>	 <1151960503.3108.55.camel@laptopd505.fenrus.org>	 <44A9904F.7060207@wolfmountaingroup.com>	 <20060703232547.2d54ab9b.diegocg@gmail.com>	 <1152004929.3374.13.camel@elijah.suse.cz> <1152012907.23628.20.camel@lappy> <1152013961.3374.78.camel@elijah.suse.cz>
-In-Reply-To: <1152013961.3374.78.camel@elijah.suse.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 4 Jul 2006 12:23:49 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:24470 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932267AbWGDQXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 12:23:48 -0400
+Subject: Re: [RFC 0/8] Reduce MAX_NR_ZONES and remove useless zones.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Hugh Dickins <hugh@veritas.com>, Con Kolivas <kernel@kolivas.org>,
+       Marcelo Tosatti <marcelo@kvack.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+In-Reply-To: <Pine.LNX.4.64.0607040915420.13795@schroedinger.engr.sgi.com>
+References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
+	 <20060704120242.GA3386@infradead.org>
+	 <Pine.LNX.4.64.0607040806580.13456@schroedinger.engr.sgi.com>
+	 <200607041723.46604.ak@suse.de>
+	 <Pine.LNX.4.64.0607040915420.13795@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Tue, 04 Jul 2006 18:23:40 +0200
+Message-Id: <1152030220.3109.73.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Stupid mailer + user error = not sent to list)
+On Tue, 2006-07-04 at 09:16 -0700, Christoph Lameter wrote:
+> On Tue, 4 Jul 2006, Andi Kleen wrote:
+> 
+> > The 900MB refered to the boundary between NORMAL and HIGHMEM on i386.
+> 
+> Yikes. So any system with 1MB
 
-Petr Tesarik wrote:
- > On Tue, 2006-07-04 at 13:35 +0200, Peter Zijlstra wrote:
- >> On Tue, 2006-07-04 at 11:22 +0200, Petr Tesarik wrote:
- >>> Yes and no. A simple mv is better done in userspace, but what I'd
- >>> _really_ appreciate would be a true kernel salvage (similar to the way
- >>> NetWare does things). That means marking the file as deleted in the
- >>> directory, marking its blocks as deleted but avoiding the use of those
- >>> blocks. The kernel would then prefer allocating new blocks from
- >>> elsewhere but once the filesystem runs out of space, it would start
- >>> allocating from the deleted files area and marking the blocks as 
-well as
- >>> the corresponding files purged.
- >>>
- >>> Salvaging files would be done with a separate tool. Of course, if you
- >>> delete more files with the same name in the same directory, you'd need
- >>> to tell that tool which one of them you want to salvage. Yes, I really
- >>> mean you'd have more than one deleted file with the same name in the
- >>> directory.
- >> Wouldn't such a scheme interfere with the block allocator algorithms,
- >> and hence increase the risk of fragmentation? Schemes like this realy
- >> put my hairs on end,
- >
- > Yes, they would interfere. That's why I'm not proposing to add them to
- > ext4 in the first place.
- >
- >>   1) if you don't want to lose your data, make backups;
- >
- > Generally, I agree.
- >
- >>   2) if I mean to delete a file, I want it gone proper. Silently keeping
- >>      it about is not unix like;
- >
- > Yes, this is a problem. Although you would of course have a tool for
- > purging the files unconditionally, some programs may need the assumption
- > that an unlinked file is gone forever.
- >
- > Regarding the second clause, well, Linux is not Unix-like in many
- > respects and we want it like that. That's a weak argument.
+1G, but yes.
 
-We silently keep files around in many filesystems, at least until
-whatever reclamation process runs.  The delete event doesn't itself
-generally purge the data from disk.  However, this is a matter of simple
-tools doing simple things.  Designing an intentional structure around
-not actually deleting deleted files, but keeping them around just in
-case may be lauded as "user-friendly", but it is counter-intuitive.  It
-is cleverness over clarity, good design smothered under feature demand.
+>  will need to have highmem? I guess the 2G/2G 
+> config option changes that?
 
-In the ways in which it counts, in the sensible, useful, elegantly
-simple ways, the "Do one thing and do it well" ways, Linux tries to be
-Unix-like.  We want stupid programs.  A filesystem that decides that it
-knows better than the user is not desirable.  Filesystem programmers
-that decide that they know better than the user are likewise sub-optimal.
+but that breaks userspace ABI and things that really want a lot of
+memory ;)
 
-Protect my data against accidental failure.  Do not protect it against me.
+Thankfully x86-64 is there, and just about all systems sold today do 64
+bit.. 
 
-If you have to add a "really delete, I mean it" command, you're breaking
-fundamental assumptions.
-
- >
- >>   3) don't aid third parties in recovering your removed data. If I want
- >>      them to have it I'll give it to them.
- >
- > See 2. Explicit purging is of course possible. (Novell Netware also had
- > a "purge" command.)
- >
- > Anyway, it seems that there is some functionality which many users want
- > but which can't be provided in user space:
- >
- >   - if files are moved to the recycle-bin-or-whatever-you-call-it, their
- > size is added to disk free space and
-
-Why add non-free space to the free space count, when we're intentionally
-keeping those files?  If you have to be counter-intuitive, why go the
-second counter of hiding it from the user who "wants us to keep and
-index his deleted files"?
-
- >   - automatically purging least recently deleted files.
- >
- > Regards,
- > Petr Tesarik
-
-Matt
-
+(and highmem is not that bad.. you make it sound as if it's a dirty
+word. It's not pretty but it's not THAT evil either)
 
 

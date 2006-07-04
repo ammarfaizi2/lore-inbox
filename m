@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWGDWeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWGDWfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWGDWeo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 18:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWGDWen
+	id S932319AbWGDWfo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 18:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWGDWfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 18:34:43 -0400
-Received: from mail.suse.de ([195.135.220.2]:38331 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932303AbWGDWen (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 18:34:43 -0400
-Date: Tue, 4 Jul 2006 15:31:01 -0700
-From: Greg KH <greg@kroah.com>
-To: David Miller <davem@davemloft.net>
-Cc: jeff@garzik.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [RFC] change netdevice to use struct device instead of struct class_device
-Message-ID: <20060704223101.GA25275@kroah.com>
-References: <20060703224719.GA14176@kroah.com> <44A9A345.8040706@garzik.org> <20060703231610.GA18352@kroah.com> <20060703.185747.74753207.davem@davemloft.net>
+	Tue, 4 Jul 2006 18:35:44 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:58248 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S932319AbWGDWfo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 18:35:44 -0400
+Date: Wed, 5 Jul 2006 00:35:42 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Tomasz Torcz <zdzichu@irc.pl>,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+Message-ID: <20060704223542.GA16828@janus>
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no> <20060703205523.GA17122@irc.pl> <1151960503.3108.55.camel@laptopd505.fenrus.org> <44A9904F.7060207@wolfmountaingroup.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060703.185747.74753207.davem@davemloft.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <44A9904F.7060207@wolfmountaingroup.com>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 06:57:47PM -0700, David Miller wrote:
-> From: Greg KH <greg@kroah.com>
-> Date: Mon, 3 Jul 2006 16:16:10 -0700
-> 
-> > No, not really.  According to Documentation/ABI/testing/sysfs-class all
-> > code that uses /sys/class/foo/ needs to be able to handle the fact that
-> > those entries might be symlinks and not just directories.  Everything
-> > that I know of already works properly because the input layer has had
-> > symlinks in /sys/class/input for quite some time now.
-> > 
-> > Do you know of any tools that use /sys/class/net/ that can not handle
-> > symlinks there?  I've been running this on my boxes for about a week now
-> > with no noticeable issues.  Renaming interfaces works just fine too.
-> 
-> I do not think this change will cause any problems.
+On Mon, Jul 03, 2006 at 03:46:55PM -0600, Jeff V. Merkey wrote:
+[...]
+> Add a salvagable file system to ext4, i.e. when a file is deleted, you 
+> just rename it and move it to a directory called DELETED.SAV and recycle 
+> the files as people allocate new ones.  Easy to do (internal "mv" of 
+> file to another directory) and modification of the allocation bitmaps.  
+> Very simple and will pay off big.  If you need help designing it, just 
+> ask me.
 
-Great, thanks for looking.
+Do you have any idea how to undo the effect of rm -rf /bigtree at
+the FS level?
 
-Do you mind if I keep this in my tree, due to the dependancies on the
-other driver core changes?
+I think such an "undelete" feature should be implemented in userspace.
+A filesystem which can travel back in time could be useful however.
 
-thanks,
-
-greg k-h
+-- 
+Frank

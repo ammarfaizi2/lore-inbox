@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWGDInx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWGDItT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWGDInx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 04:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWGDInx
+	id S932146AbWGDItT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 04:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWGDItT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 04:43:53 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:62792 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932126AbWGDInw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 04:43:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=TSriQqXJddtRfzUocL+gLqEM7OQcGYCuH8EXzOKt+krwpwyfD4PiIQBBGG9H5Y5RB9OeSHIg0EsZJtF58FmLmI9Ylt0P8j89DiXod6xNTnv8WwCjKT5bgH3/yXDrKjPZhZ8kOfG62qj/9v2aAHBJ94BWWU9fegFjRhRZjzEWCcM=
-Message-ID: <5d96567b0607040143y3aa06c8cn1b6e591d1a3bdc31@mail.gmail.com>
-Date: Tue, 4 Jul 2006 11:43:51 +0300
-From: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: netconsole
-Cc: mpm@selenic.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 4 Jul 2006 04:49:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16346 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932146AbWGDItT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 04:49:19 -0400
+Date: Tue, 4 Jul 2006 01:49:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.17-mm6
+Message-Id: <20060704014908.9782c85f.akpm@osdl.org>
+In-Reply-To: <200607040934.14592.s0348365@sms.ed.ac.uk>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<200607032250.02054.s0348365@sms.ed.ac.uk>
+	<20060703163121.4ea22076.akpm@osdl.org>
+	<200607040934.14592.s0348365@sms.ed.ac.uk>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt hello
-I am testing netconsole.
-What i did is to create a panic driver.
-It is written bellow.
-Why I am not getting the panic output to netcat ?
+On Tue, 4 Jul 2006 09:34:14 +0100
+Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
 
-thank you
-raz
+> > a tested version...
+> 
+> This one worked, thanks. Try the same URL again, I've uploaded two better 
+> shots 6,7 that capture the first oops. Unfortunately, I have a pair of oopses 
+> that interchange every couple of boots, so I've included both ;-)
 
+OK, that's more like it.  Thanks again.
 
-xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+http://devzero.co.uk/~alistair/oops-20060703/oops6.jpg
+http://devzero.co.uk/~alistair/oops-20060703/oops7.jpg
 
-#include <linux/module.h>
-#include <linux/fs.h>
-#include <linux/kernel.h>
-#include <linux/init.h>
+People cc'ed.  Help!
 
-static void do_panic_cleanup(void){}
+Can you send the .config please?
 
-static int do_panic_init(void){
-        panic("raz");
-        return -1;
-}
-module_init(do_panic_init);
-module_exit(do_panic_cleanup);
+> I suggest Andi picks up that debugging patch, it worked for me.
 
-MODULE_DESCRIPTION("do panic");
-MODULE_AUTHOR("raz ben yehuda");
-MODULE_LICENSE("GPL");
-
-
-
--- 
-Raz
+He'll be hearing from me ;)

@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWGDGTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWGDGUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWGDGTV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 02:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWGDGTV
+	id S1751213AbWGDGUi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 02:20:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWGDGUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 02:19:21 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:23417 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751088AbWGDGTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 02:19:20 -0400
-Date: Tue, 4 Jul 2006 08:17:54 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, clg@fr.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] statistics infrastructure - update 9
-Message-ID: <20060704061754.GB9417@osiris.boeblingen.de.ibm.com>
-References: <1151943862.2936.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151943862.2936.10.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Tue, 4 Jul 2006 02:20:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59570 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751213AbWGDGUh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 02:20:37 -0400
+Date: Mon, 3 Jul 2006 23:20:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
+       hugh@veritas.com, kernel@kolivas.org, marcelo@kvack.org,
+       nickpiggin@yahoo.com.au, ak@suse.de
+Subject: Re: [RFC 3/8] Move HIGHMEM counter into highmem.c/.h
+Message-Id: <20060703232020.260446d9.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607032253040.10856@schroedinger.engr.sgi.com>
+References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
+	<20060703215550.7566.79975.sendpatchset@schroedinger.engr.sgi.com>
+	<20060704144724.65c43a38.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0607032253040.10856@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#else /* !CONFIG_STATISTICS */
-> +/* These NOP functions unburden clients from handling !CONFIG_STATISTICS. */
-> +
-> +static inline int statistic_create(struct statistic_interface *interface,
-> +				   const char *name)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline int statistic_remove(struct statistic_interface *interface)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline void statistic_set(struct statistic *stat, int i,
-> +				 s64 value, u64 total)
-> +{
-> +}
-> +
-> +static inline void _statistic_add(struct statistic *stat, int i,
-> +				  s64 value, u64 incr)
-> +{
-> +}
-> +
-> +static inline void statistic_add(struct statistic *stat, int i,
-> +				 s64 value, u64 incr)
-> +{
-> +}
-> +
-> +static inline void _statistic_add_as(int type, struct statistic *stat, int i,
-> +				     s64 value, u64 incr)
-> +{
-> +}
-> +
-> +static inline void statistic_add_as(int type, struct statistic *stat, int i,
-> +				    s64 value, u64 incr)
-> +{
-> +}
-> +
-> +#endif /* CONFIG_STATISTICS */
+On Mon, 3 Jul 2006 22:56:36 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-Why not have something like:
+> > this should be covered by CONFIG_HIGHMEM if you change totalhigh_pages 
+> > to be #define.
+> 
+> Ok. Will put a #ifdef CONFIG_HIGHMEM around that statement and the 
+> following one.
 
-#define statistic_create(interface, name) 	({ 0; })
-#define statistic_remove(interface)		({ 0; })
-#define statistic_set(stat, i, value, total)	do { } while (0)
-...
-
-That would be much shorter and easier to read. But maybe it's just me :)
+That will take the patchset up to 27 new ifdefs.  Is there a way of improving
+that?

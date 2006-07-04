@@ -1,96 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWGDLnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWGDLo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWGDLnY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 07:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWGDLnX
+	id S932217AbWGDLo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 07:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWGDLo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 07:43:23 -0400
-Received: from mga02.intel.com ([134.134.136.20]:8001 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932214AbWGDLnX convert rfc822-to-8bit (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 07:43:23 -0400
-X-IronPort-AV: i="4.06,204,1149490800"; 
-   d="scan'208"; a="60368190:sNHT19201910"
-Content-class: urn:content-classes:message
+	Tue, 4 Jul 2006 07:44:58 -0400
+Received: from smtp-vbr2.xs4all.nl ([194.109.24.22]:48398 "EHLO
+	smtp-vbr2.xs4all.nl") by vger.kernel.org with ESMTP id S932217AbWGDLo5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 07:44:57 -0400
+To: Bruno Ducrot <ducrot@poupinou.org>
+Cc: Johan Vromans <jvromans@squirrel.nl>, Rich Townsend <rhdt@bartol.udel.edu>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: RFC [PATCH] acpi: allow SMBus access
+References: <17576.14005.767262.868190@phoenix.squirrel.nl>
+	<20060703082217.GB17014@poupinou.org>
+	<m2mzbrj5yp.fsf@phoenix.squirrel.nl>
+	<20060703125156.GD17014@poupinou.org>
+	<m2d5cln659.fsf@phoenix.squirrel.nl>
+	<20060704093510.GG17014@poupinou.org>
+From: Johan Vromans <jvromans@squirrel.nl>
+Date: Tue, 04 Jul 2006 13:44:53 +0200
+In-Reply-To: <20060704093510.GG17014@poupinou.org> (Bruno Ducrot's message
+ of "Tue, 4 Jul 2006 11:35:10 +0200")
+Message-ID: <m24pxxmw5m.fsf@phoenix.squirrel.nl>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
-Date: Tue, 4 Jul 2006 15:43:16 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC0541AB@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
-Thread-Index: AcafUgtfV3FK6V9tQBSYitmrOPffHAADKoaw
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Nikita Danilov" <nikita@clusterfs.com>
-Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Jul 2006 11:43:22.0072 (UTC) FILETIME=[0D506580:01C69F5F]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wtites:
->> Pdflush thread functions as before patching. Pdflush tends to make
-pages
->> un-dirty without overload memory or IO and it is not need to let
-pdflush
+Bruno Ducrot <ducrot@poupinou.org> writes:
 
-> This assumption is valid for ext2
+> An intermediate solution would be to use the already existing
+> ec_read|write instead of the one you want to use.  The original
+> SMBus driver used acpi_ec_read because the author wanted to be
+> sure that driver will support laptops with more than one EC, but
+> he never saw such laptops so far.
 
-The assumption that pdflush should to make pages un-dirty without
-overload memory or IO is not for ext2 but for it sense. I'm working with
-ext3. A lot of work it does while writepages(). pdflush is throttled:
-while vmscan have sorted 32 page for paging-out it calls
-blk_congestion_wait() nevertheless had it put one of 32 page into
-congested queue or had not. pdflush is throttled.
+Indeed, if the requirement for multiple ECs can be dropped, this
+simplifies the problem sufficiently to use the current ec_read/write
+functions.
 
-Leonid
- 
+Unless someone comes up with other ideas I suggest to withdraw this
+proposal until laptops with multiple ECs hit the market...
 
------Original Message-----
-From: Nikita Danilov [mailto:nikita@clusterfs.com] 
-Sent: Tuesday, July 04, 2006 1:55 PM
-To: Ananiev, Leonid I
-Cc: Linux Kernel Mailing List
-Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh
-entirely
+-- Johan
 
-Ananiev, Leonid I writes:
- > Nikita Danilov wtites:
- > > performs page-out even if queue is congested.
- > 	Yes. If user thread which generates dirty pages need in
- > reclaimed memory it consider own dirty page as candidate for
-page-out.
- > It functions as before patching.
- > 
- > > Intent of this is to throttle writers.
- > I suppose you means dirtier or write(2) caller but not writepage()
- > caller. The dirtier  is throttled  with backing_dev_info logic as
-before
- > patching.
 
-I meant ->writepages() used by balance_dirty_pages(), see below.
-
- > 
- > 	While pdflush thread sorts pages for page-out it does not
- > consider as a candidate a page to be written with congested queue.
- > Pdflush thread functions as before patching. Pdflush tends to make
-pages
- > un-dirty without overload memory or IO and it is not need to let
-pdflush
-
-This assumption is valid for ext2, where ->writepages() simply sends
-pages to the storage, but other file systems (like reiser4) do a *lot*
-of work in ->writepages() path, allocating quite an amount of memory
-before starting write-out. With your patch, this work is done from
-pdflush, and won't be throttled by may_write_to_queue() check, thus
-increasing a risk of allocation failure.
-
- > do page-out with congested queue as you have proposed.
- > 	
- > Leonid
-
-Nikita.

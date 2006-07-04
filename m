@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWGDAZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWGDA2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWGDAZE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 20:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWGDAZE
+	id S1751334AbWGDA2J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 20:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWGDA2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 20:25:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57558 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751329AbWGDAZC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 20:25:02 -0400
-Date: Mon, 3 Jul 2006 17:24:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org
-Subject: Re: swsusp regression
-Message-Id: <20060703172455.d45edb0a.akpm@osdl.org>
-In-Reply-To: <44A9AD48.5020400@gmail.com>
-References: <44A99DFB.50106@gmail.com>
-	<44A99FE5.6020806@gmail.com>
-	<20060703161034.a5c4fba9.akpm@osdl.org>
-	<44A9AD48.5020400@gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jul 2006 20:28:08 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:49414 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751334AbWGDA2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 20:28:08 -0400
+Date: Tue, 4 Jul 2006 02:28:07 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Roy Zang <tie-fei.zang@freescale.com>
+Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: -git: strange dependency for EMBEDDED6xx
+Message-ID: <20060704002806.GE26941@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 04 Jul 2006 01:50:09 +0159
-Jiri Slaby <jirislaby@gmail.com> wrote:
+Commit c5d56332fd6c2f0c7cf9d1f65416076f2711ea28 contained the following:
 
-> Andrew Morton napsal(a):
-> > On Tue, 04 Jul 2006 00:53:02 +0159
-> > Jiri Slaby <jirislaby@gmail.com> wrote:
-> > 
-> >> Jiri Slaby napsal(a):
-> >>> Hello,
-> >>>
-> >>> when suspending machine with hyperthreading, only Freezing cpus appears and then
-> >> Note: suspending to disk; done by:
-> >> echo reboot > /sys/power/disk
-> >> echo disk > /sys/power/state
-> >>
-> >>> it loops somewhere. I tried to catch some more info by pressing sysrq-p. Here
-> >>> are some captures:
-> >>> http://www.fi.muni.cz/~xslaby/sklad/03072006074.gif
-> >>> http://www.fi.muni.cz/~xslaby/sklad/03072006075.gif
-> >> One more from some previous kernels (cutted sysrq-t):
-> >> http://www.fi.muni.cz/~xslaby/sklad/22062006046.jpg
-> >>
-> > 
-> > If you replace kernel/stop_machine.c with the version from 2.6.17, does it
-> > help?
-> 
-> Yup. It seems so.
-> 
+ config EMBEDDED6xx
+        bool "Embedded 6xx/7xx/7xxx-based board"
+-       depends on PPC32 && BROKEN
++       depends on PPC32 && (BROKEN||BROKEN_ON_SMP)
 
-OK.  I don't see what the problem is - let's just revert it.
+This looks very strange.
+
+This dependency is equivalent to
+	depends on PPC32 && SMP=n
+
+Was this the intention?
+Or what else was the intention?
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

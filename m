@@ -1,93 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWGDBgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWGDBig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWGDBgr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 21:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWGDBgr
+	id S1751200AbWGDBig (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 21:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWGDBig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 21:36:47 -0400
-Received: from build.arklinux.osuosl.org ([140.211.166.26]:21395 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S1751211AbWGDBgq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 21:36:46 -0400
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: D-Link DUB-E100 Revision B1
-Date: Tue, 4 Jul 2006 03:33:13 +0200
-User-Agent: KMail/1.9.3
-Cc: dhollis@davehollis.com, pchang23@sbcglobal.net
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_ZVcqEr2pyPkvqti"
-Message-Id: <200607040333.13649.bero@arklinux.org>
+	Mon, 3 Jul 2006 21:38:36 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:32863 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1751200AbWGDBig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 21:38:36 -0400
+Date: Mon, 03 Jul 2006 21:36:33 -0400
+From: Jeff Bailey <jbailey@ubuntu.com>
+Subject: Re: [klibc] klibc and what's the next step?
+In-reply-to: <20060703184647.GA14100@baikonur.stro.at>
+To: maximilian attems <maks@sternwelten.at>
+Cc: Rob Landley <rob@landley.net>, klibc@zytor.com,
+       Jeff Garzik <jeff@garzik.org>, Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       torvalds@osdl.org, "H. Peter Anvin" <hpa@zytor.com>
+Message-id: <1151976993.2547.27.camel@localhost.localdomain>
+MIME-version: 1.0
+X-Mailer: Evolution 2.6.1
+Content-type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary="=-YJTwiYtJyQergVIGlhPY"
+References: <klibc.200606251757.00@tazenda.hos.anvin.org>
+ <44A16E9C.70000@zytor.com> <Pine.LNX.4.64.0606290156590.17704@scrub.home>
+ <200607031430.47296.rob@landley.net> <20060703184647.GA14100@baikonur.stro.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_ZVcqEr2pyPkvqti
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Looks like D-Link is getting into the funny "change the chipset but leave the 
-product name the same" game again.
+--=-YJTwiYtJyQergVIGlhPY
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-DUB-E100 cards up to Revision A4 work perfectly, Revision B1 doesn't work at 
-all.
+Le lundi 03 juillet 2006 =C3=A0 20:46 +0200, maximilian attems a =C3=A9crit=
+ :
+> well but busybox is big nowadays and generally compiled against glibc.
+> i'm quite eager to kick busybox out of default Debian initramfs-tools
+> to have an klibc only default initramfs. those tools are needed atm,
+> and there is not enough yet. afaik suse adds sed on klibc with a minimal
+> patch and we'd liked to have stat, kill and readlink on klibc-utils.
+>=20
+> how about busybox on klibc?
 
-The patch I've attached has the beginnings of a fix; unfortunately this 
-trivialty doesn't fix it fully -- with the patch, the module loads, the MAC 
-address is detected correctly, the LEDs go on, but pings don't get through 
-yet.
+I made a brief attempt to do busybox on klibc before klcc was working
+right for me.  I should try that again.  In Ubuntu, we already do a
+separate build pass of busybox to get just the features that we want, it
+would be easy to play with this.
 
-After loading the module, dmesg says
-eth1: register 'asix' at usb-0000:00:10.3-5, ASIX AX88772 USB 2.0 Ethernet, 
-00:80:c8:38:53:a7
-usbcore: registered new driver asix
-PM: Writing back config space on device 0000:00:0c.0 at offset b (was 3ed173b, 
-writing 461025)
-PM: Writing back config space on device 0000:00:0c.0 at offset 3 (was 0, 
-writing 4010)
-PM: Writing back config space on device 0000:00:0c.0 at offset 2 (was 2000000, 
-writing 2000003)
-PM: Writing back config space on device 0000:00:0c.0 at offset 1 (was 2b00000, 
-writing 2b00006)
-PM: Writing back config space on device 0000:00:0c.0 at offset 0 (was 3ed173b, 
-writing 169c14e4)
+I'll let you know.  It'll take me a couple days - between travelling and
+the long weekend, I'm a bit behind.
 
-Chances are it needs some more messing with the .data and/or .flags 
-parameters.
+Tks,
+Jeff Bailey
 
---Boundary-00=_ZVcqEr2pyPkvqti
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="2.6.17-D-Link-E100-RevB.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.17-D-Link-E100-RevB.patch"
+--=20
+* Canonical Ltd * Ubuntu Service and Support * +1 514 691 7221 *
 
---- linux-2.6.17/drivers/usb/net/asix.c.ark	2006-06-30 02:21:07.000000000 +0200
-+++ linux-2.6.17/drivers/usb/net/asix.c	2006-06-30 02:23:59.000000000 +0200
-@@ -868,7 +868,7 @@
- 	USB_DEVICE (0x0846, 0x1040),
- 	.driver_info =  (unsigned long) &netgear_fa120_info,
- }, {
--	// DLink DUB-E100
-+	// DLink DUB-E100, Revision A
- 	USB_DEVICE (0x2001, 0x1a00),
- 	.driver_info =  (unsigned long) &dlink_dub_e100_info,
- }, {
-@@ -924,6 +924,10 @@
- 	USB_DEVICE (0x1557, 0x7720),
- 	.driver_info = (unsigned long) &ax88772_info,
--},
-+}, {
-+	// D-Link DUB-E100 Rev. B
-+	USB_DEVICE (0x07d1, 0x3c05),
-+	.driver_info = (unsigned long) &ax88772_info,
-+},
- 	{ },		// END
- };
- MODULE_DEVICE_TABLE(usb, products);
+Linux for Human Beings.
 
---Boundary-00=_ZVcqEr2pyPkvqti--
+--=-YJTwiYtJyQergVIGlhPY
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBEqcYhkNAc0s37a3gRAjOkAKCLeCw8//yRXB4WrQwC0fb+asAIfQCgj36d
+zApmKRyM/WX6If+FjTfGrm8=
+=YLR/
+-----END PGP SIGNATURE-----
+
+--=-YJTwiYtJyQergVIGlhPY--
+

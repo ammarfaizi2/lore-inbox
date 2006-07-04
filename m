@@ -1,132 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWGDFpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWGDFpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWGDFpo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 01:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWGDFpo
+	id S1751122AbWGDFpx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 01:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWGDFpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 01:45:44 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:42694 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751110AbWGDFpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 01:45:43 -0400
-Date: Tue, 4 Jul 2006 14:47:24 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hugh@veritas.com,
-       kernel@kolivas.org, marcelo@kvack.org, nickpiggin@yahoo.com.au,
-       clameter@sgi.com, ak@suse.de
-Subject: Re: [RFC 3/8] Move HIGHMEM counter into highmem.c/.h
-Message-Id: <20060704144724.65c43a38.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060703215550.7566.79975.sendpatchset@schroedinger.engr.sgi.com>
-References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
-	<20060703215550.7566.79975.sendpatchset@schroedinger.engr.sgi.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Tue, 4 Jul 2006 01:45:53 -0400
+Received: from mga05.intel.com ([192.55.52.89]:43103 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751122AbWGDFpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 01:45:52 -0400
+X-IronPort-AV: i="4.06,202,1149490800"; 
+   d="scan'208"; a="92899106:sNHT14149121"
+Subject: [PATCH] mmap zero-length hugetlb file with PROT_NONE to protect a
+	hugetlb virtual area
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: David Gibson <david@gibson.dropbear.id.au>
+Content-Type: text/plain
+Message-Id: <1151991861.28493.160.camel@ymzhang-perf.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Tue, 04 Jul 2006 13:44:21 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jul 2006 14:55:50 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
+From: Zhang, Yanmin <yanmin.zhang@intel.com>
 
-> Move highmem counters into highmem.c/.h
-> 
-> Move the totalhigh_pages definition into highmem.c/.h
-> 
-Hi, I love this patch series :)
+Sometimes, applications need below call to be successful although
+"/mnt/hugepages/file1" doesn't exist.
 
-I found this :
-== arch/um/kernel/mem.c ==
+fd = open("/mnt/hugepages/file1", O_CREAT|O_RDWR, 0755);
+*addr = mmap(NULL, 0x1024*1024*256, PROT_NONE, 0, fd, 0);
 
-void mem_init(void)
-{
-<snip>
-   totalhigh_pages = highmem >> PAGE_SHIFT;
-....
-==
-this should be covered by CONFIG_HIGHMEM if you change totalhigh_pages 
-to be #define.
+As for regular pages (or files), above call does work, but as for huge pages,
+above call would fail because hugetlbfs_file_mmap would fail if 
+(!(vma->vm_flags & VM_WRITE) && len > inode->i_size). 
+ 
+This capability on huge page is useful on ia64 when the process wants to 
+protect one area on region 4, so other threads couldn't read/write this
+area. A famous JVM (Java Virtual Machine) implementation on IA64 needs the
+capability.
 
-Regards,
--Kame
+The patch against 2.6.17-mm6 provides the capability.
 
+Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
 
+---
 
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
-> 
-> Index: linux-2.6.17-mm6/include/linux/highmem.h
-> ===================================================================
-> --- linux-2.6.17-mm6.orig/include/linux/highmem.h	2006-07-03 13:47:21.556579985 -0700
-> +++ linux-2.6.17-mm6/include/linux/highmem.h	2006-07-03 14:03:39.168021629 -0700
-> @@ -24,11 +24,14 @@ static inline void flush_kernel_dcache_p
->  
->  /* declarations for linux/mm/highmem.c */
->  unsigned int nr_free_highpages(void);
-> +extern unsigned long totalhigh_pages;
->  
->  #else /* CONFIG_HIGHMEM */
->  
->  static inline unsigned int nr_free_highpages(void) { return 0; }
->  
-> +#define totalhigh_pages 0
-> +
->  static inline void *kmap(struct page *page)
->  {
->  	might_sleep();
-> Index: linux-2.6.17-mm6/include/linux/swap.h
-> ===================================================================
-> --- linux-2.6.17-mm6.orig/include/linux/swap.h	2006-07-03 13:47:22.066314085 -0700
-> +++ linux-2.6.17-mm6/include/linux/swap.h	2006-07-03 14:03:39.168998131 -0700
-> @@ -162,7 +162,6 @@ extern void swapin_readahead(swp_entry_t
->  
->  /* linux/mm/page_alloc.c */
->  extern unsigned long totalram_pages;
-> -extern unsigned long totalhigh_pages;
->  extern unsigned long totalreserve_pages;
->  extern long nr_swap_pages;
->  extern unsigned int nr_free_pages(void);
-> Index: linux-2.6.17-mm6/mm/page_alloc.c
-> ===================================================================
-> --- linux-2.6.17-mm6.orig/mm/page_alloc.c	2006-07-03 14:03:19.964129358 -0700
-> +++ linux-2.6.17-mm6/mm/page_alloc.c	2006-07-03 14:03:39.170951135 -0700
-> @@ -51,7 +51,6 @@ EXPORT_SYMBOL(node_online_map);
->  nodemask_t node_possible_map __read_mostly = NODE_MASK_ALL;
->  EXPORT_SYMBOL(node_possible_map);
->  unsigned long totalram_pages __read_mostly;
-> -unsigned long totalhigh_pages __read_mostly;
->  unsigned long totalreserve_pages __read_mostly;
->  long nr_swap_pages;
->  int percpu_pagelist_fraction;
-> Index: linux-2.6.17-mm6/mm/shmem.c
-> ===================================================================
-> --- linux-2.6.17-mm6.orig/mm/shmem.c	2006-07-03 13:47:22.646356337 -0700
-> +++ linux-2.6.17-mm6/mm/shmem.c	2006-07-03 14:03:39.171927638 -0700
-> @@ -45,6 +45,7 @@
->  #include <linux/namei.h>
->  #include <linux/ctype.h>
->  #include <linux/migrate.h>
-> +#include <linux/highmem.h>
->  
->  #include <asm/uaccess.h>
->  #include <asm/div64.h>
-> Index: linux-2.6.17-mm6/mm/highmem.c
-> ===================================================================
-> --- linux-2.6.17-mm6.orig/mm/highmem.c	2006-07-03 13:47:22.613155266 -0700
-> +++ linux-2.6.17-mm6/mm/highmem.c	2006-07-03 14:03:39.172904140 -0700
-> @@ -46,6 +46,7 @@ static void *mempool_alloc_pages_isa(gfp
->   */
->  #ifdef CONFIG_HIGHMEM
->  
-> +unsigned long totalhigh_pages __read_mostly;
->  static int pkmap_count[LAST_PKMAP];
->  static unsigned int last_pkmap_nr;
->  static  __cacheline_aligned_in_smp DEFINE_SPINLOCK(kmap_lock);
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+diff -Nraup linux-2.6.17_mm6/fs/hugetlbfs/inode.c linux-2.6.17_mm6_hugetlb/fs/hugetlbfs/inode.c
+--- linux-2.6.17_mm6/fs/hugetlbfs/inode.c	2006-07-04 10:18:38.000000000 +0800
++++ linux-2.6.17_mm6_hugetlb/fs/hugetlbfs/inode.c	2006-07-04 10:20:10.000000000 +0800
+@@ -83,8 +83,6 @@ static int hugetlbfs_file_mmap(struct fi
+ 
+ 	ret = -ENOMEM;
+ 	len = vma_len + ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
+-	if (!(vma->vm_flags & VM_WRITE) && len > inode->i_size)
+-		goto out;
+ 
+ 	if (vma->vm_flags & VM_MAYSHARE &&
+ 	    hugetlb_reserve_pages(inode, vma->vm_pgoff >> (HPAGE_SHIFT-PAGE_SHIFT),
+@@ -93,7 +91,7 @@ static int hugetlbfs_file_mmap(struct fi
+ 
+ 	ret = 0;
+ 	hugetlb_prefault_arch_hook(vma->vm_mm);
+-	if (inode->i_size < len)
++	if (vma->vm_flags & VM_WRITE && inode->i_size < len)
+ 		inode->i_size = len;
+ out:
+ 	mutex_unlock(&inode->i_mutex);

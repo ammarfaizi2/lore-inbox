@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWGDWSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWGDWSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWGDWSL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 18:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWGDWSL
+	id S932317AbWGDWSl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 18:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWGDWSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 18:18:11 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:39329 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932273AbWGDWSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 18:18:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OcNQbVcRU3u96IbGx1VndfHh1liw5ZCS6tPGUNDcH48W0i+A3HAhM2e8+BRmQr65izuYZRcj0IsxNvj50STxWkelkNR3h8L1wbQ5YwifBKFUfh2OU981DlEJHpmvdBmuXv++xMoN33Ik5nFaQS+KAuACIwCKFRdgxwdYGfILjk0=
-Message-ID: <6bffcb0e0607041518s6604baa6k7d7a8d89a7a4e1fa@mail.gmail.com>
-Date: Wed, 5 Jul 2006 00:18:09 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Greg KH" <gregkh@suse.de>
-Subject: Re: [TRIVIAL][PATCH] include/linux/Kbuild devfs fix
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "David Woodhouse" <dwmw2@infradead.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060704214409.GA23221@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 4 Jul 2006 18:18:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16084 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932317AbWGDWSk (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 18:18:40 -0400
+Date: Tue, 4 Jul 2006 15:18:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: hch@infradead.org, vs@namesys.com, Linux-Kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com
+Subject: Re: [PATCH 1/2] batch-write.patch
+Message-Id: <20060704151832.9f2d87b3.akpm@osdl.org>
+In-Reply-To: <44AAA8ED.5030906@namesys.com>
+References: <44A42750.5020807@namesys.com>
+	<20060629185017.8866f95e.akpm@osdl.org>
+	<1152011576.6454.36.camel@tribesman.namesys.com>
+	<20060704114836.GA1344@infradead.org>
+	<44AAA8ED.5030906@namesys.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <44AACE30.3000601@gmail.com> <20060704214409.GA23221@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/07/06, Greg KH <gregkh@suse.de> wrote:
-> On Tue, Jul 04, 2006 at 10:23:12PM +0200, Michal Piotrowski wrote:
-> > Hi,
-> >
-> > I get this error while "make O=/dir headers_install"
-> >
-> > sed: can't read /usr/src/linux-git/include/linux/devfs_fs.h: No such file or directory
-> > make[3]: *** [devfs_fs.h] Error 2
-> > make[2]: *** [linux] Error 2
-> > make[1]: *** [headers_install] Error 2
-> > make: *** [headers_install] Error 2
-> >
-> > Here is a patch
->
-> Linus already caught this :)
+On Tue, 04 Jul 2006 10:44:13 -0700
+Hans Reiser <reiser@namesys.com> wrote:
 
-Thanks Linus!
+> Christoph Hellwig wrote:
+> 
+> >On Tue, Jul 04, 2006 at 03:12:56PM +0400, Vladimir V. Saveliev wrote:
+> >  
+> >
+> >>>Should this be an address_space_operation or a file_operation?
+> >>>
+> >>>      
+> >>>
+> >>I was seeking to be minimal in my changes to the philosophy of the code.
+> >>So, it was an address_space operation. Now it is a file operation.
+> >>    
+> >>
+> >
+> >It definitly should not be a file_operation! It works at the address_space
+> >not the much higher file level.  Maybe all three should become callbacks
+> >for the generic write routines, but that's left for the future.
+> >
+> >
+> >  
+> >
+> I don't have a commitment to one way or the other, probably because
+> there are some things that are unclear in my mind.  Could you help me
+> with them?  Can you define what is the address space vs. the file level
+> please?  It is odd to be asking such a basic question, but these things
+> are genuinely unclear to me.  If the use of something varies according
+> to the file, is it a file method?  What things vary according to address
+> space and not according to file?  Should things that vary according to
+> address space be address space ops and things that vary according to
+> file be file ops?  If that logic seems valid, should a lot more be changed?
+> 
+> Oh, and Andrew, while such things are discussed, could you just pick one
+> way or the other and let the patch go in?
+> 
 
-Regards,
-Michal
+I wasn't sure, which was I asked rather than suggested..
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Looking closer, yes I agree with Christoph, sorry.  It's called at the same
+level as ->prepare_write/commit_write so if there's any logic to this, it's
+logical that batched_write be an a_op too.
+

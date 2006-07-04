@@ -1,62 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWGDPdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWGDPhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWGDPdF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 11:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWGDPdF
+	id S932259AbWGDPhN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 11:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWGDPhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 11:33:05 -0400
-Received: from pool-72-66-194-43.ronkva.east.verizon.net ([72.66.194.43]:64710
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751272AbWGDPdE (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 11:33:04 -0400
-Message-Id: <200607041532.k64FWtpJ025362@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: 7eggert@gmx.de
-Cc: Petr Tesarik <ptesarik@suse.cz>, Diego Calleja <diegocg@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-In-Reply-To: Your message of "Tue, 04 Jul 2006 14:28:05 +0200."
-             <E1Fxk0v-0000gC-Qk@be1.lrz>
-From: Valdis.Kletnieks@vt.edu
-References: <6tVcC-1e1-79@gated-at.bofh.it> <6tVcC-1e1-81@gated-at.bofh.it> <6tVcC-1e1-83@gated-at.bofh.it> <6tWib-2Ly-7@gated-at.bofh.it> <6uDdv-7bs-3@gated-at.bofh.it> <6uDGF-7Nj-47@gated-at.bofh.it> <6uDQb-8e8-9@gated-at.bofh.it> <6uDQb-8e8-13@gated-at.bofh.it> <6uE9y-d1-1@gated-at.bofh.it> <6uPom-87W-23@gated-at.bofh.it>
-            <E1Fxk0v-0000gC-Qk@be1.lrz>
+	Tue, 4 Jul 2006 11:37:13 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:3201 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S932259AbWGDPhL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 11:37:11 -0400
+Date: Tue, 4 Jul 2006 08:28:57 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
+Message-ID: <20060704152857.GA6999@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200607011123_MC3-1-C3EB-BFF1@compuserve.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152027175_4949P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 04 Jul 2006 11:32:55 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607011123_MC3-1-C3EB-BFF1@compuserve.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152027175_4949P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Chuck,
 
-On Tue, 04 Jul 2006 14:28:05 +0200, Bodo Eggert said:
-> BTW: If you're using the trashcan on linked files, you will need to sto=
-re
-> multiple sources for an inode.
+On Sat, Jul 01, 2006 at 11:21:22AM -0400, Chuck Ebbert wrote:
+> In-Reply-To: <20060630204032.GB22835@frankl.hpl.hp.com>
+> 
+> On Fri, 30 Jun 2006 13:40:32 -0700, Stephane Eranian wrote:
+> 
+> > As Andi is suggesting, I think this may depends on how the BIOS implements
+> > the low-power state. I have tried the same command on my dual Opteron 250
+> > 2.4GHz and I get:
+> > $ pfmon --us-c -ecpu_clk_unhalted,interrupts_masked_cycles -k --system-wide -t 10
+> > <session to end in 10 seconds>
+> > CPU0                     9,520,303 CPU_CLK_UNHALTED
+> > CPU0                     3,726,315 INTERRUPTS_MASKED_CYCLES
+> > CPU1                    21,268,151 CPU_CLK_UNHALTED
+> > CPU1                    14,515,389 INTERRUPTS_MASKED_CYCLES
+> 
+> That is similar to what I get with idle=halt. Are you not using ACPI
+> for idle?
+> 
+> Try this:
+> 
+> $ pfmon -ecpu_clk_unhalted,interrupts_masked_cycles_with_interrupt_pending,interrupts_masked_cycles,cycles_no_fpu_ops_retired -k --system-wide -t 10
+> <session to end in 10 seconds>
+> CPU0     95016828 CPU_CLK_UNHALTED
+> CPU0     36472783 INTERRUPTS_MASKED_CYCLES_WITH_INTERRUPT_PENDING
+> CPU0     67484408 INTERRUPTS_MASKED_CYCLES
+> CPU0    445326968 CYCLES_NO_FPU_OPS_RETIRED
+> 
+> That's what I get with idle=halt.  Since the kernel doesn't do FP
+> the last line should equal clock cycles.  If it were running at full
+> speed it would be 16 billion...
 
-No, if it's a multiply linked file, you want all unlinks except the last
-to operate the way they always have, and only the LAST link moves to the
-trashcan.
+Here is what I get on my dual 2.4GHz Opteron 250:
 
-Otherwise, if you have a file with two links, and one moves to the trashc=
-an,
-it's then subject to reaping and overwriting - which will come as a great=
+booted with idle=halt
+$ pfmon --us-c -ecpu_clk_unhalted,interrupts_masked_cycles_with_interrupt_pending,interrupts_masked_cycles,cycles_no_fpu_ops_retired -k --system-wide -t 10
+<session to end in 10 seconds>
+CPU0                    11,356,210 CPU_CLK_UNHALTED                               
+CPU0                             0 INTERRUPTS_MASKED_CYCLES_WITH_INTERRUPT_PENDING
+CPU0                     3,836,107 INTERRUPTS_MASKED_CYCLES                       
+CPU0                23,910,784,532 CYCLES_NO_FPU_OPS_RETIRED                      
+CPU1                    19,303,632 CPU_CLK_UNHALTED                               
+CPU1                             0 INTERRUPTS_MASKED_CYCLES_WITH_INTERRUPT_PENDING
+CPU1                    13,942,265 INTERRUPTS_MASKED_CYCLES                       
+CPU1                23,911,872,654 CYCLES_NO_FPU_OPS_RETIRED                      
 
-surprise to the still-existing link....
+As you can see, CYCLES_NO_FPU_OPS_RETIRED on each CPU is as expected  for 10s.
 
---==_Exmh_1152027175_4949P
-Content-Type: application/pgp-signature
+booted with idle=poll
+$ pfmon --us-c -ecpu_clk_unhalted,interrupts_masked_cycles_with_interrupt_pending,interrupts_masked_cycles,cycles_no_fpu_ops_retired -k --system-wide -t 10
+<session to end in 10 seconds>
+CPU0                23,906,091,982 CPU_CLK_UNHALTED                               
+CPU0                             0 INTERRUPTS_MASKED_CYCLES_WITH_INTERRUPT_PENDING
+CPU0                     3,771,569 INTERRUPTS_MASKED_CYCLES                       
+CPU0                23,906,090,750 CYCLES_NO_FPU_OPS_RETIRED                      
+CPU1                23,906,629,241 CPU_CLK_UNHALTED                               
+CPU1                             0 INTERRUPTS_MASKED_CYCLES_WITH_INTERRUPT_PENDING
+CPU1                    14,805,078 INTERRUPTS_MASKED_CYCLES                       
+CPU1                23,906,194,343 CYCLES_NO_FPU_OPS_RETIRED                      
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+CYCLES_NO_FPU_OPS_RETIRED is as expected and, in this case, it is equal to CPU_CLK_UNHALTED
+because we are busy looping.
 
-iD8DBQFEqooncC3lWbTT17ARAnt/AKCQ9QjVCe0+E6ij5HiMinfPn0rJUgCg/BO3
-gm/GwTlZptzaHiCT4sMlaAU=
-=wFgE
------END PGP SIGNATURE-----
+If I don't specify anything, I get like idle=halt which is expected.
 
---==_Exmh_1152027175_4949P--
+-- 
+-Stephane

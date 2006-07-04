@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWGDMEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWGDMHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWGDMEe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 08:04:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWGDMEe
+	id S932216AbWGDMHO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 08:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWGDMHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 08:04:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:7617 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932230AbWGDMEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 08:04:33 -0400
-Date: Tue, 4 Jul 2006 13:04:29 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Christoph Lameter <clameter@sgi.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
-       Con Kolivas <kernel@kolivas.org>, Marcelo Tosatti <marcelo@kvack.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [RFC 0/8] Reduce MAX_NR_ZONES and remove useless zones.
-Message-ID: <20060704120429.GB3386@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andi Kleen <ak@suse.de>, Christoph Lameter <clameter@sgi.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org,
-	Hugh Dickins <hugh@veritas.com>, Con Kolivas <kernel@kolivas.org>,
-	Marcelo Tosatti <marcelo@kvack.org>,
-	Nick Piggin <nickpiggin@yahoo.com.au>
-References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com> <20060703221712.GB14273@infradead.org> <Pine.LNX.4.64.0607031624210.8547@schroedinger.engr.sgi.com> <200607040147.10995.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Jul 2006 08:07:14 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:21633 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932216AbWGDMHM (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 08:07:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=HCDqacbWYGTrCkFbDxj203iiv3GsPcyywdprBuOW6al23DGFL3rxtuGAu9tL/bO+EiGyOCXUFwOmCpsQ2kbAZx8u4YIWyPLpUe1KSrovhdDpHK2tFQJuvU79u1BUYoG2LoU8C8znUw3q+aXTzSSpur6n+ICEBd6joNbHQ241CVc=
+Message-ID: <84144f020607040507u58489b8eqfe8f41ef0d76b369@mail.gmail.com>
+Date: Tue, 4 Jul 2006 15:07:11 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Vladimir V. Saveliev" <vs@namesys.com>
+Subject: Re: [PATCH 1/2] batch-write.patch
+Cc: "Andrew Morton" <akpm@osdl.org>, lkml <Linux-Kernel@vger.kernel.org>,
+       reiserfs-dev@namesys.com
+In-Reply-To: <1152012117.6454.41.camel@tribesman.namesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200607040147.10995.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <44A42750.5020807@namesys.com>
+	 <20060629185017.8866f95e.akpm@osdl.org>
+	 <1152011576.6454.36.camel@tribesman.namesys.com>
+	 <1152012117.6454.41.camel@tribesman.namesys.com>
+X-Google-Sender-Auth: ed73a2a0f3c2ad82
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 04, 2006 at 01:47:10AM +0200, Andi Kleen wrote:
-> It's really architecture dependent. The portable interfaces are 
-> dma_alloc_* and suitable device masks and the architecture should sort
-> out then what zone to use.
+On 7/4/06, Vladimir V. Saveliev <vs@namesys.com> wrote:
+> @@ -784,6 +786,8 @@ otherwise noted.
+>
+>    writev: called by the writev(2) system call
+>
+> +  batch_write: optional, if implemented called by writev(2) and write(2)
+> +
 
-Well, there's some cases where you don't want coherent mappings but
-rather alloc_page + dma_map_*.  And having a ZONE_DMA32 that is valid
-on all architectures is very valueable for that.
+It'd be nice if you added some explanation here why a filesystem
+developer would want to implement it.
 
-I remember James promised a kmalloc_mask a last Kernel Summit that would
-many things easier, but even than having predictable memory zone layouts
-overy different architectures is a win.
+                                       Pekka

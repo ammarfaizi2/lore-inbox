@@ -1,73 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWGDNGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWGDNHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWGDNGq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 09:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWGDNGq
+	id S932144AbWGDNHi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 09:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWGDNHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 09:06:46 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:54933 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932149AbWGDNGo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 09:06:44 -0400
-Date: Tue, 4 Jul 2006 15:02:35 +0200
-To: Jes Sorensen <jes@sgi.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Milton Miller <miltonm@bga.com>,
-       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
-Message-ID: <20060704130235.GD11458@aitel.hist.no>
-References: <yq0mzbqhfdp.fsf@jaguar.mkp.net> <200607040516.k645GFTj014564@sullivan.realtime.net> <44AA1D09.7080308@sgi.com> <1151999591.3109.8.camel@laptopd505.fenrus.org> <44AA2301.2030400@sgi.com>
+	Tue, 4 Jul 2006 09:07:38 -0400
+Received: from mga01.intel.com ([192.55.52.88]:37639 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932144AbWGDNHg convert rfc822-to-8bit (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 09:07:36 -0400
+X-IronPort-AV: i="4.06,204,1149490800"; 
+   d="scan'208"; a="93041613:sNHT18913748"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44AA2301.2030400@sgi.com>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+Date: Tue, 4 Jul 2006 17:07:21 +0400
+Message-ID: <B41635854730A14CA71C92B36EC22AAC0541F7@mssmsx411>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+Thread-Index: AcafYYOHQnPXIiwHTIKgRBTi8xxa8AACTYPw
+From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+To: "Nikita Danilov" <nikita@clusterfs.com>
+Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Jul 2006 13:07:33.0667 (UTC) FILETIME=[D04C9F30:01C69F6A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 04, 2006 at 10:12:49AM +0200, Jes Sorensen wrote:
-> Arjan van de Ven wrote:
-> > On Tue, 2006-07-04 at 09:47 +0200, Jes Sorensen wrote:
-> >> Well yes and no. $#@$#@* hald will do the open/close stupidity a
-> >> couple of times per second. On a 128 CPU system thats quite a lot of
-> >> IPI traffic, resulting in measurable noise if you run a benchmark.
-> >> Remember that the IPIs are synchronous so you have to wait for them to
-> >> hit across the system :
-> > 
-> > can you get hald fixed? That sounds important anyway... stupid userspace
-> > isn't going to be good no matter what, and the question is how much crap
-> > we need to do in the kernel to compensate for stupid userspace...
-> > especially if such userspace is open source and CAN be fixed...
-> 
-> I'd like to, I don't know how feasible it is though :( The distros make
-> it a priority to run all the GUI stuff that makes Linux look like
-> windows as much as they can, which includes autodetecting when users
-> insert their latest audio CD so they can launch the mp3 ripper
-> automatically ....
-> 
-> Guess the question is, is there a way we can detect when media has been
-> inserted without doing open/close on the device constantly? It's not
-> something I have looked at in detail, so I dunno if there's a sensible
-> way to handle it.
+Nikita Danilov writes:
 
-I always believed that it was possible, but not on all cdroms.
-If this was supported, people with lots of cpus could be told to
-get some of the sane cdroms for their big boxes.
+> With your patch, this work is done from
+> pdflush, and won't be throttled by may_write_to_queue() check, thus
+> increasing a risk of allocation failure.
+....
+After Nikita Danilov agrees that
+> pdflush is throttled through blk_congestion_wait(), but it is not
+> throttled by writing dirty from the tail of inactive list
 
-One solution is to have the kernel do this kind of polling itself,
-in the device drivers for removeable media.
-Then it can simply notify userspace when something happens,
-and userspace can decide to play music, mount a fs, or whatever
-people want to happen.
+The 'writing dirty from the tail of inactive list' is asynchronous
+writing and it is not applicable for throttling.
 
-> 
-> The other part of it is that I do think it's undesirable that a user
-> space app can cause so much kernel IPI noise by simply doing open/close
-> on a device.
+Leonid 
+ 
 
-Sure, a DOS waiting to happen.  If they can poll twice a second, whats
-to stop them from trying to poll a hundred times a second, or in
-a busy loop?
+-----Original Message-----
+From: Nikita Danilov [mailto:nikita@clusterfs.com] 
+Sent: Tuesday, July 04, 2006 3:56 PM
+To: Ananiev, Leonid I
+Cc: Linux Kernel Mailing List
+Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh
+entirely
 
-Helge Hafting
+Ananiev, Leonid I writes:
+ > Nikita Danilov wtites:
+ > >> Pdflush thread functions as before patching. Pdflush tends to make
+ > pages
+ > >> un-dirty without overload memory or IO and it is not need to let
+ > pdflush
+ > 
+ > > This assumption is valid for ext2
+ > 
+ > The assumption that pdflush should to make pages un-dirty without
+ > overload memory or IO is not for ext2 but for it sense. I'm working
+with
+
+I am not sure what "sense" is being referred to. Some file systems do
+allocate a lot of memory in ->writepages().
+
+ext3 is still in the same ball-park as ext2.
+
+ > ext3. A lot of work it does while writepages(). pdflush is throttled:
+ > while vmscan have sorted 32 page for paging-out it calls
+ > blk_congestion_wait() nevertheless had it put one of 32 page into
+ > congested queue or had not. pdflush is throttled.
+
+pdflush is throttled through blk_congestion_wait(), but it is not
+throttled by writing dirty from the tail of inactive list, while
+scanning for memory. This destroys LRU ordering.
+
+ > 
+ > Leonid
+ >  
+
+Nikita.

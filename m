@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWGDM4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWGDNAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbWGDM4h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 08:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWGDM4h
+	id S1750965AbWGDNAI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 09:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWGDNAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 08:56:37 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:51861 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750818AbWGDM4h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 08:56:37 -0400
-Date: Tue, 4 Jul 2006 14:52:27 +0200
-To: Valdis.Kletnieks@vt.edu
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-Message-ID: <20060704125227.GC11458@aitel.hist.no>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no> <44A98D5A.5030508@tmr.com> <200607032150.k63LoM4H027543@turing-police.cc.vt.edu>
+	Tue, 4 Jul 2006 09:00:08 -0400
+Received: from oker.escape.de ([194.120.234.254]:54410 "EHLO oker.escape.de")
+	by vger.kernel.org with ESMTP id S1750965AbWGDNAG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 09:00:06 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Q: locking mechanisms
+References: <m2odw9g937.fsf@janus.isnogud.escape.de>
+	<1151746571.25491.850.camel@localhost.localdomain>
+From: Urs Thuermann <urs@isnogud.escape.de>
+Date: 04 Jul 2006 14:58:42 +0200
+In-Reply-To: <1151746571.25491.850.camel@localhost.localdomain>; from Thomas Gleixner on Sat, 01 Jul 2006 11:36:11 +0200
+Message-ID: <m2mzbpcyrh.fsf@janus.isnogud.escape.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607032150.k63LoM4H027543@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 05:50:22PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 03 Jul 2006 17:34:18 EDT, Bill Davidsen said:
-> > I think he is talking about another problem. RAID addresses detectable
-> > failures at the hardware level. I believe that he wants validation after
-> > the data is returned (without error) from the device. While in most
-> > cases if what you wrote and what you read don't match it's memory,
-> > improving the chances of catching the error is useful, given that
-> > non-server often lacks ECC on memory, or people buy cheaper non-parity
-> > memory.
-> 
-> There's other issues as well.  Why do people run 'tripwire' on boxes that
-> have RAID on them?
+Thomas Gleixner <tglx@linutronix.de> writes:
 
-To notice hacking.  RAID protects against hardware failure, it does
-_not_ protect against any change that comes through the normal
-filesystem channels.  RAID doesn't help the slightest against
-viruses and hackers.  RAID is _not_ a backup, when a hacker
-(or a user error) changes an important file, it is changed
-in all mirrors of a raid-1 set, and raid-5 checksums are updated
-so the change becomes valid.  But tripwire will notice that
-a protected file changed.
+> Does Documentation/listRCU.txt answer your questions ?
 
-Helge Hafting
+It doesn't answer my question.  I have code that receives network
+packets by registering with dev_add_pack().  Each packet received is
+then delivered to a list of receivers, where this list can contain quite
+a lot of items:
+
+	receive_function(struct sk_buff *skb, struct net_device *dev,
+			struct packet_type *pt, struct net_device *orig_dev)
+	{
+		...
+		rcu_read_lock();
+                head = find_list(dev);
+		hlist_for_each_entry_rcu(p, n, head, list) {
+			deliver_packet_to_receiver(skb, p);
+		}
+		rcu_read_unlock();
+	}
+
+The deliver_packet_to_receiver() function finally ends up in a call to
+sock_queue_rcv_skb().
+
+My questions was, wether I should worry to "hold" the rcu_read_lock for
+the time of the list traversal since the list can be quite long and
+preemption is disabled between rcu_read_lock() and rcu_read_unlock().
+
+
+urs

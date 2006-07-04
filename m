@@ -1,77 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWGDBig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWGDBrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbWGDBig (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 21:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWGDBig
+	id S1751224AbWGDBrL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 21:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWGDBrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 21:38:36 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:32863 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1751200AbWGDBig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 21:38:36 -0400
-Date: Mon, 03 Jul 2006 21:36:33 -0400
-From: Jeff Bailey <jbailey@ubuntu.com>
-Subject: Re: [klibc] klibc and what's the next step?
-In-reply-to: <20060703184647.GA14100@baikonur.stro.at>
-To: maximilian attems <maks@sternwelten.at>
-Cc: Rob Landley <rob@landley.net>, klibc@zytor.com,
-       Jeff Garzik <jeff@garzik.org>, Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       torvalds@osdl.org, "H. Peter Anvin" <hpa@zytor.com>
-Message-id: <1151976993.2547.27.camel@localhost.localdomain>
-MIME-version: 1.0
-X-Mailer: Evolution 2.6.1
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary="=-YJTwiYtJyQergVIGlhPY"
-References: <klibc.200606251757.00@tazenda.hos.anvin.org>
- <44A16E9C.70000@zytor.com> <Pine.LNX.4.64.0606290156590.17704@scrub.home>
- <200607031430.47296.rob@landley.net> <20060703184647.GA14100@baikonur.stro.at>
+	Mon, 3 Jul 2006 21:47:11 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:59327 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751224AbWGDBrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 21:47:10 -0400
+Date: Mon, 3 Jul 2006 18:46:55 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Marcelo Tosatti <marcelo@kvack.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       penberg@cs.helsinki.fi, paulmck@us.ibm.com, nickpiggin@yahoo.com.au,
+       tytso@mit.edu, dgc@sgi.com, ak@suse.de
+Subject: Re: [RFC 0/4] Object reclaim via the slab allocator V1
+In-Reply-To: <20060703231103.GA5160@dmt>
+Message-ID: <Pine.LNX.4.64.0607031837280.10292@schroedinger.engr.sgi.com>
+References: <20060619184651.23130.62875.sendpatchset@schroedinger.engr.sgi.com>
+ <20060628174329.20adbc2a.akpm@osdl.org> <Pine.LNX.4.64.0606281741380.24393@schroedinger.engr.sgi.com>
+ <20060628200942.6eea8ae5.akpm@osdl.org> <Pine.LNX.4.64.0606291017120.27705@schroedinger.engr.sgi.com>
+ <20060703004444.GA7688@dmt> <Pine.LNX.4.64.0607031058400.26397@schroedinger.engr.sgi.com>
+ <20060703231103.GA5160@dmt>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 3 Jul 2006, Marcelo Tosatti wrote:
 
---=-YJTwiYtJyQergVIGlhPY
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+> > I think is pretty obvious. With atomic refcounters you can simply scan
+> > a slab for unused objects without any callbacks. Needing a callback for 
+> > every single object is a waste of resources and will limit reclaim 
+> > efficiency. You would have to do 120 callbacks on some slabs just to 
+> > figure out that it is worth trying to free objects in that 
+> > particular slab block.
+> 
+> Inline the callbacks into a per-cache kmem_cache_reclaim ?
 
-Le lundi 03 juillet 2006 =C3=A0 20:46 +0200, maximilian attems a =C3=A9crit=
- :
-> well but busybox is big nowadays and generally compiled against glibc.
-> i'm quite eager to kick busybox out of default Debian initramfs-tools
-> to have an klibc only default initramfs. those tools are needed atm,
-> and there is not enough yet. afaik suse adds sed on klibc with a minimal
-> patch and we'd liked to have stat, kill and readlink on klibc-utils.
->=20
-> how about busybox on klibc?
+You mean the user writes the check functions? Can you give an example how 
+inlining is supposed to work here?
 
-I made a brief attempt to do busybox on klibc before klcc was working
-right for me.  I should try that again.  In Ubuntu, we already do a
-separate build pass of busybox to get just the features that we want, it
-would be easy to play with this.
+> > Cannot see a valid reason so far to draw that conclusion. With the right 
+> > convention the atomic refcounter can be used as an indicator that the 
+> > object is being freed (refcnt = 0), not in use (refcnt = 1) or in active 
+> > use (refcnt=2). The easy and efficient access to this kind of knowledge 
+> > about an object is essential for reclaim.
+> 
+> But the assumption that "refcnt = 1 implies unused object" is too weak.
+> 
+> For example, 
+> 
+> struct dentry {
+>         atomic_t d_count;
+>         unsigned int d_flags;           /* protected by d_lock */
+> 
+> d_count can be higher than one _and_ the object freeable. Think of
+> workloads operating on a large number of directories.
 
-I'll let you know.  It'll take me a couple days - between travelling and
-the long weekend, I'm a bit behind.
+The scheme that I proposed implies that the refcount handling is changed.
+It must be uniform for all object types that use reclaim.
 
-Tks,
-Jeff Bailey
+If used for the dcache then dentry handling must be changed so that the 
+refcount at the beginnDing of the slab is 1 if the object is reclaimable 
+and the higher refcount needs to be an indicator that the object is in 
+use. I am not saying that existing use gets us there. Maybe we need to 
+call this a reclaim flag instead of a refcount?
 
---=20
-* Canonical Ltd * Ubuntu Service and Support * +1 514 691 7221 *
+> Andrew mentioned:
+> 
+> "That seems like quite a drawback. A single refcount=2 object on the
+> page means that nothing gets freed from that page at all. It'd be easy
+> (especially with dcache) to do tons of work without achieving anything."
 
-Linux for Human Beings.
+We can check for a single high count object in a slab and then call
+the destructor if we feel that is warranted. The refcount is an 
+indicator to the slab of the reclaim status of the object.
 
---=-YJTwiYtJyQergVIGlhPY
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+> > Ok. I will have a look at that. But these callbacks are too heavy for my 
+> > taste. A refcounter could avoid all of that.
+> 
+> Inline them.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
+"Inline" seem to be way to say that the user has to provide the function.
 
-iD8DBQBEqcYhkNAc0s37a3gRAjOkAKCLeCw8//yRXB4WrQwC0fb+asAIfQCgj36d
-zApmKRyM/WX6If+FjTfGrm8=
-=YLR/
------END PGP SIGNATURE-----
+> > Of course there is the challenge of preserving the LRU like behavior using 
+> > the slab lists. But I think it may be sufficiently approximated by the 
+> > LRU ness of the used slab list and the push back to the partial lists 
+> > whenever we touch a slab during reclaim (we free some objects so the slab 
+> > has to move).
+> 
+> Well, individual object usage is not reflected at all in the slab lists,
+> is it?
 
---=-YJTwiYtJyQergVIGlhPY--
-
+Correct. We would have to treat objects in a slab all the same. We could 
+just kick out some if we find the slab at the end of the list and see how 
+things develop. Pretty bare hacky LRU but it may be better than going 
+through huge lists of small objects on a LRU lists.

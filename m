@@ -1,54 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWGDBcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWGDBgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWGDBcG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 21:32:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWGDBcF
+	id S1751211AbWGDBgr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jul 2006 21:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWGDBgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 21:32:05 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:24227 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751168AbWGDBcE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jul 2006 21:32:04 -0400
-Message-ID: <351976722.07217@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Tue, 4 Jul 2006 09:32:49 +0800
-From: Fengguang Wu <wfg@mail.ustc.edu.cn>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Lubos Lunak <l.lunak@suse.cz>
-Subject: Re: [PATCH 7/7] iosched: introduce deadline_kick_page()
-Message-ID: <20060704013248.GA7333@mail.ustc.edu.cn>
-Mail-Followup-To: Fengguang Wu <wfg@mail.ustc.edu.cn>,
-	Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Lubos Lunak <l.lunak@suse.cz>
-References: <20060624082006.574472632@localhost.localdomain> <20060624082312.833976992@localhost.localdomain> <20060624110104.GP4083@suse.de> <20060625063232.GA5867@mail.ustc.edu.cn> <20060628112731.GP32115@suse.de>
+	Mon, 3 Jul 2006 21:36:47 -0400
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:21395 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S1751211AbWGDBgq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 21:36:46 -0400
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+To: linux-kernel@vger.kernel.org
+Subject: D-Link DUB-E100 Revision B1
+Date: Tue, 4 Jul 2006 03:33:13 +0200
+User-Agent: KMail/1.9.3
+Cc: dhollis@davehollis.com, pchang23@sbcglobal.net
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060628112731.GP32115@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_ZVcqEr2pyPkvqti"
+Message-Id: <200607040333.13649.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens,
+--Boundary-00=_ZVcqEr2pyPkvqti
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Wed, Jun 28, 2006 at 01:27:32PM +0200, Jens Axboe wrote:
-> > The overhead of deadline_kick_page() becomes large when the request is
-> > large (256 pages). But I guess there's way to optimize it:
-> > - most requests will be consisted of a set of continuous pages, i.e. a
-> >   range comparison will be sufficient.
-> > - for a system with lots of queued requests(>100), maybe the gain can
-> >   well pay for the overheads?
-> 
-> Sorry, there's just no way that something like that is acceptable for
-> inclusion. I don't care much about the overhead numbers (I can see from
-> the code that it sucks :-), I wanted to see some numbers on what
-> scenarios this helps performance and by how much.
+Looks like D-Link is getting into the funny "change the chipset but leave the 
+product name the same" game again.
 
-Ok, thanks. I hope that I'll be able to bring with some performance
-numbers the next time :-)
+DUB-E100 cards up to Revision A4 work perfectly, Revision B1 doesn't work at 
+all.
 
-Regards,
-Wu
+The patch I've attached has the beginnings of a fix; unfortunately this 
+trivialty doesn't fix it fully -- with the patch, the module loads, the MAC 
+address is detected correctly, the LEDs go on, but pings don't get through 
+yet.
+
+After loading the module, dmesg says
+eth1: register 'asix' at usb-0000:00:10.3-5, ASIX AX88772 USB 2.0 Ethernet, 
+00:80:c8:38:53:a7
+usbcore: registered new driver asix
+PM: Writing back config space on device 0000:00:0c.0 at offset b (was 3ed173b, 
+writing 461025)
+PM: Writing back config space on device 0000:00:0c.0 at offset 3 (was 0, 
+writing 4010)
+PM: Writing back config space on device 0000:00:0c.0 at offset 2 (was 2000000, 
+writing 2000003)
+PM: Writing back config space on device 0000:00:0c.0 at offset 1 (was 2b00000, 
+writing 2b00006)
+PM: Writing back config space on device 0000:00:0c.0 at offset 0 (was 3ed173b, 
+writing 169c14e4)
+
+Chances are it needs some more messing with the .data and/or .flags 
+parameters.
+
+--Boundary-00=_ZVcqEr2pyPkvqti
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="2.6.17-D-Link-E100-RevB.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="2.6.17-D-Link-E100-RevB.patch"
+
+--- linux-2.6.17/drivers/usb/net/asix.c.ark	2006-06-30 02:21:07.000000000 +0200
++++ linux-2.6.17/drivers/usb/net/asix.c	2006-06-30 02:23:59.000000000 +0200
+@@ -868,7 +868,7 @@
+ 	USB_DEVICE (0x0846, 0x1040),
+ 	.driver_info =  (unsigned long) &netgear_fa120_info,
+ }, {
+-	// DLink DUB-E100
++	// DLink DUB-E100, Revision A
+ 	USB_DEVICE (0x2001, 0x1a00),
+ 	.driver_info =  (unsigned long) &dlink_dub_e100_info,
+ }, {
+@@ -924,6 +924,10 @@
+ 	USB_DEVICE (0x1557, 0x7720),
+ 	.driver_info = (unsigned long) &ax88772_info,
+-},
++}, {
++	// D-Link DUB-E100 Rev. B
++	USB_DEVICE (0x07d1, 0x3c05),
++	.driver_info = (unsigned long) &ax88772_info,
++},
+ 	{ },		// END
+ };
+ MODULE_DEVICE_TABLE(usb, products);
+
+--Boundary-00=_ZVcqEr2pyPkvqti--

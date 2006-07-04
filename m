@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWGDLo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWGDLsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWGDLo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 07:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWGDLo6
+	id S932212AbWGDLsp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 07:48:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWGDLsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 07:44:58 -0400
-Received: from smtp-vbr2.xs4all.nl ([194.109.24.22]:48398 "EHLO
-	smtp-vbr2.xs4all.nl") by vger.kernel.org with ESMTP id S932217AbWGDLo5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 07:44:57 -0400
-To: Bruno Ducrot <ducrot@poupinou.org>
-Cc: Johan Vromans <jvromans@squirrel.nl>, Rich Townsend <rhdt@bartol.udel.edu>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: RFC [PATCH] acpi: allow SMBus access
-References: <17576.14005.767262.868190@phoenix.squirrel.nl>
-	<20060703082217.GB17014@poupinou.org>
-	<m2mzbrj5yp.fsf@phoenix.squirrel.nl>
-	<20060703125156.GD17014@poupinou.org>
-	<m2d5cln659.fsf@phoenix.squirrel.nl>
-	<20060704093510.GG17014@poupinou.org>
-From: Johan Vromans <jvromans@squirrel.nl>
-Date: Tue, 04 Jul 2006 13:44:53 +0200
-In-Reply-To: <20060704093510.GG17014@poupinou.org> (Bruno Ducrot's message
- of "Tue, 4 Jul 2006 11:35:10 +0200")
-Message-ID: <m24pxxmw5m.fsf@phoenix.squirrel.nl>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 4 Jul 2006 07:48:45 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:31892 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932212AbWGDLso (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 07:48:44 -0400
+Date: Tue, 4 Jul 2006 12:48:36 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Vladimir V. Saveliev" <vs@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <Linux-Kernel@vger.kernel.org>,
+       reiserfs-dev@namesys.com
+Subject: Re: [PATCH 1/2] batch-write.patch
+Message-ID: <20060704114836.GA1344@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Vladimir V. Saveliev" <vs@namesys.com>,
+	Andrew Morton <akpm@osdl.org>, lkml <Linux-Kernel@vger.kernel.org>,
+	reiserfs-dev@namesys.com
+References: <44A42750.5020807@namesys.com> <20060629185017.8866f95e.akpm@osdl.org> <1152011576.6454.36.camel@tribesman.namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152011576.6454.36.camel@tribesman.namesys.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bruno Ducrot <ducrot@poupinou.org> writes:
+On Tue, Jul 04, 2006 at 03:12:56PM +0400, Vladimir V. Saveliev wrote:
+> 
+> > Should this be an address_space_operation or a file_operation?
+> > 
+> 
+> I was seeking to be minimal in my changes to the philosophy of the code.
+> So, it was an address_space operation. Now it is a file operation.
 
-> An intermediate solution would be to use the already existing
-> ec_read|write instead of the one you want to use.  The original
-> SMBus driver used acpi_ec_read because the author wanted to be
-> sure that driver will support laptops with more than one EC, but
-> he never saw such laptops so far.
-
-Indeed, if the requirement for multiple ECs can be dropped, this
-simplifies the problem sufficiently to use the current ec_read/write
-functions.
-
-Unless someone comes up with other ideas I suggest to withdraw this
-proposal until laptops with multiple ECs hit the market...
-
--- Johan
-
-
+It definitly should not be a file_operation! It works at the address_space
+not the much higher file level.  Maybe all three should become callbacks
+for the generic write routines, but that's left for the future.

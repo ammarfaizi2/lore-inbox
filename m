@@ -1,60 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWGDLlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWGDLnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWGDLlt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 07:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWGDLlt
+	id S932214AbWGDLnY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 07:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWGDLnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 07:41:49 -0400
-Received: from mgw1.diku.dk ([130.225.96.91]:29838 "EHLO mgw1.diku.dk")
-	by vger.kernel.org with ESMTP id S932213AbWGDLls (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 07:41:48 -0400
-Date: Tue, 4 Jul 2006 13:41:45 +0200 (CEST)
-From: Jesper Dangaard Brouer <hawk@diku.dk>
-To: Andi Kleen <ak@suse.de>
-Cc: Willy Tarreau <w@1wt.eu>, Harry Edmon <harry@atmos.washington.edu>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-In-Reply-To: <200606260723.43209.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0607041333030.18483@ask.diku.dk>
-References: <4492D5D3.4000303@atmos.washington.edu> <200606191724.31305.ak@suse.de>
- <20060625222243.GJ13255@w.ods.org> <200606260723.43209.ak@suse.de>
+	Tue, 4 Jul 2006 07:43:23 -0400
+Received: from mga02.intel.com ([134.134.136.20]:8001 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932214AbWGDLnX convert rfc822-to-8bit (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 07:43:23 -0400
+X-IronPort-AV: i="4.06,204,1149490800"; 
+   d="scan'208"; a="60368190:sNHT19201910"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+Date: Tue, 4 Jul 2006 15:43:16 +0400
+Message-ID: <B41635854730A14CA71C92B36EC22AAC0541AB@mssmsx411>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+Thread-Index: AcafUgtfV3FK6V9tQBSYitmrOPffHAADKoaw
+From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+To: "Nikita Danilov" <nikita@clusterfs.com>
+Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Jul 2006 11:43:22.0072 (UTC) FILETIME=[0D506580:01C69F5F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nikita Danilov wtites:
+>> Pdflush thread functions as before patching. Pdflush tends to make
+pages
+>> un-dirty without overload memory or IO and it is not need to let
+pdflush
 
-On Mon, 26 Jun 2006, Andi Kleen wrote:
+> This assumption is valid for ext2
 
->> I encountered the same problem on a dual core opteron equipped with a
->> broadcom NIC (tg3) under 2.4. It could receive 1 Mpps when using TSC
->> as the clock source, but the time jumped back and forth, so I changed
->> it to 'notsc', then the performance dropped dramatically to around the
->> same value as above with one CPU saturated. I suspect that the clock
->> precision is needed by the tg3 driver to correctly decide to switch to
->> polling mode, but unfortunately, the performance drop rendered the
->> solution so much unusable that I finally decided to use it only in
->> uniprocessor with TSC enabled.
->
-> 2.6 is more clever at this than 2.4. In particular it does the timestamp
-> for each packet only when actually needed, which is relativelt rare.
->
-> Old experiences do not always apply to new kernels.
+The assumption that pdflush should to make pages un-dirty without
+overload memory or IO is not for ext2 but for it sense. I'm working with
+ext3. A lot of work it does while writepages(). pdflush is throttled:
+while vmscan have sorted 32 page for paging-out it calls
+blk_congestion_wait() nevertheless had it put one of 32 page into
+congested queue or had not. pdflush is throttled.
 
-Note, that I experinced this problem on 2.6.
+Leonid
+ 
 
-Actually the change happens between kernel version 2.6.15 and 2.6.16. And 
-is a result of Andi's changes to arch/x86_64/Kconfig and 
-drivers/acpi/Kconfig, which "allows/activates" the use of the timer on 
-x86_64.
+-----Original Message-----
+From: Nikita Danilov [mailto:nikita@clusterfs.com] 
+Sent: Tuesday, July 04, 2006 1:55 PM
+To: Ananiev, Leonid I
+Cc: Linux Kernel Mailing List
+Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh
+entirely
 
-Cheers,
-   Jesper Brouer
+Ananiev, Leonid I writes:
+ > Nikita Danilov wtites:
+ > > performs page-out even if queue is congested.
+ > 	Yes. If user thread which generates dirty pages need in
+ > reclaimed memory it consider own dirty page as candidate for
+page-out.
+ > It functions as before patching.
+ > 
+ > > Intent of this is to throttle writers.
+ > I suppose you means dirtier or write(2) caller but not writepage()
+ > caller. The dirtier  is throttled  with backing_dev_info logic as
+before
+ > patching.
 
---
--------------------------------------------------------------------
-MSc. Master of Computer Science
-Dept. of Computer Science, University of Copenhagen
-Author of http://www.adsl-optimizer.dk
--------------------------------------------------------------------
+I meant ->writepages() used by balance_dirty_pages(), see below.
+
+ > 
+ > 	While pdflush thread sorts pages for page-out it does not
+ > consider as a candidate a page to be written with congested queue.
+ > Pdflush thread functions as before patching. Pdflush tends to make
+pages
+ > un-dirty without overload memory or IO and it is not need to let
+pdflush
+
+This assumption is valid for ext2, where ->writepages() simply sends
+pages to the storage, but other file systems (like reiser4) do a *lot*
+of work in ->writepages() path, allocating quite an amount of memory
+before starting write-out. With your patch, this work is done from
+pdflush, and won't be throttled by may_write_to_queue() check, thus
+increasing a risk of allocation failure.
+
+ > do page-out with congested queue as you have proposed.
+ > 	
+ > Leonid
+
+Nikita.

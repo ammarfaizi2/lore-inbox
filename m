@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWGECUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWGECZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbWGECUS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 22:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWGECUS
+	id S932318AbWGECZw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 22:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWGECZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 22:20:18 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:38469 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932305AbWGECUQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 22:20:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uhn6yIjN/oGKDLe/fJGUzAI17ry3+8mTU0SZWKyALrMkC43K4+O16p93RahU+dH65awcJwEHsa+23fnvNV0NFHPuWyxZN0juuWsiRYu5XvobeDTG/slaMd6CdQpcdVwFsbElOoFvW5ZS6Njpl294yvyFYzgeGxHbIHJJvBuqk+8=
-Message-ID: <a44ae5cd0607041920p691a1998w8b3fb844cab6b706@mail.gmail.com>
-Date: Tue, 4 Jul 2006 19:20:16 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.6.17-mm5 + pcmcia/hostap/8139too patches -- inconsistent {hardirq-on-W} -> {in-hardirq-W} usage
-Cc: "Arjan van de Ven" <arjan@infradead.org>, mingo@elte.hu,
-       "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1152005201.28597.14.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 4 Jul 2006 22:25:52 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:49600 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932318AbWGECZv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 22:25:51 -0400
+Message-Id: <200607042223.k64MNLcQ004923@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: john stultz <johnstul@us.ibm.com>
+Cc: Daniel Walker <dwalker@mvista.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
+In-Reply-To: Your message of "Mon, 03 Jul 2006 12:59:43 PDT."
+             <1151956783.5325.8.camel@localhost.localdomain>
+From: Valdis.Kletnieks@vt.edu
+References: <20060624061914.202fbfb5.akpm@osdl.org> <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu> <Pine.LNX.4.64.0606271212150.17704@scrub.home> <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu> <Pine.LNX.4.64.0606271903320.12900@scrub.home> <Pine.LNX.4.64.0606271919450.17704@scrub.home> <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu> <1151453231.24656.49.camel@cog.beaverton.ibm.com> <Pine.LNX.4.64.0606281218130.12900@scrub.home> <Pine.LNX.4.64.0606281335380.17704@scrub.home> <200606292307.k5TN7MGD011615@turing-police.cc.vt.edu> <1151695569.5375.22.camel@localhost.localdomain> <200606302104.k5UL41vs004400@turing-police.cc.vt.edu> <Pine.LNX.4.64.0607030256581.17704@scrub.home> <1151891783.5922.4.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+            <1151956783.5325.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1152051708_4949P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a44ae5cd0607031431q8dcc698j1c447b1d51c7cc75@mail.gmail.com>
-	 <1151963034.3108.59.camel@laptopd505.fenrus.org>
-	 <1151965557.16528.36.camel@localhost.localdomain>
-	 <a44ae5cd0607031614y2055828as6e0bbe2ce0d52ff1@mail.gmail.com>
-	 <1152005201.28597.14.camel@localhost.localdomain>
+Date: Tue, 04 Jul 2006 18:21:49 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/4/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Ar Llu, 2006-07-03 am 16:14 -0700, ysgrifennodd Miles Lane:
-> > eth2: NE2000 (DL10022 rev 30): io 0x300, irq 11, hw_addr 00:50:BA:73:92:3D
-> > Which seems to indicate I need to tweak the PCMCIA settings to get this card
-> > working.  I wonder if anyone is going to follow up on enabling shared IRQ
-> > support.
->
->
-> Try this. Note the SMP locking in this driver appears iffy and looks
-> like it was never SMP sane.
+--==_Exmh_1152051708_4949P
+Content-Type: text/plain; charset=us-ascii
 
-The patch corrects the messages about shared interrupts:
+On Mon, 03 Jul 2006 12:59:43 PDT, john stultz said:
+> On Sun, 2006-07-02 at 18:56 -0700, Daniel Walker wrote:
+> > On Mon, 2006-07-03 at 03:13 +0200, Roman Zippel wrote:
+> > I was reviewing these new ntp adjustment functions, and it seems like it
+> > would be a lot easier to just switch to a better clocksource. These new
+> > functions seems to compensate for a clock that has a high rating but is
+> > actually quite poor..
+> 
+> Not quite. The issue is that the adjustment that the ntpd makes is quite
+> fine grained, and some clocksources while quite stable, might not be
+> able to make such a fine adjustment. So the extra error accounting just
+> allows us to keep track and compensate for the resolution differences.
+> 
+> Does that make sense?
 
-pccard: PCMCIA card inserted into slot 0
-cs: memory probe 0x0c0000-0x0fffff: excluding 0xc0000-0xcffff 0xdc000-0xfffff
-cs: memory probe 0x50000000-0x51ffffff: excluding 0x50000000-0x51ffffff
-cs: memory probe 0x60000000-0x60ffffff: clean.
-cs: memory probe 0xa0000000-0xa0ffffff: clean.
-cs: memory probe 0xe0200000-0xe02fffff: excluding 0xe0200000-0xe020ffff
-pcmcia: registering new device pcmcia0.0
-PM: Adding info for pcmcia:0.0
-eth2: NE2000 (DL10022 rev 30): io 0x300, irq 11, hw_addr 00:50:BA:73:92:3D
+Except for the fact that NTP isn't running yet when I see this trouble...
 
-I have lost the connector cable that attaches the card to an ethernet
-cable, so I have been using a cable labelled 3COM instead.  It has
-LEDs for 10 and 100 Kbps connections.
-Neither LED is lighting up.  On the other hand, NetworkManager
-seems aware when I have an ethernet cable attached.  I now
-suspect that I need a new cable.  The card is a D-Link DFE-650
-Fast Ethernet PCMCIA adapter.  Maybe I should order one of these:
-http://shopping.yahoo.com/p:QVS%20CPN-GN100T%20:1991447348;_ylt=Ap_SzM9pNc5eVJDZKVqsYd5tpcsE;_ylu=X3oDMTBuZDl1N2RxBF9zAzU5MDk4NTIxBGx0AzQEc2VjA3Ny?clink=dmss//ctx=sc:cnetwork_adapter,c:cnetwork_adapter,mid:57,pid:1991447348,pdid:57,pos:6
+--==_Exmh_1152051708_4949P
+Content-Type: application/pgp-signature
 
-What do you think?
-           Miles
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEqun8cC3lWbTT17ARAr5mAJ9qguwPvpiBiOcNrU35QU/9EoRgEQCePe++
+2nLFtSw2xUNXZbOJgMnxixk=
+=7BGo
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1152051708_4949P--

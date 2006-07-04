@@ -1,98 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWGDPhN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWGDPkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWGDPhN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 11:37:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWGDPhN
+	id S932265AbWGDPkh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 11:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWGDPkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 11:37:13 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:3201 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S932259AbWGDPhL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 11:37:11 -0400
-Date: Tue, 4 Jul 2006 08:28:57 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 10/17] 2.6.17.1 perfmon2 patch for review: PMU context switch
-Message-ID: <20060704152857.GA6999@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200607011123_MC3-1-C3EB-BFF1@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607011123_MC3-1-C3EB-BFF1@compuserve.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+	Tue, 4 Jul 2006 11:40:37 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:13116 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751278AbWGDPkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 11:40:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=k77o0b2+W+A8jOcp3o3jjN+nH/7IJYXXV8ydXv/qowiTyEFED4eY4FYNvX+SqOZj9OtWBNcvTHuGIo/DqCyTZwYBP6apgF9c2Bu2UnXjy2dXLHosRfzwt6VvuKQddeSgxCWHuHVSA8Knx63vWeG9qp6xvU8p8sdCAUvoUPV10Bo=
+Message-ID: <44AA8D0E.4090006@innova-card.com>
+Date: Tue, 04 Jul 2006 17:45:18 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Franck <vagabon.xyz@gmail.com>
+Subject: [PATCH 3/7] bootmem: remove useless parentheses in bootmem header
+ file
+References: <44AA89D2.8010307@innova-card.com>
+In-Reply-To: <44AA89D2.8010307@innova-card.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck,
 
-On Sat, Jul 01, 2006 at 11:21:22AM -0400, Chuck Ebbert wrote:
-> In-Reply-To: <20060630204032.GB22835@frankl.hpl.hp.com>
-> 
-> On Fri, 30 Jun 2006 13:40:32 -0700, Stephane Eranian wrote:
-> 
-> > As Andi is suggesting, I think this may depends on how the BIOS implements
-> > the low-power state. I have tried the same command on my dual Opteron 250
-> > 2.4GHz and I get:
-> > $ pfmon --us-c -ecpu_clk_unhalted,interrupts_masked_cycles -k --system-wide -t 10
-> > <session to end in 10 seconds>
-> > CPU0                     9,520,303 CPU_CLK_UNHALTED
-> > CPU0                     3,726,315 INTERRUPTS_MASKED_CYCLES
-> > CPU1                    21,268,151 CPU_CLK_UNHALTED
-> > CPU1                    14,515,389 INTERRUPTS_MASKED_CYCLES
-> 
-> That is similar to what I get with idle=halt. Are you not using ACPI
-> for idle?
-> 
-> Try this:
-> 
-> $ pfmon -ecpu_clk_unhalted,interrupts_masked_cycles_with_interrupt_pending,interrupts_masked_cycles,cycles_no_fpu_ops_retired -k --system-wide -t 10
-> <session to end in 10 seconds>
-> CPU0     95016828 CPU_CLK_UNHALTED
-> CPU0     36472783 INTERRUPTS_MASKED_CYCLES_WITH_INTERRUPT_PENDING
-> CPU0     67484408 INTERRUPTS_MASKED_CYCLES
-> CPU0    445326968 CYCLES_NO_FPU_OPS_RETIRED
-> 
-> That's what I get with idle=halt.  Since the kernel doesn't do FP
-> the last line should equal clock cycles.  If it were running at full
-> speed it would be 16 billion...
+Signed-off-by: Franck Bui-Huu <vagabon.xyz@gmail.com>
 
-Here is what I get on my dual 2.4GHz Opteron 250:
+---
+ include/linux/bootmem.h |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
-booted with idle=halt
-$ pfmon --us-c -ecpu_clk_unhalted,interrupts_masked_cycles_with_interrupt_pending,interrupts_masked_cycles,cycles_no_fpu_ops_retired -k --system-wide -t 10
-<session to end in 10 seconds>
-CPU0                    11,356,210 CPU_CLK_UNHALTED                               
-CPU0                             0 INTERRUPTS_MASKED_CYCLES_WITH_INTERRUPT_PENDING
-CPU0                     3,836,107 INTERRUPTS_MASKED_CYCLES                       
-CPU0                23,910,784,532 CYCLES_NO_FPU_OPS_RETIRED                      
-CPU1                    19,303,632 CPU_CLK_UNHALTED                               
-CPU1                             0 INTERRUPTS_MASKED_CYCLES_WITH_INTERRUPT_PENDING
-CPU1                    13,942,265 INTERRUPTS_MASKED_CYCLES                       
-CPU1                23,911,872,654 CYCLES_NO_FPU_OPS_RETIRED                      
-
-As you can see, CYCLES_NO_FPU_OPS_RETIRED on each CPU is as expected  for 10s.
-
-booted with idle=poll
-$ pfmon --us-c -ecpu_clk_unhalted,interrupts_masked_cycles_with_interrupt_pending,interrupts_masked_cycles,cycles_no_fpu_ops_retired -k --system-wide -t 10
-<session to end in 10 seconds>
-CPU0                23,906,091,982 CPU_CLK_UNHALTED                               
-CPU0                             0 INTERRUPTS_MASKED_CYCLES_WITH_INTERRUPT_PENDING
-CPU0                     3,771,569 INTERRUPTS_MASKED_CYCLES                       
-CPU0                23,906,090,750 CYCLES_NO_FPU_OPS_RETIRED                      
-CPU1                23,906,629,241 CPU_CLK_UNHALTED                               
-CPU1                             0 INTERRUPTS_MASKED_CYCLES_WITH_INTERRUPT_PENDING
-CPU1                    14,805,078 INTERRUPTS_MASKED_CYCLES                       
-CPU1                23,906,194,343 CYCLES_NO_FPU_OPS_RETIRED                      
-
-CYCLES_NO_FPU_OPS_RETIRED is as expected and, in this case, it is equal to CPU_CLK_UNHALTED
-because we are busy looping.
-
-If I don't specify anything, I get like idle=halt which is expected.
-
+diff --git a/include/linux/bootmem.h b/include/linux/bootmem.h
+index 1dee668..0e821ca 100644
+--- a/include/linux/bootmem.h
++++ b/include/linux/bootmem.h
+@@ -59,13 +59,13 @@ extern void * __alloc_bootmem_core(struc
+ #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
+ extern void reserve_bootmem (unsigned long addr, unsigned long size);
+ #define alloc_bootmem(x) \
+-	__alloc_bootmem((x), SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
++	__alloc_bootmem(x, SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_low(x) \
+-	__alloc_bootmem_low((x), SMP_CACHE_BYTES, 0)
++	__alloc_bootmem_low(x, SMP_CACHE_BYTES, 0)
+ #define alloc_bootmem_pages(x) \
+-	__alloc_bootmem((x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
++	__alloc_bootmem(x, PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_low_pages(x) \
+-	__alloc_bootmem_low((x), PAGE_SIZE, 0)
++	__alloc_bootmem_low(x, PAGE_SIZE, 0)
+ #endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
+ extern unsigned long free_all_bootmem (void);
+ extern void * __alloc_bootmem_node (pg_data_t *pgdat, unsigned long size, unsigned long align, unsigned long goal);
+@@ -75,11 +75,11 @@ extern void free_bootmem_node (pg_data_t
+ extern unsigned long free_all_bootmem_node (pg_data_t *pgdat);
+ #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
+ #define alloc_bootmem_node(pgdat, x) \
+-	__alloc_bootmem_node((pgdat), (x), SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
++	__alloc_bootmem_node(pgdat, x, SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_pages_node(pgdat, x) \
+-	__alloc_bootmem_node((pgdat), (x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
++	__alloc_bootmem_node(pgdat, x, PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
+ #define alloc_bootmem_low_pages_node(pgdat, x) \
+-	__alloc_bootmem_low_node((pgdat), (x), PAGE_SIZE, 0)
++	__alloc_bootmem_low_node(pgdat, x, PAGE_SIZE, 0)
+ #endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
+ 
+ #ifdef CONFIG_HAVE_ARCH_ALLOC_REMAP
 -- 
--Stephane
+1.4.1.g35c6
+

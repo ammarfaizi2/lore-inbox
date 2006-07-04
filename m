@@ -1,83 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWGDJAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWGDJBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWGDJAI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 05:00:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWGDJAI
+	id S1750861AbWGDJBx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 05:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWGDJBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 05:00:08 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:46486 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750830AbWGDJAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 05:00:07 -0400
-Message-ID: <44AA2DFA.6060107@sgi.com>
-Date: Tue, 04 Jul 2006 10:59:38 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
-MIME-Version: 1.0
-To: Milton Miller <miltonm@bga.com>
-CC: LKML <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
-References: <yq0mzbqhfdp.fsf@jaguar.mkp.net> <200607040516.k645GFTj014564@sullivan.realtime.net> <44AA1D09.7080308@sgi.com> <dcbd59443f05c17a3b290f1c2bf6336a@bga.com>
-In-Reply-To: <dcbd59443f05c17a3b290f1c2bf6336a@bga.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jul 2006 05:01:53 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:33988 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750722AbWGDJBx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 05:01:53 -0400
+Date: Tue, 4 Jul 2006 10:56:53 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Zach Brown <zach.brown@oracle.com>, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH] mthca: initialize send and receive queue locks separately
+Message-ID: <20060704085653.GA13426@elte.hu>
+References: <20060703225019.7379.96075.sendpatchset@tetsuo.zabbo.net> <20060704070328.GG21049@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060704070328.GG21049@mellanox.co.il>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Milton Miller wrote:
-> On Jul 4, 2006, at 2:47 AM, Jes Sorensen wrote:
->> The idea I wrote the code under was that we are really only concerned to
->> make sure all bh's related to the device causing the invalidate are hit.
->> It doesn't matter that there are bh's in the lru from other devices.
+
+* Michael S. Tsirkin <mst@mellanox.co.il> wrote:
+
+> > Initializing the locks separately in mthca_alloc_qp_common() stops the warning
+> > and will let lockdep enforce proper ordering on paths that acquire both locks.
+> > 
+> > Signed-off-by: Zach Brown <zach.brown@oracle.com>
 > 
-> And that is fine as far as it goes.  The problem is that an unrelated
-> device might be be hit by this operation.  For example, hal is running
-> on cpu 0, so the fsck gets run on cpu 1 and hits this race.   It
-> finishes, and now hal is back to sleep, and cpu power saving balancing
-> says run the mount on cpu 0.  The file system tries to change the block
-> size, which calls kill_bdev which calls invalidate_bdev, but we forgot
-> that cpu 1 had a bh, so the bh doesn't free, and the page is left in the
-> page cache with the wrong size buffer.  POOOF there goes the filesystem.
+> This moves code out of a common function and so results in code 
+> duplication and has memory cost.
 
-Hrmpf, maybe it's back to putting the mask into the bdev then.
+the patch below does the same via the lockdep_set_class() method, which 
+has no cost on non-lockdep kernels.
 
->> 8 pointers * NR_CPUS - that can be a lot of cachelines you have to pull
->> in from remote :(
-> 
-> 8 pointers in one array, hmm...  8*8 = 64 consecutive bytes, that is
-> half a cache line in my arch.  (And on 32 bit archs, 8*4 = 32 bytes,
-> typically 1 full cache line).  Add an alignment constraint if you like.
->  I was comparing to fetching a per-cpu variable saying we had any
-> entries; I'd say the difference is the time to do 8 loads once you have
-> the line vs the chance the other cpu is actively storing and stealing it
-> back before you finish.  I'd be really surprised if it was stolen twice.
+	Ingo
 
-The problem is that if you throw the IPI onto multiple CPUs they will
-all try and hit this array at the same time. Besides, on some platforms
-this would be 64 * 8 * 8 (or even bigger) - scalability quickly goes
-out the window, especially as it's to be fetched from another node :( I
-know these are the extreme in today's world, but it's becoming more of
-an issue with all the multi-core stuff we're going to see.
+---------------->
+Subject: lockdep: annotate drivers/infiniband/hw/mthca/mthca_qp.c
+From: Ingo Molnar <mingo@elte.hu>
 
->>> If you want to cut down on the cache line passing, then putting
->>> the cpu mask in the bdev (for "I have cached a bh on this bdev
->>> sometime") might be useful.  You could even do a bdev specific
->>> lru kill, but then we get into the next topic.
->>
->> That could be an interesting way out.
-> 
-> Another approach is to age the cache. Only clear the bit during the IPI
-> call if you had nothing there on the last N calls (N being some
-> combination of absolute time and number of invalidate calls).
+annotate mthca queue locks: split them into send and receive locks.
 
-I guess if there's nothing in the LRU you don't get the call and the
-number of cross node clears are limited, but it seems to get worse
-exponentially with the size of the machine, especially if it's busy
-doing IO, which is what worries me :(
+(both can be held at once, but there is ordering between them which
+lockdep enforces)
 
-Next, I'll look for my asbestos suit and take a peak at the hald source.
+Has no effect on non-lockdep kernels.
 
-Cheers,
-Jes
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ drivers/infiniband/hw/mthca/mthca_qp.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+Index: linux/drivers/infiniband/hw/mthca/mthca_qp.c
+===================================================================
+--- linux.orig/drivers/infiniband/hw/mthca/mthca_qp.c
++++ linux/drivers/infiniband/hw/mthca/mthca_qp.c
+@@ -222,9 +222,15 @@ static void *get_send_wqe(struct mthca_q
+ 			 (PAGE_SIZE - 1));
+ }
+ 
+-static void mthca_wq_init(struct mthca_wq *wq)
++/*
++ * Send and receive queues for two different lock classes:
++ */
++static struct lock_class_key mthca_wq_send_lock_class, mthca_wq_recv_lock_class;
++
++static void mthca_wq_init(struct mthca_wq *wq, struct lock_class_key *key)
+ {
+ 	spin_lock_init(&wq->lock);
++	lockdep_set_class(&wq->lock, key);
+ 	wq->next_ind  = 0;
+ 	wq->last_comp = wq->max - 1;
+ 	wq->head      = 0;
+@@ -845,10 +851,10 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 			mthca_cq_clean(dev, to_mcq(qp->ibqp.recv_cq), qp->qpn,
+ 				       qp->ibqp.srq ? to_msrq(qp->ibqp.srq) : NULL);
+ 
+-		mthca_wq_init(&qp->sq);
++		mthca_wq_init(&qp->sq, &mthca_wq_send_lock_class);
+ 		qp->sq.last = get_send_wqe(qp, qp->sq.max - 1);
+ 
+-		mthca_wq_init(&qp->rq);
++		mthca_wq_init(&qp->rq, &mthca_wq_recv_lock_class);
+ 		qp->rq.last = get_recv_wqe(qp, qp->rq.max - 1);
+ 
+ 		if (mthca_is_memfree(dev)) {
+@@ -1112,8 +1118,8 @@ static int mthca_alloc_qp_common(struct 
+ 	qp->atomic_rd_en = 0;
+ 	qp->resp_depth   = 0;
+ 	qp->sq_policy    = send_policy;
+-	mthca_wq_init(&qp->sq);
+-	mthca_wq_init(&qp->rq);
++	mthca_wq_init(&qp->sq, &mthca_wq_send_lock_class);
++	mthca_wq_init(&qp->rq, &mthca_wq_recv_lock_class);
+ 
+ 	ret = mthca_map_memfree(dev, qp);
+ 	if (ret)

@@ -1,73 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWGDJc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWGDJf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWGDJc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 05:32:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWGDJc5
+	id S932112AbWGDJf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 05:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWGDJf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 05:32:57 -0400
-Received: from mx01.qsc.de ([213.148.129.14]:64700 "EHLO mx01.qsc.de")
-	by vger.kernel.org with ESMTP id S1750735AbWGDJc4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 05:32:56 -0400
-From: Rene Rebe <rene@exactcode.de>
-Organization: ExactCODE
-To: Mikael Pettersson <mikpe@it.uu.se>
-Subject: Re: [BUG sparc64] 2.6.16-git6 broke X11 on Ultra5 with ATI Mach64
-Date: Tue, 4 Jul 2006 11:32:31 +0200
-User-Agent: KMail/1.9.3
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org
-References: <200607031117.k63BHiDa007719@harpo.it.uu.se> <200607040941.07108.rene@exactcode.de>
-In-Reply-To: <200607040941.07108.rene@exactcode.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200607041132.31508.rene@exactcode.de>
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, On Tuesday 04 July 2006 09:41, Rene Rebe wrote: > On
-	Monday 03 July 2006 13:17, Mikael Pettersson wrote: > > In 2.6.17
-	sparc64 kernels, X11 runs _extremely_ slowly with > > frequent lock-up
-	like behaviour on my Ultra5 (ATI Mach64). > > I finally managed to trace
-	the cause to this change in 2.6.16-git6: > > I can confirm this
-	behaviour, on a U5 with ATi onboard, but for me it > happens also on the
-	Creator 3D of a U30, likewise. > > I'll try to test if this changeset
-	makes a difference for me as well > as soon as possible. [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+	Tue, 4 Jul 2006 05:35:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:27881 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932112AbWGDJf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 05:35:27 -0400
+Subject: [patch] fix AB-BA deadlock inversion at cs46xx_dsp_remove_scb
+From: Arjan van de Ven <arjan@infradead.org>
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <200607041115.35997.duncan.sands@math.u-psud.fr>
+References: <200607041115.35997.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain
+Date: Tue, 04 Jul 2006 11:35:20 +0200
+Message-Id: <1152005720.3109.30.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tuesday 04 July 2006 09:41, Rene Rebe wrote:
-
-> On Monday 03 July 2006 13:17, Mikael Pettersson wrote:
-> > In 2.6.17 sparc64 kernels, X11 runs _extremely_ slowly with
-> > frequent lock-up like behaviour on my Ultra5 (ATI Mach64).
-> > I finally managed to trace the cause to this change in 2.6.16-git6:
+On Tue, 2006-07-04 at 11:15 +0200, Duncan Sands wrote:
+> Linux version 2.6.17-git22 (duncan@baldrick) (gcc version 4.0.3 (Ubuntu 4.0.3-1ubuntu5)) #20 PREEMPT Tue Jul 4 10:35:04 CEST 2006
 > 
-> I can confirm this behaviour, on a U5 with ATi onboard, but for me it
-> happens also on the Creator 3D of a U30, likewise.
 > 
-> I'll try to test if this changeset makes a difference for me as well
-> as soon as possible.
+> [  612.924372] =========================================================
+> [  612.948112] [ INFO: possible irq lock inversion dependency detected ]
+> [  612.967383] ---------------------------------------------------------
+> [  612.986657] aplay/5128 just changed the state of lock:
+> [  613.002034]  (&ins->scbs[index].lock){-...}, at: [<e099f95e>] cs46xx_dsp_remove_scb+0x1e/0xca [snd_cs46xx]
+> [  613.031150] but this lock was taken by another, hard-irq-safe lock in the past:
+> [  613.053019]  (&substream->self_group.lock){+...}
+> [  613.066369]
+> [  613.066371] and interrupts could create inverse lock ordering between them.
+> [  613.066374]
 
-I can confirm that backing out this changeset fixes X on ATi@U5 as
-well as Creator3D@U30 to not stall and hang every few seconds for
-many more seconds/minutes.
 
-Yours,
+ok so there is a code sequence where the locking is
+substream->self_group.lock -> ins->scbs[index].lock
 
--- 
-René Rebe - ExactCODE - Berlin (Europe / Germany)
-            http://exactcode.de | http://t2-project.org | http://rene.rebe.name
-            +49 (0)30 / 255 897 45
+substream->self_group.lock is interrupt safe, and taken from irq context
+as well (trace is snipped for brevity)
+
+so what can happen is
+
+cpu 0                   	cpu 1								
+user context			user context
+
+				take ins->scbs[index].lock without disabling interrupts
+											
+get substream->self_group.lock (irqsafe)
+try to get ins->scbs[index].lock (spins)
+
+				interrupt happens
+				try to get substream->self_group.lock (spins)
+		
+
+which is an obvious AB-BA deadlock
+
+fix is to just take the lock with _irqsafe
+
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+
+---
+ sound/pci/cs46xx/dsp_spos_scb_lib.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+Index: linux-2.6.17-mm4/sound/pci/cs46xx/dsp_spos_scb_lib.c
+===================================================================
+--- linux-2.6.17-mm4.orig/sound/pci/cs46xx/dsp_spos_scb_lib.c
++++ linux-2.6.17-mm4/sound/pci/cs46xx/dsp_spos_scb_lib.c
+@@ -180,6 +180,7 @@ static void _dsp_clear_sample_buffer (st
+ void cs46xx_dsp_remove_scb (struct snd_cs46xx *chip, struct dsp_scb_descriptor * scb)
+ {
+ 	struct dsp_spos_instance * ins = chip->dsp_spos_instance;
++	unsignded long flags;
+ 
+ 	/* check integrety */
+ 	snd_assert ( (scb->index >= 0 && 
+@@ -194,9 +195,9 @@ void cs46xx_dsp_remove_scb (struct snd_c
+ 		     goto _end);
+ #endif
+ 
+-	spin_lock(&scb->lock);
++	spin_lock_irqsave(&scb->lock, flags);
+ 	_dsp_unlink_scb (chip,scb);
+-	spin_unlock(&scb->lock);
++	spin_unlock_irqrestore(&scb->lock, flags);
+ 
+ 	cs46xx_dsp_proc_free_scb_desc(scb);
+ 	snd_assert (scb->scb_symbol != NULL, return );
+
+
+

@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWGDIaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWGDId6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWGDIaF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 04:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWGDIaE
+	id S932119AbWGDId6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 04:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWGDId6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 04:30:04 -0400
-Received: from cantor.suse.de ([195.135.220.2]:29892 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932101AbWGDIaD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 04:30:03 -0400
-From: Andi Kleen <ak@suse.de>
-To: muli@il.ibm.com
-Subject: Re: [PATCH 1 of 2] Fix Calgary copyright statements per IBM guidelines
-Date: Tue, 4 Jul 2006 10:16:31 +0200
-User-Agent: KMail/1.9.3
-Cc: jdmason@us.ibm.com, linux-kernel@vger.kernel.org
-References: <c4bd0cdcce626b9edc0b.1151751237@rhun.haifa.ibm.com>
-In-Reply-To: <c4bd0cdcce626b9edc0b.1151751237@rhun.haifa.ibm.com>
+	Tue, 4 Jul 2006 04:33:58 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:23956 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932119AbWGDId5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 04:33:57 -0400
+Message-ID: <44AA27DA.9070501@sgi.com>
+Date: Tue, 04 Jul 2006 10:33:30 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Milton Miller <miltonm@bga.com>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
+References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>	 <200607040516.k645GFTj014564@sullivan.realtime.net>	 <44AA1D09.7080308@sgi.com> <1151999591.3109.8.camel@laptopd505.fenrus.org>	 <44AA2301.2030400@sgi.com> <1152001399.3109.12.camel@laptopd505.fenrus.org>
+In-Reply-To: <1152001399.3109.12.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607041016.31650.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 01 July 2006 12:53, muli@il.ibm.com wrote:
-> # HG changeset patch
-> # User Muli Ben-Yehuda <muli@il.ibm.com>
-> # Node ID c4bd0cdcce626b9edc0b4fa3e94c8d9666cf977a
-> # Parent  c77454706594f66e8751656a28223db4aaef8a11
-> Fix Calgary copyright statements per IBM guidelines
+Arjan van de Ven wrote:
+> On Tue, 2006-07-04 at 10:12 +0200, Jes Sorensen wrote:
+>> Guess the question is, is there a way we can detect when media has
+>> been
+>> inserted without doing open/close on the device constantly? 
+> 
+> they could just keep the device open.... at least until media is
+> inserted
 
-Added thanks. However if you change the copyright again I'll balk.
+Yup, I will see how much it requires to make it do that.
 
--Andi
+> also they should poll at most every 10 seconds; anything more frequent
+> is just braindead...
+
+But of course, then your camera's picture card isn't detected within a
+microsecond of your inserting it into the cardreader! Really can't have
+that!
+
+Cheers,
+Jes
+

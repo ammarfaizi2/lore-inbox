@@ -1,70 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWGDJWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWGDJYC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWGDJWN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 05:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWGDJWN
+	id S1751233AbWGDJYC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 05:24:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWGDJYC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 05:22:13 -0400
-Received: from styx.suse.cz ([82.119.242.94]:10451 "EHLO elijah.suse.cz")
-	by vger.kernel.org with ESMTP id S1751242AbWGDJWM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 05:22:12 -0400
-Subject: Re: ext4 features
-From: Petr Tesarik <ptesarik@suse.cz>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060703232547.2d54ab9b.diegocg@gmail.com>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
-	 <20060701170729.GB8763@irc.pl>
-	 <20060701174716.GC24570@cip.informatik.uni-erlangen.de>
-	 <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
-	 <20060703205523.GA17122@irc.pl>
-	 <1151960503.3108.55.camel@laptopd505.fenrus.org>
-	 <44A9904F.7060207@wolfmountaingroup.com>
-	 <20060703232547.2d54ab9b.diegocg@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Organization: SuSE CR
-Date: Tue, 04 Jul 2006 11:22:08 +0200
-Message-Id: <1152004929.3374.13.camel@elijah.suse.cz>
+	Tue, 4 Jul 2006 05:24:02 -0400
+Received: from colin.muc.de ([193.149.48.1]:64271 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751233AbWGDJYA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 05:24:00 -0400
+Date: 4 Jul 2006 11:23:58 +0200
+Date: Tue, 4 Jul 2006 11:23:58 +0200
+From: Andi Kleen <ak@muc.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Doug Thompson <norsk5@yahoo.com>, akpm@osdl.org,
+       mm-commits@vger.kernel.org, norsk5@xmission.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch added to -mm tree
+Message-ID: <20060704092358.GA13805@muc.de>
+References: <20060701150430.GA38488@muc.de> <20060703172633.50366.qmail@web50109.mail.yahoo.com> <20060703184836.GA46236@muc.de> <1151962114.16528.18.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1151962114.16528.18.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-03 at 23:25 +0200, Diego Calleja wrote:
-> El Mon, 03 Jul 2006 15:46:55 -0600,
-> "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com> escribió:
+[moving to l-k - the discussion is how EDAC tries
+to duplicate already existing interface including
+a whole new duplicate polling machine check handler]
+
+On Mon, Jul 03, 2006 at 10:28:34PM +0100, Alan Cox wrote:
+> Ar Llu, 2006-07-03 am 20:48 +0200, ysgrifennodd Andi Kleen:
+> > The only way to get the slot name <-> address mapping is 
+> > to ask the BIOS.
+> > 
+> > I bet you hardcoded it for your systems right?
 > 
-> > Add a salvagable file system to ext4, i.e. when a file is deleted, you 
-> > just rename it and move it to a directory called DELETED.SAV and recycle 
-> > the files as people allocate new ones.  Easy to do (internal "mv" of 
+> Why don't you read the code ? Wouldn't be hard to check now would it.
+
+I'm pretty sure I'm right from the code, but I was asking for confirmation.
+
+Ok hardcoding was perhaps the wrong word, but what they output
+isn't useful to identify the broken DIMM if you don't have very detailed 
+documentation of the motherboards which 99+% of all users don't.
+
 > 
+> > Can you describe in more detail why you think that's not the case?
 > 
-> Easily doable in userspace, why bother with kernel programming
+> I did that, you said "buzzwords" insulted me and deleted the argument
+> then started this second discussion as if it never occurred. Not
+> productive.
 
-Yes and no. A simple mv is better done in userspace, but what I'd
-_really_ appreciate would be a true kernel salvage (similar to the way
-NetWare does things). That means marking the file as deleted in the
-directory, marking its blocks as deleted but avoiding the use of those
-blocks. The kernel would then prefer allocating new blocks from
-elsewhere but once the filesystem runs out of space, it would start
-allocating from the deleted files area and marking the blocks as well as
-the corresponding files purged.
+It was refering to Doug's assertation that the memory address
+is not enough to identify the DIMM.
 
-Salvaging files would be done with a separate tool. Of course, if you
-delete more files with the same name in the same directory, you'd need
-to tell that tool which one of them you want to salvage. Yes, I really
-mean you'd have more than one deleted file with the same name in the
-directory.
+I bet it was only because they didn't use the SMBIOS information,
+but again I was asking for confirmation.
 
-Anyway, I doubt we want such feature for ext4, because to make things
-efficient, you'd need to provide some kind of pointer from the deleted
-(but not yet purged) blocks to the corresponding file. Hard links are
-also problematic and there is a whole lot of other troubles I haven't
-even thought of.
+Regarding your buzzwords: I don't think mcelog is in any way
+less "manageable" or "consistent" than EDAC.
 
-Just my two cents.
 
---
-Petr Tesarik
+> > Hmm, i haven't checked, but my understanding was that the newer
+> > Intel chipsets all forwarded the memory errors as machine 
+> > check anyways.
+> 
+> Quite a few still in use do not. We also have no idea where the future
+
+New ones?  Would surprise me.
+
+Yes the machine check architecture doesn't try to handle all old systems,
+but then in practice error reporting on old x86 systems doesn't tend
+to work particularly well either.
+
+> 
+> > I also don't think it's very fortunate to put all the complicated
+> > decoding code into kernel space. It works just fine in user space.
+> > Can you explain what value add it gives over machine checks in
+> > modern systems?
+> 
+> See my original email, it provides consistency and means that we have
+> the same interface for different setups. That is very important just
+> like not having "reiser4_open()" "ext3_open" and the like is.
+
+mce code also uses a consistent interface - it's even the same
+code in kernel space for all systems.
+
+
+> It's also zero cost to people who don't chose to use the EDAC interface.
+> The alternative is that every single monitoring and hardware management
+> tool for Linux has to have its own set of glue interfaces for all the
+> different processor and chip specific details.
+
+At least for machine checks the mce interface is a single interface.
+
+We don't have a generic interface for logging some of the other errors
+(like PCI-E errors), but I don't see EDAC solving that. In some ways
+it's understandable because there is no generic PCI-E error handling
+code at all yet.
+
+> 
+> > > Sorry about that. I saved your email, but at that time got overwhelmed
+> > > in other matters and just recently got back into EDAC. I apologize for
+> > > not responding sooner.
+> > 
+> > Well you wasted a lot of time then redoing what's already done.
+> 
+> The ecc code predates the MCE bits by years. The re-doing occurred
+> rather earlier. Rather more useful would be to get the common interface
+
+Earlier than the x86-64 machine check code?
+
+> provided by things like EDAC provided by the fairly CPU specific mce
+> code for the newer chips with a clean interface between the two and the
+> minimum of duplicated code.
+
+You could convert the EDAC drivers to log pseudo events with mce_log() like Intel
+thermal, AMD ecc threshold do. All the heavy decoding should be in user space
+in mcelog.
+
+Giving a consistent sysfs interface is a bit harder, but I suppose one 
+could change the code to provide pseudo banks for enable/disable too.
+However that would be system specific again, so a default "all on/all off" 
+policy might be quite ok.
+
+-Andi

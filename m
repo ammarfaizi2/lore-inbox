@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWGDIdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWGDIhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWGDIdw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 04:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWGDIdw
+	id S932086AbWGDIhr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 04:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWGDIhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 04:33:52 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:21006 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S932117AbWGDIdv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 04:33:51 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-mm6
-Date: Tue, 4 Jul 2006 09:34:14 +0100
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060703030355.420c7155.akpm@osdl.org> <200607032250.02054.s0348365@sms.ed.ac.uk> <20060703163121.4ea22076.akpm@osdl.org>
-In-Reply-To: <20060703163121.4ea22076.akpm@osdl.org>
+	Tue, 4 Jul 2006 04:37:47 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:34529 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932086AbWGDIhr
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Tue, 4 Jul 2006 04:37:47 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607040934.14592.s0348365@sms.ed.ac.uk>
+Message-ID: <17578.10167.898525.424656@gargle.gargle.HOWL>
+Date: Tue, 4 Jul 2006 12:32:55 +0400
+To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <B41635854730A14CA71C92B36EC22AAC053FD4@mssmsx411>
+References: <B41635854730A14CA71C92B36EC22AAC053FD4@mssmsx411>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 July 2006 00:31, Andrew Morton wrote:
-[snip]
-> > > > > > Helped somewhat, but I'm still missing a bit at the top.
-> > > > > >
-> > > > > > http://devzero.co.uk/~alistair/oops-20060703/
-> > > > >
-> > > > > That is irritating.  This should get us more info:
-> > > >
-> > > > Indeed, thanks.
-> > > >
-> > > > Try the same URL again, I've uploaded 3,4,5 from a couple of reboots.
-> > > > I still think I'm missing something at the top, but 3 is the earliest
-> > > > I could snap.
-> > >
-> > > Getting better.
-> > >
-> > > It would kinda help if pause_on_oops() was actually implemented on
-> > > x86_64..
-> >
-> > Doesn't help (work?).
-> >
-> > [alistair] 22:47 [~] strings /boot/vmlinuz-2.6.17-mm6 | grep 2.6.17-mm6
-> > 2.6.17-mm6 (alistair@damocles) #3 SMP PREEMPT Mon Jul 3 22:39:54 BST 2006
-> >
-> > [alistair] 22:48 [~] cat /boot/grub/menu.lst | grep -C1 mm6
-> > # testing
-> > title Linux 2.6.17-mm6
-> > root (hd0,0)
-> > kernel /boot/vmlinuz-2.6.17-mm6 vga=extended root=/dev/sda1
-> > pause_on_oops=100000
-> >
-> > I'm fairly sure I booted a kernel with your patch and that should be the
-> > right cmdline flag.
->
-> OK, x86_64 is significantly different from x86 in that area (better).  Have
-> a tested version...
 
-This one worked, thanks. Try the same URL again, I've uploaded two better 
-shots 6,7 that capture the first oops. Unfortunately, I have a pair of oopses 
-that interchange every couple of boots, so I've included both ;-)
+[Please, don't trim CC/To fields: LKML is too high traffic to read in
+its entirety.]
 
-I suggest Andi picks up that debugging patch, it worked for me.
+Ananiev, Leonid I writes:
+ >  Nikita Danilov writes:
+ > > Wouldn't this interfere with current->backing_dev_info logic?
+ > 
+ > The proposed patch does not modify that logic.
 
--- 
-Cheers,
-Alistair.
+Indeed, it *interferes* with it: in the original code, process doing
+direct reclaim during balance_dirty_pages()
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+    generic_file_write()->balance_dirty_pages()->...->__alloc_pages()->...->pageout()
+
+performs page-out even if queue is congested. Intent of this is to
+throttle writers, and reduce risk of running oom (certain file systems,
+especially ones with delayed allocation, tend to allocate a lot of
+memory in balance_dirty_pages()->writepages() paths).
+
+Your patch breaks this mechanism.
+
+Nikita.

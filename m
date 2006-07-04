@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWGDReG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWGDRoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWGDReG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 13:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWGDReG
+	id S932250AbWGDRoN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 13:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWGDRoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 13:34:06 -0400
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:32847 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932197AbWGDReE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 13:34:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=gB8S8kM2gq5tGZgeLicehF83CczrV3zlAM1mANkunTLoENzQTPZGSUJCTuGFZRS2o+U1ntcQtFpOOTNu+w+iGtTfBMeix/ZxO3unJsCHYD9EawOgafb+gxXwofk4K3+J0l1PfLcnOmeKkebuditSo82yxcVroz1rMzA/cD17Eug=  ;
-Message-ID: <44AAA64D.8030907@yahoo.com.au>
-Date: Wed, 05 Jul 2006 03:33:01 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 4 Jul 2006 13:44:13 -0400
+Received: from rwcrmhc13.comcast.net ([216.148.227.153]:63105 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S932250AbWGDRoN (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 13:44:13 -0400
+Message-ID: <44AAA8ED.5030906@namesys.com>
+Date: Tue, 04 Jul 2006 10:44:13 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Keith Owens <kaos@sgi.com>, jes@sgi.com, torvalds@osdl.org,
-       viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
-References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>	<21169.1151991139@kao2.melbourne.sgi.com> <20060703234134.786944f1.akpm@osdl.org>
-In-Reply-To: <20060703234134.786944f1.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>
+CC: "Vladimir V. Saveliev" <vs@namesys.com>,
+       lkml <Linux-Kernel@vger.kernel.org>, reiserfs-dev@namesys.com
+Subject: Re: [PATCH 1/2] batch-write.patch
+References: <44A42750.5020807@namesys.com> <20060629185017.8866f95e.akpm@osdl.org> <1152011576.6454.36.camel@tribesman.namesys.com> <20060704114836.GA1344@infradead.org>
+In-Reply-To: <20060704114836.GA1344@infradead.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Tue, 04 Jul 2006 15:32:19 +1000
-> Keith Owens <kaos@sgi.com> wrote:
+Christoph Hellwig wrote:
 
->>Why raw_smp_processor_id?  That normally indicates code that wants a
->>lazy cpu number, but this code requires the exact cpu number, IMHO
->>using raw_smp_processor_id is confusing.  smp_processor_id can safely
->>be used here, bh_lru_lock has disabled irq or preempt.
-> 
-> 
-> I expect raw_smp_processor_id() is used here as a a microoptimisation -
-> avoid a might_sleep() which obviously will never trigger.
+>On Tue, Jul 04, 2006 at 03:12:56PM +0400, Vladimir V. Saveliev wrote:
+>  
+>
+>>>Should this be an address_space_operation or a file_operation?
+>>>
+>>>      
+>>>
+>>I was seeking to be minimal in my changes to the philosophy of the code.
+>>So, it was an address_space operation. Now it is a file operation.
+>>    
+>>
+>
+>It definitly should not be a file_operation! It works at the address_space
+>not the much higher file level.  Maybe all three should become callbacks
+>for the generic write routines, but that's left for the future.
+>
+>
+>  
+>
+I don't have a commitment to one way or the other, probably because
+there are some things that are unclear in my mind.  Could you help me
+with them?  Can you define what is the address space vs. the file level
+please?  It is odd to be asking such a basic question, but these things
+are genuinely unclear to me.  If the use of something varies according
+to the file, is it a file method?  What things vary according to address
+space and not according to file?  Should things that vary according to
+address space be address space ops and things that vary according to
+file be file ops?  If that logic seems valid, should a lot more be changed?
 
-A microoptimisation because they've turned on DEBUG_PREEMPT and found
-that smp_processor_id slows down? ;) Wouldn't it be better to just stick
-to the normal rules (ie. what Keith said)?
+Oh, and Andrew, while such things are discussed, could you just pick one
+way or the other and let the patch go in?
 
-It may be obvious in this case (though that doesn't help people who make
-obvious mistakes, or mismerge patches) but this just seems like a nasty
-precedent to set (or has it already been?).
-
-> 
-> But I think it'd be better to do just a single raw_smp_processor_id() for
-> this entire function:
-> 
->   static void bh_lru_install(struct buffer_head *bh)
->   {
-> 	struct buffer_head *evictee = NULL;
-> 	struct bh_lru *lru;
-> +	int cpu;
-> 
-> 	check_irqs_on();
-> 	bh_lru_lock();
-> +	cpu = raw_smp_processor_id();
-> -	lru = &__get_cpu_var(bh_lrus);
-> +	lru = per_cpu(bh_lrus, cpu);
-> 
-> etcetera.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Hans

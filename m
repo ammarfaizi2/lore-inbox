@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWGDUy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWGDVAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbWGDUy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 16:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWGDUy4
+	id S932275AbWGDVAg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 17:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWGDVAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 16:54:56 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:11669 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932257AbWGDUyz
+	Tue, 4 Jul 2006 17:00:36 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62480 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932275AbWGDVAf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 16:54:55 -0400
-Message-ID: <44AAD59E.7010206@drzeus.cx>
-Date: Tue, 04 Jul 2006 22:54:54 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: resource_size_t and printk()
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jul 2006 17:00:35 -0400
+Date: Tue, 4 Jul 2006 18:30:43 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Fabio Comolli <fabio.comolli@gmail.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, mingo@redhat.com,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.17-mm5: lockdep prevents suspend to disk
+Message-ID: <20060704183043.GA4420@ucw.cz>
+References: <b637ec0b0607041258j36007132kdb7dbca1fa8f7dd5@mail.gmail.com> <20060704202115.GA16842@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060704202115.GA16842@elte.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
+Hi!
 
-Your commit b60ba8343b78b182c03cf239d4342785376c1ad1 has been causing me
-a bit of confusion and I thought I'd point out the problem so that you
-can resolve it. :)
+> > * 2.6.17-mm5 (plus hotfix)  suspends/resume to disk correctly
+> > * adding lockdep testsuite breaks it
+> > 
+> > Extract from dmesg:
+> 
+> seems to be caused by:
+> 
+> > ACPI Error (exmutex-0283): Cannot release Mutex [BATM],
+> > incorrect SyncLevel [20060623]
+> 
+> ?
 
-resource_size_t is not guaranteed to be a long long, but might be a u64
-or u32 depending on your .config. So you need an explicit cast in the
-printk:s or you get a lot of junk on the output.
+No, I don't think so.
 
-There might be other commits with the same issue. I just noticed this one.
-
-Rgds
-Pierre
+-- 
+Thanks for all the (sleeping) penguins.

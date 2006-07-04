@@ -1,98 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWGDFV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWGDFcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWGDFV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 01:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWGDFV0
+	id S1751072AbWGDFcg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 01:32:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWGDFcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 01:21:26 -0400
-Received: from sullivan.realtime.net ([205.238.132.76]:59911 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id S1750838AbWGDFV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 01:21:26 -0400
-Message-Id: <200607040516.k645GFTj014564@sullivan.realtime.net>
-From: Milton Miller <miltonm@bga.com>
-Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
-To: Jes Sorensen <jes@sgi.com>, Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Date: Mon,  3 Jul 2006 11:37:43 -0400 (EDT)
-In-Reply-To: <yq0mzbqhfdp.fsf@jaguar.mkp.net>
-References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>
+	Tue, 4 Jul 2006 01:32:36 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49590 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751061AbWGDFcf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 01:32:35 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Jes Sorensen <jes@sgi.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Alexander Viro <viro@zeniv.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close 
+In-reply-to: Your message of "03 Jul 2006 11:33:54 -0400."
+             <yq0mzbqhfdp.fsf@jaguar.mkp.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 04 Jul 2006 15:32:19 +1000
+Message-ID: <21169.1151991139@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jul 03 2006 - 11:37:43 EST,  Jes Sorensen wrote:
-> Certain applications cause a lot of IPI noise due to them constantly
-> doing open/close on /dev/cdrom. hald is a particularly annoying case
-> of this. However since every distribution insists on shipping it, it's
-> one of those that are hard to get rid of :(
+Jes Sorensen (on 03 Jul 2006 11:33:54 -0400) wrote:
+>Anyway, this patch reduces the IPI noise by keeping a cpumask of CPUs
+>which have items in the bh lru and only flushing on the relevant
+>CPUs. On systems with larger CPU counts it's quite normal that only a
+>few CPUs are actively doing block IO, so spewing IPIs everywhere to
+>flush this is unnecessary.
+>
+>Index: linux-2.6/fs/buffer.c
+>===================================================================
+>--- linux-2.6.orig/fs/buffer.c
+>+++ linux-2.6/fs/buffer.c
+>@@ -1323,6 +1323,7 @@ struct bh_lru {
+> };
 > 
-> Anyway, this patch reduces the IPI noise by keeping a cpumask of CPUs
-> which have items in the bh lru and only flushing on the relevant
-> CPUs. On systems with larger CPU counts it's quite normal that only a
-> few CPUs are actively doing block IO, so spewing IPIs everywhere to
-> flush this is unnecessary.
+> static DEFINE_PER_CPU(struct bh_lru, bh_lrus) = {{ NULL }};
+>+static cpumask_t lru_in_use;
 > 
+> #ifdef CONFIG_SMP
+> #define bh_lru_lock()	local_irq_disable()
+>@@ -1352,9 +1353,14 @@ static void bh_lru_install(struct buffer
+> 	lru = &__get_cpu_var(bh_lrus);
+> 	if (lru->bhs[0] != bh) {
+> 		struct buffer_head *bhs[BH_LRU_SIZE];
+>-		int in;
+>-		int out = 0;
+>+		int in, out, cpu;
+> 
+>+		cpu = raw_smp_processor_id();
 
-Ok we are optimizing for the low but not zero traffic case ... 
+Why raw_smp_processor_id?  That normally indicates code that wants a
+lazy cpu number, but this code requires the exact cpu number, IMHO
+using raw_smp_processor_id is confusing.  smp_processor_id can safely
+be used here, bh_lru_lock has disabled irq or preempt.
 
-
-> + cpu = raw_smp_processor_id();
-> + /* Test first to avoid cache lines bouncing around */
-> + if (!cpu_isset(cpu, lru_in_use))
-> + cpu_set(cpu, lru_in_use);
-
-Being set when local array is filled, under local locking only, but its
-a set_bit and ok.
-
-
+>+		/* Test first to avoid cache lines bouncing around */
+>+		if (!cpu_isset(cpu, lru_in_use))
+>+			cpu_set(cpu, lru_in_use);
+>+
+>+		out = 0;
+> 		get_bh(bh);
+> 		bhs[out++] = bh;
+> 		for (in = 0; in < BH_LRU_SIZE; in++) {
+>@@ -1500,19 +1506,28 @@ EXPORT_SYMBOL(__bread);
+>  */
+> static void invalidate_bh_lru(void *arg)
+> {
+>-	struct bh_lru *b = &get_cpu_var(bh_lrus);
+>+	struct bh_lru *b;
+> 	int i;
+> 
+>+	local_irq_disable();
+>+	b = &get_cpu_var(bh_lrus);
+> 	for (i = 0; i < BH_LRU_SIZE; i++) {
+> 		brelse(b->bhs[i]);
+> 		b->bhs[i] = NULL;
+> 	}
+> 	put_cpu_var(bh_lrus);
+>+	local_irq_enable();
+> }
+> 	
 > static void invalidate_bh_lrus(void)
 > {
-> - on_each_cpu(invalidate_bh_lru, NULL, 1, 1);
-> + /*
-> + * Need to hand down a copy of the mask or we wouldn't be run
-> + * anywhere due to the original mask being cleared
-> + */
-> + cpumask_t mask = lru_in_use;
-> + cpus_clear(lru_in_use);
-> + schedule_on_each_cpu_mask(invalidate_bh_lru, NULL, mask);
+>-	on_each_cpu(invalidate_bh_lru, NULL, 1, 1);
+>+	/*
+>+	 * Need to hand down a copy of the mask or we wouldn't be run
+>+	 * anywhere due to the original mask being cleared
+>+	 */
+>+	cpumask_t mask = lru_in_use;
+>+	cpus_clear(lru_in_use);
+>+	schedule_on_each_cpu_mask(invalidate_bh_lru, NULL, mask);
 > }
 
+Racy?  Start with an empty lru_in_use.
 
-But that is totally racy!
+Cpu A                         Cpu B
+invalidate_bh_lrus()
+mask = lru_in_use;
+preempted
+                              block I/O
+			      bh_lru_install()
+			      cpu_set(cpu, lru_in_use);
+resume
+cpus_clear(lru_in_use);
+schedule_on_each_cpu_mask() - does not send IPI to cpu B
 
-Another cpu could set its bit between the assignment to mask and
-the call to cpus_clear.
-
-Which means we end up with cpus holding a bh in their lru but no
-idea which ones.
-
-Unfornately clearing the bit in the callback means we pass the cpu
-mask around twice (once to clear, and later to set as we start
-freeing bhs again).
-
-Although that is probably not much worse than scanning other cpus'
-per-cpu data for NULL (and I would probably just scan 8 pointers
-rather than add another per-cpu something is cached flag).
-
-
-I don't like the idea of invalidate_bdev (say due to openers going
-to zero) running against one device causing a buffer to be left
-artificially busy on another device, causing a page to be left
-around.
-
-If you want to cut down on the cache line passing, then putting
-the cpu mask in the bdev (for "I have cached a bh on this bdev
-sometime") might be useful.  You could even do a bdev specific
-lru kill, but then we get into the next topic.
-
-
-And now for the "what is that code doing?" part of this review:
-
- * The LRU management algorithm is dopey-but-simple.  Sorry.
-
-Umm.. yes.
-
-(but time for a new subject).
-
-milton
-[sorry for the whitespace munging]

@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWGDPUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWGDPYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbWGDPUu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 11:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWGDPUu
+	id S1751196AbWGDPYs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 11:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWGDPYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 11:20:50 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:31421 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750815AbWGDPUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 11:20:49 -0400
-Date: Tue, 4 Jul 2006 08:20:25 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       hugh@veritas.com, kernel@kolivas.org, marcelo@kvack.org,
-       nickpiggin@yahoo.com.au, ak@suse.de
-Subject: Re: [RFC 3/8] Move HIGHMEM counter into highmem.c/.h
-In-Reply-To: <20060703232020.260446d9.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0607040819230.13534@schroedinger.engr.sgi.com>
-References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
- <20060703215550.7566.79975.sendpatchset@schroedinger.engr.sgi.com>
- <20060704144724.65c43a38.kamezawa.hiroyu@jp.fujitsu.com>
- <Pine.LNX.4.64.0607032253040.10856@schroedinger.engr.sgi.com>
- <20060703232020.260446d9.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 Jul 2006 11:24:48 -0400
+Received: from homer.mvista.com ([63.81.120.158]:12718 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751196AbWGDPYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 11:24:47 -0400
+Subject: Re: [BUG] scsi/io-elevator held lock freed.
+From: Daniel Walker <dwalker@mvista.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <1152026010.3109.66.camel@laptopd505.fenrus.org>
+References: <1152024854.29262.5.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	 <1152026010.3109.66.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Tue, 04 Jul 2006 08:24:44 -0700
+Message-Id: <1152026685.29262.7.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jul 2006, Andrew Morton wrote:
-
-> > Ok. Will put a #ifdef CONFIG_HIGHMEM around that statement and the 
-> > following one.
+On Tue, 2006-07-04 at 17:13 +0200, Arjan van de Ven wrote:
 > 
-> That will take the patchset up to 27 new ifdefs.  Is there a way of improving
-> that?
+> blargh.. it'd be more useful if lockdep actually printed which lock it
+> is that it thinks is about to get freed.....
 
-Ideas are welcome. I can put some of the tests for zones together into one
-big #ifdef in mmzone.h but otherwise this is going to be difficult.
+I was thinking exactly the same thing ..
+
+> this patch ought to make it do that; could you at least add this to your
+> kernel?
+
+I'll add the patch, but I doubt I'll see it again ..
+
+Daniel
 

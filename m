@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWGDIX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWGDI01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWGDIX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 04:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWGDIX2
+	id S932066AbWGDI01 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 04:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWGDI01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 04:23:28 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:10136 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932066AbWGDIX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 04:23:26 -0400
-Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jes Sorensen <jes@sgi.com>
-Cc: Milton Miller <miltonm@bga.com>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <44AA2301.2030400@sgi.com>
-References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>
-	 <200607040516.k645GFTj014564@sullivan.realtime.net>
-	 <44AA1D09.7080308@sgi.com> <1151999591.3109.8.camel@laptopd505.fenrus.org>
-	 <44AA2301.2030400@sgi.com>
-Content-Type: text/plain
-Date: Tue, 04 Jul 2006 10:23:19 +0200
-Message-Id: <1152001399.3109.12.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 4 Jul 2006 04:26:27 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:58891 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932066AbWGDI00
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 04:26:26 -0400
+Message-ID: <44AA262E.906@argo.co.il>
+Date: Tue, 04 Jul 2006 11:26:22 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, Tomasz Torcz <zdzichu@irc.pl>,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features (checksums)
+References: <17578.4725.914746.951778@cse.unsw.edu.au>
+In-Reply-To: <17578.4725.914746.951778@cse.unsw.edu.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-OriginalArrivalTime: 04 Jul 2006 08:26:24.0846 (UTC) FILETIME=[89B2CEE0:01C69F43]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-04 at 10:12 +0200, Jes Sorensen wrote:
-> 
-> Guess the question is, is there a way we can detect when media has
-> been
-> inserted without doing open/close on the device constantly? 
+Neil Brown wrote:
+>
+> On Tuesday July 4, avi@argo.co.il wrote:
+> > Neil Brown wrote:
+> > >
+> > > To my mind, the only thing you should put between the filesystem and
+> > > the raw devices is RAID (real-raid - not raid0 or linear).
+> > >
+> > I believe that implementing RAID in the filesystem has many benefits 
+> too:
+> >  - multiple RAID levels: store metadata in triple-mirror RAID 1, random
+> > write intensive data in RAID 1, bulk data in RAID 5/6
+> >  - improved write throughput - since stripes can be variable size, any
+> > large enough write fills a whole stripe
+>
+> Maybe....
+>
+> Now imagine what would be required to rebuild a whole drive onto a
+> spare after a drive failure.
+>
+> I'm sure it is possible, and I believe ZFS does something like that.
+> I find it hard to imagine getting reasonable speed if there is much
+> complexity.  And the longer it takes, the longer your data is exposed
+> to multiple-failures.
+>
 
-they could just keep the device open.... at least until media is
-inserted
+A company called Isilon does this on a cluster.  They claim (IIRC) a one 
+hour rebuild time for a failure.  AFAIK they rebuild into cluster free 
+space, so they are not bound by the spare's bandwidth; they can utilize 
+all cluster resources for a rebuild.
 
+(You don't need spare disks, just spare free space; so you don't have 
+idle disk heads)
 
-also they should poll at most every 10 seconds; anything more frequent
-is just braindead...
+In terms of complexity, I imagine one needs a reverse mapping (extent -> 
+(inode, offset)); given that, one can very easily rebuild failed disks, 
+and more features are easy to implement, like evacuation of a drive, or 
+rebalancing data across all drives when new disks are added.
 
+The same ideas can be applied to a non-clustered filesystem, of course.
+
+-- 
+error compiling committee.c: too many arguments to function
 

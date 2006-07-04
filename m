@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWGDQZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWGDQ2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWGDQZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 12:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWGDQZ3
+	id S932271AbWGDQ2K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 12:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWGDQ2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 12:25:29 -0400
-Received: from ns.suse.de ([195.135.220.2]:51858 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932270AbWGDQZ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 12:25:28 -0400
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: [RFC 0/8] Reduce MAX_NR_ZONES and remove useless zones.
-Date: Tue, 4 Jul 2006 18:25:07 +0200
+	Tue, 4 Jul 2006 12:28:09 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:41490 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S932271AbWGDQ2I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 12:28:08 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-mm6
+Date: Tue, 4 Jul 2006 17:28:32 +0100
 User-Agent: KMail/1.9.3
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
-       Con Kolivas <kernel@kolivas.org>, Marcelo Tosatti <marcelo@kvack.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com> <200607041723.46604.ak@suse.de> <Pine.LNX.4.64.0607040915420.13795@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0607040915420.13795@schroedinger.engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       john stultz <johnstul@us.ibm.com>
+References: <20060703030355.420c7155.akpm@osdl.org> <200607040934.14592.s0348365@sms.ed.ac.uk> <20060704014908.9782c85f.akpm@osdl.org>
+In-Reply-To: <20060704014908.9782c85f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200607041825.07466.ak@suse.de>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607041728.32668.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 July 2006 18:16, Christoph Lameter wrote:
-> On Tue, 4 Jul 2006, Andi Kleen wrote:
-> 
-> > The 900MB refered to the boundary between NORMAL and HIGHMEM on i386.
-> 
-> Yikes. So any system with 1MB will need to have highmem? 
+On Tuesday 04 July 2006 09:49, Andrew Morton wrote:
+[snip]
+> Can you send the .config please?
 
-No. But a 1GB system will.
+Uploaded dmesg from a successful boot (slightly chopped, sorry), and the 
+config for this kernel:
 
-> I guess the 2G/2G config option changes that?
+http://devzero.co.uk/~alistair/oops-20060703/config-2.6.17-mm6
+http://devzero.co.uk/~alistair/oops-20060703/dmesg
 
-Yes, but it also breaks a lot of software.
+-- 
+Cheers,
+Alistair.
 
--Andi
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

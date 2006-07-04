@@ -1,102 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWGDLeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWGDLfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWGDLeo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 07:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWGDLeo
+	id S932179AbWGDLfb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 07:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWGDLfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 07:34:44 -0400
-Received: from colin.muc.de ([193.149.48.1]:27144 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932211AbWGDLen (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 07:34:43 -0400
-Date: 4 Jul 2006 13:34:41 +0200
-Date: Tue, 4 Jul 2006 13:34:41 +0200
-From: Andi Kleen <ak@muc.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Doug Thompson <norsk5@yahoo.com>, akpm@osdl.org,
-       mm-commits@vger.kernel.org, norsk5@xmission.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch added to -mm tree
-Message-ID: <20060704113441.GA26023@muc.de>
-References: <20060701150430.GA38488@muc.de> <20060703172633.50366.qmail@web50109.mail.yahoo.com> <20060703184836.GA46236@muc.de> <1151962114.16528.18.camel@localhost.localdomain> <20060704092358.GA13805@muc.de> <1152007787.28597.20.camel@localhost.localdomain>
+	Tue, 4 Jul 2006 07:35:31 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:32474 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932179AbWGDLfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 07:35:30 -0400
+Subject: Re: ext4 features
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Petr Tesarik <ptesarik@suse.cz>
+Cc: Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1152004929.3374.13.camel@elijah.suse.cz>
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
+	 <20060701170729.GB8763@irc.pl>
+	 <20060701174716.GC24570@cip.informatik.uni-erlangen.de>
+	 <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
+	 <20060703205523.GA17122@irc.pl>
+	 <1151960503.3108.55.camel@laptopd505.fenrus.org>
+	 <44A9904F.7060207@wolfmountaingroup.com>
+	 <20060703232547.2d54ab9b.diegocg@gmail.com>
+	 <1152004929.3374.13.camel@elijah.suse.cz>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 04 Jul 2006 13:35:06 +0200
+Message-Id: <1152012907.23628.20.camel@lappy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152007787.28597.20.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 04, 2006 at 11:09:47AM +0100, Alan Cox wrote:
-> Ar Maw, 2006-07-04 am 11:23 +0200, ysgrifennodd Andi Kleen:
-> > Regarding your buzzwords: I don't think mcelog is in any way
-> > less "manageable" or "consistent" than EDAC.
-> 
-> Its chip specific rather than generalised so you need awareness of it.
-
-You mean the final output?
-
-I guess it would be possible to add a generic output format
-for memory errors in mcelog, but it's not clear you can always get
-the same information from different chipsets.
-
-
-> > > > Hmm, i haven't checked, but my understanding was that the newer
-> > > > Intel chipsets all forwarded the memory errors as machine 
-> > > > check anyways.
-> > > 
-> > > Quite a few still in use do not. We also have no idea where the future
+On Tue, 2006-07-04 at 11:22 +0200, Petr Tesarik wrote:
+> On Mon, 2006-07-03 at 23:25 +0200, Diego Calleja wrote:
+> > El Mon, 03 Jul 2006 15:46:55 -0600,
+> > "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com> escribió:
 > > 
-> > New ones?  Would surprise me.
-> 
-> All the world is not x86. 
-
-The rest of the world either doesn't do significant error handling 
-(embedded, lowend) or has its own similar to mcelog error handling machine 
-check systems (POWER, IA64) 
-
-Ok Sparc, pa-risc, old SGI mips are left out currently but I'm sure the 
-maintainers will attack that eventually if there is need. 
-
-> > We don't have a generic interface for logging some of the other errors
-> > (like PCI-E errors), but I don't see EDAC solving that. In some ways
-> > it's understandable because there is no generic PCI-E error handling
-> > code at all yet.
-> 
-> EDAC solves that for the PCI bus side. It's only solving the logging
-> side not the "ok it exploded, now what" question - although there are
-> some unrelated IBM patches in that area.
-
-Yes some of that might be useful still for legacy systems.
-
-In the future it should be more standardized with the standard x86
-machine check architecture and standardized PCI Express advanced
-error handling. So generic drivers should do the heavy lifting.
-
-I'm not disputing it is still useful for some old systems, it just
-doesn't seem to be the right part forward for new ones.
-
-Is there work going on to hook up the old EDAC drivers for PCI errors to 
-the new error handling? 
-
-
-> > > The ecc code predates the MCE bits by years. The re-doing occurred
-> > > rather earlier. Rather more useful would be to get the common interface
+> > > Add a salvagable file system to ext4, i.e. when a file is deleted, you 
+> > > just rename it and move it to a directory called DELETED.SAV and recycle 
+> > > the files as people allocate new ones.  Easy to do (internal "mv" of 
 > > 
-> > Earlier than the x86-64 machine check code?
+> > 
+> > Easily doable in userspace, why bother with kernel programming
 > 
-> Linux 1.2 I believe, certainly by 2.0
-
-Doubtful you wrote a K8 error handler at this time frame ;-)
-
+> Yes and no. A simple mv is better done in userspace, but what I'd
+> _really_ appreciate would be a true kernel salvage (similar to the way
+> NetWare does things). That means marking the file as deleted in the
+> directory, marking its blocks as deleted but avoiding the use of those
+> blocks. The kernel would then prefer allocating new blocks from
+> elsewhere but once the filesystem runs out of space, it would start
+> allocating from the deleted files area and marking the blocks as well as
+> the corresponding files purged.
 > 
-> > Giving a consistent sysfs interface is a bit harder, but I suppose one 
-> > could change the code to provide pseudo banks for enable/disable too.
-> > However that would be system specific again, so a default "all on/all off" 
-> > policy might be quite ok.
+> Salvaging files would be done with a separate tool. Of course, if you
+> delete more files with the same name in the same directory, you'd need
+> to tell that tool which one of them you want to salvage. Yes, I really
+> mean you'd have more than one deleted file with the same name in the
+> directory.
 > 
-> I think we need the basic consistent sysfs case. Whether that is
+> Anyway, I doubt we want such feature for ext4, because to make things
+> efficient, you'd need to provide some kind of pointer from the deleted
+> (but not yet purged) blocks to the corresponding file. Hard links are
+> also problematic and there is a whole lot of other troubles I haven't
+> even thought of.
 
-What should i do?
+Wouldn't such a scheme interfere with the block allocator algorithms,
+and hence increase the risk of fragmentation? Schemes like this realy
+put my hairs on end,
 
--Andi
+  1) if you don't want to lose your data, make backups; 
+  2) if I mean to delete a file, I want it gone proper. Silently keeping
+     it about is not unix like;
+  3) don't aid third parties in recovering your removed data. If I want
+     them to have it I'll give it to them.
+
+Peter
+

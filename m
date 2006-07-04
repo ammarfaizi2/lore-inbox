@@ -1,101 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWGDUmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWGDUoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWGDUmX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 16:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWGDUmX
+	id S932377AbWGDUoK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 16:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWGDUoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 16:42:23 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53673 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932395AbWGDUmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 16:42:22 -0400
-Date: Wed, 5 Jul 2006 06:41:45 +1000
-From: David Chinner <dgc@sgi.com>
-To: Masayuki Saito <m-saito@tnes.nec.co.jp>
-Cc: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] xfs: i_state of inode is changed after the inode is freed
-Message-ID: <20060704204145.GU15160733@melbourne.sgi.com>
-References: <20060704215256m-saito@mail.aom.tnes.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Jul 2006 16:44:09 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:59430 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932377AbWGDUoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 16:44:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FcGjmaa2EH97+4bWlrB2DyByvJl/Lj1ddpVr1SF8+YeM2YohQ/k2N7wMD9PBi4QKYlhoThiDdLZf1+A0jwGtLspSgp2jmbvznWGv0FM6bl6vVhAdCozw/ra4ndoYckBaVll5zut974xejpuh+p4mTmXHXCOR+Ff9hNa6G8KynF8=
+Message-ID: <c526a04b0607041344nf8b7206u8c64e8730c4c770b@mail.gmail.com>
+Date: Tue, 4 Jul 2006 21:44:07 +0100
+From: "Adam Henley" <adamazing@gmail.com>
+To: "Jeff Garzik" <jeff@garzik.org>
+Subject: Re: Linux SATA Support Question - Is the ULI M1575 chip supported?
+Cc: "Justin Piszcz" <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+In-Reply-To: <44A9BD0B.8010104@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060704215256m-saito@mail.aom.tnes.nec.co.jp>
-User-Agent: Mutt/1.4.2.1i
+References: <Pine.LNX.4.64.0607031756510.3342@p34.internal.lan>
+	 <44A9BD0B.8010104@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 04, 2006 at 09:52:56PM +0900, Masayuki Saito wrote:
-> Hi,
-> 
-> I found the case that i_state of the inode was changed when 
-> the inode was freed in xfs filesystem.  It's as follows to be 
-> concrete.
-> 
-> (1) xfs_fs_destroy function is called.
-> (2) after (1), i_state of the inode is changed within
->     __mark_inode_dirty function.
+On 04/07/06, Jeff Garzik <jeff@garzik.org> wrote:
+> Justin Piszcz wrote:
+> >
+> > In the source:
+> >
+> > enum {
+> >         uli_5289                = 0,
+> >         uli_5287                = 1,
+> >         uli_5281                = 2,
+> >
+> >         uli_max_ports           = 4,
+> >
+> >         /* PCI configuration registers */
+> >         ULI5287_BASE            = 0x90, /* sata0 phy SCR registers */
+> >         ULI5287_OFFS            = 0x10, /* offset from sata0->sata1 phy
+> > regs */
+> >         ULI5281_BASE            = 0x60, /* sata0 phy SCR  registers */
+> >         ULI5281_OFFS            = 0x60, /* offset from sata0->sata1 phy
+> > regs */
+> > };
+> >
+> > However, in the manual for this motherboard it states it has a ULI
+> > M1575, can anyone comment?
+> >
+> > http://us.dfi.com.tw/Upload/Manual/90800601.pdf
+>
+> What is the PCI ID?
+>
+>         Jeff
 
-You'd be talking about xfs_iunpin(), wouldn't you ;)
+Sure this won't help, but just in case... my board:
+http://www.asrock.com/product/939Dual-SATA2.htm
+"Chipset  	- Northbridge: ULi M1695
+                    - Southbridge: ULI M1567"
 
-> In addition to the case of the above, I confirm the case that
-> i_state of the inode is changed after xfs_inode is reclaimed.
-> It occurs when xfs_inode reclaim transaction is running with
-> the transaction mentioned above in parallel. 
+PCI ID of Southbridge in lspci output below looks like 5289
 
-Well, it occurs because the xfs_inode_t has a different life cycle
-to the linux inode (inherited from Irix). Basically, we can still be
-doing transactions on the xfs_inode_t whilst the linux inode is
-being freed or has been freed.  Indeed, there was a long standing
-use-after-free in this code, as fixed here:
+00:00.0 Host bridge: ALi Corporation M1695 K8 Northbridge [PCI Express
+and HyperTransport]
+00:01.0 PCI bridge: ALi Corporation: Unknown device 524b
+00:02.0 PCI bridge: ALi Corporation: Unknown device 524c
+00:04.0 Host bridge: ALi Corporation M1689 K8 Northbridge [Super K8 Single Chip]
+00:05.0 PCI bridge: ALi Corporation AGP8X Controller
+00:06.0 PCI bridge: ALi Corporation M5249 HTT to PCI Bridge
+00:07.0 ISA bridge: ALi Corporation M1563 HyperTransport South Bridge (rev 70)
+00:07.1 Bridge: ALi Corporation M7101 Power Management Controller [PMU]
+00:11.0 Ethernet controller: ALi Corporation M5263 Ethernet Controller (rev 40)
+00:12.0 IDE interface: ALi Corporation M5229 IDE (rev c7)
+00:12.1 IDE interface: ALi Corporation ULi 5289 SATA (rev 10)
+00:13.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+00:13.1 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+<snip>
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=58829e490ee805f1c8b3009abc90e2a1a7a0d278
+Justin: I'm using 2.6.17.1 and the sata_uli driver seems to be
+handling the SATA drives just fine. But as I say, it's a different
+southbridge, so apologies if I'm just contributing to the noise :o)
 
-Initially I thought this was all that was necessary to fix the problem.
+Not sure if this is comprehensive: http://pci-ids.ucw.cz/iii/?i=10b9
+It doesn't appear to list the M1575's pci id there.
 
-The problem you are seeing is a fast log transaction completion
-(NVRAM in front of your disks, perhaps?), and so the transaction
-completion is occurring before the linux inode has been completely
-freed. This is the condition the above fix does not handle.....
-
-> I think that the cause of the case is that xfs_inode is not
-> locked.  For this reason, these two(or three) transactions
-> can be running in parallel.
-
-The inode is locked while the transaction is being built and
-unlocked when the transaction is committed to the incore log buffer.
-The inode is pinned during the transaction commit, so we can have
-multiple _committed_ transactions in flight on the one inode at the
-same time, but we only allow an inode to be part of a single
-uncommitted transaction at a time.
-
-FYI, see xfs_trans_iget(), xfs_trans_ijoin(), etc for an
-explanation of inode transaction locking rules.
-
-> Here is the typical pattern.  (transaction A runs while transaction
-> B is running)
-> 
-> generic_delete_inode  xfs_iunpin
-> ---------------------------------------------------------------------------
->                       if (!(ip->i_flags & (XFS_IRECLAIM|XFS_IRECLAIMABLE)))
->                       +-vnode_t *vp = XFS_ITOV_NULL(ip)
->                       ==================(transaction B-Start)==============
->                       +-if (vp)
->                         +-struct inode    *inode = vn_to_inode(vp)
->                         +-if (!(inode->i_state & I_NEW))
-
-
-This check fails to detect the fact the inode is in the process
-of being freed.
-
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=714250879ea61cdb1a39bb96fe9d934ee0c669a2
-
-This fixed the reproducable test case I had for the problem.
-Can you see if it fixes your problem as well?
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+adam

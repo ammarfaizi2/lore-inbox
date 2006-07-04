@@ -1,50 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWGDNT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWGDN0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWGDNT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 09:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWGDNT7
+	id S1750775AbWGDN0P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 09:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWGDN0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 09:19:59 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:38266 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932210AbWGDNT6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 09:19:58 -0400
-Message-ID: <44AA6AF8.4010205@fr.ibm.com>
-Date: Tue, 04 Jul 2006 15:19:52 +0200
-From: Daniel Lezcano <dlezcano@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Vilain <sam@vilain.net>
-CC: Andrey Savochkin <saw@swsoft.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, hadi@cyberus.ca,
-       Herbert Poetzl <herbert@13thfloor.at>, Alexey Kuznetsov <alexey@sw.ru>,
-       viro@ftp.linux.org.uk, devel@openvz.org, dev@sw.ru,
-       Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Russel Coker <russell@coker.com.au>
-Subject: Re: strict isolation of net interfaces
-References: <20060627225213.GB2612@MAIL.13thfloor.at> <1151449973.24103.51.camel@localhost.localdomain> <20060627234210.GA1598@ms2.inr.ac.ru> <m1mzbyj6ft.fsf@ebiederm.dsl.xmission.com> <20060628133640.GB5088@MAIL.13thfloor.at> <1151502803.5203.101.camel@jzny2> <44A44124.5010602@vilain.net> <44A450D1.2030405@fr.ibm.com> <20060630023947.GA24726@sergelap.austin.ibm.com> <44A49121.4050004@vilain.net> <20060703185350.A16826@castle.nmd.msu.ru> <44AA5F28.9040109@fr.ibm.com> <44AA6994.5010202@vilain.net>
-In-Reply-To: <44AA6994.5010202@vilain.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jul 2006 09:26:14 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:48579 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750775AbWGDN0O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 09:26:14 -0400
+Date: Tue, 4 Jul 2006 15:21:35 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: David Howells <dhowells@redhat.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: R/W semaphore changes
+Message-ID: <20060704132135.GA7816@elte.hu>
+References: <1152017562.3109.48.camel@laptopd505.fenrus.org> <14683.1152017262@warthog.cambridge.redhat.com> <15345.1152018339@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15345.1152018339@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5136]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain wrote:
-> Daniel Lezcano wrote:
-> 
->>If it is ok for you, we can collaborate to merge the two solutions in
->>one. I will focus on layer 3 isolation and you on the layer 2.
-> 
-> 
-> So, you're writing a LSM module or adapting the BSD Jail LSM, right? :)
-> 
-> Sam.
 
-No. I am adapting a prototype of network application container we did.
+* David Howells <dhowells@redhat.com> wrote:
 
-   -- Daniel
+> They still aren't allowed to.  Consider:
+> 
+> 	CPU 1			CPU 2
+> 	=======================	=======================
+> 	-->down_read(&A);
+> 	<--down_read(&A);
+> 				-->down_write(&A);
+> 				   --- SLEEPING ---
+> 	-->down_read(&A);
+> 	   --- DEADLOCKED ---
+
+i think you misunderstood what nested locking means in the lockdep case. 
+(and that is my fault, for not adding enough documentation to 
+down_write_nested() and down_read_nested().)
+
+nested locking does not mean the same instance is allowed to nest! It 
+only allows different-instance nesting, 'nesting within the same lock 
+class'. (Lockdep has a very broad notion of 'lock class', to achieve the 
+collection of very generic locking rules and to do as generic validation 
+as possible. See Documentation/lockdep-design.txt for more details.)
+
+Rw-locks on the other hand have special permission to nest for the same 
+instance too. See commit 6c9076ec9cd448f43bbda871352a7067f456ee26:
+
+    lockdep so far only allowed read-recursion for the same lock instance.
+    This is enough in the overwhelming majority of cases, but a hostap case
+    triggered and reported by Miles Lane relies on same-class
+    different-instance recursion.  So we relax the restriction on read-lock
+    recursion.
+
+    (This change does not allow rwsem read-recursion, which is still
+    forbidden.)
+
+also please see the testcases in lib/locking-selftest.c, we specifically 
+test the rwsem scenario you outlined above, to make sure the validator 
+immediately flags it:
+
+------------------------
+| Locking API testsuite:
+----------------------------------------------------------------------------
+                                 | spin |wlock |rlock |mutex | wsem | rsem |
+  --------------------------------------------------------------------------
+[...]
+              recursive read-lock:             |  ok  |             |  ok  |
+           recursive read-lock #2:             |  ok  |             |  ok  |
+[...]
+
+	Ingo

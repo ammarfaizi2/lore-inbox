@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWGDTOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWGDTQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbWGDTOa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 15:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWGDTOa
+	id S932344AbWGDTQi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 15:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWGDTQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 15:14:30 -0400
-Received: from tirith.ics.muni.cz ([147.251.4.36]:1670 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932343AbWGDTO3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 15:14:29 -0400
-Date: Tue, 4 Jul 2006 21:14:11 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Dave Jones <davej@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-Subject: Re: [Ubuntu PATCH] Add Dothan frequency tables for speedstep
-Message-ID: <20060704191411.GA9787@mail.muni.cz>
-References: <44A98250.6060508@oracle.com> <20060703214403.GP14292@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+	Tue, 4 Jul 2006 15:16:38 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:20688 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S932344AbWGDTQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 15:16:38 -0400
+Date: Tue, 4 Jul 2006 21:16:36 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+Message-ID: <20060704191636.GU3305@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060704010240.GD6317@thunk.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060703214403.GP14292@redhat.com>
-User-Agent: Mutt/1.4.1i
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xhejtman@fi.muni.cz
-X-Muni-Virus-Test: Clean
+In-Reply-To: <20060704010240.GD6317@thunk.org>
+User-Agent: Mutt/1.5.11-2006-06-13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 05:44:03PM -0400, Dave Jones wrote:
-> Yes it works great if your system is wired up to use VID#C,
-> but what if it isn't ?  It's got a 1 in 4 chance of working,
-> and what it'll do in the other 3 cases is anyones guess.
-> 
-> As there's no way to tell which VID is in use, the only
-> option on these systems is to use either the acpi
-> mode of this driver, or acpi-cpufreq instead.
+Hello,
+... wow ... thank you for all the awareness training. I have now a much
+better idea what is happening now. And who knows, maybe I am going to submit
+some patches when ext4 isn't already released in three months. I didn't
+knew about the checksum capability of newer drives. I only new about the
+DMA crc. But it is definitively the right way to go.
 
-Is this the same reason why this patch wasn't accepted in mainline?
-http://fabrice.bellamy.club.fr/bdz.undervolt.2005.10.22.a.patch
-
--- 
-Luká¹ Hejtmánek
+        Thomas

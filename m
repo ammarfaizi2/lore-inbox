@@ -1,117 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWGDGli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWGDGr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWGDGli (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 02:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWGDGlh
+	id S1750963AbWGDGr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 02:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWGDGr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 02:41:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33720 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750792AbWGDGlh (ORCPT
+	Tue, 4 Jul 2006 02:47:59 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:19081 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750962AbWGDGr7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 02:41:37 -0400
-Date: Mon, 3 Jul 2006 23:41:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Keith Owens <kaos@sgi.com>
-Cc: jes@sgi.com, torvalds@osdl.org, viro@zeniv.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
-Message-Id: <20060703234134.786944f1.akpm@osdl.org>
-In-Reply-To: <21169.1151991139@kao2.melbourne.sgi.com>
-References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>
-	<21169.1151991139@kao2.melbourne.sgi.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Tue, 4 Jul 2006 02:47:59 -0400
+Date: Tue, 4 Jul 2006 08:43:07 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH] 2.6.17-rt1 : fix x86_64 oops
+Message-ID: <20060704064307.GB2752@elte.hu>
+References: <20060627200105.GA13966@in.ibm.com> <20060628182137.GA23979@in.ibm.com> <20060628193256.GA4392@elte.hu> <20060628200247.GA7932@in.ibm.com> <20060629142442.GA11546@elte.hu> <20060629163236.GD1294@us.ibm.com> <20060629194145.GA2327@us.ibm.com> <20060629201144.GA24287@elte.hu> <20060703165750.GB3899@in.ibm.com> <20060704041519.GC16074@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060704041519.GC16074@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 04 Jul 2006 15:32:19 +1000
-Keith Owens <kaos@sgi.com> wrote:
 
-> Jes Sorensen (on 03 Jul 2006 11:33:54 -0400) wrote:
-> >Anyway, this patch reduces the IPI noise by keeping a cpumask of CPUs
-> >which have items in the bh lru and only flushing on the relevant
-> >CPUs. On systems with larger CPU counts it's quite normal that only a
-> >few CPUs are actively doing block IO, so spewing IPIs everywhere to
-> >flush this is unnecessary.
-> >
-> >Index: linux-2.6/fs/buffer.c
-> >===================================================================
-> >--- linux-2.6.orig/fs/buffer.c
-> >+++ linux-2.6/fs/buffer.c
-> >@@ -1323,6 +1323,7 @@ struct bh_lru {
-> > };
-> > 
-> > static DEFINE_PER_CPU(struct bh_lru, bh_lrus) = {{ NULL }};
-> >+static cpumask_t lru_in_use;
-> > 
-> > #ifdef CONFIG_SMP
-> > #define bh_lru_lock()	local_irq_disable()
-> >@@ -1352,9 +1353,14 @@ static void bh_lru_install(struct buffer
-> > 	lru = &__get_cpu_var(bh_lrus);
-> > 	if (lru->bhs[0] != bh) {
-> > 		struct buffer_head *bhs[BH_LRU_SIZE];
-> >-		int in;
-> >-		int out = 0;
-> >+		int in, out, cpu;
-> > 
-> >+		cpu = raw_smp_processor_id();
+* Dipankar Sarma <dipankar@in.ibm.com> wrote:
+
+> > I have been able to reproduce a similar looking oopse with 2.6.16-rt29.
+> > 2.6.16-rt20 works fine. I will try to track it down to the exact
+> > release as far as I can.
 > 
-> Why raw_smp_processor_id?  That normally indicates code that wants a
-> lazy cpu number, but this code requires the exact cpu number, IMHO
-> using raw_smp_processor_id is confusing.  smp_processor_id can safely
-> be used here, bh_lru_lock has disabled irq or preempt.
+> OK, it looks as if rt20 is fine but rt21 is broken. So something that 
+> got in rt21 is causing this oops.
 
-I expect raw_smp_processor_id() is used here as a a microoptimisation -
-avoid a might_sleep() which obviously will never trigger.
+thanks! That really narrows it down.
 
-But I think it'd be better to do just a single raw_smp_processor_id() for
-this entire function:
+> Ingo, do you have a suspect ?
 
-  static void bh_lru_install(struct buffer_head *bh)
-  {
-	struct buffer_head *evictee = NULL;
-	struct bh_lru *lru;
-+	int cpu;
+I suspect it's the patch below. That patch (from John) relaxes the 
+affinities of IRQ threads: if there are /proc/irq/*/smp_affinity entries 
+that have multiple bits set an IRQ thread is allowed to jump from one 
+CPU to another while it is executing a IRQ-handler. It _should_ be fine 
+but i'd not be surprised if that caused breakage ...
 
-	check_irqs_on();
-	bh_lru_lock();
-+	cpu = raw_smp_processor_id();
--	lru = &__get_cpu_var(bh_lrus);
-+	lru = per_cpu(bh_lrus, cpu);
+if this is the cause of the crash, would be hard for you trying to 
+figure out _which_ IRQ thread is so sensitive to affinity?
 
-etcetera.
+	Ingo
 
-> > 	
-> > static void invalidate_bh_lrus(void)
-> > {
-> >-	on_each_cpu(invalidate_bh_lru, NULL, 1, 1);
-> >+	/*
-> >+	 * Need to hand down a copy of the mask or we wouldn't be run
-> >+	 * anywhere due to the original mask being cleared
-> >+	 */
-> >+	cpumask_t mask = lru_in_use;
-> >+	cpus_clear(lru_in_use);
-> >+	schedule_on_each_cpu_mask(invalidate_bh_lru, NULL, mask);
-> > }
-> 
-> Racy?  Start with an empty lru_in_use.
-> 
-> Cpu A                         Cpu B
-> invalidate_bh_lrus()
-> mask = lru_in_use;
-> preempted
->                               block I/O
-> 			      bh_lru_install()
-> 			      cpu_set(cpu, lru_in_use);
-> resume
-> cpus_clear(lru_in_use);
-> schedule_on_each_cpu_mask() - does not send IPI to cpu B
-
-Yup.  I think we can fix that by doing a single cpu_clear() on each CPU
-just prior to that CPU clearing out its array, in invalidate_bh_lru().
-
-There's a possibility of course that new bh's will get installed somewhere,
-but higher-level code must ensure that those bh's do not belong to the
-device which we're trying to clean up.
+Index: linux/kernel/irq/manage.c
+===================================================================
+--- linux.orig/kernel/irq/manage.c
++++ linux/kernel/irq/manage.c
+@@ -717,24 +717,21 @@ static int do_irqd(void * __desc)
+ 	if (param.sched_priority > 25)
+ 		curr_irq_prio = param.sched_priority - 1;
+ 
+-//	param.sched_priority = 1;
+ 	sys_sched_setscheduler(current->pid, SCHED_FIFO, &param);
+ 
+ 	while (!kthread_should_stop()) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		do_hardirq(desc);
+ 		cond_resched_all();
++		local_irq_disable();
+ 		__do_softirq();
+-//		do_softirq_from_hardirq();
+ 		local_irq_enable();
+ #ifdef CONFIG_SMP
+ 		/*
+ 		 * Did IRQ affinities change?
+ 		 */
+-		if (!cpu_isset(smp_processor_id(), irq_affinity[irq])) {
+-			mask = cpumask_of_cpu(any_online_cpu(irq_affinity[irq]));
+-			set_cpus_allowed(current, mask);
+-		}
++		if (!cpus_equal(current->cpus_allowed, irq_affinity[irq]));
++			set_cpus_allowed(current, irq_affinity[irq]);
+ #endif
+ 		schedule();
+ 	}

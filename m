@@ -1,220 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWGDAJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWGDAJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbWGDAJY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jul 2006 20:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWGDAJX
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jul 2006 20:09:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27090 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750917AbWGDAJV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1751301AbWGDAJV (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 3 Jul 2006 20:09:21 -0400
-Date: Mon, 3 Jul 2006 17:09:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Straub, Michael" <Michael.Straub@avocent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 6/13] Equinox SST driver:hardware registers
-Message-Id: <20060703170917.6dc1547d.akpm@osdl.org>
-In-Reply-To: <4821D5B6CD3C1B4880E6E94C6E70913E01B71109@sun-email.corp.avocent.com>
-References: <4821D5B6CD3C1B4880E6E94C6E70913E01B71109@sun-email.corp.avocent.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWGDAJV
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 3 Jul 2006 20:09:21 -0400
+Received: from mta7.srv.hcvlny.cv.net ([167.206.4.202]:22827 "EHLO
+	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S1750781AbWGDAJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jul 2006 20:09:20 -0400
+Date: Mon, 03 Jul 2006 20:09:13 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+In-reply-to: <20060703093148.5e61a7e4.pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com,
+       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
+       hadi@cyberus.ca, netdev@vger.kernel.org
+Message-id: <44A9B1A9.20106@watson.ibm.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+References: <44892610.6040001@watson.ibm.com> <449C6620.1020203@engr.sgi.com>
+ <20060623164743.c894c314.akpm@osdl.org> <449CAA78.4080902@watson.ibm.com>
+ <20060623213912.96056b02.akpm@osdl.org> <449CD4B3.8020300@watson.ibm.com>
+ <44A01A50.1050403@sgi.com> <20060626105548.edef4c64.akpm@osdl.org>
+ <44A020CD.30903@watson.ibm.com> <20060626111249.7aece36e.akpm@osdl.org>
+ <44A026ED.8080903@sgi.com> <20060626113959.839d72bc.akpm@osdl.org>
+ <44A2F50D.8030306@engr.sgi.com> <20060628145341.529a61ab.akpm@osdl.org>
+ <44A2FC72.9090407@engr.sgi.com> <20060629014050.d3bf0be4.pj@sgi.com>
+ <200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
+ <20060629094408.360ac157.pj@sgi.com> <20060629110107.2e56310b.akpm@osdl.org>
+ <44A57310.3010208@watson.ibm.com> <44A5770F.3080206@watson.ibm.com>
+ <20060630155030.5ea1faba.akpm@osdl.org> <44A5DBE7.2020704@watson.ibm.com>
+ <44A5EDE6.3010605@watson.ibm.com> <20060702215350.2c1de596.pj@sgi.com>
+ <44A93179.2080303@watson.ibm.com> <20060703093148.5e61a7e4.pj@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006 09:16:35 -0400
-"Straub, Michael" <Michael.Straub@avocent.com> wrote:
+Paul Jackson wrote:
 
-> Adds Equinox multi-port serial (SST) driver.
-> 
-
-hm, I missed this patch series.
-
-> + * Each ICP provides a set of input and output registers per channel.
-> + * Input registers for receiving data and output registers for
-> trasmitting.
-> + * In addition, there are also a set of global registers per board
-> which are
-> + * used for general configuration and also contain the global attention
-> bits.
-
-As Randy says, these patches were exorbitantly, unusable wordwrapped.
-
-> +struct icp_gbl_struct {
-> +	u8	filler1[24];
-> +	u8	gicp_bus_cntrl;		/* 0x18: bus control */
-> +	u8	gicp_rev;		/* 0x19: icp revision */
-> +	u8	filler2[2];
-> +	u8	gicp_initiate;		/* 0x1c: lmx control & icp
-> enable */
-> +	u8	gicp_scan_spd;		/* 0x1d: lmx scan speeds */
-> +	u8	gicp_tmr_size;		/* 0x1e: interval timer scale
-> preset */
-> +	u8	gicp_tmr_count;		/* 0x1f: interval timer count
-> preset */
-> +	u8	filler3[24];
-> +	u8	gicp_watchdog;		/* 0x38: watchdog timer */
-> +	u8	filler4[3];
-> +	u8	gicp_attn;		/* 0x3c: global status */
-> +	u8	gicp_chan;		/* 0x3d: current channel number
-> */
-> +	u16	gicp_frame_ctr;		/* 0x3e: frame counter */
-> +	u8	filler5[24];
-> +	u8	gicp_rcv_attn[8];	/* 0x58: receive attention bits
-> */
-> +	u8	filler6[24];
-> +	u8	gicp_xmit_attn[8];	/* 0x78: transmit attention bits
-> */
-> +};
+>Shailabh wrote:
+>  
 >
-> ...
+>>I don't know if there are buffer overflow 
+>>issues in passing a string
+>>    
+>>
 >
-> +struct ssp4_gbl_struct {
-> +	u8	bus_cntrl;		/* 0x0: global control register
-> */
-> +	u8	rev;			/* 0x1: revision Level number */
-> +	u8	on_line;		/* 0x2: on-line */
-> +	u8	filler1;
-> +	u8	chan_ctr;		/* 0x4: active channel number */
-> +	u8	filler2;
-> +	u8	chan_attn;		/* 0x6: channel attention bits
-> */
-> +	u8	tmr_evnt;		/* 0x7: timer event bits */
-> +	u8	filler3[17];
-> +	u8	type;			/* 0x19: board type */
-> +	u8	filler4[34];
-> +	u8	attn_pend;		/* 0x3c: channel attention */
-> +};
-> +
+>I don't know if this comment applies to "the standard netlink way of
+>passing it up using NLA_STRING", but the way I deal with buffer length
+>issues in the cpuset code is to insist that the user code express the
+>list in no fewer than 100 + 6 * NR_CPUS bytes:
 >
-> ...
+>From kernel/cpuset.c:
 >
-> +struct cin_bnk_struct {
-> +	u16	bank_nxt_dma;		/* 0x0: offset to next in dma */
-> +	u8	bank_fifo_lvl;		/* 0x2: char count held in fifo
-> */
-> +	u8	bank_tags_l;		/* 0x3: input tags, low byte */
-> +	u16	bank_signals;		/* 0x4: channel input signals */
-> +	u8	filler0;
-> +	u8	bank_tags_h;		/* 0x7: input tags, high byte */
-> +	u8	bank_fifo[8];		/* 0x8: input 8 char fifo */
-> +	u16	bank_num_chars;		/* 0x10: char count received */
-> +	u16	bank_events;		/* 0x12: input events detected
-> */
-> +};
+>        /* Crude upper limit on largest legitimate cpulist user might write. */
+>        if (nbytes > 100 + 6 * NR_CPUS)
+>                return -E2BIG;
 >
-> [ etc ]
+>This lets the user specify the buffer size passed in, but prevents
+>them from trying a denial of service attack on the kernel by trying
+>to pass in a huge buffer.
 >
-
-What are these?  Do they describe chip register sets?
-
-If so, there's a tight compiler dependency here.  I don't know whether any
-version of the compiler for any architecture will muck around adding
-padding in here.  There's a risk, I guess.
-
-> +
-> +/* return active input queue tail pointer */
-> +#define GET_TAIL() \
-> +{ \
-> +	if (icpi->cin_q_cntrl & TAIL_PTR_B) \
-> +		return (SSTRD16(icpi->cin_tail_ptr_b)); \
-> +	else \
-> +		return (SSTRD16(icpi->cin_tail_ptr_a)); \
-> +}
-
-Please, no.
-
-- It's a macro qhich requires that the caller have a local variable named
-  `icpi'.  At a minimum, the name of the pointer should be an arg to the
-  macro.
-
-- The macro hides a `return' statement.  That's a show-stopper.
-
-I suggest this be reimplemented as a function.  Possibly inlined.
-
-> +/* set input queue tail pointer */
-> +#define SET_TAIL(val) \
-> +{ \
-> +        if (icpi->cin_q_cntrl & TAIL_PTR_B) \
-> +		SSTWR16(icpi->cin_tail_ptr_a, (val)); \
-> +	else \
-> +		SSTWR16(icpi->cin_tail_ptr_b, (val)); \
-> +	icpi->cin_q_cntrl ^= TAIL_PTR_B; \
-> +}
-
-This also can be a regular C function.
-
-> +/* freeze active input register bank */
-> +#define FREEZ_BANK(mpc) \
-> +{ \
-> +	u16 cie = CHAN_ATTN_SET | SSTRD16(icpi->cin_attn_ena); \
-> +	int frztimeo = 0; \
-> +	u8 lcks = 0; \
-> +	SSTWR16(icpi->cin_attn_ena, 0); \
-> +	if ((icpi->cin_locks & DIS_BANK_A) == DIS_BANK_A) { \
-> +		/* Bank A is active (locked) */ \
-> +		icpb = &icpi->cin_bank_b; \
-> +		lcks = BANK_B_ACT; \
-> +	} else  \
-> +		/* Bank B is active (locked) */ \
-> +		icpb = &icpi->cin_bank_a; \
-> +	if (!(SSTRD16(icpb->bank_events) & EV_REG_UPDT)) { \
-> +		while ((icpi->cin_intern_flgs & 0x80) != lcks) \
-> +			if (++frztimeo > 8000) break; \
-> +	}  \
-> +	mpc->mpc_icpb = icpb; \
-> +	icpi->cin_locks ^= (DIS_BANK_A | DIS_BANK_B); /* flip banks */ \
-> +	eqnx_chnl_sync(mpc); \
-> +	mpc->mpc_cin_events |= SSTRD16(icpb->bank_events); \
-> +	SSTWR16(icpb->bank_events, 0); \
-> +	SSTWR16(icpi->cin_attn_ena, cie); \
-> +}
-
-No way, sorry.  Implement as a function.
-
-> +/* get and return output events for the channel */
-> +#define TX_EVENTS(x, mpc) \
-> +{ \
-> +	volatile u16 csr = SSTRD16(icpo->cout_status); \
-> +	volatile u16 oie = SSTRD16(icpo->cout_attn_enbl); \
-> +	SSTWR16(icpo->cout_attn_enbl, 0); \
-> +	if (csr & TXSR_EV_B_ACT) { \
-> +		icpo->cout_lck_cntrl ^= (LCK_EVT_A | LCK_EVT_B); \
-> +		eqnx_chnl_sync(mpc); \
-> +		(x) |= SSTRD16(icpo->cout_events_b); \
-> +		SSTWR16(icpo->cout_events_b, 0); \
-> +	} else { \
-> +		icpo->cout_lck_cntrl ^= (LCK_EVT_A | LCK_EVT_B); \
-> +		eqnx_chnl_sync(mpc); \
-> +		(x) |= SSTRD16(icpo->cout_events_a); \
-> +		SSTWR16(icpo->cout_events_a, 0); \
-> +	} \
-> +	if ((x) & EV_TX_EMPTY_Q0) \
-> +		oie &= ~ENA_TX_EMPTY_Q0;\
-> +	if ((x) & EV_TX_LOW_Q0) \
-> +		oie &= ~ENA_TX_LOW_Q0;\
-> +	SSTWR16(icpo->cout_attn_enbl, oie); \
-> +}
-
-Ditto.
-
-
-> +/* returns outbound control signals for channel */
-> +#define GET_CTRL_SIGS(mpc,val) val =
-> SSTRD16(mpc->mpc_icpo->cout_cntrl_sig);
+>If the user can't figure out how to write the desired cpulist in
+>that size, then tough toenails.
+>  
 >
-> +/* sets outbound control signals for channel */
-> +#define SET_CTRL_SIGS(mpc, val)
-> SSTWR16((mpc->mpc_icpo)->cout_cntrl_sig, val);
+Paul,
 
-That's
+Perhaps I should use the the other ascii format for specifying cpumasks 
+since its more amenable
+to specifying an upper bound for the length of the ascii string and is 
+more compact ?
 
-> +#define        SSTRD16(x)      (cpu_to_le16(x))
+That format (the one used in lib/bitmap.c:bitmap_parse) is comma 
+separated chunks of hex digits
+with each chunk specifying 32 bits of the desired cpumask.
 
-Please remove this macro - just open-code the cpu_to_le16() everywhere
-(edit the diffs..)
+So
+((NR_CPUS + 32) / 32) * 8 + 1
+(8 hex characters for each 32 cpus, and 1 extra character for null 
+terminator)
+would be an upper bound that would accomodate all the cpus for sure.
 
-And please review all patches for excess parenthesisation and fix that up.
+Thoughts ?
 
+--Shailabh
+
+--Shailabh

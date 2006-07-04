@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWGDPYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWGDPYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWGDPYs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 11:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWGDPYs
+	id S1751191AbWGDPYi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 11:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWGDPYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 11:24:48 -0400
-Received: from homer.mvista.com ([63.81.120.158]:12718 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1751196AbWGDPYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 11:24:47 -0400
-Subject: Re: [BUG] scsi/io-elevator held lock freed.
-From: Daniel Walker <dwalker@mvista.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <1152026010.3109.66.camel@laptopd505.fenrus.org>
-References: <1152024854.29262.5.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-	 <1152026010.3109.66.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Tue, 04 Jul 2006 08:24:44 -0700
-Message-Id: <1152026685.29262.7.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 4 Jul 2006 11:24:38 -0400
+Received: from mx2.suse.de ([195.135.220.15]:64685 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751191AbWGDPYh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 11:24:37 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [RFC 0/8] Reduce MAX_NR_ZONES and remove useless zones.
+Date: Tue, 4 Jul 2006 17:23:46 +0200
+User-Agent: KMail/1.9.3
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
+       Con Kolivas <kernel@kolivas.org>, Marcelo Tosatti <marcelo@kvack.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com> <20060704120242.GA3386@infradead.org> <Pine.LNX.4.64.0607040806580.13456@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0607040806580.13456@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607041723.46604.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-04 at 17:13 +0200, Arjan van de Ven wrote:
+
+> I guess then we should drop ZONE_DMA (its a misnoner anyways since it 
+> seems to indicate that DMA is only possible in this zone). Instead use
 > 
-> blargh.. it'd be more useful if lockdep actually printed which lock it
-> is that it thinks is about to get freed.....
+> ZONE_ISA_DMA		-> ISA DMA Area (16 MB boundary)
+> ZONE_32BIT_DMA		-> 32bit DMA area (well 900 MB on x86_64 but somewhere in that area)
 
-I was thinking exactly the same thing ..
+It's 4GB on x86-64.
 
-> this patch ought to make it do that; could you at least add this to your
-> kernel?
+The 900MB refered to the boundary between NORMAL and HIGHMEM on i386.
 
-I'll add the patch, but I doubt I'll see it again ..
-
-Daniel
-
+-Andi

@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWGDWZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWGDWeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbWGDWZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 18:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWGDWZ5
+	id S932323AbWGDWeo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 18:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWGDWen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 18:25:57 -0400
-Received: from rwcrmhc11.comcast.net ([216.148.227.151]:21655 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932297AbWGDWZ4 (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 18:25:56 -0400
-Message-ID: <44AAEAF5.8040009@namesys.com>
-Date: Tue, 04 Jul 2006 15:25:57 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: hch@infradead.org, vs@namesys.com, Linux-Kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com
-Subject: Re: [PATCH 1/2] batch-write.patch
-References: <44A42750.5020807@namesys.com>	<20060629185017.8866f95e.akpm@osdl.org>	<1152011576.6454.36.camel@tribesman.namesys.com>	<20060704114836.GA1344@infradead.org>	<44AAA8ED.5030906@namesys.com> <20060704151832.9f2d87b3.akpm@osdl.org>
-In-Reply-To: <20060704151832.9f2d87b3.akpm@osdl.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Tue, 4 Jul 2006 18:34:43 -0400
+Received: from mail.suse.de ([195.135.220.2]:38331 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932303AbWGDWen (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 18:34:43 -0400
+Date: Tue, 4 Jul 2006 15:31:01 -0700
+From: Greg KH <greg@kroah.com>
+To: David Miller <davem@davemloft.net>
+Cc: jeff@garzik.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [RFC] change netdevice to use struct device instead of struct class_device
+Message-ID: <20060704223101.GA25275@kroah.com>
+References: <20060703224719.GA14176@kroah.com> <44A9A345.8040706@garzik.org> <20060703231610.GA18352@kroah.com> <20060703.185747.74753207.davem@davemloft.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060703.185747.74753207.davem@davemloft.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Mon, Jul 03, 2006 at 06:57:47PM -0700, David Miller wrote:
+> From: Greg KH <greg@kroah.com>
+> Date: Mon, 3 Jul 2006 16:16:10 -0700
+> 
+> > No, not really.  According to Documentation/ABI/testing/sysfs-class all
+> > code that uses /sys/class/foo/ needs to be able to handle the fact that
+> > those entries might be symlinks and not just directories.  Everything
+> > that I know of already works properly because the input layer has had
+> > symlinks in /sys/class/input for quite some time now.
+> > 
+> > Do you know of any tools that use /sys/class/net/ that can not handle
+> > symlinks there?  I've been running this on my boxes for about a week now
+> > with no noticeable issues.  Renaming interfaces works just fine too.
+> 
+> I do not think this change will cause any problems.
 
->
-> It's called at the same
->level as ->prepare_write/commit_write so if there's any logic to this, it's
->logical that batched_write be an a_op too.
->  
->
-I agree that prepare_write/commit_write should be the same as
-batch_write, but maybe they all should be file ops?
+Great, thanks for looking.
 
-vs will send a patch which makes batch_write an a_op tomorrow.....
+Do you mind if I keep this in my tree, due to the dependancies on the
+other driver core changes?
 
-Hans
+thanks,
+
+greg k-h

@@ -1,100 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWGDGzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWGDHAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWGDGzF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 02:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWGDGzE
+	id S1751092AbWGDHAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 03:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWGDHAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 02:55:04 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:10982 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751077AbWGDGzC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 02:55:02 -0400
-Date: Tue, 4 Jul 2006 08:50:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH] 2.6.17-rt1 : fix x86_64 oops
-Message-ID: <20060704065024.GA5789@elte.hu>
-References: <20060628182137.GA23979@in.ibm.com> <20060628193256.GA4392@elte.hu> <20060628200247.GA7932@in.ibm.com> <20060629142442.GA11546@elte.hu> <20060629163236.GD1294@us.ibm.com> <20060629194145.GA2327@us.ibm.com> <20060629201144.GA24287@elte.hu> <20060703165750.GB3899@in.ibm.com> <20060704041519.GC16074@in.ibm.com> <20060704064307.GB2752@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060704064307.GB2752@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5060]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 4 Jul 2006 03:00:15 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:29059 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S1751092AbWGDHAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 03:00:14 -0400
+Message-ID: <9FCDBA58F226D911B202000BDBAD467306E05003@zch01exm40.ap.freescale.net>
+From: Li Yang-r58472 <LeoLi@freescale.com>
+To: "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>
+Cc: "'Vitaly Bordug'" <vbordug@ru.mvista.com>,
+       "'Paul Mackerras'" <paulus@samba.org>, linuxppc-dev@ozlabs.org,
+       Phillips Kim-R1AAHA <Kim.Phillips@freescale.com>,
+       Chu hanjin-r52514 <Hanjin.Chu@freescale.com>,
+       Yin Olivia-r63875 <Hong-Hua.Yin@freescale.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 1/7] powerpc: Add mpc8360epb platform support
+Date: Tue, 4 Jul 2006 15:00:04 +0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > Ingo, do you have a suspect ?
+> -----Original Message-----
+> From: Benjamin Herrenschmidt [mailto:benh@kernel.crashing.org]
+> Sent: Saturday, July 01, 2006 5:00 PM
+> To: Li Yang-r58472
+> Cc: 'Vitaly Bordug'; 'Paul Mackerras'; linuxppc-dev@ozlabs.org; Phillips
+> Kim-R1AAHA; Chu hanjin-r52514; Yin Olivia-r63875;
+> 'linux-kernel@vger.kernel.org'
+> Subject: RE: [PATCH 1/7] powerpc: Add mpc8360epb platform support
 > 
-> I suspect it's the patch below. That patch (from John) relaxes the 
-> affinities of IRQ threads: if there are /proc/irq/*/smp_affinity 
-> entries that have multiple bits set an IRQ thread is allowed to jump 
-> from one CPU to another while it is executing a IRQ-handler. It 
-> _should_ be fine but i'd not be surprised if that caused breakage ...
+> On Fri, 2006-06-30 at 18:27 +0800, Li Yang-r58472 wrote:
+> > > -----Original Message-----
+> > > From: Vitaly Bordug [mailto:vbordug@ru.mvista.com]
+> > > Sent: Thursday, June 29, 2006 12:59 AM
+> > > To: Li Yang-r58472
+> > > Cc: 'Paul Mackerras'; linuxppc-dev@ozlabs.org; Phillips Kim-R1AAHA; Chu
+> > > hanjin-r52514; Yin Olivia-r63875; 'linux-kernel@vger.kernel.org'
+> > > Subject: Re: [PATCH 1/7] powerpc: Add mpc8360epb platform support
+> > >
+> > > On Wed, 28 Jun 2006 22:23:03 +0800
+> > > Li Yang-r58472 <LeoLi@freescale.com> wrote:
+> > >
+> > [snip]
+> > >
+> > > >
+> > > >  config MPC834x
+> > > > @@ -24,4 +31,10 @@ config MPC834x
+> > > >  	select PPC_INDIRECT_PCI
+> > > >  	default y if MPC834x_SYS
+> > > >
+> > > > +config MPC836x
+> > > > +	bool
+> > > > +	select PPC_UDBG_16550
+> > >
+> > > debug option made default?
+> >
+> > I'm afraid this is needed to boot.  83xx family platforms need it to
+> initialize early console.  And it does appear in several defconfigs of other
+> platforms.
+> 
+> How so ? Why would having a serial console be mandatory ? Embedded might
+> want to boot without a console and use the serial port for other things.
+> This should be left as a config option (though you are welcome to put it
+> in the defconfig for your platform)
 
-the patch below is against 2.6.17-rt5, does this solve the crashes?
-
-	Ingo
-
-Index: linux-rt.q/kernel/irq/manage.c
-===================================================================
---- linux-rt.q.orig/kernel/irq/manage.c
-+++ linux-rt.q/kernel/irq/manage.c
-@@ -645,17 +645,24 @@ extern asmlinkage void __do_softirq(void
- 
- static int curr_irq_prio = 49;
- 
--static int do_irqd(void * __desc)
-+static void follow_irq_affinity(struct irq_desc *desc)
- {
--	struct sched_param param = { 0, };
--	struct irq_desc *desc = __desc;
- #ifdef CONFIG_SMP
--	int irq = desc - irq_desc;
- 	cpumask_t mask;
- 
--	mask = cpumask_of_cpu(any_online_cpu(irq_desc[irq].affinity));
-+	if (cpus_equal(current->cpus_allowed, desc->affinity))
-+		return;
-+	mask = cpumask_of_cpu(any_online_cpu(desc->affinity));
- 	set_cpus_allowed(current, mask);
- #endif
-+}
-+
-+static int do_irqd(void * __desc)
-+{
-+	struct sched_param param = { 0, };
-+	struct irq_desc *desc = __desc;
-+
-+	follow_irq_affinity(desc);
- 	current->flags |= PF_NOFREEZE | PF_HARDIRQ;
- 
- 	/*
-@@ -674,13 +681,7 @@ static int do_irqd(void * __desc)
- 		local_irq_disable();
- 		__do_softirq();
- 		local_irq_enable();
--#ifdef CONFIG_SMP
--		/*
--		 * Did IRQ affinities change?
--		 */
--		if (!cpus_equal(current->cpus_allowed, irq_desc[irq].affinity))
--			set_cpus_allowed(current, irq_desc[irq].affinity);
--#endif
-+		follow_irq_affinity(desc);
- 		schedule();
- 	}
- 	__set_current_state(TASK_RUNNING);
+The problem is that we don't have this PPC_UBDG_16550 option configurable now, and it is only made by default for several boards including pseries, chrp, prep, cell, and all 83xx and 85xx platforms.  If we need to change the whole thing, how should we do it?
+> 
+> > > > +	select PPC_INDIRECT_PCI
+> > > > +	default y if MPC8360E_PB
+> > > > +
+> > > >  endmenu
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/

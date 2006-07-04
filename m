@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWGDLsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWGDLya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbWGDLsp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 07:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWGDLsp
+	id S932223AbWGDLya (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 07:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWGDLya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 07:48:45 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:31892 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932212AbWGDLso (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 07:48:44 -0400
-Date: Tue, 4 Jul 2006 12:48:36 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <Linux-Kernel@vger.kernel.org>,
-       reiserfs-dev@namesys.com
-Subject: Re: [PATCH 1/2] batch-write.patch
-Message-ID: <20060704114836.GA1344@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Vladimir V. Saveliev" <vs@namesys.com>,
-	Andrew Morton <akpm@osdl.org>, lkml <Linux-Kernel@vger.kernel.org>,
-	reiserfs-dev@namesys.com
-References: <44A42750.5020807@namesys.com> <20060629185017.8866f95e.akpm@osdl.org> <1152011576.6454.36.camel@tribesman.namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Jul 2006 07:54:30 -0400
+Received: from mx1.suse.de ([195.135.220.2]:4830 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932219AbWGDLy3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 07:54:29 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jesper Dangaard Brouer <hawk@diku.dk>
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Date: Tue, 4 Jul 2006 13:54:22 +0200
+User-Agent: KMail/1.9.3
+Cc: Willy Tarreau <w@1wt.eu>, Harry Edmon <harry@atmos.washington.edu>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <4492D5D3.4000303@atmos.washington.edu> <200606260723.43209.ak@suse.de> <Pine.LNX.4.61.0607041333030.18483@ask.diku.dk>
+In-Reply-To: <Pine.LNX.4.61.0607041333030.18483@ask.diku.dk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1152011576.6454.36.camel@tribesman.namesys.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200607041354.22472.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 04, 2006 at 03:12:56PM +0400, Vladimir V. Saveliev wrote:
+On Tuesday 04 July 2006 13:41, Jesper Dangaard Brouer wrote:
 > 
-> > Should this be an address_space_operation or a file_operation?
-> > 
+> On Mon, 26 Jun 2006, Andi Kleen wrote:
 > 
-> I was seeking to be minimal in my changes to the philosophy of the code.
-> So, it was an address_space operation. Now it is a file operation.
+> >> I encountered the same problem on a dual core opteron equipped with a
+> >> broadcom NIC (tg3) under 2.4. It could receive 1 Mpps when using TSC
+> >> as the clock source, but the time jumped back and forth, so I changed
+> >> it to 'notsc', then the performance dropped dramatically to around the
+> >> same value as above with one CPU saturated. I suspect that the clock
+> >> precision is needed by the tg3 driver to correctly decide to switch to
+> >> polling mode, but unfortunately, the performance drop rendered the
+> >> solution so much unusable that I finally decided to use it only in
+> >> uniprocessor with TSC enabled.
+> >
+> > 2.6 is more clever at this than 2.4. In particular it does the timestamp
+> > for each packet only when actually needed, which is relativelt rare.
+> >
+> > Old experiences do not always apply to new kernels.
+> 
+> Note, that I experinced this problem on 2.6.
+> 
+> Actually the change happens between kernel version 2.6.15 and 2.6.16.
 
-It definitly should not be a file_operation! It works at the address_space
-not the much higher file level.  Maybe all three should become callbacks
-for the generic write routines, but that's left for the future.
+The timestamp optimizations are older. Don't remember the exact release,
+but earlier 2.6.
+
+> And  
+> is a result of Andi's changes to arch/x86_64/Kconfig and 
+> drivers/acpi/Kconfig, which "allows/activates" the use of the timer on 
+> x86_64.
+
+Not sure what you mean here?
+
+2.6.18 will likely be more aggressive at using the TSC on i386 on
+Intel systems where possible, but x86-64 did this already for a long time. 
+When x86-64 uses non TSC then it's because using the TSC is not safe.
+
+-Andi

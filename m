@@ -1,64 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWGDFbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWGDFpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751050AbWGDFbT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 01:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWGDFbT
+	id S1751110AbWGDFpo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 01:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWGDFpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 01:31:19 -0400
-Received: from wip-ec-wd.wipro.com ([203.91.193.32]:62911 "EHLO
-	wip-ec-wd.wipro.com") by vger.kernel.org with ESMTP
-	id S1751050AbWGDFbS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 01:31:18 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] pcmcia: update alloc_io_space for conflict checking for multifunction PC card for Linux kernel 2.6.15.4.
-Date: Tue, 4 Jul 2006 11:01:13 +0530
-Message-ID: <B99D5530D32CC043B5C2221C775FE2F3029ABF8B@PNE-HJN-MBX01.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] pcmcia: update alloc_io_space for conflict checking for multifunction PC card for Linux kernel 2.6.15.4.
-Thread-Index: AcaeCw8zG8s+x1X3TU6IKcGsqT7aCABG3aYA
-From: <kaustav.majumdar@wipro.com>
-To: <linux@dominikbrodowski.net>
-Cc: <linux-pcmcia@lists.infradead.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Jul 2006 05:31:14.0595 (UTC) FILETIME=[1119C730:01C69F2B]
+	Tue, 4 Jul 2006 01:45:44 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:42694 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751110AbWGDFpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 01:45:43 -0400
+Date: Tue, 4 Jul 2006 14:47:24 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hugh@veritas.com,
+       kernel@kolivas.org, marcelo@kvack.org, nickpiggin@yahoo.com.au,
+       clameter@sgi.com, ak@suse.de
+Subject: Re: [RFC 3/8] Move HIGHMEM counter into highmem.c/.h
+Message-Id: <20060704144724.65c43a38.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060703215550.7566.79975.sendpatchset@schroedinger.engr.sgi.com>
+References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
+	<20060703215550.7566.79975.sendpatchset@schroedinger.engr.sgi.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 3 Jul 2006 14:55:50 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-Some PCMCIA cards do not mention specific IO addresses in the CIS.
-In that case, inside the alloc_io_space function, conflicts are detected
-(the function returns 1) for the second function of a multifunction card
-unless the length of IO address range required is greater than 0x100.
-The following patch will remove this conflict checking for a PCMCIA
-function which had not mentioned any specific IO address to be mapped
-from. 
-The patch is tested for Linux kernel 2.6.15.4 and works fine in the
-above case and is as suggested by Dave Hinds.
+> Move highmem counters into highmem.c/.h
+> 
+> Move the totalhigh_pages definition into highmem.c/.h
+> 
+Hi, I love this patch series :)
 
+I found this :
+== arch/um/kernel/mem.c ==
 
-Signed-off-by: Kaustav Majumdar <kaustav.majumdar@wipro.com>
-
---- linux-2.6.15.4/drivers/pcmcia/pcmcia_resource.c.orig
-2006-07-03 15:02:31.000000000 +0530
-+++ linux-2.6.15.4/drivers/pcmcia/pcmcia_resource.c	2006-07-03
-15:03:01.000000000 +0530
-@@ -97,7 +97,7 @@ static int alloc_io_space(struct pcmcia_
- 	 * potential conflicts, just the most obvious ones.
- 	 */
- 	for (i = 0; i < MAX_IO_WIN; i++)
--		if ((s->io[i].NumPorts != 0) &&
-+		if ((s->io[i].NumPorts != 0) && (*base != 0) &&
- 		    ((s->io[i].BasePort & (align-1)) == *base))
- 			return 1;
- 	for (i = 0; i < MAX_IO_WIN; i++) {
-
+void mem_init(void)
+{
+<snip>
+   totalhigh_pages = highmem >> PAGE_SHIFT;
+....
+==
+this should be covered by CONFIG_HIGHMEM if you change totalhigh_pages 
+to be #define.
 
 Regards,
-Kaustav Majumdar 
+-Kame
+
+
+
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> 
+> Index: linux-2.6.17-mm6/include/linux/highmem.h
+> ===================================================================
+> --- linux-2.6.17-mm6.orig/include/linux/highmem.h	2006-07-03 13:47:21.556579985 -0700
+> +++ linux-2.6.17-mm6/include/linux/highmem.h	2006-07-03 14:03:39.168021629 -0700
+> @@ -24,11 +24,14 @@ static inline void flush_kernel_dcache_p
+>  
+>  /* declarations for linux/mm/highmem.c */
+>  unsigned int nr_free_highpages(void);
+> +extern unsigned long totalhigh_pages;
+>  
+>  #else /* CONFIG_HIGHMEM */
+>  
+>  static inline unsigned int nr_free_highpages(void) { return 0; }
+>  
+> +#define totalhigh_pages 0
+> +
+>  static inline void *kmap(struct page *page)
+>  {
+>  	might_sleep();
+> Index: linux-2.6.17-mm6/include/linux/swap.h
+> ===================================================================
+> --- linux-2.6.17-mm6.orig/include/linux/swap.h	2006-07-03 13:47:22.066314085 -0700
+> +++ linux-2.6.17-mm6/include/linux/swap.h	2006-07-03 14:03:39.168998131 -0700
+> @@ -162,7 +162,6 @@ extern void swapin_readahead(swp_entry_t
+>  
+>  /* linux/mm/page_alloc.c */
+>  extern unsigned long totalram_pages;
+> -extern unsigned long totalhigh_pages;
+>  extern unsigned long totalreserve_pages;
+>  extern long nr_swap_pages;
+>  extern unsigned int nr_free_pages(void);
+> Index: linux-2.6.17-mm6/mm/page_alloc.c
+> ===================================================================
+> --- linux-2.6.17-mm6.orig/mm/page_alloc.c	2006-07-03 14:03:19.964129358 -0700
+> +++ linux-2.6.17-mm6/mm/page_alloc.c	2006-07-03 14:03:39.170951135 -0700
+> @@ -51,7 +51,6 @@ EXPORT_SYMBOL(node_online_map);
+>  nodemask_t node_possible_map __read_mostly = NODE_MASK_ALL;
+>  EXPORT_SYMBOL(node_possible_map);
+>  unsigned long totalram_pages __read_mostly;
+> -unsigned long totalhigh_pages __read_mostly;
+>  unsigned long totalreserve_pages __read_mostly;
+>  long nr_swap_pages;
+>  int percpu_pagelist_fraction;
+> Index: linux-2.6.17-mm6/mm/shmem.c
+> ===================================================================
+> --- linux-2.6.17-mm6.orig/mm/shmem.c	2006-07-03 13:47:22.646356337 -0700
+> +++ linux-2.6.17-mm6/mm/shmem.c	2006-07-03 14:03:39.171927638 -0700
+> @@ -45,6 +45,7 @@
+>  #include <linux/namei.h>
+>  #include <linux/ctype.h>
+>  #include <linux/migrate.h>
+> +#include <linux/highmem.h>
+>  
+>  #include <asm/uaccess.h>
+>  #include <asm/div64.h>
+> Index: linux-2.6.17-mm6/mm/highmem.c
+> ===================================================================
+> --- linux-2.6.17-mm6.orig/mm/highmem.c	2006-07-03 13:47:22.613155266 -0700
+> +++ linux-2.6.17-mm6/mm/highmem.c	2006-07-03 14:03:39.172904140 -0700
+> @@ -46,6 +46,7 @@ static void *mempool_alloc_pages_isa(gfp
+>   */
+>  #ifdef CONFIG_HIGHMEM
+>  
+> +unsigned long totalhigh_pages __read_mostly;
+>  static int pkmap_count[LAST_PKMAP];
+>  static unsigned int last_pkmap_nr;
+>  static  __cacheline_aligned_in_smp DEFINE_SPINLOCK(kmap_lock);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

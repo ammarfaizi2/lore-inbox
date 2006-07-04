@@ -1,162 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWGDTXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWGDTYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbWGDTXb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 15:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWGDTXb
+	id S932350AbWGDTYn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 15:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWGDTYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 15:23:31 -0400
-Received: from khc.piap.pl ([195.187.100.11]:9138 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932347AbWGDTXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 15:23:30 -0400
-To: Jeff Garzik <jeff@garzik.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Cirrus Logic framebuffer I2C support
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 04 Jul 2006 21:23:28 +0200
-Message-ID: <m3mzbpdvin.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Jul 2006 15:24:43 -0400
+Received: from mx03.cybersurf.com ([209.197.145.106]:46247 "EHLO
+	mx03.cybersurf.com") by vger.kernel.org with ESMTP id S932221AbWGDTYm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 15:24:42 -0400
+Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: pj@sgi.com, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com, balbir@in.ibm.com,
+       csturtiv@sgi.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <44AA9951.1060804@watson.ibm.com>
+References: <44892610.6040001@watson.ibm.com>
+	 <449CD4B3.8020300@watson.ibm.com> <44A01A50.1050403@sgi.com>
+	 <20060626105548.edef4c64.akpm@osdl.org> <44A020CD.30903@watson.ibm.com>
+	 <20060626111249.7aece36e.akpm@osdl.org> <44A026ED.8080903@sgi.com>
+	 <20060626113959.839d72bc.akpm@osdl.org> <44A2F50D.8030306@engr.sgi.com>
+	 <20060628145341.529a61ab.akpm@osdl.org> <44A2FC72.9090407@engr.sgi.com>
+	 <20060629014050.d3bf0be4.pj@sgi.com>
+	 <200606291230.k5TCUg45030710@turing-police.cc.vt.edu>
+	 <20060629094408.360ac157.pj@sgi.com>
+	 <20060629110107.2e56310b.akpm@osdl.org> <44A57310.3010208@watson.ibm.com>
+	 <44A5770F.3080206@watson.ibm.com> <20060630155030.5ea1faba.akpm@osdl.org>
+	 <44A5DBE7.2020704@watson.ibm.com> <44A5EDE6.3010605@watson.ibm.com>
+	 <20060630205148.4f66b125.akpm@osdl.org> <44A9881F.7030103@watson.ibm.com>
+	 <44A9BC4D.7030803@watson.ibm.com> <20060703180151.56f61b31.akpm@osdl.org>
+	 <1152018353.5214.14.camel@jzny2> <44AA86BF.3090600@watson.ibm.com>
+	 <44AA9951.1060804@watson.ibm.com>
+Content-Type: text/plain
+Organization: unknown
+Date: Tue, 04 Jul 2006 15:24:30 -0400
+Message-Id: <1152041070.5276.29.camel@jzny2>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Shailabh,
 
-The attached patch adds I2C support to Cirrus Logic framebuffer driver.
-Only "I2C adapter" is supported, it's not used for DDC purposes.
-Tested with an old Intel R440LX machine against ST M24512 I2C EEPROM
-connected to VGA DDC signals.
+On Tue, 2006-04-07 at 12:37 -0400, Shailabh Nagar wrote:
+[..]
+> Here's a strawman for the problem we're trying to solve: get
+> notification of the close of a NETLINK_GENERIC socket that had
+> been used to register interest for some cpus within taskstats.
+> 
+>  From looking at the netlink code, the way to go seems to be
+> 
+> - it maintains a pidhash of nl_pids that are currently
+> registered to listen to atleast one cpu. It also stores the
+> cpumask used.
+> - taskstats registers a notifier block within netlink_chain
+> and receives a callback on the NETLINK_URELEASE event, similar
+> to drivers/scsci/scsi_transport_iscsi.c: iscsi_rcv_nl_event()
+> 
+> - the callback checks to see that the protocol is NETLINK_GENERIC
+> and that the nl_pid for the socket is in taskstat's pidhash. If so, it
+> does a cleanup using the stored cpumask and releases the nl_pid
+> from the pidhash.
+> 
 
-Currently works with "Alpine" chips only (CL-GD543x and 544x).
+Sound quiet reasonable.  I am beginning to wonder whether we should do 
+do the NETLINK_URELEASE in general for NETLINK_GENERIC
 
-I've done it for my tests but don't know why should I keep it private.
+> We can even do away with the deregister command altogether and
+> simply rely on this autocleanup.
 
-Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
+I think if you may still need the register if you are going to allow
+multiple sockets per listener process, no?
+The other question is how do you correlate pid -> fd?
 
-diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
-index 4587087..b50825d 100644
---- a/drivers/video/Kconfig
-+++ b/drivers/video/Kconfig
-@@ -133,6 +133,12 @@ config FB_CIRRUS
- 	  Say N unless you have such a graphics board or plan to get one
- 	  before you next recompile the kernel.
- 
-+config FB_CIRRUS_I2C
-+	bool "   Enable I2C adapter driver"
-+	depends on FB_CIRRUS
-+	help
-+	  This enables I2C support for Cirrus Logic boards.
-+
- config FB_PM2
- 	tristate "Permedia2 support"
- 	depends on FB && ((AMIGA && BROKEN) || PCI)
-diff --git a/drivers/video/cirrusfb.c b/drivers/video/cirrusfb.c
-index 1103010..b72e3de 100644
---- a/drivers/video/cirrusfb.c
-+++ b/drivers/video/cirrusfb.c
-@@ -48,6 +48,8 @@ #include <linux/delay.h>
- #include <linux/fb.h>
- #include <linux/init.h>
- #include <linux/selection.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-algo-bit.h>
- #include <asm/pgtable.h>
- 
- #ifdef CONFIG_ZORRO
-@@ -406,7 +408,11 @@ struct cirrusfb_info {
- 
- 	u32	pseudo_palette[16];
- 	struct { u8 red, green, blue, pad; } palette[256];
--
-+#ifdef CONFIG_FB_CIRRUS_I2C
-+	int i2c_used;
-+	struct i2c_adapter alpine_ops;
-+	struct i2c_algo_bit_data bit_alpine_data;
-+#endif
- #ifdef CONFIG_ZORRO
- 	struct zorro_dev *zdev;
- #endif
-@@ -2298,6 +2304,38 @@ static int cirrusfb_set_fbinfo(struct ci
- 	return 0;
- }
- 
-+#ifdef CONFIG_FB_CIRRUS_I2C
-+static void alpine_setsda(void *ptr, int state)
-+{
-+	struct cirrusfb_info *cinfo = ptr;
-+	u8 reg = vga_rseq(cinfo->regbase, 0x08) & ~2;
-+	if (state)
-+		reg |= 2;
-+	vga_wseq(cinfo->regbase, 0x08, reg);
-+}
-+
-+static void alpine_setscl(void *ptr, int state)
-+{
-+	struct cirrusfb_info *cinfo = ptr;
-+	u8 reg = vga_rseq(cinfo->regbase, 0x08) & ~1;
-+	if (state)
-+		reg |= 1;
-+	vga_wseq(cinfo->regbase, 0x08, reg);
-+}
-+
-+static int alpine_getsda(void *ptr)
-+{
-+	struct cirrusfb_info *cinfo = ptr;
-+	return !!(vga_rseq(cinfo->regbase, 0x08) & 0x80);
-+}
-+
-+static int alpine_getscl(void *ptr)
-+{
-+	struct cirrusfb_info *cinfo = ptr;
-+	return !!(vga_rseq(cinfo->regbase, 0x08) & 0x04);
-+}
-+#endif
-+
- static int cirrusfb_register(struct cirrusfb_info *cinfo)
- {
- 	struct fb_info *info;
-@@ -2337,6 +2375,33 @@ static int cirrusfb_register(struct cirr
- 		goto err_dealloc_cmap;
- 	}
- 
-+#ifdef CONFIG_FB_CIRRUS_I2C
-+	cinfo->i2c_used = 0;
-+	if (cinfo->btype == BT_ALPINE || cinfo->btype == BT_PICASSO4) {
-+		vga_wseq(cinfo->regbase, 0x08, 0x41); /* DDC mode: SCL */
-+		vga_wseq(cinfo->regbase, 0x08, 0x43); /* DDC mode: SCL + SDA */
-+		cinfo->bit_alpine_data.setsda = alpine_setsda;
-+		cinfo->bit_alpine_data.setscl = alpine_setscl;
-+		cinfo->bit_alpine_data.getsda = alpine_getsda;
-+		cinfo->bit_alpine_data.getscl = alpine_getscl;
-+		cinfo->bit_alpine_data.udelay = 5;
-+		cinfo->bit_alpine_data.mdelay = 1;
-+		cinfo->bit_alpine_data.timeout = HZ;
-+		cinfo->bit_alpine_data.data = cinfo;
-+		cinfo->alpine_ops.owner = THIS_MODULE;
-+		cinfo->alpine_ops.id = I2C_HW_B_LP;
-+		cinfo->alpine_ops.algo_data = &cinfo->bit_alpine_data;
-+		strlcpy(cinfo->alpine_ops.name,
-+			"Cirrus Logic Alpine DDC I2C adapter", I2C_NAME_SIZE);
-+		if (!(err = i2c_bit_add_bus(&cinfo->alpine_ops))) {
-+			printk(KERN_DEBUG "Initialized Alpine I2C adapter\n");
-+			cinfo->i2c_used = 1;
-+		} else
-+			printk(KERN_WARNING "Unable to initialize Alpine I2C"
-+			       "adapter (result = %i)\n", err);
-+	}
-+#endif
-+
- 	DPRINTK ("EXIT, returning 0\n");
- 	return 0;
- 
-@@ -2352,6 +2417,10 @@ static void __devexit cirrusfb_cleanup (
- 	struct cirrusfb_info *cinfo = info->par;
- 	DPRINTK ("ENTER\n");
- 
-+#ifdef CONFIG_FB_CIRRUS_I2C
-+	if (cinfo->i2c_used)
-+		i2c_bit_del_bus(&cinfo->alpine_ops);
-+#endif
- 	switch_monitor (cinfo, 0);
- 
- 	unregister_framebuffer (info);
+cheers,
+jamal
+
+
+

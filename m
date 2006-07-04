@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWGDK50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWGDLAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWGDK50 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 06:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWGDK50
+	id S1750735AbWGDLAi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 07:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWGDLAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 06:57:26 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32211 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932208AbWGDK5Z (ORCPT
+	Tue, 4 Jul 2006 07:00:38 -0400
+Received: from 1wt.eu ([62.212.114.60]:49417 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1750735AbWGDLAi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 06:57:25 -0400
-Date: Tue, 4 Jul 2006 12:57:11 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Henrique de Moraes Holschuh <hmh@debian.org>,
-       Stelian Pop <stelian@popies.net>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>,
-       hdaps-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-Subject: Re: [Hdaps-devel] Generic interface for accelerometers (AMS, HDAPS, ...)
-Message-ID: <20060704105711.GA13658@elf.ucw.cz>
-References: <20060703124823.GA18821@khazad-dum.debian.net> <20060704075950.GA13073@elf.ucw.cz> <41840b750607040326y7bfe92dy21c6845ab034ce30@mail.gmail.com>
-MIME-Version: 1.0
+	Tue, 4 Jul 2006 07:00:38 -0400
+Date: Tue, 4 Jul 2006 12:52:17 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Chris Morrow <morrowc@ops-netman.net>
+Cc: morrowc+kernel@ops-netman.net, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: crashes of 2.4.31hf2.6  kernel (oops included)
+Message-ID: <20060704105217.GA19642@1wt.eu>
+References: <Pine.LNX.4.61.0607040139320.13542@arb-h2.bcf-argzna.arg> <20060704040953.GA2037@1wt.eu> <Pine.LNX.4.61.0607040615090.23681@arb-h2.bcf-argzna.arg> <Pine.LNX.4.61.0607040620390.23681@arb-h2.bcf-argzna.arg>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41840b750607040326y7bfe92dy21c6845ab034ce30@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <Pine.LNX.4.61.0607040620390.23681@arb-h2.bcf-argzna.arg>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >Just use input infrastructure and be done with that? You can do
-> >parking from userspace.
+On Tue, Jul 04, 2006 at 06:24:25AM +0000, Chris Morrow wrote:
 > 
-> Will moving the hdapsd userspace daemon from sysfs polling to the
-> input infrastructure cause a noticable latency increase compared to
-> polling sysfs? This functionality is highly time-critical.
+> 
+> On Tue, 4 Jul 2006 morrowc+kernel@ops-netman.net wrote:
+> >
+> >On Tue, 4 Jul 2006, Willy Tarreau wrote:
+> >
+> >>On Tue, Jul 04, 2006 at 02:22:00AM +0000, morrowc+kernel@ops-netman.net 
+> >>wrote:
+> >>Do all the oops report a crash in tcp_synack_timer() ? This one got a
+> >>wrong pointer for the call to req->class->rtx_syn_ack(). This really
+> 
+> apologies, I didn't catch the EIP pointer in your message, looking at the 
+> included 06/29 oops/ksymoops output I see:
+> 
+> grep -i EIP output-ksymoops-06-29-02
+> 00000000 <_EIP>:
+> 00000000 <_EIP>:
+> 
+> So, no relevant output on that one :( Looking all all after 06/15:
+> 
+> output-ksymoops-06-24:EIP:    0010:[<30246c8b>]    Not tainted
+> output-ksymoops-06-24:>>EIP; 30246c8b Before first symbol   <=====
+> output-ksymoops-06-25-01:EIP:    0010:[<c0122485>]    Not tainted
+> output-ksymoops-06-25-01:>>EIP; c0122485 <add_timer+55/110>   <=====
+> output-ksymoops-06-25-01:00000000 <_EIP>:
+> output-ksymoops-06-27-2006:00000000 <_EIP>:
+> output-ksymoops-06-27-2006:00000000 <_EIP>:
+> output-ksymoops-06-29-01:EIP:    0010:[<c0122f20>]    Not tainted
+> output-ksymoops-06-29-01:>>EIP; c0122f20 <count_active_tasks+20/50> <=====
+> output-ksymoops-06-29-02:00000000 <_EIP>:
+> output-ksymoops-06-29-02:00000000 <_EIP>:
+> output-ksymoops-2006-07-03-01.txt:EIP:    0010:[<c024b03f>]    Not tainted
+> output-ksymoops-2006-07-03-01.txt:>>EIP; c024b03f <tcp_synack_timer+ff/1f0> 
+> <=====
+> output-ksymoops-2006-07-03-01.txt:00000000 <_EIP>:
+> output-ksymoops-2006-07-03-01.txt:   5:   0f 85 8b 00 00 00         jne   
+> 96 <_EIP+0x96>
+> 
+> only the 07/03-01 points at synack-timer. This might mean it's more memory 
+> related than anything else, eh?
 
-Well, for input you should need no polling. input tells you when data
-is ready.
+Yes, it really looks like !
+I'm fairly confident that you'll only have to replace a bad memory stick
+or a power supply to fix the problem.
 
-> BTW, can the driver tell when nothing is accessing its input device,
-> and avoid polling in that case?
+Cheers,
+Willy
 
-Ask vojtech/dmitry, I guess.
-								Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWGDTfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWGDTls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWGDTfU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 15:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWGDTfT
+	id S932334AbWGDTls (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 15:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWGDTls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 15:35:19 -0400
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:46212 "EHLO
-	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S932336AbWGDTfS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 15:35:18 -0400
-Message-ID: <44AAC436.5040308@wolfmountaingroup.com>
-Date: Tue, 04 Jul 2006 13:40:38 -0600
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Diego Calleja <diegocg@gmail.com>,
-       arjan@infradead.org, zdzichu@irc.pl, helgehaf@aitel.hist.no,
-       sithglan@stud.uni-erlangen.de, tytso@mit.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>  <20060701170729.GB8763@irc.pl>  <20060701174716.GC24570@cip.informatik.uni-erlangen.de>  <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>  <20060703205523.GA17122@irc.pl>  <1151960503.3108.55.camel@laptopd505.fenrus.org>  <44A9904F.7060207@wolfmountaingroup.com>  <20060703232547.2d54ab9b.diegocg@gmail.com> <1151965033.16528.28.camel@localhost.localdomain> <Pine.LNX.4.61.0607041643470.4190@yvahk01.tjqt.qr> <44AA98B5.5060400@wolfmountaingroup.com> <44AAB8E8.3040405@garzik.org>
-In-Reply-To: <44AAB8E8.3040405@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 4 Jul 2006 15:41:48 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:21137 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932334AbWGDTls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 15:41:48 -0400
+Date: Tue, 4 Jul 2006 16:41:38 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: akpm@osdl.org
+Cc: LKML <linux-kernel@vger.kernel.org>, Paul Fulghum <paulkf@microgate.com>,
+       Greg KH <gregkh@suse.de>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Pete Zaitcev <zaitcev@redhat.com>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] Serial-Core: adds atomic context debug code.
+Message-ID: <20060704164138.0bfd6e27@doriath.conectiva>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.4.0-rc2 (GTK+ 2.9.4; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+ Andrew,
 
-> Jeffrey V. Merkey wrote:
->
->> The old novell model is simple. When someone unlinks a file, don't 
->> delete it, just mv it to another special directory called 
->> DELETED.SAV. Then setup the
->> fs space allocation to reuse these files when the drive fills up by 
->> oldest files first. It's very simple. Then you have a salvagable file 
->> system.
->
->
-> Such a scheme makes it much more difficult to allocate large, 
-> contiguous runs of free space for storing newly written data. 
->
->     Jeff
+ While porting the USB-Serial layer to the Serial Core API [1], we found that
+usb-serial devices must be able to sleep in the get_mctrl() and set_mctrl()
+callbacks [2]. But, unfortunately, those callbacks are called with a spinlock
+held.
+
+ The solution is to switch from the spinlock to a mutex.
+
+ But turns out that we have no sure whether uart_update_mctrl(),
+uart_startup() and uart_configure_port() (which calls {get,set}_mctrl()) are
+called from atomic context or not.
+
+ This patch adds might_sleep() calls to them in order to help us to find the
+answer.
+
+ Please, note that this is just a debug patch to stay in -mm for a while,
+ie, it's not a submission for mainline kernel.
+
+[1] http://marc.theaimsgroup.com/?l=linux-usb-devel&m=114921742628790&w=2
+[2] http://lkml.org/lkml/2006/6/13/242
+
+Signed-off-by: Luiz Fernando N. Capitulino <lcapitulino@mandriva.com.br>
+
+diff -purN linux-2.6.17.orig/drivers/serial/serial_core.c linux-2.6.17/drivers/serial/serial_core.c
+--- linux-2.6.17.orig/drivers/serial/serial_core.c	2006-07-04 16:35:47.796329000 -0300
++++ linux-2.6.17/drivers/serial/serial_core.c	2006-07-04 16:35:47.820333205 -0300
+@@ -128,6 +128,8 @@ uart_update_mctrl(struct uart_port *port
+ 	unsigned long flags;
+ 	unsigned int old;
+ 
++	might_sleep();
++
+ 	spin_lock_irqsave(&port->lock, flags);
+ 	old = port->mctrl;
+ 	port->mctrl = (old & ~clear) | set;
+@@ -150,6 +152,8 @@ static int uart_startup(struct uart_stat
+ 	unsigned long page;
+ 	int retval = 0;
+ 
++	might_sleep();
++
+ 	if (info->flags & UIF_INITIALIZED)
+ 		return 0;
+ 
+@@ -2055,6 +2059,8 @@ uart_configure_port(struct uart_driver *
+ {
+ 	unsigned int flags;
+ 
++	might_sleep();
++
+ 	/*
+ 	 * If there isn't a port here, don't do anything further.
+ 	 */
 
 
-Possibly.  Organize the files in DELETED.SAV by disk location and 
-date.     Files don't have to adhere to a strict date recycling 
-process.  Make it a mount
-option if the user wants strict date recycling.  Make the default to 
-choose between date and file sector locality.
-
-Jeff
-
->
->
->
-
+-- 
+Luiz Fernando N. Capitulino

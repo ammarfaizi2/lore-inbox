@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWGDOsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWGDOyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWGDOsp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 10:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWGDOso
+	id S932149AbWGDOyU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 10:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWGDOyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 10:48:44 -0400
-Received: from pool-72-66-194-43.ronkva.east.verizon.net ([72.66.194.43]:36549
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932263AbWGDOso (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 10:48:44 -0400
-Message-Id: <200607041448.k64EmTPM023918@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Bruce Ferrell <bferrell@baywinds.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-In-Reply-To: Your message of "Mon, 03 Jul 2006 15:04:54 PDT."
-             <44A99486.6050307@baywinds.org>
-From: Valdis.Kletnieks@vt.edu
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no> <44A98D5A.5030508@tmr.com> <200607032150.k63LoM4H027543@turing-police.cc.vt.edu>
-            <44A99486.6050307@baywinds.org>
+	Tue, 4 Jul 2006 10:54:19 -0400
+Received: from homer.mvista.com ([63.81.120.158]:13737 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751037AbWGDOyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 10:54:19 -0400
+Subject: [BUG] scsi/io-elevator held lock freed.
+From: Daniel Walker <dwalker@mvista.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 04 Jul 2006 07:54:14 -0700
+Message-Id: <1152024854.29262.5.camel@c-67-180-134-207.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152024509_4949P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Date: Tue, 04 Jul 2006 10:48:29 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152024509_4949P
-Content-Type: text/plain; charset=us-ascii
 
-On Mon, 03 Jul 2006 15:04:54 PDT, Bruce Ferrell said:
-> Valdis.Kletnieks@vt.edu wrote:
+I got this during boot. I booted the same kernel several times, and only
+saw it once. The kernel was 2.6.17-mm5 .
 
-> > There's other issues as well.  Why do people run 'tripwire' on boxes that
-> > have RAID on them?
-> 
-> Because they're looking for malicous changes
+Daniel
 
-Close, but no cigar.
 
-I've had tripwire detect *accidental* changes as well (including borked
-patchsets that replaced unrelated files).  The reason they run tripwire
-as well as RAID is to detect changes that are visible only with the assistance
-of information from the filesystem.  
+=========================
+[ BUG: held lock freed! ]
+-------------------------
+swapper/1 is freeing memory f73a8580-f73a867f, with a lock still held there!
+2 locks held by swapper/1:
+ #0:  (&shost->scan_mutex){--..}, at: [<c0419098>] mutex_lock+0x8/0x10
+ #1:  (&eq->sysfs_lock){--..}, at: [<c0419098>] mutex_lock+0x8/0x10
 
---==_Exmh_1152024509_4949P
-Content-Type: application/pgp-signature
+stack backtrace:
+ [<c010546b>] show_trace+0x1b/0x20
+ [<c0105494>] dump_stack+0x24/0x30
+ [<c013c234>] debug_check_no_locks_freed+0x154/0x190
+ [<c016be44>] kfree+0x54/0xb0
+ [<c022c0f3>] cfq_exit_queue+0xe3/0x100
+ [<c021f6ea>] elevator_exit+0x2a/0x50
+ [<c022180b>] blk_cleanup_queue+0x3b/0x50
+ [<c02c7ff1>] scsi_free_queue+0x11/0x20
+ [<c02cd5ff>] scsi_device_dev_release_usercontext+0xff/0x1a0
+ [<c0130975>] execute_in_process_context+0x25/0x60
+ [<c02cc433>] scsi_device_dev_release+0x23/0x30
+ [<c0298bdd>] device_release+0x1d/0x80
+ [<c0230c6c>] kobject_cleanup+0x4c/0x90
+ [<c0230cc4>] kobject_release+0x14/0x20
+ [<c02312ea>] kref_put+0x3a/0xb0
+ [<c0230451>] kobject_put+0x21/0x30
+ [<c0298fca>] put_device+0x1a/0x20
+ [<c02cae17>] scsi_probe_and_add_lun+0x637/0x9a0
+ [<c02cb75f>] __scsi_scan_target+0xef/0x600
+ [<c02cbce8>] scsi_scan_channel+0x78/0x90
+ [<c02cbd67>] scsi_scan_host_selected+0x67/0xe0
+ [<c02cbe12>] scsi_scan_host+0x32/0x40
+ [<c02d2d84>] sym2_probe+0x9d4/0xa20
+ [<c023c871>] pci_device_probe+0x61/0x80
+ [<c029b4be>] driver_probe_device+0x4e/0xe0
+ [<c029b653>] __driver_attach+0x73/0x80
+ [<c029ada7>] bus_for_each_dev+0x57/0x80
+ [<c029b337>] driver_attach+0x27/0x30
+ [<c029a916>] bus_add_driver+0x86/0x180
+ [<c029b91d>] driver_register+0xad/0xf0
+ [<c023c3a5>] __pci_register_driver+0x65/0x90
+ [<c05693dc>] sym2_init+0x6c/0x120
+ [<c01003e0>] init+0xf0/0x320
+ [<c01008e5>] kernel_thread_helper+0x5/0x10
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFEqn+9cC3lWbTT17ARAuErAKDMTOuWZubtBPxa1l1WCLcOP9KpDQCfW806
-iBYzbhvuSEfN+4jWZXX9za4=
-=3SyS
------END PGP SIGNATURE-----
-
---==_Exmh_1152024509_4949P--

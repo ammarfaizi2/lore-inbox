@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWGDPIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWGDPLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWGDPIO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 11:08:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWGDPIO
+	id S932184AbWGDPLM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 11:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWGDPLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 11:08:14 -0400
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:22753 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S932150AbWGDPIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 11:08:14 -0400
-Date: Tue, 04 Jul 2006 11:06:56 -0400
-From: Ben Collins <bcollins@ubuntu.com>
-Subject: Re: [Ubuntu PATCH] fix VFS nr_files accounting
-In-reply-to: <20060703235031.0fe17c18.akpm@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org,
-       viro@zeniv.linux.org.uk
-Message-id: <1152025616.23756.93.camel@grayson>
-Organization: Ubuntu
-MIME-version: 1.0
-X-Mailer: Evolution 2.6.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <44A98241.2040705@oracle.com>
- <20060703235031.0fe17c18.akpm@osdl.org>
+	Tue, 4 Jul 2006 11:11:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44516 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932184AbWGDPLL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 11:11:11 -0400
+Date: Tue, 4 Jul 2006 08:10:54 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Hugh Dickins <hugh@veritas.com>, Con Kolivas <kernel@kolivas.org>,
+       Marcelo Tosatti <marcelo@kvack.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC 0/8] Reduce MAX_NR_ZONES and remove useless zones.
+In-Reply-To: <20060704120242.GA3386@infradead.org>
+Message-ID: <Pine.LNX.4.64.0607040806580.13456@schroedinger.engr.sgi.com>
+References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
+ <20060703221712.GB14273@infradead.org> <Pine.LNX.4.64.0607031624210.8547@schroedinger.engr.sgi.com>
+ <20060704120242.GA3386@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-03 at 23:50 -0700, Andrew Morton wrote:
-> On Mon, 03 Jul 2006 13:46:57 -0700
-> Randy Dunlap <randy.dunlap@oracle.com> wrote:
-> 
-> > 
-> > lkml discussion: http://thread.gmane.org/gmane.linux.kernel/385438/focus=385478
-> > 
-> > Already in -mm?
-> > 
-> > From: Dipankar Sarma <dipankar@in.ibm.com>
-> > 
-> > Ubuntu patch location:
-> > http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=5ce2ed3a63172c6ce0b97069e449960c2d538623
-> > 
-> 
-> hm.  This is actually a reversion of
-> 529bf6be5c04f2e869d07bfdb122e9fd98ade714, so it presumably reintroduces the
-> problem discussed in that lkml thread.
-> 
-> Ben, what's the story here?
+On Tue, 4 Jul 2006, Christoph Hellwig wrote:
 
-This was pulled in to try to fix some problems we were seeing on
-sparc64. However, this backported patch broke other architectures (I
-think x86_64 wouldn't even boot), so was reverted.
+> On Mon, Jul 03, 2006 at 04:26:57PM -0700, Christoph Lameter wrote:
+> > > Which btw is utterly wrong.  It should have a 4GB ZONE_DMA32 and everything
+> > > else in ZONE_NORMAL.
+> > 
+> > So we want to change the definition of ZONE_DMA to refer to the first 16MB 
+> > only? ZONE_DMA32 is always a 4GB border?
+> 
+> The definition of ZONE_DMA32 is to be te 32bit border.  I think we should
+> implement it wherever possible but at least on all architectures that
+> maybe have non-iommu implementations.  ZONE_DMA should be an arch-specific
+> low memory zone.
 
-I can't remember any more details than that.
+I guess then we should drop ZONE_DMA (its a misnoner anyways since it 
+seems to indicate that DMA is only possible in this zone). Instead use
 
--- 
-Ubuntu     - http://www.ubuntu.com/
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-SwissDisk  - http://www.swissdisk.com/
+ZONE_ISA_DMA		-> ISA DMA Area (16 MB boundary)
+ZONE_32BIT_DMA		-> 32bit DMA area (well 900 MB on x86_64 but somewhere in that area)
+			only used for 64 bit platforms with 32 bit devices.
+<and maybe define new ones in the future?>
+
+Some arches seem to make ZONE_DMA their default zone instead of 
+ZONE_NORMAL if DMA is possible to all of memory. I think in that case we 
+should have no ZONE_DMA at all.
+
 

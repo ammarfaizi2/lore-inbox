@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWGDPCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWGDPBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWGDPCK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 11:02:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWGDPCK
+	id S932181AbWGDPBz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 11:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWGDPBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 11:02:10 -0400
-Received: from wx-out-0102.google.com ([66.249.82.199]:57519 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932183AbWGDPCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 11:02:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=b7GI8sIUXr5HgbQZIZPuxakbyIQUgukWfOz60mHrC0FDnAkz/I0BQzCqYD42S8e4ldATc2a0E4++mhYjRHO1R/wyVeOsGO0j5wzXf7lQHqePGujA4P74dVpmsbe8oCI8mxuF7U0ZX0D2WE+DsyLE0vcgVfVg40PRE/5sQRABGLU=
-Date: Tue, 4 Jul 2006 11:02:05 -0400
-From: Thomas Tuttle <thinkinginbinary+lkml@gmail.com>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Hdaps-devel] Generic interface for accelerometers (AMS, HDAPS, ...)
-Message-ID: <20060704150205.GC3611@phoenix>
-References: <20060703124823.GA18821@khazad-dum.debian.net> <20060704075950.GA13073@elf.ucw.cz> <41840b750607040326y7bfe92dy21c6845ab034ce30@mail.gmail.com>
+	Tue, 4 Jul 2006 11:01:55 -0400
+Received: from pool-72-66-194-43.ronkva.east.verizon.net ([72.66.194.43]:61893
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932181AbWGDPBy (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 11:01:54 -0400
+Message-Id: <200607041501.k64F1qur024266@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext4 features
+In-Reply-To: Your message of "Mon, 03 Jul 2006 19:00:38 EDT."
+             <44A9A196.1010602@tmr.com>
+From: Valdis.Kletnieks@vt.edu
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no> <44A98D5A.5030508@tmr.com> <200607032150.k63LoM4H027543@turing-police.cc.vt.edu>
+            <44A9A196.1010602@tmr.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NU0Ex4SbNnrxsi6C"
-Content-Disposition: inline
-In-Reply-To: <41840b750607040326y7bfe92dy21c6845ab034ce30@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed; boundary="==_Exmh_1152025311_4949P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 04 Jul 2006 11:01:51 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---NU0Ex4SbNnrxsi6C
+--==_Exmh_1152025311_4949P
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On July 04 at 06:26 EDT, Shem Multinymous hastily scribbled:
-> Will moving the hdapsd userspace daemon from sysfs polling to the
-> input infrastructure cause a noticable latency increase compared to
-> polling sysfs? This functionality is highly time-critical.
->
-> Also, there's a small issue with polling frequency. hdapsd needs a
-> fairly high frequency (say, 50Hz) to gather statistics and keep
-> response latency low, whereas the hdaps driver's internal polling
-> (routing to the input infrastructure) is currently done at only 20Hz.
-> We'll need to increase the latter, thereby slightly increasing system
-> load when hdaps isn't running.
+On Mon, 03 Jul 2006 19:00:38 EDT, Bill Davidsen said:
+> Valdis.Kletnieks@vt.edu wrote:
 
-Just out of curiousity, is there any reason that these hard drive
-parking schemes *aren't* implemented entirely in the kernel?  Wouldn't
-implementing it in the kernel give it much lower latency?
+> >There's other issues as well.  Why do people run 'tripwire' on boxes that
+> >have RAID on them?
+> What has RAID got to do with detecting hacking?
 
---=20
-Thomas Tuttle (thinkinginbinary@gmail.com)
-Get Thunderbird: Reclaim your inbox. mozilla.org/products/thunderbird
-aim/y!m:thinkinginbinary; icq:198113263; jabber:thinkinginbinary@jabber.org
-msn: thinkinginbinary@hotmail.com; pgp: 0xAF5112C6
+Actually, I've had tripwire detect more *accidental* changes due to buggy
+software than I have had it detect actual hacking.  Oh, and it's good at
+catching unintended config changes - I started using tripwire after I
+fat-fingered a script, and the machine backed up to /dev/null instead of
+/dev/rmt0.
 
---NU0Ex4SbNnrxsi6C
+In fact, I've never actually had tripwire detect actual hacking.
+
+--==_Exmh_1152025311_4949P
 Content-Type: application/pgp-signature
-Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFEqoLt/UG6u69REsYRAmtyAJ9Vkj+DBKU40ruUpwgZ0kcWSWm6HQCePsAr
-N+Pa7Sek1WiAEm3q/gSuUxQ=
-=Z17I
+iD8DBQFEqoLfcC3lWbTT17ARAt43AJ9AbUtmpkevPND6P3o6l8UDsVnyywCgrwHU
+GMI2vk+Txu6qOsUez8+hkPM=
+=5Zdk
 -----END PGP SIGNATURE-----
 
---NU0Ex4SbNnrxsi6C--
+--==_Exmh_1152025311_4949P--

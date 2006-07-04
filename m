@@ -1,102 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWGDKZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWGDK06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWGDKZK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 06:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWGDKZK
+	id S1751261AbWGDK06 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 06:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWGDK06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 06:25:10 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:49239 "EHLO
+	Tue, 4 Jul 2006 06:26:58 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:64093 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751249AbWGDKZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 06:25:08 -0400
+	id S1751261AbWGDK05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 06:26:57 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=UKpAIRPZx4W9Pl7HJPg5/YuQkZmY7lrR9JbSNu2P07LNvINVVkqyEc38iQBsd4nwPegVWi6eUQR8LDhV0KSh/T8UMiaAER2RaMITvqehI4igJ2DOghi1HIpHnta8AedDPwnu2OVGPXIdcwUWnDsuQnu2DyaRkFUFwm2LVR/FpFA=
-Message-ID: <44AA4216.4040407@gmail.com>
-Date: Tue, 04 Jul 2006 12:25:03 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nLzo1TfHY4ZzBb5cQRfWuae6I3D8ilo8WeqrHB8V5WE9AKJCnG4Tb4mxnPb1BKpI4+N72Er0jJEhiT7uQXIxoSQxo9kNMgIhtCHyo9aShZHAuUI0rBKtorOnaQlGDnD1dHa14YnH0/ZfZ9yMgHeKE1nhxNEVMwCKQce/6STZQUg=
+Message-ID: <41840b750607040326y7bfe92dy21c6845ab034ce30@mail.gmail.com>
+Date: Tue, 4 Jul 2006 13:26:56 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: [Hdaps-devel] Generic interface for accelerometers (AMS, HDAPS, ...)
+Cc: "Henrique de Moraes Holschuh" <hmh@debian.org>,
+       "Stelian Pop" <stelian@popies.net>,
+       "Michael Hanselmann" <linux-kernel@hansmi.ch>,
+       hdaps-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       lm-sensors@lm-sensors.org
+In-Reply-To: <20060704075950.GA13073@elf.ucw.cz>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
-       pavel@suse.cz, linux-pm@osdl.org
-Subject: Re: swsusp regression
-References: <44A99DFB.50106@gmail.com>	<44A99FE5.6020806@gmail.com>	<20060703161034.a5c4fba9.akpm@osdl.org>	<44A9AD48.5020400@gmail.com> <20060703172455.d45edb0a.akpm@osdl.org>
-In-Reply-To: <20060703172455.d45edb0a.akpm@osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060703124823.GA18821@khazad-dum.debian.net>
+	 <20060704075950.GA13073@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton napsal(a):
-> On Tue, 04 Jul 2006 01:50:09 +0159
-> Jiri Slaby <jirislaby@gmail.com> wrote:
-> 
->> Andrew Morton napsal(a):
->>> On Tue, 04 Jul 2006 00:53:02 +0159
->>> Jiri Slaby <jirislaby@gmail.com> wrote:
->>>
->>>> Jiri Slaby napsal(a):
->>>>> Hello,
->>>>>
->>>>> when suspending machine with hyperthreading, only Freezing cpus appears and then
->>>> Note: suspending to disk; done by:
->>>> echo reboot > /sys/power/disk
->>>> echo disk > /sys/power/state
->>>>
->>>>> it loops somewhere. I tried to catch some more info by pressing sysrq-p. Here
->>>>> are some captures:
->>>>> http://www.fi.muni.cz/~xslaby/sklad/03072006074.gif
->>>>> http://www.fi.muni.cz/~xslaby/sklad/03072006075.gif
->>>> One more from some previous kernels (cutted sysrq-t):
->>>> http://www.fi.muni.cz/~xslaby/sklad/22062006046.jpg
->>>>
->>> If you replace kernel/stop_machine.c with the version from 2.6.17, does it
->>> help?
->> Yup. It seems so.
->>
-> 
-> OK.  I don't see what the problem is - let's just revert it.
+On 7/4/06, Pavel Machek <pavel@ucw.cz> wrote:
+> Just use input infrastructure and be done with that? You can do
+> parking from userspace.
 
-I dag into that deeply and:
-struct task_struct *__stop_machine_run(int (*fn)(void *), void *data,
-                                       unsigned int cpu)
-{
-[...]
-        p = kthread_create(do_stop, &smdata, "kstopmachine");
-        if (!IS_ERR(p)) {
-                kthread_bind(p, cpu);
-                wake_up_process(p);
-                wait_for_completion(&smdata.done);
-[...]
-So here the thread is created and kernel waits for completion. OK.
+Will moving the hdapsd userspace daemon from sysfs polling to the
+input infrastructure cause a noticable latency increase compared to
+polling sysfs? This functionality is highly time-critical.
 
+Also, there's a small issue with polling frequency. hdapsd needs a
+fairly high frequency (say, 50Hz) to gather statistics and keep
+response latency low, whereas the hdaps driver's internal polling
+(routing to the input infrastructure) is currently done at only 20Hz.
+We'll need to increase the latter, thereby slightly increasing system
+load when hdaps isn't running.
 
-static int do_stop(void *_smdata)
-{
-[...]
-        /* We're done: you can kthread_stop us now */
-        complete(&smdata->done);
+In terms of magnitude, an hdaps readout takes ~70usec on average and
+(very rarely) up to ~1msec. This is with the tp_smapi [1] patches to
+hdaps, which add the checks and retries needed to ensure the readout
+is valid.
 
-This is called, some work is done, so call complete:
-void fastcall complete(struct completion *x)
-{
-        unsigned long flags;
+BTW, can the driver tell when nothing is accessing its input device,
+and avoid polling in that case?
 
-        spin_lock_irqsave(&x->wait.lock, flags);
-        x->done++;
-        __wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE,
-                         1, 0, NULL);
-        spin_unlock_irqrestore(&x->wait.lock, flags);
-}
-Nice, but spin_unlock_irqrestore never returns -- it loops in preempt_enable(),
-why? Is TIF_NEED_RESCHED set all the time? Wouldn't be this the culprit?
+  Shem
 
-regards,
--- 
-Jiri Slaby        www.fi.muni.cz/~xslaby/
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
-<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
+[1] http://thinkwiki.org/wiki/tp_smapi

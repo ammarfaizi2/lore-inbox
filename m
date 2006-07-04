@@ -1,397 +1,293 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWGDPlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWGDPs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbWGDPlr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 11:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWGDPlr
+	id S1751272AbWGDPs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 11:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWGDPs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 11:41:47 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:13116 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932177AbWGDPlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 11:41:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=YJkoYx1nBFHk82OwjabXwXgLC6dJWy4rOmOBhtM9xlIZrXApe4vEWZob/xMAVJvuJQjhd5tT5FJto/iXk9+2alSCgTNvRGdtvf7UhakW3/78FCARcDzwGrZHvIs3c3yGVk2o1n5qx2Cc8EW2K96UDN+Lkk1zez7DnJnfiDFxO5c=
-Message-ID: <44AA8D4B.5010900@innova-card.com>
-Date: Tue, 04 Jul 2006 17:46:19 +0200
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 4 Jul 2006 11:48:58 -0400
+Received: from tzmxr01.htp-tel.de ([81.14.243.17]:18105 "EHLO
+	TZMXR01.htp-tel.de") by vger.kernel.org with ESMTP id S1751282AbWGDPs5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 11:48:57 -0400
+Message-ID: <65170.217.5.191.115.1152028122.squirrel@sesamstrasse.dyndns.tv>
+Date: Tue, 4 Jul 2006 17:48:42 +0200 (CEST)
+Subject: [BUG/PATCH/RFC] bridge: locally generated broadcast traffic may 
+     block sender
+From: "Bernd Kischnick" <kisch+linux@sesamstrasse.dyndns.tv>
+To: "Stephen Hemminger" <shemminger@osdl.org>
+Cc: bridge@lists.osdl.org, linux-kernel@vger.kernel.org,
+       "Wolfgang Denk" <wd@denx.de>
+User-Agent: SquirrelMail/1.4.4-2
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Franck <vagabon.xyz@gmail.com>
-Subject: [PATCH 7/7] bootmem: miscellaneous coding style fixes
-References: <44AA89D2.8010307@innova-card.com>
-In-Reply-To: <44AA89D2.8010307@innova-card.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <vagabon.xyz@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It fixes various coding style issues, specially when spaces
-are useless. For example '*' go next to the function name.
+Hello Stephen,
 
-Signed-off-by: Franck Bui-Huu <vagabon.xyz@gmail.com>
+I may have tracked down some unexpected behaviour from a common bridge
+setup, and would like to incite expert oppinion on my observations.
+The issue relates to both 2.6 and 2.4 kernel series bridging code,
+and as far as I can see might have been present in all releases hitherto.
 
----
- include/linux/bootmem.h |   95 ++++++++++++++++++++++++-----------------------
- mm/bootmem.c            |   81 ++++++++++++++++++++++------------------
- 2 files changed, 93 insertions(+), 83 deletions(-)
+Consider this setup:
+- two ethernet devices in a simple bridge configuration
+- bridge-interface configured for IPv4
+- local application multicasting heavy UDP traffic down the bridge
+- one of the ethernet links goes down (=> disconnect cable).
 
-diff --git a/include/linux/bootmem.h b/include/linux/bootmem.h
-index fe48c5e..dadc865 100644
---- a/include/linux/bootmem.h
-+++ b/include/linux/bootmem.h
-@@ -38,29 +38,30 @@ typedef struct bootmem_data {
- 	struct list_head list;
- } bootmem_data_t;
- 
--extern unsigned long bootmem_bootmap_pages (unsigned long);
--extern unsigned long init_bootmem (unsigned long addr, unsigned long memend);
--extern void free_bootmem (unsigned long addr, unsigned long size);
--extern void * __alloc_bootmem (unsigned long size,
--			       unsigned long align,
--			       unsigned long goal);
--extern void * __alloc_bootmem_nopanic (unsigned long size,
--				       unsigned long align,
--				       unsigned long goal);
--extern void * __alloc_bootmem_low(unsigned long size,
-+extern unsigned long bootmem_bootmap_pages(unsigned long);
-+extern unsigned long init_bootmem(unsigned long addr, unsigned long memend);
-+extern void free_bootmem(unsigned long addr, unsigned long size);
-+extern void *__alloc_bootmem(unsigned long size,
-+			     unsigned long align,
-+			     unsigned long goal);
-+extern void *__alloc_bootmem_nopanic(unsigned long size,
-+				     unsigned long align,
-+				     unsigned long goal);
-+extern void *__alloc_bootmem_low(unsigned long size,
-+				 unsigned long align,
-+				 unsigned long goal);
-+extern void *__alloc_bootmem_low_node(pg_data_t *pgdat,
-+				      unsigned long size,
-+				      unsigned long align,
-+				      unsigned long goal);
-+extern void *__alloc_bootmem_core(struct bootmem_data *bdata,
-+				  unsigned long size,
- 				  unsigned long align,
--				  unsigned long goal);
--extern void * __alloc_bootmem_low_node(pg_data_t *pgdat,
--				       unsigned long size,
--				       unsigned long align,
--				       unsigned long goal);
--extern void * __alloc_bootmem_core(struct bootmem_data *bdata,
--				   unsigned long size,
--				   unsigned long align,
--				   unsigned long goal,
--				   unsigned long limit);
-+				  unsigned long goal,
-+				  unsigned long limit);
+I would expect that IP-multicast/Ethernet-broadcast traffic is simply sent
+out of all the bridged interfaces still available and link-up.
+
+Instead we observe that the result --- rather surprisingly --- depends on
+WHICH of the ethernet links is down.
+
+One of the two ports doesn't cause troubles: the traffic flows out from
+that port which stays up, and the application doesn't mind.
+
+But if you disconnect the OTHER link, then SOME traffic is still sent out of
+the port that stays up, but then the sending application is blocked in the
+sendto() call. Consequentially, the network traffic then ceases, even
+though one of the interfaces is still up and available.
+When the link comes up again, everything continues as normal.
+
+You can create a testbed like this:
+
+# build the bridge
+ifconfig eth0 0.0.0.0 up
+ifconfig eth1 0.0.0.0 up
+brctl addbr br0
+brctl addif br0 eth0
+brctl addif br0 eth1
+# brctl stp br0 on/off doesn't matter
+
+# configure bridge interface
+ifconfig br0 10.20.30.40 up
+route add -net 224.0.0.0 netmask 240.0.0.0 dev br0
+
+# try to send a fixed amount of multicast UDP traffic
+nbytes=`cat /proc/sys/net/wmem_max`
+nbytes=$(( $nbytes * 2 ))
+dd if=/dev/zero bs=$nbytes count=1 | nc -nuvw1 224.0.0.123 1234
+
+# arguments to nc:
+# -w1 "wait 1sec" causes nc to exit after sending the _complete_ amount
+# -n no names, -v verbose, -u UDP to multicast 224.0.0.123 port 1234
+
+
+If both links are connected, the dd|nc-test completes.
+If eth1 link is disconnected, the dd|nc-test completes, too.
+If eth0 link is disconnected: dd|nc will block.
+If unicast UDP is used: no problems, regardless of link state.
+
+Mind that it's the FIRST bridge interface that stands out.
+If you /exchange/ the order of the interfaces when adding them to the
+bridge, then eth1 will show the awkward behaviour ---
+again the FIRST bridge interface.
+
+
+Why does the application block?
+
+ifconfig br0, ifconfig eth1, or a tcpdump on the other and of the eth1
+link will show that an amount of roundabout sys.net.wmem_max has been
+sent.
+
+cat /proc/net/udp shows that an EQUAL amount of bytes as has already been
+sent out is STILL queued on behalf of the socket openened by nc.
+It will be sent as soon as the link goes up again, and the application
+will promptly unblock and finish.
+
+The tx_queue indication for the sending socket is the clue.
+The packets (or rather sk_buffs) generated through the socket are accredited
+to the socket's wmem_alloc memory quota. Because one link is down,
+sk_buffs will be queued on the transmit queue of one interface.
+While they are queued, they won't be freed, causing the socket to run out
+of its wmem_alloc quota, because they are still associated to the socket.
+
+
+Why the first bridge interface only?
+
+Obviously the bridge has to copy outgoing packets to distribute them to
+its ports. Regard the copy loop br_flood() in br_forward.c.
+It has two modes of operation, selected by a "clone" flag.
+For distributing locally generated traffic, br_flood() is called in the
+mode "clone=0". This mode works like this:
+
+/* deliver this: */
+sk_buff* skb;
+
+prev_port=NULL;
+port=tail of bridge port list;
+while (port) {
+    if (prev_port != NULL) {
+          deliver (prev_port, skb_clone (skb));
+    }
+    prev_port = port;
+    port = next bridge port in list;
+}
+if (prev_port) {
+    deliver (prev_port, skb);
+    return;
+}
+kfree_skb (skb);
+
+
+This results in clones of the original sk_buff being send through all
+bridge ports except for the last in list traversal. This port
+receives the original sk_buff which was generated through the application's
+socket. The "last in list traversal" happens to be the first port added
+to the bridge.
+
+This means that the bridge port which shows link-down peculiarities is
+also the one which receives the original sk_buff. All ports that receive
+clones of the original sk_buff work as expected.
+
+This observation is consistent with the way skb_clone() works:
+the clones don't share the "sock" and "destructor" attributes of the
+original. This means that the clones are not credited to the originating
+socket, whereas the originals are.
+
+When the original sk_buffs are to be delivered across a link that's down,
+they will be queued on the transmit queue of physical device instead,
+and not be freed. Therefore the originating socket runs out of wmem_alloc
+quota and blocks the application.
+
+It's perhaps not surprising that this behaviour has gone unnoticed so far,
+because it only affects broadcast/multicast traffic, which only consists
+of tiny amounts of transferred volume in the protocols usually found.
+And additionally the wmem_alloc is available per socket, not per ether
+device, so that different protocols don't run into a cumulative traffic
+barrier.
+
+
+
+Fix.
+
+Should we agree that the observed behaviour should indeed be amended,
+i propose the following fix:
+
+in br_device.c, function br_dev_xmit() (or __br_dev_xmit() in 2.4):
+skb_orphan() the sk_buff to be delivered before handing it to the clone
+loop in br_flood_deliver(), calling br_flood().
+
+skb_orphan() disassociates the sk_buff from its owning socket and runs
+the "destructor" attached to the sk_buff, which restores the wmem_alloc
+quota of the sending socket.
+
+If the wmem_alloc is replenished, the application won't block and keep
+sending the broadcast messages to all available bridge ports.
+The transmit queue of the link-down port will eventually fill up,
+but the same happens currently when the non-first port goes link-down,
+without obvious hazards. The sk_buff will be freed as part of the
+transmit queue run, just like it is currently.
+
+
+
+I'd be glad to receive any feedback on this issue.
+It would especially be nice if someone could try to reproduce the behaviour
+using different ethernet hardware and drivers, because I'm working on a
+embedded system just so slightly off the mainstream
+(a PowerPC 8260 series module using the fcc_enet driver.
+The hardware port is maintained by Wolfgang Denk -
+that's why I'm CCing you, Mr. Denk)
+
+happy hacking,
+- Bernd Kischnick.
+
+
+
+Patches.
+
+for 2.4.32:
+signed-off-by: Bernd Kischnick <kisch@gmx.li>
+
+diff -urN a/CREDITS b/CREDITS
+--- a/CREDITS   2005-01-19 15:09:22.000000000 +0100
++++ b/CREDITS   2006-07-04 16:36:47.000000000 +0200
+@@ -1599,6 +1599,13 @@
+ S: D-64295
+ S: Germany
+
++N: Bernd Kischnick
++E: kisch@gmx.li
++D: the odd kernel fix
++S: Alemannstr 11
++S: 30165 Hannover
++S: Germany
 +
- #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
--extern void reserve_bootmem (unsigned long addr, unsigned long size);
-+extern void reserve_bootmem(unsigned long addr, unsigned long size);
- #define alloc_bootmem(x) \
- 	__alloc_bootmem(x, SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
- #define alloc_bootmem_low(x) \
-@@ -70,22 +71,24 @@ #define alloc_bootmem_pages(x) \
- #define alloc_bootmem_low_pages(x) \
- 	__alloc_bootmem_low(x, PAGE_SIZE, 0)
- #endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
--extern unsigned long free_all_bootmem (void);
--extern void * __alloc_bootmem_node (pg_data_t *pgdat,
--				    unsigned long size,
--				    unsigned long align,
--				    unsigned long goal);
--extern unsigned long init_bootmem_node (pg_data_t *pgdat,
--					unsigned long freepfn,
--					unsigned long startpfn,
--					unsigned long endpfn);
--extern void reserve_bootmem_node (pg_data_t *pgdat,
--				  unsigned long physaddr,
--				  unsigned long size);
--extern void free_bootmem_node (pg_data_t *pgdat,
--			       unsigned long addr,
--			       unsigned long size);
--extern unsigned long free_all_bootmem_node (pg_data_t *pgdat);
+ N: Andi Kleen
+ E: ak@muc.de
+ D: network hacker, syncookies
+diff -urN a/net/bridge/br_device.c b/net/bridge/br_device.c
+--- a/net/bridge/br_device.c    2002-02-25 20:38:14.000000000 +0100
++++ b/net/bridge/br_device.c    2006-07-04 17:11:20.000000000 +0200
+@@ -57,6 +57,7 @@
+        skb_pull(skb, ETH_HLEN);
+
+        if (dest[0] & 1) {
++               skb_orphan(skb);
+                br_flood_deliver(br, skb, 0);
+                return 0;
+        }
+@@ -67,6 +68,7 @@
+                return 0;
+        }
+
++       skb_orphan(skb);
+        br_flood_deliver(br, skb, 0);
+        return 0;
+ }
+
+
+
+
+
+For 2.6.17.3:
+signed-off-by: Bernd Kischnick <kisch@gmx.li>
+
+diff -urN a/CREDITS b/CREDITS
+--- a/CREDITS   2006-06-30 19:37:38.000000000 +0200
++++ b/CREDITS   2006-07-04 16:46:09.000000000 +0200
+@@ -1725,6 +1725,13 @@
+ S: D-64295
+ S: Germany
+
++N: Bernd Kischnick
++E: kisch@gmx.li
++D: the odd kernel fix
++S: Alemannstr 11
++S: 30165 Hannover
++S: Germany
 +
-+extern unsigned long free_all_bootmem(void);
-+extern unsigned long free_all_bootmem_node(pg_data_t *pgdat);
-+extern void *__alloc_bootmem_node(pg_data_t *pgdat,
-+				  unsigned long size,
-+				  unsigned long align,
-+				  unsigned long goal);
-+extern unsigned long init_bootmem_node(pg_data_t *pgdat,
-+				       unsigned long freepfn,
-+				       unsigned long startpfn,
-+				       unsigned long endpfn);
-+extern void reserve_bootmem_node(pg_data_t *pgdat,
-+				 unsigned long physaddr,
-+				 unsigned long size);
-+extern void free_bootmem_node(pg_data_t *pgdat,
-+			      unsigned long addr,
-+			      unsigned long size);
+ N: Andi Kleen
+ E: ak@muc.de
+ D: network hacker, syncookies
+diff -urN a/net/bridge/br_device.c b/net/bridge/br_device.c
+--- a/net/bridge/br_device.c    2006-06-30 19:37:38.000000000 +0200
++++ b/net/bridge/br_device.c    2006-07-04 17:26:36.000000000 +0200
+@@ -40,12 +40,16 @@
+        skb->mac.raw = skb->data;
+        skb_pull(skb, ETH_HLEN);
+
+-       if (dest[0] & 1)
 +
- #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
- #define alloc_bootmem_node(pgdat, x) \
- 	__alloc_bootmem_node(pgdat, x, SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
-@@ -102,19 +105,19 @@ static inline void *alloc_remap(int nid,
- {
- 	return NULL;
++       if (dest[0] & 1) {
++               skb_orphan(skb);
+                br_flood_deliver(br, skb, 0);
+-       else if ((dst = __br_fdb_get(br, dest)) != NULL)
++       } else if ((dst = __br_fdb_get(br, dest)) != NULL) {
+                br_deliver(dst->dst, skb);
+-       else
++       } else {
++               skb_orphan(skb);
+                br_flood_deliver(br, skb, 0);
++       }
+
+        return 0;
  }
--#endif
-+#endif /* CONFIG_HAVE_ARCH_ALLOC_REMAP */
- 
- extern unsigned long nr_kernel_pages;
- extern unsigned long nr_all_pages;
- 
--extern void * alloc_large_system_hash(const char *tablename,
--				      unsigned long bucketsize,
--				      unsigned long numentries,
--				      int scale,
--				      int flags,
--				      unsigned int *_hash_shift,
--				      unsigned int *_hash_mask,
--				      unsigned long limit);
-+extern void *alloc_large_system_hash(const char *tablename,
-+				     unsigned long bucketsize,
-+				     unsigned long numentries,
-+				     int scale,
-+				     int flags,
-+				     unsigned int *_hash_shift,
-+				     unsigned int *_hash_mask,
-+				     unsigned long limit);
- 
- #define HASH_HIGHMEM	0x00000001	/* Consider highmem? */
- #define HASH_EARLY	0x00000002	/* Allocating during early boot? */
-diff --git a/mm/bootmem.c b/mm/bootmem.c
-index 3368a14..e8cbe99 100644
---- a/mm/bootmem.c
-+++ b/mm/bootmem.c
-@@ -40,7 +40,7 @@ unsigned long saved_max_pfn;
- #endif
- 
- /* return the number of _pages_ that will be allocated for the boot bitmap */
--unsigned long __init bootmem_bootmap_pages (unsigned long pages)
-+unsigned long __init bootmem_bootmap_pages(unsigned long pages)
- {
- 	unsigned long mapsize;
- 
-@@ -50,12 +50,14 @@ unsigned long __init bootmem_bootmap_pag
- 
- 	return mapsize;
- }
-+
- /*
-  * link bdata in order
-  */
- static void __init link_bootmem(bootmem_data_t *bdata)
- {
- 	bootmem_data_t *ent;
-+
- 	if (list_empty(&bdata_list)) {
- 		list_add(&bdata->list, &bdata_list);
- 		return;
-@@ -68,7 +70,6 @@ static void __init link_bootmem(bootmem_
- 		}
- 	}
- 	list_add_tail(&bdata->list, &bdata_list);
--	return;
- }
- 
- /*
-@@ -87,7 +88,7 @@ static unsigned long __init get_mapsize(
- /*
-  * Called once to set up the allocator itself.
-  */
--static unsigned long __init init_bootmem_core (pg_data_t *pgdat,
-+static unsigned long __init init_bootmem_core(pg_data_t *pgdat,
- 	unsigned long mapstart, unsigned long start, unsigned long end)
- {
- 	bootmem_data_t *bdata = pgdat->bdata;
-@@ -187,7 +188,7 @@ __alloc_bootmem_core(struct bootmem_data
- 	unsigned long i, start = 0, incr, eidx, end_pfn;
- 	void *ret;
- 
--	if(!size) {
-+	if (!size) {
- 		printk("__alloc_bootmem_core(): zero-sized request\n");
- 		BUG();
- 	}
-@@ -236,7 +237,7 @@ restart_scan:
- 		for (j = i + 1; j < i + areasize; ++j) {
- 			if (j >= eidx)
- 				goto fail_block;
--			if (test_bit (j, bdata->node_bootmem_map))
-+			if (test_bit(j, bdata->node_bootmem_map))
- 				goto fail_block;
- 		}
- 		start = i;
-@@ -264,19 +265,21 @@ found:
- 	    bdata->last_offset && bdata->last_pos+1 == start) {
- 		offset = ALIGN(bdata->last_offset, align);
- 		BUG_ON(offset > PAGE_SIZE);
--		remaining_size = PAGE_SIZE-offset;
-+		remaining_size = PAGE_SIZE - offset;
- 		if (size < remaining_size) {
- 			areasize = 0;
- 			/* last_pos unchanged */
--			bdata->last_offset = offset+size;
--			ret = phys_to_virt(bdata->last_pos*PAGE_SIZE + offset +
--						bdata->node_boot_start);
-+			bdata->last_offset = offset + size;
-+			ret = phys_to_virt(bdata->last_pos * PAGE_SIZE +
-+					   offset +
-+					   bdata->node_boot_start);
- 		} else {
- 			remaining_size = size - remaining_size;
--			areasize = (remaining_size+PAGE_SIZE-1)/PAGE_SIZE;
--			ret = phys_to_virt(bdata->last_pos*PAGE_SIZE + offset +
--						bdata->node_boot_start);
--			bdata->last_pos = start+areasize-1;
-+			areasize = (remaining_size + PAGE_SIZE-1) / PAGE_SIZE;
-+			ret = phys_to_virt(bdata->last_pos * PAGE_SIZE +
-+					   offset +
-+					   bdata->node_boot_start);
-+			bdata->last_pos = start + areasize - 1;
- 			bdata->last_offset = remaining_size;
- 		}
- 		bdata->last_offset &= ~PAGE_MASK;
-@@ -289,7 +292,7 @@ found:
- 	/*
- 	 * Reserve the area now:
- 	 */
--	for (i = start; i < start+areasize; i++)
-+	for (i = start; i < start + areasize; i++)
- 		if (unlikely(test_and_set_bit(i, bdata->node_bootmem_map)))
- 			BUG();
- 	memset(ret, 0, size);
-@@ -340,7 +343,7 @@ static unsigned long __init free_all_boo
- 				}
- 			}
- 		} else {
--			i+=BITS_PER_LONG;
-+			i += BITS_PER_LONG;
- 		}
- 		pfn += BITS_PER_LONG;
- 	}
-@@ -363,51 +366,51 @@ static unsigned long __init free_all_boo
- 	return total;
- }
- 
--unsigned long __init init_bootmem_node (pg_data_t *pgdat, unsigned long freepfn,
-+unsigned long __init init_bootmem_node(pg_data_t *pgdat, unsigned long freepfn,
- 				unsigned long startpfn, unsigned long endpfn)
- {
--	return(init_bootmem_core(pgdat, freepfn, startpfn, endpfn));
-+	return init_bootmem_core(pgdat, freepfn, startpfn, endpfn);
- }
- 
--void __init reserve_bootmem_node (pg_data_t *pgdat, unsigned long physaddr,
--				  unsigned long size)
-+void __init reserve_bootmem_node(pg_data_t *pgdat, unsigned long physaddr,
-+				 unsigned long size)
- {
- 	reserve_bootmem_core(pgdat->bdata, physaddr, size);
- }
- 
--void __init free_bootmem_node (pg_data_t *pgdat, unsigned long physaddr,
--			       unsigned long size)
-+void __init free_bootmem_node(pg_data_t *pgdat, unsigned long physaddr,
-+			      unsigned long size)
- {
- 	free_bootmem_core(pgdat->bdata, physaddr, size);
- }
- 
--unsigned long __init free_all_bootmem_node (pg_data_t *pgdat)
-+unsigned long __init free_all_bootmem_node(pg_data_t *pgdat)
- {
--	return(free_all_bootmem_core(pgdat));
-+	return free_all_bootmem_core(pgdat);
- }
- 
--unsigned long __init init_bootmem (unsigned long start, unsigned long pages)
-+unsigned long __init init_bootmem(unsigned long start, unsigned long pages)
- {
- 	max_low_pfn = pages;
- 	min_low_pfn = start;
--	return(init_bootmem_core(NODE_DATA(0), start, 0, pages));
-+	return init_bootmem_core(NODE_DATA(0), start, 0, pages);
- }
- 
- #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
--void __init reserve_bootmem (unsigned long addr, unsigned long size)
-+void __init reserve_bootmem(unsigned long addr, unsigned long size)
- {
- 	reserve_bootmem_core(NODE_DATA(0)->bdata, addr, size);
- }
- #endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
- 
--void __init free_bootmem (unsigned long addr, unsigned long size)
-+void __init free_bootmem(unsigned long addr, unsigned long size)
- {
- 	free_bootmem_core(NODE_DATA(0)->bdata, addr, size);
- }
- 
--unsigned long __init free_all_bootmem (void)
-+unsigned long __init free_all_bootmem(void)
- {
--	return(free_all_bootmem_core(NODE_DATA(0)));
-+	return free_all_bootmem_core(NODE_DATA(0));
- }
- 
- void * __init __alloc_bootmem_nopanic(unsigned long size, unsigned long align,
-@@ -416,9 +419,11 @@ void * __init __alloc_bootmem_nopanic(un
- 	bootmem_data_t *bdata;
- 	void *ptr;
- 
--	list_for_each_entry(bdata, &bdata_list, list)
--		if ((ptr = __alloc_bootmem_core(bdata, size, align, goal, 0)))
--			return(ptr);
-+	list_for_each_entry(bdata, &bdata_list, list) {
-+		ptr = __alloc_bootmem_core(bdata, size, align, goal, 0);
-+		if (ptr)
-+			return ptr;
-+	}
- 	return NULL;
- }
- 
-@@ -426,6 +431,7 @@ void * __init __alloc_bootmem(unsigned l
- 			      unsigned long goal)
- {
- 	void *mem = __alloc_bootmem_nopanic(size,align,goal);
-+
- 	if (mem)
- 		return mem;
- 	/*
-@@ -444,7 +450,7 @@ void * __init __alloc_bootmem_node(pg_da
- 
- 	ptr = __alloc_bootmem_core(pgdat->bdata, size, align, goal, 0);
- 	if (ptr)
--		return (ptr);
-+		return ptr;
- 
- 	return __alloc_bootmem(size, align, goal);
- }
-@@ -457,10 +463,11 @@ void * __init __alloc_bootmem_low(unsign
- 	bootmem_data_t *bdata;
- 	void *ptr;
- 
--	list_for_each_entry(bdata, &bdata_list, list)
--		if ((ptr = __alloc_bootmem_core(bdata, size,
--						 align, goal, LOW32LIMIT)))
--			return(ptr);
-+	list_for_each_entry(bdata, &bdata_list, list) {
-+		ptr = __alloc_bootmem_core(bdata, size, align, goal, LOW32LIMIT);
-+		if (ptr)
-+			return ptr;
-+	}
- 
- 	/*
- 	 * Whoops, we cannot satisfy the allocation request.
--- 
-1.4.1.g35c6
+
+
 

@@ -1,86 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWGDJpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWGDJpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750883AbWGDJpN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 05:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWGDJpN
+	id S932143AbWGDJpY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 05:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWGDJpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 05:45:13 -0400
-Received: from mga02.intel.com ([134.134.136.20]:3701 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750883AbWGDJpL convert rfc822-to-8bit (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 05:45:11 -0400
-X-IronPort-AV: i="4.06,203,1149490800"; 
-   d="scan'208"; a="60330812:sNHT1681035937"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
-Date: Tue, 4 Jul 2006 13:44:04 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC054117@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
-Thread-Index: AcafRbNvhTAS63C/S1SXScY8eFPbzAAAKtLA
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Nikita Danilov" <nikita@clusterfs.com>
-Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Jul 2006 09:44:13.0527 (UTC) FILETIME=[6872FE70:01C69F4E]
+	Tue, 4 Jul 2006 05:45:24 -0400
+Received: from mxl145v67.mxlogic.net ([208.65.145.67]:36758 "EHLO
+	p02c11o144.mxlogic.net") by vger.kernel.org with ESMTP
+	id S932143AbWGDJpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 05:45:22 -0400
+Date: Tue, 4 Jul 2006 12:42:19 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Zach Brown <zach.brown@oracle.com>, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH] mthca: initialize send and receive queue locks separately
+Message-ID: <20060704094219.GO21049@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20060704085653.GA13426@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060704085653.GA13426@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 04 Jul 2006 09:47:01.0906 (UTC) FILETIME=[CCCF9720:01C69F4E]
+X-Spam: [F=0.0100000000; S=0.010(2006062901)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [63.251.237.3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wtites:
-> performs page-out even if queue is congested.
-	Yes. If user thread which generates dirty pages need in
-reclaimed memory it consider own dirty page as candidate for page-out.
-It functions as before patching.
+Quoting r. Ingo Molnar <mingo@elte.hu>:
+> Subject: Re: [PATCH] mthca: initialize send and receive queue locks separately
+> 
+> 
+> * Michael S. Tsirkin <mst@mellanox.co.il> wrote:
+> 
+> > > Initializing the locks separately in mthca_alloc_qp_common() stops the warning
+> > > and will let lockdep enforce proper ordering on paths that acquire both locks.
+> > > 
+> > > Signed-off-by: Zach Brown <zach.brown@oracle.com>
+> > 
+> > This moves code out of a common function and so results in code 
+> > duplication and has memory cost.
+> 
+> the patch below does the same via the lockdep_set_class() method, which 
+> has no cost on non-lockdep kernels.
+> 
+> 	Ingo
+> 
+> ---------------->
+> Subject: lockdep: annotate drivers/infiniband/hw/mthca/mthca_qp.c
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> annotate mthca queue locks: split them into send and receive locks.
+> 
+> (both can be held at once, but there is ordering between them which
+> lockdep enforces)
 
-> Intent of this is to throttle writers.
-I suppose you means dirtier or write(2) caller but not writepage()
-caller. The dirtier  is throttled  with backing_dev_info logic as before
-patching. 
+I find this capability of lockdep very useful.
 
-	While pdflush thread sorts pages for page-out it does not
-consider as a candidate a page to be written with congested queue.
-Pdflush thread functions as before patching. Pdflush tends to make pages
-un-dirty without overload memory or IO and it is not need to let pdflush
-do page-out with congested queue as you have proposed.
-	
-Leonid
-	
------Original Message-----
-From: Nikita Danilov [mailto:nikita@clusterfs.com] 
-Sent: Tuesday, July 04, 2006 12:33 PM
-To: Ananiev, Leonid I
-Cc: Linux Kernel Mailing List
-Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh
-entirely
+> Has no effect on non-lockdep kernels.
 
+Hmm ... adding parameters to function still has text cost, I think. No?
 
-[Please, don't trim CC/To fields: LKML is too high traffic to read in
-its entirety.]
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> ---
+>  drivers/infiniband/hw/mthca/mthca_qp.c |   16 +++++++++++-----
+>  1 file changed, 11 insertions(+), 5 deletions(-)
+> 
+> Index: linux/drivers/infiniband/hw/mthca/mthca_qp.c
+> ===================================================================
+> --- linux.orig/drivers/infiniband/hw/mthca/mthca_qp.c
+> +++ linux/drivers/infiniband/hw/mthca/mthca_qp.c
+> @@ -222,9 +222,15 @@ static void *get_send_wqe(struct mthca_q
+>  			 (PAGE_SIZE - 1));
+>  }
+>  
+> -static void mthca_wq_init(struct mthca_wq *wq)
+> +/*
+> + * Send and receive queues for two different lock classes:
+> + */
+> +static struct lock_class_key mthca_wq_send_lock_class, mthca_wq_recv_lock_class;
+> +
 
-Ananiev, Leonid I writes:
- >  Nikita Danilov writes:
- > > Wouldn't this interfere with current->backing_dev_info logic?
- > 
- > The proposed patch does not modify that logic.
+Does this still have a small cost in data size on non-lockdep kernels, as well?
+If yes, maybe some typedef/macro magic can be used to put this struct in an
+unused elf section for such kernels?
 
-Indeed, it *interferes* with it: in the original code, process doing
-direct reclaim during balance_dirty_pages()
+> +static void mthca_wq_init(struct mthca_wq *wq, struct lock_class_key *key)
+>  {
+>  	spin_lock_init(&wq->lock);
+> +	lockdep_set_class(&wq->lock, key);
+>  	wq->next_ind  = 0;
+>  	wq->last_comp = wq->max - 1;
+>  	wq->head      = 0;
+> @@ -845,10 +851,10 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+>  			mthca_cq_clean(dev, to_mcq(qp->ibqp.recv_cq), qp->qpn,
+>  				       qp->ibqp.srq ? to_msrq(qp->ibqp.srq) : NULL);
+>  
+> -		mthca_wq_init(&qp->sq);
+> +		mthca_wq_init(&qp->sq, &mthca_wq_send_lock_class);
+>  		qp->sq.last = get_send_wqe(qp, qp->sq.max - 1);
+>  
+> -		mthca_wq_init(&qp->rq);
+> +		mthca_wq_init(&qp->rq, &mthca_wq_recv_lock_class);
+>  		qp->rq.last = get_recv_wqe(qp, qp->rq.max - 1);
+>  
+>  		if (mthca_is_memfree(dev)) {
+> @@ -1112,8 +1118,8 @@ static int mthca_alloc_qp_common(struct 
+>  	qp->atomic_rd_en = 0;
+>  	qp->resp_depth   = 0;
+>  	qp->sq_policy    = send_policy;
+> -	mthca_wq_init(&qp->sq);
+> -	mthca_wq_init(&qp->rq);
+> +	mthca_wq_init(&qp->sq, &mthca_wq_send_lock_class);
+> +	mthca_wq_init(&qp->rq, &mthca_wq_recv_lock_class);
+>  
+>  	ret = mthca_map_memfree(dev, qp);
+>  	if (ret)
+> 
+> 
 
- 
-generic_file_write()->balance_dirty_pages()->...->__alloc_pages()->...->
-pageout()
+I'm pretty sure this still adds to code footprint due to extra function
+parameters even on non-lockdep kernels. Will the following work?
 
-performs page-out even if queue is congested. Intent of this is to
-throttle writers, and reduce risk of running oom (certain file systems,
-especially ones with delayed allocation, tend to allocate a lot of
-memory in balance_dirty_pages()->writepages() paths).
+@@ -1112,8 +1118,8 @@ static int mthca_alloc_qp_common(struct 
+ 	qp->atomic_rd_en = 0;
+ 	qp->resp_depth   = 0;
+ 	qp->sq_policy    = send_policy;
+	mthca_wq_init(&qp->sq);
++	lockdep_set_class(&qp->sq.lock, &mthca_wq_send_lock_class);
+	mthca_wq_init(&qp->rq);
++	lockdep_set_class(&qp->rq.lock, &mthca_wq_recv_lock_class);
 
-Your patch breaks this mechanism.
-
-Nikita.
+-- 
+MST

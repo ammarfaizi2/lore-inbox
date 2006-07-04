@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWGDR07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWGDReG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWGDR07 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 13:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWGDR07
+	id S932197AbWGDReG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 13:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWGDReG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 13:26:59 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:50559 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932196AbWGDR06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 13:26:58 -0400
+	Tue, 4 Jul 2006 13:34:06 -0400
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:32847 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932197AbWGDReE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 13:34:04 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=R66x9d8ETcCYC6mmSZpJzvHqa8alpLtkDr/v28D5rvW+ijn119jUQ6cWuPhBaKpbu0mvmh1ULDKhVHDzI/k2ALMJG7q/FbTURLM29c4ixGxhbyg/EPkFU5KBZO61hg0vcBfgIEbHrN5mFzQVC+ftCngN6ZcEO7ZuNuBj73JsLR4=  ;
-Message-ID: <44AA9D17.2010005@yahoo.com.au>
-Date: Wed, 05 Jul 2006 02:53:43 +1000
+  b=gB8S8kM2gq5tGZgeLicehF83CczrV3zlAM1mANkunTLoENzQTPZGSUJCTuGFZRS2o+U1ntcQtFpOOTNu+w+iGtTfBMeix/ZxO3unJsCHYD9EawOgafb+gxXwofk4K3+J0l1PfLcnOmeKkebuditSo82yxcVroz1rMzA/cD17Eug=  ;
+Message-ID: <44AAA64D.8030907@yahoo.com.au>
+Date: Wed, 05 Jul 2006 03:33:01 +1000
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: nigel@suspend2.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2][ 07/13] [Suspend2] Page_alloc paranoia.
-References: <20060627044226.15066.7403.stgit@nigel.suspend2.net> <200606271634.43662.nigel@suspend2.net> <44A3FE3B.6070103@yahoo.com.au> <200607042054.55925.nigel@suspend2.net>
-In-Reply-To: <200607042054.55925.nigel@suspend2.net>
+To: Andrew Morton <akpm@osdl.org>
+CC: Keith Owens <kaos@sgi.com>, jes@sgi.com, torvalds@osdl.org,
+       viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
+References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>	<21169.1151991139@kao2.melbourne.sgi.com> <20060703234134.786944f1.akpm@osdl.org>
+In-Reply-To: <20060703234134.786944f1.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
+Andrew Morton wrote:
+> On Tue, 04 Jul 2006 15:32:19 +1000
+> Keith Owens <kaos@sgi.com> wrote:
 
->>Haven't you suspended the other threads at this point?
->>
->>What are the consequences of allocating memory?
+>>Why raw_smp_processor_id?  That normally indicates code that wants a
+>>lazy cpu number, but this code requires the exact cpu number, IMHO
+>>using raw_smp_processor_id is confusing.  smp_processor_id can safely
+>>be used here, bh_lru_lock has disabled irq or preempt.
 > 
 > 
-> Did you see my reply to these questions?
+> I expect raw_smp_processor_id() is used here as a a microoptimisation -
+> avoid a might_sleep() which obviously will never trigger.
 
-Hi Nigel,
+A microoptimisation because they've turned on DEBUG_PREEMPT and found
+that smp_processor_id slows down? ;) Wouldn't it be better to just stick
+to the normal rules (ie. what Keith said)?
 
-Yes I did, sorry I thought I replied but it seems not.
+It may be obvious in this case (though that doesn't help people who make
+obvious mistakes, or mismerge patches) but this just seems like a nasty
+precedent to set (or has it already been?).
 
-I do think taking the pages off the LRU, or otherwise pinning
-them on it does sound like a better approach.
+> 
+> But I think it'd be better to do just a single raw_smp_processor_id() for
+> this entire function:
+> 
+>   static void bh_lru_install(struct buffer_head *bh)
+>   {
+> 	struct buffer_head *evictee = NULL;
+> 	struct bh_lru *lru;
+> +	int cpu;
+> 
+> 	check_irqs_on();
+> 	bh_lru_lock();
+> +	cpu = raw_smp_processor_id();
+> -	lru = &__get_cpu_var(bh_lrus);
+> +	lru = per_cpu(bh_lrus, cpu);
+> 
+> etcetera.
 
 -- 
 SUSE Labs, Novell Inc.

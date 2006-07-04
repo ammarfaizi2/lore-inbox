@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWGDMA4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWGDMBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWGDMA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 08:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWGDMAz
+	id S932228AbWGDMBu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 08:01:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWGDMBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 08:00:55 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:59619 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932222AbWGDMAz
-	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Tue, 4 Jul 2006 08:00:55 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
+	Tue, 4 Jul 2006 08:01:49 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:57788 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932228AbWGDMBt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 08:01:49 -0400
+Date: Tue, 4 Jul 2006 13:56:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Zach Brown <zach.brown@oracle.com>, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH] mthca: initialize send and receive queue locks separately
+Message-ID: <20060704115656.GA1539@elte.hu>
+References: <20060704085653.GA13426@elte.hu> <20060704094219.GO21049@mellanox.co.il>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17578.22357.927206.189696@gargle.gargle.HOWL>
-Date: Tue, 4 Jul 2006 15:56:05 +0400
-To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-Subject: Re: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
-In-Reply-To: <B41635854730A14CA71C92B36EC22AAC0541AB@mssmsx411>
-References: <B41635854730A14CA71C92B36EC22AAC0541AB@mssmsx411>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <20060704094219.GO21049@mellanox.co.il>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5063]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ananiev, Leonid I writes:
- > Nikita Danilov wtites:
- > >> Pdflush thread functions as before patching. Pdflush tends to make
- > pages
- > >> un-dirty without overload memory or IO and it is not need to let
- > pdflush
- > 
- > > This assumption is valid for ext2
- > 
- > The assumption that pdflush should to make pages un-dirty without
- > overload memory or IO is not for ext2 but for it sense. I'm working with
 
-I am not sure what "sense" is being referred to. Some file systems do
-allocate a lot of memory in ->writepages().
+* Michael S. Tsirkin <mst@mellanox.co.il> wrote:
 
-ext3 is still in the same ball-park as ext2.
+> > Has no effect on non-lockdep kernels.
+> 
+> Hmm ... adding parameters to function still has text cost, I think. No?
 
- > ext3. A lot of work it does while writepages(). pdflush is throttled:
- > while vmscan have sorted 32 page for paging-out it calls
- > blk_congestion_wait() nevertheless had it put one of 32 page into
- > congested queue or had not. pdflush is throttled.
+it shouldnt - it's a static function and the parameter is unused _and_ 
+is of a type that is zero-size [on non-lockdep kernels] - gcc ought to 
+be able to optimize it out.
 
-pdflush is throttled through blk_congestion_wait(), but it is not
-throttled by writing dirty from the tail of inactive list, while
-scanning for memory. This destroys LRU ordering.
-
- > 
- > Leonid
- >  
-
-Nikita.
+	Ingo

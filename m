@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWGDHgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWGDHhv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWGDHgp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 03:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWGDHgp
+	id S1751114AbWGDHhv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 03:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWGDHhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 03:36:45 -0400
-Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:42686 "EHLO
-	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1751100AbWGDHgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 03:36:44 -0400
-Date: Tue, 4 Jul 2006 00:28:32 -0700
+	Tue, 4 Jul 2006 03:37:51 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:31888 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S1751114AbWGDHhu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 03:37:50 -0400
+Date: Tue, 4 Jul 2006 00:29:39 -0700
 From: Stephane Eranian <eranian@hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Cc: Stephane Eranian <eranian@hpl.hp.com>, ak@suse.de
-Subject: [PATCH 1/2] x86-64 TIF flags for debug regs and io bitmap in ctxsw
-Message-ID: <20060704072832.GB5902@frankl.hpl.hp.com>
+Cc: Stephane Eranian <eranian@hpl.hp.com>
+Subject: [PATCH 2/2] i386 TIF flags for debug regs and io bitmap in ctxsw
+Message-ID: <20060704072939.GC5902@frankl.hpl.hp.com>
 Reply-To: eranian@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -33,7 +33,7 @@ two new TIF flags to simplify the context switch code in __switch_to().
 The idea is to minimize the number of cache lines accessed in the common
 case, i.e., when neither the debug registers nor the I/O bitmap are used.
 
-This patch covers the x86-64 modifications. A patch for i386 follows.
+This patch covers the i386 modifications.
 
 Changelog:
 	- add TIF_DEBUG to track when debug registers are active
@@ -42,24 +42,10 @@ Changelog:
 
 <signed-off-by>: eranian@hpl.hp.com
 
-diff -urNp linux-2.6.17.2.orig/arch/x86_64/ia32/ptrace32.c linux-2.6.17.2-tif/arch/x86_64/ia32/ptrace32.c
---- linux-2.6.17.2.orig/arch/x86_64/ia32/ptrace32.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17.2-tif/arch/x86_64/ia32/ptrace32.c	2006-06-30 09:02:16.000000000 -0700
-@@ -118,6 +118,10 @@ static int putreg32(struct task_struct *
- 			if ((0x5454 >> ((val >> (16 + 4*i)) & 0xf)) & 1)
- 			       return -EIO;
- 		child->thread.debugreg7 = val; 
-+		if (val)
-+			set_tsk_thread_flag(child, TIF_DEBUG);
-+		else
-+			clear_tsk_thread_flag(child, TIF_DEBUG);
- 		break; 
- 		    
- 	default:
-diff -urNp linux-2.6.17.2.orig/arch/x86_64/kernel/ioport.c linux-2.6.17.2-tif/arch/x86_64/kernel/ioport.c
---- linux-2.6.17.2.orig/arch/x86_64/kernel/ioport.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17.2-tif/arch/x86_64/kernel/ioport.c	2006-07-03 02:06:59.000000000 -0700
-@@ -56,6 +56,7 @@ asmlinkage long sys_ioperm(unsigned long
+diff -urNp linux-2.6.17.2.orig/arch/i386/kernel/ioport.c linux-2.6.17.2-tif/arch/i386/kernel/ioport.c
+--- linux-2.6.17.2.orig/arch/i386/kernel/ioport.c	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17.2-tif/arch/i386/kernel/ioport.c	2006-07-03 09:28:07.000000000 -0700
+@@ -79,6 +79,7 @@ asmlinkage long sys_ioperm(unsigned long
  
  		memset(bitmap, 0xff, IO_BITMAP_BYTES);
  		t->io_bitmap_ptr = bitmap;
@@ -67,10 +53,10 @@ diff -urNp linux-2.6.17.2.orig/arch/x86_64/kernel/ioport.c linux-2.6.17.2-tif/ar
  	}
  
  	/*
-diff -urNp linux-2.6.17.2.orig/arch/x86_64/kernel/process.c linux-2.6.17.2-tif/arch/x86_64/kernel/process.c
---- linux-2.6.17.2.orig/arch/x86_64/kernel/process.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17.2-tif/arch/x86_64/kernel/process.c	2006-07-03 23:48:08.000000000 -0700
-@@ -351,6 +351,7 @@ void exit_thread(void)
+diff -urNp linux-2.6.17.2.orig/arch/i386/kernel/process.c linux-2.6.17.2-tif/arch/i386/kernel/process.c
+--- linux-2.6.17.2.orig/arch/i386/kernel/process.c	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17.2-tif/arch/i386/kernel/process.c	2006-07-04 00:06:16.000000000 -0700
+@@ -370,6 +370,7 @@ void exit_thread(void)
  
  		kfree(t->io_bitmap_ptr);
  		t->io_bitmap_ptr = NULL;
@@ -78,162 +64,134 @@ diff -urNp linux-2.6.17.2.orig/arch/x86_64/kernel/process.c linux-2.6.17.2-tif/a
  		/*
  		 * Careful, clear this in the TSS too:
  		 */
-@@ -366,7 +367,7 @@ void flush_thread(void)
- 	struct thread_info *t = current_thread_info();
+@@ -388,6 +389,7 @@ void flush_thread(void)
  
- 	if (t->flags & _TIF_ABI_PENDING)
--		t->flags ^= (_TIF_ABI_PENDING | _TIF_IA32);
-+		t->flags ^= (_TIF_ABI_PENDING | _TIF_IA32 | _TIF_DEBUG);
+ 	memset(tsk->thread.debugreg, 0, sizeof(unsigned long)*8);
+ 	memset(tsk->thread.tls_array, 0, sizeof(tsk->thread.tls_array));	
++	clear_tsk_thread_flag(tsk, TIF_DEBUG);
+ 	/*
+ 	 * Forget coprocessor state..
+ 	 */
+@@ -432,7 +434,7 @@ int copy_thread(int nr, unsigned long cl
+ 	savesegment(gs,p->thread.gs);
  
- 	tsk->thread.debugreg0 = 0;
- 	tsk->thread.debugreg1 = 0;
-@@ -459,7 +460,7 @@ int copy_thread(int nr, unsigned long cl
- 	asm("mov %%es,%0" : "=m" (p->thread.es));
- 	asm("mov %%ds,%0" : "=m" (p->thread.ds));
- 
--	if (unlikely(me->thread.io_bitmap_ptr != NULL)) { 
-+	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) { 
+ 	tsk = current;
+-	if (unlikely(NULL != tsk->thread.io_bitmap_ptr)) {
++	if (unlikely(test_tsk_thread_flag(tsk, TIF_IO_BITMAP))) {
  		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
  		if (!p->thread.io_bitmap_ptr) {
  			p->thread.io_bitmap_max = 0;
-@@ -467,6 +468,7 @@ int copy_thread(int nr, unsigned long cl
+@@ -440,6 +442,7 @@ int copy_thread(int nr, unsigned long cl
  		}
- 		memcpy(p->thread.io_bitmap_ptr, me->thread.io_bitmap_ptr,
- 				IO_BITMAP_BYTES);
+ 		memcpy(p->thread.io_bitmap_ptr, tsk->thread.io_bitmap_ptr,
+ 			IO_BITMAP_BYTES);
 +		set_tsk_thread_flag(p, TIF_IO_BITMAP);
- 	} 
+ 	}
  
  	/*
-@@ -496,6 +498,40 @@ out:
-  */
- #define loaddebug(thread,r) set_debugreg(thread->debugreg ## r, r)
+@@ -534,10 +537,24 @@ int dump_task_regs(struct task_struct *t
+ 	return 1;
+ }
  
-+static inline void __switch_to_xtra(struct task_struct *prev_p,
-+			     	    struct task_struct *next_p,
-+			     	    struct tss_struct *tss)
-+{
-+	struct thread_struct *prev, *next;
+-static inline void
+-handle_io_bitmap(struct thread_struct *next, struct tss_struct *tss)
++static inline void __switch_to_xtra(struct task_struct *next_p,
++				    struct tss_struct *tss)
+ {
+-	if (!next->io_bitmap_ptr) {
++	struct thread_struct *next;
 +
-+	prev = &prev_p->thread,
 +	next = &next_p->thread;
 +
 +	if (test_tsk_thread_flag(next_p, TIF_DEBUG)) {
-+		loaddebug(next, 0);
-+		loaddebug(next, 1);
-+		loaddebug(next, 2);
-+		loaddebug(next, 3);
++		set_debugreg(next->debugreg[0], 0);
++		set_debugreg(next->debugreg[1], 1);
++		set_debugreg(next->debugreg[2], 2);
++		set_debugreg(next->debugreg[3], 3);
 +		/* no 4 and 5 */
-+		loaddebug(next, 6);
-+		loaddebug(next, 7);
++		set_debugreg(next->debugreg[6], 6);
++		set_debugreg(next->debugreg[7], 7);
 +	}
 +
-+	if (test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
-+		/*
-+		 * Copy the relevant range of the IO bitmap.
-+		 * Normally this is 128 bytes or less:
-+		 */
-+		memcpy(tss->io_bitmap, next->io_bitmap_ptr,
-+		       max(prev->io_bitmap_max, next->io_bitmap_max));
-+	} else if (test_tsk_thread_flag(prev_p, TIF_IO_BITMAP)) {
-+		/*
-+		 * Clear any possible leftover bits:
-+		 */
-+		memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
-+	}
-+}
++	if (test_tsk_thread_flag(next_p, TIF_IO_BITMAP) == 0) {
+ 		/*
+ 		 * Disable the bitmap via an invalid offset. We still cache
+ 		 * the previous bitmap owner and the IO bitmap contents:
+@@ -545,6 +562,7 @@ handle_io_bitmap(struct thread_struct *n
+ 		tss->io_bitmap_base = INVALID_IO_BITMAP_OFFSET;
+ 		return;
+ 	}
 +
- /*
-  *	switch_to(x,y) should switch tasks from x to y.
-  *
-@@ -584,37 +620,11 @@ __switch_to(struct task_struct *prev_p, 
- 		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
- 
+ 	if (likely(next == tss->io_bitmap_owner)) {
+ 		/*
+ 		 * Previous owner of the bitmap (hence the bitmap content)
+@@ -674,18 +692,9 @@ struct task_struct fastcall * __switch_t
  	/*
--	 * Now maybe reload the debug registers
-+	 * Now maybe reload the debug registers and handle I/O bitmaps
+ 	 * Now maybe reload the debug registers
  	 */
--	if (unlikely(next->debugreg7)) {
--		loaddebug(next, 0);
--		loaddebug(next, 1);
--		loaddebug(next, 2);
--		loaddebug(next, 3);
+-	if (unlikely(next->debugreg[7])) {
+-		set_debugreg(next->debugreg[0], 0);
+-		set_debugreg(next->debugreg[1], 1);
+-		set_debugreg(next->debugreg[2], 2);
+-		set_debugreg(next->debugreg[3], 3);
 -		/* no 4 and 5 */
--		loaddebug(next, 6);
--		loaddebug(next, 7);
+-		set_debugreg(next->debugreg[6], 6);
+-		set_debugreg(next->debugreg[7], 7);
 -	}
 -
--
--	/* 
--	 * Handle the IO bitmap 
--	 */ 
--	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr)) {
--		if (next->io_bitmap_ptr)
--			/*
--			 * Copy the relevant range of the IO bitmap.
--			 * Normally this is 128 bytes or less:
-- 			 */
--			memcpy(tss->io_bitmap, next->io_bitmap_ptr,
--				max(prev->io_bitmap_max, next->io_bitmap_max));
--		else {
--			/*
--			 * Clear any possible leftover bits:
--			 */
--			memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
--		}
--	}
+-	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
+-		handle_io_bitmap(next, tss);
 +	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
 +	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
-+		__switch_to_xtra(prev_p, next_p, tss);
++		__switch_to_xtra(next_p, tss);
  
- 	return prev_p;
- }
-diff -urNp linux-2.6.17.2.orig/arch/x86_64/kernel/ptrace.c linux-2.6.17.2-tif/arch/x86_64/kernel/ptrace.c
---- linux-2.6.17.2.orig/arch/x86_64/kernel/ptrace.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17.2-tif/arch/x86_64/kernel/ptrace.c	2006-07-04 00:21:47.000000000 -0700
-@@ -420,9 +420,13 @@ long arch_ptrace(struct task_struct *chi
- 				if ((0x5554 >> ((data >> (16 + 4*i)) & 0xf)) & 1)
- 					break;
- 			if (i == 4) {
--				child->thread.debugreg7 = data;
-+			  child->thread.debugreg7 = data;
-+			  if (data)
-+			  	set_tsk_thread_flag(child, TIF_DEBUG);
-+			  else
-+			  	clear_tsk_thread_flag(child, TIF_DEBUG);
- 			  ret = 0;
--		  }
-+		  	}
- 		  break;
- 		}
- 		break;
-diff -urNp linux-2.6.17.2.orig/include/asm-x86_64/thread_info.h linux-2.6.17.2-tif/include/asm-x86_64/thread_info.h
---- linux-2.6.17.2.orig/include/asm-x86_64/thread_info.h	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17.2-tif/include/asm-x86_64/thread_info.h	2006-07-03 02:32:25.000000000 -0700
-@@ -106,6 +106,8 @@ static inline struct thread_info *stack_
- #define TIF_FORK		18	/* ret_from_fork */
- #define TIF_ABI_PENDING		19
- #define TIF_MEMDIE		20
-+#define TIF_DEBUG		21	/* uses debug registers */
-+#define TIF_IO_BITMAP		22	/* uses I/O bitmap */
+ 	disable_tsc(prev_p, next_p);
+ 
+diff -urNp linux-2.6.17.2.orig/arch/i386/kernel/ptrace.c linux-2.6.17.2-tif/arch/i386/kernel/ptrace.c
+--- linux-2.6.17.2.orig/arch/i386/kernel/ptrace.c	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17.2-tif/arch/i386/kernel/ptrace.c	2006-07-04 00:19:59.000000000 -0700
+@@ -468,8 +468,11 @@ long arch_ptrace(struct task_struct *chi
+ 				  for(i=0; i<4; i++)
+ 					  if ((0x5f54 >> ((data >> (16 + 4*i)) & 0xf)) & 1)
+ 						  goto out_tsk;
++				  if (data)
++					  set_tsk_thread_flag(child, TIF_DEBUG);
++				  else
++					  clear_tsk_thread_flag(child, TIF_DEBUG);
+ 			  }
+-
+ 			  addr -= (long) &dummy->u_debugreg;
+ 			  addr = addr >> 2;
+ 			  child->thread.debugreg[addr] = data;
+diff -urNp linux-2.6.17.2.orig/include/asm-i386/thread_info.h linux-2.6.17.2-tif/include/asm-i386/thread_info.h
+--- linux-2.6.17.2.orig/include/asm-i386/thread_info.h	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17.2-tif/include/asm-i386/thread_info.h	2006-07-03 05:51:25.000000000 -0700
+@@ -143,6 +143,8 @@ register unsigned long current_stack_poi
+ #define TIF_RESTORE_SIGMASK	9	/* restore signal mask in do_signal() */
+ #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
+ #define TIF_MEMDIE		17
++#define TIF_DEBUG		18	/* uses debug registers */
++#define TIF_IO_BITMAP		19	/* uses I/O bitmap */
  
  #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
  #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
-@@ -119,6 +121,8 @@ static inline struct thread_info *stack_
- #define _TIF_IA32		(1<<TIF_IA32)
- #define _TIF_FORK		(1<<TIF_FORK)
- #define _TIF_ABI_PENDING	(1<<TIF_ABI_PENDING)
+@@ -155,6 +157,8 @@ register unsigned long current_stack_poi
+ #define _TIF_SECCOMP		(1<<TIF_SECCOMP)
+ #define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
+ #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
 +#define _TIF_DEBUG		(1<<TIF_DEBUG)
 +#define _TIF_IO_BITMAP		(1<<TIF_IO_BITMAP)
  
  /* work to do on interrupt/exception return */
  #define _TIF_WORK_MASK \
-@@ -126,6 +130,9 @@ static inline struct thread_info *stack_
- /* work to do on any return to user space */
- #define _TIF_ALLWORK_MASK (0x0000FFFF & ~_TIF_SECCOMP)
+@@ -163,6 +167,9 @@ register unsigned long current_stack_poi
+ /* work to do on any return to u-space */
+ #define _TIF_ALLWORK_MASK	(0x0000FFFF & ~_TIF_SECCOMP)
  
 +/* flags to check in __switch_to() */
 +#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP)
 +
- #define PREEMPT_ACTIVE     0x10000000
- 
  /*
+  * Thread-synchronous status.
+  *
+

@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWGDIAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWGDICB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWGDIAS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 04:00:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWGDIAS
+	id S1750872AbWGDICB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 04:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWGDICA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 04:00:18 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:38935 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750826AbWGDIAR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 04:00:17 -0400
-Date: Tue, 4 Jul 2006 10:02:16 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
-Cc: viro@zeniv.linux.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] partitions: let partitions inherit policy from disk
-Message-ID: <20060704080215.GS4038@suse.de>
-References: <44A90B9A.5080805@de.ibm.com>
+	Tue, 4 Jul 2006 04:02:00 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42694 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750872AbWGDICA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 04:02:00 -0400
+Subject: Re: 2.6.17-mm5 + pcmcia/hostap/8139too patches -- inconsistent
+	{hardirq-on-W} -> {in-hardirq-W} usage
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, mingo@elte.hu,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <a44ae5cd0607031614y2055828as6e0bbe2ce0d52ff1@mail.gmail.com>
+References: <a44ae5cd0607031431q8dcc698j1c447b1d51c7cc75@mail.gmail.com>
+	 <1151963034.3108.59.camel@laptopd505.fenrus.org>
+	 <1151965557.16528.36.camel@localhost.localdomain>
+	 <a44ae5cd0607031614y2055828as6e0bbe2ce0d52ff1@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 04 Jul 2006 09:18:47 +0100
+Message-Id: <1152001127.28597.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44A90B9A.5080805@de.ibm.com>
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03 2006, Peter Oberparleiter wrote:
-> I'd like to suggest to change the partition code in
-> fs/partitions/check.c to initialize a newly detected partition's policy
-> field with that of the containing block device (see patch below).
-> 
-> My reasoning is that function set_disk_ro() in block/genhd.c
-> modifies the policy field (read-only indicator) of a disk and all
-> contained partitions. When a partition is detected after the call to
-> set_disk_ro(), the policy field of this partition will currently not
-> inherit the disk's policy field. This behavior poses a problem in cases
-> where a block device can be 'logically de- and reactivated' like e.g.
-> the s390 DASD driver because partition detection may run after the
-> policy field has been modified.
-> 
-> From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
-> 
-> Initialize the policy field of partitions with that of the containing
-> block device.
-> 
-> Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
-> ---
-> diff -Naurp linux-2.6.17/fs/partitions/check.c linux-2.6.17b/fs/partitions/check.c
-> --- linux-2.6.17/fs/partitions/check.c	2006-06-18 03:49:35.000000000 +0200
-> +++ linux-2.6.17b/fs/partitions/check.c	2006-07-03 12:49:13.000000000 +0200
-> @@ -348,6 +348,7 @@ void add_partition(struct gendisk *disk,
->  	p->start_sect = start;-
->  	p->nr_sects = len;
->  	p->partno = part;
-> +	p->policy = disk->policy;
-> 
->  	devfs_mk_bdev(MKDEV(disk->major, disk->first_minor + part),
->  			S_IFBLK|S_IRUSR|S_IWUSR,
+Ar Llu, 2006-07-03 am 16:14 -0700, ysgrifennodd Miles Lane:
+> pcmcia: request for exclusive IRQ could not be fulfilled.
+> pcmcia: the driver needs updating to supported shared IRQ lines.
+> eth2: NE2000 (DL10022 rev 30): io 0x300, irq 11, hw_addr 00:50:BA:73:92:3D
+> Which seems to indicate I need to tweak the PCMCIA settings to get this card
+> working.  I wonder if anyone is going to follow up on enabling shared IRQ
+> support.
 
-Makes sense to me, however I'll let Al ack this for inclusion. Al?
+Thats a bug in the PCMCIA driver. The 8390 driver core supports shared
+IRQ so you should just need to turn it on in pcnet_cs
 
--- 
-Jens Axboe
 

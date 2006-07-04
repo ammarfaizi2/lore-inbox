@@ -1,55 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWGDVN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWGDVWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWGDVN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 17:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWGDVN0
+	id S1751089AbWGDVWM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 17:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWGDVWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 17:13:26 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38611 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932401AbWGDVNZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 17:13:25 -0400
-Date: Tue, 4 Jul 2006 23:08:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Fabio Comolli <fabio.comolli@gmail.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, mingo@redhat.com,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 2.6.17-mm5: lockdep prevents suspend to disk
-Message-ID: <20060704210833.GA17961@elte.hu>
-References: <b637ec0b0607041258j36007132kdb7dbca1fa8f7dd5@mail.gmail.com> <20060704183244.GB4420@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Jul 2006 17:22:12 -0400
+Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:23197 "EHLO
+	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751089AbWGDVWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 17:22:11 -0400
+Date: Tue, 4 Jul 2006 17:19:02 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH 2/2] i386 TIF flags for debug regs and io bitmap
+  in ctxsw
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200607041719_MC3-1-C420-EC5A@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060704183244.GB4420@ucw.cz>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In-Reply-To: <20060704072939.GC5902@frankl.hpl.hp.com>
 
-* Pavel Machek <pavel@ucw.cz> wrote:
+On Tue, 4 Jul 2006 00:29:39 -0700, Stephane Eranian wrote:
 
-> > Jul  4 21:48:08 tycho kernel:   rt-test-4
-> > Jul  4 21:48:08 tycho kernel:   rt-test-5
-> > Jul  4 21:48:08 tycho kernel:   rt-test-6
-> > Jul  4 21:48:08 tycho kernel:   rt-test-7
-> 
-> Are rt-test-X tasks kernel threads or userspace programs? (Kernel
-> threads need explicit try_to_freeze in them to allow suspend).
-> 
-> Are they normally killable?
+> Following my discussion with Andi. Here is a patch that introduces
+> two new TIF flags to simplify the context switch code in __switch_to().
+> The idea is to minimize the number of cache lines accessed in the common
+> case, i.e., when neither the debug registers nor the I/O bitmap are used.
 
-hm, that's not lockdep but due to CONFIG_RT_MUTEX_TESTER.
+I get a 5-10% speedup in task switch times with this patch.
+Some very minor comments:
 
-	Ingo
+
+> <signed-off-by>: eranian@hpl.hp.com
+
+Should be: Signed-off-by: Stephane Eranian <eranian@hpl.hp.com>
+
+
+> +	if (test_tsk_thread_flag(next_p, TIF_IO_BITMAP) == 0) {
+
+preferred:
+
+	if (!test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
+
+
+> @@ -674,18 +692,9 @@ struct task_struct fastcall * __switch_t
+>  	/*
+>  	 * Now maybe reload the debug registers
+>  	 */
+
+ 	/*
+ 	 * Now maybe reload the debug registers and/or IO bitmap
+ 	 */
+
+
+And this should be added to the patch:
+
+--- 2.6.17-nb.orig/arch/i386/kernel/process.c
++++ 2.6.17-nb/arch/i386/kernel/process.c
+@@ -360,13 +360,12 @@ EXPORT_SYMBOL(kernel_thread);
+  */
+ void exit_thread(void)
+ {
+-	struct task_struct *tsk = current;
+-	struct thread_struct *t = &tsk->thread;
+-
+ 	/* The process may have allocated an io port bitmap... nuke it. */
+-	if (unlikely(NULL != t->io_bitmap_ptr)) {
++	if (unlikely(test_thread_flag(TIF_IO_BITMAP))) {
+ 		int cpu = get_cpu();
+ 		struct tss_struct *tss = &per_cpu(init_tss, cpu);
++		struct task_struct *tsk = current;
++		struct thread_struct *t = &tsk->thread;
+ 
+ 		kfree(t->io_bitmap_ptr);
+ 		t->io_bitmap_ptr = NULL;
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

@@ -1,86 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWGDTwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWGDTwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbWGDTwy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 15:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWGDTwx
+	id S932333AbWGDTwm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 15:52:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWGDTwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 15:52:53 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:43933 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932338AbWGDTww (ORCPT
+	Tue, 4 Jul 2006 15:52:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21395 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932333AbWGDTwl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 15:52:52 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-mm6
-Date: Tue, 4 Jul 2006 21:53:31 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060703030355.420c7155.akpm@osdl.org>
-In-Reply-To: <20060703030355.420c7155.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 4 Jul 2006 15:52:41 -0400
+Date: Tue, 4 Jul 2006 12:50:46 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: paulkf@microgate.com, gregkh@suse.de, rmk+lkml@arm.linux.org.uk,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: Serial-Core: USB-Serial port current issues.
+Message-Id: <20060704125046.40ebb52d.zaitcev@redhat.com>
+In-Reply-To: <20060704164257.03e70301@doriath.conectiva>
+References: <20060613192829.3f4b7c34@home.brethil>
+	<20060614152809.GA17432@flint.arm.linux.org.uk>
+	<20060620161134.20c1316e@doriath.conectiva>
+	<20060620193233.15224308.zaitcev@redhat.com>
+	<20060621133500.18e82511@doriath.conectiva>
+	<20060621164336.GD24265@flint.arm.linux.org.uk>
+	<20060621181513.235fc23c@doriath.conectiva>
+	<20060622082939.GA25212@flint.arm.linux.org.uk>
+	<20060623142842.2b35103b@home.brethil>
+	<20060626222628.GC29325@suse.de>
+	<1151369349.2600.19.camel@localhost.localdomain>
+	<20060704164257.03e70301@doriath.conectiva>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607042153.31848.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 July 2006 12:03, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
-> 
-> 
-> - A major update to the e1000 driver.
-> 
-> - 1394 updates
+On Tue, 4 Jul 2006 16:42:57 -0300, "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
 
-Just found this in dmesg:
+>  Note that get_mctrl() is a callback and the driver is free to call
+> _its_ get_mctrl() from IRQ if it wants to.
 
-=================================
-[ INFO: inconsistent lock state ]
----------------------------------
-inconsistent {in-hardirq-W} -> {hardirq-on-W} usage.
-nscd/4929 [HC0[0]:SC0[1]:HE1:SE0] takes:
- (&skb_queue_lock_key){++..}, at: [<ffffffff8044fe40>] udp_ioctl+0x50/0xa0
-{in-hardirq-W} state was registered at:
-  [<ffffffff8024b4fa>] lock_acquire+0x8a/0xc0
-  [<ffffffff80476e3f>] _spin_lock_irqsave+0x3f/0x60
-  [<ffffffff80408c25>] skb_queue_tail+0x25/0x60
-  [<ffffffff881c9517>] queue_packet_complete+0x27/0x40 [ieee1394]
-  [<ffffffff881c9d6b>] hpsb_packet_sent+0xab/0x100 [ieee1394]
-  [<ffffffff8822a4b5>] dma_trm_reset+0x115/0x140 [ohci1394]
-  [<ffffffff8822c512>] ohci_devctl+0x1c2/0x540 [ohci1394]
-  [<ffffffff881c9673>] hpsb_bus_reset+0x43/0xb0 [ieee1394]
-  [<ffffffff8822d7f6>] ohci_irq_handler+0x416/0x830 [ohci1394]
-  [<ffffffff802631ab>] handle_IRQ_event+0x2b/0x70
-  [<ffffffff80264dd4>] handle_level_irq+0xc4/0x130
-  [<ffffffff8020c762>] do_IRQ+0x112/0x130
-  [<ffffffff80209d90>] common_interrupt+0x64/0x65
-irq event stamp: 4280
-hardirqs last  enabled at (4279): [<ffffffff8047606a>] trace_hardirqs_on_thunk+0x35/0x37
-hardirqs last disabled at (4278): [<ffffffff804760a1>] trace_hardirqs_off_thunk+0x35/0x67
-softirqs last  enabled at (4258): [<ffffffff804065b5>] release_sock+0xd5/0xe0
-softirqs last disabled at (4280): [<ffffffff804764d1>] _spin_lock_bh+0x11/0x50
+What do you think "a callback" is? The get_mctrl may be a method,
+but it's certainly not a callback. A callback is something being
+called from bottom to the the top, e.g. (*urb->complete)().
 
-other info that might help us debug this:
-no locks held by nscd/4929.
-
-stack backtrace:
-
-Call Trace:
- [<ffffffff8020ab9f>] show_trace+0x9f/0x240
- [<ffffffff8020af75>] dump_stack+0x15/0x20
- [<ffffffff80249e52>] print_usage_bug+0x272/0x290
- [<ffffffff8024a0d7>] mark_lock+0x267/0x5f0
- [<ffffffff8024a9a6>] __lock_acquire+0x546/0xd10
- [<ffffffff8024b4fb>] lock_acquire+0x8b/0xc0
- [<ffffffff804764f4>] _spin_lock_bh+0x34/0x50
- [<ffffffff8044fe40>] udp_ioctl+0x50/0xa0
- [<ffffffff80457359>] inet_ioctl+0x69/0x70
- [<ffffffff804033ac>] sock_ioctl+0x22c/0x270
- [<ffffffff802a32b1>] do_ioctl+0x31/0xa0
- [<ffffffff802a35db>] vfs_ioctl+0x2bb/0x2e0
- [<ffffffff802a366a>] sys_ioctl+0x6a/0xa0
- [<ffffffff8020985a>] system_call+0x7e/0x83
- [<00002b2d76ab98a9>]
+-- Pete

@@ -1,53 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWGDJZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWGDJa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWGDJZR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 05:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWGDJZR
+	id S1751252AbWGDJa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 05:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWGDJaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 05:25:17 -0400
-Received: from main.gmane.org ([80.91.229.2]:52378 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751245AbWGDJZP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 05:25:15 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Benny Amorsen <benny+usenet@amorsen.dk>
-Subject: Re: ext4 features
-Date: 04 Jul 2006 11:14:27 +0200
-Message-ID: <m3r711u3yk.fsf@ursa.amorsen.dk>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no> <20060703205523.GA17122@irc.pl> <1151960503.3108.55.camel@laptopd505.fenrus.org> <44A9904F.7060207@wolfmountaingroup.com> <20060703232547.2d54ab9b.diegocg@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: kbhn-vbrg-sr0-vl209-213-185-8-10.perspektivbredband.net
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Tue, 4 Jul 2006 05:30:55 -0400
+Received: from mercury.realtime.net ([205.238.132.86]:12449 "EHLO
+	ruth.realtime.net") by vger.kernel.org with ESMTP id S1751252AbWGDJaz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 05:30:55 -0400
+In-Reply-To: <44AA2DFA.6060107@sgi.com>
+References: <yq0mzbqhfdp.fsf@jaguar.mkp.net> <200607040516.k645GFTj014564@sullivan.realtime.net> <44AA1D09.7080308@sgi.com> <dcbd59443f05c17a3b290f1c2bf6336a@bga.com> <44AA2DFA.6060107@sgi.com>
+Mime-Version: 1.0 (Apple Message framework v624)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <4b7f0f8d246b77fce1c3572efbcaf334@bga.com>
+Content-Transfer-Encoding: 7bit
+Cc: LKML <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+From: Milton Miller <miltonm@bga.com>
+Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
+Date: Tue, 4 Jul 2006 04:30:39 -0500
+To: Jes Sorensen <jes@sgi.com>
+X-Mailer: Apple Mail (2.624)
+X-Server: High Performance Mail Server - http://surgemail.com r=-1092531819
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "DC" == Diego Calleja <diegocg@gmail.com> writes:
 
-DC> El Mon, 03 Jul 2006 15:46:55 -0600, "Jeff V. Merkey"
-DC> <jmerkey@wolfmountaingroup.com> escribió:
+On Jul 4, 2006, at 3:59 AM, Jes Sorensen wrote:
 
->> Add a salvagable file system to ext4, i.e. when a file is deleted,
->> you just rename it and move it to a directory called DELETED.SAV
->> and recycle the files as people allocate new ones. Easy to do
->> (internal "mv" of
+> Milton Miller wrote:
+>> On Jul 4, 2006, at 2:47 AM, Jes Sorensen wrote:
+>>> The idea I wrote the code under was that we are really only 
+>>> concerned to
+>>> make sure all bh's related to the device causing the invalidate are 
+>>> hit.
+>>> It doesn't matter that there are bh's in the lru from other devices.
+>>
+>> And that is fine as far as it goes.  The problem is that an unrelated
+>> device might be be hit by this operation.
+... [ fs POOF scenerio ]
+> Hrmpf, maybe it's back to putting the mask into the bdev then.
+>
+>>> 8 pointers * NR_CPUS - that can be a lot of cachelines you have to 
+>>> pull
+>>> in from remote :(
+>>
+>> 8 pointers in one array, hmm...  8*8 = 64 consecutive bytes, that is
+>> half a cache line in my arch.  (And on 32 bit archs, 8*4 = 32 bytes,
+>> typically 1 full cache line).  Add an alignment constraint if you 
+>> like.
+>>  I was comparing to fetching a per-cpu variable saying we had any
+>> entries; I'd say the difference is the time to do 8 loads once you 
+>> have
+>> the line vs the chance the other cpu is actively storing and stealing 
+>> it
+>> back before you finish.  I'd be really surprised if it was stolen 
+>> twice.
+>
+> The problem is that if you throw the IPI onto multiple CPUs they will
+> all try and hit this array at the same time. Besides, on some platforms
+> this would be 64 * 8 * 8 (or even bigger) - scalability quickly goes
+> out the window, especially as it's to be fetched from another node :( I
+> know these are the extreme in today's world, but it's becoming more of
+> an issue with all the multi-core stuff we're going to see.
 
 
-DC> Easily doable in userspace, why bother with kernel programming
+Huh?  The cpus have their own local array, you scan the remote to see 
+if you need to wake that guy up.  Sort of like need_reseched/polling 
+flags.  Ok, they all have to pull it back from shared with the caller 
+to exclusive/modified at once.  Of course they had to do that with 
+whatever you method you used to tell them what to do also.
 
-In userspace you can't automatically delete the files when the space
-becomes needed. The LD_PRELOAD/glibc methods also have the
-disadvantage of having to figure out where a file goes when it's
-deleted, depending on which device it happens to reside on. Demanding
-read access to /proc/mounts just to do rm could cause problems.
+The trade off is bouncing one line with the mask of who might have 
+something relevant in a bit vector (two bounces if you clear always, 
+shared if you do it lazy) vs pulling a line per cpu when you need to 
+check, that will be actively pulled back every bh lookup.
 
-Userspace has had 10 years to invent a good solution. If it was so
-easy, it would probably have been done.
+Maybe you shouldn't push the work until some time expires.  Just let 
+wait a bit for the eventd to kick in first.   After all, you would just 
+be slowing down the thread trying to invalidate a dead device.
 
+>>>> If you want to cut down on the cache line passing, then putting
+>>>> the cpu mask in the bdev (for "I have cached a bh on this bdev
+>>>> sometime") might be useful.  You could even do a bdev specific
+>>>> lru kill, but then we get into the next topic.
+>>>
+>>> That could be an interesting way out.
+>>
+>> Another approach is to age the cache. Only clear the bit during the 
+>> IPI
+>> call if you had nothing there on the last N calls (N being some
+>> combination of absolute time and number of invalidate calls).
+>
+> I guess if there's nothing in the LRU you don't get the call and the
+> number of cross node clears are limited, but it seems to get worse
+> exponentially with the size of the machine, especially if it's busy
+> doing IO, which is what worries me :(
+>
 
-/Benny
+If you are doing that much bh based IO then you will have to issue
+the IPI, even with the cpu mask.  Unless you go the per-bdev cpu_mask.
 
+> Next, I'll look for my asbestos suit and take a peak at the hald 
+> source.
+
+* miltonm stands well back
+
+later,
+milton
 

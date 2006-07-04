@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWGDUhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWGDUjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbWGDUhH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 16:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWGDUhH
+	id S932396AbWGDUjg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 16:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWGDUjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 16:37:07 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:15534 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S932394AbWGDUhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 16:37:05 -0400
-Date: Tue, 4 Jul 2006 17:36:52 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: paulkf@microgate.com, gregkh@suse.de, rmk+lkml@arm.linux.org.uk,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: Serial-Core: USB-Serial port current issues.
-Message-ID: <20060704173652.7d0a9d47@doriath.conectiva>
-In-Reply-To: <20060704125046.40ebb52d.zaitcev@redhat.com>
-References: <20060613192829.3f4b7c34@home.brethil>
-	<20060614152809.GA17432@flint.arm.linux.org.uk>
-	<20060620161134.20c1316e@doriath.conectiva>
-	<20060620193233.15224308.zaitcev@redhat.com>
-	<20060621133500.18e82511@doriath.conectiva>
-	<20060621164336.GD24265@flint.arm.linux.org.uk>
-	<20060621181513.235fc23c@doriath.conectiva>
-	<20060622082939.GA25212@flint.arm.linux.org.uk>
-	<20060623142842.2b35103b@home.brethil>
-	<20060626222628.GC29325@suse.de>
-	<1151369349.2600.19.camel@localhost.localdomain>
-	<20060704164257.03e70301@doriath.conectiva>
-	<20060704125046.40ebb52d.zaitcev@redhat.com>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 2.4.0-rc2 (GTK+ 2.9.4; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jul 2006 16:39:36 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:2402 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S932396AbWGDUjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 16:39:35 -0400
+X-IronPort-AV: i="4.06,205,1149490800"; 
+   d="scan'208"; a="1835063569:sNHT33508076"
+To: "Zach Brown" <zach.brown@oracle.com>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, "Andrew Morton" <akpm@osdl.org>,
+       "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: [openib-general] [PATCH] mthca: initialize send and receive queue locks separately
+X-Message-Flag: Warning: May contain useful information
+References: <20060703225019.7379.96075.sendpatchset@tetsuo.zabbo.net>
+	<20060704070328.GG21049@mellanox.co.il> <44AA9999.3060308@oracle.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 04 Jul 2006 13:39:34 -0700
+In-Reply-To: <44AA9999.3060308@oracle.com> (Zach Brown's message of "Tue, 04 Jul 2006 09:38:49 -0700")
+Message-ID: <adairmd9kah.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 04 Jul 2006 20:39:34.0141 (UTC) FILETIME=[F55C8AD0:01C69FA9]
+Authentication-Results: sj-dkim-5.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jul 2006 12:50:46 -0700
-Pete Zaitcev <zaitcev@redhat.com> wrote:
+    Zach> Also, while looking at this I saw that the locks are being
+    Zach> re-initialized from mthca_modify_qp().  Is that just a
+    Zach> side-effect of relying on mthca_wq_init() to reset the
+    Zach> non-lock members?  If you're concerned about
+    Zach> microoptimization it seems like this could be avoided.
 
-| On Tue, 4 Jul 2006 16:42:57 -0300, "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
-| 
-| >  Note that get_mctrl() is a callback and the driver is free to call
-| > _its_ get_mctrl() from IRQ if it wants to.
-| 
-| What do you think "a callback" is? The get_mctrl may be a method,
-| but it's certainly not a callback. A callback is something being
-| called from bottom to the the top, e.g. (*urb->complete)().
+I think that is actually a very minor bug you've found.  If someone
+were posting a work request at the same time as they transitioned a QP
+to reset (which is a legitimate if not sensible thing to do), then the
+spinlock could get reinitialized while it was held.  Which would be
+bad.  So I think I like your original patch the best.
 
- I thought Paul was referring to the driver's *callback* function, but
-now I just realized that he was referring to the Serial Core's get_mctrl()
-method.
-
- Then his comment makes sense.
-
--- 
-Luiz Fernando N. Capitulino
+ - R.

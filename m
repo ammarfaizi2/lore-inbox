@@ -1,47 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWGDMHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWGDMOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWGDMHO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 08:07:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWGDMHO
+	id S932233AbWGDMOE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 08:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWGDMOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 08:07:14 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:21633 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932216AbWGDMHM (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 08:07:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=HCDqacbWYGTrCkFbDxj203iiv3GsPcyywdprBuOW6al23DGFL3rxtuGAu9tL/bO+EiGyOCXUFwOmCpsQ2kbAZx8u4YIWyPLpUe1KSrovhdDpHK2tFQJuvU79u1BUYoG2LoU8C8znUw3q+aXTzSSpur6n+ICEBd6joNbHQ241CVc=
-Message-ID: <84144f020607040507u58489b8eqfe8f41ef0d76b369@mail.gmail.com>
-Date: Tue, 4 Jul 2006 15:07:11 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-Subject: Re: [PATCH 1/2] batch-write.patch
-Cc: "Andrew Morton" <akpm@osdl.org>, lkml <Linux-Kernel@vger.kernel.org>,
-       reiserfs-dev@namesys.com
-In-Reply-To: <1152012117.6454.41.camel@tribesman.namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jul 2006 08:14:04 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:34267 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932233AbWGDMOD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 08:14:03 -0400
+Date: Tue, 4 Jul 2006 14:09:25 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Minor cleanup to lockdep.c
+Message-ID: <20060704120925.GA2055@elte.hu>
+References: <200607041234.30350.ak@suse.de> <20060704103314.GA31568@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44A42750.5020807@namesys.com>
-	 <20060629185017.8866f95e.akpm@osdl.org>
-	 <1152011576.6454.36.camel@tribesman.namesys.com>
-	 <1152012117.6454.41.camel@tribesman.namesys.com>
-X-Google-Sender-Auth: ed73a2a0f3c2ad82
+In-Reply-To: <20060704103314.GA31568@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/4/06, Vladimir V. Saveliev <vs@namesys.com> wrote:
-> @@ -784,6 +786,8 @@ otherwise noted.
->
->    writev: called by the writev(2) system call
->
-> +  batch_write: optional, if implemented called by writev(2) and write(2)
-> +
 
-It'd be nice if you added some explanation here why a filesystem
-developer would want to implement it.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-                                       Pekka
+> 
+> * Andi Kleen <ak@suse.de> wrote:
+> 
+> > - Use printk formatting for indentation
+> > - Don't leave NTFS in the default event filter
+> > 
+> > Signed-off-by: Andi Kleen <ak@suse.de>
+> 
+> thanks!
+> 
+> Acked-by: Ingo Molnar <mingo@elte.hu>
+
+and here's two small cleanups to the cleanup [add-on patch] :-)
+
+------------------------>
+Subject: [patch] lockdep: minor cleanup to lockdep.c, #2
+From: Ingo Molnar <mingo@elte.hu>
+
+fix some minor whitespace damage introduced by the cleanup patch.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ kernel/lockdep.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux/kernel/lockdep.c
+===================================================================
+--- linux.orig/kernel/lockdep.c
++++ linux/kernel/lockdep.c
+@@ -170,7 +170,7 @@ EXPORT_SYMBOL(lockdep_internal);
+ static int class_filter(struct lock_class *class)
+ {
+ #if 0
+-	/* Example */	
++	/* Example */
+ 	if (class->name_version == 1 &&
+ 			!strcmp(class->name, "lockname"))
+ 		return 1;
+@@ -179,7 +179,7 @@ static int class_filter(struct lock_clas
+ 		return 1;
+ #endif
+ 	/* Allow everything else. 0 would be filter everything else */
+-	return 1;	
++	return 1;
+ }
+ #endif
+ 

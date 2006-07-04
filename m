@@ -1,57 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWGDP74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWGDQNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWGDP74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 11:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWGDP74
+	id S932258AbWGDQNH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 12:13:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWGDQNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 11:59:56 -0400
-Received: from smtp6-g19.free.fr ([212.27.42.36]:53412 "EHLO smtp6-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751279AbWGDP7z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 11:59:55 -0400
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: linux-kernel@vger.kernel.org
-Subject: possible recursive locking in ATM layer
-Date: Tue, 4 Jul 2006 17:59:42 +0200
-User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, chas@cmf.nrl.navy.mil
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 4 Jul 2006 12:13:07 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:32170 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932232AbWGDQNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 12:13:05 -0400
+Subject: Re: possible recursive locking in ATM layer
+From: Arjan van de Ven <arjan@infradead.org>
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, chas@cmf.nrl.navy.mil
+In-Reply-To: <200607041759.43064.duncan.sands@math.u-psud.fr>
+References: <200607041759.43064.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain
+Date: Tue, 04 Jul 2006 18:13:02 +0200
+Message-Id: <1152029582.3109.70.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607041759.43064.duncan.sands@math.u-psud.fr>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux version 2.6.17-git22 (duncan@baldrick) (gcc version 4.0.3 (Ubuntu 4.0.3-1ubuntu5)) #20 PREEMPT Tue Jul 4 10:35:04 CEST 2006
 
-[ 2381.598609] =============================================
-[ 2381.619314] [ INFO: possible recursive locking detected ]
-[ 2381.635497] ---------------------------------------------
-[ 2381.651706] atmarpd/2696 is trying to acquire lock:
-[ 2381.666354]  (&skb_queue_lock_key){-+..}, at: [<c028c540>] skb_migrate+0x24/0x6c
-[ 2381.688848]
-[ 2381.688849] but task is already holding lock:
-[ 2381.706406]  (&skb_queue_lock_key){-+..}, at: [<c028c536>] skb_migrate+0x1a/0x6c
-[ 2381.728898]
-[ 2381.728900] other info that might help us debug this:
-[ 2381.748534] 2 locks held by atmarpd/2696:
-[ 2381.760560]  #0:  (ioctl_mutex){--..}, at: [<c028f814>] mutex_lock+0x1c/0x1f
-[ 2381.782066]  #1:  (&skb_queue_lock_key){-+..}, at: [<c028c536>] skb_migrate+0x1a/0x6c
-[ 2381.805935]
-[ 2381.805937] stack backtrace:
-[ 2381.819319]  [<c010398b>] show_trace_log_lvl+0x54/0xfd
-[ 2381.834838]  [<c0104aaa>] show_trace+0xd/0x10
-[ 2381.848009]  [<c0104ac4>] dump_stack+0x17/0x1b
-[ 2381.861436]  [<c0129e46>] __lock_acquire+0x76c/0x9d3
-[ 2381.876582]  [<c012a38a>] lock_acquire+0x5e/0x80
-[ 2381.890656]  [<c029075f>] _spin_lock+0x23/0x32
-[ 2381.904220]  [<c028c540>] skb_migrate+0x24/0x6c
-[ 2381.919084]  [<c028db9d>] clip_ioctl+0x2a1/0x480
-[ 2381.934248]  [<c028a2e1>] vcc_ioctl+0x241/0x2f8
-[ 2381.949142]  [<c024475d>] sock_ioctl+0x191/0x1b7
-[ 2381.964134]  [<c015ddec>] do_ioctl+0x20/0x65
-[ 2381.977330]  [<c015e089>] vfs_ioctl+0x258/0x26b
-[ 2381.991283]  [<c015e0c6>] sys_ioctl+0x2a/0x44
-[ 2382.004711]  [<c0102791>] sysenter_past_esp+0x56/0x8d
+From: Arjan van de Ven <arjan@linux.intel.com>
+
+> Linux version 2.6.17-git22 (duncan@baldrick) (gcc version 4.0.3 (Ubuntu 4.0.3-1ubuntu5)) #20 PREEMPT Tue Jul 4 10:35:04 CEST 2006
+> 
+> [ 2381.598609] =============================================
+> [ 2381.619314] [ INFO: possible recursive locking detected ]
+> [ 2381.635497] ---------------------------------------------
+> [ 2381.651706] atmarpd/2696 is trying to acquire lock:
+> [ 2381.666354]  (&skb_queue_lock_key){-+..}, at: [<c028c540>] skb_migrate+0x24/0x6c
+> [ 2381.688848]
+
+
+ok this is a real potential deadlock in a way, it takes two locks of 2
+skbuffs without doing any kind of lock ordering; I think the following
+patch should fix it. Just sort the lock taking order by address of the
+skb.. it's not pretty but it's the best this can do in a minimally
+invasive way.
+
+I still agree with the comment that this code shouldn't live in the atm
+layer...
+
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+
+---
+ net/atm/ipcommon.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+Index: linux-2.6.17-mm6/net/atm/ipcommon.c
+===================================================================
+--- linux-2.6.17-mm6.orig/net/atm/ipcommon.c
++++ linux-2.6.17-mm6/net/atm/ipcommon.c
+@@ -25,8 +25,8 @@
+ /*
+  * skb_migrate appends the list at "from" to "to", emptying "from" in the
+  * process. skb_migrate is atomic with respect to all other skb operations on
+- * "from" and "to". Note that it locks both lists at the same time, so beware
+- * of potential deadlocks.
++ * "from" and "to". Note that it locks both lists at the same time, so to deal
++ * with the lock ordering, the locks are taken in address order.
+  *
+  * This function should live in skbuff.c or skbuff.h.
+  */
+@@ -39,8 +39,13 @@ void skb_migrate(struct sk_buff_head *fr
+ 	struct sk_buff *skb_to = (struct sk_buff *) to;
+ 	struct sk_buff *prev;
+ 
+-	spin_lock_irqsave(&from->lock,flags);
+-	spin_lock(&to->lock);
++	if (from<to) {
++		spin_lock_irqsave(&from->lock,flags);
++		spin_lock_nested(&to->lock, SINGLE_DEPTH_NESTING);
++	} else {
++		spin_lock_irqsave(&to->lock, flags);
++		spin_lock_nested(&from->lock, SINGLE_DEPTH_NESTING);
++	}
+ 	prev = from->prev;
+ 	from->next->prev = to->prev;
+ 	prev->next = skb_to;
+
+

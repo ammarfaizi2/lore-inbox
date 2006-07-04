@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWGDNRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWGDNT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWGDNRc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 09:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWGDNRc
+	id S932246AbWGDNT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 09:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWGDNT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 09:17:32 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:44179 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932241AbWGDNRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 09:17:31 -0400
-Subject: Re: R/W semaphore changes
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <15345.1152018339@warthog.cambridge.redhat.com>
-References: <1152017562.3109.48.camel@laptopd505.fenrus.org>
-	 <14683.1152017262@warthog.cambridge.redhat.com>
-	 <15345.1152018339@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Tue, 04 Jul 2006 15:17:25 +0200
-Message-Id: <1152019045.3109.53.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 4 Jul 2006 09:19:59 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:38266 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932210AbWGDNT6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 09:19:58 -0400
+Message-ID: <44AA6AF8.4010205@fr.ibm.com>
+Date: Tue, 04 Jul 2006 15:19:52 +0200
+From: Daniel Lezcano <dlezcano@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Vilain <sam@vilain.net>
+CC: Andrey Savochkin <saw@swsoft.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, hadi@cyberus.ca,
+       Herbert Poetzl <herbert@13thfloor.at>, Alexey Kuznetsov <alexey@sw.ru>,
+       viro@ftp.linux.org.uk, devel@openvz.org, dev@sw.ru,
+       Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Russel Coker <russell@coker.com.au>
+Subject: Re: strict isolation of net interfaces
+References: <20060627225213.GB2612@MAIL.13thfloor.at> <1151449973.24103.51.camel@localhost.localdomain> <20060627234210.GA1598@ms2.inr.ac.ru> <m1mzbyj6ft.fsf@ebiederm.dsl.xmission.com> <20060628133640.GB5088@MAIL.13thfloor.at> <1151502803.5203.101.camel@jzny2> <44A44124.5010602@vilain.net> <44A450D1.2030405@fr.ibm.com> <20060630023947.GA24726@sergelap.austin.ibm.com> <44A49121.4050004@vilain.net> <20060703185350.A16826@castle.nmd.msu.ru> <44AA5F28.9040109@fr.ibm.com> <44AA6994.5010202@vilain.net>
+In-Reply-To: <44AA6994.5010202@vilain.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-04 at 14:05 +0100, David Howells wrote:
-> Arjan van de Ven <arjan@infradead.org> wrote:
+Sam Vilain wrote:
+> Daniel Lezcano wrote:
 > 
-> > > Please, please, please don't.  R/W semaphores are _not_ permitted to nest.
-> > 
-> > yet they do in places, there where there is a natural hierarchy..
+>>If it is ok for you, we can collaborate to merge the two solutions in
+>>one. I will focus on layer 3 isolation and you on the layer 2.
 > 
-> Where?  I believe the mm used to but no longer does.
 > 
-> They still aren't allowed to.  Consider:
+> So, you're writing a LSM module or adapting the BSD Jail LSM, right? :)
 > 
-> 	CPU 1			CPU 2
-> 	=======================	=======================
-> 	-->down_read(&A);
-> 	<--down_read(&A);
-> 				-->down_write(&A);
-> 				   --- SLEEPING ---
-> 	-->down_read(&A);
-> 	   --- DEADLOCKED ---
+> Sam.
 
-you mean recursion, while nesting != recursion!
-(for examples of nesting see the general lockdep documentation)
-With nesting we mean
+No. I am adapting a prototype of network application container we did.
 
-down_read(&A);
-down_read(&B);
-
-where A and B are a similar lock but not the same exact instance (for
-example two inode locks of different inodes)
-
-
+   -- Daniel

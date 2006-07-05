@@ -1,73 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbWGETjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbWGETk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965008AbWGETjz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 15:39:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWGETjz
+	id S965010AbWGETk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 15:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWGETk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 15:39:55 -0400
-Received: from colin.muc.de ([193.149.48.1]:42258 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S965008AbWGETjy (ORCPT
+	Wed, 5 Jul 2006 15:40:29 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:24968 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965005AbWGETk1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 15:39:54 -0400
-Date: 5 Jul 2006 21:39:52 +0200
-Date: Wed, 5 Jul 2006 21:39:52 +0200
-From: Andi Kleen <ak@muc.de>
-To: Doug Thompson <norsk5@yahoo.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
-       mm-commits@vger.kernel.org, norsk5@xmission.com,
-       linux-kernel@vger.kernel.org, eric biederman <ebiederman@lnxi.com>
-Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch added to -mm tree
-Message-ID: <20060705193952.GA83806@muc.de>
-References: <20060704092358.GA13805@muc.de> <20060705173950.5349.qmail@web50103.mail.yahoo.com>
+	Wed, 5 Jul 2006 15:40:27 -0400
+Date: Wed, 5 Jul 2006 21:35:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch] uninline init_waitqueue_*() functions
+Message-ID: <20060705193551.GA13070@elte.hu>
+References: <20060705084914.GA8798@elte.hu> <20060705023120.2b70add6.akpm@osdl.org> <20060705093259.GA11237@elte.hu> <20060705025349.eb88b237.akpm@osdl.org> <20060705102633.GA17975@elte.hu> <20060705113054.GA30919@elte.hu> <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060705173950.5349.qmail@web50103.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060705101059.66a762bf.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5003]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ok since you didn't cover it I assume you agree that just using
-the address to get the DIMM is sufficient. Thanks.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-> Our LinuxBIOS engineers have found that the majority of the DMI/SMBIOS
-> tables are incorrect and provide a false sense of security in terms of
-> getting the right information that is needed in finding failing devices
-> (DIMMs).
+> > > >   text            data    bss     dec             filename
+> > > >   21172153        6077270 3081864 30331287        vmlinux.x32.after
+> > > >   21198222        6077106 3081864 30357192        vmlinux.x32.before
+> > > > 
+> > > > with 851 callsites that's a 30.6 bytes win per call site (total 26K) - 
+> > > > still not bad at all.
+> > > 
+> > > and that was with CONFIG_CC_OPTIMIZE_FOR_SIZE enabled. With 
+> > > optimize-for-size disabled the win goes up to 32.6 bytes (total 28K).
+> > 
+> > i also tried a config with the best size settings (disabling 
+> > FRAME_POINTER, enabling CC_OPTIMIZE_FOR_SIZE), and this gives:
+> > 
+> >   text            data    bss     dec         filename
+> >   20777768        6076042 3081864 29935674    vmlinux.x32.size.before
+> >   20748140        6076178 3081864 29906182    vmlinux.x32.size.after
+> > 
+> > or a 34.8 bytes win per callsite (29K total).
+> > 
+> 
+> With gcc-4.1.0 on i686, uninlining those three functions as per the 
+> below patch _increases_ the allnoconfig vmlinux's .text from 833456 
+> bytes to 833728.
 
-Hmm, I found a few outlyers[1] but most systems I checked were 
-reasonable or had only small problems. I could however not 
-always verify the mappings by pulling out DIMMs. 
+that's just the effect of CONFIG_REGPARM and CONFIG_CC_OPTIMIZE_FOR_SIZE 
+not being set in an allnoconfig. Once i set them the text size evens 
+out:
 
-Anyways why does LinuxBIOS not just supply a DMI table? Would 
-seem to me like a vastly more elegant solution than requiring
-something in user space to identify the system in other ways.
+ 431348   60666   27276  519290   7ec7a vmlinux.x32.mini.before
+ 431359   60666   27276  519301   7ec85 vmlinux.x32.mini.after
 
-I don't even want to guess how you identify systems without
-a DMI table ...
+compiling without CONFIG_REGPARM on i686 (if you care about text size) 
+makes little sense. It penalizes function calls artificially.
 
-[1] A few not to be named but well known vendors seem to be too lazy
-to set the tables up properly and always mapped all addresses to all DIMMs. 
-Since it's a serious RAS disadvantage for their systems I suppose
-angry customers will sooner or later fix that issue though.
-
-
-> Our users demand 100% correct DIMM labeling for error fault isolation,
-> with minimal manual operation - that is the requirement we are trying
-> to satisfy. These items are what lead to the Bluesmoke/EDAC labeling
-> solution pattern.
-
-Ok I can see that. But it makes it a very narrow solution because
-other people don't know as much about their hardware as you do.
-
-For mainline Linux we should try to focus support on standard mainstream PC 
-hard&firm&software, not custom systems like you seem to attempt to.
-
-If you find wrong SM tables to be a serious problem I guess
-it would be possible to add a way to overwrite them in mcelog.
-
-Anyways you haven't described anything so far that the existing
-machine check handler/mcelog cannot do (mcelog with some small tweaks) 
-
--Andi
+	Ingo

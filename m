@@ -1,85 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWGEHBa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWGEHGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbWGEHBa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 03:01:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWGEHBa
+	id S1751064AbWGEHGz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 03:06:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWGEHGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 03:01:30 -0400
-Received: from sullivan.realtime.net ([205.238.132.76]:28932 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id S1751151AbWGEHB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 03:01:29 -0400
-Date: Wed, 5 Jul 2006 02:01:26 -0500 (CDT)
-Message-Id: <200607050701.k6571Q4o018076@sullivan.realtime.net>
-From: Milton Miller <miltonm@bga.com>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-Subject: [KBUILD] optionally print cause of rebuild (#2)
-References: <200607042157.k64LvlDd016859@sullivan.realtime.net>
+	Wed, 5 Jul 2006 03:06:55 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:24921 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751053AbWGEHGy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 03:06:54 -0400
+Message-ID: <44AB650A.7070807@tls.msk.ru>
+Date: Wed, 05 Jul 2006 11:06:50 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [RFC] MODALIAS support for SCSI devices (try 1)
+References: <20060704203410.5B70391F1@gandalf.tls.msk.ru> <20060704214427.5CB9248B8F4@tzec.mtu.ru>
+In-Reply-To: <20060704214427.5CB9248B8F4@tzec.mtu.ru>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al wanted to see why Kbuild wanted to build files, to help debug
-Makefiles or dependency chains.
+Andrey Borzenkov wrote:
+[]
+>> The modalias format is like this:
+>>
+>>  scsi:type-0x04
 
-Here is my second draft, with with whitespace handled by strip.  It
-also now considers cmd_$@ before the targets variable because its
-both what the rules do and because the toplevel doesn't use targets.
-It still always prints the non-existing $^ stuff that only
-if_changed_dep uses.
+That's actually scsi:t-0x04 in the patch.  But it makes no real
+difference and is trivial to adjust.
 
-Set KBUILLD_PRINTDEPS=1 and you will get lines like
-DEPS: building bar/foo.o because command changed
-DEPS: building bar/foo.o because command was missing
-DEPS: building bar/foo.o because it was not a target
-DEPS: building bar/foo.o because it was missing
-DEPS: building bar/foo.o because of bar/foo.c include/linux/baz.h
+>> (for TYPE_WORM, handled by sr.c now).
+>>
+>> Several comments.
+>>
+>> o This hexadecimal type value is because all TYPE_XXX constants
+>>   in include/scsi/scsi.h are given in hex, but __stringify() will
+>>   not convert them to decimal (so it will NOT be scsi:type-4).
+>>   Since it does not really matter in which format it is, while
+>>   both modalias in module and modalias attribute match each other,
+>>   I descided to go for that 0x%02x format (and added a comment in
+>>   include/scsi/scsi.h to keep them that way), instead of changing
+>>   them all to decimal.
+> 
+> well, I started with the same but then changed my mind.
+> 
+> - is it possible that in future some more information may be added? Like
+> vendor ID, product ID or whatever? At least in one case SCSI type is not
+> enough to distinguish between drivers (st vs. osst Onstream tapes).
 
-Signed-off-by: Milton Miller <miltonm@bga.com>
+Yeah, as mentioned in my second comment - it's the same as 8139cp vs
+8139too drivers.
 
---- linux-2.6.17/scripts/Kbuild.include.orig	2006-07-04 16:02:55.000000000 -0400
-+++ linux-2.6.17/scripts/Kbuild.include	2006-07-05 01:12:36.000000000 -0400
-@@ -112,6 +112,19 @@ ifneq ($(KBUILD_NOCMDDEP),1)
- arg-check = $(strip $(filter-out $(1), $(2)) $(filter-out $(2), $(1)) )
- endif
- 
-+ifeq ($(KBUILD_PRINTDEPS),1)
-+deps-cmd = $(if 1,echo 'DEPS: building $@ because' 			\
-+	'$(call escsq,$(strip $(if $(wildcard $@),			\
-+		$(if $(call arg-check, $(cmd_$(1)), $(cmd_$@)),		\
-+			$(if $(cmd_$@),command changed			\
-+				,$(if $(filter $@, $(targets)),		\
-+					cmd was missing			\
-+					,it was not a target))		\
-+			,of $(sort $(filter-out $(PHONY),$?) 		\
-+				$(filter-out FORCE $(wildcard $^),$^)))	\
-+	,it was missing)))';)
-+endif
-+
- # echo command. Short version is $(quiet) equals quiet, otherwise full command
- echo-cmd = $(if $($(quiet)cmd_$(1)), \
- 	echo '  $(call escsq,$($(quiet)cmd_$(1)))';)
-@@ -125,7 +138,7 @@ make-cmd = $(subst \#,\\\#,$(subst $$,$$
- if_changed = $(if $(strip $(filter-out $(PHONY),$?)          \
- 		$(call arg-check, $(cmd_$(1)), $(cmd_$@)) ), \
- 	@set -e; \
--	$(echo-cmd) $(cmd_$(1)); \
-+	$(deps-cmd) $(echo-cmd) $(cmd_$(1)); \
- 	echo 'cmd_$@ := $(make-cmd)' > $(@D)/.$(@F).cmd)
- 
- # execute the command and also postprocess generated .d dependencies
-@@ -134,7 +147,7 @@ if_changed_dep = $(if $(strip $(filter-o
- 		$(filter-out FORCE $(wildcard $^),$^)    \
- 	$(call arg-check, $(cmd_$(1)), $(cmd_$@)) ),     \
- 	@set -e; \
--	$(echo-cmd) $(cmd_$(1)); \
-+	$(deps-cmd) $(echo-cmd) $(cmd_$(1)); \
- 	scripts/basic/fixdep $(depfile) $@ '$(make-cmd)' > $(@D)/.$(@F).tmp; \
- 	rm -f $(depfile); \
- 	mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd)
-@@ -145,4 +158,4 @@ if_changed_dep = $(if $(strip $(filter-o
- if_changed_rule = $(if $(strip $(filter-out $(PHONY),$?)            \
- 			$(call arg-check, $(cmd_$(1)), $(cmd_$@)) ),\
- 			@set -e; \
--			$(rule_$(1)))
-+			$(deps-cmd) $(rule_$(1)))
+But sure it's possible to change the things in the future, since it's
+all internal to kernel - the only requirement is that modalias device
+attribute should match module alias attributes.
+
+> - it makes sense to redo bus matching then; which requires some sort of
+> explicit ID table anyway.
+
+Oh well.  I don't think it's worth the effort really.  Only 4 drivers so
+far (sd, sr, st and osst).  The only reason to try harder is to avoid
+loading of osst for non-osst tapes.  But I don't think it's a big deal
+to load osst module -- it's harmless, and after all, it's always possible
+to "blacklist" it on a particular machine, just like some people do with
+8139cp module.
+
+> Unfortunately I do not have the patch ready as yet; may be end of week.
+> 
+>> o There was no .uevent routine for SCSI bus.  It might be a good
+>>   idea to add some more ueven environment variables in there.
+>>
+>> o osst.c driver handles tapes too, like st.c, but only SOME tapes.
+>>   With this setup, hotplug scripts (or whatever is used by the
+>>   user) will try to load both st and osst modules for all SCSI
+>>   tapes found, because both modules have scsi:type-0x01 alias).
+>>   It is not harmful, but one extra module is no good either.
+>>   It is possible to solve this, by exporting more info in
+>>   modalias attribute, including vendor and device identification
+>>   strings, so that modalias becomes something like
+>>     scsi:type-0x12:vendor-Adaptec LTD:device-OnStream Tape Drive
+>>   and having that, match for all 3 attributes, not only device
+>>   type.  But oh well, vendor and device strings may be large,
+>>   and they do contain spaces and whatnot.
+>>   So I left them for now, awaiting for comments first.
+> 
+> We can go the PCMCIA way that stores string hashes; like in
+> 
+>         Identification: manf_id: 0x0156 card_id: 0x0002
+>                         function: 6 (network)
+>                         prod_id(1): "TOSHIBA" (0xb4585a1a)
+>                         prod_id(2): "Wireless LAN Card" (0x0b537c13)
+>                         prod_id(3): "Version 01.01" (0xd27deb1a)
+>                         prod_id(4): --- (---)
+
+BTW, a question for osst folks (Willem Riede?) -- why osst checks for
+both vendor and device strings, isn't it sufficient to just check vendor
+for "OnStream" ?  Just curious maybe...
+
+> strictly speaking, modalias real value is not relevant, we are going to
+> do "modprobe $modalias" anyway without even looking at it.
+
+Sure thing - that's why I said it makes no difference whenever to use
+hex or dec values.
+
+/mjt

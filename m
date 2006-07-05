@@ -1,88 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWGEJ7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWGEKWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWGEJ7B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 05:59:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWGEJ7B
+	id S964791AbWGEKWG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 06:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWGEKWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 05:59:01 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:55998 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964781AbWGEJ7A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 05:59:00 -0400
-Date: Wed, 5 Jul 2006 11:54:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-Subject: [patch] uninline init_waitqueue_*() functions, fix
-Message-ID: <20060705095425.GA13874@elte.hu>
-References: <20060705084914.GA8798@elte.hu>
-Mime-Version: 1.0
+	Wed, 5 Jul 2006 06:22:06 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:2245 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964791AbWGEKWF
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Wed, 5 Jul 2006 06:22:05 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060705084914.GA8798@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5011]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
+Message-ID: <17579.37291.562610.316072@gargle.gargle.HOWL>
+Date: Wed, 5 Jul 2006 14:17:15 +0400
+To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
+Subject: Re: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+In-Reply-To: <B41635854730A14CA71C92B36EC22AAC06CD4C@mssmsx411>
+References: <B41635854730A14CA71C92B36EC22AAC06CD4C@mssmsx411>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: uninline init_waitqueue_*() functions, fix
-From: Ingo Molnar <mingo@elte.hu>
+Ananiev, Leonid I writes:
+ > 
+ > 
+ > Nikita Danilov writes:
+ > > Doing large amounts of writeback from pdflush threads makes situation
+ > > only worse: suppose you have more than MAX_PDFLUSH_THREADS devices on
+ > > the system, and large number of writing threads. If some devices
+ > become
+ > > congested, then *all* pdflush threads may easily stuck waiting on
+ > queue
+ > > congestion and there will be no IO going on against other devices.
+ > This
+ > > would be especially bad, if system is a mix of slow and fast devices.
+ > 
+ > *all* pdflush threads may NOT waiting on single queue because function
 
-fix lockdep on-stack-completion initializer, now that waitqueue_lock_key 
-is private to kernel/wait.c.
+I specifically mentioned that multiple deviceS become congested: each
+pdlush thread stuck on its own congested device, the rest of devices is
+idle.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- arch/x86_64/kernel/smpboot.c |    4 +---
- include/linux/completion.h   |    5 ++++-
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ > balance_dirty_pages() tests it:
+ > 
+ > 	if (writeback_in_progress(bdi))
+ > 		return;		/* pdflush is already working this queue
+ > */
+ > 
+ > > Yes, that was silly proposal. I think your patch contains very useful
+ > > idea, but it cannot be applied to all file systems. Maybe
+ > > wait-for-pdflush can be made optional, depending on the file system
+ > > type?
+ > 
+ > I suppose MS DOS was the last operating system which had considered
+ > that parallelism is not applicable.
 
-Index: linux/arch/x86_64/kernel/smpboot.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/smpboot.c
-+++ linux/arch/x86_64/kernel/smpboot.c
-@@ -771,12 +771,10 @@ static int __cpuinit do_boot_cpu(int cpu
- 	unsigned long start_rip;
- 	struct create_idle c_idle = {
- 		.cpu = cpu,
--		.done = COMPLETION_INITIALIZER(c_idle.done),
-+		.done = COMPLETION_INITIALIZER_ONSTACK(c_idle.done),
- 	};
- 	DECLARE_WORK(work, do_fork_idle, &c_idle);
- 
--	lockdep_set_class(&c_idle.done.wait.lock, &waitqueue_lock_key);
--
- 	/* allocate memory for gdts of secondary cpus. Hotplug is considered */
- 	if (!cpu_gdt_descr[cpu].address &&
- 		!(cpu_gdt_descr[cpu].address = get_zeroed_page(GFP_KERNEL))) {
-Index: linux/include/linux/completion.h
-===================================================================
---- linux.orig/include/linux/completion.h
-+++ linux/include/linux/completion.h
-@@ -18,6 +18,9 @@ struct completion {
- #define COMPLETION_INITIALIZER(work) \
- 	{ 0, __WAIT_QUEUE_HEAD_INITIALIZER((work).wait) }
- 
-+#define COMPLETION_INITIALIZER_ONSTACK(work) \
-+	({ init_completion(&work); work; })
-+
- #define DECLARE_COMPLETION(work) \
- 	struct completion work = COMPLETION_INITIALIZER(work)
- 
-@@ -28,7 +31,7 @@ struct completion {
-  */
- #ifdef CONFIG_LOCKDEP
- # define DECLARE_COMPLETION_ONSTACK(work) \
--	struct completion work = ({ init_completion(&work); work; })
-+	struct completion work = COMPLETION_INITIALIZER_ONSTACK(work)
- #else
- # define DECLARE_COMPLETION_ONSTACK(work) DECLARE_COMPLETION(work)
- #endif
+It also was the last file system that supported the only type of file
+system, with asumptions about file system behaviour hard coded into its
+design. :-)
+
+ > 
+ > Leonid
+
+Nikita.

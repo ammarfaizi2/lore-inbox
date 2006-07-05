@@ -1,70 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbWGEXfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbWGEXkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965067AbWGEXfz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 19:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbWGEXfz
+	id S965069AbWGEXkp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 19:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWGEXkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 19:35:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28098 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965067AbWGEXfy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 19:35:54 -0400
-Date: Wed, 5 Jul 2006 16:35:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: arjan@infradead.org, torvalds@osdl.org, tglx@linutronix.de, mingo@elte.hu,
-       rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] genirq: ARM dyntick cleanup
-Message-Id: <20060705163530.bfe5a8f0.akpm@osdl.org>
-In-Reply-To: <20060705162425.547f3d3f.rdunlap@xenotime.net>
-References: <1151885928.24611.24.camel@localhost.localdomain>
-	<20060702173527.cbdbf0e1.akpm@osdl.org>
-	<Pine.LNX.4.64.0607031007421.12404@g5.osdl.org>
-	<1151947627.3108.39.camel@laptopd505.fenrus.org>
-	<20060705162425.547f3d3f.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 5 Jul 2006 19:40:45 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:5826 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S965069AbWGEXko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 19:40:44 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: "H. Peter Anvin" <hpa@zytor.com>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [klibc 30/31] Remove in-kernel resume-from-disk invocation code
+Date: Thu, 6 Jul 2006 09:40:31 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, klibc@zytor.com
+References: <klibc.200606272217.00@tazenda.hos.anvin.org> <klibc.200606272217.30@tazenda.hos.anvin.org>
+In-Reply-To: <klibc.200606272217.30@tazenda.hos.anvin.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1742868.3FXNgBZFvS";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200607060940.40678.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jul 2006 16:24:25 -0700
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+--nextPart1742868.3FXNgBZFvS
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> On Mon, 03 Jul 2006 19:27:07 +0200 Arjan van de Ven wrote:
-> 
-> > On Mon, 2006-07-03 at 10:13 -0700, Linus Torvalds wrote:
-> > >         #ifndef xyzzy
-> > >         #define zyzzy() /* empty */
-> > >         #endif
-> > > 
-> > 
-> > now if you write it as
-> > 
-> > #define zyzzy() do { ; } while (0)
-> > 
-> > it even works in a
-> > 
-> > if (foo())
-> > 	zyzzy();
-> > bar();
-> > 
-> > scenario 
-> > 
-> > (I know you know that, just pointing that out before people copy your
-> > example :-)
-> 
-> OK, I'll bite.  What part of Linus's macro doesn't work.
-> I compiled your foo/zyzzy/bar example with both his "empty"
-> macro and the do-while macro.  Same code produced both ways,
-> no compile warnings/errors.
-> 
+Hi.
 
-	if (foo())
-		;
+Sorry for coming late to the party. I received a request to provide a Suspe=
+nd2=20
+patch for current -mm this morning, so I've only just had impetus to look a=
+t=20
+the impact of klibc.
 
-will generate `warning: empty body in an if-statement' when compiled with -W.
+On Wednesday 28 June 2006 15:17, H. Peter Anvin wrote:
+> This removes the part of resume from disk that have been replaced by
+> functionality in kinit.
+>
+> Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
-We go round this loop regularly.  Maybe someone should write it up.  Meanwhile,
-use do{}while(0) and be happy and secure.
+This patch doesn't look right to me. After it is applied, the user will hav=
+e=20
+no way of saying that they don't want to resume (noresume). I assume the=20
+removal of resume=3D isn't a problem because you're expecting them to use t=
+hat=20
+other undocumented way of setting resume=3D that Pavel mentioned a while ag=
+o?
+
+Regards,
+
+Nigel
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
+
+--nextPart1742868.3FXNgBZFvS
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBErE34N0y+n1M3mo0RAgAYAJ0ZtbDL7j/34AdfKmvCCsJgayOQxgCghDti
+D0PMECdWlhSoVf7fRqIaV0A=
+=gTL5
+-----END PGP SIGNATURE-----
+
+--nextPart1742868.3FXNgBZFvS--

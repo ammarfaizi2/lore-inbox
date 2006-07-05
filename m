@@ -1,62 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWGEN61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWGEN7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWGEN61 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 09:58:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWGEN61
+	id S932423AbWGEN7W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 09:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWGEN7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 09:58:27 -0400
-Received: from out3.smtp.messagingengine.com ([66.111.4.27]:5292 "EHLO
-	out3.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S932421AbWGEN60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 09:58:26 -0400
-X-Sasl-enc: i40fnrDtj6hX0JMXwY5jMmvFV5RMMAyf08nsSk21bgVw 1152107903
-Date: Wed, 5 Jul 2006 10:58:16 -0300
-From: Henrique de Moraes Holschuh <hmh@debian.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Pavel Machek <pavel@suse.cz>, lm-sensors@lm-sensors.org,
-       linux-kernel@vger.kernel.org, hdaps-devel@lists.sourceforge.net,
-       Stelian Pop <stelian@popies.net>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>
-Subject: Re: Generic interface for accelerometers (AMS, HDAPS, ...)
-Message-ID: <20060705135816.GA8452@khazad-dum.debian.net>
-References: <20060703124823.GA18821@khazad-dum.debian.net> <20060704075950.GA13073@elf.ucw.cz> <20060704162346.GE9447@khazad-dum.debian.net> <20060704235717.GD11872@elf.ucw.cz> <20060705073455.GA6027@suse.cz>
+	Wed, 5 Jul 2006 09:59:22 -0400
+Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:61525 "EHLO
+	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932421AbWGEN7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 09:59:22 -0400
+Message-ID: <44ABC5B7.2090707@bigpond.net.au>
+Date: Wed, 05 Jul 2006 23:59:19 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060705073455.GA6027@suse.cz>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Mike Galbraith <efault@gmx.de>
+CC: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] sched: Add SCHED_BGND (background) scheduling policy
+References: <20060704233521.8744.45368.sendpatchset@heathwren.pw.nest> <1152099752.8684.198.camel@Homer.TheSimpsons.net>
+In-Reply-To: <1152099752.8684.198.camel@Homer.TheSimpsons.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 5 Jul 2006 13:59:20 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Jul 2006, Vojtech Pavlik wrote:
-> > > I don't know about AMS, but talking to HDAPS when
-> > > you don't need to does waste enough system resources and power to actually
-> > > justify implementing this.
+Mike Galbraith wrote:
+> On Wed, 2006-07-05 at 09:35 +1000, Peter Williams wrote:
 > 
-> I'd doubt any of the accelerometer implementations would consume much
-> power or CPU.
+>> @@ -3332,23 +3447,25 @@ need_resched_nonpreemptible:
+>>  	}
+>>  
+>>  	array = rq->active;
+>> -	if (unlikely(!array->nr_active)) {
+>> -		/*
+>> -		 * Switch the active and expired arrays.
+>> -		 */
+>> -		schedstat_inc(rq, sched_switch);
+>> -		rq->active = rq->expired;
+>> -		rq->expired = array;
+>> -		array = rq->active;
+>> -		rq->expired_timestamp = 0;
+>> -		rq->best_expired_prio = MAX_PRIO;
+>> -	}
+>> +	if (unlikely(!array->nr_active))
+>> +		array = switch_arrays(rq, MAX_PRIO);
+>>  
+>>  	idx = sched_find_first_bit(array->bitmap);
+>> +get_next:
+>>  	queue = array->queue + idx;
+>>  	next = list_entry(queue->next, struct task_struct, run_list);
+>> +	/* very strict backgrounding */
+>> +	if (unlikely(task_in_background(next) && rq->expired->nr_active)) {
+>> +		int tmp = sched_find_first_bit(rq->expired->bitmap);
+>> +
+>> +		if (likely(tmp < idx)) {
+>> +			array = switch_arrays(rq, idx);
+>> +			idx = tmp;
+>> +			goto get_next;
+> 
+> Won't this potentially expire the mutex holder which you specifically
+> protect in scheduler_tick() if it was preempted before being ticked?
 
-It is not just CPU or power, although IMO striving for perfection on power
-management in a laptop is almost always a good thing if it can be done
-safely.
+I don't think so as its prio value should cause task_in_background() to 
+fail.
 
-HDAPS talks to the embedded controller using IO over the LPC bus, and not to
-the accelerometer chip or to a simple A/D i2c chip which is used excusively
-for accelerometer access.  The EC interface for HDAPS data retrieval is
-not friendly to any errors, and hardlocks the machine somehow if any
-firmware bugs hit or if we violate any of the rules (that are not written
-anywhere) about how to access the EC without geting the SMBIOS unhappy.
+> The task in the expired array could also be a !safe_to_background() task
+> who already had a chance to run, and who's slice expired.
 
-So, turning off HDAPS polling while it is not necessary really looks like a
-good idea overall.
+If it's !safe_to_background() it's in our interest to let it run in 
+order to free up the resource that it's holding.
 
-We are investigating the ACPI global lock as a way to at least get the
-SMBIOS to stay away from the EC while we talk to it, but we don't know if
-the entire SMBIOS firmware respects that lock.
+> 
+> If it's worth protecting higher priority tasks from mutex holders ending
+> up in the expired array, then there's a case that should be examined.
 
+It's more than just stopping them end up in the expired array.  It's 
+stopping them being permanently in the expired array.
+
+> There's little difference between a background task acquiring a mutex,
+> and a normal task with one tick left on it's slice.
+
+The difference is that the background task could stay there forever.
+
+>  Best for sleepers
+> is of course to just say no to expiring mutex holders period.
+
+In spite of my comments above, I agree that not expiring mutex holders 
+might (emphasis on the "might") be good for overall system performance 
+by reducing the time for which locks are held.  Giving them a whole new 
+time slice on the active array might be too generous though.  It could 
+become quite complex.
+
+Peter
 -- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

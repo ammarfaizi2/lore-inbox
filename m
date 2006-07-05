@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWGEQ5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWGEQ7F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbWGEQ5v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 12:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbWGEQ5v
+	id S964901AbWGEQ7F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 12:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbWGEQ7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 12:57:51 -0400
-Received: from mail.suse.de ([195.135.220.2]:51144 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964891AbWGEQ5v (ORCPT
+	Wed, 5 Jul 2006 12:59:05 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:22691 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S964899AbWGEQ7D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 12:57:51 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] Makefile typo
-Cc: linux-kernel@vger.kernel.org
-X-Yow: Is this the line for the latest whimsical YUGOSLAVIAN drama which also
- makes you want to CRY and reconsider the VIETNAM WAR?
-Date: Wed, 05 Jul 2006 18:57:48 +0200
-Message-ID: <je1wt0ng4z.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 5 Jul 2006 12:59:03 -0400
+Date: Wed, 5 Jul 2006 18:58:45 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       bernds_cb1@t-online.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] FRV: Introduce asm-offsets for FRV arch
+Message-ID: <20060705165845.GB11822@mars.ravnborg.org>
+References: <20060705132409.31510.22698.stgit@warthog.cambridge.redhat.com> <20060705132419.31510.92219.stgit@warthog.cambridge.redhat.com> <20060705144138.GA26545@mars.ravnborg.org> <1152117585.2987.21.camel@pmac.infradead.org> <20060705164828.GA8196@mars.ravnborg.org> <1152118241.2987.23.camel@pmac.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152118241.2987.23.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix a typo in the toplevel makefile.
+On Wed, Jul 05, 2006 at 05:50:41PM +0100, David Woodhouse wrote:
+> On Wed, 2006-07-05 at 18:48 +0200, Sam Ravnborg wrote:
+> > That will be bad for all out-of-tree stuff.
+> > Now they have to track down if the kernel they build for
+> > are before or after we stuffed in #error in config.h
+> 
+> No, they have to track down if the kernel they build for is before or
+> after the inclusion of config.h became unnecessary. That was actually
+> quite a while ago, wasn't it?
+git log says it was:
+Sun Oct 30 22:42:11 2005
 
-Signed-off-by: Andreas Schwab <schwab@suse.de>
-
-diff --git a/Makefile b/Makefile
-index 11a850c..82f76a9 100644
---- a/Makefile
-+++ b/Makefile
-@@ -528,7 +528,7 @@ #  INSTALL_MOD_STRIP will used as the op
- 
- ifdef INSTALL_MOD_STRIP
- ifeq ($(INSTALL_MOD_STRIP),1)
--mod_strip_cmd = $STRIP) --strip-debug
-+mod_strip_cmd = $(STRIP) --strip-debug
- else
- mod_strip_cmd = $(STRIP) $(INSTALL_MOD_STRIP)
- endif # INSTALL_MOD_STRIP=1
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+	Sam

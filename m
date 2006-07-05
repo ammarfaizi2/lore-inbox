@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWGEGrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWGEGtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750999AbWGEGrm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 02:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWGEGrm
+	id S1751223AbWGEGtK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 02:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWGEGtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 02:47:42 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:21397 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750999AbWGEGrm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 02:47:42 -0400
-Message-ID: <44AB608F.1060903@drzeus.cx>
-Date: Wed, 05 Jul 2006 08:47:43 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Wed, 5 Jul 2006 02:49:10 -0400
+Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:4972 "HELO
+	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751223AbWGEGtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 02:49:08 -0400
+From: David Brownell <david-b@pacbell.net>
+To: "Miles Lane" <miles.lane@gmail.com>
+Subject: Re: 2.6.17-mm5 -- netconsole failed to send full trace
+Date: Tue, 4 Jul 2006 23:49:04 -0700
+User-Agent: KMail/1.7.1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <a44ae5cd0607030131x745b3106ydd2a4ca086cdf401@mail.gmail.com> <20060703121717.b36ef57e.akpm@osdl.org> <a44ae5cd0607042222w6a370b70ka2d75fab926a28be@mail.gmail.com>
+In-Reply-To: <a44ae5cd0607042222w6a370b70ka2d75fab926a28be@mail.gmail.com>
 MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>, Len Brown <len.brown@intel.com>,
-       LKML <linux-kernel@vger.kernel.org>, Adam Belay <ambx1@neo.rr.com>
-Subject: ACPIPNP and too large IO resources
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607042349.05509.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
+On Tuesday 04 July 2006 10:22 pm, Miles Lane wrote:
 
-Commit 1acfb7f2b0d460ee86bdb25ad0679070ec8a5f0d by Bjorn is causing me
-some grief. Although the patch seems correct, it is triggering another
-misfeature of the system and I am hoping you have a solution.
+> > So we have a use-after-free in tasklet_action(), as a consequence of
+> > unplugging a USB ethernet adapter.
+> 
+> So far, all the kernels have crashed (back to Ubuntu's 2.6.15). 
 
-Before your patch, the PCI bridge didn't allocate many io ports as they
-were mislabeled as iomem. But now it puts its dirty paws all over the
-entire ISA io port address space, effectively disabling PNP.
+Erm, exactly which USB ethernet adapter?  That would seem to be a
+critical bit of info that's somehow been omitted...
 
-On my machine it steals the ranges 0x0-0xcf7, 0xcf8-0xcff and
-0xd00-0xffff. IOW, the entire range of 0x0-0xffff gets blocked and none
-of the ISA PNP devices can use ports outside this range.
+If it's the rtl8150 driver, that would be Petko's ...
 
-We can see the same effect in the example given in your commit where
-only the range 0x3b0-0x3df is left open.
-
-I don't know enough about PNP to determine the problem, but I guess it's
-the section that checks overlaps with other PNP devices that is somehow
-wrong. It could also be that everyone keeps coding their DSDTs wrong,
-but if that's the case then I see little other choice than to be bug
-compatible.
-
-Rgds
-Pierre

@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWGERNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWGERQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWGERNF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 13:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWGERNF
+	id S964916AbWGERQk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 13:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWGERQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 13:13:05 -0400
-Received: from mx2.suse.de ([195.135.220.15]:64719 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964923AbWGERNC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 13:13:02 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: NULL terminate over-long /proc/kallsyms symbols
-References: <200607051859.41638.agruen@suse.de>
-X-Yow: Is it NOUVELLE CUISINE when 3 olives are struggling with a scallop
- in a plate of SAUCE MORNAY?
-Date: Wed, 05 Jul 2006 19:13:00 +0200
-In-Reply-To: <200607051859.41638.agruen@suse.de> (Andreas Gruenbacher's
-	message of "Wed, 5 Jul 2006 18:59:41 +0200")
-Message-ID: <jewtasm0v7.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+	Wed, 5 Jul 2006 13:16:40 -0400
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:33155 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S964916AbWGERQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 13:16:37 -0400
+Date: Wed, 5 Jul 2006 13:12:40 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] uninline init_waitqueue_*() functions
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Message-ID: <200607051314_MC3-1-C43A-5471@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Gruenbacher <agruen@suse.de> writes:
+In-Reply-To: <20060705102633.GA17975@elte.hu>
 
-> Index: linux-2.6.17/kernel/module.c
-> ===================================================================
-> --- linux-2.6.17.orig/kernel/module.c
-> +++ linux-2.6.17/kernel/module.c
-> @@ -1935,7 +1935,7 @@ struct module *module_get_kallsym(unsign
->  		if (symnum < mod->num_symtab) {
->  			*value = mod->symtab[symnum].st_value;
->  			*type = mod->symtab[symnum].st_info;
-> -			strncpy(namebuf,
-> +			strlcpy(namebuf,
->  				mod->strtab + mod->symtab[symnum].st_name,
->  				127);
+On Wed, 5 Jul 2006 12:26:33 +0200, Ingo Molnar wrote:
 
-Just a minor point: you probably also want to change 127 to 128.
-Unfortunately sizeof does not work here, despite the declaration.
+> The rough rule of thumb for inlining is that anything that is larger 
+> than one C statement is probably too large for inlining. (but even 
+> 1-line statements might be too fat at times)
 
-Andreas.
+x86-64 software optimization guide says:
+
+ For functions that create fewer than 25 machine instructions once
+ inlined, it is likely that the function call overhead is close to,
+ or more than, the time spent executing the function body. In these
+ cases, function inlining is recommended.
+
+Of course you need to consider whether the code is speed-critical
+to begin with.
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

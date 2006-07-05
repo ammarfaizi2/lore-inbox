@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWGEUwG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWGEUxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964982AbWGEUwG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 16:52:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbWGEUwG
+	id S964856AbWGEUxo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 16:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWGEUxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 16:52:06 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:36263 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964982AbWGEUwB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 16:52:01 -0400
-Date: Wed, 5 Jul 2006 22:47:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
-Subject: Re: [patch] uninline init_waitqueue_*() functions
-Message-ID: <20060705204727.GA16615@elte.hu>
-References: <20060705023120.2b70add6.akpm@osdl.org> <20060705093259.GA11237@elte.hu> <20060705025349.eb88b237.akpm@osdl.org> <20060705102633.GA17975@elte.hu> <20060705113054.GA30919@elte.hu> <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 5 Jul 2006 16:53:44 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:34709 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S964856AbWGEUxn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 16:53:43 -0400
+Message-ID: <44AC26DA.1010901@drzeus.cx>
+Date: Wed, 05 Jul 2006 22:53:46 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+CC: Len Brown <len.brown@intel.com>, LKML <linux-kernel@vger.kernel.org>,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: ACPIPNP and too large IO resources
+References: <44AB608F.1060903@drzeus.cx> <200607051047.40734.bjorn.helgaas@hp.com>
+In-Reply-To: <200607051047.40734.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bjorn Helgaas wrote:
+> Thanks for the report!
+>   
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+Np. Gave me an excuse to try out git bisect. ;)
 
-> 
-> 
-> On Wed, 5 Jul 2006, Andrew Morton wrote:
-> > 
-> > OK, but what happened to the 35-bytes-per-callsite saving?
-> 
-> I really don't think it existed.
-> 
-> Maybe there's something else going on. In particular, I wonder if 
-> sections like the "debug_loc" fection end up being counted towards 
-> text-size? They never actually get _loaded_, but they can be 
-> absolutely enormous if CONFIG_DEBUG_INFO is enabled.
+> It sounds like this might be the same problem as
+>     http://bugzilla.kernel.org/show_bug.cgi?id=6292
+>
+> In short, you probably have a bridge device that consumes the
+> entire 0x0-0xffff I/O port range and produces some or all of that
+> range for downstream PNP devices.  PNP doesn't know what to do
+> with these windows that are both consumed by the bridge and made
+> available to downstream devices, so it just marks them as being
+> already reserved.
+>   
 
-i had CONFIG_DEBUG_INFO (and UNWIND_INFO) disabled in all these build 
-tests.
+Ah, that explains things.
 
-	Ingo
+> Matthieu Castet wrote a nice patch (attached) that makes PNP just
+> ignore those windows.  Can you try it and see whether it fixes
+> the problem you're seeing?  This patch is already in -mm, but not
+> yet in mainline.  We might need to consider this patch as
+> 2.6.18 material if it resolves your problem.  I suspect many
+> people will see the same problem.
+>   
+
+The patch works nicely and removes all memory and io regions for the PCI
+bridge but for the range 0xcf8-0xcff.
+
+Thanks
+Pierre
+

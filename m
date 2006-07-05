@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWGEEUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWGEEUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWGEEUw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 00:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWGEEUw
+	id S932399AbWGEEUL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 00:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWGEEUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 00:20:52 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:44263 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932453AbWGEEUv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 00:20:51 -0400
-Message-Id: <200607050420.k654KPeU011979@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] sched: Add SCHED_BGND (background) scheduling policy
-In-Reply-To: Your message of "Wed, 05 Jul 2006 11:33:42 +1000."
-             <200607051133.42595.kernel@kolivas.org>
-From: Valdis.Kletnieks@vt.edu
-References: <20060704233521.8744.45368.sendpatchset@heathwren.pw.nest> <200607051044.05257.kernel@kolivas.org> <44AB1294.6070600@bigpond.net.au>
-            <200607051133.42595.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152073224_10982P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 5 Jul 2006 00:20:10 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:18069 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932399AbWGEEUJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 00:20:09 -0400
+Message-ID: <44AB3DF7.8080107@drzeus.cx>
+Date: Wed, 05 Jul 2006 06:20:07 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: resource_size_t and printk()
+References: <44AAD59E.7010206@drzeus.cx> <20060704214508.GA23607@kroah.com>
+In-Reply-To: <20060704214508.GA23607@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Wed, 05 Jul 2006 00:20:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152073224_10982P
-Content-Type: text/plain; charset=us-ascii
+Greg KH wrote:
+> On Tue, Jul 04, 2006 at 10:54:54PM +0200, Pierre Ossman wrote:
+>   
+>> Hi there!
+>>
+>> Your commit b60ba8343b78b182c03cf239d4342785376c1ad1 has been causing me
+>> a bit of confusion and I thought I'd point out the problem so that you
+>> can resolve it. :)
+>>
+>> resource_size_t is not guaranteed to be a long long, but might be a u64
+>> or u32 depending on your .config. So you need an explicit cast in the
+>> printk:s or you get a lot of junk on the output.
+>>     
+>
+> That is exactly correct.  Is there somewhere in that patch that I forgot
+> to fix this up properly?
+>
+>   
 
-On Wed, 05 Jul 2006 11:33:42 +1000, Con Kolivas said:
-> On Wednesday 05 July 2006 11:15, Peter Williams wrote:
-> > Con Kolivas wrote:
+In drivers/pnp/interface.c, theres a couple of these:
 
-> > >> +			 * don't let them adversely effect tasks on the expired
-> > >
-> > > ok I'm going to risk a lart and say "affect" ?
+@@ -264,7 +264,7 @@ static ssize_t pnp_show_current_resource
+ 			if (pnp_port_flags(dev, i) & IORESOURCE_DISABLED)
+ 				pnp_printf(buffer," disabled\n");
+ 			else
+-				pnp_printf(buffer," 0x%lx-0x%lx\n",
++				pnp_printf(buffer," 0x%llx-0x%llx\n",
+ 						pnp_port_start(dev, i),
+ 						pnp_port_end(dev, i));
+ 		}
 
-No, that would be correct English.
 
-> > I have to refer you to the Oxford English Dictionary.
+Rgds
+Pierre
 
-Actually, something like Strunk&White's "Elements of Style" is better suited
-to this sort of thing than the OED.  The OED just lists *words*, not how to
-put them together.
-
-http://www.amazon.com/gp/product/020530902X/qid=1152072733/sr=1-1/ref=sr_1_1/002-2430423-3716834?s=books&v=glance&n=283155
-
-> I was hoping you would.
-
-They would *affect* tasks. The *effect* of this would be...
-
-Note that 'effect' can be a verb too, but in that sense it refers to
-a "facilitator" - "The mayor effected change in policy" meaning that he
-made it happen. So in the kernel, "A effects B" is only correct if A
-is code that is intended to make B happen.  If A, through blind all-elbows
-coding, happens to cause B to change, then "A affects B" is proper.
-
-Clear as mud? :)  If not, read the Strunk&White explanation of this one. :)
-
---==_Exmh_1152073224_10982P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEqz4IcC3lWbTT17ARAqOSAKDAM+Luad35KLrBy25CzT3UfxP8/wCfcD8F
-CEqxtIAP+0E6kbzp3aNPMKI=
-=9ElW
------END PGP SIGNATURE-----
-
---==_Exmh_1152073224_10982P--

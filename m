@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWGEQjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWGEQj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964807AbWGEQjY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 12:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWGEQjY
+	id S964867AbWGEQj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 12:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWGEQj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 12:39:24 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:43708 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964807AbWGEQjY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 12:39:24 -0400
-Message-ID: <44ABEB20.2010702@zytor.com>
-Date: Wed, 05 Jul 2006 09:38:56 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] i386: early pagefault handler
-References: <200607050745_MC3-1-C42B-9937@compuserve.com> <p73veqcp58s.fsf@verdi.suse.de>
-In-Reply-To: <p73veqcp58s.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 5 Jul 2006 12:39:59 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:11987 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S964867AbWGEQj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 12:39:58 -0400
+Subject: Re: [PATCH 5/5] FRV: Introduce asm-offsets for FRV arch
+From: David Woodhouse <dwmw2@infradead.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       bernds_cb1@t-online.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20060705144138.GA26545@mars.ravnborg.org>
+References: <20060705132409.31510.22698.stgit@warthog.cambridge.redhat.com>
+	 <20060705132419.31510.92219.stgit@warthog.cambridge.redhat.com>
+	 <20060705144138.GA26545@mars.ravnborg.org>
+Content-Type: text/plain
+Date: Wed, 05 Jul 2006 17:39:45 +0100
+Message-Id: <1152117585.2987.21.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> 
->> +hlt_loop:
->> +	hlt
-> 
-> There are still supported i386 CPUs that don't support HLT and
-> would recursively fault here.
-> 
+On Wed, 2006-07-05 at 16:41 +0200, Sam Ravnborg wrote:
+> It is no loner needed to include <linux/config.h>. 
 
-The HLT has been supported since 8086.  However, it was broken in some 
-early 486s (not 386s); that's what the test in the kernel is for.
+Then let's kill it entirely... well, I've left it with a #error for now
+because otherwise people will just keep asking where it is.
 
-I don't remember what the failure mode was, though; didn't think it was 
-recursive faulting.
+ git://git.infradead.org/~dwmw2/killconfig.h.git
 
-	-hpa
+ http://git.infradead.org/?p=users/dwmw2/killconfig.h.git
+
+(It still sucks that I have to give both URLs because we can't use just
+one for both pulling and browsing).
+
+-- 
+dwmw2
+

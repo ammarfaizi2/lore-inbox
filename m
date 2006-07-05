@@ -1,74 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbWGEWJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbWGEWOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965026AbWGEWJv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 18:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWGEWJv
+	id S965071AbWGEWOk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 18:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWGEWOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 18:09:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23211 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965026AbWGEWJu (ORCPT
+	Wed, 5 Jul 2006 18:14:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9388 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965024AbWGEWOj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 18:09:50 -0400
-Date: Wed, 5 Jul 2006 15:09:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
-Subject: Re: [patch] uninline init_waitqueue_*() functions
-In-Reply-To: <20060705214502.GA27597@elte.hu>
-Message-ID: <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
-References: <20060705025349.eb88b237.akpm@osdl.org> <20060705102633.GA17975@elte.hu>
- <20060705113054.GA30919@elte.hu> <20060705114630.GA3134@elte.hu>
- <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu>
- <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
- <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
- <20060705214502.GA27597@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 5 Jul 2006 18:14:39 -0400
+Date: Wed, 5 Jul 2006 15:18:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: drzeus-list@drzeus.cx, len.brown@intel.com, linux-kernel@vger.kernel.org,
+       ambx1@neo.rr.com, shaohua.li@intel.com, castet.matthieu@free.fr,
+       linux-acpi@vger.kernel.org, uwe.bugla@gmx.de
+Subject: Re: ACPIPNP and too large IO resources
+Message-Id: <20060705151803.5841e91d.akpm@osdl.org>
+In-Reply-To: <200607051536.30771.bjorn.helgaas@hp.com>
+References: <44AB608F.1060903@drzeus.cx>
+	<200607051047.40734.bjorn.helgaas@hp.com>
+	<44AC26DA.1010901@drzeus.cx>
+	<200607051536.30771.bjorn.helgaas@hp.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 5 Jul 2006, Ingo Molnar wrote:
+Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+>
+> On Wednesday 05 July 2006 14:53, Pierre Ossman wrote:
+> > Bjorn Helgaas wrote:
+> > > It sounds like this might be the same problem as
+> > >     http://bugzilla.kernel.org/show_bug.cgi?id=6292
+> > >
+> > > In short, you probably have a bridge device that consumes the
+> > > entire 0x0-0xffff I/O port range and produces some or all of that
+> > > range for downstream PNP devices.  PNP doesn't know what to do
+> > > with these windows that are both consumed by the bridge and made
+> > > available to downstream devices, so it just marks them as being
+> > > already reserved.
+> > 
+> > Ah, that explains things.
+> > 
+> > > Matthieu Castet wrote a nice patch (attached) that makes PNP just
+> > > ignore those windows.  Can you try it and see whether it fixes
+> > > the problem you're seeing?  This patch is already in -mm, but not
+> > > yet in mainline.  We might need to consider this patch as
+> > > 2.6.18 material if it resolves your problem.  I suspect many
+> > > people will see the same problem.
+> > 
+> > The patch works nicely and removes all memory and io regions for the PCI
+> > bridge but for the range 0xcf8-0xcff.
 > 
-> yeah, i'd not want to skip over some interesting and still unexplained 
-> effect either, but 35 bytes isnt all that outlandish and from everything 
-> i've seen it's a real win. Here is an actual example:
+> Andrew, I think we should try again to push
+> pnpacpi-reject-acpi_producer-resources.patch to the mainline.
 > 
->  c0fb6137:       c7 44 24 08 00 00 00    movl   $0x0,0x8(%esp)
->  c0fb613e:       00
->  c0fb613f:       c7 44 24 08 01 00 00    movl   $0x1,0x8(%esp)
->  c0fb6146:       00
->  c0fb6147:       c7 43 60 00 00 00 00    movl   $0x0,0x60(%ebx)
->  c0fb614e:       8b 44 24 08             mov    0x8(%esp),%eax
->  c0fb6152:       89 43 5c                mov    %eax,0x5c(%ebx)
->  c0fb6155:       8d 43 64                lea    0x64(%ebx),%eax
->  c0fb6158:       89 40 04                mov    %eax,0x4(%eax)
->  c0fb615b:       89 43 64                mov    %eax,0x64(%ebx)
+> Pierre's report (starts here: http://lkml.org/lkml/2006/7/5/20)
+> is another instance of http://bugzilla.kernel.org/show_bug.cgi?id=6292.
+> 
+> I suspect that many PNP devices are broken in 2.6.17 because of
+> this problem.  Probably the only reason we haven't seen more
+> reports is that PNPACPI isn't turned on by default.  (Maybe
+> we should do that in -mm?)
+> 
+> You recently proposed pushing it:
+>     http://marc.theaimsgroup.com/?l=linux-acpi&m=115119275408021&w=2
+> Len initially nacked it, but I think the outcome of the discussion
+> is that Shaohua doesn't object to this patch.  He probably would
+> still like to blacklist PNP0A03, but that's an additional step we
+> don't have to take at the same time.
+> 
 
-Ahh, it's _that_ old gcc problem. 
+OK, well let's please push this up the priority list and work out what want
+to do.  If Len's now OK with merging it then I think all lights are green?
 
-That's actually a different thing. 
+pnpacpi-reject-acpi_producer-resources.patch:
 
-Gcc is HORRIBLY BAD at doing the simple
+From: matthieu castet <castet.matthieu@free.fr>
 
-	some_structure = (struct somestruct) { INITIAL };
+A patch in -mm kernel correct the parsing of "address resources" of pnpacpi. 
+Before we assumed it was memory only, but it could be also IO.
 
-assignments. It is so ludicrously bad that it's sad. It tends to do that 
-as a local "struct somestruct" on the stack that gets initialized, 
-followed by a memcpy().
+But this change show an hidden bug : some resources could be producer type
+that are not handled by pnp layer.  So we should ignore the producer
+resources.
 
-In this case, the problem appears to be the spinlock initialization code.
+This patch fixes bug 6292 (http://bugzilla.kernel.org/show_bug.cgi?id=6292).
+Some devices like PNP0A03 have 0xd00-0xffff and 0x0-0xcf7 as IO producer 
+resources.
 
-In other words, I suspect 90% of your improvement was because you got that 
-braindamage out of line.
+Before correcting "address resources" parsing, it was seen as memory and was
+harmless, because nobody tried to reserve this memory range as it should be
+IO.
 
-It would be _much_  better to just fix "spin_lock_init()" instead. That 
-would help a lot of _other_ users too, not just the waitqueue 
-initializations.
+With the correction it become IO resources, and make failed all others device
+that want to register IO in this range and use pnp layer (like a ISA sound
+card).
 
-Making that a real function (and inline only for the non-debug case, at 
-which point it's just a simple and small store) would be much better.
+The solution is to ignore producer resources
 
-		Linus
+Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
+Signed-off-by: Uwe Bugla <uwe.bugla@gmx.de>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Adam Belay <ambx1@neo.rr.com>
+Cc: "Brown, Len" <len.brown@intel.com>
+
+akpm: previously nacked, as per comment #26.  But am hanging onto it until the
+thing gets fixed for real.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ drivers/pnp/pnpacpi/rsparser.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff -puN drivers/pnp/pnpacpi/rsparser.c~pnpacpi-reject-acpi_producer-resources drivers/pnp/pnpacpi/rsparser.c
+--- a/drivers/pnp/pnpacpi/rsparser.c~pnpacpi-reject-acpi_producer-resources
++++ a/drivers/pnp/pnpacpi/rsparser.c
+@@ -173,6 +173,9 @@ pnpacpi_parse_allocated_address_space(st
+ 		return;
+ 	}
+ 
++	if (p->producer_consumer == ACPI_PRODUCER)
++		return;
++
+ 	if (p->resource_type == ACPI_MEMORY_RANGE)
+ 		pnpacpi_parse_allocated_memresource(res_table,
+ 				p->minimum, p->address_length);
+@@ -252,9 +255,14 @@ static acpi_status pnpacpi_allocated_res
+ 		break;
+ 
+ 	case ACPI_RESOURCE_TYPE_EXTENDED_ADDRESS64:
++		if (res->data.ext_address64.producer_consumer == ACPI_PRODUCER)
++			return AE_OK;
+ 		break;
+ 
+ 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
++		if (res->data.extended_irq.producer_consumer == ACPI_PRODUCER)
++			return AE_OK;
++
+ 		for (i = 0; i < res->data.extended_irq.interrupt_count; i++) {
+ 			pnpacpi_parse_allocated_irqresource(res_table,
+ 				res->data.extended_irq.interrupts[i],
+_
+

@@ -1,168 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965037AbWGEV0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbWGEV1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965037AbWGEV0V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 17:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWGEV0V
+	id S965036AbWGEV1E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 17:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWGEV1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 17:26:21 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:5853 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965037AbWGEV0U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 17:26:20 -0400
-Subject: [Patch] convert i386 NUMA KVA space to bootmem
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: linux-mm <linux-mm@kvack.org>, mbligh@mbligh.org, akpm@osdl.org
-Content-Type: multipart/mixed; boundary="=-vMTKZZIeLktl5sJPBQI6"
-Organization: Linux Technology Center IBM
-Date: Wed, 05 Jul 2006 14:26:13 -0700
-Message-Id: <1152134773.5799.34.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Wed, 5 Jul 2006 17:27:04 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:59397 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S965036AbWGEV1D convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 17:27:03 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 05 Jul 2006 21:27:02.0039 (UTC) FILETIME=[C1410A70:01C6A079]
+Content-class: urn:content-classes:message
+Subject: Re: ext4 features
+Date: Wed, 5 Jul 2006 17:27:01 -0400
+Message-ID: <Pine.LNX.4.61.0607051717190.5736@chaos.analogic.com>
+In-Reply-To: <44AC2B56.8010703@tmr.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ext4 features
+thread-index: AcagecFKVDT3oHwaSlO+eM+EqZVT+w==
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com> <20060705125956.GA529@fieldses.org> <44AC2B56.8010703@tmr.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Bill Davidsen" <davidsen@tmr.com>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, "Theodore Tso" <tytso@mit.edu>,
+       "Thomas Glanzmann" <sithglan@stud.uni-erlangen.de>,
+       "LKML" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-vMTKZZIeLktl5sJPBQI6
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Wed, 5 Jul 2006, Bill Davidsen wrote:
 
-Hello Andrew,
-  I posted this patch a while ago but I didn't get any feedback.  I
-would like to submit this patch to your tree.  
-  
-  The patch itself addresses a long standing issue of booting with an
-initrd on an i386 numa system.  Currently (and always) the numa kva area
-is mapped into low memory by finding the end of low memory and moving
-that mark down (thus creating space for the kva).  The issue with this
-is that Grub loads initrds into this similar space so when the kernel
-check the initrd it finds it outside max_low_pfn and disables it (it
-thinks the initrd is not mapped into usable memory) thus initrd enabled
-kernels can't boot i386 numa :(
+> J. Bruce Fields wrote:
+>
+>> On Wed, Jul 05, 2006 at 08:24:29AM -0400, Bill Davidsen wrote:
+>>
+>>
+>>> Theodore Tso wrote:
+>>>
+>>>
+>>>> Some of the ideas which have been tossed about include:
+>>>>
+>>>> 	* nanosecond timestamps, and support for time beyond the 2038
+>>>>
+>>>>
+>>> The 2nd one is probably more urgent than the first. I can see a general
+>>> benefit from timestamp in ms, beyond that seems to be a specialty
+>>> requirement best provided at the application level rather than the bits
+>>> of a trillion inodes which need no such thing.
+>>>
+>>>
+>>
+>> What's urgently needed for NFS (and I suspect for most other
+>> applications demanding higher timestamps) isn't really nanosecond
+>> precision so much as something that's guaranteed to increase whenever
+>> the file changes.
+>>
+>> Of course, just adding space in the inodes for nanoseconds isn't
+>> sufficient.  XFS, for example, has nanosecond timestamps, but it's still
+>> easy to modify a file twice without seeing the ctime or mtime change.
+>> So either we need a timesource guaranteed to tick faster than the kernel
+>> can process IO, or we have to be willing to, say, add 1 to the
+>> nanoseconds field whenever the time doesn't change between operations.
+>>
+>> Or we could add an entirely separate attribute that's guaranteed to
+>> increase whenever the ctime is updated, and that doesn't necessarily
+>> have any connection with time--call it a version number or something.
+>>
+>>
+> There are versions in both VMS and the ISO filesystem. I have a sneaking
+> suspicion that those of us who ever use them are few and far between.
+> The other issue is that unless the field is time, programs like make
+> can't really use it, at least without becoming Linux specific.
+>
+> I'm not sure exactly how a "version" value would be used other than
+> detecting the fact that the file had been changed in some way. Feel free
+> to show me, I seem to come up empty on using this value.
+>
+> --
+> bill davidsen <davidsen@tmr.com>
+>  CTO TMR Associates, Inc
+>  Doing interesting things with small computers since 1979
 
-  My solution to the problem just converts the numa kva area to use the
-bootmem allocator to save it's area (instead of moving the end of low
-memory).  Using bootmem allows the kva area to be mapped into more
-diverse addresses (not just the end of low memory) and enables the kva
-area to be mapped below the initrd if present. 
+Currently a version is just a convention for not deleting on create.
+Remember VAX/VMS  MYFILE.TXT;1, create another one, you have
+MYFILE.TXT;2. They are not related in any way. Any internal
+value won't be much use if Unix semantics are retained because
+multiple directory entries pointing to the same file are just
+links. And identical names, pointing to different files in
+the same directory are prevented as well.
 
-  I have tested this patch on numaq(no initrd) and summit(initrd) i386
-numa based systems.  It was diffed on 2.6.17-git26 but should apply to
-just about any recent kernel. 
+Maybe the 'version' is the number of times the file has been
+modified since creation. This might be useful.
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.88 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
-Signed-off-by:  Keith Mannthey <kmannth@us.ibm.com>
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-
---=-vMTKZZIeLktl5sJPBQI6
-Content-Disposition: attachment; filename=patch-2.6.17-numa-kva-v3
-Content-Type: text/x-patch; name=patch-2.6.17-numa-kva-v3; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -urN linux-2.6.17/arch/i386/kernel/setup.c linux-2.6.17-git24/arch/i386/kernel/setup.c
---- linux-2.6.17/arch/i386/kernel/setup.c	2006-07-04 22:35:20.000000000 -0700
-+++ linux-2.6.17-git24/arch/i386/kernel/setup.c	2006-07-04 22:27:31.000000000 -0700
-@@ -1203,6 +1203,9 @@
- extern void zone_sizes_init(void);
- #endif /* !CONFIG_NEED_MULTIPLE_NODES */
- 
-+#ifdef CONFIG_NUMA
-+extern void numa_kva_reserve(void);
-+#endif
- void __init setup_bootmem_allocator(void)
- {
- 	unsigned long bootmap_size;
-@@ -1258,7 +1261,9 @@
- 	 */
- 	find_smp_config();
- #endif
--
-+#ifdef CONFIG_NUMA
-+	numa_kva_reserve();
-+#endif 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (LOADER_TYPE && INITRD_START) {
- 		if (INITRD_START + INITRD_SIZE <= (max_low_pfn << PAGE_SHIFT)) {
-diff -urN linux-2.6.17/arch/i386/mm/discontig.c linux-2.6.17-git24/arch/i386/mm/discontig.c
---- linux-2.6.17/arch/i386/mm/discontig.c	2006-07-04 22:35:20.000000000 -0700
-+++ linux-2.6.17-git24/arch/i386/mm/discontig.c	2006-07-04 22:27:31.000000000 -0700
-@@ -117,7 +117,8 @@
- 
- void *node_remap_end_vaddr[MAX_NUMNODES];
- void *node_remap_alloc_vaddr[MAX_NUMNODES];
--
-+static unsigned long kva_start_pfn;
-+static unsigned long kva_pages;
- /*
-  * FLAT - support for basic PC memory model with discontig enabled, essentially
-  *        a single node with all available processors in it with a flat
-@@ -286,7 +287,6 @@
- {
- 	int nid;
- 	unsigned long system_start_pfn, system_max_low_pfn;
--	unsigned long reserve_pages;
- 
- 	/*
- 	 * When mapping a NUMA machine we allocate the node_mem_map arrays
-@@ -298,14 +298,23 @@
- 	find_max_pfn();
- 	get_memcfg_numa();
- 
--	reserve_pages = calculate_numa_remap_pages();
-+	kva_pages = calculate_numa_remap_pages();
- 
- 	/* partially used pages are not usable - thus round upwards */
- 	system_start_pfn = min_low_pfn = PFN_UP(init_pg_tables_end);
- 
--	system_max_low_pfn = max_low_pfn = find_max_low_pfn() - reserve_pages;
--	printk("reserve_pages = %ld find_max_low_pfn() ~ %ld\n",
--			reserve_pages, max_low_pfn + reserve_pages);
-+	kva_start_pfn = find_max_low_pfn() - kva_pages;
-+
-+#ifdef CONFIG_BLK_DEV_INITRD
-+	/* Numa kva area is below the initrd */
-+	if (LOADER_TYPE && INITRD_START) 
-+		kva_start_pfn = PFN_DOWN(INITRD_START)  - kva_pages;
-+#endif 
-+	kva_start_pfn -= kva_start_pfn & (PTRS_PER_PTE-1);
-+
-+	system_max_low_pfn = max_low_pfn = find_max_low_pfn();
-+	printk("kva_start_pfn ~ %ld find_max_low_pfn() ~ %ld\n", 
-+		kva_start_pfn, max_low_pfn);
- 	printk("max_pfn = %ld\n", max_pfn);
- #ifdef CONFIG_HIGHMEM
- 	highstart_pfn = highend_pfn = max_pfn;
-@@ -323,7 +332,7 @@
- 			(ulong) pfn_to_kaddr(max_low_pfn));
- 	for_each_online_node(nid) {
- 		node_remap_start_vaddr[nid] = pfn_to_kaddr(
--				highstart_pfn + node_remap_offset[nid]);
-+				kva_start_pfn + node_remap_offset[nid]);
- 		/* Init the node remap allocator */
- 		node_remap_end_vaddr[nid] = node_remap_start_vaddr[nid] +
- 			(node_remap_size[nid] * PAGE_SIZE);
-@@ -338,7 +347,6 @@
- 	}
- 	printk("High memory starts at vaddr %08lx\n",
- 			(ulong) pfn_to_kaddr(highstart_pfn));
--	vmalloc_earlyreserve = reserve_pages * PAGE_SIZE;
- 	for_each_online_node(nid)
- 		find_max_pfn_node(nid);
- 
-@@ -348,6 +356,12 @@
- 	return max_low_pfn;
- }
- 
-+void __init numa_kva_reserve (void) 
-+{
-+	reserve_bootmem(PFN_PHYS(kva_start_pfn),PFN_PHYS(kva_pages));
-+
-+}
-+
- void __init zone_sizes_init(void)
- {
- 	int nid;
-
---=-vMTKZZIeLktl5sJPBQI6--
-
+Thank you.

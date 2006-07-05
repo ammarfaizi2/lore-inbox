@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWGEKj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWGEKo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWGEKj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 06:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWGEKj2
+	id S932406AbWGEKo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 06:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWGEKo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 06:39:28 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:20918 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S964807AbWGEKj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 06:39:27 -0400
-Message-ID: <44AB9633.9090208@s5r6.in-berlin.de>
-Date: Wed, 05 Jul 2006 12:36:35 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: netdev@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.17-mm6
-References: <20060703030355.420c7155.akpm@osdl.org>	 <200607042153.31848.rjw@sisk.pl> <1152043271.3109.95.camel@laptopd505.fenrus.org> <44AB940F.7000801@s5r6.in-berlin.de>
-In-Reply-To: <44AB940F.7000801@s5r6.in-berlin.de>
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Jul 2006 06:44:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44971 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932406AbWGEKo5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 06:44:57 -0400
+Date: Wed, 5 Jul 2006 03:44:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: mingo@elte.hu, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [patch] uninline init_waitqueue_*() functions
+Message-Id: <20060705034441.a123ca7a.akpm@osdl.org>
+In-Reply-To: <20060705103756.GA5456@infradead.org>
+References: <20060705084914.GA8798@elte.hu>
+	<20060705023120.2b70add6.akpm@osdl.org>
+	<20060705093259.GA11237@elte.hu>
+	<20060705103756.GA5456@infradead.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> (Ieee1394 core's usage of the skb_* API is entirely unrelated to
-> networking; even if eth1394 was used.)
+On Wed, 5 Jul 2006 11:37:56 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
 
-PS:
-I wonder if it wouldn't be better to migrate ieee1394 core away from
-skb_*. I didn't look thoroughly at it yet but the benefit of using this
-API appears quite low to me.
+> On Wed, Jul 05, 2006 at 11:32:59AM +0200, Ingo Molnar wrote:
+> > 
+> > * Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > shrinks fs/select.o by eight bytes.  (More than I expected).  So it 
+> > > does appear to be a space win, but a pretty slim one.
+> > 
+> > there are 855 calls to these functions in the allyesconfig vmlinux i 
+> > did, and i measured a combined size reduction of 34791 bytes. That 
+> > averages to a 40 bytes win per call site. (on i386.)
+> 
+> And more importantly it's a function that's called in slowpathes per
+> definition.  So saving text sounds like a good idea, how minimal it
+> may be.
+> 
 
-We use it to keep track of IEEE 1394 transactions [ = outgoing request
-&& (incoming response || expiry)], with completion of transactions often
-in-order due to mostly single-threaded usage, but sometimes out-of-order
-(may happen regardless of multithreaded or single-threaded usage).
--- 
-Stefan Richter
--=====-=-==- -=== --=-=
-http://arcgraph.de/sr/
+Well yes - as I said, it's a net win.  But 31 bytes per callsite seems
+weird and makes one wonder what's going on.

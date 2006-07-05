@@ -1,110 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWGEPzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWGEPzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWGEPzf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 11:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWGEPzf
+	id S964830AbWGEPzw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 11:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWGEPzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 11:55:35 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:54154 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964775AbWGEPze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 11:55:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Xm3wPD0uB5bkY/opM4dKXICR9GFGXmmfnzQmxI98EKCmHywrRZYPX1MeQIGZhbhkGzYMNtlATmlS677wuZj/wZch0eywuZreYRcvDkGwZGpzJpDQ4wG8tjdDMLBfg388BoTtbNCPdKMQvynGMLq4pbsOwhLfHI+G9vnAzj3cTTc=
-Message-ID: <e1e1d5f40607050855t5584178drfaeddfc78662a6bb@mail.gmail.com>
-Date: Wed, 5 Jul 2006 11:55:33 -0400
-From: "Daniel Bonekeeper" <thehazard@gmail.com>
-To: "Bill Davidsen" <davidsen@tmr.com>
-Subject: Re: Driver for Microsoft USB Fingerprint Reader
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Greg KH" <greg@kroah.com>,
-       "Alon Bar-Lev" <alon.barlev@gmail.com>, kernelnewbies@nl.linux.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44AB3988.1050308@tmr.com>
+	Wed, 5 Jul 2006 11:55:52 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:35999 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964800AbWGEPzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 11:55:51 -0400
+Date: Wed, 5 Jul 2006 10:55:37 -0500 (CDT)
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Jeff Garzik <jeff@garzik.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH] PCI: Move various PCI IDs to header file
+In-Reply-To: <449B440B.7010407@garzik.org>
+Message-ID: <20060705104039.E93671@pkunk.americas.sgi.com>
+References: <200606222300.k5MN0uPW000741@hera.kernel.org> <449B440B.7010407@garzik.org>
+Organization: Silicon Graphics, Inc.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <e1e1d5f40607022351y4af6e709n1ba886604a13656b@mail.gmail.com>
-	 <9e0cf0bf0607030304n62991dafk19f09e41d69e9ab0@mail.gmail.com>
-	 <e1e1d5f40607031104o2b8003c8qfa725ae1d276b27f@mail.gmail.com>
-	 <44A95F12.8080208@gmail.com>
-	 <e1e1d5f40607031353l48826d5bi51558d9f8e12ba3@mail.gmail.com>
-	 <20060703214509.GA5629@kroah.com>
-	 <e1e1d5f40607031511l5445f338t449bf8840e8caf80@mail.gmail.com>
-	 <1151966154.16528.42.camel@localhost.localdomain>
-	 <44AB3988.1050308@tmr.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Alan Cox wrote:
-    > Ar Llu, 2006-07-03 am 18:11 -0400, ysgrifennodd Daniel Bonekeeper:
-    >> That's one problem: I don't want to create one more userspace
-    >> interface for that. I suppose that all the hundreds of fingerprint
-    >> readers that ships with a SDK have their own way of doing that.. that
-    >
-    > The very cheap readers all appear to be fairly crude image scanners, and
-    > they even lack hardware encryption/perturbation so they are actually of
-    > very limited value.
+Jeff,
 
+I apologize for the incredibly late reply.  Your objection of course
+came up mere hours after I left on a vacation of nearly two weeks.
 
+I also apologize for failing to CC linux-ide.  I did, however,
+originally CC the author of the Vitesse VSC driver (Jeremy Higdon).
 
-As I said before, usefulness is something relative, and sometimes,
-security is not a concern (even when talking about fingerprint
-readers).
-My intention with this is to try to create a catalog of fingerprint
-readers' properties and I think that taking a look at vendors' SDKs
-would be a good start.
-As pointed out by Greg, it would be also interesting to export those
-properties via sysfs instead of structure passing (or in addiction,
-not sure yet).
-I'm not sure though about relating fingerprint devices with V4L2 (even
-the cheapest ones). Some other considerations discussed with Greg are
-also:
+The patch was submitted precisely because the PCI device ID was no
+longer going to be single-use.  In fact, shortly after the message
+you posted below, Andrew posted the following (which has been queued
+up for a month or so):
 
-1) extending those device informations to other classes, not only to
-fingerprint readers
-2) maybe using another layer to hold device properties based on
-classes ( device driver -> device information layer -> sysfs+kobjects
-) so we can have specific properties for "fingerprintreader" objects
-and easier ways to export them to the sysfs layer, without explicit
-declaration on the device driver
-3) extend that layer also to non-USB devices ( bus-independent )
+	[patch 187/200] SGI IOC4: Detect IO card variant
 
-Maybe sysfs classes could have a list of default properties (for
-example, /sys/class/fingerprint objects could hold a list of commom
-fingerprint properties).
+In short, due to the unusual card design of the SGI IO10 card, and
+the need to differentiate it from the SGI PCI-RT card, I was left
+with no reasonable option other than to look for the existence of
+the Vitesse device at a known PCI bus location.  As such I needed
+to re-use the PCI ID of the Vitesse part, thereby making it dual-use
+and qualifying it for assignment of a PCI_DEVICE_ID_xxx constant.
 
+I did perhaps overstep by also creating a PCI_DEVICE_ID_xxx constant
+for the purportedly identical Intel part.  Am I allowed a third apology
+within a single email?
 
-    Crude, like beauty, is in the eye of the beholder. I like hardware which
-    does as little as possible because I can then apply the appropriate
-    software to the data. I can see that if cost is no object and the
-    algorithm is never going to change, I can build all that stuff into the
-    device. But I don't need to... as long as I can take the data, pass it
-    through a transform, and get out of that a key which works or not, then
-    I can do useful things with it.
+Brent
 
-    Useful includes many things. I'm playing with using a combined secret
-    and SecureID(tm) to decrypt and boot a virtual machine, such that I can
-    do many unrelated things and have reduced chance of "unintended data
-    migration." It also allows ad-hoc users (read that as undergrads) given
-    a temporary machine fairly easily, visiting professors, etc.
+On Thu, 22 Jun 2006, Jeff Garzik wrote:
 
-    I can see the benefits of having the whole package be a black box, I
-    hope I have explained why I find even a dumb scanner useful in some cases.
-
-    --
-    Bill Davidsen < davidsen@tmr.com >
-
-
-Which fingerprint reader are you using ?
-
-Daniel
-
-PS: sorry about sending that message more than once, I just figured
-out that my mails were boucing back to me because Gmail was using HTML
-mode for mails =S
+> WTF?  This is a REGRESSION from the repeatedly expressed desire -- clear
+> throughout libata -- that single-use PCI device IDs should not ever receive
+> PCI_DEVICE_ID_xxx constants.
+> 
+> I'm going to queue up a revert patch for this silliness.
+> 
+> Next time, please let the relevant maintainer(s) know when you are touching
+> their driver, so they have a chance to filter out the crap.
+> 
+> This was -never- sent to me or linux-ide, or otherwise brought to the
+> attention of the maintainers.
 
 -- 
-What this world needs is a good five-dollar plasma weapon.
+Brent Casavant                          All music is folk music.  I ain't
+bcasavan@sgi.com                        never heard a horse sing a song.
+Silicon Graphics, Inc.                    -- Louis Armstrong

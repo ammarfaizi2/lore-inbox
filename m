@@ -1,50 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbWGESot@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWGESuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbWGESot (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 14:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWGESot
+	id S964860AbWGESuu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 14:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWGESut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 14:44:49 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:16000 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964944AbWGESos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 14:44:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lOLVoHZDmeC9ruBPjnwZVyjimPV8u7tquLgjmk8V8DHjzc9WYsApJW3nvp7gy3LIGR+t91uv380w9vXsg4rI4GDLOPgQ/Kdo1FnaB+Fjt/trEdYjhiFwl9PUCDYWruqhPCjTgdxOJE7q07sGzByfxn0Lz5HH9gjoIaVCtfUisFM=
-Message-ID: <a44ae5cd0607051144w5734ce4bkd38320adda99ae43@mail.gmail.com>
-Date: Wed, 5 Jul 2006 11:44:47 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Petko Manolov" <petkan@users.sourceforge.net>
-Subject: Re: 2.6.17-mm5 -- netconsole failed to send full trace
-Cc: linux-kernel@vger.kernel.org, "David Brownell" <david-b@pacbell.net>,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <20060703121717.b36ef57e.akpm@osdl.org>
+	Wed, 5 Jul 2006 14:50:49 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:5436 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S964860AbWGESut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 14:50:49 -0400
+Message-ID: <44AC0B2A.9080500@gentoo.org>
+Date: Wed, 05 Jul 2006 19:55:38 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Daniel Bonekeeper <thehazard@gmail.com>
+CC: Greg KH <greg@kroah.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
+       kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: Driver for Microsoft USB Fingerprint Reader
+References: <e1e1d5f40607022351y4af6e709n1ba886604a13656b@mail.gmail.com>	 <44A95F12.8080208@gmail.com>	 <e1e1d5f40607031353l48826d5bi51558d9f8e12ba3@mail.gmail.com>	 <20060703214509.GA5629@kroah.com>	 <e1e1d5f40607031511l5445f338t449bf8840e8caf80@mail.gmail.com>	 <20060703222645.GA22855@kroah.com>	 <e1e1d5f40607031624w245e5f70g2ae8f5d0e9d357c4@mail.gmail.com>	 <20060703232927.GA19111@kroah.com>	 <e1e1d5f40607031704kec2ff68w324d3d8ad111c46b@mail.gmail.com>	 <44ABFDD3.6040500@gentoo.org> <e1e1d5f40607051109r3e01a2eftce93314228425612@mail.gmail.com>
+In-Reply-To: <e1e1d5f40607051109r3e01a2eftce93314228425612@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a44ae5cd0607030131x745b3106ydd2a4ca086cdf401@mail.gmail.com>
-	 <20060703014016.9f598cef.akpm@osdl.org>
-	 <a44ae5cd0607030704q63f1f64x5e46688cef6fa44c@mail.gmail.com>
-	 <20060703121717.b36ef57e.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Petko,
+Daniel Bonekeeper wrote:
+> Yes and no... we can have that stuff in userspace, of course, but I
+> think that we are walking to a big salad here. Imagine this: some
+> fingerprint devices have userspace drivers while others have
+> kernel-mode drivers, while the majority of other USB devices (that
+> could also be implemented in userspace) are in kernel-space. Why care
+> to keep that stuff in userspace (except for security, since less
+> non-critical code in userspace == stability+security), while we still
+> have other devices being managed in kernel mode ?
 
-David Brownell pointed out that you are the author of this driver (rtl8150).
-My laptop is crashing every time I remove the Linksys EtherFast 10/100
-Compact Network Adapter (model USB100M) from the USB port.
+You kind of answered your own question before you asked it, but let me 
+try and clarify my view. Two things:
 
-Here's a link to the discussion thus far:
-http://groups.google.com/group/linux.kernel/tree/browse_frm/thread/8c93e310c7b71242/a8a1e3edb1601906?rnum=1&q=miles+lane&_done=%2Fgroup%2Flinux.kernel%2Fbrowse_frm%2Fthread%2F8c93e310c7b71242%2Fc8a8ba47c49c39fc%3Ftvc%3D1%26q%3Dmiles+lane%26#doc_a8a1e3edb1601906
+1. We generally try and implement things in userspace where possible and 
+where it makes sense at least to a certain degree. Or at least, you only 
+get USB stuff included in the kernel when you have convinced Greg it 
+belongs there (which you may have already done).
 
-Here's the stacktrace:
-http://www.zip.com.au/~akpm/linux/patches/stuff/00003.jpg
+2. As you acknowledge, only a certain subset of all USB fingerprint 
+reader drivers will be implemented in the kernel, therefore providing 
+the abstraction at kernel level is inadequate (you leave the pure 
+userspace drivers out of the loop, therefore getting people to actually 
+use your interface will be difficult). You may argue that your proposal 
+doesn't limit itself to fingerprint readers, but neither does my answer: 
+many USB devices (of other types) are supported purely in userspace.
 
-I have reproduced the bug with vanilla 2.6.17.  I am currently working my
-back through kernel versions to try to isolate the responsible patches.
+> Another thing is that this "device information layer" should also be
+> implemented not only for fingerprint devices, but for other USB
+> devices too... and possibly (very likely) to other devices that are
+> not USB. If such device-class-specific properties layer is to be
+> implemented, we should do it to all device classes (not bind to any
+> specific BUS type).
 
-         Miles
+Sounds like you are talking about reimplementing HAL at this point. I 
+don't think this argument justifies including it at kernel level (but 
+neither does it oppose it).
+
+> I think that the kernel should be aware of the properties of the
+> devices that it handles,
+
+If the kernel doesn't *need* to know about the properties and doesn't 
+act on them, why? And what about the devices that the kernel doesn't 
+handle, where they are operated purely through userspace?
+
+> otherwise we're walking to some kind of
+> microkernel architecture, where one day we'll have everything running
+> on userspace...
+
+That's not what I'm suggesting - many classes of drivers belong in 
+kernel space and would incur major brain damage if moved to userspace.
+
+You might want to go back a year or two and read the discussions when 
+the USB scanner driver was moved out of the kernel and reimplemented 
+100% inside libsane. There are other examples as well.
+
+> but this sounds to me more like a
+> decision made by fingerprint devices manufactures 
+
+It's not their decision while they aren't the ones writing the drivers.
+
+> Do you have any idea about how many fingerprint readers have linux
+> support
+
+idmouse is the only fingerprint reader driver in the Linux kernel that I 
+know of. There are a number of other devices supported in userspace.
+
+Daniel

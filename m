@@ -1,108 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbWGEX5P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWGEX6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965049AbWGEX5P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 19:57:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbWGEX5P
+	id S965051AbWGEX6H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 19:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWGEX6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 19:57:15 -0400
-Received: from smtp.ono.com ([62.42.230.12]:2807 "EHLO resmta04.ono.com")
-	by vger.kernel.org with ESMTP id S965049AbWGEX5P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 19:57:15 -0400
-Date: Thu, 6 Jul 2006 01:57:06 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm6
-Message-ID: <20060706015706.37acb9af@werewolf.auna.net>
-In-Reply-To: <20060705155602.6e0b4dce.akpm@osdl.org>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	<20060705234347.47ef2600@werewolf.auna.net>
-	<20060705155602.6e0b4dce.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 2.3.1cvs59 (GTK+ 2.10.0; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Wed, 5 Jul 2006 19:58:07 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:10578 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965076AbWGEX6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 19:58:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bbRJvyTRy6XoC3M0C0DvcovyKrB4p0rGMflNvWOkh+XJdkdWnDehP+cFbs51fvZCRRQazvULIN+BcDiTN/DjGrEdnTnBJ1nOVBMd/7ED2q+beHzw/TDbh3MQJffmSu0kpBYSYimYFerwYG6YerpeWs6XKFVv6D17Y1zyJWn6d1c=
+Message-ID: <bda6d13a0607051658j7cbadc1en89f07196f1f00e27@mail.gmail.com>
+Date: Wed, 5 Jul 2006 16:58:04 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [klibc 30/31] Remove in-kernel resume-from-disk invocation code
+In-Reply-To: <200607060940.40678.ncunningham@linuxmail.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <klibc.200606272217.00@tazenda.hos.anvin.org>
+	 <klibc.200606272217.30@tazenda.hos.anvin.org>
+	 <200607060940.40678.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jul 2006 15:56:02 -0700, Andrew Morton <akpm@osdl.org> wrote:
-
-> "J.A. Magallón" <jamagallon@ono.com> wrote:
-> >
-> > On Mon, 3 Jul 2006 03:03:55 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
-> > > 
-> > > 
-> > > - A major update to the e1000 driver.
-> > > 
-> > 
-> > Doesn't find my root drive :(.
-> > 
-> > Its a SATA drive, on PIIX.
-> > Last -mm I tried ('cause of the raid problems) was -mm1, so I don't know
-> > when did this broke. Under -mm1, the disk is this:
-> > 
-> > libata version 1.30 loaded.
-> > ata_piix 0000:00:1f.2: version 1.10tj1ac3
-> > ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
-> > ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-> > PCI: Setting latency timer of device 0000:00:1f.2 to 64
-> > ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-> > ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-> > scsi0 : ata_piix
-> > ata1: ENTER, pcs=0x13 base=0
-> > ata1: LEAVE, pcs=0x13 present_mask=0x1
-> > ata1.00: cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:407f
-> > ata1.00: ATA-6, max UDMA/133, 390721968 sectors: LBA48 
-> > ata1.00: configured for UDMA/133
-> > scsi1 : ata_piix
-> > ata2: ENTER, pcs=0x13 base=2
-> > ata2: LEAVE, pcs=0x11 present_mask=0x0
-> > ata2: SATA port has no device.
-> >   Vendor: ATA       Model: ST3200822AS       Rev: 3.01
-> >   Type:   Direct-Access                      ANSI SCSI revision: 05
-> > SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-> > sda: Write Protect is off
-> > sda: Mode Sense: 00 3a 00 00
-> > SCSI device sda: drive cache: write back
-> > SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-> > sda: Write Protect is off
-> > sda: Mode Sense: 00 3a 00 00
-> > SCSI device sda: drive cache: write back
-> >  sda: sda1 sda2 sda3
-> > sd 0:0:0:0: Attached scsi disk sda
-> > 
-> > With -mm6, the kernel doesn't find it. I get this on boot:
-> > 
-> > kinit: try_name sda,1 = dev(8,1)
-> > kinit: name_to_dev_t(/dev/sda1) = dev(8.1)
-> > kinit: root_dev = dev(8,1)
-> > kinit: failed to identify filesystem /dev/root, trying all
-> > kinit: trying to mount /dev/root on /root with type ext3
-> > kinit: Cannot open root device dev(8,1)
-> > 
-> > I have tried to get this message from -mm1, but could not get it in any log.
-> > But... I remember to see that the boot message is like:
-> > 
-> > kinit: try_name sda,1 = sda1(8,1)
-> >                         ^^^^
-> > I have verified I built -mm6 with ext3,sata-piix and so on, all builtin.
-> > 
-> 
-> Are you able to test just 2.6.17 + origin.patch + git-libata-all.patch?
-> 
-> Also, the full dmesg from 2.6.17-mm6 would help, thanks.
-> 
-
-It does not reach a point to save the dmesg....
-I can pick my digital camera.
-Is there a netconsole version for OSX (to attach my ibook and dump dmesg...) ?
-
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.17-jam01 (gcc 4.1.1 20060518 (prerelease)) #2 SMP PREEMPT Wed
+I'll take my own guess that kinit reads the kernel command line and
+handles both resume= and noresume itself. I've done that with a few
+other cases, so it is certainly possible.

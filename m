@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWGELfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWGELhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbWGELfa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 07:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWGELfa
+	id S964819AbWGELhr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 07:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWGELhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 07:35:30 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:25569 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964816AbWGELf3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 07:35:29 -0400
-Date: Wed, 5 Jul 2006 13:30:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch] uninline init_waitqueue_*() functions
-Message-ID: <20060705113054.GA30919@elte.hu>
-References: <20060705084914.GA8798@elte.hu> <20060705023120.2b70add6.akpm@osdl.org> <20060705093259.GA11237@elte.hu> <20060705025349.eb88b237.akpm@osdl.org> <20060705102633.GA17975@elte.hu>
+	Wed, 5 Jul 2006 07:37:47 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:408 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964819AbWGELhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 07:37:46 -0400
+Subject: Re: [PATCH] hisax fix usage of __init*
+From: Arjan van de Ven <arjan@infradead.org>
+To: Karsten Keil <kkeil@suse.de>
+Cc: greg@kroah.com, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060705112357.GA7003@pingi.kke.suse.de>
+References: <20060705112357.GA7003@pingi.kke.suse.de>
+Content-Type: text/plain
+Date: Wed, 05 Jul 2006 13:37:38 +0200
+Message-Id: <1152099459.3201.19.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060705102633.GA17975@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5013]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-07-05 at 13:23 +0200, Karsten Keil wrote:
+> diff --git a/drivers/isdn/hisax/config.c b/drivers/isdn/hisax/config.c
+> index 5333be5..e103503 100644
+> --- a/drivers/isdn/hisax/config.c
+> +++ b/drivers/isdn/hisax/config.c
+> @@ -1875,7 +1875,7 @@ static void EChannel_proc_rcv(struct his
+>  #ifdef CONFIG_PCI
+>  #include <linux/pci.h>
+>  
+> -static struct pci_device_id hisax_pci_tbl[] __initdata = {
+> +static struct pci_device_id hisax_pci_tbl[] __devinitdata = {
+>  #ifdef CONFIG_HISAX_FRITZPCI
+>         {PCI_VENDOR_ID_AVM,      PCI_DEVICE_ID_AVM_A1,
+> PCI_ANY_ID, PCI_ANY_ID},
+>  #endif
+> diff --git a/drivers
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+I think this bit is still buggy; afaik pci_device_id tables should not
+be of any kind of __init at all... CC'ing Greg just to make sure I'm not
+talking rubbish
 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > > > shrinks fs/select.o by eight bytes.  (More than I expected).  So 
-> > > > it does appear to be a space win, but a pretty slim one.
-> > > 
-> > > there are 855 calls to these functions in the allyesconfig vmlinux i 
-> > > did, and i measured a combined size reduction of 34791 bytes. That 
-> > > averages to a 40 bytes win per call site. (on i386.)
-> > > 
-> > 
-> > Yes, but that lumps all three together.  init_waitqueue_head() is 
-> > obviously the porky one.  And it's porkier with CONFIG_DEBUG_SPINLOCK 
-> > and CONFIG_LOCKDEP, which isn't the case to optimise for.
-> 
-> true. I redid my tests with both lockdep and debug-spinlocks turned off:
-> 
->   text            data    bss     dec             filename
->   21172153        6077270 3081864 30331287        vmlinux.x32.after
->   21198222        6077106 3081864 30357192        vmlinux.x32.before
-> 
-> with 851 callsites that's a 30.6 bytes win per call site (total 26K) - 
-> still not bad at all.
+Greetings,
+   Arjan van de Ven
 
-and that was with CONFIG_CC_OPTIMIZE_FOR_SIZE enabled. With 
-optimize-for-size disabled the win goes up to 32.6 bytes (total 28K).
-
-	Ingo

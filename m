@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWGESDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbWGESEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbWGESDi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 14:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWGESDh
+	id S964953AbWGESEd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 14:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWGESEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 14:03:37 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:52906 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S964951AbWGESDh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 14:03:37 -0400
-Date: Wed, 5 Jul 2006 13:03:34 -0500
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Cc: hch@infradead.org, xfs@oss.sgi.com, nickolay@protei.ru,
-       mmontour@bycast.com, iss_storagedev@hp.com
-Subject: [PATCH 1/2] cciss: add BLKSSZGET back to 2.4 driver
-Message-ID: <20060705180334.GA9656@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Jul 2006 14:04:32 -0400
+Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:44418 "HELO
+	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964953AbWGESEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 14:04:32 -0400
+From: David Brownell <david-b@pacbell.net>
+To: "Miles Lane" <miles.lane@gmail.com>
+Subject: Re: 2.6.17-mm5 -- netconsole failed to send full trace
+Date: Wed, 5 Jul 2006 11:04:29 -0700
+User-Agent: KMail/1.7.1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <a44ae5cd0607030131x745b3106ydd2a4ca086cdf401@mail.gmail.com> <a44ae5cd0607042354s68b38d2bl11d638b282e4c918@mail.gmail.com> <a44ae5cd0607050939w5f6dc131v24c8ffc93e6f8baf@mail.gmail.com>
+In-Reply-To: <a44ae5cd0607050939w5f6dc131v24c8ffc93e6f8baf@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Message-Id: <200607051104.29916.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PATCH 1/2
+On Wednesday 05 July 2006 9:39 am, Miles Lane wrote:
+> On 7/4/06, Miles Lane <miles.lane@gmail.com> wrote:
+> > On 7/4/06, David Brownell <david-b@pacbell.net> wrote:
+> > > On Tuesday 04 July 2006 10:22 pm, Miles Lane wrote:
+> > >
+> > > > > So we have a use-after-free in tasklet_action(), as a consequence of
+> > > > > unplugging a USB ethernet adapter.
+> > > >
+> > > > So far, all the kernels have crashed (back to Ubuntu's 2.6.15).
+> > >
+> > > Erm, exactly which USB ethernet adapter?  That would seem to be a
+> > > critical bit of info that's somehow been omitted...
+> > >
+> > > If it's the rtl8150 driver, that would be Petko's ...
+> >
+> > Linksys EtherFast 10/100 Compact Network Adapter (model USB100M).
+> > Yes, the rtl8150 driver loads when I insert the adapter.
 
-This patch adds BLKSSZGET into the cciss driver. Not sure why it isn't in
-there. I'm sure it  used to be. :)
+So you should contact the maintainer of that driver, yes?
 
-Thanks to Nicolay and others for reporting this.
 
-Signed-off-by: Mike Miller <mike.miller@hp.com>
-------------------------------------------------------------------------------------------
- cciss.c |    1 +
- 1 files changed, 1 insertion(+)
+> Can someone tell me when the udev/hal support went into the kernel?
 
-diff -burNp linux-2.4.32.orig/drivers/block/cciss.c linux-2.4.32/drivers/block/cciss.c
---- linux-2.4.32.orig/drivers/block/cciss.c	2005-11-16 13:12:54.000000000 -0600
-+++ linux-2.4.32/drivers/block/cciss.c	2006-07-05 12:54:41.000000000 -0500
-@@ -740,6 +740,7 @@ static int cciss_ioctl(struct inode *ino
- 	case BLKFLSBUF:
- 	case BLKBSZSET:
- 	case BLKBSZGET:
-+	case BLKSSZGET:
- 	case BLKROSET:
- 	case BLKROGET:
- 	case BLKRASET:
+Older versions of udev may not work with newer kernels, and vice versa;
+I've never taken HAL apart.
+

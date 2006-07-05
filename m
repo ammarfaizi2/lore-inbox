@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWGEIfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWGEIvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbWGEIfi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 04:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWGEIfh
+	id S932407AbWGEIvN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 04:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWGEIvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 04:35:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63757 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932349AbWGEIfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 04:35:36 -0400
-Date: Wed, 5 Jul 2006 09:35:24 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] genirq: ARM dyntick cleanup
-Message-ID: <20060705083524.GB543@flint.arm.linux.org.uk>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Christoph Hellwig <hch@infradead.org>,
-	Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <1151885928.24611.24.camel@localhost.localdomain> <20060702173527.cbdbf0e1.akpm@osdl.org> <1151908178.24611.39.camel@localhost.localdomain> <20060703065735.GA19780@elte.hu> <20060704115425.GA2313@infradead.org> <20060704122231.GA2319@elte.hu>
+	Wed, 5 Jul 2006 04:51:13 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:3484 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932407AbWGEIvM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 04:51:12 -0400
+Subject: Re: [RESEND][PATCH] Script for automated historical Git tree
+	grafting
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Petr Baudis <pasky@suse.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060608013330.GA24203@pasky.or.cz>
+References: <20060608013330.GA24203@pasky.or.cz>
+Content-Type: text/plain
+Date: Wed, 05 Jul 2006 10:50:58 +0200
+Message-Id: <1152089458.4260.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060704122231.GA2319@elte.hu>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 04, 2006 at 02:22:31PM +0200, Ingo Molnar wrote:
-> > > - rename asm/irq.h to asm/irqchips.h
-> > 
-> > Note that currently asm/irq.h is included all over.  
-> 
-> yeah, but only 335 times in drivers/*, so it's a 4 minute job to convert 
-> them over. (ok, i just did it to check - it results in a 144K patch and 
-> it took 50 seconds to do. I've attached the result.)
+Hi Petr,
 
-Note that ARM drivers generally require asm/irq.h by way of it defining
-the IRQ numbers for the platform, so this patch moves the include of it
-to linux/genirq.h.
+> This script enables Git users to easily graft the historical Git tree
+> (Bitkeeper history import) to the current history.
 
-Also note that including genirq.h (formerly irq.h) is broken for
-architectures which don't yet use this stuff - it'll probably cause
-compile failures because it wants asm/hw_irq.h.
+it would be nice if you can specify a local location for the history
+tree, because some people might already downloaded it.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+And what about the tags of the history tree. It seems that these are
+missing. We need to copy them, too.
+
+Regards
+
+Marcel
+
+

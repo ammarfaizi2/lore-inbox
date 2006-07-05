@@ -1,117 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWGEKaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWGEKbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWGEKaW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 06:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWGEKaW
+	id S964790AbWGEKbM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 06:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWGEKbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 06:30:22 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:15030 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S964797AbWGEKaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 06:30:20 -0400
-Message-ID: <44AB940F.7000801@s5r6.in-berlin.de>
-Date: Wed, 05 Jul 2006 12:27:27 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: netdev@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.17-mm6
-References: <20060703030355.420c7155.akpm@osdl.org>	 <200607042153.31848.rjw@sisk.pl> <1152043271.3109.95.camel@laptopd505.fenrus.org>
-In-Reply-To: <1152043271.3109.95.camel@laptopd505.fenrus.org>
+	Wed, 5 Jul 2006 06:31:12 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:7837 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964790AbWGEKbL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 06:31:11 -0400
+Date: Wed, 5 Jul 2006 12:26:33 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch] uninline init_waitqueue_*() functions
+Message-ID: <20060705102633.GA17975@elte.hu>
+References: <20060705084914.GA8798@elte.hu> <20060705023120.2b70add6.akpm@osdl.org> <20060705093259.GA11237@elte.hu> <20060705025349.eb88b237.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060705025349.eb88b237.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/4/2006 10:01 PM, Arjan van de Ven wrote:
-> this is one for the networking people, and thus netdev
 
-It's actually ieee1394 using net infrastructure for purposes which ar
-unrelated to networking.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Furthermore...
-
-> On Tue, 2006-07-04 at 21:53 +0200, Rafael J. Wysocki wrote:
->> On Monday 03 July 2006 12:03, Andrew Morton wrote:
->> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
->> > 
->> > - A major update to the e1000 driver.
->> > - 1394 updates
-
-...I believe it is unrelated to the 1394 updates new to -mm6.
-
->> Just found this in dmesg:
->> 
->> =================================
->> [ INFO: inconsistent lock state ]
->> ---------------------------------
->> inconsistent {in-hardirq-W} -> {hardirq-on-W} usage.
->> nscd/4929 [HC0[0]:SC0[1]:HE1:SE0] takes:
->>  (&skb_queue_lock_key){++..}, at: [<ffffffff8044fe40>] udp_ioctl+0x50/0xa0
->> {in-hardirq-W} state was registered at:
->>   [<ffffffff8024b4fa>] lock_acquire+0x8a/0xc0
->>   [<ffffffff80476e3f>] _spin_lock_irqsave+0x3f/0x60
->>   [<ffffffff80408c25>] skb_queue_tail+0x25/0x60
+> > > shrinks fs/select.o by eight bytes.  (More than I expected).  So 
+> > > it does appear to be a space win, but a pretty slim one.
+> > 
+> > there are 855 calls to these functions in the allyesconfig vmlinux i 
+> > did, and i measured a combined size reduction of 34791 bytes. That 
+> > averages to a 40 bytes win per call site. (on i386.)
+> > 
 > 
-> ok so skb_queue_lock is used in a hardirq context
-> 
->>   [<ffffffff881c9517>] queue_packet_complete+0x27/0x40 [ieee1394]
->>   [<ffffffff881c9d6b>] hpsb_packet_sent+0xab/0x100 [ieee1394]
->>   [<ffffffff8822a4b5>] dma_trm_reset+0x115/0x140 [ohci1394]
->>   [<ffffffff8822c512>] ohci_devctl+0x1c2/0x540 [ohci1394]
->>   [<ffffffff881c9673>] hpsb_bus_reset+0x43/0xb0 [ieee1394]
->>   [<ffffffff8822d7f6>] ohci_irq_handler+0x416/0x830 [ohci1394]
->>   [<ffffffff802631ab>] handle_IRQ_event+0x2b/0x70
->>   [<ffffffff80264dd4>] handle_level_irq+0xc4/0x130
->>   [<ffffffff8020c762>] do_IRQ+0x112/0x130
->>   [<ffffffff80209d90>] common_interrupt+0x64/0x65
->> irq event stamp: 4280
->> hardirqs last  enabled at (4279): [<ffffffff8047606a>] trace_hardirqs_on_thunk+0x35/0x37
->> hardirqs last disabled at (4278): [<ffffffff804760a1>] trace_hardirqs_off_thunk+0x35/0x67
->> softirqs last  enabled at (4258): [<ffffffff804065b5>] release_sock+0xd5/0xe0
->> softirqs last disabled at (4280): [<ffffffff804764d1>] _spin_lock_bh+0x11/0x50
->> 
->> other info that might help us debug this:
->> no locks held by nscd/4929.
->> 
->> stack backtrace:
->> 
->> Call Trace:
->>  [<ffffffff8020ab9f>] show_trace+0x9f/0x240
->>  [<ffffffff8020af75>] dump_stack+0x15/0x20
->>  [<ffffffff80249e52>] print_usage_bug+0x272/0x290
->>  [<ffffffff8024a0d7>] mark_lock+0x267/0x5f0
->>  [<ffffffff8024a9a6>] __lock_acquire+0x546/0xd10
->>  [<ffffffff8024b4fb>] lock_acquire+0x8b/0xc0
->>  [<ffffffff804764f4>] _spin_lock_bh+0x34/0x50
->>  [<ffffffff8044fe40>] udp_ioctl+0x50/0xa0
-> 
-> yet udp_ioctl takes it only for _bh
-> 
->>  [<ffffffff80457359>] inet_ioctl+0x69/0x70
->>  [<ffffffff804033ac>] sock_ioctl+0x22c/0x270
->>  [<ffffffff802a32b1>] do_ioctl+0x31/0xa0
->>  [<ffffffff802a35db>] vfs_ioctl+0x2bb/0x2e0
->>  [<ffffffff802a366a>] sys_ioctl+0x6a/0xa0
->>  [<ffffffff8020985a>] system_call+0x7e/0x83
->>  [<00002b2d76ab98a9>]
-> 
-> is this a real scenario, or is this a case of "firewire is special and
-> needs it's own rules"?
+> Yes, but that lumps all three together.  init_waitqueue_head() is 
+> obviously the porky one.  And it's porkier with CONFIG_DEBUG_SPINLOCK 
+> and CONFIG_LOCKDEP, which isn't the case to optimise for.
 
-Well, firewire is special, but that should already be addressed by this
-patch: "lockdep: annotate ieee1394 skb-queue-head locking"
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=d378834840907326ac9d448056d957d13cc3718f
+true. I redid my tests with both lockdep and debug-spinlocks turned off:
 
-Why is there still a lockdep warning?
+  text            data    bss     dec             filename
+  21172153        6077270 3081864 30331287        vmlinux.x32.after
+  21198222        6077106 3081864 30357192        vmlinux.x32.before
 
-(Ieee1394 core's usage of the skb_* API is entirely unrelated to
-networking; even if eth1394 was used.)
--- 
-Stefan Richter
--=====-=-==- -=== --=-=
-http://arcgraph.de/sr/
+with 851 callsites that's a 30.6 bytes win per call site (total 26K) - 
+still not bad at all.
+
+it's a win even on 64-bit:
+
+  text            data    bss     dec             filename
+  21237025        6997266 3327600 31561891        vmlinux.x64.after
+  21252773        6997090 3327600 31577463        vmlinux.x64.before
+
+with 755 callsites that's still a 20.8 bytes win per call site (total 
+15K).
+
+> With the debug options turned off, even init_waitqueue_head() becomes 
+> just three assignments, similar to init_waitqueue_entry() and 
+> init_waitqueue_func_entry().  All pretty marginal.
+
+but three assignments could mean 3 offsets embedded in the instructions. 
+(for init_waitqueue_entry we also embedd the address of 
+default_wake_function) Even 3 assignments can add up to a footprint that 
+is far from marginal.
+
+The rough rule of thumb for inlining is that anything that is larger 
+than one C statement is probably too large for inlining. (but even 
+1-line statements might be too fat at times)
+
+	Ingo

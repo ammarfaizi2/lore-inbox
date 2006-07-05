@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWGEKjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWGEKj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbWGEKjB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 06:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWGEKjB
+	id S964811AbWGEKj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 06:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWGEKj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 06:39:01 -0400
-Received: from khc.piap.pl ([195.187.100.11]:14540 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S964812AbWGEKjA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 06:39:00 -0400
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Benny Amorsen <benny+usenet@amorsen.dk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
-	<20060701170729.GB8763@irc.pl>
-	<20060701174716.GC24570@cip.informatik.uni-erlangen.de>
-	<20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
-	<20060703205523.GA17122@irc.pl>
-	<1151960503.3108.55.camel@laptopd505.fenrus.org>
-	<44A9904F.7060207@wolfmountaingroup.com>
-	<20060703232547.2d54ab9b.diegocg@gmail.com>
-	<m3r711u3yk.fsf@ursa.amorsen.dk> <44AB3E4C.2000407@tmr.com>
-	<44AB4A68.90301@zytor.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 05 Jul 2006 12:38:59 +0200
-In-Reply-To: <44AB4A68.90301@zytor.com> (H. Peter Anvin's message of "Tue, 04 Jul 2006 22:13:12 -0700")
-Message-ID: <m3k66sjpz0.fsf@defiant.localdomain>
+	Wed, 5 Jul 2006 06:39:28 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:20918 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S964807AbWGEKj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 06:39:27 -0400
+Message-ID: <44AB9633.9090208@s5r6.in-berlin.de>
+Date: Wed, 05 Jul 2006 12:36:35 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de, en
 MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: netdev@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.17-mm6
+References: <20060703030355.420c7155.akpm@osdl.org>	 <200607042153.31848.rjw@sisk.pl> <1152043271.3109.95.camel@laptopd505.fenrus.org> <44AB940F.7000801@s5r6.in-berlin.de>
+In-Reply-To: <44AB940F.7000801@s5r6.in-berlin.de>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+I wrote:
+> (Ieee1394 core's usage of the skb_* API is entirely unrelated to
+> networking; even if eth1394 was used.)
 
-> The real solution for it is snapshots.
+PS:
+I wonder if it wouldn't be better to migrate ieee1394 core away from
+skb_*. I didn't look thoroughly at it yet but the benefit of using this
+API appears quite low to me.
 
-Or a continuous log. Since we already use a journal we could possibly
-make its contents stay forever (and the admin should be able to define
-the "forever").
+We use it to keep track of IEEE 1394 transactions [ = outgoing request
+&& (incoming response || expiry)], with completion of transactions often
+in-order due to mostly single-threaded usage, but sometimes out-of-order
+(may happen regardless of multithreaded or single-threaded usage).
 -- 
-Krzysztof Halasa
+Stefan Richter
+-=====-=-==- -=== --=-=
+http://arcgraph.de/sr/

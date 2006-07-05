@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWGEKiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWGEKjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWGEKiA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 06:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWGEKiA
+	id S964799AbWGEKjB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 06:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWGEKjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 06:38:00 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53174 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964794AbWGEKh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 06:37:59 -0400
-Date: Wed, 5 Jul 2006 11:37:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch] uninline init_waitqueue_*() functions
-Message-ID: <20060705103756.GA5456@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org,
-	arjan@infradead.org
-References: <20060705084914.GA8798@elte.hu> <20060705023120.2b70add6.akpm@osdl.org> <20060705093259.GA11237@elte.hu>
-Mime-Version: 1.0
+	Wed, 5 Jul 2006 06:39:01 -0400
+Received: from khc.piap.pl ([195.187.100.11]:14540 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S964812AbWGEKjA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 06:39:00 -0400
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, Benny Amorsen <benny+usenet@amorsen.dk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext4 features
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
+	<20060701170729.GB8763@irc.pl>
+	<20060701174716.GC24570@cip.informatik.uni-erlangen.de>
+	<20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
+	<20060703205523.GA17122@irc.pl>
+	<1151960503.3108.55.camel@laptopd505.fenrus.org>
+	<44A9904F.7060207@wolfmountaingroup.com>
+	<20060703232547.2d54ab9b.diegocg@gmail.com>
+	<m3r711u3yk.fsf@ursa.amorsen.dk> <44AB3E4C.2000407@tmr.com>
+	<44AB4A68.90301@zytor.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 05 Jul 2006 12:38:59 +0200
+In-Reply-To: <44AB4A68.90301@zytor.com> (H. Peter Anvin's message of "Tue, 04 Jul 2006 22:13:12 -0700")
+Message-ID: <m3k66sjpz0.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060705093259.GA11237@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 05, 2006 at 11:32:59AM +0200, Ingo Molnar wrote:
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > shrinks fs/select.o by eight bytes.  (More than I expected).  So it 
-> > does appear to be a space win, but a pretty slim one.
-> 
-> there are 855 calls to these functions in the allyesconfig vmlinux i 
-> did, and i measured a combined size reduction of 34791 bytes. That 
-> averages to a 40 bytes win per call site. (on i386.)
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-And more importantly it's a function that's called in slowpathes per
-definition.  So saving text sounds like a good idea, how minimal it
-may be.
+> The real solution for it is snapshots.
 
-> 
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
----end quoted text---
+Or a continuous log. Since we already use a journal we could possibly
+make its contents stay forever (and the admin should be able to define
+the "forever").
+-- 
+Krzysztof Halasa

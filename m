@@ -1,131 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWGEHKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWGEH2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWGEHKk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 03:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWGEHKk
+	id S932176AbWGEH2E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 03:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWGEH2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 03:10:40 -0400
-Received: from sullivan.realtime.net ([205.238.132.76]:24593 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id S932091AbWGEHKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 03:10:39 -0400
-Message-Id: <200607050701.k6571l5R018078@sullivan.realtime.net>
-From: Milton Miller <miltonm@bga.com>
-Subject: [PATCH] simplfy bh_lru_install
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jes Sorensen <jes@sgi.com>
-Date: Mon,  3 Jul 2006 11:37:43 -0400 (EDT)
-References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>,
-	<200607040519.k645JdoW014585@sullivan.realtime.net>
+	Wed, 5 Jul 2006 03:28:04 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:22772 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S932176AbWGEH2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 03:28:03 -0400
+Message-ID: <44AB69FA.4090305@stesmi.com>
+Date: Wed, 05 Jul 2006 09:27:54 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: =?UTF-8?B?xLBzbWFpbCBEw7ZubWV6?= <ismail@pardus.org.tr>,
+       alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
+       Olivier Galibert <galibert@pobox.com>, Adrian Bunk <bunk@stusta.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Olaf Hering <olh@suse.de>,
+       James Courtier-Dutton <James@superbug.co.uk>, perex@suse.cz
+Subject: Re: OSS driver removal, 2nd round
+References: <20060629192128.GE19712@stusta.de>	<200607010042.15765.ismail@pardus.org.tr>	<1151704572.32444.74.camel@mindpipe> <200607010249.05140.ismail@pardus.org.tr> <44A99C72.7070602@tmr.com>
+In-Reply-To: <44A99C72.7070602@tmr.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-ripemd160;
+ protocol="application/pgp-signature";
+ boundary="------------enig5A525288E0332CC8438170B1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, previous version forgot to do get_bh().  Still not tested.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig5A525288E0332CC8438170B1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-While looking at Jes' patch "reduce IPI noise due to /dev/cdrom open/close"
-I took a look at what the bh_lru code was doing.
+Bill Davidsen wrote:
+> =C4=B0smail D=C3=B6nmez wrote:
+>=20
+>> Cumartesi 1 Temmuz 2006 00:56 tarihinde, Lee Revell =C5=9Funlar=C4=B1 =
+yazm=C4=B1=C5=9Ft=C4=B1:
+>>
+>>> On Sat, 2006-07-01 at 00:42 +0300, =C4=B0smail D=C3=B6nmez wrote:
+>>>
+>>>> Cumartesi 1 Temmuz 2006 00:29 tarihinde =C5=9Funlar=C4=B1 yazm=C4=B1=
+=C5=9Ft=C4=B1n=C4=B1z:
+>>>>
+>>>>> (I wish the authors of Skype, Flash, TeamSpeak, Enemy Territory, an=
+d
+>>>>> other proprietary OSS-only apps would understand this ;-)
+>>>>
+>>>> New skype beta supports Alsa, doesn't work ATM but its a great step =
+in
+>>>> that direction and Flash9 for Linux will use Alsa.
+>>>
+>>> Really?  Got a link?  Last I heard about Flash was that their lawyers=
 
- * The LRU management algorithm is dopey-but-simple.  Sorry.
+>>> won't let them link to LGPL libraries which would rule out ALSA suppo=
+rt.
+>>
+>>
+>> Hear from the lead developer for Flash Linux :
+>> http://blogs.adobe.com/penguin.swf/2006/06/week_in_review_1.html
+>>
+> Is that right? After years of negative comments about Flash and OSS, as=
 
-Umm.. yes.
+> soon as it's converted to ALSA v1 api that going out in 2.6.18?
+>=20
 
-That in and out loop caused me to stare a bit.
+Actually I think you're mixing stuff up ?
 
-lru_lookup_install, aka adding to lru cache, is building a second
-array on the stack and then calling memcpy at the end to replace
-the data.  Sure its in cache, but we already did all the loads 
-and stores once.
+It's being written for v4l v1 api which is being phased out with 2.6.18.
 
-The in and out arrays are always the same length, and we only allow
-an entry in once.  So we know that we either push all down, and the
-last one is the evictee, or we find the entry in there previously
-and free that slot, leaving a copyloop.
+They already have alsa working (and from the sound of it it's working
+great!).
 
-But I'm sure the compiler can't determine that, because it doesn't
-know about the insert-uniquely assertion.
+v4l !=3D alsa. :)
 
-It also has a special case for its already at the top.  But since
-we did a lookup before __find_get_block_slow, that is surely a rare
-special case.
+// Stefan
 
-Maybe it was designed to be called it on every lookup.
 
-The lookup case does a move to top pulling the previous entrys down
-one by one to the former spot, and inserting at the top, which is
-sane.  Why not do a push down here here?
+--------------enig5A525288E0332CC8438170B1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-And while here, we can stop if we hit a NULL entry too, we will not
-have any stragglers underneath.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-Here is a totally untested patch.  Well, it compiles.  In the for
-loop next is also assigned to bh for the bh = NULL case the compiler
-pointed out.
+iD8DBQFEq2oBBrn2kJu9P78RA62nAKCVk75FEB5yhKY6bnsv4BU9ZGNX3gCdFx4x
+jYZUsCS+fT5pNH7MSk3ceQM=
+=6s6r
+-----END PGP SIGNATURE-----
 
-Signed-off-by: Milton Miller <miltonm@bga.com>
-
---- linux-2.6.17/fs/buffer.c.orig	2006-07-04 00:04:16.000000000 -0400
-+++ linux-2.6.17/fs/buffer.c	2006-07-05 01:50:27.000000000 -0400
-@@ -1347,41 +1347,36 @@ static inline void check_irqs_on(void)
-  */
- static void bh_lru_install(struct buffer_head *bh)
- {
--	struct buffer_head *evictee = NULL;
-+	struct buffer_head *next, *prev;
- 	struct bh_lru *lru;
-+	int i;
- 
- 	check_irqs_on();
- 	bh_lru_lock();
- 	lru = &__get_cpu_var(bh_lrus);
--	if (lru->bhs[0] != bh) {
--		struct buffer_head *bhs[BH_LRU_SIZE];
--		int in;
--		int out = 0;
- 
--		get_bh(bh);
--		bhs[out++] = bh;
--		for (in = 0; in < BH_LRU_SIZE; in++) {
--			struct buffer_head *bh2 = lru->bhs[in];
--
--			if (bh2 == bh) {
--				__brelse(bh2);
--			} else {
--				if (out >= BH_LRU_SIZE) {
--					BUG_ON(evictee != NULL);
--					evictee = bh2;
--				} else {
--					bhs[out++] = bh2;
--				}
--			}
--		}
--		while (out < BH_LRU_SIZE)
--			bhs[out++] = NULL;
--		memcpy(lru->bhs, bhs, sizeof(bhs));
-+	get_bh(bh);
-+	/* Push down, looking for duplicate as we go. last is freed */
-+	for (i = 0, next = prev = bh; i < BH_LRU_SIZE && prev;
-+			i++, prev = next) {
-+		next = lru->bhs[i];
-+		if (unlikely(next == bh))
-+			break;
-+		lru->bhs[i] = prev;
-+	}
-+
-+#ifdef DEBUG
-+	/* ++i to avoid finding the entry we know */
-+	for (++i; i < BH_LRU_SIZE; i++) {
-+		BUG_ON(lru->bhs[i] == bh);
-+		if (!next)
-+			BUG_ON(lru->bhs[i]);
- 	}
-+#endif
-+
- 	bh_lru_unlock();
- 
--	if (evictee)
--		__brelse(evictee);
-+	brelse(next);
- }
- 
- /*
+--------------enig5A525288E0332CC8438170B1--

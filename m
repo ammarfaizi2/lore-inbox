@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWGEH2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWGEH3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWGEH2E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 03:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWGEH2E
+	id S932178AbWGEH3a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 03:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWGEH33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 03:28:04 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:22772 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S932176AbWGEH2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 03:28:03 -0400
-Message-ID: <44AB69FA.4090305@stesmi.com>
-Date: Wed, 05 Jul 2006 09:27:54 +0200
+	Wed, 5 Jul 2006 03:29:29 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:54172 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S932178AbWGEH33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 03:29:29 -0400
+Message-ID: <44AB6A57.2060205@stesmi.com>
+Date: Wed, 05 Jul 2006 09:29:27 +0200
 From: Stefan Smietanowski <stesmi@stesmi.com>
 User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: =?UTF-8?B?xLBzbWFpbCBEw7ZubWV6?= <ismail@pardus.org.tr>,
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Lee Revell <rlrevell@joe-job.com>,
+       James Courtier-Dutton <James@superbug.co.uk>,
        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-       Olivier Galibert <galibert@pobox.com>, Adrian Bunk <bunk@stusta.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Olaf Hering <olh@suse.de>,
-       James Courtier-Dutton <James@superbug.co.uk>, perex@suse.cz
-Subject: Re: OSS driver removal, 2nd round
-References: <20060629192128.GE19712@stusta.de>	<200607010042.15765.ismail@pardus.org.tr>	<1151704572.32444.74.camel@mindpipe> <200607010249.05140.ismail@pardus.org.tr> <44A99C72.7070602@tmr.com>
-In-Reply-To: <44A99C72.7070602@tmr.com>
+       Olivier Galibert <galibert@pobox.com>, perex@suse.cz,
+       Olaf Hering <olh@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
+References: <20060629192128.GE19712@stusta.de>  <44A54D8E.3000002@superbug.co.uk> <20060630163114.GA12874@dspnet.fr.eu.org>  <1151702966.32444.57.camel@mindpipe>  <20060701073133.GA99126@dspnet.fr.eu.org> <44A6279C.3000100@superbug.co.uk>  <44A76DDF.4020307@superbug.co.uk>  <Pine.LNX.4.61.0607021153220.5276@yvahk01.tjqt.qr> <1151854092.12026.39.camel@mindpipe> <Pine.LNX.4.61.0607022304230.5218@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0607022304230.5218@yvahk01.tjqt.qr>
 X-Enigmail-Version: 0.93.0.0
 Content-Type: multipart/signed; micalg=pgp-ripemd160;
  protocol="application/pgp-signature";
- boundary="------------enig5A525288E0332CC8438170B1"
+ boundary="------------enig13E2E95B9D3C5BE8E7325CDA"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5A525288E0332CC8438170B1
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+--------------enig13E2E95B9D3C5BE8E7325CDA
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Bill Davidsen wrote:
-> =C4=B0smail D=C3=B6nmez wrote:
->=20
->> Cumartesi 1 Temmuz 2006 00:56 tarihinde, Lee Revell =C5=9Funlar=C4=B1 =
-yazm=C4=B1=C5=9Ft=C4=B1:
->>
->>> On Sat, 2006-07-01 at 00:42 +0300, =C4=B0smail D=C3=B6nmez wrote:
+Jan Engelhardt wrote:
+>>>Well you could patch the affected plugin's .dynstr table so that it should at
+>>>best try to call a function that has not yet been defined somewhere else (like
+>>>open); IOW, you change the .dynstr entry from 'open' to say 'my_open', and
+>>>regularly include libmy.so through e.g. LD_PRELOAD.
 >>>
->>>> Cumartesi 1 Temmuz 2006 00:29 tarihinde =C5=9Funlar=C4=B1 yazm=C4=B1=
-=C5=9Ft=C4=B1n=C4=B1z:
->>>>
->>>>> (I wish the authors of Skype, Flash, TeamSpeak, Enemy Territory, an=
-d
->>>>> other proprietary OSS-only apps would understand this ;-)
->>>>
->>>> New skype beta supports Alsa, doesn't work ATM but its a great step =
-in
->>>> that direction and Flash9 for Linux will use Alsa.
->>>
->>> Really?  Got a link?  Last I heard about Flash was that their lawyers=
-
->>> won't let them link to LGPL libraries which would rule out ALSA suppo=
-rt.
+>>>Of course the MD5 won't match afterwards, but I think the plugin should execute
+>>>as usual afterwards, since .dynstr is something no app should rely on.
 >>
->>
->> Hear from the lead developer for Flash Linux :
->> http://blogs.adobe.com/penguin.swf/2006/06/week_in_review_1.html
->>
-> Is that right? After years of negative comments about Flash and OSS, as=
+>>Is this likely to work with an app like Skype that takes extensive steps
+>>to thwart reverse engineers?
+> 
+> 
+> We do not reverse engineer the .text section, but change the .dynstr 
+> section that is specific to the ELF format. I doubt any app out there md5s 
+> itself.
 
-> soon as it's converted to ALSA v1 api that going out in 2.6.18?
->=20
-
-Actually I think you're mixing stuff up ?
-
-It's being written for v4l v1 api which is being phased out with 2.6.18.
-
-They already have alsa working (and from the sound of it it's working
-great!).
-
-v4l !=3D alsa. :)
+There is at least one. True that it doesn't do sound (it's an antivirus
+scanner for mailservers :)) but regardless, it checksums the whole
+thing.
 
 // Stefan
 
-
---------------enig5A525288E0332CC8438170B1
+--------------enig13E2E95B9D3C5BE8E7325CDA
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -90,9 +69,9 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.4.4 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQFEq2oBBrn2kJu9P78RA62nAKCVk75FEB5yhKY6bnsv4BU9ZGNX3gCdFx4x
-jYZUsCS+fT5pNH7MSk3ceQM=
-=6s6r
+iD8DBQFEq2pXBrn2kJu9P78RAx1+AJ9b5byLxkX71UGNDeClxqI+Qz0rCACgi9i6
+Ir6p5tAoaGOVaLStgaEUfeM=
+=pChO
 -----END PGP SIGNATURE-----
 
---------------enig5A525288E0332CC8438170B1--
+--------------enig13E2E95B9D3C5BE8E7325CDA--

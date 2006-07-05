@@ -1,101 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbWGEVth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbWGEVvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbWGEVth (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 17:49:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbWGEVth
+	id S965058AbWGEVvg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 17:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWGEVvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 17:49:37 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:27349 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965059AbWGEVth (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 17:49:37 -0400
-Date: Wed, 5 Jul 2006 23:45:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
-Subject: Re: [patch] uninline init_waitqueue_*() functions
-Message-ID: <20060705214502.GA27597@elte.hu>
-References: <20060705025349.eb88b237.akpm@osdl.org> <20060705102633.GA17975@elte.hu> <20060705113054.GA30919@elte.hu> <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
+	Wed, 5 Jul 2006 17:51:35 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15022 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965045AbWGEVve
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 17:51:34 -0400
+Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch
+	added to -mm tree
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: Doug Thompson <norsk5@yahoo.com>, akpm@osdl.org,
+       mm-commits@vger.kernel.org, norsk5@xmission.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060704113441.GA26023@muc.de>
+References: <20060701150430.GA38488@muc.de>
+	 <20060703172633.50366.qmail@web50109.mail.yahoo.com>
+	 <20060703184836.GA46236@muc.de>
+	 <1151962114.16528.18.camel@localhost.localdomain>
+	 <20060704092358.GA13805@muc.de>
+	 <1152007787.28597.20.camel@localhost.localdomain>
+	 <20060704113441.GA26023@muc.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 05 Jul 2006 23:08:21 +0100
+Message-Id: <1152137302.6533.28.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Linus Torvalds <torvalds@osdl.org> wrote:
-
-> On Wed, 5 Jul 2006, Ingo Molnar wrote:
+Ar Maw, 2006-07-04 am 13:34 +0200, ysgrifennodd Andi Kleen:
+> > > Giving a consistent sysfs interface is a bit harder, but I suppose one 
+> > > could change the code to provide pseudo banks for enable/disable too.
+> > > However that would be system specific again, so a default "all on/all off" 
+> > > policy might be quite ok.
 > > 
-> > i had CONFIG_DEBUG_INFO (and UNWIND_INFO) disabled in all these build 
-> > tests.
+> > I think we need the basic consistent sysfs case. Whether that is
 > 
-> Good, because I just verified: those two together will on their own 
-> increase "text size" by about 17% for me.
-> 
-> I still think Andrew is right: I don't see how an initializer that 
-> should basically be three instructions can possibly be 35 bytes larger 
-> than a function call that should be a minimum of two instructions 
-> (argument setup in %eax and the actual call - and that's totally 
-> ignoring the deleterious effects of a function call on register 
-> liveness).
-> 
-> The fact that with allnoconfig the kernel is _smaller_ (but, quite 
-> franlkly, within the noise) with the inlined version would seem to 
-> back up Andrews position that it really shouldn't matter.
+> What should i do?
 
-well, the allnoconfig thing is artificial (and the uninteresting) for a 
-number of reasons:
+Well personally I would favour the MCE logging stuff staying in because
+its clearly small, compact and enough for many users, and the EDAC stuff
+hooking that feed somehow so that people who want the detail and the
+common behaviour across platforms can load the extra module.
 
-- it has REGPARM disabled which penalizes function calls
+As to filtering and control of the banks - that can always be done by
+filtering what is handed down from the MCE code if I understand it right
+so can be left in the EDAC side.
 
-- it's UP and hence the inlining cost of init_wait_queue_head() is 
-  significantly smaller.
+But thats just my opinion. It is based on what I'm seeing in terms of
+feedback from people using EDAC a lot (eg in clusters). 
 
-- allnoconfig has smaller average function size - increasing the cost of 
-  uninlining
+Alan
 
-> So I'm left wondering why it matters for you, and what triggers it. 
-> Maybe there is some secondary issue that could show us an even more 
-> interesting optimization (or some compiler behaviour that we should 
-> try to encourage).
-
-yeah, i'd not want to skip over some interesting and still unexplained 
-effect either, but 35 bytes isnt all that outlandish and from everything 
-i've seen it's a real win. Here is an actual example:
-
- c0fb6137:       c7 44 24 08 00 00 00    movl   $0x0,0x8(%esp)
- c0fb613e:       00
- c0fb613f:       c7 44 24 08 01 00 00    movl   $0x1,0x8(%esp)
- c0fb6146:       00
- c0fb6147:       c7 43 60 00 00 00 00    movl   $0x0,0x60(%ebx)
- c0fb614e:       8b 44 24 08             mov    0x8(%esp),%eax
- c0fb6152:       89 43 5c                mov    %eax,0x5c(%ebx)
- c0fb6155:       8d 43 64                lea    0x64(%ebx),%eax
- c0fb6158:       89 40 04                mov    %eax,0x4(%eax)
- c0fb615b:       89 43 64                mov    %eax,0x64(%ebx)
-
-versus:
-
- c0fb070e:       8d 43 5c                lea    0x5c(%ebx),%eax
- c0fb0711:       e8 94 98 18 ff          call   c0139faa <init_waitqueue_head>
-
-so 39 bytes versus 8 bytes - 31 bytes saved. It's a similar win in other 
-cases i checked too. (the only exception is for smaller functions that i 
-mentioned before: where the parameters are not pre-calculated yet so 
-there's no good integration for the function call. In that case it's 
-break even, or in some cases a 3-4 bytes loss.)
-
-	Ingo

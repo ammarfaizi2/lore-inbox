@@ -1,95 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWGEPss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWGEPsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbWGEPss (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 11:48:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWGEPss
+	id S932243AbWGEPsR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 11:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWGEPsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 11:48:48 -0400
-Received: from mga01.intel.com ([192.55.52.88]:48397 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932166AbWGEPsr convert rfc822-to-8bit (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 11:48:47 -0400
-X-IronPort-AV: i="4.06,210,1149490800"; 
-   d="scan'208"; a="93470953:sNHT21024283"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
-Date: Wed, 5 Jul 2006 19:48:39 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC06CF71@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
-Thread-Index: AcagQ/o/Uh1UoVkASTmrTUwJ0EjD2wABFEfg
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Nikita Danilov" <nikita@clusterfs.com>
-Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-X-OriginalArrivalTime: 05 Jul 2006 15:48:45.0184 (UTC) FILETIME=[7F62C000:01C6A04A]
+	Wed, 5 Jul 2006 11:48:17 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:7891 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932243AbWGEPsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 11:48:16 -0400
+Subject: Re: oops with 2.6.17.1 in vfs_statfs (maybe oprofile related)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Roberto Nibali <ratz@drugphish.ch>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44ABDE30.6080307@drugphish.ch>
+References: <44ABDE30.6080307@drugphish.ch>
+Content-Type: text/plain
+Date: Wed, 05 Jul 2006 17:48:13 +0200
+Message-Id: <1152114494.3201.41.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov writes:
-> What about replacing
->		pdflush_operation(background_writeout, 0);
-> with
->  		if (pdflush_operation(background_writeout, 0))
->
->                 writeback_inodes(&wbc);
-The is a latency betwean pdflush_operation() call and
-writeback_in_progress(bdi) returns true.
-As a result writeback_inodes() may be called in next loop before pdflush
-is started. Pdflush detects that writeback_in_progress() returns true
-for it and will exit.
+On Wed, 2006-07-05 at 17:43 +0200, Roberto Nibali wrote:
+> Hello,
+> 
+> I'm slowly integrating 2.6.x kernel support and happen to hit a few
+> oopses every now and then. So long as time permits I'll post them here.
+> We have very intensive and complex test conducts since our distribution
+> needs to be able to run across 2.2.x, 2.4.x and 2.6.x.
+> 
+> One of the tests I've performed was to oprofile a I/O intensive
+> application while doing hotswap of the underlying SCSI disk in software
+> raid mode, trying to monitor IPMI events in parallel. One of the oops I
+> got was (and some sysrq fiddling):
+> 
+> Jul  5 16:38:11 BUG: unable to handle kernel paging request at virtual
+> address f89d4888
+> Jul  5 16:38:11 printing eip:
+> Jul  5 16:38:11 c10510e0
+> Jul  5 16:38:11 *pde = 00000000
+> Jul  5 16:38:11 Oops: 0000 [#1]
+> Jul  5 16:38:11 SMP
+> Jul  5 16:38:11 Modules linked in: raid1 e1000 ipmi_si ipmi_devintf
+> ipmi_msghandler ext3 jbd md_mod
+> Jul  5 16:38:11 CPU:    0
+> Jul  5 16:38:11 EIP:    0060:[<c10510e0>]    Tainted: G  R   VLI
 
-Leonid
------Original Message-----
-From: Nikita Danilov [mailto:nikita@clusterfs.com] 
-Sent: Wednesday, July 05, 2006 6:57 PM
-To: Ananiev, Leonid I
-Cc: Linux Kernel Mailing List
-Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh
-entirely
+you did an rmmod -f ...
+is does this happen if you don't do that as well ?
 
-Ananiev, Leonid I writes:
- > Nikita Danilov writes:
- > > suppose you have more than MAX_PDFLUSH_THREADS
- > Do you consider that the drawback of the patch is in that the value
- > MAX_PDFLUSH_THREADS is not well known high or this limit is not
-deleted
 
-I am more concerned, that this patch _limits_ maximal possible writeback
-concurrency to MAX_PDFLUSH_THREADS.
-
- > at all? The limit could be deleted after patching because the line 
-
-That sounds a bit too extreme, given that pdflush is used for a lot of
-things other than background write-out.
-
- > +	if (writeback_in_progress(bdi)) {
- > keeps off creating extra pdflush threads.
-
-What about replacing
-
- 		pdflush_operation(background_writeout, 0);
-
-with
-
- 		if (pdflush_operation(background_writeout, 0))
-                /*
-                 * Fall back to synchronous writeback if all pdflush
-                 * threads are busy.
-                 */
-                writeback_inodes(&wbc);
-
-? This will combine increased concurrency in your target case (single
-writer) with some safety net in the case of multiple writers and
-multiple devices.
-
- > 
- > Leonid
-
-Nikita.

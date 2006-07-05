@@ -1,119 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWGEBvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWGECUS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWGEBvn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 21:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWGEBvm
+	id S932305AbWGECUS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 22:20:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWGECUS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 21:51:42 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:36839 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S932398AbWGEBvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 21:51:42 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: Linux 2.4.33-rc2
-Date: Wed, 05 Jul 2006 11:51:35 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <0e6ma2961ro2evtrnacgmla7j52j738q76@4ax.com>
-References: <20060621192756.GB13559@dmt> <20060703220736.GA272@1wt.eu>
-In-Reply-To: <20060703220736.GA272@1wt.eu>
-X-Mailer: Forte Agent 2.0/32.652
+	Tue, 4 Jul 2006 22:20:18 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:38469 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932305AbWGECUQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 22:20:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uhn6yIjN/oGKDLe/fJGUzAI17ry3+8mTU0SZWKyALrMkC43K4+O16p93RahU+dH65awcJwEHsa+23fnvNV0NFHPuWyxZN0juuWsiRYu5XvobeDTG/slaMd6CdQpcdVwFsbElOoFvW5ZS6Njpl294yvyFYzgeGxHbIHJJvBuqk+8=
+Message-ID: <a44ae5cd0607041920p691a1998w8b3fb844cab6b706@mail.gmail.com>
+Date: Tue, 4 Jul 2006 19:20:16 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.6.17-mm5 + pcmcia/hostap/8139too patches -- inconsistent {hardirq-on-W} -> {in-hardirq-W} usage
+Cc: "Arjan van de Ven" <arjan@infradead.org>, mingo@elte.hu,
+       "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1152005201.28597.14.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <a44ae5cd0607031431q8dcc698j1c447b1d51c7cc75@mail.gmail.com>
+	 <1151963034.3108.59.camel@laptopd505.fenrus.org>
+	 <1151965557.16528.36.camel@localhost.localdomain>
+	 <a44ae5cd0607031614y2055828as6e0bbe2ce0d52ff1@mail.gmail.com>
+	 <1152005201.28597.14.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jul 2006 00:07:36 +0200, Willy Tarreau <w@1wt.eu> wrote:
+On 7/4/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Ar Llu, 2006-07-03 am 16:14 -0700, ysgrifennodd Miles Lane:
+> > eth2: NE2000 (DL10022 rev 30): io 0x300, irq 11, hw_addr 00:50:BA:73:92:3D
+> > Which seems to indicate I need to tweak the PCMCIA settings to get this card
+> > working.  I wonder if anyone is going to follow up on enabling shared IRQ
+> > support.
+>
+>
+> Try this. Note the SMP locking in this driver appears iffy and looks
+> like it was never SMP sane.
 
->On Wed, Jun 21, 2006 at 04:27:56PM -0300, Marcelo Tosatti wrote:
-> 
->> Willy Tarreau:
->>       Fix vfs_unlink/NFS NULL pointer dereference
->
->Marcelo, I'm not sure this one is perfect yet. Today, while packaging
->a lot of files for our distro at work, I came up with a problem where
->deleting a file on NFS, and later simply accessing (read/write/create)
->a file on the NFS file system did block. However, I could kill all the
->offending processes. This was after a full day of mkdir/create/open/
->unlink... (tens of thoudands of those), so it is not much reproduceable.
->
->I could not unmount the NFS anymore, while other users had no problem.
->Rebooting the client solved the problem. I caught an RPC trace (attached),
->not sure if it can help. I must say that I'm also running Trond's NFS
->patches which I suspected first, but with which I never encountered a
->single problem for years.
->
->The fact that the problem appeared during an rm -rf made me think about
->the vfs_unlink() patch. I went to read it again an I'm wondering if we
->have not inserted a new problem (please forgive my ignorance here) :
->
->in 2.4.32, we had the following sequence :
->        down(&dir->i_zombie);
->        if (may_delete(dir, dentry, 0) != 0) return;
->        lock_kernel();
->        error = dir->i_op->unlink(dir, dentry);
->        unlock_kernel();
->        if (!error)
->              d_delete(dentry);
->        up(&dir->i_zombie);
->        if (!error)
->                inode_dir_notify(dir, DN_DELETE);
->
->
->int 2.4.33-rc2, we have :
->        if (may_delete(dir, dentry, 0) != 0) return;
->        inode = dentry->d_inode;
->
->        atomic_inc(&inode->i_count);
->        double_down(&dir->i_zombie, &inode->i_zombie);
-> 
->        lock_kernel();
->        error = dir->i_op->unlink(dir, dentry);
->        unlock_kernel();
->
->        double_up(&dir->i_zombie, &inode->i_zombie);
->        iput(inode);
->
->        if (!error) {
->                d_delete(dentry);
->                inode_dir_notify(dir, DN_DELETE);
->        }
->
->What I notice is that in 2.4.32, d_delete(dentry) was performed
->between down(&dir->i_zombie) and up(&dir->i_zombie), while now
->it's completely outside. I wonder if this can cause race conditions
->or not, but at least, I'm sure that we have changed the locking
->sequence, which might have some impact.
->
->Do you think I'm searching in the wrong direction ? I worry a
->bit, because getting a deadlock after only one day, it's a bit
->early :-/
->
-Assuming you mean something like the patch below?  Doesn't cause any 
-problems (yet, still testing) like eat files or segfault here as 
-reported for -rc1 +/- various patches ;)
+The patch corrects the messages about shared interrupts:
 
-Cheers,
-Grant.
---- linux-2.4.33-rc2/fs/namei.c	2006-06-22 07:27:47.000000000 +1000
-+++ linux-2.4.33-rc2b/fs/namei.c	2006-07-05 11:43:19.000000000 +1000
-@@ -1497,13 +1497,14 @@
- 			lock_kernel();
- 			error = dir->i_op->unlink(dir, dentry);
- 			unlock_kernel();
-+			if (!error)
-+				d_delete(dentry);
- 		}
- 	}
- 	double_up(&dir->i_zombie, &inode->i_zombie);
- 	iput(inode);
- 
- 	if (!error) {
--		d_delete(dentry);
- 		inode_dir_notify(dir, DN_DELETE);
- 	}
- 	return error;
+pccard: PCMCIA card inserted into slot 0
+cs: memory probe 0x0c0000-0x0fffff: excluding 0xc0000-0xcffff 0xdc000-0xfffff
+cs: memory probe 0x50000000-0x51ffffff: excluding 0x50000000-0x51ffffff
+cs: memory probe 0x60000000-0x60ffffff: clean.
+cs: memory probe 0xa0000000-0xa0ffffff: clean.
+cs: memory probe 0xe0200000-0xe02fffff: excluding 0xe0200000-0xe020ffff
+pcmcia: registering new device pcmcia0.0
+PM: Adding info for pcmcia:0.0
+eth2: NE2000 (DL10022 rev 30): io 0x300, irq 11, hw_addr 00:50:BA:73:92:3D
+
+I have lost the connector cable that attaches the card to an ethernet
+cable, so I have been using a cable labelled 3COM instead.  It has
+LEDs for 10 and 100 Kbps connections.
+Neither LED is lighting up.  On the other hand, NetworkManager
+seems aware when I have an ethernet cable attached.  I now
+suspect that I need a new cable.  The card is a D-Link DFE-650
+Fast Ethernet PCMCIA adapter.  Maybe I should order one of these:
+http://shopping.yahoo.com/p:QVS%20CPN-GN100T%20:1991447348;_ylt=Ap_SzM9pNc5eVJDZKVqsYd5tpcsE;_ylu=X3oDMTBuZDl1N2RxBF9zAzU5MDk4NTIxBGx0AzQEc2VjA3Ny?clink=dmss//ctx=sc:cnetwork_adapter,c:cnetwork_adapter,mid:57,pid:1991447348,pdid:57,pos:6
+
+What do you think?
+           Miles

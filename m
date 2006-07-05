@@ -1,102 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWGEN7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWGEOEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWGEN7W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 09:59:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWGEN7W
+	id S964873AbWGEOEV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 10:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWGEOEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 09:59:22 -0400
-Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:61525 "EHLO
-	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932421AbWGEN7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 09:59:22 -0400
-Message-ID: <44ABC5B7.2090707@bigpond.net.au>
-Date: Wed, 05 Jul 2006 23:59:19 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
+	Wed, 5 Jul 2006 10:04:21 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:58120 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S964873AbWGEOEU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 10:04:20 -0400
+Message-ID: <44ABC6E1.7050200@argo.co.il>
+Date: Wed, 05 Jul 2006 17:04:17 +0300
+From: Avi Kivity <avi@argo.co.il>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] sched: Add SCHED_BGND (background) scheduling policy
-References: <20060704233521.8744.45368.sendpatchset@heathwren.pw.nest> <1152099752.8684.198.camel@Homer.TheSimpsons.net>
-In-Reply-To: <1152099752.8684.198.camel@Homer.TheSimpsons.net>
+To: Theodore Tso <tytso@mit.edu>
+CC: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+References: <20060704010240.GD6317@thunk.org>
+In-Reply-To: <20060704010240.GD6317@thunk.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 5 Jul 2006 13:59:20 +0000
+X-OriginalArrivalTime: 05 Jul 2006 14:04:18.0897 (UTC) FILETIME=[E8633C10:01C6A03B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Wed, 2006-07-05 at 09:35 +1000, Peter Williams wrote:
-> 
->> @@ -3332,23 +3447,25 @@ need_resched_nonpreemptible:
->>  	}
->>  
->>  	array = rq->active;
->> -	if (unlikely(!array->nr_active)) {
->> -		/*
->> -		 * Switch the active and expired arrays.
->> -		 */
->> -		schedstat_inc(rq, sched_switch);
->> -		rq->active = rq->expired;
->> -		rq->expired = array;
->> -		array = rq->active;
->> -		rq->expired_timestamp = 0;
->> -		rq->best_expired_prio = MAX_PRIO;
->> -	}
->> +	if (unlikely(!array->nr_active))
->> +		array = switch_arrays(rq, MAX_PRIO);
->>  
->>  	idx = sched_find_first_bit(array->bitmap);
->> +get_next:
->>  	queue = array->queue + idx;
->>  	next = list_entry(queue->next, struct task_struct, run_list);
->> +	/* very strict backgrounding */
->> +	if (unlikely(task_in_background(next) && rq->expired->nr_active)) {
->> +		int tmp = sched_find_first_bit(rq->expired->bitmap);
->> +
->> +		if (likely(tmp < idx)) {
->> +			array = switch_arrays(rq, idx);
->> +			idx = tmp;
->> +			goto get_next;
-> 
-> Won't this potentially expire the mutex holder which you specifically
-> protect in scheduler_tick() if it was preempted before being ticked?
+Theodore Tso wrote:
+>
+> could argue that such a stupid student doesnt *deserve* to get a 
+> Ph.D.  :-)
+>
+> >         * and snapshots on filesystem basis
+>
+> This requires a filesystem that is designed from the get-go to support
+> snapshots.  So yes, it's lilely not going to happen for ext4.
+> Although, if you have a really clever idea, feel free to post patches
+> or a detailed technical proposal for how to achieve such a goal.  :-)
+>
 
-I don't think so as its prio value should cause task_in_background() to 
-fail.
+To take a snapshot of a file, copy its inode to a free inode (call it a 
+frozen inode, or finode). The inode is at the head of a linked list of 
+finodes, each older than its predecessor.
 
-> The task in the expired array could also be a !safe_to_background() task
-> who already had a chance to run, and who's slice expired.
+Finodes have the same content as the inode they were clones from except 
+the extent map. A new finode's extent map contains a single extent the 
+size of the entire file with a flag that means "look in the nearest 
+future finode (or inode)".
 
-If it's !safe_to_background() it's in our interest to let it run in 
-order to free up the resource that it's holding.
+When writing to a file, first look at the nearest finode's mapping for 
+that range. If it has a normal extent, go ahead and write. If it has a 
+future extent for that range, first transfer that extent to the finode 
+(replacing the future extent), then write the data to newly allocated 
+extents. Of course this process can break up extents. One can choose 
+whether to transfer the block pointers or just the data; a tradeoff of 
+additional data copying vs. fragmentation avoidance.
 
-> 
-> If it's worth protecting higher priority tasks from mutex holders ending
-> up in the expired array, then there's a case that should be examined.
+When reading from a finode, if you're reading a normal extent, proceed 
+normally. If you encounter a future extent, keep searching for the range 
+in newer finodes until you encounter a normal extent or the base inode.
 
-It's more than just stopping them end up in the expired array.  It's 
-stopping them being permanently in the expired array.
+To snapshot the entire filesystem, have a snapshot generation count in 
+the superblock and in each inode. Incrementing the superblock generation 
+count snapshots the filesystem. Whenever you write to a file, if its 
+generation number lags the filesystem generation number, you take a file 
+snapshot as outlined above.
 
-> There's little difference between a background task acquiring a mutex,
-> and a normal task with one tick left on it's slice.
+Directories are handled in the same way as files, although special care 
+is necessary for inode reference counts.
 
-The difference is that the background task could stay there forever.
+Deleting a snapshots means merging the preceding and next finodes' 
+extent maps and freeing blocks. We'd need a linked list of all finodes 
+belonging to a snapshot generation.
 
->  Best for sleepers
-> is of course to just say no to expiring mutex holders period.
 
-In spite of my comments above, I agree that not expiring mutex holders 
-might (emphasis on the "might") be good for overall system performance 
-by reducing the time for which locks are held.  Giving them a whole new 
-time slice on the active array might be too generous though.  It could 
-become quite complex.
 
-Peter
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
+error compiling committee.c: too many arguments to function
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

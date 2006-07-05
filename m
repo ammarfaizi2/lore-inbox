@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbWGERSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWGERTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964919AbWGERSh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 13:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWGERSh
+	id S964921AbWGERTS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 13:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWGERTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 13:18:37 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:29834 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S964912AbWGERSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 13:18:36 -0400
-Subject: Re: [PATCH 5/5] FRV: Introduce asm-offsets for FRV arch
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, David Howells <dhowells@redhat.com>,
-       akpm@osdl.org, bernds_cb1@t-online.de, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0607050956020.12404@g5.osdl.org>
-References: <20060705132409.31510.22698.stgit@warthog.cambridge.redhat.com>
-	 <20060705132419.31510.92219.stgit@warthog.cambridge.redhat.com>
-	 <20060705144138.GA26545@mars.ravnborg.org>
-	 <1152117585.2987.21.camel@pmac.infradead.org>
-	 <Pine.LNX.4.64.0607050956020.12404@g5.osdl.org>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 05 Jul 2006 18:18:24 +0100
-Message-Id: <1152119904.2987.30.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 5 Jul 2006 13:19:18 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:39180 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964921AbWGERTR (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 13:19:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lAcbolD2uukkHrdrAOep0L6jHT2jTmQ8m+u4Iqd6Lf5vKwsnfMFTHbnasJlZUuCsZJPEaDNpi/lkZco0c7tYstWMWwouggrLdl/LCo+fQH4aDYXu+zzH8zK40F37lXrmI6tl5ewKo5ZZEOMX/ucMWW2ptUz3wDXySKhBPvnIxAw=
+Message-ID: <dda83e780607051019q4bcdf4e2w346634441cba492@mail.gmail.com>
+Date: Wed, 5 Jul 2006 10:19:16 -0700
+From: "Bret Towe" <magnade@gmail.com>
+To: "Nikita Danilov" <nikita@clusterfs.com>
+Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh entirely
+Cc: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
+       "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
+In-Reply-To: <17579.37504.509233.959683@gargle.gargle.HOWL>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <B41635854730A14CA71C92B36EC22AAC06CCF2@mssmsx411>
+	 <17578.52643.364026.64265@gargle.gargle.HOWL>
+	 <dda83e780607041524g5ae996fes6e579464a1af56ad@mail.gmail.com>
+	 <17579.37504.509233.959683@gargle.gargle.HOWL>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-05 at 10:03 -0700, Linus Torvalds wrote:
-> Hey, if you are willing to add some manual redirection to your gitweb 
-> setup, you could _probably_ do something like the appended..
-> 
-> (This is totally untested, but you get the idea - teach gitweb to export 
-> a "git_redirect" file at the top of the repo name, and teach "git fetch" 
-> to look if that exists and use another repo if so) 
+On 7/5/06, Nikita Danilov <nikita@clusterfs.com> wrote:
+> Bret Towe writes:
+>
+> [...]
+>
+>  >
+>  > are you sure about that? cause that sounded alot like an issue
+>  > i saw with slow usb devices (mainly a usb hd on a usb 1.1 connection)
+>  > the usb device would fill up with write queue and local io to say /dev/hda
+>  > would basicly stop and the system would be rather useless till the usb
+>  > hd would finish writing out what it was doing
+>  > usally would take several hundred megs of data to get it to do it
+>
+> There may be bazillion other reasons for slow device making system
+> unresponsive in various ways. More details are needed (possibly in
+> separate thread).
 
-That'll turn this URL: 
- http://git.infradead.org/?p=users/dwmw2/killconfig.h.git
-into
- http://git.infradead.org/?p=users/dwmw2/killconfig.h.git/git_redirect
+well at this time all i know is one will be writing to the usb hd its queue
+will fill up and if say some gtk app wants to write to disk it will freeze
+until the usb hd is completely done
+i will look into it at some point when i have time and get more info on
+it and post a proper report on the issue unless its already been fixed
 
-It's going to be easier to do the gitweb side if we change it to append
-';a=git_redirect' instead. In fact, we could probably make the
-conditional on the URL containing a ?p= argument which makes it
-(reasonably) obvious that it's a gitweb URL, and _replace_ any 'a='
-argument in the URL rather than just appending it naïvely.
-
-I'll play with that later this evening.
-
--- 
-dwmw2
-
+>  >
+>  > ive not tried it in ages so maybe its been fixed since ive last tried it
+>  > dont recall the kernel version at the time but it wasnt more than a
+>  > year ago
+>  >
+>
+> Nikita.
+>

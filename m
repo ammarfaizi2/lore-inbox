@@ -1,121 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWGEU7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWGEVE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbWGEU7j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 16:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbWGEU7j
+	id S964848AbWGEVE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 17:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWGEVE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 16:59:39 -0400
-Received: from xenotime.net ([66.160.160.81]:13229 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964903AbWGEU7i (ORCPT
+	Wed, 5 Jul 2006 17:04:59 -0400
+Received: from mail.tmr.com ([64.65.253.246]:46761 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S964848AbWGEVE6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 16:59:38 -0400
-Date: Wed, 5 Jul 2006 14:02:24 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: davem@davemloft.net, vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.17 on SPARC64 compile fails
-Message-Id: <20060705140224.144cb9bc.rdunlap@xenotime.net>
-In-Reply-To: <20060705131539.ba3275d8.rdunlap@xenotime.net>
-References: <200607041417.k64EHNIT009599@laptop11.inf.utfsm.cl>
-	<20060705.113911.112605950.davem@davemloft.net>
-	<20060705131539.ba3275d8.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 5 Jul 2006 17:04:58 -0400
+Message-ID: <44AC2B56.8010703@tmr.com>
+Date: Wed, 05 Jul 2006 17:12:54 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "J. Bruce Fields" <bfields@fieldses.org>
+CC: Theodore Tso <tytso@mit.edu>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com> <20060705125956.GA529@fieldses.org>
+In-Reply-To: <20060705125956.GA529@fieldses.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jul 2006 13:15:39 -0700 Randy.Dunlap wrote:
+J. Bruce Fields wrote:
 
-> On Wed, 05 Jul 2006 11:39:11 -0700 (PDT) David Miller wrote:
-> 
-> > From: Horst von Brand <vonbrand@inf.utfsm.cl>
-> > Date: Tue, 04 Jul 2006 10:17:23 -0400
-> > 
-> > > Looking at the relevant file, it seems the offending functions are for PCI
-> > > only (and my SparcStation Ultra 1 sure doesn't have any PCI in it, so this
-> > > is disabled in the configuration). Maybe the #endif is too early?
-> > 
-> > Yes, I'm still thinking how to fix this.
-> 
-> Do you mean a generalized arch-independent fix?
-> 
-> > Turn CONFIG_PCI on as a workaround for now.
-> 
-> Good plan.  With CONFIG_PCI still off and a patch for the above
-> problem, next CONFIG_PCI=n issue is this one:
-> 
-> /var/linsrc/linux-2617-g24/arch/sparc64/kernel/time.c: In function `clock_probe':
-> /var/linsrc/linux-2617-g24/arch/sparc64/kernel/time.c:795: error: invalid lvalue in assignment
+>On Wed, Jul 05, 2006 at 08:24:29AM -0400, Bill Davidsen wrote:
+>  
+>
+>>Theodore Tso wrote:
+>>    
+>>
+>>>Some of the ideas which have been tossed about include:
+>>>
+>>>	* nanosecond timestamps, and support for time beyond the 2038
+>>>      
+>>>
+>>The 2nd one is probably more urgent than the first. I can see a general 
+>>benefit from timestamp in ms, beyond that seems to be a specialty 
+>>requirement best provided at the application level rather than the bits 
+>>of a trillion inodes which need no such thing.
+>>    
+>>
+>
+>What's urgently needed for NFS (and I suspect for most other
+>applications demanding higher timestamps) isn't really nanosecond
+>precision so much as something that's guaranteed to increase whenever
+>the file changes.
+>
+>Of course, just adding space in the inodes for nanoseconds isn't
+>sufficient.  XFS, for example, has nanosecond timestamps, but it's still
+>easy to modify a file twice without seeing the ctime or mtime change.
+>So either we need a timesource guaranteed to tick faster than the kernel
+>can process IO, or we have to be willing to, say, add 1 to the
+>nanoseconds field whenever the time doesn't change between operations.
+>
+>Or we could add an entirely separate attribute that's guaranteed to
+>increase whenever the ctime is updated, and that doesn't necessarily
+>have any connection with time--call it a version number or something.
+>  
+>
+There are versions in both VMS and the ISO filesystem. I have a sneaking 
+suspicion that those of us who ever use them are few and far between. 
+The other issue is that unless the field is time, programs like make 
+can't really use it, at least without becoming Linux specific.
 
-This fixes all sparc64 build errors for me when using Horst's
-config (PCI=n).
+I'm not sure exactly how a "version" value would be used other than 
+detecting the fact that the file had been changed in some way. Feel free 
+to show me, I seem to come up empty on using this value.
 
----
-From: Randy Dunlap <rdunlap@xenotime.net>
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 
-Fix sparc64 build errors when CONFIG_PCI=n.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- arch/sparc64/kernel/prom.c        |    2 ++
- arch/sparc64/kernel/time.c        |    5 ++++-
- include/asm-sparc64/dma-mapping.h |   14 ++++++++++++++
- 3 files changed, 20 insertions(+), 1 deletion(-)
-
---- linux-2617-g24.orig/include/asm-sparc64/dma-mapping.h
-+++ linux-2617-g24/include/asm-sparc64/dma-mapping.h
-@@ -160,6 +160,20 @@ static inline void dma_free_coherent(str
- 	BUG();
- }
- 
-+static inline void
-+dma_sync_single_for_cpu(struct device *dev, dma_addr_t dma_handle, size_t size,
-+			enum dma_data_direction direction)
-+{
-+	BUG();
-+}
-+
-+static inline void
-+dma_sync_single_for_device(struct device *dev, dma_addr_t dma_handle, size_t size,
-+			   enum dma_data_direction direction)
-+{
-+	BUG();
-+}
-+
- #endif /* PCI */
- 
- 
---- linux-2617-g24.orig/arch/sparc64/kernel/time.c
-+++ linux-2617-g24/arch/sparc64/kernel/time.c
-@@ -788,12 +788,15 @@ static int __devinit clock_probe(struct 
- 	if (!regs)
- 		return -ENOMEM;
- 
-+#ifdef CONFIG_PCI
- 	if (!strcmp(model, "ds1287") ||
- 	    !strcmp(model, "m5819") ||
- 	    !strcmp(model, "m5819p") ||
- 	    !strcmp(model, "m5823")) {
- 		ds1287_regs = (unsigned long) regs;
--	} else if (model[5] == '0' && model[6] == '2') {
-+	} else
-+#endif
-+	if (model[5] == '0' && model[6] == '2') {
- 		mstk48t02_regs = regs;
- 	} else if(model[5] == '0' && model[6] == '8') {
- 		mstk48t08_regs = regs;
---- linux-2617-g24.orig/arch/sparc64/kernel/prom.c
-+++ linux-2617-g24/arch/sparc64/kernel/prom.c
-@@ -1032,7 +1032,9 @@ static void sun4v_vdev_irq_trans_init(st
- static void irq_trans_init(struct device_node *dp)
- {
- 	const char *model;
-+#ifdef CONFIG_PCI
- 	int i;
-+#endif
- 
- 	model = of_get_property(dp, "model", NULL);
- 	if (!model)

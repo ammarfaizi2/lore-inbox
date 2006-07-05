@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWGELh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWGELfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWGELh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 07:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWGELh0
+	id S964816AbWGELfa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 07:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWGELfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 07:37:26 -0400
-Received: from mail.gmx.de ([213.165.64.21]:23471 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964818AbWGELh0 (ORCPT
+	Wed, 5 Jul 2006 07:35:30 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:25569 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964816AbWGELf3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 07:37:26 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH] sched: Add SCHED_BGND (background) scheduling policy
-From: Mike Galbraith <efault@gmx.de>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20060704233521.8744.45368.sendpatchset@heathwren.pw.nest>
-References: <20060704233521.8744.45368.sendpatchset@heathwren.pw.nest>
-Content-Type: text/plain
-Date: Wed, 05 Jul 2006 13:42:32 +0200
-Message-Id: <1152099752.8684.198.camel@Homer.TheSimpsons.net>
+	Wed, 5 Jul 2006 07:35:29 -0400
+Date: Wed, 5 Jul 2006 13:30:54 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch] uninline init_waitqueue_*() functions
+Message-ID: <20060705113054.GA30919@elte.hu>
+References: <20060705084914.GA8798@elte.hu> <20060705023120.2b70add6.akpm@osdl.org> <20060705093259.GA11237@elte.hu> <20060705025349.eb88b237.akpm@osdl.org> <20060705102633.GA17975@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060705102633.GA17975@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5013]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-05 at 09:35 +1000, Peter Williams wrote:
 
-> @@ -3332,23 +3447,25 @@ need_resched_nonpreemptible:
->  	}
->  
->  	array = rq->active;
-> -	if (unlikely(!array->nr_active)) {
-> -		/*
-> -		 * Switch the active and expired arrays.
-> -		 */
-> -		schedstat_inc(rq, sched_switch);
-> -		rq->active = rq->expired;
-> -		rq->expired = array;
-> -		array = rq->active;
-> -		rq->expired_timestamp = 0;
-> -		rq->best_expired_prio = MAX_PRIO;
-> -	}
-> +	if (unlikely(!array->nr_active))
-> +		array = switch_arrays(rq, MAX_PRIO);
->  
->  	idx = sched_find_first_bit(array->bitmap);
-> +get_next:
->  	queue = array->queue + idx;
->  	next = list_entry(queue->next, struct task_struct, run_list);
-> +	/* very strict backgrounding */
-> +	if (unlikely(task_in_background(next) && rq->expired->nr_active)) {
-> +		int tmp = sched_find_first_bit(rq->expired->bitmap);
-> +
-> +		if (likely(tmp < idx)) {
-> +			array = switch_arrays(rq, idx);
-> +			idx = tmp;
-> +			goto get_next;
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Won't this potentially expire the mutex holder which you specifically
-protect in scheduler_tick() if it was preempted before being ticked?
-The task in the expired array could also be a !safe_to_background() task
-who already had a chance to run, and who's slice expired.
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > > > shrinks fs/select.o by eight bytes.  (More than I expected).  So 
+> > > > it does appear to be a space win, but a pretty slim one.
+> > > 
+> > > there are 855 calls to these functions in the allyesconfig vmlinux i 
+> > > did, and i measured a combined size reduction of 34791 bytes. That 
+> > > averages to a 40 bytes win per call site. (on i386.)
+> > > 
+> > 
+> > Yes, but that lumps all three together.  init_waitqueue_head() is 
+> > obviously the porky one.  And it's porkier with CONFIG_DEBUG_SPINLOCK 
+> > and CONFIG_LOCKDEP, which isn't the case to optimise for.
+> 
+> true. I redid my tests with both lockdep and debug-spinlocks turned off:
+> 
+>   text            data    bss     dec             filename
+>   21172153        6077270 3081864 30331287        vmlinux.x32.after
+>   21198222        6077106 3081864 30357192        vmlinux.x32.before
+> 
+> with 851 callsites that's a 30.6 bytes win per call site (total 26K) - 
+> still not bad at all.
 
-If it's worth protecting higher priority tasks from mutex holders ending
-up in the expired array, then there's a case that should be examined.
-There's little difference between a background task acquiring a mutex,
-and a normal task with one tick left on it's slice.  Best for sleepers
-is of course to just say no to expiring mutex holders period.
+and that was with CONFIG_CC_OPTIMIZE_FOR_SIZE enabled. With 
+optimize-for-size disabled the win goes up to 32.6 bytes (total 28K).
 
-	-Mike
-
+	Ingo

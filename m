@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWGETg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbWGETiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965003AbWGETg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 15:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWGETg0
+	id S965004AbWGETiY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 15:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWGETiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 15:36:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42715 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965003AbWGETgZ (ORCPT
+	Wed, 5 Jul 2006 15:38:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47336 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965004AbWGETiX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 15:36:25 -0400
-Date: Wed, 5 Jul 2006 15:36:18 -0400
-From: Dave Jones <davej@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Limit VIA and SIS AGP choices to x86
-Message-ID: <20060705193618.GH1877@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <20060705175725.GL1605@parisc-linux.org> <20060705192147.GF1877@redhat.com> <1152127676.3201.62.camel@laptopd505.fenrus.org>
+	Wed, 5 Jul 2006 15:38:23 -0400
+Date: Wed, 5 Jul 2006 12:41:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, bernds_cb1@t-online.de, sam@ravnborg.org,
+       dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] FDPIC: Fix FDPIC compile errors [try #2]
+Message-Id: <20060705124142.7bec7597.akpm@osdl.org>
+In-Reply-To: <20060705175443.12594.30741.stgit@warthog.cambridge.redhat.com>
+References: <20060705175440.12594.43069.stgit@warthog.cambridge.redhat.com>
+	<20060705175443.12594.30741.stgit@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152127676.3201.62.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 05, 2006 at 09:27:56PM +0200, Arjan van de Ven wrote:
- > On Wed, 2006-07-05 at 15:21 -0400, Dave Jones wrote:
- > > On Wed, Jul 05, 2006 at 11:57:25AM -0600, Matthew Wilcox wrote:
- > >  > 
- > >  > As far as I am aware, Alpha, PPC and IA64 don't have VIA or SIS AGP
- > >  > chipsets available.
- > > 
- > > VIA has turned up on PPC (some Apple notebooks).
- > 
- > only the southbridge... agp is a northbridge thing...
+David Howells <dhowells@redhat.com> wrote:
+>
+> From: David Howells <dhowells@redhat.com>
+> 
+> The attached patch fixes FDPIC compile errors
+> 
+> Signed-Off-By: David Howells <dhowells@redhat.com>
+> ---
+> 
+>  fs/binfmt_elf_fdpic.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/fs/binfmt_elf_fdpic.c b/fs/binfmt_elf_fdpic.c
+> index eba4e23..07624b9 100644
+> --- a/fs/binfmt_elf_fdpic.c
+> +++ b/fs/binfmt_elf_fdpic.c
+> @@ -459,6 +459,7 @@ #endif
+>  	 */
+>  	hwcap = ELF_HWCAP;
+>  	k_platform = ELF_PLATFORM;
+> +	u_platform = NULL;
+>  
+>  	if (k_platform) {
+>  		platform_len = strlen(k_platform) + 1;
 
-Maybe my memory is flaky, but I'm sure I recall a VIA
-northbridge in the ibook.
+Methinks it actually fixes a warning, which was promoted to an error by
+-Werror.  Which was fixed by adding an unneeded assignment, all becasue gcc
+is dumb.
 
-benh ?
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk

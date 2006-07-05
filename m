@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWGESJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbWGESLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbWGESJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 14:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWGESJ0
+	id S964956AbWGESLP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 14:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWGESLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 14:09:26 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:33426 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964956AbWGESJZ (ORCPT
+	Wed, 5 Jul 2006 14:11:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46034 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964956AbWGESLO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 14:09:25 -0400
-Message-ID: <44AC0053.6050605@garzik.org>
-Date: Wed, 05 Jul 2006 14:09:23 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Narendra Hadke <nhadke@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Re: sata_mv driver on 88sx6041 ( 2.6.14): PCI IRQ error
-References: <20060705174826.60724.qmail@web33508.mail.mud.yahoo.com>
-In-Reply-To: <20060705174826.60724.qmail@web33508.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 5 Jul 2006 14:11:14 -0400
+Date: Wed, 5 Jul 2006 11:10:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Limit VIA and SIS AGP choices to x86
+Message-Id: <20060705111057.a03fbcec.akpm@osdl.org>
+In-Reply-To: <20060705175725.GL1605@parisc-linux.org>
+References: <20060705175725.GL1605@parisc-linux.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Narendra Hadke wrote:
-> Jeff, 
->  Really apreciate your help on this.
->    How this works for PIO mode? SATA Disk looks 
->  perfectly visible in PIO mode. The problem is when I
->  go to DMA mode.
->   Is this problem specific to DMA mode?
+On Wed, 5 Jul 2006 11:57:25 -0600
+Matthew Wilcox <matthew@wil.cx> wrote:
 
-PIO is far slower, and is unlikely to stress the PCI bus enough to 
-trigger hardware problems.
+> As far as I am aware, Alpha, PPC and IA64 don't have VIA or SIS AGP
+> chipsets available.
+> 
+> ...
+>
+>  config AGP_SIS
+>  	tristate "SiS chipset support"
+> -	depends on AGP
+> +	depends on AGP && X86
 
-	Jeff
+I never know what to do here.
 
+Sure, the driver will not be used on that architecture.  But there is some
+benefit in being able to cross-compile that driver on other architectures
+anyway.  Sometimes it will pick up missed #includes, sometimes printk
+mismatches, various other assumptions which might be OK for x86 right now
+but which might cause problems in the future.
 
-
+Need to balance a very minor con against some very minor pros ;)

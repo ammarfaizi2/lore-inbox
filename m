@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWGEIY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWGEIeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWGEIY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 04:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWGEIY1
+	id S932159AbWGEIeK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 04:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWGEIeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 04:24:27 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:25217 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932397AbWGEIY0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 04:24:26 -0400
-Date: Wed, 5 Jul 2006 10:19:34 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] sched: Add SCHED_BGND (background) scheduling policy
-Message-ID: <20060705081934.GA1898@elte.hu>
-References: <20060704233521.8744.45368.sendpatchset@heathwren.pw.nest> <20060705063550.GA28004@elte.hu> <44AB726B.8070602@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44AB726B.8070602@bigpond.net.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 5 Jul 2006 04:34:10 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:2295 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932159AbWGEIeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 04:34:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=crP9WnpwhJI4j7zm+MlBNPmLnAHdE+kEwcKwQCe7ny3ckacfQdJZBVfiyqesKmulKTrNWHm/g48xls4pjw3hMacNmTP+4COJP2lt4UwoVS4qIOEoQkmHu5cjMB0m2vVemvkF+iZK67h/ySEOTHpY6RzpoAQXSFriE8PaE1jsIQo=
+Date: Wed, 5 Jul 2006 10:34:19 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Ulrich Drepper <drepper@gmail.com>
+cc: linux-kernel@vger.kernel.org, glibc-cvs@sourceware.org
+Subject: Re: Where can I get glibc with PI futex support (for -RT tests) ?
+In-Reply-To: <a36005b50607041728h1442ebaapdd9d13b5d13fd3c4@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0607051032070.4248@localhost.localdomain>
+References: <Pine.LNX.4.64.0607050133240.2448@localhost.localdomain>
+ <a36005b50607041728h1442ebaapdd9d13b5d13fd3c4@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 4 Jul 2006, Ulrich Drepper wrote:
 
-* Peter Williams <pwil3058@bigpond.net.au> wrote:
+> On 7/4/06, Esben Nielsen <nielsen.esben@googlemail.com> wrote:
+>>  The answer is probably on the list, but I can't find it in the
+>>  archives..:-(
+>
+> You have to wait your turn like everybody else.  Ingo/Thomas have one
+> more bug to fix.  After that I'll check in the patches into the cvs
+> archive.
+>
 
-> >>+static inline void inc_mutex_count(void)
-> >>+{
-> >>+	current->mutexes_held++;
-> >>+}
-> >>+
-> >>+static inline void dec_mutex_count(void)
-> >>+{
-> >>+	current->mutexes_held--;
-> >>+}
-> >>+
-> >
-> >NACK! This whole patch is way too intrusive for such a relatively small 
-> >gain.
-> >
-> >also, if something doesnt hold a mutex, it might still be unsafe to 
-> >background it! For example if it holds a semaphore. Or an rwsem. Or any 
-> >other kernel resource that has exclusion semantics.
-> >
-> >so unless this patch gets _much_ less complex and much less intrusive, 
-> >we'll have to stay with SCHED_BATCH and nice +19.
-> 
-> This means being less strict but (as you imply) that may be not much 
-> better than nice +19.  I'll have a look at it.
+Can I get what you have now? Then I can do some testing.
+I might very well be that the bug doesn't matter for me. What is the bug?
 
-it's way too much pain for little gain.
+I tried to check out from cvs 
+(:pserver:anoncvs@sources.redhat.com:/cvs/glibc) but that can't even 
+compile because PTHREAD_MUTEX_PRIO_INHERIT_NP and 
+PTHREAD_MUTEX_PRIO_PROTECT_NP isn't defined for pthread_mutex_init.c
 
-> Of course, a comprehensive (as opposed to RT only) priority 
-> inheritance mechanism would make the "safe/unsafe to background" 
-> problem go away and make this patch very simple.  Any plans in that 
-> direction?
+Esben
 
-that seems quite unlikely to happen. I think you are missing the biggest 
-issue: for RT, if the priority inheritance mechanism does not extend to 
-a given scheduling pattern it causes longer latencies, but no harm is 
-done otherwise. But for SCHED_BGND we'd have to make sure _every_ place 
-is priority-inversions safe - otherwise we risk a potential local DoS if 
-a task with a critical resource is backgrounded! That's plain impossible 
-to achieve.
-
-	Ingo

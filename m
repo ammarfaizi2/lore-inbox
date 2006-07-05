@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbWGESLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbWGESMb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964956AbWGESLP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 14:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWGESLP
+	id S964958AbWGESMb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 14:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWGESMb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 14:11:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46034 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964956AbWGESLO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 14:11:14 -0400
-Date: Wed, 5 Jul 2006 11:10:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Limit VIA and SIS AGP choices to x86
-Message-Id: <20060705111057.a03fbcec.akpm@osdl.org>
-In-Reply-To: <20060705175725.GL1605@parisc-linux.org>
-References: <20060705175725.GL1605@parisc-linux.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 5 Jul 2006 14:12:31 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42671 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964958AbWGESMa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 14:12:30 -0400
+Subject: Re: [patch] i386: early pagefault handler
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0607050952190.12404@g5.osdl.org>
+References: <200607050745_MC3-1-C42B-9937@compuserve.com>
+	 <p73veqcp58s.fsf@verdi.suse.de> <44ABEB20.2010702@zytor.com>
+	 <Pine.LNX.4.64.0607050952190.12404@g5.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 05 Jul 2006 19:28:59 +0100
+Message-Id: <1152124139.6533.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jul 2006 11:57:25 -0600
-Matthew Wilcox <matthew@wil.cx> wrote:
+Ar Mer, 2006-07-05 am 09:54 -0700, ysgrifennodd Linus Torvalds:
+> Anybody with that old a CPU will have learnt to to say "no-hlt" or 
+> whatever the kernel command line is, and we could probably retire the 
+> silly old hlt check (which I'm not even sure really ever worked).
 
-> As far as I am aware, Alpha, PPC and IA64 don't have VIA or SIS AGP
-> chipsets available.
-> 
-> ...
->
->  config AGP_SIS
->  	tristate "SiS chipset support"
-> -	depends on AGP
-> +	depends on AGP && X86
+The one specific case I know precisely details of was the Cyrix 5510. A
+hlt by the CPU on that chipset during an IDE DMA transfer hangs the
+system forever.
 
-I never know what to do here.
+Its some years since I've even seen a 5510 and that check could be
+automated anyway
 
-Sure, the driver will not be used on that architecture.  But there is some
-benefit in being able to cross-compile that driver on other architectures
-anyway.  Sometimes it will pick up missed #includes, sometimes printk
-mismatches, various other assumptions which might be OK for x86 right now
-but which might cause problems in the future.
+Alan
 
-Need to balance a very minor con against some very minor pros ;)

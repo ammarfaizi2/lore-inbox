@@ -1,52 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWGEUHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWGEUId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbWGEUHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 16:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbWGEUHY
+	id S965013AbWGEUId (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 16:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWGEUIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 16:07:24 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:34707 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964962AbWGEUHY (ORCPT
+	Wed, 5 Jul 2006 16:08:32 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:17559 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S965013AbWGEUIc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 16:07:24 -0400
-Date: Wed, 5 Jul 2006 22:02:45 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, mbligh@mbligh.org,
-       linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: [patch] sched: fix macro -> inline function conversion bug
-Message-ID: <20060705200245.GB13070@elte.hu>
-References: <44A8567B.2010309@mbligh.org> <20060702164113.6dc1cd6c.akpm@osdl.org> <20060703052538.GB13415@elte.hu> <20060702224247.21e8aa8f.akpm@osdl.org> <20060703060320.GA15782@elte.hu> <20060703060832.GA15940@elte.hu> <20060705123629.A7271@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Jul 2006 16:08:32 -0400
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Konstantin Karasyov <konstantin.a.karasyov@intel.com>,
+       Len Brown <len.brown@intel.com>
+Subject: regression / [PATCH] ACPI: fix fan/thermal resume
+Date: Wed, 5 Jul 2006 22:09:08 +0200
+User-Agent: KMail/1.7.2
+Cc: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, Pavel Machek <pavel@suse.cz>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060705123629.A7271@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5013]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200607052209.09066.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-01.tornado.cablecom.ch-Metrics: smtp-03.tornado.cablecom.ch 1377;
+	Body=7 Fuz1=7 Fuz2=7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi
 
-* Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
+found another smallish but annoying regression...description/patch below.
+@intel: please add signed-off-by lines and forward to Linus before 2.6.18 if you argee.
+@akpm: one round or so in -mm?
 
-> -		if (sd && sd->flags & flag)
-> +		if (sd && !(sd->flags & flag))
+thanks, rgds
+-daniel
 
-use test_sd_flag() here, as i did in my fix patch.
+----------------
 
-> -#define test_sd_flag(sd, flag)	((sd && sd->flags & flag) ? 1 : 0)
-> +#define test_sd_flag(sd, flag)	((sd && (sd->flags & flag)) ? 1 : 0)
+[PATCH] ACPI fix fan/thermal resume
 
-remove the 'sd' check in test_sd_flag. In the other cases we know that 
-there's an sd. (it's usually a sign of spaghetti code if tests like this 
-include a check for the existence of the object checked)
+the acpi driver suspend/resume patches that went in recently caused a regression
+on my box (toshiba tecra 8000 laptop): after resume from swsusp the fan turns on
+keeping blowing cold air out of my notebook. before the patches, the fan was off
+and would only make noise when required. it's the same thing described in
+bugzilla.kernel.org #5000. the acpi suspend/resume patches or at least parts of
+them originate in this bug. now the last patch in the report (attach id 8438)
+actually fixes the problem - for me and the reporter. this is a trimmed down
+version of that patch.
 
-	Ingo
+From: Konstantin Karasyov <konstantin.a.karasyov@intel.com>
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: Len Brown <len.brown@intel.com>
+Cc: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Cc: Pavel Machek <pavel@suse.cz>
+
+diff --git a/drivers/acpi/thermal.c b/drivers/acpi/thermal.c
+index 503c0b9..fdba487 100644
+--- a/drivers/acpi/thermal.c
++++ b/drivers/acpi/thermal.c
+@@ -1359,13 +1359,28 @@ static int acpi_thermal_remove(struct ac
+ static int acpi_thermal_resume(struct acpi_device *device, int state)
+ {
+ 	struct acpi_thermal *tz = NULL;
++	int i;
+ 
+ 	if (!device || !acpi_driver_data(device))
+ 		return -EINVAL;
+ 
+ 	tz = (struct acpi_thermal *)acpi_driver_data(device);
+ 
+-	acpi_thermal_check(tz);
++	acpi_thermal_get_temperature(tz);
++
++	for (i = 0; i < ACPI_THERMAL_MAX_ACTIVE; i++) {
++		if (tz->trips.active[i].flags.valid) {
++ 			tz->temperature = tz->trips.active[i].temperature;
++			tz->trips.active[i].flags.enabled = 0;
++
++			acpi_thermal_active(tz);
++
++			tz->state.active |= tz->trips.active[i].flags.enabled;
++			tz->state.active_index = i;
++		}
++	}
++
++ 	acpi_thermal_check(tz);
+ 
+ 	return AE_OK;
+ }

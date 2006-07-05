@@ -1,95 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbWGEWwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWGEXL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965047AbWGEWwe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 18:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbWGEWwe
+	id S964787AbWGEXL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 19:11:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWGEXL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 18:52:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19127 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965047AbWGEWwe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 18:52:34 -0400
-Date: Wed, 5 Jul 2006 15:56:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. =?ISO-8859-1?Q?Magall=F3n" ?= <jamagallon@ono.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm6
-Message-Id: <20060705155602.6e0b4dce.akpm@osdl.org>
-In-Reply-To: <20060705234347.47ef2600@werewolf.auna.net>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	<20060705234347.47ef2600@werewolf.auna.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 5 Jul 2006 19:11:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5053 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964787AbWGEXL1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 19:11:27 -0400
+Date: Wed, 5 Jul 2006 16:11:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [patch] uninline init_waitqueue_*() functions
+In-Reply-To: <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
+References: <20060705025349.eb88b237.akpm@osdl.org> <20060705102633.GA17975@elte.hu>
+ <20060705113054.GA30919@elte.hu> <20060705114630.GA3134@elte.hu>
+ <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu>
+ <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
+ <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
+ <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallón" <jamagallon@ono.com> wrote:
->
-> On Mon, 3 Jul 2006 03:03:55 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
-> > 
-> > 
-> > - A major update to the e1000 driver.
-> > 
-> 
-> Doesn't find my root drive :(.
-> 
-> Its a SATA drive, on PIIX.
-> Last -mm I tried ('cause of the raid problems) was -mm1, so I don't know
-> when did this broke. Under -mm1, the disk is this:
-> 
-> libata version 1.30 loaded.
-> ata_piix 0000:00:1f.2: version 1.10tj1ac3
-> ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
-> ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-> PCI: Setting latency timer of device 0000:00:1f.2 to 64
-> ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-> ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-> scsi0 : ata_piix
-> ata1: ENTER, pcs=0x13 base=0
-> ata1: LEAVE, pcs=0x13 present_mask=0x1
-> ata1.00: cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:407f
-> ata1.00: ATA-6, max UDMA/133, 390721968 sectors: LBA48 
-> ata1.00: configured for UDMA/133
-> scsi1 : ata_piix
-> ata2: ENTER, pcs=0x13 base=2
-> ata2: LEAVE, pcs=0x11 present_mask=0x0
-> ata2: SATA port has no device.
->   Vendor: ATA       Model: ST3200822AS       Rev: 3.01
->   Type:   Direct-Access                      ANSI SCSI revision: 05
-> SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-> sda: Write Protect is off
-> sda: Mode Sense: 00 3a 00 00
-> SCSI device sda: drive cache: write back
-> SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-> sda: Write Protect is off
-> sda: Mode Sense: 00 3a 00 00
-> SCSI device sda: drive cache: write back
->  sda: sda1 sda2 sda3
-> sd 0:0:0:0: Attached scsi disk sda
-> 
-> With -mm6, the kernel doesn't find it. I get this on boot:
-> 
-> kinit: try_name sda,1 = dev(8,1)
-> kinit: name_to_dev_t(/dev/sda1) = dev(8.1)
-> kinit: root_dev = dev(8,1)
-> kinit: failed to identify filesystem /dev/root, trying all
-> kinit: trying to mount /dev/root on /root with type ext3
-> kinit: Cannot open root device dev(8,1)
-> 
-> I have tried to get this message from -mm1, but could not get it in any log.
-> But... I remember to see that the boot message is like:
-> 
-> kinit: try_name sda,1 = sda1(8,1)
->                         ^^^^
-> I have verified I built -mm6 with ext3,sata-piix and so on, all builtin.
-> 
 
-Are you able to test just 2.6.17 + origin.patch + git-libata-all.patch?
 
-Also, the full dmesg from 2.6.17-mm6 would help, thanks.
+On Wed, 5 Jul 2006, Linus Torvalds wrote:
+> > 
+> >  c0fb6137:       c7 44 24 08 00 00 00    movl   $0x0,0x8(%esp)
+> >  c0fb613e:       00
+> >  c0fb613f:       c7 44 24 08 01 00 00    movl   $0x1,0x8(%esp)
+> >  c0fb6146:       00
+> >  c0fb6147:       c7 43 60 00 00 00 00    movl   $0x0,0x60(%ebx)
+> >  c0fb614e:       8b 44 24 08             mov    0x8(%esp),%eax
+> >  c0fb6152:       89 43 5c                mov    %eax,0x5c(%ebx)
 
+Btw, this is even worse than usual.
+
+I've seen the "create struct on the stack and copy it" before, but looking 
+closer, this is doing something I haven't noticed before: that double 
+assignment to the stack is _really_ strange.
+
+I wonder why it first stores a zero to the stack location, and then 
+overwrites it with the proper spinlock initialized (one).
+
+As far as I can tell, the spinlock initializer should really end up being 
+a perfectly normal "(struct spinlock_t) { 1 }", and I don't see where the 
+zero comes from.
+
+It may actually be that we're double penalized because for the lock 
+"counter", we use a "volatile unsigned int", and that "0" is from some 
+internal gcc "initialize all base structures to zero" to make sure that 
+any padding gets zeroed, and then the "volatile" means that gcc ends up 
+not optimizing it away, even though it was a totally bogus store that 
+didn't even exist in the sources.
+
+I wonder if we should remove the "volatile". There really isn't anything 
+_good_ that gcc can do with it, but we've seen gcc code generation do 
+stupid things before just because "volatile" seems to just disable even 
+proper normal working.
+
+[ Test-case built as time passes ]
+
+Try compiling this example file with "-fomit-frame-pointer -O2 -S" to see 
+the effect:
+
+	horrid:
+	        subl    $16, %esp
+	        movl    $1, 12(%esp)
+	        movl    12(%esp), %eax
+	        movl    %eax, a1
+	        movl    $1, b1
+	        addl    $16, %esp
+	        ret
+
+	notbad:
+	        movl    $1, a2
+	        movl    $1, b2
+	        ret
+
+
+I really think that "volatile" in the kernel sources is _always_ a kernel 
+bug. It certainly seems to be so in this case.
+
+(But at least with the compiler version I'm using, I'm not seeing that 
+extra unnecessary "movl $0" - I have gcc version 4.1.1 here)
+
+Does removing just the "volatile" on the "slock" member shrink the size of 
+the kernel noticeably? And do you see an extra "movl $0" in this case with 
+your compiler version?
+
+Maybe removing the volatile allows us to keep the initializer the way it 
+is (although going by past behaviour, I've seen gcc generate horrible code 
+in more complicated settings, so maybe the reason it works well on this 
+case without the "volatile" is just that it was simple enough that gcc 
+wouldn't mess up?)
+
+		Linus
+---
+struct duh {
+	volatile int i;
+};
+
+void horrid(void)
+{
+	extern struct duh a1;
+	extern struct duh b1;
+
+	a1 = (struct duh) { 1 };
+	b1.i = 1;
+}
+
+struct gaah {
+	int i;
+};
+
+void notbad(void)
+{
+	extern struct gaah a2;
+	extern struct gaah b2;
+
+	a2 = (struct gaah) { 1 };
+	b2.i = 1;
+}

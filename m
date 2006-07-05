@@ -1,78 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbWGEXkp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWGEXpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965069AbWGEXkp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 19:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWGEXkp
+	id S965073AbWGEXpB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 19:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbWGEXpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 19:40:45 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:5826 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S965069AbWGEXko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 19:40:44 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: "H. Peter Anvin" <hpa@zytor.com>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [klibc 30/31] Remove in-kernel resume-from-disk invocation code
-Date: Thu, 6 Jul 2006 09:40:31 +1000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, klibc@zytor.com
-References: <klibc.200606272217.00@tazenda.hos.anvin.org> <klibc.200606272217.30@tazenda.hos.anvin.org>
-In-Reply-To: <klibc.200606272217.30@tazenda.hos.anvin.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1742868.3FXNgBZFvS";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 5 Jul 2006 19:45:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21957 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965073AbWGEXpA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 19:45:00 -0400
+Date: Wed, 5 Jul 2006 16:44:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Keith Mannthey" <kmannth@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6
+Message-Id: <20060705164457.60e6dbc2.akpm@osdl.org>
+In-Reply-To: <a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
+	<20060705155037.7228aa48.akpm@osdl.org>
+	<a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200607060940.40678.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1742868.3FXNgBZFvS
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, 5 Jul 2006 16:28:39 -0700
+"Keith Mannthey" <kmannth@gmail.com> wrote:
 
-Hi.
+> > Per-cpuifying the 2.5 kbyte runqueue struct will have hurt.
+> >
+> > [does readelf --section-headers drivers/scsi/sd_mod.ko, wonders why
+> > .data.percpu isn't there]
+> 
+> hmm.  There is no message from the readelf command but there it dosen't
+> report any  .data.percpu area.  The only sections for data are just .data  and
+> .rela.data
 
-Sorry for coming late to the party. I received a request to provide a Suspe=
-nd2=20
-patch for current -mm this morning, so I've only just had impetus to look a=
-t=20
-the impact of klibc.
+hm.
 
-On Wednesday 28 June 2006 15:17, H. Peter Anvin wrote:
-> This removes the part of resume from disk that have been replaced by
-> functionality in kinit.
->
-> Signed-off-by: H. Peter Anvin <hpa@zytor.com>
+> > Are you able to add this, see if we can work out where it all went?
+> 
+> I am still booting with the larger percpu size but I see
+> 
+> percpu_modalloc: allocating 16 bytes for module scsi_mod (vmlinux:41600)
+> percpu_modalloc: allocating 8 bytes for module ipv6 (vmlinux:41600)
+> 
+> from the log.  Something built in is eating it.
 
-This patch doesn't look right to me. After it is applied, the user will hav=
-e=20
-no way of saying that they don't want to resume (noresume). I assume the=20
-removal of resume=3D isn't a problem because you're expecting them to use t=
-hat=20
-other undocumented way of setting resume=3D that Pavel mentioned a while ag=
-o?
+Yes, vmlinux got it all.
 
-Regards,
+> I am turing off the readhead to see if that helps.
 
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
+Use
 
---nextPart1742868.3FXNgBZFvS
-Content-Type: application/pgp-signature
+	nm -n vmlinux | grep per_cpu
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+I get:
 
-iD8DBQBErE34N0y+n1M3mo0RAgAYAJ0ZtbDL7j/34AdfKmvCCsJgayOQxgCghDti
-D0PMECdWlhSoVf7fRqIaV0A=
-=gTL5
------END PGP SIGNATURE-----
+00000000c0425780 A __per_cpu_start
+00000000c0427980 d per_cpu__cpu_idle_state
+00000000c0427a00 D per_cpu__irq_stat
+00000000c0427a80 D per_cpu__cpu_16bit_stack
+00000000c0427e80 D per_cpu__cpu_gdt_descr
+00000000c0427f00 D per_cpu__cpu_tlbstate
+00000000c0427f80 D per_cpu__cpu_state
+00000000c0427f84 d per_cpu__perfctr_nmi_owner
+00000000c0427f88 d per_cpu__evntsel_nmi_owner
+00000000c0427f94 d per_cpu__nmi_watchdog_ctlblk
+00000000c0427fc0 D per_cpu__current_kprobe
+00000000c0427fe0 D per_cpu__kprobe_ctlblk
+00000000c0428080 D per_cpu__mmu_gathers
+00000000c0428880 d per_cpu__runqueues
+00000000c0429240 d per_cpu__cpu_domains
+00000000c0429320 d per_cpu__core_domains
+00000000c0429400 d per_cpu__phys_domains
+00000000c04294e0 D per_cpu__kstat
+00000000c04298dc D per_cpu__process_counts
+00000000c04298e0 d per_cpu__cpu_profile_hits
+00000000c04298e8 d per_cpu__cpu_profile_flip
+00000000c04298ec d per_cpu__tasklet_vec
+00000000c04298f0 d per_cpu__tasklet_hi_vec
+00000000c04298f4 d per_cpu__ksoftirqd
+00000000c04298f8 d per_cpu__tvec_bases
+00000000c0429900 D per_cpu__rcu_data
+00000000c0429940 D per_cpu__rcu_bh_data
+00000000c0429980 d per_cpu__rcu_tasklet
+00000000c04299a0 d per_cpu__hrtimer_bases
+00000000c0429a38 d per_cpu__kprobe_instance
+00000000c0429a3c d per_cpu__touch_timestamp
+00000000c0429a40 d per_cpu__print_timestamp
+00000000c0429a44 d per_cpu__watchdog_task
+00000000c0429a60 d per_cpu__ratelimits.18951
+00000000c0429a80 d per_cpu__committed_space
+00000000c0429aa0 d per_cpu__lru_add_pvecs
+00000000c0429ae0 d per_cpu__lru_add_active_pvecs
+00000000c0429b20 D per_cpu__vm_event_states
+00000000c0429bc0 d per_cpu__reap_work
+00000000c0429c00 d per_cpu__bh_lrus
+00000000c0429c20 d per_cpu__bh_accounting
+00000000c0429c40 d per_cpu__fdtable_defer_list
+00000000c0429ca8 D per_cpu__avc_cache_stats
+00000000c0429cc0 d per_cpu__blk_cpu_done
+00000000c0429cc8 d per_cpu__blk_trace_cpu_offset
+00000000c0429ce0 D per_cpu__radix_tree_preloads
+00000000c0429d00 d per_cpu__trickle_count
+00000000c0429d04 d per_cpu__proc_event_counts
+00000000c0429d20 d per_cpu__loopback_stats
+00000000c0429d80 d per_cpu__sockets_in_use
+00000000c0429e00 D per_cpu__softnet_data
+00000000c042a300 D per_cpu__netdev_rx_stat
+00000000c042a310 d per_cpu__net_rand_state
+00000000c042a380 d per_cpu__flow_tables
+00000000c042a400 d per_cpu__flow_hash_info
+00000000c042a480 d per_cpu__flow_flush_tasklets
+00000000c042a4a0 d per_cpu__rt_cache_stat
+00000000c042a4e0 d per_cpu____icmp_socket
+00000000c042a4e4 A __per_cpu_end
 
---nextPart1742868.3FXNgBZFvS--
+Which is 19k.
+
+<wonders what happened to the first 8.5k>
+
+If we have any 2-D arrays in there (something dimensioned by NR_CPUS) then
+we'll have a big problem.
+
+I guess a medium-term fix would be to add a boot parameter to override
+PERCPU_ENOUGH_ROOM - it's hard to justify increasing it permanently just
+for the benefit of the tiny minority of kernels which are hand-built with
+lots of drivers in vmlinux.
+
+But first let's find out where it all went.

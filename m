@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWGEVSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWGEVTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbWGEVSA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 17:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWGEVSA
+	id S965034AbWGEVTr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 17:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWGEVTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 17:18:00 -0400
-Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:36298 "EHLO
-	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S965033AbWGEVR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 17:17:59 -0400
-Message-ID: <44AC2C7E.9070007@lwfinger.net>
-Date: Wed, 05 Jul 2006 16:17:50 -0500
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: Battery-related regression between 2.6.17-git3 and 2.6.17-git6
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jul 2006 17:19:47 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:33927 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965034AbWGEVTq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 17:19:46 -0400
+Date: Wed, 5 Jul 2006 23:15:13 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [patch] uninline init_waitqueue_*() functions
+Message-ID: <20060705211513.GA24336@elte.hu>
+References: <20060705093259.GA11237@elte.hu> <20060705025349.eb88b237.akpm@osdl.org> <20060705102633.GA17975@elte.hu> <20060705113054.GA30919@elte.hu> <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060705204727.GA16615@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5010]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-04 at 14:48 -0700, Greg KH wrote:
- > On Tue, Jul 04, 2006 at 01:55:43PM +0200, Rafael J. Wysocki wrote:
- >>
- >> I'm not sure what exactly happens there, but I think hal crashes due to
- >> a buffer overflow.
- >
- > Yes, that looks like what is happening. Perhaps one of the HAL
- > developers can point you at a patch that you can apply to your version
- > of HAL to get it working.
- >
- > Either way, this is not a kernel bug, as it could have happened with any
- > very long depth device tree, you were just lucky it didn't happen
- > sooner.
 
-It is definitely a buffer overflow in hald. I reproduced the problem by a 'hald --daemon=no' 
-command. On my SuSE 10.0 system, the problem was fixed by downloading and installing hal-0.5.7.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Larry
+> 
+> * Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> > 
+> > 
+> > On Wed, 5 Jul 2006, Andrew Morton wrote:
+> > > 
+> > > OK, but what happened to the 35-bytes-per-callsite saving?
+> > 
+> > I really don't think it existed.
+> > 
+> > Maybe there's something else going on. In particular, I wonder if 
+> > sections like the "debug_loc" fection end up being counted towards 
+> > text-size? They never actually get _loaded_, but they can be 
+> > absolutely enormous if CONFIG_DEBUG_INFO is enabled.
+> 
+> i had CONFIG_DEBUG_INFO (and UNWIND_INFO) disabled in all these build 
+> tests.
 
+hm, maybe KALLSYMS? I had that enabled - disabling it now.
+
+	Ingo

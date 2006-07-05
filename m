@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbWGEVvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWGEVzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965058AbWGEVvg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 17:51:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWGEVvf
+	id S965045AbWGEVzS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 17:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWGEVzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 17:51:35 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15022 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965045AbWGEVve
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 17:51:34 -0400
-Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch
-	added to -mm tree
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: Doug Thompson <norsk5@yahoo.com>, akpm@osdl.org,
-       mm-commits@vger.kernel.org, norsk5@xmission.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060704113441.GA26023@muc.de>
-References: <20060701150430.GA38488@muc.de>
-	 <20060703172633.50366.qmail@web50109.mail.yahoo.com>
-	 <20060703184836.GA46236@muc.de>
-	 <1151962114.16528.18.camel@localhost.localdomain>
-	 <20060704092358.GA13805@muc.de>
-	 <1152007787.28597.20.camel@localhost.localdomain>
-	 <20060704113441.GA26023@muc.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 05 Jul 2006 23:08:21 +0100
-Message-Id: <1152137302.6533.28.camel@localhost.localdomain>
+	Wed, 5 Jul 2006 17:55:18 -0400
+Received: from mga07.intel.com ([143.182.124.22]:2574 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S965045AbWGEVzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 17:55:17 -0400
+X-IronPort-AV: i="4.06,210,1149490800"; 
+   d="scan'208"; a="61738025:sNHT1259447231"
+Date: Wed, 5 Jul 2006 14:21:04 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, mbligh@mbligh.org,
+       linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: [patch] sched: fix macro -> inline function conversion bug
+Message-ID: <20060705142104.C7271@unix-os.sc.intel.com>
+References: <44A8567B.2010309@mbligh.org> <20060702164113.6dc1cd6c.akpm@osdl.org> <20060703052538.GB13415@elte.hu> <20060702224247.21e8aa8f.akpm@osdl.org> <20060703060320.GA15782@elte.hu> <20060703060832.GA15940@elte.hu> <20060705123629.A7271@unix-os.sc.intel.com> <20060705200245.GB13070@elte.hu> <20060705140948.B7271@unix-os.sc.intel.com> <20060705211702.GA24961@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060705211702.GA24961@elte.hu>; from mingo@elte.hu on Wed, Jul 05, 2006 at 11:17:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-07-04 am 13:34 +0200, ysgrifennodd Andi Kleen:
-> > > Giving a consistent sysfs interface is a bit harder, but I suppose one 
-> > > could change the code to provide pseudo banks for enable/disable too.
-> > > However that would be system specific again, so a default "all on/all off" 
-> > > policy might be quite ok.
-> > 
-> > I think we need the basic consistent sysfs case. Whether that is
+On Wed, Jul 05, 2006 at 11:17:02PM +0200, Ingo Molnar wrote:
 > 
-> What should i do?
+> * Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
+> 
+> > On Wed, Jul 05, 2006 at 10:02:45PM +0200, Ingo Molnar wrote:
+> > > 
+> > > * Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
+> > > 
+> > > > -		if (sd && sd->flags & flag)
+> > > > +		if (sd && !(sd->flags & flag))
+> > > 
+> > > use test_sd_flag() here, as i did in my fix patch.
+> > > 
+> > > > -#define test_sd_flag(sd, flag)	((sd && sd->flags & flag) ? 1 : 0)
+> > > > +#define test_sd_flag(sd, flag)	((sd && (sd->flags & flag)) ? 1 : 0)
+> > > 
+> > > remove the 'sd' check in test_sd_flag. In the other cases we know that 
+> > > there's an sd. (it's usually a sign of spaghetti code if tests like this 
+> > > include a check for the existence of the object checked)
+> > 
+> > In other cases, we are passing sd->parent as the first argument to 
+> > test_sd_flag(). We know that there is a 'sd' but not sure about 
+> > sd->parent or sd->child.
+> 
+> ok. But the first issue above should be fixed.
 
-Well personally I would favour the MCE logging stuff staying in because
-its clearly small, compact and enough for many users, and the EDAC stuff
-hooking that feed somehow so that people who want the detail and the
-common behaviour across platforms can load the extra module.
+I can't simply change it to test_sd_flag(). In sched_balance_self(), paths for
+sd == 0 and a 'flag' not set in sd->flags are different.
 
-As to filtering and control of the banks - that can always be done by
-filtering what is handed down from the MCE code if I understand it right
-so can be left in the EDAC side.
+I can change that piece of code to (sd && !test_sd_flag(sd, flag)) though..
+but that is not clean, right?
 
-But thats just my opinion. It is based on what I'm seeing in terms of
-feedback from people using EDAC a lot (eg in clusters). 
-
-Alan
-
+thanks,
+suresh

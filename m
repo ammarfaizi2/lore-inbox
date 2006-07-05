@@ -1,80 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWGEWlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWGEWrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbWGEWlm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 18:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbWGEWlm
+	id S965038AbWGEWrD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 18:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbWGEWrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 18:41:42 -0400
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:40094 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S964974AbWGEWlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 18:41:42 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: ext4 features
-To: Lew Palm <lew@tzi.de>, "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Thu, 06 Jul 2006 00:40:58 +0200
-References: <6tVcC-1e1-79@gated-at.bofh.it> <6tVcC-1e1-81@gated-at.bofh.it> <6tVcC-1e1-83@gated-at.bofh.it> <6tWib-2Ly-7@gated-at.bofh.it> <6uDdv-7bs-3@gated-at.bofh.it> <6uDGF-7Nj-47@gated-at.bofh.it> <6uDQb-8e8-9@gated-at.bofh.it> <6uDQb-8e8-13@gated-at.bofh.it> <6uE9y-d1-1@gated-at.bofh.it> <6uEMp-1gr-41@gated-at.bofh.it> <6uUo2-6SN-5@gated-at.bofh.it> <6uW6v-15i-19@gated-at.bofh.it> <6vfLY-4K5-33@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1FyG3b-00015e-Js@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+	Wed, 5 Jul 2006 18:47:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52149 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965038AbWGEWrC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 18:47:02 -0400
+Date: Wed, 5 Jul 2006 15:50:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Keith Mannthey" <kmannth@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6
+Message-Id: <20060705155037.7228aa48.akpm@osdl.org>
+In-Reply-To: <a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lew Palm <lew@tzi.de> wrote:
-> Jeffrey V. Merkey wrote:
-
->> The old novell model is simple. When someone unlinks a file, don't
->> delete it, just mv it to another special directory called DELETED.SAV.
->> Then setup the
->> fs space allocation to reuse these files when the drive fills up by
->> oldest files first. It's very simple. Then you have a salvagable file
->> system.
+"Keith Mannthey" <kmannth@gmail.com> wrote:
+>
+> On 7/3/06, Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
+> >
+> >
 > 
-> A complete foolproof car is a car with a maximum speed of 0 mph.
-> As a user I give commands to my computer, for example an order to delete a
-> file. And this is what I expect it to do.
+> Moving from -mm4 to -mm6 I ran into this while trying to boot....
+> <snip>
+> Could not allocate 16 bytes percpu data
+> Could not allocate 16 bytes percpu data
+> sd_mod: Unknown symbol scsi_print_sense_hdr
+> sd_mod: Unknown symbol scsi_mode_sense
+> sd_mod: Unknown symbol scsi_device_get
+> sd_mod: Unknown symbol scsi_get_sense_info_fld
+> <snip>
+> 
+> sd_mod (and later aacraid) are built into my initrd and loaded during boot.
+> 
+> I doubled PERCPU_ENOUGH_ROOM to 65536 and was able to boot.  I am not
+> sure what is eating all the percpu room on the system.  I was using
+> this config with -mm4 just fine.
+> 
+> I attached the dmesg and .config
+> 
 
-You don't delete a file but a filename, and that's what your system will
-still do. 
+Looks like we simply ran out.  Why?...
 
-> If I want it to move a file to another position in the filesystem, I would
-> use another command. I don't want my operating system to josh me, that's why
-> I use Linux.
-> Stealthy keeping of deleted files somewhere is a security black hole.
+patches/genirq-x86_64-irq-make-vector_irq-per-cpu.patch:+DEFINE_PER_CPU(vector_irq_t, vector_irq) = {
+patches/mm-implement-swap-prefetching.patch:+static DEFINE_PER_CPU(struct pagevec, lru_add_tail_pvecs) = { 0, };
+patches/origin.patch:+static DEFINE_PER_CPU(u64 *, tce_page) = NULL;
+patches/origin.patch:+DEFINE_PER_CPU(struct sys_device, device_mce);
+patches/origin.patch:+static DEFINE_PER_CPU(struct threshold_bank *, threshold_banks[NR_BANKS]);
+patches/origin.patch:+static DEFINE_PER_CPU(struct rq, runqueues);
+patches/origin.patch:+DEFINE_PER_CPU(struct vm_event_state, vm_event_states) = {{0}};
+patches/per-task-delay-accounting-taskstats-interface.patch:+static DEFINE_PER_CPU(__u32, taskstats_seqnum) = { 0 };
+patches/readahead-state-based-method-aging-accounting.patch:+DEFINE_PER_CPU(unsigned long, readahead_aging);
+patches/x86_64-mm-add-performance-counter-reservation-framework-for-up-kernels.patch:+static DEFINE_PER_CPU(unsigned long, perfctr_nmi_owner);
+patches/x86_64-mm-add-performance-counter-reservation-framework-for-up-kernels.patch:+static DEFINE_PER_CPU(unsigned long, evntsel_nmi_owner[3]);
+patches/x86_64-mm-add-performance-counter-reservation-framework-for-up-kernels.patch:+static DEFINE_PER_CPU(unsigned, perfctr_nmi_owner);
+patches/x86_64-mm-add-performance-counter-reservation-framework-for-up-kernels.patch:+static DEFINE_PER_CPU(unsigned, evntsel_nmi_owner[2]);
+patches/x86_64-mm-add-smp-support-on-i386-to-reservation-framework.patch:+static DEFINE_PER_CPU(struct nmi_watchdog_ctlblk, nmi_watchdog_ctlblk);
+patches/x86_64-mm-add-smp-support-on-x86_64-to-reservation-framework.patch:+static DEFINE_PER_CPU(struct nmi_watchdog_ctlblk, nmi_watchdog_ctlblk);
 
-Depending on unlinked file to be inaccessible and never have been copied
-just because you called unlink is the real security hole.
+Per-cpuifying the 2.5 kbyte runqueue struct will have hurt.
 
-> But accidents happen. Hardware perishes, users are making mistakes, sometimes
-> coffee is pouring...
-> That's why we backup important data regulary.
+[does readelf --section-headers drivers/scsi/sd_mod.ko, wonders why
+.data.percpu isn't there]
 
-And the salvaging fs will do exactly this whenever you unlink() the final
-reference. You could also use a userspace library catching each unlink call,
-but it would also have to intercept each write() call for each user and
-try to reclaim the backup copies on disk-full and would-have-to-fragment
-events. Off cause there are no userspace-visible would-have-to-fragment
-events, so besides being ugly a userspace solution would not be able to
-completely provide the same service.
+Are you able to add this, see if we can work out where it all went?
 
-> A not-really-deleting-filesystem wouldn't relieve us of that duty, but would
-> make a system more insecure and ambiguous.
+--- a/kernel/module.c~a
++++ a/kernel/module.c
+@@ -340,6 +340,9 @@ static void *percpu_modalloc(unsigned lo
+ 	unsigned int i;
+ 	void *ptr;
+ 
++	printk("%s: allocating %lu bytes for module %s (vmlinux:%lu)\n",
++		__FUNCTION__, size, name, block_size(pcpu_size[0]));
++
+ 	if (align > SMP_CACHE_BYTES) {
+ 		printk(KERN_WARNING "%s: per-cpu alignment %li > %i\n",
+ 		       name, align, SMP_CACHE_BYTES);
+_
 
-It's just a marginal shift. If you can't trust yourself, you've lost. If
-you can't trust the current root, you're screwed, too. If you can't trust
-a future root, the time window in which the file can be recovered will
-slightly increase and the needed knowledge will be reduced. Otherwise, there
-is no change.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
-
-http://david.woodhou.se/why-not-spf.html

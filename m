@@ -1,80 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWGEOSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWGEOZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964879AbWGEOSs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 10:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWGEOSs
+	id S964874AbWGEOZo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 10:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWGEOZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 10:18:48 -0400
-Received: from omta03sl.mx.bigpond.com ([144.140.92.155]:34680 "EHLO
-	omta03sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S964879AbWGEOSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 10:18:48 -0400
-Message-ID: <44ABCA46.2070605@bigpond.net.au>
-Date: Thu, 06 Jul 2006 00:18:46 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 5 Jul 2006 10:25:44 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:32130 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S964874AbWGEOZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 10:25:43 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: ext4 features (salvage)
+To: artusemrys@sbcglobal.net,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Wed, 05 Jul 2006 16:09:19 +0200
+References: <6tVcC-1e1-79@gated-at.bofh.it> <6tVcC-1e1-81@gated-at.bofh.it> <6tVcC-1e1-83@gated-at.bofh.it> <6tWib-2Ly-7@gated-at.bofh.it> <6uDdv-7bs-3@gated-at.bofh.it> <6uDGF-7Nj-47@gated-at.bofh.it> <6uDQb-8e8-9@gated-at.bofh.it> <6uDQb-8e8-13@gated-at.bofh.it> <6uE9y-d1-1@gated-at.bofh.it> <6uPom-87W-23@gated-at.bofh.it> <6uRq6-2Dl-9@gated-at.bofh.it> <6uRJx-30t-5@gated-at.bofh.it> <6uVN4-AN-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] sched: Add SCHED_BGND (background) scheduling policy
-References: <20060704233521.8744.45368.sendpatchset@heathwren.pw.nest> <1152099752.8684.198.camel@Homer.TheSimpsons.net> <44ABC5B7.2090707@bigpond.net.au>
-In-Reply-To: <44ABC5B7.2090707@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 5 Jul 2006 14:18:46 +0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1Fy84X-0000p0-JD@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Mike Galbraith wrote:
->> On Wed, 2006-07-05 at 09:35 +1000, Peter Williams wrote:
->>
->>> @@ -3332,23 +3447,25 @@ need_resched_nonpreemptible:
->>>      }
->>>  
->>>      array = rq->active;
->>> -    if (unlikely(!array->nr_active)) {
->>> -        /*
->>> -         * Switch the active and expired arrays.
->>> -         */
->>> -        schedstat_inc(rq, sched_switch);
->>> -        rq->active = rq->expired;
->>> -        rq->expired = array;
->>> -        array = rq->active;
->>> -        rq->expired_timestamp = 0;
->>> -        rq->best_expired_prio = MAX_PRIO;
->>> -    }
->>> +    if (unlikely(!array->nr_active))
->>> +        array = switch_arrays(rq, MAX_PRIO);
->>>  
->>>      idx = sched_find_first_bit(array->bitmap);
->>> +get_next:
->>>      queue = array->queue + idx;
->>>      next = list_entry(queue->next, struct task_struct, run_list);
->>> +    /* very strict backgrounding */
->>> +    if (unlikely(task_in_background(next) && rq->expired->nr_active)) {
->>> +        int tmp = sched_find_first_bit(rq->expired->bitmap);
->>> +
->>> +        if (likely(tmp < idx)) {
->>> +            array = switch_arrays(rq, idx);
->>> +            idx = tmp;
->>> +            goto get_next;
->>
->> Won't this potentially expire the mutex holder which you specifically
->> protect in scheduler_tick() if it was preempted before being ticked?
-> 
-> I don't think so as its prio value should cause task_in_background() to 
-> fail.
+Matthew Frost <artusemrys@sbcglobal.net> wrote:
 
-Actually, you're right, a pre-emption at the wrong time could cause the 
-prio value not to have been changed.  There needs to be a 
-safe_to_background(next) in there somewhere.
+> We silently keep files around in many filesystems, at least until
+> whatever reclamation process runs.  The delete event doesn't itself
+> generally purge the data from disk.  However, this is a matter of simple
+> tools doing simple things.  Designing an intentional structure around
+> not actually deleting deleted files, but keeping them around just in
+> case may be lauded as "user-friendly", but it is counter-intuitive.  It
+> is cleverness over clarity, good design smothered under feature demand.
 
-Peter
+[...]
+
+> If you have to add a "really delete, I mean it" command, you're breaking
+> fundamental assumptions.
+
+Even without the patch, you can't guarantee that nobody will create a link
+just before the supposed-to-be-final unlink(), or copies the file around.
+Having undelete() will just make this risk very obvious.
+
+BTW: If you really want to delete files, use shred.
+
+
+[...]
+> Why add non-free space to the free space count, when we're intentionally
+> keeping those files?  If you have to be counter-intuitive, why go the
+> second counter of hiding it from the user who "wants us to keep and
+> index his deleted files"?
+
+It is free space, but it can be unfreed in order to
+a) restore the data (on demand)
+b) store new data (automatically, no tool needed)
+
+If b happens before a, it's called bad luck.
+
+This concept is fundamentally different from keeping a recycle bin
+of 10 % disksize for each of the 20 users (adding up to 200 % of the
+disk size), which is well-known from a colorfull "operating" system.
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+http://david.woodhou.se/why-not-spf.html

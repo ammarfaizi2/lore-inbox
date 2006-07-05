@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965001AbWGETdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWGETg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965001AbWGETdp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 15:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbWGETdp
+	id S965003AbWGETg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 15:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWGETg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 15:33:45 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:31669 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S965001AbWGETdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 15:33:44 -0400
-Subject: Re: OSS driver removal, 2nd round
-From: Lee Revell <rlrevell@joe-job.com>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       =?iso-8859-9?Q?=DDsmail_D=F6nmez?= <ismail@pardus.org.tr>,
-       alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-       Olivier Galibert <galibert@pobox.com>, Adrian Bunk <bunk@stusta.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Olaf Hering <olh@suse.de>,
-       James Courtier-Dutton <James@superbug.co.uk>, perex@suse.cz
-In-Reply-To: <44AB69FA.4090305@stesmi.com>
-References: <20060629192128.GE19712@stusta.de>
-	 <200607010042.15765.ismail@pardus.org.tr>
-	 <1151704572.32444.74.camel@mindpipe>
-	 <200607010249.05140.ismail@pardus.org.tr> <44A99C72.7070602@tmr.com>
-	 <44AB69FA.4090305@stesmi.com>
-Content-Type: text/plain
-Date: Wed, 05 Jul 2006 15:34:17 -0400
-Message-Id: <1152128058.15837.130.camel@mindpipe>
+	Wed, 5 Jul 2006 15:36:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42715 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965003AbWGETgZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 15:36:25 -0400
+Date: Wed, 5 Jul 2006 15:36:18 -0400
+From: Dave Jones <davej@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Limit VIA and SIS AGP choices to x86
+Message-ID: <20060705193618.GH1877@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20060705175725.GL1605@parisc-linux.org> <20060705192147.GF1877@redhat.com> <1152127676.3201.62.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152127676.3201.62.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-05 at 09:27 +0200, Stefan Smietanowski wrote:
-> It's being written for v4l v1 api which is being phased out with
-> 2.6.18.
-> 
-> They already have alsa working (and from the sound of it it's working
-> great!).
-> 
-> v4l != alsa. :) 
+On Wed, Jul 05, 2006 at 09:27:56PM +0200, Arjan van de Ven wrote:
+ > On Wed, 2006-07-05 at 15:21 -0400, Dave Jones wrote:
+ > > On Wed, Jul 05, 2006 at 11:57:25AM -0600, Matthew Wilcox wrote:
+ > >  > 
+ > >  > As far as I am aware, Alpha, PPC and IA64 don't have VIA or SIS AGP
+ > >  > chipsets available.
+ > > 
+ > > VIA has turned up on PPC (some Apple notebooks).
+ > 
+ > only the southbridge... agp is a northbridge thing...
 
-A user visible API is being removed in 2.6.18?  Really?
+Maybe my memory is flaky, but I'm sure I recall a VIA
+northbridge in the ibook.
 
-I thought the rule was that 2.6 is a stable series therefore no
-user-visible API changes were allowed.
+benh ?
 
-Lee
+		Dave
 
+-- 
+http://www.codemonkey.org.uk

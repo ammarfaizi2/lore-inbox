@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWGES1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWGES2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbWGES1J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 14:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWGES1J
+	id S964983AbWGES2j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 14:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWGES2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 14:27:09 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:33165 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964976AbWGES1I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 14:27:08 -0400
-Message-ID: <44AC0460.9060607@zytor.com>
-Date: Wed, 05 Jul 2006 11:26:40 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] i386: early pagefault handler
-References: <200607050745_MC3-1-C42B-9937@compuserve.com>	 <p73veqcp58s.fsf@verdi.suse.de> <44ABEB20.2010702@zytor.com>	 <Pine.LNX.4.64.0607050952190.12404@g5.osdl.org> <1152124139.6533.1.camel@localhost.localdomain>
-In-Reply-To: <1152124139.6533.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 5 Jul 2006 14:28:39 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:35227
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S964959AbWGES2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 14:28:37 -0400
+Date: Wed, 05 Jul 2006 11:29:01 -0700 (PDT)
+Message-Id: <20060705.112901.104047882.davem@davemloft.net>
+To: greg@kroah.com
+Cc: jeff@garzik.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [RFC] change netdevice to use struct device instead of struct
+ class_device
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060704223101.GA25275@kroah.com>
+References: <20060703231610.GA18352@kroah.com>
+	<20060703.185747.74753207.davem@davemloft.net>
+	<20060704223101.GA25275@kroah.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Mer, 2006-07-05 am 09:54 -0700, ysgrifennodd Linus Torvalds:
->> Anybody with that old a CPU will have learnt to to say "no-hlt" or 
->> whatever the kernel command line is, and we could probably retire the 
->> silly old hlt check (which I'm not even sure really ever worked).
-> 
-> The one specific case I know precisely details of was the Cyrix 5510. A
-> hlt by the CPU on that chipset during an IDE DMA transfer hangs the
-> system forever.
-> 
-> Its some years since I've even seen a 5510 and that check could be
-> automated anyway
+From: Greg KH <greg@kroah.com>
+Date: Tue, 4 Jul 2006 15:31:01 -0700
 
-I think HLT for a die loop should be safe :)
+> Do you mind if I keep this in my tree, due to the dependancies on the
+> other driver core changes?
 
-	-hpa
+Feel free.

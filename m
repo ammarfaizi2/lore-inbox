@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWGEOE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWGEOG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWGEOE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 10:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWGEOE4
+	id S964877AbWGEOG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 10:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWGEOG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 10:04:56 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:12739 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964876AbWGEOEz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 10:04:55 -0400
-Date: Wed, 5 Jul 2006 16:04:31 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-cc: Peter Williams <pwil3058@bigpond.net.au>, Con Kolivas <kernel@kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] sched: Add SCHED_BGND (background) scheduling policy
-In-Reply-To: <20060705080539.GA22099@rhlx01.fht-esslingen.de>
-Message-ID: <Pine.LNX.4.61.0607051603560.447@yvahk01.tjqt.qr>
-References: <20060704233521.8744.45368.sendpatchset@heathwren.pw.nest>
- <200607051014.48089.kernel@kolivas.org> <44AB0CA2.5080908@bigpond.net.au>
- <20060705080539.GA22099@rhlx01.fht-esslingen.de>
+	Wed, 5 Jul 2006 10:06:27 -0400
+Received: from out3.smtp.messagingengine.com ([66.111.4.27]:19386 "EHLO
+	out3.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S964877AbWGEOG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 10:06:27 -0400
+X-Sasl-enc: m59Ctm/iqxRLBlhcUy7F1foCOwQ7KL8tGyg6FFakmJax 1152108386
+Date: Wed, 5 Jul 2006 11:06:19 -0300
+From: Henrique de Moraes Holschuh <hmh@debian.org>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, Stelian Pop <stelian@popies.net>,
+       Michael Hanselmann <linux-kernel@hansmi.ch>,
+       hdaps-devel@lists.sourceforge.net, lm-sensors@lm-sensors.org
+Subject: Re: [Hdaps-devel] Generic interface for accelerometers (AMS, HDAPS, ...)
+Message-ID: <20060705140619.GB8452@khazad-dum.debian.net>
+References: <41840b750607040326y7bfe92dy21c6845ab034ce30@mail.gmail.com> <20060703124823.GA18821@khazad-dum.debian.net> <20060704075950.GA13073@elf.ucw.cz> <1152086415.4995.0.camel@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152086415.4995.0.camel@localhost>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Peter
->> PS Any programs that use SCHED_IDLEPRIO should work as long as its value 
->> is defined as 4.
->
->OK, nice, but:
->
->2.6.17-ck1:
->
->/*
-> * Scheduling policies
-> */
->#define SCHED_NORMAL            0
->#define SCHED_FIFO              1
->#define SCHED_RR                2
->#define SCHED_BATCH             3
->#define SCHED_ISO               4
->#define SCHED_IDLEPRIO          5
->
->#define SCHED_MIN               0
->#define SCHED_MAX               5
->
->
->Arggl.
->
->So what does that tell us?
->
+On Wed, 05 Jul 2006, Johannes Berg wrote:
+> > Also, there's a small issue with polling frequency. hdapsd needs a
+> > fairly high frequency (say, 50Hz) to gather statistics and keep
+> > response latency low, whereas the hdaps driver's internal polling
+> > (routing to the input infrastructure) is currently done at only 20Hz.
+> > We'll need to increase the latter, thereby slightly increasing system
+> > load when hdaps isn't running.
+> 
+> Note that with AMS we're better off -- it has two interrupts telling us
+> when something is wrong.
+> 
+> Hence, most of the discussion about loads of input values only applies
+> to hdaps, the actual head-park functionality can be implemented with AMS
+> without ever reading any sensor values.
+> 
+> Hence we also need much less complexity in userland -- once an interrupt
+> comes in we trigger the hd park...
 
-We need a common header now.
+Looks nice.  For AMS, then, the userspace daemon can choose between deciding
+for itself when to park heads using accel data, or to trust the firmware and
+do it when told, or even to do both.
 
+IBM *could* have done the same, since they already have an H8
+microcontroller looking at that accelerometer :(  Anyway, IMHO it would be
+good to have AMS-like behaviour where the kernel driver exposes head-park
+events to userspace in the generic interface.
 
-Jan Engelhardt
 -- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

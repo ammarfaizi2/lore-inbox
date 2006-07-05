@@ -1,28 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWGEFUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWGEFgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWGEFUf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 01:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWGEFUf
+	id S1750851AbWGEFgg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 01:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWGEFgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 01:20:35 -0400
-Received: from gate.crashing.org ([63.228.1.57]:17602 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932348AbWGEFUe (ORCPT
+	Wed, 5 Jul 2006 01:36:36 -0400
+Received: from gate.crashing.org ([63.228.1.57]:25282 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750851AbWGEFgf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 01:20:34 -0400
-Subject: [PATCH] powerpc: Fix loss of interrupts with MPIC
+	Wed, 5 Jul 2006 01:36:35 -0400
+Subject: Re: [PATCH] powerpc: Fix loss of interrupts with MPIC (#2)
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Paul Mackerras <paulus@samba.org>
 Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1152076021.17790.10.camel@localhost.localdomain>
+References: <1152076021.17790.10.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 05 Jul 2006 15:07:00 +1000
-Message-Id: <1152076021.17790.10.camel@localhost.localdomain>
+Date: Wed, 05 Jul 2006 15:36:15 +1000
+Message-Id: <1152077775.17790.12.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+And here's the right version of the patch, pls drop the other one,
+sorry....
 
 With the new interrupt rework, an interrupt "host" map() callback can be
 called after the interrupt is already active (it's called again for an
@@ -42,7 +47,7 @@ hangs and other bad issues on PowerMac.
 Index: linux-irq-work/arch/powerpc/sysdev/mpic.c
 ===================================================================
 --- linux-irq-work.orig/arch/powerpc/sysdev/mpic.c	2006-07-05 14:46:11.000000000 +1000
-+++ linux-irq-work/arch/powerpc/sysdev/mpic.c	2006-07-05 15:00:48.000000000 +1000
++++ linux-irq-work/arch/powerpc/sysdev/mpic.c	2006-07-05 15:34:50.000000000 +1000
 @@ -405,20 +405,22 @@
  	unsigned int loops = 100000;
  	struct mpic *mpic = mpic_from_irq(irq);
@@ -88,7 +93,7 @@ Index: linux-irq-work/arch/powerpc/sysdev/mpic.c
  }
  
  static void mpic_end_irq(unsigned int irq)
-@@ -624,7 +629,7 @@
+@@ -624,9 +629,10 @@
  	struct irq_desc *desc = get_irq_desc(virq);
  	struct irq_chip *chip;
  	struct mpic *mpic = h->host_data;
@@ -96,8 +101,11 @@ Index: linux-irq-work/arch/powerpc/sysdev/mpic.c
 +	u32 v, vecpri = MPIC_VECPRI_SENSE_LEVEL |
  		MPIC_VECPRI_POLARITY_NEGATIVE;
  	int level;
++	unsigned long iflags;
  
-@@ -668,11 +673,21 @@
+ 	pr_debug("mpic: map virq %d, hwirq 0x%lx, flags: 0x%x\n",
+ 		 virq, hw, flags);
+@@ -668,11 +674,21 @@
  	}
  #endif
  
@@ -108,14 +116,14 @@ Index: linux-irq-work/arch/powerpc/sysdev/mpic.c
 +	 * while the interrupt is still active (This may change in the future
 +	 * but for now, it is the case).
 +	 */
-+	spin_lock_irqsave(&mpic_lock, flags);
++	spin_lock_irqsave(&mpic_lock, iflags);
 +	v = mpic_irq_read(hw, MPIC_IRQ_VECTOR_PRI);
 +	vecpri = (v &
 +		~(MPIC_VECPRI_POLARITY_MASK | MPIC_VECPRI_SENSE_MASK)) |
 +		vecpri;
 +	if (vecpri != v)
 +		mpic_irq_write(hw, MPIC_IRQ_VECTOR_PRI, vecpri);
-+	spin_unlock_irqrestore(&mpic_lock, flags);
++	spin_unlock_irqrestore(&mpic_lock, iflags);
  
 -	pr_debug("mpic: mapping as IRQ\n");
 +	pr_debug("mpic: mapping as IRQ, vecpri = 0x%08x (was 0x%08x)\n",
@@ -123,7 +131,7 @@ Index: linux-irq-work/arch/powerpc/sysdev/mpic.c
  
  	set_irq_chip_data(virq, mpic);
  	set_irq_chip_and_handler(virq, chip, handle_fasteoi_irq);
-@@ -904,8 +919,8 @@
+@@ -904,8 +920,8 @@
  		
  		/* do senses munging */
  		if (mpic->senses && i < mpic->senses_count)
@@ -134,7 +142,7 @@ Index: linux-irq-work/arch/powerpc/sysdev/mpic.c
  		else
  			vecpri |= MPIC_VECPRI_SENSE_LEVEL;
  
-@@ -955,14 +970,17 @@
+@@ -955,14 +971,17 @@
  
  void __init mpic_set_serial_int(struct mpic *mpic, int enable)
  {
@@ -152,5 +160,5 @@ Index: linux-irq-work/arch/powerpc/sysdev/mpic.c
  }
  
  void mpic_irq_set_priority(unsigned int irq, unsigned int pri)
-  
+
 

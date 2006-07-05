@@ -1,100 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWGETu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWGEUA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964986AbWGETu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 15:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWGETu5
+	id S964914AbWGEUA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 16:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWGEUA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 15:50:57 -0400
-Received: from mga03.intel.com ([143.182.124.21]:57744 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S964986AbWGETu5 convert rfc822-to-8bit (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 15:50:57 -0400
-X-IronPort-AV: i="4.06,210,1149490800"; 
-   d="scan'208"; a="61659933:sNHT28291137"
-Content-class: urn:content-classes:message
+	Wed, 5 Jul 2006 16:00:27 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:24530 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S964914AbWGEUA0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 16:00:26 -0400
+Date: Wed, 5 Jul 2006 16:00:23 -0400
+From: Yaroslav Halchenko <kernel@onerussian.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PCMCIA modem not found... resume/suspend helps some times... magic is not found
+Message-ID: <20060705200023.GE12704@washoe.onerussian.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060624200409.GA12704@washoe.onerussian.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [PATCH] mm: moving dirty pages balancing to pdfludh entirely
-Date: Wed, 5 Jul 2006 23:50:51 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC06CFA6@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] mm: moving dirty pages balancing to pdfludh entirely
-Thread-Index: AcagZ7TgMuclfHi7Qxuc3JbdaqZlNQAAcUMg
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Nikita Danilov" <nikita@clusterfs.com>
-Cc: "Bret Towe" <magnade@gmail.com>,
-       "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-X-OriginalArrivalTime: 05 Jul 2006 19:50:54.0823 (UTC) FILETIME=[53B9B770:01C6A06C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060624200409.GA12704@washoe.onerussian.com>
+X-URL: http://www.onerussian.com
+X-Image-Url: http://www.onerussian.com/img/yoh.png
+X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
+X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
+User-Agent: mutt-ng/devel-r804 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov writes:
-> Exactly to the contrary: as I explained to you, if you have more
-devices
-> than pdflush threads
-I do not believe that Bret Towe has more devices than
-MAX_PDFLUSH_THREADS=8.
+Dear Kernel People,
 
-> See how wbc.nr_to_write is set up by balance_dirty_pages().
-It is number TO write but I said about number after what user has to
-write-out all dirty pages. 
+Since nobody followed up I've decided to provide additional information
+which might help to pin point the problem.
+I've loaded pcmcia_core with pc_debug=255
 
-> imagine that MAX_PDFLUSH_THREADS equals 1
-Imagine that CONFIG_NR_CPUS=1 for smp.
-Kernel has a lot of "big enough" constants.
+Troublesome lines for me are:
 
-Leonid
------Original Message-----
-From: Nikita Danilov [mailto:nikita@clusterfs.com] 
-Sent: Wednesday, July 05, 2006 11:07 PM
-To: Ananiev, Leonid I
-Cc: Bret Towe; Linux Kernel Mailing List
-Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh
-entirely
+Jul  5 15:52:25 vaio kernel: pcmcia: registering new device pcmcia0.0
+Jul  5 15:52:25 vaio kernel: cs: pcmcia_socket0: cs: overrun in pcmcia_get_next_tuple
+Jul  5 15:52:26 vaio kernel: cs: pcmcia_socket0: cs: overrun in pcmcia_get_next_tuple
 
-Ananiev, Leonid I writes:
- > 
- > Bret Towe writes:
- > > if say some gtk app wants to write to disk it will freeze
- > > until the usb hd is completely done
- > 
- > The proposed patch fixes one real cause of long latency: if a user
+Full kern.log is available from
+http://www.onerussian.com/Linux/bugs/pcmcia.modem/kern.log.debug
 
-Exactly to the contrary: as I explained to you, if you have more devices
-than pdflush threads, your patch will result in all system doing IO as
-slow as slowest devices in the system. In addition, if you have more
-than MAX_PDFLUSH_THREADS processors, some of them cannot be used to
-concurrently perform writeback.
+Please advise what else could I do to revive this modem to life
 
- > thread writes 1 byte only to disk it could happen that one has to
-write
- > all pages dirtied by all threads in the system and wait for it. The
+Thank you in advance
 
-See how wbc.nr_to_write is set up by balance_dirty_pages().
+On Sat, 24 Jun 2006, Yaroslav Halchenko wrote:
 
- > patch is tested and gets real benefit on real systems. A common
-system
- > work is performed in common system thread but not in casual user
-thread.
+> Dear Kernel People,
 
-To understand the problem I am trying to attract your attention to,
-imagine that MAX_PDFLUSH_THREADS equals 1. See what you get? BSD
-(pagedaemon everybody waits upon). But Linux is not BSD, thankfully.
+> Before my long trip abroad I decided to make my pcmcia modem work under
+> fresh 2.6.17-rc6-mm2.
 
- > 
- > The patch does not fix other (bazillion - 1) fictitious freezing
-causes
- > for imaginary configurations.
+> It wasn't found at all... after some dancing around it started to
+> to appear after pccardctl suspend, pccardctl resume calls.
+> After reboot it stopped to do that... now max I could make it is to find
+> it partially without binding to loaded serial_cs:
 
-Yes, and all the world is VAX (var. "my benchmarking suite"), as they
-used to say. :-)
+> > sudo pccardctl status
+> Socket 0:
+> 5.0V 16-bit PC Card
+> Subdevice 0 (function 0) [unbound]
 
- > 
- > Leonid
+> Some information from magic successful initialization is available
+> in my bug failed on Debian:
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=374742
 
-Nikita.
+> and modem was found to be
+>     SUBSYSTEM=="pcmcia"
+>     SYSFS{modalias}=="pcmcia:m016Cc0001f02fn00pfn00paF5F025C2pb200E6E61pc26477DB8pdC5F4D6FD"
+>     SYSFS{prod_id4}=="V8.041"
+>     SYSFS{prod_id3}=="56K+Fax"
+>     SYSFS{prod_id2}=="Gold Card Global 56K+Fax"
+>     SYSFS{prod_id1}=="Psion Dacom"
+>     SYSFS{card_id}=="0x0001"
+>     SYSFS{manf_id}=="0x016c"
+>     SYSFS{func_id}=="0x02"
+>     SYSFS{pm_state}=="on"
+>     SYSFS{function}=="0x00"
+
+> information on current system where I can't make it work any more
+> http://www.onerussian.com/Linux/bugs/pcmcia.modem/
+
+> Here are the results of suspend/resume sequence:
+
+> *> sudo pccardctl eject
+> *> sudo pccardctl insert
+> > sudo pccardctl status
+> Socket 0:
+> 5.0V 16-bit PC Card
+> > sudo pccardctl suspend
+> > sudo pccardctl status
+> Socket 0:
+> X.XV 16-bit PC Card [suspended]
+> > sudo pccardctl resume
+> > sudo pccardctl status
+> Socket 0:
+> 5.0V 16-bit PC Card
+> Subdevice 0 (function 0) [unbound]
+
+> Please advise!
+-- 
+Yaroslav Halchenko
+Research Assistant, Psychology Department, Rutgers-Newark
+Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
+        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07102
+Student  Ph.D. @ CS Dept. NJIT

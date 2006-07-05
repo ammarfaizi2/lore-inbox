@@ -1,77 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWGEFSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWGEFUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbWGEFSl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 01:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWGEFSl
+	id S932348AbWGEFUf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 01:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWGEFUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 01:18:41 -0400
-Received: from 1wt.eu ([62.212.114.60]:51209 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S932320AbWGEFSk (ORCPT
+	Wed, 5 Jul 2006 01:20:35 -0400
+Received: from gate.crashing.org ([63.228.1.57]:17602 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932348AbWGEFUe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 01:18:40 -0400
-Date: Wed, 5 Jul 2006 07:18:29 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Grant Coady <gcoady.lk@gmail.com>
-Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: Linux 2.4.33-rc2
-Message-ID: <20060705051829.GA23186@1wt.eu>
-References: <20060621192756.GB13559@dmt> <20060703220736.GA272@1wt.eu> <0e6ma2961ro2evtrnacgmla7j52j738q76@4ax.com>
+	Wed, 5 Jul 2006 01:20:34 -0400
+Subject: [PATCH] powerpc: Fix loss of interrupts with MPIC
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Date: Wed, 05 Jul 2006 15:07:00 +1000
+Message-Id: <1152076021.17790.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0e6ma2961ro2evtrnacgmla7j52j738q76@4ax.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Grant,
+With the new interrupt rework, an interrupt "host" map() callback can be
+called after the interrupt is already active (it's called again for an
+already mapped interrupt to allow changing the trigger
+setup, and currently this is not guarded with a test of wether the
+interrupt is requested or not, I plan to change some of this logic to be
+a bit less lenient against random reconfiguring of live
+interrupts but just not yet). The ported MPIC driver has a bug where
+when that happens, it will mask the interrupt. This changes it to
+preserve the previous masking of the interrupt instead.
 
-On Wed, Jul 05, 2006 at 11:51:35AM +1000, Grant Coady wrote:
-> On Tue, 4 Jul 2006 00:07:36 +0200, Willy Tarreau <w@1wt.eu> wrote:
-(...)
-> >What I notice is that in 2.4.32, d_delete(dentry) was performed
-> >between down(&dir->i_zombie) and up(&dir->i_zombie), while now
-> >it's completely outside. I wonder if this can cause race conditions
-> >or not, but at least, I'm sure that we have changed the locking
-> >sequence, which might have some impact.
-> >
-> >Do you think I'm searching in the wrong direction ? I worry a
-> >bit, because getting a deadlock after only one day, it's a bit
-> >early :-/
-> >
-> Assuming you mean something like the patch below?  Doesn't cause any 
-> problems (yet, still testing) like eat files or segfault here as 
-> reported for -rc1 +/- various patches ;)
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+---
+Linus: It would be nice if that could still sneak into -rc1 as it causes
+hangs and other bad issues on PowerMac.
 
-yes, exactly this. I don't know if it's correct and/or needed. In 2.6,
-the d_delete() is performed outside the lock. I'd like someone's advise
-on this one. Also, I'll look for an NFS client stress test to try to
-reproduce the problem, because I don't like it when problems like this
-only appear once a day. And playing with the VFS does not make me happy
-at all.
+Index: linux-irq-work/arch/powerpc/sysdev/mpic.c
+===================================================================
+--- linux-irq-work.orig/arch/powerpc/sysdev/mpic.c	2006-07-05 14:46:11.000000000 +1000
++++ linux-irq-work/arch/powerpc/sysdev/mpic.c	2006-07-05 15:00:48.000000000 +1000
+@@ -405,20 +405,22 @@
+ 	unsigned int loops = 100000;
+ 	struct mpic *mpic = mpic_from_irq(irq);
+ 	unsigned int src = mpic_irq_to_hw(irq);
++	unsigned long flags;
+ 
+ 	DBG("%p: %s: enable_irq: %d (src %d)\n", mpic, mpic->name, irq, src);
+ 
++	spin_lock_irqsave(&mpic_lock, flags);
+ 	mpic_irq_write(src, MPIC_IRQ_VECTOR_PRI,
+ 		       mpic_irq_read(src, MPIC_IRQ_VECTOR_PRI) &
+ 		       ~MPIC_VECPRI_MASK);
+-
+ 	/* make sure mask gets to controller before we return to user */
+ 	do {
+ 		if (!loops--) {
+ 			printk(KERN_ERR "mpic_enable_irq timeout\n");
+ 			break;
+ 		}
+-	} while(mpic_irq_read(src, MPIC_IRQ_VECTOR_PRI) & MPIC_VECPRI_MASK);	
++	} while(mpic_irq_read(src, MPIC_IRQ_VECTOR_PRI) & MPIC_VECPRI_MASK);
++	spin_unlock_irqrestore(&mpic_lock, flags);
+ }
+ 
+ static void mpic_mask_irq(unsigned int irq)
+@@ -426,9 +428,11 @@
+ 	unsigned int loops = 100000;
+ 	struct mpic *mpic = mpic_from_irq(irq);
+ 	unsigned int src = mpic_irq_to_hw(irq);
++	unsigned long flags;
+ 
+ 	DBG("%s: disable_irq: %d (src %d)\n", mpic->name, irq, src);
+ 
++	spin_lock_irqsave(&mpic_lock, flags);
+ 	mpic_irq_write(src, MPIC_IRQ_VECTOR_PRI,
+ 		       mpic_irq_read(src, MPIC_IRQ_VECTOR_PRI) |
+ 		       MPIC_VECPRI_MASK);
+@@ -440,6 +444,7 @@
+ 			break;
+ 		}
+ 	} while(!(mpic_irq_read(src, MPIC_IRQ_VECTOR_PRI) & MPIC_VECPRI_MASK));
++	spin_unlock_irqrestore(&mpic_lock, flags);
+ }
+ 
+ static void mpic_end_irq(unsigned int irq)
+@@ -624,7 +629,7 @@
+ 	struct irq_desc *desc = get_irq_desc(virq);
+ 	struct irq_chip *chip;
+ 	struct mpic *mpic = h->host_data;
+-	unsigned int vecpri = MPIC_VECPRI_SENSE_LEVEL |
++	u32 v, vecpri = MPIC_VECPRI_SENSE_LEVEL |
+ 		MPIC_VECPRI_POLARITY_NEGATIVE;
+ 	int level;
+ 
+@@ -668,11 +673,21 @@
+ 	}
+ #endif
+ 
+-	/* Reconfigure irq */
+-	vecpri |= MPIC_VECPRI_MASK | hw | (8 << MPIC_VECPRI_PRIORITY_SHIFT);
+-	mpic_irq_write(hw, MPIC_IRQ_VECTOR_PRI, vecpri);
++	/* Reconfigure irq. We must preserve the mask bit as we can be called
++	 * while the interrupt is still active (This may change in the future
++	 * but for now, it is the case).
++	 */
++	spin_lock_irqsave(&mpic_lock, flags);
++	v = mpic_irq_read(hw, MPIC_IRQ_VECTOR_PRI);
++	vecpri = (v &
++		~(MPIC_VECPRI_POLARITY_MASK | MPIC_VECPRI_SENSE_MASK)) |
++		vecpri;
++	if (vecpri != v)
++		mpic_irq_write(hw, MPIC_IRQ_VECTOR_PRI, vecpri);
++	spin_unlock_irqrestore(&mpic_lock, flags);
+ 
+-	pr_debug("mpic: mapping as IRQ\n");
++	pr_debug("mpic: mapping as IRQ, vecpri = 0x%08x (was 0x%08x)\n",
++		 vecpri, v);
+ 
+ 	set_irq_chip_data(virq, mpic);
+ 	set_irq_chip_and_handler(virq, chip, handle_fasteoi_irq);
+@@ -904,8 +919,8 @@
+ 		
+ 		/* do senses munging */
+ 		if (mpic->senses && i < mpic->senses_count)
+-			vecpri = mpic_flags_to_vecpri(mpic->senses[i],
+-						      &level);
++			vecpri |= mpic_flags_to_vecpri(mpic->senses[i],
++						       &level);
+ 		else
+ 			vecpri |= MPIC_VECPRI_SENSE_LEVEL;
+ 
+@@ -955,14 +970,17 @@
+ 
+ void __init mpic_set_serial_int(struct mpic *mpic, int enable)
+ {
++	unsigned long flags;
+ 	u32 v;
+ 
++	spin_lock_irqsave(&mpic_lock, flags);
+ 	v = mpic_read(mpic->gregs, MPIC_GREG_GLOBAL_CONF_1);
+ 	if (enable)
+ 		v |= MPIC_GREG_GLOBAL_CONF_1_SIE;
+ 	else
+ 		v &= ~MPIC_GREG_GLOBAL_CONF_1_SIE;
+ 	mpic_write(mpic->gregs, MPIC_GREG_GLOBAL_CONF_1, v);
++	spin_unlock_irqrestore(&mpic_lock, flags);
+ }
+ 
+ void mpic_irq_set_priority(unsigned int irq, unsigned int pri)
+  
 
-> Cheers,
-> Grant.
-
-Cheers,
-Willy
-
-> --- linux-2.4.33-rc2/fs/namei.c	2006-06-22 07:27:47.000000000 +1000
-> +++ linux-2.4.33-rc2b/fs/namei.c	2006-07-05 11:43:19.000000000 +1000
-> @@ -1497,13 +1497,14 @@
->  			lock_kernel();
->  			error = dir->i_op->unlink(dir, dentry);
->  			unlock_kernel();
-> +			if (!error)
-> +				d_delete(dentry);
->  		}
->  	}
->  	double_up(&dir->i_zombie, &inode->i_zombie);
->  	iput(inode);
->  
->  	if (!error) {
-> -		d_delete(dentry);
->  		inode_dir_notify(dir, DN_DELETE);
->  	}
->  	return error;

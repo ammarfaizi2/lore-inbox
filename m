@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWGEO6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWGEPBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbWGEO6O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 10:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWGEO6O
+	id S964902AbWGEPBw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 11:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWGEPBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 10:58:14 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:23432 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964898AbWGEO6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 10:58:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
-        b=TpJcKAnqHHyo3voJyEQL5Kqq3ai9yby/BrXpcEVc9NXFK8f7zUYtKdekhLIrAIr/lMj1iUDfB88rl0i3qLQGwkBnPgvnEdTC5cpg0wrqrJypoa619muzuS/DV++038VkR3YFQAtv1l5OpXmcqJ7lcRhzXAR5+g7i8p1yq7bsDTA=
-Date: Wed, 5 Jul 2006 16:58:31 +0100 (BST)
-X-X-Sender: simlo@localhost.localdomain
-To: Mark Hounschell <dmarkh@cfl.rr.com>
-cc: Esben Nielsen <nielsen.esben@googlemail.com>,
-       Ulrich Drepper <drepper@gmail.com>, linux-kernel@vger.kernel.org,
-       glibc-cvs@sourceware.org
-Subject: Re: Where can I get glibc with PI futex support (for -RT tests) ?
-In-Reply-To: <44AB8257.7000406@cfl.rr.com>
-Message-ID: <Pine.LNX.4.64.0607051657550.27580@localhost.localdomain>
-References: <Pine.LNX.4.64.0607050133240.2448@localhost.localdomain>
- <a36005b50607041728h1442ebaapdd9d13b5d13fd3c4@mail.gmail.com>
- <Pine.LNX.4.64.0607051032070.4248@localhost.localdomain> <44AB8257.7000406@cfl.rr.com>
+	Wed, 5 Jul 2006 11:01:52 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:2538 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964902AbWGEPBv
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Wed, 5 Jul 2006 11:01:51 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-From: Esben Nielsen <nielsen.esben@googlemail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17579.54077.486411.474731@gargle.gargle.HOWL>
+Date: Wed, 5 Jul 2006 18:57:01 +0400
+To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
+Subject: Re: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+In-Reply-To: <B41635854730A14CA71C92B36EC22AAC06CF51@mssmsx411>
+References: <B41635854730A14CA71C92B36EC22AAC06CF51@mssmsx411>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ananiev, Leonid I writes:
+ > Nikita Danilov writes:
+ > > suppose you have more than MAX_PDFLUSH_THREADS
+ > Do you consider that the drawback of the patch is in that the value
+ > MAX_PDFLUSH_THREADS is not well known high or this limit is not deleted
 
+I am more concerned, that this patch _limits_ maximal possible writeback
+concurrency to MAX_PDFLUSH_THREADS.
 
-On Wed, 5 Jul 2006, Mark Hounschell wrote:
+ > at all? The limit could be deleted after patching because the line 
 
-> Esben Nielsen wrote:
->> On Tue, 4 Jul 2006, Ulrich Drepper wrote:
->>
->>> On 7/4/06, Esben Nielsen <nielsen.esben@googlemail.com> wrote:
->>>>  The answer is probably on the list, but I can't find it in the
->>>>  archives..:-(
->>>
->>> You have to wait your turn like everybody else.  Ingo/Thomas have one
->>> more bug to fix.  After that I'll check in the patches into the cvs
->>> archive.
->>>
->>
->> Can I get what you have now? Then I can do some testing.
->> I might very well be that the bug doesn't matter for me. What is the bug?
->>
->> I tried to check out from cvs
->> (:pserver:anoncvs@sources.redhat.com:/cvs/glibc) but that can't even
->> compile because PTHREAD_MUTEX_PRIO_INHERIT_NP and
->> PTHREAD_MUTEX_PRIO_PROTECT_NP isn't defined for pthread_mutex_init.c
->>
->> Esben
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->
-> Isn't Ingo's patch for glibc-2.4 here?
->
-> http://people.redhat.com/mingo/PI-futex-patches/glibc-PI-futex.patch
->
-> Builds for me.
->
+That sounds a bit too extreme, given that pdflush is used for a lot of
+things other than background write-out.
 
-Ok, thanks! It builds and it seems to work too :-)
+ > +	if (writeback_in_progress(bdi)) {
+ > keeps off creating extra pdflush threads.
 
-Esben
+What about replacing
 
+ 		pdflush_operation(background_writeout, 0);
 
-> Mark
->
+with
+
+ 		if (pdflush_operation(background_writeout, 0))
+                /*
+                 * Fall back to synchronous writeback if all pdflush
+                 * threads are busy.
+                 */
+                writeback_inodes(&wbc);
+
+? This will combine increased concurrency in your target case (single
+writer) with some safety net in the case of multiple writers and
+multiple devices.
+
+ > 
+ > Leonid
+
+Nikita.

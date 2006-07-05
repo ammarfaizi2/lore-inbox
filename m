@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWGETWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbWGETZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbWGETWt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 15:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWGETWt
+	id S964995AbWGETZE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 15:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWGETZD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 15:22:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65252 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964998AbWGETWs (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 15:22:48 -0400
-Date: Wed, 5 Jul 2006 12:26:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-Cc: reiser@namesys.com, hch@infradead.org, Linux-Kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com
-Subject: Re: [PATCH 1/2] batch-write.patch
-Message-Id: <20060705122615.3a4fca06.akpm@osdl.org>
-In-Reply-To: <1152117935.6337.48.camel@tribesman.namesys.com>
-References: <44A42750.5020807@namesys.com>
-	<20060629185017.8866f95e.akpm@osdl.org>
-	<1152011576.6454.36.camel@tribesman.namesys.com>
-	<20060704114836.GA1344@infradead.org>
-	<44AAA8ED.5030906@namesys.com>
-	<20060704151832.9f2d87b3.akpm@osdl.org>
-	<1152117935.6337.48.camel@tribesman.namesys.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 5 Jul 2006 15:25:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21460 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964995AbWGETZC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 15:25:02 -0400
+Date: Wed, 5 Jul 2006 15:24:56 -0400
+From: Dave Jones <davej@redhat.com>
+To: Ben Pfaff <blp@cs.stanford.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Limit VIA and SIS AGP choices to x86
+Message-ID: <20060705192456.GG1877@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ben Pfaff <blp@cs.stanford.edu>, linux-kernel@vger.kernel.org
+References: <20060705175725.GL1605@parisc-linux.org> <20060705111057.a03fbcec.akpm@osdl.org> <8764ib29m1.fsf@benpfaff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8764ib29m1.fsf@benpfaff.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Vladimir V. Saveliev" <vs@namesys.com> wrote:
->
-> This patch adds a method batch_write to struct address_space_operations.
-> A filesystem may want to implement this operation to improve write performance.
+On Wed, Jul 05, 2006 at 11:24:22AM -0700, Ben Pfaff wrote:
+ > > Sure, the driver will not be used on that architecture.  But there is some
+ > > benefit in being able to cross-compile that driver on other architectures
+ > > anyway.  Sometimes it will pick up missed #includes, sometimes printk
+ > > mismatches, various other assumptions which might be OK for x86 right now
+ > > but which might cause problems in the future.
+ > 
+ > Should we have a NONNATIVE config option analogous to
+ > EXPERIMENTAL, so that it could be expressed as
+ >         depends on AGP && (X86 || NONNATIVE)
+ > Seems to express the actual intentions.
 
-I failed to make a record of which other filesystems will want to use this.
-Do you recall?
+Gah, that would be awful. It'd end up riddled through kconfigs everywhere.
+It's also not really buying anything more than
+(X86 || !X86) , at which point, they cancel each other out ;)
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

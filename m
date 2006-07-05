@@ -1,96 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbWGEVn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbWGEVth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbWGEVn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 17:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWGEVn6
+	id S965059AbWGEVth (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 17:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbWGEVth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 17:43:58 -0400
-Received: from smtp.ono.com ([62.42.230.12]:28976 "EHLO resmta03.ono.com")
-	by vger.kernel.org with ESMTP id S965046AbWGEVn5 (ORCPT
+	Wed, 5 Jul 2006 17:49:37 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:27349 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965059AbWGEVth (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 17:43:57 -0400
-Date: Wed, 5 Jul 2006 23:43:47 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm6
-Message-ID: <20060705234347.47ef2600@werewolf.auna.net>
-In-Reply-To: <20060703030355.420c7155.akpm@osdl.org>
-References: <20060703030355.420c7155.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 2.3.1cvs54 (GTK+ 2.10.0; i686-pc-linux-gnu)
+	Wed, 5 Jul 2006 17:49:37 -0400
+Date: Wed, 5 Jul 2006 23:45:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [patch] uninline init_waitqueue_*() functions
+Message-ID: <20060705214502.GA27597@elte.hu>
+References: <20060705025349.eb88b237.akpm@osdl.org> <20060705102633.GA17975@elte.hu> <20060705113054.GA30919@elte.hu> <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jul 2006 03:03:55 -0700, Andrew Morton <akpm@osdl.org> wrote:
 
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> On Wed, 5 Jul 2006, Ingo Molnar wrote:
+> > 
+> > i had CONFIG_DEBUG_INFO (and UNWIND_INFO) disabled in all these build 
+> > tests.
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
+> Good, because I just verified: those two together will on their own 
+> increase "text size" by about 17% for me.
 > 
+> I still think Andrew is right: I don't see how an initializer that 
+> should basically be three instructions can possibly be 35 bytes larger 
+> than a function call that should be a minimum of two instructions 
+> (argument setup in %eax and the actual call - and that's totally 
+> ignoring the deleterious effects of a function call on register 
+> liveness).
 > 
-> - A major update to the e1000 driver.
-> 
+> The fact that with allnoconfig the kernel is _smaller_ (but, quite 
+> franlkly, within the noise) with the inlined version would seem to 
+> back up Andrews position that it really shouldn't matter.
 
-Doesn't find my root drive :(.
+well, the allnoconfig thing is artificial (and the uninteresting) for a 
+number of reasons:
 
-Its a SATA drive, on PIIX.
-Last -mm I tried ('cause of the raid problems) was -mm1, so I don't know
-when did this broke. Under -mm1, the disk is this:
+- it has REGPARM disabled which penalizes function calls
 
-libata version 1.30 loaded.
-ata_piix 0000:00:1f.2: version 1.10tj1ac3
-ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
-ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-scsi0 : ata_piix
-ata1: ENTER, pcs=0x13 base=0
-ata1: LEAVE, pcs=0x13 present_mask=0x1
-ata1.00: cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:407f
-ata1.00: ATA-6, max UDMA/133, 390721968 sectors: LBA48 
-ata1.00: configured for UDMA/133
-scsi1 : ata_piix
-ata2: ENTER, pcs=0x13 base=2
-ata2: LEAVE, pcs=0x11 present_mask=0x0
-ata2: SATA port has no device.
-  Vendor: ATA       Model: ST3200822AS       Rev: 3.01
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3
-sd 0:0:0:0: Attached scsi disk sda
+- it's UP and hence the inlining cost of init_wait_queue_head() is 
+  significantly smaller.
 
-With -mm6, the kernel doesn't find it. I get this on boot:
+- allnoconfig has smaller average function size - increasing the cost of 
+  uninlining
 
-kinit: try_name sda,1 = dev(8,1)
-kinit: name_to_dev_t(/dev/sda1) = dev(8.1)
-kinit: root_dev = dev(8,1)
-kinit: failed to identify filesystem /dev/root, trying all
-kinit: trying to mount /dev/root on /root with type ext3
-kinit: Cannot open root device dev(8,1)
+> So I'm left wondering why it matters for you, and what triggers it. 
+> Maybe there is some secondary issue that could show us an even more 
+> interesting optimization (or some compiler behaviour that we should 
+> try to encourage).
 
-I have tried to get this message from -mm1, but could not get it in any log.
-But... I remember to see that the boot message is like:
+yeah, i'd not want to skip over some interesting and still unexplained 
+effect either, but 35 bytes isnt all that outlandish and from everything 
+i've seen it's a real win. Here is an actual example:
 
-kinit: try_name sda,1 = sda1(8,1)
-                        ^^^^
-I have verified I built -mm6 with ext3,sata-piix and so on, all builtin.
+ c0fb6137:       c7 44 24 08 00 00 00    movl   $0x0,0x8(%esp)
+ c0fb613e:       00
+ c0fb613f:       c7 44 24 08 01 00 00    movl   $0x1,0x8(%esp)
+ c0fb6146:       00
+ c0fb6147:       c7 43 60 00 00 00 00    movl   $0x0,0x60(%ebx)
+ c0fb614e:       8b 44 24 08             mov    0x8(%esp),%eax
+ c0fb6152:       89 43 5c                mov    %eax,0x5c(%ebx)
+ c0fb6155:       8d 43 64                lea    0x64(%ebx),%eax
+ c0fb6158:       89 40 04                mov    %eax,0x4(%eax)
+ c0fb615b:       89 43 64                mov    %eax,0x64(%ebx)
 
-Any ideas ?
+versus:
 
-TIA
+ c0fb070e:       8d 43 5c                lea    0x5c(%ebx),%eax
+ c0fb0711:       e8 94 98 18 ff          call   c0139faa <init_waitqueue_head>
 
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.17-jam01 (gcc 4.1.1 20060518 (prerelease)) #2 SMP PREEMPT Wed
+so 39 bytes versus 8 bytes - 31 bytes saved. It's a similar win in other 
+cases i checked too. (the only exception is for smaller functions that i 
+mentioned before: where the parameters are not pre-calculated yet so 
+there's no good integration for the function call. In that case it's 
+break even, or in some cases a 3-4 bytes loss.)
+
+	Ingo

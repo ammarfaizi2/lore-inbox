@@ -1,62 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWGEAZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWGEA2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbWGEAZw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 20:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWGEAZw
+	id S932364AbWGEA2c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 20:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWGEA2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 20:25:52 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:32227 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932361AbWGEAZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 20:25:51 -0400
-Date: Wed, 5 Jul 2006 09:17:52 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: clameter@sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       hugh@veritas.com, kernel@kolivas.org, marcelo@kvack.org, ak@suse.de
-Subject: Re: [RFC 3/8] Move HIGHMEM counter into highmem.c/.h
-Message-Id: <20060705091752.37c1a582.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <44AA9C58.2010707@yahoo.com.au>
-References: <20060703215534.7566.8168.sendpatchset@schroedinger.engr.sgi.com>
-	<20060703215550.7566.79975.sendpatchset@schroedinger.engr.sgi.com>
-	<20060704144724.65c43a38.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0607032253040.10856@schroedinger.engr.sgi.com>
-	<20060703232020.260446d9.akpm@osdl.org>
-	<Pine.LNX.4.64.0607040819230.13534@schroedinger.engr.sgi.com>
-	<44AA9C58.2010707@yahoo.com.au>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 4 Jul 2006 20:28:32 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:19012 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932364AbWGEA2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 20:28:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Pcvlb2BBsq1SNHhsZZWUEp9NeaqANwUVrrDkpI4Ptlc2SoQS0ZyV3BaLEXAVhBafnr6+u73Ez6l1WYXSCc5CMbQcWkHWlCdI3DbZ0+S7bmkRfHMivVHVKvful+EWkJfIQ2wvIwPLP2kztyrH9zoUPJuWbSJprhjdq2b7+cgH064=
+Message-ID: <a36005b50607041728h1442ebaapdd9d13b5d13fd3c4@mail.gmail.com>
+Date: Tue, 4 Jul 2006 17:28:30 -0700
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "Esben Nielsen" <nielsen.esben@googlemail.com>
+Subject: Re: Where can I get glibc with PI futex support (for -RT tests) ?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0607050133240.2448@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0607050133240.2448@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Jul 2006 02:50:32 +1000
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On 7/4/06, Esben Nielsen <nielsen.esben@googlemail.com> wrote:
+> The answer is probably on the list, but I can't find it in the
+> archives..:-(
 
-> Christoph Lameter wrote:
-> > On Mon, 3 Jul 2006, Andrew Morton wrote:
-> > 
-> > 
-> >>>Ok. Will put a #ifdef CONFIG_HIGHMEM around that statement and the 
-> >>>following one.
-> >>
-> >>That will take the patchset up to 27 new ifdefs.  Is there a way of improving
-> >>that?
-> > 
-> > 
-> > Ideas are welcome. I can put some of the tests for zones together into one
-> > big #ifdef in mmzone.h but otherwise this is going to be difficult.
-> 
-> I don't think there's much point. They all look pretty straightforward,
-> and if you try doing something fancy it might just make it more fragile
-> or harder to read.
-> 
-just one point.
-I'm not sure dropping "printing HIGHMEM statistics" stuff is good or not.
-It is shown in /proc/meminfo even if CONFIG_HIGHMEM=n now. this will change look
-of user interface a bit. but maybe not so important ....
-
--Kame
-
+You have to wait your turn like everybody else.  Ingo/Thomas have one
+more bug to fix.  After that I'll check in the patches into the cvs
+archive.

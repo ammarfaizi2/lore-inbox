@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWGEDVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWGEDYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWGEDVq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 23:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWGEDVq
+	id S932345AbWGEDYk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 23:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWGEDYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 23:21:46 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:21192 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932313AbWGEDVp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 23:21:45 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alasdair G Kergon <agk@redhat.com>
-Subject: Re: [PATCH 01/15] dm: support ioctls on mapped devices
-Date: Wed, 5 Jul 2006 05:22:07 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Milan Broz <mbroz@redhat.com>
-References: <20060621193121.GP4521@agk.surrey.redhat.com>
-In-Reply-To: <20060621193121.GP4521@agk.surrey.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 4 Jul 2006 23:24:40 -0400
+Received: from mxl145v69.mxlogic.net ([208.65.145.69]:3237 "EHLO
+	p02c11o146.mxlogic.net") by vger.kernel.org with ESMTP
+	id S932345AbWGEDYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 23:24:39 -0400
+Date: Wed, 5 Jul 2006 06:07:45 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Zach Brown <zach.brown@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [openib-general] [PATCH] mthca: initialize send and receive queue locks separately
+Message-ID: <20060705030745.GA20709@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <adairmd9kah.fsf@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607050522.08063.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+In-Reply-To: <adairmd9kah.fsf@cisco.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 05 Jul 2006 03:12:27.0453 (UTC) FILETIME=[D8267ED0:01C69FE0]
+X-Spam: [F=0.0100000000; S=0.010(2006062901)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [63.251.237.3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Wednesday 21 June 2006 21:31 schrieb Alasdair G Kergon:
->  static struct block_device_operations dm_blk_dops = {
->         .open = dm_blk_open,
->         .release = dm_blk_close,
-> +       .ioctl = dm_blk_ioctl,
->         .getgeo = dm_blk_getgeo,
->         .owner = THIS_MODULE
+Quoting r. Roland Dreier <rdreier@cisco.com>:
+> I think that is actually a very minor bug you've found.  If someone
+> were posting a work request at the same time as they transitioned a QP
+> to reset (which is a legitimate if not sensible thing to do), then the
+> spinlock could get reinitialized while it was held.  Which would be
+> bad.
 
-I guess this also needs a ->compat_ioctl method, otherwise it won't
-work for ioctl numbers that have a compat_ioctl implementation in the
-low-level device driver.
+I think you can't post work requests to a QP in reset state, since IB spec
+forbids this. If you do, it seems bad things will happen anyway, for example
+head/tail pointers may get out of sync as mthca_wq_init clears these.
 
-	Arnd <><
+-- 
+MST

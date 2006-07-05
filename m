@@ -1,171 +1,944 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWGEPMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbWGEPnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbWGEPMV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 11:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWGEPMV
+	id S964910AbWGEPnz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 11:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWGEPnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 11:12:21 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:37578 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S964905AbWGEPMU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 11:12:20 -0400
-Date: Wed, 5 Jul 2006 17:12:10 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Milton Miller <miltonm@bga.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [KBUILD] allow any PHONY in if_changed_dep
-Message-ID: <20060705151210.GB401@mars.ravnborg.org>
-References: <200607051502.k65F28bO019554@sullivan.realtime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607051502.k65F28bO019554@sullivan.realtime.net>
-User-Agent: Mutt/1.5.11
+	Wed, 5 Jul 2006 11:43:55 -0400
+Received: from gate.terreactive.ch ([212.90.202.121]:41775 "HELO
+	toe-A.terreactive.ch") by vger.kernel.org with SMTP id S964910AbWGEPny
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 11:43:54 -0400
+Message-ID: <44ABDE30.6080307@drugphish.ch>
+Date: Wed, 05 Jul 2006 17:43:44 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: oops with 2.6.17.1 in vfs_statfs (maybe oprofile related)
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 05, 2006 at 10:02:08AM -0500, Milton Miller wrote:
-> While all the if_changed family filter $(PHONY) from the list of newer
-> files, if_changed_dep was only filtering FORCE from the list of all
-> dependents.  This resulted in forced recompile every time.
+Hello,
 
-I have just committed following change to kbuild.git.
-It should address your input while making parts of Kbuild.include almost
-readable too.
+I'm slowly integrating 2.6.x kernel support and happen to hit a few
+oopses every now and then. So long as time permits I'll post them here.
+We have very intensive and complex test conducts since our distribution
+needs to be able to run across 2.2.x, 2.4.x and 2.6.x.
 
+One of the tests I've performed was to oprofile a I/O intensive
+application while doing hotswap of the underlying SCSI disk in software
+raid mode, trying to monitor IPMI events in parallel. One of the oops I
+got was (and some sysrq fiddling):
 
-Working on the "why did we build this target path" at the moment.
-Will have it finished tonight I hope.
+Jul  5 16:38:11 BUG: unable to handle kernel paging request at virtual
+address f89d4888
+Jul  5 16:38:11 printing eip:
+Jul  5 16:38:11 c10510e0
+Jul  5 16:38:11 *pde = 00000000
+Jul  5 16:38:11 Oops: 0000 [#1]
+Jul  5 16:38:11 SMP
+Jul  5 16:38:11 Modules linked in: raid1 e1000 ipmi_si ipmi_devintf
+ipmi_msghandler ext3 jbd md_mod
+Jul  5 16:38:11 CPU:    0
+Jul  5 16:38:11 EIP:    0060:[<c10510e0>]    Tainted: G  R   VLI
+Jul  5 16:38:11 EFLAGS: 00010216   (2.6.17.1 #1)
+Jul  5 16:38:11 EIP is at sync_filesystems+0x32/0xde
+Jul  5 16:38:11 eax: f89d4860   ebx: f7107200   ecx: 00000000   edx:
+f7c97800
+Jul  5 16:38:11 esi: 00000000   edi: 00000800   ebp: d5205fa0   esp:
+d5205f98
+Jul  5 16:38:11 ds: 007b   es: 007b   ss: 0068
+Jul  5 16:38:11 Process lilo (pid: 22025, threadinfo=d5205000 task=f4841030)
+Jul  5 16:38:11 Stack: 00000001 00000000 d5205fac c104cd6b 00000007
+d5205fb4 c104cda8 d5205000
+Jul  5 16:38:11 c10025f3 00000007 00000000 00000011 00000000 00000800
+bf90e7d8 00000024
+Jul  5 16:38:11 0000007b c100007b 00000024 0807a627 00000073 00000286
+bf90e52c 0000007b
+Jul  5 16:38:11 Call Trace:
+Jul  5 16:38:11 <c1003461> show_stack_log_lvl+0x82/0x8a  <c10035bd>
+show_registers+0x115/0x17d
+Jul  5 16:38:11 <c10037ae> die+0x115/0x1ee  <c12078c9>
+do_page_fault+0x509/0x65d
+Jul  5 16:38:11 <c1003117> error_code+0x4f/0x54  <c104cd6b>
+do_sync+0x20/0x50
+Jul  5 16:38:11 <c104cda8> sys_sync+0xd/0x11  <c10025f3>
+syscall_call+0x7/0xb
+Jul  5 16:38:11 Code: b8 60 15 28 c1 e8 b3 4b 1b 00 b8 5c 15 28 c1 e8 65
+54 1b 00 8b 1d 54 15 28 c1 8b 03 0f 18 00 90 81 fb 54 15 28 c1 74 1a 8b
+43 20 <83> 78 28 00 74 0d f6 43 30 01 75 07 c7 43 64 01 00 00 00 8b 1b
+Jul  5 16:38:11 EIP: [<c10510e0>] sync_filesystems+0x32/0xde SS:ESP
+0068:d5205f98
+Jul  5 16:38:26 <3>BUG: soft lockup detected on CPU#0!
+Jul  5 16:38:26 <c10033dd> show_trace+0xd/0xf  <c10034a6>
+dump_stack+0x15/0x17
+Jul  5 16:38:26 <c1031058> softlockup_tick+0x9d/0xae  <c102040e>
+run_local_timers+0x12/0x14
+Jul  5 16:38:26 <c102025e> update_process_times+0x3c/0x61  <c100d62a>
+smp_apic_timer_interrupt+0x57/0x5f
+Jul  5 16:38:26 <c100304c> apic_timer_interrupt+0x1c/0x24  <c1050ff2>
+sync_supers+0xe/0xca
+Jul  5 16:38:26 <c10374c3> wb_kupdate+0x24/0xd2  <c1037c0e>
+__pdflush+0xe6/0x17c
+Jul  5 16:38:26 <c1037cd0> pdflush+0x2c/0x32  <c1028642> kthread+0x78/0xa0
+Jul  5 16:38:26 <c1000e29> kernel_thread_helper+0x5/0xb
+Jul  5 16:38:44 BUG: soft lockup detected on CPU#3!
+Jul  5 16:38:44 <c10033dd> show_trace+0xd/0xf  <c10034a6>
+dump_stack+0x15/0x17
+Jul  5 16:38:44 <c1031058> softlockup_tick+0x9d/0xae  <c102040e>
+run_local_timers+0x12/0x14
+Jul  5 16:38:44 <c102025e> update_process_times+0x3c/0x61  <c100d62a>
+smp_apic_timer_interrupt+0x57/0x5f
+Jul  5 16:38:44 <c100304c> apic_timer_interrupt+0x1c/0x24  <c10688bd>
+set_sb_syncing+0x10/0x2e
+Jul  5 16:38:44 <c1068981> sync_inodes+0xd/0x2c  <c104cd5f>
+do_sync+0x14/0x50
+Jul  5 16:38:44 <c104cda8> sys_sync+0xd/0x11  <c10025f3>
+syscall_call+0x7/0xb
+Jul  5 16:38:44 BUG: soft lockup detected on CPU#2!
+Jul  5 16:38:44 <c10033dd> show_trace+0xd/0xf  <c10034a6>
+dump_stack+0x15/0x17
+Jul  5 16:38:44 <c1031058> softlockup_tick+0x9d/0xae  <c102040e>
+run_local_timers+0x12/0x14
+Jul  5 16:38:44 <c102025e> update_process_times+0x3c/0x61  <c100d62a>
+smp_apic_timer_interrupt+0x57/0x5f
+Jul  5 16:38:44 <c100304c> apic_timer_interrupt+0x1c/0x24  <c106877d>
+writeback_inodes+0x12/0xbe
+Jul  5 16:38:44 <c1037449> background_writeout+0x5d/0x8d  <c1037c0e>
+__pdflush+0xe6/0x17c
+Jul  5 16:38:44 <c1037cd0> pdflush+0x2c/0x32  <c1028642> kthread+0x78/0xa0
+Jul  5 16:38:44 <c1000e29> kernel_thread_helper+0x5/0xb
+Jul  5 16:39:30 BUG: unable to handle kernel paging request at virtual
+address f89d4894
+Jul  5 16:39:30 printing eip:
+Jul  5 16:39:30 c104a18c
+Jul  5 16:39:30 *pde = 00000000
+Jul  5 16:39:30 Oops: 0000 [#2]
+Jul  5 16:39:30 SMP
+Jul  5 16:39:30 Modules linked in: raid1 e1000 ipmi_si ipmi_devintf
+ipmi_msghandler ext3 jbd md_mod
+Jul  5 16:39:30 CPU:    1
+Jul  5 16:39:30 EIP:    0060:[<c104a18c>]    Tainted: G  R   VLI
+Jul  5 16:39:30 EFLAGS: 00010286   (2.6.17.1 #1)
+Jul  5 16:39:30 EIP is at vfs_statfs+0x18/0x4c
+Jul  5 16:39:30 eax: f89d4860   ebx: e3f57e88   ecx: c4ab6ac0   edx:
+ffffffda
+Jul  5 16:39:30 esi: f7107200   edi: e3f57ef8   ebp: e3f57e80   esp:
+e3f57e74
+Jul  5 16:39:30 ds: 007b   es: 007b   ss: 0068
+Jul  5 16:39:30 Process df (pid: 26004, threadinfo=e3f57000 task=cebbf070)
+Jul  5 16:39:30 Stack: 00000000 e3f57e88 e3f57ef8 e3f57ef0 c104a298
+fffffff7 bfffb9f0 e3f57fb4
+Jul  5 16:39:30 c104be80 0000000d 080523d8 080523d8 e3f57000 00000001
+e3f57f58 e3f57ed0
+Jul  5 16:39:30 c105811f 00000000 f09ed000 00000292 00000000 00000001
+f09ed000 e3f57eec
+Jul  5 16:39:30 Call Trace:
+Jul  5 16:39:30 <c1003461> show_stack_log_lvl+0x82/0x8a  <c10035bd>
+show_registers+0x115/0x17d
+Jul  5 16:39:30 <c10037ae> die+0x115/0x1ee  <c12078c9>
+do_page_fault+0x509/0x65d
+Jul  5 16:39:30 <c1003117> error_code+0x4f/0x54  <c104a298>
+vfs_statfs64+0x14/0x26
+Jul  5 16:39:30 <c104a366> sys_statfs64+0x4a/0x7a  <c10025f3>
+syscall_call+0x7/0xb
+Jul  5 16:39:30 Code: 40 74 03 8b 52 0c 8b 42 18 8b 50 1c 89 d0 5d c3 90
+90 90 55 85 c0 89 e5 57 56 89 c6 53 89 d3 ba ed ff ff ff 74 32 8b 40 20
+b2 da <83> 78 34 00 74 27 31 c0 b9 15 00 00 00 89 df f3 ab 89 da 8b 4e
+Jul  5 16:39:30 EIP: [<c104a18c>] vfs_statfs+0x18/0x4c SS:ESP 0068:e3f57e74
+Jul  5 16:39:32 <1>BUG: unable to handle kernel paging request at
+virtual address f89d4894
+Jul  5 16:39:32 printing eip:
+Jul  5 16:39:32 c104a18c
+Jul  5 16:39:32 *pde = 00000000
+Jul  5 16:39:32 Oops: 0000 [#3]
+Jul  5 16:39:32 SMP
+Jul  5 16:39:32 Modules linked in: raid1 e1000 ipmi_si ipmi_devintf
+ipmi_msghandler ext3 jbd md_mod
+Jul  5 16:39:32 CPU:    1
+Jul  5 16:39:32 EIP:    0060:[<c104a18c>]    Tainted: G  R   VLI
+Jul  5 16:39:32 EFLAGS: 00010286   (2.6.17.1 #1)
+Jul  5 16:39:32 EIP is at vfs_statfs+0x18/0x4c
+Jul  5 16:39:32 eax: f89d4860   ebx: ce67ae88   ecx: c4ab6ac0   edx:
+ffffffda
+Jul  5 16:39:32 esi: f7107200   edi: ce67aef8   ebp: ce67ae80   esp:
+ce67ae74
+Jul  5 16:39:32 ds: 007b   es: 007b   ss: 0068
+Jul  5 16:39:32 Process df (pid: 26355, threadinfo=ce67a000 task=ce6b6030)
+Jul  5 16:39:32 Stack: 00000000 ce67ae88 ce67aef8 ce67aef0 c104a298
+c47a8ea0 00000000 fb2c5700
+Jul  5 16:39:32 003d6e0c 0000000d 080523d8 080523d8 ce67a000 00000001
+ce67af58 ce67aed0
+Jul  5 16:39:32 c105811f 00000000 e1432000 00000292 00000000 00000001
+e1432000 ce67aeec
+Jul  5 16:39:32 Call Trace:
+Jul  5 16:39:32 <c1003461> show_stack_log_lvl+0x82/0x8a  <c10035bd>
+show_registers+0x115/0x17d
+Jul  5 16:39:32 <c10037ae> die+0x115/0x1ee  <c12078c9>
+do_page_fault+0x509/0x65d
+Jul  5 16:39:32 <c1003117> error_code+0x4f/0x54  <c104a298>
+vfs_statfs64+0x14/0x26
+Jul  5 16:39:32 <c104a366> sys_statfs64+0x4a/0x7a  <c10025f3>
+syscall_call+0x7/0xb
+Jul  5 16:39:32 Code: 40 74 03 8b 52 0c 8b 42 18 8b 50 1c 89 d0 5d c3 90
+90 90 55 85 c0 89 e5 57 56 89 c6 53 89 d3 ba ed ff ff ff 74 32 8b 40 20
+b2 da <83> 78 34 00 74 27 31 c0 b9 15 00 00 00 89 df f3 ab 89 da 8b 4e
+Jul  5 16:39:32 EIP: [<c104a18c>] vfs_statfs+0x18/0x4c SS:ESP 0068:ce67ae74
+Jul  5 16:41:21 <6>SysRq : Emergency Sync
+Jul  5 16:41:24 SysRq : HELP : loglevel0-8 reBoot Crashdump tErm Full
+kIll saK showMem Nice powerOff showPc unRaw Sync showTasks Unmount
+Jul  5 16:41:29 SysRq : Trigger a crashdump
+Jul  5 16:41:35 SysRq : Show Memory
+Jul  5 16:41:35 Mem-info:
+Jul  5 16:41:35 DMA per-cpu:
+Jul  5 16:41:35 cpu 0 hot: high 0, batch 1 used:0
+Jul  5 16:41:35 cpu 0 cold: high 0, batch 1 used:0
+Jul  5 16:41:35 cpu 1 hot: high 0, batch 1 used:0
+Jul  5 16:41:35 cpu 1 cold: high 0, batch 1 used:0
+Jul  5 16:41:35 cpu 2 hot: high 0, batch 1 used:0
+Jul  5 16:41:35 cpu 2 cold: high 0, batch 1 used:0
+Jul  5 16:41:35 cpu 3 hot: high 0, batch 1 used:0
+Jul  5 16:41:35 cpu 3 cold: high 0, batch 1 used:0
+Jul  5 16:41:35 DMA32 per-cpu: empty
+Jul  5 16:41:35 Normal per-cpu:
+Jul  5 16:41:35 cpu 0 hot: high 186, batch 31 used:22
+Jul  5 16:41:35 cpu 0 cold: high 62, batch 15 used:6
+Jul  5 16:41:35 cpu 1 hot: high 186, batch 31 used:19
+Jul  5 16:41:35 cpu 1 cold: high 62, batch 15 used:61
+Jul  5 16:41:35 cpu 2 hot: high 186, batch 31 used:20
+Jul  5 16:41:35 cpu 2 cold: high 62, batch 15 used:50
+Jul  5 16:41:35 cpu 3 hot: high 186, batch 31 used:35
+Jul  5 16:41:35 cpu 3 cold: high 62, batch 15 used:10
+Jul  5 16:41:35 HighMem per-cpu:
+Jul  5 16:41:35 cpu 0 hot: high 186, batch 31 used:136
+Jul  5 16:41:35 cpu 0 cold: high 62, batch 15 used:3
+Jul  5 16:41:35 cpu 1 hot: high 186, batch 31 used:176
+Jul  5 16:41:35 cpu 1 cold: high 62, batch 15 used:3
+Jul  5 16:41:35 cpu 2 hot: high 186, batch 31 used:152
+Jul  5 16:41:35 cpu 2 cold: high 62, batch 15 used:1
+Jul  5 16:41:35 cpu 3 hot: high 186, batch 31 used:140
+Jul  5 16:41:35 cpu 3 cold: high 62, batch 15 used:2
+Jul  5 16:41:35 Free pages:      104152kB (18348kB HighMem)
+Jul  5 16:41:35 Active:151505 inactive:1327917 dirty:1849 writeback:0
+unstable:0 free:26038 slab:49035 mapped:11445 pagetables:204
+Jul  5 16:41:35 DMA free:15964kB min:68kB low:84kB high:100kB active:0kB
+inactive:0kB present:16384kB pages_scanned:0 all_unreclaimable? yes
+Jul  5 16:41:35 lowmem_reserve[]: 0 0 880 6640
+Jul  5 16:41:35 DMA32 free:0kB min:0kB low:0kB high:0kB active:0kB
+inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+Jul  5 16:41:35 lowmem_reserve[]: 0 0 880 6640
+Jul  5 16:41:35 Normal free:69840kB min:3756kB low:4692kB high:5632kB
+active:70732kB inactive:495532kB present:901120kB pages_scanned:0
+all_unreclaimable? no
+Jul  5 16:41:35 lowmem_reserve[]: 0 0 0 46080
+Jul  5 16:41:35 HighMem free:18348kB min:512kB low:6664kB high:12816kB
+active:535292kB inactive:4816136kB present:5898240kB pages_scanned:0
+all_unreclaimable? no
+Jul  5 16:41:35 lowmem_reserve[]: 0 0 0 0
+Jul  5 16:41:35 DMA: 1*4kB 3*8kB 2*16kB 3*32kB 3*64kB 2*128kB 2*256kB
+1*512kB 0*1024kB 1*2048kB 3*4096kB = 15964kB
+Jul  5 16:41:35 DMA32: empty
+Jul  5 16:41:35 Normal: 0*4kB 0*8kB 1*16kB 0*32kB 1*64kB 1*128kB 0*256kB
+0*512kB 0*1024kB 0*2048kB 17*4096kB = 69840kB
+Jul  5 16:41:35 HighMem: 57*4kB 203*8kB 237*16kB 117*32kB 32*64kB
+4*128kB 1*256kB 0*512kB 0*1024kB 1*2048kB 1*4096kB = 18348kB
+Jul  5 16:41:35 Swap cache: add 0, delete 0, find 0/0, race 0+0
+Jul  5 16:41:35 Free swap  = 2104504kB
+Jul  5 16:41:35 Total swap = 2104504kB
+Jul  5 16:41:35 Free swap:       2104504kB
+Jul  5 16:41:35 1703936 pages of RAM
+Jul  5 16:41:35 1474560 pages of HIGHMEM
+Jul  5 16:41:35 146164 reserved pages
+Jul  5 16:41:35 868741 pages shared
+Jul  5 16:41:35 0 pages swap cached
+Jul  5 16:41:35 1850 pages dirty
+Jul  5 16:41:35 0 pages writeback
+Jul  5 16:41:35 11445 pages mapped
+Jul  5 16:41:35 49036 pages slab
+Jul  5 16:41:35 204 pages pagetables
 
-Thanks for your kbuild work!
-Even if I do not apply them verbatim it triggers me to do some long needed
-improvements.
+I don't know how to reproduce it exacly, but it seems like loading
+oprofile, performing some tests and then not unmounting /dev/oprofile
+and rmmod -f oprofile will trigger it.
 
-	Sam
+The script to do profiling is:
 
-commit f9361616df9f8fc80a5bbe8c0a67cf964a10cbf8
-Author: Sam Ravnborg <sam@mars.ravnborg.org>
-Date:   Wed Jul 5 16:46:02 2006 +0200
+#!/bin/bash
+#
+# OProfile helper script for PAB2 kernel and user space profiling
+#
+# Author: Roberto Nibali, ratz
+# Date  : 2006-07-04
+# (c) 2006. terreActive AG
+#
+# read:
+# http://oprofile.sourceforge.net/docs/
+# http://oprofile.sourceforge.net/doc/controlling.html
+# http://oprofile.sourceforge.net/examples/
 
-    kbuild: clean up scripts/Kbuild.include
-    
-    Makes part of Kbuild.include remotely readable by
-    refactoring some functionality to independent variables.
-    The different if_xxx are now consistent in their way of determining
-    if a target needs to be rebuild.
-    
-    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+opcontrol --vmlinux=/boot/vmlinux-2.6.17.1
+opcontrol --start-daemon
+opcontrol --dump
+read -p "Prepare your test conduct, press enter when ready: " key
+opcontrol --start
+read -p "Press enter and start your test conduct: " key
+echo "profiling ... hit me baby one more time"
+read -p "Press enter when your test conduct is finished: " key
+opcontrol --stop
+opcontrol --shutdown
+read -p "Press enter to see results of your test conduct (/tmp/test.$$):
+" key
+echo "------------------ TEST REPORT -------------------" >> /tmp/test.$$
+opreport >> /tmp/test.$$
+echo "------------------ TEST REPORT (detailed) -------------------" >>
+/tmp/test.$$
+opreport -g -f --exclude-dependent --symbols
+--image-path=/lib/modules/2.6.17.1/kernel/ --demangle=smart >> /tmp/test.$$
+less -S /tmp/test.$$
 
-diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-index 2180c88..e36f916 100644
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -8,9 +8,13 @@ empty   :=
- space   := $(empty) $(empty)
- 
- ###
-+# Name of target with a '.' added in front. foo/bar.o => foo/.bar.o
-+dot-target = $(dir $@).$(notdir $@)
-+
-+###
- # The temporary file to save gcc -MD generated dependencies must not
- # contain a comma
--depfile = $(subst $(comma),_,$(@D)/.$(@F).d)
-+depfile = $(subst $(comma),_,$(dot-target).d)
- 
- ###
- # filename of target with directory and extension stripped
-@@ -113,7 +117,8 @@ # See Documentation/kbuild/makefiles.txt
- ifneq ($(KBUILD_NOCMDDEP),1)
- # Check if both arguments has same arguments. Result in empty string if equal
- # User may override this check using make KBUILD_NOCMDDEP=1
--arg-check = $(strip $(filter-out $(1), $(2)) $(filter-out $(2), $(1)) )
-+arg-check = $(strip $(filter-out $(cmd_$(1)), $(cmd_$@)) \
-+                    $(filter-out $(cmd_$@),   $(cmd_$(1))) )
- endif
- 
- # echo command. Short version is $(quiet) equals quiet, otherwise full command
-@@ -122,31 +127,34 @@ echo-cmd = $(if $($(quiet)cmd_$(1)), \
- 
- make-cmd = $(subst \#,\\\#,$(subst $$,$$$$,$(call escsq,$(cmd_$(1)))))
- 
-+# Any prerequisites that require target to be built - phony prereq's skipped
-+# Any prerequisites that does not exist
-+any-prereq = $(filter-out $(PHONY),$?) $(filter-out $(PHONY) $(wildcard $^),$^)
-+
- # function to only execute the passed command if necessary
--# >'< substitution is for echo to work, >$< substitution to preserve $ when reloading .cmd file
--# note: when using inline perl scripts [perl -e '...$$t=1;...'] in $(cmd_xxx) double $$ your perl vars
-+# >'< substitution is for echo to work,
-+# >$< substitution to preserve $ when reloading .cmd file
-+# note: when using inline perl scripts [perl -e '...$$t=1;...']
-+# in $(cmd_xxx) double $$ your perl vars
- #
--if_changed = $(if $(strip $(filter-out $(PHONY),$?)          \
--		$(call arg-check, $(cmd_$(1)), $(cmd_$@)) ), \
--	@set -e; \
--	$(echo-cmd) $(cmd_$(1)); \
--	echo 'cmd_$@ := $(make-cmd)' > $(@D)/.$(@F).cmd)
-+if_changed = $(if $(strip $(any-prereq) $(arg-check)),                       \
-+	@set -e;                                                             \
-+	$(echo-cmd) $(cmd_$(1));                                             \
-+	echo 'cmd_$@ := $(make-cmd)' > $(dot-target).cmd)
- 
- # execute the command and also postprocess generated .d dependencies
- # file
--if_changed_dep = $(if $(strip $(filter-out $(PHONY),$?)  \
--		$(filter-out FORCE $(wildcard $^),$^)    \
--	$(call arg-check, $(cmd_$(1)), $(cmd_$@)) ),     \
--	@set -e; \
--	$(echo-cmd) $(cmd_$(1)); \
--	scripts/basic/fixdep $(depfile) $@ '$(make-cmd)' > $(@D)/.$(@F).tmp; \
--	rm -f $(depfile); \
--	mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd)
-+if_changed_dep = $(if $(strip $(any-prereq) $(arg-check) ),                  \
-+	@set -e;                                                             \
-+	$(echo-cmd) $(cmd_$(1));                                             \
-+	scripts/basic/fixdep $(depfile) $@ '$(make-cmd)' > $(dot-target).tmp;\
-+	rm -f $(depfile);                                                    \
-+	mv -f $(dot-target).tmp $(dot-target).cmd)
- 
- # Usage: $(call if_changed_rule,foo)
- # will check if $(cmd_foo) changed, or any of the prequisites changed,
- # and if so will execute $(rule_foo)
--if_changed_rule = $(if $(strip $(filter-out $(PHONY),$?)            \
--			$(call arg-check, $(cmd_$(1)), $(cmd_$@)) ),\
--			@set -e; \
--			$(rule_$(1)))
-+if_changed_rule = $(if $(strip $(any-prereq) $(arg-check) ),                 \
-+	@set -e;                                                             \
-+	$(rule_$(1)))
-+
-diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index 3cb445c..e2ad2dc 100644
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -191,9 +191,10 @@ define rule_cc_o_c
- 	$(call echo-cmd,checksrc) $(cmd_checksrc)			  \
- 	$(call echo-cmd,cc_o_c) $(cmd_cc_o_c);				  \
- 	$(cmd_modversions)						  \
--	scripts/basic/fixdep $(depfile) $@ '$(call make-cmd,cc_o_c)' > $(@D)/.$(@F).tmp;  \
-+	scripts/basic/fixdep $(depfile) $@ '$(call make-cmd,cc_o_c)' >    \
-+	                                              $(dot-target).tmp;  \
- 	rm -f $(depfile);						  \
--	mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd
-+	mv -f $(dot-target).tmp $(dot-target).cmd
- endef
- 
- # Built-in and composite module parts
-diff --git a/usr/Makefile b/usr/Makefile
-index e938242..2c8f362 100644
---- a/usr/Makefile
-+++ b/usr/Makefile
-@@ -3,6 +3,8 @@ # kbuild file for usr/ - including initr
- #
- 
- klibcdirs:;
-+PHONY += klibcdirs
-+
- 
- # Generate builtin.o based on initramfs_data.o
- obj-y := initramfs_data.o
+The .config is:
+
+CONFIG_X86_32=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_GENERIC_HWEIGHT=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_DMI=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_UID16=y
+CONFIG_VM86=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+CONFIG_KALLSYMS=y
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_SLAB=y
+CONFIG_BASE_SMALL=0
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_DEFAULT_CFQ=y
+CONFIG_DEFAULT_IOSCHED="cfq"
+CONFIG_SMP=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_GENERIC=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_CMPXCHG64=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+ratz@ratz:~> cat config-kernel.txt
+CONFIG_X86_32=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_GENERIC_HWEIGHT=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_DMI=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_UID16=y
+CONFIG_VM86=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+CONFIG_KALLSYMS=y
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_SLAB=y
+CONFIG_BASE_SMALL=0
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_DEFAULT_CFQ=y
+CONFIG_DEFAULT_IOSCHED="cfq"
+CONFIG_SMP=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_GENERIC=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_CMPXCHG64=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_TSC=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_NR_CPUS=4
+CONFIG_SCHED_MC=y
+CONFIG_PREEMPT_NONE=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_HIGHMEM64G=y
+CONFIG_PAGE_OFFSET=0xC0000000
+CONFIG_HIGHMEM=y
+CONFIG_X86_PAE=y
+CONFIG_ARCH_FLATMEM_ENABLE=y
+CONFIG_ARCH_SPARSEMEM_ENABLE=y
+CONFIG_ARCH_SELECT_MEMORY_MODEL=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_SPARSEMEM_STATIC=y
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_MTRR=y
+CONFIG_IRQBALANCE=y
+CONFIG_REGPARM=y
+CONFIG_HZ_250=y
+CONFIG_HZ=250
+CONFIG_KEXEC=y
+CONFIG_CRASH_DUMP=y
+CONFIG_PHYSICAL_START=0x1000000
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_DEBUG=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCIEPORTBUS=y
+CONFIG_ISA_DMA_API=y
+CONFIG_BINFMT_ELF=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=m
+CONFIG_NET_KEY=m
+CONFIG_INET=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_ASK_IP_FIB_HASH=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_MULTIPATH_CACHED=y
+CONFIG_IP_ROUTE_MULTIPATH_RR=m
+CONFIG_IP_ROUTE_MULTIPATH_RANDOM=m
+CONFIG_IP_ROUTE_MULTIPATH_WRANDOM=m
+CONFIG_IP_ROUTE_MULTIPATH_DRR=m
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=m
+CONFIG_INET_ESP=m
+CONFIG_INET_IPCOMP=m
+CONFIG_INET_XFRM_TUNNEL=m
+CONFIG_INET_TUNNEL=m
+CONFIG_INET_DIAG=y
+CONFIG_INET_TCP_DIAG=y
+CONFIG_TCP_CONG_ADVANCED=y
+CONFIG_TCP_CONG_BIC=y
+CONFIG_TCP_CONG_CUBIC=m
+CONFIG_TCP_CONG_WESTWOOD=m
+CONFIG_TCP_CONG_HTCP=m
+CONFIG_TCP_CONG_HSTCP=m
+CONFIG_TCP_CONG_HYBLA=m
+CONFIG_TCP_CONG_VEGAS=m
+CONFIG_TCP_CONG_SCALABLE=m
+CONFIG_IP_VS=m
+CONFIG_IP_VS_DEBUG=y
+CONFIG_IP_VS_TAB_BITS=12
+CONFIG_IP_VS_PROTO_TCP=y
+CONFIG_IP_VS_PROTO_UDP=y
+CONFIG_IP_VS_PROTO_ESP=y
+CONFIG_IP_VS_PROTO_AH=y
+CONFIG_IP_VS_RR=m
+CONFIG_IP_VS_WRR=m
+CONFIG_IP_VS_LC=m
+CONFIG_IP_VS_WLC=m
+CONFIG_IP_VS_LBLC=m
+CONFIG_IP_VS_LBLCR=m
+CONFIG_IP_VS_DH=m
+CONFIG_IP_VS_SH=m
+CONFIG_IP_VS_SED=m
+CONFIG_IP_VS_NQ=m
+CONFIG_IP_VS_FTP=m
+CONFIG_NETFILTER=y
+CONFIG_NETFILTER_DEBUG=y
+CONFIG_BRIDGE_NETFILTER=y
+CONFIG_NETFILTER_NETLINK=m
+CONFIG_NETFILTER_NETLINK_QUEUE=m
+CONFIG_NETFILTER_NETLINK_LOG=m
+CONFIG_NETFILTER_XTABLES=y
+CONFIG_NETFILTER_XT_TARGET_CLASSIFY=m
+CONFIG_NETFILTER_XT_TARGET_MARK=m
+CONFIG_NETFILTER_XT_TARGET_NFQUEUE=m
+CONFIG_NETFILTER_XT_MATCH_COMMENT=m
+CONFIG_NETFILTER_XT_MATCH_CONNTRACK=m
+CONFIG_NETFILTER_XT_MATCH_DCCP=m
+CONFIG_NETFILTER_XT_MATCH_ESP=m
+CONFIG_NETFILTER_XT_MATCH_HELPER=m
+CONFIG_NETFILTER_XT_MATCH_LENGTH=m
+CONFIG_NETFILTER_XT_MATCH_LIMIT=m
+CONFIG_NETFILTER_XT_MATCH_MAC=m
+CONFIG_NETFILTER_XT_MATCH_MARK=m
+CONFIG_NETFILTER_XT_MATCH_POLICY=m
+CONFIG_NETFILTER_XT_MATCH_MULTIPORT=m
+CONFIG_NETFILTER_XT_MATCH_PKTTYPE=m
+CONFIG_NETFILTER_XT_MATCH_REALM=m
+CONFIG_NETFILTER_XT_MATCH_SCTP=m
+CONFIG_NETFILTER_XT_MATCH_STATE=y
+CONFIG_NETFILTER_XT_MATCH_STRING=m
+CONFIG_NETFILTER_XT_MATCH_TCPMSS=m
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_CT_ACCT=y
+CONFIG_IP_NF_CONNTRACK_MARK=y
+CONFIG_IP_NF_CONNTRACK_EVENTS=y
+CONFIG_IP_NF_CT_PROTO_SCTP=m
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_NETBIOS_NS=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_AMANDA=m
+CONFIG_IP_NF_PPTP=m
+CONFIG_IP_NF_H323=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_MATCH_ADDRTYPE=m
+CONFIG_IP_NF_MATCH_HASHLIMIT=m
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_TARGET_NETMAP=m
+CONFIG_IP_NF_TARGET_SAME=m
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_NAT_TFTP=m
+CONFIG_IP_NF_NAT_AMANDA=m
+CONFIG_IP_NF_NAT_PPTP=m
+CONFIG_IP_NF_NAT_H323=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_TTL=m
+CONFIG_IP_NF_TARGET_CLUSTERIP=m
+CONFIG_IP_NF_RAW=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_ARP_MANGLE=m
+CONFIG_TIPC=m
+CONFIG_TIPC_DEBUG=y
+CONFIG_BRIDGE=m
+CONFIG_VLAN_8021Q=m
+CONFIG_LLC=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_PKTGEN=m
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_CONNECTOR=y
+CONFIG_PROC_EVENTS=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_CRYPTOLOOP=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_SVWKS=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_RAID_ATTRS=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_SPI_ATTRS=y
+CONFIG_SCSI_FC_ATTRS=y
+CONFIG_SCSI_SAS_ATTRS=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=32
+CONFIG_AIC7XXX_RESET_DELAY_MS=5000
+CONFIG_AIC7XXX_DEBUG_ENABLE=y
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+CONFIG_SCSI_AIC79XX=y
+CONFIG_AIC79XX_CMDS_PER_DEVICE=32
+CONFIG_AIC79XX_RESET_DELAY_MS=5000
+CONFIG_AIC79XX_DEBUG_ENABLE=y
+CONFIG_AIC79XX_DEBUG_MASK=0
+CONFIG_AIC79XX_REG_PRETTY_PRINT=y
+CONFIG_MEGARAID_NEWGEN=y
+CONFIG_MEGARAID_MM=m
+CONFIG_MEGARAID_MAILBOX=m
+CONFIG_MEGARAID_SAS=y
+CONFIG_SCSI_SATA=y
+CONFIG_SCSI_SATA_AHCI=m
+CONFIG_SCSI_ATA_PIIX=m
+CONFIG_SCSI_SATA_PROMISE=m
+CONFIG_SCSI_SATA_SX4=m
+CONFIG_SCSI_SATA_VIA=m
+CONFIG_SCSI_SATA_INTEL_COMBINED=y
+CONFIG_SCSI_BUSLOGIC=y
+CONFIG_SCSI_QLOGIC_1280=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+CONFIG_MD_MULTIPATH=m
+CONFIG_MD_FAULTY=m
+CONFIG_BLK_DEV_DM=m
+CONFIG_DM_CRYPT=m
+CONFIG_DM_SNAPSHOT=m
+CONFIG_DM_MIRROR=m
+CONFIG_DM_ZERO=m
+CONFIG_DM_MULTIPATH=m
+CONFIG_DM_MULTIPATH_EMC=m
+CONFIG_FUSION=y
+CONFIG_FUSION_SPI=y
+CONFIG_FUSION_FC=y
+CONFIG_FUSION_SAS=y
+CONFIG_FUSION_MAX_SGE=128
+CONFIG_FUSION_CTL=y
+CONFIG_I2O=m
+CONFIG_I2O_LCT_NOTIFY_ON_CHANGES=y
+CONFIG_I2O_EXT_ADAPTEC=y
+CONFIG_I2O_EXT_ADAPTEC_DMA64=y
+CONFIG_I2O_CONFIG=m
+CONFIG_I2O_CONFIG_OLD_IOCTL=y
+CONFIG_I2O_BUS=m
+CONFIG_I2O_BLOCK=m
+CONFIG_I2O_SCSI=m
+CONFIG_I2O_PROC=m
+CONFIG_NETDEVICES=y
+CONFIG_BONDING=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=m
+CONFIG_TYPHOON=m
+CONFIG_NET_PCI=y
+CONFIG_PCNET32=m
+CONFIG_AMD8111_ETH=m
+CONFIG_AMD8111E_NAPI=y
+CONFIG_ADAPTEC_STARFIRE=m
+CONFIG_ADAPTEC_STARFIRE_NAPI=y
+CONFIG_B44=m
+CONFIG_E100=y
+CONFIG_NATSEMI=m
+CONFIG_NE2K_PCI=m
+CONFIG_8139CP=m
+CONFIG_8139TOO=m
+CONFIG_8139TOO_PIO=y
+CONFIG_8139TOO_TUNE_TWISTER=y
+CONFIG_8139TOO_8129=y
+CONFIG_VIA_RHINE=m
+CONFIG_VIA_RHINE_MMIO=y
+CONFIG_E1000=y
+CONFIG_E1000_NAPI=y
+CONFIG_R8169=y
+CONFIG_R8169_NAPI=y
+CONFIG_TIGON3=y
+CONFIG_IXGB=m
+CONFIG_IXGB_NAPI=y
+CONFIG_SHAPER=m
+CONFIG_NETCONSOLE=m
+CONFIG_NETPOLL=y
+CONFIG_NETPOLL_RX=y
+CONFIG_NETPOLL_TRAP=y
+CONFIG_NET_POLL_CONTROLLER=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1024
+CONFIG_INPUT_EVDEV=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_PCI=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_RUNTIME_UARTS=4
+CONFIG_SERIAL_8250_EXTENDED=y
+CONFIG_SERIAL_8250_MANY_PORTS=y
+CONFIG_SERIAL_8250_SHARE_IRQ=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_PRINTER=y
+CONFIG_IPMI_HANDLER=m
+CONFIG_IPMI_PANIC_EVENT=y
+CONFIG_IPMI_DEVICE_INTERFACE=m
+CONFIG_IPMI_SI=m
+CONFIG_NVRAM=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_AMD64=m
+CONFIG_AGP_INTEL=m
+CONFIG_AGP_VIA=y
+CONFIG_HPET=y
+CONFIG_HPET_MMAP=y
+CONFIG_HANGCHECK_TIMER=m
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_ALGOBIT=y
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ALGOPCA=m
+CONFIG_I2C_I801=m
+CONFIG_I2C_I810=m
+CONFIG_I2C_PIIX4=m
+CONFIG_I2C_VIAPRO=y
+CONFIG_VIDEO_V4L2=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VGACON_SOFT_SCROLLBACK=y
+CONFIG_VGACON_SOFT_SCROLLBACK_SIZE=128
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_ARCH_HAS_EHCI=y
+CONFIG_EDAC=m
+CONFIG_EDAC_DEBUG=y
+CONFIG_EDAC_MM_EDAC=m
+CONFIG_EDAC_AMD76X=m
+CONFIG_EDAC_E7XXX=m
+CONFIG_EDAC_E752X=m
+CONFIG_EDAC_I82875P=m
+CONFIG_EDAC_I82860=m
+CONFIG_EDAC_POLL=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+CONFIG_FS_MBCACHE=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_OCFS2_FS=m
+CONFIG_INOTIFY=y
+CONFIG_DNOTIFY=y
+CONFIG_FUSE_FS=m
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=y
+CONFIG_UDF_FS=m
+CONFIG_UDF_NLS=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=850
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_NTFS_FS=m
+CONFIG_NTFS_DEBUG=y
+CONFIG_NTFS_RW=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_PROC_VMCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_CONFIGFS_FS=m
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFS_V3_ACL=y
+CONFIG_NFS_V4=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V2_ACL=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_V3_ACL=y
+CONFIG_NFSD_V4=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_NFS_ACL_SUPPORT=m
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=m
+CONFIG_SUNRPC_GSS=m
+CONFIG_RPCSEC_GSS_KRB5=m
+CONFIG_RPCSEC_GSS_SPKM3=m
+CONFIG_SMB_FS=m
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp437"
+CONFIG_CIFS=m
+CONFIG_CIFS_STATS=y
+CONFIG_CIFS_STATS2=y
+CONFIG_CIFS_XATTR=y
+CONFIG_CIFS_POSIX=y
+CONFIG_CIFS_EXPERIMENTAL=y
+CONFIG_CIFS_UPCALL=y
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SOLARIS_X86_PARTITION=y
+CONFIG_SUN_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-15"
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_UTF8=y
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=m
+CONFIG_KPROBES=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_DETECT_SOFTLOCKUP=y
+CONFIG_SCHEDSTATS=y
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_FRAME_POINTER=y
+CONFIG_FORCED_INLINING=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_STACK_BACKTRACE_COLS=2
+CONFIG_4KSTACKS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_DOUBLEFAULT=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=m
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+CONFIG_CRYPTO_DES=m
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_AES_586=m
+CONFIG_CRYPTO_CAST5=m
+CONFIG_CRYPTO_DEFLATE=m
+CONFIG_CRYPTO_CRC32C=m
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_TEXTSEARCH=y
+CONFIG_TEXTSEARCH_KMP=m
+CONFIG_TEXTSEARCH_BM=m
+CONFIG_TEXTSEARCH_FSM=m
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_GENERIC_PENDING_IRQ=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_KTIME_SCALAR=y
+
+Regards,
+Roberto Nibali, ratz
+-- 
+-------------------------------------------------------------
+addr://Kasinostrasse 30, CH-5001 Aarau tel://++41 62 823 9355
+http://www.terreactive.com             fax://++41 62 823 9356
+-------------------------------------------------------------
+10 Jahre Kompetenz in IT-Sicherheit.              1996 - 2006
+Wir sichern Ihren Erfolg.                      terreActive AG
+-------------------------------------------------------------

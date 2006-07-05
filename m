@@ -1,119 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965571AbWGEXxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbWGEX5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965571AbWGEXxn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 19:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965663AbWGEXxn
+	id S965049AbWGEX5P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 19:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbWGEX5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 19:53:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24263 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965657AbWGEXxm (ORCPT
+	Wed, 5 Jul 2006 19:57:15 -0400
+Received: from smtp.ono.com ([62.42.230.12]:2807 "EHLO resmta04.ono.com")
+	by vger.kernel.org with ESMTP id S965049AbWGEX5P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 19:53:42 -0400
-Date: Wed, 5 Jul 2006 16:53:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org, tglx@linutronix.de,
-       mingo@elte.hu, rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] genirq: ARM dyntick cleanup
-In-Reply-To: <20060705162425.547f3d3f.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.64.0607051626380.12404@g5.osdl.org>
-References: <1151885928.24611.24.camel@localhost.localdomain>
- <20060702173527.cbdbf0e1.akpm@osdl.org> <Pine.LNX.4.64.0607031007421.12404@g5.osdl.org>
- <1151947627.3108.39.camel@laptopd505.fenrus.org> <20060705162425.547f3d3f.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 5 Jul 2006 19:57:15 -0400
+Date: Thu, 6 Jul 2006 01:57:06 +0200
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6
+Message-ID: <20060706015706.37acb9af@werewolf.auna.net>
+In-Reply-To: <20060705155602.6e0b4dce.akpm@osdl.org>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<20060705234347.47ef2600@werewolf.auna.net>
+	<20060705155602.6e0b4dce.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 2.3.1cvs59 (GTK+ 2.10.0; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 5 Jul 2006 15:56:02 -0700, Andrew Morton <akpm@osdl.org> wrote:
 
-
-On Wed, 5 Jul 2006, Randy.Dunlap wrote:
+> "J.A. Magallón" <jamagallon@ono.com> wrote:
+> >
+> > On Mon, 3 Jul 2006 03:03:55 -0700, Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
+> > > 
+> > > 
+> > > - A major update to the e1000 driver.
+> > > 
+> > 
+> > Doesn't find my root drive :(.
+> > 
+> > Its a SATA drive, on PIIX.
+> > Last -mm I tried ('cause of the raid problems) was -mm1, so I don't know
+> > when did this broke. Under -mm1, the disk is this:
+> > 
+> > libata version 1.30 loaded.
+> > ata_piix 0000:00:1f.2: version 1.10tj1ac3
+> > ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
+> > ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
+> > PCI: Setting latency timer of device 0000:00:1f.2 to 64
+> > ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
+> > ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
+> > scsi0 : ata_piix
+> > ata1: ENTER, pcs=0x13 base=0
+> > ata1: LEAVE, pcs=0x13 present_mask=0x1
+> > ata1.00: cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:407f
+> > ata1.00: ATA-6, max UDMA/133, 390721968 sectors: LBA48 
+> > ata1.00: configured for UDMA/133
+> > scsi1 : ata_piix
+> > ata2: ENTER, pcs=0x13 base=2
+> > ata2: LEAVE, pcs=0x11 present_mask=0x0
+> > ata2: SATA port has no device.
+> >   Vendor: ATA       Model: ST3200822AS       Rev: 3.01
+> >   Type:   Direct-Access                      ANSI SCSI revision: 05
+> > SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
+> > sda: Write Protect is off
+> > sda: Mode Sense: 00 3a 00 00
+> > SCSI device sda: drive cache: write back
+> > SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
+> > sda: Write Protect is off
+> > sda: Mode Sense: 00 3a 00 00
+> > SCSI device sda: drive cache: write back
+> >  sda: sda1 sda2 sda3
+> > sd 0:0:0:0: Attached scsi disk sda
+> > 
+> > With -mm6, the kernel doesn't find it. I get this on boot:
+> > 
+> > kinit: try_name sda,1 = dev(8,1)
+> > kinit: name_to_dev_t(/dev/sda1) = dev(8.1)
+> > kinit: root_dev = dev(8,1)
+> > kinit: failed to identify filesystem /dev/root, trying all
+> > kinit: trying to mount /dev/root on /root with type ext3
+> > kinit: Cannot open root device dev(8,1)
+> > 
+> > I have tried to get this message from -mm1, but could not get it in any log.
+> > But... I remember to see that the boot message is like:
+> > 
+> > kinit: try_name sda,1 = sda1(8,1)
+> >                         ^^^^
+> > I have verified I built -mm6 with ext3,sata-piix and so on, all builtin.
+> > 
 > 
-> OK, I'll bite.  What part of Linus's macro doesn't work.
+> Are you able to test just 2.6.17 + origin.patch + git-libata-all.patch?
+> 
+> Also, the full dmesg from 2.6.17-mm6 would help, thanks.
+> 
 
-Heh. This is "C language 101".
+It does not reach a point to save the dmesg....
+I can pick my digital camera.
+Is there a netconsole version for OSX (to attach my ibook and dump dmesg...) ?
 
-The reason we always write
-
-	#define empty_statement do { } while (0)
-
-instead of
-
-	#define empty_statement /* empty */
-
-is not that
-
-	if (x)
-		empty_statement;
-
-wouldn't work like Arjan claimed, but because otherwise the empty 
-statement won't parse perfectly as a real C statement.
-
-In particular, you tend to get much better error messages if you have 
-syntax errors _around_ the empty statement if it's done as that 
-"do { } while (0)" thing. You also avoid compiler warnings about 
-empty statements or statements without effects, that you'd get if you were 
-to use
-
-	#define empty_statement /* empty */
-
-or
-
-	#define empty_statement 0
-
-for example (a expression statement is a perfectly valid statement, as is 
-an empty one, but many compilers will warn on them).
-
-It's also simply good practice - if you _always_ do the "do { } while (0)" 
-thing, you'll never get bitten by having a macro that has several 
-statements inside of it, and you'll also never get bitten by a macro that 
-is _meant_ to be used as a statement being used as part of an expression 
-instead.
-
-It basically boils down to the fact that the "do { } while (0)" format is 
-always syntactically correct, /regardless/ of what is inside of the 
-braces, and should always give you meaningful error messages regardless of 
-what is _around_ the macro usage.
-
-For example:
-
-	if (a)
-		empty_statement
-	b;
-
-will give the _correct_ syntax error message ("expected ';'"), instead of 
-silently turning into
-
-	if (a)
-		b;
-
-or other nonsense.
-
-But in the end, the real aim is to just teach your fingers to _always_ put 
-the do/while(0) there, so that you never EVER write something like
-
-	#define MACRO one; two;
-
-which really breaks down.
-
-This is, btw, the same reason a lot of people (including me, most of the 
-time) will write
-
-	#define VALUE (12)
-
-instead of writing the simpler
-
-	#define VALUE 12
-
-just because it's good practice to _always_ have the parentheses around 
-a macro that ends up being used as an expression.
-
-So we always also write
-
-	#define ADD(a,b) ((a)+(b))
-
-because otherwise you eventually _will_ get bitten (we've had that 
-particular bug bite us in the *ss lots of times, even though people should 
-know better)
-
-			Linus
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2007.0 (Cooker) for i586
+Linux 2.6.17-jam01 (gcc 4.1.1 20060518 (prerelease)) #2 SMP PREEMPT Wed

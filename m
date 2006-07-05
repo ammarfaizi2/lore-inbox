@@ -1,235 +1,462 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWGEOc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWGEOgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbWGEOc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 10:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWGEOc3
+	id S964884AbWGEOgp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 10:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWGEOgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 10:32:29 -0400
-Received: from sun-email.corp.avocent.com ([65.217.42.16]:51589 "EHLO
+	Wed, 5 Jul 2006 10:36:45 -0400
+Received: from sun-email.corp.avocent.com ([65.217.42.16]:6279 "EHLO
 	sun-email.corp.avocent.com") by vger.kernel.org with ESMTP
-	id S964892AbWGEOc2 convert rfc822-to-8bit (ORCPT
+	id S964884AbWGEOgo convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 10:32:28 -0400
+	Wed, 5 Jul 2006 10:36:44 -0400
 X-MimeOLE: Produced By Microsoft Exchange V6.5
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC][PATCH 6/13] Equinox SST driver:hardware registers
-Date: Wed, 5 Jul 2006 10:32:26 -0400
-Message-ID: <4821D5B6CD3C1B4880E6E94C6E70913E01BB3342@sun-email.corp.avocent.com>
+Subject: RE: [RFC][PATCH 9/13] Equinox SST driver: tty interface
+Date: Wed, 5 Jul 2006 10:36:42 -0400
+Message-ID: <4821D5B6CD3C1B4880E6E94C6E70913E01BB3348@sun-email.corp.avocent.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC][PATCH 6/13] Equinox SST driver:hardware registers
-Thread-Index: Acae/hm83b7qRm7ZRlWnl8Ca31PTywBQRQOQ
+Thread-Topic: [RFC][PATCH 9/13] Equinox SST driver: tty interface
+Thread-Index: Acae+3EPJ5WPT88uTH2l6SVvdZ19mABRN9bw
 From: "Straub, Michael" <Michael.Straub@avocent.com>
-To: "Andrew Morton" <akpm@osdl.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
 Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
  
-Thanks for the comments - this mail and others. 
-I'll apply the suggested fixes throughout the driver source.
+Thanks for the comments.
+I'll apply the suggested changes, not just here but to all of the source
+files.
 
 mike
 
-
 -----Original Message-----
-From: Andrew Morton [mailto:akpm@osdl.org] 
-Sent: Monday, July 03, 2006 8:09 PM
+From: Randy.Dunlap [mailto:rdunlap@xenotime.net] 
+Sent: Monday, July 03, 2006 7:53 PM
 To: Straub, Michael
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 6/13] Equinox SST driver:hardware registers
+Subject: Re: [RFC][PATCH 9/13] Equinox SST driver: tty interface
 
-On Thu, 22 Jun 2006 09:16:35 -0400
-"Straub, Michael" <Michael.Straub@avocent.com> wrote:
+On Thu, 22 Jun 2006 09:20:28 -0400 Straub, Michael wrote:
 
 > Adds Equinox multi-port serial (SST) driver.
 > 
-
-hm, I missed this patch series.
-
-> + * Each ICP provides a set of input and output registers per channel.
-> + * Input registers for receiving data and output registers for
-> trasmitting.
-> + * In addition, there are also a set of global registers per board
-> which are
-> + * used for general configuration and also contain the global 
-> + attention
-> bits.
-
-As Randy says, these patches were exorbitantly, unusable wordwrapped.
-
-> +struct icp_gbl_struct {
-> +	u8	filler1[24];
-> +	u8	gicp_bus_cntrl;		/* 0x18: bus control */
-> +	u8	gicp_rev;		/* 0x19: icp revision */
-> +	u8	filler2[2];
-> +	u8	gicp_initiate;		/* 0x1c: lmx control & icp
-> enable */
-> +	u8	gicp_scan_spd;		/* 0x1d: lmx scan speeds */
-> +	u8	gicp_tmr_size;		/* 0x1e: interval timer scale
-> preset */
-> +	u8	gicp_tmr_count;		/* 0x1f: interval timer count
-> preset */
-> +	u8	filler3[24];
-> +	u8	gicp_watchdog;		/* 0x38: watchdog timer */
-> +	u8	filler4[3];
-> +	u8	gicp_attn;		/* 0x3c: global status */
-> +	u8	gicp_chan;		/* 0x3d: current channel number
-> */
-> +	u16	gicp_frame_ctr;		/* 0x3e: frame counter */
-> +	u8	filler5[24];
-> +	u8	gicp_rcv_attn[8];	/* 0x58: receive attention bits
-> */
-> +	u8	filler6[24];
-> +	u8	gicp_xmit_attn[8];	/* 0x78: transmit attention bits
-> */
-> +};
->
-> ...
->
-> +struct ssp4_gbl_struct {
-> +	u8	bus_cntrl;		/* 0x0: global control register
-> */
-> +	u8	rev;			/* 0x1: revision Level number */
-> +	u8	on_line;		/* 0x2: on-line */
-> +	u8	filler1;
-> +	u8	chan_ctr;		/* 0x4: active channel number */
-> +	u8	filler2;
-> +	u8	chan_attn;		/* 0x6: channel attention bits
-> */
-> +	u8	tmr_evnt;		/* 0x7: timer event bits */
-> +	u8	filler3[17];
-> +	u8	type;			/* 0x19: board type */
-> +	u8	filler4[34];
-> +	u8	attn_pend;		/* 0x3c: channel attention */
-> +};
-> +
->
-> ...
->
-> +struct cin_bnk_struct {
-> +	u16	bank_nxt_dma;		/* 0x0: offset to next in dma */
-> +	u8	bank_fifo_lvl;		/* 0x2: char count held in fifo
-> */
-> +	u8	bank_tags_l;		/* 0x3: input tags, low byte */
-> +	u16	bank_signals;		/* 0x4: channel input signals */
-> +	u8	filler0;
-> +	u8	bank_tags_h;		/* 0x7: input tags, high byte */
-> +	u8	bank_fifo[8];		/* 0x8: input 8 char fifo */
-> +	u16	bank_num_chars;		/* 0x10: char count received */
-> +	u16	bank_events;		/* 0x12: input events detected
-> */
-> +};
->
-> [ etc ]
->
-
-What are these?  Do they describe chip register sets?
-
-If so, there's a tight compiler dependency here.  I don't know whether
-any version of the compiler for any architecture will muck around adding
-padding in here.  There's a risk, I guess.
-
-> +
-> +/* return active input queue tail pointer */ #define GET_TAIL() \ { \
-> +	if (icpi->cin_q_cntrl & TAIL_PTR_B) \
-> +		return (SSTRD16(icpi->cin_tail_ptr_b)); \
-> +	else \
-> +		return (SSTRD16(icpi->cin_tail_ptr_a)); \ }
-
-Please, no.
-
-- It's a macro qhich requires that the caller have a local variable
-named
-  `icpi'.  At a minimum, the name of the pointer should be an arg to the
-  macro.
-
-- The macro hides a `return' statement.  That's a show-stopper.
-
-I suggest this be reimplemented as a function.  Possibly inlined.
-
-> +/* set input queue tail pointer */
-> +#define SET_TAIL(val) \
-> +{ \
-> +        if (icpi->cin_q_cntrl & TAIL_PTR_B) \
-> +		SSTWR16(icpi->cin_tail_ptr_a, (val)); \
-> +	else \
-> +		SSTWR16(icpi->cin_tail_ptr_b, (val)); \
-> +	icpi->cin_q_cntrl ^= TAIL_PTR_B; \
-> +}
-
-This also can be a regular C function.
-
-> +/* freeze active input register bank */ #define FREEZ_BANK(mpc) \ { \
-> +	u16 cie = CHAN_ATTN_SET | SSTRD16(icpi->cin_attn_ena); \
-> +	int frztimeo = 0; \
-> +	u8 lcks = 0; \
-> +	SSTWR16(icpi->cin_attn_ena, 0); \
-> +	if ((icpi->cin_locks & DIS_BANK_A) == DIS_BANK_A) { \
-> +		/* Bank A is active (locked) */ \
-> +		icpb = &icpi->cin_bank_b; \
-> +		lcks = BANK_B_ACT; \
-> +	} else  \
-> +		/* Bank B is active (locked) */ \
-> +		icpb = &icpi->cin_bank_a; \
-> +	if (!(SSTRD16(icpb->bank_events) & EV_REG_UPDT)) { \
-> +		while ((icpi->cin_intern_flgs & 0x80) != lcks) \
-> +			if (++frztimeo > 8000) break; \
-> +	}  \
-> +	mpc->mpc_icpb = icpb; \
-> +	icpi->cin_locks ^= (DIS_BANK_A | DIS_BANK_B); /* flip banks */ \
-> +	eqnx_chnl_sync(mpc); \
-> +	mpc->mpc_cin_events |= SSTRD16(icpb->bank_events); \
-> +	SSTWR16(icpb->bank_events, 0); \
-> +	SSTWR16(icpi->cin_attn_ena, cie); \
-> +}
-
-No way, sorry.  Implement as a function.
-
-> +/* get and return output events for the channel */ #define 
-> +TX_EVENTS(x, mpc) \ { \
-> +	volatile u16 csr = SSTRD16(icpo->cout_status); \
-> +	volatile u16 oie = SSTRD16(icpo->cout_attn_enbl); \
-> +	SSTWR16(icpo->cout_attn_enbl, 0); \
-> +	if (csr & TXSR_EV_B_ACT) { \
-> +		icpo->cout_lck_cntrl ^= (LCK_EVT_A | LCK_EVT_B); \
-> +		eqnx_chnl_sync(mpc); \
-> +		(x) |= SSTRD16(icpo->cout_events_b); \
-> +		SSTWR16(icpo->cout_events_b, 0); \
-> +	} else { \
-> +		icpo->cout_lck_cntrl ^= (LCK_EVT_A | LCK_EVT_B); \
-> +		eqnx_chnl_sync(mpc); \
-> +		(x) |= SSTRD16(icpo->cout_events_a); \
-> +		SSTWR16(icpo->cout_events_a, 0); \
-> +	} \
-> +	if ((x) & EV_TX_EMPTY_Q0) \
-> +		oie &= ~ENA_TX_EMPTY_Q0;\
-> +	if ((x) & EV_TX_LOW_Q0) \
-> +		oie &= ~ENA_TX_LOW_Q0;\
-> +	SSTWR16(icpo->cout_attn_enbl, oie); \ }
-
-Ditto.
+> Part 9: new source file: drivers/char/eqnx/sst_tty.c.  Provides the 
+> standard TTY interface routines for the SST driver.
 
 
-> +/* returns outbound control signals for channel */ #define 
-> +GET_CTRL_SIGS(mpc,val) val =
-> SSTRD16(mpc->mpc_icpo->cout_cntrl_sig);
->
-> +/* sets outbound control signals for channel */ #define 
-> +SET_CTRL_SIGS(mpc, val)
-> SSTWR16((mpc->mpc_icpo)->cout_cntrl_sig, val);
+---
+ sst_tty.c | 1961
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-That's
+ 1 files changed, 1961 insertions(+)
 
-> +#define        SSTRD16(x)      (cpu_to_le16(x))
+Use "diffstat -p1 -w70" please.
 
-Please remove this macro - just open-code the cpu_to_le16() everywhere
-(edit the diffs..)
+diff -Naurp -X dontdiff linux-2.6.17/drivers/char/eqnx/sst_tty.c
+linux-2.6.17.eqnx/drivers/char/eqnx/sst_tty.c
+--- linux-2.6.17/drivers/char/eqnx/sst_tty.c	1969-12-31
+19:00:00.000000000 -0500
++++ linux-2.6.17.eqnx/drivers/char/eqnx/sst_tty.c	2006-06-20
+09:50:09.000000000 -0400
+@@ -0,0 +1,1961 @@
++/*
++
++#include <linux/config.h>
 
-And please review all patches for excess parenthesisation and fix that
-up.
+don't need config.h (autoconf.h is automatically #included)
 
++#include <linux/version.h>
++
++#ifdef CONFIG_MODVERSIONS
++#define MODVERSIONS	1
++#endif
+
+not used
+
++/* defer call to write_wakeup */
++int eqnx_write_wakeup_deferred = 0;
+
+static?
+
++/* external variable and routines */
++/**********************************************************************
+*****/
+
+These should be in a header file:
+
++extern int eqnx_nssps;
++extern struct mpdev eqnx_dev[MAXSSP];
++extern struct mpchan *eqnx_chan;
++extern struct datascope eqnx_dscope[2];
++extern char *eqnx_tmpwritebuf;
++extern struct semaphore eqnx_tmpwritesem;
++
++extern void eqnx_megaparam(int);
++extern int eqnx_modem(int, int);
++extern void eqnx_frame_wait(struct mpchan *, int);
++extern void eqnx_chnl_sync(struct mpchan *);
++extern int SSTMINOR(unsigned int, unsigned int);
++extern u32 eqnx_get_modem_info(struct mpchan *);
++extern void eqnx_set_modem_info(struct mpchan *, unsigned int, unsigned
+int,
++				struct tty_struct *);
++
++/*
++ * eqnx_open(tty, filp)
++ *
++ * Open of tty device associated with SST channel.
++ *
++ * tty	= pointer to tty structure being opened.
++ * filp	= file structure.
++ */
+
+Might as well use kernel-doc format since it is almost there.
+See Documentation/kernel-doc-nano-HOWTO.txt.
+(multiple places)
+
++int eqnx_open(struct tty_struct *tty, struct file *filp)
++{
+
+static?
+
++	/* validate channel number */
++	if ((d > (eqnx_nssps * MAXCHNL_BRD)) || (eqnx_nssps == 0) || (d
+< 0))
++		return (-ENODEV);
+
+no parens (multiple places)
+
++	if (tty->termios == NULL) {
++		*tty->termios = *mpc->normaltermios;
++	}
+
+Don't use braces for 1-statement blocks. (multiple places)
+
++void eqnx_close(struct tty_struct *tty, struct file *filp)
+
+static?
+
++{
++
++	/* channel validity checks */
++	if (tty == (struct tty_struct *)NULL)
+
+Cast not needed, please drop it.
+
++		return;
++	mpc = (struct mpchan *)tty->driver_data;
++	if (mpc == (struct mpchan *)NULL)
++		return;
+
+ditto (+ multiple other places)
+
++	d = SSTMINOR(mpc->mpc_major, mpc->mpc_minor);
++	if (d > (eqnx_nssps * MAXCHNL_BRD))
++		return;
++
++	if ((mpd = mpc->mpc_mpd) == (struct mpdev *)NULL)
++		return;
+
+Drop the cast.  And preferably split the if-test into 2 lines of
+assignment + if-test.
+
++	nchan = MPCHAN(d);
++	if ((mpd >= &eqnx_dev[eqnx_nssps]) || (!(mpd->mpd_alive)) ||
++	    (nchan >= (int)mpd->mpd_nchan))
++		return;
++}
++
++static void eqnx_flush_chars_locked(struct tty_struct *tty)
++{
++	struct mpchan *mpc;
++	struct mpdev *mpd;
++	unsigned int d;
++
+...
++	if (eqnx_txcooktty == NULL)
++		return;
+
+Don't need this else + braces:
+
++	else {
++
++#ifdef	DEBUG_LOCKS
++		if (!(spin_is_locked(&mpd->mpd_lock)))
++			dev_dbg(mpd->dev, "eqnx_flush_chars_locked: mpd
+"
++				"lock !locked\n");
++#endif
++
++		if (mpd->mpd_board_def->asic == SSP64) {
++			/* SSP64 */
++			unsigned int cooksize = eqnx_txcooksize;
++			eqnx_txcooksize = 0;
++			eqnx_txcookrealsize = 0;
++			eqnx_txcooktty = (struct tty_struct *)NULL;
++			if (cooksize == 0)
++				return;
++			dev_dbg(mpd->dev, "eqnx_flush_chars_locked: "
++				"calling eqnx_write_SSP64\n");
++			eqnx_write_SSP64(mpc, eqnx_txcookbuf, cooksize);
++		} else {
++			/* SSP4 */
++			if (mpc->xmit_cnt == 0)
++				return;
++			dev_dbg(mpd->dev, "eqnx_flush_chars_locked: "
++				"calling eqnx_write_SSP4\n");
++			eqnx_write_SSP4(mpc, EQNX_COOKED);
++		}
++	}
++}
++
++void eqnx_flush_chars(struct tty_struct *tty)
++{
++	struct mpchan *mpc;
++	struct mpdev *mpd;
++	unsigned int d;
++	unsigned long flags;
++
+...
++	if (eqnx_txcooktty == NULL)
++		return;
+
+Drop the else + braces?
+
++	else {
++
++#ifdef	DEBUG_LOCKS
++		if (spin_is_locked(&mpd->mpd_lock))
++			dev_dbg(mpd->dev, "eqnx_flush_chars: mpd lock "
++				"already held\n");
++#endif
++
++		spin_lock_irqsave(&mpd->mpd_lock, flags);
++		eqnx_flush_chars_locked(tty);
++		spin_unlock_irqrestore(&mpd->mpd_lock, flags);
++
++		if (eqnx_write_wakeup_deferred) {
++			eqnx_write_wakeup_deferred = 0;
++			tty->ldisc.write_wakeup(tty);
++		}
++	}
++}
++
++void eqnx_throttle(struct tty_struct *tty)
+
+static?
+
++{
++	struct mpchan *mpc;
++	struct mpdev *mpd;
++	int d;
++
++	/* channel validity checks */
++	if (tty == (struct tty_struct *)NULL)
++		return;
++	mpc = (struct mpchan *)tty->driver_data;
++	if (mpc == (struct mpchan *)NULL)
++		return;
++
++	d = SSTMINOR(mpc->mpc_major, mpc->mpc_minor);
++	if (d > (eqnx_nssps * MAXCHNL_BRD))
++		return;
+
+About all of these validity checks:  is it actually possible
+for all of these functions to be called when they shouldn't be?
+There seems to be an over-abundance of these checks.
+
++	mpd = mpc->mpc_mpd;
++	dev_dbg(mpd->dev, "eqnx_throttle: device %d\n",
++		SSTMINOR(mpc->mpc_major, mpc->mpc_minor));
++	mpc->mpc_block = true;
++}
++
++void eqnx_flush_buffer_locked(struct tty_struct *tty)
+
+static?
+
++{
++	struct mpchan *mpc;
++	struct mpdev *mpd;
++	volatile struct icp_in_struct *icpi;
++	volatile struct icp_out_struct *icpo;
++	volatile struct cout_que_struct *icpq;
++	volatile struct cin_bnk_struct *icpb;
+
+Use of volatile is highly frowned on.
+Please read these volatile emails from Linus:
+
+http://www.x86-64.org/lists/discuss/msg07347.html
+http://www.x86-64.org/lists/discuss/msg07358.html
+
++	u8 cin;
++	u16 nxt_dma;
++	int d;
++
+...
++#ifdef	DEBUG_LOCKS
++	if (!(spin_is_locked(&mpd->mpd_lock)))
++		dev_dbg(mpd->dev, "eqnx_flush_buffer_locked: mpd lock
+not "
++			"locked\n");
++#endif
++
++	icpi = mpc->mpc_icpi;
++	icpo = mpc->mpc_icpo;
++	icpq = &icpo->cout_q0;
++
++	dev_dbg(mpd->dev, "eqnx_flush_buffer_locked: device = %d\n", d);
++	if (tty == eqnx_txcooktty) {
++		eqnx_txcooktty = (struct tty_struct *)NULL;
++		eqnx_txcooksize = 0;
++		eqnx_txcookrealsize = 0;
++	}
++
++	/* flush transmit buffers */
++	icpo->cout_lck_cntrl |= LCK_Q_ACT;
++	eqnx_chnl_sync(mpc);
++	icpo->cout_dma_stat_save = 0;
++	icpo->cout_intnl_fifo_ptrs = 0;
++	SSTWR16(icpq->q_data_count, 0);
++	mpc->mpc_count = 0;
++	SSTWR16(icpq->q_data_ptr_l, (mpc->mpc_txq.q_begin +
+mpc->mpc_txbase));
++	mpc->mpc_txq.q_ptr = mpc->mpc_txq.q_begin;
++	mpc->xmit_cnt = mpc->xmit_head = mpc->xmit_tail = 0;
++	SSTWR16(icpo->cout_attn_enbl, EN_REG_UPDT_EV);
++	icpo->cout_lck_cntrl &= ~LCK_Q_ACT;
++	mpc->mpc_flags &= ~MPC_BUSY;
++
++	/* flush receiver queue */
++	/* set rx ptr = tail */
++	icpb = (icpi->cin_locks & LOCK_A) ? &icpi->cin_bank_b :
++	    &icpi->cin_bank_a;
++	/* wait for valid registers */
++	if (!(SSTRD16(icpb->bank_events) & EV_REG_UPDT))
++		eqnx_frame_wait(mpc, 2);
++	cin = icpi->cin_locks;
++	icpi->cin_locks = cin | (DIS_BANK_A | DIS_BANK_B);
++	eqnx_chnl_sync(mpc);
++	icpi->cin_bank_a.bank_fifo_lvl &= ~0x8f;
++	icpi->cin_bank_b.bank_fifo_lvl &= ~0x8f;
++	nxt_dma = SSTRD16(icpb->bank_nxt_dma);
++	SSTWR16(icpi->cin_tail_ptr_a, nxt_dma);
++	SSTWR16(icpi->cin_tail_ptr_b, nxt_dma);
++	mpc->mpc_rxq.q_ptr = nxt_dma;
++	icpi->cin_locks = cin;
++	mpc->mpc_flags |= MPC_RXFLUSH;
++	mpc->mpc_block = false;
++	wake_up_interruptible(&tty->write_wait);
++
++	/* signal write wakeup when safe to call ldisc */
++	if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
++	    tty->ldisc.write_wakeup)
++		eqnx_write_wakeup_deferred++;
++}
++
++void eqnx_set_termios(struct tty_struct *tty, struct termios *old)
++{
+
+static?  or is it called from other modules?
+
+...
++}
++
++static void chanoff(struct mpchan *mpc)
++{
++	volatile struct icp_in_struct *icpi;
++	volatile struct icp_out_struct *icpo;
++	volatile struct cout_que_struct *icpq;
++	volatile struct cin_bnk_struct *icpb;
++	int loop, ok;
++	u8 cin;
++	u16 events, nxt_dma, attn_ena;
++
++	icpi = mpc->mpc_icpi;
++	icpo = mpc->mpc_icpo;
++	icpq = &icpo->cout_q0;
++	icpb = (icpi->cin_locks & LOCK_A) ? &icpi->cin_bank_b :
++	    &icpi->cin_bank_a;
++	/* make sure registers are valid */
++	if (!(SSTRD16(icpb->bank_events) & EV_REG_UPDT))
++		eqnx_frame_wait(mpc, 2);
++
++	mpc->mpc_param &= (IOCTLLB | IOCTCTS | IOCTLCK | IOCTRTS);
++
++	/* disable events */
++	attn_ena = SSTRD16(icpi->cin_attn_ena);
++	attn_ena &= (ENA_DCD_CNG | ENA_CTS_CNG | ENA_DSR_CNG |
+ENA_RI_CNG);
++	if (!(mpc->mpc_chan % 16))
++		attn_ena |= ENA_LMX_CNG;
++	SSTWR16(icpi->cin_attn_ena, attn_ena);
++
++	/* lock output */
++	icpo->cout_lck_cntrl |= LCK_Q_ACT;
++	eqnx_chnl_sync(mpc);
++	icpo->cout_intnl_fifo_ptrs = 0;
++	icpo->cout_dma_stat_save = 0;
++	SSTWR16(icpq->q_data_count, 0);
++	SSTWR16(icpq->q_data_ptr_l, (mpc->mpc_txbase +
+mpc->mpc_txq.q_begin));
++	mpc->mpc_txq.q_ptr = mpc->mpc_txq.q_begin;
++	mpc->mpc_count = 0;
++	mpc->carr_state = false;
++
++	/* unlock output and update */
++	icpo->cout_lck_cntrl &= ~LCK_Q_ACT;
++	eqnx_chnl_sync(mpc);
++	if ((icpo->cout_intnl_svd_toggls & TOGGLS_LSEND) ==
++	    (icpo->cout_cpu_req & CPU_SND_REQ))
++		icpo->cout_cpu_req ^= CPU_SND_REQ;
++
++	/* wait for ack */
++	loop = 0;
++	ok = false;
++	while (++loop < 100000) {
+
+This should use some kind of timing/timer, not just a counter.
+
++		if (SSTRD16(icpo->cout_status) & TXSR_EV_B_ACT)
++			events = SSTRD16(icpo->cout_events_b);
++		else
++			events = SSTRD16(icpo->cout_events_a);
++		if (events & EV_CPU_REQ_DN) {
++			ok = true;
++			break;
++		}
++	}
++
++	if (!ok)
++		dev_warn(mpc->mpc_mpd->dev, "chanoff: cpu_req ack
+failed.\n");
+...
++}
++
++/*
++ * delay_jiffies(len)
++ *
++ * Delay by the specified number of jiffies.
++ *
++ * len	= jiffies to delay.
++ */
++static void delay_jiffies(int len)
++{
++	if (len > 0) {
++		msleep(jiffies_to_msecs(len));
++	}
+
+No braces on 1-statement blocks.
+
++}
+
+
+---
+~Randy

@@ -1,94 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWGESZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbWGES0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWGESZO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 14:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWGESZO
+	id S964967AbWGES0M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 14:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbWGES0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 14:25:14 -0400
-Received: from mga02.intel.com ([134.134.136.20]:19046 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964969AbWGESZL convert rfc822-to-8bit (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 14:25:11 -0400
-X-IronPort-AV: i="4.06,210,1149490800"; 
-   d="scan'208"; a="60891134:sNHT53430540975"
-Content-class: urn:content-classes:message
+	Wed, 5 Jul 2006 14:26:11 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:57428 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964967AbWGES0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 14:26:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=K2KE9IHgFSxMN96FnIDELeLWAPiEtwZV1PwZ15CiiArfJW9NGLYZa0GxwrQeepgJ1uZv6Zb7+9fUO2sKsT4HNG54AjMZz6hyQdDCy9/yi9wpXTlRVa/cmK4P5h7UYkn+1LMbR3yEIAIlNqM9BEPsKD9HuuHdoeW8Iyiga0munq0=  ;
+Message-ID: <44AC043C.70809@yahoo.com.au>
+Date: Thu, 06 Jul 2006 04:26:04 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [PATCH] mm: moving dirty pages balancing to pdfludh entirely
-Date: Wed, 5 Jul 2006 22:10:33 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC06CF96@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] mm: moving dirty pages balancing to pdfludh entirely
-Thread-Index: AcagWJqGedXWZ0XkRD6t+UuyoJQXhwAAbJ3A
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Bret Towe" <magnade@gmail.com>, "Nikita Danilov" <nikita@clusterfs.com>
-Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-X-OriginalArrivalTime: 05 Jul 2006 18:10:48.0845 (UTC) FILETIME=[57E233D0:01C6A05E]
+To: Jes Sorensen <jes@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, Keith Owens <kaos@sgi.com>,
+       torvalds@osdl.org, viro@zeniv.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
+References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>	<21169.1151991139@kao2.melbourne.sgi.com> <20060703234134.786944f1.akpm@osdl.org> <44AAA64D.8030907@yahoo.com.au> <44AB6AB3.5070407@sgi.com>
+In-Reply-To: <44AB6AB3.5070407@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jes Sorensen wrote:
+> Nick Piggin wrote:
+> 
+>>Andrew Morton wrote:
+>>
+>>>I expect raw_smp_processor_id() is used here as a a microoptimisation -
+>>>avoid a might_sleep() which obviously will never trigger.
+>>
+>>A microoptimisation because they've turned on DEBUG_PREEMPT and found
+>>that smp_processor_id slows down? ;) Wouldn't it be better to just stick
+>>to the normal rules (ie. what Keith said)?
+>>
+>>It may be obvious in this case (though that doesn't help people who make
+>>obvious mistakes, or mismerge patches) but this just seems like a nasty
+>>precedent to set (or has it already been?).
+> 
+> 
+> I suspect the real reason here is that there's now so many ways to get
+> the processor ID that I cannot keep track of which one to use. Paul's
+> mention of __raw_get_cpu_var() just confuses me even more.
+> 
+> So if anyone can give me a conclusive answer of which one to use, I'm
+> happy to go there.
+> 
+> Granted I have a bias to avoid anything involving the preempt crap, but
+> thats just me :)
 
-Bret Towe writes:
-> if say some gtk app wants to write to disk it will freeze
-> until the usb hd is completely done
+Use smp_processor_id() unless you explicitly want a lazy CPU number,
+and in that case use the raw_ version. Turning off preempt or preempt
+debug options does the rest for you.
 
-The proposed patch fixes one real cause of long latency: if a user
-thread writes 1 byte only to disk it could happen that one has to write
-all pages dirtied by all threads in the system and wait for it. The
-patch is tested and gets real benefit on real systems. A common system
-work is performed in common system thread but not in casual user thread.
+If you're just using the number to feed into per_cpu, then use the
+appropriate get_cpu variant.
 
-The patch does not fix other (bazillion - 1) fictitious freezing causes
-for imaginary configurations.
-
-Leonid
------Original Message-----
-From: Bret Towe [mailto:magnade@gmail.com] 
-Sent: Wednesday, July 05, 2006 9:19 PM
-To: Nikita Danilov
-Cc: Ananiev, Leonid I; Linux Kernel Mailing List
-Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh
-entirely
-
-On 7/5/06, Nikita Danilov <nikita@clusterfs.com> wrote:
-> Bret Towe writes:
->
-> [...]
->
->  >
->  > are you sure about that? cause that sounded alot like an issue
->  > i saw with slow usb devices (mainly a usb hd on a usb 1.1
-connection)
->  > the usb device would fill up with write queue and local io to say
-/dev/hda
->  > would basicly stop and the system would be rather useless till the
-usb
->  > hd would finish writing out what it was doing
->  > usally would take several hundred megs of data to get it to do it
->
-> There may be bazillion other reasons for slow device making system
-> unresponsive in various ways. More details are needed (possibly in
-> separate thread).
-
-well at this time all i know is one will be writing to the usb hd its
-queue
-will fill up and if say some gtk app wants to write to disk it will
-freeze
-until the usb hd is completely done
-i will look into it at some point when i have time and get more info on
-it and post a proper report on the issue unless its already been fixed
-
->  >
->  > ive not tried it in ages so maybe its been fixed since ive last
-tried it
->  > dont recall the kernel version at the time but it wasnt more than a
->  > year ago
->  >
->
-> Nikita.
->
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

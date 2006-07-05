@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWGEQy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbWGEQ4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbWGEQy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 12:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWGEQy7
+	id S964887AbWGEQ4t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 12:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWGEQ4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 12:54:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11708 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964882AbWGEQy6 (ORCPT
+	Wed, 5 Jul 2006 12:56:49 -0400
+Received: from ns.suse.de ([195.135.220.2]:46536 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964887AbWGEQ4s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 12:54:58 -0400
-Date: Wed, 5 Jul 2006 09:54:43 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Andi Kleen <ak@suse.de>, Chuck Ebbert <76306.1226@compuserve.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] i386: early pagefault handler
-In-Reply-To: <44ABEB20.2010702@zytor.com>
-Message-ID: <Pine.LNX.4.64.0607050952190.12404@g5.osdl.org>
-References: <200607050745_MC3-1-C42B-9937@compuserve.com> <p73veqcp58s.fsf@verdi.suse.de>
- <44ABEB20.2010702@zytor.com>
+	Wed, 5 Jul 2006 12:56:48 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: Novell, SUSE Labs
+To: Andrew Morton <akpm@osdl.org>
+Subject: NULL terminate over-long /proc/kallsyms symbols
+Date: Wed, 5 Jul 2006 18:59:41 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+X-Length: 1472
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607051859.41638.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Got a customer bug report (https://bugzilla.novell.com/190296)
+about kernel symbols longer than 127 characters which end up in
+a string buffer that is not NULL terminated, leading to garbage 
+in /proc/kallsyms. Using strlcpy prevents this from happening,
+even though such symbols still won't come out right.
 
+A better fix would be to not use a fixed-size buffer, but it's
+probably not worth the trouble. (Modversion'ed symbols even have
+a length limit of 60.)
 
-On Wed, 5 Jul 2006, H. Peter Anvin wrote:
-> 
-> I don't remember what the failure mode was, though; didn't think it was
-> recursive faulting.
+(This patch has been ested on a 2.6.16 kernel.)
 
-I think we should probably remove the test. The failure mode was simply 
-that a machine with the "halt" idle loop simply didn't work, and would 
-lock up. The most likely reason for that is probably just a bad CPU power 
-VRM, and the potential high current fluctuations, not so much any CPU bug 
-itself.
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
 
-Anybody with that old a CPU will have learnt to to say "no-hlt" or 
-whatever the kernel command line is, and we could probably retire the 
-silly old hlt check (which I'm not even sure really ever worked).
-
-		Linus
+Index: linux-2.6.17/kernel/module.c
+===================================================================
+--- linux-2.6.17.orig/kernel/module.c
++++ linux-2.6.17/kernel/module.c
+@@ -1935,7 +1935,7 @@ struct module *module_get_kallsym(unsign
+ 		if (symnum < mod->num_symtab) {
+ 			*value = mod->symtab[symnum].st_value;
+ 			*type = mod->symtab[symnum].st_info;
+-			strncpy(namebuf,
++			strlcpy(namebuf,
+ 				mod->strtab + mod->symtab[symnum].st_name,
+ 				127);
+ 			mutex_unlock(&module_mutex);

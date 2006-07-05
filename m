@@ -1,56 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWGEPxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWGEPzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWGEPxb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 11:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWGEPxa
+	id S964775AbWGEPzf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 11:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWGEPzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 11:53:30 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20146 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932419AbWGEPxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 11:53:30 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Edgar Hucek <hostmaster@ed-soft.at>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Linus Torvalds <torvalds@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
-References: <44A04F5F.8030405@ed-soft.at>
-	<Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
-	<44A0CCEA.7030309@ed-soft.at>
-	<Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
-	<44A304C1.2050304@zytor.com>
-	<m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
-	<44A8058D.3030905@zytor.com>
-	<m11wt3983j.fsf@ebiederm.dsl.xmission.com>
-	<44AB8878.7010203@ed-soft.at>
-Date: Wed, 05 Jul 2006 09:52:48 -0600
-In-Reply-To: <44AB8878.7010203@ed-soft.at> (Edgar Hucek's message of "Wed, 05
-	Jul 2006 11:38:00 +0200")
-Message-ID: <m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 5 Jul 2006 11:55:35 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:54154 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964775AbWGEPze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 11:55:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Xm3wPD0uB5bkY/opM4dKXICR9GFGXmmfnzQmxI98EKCmHywrRZYPX1MeQIGZhbhkGzYMNtlATmlS677wuZj/wZch0eywuZreYRcvDkGwZGpzJpDQ4wG8tjdDMLBfg388BoTtbNCPdKMQvynGMLq4pbsOwhLfHI+G9vnAzj3cTTc=
+Message-ID: <e1e1d5f40607050855t5584178drfaeddfc78662a6bb@mail.gmail.com>
+Date: Wed, 5 Jul 2006 11:55:33 -0400
+From: "Daniel Bonekeeper" <thehazard@gmail.com>
+To: "Bill Davidsen" <davidsen@tmr.com>
+Subject: Re: Driver for Microsoft USB Fingerprint Reader
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Greg KH" <greg@kroah.com>,
+       "Alon Bar-Lev" <alon.barlev@gmail.com>, kernelnewbies@nl.linux.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44AB3988.1050308@tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <e1e1d5f40607022351y4af6e709n1ba886604a13656b@mail.gmail.com>
+	 <9e0cf0bf0607030304n62991dafk19f09e41d69e9ab0@mail.gmail.com>
+	 <e1e1d5f40607031104o2b8003c8qfa725ae1d276b27f@mail.gmail.com>
+	 <44A95F12.8080208@gmail.com>
+	 <e1e1d5f40607031353l48826d5bi51558d9f8e12ba3@mail.gmail.com>
+	 <20060703214509.GA5629@kroah.com>
+	 <e1e1d5f40607031511l5445f338t449bf8840e8caf80@mail.gmail.com>
+	 <1151966154.16528.42.camel@localhost.localdomain>
+	 <44AB3988.1050308@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edgar Hucek <hostmaster@ed-soft.at> writes:
+    Alan Cox wrote:
+    > Ar Llu, 2006-07-03 am 18:11 -0400, ysgrifennodd Daniel Bonekeeper:
+    >> That's one problem: I don't want to create one more userspace
+    >> interface for that. I suppose that all the hundreds of fingerprint
+    >> readers that ships with a SDK have their own way of doing that.. that
+    >
+    > The very cheap readers all appear to be fairly crude image scanners, and
+    > they even lack hardware encryption/perturbation so they are actually of
+    > very limited value.
 
-> I agre with you to make efi use the e820 map as a long term solution.
-> But at the moment the efi part is completley broken without my patch.
 
-But your patch isn't a fix.  It is a hack to make the system boot.
 
-A patch that performed the same check on the efi memory map,
-or it converted the efi memory map to use an e820 map it would be a fix.
+As I said before, usefulness is something relative, and sometimes,
+security is not a concern (even when talking about fingerprint
+readers).
+My intention with this is to try to create a catalog of fingerprint
+readers' properties and I think that taking a look at vendors' SDKs
+would be a good start.
+As pointed out by Greg, it would be also interesting to export those
+properties via sysfs instead of structure passing (or in addiction,
+not sure yet).
+I'm not sure though about relating fingerprint devices with V4L2 (even
+the cheapest ones). Some other considerations discussed with Greg are
+also:
 
-> At least on Intel Macs. 
-> Without the patch also my Imacfb driver makes no sense, since it is 
-> for efi booted Intel Macs. 
+1) extending those device informations to other classes, not only to
+fingerprint readers
+2) maybe using another layer to hold device properties based on
+classes ( device driver -> device information layer -> sysfs+kobjects
+) so we can have specific properties for "fingerprintreader" objects
+and easier ways to export them to the sysfs layer, without explicit
+declaration on the device driver
+3) extend that layer also to non-USB devices ( bus-independent )
 
-My point is that the kernel efi support is broken.  You have just found
-the location where the bone is poking through the skin.
+Maybe sysfs classes could have a list of default properties (for
+example, /sys/class/fingerprint objects could hold a list of commom
+fingerprint properties).
 
-I am tempted to write a patch to delete the x86 efi support at this
-point.  So that it is very clear that it needs to be completely redone.
 
-Eric
+    Crude, like beauty, is in the eye of the beholder. I like hardware which
+    does as little as possible because I can then apply the appropriate
+    software to the data. I can see that if cost is no object and the
+    algorithm is never going to change, I can build all that stuff into the
+    device. But I don't need to... as long as I can take the data, pass it
+    through a transform, and get out of that a key which works or not, then
+    I can do useful things with it.
+
+    Useful includes many things. I'm playing with using a combined secret
+    and SecureID(tm) to decrypt and boot a virtual machine, such that I can
+    do many unrelated things and have reduced chance of "unintended data
+    migration." It also allows ad-hoc users (read that as undergrads) given
+    a temporary machine fairly easily, visiting professors, etc.
+
+    I can see the benefits of having the whole package be a black box, I
+    hope I have explained why I find even a dumb scanner useful in some cases.
+
+    --
+    Bill Davidsen < davidsen@tmr.com >
+
+
+Which fingerprint reader are you using ?
+
+Daniel
+
+PS: sorry about sending that message more than once, I just figured
+out that my mails were boucing back to me because Gmail was using HTML
+mode for mails =S
+
+-- 
+What this world needs is a good five-dollar plasma weapon.

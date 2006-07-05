@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWGERyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWGERza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbWGERyw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 13:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWGERyw
+	id S964942AbWGERza (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 13:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbWGERz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 13:54:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32918 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964934AbWGERyv (ORCPT
+	Wed, 5 Jul 2006 13:55:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37270 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964937AbWGERyz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 13:54:51 -0400
+	Wed, 5 Jul 2006 13:54:55 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 1/5] FDPIC: Fix FDPIC compile errors [try #2]
-Date: Wed, 05 Jul 2006 18:54:43 +0100
+Subject: [PATCH 3/5] NOMMU: Fix execution off of ramfs with mmap() [try #2]
+Date: Wed, 05 Jul 2006 18:54:47 +0100
 To: torvalds@osdl.org, akpm@osdl.org, bernds_cb1@t-online.de, sam@ravnborg.org
 Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
-Message-Id: <20060705175443.12594.30741.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060705175447.12594.79107.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060705175440.12594.43069.stgit@warthog.cambridge.redhat.com>
 References: <20060705175440.12594.43069.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,23 +25,38 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-The attached patch fixes FDPIC compile errors
+Fix execution through the FDPIC binfmt of programs stored on ramfs by
+preventing the ramfs mmap() returning successfully on a private mapping of a
+ramfs file.  This causes NOMMU mmap to make a copy of the mapped portion of the
+file and map that instead.
+
+This could be improved by granting direct mapping access to read-only private
+mappings for which the data is stored on a contiguous run of pages.  However,
+this is only likely to be the case if the file was extended with truncate
+before being written.
+
+ramfs is left to map the file directly for shared mappings so that SYSV IPC
+and POSIX shared memory both still work.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/binfmt_elf_fdpic.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ fs/ramfs/file-nommu.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/binfmt_elf_fdpic.c b/fs/binfmt_elf_fdpic.c
-index eba4e23..07624b9 100644
---- a/fs/binfmt_elf_fdpic.c
-+++ b/fs/binfmt_elf_fdpic.c
-@@ -459,6 +459,7 @@ #endif
- 	 */
- 	hwcap = ELF_HWCAP;
- 	k_platform = ELF_PLATFORM;
-+	u_platform = NULL;
+diff --git a/fs/ramfs/file-nommu.c b/fs/ramfs/file-nommu.c
+index 99fffc9..677139b 100644
+--- a/fs/ramfs/file-nommu.c
++++ b/fs/ramfs/file-nommu.c
+@@ -283,9 +283,9 @@ unsigned long ramfs_nommu_get_unmapped_a
  
- 	if (k_platform) {
- 		platform_len = strlen(k_platform) + 1;
+ /*****************************************************************************/
+ /*
+- * set up a mapping
++ * set up a mapping for shared memory segments
+  */
+ int ramfs_nommu_mmap(struct file *file, struct vm_area_struct *vma)
+ {
+-	return 0;
++	return vma->vm_flags & VM_SHARED ? 0 : -ENOSYS;
+ }

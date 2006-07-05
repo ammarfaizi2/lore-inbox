@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWGEH3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWGEHbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWGEH3a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 03:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWGEH33
+	id S932189AbWGEHbM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 03:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWGEHbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 03:29:29 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:54172 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S932178AbWGEH33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 03:29:29 -0400
-Message-ID: <44AB6A57.2060205@stesmi.com>
-Date: Wed, 05 Jul 2006 09:29:27 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
+	Wed, 5 Jul 2006 03:31:12 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:55256 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932189AbWGEHbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 03:31:11 -0400
+Message-ID: <44AB6AB3.5070407@sgi.com>
+Date: Wed, 05 Jul 2006 09:30:59 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Lee Revell <rlrevell@joe-job.com>,
-       James Courtier-Dutton <James@superbug.co.uk>,
-       alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-       Olivier Galibert <galibert@pobox.com>, perex@suse.cz,
-       Olaf Hering <olh@suse.de>, Adrian Bunk <bunk@stusta.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round
-References: <20060629192128.GE19712@stusta.de>  <44A54D8E.3000002@superbug.co.uk> <20060630163114.GA12874@dspnet.fr.eu.org>  <1151702966.32444.57.camel@mindpipe>  <20060701073133.GA99126@dspnet.fr.eu.org> <44A6279C.3000100@superbug.co.uk>  <44A76DDF.4020307@superbug.co.uk>  <Pine.LNX.4.61.0607021153220.5276@yvahk01.tjqt.qr> <1151854092.12026.39.camel@mindpipe> <Pine.LNX.4.61.0607022304230.5218@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0607022304230.5218@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-ripemd160;
- protocol="application/pgp-signature";
- boundary="------------enig13E2E95B9D3C5BE8E7325CDA"
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Andrew Morton <akpm@osdl.org>, Keith Owens <kaos@sgi.com>,
+       torvalds@osdl.org, viro@zeniv.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] reduce IPI noise due to /dev/cdrom open/close
+References: <yq0mzbqhfdp.fsf@jaguar.mkp.net>	<21169.1151991139@kao2.melbourne.sgi.com> <20060703234134.786944f1.akpm@osdl.org> <44AAA64D.8030907@yahoo.com.au>
+In-Reply-To: <44AAA64D.8030907@yahoo.com.au>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig13E2E95B9D3C5BE8E7325CDA
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Jan Engelhardt wrote:
->>>Well you could patch the affected plugin's .dynstr table so that it should at
->>>best try to call a function that has not yet been defined somewhere else (like
->>>open); IOW, you change the .dynstr entry from 'open' to say 'my_open', and
->>>regularly include libmy.so through e.g. LD_PRELOAD.
->>>
->>>Of course the MD5 won't match afterwards, but I think the plugin should execute
->>>as usual afterwards, since .dynstr is something no app should rely on.
->>
->>Is this likely to work with an app like Skype that takes extensive steps
->>to thwart reverse engineers?
+Nick Piggin wrote:
+> Andrew Morton wrote:
+>> I expect raw_smp_processor_id() is used here as a a microoptimisation -
+>> avoid a might_sleep() which obviously will never trigger.
 > 
+> A microoptimisation because they've turned on DEBUG_PREEMPT and found
+> that smp_processor_id slows down? ;) Wouldn't it be better to just stick
+> to the normal rules (ie. what Keith said)?
 > 
-> We do not reverse engineer the .text section, but change the .dynstr 
-> section that is specific to the ELF format. I doubt any app out there md5s 
-> itself.
+> It may be obvious in this case (though that doesn't help people who make
+> obvious mistakes, or mismerge patches) but this just seems like a nasty
+> precedent to set (or has it already been?).
 
-There is at least one. True that it doesn't do sound (it's an antivirus
-scanner for mailservers :)) but regardless, it checksums the whole
-thing.
+I suspect the real reason here is that there's now so many ways to get
+the processor ID that I cannot keep track of which one to use. Paul's
+mention of __raw_get_cpu_var() just confuses me even more.
 
-// Stefan
+So if anyone can give me a conclusive answer of which one to use, I'm
+happy to go there.
 
---------------enig13E2E95B9D3C5BE8E7325CDA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Granted I have a bias to avoid anything involving the preempt crap, but
+thats just me :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFEq2pXBrn2kJu9P78RAx1+AJ9b5byLxkX71UGNDeClxqI+Qz0rCACgi9i6
-Ir6p5tAoaGOVaLStgaEUfeM=
-=pChO
------END PGP SIGNATURE-----
-
---------------enig13E2E95B9D3C5BE8E7325CDA--
+Cheers,
+Jes

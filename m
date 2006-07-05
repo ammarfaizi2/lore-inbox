@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWGETFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbWGETMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWGETFW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 15:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbWGETFW
+	id S964924AbWGETMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 15:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbWGETMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 15:05:22 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:24478 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S964927AbWGETFW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 15:05:22 -0400
-Subject: Re: [PATCH] release_firmware() fixes
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Magnus Damm <magnus@valinux.co.jp>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060705062033.6692.14131.sendpatchset@cherry.local>
-References: <20060705062033.6692.14131.sendpatchset@cherry.local>
-Content-Type: text/plain
-Date: Wed, 05 Jul 2006 21:05:04 +0200
-Message-Id: <1152126304.4260.30.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 5 Jul 2006 15:12:16 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:34273 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964924AbWGETMP
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 15:12:15 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17580.3569.985455.96657@gargle.gargle.HOWL>
+Date: Wed, 5 Jul 2006 23:07:29 +0400
+To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+Cc: "Bret Towe" <magnade@gmail.com>,
+       "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh entirely
+In-Reply-To: <B41635854730A14CA71C92B36EC22AAC06CF96@mssmsx411>
+References: <B41635854730A14CA71C92B36EC22AAC06CF96@mssmsx411>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Magnus,
+Ananiev, Leonid I writes:
+ > 
+ > Bret Towe writes:
+ > > if say some gtk app wants to write to disk it will freeze
+ > > until the usb hd is completely done
+ > 
+ > The proposed patch fixes one real cause of long latency: if a user
 
-> Use release_firmware() to free requested resources.
-> 
-> According to Documentation/firmware_class/README the request_firmware() call
-> should be followed by a release_firmware(). Some drivers do not however free
-> the firmware previously allocated with request_firmware(). This patch tries to
-> fix this by making sure that release_firmware() is used as expected.
+Exactly to the contrary: as I explained to you, if you have more devices
+than pdflush threads, your patch will result in all system doing IO as
+slow as slowest devices in the system. In addition, if you have more
+than MAX_PDFLUSH_THREADS processors, some of them cannot be used to
+concurrently perform writeback.
 
-thanks for catching these. I even overlooked one one in my own drivers.
+ > thread writes 1 byte only to disk it could happen that one has to write
+ > all pages dirtied by all threads in the system and wait for it. The
 
-> Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
+See how wbc.nr_to_write is set up by balance_dirty_pages().
 
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+ > patch is tested and gets real benefit on real systems. A common system
+ > work is performed in common system thread but not in casual user thread.
 
-Regards
+To understand the problem I am trying to attract your attention to,
+imagine that MAX_PDFLUSH_THREADS equals 1. See what you get? BSD
+(pagedaemon everybody waits upon). But Linux is not BSD, thankfully.
 
-Marcel
+ > 
+ > The patch does not fix other (bazillion - 1) fictitious freezing causes
+ > for imaginary configurations.
 
+Yes, and all the world is VAX (var. "my benchmarking suite"), as they
+used to say. :-)
 
+ > 
+ > Leonid
+
+Nikita.

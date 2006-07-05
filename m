@@ -1,48 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWGEOnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWGEO6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964895AbWGEOnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 10:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWGEOnJ
+	id S964898AbWGEO6O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 10:58:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWGEO6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 10:43:09 -0400
-Received: from mail.gmx.de ([213.165.64.21]:36528 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964895AbWGEOnI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 10:43:08 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH] sched: Add SCHED_BGND (background) scheduling policy
-From: Mike Galbraith <efault@gmx.de>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <44ABC5B7.2090707@bigpond.net.au>
-References: <20060704233521.8744.45368.sendpatchset@heathwren.pw.nest>
-	 <1152099752.8684.198.camel@Homer.TheSimpsons.net>
-	 <44ABC5B7.2090707@bigpond.net.au>
-Content-Type: text/plain
-Date: Wed, 05 Jul 2006 16:48:27 +0200
-Message-Id: <1152110907.8594.19.camel@Homer.TheSimpsons.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 5 Jul 2006 10:58:14 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:23432 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964898AbWGEO6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 10:58:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=TpJcKAnqHHyo3voJyEQL5Kqq3ai9yby/BrXpcEVc9NXFK8f7zUYtKdekhLIrAIr/lMj1iUDfB88rl0i3qLQGwkBnPgvnEdTC5cpg0wrqrJypoa619muzuS/DV++038VkR3YFQAtv1l5OpXmcqJ7lcRhzXAR5+g7i8p1yq7bsDTA=
+Date: Wed, 5 Jul 2006 16:58:31 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Mark Hounschell <dmarkh@cfl.rr.com>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Ulrich Drepper <drepper@gmail.com>, linux-kernel@vger.kernel.org,
+       glibc-cvs@sourceware.org
+Subject: Re: Where can I get glibc with PI futex support (for -RT tests) ?
+In-Reply-To: <44AB8257.7000406@cfl.rr.com>
+Message-ID: <Pine.LNX.4.64.0607051657550.27580@localhost.localdomain>
+References: <Pine.LNX.4.64.0607050133240.2448@localhost.localdomain>
+ <a36005b50607041728h1442ebaapdd9d13b5d13fd3c4@mail.gmail.com>
+ <Pine.LNX.4.64.0607051032070.4248@localhost.localdomain> <44AB8257.7000406@cfl.rr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-05 at 23:59 +1000, Peter Williams wrote:
-> Mike Galbraith wrote:
-> > The task in the expired array could also be a !safe_to_background() task
-> > who already had a chance to run, and who's slice expired.
-> 
-> If it's !safe_to_background() it's in our interest to let it run in 
-> order to free up the resource that it's holding.
 
-Only if there are waiters (or you know there will be some before the
-holder gets a chance to run again).  Even then, they might be background
-tasks, so it could still be ~wrong.
 
-(yeah, comprehensive PI would be mucho tidier than tick time)
+On Wed, 5 Jul 2006, Mark Hounschell wrote:
 
-	-Mike
+> Esben Nielsen wrote:
+>> On Tue, 4 Jul 2006, Ulrich Drepper wrote:
+>>
+>>> On 7/4/06, Esben Nielsen <nielsen.esben@googlemail.com> wrote:
+>>>>  The answer is probably on the list, but I can't find it in the
+>>>>  archives..:-(
+>>>
+>>> You have to wait your turn like everybody else.  Ingo/Thomas have one
+>>> more bug to fix.  After that I'll check in the patches into the cvs
+>>> archive.
+>>>
+>>
+>> Can I get what you have now? Then I can do some testing.
+>> I might very well be that the bug doesn't matter for me. What is the bug?
+>>
+>> I tried to check out from cvs
+>> (:pserver:anoncvs@sources.redhat.com:/cvs/glibc) but that can't even
+>> compile because PTHREAD_MUTEX_PRIO_INHERIT_NP and
+>> PTHREAD_MUTEX_PRIO_PROTECT_NP isn't defined for pthread_mutex_init.c
+>>
+>> Esben
+>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>
+> Isn't Ingo's patch for glibc-2.4 here?
+>
+> http://people.redhat.com/mingo/PI-futex-patches/glibc-PI-futex.patch
+>
+> Builds for me.
+>
 
+Ok, thanks! It builds and it seems to work too :-)
+
+Esben
+
+
+> Mark
+>

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWGEPu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWGEPxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWGEPu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 11:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWGEPu5
+	id S932419AbWGEPxb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 11:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWGEPxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 11:50:57 -0400
-Received: from mga03.intel.com ([143.182.124.21]:52612 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932420AbWGEPu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 11:50:56 -0400
-X-IronPort-AV: i="4.06,210,1149490800"; 
-   d="scan'208"; a="61548760:sNHT7532973791"
-Message-ID: <44ABDF87.8000801@intel.com>
-Date: Wed, 05 Jul 2006 08:49:27 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.4 (X11/20060617)
+	Wed, 5 Jul 2006 11:53:30 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20146 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932419AbWGEPxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 11:53:30 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Edgar Hucek <hostmaster@ed-soft.at>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Linus Torvalds <torvalds@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
+References: <44A04F5F.8030405@ed-soft.at>
+	<Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
+	<44A0CCEA.7030309@ed-soft.at>
+	<Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
+	<44A304C1.2050304@zytor.com>
+	<m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
+	<44A8058D.3030905@zytor.com>
+	<m11wt3983j.fsf@ebiederm.dsl.xmission.com>
+	<44AB8878.7010203@ed-soft.at>
+Date: Wed, 05 Jul 2006 09:52:48 -0600
+In-Reply-To: <44AB8878.7010203@ed-soft.at> (Edgar Hucek's message of "Wed, 05
+	Jul 2006 11:38:00 +0200")
+Message-ID: <m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Linas Vepstas <linas@austin.ibm.com>
-CC: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       "Ronciak, John" <john.ronciak@intel.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
-       Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] ixgb: add PCI Error recovery callbacks
-References: <20060629162634.GC5472@austin.ibm.com> <1151905766.28493.129.camel@ymzhang-perf.sh.intel.com>
-In-Reply-To: <1151905766.28493.129.camel@ymzhang-perf.sh.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jul 2006 15:50:18.0685 (UTC) FILETIME=[B71DDED0:01C6A04A]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zhang, Yanmin wrote:
-> On Fri, 2006-06-30 at 00:26, Linas Vepstas wrote:
->> Adds PCI Error recovery callbacks to the Intel 10-gigabit ethernet
->> ixgb device driver. Lightly tested, works.
->
-> Both pci_disable_device and ixgb_down would access the device. It doesn't
-> follow Documentation/pci-error-recovery.txt that error_detected shouldn't do
-> any access to the device.
+Edgar Hucek <hostmaster@ed-soft.at> writes:
 
-Moreover, it was Linas who wrote this documentation in the first place :)
+> I agre with you to make efi use the e820 map as a long term solution.
+> But at the moment the efi part is completley broken without my patch.
 
-Linas, have you tried moving the e1000_down() call into the _reset part? I 
-suspect that the e1000_reset() in there however may already be sufficient.
+But your patch isn't a fix.  It is a hack to make the system boot.
 
-Cheers,
+A patch that performed the same check on the efi memory map,
+or it converted the efi memory map to use an e820 map it would be a fix.
 
-Auke
+> At least on Intel Macs. 
+> Without the patch also my Imacfb driver makes no sense, since it is 
+> for efi booted Intel Macs. 
+
+My point is that the kernel efi support is broken.  You have just found
+the location where the bone is poking through the skin.
+
+I am tempted to write a patch to delete the x86 efi support at this
+point.  So that it is very clear that it needs to be completely redone.
+
+Eric

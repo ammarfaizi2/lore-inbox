@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWGER51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWGESDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbWGER51 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 13:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWGER51
+	id S964951AbWGESDi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 14:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWGESDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 13:57:27 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:36779 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S964936AbWGER50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 13:57:26 -0400
-Date: Wed, 5 Jul 2006 11:57:25 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Limit VIA and SIS AGP choices to x86
-Message-ID: <20060705175725.GL1605@parisc-linux.org>
+	Wed, 5 Jul 2006 14:03:37 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:52906 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S964951AbWGESDh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 14:03:37 -0400
+Date: Wed, 5 Jul 2006 13:03:34 -0500
+From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
+To: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Cc: hch@infradead.org, xfs@oss.sgi.com, nickolay@protei.ru,
+       mmontour@bycast.com, iss_storagedev@hp.com
+Subject: [PATCH 1/2] cciss: add BLKSSZGET back to 2.4 driver
+Message-ID: <20060705180334.GA9656@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,43 +23,26 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+PATCH 1/2
 
-As far as I am aware, Alpha, PPC and IA64 don't have VIA or SIS AGP
-chipsets available.
+This patch adds BLKSSZGET into the cciss driver. Not sure why it isn't in
+there. I'm sure it  used to be. :)
 
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+Thanks to Nicolay and others for reporting this.
 
-Index: ./drivers/char/agp/Kconfig
-===================================================================
-RCS file: /var/cvs/linux-2.6/drivers/char/agp/Kconfig,v
-retrieving revision 1.16
-diff -u -p -r1.16 Kconfig
---- ./drivers/char/agp/Kconfig	13 Jun 2006 16:25:20 -0000	1.16
-+++ ./drivers/char/agp/Kconfig	5 Jul 2006 17:52:48 -0000
-@@ -75,8 +75,6 @@ config AGP_INTEL
- 	  E7205 and E7505 chipsets and full support for the 810, 815, 830M,
- 	  845G, 852GM, 855GM, 865G and I915 integrated graphics chipsets.
- 
--
--
- config AGP_NVIDIA
- 	tristate "NVIDIA nForce/nForce2 chipset support"
- 	depends on AGP && X86_32
-@@ -86,7 +84,7 @@ config AGP_NVIDIA
- 
- config AGP_SIS
- 	tristate "SiS chipset support"
--	depends on AGP
-+	depends on AGP && X86
- 	help
- 	  This option gives you AGP support for the GLX component of
- 	  X on Silicon Integrated Systems [SiS] chipsets.
-@@ -103,7 +101,7 @@ config AGP_SWORKS
- 
- config AGP_VIA
- 	tristate "VIA chipset support"
--	depends on AGP
-+	depends on AGP && X86
- 	help
- 	  This option gives you AGP support for the GLX component of
- 	  X on VIA MVP3/Apollo Pro chipsets.
+Signed-off-by: Mike Miller <mike.miller@hp.com>
+------------------------------------------------------------------------------------------
+ cciss.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -burNp linux-2.4.32.orig/drivers/block/cciss.c linux-2.4.32/drivers/block/cciss.c
+--- linux-2.4.32.orig/drivers/block/cciss.c	2005-11-16 13:12:54.000000000 -0600
++++ linux-2.4.32/drivers/block/cciss.c	2006-07-05 12:54:41.000000000 -0500
+@@ -740,6 +740,7 @@ static int cciss_ioctl(struct inode *ino
+ 	case BLKFLSBUF:
+ 	case BLKBSZSET:
+ 	case BLKBSZGET:
++	case BLKSSZGET:
+ 	case BLKROSET:
+ 	case BLKROGET:
+ 	case BLKRASET:

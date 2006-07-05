@@ -1,74 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWGEFkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWGEFoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWGEFkd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 01:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWGEFkc
+	id S932386AbWGEFoE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 01:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWGEFoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 01:40:32 -0400
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:55172 "EHLO
-	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S932366AbWGEFkc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 01:40:32 -0400
-Message-ID: <44AB5210.50501@wolfmountaingroup.com>
-Date: Tue, 04 Jul 2006 23:45:52 -0600
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
+	Wed, 5 Jul 2006 01:44:04 -0400
+Received: from mga03.intel.com ([143.182.124.21]:65377 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932386AbWGEFoD convert rfc822-to-8bit (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 01:44:03 -0400
+X-IronPort-AV: i="4.06,206,1149490800"; 
+   d="scan'208"; a="61336702:sNHT6097922194"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Bill Davidsen <davidsen@tmr.com>, Benny Amorsen <benny+usenet@amorsen.dk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no> <20060703205523.GA17122@irc.pl> <1151960503.3108.55.camel@laptopd505.fenrus.org> <44A9904F.7060207@wolfmountaingroup.com> <20060703232547.2d54ab9b.diegocg@gmail.com> <m3r711u3yk.fsf@ursa.amorsen.dk> <44AB3E4C.2000407@tmr.com> <44AB4A68.90301@zytor.com>
-In-Reply-To: <44AB4A68.90301@zytor.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+Date: Wed, 5 Jul 2006 09:40:02 +0400
+Message-ID: <B41635854730A14CA71C92B36EC22AAC06CD4C@mssmsx411>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+Thread-Index: AcafqCPHuXZa/mpQRxaM+Sr78D7EZAARxSZw
+From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+To: "Nikita Danilov" <nikita@clusterfs.com>
+Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
+X-OriginalArrivalTime: 05 Jul 2006 05:40:03.0438 (UTC) FILETIME=[76BA90E0:01C69FF5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-
-> Bill Davidsen wrote:
->
->>>
->>> DC> Easily doable in userspace, why bother with kernel programming
->>>
->>> In userspace you can't automatically delete the files when the space
->>> becomes needed. The LD_PRELOAD/glibc methods also have the
->>> disadvantage of having to figure out where a file goes when it's
->>> deleted, depending on which device it happens to reside on. Demanding
->>> read access to /proc/mounts just to do rm could cause problems.
->>>
->>> Userspace has had 10 years to invent a good solution. If it was so
->>> easy, it would probably have been done.
->>>
->> Actually, if it were so important it WOULD have been done. I suspect 
->> that the issue is not lack of a good solution, but lack of a good 
->> problem. The behavior you propose requires a lot of kernel 
->> cleverness, including make the inodes seem to go away, so the count 
->> is "right" for what the user sees.
->>
->
-> The real solution for it is snapshots.
 
 
-Peter,
+Nikita Danilov writes:
+> Doing large amounts of writeback from pdflush threads makes situation
+> only worse: suppose you have more than MAX_PDFLUSH_THREADS devices on
+> the system, and large number of writing threads. If some devices
+become
+> congested, then *all* pdflush threads may easily stuck waiting on
+queue
+> congestion and there will be no IO going on against other devices.
+This
+> would be especially bad, if system is a mix of slow and fast devices.
 
-Explain what you are thinking here.  What I proposed, I have already 
-implemented in NetWare, it's very easy to do.  Snapshotting is not 
-complex for FS's but does require a lot of space for meta-data to manage 
-it.  EXT is not architecteced for something this complex.  A simple 
-hidden mv is much easier to do.
+*all* pdflush threads may NOT waiting on single queue because function
+balance_dirty_pages() tests it:
 
-Jeff
+	if (writeback_in_progress(bdi))
+		return;		/* pdflush is already working this queue
+*/
 
->
->     -hpa
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Yes, that was silly proposal. I think your patch contains very useful
+> idea, but it cannot be applied to all file systems. Maybe
+> wait-for-pdflush can be made optional, depending on the file system
+> type?
 
+I suppose MS DOS was the last operating system which had considered
+that parallelism is not applicable.
+
+Leonid
+-----Original Message-----
+From: Nikita Danilov [mailto:nikita@clusterfs.com] 
+Sent: Wednesday, July 05, 2006 12:21 AM
+To: Ananiev, Leonid I
+Cc: Linux Kernel Mailing List
+Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh
+entirely
+
+Ananiev, Leonid I writes:
+ > Nikita Danilov writes:
+ > > When queue is congested---it is, because meta-data (indirect blocks
+in
+ > > ext[23] case) have to be read in synchronously before page can be
+ > paged
+ > > out (see comment in mm/vmscan.c:pageout()).
+ > 
+ > Actually a queue is congested ---it is, because the queue is too long
+or
+ > bit BDI_write[read]_congested is set.
+ > 
+ > > But much more importantly: when direct reclaim skips writing dirty
+ > pages
+ > > from tail of the inactive list,
+ > 
+ > The  direct reclaim does not skip any page in pdflush thread because
+ > may_write_to_queue() returns true
+ > if (current->flags & PF_SWAPWRITE) and: __pdflush() sets this flag:
+ > See pfflush.c: __pdflush() first line
+ > current->flags |= PF_FLUSHER | PF_SWAPWRITE;
+
+Hm.. indeed it is. But this is quite strange. This means, that if some
+device queues are congested, pdflush threads will be stuck waiting for
+these queues to drain, and as there is only limited number of pdflush
+threads in the system, write-out to the non-congested devices will not
+progress too.
+
+Doing large amounts of writeback from pdflush threads makes situation
+only worse: suppose you have more than MAX_PDFLUSH_THREADS devices on
+the system, and large number of writing threads. If some devices become
+congested, then *all* pdflush threads may easily stuck waiting on queue
+congestion and there will be no IO going on against other devices. This
+would be especially bad, if system is a mix of slow and fast devices.
+
+In the original code, threads writing into fast devices are not impacted
+by congestion of slow devices.
+
+You can deal with that particular situation in your patch by checking
+return value of
+
+        pdflush_operation(background_writeout, 0);
+
+and falling back to synchronous write-back if it fails to find worker
+thread.
+
+ > 
+ > > Wouldn't this interfere with current->backing_dev_info logic?
+ > > Maybe pdflush threads should set this field too?
+ > It is not need to set current->backing_dev_info for pdflush because
+
+Yes, that was silly proposal. I think your patch contains very useful
+idea, but it cannot be applied to all file systems. Maybe
+wait-for-pdflush can be made optional, depending on the file system
+type?
+
+ > PF_SWAPWRITE is set for pdflush.
+ > The proposed patch does not concern of backing_dev_info logic.
+ > 
+ > Leonid 
+
+Nikita.

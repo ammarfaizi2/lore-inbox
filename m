@@ -1,26 +1,19 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751415AbWG2TOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbWG2TOu (ORCPT <rfc822;akpm@zip.com.au>);
-	Sat, 29 Jul 2006 15:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWG2TOu
+	id S932391AbWGEC7g (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 4 Jul 2006 22:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWGEC7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 15:14:50 -0400
-Received: from halon.profiwh.com ([85.93.165.2]:38389 "EHLO orfeus.profiwh.com")
-	by vger.kernel.org with ESMTP id S1751415AbWG2TOu (ORCPT
+	Tue, 4 Jul 2006 22:59:36 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:49065 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932391AbWGEC7g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 15:14:50 -0400
-Message-ID: <44CBB363.1070504@gmail.com>
-Date: Sat, 29 Jul 2006 21:13:16 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: test
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
+	Tue, 4 Jul 2006 22:59:36 -0400
+Date: Wed, 5 Jul 2006 02:59:35 GMT
+From: linux-kernel@vger.kernel.org
+Message-Id: <200607050259.k652xK4H006880@zeus1.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932391AbWGEC7g@vger.kernel.org>
 
-just another-one-ignore
+aaazzzaaazzzaaazzzaaazzzaaazzz

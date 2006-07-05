@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbWGEUKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbWGEUM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964977AbWGEUKp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 16:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWGEUKo
+	id S965014AbWGEUM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 16:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWGEUM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 16:10:44 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:19162 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964977AbWGEUKo
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 16:10:44 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Jul 2006 16:12:59 -0400
+Received: from xenotime.net ([66.160.160.81]:16006 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965014AbWGEUM7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 16:12:59 -0400
+Date: Wed, 5 Jul 2006 13:15:39 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: David Miller <davem@davemloft.net>
+Cc: vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17 on SPARC64 compile fails
+Message-Id: <20060705131539.ba3275d8.rdunlap@xenotime.net>
+In-Reply-To: <20060705.113911.112605950.davem@davemloft.net>
+References: <200607041417.k64EHNIT009599@laptop11.inf.utfsm.cl>
+	<20060705.113911.112605950.davem@davemloft.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17580.7078.914228.48864@gargle.gargle.HOWL>
-Date: Thu, 6 Jul 2006 00:05:58 +0400
-To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-Cc: "Bret Towe" <magnade@gmail.com>,
-       "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh entirely
-In-Reply-To: <B41635854730A14CA71C92B36EC22AAC06CFA6@mssmsx411>
-References: <B41635854730A14CA71C92B36EC22AAC06CFA6@mssmsx411>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ananiev, Leonid I writes:
- > Nikita Danilov writes:
- > > Exactly to the contrary: as I explained to you, if you have more
- > devices
- > > than pdflush threads
- > I do not believe that Bret Towe has more devices than
- > MAX_PDFLUSH_THREADS=8.
+On Wed, 05 Jul 2006 11:39:11 -0700 (PDT) David Miller wrote:
 
-Some people do, should they suffer? :-)
+> From: Horst von Brand <vonbrand@inf.utfsm.cl>
+> Date: Tue, 04 Jul 2006 10:17:23 -0400
+> 
+> > Looking at the relevant file, it seems the offending functions are for PCI
+> > only (and my SparcStation Ultra 1 sure doesn't have any PCI in it, so this
+> > is disabled in the configuration). Maybe the #endif is too early?
+> 
+> Yes, I'm still thinking how to fix this.
 
- > 
- > > See how wbc.nr_to_write is set up by balance_dirty_pages().
- > It is number TO write but I said about number after what user has to
- > write-out all dirty pages. 
+Do you mean a generalized arch-independent fix?
 
-Not _all_, only nr_to_write of them:
+> Turn CONFIG_PCI on as a workaround for now.
 
-			if (pages_written >= write_chunk)
-				break;		/* We've done our duty */
+Good plan.  With CONFIG_PCI still off and a patch for the above
+problem, next CONFIG_PCI=n issue is this one:
 
- > 
- > > imagine that MAX_PDFLUSH_THREADS equals 1
- > Imagine that CONFIG_NR_CPUS=1 for smp.
- > Kernel has a lot of "big enough" constants.
+/var/linsrc/linux-2617-g24/arch/sparc64/kernel/time.c: In function `clock_probe':
+/var/linsrc/linux-2617-g24/arch/sparc64/kernel/time.c:795: error: invalid lvalue in assignment
 
-Then why introduce more of them?
 
-In current design each thread is responsible for write-out. This means
-that write-out concurrency level scales together with the number of
-writers. You propose to limit write-out concurrency by
-MAX_PDFLUSH_THREADS. Obviously this is an artificial limit that will be
-sub-optimal sometimes.
-
- > 
- > Leonid
-
-Nikita.
+---
+~Randy

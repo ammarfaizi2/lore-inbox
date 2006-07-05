@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWGEDNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWGEDVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWGEDNg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jul 2006 23:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWGEDNg
+	id S932313AbWGEDVq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jul 2006 23:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWGEDVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jul 2006 23:13:36 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:50785 "EHLO
-	asav06.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S932252AbWGEDNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jul 2006 23:13:36 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Aa4HAP7IqkSBSg
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Shem Multinymous <multinymous@gmail.com>
-Subject: Re: [Hdaps-devel] Generic interface for accelerometers (AMS, HDAPS, ...)
-Date: Tue, 4 Jul 2006 23:13:22 -0400
-User-Agent: KMail/1.9.3
-Cc: Pavel Machek <pavel@ucw.cz>, Henrique de Moraes Holschuh <hmh@debian.org>,
-       Stelian Pop <stelian@popies.net>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>,
-       hdaps-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-References: <20060703124823.GA18821@khazad-dum.debian.net> <20060704075950.GA13073@elf.ucw.cz> <41840b750607040326y7bfe92dy21c6845ab034ce30@mail.gmail.com>
-In-Reply-To: <41840b750607040326y7bfe92dy21c6845ab034ce30@mail.gmail.com>
+	Tue, 4 Jul 2006 23:21:46 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:21192 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932313AbWGEDVp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jul 2006 23:21:45 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alasdair G Kergon <agk@redhat.com>
+Subject: Re: [PATCH 01/15] dm: support ioctls on mapped devices
+Date: Wed, 5 Jul 2006 05:22:07 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Milan Broz <mbroz@redhat.com>
+References: <20060621193121.GP4521@agk.surrey.redhat.com>
+In-Reply-To: <20060621193121.GP4521@agk.surrey.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200607042313.27627.dtor@insightbb.com>
+Message-Id: <200607050522.08063.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 July 2006 06:26, Shem Multinymous wrote:
-> 
-> BTW, can the driver tell when nothing is accessing its input device,
-> and avoid polling in that case?
-> 
+Am Wednesday 21 June 2006 21:31 schrieb Alasdair G Kergon:
+>  static struct block_device_operations dm_blk_dops = {
+>         .open = dm_blk_open,
+>         .release = dm_blk_close,
+> +       .ioctl = dm_blk_ioctl,
+>         .getgeo = dm_blk_getgeo,
+>         .owner = THIS_MODULE
 
-Yes (->open is called when there is a client opening one of the input
-interfaces), but I don't think that "oh shit I dropped my laptop" events
-belong to input layer.
+I guess this also needs a ->compat_ioctl method, otherwise it won't
+work for ioctl numbers that have a compat_ioctl implementation in the
+low-level device driver.
 
--- 
-Dmitry
+	Arnd <><

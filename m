@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbWGELyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWGELx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbWGELyG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 07:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWGELyG
+	id S964827AbWGELx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 07:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWGELxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 07:54:06 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:35600 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S964830AbWGELyE convert rfc822-to-8bit (ORCPT
+	Wed, 5 Jul 2006 07:53:55 -0400
+Received: from mail.tmr.com ([64.65.253.246]:14293 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S964828AbWGELxz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 07:54:04 -0400
+	Wed, 5 Jul 2006 07:53:55 -0400
+Message-ID: <44ABA8D5.3020907@tmr.com>
+Date: Wed, 05 Jul 2006 07:56:05 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 05 Jul 2006 11:54:02.0642 (UTC) FILETIME=[B5895F20:01C6A029]
-Content-class: urn:content-classes:message
-Subject: Re: possible dos / wsize affected frozen connection length (was: Re: 2.6.17.1: fails to fully get webpage)
-Date: Wed, 5 Jul 2006 07:54:01 -0400
-Message-ID: <Pine.LNX.4.61.0607050743470.30694@chaos.analogic.com>
-In-Reply-To: <20060705005540.GL2344@zip.com.au>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: possible dos / wsize affected frozen connection length (was: Re: 2.6.17.1: fails to fully get webpage)
-thread-index: AcagKbWQxwjn7oSrSR2vTD4bwTwYBQ==
-References: <20060629015915.GH2149@zip.com.au> <20060628.194627.74748190.davem@davemloft.net> <20060629030923.GI2149@zip.com.au> <20060628.204709.41634813.davem@davemloft.net> <20060629041827.GJ2149@zip.com.au> <44A3E898.1020202@tmr.com> <20060629225039.GO2149@zip.com.au> <20060705005540.GL2344@zip.com.au>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "CaT" <cat@zip.com.au>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Avi Kivity <avi@argo.co.il>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, Tomasz Torcz <zdzichu@irc.pl>,
+       Helge Hafting <helgehaf@aitel.hist.no>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features (checksums)
+References: <17578.4725.914746.951778@cse.unsw.edu.au> <44AA262E.906@argo.co.il>
+In-Reply-To: <44AA262E.906@argo.co.il>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Avi Kivity wrote:
+> Neil Brown wrote:
+>>
+>> On Tuesday July 4, avi@argo.co.il wrote:
+>> > Neil Brown wrote:
+>> > >
+>> > > To my mind, the only thing you should put between the filesystem and
+>> > > the raw devices is RAID (real-raid - not raid0 or linear).
+>> > >
+>> > I believe that implementing RAID in the filesystem has many benefits 
+>> too:
+>> >  - multiple RAID levels: store metadata in triple-mirror RAID 1, random
+>> > write intensive data in RAID 1, bulk data in RAID 5/6
+>> >  - improved write throughput - since stripes can be variable size, any
+>> > large enough write fills a whole stripe
+>>
+>> Maybe....
+>>
+>> Now imagine what would be required to rebuild a whole drive onto a
+>> spare after a drive failure.
+>>
+>> I'm sure it is possible, and I believe ZFS does something like that.
+>> I find it hard to imagine getting reasonable speed if there is much
+>> complexity.  And the longer it takes, the longer your data is exposed
+>> to multiple-failures.
+>>
+> 
+> A company called Isilon does this on a cluster.  They claim (IIRC) a one 
+> hour rebuild time for a failure.  AFAIK they rebuild into cluster free 
+> space, so they are not bound by the spare's bandwidth; they can utilize 
+> all cluster resources for a rebuild.
+> 
+> (You don't need spare disks, just spare free space; so you don't have 
+> idle disk heads)
+> 
+Readers of the RAID list will recognize this description, it matches my 
+comments on RAID5E (distributed hot spare) very well. And I suppose 
+there could be RAID6E as well, although I haven't really thought about it.
 
-On Tue, 4 Jul 2006, CaT wrote:
+-- 
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.
 
-> On Fri, Jun 30, 2006 at 08:50:39AM +1000, CaT wrote:
->> Another datapoint to this is that I've had this my netcat web test
->> running since 8:42pm yesterday. It's 8:37am now. It hasn't progressed
->> in any way. It hasn't quit. It hasn't timed out. It just sits there,
->> hung. This leads me to consider the possibility of a DOS, either
->> intentional or accidental (think about 2.6.17.x running on a mail server
->> and someone mails/spams from a broken place).
->
-> I'm just wondering if connections hanging around this long are normal.
-> The above has now been running for 6 days. netstat is still reporting an
-> established session. netcat has not timed out. It's all just sitting
-> there doing nothing.
->
-> --
->    "To the extent that we overreact, we proffer the terrorists the
->    greatest tribute."
->    	- High Court Judge Michael Kirby
-
-TCP/IP connections can continue forever. That's one of the reasons why
-Berkeley sockets has SO_KEEPALIVE for a socket option. In the absence
-of such an option, the physical connection can be broken for a week,
-reconnected, then the session can continue.
-
-In your case, you probably have a real error in which one end of the
-connection crashed. However, until the other end shuts down that
-socket, the connection is logically correct and should not be
-forcefully terminated.
-
-A DOS is unlikely because with no data being transferred, little
-non-swapable resources are used. You can control the maximum number
-of connections allowed from a host with your firewall software
-(like iptables).
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.86 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

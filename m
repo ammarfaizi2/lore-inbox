@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWGEMTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWGEMVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbWGEMTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 08:19:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWGEMTJ
+	id S964836AbWGEMVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 08:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWGEMVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 08:19:09 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:15877 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S964832AbWGEMTI (ORCPT
+	Wed, 5 Jul 2006 08:21:42 -0400
+Received: from mail.tmr.com ([64.65.253.246]:39399 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S964836AbWGEMVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 08:19:08 -0400
-Message-ID: <44ABAE38.7080107@argo.co.il>
-Date: Wed, 05 Jul 2006 15:19:04 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 5 Jul 2006 08:21:42 -0400
+Message-ID: <44ABAF7D.8010200@tmr.com>
+Date: Wed, 05 Jul 2006 08:24:29 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, Tomasz Torcz <zdzichu@irc.pl>,
-       Helge Hafting <helgehaf@aitel.hist.no>,
+To: Theodore Tso <tytso@mit.edu>,
        Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features (checksums)
-References: <44ABAB2D.5050305@tmr.com>
-In-Reply-To: <44ABAB2D.5050305@tmr.com>
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060704010240.GD6317@thunk.org>
+In-Reply-To: <20060704010240.GD6317@thunk.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jul 2006 12:19:05.0803 (UTC) FILETIME=[357D89B0:01C6A02D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
->
-> > I believe that implementing RAID in the filesystem has many benefits 
-> too:
-> > - multiple RAID levels: store metadata in triple-mirror RAID 1, random
-> > write intensive data in RAID 1, bulk data in RAID 5/6
-> > - improved write throughput - since stripes can be variable size, any
-> > large enough write fills a whole stripe
-> >
-> I rather like the idea of allowing metadata to be on another device in
-> general, or at least the inodes. That way a very small chunk size can be
-> used for the inodes, to spread head motion, while a larger chunk size is
-> appropriate for data in some cases.
->
+Theodore Tso wrote:
+> On Sat, Jul 01, 2006 at 06:33:01PM +0200, Thomas Glanzmann wrote:
+>> I would like to know which new features are planed to be incorported by
+>> ext4. So far I only read about supporting bigger filesystems to fit
+>> recent hardware developments. So are there any other big goals for ext4?
+> 
+> Some of the ideas which have been tossed about include:
+> 
+> 	* nanosecond timestamps, and support for time beyond the 2038
 
-If your workload is metadata intensive, your data disks are idle; if 
-you're reading data, the inode device is gathering dust. You can run out 
-of inodes before you run out of space and vice-versa. Very suboptimal.
+The 2nd one is probably more urgent than the first. I can see a general 
+benefit from timestamp in ms, beyond that seems to be a specialty 
+requirement best provided at the application level rather than the bits 
+of a trillion inodes which need no such thing.
 
-A symmetric configuration allows full use of all resources for any 
-workload, at the cost of increased complexity - every extent has its own 
-RAID level and RAID component devices.
-
-> Larger max block sizes would be useful as well. Feel free to discuss the
-> actual value of "larger."
->
-
-Filesystems should use extents, not blocks, avoiding the block size 
-tradeoff entirely.
+One argument against it is that with SMP with *almost* the same time in 
+each CPU, cache everywhere in the i/o process, and various flavors of 
+network filesystems, the atime/mtime become less and less useful for 
+determining with great precision which file is most recently modified or 
+accessed.
 
 -- 
-error compiling committee.c: too many arguments to function
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.
 

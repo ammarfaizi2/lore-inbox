@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWGEVmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbWGEVmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbWGEVmh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 17:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWGEVmh
+	id S965044AbWGEVmj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 17:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWGEVmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 17:42:37 -0400
-Received: from pat.uio.no ([129.240.10.4]:7406 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S965041AbWGEVmg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 17:42:36 -0400
-Subject: Re: ext4 features
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <44AC2D9A.7020401@tmr.com>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
-	 <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com>
-	 <20060705125956.GA529@fieldses.org>
-	 <1152128033.22345.17.camel@lade.trondhjem.org>  <44AC2D9A.7020401@tmr.com>
+	Wed, 5 Jul 2006 17:42:39 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50394 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965044AbWGEVmi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 17:42:38 -0400
+Subject: Re: OSS driver removal, 2nd round
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Stefan Smietanowski <stesmi@stesmi.com>, Bill Davidsen <davidsen@tmr.com>,
+       =?UTF-8?Q?=C4=B0smail_D=C3=B6nmez?= <ismail@pardus.org.tr>,
+       alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
+       Olivier Galibert <galibert@pobox.com>, Adrian Bunk <bunk@stusta.de>,
+       Olaf Hering <olh@suse.de>, James Courtier-Dutton <James@superbug.co.uk>,
+       perex@suse.cz
+In-Reply-To: <1152128058.15837.130.camel@mindpipe>
+References: <20060629192128.GE19712@stusta.de>
+	 <200607010042.15765.ismail@pardus.org.tr>
+	 <1151704572.32444.74.camel@mindpipe>
+	 <200607010249.05140.ismail@pardus.org.tr> <44A99C72.7070602@tmr.com>
+	 <44AB69FA.4090305@stesmi.com>  <1152128058.15837.130.camel@mindpipe>
 Content-Type: text/plain
-Date: Wed, 05 Jul 2006 17:42:20 -0400
-Message-Id: <1152135740.22345.42.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.806, required 12,
-	autolearn=disabled, AWL 1.19, UIO_MAIL_IS_INTERNAL -5.00)
+Date: Wed, 05 Jul 2006 22:56:51 +0100
+Message-Id: <1152136611.6533.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-05 at 17:22 -0400, Bill Davidsen wrote:
-> Consider the case where the build machine reads source from one network 
-> filesystem and write the binary result to another on another machine. If 
-> you know that I have the kernel source on a file server, do the compiles 
-> on a compute server, and store the binaries on three test machines for 
-> evaluation, you might guess this really can happen. Just increasing the 
-> timestamp may not solve the problem, unless you have a system call to 
-> set timestamp over network f/s, like a high resolution touch.
+Ar Mer, 2006-07-05 am 15:34 -0400, ysgrifennodd Lee Revell:
+> > v4l != alsa. :) 
+> 
+> A user visible API is being removed in 2.6.18?  Really?
+> 
+> I thought the rule was that 2.6 is a stable series therefore no
+> user-visible API changes were allowed.
 
-If you are running 'touch' manually on all your files, you can always
-arrange to set the timestamp to something more recent. You don't
-normally need a high resolution version of utimes() (and SuSv3 won't
-provide you with one).
-
-Cheers,
-  Trond
+V4L2 has a translation layer
 

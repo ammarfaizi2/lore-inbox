@@ -1,92 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWGEUu3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWGEUuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbWGEUu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 16:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbWGEUu3
+	id S964897AbWGEUuE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 16:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWGEUuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 16:50:29 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:7813 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964896AbWGEUu0 (ORCPT
+	Wed, 5 Jul 2006 16:50:04 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:60389 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964897AbWGEUuC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 16:50:26 -0400
-Date: Wed, 5 Jul 2006 22:45:50 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch] uninline init_waitqueue_*() functions
-Message-ID: <20060705204550.GA15221@elte.hu>
-References: <20060705084914.GA8798@elte.hu> <20060705023120.2b70add6.akpm@osdl.org> <20060705093259.GA11237@elte.hu> <20060705025349.eb88b237.akpm@osdl.org> <20060705102633.GA17975@elte.hu> <20060705113054.GA30919@elte.hu> <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org>
+	Wed, 5 Jul 2006 16:50:02 -0400
+Date: Wed, 5 Jul 2006 13:46:14 -0700
+From: Greg KH <greg@kroah.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6
+Message-ID: <20060705204614.GA24181@kroah.com>
+References: <20060703030355.420c7155.akpm@osdl.org> <200607032250.02054.s0348365@sms.ed.ac.uk> <20060703163121.4ea22076.akpm@osdl.org> <200607040934.14592.s0348365@sms.ed.ac.uk> <20060704014908.9782c85f.akpm@osdl.org> <1152131834.24656.57.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060705131824.52fa20ec.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <1152131834.24656.57.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> > > > i also tried a config with the best size settings (disabling 
-> > > > FRAME_POINTER, enabling CC_OPTIMIZE_FOR_SIZE), and this gives:
-> > > > 
-> > > >   text            data    bss     dec         filename
-> > > >   20777768        6076042 3081864 29935674    vmlinux.x32.size.before
-> > > >   20748140        6076178 3081864 29906182    vmlinux.x32.size.after
-> > > > 
-> > > > or a 34.8 bytes win per callsite (29K total).
-> > > > 
+On Wed, Jul 05, 2006 at 01:37:13PM -0700, john stultz wrote:
+> On Tue, 2006-07-04 at 01:49 -0700, Andrew Morton wrote:
+> > On Tue, 4 Jul 2006 09:34:14 +0100
+> > Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > > > a tested version...
 > > > 
-> > > With gcc-4.1.0 on i686, uninlining those three functions as per the 
-> > > below patch _increases_ the allnoconfig vmlinux's .text from 833456 
-> > > bytes to 833728.
+> > > This one worked, thanks. Try the same URL again, I've uploaded two better 
+> > > shots 6,7 that capture the first oops. Unfortunately, I have a pair of oopses 
+> > > that interchange every couple of boots, so I've included both ;-)
 > > 
-> > that's just the effect of CONFIG_REGPARM and CONFIG_CC_OPTIMIZE_FOR_SIZE 
-> > not being set in an allnoconfig. Once i set them the text size evens 
-> > out:
+> > OK, that's more like it.  Thanks again.
 > > 
-> >  431348   60666   27276  519290   7ec7a vmlinux.x32.mini.before
-> >  431359   60666   27276  519301   7ec85 vmlinux.x32.mini.after
+> > http://devzero.co.uk/~alistair/oops-20060703/oops6.jpg
+> > http://devzero.co.uk/~alistair/oops-20060703/oops7.jpg
 > > 
-> > compiling without CONFIG_REGPARM on i686 (if you care about text size) 
-> > makes little sense. It penalizes function calls artificially.
+> > People cc'ed.  Help!
 > 
-> OK, but what happened to the 35-bytes-per-callsite saving?
+> Hmmm. No clue on this one from just looking at it.
+> 
+> Greg, do you see anything wrong with the way I'm registering the
+> timekeeping .resume hook in kernel/timer.c::timekeeping_init_device()?
+> It looks the same as the other users to me.
 
-there are 3 effects i can see:
+At first glance, no, it looks sane to me.
 
-firstly, allnoconfig implies SMP off, so the spinlock init in 
-init_waitqueue_head() is not done and it becomes a 2-instruction thing.
+Are you sure you aren't registering two things with the same name
+somehow?
 
-secondly, the savings depend on the function size. Uninlining from a 
-small function (that makes use of the inlined function) can be a loss if 
-the function call causes more register clobbering. For large functions 
-we clobber all registers anyway so there's no extra stack saving, etc. 
+thanks,
 
-the allnoconfig kernel makes use of these waitqueue ops in smaller 
-kernel-core functions as well, where the uninlining is a loss. 
-(sleep_on(), etc.) Furthermore, UP kernel tends to decrease function 
-sizes too.
-
-larger kernel configs include more non-core subsystems/drivers as well, 
-which tend to have larger function sizes. There the uninlining win is 
-larger.
-
-there's a third, smaller effect too: gcc manages to do tail-merging of 
-the init_waitqueue_head calls, in a handful of cases, further reducing 
-the cost. I found no such tail-merges done for the 53 callsites in the 
-allnoconfig kernel.
-
-	Ingo
+greg k-h

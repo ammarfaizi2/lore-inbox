@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWGEH4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWGEH7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbWGEH4F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 03:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWGEH4F
+	id S932310AbWGEH7K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 03:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWGEH7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 03:56:05 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:30377 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932324AbWGEH4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 03:56:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dYTpL7mEW688NqQmaHaixiAwPz1YNLGnXupogIEu8YJfo/bKYn/kIU4+g8/+WqPFk41CVKSwYnMfdv3LJdlsBVNt/opcDVFGfItLgP4oufBezE+pLjCFzRTckCULLw6zJhnhwIKq5L3zBGnQj6mSJEJ+G/Cbrymd5CvRE0N7v8E=
-Message-ID: <a44ae5cd0607050056g6a17f676sc766fc79cbd65951@mail.gmail.com>
-Date: Wed, 5 Jul 2006 00:56:03 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: 2.6.17-mm4 + hostap + pcmcia + lockdep -- possible recursive locking detected -- (af_callback_keys + sk->sk_family#3){-.-?}, at: [<c119d8db>] sock_def_readable+0x15/0x69
-Cc: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       "Arjan van de Ven" <arjan@infradead.org>
-In-Reply-To: <20060703061030.GA16046@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 5 Jul 2006 03:59:10 -0400
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:2320 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932310AbWGEH7J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 03:59:09 -0400
+Date: Wed, 5 Jul 2006 09:59:06 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Henrique de Moraes Holschuh <hmh@debian.org>,
+       Michael Hanselmann <linux-kernel@hansmi.ch>,
+       hdaps-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       lm-sensors@lm-sensors.org, Stelian Pop <stelian@popies.net>,
+       vojtech@suse.cz
+Subject: Re: [lm-sensors] Generic interface for accelerometers (AMS, HDAPS,
+ ...)
+Message-Id: <20060705095906.bf61fef8.khali@linux-fr.org>
+In-Reply-To: <20060704235717.GD11872@elf.ucw.cz>
+References: <20060703124823.GA18821@khazad-dum.debian.net>
+	<20060704075950.GA13073@elf.ucw.cz>
+	<20060704162346.GE9447@khazad-dum.debian.net>
+	<20060704235717.GD11872@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a44ae5cd0607011804i2326c350ta6262feec1e6805e@mail.gmail.com>
-	 <20060702132946.GA25420@elte.hu> <20060702133451.GA27425@elte.hu>
-	 <a44ae5cd0607022308n646af3dh836df90b31e60dc@mail.gmail.com>
-	 <20060703061030.GA16046@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/2/06, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Miles Lane <miles.lane@gmail.com> wrote:
->
-> > >> ok, lockdep should allow same-class read-lock recursion too, because
-> > >> it's used by real code and is being relied upon. Could you try the patch
-> > >> below? [...]
-> > >
-> > >the patches are also included in the latest -mm5 combo patch at:
-> > >
-> > >  http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-mm5.patch
-> >
-> > I have not seen this particular INFO message show up again.
->
-> you know that the validator produces only one message per bootup, right?
-> So unless you rebooted meanwhile, not seeing more messages after the
-> first one is normal.
->
-> > Therefore, I haven't tested your latest patch yet.  I wanted to
-> > determine whether this problem would occur often.  If you like I can
-> > go ahead and test the patch anyhow.  I am currently testing mm5 + the
-> > pcmcia patch and the hostap patch.  I am looking into a crashing
-> > (system lockup) bug that is triggered by removing my Linksys USB
-> > 10/100 Ethernet adapter.  This problem is 100% repeatable.  I am
-> > working on setting up a remote debugging configuration.
-> >
-> > Would you like me to go ahead and test your latest patch?
->
-> no hurries - just pick it up whenever you go to a new kernel.
+(Does this conversation really need to happen on 3 different mailing
+lists at once?)
 
-Looks good here.  Thanks!
+> > 3. Control of accelerometer parameters:
+> >    3a. Report of accelerometer type (hdaps, ams, etc) and other metadata
+> >        (name, location, what it is measuring (system accel, hd-bay 
+> >        accel...))
+> 
+> Well, if your system is accelerating at different speed than hd-bay,
+> then your machine is either _way_ too big, or you are in bad trouble.
 
-           Miles
+Not necessarily. If the system is spinning, each point has its own
+acceleration vector. Having two accelerometers in a system would be a
+convenient way to detect that kind of movement, and I wouldn't be
+surprised to see it happen.
+
+-- 
+Jean Delvare

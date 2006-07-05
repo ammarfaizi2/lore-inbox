@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWGENYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWGENY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964858AbWGENYz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 09:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbWGENYz
+	id S964855AbWGENY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 09:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWGENY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 09:24:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53158 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964856AbWGENYk (ORCPT
+	Wed, 5 Jul 2006 09:24:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52390 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964855AbWGENYk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 5 Jul 2006 09:24:40 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 5/5] FRV: Introduce asm-offsets for FRV arch
-Date: Wed, 05 Jul 2006 14:24:19 +0100
+Subject: [PATCH 4/5] [PATCH] FDPIC: Add coredump capability for the ELF-FDPIC binfmt
+Date: Wed, 05 Jul 2006 14:24:16 +0100
 To: torvalds@osdl.org, akpm@osdl.org, bernds_cb1@t-online.de
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060705132419.31510.92219.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060705132416.31510.13513.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060705132409.31510.22698.stgit@warthog.cambridge.redhat.com>
 References: <20060705132409.31510.22698.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,1142 +25,809 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Introduce the use of asm-offsets into the FRV architecture.
+Add coredump capability for the ELF-FDPIC binfmt.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- arch/frv/kernel/asm-offsets.c |  116 ++++++++++++++++++++++++++++++
- arch/frv/kernel/break.S       |   35 +++++----
- arch/frv/kernel/debug-stub.c  |   13 ++-
- arch/frv/kernel/entry.S       |    2 -
- arch/frv/kernel/gdb-stub.c    |  159 +++++++++++++++++++++++------------------
- arch/frv/kernel/head.S        |    1 
- arch/frv/kernel/process.c     |    3 +
- arch/frv/kernel/switch_to.S   |    4 +
- arch/frv/kernel/traps.c       |   25 +++---
- include/asm-frv/gdb-stub.h    |   22 ++++++
- include/asm-frv/ptrace.h      |   12 +--
- include/asm-frv/registers.h   |   97 ++++++++++---------------
- include/asm-frv/thread_info.h |   24 +-----
- 13 files changed, 316 insertions(+), 197 deletions(-)
+ arch/frv/kernel/process.c |    8 +
+ fs/binfmt_elf_fdpic.c     |  681 +++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-frv/elf.h     |    6 
+ include/linux/elfcore.h   |   10 +
+ 4 files changed, 697 insertions(+), 8 deletions(-)
 
-diff --git a/arch/frv/kernel/asm-offsets.c b/arch/frv/kernel/asm-offsets.c
-index 9e26311..fbb19fc 100644
---- a/arch/frv/kernel/asm-offsets.c
-+++ b/arch/frv/kernel/asm-offsets.c
-@@ -1 +1,115 @@
--/* Dummy asm-offsets.c file. Required by kbuild and ready to be used - hint! */
-+/*
-+ * Generate definitions needed by assembly language modules.
-+ * This code generates raw asm output which is post-processed
-+ * to extract and format the required data.
-+ */
-+
-+#include <linux/sched.h>
-+#include <linux/signal.h>
-+#include <linux/personality.h>
-+#include <asm/registers.h>
-+#include <asm/ucontext.h>
-+#include <asm/processor.h>
-+#include <asm/thread_info.h>
-+#include <asm/gdb-stub.h>
-+
-+#define DEFINE(sym, val) \
-+        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-+
-+#define DEF_PTREG(sym, reg) \
-+        asm volatile("\n->" #sym " %0 offsetof(struct pt_regs, " #reg ")" \
-+		     : : "i" (offsetof(struct pt_regs, reg)))
-+
-+#define DEF_IREG(sym, reg) \
-+        asm volatile("\n->" #sym " %0 offsetof(struct user_context, " #reg ")" \
-+		     : : "i" (offsetof(struct user_context, reg)))
-+
-+#define DEF_FREG(sym, reg) \
-+        asm volatile("\n->" #sym " %0 offsetof(struct user_context, " #reg ")" \
-+		     : : "i" (offsetof(struct user_context, reg)))
-+
-+#define DEF_0REG(sym, reg) \
-+        asm volatile("\n->" #sym " %0 offsetof(struct frv_frame0, " #reg ")" \
-+		     : : "i" (offsetof(struct frv_frame0, reg)))
-+
-+#define BLANK() asm volatile("\n->" : : )
-+
-+#define OFFSET(sym, str, mem) \
-+	DEFINE(sym, offsetof(struct str, mem));
-+
-+void foo(void)
-+{
-+	/* offsets into the thread_info structure */
-+	OFFSET(TI_TASK,			thread_info, task);
-+	OFFSET(TI_EXEC_DOMAIN,		thread_info, exec_domain);
-+	OFFSET(TI_FLAGS,		thread_info, flags);
-+	OFFSET(TI_STATUS,		thread_info, status);
-+	OFFSET(TI_CPU,			thread_info, cpu);
-+	OFFSET(TI_PREEMPT_COUNT,	thread_info, preempt_count);
-+	OFFSET(TI_ADDR_LIMIT,		thread_info, addr_limit);
-+	OFFSET(TI_RESTART_BLOCK,	thread_info, restart_block);
-+	BLANK();
-+
-+	/* offsets into register file storage */
-+	DEF_PTREG(REG_PSR,		psr);
-+	DEF_PTREG(REG_ISR,		isr);
-+	DEF_PTREG(REG_CCR,		ccr);
-+	DEF_PTREG(REG_CCCR,		cccr);
-+	DEF_PTREG(REG_LR,		lr);
-+	DEF_PTREG(REG_LCR,		lcr);
-+	DEF_PTREG(REG_PC,		pc);
-+	DEF_PTREG(REG__STATUS,		__status);
-+	DEF_PTREG(REG_SYSCALLNO,	syscallno);
-+	DEF_PTREG(REG_ORIG_GR8,		orig_gr8);
-+	DEF_PTREG(REG_GNER0,		gner0);
-+	DEF_PTREG(REG_GNER1,		gner1);
-+	DEF_PTREG(REG_IACC0,		iacc0);
-+	DEF_PTREG(REG_TBR,		tbr);
-+	DEF_PTREG(REG_GR0,		tbr);
-+	DEFINE(REG__END,		sizeof(struct pt_regs));
-+	BLANK();
-+
-+	DEF_0REG(REG_DCR,		debug.dcr);
-+	DEF_0REG(REG_IBAR0,		debug.ibar[0]);
-+	DEF_0REG(REG_DBAR0,		debug.dbar[0]);
-+	DEF_0REG(REG_DBDR00,		debug.dbdr[0][0]);
-+	DEF_0REG(REG_DBMR00,		debug.dbmr[0][0]);
-+	BLANK();
-+
-+	DEF_IREG(__INT_GR0,		i.gr[0]);
-+	DEF_FREG(__USER_FPMEDIA,	f);
-+	DEF_FREG(__FPMEDIA_FR0,		f.fr[0]);
-+	DEF_FREG(__FPMEDIA_FNER0,	f.fner[0]);
-+	DEF_FREG(__FPMEDIA_MSR0,	f.msr[0]);
-+	DEF_FREG(__FPMEDIA_ACC0,	f.acc[0]);
-+	DEF_FREG(__FPMEDIA_ACCG0,	f.accg[0]);
-+	DEF_FREG(__FPMEDIA_FSR0,	f.fsr[0]);
-+	BLANK();
-+
-+	DEFINE(NR_PT_REGS,		sizeof(struct pt_regs) / 4);
-+	DEFINE(NR_USER_INT_REGS,	sizeof(struct user_int_regs) / 4);
-+	DEFINE(NR_USER_FPMEDIA_REGS,	sizeof(struct user_fpmedia_regs) / 4);
-+	DEFINE(NR_USER_CONTEXT,		sizeof(struct user_context) / 4);
-+	DEFINE(FRV_FRAME0_SIZE,		sizeof(struct frv_frame0));
-+	BLANK();
-+
-+	/* offsets into thread_struct */
-+	OFFSET(__THREAD_FRAME,		thread_struct, frame);
-+	OFFSET(__THREAD_CURR,		thread_struct, curr);
-+	OFFSET(__THREAD_SP,		thread_struct, sp);
-+	OFFSET(__THREAD_FP,		thread_struct, fp);
-+	OFFSET(__THREAD_LR,		thread_struct, lr);
-+	OFFSET(__THREAD_PC,		thread_struct, pc);
-+	OFFSET(__THREAD_GR16,		thread_struct, gr[0]);
-+	OFFSET(__THREAD_SCHED_LR,	thread_struct, sched_lr);
-+	OFFSET(__THREAD_FRAME0,		thread_struct, frame0);
-+	OFFSET(__THREAD_USER,		thread_struct, user);
-+	BLANK();
-+
-+	/* offsets into frv_debug_status */
-+	OFFSET(DEBUG_BPSR,		frv_debug_status, bpsr);
-+	OFFSET(DEBUG_DCR,		frv_debug_status, dcr);
-+	OFFSET(DEBUG_BRR,		frv_debug_status, brr);
-+	OFFSET(DEBUG_NMAR,		frv_debug_status, nmar);
-+	BLANK();
-+}
-diff --git a/arch/frv/kernel/break.S b/arch/frv/kernel/break.S
-index ea161f0..8d44b39 100644
---- a/arch/frv/kernel/break.S
-+++ b/arch/frv/kernel/break.S
-@@ -9,11 +9,12 @@
-  * 2 of the License, or (at your option) any later version.
-  */
- 
--#include <linux/sys.h>
-+#include <linux/config.h>
- #include <linux/linkage.h>
- #include <asm/setup.h>
- #include <asm/segment.h>
- #include <asm/ptrace.h>
-+#include <asm/thread_info.h>
- #include <asm/spr-regs.h>
- 
- #include <asm/errno.h>
-@@ -23,13 +24,11 @@ # the break handler has its own stack
- #
- 	.section	.bss.stack
- 	.globl		__break_user_context
--	.balign		8192
-+	.balign		THREAD_SIZE
- __break_stack:
--	.space		(8192 - (USER_CONTEXT_SIZE + REG__DEBUG_XTRA)) & ~7
--__break_stack_tos:
--	.space		REG__DEBUG_XTRA
--__break_user_context:
--	.space		USER_CONTEXT_SIZE
-+	.space		THREAD_SIZE - FRV_FRAME0_SIZE
-+__break_frame_0:
-+	.space		FRV_FRAME0_SIZE
- 
- #
- # miscellaneous variables
-@@ -74,8 +73,8 @@ #ifdef CONFIG_MMU
- #endif
- 	LEDS		0x1001,gr31
- 
--	sethi.p		%hi(__break_user_context),gr31
--	setlo		%lo(__break_user_context),gr31
-+	sethi.p		%hi(__break_frame_0),gr31
-+	setlo		%lo(__break_frame_0),gr31
- 
- 	stdi		gr2,@(gr31,#REG_GR(2))
- 	movsg		ccr,gr3
-@@ -585,8 +584,8 @@ __break_continue:
- 	# set up the kernel stack pointer
- 	sti		sp,@(gr31,#REG_SP)
- 
--	sethi.p		%hi(__break_stack_tos),sp
--	setlo		%lo(__break_stack_tos),sp
-+	sethi.p		%hi(__break_frame_0),sp
-+	setlo		%lo(__break_frame_0),sp
- 
- 	# finish building the exception frame
- 	stdi		gr4 ,@(gr31,#REG_GR(4))
-@@ -651,9 +650,12 @@ #endif
- 	movsg		nmar,gr5
- 	movsg		dcr,gr6
- 
--	stdi		gr4 ,@(gr31,#REG_BRR)
--	sti		gr19,@(gr31,#REG_BPSR)
--	sti.p		gr6 ,@(gr31,#REG_DCR)
-+	sethi.p		%hi(__debug_status),gr7
-+	setlo		%lo(__debug_status),gr7
-+
-+	stdi		gr4 ,@(gr7,#DEBUG_BRR)
-+	sti		gr19,@(gr7,#DEBUG_BPSR)
-+	sti.p		gr6 ,@(gr7,#DEBUG_DCR)
- 
- 	# trap exceptions during break handling and disable h/w breakpoints/watchpoints
- 	sethi		%hi(DCR_EBE),gr5
-@@ -698,7 +700,10 @@ #endif
- 	lddi		@(gr31,#REG_PSR) ,gr22
- 	ldi		@(gr31,#REG_PC)  ,gr21
- 	ldi		@(gr31,#REG_TBR) ,gr20
--	ldi.p		@(gr31,#REG_DCR) ,gr6
-+
-+	sethi.p		%hi(__debug_status),gr6
-+	setlo		%lo(__debug_status),gr6
-+	ldi.p		@(gr6,#DEBUG_DCR) ,gr6
- 
- 	andi		gr22,#PSR_S,gr19		/* rebuild BPSR */
- 	andi.p		gr22,#PSR_ET,gr5
-diff --git a/arch/frv/kernel/debug-stub.c b/arch/frv/kernel/debug-stub.c
-index 4761cc4..2f6c60c 100644
---- a/arch/frv/kernel/debug-stub.c
-+++ b/arch/frv/kernel/debug-stub.c
-@@ -39,10 +39,9 @@ do {						\
- 	gdbstub_do_rx();			\
- } while(!FLOWCTL_QUERY(LINE))
- 
--static void __init debug_stub_init(void);
-+struct frv_debug_status __debug_status;
- 
--extern asmlinkage void __break_hijack_kernel_event(void);
--extern asmlinkage void __break_hijack_kernel_event_breaks_here(void);
-+static void __init debug_stub_init(void);
- 
- /*****************************************************************************/
- /*
-@@ -67,7 +66,7 @@ asmlinkage void debug_stub(void)
- 		__set_HSR(0, hsr0 & ~HSR0_ETMD);
- 
- 	/* disable single stepping */
--	__debug_regs->dcr &= ~DCR_SE;
-+	__debug_status.dcr &= ~DCR_SE;
- 
- 	/* kernel mode can propose an exception be handled in debug mode by jumping to a special
- 	 * location */
-@@ -76,8 +75,8 @@ asmlinkage void debug_stub(void)
- 		 * the top kernel context */
- 		*__debug_frame = *__frame;
- 		__frame = __debug_frame->next_frame;
--		__debug_regs->brr = (__debug_frame->tbr & TBR_TT) << 12;
--		__debug_regs->brr |= BRR_EB;
-+		__debug_status.brr = (__debug_frame->tbr & TBR_TT) << 12;
-+		__debug_status.brr |= BRR_EB;
- 	}
- 
- 	if (__debug_frame->pc == (unsigned long) __debug_bug_trap + 4) {
-@@ -124,7 +123,7 @@ static void __init debug_stub_init(void)
- 		__debug_frame->pc = (unsigned long) start_kernel;
- 
- 	/* enable the debug events we want to trap */
--	__debug_regs->dcr = DCR_EBE;
-+	__debug_status.dcr = DCR_EBE;
- 
- #ifdef CONFIG_GDBSTUB
- 	gdbstub_init();
-diff --git a/arch/frv/kernel/entry.S b/arch/frv/kernel/entry.S
-index 2a1ff1f..9823236 100644
---- a/arch/frv/kernel/entry.S
-+++ b/arch/frv/kernel/entry.S
-@@ -27,7 +27,7 @@
-  *
-  */
- 
--#include <linux/sys.h>
-+#include <linux/config.h>
- #include <linux/linkage.h>
- #include <asm/thread_info.h>
- #include <asm/setup.h>
-diff --git a/arch/frv/kernel/gdb-stub.c b/arch/frv/kernel/gdb-stub.c
-index 508601f..9550f37 100644
---- a/arch/frv/kernel/gdb-stub.c
-+++ b/arch/frv/kernel/gdb-stub.c
-@@ -124,6 +124,7 @@ #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/nmi.h>
- 
-+#include <asm/asm-offsets.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
- #include <asm/gdb-stub.h>
-@@ -136,7 +137,6 @@ extern void debug_to_serial(const char *
- extern void gdbstub_console_write(struct console *co, const char *p, unsigned n);
- 
- extern volatile uint32_t __break_error_detect[3]; /* ESFR1, ESR15, EAR15 */
--extern struct user_context __break_user_context;
- 
- struct __debug_amr {
- 	unsigned long L, P;
-@@ -926,6 +926,7 @@ #endif
- 		if (!(__debug_regs->dcr & DCR_IBE0)) {
- 			//gdbstub_printk("set h/w break 0: %08lx\n", addr);
- 			__debug_regs->dcr |= DCR_IBE0;
-+			__debug_regs->ibar[0] = addr;
- 			asm volatile("movgs %0,ibar0" : : "r"(addr));
- 			return 0;
- 		}
-@@ -933,6 +934,7 @@ #endif
- 		if (!(__debug_regs->dcr & DCR_IBE1)) {
- 			//gdbstub_printk("set h/w break 1: %08lx\n", addr);
- 			__debug_regs->dcr |= DCR_IBE1;
-+			__debug_regs->ibar[1] = addr;
- 			asm volatile("movgs %0,ibar1" : : "r"(addr));
- 			return 0;
- 		}
-@@ -940,6 +942,7 @@ #endif
- 		if (!(__debug_regs->dcr & DCR_IBE2)) {
- 			//gdbstub_printk("set h/w break 2: %08lx\n", addr);
- 			__debug_regs->dcr |= DCR_IBE2;
-+			__debug_regs->ibar[2] = addr;
- 			asm volatile("movgs %0,ibar2" : : "r"(addr));
- 			return 0;
- 		}
-@@ -947,6 +950,7 @@ #endif
- 		if (!(__debug_regs->dcr & DCR_IBE3)) {
- 			//gdbstub_printk("set h/w break 3: %08lx\n", addr);
- 			__debug_regs->dcr |= DCR_IBE3;
-+			__debug_regs->ibar[3] = addr;
- 			asm volatile("movgs %0,ibar3" : : "r"(addr));
- 			return 0;
- 		}
-@@ -971,7 +975,14 @@ #endif
- 		if (!(__debug_regs->dcr & (DCR_DRBE0|DCR_DWBE0))) {
- 			//gdbstub_printk("set h/w watchpoint 0 type %ld: %08lx\n", type, addr);
- 			tmp = type==2 ? DCR_DWBE0 : type==3 ? DCR_DRBE0 : DCR_DRBE0|DCR_DWBE0;
-+
- 			__debug_regs->dcr |= tmp;
-+			__debug_regs->dbar[0] = addr;
-+			__debug_regs->dbmr[0][0] = dbmr.mask0;
-+			__debug_regs->dbmr[0][1] = dbmr.mask1;
-+			__debug_regs->dbdr[0][0] = 0;
-+			__debug_regs->dbdr[0][1] = 0;
-+
- 			asm volatile("	movgs	%0,dbar0	\n"
- 				     "	movgs	%1,dbmr00	\n"
- 				     "	movgs	%2,dbmr01	\n"
-@@ -984,7 +995,14 @@ #endif
- 		if (!(__debug_regs->dcr & (DCR_DRBE1|DCR_DWBE1))) {
- 			//gdbstub_printk("set h/w watchpoint 1 type %ld: %08lx\n", type, addr);
- 			tmp = type==2 ? DCR_DWBE1 : type==3 ? DCR_DRBE1 : DCR_DRBE1|DCR_DWBE1;
-+
- 			__debug_regs->dcr |= tmp;
-+			__debug_regs->dbar[1] = addr;
-+			__debug_regs->dbmr[1][0] = dbmr.mask0;
-+			__debug_regs->dbmr[1][1] = dbmr.mask1;
-+			__debug_regs->dbdr[1][0] = 0;
-+			__debug_regs->dbdr[1][1] = 0;
-+
- 			asm volatile("	movgs	%0,dbar1	\n"
- 				     "	movgs	%1,dbmr10	\n"
- 				     "	movgs	%2,dbmr11	\n"
-@@ -1047,6 +1065,7 @@ #define __get_ibar(X) ({ unsigned long x
- 		if (__debug_regs->dcr & DCR_IBE0 && __get_ibar(0) == addr) {
- 			//gdbstub_printk("clear h/w break 0: %08lx\n", addr);
- 			__debug_regs->dcr &= ~DCR_IBE0;
-+			__debug_regs->ibar[0] = 0;
- 			asm volatile("movgs gr0,ibar0");
- 			return 0;
- 		}
-@@ -1054,6 +1073,7 @@ #define __get_ibar(X) ({ unsigned long x
- 		if (__debug_regs->dcr & DCR_IBE1 && __get_ibar(1) == addr) {
- 			//gdbstub_printk("clear h/w break 1: %08lx\n", addr);
- 			__debug_regs->dcr &= ~DCR_IBE1;
-+			__debug_regs->ibar[1] = 0;
- 			asm volatile("movgs gr0,ibar1");
- 			return 0;
- 		}
-@@ -1061,6 +1081,7 @@ #define __get_ibar(X) ({ unsigned long x
- 		if (__debug_regs->dcr & DCR_IBE2 && __get_ibar(2) == addr) {
- 			//gdbstub_printk("clear h/w break 2: %08lx\n", addr);
- 			__debug_regs->dcr &= ~DCR_IBE2;
-+			__debug_regs->ibar[2] = 0;
- 			asm volatile("movgs gr0,ibar2");
- 			return 0;
- 		}
-@@ -1068,6 +1089,7 @@ #define __get_ibar(X) ({ unsigned long x
- 		if (__debug_regs->dcr & DCR_IBE3 && __get_ibar(3) == addr) {
- 			//gdbstub_printk("clear h/w break 3: %08lx\n", addr);
- 			__debug_regs->dcr &= ~DCR_IBE3;
-+			__debug_regs->ibar[3] = 0;
- 			asm volatile("movgs gr0,ibar3");
- 			return 0;
- 		}
-@@ -1104,6 +1126,12 @@ #define __get_dbmr1(X) ({ unsigned long 
- 
- 		//gdbstub_printk("clear h/w watchpoint 0 type %ld: %08lx\n", type, addr);
- 		__debug_regs->dcr &= ~(DCR_DRBE0|DCR_DWBE0);
-+		__debug_regs->dbar[0] = 0;
-+		__debug_regs->dbmr[0][0] = 0;
-+		__debug_regs->dbmr[0][1] = 0;
-+		__debug_regs->dbdr[0][0] = 0;
-+		__debug_regs->dbdr[0][1] = 0;
-+
- 		asm volatile("	movgs	gr0,dbar0	\n"
- 			     "	movgs	gr0,dbmr00	\n"
- 			     "	movgs	gr0,dbmr01	\n"
-@@ -1123,6 +1151,12 @@ #define __get_dbmr1(X) ({ unsigned long 
- 
- 		//gdbstub_printk("clear h/w watchpoint 1 type %ld: %08lx\n", type, addr);
- 		__debug_regs->dcr &= ~(DCR_DRBE1|DCR_DWBE1);
-+		__debug_regs->dbar[1] = 0;
-+		__debug_regs->dbmr[1][0] = 0;
-+		__debug_regs->dbmr[1][1] = 0;
-+		__debug_regs->dbdr[1][0] = 0;
-+		__debug_regs->dbdr[1][1] = 0;
-+
- 		asm volatile("	movgs	gr0,dbar1	\n"
- 			     "	movgs	gr0,dbmr10	\n"
- 			     "	movgs	gr0,dbmr11	\n"
-@@ -1163,7 +1197,7 @@ static void gdbstub_check_breakpoint(voi
-  */
- static void __attribute__((unused)) gdbstub_show_regs(void)
- {
--	uint32_t *reg;
-+	unsigned long *reg;
- 	int loop;
- 
- 	gdbstub_printk("\n");
-@@ -1172,11 +1206,11 @@ static void __attribute__((unused)) gdbs
- 		       __debug_frame,
- 		       __debug_frame->psr & PSR_S ? "kernel" : "user");
- 
--	reg = (uint32_t *) __debug_frame;
--	for (loop = 0; loop < REG__END; loop++) {
--		printk("%s %08x", regnames[loop + 0], reg[loop + 0]);
-+	reg = (unsigned long *) __debug_frame;
-+	for (loop = 0; loop < NR_PT_REGS; loop++) {
-+		printk("%s %08lx", regnames[loop + 0], reg[loop + 0]);
- 
--		if (loop == REG__END - 1 || loop % 5 == 4)
-+		if (loop == NR_PT_REGS - 1 || loop % 5 == 4)
- 			printk("\n");
- 		else
- 			printk(" | ");
-@@ -1191,13 +1225,8 @@ static void __attribute__((unused)) gdbs
-  */
- static void __attribute__((unused)) gdbstub_dump_debugregs(void)
- {
--	unsigned long x;
--
--	x = __debug_regs->dcr;
--	gdbstub_printk("DCR    %08lx  ", x);
--
--	x = __debug_regs->brr;
--	gdbstub_printk("BRR %08lx\n", x);
-+	gdbstub_printk("DCR    %08lx  ", __debug_status.dcr);
-+	gdbstub_printk("BRR    %08lx\n", __debug_status.brr);
- 
- 	gdbstub_printk("IBAR0  %08lx  ", __get_ibar(0));
- 	gdbstub_printk("IBAR1  %08lx  ", __get_ibar(1));
-@@ -1360,7 +1389,7 @@ #else
- #endif
- 	}
- 
--	save_user_regs(&__break_user_context);
-+	save_user_regs(&__debug_frame0->uc);
- 
- #if 0
- 	gdbstub_printk("--> gdbstub() %08x %p %08x %08x\n",
-@@ -1389,8 +1418,8 @@ #endif
- 		__debug_frame->psr &= ~PSR_S;
- 		if (__debug_frame->psr & PSR_PS)
- 			__debug_frame->psr |= PSR_S;
--		__debug_regs->brr = (__debug_frame->tbr & TBR_TT) << 12;
--		__debug_regs->brr |= BRR_EB;
-+		__debug_status.brr = (__debug_frame->tbr & TBR_TT) << 12;
-+		__debug_status.brr |= BRR_EB;
- 		sigval = SIGINT;
- 	}
- 
-@@ -1404,15 +1433,15 @@ #endif
- 		__debug_frame->psr &= ~PSR_S;
- 		if (__debug_frame->psr & PSR_PS)
- 			__debug_frame->psr |= PSR_S;
--		__debug_regs->brr = (__debug_frame->tbr & TBR_TT) << 12;
--		__debug_regs->brr |= BRR_EB;
-+		__debug_status.brr = (__debug_frame->tbr & TBR_TT) << 12;
-+		__debug_status.brr |= BRR_EB;
- 		sigval = SIGXCPU;
- 	}
- 
- 	LEDS(0x5002);
- 
- 	/* after a BREAK insn, the PC lands on the far side of it */
--	if (__debug_regs->brr & BRR_SB)
-+	if (__debug_status.brr & BRR_SB)
- 		gdbstub_check_breakpoint();
- 
- 	LEDS(0x5003);
-@@ -1431,7 +1460,7 @@ #endif
- 	}
- 
- 	if (!sigval)
--		sigval = gdbstub_compute_signal(__debug_regs->brr);
-+		sigval = gdbstub_compute_signal(__debug_status.brr);
- 
- 	LEDS(0x5004);
- 
-@@ -1441,7 +1470,7 @@ #endif
- 	if (sigval != SIGINT && sigval != SIGTRAP && sigval != SIGILL) {
- 		static const char title[] = "Break ";
- 		static const char crlf[] = "\r\n";
--		unsigned long brr = __debug_regs->brr;
-+		unsigned long brr = __debug_status.brr;
- 		char hx;
- 
- 		ptr = output_buffer;
-@@ -1565,28 +1594,24 @@ #endif
- 			ptr = mem2hex(&zero, ptr, 4, 0);
- 
- 			for (loop = 1; loop <= 27; loop++)
--				ptr = mem2hex((unsigned long *)__debug_frame + REG_GR(loop),
--					      ptr, 4, 0);
-+				ptr = mem2hex(&__debug_user_context->i.gr[loop], ptr, 4, 0);
- 			temp = (unsigned long) __frame;
- 			ptr = mem2hex(&temp, ptr, 4, 0);
--			ptr = mem2hex((unsigned long *)__debug_frame + REG_GR(29), ptr, 4, 0);
--			ptr = mem2hex((unsigned long *)__debug_frame + REG_GR(30), ptr, 4, 0);
-+			ptr = mem2hex(&__debug_user_context->i.gr[29], ptr, 4, 0);
-+			ptr = mem2hex(&__debug_user_context->i.gr[30], ptr, 4, 0);
- #ifdef CONFIG_MMU
--			ptr = mem2hex((unsigned long *)__debug_frame + REG_GR(31), ptr, 4, 0);
-+			ptr = mem2hex(&__debug_user_context->i.gr[31], ptr, 4, 0);
- #else
- 			temp = (unsigned long) __debug_frame;
- 			ptr = mem2hex(&temp, ptr, 4, 0);
- #endif
- 
- 			for (loop = 32; loop <= 63; loop++)
--				ptr = mem2hex((unsigned long *)__debug_frame + REG_GR(loop),
--					      ptr, 4, 0);
-+				ptr = mem2hex(&__debug_user_context->i.gr[loop], ptr, 4, 0);
- 
- 			/* deal with FR0-FR63 */
- 			for (loop = 0; loop <= 63; loop++)
--				ptr = mem2hex((unsigned long *)&__break_user_context +
--					      __FPMEDIA_FR(loop),
--					      ptr, 4, 0);
-+				ptr = mem2hex(&__debug_user_context->f.fr[loop], ptr, 4, 0);
- 
- 			/* deal with special registers */
- 			ptr = mem2hex(&__debug_frame->pc,    ptr, 4, 0);
-@@ -1597,7 +1622,7 @@ #endif
- 			ptr = mem2hex(&zero, ptr, 4, 0);
- 			ptr = mem2hex(&zero, ptr, 4, 0);
- 			ptr = mem2hex(&__debug_frame->tbr,   ptr, 4, 0);
--			ptr = mem2hex(&__debug_regs->brr ,   ptr, 4, 0);
-+			ptr = mem2hex(&__debug_status.brr ,   ptr, 4, 0);
- 
- 			asm volatile("movsg dbar0,%0" : "=r"(dbar));
- 			ptr = mem2hex(&dbar, ptr, 4, 0);
-@@ -1622,21 +1647,21 @@ #endif
- 
- 			ptr = mem2hex(&__debug_frame->iacc0, ptr, 8, 0);
- 
--			ptr = mem2hex(&__break_user_context.f.fsr[0], ptr, 4, 0);
-+			ptr = mem2hex(&__debug_user_context->f.fsr[0], ptr, 4, 0);
- 
- 			for (loop = 0; loop <= 7; loop++)
--				ptr = mem2hex(&__break_user_context.f.acc[loop], ptr, 4, 0);
-+				ptr = mem2hex(&__debug_user_context->f.acc[loop], ptr, 4, 0);
- 
--			ptr = mem2hex(&__break_user_context.f.accg, ptr, 8, 0);
-+			ptr = mem2hex(&__debug_user_context->f.accg, ptr, 8, 0);
- 
- 			for (loop = 0; loop <= 1; loop++)
--				ptr = mem2hex(&__break_user_context.f.msr[loop], ptr, 4, 0);
-+				ptr = mem2hex(&__debug_user_context->f.msr[loop], ptr, 4, 0);
- 
- 			ptr = mem2hex(&__debug_frame->gner0, ptr, 4, 0);
- 			ptr = mem2hex(&__debug_frame->gner1, ptr, 4, 0);
- 
--			ptr = mem2hex(&__break_user_context.f.fner[0], ptr, 4, 0);
--			ptr = mem2hex(&__break_user_context.f.fner[1], ptr, 4, 0);
-+			ptr = mem2hex(&__debug_user_context->f.fner[0], ptr, 4, 0);
-+			ptr = mem2hex(&__debug_user_context->f.fner[1], ptr, 4, 0);
- 
- 			break;
- 
-@@ -1648,8 +1673,7 @@ #endif
- 			ptr = hex2mem(ptr, &temp, 4);
- 
- 			for (loop = 1; loop <= 27; loop++)
--				ptr = hex2mem(ptr, (unsigned long *)__debug_frame + REG_GR(loop),
--					      4);
-+				ptr = hex2mem(ptr, &__debug_user_context->i.gr[loop], 4);
- 
- 			ptr = hex2mem(ptr, &temp, 4);
- 			__frame = (struct pt_regs *) temp;
-@@ -1662,14 +1686,11 @@ #else
- #endif
- 
- 			for (loop = 32; loop <= 63; loop++)
--				ptr = hex2mem(ptr, (unsigned long *)__debug_frame + REG_GR(loop),
--					      4);
-+				ptr = hex2mem(ptr, &__debug_user_context->i.gr[loop], 4);
- 
- 			/* deal with FR0-FR63 */
- 			for (loop = 0; loop <= 63; loop++)
--				ptr = mem2hex((unsigned long *)&__break_user_context +
--					      __FPMEDIA_FR(loop),
--					      ptr, 4, 0);
-+				ptr = mem2hex(&__debug_user_context->f.fr[loop], ptr, 4, 0);
- 
- 			/* deal with special registers */
- 			ptr = hex2mem(ptr, &__debug_frame->pc,  4);
-@@ -1694,21 +1715,21 @@ #endif
- 
- 			ptr = hex2mem(ptr, &__debug_frame->iacc0, 8);
- 
--			ptr = hex2mem(ptr, &__break_user_context.f.fsr[0], 4);
-+			ptr = hex2mem(ptr, &__debug_user_context->f.fsr[0], 4);
- 
- 			for (loop = 0; loop <= 7; loop++)
--				ptr = hex2mem(ptr, &__break_user_context.f.acc[loop], 4);
-+				ptr = hex2mem(ptr, &__debug_user_context->f.acc[loop], 4);
- 
--			ptr = hex2mem(ptr, &__break_user_context.f.accg, 8);
-+			ptr = hex2mem(ptr, &__debug_user_context->f.accg, 8);
- 
- 			for (loop = 0; loop <= 1; loop++)
--				ptr = hex2mem(ptr, &__break_user_context.f.msr[loop], 4);
-+				ptr = hex2mem(ptr, &__debug_user_context->f.msr[loop], 4);
- 
- 			ptr = hex2mem(ptr, &__debug_frame->gner0, 4);
- 			ptr = hex2mem(ptr, &__debug_frame->gner1, 4);
- 
--			ptr = hex2mem(ptr, &__break_user_context.f.fner[0], 4);
--			ptr = hex2mem(ptr, &__break_user_context.f.fner[1], 4);
-+			ptr = hex2mem(ptr, &__debug_user_context->f.fner[0], 4);
-+			ptr = hex2mem(ptr, &__debug_user_context->f.fner[1], 4);
- 
- 			gdbstub_strcpy(output_buffer,"OK");
- 			break;
-@@ -1769,52 +1790,52 @@ #endif
- 			case GDB_REG_GR(0):
- 				break;
- 			case GDB_REG_GR(1) ... GDB_REG_GR(63):
--				__break_user_context.i.gr[addr - GDB_REG_GR(0)] = temp;
-+				__debug_user_context->i.gr[addr - GDB_REG_GR(0)] = temp;
- 				break;
- 			case GDB_REG_FR(0) ... GDB_REG_FR(63):
--				__break_user_context.f.fr[addr - GDB_REG_FR(0)] = temp;
-+				__debug_user_context->f.fr[addr - GDB_REG_FR(0)] = temp;
- 				break;
- 			case GDB_REG_PC:
--				__break_user_context.i.pc = temp;
-+				__debug_user_context->i.pc = temp;
- 				break;
- 			case GDB_REG_PSR:
--				__break_user_context.i.psr = temp;
-+				__debug_user_context->i.psr = temp;
- 				break;
- 			case GDB_REG_CCR:
--				__break_user_context.i.ccr = temp;
-+				__debug_user_context->i.ccr = temp;
- 				break;
- 			case GDB_REG_CCCR:
--				__break_user_context.i.cccr = temp;
-+				__debug_user_context->i.cccr = temp;
- 				break;
- 			case GDB_REG_BRR:
--				__debug_regs->brr = temp;
-+				__debug_status.brr = temp;
- 				break;
- 			case GDB_REG_LR:
--				__break_user_context.i.lr = temp;
-+				__debug_user_context->i.lr = temp;
- 				break;
- 			case GDB_REG_LCR:
--				__break_user_context.i.lcr = temp;
-+				__debug_user_context->i.lcr = temp;
- 				break;
- 			case GDB_REG_FSR0:
--				__break_user_context.f.fsr[0] = temp;
-+				__debug_user_context->f.fsr[0] = temp;
- 				break;
- 			case GDB_REG_ACC(0) ... GDB_REG_ACC(7):
--				__break_user_context.f.acc[addr - GDB_REG_ACC(0)] = temp;
-+				__debug_user_context->f.acc[addr - GDB_REG_ACC(0)] = temp;
- 				break;
- 			case GDB_REG_ACCG(0):
--				*(uint32_t *) &__break_user_context.f.accg[0] = temp;
-+				*(uint32_t *) &__debug_user_context->f.accg[0] = temp;
- 				break;
- 			case GDB_REG_ACCG(4):
--				*(uint32_t *) &__break_user_context.f.accg[4] = temp;
-+				*(uint32_t *) &__debug_user_context->f.accg[4] = temp;
- 				break;
- 			case GDB_REG_MSR(0) ... GDB_REG_MSR(1):
--				__break_user_context.f.msr[addr - GDB_REG_MSR(0)] = temp;
-+				__debug_user_context->f.msr[addr - GDB_REG_MSR(0)] = temp;
- 				break;
- 			case GDB_REG_GNER(0) ... GDB_REG_GNER(1):
--				__break_user_context.i.gner[addr - GDB_REG_GNER(0)] = temp;
-+				__debug_user_context->i.gner[addr - GDB_REG_GNER(0)] = temp;
- 				break;
- 			case GDB_REG_FNER(0) ... GDB_REG_FNER(1):
--				__break_user_context.f.fner[addr - GDB_REG_FNER(0)] = temp;
-+				__debug_user_context->f.fner[addr - GDB_REG_FNER(0)] = temp;
- 				break;
- 			default:
- 				temp2 = 0;
-@@ -1850,6 +1871,7 @@ #endif
- 			/* step to next instruction */
- 		case 's':
- 			__debug_regs->dcr |= DCR_SE;
-+			__debug_status.dcr |= DCR_SE;
- 			goto done;
- 
- 			/* set baud rate (bBB) */
-@@ -1934,7 +1956,7 @@ #endif
- 	}
- 
-  done:
--	restore_user_regs(&__break_user_context);
-+	restore_user_regs(&__debug_frame0->uc);
- 
- 	//gdbstub_dump_debugregs();
- 	//gdbstub_printk("<-- gdbstub() %08x\n", __debug_frame->pc);
-@@ -1966,7 +1988,6 @@ #ifdef CONFIG_GDBSTUB_IMMEDIATE
- #endif
- 
- 	gdbstub_printk("%s", gdbstub_banner);
--	gdbstub_printk("DCR: %x\n", __debug_regs->dcr);
- 
- 	gdbstub_io_init();
- 
-diff --git a/arch/frv/kernel/head.S b/arch/frv/kernel/head.S
-index 47c990a..fecf751 100644
---- a/arch/frv/kernel/head.S
-+++ b/arch/frv/kernel/head.S
-@@ -11,6 +11,7 @@
- 
- #include <linux/threads.h>
- #include <linux/linkage.h>
-+#include <asm/thread_info.h>
- #include <asm/ptrace.h>
- #include <asm/page.h>
- #include <asm/spr-regs.h>
 diff --git a/arch/frv/kernel/process.c b/arch/frv/kernel/process.c
-index 885852f..00ebf46 100644
+index bec8856..885852f 100644
 --- a/arch/frv/kernel/process.c
 +++ b/arch/frv/kernel/process.c
-@@ -27,6 +27,7 @@ #include <linux/elf.h>
- #include <linux/reboot.h>
- #include <linux/interrupt.h>
+@@ -372,3 +372,11 @@ int elf_check_arch(const struct elf32_hd
  
-+#include <asm/asm-offsets.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
- #include <asm/setup.h>
-@@ -208,7 +209,7 @@ int copy_thread(int nr, unsigned long cl
- 
- 	regs0 = __kernel_frame0_ptr;
- 	childregs0 = (struct pt_regs *)
--		(task_stack_page(p) + THREAD_SIZE - USER_CONTEXT_SIZE);
-+		(task_stack_page(p) + THREAD_SIZE - FRV_FRAME0_SIZE);
- 	childregs = childregs0;
- 
- 	/* set up the userspace frame (the only place that the USP is stored) */
-diff --git a/arch/frv/kernel/switch_to.S b/arch/frv/kernel/switch_to.S
-index 9e5a583..110efae 100644
---- a/arch/frv/kernel/switch_to.S
-+++ b/arch/frv/kernel/switch_to.S
-@@ -11,6 +11,8 @@ # as published by the Free Software Foun
- # 2 of the License, or (at your option) any later version.
- #
- ###############################################################################
+ 	return 1;
+ }
 +
-+#include <linux/config.h>
- #include <linux/linkage.h>
- #include <asm/thread_info.h>
- #include <asm/processor.h>
-@@ -30,7 +32,7 @@ #include <asm/spr-regs.h>
- 	# address of frame 0 (userspace) on current kernel stack
- 	.globl		__kernel_frame0_ptr
- __kernel_frame0_ptr:
--	.long		init_thread_union + THREAD_SIZE - USER_CONTEXT_SIZE
-+	.long		init_thread_union + THREAD_SIZE - FRV_FRAME0_SIZE
- 
- 	# address of current task
- 	.globl		__kernel_current_task
-diff --git a/arch/frv/kernel/traps.c b/arch/frv/kernel/traps.c
-index 98ce362..2e6098c 100644
---- a/arch/frv/kernel/traps.c
-+++ b/arch/frv/kernel/traps.c
-@@ -20,6 +20,7 @@ #include <linux/linkage.h>
++int dump_fpu(struct pt_regs *regs, elf_fpregset_t *fpregs)
++{
++	memcpy(fpregs,
++	       &current->thread.user->f,
++	       sizeof(current->thread.user->f));
++	return 1;
++}
+diff --git a/fs/binfmt_elf_fdpic.c b/fs/binfmt_elf_fdpic.c
+index 07624b9..2ee9352 100644
+--- a/fs/binfmt_elf_fdpic.c
++++ b/fs/binfmt_elf_fdpic.c
+@@ -1,6 +1,6 @@
+ /* binfmt_elf_fdpic.c: FDPIC ELF binary format
+  *
+- * Copyright (C) 2003, 2004 Red Hat, Inc. All Rights Reserved.
++ * Copyright (C) 2003, 2004, 2006 Red Hat, Inc. All Rights Reserved.
+  * Written by David Howells (dhowells@redhat.com)
+  * Derived from binfmt_elf.c
+  *
+@@ -24,7 +24,9 @@ #include <linux/string.h>
+ #include <linux/file.h>
+ #include <linux/fcntl.h>
+ #include <linux/slab.h>
++#include <linux/pagemap.h>
+ #include <linux/highmem.h>
++#include <linux/highuid.h>
+ #include <linux/personality.h>
+ #include <linux/ptrace.h>
  #include <linux/init.h>
- #include <linux/module.h>
- 
-+#include <asm/asm-offsets.h>
- #include <asm/setup.h>
- #include <asm/fpu.h>
- #include <asm/system.h>
-@@ -279,20 +280,20 @@ static const char *regnames[] = {
- 
- void show_regs(struct pt_regs *regs)
- {
--	uint32_t *reg;
-+	unsigned long *reg;
- 	int loop;
- 
- 	printk("\n");
- 
--	printk("Frame: @%08x [%s]\n",
--	       (uint32_t) regs,
-+	printk("Frame: @%08lx [%s]\n",
-+	       (unsigned long) regs,
- 	       regs->psr & PSR_S ? "kernel" : "user");
- 
--	reg = (uint32_t *) regs;
--	for (loop = 0; loop < REG__END; loop++) {
--		printk("%s %08x", regnames[loop + 0], reg[loop + 0]);
-+	reg = (unsigned long *) regs;
-+	for (loop = 0; loop < NR_PT_REGS; loop++) {
-+		printk("%s %08lx", regnames[loop + 0], reg[loop + 0]);
- 
--		if (loop == REG__END - 1 || loop % 5 == 4)
-+		if (loop == NR_PT_REGS - 1 || loop % 5 == 4)
- 			printk("\n");
- 		else
- 			printk(" | ");
-@@ -328,7 +329,7 @@ void die_if_kernel(const char *str, ...)
-  */
- static void show_backtrace_regs(struct pt_regs *frame)
- {
--	uint32_t *reg;
-+	unsigned long *reg;
- 	int loop;
- 
- 	/* print the registers for this frame */
-@@ -336,11 +337,11 @@ static void show_backtrace_regs(struct p
- 	       frame->psr & PSR_S ? "Kernel Mode" : "User Mode",
- 	       frame);
- 
--	reg = (uint32_t *) frame;
--	for (loop = 0; loop < REG__END; loop++) {
--		printk("%s %08x", regnames[loop + 0], reg[loop + 0]);
-+	reg = (unsigned long *) frame;
-+	for (loop = 0; loop < NR_PT_REGS; loop++) {
-+		printk("%s %08lx", regnames[loop + 0], reg[loop + 0]);
- 
--		if (loop == REG__END - 1 || loop % 5 == 4)
-+		if (loop == NR_PT_REGS - 1 || loop % 5 == 4)
- 			printk("\n");
- 		else
- 			printk(" | ");
-diff --git a/include/asm-frv/gdb-stub.h b/include/asm-frv/gdb-stub.h
-index c58479a..24f9738 100644
---- a/include/asm-frv/gdb-stub.h
-+++ b/include/asm-frv/gdb-stub.h
-@@ -89,6 +89,7 @@ extern void gdbstub_do_rx(void);
- 
- extern asmlinkage void __debug_stub_init_break(void);
- extern asmlinkage void __break_hijack_kernel_event(void);
-+extern asmlinkage void __break_hijack_kernel_event_breaks_here(void);
- extern asmlinkage void start_kernel(void);
- 
- extern asmlinkage void gdbstub_rx_handler(void);
-@@ -114,5 +115,26 @@ #else
- #define gdbstub_proto(FMT,...) ({ 0; })
+@@ -48,6 +50,12 @@ #else
+ #define kdebug(fmt, ...) do {} while(0)
  #endif
  
++#if 0
++#define kdcore(fmt, ...) printk("FDPIC "fmt"\n" ,##__VA_ARGS__ )
++#else
++#define kdcore(fmt, ...) do {} while(0)
++#endif
++
+ MODULE_LICENSE("GPL");
+ 
+ static int load_elf_fdpic_binary(struct linux_binprm *bprm, struct pt_regs *regs);
+@@ -74,19 +82,25 @@ static int elf_fdpic_map_file_by_direct_
+ 					     struct file *file,
+ 					     struct mm_struct *mm);
+ 
++#if defined(USE_ELF_CORE_DUMP) && defined(CONFIG_ELF_CORE)
++static int elf_fdpic_core_dump(long signr, struct pt_regs *regs, struct file *file);
++#endif
++
+ static struct linux_binfmt elf_fdpic_format = {
+ 	.module		= THIS_MODULE,
+ 	.load_binary	= load_elf_fdpic_binary,
+ //	.load_shlib	= load_elf_fdpic_library,
+-//	.core_dump	= elf_fdpic_core_dump,
++#if defined(USE_ELF_CORE_DUMP) && defined(CONFIG_ELF_CORE)
++	.core_dump	= elf_fdpic_core_dump,
++#endif
+ 	.min_coredump	= ELF_EXEC_PAGESIZE,
+ };
+ 
+ static int __init init_elf_fdpic_binfmt(void)  { return register_binfmt(&elf_fdpic_format); }
+ static void __exit exit_elf_fdpic_binfmt(void) { unregister_binfmt(&elf_fdpic_format); }
+ 
+-module_init(init_elf_fdpic_binfmt)
+-module_exit(exit_elf_fdpic_binfmt)
++core_initcall(init_elf_fdpic_binfmt);
++module_exit(exit_elf_fdpic_binfmt);
+ 
+ static int is_elf_fdpic(struct elfhdr *hdr, struct file *file)
+ {
+@@ -1087,3 +1101,662 @@ #endif
+ 
+ 	return 0;
+ } /* end elf_fdpic_map_file_by_direct_mmap() */
++
++/*****************************************************************************/
 +/*
-+ * we dedicate GR31 to keeping a pointer to the gdbstub exception frame
-+ * - gr31 is destroyed on entry to the gdbstub if !MMU
-+ * - gr31 is saved in scr3 on entry to the gdbstub if in !MMU
++ * ELF-FDPIC core dumper
++ *
++ * Modelled on fs/exec.c:aout_core_dump()
++ * Jeremy Fitzhardinge <jeremy@sw.oz.au>
++ *
++ * Modelled on fs/binfmt_elf.c core dumper
 + */
-+register struct frv_frame0 *__debug_frame0 asm("gr31");
++#if defined(USE_ELF_CORE_DUMP) && defined(CONFIG_ELF_CORE)
 +
-+#define __debug_frame		(&__debug_frame0->regs)
-+#define __debug_user_context	(&__debug_frame0->uc)
-+#define __debug_regs		(&__debug_frame0->debug)
-+#define __debug_reg(X)		((unsigned long *) ((unsigned long) &__debug_frame0 + (X)))
++/*
++ * These are the only things you should do on a core-file: use only these
++ * functions to write out all the necessary info.
++ */
++static int dump_write(struct file *file, const void *addr, int nr)
++{
++	return file->f_op->write(file, addr, nr, &file->f_pos) == nr;
++}
 +
-+struct frv_debug_status {
-+	unsigned long		bpsr;
-+	unsigned long		dcr;
-+	unsigned long		brr;
-+	unsigned long		nmar;
++static int dump_seek(struct file *file, off_t off)
++{
++	if (file->f_op->llseek) {
++		if (file->f_op->llseek(file, off, 0) != off)
++			return 0;
++	} else {
++		file->f_pos = off;
++	}
++	return 1;
++}
++
++/*
++ * Decide whether a segment is worth dumping; default is yes to be
++ * sure (missing info is worse than too much; etc).
++ * Personally I'd include everything, and use the coredump limit...
++ *
++ * I think we should skip something. But I am not sure how. H.J.
++ */
++static inline int maydump(struct vm_area_struct *vma)
++{
++	/* Do not dump I/O mapped devices or special mappings */
++	if (vma->vm_flags & (VM_IO | VM_RESERVED)) {
++		kdcore("%08lx: %08lx: no (IO)", vma->vm_start, vma->vm_flags);
++		return 0;
++	}
++
++	/* If we may not read the contents, don't allow us to dump
++	 * them either. "dump_write()" can't handle it anyway.
++	 */
++	if (!(vma->vm_flags & VM_READ)) {
++		kdcore("%08lx: %08lx: no (!read)", vma->vm_start, vma->vm_flags);
++		return 0;
++	}
++
++	/* Dump shared memory only if mapped from an anonymous file. */
++	if (vma->vm_flags & VM_SHARED) {
++		if (vma->vm_file->f_dentry->d_inode->i_nlink == 0) {
++			kdcore("%08lx: %08lx: no (share)", vma->vm_start, vma->vm_flags);
++			return 1;
++		}
++
++		kdcore("%08lx: %08lx: no (share)", vma->vm_start, vma->vm_flags);
++		return 0;
++	}
++
++#ifdef CONFIG_MMU
++	/* If it hasn't been written to, don't write it out */
++	if (!vma->anon_vma) {
++		kdcore("%08lx: %08lx: no (!anon)", vma->vm_start, vma->vm_flags);
++		return 0;
++	}
++#endif
++
++	kdcore("%08lx: %08lx: yes", vma->vm_start, vma->vm_flags);
++	return 1;
++}
++
++#define roundup(x, y)  ((((x) + ((y) - 1)) / (y)) * (y))
++
++/* An ELF note in memory */
++struct memelfnote
++{
++	const char *name;
++	int type;
++	unsigned int datasz;
++	void *data;
 +};
 +
-+extern struct frv_debug_status __debug_status;
++static int notesize(struct memelfnote *en)
++{
++	int sz;
 +
- #endif /* _LANGUAGE_ASSEMBLY */
- #endif /* __ASM_GDB_STUB_H */
-diff --git a/include/asm-frv/ptrace.h b/include/asm-frv/ptrace.h
-index b2cce07..7ff5251 100644
---- a/include/asm-frv/ptrace.h
-+++ b/include/asm-frv/ptrace.h
-@@ -62,18 +62,10 @@ #define PTRACE_GETFDPIC_INTERP	1	/* [add
- #ifndef __ASSEMBLY__
++	sz = sizeof(struct elf_note);
++	sz += roundup(strlen(en->name) + 1, 4);
++	sz += roundup(en->datasz, 4);
++
++	return sz;
++}
++
++/* #define DEBUG */
++
++#define DUMP_WRITE(addr, nr)	\
++	do { if (!dump_write(file, (addr), (nr))) return 0; } while(0)
++#define DUMP_SEEK(off)	\
++	do { if (!dump_seek(file, (off))) return 0; } while(0)
++
++static int writenote(struct memelfnote *men, struct file *file)
++{
++	struct elf_note en;
++
++	en.n_namesz = strlen(men->name) + 1;
++	en.n_descsz = men->datasz;
++	en.n_type = men->type;
++
++	DUMP_WRITE(&en, sizeof(en));
++	DUMP_WRITE(men->name, en.n_namesz);
++	/* XXX - cast from long long to long to avoid need for libgcc.a */
++	DUMP_SEEK(roundup((unsigned long)file->f_pos, 4));	/* XXX */
++	DUMP_WRITE(men->data, men->datasz);
++	DUMP_SEEK(roundup((unsigned long)file->f_pos, 4));	/* XXX */
++
++	return 1;
++}
++#undef DUMP_WRITE
++#undef DUMP_SEEK
++
++#define DUMP_WRITE(addr, nr)	\
++	if ((size += (nr)) > limit || !dump_write(file, (addr), (nr))) \
++		goto end_coredump;
++#define DUMP_SEEK(off)	\
++	if (!dump_seek(file, (off))) \
++		goto end_coredump;
++
++static inline void fill_elf_fdpic_header(struct elfhdr *elf, int segs)
++{
++	memcpy(elf->e_ident, ELFMAG, SELFMAG);
++	elf->e_ident[EI_CLASS] = ELF_CLASS;
++	elf->e_ident[EI_DATA] = ELF_DATA;
++	elf->e_ident[EI_VERSION] = EV_CURRENT;
++	elf->e_ident[EI_OSABI] = ELF_OSABI;
++	memset(elf->e_ident+EI_PAD, 0, EI_NIDENT-EI_PAD);
++
++	elf->e_type = ET_CORE;
++	elf->e_machine = ELF_ARCH;
++	elf->e_version = EV_CURRENT;
++	elf->e_entry = 0;
++	elf->e_phoff = sizeof(struct elfhdr);
++	elf->e_shoff = 0;
++	elf->e_flags = ELF_FDPIC_CORE_EFLAGS;
++	elf->e_ehsize = sizeof(struct elfhdr);
++	elf->e_phentsize = sizeof(struct elf_phdr);
++	elf->e_phnum = segs;
++	elf->e_shentsize = 0;
++	elf->e_shnum = 0;
++	elf->e_shstrndx = 0;
++	return;
++}
++
++static inline void fill_elf_note_phdr(struct elf_phdr *phdr, int sz, off_t offset)
++{
++	phdr->p_type = PT_NOTE;
++	phdr->p_offset = offset;
++	phdr->p_vaddr = 0;
++	phdr->p_paddr = 0;
++	phdr->p_filesz = sz;
++	phdr->p_memsz = 0;
++	phdr->p_flags = 0;
++	phdr->p_align = 0;
++	return;
++}
++
++static inline void fill_note(struct memelfnote *note, const char *name, int type,
++		unsigned int sz, void *data)
++{
++	note->name = name;
++	note->type = type;
++	note->datasz = sz;
++	note->data = data;
++	return;
++}
++
++/*
++ * fill up all the fields in prstatus from the given task struct, except
++ * registers which need to be filled up seperately.
++ */
++static void fill_prstatus(struct elf_prstatus *prstatus,
++			  struct task_struct *p, long signr)
++{
++	prstatus->pr_info.si_signo = prstatus->pr_cursig = signr;
++	prstatus->pr_sigpend = p->pending.signal.sig[0];
++	prstatus->pr_sighold = p->blocked.sig[0];
++	prstatus->pr_pid = p->pid;
++	prstatus->pr_ppid = p->parent->pid;
++	prstatus->pr_pgrp = process_group(p);
++	prstatus->pr_sid = p->signal->session;
++	if (thread_group_leader(p)) {
++		/*
++		 * This is the record for the group leader.  Add in the
++		 * cumulative times of previous dead threads.  This total
++		 * won't include the time of each live thread whose state
++		 * is included in the core dump.  The final total reported
++		 * to our parent process when it calls wait4 will include
++		 * those sums as well as the little bit more time it takes
++		 * this and each other thread to finish dying after the
++		 * core dump synchronization phase.
++		 */
++		cputime_to_timeval(cputime_add(p->utime, p->signal->utime),
++				   &prstatus->pr_utime);
++		cputime_to_timeval(cputime_add(p->stime, p->signal->stime),
++				   &prstatus->pr_stime);
++	} else {
++		cputime_to_timeval(p->utime, &prstatus->pr_utime);
++		cputime_to_timeval(p->stime, &prstatus->pr_stime);
++	}
++	cputime_to_timeval(p->signal->cutime, &prstatus->pr_cutime);
++	cputime_to_timeval(p->signal->cstime, &prstatus->pr_cstime);
++
++	prstatus->pr_exec_fdpic_loadmap = p->mm->context.exec_fdpic_loadmap;
++	prstatus->pr_interp_fdpic_loadmap = p->mm->context.interp_fdpic_loadmap;
++}
++
++static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p,
++		       struct mm_struct *mm)
++{
++	unsigned int i, len;
++
++	/* first copy the parameters from user space */
++	memset(psinfo, 0, sizeof(struct elf_prpsinfo));
++
++	len = mm->arg_end - mm->arg_start;
++	if (len >= ELF_PRARGSZ)
++		len = ELF_PRARGSZ - 1;
++	if (copy_from_user(&psinfo->pr_psargs,
++		           (const char __user *) mm->arg_start, len))
++		return -EFAULT;
++	for (i = 0; i < len; i++)
++		if (psinfo->pr_psargs[i] == 0)
++			psinfo->pr_psargs[i] = ' ';
++	psinfo->pr_psargs[len] = 0;
++
++	psinfo->pr_pid = p->pid;
++	psinfo->pr_ppid = p->parent->pid;
++	psinfo->pr_pgrp = process_group(p);
++	psinfo->pr_sid = p->signal->session;
++
++	i = p->state ? ffz(~p->state) + 1 : 0;
++	psinfo->pr_state = i;
++	psinfo->pr_sname = (i > 5) ? '.' : "RSDTZW"[i];
++	psinfo->pr_zomb = psinfo->pr_sname == 'Z';
++	psinfo->pr_nice = task_nice(p);
++	psinfo->pr_flag = p->flags;
++	SET_UID(psinfo->pr_uid, p->uid);
++	SET_GID(psinfo->pr_gid, p->gid);
++	strncpy(psinfo->pr_fname, p->comm, sizeof(psinfo->pr_fname));
++
++	return 0;
++}
++
++/* Here is the structure in which status of each thread is captured. */
++struct elf_thread_status
++{
++	struct list_head list;
++	struct elf_prstatus prstatus;	/* NT_PRSTATUS */
++	elf_fpregset_t fpu;		/* NT_PRFPREG */
++	struct task_struct *thread;
++#ifdef ELF_CORE_COPY_XFPREGS
++	elf_fpxregset_t xfpu;		/* NT_PRXFPREG */
++#endif
++	struct memelfnote notes[3];
++	int num_notes;
++};
++
++/*
++ * In order to add the specific thread information for the elf file format,
++ * we need to keep a linked list of every thread's pr_status and then create
++ * a single section for them in the final core file.
++ */
++static int elf_dump_thread_status(long signr, struct elf_thread_status *t)
++{
++	struct task_struct *p = t->thread;
++	int sz = 0;
++
++	t->num_notes = 0;
++
++	fill_prstatus(&t->prstatus, p, signr);
++	elf_core_copy_task_regs(p, &t->prstatus.pr_reg);
++
++	fill_note(&t->notes[0], "CORE", NT_PRSTATUS, sizeof(t->prstatus),
++		  &t->prstatus);
++	t->num_notes++;
++	sz += notesize(&t->notes[0]);
++
++	t->prstatus.pr_fpvalid = elf_core_copy_task_fpregs(p, NULL, &t->fpu);
++	if (t->prstatus.pr_fpvalid) {
++		fill_note(&t->notes[1], "CORE", NT_PRFPREG, sizeof(t->fpu),
++			  &t->fpu);
++		t->num_notes++;
++		sz += notesize(&t->notes[1]);
++	}
++
++#ifdef ELF_CORE_COPY_XFPREGS
++	if (elf_core_copy_task_xfpregs(p, &t->xfpu)) {
++		fill_note(&t->notes[2], "LINUX", NT_PRXFPREG, sizeof(t->xfpu),
++			  &t->xfpu);
++		t->num_notes++;
++		sz += notesize(&t->notes[2]);
++	}
++#endif
++	return sz;
++}
++
++/*
++ * dump the segments for an MMU process
++ */
++#ifdef CONFIG_MMU
++static int elf_fdpic_dump_segments(struct file *file, struct mm_struct *mm,
++				   size_t *size, unsigned long *limit)
++{
++	struct vm_area_struct *vma;
++
++	for (vma = current->mm->mmap; vma; vma = vma->vm_next) {
++		unsigned long addr;
++
++		if (!maydump(vma))
++			continue;
++
++		for (addr = vma->vm_start;
++		     addr < vma->vm_end;
++		     addr += PAGE_SIZE
++		     ) {
++			struct vm_area_struct *vma;
++			struct page *page;
++
++			if (get_user_pages(current, current->mm, addr, 1, 0, 1,
++					   &page, &vma) <= 0) {
++				DUMP_SEEK(file->f_pos + PAGE_SIZE);
++			}
++			else if (page == ZERO_PAGE(addr)) {
++				DUMP_SEEK(file->f_pos + PAGE_SIZE);
++				page_cache_release(page);
++			}
++			else {
++				void *kaddr;
++
++				flush_cache_page(vma, addr, page_to_pfn(page));
++				kaddr = kmap(page);
++				if ((*size += PAGE_SIZE) > *limit ||
++				    !dump_write(file, kaddr, PAGE_SIZE)
++				    ) {
++					kunmap(page);
++					page_cache_release(page);
++					return -EIO;
++				}
++				kunmap(page);
++				page_cache_release(page);
++			}
++		}
++	}
++
++	return 0;
++
++end_coredump:
++	return -EFBIG;
++}
++#endif
++
++/*
++ * dump the segments for a NOMMU process
++ */
++#ifndef CONFIG_MMU
++static int elf_fdpic_dump_segments(struct file *file, struct mm_struct *mm,
++				   size_t *size, unsigned long *limit)
++{
++	struct vm_list_struct *vml;
++
++	for (vml = current->mm->context.vmlist; vml; vml = vml->next) {
++	struct vm_area_struct *vma = vml->vma;
++
++		if (!maydump(vma))
++			continue;
++
++		if ((*size += PAGE_SIZE) > *limit)
++			return -EFBIG;
++
++		if (!dump_write(file, (void *) vma->vm_start,
++				vma->vm_end - vma->vm_start))
++			return -EIO;
++	}
++
++	return 0;
++}
++#endif
++
++/*
++ * Actual dumper
++ *
++ * This is a two-pass process; first we find the offsets of the bits,
++ * and then they are actually written out.  If we run out of core limit
++ * we just truncate.
++ */
++static int elf_fdpic_core_dump(long signr, struct pt_regs *regs, struct file *file)
++{
++#define	NUM_NOTES	6
++	int has_dumped = 0;
++	mm_segment_t fs;
++	int segs;
++	size_t size = 0;
++	int i;
++	struct vm_area_struct *vma;
++	struct elfhdr *elf = NULL;
++	off_t offset = 0, dataoff;
++	unsigned long limit = current->signal->rlim[RLIMIT_CORE].rlim_cur;
++	int numnote;
++	struct memelfnote *notes = NULL;
++	struct elf_prstatus *prstatus = NULL;	/* NT_PRSTATUS */
++	struct elf_prpsinfo *psinfo = NULL;	/* NT_PRPSINFO */
++ 	struct task_struct *g, *p;
++ 	LIST_HEAD(thread_list);
++ 	struct list_head *t;
++	elf_fpregset_t *fpu = NULL;
++#ifdef ELF_CORE_COPY_XFPREGS
++	elf_fpxregset_t *xfpu = NULL;
++#endif
++	int thread_status_size = 0;
++#ifndef CONFIG_MMU
++	struct vm_list_struct *vml;
++#endif
++	elf_addr_t *auxv;
++
++	/*
++	 * We no longer stop all VM operations.
++	 *
++	 * This is because those proceses that could possibly change map_count
++	 * or the mmap / vma pages are now blocked in do_exit on current
++	 * finishing this core dump.
++	 *
++	 * Only ptrace can touch these memory addresses, but it doesn't change
++	 * the map_count or the pages allocated. So no possibility of crashing
++	 * exists while dumping the mm->vm_next areas to the core file.
++	 */
++
++	/* alloc memory for large data structures: too large to be on stack */
++	elf = kmalloc(sizeof(*elf), GFP_KERNEL);
++	if (!elf)
++		goto cleanup;
++	prstatus = kzalloc(sizeof(*prstatus), GFP_KERNEL);
++	if (!prstatus)
++		goto cleanup;
++	psinfo = kmalloc(sizeof(*psinfo), GFP_KERNEL);
++	if (!psinfo)
++		goto cleanup;
++	notes = kmalloc(NUM_NOTES * sizeof(struct memelfnote), GFP_KERNEL);
++	if (!notes)
++		goto cleanup;
++	fpu = kmalloc(sizeof(*fpu), GFP_KERNEL);
++	if (!fpu)
++		goto cleanup;
++#ifdef ELF_CORE_COPY_XFPREGS
++	xfpu = kmalloc(sizeof(*xfpu), GFP_KERNEL);
++	if (!xfpu)
++		goto cleanup;
++#endif
++
++	if (signr) {
++		struct elf_thread_status *tmp;
++		read_lock(&tasklist_lock);
++		do_each_thread(g,p)
++			if (current->mm == p->mm && current != p) {
++				tmp = kzalloc(sizeof(*tmp), GFP_ATOMIC);
++				if (!tmp) {
++					read_unlock(&tasklist_lock);
++					goto cleanup;
++				}
++				INIT_LIST_HEAD(&tmp->list);
++				tmp->thread = p;
++				list_add(&tmp->list, &thread_list);
++			}
++		while_each_thread(g,p);
++		read_unlock(&tasklist_lock);
++		list_for_each(t, &thread_list) {
++			struct elf_thread_status *tmp;
++			int sz;
++
++			tmp = list_entry(t, struct elf_thread_status, list);
++			sz = elf_dump_thread_status(signr, tmp);
++			thread_status_size += sz;
++		}
++	}
++
++	/* now collect the dump for the current */
++	fill_prstatus(prstatus, current, signr);
++	elf_core_copy_regs(&prstatus->pr_reg, regs);
++
++#ifdef CONFIG_MMU
++	segs = current->mm->map_count;
++#else
++	segs = 0;
++	for (vml = current->mm->context.vmlist; vml; vml = vml->next)
++	    segs++;
++#endif
++#ifdef ELF_CORE_EXTRA_PHDRS
++	segs += ELF_CORE_EXTRA_PHDRS;
++#endif
++
++	/* Set up header */
++	fill_elf_fdpic_header(elf, segs + 1);	/* including notes section */
++
++	has_dumped = 1;
++	current->flags |= PF_DUMPCORE;
++
++	/*
++	 * Set up the notes in similar form to SVR4 core dumps made
++	 * with info from their /proc.
++	 */
++
++	fill_note(notes + 0, "CORE", NT_PRSTATUS, sizeof(*prstatus), prstatus);
++	fill_psinfo(psinfo, current->group_leader, current->mm);
++	fill_note(notes + 1, "CORE", NT_PRPSINFO, sizeof(*psinfo), psinfo);
++
++	numnote = 2;
++
++	auxv = (elf_addr_t *) current->mm->saved_auxv;
++
++	i = 0;
++	do
++		i += 2;
++	while (auxv[i - 2] != AT_NULL);
++	fill_note(&notes[numnote++], "CORE", NT_AUXV,
++		  i * sizeof(elf_addr_t), auxv);
++
++  	/* Try to dump the FPU. */
++	if ((prstatus->pr_fpvalid =
++	     elf_core_copy_task_fpregs(current, regs, fpu)))
++		fill_note(notes + numnote++,
++			  "CORE", NT_PRFPREG, sizeof(*fpu), fpu);
++#ifdef ELF_CORE_COPY_XFPREGS
++	if (elf_core_copy_task_xfpregs(current, xfpu))
++		fill_note(notes + numnote++,
++			  "LINUX", NT_PRXFPREG, sizeof(*xfpu), xfpu);
++#endif
++
++	fs = get_fs();
++	set_fs(KERNEL_DS);
++
++	DUMP_WRITE(elf, sizeof(*elf));
++	offset += sizeof(*elf);				/* Elf header */
++	offset += (segs+1) * sizeof(struct elf_phdr);	/* Program headers */
++
++	/* Write notes phdr entry */
++	{
++		struct elf_phdr phdr;
++		int sz = 0;
++
++		for (i = 0; i < numnote; i++)
++			sz += notesize(notes + i);
++
++		sz += thread_status_size;
++
++		fill_elf_note_phdr(&phdr, sz, offset);
++		offset += sz;
++		DUMP_WRITE(&phdr, sizeof(phdr));
++	}
++
++	/* Page-align dumped data */
++	dataoff = offset = roundup(offset, ELF_EXEC_PAGESIZE);
++	     
++	/* write program headers for segments dump */
++	for (
++#ifdef CONFIG_MMU
++		vma = current->mm->mmap; vma; vma = vma->vm_next
++#else
++			vml = current->mm->context.vmlist; vml; vml = vml->next
++#endif
++	     ) {
++		struct elf_phdr phdr;
++		size_t sz;
++
++#ifndef CONFIG_MMU
++		vma = vml->vma;
++#endif
++
++		sz = vma->vm_end - vma->vm_start;
++
++		phdr.p_type = PT_LOAD;
++		phdr.p_offset = offset;
++		phdr.p_vaddr = vma->vm_start;
++		phdr.p_paddr = 0;
++		phdr.p_filesz = maydump(vma) ? sz : 0;
++		phdr.p_memsz = sz;
++		offset += phdr.p_filesz;
++		phdr.p_flags = vma->vm_flags & VM_READ ? PF_R : 0;
++		if (vma->vm_flags & VM_WRITE)
++			phdr.p_flags |= PF_W;
++		if (vma->vm_flags & VM_EXEC)
++			phdr.p_flags |= PF_X;
++		phdr.p_align = ELF_EXEC_PAGESIZE;
++
++		DUMP_WRITE(&phdr, sizeof(phdr));
++	}
++
++#ifdef ELF_CORE_WRITE_EXTRA_PHDRS
++	ELF_CORE_WRITE_EXTRA_PHDRS;
++#endif
++
++ 	/* write out the notes section */
++	for (i = 0; i < numnote; i++)
++		if (!writenote(notes + i, file))
++			goto end_coredump;
++
++	/* write out the thread status notes section */
++	list_for_each(t, &thread_list) {
++		struct elf_thread_status *tmp =
++				list_entry(t, struct elf_thread_status, list);
++
++		for (i = 0; i < tmp->num_notes; i++)
++			if (!writenote(&tmp->notes[i], file))
++				goto end_coredump;
++	}
++
++	DUMP_SEEK(dataoff);
++
++	if (elf_fdpic_dump_segments(file, current->mm, &size, &limit) < 0)
++		goto end_coredump;
++
++#ifdef ELF_CORE_WRITE_EXTRA_DATA
++	ELF_CORE_WRITE_EXTRA_DATA;
++#endif
++
++	if ((off_t) file->f_pos != offset) {
++		/* Sanity check */
++		printk(KERN_WARNING
++		       "elf_core_dump: file->f_pos (%ld) != offset (%ld)\n",
++		       (off_t) file->f_pos, offset);
++	}
++
++end_coredump:
++	set_fs(fs);
++
++cleanup:
++	while (!list_empty(&thread_list)) {
++		struct list_head *tmp = thread_list.next;
++		list_del(tmp);
++		kfree(list_entry(tmp, struct elf_thread_status, list));
++	}
++
++	kfree(elf);
++	kfree(prstatus);
++	kfree(psinfo);
++	kfree(notes);
++	kfree(fpu);
++#ifdef ELF_CORE_COPY_XFPREGS
++	kfree(xfpu);
++#endif
++	return has_dumped;
++#undef NUM_NOTES
++}
++
++#endif		/* USE_ELF_CORE_DUMP */
+diff --git a/include/asm-frv/elf.h b/include/asm-frv/elf.h
+index 38656da..7df58a3 100644
+--- a/include/asm-frv/elf.h
++++ b/include/asm-frv/elf.h
+@@ -64,7 +64,7 @@ typedef unsigned long elf_greg_t;
+ #define ELF_NGREG (sizeof(struct pt_regs) / sizeof(elf_greg_t))
+ typedef elf_greg_t elf_gregset_t[ELF_NGREG];
+ 
+-typedef struct fpmedia_struct elf_fpregset_t;
++typedef struct user_fpmedia_regs elf_fpregset_t;
  
  /*
-- * dedicate GR28; to keeping the a pointer to the current exception frame
-+ * we dedicate GR28 to keeping a pointer to the current exception frame
-+ * - gr28 is destroyed on entry to the kernel from userspace
-  */
- register struct pt_regs *__frame asm("gr28");
--register struct pt_regs *__debug_frame asm("gr31");
--
--#ifndef container_of
--#define container_of(ptr, type, member) ({			\
--        const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
--        (type *)( (char *)__mptr - offsetof(type,member) );})
--#endif
--
--#define __debug_regs container_of(__debug_frame, struct pt_debug_regs, normal_regs)
+  * This is used to ensure we don't load something for the wrong architecture.
+@@ -116,6 +116,7 @@ do {											\
+ } while(0)
  
- #define user_mode(regs)			(!((regs)->psr & PSR_S))
- #define instruction_pointer(regs)	((regs)->pc)
-diff --git a/include/asm-frv/registers.h b/include/asm-frv/registers.h
-index fccfd95..9666119 100644
---- a/include/asm-frv/registers.h
-+++ b/include/asm-frv/registers.h
-@@ -23,7 +23,13 @@
-  *
-  *	+0x2000	+----------------------
-  *		| union {
-- *		|	struct user_context
-+ *		|	struct frv_frame0 {
-+ *		|		struct user_context {
-+ *		|			struct user_int_regs
-+ *		|			struct user_fpmedia_regs
-+ *		|		}
-+ *		|		struct frv_debug_regs
-+ *		|	}
-  *		|	struct pt_regs [user exception]
-  *		| }
-  *		+---------------------- <-- __kernel_frame0_ptr (maybe GR28)
-@@ -51,11 +57,11 @@ #ifndef _ASM_REGISTERS_H
- #define _ASM_REGISTERS_H
+ #define USE_ELF_CORE_DUMP
++#define ELF_FDPIC_CORE_EFLAGS	EF_FRV_FDPIC
+ #define ELF_EXEC_PAGESIZE	16384
  
- #ifndef __ASSEMBLY__
--#define __OFFSET(X)	(X)
-+#define __OFFSET(X,N)	((X)+(N)*4)
- #define __OFFSETC(X,N)	xxxxxxxxxxxxxxxxxxxxxxxx
- #else
--#define __OFFSET(X)	((X)*4)
--#define __OFFSETC(X,N)	((X)*4+(N))
-+#define __OFFSET(X,N)	((X)+(N)*4)
-+#define __OFFSETC(X,N)	((X)+(N))
+ /* This is the location that an ET_DYN program is loaded if exec'ed.  Typical
+@@ -125,9 +126,6 @@ #define ELF_EXEC_PAGESIZE	16384
+ 
+ #define ELF_ET_DYN_BASE         0x08000000UL
+ 
+-#define ELF_CORE_COPY_REGS(pr_reg, regs)				\
+-	memcpy(&pr_reg[0], &regs->sp, 31 * sizeof(uint32_t));
+-
+ /* This yields a mask that user programs can use to figure out what
+    instruction set this cpu supports.  */
+ 
+diff --git a/include/linux/elfcore.h b/include/linux/elfcore.h
+index 0cf0bea..9631ddd 100644
+--- a/include/linux/elfcore.h
++++ b/include/linux/elfcore.h
+@@ -60,6 +60,16 @@ #if 0
+ 	long	pr_instr;		/* Current instruction */
  #endif
+ 	elf_gregset_t pr_reg;	/* GP registers */
++#ifdef CONFIG_BINFMT_ELF_FDPIC
++	/* When using FDPIC, the loadmap addresses need to be communicated
++	 * to GDB in order for GDB to do the necessary relocations.  The
++	 * fields (below) used to communicate this information are placed
++	 * immediately after ``pr_reg'', so that the loadmap addresses may
++	 * be viewed as part of the register set if so desired.
++	 */
++	unsigned long pr_exec_fdpic_loadmap;
++	unsigned long pr_interp_fdpic_loadmap;
++#endif
+ 	int pr_fpvalid;		/* True if math co-processor being used.  */
+ };
  
- /*****************************************************************************/
-@@ -117,30 +123,13 @@ struct pt_regs {
- 
- #endif
- 
--#define REG_PSR		__OFFSET( 0)	/* Processor Status Register */
--#define REG_ISR		__OFFSET( 1)	/* Integer Status Register */
--#define REG_CCR		__OFFSET( 2)	/* Condition Code Register */
--#define REG_CCCR	__OFFSET( 3)	/* Condition Code for Conditional Insns Register */
--#define REG_LR		__OFFSET( 4)	/* Link Register */
--#define REG_LCR		__OFFSET( 5)	/* Loop Count Register */
--#define REG_PC		__OFFSET( 6)	/* Program Counter */
--
--#define REG__STATUS	__OFFSET( 7)	/* exception status */
- #define REG__STATUS_STEP	0x00000001	/* - reenable single stepping on return */
- #define REG__STATUS_STEPPED	0x00000002	/* - single step caused exception */
- #define REG__STATUS_BROKE	0x00000004	/* - BREAK insn caused exception */
- #define REG__STATUS_SYSC_ENTRY	0x40000000	/* - T on syscall entry (ptrace.c only) */
- #define REG__STATUS_SYSC_EXIT	0x80000000	/* - T on syscall exit (ptrace.c only) */
- 
--#define REG_SYSCALLNO	__OFFSET( 8)	/* syscall number or -1 */
--#define REG_ORIG_GR8	__OFFSET( 9)	/* saved GR8 for signal handling */
--#define REG_GNER0	__OFFSET(10)
--#define REG_GNER1	__OFFSET(11)
--#define REG_IACC0	__OFFSET(12)
--
--#define REG_TBR		__OFFSET(14)	/* Trap Vector Register */
--#define REG_GR(R)	__OFFSET((14+(R)))
--#define REG__END	REG_GR(32)
-+#define REG_GR(R)	__OFFSET(REG_GR0, (R))
- 
- #define REG_SP		REG_GR(1)
- #define REG_FP		REG_GR(2)
-@@ -149,27 +138,21 @@ #define REG_CURR_TASK	REG_GR(29)	/* curr
- 
- /*****************************************************************************/
- /*
-- * extension tacked in front of the exception frame in debug mode
-+ * debugging registers
-  */
- #ifndef __ASSEMBLY__
- 
--struct pt_debug_regs
-+struct frv_debug_regs
- {
--	unsigned long		bpsr;
- 	unsigned long		dcr;
--	unsigned long		brr;
--	unsigned long		nmar;
--	struct pt_regs		normal_regs;
-+	unsigned long		ibar[4] __attribute__((aligned(8)));
-+	unsigned long		dbar[4] __attribute__((aligned(8)));
-+	unsigned long		dbdr[4][4] __attribute__((aligned(8)));
-+	unsigned long		dbmr[4][4] __attribute__((aligned(8)));
- } __attribute__((aligned(8)));
- 
- #endif
- 
--#define REG_NMAR		__OFFSET(-1)
--#define REG_BRR			__OFFSET(-2)
--#define REG_DCR			__OFFSET(-3)
--#define REG_BPSR		__OFFSET(-4)
--#define REG__DEBUG_XTRA		__OFFSET(4)
--
- /*****************************************************************************/
- /*
-  * userspace registers
-@@ -223,33 +206,27 @@ struct user_context
- 	void *extension;
- } __attribute__((aligned(8)));
- 
-+struct frv_frame0 {
-+	union {
-+		struct pt_regs		regs;
-+		struct user_context	uc;
-+	};
-+
-+	struct frv_debug_regs		debug;
-+
-+} __attribute__((aligned(32)));
-+
- #endif
- 
--#define NR_USER_INT_REGS	(14 + 64)
--#define NR_USER_FPMEDIA_REGS	(64 + 2 + 2 + 8 + 8/4 + 1)
--#define NR_USER_CONTEXT		(NR_USER_INT_REGS + NR_USER_FPMEDIA_REGS + 1)
--
--#define USER_CONTEXT_SIZE	(((NR_USER_CONTEXT + 1) & ~1) * 4)
--
--#define __THREAD_FRAME		__OFFSET(0)
--#define __THREAD_CURR		__OFFSET(1)
--#define __THREAD_SP		__OFFSET(2)
--#define __THREAD_FP		__OFFSET(3)
--#define __THREAD_LR		__OFFSET(4)
--#define __THREAD_PC		__OFFSET(5)
--#define __THREAD_GR(R)		__OFFSET(6 + (R) - 16)
--#define __THREAD_FRAME0		__OFFSET(19)
--#define __THREAD_USER		__OFFSET(19)
--
--#define __USER_INT		__OFFSET(0)
--#define __INT_GR(R)		__OFFSET(14 + (R))
--
--#define __USER_FPMEDIA		__OFFSET(NR_USER_INT_REGS)
--#define __FPMEDIA_FR(R)		__OFFSET(NR_USER_INT_REGS + (R))
--#define __FPMEDIA_FNER(R)	__OFFSET(NR_USER_INT_REGS + 64 + (R))
--#define __FPMEDIA_MSR(R)	__OFFSET(NR_USER_INT_REGS + 66 + (R))
--#define __FPMEDIA_ACC(R)	__OFFSET(NR_USER_INT_REGS + 68 + (R))
--#define __FPMEDIA_ACCG(R)	__OFFSETC(NR_USER_INT_REGS + 76, (R))
--#define __FPMEDIA_FSR(R)	__OFFSET(NR_USER_INT_REGS + 78 + (R))
-+#define __INT_GR(R)		__OFFSET(__INT_GR0,		(R))
-+
-+#define __FPMEDIA_FR(R)		__OFFSET(__FPMEDIA_FR0,		(R))
-+#define __FPMEDIA_FNER(R)	__OFFSET(__FPMEDIA_FNER0,	(R))
-+#define __FPMEDIA_MSR(R)	__OFFSET(__FPMEDIA_MSR0,	(R))
-+#define __FPMEDIA_ACC(R)	__OFFSET(__FPMEDIA_ACC0,	(R))
-+#define __FPMEDIA_ACCG(R)	__OFFSETC(__FPMEDIA_ACCG0,	(R))
-+#define __FPMEDIA_FSR(R)	__OFFSET(__FPMEDIA_FSR0,	(R))
-+
-+#define __THREAD_GR(R)		__OFFSET(__THREAD_GR16,		(R) - 16)
- 
- #endif /* _ASM_REGISTERS_H */
-diff --git a/include/asm-frv/thread_info.h b/include/asm-frv/thread_info.h
-index ea426ab..d66c48e 100644
---- a/include/asm-frv/thread_info.h
-+++ b/include/asm-frv/thread_info.h
-@@ -19,6 +19,8 @@ #ifndef __ASSEMBLY__
- #include <asm/processor.h>
- #endif
- 
-+#define THREAD_SIZE		8192
-+
- /*
-  * low level task data that entry.S needs immediate access to
-  * - this struct should fit entirely inside of one cache line
-@@ -46,15 +48,7 @@ struct thread_info {
- 
- #else /* !__ASSEMBLY__ */
- 
--/* offsets into the thread_info struct for assembly code access */
--#define TI_TASK			0x00000000
--#define TI_EXEC_DOMAIN		0x00000004
--#define TI_FLAGS		0x00000008
--#define TI_STATUS		0x0000000C
--#define TI_CPU			0x00000010
--#define TI_PRE_COUNT		0x00000014
--#define TI_ADDR_LIMIT		0x00000018
--#define TI_RESTART_BLOCK	0x0000001C
-+#include <asm/asm-offsets.h>
- 
- #endif
- 
-@@ -83,12 +77,6 @@ #define INIT_THREAD_INFO(tsk)			\
- #define init_thread_info	(init_thread_union.thread_info)
- #define init_stack		(init_thread_union.stack)
- 
--#ifdef CONFIG_SMALL_TASKS
--#define THREAD_SIZE		4096
--#else
--#define THREAD_SIZE		8192
--#endif
--
- /* how to get the thread information struct from C */
- register struct thread_info *__current_thread_info asm("gr15");
- 
-@@ -111,11 +99,7 @@ #endif
- 
- #define free_thread_info(info)	kfree(info)
- 
--#else /* !__ASSEMBLY__ */
--
--#define THREAD_SIZE	8192
--
--#endif
-+#endif /* __ASSEMBLY__ */
- 
- /*
-  * thread information flags

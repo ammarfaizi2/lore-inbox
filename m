@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWGEGLH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWGEGMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbWGEGLH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 02:11:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWGEGLH
+	id S1750878AbWGEGMU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 02:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWGEGMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 02:11:07 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:52707 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932065AbWGEGLF (ORCPT
+	Wed, 5 Jul 2006 02:12:20 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:65413 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750878AbWGEGMT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 02:11:05 -0400
-Date: Tue, 4 Jul 2006 23:11:26 -0700
+	Wed, 5 Jul 2006 02:12:19 -0400
+Date: Tue, 4 Jul 2006 23:12:40 -0700
 From: "Paul E. McKenney" <paulmck@us.ibm.com>
 To: Urs Thuermann <urs@isnogud.escape.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: locking mechanisms
-Message-ID: <20060705061126.GA20483@us.ibm.com>
+Subject: Re: [PATCH] RCU Documentation
+Message-ID: <20060705061240.GC19776@us.ibm.com>
 Reply-To: paulmck@us.ibm.com
-References: <m2odw9g937.fsf@janus.isnogud.escape.de> <1151746571.25491.850.camel@localhost.localdomain> <m2mzbpcyrh.fsf@janus.isnogud.escape.de>
+References: <m2sllh8kep.fsf@janus.isnogud.escape.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m2mzbpcyrh.fsf@janus.isnogud.escape.de>
+In-Reply-To: <m2sllh8kep.fsf@janus.isnogud.escape.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 04, 2006 at 02:58:42PM +0200, Urs Thuermann wrote:
-> Thomas Gleixner <tglx@linutronix.de> writes:
+On Tue, Jul 04, 2006 at 05:22:22PM +0200, Urs Thuermann wrote:
+> Updater should use _rcu variant of list_del().
 > 
-> > Does Documentation/listRCU.txt answer your questions ?
-> 
-> It doesn't answer my question.  I have code that receives network
-> packets by registering with dev_add_pack().  Each packet received is
-> then delivered to a list of receivers, where this list can contain quite
-> a lot of items:
-> 
-> 	receive_function(struct sk_buff *skb, struct net_device *dev,
-> 			struct packet_type *pt, struct net_device *orig_dev)
-> 	{
-> 		...
-> 		rcu_read_lock();
->                 head = find_list(dev);
-> 		hlist_for_each_entry_rcu(p, n, head, list) {
-> 			deliver_packet_to_receiver(skb, p);
-> 		}
-> 		rcu_read_unlock();
-> 	}
-> 
-> The deliver_packet_to_receiver() function finally ends up in a call to
-> sock_queue_rcv_skb().
-> 
-> My questions was, wether I should worry to "hold" the rcu_read_lock for
-> the time of the list traversal since the list can be quite long and
-> preemption is disabled between rcu_read_lock() and rcu_read_unlock().
+> urs
 
-"Holding" rcu_read_lock() for long time periods is much less of a
-concern than holding other types of synchronization mechanisms.
-The main concern is the effect on realtime latency in CONFIG_PREEMPT
-(but -not- CONFIG_PREEMPT_RT) kernels.  This concern is due to the
-fact that rcu_read_lock() suppresses preemption in CONFIG_PREEMPT
-kernels.
+Good catch!!!
 
-But I have to ask: roughly how long is "quite long"?
-
-							Thanx, Paul
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
+> Signed-off-by: Urs Thuermann <urs@isnogud.escape.de>
+> 
+> --- linux-2.6.17/Documentation/RCU/whatisRCU.txt.orig
+> +++ linux-2.6.17/Documentation/RCU/whatisRCU.txt
+> @@ -677,8 +677,9 @@
+>  	+	spin_lock(&listmutex);
+>  		list_for_each_entry(p, head, lp) {
+>  			if (p->key == key) {
+> -				list_del(&p->list);
+> +	-			list_del(&p->list);
+>  	-			write_unlock(&listmutex);
+> +	+			list_del_rcu(&p->list);
+>  	+			spin_unlock(&listmutex);
+>  	+			synchronize_rcu();
+>  				kfree(p);
+> @@ -726,7 +727,7 @@
+>   5   write_lock(&listmutex);            5   spin_lock(&listmutex);
+>   6   list_for_each_entry(p, head, lp) { 6   list_for_each_entry(p, head, lp) {
+>   7     if (p->key == key) {             7     if (p->key == key) {
+> - 8       list_del(&p->list);            8       list_del(&p->list);
+> + 8       list_del(&p->list);            8       list_del_rcu(&p->list);
+>   9       write_unlock(&listmutex);      9       spin_unlock(&listmutex);
+>                                         10       synchronize_rcu();
+>  10       kfree(p);                     11       kfree(p);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

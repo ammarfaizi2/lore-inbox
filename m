@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWGEJyD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWGEJ6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWGEJyD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 05:54:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWGEJyD
+	id S964780AbWGEJ6E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 05:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWGEJ6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 05:54:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5536 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964782AbWGEJyB (ORCPT
+	Wed, 5 Jul 2006 05:58:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21409 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964780AbWGEJ6C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 05:54:01 -0400
-Date: Wed, 5 Jul 2006 02:53:49 -0700
+	Wed, 5 Jul 2006 05:58:02 -0400
+Date: Wed, 5 Jul 2006 02:57:44 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch] uninline init_waitqueue_*() functions
-Message-Id: <20060705025349.eb88b237.akpm@osdl.org>
-In-Reply-To: <20060705093259.GA11237@elte.hu>
-References: <20060705084914.GA8798@elte.hu>
-	<20060705023120.2b70add6.akpm@osdl.org>
-	<20060705093259.GA11237@elte.hu>
+To: Dave Jones <davej@redhat.com>
+Cc: dwmw2@infradead.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [CPUFREQ] Fix implicit declarations in ondemand.
+Message-Id: <20060705025744.ea6ee5ed.akpm@osdl.org>
+In-Reply-To: <20060705094657.GB1877@redhat.com>
+References: <20060705092254.GA30744@redhat.com>
+	<20060705023641.21507b34.akpm@osdl.org>
+	<1152092585.32572.45.camel@pmac.infradead.org>
+	<20060705094657.GB1877@redhat.com>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jul 2006 11:32:59 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+On Wed, 5 Jul 2006 05:46:57 -0400
+Dave Jones <davej@redhat.com> wrote:
 
+> On Wed, Jul 05, 2006 at 10:43:05AM +0100, David Woodhouse wrote:
+>  > On Wed, 2006-07-05 at 02:36 -0700, Andrew Morton wrote:
+>  > > On Wed, 5 Jul 2006 05:22:54 -0400 Dave Jones <davej@redhat.com> wrote:
+>  > > 
+>  > > > drivers/cpufreq/cpufreq_ondemand.c: In function ‘dbs_check_cpu’:
+>  > > > drivers/cpufreq/cpufreq_ondemand.c:238: error: implicit declaration
+>  > > of function ‘jiffies64_to_cputime64’
+>  > > > drivers/cpufreq/cpufreq_ondemand.c:239: error: implicit declaration
+>  > > of function ‘cputime64_sub’
+>  > 
+>  > > > +#include <asm/cputime.h>
+>  > 
+>  > > But kernel_stat.h already includes cputime.h, as does sched.h, and
+>  > > pretty much everything pulls in sched.h.
+>  > > 
+>  > > It's not bad to avoid a dependency upon nested includes, but I do
+>  > > wonder how this error came about?? 
+>  > 
+>  > asm-powerpc/cputime.h doesn't declare jiffies64_to_cputime64() or
+>  > cputime64_sub()
 > 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > shrinks fs/select.o by eight bytes.  (More than I expected).  So it 
-> > does appear to be a space win, but a pretty slim one.
-> 
-> there are 855 calls to these functions in the allyesconfig vmlinux i 
-> did, and i measured a combined size reduction of 34791 bytes. That 
-> averages to a 40 bytes win per call site. (on i386.)
+> The curious part is why it isn't picking up the definition from asm-generic
+> like x86-64 & friends do.
 > 
 
-Yes, but that lumps all three together.  init_waitqueue_head() is obviously
-the porky one.  And it's porkier with CONFIG_DEBUG_SPINLOCK and
-CONFIG_LOCKDEP, which isn't the case to optimise for.
-
-With the debug options turned off, even init_waitqueue_head() becomes just
-three assignments, similar to init_waitqueue_entry() and
-init_waitqueue_func_entry().  All pretty marginal.
-
+CONFIG_VIRT_CPU_ACCOUNTING.

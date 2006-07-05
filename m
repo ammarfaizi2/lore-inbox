@@ -1,93 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWGEWrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbWGEWwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965038AbWGEWrD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 18:47:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbWGEWrD
+	id S965047AbWGEWwe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 18:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbWGEWwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 18:47:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52149 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965038AbWGEWrC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 18:47:02 -0400
-Date: Wed, 5 Jul 2006 15:50:37 -0700
+	Wed, 5 Jul 2006 18:52:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19127 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965047AbWGEWwe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 18:52:34 -0400
+Date: Wed, 5 Jul 2006 15:56:02 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: "Keith Mannthey" <kmannth@gmail.com>
+To: "J.A. =?ISO-8859-1?Q?Magall=F3n" ?= <jamagallon@ono.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.17-mm6
-Message-Id: <20060705155037.7228aa48.akpm@osdl.org>
-In-Reply-To: <a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
+Message-Id: <20060705155602.6e0b4dce.akpm@osdl.org>
+In-Reply-To: <20060705234347.47ef2600@werewolf.auna.net>
 References: <20060703030355.420c7155.akpm@osdl.org>
-	<a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
+	<20060705234347.47ef2600@werewolf.auna.net>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Keith Mannthey" <kmannth@gmail.com> wrote:
+"J.A. Magallón" <jamagallon@ono.com> wrote:
 >
-> On 7/3/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
+> On Mon, 3 Jul 2006 03:03:55 -0700, Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > 
 > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
-> >
-> >
+> > 
+> > 
+> > - A major update to the e1000 driver.
+> > 
 > 
-> Moving from -mm4 to -mm6 I ran into this while trying to boot....
-> <snip>
-> Could not allocate 16 bytes percpu data
-> Could not allocate 16 bytes percpu data
-> sd_mod: Unknown symbol scsi_print_sense_hdr
-> sd_mod: Unknown symbol scsi_mode_sense
-> sd_mod: Unknown symbol scsi_device_get
-> sd_mod: Unknown symbol scsi_get_sense_info_fld
-> <snip>
+> Doesn't find my root drive :(.
 > 
-> sd_mod (and later aacraid) are built into my initrd and loaded during boot.
+> Its a SATA drive, on PIIX.
+> Last -mm I tried ('cause of the raid problems) was -mm1, so I don't know
+> when did this broke. Under -mm1, the disk is this:
 > 
-> I doubled PERCPU_ENOUGH_ROOM to 65536 and was able to boot.  I am not
-> sure what is eating all the percpu room on the system.  I was using
-> this config with -mm4 just fine.
+> libata version 1.30 loaded.
+> ata_piix 0000:00:1f.2: version 1.10tj1ac3
+> ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
+> ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
+> PCI: Setting latency timer of device 0000:00:1f.2 to 64
+> ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
+> ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
+> scsi0 : ata_piix
+> ata1: ENTER, pcs=0x13 base=0
+> ata1: LEAVE, pcs=0x13 present_mask=0x1
+> ata1.00: cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:407f
+> ata1.00: ATA-6, max UDMA/133, 390721968 sectors: LBA48 
+> ata1.00: configured for UDMA/133
+> scsi1 : ata_piix
+> ata2: ENTER, pcs=0x13 base=2
+> ata2: LEAVE, pcs=0x11 present_mask=0x0
+> ata2: SATA port has no device.
+>   Vendor: ATA       Model: ST3200822AS       Rev: 3.01
+>   Type:   Direct-Access                      ANSI SCSI revision: 05
+> SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
+> sda: Write Protect is off
+> sda: Mode Sense: 00 3a 00 00
+> SCSI device sda: drive cache: write back
+> SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
+> sda: Write Protect is off
+> sda: Mode Sense: 00 3a 00 00
+> SCSI device sda: drive cache: write back
+>  sda: sda1 sda2 sda3
+> sd 0:0:0:0: Attached scsi disk sda
 > 
-> I attached the dmesg and .config
+> With -mm6, the kernel doesn't find it. I get this on boot:
+> 
+> kinit: try_name sda,1 = dev(8,1)
+> kinit: name_to_dev_t(/dev/sda1) = dev(8.1)
+> kinit: root_dev = dev(8,1)
+> kinit: failed to identify filesystem /dev/root, trying all
+> kinit: trying to mount /dev/root on /root with type ext3
+> kinit: Cannot open root device dev(8,1)
+> 
+> I have tried to get this message from -mm1, but could not get it in any log.
+> But... I remember to see that the boot message is like:
+> 
+> kinit: try_name sda,1 = sda1(8,1)
+>                         ^^^^
+> I have verified I built -mm6 with ext3,sata-piix and so on, all builtin.
 > 
 
-Looks like we simply ran out.  Why?...
+Are you able to test just 2.6.17 + origin.patch + git-libata-all.patch?
 
-patches/genirq-x86_64-irq-make-vector_irq-per-cpu.patch:+DEFINE_PER_CPU(vector_irq_t, vector_irq) = {
-patches/mm-implement-swap-prefetching.patch:+static DEFINE_PER_CPU(struct pagevec, lru_add_tail_pvecs) = { 0, };
-patches/origin.patch:+static DEFINE_PER_CPU(u64 *, tce_page) = NULL;
-patches/origin.patch:+DEFINE_PER_CPU(struct sys_device, device_mce);
-patches/origin.patch:+static DEFINE_PER_CPU(struct threshold_bank *, threshold_banks[NR_BANKS]);
-patches/origin.patch:+static DEFINE_PER_CPU(struct rq, runqueues);
-patches/origin.patch:+DEFINE_PER_CPU(struct vm_event_state, vm_event_states) = {{0}};
-patches/per-task-delay-accounting-taskstats-interface.patch:+static DEFINE_PER_CPU(__u32, taskstats_seqnum) = { 0 };
-patches/readahead-state-based-method-aging-accounting.patch:+DEFINE_PER_CPU(unsigned long, readahead_aging);
-patches/x86_64-mm-add-performance-counter-reservation-framework-for-up-kernels.patch:+static DEFINE_PER_CPU(unsigned long, perfctr_nmi_owner);
-patches/x86_64-mm-add-performance-counter-reservation-framework-for-up-kernels.patch:+static DEFINE_PER_CPU(unsigned long, evntsel_nmi_owner[3]);
-patches/x86_64-mm-add-performance-counter-reservation-framework-for-up-kernels.patch:+static DEFINE_PER_CPU(unsigned, perfctr_nmi_owner);
-patches/x86_64-mm-add-performance-counter-reservation-framework-for-up-kernels.patch:+static DEFINE_PER_CPU(unsigned, evntsel_nmi_owner[2]);
-patches/x86_64-mm-add-smp-support-on-i386-to-reservation-framework.patch:+static DEFINE_PER_CPU(struct nmi_watchdog_ctlblk, nmi_watchdog_ctlblk);
-patches/x86_64-mm-add-smp-support-on-x86_64-to-reservation-framework.patch:+static DEFINE_PER_CPU(struct nmi_watchdog_ctlblk, nmi_watchdog_ctlblk);
-
-Per-cpuifying the 2.5 kbyte runqueue struct will have hurt.
-
-[does readelf --section-headers drivers/scsi/sd_mod.ko, wonders why
-.data.percpu isn't there]
-
-Are you able to add this, see if we can work out where it all went?
-
---- a/kernel/module.c~a
-+++ a/kernel/module.c
-@@ -340,6 +340,9 @@ static void *percpu_modalloc(unsigned lo
- 	unsigned int i;
- 	void *ptr;
- 
-+	printk("%s: allocating %lu bytes for module %s (vmlinux:%lu)\n",
-+		__FUNCTION__, size, name, block_size(pcpu_size[0]));
-+
- 	if (align > SMP_CACHE_BYTES) {
- 		printk(KERN_WARNING "%s: per-cpu alignment %li > %i\n",
- 		       name, align, SMP_CACHE_BYTES);
-_
+Also, the full dmesg from 2.6.17-mm6 would help, thanks.
 

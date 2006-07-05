@@ -1,130 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWGEOKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWGEOM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964880AbWGEOKf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 10:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWGEOKf
+	id S964878AbWGEOM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 10:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbWGEOM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 10:10:35 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:5791 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964875AbWGEOKe (ORCPT
+	Wed, 5 Jul 2006 10:12:59 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:36274 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964878AbWGEOM6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 10:10:34 -0400
-Message-ID: <44ABC81F.6060405@watson.ibm.com>
-Date: Wed, 05 Jul 2006 10:09:35 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: hadi@cyberus.ca
-CC: pj@sgi.com, Valdis.Kletnieks@vt.edu, jlan@engr.sgi.com, balbir@in.ibm.com,
-       csturtiv@sgi.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Patch][RFC] Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	 <44A01A50.1050403@sgi.com>	 <20060626105548.edef4c64.akpm@osdl.org> <44A020CD.30903@watson.ibm.com>	 <20060626111249.7aece36e.akpm@osdl.org> <44A026ED.8080903@sgi.com>	 <20060626113959.839d72bc.akpm@osdl.org> <44A2F50D.8030306@engr.sgi.com>	 <20060628145341.529a61ab.akpm@osdl.org> <44A2FC72.9090407@engr.sgi.com>	 <20060629014050.d3bf0be4.pj@sgi.com>	 <200606291230.k5TCUg45030710@turing-police.cc.vt.edu>	 <20060629094408.360ac157.pj@sgi.com>	 <20060629110107.2e56310b.akpm@osdl.org> <44A57310.3010208@watson.ibm.com>	 <44A5770F.3080206@watson.ibm.com> <20060630155030.5ea1faba.akpm@osdl.org>	 <44A5DBE7.2020704@watson.ibm.com> <44A5EDE6.3010605@watson.ibm.com>	 <20060630205148.4f66b125.akpm@osdl.org> <44A9881F.7030103@watson.ibm.com>	 <44A9BC4D.7030803@watson.ibm.com> <20060703180151.56f61b31.akpm@osdl.org>	 <1152018353.5214.14.camel@jzny2> <44AA86BF.3090600@watson.ibm.com>	 <44AA9951.1060804@watson.ibm.com> <1152041070.5276.29.camel!
- @jzny2>
-In-Reply-To: <1152041070.5276.29.camel@jzny2>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jul 2006 10:12:58 -0400
+Date: Wed, 5 Jul 2006 07:13:16 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Urs Thuermann <urs@isnogud.escape.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Q: locking mechanisms
+Message-ID: <20060705141316.GA21837@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <m2odw9g937.fsf@janus.isnogud.escape.de> <1151746571.25491.850.camel@localhost.localdomain> <m2mzbpcyrh.fsf@janus.isnogud.escape.de> <20060705061126.GA20483@us.ibm.com> <m2y7v8gzrb.fsf@janus.isnogud.escape.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2y7v8gzrb.fsf@janus.isnogud.escape.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
-> Shailabh,
+On Wed, Jul 05, 2006 at 11:35:52AM +0200, Urs Thuermann wrote:
+> "Paul E. McKenney" <paulmck@us.ibm.com> writes:
 > 
-> On Tue, 2006-04-07 at 12:37 -0400, Shailabh Nagar wrote:
-> [..]
+> > > I have code that receives network packets by registering with
+> > > dev_add_pack().  Each packet received is then delivered to a list
+> > > of receivers, where this list can contain quite a lot of items:
+> > > 
+> > > 	receive_function(struct sk_buff *skb, struct net_device *dev,
+> > > 			struct packet_type *pt, struct net_device *orig_dev)
+> > > 	{
+> > > 		...
+> > > 		rcu_read_lock();
+> > >             head = find_list(dev);
+> > > 		hlist_for_each_entry_rcu(p, n, head, list) {
+> > > 			deliver_packet_to_receiver(skb, p);
+> > > 		}
+> > > 		rcu_read_unlock();
+> > > 	}
+> > > 
+> > > The deliver_packet_to_receiver() function finally ends up in a call to
+> > > sock_queue_rcv_skb().
 > 
->>Here's a strawman for the problem we're trying to solve: get
->>notification of the close of a NETLINK_GENERIC socket that had
->>been used to register interest for some cpus within taskstats.
->>
->> From looking at the netlink code, the way to go seems to be
->>
->>- it maintains a pidhash of nl_pids that are currently
->>registered to listen to atleast one cpu. It also stores the
->>cpumask used.
->>- taskstats registers a notifier block within netlink_chain
->>and receives a callback on the NETLINK_URELEASE event, similar
->>to drivers/scsci/scsi_transport_iscsi.c: iscsi_rcv_nl_event()
->>
->>- the callback checks to see that the protocol is NETLINK_GENERIC
->>and that the nl_pid for the socket is in taskstat's pidhash. If so, it
->>does a cleanup using the stored cpumask and releases the nl_pid
->>from the pidhash.
->>
+> > "Holding" rcu_read_lock() for long time periods is much less of a
+> > concern than holding other types of synchronization mechanisms.
 > 
+> Why is that?  I thought, if I hold a spinlock (or rw_lock in my case)
+> I only block other threads that try to get that same lock.  With
+> rcu_read_lock() I disable preemption which I thought affects more
+> (all) other parts of the kernel.
+
+In any kernel in which rcu_read_lock() disables preemption, both
+spin_lock() and read_lock() (and friends) also disables preemption.
+In addition, as you pointed out above, spin_lock(), read_lock(), and
+friends are also blocking any other task that is trying to acquire
+the lock in a conflicting manner to task(s) already holding it.
+
+For reference, the kernels handle preemption as follows:
+
+o	non-CONFIG_PREEMPT:  preemption is already disabled anyway,
+	so any time anywhere in the kernel counts against realtime
+	latency.
+
+o	CONFIG_PREEMPT: all spinlock acquisitions, as well as rcu_read_lock(),
+	disable preemption.
+
+o	CONFIG_PREEMPT_RT (in Ingo Molnar's -rt patchset): neither "normal"
+	spinlock acquisitions nor rcu_read_lock() disable preemption.
+
+> > But I have to ask: roughly how long is "quite long"?
 > 
-> Sound quiet reasonable.  I am beginning to wonder whether we should do 
-> do the NETLINK_URELEASE in general for NETLINK_GENERIC
-
-I'd initially thought that might be useful but since NETLINK_GENERIC
-is only "virtually" multiplexing the sockfd amongst each of its users,
-I don't know what benefits a generic notifier at NETLINK_GENERIC layer
-would bring (as opposed to each NETLINK_GENERIC user directly registering
-its callback with netlink). Perhaps simplicity ?
-
-
->>We can even do away with the deregister command altogether and
->>simply rely on this autocleanup.
+> Depends on how many and what types of sockets are opened and which
+> packets they want to receive.  The code is part of a new protocol
+> family implementation for CAN (controller area network), which you can
+> see at belios.de, project name socket-can.  It implements several
+> types of PF_CAN sockets, which register for packets of certain CAN
+> IDs, which are then lightly processed (filtered) and eventually
+> delivered into a queue using sock_queue_rcv_skb().  Usually, the list
+> has one receiver per open PF_CAN sockets.  Typical usage here has
+> shown list lengths of 30-100 entries, i.e. 30-100 packets delivered
+> with sock_queue_rcv_skb().  But it all depends on what the user space
+> does, how many PF_CAN sockets are opened by all processes.
 > 
+> Is that value of "quite long" also "too long" for doing an
+> rcu_read_lock()?
+
+Seems like 30-100 entries would be OK in many cases -- but is it possible
+to use a hash table, a tree, or some such if problems arise?
+
+> urs
 > 
-> I think if you may still need the register if you are going to allow
-> multiple sockets per listener process, no?
+> BTW, while implementing PF_CAN and reading kernel code and
+> documentation I often run into questions on details like this which
+> I'd like answered to get a better understanding of kernel internals,
+> sometimes not directly related to some concrete implementation
+> problem.  Is LKML the right place for these questions?
 
-The register command, yes. But an explicit deregister, as opposed to
-auto cleanup on fd close, may not be used all that much :-)
+Yes, though it is almost always worthwhile to google "xxx site:lwn.net"
+or "xxx site:lkml.org" for topic "xxx".  And the contents of the
+Documentation directory, as well -- sometimes a little grepping in
+that directory can be quite helpful.  In addition, there are a number
+of books on Linux kernel internals.
 
-> The other question is how do you correlate pid -> fd?
-
-For the notifier callback, I thought netlink_release will
-provide the nl_pid correspoding to the fd being closed ?
-I can just do a search for that nl_pid in the taskstats-private pidhash.
-
-The nl_pid gets into the pidhash using the genl_info->pid field
-when the listener issues the register command.
-
-Will that be correct ?
-
-So here's the sequence of pids being used/hashed etc. Please let
-me know if my assumptions are correct ?
-
-1. Same listener thread opens 2 sockets
-
-On sockfd1, does a bind() using
-	sockaddr_nl.nl_pid = my_pid1
-On sockfd2, does a bind() using
-	sockaddr_nl.nl_pid = my_pid2
-
-(one of my_pid1's could by its process pid but doesn't have to be)
-
-2. Listener supplies cpumasks on each of the sockets through a
-register command sent on sockfd1.
-
-In the kernel, when the command is received,
-the genl_info->pid field contains my_pid1
-
-my_pid1 is stored in a pidhash alongwith the corresponding cpumask.
-
-cpumask is used to store the my_pid1 into per-cpu lists for each
-cpu in the mask.
-
-3. When an exit event happens on one of those cpus in the mask,
-it is sent to this listener using
-	genlmsg_unicast(...., my_pid1)
-
-
-4. When the listener closes sockfd1, netlink_release() gets called
-and that calls a taskstats notifier callback (say taskstats_cb) with
-	struct netlink_notify n =
-	{ .protocol =  NETLINK_GENERIC, .pid = my_pid1 }
-
-and using the .pid within, taskstats_cb can do a lookup within its
-pidhash. If its present, use the cpumask stored alongside to go
-clean up my_pid1 stored in the listener list of each cpu in the mask.
-
-
---Shailabh
-
-	
-
-
+						Thanx, Paul

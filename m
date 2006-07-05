@@ -1,68 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWGEKWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWGEKYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWGEKWG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 06:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWGEKWG
+	id S964793AbWGEKYg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 06:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWGEKYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 06:22:06 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:2245 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964791AbWGEKWF
-	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Wed, 5 Jul 2006 06:22:05 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17579.37291.562610.316072@gargle.gargle.HOWL>
-Date: Wed, 5 Jul 2006 14:17:15 +0400
-To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-Subject: Re: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
-In-Reply-To: <B41635854730A14CA71C92B36EC22AAC06CD4C@mssmsx411>
-References: <B41635854730A14CA71C92B36EC22AAC06CD4C@mssmsx411>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+	Wed, 5 Jul 2006 06:24:36 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:25997 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S964793AbWGEKYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 06:24:35 -0400
+Subject: Re: [CPUFREQ] Fix implicit declarations in ondemand.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, paulus@samba.org
+In-Reply-To: <20060705025744.ea6ee5ed.akpm@osdl.org>
+References: <20060705092254.GA30744@redhat.com>
+	 <20060705023641.21507b34.akpm@osdl.org>
+	 <1152092585.32572.45.camel@pmac.infradead.org>
+	 <20060705094657.GB1877@redhat.com>  <20060705025744.ea6ee5ed.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 05 Jul 2006 11:24:26 +0100
+Message-Id: <1152095066.32572.49.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ananiev, Leonid I writes:
- > 
- > 
- > Nikita Danilov writes:
- > > Doing large amounts of writeback from pdflush threads makes situation
- > > only worse: suppose you have more than MAX_PDFLUSH_THREADS devices on
- > > the system, and large number of writing threads. If some devices
- > become
- > > congested, then *all* pdflush threads may easily stuck waiting on
- > queue
- > > congestion and there will be no IO going on against other devices.
- > This
- > > would be especially bad, if system is a mix of slow and fast devices.
- > 
- > *all* pdflush threads may NOT waiting on single queue because function
+On Wed, 2006-07-05 at 02:57 -0700, Andrew Morton wrote:
+> On Wed, 5 Jul 2006 05:46:57 -0400
+> Dave Jones <davej@redhat.com> wrote:
+> 
+> > On Wed, Jul 05, 2006 at 10:43:05AM +0100, David Woodhouse wrote:
+> >  > On Wed, 2006-07-05 at 02:36 -0700, Andrew Morton wrote:
+> >  > > On Wed, 5 Jul 2006 05:22:54 -0400 Dave Jones <davej@redhat.com> wrote:
+> >  > > 
+> >  > > > drivers/cpufreq/cpufreq_ondemand.c: In function ‘dbs_check_cpu’:
+> >  > > > drivers/cpufreq/cpufreq_ondemand.c:238: error: implicit declaration
+> >  > > of function ‘jiffies64_to_cputime64’
+> >  > > > drivers/cpufreq/cpufreq_ondemand.c:239: error: implicit declaration
+> >  > > of function ‘cputime64_sub’
+> >  > 
+> >  > > > +#include <asm/cputime.h>
+> >  > 
+> >  > > But kernel_stat.h already includes cputime.h, as does sched.h, and
+> >  > > pretty much everything pulls in sched.h.
+> >  > > 
+> >  > > It's not bad to avoid a dependency upon nested includes, but I do
+> >  > > wonder how this error came about?? 
+> >  > 
+> >  > asm-powerpc/cputime.h doesn't declare jiffies64_to_cputime64() or
+> >  > cputime64_sub()
+> > 
+> > The curious part is why it isn't picking up the definition from asm-generic
+> > like x86-64 & friends do.
+> > 
+> 
+> CONFIG_VIRT_CPU_ACCOUNTING.
 
-I specifically mentioned that multiple deviceS become congested: each
-pdlush thread stuck on its own congested device, the rest of devices is
-idle.
+Signed-off-by: David Woodhouse <dwmw2@infradead.org>
 
- > balance_dirty_pages() tests it:
- > 
- > 	if (writeback_in_progress(bdi))
- > 		return;		/* pdflush is already working this queue
- > */
- > 
- > > Yes, that was silly proposal. I think your patch contains very useful
- > > idea, but it cannot be applied to all file systems. Maybe
- > > wait-for-pdflush can be made optional, depending on the file system
- > > type?
- > 
- > I suppose MS DOS was the last operating system which had considered
- > that parallelism is not applicable.
+--- linux-2.6.17.ppc64/include/asm-powerpc/cputime.h~	2006-06-18 02:49:35.000000000 +0100
++++ linux-2.6.17.ppc64/include/asm-powerpc/cputime.h	2006-07-05 11:19:35.000000000 +0100
+@@ -43,6 +43,7 @@ typedef u64 cputime64_t;
+ 
+ #define cputime64_zero			((cputime64_t)0)
+ #define cputime64_add(__a, __b)		((__a) + (__b))
++#define cputime64_sub(__a, __b)		((__a) - (__b))
+ #define cputime_to_cputime64(__ct)	(__ct)
+ 
+ #ifdef __KERNEL__
+@@ -74,6 +75,23 @@ static inline cputime_t jiffies_to_cputi
+ 	return ct;
+ }
+ 
++static inline cputime64_t jiffies64_to_cputime64(const u64 jif)
++{
++	cputime_t ct;
++	u64 sec;
++
++	/* have to be a little careful about overflow */
++	ct = jif % HZ;
++	sec = jif / HZ;
++	if (ct) {
++		ct *= tb_ticks_per_sec;
++		do_div(ct, HZ);
++	}
++	if (sec)
++		ct += (cputime_t) sec * tb_ticks_per_sec;
++	return ct;
++}
++
+ static inline u64 cputime64_to_jiffies64(const cputime_t ct)
+ {
+ 	return mulhdu(ct, __cputime_jiffies_factor);
 
-It also was the last file system that supported the only type of file
-system, with asumptions about file system behaviour hard coded into its
-design. :-)
+-- 
+dwmw2
 
- > 
- > Leonid
-
-Nikita.

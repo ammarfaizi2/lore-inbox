@@ -1,195 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWGFWqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWGFWs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbWGFWqA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 18:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWGFWqA
+	id S1750988AbWGFWs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 18:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWGFWs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 18:46:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65215 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750819AbWGFWqA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 18:46:00 -0400
-Date: Thu, 6 Jul 2006 15:49:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Tuttle <thinkinginbinary@gmail.com>
-Cc: linux-kernel@vger.kernel.org, rpurdie@rpsys.net
-Subject: Re: [PATCH] Integrate asus_acpi LED's with new LED subsystem
-Message-Id: <20060706154930.1a8fbad5.akpm@osdl.org>
-In-Reply-To: <20060706193157.GC14043@phoenix>
-References: <20060706193157.GC14043@phoenix>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jul 2006 18:48:28 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:47028 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750987AbWGFWs2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 18:48:28 -0400
+Date: Thu, 6 Jul 2006 17:48:24 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix PCI error token awkward value
+Message-ID: <20060706224823.GC29526@austin.ibm.com>
+References: <20060706220119.GB29526@austin.ibm.com> <20060706152203.5721d54e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060706152203.5721d54e.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Tuttle <thinkinginbinary@gmail.com> wrote:
->
-> (Sorry to repost... just going through the motions of ChangeLog and
-> Signed-off-by headers.)
+On Thu, Jul 06, 2006 at 03:22:03PM -0700, Andrew Morton wrote:
 > 
-> Here is a patch to the asus_acpi driver that links the Asus laptop LED's
-> into the new LED subsystem.  It creates LED class devices named
-> asus:mail, asus:wireless, and asus:touchpad, depending on if the laptop
-> supports the mled, wled, and tled LED's.
-> 
-> Since it's so new, I added a config option to turn it on and off.  It's
-> worked for me, though I have an Asus M2N, which only has the mail and
-> wireless LED's.
-> 
-> ...
->
->  #include <linux/types.h>
->  #include <linux/proc_fs.h>
-> +#ifdef CONFIG_ACPI_ASUS_NEW_LED
-> +#include <linux/leds.h>
-> +#endif
+> Wouldn't it be better to sort out our initialisation so we don't actually
+> need this memset-equals-pci_channel_io_normal trick?  pci_scan_device()
+> looks like a good place..
 
-The ifdef shouldn't be required.  If it is, ldes.h needs fixing.
+OK, revised patch below. That's more typical of "application style
+coding", where the apps waste a few extra cycles by zeroing a
+struct and then immediately initializing struct members to non-zero
+values (it seems that CPU designers have noticed that Java does this 
+a lot). But I thought the kernel philosophy was "everythings zero
+its safe to assume everything's zero, don't waste cycles on such
+silliness". which is why you got the ewww pach.  
 
-> +#ifdef CONFIG_ACPI_ASUS_NEW_LED
-> +                
-> +/* These functions are called by the LED subsystem to update the desired
-> + * state of the LED's. */
-> +static void led_set_mled(struct led_classdev *led_cdev,
-> +                                enum led_brightness value);
-> +static void led_set_wled(struct led_classdev *led_cdev,
-> +                                enum led_brightness value);
-> +static void led_set_tled(struct led_classdev *led_cdev,
-> +                                enum led_brightness value);
+--linas
 
-declaration
+Subject: [PATCH] Initialize struct_pci error state
 
-> +/* LED class devices. */
-> +static struct led_classdev led_cdev_mled =
-> +        { .name = "asus:mail",     .brightness_set = led_set_mled };
-> +static struct led_classdev led_cdev_wled =
-> +        { .name = "asus:wireless", .brightness_set = led_set_wled };
-> +static struct led_classdev led_cdev_tled =
-> +        { .name = "asus:touchpad", .brightness_set = led_set_tled };
+The pci channel state is currently uninitialized, thus there
+are two ways of indicating that "everything's OK": 0 and 1.
+This is a bit of a burden.
 
-definition
+If a devce driver wants to check if the pci channel is in a working
+or a disconnected state, the driver writer must perform checks similar
+to
 
-> +/* These functions actually update the LED's, and are called from a
-> + * workqueue.  By doing this as separate work rather than when the LED
-> + * subsystem asks, I avoid messing with the Asus ACPI stuff during a
-> + * potentially bad time, such as a timer interrupt. */
-> +static void led_update_mled(void *private);
-> +static void led_update_wled(void *private);
-> +static void led_update_tled(void *private);
+   if((pdev->error_state != 0) &&
+      (pdev->error_state != pci_channel_io_normal)) {
+         whatever();
+   }
 
-declaration
+which is rather akward. The first check is needed because
+stuct pci_dev is inited to all-zeros. The scond is needed
+because the error recovery will set the state to
+pci_channel_io_normal (which is not zero).
 
-> +/* Desired values of LED's. */
-> +static int led_mled_value = 0; 
-> +static int led_wled_value = 0;
-> +static int led_tled_value = 0; 
+This patch fixes this awkwardness.
 
-definition
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
 
-This mingles declarations with definitions.  It's more conventional to keep
-them together.
+----
+ drivers/pci/probe.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-Please don' t initialise static storage to zero (the "= 0").  The C runtime
-environment does that already, and the above construct will place the
-values into .data and hence into .vmlinux.
-
-> +/* LED workqueue. */
-> +static struct workqueue_struct *led_workqueue;
-> +
-> +/* LED update work structs. */
-> +DECLARE_WORK(led_mled_work, led_update_mled, NULL);
-> +DECLARE_WORK(led_wled_work, led_update_wled, NULL);
-> +DECLARE_WORK(led_tled_work, led_update_tled, NULL);
-
-These all should be declared static.
-
-> +/* LED work functions. */
-> +static void led_update_mled(void *private) {
-
-The opening brace goes in column 1.
-
-> +        char *ledname = hotk->methods->mt_mled;
-> +        int led_out = led_mled_value ? 1 : 0;
-> +        hotk->status = (led_out) ? (hotk->status | MLED_ON) : (hotk->status & ~MLED_ON);
-> +        led_out = 1 - led_out;
-> +        if (!write_acpi_int(hotk->handle, ledname, led_out, NULL))
-> +                printk(KERN_WARNING "Asus ACPI: LED (%s) write failed\n",
-> +                       ledname);
-> +}
-> +
-> +static void led_update_wled(void *private) {
-> +        char *ledname = hotk->methods->mt_wled;
-> +        int led_out = led_wled_value ? 1 : 0;
-> +        hotk->status = (led_out) ? (hotk->status | WLED_ON) : (hotk->status & ~WLED_ON);
-> +        if (!write_acpi_int(hotk->handle, ledname, led_out, NULL))
-> +                printk(KERN_WARNING "Asus ACPI: LED (%s) write failed\n",
-> +                       ledname);
-> +}
-
-It's usual to put a blank line at the end of the declaration of the
-automatic valriables.
-
-> +
-> +/* Registers LED class devices and sets up workqueue. */
-> +{
-> +        destroy_workqueue(led_workqueue);
-> +
-> +        if (hotk->methods->mt_tled) {
-> +                led_classdev_unregister(&led_cdev_tled);
-> +        }
-> +
-> +        if (hotk->methods->mt_wled) {
-> +                led_classdev_unregister(&led_cdev_wled);
-> +        }
-> +        
-> +        if (hotk->methods->mt_mled) {
-> +                led_classdev_unregister(&led_cdev_mled);
-> +        }
-> +}
-> +
-> +#endif
-
-Add:
-
-#else
-static inline int led_initialize(struct device *parent)
-{
-}
-
-static inline void led_terminate(void)
-{
-}
-#endif
-
->  static int asus_hotk_add_fs(struct acpi_device *device)
->  {
->  	struct proc_dir_entry *proc;
-> @@ -1299,6 +1443,10 @@
->  	/* LED display is off by default */
->  	hotk->ledd_status = 0xFFF;
->  
-> +#ifdef CONFIG_ACPI_ASUS_NEW_LED
-> +        result = led_initialize(acpi_get_physical_device(device->handle));
-> +#endif
-> +
->        end:
->  	if (result) {
->  		kfree(hotk);
-> @@ -1314,6 +1462,10 @@
->  	if (!device || !acpi_driver_data(device))
->  		return -EINVAL;
->  
-> +#ifdef CONFIG_ACPI_ASUS_NEW_LED
-> +        led_terminate();
-> +#endif          
-> +
-
-And remove these ifdefs.
-
-
-That way we avoid sprinkling ifdefs in the middle of the C code and we get
-syntax- and type-checking even if the feature is configged off.
-
+Index: linux-2.6.17-mm3/drivers/pci/probe.c
+===================================================================
+--- linux-2.6.17-mm3.orig/drivers/pci/probe.c	2006-06-27 11:39:09.000000000 -0500
++++ linux-2.6.17-mm3/drivers/pci/probe.c	2006-07-06 17:28:20.000000000 -0500
+@@ -815,6 +815,7 @@ pci_scan_device(struct pci_bus *bus, int
+ 	dev->vendor = l & 0xffff;
+ 	dev->device = (l >> 16) & 0xffff;
+ 	dev->cfg_size = pci_cfg_space_size(dev);
++	dev->error_state = pci_channel_io_normal;
+ 
+ 	/* Assume 32-bit PCI; let 64-bit PCI cards (which are far rarer)
+ 	   set this higher, assuming the system even supports it.  */

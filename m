@@ -1,98 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWGGASJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWGGATw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbWGGASJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 20:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWGGASJ
+	id S1751100AbWGGATw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 20:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWGGATw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 20:18:09 -0400
-Received: from mga07.intel.com ([143.182.124.22]:5730 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1750916AbWGGASI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 20:18:08 -0400
-X-IronPort-AV: i="4.06,214,1149490800"; 
-   d="scan'208"; a="62375085:sNHT636619333"
-Date: Thu, 6 Jul 2006 17:08:24 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: vatsa@in.ibm.com, nickpiggin@yahoo.com.au, mingo@elte.hu, hawkes@sgi.com,
-       dino@in.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       suresh.b.siddha@intel.com, ak@suse.de
-Subject: Re: [PATCH 2.6.16-mm1 2/2] sched_domains: Allocate sched_groups dynamically
-Message-ID: <20060706170824.E13512@unix-os.sc.intel.com>
-References: <20060325082804.GB17011@in.ibm.com> <20060706170151.cdb1dc6c.pj@sgi.com>
+	Thu, 6 Jul 2006 20:19:52 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:34493 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751100AbWGGATv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 20:19:51 -0400
+Date: Thu, 6 Jul 2006 16:39:09 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, dipankar@in.ibm.com,
+       Ingo Molnar <mingo@elte.hu>, tytso@us.ibm.com,
+       Darren Hart <dvhltc@us.ibm.com>, oleg@tv-sign.ru,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [PATCH 1/2] srcu-3: RCU variant permitting read-side blocking
+Message-ID: <20060706233909.GN1316@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <Pine.LNX.4.44L0.0607061603320.5768-100000@iolanthe.rowland.org> <1152226204.21787.2093.camel@stark>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060706170151.cdb1dc6c.pj@sgi.com>; from pj@sgi.com on Thu, Jul 06, 2006 at 05:01:51PM -0700
+In-Reply-To: <1152226204.21787.2093.camel@stark>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have reviewed Srivatsa's code back then and made sure it fixes
-the problem in the presence of multi-core too. Based on my review,
-I provided feedback to Srivatsa then.
-
-In short, multi-core was broken too and Srivatsa's patch fixed it.
-
-thanks,
-suresh
-
-On Thu, Jul 06, 2006 at 05:01:51PM -0700, Paul Jackson wrote:
-> Several months ago, Srivatsa wrote:
-> > I couldn't test this on a multi-core machine, since I don't think we
-> > have one in our lab.
+On Thu, Jul 06, 2006 at 03:50:03PM -0700, Matt Helsley wrote:
+> On Thu, 2006-07-06 at 16:28 -0400, Alan Stern wrote:
+> > I've been trying to come up with a way to allow SRCU structures to be
+> > initialized statically rather than dynamically.  The per-cpu data makes it
+> > quite hard.  Not only do you have to use different routines to access
+> > static vs. dynamic per-cpu data, there's just no good way to write a
+> > static initializer.  This is because the per-cpu data requires its own
+> > separate definition, and there's no way to call DEFINE_PER_CPU from within 
+> > an initializer.
 > > 
-> > Suresh, would you mind testing the patch on a multi-core machine, in case you 
-> > have access to one?
+> > Here, in outline, is the best I've been able to come up with.  It uses a
+> > function pointer member to select the appropriate sort of per-cpu data
+> > access.  You would use it like this:
 > > 
-> > Basically you would need to do create a exclusive CPUset with one CPU in it 
-> > (ensure that its sibling in the same core is not part of the same
-> > CPUset). As soon as you make the CPUset exclusive, you would hit some
-> > kind of hang. With this patch, the hang should go away.
+> > PREDEFINE_SRCU(s);
+> > static DEFINE_SRCU(s);
+> > ...
+> > idx = srcu_read_lock(&s);
+> > ... etc ...
+> > 
+> > Alternative possibilities involve an entire parallel implementation for
+> > statically-initialized structures (which seems excessive) or using a
+> > runtime test instead of a function pointer to select the dereferencing
+> > mechanism.
+> > 
+> > Can anybody suggest anything better?
+> > 
+> > Alan Stern
 > 
+> I started to come up with something similar but did not get as far. I
+> suspect the runtime test you're suggesting would look like:
 > 
-> Summary: Where do we stand with multi-core and this bug?
+> #include <asm/sections.h>
 > 
+> ...
+> if ((per_cpu_ptr >= __per_cpu_start) && (per_cpu_ptr < __per_cpu_end)) {
+>     /* staticly-allocated per-cpu data */
+>     ...
+> } else {
+>     /* dynamically-allocated per-cpu data */
+>     ...
+> }
+> ...
 > 
-> I don't see a reply from Suresh on whether he could test on multi-core.
-> 
-> I finally happened to be running on a hyper-threaded box last week,
-> and stumbled over this bug that Srivatsa's patch fixes.  Hawkes
-> remembered Srivatsa's patch, I tried it, and it worked.  Thanks!
-> 
-> But now I'm quite confused as to the situation with multi-core.
-> 
-> Details of my confusions, for the bored:
-> 
->     From Srivatsa's remark, I would have guessed that multi-core was
->     at risk for this bug too, but Srivatsa was hopeful that his patch
->     would fix that too.
-> 
->     Early this week, a couple of people who shall remain anonymous here
->     raised the question of whether we had the same problem with multi-core.
->     One of them believed that multi-core did have the same problem.
-> 
->     I got a little time on a multi-core system this morning to test it,
->     and while running what I -thought- was a kernel -without- Srivatsa's
->     patch, I could not find any problem.  I made a cpuset with just a
->     single logical cpu in it, and marked it cpu_exclusive, and the
->     system did not hang.
-> 
->     It will be another day before I can get on that multi-core system
->     again to verify my findings.
-> 
->     I was hoping that someone could actually -read- this code and state
->     with confidence that one of the following held:
->      * it was already working ok on multi-core (a one CPU cpu_exclusive cpuset),
->      * it was broken, but Srivatsa's patch fixes it, or
->      * it's still broken, even with Srivatsa's patch.
-> 
->     I tried a couple of times to read the code myself, but could not
->     make any headway there.
-> 
-> So ... what's up with multi-core and this bug?
-> 
-> -- 
->                   I won't rest till it's the best ...
->                   Programmer, Linux Scalability
->                   Paul Jackson <pj@sgi.com> 1.925.600.0401
+> I think that's easier to read and understand than following a function
+> pointer.
+
+Is this what the two of you are getting at?
+
+#define DEFINE_SRCU_STRUCT(name) \
+	DEFINE_PER_CPU(struct srcu_struct_array, name) = { 0, 0 }; \
+	struct srcu_struct name = { \
+		.completed = 0, \
+		.per_cpu_ref = NULL, \
+		.mutex = __MUTEX_INITIALIZER(name.mutex) \
+	}
+
+#define srcu_read_lock(ss) \
+	({ \
+		if ((ss)->per_cpu_ref != NULL) \
+			srcu_read_lock_dynamic(&ss); \
+		else { \
+			int ret; \
+			\
+			preempt_disable(); \
+			ret = srcu_read_lock_static(&ss, &__get_cpu_var(ss)); \
+			preempt_enable(); \
+			ret; \
+		} \
+	})
+
+int srcu_read_lock_dynamic(struct srcu_struct *sp)
+{
+	int idx;
+
+	preempt_disable();
+	idx = sp->completed & 0x1;
+	barrier();  /* ensure compiler looks -once- at sp->completed. */
+	per_cpu_ptr(sp->per_cpu_ref, smp_processor_id())->c[idx]++;
+	srcu_barrier();  /* ensure compiler won't misorder critical section. */
+	preempt_enable();
+	return idx;
+}
+
+int srcu_read_lock_static(struct srcu_struct *sp, srcu_struct_array *cp)
+{
+	int idx;
+
+	idx = sp->completed & 0x1;
+	barrier();  /* ensure compiler looks -once- at sp->completed. */
+	cp->c[idx]++;
+	srcu_barrier();  /* ensure compiler won't misorder critical section. */
+	return idx;
+}
+
+And similarly for srcu_read_unlock()?
+
+I sure hope that there is a better way!!!  For one thing, you cannot pass
+a pointer in to srcu_read_lock(), since __get_cpu_var's name mangling would
+fail in that case...
+
+							Thanx, Paul

@@ -1,242 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbWGFFJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWGFFSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965158AbWGFFJe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 01:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWGFFJe
+	id S932247AbWGFFSd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 01:18:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWGFFSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 01:09:34 -0400
-Received: from gate.crashing.org ([63.228.1.57]:17114 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965158AbWGFFJd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 01:09:33 -0400
-Subject: [PATCH] powerpc: Add cpufreq support for Xserve G5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 06 Jul 2006 15:09:19 +1000
-Message-Id: <1152162559.24632.62.camel@localhost.localdomain>
+	Thu, 6 Jul 2006 01:18:33 -0400
+Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:17670 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S932247AbWGFFSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 01:18:32 -0400
+Date: Thu, 6 Jul 2006 01:18:11 -0400
+From: Matt LaPlante <kernel1@cyberdogtech.com>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@kernel.org
+Subject: [PATCH] more misc typo fixes
+Message-Id: <20060706011811.3eef1a96.kernel1@cyberdogtech.com>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Spam-Processed: mail.cyberdogtech.com, Thu, 06 Jul 2006 01:18:17 -0400
+	(not processed: message from valid local sender)
+X-Return-Path: kernel1@cyberdogtech.com
+X-Envelope-From: kernel1@cyberdogtech.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Thu, 06 Jul 2006 01:18:18 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Xserve G5 are capable of frequency switching like other desktop G5s.
-This enables it. It also fix a Kconfig issue which prevented from
-building the G5 cpufreq support if CONFIG_PMAC_SMU was not set (the
-first version of that driver only worked with SMU based macs, but this
-isn't the case anymore).
+Here are more misc typo fixes for the kernel.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+-- 
+Matt LaPlante
+CCNP, CCDP, A+, Linux+, CQS
+kernel1@cyberdogtech.com
 
-Index: linux-irq-work/arch/powerpc/Kconfig
-===================================================================
---- linux-irq-work.orig/arch/powerpc/Kconfig	2006-07-01 13:51:11.000000000 +1000
-+++ linux-irq-work/arch/powerpc/Kconfig	2006-07-06 12:16:11.000000000 +1000
-@@ -504,7 +504,7 @@
- 
- config CPU_FREQ_PMAC64
- 	bool "Support for some Apple G5s"
--	depends on CPU_FREQ && PMAC_SMU && PPC64
-+	depends on CPU_FREQ && PPC64
- 	select CPU_FREQ_TABLE
+--
+
+diff -ru a/arch/cris/arch-v10/drivers/Kconfig b/arch/cris/arch-v10/drivers/Kconfig
+--- a/arch/cris/arch-v10/drivers/Kconfig	2006-07-05 23:55:13.000000000 -0400
++++ b/arch/cris/arch-v10/drivers/Kconfig	2006-07-06 00:49:08.000000000 -0400
+@@ -550,7 +550,7 @@
+ 	select BLK_DEV_IDEDMA
  	help
- 	  This adds support for frequency switching on Apple iMac G5,
-Index: linux-irq-work/arch/powerpc/platforms/powermac/cpufreq_64.c
-===================================================================
---- linux-irq-work.orig/arch/powerpc/platforms/powermac/cpufreq_64.c	2006-07-01 13:51:11.000000000 +1000
-+++ linux-irq-work/arch/powerpc/platforms/powermac/cpufreq_64.c	2006-07-06 14:58:31.000000000 +1000
-@@ -10,6 +10,8 @@
-  * that is iMac G5 and latest single CPU desktop.
-  */
- 
-+#undef DEBUG
-+
- #include <linux/module.h>
- #include <linux/types.h>
- #include <linux/errno.h>
-@@ -30,13 +32,7 @@
- #include <asm/smu.h>
- #include <asm/pmac_pfunc.h>
- 
--#undef DEBUG
--
--#ifdef DEBUG
--#define DBG(fmt...) printk(fmt)
--#else
--#define DBG(fmt...)
--#endif
-+#define DBG(fmt...) pr_debug(fmt)
- 
- /* see 970FX user manual */
- 
-@@ -82,8 +78,6 @@
- /* Power mode data is an array of the 32 bits PCR values to use for
-  * the various frequencies, retrieved from the device-tree
-  */
--static u32 *g5_pmode_data;
--static int g5_pmode_max;
- static int g5_pmode_cur;
- 
- static void (*g5_switch_volt)(int speed_mode);
-@@ -93,6 +87,11 @@
- static DEFINE_MUTEX(g5_switch_mutex);
+ 	  Enable this to get support for ATA/IDE.
+-	  You can't use paralell ports or SCSI ports
++	  You can't use parallel ports or SCSI ports
+ 	  at the same time.
  
  
-+#ifdef CONFIG_PPC_SMU
-+
-+static u32 *g5_pmode_data;
-+static int g5_pmode_max;
-+
- static struct smu_sdbp_fvt *g5_fvt_table;	/* table of op. points */
- static int g5_fvt_count;			/* number of op. points */
- static int g5_fvt_cur;				/* current op. point */
-@@ -210,6 +209,16 @@
- }
+@@ -744,7 +744,7 @@
+ 	default "FF"
+ 	help
+ 	  This is a bitmask with information of what bits in PA that a user
+-	  can change change the value on using ioctl's.
++	  can change the value on using ioctl's.
+ 	  Bit set = changeable.
+ 	  You probably want 00 here.
  
- /*
-+ * Fake voltage switching for platforms with missing support
-+ */
-+
-+static void g5_dummy_switch_volt(int speed_mode)
-+{
-+}
-+
-+#endif /* CONFIG_PPC_SMU */
-+
-+/*
-  * Platform function based voltage switching for PowerMac7,2 & 7,3
-  */
+diff -ru a/arch/cris/arch-v32/Kconfig b/arch/cris/arch-v32/Kconfig
+--- a/arch/cris/arch-v32/Kconfig	2006-07-05 23:55:13.000000000 -0400
++++ b/arch/cris/arch-v32/Kconfig	2006-07-06 00:20:37.000000000 -0400
+@@ -162,7 +162,7 @@
+ 	depends on ETRAX_ARCH_V32
+ 	default "0"
+ 	help
+-	  SDRAM configuration for group 1. The defult value is 0
++	  SDRAM configuration for group 1. The default value is 0
+ 	  because group 1 is not used in the default configuration,
+ 	  described in the help for SDRAM_GRP0_CONFIG.
  
-@@ -248,6 +257,9 @@
- 	struct pmf_args args;
- 	u32 done = 0;
- 	unsigned long timeout;
-+	int rc;
-+
-+	DBG("g5_pfunc_switch_freq(%d)\n", speed_mode);
+diff -ru a/arch/m68knommu/Kconfig b/arch/m68knommu/Kconfig
+--- a/arch/m68knommu/Kconfig	2006-07-05 23:57:07.000000000 -0400
++++ b/arch/m68knommu/Kconfig	2006-07-06 00:37:50.000000000 -0400
+@@ -161,8 +161,8 @@
+ 	  frequency, it may or may not be the same as the external clock
+ 	  crystal fitted to your board. Some processors have an internal
+ 	  PLL and can have their frequency programmed at run time, others
+-	  use internal dividers. In gernal the kernel won't setup a PLL
+-	  if it is fitted (there are some expections). This value will be
++	  use internal dividers. In general the kernel won't setup a PLL
++	  if it is fitted (there are some exceptions). This value will be
+ 	  specific to the exact CPU that you are using.
  
- 	/* If frequency is going up, first ramp up the voltage */
- 	if (speed_mode < g5_pmode_cur)
-@@ -255,9 +267,12 @@
+ config CLOCK_DIV
+diff -ru a/arch/um/Kconfig b/arch/um/Kconfig
+--- a/arch/um/Kconfig	2006-07-05 23:55:11.000000000 -0400
++++ b/arch/um/Kconfig	2006-07-06 00:44:46.000000000 -0400
+@@ -257,7 +257,7 @@
+ 	UML and spend long times with UML stopped at a breakpoint.  In this
+ 	case, when UML is restarted, it will call the timer enough times to make
+ 	up for the time spent at the breakpoint.  This could result in a
+-	noticable lag.  If this is a problem, then disable this option.
++	noticeable lag.  If this is a problem, then disable this option.
  
- 	/* Do it */
- 	if (speed_mode == CPUFREQ_HIGH)
--		pmf_call_one(pfunc_cpu_setfreq_high, NULL);
-+		rc = pmf_call_one(pfunc_cpu_setfreq_high, NULL);
- 	else
--		pmf_call_one(pfunc_cpu_setfreq_low, NULL);
-+		rc = pmf_call_one(pfunc_cpu_setfreq_low, NULL);
-+
-+	if (rc)
-+		printk(KERN_WARNING "cpufreq: pfunc switch error %d\n", rc);
+ endmenu
  
- 	/* It's an irq GPIO so we should be able to just block here,
- 	 * I'll do that later after I've properly tested the IRQ code for
-@@ -296,13 +311,6 @@
- 	return val ? CPUFREQ_HIGH : CPUFREQ_LOW;
- }
+diff -ru a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
+--- a/arch/x86_64/Kconfig	2006-07-05 23:57:10.000000000 -0400
++++ b/arch/x86_64/Kconfig	2006-07-06 00:28:11.000000000 -0400
+@@ -292,7 +292,7 @@
+        help
+ 	 Enable K8 NUMA node topology detection.  You should say Y here if
+ 	 you have a multi processor AMD K8 system. This uses an old
+-	 method to read the NUMA configurtion directly from the builtin
++	 method to read the NUMA configuration directly from the builtin
+ 	 Northbridge of Opteron. It is recommended to use X86_64_ACPI_NUMA
+ 	 instead, which also takes priority if both are compiled in.   
  
--/*
-- * Fake voltage switching for platforms with missing support
-- */
--
--static void g5_dummy_switch_volt(int speed_mode)
--{
--}
+diff -ru a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+--- a/drivers/input/joystick/Kconfig	2006-07-05 23:55:45.000000000 -0400
++++ b/drivers/input/joystick/Kconfig	2006-07-06 00:09:59.000000000 -0400
+@@ -32,7 +32,7 @@
+ 	  module will be called analog.
  
- /*
-  * Common interface to the cpufreq core
-@@ -375,6 +383,8 @@
- };
+ config JOYSTICK_A3D
+-	tristate "Assasin 3D and MadCatz Panther devices"
++	tristate "Assassin 3D and MadCatz Panther devices"
+ 	select GAMEPORT
+ 	help
+ 	  Say Y here if you have an FPGaming or MadCatz controller using the
+diff -ru a/fs/Kconfig b/fs/Kconfig
+--- a/fs/Kconfig	2006-07-05 23:57:42.000000000 -0400
++++ b/fs/Kconfig	2006-07-06 00:35:03.000000000 -0400
+@@ -991,7 +991,7 @@
+ 	  on files and directories, and database-like indeces on selected
+ 	  attributes. (Also note that this driver doesn't make those features
+ 	  available at this time). It is a 64 bit filesystem, so it supports
+-	  extremly large volumes and files.
++	  extremely large volumes and files.
  
+ 	  If you use this filesystem, you should also say Y to at least one
+ 	  of the NLS (native language support) options below.
+diff -ru a/mm/Kconfig b/mm/Kconfig
+--- a/mm/Kconfig	2006-07-05 23:58:03.000000000 -0400
++++ b/mm/Kconfig	2006-07-06 00:10:01.000000000 -0400
+@@ -104,7 +104,7 @@
+ 	def_bool n
  
-+#ifdef CONFIG_PPC_SMU
-+
- static int __init g5_neo2_cpufreq_init(struct device_node *cpus)
- {
- 	struct device_node *cpunode;
-@@ -525,6 +535,9 @@
- 	return rc;
- }
+ #
+-# Architectecture platforms which require a two level mem_section in SPARSEMEM
++# Architecture platforms which require a two level mem_section in SPARSEMEM
+ # must select this option. This is usually for architecture platforms with
+ # an extremely sparse physical address space.
+ #
+diff -ru a/net/ipv4/ipvs/Kconfig b/net/ipv4/ipvs/Kconfig
+--- a/net/ipv4/ipvs/Kconfig	2006-07-05 23:55:08.000000000 -0400
++++ b/net/ipv4/ipvs/Kconfig	2006-07-06 00:31:51.000000000 -0400
+@@ -81,7 +81,7 @@
+ 	bool "ESP load balancing support"
+ 	depends on IP_VS
+ 	---help---
+-	  This option enables support for load balancing ESP (Encapsultion
++	  This option enables support for load balancing ESP (Encapsulation
+ 	  Security Payload) transport protocol. Say Y if unsure.
  
-+#endif /* CONFIG_PPC_SMU */
-+
-+
- static int __init g5_pm72_cpufreq_init(struct device_node *cpus)
- {
- 	struct device_node *cpuid = NULL, *hwclock = NULL, *cpunode = NULL;
-@@ -533,6 +546,9 @@
- 	u64 max_freq, min_freq, ih, il;
- 	int has_volt = 1, rc = 0;
+ config	IP_VS_PROTO_AH
+diff -ru a/net/ipv4/Kconfig b/net/ipv4/Kconfig
+--- a/net/ipv4/Kconfig	2006-07-05 23:58:03.000000000 -0400
++++ b/net/ipv4/Kconfig	2006-07-06 00:14:02.000000000 -0400
+@@ -64,7 +64,7 @@
+ config IP_FIB_TRIE
+ 	bool "FIB_TRIE"
+ 	---help---
+-	Use new experimental LC-trie as FIB lookup algoritm. 
++	Use new experimental LC-trie as FIB lookup algorithm. 
+         This improves lookup performance if you have a large
+ 	number of routes.
  
-+	DBG("cpufreq: Initializing for PowerMac7,2, PowerMac7,3 and"
-+	    " RackMac3,1...\n");
-+
- 	/* Get first CPU node */
- 	for (cpunode = NULL;
- 	     (cpunode = of_get_next_child(cpus, cpunode)) != NULL;) {
-@@ -636,6 +652,15 @@
- 	 */
- 	ih = *((u32 *)(eeprom + 0x10));
- 	il = *((u32 *)(eeprom + 0x20));
-+
-+	/* Check for machines with no useful settings */
-+	if (il == ih) {
-+		printk(KERN_WARNING "cpufreq: No low frequency mode available"
-+		       " on this model !\n");
-+		rc = -ENODEV;
-+		goto bail;
-+	}
-+
- 	min_freq = 0;
- 	if (ih != 0 && il != 0)
- 		min_freq = (max_freq * il) / ih;
-@@ -643,7 +668,7 @@
- 	/* Sanity check */
- 	if (min_freq >= max_freq || min_freq < 1000) {
- 		printk(KERN_ERR "cpufreq: Can't calculate low frequency !\n");
--		rc = -ENODEV;
-+		rc = -ENXIO;
- 		goto bail;
- 	}
- 	g5_cpu_freqs[0].frequency = max_freq;
-@@ -690,16 +715,10 @@
- 	return rc;
- }
+@@ -526,7 +526,7 @@
+ 	---help---
+ 	TCP-Hybla is a sender-side only change that eliminates penalization of
+ 	long-RTT, large-bandwidth connections, like when satellite legs are
+-	involved, expecially when sharing a common bottleneck with normal
++	involved, especially when sharing a common bottleneck with normal
+ 	terrestrial connections.
  
--static int __init g5_rm31_cpufreq_init(struct device_node *cpus)
--{
--	/* NYI */
--	return 0;
--}
--
- static int __init g5_cpufreq_init(void)
- {
- 	struct device_node *cpus;
--	int rc;
-+	int rc = 0;
+ config TCP_CONG_VEGAS
+diff -ru a/net/ipv4/netfilter/Kconfig b/net/ipv4/netfilter/Kconfig
+--- a/net/ipv4/netfilter/Kconfig	2006-07-05 23:58:03.000000000 -0400
++++ b/net/ipv4/netfilter/Kconfig	2006-07-06 00:16:39.000000000 -0400
+@@ -384,7 +384,7 @@
+ 	  daemon using netlink multicast sockets; unlike the LOG target
+ 	  which can only be viewed through syslog.
  
- 	cpus = of_find_node_by_path("/cpus");
- 	if (cpus == NULL) {
-@@ -708,12 +727,13 @@
- 	}
+-	  The apropriate userspace logging daemon (ulogd) may be obtained from
++	  The appropriate userspace logging daemon (ulogd) may be obtained from
+ 	  <http://www.gnumonks.org/projects/ulogd/>
  
- 	if (machine_is_compatible("PowerMac7,2") ||
--	    machine_is_compatible("PowerMac7,3"))
-+	    machine_is_compatible("PowerMac7,3") ||
-+	    machine_is_compatible("RackMac3,1"))
- 		rc = g5_pm72_cpufreq_init(cpus);
--	else if (machine_is_compatible("RackMac3,1"))
--		rc = g5_rm31_cpufreq_init(cpus);
-+#ifdef CONFIG_PPC_SMU
- 	else
- 		rc = g5_neo2_cpufreq_init(cpus);
-+#endif /* CONFIG_PPC_SMU */
+ 	  To compile it as a module, choose M here.  If unsure, say N.
+diff -ru a/security/selinux/Kconfig b/security/selinux/Kconfig
+--- a/security/selinux/Kconfig	2006-07-05 23:58:04.000000000 -0400
++++ b/security/selinux/Kconfig	2006-07-06 00:47:09.000000000 -0400
+@@ -112,7 +112,7 @@
+ 	  your distribution will provide these and enable the new controls
+ 	  in the kernel they also distribute.
  
- 	of_node_put(cpus);
- 	return rc;
-
+-	  Note that this option can be overriden at boot with the
++	  Note that this option can be overridden at boot with the
+ 	  selinux_compat_net parameter, and after boot via
+ 	  /selinux/compat_net.  See Documentation/kernel-parameters.txt
+ 	  for details on this parameter.
+diff -ru a/sound/oss/Kconfig b/sound/oss/Kconfig
+--- a/sound/oss/Kconfig	2006-07-05 23:58:04.000000000 -0400
++++ b/sound/oss/Kconfig	2006-07-06 00:25:54.000000000 -0400
+@@ -633,7 +633,7 @@
+ 	  command line.
+ 
+ config PSS_MIXER
+-	bool "Enable PSS mixer (Beethoven ADSP-16 and other compatibile)"
++	bool "Enable PSS mixer (Beethoven ADSP-16 and other compatible)"
+ 	depends on SOUND_PSS
+ 	help
+ 	  Answer Y for Beethoven ADSP-16. You may try to say Y also for other
 

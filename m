@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbWGFPQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWGFPRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030305AbWGFPQG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 11:16:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030316AbWGFPQF
+	id S1030316AbWGFPRP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 11:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWGFPRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 11:16:05 -0400
-Received: from k2smtpout01-02.prod.mesa1.secureserver.net ([64.202.189.89]:11997
-	"HELO k2smtpout01-01.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1030305AbWGFPQE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 11:16:04 -0400
-X-Antivirus-MYDOMAIN-Mail-From: razvan.g@plutohome.com via plutohome.com.secureserver.net
-X-Antivirus-MYDOMAIN: 1.25-st-qms (Clear:RC:0(82.77.255.201):SA:0(-2.4/5.0):. Processed in 2.455546 secs Process 1517)
-Message-ID: <44AD292E.6040100@plutohome.com>
-Date: Thu, 06 Jul 2006 18:15:58 +0300
-From: Razvan Gavril <razvan.g@plutohome.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] NFS with multiple clients connected
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jul 2006 11:17:15 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30220 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030316AbWGFPRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 11:17:14 -0400
+Date: Thu, 6 Jul 2006 16:17:05 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
+Message-ID: <20060706151705.GB1399@flint.arm.linux.org.uk>
+Mail-Followup-To: Haavard Skinnemoen <hskinnemoen@atmel.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060706105227.220565f8@cad-250-152.norway.atmel.com> <20060706021906.1af7ffa3.akpm@osdl.org> <1152179893.3084.26.camel@laptopd505.fenrus.org> <20060706124315.2188c700@cad-250-152.norway.atmel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060706124315.2188c700@cad-250-152.norway.atmel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a nfs server(kernel-server) which i use as a boot server for 
-several other machines on the network. Starting with 2.6.16 i started 
-noticing that when having more than one of the clients doing a lot of 
-in/out on their mounted nfs shares at list one of then starts to to have 
-problems when writing (don't know about reading) files. For example dpkg 
-writes strange things it the /var/lib/dpkg/status file even if it worked 
-perfectly before the kernel upgrade.
+On Thu, Jul 06, 2006 at 12:43:15PM +0200, Haavard Skinnemoen wrote:
+> On Thu, 06 Jul 2006 11:58:13 +0200
+> Arjan van de Ven <arjan@infradead.org> wrote:
+> > > 	+EXPORT_SYMBOL(clk_get);
+> > > 	+EXPORT_SYMBOL(clk_put);
+> > > 	+EXPORT_SYMBOL(clk_enable);
+> > > 	+EXPORT_SYMBOL(clk_disable);
+> > > 	+EXPORT_SYMBOL(clk_get_rate);
+> > > 	+EXPORT_SYMBOL(clk_round_rate);
+> > > 	+EXPORT_SYMBOL(clk_set_rate);
+> > > 	+EXPORT_SYMBOL(clk_set_parent);
+> > > 	+EXPORT_SYMBOL(clk_get_parent);
+> > 
+> > probably wants to be _GPL exports anyway
+> 
+> If so, ARM should probably be converted as well. On SH, they are
+> actually _GPL exports.
 
-Every time an diskless computer fails to write corectly to the nfs 
-filesystem i got this messages on the nfs server (dmesg):
+That depends if you consider them to be a low level API or not.  I don't.
+They're staying as non-GPL on ARM, thanks.
 
-RPC: bad TCP reclen 0x3c390000 (large)
-RPC: bad TCP reclen 0x31006261 (non-terminal)
-RPC: bad TCP reclen 0x73752070 (non-terminal)
-RPC: bad TCP reclen 0x52610100 (non-terminal)
-
-Is very simple to spot this behaver (1 write-error for client / 1 rpc 
-message in server's dmesg) because apt-get is always giving an error 
-message when the /var/lib/dpkg/status file contains something that it 
-shouldn't. An it also can be very ease to reproduce.
-
-I tested with 2.6.17 and got the same error, although when using 2.6.15 
-didn't got any errors and the clients worked perfect. Since i'm kind of 
-forced to use a kernel version > 2.6.15 i really, really need to solve 
-this bug. I would be glad to do it myself but i don't have the knowledge 
-to do it so if is anybody that can help i can offer all the information 
-that i could and also access to a system so he can track the problem.
-
-
---
-Razvan Gavril
-
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

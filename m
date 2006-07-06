@@ -1,80 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWGFRuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWGFRwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030368AbWGFRuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 13:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030369AbWGFRuQ
+	id S1030371AbWGFRwg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 13:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbWGFRwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 13:50:16 -0400
-Received: from mserv1.uoregon.edu ([128.223.142.40]:9672 "EHLO
-	smtp.uoregon.edu") by vger.kernel.org with ESMTP id S1030368AbWGFRuO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 13:50:14 -0400
-Message-ID: <44AD4D24.80200@uoregon.edu>
-Date: Thu, 06 Jul 2006 10:49:24 -0700
-From: Joel Jaeggli <joelja@uoregon.edu>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux@horizon.com, linux-kernel@vger.kernel.org
-Subject: Re: Driver for Microsoft USB Fingerprint Reader
-References: <20060706044838.30651.qmail@science.horizon.com> <1152207519.13734.8.camel@localhost.localdomain>
-In-Reply-To: <1152207519.13734.8.camel@localhost.localdomain>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 6 Jul 2006 13:52:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11198 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030371AbWGFRwe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 13:52:34 -0400
+Date: Thu, 6 Jul 2006 10:52:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, bernds_cb1@t-online.de, sam@ravnborg.org,
+       dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/6] FDPIC: Add coredump capability for the ELF-FDPIC
+ binfmt [try #3]
+Message-Id: <20060706105223.97b9a531.akpm@osdl.org>
+In-Reply-To: <20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com>
+References: <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
+	<20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Iau, 2006-07-06 am 00:48 -0400, ysgrifennodd linux@horizon.com:
->> As far as I can tell, the only thing you want is AUTHENTICATION - you
->> want proof that you are getting a "live" scan taken from a user
->> who's present, and not a replay of what was sent last week.
+On Thu, 06 Jul 2006 13:47:27 +0100
+David Howells <dhowells@redhat.com> wrote:
+
+> From: David Howells <dhowells@redhat.com>
 > 
-> Read the papers on the subject. If I can get copies of the unencrypted
-> data I can use those to make fake fingers. 
+> Add coredump capability for the ELF-FDPIC binfmt.
 > 
-> A finger print is personal data, arguably sensitive personal data. That
-> means there are lots of duties to store it securely. It is also very
-> hard to revoke a fingerprint so theft of data is highly problematic as
-> it will allow me to generate fake fingers. Theft of encrypted data might
-> allow replay attacks on one PC. Big deal.
+> ..
+>
+> +static int dump_seek(struct file *file, off_t off)
+> +{
+> +	if (file->f_op->llseek) {
+> +		if (file->f_op->llseek(file, off, 0) != off)
+> +			return 0;
+> +	} else {
+> +		file->f_pos = off;
+> +	}
+> +	return 1;
+> +}
 
-A fingerprint is a good identity token, but it's not a secret, nor is it
-really feasible to protect it (IE you leave them everywhere).
+llseek takes a loff_t and file->f_pos is loff_t.  I guess it's a bit moot
+on such a CPU.  Was it deliberate?
 
-see:
+(how come the kernel doesn't have a SEEK_SET #define?)
 
-http://www.schneier.com/crypto-gram-9808.html#biometrics
+> +/*
+> + * Decide whether a segment is worth dumping; default is yes to be
+> + * sure (missing info is worse than too much; etc).
+> + * Personally I'd include everything, and use the coredump limit...
+> + *
+> + * I think we should skip something. But I am not sure how. H.J.
+> + */
+> +static inline int maydump(struct vm_area_struct *vma)
+> +{
+> +	/* Do not dump I/O mapped devices or special mappings */
+> +	if (vma->vm_flags & (VM_IO | VM_RESERVED)) {
+> +		kdcore("%08lx: %08lx: no (IO)", vma->vm_start, vma->vm_flags);
+> +		return 0;
+> +	}
+> +
+> +	/* If we may not read the contents, don't allow us to dump
+> +	 * them either. "dump_write()" can't handle it anyway.
+> +	 */
+> +	if (!(vma->vm_flags & VM_READ)) {
+> +		kdcore("%08lx: %08lx: no (!read)", vma->vm_start, vma->vm_flags);
+> +		return 0;
+> +	}
+> +
+> +	/* Dump shared memory only if mapped from an anonymous file. */
+> +	if (vma->vm_flags & VM_SHARED) {
+> +		if (vma->vm_file->f_dentry->d_inode->i_nlink == 0) {
+> +			kdcore("%08lx: %08lx: no (share)", vma->vm_start, vma->vm_flags);
+> +			return 1;
+> +		}
+> +
+> +		kdcore("%08lx: %08lx: no (share)", vma->vm_start, vma->vm_flags);
+> +		return 0;
+> +	}
+> +
+> +#ifdef CONFIG_MMU
+> +	/* If it hasn't been written to, don't write it out */
+> +	if (!vma->anon_vma) {
+> +		kdcore("%08lx: %08lx: no (!anon)", vma->vm_start, vma->vm_flags);
+> +		return 0;
+> +	}
+> +#endif
+> +
+> +	kdcore("%08lx: %08lx: yes", vma->vm_start, vma->vm_flags);
+> +	return 1;
+> +}
 
-The transmission channel for the data must be protected in some way to
-prevent replay attacks. challange response, radius style shared secret,
-one-time-key approach
+Three callsites - seems too large to inline.
 
-The data itself needs to be cryptographically secured on the
-authenticating side because, otherwise you can game the identity system.
+> +#define roundup(x, y)  ((((x) + ((y) - 1)) / (y)) * (y))
 
-A- Alice subverts the machine containing the identity management system
-and uses bobs finger print data to fool the identity management system
-next time.
+The GFS2 tree has 
 
-B - Substitution, alice replaces bobs fingerprint in the identity
-management system with her own, now alice is bob.
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -32,6 +32,7 @@ #define STACK_MAGIC	0xdeadbeef
+ 
+ #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+ #define ALIGN(x,a) (((x)+(a)-1)&~((a)-1))
++#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+ #define FIELD_SIZEOF(t, f) (sizeof(((t*)0)->f))
+ 
+ #define	KERN_EMERG	"<0>"	/* system is unusable			*/
 
-biometric data might be useful as an identy token, but if used as the
-sole source of authentication data it is pretty seriously lacking.
+Which seems reasonable to me.  I'll steal it from them.
 
-> Alan
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> +/* #define DEBUG */
+> +
+> +#define DUMP_WRITE(addr, nr)	\
+> +	do { if (!dump_write(file, (addr), (nr))) return 0; } while(0)
+> +#define DUMP_SEEK(off)	\
+> +	do { if (!dump_seek(file, (off))) return 0; } while(0)
+>
+> ...
+>
+> +#undef DUMP_WRITE
+> +#undef DUMP_SEEK
+> +
+> +#define DUMP_WRITE(addr, nr)	\
+> +	if ((size += (nr)) > limit || !dump_write(file, (addr), (nr))) \
+> +		goto end_coredump;
+> +#define DUMP_SEEK(off)	\
+> +	if (!dump_seek(file, (off))) \
+> +		goto end_coredump;
+
+Embedding returns and gotos in macros is evil.  For new code it's worth
+doing it vaguely tastefully.
+
+	ret = dump_write(...);
+	if (ret < 0)
+		goto actually_return_an_error_code;
+
+> +	for (vml = current->mm->context.vmlist; vml; vml = vml->next)
+> +	    segs++;
+
+Does this need locking?
 
 
--- 
--------------------------------------------------
-Joel Jaeggli (joelja@uoregon.edu)
-GPG Key Fingerprint:
-5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2

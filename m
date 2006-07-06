@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWGFWxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWGFWyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbWGFWxq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 18:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWGFWxq
+	id S1750847AbWGFWyh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 18:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWGFWyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 18:53:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7618 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751008AbWGFWxp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 18:53:45 -0400
-Date: Thu, 6 Jul 2006 15:56:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: tgraf@suug.ch, jlan@sgi.com, pj@sgi.com, Valdis.Kletnieks@vt.edu,
-       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
-       hadi@cyberus.ca, netdev@vger.kernel.org
-Subject: Re: [PATCH] per-task delay accounting taskstats interface: control
- exit data through cpumasks]
-Message-Id: <20060706155643.2cd37b80.akpm@osdl.org>
-In-Reply-To: <44AD8E65.70006@watson.ibm.com>
-References: <44ACD7C3.5040008@watson.ibm.com>
-	<20060706025633.cd4b1c1d.akpm@osdl.org>
-	<1152185865.5986.15.camel@localhost.localdomain>
-	<20060706120835.GY14627@postel.suug.ch>
-	<20060706144808.1dd5fadf.akpm@osdl.org>
-	<44AD8E65.70006@watson.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 6 Jul 2006 18:54:37 -0400
+Received: from mga07.intel.com ([143.182.124.22]:44095 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1750844AbWGFWyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 18:54:36 -0400
+X-IronPort-AV: i="4.06,214,1149490800"; 
+   d="scan'208"; a="62340540:sNHT29974630"
+Date: Thu, 6 Jul 2006 15:47:11 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, perfmon@napali.hpl.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [perfmon] Re: cpuinfo_x86 and apicid
+Message-ID: <20060706154711.C13512@unix-os.sc.intel.com>
+References: <20060706150118.GB10110@frankl.hpl.hp.com> <20060706091930.A13512@unix-os.sc.intel.com> <20060706200031.GA10685@frankl.hpl.hp.com> <20060706140613.B13512@unix-os.sc.intel.com> <20060706222543.GC10760@frankl.hpl.hp.com> <20060706223745.GD10760@frankl.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060706223745.GD10760@frankl.hpl.hp.com>; from eranian@hpl.hp.com on Thu, Jul 06, 2006 at 03:37:45PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar <nagar@watson.ibm.com> wrote:
->
-> Andrew Morton wrote:
-> > Thomas Graf <tgraf@suug.ch> wrote:
-> > 
-> >>* Shailabh Nagar <nagar@watson.ibm.com> 2006-07-06 07:37
-> >>
-> >>>@@ -37,9 +45,26 @@ static struct nla_policy taskstats_cmd_g
-> >>> __read_mostly = {
-> >>> 	[TASKSTATS_CMD_ATTR_PID]  = { .type = NLA_U32 },
-> >>> 	[TASKSTATS_CMD_ATTR_TGID] = { .type = NLA_U32 },
-> >>>+	[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK] = { .type = NLA_STRING },
-> >>>+	[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK] = { .type = NLA_STRING },};
-> >>
-> >>>+		na = info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK];
-> >>>+		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
-> >>>+			return -E2BIG;
-> >>>+		rc = cpulist_parse((char *)nla_data(na), mask);
-> >>
-> >>This isn't safe, the data in the attribute is not guaranteed to be
-> >>NUL terminated. Still it's probably me to blame for not making
-> >>this more obvious in the API.
-> >>
-> > 
-> > 
-> > Thanks, that was an unpleasant bug.
-> > 
-> > 
-> >>I've attached a patch below extending the API to make it easier
-> >>for interfaces using NUL termianted strings,
-> > 
-> > 
-> > In the interests of keeping this work decoupled from netlink enhancements
-> > I'd propose the below.  
+On Thu, Jul 06, 2006 at 03:37:45PM -0700, Stephane Eranian wrote:
+> Suresh,
 > 
-> The patch looks good. I was also thinking of simply modifying the input
-> to have the null termination and modify later when netlink provides
-> generic support.
-> 
-> 
+> On Thu, Jul 06, 2006 at 03:25:43PM -0700, Stephane Eranian wrote:
+> > > 
+> > Ah, yes I missed that. It works there two. I had something wrong
+> > about how I accessed cpu_data. I am used to the elegant way we
+> > do it on IA-64 but on x86_64 you have to index the cpu_data[]
+> > array with smp_processor_id(). I was pointing to cpu_data[0]
+> > on all processors.
+> > 
+> > For what I need, I can do cpuinfo_x86->apicid & 0x3 to identify
+> > which thread is running. I can now remove some more code in perfmon2.
+> > 
+> I meant cpuinfo_x86->apicid & 0x1.
 
-Yup.  Thomas, what's the testing status of the netlink patch you sent?  Should I
-queue it up and start plagueing people with it?
+Instead of hard coding, can you get the size of the mask runtime from the
+size of cpu_sibling_map[cpu]
 
+And remember, physical/logical hotplug can change this sibling map.
+
+thanks,
+suresh

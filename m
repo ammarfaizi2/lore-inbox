@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWGFIWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWGFIVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbWGFIWy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 04:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWGFIWx
+	id S964990AbWGFIVR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 04:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbWGFIVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 04:22:53 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:64387 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964992AbWGFIWx (ORCPT
+	Thu, 6 Jul 2006 04:21:17 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:908 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964990AbWGFIVQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 04:22:53 -0400
-Date: Thu, 6 Jul 2006 10:18:18 +0200
+	Thu, 6 Jul 2006 04:21:16 -0400
+Date: Thu, 6 Jul 2006 10:16:39 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        arjan@infradead.org
-Subject: [patch] lockdep: clean up completion initializer in smpboot.c
-Message-ID: <20060706081818.GA24492@elte.hu>
+Subject: [patch] spinlocks: remove 'volatile'
+Message-ID: <20060706081639.GA24179@elte.hu>
 References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -35,56 +35,77 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: lockdep: clean up completion initializer in smpboot.c
+
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> I wonder if we should remove the "volatile". There really isn't 
+> anything _good_ that gcc can do with it, but we've seen gcc code 
+> generation do stupid things before just because "volatile" seems to 
+> just disable even proper normal working.
+
+yeah. I tried this and it indeed slashed 42K off text size (0.2%):
+
+ text            data    bss     dec             filename
+ 20779489        6073834 3075176 29928499        vmlinux.volatile
+ 20736884        6073834 3075176 29885894        vmlinux.non-volatile
+
+i booted the resulting allyesconfig bzImage and everything seems to be 
+working fine. Find patch below.
+
+	Ingo
+
+------------------>
+Subject: spinlocks: remove 'volatile'
 From: Ingo Molnar <mingo@elte.hu>
 
-clean up lockdep on-stack-completion initializer. (This also removes
-the dependency on waitqueue_lock_key.)
+remove 'volatile' from the spinlock types, it causes gcc to
+generate really bad code. (and it's pointless anyway)
+
+this reduces the non-debug SMP kernel's size by 0.2% (!).
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
- arch/x86_64/kernel/smpboot.c |    4 +---
- include/linux/completion.h   |    5 ++++-
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ include/asm-i386/spinlock_types.h   |    4 ++--
+ include/asm-x86_64/spinlock_types.h |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-Index: linux/arch/x86_64/kernel/smpboot.c
+Index: linux/include/asm-i386/spinlock_types.h
 ===================================================================
---- linux.orig/arch/x86_64/kernel/smpboot.c
-+++ linux/arch/x86_64/kernel/smpboot.c
-@@ -771,12 +771,10 @@ static int __cpuinit do_boot_cpu(int cpu
- 	unsigned long start_rip;
- 	struct create_idle c_idle = {
- 		.cpu = cpu,
--		.done = COMPLETION_INITIALIZER(c_idle.done),
-+		.done = COMPLETION_INITIALIZER_ONSTACK(c_idle.done),
- 	};
- 	DECLARE_WORK(work, do_fork_idle, &c_idle);
- 
--	lockdep_set_class(&c_idle.done.wait.lock, &waitqueue_lock_key);
--
- 	/* allocate memory for gdts of secondary cpus. Hotplug is considered */
- 	if (!cpu_gdt_descr[cpu].address &&
- 		!(cpu_gdt_descr[cpu].address = get_zeroed_page(GFP_KERNEL))) {
-Index: linux/include/linux/completion.h
-===================================================================
---- linux.orig/include/linux/completion.h
-+++ linux/include/linux/completion.h
-@@ -18,6 +18,9 @@ struct completion {
- #define COMPLETION_INITIALIZER(work) \
- 	{ 0, __WAIT_QUEUE_HEAD_INITIALIZER((work).wait) }
- 
-+#define COMPLETION_INITIALIZER_ONSTACK(work) \
-+	({ init_completion(&work); work; })
-+
- #define DECLARE_COMPLETION(work) \
- 	struct completion work = COMPLETION_INITIALIZER(work)
- 
-@@ -28,7 +31,7 @@ struct completion {
-  */
- #ifdef CONFIG_LOCKDEP
- # define DECLARE_COMPLETION_ONSTACK(work) \
--	struct completion work = ({ init_completion(&work); work; })
-+	struct completion work = COMPLETION_INITIALIZER_ONSTACK(work)
- #else
- # define DECLARE_COMPLETION_ONSTACK(work) DECLARE_COMPLETION(work)
+--- linux.orig/include/asm-i386/spinlock_types.h
++++ linux/include/asm-i386/spinlock_types.h
+@@ -6,13 +6,13 @@
  #endif
+ 
+ typedef struct {
+-	volatile unsigned int slock;
++	unsigned int slock;
+ } raw_spinlock_t;
+ 
+ #define __RAW_SPIN_LOCK_UNLOCKED	{ 1 }
+ 
+ typedef struct {
+-	volatile unsigned int lock;
++	unsigned int lock;
+ } raw_rwlock_t;
+ 
+ #define __RAW_RW_LOCK_UNLOCKED		{ RW_LOCK_BIAS }
+Index: linux/include/asm-x86_64/spinlock_types.h
+===================================================================
+--- linux.orig/include/asm-x86_64/spinlock_types.h
++++ linux/include/asm-x86_64/spinlock_types.h
+@@ -6,13 +6,13 @@
+ #endif
+ 
+ typedef struct {
+-	volatile unsigned int slock;
++	unsigned int slock;
+ } raw_spinlock_t;
+ 
+ #define __RAW_SPIN_LOCK_UNLOCKED	{ 1 }
+ 
+ typedef struct {
+-	volatile unsigned int lock;
++	unsigned int lock;
+ } raw_rwlock_t;
+ 
+ #define __RAW_RW_LOCK_UNLOCKED		{ RW_LOCK_BIAS }

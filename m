@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWGFS4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWGFTC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWGFS4L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 14:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWGFS4L
+	id S1750712AbWGFTC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 15:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWGFTC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 14:56:11 -0400
-Received: from mail.electro-mechanical.com ([216.184.71.30]:52113 "EHLO
-	mail.electro-mechanical.com") by vger.kernel.org with ESMTP
-	id S1750739AbWGFS4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 14:56:10 -0400
-Date: Thu, 6 Jul 2006 14:56:06 -0400
-From: William Thompson <wt@electro-mechanical.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SATA in 2.6.17 vs 2.6.15 (x86/ICH6)
-Message-ID: <20060706185606.GV28967@electro-mechanical.com>
-References: <20060630184156.GA8086@electro-mechanical.com> <1151701440.32444.44.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151701440.32444.44.camel@mindpipe>
-User-Agent: Mutt/1.5.11
+	Thu, 6 Jul 2006 15:02:58 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62679 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750712AbWGFTC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 15:02:57 -0400
+Subject: Re: lockdep input layer warnings.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dave Jones <davej@redhat.com>, mingo@redhat.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <d120d5000607061137r605a08f9ie6cd45a389285c4a@mail.gmail.com>
+References: <20060706173411.GA2538@redhat.com>
+	 <d120d5000607061137r605a08f9ie6cd45a389285c4a@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 06 Jul 2006 21:02:55 +0200
+Message-Id: <1152212575.3084.88.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 30, 2006 at 05:04:00PM -0400, Lee Revell wrote:
-> On Fri, 2006-06-30 at 14:41 -0400, William Thompson wrote:
-> > *** I'm not on the list, please always keep me in CC ***
-> > 
-> > The speed of SATA in 2.6.17 is significantly lower in my test than 2.6.15.
-> > 
-> > In .15, I would see over 10mb/sec avg writing over 16,000 files (~2.4gb) to a
-> > fat32 partition.
-> > 
-> > In .17, I see it start at 2-3mb/sec and work it's way down to 500kb/sec
-> > towards the end.  Even the system is not as responsive (The system's / is a
-> > tmpfs which all programs, including /usr, are stored), not even when using
-> > ssh.
-> > 
-> > I used the same .config in .17 as I did with .15 (make oldconfig)
+On Thu, 2006-07-06 at 14:37 -0400, Dmitry Torokhov wrote:
+> On 7/6/06, Dave Jones <davej@redhat.com> wrote:
+> > One of our Fedora-devel users picked up on this this morning
+> > in an 18rc1 based kernel.
+> >
+> >                Dave
+> >
+> >
+> >  Synaptics Touchpad, model: 1, fw: 5.9, id: 0x2c6ab1, caps: 0x884793/0x0
+> >  serio: Synaptics pass-through port at isa0060/serio1/input0
+> >  input: SynPS/2 Synaptics TouchPad as /class/input/input1
+> >  PM: Adding info for serio:serio2
+> >
+> >  =============================================
+> >  [ INFO: possible recursive locking detected ]
+> >  ---------------------------------------------
 > 
-> What does the oprofile output look like for both cases?
+> False alarm, there was a lockdep annotating patch for it in -mm.
+not so sure; that patch is supposed to be in -rc1 already; investigating
 
-Lee, turns out this problem was due to a new option introduced in 2.6.16
-that I turned off (Thinking it would save on space).  The option was
-CONFIG_SLAB.  Apparently, SLOB is not worth using in my case.  It's a bit
-too fat on memory usage.

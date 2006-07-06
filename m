@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965186AbWGFKUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWGFK0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965186AbWGFKUx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 06:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965187AbWGFKUx
+	id S1030201AbWGFK0x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 06:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWGFK0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 06:20:53 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:48154 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965185AbWGFKUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 06:20:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=tiVMfUXqi2J6I9yC+n9crksWt2s/rWxWQW0XuvgFEr/WetmX4fWU2Gm7Ge89s4yKEbkvzwiqaZRtVwxdUrUqE9G4UEjO4yLc3mK0luXQtEfNwf1iIrWsZf6vSHxFSedDYro/4OBrbX7lqp/r37+kIFO8+NhNyMZbxp24aQbhG/8=
-Date: Thu, 6 Jul 2006 14:27:12 +0400
-From: Paul Drynoff <pauldrynoff@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com, rhdt@bartol.udel.edu
-Subject: Re: linux-2.6.17-mm6: can not boot: bad spinlock magic
-Message-Id: <20060706142712.a26f56eb.pauldrynoff@gmail.com>
-In-Reply-To: <20060706023131.04de8092.akpm@osdl.org>
-References: <20060706130849.f227ae98.pauldrynoff@gmail.com>
-	<20060706023131.04de8092.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.12; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jul 2006 06:26:52 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48344 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030201AbWGFK0w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 06:26:52 -0400
+Date: Thu, 6 Jul 2006 12:26:35 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+       klibc@zytor.com
+Subject: Re: [klibc 30/31] Remove in-kernel resume-from-disk invocation code
+Message-ID: <20060706102635.GF5303@elf.ucw.cz>
+References: <klibc.200606272217.00@tazenda.hos.anvin.org> <200607061037.11177.ncunningham@linuxmail.org> <44AC5F5C.7070907@zytor.com> <200607061145.08590.ncunningham@linuxmail.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607061145.08590.ncunningham@linuxmail.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for patch, it fixes bug for me.
+Hi!
 
-On Thu, 6 Jul 2006 02:31:31 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
-> Cc: "Brown, Len" <len.brown@intel.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
+> > > Ah. So it's still valid to have resume= and noresume on the commandline,
+> > > and klibc greps /proc/cmdline?
+> >
+> > Correct.
+> >
+> > > So, for Suspend2, would I be ok just leaving people to add the echo
+> > >
+> > >>/proc/suspend2/do_resume, as we currently do for initrds and initramfses?
+> >
+> > Well, presumably you want to adjust kinit so that it invokes
+> > /proc/suspend2/do_resume, instead of or in addition to
+> > /sys/power/resume; see usr/kinit/resume.c (the code should be bloody
+> > obvious, I hope...)
 > 
+> It is.
+> 
+> Is there a klibc howto somewhere? I tried googling for 'klibc howto', reading 
+> the files in Documentation/ and browsing your klibc mailing list archive 
+> before asking!
+> 
+> What I'm wondering specifically is: Say a user needs to run some commands to 
+> set up access to encrypted storage before they can resume. At the moment, 
+> we'd tell them to put these commands and the echo > do_resume in their 
+> linuxrc (or init) script prior to mounting their root filesystem. Forgive me 
+> if I'm asking a stupid question but it's not immediately obvious to me how 
+> they would now do that. I'd much rather follow a simple howto than
+> spend a 
+
+Same way as they did it before....? klibc is supposed to be
+backward-compatible, as far as userland can tell.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

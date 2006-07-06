@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWGFXQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWGFXTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWGFXQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWGFXQ5
+	id S1751033AbWGFXTk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 19:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWGFXTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:16:57 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2533 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751026AbWGFXQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:16:57 -0400
-Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
-From: David Woodhouse <dwmw2@infradead.org>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060706204821.06540ab4@cad-250-152.norway.atmel.com>
-References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
-	 <1152187083.2987.117.camel@pmac.infradead.org>
-	 <20060706161319.3ae0d9ef@cad-250-152.norway.atmel.com>
-	 <1152196492.2987.185.camel@pmac.infradead.org>
-	 <20060706204821.06540ab4@cad-250-152.norway.atmel.com>
-Content-Type: text/plain
-Date: Fri, 07 Jul 2006 00:17:11 +0100
-Message-Id: <1152227832.22035.3.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
+	Thu, 6 Jul 2006 19:19:40 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:30222 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1750734AbWGFXTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 19:19:39 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>,
+       "Arjan van de Ven" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] spinlocks: remove 'volatile'
+Date: Thu, 6 Jul 2006 16:19:00 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKCECBNAAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Thu, 06 Jul 2006 16:14:22 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Thu, 06 Jul 2006 16:14:23 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-06 at 20:48 +0200, Haavard Skinnemoen wrote:
-> > With MMIO those are just a not-so-special case of memory-memory,
-> > surely? If the new framework doesn't support that, it probably
-> > _should_.
-> 
-> Yes, but there are at least two important differences:
-> 
->    * Hanshaking. The DMA controller must know when the peripheral has
->      new data available/is able to accept more data. Thus, you need to
->      specify which set of handshaking signals to use as well as which
->      direction the data is moved.
->    * One of the pointers often stays the same during the whole transfer. 
 
-Those are hardly esoteric features -- the same goes for just about every
-sane DMA controller on every architecture already. Any "generic DMA
-framework" which isn't entirely crack-inspired is surely going to handle
-it properly.
+> Look at:
+>
+>  	http://en.wikipedia.org/wiki/Volatile_variable
+>
+> This is just what is needed to prevent the compiler from making
+> non working
+> code during optimization.
 
--- 
-dwmw2
+	That article is totally and completely wrong, in fact it's so wrong it's
+harmful. For example, it says:
+
+... [A] variable that might be concurrently modified by multiple
+threads (without locks or a similar form of mutual exclusion) should be
+declared volatile.
+
+	Without pointing out that the use of 'volatile' is neither required nor
+sufficient, this is an utterly false statement. The reference to "mutual
+exclusion" is puzzling, since the problem is cached data, not concurrent
+accesses.
+
+	It talks about controlling compiler optimizations. What difference does it
+make to me whether an optimization that breaks my code is made by the
+compiler or the processor?
+
+	The most serious problem with the article is that it does not point out
+what is guaranteed behavior and what happens to be true for some particular
+platforms. In fact, the only platform I know of where the behavior the
+article implies is guaranteed is (at least arguably) actually guaranteed is
+Win32. (And I'm not sure of what value a guarantee is that you have to argue
+is implied mostly by omission.)
+
+	Sadly, it omits any mention of the *actual* legitimate use of 'volatile'.
+That is, the cases where it has guaranteed semantics and actually is both
+necessary and sufficient.
+
+	DS
+
 

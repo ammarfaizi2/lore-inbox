@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbWGFAhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbWGFAhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965095AbWGFAhP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 20:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWGFAhP
+	id S965099AbWGFAhn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 20:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbWGFAhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 20:37:15 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:51917 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S965095AbWGFAhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 20:37:14 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [klibc 30/31] Remove in-kernel resume-from-disk invocation code
-Date: Thu, 6 Jul 2006 10:37:07 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org, klibc@zytor.com
-References: <klibc.200606272217.00@tazenda.hos.anvin.org> <200607060940.40678.ncunningham@linuxmail.org> <44AC551B.8090204@zytor.com>
-In-Reply-To: <44AC551B.8090204@zytor.com>
+	Wed, 5 Jul 2006 20:37:43 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:29652 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965096AbWGFAhm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 20:37:42 -0400
+Date: Thu, 6 Jul 2006 02:37:25 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Valdis.Kletnieks@vt.edu
+cc: john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
+In-Reply-To: <200607050429.k654TXUr012316@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.64.0607051406480.12900@scrub.home>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
+ <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
+ <Pine.LNX.4.64.0606271212150.17704@scrub.home> <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu>
+ <Pine.LNX.4.64.0606271903320.12900@scrub.home> <Pine.LNX.4.64.0606271919450.17704@scrub.home>
+ <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu>
+ <1151453231.24656.49.camel@cog.beaverton.ibm.com> <Pine.LNX.4.64.0606281218130.12900@scrub.home>
+ <Pine.LNX.4.64.0606281335380.17704@scrub.home> <200606292307.k5TN7MGD011615@turing-police.cc.vt.edu>
+ <1151695569.5375.22.camel@localhost.localdomain>
+ <200606302104.k5UL41vs004400@turing-police.cc.vt.edu>           
+ <Pine.LNX.4.64.0607030256581.17704@scrub.home> <200607050429.k654TXUr012316@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1769566.2INcNg3KTL";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607061037.11177.ncunningham@linuxmail.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1769566.2INcNg3KTL
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi,
 
-Hi.
+On Wed, 5 Jul 2006, Valdis.Kletnieks@vt.edu wrote:
 
-On Thursday 06 July 2006 10:11, H. Peter Anvin wrote:
-> Nigel Cunningham wrote:
-> > This patch doesn't look right to me. After it is applied, the user will
-> > have no way of saying that they don't want to resume (noresume). I assu=
-me
-> > the removal of resume=3D isn't a problem because you're expecting them =
-to
-> > use that other undocumented way of setting resume=3D that Pavel mention=
-ed a
-> > while ago?
->
-> Yes, they have.  The handing of resume=3D and noresume are now done in
-> kinit; resume is invoked from userspace by direct command only.
+> I'll bite - what *am* I using as a timesource for those first 4 seconds? :)
 
-Ah. So it's still valid to have resume=3D and noresume on the commandline, =
-and=20
-klibc greps /proc/cmdline?
+Jiffies and the first few adjustments are fine, it just compensates for 
+the initial difference between NSEC_PER_JIFFY and TICK_NSEC.
 
-So, for Suspend2, would I be ok just leaving people to add the echo=20
-> /proc/suspend2/do_resume, as we currently do for initrds and initramfses?
+> [   29.528533] Time: tsc clocksource has been installed.
+> [   29.552855] clock changed at -296333 (4294314460971008)
+> [   29.577109] clock tsc: m:2628985,s:22,cl:47171945132,ci:1595166,xn:0,xi:4193667486510,e:0
+> [   29.601869] big adj at -296332 (4294314460971008,-16,-25522656,-11031712)
+> [   29.626688] clock tsc: m:2628985,s:22,cl:47288392250,ci:1595166,xn:148610636380190,xi:4193667486510,e:-76300711936
+> [   29.652263] big adj at -296331 (4294314460971008,512,816724992,737704960)
+> [   29.677968] clock tsc: m:2628969,s:22,cl:47368150550,ci:1595166,xn:358292745604602,xi:4193641963854,e:1193037240320
 
-> There is nothing undocumented about it.
+Ok, I see now the problem, the last cycle value is always at least 50 
+times incremented between adjustments and that also means any error 
+adjustment is applied at least 50 times, which quickly gets out of 
+control.
+Is it possible that your console output is really slow? Otherwise I can't 
+explain these numbers, everything looks initialized fine for a 1.6GHz 
+clock, but it seems to take ages to print a single line.
+I have to run some tests and later this week there should be a new patch 
+compensating for this.
 
-Ok. I guess my memory is stale :).
+John, now I also know why your version survived this, it did the error 
+correction in the update loop, this kept error small, but it also caused 
+the time to jump around, since it changed the multiplier in the past.
 
-Regards,
-
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
-
---nextPart1769566.2INcNg3KTL
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBErFs3N0y+n1M3mo0RAlDuAJ9lHkzq5zTwBQkcDVmrM/OZlVOeYwCgo9lT
-PJXtbhaTjWSLvTRQFZ9Y9Ko=
-=+UzK
------END PGP SIGNATURE-----
-
---nextPart1769566.2INcNg3KTL--
+bye, Roman

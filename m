@@ -1,76 +1,252 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWGFSfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWGFSgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWGFSfn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 14:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWGFSfn
+	id S1750721AbWGFSgE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 14:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWGFSgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 14:35:43 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:11741 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750706AbWGFSfm (ORCPT
+	Thu, 6 Jul 2006 14:36:04 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:47059 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750721AbWGFSf6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 14:35:42 -0400
-Date: Thu, 6 Jul 2006 10:14:01 -0700
+	Thu, 6 Jul 2006 14:35:58 -0400
+Date: Thu, 6 Jul 2006 10:25:02 -0700
 From: "Paul E. McKenney" <paulmck@us.ibm.com>
 To: linux-kernel@us.ibm.com
 Cc: akpm@osdl.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
        stern@rowland.harvard.edu, mingo@elte.hu, tytso@us.ibm.com,
        dvhltc@us.ibm.com, oleg@tv-sign.ru, jes@sgi.com
-Subject: [PATCH 0/2] srcu-3: add RCU variant that permits read-side blocking
-Message-ID: <20060706171401.GA1768@us.ibm.com>
+Subject: [PATCH 2/2] srcu-3: add SRCU operations to rcutorture
+Message-ID: <20060706172502.GB1901@us.ibm.com>
 Reply-To: paulmck@us.ibm.com
+References: <20060706171401.GA1768@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060706171401.GA1768@us.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 3 of the SRCU patchset.
+Adds SRCU operations to rcutorture and updates rcutorture documentation.
+Also increases the stress imposed by the rcutorture test.
 
-This patch incorporates a number of improvements, many of which came
-up in off-list discussions with Alan Stern.  Neither of us are sure
-why these discussions ended up off-list, so I have summarized them
-below.
+Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
+---
 
-o	Fixes some "zombie code" -- excess curly braces and the like.
+ Documentation/RCU/torture.txt |   15 +++++
+ kernel/rcutorture.c           |  121 ++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 132 insertions(+), 4 deletions(-)
 
-o	Gets rid of the double-flip in favor of an additional
-	synchronize_sched().  This turned out to be safe, despite
-	my saying otherwise at http://lkml.org/lkml/2006/6/27/486.
-	The trick that I was missing is that synchronize_sched()
-	forces all CPUs to execute at least one memory barrier during
-	the synchronize_sched()'s execution, which forces all CPUs
-	to see synchronize_srcu()'s counter increment as happening
-	after any memory manipulations prior to the synchronize_srcu().
-
-	Upgraded comments to indicate what the synchronize_sched()
-	calls are needed for.
-
-o	Added a barrier() to both srcu_read_lock() and srcu_read_unlock()
-	to prevent the compiler from performing optimizations that
-	would cause the critical section to move outside of the
-	enclosing srcu_read_lock() and srcu_read_unlock().
-
-	However, these barrier()s in srcu_read_lock() and srcu_read_unlock()
-	are needed only in non-CONFIG_PREEMPT kernels, so they compile
-	to nothing in CONFIG_PREEMPT kernels (where the preempt_disable()
-	and preempt_enable() calls supply the needed barrier() call).
-
-o	Added a check to synchronize_srcu() that permits this primitive
-	to take advantage of grace periods induced by concurrent executions
-	in other tasks.  This can be useful in cases where you are
-	using a single srcu_struct to handle all the individually-locked
-	chains of a hash table, for example.
-
-o	cleanup_srcu_struct() now contains error checks to catch cases
-	where readers are still using the srcu_struct in question.
-	It does a WARN_ON() and leaks the srcu_struct's per-CPU data
-	in that case.
-
-o	There is an srcu_readers_active() that returns the number of
-	readers (approximate!) currently using the specified srcu_struct.
-	This can be useful when terminating use of an srcu_struct, e.g.,
-	at module-unload time.
-
-o	Improved the RCU torture tests, increasing the skew on reader
-	times and providing implementation-specific delay functions.
+diff -urpNa -X dontdiff linux-2.6.17-srcu/Documentation/RCU/torture.txt linux-2.6.17-torturesrcu/Documentation/RCU/torture.txt
+--- linux-2.6.17-srcu/Documentation/RCU/torture.txt	2006-06-24 12:13:12.000000000 -0700
++++ linux-2.6.17-torturesrcu/Documentation/RCU/torture.txt	2006-06-26 18:50:33.000000000 -0700
+@@ -118,6 +118,21 @@ o	"Free-Block Circulation": Shows the nu
+ 	as it is only incremented if a torture structure's counter
+ 	somehow gets incremented farther than it should.
+ 
++Different implementations of RCU can provide implementation-specific
++additional information.  For example, SRCU provides the following:
++
++	srcu-torture: rtc: f8cf46a8 ver: 355 tfle: 0 rta: 356 rtaf: 0 rtf: 346 rtmbe: 0
++	srcu-torture: Reader Pipe:  559738 939 0 0 0 0 0 0 0 0 0
++	srcu-torture: Reader Batch:  560434 243 0 0 0 0 0 0 0 0
++	srcu-torture: Free-Block Circulation:  355 354 353 352 351 350 349 348 347 346 0
++	srcu-torture: per-CPU(idx=1): 0(0,1) 1(0,1) 2(0,0) 3(0,1)
++
++The first four lines are similar to those for RCU.  The last line shows
++the per-CPU counter state.  The numbers in parentheses are the values
++of the "old" and "current" counters for the corresponding CPU.  The
++"idx" value maps the "old" and "current" values to the underlying array,
++and is useful for debugging.
++
+ 
+ USAGE
+ 
+diff -urpNa -X dontdiff linux-2.6.17-srcu/kernel/rcutorture.c linux-2.6.17-torturesrcu/kernel/rcutorture.c
+--- linux-2.6.17-srcu/kernel/rcutorture.c	2006-06-30 15:03:35.000000000 -0700
++++ linux-2.6.17-torturesrcu/kernel/rcutorture.c	2006-07-02 07:34:35.000000000 -0700
+@@ -44,6 +44,7 @@
+ #include <linux/delay.h>
+ #include <linux/byteorder/swabb.h>
+ #include <linux/stat.h>
++#include <linux/srcu.h>
+ 
+ MODULE_LICENSE("GPL");
+ 
+@@ -53,7 +54,7 @@ static int stat_interval;	/* Interval be
+ static int verbose;		/* Print more debug info. */
+ static int test_no_idle_hz;	/* Test RCU's support for tickless idle CPUs. */
+ static int shuffle_interval = 5; /* Interval between shuffles (in sec)*/
+-static char *torture_type = "rcu"; /* What to torture. */
++static char *torture_type = "rcu"; /* What to torture: rcu, srcu. */
+ 
+ module_param(nreaders, int, 0);
+ MODULE_PARM_DESC(nreaders, "Number of RCU reader threads");
+@@ -66,7 +67,7 @@ MODULE_PARM_DESC(test_no_idle_hz, "Test 
+ module_param(shuffle_interval, int, 0);
+ MODULE_PARM_DESC(shuffle_interval, "Number of seconds between shuffles");
+ module_param(torture_type, charp, 0);
+-MODULE_PARM_DESC(torture_type, "Type of RCU to torture (rcu, rcu_bh)");
++MODULE_PARM_DESC(torture_type, "Type of RCU to torture (rcu, rcu_bh, srcu)");
+ 
+ #define TORTURE_FLAG "-torture:"
+ #define PRINTK_STRING(s) \
+@@ -180,6 +181,7 @@ struct rcu_torture_ops {
+ 	void (*init)(void);
+ 	void (*cleanup)(void);
+ 	int (*readlock)(void);
++	void (*readdelay)(struct rcu_random_state *rrsp);
+ 	void (*readunlock)(int idx);
+ 	int (*completed)(void);
+ 	void (*deferredfree)(struct rcu_torture *p);
+@@ -198,6 +200,18 @@ static int rcu_torture_read_lock(void)
+ 	return 0;
+ }
+ 
++static void rcu_read_delay(struct rcu_random_state *rrsp)
++{
++	long delay;
++	const long longdelay = 200;
++
++	/* We want there to be long-running readers, but not all the time. */
++
++	delay = rcu_random(rrsp) % (nrealreaders * 2 * longdelay);
++	if (!delay)
++		udelay(longdelay);
++}
++
+ static void rcu_torture_read_unlock(int idx)
+ {
+ 	rcu_read_unlock();
+@@ -239,6 +253,7 @@ static struct rcu_torture_ops rcu_ops = 
+ 	.init = NULL,
+ 	.cleanup = NULL,
+ 	.readlock = rcu_torture_read_lock,
++	.readdelay = rcu_read_delay,
+ 	.readunlock = rcu_torture_read_unlock,
+ 	.completed = rcu_torture_completed,
+ 	.deferredfree = rcu_torture_deferred_free,
+@@ -275,6 +290,7 @@ static struct rcu_torture_ops rcu_bh_ops
+ 	.init = NULL,
+ 	.cleanup = NULL,
+ 	.readlock = rcu_bh_torture_read_lock,
++	.readdelay = rcu_read_delay,  /* just reuse rcu's version. */
+ 	.readunlock = rcu_bh_torture_read_unlock,
+ 	.completed = rcu_bh_torture_completed,
+ 	.deferredfree = rcu_bh_torture_deferred_free,
+@@ -282,8 +298,105 @@ static struct rcu_torture_ops rcu_bh_ops
+ 	.name = "rcu_bh"
+ };
+ 
++/*
++ * Definitions for srcu torture testing.
++ */
++
++static struct srcu_struct srcu_ctl;
++static struct list_head srcu_removed;
++
++static void srcu_torture_init(void)
++{
++	init_srcu_struct(&srcu_ctl);
++	INIT_LIST_HEAD(&srcu_removed);
++}
++
++static void srcu_torture_cleanup(void)
++{
++	synchronize_srcu(&srcu_ctl);
++	cleanup_srcu_struct(&srcu_ctl);
++}
++
++static int srcu_torture_read_lock(void)
++{
++	return srcu_read_lock(&srcu_ctl);
++}
++
++static void srcu_read_delay(struct rcu_random_state *rrsp)
++{
++	long delay;
++	const long uspertick = 1000000 / HZ;
++	const long longdelay = 10;
++
++	/* We want there to be long-running readers, but not all the time. */
++
++	delay = rcu_random(rrsp) % (nrealreaders * 2 * longdelay * uspertick);
++	if (!delay)
++		schedule_timeout_interruptible(longdelay);
++}
++
++static void srcu_torture_read_unlock(int idx)
++{
++	srcu_read_unlock(&srcu_ctl, idx);
++}
++
++static int srcu_torture_completed(void)
++{
++	return srcu_batches_completed(&srcu_ctl);
++}
++
++static void srcu_torture_deferred_free(struct rcu_torture *p)
++{
++	int i;
++	struct rcu_torture *rp;
++	struct rcu_torture *rp1;
++
++	synchronize_srcu(&srcu_ctl);
++	list_add(&p->rtort_free, &srcu_removed);
++	list_for_each_entry_safe(rp, rp1, &srcu_removed, rtort_free) {
++		i = rp->rtort_pipe_count;
++		if (i > RCU_TORTURE_PIPE_LEN)
++			i = RCU_TORTURE_PIPE_LEN;
++		atomic_inc(&rcu_torture_wcount[i]);
++		if (++rp->rtort_pipe_count >= RCU_TORTURE_PIPE_LEN) {
++			rp->rtort_mbtest = 0;
++			list_del(&rp->rtort_free);
++			rcu_torture_free(rp);
++		}
++	}
++}
++
++int srcu_torture_stats(char *page)
++{
++	int cnt = 0;
++	int cpu;
++	int idx = srcu_ctl.completed & 0x1;
++
++	cnt += sprintf(&page[cnt], "%s%s per-CPU(idx=%d):",
++		       torture_type, TORTURE_FLAG, idx);
++	for_each_possible_cpu(cpu) {
++		cnt += sprintf(&page[cnt], " %d(%d,%d)", cpu,
++			       per_cpu_ptr(srcu_ctl.per_cpu_ref, cpu)->c[!idx],
++			       per_cpu_ptr(srcu_ctl.per_cpu_ref, cpu)->c[idx]);
++	}
++	cnt += sprintf(&page[cnt], "\n");
++	return cnt;
++}
++
++static struct rcu_torture_ops srcu_ops = {
++	.init = srcu_torture_init,
++	.cleanup = srcu_torture_cleanup,
++	.readlock = srcu_torture_read_lock,
++	.readdelay = srcu_read_delay,
++	.readunlock = srcu_torture_read_unlock,
++	.completed = srcu_torture_completed,
++	.deferredfree = srcu_torture_deferred_free,
++	.stats = srcu_torture_stats,
++	.name = "srcu"
++};
++
+ static struct rcu_torture_ops *torture_ops[] =
+-	{ &rcu_ops, &rcu_bh_ops, NULL };
++	{ &rcu_ops, &rcu_bh_ops, &srcu_ops, NULL };
+ 
+ /*
+  * RCU torture writer kthread.  Repeatedly substitutes a new structure
+@@ -359,7 +472,7 @@ rcu_torture_reader(void *arg)
+ 		}
+ 		if (p->rtort_mbtest == 0)
+ 			atomic_inc(&n_rcu_torture_mberror);
+-		udelay(rcu_random(&rand) & 0x7f);
++		cur_ops->readdelay(&rand);
+ 		preempt_disable();
+ 		pipe_count = p->rtort_pipe_count;
+ 		if (pipe_count > RCU_TORTURE_PIPE_LEN) {

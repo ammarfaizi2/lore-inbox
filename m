@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWGFXwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWGFX50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWGFXwW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWGFXwW
+	id S1751089AbWGFX50 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 19:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWGFX50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:52:22 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46567 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751077AbWGFXwV (ORCPT
+	Thu, 6 Jul 2006 19:57:26 -0400
+Received: from mx2.suse.de ([195.135.220.15]:674 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751089AbWGFX5Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:52:21 -0400
-Date: Fri, 7 Jul 2006 01:52:04 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Create new LED trigger for CPU activity
-Message-ID: <20060706235204.GB4821@elf.ucw.cz>
-References: <20060706191603.GA13898@phoenix>
-MIME-Version: 1.0
+	Thu, 6 Jul 2006 19:57:25 -0400
+Date: Thu, 6 Jul 2006 16:53:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Greg KH <gregkh@suse.de>, torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       "Scott J. Harmon" <harmon@ksu.edu>, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [stable] Re: Linux 2.6.17.4
+Message-ID: <20060706235337.GA13418@kroah.com>
+References: <20060706222704.GB2946@kroah.com> <20060706222841.GD2946@kroah.com> <44AD9229.6010301@ksu.edu> <20060706224614.GA3520@suse.de> <20060706234918.GB2037@1wt.eu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060706191603.GA13898@phoenix>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060706234918.GB2037@1wt.eu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> This patch creates a new LED trigger that triggers whenever the CPU is
-> active.  It can be configured with module parameters to trigger on any
-> combination of user, nice, system, or iowait time, and defaults to
-> including user and system time but not nice or iowait time.  I've tested
-> it a bit, and it seems to work, but no guarantees.  It's diffed against
-> 2.6.17-git25.
+On Fri, Jul 07, 2006 at 01:49:18AM +0200, Willy Tarreau wrote:
+> On Thu, Jul 06, 2006 at 03:46:14PM -0700, Greg KH wrote:
+> > On Thu, Jul 06, 2006 at 05:43:53PM -0500, Scott J. Harmon wrote:
+> > > Greg KH wrote:
+> > > > diff --git a/Makefile b/Makefile
+> > > > index 8c72521..abcf2d7 100644
+> > > > --- a/Makefile
+> > > > +++ b/Makefile
+> > > > @@ -1,7 +1,7 @@
+> > > >  VERSION = 2
+> > > >  PATCHLEVEL = 6
+> > > >  SUBLEVEL = 17
+> > > > -EXTRAVERSION = .3
+> > > > +EXTRAVERSION = .4
+> > > >  NAME=Crazed Snow-Weasel
+> > > >  
+> > > >  # *DOCUMENTATION*
+> > > > diff --git a/kernel/sys.c b/kernel/sys.c
+> > > > index 0b6ec0e..59273f7 100644
+> > > > --- a/kernel/sys.c
+> > > > +++ b/kernel/sys.c
+> > > > @@ -1991,7 +1991,7 @@ asmlinkage long sys_prctl(int option, un
+> > > >  			error = current->mm->dumpable;
+> > > >  			break;
+> > > >  		case PR_SET_DUMPABLE:
+> > > > -			if (arg2 < 0 || arg2 > 2) {
+> > > > +			if (arg2 < 0 || arg2 > 1) {
+> > > >  				error = -EINVAL;
+> > > >  				break;
+> > > >  			}
+> > > Just curious as to why this isn't just
+> > > ...
+> > > 			if (arg2 != 1) {
+> > > ...
+> > 
+> > Because that would be incorrect :)
 > 
-> Signed-off-by: Thomas Tuttle <thinkinginbinary@gmail.com>
+> Interestingly, 2.4 tests (arg2 !=0 && arg2 != 1) so from the code changes
+> above, it looks like the value 2 was added on purpose, but for what ? Maybe
+> the fix is not really correct yet ?
 
-I like the idea.. CPU usage led is very useful, and old led system
-actually provided it. But...
+No, it's correct.  The change was incorrect.
 
-> +/*
-> + * ChangeLog:
-> + *
-> + * Revision 3 (2006/06/06):
-> + *   Added module parameters to configure which time is counted as CPU
-> + *     activity. (thanks to Andrew Morton)
-> + *
-> + * Revision 2 (2006/06/05):
-> + *   Diffed against 2.6.17-git25 instead of 2.6.17.1.
-> + *   Fixed several code style issues (thanks to Randy Dunlap)
-> + *
-> + * Revision 1 (2006/06/05):
-> + *   Initial patch submitted.
-> + */
+thanks,
 
-Please don't include changelogs in sources.
-
-> +#define UPDATE_INTERVAL (5) /* delay between updates, in ms */
-
-Polling every 5 msec is going to cost _lot_ of juice. Is there a
-better way?
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+greg k-h

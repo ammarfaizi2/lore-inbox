@@ -1,89 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWGFNOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWGFNVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbWGFNOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 09:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWGFNOR
+	id S1030265AbWGFNVG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 09:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbWGFNVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 09:14:17 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:30498 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030261AbWGFNOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 09:14:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
-        b=fZT54p2Y6w5ECnkYrdOhg392lbfzuiLqH1BK1+Um0KalDXSyoXaFSWp55HLNXG1LpA5XlhT57uWUf1aioFW9i849zRCS0nnmorcn6wsZByveBWTz5ZqKxRniyhyYH3X6tZ8cjNSLtjFf1nj0pGvRr4+Y/qaGyqaMKtX6BZgYkWg=
-Date: Thu, 6 Jul 2006 15:11:48 +0100 (BST)
-X-X-Sender: simlo@localhost.localdomain
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Esben Nielsen <nielsen.esben@googlemail.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: New PriorityInheritanceTest - bug in 2.6.17-rt7 confirmed
-In-Reply-To: <1152189293.24611.146.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0607061443050.30970@localhost.localdomain>
-References: <Pine.LNX.4.64.0607061307260.10454@localhost.localdomain>
- <1152189293.24611.146.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-From: Esben Nielsen <nielsen.esben@googlemail.com>
+	Thu, 6 Jul 2006 09:21:06 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:24225 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030260AbWGFNVE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 09:21:04 -0400
+Subject: Re: [PATCH] per-task delay accounting taskstats interface: control
+	exit data through cpumasks]
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+To: Thomas Graf <tgraf@suug.ch>
+Cc: Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@sgi.com>, pj@sgi.com,
+       Valdis.Kletnieks@vt.edu, Balbir Singh <balbir@in.ibm.com>,
+       csturtiv@sgi.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       Jamal <hadi@cyberus.ca>, netdev <netdev@vger.kernel.org>
+In-Reply-To: <20060706120835.GY14627@postel.suug.ch>
+References: <44ACD7C3.5040008@watson.ibm.com>
+	 <20060706025633.cd4b1c1d.akpm@osdl.org>
+	 <1152185865.5986.15.camel@localhost.localdomain>
+	 <20060706120835.GY14627@postel.suug.ch>
+Content-Type: text/plain
+Date: Thu, 06 Jul 2006 09:21:01 -0400
+Message-Id: <1152192061.1244.1.camel@manjushri.watson.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Jul 2006, Thomas Gleixner wrote:
-
-> On Thu, 2006-07-06 at 14:07 +0100, Esben Nielsen wrote:
->> So this is a real bug.
->
-> True
->
->> In the previous mail I posted a fix for that problem (and other problems).
->
-> I had not much time to look at the patch, but I doubt that we need such
-> a complex hack to achieve that. I will look at it later.
-
-The problem is that the deboosting code have to run somewhere.
-It can run within try_to_wake_up(). But then it the whole lock chain is 
-traversed in an atomic section. That unpredictable overall system 
-latencies since the locks can be in userspace.
-So it has to run in some task. That task has to be high priority enough 
-to preempt the boosted tasks, but it can't be so high priority that it bothers
-any higher priority threads than those involved in this. So it can't be, 
-forinstance a general priority 99 task we just use for this. We thus need 
-something running at a slightly higher priority than the priority to 
-which the tasks are boosted, but not a full +1 priority. I.e. we need to 
-run it at priority "+0.5".
-
-I also think that other stuff, like high resolution timers and others 
-doing "scheduler plumbing work" in the kernel could benifit from a +0.5 
-priority.
-
-I thought about some improvements:
-1) Make a general TSK_LIFO flag, That would remove some of the direct 
-references in sched.c to the rtmutex system. In effect it will be the 
-same, but be more usefull to other subsystems.
-2) Double the number of in-kernel priorities. I.e. simply add a number of 
-"hidden" priorities in which this kind of "plumbing" work can be run:
-
-Kernel priority          User space
-      0                      hidden
-      1                        RT 99
-      2                      hidden
-      3                        RT 98
-....
-
-    199                         0
-...
-
-This might turn out more clean than a TSK_LIFO. There will be no need to
-hack the core scheduler code, which can have some strange side-effect. 
-But to be honest I don't think the hacks I have done are that bad - except
-they refer directly to the rtmutex subsystem. Also adding priorities would
-slow down the system.
+On Thu, 2006-07-06 at 14:08 +0200, Thomas Graf wrote:
+> * Shailabh Nagar <nagar@watson.ibm.com> 2006-07-06 07:37
+> > @@ -37,9 +45,26 @@ static struct nla_policy taskstats_cmd_g
+> >  __read_mostly = {
+> >  	[TASKSTATS_CMD_ATTR_PID]  = { .type = NLA_U32 },
+> >  	[TASKSTATS_CMD_ATTR_TGID] = { .type = NLA_U32 },
+> > +	[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK] = { .type = NLA_STRING },
+> > +	[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK] = { .type = NLA_STRING },};
+> 
+> > +		na = info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK];
+> > +		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
+> > +			return -E2BIG;
+> > +		rc = cpulist_parse((char *)nla_data(na), mask);
+> 
+> This isn't safe, the data in the attribute is not guaranteed to be
+> NUL terminated. Still it's probably me to blame for not making
+> this more obvious in the API.
+> 
+> I've attached a patch below extending the API to make it easier
+> for interfaces using NUL termianted strings, so you'd do:
+> 
+> [TASKSTATS_CMS_ATTR_REGISTER_CPUMASK] = { .type = NLA_NUL_STRING,
+>                                           .len = TASKSTATS_CPUMASK_MAXLEN }
+> 
+> ... and then use (char *) nla_data(str_attr) without any further
+> sanity checks.
 
 
->
-> 	tglx
->
->
+Thanks. That makes it much clearer. I was looking around for a "maxlen"
+attribute helper yesterday :-)
 
-Esben
+--Shailabh
+
+
+> 
+> [NETLINK]: Improve string attribute validation
+> 
+> Introduces a new attribute type NLA_NUL_STRING to support NUL
+> terminated strings. Attributes of this kind require to carry
+> a terminating NUL within the maximum specified in the policy.
+> 
+> The `old' NLA_STRING which is not required to be NUL terminated
+> is extended to provide means to specify a maximum length of the
+> string.
+> 
+> Aims at easing the pain with using nla_strlcpy() on temporary
+> buffers.
+> 
+> The old `minlen' field is renamed to `len' for cosmetic purposes
+> which is ok since nobody was using it at this point.
+> 
+> Signed-off-by: Thomas Graf <tgraf@suug.ch>
+
+<snip>
+

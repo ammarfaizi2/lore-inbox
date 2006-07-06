@@ -1,101 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbWGFIZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbWGFI1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964994AbWGFIZv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 04:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWGFIZv
+	id S965012AbWGFI1k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 04:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWGFI1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 04:25:51 -0400
-Received: from 1wt.eu ([62.212.114.60]:54793 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S964994AbWGFIZu (ORCPT
+	Thu, 6 Jul 2006 04:27:40 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:36816 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965012AbWGFI1j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 04:25:50 -0400
-Date: Thu, 6 Jul 2006 10:25:39 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Grant Coady <gcoady.lk@gmail.com>
-Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: Linux 2.4.33-rc2
-Message-ID: <20060706082539.GA28233@1wt.eu>
-References: <20060621192756.GB13559@dmt> <20060703220736.GA272@1wt.eu> <0e6ma2961ro2evtrnacgmla7j52j738q76@4ax.com> <20060705205137.GA25913@1wt.eu> <dhdpa2pat94ssieedvjaj2m1n8265t19at@4ax.com>
+	Thu, 6 Jul 2006 04:27:39 -0400
+Date: Thu, 6 Jul 2006 10:23:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Message-ID: <20060706082306.GA24643@elte.hu>
+References: <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org> <20060706081639.GA24179@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <dhdpa2pat94ssieedvjaj2m1n8265t19at@4ax.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060706081639.GA24179@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Grant,
 
-On Thu, Jul 06, 2006 at 05:42:17PM +1000, Grant Coady wrote:
-> On Wed, 5 Jul 2006 22:51:37 +0200, Willy Tarreau <w@1wt.eu> wrote:
-(...)
-> >after a full day of stress-test of multiple parallel tar xUf, and ffsb at
-> >full CPU load, I could not reproduce the problem on the exact same kernel
-> >I first saw it on. So I think I had bad luck and the problem is not related
-> >to the vfs_unlink() patch, so unless anyone else reports a problem or tells
-> >us why it is right or wrong, it would seem reasonable to keep it as it is
-> >in -rc2.
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> * Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> Hi Willy,
+> > I wonder if we should remove the "volatile". There really isn't 
+> > anything _good_ that gcc can do with it, but we've seen gcc code 
+> > generation do stupid things before just because "volatile" seems to 
+> > just disable even proper normal working.
 > 
-> Got this with unpatched -rc2, tosh is NFS server, niner is client:
+> yeah. I tried this and it indeed slashed 42K off text size (0.2%):
 > 
-> grant@niner:/home/nfstest$ ls -l
-> total 228474
-> drwxr-xr-x  19 grant wheel       680 2006-03-20 16:53 linux-2.6.16/
-> -rw-r--r--   1 grant wheel 233953280 2006-07-05 18:27 linux-2.6.16.tar
-> drwxr-xr-x  19 grant wheel       680 2006-03-20 16:53 linux-2.6.16b/
-> grant@niner:/home/nfstest$ x=0; while [ ! $(diff -rq linux-2.6.16 linux-2.6.16b) ]; do ((x++)); echo "trial $x"; rm -rf linux-2.6.16b; mv linux-2.6.16 linux-2.6.16b; tar xf linux-2.6.16.tar; done
-> trial 1
-> ...
-> trial 29
-> rm: cannot remove directory `linux-2.6.16b/drivers/cdrom': Directory not empty
-> -bash: [: too many arguments
-> grant@niner:/home/nfstest$ ls -l
-> total 228474
-> drwxr-xr-x  19 grant wheel       680 2006-03-20 16:53 linux-2.6.16/
-> -rw-r--r--   1 grant wheel 233953280 2006-07-05 18:27 linux-2.6.16.tar
-> drwxr-xr-x   4 grant wheel       104 2006-07-06 11:01 linux-2.6.16b/
-> grant@niner:/home/nfstest$ rm -rf linux-2.6.16b/
+>  text            data    bss     dec             filename
+>  20779489        6073834 3075176 29928499        vmlinux.volatile
+>  20736884        6073834 3075176 29885894        vmlinux.non-volatile
 > 
-> The 'rm -rf linux-2.6.16b' completed okay, a mystery?  
+> i booted the resulting allyesconfig bzImage and everything seems to be 
+> working fine. Find patch below.
 
-you might have had a '.nfs0000*' file inthe directory which prevented rmmod
-from working, but it was finally removed by the rm -rf.
+btw., this effect accounted for roughly half of the per-callsite win of 
+the wait.h uninlining patch. That still leaves 18 bytes of per-callsite 
+win - i'll send that patch next.
 
-> This is with two slow (500MHz) boxen with -rc2.
-> Only idea I get from logs is during the test:
-> 
-> Jul  5 19:01:19 niner kernel: nfs: server tosh not responding, still trying
-> Jul  5 19:01:19 niner kernel: nfs: server tosh OK
-> 
-> ... about one pair each 2 to 5 mins
-> 
-> Jul  6 11:16:08 niner kernel: nfs: server tosh not responding, still trying
-> Jul  6 11:16:08 niner kernel: nfs: server tosh OK
-> Jul  6 11:26:57 niner -- MARK --
-> Jul  6 11:46:57 niner -- MARK --
-
-I get this if the server spends too much time writing data back to the disks.
-Doing this on the server fixed the problem for me :
-
-# echo 50 25000 0 0 100 100 60 45 0 >/proc/sys/vm/bdflush
-
-> Other pair of boxen with patched -rc2 completed 146 trials overnight along 
-> with compiling 2.4 kernel over NFS as well since morning, 64 completed. 
-> No 'server not responding messages' logged.
-
-Was it on the same server and while other clients saw the server disappear ?
-
-> I'll change the two running boxen to straight -rc2 and see if catch 
-> anything.  
-
-OK, similarly, it might be interesting to apply your patch to niner to see
-if the rmmod error happens again.
-
-> Grant.
-
-Thanks for your tests,
-Willy
-
+	Ingo

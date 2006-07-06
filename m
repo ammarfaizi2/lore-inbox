@@ -1,113 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWGFFnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWGFFrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbWGFFnm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 01:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbWGFFnm
+	id S1030188AbWGFFrt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 01:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWGFFrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 01:43:42 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:48044 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030231AbWGFFnk (ORCPT
+	Thu, 6 Jul 2006 01:47:49 -0400
+Received: from lixom.net ([66.141.50.11]:63913 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S932420AbWGFFrs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 01:43:40 -0400
-Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
-From: john stultz <johnstul@us.ibm.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1152148332.24656.125.camel@cog.beaverton.ibm.com>
-References: <20060624061914.202fbfb5.akpm@osdl.org>
-	 <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0606271212150.17704@scrub.home>
-	 <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0606271903320.12900@scrub.home>
-	 <Pine.LNX.4.64.0606271919450.17704@scrub.home>
-	 <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu>
-	 <1151453231.24656.49.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0606281218130.12900@scrub.home>
-	 <Pine.LNX.4.64.0606281335380.17704@scrub.home>
-	 <200606292307.k5TN7MGD011615@turing-police.cc.vt.edu>
-	 <1151695569.5375.22.camel@localhost.localdomain>
-	 <200606302104.k5UL41vs004400@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0607030256581.17704@scrub.home>
-	 <200607050429.k654TXUr012316@turing-police.cc.vt.edu>
-	 <1152147114.24656.117.camel@cog.beaverton.ibm.com>
-	 <1152148332.24656.125.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Wed, 05 Jul 2006 22:43:36 -0700
-Message-Id: <1152164616.5730.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jul 2006 01:47:48 -0400
+Date: Thu, 6 Jul 2006 00:46:39 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] powerpc: Xserve G5 thermal control fixes
+Message-ID: <20060706054639.GE5290@pb15.lixom.net>
+References: <1152162394.24632.58.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152162394.24632.58.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-05 at 18:12 -0700, john stultz wrote:
-> On Wed, 2006-07-05 at 17:51 -0700, john stultz wrote:
-> > I quickly revived my P-D adjustment patch and it does not appear to
-> > suffer from the same problem with the above droptick change (although
-> > its only been lightly tested). 
-> > 
-> > I realize you may have a more trivial change to this issue, but would
-> > you consider my method again?
-> > 
-> > Vladis: Mind trying the following patch to see if it affects the
-> > behavior.
+On Thu, Jul 06, 2006 at 03:06:34PM +1000, Benjamin Herrenschmidt wrote:
+> The thermal control for the Xserve G5s had a few issues. For one, the
+> way to program the RPM fans speeds into the FCU is different between it
+> and the desktop models, which I didn't figure out until recently, and it
+> was missing a control loop for the slots fan, running it too fast. Both
+> of those problems were causing the machine to be much more noisy than
+> necessary. This patch also changes the fixed value of the slots fan for
+> desktop G5s to 40% instead of 50%. It seems to still have a pretty good
+> airflow that way and is much less noisy.
 > 
-> Bah! Never mind. Don't bother, trying it.
+> Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> 
+> Index: linux-irq-work/drivers/macintosh/therm_pm72.c
+> ===================================================================
+> --- linux-irq-work.orig/drivers/macintosh/therm_pm72.c	2006-07-05 14:46:11.000000000 +1000
+> +++ linux-irq-work/drivers/macintosh/therm_pm72.c	2006-07-06 14:42:31.000000000 +1000
+> @@ -95,6 +95,14 @@
+>   *	- Use min/max macros here or there
+>   *	- Latest darwin updated U3H min fan speed to 20% PWM
+>   *
+> + *  July. 06, 2006 : 1.3
+> + *	- Fix setting of RPM fans on Xserve G5 (they were going too fast)
+> + *      - Add missing slots fan control loop for Xserve G5
+> + *	- Lower fixed slots fan speed from 50% to 40% on desktop G5s. We
+> + *        still can't properly implement the control loop for these, so let's
+> + *        reduce the noise a little bit, it appears that 40% still gives us
+> + *        a pretty good air flow
+> + *
 
-I take that back. :)
+Doesn't it make more sense to keep this in the GIT log instead of in
+the file? (I seem to remember Freescale getting similar comments on some
+posted code just a few days ago :-)
 
-Vladis, would you still try that patch to see if it helps?
-
-
-> Of course, only after I send the mail, the same problem reproduces
-> itself w/ my patch!
-
-In my rush to finish up for dinner, I fat-fingered the droptick code
-(forgot the static!) so I wasn't ever get timer ticks. :(
-
-Then after I fixed that, I noticed long-ish stalls starting X or
-switching between X and VT consoles. However after digging into it I
-realized the issue is that xtime is only being updated every 100 ticks,
-and nanosleep used xtime (via hrtimers), so it was getting the extra
-100tick latency on every call.
-
-So just to be fair, I double checked the following patch against
-mainline, saw the hang Vladis was seeing, then applied it to my earlier
-patch along with this patch and the system booted fine w/ no stalls.
-
-thanks
--john
-
-
-Patch to trigger the boot hang against vanilla 2.6.18-rc1
-
-diff --git a/kernel/hrtimer.c b/kernel/hrtimer.c
-index d17766d..3f516f6 100644
---- a/kernel/hrtimer.c
-+++ b/kernel/hrtimer.c
-@@ -132,7 +132,7 @@ static void hrtimer_get_softirq_time(str
- 
- 	do {
- 		seq = read_seqbegin(&xtime_lock);
--		xtim = timespec_to_ktime(xtime);
-+		xtim = ktime_get_real();
- 		tomono = timespec_to_ktime(wall_to_monotonic);
- 
- 	} while (read_seqretry(&xtime_lock, seq));
-diff --git a/kernel/timer.c b/kernel/timer.c
-index 396a3c0..5394104 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -1090,6 +1090,9 @@ static void clocksource_adjust(struct cl
- static void update_wall_time(void)
- {
- 	cycle_t offset;
-+	static int droptick;
-+	if(droptick++%100)
-+		return;
- 
- 	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
- 
+Keeping version numbers for in-tree-only drivers isn't all that useful
+either.
 
 
+-Olof

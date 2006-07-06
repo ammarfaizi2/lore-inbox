@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWGFSjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWGFSnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWGFSjL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 14:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWGFSjL
+	id S1750731AbWGFSnS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 14:43:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWGFSnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 14:39:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57032 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750718AbWGFSjK (ORCPT
+	Thu, 6 Jul 2006 14:43:18 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:17635 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1750731AbWGFSnR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 14:39:10 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060706105223.97b9a531.akpm@osdl.org> 
-References: <20060706105223.97b9a531.akpm@osdl.org>  <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com> <20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       bernds_cb1@t-online.de, sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/6] FDPIC: Add coredump capability for the ELF-FDPIC binfmt [try #3] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 06 Jul 2006 19:38:49 +0100
-Message-ID: <26133.1152211129@warthog.cambridge.redhat.com>
+	Thu, 6 Jul 2006 14:43:17 -0400
+Message-ID: <44AD599D.70803@colorfullife.com>
+Date: Thu, 06 Jul 2006 20:42:37 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael Kerrisk <mtk-manpages@gmx.net>
+CC: mtk-lkml@gmx.net, rlove@rlove.org, roland@redhat.com, eggert@cs.ucla.edu,
+       paire@ri.silicomp.fr, drepper@redhat.com, torvalds@osdl.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
+Subject: Re: Strange Linux behaviour with blocking syscalls and stop signals+SIGCONT
+References: <44A92DC8.9000401@gmx.net> <44AABB31.8060605@colorfullife.com> <20060706092328.320300@gmx.net>
+In-Reply-To: <20060706092328.320300@gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+Michael Kerrisk wrote:
 
-> llseek takes a loff_t and file->f_pos is loff_t.  I guess it's a bit moot
-> on such a CPU.  Was it deliberate?
+>  
+>
+>>Michael: Could you replace the EINTR in inotify.c with ERESTARTNOHAND? 
+>>That should prevent the kernel from showing the signal to user space.
+>>I'd guess that most instances of EINTR are wrong, except in device 
+>>drivers: It means we return from the syscall, even if the signal handler 
+>>wants to restart the system call.
+>>    
+>>
+>
+>I'll try patching a kernel to s/EINTR/ERESTARTNOHAND/ in relevant
+>places, and see how that goes.  If it goes well, I'll submit a 
+>patch.
+>
+>  
+>
+1) I would go further and try ERESTARTSYS: ERESTARTSYS means that the 
+kernel signal handler honors SA_RESTART
+2) At least for the futex functions, it won't be as easy as replacing 
+EINTR wiht ERESTARTSYS: the futex functions receive a timeout a the 
+parameter, with the duration of the wait call as a parameter. You must 
+use ERESTART_RESTARTBLOCK.
 
-It compiles with no error and no warning, so I haven't noticed.  This is as
-binfmt_elf.c is, I believe, so that is probably wrong too.
-
-> (how come the kernel doesn't have a SEEK_SET #define?)
-
-I don't know.  It probably should.
-
-> Three callsites - seems too large to inline.
-
-Again taken from binfmt_elf.c, although I added the debugging stuff.  It
-shouldn't matter as the compiler will make its own decision (or does "inline"
-get #defined to always-inline nowadays?).
-
-> Which seems reasonable to me.  I'll steal it from them.
-
-Okay.
-
-> Embedding returns and gotos in macros is evil.  For new code it's worth
-> doing it vaguely tastefully.
-
-Again, stolen verbatim from binfmt_elf.c.  I'd prefer to keep it comparable by
-the blink-comparator method if possible.
-
-> Does this need locking?
-
-It shouldn't do; we own our own vma chain, and because we're part of exec, we
-have a fresh mm_struct to play with.  The VMAs themselves aren't allowed to
-change, not even on NOMMU.
-
-David
+--
+    Manfred

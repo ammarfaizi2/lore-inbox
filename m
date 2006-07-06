@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWGFVM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWGFVNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWGFVM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 17:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWGFVM2
+	id S1750866AbWGFVNW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 17:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWGFVNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 17:12:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17566 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750868AbWGFVM1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 17:12:27 -0400
-Date: Thu, 6 Jul 2006 14:12:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?ISO-8859-1?Q?J=2EA=2E_Magall=C3=B3n?= <jamagallon@ono.com>
-cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-In-Reply-To: <20060706230215.203c790c@werewolf.auna.net>
-Message-ID: <Pine.LNX.4.64.0607061410390.3869@g5.osdl.org>
-References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org>
- <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org>
- <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu>
- <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu>
- <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
- <20060706081639.GA24179@elte.hu> <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
- <Pine.LNX.4.64.0607060856080.12404@g5.osdl.org> <Pine.LNX.4.64.0607060911530.12404@g5.osdl.org>
- <Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com>
- <Pine.LNX.4.64.0607061057240.12404@g5.osdl.org> <20060706230215.203c790c@werewolf.auna.net>
+	Thu, 6 Jul 2006 17:13:21 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45573 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750866AbWGFVNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 17:13:21 -0400
+Date: Thu, 6 Jul 2006 23:13:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: xfs-masters@oss.sgi.com
+Cc: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: fs/xfs/xfs_vnodeops.c:xfs_readdir(): NULL variable dereferenced
+Message-ID: <20060706211320.GW26941@stusta.de>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="21872808-245456896-1152220323=:3869"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+The Coverity checker spotted the following:
 
---21872808-245456896-1152220323=:3869
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+<--  snip  -->
 
+...
+STATIC int
+xfs_readdir(
+        bhv_desc_t      *dir_bdp,
+        uio_t           *uiop,
+        cred_t          *credp,
+        int             *eofp)
+{
+        xfs_inode_t     *dp;
+        xfs_trans_t     *tp = NULL;
+        int             error = 0;
+        uint            lock_mode;
 
+        vn_trace_entry(BHV_TO_VNODE(dir_bdp), __FUNCTION__,
+                                               (inst_t *)__return_address);
+        dp = XFS_BHVTOI(dir_bdp);
 
-On Thu, 6 Jul 2006, J.A. Magallón wrote:
-> 
-> I think you are mixing apples and oranges. Using volatile to control o-o-o
-> memory accesses is sure wrong.
+        if (XFS_FORCED_SHUTDOWN(dp->i_mount))
+                return XFS_ERROR(EIO);
 
-.. and there _is_ no right way to use it, except the two I've already 
-mentioned. 
+        lock_mode = xfs_ilock_map_shared(dp);
+        error = xfs_dir_getdents(tp, dp, uiop, eofp);
+        xfs_iunlock_map_shared(dp, lock_mode);
+        return error;
+}
+...
 
-Why is that so hard to accept?
+<--  snip  -->
 
-The fact is, "volatile" was designed in a different era, and tough, it's 
-not one of the better parts of the C language.
+Note that tp is never assigned any value other than NULL (and the 
+Coverity checker found a way how tp might be dereferenced four function 
+calls later).
 
-Get over it.
+cu
+Adrian
 
-			Linus
---21872808-245456896-1152220323=:3869--
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

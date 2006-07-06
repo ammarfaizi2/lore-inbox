@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWGFFrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWGFF7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030188AbWGFFrt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 01:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWGFFrt
+	id S1030194AbWGFF7X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 01:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWGFF7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 01:47:49 -0400
-Received: from lixom.net ([66.141.50.11]:63913 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S932420AbWGFFrs (ORCPT
+	Thu, 6 Jul 2006 01:59:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41652 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030194AbWGFF7W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 01:47:48 -0400
-Date: Thu, 6 Jul 2006 00:46:39 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] powerpc: Xserve G5 thermal control fixes
-Message-ID: <20060706054639.GE5290@pb15.lixom.net>
-References: <1152162394.24632.58.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152162394.24632.58.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-From: Olof Johansson <olof@lixom.net>
+	Thu, 6 Jul 2006 01:59:22 -0400
+Date: Wed, 5 Jul 2006 22:59:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: kmannth@gmail.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       tglx@linutronix.de, Natalie.Protasevich@UNISYS.com
+Subject: Re: 2.6.17-mm6
+Message-Id: <20060705225905.53e61ca0.akpm@osdl.org>
+In-Reply-To: <m1u05v2st3.fsf@ebiederm.dsl.xmission.com>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
+	<20060705155037.7228aa48.akpm@osdl.org>
+	<a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com>
+	<20060705164457.60e6dbc2.akpm@osdl.org>
+	<20060705164820.379a69ba.akpm@osdl.org>
+	<a762e240607051705h33952e5elf6bd09c1ccea8ab4@mail.gmail.com>
+	<20060705172545.815872b6.akpm@osdl.org>
+	<m1u05v2st3.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 03:06:34PM +1000, Benjamin Herrenschmidt wrote:
-> The thermal control for the Xserve G5s had a few issues. For one, the
-> way to program the RPM fans speeds into the FCU is different between it
-> and the desktop models, which I didn't figure out until recently, and it
-> was missing a control loop for the slots fan, running it too fast. Both
-> of those problems were causing the machine to be much more noisy than
-> necessary. This patch also changes the fixed value of the slots fan for
-> desktop G5s to 40% instead of 50%. It seems to still have a pretty good
-> airflow that way and is much less noisy.
-> 
-> Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> 
-> Index: linux-irq-work/drivers/macintosh/therm_pm72.c
-> ===================================================================
-> --- linux-irq-work.orig/drivers/macintosh/therm_pm72.c	2006-07-05 14:46:11.000000000 +1000
-> +++ linux-irq-work/drivers/macintosh/therm_pm72.c	2006-07-06 14:42:31.000000000 +1000
-> @@ -95,6 +95,14 @@
->   *	- Use min/max macros here or there
->   *	- Latest darwin updated U3H min fan speed to 20% PWM
->   *
-> + *  July. 06, 2006 : 1.3
-> + *	- Fix setting of RPM fans on Xserve G5 (they were going too fast)
-> + *      - Add missing slots fan control loop for Xserve G5
-> + *	- Lower fixed slots fan speed from 50% to 40% on desktop G5s. We
-> + *        still can't properly implement the control loop for these, so let's
-> + *        reduce the noise a little bit, it appears that 40% still gives us
-> + *        a pretty good air flow
-> + *
+On Wed, 05 Jul 2006 23:42:00 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-Doesn't it make more sense to keep this in the GIT log instead of in
-the file? (I seem to remember Freescale getting similar comments on some
-posted code just a few days ago :-)
+> So I suspect that we need to de-percpuify kernel_stat.irqs.
 
-Keeping version numbers for in-tree-only drivers isn't all that useful
-either.
+I think so.  We do:
 
+	struct irq_desc *desc = irq_desc + irq;
 
--Olof
+	kstat_this_cpu.irqs[irq]++;
+
+followed immediately by
+
+	spin_lock(&desc->lock);
+
+false optimisation, or what?

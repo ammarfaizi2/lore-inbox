@@ -1,60 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWGFXII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWGFXMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbWGFXII (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbWGFXIH
+	id S1750711AbWGFXMF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 19:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWGFXMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:08:07 -0400
-Received: from lucidpixels.com ([66.45.37.187]:27570 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1751039AbWGFXIG (ORCPT
+	Thu, 6 Jul 2006 19:12:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28616 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750711AbWGFXMD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:08:06 -0400
-Date: Thu, 6 Jul 2006 19:08:05 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Sander <sander@humilis.net>
-cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-In-Reply-To: <20060219171651.GA8986@favonius>
-Message-ID: <Pine.LNX.4.64.0607061906550.5107@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F1EE4A.3050107@rtr.ca>
- <43F58D29.3040608@pobox.com> <200602170959.40286.lkml@rtr.ca>
- <20060218204340.GA2984@favonius> <43F794D8.7000406@rtr.ca>
- <20060219071414.GA31299@favonius> <43F88F30.1070208@rtr.ca>
- <20060219171651.GA8986@favonius>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 6 Jul 2006 19:12:03 -0400
+Date: Thu, 6 Jul 2006 16:05:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Thomas Graf <tgraf@suug.ch>
+Cc: nagar@watson.ibm.com, jlan@sgi.com, pj@sgi.com, Valdis.Kletnieks@vt.edu,
+       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
+       hadi@cyberus.ca, netdev@vger.kernel.org
+Subject: Re: [PATCH] per-task delay accounting taskstats interface: control
+ exit data through cpumasks]
+Message-Id: <20060706160557.6f0cdfa0.akpm@osdl.org>
+In-Reply-To: <20060706224009.GA14627@postel.suug.ch>
+References: <44ACD7C3.5040008@watson.ibm.com>
+	<20060706025633.cd4b1c1d.akpm@osdl.org>
+	<1152185865.5986.15.camel@localhost.localdomain>
+	<20060706120835.GY14627@postel.suug.ch>
+	<20060706144808.1dd5fadf.akpm@osdl.org>
+	<20060706224009.GA14627@postel.suug.ch>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Look at this:
+Thomas Graf <tgraf@suug.ch> wrote:
+>
+> * Andrew Morton <akpm@osdl.org> 2006-07-06 14:48
+> > In the interests of keeping this work decoupled from netlink enhancements
+> > I'd propose the below.  Is it bad to modify the data at nla_data()?
+> 
+> Yes, it points into a skb data buffer which may be shared by sitting
+> on other queues if the message is to be broadcasted. In this case it
+> would be harmless but the policy is to leave it unmodified.
 
->From smartctl, look at the correspondence:
-199 UDMA_CRC_Error_Count    0x000a   200   253   000    Old_age   Always 
--       4
+Yup, sleazy-but-safe.
 
-[4301946.802000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-0xb/00/00
-[4301946.802000] ata4: status=0x51 { DriveReady SeekComplete Error }
-[4301946.802000] ata4: error=0x04 { DriveStatusError }
-[4302380.482000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-0xb/00/00
-[4302380.482000] ata4: status=0x51 { DriveReady SeekComplete Error }
-[4302380.482000] ata4: error=0x04 { DriveStatusError }
-[4302493.664000] ata4: no sense translation for status: 0x51
-[4302493.664000] ata4: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 
-0xb/00/00
-[4302493.664000] ata4: status=0x51 { DriveReady SeekComplete Error }
-[4302863.673000] ata4: no sense translation for status: 0x51
-[4302863.673000] ata4: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 
-0xb/00/00
-[4302863.673000] ata4: status=0x51 { DriveReady SeekComplete Error }
+> 
+> > --- a/kernel/taskstats.c~per-task-delay-accounting-taskstats-interface-control-exit-data-through-cpumasks-fix
+> > +++ a/kernel/taskstats.c
+> > @@ -299,6 +299,23 @@ cleanup:
+> >  	return 0;
+> >  }
+> >  
+> > +static int parse(struct nlattr *na, cpumask_t *mask)
+> > +{
+> > +	char *data;
+> > +	int len;
+> > +
+> > +	if (na == NULL)
+> > +		return 1;
+> > +	len = nla_len(na);
+> > +	if (len > TASKSTATS_CPUMASK_MAXLEN)
+> > +		return -E2BIG;
+> > +	if (len < 1)
+> > +		return -EINVAL;
+> > +	data = nla_data(na);
+> > +	data[len - 1] = '\0';
+> > +	return cpulist_parse(data, *mask);
+> > +}
+> 
+> Usually this is done by using strlcpy:
 
-different drive, different cable, same controller, but second port
+hm, nla_strlcpy() looks more complex than it needs to be.  We really need
+nla_kstrndup() ;)
 
-So that Stat/err = UDMA_CRC_Error_Count!
+Oh well.  This?
 
-Not sure if we can fix what is causing it (in Linux) but just FYI.
+
+diff -puN kernel/taskstats.c~per-task-delay-accounting-taskstats-interface-control-exit-data-through-cpumasks-fix kernel/taskstats.c
+--- a/kernel/taskstats.c~per-task-delay-accounting-taskstats-interface-control-exit-data-through-cpumasks-fix
++++ a/kernel/taskstats.c
+@@ -299,6 +299,28 @@ cleanup:
+ 	return 0;
+ }
+ 
++static int parse(struct nlattr *na, cpumask_t *mask)
++{
++	char *data;
++	int len;
++	int ret;
++
++	if (na == NULL)
++		return 1;
++	len = nla_len(na);
++	if (len > TASKSTATS_CPUMASK_MAXLEN)
++		return -E2BIG;
++	if (len < 1)
++		return -EINVAL;
++	data = kmalloc(len, GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++	nla_strlcpy(data, na, len);
++	ret = cpulist_parse(data, *mask);
++	kfree(data);
++	return ret;
++}
++
+ static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
+ {
+ 	int rc = 0;
+@@ -309,27 +331,17 @@ static int taskstats_user_cmd(struct sk_
+ 	struct nlattr *na;
+ 	cpumask_t mask;
+ 
+-	if (info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK]) {
+-		na = info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK];
+-		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
+-			return -E2BIG;
+-		rc = cpulist_parse((char *)nla_data(na), mask);
+-		if (rc)
+-			return rc;
+-		rc = add_del_listener(info->snd_pid, &mask, REGISTER);
++	rc = parse(info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK], &mask);
++	if (rc < 0)
+ 		return rc;
+-	}
++	if (rc == 0)
++		return add_del_listener(info->snd_pid, &mask, REGISTER);
+ 
+-	if (info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK]) {
+-		na = info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK];
+-		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
+-			return -E2BIG;
+-		rc = cpulist_parse((char *)nla_data(na), mask);
+-		if (rc)
+-			return rc;
+-		rc = add_del_listener(info->snd_pid, &mask, DEREGISTER);
++	rc = parse(info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK], &mask);
++	if (rc < 0)
+ 		return rc;
+-	}
++	if (rc == 0)
++		return add_del_listener(info->snd_pid, &mask, DEREGISTER);
+ 
+ 	/*
+ 	 * Size includes space for nested attributes
+_
 

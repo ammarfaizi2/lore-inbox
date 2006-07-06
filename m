@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWGFSnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWGFSnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWGFSnS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 14:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWGFSnS
+	id S1750754AbWGFSnk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 14:43:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWGFSnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 14:43:18 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:17635 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S1750731AbWGFSnR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 14:43:17 -0400
-Message-ID: <44AD599D.70803@colorfullife.com>
-Date: Thu, 06 Jul 2006 20:42:37 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
-X-Accept-Language: en-us, en
+	Thu, 6 Jul 2006 14:43:39 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:29295 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750740AbWGFSni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 14:43:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Z+mxrXiIuN+FrFKWJ8M/+bk0PGTngig1qxe9p8FE/n2+WrdWDfoUBHLicXBoVfCEGYgDW4/rK+ppYHl2NsdwT/RLgUhpshhiuUY2T01ZipSLwQ0UtJEZJl7KoBtcdz5qe3Mc/vOfrSH58OGCK2STYnPhdMIHbmJhrwYJWCWFyQg=
+Message-ID: <a762e240607061143s6470ad5y310986cba4f0b0bc@mail.gmail.com>
+Date: Thu, 6 Jul 2006 11:43:37 -0700
+From: "Keith Mannthey" <kmannth@gmail.com>
+To: "Chuck Ebbert" <76306.1226@compuserve.com>
+Subject: Re: [patch] i386: require ACPI for NUMA with generic architecture
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Randy Dunlap" <rdunlap@xenotime.net>
+In-Reply-To: <200607061221_MC3-1-C44C-BE6A@compuserve.com>
 MIME-Version: 1.0
-To: Michael Kerrisk <mtk-manpages@gmx.net>
-CC: mtk-lkml@gmx.net, rlove@rlove.org, roland@redhat.com, eggert@cs.ucla.edu,
-       paire@ri.silicomp.fr, drepper@redhat.com, torvalds@osdl.org,
-       tytso@mit.edu, linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
-Subject: Re: Strange Linux behaviour with blocking syscalls and stop signals+SIGCONT
-References: <44A92DC8.9000401@gmx.net> <44AABB31.8060605@colorfullife.com> <20060706092328.320300@gmx.net>
-In-Reply-To: <20060706092328.320300@gmx.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200607061221_MC3-1-C44C-BE6A@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Kerrisk wrote:
+On 7/6/06, Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> X86 Generic Architecture (X86_GENERICARCH) includes support for
+> Summit architecture.  Enabling X86_GENERICARCH, SMP and HIGHMEM64G
+> allows NUMA to be selected but that configuration will not build
+> because it requires ACPI for the Summit NUMA support.
+>
+> Fix:
+>         require ACPI for NUMA support with X86_GENERICARCH
+>
+>         update the menu comment noting this
+>
+>         set default NR_CPUS to 32 for GENERICARCH (since it
+>                 includes BIGSMP and SUMMIT which default to 32)
 
->  
->
->>Michael: Could you replace the EINTR in inotify.c with ERESTARTNOHAND? 
->>That should prevent the kernel from showing the signal to user space.
->>I'd guess that most instances of EINTR are wrong, except in device 
->>drivers: It means we return from the syscall, even if the signal handler 
->>wants to restart the system call.
->>    
->>
->
->I'll try patching a kernel to s/EINTR/ERESTARTNOHAND/ in relevant
->places, and see how that goes.  If it goes well, I'll submit a 
->patch.
->
->  
->
-1) I would go further and try ERESTARTSYS: ERESTARTSYS means that the 
-kernel signal handler honors SA_RESTART
-2) At least for the futex functions, it won't be as easy as replacing 
-EINTR wiht ERESTARTSYS: the futex functions receive a timeout a the 
-parameter, with the duration of the wait call as a parameter. You must 
-use ERESTART_RESTARTBLOCK.
+Good catch.    With X86_GENRICARCARCH perhaps NUMA should always be on
+or am I missing something with how it is supposed to work?  Shouldn't
+X86_GENRICARCARCH buy you the ablility to boot(correctly) on all the
+diffrent archs listed?
 
---
-    Manfred
+Thanks,
+  Keith

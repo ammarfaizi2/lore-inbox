@@ -1,52 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWGFUdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWGFUd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWGFUdy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 16:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWGFUdy
+	id S1750809AbWGFUd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 16:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWGFUd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 16:33:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52621 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750816AbWGFUdx (ORCPT
+	Thu, 6 Jul 2006 16:33:27 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:61147 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750809AbWGFUd0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 16:33:53 -0400
-Date: Thu, 6 Jul 2006 13:32:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chris Friesen <cfriesen@nortel.com>
-cc: Mark Lord <lkml@rtr.ca>, Arjan van de Ven <arjan@infradead.org>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+	Thu, 6 Jul 2006 16:33:26 -0400
+Date: Thu, 6 Jul 2006 22:33:03 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-In-Reply-To: <44AD725F.6070005@nortel.com>
-Message-ID: <Pine.LNX.4.64.0607061331180.3869@g5.osdl.org>
-References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org>
- <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org>
- <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu>
- <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu>
- <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
- <20060706081639.GA24179@elte.hu> <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
- <1152187268.3084.29.camel@laptopd505.fenrus.org> <44AD5357.4000100@rtr.ca>
- <Pine.LNX.4.64.0607061213560.3869@g5.osdl.org> <44AD658A.5070005@nortel.com>
- <44AD666B.1060500@rtr.ca> <44AD725F.6070005@nortel.com>
+Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
+In-Reply-To: <1152147114.24656.117.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.64.0607061912370.12900@scrub.home>
+References: <20060624061914.202fbfb5.akpm@osdl.org> 
+ <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu> 
+ <Pine.LNX.4.64.0606271212150.17704@scrub.home> 
+ <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu> 
+ <Pine.LNX.4.64.0606271903320.12900@scrub.home>  <Pine.LNX.4.64.0606271919450.17704@scrub.home>
+  <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu> 
+ <1151453231.24656.49.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.64.0606281218130.12900@scrub.home>
+  <Pine.LNX.4.64.0606281335380.17704@scrub.home> 
+ <200606292307.k5TN7MGD011615@turing-police.cc.vt.edu> 
+ <1151695569.5375.22.camel@localhost.localdomain> 
+ <200606302104.k5UL41vs004400@turing-police.cc.vt.edu> 
+ <Pine.LNX.4.64.0607030256581.17704@scrub.home> 
+ <200607050429.k654TXUr012316@turing-police.cc.vt.edu>
+ <1152147114.24656.117.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Wed, 5 Jul 2006, john stultz wrote:
 
-On Thu, 6 Jul 2006, Chris Friesen wrote:
+> Roman: While I'm not 100% confident about my assessment above, I worry
+> this is mimicking the problems I had been seeing in my simulator w/ your
+> clocksource_adjustment algorithm when I simulated dropping many ticks.
+> While currently this behavior points to some other problem, with the
+> dynticks patch, its much more likely that we will see 100s of ticks
+> skipped.
 > 
-> As long as you're not talking to external devices, each cpu must be coherent
-> with respect to itself, no?  It's allowed to execute out-of-order, but it
-> needs to make sure that by doing so it doesn't cause changes that are visible
-> to software.
+> I quickly revived my P-D adjustment patch and it does not appear to
+> suffer from the same problem with the above droptick change (although
+> its only been lightly tested). 
 
-Right. But then "volatile" won't really matter either, unless you have 
-some _ordering_ constraint, in which case "volatile" is not enough unless 
-you're guaranteed to be single-threaded.
+The PID concept had me confused for a while and I'm still not sure it 
+really applies, but there are similarities and what I want to do is not 
+that different from yours (limiting then the effect of the current error) 
+with the biggest difference that I keep everything in the big adjust 
+function, so the extra work is only done when needed.
 
-In other words, again, "volatile" is almost always the wrong thing to 
-have, and just makes you _think_ your code is correct.
+> +		int adj, multadj = 0;
+> +		s64 offset_update = 0, snsec_update = 0;
+> +		
+> +		/* First do the frequency adjustment:
+> +		 *   The idea here is to look at the error 
+> +		 *   accumulated since the last call to 
+> +		 *   update_wall_time to determine the 
+> +		 *   frequency adjustment needed so no new
+> +		 *   error will be incurred in the next
+> +		 *   interval.
+> +		 *
+> +		 *   This is basically derivative control
+> +		 *   using the PID terminology (we're calculating
+> +		 *   the derivative of the slope and correcting it).
+> +		 *
+> +		 *   The math is basically:
+> +		 *      multadj = interval_error/interval_cycles
+> +		 *   Which we fudge using binary approximation.
+> +		 */
+> +		if(interval_error >= 0) {
+> +			adj = error_aproximation(interval_error,
+> +						interval_cycs, 0);
+> +			multadj += 1 << adj;
+> +			snsec_update += interval << adj;
+> +			offset_update += offset << adj;
+> +		} else {
+> +			adj = error_aproximation(-interval_error, 
+> +						interval_cycs, 0);
+> +			multadj -= 1 << adj;
+> +			snsec_update -= interval << adj;
+> +			offset_update -= offset << adj;
+> +	        }
 
-		Linus
+Here we actually don't derive very much, we already know how it will 
+change. :)
+We basically want to keep the difference between tick length and xtime 
+interval as small as possible. Since most of the difference comes via 
+second_overflow(), we might want to do some precalculations near there, so 
+we avoid accumulating a lot of error in the first place, this is 
+especially important with only rare updates.
+
+> +		/* Now do the offset adjustment:
+> +		 *   Now that the frequncy is fixed, we
+> +		 *   want to look at the total error accumulated
+> +		 *   to move us back in sync using the same method.
+> +		 *   However, we must be careful as if we make too 
+> +		 *   sudden an adjustment we might overshoot. So we 
+> +		 *   limit the amount of change to spread the 
+> +		 *   adjustment (using MAXOFFADJ) over a longer 
+> +		 *   period of time.
+> +		 *
+> +		 *   This is basically proportional control
+> +		 *   using the PID terminology.
+> +		 *
+> +		 *   We use interval_cycs here as the divisor, which
+> +		 *   hopes that the next sample will be similar in 
+> +		 *   distance from the last.
+> +		 */
+> +		if(error >= 0) {
+> +			adj = error_aproximation(error, 
+> +					interval_cycs, MAXOFFADJ);
+> +			multadj += 1<<adj;
+> +			snsec_update += interval <<adj;
+> +			offset_update += offset << adj;
+> +		} else {
+> +			adj = error_aproximation(-error,
+> +						interval_cycs, MAXOFFADJ);
+> +			multadj -= 1<<adj;
+> +			snsec_update -= interval <<adj;
+> +			offset_update -= offset << adj;
+> +		}
+
+The limitation avoids the biggest problems, but it also may slow down the 
+error reduction (the more the bigger the shift value is). The main problem 
+is really that we don't know how many ticks will be skipped and with 
+interval_cycs you only know what happened last and this won't help if 
+ticks are skipped in irregular intervals.
+Regarding dynticks it would help a lot here to know how many ticks are 
+skipped so you can spread the error correction evenly over this period 
+until the next adjustment and the correction is stopped in time.
+
+bye, Roman

@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWGFPJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbWGFPQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbWGFPJh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 11:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWGFPJh
+	id S1030305AbWGFPQG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 11:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030316AbWGFPQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 11:09:37 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:42659 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S1030300AbWGFPJg (ORCPT
+	Thu, 6 Jul 2006 11:16:05 -0400
+Received: from k2smtpout01-02.prod.mesa1.secureserver.net ([64.202.189.89]:11997
+	"HELO k2smtpout01-01.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1030305AbWGFPQE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 11:09:36 -0400
-Date: Thu, 6 Jul 2006 08:01:18 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
+	Thu, 6 Jul 2006 11:16:04 -0400
+X-Antivirus-MYDOMAIN-Mail-From: razvan.g@plutohome.com via plutohome.com.secureserver.net
+X-Antivirus-MYDOMAIN: 1.25-st-qms (Clear:RC:0(82.77.255.201):SA:0(-2.4/5.0):. Processed in 2.455546 secs Process 1517)
+Message-ID: <44AD292E.6040100@plutohome.com>
+Date: Thu, 06 Jul 2006 18:15:58 +0300
+From: Razvan Gavril <razvan.g@plutohome.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: perfmon@napali.hpl.hp.com, Stephane Eranian <eranian@hpl.hp.com>
-Subject: cpuinfo_x86 and apicid
-Message-ID: <20060706150118.GB10110@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+Subject: [BUG] NFS with multiple clients connected
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I have a nfs server(kernel-server) which i use as a boot server for 
+several other machines on the network. Starting with 2.6.16 i started 
+noticing that when having more than one of the clients doing a lot of 
+in/out on their mounted nfs shares at list one of then starts to to have 
+problems when writing (don't know about reading) files. For example dpkg 
+writes strange things it the /var/lib/dpkg/status file even if it worked 
+perfectly before the kernel upgrade.
+
+Every time an diskless computer fails to write corectly to the nfs 
+filesystem i got this messages on the nfs server (dmesg):
+
+RPC: bad TCP reclen 0x3c390000 (large)
+RPC: bad TCP reclen 0x31006261 (non-terminal)
+RPC: bad TCP reclen 0x73752070 (non-terminal)
+RPC: bad TCP reclen 0x52610100 (non-terminal)
+
+Is very simple to spot this behaver (1 write-error for client / 1 rpc 
+message in server's dmesg) because apt-get is always giving an error 
+message when the /var/lib/dpkg/status file contains something that it 
+shouldn't. An it also can be very ease to reproduce.
+
+I tested with 2.6.17 and got the same error, although when using 2.6.15 
+didn't got any errors and the clients worked perfect. Since i'm kind of 
+forced to use a kernel version > 2.6.15 i really, really need to solve 
+this bug. I would be glad to do it myself but i don't have the knowledge 
+to do it so if is anybody that can help i can offer all the information 
+that i could and also access to a system so he can track the problem.
 
 
-In the context of the perfmon2 subsystem for processor with HyperThreading,
-we need to know on which thread we are currently running. This comes from
-the fact that the performance counters are shared between the two threads.
+--
+Razvan Gavril
 
-We use the thread id (smt_id) because we split the counters in half
-between the two threads such that two threads on the same core can run
-with monitoring on.  We are currently computing the smt_id from the
-apicid as returned by a CPUID instruction. This is not very efficient.
 
-I looked through the i386 code and could not find a function nor 
-structure that would return this smt_id. In the cpuinfo_x86 structure
-there is an apicid field that looks good, yet it does not seem to be
-initialized nor used.
 
-Is cpuinfo_x86->apicid field obsolete? 
-If so, what is replacing it?
-
-Thanks.
-
--- 
--Stephane

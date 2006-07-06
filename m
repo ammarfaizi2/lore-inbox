@@ -1,122 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWGFGN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWGFGUD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbWGFGN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 02:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWGFGN0
+	id S1030186AbWGFGUD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 02:20:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbWGFGUB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 02:13:26 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2743 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030195AbWGFGNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 02:13:25 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@muc.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Doug Thompson <norsk5@yahoo.com>,
-       akpm@osdl.org, mm-commits@vger.kernel.org, norsk5@xmission.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch added to -mm tree
-References: <20060701150430.GA38488@muc.de>
-	<20060703172633.50366.qmail@web50109.mail.yahoo.com>
-	<20060703184836.GA46236@muc.de>
-	<1151962114.16528.18.camel@localhost.localdomain>
-	<20060704092358.GA13805@muc.de>
-	<1152007787.28597.20.camel@localhost.localdomain>
-	<20060704113441.GA26023@muc.de>
-	<1152137302.6533.28.camel@localhost.localdomain>
-	<20060705220425.GB83806@muc.de>
-Date: Thu, 06 Jul 2006 00:12:14 -0600
-In-Reply-To: <20060705220425.GB83806@muc.de> (Andi Kleen's message of "6 Jul
-	2006 00:04:25 +0200, Thu, 6 Jul 2006 00:04:25 +0200")
-Message-ID: <m1odw32rep.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 6 Jul 2006 02:20:01 -0400
+Received: from styx.suse.cz ([82.119.242.94]:54987 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1030186AbWGFGUB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 02:20:01 -0400
+Date: Thu, 6 Jul 2006 08:19:30 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Henrique de Moraes Holschuh <hmh@debian.org>, Pavel Machek <pavel@suse.cz>,
+       lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net, Stelian Pop <stelian@popies.net>,
+       Michael Hanselmann <linux-kernel@hansmi.ch>
+Subject: Re: Generic interface for accelerometers (AMS, HDAPS, ...)
+Message-ID: <20060706061930.GA6033@suse.cz>
+References: <fa.GOQkHC8inXir2wbg4bZayOWXzAY@ifi.uio.no> <fa.qLWuLxQd7Mhcnixy/TLVs/nPwig@ifi.uio.no> <44AC5261.9050708@shaw.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44AC5261.9050708@shaw.ca>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 05, 2006 at 05:59:29PM -0600, Robert Hancock wrote:
+> Henrique de Moraes Holschuh wrote:
+> >HDAPS talks to the embedded controller using IO over the LPC bus, and not 
+> >to
+> >the accelerometer chip or to a simple A/D i2c chip which is used excusively
+> >for accelerometer access.  The EC interface for HDAPS data retrieval is
+> >not friendly to any errors, and hardlocks the machine somehow if any
+> >firmware bugs hit or if we violate any of the rules (that are not written
+> >anywhere) about how to access the EC without geting the SMBIOS unhappy.
+> >
+> >So, turning off HDAPS polling while it is not necessary really looks like a
+> >good idea overall.
+> >
+> >We are investigating the ACPI global lock as a way to at least get the
+> >SMBIOS to stay away from the EC while we talk to it, but we don't know if
+> >the entire SMBIOS firmware respects that lock.
+> 
+> It had better, that is exactly what the ACPI Global Lock is supposed to 
+> prevent (concurrent access to non-sharable resources between the OS and 
+> SMI code). The ACPI DSDT contains information on whether or not the 
+> machine requires the Global Lock in order to access the EC or whether it 
+> is safe to access without locking.
+ 
+Isn't that vaild only if you actully use ACPI to access the EC? (AFAIK
+the HDAPS driver does direct port access.)
 
-I think if this conversation is going to make headway we
-need to step back a minute, and ask what makes sense to do
-an where and not get caught up the details of an implementation.
-
-The goal of the EDAC code is to report errors the hardware has
-seen to upper layers of software so someone can do something with
-them.    Also it is hoped we can get a moderately standard interface
-so that automated tools can recognize and do something when a
-problem is reported.  Is this a reasonable set of goals?
-
-Memory errors are by far the most common kind of hardware error
-and worth discussing.    For an uncorrectable memory error there
-are 3 interesting pieces of information.
-
-- Which cpu address did the error happen at.
-  So we can kill the processes using that memory.
-  Although simply killing the entire machine appears acceptable.
-
-- What is the chipsets idea of which DIMM the memory error occurred on.
-  For bus based memory architectures like the opteron this
-  is a chip select of the DIMM rank.
-  For serial memory architectures this is some kind of bus address,
-  but still useful for describing individual chips.
-
-- What is the silk screen label on the motherboard that corresponds
-  to the chip selects with problems.
-
-If you look at the memory controller, and the associated error
-reporting registers (which are sometimes available in the machine check).
-There has always been enough information to determine the hardware
-address the memory controller knows the DIMM by.
-
-Getting the address of the error is usually possible but not always
-and not always very reliably.
-
-Mapping between the hardware address that the memory controller
-knows DIMMS by and the actual DIMMS themselves is actually
-pretty easy even if you don't have any motherboard information.
-It is just a matter of plugging in DIMMS in different positions
-and seeing which DIMMS that the hardware currently sees.  It's
-maybe half a days work on an unknown motherboard.
-
-
-...
-
-Assuming we can agree that this is sane information we want.  The
-remaining question is how do we capture it.
-
-For the mapping to the hardware address that the memory controller
-knows the DIMM by requires the reading of hardware registers,
-some that are not easily accessible to user space so a kernel driver
-tends to make sense, just to get the information.  
-
-Possibly we could just  export that information and let the
-user space figure it out from there.   But memory is a key system
-component and hardware designers are very creative so coming
-up with a consistent model would be very hard.  So far we
-have had to improve our helper functions every couple of chipsets
-because the old models broke.  Writing a driver split halfway between
-the kernel and user space sounds silly.
-
-....
-
-The other pieces to me seem much more fluid.  Especially since EDAC
-does not yet export much if anything to user space except through
-printk's in any stable kernel.
-
-....
-
-As for the suggestion of using DMI as best as I can determine it
-suffers rather badly from the never ending creativity of the chipset
-developers and does not have a model that can describe what needs
-to happen for the current generation of chipset much less the bleeding
-edge ones.  Which is besides the fact that the only thing that you can
-usually trust in DMI tables is the motherboard manufacturer.
-
-I do think getting the motherboard id out of DMI provides a great key
-to build a memory controller hardware address to DIMM label lookup
-table.   With EDAC we have been computing that information in user
-space and caching it kernel side so we could generate immediately
-useful print statements.  Which is handy but probably not necessary.
-
-Eric
-
-
+-- 
+Vojtech Pavlik
+Director SuSE Labs

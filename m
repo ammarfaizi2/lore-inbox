@@ -1,90 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbWGFMjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWGFMnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965017AbWGFMjw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 08:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbWGFMjw
+	id S1030237AbWGFMnj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 08:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbWGFMnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 08:39:52 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:28868 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965017AbWGFMjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 08:39:51 -0400
-Subject: Re: [patch] spinlocks: remove 'volatile'
-From: Arjan van de Ven <arjan@infradead.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
-References: <20060705114630.GA3134@elte.hu>
-	 <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu>
-	 <20060705131824.52fa20ec.akpm@osdl.org>
-	 <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
-	 <20060705204727.GA16615@elte.hu>
-	 <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
-	 <20060705214502.GA27597@elte.hu>
-	 <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
-	 <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
-	 <20060706081639.GA24179@elte.hu>
-	 <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
-	 <1152187268.3084.29.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
+	Thu, 6 Jul 2006 08:43:39 -0400
+Received: from pat.uio.no ([129.240.10.4]:58327 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S965192AbWGFMnj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 08:43:39 -0400
+Subject: Re: ext4 features
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <44AC7647.2080005@tmr.com>
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
+	 <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com>
+	 <20060705125956.GA529@fieldses.org> <44AC2B56.8010703@tmr.com>
+	 <20060705214133.GA28487@fieldses.org>  <44AC7647.2080005@tmr.com>
 Content-Type: text/plain
-Date: Thu, 06 Jul 2006 14:39:43 +0200
-Message-Id: <1152189583.3084.32.camel@laptopd505.fenrus.org>
+Date: Thu, 06 Jul 2006 08:43:15 -0400
+Message-Id: <1152189796.5689.17.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.119, required 12,
+	autolearn=disabled, AWL 1.69, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-06 at 08:29 -0400, linux-os (Dick Johnson) wrote:
-> On Thu, 6 Jul 2006, Arjan van de Ven wrote:
-> 
-> > On Thu, 2006-07-06 at 07:59 -0400, linux-os (Dick Johnson) wrote:
-> >> On Thu, 6 Jul 2006, Ingo Molnar wrote:
-> >>
-> >>>
-> >>> * Linus Torvalds <torvalds@osdl.org> wrote:
-> >>>
-> >>>> I wonder if we should remove the "volatile". There really isn't
-> >>>> anything _good_ that gcc can do with it, but we've seen gcc code
-> >>>> generation do stupid things before just because "volatile" seems to
-> >>>> just disable even proper normal working.
-> >>
-> >> Then GCC must be fixed. The keyword volatile is correct. It should
-> >> force the compiler to read the variable every time it's used.
-> >
-> > this is not really what the C standard says.
-> >
-> >
-> >
-> >> This is not pointless. If GCC generates bad code, tell the
-> >> GCC people. The volatile keyword is essential.
-> >
-> > no the "volatile" semantics are vague, trecherous and evil. It's a LOT
-> > better to insert the well defined "barrier()" in the right places.
-> 
-> Look at:
-> 
->  	http://en.wikipedia.org/wiki/Volatile_variable
-> 
-> This is just what is needed to prevent the compiler from making non working
-> code during optimization.
+On Wed, 2006-07-05 at 22:32 -0400, Bill Davidsen wrote:
 
-and an entry level document at wikipedia is more important than the C
-standard ;)
+> But with timestamps I need remember only one number, the time of my last 
+> backup. Skipping over the question of "who's idea of time" inherent in 
+> network filesystems. I compare all ctimes with the time of the last 
+> backup and do incremental on the newer ones. If we use versioning I have 
+> to remember the version for each file! In practice I really question if 
+> the benefit justified keeping all that metadata between backups. And if 
+> I delete a file and create another by the same name, what is it's version?
 
-> 
-> Also look at:
-> 
->  	http://en.wikipedia.org/wiki/Memory_barrier
-> 
-> This is used to prevent out-of-order execution, not at all what is
-> necessary.
+You are completely missing the point. Our background is that all NFS
+clients are required to use the mtime and ctime timestamps in order to
+figure out if their cached data is valid. They need to do this extremely
+frequently (in fact, every time you open() the file).
 
-I did not talk about memory barriers. In fact, barrier() is NOT a memory
-barrier. It's a compiler optimization barrier!
+Nobody gives a rats arse about backups: those are infrequent and
+can/should use more sophisticated techniques such as checksumming.
 
+Cheers,
+  Trond
 

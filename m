@@ -1,432 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbWGFJ2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbWGFJbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965175AbWGFJ2m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 05:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbWGFJ2k
+	id S965181AbWGFJbl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 05:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965180AbWGFJbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 05:28:40 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:5841 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965175AbWGFJ2h (ORCPT
+	Thu, 6 Jul 2006 05:31:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41614 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965178AbWGFJbk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 05:28:37 -0400
-Message-ID: <44ACD7C3.5040008@watson.ibm.com>
-Date: Thu, 06 Jul 2006 05:28:35 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jay Lan <jlan@sgi.com>, Paul Jackson <pj@sgi.com>, Valdis.Kletnieks@vt.edu,
-       Balbir Singh <balbir@in.ibm.com>, Chris Sturtivant <csturtiv@sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jamal <hadi@cyberus.ca>,
-       netdev <netdev@vger.kernel.org>
-Subject: [PATCH] per-task delay accounting taskstats interface: control exit
- data through cpumasks]
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 6 Jul 2006 05:31:40 -0400
+Date: Thu, 6 Jul 2006 02:31:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Drynoff <pauldrynoff@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       "Brown, Len" <len.brown@intel.com>,
+       Rich Townsend <rhdt@bartol.udel.edu>
+Subject: Re: linux-2.6.17-mm6: can not boot: bad spinlock magic
+Message-Id: <20060706023131.04de8092.akpm@osdl.org>
+In-Reply-To: <20060706130849.f227ae98.pauldrynoff@gmail.com>
+References: <20060706130849.f227ae98.pauldrynoff@gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On systems with a large number of cpus, with even a modest rate of
-tasks exiting per cpu, the volume of taskstats data sent on thread exit
-can overflow a userspace listener's buffers.
+On Thu, 6 Jul 2006 13:08:49 +0400
+Paul Drynoff <pauldrynoff@gmail.com> wrote:
 
-One approach to avoiding overflow is to allow listeners to get data for
-a limited and specific set of cpus. By scaling the number of listeners
-and/or the cpus they monitor, userspace can handle the statistical data
-overload more gracefully.
+> I tried 2.6.17-mm6, and got durring boot:
+> fb0: VGA16 VGA frame buffer device
+> BUG: spinlock bad magic on CPU#0, swapper/1
+> _raw_spin_lock
+> _spin_lock_irqsave
+> __down
+> __down_faied
+> .text.lock.cm_sbs
+> acpi_ac_init
+> init
+> kernel_thread_helper
 
-In this patch, each listener registers to listen to a specific set of
-cpus by specifying a cpumask.  The interest is recorded per-cpu. When
-a task exits on a cpu, its taskstats data is unicast to each listener
-interested in that cpu.
+Thanks.  This'll probably help.
 
-Thanks to Andrew Morton for pointing out the various scalability and
-general concerns of previous attempts and for suggesting this design.
 
-Signed-Off-By: Shailabh Nagar <nagar@watson.ibm.com>
+From: Andrew Morton <akpm@osdl.org>
 
+cm_sbs_sem is being downed (via acpi_ac_init->acpi_lock_ac_dir) before it is
+initialised, with grave results.
+
+- Make it a mutex
+
+- Initialise it
+
+- Make it static
+
+- Clean other stuff up.
+
+Cc: "Brown, Len" <len.brown@intel.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
-Fixes comments by akpm:
-- uninline taskstats_exit_alloc
-- remove all preempt_disable
-- combine per-cpu listener list and its locking into a single struct
-- check cpumask as a whole against cpu_possible_map
-- missing kfree(struct listener)
+ drivers/acpi/cm_sbs.c |   46 ++++++++++++----------------------------
+ 1 file changed, 14 insertions(+), 32 deletions(-)
 
-Suggested by Paul Jackson
-- limit on length of cpumask passed in as a cpulist
-
-Addresses the problem of "close fd without deregistration" though it
-can be done better.
-
-
-  include/linux/taskstats.h      |    4 -
-  include/linux/taskstats_kern.h |   22 +----
-  kernel/exit.c                  |    5 -
-  kernel/taskstats.c             |  163 ++++++++++++++++++++++++++++++++++++++---
-  4 files changed, 163 insertions(+), 31 deletions(-)
-
-Index: linux-2.6.17-mm3equiv/include/linux/taskstats.h
-===================================================================
---- linux-2.6.17-mm3equiv.orig/include/linux/taskstats.h	2006-06-30 19:03:40.000000000 -0400
-+++ linux-2.6.17-mm3equiv/include/linux/taskstats.h	2006-07-06 02:38:28.000000000 -0400
-@@ -87,8 +87,6 @@ struct taskstats {
-  };
-
-
--#define TASKSTATS_LISTEN_GROUP	0x1
+diff -puN drivers/acpi/cm_sbs.c~acpi-initialise-cm_sbs_sem drivers/acpi/cm_sbs.c
+--- a/drivers/acpi/cm_sbs.c~acpi-initialise-cm_sbs_sem
++++ a/drivers/acpi/cm_sbs.c
+@@ -39,50 +39,43 @@ ACPI_MODULE_NAME("cm_sbs")
+ static struct proc_dir_entry *acpi_ac_dir;
+ static struct proc_dir_entry *acpi_battery_dir;
+ 
+-static struct semaphore cm_sbs_sem;
++static DEFINE_MUTEX(cm_sbs_mutex);
+ 
+-static int lock_ac_dir_cnt = 0;
+-static int lock_battery_dir_cnt = 0;
++static int lock_ac_dir_cnt;
++static int lock_battery_dir_cnt;
+ 
+ struct proc_dir_entry *acpi_lock_ac_dir(void)
+ {
 -
-  /*
-   * Commands sent from userspace
-   * Not versioned. New commands should only be inserted at the enum's end
-@@ -120,6 +118,8 @@ enum {
-  	TASKSTATS_CMD_ATTR_UNSPEC = 0,
-  	TASKSTATS_CMD_ATTR_PID,
-  	TASKSTATS_CMD_ATTR_TGID,
-+	TASKSTATS_CMD_ATTR_REGISTER_CPUMASK,
-+	TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK,
-  	__TASKSTATS_CMD_ATTR_MAX,
-  };
-
-Index: linux-2.6.17-mm3equiv/include/linux/taskstats_kern.h
-===================================================================
---- linux-2.6.17-mm3equiv.orig/include/linux/taskstats_kern.h	2006-06-30 11:57:14.000000000 -0400
-+++ linux-2.6.17-mm3equiv/include/linux/taskstats_kern.h	2006-07-05 16:51:52.000000000 -0400
-@@ -20,21 +20,6 @@ enum {
-  extern kmem_cache_t *taskstats_cache;
-  extern struct mutex taskstats_exit_mutex;
-
--static inline int taskstats_has_listeners(void)
--{
--	if (!genl_sock)
+-	down(&cm_sbs_sem);
+-	if (!acpi_ac_dir) {
++	mutex_lock(&cm_sbs_mutex);
++	if (!acpi_ac_dir)
+ 		acpi_ac_dir = proc_mkdir(ACPI_AC_CLASS, acpi_root_dir);
+-	}
+ 	if (acpi_ac_dir) {
+ 		lock_ac_dir_cnt++;
+ 	} else {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
+ 				  "Cannot create %s\n", ACPI_AC_CLASS));
+ 	}
+-	up(&cm_sbs_sem);
++	mutex_unlock(&cm_sbs_mutex);
+ 	return acpi_ac_dir;
+ }
+-
+ EXPORT_SYMBOL(acpi_lock_ac_dir);
+ 
+ void acpi_unlock_ac_dir(struct proc_dir_entry *acpi_ac_dir_param)
+ {
+-
+-	down(&cm_sbs_sem);
+-	if (acpi_ac_dir_param) {
++	mutex_lock(&cm_sbs_mutex);
++	if (acpi_ac_dir_param)
+ 		lock_ac_dir_cnt--;
+-	}
+ 	if (lock_ac_dir_cnt == 0 && acpi_ac_dir_param && acpi_ac_dir) {
+ 		remove_proc_entry(ACPI_AC_CLASS, acpi_root_dir);
+ 		acpi_ac_dir = 0;
+ 	}
+-	up(&cm_sbs_sem);
++	mutex_unlock(&cm_sbs_mutex);
+ }
+-
+ EXPORT_SYMBOL(acpi_unlock_ac_dir);
+ 
+ struct proc_dir_entry *acpi_lock_battery_dir(void)
+ {
+-
+-	down(&cm_sbs_sem);
++	mutex_lock(&cm_sbs_mutex);
+ 	if (!acpi_battery_dir) {
+ 		acpi_battery_dir =
+ 		    proc_mkdir(ACPI_BATTERY_CLASS, acpi_root_dir);
+@@ -93,39 +86,28 @@ struct proc_dir_entry *acpi_lock_battery
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
+ 				  "Cannot create %s\n", ACPI_BATTERY_CLASS));
+ 	}
+-	up(&cm_sbs_sem);
++	mutex_unlock(&cm_sbs_mutex);
+ 	return acpi_battery_dir;
+ }
+-
+ EXPORT_SYMBOL(acpi_lock_battery_dir);
+ 
+ void acpi_unlock_battery_dir(struct proc_dir_entry *acpi_battery_dir_param)
+ {
+-
+-	down(&cm_sbs_sem);
+-	if (acpi_battery_dir_param) {
++	mutex_lock(&cm_sbs_mutex);
++	if (acpi_battery_dir_param)
+ 		lock_battery_dir_cnt--;
+-	}
+ 	if (lock_battery_dir_cnt == 0 && acpi_battery_dir_param
+ 	    && acpi_battery_dir) {
+ 		remove_proc_entry(ACPI_BATTERY_CLASS, acpi_root_dir);
+ 		acpi_battery_dir = 0;
+ 	}
+-	up(&cm_sbs_sem);
++	mutex_unlock(&cm_sbs_mutex);
+ 	return;
+ }
+-
+ EXPORT_SYMBOL(acpi_unlock_battery_dir);
+ 
+ static int __init acpi_cm_sbs_init(void)
+ {
+-
+-	if (acpi_disabled)
 -		return 0;
--	return netlink_has_listeners(genl_sock, TASKSTATS_LISTEN_GROUP);
--}
 -
+-	init_MUTEX(&cm_sbs_sem);
 -
--static inline void taskstats_exit_alloc(struct taskstats **ptidstats)
--{
--	*ptidstats = NULL;
--	if (taskstats_has_listeners())
--		*ptidstats = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
--}
+ 	return 0;
+ }
 -
-  static inline void taskstats_exit_free(struct taskstats *tidstats)
-  {
-  	if (tidstats)
-@@ -79,17 +64,18 @@ static inline void taskstats_tgid_free(s
-  		kmem_cache_free(taskstats_cache, stats);
-  }
-
--extern void taskstats_exit_send(struct task_struct *, struct taskstats *, int);
-+extern void taskstats_exit_alloc(struct taskstats **, unsigned int *);
-+extern void taskstats_exit_send(struct task_struct *, struct taskstats *, int, unsigned int);
-  extern void taskstats_init_early(void);
-  extern void taskstats_tgid_alloc(struct signal_struct *);
-  #else
--static inline void taskstats_exit_alloc(struct taskstats **ptidstats)
-+static inline void taskstats_exit_alloc(struct taskstats **ptidstats, unsigned int *mycpu)
-  {}
-  static inline void taskstats_exit_free(struct taskstats *ptidstats)
-  {}
-  static inline void taskstats_exit_send(struct task_struct *tsk,
-  				       struct taskstats *tidstats,
--				       int group_dead)
-+				       int group_dead, unsigned int cpu)
-  {}
-  static inline void taskstats_tgid_init(struct signal_struct *sig)
-  {}
-Index: linux-2.6.17-mm3equiv/kernel/taskstats.c
-===================================================================
---- linux-2.6.17-mm3equiv.orig/kernel/taskstats.c	2006-06-30 23:38:39.000000000 -0400
-+++ linux-2.6.17-mm3equiv/kernel/taskstats.c	2006-07-06 02:41:15.000000000 -0400
-@@ -19,9 +19,17 @@
-  #include <linux/kernel.h>
-  #include <linux/taskstats_kern.h>
-  #include <linux/delayacct.h>
-+#include <linux/cpumask.h>
-+#include <linux/percpu.h>
-  #include <net/genetlink.h>
-  #include <asm/atomic.h>
-
-+/*
-+ * Maximum length of a cpumask that can be specified in
-+ * the TASKSTATS_CMD_ATTR_REGISTER/DEREGISTER_CPUMASK attribute
-+ */
-+#define TASKSTATS_CPUMASK_MAXLEN	(100+6*NR_CPUS)
-+
-  static DEFINE_PER_CPU(__u32, taskstats_seqnum) = { 0 };
-  static int family_registered = 0;
-  kmem_cache_t *taskstats_cache;
-@@ -37,9 +45,26 @@ static struct nla_policy taskstats_cmd_g
-  __read_mostly = {
-  	[TASKSTATS_CMD_ATTR_PID]  = { .type = NLA_U32 },
-  	[TASKSTATS_CMD_ATTR_TGID] = { .type = NLA_U32 },
-+	[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK] = { .type = NLA_STRING },
-+	[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK] = { .type = NLA_STRING },};
-+
-+struct listener {
-+	struct list_head list;
-+	pid_t pid;
-  };
-
-+struct listener_list {
-+	struct rw_semaphore sem;
-+	struct list_head list;
-+};
-+static DEFINE_PER_CPU(struct listener_list, listener_array);
-
-+enum actions {
-+	REGISTER,
-+	DEREGISTER,
-+	CPU_DONT_CARE
-+};
-+
-  static int prepare_reply(struct genl_info *info, u8 cmd, struct sk_buff **skbp,
-  			void **replyp, size_t size)
-  {
-@@ -74,9 +99,11 @@ static int prepare_reply(struct genl_inf
-  	return 0;
-  }
-
--static int send_reply(struct sk_buff *skb, pid_t pid, int event)
-+static int send_reply(struct sk_buff *skb, pid_t pid, int event, unsigned int cpu)
-  {
-  	struct genlmsghdr *genlhdr = nlmsg_data((struct nlmsghdr *)skb->data);
-+	struct listener_list *listeners;
-+	struct list_head *p, *tmp;
-  	void *reply;
-  	int rc;
-
-@@ -88,9 +115,29 @@ static int send_reply(struct sk_buff *sk
-  		return rc;
-  	}
-
--	if (event == TASKSTATS_MSG_MULTICAST)
--		return genlmsg_multicast(skb, pid, TASKSTATS_LISTEN_GROUP);
--	return genlmsg_unicast(skb, pid);
-+	if (event == TASKSTATS_MSG_UNICAST)
-+		return genlmsg_unicast(skb, pid);
-+
-+	/*
-+	 * Taskstats multicast is unicasts to listeners who have registered
-+	 * interest in cpu
-+	 */
-+
-+	listeners = &per_cpu(listener_array, cpu);
-+	down_write(&listeners->sem);
-+	list_for_each_safe(p, tmp, &listeners->list) {
-+		int ret;
-+		struct listener *s = list_entry(p, struct listener, list);
-+		ret = genlmsg_unicast(skb, s->pid);
-+		if (ret) {
-+			list_del(&s->list);
-+			kfree(s);
-+			rc = ret;
-+		}
-+	}
-+	up_write(&listeners->sem);
-+
-+	return rc;
-  }
-
-  static int fill_pid(pid_t pid, struct task_struct *pidtsk,
-@@ -201,8 +248,53 @@ ret:
-  	return;
-  }
-
-+static int add_del_listener(pid_t pid, cpumask_t *maskp, int isadd)
-+{
-+	struct listener *s;
-+	struct listener_list *listeners;
-+	unsigned int cpu;
-+	cpumask_t mask;
-+	struct list_head *p;
-+
-+	memcpy(&mask, maskp, sizeof(cpumask_t));
-+	if (!cpus_subset(mask, cpu_possible_map))
-+		return -EINVAL;
-+
-+	if (isadd == REGISTER) {
-+		for_each_cpu_mask(cpu, mask) {
-+			s = kmalloc_node(sizeof(struct listener), GFP_KERNEL,
-+					 cpu_to_node(cpu));
-+			if (!s)
-+				return -ENOMEM;
-+			s->pid = pid;
-+			INIT_LIST_HEAD(&s->list);
-+
-+			listeners = &per_cpu(listener_array, cpu);
-+			down_write(&listeners->sem);
-+			list_add(&s->list, &listeners->list);
-+			up_write(&listeners->sem);
-+		}
-+	} else {
-+		for_each_cpu_mask(cpu, mask) {
-+			struct list_head *tmp;
-+
-+			listeners = &per_cpu(listener_array, cpu);
-+			down_write(&listeners->sem);
-+			list_for_each_safe(p, tmp, &listeners->list) {
-+				s = list_entry(p, struct listener, list);
-+				if (s->pid == pid) {
-+					list_del(&s->list);
-+					kfree(s);
-+					break;
-+				}
-+			}
-+			up_write(&listeners->sem);
-+		}
-+	}
-+	return 0;
-+}
-
--static int taskstats_send_stats(struct sk_buff *skb, struct genl_info *info)
-+static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
-  {
-  	int rc = 0;
-  	struct sk_buff *rep_skb;
-@@ -210,6 +302,25 @@ static int taskstats_send_stats(struct s
-  	void *reply;
-  	size_t size;
-  	struct nlattr *na;
-+	cpumask_t mask;
-+
-+	if (info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK]) {
-+		na = info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK];
-+		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
-+			return -E2BIG;
-+		cpulist_parse((char *)nla_data(na), mask);
-+		rc = add_del_listener(info->snd_pid, &mask, REGISTER);
-+		return rc;
-+	}
-+
-+	if (info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK]) {
-+		na = info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK];
-+		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
-+			return -E2BIG;
-+		cpulist_parse((char *)nla_data(na), mask);
-+		rc = add_del_listener(info->snd_pid, &mask, DEREGISTER);
-+		return rc;
-+	}
-
-  	/*
-  	 * Size includes space for nested attributes
-@@ -249,7 +360,8 @@ static int taskstats_send_stats(struct s
-
-  	nla_nest_end(rep_skb, na);
-
--	return send_reply(rep_skb, info->snd_pid, TASKSTATS_MSG_UNICAST);
-+	return send_reply(rep_skb, info->snd_pid, TASKSTATS_MSG_UNICAST,
-+			  CPU_DONT_CARE);
-
-  nla_put_failure:
-  	return genlmsg_cancel(rep_skb, reply);
-@@ -258,9 +370,36 @@ err:
-  	return rc;
-  }
-
-+void taskstats_exit_alloc(struct taskstats **ptidstats, unsigned int *mycpu)
-+{
-+	struct listener_list *listeners;
-+	struct taskstats *tmp;
-+	/*
-+	 * This is the cpu on which the task is exiting currently and will
-+	 * be the one for which the exit event is sent, even if the cpu
-+	 * on which this function is running changes later.
-+	 */
-+	*mycpu = raw_smp_processor_id();
-+
-+	*ptidstats = NULL;
-+	tmp = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
-+	if (!tmp)
-+		return;
-+
-+	listeners = &per_cpu(listener_array, *mycpu);
-+	down_read(&listeners->sem);
-+	if (!list_empty(&listeners->list)) {
-+		*ptidstats = tmp;
-+		tmp = NULL;
-+	}
-+	up_read(&listeners->sem);
-+	if (tmp)
-+		kfree(tmp);
-+}
-+
-  /* Send pid data out on exit */
-  void taskstats_exit_send(struct task_struct *tsk, struct taskstats *tidstats,
--			int group_dead)
-+			int group_dead, unsigned int mycpu)
-  {
-  	int rc;
-  	struct sk_buff *rep_skb;
-@@ -320,7 +459,7 @@ void taskstats_exit_send(struct task_str
-  	nla_nest_end(rep_skb, na);
-
-  send:
--	send_reply(rep_skb, 0, TASKSTATS_MSG_MULTICAST);
-+	send_reply(rep_skb, 0, TASKSTATS_MSG_MULTICAST, mycpu);
-  	return;
-
-  nla_put_failure:
-@@ -334,7 +473,7 @@ ret:
-
-  static struct genl_ops taskstats_ops = {
-  	.cmd		= TASKSTATS_CMD_GET,
--	.doit		= taskstats_send_stats,
-+	.doit		= taskstats_user_cmd,
-  	.policy		= taskstats_cmd_get_policy,
-  };
-
-@@ -349,6 +488,7 @@ void __init taskstats_init_early(void)
-  static int __init taskstats_init(void)
-  {
-  	int rc;
-+	unsigned int i;
-
-  	rc = genl_register_family(&family);
-  	if (rc)
-@@ -358,6 +498,11 @@ static int __init taskstats_init(void)
-  	rc = genl_register_ops(&family, &taskstats_ops);
-  	if (rc < 0)
-  		goto err;
-+
-+	for_each_possible_cpu(i) {
-+		INIT_LIST_HEAD(&(per_cpu(listener_array, i).list));
-+		init_rwsem(&(per_cpu(listener_array, i).sem));
-+	}
-
-  	return 0;
-  err:
-Index: linux-2.6.17-mm3equiv/kernel/exit.c
-===================================================================
---- linux-2.6.17-mm3equiv.orig/kernel/exit.c	2006-06-28 16:09:01.000000000 -0400
-+++ linux-2.6.17-mm3equiv/kernel/exit.c	2006-07-05 16:22:50.000000000 -0400
-@@ -852,6 +852,7 @@ fastcall NORET_TYPE void do_exit(long co
-  	struct task_struct *tsk = current;
-  	struct taskstats *tidstats;
-  	int group_dead;
-+	unsigned int mycpu;
-
-  	profile_task_exit(tsk);
-
-@@ -889,7 +890,7 @@ fastcall NORET_TYPE void do_exit(long co
-  				current->comm, current->pid,
-  				preempt_count());
-
--	taskstats_exit_alloc(&tidstats);
-+	taskstats_exit_alloc(&tidstats, &mycpu);
-
-  	acct_update_integrals(tsk);
-  	if (tsk->mm) {
-@@ -910,7 +911,7 @@ fastcall NORET_TYPE void do_exit(long co
-  #endif
-  	if (unlikely(tsk->audit_context))
-  		audit_free(tsk);
--	taskstats_exit_send(tsk, tidstats, group_dead);
-+	taskstats_exit_send(tsk, tidstats, group_dead, mycpu);
-  	taskstats_exit_free(tidstats);
-  	delayacct_tsk_exit(tsk);
+ subsys_initcall(acpi_cm_sbs_init);
+_
 

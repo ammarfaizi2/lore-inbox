@@ -1,83 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbWGFJKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965119AbWGFJRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbWGFJKU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 05:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbWGFJKU
+	id S965119AbWGFJRX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 05:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965142AbWGFJRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 05:10:20 -0400
-Received: from mx2.mail.ru ([194.67.23.122]:52852 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S965118AbWGFJKS (ORCPT
+	Thu, 6 Jul 2006 05:17:23 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:48021 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965119AbWGFJRW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 05:10:18 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: CDROMEJECT (or START_STOP(2)) completely disables USB flash stick
-Date: Thu, 6 Jul 2006 13:10:04 +0400
-User-Agent: KMail/1.9.3
-Cc: linux-scsi@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jul 2006 05:17:22 -0400
+Date: Thu, 6 Jul 2006 11:12:47 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: [patch] uninline init_waitqueue_head()
+Message-ID: <20060706091247.GA26933@elte.hu>
+References: <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org> <20060706082341.GB24492@elte.hu> <20060706020257.1e9b621e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607061310.14526.arvidjaar@mail.ru>
+In-Reply-To: <20060706020257.1e9b621e.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-While working on some HAL issues I hit some not clear - to me at least - 
-behavior. I was testing HAL Eject method that under Linux effectively 
-calls 'eject /dev/block'. Now for USB stick - at least, that I have, this 
-results in "ejecting medium" without apparently any way to get it back (the 
-only way is to replug stick).
+* Andrew Morton <akpm@osdl.org> wrote:
 
-UEVENT[1152175788.114199] remove@/block/sda/sda1
-ACTION=remove
-DEVPATH=/block/sda/sda1
-SUBSYSTEM=block
-SEQNUM=1332
-MINOR=1
-MAJOR=8
-PHYSDEVPATH=/devices/pci0000:00/0000:00:02.0/usb1/1-1/1-1:1.0/host1/target1:0:0/1:0:0:0
-PHYSDEVBUS=scsi
-PHYSDEVDRIVER=sd
+> On my x86_64 typicalconfig
+> (http://www.zip.com.au/~akpm/linux/patches/stuff/config-x)
+> 
+> everything inlined:
+> 
+>    text    data     bss     dec     hex filename
+> 4079169  702440  280184 5061793  4d3ca1 vmlinux
+> 
+> uninline init_waitqueue_head:
+> 
+> 4076921  702456  280184 5059561  4d33e9 vmlinux
+> 
+> uninline init_waitqueue_head+init_waitqueue_entry
+> 
+> box:/usr/src/25> size vmlinux
+>    text    data     bss     dec     hex filename
+> 4077017  702472  280184 5059673  4d3459 vmlinux
+> 
+> uninline init_waitqueue_head+init_waitqueue_entry+init_waitqueue_func_entry
+> 
+> box:/usr/src/25> size vmlinux
+>    text    data     bss     dec     hex filename
+> 4077128  702496  280184 5059808  4d34e0 vmlinux
+> 
+> So we only want to uninline init_waitqueue_head().
 
-In this state I do see device:
+yeah, i played with that too and concluded that it's a small win on i386
+:-) Anyway, updated patch below - i agree that the biggest item is
+init_waitqueue_head().
 
-{pts/0}% sudo sdparm -a /dev/sda
-    /dev/sda:           128MB             2.00
-{pts/0}% cat /proc/scsi/scsi
-Attached devices:
-Host: scsi1 Channel: 00 Id: 00 Lun: 00
-  Vendor:          Model: 128MB            Rev: 2.00
-  Type:   Direct-Access                    ANSI SCSI revision: 02
+	Ingo
 
-but any attempt to get partition back results in
+---------------->
+Subject: uninline init_waitqueue_head()
+From: Ingo Molnar <mingo@elte.hu>
 
-{pts/0}% LC_ALL=C sudo blockdev --rereadpt /dev/sda
-/dev/sda: No medium found
+uninline more wait.h inline functions.
 
-I tried 'sdparm -C start' without much success as well:
+allyesconfig vmlinux size delta:
 
-{pts/0}% LC_ALL=C sudo sdparm -v -C start /dev/sda
-    /dev/sda:           128MB             2.00
-    Start stop unit command: 1b 00 00 00 01 00
-{pts/0}% LC_ALL=C sudo blockdev --rereadpt /dev/sda
-/dev/sda: No medium found
+  text            data    bss     dec          filename
+  20736884        6073834 3075176 29885894     vmlinux.before
+  20721009        6073966 3075176 29870151     vmlinux.after
 
-Well, I just try to understand if this is a expected (and reasonable) 
-behaviour or a bug in hardware or possibly software?
+~18 bytes per callsite, 15K of text size (~0.1%) saved.
 
-Thank you
+(as an added bonus this also removes a lockdep annotation.)
 
-- -andrey
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ include/linux/wait.h |   12 +-----------
+ kernel/wait.c        |    8 ++++++--
+ 2 files changed, 7 insertions(+), 13 deletions(-)
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQFErNN2R6LMutpd94wRAg1DAJ9EITRTZCm/ej5PXzxAK71s7sUCVACgiNFx
-KXOuNAwwhPKYcogaK6LgMZM=
-=MHVX
------END PGP SIGNATURE-----
+Index: linux/include/linux/wait.h
+===================================================================
+--- linux.orig/include/linux/wait.h
++++ linux/include/linux/wait.h
+@@ -77,17 +77,7 @@ struct task_struct;
+ #define __WAIT_BIT_KEY_INITIALIZER(word, bit)				\
+ 	{ .flags = word, .bit_nr = bit, }
+ 
+-/*
+- * lockdep: we want one lock-class for all waitqueue locks.
+- */
+-extern struct lock_class_key waitqueue_lock_key;
+-
+-static inline void init_waitqueue_head(wait_queue_head_t *q)
+-{
+-	spin_lock_init(&q->lock);
+-	lockdep_set_class(&q->lock, &waitqueue_lock_key);
+-	INIT_LIST_HEAD(&q->task_list);
+-}
++extern void init_waitqueue_head(wait_queue_head_t *q);
+ 
+ static inline void init_waitqueue_entry(wait_queue_t *q, struct task_struct *p)
+ {
+Index: linux/kernel/wait.c
+===================================================================
+--- linux.orig/kernel/wait.c
++++ linux/kernel/wait.c
+@@ -10,9 +10,13 @@
+ #include <linux/wait.h>
+ #include <linux/hash.h>
+ 
+-struct lock_class_key waitqueue_lock_key;
++void init_waitqueue_head(wait_queue_head_t *q)
++{
++	spin_lock_init(&q->lock);
++	INIT_LIST_HEAD(&q->task_list);
++}
+ 
+-EXPORT_SYMBOL(waitqueue_lock_key);
++EXPORT_SYMBOL(init_waitqueue_head);
+ 
+ void fastcall add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
+ {

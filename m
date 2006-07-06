@@ -1,133 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWGFQg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbWGFQhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbWGFQg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 12:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbWGFQg1
+	id S1030232AbWGFQhb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 12:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbWGFQhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 12:36:27 -0400
-Received: from mga02.intel.com ([134.134.136.20]:3931 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S965109AbWGFQg0 convert rfc822-to-8bit (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 12:36:26 -0400
-X-IronPort-AV: i="4.06,214,1149490800"; 
-   d="scan'208"; a="61402623:sNHT8304537976"
-Content-class: urn:content-classes:message
+	Thu, 6 Jul 2006 12:37:31 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:14354 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965109AbWGFQha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 12:37:30 -0400
+Date: Thu, 6 Jul 2006 18:37:28 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: kai@germaschewski.name, sam@ravnborg.org
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
+Subject: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
+Message-ID: <20060706163728.GN26941@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [PATCH] mm: moving dirty pages balancing to pdfludh entirely
-Date: Thu, 6 Jul 2006 20:33:25 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC06D26C@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] mm: moving dirty pages balancing to pdfludh entirely
-Thread-Index: AcahD/EPNZWlwMCjSi+hCQoyVyks8wAAZNAw
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Nikita Danilov" <nikita@clusterfs.com>
-Cc: "Bret Towe" <magnade@gmail.com>,
-       "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Jul 2006 16:33:33.0330 (UTC) FILETIME=[EC0F0720:01C6A119]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov writes:
->> by introducing MAX_PDFLUSH_THREADS=8. Why just 8?
-> Sorry, I don't understand. pdflush.c appeared in 2.5.8 and
-Thanks for explanation. Why just 8? Answer: it was introduced in 2.5.8.
-Why the constant MAX_PDFLUSH_THREADS is needed? Is it because current
-kernel may create huge number of pdflush threads and overload the
-system? Why we can not set MAX_PDFLUSH_THREADS=512? 1000?
+Currently, using an undeclared function gives a compile warning, but it 
+can lead to a nasty to debug runtime stack corruptions if the prototype 
+of the function is different from what gcc guessed.
 
->> Why 48?
-> This is explained in comment just above sync_writeback_pages()
-> definition. Basically, ratelimit_pages pages might be dirtied between
-> calls to balance_dirty_pages(), and the latter tries to write out
-*more*
-> pages to keep number of dirty pages under control: negative feedback
-> control loop, of sorts.
+With -Werror-implicit-function-declaration we are getting an immediate
+compile error instead.
 
-I had asked "why 48?" is hard coded for any configuration. I do not see
-"48" in your explanation.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-You do not recommend to use hard coded constants but
-MAX_PDFLUSH_THREADS=8 and write_chunk=48 are sacred according you mind. 
+---
 
-> it will enter balance_dirty_pages() more often than A.
-B will get 1 second additional latency 60 times per minute and user A
-only 3 times per minute but after each pressing 'ENTER'.
+ Makefile                               |    3 ++-
+ drivers/input/joystick/iforce/Makefile |    2 --
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-Leonid
------Original Message-----
-From: Nikita Danilov [mailto:nikita@clusterfs.com] 
-Sent: Thursday, July 06, 2006 7:17 PM
-To: Ananiev, Leonid I
-Cc: Bret Towe; Linux Kernel Mailing List
-Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh
-entirely
+--- linux-2.6.17-mm6-full/Makefile.old	2006-07-06 12:17:02.000000000 +0200
++++ linux-2.6.17-mm6-full/Makefile	2006-07-06 12:18:52.000000000 +0200
+@@ -318,7 +318,8 @@
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
+ 
+ CFLAGS          := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+-                   -fno-strict-aliasing -fno-common
++                   -fno-strict-aliasing -fno-common \
++		   -Werror-implicit-function-declaration
+ # Force gcc to behave correct even for buggy distributions
+ CFLAGS          += $(call cc-option, -fno-stack-protector-all \
+                                      -fno-stack-protector)
+--- linux-2.6.17-mm6-full/drivers/input/joystick/iforce/Makefile.old	2006-07-06 12:19:08.000000000 +0200
++++ linux-2.6.17-mm6-full/drivers/input/joystick/iforce/Makefile	2006-07-06 12:19:16.000000000 +0200
+@@ -16,5 +16,3 @@
+ ifeq ($(CONFIG_JOYSTICK_IFORCE_USB),y)
+ 	iforce-objs += iforce-usb.o
+ endif
+-
+-EXTRA_CFLAGS = -Werror-implicit-function-declaration
 
-Ananiev, Leonid I writes:
- > Nikita Danilov writes:
- > > You are inhumane. :-)
- > OK. A lame argument was a joke.
- > 
- > > No. User thread will not write _all_ dirty pages (if it does---it's
-a
- > > bug in the current code and should be fixed):
- > 
- > Some bugs are fixed by the patch.
- > Current kernel generates pdflush thread unlimitedly. It was patched
-up
- > by introducing MAX_PDFLUSH_THREADS=8. Why just 8? Now
-
-Sorry, I don't understand. pdflush.c appeared in 2.5.8 and
-
-#define MAX_PDFLUSH_THREADS    8
-
-was here from the very beginning:
-http://www.kernelhq.cc/browse-view.py?fv_nr=107897
-
- > MAX_PDFLUSH_THREADS still present. But it could be removed.
- > Unlimited thread generation is fixed in proposed patch.
- > 
- > Now we are discussing other wonderful constant write_chunk=48. Why
-48?
-
-This is explained in comment just above sync_writeback_pages()
-definition. Basically, ratelimit_pages pages might be dirtied between
-calls to balance_dirty_pages(), and the latter tries to write out *more*
-pages to keep number of dirty pages under control: negative feedback
-control loop, of sorts.
-
- > The patch deletes this magic constant using:
- > -			.nr_to_write	= write_chunk,
- > It was needed in user thread only.
- > 
- > If user thread A writes 1 byte into disk it has to write not all but
-48
- > dirty pages. User main work is paused. User thread B continues
- > generating of dirty pages. Thread B is main generator of dirty pages.
- > Thread A found was able to write-out 47 pages only because user B
-locks
- > inodes. That is why user A forced to wait 0.1 sec and than repeat
- > compulsory community works. User thread lunch wide inodes scanning
-and
- > list creating but interrupted after 48 pages. It is inefficient
-method. 
-
-It may so happen, right, but in the long term most of writeback will be
-performed by thread B, because, being heavy writer, it will enter
-balance_dirty_pages() more often than A.
-
-If you want to get rid of write latencies, you need better accounting,
-to know what pages were dirtied by the current thread (or at least their
-number), so that synchronous writeback can be fairer.
-
-[...]
-
- > 
- > Leonid
-
-Nikita.

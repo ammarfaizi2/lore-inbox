@@ -1,187 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWGFKCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbWGFKDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030209AbWGFKCO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 06:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWGFKCO
+	id S965138AbWGFKDa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 06:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWGFKDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 06:02:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51864 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030199AbWGFKCN (ORCPT
+	Thu, 6 Jul 2006 06:03:30 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:17896 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S965138AbWGFKD3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 06:02:13 -0400
-Date: Thu, 6 Jul 2006 02:56:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: jlan@sgi.com, pj@sgi.com, Valdis.Kletnieks@vt.edu, balbir@in.ibm.com,
-       csturtiv@sgi.com, linux-kernel@vger.kernel.org, hadi@cyberus.ca,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] per-task delay accounting taskstats interface: control
- exit data through cpumasks]
-Message-Id: <20060706025633.cd4b1c1d.akpm@osdl.org>
-In-Reply-To: <44ACD7C3.5040008@watson.ibm.com>
-References: <44ACD7C3.5040008@watson.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 6 Jul 2006 06:03:29 -0400
+Date: Thu, 6 Jul 2006 12:03:19 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
+Message-ID: <20060706120319.26b35798@cad-250-152.norway.atmel.com>
+In-Reply-To: <20060706021906.1af7ffa3.akpm@osdl.org>
+References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
+	<20060706021906.1af7ffa3.akpm@osdl.org>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.18; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Jul 2006 05:28:35 -0400
-Shailabh Nagar <nagar@watson.ibm.com> wrote:
+On Thu, 6 Jul 2006 02:19:06 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-> On systems with a large number of cpus, with even a modest rate of
-> tasks exiting per cpu, the volume of taskstats data sent on thread exit
-> can overflow a userspace listener's buffers.
+> On Thu, 6 Jul 2006 10:52:27 +0200
+> Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
 > 
-> One approach to avoiding overflow is to allow listeners to get data for
-> a limited and specific set of cpus. By scaling the number of listeners
-> and/or the cpus they monitor, userspace can handle the statistical data
-> overload more gracefully.
+> > Hi everyone,
+> > 
+> > I've put up an updated set of patches for AVR32 support at
+> > http://avr32linux.org/twiki/bin/view/Main/LinuxPatches
+> > 
+> > The most interesting patch probably is
+> > http://avr32linux.org/twiki/pub/Main/LinuxPatches/avr32-arch-2.patch
+> > 
+> > which, at 544K, is too large to attach here. Please let me know if
+> > you want me to do it anyway.
+> > 
+> > Anyone want to have a look at this? I understand that a full review
+> > is a huge job, but I'd appreciate a pointer or two in the general
+> > direction that I need to take this in order to get it acceptable for
+> > mainline.
+> > 
 > 
-> In this patch, each listener registers to listen to a specific set of
-> cpus by specifying a cpumask.  The interest is recorded per-cpu. When
-> a task exits on a cpu, its taskstats data is unicast to each listener
-> interested in that cpu.
+> Looks pretty sane from a quick scan.
 > 
-> Thanks to Andrew Morton for pointing out the various scalability and
-> general concerns of previous attempts and for suggesting this design.
+> - request_irq() can use GFP_KERNEL?
+
+Probably, but the genirq implementation also uses GFP_ATOMIC.
+
+> - show_interrupts() should use for_each_online_cpu()
+
+Indeed. Haven't really touched that code for a while.
+
+> <wow, kprobes support>
 > 
-> ...
->
-> --- linux-2.6.17-mm3equiv.orig/include/linux/taskstats.h	2006-06-30 19:03:40.000000000 -0400
-> +++ linux-2.6.17-mm3equiv/include/linux/taskstats.h	2006-07-06 02:38:28.000000000 -0400
+> - do you really need __udivdi3() and friends?  We struggle hard to
+> avoid the necessity on x86 and you should be able to leverage that
+> advantage.
 
-Your email client performs space-stuffing.  Fortunately "sed -e 's/^  / /'"
-is easy.
+__avr32_udiv64 has only one caller, in time_init(). I'll see if I can
+eliminate it.
 
->   #include <linux/taskstats_kern.h>
->   #include <linux/delayacct.h>
-> +#include <linux/cpumask.h>
-> +#include <linux/percpu.h>
->   #include <net/genetlink.h>
->   #include <asm/atomic.h>
+The 64-bit shift functions are called from architecture-independent
+code, so that will be harder.
 
-Like that.
-
+> - What are these for?
 > 
-> +static int add_del_listener(pid_t pid, cpumask_t *maskp, int isadd)
-> +{
-> +	struct listener *s;
-> +	struct listener_list *listeners;
-> +	unsigned int cpu;
-> +	cpumask_t mask;
-> +	struct list_head *p;
-> +
-> +	memcpy(&mask, maskp, sizeof(cpumask_t));
+> 	+EXPORT_SYMBOL(register_dma_controller);
+> 	+EXPORT_SYMBOL(find_dma_controller);
 
-	mask = *maskp; ?
+An attempt at a DMA controller framework, which is used by our MMC
+driver as well as a couple of sound drivers. I can remove it from the
+patchset if you want, as I haven't forward-ported any of the users yet.
 
-> +	if (!cpus_subset(mask, cpu_possible_map))
-> +		return -EINVAL;
-> +
-> +	if (isadd == REGISTER) {
-> +		for_each_cpu_mask(cpu, mask) {
-> +			s = kmalloc_node(sizeof(struct listener), GFP_KERNEL,
-> +					 cpu_to_node(cpu));
-> +			if (!s)
-> +				return -ENOMEM;
-> +			s->pid = pid;
-> +			INIT_LIST_HEAD(&s->list);
-> +
-> +			listeners = &per_cpu(listener_array, cpu);
-> +			down_write(&listeners->sem);
-> +			list_add(&s->list, &listeners->list);
-> +			up_write(&listeners->sem);
-> +		}
-> +	} else {
-> +		for_each_cpu_mask(cpu, mask) {
-> +			struct list_head *tmp;
-> +
-> +			listeners = &per_cpu(listener_array, cpu);
-> +			down_write(&listeners->sem);
-> +			list_for_each_safe(p, tmp, &listeners->list) {
-> +				s = list_entry(p, struct listener, list);
-> +				if (s->pid == pid) {
-> +					list_del(&s->list);
-> +					kfree(s);
-> +					break;
-> +				}
-> +			}
-> +			up_write(&listeners->sem);
-> +		}
-> +	}
-> +	return 0;
-> +}
+> 	+EXPORT_SYMBOL(clk_get);
+> 	+EXPORT_SYMBOL(clk_put);
+> 	+EXPORT_SYMBOL(clk_enable);
+> 	+EXPORT_SYMBOL(clk_disable);
+> 	+EXPORT_SYMBOL(clk_get_rate);
+> 	+EXPORT_SYMBOL(clk_round_rate);
+> 	+EXPORT_SYMBOL(clk_set_rate);
+> 	+EXPORT_SYMBOL(clk_set_parent);
+> 	+EXPORT_SYMBOL(clk_get_parent);
 
-You might choose to handle the ENOMEM situation here by backing out and not
-leaving things half-installed.  I suspect that's just a simple `goto'.
+Implementation of the linux/clk.h API. David Brownell convinced me to
+implement it for AVR32, as it is used by a lot of ARM drivers,
+especially the AT91 ones which could mostly be shared with AVR32.
 
-> -static int taskstats_send_stats(struct sk_buff *skb, struct genl_info *info)
-> +static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
->   {
->   	int rc = 0;
->   	struct sk_buff *rep_skb;
-> @@ -210,6 +302,25 @@ static int taskstats_send_stats(struct s
->   	void *reply;
->   	size_t size;
->   	struct nlattr *na;
-> +	cpumask_t mask;
+> - Was there a ./MAINTAINERS patch?  I didn't see one.
 
-When counting add_del_listener(), that's two cpumasks on the stack.  How
-big can these get?  256 bytes?  Is it possible to get by with just the one?
+Sorry, I missed that one. Appended below.
 
-> +
-> +	if (info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK]) {
-> +		na = info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK];
-> +		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
-> +			return -E2BIG;
-> +		cpulist_parse((char *)nla_data(na), mask);
+> - Who stands behind this port?  How do we know this isn't a
+> patch-n-run exercise?  How do we know that the code won't rot?
 
-Best check the return value from this function.
+Atmel, or more precisely Atmel Norway, which is the design center
+that designed the AVR and AVR32 architectures, stands behind it. Atmel
+Applications Engineers have received a fair amount of Linux training
+already, so I don't think we'll be dropping this on the floor any time
+soon.
 
-> +		rc = add_del_listener(info->snd_pid, &mask, REGISTER);
-> +		return rc;
-> +	}
-> +
-> +	if (info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK]) {
-> +		na = info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK];
-> +		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
-> +			return -E2BIG;
-> +		cpulist_parse((char *)nla_data(na), mask);
-> +		rc = add_del_listener(info->snd_pid, &mask, DEREGISTER);
-> +		return rc;
-> +	}
-> 
-> ...
-> 
-> +void taskstats_exit_alloc(struct taskstats **ptidstats, unsigned int *mycpu)
-> +{
-> +	struct listener_list *listeners;
-> +	struct taskstats *tmp;
-> +	/*
-> +	 * This is the cpu on which the task is exiting currently and will
-> +	 * be the one for which the exit event is sent, even if the cpu
-> +	 * on which this function is running changes later.
-> +	 */
-> +	*mycpu = raw_smp_processor_id();
-> +
-> +	*ptidstats = NULL;
-> +	tmp = kmem_cache_zalloc(taskstats_cache, SLAB_KERNEL);
-> +	if (!tmp)
-> +		return;
-> +
-> +	listeners = &per_cpu(listener_array, *mycpu);
-> +	down_read(&listeners->sem);
-> +	if (!list_empty(&listeners->list)) {
-> +		*ptidstats = tmp;
-> +		tmp = NULL;
-> +	}
-> +	up_read(&listeners->sem);
-> +	if (tmp)
-> +		kfree(tmp);
+> - How does one build a something->avr32 cross-toolchain?
 
-kfree(NULL) is legal.
+I've started writing up a "Getting Started" guide at
+http://avr32linux.org/twiki/bin/view/Main/GettingStarted. It's mostly
+complete, although I haven't actually uploaded the toolchain patches.
+I'll do that in a couple of minutes.
 
+Håvard
 
-Looks good to me.  Does it work?
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 196a31c..f7ab4ff 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -422,6 +422,23 @@ W:	http://people.redhat.com/sgrubb/audit
+ T:	git kernel.org:/pub/scm/linux/kernel/git/dwmw2/audit-2.6.git
+ S:	Maintained
+ 
++AVR32 ARCHITECTURE
++P:	Atmel AVR32 Support Team
++M:	avr32@atmel.com
++P:	Haavard Skinnemoen
++M:	hskinnemoen@atmel.com
++W:	http://www.atmel.com/products/AVR32/
++W:	http://avr32linux.org/
++W:	http://avrfreaks.net/
++S:	Supported
++
++AVR32/AT32AP MACHINE SUPPORT
++P:	Atmel AVR32 Support Team
++M:	avr32@atmel.com
++P:	Haavard Skinnemoen
++M:	hskinnemoen@atmel.com
++S:	Supported
++
+ AX.25 NETWORK LAYER
+ P:	Ralf Baechle
+ M:	ralf@linux-mips.org

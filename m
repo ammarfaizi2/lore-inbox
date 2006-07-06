@@ -1,36 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWGFThS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWGFThj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWGFThS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 15:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWGFThS
+	id S1750759AbWGFThj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 15:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWGFThj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 15:37:18 -0400
-Received: from rtr.ca ([64.26.128.89]:36744 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1750765AbWGFThR (ORCPT
+	Thu, 6 Jul 2006 15:37:39 -0400
+Received: from mga02.intel.com ([134.134.136.20]:16940 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750759AbWGFThh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 15:37:17 -0400
-Message-ID: <44AD666B.1060500@rtr.ca>
-Date: Thu, 06 Jul 2006 15:37:15 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Thu, 6 Jul 2006 15:37:37 -0400
+X-IronPort-AV: i="4.06,214,1149490800"; 
+   d="scan'208"; a="61496180:sNHT2277968175"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org> <20060706081639.GA24179@elte.hu> <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com> <1152187268.3084.29.camel@laptopd505.fenrus.org> <44AD5357.4000100@rtr.ca> <Pine.LNX.4.64.0607061213560.3869@g5.osdl.org> <44AD658A.5070005@nortel.com>
-In-Reply-To: <44AD658A.5070005@nortel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Linux v2.6.18-rc1
+Date: Thu, 6 Jul 2006 12:25:37 -0700
+Message-ID: <B28E9812BAF6E2498B7EC5C427F293A48DFCEA@orsmsx415.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Linux v2.6.18-rc1
+Thread-Index: Acag+JdwNc3xvm/tSgGhHwyfx/utfgAOSM8A
+From: "Moore, Robert" <robert.moore@intel.com>
+To: "Alistair John Strachan" <s0348365@sms.ed.ac.uk>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <linux-acpi@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
+X-OriginalArrivalTime: 06 Jul 2006 19:25:37.0845 (UTC) FILETIME=[F5F2FE50:01C6A131]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
->
-> The "reordered" thing really only matters on SMP machines, no?
+I've tracked this down, it's a bug and I believe I have it fixed. It's
+related to "serialized" control methods which are rather rare in
+comparison to non-serialized methods.
 
-Also (very much!) for device drivers.
+Bob
 
-Cheers
+
+> -----Original Message-----
+> From: linux-acpi-owner@vger.kernel.org [mailto:linux-acpi-
+> owner@vger.kernel.org] On Behalf Of Alistair John Strachan
+> Sent: Thursday, July 06, 2006 5:35 AM
+> To: Linus Torvalds
+> Cc: Linux Kernel Mailing List; linux-acpi@vger.kernel.org; Brown, Len
+> Subject: Re: Linux v2.6.18-rc1
+> 
+> On Thursday 06 July 2006 05:26, Linus Torvalds wrote:
+> > Ok,
+> >  the merge window for 2.6.18 is closed, and -rc1 is out there (git
+trees
+> > updated, the tar-ball and patches are still uploading over my
+pitiful
+> DSL
+> > line - and as usual it may take a short while before mirroring takes
+> > place and distributes things across the globe).
+> >
+> > The changes are too big for the mailing list, even just the
+shortlog. As
+> > usual, lots of stuff happened. Most architectures got updated, ACPI
+> > updates, networking, SCSI and sound, IDE, infiniband, input, DVB etc
+etc
+> > etc.
+> 
+> ACPI problem here. Doesn't seem to actively break anything, but the
+> messages
+> look bad (HP NC6000 notebook). Haven't tried suspending. The error
+popped
+> up roughly 90 minutes after booting. Laptop has been on AC power
+> throughout.
+> 
+> ACPI Error (exmutex-0248): Cannot release Mutex [C0E8], not acquired
+> [20060623]
+> ACPI Error (psparse-0537): Method parse/execution failed
+> [\_SB_.C044.C057.C0E7.C12F] (Node c1aeca40), AE_AML_MUTEX_NOT_ACQUIRED
+> ACPI Error (psparse-0537): Method parse/execution failed [\_SB_.C12F]
+> (Node c1aeecfc), AE_AML_MUTEX_NOT_ACQUIRED
+> ACPI Error (psparse-0537): Method parse/execution failed
+[\_SB_.C137._BST]
+> (Node c1aeec84), AE_AML_MUTEX_NOT_ACQUIRED
+> ACPI Exception (acpi_battery-0206): AE_AML_MUTEX_NOT_ACQUIRED,
+Evaluating
+> _BST [20060623]
+> 
+> --
+> Cheers,
+> Alistair.
+> 
+> Third year Computer Science undergraduate.
+> 1F2 55 South Clerk Street, Edinburgh, UK.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi"
+in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

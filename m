@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWGFDLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbWGFDPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbWGFDLN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 23:11:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWGFDLN
+	id S965030AbWGFDPE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 23:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWGFDPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 23:11:13 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:21383 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965150AbWGFDLM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 23:11:12 -0400
-Message-ID: <44AC7F46.3050204@zytor.com>
-Date: Wed, 05 Jul 2006 20:11:02 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: Re: [klibc 30/31] Remove in-kernel resume-from-disk invocation code
-References: <klibc.200606272217.00@tazenda.hos.anvin.org> <44AC5F5C.7070907@zytor.com> <200607061145.08590.ncunningham@linuxmail.org> <200607061218.39202.ncunningham@linuxmail.org>
-In-Reply-To: <200607061218.39202.ncunningham@linuxmail.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 5 Jul 2006 23:15:03 -0400
+Received: from xenotime.net ([66.160.160.81]:60848 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965030AbWGFDPB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 23:15:01 -0400
+Date: Wed, 5 Jul 2006 20:17:46 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: yh@bizmail.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: O_TARGET
+Message-Id: <20060705201746.3438e944.rdunlap@xenotime.net>
+In-Reply-To: <4960.58.105.227.226.1152155926.squirrel@58.105.227.226>
+References: <4960.58.105.227.226.1152155926.squirrel@58.105.227.226>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
-> Hi again.
+On Thu, 6 Jul 2006 13:18:46 +1000 (EST) yh@bizmail.com.au wrote:
+
+> Hi,
 > 
-> (Excuse me replying to myself, but this might help someone else).
+> The O_TARGET is no longer valid in kernel 2.4, what is the replacement of
+> following module object in kernel 2.6?
 > 
-> On Thursday 06 July 2006 11:45, Nigel Cunningham wrote:
->> Is there a klibc howto somewhere? I tried googling for 'klibc howto',
->> reading the files in Documentation/ and browsing your klibc mailing list
->> archive before asking!
+> O_TARGET := NewSerial.o
 > 
->> What I'm wondering specifically is: Say a user needs to run some commands
->> to set up access to encrypted storage before they can resume. At the
->> moment, we'd tell them to put these commands and the echo > do_resume in
->> their linuxrc (or init) script prior to mounting their root filesystem.
->> Forgive me if I'm asking a stupid question but it's not immediately obvious
->> to me how they would now do that. I'd much rather follow a simple howto
->> than spend a good amount of time tracing function calls etc. I still see
->> init/initramfs.c, and it mentions both CONFIG_BLK_DEV_INITRD and
->> CONFIG_BLK_DEV_RAM. Would I be right in surmising that you can still have
->> an initrd or ramfs to do such things as the above, after klibc has done its
->> work? If not, is there some other way I'm ignorant of?
-> 
-> For the record, I've since discovered that what you really want is an 
-> initramfs howto. I think I stuck with those old-fangled initrds for too long. 
-> Better update my desktop from Mandrake 10 too :)... is there a pattern here?
-> 
+> obj-y   := new_s_driver.o queue.o
+> obj-m   := $(O_TARGET)
 
-Okay, let's try to start from the beginning...
+You just want a trivial Makefile ?
 
-initramfs is, indeed, a replacement for initrd, but it's not a 1:1 map. 
-  Instead, initramfs contents -- which can come from multiple sources! 
--- is simply extracted right into rootfs.
+See Documentation/kbuild/makefiles.txt for more info.
 
-kinit is a replacement for the in-kernel root-handling code, as well as 
-other related in-kernel code like resume from disk.  It is compiled as a 
-monolithic binary for size reasons.
+Here is a working trivial example:
 
-klibc is a very small C library which *can* be used to produce initramfs 
-binaries; in particular, it's used to produce kinit, and is small enough 
-that it can be realistically included with the kernel distribution.
+#################### begin ###################3
+# usage:
+# make -C /path/to/kernel/source M=/path/to/source/TARGET/ [modules]
 
-If you provide your own /init in an initramfs, it will override the 
-default, which is /init -> /kinit.  You can then choose to invoke kinit 
-if you want to; for example, you could try to resume from suspend2, and 
-invoke kinit if that fails.
+obj-m := TARGET.o
 
-	-hpa
+clean-files := *.o *.ko *.mod.c
+############# end #######################
+
+M= implies modules, so modules is optional.
+I usually use M=$PWD (after cd to TARGET dir).
+
+---
+~Randy

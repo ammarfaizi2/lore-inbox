@@ -1,84 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbWGFCqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965131AbWGFCsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965139AbWGFCqX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 22:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbWGFCqX
+	id S965131AbWGFCsT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 22:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWGFCsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 22:46:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11651 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965139AbWGFCqW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 22:46:22 -0400
-Date: Wed, 5 Jul 2006 19:46:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: miles.lane@gmail.com, petkan@users.sourceforge.net,
-       linux-kernel@vger.kernel.org, david-b@pacbell.net,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.17-mm5 -- netconsole failed to send full trace
-Message-Id: <20060705194614.ae2be901.akpm@osdl.org>
-In-Reply-To: <20060705194229.8ffe85d9.akpm@osdl.org>
-References: <a44ae5cd0607030131x745b3106ydd2a4ca086cdf401@mail.gmail.com>
-	<20060703014016.9f598cef.akpm@osdl.org>
-	<a44ae5cd0607030704q63f1f64x5e46688cef6fa44c@mail.gmail.com>
-	<20060703121717.b36ef57e.akpm@osdl.org>
-	<a44ae5cd0607051144w5734ce4bkd38320adda99ae43@mail.gmail.com>
-	<a44ae5cd0607051934o2656a40bs88393dc0d6591249@mail.gmail.com>
-	<20060705194229.8ffe85d9.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jul 2006 22:48:19 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:41231 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965131AbWGFCsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 22:48:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=A9wDEK5JJjVECTUxInxxIgysJTOnRIaoITxlhg5B83oQLiERlsuYJaL7/AjzLTWDx0xYlsE9/THN0nVKQ9XyEzrx/wjqNe6dmNogu0sW9PsO9R9MN6v41qUnXv/cw5pZtPAW79IySwLWZmA8k6pfLkDebRpqlzGqbeT29+FgRmw=
+Message-ID: <e4cb19870607051948t7e6d208m729a572a65f2da5e@mail.gmail.com>
+Date: Wed, 5 Jul 2006 22:48:17 -0400
+From: "Thomas Tuttle" <thinkinginbinary@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Create new LED trigger for CPU activity (ledtrig-cpu) (UPDATED)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_7929_28872109.1152154097240"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jul 2006 19:42:29 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+------=_Part_7929_28872109.1152154097240
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> On Wed, 5 Jul 2006 19:34:52 -0700
-> "Miles Lane" <miles.lane@gmail.com> wrote:
-> 
-> > On 7/5/06, Miles Lane <miles.lane@gmail.com> wrote:
-> > > Hi Petko,
-> > >
-> > > David Brownell pointed out that you are the author of this driver (rtl8150).
-> > > My laptop is crashing every time I remove the Linksys EtherFast 10/100
-> > > Compact Network Adapter (model USB100M) from the USB port.
-> > >
-> > > Here's a link to the discussion thus far:
-> > > http://groups.google.com/group/linux.kernel/tree/browse_frm/thread/8c93e310c7b71242/a8a1e3edb1601906?rnum=1&q=miles+lane&_done=%2Fgroup%2Flinux.kernel%2Fbrowse_frm%2Fthread%2F8c93e310c7b71242%2Fc8a8ba47c49c39fc%3Ftvc%3D1%26q%3Dmiles+lane%26#doc_a8a1e3edb1601906
-> > >
-> > > Here's the stacktrace:
-> > > http://www.zip.com.au/~akpm/linux/patches/stuff/00003.jpg
-> > >
-> > > I have reproduced the bug with vanilla 2.6.17.  I am currently working my
-> > > back through kernel versions to try to isolate the responsible patches.
-> > 
-> > 2.6.15 is the first kernel earliest kernel that seems to work with Ubuntu 6.06's
-> > implementation of hal / udev / dbus.  It does set up the adapter successfully.
-> > 
-> > I was able to reproduce the crash with 2.6.15.  I have attached a screenshot
-> > of the stacktrace.  It may help, since it differs quite a bit from the one for
-> > 2.6.17-mm5.
-> 
-> The attachment will be too large to make it onto most mailing lists.  I put
-> a copy here: http://www.zip.com.au/~akpm/linux/patches/stuff/00005.jpg
-> 
-> > BTW, should I join linux-usb-devel and CC that list?  Also, should I take
-> > this discussion off of LKML?
-> 
-> Nah, spread it around.  Who knows, somoene might actually fix the bug ;)
+Here is a new version of the patch, incorporating code style tips from
+Randy Dunlap <rdunlap@xenotime.net>, and based on 2.6.17-git25, rather
+than 2.6.17.1.
 
-I don't suppose it's this easy?
+I noticed that there's a Heartbeat LED trigger in the git version.  I
+hope this isn't too similar.
 
---- a/drivers/usb/net/rtl8150.c~a
-+++ a/drivers/usb/net/rtl8150.c
-@@ -909,6 +909,7 @@ static void rtl8150_disconnect(struct us
- 	usb_set_intfdata(intf, NULL);
- 	if (dev) {
- 		set_bit(RTL8150_UNPLUG, &dev->flags);
-+		tasklet_kill(&dev->tl);
- 		tasklet_disable(&dev->tl);
- 		unregister_netdev(dev->netdev);
- 		unlink_all_urbs(dev);
-_
+-- 
+Thomas Tuttle
+http://thinkinginbinary.webhop.net/
+thinkinginbinary@gmail.com
+AIM: thinkinginbinary
 
+------=_Part_7929_28872109.1152154097240
+Content-Type: text/x-patch; name=ledtrig-cpu.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_epaiscxv
+Content-Disposition: attachment; filename="ledtrig-cpu.patch"
+
+ZGlmZiAtdWRyTiBsaW51eC0yLjYuMTctZ2l0MjUvZHJpdmVycy9sZWRzL0tjb25maWcgbGludXgt
+Mi42LjE3LWdpdDI1LW1pbmUvZHJpdmVycy9sZWRzL0tjb25maWcKLS0tIGxpbnV4LTIuNi4xNy1n
+aXQyNS9kcml2ZXJzL2xlZHMvS2NvbmZpZwkyMDA2LTA3LTA1IDIyOjExOjQ1LjAwMDAwMDAwMCAt
+MDQwMAorKysgbGludXgtMi42LjE3LWdpdDI1LW1pbmUvZHJpdmVycy9sZWRzL0tjb25maWcJMjAw
+Ni0wNy0wNSAyMjo0Mjo1OC4wMDAwMDAwMDAgLTA0MDAKQEAgLTkzLDYgKzkzLDQxIEBACiAJICBU
+aGlzIGFsbG93cyBMRURzIHRvIGJlIGNvbnRyb2xsZWQgYnkgSURFIGRpc2sgYWN0aXZpdHkuCiAJ
+ICBJZiB1bnN1cmUsIHNheSBZLgogCitjb25maWcgTEVEU19UUklHR0VSX0NQVQorCXRyaXN0YXRl
+ICJMRUQgQ1BVIFRyaWdnZXIiCisJZGVwZW5kcyBMRURTX1RSSUdHRVJTCisJaGVscAorCSAgVGhp
+cyBhbGxvd3MgTEVEcyB0byBiZSBjb250cm9sbGVkIGJ5IENQVSBhY3Rpdml0eS4KKwkgIElmIHVu
+c3VyZSwgc2F5IFkuCisKK2NvbmZpZyBMRURTX1RSSUdHRVJfQ1BVX0lOQ0xVREVfVVNFUgorCWJv
+b2wgIkluY2x1ZGUgdXNlciB0aW1lIGluIENQVSB0cmlnZ2VyIgorCWRlcGVuZHMgTEVEU19UUklH
+R0VSX0NQVQorCWRlZmF1bHQgeQorCWhlbHAKKwkgIFRoaXMgb3B0aW9uIG1ha2VzIHVzZXIgQ1BV
+IHRpbWUgY2F1c2UgdGhlIENQVSB0cmlnZ2VyIHRvIGFjdGl2YXRlLgorCitjb25maWcgTEVEU19U
+UklHR0VSX0NQVV9JTkNMVURFX05JQ0UKKwlib29sICJJbmNsdWRlIG5pY2UgdGltZSBpbiBDUFUg
+dHJpZ2dlciIKKwlkZXBlbmRzIExFRFNfVFJJR0dFUl9DUFUKKwlkZWZhdWx0IG4KKwloZWxwCisJ
+ICBUaGlzIG9wdGlvbiBtYWtlcyBuaWNlIENQVSB0aW1lIGNhdXNlIHRoZSBDUFUgdHJpZ2dlciB0
+byBhY3RpdmF0ZS4KKworY29uZmlnIExFRFNfVFJJR0dFUl9DUFVfSU5DTFVERV9TWVNURU0KKwli
+b29sICJJbmNsdWRlIHN5c3RlbSB0aW1lIGluIENQVSB0cmlnZ2VyIgorCWRlcGVuZHMgTEVEU19U
+UklHR0VSX0NQVQorCWRlZmF1bHQgeQorCWhlbHAKKwkgIFRoaXMgb3B0aW9uIG1ha2VzIHN5c3Rl
+bSBDUFUgdGltZSBjYXVzZSB0aGUgQ1BVIHRyaWdnZXIgdG8gYWN0aXZhdGUuCisKK2NvbmZpZyBM
+RURTX1RSSUdHRVJfQ1BVX0lOQ0xVREVfSU9XQUlUCisJYm9vbCAiSW5jbHVkZSBpb3dhaXQgdGlt
+ZSBpbiBDUFUgdHJpZ2dlciIKKwlkZXBlbmRzIExFRFNfVFJJR0dFUl9DUFUKKwlkZWZhdWx0IG4K
+KwloZWxwCisJICBUaGlzIG9wdGlvbiBtYWtlcyBpb3dhaXQgQ1BVIHRpbWUgY2F1c2UgdGhlIENQ
+VSB0cmlnZ2VyIHRvIGFjdGl2YXRlLgorCiBjb25maWcgTEVEU19UUklHR0VSX0hFQVJUQkVBVAog
+CXRyaXN0YXRlICJMRUQgSGVhcnRiZWF0IFRyaWdnZXIiCiAJZGVwZW5kcyBMRURTX1RSSUdHRVJT
+CmRpZmYgLXVkck4gbGludXgtMi42LjE3LWdpdDI1L2RyaXZlcnMvbGVkcy9sZWR0cmlnLWNwdS5j
+IGxpbnV4LTIuNi4xNy1naXQyNS1taW5lL2RyaXZlcnMvbGVkcy9sZWR0cmlnLWNwdS5jCi0tLSBs
+aW51eC0yLjYuMTctZ2l0MjUvZHJpdmVycy9sZWRzL2xlZHRyaWctY3B1LmMJMTk2OS0xMi0zMSAx
+OTowMDowMC4wMDAwMDAwMDAgLTA1MDAKKysrIGxpbnV4LTIuNi4xNy1naXQyNS1taW5lL2RyaXZl
+cnMvbGVkcy9sZWR0cmlnLWNwdS5jCTIwMDYtMDctMDUgMjI6NDI6MzguMDAwMDAwMDAwIC0wNDAw
+CkBAIC0wLDAgKzEsODcgQEAKKy8qCisgKiBMRUQgQ1BVIEFjdGl2aXR5IFRyaWdnZXIKKyAqCisg
+KiBDb3B5cmlnaHQgMjAwNiBUaG9tYXMgVHV0dGxlCisgKgorICogQXV0aG9yOiBUaG9tYXMgVHV0
+dGxlIDx0aGlua2luZ2luYmluYXJ5QGdtYWlsLmNvbT4KKyAqCisgKiBUaGlzIHByb2dyYW0gaXMg
+ZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yIG1vZGlmeQorICog
+aXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSB2ZXJz
+aW9uIDIgYXMKKyAqIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLgor
+ICoKKyAqLworCisjaW5jbHVkZSA8bGludXgvY29uZmlnLmg+CisjaW5jbHVkZSA8bGludXgvbW9k
+dWxlLmg+CisjaW5jbHVkZSA8bGludXgva2VybmVsLmg+CisjaW5jbHVkZSA8bGludXgvaW5pdC5o
+PgorI2luY2x1ZGUgPGxpbnV4L3RpbWVyLmg+CisjaW5jbHVkZSA8bGludXgvbGVkcy5oPgorI2lu
+Y2x1ZGUgPGxpbnV4L2tlcm5lbF9zdGF0Lmg+CisjaW5jbHVkZSA8YXNtL2NwdXRpbWUuaD4KKwor
+I2RlZmluZSBVUERBVEVfSU5URVJWQUwgKDUpIC8qIGRlbGF5IGJldHdlZW4gdXBkYXRlcywgaW4g
+bXMgKi8KKworc3RhdGljIHZvaWQgbGVkdHJpZ19jcHVfdGltZXJmdW5jKHVuc2lnbmVkIGxvbmcg
+ZGF0YSk7CisKK0RFRklORV9MRURfVFJJR0dFUihsZWR0cmlnX2NwdSk7CitzdGF0aWMgREVGSU5F
+X1RJTUVSKGxlZHRyaWdfY3B1X3RpbWVyLCBsZWR0cmlnX2NwdV90aW1lcmZ1bmMsIDAsIDApOwor
+CitzdGF0aWMgY3B1dGltZTY0X3QgY3B1X3VzYWdlKHZvaWQpCit7CisJaW50IGk7CisJY3B1dGlt
+ZTY0X3QgdGltZSA9IGNwdXRpbWU2NF96ZXJvOworCisJZm9yX2VhY2hfcG9zc2libGVfY3B1KGkp
+IHsKKyNpZmRlZiBDT05GSUdfTEVEU19UUklHR0VSX0NQVV9JTkNMVURFX1VTRVIKKwkJdGltZSA9
+IGNwdXRpbWU2NF9hZGQodGltZSwga3N0YXRfY3B1KGkpLmNwdXN0YXQudXNlcik7CisjZW5kaWYK
+KyNpZmRlZiBDT05GSUdfTEVEU19UUklHR0VSX0NQVV9JTkNMVURFX05JQ0UKKwkJdGltZSA9IGNw
+dXRpbWU2NF9hZGQodGltZSwga3N0YXRfY3B1KGkpLmNwdXN0YXQubmljZSk7CisjZW5kaWYKKyNp
+ZmRlZiBDT05GSUdfTEVEU19UUklHR0VSX0NQVV9JTkNMVURFX1NZU1RFTQorCQl0aW1lID0gY3B1
+dGltZTY0X2FkZCh0aW1lLCBrc3RhdF9jcHUoaSkuY3B1c3RhdC5zeXN0ZW0pOworI2VuZGlmCisj
+aWZkZWYgQ09ORklHX0xFRFNfVFJJR0dFUl9DUFVfSU5DTFVERV9JT1dBSVQKKwkJdGltZSA9IGNw
+dXRpbWU2NF9hZGQodGltZSwga3N0YXRfY3B1KGkpLmNwdXN0YXQuaW93YWl0KTsKKyNlbmRpZgor
+CX0KKworCXJldHVybiB0aW1lOworfQorCitjcHV0aW1lNjRfdCBsYXN0X2NwdXRpbWU7CisKK3N0
+YXRpYyB2b2lkIGxlZHRyaWdfY3B1X3RpbWVyZnVuYyh1bnNpZ25lZCBsb25nIGRhdGEpCit7CisJ
+Y3B1dGltZTY0X3QgdGhpc19jcHV0aW1lID0gY3B1X3VzYWdlKCk7CisJLyogWFhYOiBUaGlzIGFz
+c3VtZXMgdGhhdCBjcHV0aW1lNjRfdCBjYW4gYmUgc3VidHJhY3RlZC4KKwkgKiBOb2JvZHkgaGFz
+IGRlZmluZWQgY3B1dGltZTY0X3N1Yiwgc28gSSBoYWQgdG8gZG8gdGhpcyBpbnN0ZWFkLiAqLwor
+CWNwdXRpbWU2NF90IHVzZWRfY3B1dGltZSA9IHRoaXNfY3B1dGltZSAtIGxhc3RfY3B1dGltZTsK
+KwllbnVtIGxlZF9icmlnaHRuZXNzIGxlZF9zdGF0ZSA9ICh1c2VkX2NwdXRpbWUgPiAwKSA/IExF
+RF9GVUxMIDogTEVEX09GRjsKKwlsZWRfdHJpZ2dlcl9ldmVudChsZWR0cmlnX2NwdSwgbGVkX3N0
+YXRlKTsKKwlsYXN0X2NwdXRpbWUgPSBjcHVfdXNhZ2UoKTsKKworCW1vZF90aW1lcigmbGVkdHJp
+Z19jcHVfdGltZXIsIGppZmZpZXMgKyBtc2Vjc190b19qaWZmaWVzKFVQREFURV9JTlRFUlZBTCkp
+OworfQorCitzdGF0aWMgaW50IF9faW5pdCBsZWR0cmlnX2NwdV9pbml0KHZvaWQpCit7CisJbGVk
+X3RyaWdnZXJfcmVnaXN0ZXJfc2ltcGxlKCJjcHUiLCAmbGVkdHJpZ19jcHUpOworCWxhc3RfY3B1
+dGltZSA9IGNwdV91c2FnZSgpOworCW1vZF90aW1lcigmbGVkdHJpZ19jcHVfdGltZXIsIGppZmZp
+ZXMgKyBtc2Vjc190b19qaWZmaWVzKFVQREFURV9JTlRFUlZBTCkpOworCXJldHVybiAwOworfQor
+CitzdGF0aWMgdm9pZCBfX2V4aXQgbGVkdHJpZ19jcHVfZXhpdCh2b2lkKQoreworCWRlbF90aW1l
+cigmbGVkdHJpZ19jcHVfdGltZXIpOworCWxlZF90cmlnZ2VyX3VucmVnaXN0ZXJfc2ltcGxlKGxl
+ZHRyaWdfY3B1KTsKK30KKworbW9kdWxlX2luaXQobGVkdHJpZ19jcHVfaW5pdCk7Cittb2R1bGVf
+ZXhpdChsZWR0cmlnX2NwdV9leGl0KTsKKworTU9EVUxFX0FVVEhPUigiVGhvbWFzIFR1dHRsZSA8
+dGhpbmtpbmdpbmJpbmFyeUBnbWFpbC5jb20+Iik7CitNT0RVTEVfREVTQ1JJUFRJT04oIkxFRCBD
+UFUgQWN0aXZpdHkgVHJpZ2dlciIpOworTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwpkaWZmIC11ZHJO
+IGxpbnV4LTIuNi4xNy1naXQyNS9kcml2ZXJzL2xlZHMvTWFrZWZpbGUgbGludXgtMi42LjE3LWdp
+dDI1LW1pbmUvZHJpdmVycy9sZWRzL01ha2VmaWxlCi0tLSBsaW51eC0yLjYuMTctZ2l0MjUvZHJp
+dmVycy9sZWRzL01ha2VmaWxlCTIwMDYtMDctMDUgMjI6MTE6NDUuMDAwMDAwMDAwIC0wNDAwCisr
+KyBsaW51eC0yLjYuMTctZ2l0MjUtbWluZS9kcml2ZXJzL2xlZHMvTWFrZWZpbGUJMjAwNi0wNy0w
+NSAyMjo0MDo1Mi4wMDAwMDAwMDAgLTA0MDAKQEAgLTE2LDQgKzE2LDUgQEAKICMgTEVEIFRyaWdn
+ZXJzCiBvYmotJChDT05GSUdfTEVEU19UUklHR0VSX1RJTUVSKQkrPSBsZWR0cmlnLXRpbWVyLm8K
+IG9iai0kKENPTkZJR19MRURTX1RSSUdHRVJfSURFX0RJU0spCSs9IGxlZHRyaWctaWRlLWRpc2su
+bworb2JqLSQoQ09ORklHX0xFRFNfVFJJR0dFUl9DUFUpCQkrPSBsZWR0cmlnLWNwdS5vCiBvYmot
+JChDT05GSUdfTEVEU19UUklHR0VSX0hFQVJUQkVBVCkJKz0gbGVkdHJpZy1oZWFydGJlYXQubwo=
+
+------=_Part_7929_28872109.1152154097240--

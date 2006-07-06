@@ -1,47 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbWGFBMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbWGFBTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965105AbWGFBMm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 21:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbWGFBMm
+	id S965111AbWGFBTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 21:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbWGFBTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 21:12:42 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:404 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965105AbWGFBMl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 21:12:41 -0400
-Date: Thu, 6 Jul 2006 03:12:22 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Henrique de Moraes Holschuh <hmh@debian.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, lm-sensors@lm-sensors.org,
-       linux-kernel@vger.kernel.org, hdaps-devel@lists.sourceforge.net,
-       Stelian Pop <stelian@popies.net>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>
-Subject: Re: Generic interface for accelerometers (AMS, HDAPS, ...)
-Message-ID: <20060706011222.GA5303@elf.ucw.cz>
-References: <20060703124823.GA18821@khazad-dum.debian.net> <20060704075950.GA13073@elf.ucw.cz> <20060704162346.GE9447@khazad-dum.debian.net> <20060704235717.GD11872@elf.ucw.cz> <20060705073455.GA6027@suse.cz> <20060705135816.GA8452@khazad-dum.debian.net>
+	Wed, 5 Jul 2006 21:19:16 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:53038 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965111AbWGFBTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 21:19:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:x-google-sender-auth;
+        b=hyMopprO+wqzgF63k/f39LokpqRLMORWnOZBX0bA3mygaZuU4O6SCeK8OnE7fTQyAPXcEBg3ATggFncPbh44AZZvLCFhdGorKaRav62G3HdefDLOtZ5de4bqD7PLcz2a76U5gAq7J2XBN6ITYqkYW0makldfFRUj0Q6IQVhuaDg=
+Message-ID: <e4cb19870607051819w68054004t7377ab144bb42dc0@mail.gmail.com>
+Date: Wed, 5 Jul 2006 21:19:13 -0400
+From: "Thomas Tuttle" <thinkinginbinary+lkml@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH: Integrate asus_acpi LED's with new LED subsystem
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060705135816.GA8452@khazad-dum.debian.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_6995_11284021.1152148753951"
+X-Google-Sender-Auth: 2bfca8bf5d5407ff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+------=_Part_6995_11284021.1152148753951
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> > > > I don't know about AMS, but talking to HDAPS when
-> > > > you don't need to does waste enough system resources and power to actually
-> > > > justify implementing this.
-> > 
-> > I'd doubt any of the accelerometer implementations would consume much
-> > power or CPU.
+Here is a patch I wrote that allows the LED's that the asus_acpi
+driver exposes via a /proc interface to be accessed via the LED
+subsystem.  It creates a new config option, CONFIG_ACPI_ASUS_NEW_LED,
+that will enable this support.
 
-Actually polling at 100Hz probably _is_ going to be measurable on
-modern CPUs -- because it means that CPU has to exit C4. It will not
-be too bad, hopefully.
+It registers some subset of LED's named asus:mail, asus:wireless, and
+asus:touchpad, depending on the LED's available on the laptop.  LED
+updates are scheduled in a workqueue to avoid messing with ACPI stuff
+(needed to update the LED's) during a timer interrupt.
 
-								Pavel
+I've tested it on my Asus M2400Ne, and it appears to work with the
+timer, ide-disk, and cpu triggers.  (I wrote the cpu one, and will
+submit it in a future patch.)
+
+This is the first (working) kernel code I've ever written, so I
+apologize if it's screwed up in any way.  It's diffed against
+2.6.17.1, not 2.6.17.3, but, from a quick glance at the ChangeLogs, it
+doesn't appear that any of the files in question have changed between
+those versions.  I tried to adhere to any guidelines I found.  I also
+apologize, for it appears that Gmail is sending the patch with a type
+of text/x-patch, rather than text/plain.  It should still work,
+though--it is plain text.
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Thomas Tuttle
+https://www.thomastuttle.mooo.com/
+thinkinginbinary+lkml@gmail.com (for non-LKML stuff, remove +lkml)
+AIM: thinkinginbinary
+
+------=_Part_6995_11284021.1152148753951
+Content-Type: text/x-patch; name=asus-acpi-led-subsystem.patch; 
+	charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_epafey3r
+Content-Disposition: attachment; filename="asus-acpi-led-subsystem.patch"
+
+ZGlmZiAtdWRyIGxpbnV4LTIuNi4xNy4xL2RyaXZlcnMvYWNwaS9hc3VzX2FjcGkuYyBsaW51eC0y
+LjYuMTcuMS1taW5lL2RyaXZlcnMvYWNwaS9hc3VzX2FjcGkuYwotLS0gbGludXgtMi42LjE3LjEv
+ZHJpdmVycy9hY3BpL2FzdXNfYWNwaS5jCTIwMDYtMDctMDUgMTk6Mzk6MjUuMDAwMDAwMDAwIC0w
+NDAwCisrKyBsaW51eC0yLjYuMTcuMS1taW5lL2RyaXZlcnMvYWNwaS9hc3VzX2FjcGkuYwkyMDA2
+LTA3LTA1IDIwOjU0OjM0LjAwMDAwMDAwMCAtMDQwMApAQCAtMzMsMTEgKzMzLDE1IEBACiAgKiAg
+Q29tcGxldGUgZGlzcGxheSBzd2l0Y2hpbmcgLS0gbWF5IHJlcXVpcmUgZGlydHkgaGFja3Mgb3Ig
+Y2FsbGluZyBfRE9TPwogICovCiAKKyNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KICNpbmNsdWRl
+IDxsaW51eC9rZXJuZWwuaD4KICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KICNpbmNsdWRlIDxs
+aW51eC9pbml0Lmg+CiAjaW5jbHVkZSA8bGludXgvdHlwZXMuaD4KICNpbmNsdWRlIDxsaW51eC9w
+cm9jX2ZzLmg+CisjaWZkZWYgQ09ORklHX0FDUElfQVNVU19ORVdfTEVECisjaW5jbHVkZSA8bGlu
+dXgvbGVkcy5oPgorI2VuZGlmCiAjaW5jbHVkZSA8YWNwaS9hY3BpX2RyaXZlcnMuaD4KICNpbmNs
+dWRlIDxhY3BpL2FjcGlfYnVzLmg+CiAjaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4KQEAgLTU0NCw2
+ICs1NDgsMTQ1IEBACiAJcmV0dXJuIGNvdW50OwogfQogCisjaWZkZWYgQ09ORklHX0FDUElfQVNV
+U19ORVdfTEVECisKKy8qIFRoZXNlIGZ1bmN0aW9ucyBhcmUgY2FsbGVkIGJ5IHRoZSBMRUQgc3Vi
+c3lzdGVtIHRvIHVwZGF0ZSB0aGUgZGVzaXJlZAorICogc3RhdGUgb2YgdGhlIExFRCdzLiAqLwor
+c3RhdGljIHZvaWQgbGVkX3NldF9tbGVkKHN0cnVjdCBsZWRfY2xhc3NkZXYgKmxlZF9jZGV2LAor
+CQkJCWVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpOworc3RhdGljIHZvaWQgbGVkX3NldF93bGVk
+KHN0cnVjdCBsZWRfY2xhc3NkZXYgKmxlZF9jZGV2LAorCQkJCWVudW0gbGVkX2JyaWdodG5lc3Mg
+dmFsdWUpOworc3RhdGljIHZvaWQgbGVkX3NldF90bGVkKHN0cnVjdCBsZWRfY2xhc3NkZXYgKmxl
+ZF9jZGV2LAorCQkJCWVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpOworCisvKiBMRUQgY2xhc3Mg
+ZGV2aWNlcy4gKi8KK3N0YXRpYyBzdHJ1Y3QgbGVkX2NsYXNzZGV2IGxlZF9jZGV2X21sZWQgPQor
+CXsgLm5hbWUgPSAiYXN1czptYWlsIiwgICAgIC5icmlnaHRuZXNzX3NldCA9IGxlZF9zZXRfbWxl
+ZCB9Oworc3RhdGljIHN0cnVjdCBsZWRfY2xhc3NkZXYgbGVkX2NkZXZfd2xlZCA9CisJeyAubmFt
+ZSA9ICJhc3VzOndpcmVsZXNzIiwgLmJyaWdodG5lc3Nfc2V0ID0gbGVkX3NldF93bGVkIH07Citz
+dGF0aWMgc3RydWN0IGxlZF9jbGFzc2RldiBsZWRfY2Rldl90bGVkID0KKwl7IC5uYW1lID0gImFz
+dXM6dG91Y2hwYWQiLCAuYnJpZ2h0bmVzc19zZXQgPSBsZWRfc2V0X3RsZWQgfTsKKworLyogVGhl
+c2UgZnVuY3Rpb25zIGFjdHVhbGx5IHVwZGF0ZSB0aGUgTEVEJ3MsIGFuZCBhcmUgY2FsbGVkIGZy
+b20gYQorICogd29ya3F1ZXVlLiAgQnkgZG9pbmcgdGhpcyBhcyBzZXBhcmF0ZSB3b3JrIHJhdGhl
+ciB0aGFuIHdoZW4gdGhlIExFRAorICogc3Vic3lzdGVtIGFza3MsIEkgYXZvaWQgbWVzc2luZyB3
+aXRoIHRoZSBBc3VzIEFDUEkgc3R1ZmYgZHVyaW5nIGEKKyAqIHBvdGVudGlhbGx5IGJhZCB0aW1l
+LCBzdWNoIGFzIGEgdGltZXIgaW50ZXJydXB0LiAqLworc3RhdGljIHZvaWQgbGVkX3VwZGF0ZV9t
+bGVkKHZvaWQgKnByaXZhdGUpOworc3RhdGljIHZvaWQgbGVkX3VwZGF0ZV93bGVkKHZvaWQgKnBy
+aXZhdGUpOworc3RhdGljIHZvaWQgbGVkX3VwZGF0ZV90bGVkKHZvaWQgKnByaXZhdGUpOworCisv
+KiBEZXNpcmVkIHZhbHVlcyBvZiBMRUQncy4gKi8KK3N0YXRpYyBpbnQgbGVkX21sZWRfdmFsdWUg
+PSAwOworc3RhdGljIGludCBsZWRfd2xlZF92YWx1ZSA9IDA7CitzdGF0aWMgaW50IGxlZF90bGVk
+X3ZhbHVlID0gMDsKKworLyogTEVEIHdvcmtxdWV1ZS4gKi8KK3N0YXRpYyBzdHJ1Y3Qgd29ya3F1
+ZXVlX3N0cnVjdCAqbGVkX3dvcmtxdWV1ZTsKKworLyogTEVEIHVwZGF0ZSB3b3JrIHN0cnVjdHMu
+ICovCitERUNMQVJFX1dPUksobGVkX21sZWRfd29yaywgbGVkX3VwZGF0ZV9tbGVkLCBOVUxMKTsK
+K0RFQ0xBUkVfV09SSyhsZWRfd2xlZF93b3JrLCBsZWRfdXBkYXRlX3dsZWQsIE5VTEwpOworREVD
+TEFSRV9XT1JLKGxlZF90bGVkX3dvcmssIGxlZF91cGRhdGVfdGxlZCwgTlVMTCk7CisKKy8qIExF
+RCBzdWJzeXN0ZW0gY2FsbGJhY2tzLiAqLworc3RhdGljIHZvaWQgbGVkX3NldF9tbGVkKHN0cnVj
+dCBsZWRfY2xhc3NkZXYgKmxlZF9jZGV2LAorCWVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpCit7
+CisJbGVkX21sZWRfdmFsdWUgPSB2YWx1ZTsKKwlxdWV1ZV93b3JrKGxlZF93b3JrcXVldWUsICZs
+ZWRfbWxlZF93b3JrKTsKK30KKworc3RhdGljIHZvaWQgbGVkX3NldF93bGVkKHN0cnVjdCBsZWRf
+Y2xhc3NkZXYgKmxlZF9jZGV2LAorCWVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpCit7CisJbGVk
+X3dsZWRfdmFsdWUgPSB2YWx1ZTsKKwlxdWV1ZV93b3JrKGxlZF93b3JrcXVldWUsICZsZWRfd2xl
+ZF93b3JrKTsKK30KKworc3RhdGljIHZvaWQgbGVkX3NldF90bGVkKHN0cnVjdCBsZWRfY2xhc3Nk
+ZXYgKmxlZF9jZGV2LAorCWVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpCit7CisJbGVkX3RsZWRf
+dmFsdWUgPSB2YWx1ZTsKKwlxdWV1ZV93b3JrKGxlZF93b3JrcXVldWUsICZsZWRfdGxlZF93b3Jr
+KTsKK30KKworLyogTEVEIHdvcmsgZnVuY3Rpb25zLiAqLworc3RhdGljIHZvaWQgbGVkX3VwZGF0
+ZV9tbGVkKHZvaWQgKnByaXZhdGUpIHsKKwljaGFyICpsZWRuYW1lID0gaG90ay0+bWV0aG9kcy0+
+bXRfbWxlZDsKKwlpbnQgbGVkX291dCA9IGxlZF9tbGVkX3ZhbHVlID8gMSA6IDA7CisJaG90ay0+
+c3RhdHVzID0gKGxlZF9vdXQpID8gKGhvdGstPnN0YXR1cyB8IE1MRURfT04pIDogKGhvdGstPnN0
+YXR1cyAmIH5NTEVEX09OKTsKKwlsZWRfb3V0ID0gMSAtIGxlZF9vdXQ7CisJaWYgKCF3cml0ZV9h
+Y3BpX2ludChob3RrLT5oYW5kbGUsIGxlZG5hbWUsIGxlZF9vdXQsIE5VTEwpKQorCQlwcmludGso
+S0VSTl9XQVJOSU5HICJBc3VzIEFDUEk6IExFRCAoJXMpIHdyaXRlIGZhaWxlZFxuIiwKKwkJICAg
+ICAgIGxlZG5hbWUpOworfQorCitzdGF0aWMgdm9pZCBsZWRfdXBkYXRlX3dsZWQodm9pZCAqcHJp
+dmF0ZSkgeworCWNoYXIgKmxlZG5hbWUgPSBob3RrLT5tZXRob2RzLT5tdF93bGVkOworCWludCBs
+ZWRfb3V0ID0gbGVkX3dsZWRfdmFsdWUgPyAxIDogMDsKKwlob3RrLT5zdGF0dXMgPSAobGVkX291
+dCkgPyAoaG90ay0+c3RhdHVzIHwgV0xFRF9PTikgOiAoaG90ay0+c3RhdHVzICYgfldMRURfT04p
+OworCWlmICghd3JpdGVfYWNwaV9pbnQoaG90ay0+aGFuZGxlLCBsZWRuYW1lLCBsZWRfb3V0LCBO
+VUxMKSkKKwkJcHJpbnRrKEtFUk5fV0FSTklORyAiQXN1cyBBQ1BJOiBMRUQgKCVzKSB3cml0ZSBm
+YWlsZWRcbiIsCisJCSAgICAgICBsZWRuYW1lKTsKK30KKworc3RhdGljIHZvaWQgbGVkX3VwZGF0
+ZV90bGVkKHZvaWQgKnByaXZhdGUpIHsKKwljaGFyICpsZWRuYW1lID0gaG90ay0+bWV0aG9kcy0+
+bXRfdGxlZDsKKwlpbnQgbGVkX291dCA9IGxlZF90bGVkX3ZhbHVlID8gMSA6IDA7CisJaG90ay0+
+c3RhdHVzID0gKGxlZF9vdXQpID8gKGhvdGstPnN0YXR1cyB8IFRMRURfT04pIDogKGhvdGstPnN0
+YXR1cyAmIH5UTEVEX09OKTsKKwlpZiAoIXdyaXRlX2FjcGlfaW50KGhvdGstPmhhbmRsZSwgbGVk
+bmFtZSwgbGVkX291dCwgTlVMTCkpCisJCXByaW50ayhLRVJOX1dBUk5JTkcgIkFzdXMgQUNQSTog
+TEVEICglcykgd3JpdGUgZmFpbGVkXG4iLAorCQkgICAgICAgbGVkbmFtZSk7Cit9CisKKy8qIFJl
+Z2lzdGVycyBMRUQgY2xhc3MgZGV2aWNlcyBhbmQgc2V0cyB1cCB3b3JrcXVldWUuICovCitzdGF0
+aWMgaW50IGxlZF9pbml0aWFsaXplKHN0cnVjdCBkZXZpY2UgKnBhcmVudCkKK3sKKwlpbnQgcmVz
+dWx0OworCisJaWYgKGhvdGstPm1ldGhvZHMtPm10X21sZWQpIHsKKwkJcmVzdWx0ID0gbGVkX2Ns
+YXNzZGV2X3JlZ2lzdGVyKHBhcmVudCwgJmxlZF9jZGV2X21sZWQpOworCQlpZiAocmVzdWx0KQor
+CQkJcmV0dXJuIHJlc3VsdDsKKwl9CisKKwlpZiAoaG90ay0+bWV0aG9kcy0+bXRfd2xlZCkgewor
+CQlyZXN1bHQgPSBsZWRfY2xhc3NkZXZfcmVnaXN0ZXIocGFyZW50LCAmbGVkX2NkZXZfd2xlZCk7
+CisJCWlmIChyZXN1bHQpCisJCQlyZXR1cm4gcmVzdWx0OworCX0KKworCWlmIChob3RrLT5tZXRo
+b2RzLT5tdF90bGVkKSB7CisJCXJlc3VsdCA9IGxlZF9jbGFzc2Rldl9yZWdpc3RlcihwYXJlbnQs
+ICZsZWRfY2Rldl90bGVkKTsKKwkJaWYgKHJlc3VsdCkKKwkJCXJldHVybiByZXN1bHQ7CisJfQor
+CisJbGVkX3dvcmtxdWV1ZSA9IGNyZWF0ZV9zaW5nbGV0aHJlYWRfd29ya3F1ZXVlKCJsZWRfd29y
+a3F1ZXVlIik7CisKKwlyZXR1cm4gMDsKK30KKworLyogRGVzdHJveXMgdGhlIHdvcmtxdWV1ZSBh
+bmQgdW5yZWdpc3RlcnMgdGhlIExFRCBjbGFzcyBkZXZpY2VzLiAqLworc3RhdGljIHZvaWQgbGVk
+X3Rlcm1pbmF0ZSh2b2lkKQoreworCWRlc3Ryb3lfd29ya3F1ZXVlKGxlZF93b3JrcXVldWUpOwor
+CisJaWYgKGhvdGstPm1ldGhvZHMtPm10X3RsZWQpIHsKKwkJbGVkX2NsYXNzZGV2X3VucmVnaXN0
+ZXIoJmxlZF9jZGV2X3RsZWQpOworCX0KKworCWlmIChob3RrLT5tZXRob2RzLT5tdF93bGVkKSB7
+CisJCWxlZF9jbGFzc2Rldl91bnJlZ2lzdGVyKCZsZWRfY2Rldl93bGVkKTsKKwl9CisKKwlpZiAo
+aG90ay0+bWV0aG9kcy0+bXRfbWxlZCkgeworCQlsZWRfY2xhc3NkZXZfdW5yZWdpc3RlcigmbGVk
+X2NkZXZfbWxlZCk7CisJfQorfQorCisjZW5kaWYKKwogLyoKICAqIFByb2MgaGFuZGxlcnMgZm9y
+IE1MRUQKICAqLwpAQCAtMTE4MCw2ICsxMzIzLDEwIEBACiAJCX0KIAl9CiAKKyNpZmRlZiBDT05G
+SUdfQUNQSV9BU1VTX05FV19MRUQKKwlyZXN1bHQgPSBsZWRfaW5pdGlhbGl6ZShhY3BpX2dldF9w
+aHlzaWNhbF9kZXZpY2UoZGV2aWNlLT5oYW5kbGUpKTsKKyNlbmRpZgorCiAgICAgICBlbmQ6CiAJ
+aWYgKHJlc3VsdCkgewogCQlrZnJlZShob3RrKTsKQEAgLTExOTIsNiArMTMzOSwxMCBAQAogewog
+CWFjcGlfc3RhdHVzIHN0YXR1cyA9IDA7CiAKKyNpZmRlZiBDT05GSUdfQUNQSV9BU1VTX05FV19M
+RUQKKwlsZWRfdGVybWluYXRlKCk7CisjZW5kaWYKKwogCWlmICghZGV2aWNlIHx8ICFhY3BpX2Ry
+aXZlcl9kYXRhKGRldmljZSkpCiAJCXJldHVybiAtRUlOVkFMOwogCmRpZmYgLXVkciBsaW51eC0y
+LjYuMTcuMS9kcml2ZXJzL2FjcGkvS2NvbmZpZyBsaW51eC0yLjYuMTcuMS1taW5lL2RyaXZlcnMv
+YWNwaS9LY29uZmlnCi0tLSBsaW51eC0yLjYuMTcuMS9kcml2ZXJzL2FjcGkvS2NvbmZpZwkyMDA2
+LTA3LTA1IDE5OjM5OjI1LjAwMDAwMDAwMCAtMDQwMAorKysgbGludXgtMi42LjE3LjEtbWluZS9k
+cml2ZXJzL2FjcGkvS2NvbmZpZwkyMDA2LTA3LTA1IDIwOjQ0OjAwLjAwMDAwMDAwMCAtMDQwMApA
+QCAtMTkyLDYgKzE5MiwxNSBAQAogICAgICAgICAgIGRyaXZlciBpcyBzdGlsbCB1bmRlciBkZXZl
+bG9wbWVudCwgc28gaWYgeW91ciBsYXB0b3AgaXMgdW5zdXBwb3J0ZWQgb3IKICAgICAgICAgICBz
+b21ldGhpbmcgd29ya3Mgbm90IHF1aXRlIGFzIGV4cGVjdGVkLCBwbGVhc2UgdXNlIHRoZSBtYWls
+aW5nIGxpc3QKICAgICAgICAgICBhdmFpbGFibGUgb24gdGhlIGFib3ZlIHBhZ2UgKGFjcGk0YXN1
+cy11c2VyQGxpc3RzLnNvdXJjZWZvcmdlLm5ldCkKKworY29uZmlnIEFDUElfQVNVU19ORVdfTEVE
+CisJYm9vbCAiQVNVUy9NZWRpb24gTEVEIHN1YnN5c3RlbSBpbnRlZ3JhdGlvbiIKKwlkZXBlbmRz
+IG9uIEFDUElfQVNVUworCWRlcGVuZHMgb24gTEVEU19DTEFTUworCS0tLWhlbHAtLS0KKwkgIFRo
+aXMgYWRkcyBzdXBwb3J0IGZvciB0aGUgbmV3IExFRCBzdWJzeXN0ZW0gdG8gdGhlIGFzdXNfYWNw
+aQorCSAgZHJpdmVyLiAgVGhlIExFRCdzIHdpbGwgc2hvdyB1cCBhcyBhc3VzOm1haWwsIGFzdXM6
+d2lyZWxlc3MsCisJICBhbmQgYXN1czp0b3VjaHBhZCwgYXMgYXBwbGljYWJsZSB0byB5b3VyIGxh
+cHRvcC4KICAgICAgICAgICAKIGNvbmZpZyBBQ1BJX0lCTQogCXRyaXN0YXRlICJJQk0gVGhpbmtQ
+YWQgTGFwdG9wIEV4dHJhcyIK
+------=_Part_6995_11284021.1152148753951--

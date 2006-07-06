@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWGFUwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbWGFUyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWGFUwj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 16:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWGFUwj
+	id S1750850AbWGFUyH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 16:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWGFUyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 16:52:39 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:53991 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750844AbWGFUwi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 16:52:38 -0400
-Message-Id: <200607062052.k66KqMDH027923@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: ric@emc.com
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Tomasz Torcz <zdzichu@irc.pl>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features
-In-Reply-To: Your message of "Thu, 06 Jul 2006 13:27:35 EDT."
-             <44AD4807.6090704@emc.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl> <44AD286F.3030507@emc.com> <m3ejwyiryr.fsf@defiant.localdomain>
-            <44AD4807.6090704@emc.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152219142_2882P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 6 Jul 2006 16:54:07 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:9098 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP
+	id S1750844AbWGFUyF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 16:54:05 -0400
+Message-ID: <44AD78A1.5010708@nachtwindheim.de>
+Date: Thu, 06 Jul 2006 22:54:57 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Neela.Kolli@engenio.com,
+       kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [KJ] [PATCH] fix legacy megaraid-driver to compile without CONFIG_PROC_FS
+References: <44AD6A5A.5060403@nachtwindheim.de> <20060706131447.ed46c3cb.rdunlap@xenotime.net> <44AD73AD.5080402@nachtwindheim.de> <20060706204252.GV26941@stusta.de>
+In-Reply-To: <20060706204252.GV26941@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Thu, 06 Jul 2006 16:52:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152219142_2882P
-Content-Type: text/plain; charset=us-ascii
+Adrian Bunk schrieb:
+> On Thu, Jul 06, 2006 at 10:33:49PM +0200, Henne wrote:
+>>>> From: Henrik Kretzschmar <henne@nachtwindheim.de>
+>>>>
+>>>> Create an empty inline function to make the legacy megaraid-driver compile
+>>>> without PROC_FS.
+>>>> Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+>>>> ---
+>>>>
+>>>> --- linux-2.6.18-rc1/drivers/scsi/megaraid.h    2006-06-18 03:49:35.000000000 +0200
+>>>> +++ linux/drivers/scsi/megaraid.h       2006-07-06 21:39:59.000000000 +0200
+>>>> @@ -1039,6 +1039,9 @@
+>>>>  static int proc_rdrv_30(char *, char **, off_t, int, int *, void *);
+>>>>  static int proc_rdrv_40(char *, char **, off_t, int, int *, void *);
+>>>>  static int proc_rdrv(adapter_t *, char *, int, int);
+>>>> +#else
+>>>> +static inline void
+>>>> +mega_create_proc_entry(int index, struct proc_dir_entry *parent) {}
+>>>>  #endif
+>>>>
+>>>>  static int mega_adapinq(adapter_t *, dma_addr_t);
+>>> Already in -mm:
+>>> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/broken-out/drivers-scsi-megaraidc-add-a-dummy-mega_create_proc_entry-for-proc_fs=y.patch
+>> Great, but isn't it better to put that define stuff into the headers?
+> 
+> No - the function itself is static (and has therefore itself no 
+> prototype in any header).
+> 
+> If the function was global, I'd agree with you.
+> 
+>> Thanks and Greets,
+>> Henne
+> 
+> cu
+> Adrian
+> 
+The header I mean is /drivers/scsi/megaraid.h and is only used by megaraid.c.
+And there are the prototypes, in dependency of CONFIG_PROC_FS, for all these other proc-related functions.
+Thats why I decided to make the change there and not in megaraid.c .
 
-On Thu, 06 Jul 2006 13:27:35 EDT, Ric Wheeler said:
-
-> The key is to keep the signature/checksum with the file - tripwire and 
-> backup programs could do this (and even store it their own extended 
-> attribute), but I think that it is more generically useful than that. 
-
-Backup programs want it stored with the file.  Tripwire wants it stored
-as far away from the file as possible.  Remember - for Tripwire, we *don't*
-want the "current maintained value", we want "the snapshotted value from
-a known good state".
-
-If the filesystem stored a "guaranteed trustable current hash", Tripwire
-*could* use it to compare against its database rather than having to re-read
-the file and recompute it.  Unfortunately, a useful trustable hash is
-basically incompatible with any sort of incremental updating (except for
-the special case of appending to the file).
-
---==_Exmh_1152219142_2882P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFErXgGcC3lWbTT17ARAh/lAJ49a/EribWDVq906CmG97lcsHlKAACfTJId
-25TXFQhBbdPFfexVTUCde8E=
-=8NP7
------END PGP SIGNATURE-----
-
---==_Exmh_1152219142_2882P--

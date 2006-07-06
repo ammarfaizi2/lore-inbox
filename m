@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbWGFQZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWGFQ0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbWGFQZF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 12:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWGFQZF
+	id S964870AbWGFQ0t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 12:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWGFQ0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 12:25:05 -0400
-Received: from liaag2ae.mx.compuserve.com ([149.174.40.156]:62915 "EHLO
-	liaag2ae.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S964964AbWGFQZE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 12:25:04 -0400
-Date: Thu, 6 Jul 2006 12:20:27 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: require ACPI for NUMA with generic architecture
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Randy Dunlap <rdunlap@xenotime.net>
-Message-ID: <200607061221_MC3-1-C44C-BE6A@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Thu, 6 Jul 2006 12:26:49 -0400
+Received: from mga05.intel.com ([192.55.52.89]:39951 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S964870AbWGFQ0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 12:26:48 -0400
+X-IronPort-AV: i="4.06,214,1149490800"; 
+   d="scan'208"; a="94124177:sNHT14627361"
+Date: Thu, 6 Jul 2006 09:19:30 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com
+Subject: Re: cpuinfo_x86 and apicid
+Message-ID: <20060706091930.A13512@unix-os.sc.intel.com>
+References: <20060706150118.GB10110@frankl.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060706150118.GB10110@frankl.hpl.hp.com>; from eranian@hpl.hp.com on Thu, Jul 06, 2006 at 08:01:18AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-X86 Generic Architecture (X86_GENERICARCH) includes support for
-Summit architecture.  Enabling X86_GENERICARCH, SMP and HIGHMEM64G
-allows NUMA to be selected but that configuration will not build
-because it requires ACPI for the Summit NUMA support.
+On Thu, Jul 06, 2006 at 08:01:18AM -0700, Stephane Eranian wrote:
+> Hello,
+> 
+> 
+> In the context of the perfmon2 subsystem for processor with HyperThreading,
+> we need to know on which thread we are currently running. This comes from
+> the fact that the performance counters are shared between the two threads.
+> 
+> We use the thread id (smt_id) because we split the counters in half
+> between the two threads such that two threads on the same core can run
+> with monitoring on.  We are currently computing the smt_id from the
+> apicid as returned by a CPUID instruction. This is not very efficient.
+> 
+> I looked through the i386 code and could not find a function nor 
+> structure that would return this smt_id. In the cpuinfo_x86 structure
+> there is an apicid field that looks good, yet it does not seem to be
+> initialized nor used.
+> 
+> Is cpuinfo_x86->apicid field obsolete? 
+> If so, what is replacing it?
 
-Fix:
-        require ACPI for NUMA support with X86_GENERICARCH
+In i386, it is getting initialized in generic_identify() in common.c and
+it is getting used for example in intel_cacheinfo.c
 
-        update the menu comment noting this
-
-        set default NR_CPUS to 32 for GENERICARCH (since it
-                includes BIGSMP and SUMMIT which default to 32)
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
---- 2.6.17-mm6-nb.orig/arch/i386/Kconfig
-+++ 2.6.17-mm6-nb/arch/i386/Kconfig
-@@ -228,7 +228,7 @@ config NR_CPUS
- 	int "Maximum number of CPUs (2-255)"
- 	range 2 255
- 	depends on SMP
--	default "32" if X86_NUMAQ || X86_SUMMIT || X86_BIGSMP || X86_ES7000
-+	default "32" if X86_NUMAQ || X86_SUMMIT || X86_BIGSMP || X86_ES7000 || X86_GENERICARCH
- 	default "8"
- 	help
- 	  This allows you to specify the maximum number of CPUs which this
-@@ -546,15 +546,15 @@ config X86_PAE
- # Common NUMA Features
- config NUMA
- 	bool "Numa Memory Allocation and Scheduler Support"
--	depends on SMP && HIGHMEM64G && (X86_NUMAQ || X86_GENERICARCH || (X86_SUMMIT && ACPI))
-+	depends on SMP && HIGHMEM64G && (X86_NUMAQ || (ACPI && (X86_GENERICARCH || X86_SUMMIT)))
- 	default n if X86_PC
- 	default y if (X86_NUMAQ || X86_SUMMIT)
- 	help
- 		NUMA support. Note this only works on IBM x440 or IBM NUMAQ.
- 		Don't try to use it anywhere else.
- 
--comment "NUMA (Summit) requires SMP, 64GB highmem support, ACPI"
--	depends on X86_SUMMIT && (!HIGHMEM64G || !ACPI)
-+comment "NUMA (Summit, Generic arch) requires SMP, 64GB highmem support, ACPI"
-+	depends on (X86_SUMMIT || X86_GENERICARCH) && (!HIGHMEM64G || !ACPI)
- 
- config NODES_SHIFT
- 	int
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+thanks,
+suresh

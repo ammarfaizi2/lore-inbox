@@ -1,77 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWGFWx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWGFWxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbWGFWx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 18:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWGFWx3
+	id S1751002AbWGFWxq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 18:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWGFWxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 18:53:29 -0400
-Received: from smtp2.cc.ksu.edu ([129.130.7.16]:9874 "EHLO smtp2.cc.ksu.edu")
-	by vger.kernel.org with ESMTP id S1750992AbWGFWx3 (ORCPT
+	Thu, 6 Jul 2006 18:53:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7618 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751008AbWGFWxp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 18:53:29 -0400
-Message-ID: <44AD9499.7040701@ksu.edu>
-Date: Thu, 06 Jul 2006 17:54:17 -0500
-From: "Scott J. Harmon" <harmon@ksu.edu>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060601)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux 2.6.17.4
-References: <20060706222704.GB2946@kroah.com> <20060706222841.GD2946@kroah.com> <44AD9229.6010301@ksu.edu> <20060706224614.GA3520@suse.de>
-In-Reply-To: <20060706224614.GA3520@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 6 Jul 2006 18:53:45 -0400
+Date: Thu, 6 Jul 2006 15:56:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: tgraf@suug.ch, jlan@sgi.com, pj@sgi.com, Valdis.Kletnieks@vt.edu,
+       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
+       hadi@cyberus.ca, netdev@vger.kernel.org
+Subject: Re: [PATCH] per-task delay accounting taskstats interface: control
+ exit data through cpumasks]
+Message-Id: <20060706155643.2cd37b80.akpm@osdl.org>
+In-Reply-To: <44AD8E65.70006@watson.ibm.com>
+References: <44ACD7C3.5040008@watson.ibm.com>
+	<20060706025633.cd4b1c1d.akpm@osdl.org>
+	<1152185865.5986.15.camel@localhost.localdomain>
+	<20060706120835.GY14627@postel.suug.ch>
+	<20060706144808.1dd5fadf.akpm@osdl.org>
+	<44AD8E65.70006@watson.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Greg KH wrote:
-> On Thu, Jul 06, 2006 at 05:43:53PM -0500, Scott J. Harmon wrote:
->> Greg KH wrote:
->>> diff --git a/Makefile b/Makefile
->>> index 8c72521..abcf2d7 100644
->>> --- a/Makefile
->>> +++ b/Makefile
->>> @@ -1,7 +1,7 @@
->>>  VERSION = 2
->>>  PATCHLEVEL = 6
->>>  SUBLEVEL = 17
->>> -EXTRAVERSION = .3
->>> +EXTRAVERSION = .4
->>>  NAME=Crazed Snow-Weasel
->>>  
->>>  # *DOCUMENTATION*
->>> diff --git a/kernel/sys.c b/kernel/sys.c
->>> index 0b6ec0e..59273f7 100644
->>> --- a/kernel/sys.c
->>> +++ b/kernel/sys.c
->>> @@ -1991,7 +1991,7 @@ asmlinkage long sys_prctl(int option, un
->>>  			error = current->mm->dumpable;
->>>  			break;
->>>  		case PR_SET_DUMPABLE:
->>> -			if (arg2 < 0 || arg2 > 2) {
->>> +			if (arg2 < 0 || arg2 > 1) {
->>>  				error = -EINVAL;
->>>  				break;
->>>  			}
->> Just curious as to why this isn't just
->> ...
->> 			if (arg2 != 1) {
->> ...
+Shailabh Nagar <nagar@watson.ibm.com> wrote:
+>
+> Andrew Morton wrote:
+> > Thomas Graf <tgraf@suug.ch> wrote:
+> > 
+> >>* Shailabh Nagar <nagar@watson.ibm.com> 2006-07-06 07:37
+> >>
+> >>>@@ -37,9 +45,26 @@ static struct nla_policy taskstats_cmd_g
+> >>> __read_mostly = {
+> >>> 	[TASKSTATS_CMD_ATTR_PID]  = { .type = NLA_U32 },
+> >>> 	[TASKSTATS_CMD_ATTR_TGID] = { .type = NLA_U32 },
+> >>>+	[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK] = { .type = NLA_STRING },
+> >>>+	[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK] = { .type = NLA_STRING },};
+> >>
+> >>>+		na = info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK];
+> >>>+		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
+> >>>+			return -E2BIG;
+> >>>+		rc = cpulist_parse((char *)nla_data(na), mask);
+> >>
+> >>This isn't safe, the data in the attribute is not guaranteed to be
+> >>NUL terminated. Still it's probably me to blame for not making
+> >>this more obvious in the API.
+> >>
+> > 
+> > 
+> > Thanks, that was an unpleasant bug.
+> > 
+> > 
+> >>I've attached a patch below extending the API to make it easier
+> >>for interfaces using NUL termianted strings,
+> > 
+> > 
+> > In the interests of keeping this work decoupled from netlink enhancements
+> > I'd propose the below.  
 > 
-> Because that would be incorrect :)
+> The patch looks good. I was also thinking of simply modifying the input
+> to have the null termination and modify later when netlink provides
+> generic support.
 > 
-> thanks,
 > 
-> greg k-h
 
-DOH!
+Yup.  Thomas, what's the testing status of the netlink patch you sent?  Should I
+queue it up and start plagueing people with it?
 
-/me hides under a rock
-
-Thanks,
-
-Scott.

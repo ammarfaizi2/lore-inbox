@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWGFSsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWGFSvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWGFSsk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 14:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWGFSsk
+	id S1750748AbWGFSvF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 14:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWGFSvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 14:48:40 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:7423 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1750729AbWGFSsk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 14:48:40 -0400
-Date: Thu, 6 Jul 2006 20:48:21 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
-Message-ID: <20060706204821.06540ab4@cad-250-152.norway.atmel.com>
-In-Reply-To: <1152196492.2987.185.camel@pmac.infradead.org>
-References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
-	<1152187083.2987.117.camel@pmac.infradead.org>
-	<20060706161319.3ae0d9ef@cad-250-152.norway.atmel.com>
-	<1152196492.2987.185.camel@pmac.infradead.org>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.18; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 6 Jul 2006 14:51:05 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:13981 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750707AbWGFSvD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 14:51:03 -0400
+Date: Thu, 6 Jul 2006 13:50:59 -0500
+To: Auke Kok <sofar@foo-projects.org>
+Cc: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
+       Auke Kok <auke-jan.h.kok@intel.com>,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>,
+       "Ronciak, John" <john.ronciak@intel.com>,
+       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
+       Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       netdev@vger.kernel.org, wenxiong@us.ibm.com
+Subject: Re: [PATCH] ixgb: add PCI Error recovery callbacks
+Message-ID: <20060706185059.GX29526@austin.ibm.com>
+References: <20060629162634.GC5472@austin.ibm.com> <1151905766.28493.129.camel@ymzhang-perf.sh.intel.com> <44ABDF87.8000801@intel.com> <20060705194437.GJ29526@austin.ibm.com> <1152148899.28493.168.camel@ymzhang-perf.sh.intel.com> <20060706161640.GT29526@austin.ibm.com> <44AD4FFF.4080204@foo-projects.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44AD4FFF.4080204@foo-projects.org>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Jul 2006 15:34:52 +0100
-David Woodhouse <dwmw2@infradead.org> wrote:
-
-> On Thu, 2006-07-06 at 16:13 +0200, Haavard Skinnemoen wrote:
-
-> > As I understand it, though, drivers/dma is mostly for
-> > memory-to-memory to transfers, while what I really need is
-> > memory-to-hardware and hardware-to-memory transfers.
+On Thu, Jul 06, 2006 at 11:01:35AM -0700, Auke Kok wrote:
+> Linas Vepstas wrote:
+> >
+> >Perhaps the right fix is to figure out what parts of the driver do i/o
+> >during shutdown, and then add a line "if(wedged) skip i/o;" to those
+> >places?
 > 
-> With MMIO those are just a not-so-special case of memory-memory,
-> surely? If the new framework doesn't support that, it probably
-> _should_.
+> that would be relatively simple if we can check a flag (?) somewhere that 
+> signifies that we've encountered a pci error. We basically only need to 
+> skip out after e1000_reset and bypass e1000_irq_disable in e1000_down() 
+> then.
+> 
+> Does the pci error recovery code give us such a flag?
 
-Yes, but there are at least two important differences:
+Yes, it was introduced so that drivers could view the state in 
+an interrupt context. (how this flag is set is platform dependent.)
 
-   * Hanshaking. The DMA controller must know when the peripheral has
-     new data available/is able to accept more data. Thus, you need to
-     specify which set of handshaking signals to use as well as which
-     direction the data is moved.
-   * One of the pointers often stays the same during the whole transfer.
+struct pci_dev {
+         pci_channel_state error_state;
+ };
 
-I'm willing to give the drivers/dma framework a try, though, when the
-time comes to forward-port the drivers that need such infrastructure.
+enum pci_channel_state {
+   /* I/O channel is in normal state */
+   pci_channel_io_normal,
 
-Håvard
+   /* I/O to channel is blocked */
+   pci_channel_io_frozen,
+
+   /* PCI card is dead */
+   pci_channel_io_perm_failure,
+};
+
+
+Unless I get distracted, I'll provide an e1000 patch shortly ?
+
+--linas

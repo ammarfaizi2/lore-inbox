@@ -1,42 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWGFFng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWGFFnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbWGFFng (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 01:43:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030222AbWGFFng
+	id S1030222AbWGFFnm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 01:43:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbWGFFnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 01:43:36 -0400
-Received: from mail1.bizmail.net.au ([202.162.77.164]:30669 "EHLO
-	mail1.bizmail.net.au") by vger.kernel.org with ESMTP
-	id S1030206AbWGFFnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 01:43:35 -0400
-Message-ID: <1388.58.105.227.226.1152165308.squirrel@58.105.227.226>
-Date: Thu, 6 Jul 2006 15:55:08 +1000 (EST)
-Subject: struct i2c_adapter
-From: yh@bizmail.com.au
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Thu, 6 Jul 2006 01:43:42 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:48044 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030231AbWGFFnk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 01:43:40 -0400
+Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
+From: john stultz <johnstul@us.ibm.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1152148332.24656.125.camel@cog.beaverton.ibm.com>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
+	 <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.64.0606271212150.17704@scrub.home>
+	 <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.64.0606271903320.12900@scrub.home>
+	 <Pine.LNX.4.64.0606271919450.17704@scrub.home>
+	 <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu>
+	 <1151453231.24656.49.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0606281218130.12900@scrub.home>
+	 <Pine.LNX.4.64.0606281335380.17704@scrub.home>
+	 <200606292307.k5TN7MGD011615@turing-police.cc.vt.edu>
+	 <1151695569.5375.22.camel@localhost.localdomain>
+	 <200606302104.k5UL41vs004400@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.64.0607030256581.17704@scrub.home>
+	 <200607050429.k654TXUr012316@turing-police.cc.vt.edu>
+	 <1152147114.24656.117.camel@cog.beaverton.ibm.com>
+	 <1152148332.24656.125.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Wed, 05 Jul 2006 22:43:36 -0700
+Message-Id: <1152164616.5730.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2006-07-05 at 18:12 -0700, john stultz wrote:
+> On Wed, 2006-07-05 at 17:51 -0700, john stultz wrote:
+> > I quickly revived my P-D adjustment patch and it does not appear to
+> > suffer from the same problem with the above droptick change (although
+> > its only been lightly tested). 
+> > 
+> > I realize you may have a more trivial change to this issue, but would
+> > you consider my method again?
+> > 
+> > Vladis: Mind trying the following patch to see if it affects the
+> > behavior.
+> 
+> Bah! Never mind. Don't bother, trying it.
 
-The struct i2c_adapter in 2.4 has following elements which are no longer
-used in kernel 2.6:
+I take that back. :)
 
-void (*inc_use)(struct i2c_adapter *);
-void (*dec_use)(struct i2c_adapter *);
+Vladis, would you still try that patch to see if it helps?
 
 
-We used MOD_INC_USE_COUNT for inc_use and MOD_DEC_USE_COUNT. Can anyone
-confirm that is no longer required in kernel 2.6?
+> Of course, only after I send the mail, the same problem reproduces
+> itself w/ my patch!
 
-Thank you.
+In my rush to finish up for dinner, I fat-fingered the droptick code
+(forgot the static!) so I wasn't ever get timer ticks. :(
 
-Jim
+Then after I fixed that, I noticed long-ish stalls starting X or
+switching between X and VT consoles. However after digging into it I
+realized the issue is that xtime is only being updated every 100 ticks,
+and nanosleep used xtime (via hrtimers), so it was getting the extra
+100tick latency on every call.
+
+So just to be fair, I double checked the following patch against
+mainline, saw the hang Vladis was seeing, then applied it to my earlier
+patch along with this patch and the system booted fine w/ no stalls.
+
+thanks
+-john
+
+
+Patch to trigger the boot hang against vanilla 2.6.18-rc1
+
+diff --git a/kernel/hrtimer.c b/kernel/hrtimer.c
+index d17766d..3f516f6 100644
+--- a/kernel/hrtimer.c
++++ b/kernel/hrtimer.c
+@@ -132,7 +132,7 @@ static void hrtimer_get_softirq_time(str
+ 
+ 	do {
+ 		seq = read_seqbegin(&xtime_lock);
+-		xtim = timespec_to_ktime(xtime);
++		xtim = ktime_get_real();
+ 		tomono = timespec_to_ktime(wall_to_monotonic);
+ 
+ 	} while (read_seqretry(&xtime_lock, seq));
+diff --git a/kernel/timer.c b/kernel/timer.c
+index 396a3c0..5394104 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -1090,6 +1090,9 @@ static void clocksource_adjust(struct cl
+ static void update_wall_time(void)
+ {
+ 	cycle_t offset;
++	static int droptick;
++	if(droptick++%100)
++		return;
+ 
+ 	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
+ 
+
 

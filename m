@@ -1,91 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWGFCm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbWGFCqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWGFCm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 22:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWGFCm1
+	id S965139AbWGFCqX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 22:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbWGFCqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 22:42:27 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:19944 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751138AbWGFCm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 22:42:27 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: ext4 features
-Date: Thu, 6 Jul 2006 12:42:19 +1000
-User-Agent: KMail/1.9.1
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060705214133.GA28487@fieldses.org> <44AC7647.2080005@tmr.com>
-In-Reply-To: <44AC7647.2080005@tmr.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1848871.GN2QJfhoY2";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 5 Jul 2006 22:46:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11651 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965139AbWGFCqW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 22:46:22 -0400
+Date: Wed, 5 Jul 2006 19:46:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: miles.lane@gmail.com, petkan@users.sourceforge.net,
+       linux-kernel@vger.kernel.org, david-b@pacbell.net,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.17-mm5 -- netconsole failed to send full trace
+Message-Id: <20060705194614.ae2be901.akpm@osdl.org>
+In-Reply-To: <20060705194229.8ffe85d9.akpm@osdl.org>
+References: <a44ae5cd0607030131x745b3106ydd2a4ca086cdf401@mail.gmail.com>
+	<20060703014016.9f598cef.akpm@osdl.org>
+	<a44ae5cd0607030704q63f1f64x5e46688cef6fa44c@mail.gmail.com>
+	<20060703121717.b36ef57e.akpm@osdl.org>
+	<a44ae5cd0607051144w5734ce4bkd38320adda99ae43@mail.gmail.com>
+	<a44ae5cd0607051934o2656a40bs88393dc0d6591249@mail.gmail.com>
+	<20060705194229.8ffe85d9.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200607061242.23811.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1848871.GN2QJfhoY2
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, 5 Jul 2006 19:42:29 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-Hi.
+> On Wed, 5 Jul 2006 19:34:52 -0700
+> "Miles Lane" <miles.lane@gmail.com> wrote:
+> 
+> > On 7/5/06, Miles Lane <miles.lane@gmail.com> wrote:
+> > > Hi Petko,
+> > >
+> > > David Brownell pointed out that you are the author of this driver (rtl8150).
+> > > My laptop is crashing every time I remove the Linksys EtherFast 10/100
+> > > Compact Network Adapter (model USB100M) from the USB port.
+> > >
+> > > Here's a link to the discussion thus far:
+> > > http://groups.google.com/group/linux.kernel/tree/browse_frm/thread/8c93e310c7b71242/a8a1e3edb1601906?rnum=1&q=miles+lane&_done=%2Fgroup%2Flinux.kernel%2Fbrowse_frm%2Fthread%2F8c93e310c7b71242%2Fc8a8ba47c49c39fc%3Ftvc%3D1%26q%3Dmiles+lane%26#doc_a8a1e3edb1601906
+> > >
+> > > Here's the stacktrace:
+> > > http://www.zip.com.au/~akpm/linux/patches/stuff/00003.jpg
+> > >
+> > > I have reproduced the bug with vanilla 2.6.17.  I am currently working my
+> > > back through kernel versions to try to isolate the responsible patches.
+> > 
+> > 2.6.15 is the first kernel earliest kernel that seems to work with Ubuntu 6.06's
+> > implementation of hal / udev / dbus.  It does set up the adapter successfully.
+> > 
+> > I was able to reproduce the crash with 2.6.15.  I have attached a screenshot
+> > of the stacktrace.  It may help, since it differs quite a bit from the one for
+> > 2.6.17-mm5.
+> 
+> The attachment will be too large to make it onto most mailing lists.  I put
+> a copy here: http://www.zip.com.au/~akpm/linux/patches/stuff/00005.jpg
+> 
+> > BTW, should I join linux-usb-devel and CC that list?  Also, should I take
+> > this discussion off of LKML?
+> 
+> Nah, spread it around.  Who knows, somoene might actually fix the bug ;)
 
-There are so many points in this conversation where I could jump in and mak=
-e=20
-the comment I want to provide (below). Sorry if I haven't picked the best=20
-one.
+I don't suppose it's this easy?
 
-On Thursday 06 July 2006 12:32, Bill Davidsen wrote:
-> No comment, I would have to see a state table to be sure I saw the races
-> or that there were none. With a single writer and a sinple dirty bit
-> there is no issue, it behaves like an elevator, more or less. With
-> multiple writers I bet changes are written in the order submitted rather
-> than the order done, but multiple writers without locks are a train
-> wreck waiting to happen anyway.
+--- a/drivers/usb/net/rtl8150.c~a
++++ a/drivers/usb/net/rtl8150.c
+@@ -909,6 +909,7 @@ static void rtl8150_disconnect(struct us
+ 	usb_set_intfdata(intf, NULL);
+ 	if (dev) {
+ 		set_bit(RTL8150_UNPLUG, &dev->flags);
++		tasklet_kill(&dev->tl);
+ 		tasklet_disable(&dev->tl);
+ 		unregister_netdev(dev->netdev);
+ 		unlink_all_urbs(dev);
+_
 
-One application I can see for this careful checking is checkpointing. IIRC,=
-=20
-Linus recently said he'd like to see suspending to disk treated as a specia=
-l=20
-case of checkpointing, and I can see good sense in that. But the support is=
-=20
-just not there at the moment. An important part of implementing that would =
-be=20
-having a filesystem where we could know exactly what the state of the=20
-filesystem was at the last checkpoint, and roll back to it if necessary.
-
-Of course this would need to be tied to tracking changes in memory and to=20
-writing the memory state to storage, but they're separate problems.
-
-Ext3 has a history of being the best filesystem to use in developing and=20
-testing suspend to disk. It would be great if ext4 was the basis for=20
-implementing serious checkpointing support.
-
-Regards,
-
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
-
---nextPart1848871.GN2QJfhoY2
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBErHiPN0y+n1M3mo0RAomGAKC4Dcn2BQmYDpersPj49g+QW3TZdACgjzRt
-PEIWEuQ9ULJZYoltN6zXaRk=
-=G+ZN
------END PGP SIGNATURE-----
-
---nextPart1848871.GN2QJfhoY2--

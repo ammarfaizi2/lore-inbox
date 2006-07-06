@@ -1,92 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWGFEjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbWGFEqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030181AbWGFEjF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 00:39:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbWGFEjF
+	id S965130AbWGFEqE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 00:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbWGFEqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 00:39:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20128 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965174AbWGFEjE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 00:39:04 -0400
-Date: Wed, 5 Jul 2006 21:39:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Thomas Tuttle" <thinkinginbinary@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Create new LED trigger for CPU activity (ledtrig-cpu)
- (UPDATED)
-Message-Id: <20060705213901.4c903e4b.akpm@osdl.org>
-In-Reply-To: <e4cb19870607051948t7e6d208m729a572a65f2da5e@mail.gmail.com>
-References: <e4cb19870607051948t7e6d208m729a572a65f2da5e@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 6 Jul 2006 00:46:04 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:25746 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S965130AbWGFEqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 00:46:02 -0400
+Message-ID: <44AC9581.4090701@namesys.com>
+Date: Wed, 05 Jul 2006 21:45:53 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chase Venters <chase.venters@clientec.com>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] batch-write.patch
+References: <44A42750.5020807@namesys.com> <Pine.LNX.4.64.0606291609020.5747@turbotaz.ourhouse>
+In-Reply-To: <Pine.LNX.4.64.0606291609020.5747@turbotaz.ourhouse>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jul 2006 22:48:17 -0400
-"Thomas Tuttle" <thinkinginbinary@gmail.com> wrote:
+Chase, we incorporated your suggestion, and I want to thank you for it.
 
-> Here is a new version of the patch, incorporating code style tips from
-> Randy Dunlap <rdunlap@xenotime.net>, and based on 2.6.17-git25, rather
-> than 2.6.17.1.
-> 
-> I noticed that there's a Heartbeat LED trigger in the git version.  I
-> hope this isn't too similar.
-> 
+Hans
 
-> --- linux-2.6.17-git25/drivers/leds/Kconfig	2006-07-05 22:11:45.000000000 -0400
-> +++ linux-2.6.17-git25-mine/drivers/leds/Kconfig	2006-07-05 22:42:58.000000000 -0400
-> @@ -93,6 +93,41 @@
->  	  This allows LEDs to be controlled by IDE disk activity.
->  	  If unsure, say Y.
->  
-> +config LEDS_TRIGGER_CPU
-> +	tristate "LED CPU Trigger"
-> +	depends LEDS_TRIGGERS
-> +	help
-> +	  This allows LEDs to be controlled by CPU activity.
-> +	  If unsure, say Y.
-> +
-> +config LEDS_TRIGGER_CPU_INCLUDE_USER
-> +	bool "Include user time in CPU trigger"
-> +	depends LEDS_TRIGGER_CPU
-> +	default y
-> +	help
-> +	  This option makes user CPU time cause the CPU trigger to activate.
-> +
-> +config LEDS_TRIGGER_CPU_INCLUDE_NICE
-> +	bool "Include nice time in CPU trigger"
-> +	depends LEDS_TRIGGER_CPU
-> +	default n
-> +	help
-> +	  This option makes nice CPU time cause the CPU trigger to activate.
-> +
-> +config LEDS_TRIGGER_CPU_INCLUDE_SYSTEM
-> +	bool "Include system time in CPU trigger"
-> +	depends LEDS_TRIGGER_CPU
-> +	default y
-> +	help
-> +	  This option makes system CPU time cause the CPU trigger to activate.
-> +
-> +config LEDS_TRIGGER_CPU_INCLUDE_IOWAIT
-> +	bool "Include iowait time in CPU trigger"
-> +	depends LEDS_TRIGGER_CPU
-> +	default n
-> +	help
-> +	  This option makes iowait CPU time cause the CPU trigger to activate.
+Chase Venters wrote:
 
-waaaaaaaaaaay too many config options.  Make up your mind, man ;)
-
-> +cputime64_t last_cputime;
-
-static.
-
-> +static void __exit ledtrig_cpu_exit(void)
-> +{
-> +	del_timer(&ledtrig_cpu_timer);
-
-del_timer_sync().
-
+> On Thu, 29 Jun 2006, Hans Reiser wrote:
+>
+>>
+>> (patch was attached)
+>>
+>
+> Not quoted because patch isn't inlined, but you're testing for the
+> presence of the batch_write pointer repeatedly in the loop. How about
+> declare a batch_write ptr on the stack and then do your test once,
+> outside of your do { } while (count) loop, and then set it to the
+> generic method (before entering the loop) if the generic method isn't
+> available?
+>
+> Thanks,
+> Chase
+>
+>
 

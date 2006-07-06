@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWGFMo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWGFMr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbWGFMo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 08:44:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbWGFMo7
+	id S1030240AbWGFMr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 08:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWGFMr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 08:44:59 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:650 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S965190AbWGFMo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 08:44:59 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux v2.6.18-rc1
-Date: Thu, 6 Jul 2006 22:44:40 +1000
-User-Agent: KMail/1.9.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1225820.l81EjJjihU";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607062244.51814.ncunningham@linuxmail.org>
+	Thu, 6 Jul 2006 08:47:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17319 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030240AbWGFMrY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 08:47:24 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 0/6] Fix FRV, ELF-FDPIC and NOMMU stuff [try #3]
+Date: Thu, 06 Jul 2006 13:47:16 +0100
+To: torvalds@osdl.org, akpm@osdl.org, bernds_cb1@t-online.de, sam@ravnborg.org
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Message-Id: <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1225820.l81EjJjihU
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Hi.
+The attached patches:
 
-On Thursday 06 July 2006 14:26, Linus Torvalds wrote:
-> Ok,
->  the merge window for 2.6.18 is closed, and -rc1 is out there (git trees
-> updated, the tar-ball and patches are still uploading over my pitiful DSL
-> line - and as usual it may take a short while before mirroring takes
-> place and distributes things across the globe).
+ (1) Fix compilation errors and other problems in the FRV arch and the
+     ELF-FDPIC binfmt driver.
 
-On my amd64 based laptop, I had a failures with both suspend implementation=
-s=20
-(swsusp and suspend2) when I had iommu debugging on. The same config worked=
-=20
-fine with 2.6.17. I guess something in the delta didn't like iommu usage=20
-being forced on a Turion. I'm not sure how much time I'll find for further=
-=20
-debugging, so I'll report it now.
+ (2) Fix a problem with the NOMMU ramfs filesystem when executing binaries
+     stored therein.
 
-Regards,
+ (3) Fix up the ELF-FDPIC coding style and implement a minor change to reduce
+     the number of times ksize() is called.
 
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
+ (4) Add ELF-FDPIC coredump support.
 
---nextPart1225820.l81EjJjihU
-Content-Type: application/pgp-signature
+ (5) Make the FRV arch make use of the asm-offsets stuff.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+In [try #2] the following change has been made:
 
-iD8DBQBErQXDN0y+n1M3mo0RAsmQAJ9zZFtVct+jP5AgycsX+3uz2CRuYgCg5X3e
-0fgLqSgSacBe5gv59FvmbkE=
-=wWJR
------END PGP SIGNATURE-----
+ (*) Inclusions of <linux/config.h> added by the patches have been dropped as
+     they're not necessary.
 
---nextPart1225820.l81EjJjihU--
+In [try #3]:
+
+ (*) ELF-FDPIC Coding style fixups.
+
+ (*) Minor ELF-FDPIC change to reduce the number of times ksize() is called.

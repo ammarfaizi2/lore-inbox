@@ -1,76 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWGFJvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWGFJwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWGFJvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 05:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbWGFJvJ
+	id S1030198AbWGFJwA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 05:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWGFJwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 05:51:09 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:25010 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1030196AbWGFJvI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 05:51:08 -0400
-From: Mel Gorman <mel@csn.ul.ie>
-To: akpm@osdl.org
-Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
-       vagabon.xyz@gmail.com
-Message-Id: <20060706095103.31772.49822.sendpatchset@skynet.skynet.ie>
-Subject: [PATCH 1/1] Only use ARCH_PFN_OFFSET once during boot
-Date: Thu,  6 Jul 2006 10:51:03 +0100 (IST)
+	Thu, 6 Jul 2006 05:52:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41483 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030198AbWGFJwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 05:52:00 -0400
+Date: Thu, 6 Jul 2006 10:51:50 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Haavard Skinnemoen <hskinnemoen@atmel.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
+Message-ID: <20060706095150.GA1399@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Haavard Skinnemoen <hskinnemoen@atmel.com>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20060706105227.220565f8@cad-250-152.norway.atmel.com> <20060706021906.1af7ffa3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060706021906.1af7ffa3.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The FLATMEM memory model assumes that memory is one contiguous region based
-at PFN 0 and uses the NODE_DATA(0)->node_mem_map as the global mem_map. As
-NODE_DATA(0)->node_mem_map may not be PFN 0, architectures optionally define
-ARCH_PFN_OFFSET as the offset between NODE_DATA(0)->node_mem_map and PFN 0.
-This offset is used every time page_to_pfn() or pfn_to_page() is called
-resulting in a small amount of code bloat and overhead.
+On Thu, Jul 06, 2006 at 02:19:06AM -0700, Andrew Morton wrote:
+> - What are these for?
+> 
+> 	+EXPORT_SYMBOL(clk_get);
+> 	+EXPORT_SYMBOL(clk_put);
+> 	+EXPORT_SYMBOL(clk_enable);
+> 	+EXPORT_SYMBOL(clk_disable);
+> 	+EXPORT_SYMBOL(clk_get_rate);
+> 	+EXPORT_SYMBOL(clk_round_rate);
+> 	+EXPORT_SYMBOL(clk_set_rate);
+> 	+EXPORT_SYMBOL(clk_set_parent);
+> 	+EXPORT_SYMBOL(clk_get_parent);
 
-This patch changes ARCH_PFN_OFFSET so that it is used only once during
-memory initialisation when working out where mem_map is. This gives
-a very small reduction in zImage size for architectures using
-ARCH_PFN_OFFSET. The patch also adds a small amount of documentation
-on what ARCH_PFN_OFFSET is for.
+Part of the clock framework.  No, not the one that you've probably
+heard about (which is in connection with time, and IMHO incorrectly
+named).
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+This one is to do with controlling the clock sources for peripherals
+in systems, to allow drivers to be shared between platforms with the
+minimum of crap in drivers.
 
- include/asm-generic/memory_model.h |    5 ++---
- mm/page_alloc.c                    |    8 ++++++--
- 2 files changed, 8 insertions(+), 5 deletions(-)
+For example, the ARM Ltd AMBA "devices" end up being embedded into ARM
+SoCs, MIPS SoCs and now probably AVR32 SoCs.  These drivers need a way
+to be told, eg, their clock source rate in the case of a UART, and be
+able to control the clock rate in the case of an LCD controller.  It's
+also advantageous for power saving to be able to turn clock sources
+on and off.
 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-mm6-clean/include/asm-generic/memory_model.h linux-2.6.17-mm6-archpfnoffset_optimise/include/asm-generic/memory_model.h
---- linux-2.6.17-mm6-clean/include/asm-generic/memory_model.h	2006-07-05 14:31:17.000000000 +0100
-+++ linux-2.6.17-mm6-archpfnoffset_optimise/include/asm-generic/memory_model.h	2006-07-05 14:36:04.000000000 +0100
-@@ -28,9 +28,8 @@
-  */
- #if defined(CONFIG_FLATMEM)
- 
--#define __pfn_to_page(pfn)	(mem_map + ((pfn) - ARCH_PFN_OFFSET))
--#define __page_to_pfn(page)	((unsigned long)((page) - mem_map) + \
--				 ARCH_PFN_OFFSET)
-+#define __pfn_to_page(pfn)	(mem_map + (pfn))
-+#define __page_to_pfn(page)	((unsigned long)((page) - mem_map))
- #elif defined(CONFIG_DISCONTIGMEM)
- 
- #define __pfn_to_page(pfn)			\
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.17-mm6-clean/mm/page_alloc.c linux-2.6.17-mm6-archpfnoffset_optimise/mm/page_alloc.c
---- linux-2.6.17-mm6-clean/mm/page_alloc.c	2006-07-05 14:31:18.000000000 +0100
-+++ linux-2.6.17-mm6-archpfnoffset_optimise/mm/page_alloc.c	2006-07-05 17:01:01.000000000 +0100
-@@ -2157,10 +2157,14 @@ static void __init alloc_node_mem_map(st
- 	}
- #ifdef CONFIG_FLATMEM
- 	/*
--	 * With no DISCONTIG, the global mem_map is just set as node 0's
-+	 * With FLATMEM, the global mem_map is just set as node 0's. The
-+	 * FLATMEM memory model assumes that memory is in one contiguous area
-+	 * starting at PFN 0. Architectures that do not start NODE 0 at PFN 0
-+	 * must define ARCH_PFN_OFFSET as the offset between
-+	 * NODE_DATA(0)->node_mem_map and PFN 0.
- 	 */
- 	if (pgdat == NODE_DATA(0))
--		mem_map = NODE_DATA(0)->node_mem_map;
-+		mem_map = NODE_DATA(0)->node_mem_map - ARCH_PFN_OFFSET;
- #endif
- #endif /* CONFIG_FLAT_NODE_MEM_MAP */
- }
- 
+You can have hardware situations where the clock source for UARTs
+depend on where they are on the bus, possibly clocked at different
+rates, or all UARTs are clocked from one source.
+
+How that is achieved is extremely SoC or platform specific, and as such
+I put together a well defined API (include/linux/clk.h) which gives:
+
+1. an API for drivers to follow to achieve achieve inter-operability and
+   re-use with the minimum of fuss.
+2. complete flexibility to the platform code to implement the backend
+   how they see fit, using whatever structures they see fit.
+
+It's great that the AVR32 folk are reusing this.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

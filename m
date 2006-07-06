@@ -1,57 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWGFMew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbWGFMjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbWGFMew (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 08:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWGFMew
+	id S965017AbWGFMjw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 08:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbWGFMjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 08:34:52 -0400
-Received: from ptb-relay03.plus.net ([212.159.14.214]:53710 "EHLO
-	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
-	id S1030231AbWGFMev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 08:34:51 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux v2.6.18-rc1
-Date: Thu, 6 Jul 2006 13:34:57 +0100
-User-Agent: KMail/1.9.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org, Len Brown <len.brown@intel.com>
-References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 6 Jul 2006 08:39:52 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:28868 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965017AbWGFMjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 08:39:51 -0400
+Subject: Re: [patch] spinlocks: remove 'volatile'
+From: Arjan van de Ven <arjan@infradead.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
+References: <20060705114630.GA3134@elte.hu>
+	 <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu>
+	 <20060705131824.52fa20ec.akpm@osdl.org>
+	 <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
+	 <20060705204727.GA16615@elte.hu>
+	 <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
+	 <20060705214502.GA27597@elte.hu>
+	 <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
+	 <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
+	 <20060706081639.GA24179@elte.hu>
+	 <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
+	 <1152187268.3084.29.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
+Content-Type: text/plain
+Date: Thu, 06 Jul 2006 14:39:43 +0200
+Message-Id: <1152189583.3084.32.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607061334.57282.s0348365@sms.ed.ac.uk>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 July 2006 05:26, Linus Torvalds wrote:
-> Ok,
->  the merge window for 2.6.18 is closed, and -rc1 is out there (git trees
-> updated, the tar-ball and patches are still uploading over my pitiful DSL
-> line - and as usual it may take a short while before mirroring takes
-> place and distributes things across the globe).
->
-> The changes are too big for the mailing list, even just the shortlog. As
-> usual, lots of stuff happened. Most architectures got updated, ACPI
-> updates, networking, SCSI and sound, IDE, infiniband, input, DVB etc etc
-> etc.
+On Thu, 2006-07-06 at 08:29 -0400, linux-os (Dick Johnson) wrote:
+> On Thu, 6 Jul 2006, Arjan van de Ven wrote:
+> 
+> > On Thu, 2006-07-06 at 07:59 -0400, linux-os (Dick Johnson) wrote:
+> >> On Thu, 6 Jul 2006, Ingo Molnar wrote:
+> >>
+> >>>
+> >>> * Linus Torvalds <torvalds@osdl.org> wrote:
+> >>>
+> >>>> I wonder if we should remove the "volatile". There really isn't
+> >>>> anything _good_ that gcc can do with it, but we've seen gcc code
+> >>>> generation do stupid things before just because "volatile" seems to
+> >>>> just disable even proper normal working.
+> >>
+> >> Then GCC must be fixed. The keyword volatile is correct. It should
+> >> force the compiler to read the variable every time it's used.
+> >
+> > this is not really what the C standard says.
+> >
+> >
+> >
+> >> This is not pointless. If GCC generates bad code, tell the
+> >> GCC people. The volatile keyword is essential.
+> >
+> > no the "volatile" semantics are vague, trecherous and evil. It's a LOT
+> > better to insert the well defined "barrier()" in the right places.
+> 
+> Look at:
+> 
+>  	http://en.wikipedia.org/wiki/Volatile_variable
+> 
+> This is just what is needed to prevent the compiler from making non working
+> code during optimization.
 
-ACPI problem here. Doesn't seem to actively break anything, but the messages
-look bad (HP NC6000 notebook). Haven't tried suspending. The error popped
-up roughly 90 minutes after booting. Laptop has been on AC power throughout.
+and an entry level document at wikipedia is more important than the C
+standard ;)
 
-ACPI Error (exmutex-0248): Cannot release Mutex [C0E8], not acquired [20060623]
-ACPI Error (psparse-0537): Method parse/execution failed [\_SB_.C044.C057.C0E7.C12F] (Node c1aeca40), AE_AML_MUTEX_NOT_ACQUIRED
-ACPI Error (psparse-0537): Method parse/execution failed [\_SB_.C12F] (Node c1aeecfc), AE_AML_MUTEX_NOT_ACQUIRED
-ACPI Error (psparse-0537): Method parse/execution failed [\_SB_.C137._BST] (Node c1aeec84), AE_AML_MUTEX_NOT_ACQUIRED
-ACPI Exception (acpi_battery-0206): AE_AML_MUTEX_NOT_ACQUIRED, Evaluating _BST [20060623]
+> 
+> Also look at:
+> 
+>  	http://en.wikipedia.org/wiki/Memory_barrier
+> 
+> This is used to prevent out-of-order execution, not at all what is
+> necessary.
 
--- 
-Cheers,
-Alistair.
+I did not talk about memory barriers. In fact, barrier() is NOT a memory
+barrier. It's a compiler optimization barrier!
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+

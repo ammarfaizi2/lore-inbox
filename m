@@ -1,151 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWGFRwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbWGFRwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030371AbWGFRwg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 13:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbWGFRwf
+	id S1030370AbWGFRwb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 13:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbWGFRwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 13:52:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11198 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030371AbWGFRwe (ORCPT
+	Thu, 6 Jul 2006 13:52:31 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:1040 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1030370AbWGFRwb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 13:52:34 -0400
-Date: Thu, 6 Jul 2006 10:52:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, bernds_cb1@t-online.de, sam@ravnborg.org,
-       dhowells@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/6] FDPIC: Add coredump capability for the ELF-FDPIC
- binfmt [try #3]
-Message-Id: <20060706105223.97b9a531.akpm@osdl.org>
-In-Reply-To: <20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com>
-References: <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
-	<20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Thu, 6 Jul 2006 13:52:31 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 06 Jul 2006 17:52:26.0719 (UTC) FILETIME=[F160DEF0:01C6A124]
+Content-class: urn:content-classes:message
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Date: Thu, 6 Jul 2006 13:52:25 -0400
+Message-ID: <Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.64.0607060911530.12404@g5.osdl.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] spinlocks: remove 'volatile'
+thread-index: AcahJPFo2LAa7ez1RPayp1cblJwxeA==
+References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org> <20060706081639.GA24179@elte.hu> <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com> <Pine.LNX.4.64.0607060856080.12404@g5.osdl.org> <Pine.LNX.4.64.0607060911530.12404@g5.osdl.org>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <arjan@infradead.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Jul 2006 13:47:27 +0100
-David Howells <dhowells@redhat.com> wrote:
 
-> From: David Howells <dhowells@redhat.com>
-> 
-> Add coredump capability for the ELF-FDPIC binfmt.
-> 
-> ..
+On Thu, 6 Jul 2006, Linus Torvalds wrote:
+
 >
-> +static int dump_seek(struct file *file, off_t off)
-> +{
-> +	if (file->f_op->llseek) {
-> +		if (file->f_op->llseek(file, off, 0) != off)
-> +			return 0;
-> +	} else {
-> +		file->f_pos = off;
-> +	}
-> +	return 1;
-> +}
-
-llseek takes a loff_t and file->f_pos is loff_t.  I guess it's a bit moot
-on such a CPU.  Was it deliberate?
-
-(how come the kernel doesn't have a SEEK_SET #define?)
-
-> +/*
-> + * Decide whether a segment is worth dumping; default is yes to be
-> + * sure (missing info is worse than too much; etc).
-> + * Personally I'd include everything, and use the coredump limit...
-> + *
-> + * I think we should skip something. But I am not sure how. H.J.
-> + */
-> +static inline int maydump(struct vm_area_struct *vma)
-> +{
-> +	/* Do not dump I/O mapped devices or special mappings */
-> +	if (vma->vm_flags & (VM_IO | VM_RESERVED)) {
-> +		kdcore("%08lx: %08lx: no (IO)", vma->vm_start, vma->vm_flags);
-> +		return 0;
-> +	}
-> +
-> +	/* If we may not read the contents, don't allow us to dump
-> +	 * them either. "dump_write()" can't handle it anyway.
-> +	 */
-> +	if (!(vma->vm_flags & VM_READ)) {
-> +		kdcore("%08lx: %08lx: no (!read)", vma->vm_start, vma->vm_flags);
-> +		return 0;
-> +	}
-> +
-> +	/* Dump shared memory only if mapped from an anonymous file. */
-> +	if (vma->vm_flags & VM_SHARED) {
-> +		if (vma->vm_file->f_dentry->d_inode->i_nlink == 0) {
-> +			kdcore("%08lx: %08lx: no (share)", vma->vm_start, vma->vm_flags);
-> +			return 1;
-> +		}
-> +
-> +		kdcore("%08lx: %08lx: no (share)", vma->vm_start, vma->vm_flags);
-> +		return 0;
-> +	}
-> +
-> +#ifdef CONFIG_MMU
-> +	/* If it hasn't been written to, don't write it out */
-> +	if (!vma->anon_vma) {
-> +		kdcore("%08lx: %08lx: no (!anon)", vma->vm_start, vma->vm_flags);
-> +		return 0;
-> +	}
-> +#endif
-> +
-> +	kdcore("%08lx: %08lx: yes", vma->vm_start, vma->vm_flags);
-> +	return 1;
-> +}
-
-Three callsites - seems too large to inline.
-
-> +#define roundup(x, y)  ((((x) + ((y) - 1)) / (y)) * (y))
-
-The GFS2 tree has 
-
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -32,6 +32,7 @@ #define STACK_MAGIC	0xdeadbeef
- 
- #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
- #define ALIGN(x,a) (((x)+(a)-1)&~((a)-1))
-+#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
- #define FIELD_SIZEOF(t, f) (sizeof(((t*)0)->f))
- 
- #define	KERN_EMERG	"<0>"	/* system is unusable			*/
-
-Which seems reasonable to me.  I'll steal it from them.
-
-> +/* #define DEBUG */
-> +
-> +#define DUMP_WRITE(addr, nr)	\
-> +	do { if (!dump_write(file, (addr), (nr))) return 0; } while(0)
-> +#define DUMP_SEEK(off)	\
-> +	do { if (!dump_seek(file, (off))) return 0; } while(0)
 >
-> ...
+> On Thu, 6 Jul 2006, Linus Torvalds wrote:
+>>
+>> Any other use of "volatile" is almost certainly a bug, or just useless.
 >
-> +#undef DUMP_WRITE
-> +#undef DUMP_SEEK
-> +
-> +#define DUMP_WRITE(addr, nr)	\
-> +	if ((size += (nr)) > limit || !dump_write(file, (addr), (nr))) \
-> +		goto end_coredump;
-> +#define DUMP_SEEK(off)	\
-> +	if (!dump_seek(file, (off))) \
-> +		goto end_coredump;
+> Side note: it's also totally possible that a volatiles _hides_ a bug, ie
+> removing the volatile ends up having bad effects, but that's because the
+> software itself isn't actually following the rules (or, more commonly, the
+> rules are broken, and somebody added "volatile" to hide the problem).
+>
+> That's not just a theoretical notion, btw. We had _tons_ of these kinds of
+> "volatile"s in the original old networking code. They were _all_ wrong.
+> Every single one.
+>
+> 			Linus
+>
 
-Embedding returns and gotos in macros is evil.  For new code it's worth
-doing it vaguely tastefully.
+Linus, you may have been reading too many novels.
 
-	ret = dump_write(...);
-	if (ret < 0)
-		goto actually_return_an_error_code;
+If I have some code that does:
 
-> +	for (vml = current->mm->context.vmlist; vml; vml = vml->next)
-> +	    segs++;
+extern int spinner;
 
-Does this need locking?
+funct(){
+     while(spinner)
+         ;
+
+The 'C' compiler has no choice but to actually make that memory access
+and read the variable because the variable is in another module (a.k.a.
+file).
+
+However, if I have the same code, but the variable is visible during
+compile time, i.e.,
+
+int spinner=0;
+
+funct(){
+     while(spinner)
+         ;
+
+... the compiler may eliminate that code altogether because it
+'knows' that spinner is FALSE, having initialized it to zero
+itself.
+
+Since spinner is global in scope, somebody surely could have
+changed it before funct() was even called, but the current gcc
+'C' compiler doesn't care and may optimize it away entirely. To
+prevent this, you must declare the variable volatile. To do
+otherwise is a bug.
+
+Reading between the lines of your text, you are trying to say
+that object 'spinner' should remain an integer, but any access
+should be cast, like:
+
+funct() {
+     while((volatile)spinner)
+         ;
+
+This is just a matter of style. It substitutes a number of casts
+for a simple declaration. That said, I think that the current
+implementation of 'volatile' is broken because the compiler
+seems to believe that the variable has moved! It recalculates
+the address of the variable as well as accessing its value.
+This is what makes the code generation problematical.
 
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.88 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

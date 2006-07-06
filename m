@@ -1,90 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbWGFIXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbWGFIYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbWGFIXU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 04:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWGFIXU
+	id S964999AbWGFIYp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 04:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWGFIYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 04:23:20 -0400
-Received: from bernhard.xss.co.at ([193.80.108.69]:13264 "EHLO
-	bernhard.xss.co.at") by vger.kernel.org with ESMTP id S964993AbWGFIXS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 04:23:18 -0400
-Message-ID: <44ACC870.2000609@xss.co.at>
-Date: Thu, 06 Jul 2006 10:23:12 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: marcelo@kvack.org, w@1wt.eu
-Subject: [PATCH-2.4] Typo in cdrom.c also in linux-2.4
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/mixed;
- boundary="------------010908090803020000060609"
+	Thu, 6 Jul 2006 04:24:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46053 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964999AbWGFIYo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 04:24:44 -0400
+Date: Thu, 6 Jul 2006 01:24:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6 vmstat breakage
+Message-Id: <20060706012440.967c4908.akpm@osdl.org>
+In-Reply-To: <1152171523.8098.22.camel@Homer.TheSimpsons.net>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
+	<20060705155037.7228aa48.akpm@osdl.org>
+	<a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com>
+	<20060705164457.60e6dbc2.akpm@osdl.org>
+	<20060705164820.379a69ba.akpm@osdl.org>
+	<a762e240607051705h33952e5elf6bd09c1ccea8ab4@mail.gmail.com>
+	<20060705172545.815872b6.akpm@osdl.org>
+	<m1u05v2st3.fsf@ebiederm.dsl.xmission.com>
+	<20060705225905.53e61ca0.akpm@osdl.org>
+	<1152171523.8098.22.camel@Homer.TheSimpsons.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010908090803020000060609
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+On Thu, 06 Jul 2006 09:38:43 +0200
+Mike Galbraith <efault@gmx.de> wrote:
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Greetings,
+> 
+> My single P4/HT box is showing incorrect pgpgin pgpgout numbers with
+> this kernel.  While disk throughput for dd if=/dev/hdc of=/dev=null
+> bs=4096 count=1000000 produces about 57MB/S (up ~14% over 2.6.17 btw),
+> vmstat (procps version 3.2.5) is only showing about 7MB/S.
+> 
+> Looking at the numbers in /proc/vmstat, it looks kinda like pgpgin might
+> be pages instead of the KB it used to be, with some added >>=1 action on
+> the side.  At any rate, the numbers below are horse-pookey ;-)
+> 
+>  procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+>  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+>  1  1   3820   9400 810128  46052    0    0  7040     0 1163  1283  2  7 48 44
+>  1  1   3820   9220 810288  46156    0    0  7040     0 1151  1335  3  6 48 45
+>  1  1   3820   9280 810176  46204    0    0  7168     0 1156  1207  1  7 48 44
+>  2  1   3820   9408 810048  46068    0    0  7168     0 1160  1192  1  6 49 46
+> 
 
-Hi Marcelo,
-hi Willy,
+2.6.18-rc1 has the same bug.
 
-are you aware of the discussion at
-<http://bugzilla.kernel.org/show_bug.cgi?id=2966> ?
-
-The typo seems to exist in linux-2.4 too, at least in
-2.4.32, 2.4.32-hf32.6 and 2.4.33pre3 (which is what
-I checked today)
-
-The fix for linux-2.4 would be just like the proposed
-patch for linux-2.6 (see attachment)
-
-Comments?
-
-- - andreas
-
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFErMhbxJmyeGcXPhERAgw6AKCwDRtEyE1EK+oT/nU5v2ysQxmWqACcDh1y
-eZq4acxsutVuP68nDDcEeAE=
-=puYc
------END PGP SIGNATURE-----
-
---------------010908090803020000060609
-Content-Type: text/x-patch;
- name="cdrom.c.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cdrom.c.patch"
-
-Index: cdrom.c
-===================================================================
-RCS file: /home/cvs/repository/distribution/Base/linux/drivers/cdrom/cdrom.c,v
-retrieving revision 1.1.1.10
-diff -u -r1.1.1.10 cdrom.c
---- cdrom.c	19 Jan 2005 14:09:43 -0000	1.1.1.10
-+++ cdrom.c	6 Jul 2006 08:22:06 -0000
-@@ -1259,7 +1259,7 @@
- 	init_cdrom_command(&cgc, buf, sizeof(buf), CGC_DATA_READ);
- 	cgc.cmd[0] = GPCMD_READ_DVD_STRUCTURE;
- 	cgc.cmd[7] = s->type;
--	cgc.cmd[9] = cgc.buflen = 0xff;
-+	cgc.cmd[9] = cgc.buflen & 0xff;
+--- a/include/linux/vmstat.h~count_vm_events-fix
++++ a/include/linux/vmstat.h
+@@ -57,7 +57,7 @@ static inline void __count_vm_events(enu
  
- 	if ((ret = cdo->generic_packet(cdi, &cgc)))
- 		return ret;
+ static inline void count_vm_events(enum vm_event_item item, long delta)
+ {
+-	get_cpu_var(vm_event_states.event[item])++;
++	get_cpu_var(vm_event_states.event[item]) += delta;
+ 	put_cpu();
+ }
+ 
+_
 
---------------010908090803020000060609--

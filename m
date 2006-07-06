@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWGFJhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWGFJoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbWGFJhr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 05:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbWGFJhr
+	id S1030190AbWGFJoz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 05:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWGFJoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 05:37:47 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:10118 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S965182AbWGFJhq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 05:37:46 -0400
-Date: Thu, 6 Jul 2006 11:37:35 +0200 (MEST)
-Message-Id: <200607060937.k669bZT3017256@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: davem@davemloft.net, mikpe@it.uu.se
-Subject: Re: [BUG sparc64] 2.6.16-git6 broke X11 on Ultra5 with ATI Mach64
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+	Thu, 6 Jul 2006 05:44:55 -0400
+Received: from smtp811.mail.ukl.yahoo.com ([217.12.12.201]:41888 "HELO
+	smtp811.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1030190AbWGFJoz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 05:44:55 -0400
+Message-ID: <44ACDB94.4040201@btinternet.com>
+Date: Thu, 06 Jul 2006 10:44:52 +0100
+From: Matt Keenan <matt.keenan@btinternet.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060619)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.18-rc1
+References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Jul 2006 20:40:36 -0700 (PDT), David Miller wrote:
->> I.e., X did a simple PROT_READ|PROT_WRITE MAP_SHARED mmap() of
->> something PCI-related, presumably the ATI card. The protection
->> bits passed into io_remap_pfn_range() are 0x80...0788, while
->> pg_iobits are 0x80...0f8a. Current kernels obey the prot bits,
->> which, if I read things correctly, means that _PAGE_W_4U and
->> _PAGE_MODIFIED_4U don't get set any more.
->> 
->> I guess something else in the kernel should have set those
->> bits before they got to io_remap_pfn_range()?
->
->The problem is with X, it should not be doing a MAP_SHARED
->mmap() of the framebuffer device.  It should be using
->MAP_PRIVATE instead.
->
->The kernel is trying to provide copy-on-write semantics for
->the mapping, which doesn't make any sense for device registers.
->That's why the kernel isn't setting the writable or modified
->bits in the protection bitmask.
+Linus Torvalds wrote:
 
-Now I'm confused. That COW behaviour would be consistent with
-MAP_PRIVATE, not MAP_SHARED which is what X did use.
+[snip snip]
+> The changes are too big for the mailing list, even just the shortlog. As 
+> usual, lots of stuff happened. Most architectures got updated, ACPI 
+> updates, networking, SCSI and sound, IDE, infiniband, input, DVB etc etc 
+> etc.
+>
+>   
+[snip snip]
+> Git users should generally just select the part they are interested in, 
+> and do something like
+>
+> 	git log v2.6.17.. -- drivers/usb/ | git shortlog | less -S
+>
+> to get a better and more focused view of what has changed.
+>   
+[snip snip]
+
+Is it possible to get a URL to a shortlog on a web git somewhere? Has 
+this information been posted before and I have missed it?
+
+Matt
+

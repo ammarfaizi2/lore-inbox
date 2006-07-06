@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWGFXqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWGFXuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbWGFXqp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:46:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWGFXqp
+	id S1751068AbWGFXuE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 19:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbWGFXuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:46:45 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:26795 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751073AbWGFXqp (ORCPT
+	Thu, 6 Jul 2006 19:50:04 -0400
+Received: from 1wt.eu ([62.212.114.60]:58377 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751068AbWGFXuD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:46:45 -0400
-Subject: Re: Linux v2.6.18-rc1: printk delays
-From: john stultz <johnstul@us.ibm.com>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44AD9605.6000601@imap.cc>
-References: <6vtF8-99-7@gated-at.bofh.it>  <44AD9605.6000601@imap.cc>
-Content-Type: text/plain
-Date: Thu, 06 Jul 2006 16:46:39 -0700
-Message-Id: <1152229599.24656.175.camel@cog.beaverton.ibm.com>
+	Thu, 6 Jul 2006 19:50:03 -0400
+Date: Fri, 7 Jul 2006 01:49:18 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Greg KH <gregkh@suse.de>
+Cc: "Scott J. Harmon" <harmon@ksu.edu>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.17.4
+Message-ID: <20060706234918.GB2037@1wt.eu>
+References: <20060706222704.GB2946@kroah.com> <20060706222841.GD2946@kroah.com> <44AD9229.6010301@ksu.edu> <20060706224614.GA3520@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060706224614.GA3520@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-07 at 01:00 +0200, Tilman Schmidt wrote:
-> With kernel 2.6.18-rc1 I am experiencing strange delays before printk
-> messages from my driver appear in the syslog. The last couple of printk
-> lines only appear if I hit a key on the system keyboard. Even just
-> pressing and releasing a shift key will do. Other input, like connecting
-> with ssh from another computer and typing into that session or moving or
-> clicking the mouse, doesn't help. At the same time, userspace syslog
-> messages like those from sshd appear just fine.
+On Thu, Jul 06, 2006 at 03:46:14PM -0700, Greg KH wrote:
+> On Thu, Jul 06, 2006 at 05:43:53PM -0500, Scott J. Harmon wrote:
+> > Greg KH wrote:
+> > > diff --git a/Makefile b/Makefile
+> > > index 8c72521..abcf2d7 100644
+> > > --- a/Makefile
+> > > +++ b/Makefile
+> > > @@ -1,7 +1,7 @@
+> > >  VERSION = 2
+> > >  PATCHLEVEL = 6
+> > >  SUBLEVEL = 17
+> > > -EXTRAVERSION = .3
+> > > +EXTRAVERSION = .4
+> > >  NAME=Crazed Snow-Weasel
+> > >  
+> > >  # *DOCUMENTATION*
+> > > diff --git a/kernel/sys.c b/kernel/sys.c
+> > > index 0b6ec0e..59273f7 100644
+> > > --- a/kernel/sys.c
+> > > +++ b/kernel/sys.c
+> > > @@ -1991,7 +1991,7 @@ asmlinkage long sys_prctl(int option, un
+> > >  			error = current->mm->dumpable;
+> > >  			break;
+> > >  		case PR_SET_DUMPABLE:
+> > > -			if (arg2 < 0 || arg2 > 2) {
+> > > +			if (arg2 < 0 || arg2 > 1) {
+> > >  				error = -EINVAL;
+> > >  				break;
+> > >  			}
+> > Just curious as to why this isn't just
+> > ...
+> > 			if (arg2 != 1) {
+> > ...
 > 
-> Example excerpt from /var/log/messages:
+> Because that would be incorrect :)
+
+Interestingly, 2.4 tests (arg2 !=0 && arg2 != 1) so from the code changes
+above, it looks like the value 2 was added on purpose, but for what ? Maybe
+the fix is not really correct yet ?
+
+Cheers,
+Willy
+
 > 
-> > Jul  7 00:16:08 gx110 kernel: [  746.583136] gigaset: 0: if_write()
-> > Jul  7 00:16:08 gx110 kernel: [  746.583154] gigaset: CMD Transmit (10 bytes):
-> > Jul  7 00:16:08 gx110 kernel: [  746.583203] bas_gigaset: setting ATREADY time
-> > Jul  7 00:16:08 gx110 kernel: [  746.585887] bas_gigaset: write_command: sent 
-> > Jul  7 00:16:08 gx110 kernel: [  746.612869] gigaset: received response (6 byt
-> > Jul  7 00:16:28 gx110 sshd[6134]: Accepted publickey for ts from 192.168.59.12
-> > Jul  7 00:28:26 gx110 kernel: [  746.687844] gigaset: 0: if_write()
-> > Jul  7 00:28:26 gx110 kernel: [  746.687944] gigaset: CMD Transmit (17 bytes):
-> > Jul  7 00:28:26 gx110 kernel: [  746.688002] bas_gigaset: setting ATREADY time
-> > Jul  7 00:28:26 gx110 kernel: [  746.690803] bas_gigaset: write_command: sent 
+> thanks,
 > 
-> Note how the PRINTK_TIME timestamps increase in sub-second increments
-> while syslogd's timestamps show an enormous gap after 00:16:08.
-> 
-> With kernel 2.6.17.1 on the same machine there are no such delays. All
-> printk messages appear immediately, and the deltas in PRINTK_TIME and
-> syslogd timestamps are quite consistent.
-
-Hmmm. I'm assuming this is i386? Could you send me a full dmesg?
-
-Also does booting w/ clocksource=jiffies change the behavior?
-
-thanks
--john
-
-
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

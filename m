@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWGFOrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWGFPJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbWGFOrw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 10:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbWGFOrw
+	id S1030300AbWGFPJh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 11:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWGFPJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 10:47:52 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:14897 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030298AbWGFOrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 10:47:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=ZcRv0HRyWj82+ipef9GIzA9S8hWtlPvjO+dI4U2burKrMlkEiKnxLJIV5tJvx6+uIVMpb1Hq5eKa6l6lRnTIDvsnbrK4ENROtGUtIEKn4tUsx4NqxskTUotFrC3lMzIu2t713oGol4CqWopLjXiWoZCcpXjDHwHHREM8vCENoOM=
-Date: Thu, 6 Jul 2006 18:47:44 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: "Ed L. Cashin" <ecashin@coraid.com>
-Cc: Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] aoe: cleanup i_rdev usage
-Message-ID: <20060706144744.GC7514@martell.zuzino.mipt.ru>
+	Thu, 6 Jul 2006 11:09:37 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:42659 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S1030300AbWGFPJg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 11:09:36 -0400
+Date: Thu, 6 Jul 2006 08:01:18 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: perfmon@napali.hpl.hp.com, Stephane Eranian <eranian@hpl.hp.com>
+Subject: cpuinfo_x86 and apicid
+Message-ID: <20060706150118.GB10110@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Eric Sesterhenn <snakebyte@gmx.de>
+Hello,
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
 
- drivers/block/aoe/aoechr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+In the context of the perfmon2 subsystem for processor with HyperThreading,
+we need to know on which thread we are currently running. This comes from
+the fact that the performance counters are shared between the two threads.
 
---- a/drivers/block/aoe/aoechr.c
-+++ b/drivers/block/aoe/aoechr.c
-@@ -162,7 +162,7 @@ aoechr_open(struct inode *inode, struct 
- {
- 	int n, i;
- 
--	n = MINOR(inode->i_rdev);
-+	n = iminor(inode);
- 	filp->private_data = (void *) (unsigned long) n;
- 
- 	for (i = 0; i < ARRAY_SIZE(chardevs); ++i)
+We use the thread id (smt_id) because we split the counters in half
+between the two threads such that two threads on the same core can run
+with monitoring on.  We are currently computing the smt_id from the
+apicid as returned by a CPUID instruction. This is not very efficient.
 
+I looked through the i386 code and could not find a function nor 
+structure that would return this smt_id. In the cpuinfo_x86 structure
+there is an apicid field that looks good, yet it does not seem to be
+initialized nor used.
+
+Is cpuinfo_x86->apicid field obsolete? 
+If so, what is replacing it?
+
+Thanks.
+
+-- 
+-Stephane

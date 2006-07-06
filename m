@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWGFXHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWGFXII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751011AbWGFXHk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWGFXHk
+	id S1751034AbWGFXII (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 19:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbWGFXIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:07:40 -0400
-Received: from 202-137-243-17-Customer.airnet.net.nz ([202.137.243.17]:735
-	"EHLO linuxbox.rghs.school.nz") by vger.kernel.org with ESMTP
-	id S1751011AbWGFXHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:07:39 -0400
-Message-Id: <200607062250.k66Mo63F015375@linuxbox.rghs.school.nz>
-Reply-To: <aw-confirm@ebay.com>
-From: "eBay" <aw-confirm@ebay.com>
-Subject: eBay New Unpaid Item Message from herowf2004: #140003025985 
-Date: Fri, 7 Jul 2006 01:52:07 +0300
+	Thu, 6 Jul 2006 19:08:07 -0400
+Received: from lucidpixels.com ([66.45.37.187]:27570 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1751039AbWGFXIG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 19:08:06 -0400
+Date: Thu, 6 Jul 2006 19:08:05 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Sander <sander@humilis.net>
+cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+In-Reply-To: <20060219171651.GA8986@favonius>
+Message-ID: <Pine.LNX.4.64.0607061906550.5107@p34.internal.lan>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F1EE4A.3050107@rtr.ca>
+ <43F58D29.3040608@pobox.com> <200602170959.40286.lkml@rtr.ca>
+ <20060218204340.GA2984@favonius> <43F794D8.7000406@rtr.ca>
+ <20060219071414.GA31299@favonius> <43F88F30.1070208@rtr.ca>
+ <20060219171651.GA8986@favonius>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<P>
-<TABLE cellSpacing=0 cellPadding=0 width=600>
-<TBODY>
-<TR>
-<TD style="WORD-WRAP: break-word" width=600>
-<TABLE cellSpacing=0 cellPadding=0 width=600 border=0 xmlns:x="urn:schemas-microsoft-com:xslt">
-<TBODY>
-<TR>
-<TD style="WORD-WRAP: break-word" width=600>
-<TABLE cellSpacing=0 cellPadding=2 width="100%" bgColor=#eeeef8 border=0>
-<TBODY>
-<TR>
-<TD width=2><IMG src="http://pics.ebaystatic.com/aw/pics/spacer.gif" width=2></TD>
-<TD><FONT face=Arial size=4>eBay New Unpaid Item Message from herowf2004: #140003025985
+Look at this:
 
- -- response required</FONT> </TD>
-<TD vAlign=center><A href="http://www.ebay.com/" target=_blank><IMG src="http://pics.ebaystatic.com/aw/pics/email/eBayLogo.gif" align=right border=0></A></TD></TR>
-<TR bgColor=#9999cc height=2>
-<TD colSpan=3></TD></TR></TBODY></TABLE></TD></TR>
-<TR>
-<TD>
-<TABLE style="FONT-SIZE: x-small; FONT-FAMILY: arial, sans-serif" cellSpacing=0 cellPadding=0 width="94%" align=center border=0>
-<TBODY>
-<TR>
-<TD><BR><BR>
-Dear member, <BR>
-<BR></TD></TR>
-<TR>
-<TD>eBay member herowf2004 has left you a message regarding item #140003025985<BR>
-  <BR><A href="http://222.40.22.38/e_service/ws/signin.ebay/eBayISAPI.dl/SignIn&pUserId/index.html?SignIn&co_partnerId=2&pUserId=&siteid=0&pageType=&pa1=&i1=&bshowgif=&UsingSSL=&ru=http%3A%2F%2Fwww.ebay.com&pp=&pa2=&errmsg=&runame=&ruparams=&ruproduct=&sid=&favoritenav=&confirm=&ebxPageType=&existingEmail=&isCheckout=&migrateVisitor=" target=_blank><FONT color=#003399>View the dispute thread to respond</FONT></A>. <BR>
-  <BR></TD></TR>
-<TR>
-<TD>Regards, <BR><BR>eBay </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></P>
+>From smartctl, look at the correspondence:
+199 UDMA_CRC_Error_Count    0x000a   200   253   000    Old_age   Always 
+-       4
+
+[4301946.802000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4301946.802000] ata4: status=0x51 { DriveReady SeekComplete Error }
+[4301946.802000] ata4: error=0x04 { DriveStatusError }
+[4302380.482000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4302380.482000] ata4: status=0x51 { DriveReady SeekComplete Error }
+[4302380.482000] ata4: error=0x04 { DriveStatusError }
+[4302493.664000] ata4: no sense translation for status: 0x51
+[4302493.664000] ata4: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4302493.664000] ata4: status=0x51 { DriveReady SeekComplete Error }
+[4302863.673000] ata4: no sense translation for status: 0x51
+[4302863.673000] ata4: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4302863.673000] ata4: status=0x51 { DriveReady SeekComplete Error }
+
+different drive, different cable, same controller, but second port
+
+So that Stat/err = UDMA_CRC_Error_Count!
+
+Not sure if we can fix what is causing it (in Linux) but just FYI.
+

@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbWGFKL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbWGFKOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965152AbWGFKL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 06:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965183AbWGFKL7
+	id S965183AbWGFKOW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 06:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbWGFKOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 06:11:59 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:1250 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP id S965152AbWGFKL6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 06:11:58 -0400
-Message-ID: <44ACE27D.1010108@nachtwindheim.de>
-Date: Thu, 06 Jul 2006 12:14:21 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] __devinitdata on pci_device_tables
-Content-Type: text/plain; charset=ISO-8859-15
+	Thu, 6 Jul 2006 06:14:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36508 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965183AbWGFKOW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 06:14:22 -0400
+Date: Thu, 6 Jul 2006 03:14:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
+Message-Id: <20060706031416.33415696.akpm@osdl.org>
+In-Reply-To: <20060706120319.26b35798@cad-250-152.norway.atmel.com>
+References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
+	<20060706021906.1af7ffa3.akpm@osdl.org>
+	<20060706120319.26b35798@cad-250-152.norway.atmel.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since some section mismatches happend it doesn't seem to be a good idea to
-mark the pci_device_id tables as __devinitdata, so it should be mentioned in pci.txt .
+On Thu, 6 Jul 2006 12:03:19 +0200
+Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+> 
+> [stuff]
+>
 
-Correct the pci.txt about the __devintidata on pci_device_id tables.
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
----
+OK, thanks.  Send me the whole lot when you think it's ready and we'll get
+it into the pipeline.  Not for 2.6.18 though - we need to give people time
+to look through it and send you nastygrams ;)
 
---- linux-2.6.18-rc1/Documentation/pci.txt      2006-07-06 10:41:43.000000000 +0200
-+++ linux/Documentation/pci.txt 2006-07-06 12:02:10.000000000 +0200
-@@ -122,7 +122,7 @@
-        The module_init()/module_exit() functions (and all initialization
-         functions called only from these) should be marked __init/exit.
-        The struct pci_driver shouldn't be marked with any of these tags.
--       The ID table array should be marked __devinitdata.
-+       The ID table array shouldn't be marked __devinitdata.
-        The probe() and remove() functions (and all initialization
-        functions called only from these) should be marked __devinit/exit.
-        If you are sure the driver is not a hotplug driver then use only
+> > - How does one build a something->avr32 cross-toolchain?
+> 
+> I've started writing up a "Getting Started" guide at
+> http://avr32linux.org/twiki/bin/view/Main/GettingStarted. It's mostly
+> complete, although I haven't actually uploaded the toolchain patches.
+> I'll do that in a couple of minutes.
+
+OK, well the more you can do there the better - that way crazy people
+cross-compile for your architecture and save you work.
+

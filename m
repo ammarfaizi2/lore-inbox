@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWGFSFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWGFSI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbWGFSFP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 14:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWGFSFP
+	id S1750840AbWGFSI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 14:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWGFSI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 14:05:15 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:51322 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750820AbWGFSFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 14:05:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Reh9LiDJ4GTT0Zg6F5IGzNnxCc0mUiboF2GKo4VxZUyEJoD8PQ1P75wjuYw2PGafa3x3XMv0K2krZvLrQYf5P7R/zY/yekKsHNwNvvywbmsQ8R0Js1kHa7PYzk/RoZM8z3XAE1aDKdhrCE3dGvAWybhOVBHwaClSUkOJiRdbDlc=
-Message-ID: <9a8748490607061105r602afaa0l1132bba04f6ae663@mail.gmail.com>
-Date: Thu, 6 Jul 2006 20:05:12 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-Cc: kai@germaschewski.name, sam@ravnborg.org, linux-kernel@vger.kernel.org,
-       "Dave Jones" <davej@redhat.com>
-In-Reply-To: <20060706163728.GN26941@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jul 2006 14:08:29 -0400
+Received: from colin.muc.de ([193.149.48.1]:59141 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1750823AbWGFSI2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 14:08:28 -0400
+Date: 6 Jul 2006 20:08:26 +0200
+Date: Thu, 6 Jul 2006 20:08:26 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Doug Thompson <norsk5@yahoo.com>,
+       akpm@osdl.org, mm-commits@vger.kernel.org, norsk5@xmission.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch added to -mm tree
+Message-ID: <20060706180826.GA95795@muc.de>
+References: <20060704092358.GA13805@muc.de> <1152007787.28597.20.camel@localhost.localdomain> <20060704113441.GA26023@muc.de> <1152137302.6533.28.camel@localhost.localdomain> <20060705220425.GB83806@muc.de> <m1odw32rep.fsf@ebiederm.dsl.xmission.com> <20060706130153.GA66955@muc.de> <m18xn621i6.fsf@ebiederm.dsl.xmission.com> <20060706165159.GB66955@muc.de> <m18xn6zkx3.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060706163728.GN26941@stusta.de>
+In-Reply-To: <m18xn6zkx3.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/07/06, Adrian Bunk <bunk@stusta.de> wrote:
-> Currently, using an undeclared function gives a compile warning, but it
-> can lead to a nasty to debug runtime stack corruptions if the prototype
-> of the function is different from what gcc guessed.
->
-> With -Werror-implicit-function-declaration we are getting an immediate
-> compile error instead.
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
-Makes good sense. It gets my vote.
-Thanks Adrian.
+On Thu, Jul 06, 2006 at 11:46:00AM -0600, Eric W. Biederman wrote:
+> Andi Kleen <ak@muc.de> writes:
+> 
+> >> With EDAC on my next boot I get positive confirmation that I either
+> >> pulled the DIMM that the error happened on, or I pulled a different
+> >> DIMM.
+> >
+> > How? You simulate a new error and let EDAC resolve it?
+> 
+> No. There is a status report that tells you which pieces of hardware
+> your memory controller sees.  It is just a simple list.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Ok but that could be also done easily in user space that reads
+PCI config space. No need for a complicated kernel driver at all.
+
+> Isn't something that just works, and is not at the mercy of the BIOS
+> developers with too little time worth doing?
+
+I just don't see how it's very useful if you don't know which DIMM
+to replace in the first place. And to know that in your scheme you need
+your magical database with all motherboards ever shipped, which
+I don't consider realistic.
+
+-Andi
+

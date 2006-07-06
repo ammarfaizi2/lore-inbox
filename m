@@ -1,60 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWGFTDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWGFTGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWGFTDW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 15:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWGFTDW
+	id S1750746AbWGFTGO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 15:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWGFTGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 15:03:22 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:27363 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S1750733AbWGFTDV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 15:03:21 -0400
-Message-ID: <44AD5E5C.6070703@colorfullife.com>
-Date: Thu, 06 Jul 2006 21:02:52 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
-X-Accept-Language: en-us, en
+	Thu, 6 Jul 2006 15:06:14 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:38157 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1750724AbWGFTGN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 15:06:13 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.17-mm6
+Date: Thu, 6 Jul 2006 20:06:38 +0100
+User-Agent: KMail/1.9.3
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20060703030355.420c7155.akpm@osdl.org> <200607052332.13028.s0348365@sms.ed.ac.uk> <1152207073.24656.127.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1152207073.24656.127.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: Michael Kerrisk <mtk-manpages@gmx.net>, mtk-lkml@gmx.net, rlove@rlove.org,
-       roland@redhat.com, eggert@cs.ucla.edu, paire@ri.silicomp.fr,
-       torvalds@osdl.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       michael.kerrisk@gmx.net
-Subject: Re: Strange Linux behaviour with blocking syscalls and stop signals+SIGCONT
-References: <44A92DC8.9000401@gmx.net> <44AABB31.8060605@colorfullife.com> <20060706092328.320300@gmx.net> <44AD599D.70803@colorfullife.com> <44AD5CB6.7000607@redhat.com>
-In-Reply-To: <44AD5CB6.7000607@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607062006.38816.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-
->Manfred Spraul wrote:
->  
+On Thursday 06 July 2006 18:31, john stultz wrote:
+> On Wed, 2006-07-05 at 23:32 +0100, Alistair John Strachan wrote:
+> > On Wednesday 05 July 2006 21:46, Greg KH wrote:
+> > > On Wed, Jul 05, 2006 at 01:37:13PM -0700, john stultz wrote:
+> > > > On Tue, 2006-07-04 at 01:49 -0700, Andrew Morton wrote:
+> > > > > On Tue, 4 Jul 2006 09:34:14 +0100
+> > > > >
+> > > > > Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > > > > > > a tested version...
+> > > > > >
+> > > > > > This one worked, thanks. Try the same URL again, I've uploaded
+> > > > > > two better shots 6,7 that capture the first oops. Unfortunately,
+> > > > > > I have a pair of oopses that interchange every couple of boots,
+> > > > > > so I've included both ;-)
+> > > > >
+> > > > > OK, that's more like it.  Thanks again.
+> > > > >
+> > > > > http://devzero.co.uk/~alistair/oops-20060703/oops6.jpg
+> > > > > http://devzero.co.uk/~alistair/oops-20060703/oops7.jpg
+> > > > >
+> > > > > People cc'ed.  Help!
+> > > >
+> > > > Hmmm. No clue on this one from just looking at it.
+> > > >
+> > > > Greg, do you see anything wrong with the way I'm registering the
+> > > > timekeeping .resume hook in
+> > > > kernel/timer.c::timekeeping_init_device()? It looks the same as the
+> > > > other users to me.
+> > >
+> > > At first glance, no, it looks sane to me.
+> > >
+> > > Are you sure you aren't registering two things with the same name
+> > > somehow?
 >
->>1) I would go further and try ERESTARTSYS: ERESTARTSYS means that the
->>kernel signal handler honors SA_RESTART
->>2) At least for the futex functions, it won't be as easy as replacing
->>EINTR wiht ERESTARTSYS: the futex functions receive a timeout a the
->>parameter, with the duration of the wait call as a parameter. You must
->>use ERESTART_RESTARTBLOCK.
->>    
->>
+> Looking at it, I don't see how that could happen.
 >
->Whoa, not so fast.  At least the futex syscall but be interruptible by
->signals.  It is crucial to return EINTR.
+> > Whatever it is, it doesn't happen every time. Sometimes the kernel boots.
 >
->  
->
-Yes, of course.
-ERESTARTSYS means honor SA_RESTART.
-EINTR means return from the syscall, even if SA_RESTART is set in the 
-signal handler.
+> Odd. Does this happen w/ 2.6.18-rc1?
 
-Is it necessary that the futex syscall ignores SA_RESTART?
+Seems to. First time it booted okay, but wouldn't let me log in (worse 
+than -mm), I got the following:
 
---
-    Manfred
+http://devzero.co.uk/~alistair/oops-20060703/lockup1.jpg
 
+Second time it didn't boot properly, with a similar oops to the others.
 
+I used the following config for 2.6.18-rc1, which should be very similar, but 
+not identical.
+
+http://devzero.co.uk/~alistair/oops-20060703/config-2.6.18-rc1
+
+I'm about to try a kernel without the lockdep stuff, then I'm going to start 
+bisection pain.
+
+-- 
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

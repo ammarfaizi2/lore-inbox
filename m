@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbWGFXZB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWGFX3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbWGFXZB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:25:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbWGFXZB
+	id S1751048AbWGFX3s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 19:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWGFX3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:25:01 -0400
-Received: from relay02.pair.com ([209.68.5.16]:45831 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S1751038AbWGFXZA (ORCPT
+	Thu, 6 Jul 2006 19:29:47 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:29920 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S1751043AbWGFX3r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:25:00 -0400
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: Linux 2.6.17.4
-Date: Thu, 6 Jul 2006 18:24:23 -0500
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-References: <20060706222704.GB2946@kroah.com> <20060706222841.GD2946@kroah.com>
-In-Reply-To: <20060706222841.GD2946@kroah.com>
-Organization: Clientec, Inc.
+	Thu, 6 Jul 2006 19:29:47 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: linux-acpi@vger.kernel.org
+Subject: [ANNOUNCE] pnputils-0.1
+Date: Thu, 6 Jul 2006 17:29:42 -0600
+User-Agent: KMail/1.8.3
+Cc: David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607061824.46990.chase.venters@clientec.com>
+Message-Id: <200607061729.42210.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 July 2006 17:28, Greg KH wrote:
->  		case PR_SET_DUMPABLE:
-> -			if (arg2 < 0 || arg2 > 2) {
-> +			if (arg2 < 0 || arg2 > 1) {
->  				error = -EINVAL;
->  				break;
->  			}
+There used to be an "lspnp" buried in the pcmcia-cs package.  That
+package seems to be obsolete, and it's now a strange place for PNP
+utilities anyway.
 
-Am I staring at this crooked, or not looking deep enough? My manual page for 
-prctl says 2 is valid there. Specifically:
+So I pulled out lspnp and setpnp from pcmcia-cs and put them together
+in a little "pnputils" package.
 
-              Since  kernel 2.6.13, the value 2 is also permitted; this causes
-              any binary which normally would not be dumped to be dumped read-
-              able   by   root   only.    (See   also   the   description   of
-              /proc/sys/fs/suid_dumpable in proc(5).)
+I also extended it slightly, so lspnp will work for ISAPNP and
+PNPACPI devices in addition to PNPBIOS, and added a few PNP device
+IDs.  setpnp still only works for PNPBIOS.
 
-...has something changed, and my manpages don't reflect it? Did I miss a 
-conversation about this?
-
-Thanks,
-Chase
+ftp://ftp.kernel.org/pub/linux/kernel/people/helgaas/pnputils-0.1.tar.gz

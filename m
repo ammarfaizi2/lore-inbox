@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWGFShZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWGFSjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWGFShZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 14:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWGFShZ
+	id S1750763AbWGFSjl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 14:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWGFSjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 14:37:25 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:5730 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750723AbWGFShY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 14:37:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Rgh53rT7PmOVjnspeCnXrGPTuZWkGbPUP4gieIdZWK4GeEvJSub76LsGr1aHJ314bZylZKVAetTAZaf6E48qVUrYGG5rfMJ4zX+ZtCJaFwS7Mm7q9YVoO5WgEWNt1WkhEw2mhwtW93gfmM3PVPRmLrnN2WkW001dZgon7+LW+mg=
-Message-ID: <d120d5000607061137r605a08f9ie6cd45a389285c4a@mail.gmail.com>
-Date: Thu, 6 Jul 2006 14:37:22 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Dave Jones" <davej@redhat.com>, arjan@infradead.org, mingo@redhat.com,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: lockdep input layer warnings.
-In-Reply-To: <20060706173411.GA2538@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 6 Jul 2006 14:39:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21198 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750754AbWGFSjk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 14:39:40 -0400
+Date: Thu, 6 Jul 2006 11:39:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: dhowells@redhat.com, torvalds@osdl.org, bernds_cb1@t-online.de,
+       sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/6] FRV: Fix FRV arch compile errors [try #3]
+Message-Id: <20060706113922.ac32eff3.akpm@osdl.org>
+In-Reply-To: <25855.1152210303@warthog.cambridge.redhat.com>
+References: <20060706103134.197c8679.akpm@osdl.org>
+	<20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
+	<20060706124721.7098.50514.stgit@warthog.cambridge.redhat.com>
+	<25855.1152210303@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060706173411.GA2538@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/6/06, Dave Jones <davej@redhat.com> wrote:
-> One of our Fedora-devel users picked up on this this morning
-> in an 18rc1 based kernel.
->
->                Dave
->
->
->  Synaptics Touchpad, model: 1, fw: 5.9, id: 0x2c6ab1, caps: 0x884793/0x0
->  serio: Synaptics pass-through port at isa0060/serio1/input0
->  input: SynPS/2 Synaptics TouchPad as /class/input/input1
->  PM: Adding info for serio:serio2
->
->  =============================================
->  [ INFO: possible recursive locking detected ]
->  ---------------------------------------------
+On Thu, 06 Jul 2006 19:25:03 +0100
+David Howells <dhowells@redhat.com> wrote:
 
-False alarm, there was a lockdep annotating patch for it in -mm.
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > - The __init-style tags on declarations don't actually do anything and
+> >   the compiler doesn't check for consistency with the definition - it's
+> >   best to just omit it from the declaration.
+> 
+> Well, you're wrong.  They *do* do something.  They stop the compiler using the
+> register-relative addressing reserved for small data.  If this isn't in there,
+> then the linker will spit out a relocation error.
 
--- 
-Dmitry
+Sigh.  So if we get this wrong (and we have, and we shall) then the error
+gets silently accepted by the toolchain until someone comes along and tries
+to link it on FVR.
+
+Is there anything we can do about that?  Mangling the names with some macro
+isn't attractive.  Teach sparse about it?  Dunno.
+
+Right now we're showing a grand total of two identifiers tagged with
+__initdata in all of include/.  Why isn't FRV blowing up all over the
+place?  Is there something about nr_kernel_pages which made us get unlucky?

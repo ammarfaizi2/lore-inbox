@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbWGFWjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWGFWju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750979AbWGFWjg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 18:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWGFWjg
+	id S1750977AbWGFWju (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 18:39:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWGFWjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 18:39:36 -0400
-Received: from gate.crashing.org ([63.228.1.57]:57318 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750831AbWGFWjg (ORCPT
+	Thu, 6 Jul 2006 18:39:49 -0400
+Received: from postel.suug.ch ([194.88.212.233]:41363 "EHLO postel.suug.ch")
+	by vger.kernel.org with ESMTP id S1750976AbWGFWjs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 18:39:36 -0400
-Subject: Re: [PATCH 38 of 39] IB/ipath - More changes to support InfiniPath
-	on PowerPC 970 systems
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <c22b6c244d5db77f7b1d.1151617289@eng-12.pathscale.com>
-References: <c22b6c244d5db77f7b1d.1151617289@eng-12.pathscale.com>
-Content-Type: text/plain
-Date: Fri, 07 Jul 2006 08:37:01 +1000
-Message-Id: <1152225421.9862.12.camel@localhost.localdomain>
+	Thu, 6 Jul 2006 18:39:48 -0400
+Date: Fri, 7 Jul 2006 00:40:09 +0200
+From: Thomas Graf <tgraf@suug.ch>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nagar@watson.ibm.com, jlan@sgi.com, pj@sgi.com, Valdis.Kletnieks@vt.edu,
+       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
+       hadi@cyberus.ca, netdev@vger.kernel.org
+Subject: Re: [PATCH] per-task delay accounting taskstats interface: control exit data through cpumasks]
+Message-ID: <20060706224009.GA14627@postel.suug.ch>
+References: <44ACD7C3.5040008@watson.ibm.com> <20060706025633.cd4b1c1d.akpm@osdl.org> <1152185865.5986.15.camel@localhost.localdomain> <20060706120835.GY14627@postel.suug.ch> <20060706144808.1dd5fadf.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060706144808.1dd5fadf.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Andrew Morton <akpm@osdl.org> 2006-07-06 14:48
+> In the interests of keeping this work decoupled from netlink enhancements
+> I'd propose the below.  Is it bad to modify the data at nla_data()?
 
-> +#if defined(__powerpc__)
-> +	/* There isn't a generic way to specify writethrough mappings */
-> +	pgprot_val(vma->vm_page_prot) |= _PAGE_NO_CACHE;
-> +	pgprot_val(vma->vm_page_prot) |= _PAGE_WRITETHRU;
-> +	pgprot_val(vma->vm_page_prot) &= ~_PAGE_GUARDED;
-> +#endif
+Yes, it points into a skb data buffer which may be shared by sitting
+on other queues if the message is to be broadcasted. In this case it
+would be harmless but the policy is to leave it unmodified. Otherwise
+I agree it's better to move forward and not wait for the API change.
 
-I don't see any case where having both NO_CACHE and WRITE_THRU can be
-legal... It's one or the other.
-
-> +/**
-> + * ipath_unordered_wc - indicate whether write combining is ordered
-> + *
-> + * PowerPC systems (at least those in the 970 processor family)
-> + * write partially filled store buffers in address order, but will write
-> + * completely filled store buffers in "random" order, and therefore must
-> + * have serialization for correctness with current InfiniPath chips.
-> + *
-> + */
-> +int ipath_unordered_wc(void)
+> --- a/kernel/taskstats.c~per-task-delay-accounting-taskstats-interface-control-exit-data-through-cpumasks-fix
+> +++ a/kernel/taskstats.c
+> @@ -299,6 +299,23 @@ cleanup:
+>  	return 0;
+>  }
+>  
+> +static int parse(struct nlattr *na, cpumask_t *mask)
 > +{
-> +	return 1;
+> +	char *data;
+> +	int len;
+> +
+> +	if (na == NULL)
+> +		return 1;
+> +	len = nla_len(na);
+> +	if (len > TASKSTATS_CPUMASK_MAXLEN)
+> +		return -E2BIG;
+> +	if (len < 1)
+> +		return -EINVAL;
+> +	data = nla_data(na);
+> +	data[len - 1] = '\0';
+> +	return cpulist_parse(data, *mask);
 > +}
 
-How is the above providing any kind of serialisation ?
+Usually this is done by using strlcpy:
 
-Ben.
+Example fro genetlink.c
+if (info->attrs[CTRL_ATTR_FAMILY_NAME]) {
+	char name[GENL_NAMSIZ];
 
+	if (nla_strlcpy(name, info->attrs[CTRL_ATTR_FAMILY_NAME],
+			GENL_NAMSIZ) >= GENL_NAMSIZ)
+		goto errout;
 
+	res = genl_family_find_byname(name);
+}

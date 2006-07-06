@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWGFVNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWGFVNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWGFVNW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 17:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWGFVNV
+	id S1750867AbWGFVNf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 17:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWGFVNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 17:13:21 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45573 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750866AbWGFVNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 17:13:21 -0400
-Date: Thu, 6 Jul 2006 23:13:20 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: xfs-masters@oss.sgi.com
-Cc: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: fs/xfs/xfs_vnodeops.c:xfs_readdir(): NULL variable dereferenced
-Message-ID: <20060706211320.GW26941@stusta.de>
-MIME-Version: 1.0
+	Thu, 6 Jul 2006 17:13:35 -0400
+Received: from mga05.intel.com ([192.55.52.89]:16904 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750867AbWGFVNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 17:13:33 -0400
+X-IronPort-AV: i="4.06,214,1149490800"; 
+   d="scan'208"; a="94285378:sNHT38340316"
+Date: Thu, 6 Jul 2006 14:06:13 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com
+Subject: Re: cpuinfo_x86 and apicid
+Message-ID: <20060706140613.B13512@unix-os.sc.intel.com>
+References: <20060706150118.GB10110@frankl.hpl.hp.com> <20060706091930.A13512@unix-os.sc.intel.com> <20060706200031.GA10685@frankl.hpl.hp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060706200031.GA10685@frankl.hpl.hp.com>; from eranian@hpl.hp.com on Thu, Jul 06, 2006 at 01:00:31PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted the following:
+On Thu, Jul 06, 2006 at 01:00:31PM -0700, Stephane Eranian wrote:
+> On Thu, Jul 06, 2006 at 09:19:30AM -0700, Siddha, Suresh B wrote:
+> > On Thu, Jul 06, 2006 at 08:01:18AM -0700, Stephane Eranian wrote:
+> > > Hello,
+> > > 
+> > > 
+> > > In the context of the perfmon2 subsystem for processor with HyperThreading,
+> > > we need to know on which thread we are currently running. This comes from
+> > > the fact that the performance counters are shared between the two threads.
+> > > 
+> > > We use the thread id (smt_id) because we split the counters in half
+> > > between the two threads such that two threads on the same core can run
+> > > with monitoring on.  We are currently computing the smt_id from the
+> > > apicid as returned by a CPUID instruction. This is not very efficient.
+> > > 
+> > > I looked through the i386 code and could not find a function nor 
+> > > structure that would return this smt_id. In the cpuinfo_x86 structure
+> > > there is an apicid field that looks good, yet it does not seem to be
+> > > initialized nor used.
+> > > 
+> > > Is cpuinfo_x86->apicid field obsolete? 
+> > > If so, what is replacing it?
+> > 
+> > In i386, it is getting initialized in generic_identify() in common.c and
+> > it is getting used for example in intel_cacheinfo.c
+> > 
+> Well, yes this is exactly what I want, except that it is not compiled for x86_64
+> so on a HT Xeon in 64-bit I don't get it. Why is that?
 
-<--  snip  -->
+on x86_64, it is getting initialized in identify_cpu() and further
+intel_cacheinfo.c gets linked in both i386 and x86_64.
 
-...
-STATIC int
-xfs_readdir(
-        bhv_desc_t      *dir_bdp,
-        uio_t           *uiop,
-        cred_t          *credp,
-        int             *eofp)
-{
-        xfs_inode_t     *dp;
-        xfs_trans_t     *tp = NULL;
-        int             error = 0;
-        uint            lock_mode;
-
-        vn_trace_entry(BHV_TO_VNODE(dir_bdp), __FUNCTION__,
-                                               (inst_t *)__return_address);
-        dp = XFS_BHVTOI(dir_bdp);
-
-        if (XFS_FORCED_SHUTDOWN(dp->i_mount))
-                return XFS_ERROR(EIO);
-
-        lock_mode = xfs_ilock_map_shared(dp);
-        error = xfs_dir_getdents(tp, dp, uiop, eofp);
-        xfs_iunlock_map_shared(dp, lock_mode);
-        return error;
-}
-...
-
-<--  snip  -->
-
-Note that tp is never assigned any value other than NULL (and the 
-Coverity checker found a way how tp might be dereferenced four function 
-calls later).
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+thanks,
+suresh

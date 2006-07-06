@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWGFX5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWGGABe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWGFX5y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWGFX5x
+	id S1750880AbWGGABe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 20:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWGGABe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:57:53 -0400
-Received: from relay02.pair.com ([209.68.5.16]:9232 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S1751093AbWGFX5w (ORCPT
+	Thu, 6 Jul 2006 20:01:34 -0400
+Received: from ns.suse.de ([195.135.220.2]:38083 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750880AbWGGABd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:57:52 -0400
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-To: Willy Tarreau <w@1wt.eu>
-Subject: Re: Linux 2.6.17.4
-Date: Thu, 6 Jul 2006 18:57:25 -0500
-User-Agent: KMail/1.9.3
-Cc: Greg KH <gregkh@suse.de>, "Scott J. Harmon" <harmon@ksu.edu>,
-       linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-References: <20060706222704.GB2946@kroah.com> <20060706224614.GA3520@suse.de> <20060706234918.GB2037@1wt.eu>
-In-Reply-To: <20060706234918.GB2037@1wt.eu>
-Organization: Clientec, Inc.
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jul 2006 20:01:33 -0400
+Date: Thu, 6 Jul 2006 16:57:45 -0700
+From: Greg KH <greg@kroah.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Implement class_device_update_dev() function
+Message-ID: <20060706235745.GA13548@kroah.com>
+References: <1152226792.29643.8.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607061857.49153.chase.venters@clientec.com>
+In-Reply-To: <1152226792.29643.8.camel@localhost>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 July 2006 18:48, Willy Tarreau wrote:
-> Interestingly, 2.4 tests (arg2 !=0 && arg2 != 1) so from the code changes
-> above, it looks like the value 2 was added on purpose, but for what ? Maybe
-> the fix is not really correct yet ?
+On Fri, Jul 07, 2006 at 12:59:52AM +0200, Marcel Holtmann wrote:
+> Hi Greg,
+> 
+> for the Bluetooth subsystem integration into the driver model it is
+> required that we can update the device of a class device at any time.
 
-Hence the source of my curiosity. My prctl() manpage says that 2 makes a core 
-that is only readable by root.
+You can?  Ick.
 
-       PR_SET_DUMPABLE
-              (Since  Linux 2.4) Set the state of the flag determining whether
-              core dumps are produced for this process upon delivery of a sig-
-              nal  whose  default  behaviour is to produce a core dump.  (Nor-
-              mally this flag is set for a  process  by  default,  but  it  is
-              cleared  when  a set-user-ID or set-group-ID program is executed
-              and also by various system calls that  manipulate  process  UIDs
-              and  GIDs).  In kernels up to and including 2.6.12, arg2 must be
-              either 0 (process is not dumpable) or 1 (process  is  dumpable).
-              Since  kernel 2.6.13, the value 2 is also permitted; this causes
-              any binary which normally would not be dumped to be dumped read-
-              able   by   root   only.    (See   also   the   description   of
-              /proc/sys/fs/suid_dumpable in proc(5).)
+That messes with my "get rid of struct class_device" plans a bit...
 
-> Cheers,
-> Willy
+> For the RFCOMM TTY device for example we create the TTY device and only
+> when it got opened we create the Bluetooth connection. Once this new
+> connection has been created we have a device to attach to the class
+> device of the TTY.
+> 
+> I came up with the attached patch and it worked fine with the Bluetooth
+> RFCOMM layer.
 
-Thanks,
-Chase
+But userspace should also find out about this change, and this patch
+prevents that from happening.  What about just tearing down the class
+device and creating a new one?  That way userspace knows about the new
+linkage properly, and any device naming and permission issues can be
+handled anew?
+
+thanks,
+
+greg k-h

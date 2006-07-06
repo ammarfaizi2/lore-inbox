@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWGFMBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWGFMH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWGFMBN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 08:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWGFMBM
+	id S932156AbWGFMH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 08:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWGFMH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 08:01:12 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51677 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030223AbWGFMBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 08:01:12 -0400
-Subject: Re: [patch] spinlocks: remove 'volatile'
-From: Arjan van de Ven <arjan@infradead.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
-References: <20060705114630.GA3134@elte.hu>
-	 <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu>
-	 <20060705131824.52fa20ec.akpm@osdl.org>
-	 <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
-	 <20060705204727.GA16615@elte.hu>
-	 <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
-	 <20060705214502.GA27597@elte.hu>
-	 <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
-	 <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
-	 <20060706081639.GA24179@elte.hu>
-	 <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
+	Thu, 6 Jul 2006 08:07:29 -0400
+Received: from www.osadl.org ([213.239.205.134]:65155 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932156AbWGFMH2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 08:07:28 -0400
+Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+In-Reply-To: <20060706135027.140c6f8c@cad-250-152.norway.atmel.com>
+References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
+	 <20060706021906.1af7ffa3.akpm@osdl.org>
+	 <20060706120319.26b35798@cad-250-152.norway.atmel.com>
+	 <1152185425.24611.140.camel@localhost.localdomain>
+	 <20060706135027.140c6f8c@cad-250-152.norway.atmel.com>
 Content-Type: text/plain
-Date: Thu, 06 Jul 2006 14:01:07 +0200
-Message-Id: <1152187268.3084.29.camel@laptopd505.fenrus.org>
+Date: Thu, 06 Jul 2006 14:10:07 +0200
+Message-Id: <1152187808.24611.142.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-06 at 07:59 -0400, linux-os (Dick Johnson) wrote:
-> On Thu, 6 Jul 2006, Ingo Molnar wrote:
+On Thu, 2006-07-06 at 13:50 +0200, Haavard Skinnemoen wrote:
+> On Thu, 06 Jul 2006 13:30:25 +0200
+> Thomas Gleixner <tglx@linutronix.de> wrote:
 > 
-> >
-> > * Linus Torvalds <torvalds@osdl.org> wrote:
-> >
-> >> I wonder if we should remove the "volatile". There really isn't
-> >> anything _good_ that gcc can do with it, but we've seen gcc code
-> >> generation do stupid things before just because "volatile" seems to
-> >> just disable even proper normal working.
+> > On Thu, 2006-07-06 at 12:03 +0200, Haavard Skinnemoen wrote: 
+> > > > Looks pretty sane from a quick scan.
+> > > > 
+> > > > - request_irq() can use GFP_KERNEL?
+> > > 
+> > > Probably, but the genirq implementation also uses GFP_ATOMIC.
+> > 
+> > Is there a good reason, why AVR32 needs its own interrupt handling
+> > implementation ?
 > 
-> Then GCC must be fixed. The keyword volatile is correct. It should
-> force the compiler to read the variable every time it's used.
+> No, not really. At least not after the genirq stuff went in. I used to
+> be a bit concerned about the generic irq code being too heavyweight,
+> but I think handle_simple_irq() might be just what we need for
+> chip-internal interrupt handling.
+> 
+> > >From a short glance there's nothing which can not be handled by the
+> > generic code. Also there are a couple of things missing -e.g.
+> > recursive enable/disable_irq() handling. 
+> 
+> You're probably right. I'll see if I can get it converted to genirq
+> one of the next days.
 
-this is not really what the C standard says.
+Good. If there are any questions or things you find missing, don't
+hesitate to ask.
 
-
-
-> This is not pointless. If GCC generates bad code, tell the
-> GCC people. The volatile keyword is essential.
-
-no the "volatile" semantics are vague, trecherous and evil. It's a LOT
-better to insert the well defined "barrier()" in the right places.
+	tglx
 
 

@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWGFGjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWGFGlT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030221AbWGFGjH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 02:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWGFGjH
+	id S1030211AbWGFGlT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 02:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWGFGlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 02:39:07 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:11673 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030221AbWGFGjF
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 02:39:05 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
+	Thu, 6 Jul 2006 02:41:19 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40877 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030211AbWGFGlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 02:41:18 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: kmannth@gmail.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       tglx@linutronix.de, Natalie.Protasevich@UNISYS.com
+Subject: Re: 2.6.17-mm6
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
+	<20060705155037.7228aa48.akpm@osdl.org>
+	<a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com>
+	<20060705164457.60e6dbc2.akpm@osdl.org>
+	<20060705164820.379a69ba.akpm@osdl.org>
+	<a762e240607051705h33952e5elf6bd09c1ccea8ab4@mail.gmail.com>
+	<20060705172545.815872b6.akpm@osdl.org>
+	<m1u05v2st3.fsf@ebiederm.dsl.xmission.com>
+	<20060705225905.53e61ca0.akpm@osdl.org>
+Date: Thu, 06 Jul 2006 00:40:31 -0600
+In-Reply-To: <20060705225905.53e61ca0.akpm@osdl.org> (Andrew Morton's message
+	of "Wed, 5 Jul 2006 22:59:05 -0700")
+Message-ID: <m1fyhf2q3k.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17580.44771.974069.737756@gargle.gargle.HOWL>
-Date: Thu, 6 Jul 2006 10:34:11 +0400
-To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-Cc: "Bret Towe" <magnade@gmail.com>,
-       "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh entirely
-In-Reply-To: <B41635854730A14CA71C92B36EC22AAC06CFE8@mssmsx411>
-References: <B41635854730A14CA71C92B36EC22AAC06CFE8@mssmsx411>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ananiev, Leonid I writes:
- > Nikita Danilov writes:
- > > Some people do, should they suffer? :-)
- > You - yes. You have used that example as an argument incorrectly.
+Andrew Morton <akpm@osdl.org> writes:
 
-You are inhumane. :-) What is incorrect in assuming people may have many
-devices?
+> On Wed, 05 Jul 2006 23:42:00 -0600
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+>
+>> So I suspect that we need to de-percpuify kernel_stat.irqs.
+>
+> I think so.  We do:
+>
+> 	struct irq_desc *desc = irq_desc + irq;
+>
+> 	kstat_this_cpu.irqs[irq]++;
+>
+> followed immediately by
+>
+> 	spin_lock(&desc->lock);
+>
+> false optimisation, or what?
 
- > 
- > > Not _all_, only nr_to_write of them
- > 	Yes. User thread writes all dirty pages in the system calling
 
-No. User thread will not write _all_ dirty pages (if it does---it's a
-bug in the current code and should be fixed):
+As an optimization  I can't think of a reason.
 
-balance_dirty_pages():
-			if (pages_written >= write_chunk)
-				break;		/* We've done our duty */
+It is kind of interesting to report that information by cpu.
+in /proc/interrupts  (see show_interrupts).
 
-writeback_inodes():
-		if (wbc->nr_to_write <= 0)
-			break;
+But except for understanding system behavior I can't think of a reason
+for reporting that information.
 
-sync_sb_inodes():
-		if (wbc->nr_to_write <= 0)
-			break;
+It was useful information to have when debugging the irq migration code.
 
-mpage_writepages():
-			if (ret || (--(wbc->nr_to_write) <= 0))
-				done = 1;
+Eric
 
-Everywhere down call-chain ->nr_to_write is checked.
-
- > writeback_inodes() and after it tests
- > 			if (pages_written >= write_chunk)
-
-[rants skipped.]
-
- > 
- > Leonid
-
-Nikita.

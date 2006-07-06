@@ -1,228 +1,291 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbWGFC4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbWGFC6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965146AbWGFC4i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 22:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965145AbWGFC4i
+	id S965140AbWGFC6S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 22:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbWGFC6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 22:56:38 -0400
-Received: from wx-out-0102.google.com ([66.249.82.196]:42475 "EHLO
+	Wed, 5 Jul 2006 22:58:18 -0400
+Received: from wx-out-0102.google.com ([66.249.82.192]:43838 "EHLO
 	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965143AbWGFC4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 22:56:37 -0400
+	id S965140AbWGFC6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 22:58:17 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=YaIFMxZa56mDn0H21I5jUpiYru+Fu6ut2xPkcDB32kT69GH+4b9E3d97CVVzg5kLH0cV9bIsJ4KydPAulWuLTr0PB6y9/X/UPs13aUXiThxwGlaaKikOpLNH2Gk3O4GuCWnqI1hHfj5WXzVPMB8k1S3aqy3/m1+GW0HCRyEVAZc=
-Date: Wed, 5 Jul 2006 22:56:35 -0400
+        b=aQ9aE5Hta19EhV93xQ8ezOXcrUiGM+GFrq6HoScqqYGpuiZLC+QyZ0hFspW06/TYbOj23rowJUhKH5GrqIks27PfkljIztPk6E77lvowwUf1GV+6k8/nFTSTTRhkjswbJC5b63JR33XhJZsHK8ji+1hgK66z3Rsw6lDlkZKvfKg=
+Date: Wed, 5 Jul 2006 22:58:15 -0400
 From: Thomas Tuttle <thinkinginbinary@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: PATCH: Create new LED trigger for CPU activity (ledtrig-cpu)
-Message-ID: <20060706025635.GA25835@phoenix>
+Subject: PATCH: Integrate asus_acpi LED's with new LED subsystem
+Message-ID: <20060706025815.GB25835@phoenix>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
+	protocol="application/pgp-signature"; boundary="BI5RvnYi6R4T2M87"
 Content-Disposition: inline
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---qlTNgmc+xy1dBmNv
-Content-Type: multipart/mixed; boundary="0F1p//8PRICkK4MW"
+--BI5RvnYi6R4T2M87
+Content-Type: multipart/mixed; boundary="Clx92ZfkiYIKRjnr"
 Content-Disposition: inline
 
 
---0F1p//8PRICkK4MW
+--Clx92ZfkiYIKRjnr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-I'd like to apologize profusely for the incompetence of my previous
-mailer.  Rest assured, the programmers responsible will be sacked, if I
-ever meet them.
+Again... I'm sorry, Gmail sucks, here's a plain text version against
+2.6.17-git25.
 
-Here's a version that's plain text, and against 2.6.17-git25.  It *should*
-simply be a plain text MIME attachment.
-
-I'd appreciate any comments, now that you can read my patch. :-\
+Comments are happily accepted.
 
 Thanks,
 
 Thomas Tuttle
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ledtrig-cpu.patch"
+--Clx92ZfkiYIKRjnr
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: attachment; filename="asus-acpi-led-subsystem.patch"
 Content-Transfer-Encoding: quoted-printable
 
-diff -udrN linux-2.6.17-git25/drivers/leds/Kconfig linux-2.6.17-git25-mine/=
-drivers/leds/Kconfig
---- linux-2.6.17-git25/drivers/leds/Kconfig	2006-07-05 22:11:45.000000000 -=
-0400
-+++ linux-2.6.17-git25-mine/drivers/leds/Kconfig	2006-07-05 22:42:58.000000=
-000 -0400
-@@ -93,6 +93,41 @@
- 	  This allows LEDs to be controlled by IDE disk activity.
- 	  If unsure, say Y.
+diff -udrN linux-2.6.17-git25/drivers/acpi/asus_acpi.c linux-2.6.17-git25-m=
+ine/drivers/acpi/asus_acpi.c
+--- linux-2.6.17-git25/drivers/acpi/asus_acpi.c	2006-07-05 22:11:37.0000000=
+00 -0400
++++ linux-2.6.17-git25-mine/drivers/acpi/asus_acpi.c	2006-07-05 22:26:51.00=
+0000000 -0400
+@@ -27,14 +27,19 @@
+  *  Johann Wiesner - Small compile fixes
+  *  John Belmonte  - ACPI code for Toshiba laptop was a good starting poin=
+t.
+  *  =EF=BF=BDric Burghard  - LED display support for W1N
++ *  Thomas Tuttle  - LED subsystem integration
+  *
+  */
 =20
-+config LEDS_TRIGGER_CPU
-+	tristate "LED CPU Trigger"
-+	depends LEDS_TRIGGERS
-+	help
-+	  This allows LEDs to be controlled by CPU activity.
-+	  If unsure, say Y.
-+
-+config LEDS_TRIGGER_CPU_INCLUDE_USER
-+	bool "Include user time in CPU trigger"
-+	depends LEDS_TRIGGER_CPU
-+	default y
-+	help
-+	  This option makes user CPU time cause the CPU trigger to activate.
-+
-+config LEDS_TRIGGER_CPU_INCLUDE_NICE
-+	bool "Include nice time in CPU trigger"
-+	depends LEDS_TRIGGER_CPU
-+	default n
-+	help
-+	  This option makes nice CPU time cause the CPU trigger to activate.
-+
-+config LEDS_TRIGGER_CPU_INCLUDE_SYSTEM
-+	bool "Include system time in CPU trigger"
-+	depends LEDS_TRIGGER_CPU
-+	default y
-+	help
-+	  This option makes system CPU time cause the CPU trigger to activate.
-+
-+config LEDS_TRIGGER_CPU_INCLUDE_IOWAIT
-+	bool "Include iowait time in CPU trigger"
-+	depends LEDS_TRIGGER_CPU
-+	default n
-+	help
-+	  This option makes iowait CPU time cause the CPU trigger to activate.
-+
- config LEDS_TRIGGER_HEARTBEAT
- 	tristate "LED Heartbeat Trigger"
- 	depends LEDS_TRIGGERS
-diff -udrN linux-2.6.17-git25/drivers/leds/ledtrig-cpu.c linux-2.6.17-git25=
--mine/drivers/leds/ledtrig-cpu.c
---- linux-2.6.17-git25/drivers/leds/ledtrig-cpu.c	1969-12-31 19:00:00.00000=
-0000 -0500
-+++ linux-2.6.17-git25-mine/drivers/leds/ledtrig-cpu.c	2006-07-05 22:42:38.=
-000000000 -0400
-@@ -0,0 +1,87 @@
-+/*
-+ * LED CPU Activity Trigger
-+ *
-+ * Copyright 2006 Thomas Tuttle
-+ *
-+ * Author: Thomas Tuttle <thinkinginbinary@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
 +#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/timer.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/types.h>
+ #include <linux/proc_fs.h>
++#ifdef CONFIG_ACPI_ASUS_NEW_LED
 +#include <linux/leds.h>
-+#include <linux/kernel_stat.h>
-+#include <asm/cputime.h>
-+
-+#define UPDATE_INTERVAL (5) /* delay between updates, in ms */
-+
-+static void ledtrig_cpu_timerfunc(unsigned long data);
-+
-+DEFINE_LED_TRIGGER(ledtrig_cpu);
-+static DEFINE_TIMER(ledtrig_cpu_timer, ledtrig_cpu_timerfunc, 0, 0);
-+
-+static cputime64_t cpu_usage(void)
-+{
-+	int i;
-+	cputime64_t time =3D cputime64_zero;
-+
-+	for_each_possible_cpu(i) {
-+#ifdef CONFIG_LEDS_TRIGGER_CPU_INCLUDE_USER
-+		time =3D cputime64_add(time, kstat_cpu(i).cpustat.user);
 +#endif
-+#ifdef CONFIG_LEDS_TRIGGER_CPU_INCLUDE_NICE
-+		time =3D cputime64_add(time, kstat_cpu(i).cpustat.nice);
-+#endif
-+#ifdef CONFIG_LEDS_TRIGGER_CPU_INCLUDE_SYSTEM
-+		time =3D cputime64_add(time, kstat_cpu(i).cpustat.system);
-+#endif
-+#ifdef CONFIG_LEDS_TRIGGER_CPU_INCLUDE_IOWAIT
-+		time =3D cputime64_add(time, kstat_cpu(i).cpustat.iowait);
-+#endif
-+	}
+ #include <acpi/acpi_drivers.h>
+ #include <acpi/acpi_bus.h>
+ #include <asm/uaccess.h>
+@@ -916,6 +921,145 @@
+ 	return 0;
+ }
+=20
++#ifdef CONFIG_ACPI_ASUS_NEW_LED
++               =20
++/* These functions are called by the LED subsystem to update the desired
++ * state of the LED's. */
++static void led_set_mled(struct led_classdev *led_cdev,
++                                enum led_brightness value);
++static void led_set_wled(struct led_classdev *led_cdev,
++                                enum led_brightness value);
++static void led_set_tled(struct led_classdev *led_cdev,
++                                enum led_brightness value);
 +
-+	return time;
++/* LED class devices. */
++static struct led_classdev led_cdev_mled =3D
++        { .name =3D "asus:mail",     .brightness_set =3D led_set_mled };
++static struct led_classdev led_cdev_wled =3D
++        { .name =3D "asus:wireless", .brightness_set =3D led_set_wled };
++static struct led_classdev led_cdev_tled =3D
++        { .name =3D "asus:touchpad", .brightness_set =3D led_set_tled };
++
++/* These functions actually update the LED's, and are called from a
++ * workqueue.  By doing this as separate work rather than when the LED
++ * subsystem asks, I avoid messing with the Asus ACPI stuff during a
++ * potentially bad time, such as a timer interrupt. */
++static void led_update_mled(void *private);
++static void led_update_wled(void *private);
++static void led_update_tled(void *private);
++               =20
++/* Desired values of LED's. */
++static int led_mled_value =3D 0;=20
++static int led_wled_value =3D 0;
++static int led_tled_value =3D 0;=20
++
++/* LED workqueue. */
++static struct workqueue_struct *led_workqueue;
++
++/* LED update work structs. */
++DECLARE_WORK(led_mled_work, led_update_mled, NULL);
++DECLARE_WORK(led_wled_work, led_update_wled, NULL);
++DECLARE_WORK(led_tled_work, led_update_tled, NULL);
++               =20
++/* LED subsystem callbacks. */
++static void led_set_mled(struct led_classdev *led_cdev,
++        enum led_brightness value)
++{      =20
++        led_mled_value =3D value;
++        queue_work(led_workqueue, &led_mled_work);
 +}
 +
-+cputime64_t last_cputime;
-+
-+static void ledtrig_cpu_timerfunc(unsigned long data)
++static void led_set_wled(struct led_classdev *led_cdev,
++        enum led_brightness value)
 +{
-+	cputime64_t this_cputime =3D cpu_usage();
-+	/* XXX: This assumes that cputime64_t can be subtracted.
-+	 * Nobody has defined cputime64_sub, so I had to do this instead. */
-+	cputime64_t used_cputime =3D this_cputime - last_cputime;
-+	enum led_brightness led_state =3D (used_cputime > 0) ? LED_FULL : LED_OFF;
-+	led_trigger_event(ledtrig_cpu, led_state);
-+	last_cputime =3D cpu_usage();
++        led_wled_value =3D value;
++        queue_work(led_workqueue, &led_wled_work);
++}      =20
++       =20
++static void led_set_tled(struct led_classdev *led_cdev,
++        enum led_brightness value)
++{      =20
++        led_tled_value =3D value;=20
++        queue_work(led_workqueue, &led_tled_work);
++}      =20
++           =20
++/* LED work functions. */
++static void led_update_mled(void *private) {
++        char *ledname =3D hotk->methods->mt_mled;
++        int led_out =3D led_mled_value ? 1 : 0;
++        hotk->status =3D (led_out) ? (hotk->status | MLED_ON) : (hotk->sta=
+tus & ~MLED_ON);
++        led_out =3D 1 - led_out;
++        if (!write_acpi_int(hotk->handle, ledname, led_out, NULL))
++                printk(KERN_WARNING "Asus ACPI: LED (%s) write failed\n",
++                       ledname);
++}
 +
-+	mod_timer(&ledtrig_cpu_timer, jiffies + msecs_to_jiffies(UPDATE_INTERVAL)=
++static void led_update_wled(void *private) {
++        char *ledname =3D hotk->methods->mt_wled;
++        int led_out =3D led_wled_value ? 1 : 0;
++        hotk->status =3D (led_out) ? (hotk->status | WLED_ON) : (hotk->sta=
+tus & ~WLED_ON);
++        if (!write_acpi_int(hotk->handle, ledname, led_out, NULL))
++                printk(KERN_WARNING "Asus ACPI: LED (%s) write failed\n",
++                       ledname);
++}
++
++static void led_update_tled(void *private) {
++        char *ledname =3D hotk->methods->mt_tled;
++        int led_out =3D led_tled_value ? 1 : 0;
++        hotk->status =3D (led_out) ? (hotk->status | TLED_ON) : (hotk->sta=
+tus & ~TLED_ON);
++        if (!write_acpi_int(hotk->handle, ledname, led_out, NULL))
++                printk(KERN_WARNING "Asus ACPI: LED (%s) write failed\n",
++                       ledname);
++}
++
++/* Registers LED class devices and sets up workqueue. */
++static int led_initialize(struct device *parent)
++{
++        int result;
++
++        if (hotk->methods->mt_mled) {
++                result =3D led_classdev_register(parent, &led_cdev_mled);
++                if (result)
++                        return result;
++        }
++
++        if (hotk->methods->mt_wled) {
++                result =3D led_classdev_register(parent, &led_cdev_wled);
++                if (result)
++                        return result;
++        }
++
++        if (hotk->methods->mt_tled) {
++                result =3D led_classdev_register(parent, &led_cdev_tled);
++                if (result)
++                        return result;
++        }
++
++        led_workqueue =3D create_singlethread_workqueue("led_workqueue");
++
++        return 0;
++}
++
++/* Destroys the workqueue and unregisters the LED class devices. */
++static void led_terminate(void)
++{
++        destroy_workqueue(led_workqueue);
++
++        if (hotk->methods->mt_tled) {
++                led_classdev_unregister(&led_cdev_tled);
++        }
++
++        if (hotk->methods->mt_wled) {
++                led_classdev_unregister(&led_cdev_wled);
++        }
++       =20
++        if (hotk->methods->mt_mled) {
++                led_classdev_unregister(&led_cdev_mled);
++        }
++}
++
++#endif
++
+ static int asus_hotk_add_fs(struct acpi_device *device)
+ {
+ 	struct proc_dir_entry *proc;
+@@ -1299,6 +1443,10 @@
+ 	/* LED display is off by default */
+ 	hotk->ledd_status =3D 0xFFF;
+=20
++#ifdef CONFIG_ACPI_ASUS_NEW_LED
++        result =3D led_initialize(acpi_get_physical_device(device->handle)=
 );
-+}
++#endif
 +
-+static int __init ledtrig_cpu_init(void)
-+{
-+	led_trigger_register_simple("cpu", &ledtrig_cpu);
-+	last_cputime =3D cpu_usage();
-+	mod_timer(&ledtrig_cpu_timer, jiffies + msecs_to_jiffies(UPDATE_INTERVAL)=
-);
-+	return 0;
-+}
+       end:
+ 	if (result) {
+ 		kfree(hotk);
+@@ -1314,6 +1462,10 @@
+ 	if (!device || !acpi_driver_data(device))
+ 		return -EINVAL;
+=20
++#ifdef CONFIG_ACPI_ASUS_NEW_LED
++        led_terminate();
++#endif         =20
 +
-+static void __exit ledtrig_cpu_exit(void)
-+{
-+	del_timer(&ledtrig_cpu_timer);
-+	led_trigger_unregister_simple(ledtrig_cpu);
-+}
+ 	status =3D acpi_remove_notify_handler(hotk->handle, ACPI_SYSTEM_NOTIFY,
+ 					    asus_hotk_notify);
+ 	if (ACPI_FAILURE(status))
+diff -udrN linux-2.6.17-git25/drivers/acpi/Kconfig linux-2.6.17-git25-mine/=
+drivers/acpi/Kconfig
+--- linux-2.6.17-git25/drivers/acpi/Kconfig	2006-07-05 22:44:33.000000000 -=
+0400
++++ linux-2.6.17-git25-mine/drivers/acpi/Kconfig	2006-07-05 22:44:43.000000=
+000 -0400
+@@ -199,6 +199,15 @@
+           something works not quite as expected, please use the mailing li=
+st
+           available on the above page (acpi4asus-user@lists.sourceforge.ne=
+t)
+          =20
++config ACPI_ASUS_NEW_LED
++        bool "ASUS/Medion LED subsystem integration"
++        depends on ACPI_ASUS
++        depends on LEDS_CLASS
++        help
++          This adds support for the new LED subsystem to the asus_acpi
++          driver.  The LED's will show up as asus:mail, asus:wireless,
++          and asus:touchpad, as applicable to your laptop.
 +
-+module_init(ledtrig_cpu_init);
-+module_exit(ledtrig_cpu_exit);
-+
-+MODULE_AUTHOR("Thomas Tuttle <thinkinginbinary@gmail.com>");
-+MODULE_DESCRIPTION("LED CPU Activity Trigger");
-+MODULE_LICENSE("GPL");
-diff -udrN linux-2.6.17-git25/drivers/leds/Makefile linux-2.6.17-git25-mine=
-/drivers/leds/Makefile
---- linux-2.6.17-git25/drivers/leds/Makefile	2006-07-05 22:11:45.000000000 =
--0400
-+++ linux-2.6.17-git25-mine/drivers/leds/Makefile	2006-07-05 22:40:52.00000=
-0000 -0400
-@@ -16,4 +16,5 @@
- # LED Triggers
- obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+=3D ledtrig-timer.o
- obj-$(CONFIG_LEDS_TRIGGER_IDE_DISK)	+=3D ledtrig-ide-disk.o
-+obj-$(CONFIG_LEDS_TRIGGER_CPU)		+=3D ledtrig-cpu.o
- obj-$(CONFIG_LEDS_TRIGGER_HEARTBEAT)	+=3D ledtrig-heartbeat.o
+ config ACPI_IBM
+ 	tristate "IBM ThinkPad Laptop Extras"
+ 	depends on X86
 
---0F1p//8PRICkK4MW--
+--Clx92ZfkiYIKRjnr--
 
---qlTNgmc+xy1dBmNv
+--BI5RvnYi6R4T2M87
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-iD8DBQFErHvj/UG6u69REsYRAtQjAJ41BVbXg6ggUJNFMD//p52GLuhKRQCcC8/k
-ofw65I5P6Z6wAzDJpzsM754=
-=1a2R
+iD8DBQFErHxH/UG6u69REsYRApSjAJ0egXCpQFCscnjbr0jLBYiAhRasmQCdEQub
+kM0jEAmN2fuTJLkSNw6KCvs=
+=mmDq
 -----END PGP SIGNATURE-----
 
---qlTNgmc+xy1dBmNv--
+--BI5RvnYi6R4T2M87--

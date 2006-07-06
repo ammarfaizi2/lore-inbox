@@ -1,55 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbWGFBXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965113AbWGFBYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965116AbWGFBXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 21:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbWGFBXZ
+	id S965113AbWGFBYU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 21:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbWGFBYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 21:23:25 -0400
-Received: from mga06.intel.com ([134.134.136.21]:46999 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S965112AbWGFBXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 21:23:24 -0400
-X-IronPort-AV: i="4.06,211,1149490800"; 
-   d="scan'208"; a="61086673:sNHT34784827"
-Subject: Re: [PATCH] ixgb: add PCI Error recovery callbacks
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Auke Kok <auke-jan.h.kok@intel.com>,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       "Ronciak, John" <john.ronciak@intel.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
-       Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       netdev@vger.kernel.org, wenxiong@us.ibm.com
-In-Reply-To: <20060705194437.GJ29526@austin.ibm.com>
-References: <20060629162634.GC5472@austin.ibm.com>
-	 <1151905766.28493.129.camel@ymzhang-perf.sh.intel.com>
-	 <44ABDF87.8000801@intel.com>  <20060705194437.GJ29526@austin.ibm.com>
-Content-Type: text/plain
-Message-Id: <1152148899.28493.168.camel@ymzhang-perf.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Thu, 06 Jul 2006 09:21:39 +0800
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jul 2006 21:24:19 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:27962 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965113AbWGFBYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 21:24:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:x-google-sender-auth;
+        b=d3qZJFQwx84umLyC16anJDOyJsnZPl39xU5COXmYWOT2x7WYHw1kw4T/bLKBfAbhUT+DFtzhYaLw3Y4hAmZyUxpE4HFg5isd5FeTPTesS16gbQfTd+VRvCzXatODdyzLtIud6FrVMHhxIMAdmt+YOm9X25vWeW3l0PWbtSxyH7Q=
+Message-ID: <e4cb19870607051824n6392fb2awf042bd754d0e09d8@mail.gmail.com>
+Date: Wed, 5 Jul 2006 21:24:17 -0400
+From: "Thomas Tuttle" <thinkinginbinary+lkml@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH: Create new LED trigger for CPU activity (ledtrig-cpu)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_7035_6511083.1152149057783"
+X-Google-Sender-Auth: 60f7bea9363409f9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-06 at 03:44, Linas Vepstas wrote:
-> On Wed, Jul 05, 2006 at 08:49:27AM -0700, Auke Kok wrote:
-> > Zhang, Yanmin wrote:
-> > >On Fri, 2006-06-30 at 00:26, Linas Vepstas wrote:
-> > >>Adds PCI Error recovery callbacks to the Intel 10-gigabit ethernet
-> > >>ixgb device driver. Lightly tested, works.
-> > >
-> > >Both pci_disable_device and ixgb_down would access the device. It doesn't
-> > >follow Documentation/pci-error-recovery.txt that error_detected shouldn't 
-> > >do
-> > >any access to the device.
-> > 
-> > Moreover, it was Linas who wrote this documentation in the first place :)
-> 
-> On the pSeries, its harmless to try to do i/o; the i/o will e blocked.
-In the future, we might move the pci error recovery codes to generic to
-support other platforms which might not block I/O. So it's better to follow
-Documentation/pci-error-recovery.txt when adding error recovery codes into driver.
+------=_Part_7035_6511083.1152149057783
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Here is a patch I wrote that creates a new LED trigger for CPU
+activity.  It creates a new config option, CONFIG_LEDS_TRIGGER_CPU, as
+well as four suboptions to select the combination of user, nice,
+system, and iowait that should turn the LED on.
+
+It's loosely based on the ledtrig-ide-disk plugin, but only for
+general guidance.  It doesn't modify anything in the CPU scheduling
+code, for better or for worse; it is less efficient, because it checks
+the CPU time every 5ms instead of "knowing" when the CPU is idle or
+active, but it doesn't require changes to any other code, and is much
+less hairy for not digging into the scheduling stuff.  (It's also more
+flexible, because it can deal with user/nice/system/iowait time
+without much effort.)
+
+The same disclaimers from my last email (the asus_acpi LED support
+one) apply--I haven't written much kernel code; this is diffed against
+2.6.17.1, not .3, but I don't think anything has changed; I've tested
+it, but no guarantees it's perfect; and I apologize for the MIME type
+of text/x-patch, but it should work.
+
+Constructive comments would be greatly appreciated.
+
+-- 
+Thomas Tuttle
+http://thinkinginbinary.webhop.net/
+thinkinginbinary@gmail.com
+AIM: thinkinginbinary
+
+------=_Part_7035_6511083.1152149057783
+Content-Type: text/x-patch; name=ledtrig-cpu.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_epafs0qz
+Content-Disposition: attachment; filename="ledtrig-cpu.patch"
+
+ZGlmZiAtdWRyTiBsaW51eC0yLjYuMTcuMS9kcml2ZXJzL2xlZHMvS2NvbmZpZyBsaW51eC0yLjYu
+MTcuMS1taW5lL2RyaXZlcnMvbGVkcy9LY29uZmlnCi0tLSBsaW51eC0yLjYuMTcuMS9kcml2ZXJz
+L2xlZHMvS2NvbmZpZwkyMDA2LTA3LTA1IDE5OjM5OjI1LjAwMDAwMDAwMCAtMDQwMAorKysgbGlu
+dXgtMi42LjE3LjEtbWluZS9kcml2ZXJzL2xlZHMvS2NvbmZpZwkyMDA2LTA3LTA1IDIxOjA0OjM3
+LjAwMDAwMDAwMCAtMDQwMApAQCAtODAsNiArODAsMzcgQEAKIAkgIFRoaXMgYWxsb3dzIExFRHMg
+dG8gYmUgY29udHJvbGxlZCBieSBhIHByb2dyYW1tYWJsZSB0aW1lcgogCSAgdmlhIHN5c2ZzLiBJ
+ZiB1bnN1cmUsIHNheSBZLgogCitjb25maWcgTEVEU19UUklHR0VSX0NQVQorCXRyaXN0YXRlICJM
+RUQgQ1BVIFRyaWdnZXIiCisJZGVwZW5kcyBMRURTX1RSSUdHRVJTCisJaGVscAorCSAgVGhpcyBh
+bGxvd3MgTEVEcyB0byBiZSBjb250cm9sbGVkIGJ5IENQVSBhY3Rpdml0eS4KKwkgIElmIHVuc3Vy
+ZSwgc2F5IFkuCisKK2NvbmZpZyBMRURTX1RSSUdHRVJfQ1BVX0lOQ0xVREVfVVNFUgorCWJvb2wg
+IkluY2x1ZGUgdXNlciB0aW1lIGluIENQVSB0cmlnZ2VyIgorCWRlcGVuZHMgTEVEU19UUklHR0VS
+X0NQVQorCWhlbHAKKwkgIFRoaXMgb3B0aW9uIG1ha2VzIHVzZXIgQ1BVIHRpbWUgY2F1c2UgdGhl
+IENQVSB0cmlnZ2VyIHRvIGFjdGl2YXRlLgorCitjb25maWcgTEVEU19UUklHR0VSX0NQVV9JTkNM
+VURFX05JQ0UKKwlib29sICJJbmNsdWRlIG5pY2UgdGltZSBpbiBDUFUgdHJpZ2dlciIKKwlkZXBl
+bmRzIExFRFNfVFJJR0dFUl9DUFUKKwloZWxwCisJICBUaGlzIG9wdGlvbiBtYWtlcyBuaWNlIENQ
+VSB0aW1lIGNhdXNlIHRoZSBDUFUgdHJpZ2dlciB0byBhY3RpdmF0ZS4KKworY29uZmlnIExFRFNf
+VFJJR0dFUl9DUFVfSU5DTFVERV9TWVNURU0KKwlib29sICJJbmNsdWRlIHN5c3RlbSB0aW1lIGlu
+IENQVSB0cmlnZ2VyIgorCWRlcGVuZHMgTEVEU19UUklHR0VSX0NQVQorCWhlbHAKKwkgIFRoaXMg
+b3B0aW9uIG1ha2VzIHN5c3RlbSBDUFUgdGltZSBjYXVzZSB0aGUgQ1BVIHRyaWdnZXIgdG8gYWN0
+aXZhdGUuCisKK2NvbmZpZyBMRURTX1RSSUdHRVJfQ1BVX0lOQ0xVREVfSU9XQUlUCisJYm9vbCAi
+SW5jbHVkZSBpb3dhaXQgdGltZSBpbiBDUFUgdHJpZ2dlciIKKwlkZXBlbmRzIExFRFNfVFJJR0dF
+Ul9DUFUKKwloZWxwCisJICBUaGlzIG9wdGlvbiBtYWtlcyBpb3dhaXQgQ1BVIHRpbWUgY2F1c2Ug
+dGhlIENQVSB0cmlnZ2VyIHRvIGFjdGl2YXRlLgorCiBjb25maWcgTEVEU19UUklHR0VSX0lERV9E
+SVNLCiAJYm9vbCAiTEVEIElERSBEaXNrIFRyaWdnZXIiCiAJZGVwZW5kcyBMRURTX1RSSUdHRVJT
+ICYmIEJMS19ERVZfSURFRElTSwpkaWZmIC11ZHJOIGxpbnV4LTIuNi4xNy4xL2RyaXZlcnMvbGVk
+cy9sZWR0cmlnLWNwdS5jIGxpbnV4LTIuNi4xNy4xLW1pbmUvZHJpdmVycy9sZWRzL2xlZHRyaWct
+Y3B1LmMKLS0tIGxpbnV4LTIuNi4xNy4xL2RyaXZlcnMvbGVkcy9sZWR0cmlnLWNwdS5jCTE5Njkt
+MTItMzEgMTk6MDA6MDAuMDAwMDAwMDAwIC0wNTAwCisrKyBsaW51eC0yLjYuMTcuMS1taW5lL2Ry
+aXZlcnMvbGVkcy9sZWR0cmlnLWNwdS5jCTIwMDYtMDctMDUgMjE6MDE6NTQuMDAwMDAwMDAwIC0w
+NDAwCkBAIC0wLDAgKzEsOTAgQEAKKy8qCisgKiBMRUQgQ1BVIEFjdGl2aXR5IFRyaWdnZXIKKyAq
+CisgKiBDb3B5cmlnaHQgMjAwNiBUaG9tYXMgVHV0dGxlCisgKgorICogQXV0aG9yOiBUaG9tYXMg
+VHV0dGxlIDx0aGlua2luZ2luYmluYXJ5QGdtYWlsLmNvbT4KKyAqCisgKiBUaGlzIHByb2dyYW0g
+aXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yIG1vZGlmeQor
+ICogaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSB2
+ZXJzaW9uIDIgYXMKKyAqIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9u
+LgorICoKKyAqLworCisjaW5jbHVkZSA8bGludXgvY29uZmlnLmg+CisjaW5jbHVkZSA8bGludXgv
+bW9kdWxlLmg+CisjaW5jbHVkZSA8bGludXgva2VybmVsLmg+CisjaW5jbHVkZSA8bGludXgvaW5p
+dC5oPgorI2luY2x1ZGUgPGxpbnV4L3RpbWVyLmg+CisjaW5jbHVkZSA8bGludXgvbGVkcy5oPgor
+I2luY2x1ZGUgPGxpbnV4L2tlcm5lbF9zdGF0Lmg+CisjaW5jbHVkZSA8YXNtL2NwdXRpbWUuaD4K
+KworI2RlZmluZSBVUERBVEVfSU5URVJWQUwgKDUpIC8vIG1zCisKK3N0YXRpYyB2b2lkIGxlZHRy
+aWdfY3B1X3RpbWVyZnVuYyh1bnNpZ25lZCBsb25nIGRhdGEpOworCitERUZJTkVfTEVEX1RSSUdH
+RVIobGVkdHJpZ19jcHUpOworc3RhdGljIERFRklORV9USU1FUihsZWR0cmlnX2NwdV90aW1lciwg
+bGVkdHJpZ19jcHVfdGltZXJmdW5jLCAwLCAwKTsKKworc3RhdGljIGNwdXRpbWU2NF90IGNwdV91
+c2FnZSh2b2lkKSB7CisJaW50IGk7CisJY3B1dGltZTY0X3QgdXNlciwgbmljZSwgc3lzdGVtLCBp
+ZGxlLCBpb3dhaXQsIHRvdGFsOworCXVzZXIgPSBuaWNlID0gc3lzdGVtID0gaWRsZSA9IGlvd2Fp
+dCA9IHRvdGFsID0gY3B1dGltZTY0X3plcm87CisKKwlmb3JfZWFjaF9wb3NzaWJsZV9jcHUoaSkg
+eworCQl1c2VyID0gY3B1dGltZTY0X2FkZCh1c2VyLCBrc3RhdF9jcHUoaSkuY3B1c3RhdC51c2Vy
+KTsKKwkJbmljZSA9IGNwdXRpbWU2NF9hZGQobmljZSwga3N0YXRfY3B1KGkpLmNwdXN0YXQubmlj
+ZSk7CisJCXN5c3RlbSA9IGNwdXRpbWU2NF9hZGQoc3lzdGVtLCBrc3RhdF9jcHUoaSkuY3B1c3Rh
+dC5zeXN0ZW0pOworCQlpZGxlID0gY3B1dGltZTY0X2FkZChpZGxlLCBrc3RhdF9jcHUoaSkuY3B1
+c3RhdC5pZGxlKTsKKwkJaW93YWl0ID0gY3B1dGltZTY0X2FkZChpb3dhaXQsIGtzdGF0X2NwdShp
+KS5jcHVzdGF0Lmlvd2FpdCk7CisJfQorCisjaWZkZWYgQ09ORklHX0xFRFNfVFJJR0dFUl9DUFVf
+SU5DTFVERV9VU0VSCisJdG90YWwgPSBjcHV0aW1lNjRfYWRkKHRvdGFsLCB1c2VyKTsKKyNlbmRp
+ZgorI2lmZGVmIENPTkZJR19MRURTX1RSSUdHRVJfQ1BVX0lOQ0xVREVfTklDRQorCXRvdGFsID0g
+Y3B1dGltZTY0X2FkZCh0b3RhbCwgbmljZSk7CisjZW5kaWYKKyNpZmRlZiBDT05GSUdfTEVEU19U
+UklHR0VSX0NQVV9JTkNMVURFX1NZU1RFTQorCXRvdGFsID0gY3B1dGltZTY0X2FkZCh0b3RhbCwg
+c3lzdGVtKTsKKyNlbmRpZgorI2lmZGVmIENPTkZJR19MRURTX1RSSUdHRVJfQ1BVX0lOQ0xVREVf
+SU9XQUlUCisJdG90YWwgPSBjcHV0aW1lNjRfYWRkKHRvdGFsLCBpb3dhaXQpOworI2VuZGlmCisK
+KwlyZXR1cm4gdG90YWw7Cit9CisKK2NwdXRpbWU2NF90IGxhc3RfY3B1dGltZTsKKworc3RhdGlj
+IHZvaWQgbGVkdHJpZ19jcHVfdGltZXJmdW5jKHVuc2lnbmVkIGxvbmcgZGF0YSkgeworCWNwdXRp
+bWU2NF90IHRoaXNfY3B1dGltZSA9IGNwdV91c2FnZSgpOworCWNwdXRpbWU2NF90IHVzZWRfY3B1
+dGltZSA9IHRoaXNfY3B1dGltZSAtIGxhc3RfY3B1dGltZTsKKwlpZiAodXNlZF9jcHV0aW1lID4g
+MCkgeworCQlsZWRfdHJpZ2dlcl9ldmVudChsZWR0cmlnX2NwdSwgTEVEX0ZVTEwpOworCX0gZWxz
+ZSB7CisJCWxlZF90cmlnZ2VyX2V2ZW50KGxlZHRyaWdfY3B1LCBMRURfT0ZGKTsKKwl9CisJbGFz
+dF9jcHV0aW1lID0gY3B1X3VzYWdlKCk7CisJbW9kX3RpbWVyKCZsZWR0cmlnX2NwdV90aW1lciwg
+amlmZmllcyArIG1zZWNzX3RvX2ppZmZpZXMoVVBEQVRFX0lOVEVSVkFMKSk7Cit9CisKK3N0YXRp
+YyBpbnQgX19pbml0IGxlZHRyaWdfY3B1X2luaXQodm9pZCkgeworCWxlZF90cmlnZ2VyX3JlZ2lz
+dGVyX3NpbXBsZSgiY3B1IiwgJmxlZHRyaWdfY3B1KTsKKwlsYXN0X2NwdXRpbWUgPSBjcHVfdXNh
+Z2UoKTsKKwltb2RfdGltZXIoJmxlZHRyaWdfY3B1X3RpbWVyLCBqaWZmaWVzICsgbXNlY3NfdG9f
+amlmZmllcyhVUERBVEVfSU5URVJWQUwpKTsKKwlyZXR1cm4gMDsKK30KKworc3RhdGljIHZvaWQg
+X19leGl0IGxlZHRyaWdfY3B1X2V4aXQodm9pZCkgeworCWRlbF90aW1lcigmbGVkdHJpZ19jcHVf
+dGltZXIpOworCWxlZF90cmlnZ2VyX3VucmVnaXN0ZXJfc2ltcGxlKGxlZHRyaWdfY3B1KTsKK30K
+KworbW9kdWxlX2luaXQobGVkdHJpZ19jcHVfaW5pdCk7Cittb2R1bGVfZXhpdChsZWR0cmlnX2Nw
+dV9leGl0KTsKKworTU9EVUxFX0FVVEhPUigiVGhvbWFzIFR1dHRsZSA8dGhpbmtpbmdpbmJpbmFy
+eUBnbWFpbC5jb20+Iik7CitNT0RVTEVfREVTQ1JJUFRJT04oIkxFRCBDUFUgQWN0aXZpdHkgVHJp
+Z2dlciIpOworTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwpkaWZmIC11ZHJOIGxpbnV4LTIuNi4xNy4x
+L2RyaXZlcnMvbGVkcy9NYWtlZmlsZSBsaW51eC0yLjYuMTcuMS1taW5lL2RyaXZlcnMvbGVkcy9N
+YWtlZmlsZQotLS0gbGludXgtMi42LjE3LjEvZHJpdmVycy9sZWRzL01ha2VmaWxlCTIwMDYtMDct
+MDUgMTk6Mzk6MjUuMDAwMDAwMDAwIC0wNDAwCisrKyBsaW51eC0yLjYuMTcuMS1taW5lL2RyaXZl
+cnMvbGVkcy9NYWtlZmlsZQkyMDA2LTA3LTA1IDIxOjA3OjI3LjAwMDAwMDAwMCAtMDQwMApAQCAt
+MTUsMyArMTUsNCBAQAogIyBMRUQgVHJpZ2dlcnMKIG9iai0kKENPTkZJR19MRURTX1RSSUdHRVJf
+VElNRVIpCSs9IGxlZHRyaWctdGltZXIubwogb2JqLSQoQ09ORklHX0xFRFNfVFJJR0dFUl9JREVf
+RElTSykJKz0gbGVkdHJpZy1pZGUtZGlzay5vCitvYmotJChDT05GSUdfTEVEU19UUklHR0VSX0NQ
+VSkJCSs9IGxlZHRyaWctY3B1Lm8K
+------=_Part_7035_6511083.1152149057783--

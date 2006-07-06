@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWGFPRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWGFPT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030316AbWGFPRP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 11:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWGFPRP
+	id S1030299AbWGFPT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 11:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWGFPTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 11:17:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30220 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030316AbWGFPRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 11:17:14 -0400
-Date: Thu, 6 Jul 2006 16:17:05 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
-Message-ID: <20060706151705.GB1399@flint.arm.linux.org.uk>
-Mail-Followup-To: Haavard Skinnemoen <hskinnemoen@atmel.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060706105227.220565f8@cad-250-152.norway.atmel.com> <20060706021906.1af7ffa3.akpm@osdl.org> <1152179893.3084.26.camel@laptopd505.fenrus.org> <20060706124315.2188c700@cad-250-152.norway.atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060706124315.2188c700@cad-250-152.norway.atmel.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 6 Jul 2006 11:19:55 -0400
+Received: from mexforward.lss.emc.com ([128.222.32.20]:38452 "EHLO
+	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
+	id S1030299AbWGFPTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 11:19:55 -0400
+Message-ID: <44AD286F.3030507@emc.com>
+Date: Thu, 06 Jul 2006 11:12:47 -0400
+From: Ric Wheeler <ric@emc.com>
+Reply-To: ric@emc.com
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tomasz Torcz <zdzichu@irc.pl>
+CC: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl>
+In-Reply-To: <20060701181702.GC8763@irc.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.7.6.75432
+X-PerlMx-Spam: Gauge=, SPAM=2%, Reasons='EMC_FROM_0+ -2, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 12:43:15PM +0200, Haavard Skinnemoen wrote:
-> On Thu, 06 Jul 2006 11:58:13 +0200
-> Arjan van de Ven <arjan@infradead.org> wrote:
-> > > 	+EXPORT_SYMBOL(clk_get);
-> > > 	+EXPORT_SYMBOL(clk_put);
-> > > 	+EXPORT_SYMBOL(clk_enable);
-> > > 	+EXPORT_SYMBOL(clk_disable);
-> > > 	+EXPORT_SYMBOL(clk_get_rate);
-> > > 	+EXPORT_SYMBOL(clk_round_rate);
-> > > 	+EXPORT_SYMBOL(clk_set_rate);
-> > > 	+EXPORT_SYMBOL(clk_set_parent);
-> > > 	+EXPORT_SYMBOL(clk_get_parent);
-> > 
-> > probably wants to be _GPL exports anyway
-> 
-> If so, ARM should probably be converted as well. On SH, they are
-> actually _GPL exports.
+Tomasz Torcz wrote:
 
-That depends if you consider them to be a low level API or not.  I don't.
-They're staying as non-GPL on ARM, thanks.
+>On Sat, Jul 01, 2006 at 07:47:16PM +0200, Thomas Glanzmann wrote:
+>  
+>
+>>Hello,
+>>    
+>>
+>>>Checksums are not very useful for themselves. They are useful when we
+>>>have other copy of data (think raid mirroring) so data can be
+>>>reconstructed from working copy.
+>>>      
+>>>
+>>it would be possible to identify data corruption.
+>>    
+>>
+>
+>  Yes, but what good is identification? We could only return I/O error.
+>Ability to fix corruption (like ZFS) is the real killer.
+>  
+>
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Having a checksum (or even a digital signature on a file) that lets us 
+detect corruption is very useful since, in many cases, it allows us to 
+flag the file as corrupt before it gets used.
+
+In some cases, this is a big hint that you should restore it from backup 
+(tape, other disk, etc).
+
+I think that it is a generally useful thing even when not on a self 
+correcting device,
+
+ric
+

@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWGFPT4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbWGFPUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbWGFPT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 11:19:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWGFPTz
+	id S1030324AbWGFPUn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 11:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbWGFPUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 11:19:55 -0400
-Received: from mexforward.lss.emc.com ([128.222.32.20]:38452 "EHLO
-	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1030299AbWGFPTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 11:19:55 -0400
-Message-ID: <44AD286F.3030507@emc.com>
-Date: Thu, 06 Jul 2006 11:12:47 -0400
-From: Ric Wheeler <ric@emc.com>
-Reply-To: ric@emc.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Thu, 6 Jul 2006 11:20:43 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:10774 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030324AbWGFPUm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 11:20:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=syv5EukLjNNw+xWVzG+8oAjM61GyOVSL+TGKajrFXO+bTkB9VpuC05Y3OjXVWe0iSLj4mMtwOGgziUuDcvP1x+Bg18wpM84uNuNYlzrC2etmxuYG++ewsnUaMzrKKoXskYPdspmIRszh9faQoazitUyLU7NskXRY8jbtUsmCF58=
+Date: Thu, 6 Jul 2006 17:20:58 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: New PriorityInheritanceTest - bug in 2.6.17-rt7 confirmed
+In-Reply-To: <20060706133238.GA13800@elte.hu>
+Message-ID: <Pine.LNX.4.64.0607061720410.30970@localhost.localdomain>
+References: <Pine.LNX.4.64.0607061307260.10454@localhost.localdomain>
+ <1152189293.24611.146.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0607061443050.30970@localhost.localdomain> <20060706133238.GA13800@elte.hu>
 MIME-Version: 1.0
-To: Tomasz Torcz <zdzichu@irc.pl>
-CC: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de> <20060701170729.GB8763@irc.pl> <20060701174716.GC24570@cip.informatik.uni-erlangen.de> <20060701181702.GC8763@irc.pl>
-In-Reply-To: <20060701181702.GC8763@irc.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.7.6.75432
-X-PerlMx-Spam: Gauge=, SPAM=2%, Reasons='EMC_FROM_0+ -2, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Torcz wrote:
+On Thu, 6 Jul 2006, Ingo Molnar wrote:
 
->On Sat, Jul 01, 2006 at 07:47:16PM +0200, Thomas Glanzmann wrote:
->  
 >
->>Hello,
->>    
->>
->>>Checksums are not very useful for themselves. They are useful when we
->>>have other copy of data (think raid mirroring) so data can be
->>>reconstructed from working copy.
->>>      
->>>
->>it would be possible to identify data corruption.
->>    
->>
+> * Esben Nielsen <nielsen.esben@googlemail.com> wrote:
 >
->  Yes, but what good is identification? We could only return I/O error.
->Ability to fix corruption (like ZFS) is the real killer.
->  
+>> It can run within try_to_wake_up(). But then it the whole lock chain
+>> is traversed in an atomic section. That unpredictable overall system
+>> latencies since the locks can be in userspace. So it has to run in
+>> some task. That task has to be high priority enough to preempt the
+>> boosted tasks, but it can't be so high priority that it bothers any
+>> higher priority threads than those involved in this. So it can't be,
+>> forinstance a general priority 99 task we just use for this. We thus
+>> need something running at a slightly higher priority than the priority
+>> to which the tasks are boosted, but not a full +1 priority. I.e. we
+>> need to run it at priority "+0.5".
 >
+> we could just queue the task in front of the other task in the runqueue,
+> and mark that task for reschedule if it's running currently. (Doing this
+> is not without precedent: we do something similar in wake_up_new_task()
+> to implement child-runs-first logic.)
+>
+I think that is more or less what my patch does...
 
-Having a checksum (or even a digital signature on a file) that lets us 
-detect corruption is very useful since, in many cases, it allows us to 
-flag the file as corrupt before it gets used.
+Esben
 
-In some cases, this is a big hint that you should restore it from backup 
-(tape, other disk, etc).
-
-I think that it is a generally useful thing even when not on a self 
-correcting device,
-
-ric
-
+> 	Ingo
+>

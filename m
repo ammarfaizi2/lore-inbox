@@ -1,35 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWGFJwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWGFJ6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWGFJwA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 05:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWGFJwA
+	id S1030200AbWGFJ6S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 05:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWGFJ6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 05:52:00 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41483 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030198AbWGFJwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 05:52:00 -0400
-Date: Thu, 6 Jul 2006 10:51:50 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Haavard Skinnemoen <hskinnemoen@atmel.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
+	Thu, 6 Jul 2006 05:58:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62107 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030200AbWGFJ6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 05:58:17 -0400
 Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
-Message-ID: <20060706095150.GA1399@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Haavard Skinnemoen <hskinnemoen@atmel.com>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <20060706105227.220565f8@cad-250-152.norway.atmel.com> <20060706021906.1af7ffa3.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Haavard Skinnemoen <hskinnemoen@atmel.com>, linux-kernel@vger.kernel.org
 In-Reply-To: <20060706021906.1af7ffa3.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
+	 <20060706021906.1af7ffa3.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 06 Jul 2006 11:58:13 +0200
+Message-Id: <1152179893.3084.26.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 02:19:06AM -0700, Andrew Morton wrote:
+
+> 
+> - do you really need __udivdi3() and friends?  We struggle hard to avoid
+>   the necessity on x86 and you should be able to leverage that advantage.
+> 
 > - What are these for?
+> 
+> 	+EXPORT_SYMBOL(register_dma_controller);
+> 	+EXPORT_SYMBOL(find_dma_controller);
 > 
 > 	+EXPORT_SYMBOL(clk_get);
 > 	+EXPORT_SYMBOL(clk_put);
@@ -41,36 +47,6 @@ On Thu, Jul 06, 2006 at 02:19:06AM -0700, Andrew Morton wrote:
 > 	+EXPORT_SYMBOL(clk_set_parent);
 > 	+EXPORT_SYMBOL(clk_get_parent);
 
-Part of the clock framework.  No, not the one that you've probably
-heard about (which is in connection with time, and IMHO incorrectly
-named).
+probably wants to be _GPL exports anyway
 
-This one is to do with controlling the clock sources for peripherals
-in systems, to allow drivers to be shared between platforms with the
-minimum of crap in drivers.
 
-For example, the ARM Ltd AMBA "devices" end up being embedded into ARM
-SoCs, MIPS SoCs and now probably AVR32 SoCs.  These drivers need a way
-to be told, eg, their clock source rate in the case of a UART, and be
-able to control the clock rate in the case of an LCD controller.  It's
-also advantageous for power saving to be able to turn clock sources
-on and off.
-
-You can have hardware situations where the clock source for UARTs
-depend on where they are on the bus, possibly clocked at different
-rates, or all UARTs are clocked from one source.
-
-How that is achieved is extremely SoC or platform specific, and as such
-I put together a well defined API (include/linux/clk.h) which gives:
-
-1. an API for drivers to follow to achieve achieve inter-operability and
-   re-use with the minimum of fuss.
-2. complete flexibility to the platform code to implement the backend
-   how they see fit, using whatever structures they see fit.
-
-It's great that the AVR32 folk are reusing this.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

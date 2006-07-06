@@ -1,179 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbWGFBTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbWGFBXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965111AbWGFBTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 21:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbWGFBTQ
+	id S965116AbWGFBXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 21:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbWGFBXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 21:19:16 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:53038 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965111AbWGFBTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 21:19:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:x-google-sender-auth;
-        b=hyMopprO+wqzgF63k/f39LokpqRLMORWnOZBX0bA3mygaZuU4O6SCeK8OnE7fTQyAPXcEBg3ATggFncPbh44AZZvLCFhdGorKaRav62G3HdefDLOtZ5de4bqD7PLcz2a76U5gAq7J2XBN6ITYqkYW0makldfFRUj0Q6IQVhuaDg=
-Message-ID: <e4cb19870607051819w68054004t7377ab144bb42dc0@mail.gmail.com>
-Date: Wed, 5 Jul 2006 21:19:13 -0400
-From: "Thomas Tuttle" <thinkinginbinary+lkml@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH: Integrate asus_acpi LED's with new LED subsystem
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_6995_11284021.1152148753951"
-X-Google-Sender-Auth: 2bfca8bf5d5407ff
+	Wed, 5 Jul 2006 21:23:25 -0400
+Received: from mga06.intel.com ([134.134.136.21]:46999 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S965112AbWGFBXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 21:23:24 -0400
+X-IronPort-AV: i="4.06,211,1149490800"; 
+   d="scan'208"; a="61086673:sNHT34784827"
+Subject: Re: [PATCH] ixgb: add PCI Error recovery callbacks
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: Auke Kok <auke-jan.h.kok@intel.com>,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>,
+       "Ronciak, John" <john.ronciak@intel.com>,
+       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
+       Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       netdev@vger.kernel.org, wenxiong@us.ibm.com
+In-Reply-To: <20060705194437.GJ29526@austin.ibm.com>
+References: <20060629162634.GC5472@austin.ibm.com>
+	 <1151905766.28493.129.camel@ymzhang-perf.sh.intel.com>
+	 <44ABDF87.8000801@intel.com>  <20060705194437.GJ29526@austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1152148899.28493.168.camel@ymzhang-perf.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Thu, 06 Jul 2006 09:21:39 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_6995_11284021.1152148753951
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Here is a patch I wrote that allows the LED's that the asus_acpi
-driver exposes via a /proc interface to be accessed via the LED
-subsystem.  It creates a new config option, CONFIG_ACPI_ASUS_NEW_LED,
-that will enable this support.
-
-It registers some subset of LED's named asus:mail, asus:wireless, and
-asus:touchpad, depending on the LED's available on the laptop.  LED
-updates are scheduled in a workqueue to avoid messing with ACPI stuff
-(needed to update the LED's) during a timer interrupt.
-
-I've tested it on my Asus M2400Ne, and it appears to work with the
-timer, ide-disk, and cpu triggers.  (I wrote the cpu one, and will
-submit it in a future patch.)
-
-This is the first (working) kernel code I've ever written, so I
-apologize if it's screwed up in any way.  It's diffed against
-2.6.17.1, not 2.6.17.3, but, from a quick glance at the ChangeLogs, it
-doesn't appear that any of the files in question have changed between
-those versions.  I tried to adhere to any guidelines I found.  I also
-apologize, for it appears that Gmail is sending the patch with a type
-of text/x-patch, rather than text/plain.  It should still work,
-though--it is plain text.
-
--- 
-Thomas Tuttle
-https://www.thomastuttle.mooo.com/
-thinkinginbinary+lkml@gmail.com (for non-LKML stuff, remove +lkml)
-AIM: thinkinginbinary
-
-------=_Part_6995_11284021.1152148753951
-Content-Type: text/x-patch; name=asus-acpi-led-subsystem.patch; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_epafey3r
-Content-Disposition: attachment; filename="asus-acpi-led-subsystem.patch"
-
-ZGlmZiAtdWRyIGxpbnV4LTIuNi4xNy4xL2RyaXZlcnMvYWNwaS9hc3VzX2FjcGkuYyBsaW51eC0y
-LjYuMTcuMS1taW5lL2RyaXZlcnMvYWNwaS9hc3VzX2FjcGkuYwotLS0gbGludXgtMi42LjE3LjEv
-ZHJpdmVycy9hY3BpL2FzdXNfYWNwaS5jCTIwMDYtMDctMDUgMTk6Mzk6MjUuMDAwMDAwMDAwIC0w
-NDAwCisrKyBsaW51eC0yLjYuMTcuMS1taW5lL2RyaXZlcnMvYWNwaS9hc3VzX2FjcGkuYwkyMDA2
-LTA3LTA1IDIwOjU0OjM0LjAwMDAwMDAwMCAtMDQwMApAQCAtMzMsMTEgKzMzLDE1IEBACiAgKiAg
-Q29tcGxldGUgZGlzcGxheSBzd2l0Y2hpbmcgLS0gbWF5IHJlcXVpcmUgZGlydHkgaGFja3Mgb3Ig
-Y2FsbGluZyBfRE9TPwogICovCiAKKyNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KICNpbmNsdWRl
-IDxsaW51eC9rZXJuZWwuaD4KICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KICNpbmNsdWRlIDxs
-aW51eC9pbml0Lmg+CiAjaW5jbHVkZSA8bGludXgvdHlwZXMuaD4KICNpbmNsdWRlIDxsaW51eC9w
-cm9jX2ZzLmg+CisjaWZkZWYgQ09ORklHX0FDUElfQVNVU19ORVdfTEVECisjaW5jbHVkZSA8bGlu
-dXgvbGVkcy5oPgorI2VuZGlmCiAjaW5jbHVkZSA8YWNwaS9hY3BpX2RyaXZlcnMuaD4KICNpbmNs
-dWRlIDxhY3BpL2FjcGlfYnVzLmg+CiAjaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4KQEAgLTU0NCw2
-ICs1NDgsMTQ1IEBACiAJcmV0dXJuIGNvdW50OwogfQogCisjaWZkZWYgQ09ORklHX0FDUElfQVNV
-U19ORVdfTEVECisKKy8qIFRoZXNlIGZ1bmN0aW9ucyBhcmUgY2FsbGVkIGJ5IHRoZSBMRUQgc3Vi
-c3lzdGVtIHRvIHVwZGF0ZSB0aGUgZGVzaXJlZAorICogc3RhdGUgb2YgdGhlIExFRCdzLiAqLwor
-c3RhdGljIHZvaWQgbGVkX3NldF9tbGVkKHN0cnVjdCBsZWRfY2xhc3NkZXYgKmxlZF9jZGV2LAor
-CQkJCWVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpOworc3RhdGljIHZvaWQgbGVkX3NldF93bGVk
-KHN0cnVjdCBsZWRfY2xhc3NkZXYgKmxlZF9jZGV2LAorCQkJCWVudW0gbGVkX2JyaWdodG5lc3Mg
-dmFsdWUpOworc3RhdGljIHZvaWQgbGVkX3NldF90bGVkKHN0cnVjdCBsZWRfY2xhc3NkZXYgKmxl
-ZF9jZGV2LAorCQkJCWVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpOworCisvKiBMRUQgY2xhc3Mg
-ZGV2aWNlcy4gKi8KK3N0YXRpYyBzdHJ1Y3QgbGVkX2NsYXNzZGV2IGxlZF9jZGV2X21sZWQgPQor
-CXsgLm5hbWUgPSAiYXN1czptYWlsIiwgICAgIC5icmlnaHRuZXNzX3NldCA9IGxlZF9zZXRfbWxl
-ZCB9Oworc3RhdGljIHN0cnVjdCBsZWRfY2xhc3NkZXYgbGVkX2NkZXZfd2xlZCA9CisJeyAubmFt
-ZSA9ICJhc3VzOndpcmVsZXNzIiwgLmJyaWdodG5lc3Nfc2V0ID0gbGVkX3NldF93bGVkIH07Citz
-dGF0aWMgc3RydWN0IGxlZF9jbGFzc2RldiBsZWRfY2Rldl90bGVkID0KKwl7IC5uYW1lID0gImFz
-dXM6dG91Y2hwYWQiLCAuYnJpZ2h0bmVzc19zZXQgPSBsZWRfc2V0X3RsZWQgfTsKKworLyogVGhl
-c2UgZnVuY3Rpb25zIGFjdHVhbGx5IHVwZGF0ZSB0aGUgTEVEJ3MsIGFuZCBhcmUgY2FsbGVkIGZy
-b20gYQorICogd29ya3F1ZXVlLiAgQnkgZG9pbmcgdGhpcyBhcyBzZXBhcmF0ZSB3b3JrIHJhdGhl
-ciB0aGFuIHdoZW4gdGhlIExFRAorICogc3Vic3lzdGVtIGFza3MsIEkgYXZvaWQgbWVzc2luZyB3
-aXRoIHRoZSBBc3VzIEFDUEkgc3R1ZmYgZHVyaW5nIGEKKyAqIHBvdGVudGlhbGx5IGJhZCB0aW1l
-LCBzdWNoIGFzIGEgdGltZXIgaW50ZXJydXB0LiAqLworc3RhdGljIHZvaWQgbGVkX3VwZGF0ZV9t
-bGVkKHZvaWQgKnByaXZhdGUpOworc3RhdGljIHZvaWQgbGVkX3VwZGF0ZV93bGVkKHZvaWQgKnBy
-aXZhdGUpOworc3RhdGljIHZvaWQgbGVkX3VwZGF0ZV90bGVkKHZvaWQgKnByaXZhdGUpOworCisv
-KiBEZXNpcmVkIHZhbHVlcyBvZiBMRUQncy4gKi8KK3N0YXRpYyBpbnQgbGVkX21sZWRfdmFsdWUg
-PSAwOworc3RhdGljIGludCBsZWRfd2xlZF92YWx1ZSA9IDA7CitzdGF0aWMgaW50IGxlZF90bGVk
-X3ZhbHVlID0gMDsKKworLyogTEVEIHdvcmtxdWV1ZS4gKi8KK3N0YXRpYyBzdHJ1Y3Qgd29ya3F1
-ZXVlX3N0cnVjdCAqbGVkX3dvcmtxdWV1ZTsKKworLyogTEVEIHVwZGF0ZSB3b3JrIHN0cnVjdHMu
-ICovCitERUNMQVJFX1dPUksobGVkX21sZWRfd29yaywgbGVkX3VwZGF0ZV9tbGVkLCBOVUxMKTsK
-K0RFQ0xBUkVfV09SSyhsZWRfd2xlZF93b3JrLCBsZWRfdXBkYXRlX3dsZWQsIE5VTEwpOworREVD
-TEFSRV9XT1JLKGxlZF90bGVkX3dvcmssIGxlZF91cGRhdGVfdGxlZCwgTlVMTCk7CisKKy8qIExF
-RCBzdWJzeXN0ZW0gY2FsbGJhY2tzLiAqLworc3RhdGljIHZvaWQgbGVkX3NldF9tbGVkKHN0cnVj
-dCBsZWRfY2xhc3NkZXYgKmxlZF9jZGV2LAorCWVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpCit7
-CisJbGVkX21sZWRfdmFsdWUgPSB2YWx1ZTsKKwlxdWV1ZV93b3JrKGxlZF93b3JrcXVldWUsICZs
-ZWRfbWxlZF93b3JrKTsKK30KKworc3RhdGljIHZvaWQgbGVkX3NldF93bGVkKHN0cnVjdCBsZWRf
-Y2xhc3NkZXYgKmxlZF9jZGV2LAorCWVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpCit7CisJbGVk
-X3dsZWRfdmFsdWUgPSB2YWx1ZTsKKwlxdWV1ZV93b3JrKGxlZF93b3JrcXVldWUsICZsZWRfd2xl
-ZF93b3JrKTsKK30KKworc3RhdGljIHZvaWQgbGVkX3NldF90bGVkKHN0cnVjdCBsZWRfY2xhc3Nk
-ZXYgKmxlZF9jZGV2LAorCWVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpCit7CisJbGVkX3RsZWRf
-dmFsdWUgPSB2YWx1ZTsKKwlxdWV1ZV93b3JrKGxlZF93b3JrcXVldWUsICZsZWRfdGxlZF93b3Jr
-KTsKK30KKworLyogTEVEIHdvcmsgZnVuY3Rpb25zLiAqLworc3RhdGljIHZvaWQgbGVkX3VwZGF0
-ZV9tbGVkKHZvaWQgKnByaXZhdGUpIHsKKwljaGFyICpsZWRuYW1lID0gaG90ay0+bWV0aG9kcy0+
-bXRfbWxlZDsKKwlpbnQgbGVkX291dCA9IGxlZF9tbGVkX3ZhbHVlID8gMSA6IDA7CisJaG90ay0+
-c3RhdHVzID0gKGxlZF9vdXQpID8gKGhvdGstPnN0YXR1cyB8IE1MRURfT04pIDogKGhvdGstPnN0
-YXR1cyAmIH5NTEVEX09OKTsKKwlsZWRfb3V0ID0gMSAtIGxlZF9vdXQ7CisJaWYgKCF3cml0ZV9h
-Y3BpX2ludChob3RrLT5oYW5kbGUsIGxlZG5hbWUsIGxlZF9vdXQsIE5VTEwpKQorCQlwcmludGso
-S0VSTl9XQVJOSU5HICJBc3VzIEFDUEk6IExFRCAoJXMpIHdyaXRlIGZhaWxlZFxuIiwKKwkJICAg
-ICAgIGxlZG5hbWUpOworfQorCitzdGF0aWMgdm9pZCBsZWRfdXBkYXRlX3dsZWQodm9pZCAqcHJp
-dmF0ZSkgeworCWNoYXIgKmxlZG5hbWUgPSBob3RrLT5tZXRob2RzLT5tdF93bGVkOworCWludCBs
-ZWRfb3V0ID0gbGVkX3dsZWRfdmFsdWUgPyAxIDogMDsKKwlob3RrLT5zdGF0dXMgPSAobGVkX291
-dCkgPyAoaG90ay0+c3RhdHVzIHwgV0xFRF9PTikgOiAoaG90ay0+c3RhdHVzICYgfldMRURfT04p
-OworCWlmICghd3JpdGVfYWNwaV9pbnQoaG90ay0+aGFuZGxlLCBsZWRuYW1lLCBsZWRfb3V0LCBO
-VUxMKSkKKwkJcHJpbnRrKEtFUk5fV0FSTklORyAiQXN1cyBBQ1BJOiBMRUQgKCVzKSB3cml0ZSBm
-YWlsZWRcbiIsCisJCSAgICAgICBsZWRuYW1lKTsKK30KKworc3RhdGljIHZvaWQgbGVkX3VwZGF0
-ZV90bGVkKHZvaWQgKnByaXZhdGUpIHsKKwljaGFyICpsZWRuYW1lID0gaG90ay0+bWV0aG9kcy0+
-bXRfdGxlZDsKKwlpbnQgbGVkX291dCA9IGxlZF90bGVkX3ZhbHVlID8gMSA6IDA7CisJaG90ay0+
-c3RhdHVzID0gKGxlZF9vdXQpID8gKGhvdGstPnN0YXR1cyB8IFRMRURfT04pIDogKGhvdGstPnN0
-YXR1cyAmIH5UTEVEX09OKTsKKwlpZiAoIXdyaXRlX2FjcGlfaW50KGhvdGstPmhhbmRsZSwgbGVk
-bmFtZSwgbGVkX291dCwgTlVMTCkpCisJCXByaW50ayhLRVJOX1dBUk5JTkcgIkFzdXMgQUNQSTog
-TEVEICglcykgd3JpdGUgZmFpbGVkXG4iLAorCQkgICAgICAgbGVkbmFtZSk7Cit9CisKKy8qIFJl
-Z2lzdGVycyBMRUQgY2xhc3MgZGV2aWNlcyBhbmQgc2V0cyB1cCB3b3JrcXVldWUuICovCitzdGF0
-aWMgaW50IGxlZF9pbml0aWFsaXplKHN0cnVjdCBkZXZpY2UgKnBhcmVudCkKK3sKKwlpbnQgcmVz
-dWx0OworCisJaWYgKGhvdGstPm1ldGhvZHMtPm10X21sZWQpIHsKKwkJcmVzdWx0ID0gbGVkX2Ns
-YXNzZGV2X3JlZ2lzdGVyKHBhcmVudCwgJmxlZF9jZGV2X21sZWQpOworCQlpZiAocmVzdWx0KQor
-CQkJcmV0dXJuIHJlc3VsdDsKKwl9CisKKwlpZiAoaG90ay0+bWV0aG9kcy0+bXRfd2xlZCkgewor
-CQlyZXN1bHQgPSBsZWRfY2xhc3NkZXZfcmVnaXN0ZXIocGFyZW50LCAmbGVkX2NkZXZfd2xlZCk7
-CisJCWlmIChyZXN1bHQpCisJCQlyZXR1cm4gcmVzdWx0OworCX0KKworCWlmIChob3RrLT5tZXRo
-b2RzLT5tdF90bGVkKSB7CisJCXJlc3VsdCA9IGxlZF9jbGFzc2Rldl9yZWdpc3RlcihwYXJlbnQs
-ICZsZWRfY2Rldl90bGVkKTsKKwkJaWYgKHJlc3VsdCkKKwkJCXJldHVybiByZXN1bHQ7CisJfQor
-CisJbGVkX3dvcmtxdWV1ZSA9IGNyZWF0ZV9zaW5nbGV0aHJlYWRfd29ya3F1ZXVlKCJsZWRfd29y
-a3F1ZXVlIik7CisKKwlyZXR1cm4gMDsKK30KKworLyogRGVzdHJveXMgdGhlIHdvcmtxdWV1ZSBh
-bmQgdW5yZWdpc3RlcnMgdGhlIExFRCBjbGFzcyBkZXZpY2VzLiAqLworc3RhdGljIHZvaWQgbGVk
-X3Rlcm1pbmF0ZSh2b2lkKQoreworCWRlc3Ryb3lfd29ya3F1ZXVlKGxlZF93b3JrcXVldWUpOwor
-CisJaWYgKGhvdGstPm1ldGhvZHMtPm10X3RsZWQpIHsKKwkJbGVkX2NsYXNzZGV2X3VucmVnaXN0
-ZXIoJmxlZF9jZGV2X3RsZWQpOworCX0KKworCWlmIChob3RrLT5tZXRob2RzLT5tdF93bGVkKSB7
-CisJCWxlZF9jbGFzc2Rldl91bnJlZ2lzdGVyKCZsZWRfY2Rldl93bGVkKTsKKwl9CisKKwlpZiAo
-aG90ay0+bWV0aG9kcy0+bXRfbWxlZCkgeworCQlsZWRfY2xhc3NkZXZfdW5yZWdpc3RlcigmbGVk
-X2NkZXZfbWxlZCk7CisJfQorfQorCisjZW5kaWYKKwogLyoKICAqIFByb2MgaGFuZGxlcnMgZm9y
-IE1MRUQKICAqLwpAQCAtMTE4MCw2ICsxMzIzLDEwIEBACiAJCX0KIAl9CiAKKyNpZmRlZiBDT05G
-SUdfQUNQSV9BU1VTX05FV19MRUQKKwlyZXN1bHQgPSBsZWRfaW5pdGlhbGl6ZShhY3BpX2dldF9w
-aHlzaWNhbF9kZXZpY2UoZGV2aWNlLT5oYW5kbGUpKTsKKyNlbmRpZgorCiAgICAgICBlbmQ6CiAJ
-aWYgKHJlc3VsdCkgewogCQlrZnJlZShob3RrKTsKQEAgLTExOTIsNiArMTMzOSwxMCBAQAogewog
-CWFjcGlfc3RhdHVzIHN0YXR1cyA9IDA7CiAKKyNpZmRlZiBDT05GSUdfQUNQSV9BU1VTX05FV19M
-RUQKKwlsZWRfdGVybWluYXRlKCk7CisjZW5kaWYKKwogCWlmICghZGV2aWNlIHx8ICFhY3BpX2Ry
-aXZlcl9kYXRhKGRldmljZSkpCiAJCXJldHVybiAtRUlOVkFMOwogCmRpZmYgLXVkciBsaW51eC0y
-LjYuMTcuMS9kcml2ZXJzL2FjcGkvS2NvbmZpZyBsaW51eC0yLjYuMTcuMS1taW5lL2RyaXZlcnMv
-YWNwaS9LY29uZmlnCi0tLSBsaW51eC0yLjYuMTcuMS9kcml2ZXJzL2FjcGkvS2NvbmZpZwkyMDA2
-LTA3LTA1IDE5OjM5OjI1LjAwMDAwMDAwMCAtMDQwMAorKysgbGludXgtMi42LjE3LjEtbWluZS9k
-cml2ZXJzL2FjcGkvS2NvbmZpZwkyMDA2LTA3LTA1IDIwOjQ0OjAwLjAwMDAwMDAwMCAtMDQwMApA
-QCAtMTkyLDYgKzE5MiwxNSBAQAogICAgICAgICAgIGRyaXZlciBpcyBzdGlsbCB1bmRlciBkZXZl
-bG9wbWVudCwgc28gaWYgeW91ciBsYXB0b3AgaXMgdW5zdXBwb3J0ZWQgb3IKICAgICAgICAgICBz
-b21ldGhpbmcgd29ya3Mgbm90IHF1aXRlIGFzIGV4cGVjdGVkLCBwbGVhc2UgdXNlIHRoZSBtYWls
-aW5nIGxpc3QKICAgICAgICAgICBhdmFpbGFibGUgb24gdGhlIGFib3ZlIHBhZ2UgKGFjcGk0YXN1
-cy11c2VyQGxpc3RzLnNvdXJjZWZvcmdlLm5ldCkKKworY29uZmlnIEFDUElfQVNVU19ORVdfTEVE
-CisJYm9vbCAiQVNVUy9NZWRpb24gTEVEIHN1YnN5c3RlbSBpbnRlZ3JhdGlvbiIKKwlkZXBlbmRz
-IG9uIEFDUElfQVNVUworCWRlcGVuZHMgb24gTEVEU19DTEFTUworCS0tLWhlbHAtLS0KKwkgIFRo
-aXMgYWRkcyBzdXBwb3J0IGZvciB0aGUgbmV3IExFRCBzdWJzeXN0ZW0gdG8gdGhlIGFzdXNfYWNw
-aQorCSAgZHJpdmVyLiAgVGhlIExFRCdzIHdpbGwgc2hvdyB1cCBhcyBhc3VzOm1haWwsIGFzdXM6
-d2lyZWxlc3MsCisJICBhbmQgYXN1czp0b3VjaHBhZCwgYXMgYXBwbGljYWJsZSB0byB5b3VyIGxh
-cHRvcC4KICAgICAgICAgICAKIGNvbmZpZyBBQ1BJX0lCTQogCXRyaXN0YXRlICJJQk0gVGhpbmtQ
-YWQgTGFwdG9wIEV4dHJhcyIK
-------=_Part_6995_11284021.1152148753951--
+On Thu, 2006-07-06 at 03:44, Linas Vepstas wrote:
+> On Wed, Jul 05, 2006 at 08:49:27AM -0700, Auke Kok wrote:
+> > Zhang, Yanmin wrote:
+> > >On Fri, 2006-06-30 at 00:26, Linas Vepstas wrote:
+> > >>Adds PCI Error recovery callbacks to the Intel 10-gigabit ethernet
+> > >>ixgb device driver. Lightly tested, works.
+> > >
+> > >Both pci_disable_device and ixgb_down would access the device. It doesn't
+> > >follow Documentation/pci-error-recovery.txt that error_detected shouldn't 
+> > >do
+> > >any access to the device.
+> > 
+> > Moreover, it was Linas who wrote this documentation in the first place :)
+> 
+> On the pSeries, its harmless to try to do i/o; the i/o will e blocked.
+In the future, we might move the pci error recovery codes to generic to
+support other platforms which might not block I/O. So it's better to follow
+Documentation/pci-error-recovery.txt when adding error recovery codes into driver.

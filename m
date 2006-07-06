@@ -1,38 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWGFX3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbWGFXdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWGFX3s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWGFX3r
+	id S1751047AbWGFXdl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 19:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWGFXdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:29:47 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:29920 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S1751043AbWGFX3r (ORCPT
+	Thu, 6 Jul 2006 19:33:40 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9198 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751046AbWGFXdk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:29:47 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: linux-acpi@vger.kernel.org
-Subject: [ANNOUNCE] pnputils-0.1
-Date: Thu, 6 Jul 2006 17:29:42 -0600
-User-Agent: KMail/1.8.3
-Cc: David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Jul 2006 19:33:40 -0400
+Date: Fri, 7 Jul 2006 09:32:46 +1000
+From: David Chinner <dgc@sgi.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: xfs-masters@oss.sgi.com, xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: fs/xfs/xfs_vnodeops.c:xfs_readdir(): NULL variable dereferenced
+Message-ID: <20060706233246.GB15160733@melbourne.sgi.com>
+References: <20060706211320.GW26941@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607061729.42210.bjorn.helgaas@hp.com>
+In-Reply-To: <20060706211320.GW26941@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There used to be an "lspnp" buried in the pcmcia-cs package.  That
-package seems to be obsolete, and it's now a strange place for PNP
-utilities anyway.
+On Thu, Jul 06, 2006 at 11:13:20PM +0200, Adrian Bunk wrote:
+> The Coverity checker spotted the following:
+> 
+> <--  snip  -->
+> 
+> ...
+> STATIC int
+> xfs_readdir(
+>         bhv_desc_t      *dir_bdp,
+>         uio_t           *uiop,
+>         cred_t          *credp,
+>         int             *eofp)
+> {
+>         xfs_inode_t     *dp;
+>         xfs_trans_t     *tp = NULL;
+>         int             error = 0;
+>         uint            lock_mode;
+> 
+>         vn_trace_entry(BHV_TO_VNODE(dir_bdp), __FUNCTION__,
+>                                                (inst_t *)__return_address);
+>         dp = XFS_BHVTOI(dir_bdp);
+> 
+>         if (XFS_FORCED_SHUTDOWN(dp->i_mount))
+>                 return XFS_ERROR(EIO);
+> 
+>         lock_mode = xfs_ilock_map_shared(dp);
+>         error = xfs_dir_getdents(tp, dp, uiop, eofp);
+>         xfs_iunlock_map_shared(dp, lock_mode);
+>         return error;
+> }
+> ...
+> 
+> <--  snip  -->
+> 
+> Note that tp is never assigned any value other than NULL (and the 
+> Coverity checker found a way how tp might be dereferenced four function 
+> calls later).
 
-So I pulled out lspnp and setpnp from pcmcia-cs and put them together
-in a little "pnputils" package.
+Then the bug is probably in the function call that uses tp without
+first checking whether it's null. Can you tell us where that dereference
+occurs?
 
-I also extended it slightly, so lspnp will work for ISAPNP and
-PNPACPI devices in addition to PNPBIOS, and added a few PNP device
-IDs.  setpnp still only works for PNPBIOS.
+Cheers,
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/helgaas/pnputils-0.1.tar.gz
+Dave.
+
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

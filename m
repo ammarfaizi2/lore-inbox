@@ -1,38 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWGFTC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWGFTDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWGFTC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 15:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbWGFTC5
+	id S1750733AbWGFTDW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 15:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWGFTDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 15:02:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54233 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750704AbWGFTC4 (ORCPT
+	Thu, 6 Jul 2006 15:03:22 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:27363 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1750733AbWGFTDV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 15:02:56 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060706113922.ac32eff3.akpm@osdl.org> 
-References: <20060706113922.ac32eff3.akpm@osdl.org>  <20060706103134.197c8679.akpm@osdl.org> <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com> <20060706124721.7098.50514.stgit@warthog.cambridge.redhat.com> <25855.1152210303@warthog.cambridge.redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       bernds_cb1@t-online.de, sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/6] FRV: Fix FRV arch compile errors [try #3] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 06 Jul 2006 20:02:44 +0100
-Message-ID: <26605.1152212564@warthog.cambridge.redhat.com>
+	Thu, 6 Jul 2006 15:03:21 -0400
+Message-ID: <44AD5E5C.6070703@colorfullife.com>
+Date: Thu, 06 Jul 2006 21:02:52 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ulrich Drepper <drepper@redhat.com>
+CC: Michael Kerrisk <mtk-manpages@gmx.net>, mtk-lkml@gmx.net, rlove@rlove.org,
+       roland@redhat.com, eggert@cs.ucla.edu, paire@ri.silicomp.fr,
+       torvalds@osdl.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       michael.kerrisk@gmx.net
+Subject: Re: Strange Linux behaviour with blocking syscalls and stop signals+SIGCONT
+References: <44A92DC8.9000401@gmx.net> <44AABB31.8060605@colorfullife.com> <20060706092328.320300@gmx.net> <44AD599D.70803@colorfullife.com> <44AD5CB6.7000607@redhat.com>
+In-Reply-To: <44AD5CB6.7000607@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+Ulrich Drepper wrote:
 
-> Right now we're showing a grand total of two identifiers tagged with
-> __initdata in all of include/.  Why isn't FRV blowing up all over the
-> place?  Is there something about nr_kernel_pages which made us get unlucky?
+>Manfred Spraul wrote:
+>  
+>
+>>1) I would go further and try ERESTARTSYS: ERESTARTSYS means that the
+>>kernel signal handler honors SA_RESTART
+>>2) At least for the futex functions, it won't be as easy as replacing
+>>EINTR wiht ERESTARTSYS: the futex functions receive a timeout a the
+>>parameter, with the duration of the wait call as a parameter. You must
+>>use ERESTART_RESTARTBLOCK.
+>>    
+>>
+>
+>Whoa, not so fast.  At least the futex syscall but be interruptible by
+>signals.  It is crucial to return EINTR.
+>
+>  
+>
+Yes, of course.
+ERESTARTSYS means honor SA_RESTART.
+EINTR means return from the syscall, even if SA_RESTART is set in the 
+signal handler.
 
-There used to be more than that, IIRC.  It's possible that they've mostly been
-localised to single .c files.  I'll have to find the patch in which I dealt
-with this originally and look.
+Is it necessary that the futex syscall ignores SA_RESTART?
 
-It may also be that there aren't that many anymore that aren't static and/or
-aren't confined to arch code.
+--
+    Manfred
 
-Davod
+

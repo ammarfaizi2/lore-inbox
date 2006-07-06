@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWGFSZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWGFS1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbWGFSZT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 14:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWGFSZT
+	id S1750726AbWGFS1c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 14:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWGFS1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 14:25:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58558 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750719AbWGFSZS (ORCPT
+	Thu, 6 Jul 2006 14:27:32 -0400
+Received: from colin.muc.de ([193.149.48.1]:31506 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1750726AbWGFS1b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 14:25:18 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060706103134.197c8679.akpm@osdl.org> 
-References: <20060706103134.197c8679.akpm@osdl.org>  <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com> <20060706124721.7098.50514.stgit@warthog.cambridge.redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       bernds_cb1@t-online.de, sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/6] FRV: Fix FRV arch compile errors [try #3] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 06 Jul 2006 19:25:03 +0100
-Message-ID: <25855.1152210303@warthog.cambridge.redhat.com>
+	Thu, 6 Jul 2006 14:27:31 -0400
+Date: 6 Jul 2006 20:27:29 +0200
+Date: Thu, 6 Jul 2006 20:27:29 +0200
+From: Andi Kleen <ak@muc.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Doug Thompson <norsk5@yahoo.com>, akpm@osdl.org,
+       mm-commits@vger.kernel.org, norsk5@xmission.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch added to -mm tree
+Message-ID: <20060706182729.GA97717@muc.de>
+References: <20060704113441.GA26023@muc.de> <1152137302.6533.28.camel@localhost.localdomain> <20060705220425.GB83806@muc.de> <m1odw32rep.fsf@ebiederm.dsl.xmission.com> <20060706130153.GA66955@muc.de> <m18xn621i6.fsf@ebiederm.dsl.xmission.com> <20060706165159.GB66955@muc.de> <m18xn6zkx3.fsf@ebiederm.dsl.xmission.com> <20060706180826.GA95795@muc.de> <1152210898.13734.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152210898.13734.12.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+On Thu, Jul 06, 2006 at 07:34:58PM +0100, Alan Cox wrote:
+> Ar Iau, 2006-07-06 am 20:08 +0200, ysgrifennodd Andi Kleen:
+> > > No. There is a status report that tells you which pieces of hardware
+> > > your memory controller sees.  It is just a simple list.
+> > 
+> > Ok but that could be also done easily in user space that reads
+> > PCI config space. No need for a complicated kernel driver at all.
+> 
+> The same is true of writing a file system and disk driver so I'm a bit
+> confused why you think poking around in PCI space from user space is an
+> argument or given how often such stuff breaks and how messy it gets (eg
+> X) that we want to encourage it
 
-> - The __init-style tags on declarations don't actually do anything and
->   the compiler doesn't check for consistency with the definition - it's
->   best to just omit it from the declaration.
+It depends on what you do. First a large part of X's messiness
+comes from it not using the proper interfaces.
+Or it trying to do complicated things like messing with bridges. 
 
-Well, you're wrong.  They *do* do something.  They stop the compiler using the
-register-relative addressing reserved for small data.  If this isn't in there,
-then the linker will spit out a relocation error.
+Then anything with MMIO or interrupts or anything dynamic 
+definitely belongs into kernel space agreed.
 
-On fixed-size instruction architectures, it takes several instructions to
-dereference an absolute address, so you try and squeeze all your small data
-into a section of its own, plonk a register in the middle of it, and use
-indirect-addressing relative to that register.  This saves you two or more
-instructions and a register on each normal global variable access.
+But at least on K8 DIMM inventory is purely reading PCI config space on
+something that doesn't change and doesn't need any locking. 
+It also doesn't need to do anything complicated, but just look
+for the right PCI ID.
 
-For instance, on FRV, it may change:
+I don't see an issue with such simple static things in user space.
 
-	sethi.p		%hi(nr_kernel_pages),gr4
-	setlo		%lo(nr_kernel_pages),gr4
-	ld		@(gr4,gr0),gr5
+I could probably write it as a shell script that parses lspci output
+(not saying that that would be the right way, but it's certainly
+doable)
 
-Into:
+-Andi 
 
-	ld		@(gr16,%gprel(nr_kernel_pages)),gr5
-
-Small data is 1-byte, 2-byte, 4-byte or 8-byte values that aren't arrays or
-const.
-
-Setting a section marker on the variable *declaration* disables the
-gp-relative addressing and forces the longer absolute addressing.
-
-> - Setting nr_kernel_pages to be unloaded at free_initmem() seems risky.
-
-That's nothing to do with my patch.
-
-> - nr_kernel_pages is actually __meminitdata.
-
-Okay, I'll fix my patch to be that instead.
-
-David

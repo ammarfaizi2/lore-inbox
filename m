@@ -1,87 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWGFVjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWGFVkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWGFVjO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 17:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWGFVjO
+	id S1750782AbWGFVkk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 17:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWGFVkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 17:39:14 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:60977 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750778AbWGFVjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 17:39:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=ucL9px/Va1C5UDMT2ZaULXtoSlaxO4yp8SLBqJGxy5Kz+lM+VOQ8M5p82Qys1JDD/Aa99QghQ4moB/3fcdgK2pNwKiRf0QHcBgFVQpRX1i1Ev4Den0rXnkcME7jgdtQoZga9BfPyVIKNlukzFc0Dl8lH6tcKzfAF2tE53MOZHQM=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][ACPI] Missing newline in acpi messes up dmesg output
-Date: Thu, 6 Jul 2006 23:40:22 +0200
-User-Agent: KMail/1.9.3
-Cc: Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>,
-       Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org
+	Thu, 6 Jul 2006 17:40:40 -0400
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:61117 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750782AbWGFVkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 17:40:39 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: Driver for Microsoft USB Fingerprint Reader
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux@horizon.com,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Thu, 06 Jul 2006 23:39:44 +0200
+References: <6vtYr-w2-5@gated-at.bofh.it> <6vFQ5-1iV-71@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607062340.23137.jesper.juhl@gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1FybZs-0000e5-5K@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Ar Iau, 2006-07-06 am 00:48 -0400, ysgrifennodd linux@horizon.com:
 
-There's a tiny bug in 2.6.18-rc1.
-In drivers/acpi/bus.c::acpi_bus_set_power() there's a check to see if
-the device is power_manageable and if not then print a debug message
-and return -ENODEV. The debug printk() is missing a \n.
+>> As far as I can tell, the only thing you want is AUTHENTICATION - you
+>> want proof that you are getting a "live" scan taken from a user
+>> who's present, and not a replay of what was sent last week.
+> 
+> Read the papers on the subject. If I can get copies of the unencrypted
+> data I can use those to make fake fingers.
 
-The printk statement looks like this : 
+Copies like the one on the glass I used in the restaurant ...
 
-          printk(KERN_DEBUG "Device `[%s]' is not power manageable",
-                          device->kobj.name);
+> A finger print is personal data, arguably sensitive personal data. That
+> means there are lots of duties to store it securely.
 
-As you can see, there's no newline at the end, and that causes 
-problems for the next message to be printed.
+That's why every waiter will assiduously clean your glass. won't he?
 
-On my system the above results in this in dmesg : 
+> It is also very
+> hard to revoke a fingerprint so theft of data is highly problematic as
+> it will allow me to generate fake fingers.
 
-...
-Device `[PEB1]' is not power manageable<6>ACPI: PCI Interrupt 0000:00:01.0[A] -> GSI 29 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:01.0 to 64
-Device `[PEB2]' is not power manageable<6>ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 34 (level, low) -> IRQ 17
-...
+That's the problem: You can't know who is acting responsibly and who isn't.
+Therefore you can't reuse your fingerprint on different sites.
 
-Adding a newline (as the patch below does) turns this into
+> Theft of encrypted data might
+> allow replay attacks on one PC. Big deal.
 
-...
-Device `[PEB1]' is not power manageable
-ACPI: PCI Interrupt 0000:00:01.0[A] -> GSI 29 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:01.0 to 64
-Device `[PEB2]' is not power manageable
-ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 34 (level, low) -> IRQ 17
-...
+ACK. It should be protected by a nonce, too, as long as you depend on
+encryption. You should also authenticate the reader before prompting for
+a fingerprint, otherwise the replacement device might store the image to a
+secondary location. And don't forget to prompt for cleaning the scanner, I
+have heared rumors about scanners erroneously authenticating the previous
+user. You should also install a camera preventing an attacker to place his
+own scanner on top of yours.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
-Which is much nicer :-)
-
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- drivers/acpi/bus.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.18-rc1-orig/drivers/acpi/bus.c	2006-07-06 19:39:29.000000000 +0200
-+++ linux-2.6.18-rc1/drivers/acpi/bus.c	2006-07-06 23:23:12.000000000 +0200
-@@ -192,7 +192,7 @@ int acpi_bus_set_power(acpi_handle handl
- 	/* Make sure this is a valid target state */
- 
- 	if (!device->flags.power_manageable) {
--		printk(KERN_DEBUG "Device `[%s]' is not power manageable",
-+		printk(KERN_DEBUG "Device `[%s]' is not power manageable\n",
- 				device->kobj.name);
- 		return -ENODEV;
- 	}
-
-
-
+http://david.woodhou.se/why-not-spf.html

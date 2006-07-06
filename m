@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWGFMPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbWGFMV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbWGFMPe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 08:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWGFMPe
+	id S1030227AbWGFMV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 08:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWGFMV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 08:15:34 -0400
-Received: from smtp17.orange.fr ([193.252.23.111]:41844 "EHLO smtp17.orange.fr")
-	by vger.kernel.org with ESMTP id S1030220AbWGFMPe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 08:15:34 -0400
-X-ME-UUID: 20060706121532929.E2D3C7000093@mwinf1708.orange.fr
-Subject: Re: Blatant layering violations (was Re: ext4 features)
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Valerie Henson <val_henson@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Helge Hafting <helgehaf@aitel.hist.no>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060706003638.GL5231@goober>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
-	 <20060701170729.GB8763@irc.pl>
-	 <20060701174716.GC24570@cip.informatik.uni-erlangen.de>
-	 <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no>
-	 <20060703205523.GA17122@irc.pl>  <20060706003638.GL5231@goober>
-Content-Type: text/plain
-Message-Id: <1152188126.3490.215.camel@capoeira>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Thu, 06 Jul 2006 14:15:26 +0200
+	Thu, 6 Jul 2006 08:21:58 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:17025 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1030227AbWGFMV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 08:21:57 -0400
+Message-ID: <44AD018D.8050204@gentoo.org>
+Date: Thu, 06 Jul 2006 13:26:53 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
+MIME-Version: 1.0
+To: linux@horizon.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Driver for Microsoft USB Fingerprint Reader
+References: <20060706044838.30651.qmail@science.horizon.com>
+In-Reply-To: <20060706044838.30651.qmail@science.horizon.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-06 at 02:36, Valerie Henson wrote:
-> For a really nice, much more detailed ZFS source tour, see:
+linux@horizon.com wrote:
+> I utterly fail to see why multiple, generally knowledgeable people are
+> claiming that encryption in a fingerprint scanner is desirable.
 > 
-> http://www.opensolaris.org/os/community/zfs/source/
+> As far as I can tell, the only thing you want is AUTHENTICATION - you
+> want proof that you are getting a "live" scan taken from a user
+> who's present, and not a replay of what was sent last week.
+> 
+> This is called "freshness" and is usually provided by including a
+> random "nonce" (known in other contexts as "magic cookie") in the
+> authenticated data.
 
-Posting an URL with CDDL-licensed sourcecode to LKML seems weird to me.
-Do you try to pull an SCO ? :)
+The Digital Persona readers apparently use a challenge-response 
+authentication scheme for the encryption. I think I know the 
+challenge-sending and response-reading command structure but have not 
+yet examined their effect on the encrypted fingerprint data.
 
-	Xav
+> Not that I expect "A-1 Computer Corporation" in Shenzhen to have a clue
+> about these things, but you'd think that Microsoft would have one or
+> two competent employees left on the payroll.
 
+Now theres an interesting story in this area. The Microsoft fingerprint 
+readers are based on Digital Persona devices, and actually they seem to 
+be completely identical. But when comparing bus traffic for the DP 
+devices vs the MS devices, the DP devices send encrypted fingerprint 
+data and the MS devices send it as unencrypted 8-bit greyscale.
+
+Anyway, further investigation shows a 1 bit difference in the firmware 
+uploaded to each device, and I have confirmed that this bit turns 
+encryption on and off.
+
+IOW, MS's device are capable of encryption but they explicitly turned it 
+off at the firmware level.
+
+Daniel

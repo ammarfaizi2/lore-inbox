@@ -1,89 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWGFNVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWGFNka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030265AbWGFNVG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 09:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbWGFNVG
+	id S1030266AbWGFNka (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 09:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030264AbWGFNka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 09:21:06 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:24225 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030260AbWGFNVE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 09:21:04 -0400
-Subject: Re: [PATCH] per-task delay accounting taskstats interface: control
-	exit data through cpumasks]
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Reply-To: nagar@watson.ibm.com
-To: Thomas Graf <tgraf@suug.ch>
-Cc: Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@sgi.com>, pj@sgi.com,
-       Valdis.Kletnieks@vt.edu, Balbir Singh <balbir@in.ibm.com>,
-       csturtiv@sgi.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Jamal <hadi@cyberus.ca>, netdev <netdev@vger.kernel.org>
-In-Reply-To: <20060706120835.GY14627@postel.suug.ch>
-References: <44ACD7C3.5040008@watson.ibm.com>
-	 <20060706025633.cd4b1c1d.akpm@osdl.org>
-	 <1152185865.5986.15.camel@localhost.localdomain>
-	 <20060706120835.GY14627@postel.suug.ch>
+	Thu, 6 Jul 2006 09:40:30 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:34720 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1030266AbWGFNka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 09:40:30 -0400
+Subject: Re: [PATCH 1/6] FDPIC: Fix FDPIC compile errors [try #3]
+From: David Woodhouse <dwmw2@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, bernds_cb1@t-online.de, sam@ravnborg.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060706124719.7098.73359.stgit@warthog.cambridge.redhat.com>
+References: <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
+	 <20060706124719.7098.73359.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain
-Date: Thu, 06 Jul 2006 09:21:01 -0400
-Message-Id: <1152192061.1244.1.camel@manjushri.watson.ibm.com>
+Date: Thu, 06 Jul 2006 14:40:17 +0100
+Message-Id: <1152193217.2987.182.camel@pmac.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-06 at 14:08 +0200, Thomas Graf wrote:
-> * Shailabh Nagar <nagar@watson.ibm.com> 2006-07-06 07:37
-> > @@ -37,9 +45,26 @@ static struct nla_policy taskstats_cmd_g
-> >  __read_mostly = {
-> >  	[TASKSTATS_CMD_ATTR_PID]  = { .type = NLA_U32 },
-> >  	[TASKSTATS_CMD_ATTR_TGID] = { .type = NLA_U32 },
-> > +	[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK] = { .type = NLA_STRING },
-> > +	[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK] = { .type = NLA_STRING },};
+On Thu, 2006-07-06 at 13:47 +0100, David Howells wrote:
+> From: David Howells <dhowells@redhat.com>
 > 
-> > +		na = info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK];
-> > +		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
-> > +			return -E2BIG;
-> > +		rc = cpulist_parse((char *)nla_data(na), mask);
+> The attached patch fixes FDPIC compile errors
 > 
-> This isn't safe, the data in the attribute is not guaranteed to be
-> NUL terminated. Still it's probably me to blame for not making
-> this more obvious in the API.
+> Signed-Off-By: David Howells <dhowells@redhat.com>
+> ---
 > 
-> I've attached a patch below extending the API to make it easier
-> for interfaces using NUL termianted strings, so you'd do:
+>  fs/binfmt_elf_fdpic.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
 > 
-> [TASKSTATS_CMS_ATTR_REGISTER_CPUMASK] = { .type = NLA_NUL_STRING,
->                                           .len = TASKSTATS_CPUMASK_MAXLEN }
-> 
-> ... and then use (char *) nla_data(str_attr) without any further
-> sanity checks.
+> diff --git a/fs/binfmt_elf_fdpic.c b/fs/binfmt_elf_fdpic.c
+> index eba4e23..07624b9 100644
+> --- a/fs/binfmt_elf_fdpic.c
+> +++ b/fs/binfmt_elf_fdpic.c
+> @@ -459,6 +459,7 @@ #endif
+>  	 */
+>  	hwcap = ELF_HWCAP;
+>  	k_platform = ELF_PLATFORM;
+> +	u_platform = NULL;
+>  
+>  	if (k_platform) {
+>  		platform_len = strlen(k_platform) + 1;
 
+Isn't this just working around a compiler problem -- a spurious warning?
+It certainly shouldn't be a 'compile error',
 
-Thanks. That makes it much clearer. I was looking around for a "maxlen"
-attribute helper yesterday :-)
-
---Shailabh
-
-
-> 
-> [NETLINK]: Improve string attribute validation
-> 
-> Introduces a new attribute type NLA_NUL_STRING to support NUL
-> terminated strings. Attributes of this kind require to carry
-> a terminating NUL within the maximum specified in the policy.
-> 
-> The `old' NLA_STRING which is not required to be NUL terminated
-> is extended to provide means to specify a maximum length of the
-> string.
-> 
-> Aims at easing the pain with using nla_strlcpy() on temporary
-> buffers.
-> 
-> The old `minlen' field is renamed to `len' for cosmetic purposes
-> which is ok since nobody was using it at this point.
-> 
-> Signed-off-by: Thomas Graf <tgraf@suug.ch>
-
-<snip>
+-- 
+dwmw2
 

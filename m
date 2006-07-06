@@ -1,61 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbWGFMV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWGFM35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030227AbWGFMV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 08:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWGFMV6
+	id S1030229AbWGFM35 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 08:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWGFM35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 08:21:58 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:17025 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1030227AbWGFMV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 08:21:57 -0400
-Message-ID: <44AD018D.8050204@gentoo.org>
-Date: Thu, 06 Jul 2006 13:26:53 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
+	Thu, 6 Jul 2006 08:29:57 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:65298 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1030229AbWGFM34 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 08:29:56 -0400
 MIME-Version: 1.0
-To: linux@horizon.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Driver for Microsoft USB Fingerprint Reader
-References: <20060706044838.30651.qmail@science.horizon.com>
-In-Reply-To: <20060706044838.30651.qmail@science.horizon.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 06 Jul 2006 12:29:55.0221 (UTC) FILETIME=[E2FC9C50:01C6A0F7]
+Content-class: urn:content-classes:message
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Date: Thu, 6 Jul 2006 08:29:55 -0400
+Message-ID: <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
+In-Reply-To: <1152187268.3084.29.camel@laptopd505.fenrus.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] spinlocks: remove 'volatile'
+thread-index: Acag9+MG6p41tfWPT5aj2a7d6bU04Q==
+References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org> <20060706081639.GA24179@elte.hu> <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com> <1152187268.3084.29.camel@laptopd505.fenrus.org>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux@horizon.com wrote:
-> I utterly fail to see why multiple, generally knowledgeable people are
-> claiming that encryption in a fingerprint scanner is desirable.
-> 
-> As far as I can tell, the only thing you want is AUTHENTICATION - you
-> want proof that you are getting a "live" scan taken from a user
-> who's present, and not a replay of what was sent last week.
-> 
-> This is called "freshness" and is usually provided by including a
-> random "nonce" (known in other contexts as "magic cookie") in the
-> authenticated data.
 
-The Digital Persona readers apparently use a challenge-response 
-authentication scheme for the encryption. I think I know the 
-challenge-sending and response-reading command structure but have not 
-yet examined their effect on the encrypted fingerprint data.
+On Thu, 6 Jul 2006, Arjan van de Ven wrote:
 
-> Not that I expect "A-1 Computer Corporation" in Shenzhen to have a clue
-> about these things, but you'd think that Microsoft would have one or
-> two competent employees left on the payroll.
+> On Thu, 2006-07-06 at 07:59 -0400, linux-os (Dick Johnson) wrote:
+>> On Thu, 6 Jul 2006, Ingo Molnar wrote:
+>>
+>>>
+>>> * Linus Torvalds <torvalds@osdl.org> wrote:
+>>>
+>>>> I wonder if we should remove the "volatile". There really isn't
+>>>> anything _good_ that gcc can do with it, but we've seen gcc code
+>>>> generation do stupid things before just because "volatile" seems to
+>>>> just disable even proper normal working.
+>>
+>> Then GCC must be fixed. The keyword volatile is correct. It should
+>> force the compiler to read the variable every time it's used.
+>
+> this is not really what the C standard says.
+>
+>
+>
+>> This is not pointless. If GCC generates bad code, tell the
+>> GCC people. The volatile keyword is essential.
+>
+> no the "volatile" semantics are vague, trecherous and evil. It's a LOT
+> better to insert the well defined "barrier()" in the right places.
 
-Now theres an interesting story in this area. The Microsoft fingerprint 
-readers are based on Digital Persona devices, and actually they seem to 
-be completely identical. But when comparing bus traffic for the DP 
-devices vs the MS devices, the DP devices send encrypted fingerprint 
-data and the MS devices send it as unencrypted 8-bit greyscale.
+Look at:
 
-Anyway, further investigation shows a 1 bit difference in the firmware 
-uploaded to each device, and I have confirmed that this bit turns 
-encryption on and off.
+ 	http://en.wikipedia.org/wiki/Volatile_variable
 
-IOW, MS's device are capable of encryption but they explicitly turned it 
-off at the firmware level.
+This is just what is needed to prevent the compiler from making non working
+code during optimization.
 
-Daniel
+Also look at:
+
+ 	http://en.wikipedia.org/wiki/Memory_barrier
+
+This is used to prevent out-of-order execution, not at all what is
+necessary.
+
+Also, just because it 'works' means nothing. When SMP processors
+came about, we had many drivers with no spin-locks at all. Sometimes
+some files had a byte or two changed. That was the only obvious
+problem. If this had continued, the entire file system would be
+trashed, but fortunately we learned about spin-locks and the
+volatile keyword. You must not destroy the spin locks by removing
+the volatile keyword.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.88 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

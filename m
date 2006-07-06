@@ -1,720 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWGFMru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbWGFNB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030247AbWGFMru (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 08:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbWGFMru
+	id S1030248AbWGFNB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 09:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbWGFNB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 08:47:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30887 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030244AbWGFMri (ORCPT
+	Thu, 6 Jul 2006 09:01:56 -0400
+Received: from colin.muc.de ([193.149.48.1]:51467 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1030249AbWGFNBz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 08:47:38 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 4/6] FDPIC: Adjust the ELF-FDPIC driver to conform more to the CodingStyle [try #3]
-Date: Thu, 06 Jul 2006 13:47:25 +0100
-To: torvalds@osdl.org, akpm@osdl.org, bernds_cb1@t-online.de, sam@ravnborg.org
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
-Message-Id: <20060706124725.7098.4892.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
-References: <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Thu, 6 Jul 2006 09:01:55 -0400
+Date: 6 Jul 2006 15:01:53 +0200
+Date: Thu, 6 Jul 2006 15:01:53 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Doug Thompson <norsk5@yahoo.com>,
+       akpm@osdl.org, mm-commits@vger.kernel.org, norsk5@xmission.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch added to -mm tree
+Message-ID: <20060706130153.GA66955@muc.de>
+References: <20060701150430.GA38488@muc.de> <20060703172633.50366.qmail@web50109.mail.yahoo.com> <20060703184836.GA46236@muc.de> <1151962114.16528.18.camel@localhost.localdomain> <20060704092358.GA13805@muc.de> <1152007787.28597.20.camel@localhost.localdomain> <20060704113441.GA26023@muc.de> <1152137302.6533.28.camel@localhost.localdomain> <20060705220425.GB83806@muc.de> <m1odw32rep.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1odw32rep.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+On Thu, Jul 06, 2006 at 12:12:14AM -0600, Eric W. Biederman wrote:
+> 
+> I think if this conversation is going to make headway we
+> need to step back a minute, and ask what makes sense to do
+> an where and not get caught up the details of an implementation.
 
-Adjust the ELF-FDPIC binfmt driver to conform much more to the CodingStyle,
-silly though it may be.
+It's rather from my POV - 
 
-Further changes:
+we already got implementations (most "big" architectures have 
+already own advanced hardware error reporting systems) 
 
- (*) Drop the casts to long for addresses in kdebug() statements (they're
-     unsigned long already).
+The EDAC folks want to add another.
 
- (*) Use extra variables to avoid expressions longer than 80 chars by splitting
-     the statement into multiple statements and letting the compiler optimise
-     them back together.
+It's not clear what advantages it gives.
 
- (*) Eliminate duplicate call of ksize() when working out how much space was
-     actually allocated for the stack.
+As far as I can see it is in many ways a step back to at least
+compared to the x86-64 code:
 
- (*) Discard the commented-out load_shlib prototype and op pointer as this will
-     not be supported in ELF-FDPIC for the foreseeable future.
+uses printk, adds tons of code in kernel that is better
+in user space, doesn't use SMBIOS, requires more CPU specific
+code instead of using portable MCE interfaces, is very complicated, ...
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+Obviously I'm biased on this, but I went through many of these
+mistakes already myself when going from the 2.4 to 2.6 MCE handlers.
 
- fs/binfmt_elf_fdpic.c |  305 +++++++++++++++++++++++++++----------------------
- 1 files changed, 168 insertions(+), 137 deletions(-)
+I can see it still being used for old chipsets or chipsets
+that don't support machine checks for memory errors, but these
+should be mostly legacy.
 
-diff --git a/fs/binfmt_elf_fdpic.c b/fs/binfmt_elf_fdpic.c
-index 07624b9..a4ff873 100644
---- a/fs/binfmt_elf_fdpic.c
-+++ b/fs/binfmt_elf_fdpic.c
-@@ -1,6 +1,6 @@
- /* binfmt_elf_fdpic.c: FDPIC ELF binary format
-  *
-- * Copyright (C) 2003, 2004 Red Hat, Inc. All Rights Reserved.
-+ * Copyright (C) 2003, 2004, 2006 Red Hat, Inc. All Rights Reserved.
-  * Written by David Howells (dhowells@redhat.com)
-  * Derived from binfmt_elf.c
-  *
-@@ -50,43 +50,45 @@ #endif
- 
- MODULE_LICENSE("GPL");
- 
--static int load_elf_fdpic_binary(struct linux_binprm *bprm, struct pt_regs *regs);
--//static int load_elf_fdpic_library(struct file *);
--static int elf_fdpic_fetch_phdrs(struct elf_fdpic_params *params, struct file *file);
--static int elf_fdpic_map_file(struct elf_fdpic_params *params,
--			      struct file *file,
--			      struct mm_struct *mm,
--			      const char *what);
-+static int load_elf_fdpic_binary(struct linux_binprm *, struct pt_regs *);
-+static int elf_fdpic_fetch_phdrs(struct elf_fdpic_params *, struct file *);
-+static int elf_fdpic_map_file(struct elf_fdpic_params *, struct file *,
-+			      struct mm_struct *, const char *);
- 
--static int create_elf_fdpic_tables(struct linux_binprm *bprm,
--				   struct mm_struct *mm,
--				   struct elf_fdpic_params *exec_params,
--				   struct elf_fdpic_params *interp_params);
-+static int create_elf_fdpic_tables(struct linux_binprm *, struct mm_struct *,
-+				   struct elf_fdpic_params *,
-+				   struct elf_fdpic_params *);
- 
- #ifndef CONFIG_MMU
--static int elf_fdpic_transfer_args_to_stack(struct linux_binprm *bprm, unsigned long *_sp);
--static int elf_fdpic_map_file_constdisp_on_uclinux(struct elf_fdpic_params *params,
--						   struct file *file,
--						   struct mm_struct *mm);
-+static int elf_fdpic_transfer_args_to_stack(struct linux_binprm *,
-+					    unsigned long *);
-+static int elf_fdpic_map_file_constdisp_on_uclinux(struct elf_fdpic_params *,
-+						   struct file *,
-+						   struct mm_struct *);
- #endif
- 
--static int elf_fdpic_map_file_by_direct_mmap(struct elf_fdpic_params *params,
--					     struct file *file,
--					     struct mm_struct *mm);
-+static int elf_fdpic_map_file_by_direct_mmap(struct elf_fdpic_params *,
-+					     struct file *, struct mm_struct *);
- 
- static struct linux_binfmt elf_fdpic_format = {
- 	.module		= THIS_MODULE,
- 	.load_binary	= load_elf_fdpic_binary,
--//	.load_shlib	= load_elf_fdpic_library,
- //	.core_dump	= elf_fdpic_core_dump,
- 	.min_coredump	= ELF_EXEC_PAGESIZE,
- };
- 
--static int __init init_elf_fdpic_binfmt(void)  { return register_binfmt(&elf_fdpic_format); }
--static void __exit exit_elf_fdpic_binfmt(void) { unregister_binfmt(&elf_fdpic_format); }
-+static int __init init_elf_fdpic_binfmt(void)
-+{
-+	return register_binfmt(&elf_fdpic_format);
-+}
- 
--module_init(init_elf_fdpic_binfmt)
--module_exit(exit_elf_fdpic_binfmt)
-+static void __exit exit_elf_fdpic_binfmt(void)
-+{
-+	unregister_binfmt(&elf_fdpic_format);
-+}
-+
-+module_init(init_elf_fdpic_binfmt);
-+module_exit(exit_elf_fdpic_binfmt);
- 
- static int is_elf_fdpic(struct elfhdr *hdr, struct file *file)
- {
-@@ -105,7 +107,8 @@ static int is_elf_fdpic(struct elfhdr *h
- /*
-  * read the program headers table into memory
-  */
--static int elf_fdpic_fetch_phdrs(struct elf_fdpic_params *params, struct file *file)
-+static int elf_fdpic_fetch_phdrs(struct elf_fdpic_params *params,
-+				 struct file *file)
- {
- 	struct elf32_phdr *phdr;
- 	unsigned long size;
-@@ -121,7 +124,8 @@ static int elf_fdpic_fetch_phdrs(struct 
- 	if (!params->phdrs)
- 		return -ENOMEM;
- 
--	retval = kernel_read(file, params->hdr.e_phoff, (char *) params->phdrs, size);
-+	retval = kernel_read(file, params->hdr.e_phoff,
-+			     (char *) params->phdrs, size);
- 	if (retval < 0)
- 		return retval;
- 
-@@ -141,17 +145,24 @@ static int elf_fdpic_fetch_phdrs(struct 
- 	}
- 
- 	return 0;
--} /* end elf_fdpic_fetch_phdrs() */
-+}
- 
- /*****************************************************************************/
- /*
-  * load an fdpic binary into various bits of memory
-  */
--static int load_elf_fdpic_binary(struct linux_binprm *bprm, struct pt_regs *regs)
-+static int load_elf_fdpic_binary(struct linux_binprm *bprm,
-+				 struct pt_regs *regs)
- {
- 	struct elf_fdpic_params exec_params, interp_params;
- 	struct elf_phdr *phdr;
--	unsigned long stack_size;
-+	unsigned long stack_size, entryaddr;
-+#ifndef CONFIG_MMU
-+	unsigned long fullsize;
-+#endif
-+#ifdef ELF_FDPIC_PLAT_INIT
-+	unsigned long dynaddr;
-+#endif
- 	struct file *interpreter = NULL; /* to shut gcc up */
- 	char *interpreter_name = NULL;
- 	int executable_stack;
-@@ -212,7 +223,8 @@ static int load_elf_fdpic_binary(struct 
- 				goto error;
- 			}
- 
--			retval = kernel_read(interpreter, 0, bprm->buf, BINPRM_BUF_SIZE);
-+			retval = kernel_read(interpreter, 0, bprm->buf,
-+					     BINPRM_BUF_SIZE);
- 			if (retval < 0)
- 				goto error;
- 
-@@ -295,7 +307,8 @@ #ifdef CONFIG_MMU
- 				  &current->mm->start_stack,
- 				  &current->mm->start_brk);
- 
--	retval = setup_arg_pages(bprm, current->mm->start_stack, executable_stack);
-+	retval = setup_arg_pages(bprm, current->mm->start_stack,
-+				 executable_stack);
- 	if (retval < 0) {
- 		send_sig(SIGKILL, current, 0);
- 		goto error_kill;
-@@ -303,7 +316,8 @@ #ifdef CONFIG_MMU
- #endif
- 
- 	/* load the executable and interpreter into memory */
--	retval = elf_fdpic_map_file(&exec_params, bprm->file, current->mm, "executable");
-+	retval = elf_fdpic_map_file(&exec_params, bprm->file, current->mm,
-+				    "executable");
- 	if (retval < 0)
- 		goto error_kill;
- 
-@@ -324,7 +338,8 @@ #ifdef CONFIG_MMU
- 	if (!current->mm->start_brk)
- 		current->mm->start_brk = current->mm->end_data;
- 
--	current->mm->brk = current->mm->start_brk = PAGE_ALIGN(current->mm->start_brk);
-+	current->mm->brk = current->mm->start_brk =
-+		PAGE_ALIGN(current->mm->start_brk);
- 
- #else
- 	/* create a stack and brk area big enough for everyone
-@@ -336,47 +351,45 @@ #else
- 		stack_size = PAGE_SIZE * 2;
- 
- 	down_write(&current->mm->mmap_sem);
--	current->mm->start_brk = do_mmap(NULL,
--					 0,
--					 stack_size,
-+	current->mm->start_brk = do_mmap(NULL, 0, stack_size,
- 					 PROT_READ | PROT_WRITE | PROT_EXEC,
- 					 MAP_PRIVATE | MAP_ANON | MAP_GROWSDOWN,
- 					 0);
- 
--	if (IS_ERR((void *) current->mm->start_brk)) {
-+	if (IS_ERR_VALUE(current->mm->start_brk)) {
- 		up_write(&current->mm->mmap_sem);
- 		retval = current->mm->start_brk;
- 		current->mm->start_brk = 0;
- 		goto error_kill;
- 	}
- 
--	if (do_mremap(current->mm->start_brk,
--		      stack_size,
--		      ksize((char *) current->mm->start_brk),
--		      0, 0
--		      ) == current->mm->start_brk
--	    )
--		stack_size = ksize((char *) current->mm->start_brk);
-+	/* expand the stack mapping to use up the entire allocation granule */
-+	fullsize = ksize((char *) current->mm->start_brk);
-+	if (!IS_ERR_VALUE(do_mremap(current->mm->start_brk, stack_size,
-+				    fullsize, 0, 0)))
-+		stack_size = fullsize;
- 	up_write(&current->mm->mmap_sem);
- 
- 	current->mm->brk = current->mm->start_brk;
- 	current->mm->context.end_brk = current->mm->start_brk;
--	current->mm->context.end_brk += (stack_size > PAGE_SIZE) ? (stack_size - PAGE_SIZE) : 0;
-+	current->mm->context.end_brk +=
-+		(stack_size > PAGE_SIZE) ? (stack_size - PAGE_SIZE) : 0;
- 	current->mm->start_stack = current->mm->start_brk + stack_size;
- #endif
- 
- 	compute_creds(bprm);
- 	current->flags &= ~PF_FORKNOEXEC;
--	if (create_elf_fdpic_tables(bprm, current->mm, &exec_params, &interp_params) < 0)
-+	if (create_elf_fdpic_tables(bprm, current->mm,
-+				    &exec_params, &interp_params) < 0)
- 		goto error_kill;
- 
--	kdebug("- start_code  %lx",	(long) current->mm->start_code);
--	kdebug("- end_code    %lx",	(long) current->mm->end_code);
--	kdebug("- start_data  %lx",	(long) current->mm->start_data);
--	kdebug("- end_data    %lx",	(long) current->mm->end_data);
--	kdebug("- start_brk   %lx",	(long) current->mm->start_brk);
--	kdebug("- brk         %lx",	(long) current->mm->brk);
--	kdebug("- start_stack %lx",	(long) current->mm->start_stack);
-+	kdebug("- start_code  %lx", current->mm->start_code);
-+	kdebug("- end_code    %lx", current->mm->end_code);
-+	kdebug("- start_data  %lx", current->mm->start_data);
-+	kdebug("- end_data    %lx", current->mm->end_data);
-+	kdebug("- start_brk   %lx", current->mm->start_brk);
-+	kdebug("- brk         %lx", current->mm->brk);
-+	kdebug("- start_stack %lx", current->mm->start_stack);
- 
- #ifdef ELF_FDPIC_PLAT_INIT
- 	/*
-@@ -385,21 +398,18 @@ #ifdef ELF_FDPIC_PLAT_INIT
- 	 * example.  This macro performs whatever initialization to
- 	 * the regs structure is required.
- 	 */
--	ELF_FDPIC_PLAT_INIT(regs,
--			    exec_params.map_addr,
--			    interp_params.map_addr,
--			    interp_params.dynamic_addr ?: exec_params.dynamic_addr
--			    );
-+	dynaddr = interp_params.dynamic_addr ?: exec_params.dynamic_addr;
-+	ELF_FDPIC_PLAT_INIT(regs, exec_params.map_addr, interp_params.map_addr,
-+			    dynaddr);
- #endif
- 
- 	/* everything is now ready... get the userspace context ready to roll */
--	start_thread(regs,
--		     interp_params.entry_addr ?: exec_params.entry_addr,
--		     current->mm->start_stack);
-+	entryaddr = interp_params.entry_addr ?: exec_params.entry_addr;
-+	start_thread(regs, entryaddr, current->mm->start_stack);
- 
- 	if (unlikely(current->ptrace & PT_PTRACED)) {
- 		if (current->ptrace & PT_TRACE_EXEC)
--			ptrace_notify ((PTRACE_EVENT_EXEC << 8) | SIGTRAP);
-+			ptrace_notify((PTRACE_EVENT_EXEC << 8) | SIGTRAP);
- 		else
- 			send_sig(SIGTRAP, current, 0);
- 	}
-@@ -419,11 +429,11 @@ error:
- 	return retval;
- 
- 	/* unrecoverable error - kill the process */
-- error_kill:
-+error_kill:
- 	send_sig(SIGSEGV, current, 0);
- 	goto error;
- 
--} /* end load_elf_fdpic_binary() */
-+}
- 
- /*****************************************************************************/
- /*
-@@ -471,11 +481,11 @@ #endif
- 
- #if defined(__i386__) && defined(CONFIG_SMP)
- 	/* in some cases (e.g. Hyper-Threading), we want to avoid L1 evictions
--	 * by the processes running on the same package. One thing we can do
--	 * is to shuffle the initial stack for them.
-+	 * by the processes running on the same package. One thing we can do is
-+	 * to shuffle the initial stack for them.
- 	 *
--	 * the conditionals here are unneeded, but kept in to make the
--	 * code behaviour the same as pre change unless we have hyperthreaded
-+	 * the conditionals here are unneeded, but kept in to make the code
-+	 * behaviour the same as pre change unless we have hyperthreaded
- 	 * processors. This keeps Mr Marcelo Person happier but should be
- 	 * removed for 2.5
- 	 */
-@@ -498,11 +508,13 @@ #endif
- 
- 	if (interp_params->loadmap) {
- 		len = sizeof(struct elf32_fdpic_loadmap);
--		len += sizeof(struct elf32_fdpic_loadseg) * interp_params->loadmap->nsegs;
-+		len += sizeof(struct elf32_fdpic_loadseg) *
-+			interp_params->loadmap->nsegs;
- 		sp = (sp - len) & ~7UL;
- 		interp_params->map_addr = sp;
- 
--		if (copy_to_user((void __user *) sp, interp_params->loadmap, len) != 0)
-+		if (copy_to_user((void __user *) sp, interp_params->loadmap,
-+				 len) != 0)
- 			return -EFAULT;
- 
- 		current->mm->context.interp_fdpic_loadmap = (unsigned long) sp;
-@@ -526,34 +538,37 @@ #endif
- 	sp -= sp & 15UL;
- 
- 	/* put the ELF interpreter info on the stack */
--#define NEW_AUX_ENT(nr, id, val)						\
--	do {									\
--		struct { unsigned long _id, _val; } __user *ent = (void __user *) csp;	\
--		__put_user((id), &ent[nr]._id);					\
--		__put_user((val), &ent[nr]._val);				\
-+#define NEW_AUX_ENT(nr, id, val)					\
-+	do {								\
-+		struct { unsigned long _id, _val; } __user *ent;	\
-+									\
-+		ent = (void __user *) csp;				\
-+		__put_user((id), &ent[nr]._id);				\
-+		__put_user((val), &ent[nr]._val);			\
- 	} while (0)
- 
- 	csp -= 2 * sizeof(unsigned long);
- 	NEW_AUX_ENT(0, AT_NULL, 0);
- 	if (k_platform) {
- 		csp -= 2 * sizeof(unsigned long);
--		NEW_AUX_ENT(0, AT_PLATFORM, (elf_addr_t)(unsigned long) u_platform);
-+		NEW_AUX_ENT(0, AT_PLATFORM,
-+			    (elf_addr_t) (unsigned long) u_platform);
- 	}
- 
- 	csp -= DLINFO_ITEMS * 2 * sizeof(unsigned long);
--	NEW_AUX_ENT( 0, AT_HWCAP,		hwcap);
--	NEW_AUX_ENT( 1, AT_PAGESZ,		PAGE_SIZE);
--	NEW_AUX_ENT( 2, AT_CLKTCK,		CLOCKS_PER_SEC);
--	NEW_AUX_ENT( 3, AT_PHDR,		exec_params->ph_addr);
--	NEW_AUX_ENT( 4, AT_PHENT,		sizeof(struct elf_phdr));
--	NEW_AUX_ENT( 5, AT_PHNUM,		exec_params->hdr.e_phnum);
--	NEW_AUX_ENT( 6,	AT_BASE,		interp_params->elfhdr_addr);
--	NEW_AUX_ENT( 7, AT_FLAGS,		0);
--	NEW_AUX_ENT( 8, AT_ENTRY,		exec_params->entry_addr);
--	NEW_AUX_ENT( 9, AT_UID,			(elf_addr_t) current->uid);
--	NEW_AUX_ENT(10, AT_EUID,		(elf_addr_t) current->euid);
--	NEW_AUX_ENT(11, AT_GID,			(elf_addr_t) current->gid);
--	NEW_AUX_ENT(12, AT_EGID,		(elf_addr_t) current->egid);
-+	NEW_AUX_ENT( 0, AT_HWCAP,	hwcap);
-+	NEW_AUX_ENT( 1, AT_PAGESZ,	PAGE_SIZE);
-+	NEW_AUX_ENT( 2, AT_CLKTCK,	CLOCKS_PER_SEC);
-+	NEW_AUX_ENT( 3, AT_PHDR,	exec_params->ph_addr);
-+	NEW_AUX_ENT( 4, AT_PHENT,	sizeof(struct elf_phdr));
-+	NEW_AUX_ENT( 5, AT_PHNUM,	exec_params->hdr.e_phnum);
-+	NEW_AUX_ENT( 6,	AT_BASE,	interp_params->elfhdr_addr);
-+	NEW_AUX_ENT( 7, AT_FLAGS,	0);
-+	NEW_AUX_ENT( 8, AT_ENTRY,	exec_params->entry_addr);
-+	NEW_AUX_ENT( 9, AT_UID,		(elf_addr_t) current->uid);
-+	NEW_AUX_ENT(10, AT_EUID,	(elf_addr_t) current->euid);
-+	NEW_AUX_ENT(11, AT_GID,		(elf_addr_t) current->gid);
-+	NEW_AUX_ENT(12, AT_EGID,	(elf_addr_t) current->egid);
- 
- #ifdef ARCH_DLINFO
- 	/* ARCH_DLINFO must come last so platform specific code can enforce
-@@ -579,7 +594,8 @@ #undef NEW_AUX_ENT
- #ifdef CONFIG_MMU
- 	current->mm->arg_start = bprm->p;
- #else
--	current->mm->arg_start = current->mm->start_stack - (MAX_ARG_PAGES * PAGE_SIZE - bprm->p);
-+	current->mm->arg_start = current->mm->start_stack -
-+		(MAX_ARG_PAGES * PAGE_SIZE - bprm->p);
- #endif
- 
- 	p = (char __user *) current->mm->arg_start;
-@@ -607,7 +623,7 @@ #endif
- 
- 	mm->start_stack = (unsigned long) sp;
- 	return 0;
--} /* end create_elf_fdpic_tables() */
-+}
- 
- /*****************************************************************************/
- /*
-@@ -615,7 +631,8 @@ #endif
-  * the stack
-  */
- #ifndef CONFIG_MMU
--static int elf_fdpic_transfer_args_to_stack(struct linux_binprm *bprm, unsigned long *_sp)
-+static int elf_fdpic_transfer_args_to_stack(struct linux_binprm *bprm,
-+					    unsigned long *_sp)
- {
- 	unsigned long index, stop, sp;
- 	char *src;
-@@ -636,9 +653,9 @@ static int elf_fdpic_transfer_args_to_st
- 
- 	*_sp = (*_sp - (MAX_ARG_PAGES * PAGE_SIZE - bprm->p)) & ~15;
- 
-- out:
-+out:
- 	return ret;
--} /* end elf_fdpic_transfer_args_to_stack() */
-+}
- #endif
- 
- /*****************************************************************************/
-@@ -713,17 +730,18 @@ #endif
- 		seg = loadmap->segs;
- 		for (loop = loadmap->nsegs; loop > 0; loop--, seg++) {
- 			if (params->hdr.e_entry >= seg->p_vaddr &&
--			    params->hdr.e_entry < seg->p_vaddr + seg->p_memsz
--			    ) {
-+			    params->hdr.e_entry < seg->p_vaddr + seg->p_memsz) {
- 				params->entry_addr =
--					(params->hdr.e_entry - seg->p_vaddr) + seg->addr;
-+					(params->hdr.e_entry - seg->p_vaddr) +
-+					seg->addr;
- 				break;
- 			}
- 		}
- 	}
- 
- 	/* determine where the program header table has wound up if mapped */
--	stop = params->hdr.e_phoff + params->hdr.e_phnum * sizeof (struct elf_phdr);
-+	stop = params->hdr.e_phoff;
-+	stop += params->hdr.e_phnum * sizeof (struct elf_phdr);
- 	phdr = params->phdrs;
- 
- 	for (loop = 0; loop < params->hdr.e_phnum; loop++, phdr++) {
-@@ -737,9 +755,11 @@ #endif
- 		seg = loadmap->segs;
- 		for (loop = loadmap->nsegs; loop > 0; loop--, seg++) {
- 			if (phdr->p_vaddr >= seg->p_vaddr &&
--			    phdr->p_vaddr + phdr->p_filesz <= seg->p_vaddr + seg->p_memsz
--			    ) {
--				params->ph_addr = (phdr->p_vaddr - seg->p_vaddr) + seg->addr +
-+			    phdr->p_vaddr + phdr->p_filesz <=
-+			    seg->p_vaddr + seg->p_memsz) {
-+				params->ph_addr =
-+					(phdr->p_vaddr - seg->p_vaddr) +
-+					seg->addr +
- 					params->hdr.e_phoff - phdr->p_offset;
- 				break;
- 			}
-@@ -756,18 +776,22 @@ #endif
- 		seg = loadmap->segs;
- 		for (loop = loadmap->nsegs; loop > 0; loop--, seg++) {
- 			if (phdr->p_vaddr >= seg->p_vaddr &&
--			    phdr->p_vaddr + phdr->p_memsz <= seg->p_vaddr + seg->p_memsz
--			    ) {
--				params->dynamic_addr = (phdr->p_vaddr - seg->p_vaddr) + seg->addr;
--
--				/* check the dynamic section contains at least one item, and that
--				 * the last item is a NULL entry */
-+			    phdr->p_vaddr + phdr->p_memsz <=
-+			    seg->p_vaddr + seg->p_memsz) {
-+				params->dynamic_addr =
-+					(phdr->p_vaddr - seg->p_vaddr) +
-+					seg->addr;
-+
-+				/* check the dynamic section contains at least
-+				 * one item, and that the last item is a NULL
-+				 * entry */
- 				if (phdr->p_memsz == 0 ||
- 				    phdr->p_memsz % sizeof(Elf32_Dyn) != 0)
- 					goto dynamic_error;
- 
- 				tmp = phdr->p_memsz / sizeof(Elf32_Dyn);
--				if (((Elf32_Dyn *) params->dynamic_addr)[tmp - 1].d_tag != 0)
-+				if (((Elf32_Dyn *)
-+				     params->dynamic_addr)[tmp - 1].d_tag != 0)
- 					goto dynamic_error;
- 				break;
- 			}
-@@ -776,8 +800,8 @@ #endif
- 	}
- 
- 	/* now elide adjacent segments in the load map on MMU linux
--	 * - on uClinux the holes between may actually be filled with system stuff or stuff from
--	 *   other processes
-+	 * - on uClinux the holes between may actually be filled with system
-+	 *   stuff or stuff from other processes
- 	 */
- #ifdef CONFIG_MMU
- 	nloads = loadmap->nsegs;
-@@ -788,7 +812,9 @@ #ifdef CONFIG_MMU
- 		if (seg->p_vaddr - mseg->p_vaddr == seg->addr - mseg->addr) {
- 			load_addr = PAGE_ALIGN(mseg->addr + mseg->p_memsz);
- 			if (load_addr == (seg->addr & PAGE_MASK)) {
--				mseg->p_memsz += load_addr - (mseg->addr + mseg->p_memsz);
-+				mseg->p_memsz +=
-+					load_addr -
-+					(mseg->addr + mseg->p_memsz);
- 				mseg->p_memsz += seg->addr & ~PAGE_MASK;
- 				mseg->p_memsz += seg->p_memsz;
- 				loadmap->nsegs--;
-@@ -816,20 +842,21 @@ #endif
- 
- 	return 0;
- 
-- dynamic_error:
-+dynamic_error:
- 	printk("ELF FDPIC %s with invalid DYNAMIC section (inode=%lu)\n",
- 	       what, file->f_dentry->d_inode->i_ino);
- 	return -ELIBBAD;
--} /* end elf_fdpic_map_file() */
-+}
- 
- /*****************************************************************************/
- /*
-  * map a file with constant displacement under uClinux
-  */
- #ifndef CONFIG_MMU
--static int elf_fdpic_map_file_constdisp_on_uclinux(struct elf_fdpic_params *params,
--						   struct file *file,
--						   struct mm_struct *mm)
-+static int elf_fdpic_map_file_constdisp_on_uclinux(
-+	struct elf_fdpic_params *params,
-+	struct file *file,
-+	struct mm_struct *mm)
- {
- 	struct elf32_fdpic_loadseg *seg;
- 	struct elf32_phdr *phdr;
-@@ -840,7 +867,8 @@ static int elf_fdpic_map_file_constdisp_
- 	load_addr = params->load_addr;
- 	seg = params->loadmap->segs;
- 
--	/* determine the bounds of the contiguous overall allocation we must make */
-+	/* determine the bounds of the contiguous overall allocation we must
-+	 * make */
- 	phdr = params->phdrs;
- 	for (loop = 0; loop < params->hdr.e_phnum; loop++, phdr++) {
- 		if (params->phdrs[loop].p_type != PT_LOAD)
-@@ -861,7 +889,7 @@ static int elf_fdpic_map_file_constdisp_
- 	maddr = do_mmap(NULL, load_addr, top - base,
- 			PROT_READ | PROT_WRITE | PROT_EXEC, mflags, 0);
- 	up_write(&mm->mmap_sem);
--	if (IS_ERR((void *) maddr))
-+	if (IS_ERR_VALUE(maddr))
- 		return (int) maddr;
- 
- 	if (load_addr != 0)
-@@ -879,7 +907,8 @@ static int elf_fdpic_map_file_constdisp_
- 		seg->p_vaddr = phdr->p_vaddr;
- 		seg->p_memsz = phdr->p_memsz;
- 
--		ret = file->f_op->read(file, (void *) seg->addr, phdr->p_filesz, &fpos);
-+		ret = file->f_op->read(file, (void *) seg->addr,
-+				       phdr->p_filesz, &fpos);
- 		if (ret < 0)
- 			return ret;
- 
-@@ -896,8 +925,7 @@ static int elf_fdpic_map_file_constdisp_
- 			if (phdr->p_flags & PF_X) {
- 				mm->start_code = seg->addr;
- 				mm->end_code = seg->addr + phdr->p_memsz;
--			}
--			else if (!mm->start_data) {
-+			} else if (!mm->start_data) {
- 				mm->start_data = seg->addr;
- #ifndef CONFIG_MMU
- 				mm->end_data = seg->addr + phdr->p_memsz;
-@@ -914,7 +942,7 @@ #endif
- 	}
- 
- 	return 0;
--} /* end elf_fdpic_map_file_constdisp_on_uclinux() */
-+}
- #endif
- 
- /*****************************************************************************/
-@@ -975,14 +1003,14 @@ static int elf_fdpic_map_file_by_direct_
- 
- 		case ELF_FDPIC_FLAG_CONSTDISP:
- 			/* constant displacement
--			 * - can be mapped anywhere, but must be mapped as a unit
-+			 * - can be mapped anywhere, but must be mapped as a
-+			 *   unit
- 			 */
- 			if (!dvset) {
- 				maddr = load_addr;
- 				delta_vaddr = phdr->p_vaddr;
- 				dvset = 1;
--			}
--			else {
-+			} else {
- 				maddr = load_addr + phdr->p_vaddr - delta_vaddr;
- 				flags |= MAP_FIXED;
- 			}
-@@ -1006,13 +1034,14 @@ static int elf_fdpic_map_file_by_direct_
- 		up_write(&mm->mmap_sem);
- 
- 		kdebug("mmap[%d] <file> sz=%lx pr=%x fl=%x of=%lx --> %08lx",
--		       loop, phdr->p_memsz + disp, prot, flags, phdr->p_offset - disp,
--		       maddr);
-+		       loop, phdr->p_memsz + disp, prot, flags,
-+		       phdr->p_offset - disp, maddr);
- 
--		if (IS_ERR((void *) maddr))
-+		if (IS_ERR_VALUE(maddr))
- 			return (int) maddr;
- 
--		if ((params->flags & ELF_FDPIC_FLAG_ARRANGEMENT) == ELF_FDPIC_FLAG_CONTIGUOUS)
-+		if ((params->flags & ELF_FDPIC_FLAG_ARRANGEMENT) ==
-+		    ELF_FDPIC_FLAG_CONTIGUOUS)
- 			load_addr += PAGE_ALIGN(phdr->p_memsz + disp);
- 
- 		seg->addr = maddr + disp;
-@@ -1023,7 +1052,8 @@ static int elf_fdpic_map_file_by_direct_
- 		if (phdr->p_offset == 0)
- 			params->elfhdr_addr = seg->addr;
- 
--		/* clear the bit between beginning of mapping and beginning of PT_LOAD */
-+		/* clear the bit between beginning of mapping and beginning of
-+		 * PT_LOAD */
- 		if (prot & PROT_WRITE && disp > 0) {
- 			kdebug("clear[%d] ad=%lx sz=%lx", loop, maddr, disp);
- 			clear_user((void __user *) maddr, disp);
-@@ -1039,19 +1069,20 @@ static int elf_fdpic_map_file_by_direct_
- 		excess1 = PAGE_SIZE - ((maddr + phdr->p_filesz) & ~PAGE_MASK);
- 
- #ifdef CONFIG_MMU
--
- 		if (excess > excess1) {
- 			unsigned long xaddr = maddr + phdr->p_filesz + excess1;
- 			unsigned long xmaddr;
- 
- 			flags |= MAP_FIXED | MAP_ANONYMOUS;
- 			down_write(&mm->mmap_sem);
--			xmaddr = do_mmap(NULL, xaddr, excess - excess1, prot, flags, 0);
-+			xmaddr = do_mmap(NULL, xaddr, excess - excess1,
-+					 prot, flags, 0);
- 			up_write(&mm->mmap_sem);
- 
- 			kdebug("mmap[%d] <anon>"
- 			       " ad=%lx sz=%lx pr=%x fl=%x of=0 --> %08lx",
--			       loop, xaddr, excess - excess1, prot, flags, xmaddr);
-+			       loop, xaddr, excess - excess1, prot, flags,
-+			       xmaddr);
- 
- 			if (xmaddr != xaddr)
- 				return -ENOMEM;
-@@ -1060,7 +1091,8 @@ #ifdef CONFIG_MMU
- 		if (prot & PROT_WRITE && excess1 > 0) {
- 			kdebug("clear[%d] ad=%lx sz=%lx",
- 			       loop, maddr + phdr->p_filesz, excess1);
--			clear_user((void __user *) maddr + phdr->p_filesz, excess1);
-+			clear_user((void __user *) maddr + phdr->p_filesz,
-+				   excess1);
- 		}
- 
- #else
-@@ -1075,8 +1107,7 @@ #endif
- 			if (phdr->p_flags & PF_X) {
- 				mm->start_code = maddr;
- 				mm->end_code = maddr + phdr->p_memsz;
--			}
--			else if (!mm->start_data) {
-+			} else if (!mm->start_data) {
- 				mm->start_data = maddr;
- 				mm->end_data = maddr + phdr->p_memsz;
- 			}
-@@ -1086,4 +1117,4 @@ #endif
- 	}
- 
- 	return 0;
--} /* end elf_fdpic_map_file_by_direct_mmap() */
-+}
+> - Which cpu address did the error happen at.
+>   So we can kill the processes using that memory.
+>   Although simply killing the entire machine appears acceptable.
+> 
+> - What is the chipsets idea of which DIMM the memory error occurred on.
+>   For bus based memory architectures like the opteron this
+>   is a chip select of the DIMM rank.
+>   For serial memory architectures this is some kind of bus address,
+>   but still useful for describing individual chips.
+> 
+> - What is the silk screen label on the motherboard that corresponds
+>   to the chip selects with problems.
+> 
+> If you look at the memory controller, and the associated error
+> reporting registers (which are sometimes available in the machine check).
+> There has always been enough information to determine the hardware
+> address the memory controller knows the DIMM by.
+> 
+> Getting the address of the error is usually possible but not always
+> and not always very reliably.
+> 
+> Mapping between the hardware address that the memory controller
+> knows DIMMS by and the actual DIMMS themselves is actually
+> pretty easy even if you don't have any motherboard information.
+
+That's all supposed to be done by the standard machine check handlers.
+
+I think EDAC just started because some older chipsets don't integrate
+error reporting into the standard machine checks. 
+
+But in newer systems which are the way forward you get it from
+standard MCEs, no need for special drivers anymore.
+
+
+
+> It is just a matter of plugging in DIMMS in different positions
+> and seeing which DIMMS that the hardware currently sees.  It's
+> maybe half a days work on an unknown motherboard.
+
+Sorry that's totally unrealistic for anybody outside a hardware
+vendor or perhaps a big supercomputing lab. Normal users don't
+want to sit down "half a day" with their new systems to figure
+out to what the DIMMs map.
+
+It either has to "just work" or they won't be able to use it.
+
+We need to figure out some way to do it automatically. While 
+SMBIOS is not perfect, it is far better than any manual 
+proposals
+
+That said I know SMBIOS can be wrong, so allowing to overwrite
+it makes sense. But requiring the users to do this by default
+is a complete non starter IMHO.
+
+> 
+> knows the DIMM by requires the reading of hardware registers,
+> some that are not easily accessible to user space so a kernel driver
+> tends to make sense, just to get the information.  
+> 
+> Possibly we could just  export that information and let the
+> user space figure it out from there.   But memory is a key system
+
+You can do it completely in user space. See mcelog as proof.
+
+And figuring out the channel in a lot of code etc. seems overkill to me - or 
+at least i haven't gotten an explanation why it's better than just
+using the reported address.
+
+
+> component and hardware designers are very creative so coming
+> up with a consistent model would be very hard.  So far we
+
+Yes the error reporting is still machine specific so far.
+Doing it generically would be good.
+
+
+> have had to improve our helper functions every couple of chipsets
+> The other pieces to me seem much more fluid.  Especially since EDAC
+> does not yet export much if anything to user space except through
+> printk's in any stable kernel.
+
+Yes that's another issue. printks are not very good for this.
+That is why I went over to a specialized logging device.
+
+> As for the suggestion of using DMI as best as I can determine it
+> suffers rather badly from the never ending creativity of the chipset
+> developers and does not have a model that can describe what needs
+> to happen for the current generation of chipset much less the bleeding
+> edge ones.  Which is besides the fact that the only thing that you can
+> usually trust in DMI tables is the motherboard manufacturer.
+
+I think you paint it worse than it is. Also there are no
+realistic alternatives that I can see. Requiring all users
+to do it by hand is it certainly not.
+
+
+> I do think getting the motherboard id out of DMI provides a great key
+> to build a memory controller hardware address to DIMM label lookup
+> table.   With EDAC we have been computing that information in user
+> space and caching it kernel side so we could generate immediately
+> useful print statements.  Which is handy but probably not necessary.
+
+Ok that is a proposal, but still won't cover most motherboards
+that are out there.
+
+Having an override table for motherboards where DMI is known to 
+be wrong certainly makes sense to me.  But the default has to
+be DMI I think.
+
+If there was such a table somewhere I would be happy to support
+it with mcelog.
+
+But who would be willing to maintain such a table? It would
+be a lot of work.
+
+I'm still optimistic though - if Linux starts to use this
+information more aggressively then there will be much pressure
+from customers at least on server level kit vendors who still get 
+this wrong.
+
+This won't help all the cheap desktop/laptop boards , but these tend
+to usually not have more than two DIMMs, so it's not that big
+an issue.
+
+-Andi

@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbWGFIYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbWGFIZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964999AbWGFIYp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 04:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWGFIYp
+	id S964994AbWGFIZv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 04:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWGFIZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 04:24:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46053 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964999AbWGFIYo (ORCPT
+	Thu, 6 Jul 2006 04:25:51 -0400
+Received: from 1wt.eu ([62.212.114.60]:54793 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S964994AbWGFIZu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 04:24:44 -0400
-Date: Thu, 6 Jul 2006 01:24:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Galbraith <efault@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm6 vmstat breakage
-Message-Id: <20060706012440.967c4908.akpm@osdl.org>
-In-Reply-To: <1152171523.8098.22.camel@Homer.TheSimpsons.net>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	<a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
-	<20060705155037.7228aa48.akpm@osdl.org>
-	<a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com>
-	<20060705164457.60e6dbc2.akpm@osdl.org>
-	<20060705164820.379a69ba.akpm@osdl.org>
-	<a762e240607051705h33952e5elf6bd09c1ccea8ab4@mail.gmail.com>
-	<20060705172545.815872b6.akpm@osdl.org>
-	<m1u05v2st3.fsf@ebiederm.dsl.xmission.com>
-	<20060705225905.53e61ca0.akpm@osdl.org>
-	<1152171523.8098.22.camel@Homer.TheSimpsons.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 6 Jul 2006 04:25:50 -0400
+Date: Thu, 6 Jul 2006 10:25:39 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: Linux 2.4.33-rc2
+Message-ID: <20060706082539.GA28233@1wt.eu>
+References: <20060621192756.GB13559@dmt> <20060703220736.GA272@1wt.eu> <0e6ma2961ro2evtrnacgmla7j52j738q76@4ax.com> <20060705205137.GA25913@1wt.eu> <dhdpa2pat94ssieedvjaj2m1n8265t19at@4ax.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dhdpa2pat94ssieedvjaj2m1n8265t19at@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Jul 2006 09:38:43 +0200
-Mike Galbraith <efault@gmx.de> wrote:
+Hi Grant,
 
-> Greetings,
+On Thu, Jul 06, 2006 at 05:42:17PM +1000, Grant Coady wrote:
+> On Wed, 5 Jul 2006 22:51:37 +0200, Willy Tarreau <w@1wt.eu> wrote:
+(...)
+> >after a full day of stress-test of multiple parallel tar xUf, and ffsb at
+> >full CPU load, I could not reproduce the problem on the exact same kernel
+> >I first saw it on. So I think I had bad luck and the problem is not related
+> >to the vfs_unlink() patch, so unless anyone else reports a problem or tells
+> >us why it is right or wrong, it would seem reasonable to keep it as it is
+> >in -rc2.
 > 
-> My single P4/HT box is showing incorrect pgpgin pgpgout numbers with
-> this kernel.  While disk throughput for dd if=/dev/hdc of=/dev=null
-> bs=4096 count=1000000 produces about 57MB/S (up ~14% over 2.6.17 btw),
-> vmstat (procps version 3.2.5) is only showing about 7MB/S.
+> Hi Willy,
 > 
-> Looking at the numbers in /proc/vmstat, it looks kinda like pgpgin might
-> be pages instead of the KB it used to be, with some added >>=1 action on
-> the side.  At any rate, the numbers below are horse-pookey ;-)
+> Got this with unpatched -rc2, tosh is NFS server, niner is client:
 > 
->  procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
->  1  1   3820   9400 810128  46052    0    0  7040     0 1163  1283  2  7 48 44
->  1  1   3820   9220 810288  46156    0    0  7040     0 1151  1335  3  6 48 45
->  1  1   3820   9280 810176  46204    0    0  7168     0 1156  1207  1  7 48 44
->  2  1   3820   9408 810048  46068    0    0  7168     0 1160  1192  1  6 49 46
+> grant@niner:/home/nfstest$ ls -l
+> total 228474
+> drwxr-xr-x  19 grant wheel       680 2006-03-20 16:53 linux-2.6.16/
+> -rw-r--r--   1 grant wheel 233953280 2006-07-05 18:27 linux-2.6.16.tar
+> drwxr-xr-x  19 grant wheel       680 2006-03-20 16:53 linux-2.6.16b/
+> grant@niner:/home/nfstest$ x=0; while [ ! $(diff -rq linux-2.6.16 linux-2.6.16b) ]; do ((x++)); echo "trial $x"; rm -rf linux-2.6.16b; mv linux-2.6.16 linux-2.6.16b; tar xf linux-2.6.16.tar; done
+> trial 1
+> ...
+> trial 29
+> rm: cannot remove directory `linux-2.6.16b/drivers/cdrom': Directory not empty
+> -bash: [: too many arguments
+> grant@niner:/home/nfstest$ ls -l
+> total 228474
+> drwxr-xr-x  19 grant wheel       680 2006-03-20 16:53 linux-2.6.16/
+> -rw-r--r--   1 grant wheel 233953280 2006-07-05 18:27 linux-2.6.16.tar
+> drwxr-xr-x   4 grant wheel       104 2006-07-06 11:01 linux-2.6.16b/
+> grant@niner:/home/nfstest$ rm -rf linux-2.6.16b/
 > 
+> The 'rm -rf linux-2.6.16b' completed okay, a mystery?  
 
-2.6.18-rc1 has the same bug.
+you might have had a '.nfs0000*' file inthe directory which prevented rmmod
+from working, but it was finally removed by the rm -rf.
 
---- a/include/linux/vmstat.h~count_vm_events-fix
-+++ a/include/linux/vmstat.h
-@@ -57,7 +57,7 @@ static inline void __count_vm_events(enu
- 
- static inline void count_vm_events(enum vm_event_item item, long delta)
- {
--	get_cpu_var(vm_event_states.event[item])++;
-+	get_cpu_var(vm_event_states.event[item]) += delta;
- 	put_cpu();
- }
- 
-_
+> This is with two slow (500MHz) boxen with -rc2.
+> Only idea I get from logs is during the test:
+> 
+> Jul  5 19:01:19 niner kernel: nfs: server tosh not responding, still trying
+> Jul  5 19:01:19 niner kernel: nfs: server tosh OK
+> 
+> ... about one pair each 2 to 5 mins
+> 
+> Jul  6 11:16:08 niner kernel: nfs: server tosh not responding, still trying
+> Jul  6 11:16:08 niner kernel: nfs: server tosh OK
+> Jul  6 11:26:57 niner -- MARK --
+> Jul  6 11:46:57 niner -- MARK --
+
+I get this if the server spends too much time writing data back to the disks.
+Doing this on the server fixed the problem for me :
+
+# echo 50 25000 0 0 100 100 60 45 0 >/proc/sys/vm/bdflush
+
+> Other pair of boxen with patched -rc2 completed 146 trials overnight along 
+> with compiling 2.4 kernel over NFS as well since morning, 64 completed. 
+> No 'server not responding messages' logged.
+
+Was it on the same server and while other clients saw the server disappear ?
+
+> I'll change the two running boxen to straight -rc2 and see if catch 
+> anything.  
+
+OK, similarly, it might be interesting to apply your patch to niner to see
+if the rmmod error happens again.
+
+> Grant.
+
+Thanks for your tests,
+Willy
 

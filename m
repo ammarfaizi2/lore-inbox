@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWGFToW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWGFTo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbWGFToW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 15:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWGFToV
+	id S1750774AbWGFTo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 15:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWGFTo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 15:44:21 -0400
-Received: from ns01.unsolicited.net ([69.10.132.115]:33806 "EHLO
-	ns01.unsolicited.net") by vger.kernel.org with ESMTP
-	id S1750760AbWGFToV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 15:44:21 -0400
-Message-ID: <44AD680B.9090603@unsolicited.net>
-Date: Thu, 06 Jul 2006 20:44:11 +0100
-From: David R <david@unsolicited.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Thu, 6 Jul 2006 15:44:57 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15058 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750757AbWGFTo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 15:44:56 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@muc.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Doug Thompson <norsk5@yahoo.com>,
+       akpm@osdl.org, mm-commits@vger.kernel.org, norsk5@xmission.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch added to -mm tree
+References: <20060705220425.GB83806@muc.de>
+	<m1odw32rep.fsf@ebiederm.dsl.xmission.com>
+	<20060706130153.GA66955@muc.de>
+	<m18xn621i6.fsf@ebiederm.dsl.xmission.com>
+	<20060706165159.GB66955@muc.de>
+	<m18xn6zkx3.fsf@ebiederm.dsl.xmission.com>
+	<20060706180826.GA95795@muc.de>
+	<1152210898.13734.12.camel@localhost.localdomain>
+	<20060706182729.GA97717@muc.de>
+	<m1fyhey2hc.fsf@ebiederm.dsl.xmission.com>
+	<20060706191804.GB97717@muc.de>
+Date: Thu, 06 Jul 2006 13:43:51 -0600
+In-Reply-To: <20060706191804.GB97717@muc.de> (Andi Kleen's message of "6 Jul
+	2006 21:18:04 +0200, Thu, 6 Jul 2006 21:18:04 +0200")
+Message-ID: <m17j2qy0w8.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.18-rc1
-References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE6238BF2FCE9D48EBD167441"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE6238BF2FCE9D48EBD167441
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Andi Kleen <ak@muc.de> writes:
 
-Linus Torvalds wrote:
-> Ok,
->  the merge window for 2.6.18 is closed, and -rc1 is out there (git tree=
-s=20
+> On Thu, Jul 06, 2006 at 01:09:35PM -0600, Eric W. Biederman wrote:
+>> > Then anything with MMIO or interrupts or anything dynamic 
+>> > definitely belongs into kernel space agreed.
+>> 
+>> Yep we sometimes have to mess with MMIO.
+>
+> Not on K8 at least, no? 
+>
+> Maybe we should discuss each chipset separatedly :)
+ :)
 
-Most things seem fine here with rc1, but I do see a permissions issue wit=
-h my
-USB scanner.
+>> > But at least on K8 DIMM inventory is purely reading PCI config space on
+>> > something that doesn't change and doesn't need any locking. 
+>> > It also doesn't need to do anything complicated, but just look
+>> > for the right PCI ID.
+>> 
+>> Mostly.  Except for the part where you have to figure out the stepping
+>> of the processor connected to the memory controller to properly decode
+>> the registers.  AMD should have used the revision field in pci config
+>> space but...
+>
+> That's in /proc/cpuinfo
 
-In 2.6.17
+Some of it.  Taking a quick glance I can't seem to see a nodeid field.
+Not that it especially likely you would have a system with mixed revision
+cpus (it is a pain in the BIOS) but since it is possible it at least make
+sense to try.
 
-david@davidux:/dev/bus/usb/001 # l
-total 0
-drwxr-xr-x 2 root  root    100 2006-07-06 20:19 ./
-drwxr-xr-x 4 root  root     80 2006-07-06 20:19 ../
-crw-r--r-- 1 root  root 189, 0 2006-07-06 20:19 001
-crw-r--r-- 1 david root 189, 1 2006-07-06 20:19 002
-crw-r--r-- 1 root  root 189, 4 2006-07-06 20:19 005
+Eric
 
-but with 2.6.18
-
-david@davidux:/dev/bus/usb/001> l
-total 0
-drwxr-xr-x 2 root root    100 2006-07-06 20:24 ./
-drwxr-xr-x 4 root root     80 2006-07-06 20:24 ../
-crw-r--r-- 1 root root 189, 0 2006-07-06 20:24 001
-crw-r--r-- 1 root root 189, 1 2006-07-06 20:24 002
-crw-r--r-- 1 root root 189, 4 2006-07-06 20:24 005
-
-Does something need tweaking with udev scripts maybe? This is a SuSE 10.1=
- system.
-
-Cheers
-David
-
-
---------------enigE6238BF2FCE9D48EBD167441
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFErWgR2qx5JuSvnlQRAvgOAJ9tpcz0ABIJI5eBdSt0Xj8N/W3aHACeJxn7
-0zsvaETAHRD7wuEoQhzXYxA=
-=GaaJ
------END PGP SIGNATURE-----
-
---------------enigE6238BF2FCE9D48EBD167441--

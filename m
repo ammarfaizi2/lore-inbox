@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWGFHoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbWGFHyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964975AbWGFHoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 03:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWGFHoQ
+	id S964980AbWGFHyW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 03:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWGFHyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 03:44:16 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:31699 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S964975AbWGFHoQ
+	Thu, 6 Jul 2006 03:54:22 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:27541 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S964980AbWGFHyW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 03:44:16 -0400
-Date: Thu, 6 Jul 2006 09:42:44 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] audit syscall classes
-Message-ID: <20060706074244.GA9416@osiris.boeblingen.de.ibm.com>
-References: <200607011800.k61I02nV022260@hera.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Jul 2006 03:54:22 -0400
+Date: Thu, 6 Jul 2006 09:54:20 +0200
+From: DervishD <lkml@dervishd.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Solved] usb-storage device wrongly seen as "write protect is on"
+Message-ID: <20060706075420.GB21819@DervishD>
+Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20060630131642.GA156@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200607011800.k61I02nV022260@hera.kernel.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060630131642.GA156@DervishD>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 01, 2006 at 06:00:02PM +0000, Linux Kernel Mailing List wrote:
-> commit b915543b46a2aa599fdd2169e51bcfd88812a12b
-> tree 8025e6654829d4c245b5b6b6f47a84543ebffb7b
-> parent 6e5a2d1d32596850a0ebf7fb3e54c0d69901dabd
-> author Al Viro <viro@zeniv.linux.org.uk> Sat, 01 Jul 2006 11:56:16 -0400
-> committer Al Viro <viro@zeniv.linux.org.uk> Sat, 01 Jul 2006 15:44:10 -0400
-> 
-> [PATCH] audit syscall classes
-> 
-> Allow to tie upper bits of syscall bitmap in audit rules to kernel-defined
-> sets of syscalls.  Infrastructure, a couple of classes (with 32bit counterparts
-> for biarch targets) and actual tie-in on i386, amd64 and ia64.
-> 
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-> 
->  arch/i386/kernel/Makefile               |    1 
->  arch/i386/kernel/audit.c                |   23 ++++++++++++++++++
->  arch/ia64/ia32/Makefile                 |    1 
->  arch/ia64/ia32/audit.c                  |   11 +++++++++
->  arch/ia64/kernel/Makefile               |    1 
->  arch/ia64/kernel/audit.c                |   29 +++++++++++++++++++++++
->  arch/x86_64/ia32/Makefile               |    3 ++
->  arch/x86_64/ia32/audit.c                |   11 +++++++++
->  arch/x86_64/kernel/Makefile             |    1 
->  arch/x86_64/kernel/audit.c              |   29 +++++++++++++++++++++++
->  include/asm-generic/audit_change_attr.h |   18 ++++++++++++++
->  include/asm-generic/audit_dir_write.h   |   14 +++++++++++
->  include/linux/audit.h                   |    7 +++++
->  kernel/auditfilter.c                    |   39 ++++++++++++++++++++++++++++++++
->  14 files changed, 188 insertions(+)
+    Hi all :)
 
-Excuse my ignorance, but this looks like every architecture needs to add
-something like this. If it is needed, is there some easy way to test the
-implementation?
+ * DervishD <privado@dervishd.net> dixit:
+>     I'm having a problem with an usb-storage device (namely a Inovix
+> IMP65 MP3 player): when I plug it and I try to mount it, the sd_mod
+> driver sees it write protected, so I cannot mount it read-write.
+> 
+>     If I remount it as read-write (as root, of course), I have
+> success and I can use the device normally, being able to write to it
+> without problems. If, instead, I manually unload sd_mod and load it
+> again, then this time the device is NOT seen as write protected (the
+> sd_mod driver says that "write protect is off").
+
+    Well, after following Alan Stern's suggestion and making a trace
+of what was happening using usbmon, the problem was solved.
+
+    The stupid device is probably sharing firmware with another model
+with SD card or whatever, and tells the kernel it has removable media
+inside! Of course the kernel believes that. During the first two
+polls (sometimes only the first poll, at least in 2.4.x) the device
+reports that the media is write protected. Probably it doesn't want
+to accept any WRITE commands until the "removable media" is settled,
+or whatever...
+
+    After that, it reports a media change and voilá, the "new" media
+is no longer write-protected.
+
+    I don't know why it worked in WinXP and MacOS, but now it works
+in my 2.4 kernel. I just do the following:
+
+    $ mount /media/mp3; umount /media/mp3; mount /media/mp3
+
+    The second mount will see the media as write-enabled and will
+mount it read-write. Cool!
+
+    Thanks a lot to Alan Stern for solving my problem and showing so
+much interest in the issue. And thanks to Andrew Morton, too, for
+forwarding my message to the USB developers list :)
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to... RAmen!

@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030367AbWGFRrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbWGFRtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030367AbWGFRrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 13:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030366AbWGFRrP
+	id S1030366AbWGFRtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 13:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbWGFRtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 13:47:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27049 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030367AbWGFRrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 13:47:14 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@muc.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Doug Thompson <norsk5@yahoo.com>,
-       akpm@osdl.org, mm-commits@vger.kernel.org, norsk5@xmission.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch added to -mm tree
-References: <20060703184836.GA46236@muc.de>
-	<1151962114.16528.18.camel@localhost.localdomain>
-	<20060704092358.GA13805@muc.de>
-	<1152007787.28597.20.camel@localhost.localdomain>
-	<20060704113441.GA26023@muc.de>
-	<1152137302.6533.28.camel@localhost.localdomain>
-	<20060705220425.GB83806@muc.de>
-	<m1odw32rep.fsf@ebiederm.dsl.xmission.com>
-	<20060706130153.GA66955@muc.de>
-	<m18xn621i6.fsf@ebiederm.dsl.xmission.com>
-	<20060706165159.GB66955@muc.de>
-Date: Thu, 06 Jul 2006 11:46:00 -0600
-In-Reply-To: <20060706165159.GB66955@muc.de> (Andi Kleen's message of "6 Jul
-	2006 18:51:59 +0200, Thu, 6 Jul 2006 18:51:59 +0200")
-Message-ID: <m18xn6zkx3.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Thu, 6 Jul 2006 13:49:08 -0400
+Received: from cantor.suse.de ([195.135.220.2]:33681 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030366AbWGFRtH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 13:49:07 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: Novell / SUSE Labs
+To: Andrew Morton <akpm@osdl.org>
+Subject: [TRIVIAL PATCH] Remove leftover ext3 acl declarations
+Date: Thu, 6 Jul 2006 19:46:50 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607061946.50708.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> writes:
+These functions no longer exist; remove their declarations.
 
->> With EDAC on my next boot I get positive confirmation that I either
->> pulled the DIMM that the error happened on, or I pulled a different
->> DIMM.
->
-> How? You simulate a new error and let EDAC resolve it?
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
 
-No. There is a status report that tells you which pieces of hardware
-your memory controller sees.  It is just a simple list.
+Index: linux-2.6.17/fs/ext3/acl.h
+===================================================================
+--- linux-2.6.17.orig/fs/ext3/acl.h
++++ linux-2.6.17/fs/ext3/acl.h
+@@ -62,9 +62,6 @@ extern int ext3_permission (struct inode
+ extern int ext3_acl_chmod (struct inode *);
+ extern int ext3_init_acl (handle_t *, struct inode *, struct inode *);
+ 
+-extern int init_ext3_acl(void);
+-extern void exit_ext3_acl(void);
+-
+ #else  /* CONFIG_EXT3_FS_POSIX_ACL */
+ #include <linux/sched.h>
+ #define ext3_permission NULL
 
->> To the best of my knowledge mcelog even with the --dmi option cannot
->> give me that.
->
-> You mean identify if a given DIMM is still plugged in? You can get that 
-> information from dmidecode
-
-If you can reliably decode an error to a DIMM that DMI reports, then
-yes even if DMI gets the label wrong you can reboot and see if the label
-you were aiming for is now missing.  The principle is the same.
-
-The difference is that you can't reliably use DMI to decode to a DIMM.
-
-If you look at memory controller registers you can reliably do the
-same thing without relying on DMI.  It works every time.
-
-Isn't something that just works, and is not at the mercy of the BIOS
-developers with too little time worth doing?
-
-Eric
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+Novell / SUSE Labs

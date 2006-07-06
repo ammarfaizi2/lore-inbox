@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbWGFR2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWGFRag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030312AbWGFR2h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 13:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWGFR2h
+	id S1030314AbWGFRag (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 13:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWGFRag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 13:28:37 -0400
-Received: from mexforward.lss.emc.com ([128.222.32.20]:16566 "EHLO
-	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1030312AbWGFR2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 13:28:36 -0400
-Message-ID: <44AD4807.6090704@emc.com>
-Date: Thu, 06 Jul 2006 13:27:35 -0400
-From: Ric Wheeler <ric@emc.com>
-Reply-To: ric@emc.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Thu, 6 Jul 2006 13:30:36 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:55422 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030315AbWGFRag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 13:30:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ZIQrlTX24QMZl9+HtWRBUktUjgKQmc4RCxVFZ6k5fwoKnoGSXLwPu706fUPz51XOveisBTreDdzTn3bnq9FpJs3Y55UZy17ALcPuRGzzcsUl1n+9xS5zQiB4d7CthzZT/TTOuSS4H2d4y/Seq7VrdEjhX5X7fuL4MXkVn1DDMeI=  ;
+Message-ID: <44AD3D03.8080507@yahoo.com.au>
+Date: Fri, 07 Jul 2006 02:40:35 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: Tomasz Torcz <zdzichu@irc.pl>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>	<20060701170729.GB8763@irc.pl>	<20060701174716.GC24570@cip.informatik.uni-erlangen.de>	<20060701181702.GC8763@irc.pl> <44AD286F.3030507@emc.com> <m3ejwyiryr.fsf@defiant.localdomain>
-In-Reply-To: <m3ejwyiryr.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org> <20060706081639.GA24179@elte.hu> <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com> <1152187268.3084.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.7.6.101432
-X-PerlMx-Spam: Gauge=, SPAM=2%, Reasons='EMC_FROM_0+ -2, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
+linux-os (Dick Johnson) wrote:
 
->Ric Wheeler <ric@emc.com> writes:
->
->  
->
->>Having a checksum (or even a digital signature on a file) that lets us
->>detect corruption is very useful since, in many cases, it allows us to
->>flag the file as corrupt before it gets used.
->>    
->>
->
->We can't have that. Sector/block/etc. checksums - yes.
->  
->
-I certainly don't object to sector and block checksums, but they do 
-require a specially formatted disk or high end array (which my employer 
-would be happy to sell you ;-)).
+>  	http://en.wikipedia.org/wiki/Memory_barrier
+> 
+> This is used to prevent out-of-order execution, not at all what is
+> necessary.
 
-If you record a per sector or FS block level checksum in user space, you 
-have to keep in mind the sheer size of today's commodity disks and the 
-amount of space that would consume - it would be much more efficient to 
-store one such signature per file. Where you put those 
-checksums/signatures and when you look at them/update them/validate them 
-can cause lots of headaches.
+I don't think memory barriers prevent out of order execution,
+just out of order loads and stores (which could happen on CPUs
+that do in-order execution).
 
->A checksum, signature, hash etc. of the whole file would require
->actually reading the whole file. It can be done by tripwire or
->backup, and even by fsck, but not by the filesystem in normal
->operation.
->  
->
-There was some  talk about this at the file system mini-summit.  
-Clearly, you would not want to compute (and continually update) the 
-checksum/signature on an actively written  file.
-
-It might be useful to compute at close time (or when you set a special 
-attr, etc). We could also special case sequentially written files 
-(storing & updating the partial signature as we go, but that could be a 
-bit iffy).
-
-The key is to keep the signature/checksum with the file - tripwire and 
-backup programs could do this (and even store it their own extended 
-attribute), but I think that it is more generically useful than that. 
-
-If you care enough about the data integrity of a file, having this kind 
-of optional validation on any open would be very useful.
-
-ric
-
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

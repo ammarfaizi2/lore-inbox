@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030325AbWGFReS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030353AbWGFRgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030325AbWGFReS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 13:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbWGFReS
+	id S1030353AbWGFRgn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 13:36:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbWGFRgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 13:34:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42651 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030325AbWGFReR (ORCPT
+	Thu, 6 Jul 2006 13:36:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30390 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030353AbWGFRgm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 13:34:17 -0400
-Date: Thu, 6 Jul 2006 13:34:11 -0400
-From: Dave Jones <davej@redhat.com>
-To: arjan@infradead.org
-Cc: mingo@redhat.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: lockdep input layer warnings.
-Message-ID: <20060706173411.GA2538@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, arjan@infradead.org,
-	mingo@redhat.com, Linux Kernel <linux-kernel@vger.kernel.org>
+	Thu, 6 Jul 2006 13:36:42 -0400
+Date: Thu, 6 Jul 2006 10:36:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, bernds_cb1@t-online.de, sam@ravnborg.org,
+       dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/6] FRV: Fix FRV arch compile errors [try #3]
+Message-Id: <20060706103622.ebf00e68.akpm@osdl.org>
+In-Reply-To: <20060706124721.7098.50514.stgit@warthog.cambridge.redhat.com>
+References: <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
+	<20060706124721.7098.50514.stgit@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of our Fedora-devel users picked up on this this morning
-in an 18rc1 based kernel.
+On Thu, 06 Jul 2006 13:47:21 +0100
+David Howells <dhowells@redhat.com> wrote:
 
-		Dave
+> From: David Howells <dhowells@redhat.com>
+> 
+> The attached patch fixes some FRV arch compile errors, including:
+> 
+>  (*) Marking nr_kernel_pages as __initdata so that references to it end up
+>      being properly calculated rather than being assumed to be in the small
+>      data section (and thus calculated wrt the GP register).  Not doing this
+>      causes the linker to emit errors as the offset is too big to fit into the
+>      load instruction.
 
+ocrap, I didn't read this bit.  Really?  We skip the section tag on the
+declaration all over the place and keeping them in sync is going to be
+quite unreliable due to lack of compiler checking.
 
- Synaptics Touchpad, model: 1, fw: 5.9, id: 0x2c6ab1, caps: 0x884793/0x0
- serio: Synaptics pass-through port at isa0060/serio1/input0
- input: SynPS/2 Synaptics TouchPad as /class/input/input1
- PM: Adding info for serio:serio2
- 
- =============================================
- [ INFO: possible recursive locking detected ]
- ---------------------------------------------
- kseriod/111 is trying to acquire lock:
-  (&ps2dev->cmd_mutex/1){--..}, at: [<c05937fd>] ps2_command+0x6a/0x2bd
- 
- but task is already holding lock:
-  (&ps2dev->cmd_mutex/1){--..}, at: [<c05937fd>] ps2_command+0x6a/0x2bd
- 
- other info that might help us debug this:
- 4 locks held by kseriod/111:
-  #0:  (serio_mutex){--..}, at: [<c060d6bb>] mutex_lock+0x21/0x24
-  #1:  (&serio->drv_mutex){--..}, at: [<c060d6bb>] mutex_lock+0x21/0x24
-  #2:  (psmouse_mutex){--..}, at: [<c060d6bb>] mutex_lock+0x21/0x24
-  #3:  (&ps2dev->cmd_mutex/1){--..}, at: [<c05937fd>] ps2_command+0x6a/0x2bd
- 
- stack backtrace:
-  [<c0405167>] show_trace_log_lvl+0x54/0xfd
-  [<c040571e>] show_trace+0xd/0x10
-  [<c040583d>] dump_stack+0x19/0x1b
-  [<c043bdb2>] __lock_acquire+0x76a/0x98d
-  [<c043c546>] lock_acquire+0x4b/0x6d
-  [<c060d793>] mutex_lock_nested+0xd5/0x251
-  [<c05937fd>] ps2_command+0x6a/0x2bd
-  [<c0598f41>] psmouse_sliced_command+0x1c/0x5a
-  [<c059c45a>] synaptics_pt_write+0x1e/0x44
-  [<c05936fb>] ps2_sendbyte+0x3e/0xd6
-  [<c0593879>] ps2_command+0xe6/0x2bd
-  [<c0598b3e>] psmouse_probe+0x1d/0x68
-  [<c0599ad0>] psmouse_connect+0xe8/0x20f
-  [<c05910d9>] serio_connect_driver+0x1e/0x2e
-  [<c05910ff>] serio_driver_probe+0x16/0x18
-  [<c0550076>] driver_probe_device+0x45/0x92
-  [<c05500cb>] __device_attach+0x8/0xa
-  [<c054fa0c>] bus_for_each_drv+0x3a/0x65
-  [<c0550126>] device_attach+0x59/0x6e
-  [<c054f74a>] bus_attach_device+0x16/0x2b
-  [<c054eb03>] device_add+0x1f4/0x307
-  [<c0591b9d>] serio_thread+0xfd/0x27c
-  [<c04365dc>] kthread+0xc3/0xef
-  [<c0402005>] kernel_thread_helper+0x5/0xb
+> --- a/include/linux/bootmem.h
+> +++ b/include/linux/bootmem.h
+> @@ -91,7 +91,7 @@ static inline void *alloc_remap(int nid,
+>  }
+>  #endif
+>  
+> -extern unsigned long nr_kernel_pages;
+> +extern unsigned long __initdata nr_kernel_pages;
+>  extern unsigned long nr_all_pages;
+>  
+>  extern void *__init alloc_large_system_hash(const char *tablename,
 
--- 
-http://www.codemonkey.org.uk
+So this wants to be __meminitdata.  Problem.  How does it manifest on FRV? 
+A linker error or a mysterious crash?

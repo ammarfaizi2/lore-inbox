@@ -1,103 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWGFXXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbWGFXYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbWGFXXj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWGFXXj
+	id S1751040AbWGFXYR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 19:24:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWGFXYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:23:39 -0400
-Received: from xenotime.net ([66.160.160.81]:10970 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751040AbWGFXXi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:23:38 -0400
-Date: Thu, 6 Jul 2006 16:26:22 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: jamagallon@ono.com
-Cc: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>,
-       jgarzik <jgarzik@pobox.com>
-Subject: Re: 2.6.17-mm6 (try-3)
-Message-Id: <20060706162622.8d5ac9a7.rdunlap@xenotime.net>
-In-Reply-To: <20060706234425.678cbc2f@werewolf.auna.net>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	<20060705234347.47ef2600@werewolf.auna.net>
-	<20060705155602.6e0b4dce.akpm@osdl.org>
-	<20060706015706.37acb9af@werewolf.auna.net>
-	<20060705170228.9e595851.akpm@osdl.org>
-	<20060706163646.735f419f@werewolf.auna.net>
-	<20060706164802.6085d203@werewolf.auna.net>
-	<20060706234425.678cbc2f@werewolf.auna.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Thu, 6 Jul 2006 19:24:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38091 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751045AbWGFXYQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 19:24:16 -0400
+Date: Thu, 6 Jul 2006 16:27:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: dhowells@redhat.com, torvalds@osdl.org, bernds_cb1@t-online.de,
+       sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/6] FDPIC: Add coredump capability for the ELF-FDPIC
+ binfmt [try #3]
+Message-Id: <20060706162731.577748e7.akpm@osdl.org>
+In-Reply-To: <26133.1152211129@warthog.cambridge.redhat.com>
+References: <20060706105223.97b9a531.akpm@osdl.org>
+	<20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
+	<20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com>
+	<26133.1152211129@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-(sorry to spam everyone, but I can't seem to reply to this
-message and have it appear on lkml)
-
-On Thu, 6 Jul 2006 23:44:25 +0200 J.A. Magallón wrote:
-
-> On Thu, 6 Jul 2006 16:48:02 +0200, "J.A. Magallón" <jamagallon@ono.com> wrote:
+David Howells <dhowells@redhat.com> wrote:
+>
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> > On Thu, 6 Jul 2006 16:36:46 +0200, "J.A. Magallón" <jamagallon@ono.com> wrote:
-> > 
-> > > On Wed, 5 Jul 2006 17:02:28 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> > > 
-> > > 
-> > > This a shot till I can try to get a full dmesg.
-> > > 
-> > > http://belly.cps.unizar.es/~magallon/tmp/shot.jpg
-> > > 
-> > > Anyways, what I wanted to point above was that previous kernels talk
-> > > about 'sda1(8,1)', and newer use 'dev(8,19)'.
-> > > Perhaps somebedy did a strcpy( ... , "dev" ), instead of strcpy( ... , dev ) ?
-> > > 
-> > 
-> > Hey !!. I disabled md and usb to get more useful messages in my screen, and
-> > now I have realized that libata is managing my IDE drive !! And I did not
-> > boot with any 'libata.atapi_enable'....
-> > 
-> > In -mm1,
-> > sda -> 200Gb sata
-> > hda -> HL-DT-ST DVDRAM GSA-4120B
-> > hdb -> (zip drive)
-> > hdc -> 120Gb ide
-> > hdd -> DVD-ROM
-> > 
-> > In -mm6,
-> > 
-> > sda -> (zip drive) ?
-> > sdb -> 120Gb
-> > sdc -> 200Gb
-> > 
+> > llseek takes a loff_t and file->f_pos is loff_t.  I guess it's a bit moot
+> > on such a CPU.  Was it deliberate?
 > 
-> Well, booting onto sdc1 let me get to single user mode at least so I got
-> a full dmesg. Relevant parts for -mm1 and -mm6 are below (if you want it
-> full I can provide). Basically it looks like libata 2.0 by default handles
-> PATA drives. This can break a lot of systems. In my opinion, PATA hosts
-> should be detected _after_ real sata hosts in the same chipset (now it
-> looks like its done _before_). What is handled by IDE will break anyways,
-> but this way at least real SATA will stay at the same /dev/sdX devices.
-> 
-> -mm1:
-> ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-> ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-> ICH5: IDE controller at PCI slot 0000:00:1f.1
->     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-> 
-> -mm6:
-> 
-> ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-> ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
-> ata3: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-> ata4: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
+> It compiles with no error and no warning, so I haven't noticed.  This is as
+> binfmt_elf.c is, I believe, so that is probably wrong too.
 
-Yep, adding all of the libata-pata drivers mucked up the
-/dev/sd* boot order.  :(
-Perhaps they should follow all of the SATA drivers.  ?
+binfmt_elf uses loff_t.
 
----
-~Randy
+> > (how come the kernel doesn't have a SEEK_SET #define?)
+> 
+> I don't know.  It probably should.
+> 
+> > Three callsites - seems too large to inline.
+> 
+> Again taken from binfmt_elf.c, although I added the debugging stuff.  It
+> shouldn't matter as the compiler will make its own decision (or does "inline"
+> get #defined to always-inline nowadays?).
+
+Yes, we still play games with inline (include/linux/compiler*.h)
+
+If it has a single callsite, leave it uninlined and gcc will usually inline
+it.  If it has multiple callsites then leave it uninlined and gcc will
+(hopefully) not inline it.  So omitting the inline is usually the right
+thing to do.
+
+> > Which seems reasonable to me.  I'll steal it from them.
+> 
+> Okay.
+> 
+> > Embedding returns and gotos in macros is evil.  For new code it's worth
+> > doing it vaguely tastefully.
+> 
+> Again, stolen verbatim from binfmt_elf.c.  I'd prefer to keep it comparable by
+> the blink-comparator method if possible.
+
+Well..  copy-n-paste from a bad source gives a bad dest.
+
+diff -puN fs/binfmt_elf.c~binfmt_elf-macro-cleanup fs/binfmt_elf.c
+--- a/fs/binfmt_elf.c~binfmt_elf-macro-cleanup
++++ a/fs/binfmt_elf.c
+@@ -1207,11 +1207,6 @@ static int notesize(struct memelfnote *e
+ 	return sz;
+ }
+ 
+-#define DUMP_WRITE(addr, nr)	\
+-	do { if (!dump_write(file, (addr), (nr))) return 0; } while(0)
+-#define DUMP_SEEK(off)	\
+-	do { if (!dump_seek(file, (off))) return 0; } while(0)
+-
+ static int writenote(struct memelfnote *men, struct file *file)
+ {
+ 	struct elf_note en;
+@@ -1220,24 +1215,21 @@ static int writenote(struct memelfnote *
+ 	en.n_descsz = men->datasz;
+ 	en.n_type = men->type;
+ 
+-	DUMP_WRITE(&en, sizeof(en));
+-	DUMP_WRITE(men->name, en.n_namesz);
++	if (!dump_write(&en, sizeof(en)))
++		goto err;
++	if (!dump_write(men->name, en.n_namesz))
++		goto err;
+ 	/* XXX - cast from long long to long to avoid need for libgcc.a */
+-	DUMP_SEEK(roundup((unsigned long)file->f_pos, 4));	/* XXX */
+-	DUMP_WRITE(men->data, men->datasz);
+-	DUMP_SEEK(roundup((unsigned long)file->f_pos, 4));	/* XXX */
+-
++	if (!dump_seek(roundup((unsigned long)file->f_pos, 4)))
++		goto err;
++	if (!dump_write(men->data, men->datasz))
++		goto err;
++	if (!dump_seek(roundup((unsigned long)file->f_pos, 4)))
++		goto err;
+ 	return 1;
++err:
++	return 0;
+ }
+-#undef DUMP_WRITE
+-#undef DUMP_SEEK
+-
+-#define DUMP_WRITE(addr, nr)	\
+-	if ((size += (nr)) > limit || !dump_write(file, (addr), (nr))) \
+-		goto end_coredump;
+-#define DUMP_SEEK(off)	\
+-	if (!dump_seek(file, (off))) \
+-		goto end_coredump;
+ 
+ static void fill_elf_header(struct elfhdr *elf, int segs)
+ {
+@@ -1555,7 +1547,11 @@ static int elf_core_dump(long signr, str
+ 	fs = get_fs();
+ 	set_fs(KERNEL_DS);
+ 
+-	DUMP_WRITE(elf, sizeof(*elf));
++	size += sizeof(*elf);
++	if (size > limit)
++		goto end_coredump;
++	if (!dump_write(file, elf, sizeof(*elf))
++		goto end_coredump;
+ 	offset += sizeof(*elf);				/* Elf header */
+ 	offset += (segs+1) * sizeof(struct elf_phdr);	/* Program headers */
+ 
+@@ -1571,7 +1567,11 @@ static int elf_core_dump(long signr, str
+ 
+ 		fill_elf_note_phdr(&phdr, sz, offset);
+ 		offset += sz;
+-		DUMP_WRITE(&phdr, sizeof(phdr));
++		size += sizeof(phdr);
++		if (size > limit)
++			goto end_coredump;
++		if (!dump_write(file, &phdr, sizeof(phdr))
++			goto end_coredump;
+ 	}
+ 
+ 	/* Page-align dumped data */
+@@ -1598,7 +1598,11 @@ static int elf_core_dump(long signr, str
+ 			phdr.p_flags |= PF_X;
+ 		phdr.p_align = ELF_EXEC_PAGESIZE;
+ 
+-		DUMP_WRITE(&phdr, sizeof(phdr));
++		size += sizeof(phdr);
++		if (size > limit)
++			goto end_coredump;
++		if (!dump_write(file, &phdr, sizeof(phdr))
++			goto end_coredump;
+ 	}
+ 
+ #ifdef ELF_CORE_WRITE_EXTRA_PHDRS
+@@ -1620,7 +1624,8 @@ static int elf_core_dump(long signr, str
+ 				goto end_coredump;
+ 	}
+  
+-	DUMP_SEEK(dataoff);
++	if (!dump_seek(file, dataoff))
++		goto end_coredump;
+ 
+ 	for (vma = current->mm->mmap; vma != NULL; vma = vma->vm_next) {
+ 		unsigned long addr;
+@@ -1636,10 +1641,13 @@ static int elf_core_dump(long signr, str
+ 
+ 			if (get_user_pages(current, current->mm, addr, 1, 0, 1,
+ 						&page, &vma) <= 0) {
+-				DUMP_SEEK(file->f_pos + PAGE_SIZE);
++				if (!dump_seek(file, file->f_pos + PAGE_SIZE))
++					goto end_coredump
+ 			} else {
+ 				if (page == ZERO_PAGE(addr)) {
+-					DUMP_SEEK(file->f_pos + PAGE_SIZE);
++					if (!dump_seek(file,
++						       file->f_pos + PAGE_SIZE))
++						goto end_coredump;
+ 				} else {
+ 					void *kaddr;
+ 					flush_cache_page(vma, addr,
+_
+

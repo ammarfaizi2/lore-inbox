@@ -1,142 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbWGFANN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWGFAVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965085AbWGFANN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 20:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbWGFANN
+	id S965091AbWGFAVI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 20:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbWGFAVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 20:13:13 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:50642 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S965085AbWGFANM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 20:13:12 -0400
-Date: Wed, 5 Jul 2006 20:10:21 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: early fault handler
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200607052011_MC3-1-C43E-CE64@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Wed, 5 Jul 2006 20:21:08 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:16018 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S965088AbWGFAVG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 20:21:06 -0400
+Date: Thu, 6 Jul 2006 02:20:53 +0200 (MEST)
+Message-Id: <200607060020.k660Krv1009111@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: davem@davemloft.net
+Subject: [PATCH 2.6.17 sparc64] 32-bit compat for Mach64 framebuffer
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       sparclinux@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add early i386 fault handlers with debug information for common
-faults. Handles:
+To: davem@davemloft.net
+Subject: [PATCH 2.6.17 sparc64] 32-bit compat for Mach64 framebuffer
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
 
-        divide error
-        invalid opcode
-        protection fault
-        page fault
+In recent sparc64 kernels, starting a 32-bit mode X server on
+a machine with a Mach64 framebuffer (CONFIG_FB_ATY_CT=y) like
+an Ultra5, results in the kernel complaining:
 
-Also adds code to detect early recursive/multiple faults and halt
-the system when they happen (taken from x86_64.)
+ioctl32(X:1977): Unknown cmd fd(6) cmd(40584606){00} arg(ef8dd6d8) on /dev/fb0
+ioctl32(X:1977): Unknown cmd fd(6) cmd(40184600){00} arg(ef8dd6e0) on /dev/fb0
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+That's FBIOGTYPE and FBIOGATTR. These errors occur because
+kernel 2.6.15-rc2 changed the way sparc64 handles SPARC-specific
+framebuffer ioctls from 32-bit processes: before 2.6.15-rc2
+arch/sparc64/kernel/ioctl32.c handled them for all devices,
+but 2.6.15-rc2 dropped that support and changed SPARC-only
+framebuffer drivers like ffb.c to set up ->compat_ioctl methods
+pointing to sbusfb_compat_ioctl in drivers/video/sbuslib.c.
+However, drivers for framebuffers like the Mach64 that can exist
+on both SPARCs and non-SPARCs were not adjusted, so in sparc64
+kernels SPARC-specific framebuffer ioctls on Mach64 devices are
+no longer accepted from 32-bit mode processes. Hence the errors.
 
----
+The fix is to make atyfb_base.c set up a ->compat_ioctl pointing
+to sbusfb_compat_ioctl when running in a sparc64 kernel with
+compatibility for sparc32 user-space, and to compile and link
+sbuslib.o with the frambuffer driver.
 
- arch/i386/kernel/head.S |   67 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 67 insertions(+)
+A complication is that sbuslib.c doesn't compile on non-SPARC
+machines, so we must be careful to only enable it in the case
+described above. That's why the patch puts an ugly "if" statement
+in the Makefile.
 
---- 2.6.17-nb.orig/arch/i386/kernel/head.S
-+++ 2.6.17-nb/arch/i386/kernel/head.S
-@@ -378,8 +378,65 @@ rp_sidt:
- 	addl $8,%edi
- 	dec %ecx
- 	jne rp_sidt
-+
-+.macro	set_early_handler handler,trapno
-+	lea \handler,%edx
-+	movl $(__KERNEL_CS << 16),%eax
-+	movw %dx,%ax
-+	movw $0x8E00,%dx	/* interrupt gate - dpl=0, present */
-+	lea idt_table,%edi
-+	movl %eax,8*\trapno(%edi)
-+	movl %edx,8*\trapno+4(%edi)
-+.endm
-+
-+	set_early_handler handler=early_divide_err,trapno=0
-+	set_early_handler handler=early_illegal_opcode,trapno=6
-+	set_early_handler handler=early_protection_fault,trapno=13
-+	set_early_handler handler=early_page_fault,trapno=14
-+
- 	ret
- 
-+early_divide_err:
-+	xor %edx,%edx
-+	pushl $0	/* fake errcode */
-+	jmp early_fault
-+
-+early_illegal_opcode:
-+	movl $6,%edx
-+	pushl $0	/* fake errcode */
-+	jmp early_fault
-+
-+early_protection_fault:
-+	movl $13,%edx
-+	jmp early_fault
-+
-+early_page_fault:
-+	movl $14,%edx
-+	jmp early_fault
-+
-+early_fault:
-+	cld
-+#ifdef CONFIG_PRINTK
-+	movl $(__KERNEL_DS),%eax
-+	movl %eax,%ds
-+	movl %eax,%es
-+	cmpl $2,early_recursion_flag
-+	je hlt_loop
-+	incl early_recursion_flag
-+	movl %cr2,%eax
-+	pushl %eax
-+	pushl %edx		/* trapno */
-+	pushl $fault_msg
-+#ifdef CONFIG_EARLY_PRINTK
-+	call early_printk
-+#else
-+	call printk
+Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
+
+--- linux-2.6.17/drivers/video/Makefile.~1~	2006-07-05 21:47:50.000000000 +0200
++++ linux-2.6.17/drivers/video/Makefile	2006-07-05 22:19:00.000000000 +0200
+@@ -32,6 +32,9 @@ obj-$(CONFIG_FB_MATROX)		  += matrox/
+ obj-$(CONFIG_FB_RIVA)		  += riva/ vgastate.o
+ obj-$(CONFIG_FB_NVIDIA)		  += nvidia/
+ obj-$(CONFIG_FB_ATY)		  += aty/ macmodes.o
++ifeq ($(CONFIG_SPARC64)-$(CONFIG_COMPAT),y-y)
++  obj-$(CONFIG_FB_ATY)		  += sbuslib.o
++endif
+ obj-$(CONFIG_FB_ATY128)		  += aty/ macmodes.o
+ obj-$(CONFIG_FB_RADEON)		  += aty/
+ obj-$(CONFIG_FB_SIS)		  += sis/
+--- linux-2.6.17/drivers/video/aty/atyfb_base.c.~1~	2006-07-05 21:47:50.000000000 +0200
++++ linux-2.6.17/drivers/video/aty/atyfb_base.c	2006-07-05 22:26:04.000000000 +0200
+@@ -82,6 +82,9 @@
+ #ifdef __sparc__
+ #include <asm/pbm.h>
+ #include <asm/fbio.h>
++#if defined(CONFIG_SPARC64) && defined(CONFIG_COMPAT)
++#include "../sbuslib.h"
 +#endif
+ #endif
+ 
+ #ifdef CONFIG_ADB_PMU
+@@ -298,6 +301,9 @@ static struct fb_ops atyfb_ops = {
+ 	.fb_pan_display	= atyfb_pan_display,
+ 	.fb_blank	= atyfb_blank,
+ 	.fb_ioctl	= atyfb_ioctl,
++#if defined(CONFIG_SPARC64) && defined(CONFIG_COMPAT)
++	.fb_compat_ioctl = sbusfb_compat_ioctl,
 +#endif
-+hlt_loop:
-+	hlt
-+	jmp hlt_loop
-+
- /* This is the default interrupt "handler" :-) */
- 	ALIGN
- ignore_int:
-@@ -393,6 +450,9 @@ ignore_int:
- 	movl $(__KERNEL_DS),%eax
- 	movl %eax,%ds
- 	movl %eax,%es
-+	cmpl $2,early_recursion_flag
-+	je hlt_loop
-+	incl early_recursion_flag
- 	pushl 16(%esp)
- 	pushl 24(%esp)
- 	pushl 32(%esp)
-@@ -438,9 +498,16 @@ ENTRY(stack_start)
- 
- ready:	.byte 0
- 
-+early_recursion_flag:
-+	.long 0
-+
- int_msg:
- 	.asciz "Unknown interrupt or fault at EIP %p %p %p\n"
- 
-+fault_msg:
-+	.ascii "Int %d: CR2 %p  err %p  EIP %p  CS %p  flags %p\n"
-+	.asciz "Stack: %p %p %p %p %p %p %p %p\n"
-+
- /*
-  * The IDT and GDT 'descriptors' are a strange 48-bit object
-  * only used by the lidt and lgdt instructions. They are not
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+ 	.fb_fillrect	= atyfb_fillrect,
+ 	.fb_copyarea	= atyfb_copyarea,
+ 	.fb_imageblit	= atyfb_imageblit,

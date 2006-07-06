@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbWGFXdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWGFXe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751047AbWGFXdl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWGFXdk
+	id S1751050AbWGFXe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 19:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWGFXe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:33:40 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9198 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751046AbWGFXdk (ORCPT
+	Thu, 6 Jul 2006 19:34:29 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:11962 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751049AbWGFXe2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:33:40 -0400
-Date: Fri, 7 Jul 2006 09:32:46 +1000
-From: David Chinner <dgc@sgi.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: xfs-masters@oss.sgi.com, xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: fs/xfs/xfs_vnodeops.c:xfs_readdir(): NULL variable dereferenced
-Message-ID: <20060706233246.GB15160733@melbourne.sgi.com>
-References: <20060706211320.GW26941@stusta.de>
+	Thu, 6 Jul 2006 19:34:28 -0400
+Subject: Re: [PATCH 38 of 39] IB/ipath - More changes to support InfiniPath
+	on PowerPC 970 systems
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <1152225421.9862.12.camel@localhost.localdomain>
+References: <c22b6c244d5db77f7b1d.1151617289@eng-12.pathscale.com>
+	 <1152225421.9862.12.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 06 Jul 2006 16:34:27 -0700
+Message-Id: <1152228867.24748.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060706211320.GW26941@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 11:13:20PM +0200, Adrian Bunk wrote:
-> The Coverity checker spotted the following:
-> 
-> <--  snip  -->
-> 
-> ...
-> STATIC int
-> xfs_readdir(
->         bhv_desc_t      *dir_bdp,
->         uio_t           *uiop,
->         cred_t          *credp,
->         int             *eofp)
-> {
->         xfs_inode_t     *dp;
->         xfs_trans_t     *tp = NULL;
->         int             error = 0;
->         uint            lock_mode;
-> 
->         vn_trace_entry(BHV_TO_VNODE(dir_bdp), __FUNCTION__,
->                                                (inst_t *)__return_address);
->         dp = XFS_BHVTOI(dir_bdp);
-> 
->         if (XFS_FORCED_SHUTDOWN(dp->i_mount))
->                 return XFS_ERROR(EIO);
-> 
->         lock_mode = xfs_ilock_map_shared(dp);
->         error = xfs_dir_getdents(tp, dp, uiop, eofp);
->         xfs_iunlock_map_shared(dp, lock_mode);
->         return error;
-> }
-> ...
-> 
-> <--  snip  -->
-> 
-> Note that tp is never assigned any value other than NULL (and the 
-> Coverity checker found a way how tp might be dereferenced four function 
-> calls later).
+On Fri, 2006-07-07 at 08:37 +1000, Benjamin Herrenschmidt wrote:
 
-Then the bug is probably in the function call that uses tp without
-first checking whether it's null. Can you tell us where that dereference
-occurs?
+> > +int ipath_unordered_wc(void)
+> > +{
+> > +	return 1;
+> > +}
+> 
+> How is the above providing any kind of serialisation ?
 
-Cheers,
+It's not intended to; it tells the *caller* whether to do it.
 
-Dave.
+	<b
 
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group

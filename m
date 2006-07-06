@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWGFRag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbWGFRbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbWGFRag (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 13:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWGFRag
+	id S1030315AbWGFRbT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 13:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbWGFRbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 13:30:36 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:55422 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030315AbWGFRag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 13:30:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ZIQrlTX24QMZl9+HtWRBUktUjgKQmc4RCxVFZ6k5fwoKnoGSXLwPu706fUPz51XOveisBTreDdzTn3bnq9FpJs3Y55UZy17ALcPuRGzzcsUl1n+9xS5zQiB4d7CthzZT/TTOuSS4H2d4y/Seq7VrdEjhX5X7fuL4MXkVn1DDMeI=  ;
-Message-ID: <44AD3D03.8080507@yahoo.com.au>
-Date: Fri, 07 Jul 2006 02:40:35 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Thu, 6 Jul 2006 13:31:19 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:55504 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030315AbWGFRbS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 13:31:18 -0400
+Subject: Re: 2.6.17-mm6
+From: john stultz <johnstul@us.ibm.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org> <20060706081639.GA24179@elte.hu> <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com> <1152187268.3084.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <200607052332.13028.s0348365@sms.ed.ac.uk>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	 <1152131834.24656.57.camel@cog.beaverton.ibm.com>
+	 <20060705204614.GA24181@kroah.com>
+	 <200607052332.13028.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain
+Date: Thu, 06 Jul 2006 10:31:13 -0700
+Message-Id: <1152207073.24656.127.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
+On Wed, 2006-07-05 at 23:32 +0100, Alistair John Strachan wrote:
+> On Wednesday 05 July 2006 21:46, Greg KH wrote:
+> > On Wed, Jul 05, 2006 at 01:37:13PM -0700, john stultz wrote:
+> > > On Tue, 2006-07-04 at 01:49 -0700, Andrew Morton wrote:
+> > > > On Tue, 4 Jul 2006 09:34:14 +0100
+> > > >
+> > > > Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > > > > > a tested version...
+> > > > >
+> > > > > This one worked, thanks. Try the same URL again, I've uploaded two
+> > > > > better shots 6,7 that capture the first oops. Unfortunately, I have a
+> > > > > pair of oopses that interchange every couple of boots, so I've
+> > > > > included both ;-)
+> > > >
+> > > > OK, that's more like it.  Thanks again.
+> > > >
+> > > > http://devzero.co.uk/~alistair/oops-20060703/oops6.jpg
+> > > > http://devzero.co.uk/~alistair/oops-20060703/oops7.jpg
+> > > >
+> > > > People cc'ed.  Help!
+> > >
+> > > Hmmm. No clue on this one from just looking at it.
+> > >
+> > > Greg, do you see anything wrong with the way I'm registering the
+> > > timekeeping .resume hook in kernel/timer.c::timekeeping_init_device()?
+> > > It looks the same as the other users to me.
+> >
+> > At first glance, no, it looks sane to me.
+> >
+> > Are you sure you aren't registering two things with the same name
+> > somehow?
 
->  	http://en.wikipedia.org/wiki/Memory_barrier
-> 
-> This is used to prevent out-of-order execution, not at all what is
-> necessary.
+Looking at it, I don't see how that could happen.
 
-I don't think memory barriers prevent out of order execution,
-just out of order loads and stores (which could happen on CPUs
-that do in-order execution).
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> Whatever it is, it doesn't happen every time. Sometimes the kernel boots.
+
+Odd. Does this happen w/ 2.6.18-rc1?
+
+thanks
+-john
+

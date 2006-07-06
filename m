@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWGFSvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWGFSzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWGFSvF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 14:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWGFSvF
+	id S1750727AbWGFSzu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 14:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWGFSzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 14:51:05 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:13981 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750707AbWGFSvD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 14:51:03 -0400
-Date: Thu, 6 Jul 2006 13:50:59 -0500
-To: Auke Kok <sofar@foo-projects.org>
-Cc: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
-       Auke Kok <auke-jan.h.kok@intel.com>,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       "Ronciak, John" <john.ronciak@intel.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
-       Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       netdev@vger.kernel.org, wenxiong@us.ibm.com
-Subject: Re: [PATCH] ixgb: add PCI Error recovery callbacks
-Message-ID: <20060706185059.GX29526@austin.ibm.com>
-References: <20060629162634.GC5472@austin.ibm.com> <1151905766.28493.129.camel@ymzhang-perf.sh.intel.com> <44ABDF87.8000801@intel.com> <20060705194437.GJ29526@austin.ibm.com> <1152148899.28493.168.camel@ymzhang-perf.sh.intel.com> <20060706161640.GT29526@austin.ibm.com> <44AD4FFF.4080204@foo-projects.org>
+	Thu, 6 Jul 2006 14:55:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33493 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750727AbWGFSzt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 14:55:49 -0400
+Message-ID: <44AD5CB6.7000607@redhat.com>
+Date: Thu, 06 Jul 2006 11:55:50 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44AD4FFF.4080204@foo-projects.org>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: Michael Kerrisk <mtk-manpages@gmx.net>, mtk-lkml@gmx.net, rlove@rlove.org,
+       roland@redhat.com, eggert@cs.ucla.edu, paire@ri.silicomp.fr,
+       torvalds@osdl.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       michael.kerrisk@gmx.net
+Subject: Re: Strange Linux behaviour with blocking syscalls and stop signals+SIGCONT
+References: <44A92DC8.9000401@gmx.net> <44AABB31.8060605@colorfullife.com> <20060706092328.320300@gmx.net> <44AD599D.70803@colorfullife.com>
+In-Reply-To: <44AD599D.70803@colorfullife.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigEDEDC8ABD897C31D263FB50D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 11:01:35AM -0700, Auke Kok wrote:
-> Linas Vepstas wrote:
-> >
-> >Perhaps the right fix is to figure out what parts of the driver do i/o
-> >during shutdown, and then add a line "if(wedged) skip i/o;" to those
-> >places?
-> 
-> that would be relatively simple if we can check a flag (?) somewhere that 
-> signifies that we've encountered a pci error. We basically only need to 
-> skip out after e1000_reset and bypass e1000_irq_disable in e1000_down() 
-> then.
-> 
-> Does the pci error recovery code give us such a flag?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigEDEDC8ABD897C31D263FB50D
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Yes, it was introduced so that drivers could view the state in 
-an interrupt context. (how this flag is set is platform dependent.)
+Manfred Spraul wrote:
+> 1) I would go further and try ERESTARTSYS: ERESTARTSYS means that the
+> kernel signal handler honors SA_RESTART
+> 2) At least for the futex functions, it won't be as easy as replacing
+> EINTR wiht ERESTARTSYS: the futex functions receive a timeout a the
+> parameter, with the duration of the wait call as a parameter. You must
+> use ERESTART_RESTARTBLOCK.
 
-struct pci_dev {
-         pci_channel_state error_state;
- };
+Whoa, not so fast.  At least the futex syscall but be interruptible by
+signals.  It is crucial to return EINTR.
 
-enum pci_channel_state {
-   /* I/O channel is in normal state */
-   pci_channel_io_normal,
-
-   /* I/O to channel is blocked */
-   pci_channel_io_frozen,
-
-   /* PCI card is dead */
-   pci_channel_io_perm_failure,
-};
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
 
 
-Unless I get distracted, I'll provide an e1000 patch shortly ?
+--------------enigEDEDC8ABD897C31D263FB50D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
---linas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFErVy22ijCOnn/RHQRAvKBAJ4+VdRG6fAjZULIcCOFEoKtQJeiVACfXDD/
+v0be8jH77ytM4K5413Xd66k=
+=/qGm
+-----END PGP SIGNATURE-----
+
+--------------enigEDEDC8ABD897C31D263FB50D--

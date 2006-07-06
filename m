@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbWGFLuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965184AbWGFLrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965179AbWGFLuo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 07:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965190AbWGFLuo
+	id S965184AbWGFLrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 07:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965190AbWGFLrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 07:50:44 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:10438 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S965179AbWGFLun (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 07:50:43 -0400
-Date: Thu, 6 Jul 2006 13:50:27 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: tglx@linutronix.de
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
-Message-ID: <20060706135027.140c6f8c@cad-250-152.norway.atmel.com>
-In-Reply-To: <1152185425.24611.140.camel@localhost.localdomain>
-References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
-	<20060706021906.1af7ffa3.akpm@osdl.org>
-	<20060706120319.26b35798@cad-250-152.norway.atmel.com>
-	<1152185425.24611.140.camel@localhost.localdomain>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.18; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 6 Jul 2006 07:47:25 -0400
+Received: from mga01.intel.com ([192.55.52.88]:52573 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S965184AbWGFLrY convert rfc822-to-8bit (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 07:47:24 -0400
+X-IronPort-AV: i="4.06,212,1149490800"; 
+   d="scan'208"; a="94006962:sNHT18504752"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+Date: Thu, 6 Jul 2006 15:47:18 +0400
+Message-ID: <B41635854730A14CA71C92B36EC22AAC06D184@mssmsx411>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]  mm: moving dirty pages balancing to pdfludh entirely
+Thread-Index: AcagcG9P/vEEghgGT6ORznqVy8jSGAAgAQHA
+From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+To: "Nikita Danilov" <nikita@clusterfs.com>
+Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
+X-OriginalArrivalTime: 06 Jul 2006 11:47:23.0362 (UTC) FILETIME=[F1F5D420:01C6A0F1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Jul 2006 13:30:25 +0200
-Thomas Gleixner <tglx@linutronix.de> wrote:
+> If this change has any effect at all, then maximal number of pdflush
+> threads has been started.
 
-> On Thu, 2006-07-06 at 12:03 +0200, Haavard Skinnemoen wrote: 
-> > > Looks pretty sane from a quick scan.
-> > > 
-> > > - request_irq() can use GFP_KERNEL?
-> > 
-> > Probably, but the genirq implementation also uses GFP_ATOMIC.
-> 
-> Is there a good reason, why AVR32 needs its own interrupt handling
-> implementation ?
+I have not observed more than 2 pdflush after patching.
+User thread is not stopped. The thread pdflush starts writing-out dirty
+pages after low dirty level is reached. User thread continues its own
+functions concurrently while high dirty limit is not reached.
 
-No, not really. At least not after the genirq stuff went in. I used to
-be a bit concerned about the generic irq code being too heavyweight,
-but I think handle_simple_irq() might be just what we need for
-chip-internal interrupt handling.
+Leonid
 
-> >From a short glance there's nothing which can not be handled by the
-> generic code. Also there are a couple of things missing -e.g.
-> recursive enable/disable_irq() handling. 
+-----Original Message-----
+From: Nikita Danilov [mailto:nikita@clusterfs.com] 
+Sent: Thursday, July 06, 2006 12:14 AM
+To: Ananiev, Leonid I
+Cc: Linux Kernel Mailing List
+Subject: Re: [PATCH] mm: moving dirty pages balancing to pdfludh
+entirely
 
-You're probably right. I'll see if I can get it converted to genirq
-one of the next days.
+Ananiev, Leonid I writes:
+ > I have added proposed by Nikita lines
+ > 		if (pdflush_operation(background_writeout, 0))
+ >                 writeback_inodes(&wbc);
+ > and tested it with iozone. The throughput is 50-53 MB/sec. It is less
+ > than 74-105 MB/sec results sent earlier.
 
-Håvard
+If this change has any effect at all, then maximal number of pdflush
+threads has been started. But there is only one device, so what are
+these threads doing?
+
+ > 
+ > Leonid
+
+Nikita.

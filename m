@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWGFWSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWGFWVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWGFWSa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 18:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWGFWSa
+	id S1750924AbWGFWVm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 18:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWGFWVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 18:18:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12724 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750912AbWGFWS3 (ORCPT
+	Thu, 6 Jul 2006 18:21:42 -0400
+Received: from ns1.suse.de ([195.135.220.2]:46009 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750924AbWGFWVl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 18:18:29 -0400
-Date: Thu, 6 Jul 2006 15:22:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: linas@austin.ibm.com (Linas Vepstas)
-Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix PCI error token awkward value
-Message-Id: <20060706152203.5721d54e.akpm@osdl.org>
-In-Reply-To: <20060706220119.GB29526@austin.ibm.com>
-References: <20060706220119.GB29526@austin.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 6 Jul 2006 18:21:41 -0400
+Date: Thu, 6 Jul 2006 15:17:47 -0700
+From: Greg KH <greg@kroah.com>
+To: David R <david@unsolicited.net>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.18-rc1
+Message-ID: <20060706221747.GA2632@kroah.com>
+References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org> <44AD680B.9090603@unsolicited.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44AD680B.9090603@unsolicited.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linas@austin.ibm.com (Linas Vepstas) wrote:
->
+On Thu, Jul 06, 2006 at 08:44:11PM +0100, David R wrote:
+> Linus Torvalds wrote:
+> > Ok,
+> >  the merge window for 2.6.18 is closed, and -rc1 is out there (git trees 
 > 
+> Most things seem fine here with rc1, but I do see a permissions issue with my
+> USB scanner.
 > 
-> The pci channel state token currently has a poor choice of values;
-> there  are two ways of indicating that "everything's OK": 0 and 1.
-> This is a bit of a burden.
+> In 2.6.17
 > 
-> If a devce driver wants to check if the pci channel is in a working
-> or a disconnected state, the driver writer must perform checks similar
-> to
+> david@davidux:/dev/bus/usb/001 # l
+> total 0
+> drwxr-xr-x 2 root  root    100 2006-07-06 20:19 ./
+> drwxr-xr-x 4 root  root     80 2006-07-06 20:19 ../
+> crw-r--r-- 1 root  root 189, 0 2006-07-06 20:19 001
+> crw-r--r-- 1 david root 189, 1 2006-07-06 20:19 002
+> crw-r--r-- 1 root  root 189, 4 2006-07-06 20:19 005
 > 
->    if((pdev->error_state != 0) &&
->       (pdev->error_state != pci_channel_io_normal)) {
->          whatever();
->    }
+> but with 2.6.18
 > 
-> which is rather akward. The first check is needed because 
-> stuct pci_dev is inited to all-zeros. The scond is needed 
-> because the error recovery will set the state to 
-> pci_channel_io_normal (which is not zero).
+> david@davidux:/dev/bus/usb/001> l
+> total 0
+> drwxr-xr-x 2 root root    100 2006-07-06 20:24 ./
+> drwxr-xr-x 4 root root     80 2006-07-06 20:24 ../
+> crw-r--r-- 1 root root 189, 0 2006-07-06 20:24 001
+> crw-r--r-- 1 root root 189, 1 2006-07-06 20:24 002
+> crw-r--r-- 1 root root 189, 4 2006-07-06 20:24 005
 > 
-> This patch fixes this awkwardness.
-> 
+> Does something need tweaking with udev scripts maybe? This is a SuSE 10.1 system.
 
-eww.
+Perhaps, that is odd.  The scanner should default to the logged in user,
+right?  Please file a bug at bugzilla.novell.com and the SuSE people can
+work on it there.
 
-> 
-> Index: linux-2.6.17-mm3/include/linux/pci.h
-> ===================================================================
-> --- linux-2.6.17-mm3.orig/include/linux/pci.h	2006-06-27 11:39:16.000000000 -0500
-> +++ linux-2.6.17-mm3/include/linux/pci.h	2006-07-06 15:15:09.000000000 -0500
-> @@ -85,7 +85,7 @@ typedef unsigned int __bitwise pci_chann
->  
->  enum pci_channel_state {
->  	/* I/O channel is in normal state */
-> -	pci_channel_io_normal = (__force pci_channel_state_t) 1,
-> +	pci_channel_io_normal = (__force pci_channel_state_t) 0,
->  
->  	/* I/O to channel is blocked */
->  	pci_channel_io_frozen = (__force pci_channel_state_t) 2,
+thanks,
 
-It needs a comment to prevent people from breaking it in the future, and
-to help people who are trying to work out why the heck the kernel is
-looking for a particular state in something which hasn't been set to that
-state.
-
-Also, it's a bit odd that we've gone and left a hole in the enum space.
-
-
-Wouldn't it be better to sort out our initialisation so we don't actually
-need this memset-equals-pci_channel_io_normal trick?  pci_scan_device()
-looks like a good place..
+greg k-h

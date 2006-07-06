@@ -1,34 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWGFF3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWGFFgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbWGFF3r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 01:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWGFF3r
+	id S964943AbWGFFgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 01:36:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965168AbWGFFgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 01:29:47 -0400
-Received: from xenotime.net ([66.160.160.81]:45792 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965151AbWGFF3r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 01:29:47 -0400
-Date: Wed, 5 Jul 2006 22:32:31 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
+	Thu, 6 Jul 2006 01:36:16 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:30413 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S964943AbWGFFgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 01:36:16 -0400
+Date: Wed, 05 Jul 2006 23:32:23 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: O_TARGET
+In-reply-to: <fa.nsRAsUZV+GPQB1UlyIFSnCjSxYs@ifi.uio.no>
 To: yh@bizmail.com.au
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_TARGET
-Message-Id: <20060705223231.785f2419.rdunlap@xenotime.net>
-In-Reply-To: <4314.58.105.227.226.1152163948.squirrel@58.105.227.226>
-References: <4960.58.105.227.226.1152155926.squirrel@58.105.227.226>
-	<20060705201746.3438e944.rdunlap@xenotime.net>
-	<4314.58.105.227.226.1152163948.squirrel@58.105.227.226>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-id: <44ACA067.1020006@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.MfrVuze0cVJi+KUSsOCGQQfE92g@ifi.uio.no>
+ <fa.nsRAsUZV+GPQB1UlyIFSnCjSxYs@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Jul 2006 15:32:28 +1000 (EST) yh@bizmail.com.au wrote:
-
+yh@bizmail.com.au wrote:
 > Thanks Randy, that works. But now it generated a NewSerial.ko instead of
 > NewSerial.o in kernel 2.6, this caused a problem when I called the insmod,
 > the insmod added another .o as follows:
@@ -38,47 +35,11 @@ On Thu, 6 Jul 2006 15:32:28 +1000 (EST) yh@bizmail.com.au wrote:
 > 
 > Is it possible for me to get a NewSerial.o, not a NewSerail.ko?
 
-Nope, loadable modules in 2.6.x are *.ko files.
-That's what insmod and modprobe expect.
+.ko is what modules are in 2.6, are you using some old version of the 
+module utilities?
 
-Are using module-init-tools instead of modutils?
-You should be.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-
-> Thank you.
-> 
-> Jim
-> 
-> > On Thu, 6 Jul 2006 13:18:46 +1000 (EST) yh@bizmail.com.au wrote:
-> >
-> >> Hi,
-> >>
-> >> The O_TARGET is no longer valid in kernel 2.4, what is the replacement
-> >> of
-> >> following module object in kernel 2.6?
-> >>
-> >> O_TARGET := NewSerial.o
-> >>
-> >> obj-y   := new_s_driver.o queue.o
-> >> obj-m   := $(O_TARGET)
-> >
-> > You just want a trivial Makefile ?
-> >
-> > See Documentation/kbuild/makefiles.txt for more info.
-> >
-> > Here is a working trivial example:
-> >
-> > #################### begin ###################3
-> > # usage:
-> > # make -C /path/to/kernel/source M=/path/to/source/TARGET/ [modules]
-> >
-> > obj-m := TARGET.o
-> >
-> > clean-files := *.o *.ko *.mod.c
-> > ############# end #######################
-> >
-> > M= implies modules, so modules is optional.
-> > I usually use M=$PWD (after cd to TARGET dir).
-
----
-~Randy

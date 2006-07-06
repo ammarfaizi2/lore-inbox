@@ -1,59 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbWGFPqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWGFQII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030350AbWGFPqs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 11:46:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbWGFPqs
+	id S1030226AbWGFQII (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 12:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWGFQII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 11:46:48 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:56536 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1030350AbWGFPqs (ORCPT
+	Thu, 6 Jul 2006 12:08:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36763 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030226AbWGFQIG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 11:46:48 -0400
-Message-ID: <44AD3062.9030601@myri.com>
-Date: Thu, 06 Jul 2006 11:46:42 -0400
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Thu, 6 Jul 2006 12:08:06 -0400
+Date: Thu, 6 Jul 2006 09:07:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+In-Reply-To: <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.64.0607060856080.12404@g5.osdl.org>
+References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org>
+ <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org>
+ <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu>
+ <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu>
+ <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
+ <20060706081639.GA24179@elte.hu> <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
 MIME-Version: 1.0
-To: Grant Grundler <grundler@parisc-linux.org>
-CC: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/7] Check root chipset no_msi flag instead of all parent
- busses flags
-References: <20060703003959.942374000@myri.com> <20060703004055.835863000@myri.com> <20060704070643.GA16632@colo.lackof.org> <44AAF5D9.9040908@myri.com> <20060705034829.GA19937@colo.lackof.org> <44AB4243.8030002@myri.com> <20060706153940.GA29981@colo.lackof.org>
-In-Reply-To: <20060706153940.GA29981@colo.lackof.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler wrote:
-> On Wed, Jul 05, 2006 at 12:38:27AM -0400, Brice Goglin wrote:
->   
->> Grant Grundler wrote:
->>     
->>> I still don't want the generic PCI code to assume a "root"
->>> PCI Host bus controller was found after that loop.
->>>       
->> If I am not mistaken, we can use the following code to check whether we
->> found a root chipset:
->>         unsigned cap;
->>         u16 val;
->>         u8 ext_type;
->>         cap = pci_find_capability(pdev, PCI_CAP_ID_EXP);
->>     
->
-> That might work fine on x86 boxen where firmware fakes all devices
-> to show up in PCI config space. That's not the case on many other
-> architectures. My whole point was the pdev doesn't exist for
-> a root chipset on those other arch's.
->   
 
-Right, and the whole point of this check is to detect this case: my
-while loop cannot find a root chipset on these architectures since there
-is no pci_dev. So the while loop will return another pci_dev, either the
-device or another bridge. When we detect that this pci_dev has a wrong
-exp_type (not PCI_EXP_TYPE_ROOT_PORT), we know it is not a root chipset,
-thus we do not check its no_msi flag.
 
-Brice
+On Thu, 6 Jul 2006, linux-os (Dick Johnson) wrote:
+> 
+> Then GCC must be fixed. The keyword volatile is correct. It should
+> force the compiler to read the variable every time it's used.
 
+No.
+
+"volatile" really _is_ misdesigned. The semantics of it are so unclear as 
+to be totally useless. The only thing "volatile" can ever do is generate 
+worse code, WITH NO UPSIDES.
+
+Historically (and from the standpoint of the C standard), the definition 
+of "volatile" is that any access is "visible" in the machine, and it 
+really kind of makes sense for hardware accesses, except these days 
+hardware accesses have other rules that are _not_ covered by "volatile", 
+so you can't actually use them for that.
+
+And for accesses that have some software rules (ie not IO devices etc), 
+the rules for "volatile" are too vague to be useful. 
+
+So if you actually have rules about how to access a particular piece of 
+memory, just make those rules _explicit_. Use the real rules. Not 
+volatile, because volatile will always do the wrong thing.
+
+Also, more importantly, "volatile" is on the wrong _part_ of the whole 
+system. In C, it's "data" that is volatile, but that is insane. Data 
+isn't volatile - _accesses_ are volatile. So it may make sense to say 
+"make this particular _access_ be careful", but not "make all accesses to 
+this data use some random strategy".
+
+So the only thing "volatile" is potentially useful for is:
+
+ - actual accessor functions can use it in a _cast_ to make one particular 
+   access follow the rules of "don't cache this one dereference". That is 
+   useful as part of a _bigger_ set of rules about that access (ie it 
+   might be the internal implementation of a "readb()", for example).
+
+ - for "random number generation" data locations, where you literally 
+   don't _have_ any rules except "it's a random number". The only really 
+   valid example of this is the "jiffy" timer tick.
+
+Any other use of "volatile" is almost certainly a bug, or just useless. 
+
+It's a bug if the volatile means that you don't follow the proper protocol 
+for accessing the data, and it's useless (and generally generates worse 
+code) if you already do.
+
+So just say NO! to volatile except under the above circumstances.
+
+			Linus

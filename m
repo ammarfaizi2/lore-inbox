@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWGFQRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWGFQWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030308AbWGFQRr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 12:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWGFQRr
+	id S1030303AbWGFQWn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 12:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbWGFQWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 12:17:47 -0400
-Received: from 68-191-203-42.static.stls.mo.charter.com ([68.191.203.42]:64544
-	"EHLO service.eng.exegy.net") by vger.kernel.org with ESMTP
-	id S1030303AbWGFQRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 12:17:46 -0400
-Message-ID: <44AD37C2.50601@exegy.com>
-Date: Thu, 06 Jul 2006 11:18:10 -0500
-From: "Mr. Berkley Shands" <bshands@exegy.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1.centos4 (X11/20060421)
-X-Accept-Language: en-us, en
+	Thu, 6 Jul 2006 12:22:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43167 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030303AbWGFQWm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 12:22:42 -0400
+Date: Thu, 6 Jul 2006 09:22:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matt Keenan <matt.keenan@btinternet.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.18-rc1
+In-Reply-To: <44ACDB94.4040201@btinternet.com>
+Message-ID: <Pine.LNX.4.64.0607060914300.12404@g5.osdl.org>
+References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
+ <44ACDB94.4040201@btinternet.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Dave Lloyd <dlloyd@exegy.com>
-Subject: 2.6.17 x86_64 regression - reboot fails due to deadlock
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Jul 2006 16:17:45.0408 (UTC) FILETIME=[B70D9C00:01C6A117]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With a SuperMicro H8DC8 (nvidia chipset), Dual Opteron 285's, 16GB, 
-Centos 4.3 -
-
-Under 2.6.16 both the tyan 2895 and the supermicro H8DC8 both will 
-reboot corectly,
-in kernel/sys.c machine_restart() gets called. But with the changes to 
-sys.c under 2.6.17,
-a new path is introduced, calling void kernel_restart_prepare(char *cmd)
-which calls blocking_notifier_call_chain(&reboot_notifier_list, 
-SYS_RESTART, cmd); (line 588)
-Which looks at the first element of the notifier list, and blocks 
-forever. But ONLY on the supermicro.
-The tyan, a very similar motherboard does not deadlock. It returns and 
-still calls machine_restart().
-So neither reboot nor "shutdown -fh now" actually get to the bios calls.
-
-on the supermicro, (linux-2.6.17/kernel/sys.c)
-
-static int __kprobes notifier_call_chain(struct notifier_block **nl,
-                unsigned long val, void *v)
-{
-        int ret = NOTIFY_DONE;
-        struct notifier_block *nb;
-
-        nb = rcu_dereference(*nl);
-        while (nb) {
-                ret = nb->notifier_call(nb, val, v);         /* this is 
-the deadlock for the first entry */
-                if ((ret & NOTIFY_STOP_MASK) == NOTIFY_STOP_MASK)
-                        break;
-                nb = rcu_dereference(nb->next);
-        }
-        return ret;
-}
-
-I see that 2.6.18 reworks this code further.
-
-If I want to hurt myself really, really badly, disabling the call to 
-blocking_notifier_call_chain(&reboot_notifier_list,...
-restores the reboot/power off functions.
-
-In kdb, the system sits idle awaiting something to schedule, but nothing 
-will schedule since there is
-a deadlock on the supermicro. Any clues as to how to find which notifier 
-is deadlocked?
-
-berkley
 
 
+On Thu, 6 Jul 2006, Matt Keenan wrote:
+>
+> > Git users should generally just select the part they are interested in, and
+> > do something like
+> > 
+> > 	git log v2.6.17.. -- drivers/usb/ | git shortlog | less -S
+> > 
+> > to get a better and more focused view of what has changed.
+> >   
+> [snip snip]
+> 
+> Is it possible to get a URL to a shortlog on a web git somewhere? Has this
+> information been posted before and I have missed it?
 
+The most recent version of "gitweb" can actually do this kind of thing for 
+you on the web, but the version currently installed on kernel.org only 
+does it per-file, not per directory, making it less useful.
 
+I suspect it will get upgraded one of these days, and when it does, you 
+can generate the above kind of listing without even having git installed 
+by going to
+
+	http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git
+
+and then selecting the "tree" view (it defaults to "summary" - see the top 
+line that says "summary"/"shortlog"/"log"/"commit"/"commitdiff"/"tree", 
+and select "tree" from there). Then you can walk down the tree, and when 
+you find the file (or, eventually, directory) you are interested in, click 
+on "history".
+
+So even without git, you can get a lot of this kind of information. 
+However, with just the web interface, you do lose a lot of browsing 
+capability, like browsing multiple files/directories at the same time, and 
+doing things like limiting the output since just a particular version.
+
+So you could  just get git on your own, and read the docs, and play with 
+it. The place to start is probably the git homepage:
+
+	http://git.or.cz/
+
+(also look up the Wiki there - click on "Wiki" in the header to see some 
+Wiki resources that probably get updated a bit more often than the home 
+page itself).
+
+			Linus

@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbWGFDkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbWGFDmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965153AbWGFDkG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 23:40:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWGFDkG
+	id S965127AbWGFDmr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 23:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWGFDmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 23:40:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14480 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965153AbWGFDkE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 23:40:04 -0400
-Date: Wed, 5 Jul 2006 20:39:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix poll() nfds check.
-Message-Id: <20060705203959.53e128ef.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0607051949460.6604@shell3.speakeasy.net>
-References: <Pine.LNX.4.58.0607051949460.6604@shell3.speakeasy.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 5 Jul 2006 23:42:47 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:8611
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965127AbWGFDmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 23:42:46 -0400
+Date: Wed, 05 Jul 2006 20:43:11 -0700 (PDT)
+Message-Id: <20060705.204311.78725710.davem@davemloft.net>
+To: mikpe@it.uu.se
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: [PATCH 2.6.17 sparc64] fix stack overflow checking in modular
+ non-SMP kernels
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200607042010.k64KABmC011107@harpo.it.uu.se>
+References: <200607042010.k64KABmC011107@harpo.it.uu.se>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jul 2006 20:00:34 -0700 (PDT)
-Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+From: Mikael Pettersson <mikpe@it.uu.se>
+Date: Tue, 4 Jul 2006 22:10:11 +0200 (MEST)
 
-> Hi,
+> The sparc64 kernel's EXPORT_SYMBOL(_mcount) is inside an
+> #ifdef CONFIG_SMP. This breaks modules in non-SMP kernels
+> built with stack overflow checking (CONFIG_STACK_DEBUG=y),
+> as modules_install reports:
 > 
-> This is a trivial patch to fix the nfds check in the poll system call
-> implementation. Namely, OPEN_MAX no longer does anything important in
-> the kernel, and checking that nfds is greater than max_fdset AND greater
-> than OPEN_MAX therefore just seems wrong.
+> WARNING: /lib/modules/2.6.17/kernel/drivers/ide/ide-cd.ko needs unknown symbol _mcount
 > 
-> This brings up a slightly-tangential question: Why do the nfds checks
-> exist in select()/poll()? They're not strictly necessary, since bad
-> input will be caught later when we validate all the fds, one by one.
-> Furthermore, these checks optimize the handling of error cases (which
-> should be uncommon) while pessimizing correct usage of the syscalls
-> (which should be more common).
+> Trivially fixed by moving EXPORT_SYMBOL(_mcount) outside of
+> the #ifdef CONFIG_SMP.
 > 
-> Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
-> 
-> diff -Npru linux-2.6.17-git25/fs/select.c linux-new/fs/select.c
-> --- linux-2.6.17-git25/fs/select.c	2006-07-05 19:06:56.000000000 -0700
-> +++ linux-new/fs/select.c	2006-07-05 19:10:51.000000000 -0700
-> @@ -671,7 +671,7 @@ int do_sys_poll(struct pollfd __user *uf
->  	fdt = files_fdtable(current->files);
->  	max_fdset = fdt->max_fdset;
->  	rcu_read_unlock();
-> -	if (nfds > max_fdset && nfds > OPEN_MAX)
-> +	if (nfds > max_fdset)
->  		return -EINVAL;
-> 
->  	poll_initwait(&table);
+> Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
 
-http://www.opengroup.org/onlinepubs/009695399/functions/poll.html sayeth
-
-[EINVAL]
-    The nfds argument is greater than {OPEN_MAX}, or ...
-
-and afaict, max_fdset can be either less than or greater than OPEN_MAX,
-depending upon how one sets NR_OPEN.
-
-So I think that patch should be s/&&/||/ and s/changelog/new one/
-
-If anything we do here alters userspace-visible behaviour (and it probably will)
-then it should be *exahustively* documented in the changelog, and probably dropped.
+Applied, thanks Mikael.

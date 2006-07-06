@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWGFOSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWGFOUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030287AbWGFOSR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 10:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030288AbWGFOSQ
+	id S1030275AbWGFOUf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 10:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030288AbWGFOUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 10:18:16 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:52477 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1030287AbWGFOSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 10:18:16 -0400
-Date: Thu, 06 Jul 2006 10:17:40 -0400
-From: David Hollis <dhollis@davehollis.com>
-Subject: Re: D-Link DUB-E100 Revision B1
-In-reply-to: <200607040333.13649.bero@arklinux.org>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: linux-kernel@vger.kernel.org, pchang23@sbcglobal.net
-Message-id: <1152195460.15718.4.camel@dhollis-lnx.sunera.com>
-MIME-version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5)
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary="=-r7YlLVf6XEBcPANNBSnf"
-References: <200607040333.13649.bero@arklinux.org>
+	Thu, 6 Jul 2006 10:20:35 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:5582 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030275AbWGFOUe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 10:20:34 -0400
+To: torvalds@osdl.org
+Subject: [git pull] jfs update
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20060706142032.6D96582BC1@kleikamp.austin.ibm.com>
+Date: Thu,  6 Jul 2006 09:20:32 -0500 (CDT)
+From: shaggy@austin.ibm.com (Dave Kleikamp)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus, please pull from
 
---=-r7YlLVf6XEBcPANNBSnf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+git://git.kernel.org/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git for-linus
 
-On Tue, 2006-07-04 at 03:33 +0200, Bernhard Rosenkraenzer wrote:
-> Looks like D-Link is getting into the funny "change the chipset but leave=
- the=20
-> product name the same" game again.
->=20
-> DUB-E100 cards up to Revision A4 work perfectly, Revision B1 doesn't work=
- at=20
-> all.
->=20
-> The patch I've attached has the beginnings of a fix; unfortunately this=20
-> trivialty doesn't fix it fully -- with the patch, the module loads, the M=
-AC=20
-> address is detected correctly, the LEDs go on, but pings don't get throug=
-h=20
-> yet.
->=20
+This will update the following files:
 
-In the ax88772_bind() function, there is a spot where we read the
-PHYSID1 and validate that it's 0x003b.  If it's not, we bail out and
-don't complete the initialization.  As it turns out, with the B1 rev,
-they use an external PHY that has a different identifier so this check
-is no longer valid.  Simply removing that check, or getting rid of the
-"goto out2;" part, the device appears to operate with no issues.
+ fs/jfs/jfs_txnmgr.c |    2 +-
+ fs/jfs/namei.c      |   33 ++++++++++++++++-----------------
+ 2 files changed, 17 insertions(+), 18 deletions(-)
 
---=20
-David Hollis <dhollis@davehollis.com>
+through these ChangeSets:
 
---=-r7YlLVf6XEBcPANNBSnf
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+commit 48ce8b056c88920c8ac187781048f5dae33c81b9 
+tree d03665af62302a252a5c60e7a920190ed93cbec8 
+parent 672c6108a51bf559d19595d9f8193dfd81f0f752 
+author Evgeniy Dushistov <dushistov@mail.ru> Mon, 05 Jun 2006 08:21:03 -0500 
+committer Dave Kleikamp <shaggy@austin.ibm.com> Mon, 05 Jun 2006 08:21:03 -0500 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBErRuDxasLqOyGHncRAnkPAKCkYmsxCWvSKhKu9GZUZ9ZOuZYkLACfRt5M
-PlgFIUp0VbglL/OLaaNR9dw=
-=evr8
------END PGP SIGNATURE-----
-
---=-r7YlLVf6XEBcPANNBSnf--
+    JFS: commit_mutex cleanups
+    
+    I look at code, and see that
+    1)locks wasn't release in the opposite order in which they were taken
+    2)in jfs_rename we lock new_ip, and in "error path" we didn't unlock it
+    3)I see strange expression: "! !"
+    
+    May be this worth to fix?
+    
+    Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
+    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
 

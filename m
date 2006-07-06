@@ -1,180 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965141AbWGFCuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbWGFCxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965141AbWGFCuK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 22:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWGFCuK
+	id S965087AbWGFCxl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 22:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWGFCxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 22:50:10 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:11028 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965141AbWGFCuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 22:50:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:references:x-google-sender-auth;
-        b=jINkknmzfepQTQyIGiyEcMw51UmpOwt50gGPkEB7MtZMdvo4aJqPbu8X6sN+ZlxRT6ve2HpW/ascDxOqPQQEaWwL5qflV3JItNfdmRxtjFuE76Lcis95a0tIwUpD0kKyMSyaPXpPdQChwOHmGUwlC6YqD7CDQnGjcEn7sKEhWAg=
-Message-ID: <e4cb19870607051950u13c87207je0353aca296a61de@mail.gmail.com>
-Date: Wed, 5 Jul 2006 22:50:06 -0400
-From: "Thomas Tuttle" <thinkinginbinary+lkml@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Integrate asus_acpi LED's with new LED subsystem
-In-Reply-To: <e4cb19870607051819w68054004t7377ab144bb42dc0@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_7961_13811696.1152154206530"
-References: <e4cb19870607051819w68054004t7377ab144bb42dc0@mail.gmail.com>
-X-Google-Sender-Auth: ede04b8b5db45b3a
+	Wed, 5 Jul 2006 22:53:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16005 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965087AbWGFCxk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 22:53:40 -0400
+Date: Wed, 5 Jul 2006 19:53:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: miles.lane@gmail.com, petkan@users.sourceforge.net,
+       linux-kernel@vger.kernel.org, david-b@pacbell.net,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.17-mm5 -- netconsole failed to send full trace
+Message-Id: <20060705195330.6c58b43a.akpm@osdl.org>
+In-Reply-To: <20060705194614.ae2be901.akpm@osdl.org>
+References: <a44ae5cd0607030131x745b3106ydd2a4ca086cdf401@mail.gmail.com>
+	<20060703014016.9f598cef.akpm@osdl.org>
+	<a44ae5cd0607030704q63f1f64x5e46688cef6fa44c@mail.gmail.com>
+	<20060703121717.b36ef57e.akpm@osdl.org>
+	<a44ae5cd0607051144w5734ce4bkd38320adda99ae43@mail.gmail.com>
+	<a44ae5cd0607051934o2656a40bs88393dc0d6591249@mail.gmail.com>
+	<20060705194229.8ffe85d9.akpm@osdl.org>
+	<20060705194614.ae2be901.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_7961_13811696.1152154206530
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Wed, 5 Jul 2006 19:46:14 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-Here is a new version of the patch that is against 2.6.17-git25
-instead of 2.6.17.1.
+> On Wed, 5 Jul 2006 19:42:29 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > On Wed, 5 Jul 2006 19:34:52 -0700
+> > "Miles Lane" <miles.lane@gmail.com> wrote:
+> > 
+> > > On 7/5/06, Miles Lane <miles.lane@gmail.com> wrote:
+> > > > Hi Petko,
+> > > >
+> > > > David Brownell pointed out that you are the author of this driver (rtl8150).
+> > > > My laptop is crashing every time I remove the Linksys EtherFast 10/100
+> > > > Compact Network Adapter (model USB100M) from the USB port.
+> > > >
+> > > > Here's a link to the discussion thus far:
+> > > > http://groups.google.com/group/linux.kernel/tree/browse_frm/thread/8c93e310c7b71242/a8a1e3edb1601906?rnum=1&q=miles+lane&_done=%2Fgroup%2Flinux.kernel%2Fbrowse_frm%2Fthread%2F8c93e310c7b71242%2Fc8a8ba47c49c39fc%3Ftvc%3D1%26q%3Dmiles+lane%26#doc_a8a1e3edb1601906
+> > > >
+> > > > Here's the stacktrace:
+> > > > http://www.zip.com.au/~akpm/linux/patches/stuff/00003.jpg
+> > > >
+> > > > I have reproduced the bug with vanilla 2.6.17.  I am currently working my
+> > > > back through kernel versions to try to isolate the responsible patches.
+> > > 
+> > > 2.6.15 is the first kernel earliest kernel that seems to work with Ubuntu 6.06's
+> > > implementation of hal / udev / dbus.  It does set up the adapter successfully.
+> > > 
+> > > I was able to reproduce the crash with 2.6.15.  I have attached a screenshot
+> > > of the stacktrace.  It may help, since it differs quite a bit from the one for
+> > > 2.6.17-mm5.
+> > 
+> > The attachment will be too large to make it onto most mailing lists.  I put
+> > a copy here: http://www.zip.com.au/~akpm/linux/patches/stuff/00005.jpg
+> > 
+> > > BTW, should I join linux-usb-devel and CC that list?  Also, should I take
+> > > this discussion off of LKML?
+> > 
+> > Nah, spread it around.  Who knows, somoene might actually fix the bug ;)
+> 
+> I don't suppose it's this easy?
+> 
+> --- a/drivers/usb/net/rtl8150.c~a
+> +++ a/drivers/usb/net/rtl8150.c
+> @@ -909,6 +909,7 @@ static void rtl8150_disconnect(struct us
+>  	usb_set_intfdata(intf, NULL);
+>  	if (dev) {
+>  		set_bit(RTL8150_UNPLUG, &dev->flags);
+> +		tasklet_kill(&dev->tl);
+>  		tasklet_disable(&dev->tl);
+>  		unregister_netdev(dev->netdev);
+>  		unlink_all_urbs(dev);
+> _
+> 
 
--- 
-Thomas Tuttle
-http://thinkinginbinary.webhop.net/
-thinkinginbinary+lkml@gmail.com (for non-LKML stuff, remove +lkml)
-AIM: thinkinginbinary
+Better:
 
-------=_Part_7961_13811696.1152154206530
-Content-Type: text/x-patch; name="asus-acpi-led-subsystem.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="asus-acpi-led-subsystem.patch"
-X-Attachment-Id: f_epaiuzal
+--- a/drivers/usb/net/rtl8150.c~a
++++ a/drivers/usb/net/rtl8150.c
+@@ -910,6 +910,7 @@ static void rtl8150_disconnect(struct us
+ 	if (dev) {
+ 		set_bit(RTL8150_UNPLUG, &dev->flags);
+ 		tasklet_disable(&dev->tl);
++		tasklet_kill(&dev->tl);
+ 		unregister_netdev(dev->netdev);
+ 		unlink_all_urbs(dev);
+ 		free_all_urbs(dev);
+_
 
-ZGlmZiAtdWRyTiBsaW51eC0yLjYuMTctZ2l0MjUvZHJpdmVycy9hY3BpL2FzdXNfYWNwaS5jIGxp
-bnV4LTIuNi4xNy1naXQyNS1taW5lL2RyaXZlcnMvYWNwaS9hc3VzX2FjcGkuYwotLS0gbGludXgt
-Mi42LjE3LWdpdDI1L2RyaXZlcnMvYWNwaS9hc3VzX2FjcGkuYwkyMDA2LTA3LTA1IDIyOjExOjM3
-LjAwMDAwMDAwMCAtMDQwMAorKysgbGludXgtMi42LjE3LWdpdDI1LW1pbmUvZHJpdmVycy9hY3Bp
-L2FzdXNfYWNwaS5jCTIwMDYtMDctMDUgMjI6MjY6NTEuMDAwMDAwMDAwIC0wNDAwCkBAIC0yNywx
-NCArMjcsMTkgQEAKICAqICBKb2hhbm4gV2llc25lciAtIFNtYWxsIGNvbXBpbGUgZml4ZXMKICAq
-ICBKb2huIEJlbG1vbnRlICAtIEFDUEkgY29kZSBmb3IgVG9zaGliYSBsYXB0b3Agd2FzIGEgZ29v
-ZCBzdGFydGluZyBwb2ludC4KICAqICDJcmljIEJ1cmdoYXJkICAtIExFRCBkaXNwbGF5IHN1cHBv
-cnQgZm9yIFcxTgorICogIFRob21hcyBUdXR0bGUgIC0gTEVEIHN1YnN5c3RlbSBpbnRlZ3JhdGlv
-bgogICoKICAqLwogCisjaW5jbHVkZSA8bGludXgvY29uZmlnLmg+CiAjaW5jbHVkZSA8bGludXgv
-a2VybmVsLmg+CiAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+CiAjaW5jbHVkZSA8bGludXgvaW5p
-dC5oPgogI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CiAjaW5jbHVkZSA8bGludXgvcHJvY19mcy5o
-PgorI2lmZGVmIENPTkZJR19BQ1BJX0FTVVNfTkVXX0xFRAorI2luY2x1ZGUgPGxpbnV4L2xlZHMu
-aD4KKyNlbmRpZgogI2luY2x1ZGUgPGFjcGkvYWNwaV9kcml2ZXJzLmg+CiAjaW5jbHVkZSA8YWNw
-aS9hY3BpX2J1cy5oPgogI2luY2x1ZGUgPGFzbS91YWNjZXNzLmg+CkBAIC05MTYsNiArOTIxLDE0
-NSBAQAogCXJldHVybiAwOwogfQogCisjaWZkZWYgQ09ORklHX0FDUElfQVNVU19ORVdfTEVECisg
-ICAgICAgICAgICAgICAgCisvKiBUaGVzZSBmdW5jdGlvbnMgYXJlIGNhbGxlZCBieSB0aGUgTEVE
-IHN1YnN5c3RlbSB0byB1cGRhdGUgdGhlIGRlc2lyZWQKKyAqIHN0YXRlIG9mIHRoZSBMRUQncy4g
-Ki8KK3N0YXRpYyB2b2lkIGxlZF9zZXRfbWxlZChzdHJ1Y3QgbGVkX2NsYXNzZGV2ICpsZWRfY2Rl
-diwKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZW51bSBsZWRfYnJpZ2h0bmVzcyB2
-YWx1ZSk7CitzdGF0aWMgdm9pZCBsZWRfc2V0X3dsZWQoc3RydWN0IGxlZF9jbGFzc2RldiAqbGVk
-X2NkZXYsCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVudW0gbGVkX2JyaWdodG5l
-c3MgdmFsdWUpOworc3RhdGljIHZvaWQgbGVkX3NldF90bGVkKHN0cnVjdCBsZWRfY2xhc3NkZXYg
-KmxlZF9jZGV2LAorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlbnVtIGxlZF9icmln
-aHRuZXNzIHZhbHVlKTsKKworLyogTEVEIGNsYXNzIGRldmljZXMuICovCitzdGF0aWMgc3RydWN0
-IGxlZF9jbGFzc2RldiBsZWRfY2Rldl9tbGVkID0KKyAgICAgICAgeyAubmFtZSA9ICJhc3VzOm1h
-aWwiLCAgICAgLmJyaWdodG5lc3Nfc2V0ID0gbGVkX3NldF9tbGVkIH07CitzdGF0aWMgc3RydWN0
-IGxlZF9jbGFzc2RldiBsZWRfY2Rldl93bGVkID0KKyAgICAgICAgeyAubmFtZSA9ICJhc3VzOndp
-cmVsZXNzIiwgLmJyaWdodG5lc3Nfc2V0ID0gbGVkX3NldF93bGVkIH07CitzdGF0aWMgc3RydWN0
-IGxlZF9jbGFzc2RldiBsZWRfY2Rldl90bGVkID0KKyAgICAgICAgeyAubmFtZSA9ICJhc3VzOnRv
-dWNocGFkIiwgLmJyaWdodG5lc3Nfc2V0ID0gbGVkX3NldF90bGVkIH07CisKKy8qIFRoZXNlIGZ1
-bmN0aW9ucyBhY3R1YWxseSB1cGRhdGUgdGhlIExFRCdzLCBhbmQgYXJlIGNhbGxlZCBmcm9tIGEK
-KyAqIHdvcmtxdWV1ZS4gIEJ5IGRvaW5nIHRoaXMgYXMgc2VwYXJhdGUgd29yayByYXRoZXIgdGhh
-biB3aGVuIHRoZSBMRUQKKyAqIHN1YnN5c3RlbSBhc2tzLCBJIGF2b2lkIG1lc3Npbmcgd2l0aCB0
-aGUgQXN1cyBBQ1BJIHN0dWZmIGR1cmluZyBhCisgKiBwb3RlbnRpYWxseSBiYWQgdGltZSwgc3Vj
-aCBhcyBhIHRpbWVyIGludGVycnVwdC4gKi8KK3N0YXRpYyB2b2lkIGxlZF91cGRhdGVfbWxlZCh2
-b2lkICpwcml2YXRlKTsKK3N0YXRpYyB2b2lkIGxlZF91cGRhdGVfd2xlZCh2b2lkICpwcml2YXRl
-KTsKK3N0YXRpYyB2b2lkIGxlZF91cGRhdGVfdGxlZCh2b2lkICpwcml2YXRlKTsKKyAgICAgICAg
-ICAgICAgICAKKy8qIERlc2lyZWQgdmFsdWVzIG9mIExFRCdzLiAqLworc3RhdGljIGludCBsZWRf
-bWxlZF92YWx1ZSA9IDA7IAorc3RhdGljIGludCBsZWRfd2xlZF92YWx1ZSA9IDA7CitzdGF0aWMg
-aW50IGxlZF90bGVkX3ZhbHVlID0gMDsgCisKKy8qIExFRCB3b3JrcXVldWUuICovCitzdGF0aWMg
-c3RydWN0IHdvcmtxdWV1ZV9zdHJ1Y3QgKmxlZF93b3JrcXVldWU7CisKKy8qIExFRCB1cGRhdGUg
-d29yayBzdHJ1Y3RzLiAqLworREVDTEFSRV9XT1JLKGxlZF9tbGVkX3dvcmssIGxlZF91cGRhdGVf
-bWxlZCwgTlVMTCk7CitERUNMQVJFX1dPUksobGVkX3dsZWRfd29yaywgbGVkX3VwZGF0ZV93bGVk
-LCBOVUxMKTsKK0RFQ0xBUkVfV09SSyhsZWRfdGxlZF93b3JrLCBsZWRfdXBkYXRlX3RsZWQsIE5V
-TEwpOworICAgICAgICAgICAgICAgIAorLyogTEVEIHN1YnN5c3RlbSBjYWxsYmFja3MuICovCitz
-dGF0aWMgdm9pZCBsZWRfc2V0X21sZWQoc3RydWN0IGxlZF9jbGFzc2RldiAqbGVkX2NkZXYsCisg
-ICAgICAgIGVudW0gbGVkX2JyaWdodG5lc3MgdmFsdWUpCit7ICAgICAgIAorICAgICAgICBsZWRf
-bWxlZF92YWx1ZSA9IHZhbHVlOworICAgICAgICBxdWV1ZV93b3JrKGxlZF93b3JrcXVldWUsICZs
-ZWRfbWxlZF93b3JrKTsKK30KKworc3RhdGljIHZvaWQgbGVkX3NldF93bGVkKHN0cnVjdCBsZWRf
-Y2xhc3NkZXYgKmxlZF9jZGV2LAorICAgICAgICBlbnVtIGxlZF9icmlnaHRuZXNzIHZhbHVlKQor
-eworICAgICAgICBsZWRfd2xlZF92YWx1ZSA9IHZhbHVlOworICAgICAgICBxdWV1ZV93b3JrKGxl
-ZF93b3JrcXVldWUsICZsZWRfd2xlZF93b3JrKTsKK30gICAgICAgCisgICAgICAgIAorc3RhdGlj
-IHZvaWQgbGVkX3NldF90bGVkKHN0cnVjdCBsZWRfY2xhc3NkZXYgKmxlZF9jZGV2LAorICAgICAg
-ICBlbnVtIGxlZF9icmlnaHRuZXNzIHZhbHVlKQoreyAgICAgICAKKyAgICAgICAgbGVkX3RsZWRf
-dmFsdWUgPSB2YWx1ZTsgCisgICAgICAgIHF1ZXVlX3dvcmsobGVkX3dvcmtxdWV1ZSwgJmxlZF90
-bGVkX3dvcmspOworfSAgICAgICAKKyAgICAgICAgICAgIAorLyogTEVEIHdvcmsgZnVuY3Rpb25z
-LiAqLworc3RhdGljIHZvaWQgbGVkX3VwZGF0ZV9tbGVkKHZvaWQgKnByaXZhdGUpIHsKKyAgICAg
-ICAgY2hhciAqbGVkbmFtZSA9IGhvdGstPm1ldGhvZHMtPm10X21sZWQ7CisgICAgICAgIGludCBs
-ZWRfb3V0ID0gbGVkX21sZWRfdmFsdWUgPyAxIDogMDsKKyAgICAgICAgaG90ay0+c3RhdHVzID0g
-KGxlZF9vdXQpID8gKGhvdGstPnN0YXR1cyB8IE1MRURfT04pIDogKGhvdGstPnN0YXR1cyAmIH5N
-TEVEX09OKTsKKyAgICAgICAgbGVkX291dCA9IDEgLSBsZWRfb3V0OworICAgICAgICBpZiAoIXdy
-aXRlX2FjcGlfaW50KGhvdGstPmhhbmRsZSwgbGVkbmFtZSwgbGVkX291dCwgTlVMTCkpCisgICAg
-ICAgICAgICAgICAgcHJpbnRrKEtFUk5fV0FSTklORyAiQXN1cyBBQ1BJOiBMRUQgKCVzKSB3cml0
-ZSBmYWlsZWRcbiIsCisgICAgICAgICAgICAgICAgICAgICAgIGxlZG5hbWUpOworfQorCitzdGF0
-aWMgdm9pZCBsZWRfdXBkYXRlX3dsZWQodm9pZCAqcHJpdmF0ZSkgeworICAgICAgICBjaGFyICps
-ZWRuYW1lID0gaG90ay0+bWV0aG9kcy0+bXRfd2xlZDsKKyAgICAgICAgaW50IGxlZF9vdXQgPSBs
-ZWRfd2xlZF92YWx1ZSA/IDEgOiAwOworICAgICAgICBob3RrLT5zdGF0dXMgPSAobGVkX291dCkg
-PyAoaG90ay0+c3RhdHVzIHwgV0xFRF9PTikgOiAoaG90ay0+c3RhdHVzICYgfldMRURfT04pOwor
-ICAgICAgICBpZiAoIXdyaXRlX2FjcGlfaW50KGhvdGstPmhhbmRsZSwgbGVkbmFtZSwgbGVkX291
-dCwgTlVMTCkpCisgICAgICAgICAgICAgICAgcHJpbnRrKEtFUk5fV0FSTklORyAiQXN1cyBBQ1BJ
-OiBMRUQgKCVzKSB3cml0ZSBmYWlsZWRcbiIsCisgICAgICAgICAgICAgICAgICAgICAgIGxlZG5h
-bWUpOworfQorCitzdGF0aWMgdm9pZCBsZWRfdXBkYXRlX3RsZWQodm9pZCAqcHJpdmF0ZSkgewor
-ICAgICAgICBjaGFyICpsZWRuYW1lID0gaG90ay0+bWV0aG9kcy0+bXRfdGxlZDsKKyAgICAgICAg
-aW50IGxlZF9vdXQgPSBsZWRfdGxlZF92YWx1ZSA/IDEgOiAwOworICAgICAgICBob3RrLT5zdGF0
-dXMgPSAobGVkX291dCkgPyAoaG90ay0+c3RhdHVzIHwgVExFRF9PTikgOiAoaG90ay0+c3RhdHVz
-ICYgflRMRURfT04pOworICAgICAgICBpZiAoIXdyaXRlX2FjcGlfaW50KGhvdGstPmhhbmRsZSwg
-bGVkbmFtZSwgbGVkX291dCwgTlVMTCkpCisgICAgICAgICAgICAgICAgcHJpbnRrKEtFUk5fV0FS
-TklORyAiQXN1cyBBQ1BJOiBMRUQgKCVzKSB3cml0ZSBmYWlsZWRcbiIsCisgICAgICAgICAgICAg
-ICAgICAgICAgIGxlZG5hbWUpOworfQorCisvKiBSZWdpc3RlcnMgTEVEIGNsYXNzIGRldmljZXMg
-YW5kIHNldHMgdXAgd29ya3F1ZXVlLiAqLworc3RhdGljIGludCBsZWRfaW5pdGlhbGl6ZShzdHJ1
-Y3QgZGV2aWNlICpwYXJlbnQpCit7CisgICAgICAgIGludCByZXN1bHQ7CisKKyAgICAgICAgaWYg
-KGhvdGstPm1ldGhvZHMtPm10X21sZWQpIHsKKyAgICAgICAgICAgICAgICByZXN1bHQgPSBsZWRf
-Y2xhc3NkZXZfcmVnaXN0ZXIocGFyZW50LCAmbGVkX2NkZXZfbWxlZCk7CisgICAgICAgICAgICAg
-ICAgaWYgKHJlc3VsdCkKKyAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiByZXN1bHQ7Cisg
-ICAgICAgIH0KKworICAgICAgICBpZiAoaG90ay0+bWV0aG9kcy0+bXRfd2xlZCkgeworICAgICAg
-ICAgICAgICAgIHJlc3VsdCA9IGxlZF9jbGFzc2Rldl9yZWdpc3RlcihwYXJlbnQsICZsZWRfY2Rl
-dl93bGVkKTsKKyAgICAgICAgICAgICAgICBpZiAocmVzdWx0KQorICAgICAgICAgICAgICAgICAg
-ICAgICAgcmV0dXJuIHJlc3VsdDsKKyAgICAgICAgfQorCisgICAgICAgIGlmIChob3RrLT5tZXRo
-b2RzLT5tdF90bGVkKSB7CisgICAgICAgICAgICAgICAgcmVzdWx0ID0gbGVkX2NsYXNzZGV2X3Jl
-Z2lzdGVyKHBhcmVudCwgJmxlZF9jZGV2X3RsZWQpOworICAgICAgICAgICAgICAgIGlmIChyZXN1
-bHQpCisgICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gcmVzdWx0OworICAgICAgICB9CisK
-KyAgICAgICAgbGVkX3dvcmtxdWV1ZSA9IGNyZWF0ZV9zaW5nbGV0aHJlYWRfd29ya3F1ZXVlKCJs
-ZWRfd29ya3F1ZXVlIik7CisKKyAgICAgICAgcmV0dXJuIDA7Cit9CisKKy8qIERlc3Ryb3lzIHRo
-ZSB3b3JrcXVldWUgYW5kIHVucmVnaXN0ZXJzIHRoZSBMRUQgY2xhc3MgZGV2aWNlcy4gKi8KK3N0
-YXRpYyB2b2lkIGxlZF90ZXJtaW5hdGUodm9pZCkKK3sKKyAgICAgICAgZGVzdHJveV93b3JrcXVl
-dWUobGVkX3dvcmtxdWV1ZSk7CisKKyAgICAgICAgaWYgKGhvdGstPm1ldGhvZHMtPm10X3RsZWQp
-IHsKKyAgICAgICAgICAgICAgICBsZWRfY2xhc3NkZXZfdW5yZWdpc3RlcigmbGVkX2NkZXZfdGxl
-ZCk7CisgICAgICAgIH0KKworICAgICAgICBpZiAoaG90ay0+bWV0aG9kcy0+bXRfd2xlZCkgewor
-ICAgICAgICAgICAgICAgIGxlZF9jbGFzc2Rldl91bnJlZ2lzdGVyKCZsZWRfY2Rldl93bGVkKTsK
-KyAgICAgICAgfQorICAgICAgICAKKyAgICAgICAgaWYgKGhvdGstPm1ldGhvZHMtPm10X21sZWQp
-IHsKKyAgICAgICAgICAgICAgICBsZWRfY2xhc3NkZXZfdW5yZWdpc3RlcigmbGVkX2NkZXZfbWxl
-ZCk7CisgICAgICAgIH0KK30KKworI2VuZGlmCisKIHN0YXRpYyBpbnQgYXN1c19ob3RrX2FkZF9m
-cyhzdHJ1Y3QgYWNwaV9kZXZpY2UgKmRldmljZSkKIHsKIAlzdHJ1Y3QgcHJvY19kaXJfZW50cnkg
-KnByb2M7CkBAIC0xMjk5LDYgKzE0NDMsMTAgQEAKIAkvKiBMRUQgZGlzcGxheSBpcyBvZmYgYnkg
-ZGVmYXVsdCAqLwogCWhvdGstPmxlZGRfc3RhdHVzID0gMHhGRkY7CiAKKyNpZmRlZiBDT05GSUdf
-QUNQSV9BU1VTX05FV19MRUQKKyAgICAgICAgcmVzdWx0ID0gbGVkX2luaXRpYWxpemUoYWNwaV9n
-ZXRfcGh5c2ljYWxfZGV2aWNlKGRldmljZS0+aGFuZGxlKSk7CisjZW5kaWYKKwogICAgICAgZW5k
-OgogCWlmIChyZXN1bHQpIHsKIAkJa2ZyZWUoaG90ayk7CkBAIC0xMzE0LDYgKzE0NjIsMTAgQEAK
-IAlpZiAoIWRldmljZSB8fCAhYWNwaV9kcml2ZXJfZGF0YShkZXZpY2UpKQogCQlyZXR1cm4gLUVJ
-TlZBTDsKIAorI2lmZGVmIENPTkZJR19BQ1BJX0FTVVNfTkVXX0xFRAorICAgICAgICBsZWRfdGVy
-bWluYXRlKCk7CisjZW5kaWYgICAgICAgICAgCisKIAlzdGF0dXMgPSBhY3BpX3JlbW92ZV9ub3Rp
-ZnlfaGFuZGxlcihob3RrLT5oYW5kbGUsIEFDUElfU1lTVEVNX05PVElGWSwKIAkJCQkJICAgIGFz
-dXNfaG90a19ub3RpZnkpOwogCWlmIChBQ1BJX0ZBSUxVUkUoc3RhdHVzKSkKZGlmZiAtdWRyTiBs
-aW51eC0yLjYuMTctZ2l0MjUvZHJpdmVycy9hY3BpL0tjb25maWcgbGludXgtMi42LjE3LWdpdDI1
-LW1pbmUvZHJpdmVycy9hY3BpL0tjb25maWcKLS0tIGxpbnV4LTIuNi4xNy1naXQyNS9kcml2ZXJz
-L2FjcGkvS2NvbmZpZwkyMDA2LTA3LTA1IDIyOjQ0OjMzLjAwMDAwMDAwMCAtMDQwMAorKysgbGlu
-dXgtMi42LjE3LWdpdDI1LW1pbmUvZHJpdmVycy9hY3BpL0tjb25maWcJMjAwNi0wNy0wNSAyMjo0
-NDo0My4wMDAwMDAwMDAgLTA0MDAKQEAgLTE5OSw2ICsxOTksMTUgQEAKICAgICAgICAgICBzb21l
-dGhpbmcgd29ya3Mgbm90IHF1aXRlIGFzIGV4cGVjdGVkLCBwbGVhc2UgdXNlIHRoZSBtYWlsaW5n
-IGxpc3QKICAgICAgICAgICBhdmFpbGFibGUgb24gdGhlIGFib3ZlIHBhZ2UgKGFjcGk0YXN1cy11
-c2VyQGxpc3RzLnNvdXJjZWZvcmdlLm5ldCkKICAgICAgICAgICAKK2NvbmZpZyBBQ1BJX0FTVVNf
-TkVXX0xFRAorICAgICAgICBib29sICJBU1VTL01lZGlvbiBMRUQgc3Vic3lzdGVtIGludGVncmF0
-aW9uIgorICAgICAgICBkZXBlbmRzIG9uIEFDUElfQVNVUworICAgICAgICBkZXBlbmRzIG9uIExF
-RFNfQ0xBU1MKKyAgICAgICAgaGVscAorICAgICAgICAgIFRoaXMgYWRkcyBzdXBwb3J0IGZvciB0
-aGUgbmV3IExFRCBzdWJzeXN0ZW0gdG8gdGhlIGFzdXNfYWNwaQorICAgICAgICAgIGRyaXZlci4g
-IFRoZSBMRUQncyB3aWxsIHNob3cgdXAgYXMgYXN1czptYWlsLCBhc3VzOndpcmVsZXNzLAorICAg
-ICAgICAgIGFuZCBhc3VzOnRvdWNocGFkLCBhcyBhcHBsaWNhYmxlIHRvIHlvdXIgbGFwdG9wLgor
-CiBjb25maWcgQUNQSV9JQk0KIAl0cmlzdGF0ZSAiSUJNIFRoaW5rUGFkIExhcHRvcCBFeHRyYXMi
-CiAJZGVwZW5kcyBvbiBYODYK
-------=_Part_7961_13811696.1152154206530--
+But I suspect it won't help.
+

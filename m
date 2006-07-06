@@ -1,34 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWGEX6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965078AbWGFAAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbWGEX6H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jul 2006 19:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWGEX6H
+	id S965078AbWGFAAj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jul 2006 20:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWGFAAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jul 2006 19:58:07 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:10578 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965076AbWGEX6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jul 2006 19:58:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bbRJvyTRy6XoC3M0C0DvcovyKrB4p0rGMflNvWOkh+XJdkdWnDehP+cFbs51fvZCRRQazvULIN+BcDiTN/DjGrEdnTnBJ1nOVBMd/7ED2q+beHzw/TDbh3MQJffmSu0kpBYSYimYFerwYG6YerpeWs6XKFVv6D17Y1zyJWn6d1c=
-Message-ID: <bda6d13a0607051658j7cbadc1en89f07196f1f00e27@mail.gmail.com>
-Date: Wed, 5 Jul 2006 16:58:04 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [klibc 30/31] Remove in-kernel resume-from-disk invocation code
-In-Reply-To: <200607060940.40678.ncunningham@linuxmail.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 5 Jul 2006 20:00:39 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:54167 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S965078AbWGFAAi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jul 2006 20:00:38 -0400
+Subject: [2.6.17-mm6 PATCH 0/3] VFS fileop cleanups by collapsing AIO and
+	vector IO
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: akpm@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 05 Jul 2006 17:02:46 -0700
+Message-Id: <1152144166.1969.5.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <klibc.200606272217.00@tazenda.hos.anvin.org>
-	 <klibc.200606272217.30@tazenda.hos.anvin.org>
-	 <200607060940.40678.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll take my own guess that kinit reads the kernel command line and
-handles both resume= and noresume itself. I've done that with a few
-other cases, so it is certainly possible.
+Hi Andrew,
+
+Here the VFS cleanup patches to collapse vector and AIO fileop
+methods + cleanups to filemap.c against 2.6.17-mm6.
+
+These series of patches clean up and streamlines generic_file_*
+interfaces in filemap.c.
+
+BTW, I dropped adding vector-aio support (aio.c) patch for now
+as it can be added later.
+
+===
+These patches collapses all the vectored IO support into 
+single set of file-operation method using aio_read/aio_write.
+Last patch (3) sets all thefilesystems .read/.write/.aio_read/
+.aio_write methods correctly to allow us to cleanup most
+generic_file_*_read/write interfaces in filemap.c
+
+After this patch set, we should end up with ONLY following
+read/write (exported) interfaces in filemap.c:
+
+        generic_file_aio_read() - read handler
+        generic_file_aio_write() - write handler
+        generic_file_aio_write_nolock() - no lock write handler
+
+Here is the summary:
+
+[PATCH 1/3] Vectorize aio_read/aio_write fileop methods
+
+[PATCH 2/3] Remove readv/writev methods and use aio_read/aio_write
+instead.
+
+[PATCH 3/3] Streamline generic_file_* interfaces and filemap cleanups
+
+Thanks,
+Badari
+

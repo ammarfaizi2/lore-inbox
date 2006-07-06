@@ -1,38 +1,78 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbWGKMCm (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 11 Jul 2006 08:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWGKMCl
+	id S1751154AbWGLDQA (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 11 Jul 2006 23:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWGLDQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 08:02:41 -0400
-Received: from vtelinet-66-220-254-16.vermontel.net ([66.220.254.16]:30216
-	"HELO vtelinet-66-220-254-16.vermontel.net") by vger.kernel.org
-	with SMTP id S1751239AbWGKMCl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 08:02:41 -0400
-Date: Tue, 11 Jul 2006 07:03:29 -0500
-From: Rigoberto Mcwilliams <hakanrkch@mbox445.swipnet.se>
-Reply-To: Rigoberto Mcwilliams <hakanrkch@mbox445.swipnet.se>
-Message-ID: <578953787916.872936278744@mbox445.swipnet.se>
-To: <linux-kernel@vger.kernel.org>
-Subject: bAsian babe takes white cock their
+	Tue, 11 Jul 2006 23:16:00 -0400
+Received: from wappsrv1-l3.webley.com ([209.247.32.29]:7053 "EHLO
+	wappsrv1-l3.webley.COM") by vger.kernel.org with ESMTP
+	id S1751154AbWGLDP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 23:15:59 -0400
+Message-Id: <200607060000.k66007qY024919@wweb04-l3.webley>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+X-Mailer: MIME-tools 5.417 (Entity 5.417)
+From: europeanchampionsleague1@yahoo.com.hk
+Subject: EUROPEAN CHAMPIONS LEAGUE.
+Date: Wed, 05 Jul 2006 19:00:07 -0500
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751240AbWGKMCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751154AbWGLDQA@vger.kernel.org>
 
-watrch as this cuqte 18 year old gets fuctked hard by her teqacher! She suciks down his whjole cmock then gects fuckjed until he cummfs all over her!:):)
-http://sell.fkaldf.com/?welcomewant
+Dear Winner,
 
+The Local Organising Committee of the European Champions League is 
+glad to announce to the world the giving away of the sum of FIFTY 
+MILLION POUNDS to 100 lucky email addresses all over the world. This 
+promotion is in Appreciation of our InternationalSupport for the 
+past Soccer Events and the correspondent earnings at the stock 
+market which was far beyond our
+projected quarterly earnings.
 
-other chance want stats after  used, from  , old add soon offer twice?
-task  order not "they view for", send look  click ,
->> check now other unique point - list ever have.
->> type wanna only point their: 
-huge their word world welcome sell stop surf; always , art right always.
-and love always and,  told glad?
+Be informed that all winners in this program have been selected 
+randomly through a computer ballot system drawn from over 1,500,000 
+companies and individual e-mail addresses database. Your email 
+address happened to be one of the lucky winner of FIVE HUNDRED 
+THOUSAND POUNDS among the Hundred email addressess chosen. In other 
+to claim your prize, you will have to
+fill the form below and send it back to us for verification and then 
+you will be informed on how your Cashier's Check for the sum which 
+has already been deposited with your email contact.
 
-bye
-Rigoberto Mcwilliams
+We use this opportunity to thank all our Sponsors/Contributors of 
+this program: 
 
+AIR EMIRATES,ADIDAS,NIKE,MCDONALDS,COCA-COLA,UNITED 
+AIRLINES,BMW,PEPSI,VIRGIN ATLANTIC,UMBRO-SPORTLINE,FUJIFILM, AIR-
+ASIA,BARCLAYS,VODAFONE, NOKIA N-SERIES, LUCOZADE SPORT, AND A HOST 
+OF EMAIL SERVICE PROVIDERS FOR ALLOWING THE USE OF THEIR DATABASE 
+FOR THE DRAWS AND ALSO FOR THE PROVISION OF SECURE (SSL) EMAIL 
+DELIVERY SYSTEMS.
+
+NAME:............................................................
+AGE:.............................................................
+SEX:.............................................................
+ADDRESS:.........................................................
+EMAIL:...........................................................
+TEL.:............................................................
+OCCUPATION:......................................................
+COUNTRY:.........................................................
+
+Please you are advised to complete the form and send back to us for 
+prompt collection. You are automatically disqualified if you are 
+below 18 yearsof age.This E-mail message (including attachments, if 
+any)is intended for the use of the individual or entity to which it 
+is addressed and may contain Information that isprivileged, 
+proprietary,confidential and exempted from
+disclosure.
+
+If you are not the intended recipient, you are notified that any 
+dissemination,distribution or copying of this communication is 
+strictly prohibited. PLease Note That all response Should be sent 
+to: europeanchampionsleague1@yahoo.com.hk
+
+Sincerely,
+Susan Brown.

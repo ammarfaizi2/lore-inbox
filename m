@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWGFK0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWGFKaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbWGFK0x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 06:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWGFK0w
+	id S1030202AbWGFKaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 06:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWGFKaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 06:26:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48344 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030201AbWGFK0w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 06:26:52 -0400
-Date: Thu, 6 Jul 2006 12:26:35 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       klibc@zytor.com
-Subject: Re: [klibc 30/31] Remove in-kernel resume-from-disk invocation code
-Message-ID: <20060706102635.GF5303@elf.ucw.cz>
-References: <klibc.200606272217.00@tazenda.hos.anvin.org> <200607061037.11177.ncunningham@linuxmail.org> <44AC5F5C.7070907@zytor.com> <200607061145.08590.ncunningham@linuxmail.org>
+	Thu, 6 Jul 2006 06:30:16 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:1097 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1030202AbWGFKaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 06:30:14 -0400
+Message-ID: <44ACE75D.9030003@gentoo.org>
+Date: Thu, 06 Jul 2006 11:35:09 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607061145.08590.ncunningham@linuxmail.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Daniel Bonekeeper <thehazard@gmail.com>
+CC: Greg KH <greg@kroah.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
+       kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: Driver for Microsoft USB Fingerprint Reader
+References: <e1e1d5f40607022351y4af6e709n1ba886604a13656b@mail.gmail.com>	 <20060703222645.GA22855@kroah.com>	 <e1e1d5f40607031624w245e5f70g2ae8f5d0e9d357c4@mail.gmail.com>	 <20060703232927.GA19111@kroah.com>	 <e1e1d5f40607031704kec2ff68w324d3d8ad111c46b@mail.gmail.com>	 <44ABFDD3.6040500@gentoo.org>	 <e1e1d5f40607051109r3e01a2eftce93314228425612@mail.gmail.com>	 <44AC0B2A.9080500@gentoo.org>	 <e1e1d5f40607051246r4d583d9arab570b5a9e8cab0c@mail.gmail.com>	 <44AC49EE.1070104@gentoo.org> <e1e1d5f40607051905w4a755a35oa1c81666fd194c83@mail.gmail.com>
+In-Reply-To: <e1e1d5f40607051905w4a755a35oa1c81666fd194c83@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Daniel Bonekeeper wrote:
+> Do you currently have any page/doc/wiki about the current efforts in
+> writing an API to handle fingerprint stuff ? (as in (3))
 
-> > > Ah. So it's still valid to have resume= and noresume on the commandline,
-> > > and klibc greps /proc/cmdline?
-> >
-> > Correct.
-> >
-> > > So, for Suspend2, would I be ok just leaving people to add the echo
-> > >
-> > >>/proc/suspend2/do_resume, as we currently do for initrds and initramfses?
-> >
-> > Well, presumably you want to adjust kinit so that it invokes
-> > /proc/suspend2/do_resume, instead of or in addition to
-> > /sys/power/resume; see usr/kinit/resume.c (the code should be bloody
-> > obvious, I hope...)
-> 
-> It is.
-> 
-> Is there a klibc howto somewhere? I tried googling for 'klibc howto', reading 
-> the files in Documentation/ and browsing your klibc mailing list archive 
-> before asking!
-> 
-> What I'm wondering specifically is: Say a user needs to run some commands to 
-> set up access to encrypted storage before they can resume. At the moment, 
-> we'd tell them to put these commands and the echo > do_resume in their 
-> linuxrc (or init) script prior to mounting their root filesystem. Forgive me 
-> if I'm asking a stupid question but it's not immediately obvious to me how 
-> they would now do that. I'd much rather follow a simple howto than
-> spend a 
+No, but feel free to use the dpfp wiki if you want to start one.
 
-Same way as they did it before....? klibc is supposed to be
-backward-compatible, as far as userland can tell.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> Anyways, how idmouse got into the mainstream kernel, then ?
+
+You are asking this because its usability is questionable?
+
+Before you start on any of the more advanced code such as unified API 
+and fingerprint recognition, you need the basic device support in place. 
+The idmouse driver does this.
+
+Greg is particularly keen on including semi-working driver code in the 
+Linux kernel even if there is no complete picture, because it really 
+raises awareness and development efforts. After all, if idmouse wasn't 
+included because it doesn't form a complete fingerprint login system, 
+I'd probably have never heard of it and would have no clue about it's 
+capabilities.
+
+Daniel
+

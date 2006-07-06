@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWGFW3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWGFWav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbWGFW3m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 18:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWGFW3m
+	id S1750947AbWGFWav (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 18:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWGFWav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 18:29:42 -0400
-Received: from ns2.suse.de ([195.135.220.15]:27034 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750943AbWGFW3l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 18:29:41 -0400
-Date: Thu, 6 Jul 2006 15:25:53 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, stable@kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Linux 2.6.16.24
-Message-ID: <20060706222553.GA2946@kroah.com>
-Mime-Version: 1.0
+	Thu, 6 Jul 2006 18:30:51 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55302 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750946AbWGFWav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 18:30:51 -0400
+Date: Fri, 7 Jul 2006 00:30:50 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
+Message-ID: <20060706223050.GY26941@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.16.24 kernel.
+virt_to_bus/bus_to_virt are long deprecated, mark them as __deprecated 
+on i386.
 
-I'll also be replying to this message with a copy of the patch between
-2.6.16.23 and 2.6.16.24, as it is small enough to do so.
+Without such warnings people will never update their code and fix 
+the errors in PPC64 builds.
 
-The updated 2.6.16.y git tree can be found at:
- 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+And yes, some of the drivers affected are maintained.
 
-thanks,
+This also catches accidential additions of users for these functions 
+like a usage of bus_to_virt() in the infiniband code that was added in 
+2.6.17-rc1 (already removed).
 
-greg k-h
+This patch increases the number of warnings shown during builds, but it 
+seems worth including it at least in -mm for making people aware of this 
+issue.
 
---------
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+---
 
- Makefile     |    2 +-
- kernel/sys.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+This patch was already sent on:
+- 26 Jun 2006
+- 27 Apr 2006
+- 19 Apr 2006
+- 6 Jan 2006
+- 13 Dec 2005
+- 23 Nov 2005
+- 18 Nov 2005
+- 12 Nov 2005
 
-Summary of changes from v2.6.16.23 to v2.6.16.24
-================================================
-
-Greg Kroah-Hartman:
-      fix prctl privilege escalation and suid_dumpable (CVE-2006-2451)
-      Linux 2.6.16.24
+--- linux-2.6.14-mm2-full/include/asm-i386/io.h.old	2005-11-12 01:44:38.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-i386/io.h	2005-11-12 01:45:58.000000000 +0100
+@@ -144,8 +144,14 @@
+  *
+  * Allow them on x86 for legacy drivers, though.
+  */
+-#define virt_to_bus virt_to_phys
+-#define bus_to_virt phys_to_virt
++static inline unsigned long __deprecated virt_to_bus(volatile void * address)
++{
++	return __pa(address);
++}
++static inline void * __deprecated bus_to_virt(unsigned long address)
++{
++	return __va(address);
++}
+ 
+ /*
+  * readX/writeX() are used to access memory mapped devices. On some
 

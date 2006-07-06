@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWGFUIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWGFUMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbWGFUIu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 16:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWGFUIt
+	id S1750808AbWGFUMF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 16:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWGFUME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 16:08:49 -0400
-Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:39561 "EHLO
-	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1750800AbWGFUIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 16:08:48 -0400
-Date: Thu, 6 Jul 2006 13:00:31 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com
-Subject: Re: cpuinfo_x86 and apicid
-Message-ID: <20060706200031.GA10685@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20060706150118.GB10110@frankl.hpl.hp.com> <20060706091930.A13512@unix-os.sc.intel.com>
+	Thu, 6 Jul 2006 16:12:04 -0400
+Received: from xenotime.net ([66.160.160.81]:44183 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750801AbWGFUMB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 16:12:01 -0400
+Date: Thu, 6 Jul 2006 13:14:47 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Henne <henne@nachtwindheim.de>
+Cc: Neela.Kolli@engenio.com, kernel-janitors@lists.osdl.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [KJ] [PATCH] fix legacy megaraid-driver to compile without
+ CONFIG_PROC_FS
+Message-Id: <20060706131447.ed46c3cb.rdunlap@xenotime.net>
+In-Reply-To: <44AD6A5A.5060403@nachtwindheim.de>
+References: <44AD6A5A.5060403@nachtwindheim.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060706091930.A13512@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 09:19:30AM -0700, Siddha, Suresh B wrote:
-> On Thu, Jul 06, 2006 at 08:01:18AM -0700, Stephane Eranian wrote:
-> > Hello,
-> > 
-> > 
-> > In the context of the perfmon2 subsystem for processor with HyperThreading,
-> > we need to know on which thread we are currently running. This comes from
-> > the fact that the performance counters are shared between the two threads.
-> > 
-> > We use the thread id (smt_id) because we split the counters in half
-> > between the two threads such that two threads on the same core can run
-> > with monitoring on.  We are currently computing the smt_id from the
-> > apicid as returned by a CPUID instruction. This is not very efficient.
-> > 
-> > I looked through the i386 code and could not find a function nor 
-> > structure that would return this smt_id. In the cpuinfo_x86 structure
-> > there is an apicid field that looks good, yet it does not seem to be
-> > initialized nor used.
-> > 
-> > Is cpuinfo_x86->apicid field obsolete? 
-> > If so, what is replacing it?
-> 
-> In i386, it is getting initialized in generic_identify() in common.c and
-> it is getting used for example in intel_cacheinfo.c
-> 
-Well, yes this is exactly what I want, except that it is not compiled for x86_64
-so on a HT Xeon in 64-bit I don't get it. Why is that?
+On Thu, 06 Jul 2006 21:54:02 +0200 Henne wrote:
 
--- 
+> From: Henrik Kretzschmar <henne@nachtwindheim.de>
+> 
+> Create an empty inline function to make the legacy megaraid-driver compile
+> without PROC_FS.
+> Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+> ---
+> 
+> --- linux-2.6.18-rc1/drivers/scsi/megaraid.h    2006-06-18 03:49:35.000000000 +0200
+> +++ linux/drivers/scsi/megaraid.h       2006-07-06 21:39:59.000000000 +0200
+> @@ -1039,6 +1039,9 @@
+>  static int proc_rdrv_30(char *, char **, off_t, int, int *, void *);
+>  static int proc_rdrv_40(char *, char **, off_t, int, int *, void *);
+>  static int proc_rdrv(adapter_t *, char *, int, int);
+> +#else
+> +static inline void
+> +mega_create_proc_entry(int index, struct proc_dir_entry *parent) {}
+>  #endif
+> 
+>  static int mega_adapinq(adapter_t *, dma_addr_t);
 
--Stephane
+Already in -mm:
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/broken-out/drivers-scsi-megaraidc-add-a-dummy-mega_create_proc_entry-for-proc_fs=y.patch
+
+
+---
+~Randy

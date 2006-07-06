@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWGFOsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWGFOrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbWGFOsK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 10:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbWGFOsK
+	id S1030298AbWGFOrw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 10:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbWGFOrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 10:48:10 -0400
-Received: from smtp.ono.com ([62.42.230.12]:30016 "EHLO resmta04.ono.com")
-	by vger.kernel.org with ESMTP id S1030304AbWGFOsI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 10:48:08 -0400
-Date: Thu, 6 Jul 2006 16:48:02 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm6
-Message-ID: <20060706164802.6085d203@werewolf.auna.net>
-In-Reply-To: <20060706163646.735f419f@werewolf.auna.net>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	<20060705234347.47ef2600@werewolf.auna.net>
-	<20060705155602.6e0b4dce.akpm@osdl.org>
-	<20060706015706.37acb9af@werewolf.auna.net>
-	<20060705170228.9e595851.akpm@osdl.org>
-	<20060706163646.735f419f@werewolf.auna.net>
-X-Mailer: Sylpheed-Claws 2.3.1cvs59 (GTK+ 2.10.0; i686-pc-linux-gnu)
+	Thu, 6 Jul 2006 10:47:52 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:14897 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030298AbWGFOrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 10:47:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=ZcRv0HRyWj82+ipef9GIzA9S8hWtlPvjO+dI4U2burKrMlkEiKnxLJIV5tJvx6+uIVMpb1Hq5eKa6l6lRnTIDvsnbrK4ENROtGUtIEKn4tUsx4NqxskTUotFrC3lMzIu2t713oGol4CqWopLjXiWoZCcpXjDHwHHREM8vCENoOM=
+Date: Thu, 6 Jul 2006 18:47:44 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: "Ed L. Cashin" <ecashin@coraid.com>
+Cc: Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] aoe: cleanup i_rdev usage
+Message-ID: <20060706144744.GC7514@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Jul 2006 16:36:46 +0200, "J.A. Magallón" <jamagallon@ono.com> wrote:
+From: Eric Sesterhenn <snakebyte@gmx.de>
 
-> On Wed, 5 Jul 2006 17:02:28 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> 
-> This a shot till I can try to get a full dmesg.
-> 
-> http://belly.cps.unizar.es/~magallon/tmp/shot.jpg
-> 
-> Anyways, what I wanted to point above was that previous kernels talk
-> about 'sda1(8,1)', and newer use 'dev(8,19)'.
-> Perhaps somebedy did a strcpy( ... , "dev" ), instead of strcpy( ... , dev ) ?
-> 
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-Hey !!. I disabled md and usb to get more useful messages in my screen, and
-now I have realized that libata is managing my IDE drive !! And I did not
-boot with any 'libata.atapi_enable'....
+ drivers/block/aoe/aoechr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-In -mm1,
-sda -> 200Gb sata
-hda -> HL-DT-ST DVDRAM GSA-4120B
-hdb -> (zip drive)
-hdc -> 120Gb ide
-hdd -> DVD-ROM
+--- a/drivers/block/aoe/aoechr.c
++++ b/drivers/block/aoe/aoechr.c
+@@ -162,7 +162,7 @@ aoechr_open(struct inode *inode, struct 
+ {
+ 	int n, i;
+ 
+-	n = MINOR(inode->i_rdev);
++	n = iminor(inode);
+ 	filp->private_data = (void *) (unsigned long) n;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(chardevs); ++i)
 
-In -mm6,
-
-sda -> (zip drive) ?
-sdb -> 120Gb
-sdc -> 200Gb
-
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.17-jam01 (gcc 4.1.1 20060518 (prerelease)) #2 SMP PREEMPT Wed

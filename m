@@ -1,148 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWGFXMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWGFXQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbWGFXMF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 19:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWGFXMF
+	id S1751032AbWGFXQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 19:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWGFXQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 19:12:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28616 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750711AbWGFXMD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 19:12:03 -0400
-Date: Thu, 6 Jul 2006 16:05:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Graf <tgraf@suug.ch>
-Cc: nagar@watson.ibm.com, jlan@sgi.com, pj@sgi.com, Valdis.Kletnieks@vt.edu,
-       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
-       hadi@cyberus.ca, netdev@vger.kernel.org
-Subject: Re: [PATCH] per-task delay accounting taskstats interface: control
- exit data through cpumasks]
-Message-Id: <20060706160557.6f0cdfa0.akpm@osdl.org>
-In-Reply-To: <20060706224009.GA14627@postel.suug.ch>
-References: <44ACD7C3.5040008@watson.ibm.com>
-	<20060706025633.cd4b1c1d.akpm@osdl.org>
-	<1152185865.5986.15.camel@localhost.localdomain>
-	<20060706120835.GY14627@postel.suug.ch>
-	<20060706144808.1dd5fadf.akpm@osdl.org>
-	<20060706224009.GA14627@postel.suug.ch>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 6 Jul 2006 19:16:57 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2533 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751026AbWGFXQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 19:16:57 -0400
+Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
+From: David Woodhouse <dwmw2@infradead.org>
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060706204821.06540ab4@cad-250-152.norway.atmel.com>
+References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
+	 <1152187083.2987.117.camel@pmac.infradead.org>
+	 <20060706161319.3ae0d9ef@cad-250-152.norway.atmel.com>
+	 <1152196492.2987.185.camel@pmac.infradead.org>
+	 <20060706204821.06540ab4@cad-250-152.norway.atmel.com>
+Content-Type: text/plain
+Date: Fri, 07 Jul 2006 00:17:11 +0100
+Message-Id: <1152227832.22035.3.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Graf <tgraf@suug.ch> wrote:
->
-> * Andrew Morton <akpm@osdl.org> 2006-07-06 14:48
-> > In the interests of keeping this work decoupled from netlink enhancements
-> > I'd propose the below.  Is it bad to modify the data at nla_data()?
+On Thu, 2006-07-06 at 20:48 +0200, Haavard Skinnemoen wrote:
+> > With MMIO those are just a not-so-special case of memory-memory,
+> > surely? If the new framework doesn't support that, it probably
+> > _should_.
 > 
-> Yes, it points into a skb data buffer which may be shared by sitting
-> on other queues if the message is to be broadcasted. In this case it
-> would be harmless but the policy is to leave it unmodified.
-
-Yup, sleazy-but-safe.
-
+> Yes, but there are at least two important differences:
 > 
-> > --- a/kernel/taskstats.c~per-task-delay-accounting-taskstats-interface-control-exit-data-through-cpumasks-fix
-> > +++ a/kernel/taskstats.c
-> > @@ -299,6 +299,23 @@ cleanup:
-> >  	return 0;
-> >  }
-> >  
-> > +static int parse(struct nlattr *na, cpumask_t *mask)
-> > +{
-> > +	char *data;
-> > +	int len;
-> > +
-> > +	if (na == NULL)
-> > +		return 1;
-> > +	len = nla_len(na);
-> > +	if (len > TASKSTATS_CPUMASK_MAXLEN)
-> > +		return -E2BIG;
-> > +	if (len < 1)
-> > +		return -EINVAL;
-> > +	data = nla_data(na);
-> > +	data[len - 1] = '\0';
-> > +	return cpulist_parse(data, *mask);
-> > +}
-> 
-> Usually this is done by using strlcpy:
+>    * Hanshaking. The DMA controller must know when the peripheral has
+>      new data available/is able to accept more data. Thus, you need to
+>      specify which set of handshaking signals to use as well as which
+>      direction the data is moved.
+>    * One of the pointers often stays the same during the whole transfer. 
 
-hm, nla_strlcpy() looks more complex than it needs to be.  We really need
-nla_kstrndup() ;)
+Those are hardly esoteric features -- the same goes for just about every
+sane DMA controller on every architecture already. Any "generic DMA
+framework" which isn't entirely crack-inspired is surely going to handle
+it properly.
 
-Oh well.  This?
-
-
-diff -puN kernel/taskstats.c~per-task-delay-accounting-taskstats-interface-control-exit-data-through-cpumasks-fix kernel/taskstats.c
---- a/kernel/taskstats.c~per-task-delay-accounting-taskstats-interface-control-exit-data-through-cpumasks-fix
-+++ a/kernel/taskstats.c
-@@ -299,6 +299,28 @@ cleanup:
- 	return 0;
- }
- 
-+static int parse(struct nlattr *na, cpumask_t *mask)
-+{
-+	char *data;
-+	int len;
-+	int ret;
-+
-+	if (na == NULL)
-+		return 1;
-+	len = nla_len(na);
-+	if (len > TASKSTATS_CPUMASK_MAXLEN)
-+		return -E2BIG;
-+	if (len < 1)
-+		return -EINVAL;
-+	data = kmalloc(len, GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+	nla_strlcpy(data, na, len);
-+	ret = cpulist_parse(data, *mask);
-+	kfree(data);
-+	return ret;
-+}
-+
- static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
- {
- 	int rc = 0;
-@@ -309,27 +331,17 @@ static int taskstats_user_cmd(struct sk_
- 	struct nlattr *na;
- 	cpumask_t mask;
- 
--	if (info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK]) {
--		na = info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK];
--		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
--			return -E2BIG;
--		rc = cpulist_parse((char *)nla_data(na), mask);
--		if (rc)
--			return rc;
--		rc = add_del_listener(info->snd_pid, &mask, REGISTER);
-+	rc = parse(info->attrs[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK], &mask);
-+	if (rc < 0)
- 		return rc;
--	}
-+	if (rc == 0)
-+		return add_del_listener(info->snd_pid, &mask, REGISTER);
- 
--	if (info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK]) {
--		na = info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK];
--		if (nla_len(na) > TASKSTATS_CPUMASK_MAXLEN)
--			return -E2BIG;
--		rc = cpulist_parse((char *)nla_data(na), mask);
--		if (rc)
--			return rc;
--		rc = add_del_listener(info->snd_pid, &mask, DEREGISTER);
-+	rc = parse(info->attrs[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK], &mask);
-+	if (rc < 0)
- 		return rc;
--	}
-+	if (rc == 0)
-+		return add_del_listener(info->snd_pid, &mask, DEREGISTER);
- 
- 	/*
- 	 * Size includes space for nested attributes
-_
+-- 
+dwmw2
 

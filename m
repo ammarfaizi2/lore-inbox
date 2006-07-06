@@ -1,40 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWGFN6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbWGFOGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030281AbWGFN6L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 09:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWGFN6L
+	id S1030279AbWGFOGE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 10:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWGFOGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 09:58:11 -0400
-Received: from smtp-vbr10.xs4all.nl ([194.109.24.30]:13832 "EHLO
-	smtp-vbr10.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1030278AbWGFN6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 09:58:09 -0400
-To: Johan Vromans <jvromans@squirrel.nl>
-Cc: Bruno Ducrot <ducrot@poupinou.org>, Rich Townsend <rhdt@bartol.udel.edu>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: RFC [PATCH] acpi: allow SMBus access
-References: <17576.14005.767262.868190@phoenix.squirrel.nl>
-	<20060703082217.GB17014@poupinou.org>
-	<m2mzbrj5yp.fsf@phoenix.squirrel.nl>
-	<20060703125156.GD17014@poupinou.org>
-	<m2d5cln659.fsf@phoenix.squirrel.nl>
-	<20060704093510.GG17014@poupinou.org>
-	<m24pxxmw5m.fsf@phoenix.squirrel.nl>
-From: Johan Vromans <jvromans@squirrel.nl>
-Date: Thu, 06 Jul 2006 15:58:05 +0200
-In-Reply-To: <m24pxxmw5m.fsf@phoenix.squirrel.nl> (Johan Vromans's message
- of "Tue, 04 Jul 2006 13:44:53 +0200")
-Message-ID: <m21wsyomxe.fsf@phoenix.squirrel.nl>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 6 Jul 2006 10:06:03 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:47326 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030279AbWGFOGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 10:06:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=HViuR7lO3HzxWriOtk8NhvByHenTZsZJrYfrAdS+H7jCxlABnHvtTuIc+DK2DdbSKMWxoWJQPZEENSmFRdAfuh71/tjJG0bBfCEoKhomzP9M88Scwe1HOdy/y/55XIMEOHtRwf8lzskrX3+9NJ+kt/+wNFqBtU1kdduJFedHjjI=
+Date: Thu, 6 Jul 2006 18:05:51 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: Henrik Kretzschmar <henne@nachtwindheim.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] pcie: fix warnings when CONFIG_PM=n
+Message-ID: <20060706140551.GA7514@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johan Vromans <jvromans@squirrel.nl> writes:
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-Progress!
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-http://lkml.org/lkml/2006/7/1/76
+ drivers/pci/pcie/portdrv_pci.c |   34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
--- Johan
+--- a/drivers/pci/pcie/portdrv_pci.c
++++ b/drivers/pci/pcie/portdrv_pci.c
+@@ -30,23 +30,6 @@ MODULE_LICENSE("GPL");
+ /* global data */
+ static const char device_name[] = "pcieport-driver";
+ 
+-static int pcie_portdrv_save_config(struct pci_dev *dev)
+-{
+-	return pci_save_state(dev);
+-}
+-
+-static int pcie_portdrv_restore_config(struct pci_dev *dev)
+-{
+-	int retval;
+-
+-	pci_restore_state(dev);
+-	retval = pci_enable_device(dev);
+-	if (retval)
+-		return retval;
+-	pci_set_master(dev);
+-	return 0;
+-}
+-
+ /*
+  * pcie_portdrv_probe - Probe PCI-Express port devices
+  * @dev: PCI-Express port device being probed
+@@ -86,6 +69,23 @@ static void pcie_portdrv_remove (struct 
+ }
+ 
+ #ifdef CONFIG_PM
++static int pcie_portdrv_save_config(struct pci_dev *dev)
++{
++	return pci_save_state(dev);
++}
++
++static int pcie_portdrv_restore_config(struct pci_dev *dev)
++{
++	int retval;
++
++	pci_restore_state(dev);
++	retval = pci_enable_device(dev);
++	if (retval)
++		return retval;
++	pci_set_master(dev);
++	return 0;
++}
++
+ static int pcie_portdrv_suspend (struct pci_dev *dev, pm_message_t state)
+ {
+ 	int ret = pcie_port_device_suspend(dev, state);
+

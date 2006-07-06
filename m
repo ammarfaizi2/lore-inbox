@@ -1,56 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWGFNhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWGFNnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbWGFNhO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 09:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030264AbWGFNhO
+	id S1030264AbWGFNnW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 09:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030267AbWGFNnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 09:37:14 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:55704 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030259AbWGFNhN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 09:37:13 -0400
-Date: Thu, 6 Jul 2006 15:32:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <nielsen.esben@googlemail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: New PriorityInheritanceTest - bug in 2.6.17-rt7 confirmed
-Message-ID: <20060706133238.GA13800@elte.hu>
-References: <Pine.LNX.4.64.0607061307260.10454@localhost.localdomain> <1152189293.24611.146.camel@localhost.localdomain> <Pine.LNX.4.64.0607061443050.30970@localhost.localdomain>
+	Thu, 6 Jul 2006 09:43:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:7345 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030264AbWGFNnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 09:43:21 -0400
+Subject: Re: [patch] spinlocks: remove 'volatile'
+From: Arjan van de Ven <arjan@infradead.org>
+To: "J.A." =?ISO-8859-1?Q?Magall=F3n?= <jamagallon@ono.com>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060706153955.0740b934@werewolf.auna.net>
+References: <20060705114630.GA3134@elte.hu>
+	 <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu>
+	 <20060705131824.52fa20ec.akpm@osdl.org>
+	 <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
+	 <20060705204727.GA16615@elte.hu>
+	 <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
+	 <20060705214502.GA27597@elte.hu>
+	 <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
+	 <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
+	 <20060706081639.GA24179@elte.hu>
+	 <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
+	 <1152187268.3084.29.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0607060816110.8320@chaos.analogic.com>
+	 <1152189583.3084.32.camel@laptopd505.fenrus.org>
+	 <20060706153955.0740b934@werewolf.auna.net>
+Content-Type: text/plain
+Date: Thu, 06 Jul 2006 15:43:14 +0200
+Message-Id: <1152193394.3084.39.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607061443050.30970@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Esben Nielsen <nielsen.esben@googlemail.com> wrote:
+> > I did not talk about memory barriers. In fact, barrier() is NOT a memory
+> > barrier. It's a compiler optimization barrier!
+> > 
+> 
+> // Read 10 samples from 2 A/D converters.
+> 
+> int*	ina;
+> int	a[10];
+> int*	inb;
+> int	b[10];
+> 
+> for (int i=0; i<10; i++)
+> {
+> 	a[i] = *ina;
+> 	barrier();
+> 	b[i] = *inb;
+> }
+> 
+> The barrier prevents the compiler of translating this to:
+> 
+> for (int i=0; i<10; i++)
+> {
+> 	b[i] = *inb;
+> 	a[i] = *ina;
+> }
+> 
+> or even to:
+> 
+> for (int i=0; i<10; i++)
+> 	a[i] = *ina;
+> for (int i=0; i<10; i++)
+> 	b[i] = *inb;
+> 
+> but does not prevent it to do this:
 
-> It can run within try_to_wake_up(). But then it the whole lock chain 
-> is traversed in an atomic section. That unpredictable overall system 
-> latencies since the locks can be in userspace. So it has to run in 
-> some task. That task has to be high priority enough to preempt the 
-> boosted tasks, but it can't be so high priority that it bothers any 
-> higher priority threads than those involved in this. So it can't be, 
-> forinstance a general priority 99 task we just use for this. We thus 
-> need something running at a slightly higher priority than the priority 
-> to which the tasks are boosted, but not a full +1 priority. I.e. we 
-> need to run it at priority "+0.5".
+yes it does. It's a full optimization barrier; the compiler assumes all
+register and memory content has changed from before the barrier(), and
+it will start "fresh".
 
-we could just queue the task in front of the other task in the runqueue, 
-and mark that task for reschedule if it's running currently. (Doing this 
-is not without precedent: we do something similar in wake_up_new_task() 
-to implement child-runs-first logic.)
 
-	Ingo

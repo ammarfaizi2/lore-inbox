@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbWGFRbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbWGFRb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030315AbWGFRbT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 13:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbWGFRbT
+	id S1030321AbWGFRb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 13:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbWGFRb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 13:31:19 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:55504 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030315AbWGFRbS (ORCPT
+	Thu, 6 Jul 2006 13:31:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35252 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030321AbWGFRb6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 13:31:18 -0400
-Subject: Re: 2.6.17-mm6
-From: john stultz <johnstul@us.ibm.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200607052332.13028.s0348365@sms.ed.ac.uk>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	 <1152131834.24656.57.camel@cog.beaverton.ibm.com>
-	 <20060705204614.GA24181@kroah.com>
-	 <200607052332.13028.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain
-Date: Thu, 06 Jul 2006 10:31:13 -0700
-Message-Id: <1152207073.24656.127.camel@cog.beaverton.ibm.com>
+	Thu, 6 Jul 2006 13:31:58 -0400
+Date: Thu, 6 Jul 2006 10:31:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, bernds_cb1@t-online.de, sam@ravnborg.org,
+       dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/6] FRV: Fix FRV arch compile errors [try #3]
+Message-Id: <20060706103134.197c8679.akpm@osdl.org>
+In-Reply-To: <20060706124721.7098.50514.stgit@warthog.cambridge.redhat.com>
+References: <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
+	<20060706124721.7098.50514.stgit@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-05 at 23:32 +0100, Alistair John Strachan wrote:
-> On Wednesday 05 July 2006 21:46, Greg KH wrote:
-> > On Wed, Jul 05, 2006 at 01:37:13PM -0700, john stultz wrote:
-> > > On Tue, 2006-07-04 at 01:49 -0700, Andrew Morton wrote:
-> > > > On Tue, 4 Jul 2006 09:34:14 +0100
-> > > >
-> > > > Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > > > > > a tested version...
-> > > > >
-> > > > > This one worked, thanks. Try the same URL again, I've uploaded two
-> > > > > better shots 6,7 that capture the first oops. Unfortunately, I have a
-> > > > > pair of oopses that interchange every couple of boots, so I've
-> > > > > included both ;-)
-> > > >
-> > > > OK, that's more like it.  Thanks again.
-> > > >
-> > > > http://devzero.co.uk/~alistair/oops-20060703/oops6.jpg
-> > > > http://devzero.co.uk/~alistair/oops-20060703/oops7.jpg
-> > > >
-> > > > People cc'ed.  Help!
-> > >
-> > > Hmmm. No clue on this one from just looking at it.
-> > >
-> > > Greg, do you see anything wrong with the way I'm registering the
-> > > timekeeping .resume hook in kernel/timer.c::timekeeping_init_device()?
-> > > It looks the same as the other users to me.
-> >
-> > At first glance, no, it looks sane to me.
-> >
-> > Are you sure you aren't registering two things with the same name
-> > somehow?
+On Thu, 06 Jul 2006 13:47:21 +0100
+David Howells <dhowells@redhat.com> wrote:
 
-Looking at it, I don't see how that could happen.
+> --- a/include/linux/bootmem.h
+> +++ b/include/linux/bootmem.h
+> @@ -91,7 +91,7 @@ static inline void *alloc_remap(int nid,
+>  }
+>  #endif
+>  
+> -extern unsigned long nr_kernel_pages;
+> +extern unsigned long __initdata nr_kernel_pages;
 
+- The __init-style tags on declarations don't actually do anything and
+  the compiler doesn't check for consistency with the definition - it's
+  best to just omit it from the declaration.
 
-> Whatever it is, it doesn't happen every time. Sometimes the kernel boots.
+- Setting nr_kernel_pages to be unloaded at free_initmem() seems risky.
 
-Odd. Does this happen w/ 2.6.18-rc1?
+- nr_kernel_pages is actually __meminitdata.
 
-thanks
--john
-
+So I'll drop this hunk.

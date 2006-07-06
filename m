@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWGFMnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWGFMo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbWGFMnj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 08:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbWGFMnj
+	id S1030238AbWGFMo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 08:44:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbWGFMo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 08:43:39 -0400
-Received: from pat.uio.no ([129.240.10.4]:58327 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S965192AbWGFMnj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 08:43:39 -0400
-Subject: Re: ext4 features
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <44AC7647.2080005@tmr.com>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
-	 <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com>
-	 <20060705125956.GA529@fieldses.org> <44AC2B56.8010703@tmr.com>
-	 <20060705214133.GA28487@fieldses.org>  <44AC7647.2080005@tmr.com>
-Content-Type: text/plain
-Date: Thu, 06 Jul 2006 08:43:15 -0400
-Message-Id: <1152189796.5689.17.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 6 Jul 2006 08:44:59 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:650 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S965190AbWGFMo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 08:44:59 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux v2.6.18-rc1
+Date: Thu, 6 Jul 2006 22:44:40 +1000
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1225820.l81EjJjihU";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.119, required 12,
-	autolearn=disabled, AWL 1.69, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Message-Id: <200607062244.51814.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-05 at 22:32 -0400, Bill Davidsen wrote:
+--nextPart1225820.l81EjJjihU
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> But with timestamps I need remember only one number, the time of my last 
-> backup. Skipping over the question of "who's idea of time" inherent in 
-> network filesystems. I compare all ctimes with the time of the last 
-> backup and do incremental on the newer ones. If we use versioning I have 
-> to remember the version for each file! In practice I really question if 
-> the benefit justified keeping all that metadata between backups. And if 
-> I delete a file and create another by the same name, what is it's version?
+Hi.
 
-You are completely missing the point. Our background is that all NFS
-clients are required to use the mtime and ctime timestamps in order to
-figure out if their cached data is valid. They need to do this extremely
-frequently (in fact, every time you open() the file).
+On Thursday 06 July 2006 14:26, Linus Torvalds wrote:
+> Ok,
+>  the merge window for 2.6.18 is closed, and -rc1 is out there (git trees
+> updated, the tar-ball and patches are still uploading over my pitiful DSL
+> line - and as usual it may take a short while before mirroring takes
+> place and distributes things across the globe).
 
-Nobody gives a rats arse about backups: those are infrequent and
-can/should use more sophisticated techniques such as checksumming.
+On my amd64 based laptop, I had a failures with both suspend implementation=
+s=20
+(swsusp and suspend2) when I had iommu debugging on. The same config worked=
+=20
+fine with 2.6.17. I guess something in the delta didn't like iommu usage=20
+being forced on a Turion. I'm not sure how much time I'll find for further=
+=20
+debugging, so I'll report it now.
 
-Cheers,
-  Trond
+Regards,
 
+Nigel
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
+
+--nextPart1225820.l81EjJjihU
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBErQXDN0y+n1M3mo0RAsmQAJ9zZFtVct+jP5AgycsX+3uz2CRuYgCg5X3e
+0fgLqSgSacBe5gv59FvmbkE=
+=wWJR
+-----END PGP SIGNATURE-----
+
+--nextPart1225820.l81EjJjihU--

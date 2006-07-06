@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWGFIWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbWGFIXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964991AbWGFIWg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 04:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbWGFIWg
+	id S964997AbWGFIXU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 04:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWGFIXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 04:22:36 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5351 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964991AbWGFIWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 04:22:35 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, kmannth@gmail.com,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de,
-       Natalie.Protasevich@UNISYS.com
-Subject: Re: 2.6.17-mm6
-References: <20060705155037.7228aa48.akpm@osdl.org>
-	<a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com>
-	<20060705164457.60e6dbc2.akpm@osdl.org>
-	<20060705164820.379a69ba.akpm@osdl.org>
-	<a762e240607051705h33952e5elf6bd09c1ccea8ab4@mail.gmail.com>
-	<20060705172545.815872b6.akpm@osdl.org>
-	<m1u05v2st3.fsf@ebiederm.dsl.xmission.com>
-	<20060705225905.53e61ca0.akpm@osdl.org>
-	<20060705233123.dcb0a10b.akpm@osdl.org>
-	<m17j2r2od0.fsf@ebiederm.dsl.xmission.com>
-	<20060706072529.GA12317@elte.hu>
-Date: Thu, 06 Jul 2006 02:21:32 -0600
-In-Reply-To: <20060706072529.GA12317@elte.hu> (Ingo Molnar's message of "Thu,
-	6 Jul 2006 09:25:29 +0200")
-Message-ID: <m1psgj16ur.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Thu, 6 Jul 2006 04:23:20 -0400
+Received: from bernhard.xss.co.at ([193.80.108.69]:13264 "EHLO
+	bernhard.xss.co.at") by vger.kernel.org with ESMTP id S964993AbWGFIXS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 04:23:18 -0400
+Message-ID: <44ACC870.2000609@xss.co.at>
+Date: Thu, 06 Jul 2006 10:23:12 +0200
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: marcelo@kvack.org, w@1wt.eu
+Subject: [PATCH-2.4] Typo in cdrom.c also in linux-2.4
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------010908090803020000060609"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+This is a multi-part message in MIME format.
+--------------010908090803020000060609
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-> * Eric W. Biederman <ebiederm@xmission.com> wrote:
->
->> What is scary is that at 1K cpus if we wind up using all of the irqs 
->> we start consuming 1Gig of RAM.  At only 128 cpus we are still in the 
->> 2M-15M territory, so that isn't too scary.  The point is that after a 
->> certain put the memory usage for all of those counters goes insane.
->
-> we just need to move kernel_stat.irqs out of the per-cpu area and 
-> alloc_percpu() a counter pointer for each IRQ that is truly set up. If 
-> someone ends up using more than say 10,000 irqs we can reconsider. With 
-> 10K irqs we'd have 10MB of stat counter footprint - that's reasonable.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hmm.  at 10,000 IRQs and 128 cpus I got about 5MB.  But close enough.
+Hi Marcelo,
+hi Willy,
 
-I'm convinced at least for now.
+are you aware of the discussion at
+<http://bugzilla.kernel.org/show_bug.cgi?id=2966> ?
 
-The case I have seen are sparsely populated irqs.
+The typo seems to exist in linux-2.4 too, at least in
+2.4.32, 2.4.32-hf32.6 and 2.4.33pre3 (which is what
+I checked today)
 
-And we really do need the high IRQ counts because the potential irqs
-really do go up at 15 or so IRQs per cpu.
+The fix for linux-2.4 would be just like the proposed
+patch for linux-2.6 (see attachment)
 
-Still if we are doing this generically let's please put in a
-big fat comment describing the situation, and maybe a compile warning,
-if things get too big.
+Comments?
 
-Eric
+- - andreas
+
+- --
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFErMhbxJmyeGcXPhERAgw6AKCwDRtEyE1EK+oT/nU5v2ysQxmWqACcDh1y
+eZq4acxsutVuP68nDDcEeAE=
+=puYc
+-----END PGP SIGNATURE-----
+
+--------------010908090803020000060609
+Content-Type: text/x-patch;
+ name="cdrom.c.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cdrom.c.patch"
+
+Index: cdrom.c
+===================================================================
+RCS file: /home/cvs/repository/distribution/Base/linux/drivers/cdrom/cdrom.c,v
+retrieving revision 1.1.1.10
+diff -u -r1.1.1.10 cdrom.c
+--- cdrom.c	19 Jan 2005 14:09:43 -0000	1.1.1.10
++++ cdrom.c	6 Jul 2006 08:22:06 -0000
+@@ -1259,7 +1259,7 @@
+ 	init_cdrom_command(&cgc, buf, sizeof(buf), CGC_DATA_READ);
+ 	cgc.cmd[0] = GPCMD_READ_DVD_STRUCTURE;
+ 	cgc.cmd[7] = s->type;
+-	cgc.cmd[9] = cgc.buflen = 0xff;
++	cgc.cmd[9] = cgc.buflen & 0xff;
+ 
+ 	if ((ret = cdo->generic_packet(cdi, &cgc)))
+ 		return ret;
+
+--------------010908090803020000060609--

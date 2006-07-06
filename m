@@ -1,78 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWGFWeB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbWGFWjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750967AbWGFWeB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 18:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWGFWeB
+	id S1750979AbWGFWjg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 18:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWGFWjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 18:34:01 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:38069 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S1750966AbWGFWeA (ORCPT
+	Thu, 6 Jul 2006 18:39:36 -0400
+Received: from gate.crashing.org ([63.228.1.57]:57318 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750831AbWGFWjg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 18:34:00 -0400
-Date: Thu, 6 Jul 2006 15:25:43 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com
-Subject: Re: cpuinfo_x86 and apicid
-Message-ID: <20060706222543.GC10760@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20060706150118.GB10110@frankl.hpl.hp.com> <20060706091930.A13512@unix-os.sc.intel.com> <20060706200031.GA10685@frankl.hpl.hp.com> <20060706140613.B13512@unix-os.sc.intel.com>
+	Thu, 6 Jul 2006 18:39:36 -0400
+Subject: Re: [PATCH 38 of 39] IB/ipath - More changes to support InfiniPath
+	on PowerPC 970 systems
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: akpm@osdl.org, rdreier@cisco.com, mst@mellanox.co.il,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <c22b6c244d5db77f7b1d.1151617289@eng-12.pathscale.com>
+References: <c22b6c244d5db77f7b1d.1151617289@eng-12.pathscale.com>
+Content-Type: text/plain
+Date: Fri, 07 Jul 2006 08:37:01 +1000
+Message-Id: <1152225421.9862.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060706140613.B13512@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suresh,
 
-On Thu, Jul 06, 2006 at 02:06:13PM -0700, Siddha, Suresh B wrote:
-> On Thu, Jul 06, 2006 at 01:00:31PM -0700, Stephane Eranian wrote:
-> > On Thu, Jul 06, 2006 at 09:19:30AM -0700, Siddha, Suresh B wrote:
-> > > On Thu, Jul 06, 2006 at 08:01:18AM -0700, Stephane Eranian wrote:
-> > > > Hello,
-> > > > 
-> > > > 
-> > > > In the context of the perfmon2 subsystem for processor with HyperThreading,
-> > > > we need to know on which thread we are currently running. This comes from
-> > > > the fact that the performance counters are shared between the two threads.
-> > > > 
-> > > > We use the thread id (smt_id) because we split the counters in half
-> > > > between the two threads such that two threads on the same core can run
-> > > > with monitoring on.  We are currently computing the smt_id from the
-> > > > apicid as returned by a CPUID instruction. This is not very efficient.
-> > > > 
-> > > > I looked through the i386 code and could not find a function nor 
-> > > > structure that would return this smt_id. In the cpuinfo_x86 structure
-> > > > there is an apicid field that looks good, yet it does not seem to be
-> > > > initialized nor used.
-> > > > 
-> > > > Is cpuinfo_x86->apicid field obsolete? 
-> > > > If so, what is replacing it?
-> > > 
-> > > In i386, it is getting initialized in generic_identify() in common.c and
-> > > it is getting used for example in intel_cacheinfo.c
-> > > 
-> > Well, yes this is exactly what I want, except that it is not compiled for x86_64
-> > so on a HT Xeon in 64-bit I don't get it. Why is that?
-> 
-> on x86_64, it is getting initialized in identify_cpu() and further
-> intel_cacheinfo.c gets linked in both i386 and x86_64.
-> 
-Ah, yes I missed that. It works there two. I had something wrong
-about how I accessed cpu_data. I am used to the elegant way we
-do it on IA-64 but on x86_64 you have to index the cpu_data[]
-array with smp_processor_id(). I was pointing to cpu_data[0]
-on all processors.
+> +#if defined(__powerpc__)
+> +	/* There isn't a generic way to specify writethrough mappings */
+> +	pgprot_val(vma->vm_page_prot) |= _PAGE_NO_CACHE;
+> +	pgprot_val(vma->vm_page_prot) |= _PAGE_WRITETHRU;
+> +	pgprot_val(vma->vm_page_prot) &= ~_PAGE_GUARDED;
+> +#endif
 
-For what I need, I can do cpuinfo_x86->apicid & 0x3 to identify
-which thread is running. I can now remove some more code in perfmon2.
+I don't see any case where having both NO_CACHE and WRITE_THRU can be
+legal... It's one or the other.
 
-Thanks for your help.
+> +/**
+> + * ipath_unordered_wc - indicate whether write combining is ordered
+> + *
+> + * PowerPC systems (at least those in the 970 processor family)
+> + * write partially filled store buffers in address order, but will write
+> + * completely filled store buffers in "random" order, and therefore must
+> + * have serialization for correctness with current InfiniPath chips.
+> + *
+> + */
+> +int ipath_unordered_wc(void)
+> +{
+> +	return 1;
+> +}
 
--- 
--Stephane
+How is the above providing any kind of serialisation ?
+
+Ben.
+
+

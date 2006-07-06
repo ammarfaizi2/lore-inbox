@@ -1,121 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbWGFP22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030346AbWGFP3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030340AbWGFP22 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 11:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWGFP22
+	id S1030346AbWGFP3M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 11:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbWGFP3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 11:28:28 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:36614 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1030340AbWGFP21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 11:28:27 -0400
+	Thu, 6 Jul 2006 11:29:12 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:26845 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S1030341AbWGFP3J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 11:29:09 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: ACPIPNP and too large IO resources
+Date: Thu, 6 Jul 2006 09:29:04 -0600
+User-Agent: KMail/1.8.3
+Cc: drzeus-list@drzeus.cx, len.brown@intel.com, linux-kernel@vger.kernel.org,
+       ambx1@neo.rr.com, shaohua.li@intel.com, castet.matthieu@free.fr,
+       linux-acpi@vger.kernel.org, uwe.bugla@gmx.de
+References: <44AB608F.1060903@drzeus.cx> <200607051536.30771.bjorn.helgaas@hp.com> <20060705151803.5841e91d.akpm@osdl.org>
+In-Reply-To: <20060705151803.5841e91d.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C6A110.B089B000"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 06 Jul 2006 15:27:28.0543 (UTC) FILETIME=[B0DC8AF0:01C6A110]
-Content-class: urn:content-classes:message
-Subject: Re: cpuinfo_x86 and apicid
-Date: Thu, 6 Jul 2006 11:27:28 -0400
-Message-ID: <Pine.LNX.4.61.0607061123380.10612@chaos.analogic.com>
-In-Reply-To: <20060706150118.GB10110@frankl.hpl.hp.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: cpuinfo_x86 and apicid
-thread-index: AcahELDmhpw7P7VlTfqNdb+Xsty4VA==
-References: <20060706150118.GB10110@frankl.hpl.hp.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Stephane Eranian" <eranian@hpl.hp.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>, <perfmon@napali.hpl.hp.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607060929.04787.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Wednesday 05 July 2006 16:18, Andrew Morton wrote:
+> Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> > You recently proposed pushing it:
+> >     http://marc.theaimsgroup.com/?l=linux-acpi&m=115119275408021&w=2
+> > Len initially nacked it, but I think the outcome of the discussion
+> > is that Shaohua doesn't object to this patch.  He probably would
+> > still like to blacklist PNP0A03, but that's an additional step we
+> > don't have to take at the same time.
+> 
+> OK, well let's please push this up the priority list and work out what want
+> to do.  If Len's now OK with merging it then I think all lights are green?
 
-------_=_NextPart_001_01C6A110.B089B000
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+My opinion is that we don't need to blacklist PNP0A03 unless
+we discover a problem.  
 
+Len, Shaohua, can you ack this?
 
-On Thu, 6 Jul 2006, Stephane Eranian wrote:
-
-> Hello,
->
->
-> In the context of the perfmon2 subsystem for processor with=
- HyperThreading,
-> we need to know on which thread we are currently running. This comes from
-> the fact that the performance counters are shared between the two=
- threads.
->
-> We use the thread id (smt_id) because we split the counters in half
-> between the two threads such that two threads on the same core can run
-> with monitoring on.  We are currently computing the smt_id from the
-> apicid as returned by a CPUID instruction. This is not very efficient.
->
-> I looked through the i386 code and could not find a function nor
-> structure that would return this smt_id. In the cpuinfo_x86 structure
-> there is an apicid field that looks good, yet it does not seem to be
-> initialized nor used.
->
-> Is cpuinfo_x86->apicid field obsolete?
-> If so, what is replacing it?
->
-> Thanks.
->
-> --=0D
-> -Stephane
+> pnpacpi-reject-acpi_producer-resources.patch:
+> 
+> From: matthieu castet <castet.matthieu@free.fr>
+> 
+> A patch in -mm kernel correct the parsing of "address resources" of pnpacpi. 
+> Before we assumed it was memory only, but it could be also IO.
+> 
+> But this change show an hidden bug : some resources could be producer type
+> that are not handled by pnp layer.  So we should ignore the producer
+> resources.
+> 
+> This patch fixes bug 6292 (http://bugzilla.kernel.org/show_bug.cgi?id=6292).
+> Some devices like PNP0A03 have 0xd00-0xffff and 0x0-0xcf7 as IO producer 
+> resources.
+> 
+> Before correcting "address resources" parsing, it was seen as memory and was
+> harmless, because nobody tried to reserve this memory range as it should be
+> IO.
+> 
+> With the correction it become IO resources, and make failed all others device
+> that want to register IO in this range and use pnp layer (like a ISA sound
+> card).
+> 
+> The solution is to ignore producer resources
+> 
+> Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
+> Signed-off-by: Uwe Bugla <uwe.bugla@gmx.de>
+> Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>
+> Cc: Adam Belay <ambx1@neo.rr.com>
+> Cc: "Brown, Len" <len.brown@intel.com>
+> 
+> akpm: previously nacked, as per comment #26.  But am hanging onto it until the
+> thing gets fixed for real.
+> 
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+> 
+>  drivers/pnp/pnpacpi/rsparser.c |    8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff -puN drivers/pnp/pnpacpi/rsparser.c~pnpacpi-reject-acpi_producer-resources drivers/pnp/pnpacpi/rsparser.c
+> --- a/drivers/pnp/pnpacpi/rsparser.c~pnpacpi-reject-acpi_producer-resources
+> +++ a/drivers/pnp/pnpacpi/rsparser.c
+> @@ -173,6 +173,9 @@ pnpacpi_parse_allocated_address_space(st
+>  		return;
+>  	}
+>  
+> +	if (p->producer_consumer == ACPI_PRODUCER)
+> +		return;
+> +
+>  	if (p->resource_type == ACPI_MEMORY_RANGE)
+>  		pnpacpi_parse_allocated_memresource(res_table,
+>  				p->minimum, p->address_length);
+> @@ -252,9 +255,14 @@ static acpi_status pnpacpi_allocated_res
+>  		break;
+>  
+>  	case ACPI_RESOURCE_TYPE_EXTENDED_ADDRESS64:
+> +		if (res->data.ext_address64.producer_consumer == ACPI_PRODUCER)
+> +			return AE_OK;
+>  		break;
+>  
+>  	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
+> +		if (res->data.extended_irq.producer_consumer == ACPI_PRODUCER)
+> +			return AE_OK;
+> +
+>  		for (i = 0; i < res->data.extended_irq.interrupt_count; i++) {
+>  			pnpacpi_parse_allocated_irqresource(res_table,
+>  				res->data.extended_irq.interrupts[i],
+> _
+> 
 > -
-
-Does the attached file help? It is supposed to tell which CPU
-execution is occurring on. This might be modified to fill your
-needs.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.88 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-=1A=04
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be=
- privileged.  Any review, retransmission, dissemination, or other use of=
- this information by persons or entities other than the intended recipient=
- is prohibited.  If you are not the intended recipient, please notify=
- Analogic Corporation immediately - by replying to this message or by=
- sending an email to DeliveryErrors@analogic.com - and destroy all copies=
- of this information, including any attachments, without reading or=
- disclosing them.
-
-Thank you.
-------_=_NextPart_001_01C6A110.B089B000
-Content-Type: TEXT/PLAIN;
-	name="whichcpu.c"
-Content-Transfer-Encoding: base64
-Content-Description: whichcpu.c
-Content-Disposition: attachment;
-	filename="whichcpu.c"
-
-LyoNCiAqICBUaGlzIHByb2dyYW0gdGVsbHMgeW91IHdoYXQgQ1BVIHlvdXIgcHJvY2VzcyBpcyBl
-eGVjdXRpbmcgb24uDQogKiAgSWYgeW91IGNvbW1lbnQtb3V0IHRoZSB1c2xlZXAoMTAwMDApLCBz
-byB5b3UgYXJlIGVhdGluZyBhbGwgdGhlDQogKiAgQ1BVIHRpbWUgaW4geW91ciB0aW1lLXNsaWNl
-LCBhbmQgeW91IGV4ZWN1dGUgdGhpcyBmcm9tIHR3byB0YXNrcywNCiAqICB5b3Ugd2lsbCBub3Rl
-IHRoYXQgZWFjaCB0YXNrIGdldHMgaXRzIG93biBDUFUgaWYgeW91IGhhdmUgdHdvDQogKiAgQ1BV
-cy4NCiAqICBJZiB5b3UgbGVhdmUgaW4gdGhlIHVzbGVlcCgpLCB5b3Ugd2lsbCBub3RlIHRoYXQg
-Ym90aCB0YXNrcyBtYXkNCiAqICB1c2UgdGhlIHNhbWUgQ1BVLiBUaGlzIGhhcHBlbnMgaWYsIGFu
-ZCBvbmx5IGlmLCB0aGV5IGFyZSBub3QNCiAqICBleGVjdXRpbmcgYXQgdGhlIHNhbWUgdGltZS4N
-CiAqLyANCg0KDQojaW5jbHVkZSA8c3RkaW8uaD4NCmludCBtYWluKHZvaWQpOw0KDQppbnQgbWFp
-bigpDQp7DQogICAgaW50IGNwdSwgcHJ2Ow0KICAgIHBydiA9IC0xOyANCiAgICBmb3IoOzspDQog
-ICAgew0KICAgICAgICBfX2FzbV9fIF9fdm9sYXRpbGVfXyAoDQoJCSJ4b3JsICUlZWF4LCUlZWF4
-XG4iDQoJCSJzdHIgJSVheFxuIg0KCQkic3VibCAkMHg2MCwgJSVlYXhcbiINCgkJInNocmwgJDB4
-MDUsICUlZWF4XG4iDQoJCTogIj1hIihjcHUpKTsNCiAgICAgICAgaWYoY3B1ICE9IHBydikNCiAg
-ICAgICAgew0KICAgICAgICAgICAgcHJ2ID0gY3B1Ow0KICAgICAgICAgICAgcHJpbnRmKCJDUFUg
-JWRcbiIsIGNwdSk7DQogICAgICAgIH0NCiAgICAgICAgdXNsZWVwKDEwMDAwKTsNCiAgICB9DQog
-ICAgcmV0dXJuIDA7DQp9DQoNCg==
-
-------_=_NextPart_001_01C6A110.B089B000--
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

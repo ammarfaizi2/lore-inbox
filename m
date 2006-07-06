@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWGFSI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWGFSJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbWGFSI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 14:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWGFSI3
+	id S1750942AbWGFSJr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 14:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbWGFSJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 14:08:29 -0400
-Received: from colin.muc.de ([193.149.48.1]:59141 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1750823AbWGFSI2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 14:08:28 -0400
-Date: 6 Jul 2006 20:08:26 +0200
-Date: Thu, 6 Jul 2006 20:08:26 +0200
-From: Andi Kleen <ak@muc.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Doug Thompson <norsk5@yahoo.com>,
-       akpm@osdl.org, mm-commits@vger.kernel.org, norsk5@xmission.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: + edac-new-opteron-athlon64-memory-controller-driver.patch added to -mm tree
-Message-ID: <20060706180826.GA95795@muc.de>
-References: <20060704092358.GA13805@muc.de> <1152007787.28597.20.camel@localhost.localdomain> <20060704113441.GA26023@muc.de> <1152137302.6533.28.camel@localhost.localdomain> <20060705220425.GB83806@muc.de> <m1odw32rep.fsf@ebiederm.dsl.xmission.com> <20060706130153.GA66955@muc.de> <m18xn621i6.fsf@ebiederm.dsl.xmission.com> <20060706165159.GB66955@muc.de> <m18xn6zkx3.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Jul 2006 14:09:47 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:46542
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750823AbWGFSJq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 14:09:46 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Date: Thu, 6 Jul 2006 20:10:53 +0200
+User-Agent: KMail/1.9.1
+References: <20060705114630.GA3134@elte.hu> <Pine.LNX.4.64.0607060911530.12404@g5.osdl.org> <Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <m18xn6zkx3.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200607062010.53667.mb@bu3sch.de>
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org,
+       "Linus Torvalds" <torvalds@osdl.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 11:46:00AM -0600, Eric W. Biederman wrote:
-> Andi Kleen <ak@muc.de> writes:
+On Thursday 06 July 2006 19:52, linux-os (Dick Johnson) wrote:
+> int spinner=0;
 > 
-> >> With EDAC on my next boot I get positive confirmation that I either
-> >> pulled the DIMM that the error happened on, or I pulled a different
-> >> DIMM.
-> >
-> > How? You simulate a new error and let EDAC resolve it?
-> 
-> No. There is a status report that tells you which pieces of hardware
-> your memory controller sees.  It is just a simple list.
+> funct(){
+>      while(spinner)
+		barrier();
 
-Ok but that could be also done easily in user space that reads
-PCI config space. No need for a complicated kernel driver at all.
-
-> Isn't something that just works, and is not at the mercy of the BIOS
-> developers with too little time worth doing?
-
-I just don't see how it's very useful if you don't know which DIMM
-to replace in the first place. And to know that in your scheme you need
-your magical database with all motherboards ever shipped, which
-I don't consider realistic.
-
--Andi
-
+-- 
+Greetings Michael.

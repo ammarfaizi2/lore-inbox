@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbWGFECQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbWGFE0i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965164AbWGFECQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 00:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWGFECQ
+	id S965173AbWGFE0i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 00:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbWGFE0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 00:02:16 -0400
-Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:62352 "EHLO
-	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S965164AbWGFECQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 00:02:16 -0400
-Date: Wed, 5 Jul 2006 21:02:15 -0700 (PDT)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix poll() nfds check.
-In-Reply-To: <20060705203959.53e128ef.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0607052050560.27726@shell3.speakeasy.net>
-References: <Pine.LNX.4.58.0607051949460.6604@shell3.speakeasy.net>
- <20060705203959.53e128ef.akpm@osdl.org>
+	Thu, 6 Jul 2006 00:26:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8093 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965173AbWGFE0h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 00:26:37 -0400
+Date: Wed, 5 Jul 2006 21:26:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux v2.6.18-rc1
+Message-ID: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jul 2006, Andrew Morton wrote:
 
-> On Wed, 5 Jul 2006 20:00:34 -0700 (PDT)
-> Vadim Lobanov <vlobanov@speakeasy.net> wrote:
->
-> > diff -Npru linux-2.6.17-git25/fs/select.c linux-new/fs/select.c
-> > --- linux-2.6.17-git25/fs/select.c	2006-07-05 19:06:56.000000000 -0700
-> > +++ linux-new/fs/select.c	2006-07-05 19:10:51.000000000 -0700
-> > @@ -671,7 +671,7 @@ int do_sys_poll(struct pollfd __user *uf
-> >  	fdt = files_fdtable(current->files);
-> >  	max_fdset = fdt->max_fdset;
-> >  	rcu_read_unlock();
-> > -	if (nfds > max_fdset && nfds > OPEN_MAX)
-> > +	if (nfds > max_fdset)
-> >  		return -EINVAL;
-> >
-> >  	poll_initwait(&table);
->
-> http://www.opengroup.org/onlinepubs/009695399/functions/poll.html sayeth
->
-> [EINVAL]
->     The nfds argument is greater than {OPEN_MAX}, or ...
->
-> and afaict, max_fdset can be either less than or greater than OPEN_MAX,
-> depending upon how one sets NR_OPEN.
+Ok,
+ the merge window for 2.6.18 is closed, and -rc1 is out there (git trees 
+updated, the tar-ball and patches are still uploading over my pitiful DSL 
+line - and as usual it may take a short while before mirroring takes 
+place and distributes things across the globe).
 
-Very good point. My manpages have led me astray to the dark side. :)
+The changes are too big for the mailing list, even just the shortlog. As 
+usual, lots of stuff happened. Most architectures got updated, ACPI 
+updates, networking, SCSI and sound, IDE, infiniband, input, DVB etc etc 
+etc.
 
-> So I think that patch should be s/&&/||/ and s/changelog/new one/
+There's also a fair amount of basic infrastructure updates here, with 
+things like the generic IRQ layer, the lockdep (oh, and priority- 
+inheritance mutex support) stuff by Ingo &co, some generic 
+timekeeping infrastructure ("clocksource") stuff, memory hotplug 
+(and page migration) support, etc etc.
 
-Yikes, I think sticking the OR operator in there would seriously suck,
-given that programs would then be unable to poll on more than 256 file
-descriptors (which actually happens, or so I've heard). Besides, it
-would also kill Tigran's work, as per the comment from the top of
-select.c:
+Git users should generally just select the part they are interested in, 
+and do something like
 
-012  *  24 January 2000
-013  *     Changed sys_poll()/do_poll() to use PAGE_SIZE chunk-based allocation
-014  *     of fds to overcome nfds < 16390 descriptors limit (Tigran Aivazian).
-015  */
+	git log v2.6.17.. -- drivers/usb/ | git shortlog | less -S
 
-> If anything we do here alters userspace-visible behaviour (and it probably will)
-> then it should be *exahustively* documented in the changelog, and probably dropped.
+to get a better and more focused view of what has changed.
 
-Arguments of the cited standard's sensibilities notwithstanding (given
-that it seems silly to limit the API in unnatural ways, as we can easily
-and provably handle more than 256 fds), it seems better to leave this as
-is. Thanks for the critical eye. :)
+Have fun,
 
-- Vadim Lobanov
+		Linus

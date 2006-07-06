@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWGFHaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbWGFHdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbWGFHaF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 03:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWGFHaF
+	id S964946AbWGFHdY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 03:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWGFHdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 03:30:05 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:2960 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964947AbWGFHaD (ORCPT
+	Thu, 6 Jul 2006 03:33:24 -0400
+Received: from mail.gmx.de ([213.165.64.21]:13025 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964946AbWGFHdX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 03:30:03 -0400
-Date: Thu, 6 Jul 2006 09:25:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, kmannth@gmail.com,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de,
-       Natalie.Protasevich@UNISYS.com
-Subject: Re: 2.6.17-mm6
-Message-ID: <20060706072529.GA12317@elte.hu>
-References: <20060705155037.7228aa48.akpm@osdl.org> <a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com> <20060705164457.60e6dbc2.akpm@osdl.org> <20060705164820.379a69ba.akpm@osdl.org> <a762e240607051705h33952e5elf6bd09c1ccea8ab4@mail.gmail.com> <20060705172545.815872b6.akpm@osdl.org> <m1u05v2st3.fsf@ebiederm.dsl.xmission.com> <20060705225905.53e61ca0.akpm@osdl.org> <20060705233123.dcb0a10b.akpm@osdl.org> <m17j2r2od0.fsf@ebiederm.dsl.xmission.com>
+	Thu, 6 Jul 2006 03:33:23 -0400
+X-Authenticated: #14349625
+Subject: 2.6.17-mm6 vmstat breakage
+From: Mike Galbraith <efault@gmx.de>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060705225905.53e61ca0.akpm@osdl.org>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	 <a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
+	 <20060705155037.7228aa48.akpm@osdl.org>
+	 <a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com>
+	 <20060705164457.60e6dbc2.akpm@osdl.org>
+	 <20060705164820.379a69ba.akpm@osdl.org>
+	 <a762e240607051705h33952e5elf6bd09c1ccea8ab4@mail.gmail.com>
+	 <20060705172545.815872b6.akpm@osdl.org>
+	 <m1u05v2st3.fsf@ebiederm.dsl.xmission.com>
+	 <20060705225905.53e61ca0.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 06 Jul 2006 09:38:43 +0200
+Message-Id: <1152171523.8098.22.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m17j2r2od0.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings,
 
-* Eric W. Biederman <ebiederm@xmission.com> wrote:
+My single P4/HT box is showing incorrect pgpgin pgpgout numbers with
+this kernel.  While disk throughput for dd if=/dev/hdc of=/dev=null
+bs=4096 count=1000000 produces about 57MB/S (up ~14% over 2.6.17 btw),
+vmstat (procps version 3.2.5) is only showing about 7MB/S.
 
-> What is scary is that at 1K cpus if we wind up using all of the irqs 
-> we start consuming 1Gig of RAM.  At only 128 cpus we are still in the 
-> 2M-15M territory, so that isn't too scary.  The point is that after a 
-> certain put the memory usage for all of those counters goes insane.
+Looking at the numbers in /proc/vmstat, it looks kinda like pgpgin might
+be pages instead of the KB it used to be, with some added >>=1 action on
+the side.  At any rate, the numbers below are horse-pookey ;-)
 
-we just need to move kernel_stat.irqs out of the per-cpu area and 
-alloc_percpu() a counter pointer for each IRQ that is truly set up. If 
-someone ends up using more than say 10,000 irqs we can reconsider. With 
-10K irqs we'd have 10MB of stat counter footprint - that's reasonable.
+ procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 1  1   3820   9400 810128  46052    0    0  7040     0 1163  1283  2  7 48 44
+ 1  1   3820   9220 810288  46156    0    0  7040     0 1151  1335  3  6 48 45
+ 1  1   3820   9280 810176  46204    0    0  7168     0 1156  1207  1  7 48 44
+ 2  1   3820   9408 810048  46068    0    0  7168     0 1160  1192  1  6 49 46
 
-	Ingo
+	-Mike
+

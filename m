@@ -1,82 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbWGFJXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbWGFJ23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965024AbWGFJXb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 05:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWGFJXa
+	id S965174AbWGFJ23 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 05:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbWGFJ22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 05:23:30 -0400
-Received: from mail.gmx.net ([213.165.64.21]:16788 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965024AbWGFJXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 05:23:30 -0400
-Cc: mtk-lkml@gmx.net, rlove@rlove.org, roland@redhat.com, eggert@cs.ucla.edu,
-       paire@ri.silicomp.fr, drepper@redhat.com, torvalds@osdl.com,
-       tytso@mit.edu, linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
-Content-Type: text/plain; charset="us-ascii"
-Date: Thu, 06 Jul 2006 11:23:28 +0200
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-In-Reply-To: <44AABB31.8060605@colorfullife.com>
-Message-ID: <20060706092328.320300@gmx.net>
+	Thu, 6 Jul 2006 05:28:28 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:48694 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S965174AbWGFJ22
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 05:28:28 -0400
+Date: Thu, 6 Jul 2006 11:27:03 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Message-ID: <20060706092703.GB9416@osiris.boeblingen.de.ibm.com>
+References: <20060705101059.66a762bf.akpm@osdl.org> <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org> <20060706081639.GA24179@elte.hu>
 MIME-Version: 1.0
-References: <44A92DC8.9000401@gmx.net> <44AABB31.8060605@colorfullife.com>
-Subject: Re: Strange Linux behaviour with blocking syscalls and stop
- signals+SIGCONT
-To: Manfred Spraul <manfred@colorfullife.com>
-X-Authenticated: #24879014
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060706081639.GA24179@elte.hu>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Manfred,
-
-> Michael Kerrisk wrote:
+> Subject: spinlocks: remove 'volatile'
+> From: Ingo Molnar <mingo@elte.hu>
 > 
-> > c) The Linux baehviour has been arbitrary across kernel versions and 
-> > system calls.  In particular, the following system calls showed this 
-> > behaviour in earlier kernel versions, but then the behaviour was 
-> > changed without forewarning and (AFAIK) without subsequent complaint:
-> >
-> > [snip]
-> >
-> >       * msgsnd() and msgrcv() in kernels before 2.6.9.
-> >
-> That was my change - and I even forgot to mention it in the changelog 
-> (hiding in shame):
-> I replaced -EINTR with -ERESTARTNOHAND.
+> remove 'volatile' from the spinlock types, it causes gcc to
+> generate really bad code. (and it's pointless anyway)
+> 
+> this reduces the non-debug SMP kernel's size by 0.2% (!).
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> ---
+>  include/asm-i386/spinlock_types.h   |    4 ++--
+>  include/asm-x86_64/spinlock_types.h |    4 ++--
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> Index: linux/include/asm-i386/spinlock_types.h
+> ===================================================================
+> --- linux.orig/include/asm-i386/spinlock_types.h
+> +++ linux/include/asm-i386/spinlock_types.h
+> @@ -6,13 +6,13 @@
+>  #endif
+>  
+>  typedef struct {
+> -	volatile unsigned int slock;
+> +	unsigned int slock;
+>  } raw_spinlock_t;
+>  
+>  #define __RAW_SPIN_LOCK_UNLOCKED	{ 1 }
+>  
+>  typedef struct {
+> -	volatile unsigned int lock;
+> +	unsigned int lock;
+>  } raw_rwlock_t;
 
-Well, that change was useful for my argument: the change appears 
-to have affected no-one, and so why not make it also for futex(), 
-sigtimedwait(), semop()/semtimedop(), inotify read(),
-epoll_wait()...
-
-> That hides signals that are handled in the kernel from user space - 
-> probably what we want.
-
-Yes.
-
-> Michael: Could you replace the EINTR in inotify.c with ERESTARTNOHAND? 
-> That should prevent the kernel from showing the signal to user space.
-> I'd guess that most instances of EINTR are wrong, except in device 
-> drivers: It means we return from the syscall, even if the signal handler 
-> wants to restart the system call.
-
-I'll try patching a kernel to s/EINTR/ERESTARTNOHAND/ in relevant
-places, and see how that goes.  If it goes well, I'll submit a 
-patch.
-
-Cheers,
-
-Michael
-
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+Shouldn't the __raw_read_can_lock and __raw_write_can_lock macros be changed too, just
+to make sure the value gets read every single time if it's used in a loop?
+Just like the __raw_spin_is_locked already has a (volatile signed char * cast)?

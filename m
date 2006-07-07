@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWGGAn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWGGA6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbWGGAn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 20:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWGGAn2
+	id S1751112AbWGGA6U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 20:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWGGA6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 20:43:28 -0400
-Received: from mga06.intel.com ([134.134.136.21]:53144 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751117AbWGGAn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 20:43:28 -0400
-X-IronPort-AV: i="4.06,215,1149490800"; 
-   d="scan'208"; a="61636018:sNHT43816612"
-Date: Thu, 6 Jul 2006 17:36:07 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, vatsa@in.ibm.com,
-       nickpiggin@yahoo.com.au, mingo@elte.hu, hawkes@sgi.com, dino@in.ibm.com,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH 2.6.16-mm1 2/2] sched_domains: Allocate sched_groups dynamically
-Message-ID: <20060706173607.F13512@unix-os.sc.intel.com>
-References: <20060325082804.GB17011@in.ibm.com> <20060706170151.cdb1dc6c.pj@sgi.com> <20060706170824.E13512@unix-os.sc.intel.com> <20060706173417.e7d1e39e.pj@sgi.com>
+	Thu, 6 Jul 2006 20:58:20 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:7366 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751112AbWGGA6U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 20:58:20 -0400
+Subject: Re: Linux v2.6.18-rc1: printk delays
+From: john stultz <johnstul@us.ibm.com>
+To: Tilman Schmidt <tilman@imap.cc>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44ADA84A.9000603@imap.cc>
+References: <6vtF8-99-7@gated-at.bofh.it>  <44AD9605.6000601@imap.cc>
+	 <1152229599.24656.175.camel@cog.beaverton.ibm.com>
+	 <44ADA84A.9000603@imap.cc>
+Content-Type: text/plain
+Date: Thu, 06 Jul 2006 17:58:17 -0700
+Message-Id: <1152233897.24656.179.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060706173417.e7d1e39e.pj@sgi.com>; from pj@sgi.com on Thu, Jul 06, 2006 at 05:34:17PM -0700
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 05:34:17PM -0700, Paul Jackson wrote:
-> > In short, multi-core was broken too and Srivatsa's patch fixed it.
+On Fri, 2006-07-07 at 02:18 +0200, Tilman Schmidt wrote:
+> On 07.07.2006 01:46, john stultz wrote:
 > 
-> Thanks for your quick response, Suresh.
+> > On Fri, 2006-07-07 at 01:00 +0200, Tilman Schmidt wrote:
+> > 
+> >>With kernel 2.6.18-rc1 [t]he last couple of printk
+> >>lines only appear if I hit a key on the system keyboard. [...]
+> > 
+> > Hmmm. I'm assuming this is i386?
 > 
-> My test earlier today that showed multi-core -not- broken must
-> have been flawed.
+> Yes, indeed. Sorry I didn't mention that.
 > 
-> I will rerun them tomorrow, carefully.
+> > Could you send me a full dmesg?
+> 
+> Attached.
 
-It is quite possible that the kernel you are testing doesn't have multi-core
-scheduler domain. If so, then you may not run into this issue.
+Thanks!
 
-thanks,
-suresh
+> > Also does booting w/ clocksource=jiffies change the behavior?
+> 
+> Nope. That didn't produce any discernible change.
+
+Hmmm. Just to make sure I understand the situation: If you log in via
+ssh, and run dmesg, you do see your driver's output, but that output
+just doesn't get to syslog until you press a key on your keyboard?
+
+
+thanks again,
+-john
+

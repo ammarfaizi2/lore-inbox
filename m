@@ -1,65 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWGGBog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWGGBo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750929AbWGGBog (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 21:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWGGBof
+	id S1751142AbWGGBo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 21:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWGGBoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 21:44:35 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:42273 "EHLO
-	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750827AbWGGBoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 21:44:34 -0400
-Date: Thu, 06 Jul 2006 19:40:21 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Generic interface for accelerometers (AMS, HDAPS, ...)
-In-reply-to: <fa.KtXXXVDoa0Coj62aBgf3NuqbZMo@ifi.uio.no>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Henrique de Moraes Holschuh <hmh@debian.org>, Pavel Machek <pavel@suse.cz>,
-       lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
-       hdaps-devel@lists.sourceforge.net, Stelian Pop <stelian@popies.net>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>
-Message-id: <44ADBB85.8030501@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.+TBrYxvBPaXCptm9JXDjMT6wk58@ifi.uio.no>
- <fa.KtXXXVDoa0Coj62aBgf3NuqbZMo@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Thu, 6 Jul 2006 21:44:55 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:52615
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750925AbWGGBoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 21:44:44 -0400
+From: Rob Landley <rob@landley.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Miniconfig revisited (2/3)
+Date: Thu, 6 Jul 2006 21:44:52 -0400
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org
+References: <200607061753.43518.rob@landley.net>
+In-Reply-To: <200607061753.43518.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607062144.52505.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
->>> HDAPS talks to the embedded controller using IO over the LPC bus, and not 
->>> to
->>> the accelerometer chip or to a simple A/D i2c chip which is used excusively
->>> for accelerometer access.  The EC interface for HDAPS data retrieval is
->>> not friendly to any errors, and hardlocks the machine somehow if any
->>> firmware bugs hit or if we violate any of the rules (that are not written
->>> anywhere) about how to access the EC without geting the SMBIOS unhappy.
->>>
->>> So, turning off HDAPS polling while it is not necessary really looks like a
->>> good idea overall.
->>>
->>> We are investigating the ACPI global lock as a way to at least get the
->>> SMBIOS to stay away from the EC while we talk to it, but we don't know if
->>> the entire SMBIOS firmware respects that lock.
->> It had better, that is exactly what the ACPI Global Lock is supposed to 
->> prevent (concurrent access to non-sharable resources between the OS and 
->> SMI code). The ACPI DSDT contains information on whether or not the 
->> machine requires the Global Lock in order to access the EC or whether it 
->> is safe to access without locking.
->  
-> Isn't that vaild only if you actully use ACPI to access the EC? (AFAIK
-> the HDAPS driver does direct port access.)
+Add scripts/shrinkconfig to create a miniconfig from an existing .config.
 
-Likely - and I think you would have to do that anyway, otherwise how are 
-you going to prevent the ACPI code from concurrently accessing the EC at 
-the same time as the HDAPS driver? In any case, only ACPI knows how to 
-safely access the EC (Global Lock needed, or not) so it should be the 
-one doing the accesses.
+Signed-off-by: Rob Landley <rob@landley.net>
+
+diff -ur linux-2.6.17.1/scripts/shrinkconfig linux-2.6.17.new/scripts/shrinkconfig
+--- linux-2.6.17.1/scripts/shrinkconfig	2006-07-06 16:34:39.000000000 -0400
++++ linux-2.6.17.new/scripts/shrinkconfig	2006-07-06 15:54:40.000000000 -0400
+@@ -0,0 +1,86 @@
++#!/bin/bash
++
++# shrinkconfig copyright 2006 by Rob Landley <rob@landley.net>
++# Licensed under the GNU General Public License version 2.
++
++if [ $# -ne 1 ]
++then
++  echo "Turns current .config into a miniconfig file."
++  echo "Usage: shrinkconfig mini.config"
++  exit 1
++fi
++
++if [ ! -f .config ]
++then
++  echo "Need a .config file to shrink."
++  exit 1
++fi
++LENGTH=$(cat .config | wc -l)
++
++OUTPUT="$1"
++cp .config "$OUTPUT"
++if [ $? -ne 0 ]
++then
++  echo "Couldn't create $OUTPUT"
++  exit 1
++fi
++
++# If we get interrupted, clean up the mess
++
++KERNELOUTPUT=""
++
++function cleanup
++{
++  echo
++  echo "Interrupted."
++  [ ! -z "$KERNELOUTPUT" ] && rm -rf "$KERNELOUTPUT"
++  rm "$OUTPUT"
++  exit 1
++}
++
++trap cleanup HUP INT QUIT TERM
++
++# Since the "O=" argument to make doesn't work recursively, we need to jump
++# through a few hoops to avoid overwriting the .config that we're shrinking.
++
++# If we're building out of tree, we'll have absolute paths to source and build
++# directories in the Makefile.
++
++KERNELSRC=$(sed -n -e 's/KERNELSRC[^/]*:=[^/]*//p' Makefile)
++[ -z "$KERNELSRC" ] && KERNELSRC=$(pwd)
++KERNELOUTPUT=`pwd`/.config.minitemp
++
++mkdir -p "$KERNELOUTPUT" || exit 1
++
++echo "Shrinking .config to $OUTPUT..."
++
++# Loop through all lines in the file 
++I=1
++while true
++do
++  if [ $I -gt $LENGTH ]
++  then
++    break
++  fi
++
++  echo -n -e "\r"$I/$LENGTH lines $(cat "$OUTPUT" | wc -c) bytes
++
++  sed -n "${I}!p" "$OUTPUT" > "$KERNELOUTPUT"/.config.test
++  # Do a config with this file
++  make -C "$KERNELSRC" O="$KERNELOUTPUT" allnoconfig KCONFIG_ALLCONFIG="$KERNELOUTPUT"/.config.test > /dev/null
++
++  # Compare.  The date changes, so expect a small difference each time.
++  D=$(diff "$KERNELOUTPUT"/.config .config | wc -l)
++  if [ $D -eq 4 ]
++  then
++    mv "$KERNELOUTPUT"/.config.test "$OUTPUT"
++    LENGTH=$[$LENGTH-1]
++  else
++    I=$[$I + 1]
++  fi
++done
++
++rm -rf "$KERNELOUTPUT"
++
++# One extra echo to preserve status line.
++echo
 
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+Never bet against the cheap plastic solution.

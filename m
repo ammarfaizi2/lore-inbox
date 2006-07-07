@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWGGR1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWGGR1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWGGR1c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 13:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWGGR1c
+	id S932228AbWGGR1x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 13:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWGGR1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 13:27:32 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:55504 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932220AbWGGR1b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 13:27:31 -0400
-Subject: Re: 2.6.17-mm6
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, jamagallon@ono.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44AE966F.8090506@garzik.org>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	 <20060705234347.47ef2600@werewolf.auna.net>
-	 <20060705155602.6e0b4dce.akpm@osdl.org>
-	 <20060706015706.37acb9af@werewolf.auna.net>
-	 <20060705170228.9e595851.akpm@osdl.org>
-	 <20060706163646.735f419f@werewolf.auna.net>
-	 <20060706164802.6085d203@werewolf.auna.net>
-	 <20060706234425.678cbc2f@werewolf.auna.net>
-	 <20060706145752.64ceddd0.akpm@osdl.org>
-	 <1152288168.20883.8.camel@localhost.localdomain>
-	 <20060707175509.14ea9187@werewolf.auna.net>
-	 <1152290643.20883.25.camel@localhost.localdomain>
-	 <20060707093432.571af16e.rdunlap@xenotime.net>
-	 <1152292196.20883.48.camel@localhost.localdomain>
-	 <44AE966F.8090506@garzik.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Jul 2006 18:44:05 +0100
-Message-Id: <1152294245.20883.52.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Fri, 7 Jul 2006 13:27:52 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:57350 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932188AbWGGR1v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 13:27:51 -0400
+Date: Fri, 7 Jul 2006 19:25:55 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Jan Glauber <jan.glauber@de.ibm.com>, linux-kernel@vger.kernel.org,
+       systemtap@sources.redhat.com
+Subject: Re: [PATCH] kprobes for s390 architecture
+Message-ID: <20060707172555.GA10452@osiris.ibm.com>
+References: <20060623150344.GL9446@osiris.boeblingen.de.ibm.com> <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com> <20060623222106.GA25410@osiris.ibm.com> <20060624113641.GB10403@osiris.ibm.com> <1151421789.5390.65.camel@localhost> <20060628055857.GA9452@osiris.boeblingen.de.ibm.com> <20060707172333.GA12068@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060707172333.GA12068@localhost.localdomain>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-07-07 am 13:14 -0400, ysgrifennodd Jeff Garzik:
-> Most older controllers always fall into pata_, most newer into sata_, 
-> and an odd few ata_
+> ok, I tried, but my "better ideas" made things worse. stop_machine_run() wins:
 > 
-> Its a bug if you don't help maintain these assumptions :)
+> void __kprobes arch_arm_kprobe(struct kprobe *p)
+> {
+>         struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
+>         unsigned long status = kcb->kprobe_status;
+>         struct ins_replace_args args;
+> 
+>         args.ptr = p->addr;
+>         args.old = p->opcode;
+>         args.new = BREAKPOINT_INSTRUCTION;
+> 
+>         kcb->kprobe_status = KPROBE_SWAP_INST;
+>         stop_machine_run(swap_instruction, &args, NR_CPUS);
+>         kcb->kprobe_status = status;
+> }
+> 
+> It works, and I guess at this point is the only way to do it. I'll send out a 
+> full patch with this and the other cleanups later.
 
-It would be very hard to do so. Almost anything can and (alas) did have
-sata bridges nailed to it early on. Almost every later highpoint,
-promise and ati chip has been found with SATA bridges attached.
-
-I've tried to follow the convention on the basis of "not usually found
-nailed to a SATA bridge chip". If we want to be strict then most of
-pata_ is ata_ and the prefix really isn't useful.
-
-Easy move to make and submit but is it actually useful to do so ?
-
-And what about IDE/SATA convertor boards ?
-
-Alan
-
+How fast is this if you have to exchange several hundred instructions?

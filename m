@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWGGGUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWGGGao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWGGGUq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 02:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWGGGUq
+	id S1751139AbWGGGao (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 02:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWGGGao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 02:20:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48279 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751190AbWGGGUp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 02:20:45 -0400
-Message-ID: <44ADFD43.4040204@redhat.com>
-Date: Thu, 06 Jul 2006 23:20:51 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Fri, 7 Jul 2006 02:30:44 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:38046 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP
+	id S1751058AbWGGGao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 02:30:44 -0400
+Message-ID: <44ADFFEA.1060508@nachtwindheim.de>
+Date: Fri, 07 Jul 2006 08:32:10 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
 MIME-Version: 1.0
-To: Michael Kerrisk <michael.kerrisk@gmx.net>
-CC: mtk-manpages@gmx.net, mtk-lkml@gmx.net, rlove@rlove.org, roland@redhat.com,
-       eggert@cs.ucla.edu, torvalds@osdl.org, tytso@mit.edu,
-       linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: Re: Strange Linux behaviour with blocking syscalls and stop signals+SIGCONT
-References: <44A92DC8.9000401@gmx.net> <44AABB31.8060605@colorfullife.com> <20060706092328.320300@gmx.net> <44AD599D.70803@colorfullife.com> <44AD5CB6.7000607@redhat.com> <20060707043220.186800@gmx.net> <44ADE9B6.1020900@redhat.com> <20060707050731.186770@gmx.net>
-In-Reply-To: <20060707050731.186770@gmx.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigBFE2EFCE5A58DFB09D356DC3"
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Neela.Kolli@engenio.com,
+       kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [KJ] [PATCH] fix legacy megaraid-driver to compile without CONFIG_PROC_FS
+References: <44AD6A5A.5060403@nachtwindheim.de> <20060706131447.ed46c3cb.rdunlap@xenotime.net> <44AD73AD.5080402@nachtwindheim.de> <20060706204252.GV26941@stusta.de> <44AD78A1.5010708@nachtwindheim.de> <20060706215957.GX26941@stusta.de>
+In-Reply-To: <20060706215957.GX26941@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigBFE2EFCE5A58DFB09D356DC3
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+>> The header I mean is /drivers/scsi/megaraid.h and is only used by megaraid.c.
+>> And there are the prototypes, in dependency of CONFIG_PROC_FS, for all these other proc-related functions.
+>> Thats why I decided to make the change there and not in megaraid.c .
+> 
+> Prototypes for static functions don't belong into header files.
+> 
+> That this has been done in megaraid.h in the past is something that 
+> should be cleaned up, not a good example.
+> 
+> cu
+> Adrian
+Allright,
+thats that kind of answer I wanted to hear. :)
 
-Michael Kerrisk wrote:
-> Yes; this is why I'm only proposing to change EINTR to ERESTARTNOHAND
-> at the moment.  The only userspace visible change that I think
-> this will bring about is in the stop+SIGCONT case.
-
-That's fine.
-
-
-> Changing EINTR
-> to ERESTARTSYS is likely to have more impact on userland (though=20
-> it still strikes me as a desirable gola to have all system calls=20
-> restartable via SA_RESTART).
-
-This is certainly a nice goal but it changes the current ABI.  Therefore
-it cannot be anything but an option and I don't assume we want to add so
-much cruft for just this.
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+Thanks and Greets,
+Henne
 
 
---------------enigBFE2EFCE5A58DFB09D356DC3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFErf1D2ijCOnn/RHQRAuSVAKC0zV6nwR45UbA/vgjbv2jOr2x6TACZARe2
-+K6h5tHU9OOQVV4Vb4Wkdkk=
-=PjBh
------END PGP SIGNATURE-----
-
---------------enigBFE2EFCE5A58DFB09D356DC3--

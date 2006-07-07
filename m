@@ -1,133 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWGGAhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWGGAj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWGGAhx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 20:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWGGAhM
+	id S1751125AbWGGAj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 20:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWGGAeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 20:37:12 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:58307 "EHLO
+	Thu, 6 Jul 2006 20:34:15 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:53187 "EHLO
 	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751120AbWGGAeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 20:34:18 -0400
-Message-Id: <200607070033.k670XbOC008682@ccure.user-mode-linux.org>
+	id S1751117AbWGGAdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 20:33:50 -0400
+Message-Id: <200607070033.k670XiwH008712@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org
 cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 5/19] UML - signal initialization cleanup
+Subject: [PATCH 11/19] UML - Remove os_isatty
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 06 Jul 2006 20:33:37 -0400
+Date: Thu, 06 Jul 2006 20:33:44 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It turns out that init_new_thread_signals is always called with
-altstack == 1, so we can eliminate the parameter.
+os_isatty can be made to disappear by moving maybe_sigio_broken from
+kernel to user code.  This also lets write_sigio_workaround become
+static.
 
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
 Index: linux-2.6.17/arch/um/include/os.h
 ===================================================================
---- linux-2.6.17.orig/arch/um/include/os.h	2006-06-20 17:24:29.000000000 -0400
-+++ linux-2.6.17/arch/um/include/os.h	2006-07-06 13:25:20.000000000 -0400
-@@ -199,7 +199,7 @@ extern int os_getpid(void);
- extern int os_getpgrp(void);
+--- linux-2.6.17.orig/arch/um/include/os.h	2006-07-06 13:25:20.000000000 -0400
++++ linux-2.6.17/arch/um/include/os.h	2006-07-06 13:28:50.000000000 -0400
+@@ -318,7 +318,6 @@ extern void reboot_skas(void);
  
- extern void init_new_thread_stack(void *sig_stack, void (*usr1_handler)(int));
--extern void init_new_thread_signals(int altstack);
-+extern void init_new_thread_signals(void);
- extern int run_kernel_thread(int (*fn)(void *), void *arg, void **jmp_ptr);
+ /* irq.c */
+ extern int os_waiting_for_events(struct irq_fd *active_fds);
+-extern int os_isatty(int fd);
+ extern int os_create_pollfd(int fd, int events, void *tmp_pfd, int size_tmpfds);
+ extern void os_free_irq_by_cb(int (*test)(struct irq_fd *, void *), void *arg,
+ 		struct irq_fd *active_fds, struct irq_fd ***last_irq_ptr2);
+@@ -330,9 +329,9 @@ extern void os_set_ioignore(void);
+ extern void init_irq_signals(int on_sigstack);
  
- extern int os_map_memory(void *virt, int fd, unsigned long long off,
-Index: linux-2.6.17/arch/um/kernel/skas/process_kern.c
+ /* sigio.c */
+-extern void write_sigio_workaround(void);
+ extern int add_sigio_fd(int fd, int read);
+ extern int ignore_sigio_fd(int fd);
++extern void maybe_sigio_broken(int fd, int read);
+ 
+ /* skas/trap */
+ extern void sig_handler_common_skas(int sig, void *sc_ptr);
+Index: linux-2.6.17/arch/um/kernel/irq.c
 ===================================================================
---- linux-2.6.17.orig/arch/um/kernel/skas/process_kern.c	2006-06-20 17:24:29.000000000 -0400
-+++ linux-2.6.17/arch/um/kernel/skas/process_kern.c	2006-07-06 13:25:20.000000000 -0400
-@@ -177,7 +177,7 @@ int start_uml_skas(void)
- 	if(proc_mm)
- 		userspace_pid[0] = start_userspace(0);
- 
--	init_new_thread_signals(1);
-+	init_new_thread_signals();
- 
- 	init_task.thread.request.u.thread.proc = start_kernel_proc;
- 	init_task.thread.request.u.thread.arg = NULL;
-Index: linux-2.6.17/arch/um/kernel/tt/exec_kern.c
-===================================================================
---- linux-2.6.17.orig/arch/um/kernel/tt/exec_kern.c	2006-03-23 16:40:20.000000000 -0500
-+++ linux-2.6.17/arch/um/kernel/tt/exec_kern.c	2006-07-06 13:25:20.000000000 -0400
-@@ -21,7 +21,7 @@
- static int exec_tramp(void *sig_stack)
- {
- 	init_new_thread_stack(sig_stack, NULL);
--	init_new_thread_signals(1);
-+	init_new_thread_signals();
- 	os_stop_process(os_getpid());
- 	return(0);
- }
-Index: linux-2.6.17/arch/um/kernel/tt/process_kern.c
-===================================================================
---- linux-2.6.17.orig/arch/um/kernel/tt/process_kern.c	2006-07-06 13:22:13.000000000 -0400
-+++ linux-2.6.17/arch/um/kernel/tt/process_kern.c	2006-07-06 13:25:20.000000000 -0400
-@@ -142,7 +142,7 @@ static void new_thread_handler(int sig)
- 		schedule_tail(current->thread.prev_sched);
- 	current->thread.prev_sched = NULL;
- 
--	init_new_thread_signals(1);
-+	init_new_thread_signals();
- 	enable_timer();
- 	free_page(current->thread.temp_stack);
- 	set_cmdline("(kernel thread)");
-Index: linux-2.6.17/arch/um/os-Linux/process.c
-===================================================================
---- linux-2.6.17.orig/arch/um/os-Linux/process.c	2006-06-20 17:24:29.000000000 -0400
-+++ linux-2.6.17/arch/um/os-Linux/process.c	2006-07-06 13:26:38.000000000 -0400
-@@ -250,25 +250,24 @@ void init_new_thread_stack(void *sig_sta
- 	if(usr1_handler) set_handler(SIGUSR1, usr1_handler, flags, -1);
+--- linux-2.6.17.orig/arch/um/kernel/irq.c	2006-07-06 13:28:43.000000000 -0400
++++ linux-2.6.17/arch/um/kernel/irq.c	2006-07-06 13:28:50.000000000 -0400
+@@ -110,19 +110,6 @@ void sigio_handler(int sig, union uml_pt
+ 	free_irqs();
  }
  
--void init_new_thread_signals(int altstack)
-+void init_new_thread_signals(void)
- {
--	int flags = altstack ? SA_ONSTACK : 0;
+-static void maybe_sigio_broken(int fd, int type)
+-{
+-	if (os_isatty(fd)) {
+-		if ((type == IRQ_WRITE) && !pty_output_sigio) {
+-			write_sigio_workaround();
+-			add_sigio_fd(fd, 0);
+-		} else if ((type == IRQ_READ) && !pty_close_sigio) {
+-			write_sigio_workaround();
+-			add_sigio_fd(fd, 1);
+-		}
+-	}
+-}
 -
--	set_handler(SIGSEGV, (__sighandler_t) sig_handler, flags,
-+	set_handler(SIGSEGV, (__sighandler_t) sig_handler, SA_ONSTACK,
- 		    SIGUSR1, SIGIO, SIGWINCH, SIGALRM, SIGVTALRM, -1);
--	set_handler(SIGTRAP, (__sighandler_t) sig_handler, flags,
-+	set_handler(SIGTRAP, (__sighandler_t) sig_handler, SA_ONSTACK,
- 		    SIGUSR1, SIGIO, SIGWINCH, SIGALRM, SIGVTALRM, -1);
--	set_handler(SIGFPE, (__sighandler_t) sig_handler, flags,
-+	set_handler(SIGFPE, (__sighandler_t) sig_handler, SA_ONSTACK,
- 		    SIGUSR1, SIGIO, SIGWINCH, SIGALRM, SIGVTALRM, -1);
--	set_handler(SIGILL, (__sighandler_t) sig_handler, flags,
-+	set_handler(SIGILL, (__sighandler_t) sig_handler, SA_ONSTACK,
- 		    SIGUSR1, SIGIO, SIGWINCH, SIGALRM, SIGVTALRM, -1);
--	set_handler(SIGBUS, (__sighandler_t) sig_handler, flags,
-+	set_handler(SIGBUS, (__sighandler_t) sig_handler, SA_ONSTACK,
- 		    SIGUSR1, SIGIO, SIGWINCH, SIGALRM, SIGVTALRM, -1);
- 	set_handler(SIGUSR2, (__sighandler_t) sig_handler,
--		    flags, SIGUSR1, SIGIO, SIGWINCH, SIGALRM, SIGVTALRM, -1);
-+		    SA_ONSTACK, SIGUSR1, SIGIO, SIGWINCH, SIGALRM, SIGVTALRM,
-+		    -1);
- 	signal(SIGHUP, SIG_IGN);
+ static DEFINE_SPINLOCK(irq_lock);
  
--	init_irq_signals(altstack);
-+	init_irq_signals(1);
+ int activate_fd(int irq, int fd, int type, void *dev_id)
+@@ -221,7 +208,7 @@ int activate_fd(int irq, int fd, int typ
+ 	/* This calls activate_fd, so it has to be outside the critical
+ 	 * section.
+ 	 */
+-	maybe_sigio_broken(fd, type);
++	maybe_sigio_broken(fd, (type == IRQ_READ));
+ 
+ 	return(0);
+ 
+@@ -318,7 +305,7 @@ void reactivate_fd(int fd, int irqnum)
+ 	/* This calls activate_fd, so it has to be outside the critical
+ 	 * section.
+ 	 */
+-	maybe_sigio_broken(fd, irq->type);
++	maybe_sigio_broken(fd, (irq->type == IRQ_READ));
  }
  
- int run_kernel_thread(int (*fn)(void *), void *arg, void **jmp_ptr)
-Index: linux-2.6.17/arch/um/os-Linux/skas/process.c
+ void deactivate_fd(int fd, int irqnum)
+Index: linux-2.6.17/arch/um/os-Linux/irq.c
 ===================================================================
---- linux-2.6.17.orig/arch/um/os-Linux/skas/process.c	2006-06-20 17:24:29.000000000 -0400
-+++ linux-2.6.17/arch/um/os-Linux/skas/process.c	2006-07-06 13:25:20.000000000 -0400
-@@ -159,7 +159,7 @@ static int userspace_tramp(void *stack)
+--- linux-2.6.17.orig/arch/um/os-Linux/irq.c	2006-07-06 13:25:08.000000000 -0400
++++ linux-2.6.17/arch/um/os-Linux/irq.c	2006-07-06 13:28:50.000000000 -0400
+@@ -52,11 +52,6 @@ int os_waiting_for_events(struct irq_fd 
+ 	return n;
+ }
  
- 	ptrace(PTRACE_TRACEME, 0, 0, 0);
+-int os_isatty(int fd)
+-{
+-	return isatty(fd);
+-}
+-
+ int os_create_pollfd(int fd, int events, void *tmp_pfd, int size_tmpfds)
+ {
+ 	if (pollfds_num == pollfds_size) {
+Index: linux-2.6.17/arch/um/os-Linux/sigio.c
+===================================================================
+--- linux-2.6.17.orig/arch/um/os-Linux/sigio.c	2006-06-20 17:24:29.000000000 -0400
++++ linux-2.6.17/arch/um/os-Linux/sigio.c	2006-07-06 13:28:50.000000000 -0400
+@@ -233,7 +233,7 @@ static struct pollfd *setup_initial_poll
+ 	return p;
+ }
  
--	init_new_thread_signals(1);
-+	init_new_thread_signals();
- 	enable_timer();
+-void write_sigio_workaround(void)
++static void write_sigio_workaround(void)
+ {
+ 	unsigned long stack;
+ 	struct pollfd *p;
+@@ -314,6 +314,18 @@ out_close1:
+ 	close(l_write_sigio_fds[1]);
+ }
  
- 	if(!proc_mm){
++void maybe_sigio_broken(int fd, int read)
++{
++	if(!isatty(fd))
++		return;
++
++	if((read || pty_output_sigio) && (!read || pty_close_sigio))
++		return;
++
++	write_sigio_workaround();
++	add_sigio_fd(fd, read);
++}
++
+ void sigio_cleanup(void)
+ {
+ 	if(write_sigio_pid != -1){
 

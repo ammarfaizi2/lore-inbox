@@ -1,142 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWGGQNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWGGQNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWGGQNW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 12:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWGGQNW
+	id S932155AbWGGQNT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 12:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWGGQNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 12:13:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45270 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932147AbWGGQNU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 12:13:20 -0400
-Date: Fri, 7 Jul 2006 12:13:14 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: netdev@vger.kernel.org
-Subject: starting mc triggers lockdep
-Message-ID: <20060707161314.GA3223@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+	Fri, 7 Jul 2006 12:13:19 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:42897 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932155AbWGGQNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 12:13:19 -0400
+Date: Fri, 7 Jul 2006 13:13:10 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Michael Kerrisk" <mtk-manpages@gmx.net>, axboe@suse.de,
+       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
+       vendor-sec@lst.de
+Subject: Re: splice/tee bugs?
+Message-ID: <20060707131310.0e382585@doriath.conectiva>
+In-Reply-To: <20060707040749.97f8c1fc.akpm@osdl.org>
+References: <20060707070703.165520@gmx.net>
+	<20060707040749.97f8c1fc.akpm@osdl.org>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.4.0-rc2 (GTK+ 2.9.4; i586-mandriva-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.6.18rc1 + a selection of the lockdep tweaks found so far,
-midnight commander makes the kernel unhappy.
+On Fri, 7 Jul 2006 04:07:49 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-		Dave
+| On Fri, 07 Jul 2006 09:07:03 +0200
+| "Michael Kerrisk" <mtk-manpages@gmx.net> wrote:
+| 
+| > c) Occasionally the command line just hangs, producing no output.
+| >    In this case I can't kill it with ^C or ^\.  This is a 
+| >    hard-to-reproduce behaviour on my (x86) system, but I have 
+| >    seen it several times by now.
+| 
+| aka local DoS.  Please capture sysrq-T output next time.
 
+ If I run lots of them in parallel, I get the following OOPs in a few
+seconds:
 
-=======================================================
-[ INFO: possible circular locking dependency detected ]
--------------------------------------------------------
-mc/4913 is trying to acquire lock:
- (sk_lock-AF_INET){--..}, at: [<ffffffff8022800c>] tcp_sendmsg+0x1f/0xb1a
-
-but task is already holding lock:
- (&inode->i_mutex){--..}, at: [<ffffffff802692e0>] mutex_lock+0x2a/0x2e
-
-which lock already depends on the new lock.
-
-
-the existing dependency chain (in reverse order) is:
-
--> #2 (&inode->i_mutex){--..}:
-       [<ffffffff802ab6d5>] lock_acquire+0x4a/0x69
-       [<ffffffff80269102>] __mutex_lock_slowpath+0xeb/0x29f
-       [<ffffffff802692df>] mutex_lock+0x29/0x2e
-       [<ffffffff8030f4a0>] create_dir+0x2c/0x1e2
-       [<ffffffff8030fa5b>] sysfs_create_dir+0x59/0x78
-       [<ffffffff8034d2e2>] kobject_add+0x114/0x1d8
-       [<ffffffff803bb1e7>] class_device_add+0xb5/0x49d
-       [<ffffffff804300b1>] netdev_register_sysfs+0x98/0xa2
-       [<ffffffff80426f58>] register_netdevice+0x28c/0x376
-       [<ffffffff8042709c>] register_netdev+0x5a/0x69
-       [<ffffffff8098aa12>] loopback_init+0x4e/0x53
-       [<ffffffff8098a918>] net_olddevs_init+0xb/0xb7
-       [<ffffffff80270918>] init+0x177/0x348
-       [<ffffffff80263cdd>] child_rip+0x7/0x12
-
--> #1 (rtnl_mutex){--..}:
-       [<ffffffff802ab6d5>] lock_acquire+0x4a/0x69
-       [<ffffffff80269102>] __mutex_lock_slowpath+0xeb/0x29f
-       [<ffffffff802692df>] mutex_lock+0x29/0x2e
-       [<ffffffff8042e0a2>] rtnl_lock+0xf/0x12
-       [<ffffffff8045c7b8>] ip_mc_leave_group+0x1e/0xae
-       [<ffffffff804467f7>] do_ip_setsockopt+0x6ad/0x9b2
-       [<ffffffff80446baa>] ip_setsockopt+0x2a/0x84
-       [<ffffffff80454a55>] udp_setsockopt+0xd/0x1c
-       [<ffffffff8041f7ea>] sock_common_setsockopt+0xe/0x11
-       [<ffffffff8041e965>] sys_setsockopt+0x8e/0xb4
-       [<ffffffff80262f19>] tracesys+0xd0/0xdb
-
--> #0 (sk_lock-AF_INET){--..}:
-       [<ffffffff802ab6d5>] lock_acquire+0x4a/0x69
-       [<ffffffff802371ea>] lock_sock+0xd4/0xe7
-       [<ffffffff8022800b>] tcp_sendmsg+0x1e/0xb1a
-       [<ffffffff80248f4b>] inet_sendmsg+0x45/0x53
-       [<ffffffff80259d25>] sock_sendmsg+0x110/0x130
-       [<ffffffff8041f462>] kernel_sendmsg+0x3c/0x52
-       [<ffffffff885399e9>] xs_tcp_send_request+0x117/0x320 [sunrpc]
-       [<ffffffff885388d5>] xprt_transmit+0x105/0x21e [sunrpc]
-       [<ffffffff8853771e>] call_transmit+0x1f4/0x239 [sunrpc]
-       [<ffffffff8853c06e>] __rpc_execute+0x9b/0x1e6 [sunrpc]
-       [<ffffffff8853c1de>] rpc_execute+0x1a/0x1d [sunrpc]
-       [<ffffffff885364ad>] rpc_call_sync+0x87/0xb9 [sunrpc]
-       [<ffffffff885a2587>] nfs3_rpc_wrapper+0x2e/0x74 [nfs]
-       [<ffffffff885a2a14>] nfs3_proc_lookup+0xe0/0x163 [nfs]
-       [<ffffffff88594b10>] nfs_lookup+0xef/0x1d6 [nfs]
-       [<ffffffff8020d300>] do_lookup+0xd0/0x18c
-       [<ffffffff80209f27>] __link_path_walk+0xa29/0xf7d
-       [<ffffffff8020f076>] link_path_walk+0x69/0x101
-       [<ffffffff8020a22b>] __link_path_walk+0xd2d/0xf7d
-       [<ffffffff8020f076>] link_path_walk+0x69/0x101
-       [<ffffffff8020d096>] do_path_lookup+0x27b/0x2e7
-       [<ffffffff802258da>] __user_walk_fd+0x40/0x5c
-       [<ffffffff8022ae4a>] vfs_stat_fd+0x26/0x5d
-       [<ffffffff80225592>] sys_newstat+0x21/0x3c
-       [<ffffffff80262f19>] tracesys+0xd0/0xdb
-
-other info that might help us debug this:
-
-1 lock held by mc/4913:
- #0:  (&inode->i_mutex){--..}, at: [<ffffffff802692e0>] mutex_lock+0x2a/0x2e
-
-stack backtrace:
-
-Call Trace:
- [<ffffffff80271910>] show_trace+0xaa/0x23d
- [<ffffffff80271ab8>] dump_stack+0x15/0x17
- [<ffffffff802a992f>] print_circular_bug_tail+0x6c/0x77
- [<ffffffff802aaf34>] __lock_acquire+0x853/0xa54
- [<ffffffff802ab6d6>] lock_acquire+0x4b/0x69
- [<ffffffff802371eb>] lock_sock+0xd5/0xe7
- [<ffffffff8022800c>] tcp_sendmsg+0x1f/0xb1a
- [<ffffffff80248f4c>] inet_sendmsg+0x46/0x53
- [<ffffffff80259d26>] sock_sendmsg+0x111/0x130
- [<ffffffff8041f463>] kernel_sendmsg+0x3d/0x52
- [<ffffffff885399ea>] :sunrpc:xs_tcp_send_request+0x118/0x320
- [<ffffffff885388d6>] :sunrpc:xprt_transmit+0x106/0x21e
- [<ffffffff8853771f>] :sunrpc:call_transmit+0x1f5/0x239
- [<ffffffff8853c06f>] :sunrpc:__rpc_execute+0x9c/0x1e6
- [<ffffffff8853c1df>] :sunrpc:rpc_execute+0x1b/0x1d
- [<ffffffff885364ae>] :sunrpc:rpc_call_sync+0x88/0xb9
- [<ffffffff885a2588>] :nfs:nfs3_rpc_wrapper+0x2f/0x74
- [<ffffffff885a2a15>] :nfs:nfs3_proc_lookup+0xe1/0x163
- [<ffffffff88594b11>] :nfs:nfs_lookup+0xf0/0x1d6
- [<ffffffff8020d301>] do_lookup+0xd1/0x18c
- [<ffffffff80209f28>] __link_path_walk+0xa2a/0xf7d
- [<ffffffff8020f077>] link_path_walk+0x6a/0x101
- [<ffffffff8020a22c>] __link_path_walk+0xd2e/0xf7d
- [<ffffffff8020f077>] link_path_walk+0x6a/0x101
- [<ffffffff8020d097>] do_path_lookup+0x27c/0x2e7
- [<ffffffff802258db>] __user_walk_fd+0x41/0x5c
- [<ffffffff8022ae4b>] vfs_stat_fd+0x27/0x5d
- [<ffffffff80225593>] sys_newstat+0x22/0x3c
- [<ffffffff80262f1a>] tracesys+0xd1/0xdb
+Jul  7 13:04:52 doriath kernel: [  105.041722] BUG: unable to handle kernel NULL pointer dereference at virtual address 00000018
+Jul  7 13:04:52 doriath kernel: [  105.048885]  printing eip:
+Jul  7 13:04:52 doriath kernel: [  105.056095] c01790c7
+Jul  7 13:04:52 doriath kernel: [  105.056097] *pde = 00000000
+Jul  7 13:04:52 doriath kernel: [  105.063516] Oops: 0000 [#1]
+Jul  7 13:04:52 doriath kernel: [  105.071116] Modules linked in: ipv6 capability commoncap snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq via_rhine mii snd_pcm_oss snd_mixer_oss af_packet snd_via82xx gameport snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore rfcomm l2cap bluetooth ide_cd cdrom binfmt_misc loop sata_via libata scsi_mod video thermal processor fan container button battery asus_acpi ac amd64_agp agpgart ehci_hcd uhci_hcd usbcore xfs
+Jul  7 13:04:52 doriath kernel: [  105.129492] CPU:    0
+Jul  7 13:04:52 doriath kernel: [  105.129494] EIP:    0060:[sys_tee+371/924]    Not tainted VLI
+Jul  7 13:04:52 doriath kernel: [  105.129494] EIP:    0060:[<c01790c7>]    Not tainted VLI
+Jul  7 13:04:52 doriath kernel: [  105.129495] EFLAGS: 00010293   (2.6.18-rc1 #8) 
+Jul  7 13:04:52 doriath kernel: [  105.170966] EIP is at sys_tee+0x173/0x39c
+Jul  7 13:04:52 doriath kernel: [  105.185414] eax: d62bfa00   ebx: 00000000   ecx: 00000000   edx: d62bfa98
+Jul  7 13:04:52 doriath kernel: [  105.200731] esi: d7434800   edi: d62bfa98   ebp: d5d5cfb4   esp: d5d5cf84
+Jul  7 13:04:52 doriath kernel: [  105.216341] ds: 007b   es: 007b   ss: 0068
+Jul  7 13:04:52 doriath kernel: [  105.232017] Process ktee (pid: 12605, ti=d5d5c000 task=d9cce0b0 task.ti=d5d5c000)
+Jul  7 13:04:52 doriath kernel: [  105.233023] Stack: d5eede40 00000000 d827ac00 00000002 00000000 d62bfa00 00000000 00000000 
+Jul  7 13:04:52 doriath kernel: [  105.250147]        00000000 00000000 00000000 b7f72920 d5d5c000 c0102b7d 00000000 00000001 
+Jul  7 13:04:52 doriath kernel: [  105.267904]        7fffffff 00000000 b7f72920 bf8f37b8 0000013b 0000007b 0000007b 0000013b 
+Jul  7 13:04:52 doriath kernel: [  105.286091] Call Trace:
+Jul  7 13:04:52 doriath kernel: [  105.321546]  [show_stack_log_lvl+140/151] show_stack_log_lvl+0x8c/0x97
+Jul  7 13:04:52 doriath kernel: [  105.321546]  [<c010422c>] show_stack_log_lvl+0x8c/0x97
+Jul  7 13:04:52 doriath kernel: [  105.340519]  [show_registers+292/401] show_registers+0x124/0x191
+Jul  7 13:04:52 doriath kernel: [  105.340519]  [<c0104397>] show_registers+0x124/0x191
+Jul  7 13:04:52 doriath kernel: [  105.359642]  [die+332/617] die+0x14c/0x269
+Jul  7 13:04:53 doriath kernel: [  105.359642]  [<c0104550>] die+0x14c/0x269
+Jul  7 13:04:53 doriath kernel: [  105.378978]  [do_page_fault+1091/1310] do_page_fault+0x443/0x51e
+Jul  7 13:04:53 doriath kernel: [  105.378978]  [<c02a6521>] do_page_fault+0x443/0x51e
+Jul  7 13:04:53 doriath kernel: [  105.398696]  [error_code+57/64] error_code+0x39/0x40
+Jul  7 13:04:53 doriath kernel: [  105.398696]  [<c0103d49>] error_code+0x39/0x40
+Jul  7 13:04:53 doriath kernel: [  105.418612]  [sysenter_past_esp+86/121] sysenter_past_esp+0x56/0x79
+Jul  7 13:04:54 doriath kernel: [  105.418612]  [<c0102b7d>] sysenter_past_esp+0x56/0x79
+Jul  7 13:04:54 doriath kernel: [  105.438935] Code: 00 00 00 89 d0 8b 55 e4 03 42 6c 83 e0 0f 6b c0 14 8d 7c 10 70 8b 46 68 89 45 e0 83 f8 0f 77 5c 8b 4f 0c 8b 5e 6c 89 fa 8b 45 e4 <ff> 51 18 03 5d e0 83 e3 0f 89 fa 6b db 14 b9 14 00 00 00 8d 5c 
+Jul  7 13:04:54 doriath kernel: [  105.506704] EIP: [sys_tee+371/924] sys_tee+0x173/0x39c SS:ESP 0068:d5d5cf84
+Jul  7 13:04:54 doriath kernel: [  105.506704] EIP: [<c01790c7>] sys_tee+0x173/0x39c SS:ESP 0068:d5d5cf84
 
 -- 
-http://www.codemonkey.org.uk
+Luiz Fernando N. Capitulino

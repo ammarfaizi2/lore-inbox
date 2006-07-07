@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWGGK7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWGGLAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWGGK7H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 06:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWGGK7H
+	id S932124AbWGGLAV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 07:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWGGLAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 06:59:07 -0400
-Received: from sandesha.sasken.com ([164.164.56.19]:46750 "EHLO
-	mail3.sasken.com") by vger.kernel.org with ESMTP id S932127AbWGGK7F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 06:59:05 -0400
-Date: Fri, 7 Jul 2006 16:28:45 +0530 (IST)
-From: Subbu <subbu@sasken.com>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-cc: subbu2k_av@yahoo.com
-Subject: kernel thread priority
-Message-ID: <Pine.GSO.4.64.0607071626210.2230@sunm21.sasken.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset=US-ASCII;
-	format=flowed
-X-imss-version: 2.037
-X-imss-result: Passed
-X-imss-scores: Clean:46.83769 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:3 C:2 M:3 S:3 R:3 (0.5000 0.5000)
+	Fri, 7 Jul 2006 07:00:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14543 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932124AbWGGLAT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 07:00:19 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <9736.1152269688@warthog.cambridge.redhat.com> 
+References: <9736.1152269688@warthog.cambridge.redhat.com>  <20060706162731.577748e7.akpm@osdl.org> <20060706105223.97b9a531.akpm@osdl.org> <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com> <20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com> <26133.1152211129@warthog.cambridge.redhat.com> 
+To: David Howells <dhowells@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, bernds_cb1@t-online.de,
+       sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/6] FDPIC: Add coredump capability for the ELF-FDPIC binfmt [try #3] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 07 Jul 2006 12:00:13 +0100
+Message-ID: <15239.1152270013@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Howells <dhowells@redhat.com> wrote:
 
-Hi,
+> That doesn't compile... you're lacking file arguments.
 
-     I have to run some part of my network driver code in a thread which 
-should have highest priority.
+Even more fun:
 
-     I am working on 2.4.20-8 redhat 9 kernel version.
-
-     i am using kernel_thread function to run the current process in a
-thread.
-
-     How can i set the priority level of the same to the highest .
-
-     please help me in this regard. what are the functions i should use
-for this
-
-
-   Thanx in advance
-   subbu
+warthog>grep -r DUMP_WRITE include/
+include/asm/elf.h:              DUMP_WRITE(&phdr, sizeof(phdr));                     \
+include/asm/elf.h:                      DUMP_WRITE((void *) vsyscall_phdrs[i].p_vaddr,        \
+include/asm-um/elf-i386.h:              DUMP_WRITE(&phdr, sizeof(phdr));             \
+include/asm-um/elf-i386.h:                      DUMP_WRITE((void *) phdrp[i].p_vaddr,                 \
+include/asm-ia64/elf.h:         DUMP_WRITE(&phdr, sizeof(phdr));               \
+include/asm-ia64/elf.h:                 DUMP_WRITE((void *) gate_phdrs[i].p_vaddr,            \
+include/asm-i386/elf.h:         DUMP_WRITE(&phdr, sizeof(phdr));                     \
+include/asm-i386/elf.h:                 DUMP_WRITE((void *) vsyscall_phdrs[i].p_vaddr,        \
 
 
+For another day, I think...
 
-"SASKEN RATED Among THE Top 3 BEST COMPANIES TO WORK FOR IN INDIA - SURVEY 2005 conducted by the BUSINESS TODAY - Mercer - TNS India"
-
-                           SASKEN BUSINESS DISCLAIMER
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+David

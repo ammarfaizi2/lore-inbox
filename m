@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWGGV7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWGGWBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbWGGV7f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 17:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWGGV7f
+	id S932342AbWGGWBF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 18:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWGGWBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 17:59:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56987 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932339AbWGGV7e (ORCPT
+	Fri, 7 Jul 2006 18:01:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:43703 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932336AbWGGWBD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 17:59:34 -0400
-Date: Fri, 7 Jul 2006 14:59:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: Krzysztof Halasa <khc@pm.waw.pl>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-In-Reply-To: <Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.64.0607071456430.3869@g5.osdl.org>
-References: <20060705114630.GA3134@elte.hu><20060705101059.66a762bf.akpm@osdl.org><20060705193551.GA13070@elte.hu><20060705131824.52fa20ec.akpm@osdl.org><Pine.LNX.4.64.0607051332430.12404@g5.osdl.org><20060705204727.GA16615@elte.hu><Pine.LNX.4.64.0607051411460.12404@g5.osdl.org><20060705214502.GA27597@elte.hu><Pine.LNX.4.64.0607051458200.12404@g5.osdl.org><Pine.LNX.4.64.0607051555140.12404@g5.osdl.org><20060706081639.GA24179@elte.hu><Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com><Pine.LNX.4.64.0607060856080.12404@g5.osdl.org><Pine.LNX.4.64.0607060911530.12404@g5.osdl.org><Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com>
- <m34pxt8emn.fsf@defiant.localdomain> <Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
- <Pine.LNX.4.64.0607071318570.3869@g5.osdl.org> <Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com>
+	Fri, 7 Jul 2006 18:01:03 -0400
+From: Neil Brown <neilb@suse.de>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Date: Sat, 8 Jul 2006 08:00:55 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17582.55703.209583.446356@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: Kernel 2.6.17 and RAID5 Grow Problem (critical section backup)
+In-Reply-To: message from Justin Piszcz on Friday July 7
+References: <Pine.LNX.4.64.0607070830450.2648@p34.internal.lan>
+	<Pine.LNX.4.64.0607070845280.2648@p34.internal.lan>
+	<Pine.LNX.4.64.0607070849140.3010@p34.internal.lan>
+	<Pine.LNX.4.64.0607071037190.5153@p34.internal.lan>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday July 7, jpiszcz@lucidpixels.com wrote:
+> >> 
+> >> Jul  7 08:44:59 p34 kernel: [4295845.933000] raid5: reshape: not enough 
+> >> stripes.  Needed 512
+> >> Jul  7 08:44:59 p34 kernel: [4295845.962000] md: couldn't update array 
+> >> info. -28
+> >> 
+> >> So the RAID5 reshape only works if you use a 128kb or smaller chunk size?
+> >> 
+> 
+> Neil,
+> 
+> Any comments?
+> 
 
+Yes.   This is something I need to fix in the next mdadm.
+You need to tell md/raid5 to increase the size of the stripe cache
+before the grow can proceed.  You can do this with
 
-On Fri, 7 Jul 2006, linux-os (Dick Johnson) wrote:
->
-> This is a bait and switch argument. The code was displayed to show
-> the compiler output, not an example of good coding practice.
+  echo 600 > /sys/block/md3/md/stripe_cache_size
 
-NO IT IS NOT.
+Then the --grow should work.  The next mdadm will do this for you.
 
-The whole point of my argument is simple:
+NeilBrown
 
-> > 	"'volatile' is useless. The things it did 30 years ago are much
-> > 	 more complex these days, and need to be tied to much more
-> > 	 detailed rules that depend on the actual particular problem,
-> > 	 rather than one keyword to the compiler that doesn't actually
-> > 	 give enough information for the compiler to do anything useful"
-
-And dammit, if you cannot admit that, then you're not worth discussing 
-with.
-
-"volatile" is useless. It's a big hammer in a world where the nails aren't 
-nails any more, they are screws, thumb-tacks, and spotwelding.
-
-It still makes a difference for code generation, OF COURSE. But it's the 
-wrong thing to use.
-
-		Linus

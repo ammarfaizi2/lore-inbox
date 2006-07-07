@@ -1,133 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWGGATw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWGGAUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWGGATw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 20:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWGGATw
+	id S1751105AbWGGAUy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 20:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWGGAUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 20:19:52 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:34493 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751100AbWGGATv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 20:19:51 -0400
-Date: Thu, 6 Jul 2006 16:39:09 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>, dipankar@in.ibm.com,
-       Ingo Molnar <mingo@elte.hu>, tytso@us.ibm.com,
-       Darren Hart <dvhltc@us.ibm.com>, oleg@tv-sign.ru,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [PATCH 1/2] srcu-3: RCU variant permitting read-side blocking
-Message-ID: <20060706233909.GN1316@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <Pine.LNX.4.44L0.0607061603320.5768-100000@iolanthe.rowland.org> <1152226204.21787.2093.camel@stark>
+	Thu, 6 Jul 2006 20:20:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59098 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751105AbWGGAUw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 20:20:52 -0400
+Date: Thu, 6 Jul 2006 17:24:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Mr. Berkley Shands" <bshands@exegy.com>
+Cc: linux-kernel@vger.kernel.org, dlloyd@exegy.com
+Subject: Re: 2.6.17 x86_64 regression - reboot fails due to deadlock
+Message-Id: <20060706172424.01765d67.akpm@osdl.org>
+In-Reply-To: <44AD37C2.50601@exegy.com>
+References: <44AD37C2.50601@exegy.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152226204.21787.2093.camel@stark>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 03:50:03PM -0700, Matt Helsley wrote:
-> On Thu, 2006-07-06 at 16:28 -0400, Alan Stern wrote:
-> > I've been trying to come up with a way to allow SRCU structures to be
-> > initialized statically rather than dynamically.  The per-cpu data makes it
-> > quite hard.  Not only do you have to use different routines to access
-> > static vs. dynamic per-cpu data, there's just no good way to write a
-> > static initializer.  This is because the per-cpu data requires its own
-> > separate definition, and there's no way to call DEFINE_PER_CPU from within 
-> > an initializer.
-> > 
-> > Here, in outline, is the best I've been able to come up with.  It uses a
-> > function pointer member to select the appropriate sort of per-cpu data
-> > access.  You would use it like this:
-> > 
-> > PREDEFINE_SRCU(s);
-> > static DEFINE_SRCU(s);
-> > ...
-> > idx = srcu_read_lock(&s);
-> > ... etc ...
-> > 
-> > Alternative possibilities involve an entire parallel implementation for
-> > statically-initialized structures (which seems excessive) or using a
-> > runtime test instead of a function pointer to select the dereferencing
-> > mechanism.
-> > 
-> > Can anybody suggest anything better?
-> > 
-> > Alan Stern
+"Mr. Berkley Shands" <bshands@exegy.com> wrote:
+>
+> With a SuperMicro H8DC8 (nvidia chipset), Dual Opteron 285's, 16GB, 
+> Centos 4.3 -
 > 
-> I started to come up with something similar but did not get as far. I
-> suspect the runtime test you're suggesting would look like:
+> Under 2.6.16 both the tyan 2895 and the supermicro H8DC8 both will 
+> reboot corectly,
+> in kernel/sys.c machine_restart() gets called. But with the changes to 
+> sys.c under 2.6.17,
+> a new path is introduced, calling void kernel_restart_prepare(char *cmd)
+> which calls blocking_notifier_call_chain(&reboot_notifier_list, 
+> SYS_RESTART, cmd); (line 588)
+> Which looks at the first element of the notifier list, and blocks 
+> forever. But ONLY on the supermicro.
+> The tyan, a very similar motherboard does not deadlock. It returns and 
+> still calls machine_restart().
+> So neither reboot nor "shutdown -fh now" actually get to the bios calls.
 > 
-> #include <asm/sections.h>
+> on the supermicro, (linux-2.6.17/kernel/sys.c)
 > 
-> ...
-> if ((per_cpu_ptr >= __per_cpu_start) && (per_cpu_ptr < __per_cpu_end)) {
->     /* staticly-allocated per-cpu data */
->     ...
-> } else {
->     /* dynamically-allocated per-cpu data */
->     ...
+> static int __kprobes notifier_call_chain(struct notifier_block **nl,
+>                 unsigned long val, void *v)
+> {
+>         int ret = NOTIFY_DONE;
+>         struct notifier_block *nb;
+> 
+>         nb = rcu_dereference(*nl);
+>         while (nb) {
+>                 ret = nb->notifier_call(nb, val, v);         /* this is 
+> the deadlock for the first entry */
+>                 if ((ret & NOTIFY_STOP_MASK) == NOTIFY_STOP_MASK)
+>                         break;
+>                 nb = rcu_dereference(nb->next);
+>         }
+>         return ret;
 > }
-> ...
 > 
-> I think that's easier to read and understand than following a function
-> pointer.
+> I see that 2.6.18 reworks this code further.
+> 
+> If I want to hurt myself really, really badly, disabling the call to 
+> blocking_notifier_call_chain(&reboot_notifier_list,...
+> restores the reboot/power off functions.
+> 
+> In kdb, the system sits idle awaiting something to schedule, but nothing 
+> will schedule since there is
+> a deadlock on the supermicro. Any clues as to how to find which notifier 
+> is deadlocked?
+> 
 
-Is this what the two of you are getting at?
+Are you able to do sysrq-T when it's stuck?
 
-#define DEFINE_SRCU_STRUCT(name) \
-	DEFINE_PER_CPU(struct srcu_struct_array, name) = { 0, 0 }; \
-	struct srcu_struct name = { \
-		.completed = 0, \
-		.per_cpu_ref = NULL, \
-		.mutex = __MUTEX_INITIALIZER(name.mutex) \
-	}
+Something like this...
+diff -puN kernel/sys.c~a kernel/sys.c
 
-#define srcu_read_lock(ss) \
-	({ \
-		if ((ss)->per_cpu_ref != NULL) \
-			srcu_read_lock_dynamic(&ss); \
-		else { \
-			int ret; \
-			\
-			preempt_disable(); \
-			ret = srcu_read_lock_static(&ss, &__get_cpu_var(ss)); \
-			preempt_enable(); \
-			ret; \
-		} \
-	})
+--- a/kernel/sys.c~a
++++ a/kernel/sys.c
+@@ -70,6 +70,8 @@
+ int overflowuid = DEFAULT_OVERFLOWUID;
+ int overflowgid = DEFAULT_OVERFLOWGID;
+ 
++static int foo;
++
+ #ifdef CONFIG_UID16
+ EXPORT_SYMBOL(overflowuid);
+ EXPORT_SYMBOL(overflowgid);
+@@ -141,6 +143,9 @@ static int __kprobes notifier_call_chain
+ 	nb = rcu_dereference(*nl);
+ 	while (nb) {
+ 		next_nb = rcu_dereference(nb->next);
++		if (foo)
++			print_symbol("calling %s()\n",
++				(unsigned long)nb->notifier_call);
+ 		ret = nb->notifier_call(nb, val, v);
+ 		if ((ret & NOTIFY_STOP_MASK) == NOTIFY_STOP_MASK)
+ 			break;
+@@ -590,6 +595,7 @@ EXPORT_SYMBOL_GPL(emergency_restart);
+ 
+ static void kernel_restart_prepare(char *cmd)
+ {
++	foo = 1;
+ 	blocking_notifier_call_chain(&reboot_notifier_list, SYS_RESTART, cmd);
+ 	system_state = SYSTEM_RESTART;
+ 	device_shutdown();
+_
 
-int srcu_read_lock_dynamic(struct srcu_struct *sp)
-{
-	int idx;
 
-	preempt_disable();
-	idx = sp->completed & 0x1;
-	barrier();  /* ensure compiler looks -once- at sp->completed. */
-	per_cpu_ptr(sp->per_cpu_ref, smp_processor_id())->c[idx]++;
-	srcu_barrier();  /* ensure compiler won't misorder critical section. */
-	preempt_enable();
-	return idx;
-}
-
-int srcu_read_lock_static(struct srcu_struct *sp, srcu_struct_array *cp)
-{
-	int idx;
-
-	idx = sp->completed & 0x1;
-	barrier();  /* ensure compiler looks -once- at sp->completed. */
-	cp->c[idx]++;
-	srcu_barrier();  /* ensure compiler won't misorder critical section. */
-	return idx;
-}
-
-And similarly for srcu_read_unlock()?
-
-I sure hope that there is a better way!!!  For one thing, you cannot pass
-a pointer in to srcu_read_lock(), since __get_cpu_var's name mangling would
-fail in that case...
-
-							Thanx, Paul
+Be aware that there's a known lock_cpu_hotplug()-vs-cpufreq deadlock, but
+afaik it's only been reported during suspend.  Disabling CONFIG_HOTPLUG_CPU
+might make a difference.

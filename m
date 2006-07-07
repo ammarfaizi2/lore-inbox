@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWGGSVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWGGSZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWGGSVV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 14:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWGGSVV
+	id S1750752AbWGGSZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 14:25:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWGGSZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 14:21:21 -0400
-Received: from mailrelay.linspire.com ([130.94.123.203]:41875 "EHLO
-	mailrelay.linspire.com") by vger.kernel.org with ESMTP
-	id S1750752AbWGGSVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 14:21:20 -0400
-X-ASG-Debug-ID: 1152296469-31583-168-0
-X-Barracuda-URL: http://mailrelay.linspire.com:43970/cgi-bin/mark.cgi
-Message-ID: <44AEA615.9040302@linspireinc.com>
-Date: Fri, 07 Jul 2006 11:21:09 -0700
-From: David Fox <david.fox@linspireinc.com>
-User-Agent: Email 1.5.0.4 (X11/20060705)
+	Fri, 7 Jul 2006 14:25:09 -0400
+Received: from zcars04f.nortel.com ([47.129.242.57]:32708 "EHLO
+	zcars04f.nortel.com") by vger.kernel.org with ESMTP
+	id S1750752AbWGGSZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 14:25:07 -0400
+Message-ID: <44AEA6EF.1030108@nortel.com>
+Date: Fri, 07 Jul 2006 12:24:47 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Rohan Dhruva <rohandhruva@gmail.com>
-CC: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
-       linux-kernel@vger.kernel.org, Jan Rychter <jan@rychter.com>
-X-ASG-Orig-Subj: Re: [Suspend2-devel] Re: swsusp / suspend2 reliability
-Subject: Re: [Suspend2-devel] Re: swsusp / suspend2 reliability
-References: <200606270147.16501.ncunningham@linuxmail.org>	<20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au>	<20060627154130.GA31351@rhlx01.fht-esslingen.de>	<20060627222234.GP29199@elf.ucw.cz>	<m2k66qzgri.fsf@tnuctip.rychter.com> <20060707135031.GA4239@ucw.cz> <a149495b0607070705p261b4690n919b4f97896bdc12@mail.gmail.com>
-In-Reply-To: <a149495b0607070705p261b4690n919b4f97896bdc12@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: question on pci, ordering, smp, etc.
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ASG-Whitelist: HEADER (207.67.194.2)
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=8.0 QUARANTINE_LEVEL=3.5 KILL_LEVEL=7.0 
+X-OriginalArrivalTime: 07 Jul 2006 18:24:50.0760 (UTC) FILETIME=[A287BC80:01C6A1F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rohan Dhruva wrote:
-> Why not
-> take the best from both swsusp and suspend2, and get a nice
-> implementation into the kernel, that works most of the times !
 
-Well, this is the ten thousand dollar question - why not indeed?  Pavel 
-says "Problems are in drivers, and drivers are shared", but suspend2 
-works around this by unloading certain drivers before suspending, and 
-otherwise hacking around the difficulties.  This is, I think, what is 
-meant when suspend2 is said to support scripting.  It may not be a 
-pleasing approach from a theoretical standpoint, but it seems to be the 
-only way to get a reliable implementation in a timely fashion -- 
-reliable in the sense of being most likely to work on a randomly chosen 
-machine without custom configuration.
+Suppose I have a chunk of memory that is visible on the PCI bus.  I 
+ioremap_nocache() it into kernel space on multiple cpus.  This memory is 
+not used by any hardware devices, only the various cpus.  No DMA is 
+involved.
 
+What are the rules for portably accessing this memory?  I assume that I 
+need to use readb/readw/readl/writeb/writew/writel and the other mmio 
+helpers, and can't access it directly?  Given that those all give 
+little-endian access, is there any way to access without the 
+byte-swapping on big-endian systems?
 
+How can I portably ensure that a write from one cpu will be visible when 
+another cpu does a read?  Do I need to read from the device on the 
+original cpu, or is there a way to flush it far enough that the other 
+cpus will get the updated data even if it hasn't made it all the way 
+back to the device yet?
+
+Thanks,
+
+Chris

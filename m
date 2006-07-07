@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWGGRKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWGGRNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWGGRKE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 13:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWGGRKE
+	id S932203AbWGGRNP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 13:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWGGRNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 13:10:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3740 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932196AbWGGRKD (ORCPT
+	Fri, 7 Jul 2006 13:13:15 -0400
+Received: from mga03.intel.com ([143.182.124.21]:11341 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932197AbWGGRNO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 13:10:03 -0400
-Date: Fri, 7 Jul 2006 10:09:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch] spinlocks: remove 'volatile'
-In-Reply-To: <200607070623_MC3-1-C45A-2429@compuserve.com>
-Message-ID: <Pine.LNX.4.64.0607071003140.3869@g5.osdl.org>
-References: <200607070623_MC3-1-C45A-2429@compuserve.com>
+	Fri, 7 Jul 2006 13:13:14 -0400
+X-IronPort-AV: i="4.06,218,1149490800"; 
+   d="scan'208"; a="62718745:sNHT9580022291"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
+Date: Fri, 7 Jul 2006 10:10:39 -0700
+Message-ID: <617E1C2C70743745A92448908E030B2A300BEC@scsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
+Thread-Index: AcahdpcdJ0jzipOIQDWW1pdLF8Ht5wAb8IDQ
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>, "Adrian Bunk" <bunk@stusta.de>
+Cc: <kai@germaschewski.name>, <linux-kernel@vger.kernel.org>,
+       "Dave Jones" <davej@redhat.com>, <linux-arch@vger.kernel.org>
+X-OriginalArrivalTime: 07 Jul 2006 17:10:41.0154 (UTC) FILETIME=[465BBE20:01C6A1E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 7 Jul 2006, Chuck Ebbert wrote:
+> This patch broke (-rc1):
 > 
-> >  #define __raw_spin_unlock_string \
-> >       "movb $1,%0" \
-> > -             :"=m" (lock->slock) : : "memory"
-> > +             :"+m" (lock->slock) : : "memory"
->  
-> This really is just an overwrite of whatever is there.  OTOH I can't see
-> how this change could hurt anything..
+> sparc allnoconfig build
+> ia64 allnoconfig build
+> ppc64 allnoconfig build
 
-Yeah, I don't think any non-buggy sequence can make it matter.
+ia64 allnoconfig is (and has been for a while) broken for other reasons.
 
-In theory, you could have something like
+Almost all of the real configurations still build.  The only error
+that adding this turned up was building a generic uniprocessor config.
 
- - create a spinlock already locked
- - add the object that contains the spinlock to some global queues
- - do some op on the object to finalize it
- - unlock the spinlock 
+smp_call_function_single() is used without a prototype by
+arch/ia64/sn/kernel/sn2/sn_hwperf.c:sn_hwperf_op_cpu()
 
-and then the "unlock" had better not optimize away the previous 
-initialization.
+This isn't a real error because this function actually does return
+an "int", so the complier default is correct (plus the caller doesn't
+look at the return value, plus on a UP we'd never be able to get to
+this call-site because it is in the "else" !!!).
 
-HOWEVER, it can't really do that anyway, since anything that made the 
-spinlock visible to anybody else would have had to serialize the lock 
-state for _that_, so if the "+m" vs "=m" makes a difference, you'd have 
-had a serious bug already for other reasons.
+But I'll fix it anyway.
 
-I'll leave it with a "+m". I've tested it locally, and looking at the 
-patch it definitely fixes real bugs in the inline asms, but I still hope 
-other people will take a look before I commit it, in case there are any 
-other subtle cases.
+diff --git a/include/asm-ia64/smp.h b/include/asm-ia64/smp.h
+index 719ff30..949e3a2 100644
+--- a/include/asm-ia64/smp.h
++++ b/include/asm-ia64/smp.h
+@@ -133,6 +133,7 @@ #else
+ 
+ #define cpu_logical_id(i)		0
+ #define cpu_physical_id(i)		ia64_get_lid()
++#define smp_call_function_single(cpuid, func, info, retry, wait) 0
+ 
+ #endif /* CONFIG_SMP */
+ #endif /* _ASM_IA64_SMP_H */
 
-(A "+m" should always be safer than a "=m", so the patch should be very 
-safe, but hey, bugs happen to "obvious" code too)
-
-			Linus
+-Tony

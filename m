@@ -1,77 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWGGBoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWGGBnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750921AbWGGBoc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 21:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWGGBoc
+	id S1750913AbWGGBnH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 21:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWGGBnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 21:44:32 -0400
-Received: from wx-out-0102.google.com ([66.249.82.192]:51000 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750827AbWGGBob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 21:44:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=n4Es/vvjvkVBptuR8FZhul/OFaHmYQiRdYo9JRYqj7DVWlKI/L43dWOj7fFXWHP/7HhTFoyoAlvL04V0rs56GF9q+a5rqNBmYfBAybNnaee7KFE6b9Px6kR23sXBRl9bCU3vQ02ck/9yg5G6r60KMPHQ+/Nx1CqtL80WsACIghU=
-Date: Thu, 6 Jul 2006 21:44:28 -0400
-From: Thomas Tuttle <thinkinginbinary@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Integrate asus_acpi LED's with new LED subsystem
-Message-ID: <20060707014428.GC8900@phoenix>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20060706193157.GC14043@phoenix> <20060706235020.GA4821@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ylS2wUBXLOxYXZFQ"
+	Thu, 6 Jul 2006 21:43:07 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:51847
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750913AbWGGBnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 21:43:06 -0400
+From: Rob Landley <rob@landley.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Miniconfig revisited (1/3)
+Date: Thu, 6 Jul 2006 21:43:12 -0400
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org
+References: <200607061753.43518.rob@landley.net>
+In-Reply-To: <200607061753.43518.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060706235020.GA4821@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+Message-Id: <200607062143.12669.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My first attempt doesn't seem to have made it through to the list, so...
 
---ylS2wUBXLOxYXZFQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Add "make miniconfig" target.  Only touches the makefile, no C code.
 
-On July 06 at 19:50 EDT, Pavel Machek hastily scribbled:
-> Apart from codingstyle issues...
+Signed-off-by: Rob Landley <rob@landley.net>
 
-I've fixed a bunch that Andrew Morton and Richard Purdie mentioned
-(since your message, I've posted a new revision).  Are there any changes
-I missed?
 
-> yes, it looks good.
+diff -ur linux-2.6.17.1/scripts/kconfig/Makefile linux-2.6.17.new/scripts/kconfig/Makefile
+--- linux-2.6.17.1/scripts/kconfig/Makefile	2006-06-20 05:31:55.000000000 -0400
++++ linux-2.6.17.new/scripts/kconfig/Makefile	2006-07-06 15:51:25.000000000 -0400
+@@ -2,7 +2,7 @@
+ # Kernel configuration targets
+ # These targets are used from top-level makefile
+ 
+-PHONY += oldconfig xconfig gconfig menuconfig config silentoldconfig update-po-config
++PHONY += oldconfig xconfig gconfig menuconfig config silentoldconfig miniconfig update-po-config
+ 
+ xconfig: $(obj)/qconf
+ 	$< arch/$(ARCH)/Kconfig
+@@ -23,6 +23,14 @@
+ silentoldconfig: $(obj)/conf
+ 	$< -s arch/$(ARCH)/Kconfig
+ 
++MINICONFIG = mini.config
++miniconfig: $(obj)/conf $(MINICONFIG)
++	$(Q)KCONFIG_ALLCONFIG=$(MINICONFIG) $< -n arch/$(ARCH)/Kconfig > /dev/null 2> .config.result ; \
++	cat .config.result ; \
++	RESULT=`cat .config.result`; \
++	rm .config.result ; \
++	if [ ! -z "${RESULT}" ]; then exit 1; fi
++
+ update-po-config: $(obj)/kxgettext
+ 	xgettext --default-domain=linux \
+           --add-comments --keyword=_ --keyword=N_ \
+@@ -79,6 +87,7 @@
+ 	@echo  '  allmodconfig	  - New config selecting modules when possible'
+ 	@echo  '  allyesconfig	  - New config where all options are accepted with yes'
+ 	@echo  '  allnoconfig	  - New config where all options are answered with no'
++	@echo  '  miniconfig	  - New config unpacked from mini.config (or MINICONFIG=file)'
+ 
+ # ===========================================================================
+ # Shared Makefile for the various kconfig executables:
+diff -ur linux-2.6.17.1/scripts/shrinkconfig linux-2.6.17.new/scripts/shrinkconfig
+--- linux-2.6.17.1/scripts/shrinkconfig	2006-07-06 16:34:39.000000000 -0400
++++ linux-2.6.17.new/scripts/shrinkconfig	2006-07-06 15:54:40.000000000 -0400
+@@ -0,0 +1,86 @@
++#!/bin/bash
++
++# shrinkconfig copyright 2006 by Rob Landley <rob@landley.net>
++# Licensed under the GNU General Public License version 2.
++
++if [ $# -ne 1 ]
++then
++  echo "Turns current .config into a miniconfig file."
++  echo "Usage: shrinkconfig mini.config"
++  exit 1
++fi
++
++if [ ! -f .config ]
++then
++  echo "Need a .config file to shrink."
++  exit 1
++fi
++LENGTH=$(cat .config | wc -l)
++
++OUTPUT="$1"
++cp .config "$OUTPUT"
++if [ $? -ne 0 ]
++then
++  echo "Couldn't create $OUTPUT"
++  exit 1
++fi
++
++# If we get interrupted, clean up the mess
++
++KERNELOUTPUT=""
++
++function cleanup
++{
++  echo
++  echo "Interrupted."
++  [ ! -z "$KERNELOUTPUT" ] && rm -rf "$KERNELOUTPUT"
++  rm "$OUTPUT"
++  exit 1
++}
++
++trap cleanup HUP INT QUIT TERM
++
++# Since the "O=" argument to make doesn't work recursively, we need to jump
++# through a few hoops to avoid overwriting the .config that we're shrinking.
++
++# If we're building out of tree, we'll have absolute paths to source and build
++# directories in the Makefile.
++
++KERNELSRC=$(sed -n -e 's/KERNELSRC[^/]*:=[^/]*//p' Makefile)
++[ -z "$KERNELSRC" ] && KERNELSRC=$(pwd)
++KERNELOUTPUT=`pwd`/.config.minitemp
++
++mkdir -p "$KERNELOUTPUT" || exit 1
++
++echo "Shrinking .config to $OUTPUT..."
++
++# Loop through all lines in the file 
++I=1
++while true
++do
++  if [ $I -gt $LENGTH ]
++  then
++    break
++  fi
++
++  echo -n -e "\r"$I/$LENGTH lines $(cat "$OUTPUT" | wc -c) bytes
++
++  sed -n "${I}!p" "$OUTPUT" > "$KERNELOUTPUT"/.config.test
++  # Do a config with this file
++  make -C "$KERNELSRC" O="$KERNELOUTPUT" allnoconfig KCONFIG_ALLCONFIG="$KERNELOUTPUT"/.config.test > /dev/null
++
++  # Compare.  The date changes, so expect a small difference each time.
++  D=$(diff "$KERNELOUTPUT"/.config .config | wc -l)
++  if [ $D -eq 4 ]
++  then
++    mv "$KERNELOUTPUT"/.config.test "$OUTPUT"
++    LENGTH=$[$LENGTH-1]
++  else
++    I=$[$I + 1]
++  fi
++done
++
++rm -rf "$KERNELOUTPUT"
++
++# One extra echo to preserve status line.
++echo
 
-Nice. :-)
-
-> Hooking various
-> leds into led subsystem is way better than having all the separate
-> drivers.
-
-Yes.  The LED subsystem is a really cool idea, because what good are
-blinkenlights if you have to write shell scripts to control them?  The
-kernel should do that for you!  (/me wishes someone made a laptop with
-something like 8 LED's of different colors, so he could just make them
-do what he liked.)
-
-> I guess I'll have to convert ibm_acpi...
-
-I'm willing to take a first whack at it, if you can put me in touch with
-someone to test it.
-
---Thomas Tuttle
-
---ylS2wUBXLOxYXZFQ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFErbx8/UG6u69REsYRAtUfAJ9zRCQ5FK/fGbvmskAcMPzVLi2FZwCdFq2e
-VId2GmeOAcIZDPPZRB9Uw8o=
-=Mnep
------END PGP SIGNATURE-----
-
---ylS2wUBXLOxYXZFQ--
+-- 
+Never bet against the cheap plastic solution.

@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWGGFDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWGGFHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWGGFDi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 01:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWGGFDi
+	id S1751025AbWGGFHe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 01:07:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWGGFHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 01:03:38 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:49110 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751058AbWGGFDh (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 01:03:37 -0400
-Message-Id: <200607070502.k6752IqY007285@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Adrian Bunk <bunk@stusta.de>, kai@germaschewski.name,
-       linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>,
-       linux-arch@vger.kernel.org
-Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-In-Reply-To: Your message of "Fri, 07 Jul 2006 05:36:30 +0200."
-             <20060707033630.GA15967@mars.ravnborg.org>
-From: Valdis.Kletnieks@vt.edu
-References: <20060706163728.GN26941@stusta.de>
-            <20060707033630.GA15967@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152248538_3190P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Jul 2006 01:02:18 -0400
+	Fri, 7 Jul 2006 01:07:33 -0400
+Received: from mail.gmx.de ([213.165.64.21]:33447 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751025AbWGGFHd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 01:07:33 -0400
+Cc: mtk-manpages@gmx.net, mtk-lkml@gmx.net, rlove@rlove.org, roland@redhat.com,
+       eggert@cs.ucla.edu, torvalds@osdl.org, tytso@mit.edu,
+       linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Content-Type: text/plain; charset="utf-8"
+Date: Fri, 07 Jul 2006 07:07:31 +0200
+From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
+In-Reply-To: <44ADE9B6.1020900@redhat.com>
+Message-ID: <20060707050731.186770@gmx.net>
+MIME-Version: 1.0
+References: <44A92DC8.9000401@gmx.net> <44AABB31.8060605@colorfullife.com>
+ <20060706092328.320300@gmx.net> <44AD599D.70803@colorfullife.com>
+ <44AD5CB6.7000607@redhat.com> <20060707043220.186800@gmx.net>
+ <44ADE9B6.1020900@redhat.com>
+Subject: Re: Re: Strange Linux behaviour with blocking syscalls and stop
+ signals+SIGCONT
+To: Ulrich Drepper <drepper@redhat.com>
+X-Authenticated: #2864774
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152248538_3190P
-Content-Type: text/plain; charset=us-ascii
+Von: Ulrich Drepper <drepper@redhat.com>
 
-On Fri, 07 Jul 2006 05:36:30 +0200, Sam Ravnborg said:
-> On Thu, Jul 06, 2006 at 06:37:28PM +0200, Adrian Bunk wrote:
-> > With -Werror-implicit-function-declaration we are getting an immediate
-> > compile error instead.
-> This patch broke (-rc1):
-...
-> I did not try other architectures. We need to fix the allnoconfig cases
-> at least for the popular architectures before applying this patch
-> otherwise it will create too much trouble/noise.
+> sem_wait() is another case.  Here the EINTR handling is exposed to the
+> programmer.  Currently, as I understand it, even SA_RESTART handlers
+> cause EINTR to be returned.  
 
-What source files did it break on, and with what error message?  And is
-there a reason to focus on 'allnoconfig', or do the other canned config
-targets (allyes, allmod, rand, and so on) matter too?
+Yes, this is true for sem_wait().
+
+> Yes, this usually correct but it  might
+> disrupt existing code.
+> 
+> This is why I'd caution anybody who thinks about changing something in
+> this area.  *I* could live with it, I can fix and recompile all the code
+> I use.  But others aren't that lucky.
+
+Yes; this is why I'm only proposing to change EINTR to ERESTARTNOHAND
+at the moment.  The only userspace visible change that I think
+this will bring about is in the stop+SIGCONT case.  Changing EINTR
+to ERESTARTSYS is likely to have more impact on userland (though 
+it still strikes me as a desirable gola to have all system calls 
+restartable via SA_RESTART).
+
+Cheers,
+
+Michael
+-- 
 
 
---==_Exmh_1152248538_3190P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEreracC3lWbTT17ARAo0AAKDbAN9nlNZyGsxjYwgc5bB4EqnT0wCg6nxB
-GUXpBYHYgNaymEjSnkXMK0c=
-=zpXj
------END PGP SIGNATURE-----
-
---==_Exmh_1152248538_3190P--
+"Feel free" – 10 GB Mailbox, 100 FreeSMS/Monat ...
+Jetzt GMX TopMail testen: http://www.gmx.net/de/go/topmail

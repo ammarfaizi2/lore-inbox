@@ -1,165 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWGGWW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWGGWYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbWGGWW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 18:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWGGWW0
+	id S932353AbWGGWYu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 18:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWGGWYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 18:22:26 -0400
-Received: from relay00.pair.com ([209.68.5.9]:3081 "HELO relay00.pair.com")
-	by vger.kernel.org with SMTP id S932349AbWGGWWZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 18:22:25 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Fri, 7 Jul 2006 17:22:22 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-cc: "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-In-Reply-To: <20060708000531.410cd672@werewolf.auna.net>
-Message-ID: <Pine.LNX.4.64.0607071718080.23767@turbotaz.ourhouse>
-References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org>
- <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org>
- <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu>
- <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu>
- <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
- <20060706081639.GA24179@elte.hu> <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
- <Pine.LNX.4.64.0607060856080.12404@g5.osdl.org> <Pine.LNX.4.64.0607060911530.12404@g5.osdl.org>
- <Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com> <m34pxt8emn.fsf@defiant.localdomain>
- <Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
- <Pine.LNX.4.64.0607071318570.3869@g5.osdl.org> <Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com>
- <20060708000531.410cd672@werewolf.auna.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1455228556-1152310965=:23767"
+	Fri, 7 Jul 2006 18:24:50 -0400
+Received: from horus.tecnoera.com ([200.24.235.2]:47747 "EHLO
+	horus.tecnoera.com") by vger.kernel.org with ESMTP id S932353AbWGGWYt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 18:24:49 -0400
+Subject: BUG: soft lockup detected
+From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Fri, 07 Jul 2006 18:24:41 -0400
+Message-Id: <1152311081.22174.151.camel@blackbird.tecnoera.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hello,
 
---8323328-1455228556-1152310965=:23767
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
-Content-Transfer-Encoding: 8BIT
+I am getting this error.. although the system works well. I don't know
+if I should ignore this error or what. Please advice me what to do:
 
-On Sat, 8 Jul 2006, J.A. Magallón wrote:
+Ending clean XFS mount for filesystem: loop0
+BUG: soft lockup detected on CPU#0!
 
-> #include <stdint.h>
->
-> //volatile
-> uint32_t spinvar = 1;
-> uint32_t mtx;
->
-> void lock(uint32_t* l)
-> {
->    *l = 1;
-> }
->
-> void unlock(uint32_t* l)
-> {
->    *l = 0;
-> }
->
-> void spin()
-> {
->    uint32_t local;
->
->    for (;;)
->    {
->        lock(&mtx);
->        local = spinvar;
->        unlock(&mtx);
->        if (!local)
->            break;
->    }
-> }
+Call Trace: <IRQ> <ffffffff8024afa3>{softlockup_tick+210}
+       <ffffffff802324a8>{update_process_times+66}
+<ffffffff802144b4>{smp_local_timer_interrupt+35}
+       <ffffffff80214519>{smp_apic_timer_interrupt+65}
+<ffffffff8020a354>{apic_timer_interrupt+132} <EOI>
+       <ffffffff880a1cdb>{:serpent:serpent_encrypt+1695}
+<ffffffff802ef402>{cbc_process_encrypt+91}
+       <ffffffff880a163c>{:serpent:serpent_encrypt+0}
+<ffffffff802ef01f>{xor_128+0}
+       <ffffffff802ef1a2>{crypt+364} <ffffffff802228c7>{try_to_wake_up
++955}
+       <ffffffff802ef39a>{crypt_iv_unaligned+138}
+<ffffffff802ef6d1>{cbc_encrypt_iv+64}
+       <ffffffff880a163c>{:serpent:serpent_encrypt+0}
+<ffffffff802ef3a7>{cbc_process_encrypt+0}
+       <ffffffff8809d291>{:cryptoloop:cryptoloop_transfer_cbc+222}
+       <ffffffff8027561c>{blkdev_get_block+30}
+<ffffffff802ef691>{cbc_encrypt_iv+0}
+       <ffffffff8809727f>{:loop:do_lo_send_aops+303}
+<ffffffff88097904>{:loop:loop_thread+609}
+       <ffffffff88097150>{:loop:do_lo_send_aops+0}
+<ffffffff804243b7>{_spin_unlock_irq+7}
+       <ffffffff8020a6aa>{child_rip+8}
+<ffffffff880976a3>{:loop:loop_thread+0}
+       <ffffffff8020a6a2>{child_rip+0}
 
-This is _totally_ incorrect. Your "lock" functions are broken, because 
-they do not introduce syncronization points or locked bus operations. Due 
-to this huge failure, the compiler and/or processor is free to re-order 
-your loads and stores, resulting in totally unpredictable runtime 
-behavior.
 
-> without the volatile:
->
-> spin:
->    pushl   %ebp
->    movl    spinvar, %eax
->    movl    %esp, %ebp
->    testl   %eax, %eax
->    je  .L7
-> .L10:
->    jmp .L10
-> .L7:
->    movl    $0, mtx
->    popl    %ebp
->    ret
->
-> so the compiler did something like
->
->   local = spinvar;
->   if (local)
-> 	for (;;);
->
-> (notice the dead lock/unlock inlined code elimination).
+This is a Dual Opteron Dual-core, using cryptoloop to encrypt a device,
+using serpent, and XFS. 2.6.17.3 #1 SMP.
 
-...which indicates that your code is wrong.
+Thank you.
 
-> With the volatile, the code is correct:
->
-> spin:
->    pushl   %ebp
->    movl    %esp, %ebp
->    .p2align 4,,7
-> .L7:
->    movl    spinvar, %eax
->    testl   %eax, %eax
->    jne .L7
->    movl    $0, mtx
->    popl    %ebp
->    ret
-
-Actually, it's not. It's never setting "mtx" to 1, and it's certainly not 
-doing any sync or locked ops.
-
-> So think about all you inlined spinlocks, mutexes and so on.
-
-Yes, you got it wrong, and the current code gets it right. (Linus's patch 
-of =m to +m, combined with -volatile, is best)
-
-> And if you do
->
-> void lock(volatile uint32_t* l)
-> ...
-> void unlock(volatile uint32_t* l)
-> ...
->
-> the code is even better:
->
-> spin:
->    pushl   %ebp
->    movl    %esp, %ebp
->    .p2align 4,,7
-> .L7:
->    movl    $1, mtx    <=========
->    movl    spinvar, %eax
->    movl    $0, mtx    <=========
->    testl   %eax, %eax
->    jne .L7
->    popl    %ebp
->    ret
-
-NO! It's not better. You're still not syncing or locking the bus! If you 
-refer to the fact that the "movl $1" has magically appeared, that's 
-because you've just PAPERED OVER THE PROBLEM WITH "volatile", which is 
-_exactly_ what Linus is telling you NOT TO DO.
-
-> So volatile just means 'dont trust this does not change even you don't see
-> why'.
->
-
-No.
-
-Thanks,
-Chase
---8323328-1455228556-1152310965=:23767--

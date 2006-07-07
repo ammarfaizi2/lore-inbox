@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWGGMiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWGGMjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWGGMiq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 08:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWGGMiq
+	id S932151AbWGGMjP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 08:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWGGMjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 08:38:46 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:26897 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932153AbWGGMip (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 08:38:45 -0400
-Date: Fri, 7 Jul 2006 14:41:05 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Michael Kerrisk <michael.kerrisk@gmx.net>
-Cc: mtk-manpages@gmx.net, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: splice/tee bugs?
-Message-ID: <20060707124105.GW4188@suse.de>
-References: <20060707070703.165520@gmx.net> <20060707040749.97f8c1fc.akpm@osdl.org> <20060707114235.243260@gmx.net> <20060707120333.GR4188@suse.de> <20060707122850.GU4188@suse.de> <20060707123110.64140@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060707123110.64140@gmx.net>
+	Fri, 7 Jul 2006 08:39:15 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:63688 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932151AbWGGMi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 08:38:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:organization:user-agent:mime-version:to:subject:content-type:content-transfer-encoding:from;
+        b=hBvicenxPprHFKMdWlq8+gkPbCW+QtUP+ACzEeeHRjWXSr3ofGeMlreLz1fehBEKlince2Eqnv2P6R88/LaoHs3rrY7vuPV/W1IP2UnqnIIfFgGDVAMFN1grfwxQiz/KVqrN6wR8GUyCJw3kS7/CJAU4CHWZ/JMReuGWc/G0yzU=
+Message-ID: <44AE572D.8000105@innomedia.soft.net>
+Date: Fri, 07 Jul 2006 18:14:29 +0530
+Reply-To: chinmaya@innomedia.soft.net
+Organization: Innomedia Technologies Pvt. Ltd.
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Setting kernel thread priority
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+From: Chinmaya Mishra <chinmaya4@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 07 2006, Michael Kerrisk wrote:
-> Jens Axboe wrote:
-> 
-> > > > > >    In this case I can't kill it with ^C or ^\.  This is a 
-> > > > > >    hard-to-reproduce behaviour on my (x86) system, but I have 
-> > > > > >    seen it several times by now.
-> > > > > 
-> > > > > aka local DoS.  Please capture sysrq-T output next time.
-> [...]
-> > > I'll see about reproducing locally.
-> > 
-> > With your modified ktee, I can reproduce it here. Here's the ktee and wc
-> > output:
-> 
-> Good; thanks.
-> 
-> By the way, what about points a) and b) in my original mail
-> in this thread?
+Hi,
 
-I'll look at them after this.
+I am using linux kernel 2.6.10.
+In a kernel module i am calling two functions in two
+kernel threads using the api,
 
--- 
-Jens Axboe
+kernel_thread((void *)funName, NULL, CLONE_KERNEL);
+
+Is there any procedure/apis available to set the thread priority?
+Please help . . . . .
+
+Thanks in advance.
+Chinmaya
+
+
 

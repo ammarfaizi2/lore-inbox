@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWGGNsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWGGNun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750996AbWGGNsP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 09:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWGGNsP
+	id S1751186AbWGGNun (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 09:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWGGNun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 09:48:15 -0400
-Received: from lucidpixels.com ([66.45.37.187]:4772 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1750992AbWGGNsO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 09:48:14 -0400
-Date: Fri, 7 Jul 2006 09:48:13 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Mark Lord <liml@rtr.ca>
-cc: Sander <sander@humilis.net>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-In-Reply-To: <200607070943.17957.liml@rtr.ca>
-Message-ID: <Pine.LNX.4.64.0607070948001.5849@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <200607070908.44751.liml@rtr.ca>
- <Pine.LNX.4.64.0607070923130.4099@p34.internal.lan> <200607070943.17957.liml@rtr.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 7 Jul 2006 09:50:43 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19717 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751186AbWGGNum
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 09:50:42 -0400
+Date: Fri, 7 Jul 2006 13:50:31 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Rychter <jan@rychter.com>
+Cc: linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net
+Subject: Re: swsusp / suspend2 reliability
+Message-ID: <20060707135031.GA4239@ucw.cz>
+References: <200606270147.16501.ncunningham@linuxmail.org> <20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au> <20060627154130.GA31351@rhlx01.fht-esslingen.de> <20060627222234.GP29199@elf.ucw.cz> <m2k66qzgri.fsf@tnuctip.rychter.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2k66qzgri.fsf@tnuctip.rychter.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+>  Pavel> I do not think suspend2 works on more machines than in-kernel
+>  Pavel> swsusp. Problems are in drivers, and drivers are shared.
+> 
+>  Pavel> That means that if you have machine where suspend2 works and
+>  Pavel> swsusp does not, please tell me. I do not think there are many
+>  Pavel> of them.
+> 
+> Accept the facts -- for some reason, there is a fairly large user base
+> that goes to all the bother of using suspend2, which requires
+...
+> That is a fact, and all the hand waving won't change it.
 
-On Fri, 7 Jul 2006, Mark Lord wrote:
+Users like suspend2 eye candy => swsusp must be unreliable?
 
-> Justin Piszcz wrote:
->>
->> had to change
->>
->> KERN_WARN -> KERN_WARNING
->>
->> then more errors
->
-> Eh?  After fixing the KERN_WARN -> KERN_WARNING part,
-> the patch compiles / links cleanly here on 2.6.17.
-> (fixed copy below).   Still untested, though.
->
->> do you know who wrote the original patch?
->
-> I did.
->
-> Cheers
->
-> --- linux/drivers/scsi/libata-scsi.c.orig	2006-06-19 10:37:03.000000000 -0400
-> +++ linux/drivers/scsi/libata-scsi.c	2006-07-07 09:06:57.000000000 -0400
-> @@ -542,6 +542,7 @@
-> 	struct ata_taskfile *tf = &qc->tf;
-> 	unsigned char *sb = cmd->sense_buffer;
-> 	unsigned char *desc = sb + 8;
-> +	unsigned char ata_op = tf->command;
->
-> 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
->
-> @@ -558,6 +559,7 @@
-> 	 * onto sense key, asc & ascq.
-> 	 */
-> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
-> +		printk(KERN_WARNING "ata_gen_ata_desc_sense: failed ata_op=0x%02x\n", ata_op);
-> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
-> 				   &sb[1], &sb[2], &sb[3]);
-> 		sb[1] &= 0x0f;
->
+I know users that installed swsusp, decided they want progress bars,
+and went for suspend2.
 
-Applied patch, rebooting, waiting to get the error again.
+> I'm tired of this. It's taking years for Linux to get reasonably working
+> suspend facilities, which is a shame. In my opinion a large part of the
+> problem is you opposing Nigel's patches. Problem is, for many people
+> Nigel's code works while yours does not.
 
+Nigel only submitted his code once, month or so ago, as series of 200
+or so patches. Do not blame me for _that_.
+
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

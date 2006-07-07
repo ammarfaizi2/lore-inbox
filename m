@@ -1,82 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWGGPIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWGGPTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWGGPIm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 11:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWGGPIm
+	id S1750992AbWGGPTW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 11:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWGGPTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 11:08:42 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:17021 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932190AbWGGPIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 11:08:41 -0400
+	Fri, 7 Jul 2006 11:19:22 -0400
+Received: from wx-out-0102.google.com ([66.249.82.202]:29499 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750752AbWGGPTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 11:19:21 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=y8dHVFdnEMc5zZILZ+McJbtebryYy4Z19yMB/Ly97vnuqc71ZXNnxyz99e/DJl9i7paX8PcnD+YK1B7cD0aEwWaBnGAtw+3327mfY/Ck56801FlttNF1W6Lll0bRZE1BazjOfF6LacnvH/f95qkRyEGPi3Op9VuultATgf/3CX8=  ;
-Message-ID: <44AE1690.5070509@yahoo.com.au>
-Date: Fri, 07 Jul 2006 18:08:48 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kh+vHogMZbiRT227+cIjiiB4p8wkjm+aOqS77id4UK+itmdsV8pqBvLG2lpgwy2QVTuOVHLHI985UOa1xEX1gH3fK0ZrS5TUlgL+ivZYIGQrhJwPoaCGQRf1wSERjW46x6uCrawcx25V1BGbaFFZkgzT0wxG9Ir5KEn3DHwrKNo=
+Message-ID: <3aa654a40607070819v1359fb69l5d617f029940cc0e@mail.gmail.com>
+Date: Fri, 7 Jul 2006 08:19:21 -0700
+From: "Avuton Olrich" <avuton@gmail.com>
+To: "Jan Rychter" <jan@rychter.com>
+Subject: Re: swsusp / suspend2 reliability
+Cc: linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net
+In-Reply-To: <m2k66qzgri.fsf@tnuctip.rychter.com>
 MIME-Version: 1.0
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
-References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
-In-Reply-To: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200606270147.16501.ncunningham@linuxmail.org>
+	 <20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au>
+	 <20060627154130.GA31351@rhlx01.fht-esslingen.de>
+	 <20060627222234.GP29199@elf.ucw.cz>
+	 <m2k66qzgri.fsf@tnuctip.rychter.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Haavard Skinnemoen wrote:
-> Hi everyone,
-> 
-> I've put up an updated set of patches for AVR32 support at
-> http://avr32linux.org/twiki/bin/view/Main/LinuxPatches
-> 
-> The most interesting patch probably is
-> http://avr32linux.org/twiki/pub/Main/LinuxPatches/avr32-arch-2.patch
-> 
-> which, at 544K, is too large to attach here. Please let me know if you
-> want me to do it anyway.
-> 
-> Anyone want to have a look at this? I understand that a full review is
-> a huge job, but I'd appreciate a pointer or two in the general
-> direction that I need to take this in order to get it acceptable for
-> mainline.
-> 
+On 7/6/06, Jan Rychter <jan@rychter.com> wrote:
+> >>>>> "Pavel" == Pavel Machek <pavel@suse.cz> writes:
+>  Pavel> Hi!
+>  >> > uswsusp is a great idea, really.. I love it.. but suspend2 is
+>  >> > here, it works, it's stable and it's now. Why continue to deprive
+>  >> > the mainstream of these features because "uswsusp should".. as yet
+>  >> > it doesn't.. and when it does then we can phase out the currently
+>  >> > stable, working alternative that has all these features that
+>  >> > uswsusp _will_ have, after it's had them for a year or so and its
+>  >> > been proven stable. Not only that, I'll be happy to migrate over
+>  >> > to it. Until then however, you can pry suspend2.. cold,
+>  >> > dead.. blah blah..
+>  >>
+>  >> Given the above explanation, it's obvious that I'm an outside
+>  >> watcher now, but if swsusp2 success rate is clearly higher than the
+>  >> standard version, then I'd also strongly advocate this direction
+>  >> since, quite frankly,
+>
+>  Pavel> I do not think suspend2 works on more machines than in-kernel
+>  Pavel> swsusp. Problems are in drivers, and drivers are shared.
+>
+>  Pavel> That means that if you have machine where suspend2 works and
+>  Pavel> swsusp does not, please tell me. I do not think there are many
+>  Pavel> of them.
+>
+> Accept the facts -- for some reason, there is a fairly large user base
+> that goes to all the bother of using suspend2, which requires
+> downloading, patching and all the extra work. People do it, in spite of
+> the wonderful swsusp being in the kernel and all the other extra cool
+> stuff being worked on.
 
-Hi,
-
-+void cpu_idle(void)
-+{
-+	/* endless idle loop with no priority at all */
-+	while (1) {
-+		/* TODO: Enter sleep mode */
-+		if (need_resched())
-+			schedule();
-+	}
-+}
-
-AFAIKS, this is buggy.
-
-need_resched() translates to a test_bit, which doesn't have any barriers,
-so it could be optimised away completely. And if you're intending to use
-preempt, you need to have preemption disabled in the idle loop.
-
-Documentation/sched-arch.txt attempts to explain, and  something like
-arm26's cpu_idle() is a nice, simple example to follow.
-
-Actually, I'm wrong about the test_bit. It casts to volatile there, which
-is probably why you don't end up with infinite loops. Still, it would be
-nicer to have an explicit barrier (eg. cpu_relax()).
-
-Why do we cast to volatile in places like this? Linus? I don't see why
-test_bit() should be any more "special" than the & operator. What's more,
-some architectures do cast and others don't, which is just insane.
-
+As I've said in previous threads, I've had a much higher rate of
+sucess with suspend2 than swsusp, much like others who are replying to
+this thread. Can anyone tell me, did Suspend2 get veto'd? If not has
+there been a clear laid-out plan of what needs to be done to get this
+in to the kernel? Is adding new in-kernel suspend code not an option
+now? This is not about eye-candy but simply getting computers to
+suspend-to-disk. If that part of suspend2 never makes it into the
+kernel I couldn't care less.
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+avuton
+--
+ Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWGGONp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWGGONj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWGGONp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 10:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWGGONp
+	id S1751212AbWGGONj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 10:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWGGONi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 10:13:45 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60432 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751219AbWGGONo
+	Fri, 7 Jul 2006 10:13:38 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60176 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751212AbWGGONi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 10:13:44 -0400
-Date: Fri, 7 Jul 2006 14:12:09 +0000
+	Fri, 7 Jul 2006 10:13:38 -0400
+Date: Fri, 7 Jul 2006 14:01:48 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Bill Davidsen <davidsen@tmr.com>,
-       Benny Amorsen <benny+usenet@amorsen.dk>, linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-Message-ID: <20060707141209.GD4239@ucw.cz>
-References: <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no> <20060703205523.GA17122@irc.pl> <1151960503.3108.55.camel@laptopd505.fenrus.org> <44A9904F.7060207@wolfmountaingroup.com> <20060703232547.2d54ab9b.diegocg@gmail.com> <m3r711u3yk.fsf@ursa.amorsen.dk> <44AB3E4C.2000407@tmr.com> <44AB4A68.90301@zytor.com> <44AB5210.50501@wolfmountaingroup.com>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch] sharpsl_pm refactor
+Message-ID: <20060707140148.GB4239@ucw.cz>
+References: <20060707114818.GA5423@elf.ucw.cz> <1152274600.5548.67.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44AB5210.50501@wolfmountaingroup.com>
+In-Reply-To: <1152274600.5548.67.camel@localhost.localdomain>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >>Actually, if it were so important it WOULD have been 
-> >>done. I suspect that the issue is not lack of a good 
-> >>solution, but lack of a good problem. The behavior you 
-> >>propose requires a lot of kernel cleverness, including 
-> >>make the inodes seem to go away, so the count is 
-> >>"right" for what the user sees.
-> >>
-> >
-> >The real solution for it is snapshots.
+> > This prepares sharpsl_pm.c for collie. Without nested if()s, #ifdefs
+> > can be added. 
 > 
-> 
-> Peter,
-> 
-> Explain what you are thinking here.  What I proposed, I 
-> have already implemented in NetWare, it's very easy to 
-> do.  Snapshotting is not complex for FS's but does 
-> require a lot of space for meta-data to manage it.  EXT 
-> is not architecteced for something this complex.  A 
-> simple hidden mv is much easier to do.
+> I'm unconvinced as to why collie needs an ifdef in there and looking at
+> what I think you're leading to, its ugly. Perhaps you could change the 2
+> to a variable set by the machine instead or something, depending upon
+> your intention.
 
-Patch would be nice :-).
+Well, I hate the if/else maze -- IMO returns are more readable. Anyway
+collie needs both count and time checks disabled, AFAICT.
 
-Hidden mv is indeed simple; reclaiming space on demand may be
-trickier.
+> Rather than post these patches straight to the patch system, perhaps you
+> could also post them for discussion first as discussing them once
+> they're submitted seems wrong (and we have to remember to remove the
+> patch system from the cc).
+
+Sorry about that. Yep, I'm used to work with akpm...
 							Pavel
 -- 
 Thanks for all the (sleeping) penguins.

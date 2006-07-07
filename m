@@ -1,58 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWGGHFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWGGHHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWGGHFN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 03:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWGGHFM
+	id S1751255AbWGGHHH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 03:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWGGHHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 03:05:12 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:63371
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751243AbWGGHFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 03:05:10 -0400
-Date: Fri, 07 Jul 2006 00:05:24 -0700 (PDT)
-Message-Id: <20060707.000524.112600047.davem@davemloft.net>
-To: mikpe@it.uu.se
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: [BUG sparc64] 2.6.16-git6 broke X11 on Ultra5 with ATI Mach64
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200607060937.k669bZT3017256@harpo.it.uu.se>
-References: <200607060937.k669bZT3017256@harpo.it.uu.se>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 7 Jul 2006 03:07:06 -0400
+Received: from mail.gmx.net ([213.165.64.21]:65417 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751255AbWGGHHF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 03:07:05 -0400
+Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
+Content-Type: text/plain; charset="us-ascii"
+Date: Fri, 07 Jul 2006 09:07:03 +0200
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+Message-ID: <20060707070703.165520@gmx.net>
+MIME-Version: 1.0
+Subject: splice/tee bugs?
+To: axboe@suse.de
+X-Authenticated: #24879014
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mikael Pettersson <mikpe@it.uu.se>
-Date: Thu, 6 Jul 2006 11:37:35 +0200 (MEST)
+Hello Jens,
 
-> On Wed, 05 Jul 2006 20:40:36 -0700 (PDT), David Miller wrote:
-> >> I.e., X did a simple PROT_READ|PROT_WRITE MAP_SHARED mmap() of
-> >> something PCI-related, presumably the ATI card. The protection
-> >> bits passed into io_remap_pfn_range() are 0x80...0788, while
-> >> pg_iobits are 0x80...0f8a. Current kernels obey the prot bits,
-> >> which, if I read things correctly, means that _PAGE_W_4U and
-> >> _PAGE_MODIFIED_4U don't get set any more.
-> >> 
-> >> I guess something else in the kernel should have set those
-> >> bits before they got to io_remap_pfn_range()?
-> >
-> >The problem is with X, it should not be doing a MAP_SHARED
-> >mmap() of the framebuffer device.  It should be using
-> >MAP_PRIVATE instead.
-> >
-> >The kernel is trying to provide copy-on-write semantics for
-> >the mapping, which doesn't make any sense for device registers.
-> >That's why the kernel isn't setting the writable or modified
-> >bits in the protection bitmask.
-> 
-> Now I'm confused. That COW behaviour would be consistent with
-> MAP_PRIVATE, not MAP_SHARED which is what X did use.
+While editing and extending your draft man pages for
+tee(), splice(), vmsplice() I've been testing out 
+the splice()/tee() calls using a modified version of 
+the program you provided in the tee.2 manual page.
 
-Yes, I'm totally wrong here, MAP_SHARED is correct.
+The most notable differences between my program and yours
+are:
 
-I'll have to figure out how the writeable bits get lost
-in the call chain.
+* I print some debugging info to stderr.
 
-Thanks.
+* I don't pass SPLICE_F_NONBLOCK to tee().
+
+I'm running this on kernel 2.6.17, using the following 
+command line:
+
+$ ls *.c  | ktee r  | wc
+
+On different runs I see:
+
+a) No output from ls through the pipeline:
+
+tee returned 0
+      0       0       0
+
+
+b) Very many instances of EAGAIN followed by expected results:
+
+...
+EAGAIN
+EAGAIN
+EAGAIN
+EAGAIN
+EAGAIN
+EAGAIN
+tee returned 19
+splice returned 19
+tee returned 0
+      2       2      19
+
+In some of these cases the elapsed time to run the command-line 
+is 1 or 2 seconds in this case (instead of the more typical 
+0.05 seconds).
+
+
+c) Occasionally the command line just hangs, producing no output.
+   In this case I can't kill it with ^C or ^\.  This is a 
+   hard-to-reproduce behaviour on my (x86) system, but I have 
+   seen it several times by now.
+
+Assuming I'm not messing up with my test method, some 
+observations:
+
+Result a) seems to be occurring because tee() returns 0 if its
+in_fd is not yet "ready" to deliver data.  Shouldn't tee() 
+be blocking in this case?  And should not 0 only 
+be returned for EOF? on the input file descriptor?
+
+If I uncomment the usleep() line in the program, this behavior 
+does not occur--the program always just produces the expected
+output:
+
+tee returned 19
+splice returned 19
+tee returned 0
+      2       2      19
+
+For behaviour b) -- why does tee() give EAGAIN when
+I haven't specified SPLICE_F_NONBLOCK?  (This is a 
+philosophical question; I can see that there are code paths
+that lead to EAGAIN without SPLICE_F_NONBLOCK, but that
+seems confusing behaviour for userland.)
+
+Behaviour c) hints of a bug in tee().
+
+Your thoughts?
+
+Cheers,
+
+Michael
+
+====
+
+/* ktee.c */
+
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <assert.h>
+#include <errno.h>
+#include <limits.h>
+
+#if defined(__i386__)
+#define __NR_splice     313
+#define __NR_tee        315
+#else
+#error unsupported arch
+#endif
+
+#define SPLICE_F_MOVE   (0x01)  /* move pages instead of copying */
+#define SPLICE_F_NONBLOCK (0x02) /* don't block on the pipe splicing (but */
+                                 /* we may still block on the fd we splice */
+                                 /* from/to, of course */
+#define SPLICE_F_MORE   (0x04)  /* expect more data */
+#define SPLICE_F_GIFT   (0x08)  /* pages passed in are a gift */
+
+
+static inline int splice(int fdin, loff_t *off_in, int fdout,
+                         loff_t *off_out, size_t len, unsigned int flags)
+{
+    return syscall(__NR_splice, fdin, off_in, fdout, off_out, len, flags);
+}
+
+static inline int tee(int fdin, int fdout, size_t len, unsigned int flags)
+{
+    return syscall(__NR_tee, fdin, fdout, len, flags);
+}
+
+int
+main(int argc, char *argv[])
+{
+    int fd;
+    int len, slen;
+
+    assert(argc == 2);
+
+    fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd == -1) {
+        perror("open");
+        exit(EXIT_FAILURE);
+    }
+
+    //usleep(100000);
+    do {
+        /*
+         * tee stdin to stdout.
+         */
+        len = tee(STDIN_FILENO, STDOUT_FILENO,
+                  INT_MAX, 0);
+
+        if (len < 0) {
+            if (errno == EAGAIN) {
+                fprintf(stderr, "EAGAIN\n");
+                continue;
+            }
+            perror("tee");
+            exit(EXIT_FAILURE);
+        }
+        fprintf(stderr, "tee returned %ld\n",  (long) len);
+        if (len == 0)
+            break;
+
+        /*
+         * Consume stdin by splicing it to a file.
+         */
+        while (len > 0) {
+            slen = splice(STDIN_FILENO, NULL, fd, NULL,
+                          len, SPLICE_F_MOVE);
+            if (slen < 0) {
+                perror("splice");
+                break;
+            }
+            fprintf(stderr, "splice returned %ld\n", (long) slen);
+            len -= slen;
+        }
+    } while (1);
+
+    close(fd);
+    exit(EXIT_SUCCESS);
+}
+
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

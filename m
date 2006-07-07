@@ -1,89 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWGGOft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWGGOhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWGGOft (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 10:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWGGOft
+	id S932164AbWGGOhw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 10:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWGGOhw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 10:35:49 -0400
-Received: from lucidpixels.com ([66.45.37.187]:32732 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932114AbWGGOfs (ORCPT
+	Fri, 7 Jul 2006 10:37:52 -0400
+Received: from pat.uio.no ([129.240.10.4]:59043 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932164AbWGGOhu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 10:35:48 -0400
-Date: Fri, 7 Jul 2006 10:35:47 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Mark Lord <liml@rtr.ca>
-cc: Sander <sander@humilis.net>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-In-Reply-To: <200607070943.17957.liml@rtr.ca>
-Message-ID: <Pine.LNX.4.64.0607071035310.5153@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <200607070908.44751.liml@rtr.ca>
- <Pine.LNX.4.64.0607070923130.4099@p34.internal.lan> <200607070943.17957.liml@rtr.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 7 Jul 2006 10:37:50 -0400
+Subject: Re: ext4 features
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: 7eggert@gmx.de
+Cc: Bill Davidsen <davidsen@tmr.com>, "J. Bruce Fields" <bfields@fieldses.org>,
+       Theodore Tso <tytso@mit.edu>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1Fymn1-0000g6-7s@be1.lrz>
+References: <6tVcC-1e1-79@gated-at.bofh.it> <6uXYv-3RG-1@gated-at.bofh.it>
+	 <6veG8-350-7@gated-at.bofh.it> <6vfiU-465-13@gated-at.bofh.it>
+	 <6vmNk-77r-23@gated-at.bofh.it> <6vnq7-7Tw-55@gated-at.bofh.it>
+	 <6vrN0-5Se-9@gated-at.bofh.it> <6vBsY-38p-9@gated-at.bofh.it>
+	 <E1Fymn1-0000g6-7s@be1.lrz>
+Content-Type: text/plain
+Date: Fri, 07 Jul 2006 10:37:28 -0400
+Message-Id: <1152283049.5726.26.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.257, required 12,
+	autolearn=disabled, AWL 1.56, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-07-07 at 11:38 +0200, Bodo Eggert wrote:
 
+> If the changes to these files are very infrequent compared to nanoseconds,
+> you'll only need the version during some nanoseconds, and only during
+> runtime. Having a second-change-within-one-timeframe-flag(*) instead of
+> versions will be enough to make NFS mostly happy and only penalize your
+> users for one nanosecond, and it won't force version-keeping into the
+> filesystem. And besides that, all other filesystems will profit even
+> without having nanosecond resolution nor versioning (but they'll suffer
+> for up to a whole second).
 
-On Fri, 7 Jul 2006, Mark Lord wrote:
+NFS never required file versioning. You're talking to the wrong person.
+It does, however, need a change attribute that logs all changes to the
+file. The above flag does not suffice to provide that.
 
-> Justin Piszcz wrote:
->>
->> had to change
->>
->> KERN_WARN -> KERN_WARNING
->>
->> then more errors
->
-> Eh?  After fixing the KERN_WARN -> KERN_WARNING part,
-> the patch compiles / links cleanly here on 2.6.17.
-> (fixed copy below).   Still untested, though.
->
->> do you know who wrote the original patch?
->
-> I did.
->
-> Cheers
->
-> --- linux/drivers/scsi/libata-scsi.c.orig	2006-06-19 10:37:03.000000000 -0400
-> +++ linux/drivers/scsi/libata-scsi.c	2006-07-07 09:06:57.000000000 -0400
-> @@ -542,6 +542,7 @@
-> 	struct ata_taskfile *tf = &qc->tf;
-> 	unsigned char *sb = cmd->sense_buffer;
-> 	unsigned char *desc = sb + 8;
-> +	unsigned char ata_op = tf->command;
->
-> 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
->
-> @@ -558,6 +559,7 @@
-> 	 * onto sense key, asc & ascq.
-> 	 */
-> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
-> +		printk(KERN_WARNING "ata_gen_ata_desc_sense: failed ata_op=0x%02x\n", ata_op);
-> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
-> 				   &sb[1], &sb[2], &sb[3]);
-> 		sb[1] &= 0x0f;
->
-
-Mark!! It did it again, here you go:
-
-==> /p34/var/log/messages <==
-Jul  7 10:26:06 p34 kernel: [4296869.461000] ata4: status=0x53 { 
-DriveReady SeekComplete Index Error }
-Jul  7 10:26:06 p34 kernel: [4296869.461000] ata4: error=0x04 { 
-DriveStatusError }
-==> /p34/var/log/kern.log <==
-Jul  7 10:26:06 p34 kernel: [4296869.461000] ata4: translated ATA stat/err 
-0x53/04 to SCSI SK/ASC/ASCQ 0xb/00/00
-Jul  7 10:26:06 p34 kernel: [4296869.461000] ata4: status=0x53 { 
-DriveReady SeekComplete Index Error }
-Jul  7 10:26:06 p34 kernel: [4296869.461000] ata4: error=0x04 { 
-DriveStatusError }
-
-Does this help?
-
-Can we eliminate the cause of these errors now?
+Trond
 

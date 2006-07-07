@@ -1,68 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWGGVQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWGGVTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWGGVQk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 17:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWGGVQj
+	id S932286AbWGGVTE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 17:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWGGVTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 17:16:39 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:63944 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932286AbWGGVQj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 17:16:39 -0400
-Subject: Re: [PATCH 1/2] srcu-3: RCU variant permitting read-side blocking
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       dipankar@in.ibm.com, Ingo Molnar <mingo@elte.hu>, tytso@us.ibm.com,
-       Darren Hart <dvhltc@us.ibm.com>, oleg@tv-sign.ru,
-       Jes Sorensen <jes@sgi.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0607071523330.6793-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0607071523330.6793-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Date: Fri, 07 Jul 2006 14:11:26 -0700
-Message-Id: <1152306686.21787.2163.camel@stark>
+	Fri, 7 Jul 2006 17:19:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60043 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932286AbWGGVTB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 17:19:01 -0400
+Date: Fri, 7 Jul 2006 14:18:43 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Martin Michlmayr <tbm@cyrius.com>, Andi Kleen <ak@suse.de>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       341801@bugs.debian.org, asd@suespammers.org, kevin@sysexperts.com
+Subject: Re: skge error; hangs w/ hardware memory hole
+Message-ID: <20060707141843.73fc6188@dxpl.pdx.osdl.net>
+In-Reply-To: <20060703205238.GA10851@deprecation.cyrius.com>
+References: <20060703205238.GA10851@deprecation.cyrius.com>
+X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.17; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-07 at 15:59 -0400, Alan Stern wrote:
-> On Fri, 7 Jul 2006, Paul E. McKenney wrote:
+On Mon, 3 Jul 2006 22:52:38 +0200
+Martin Michlmayr <tbm@cyrius.com> wrote:
 
-<snip>
-
-> > So, a fourth possibility -- can a call from start_kernel() invoke some
-> > function in yours and Matt's code invoke init_srcu_struct() to get a
-> > statically allocated srcu_struct initialized?  Or, if this is part of
-> > a module, can the module initialization function do this work?
-> > 
-> > (Hey, I had to ask!)
+> We received the following bug report at http://bugs.debian.org/341801
 > 
-> That is certainly a viable approach: just force everyone to use dynamic 
-> initialization.  Changes to existing code would be relatively few.
-
-	Works for me. I've been working on patches for Andrew's multi-chain
-proposal and I could use an init function there anyway. Should be faster
-too -- dynamically-allocated per-cpu memory can take advantage of
-node-local memory whereas, to my knowledge, statically-allocated cannot.
-
-> I'm not sure where the right place would be to add these initialization 
-> calls.  After kmalloc is working but before the relevant notifier chains 
-> get used at all.  Is there such a place?  I guess it depends on which 
-> notifier chains we convert.
+> | I have a Asus A8V with 4GB of RAM. When I turn on the hardware memory
+> | hole in the BIOS, the skge driver prints out this message:
+> |       skge hardware error detected (status 0xc00)
+> | and then does not work. Setting debug=16 doesn't really show anything.
 > 
-> We might want to leave some chains using the existing rw-semaphore API.  
-> It's more appropriate when there's a high frequency of write-locking
-> (i.e., things registering or unregistering on the notifier chain).  The 
-> SRCU approach is more appropriate when the chain is called a lot and 
-> needs to have low overhead, but (un)registration is uncommon.  Matt's task 
-> notifiers are a good example.
+> Another users confirms this bug, saying:
+> 
+> | I'm running kernel 2.6.15-1-amd64-generic version 2.6.15-6, and see
+> | the very same thing.
+> | So I have to turn off the memory remapping feature that allows the
+> | system to see all 4 gig of memory, and thus lose the use of about 200
+> | megabytes of memory.
+> | Hardware: ASUS A8V Deluxe, 4G RAM, Athlon 64 3200+ CPU.
+> 
+> This problem has probably been there forever and also happens with the
+> sk98lin driver:
+> 
+> | With sk98lin under both 2.6.12 and 2.6.17 I get the following message,
+> | repeated countless times, and finally a hang: [this is copied from
+> | screen on to a sheet a paper and re-typed, beware typos]:
+> 
+> | eth0: Adapter failed
+> | eth0: -- ERROR --
+> | class: Hardware failure
+> | Nr: 0x264
+> | Msg: unexpected IRQ Status error
+> 
+> The bug is still present in 2.6.17 -mm6:
+> 
+> | -mm6 does not work with skge and the hardware memory hole. It gave
+> | these messages:
+> 
+> | skge eth0: enabling interface
+> | skge 0000:00:0a.0: PCI error cmd=0x117 status=0x22b0
+> | skge unable to clear error (so ignoring them)
+> | skge eth0: Link is up at 1000 Mbps, full duplex, flow control tx and rx
+> 
+> | DHCP never managed to get an IP address.
+> 
+> Any idea what to do about this?
 
-Yes, it is an excellent example.
+I don't really have access to the hardware, or know the x86-64 details perhaps Andi Kleen 
+would be of more help. But my suspicion is that the remapping doesn't work for i/o devices
+because of hardware or BIOS.  One simple workaround is to force use of the I/O mmu on
+the amd64 processor. This has a small performance impact (requires more setup).
 
-> Alan Stern
+See Documentation/x86_64/boot-options.txt iommu=force
 
-Cheers,
-	-Matt Helsley
-
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+Quis custodiet ipsos custodes?

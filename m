@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWGGXL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWGGXOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWGGXL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 19:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWGGXL2
+	id S932373AbWGGXOt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 19:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWGGXOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 19:11:28 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:24964 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932129AbWGGXL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 19:11:27 -0400
-Subject: Hang and Soft Lockup problems with generic time code
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 07 Jul 2006 18:11:19 -0500
-Message-Id: <1152313879.3866.53.camel@mulgrave.il.steeleye.com>
+	Fri, 7 Jul 2006 19:14:49 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:40365 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932373AbWGGXOt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 19:14:49 -0400
+Date: Fri, 7 Jul 2006 16:15:24 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Esben Nielsen <nielsen.esben@googlemail.com>
+Cc: mingo@elte.hu, oleg@tv-sign.ru, linux-kernel@vger.kernel.org,
+       dino@us.ibm.com, tytso@us.ibm.com, dvhltc@us.ibm.com
+Subject: Re: [PATCH -rt] catch put_task_struct RCU handling up to mainline
+Message-ID: <20060707231524.GI1296@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060707192955.GA2219@us.ibm.com> <Pine.LNX.4.64.0607072352390.12372@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607072352390.12372@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ever since the 2.6.17 kernel pulled in the generic timer code, I've been
-experiencing hangs and softlockups with the aic94xx driver (which I
-thought were driver related).  Finally, after a lot of debugging I've
-isolated the culprit to linux/time.h:timespec_add_ns()
+On Fri, Jul 07, 2006 at 11:56:00PM +0100, Esben Nielsen wrote:
+> On Fri, 7 Jul 2006, Paul E. McKenney wrote:
+> 
+> >Hello!
+> >
+> >Due to the separate -rt and mainline evolution of RCU signal handling,
+> >the -rt patchset now makes each task struct go through two RCU grace
+> >periods, with one call_rcu() in release_task() and with another
+> >in put_task_struct().  Only the call_rcu() in release_task() is
+> >required, since this is the one that is associated with tearing down
+> >the task structure.
+> >
+> >This patch removes the extra call_rcu() in put_task_struct(), synching
+> >this up with mainline.  Tested lightly on i386.
+> >
+> 
+> The extra call_rcu() has an advantage:
+> It defers work away from the task doing the last put_task_struct().
+> It could be a priority 99 task with hard latency requirements doing 
+> some PI boosting, forinstance. The extra call_rcu() defers non-RT work to 
+> a low priority task. This is in generally a very good idea in a real-time 
+> system.
+> So unless you can argue that the work defered is as small as the work of 
+> doing a call_rcu() I would prefer the extra call_rcu().
 
-What is happening is that a->tv_nsec is coming in here negative and
-looping for huge amounts of time.
+I would instead argue that the only way that the last put_task_struct()
+is an unrelated high-priority task is if it manipulating an already-exited
+task.  In particular, I believe that the sys_exit() path prohibits your
+example of priority-boosting an already-exited task by removing the
+exiting task from the various lists before doing the release_task()
+on itself.
 
-Why tv_nsec is negative appears to be related to massive cycle
-adjustments in kernel/timer.c:update_wall_time().  With the TSC as my
-clocksource I've seen the clocksource_read() return increments of in the
-200s range.  No idea why this is happening.  The same strange
-discontinuous jumps in cycle count also occurs with pm_acpi as the clock
-source.
+Please let me know what I am missing here!
 
-I can't get a good enough handle on all the generic time code changes to
-reverse them.  However, this machine is a P4, so I was able to boot it
-with an x86_64 kernel (which doesn't yet use the generic time code) and
-confirm that all the hangs and softlockups go away.
-
-The machine in question is an IBM x206m dual core P4.
-
-James
-
-
+							Thanx, Paul

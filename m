@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWGGRNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWGGROa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWGGRNP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 13:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWGGRNP
+	id S932198AbWGGROa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 13:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWGGROa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 13:13:15 -0400
-Received: from mga03.intel.com ([143.182.124.21]:11341 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932197AbWGGRNO convert rfc822-to-8bit (ORCPT
+	Fri, 7 Jul 2006 13:14:30 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:61161 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932198AbWGGROa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 13:13:14 -0400
-X-IronPort-AV: i="4.06,218,1149490800"; 
-   d="scan'208"; a="62718745:sNHT9580022291"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 7 Jul 2006 13:14:30 -0400
+Message-ID: <44AE966F.8090506@garzik.org>
+Date: Fri, 07 Jul 2006 13:14:23 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-Date: Fri, 7 Jul 2006 10:10:39 -0700
-Message-ID: <617E1C2C70743745A92448908E030B2A300BEC@scsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-Thread-Index: AcahdpcdJ0jzipOIQDWW1pdLF8Ht5wAb8IDQ
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>, "Adrian Bunk" <bunk@stusta.de>
-Cc: <kai@germaschewski.name>, <linux-kernel@vger.kernel.org>,
-       "Dave Jones" <davej@redhat.com>, <linux-arch@vger.kernel.org>
-X-OriginalArrivalTime: 07 Jul 2006 17:10:41.0154 (UTC) FILETIME=[465BBE20:01C6A1E8]
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, jamagallon@ono.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6
+References: <20060703030355.420c7155.akpm@osdl.org>	 <20060705234347.47ef2600@werewolf.auna.net>	 <20060705155602.6e0b4dce.akpm@osdl.org>	 <20060706015706.37acb9af@werewolf.auna.net>	 <20060705170228.9e595851.akpm@osdl.org>	 <20060706163646.735f419f@werewolf.auna.net>	 <20060706164802.6085d203@werewolf.auna.net>	 <20060706234425.678cbc2f@werewolf.auna.net>	 <20060706145752.64ceddd0.akpm@osdl.org>	 <1152288168.20883.8.camel@localhost.localdomain>	 <20060707175509.14ea9187@werewolf.auna.net>	 <1152290643.20883.25.camel@localhost.localdomain>	 <20060707093432.571af16e.rdunlap@xenotime.net> <1152292196.20883.48.camel@localhost.localdomain>
+In-Reply-To: <1152292196.20883.48.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch broke (-rc1):
-> 
-> sparc allnoconfig build
-> ia64 allnoconfig build
-> ppc64 allnoconfig build
+Alan Cox wrote:
+> Also its dangerous to assume "pata_*" is a PATA driver, it may be SATA
+> with a bridge chip, and in some cases like the ATI this is quite common.
 
-ia64 allnoconfig is (and has been for a while) broken for other reasons.
+Incorrect; what you describe is the core assumption underlying the 
+"ata_", "pata_", and "sata_" prefixes.
 
-Almost all of the real configurations still build.  The only error
-that adding this turned up was building a generic uniprocessor config.
+If the user can attached PATA and SATA devices to a controller, its 
+prefix is ata_
+If the user can only attach PATA devices, its prefix is pata_
+If the user can only attach SATA devices, its prefix is sata_
+For the purposes of this convention, user-attached bridges such as 
+PATA<->SATA bridges, are ignored.
 
-smp_call_function_single() is used without a prototype by
-arch/ia64/sn/kernel/sn2/sn_hwperf.c:sn_hwperf_op_cpu()
+Most older controllers always fall into pata_, most newer into sata_, 
+and an odd few ata_
 
-This isn't a real error because this function actually does return
-an "int", so the complier default is correct (plus the caller doesn't
-look at the return value, plus on a UP we'd never be able to get to
-this call-site because it is in the "else" !!!).
+Its a bug if you don't help maintain these assumptions :)
 
-But I'll fix it anyway.
+	Jeff
 
-diff --git a/include/asm-ia64/smp.h b/include/asm-ia64/smp.h
-index 719ff30..949e3a2 100644
---- a/include/asm-ia64/smp.h
-+++ b/include/asm-ia64/smp.h
-@@ -133,6 +133,7 @@ #else
- 
- #define cpu_logical_id(i)		0
- #define cpu_physical_id(i)		ia64_get_lid()
-+#define smp_call_function_single(cpuid, func, info, retry, wait) 0
- 
- #endif /* CONFIG_SMP */
- #endif /* _ASM_IA64_SMP_H */
 
--Tony

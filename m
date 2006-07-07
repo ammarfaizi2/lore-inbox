@@ -1,275 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWGGSzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWGGS63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbWGGSzU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 14:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWGGSzU
+	id S932252AbWGGS63 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 14:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWGGS63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 14:55:20 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:34692 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932245AbWGGSzT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 14:55:19 -0400
-Subject: Re: boot errors in kernels 2.6.17-mm6 plus 2.6.18-rc1
-From: john stultz <johnstul@us.ibm.com>
-To: Uwe Bugla <uwe.bugla@gmx.de>
-Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Valdis.Kletnieks@vt.edu
-In-Reply-To: <20060707124552.9650@gmx.net>
-References: <20060707124552.9650@gmx.net>
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 07 Jul 2006 11:55:15 -0700
-Message-Id: <1152298515.5330.12.camel@localhost.localdomain>
+	Fri, 7 Jul 2006 14:58:29 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:1695 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932252AbWGGS62 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 14:58:28 -0400
+Date: Fri, 7 Jul 2006 11:59:04 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Matt Helsley <matthltc@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       dipankar@in.ibm.com, Ingo Molnar <mingo@elte.hu>, tytso@us.ibm.com,
+       Darren Hart <dvhltc@us.ibm.com>, oleg@tv-sign.ru,
+       Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] srcu-3: RCU variant permitting read-side blocking
+Message-ID: <20060707185903.GE1296@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060707163331.GD1296@us.ibm.com> <Pine.LNX.4.44L0.0607071345270.6793-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0607071345270.6793-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-07 at 14:45 +0200, Uwe Bugla wrote:
-> Hi Roman, hi John Stultz,
-> Andrew told me that you were working on that issue.
+On Fri, Jul 07, 2006 at 02:02:27PM -0400, Alan Stern wrote:
+> On Fri, 7 Jul 2006, Paul E. McKenney wrote:
+> 
+> > > Note that this approach won't work when you need to do something like:
+> > > 
+> > > 	struct xyz {
+> > > 		struct srcu_struct s;
+> > > 	} the_xyz = {
+> > > 		.s = /* What goes here? */
+> > > 	};
+> > 
+> > Yep, this the same issue leading to my complaint below about not being
+> > able to pass a pointer to the resulting srcu_struct.
+> 
+> No, not really.  The problem here is that you can't use DEFINE_PER_CPU 
+> inside the initializer for the_xyz.  The problem about not being able to 
+> pass a pointer is easily fixed; this problem is not so easy.
 
-Yep.
+Both symptoms of the same problem in my view, but I agree that other
+perspectives are possible and perhaps even useful.  ;-)
 
-> I use Debian Etch in connection with latest kernel-headers and kernels.
-> My system is a Pentium 4, the graphics card is an ATI Rage 128 Pro with 32 MB RAM.
-> When I compile both mentioned kernels, I can activate FB and FB_VESA.
-> But if I add „vga=791“ to menu.lst (i. e. as an additional parameter for the kernel to boot) two bugs happen:
-> 1. The kernel takes an eternity to boot, taking about 4 long breaks to come up at all
+We agree on the important thing, which is that the approach I was
+calling out in the earlier email has some severe shortcomings, and
+that we therefore need to do something different.
 
-This sounds very much like the "massive lost-ticks causing timekeeping
-issues" bug. 
+> > Another approach I looked at was statically allocating a struct
+> > percpu_data, but initializing it seems to be problematic.
+> > 
+> > So here are the three approaches that seem to have some chance
+> > of working:
+> > 
+> > 1.	Your approach of dynamically selecting between the
+> > 	per_cpu_ptr() and per_cpu() APIs based on a flag
+> > 	within the structure.
+> 
+> Or a function pointer within the structure.
 
-Roman is working on his version of this fix, but just to be sure we're
-dealing with the same issue as the one Vladis saw, could you try the
-following patch and let me know if it works for you?
+Agreed, either a function pointer or a flag.
 
-Note that this doesn't fix the lost-tick issue, but tries to make the
-timekeeping code more robust.
+> > 2.	Creating a pair of SRCU APIs, reflecting the two
+> > 	underlying per-CPU APIs (one for staticly allocated
+> > 	per-CPU variables, the other for dynamically allocated
+> > 	per-CPU variables).
+> 
+> This seems ridiculous.  It would be much better IMO to come up with a 
+> least-common-multiple API that would apply to both sorts of variables.
+> For example, per-cpu data could be represented by _both_ a pointer and a 
+> table instead of just a pointer (static) or just a table (dynamic).
 
-Andrew, its likely after we get this problem resolved we'll need another
-detect-and-warn patch for this lost-ticks case so we don't just
-wall-paper over bad pic/apic setups w/ robust timekeeping. Does that
-sound reasonable?
+No argument here.
 
-thanks
--john
+> > 3.	A compile-time translation layer, making use of
+> > 	two different structure types and a bit of gcc
+> > 	type comparison.  The idea would be to create
+> > 	a srcu_struct_static and a srcu_struct_dynamic
+> > 	structure that contained a pointer to the corresponding
+> > 	per-CPU variable and an srcu_struct, and to have
+> > 	a set of macros that did a typeof comparison, selecting
+> > 	the appropriate underlying primitive from the set
+> > 	of two.
+> > 
+> > 	This is essentially #2, but with some cpp/typeof
+> > 	magic to make it look to the user of SRCU that there
+> > 	is but one API.
+> 
+> This would add tremendous complexity, in terms of how the API is
+> implemented, for no very good reason.  Programming is hard enough 
+> already...
 
-Implement P-D control for clocksource_adjust()
+Leaving out the "tremendous", yes, there would be some machinations.
+It would certainly be OK by me if this can be avoided.  ;-)
 
-diff --git a/kernel/timer.c b/kernel/timer.c
-index 396a3c0..f4e7681 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -1007,81 +1007,108 @@ static int __init timekeeping_init_devic
- 
- device_initcall(timekeeping_init_device);
- 
--/*
-- * If the error is already larger, we look ahead another tick,
-- * to compensate for late or lost adjustments.
-- */
--static __always_inline int clocksource_bigadjust(int sign, s64 error, s64 *interval, s64 *offset)
-+static int error_aproximation(u64 error, u64 unit, int max)
- {
--	int adj;
--
--	/*
--	 * As soon as the machine is synchronized to the external time
--	 * source this should be the common case.
--	 */
--	error >>= 2;
--	if (likely(sign > 0 ? error <= *interval : error >= *interval))
--		return sign;
--
--	/*
--	 * An extra look ahead dampens the effect of the current error,
--	 * which can grow quite large with continously late updates, as
--	 * it would dominate the adjustment value and can lead to
--	 * oscillation.
--	 */
--	error += current_tick_length() >> (TICK_LENGTH_SHIFT - clock->shift + 1);
--	error -= clock->xtime_interval >> 1;
--
--	adj = 0;
-+	int adj = 0;
- 	while (1) {
- 		error >>= 1;
--		if (sign > 0 ? error <= *interval : error >= *interval)
--			break;
--		adj++;
-+		if (error <= unit)
-+			return adj;
-+		if (!max || adj < max)
-+			adj++;
- 	}
--
--	/*
--	 * Add the current adjustments to the error and take the offset
--	 * into account, the latter can cause the error to be hardly
--	 * reduced at the next tick. Check the error again if there's
--	 * room for another adjustment, thus further reducing the error
--	 * which otherwise had to be corrected at the next update.
--	 */
--	error = (error << 1) - *interval + *offset;
--	if (sign > 0 ? error > *interval : error < *interval)
--		adj++;
--
--	*interval <<= adj;
--	*offset <<= adj;
--	return sign << adj;
- }
-+#define MAXOFFADJ 4 /* vary max oscillation vs convergance speed */
- 
- /*
-  * Adjust the multiplier to reduce the error value,
-  * this is optimized for the most common adjustments of -1,0,1,
-  * for other values we can do a bit more work.
-  */
--static void clocksource_adjust(struct clocksource *clock, s64 offset)
-+static void clocksource_adjust(struct clocksource *clock, s64 offset,
-+				s64 interval_cycs, s64 interval_error)
- {
- 	s64 error, interval = clock->cycle_interval;
--	int adj;
--
--	error = clock->error >> (TICK_LENGTH_SHIFT - clock->shift - 1);
--	if (error > interval) {
--		adj = clocksource_bigadjust(1, error, &interval, &offset);
--	} else if (error < -interval) {
--		interval = -interval;
--		offset = -offset;
--		adj = clocksource_bigadjust(-1, error, &interval, &offset);
--	} else
--		return;
-+	
-+	error = shift_right(clock->error, (TICK_LENGTH_SHIFT - clock->shift));
-+	interval_error = shift_right(interval_error, 
-+					(TICK_LENGTH_SHIFT - clock->shift));
-+
-+	if ((error > interval)
-+		||(error < -(interval)) ) {
-+
-+		int adj, multadj = 0;
-+		s64 offset_update = 0, snsec_update = 0;
-+		
-+		/* First do the frequency adjustment:
-+		 *   The idea here is to look at the error 
-+		 *   accumulated since the last call to 
-+		 *   update_wall_time to determine the 
-+		 *   frequency adjustment needed so no new
-+		 *   error will be incurred in the next
-+		 *   interval.
-+		 *
-+		 *   This is basically derivative control
-+		 *   using the PID terminology (we're calculating
-+		 *   the derivative of the slope and correcting it).
-+		 *
-+		 *   The math is basically:
-+		 *      multadj = interval_error/interval_cycles
-+		 *   Which we fudge using binary approximation.
-+		 */
-+		if(interval_error >= 0) {
-+			adj = error_aproximation(interval_error,
-+						interval_cycs, 0);
-+			multadj += 1 << adj;
-+			snsec_update += interval << adj;
-+			offset_update += offset << adj;
-+		} else {
-+			adj = error_aproximation(-interval_error, 
-+						interval_cycs, 0);
-+			multadj -= 1 << adj;
-+			snsec_update -= interval << adj;
-+			offset_update -= offset << adj;
-+	        }
-+		/* Now do the offset adjustment:
-+		 *   Now that the frequncy is fixed, we
-+		 *   want to look at the total error accumulated
-+		 *   to move us back in sync using the same method.
-+		 *   However, we must be careful as if we make too 
-+		 *   sudden an adjustment we might overshoot. So we 
-+		 *   limit the amount of change to spread the 
-+		 *   adjustment (using MAXOFFADJ) over a longer 
-+		 *   period of time.
-+		 *
-+		 *   This is basically proportional control
-+		 *   using the PID terminology.
-+		 *
-+		 *   We use interval_cycs here as the divisor, which
-+		 *   hopes that the next sample will be similar in 
-+		 *   distance from the last.
-+		 */
-+		if(error >= 0) {
-+			adj = error_aproximation(error, 
-+					interval_cycs, MAXOFFADJ);
-+			multadj += 1<<adj;
-+			snsec_update += interval <<adj;
-+			offset_update += offset << adj;
-+		} else {
-+			adj = error_aproximation(-error,
-+						interval_cycs, MAXOFFADJ);
-+			multadj -= 1<<adj;
-+			snsec_update -= interval <<adj;
-+			offset_update -= offset << adj;
-+		}
- 
--	clock->mult += adj;
--	clock->xtime_interval += interval;
--	clock->xtime_nsec -= offset;
--	clock->error -= (interval - offset) << (TICK_LENGTH_SHIFT - clock->shift);
-+		clock->mult += multadj;
-+		clock->xtime_interval += snsec_update;
-+		clock->xtime_nsec -= offset_update;
-+		clock->error += (offset_update) 
-+					<< (TICK_LENGTH_SHIFT - clock->shift);
-+	}
- }
- 
-+
- /*
-  * update_wall_time - Uses the current clocksource to increment the wall time
-  *
-@@ -1089,7 +1116,8 @@ static void clocksource_adjust(struct cl
-  */
- static void update_wall_time(void)
- {
--	cycle_t offset;
-+	cycle_t offset, interval_cycs = 0;
-+	s64 interval_error = 0; 
- 
- 	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
- 
-@@ -1106,8 +1134,13 @@ static void update_wall_time(void)
- 		/* accumulate one interval */
- 		clock->xtime_nsec += clock->xtime_interval;
- 		clock->cycle_last += clock->cycle_interval;
-+		interval_cycs += clock->cycle_interval;
- 		offset -= clock->cycle_interval;
- 
-+		/* accumulate error between NTP and clock interval */
-+		interval_error += current_tick_length();
-+		interval_error -= clock->xtime_interval << (TICK_LENGTH_SHIFT - clock->shift);
-+
- 		if (clock->xtime_nsec >= (u64)NSEC_PER_SEC << clock->shift) {
- 			clock->xtime_nsec -= (u64)NSEC_PER_SEC << clock->shift;
- 			xtime.tv_sec++;
-@@ -1119,14 +1152,10 @@ static void update_wall_time(void)
- 						>> clock->shift);
- 		/* increment the NTP state machine */
- 		update_ntp_one_tick();
--
--		/* accumulate error between NTP and clock interval */
--		clock->error += current_tick_length();
--		clock->error -= clock->xtime_interval << (TICK_LENGTH_SHIFT - clock->shift);
- 	}
--
-+	clock->error += interval_error;
- 	/* correct the clock when NTP error is too big */
--	clocksource_adjust(clock, offset);
-+	clocksource_adjust(clock, offset, interval_cycs, interval_error);
- 
- 	/* store full nanoseconds into xtime */
- 	xtime.tv_nsec = clock->xtime_nsec >> clock->shift;
+> > The goal I believe we are trying to attain with SRCU include:
+> > 
+> > a.	Minimal read-side overhead.  This goal favors 2 and 3.
+> > 	(Yes, blocking is so expensive that the extra check is
+> > 	"in the noise" if we block on the read side -- but I
+> > 	expect uses where blocking can happen but is extremely
+> > 	rare.)
+> > 
+> > b.	Minimal API expansion.  This goal favors 1 and 3.
+> > 
+> > c.	Simple and straightforward use of well-understood and
+> > 	timeworn features of gcc.  This goal favors 1 and 2.
+> > 
+> > Based on this breakdown, we have a three-way tie.  I tend to pay less
+> > much attention to (c), which would lead me to choose #2.
+> > 
+> > Thoughts?  Other important goals?  Better yet, other approaches?
+> 
+> I think it's foolish for us to waste a tremendous amount of time on this 
+> when the real problem is the poor design of the per-cpu API.  Fix that, 
+> and most of the difficulties will be gone.
 
+If the per-CPU API was reasonably unifiable, I expect that it would
+already be unified.  The problem is that the easy ways to unify it hit
+some extremely hot code paths with extra cache misses -- for example, one
+could add a struct percpu_data to each and every static DEFINE_PERCPU(),
+but at the cost of an extra cache line touched and extra indirection
+-- which I believe was deemed unacceptable -- and would introduce
+initialization difficulties for the static case.
 
+So, a fourth possibility -- can a call from start_kernel() invoke some
+function in yours and Matt's code invoke init_srcu_struct() to get a
+statically allocated srcu_struct initialized?  Or, if this is part of
+a module, can the module initialization function do this work?
 
+(Hey, I had to ask!)
+
+						Thanx, Paul

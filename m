@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWGGV3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWGGVap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWGGV3R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 17:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWGGV3R
+	id S932315AbWGGVap (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 17:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWGGVap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 17:29:17 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:13237 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932314AbWGGV3Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 17:29:16 -0400
-From: Andi Kleen <ak@suse.de>
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: skge error; hangs w/ hardware memory hole
-Date: Fri, 7 Jul 2006 23:28:51 +0200
-User-Agent: KMail/1.9.3
-Cc: Martin Michlmayr <tbm@cyrius.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, 341801@bugs.debian.org,
-       asd@suespammers.org, kevin@sysexperts.com
-References: <20060703205238.GA10851@deprecation.cyrius.com> <20060707141843.73fc6188@dxpl.pdx.osdl.net>
-In-Reply-To: <20060707141843.73fc6188@dxpl.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jul 2006 17:30:45 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37136 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932315AbWGGVao
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 17:30:44 -0400
+Date: Fri, 7 Jul 2006 21:30:31 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Bill Davidsen <davidsen@tmr.com>, Benny Amorsen <benny+usenet@amorsen.dk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext4 features
+Message-ID: <20060707213030.GA5393@ucw.cz>
+References: <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no> <20060703205523.GA17122@irc.pl> <1151960503.3108.55.camel@laptopd505.fenrus.org> <44A9904F.7060207@wolfmountaingroup.com> <20060703232547.2d54ab9b.diegocg@gmail.com> <m3r711u3yk.fsf@ursa.amorsen.dk> <44AB3E4C.2000407@tmr.com> <20060707141030.GC4239@ucw.cz> <m38xn58g26.fsf@defiant.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607072328.51282.ak@suse.de>
+In-Reply-To: <m38xn58g26.fsf@defiant.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 July 2006 23:18, Stephen Hemminger wrote:
-> On Mon, 3 Jul 2006 22:52:38 +0200
-> Martin Michlmayr <tbm@cyrius.com> wrote:
+On Fri 07-07-06 19:45:21, Krzysztof Halasa wrote:
+> Pavel Machek <pavel@ucw.cz> writes:
 > 
-> > We received the following bug report at http://bugs.debian.org/341801
-> > 
-> > | I have a Asus A8V with 4GB of RAM. When I turn on the hardware memory
-> > | hole in the BIOS, the skge driver prints out this message:
-> > |       skge hardware error detected (status 0xc00)
-> > | and then does not work. Setting debug=16 doesn't really show anything.
+> > It *was* done. mc supports undelete on ext2.
+> 
+> How does it do that? Directly accessing the device?
 
+Yes. I used it once or twice, and was not happy when ext3 broke it.
 
-Is that a board with VIA chipset?
-
-VIA doesn't seem to support PCI accesses with addresses >4GB and they also
-don't have a working GART IOMMU.
-
-It will likely work with iommu=force
-
-I've been pondering to force this, but was still waiting for more reports.
-
--Andi
-
+-- 
+Thanks for all the (sleeping) penguins.

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWGGRlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWGGRo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWGGRlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 13:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWGGRlI
+	id S932236AbWGGRo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 13:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWGGRo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 13:41:08 -0400
-Received: from khc.piap.pl ([195.187.100.11]:11156 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932234AbWGGRlH (ORCPT
+	Fri, 7 Jul 2006 13:44:26 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:9483 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S932236AbWGGRoZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 13:41:07 -0400
-To: Valdis.Kletnieks@vt.edu
-Cc: ric@emc.com, Tomasz Torcz <zdzichu@irc.pl>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
-	<20060701170729.GB8763@irc.pl>
-	<20060701174716.GC24570@cip.informatik.uni-erlangen.de>
-	<20060701181702.GC8763@irc.pl> <44AD286F.3030507@emc.com>
-	<m3ejwyiryr.fsf@defiant.localdomain> <44AD4807.6090704@emc.com>
-	<200607062052.k66KqMDH027923@turing-police.cc.vt.edu>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Fri, 07 Jul 2006 19:41:05 +0200
-In-Reply-To: <200607062052.k66KqMDH027923@turing-police.cc.vt.edu> (Valdis Kletnieks's message of "Thu, 06 Jul 2006 16:52:22 -0400")
-Message-ID: <m3d5ch8g9a.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Fri, 7 Jul 2006 13:44:25 -0400
+Date: Fri, 7 Jul 2006 19:44:24 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: grundig <grundig@teleline.es>
+Cc: Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
+       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net
+Subject: Re: swsusp / suspend2 reliability
+Message-ID: <20060707174424.GA9913@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	grundig <grundig@teleline.es>, Avuton Olrich <avuton@gmail.com>,
+	jan@rychter.com, linux-kernel@vger.kernel.org,
+	suspend2-devel@lists.suspend2.net
+References: <200606270147.16501.ncunningham@linuxmail.org> <20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au> <20060627154130.GA31351@rhlx01.fht-esslingen.de> <20060627222234.GP29199@elf.ucw.cz> <m2k66qzgri.fsf@tnuctip.rychter.com> <3aa654a40607070819v1359fb69l5d617f029940cc0e@mail.gmail.com> <20060707180310.ef7186d7.grundig@teleline.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060707180310.ef7186d7.grundig@teleline.es>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu writes:
+On Fri, Jul 07, 2006 at 06:09:39PM +0200, grundig wrote:
+> You may ask "why not merge suspend2", but from an objective
+> POV it's perfectly fine that some people asks "why don't
+> suspend2 people try to improve swsusp instead of rewritting
+> it? It may be easier to fix swsusp than replacint it with
+> suspend2"
 
-> Backup programs want it stored with the file.
+Suspend2 is an improvement on swsusp.  What Pavel wants is something
+completely different and even less tested that suspend2 called
+uswsusp.
 
-Not necessarily - backup may want to store the hashes in some central
-place as well. I'm using such solution and it has only positives.
+  OG.
 
-> If the filesystem stored a "guaranteed trustable current hash", Tripwire
-> *could* use it to compare against its database rather than having to re-read
-> the file and recompute it.  Unfortunately, a useful trustable hash is
-> basically incompatible with any sort of incremental updating (except for
-> the special case of appending to the file).
-
-Block hashes + master hash could allow something like that. Not sure
-if we want it in the fs, though.
--- 
-Krzysztof Halasa

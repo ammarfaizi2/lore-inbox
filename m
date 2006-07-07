@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWGGNun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWGGNyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbWGGNun (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 09:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWGGNun
+	id S1751207AbWGGNyh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 09:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWGGNyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 09:50:43 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19717 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751186AbWGGNum
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 09:50:42 -0400
-Date: Fri, 7 Jul 2006 13:50:31 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Jan Rychter <jan@rychter.com>
-Cc: linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net
-Subject: Re: swsusp / suspend2 reliability
-Message-ID: <20060707135031.GA4239@ucw.cz>
-References: <200606270147.16501.ncunningham@linuxmail.org> <20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au> <20060627154130.GA31351@rhlx01.fht-esslingen.de> <20060627222234.GP29199@elf.ucw.cz> <m2k66qzgri.fsf@tnuctip.rychter.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2k66qzgri.fsf@tnuctip.rychter.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 7 Jul 2006 09:54:37 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:32175 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S1751207AbWGGNyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 09:54:36 -0400
+Message-ID: <44AE6799.7080705@grupopie.com>
+Date: Fri, 07 Jul 2006 14:54:33 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Arjan van de Ven <arjan@infradead.org>,
+       Michael Kerrisk <michael.kerrisk@gmx.net>, mtk-manpages@gmx.net,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: splice/tee bugs?
+References: <20060707070703.165520@gmx.net> <20060707040749.97f8c1fc.akpm@osdl.org> <20060707114235.243260@gmx.net> <20060707120333.GR4188@suse.de> <20060707122850.GU4188@suse.de> <20060707123110.64140@gmx.net> <20060707124105.GW4188@suse.de> <20060707131247.GX4188@suse.de> <20060707131403.GY4188@suse.de> <1152278514.3111.77.camel@laptopd505.fenrus.org> <20060707132651.GZ4188@suse.de>
+In-Reply-To: <20060707132651.GZ4188@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
->  Pavel> I do not think suspend2 works on more machines than in-kernel
->  Pavel> swsusp. Problems are in drivers, and drivers are shared.
+Jens Axboe wrote:
+> On Fri, Jul 07 2006, Arjan van de Ven wrote:
+>>> I cannot see where this could be happening, Ingo is this valid?
+>> maybe the test found a way to exit the kernel previously while holding
+>> the lock ?
 > 
->  Pavel> That means that if you have machine where suspend2 works and
->  Pavel> swsusp does not, please tell me. I do not think there are many
->  Pavel> of them.
-> 
-> Accept the facts -- for some reason, there is a fairly large user base
-> that goes to all the bother of using suspend2, which requires
-...
-> That is a fact, and all the hand waving won't change it.
+> I don't see how that could happen. The function in question is
+> fs/splice.c:link_pipe(). There are no returns in that function, it
+> always just breaks out and unlocks the two mutexes again.
 
-Users like suspend2 eye candy => swsusp must be unreliable?
+AFAICS, in the case that you don't release any lock before entering 
+pipe_wait (because of the lock ordering), pipe_wait just releases one of 
+the locks and then schedules with the other lock still held.
 
-I know users that installed swsusp, decided they want progress bars,
-and went for suspend2.
+BTW, the comment over the second pipe_wait was copy+pasted and is 
+reversed ;)
 
-> I'm tired of this. It's taking years for Linux to get reasonably working
-> suspend facilities, which is a shame. In my opinion a large part of the
-> problem is you opposing Nigel's patches. Problem is, for many people
-> Nigel's code works while yours does not.
-
-Nigel only submitted his code once, month or so ago, as series of 200
-or so patches. Do not blame me for _that_.
-
-							Pavel
 -- 
-Thanks for all the (sleeping) penguins.
+Paulo Marques - www.grupopie.com
+
+Pointy-Haired Boss: I don't see anything that could stand in our way.
+            Dilbert: Sanity? Reality? The laws of physics?

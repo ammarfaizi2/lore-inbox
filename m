@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWGGTLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWGGTTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWGGTLP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 15:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWGGTLP
+	id S932264AbWGGTTz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 15:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWGGTTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 15:11:15 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9105
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932271AbWGGTLO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 15:11:14 -0400
-Date: Fri, 07 Jul 2006 12:11:45 -0700 (PDT)
-Message-Id: <20060707.121145.61973582.davem@davemloft.net>
-To: arjan@infradead.org
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: more rc1 lockdep fun.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1152299015.3111.138.camel@laptopd505.fenrus.org>
-References: <20060707185848.GA5818@redhat.com>
-	<1152299015.3111.138.camel@laptopd505.fenrus.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 7 Jul 2006 15:19:55 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:40717 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S932264AbWGGTTx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 15:19:53 -0400
+Subject: 2.6.18-rc1 build error (YACC)
+To: linux-kernel@vger.kernel.org
+Date: Fri, 7 Jul 2006 14:19:52 -0500 (CDT)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20060707191952.81958DBA1@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Arjan van de Ven <arjan@infradead.org>
-Date: Fri, 07 Jul 2006 21:03:35 +0200
+$YACC now seems to be undefined when I do a "make bzImage" and the
+build process gets to drivers/scsi/aic7xxx/aicasm (with the aic7xxx
+driver configured as a built-in).  As a workaround, it's possible to
+"cd" into the indicated directory and run "make" directly.  Once the
+default build completes, restarting "make bzImage" from the kernel
+source root continues as expected.
 
-> On Fri, 2006-07-07 at 14:58 -0400, Dave Jones wrote:
-> > =======================================================
-> > [ INFO: possible circular locking dependency detected ]
-> > -------------------------------------------------------
-> > gnome-settings-/3278 is trying to acquire lock:
-> >  (sk_lock-AF_INET){--..}, at: [<ffffffff8022800c>] tcp_sendmsg+0x1f/0xb1a
-> 
-> 
-> this appears to be the same one as the "mc" one I just looked at.
+This problem did not exist with 2.6.17.
 
-This is what I think too, I'll look at Arjan's analysis later this
-afternoon.
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

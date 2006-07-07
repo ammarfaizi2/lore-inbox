@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWGGKYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWGGKZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWGGKYz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 06:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWGGKYz
+	id S932121AbWGGKZE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 06:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWGGKZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 06:24:55 -0400
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:39886 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932120AbWGGKYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 06:24:54 -0400
-Date: Fri, 7 Jul 2006 06:21:16 -0400
+	Fri, 7 Jul 2006 06:25:04 -0400
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:49061 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932121AbWGGKZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 06:25:02 -0400
+Date: Fri, 7 Jul 2006 06:21:17 -0400
 From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: require ACPI for NUMA with generic
-  architecture
-To: "Keith Mannthey" <kmannth@gmail.com>
-Cc: "Randy Dunlap" <rdunlap@xenotime.net>, "Andrew Morton" <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200607070623_MC3-1-C45A-2428@compuserve.com>
+Subject: Re: [patch] spinlocks: remove 'volatile'
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@infradead.org>
+Message-ID: <200607070623_MC3-1-C45A-2429@compuserve.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
@@ -25,23 +24,24 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <a762e240607061143s6470ad5y310986cba4f0b0bc@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0607061333190.3869@g5.osdl.org>
 
-On Thu, 6 Jul 2006 11:43:37 -0700, Keith Mannthey wrote:
+On Thu, 6 Jul 2006 13:34:14 -0700, Linus Torvalds wrote:
 
-> On 7/6/06, Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> > X86 Generic Architecture (X86_GENERICARCH) includes support for
-> > Summit architecture.  Enabling X86_GENERICARCH, SMP and HIGHMEM64G
-> > allows NUMA to be selected but that configuration will not build
-> > because it requires ACPI for the Summit NUMA support.
+> > So I _think_ that we should change the "=m" to the much more correct "+m" 
+> > at the same time (or before - it's really a bug-fix regardless) as 
+> > removing the "volatile".
 > 
-> Good catch.    With X86_GENRICARCARCH perhaps NUMA should always be on
-> or am I missing something with how it is supposed to work?  Shouldn't
-> X86_GENRICARCARCH buy you the ablility to boot(correctly) on all the
-> diffrent archs listed?
+> Here's a first cut (UNTESTED!) for x86. I didn't check any other 
+> architectures, I bet they have similar problems.
 
-AFAIK not all Summit machines are NUMA, so maybe the flexibility is
-needed.  e.g. some might want GENERICARCH without HIGHMEM64G.
+>  #define __raw_spin_unlock_string \
+>       "movb $1,%0" \
+> -             :"=m" (lock->slock) : : "memory"
+> +             :"+m" (lock->slock) : : "memory"
+ 
+This really is just an overwrite of whatever is there.  OTOH I can't see
+how this change could hurt anything..
 
 -- 
 Chuck

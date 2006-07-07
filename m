@@ -1,83 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWGGDcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWGGDgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWGGDcT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 23:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWGGDcT
+	id S1751173AbWGGDgw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 23:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWGGDgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 23:32:19 -0400
-Received: from main.gmane.org ([80.91.229.2]:29602 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751169AbWGGDcS (ORCPT
+	Thu, 6 Jul 2006 23:36:52 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:27779 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751170AbWGGDgv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 23:32:18 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: [BUG] sleeping function called from invalid context during resume
-Date: Fri, 7 Jul 2006 03:32:08 +0000 (UTC)
-Message-ID: <loom.20060707T052608-633@post.gmane.org>
-References: <1152241296.6163.4.camel@localhost>
+	Thu, 6 Jul 2006 23:36:51 -0400
+Date: Fri, 7 Jul 2006 05:36:30 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: kai@germaschewski.name, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>, linux-arch@vger.kernel.org
+Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
+Message-ID: <20060707033630.GA15967@mars.ravnborg.org>
+References: <20060706163728.GN26941@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 68.60.177.223 (Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.3 (like Gecko))
+Content-Disposition: inline
+In-Reply-To: <20060706163728.GN26941@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz <johnstul <at> us.ibm.com> writes:
+On Thu, Jul 06, 2006 at 06:37:28PM +0200, Adrian Bunk wrote:
+> Currently, using an undeclared function gives a compile warning, but it 
+> can lead to a nasty to debug runtime stack corruptions if the prototype 
+> of the function is different from what gcc guessed.
+> 
+> With -Werror-implicit-function-declaration we are getting an immediate
+> compile error instead.
+This patch broke (-rc1):
 
-> 
-> I got the following on my laptop w/ 2.6.18-rc1.
-> 
-> thanks
-> -john
+sparc allnoconfig build
+ia64 allnoconfig build
+ppc64 allnoconfig build
+
+x86_64 succeded an allnoconfig build
+
+I did not try other architectures. We need to fix the allnoconfig cases
+at least for the popular architectures before applying this patch
+otherwise it will create too much trouble/noise.
+
+linux-arch copied in the hope that the arch maintaines may try it out
+and fix their issues.
+
+	Sam
+
+---
+
+ Makefile                               |    3 ++-
+ drivers/input/joystick/iforce/Makefile |    2 --
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+--- linux-2.6.17-mm6-full/Makefile.old	2006-07-06 12:17:02.000000000 +0200
++++ linux-2.6.17-mm6-full/Makefile	2006-07-06 12:18:52.000000000 +0200
+@@ -318,7 +318,8 @@
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
  
-> Back to C!
-> BUG: sleeping function called from invalid context at mm/slab.c:2882
-> in_atomic():0, irqs_disabled():1
->  [<c0103d59>] show_trace_log_lvl+0x149/0x170
->  [<c01052ab>] show_trace+0x1b/0x20
->  [<c01052d4>] dump_stack+0x24/0x30
->  [<c0116e51>] __might_sleep+0xa1/0xc0
->  [<c0165cb5>] kmem_cache_zalloc+0xa5/0xc0
->  [<c0264b5a>] acpi_os_acquire_object+0x11/0x41
->  [<c027a898>] acpi_ut_allocate_object_desc_dbg+0xf/0x45
->  [<c027a926>] acpi_ut_create_internal_object_dbg+0x16/0x69
->  [<c0276bd3>] acpi_rs_set_srs_method_data+0x80/0xdd
->  [<c02762e5>] acpi_set_current_resources+0x31/0x3f
->  [<c02826bf>] acpi_pci_link_set+0xfc/0x1a5
->  [<c0282a25>] irqrouter_resume+0x52/0x73
->  [<c02b92aa>] __sysdev_resume+0x1a/0x90
->  [<c02b9367>] sysdev_resume+0x47/0x70
->  [<c02bf1f8>] device_power_up+0x8/0x10
->  [<c0142185>] suspend_enter+0x65/0x80
-
-Hmm.. This was fixed in -mm back in February
-(http://www.ussg.iu.edu/hypermail/linux/kernel/0602.1/2022.html). 
-Not sure why it hasn't flowed in to mainline. Does this patch below (against 
-2.6.18-rc1) fix it?
-
-Parag
-
-Signed-off-by: Parag Warudkar <kernel-stuff@comcast.net>
-
---- linux-2.6.17/drivers/acpi/osl.c.orig        2006-07-06 
-23:22:03.000000000 -0400
-+++ linux-2.6.17/drivers/acpi/osl.c     2006-07-06 23:29:43.000000000 -0400
-@@ -1130,7 +1130,11 @@ acpi_status acpi_os_release_object(acpi_
-
- void *acpi_os_acquire_object(acpi_cache_t * cache)
- {
--       void *object = kmem_cache_zalloc(cache, GFP_KERNEL);
-+       void* object;
-+       if (acpi_in_resume)
-+               object = kmem_cache_zalloc(cache, GFP_ATOMIC);
-+       else
-+               object = kmem_cache_zalloc(cache, GFP_KERNEL);
-        WARN_ON(!object);
-        return object;
- }
+ CFLAGS          := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+-                   -fno-strict-aliasing -fno-common
++                   -fno-strict-aliasing -fno-common \
++		   -Werror-implicit-function-declaration
+ # Force gcc to behave correct even for buggy distributions
+ CFLAGS          += $(call cc-option, -fno-stack-protector-all \
+                                      -fno-stack-protector)
+--- linux-2.6.17-mm6-full/drivers/input/joystick/iforce/Makefile.old	2006-07-06 12:19:08.000000000 +0200
++++ linux-2.6.17-mm6-full/drivers/input/joystick/iforce/Makefile	2006-07-06 12:19:16.000000000 +0200
+@@ -16,5 +16,3 @@
+ ifeq ($(CONFIG_JOYSTICK_IFORCE_USB),y)
+ 	iforce-objs += iforce-usb.o
+ endif
+-
+-EXTRA_CFLAGS = -Werror-implicit-function-declaration
 
 

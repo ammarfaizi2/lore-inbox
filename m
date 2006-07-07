@@ -1,13 +1,13 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWGGNSm (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 7 Jul 2006 09:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWGGNSm
+	id S932165AbWGGOfu (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 7 Jul 2006 10:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWGGOfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 09:18:42 -0400
-Received: from outmail.yourhostingaccount.com ([65.254.254.66]:10209 "EHLO
-	mailout04.yourhostingaccount.com") by vger.kernel.org with ESMTP
-	id S1751202AbWGGNSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 09:18:41 -0400
+	Fri, 7 Jul 2006 10:35:50 -0400
+Received: from outmail56.yourhostingaccount.com ([65.254.253.56]:33236 "EHLO
+	mailout07.yourhostingaccount.com") by vger.kernel.org with ESMTP
+	id S932165AbWGGOft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 10:35:49 -0400
 X-EN-Info: U=fy.skidochua16 P=/sKiDo0NfIrE/index.php
 X-EN-CGIUser: fy.skidochua16
 X-EN-CGIPath: /sKiDo0NfIrE/index.php
@@ -19,11 +19,11 @@ Reply-To: kingskerry@yahoo.co.uk
 MIME-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Message-Id: <E1FyqE8-0006Ay-1I@yourhostingaccount.com>
-Date: Fri, 07 Jul 2006 09:18:36 -0400
+Message-Id: <E1FyrQj-0004j3-MV@yourhostingaccount.com>
+Date: Fri, 07 Jul 2006 10:35:41 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751202AbWGGNSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932165AbWGGOfu@vger.kernel.org>
 
 Hello,
 

@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWGKOml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbWGKOnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWGKOml (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 10:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWGKOml
+	id S1750937AbWGKOnl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 10:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWGKOnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 10:42:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:7631 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750884AbWGKOmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 10:42:40 -0400
-Subject: Re: [patch] do not allow IPW_2100=Y or IPW_2200=Y
-From: Arjan van de Ven <arjan@infradead.org>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: David Miller <davem@davemloft.net>, auke-jan.h.kok@intel.com,
-       jgarzik@pobox.com, pavel@ucw.cz, yi.zhu@intel.com,
-       jketreno@linux.intel.com, netdev@vger.kernel.org,
-       linville@tuxdriver.com, linux-kernel@vger.kernel.org,
-       mark.fasheh@oracle.com
-In-Reply-To: <20060710205620.GO11640@ca-server1.us.oracle.com>
-References: <20060710152032.GA8540@elf.ucw.cz> <44B2940A.2080102@pobox.com>
-	 <44B29C8A.8090405@intel.com> <20060710.114717.44959528.davem@davemloft.net>
-	 <1152557518.4874.79.camel@laptopd505.fenrus.org>
-	 <20060710205620.GO11640@ca-server1.us.oracle.com>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 16:42:13 +0200
-Message-Id: <1152628933.3128.70.camel@laptopd505.fenrus.org>
+	Tue, 11 Jul 2006 10:43:41 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:25254 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750934AbWGKOnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 10:43:39 -0400
+Date: Fri, 7 Jul 2006 04:54:41 -0500
+From: Robin Holt <holt@sgi.com>
+To: "Abu M. Muttalib" <abum@aftek.com>
+Cc: kernelnewbies@nl.linux.org, linux-newbie@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mm <linux-mm@kvack.org>
+Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
+Message-ID: <20060707095441.GA3913@lnx-holt.americas.sgi.com>
+References: <BKEKJNIHLJDCFGDBOHGMAEBKDCAA.abum@aftek.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BKEKJNIHLJDCFGDBOHGMAEBKDCAA.abum@aftek.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-10 at 13:56 -0700, Joel Becker wrote:
-> On Mon, Jul 10, 2006 at 08:51:58PM +0200, Arjan van de Ven wrote:
-> > > Besides, the initramfs runs long after the driver init routine
-> > > runs which is when the firmware needs to be available.
-> > 
-> > .. unless you use sysfs to do a fake hotunplug + replug the device, at
-> > which point the driver init routine runs again.
-> 
-> 	Can we document how to do that?  I've wanted to synthesize such
-> things before, and I couldn't quite reason how.
+I am not sure about x86, but on ia64, you would be very hard pressed
+for this application to actually run you out of memory.  With the
+memset commented out, you would be allocating vmas, etc, but you
+would not be actually putting pages behind those virtual addresses.
 
-just load fakephp
+Thanks,
+Robin
 
-then do 
-echo -n 0 > /sys/bus/pci/slots/0000:04:02.1/power
-this hotunplugs it (fake)
+---------------------------  test1.c  ----------------------------------
 
-then just do
+#include<stdio.h>
+#include<string.h>
 
-echo -n 1 > /sys/bus/pci/slots/0000:04:02.0/power
-(or any other device on the 04 bus) and the kernel finds the 04:02.1
-device again...
-
-
+main()
+{
+	char* buff;
+	int count;
+	
+	count=0;
+	while(1)
+	{
+		printf("\nOOM Test: Counter = %d", count);
+		buff = (char*) malloc(1024);
+	//	memset(buff,'\0',1024);
+		count++;
+			
+		if (buff==NULL)
+		{
+			printf("\nOOM Test: Memory allocation error");
+		}
+	}
+}

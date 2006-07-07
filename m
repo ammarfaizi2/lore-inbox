@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWGGVXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWGGV3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWGGVXA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 17:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWGGVW7
+	id S932317AbWGGV3R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 17:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWGGV3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 17:22:59 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:30908 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932224AbWGGVW6 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 17:22:58 -0400
-Message-Id: <200607072122.k67LMjfL004124@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm6 libata stupid question...
-In-Reply-To: Your message of "Fri, 07 Jul 2006 17:12:01 BST."
-             <1152288721.20883.12.camel@localhost.localdomain>
-From: Valdis.Kletnieks@vt.edu
-References: <200607070428.k674S8Rf005209@turing-police.cc.vt.edu>
-            <1152288721.20883.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152307365_2951P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 7 Jul 2006 17:29:17 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:13237 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932314AbWGGV3Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 17:29:16 -0400
+From: Andi Kleen <ak@suse.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: skge error; hangs w/ hardware memory hole
+Date: Fri, 7 Jul 2006 23:28:51 +0200
+User-Agent: KMail/1.9.3
+Cc: Martin Michlmayr <tbm@cyrius.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, 341801@bugs.debian.org,
+       asd@suespammers.org, kevin@sysexperts.com
+References: <20060703205238.GA10851@deprecation.cyrius.com> <20060707141843.73fc6188@dxpl.pdx.osdl.net>
+In-Reply-To: <20060707141843.73fc6188@dxpl.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Jul 2006 17:22:45 -0400
+Content-Disposition: inline
+Message-Id: <200607072328.51282.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152307365_2951P
-Content-Type: text/plain; charset=us-ascii
-
-On Fri, 07 Jul 2006 17:12:01 BST, Alan Cox said:
-
-> The fact you get the same response with drivers/ide rather suggests that
-> in this case the problem is cable detection. Tweak ata_piix to print out
-> the cable type it detects. If it thinks its a 40 pin cable you know
-> where to start
-
-I tried instrumenting ich_pata_cbl_detect(), but it turns out that
-the chipset is an ICH3M (lspci ID 8086:248A), which ends up down in
-piix_pata_prereset which forces a 40-pin:
-
-        ap->cbl = ATA_CBL_PATA40;
-
-Guess that explains that, unless the chipset actually *can* do 80-pin
-and has an 80-pin cable (which would be surprising because apparently
-none of the other piix variants can...)
+On Friday 07 July 2006 23:18, Stephen Hemminger wrote:
+> On Mon, 3 Jul 2006 22:52:38 +0200
+> Martin Michlmayr <tbm@cyrius.com> wrote:
+> 
+> > We received the following bug report at http://bugs.debian.org/341801
+> > 
+> > | I have a Asus A8V with 4GB of RAM. When I turn on the hardware memory
+> > | hole in the BIOS, the skge driver prints out this message:
+> > |       skge hardware error detected (status 0xc00)
+> > | and then does not work. Setting debug=16 doesn't really show anything.
 
 
---==_Exmh_1152307365_2951P
-Content-Type: application/pgp-signature
+Is that a board with VIA chipset?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+VIA doesn't seem to support PCI accesses with addresses >4GB and they also
+don't have a working GART IOMMU.
 
-iD8DBQFErtClcC3lWbTT17ARAvpvAJ0TiIcIhTBlBEewB5QmIsZEArpn9gCg/JpB
-b0hSZLw6Om4iJ95SA0gg4kU=
-=hGHk
------END PGP SIGNATURE-----
+It will likely work with iommu=force
 
---==_Exmh_1152307365_2951P--
+I've been pondering to force this, but was still waiting for more reports.
+
+-Andi
+

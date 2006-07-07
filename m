@@ -1,114 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWGGVPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWGGVQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWGGVPM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 17:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWGGVPM
+	id S932292AbWGGVQk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 17:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWGGVQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 17:15:12 -0400
-Received: from tornado.reub.net ([202.89.145.182]:6044 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S932281AbWGGVPK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 17:15:10 -0400
-Message-ID: <44AECEDD.201@reub.net>
-Date: Sat, 08 Jul 2006 09:15:09 +1200
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 3.0a1 (Windows/20060707)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm6
-References: <20060703030355.420c7155.akpm@osdl.org>	<44AE268F.7080409@reub.net> <20060707023518.f621bcf2.akpm@osdl.org>
-In-Reply-To: <20060707023518.f621bcf2.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 7 Jul 2006 17:16:39 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:63944 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932286AbWGGVQj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 17:16:39 -0400
+Subject: Re: [PATCH 1/2] srcu-3: RCU variant permitting read-side blocking
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       dipankar@in.ibm.com, Ingo Molnar <mingo@elte.hu>, tytso@us.ibm.com,
+       Darren Hart <dvhltc@us.ibm.com>, oleg@tv-sign.ru,
+       Jes Sorensen <jes@sgi.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0607071523330.6793-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0607071523330.6793-100000@iolanthe.rowland.org>
+Content-Type: text/plain
+Date: Fri, 07 Jul 2006 14:11:26 -0700
+Message-Id: <1152306686.21787.2163.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-07-07 at 15:59 -0400, Alan Stern wrote:
+> On Fri, 7 Jul 2006, Paul E. McKenney wrote:
 
-On 7/07/2006 9:35 p.m., Andrew Morton wrote:
-> On Fri, 07 Jul 2006 21:17:03 +1200
-> Reuben Farrelly <reuben-lkml@reub.net> wrote:
-> 
->>
->> On 3/07/2006 10:03 p.m., Andrew Morton wrote:
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
->>>
->>>
->>> - A major update to the e1000 driver.
->>>
->>> - 1394 updates
->> This release has been working quite well after some initial hiccups (see -mm 
->> hotfix), but a couple of hours ago another bad thing (tm) happened.
->>
->> At the time I was moving 100G of data from one partition on a non-raid partition 
->> to a new RAID-1 md that I had created earlier.  Both are ext3 partitions.
->>
->> The word "barrier" of course comes to mind again, I'm not sure NeilB is the 
->> culprit this time either but I've cc'd him in just in case.
->>
->> The file copy went on happily for quite a while (maybe 10 mins or so) under very 
->> high IO load before blowing up as below.  The terminal was spewing out constant 
->> traces but hopefully the right ones are here as these are the first few (if not, 
->> I have copied a bit more).
->>
-> 
-> Yes, the very first oops is by far the most important to capture.
-> 
-> You can add pause_on_oops=100000 to the kernel boot command line to make
-> the machine freeze after outputting the first oops.  That'll certainly
-> prevent the oops messages from getting to the log files, but it will also
-> prevent it from scolling away or swamping your log device.
-> 
-> 
->> sh-3.1# mv /store-old/* /store/
->> Unable to handle kernel paging request at ffff81043e345490 RIP:
->>   [<ffffffff802620f2>] memcpy+0x12/0xb0
->> PGD 8063 PUD 0
->> Oops: 0000 [1] SMP
->> last sysfs file: /kernel/uevent_seqnum
->> CPU 1
->> Modules linked in: binfmt_misc ide_cd iTCO_wdt i2c_i801 cdrom serio_raw ide_disk
->> Pid: 165, comm: pdflush Not tainted 2.6.17-mm6 #2
->> RIP: 0010:[<ffffffff802620f2>]  [<ffffffff802620f2>] memcpy+0x12/0xb0
->> RSP: 0018:ffff81003ed31828  EFLAGS: 00010002
->> RAX: ffff810001faec18 RBX: 0000000000000010 RCX: 0000000000000001
->> RDX: 0000000000000080 RSI: ffff81043e345490 RDI: ffff810001faec18
->> RBP: ffff81003ed31898 R08: ffff81003f66a800 R09: 0000000000000000
->> R10: ffff810029b364b0 R11: 0000000000000000 R12: ffff810001faec00
->> R13: ffff81003f6ff140 R14: ffff81003f6ea240 R15: 0000000000000010
->> FS:  0000000000000000(0000) GS:ffff810037ffe440(0000) knlGS:0000000000000000
->> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
->> CR2: ffff81043e345490 CR3: 000000003dc32000 CR4: 00000000000006e0
->> Process pdflush (pid: 165, threadinfo ffff81003ed30000, task ffff810037f2b840)
->> Stack:  0000000000000010 ffffffff8025e9f0 ffff81003f66a800 0001120000000000
->>   0000000000011200 000112003f650080 ffff81003eca39f0 ffff81003ed318c8
->>   ffff81003ed31898 0000000000000246 ffff81003f6ff140 0000000000011200
->> Call Trace:
->>   [<ffffffff8025e9f0>] cache_alloc_refill+0xc9/0x538
->>   [<ffffffff802b96c6>] __kmalloc+0x86/0x96
->>   [<ffffffff802ae460>] __kzalloc+0xf/0x2f
->>   [<ffffffff8041d598>] r1bio_pool_alloc+0x21/0x3a
->>   [<ffffffff802230e4>] mempool_alloc+0x44/0xfb
-> 
-> The core slab data structures were wrecked.  For kmalloc(), no less. 
-> Something secretly destroyed your kernel, and it could be anything.  Nice.
+<snip>
 
-Having now turned on slab debugging, is it possibly related to this message 
-which appeared in my log when I booting up earlier?
+> > So, a fourth possibility -- can a call from start_kernel() invoke some
+> > function in yours and Matt's code invoke init_srcu_struct() to get a
+> > statically allocated srcu_struct initialized?  Or, if this is part of
+> > a module, can the module initialization function do this work?
+> > 
+> > (Hey, I had to ask!)
+> 
+> That is certainly a viable approach: just force everyone to use dynamic 
+> initialization.  Changes to existing code would be relatively few.
 
-Jul  8 02:49:39 tornado kernel: EXT3-fs: mounted filesystem with ordered data mode.
-Jul  8 02:49:39 tornado kernel: Adding 497972k swap on /dev/sdc9.  Priority:-1 
-extents:1 across:497972k
-Jul  8 02:49:40 tornado kernel: ip_tables: (C) 2000-2006 Netfilter Core Team
-Jul  8 02:49:40 tornado kernel: Netfilter messages via NETLINK v0.30.
-Jul  8 02:49:40 tornado kernel: ip_conntrack version 2.4 (4060 buckets, 32480 
-max) - 288 bytes per conntrack
-Jul  8 02:49:40 tornado kernel: Slab corruption: start=ffff81003efd7000, len=4096
-Jul  8 02:49:40 tornado kernel: 170: ff ff ff ff 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b
-Jul  8 02:49:40 tornado kernel: e1000: eth0: e1000_watchdog: NIC Link is Up 1000 
-Mbps Full Duplex
-Jul  8 02:49:40 tornado kernel: GRE over IPv4 tunneling driver
+	Works for me. I've been working on patches for Andrew's multi-chain
+proposal and I could use an init function there anyway. Should be faster
+too -- dynamically-allocated per-cpu memory can take advantage of
+node-local memory whereas, to my knowledge, statically-allocated cannot.
 
-reuben
+> I'm not sure where the right place would be to add these initialization 
+> calls.  After kmalloc is working but before the relevant notifier chains 
+> get used at all.  Is there such a place?  I guess it depends on which 
+> notifier chains we convert.
+> 
+> We might want to leave some chains using the existing rw-semaphore API.  
+> It's more appropriate when there's a high frequency of write-locking
+> (i.e., things registering or unregistering on the notifier chain).  The 
+> SRCU approach is more appropriate when the chain is called a lot and 
+> needs to have low overhead, but (un)registration is uncommon.  Matt's task 
+> notifiers are a good example.
 
+Yes, it is an excellent example.
+
+> Alan Stern
+
+Cheers,
+	-Matt Helsley
 

@@ -1,44 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWGGLAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWGGLCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWGGLAV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 07:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWGGLAU
+	id S932127AbWGGLCT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 07:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWGGLCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 07:00:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14543 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932124AbWGGLAT (ORCPT
+	Fri, 7 Jul 2006 07:02:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2460 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932127AbWGGLCS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 07:00:19 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <9736.1152269688@warthog.cambridge.redhat.com> 
-References: <9736.1152269688@warthog.cambridge.redhat.com>  <20060706162731.577748e7.akpm@osdl.org> <20060706105223.97b9a531.akpm@osdl.org> <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com> <20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com> <26133.1152211129@warthog.cambridge.redhat.com> 
-To: David Howells <dhowells@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, bernds_cb1@t-online.de,
-       sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/6] FDPIC: Add coredump capability for the ELF-FDPIC binfmt [try #3] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 07 Jul 2006 12:00:13 +0100
-Message-ID: <15239.1152270013@warthog.cambridge.redhat.com>
+	Fri, 7 Jul 2006 07:02:18 -0400
+Date: Fri, 7 Jul 2006 04:01:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1: breaks boot on thinkpad x32
+Message-Id: <20060707040156.e385670e.akpm@osdl.org>
+In-Reply-To: <20060707105041.GA1656@elf.ucw.cz>
+References: <20060707105041.GA1656@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
+On Fri, 7 Jul 2006 12:50:41 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
 
-> That doesn't compile... you're lacking file arguments.
+> Hi!
+> 
+> I tried to update to 2.6.18-rc1-git, but got hang after
+> 
+> acpiphp: Slot [1] registered
+> 
+> ...but acpi=off failed to workaround the problem, it merely hung at
+> another place. I went back to 2.6.18-rc1, and it hung at same
+> place.
 
-Even more fun:
+There have been no post-2.6.18-rc1 commits yet.
 
-warthog>grep -r DUMP_WRITE include/
-include/asm/elf.h:              DUMP_WRITE(&phdr, sizeof(phdr));                     \
-include/asm/elf.h:                      DUMP_WRITE((void *) vsyscall_phdrs[i].p_vaddr,        \
-include/asm-um/elf-i386.h:              DUMP_WRITE(&phdr, sizeof(phdr));             \
-include/asm-um/elf-i386.h:                      DUMP_WRITE((void *) phdrp[i].p_vaddr,                 \
-include/asm-ia64/elf.h:         DUMP_WRITE(&phdr, sizeof(phdr));               \
-include/asm-ia64/elf.h:                 DUMP_WRITE((void *) gate_phdrs[i].p_vaddr,            \
-include/asm-i386/elf.h:         DUMP_WRITE(&phdr, sizeof(phdr));                     \
-include/asm-i386/elf.h:                 DUMP_WRITE((void *) vsyscall_phdrs[i].p_vaddr,        \
+>  2.6.17 works. Any ideas?
+
+Nope.  Is the hang during initial bootup or during modprobing?
+
+If during initial bootup, try adding initcall_debug to the boot command line.
+
+If modular, work out which module is being bad?
+
+It might be the cm_sbs driver.  (initcall_debug will point at
+acpi_cm_sbs_init()).  If so, this'll help.
 
 
-For another day, I think...
 
-David
+diff -puN drivers/acpi/cm_sbs.c~acpi-initialise-cm_sbs_sem drivers/acpi/cm_sbs.c
+--- a/drivers/acpi/cm_sbs.c~acpi-initialise-cm_sbs_sem
++++ a/drivers/acpi/cm_sbs.c
+@@ -39,50 +39,43 @@ ACPI_MODULE_NAME("cm_sbs")
+ static struct proc_dir_entry *acpi_ac_dir;
+ static struct proc_dir_entry *acpi_battery_dir;
+ 
+-static struct semaphore cm_sbs_sem;
++static DEFINE_MUTEX(cm_sbs_mutex);
+ 
+-static int lock_ac_dir_cnt = 0;
+-static int lock_battery_dir_cnt = 0;
++static int lock_ac_dir_cnt;
++static int lock_battery_dir_cnt;
+ 
+ struct proc_dir_entry *acpi_lock_ac_dir(void)
+ {
+-
+-	down(&cm_sbs_sem);
+-	if (!acpi_ac_dir) {
++	mutex_lock(&cm_sbs_mutex);
++	if (!acpi_ac_dir)
+ 		acpi_ac_dir = proc_mkdir(ACPI_AC_CLASS, acpi_root_dir);
+-	}
+ 	if (acpi_ac_dir) {
+ 		lock_ac_dir_cnt++;
+ 	} else {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
+ 				  "Cannot create %s\n", ACPI_AC_CLASS));
+ 	}
+-	up(&cm_sbs_sem);
++	mutex_unlock(&cm_sbs_mutex);
+ 	return acpi_ac_dir;
+ }
+-
+ EXPORT_SYMBOL(acpi_lock_ac_dir);
+ 
+ void acpi_unlock_ac_dir(struct proc_dir_entry *acpi_ac_dir_param)
+ {
+-
+-	down(&cm_sbs_sem);
+-	if (acpi_ac_dir_param) {
++	mutex_lock(&cm_sbs_mutex);
++	if (acpi_ac_dir_param)
+ 		lock_ac_dir_cnt--;
+-	}
+ 	if (lock_ac_dir_cnt == 0 && acpi_ac_dir_param && acpi_ac_dir) {
+ 		remove_proc_entry(ACPI_AC_CLASS, acpi_root_dir);
+ 		acpi_ac_dir = 0;
+ 	}
+-	up(&cm_sbs_sem);
++	mutex_unlock(&cm_sbs_mutex);
+ }
+-
+ EXPORT_SYMBOL(acpi_unlock_ac_dir);
+ 
+ struct proc_dir_entry *acpi_lock_battery_dir(void)
+ {
+-
+-	down(&cm_sbs_sem);
++	mutex_lock(&cm_sbs_mutex);
+ 	if (!acpi_battery_dir) {
+ 		acpi_battery_dir =
+ 		    proc_mkdir(ACPI_BATTERY_CLASS, acpi_root_dir);
+@@ -93,39 +86,28 @@ struct proc_dir_entry *acpi_lock_battery
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
+ 				  "Cannot create %s\n", ACPI_BATTERY_CLASS));
+ 	}
+-	up(&cm_sbs_sem);
++	mutex_unlock(&cm_sbs_mutex);
+ 	return acpi_battery_dir;
+ }
+-
+ EXPORT_SYMBOL(acpi_lock_battery_dir);
+ 
+ void acpi_unlock_battery_dir(struct proc_dir_entry *acpi_battery_dir_param)
+ {
+-
+-	down(&cm_sbs_sem);
+-	if (acpi_battery_dir_param) {
++	mutex_lock(&cm_sbs_mutex);
++	if (acpi_battery_dir_param)
+ 		lock_battery_dir_cnt--;
+-	}
+ 	if (lock_battery_dir_cnt == 0 && acpi_battery_dir_param
+ 	    && acpi_battery_dir) {
+ 		remove_proc_entry(ACPI_BATTERY_CLASS, acpi_root_dir);
+ 		acpi_battery_dir = 0;
+ 	}
+-	up(&cm_sbs_sem);
++	mutex_unlock(&cm_sbs_mutex);
+ 	return;
+ }
+-
+ EXPORT_SYMBOL(acpi_unlock_battery_dir);
+ 
+ static int __init acpi_cm_sbs_init(void)
+ {
+-
+-	if (acpi_disabled)
+-		return 0;
+-
+-	init_MUTEX(&cm_sbs_sem);
+-
+ 	return 0;
+ }
+-
+ subsys_initcall(acpi_cm_sbs_init);
+_
+

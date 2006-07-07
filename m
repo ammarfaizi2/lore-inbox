@@ -1,79 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWGGDgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWGGDoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWGGDgw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 23:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWGGDgw
+	id S1751171AbWGGDoI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 23:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWGGDoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 23:36:52 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:27779 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751170AbWGGDgv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 23:36:51 -0400
-Date: Fri, 7 Jul 2006 05:36:30 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: kai@germaschewski.name, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@redhat.com>, linux-arch@vger.kernel.org
-Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-Message-ID: <20060707033630.GA15967@mars.ravnborg.org>
-References: <20060706163728.GN26941@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060706163728.GN26941@stusta.de>
-User-Agent: Mutt/1.5.11
+	Thu, 6 Jul 2006 23:44:07 -0400
+Received: from mail1.bizmail.net.au ([202.162.77.164]:3743 "EHLO
+	mail1.bizmail.net.au") by vger.kernel.org with ESMTP
+	id S1751171AbWGGDoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 23:44:06 -0400
+Message-ID: <3306.58.105.227.226.1152244539.squirrel@58.105.227.226>
+Date: Fri, 7 Jul 2006 13:55:39 +1000 (EST)
+Subject: Module link
+From: yh@bizmail.com.au
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 06:37:28PM +0200, Adrian Bunk wrote:
-> Currently, using an undeclared function gives a compile warning, but it 
-> can lead to a nasty to debug runtime stack corruptions if the prototype 
-> of the function is different from what gcc guessed.
-> 
-> With -Werror-implicit-function-declaration we are getting an immediate
-> compile error instead.
-This patch broke (-rc1):
+Thanks for all helps. The module can now be loaded. There are some other
+issues as descripbled as follows:
 
-sparc allnoconfig build
-ia64 allnoconfig build
-ppc64 allnoconfig build
+1. The module I used links to i2c drivers. It works fine in kernel 2.4
+after "insmod NewModule.o", but now it has a NULL point in kernel 2.6 when
+to init it. It seems that the i2c driver is not linked in the module. How
+can I link an i2c to my driver module?
 
-x86_64 succeded an allnoconfig build
+2. In kernel 2.4, when I call "insmod NewModule.o", the insmod can find
+the path of the NewModule.o and to init the module. In 2.6 kernel, the
+"insmod NewModule.ko" does not know the path, so I have to specify the
+path explicitly as "insmod
+/lib/modules/2.6.8.1/kernel/drivers/char/NewModule.ko" to make it work. I
+guess the above problem in question 1 may also related to this issue. What
+did I wrong here?
 
-I did not try other architectures. We need to fix the allnoconfig cases
-at least for the popular architectures before applying this patch
-otherwise it will create too much trouble/noise.
+Thank you.
 
-linux-arch copied in the hope that the arch maintaines may try it out
-and fix their issues.
+Jim
 
-	Sam
-
----
-
- Makefile                               |    3 ++-
- drivers/input/joystick/iforce/Makefile |    2 --
- 2 files changed, 2 insertions(+), 3 deletions(-)
-
---- linux-2.6.17-mm6-full/Makefile.old	2006-07-06 12:17:02.000000000 +0200
-+++ linux-2.6.17-mm6-full/Makefile	2006-07-06 12:18:52.000000000 +0200
-@@ -318,7 +318,8 @@
- CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
- 
- CFLAGS          := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
--                   -fno-strict-aliasing -fno-common
-+                   -fno-strict-aliasing -fno-common \
-+		   -Werror-implicit-function-declaration
- # Force gcc to behave correct even for buggy distributions
- CFLAGS          += $(call cc-option, -fno-stack-protector-all \
-                                      -fno-stack-protector)
---- linux-2.6.17-mm6-full/drivers/input/joystick/iforce/Makefile.old	2006-07-06 12:19:08.000000000 +0200
-+++ linux-2.6.17-mm6-full/drivers/input/joystick/iforce/Makefile	2006-07-06 12:19:16.000000000 +0200
-@@ -16,5 +16,3 @@
- ifeq ($(CONFIG_JOYSTICK_IFORCE_USB),y)
- 	iforce-objs += iforce-usb.o
- endif
--
--EXTRA_CFLAGS = -Werror-implicit-function-declaration
 
 

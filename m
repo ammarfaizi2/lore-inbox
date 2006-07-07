@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWGGGTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWGGGUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbWGGGTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 02:19:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWGGGTJ
+	id S1751190AbWGGGUq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 02:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWGGGUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 02:19:09 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60586 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751013AbWGGGTI (ORCPT
+	Fri, 7 Jul 2006 02:20:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48279 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751190AbWGGGUp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 02:19:08 -0400
-Date: Thu, 6 Jul 2006 23:18:51 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nagar@watson.ibm.com, jlan@sgi.com, Valdis.Kletnieks@vt.edu,
-       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
-       hadi@cyberus.ca, netdev@vger.kernel.org
-Subject: Re: [PATCH] per-task delay accounting taskstats interface: control
- exit data through cpumasks]
-Message-Id: <20060706231851.2f043927.pj@sgi.com>
-In-Reply-To: <20060706025633.cd4b1c1d.akpm@osdl.org>
-References: <44ACD7C3.5040008@watson.ibm.com>
-	<20060706025633.cd4b1c1d.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jul 2006 02:20:45 -0400
+Message-ID: <44ADFD43.4040204@redhat.com>
+Date: Thu, 06 Jul 2006 23:20:51 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Michael Kerrisk <michael.kerrisk@gmx.net>
+CC: mtk-manpages@gmx.net, mtk-lkml@gmx.net, rlove@rlove.org, roland@redhat.com,
+       eggert@cs.ucla.edu, torvalds@osdl.org, tytso@mit.edu,
+       linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Subject: Re: Strange Linux behaviour with blocking syscalls and stop signals+SIGCONT
+References: <44A92DC8.9000401@gmx.net> <44AABB31.8060605@colorfullife.com> <20060706092328.320300@gmx.net> <44AD599D.70803@colorfullife.com> <44AD5CB6.7000607@redhat.com> <20060707043220.186800@gmx.net> <44ADE9B6.1020900@redhat.com> <20060707050731.186770@gmx.net>
+In-Reply-To: <20060707050731.186770@gmx.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigBFE2EFCE5A58DFB09D356DC3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> Your email client performs space-stuffing.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigBFE2EFCE5A58DFB09D356DC3
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Shailabh,
+Michael Kerrisk wrote:
+> Yes; this is why I'm only proposing to change EINTR to ERESTARTNOHAND
+> at the moment.  The only userspace visible change that I think
+> this will bring about is in the stop+SIGCONT case.
 
-Some of us find that it is easier and more reliable to use a special
-purpose script to send patches, rather than trying to do so via our
-email client.  Even though my email client, Sylpheed, probably sends
-patches just fine, I enjoy the convenience of preparing the patches
-and mailing instructions in my editor, before sending them off with
-such a utility.
+That's fine.
 
-One possible such utility is 'sendpatchset', which I maintain:
 
-  http://www.speakeasy.org/~pj99/sgi/sendpatchset
+> Changing EINTR
+> to ERESTARTSYS is likely to have more impact on userland (though=20
+> it still strikes me as a desirable gola to have all system calls=20
+> restartable via SA_RESTART).
 
-It's a script, with the documentation embedded as the help message.
+This is certainly a nice goal but it changes the current ABI.  Therefore
+it cannot be anything but an option and I don't assume we want to add so
+much cruft for just this.
 
-Especially when sending off multiple patches as a set, it provides
-more reliable results than trying to prepare and send multiple such
-simultaneous messages from the typical email client.
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+
+--------------enigBFE2EFCE5A58DFB09D356DC3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFErf1D2ijCOnn/RHQRAuSVAKC0zV6nwR45UbA/vgjbv2jOr2x6TACZARe2
++K6h5tHU9OOQVV4Vb4Wkdkk=
+=PjBh
+-----END PGP SIGNATURE-----
+
+--------------enigBFE2EFCE5A58DFB09D356DC3--

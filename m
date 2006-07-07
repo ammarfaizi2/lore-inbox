@@ -1,53 +1,220 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWGGXZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWGGX0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWGGXZm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 19:25:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWGGXZm
+	id S932401AbWGGX0j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 19:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWGGX0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 19:25:42 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20888 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932389AbWGGXZl (ORCPT
+	Fri, 7 Jul 2006 19:26:39 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:51867 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S932401AbWGGX0g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 19:25:41 -0400
-Date: Sat, 8 Jul 2006 01:25:23 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
-       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
-       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net
-Subject: Re: swsusp / suspend2 reliability
-Message-ID: <20060707232523.GC1746@elf.ucw.cz>
-References: <20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au> <20060627154130.GA31351@rhlx01.fht-esslingen.de> <20060627222234.GP29199@elf.ucw.cz> <m2k66qzgri.fsf@tnuctip.rychter.com> <3aa654a40607070819v1359fb69l5d617f029940cc0e@mail.gmail.com> <20060707180310.ef7186d7.grundig@teleline.es> <20060707174424.GA9913@dspnet.fr.eu.org> <20060707213916.GC5393@ucw.cz> <20060707215656.GA30353@dspnet.fr.eu.org>
+	Fri, 7 Jul 2006 19:26:36 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [PATCH] remove empty node at boot time
+Date: Fri, 7 Jul 2006 17:26:31 -0600
+User-Agent: KMail/1.8.3
+Cc: linux-ia64@vger.kernel.org, tony.luck@intel.com,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20060601200436.6bf7c4e5.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060601200436.6bf7c4e5.kamezawa.hiroyu@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060707215656.GA30353@dspnet.fr.eu.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200607071726.31646.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > So what Pavel wants can be
-> > translated as 'please use already merged code, it can already do what
-> > you want without further changing kernel'.
+On Thursday 01 June 2006 05:04, KAMEZAWA Hiroyuki wrote:
+> Remove empty node -- a node which containes no cpu, no memory (and no I/O).
+> for ia64.
 > 
-> Like we'd want to use unreviewed, extremely new and risky code for
-> something that happily destroy filesystems.
+> This patch online nodes which has available resouces and avoid onlining 
+> nodes which has only possible resouces.
 
-You can either use suspend2 (14000 lines of unreviewed kernel code,
-old) or uswsusp (~500 lines of reviewed kernel code, ~2000 lines of
-unreviewed userspace code, new).
+This patch breaks my HP rx8640 box.  I suppose we have some unusual
+SRAT configuration.  I'll debug it more next week.  If there's something
+in particular I should look for, let me know.
 
-Of course, you can also use swsusp (~2000 lines of reviewed kernel
-code, pretty old) if stability matters to you more than graphical
-progress bar.
+Comparing old (working) with new (broken), I see:
 
-I know what I'm picking, and I'm pretty sure I know what
-mainline/distros will pick.
+- Number of logical nodes in system = 3
++ Number of logical nodes in system = 1
 
-If you want to help, you are welcome to test/review any component. But
-stop producing hot air.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+This box has two cells.  Each cell has four CPUs and some local memory.
+There is also an interleaved region that uses memory from both cells.
+I think firmware presents this as a logical node for each cell, plus
+one for the interleaved region.
+
+This box is configured with minimal local memory on each cell (8MB).
+That's less than a granule, so we should discard it, leaving two nodes
+with CPUs but no memory, and a third node with all the interleaved
+memory but no CPUs.
+
+It looks like this patch throws away two of the nodes, so I'm guessing
+we discarded the nodes with CPUs and no memory.
+
+> SRAT describes possible resources, cpu and memory.  It also shows proximity
+> domain, pxm. Each numa node is created according to pxm.
+> 
+> Current ia64 SRAT parser onlining node when new pxm is found. But sometimes
+> pxm just includes 'possible' resources, doesn't includes available resources.
+> Such pxms will create an empty node.
+> 
+> When an empty node is onlined, it allocates a pgdat for an empty node.
+> 
+> Now, fundamental codes for node-hot-plug are ready in -mm. We can add
+> cpu and memory dynamically to the created new node. (memory-less-node hotplug is
+> not ready. But I don't know whether there are demands for it now.)
+> Then, we can remove empty nodes, which just includes possible resource.
+> 
+> And, I'm now considering allocating new pgdat on-node. Empty nodes are
+> obstacles to do that.
+> 
+> TBD: I/O only node detections scheme should be fixed (if necessary).
+>      Does anyone have a suggestion ?
+> 
+> Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> 
+> 
+> Index: linux-2.6.17-rc5-mm2/arch/ia64/kernel/setup.c
+> ===================================================================
+> --- linux-2.6.17-rc5-mm2.orig/arch/ia64/kernel/setup.c	2006-06-01 18:34:08.000000000 +0900
+> +++ linux-2.6.17-rc5-mm2/arch/ia64/kernel/setup.c	2006-06-01 19:09:19.000000000 +0900
+> @@ -418,7 +418,7 @@
+>  
+>  	if (early_console_setup(*cmdline_p) == 0)
+>  		mark_bsp_online();
+> -
+> +	reserve_memory();
+>  #ifdef CONFIG_ACPI
+>  	/* Initialize the ACPI boot-time table parser */
+>  	acpi_table_init();
+> Index: linux-2.6.17-rc5-mm2/arch/ia64/mm/contig.c
+> ===================================================================
+> --- linux-2.6.17-rc5-mm2.orig/arch/ia64/mm/contig.c	2006-06-01 18:32:18.000000000 +0900
+> +++ linux-2.6.17-rc5-mm2/arch/ia64/mm/contig.c	2006-06-01 19:09:19.000000000 +0900
+> @@ -146,8 +146,6 @@
+>  {
+>  	unsigned long bootmap_size;
+>  
+> -	reserve_memory();
+> -
+>  	/* first find highest page frame number */
+>  	max_pfn = 0;
+>  	efi_memmap_walk(find_max_pfn, &max_pfn);
+> Index: linux-2.6.17-rc5-mm2/arch/ia64/mm/discontig.c
+> ===================================================================
+> --- linux-2.6.17-rc5-mm2.orig/arch/ia64/mm/discontig.c	2006-06-01 18:34:08.000000000 +0900
+> +++ linux-2.6.17-rc5-mm2/arch/ia64/mm/discontig.c	2006-06-01 19:09:19.000000000 +0900
+> @@ -443,8 +443,6 @@
+>  {
+>  	int node;
+>  
+> -	reserve_memory();
+> -
+>  	if (num_online_nodes() == 0) {
+>  		printk(KERN_ERR "node info missing!\n");
+>  		node_set_online(0);
+> Index: linux-2.6.17-rc5-mm2/arch/ia64/kernel/acpi.c
+> ===================================================================
+> --- linux-2.6.17-rc5-mm2.orig/arch/ia64/kernel/acpi.c	2006-06-01 18:34:08.000000000 +0900
+> +++ linux-2.6.17-rc5-mm2/arch/ia64/kernel/acpi.c	2006-06-01 19:09:19.000000000 +0900
+> @@ -515,6 +515,43 @@
+>  	num_node_memblks++;
+>  }
+>  
+> +/* online node if node has valid memory */
+> +static
+> +int find_valid_memory_range(unsigned long start, unsigned long end, void *arg)
+> +{
+> +	int i;
+> +	struct node_memblk_s *p;
+> +	start = __pa(start);
+> +	end = __pa(end);
+> +	for (i = 0; i < num_node_memblks; ++i) {
+> +		p = &node_memblk[i];
+> +		if (end < p->start_paddr)
+> +			continue;
+> +		if (p->start_paddr + p->size <= start)
+> +			continue;
+> +		node_set_online(p->nid);
+> +	}
+> +	return 0;
+> +}
+> +
+> +static void
+> +acpi_online_node_fixup(void)
+> +{
+> +	int i, cpu;
+> +	/* online node if a node has available cpus */
+> +	for (i = 0; i < srat_num_cpus; ++i)
+> +		for (cpu = 0; cpu < available_cpus; ++cpu)
+> +			if (smp_boot_data.cpu_phys_id[cpu] ==
+> +				node_cpuid[i].phys_id) {
+> +				node_set_online(node_cpuid[i].nid);
+> +				break;
+> +			}
+> +	/* memory */
+> +	efi_memmap_walk(find_valid_memory_range, NULL);
+> +
+> +	/* TBD: check I/O devices which have valid nid. and online it*/
+> +}
+> +
+>  void __init acpi_numa_arch_fixup(void)
+>  {
+>  	int i, j, node_from, node_to;
+> @@ -526,22 +563,28 @@
+>  		return;
+>  	}
+>  
+> -	/*
+> -	 * MCD - This can probably be dropped now.  No need for pxm ID to node ID
+> -	 * mapping with sparse node numbering iff MAX_PXM_DOMAINS <= MAX_NUMNODES.
+> -	 */
+>  	nodes_clear(node_online_map);
+> +	/* MAP pxm to nid */
+>  	for (i = 0; i < MAX_PXM_DOMAINS; i++) {
+>  		if (pxm_bit_test(i)) {
+> -			int nid = acpi_map_pxm_to_node(i);
+> -			node_set_online(nid);
+> +			/* this makes pxm <-> nid mapping */
+> +			acpi_map_pxm_to_node(i);
+>  		}
+>  	}
+> +	/* convert pxm information to nid information */
+>  
+> -	/* set logical node id in memory chunk structure */
+>  	for (i = 0; i < num_node_memblks; i++)
+>  		node_memblk[i].nid = pxm_to_node(node_memblk[i].nid);
+>  
+> +	for (i = 0; i < srat_num_cpus; i++)
+> +		node_cpuid[i].nid = pxm_to_node(node_cpuid[i].nid);
+> +
+> +	/*
+> +         * confirm node is online or not.
+> +         * onlined node will have their own NODE_DATA
+> +	 */
+> +	acpi_online_node_fixup();
+> +
+>  	/* assign memory bank numbers for each chunk on each node */
+>  	for_each_online_node(i) {
+>  		int bank;
+> @@ -552,9 +595,6 @@
+>  				node_memblk[j].bank = bank++;
+>  	}
+>  
+> -	/* set logical node id in cpu structure */
+> -	for (i = 0; i < srat_num_cpus; i++)
+> -		node_cpuid[i].nid = pxm_to_node(node_cpuid[i].nid);
+>  
+>  	printk(KERN_INFO "Number of logical nodes in system = %d\n",
+>  	       num_online_nodes());
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

@@ -1,80 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWGGXgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWGGXg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWGGXgL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 19:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWGGXgL
+	id S932410AbWGGXg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 19:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWGGXg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 19:36:11 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:13034 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932407AbWGGXgJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 19:36:09 -0400
-Date: Fri, 7 Jul 2006 16:26:04 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: linux-kernel@us.ibm.com
-Cc: joe@perches.com, akpm@osdl.org, matthltc@us.ibm.com, dipankar@in.ibm.com,
-       stern@rowland.harvard.edu, mingo@elte.hu, tytso@us.ibm.com,
-       dvhltc@us.ibm.com, oleg@tv-sign.ru, jes@sgi.com
-Subject: [PATCH] srcu-3: improved comment and code-style improvements from Joe Perches
-Message-ID: <20060707232604.GA2784@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 7 Jul 2006 19:36:28 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:29586 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S932410AbWGGXg0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 19:36:26 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 7 Jul 2006 16:36:17 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@alien.or.mcafeemobile.com
+To: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] spinlocks: remove 'volatile'
+In-Reply-To: <20060708000531.410cd672@werewolf.auna.net>
+Message-ID: <Pine.LNX.4.64.0607071602160.2654@alien.or.mcafeemobile.com>
+References: <20060705114630.GA3134@elte.hu> <20060705101059.66a762bf.akpm@osdl.org>
+ <20060705193551.GA13070@elte.hu> <20060705131824.52fa20ec.akpm@osdl.org>
+ <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu>
+ <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu>
+ <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
+ <20060706081639.GA24179@elte.hu> <Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
+ <Pine.LNX.4.64.0607060856080.12404@g5.osdl.org> <Pine.LNX.4.64.0607060911530.12404@g5.osdl.org>
+ <Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com> <m34pxt8emn.fsf@defiant.localdomain>
+ <Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
+ <Pine.LNX.4.64.0607071318570.3869@g5.osdl.org> <Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com>
+ <20060708000531.410cd672@werewolf.auna.net>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1795850513-720723553-1152314192=:2654"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An improved comment for synchronize_srcu() and fixes for code-style
-bugs pointed out by off-list by Joe Perches.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-CC: Joe Perches <joe@perches.com>
-Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
----
+--1795850513-720723553-1152314192=:2654
+Content-Type: TEXT/PLAIN; CHARSET=X-UNKNOWN; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
- srcu.c |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+On Sat, 8 Jul 2006, J.A. Magall=C3=B3n wrote:
 
-diff -urpNa -X dontdiff linux-2.6.17-srcu-LKML-3/kernel/srcu.c linux-2.6.17-srcu-LKML-4/kernel/srcu.c
---- linux-2.6.17-srcu-LKML-3/kernel/srcu.c	2006-07-06 16:45:01.000000000 -0700
-+++ linux-2.6.17-srcu-LKML-4/kernel/srcu.c	2006-07-06 16:50:23.000000000 -0700
-@@ -62,7 +62,7 @@ static int srcu_readers_active_idx(struc
- 	sum = 0;
- 	for_each_possible_cpu(cpu)
- 		sum += per_cpu_ptr(sp->per_cpu_ref, cpu)->c[idx];
--	return (sum);
-+	return sum;
- }
- 
- /**
-@@ -144,11 +144,15 @@ void srcu_read_unlock(struct srcu_struct
-  * As with classic RCU, the updater must use some separate means of
-  * synchronizing concurrent updates.  Can block; must be called from
-  * process context.
-+ *
-+ * Note that it is illegal to call synchornize_srcu() from the corresponding
-+ * SRCU read-side critical section; doing so will result in deadlock.
-+ * However, it is perfectly legal to call synchronize_srcu() on one
-+ * srcu_struct from some other srcu_struct's read-side critical section.
-  */
- void synchronize_srcu(struct srcu_struct *sp)
- {
- 	int idx;
--	int sum;
- 
- 	idx = sp->completed;
- 	mutex_lock(&sp->mutex);
-@@ -195,12 +199,8 @@ void synchronize_srcu(struct srcu_struct
- 	 * will have finished executing.
- 	 */
- 
--	for (;;) {
--		sum = srcu_readers_active_idx(sp, idx);
--		if (sum == 0)
--			break;
-+	while (srcu_readers_active_idx(sp, idx))
- 		schedule_timeout_interruptible(1);
--	}
- 
- 	synchronize_sched();  /* Force memory barrier on all CPUs. */
- 
+> On Fri, 7 Jul 2006 17:22:31 -0400, "linux-os \(Dick Johnson\)" <linux-os@=
+analogic.com> wrote:
+>
+>>
+>> On Fri, 7 Jul 2006, Linus Torvalds wrote:
+>>
+>>>
+>>> On Fri, 7 Jul 2006, linux-os (Dick Johnson) wrote:
+>>>>
+>>>> Now Linus declares that instead of declaring an object volatile
+>>>> so that it is actually accessed every time it is referenced, he wants
+>>>> to use a GNU-ism with assembly that tells the compiler to re-read
+>>>> __every__ variable existing im memory, instead of just one. Go figure!
+>>>
+>>> Actually, it's not just me.
+>>>
+>>> Read things like the Intel CPU documentation.
+>>>
+>>> IT IS ACTIVELY WRONG to busy-loop on a variable. It will make the CPU
+>>> potentially over-heat, causing degreaded performance, and you're simply
+>>> not supposed to do it.
+>>
+>> This is a bait and switch argument. The code was displayed to show
+>> the compiler output, not an example of good coding practice.
+>>
+>
+> volatile means what it means, is usefull and is right. If it is used
+> in kernel for other things apart from what it was designed for it is
+> kernel or programmer responsibility. It does not mention nothing about
+> locking.
+
+(looking at your code ...)
+I think you guys mixed the concepts about *if* a memory access happens=20
+(volatile), and *where* the memory access happens (barrier).
+As far as kernel coding goes (or MT userspace), if you happen to care *if*
+a memory access happens, you probably want to care even *where* the memory=
+=20
+access happens. And modern CPUs and compilers do not respect the WYSIWYG=20
+property ;)
+This is not always true (*if* -> *where*), but it's very frequent.
+And using "volatile" can make your code work in some cases, and misbehave=
+=20
+in others.
+Can we now all move on to a more refreshing "C++ kernel rewrite" thread :)
+
+
+
+- Davide
+--1795850513-720723553-1152314192=:2654--

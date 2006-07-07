@@ -1,92 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWGGPCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWGGPDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWGGPCF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 11:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWGGPCF
+	id S932180AbWGGPDo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 11:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWGGPDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 11:02:05 -0400
-Received: from igw1.zrnko.cz ([81.31.45.160]:18914 "EHLO anubis.fi.muni.cz")
-	by vger.kernel.org with ESMTP id S932176AbWGGPCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 11:02:04 -0400
-Date: Fri, 7 Jul 2006 17:02:29 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel 2.6.17-git14 and PCI suspend/resume
-Message-ID: <20060707150229.GB2689@mail.muni.cz>
-References: <20060703231121.GB2752@mail.muni.cz> <20060703232109.GA18605@suse.de>
+	Fri, 7 Jul 2006 11:03:43 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:47372 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932178AbWGGPDn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 11:03:43 -0400
+Message-ID: <44AE77C8.2040909@zurich.ibm.com>
+Date: Fri, 07 Jul 2006 17:03:36 +0200
+From: dirk husemann <hud@zurich.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060607)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060703232109.GA18605@suse.de>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Pavel Machek <pavel@ucw.cz>
+CC: Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org,
+       suspend2-devel@lists.suspend2.net
+Subject: Re: [Suspend2-devel] Re: swsusp / suspend2 reliability
+References: <200606270147.16501.ncunningham@linuxmail.org>	<20060627133321.GB3019@elf.ucw.cz> <44A14D3D.8060003@wasp.net.au>	<20060627154130.GA31351@rhlx01.fht-esslingen.de>	<20060627222234.GP29199@elf.ucw.cz>	<m2k66qzgri.fsf@tnuctip.rychter.com> <20060707135031.GA4239@ucw.cz>
+In-Reply-To: <20060707135031.GA4239@ucw.cz>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig64CD8D7A7D05C2FFDBFF1E96"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig64CD8D7A7D05C2FFDBFF1E96
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 03, 2006 at 04:21:09PM -0700, Greg KH wrote:
-> When suspending, pci_save_state() would have saved off those values (all
-> 1s) which is what it is restoring.  That function gets called if there
-> is no driver specific suspend function to call.  On suspend, is there
-> any driver loaded for the device?
+Pavel Machek wrote:
+> Hi!
+>
+>  =20
+>>  Pavel> I do not think suspend2 works on more machines than in-kernel
+>>  Pavel> swsusp. Problems are in drivers, and drivers are shared.
+>>
+>>  Pavel> That means that if you have machine where suspend2 works and
+>>  Pavel> swsusp does not, please tell me. I do not think there are many=
 
-I was playing a little with various versions to see what has changed.
-It looks that somewhere after 2.6.17-rc6 just printk message was added and
-pci_save/restore_state newer worked for me.
+>>  Pavel> of them.
+>>
+>> Accept the facts -- for some reason, there is a fairly large user base=
 
-The strange is that only some of devices are unable to save pci config.
+>> that goes to all the bother of using suspend2, which requires
+>>    =20
+> ...
+>  =20
+>> That is a fact, and all the hand waving won't change it.
+>>    =20
+>
+> Users like suspend2 eye candy =3D> swsusp must be unreliable?
+>  =20
+oh, come on. that's a pretty cheap argument. let me tell you i tried
+swsusp (admittedly a while ago) couldn't get it to run reliably on
+several laptops, went for suspend2 --- and it worked rather well. i
+certainly didn't go for suspend2 because of its "eye candy"...
 
-According to lspci -t my PCI tree looks like this:
+this is not about eye candy, this is about pragmatism: suspend2 seems to
+work on a lot more platforms than what is currently in the kernel.
+> I know users that installed swsusp, decided they want progress bars,
+> and went for suspend2.
+>
+>  =20
+>> I'm tired of this. It's taking years for Linux to get reasonably worki=
+ng
+>> suspend facilities, which is a shame. In my opinion a large part of th=
+e
+>> problem is you opposing Nigel's patches. Problem is, for many people
+>> Nigel's code works while yours does not.
+>>    =20
+>
+> Nigel only submitted his code once, month or so ago, as series of 200
+> or so patches. Do not blame me for _that_.
+>  =20
+IIRC correctly he did try earlier and was told to come back when he had
+his code subdivided in little pieces.
 
-(Devices marked with * do not save config correctly. The others are OK. None of marked devices is claimed by any driver in kernel, as well as IPW2915ABG device is not claimed by any driver, but this device is restored correctly.)
+    dirk
 
-# lspci -t
--[0000:00]-+-00.0
-           +-01.0-[0000:03]--
-           +-02.0
-           +-02.1
-           +-1b.0
-           +-1d.0
-           +-1d.1
-           +-1d.2
-           +-1d.3
-           +-1d.7
-           +-1e.0-[0000:01-02]--+-00.0
-           |                    +-01.0 *
-           |                    +-01.1 *
-           |                    +-01.2 *
-           |                    +-01.3 *
-           |                    +-01.4 *
-           |                    \-02.0
-           +-1f.0
-           \-1f.1
+--=20
+Dr Dirk Husemann, Pervasive Computing, IBM Research, Zurich Research Lab
+	hud@zurich.ibm.com --- http://www.zurich.ibm.com/~hud/
+       PGP key: http://www.zurich.ibm.com/~hud/contact/PGP
+  PGP Fingerprint: 983C 48E7 0A78 A313 401C  C4AD 3C0A 278E 6431 A149
+	     Email only authentic if signed with PGP key.
 
-This is plain lspci:
-00:00.0 Host bridge: Intel Corporation Mobile 915GM/PM/GMS/910GML Express Processor to DRAM Controller (rev 03)
-00:01.0 PCI bridge: Intel Corporation Mobile 915GM/PM Express PCI Express Root Port (rev 03)
-00:02.0 VGA compatible controller: Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller (rev 03)
-00:02.1 Display controller: Intel Corporation Mobile 915GM/GMS/910GML Express Gr aphics Controller (rev 03)
-00:1b.0 Audio device: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) High Definition Audio Controller (rev 04)
-00:1d.0 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) US B UHCI #1 (rev 04)
-00:1d.1 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) US B UHCI #2 (rev 04)
-00:1d.2 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) US B UHCI #3 (rev 04)
-00:1d.3 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) US B UHCI #4 (rev 04)
-00:1d.7 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) US B2 EHCI Controller (rev 04)
-00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev d4)
-00:1f.0 ISA bridge: Intel Corporation 82801FBM (ICH6M) LPC Interface Bridge (rev 04)
-00:1f.1 IDE interface: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) IDE Controller (rev 04)
-01:00.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001 Gigabit Ethernet Controller (rev 13)
-01:01.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev b3)
-01:01.1 FireWire (IEEE 1394): Ricoh Co Ltd R5C552 IEEE 1394 Controller (rev 08)
-01:01.2 Class 0805: Ricoh Co Ltd R5C822 SD/SDIO/MMC/MS/MSPro Host Adapter (rev 17)
-01:01.3 System peripheral: Ricoh Co Ltd R5C592 Memory Stick Bus Host Adapter (rev 08)
-01:01.4 System peripheral: Ricoh Co Ltd xD-Picture Card Controller (rev 03)
-01:02.0 Network controller: Intel Corporation PRO/Wireless 2915ABG Network Connection (rev 05)
+Appended to this email is an electronic signature attachment. You can
+ignore it if your email program does not know how to verify such a
+signature. If you'd like to learn more about this topic, www.gnupg.org
+is a good starting point.
 
 
--- 
-Luká¹ Hejtmánek
+
+--------------enig64CD8D7A7D05C2FFDBFF1E96
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFErnfKPAonjmQxoUkRAgGZAJ9xYHBPIgtNCF9+A4x57uAWmBRbowCgyAbI
+AvYvNkDClQZZU0Sx72NM9CI=
+=jmJ0
+-----END PGP SIGNATURE-----
+
+--------------enig64CD8D7A7D05C2FFDBFF1E96--

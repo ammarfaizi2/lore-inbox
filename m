@@ -1,105 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWGGT7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWGGUGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWGGT7S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 15:59:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWGGT7S
+	id S932307AbWGGUGT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 16:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWGGUGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 15:59:18 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:4368 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932254AbWGGT7R
+	Fri, 7 Jul 2006 16:06:18 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59858 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932307AbWGGUGR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 15:59:17 -0400
-Date: Fri, 7 Jul 2006 15:59:15 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: Matt Helsley <matthltc@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       <dipankar@in.ibm.com>, Ingo Molnar <mingo@elte.hu>, <tytso@us.ibm.com>,
-       Darren Hart <dvhltc@us.ibm.com>, <oleg@tv-sign.ru>,
-       Jes Sorensen <jes@sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] srcu-3: RCU variant permitting read-side blocking
-In-Reply-To: <20060707185903.GE1296@us.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0607071523330.6793-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 7 Jul 2006 16:06:17 -0400
+Subject: Re: 2.6.17-mm6
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, jamagallon@ono.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44AEBD17.3080107@garzik.org>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	 <20060705234347.47ef2600@werewolf.auna.net>
+	 <20060705155602.6e0b4dce.akpm@osdl.org>
+	 <20060706015706.37acb9af@werewolf.auna.net>
+	 <20060705170228.9e595851.akpm@osdl.org>
+	 <20060706163646.735f419f@werewolf.auna.net>
+	 <20060706164802.6085d203@werewolf.auna.net>
+	 <20060706234425.678cbc2f@werewolf.auna.net>
+	 <20060706145752.64ceddd0.akpm@osdl.org>
+	 <1152288168.20883.8.camel@localhost.localdomain>
+	 <20060707175509.14ea9187@werewolf.auna.net>
+	 <1152290643.20883.25.camel@localhost.localdomain>
+	 <20060707093432.571af16e.rdunlap@xenotime.net>
+	 <1152292196.20883.48.camel@localhost.localdomain>
+	 <44AE966F.8090506@garzik.org>
+	 <1152294245.20883.52.camel@localhost.localdomain>
+	 <44AE9C67.7000204@garzik.org>
+	 <1152302613.20883.58.camel@localhost.localdomain>
+	 <44AEBD17.3080107@garzik.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 07 Jul 2006 21:23:42 +0100
+Message-Id: <1152303822.20883.74.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jul 2006, Paul E. McKenney wrote:
-
-> > I think it's foolish for us to waste a tremendous amount of time on this 
-> > when the real problem is the poor design of the per-cpu API.  Fix that, 
-> > and most of the difficulties will be gone.
+Ar Gwe, 2006-07-07 am 15:59 -0400, ysgrifennodd Jeff Garzik:
+> The circumstances you cite happened, yes, but I think you exaggerate the 
+> renaming.  Several soldered bridge solutions are already supported by 
+> libata.
 > 
-> If the per-CPU API was reasonably unifiable, I expect that it would
-> already be unified.  The problem is that the easy ways to unify it hit
-> some extremely hot code paths with extra cache misses -- for example, one
-> could add a struct percpu_data to each and every static DEFINE_PERCPU(),
-> but at the cost of an extra cache line touched and extra indirection
-> -- which I believe was deemed unacceptable -- and would introduce
-> initialization difficulties for the static case.
+> Several do need to be renamed to ata_*.c, though.
 
-Here's a sketch of a possible approach.  Generalizing it and making it 
-look pretty are left as exercises for the reader.  :-)
+If we work on the "commonly found" basis then it would be
 
-In srcu_struct, along with
+pata_atiixp
+pata_hpt37x
+pata_hpt3x2n
+pata_pdc2027x
 
-	struct srcu_struct_array *per_cpu_ref;
+All four commonly are found with SATA bridges, ATIIXP especially.
 
-add
-	struct percpu_data *per_cpu_table;
+On the "almost any obscure case basis" would add
 
-Dynamic initialization does:
+pata_ali
+pata_sis
+pata_via
 
-	sp->per_cpu_ref = NULL;
-	sp->per_cpu_table = alloc_percpu(...);
+and depending how far pushed
 
-Static initialization does:
+pata_sil680
 
-	sp->per_cpu_ref = PER_CPU_ADDRESS(...);		/* My macro
-		from before; gives the address of the static variable */
+and one or two others
 
-	sp->per_cpu_table = (struct percpu_data *)
-		~(unsigned long) __per_cpu_offset;
-
-Then the unified_per_cpu_ptr(ref, table, cpu) macro would expand to
-something like this:
-
-({
-	struct percpu_data *t = (struct percpu_data *)~(unsigned long)(table);
-	RELOC_HIDE(ref, t->ptrs[cpu]);
-})
-
-Making this work right would of course require knowledge of the intimate
-details of both include/linux/percpu.h and include/asmXXX/percpu.h.  
-There's some ambiguity about what t above points to: a structure
-containing an array of pointers to void, or an array of unsigned longs.  
-Fortunately I think it doesn't matter.
-
-Doing it this way would not incur any extra cache misses, except for the 
-need to store an extra member in srcu_struct.
-
-> So, a fourth possibility -- can a call from start_kernel() invoke some
-> function in yours and Matt's code invoke init_srcu_struct() to get a
-> statically allocated srcu_struct initialized?  Or, if this is part of
-> a module, can the module initialization function do this work?
-> 
-> (Hey, I had to ask!)
-
-That is certainly a viable approach: just force everyone to use dynamic 
-initialization.  Changes to existing code would be relatively few.
-
-I'm not sure where the right place would be to add these initialization 
-calls.  After kmalloc is working but before the relevant notifier chains 
-get used at all.  Is there such a place?  I guess it depends on which 
-notifier chains we convert.
-
-We might want to leave some chains using the existing rw-semaphore API.  
-It's more appropriate when there's a high frequency of write-locking
-(i.e., things registering or unregistering on the notifier chain).  The 
-SRCU approach is more appropriate when the chain is called a lot and 
-needs to have low overhead, but (un)registration is uncommon.  Matt's task 
-notifiers are a good example.
-
-Alan Stern
+Which do you want renamed ?
 

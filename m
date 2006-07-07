@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWGGHDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWGGHFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbWGGHDg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 03:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWGGHDg
+	id S1751250AbWGGHFN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 03:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWGGHFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 03:03:36 -0400
-Received: from mail.gmx.net ([213.165.64.21]:12510 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751240AbWGGHDf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 03:03:35 -0400
-Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org, tytso@mit.edu,
-       torvalds@osdl.org, eggert@cs.ucla.edu, roland@redhat.com,
-       rlove@rlove.org, mtk-lkml@gmx.net, mtk-manpages@gmx.net
-Content-Type: text/plain; charset="utf-8"
-Date: Fri, 07 Jul 2006 09:03:34 +0200
-From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
-In-Reply-To: <44ADFD43.4040204@redhat.com>
-Message-ID: <20060707070334.186790@gmx.net>
-MIME-Version: 1.0
-References: <44A92DC8.9000401@gmx.net> <44AABB31.8060605@colorfullife.com>
- <20060706092328.320300@gmx.net> <44AD599D.70803@colorfullife.com>
- <44AD5CB6.7000607@redhat.com> <20060707043220.186800@gmx.net>
- <44ADE9B6.1020900@redhat.com> <20060707050731.186770@gmx.net>
- <44ADFD43.4040204@redhat.com>
-Subject: Re: Strange Linux behaviour with blocking syscalls and stop
- signals+SIGCONT
-To: Ulrich Drepper <drepper@redhat.com>
-X-Authenticated: #2864774
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 8bit
+	Fri, 7 Jul 2006 03:05:12 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:63371
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751243AbWGGHFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 03:05:10 -0400
+Date: Fri, 07 Jul 2006 00:05:24 -0700 (PDT)
+Message-Id: <20060707.000524.112600047.davem@davemloft.net>
+To: mikpe@it.uu.se
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: [BUG sparc64] 2.6.16-git6 broke X11 on Ultra5 with ATI Mach64
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200607060937.k669bZT3017256@harpo.it.uu.se>
+References: <200607060937.k669bZT3017256@harpo.it.uu.se>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Von: Ulrich Drepper <drepper@redhat.com>
+From: Mikael Pettersson <mikpe@it.uu.se>
+Date: Thu, 6 Jul 2006 11:37:35 +0200 (MEST)
 
-> > Changing EINTR
-> > to ERESTARTSYS is likely to have more impact on userland (though 
-> > it still strikes me as a desirable gola to have all system calls 
-> > restartable via SA_RESTART).
+> On Wed, 05 Jul 2006 20:40:36 -0700 (PDT), David Miller wrote:
+> >> I.e., X did a simple PROT_READ|PROT_WRITE MAP_SHARED mmap() of
+> >> something PCI-related, presumably the ATI card. The protection
+> >> bits passed into io_remap_pfn_range() are 0x80...0788, while
+> >> pg_iobits are 0x80...0f8a. Current kernels obey the prot bits,
+> >> which, if I read things correctly, means that _PAGE_W_4U and
+> >> _PAGE_MODIFIED_4U don't get set any more.
+> >> 
+> >> I guess something else in the kernel should have set those
+> >> bits before they got to io_remap_pfn_range()?
+> >
+> >The problem is with X, it should not be doing a MAP_SHARED
+> >mmap() of the framebuffer device.  It should be using
+> >MAP_PRIVATE instead.
+> >
+> >The kernel is trying to provide copy-on-write semantics for
+> >the mapping, which doesn't make any sense for device registers.
+> >That's why the kernel isn't setting the writable or modified
+> >bits in the protection bitmask.
 > 
-> This is certainly a nice goal but it changes the current ABI.  
+> Now I'm confused. That COW behaviour would be consistent with
+> MAP_PRIVATE, not MAP_SHARED which is what X did use.
 
-Yes, it does.
+Yes, I'm totally wrong here, MAP_SHARED is correct.
 
-> Therefore
-> it cannot be anything but an option and I don't assume we want to add so
-> much cruft for just this.
+I'll have to figure out how the writeable bits get lost
+in the call chain.
 
-There must be some framework for changing the kernel ABI over time.
-We can't remain forever stuck with an ABI behaviour because 
-of the development model (i.e., no 2.7/2.8).  And it probably
-would not be that much code change to achieve the result?
-
-Cheers,
-
-Michael
--- 
-
-
-"Feel free" – 10 GB Mailbox, 100 FreeSMS/Monat ...
-Jetzt GMX TopMail testen: http://www.gmx.net/de/go/topmail
+Thanks.

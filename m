@@ -1,85 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWGGWsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWGGWt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWGGWsy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 18:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWGGWsy
+	id S932365AbWGGWt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 18:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWGGWt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 18:48:54 -0400
-Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:53642 "EHLO
-	idefix.homelinux.org") by vger.kernel.org with ESMTP
-	id S932365AbWGGWsy convert rfc822-to-8bit (ORCPT
+	Fri, 7 Jul 2006 18:49:57 -0400
+Received: from smtp.ono.com ([62.42.230.12]:23273 "EHLO resmta03.ono.com")
+	by vger.kernel.org with ESMTP id S932365AbWGGWt4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 18:48:54 -0400
-Subject: Re: Suspend to RAM regression tracked down
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-To: Dave Jones <davej@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk
-In-Reply-To: <20060707162152.GB3223@redhat.com>
-References: <1151837268.5358.10.camel@idefix.homelinux.org>
-	 <44A80B20.1090702@goop.org> <1152271537.5163.4.camel@idefix.homelinux.org>
-	 <20060707162152.GB3223@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
-Date: Sat, 08 Jul 2006 08:48:49 +1000
-Message-Id: <1152312530.14453.16.camel@idefix.homelinux.org>
+	Fri, 7 Jul 2006 18:49:56 -0400
+Date: Sat, 8 Jul 2006 00:49:43 +0200
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Message-ID: <20060708004943.05dbb10c@werewolf.auna.net>
+In-Reply-To: <Pine.LNX.4.64.0607071718080.23767@turbotaz.ourhouse>
+References: <20060705114630.GA3134@elte.hu>
+	<20060705101059.66a762bf.akpm@osdl.org>
+	<20060705193551.GA13070@elte.hu>
+	<20060705131824.52fa20ec.akpm@osdl.org>
+	<Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
+	<20060705204727.GA16615@elte.hu>
+	<Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
+	<20060705214502.GA27597@elte.hu>
+	<Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
+	<Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
+	<20060706081639.GA24179@elte.hu>
+	<Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
+	<Pine.LNX.4.64.0607060856080.12404@g5.osdl.org>
+	<Pine.LNX.4.64.0607060911530.12404@g5.osdl.org>
+	<Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com>
+	<m34pxt8emn.fsf@defiant.localdomain>
+	<Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
+	<Pine.LNX.4.64.0607071318570.3869@g5.osdl.org>
+	<Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com>
+	<20060708000531.410cd672@werewolf.auna.net>
+	<Pine.LNX.4.64.0607071718080.23767@turbotaz.ourhouse>
+X-Mailer: Sylpheed-Claws 2.3.1cvs68 (GTK+ 2.10.0; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le vendredi 07 juillet 2006 à 12:21 -0400, Dave Jones a écrit :
-> On Fri, Jul 07, 2006 at 09:25:37PM +1000, Jean-Marc Valin wrote:
->  > > There was a race in ondemand and conservative which made them lock up on 
->  > > resume (possibly only on SMP systems though).  There's a patch for that 
->  > > in current -mm, but I suspect there's another problem (still haven't had 
->  > > any time to track it down).
->  > 
->  > OK, I tried the patch with 2.6.17 and it didn't work. My laptop failed
->  > to resume on the first try, so it must be something else. Could someone
->  > actually have a look at the changes in 2.6.12-rc5-git6 (which happen to
->  > be cpufreq-related)? I spend months pinpointing the problem to that
->  > version (it's takes several days to reproduce). I'd appreciate if
->  > someone could at least have a look at what changed there and maybe fix
->  > it.
+On Fri, 7 Jul 2006 17:22:22 -0500 (CDT), Chase Venters <chase.venters@clientec.com> wrote:
+
+> > .L7:
+> >    movl    $1, mtx    <=========
+> >    movl    spinvar, %eax
+> >    movl    $0, mtx    <=========
+> >    testl   %eax, %eax
+> >    jne .L7
+> >    popl    %ebp
+> >    ret
 > 
-> Can you show /proc/cpuinfo for the affected system ?
-> If it's 15/3/4 or 15/4/1, that would explain why this kernel,
-> as this was when support for those models got introduced to
-> speedstep-centrino.
+> NO! It's not better. You're still not syncing or locking the bus! If you 
+> refer to the fact that the "movl $1" has magically appeared, that's 
+> because you've just PAPERED OVER THE PROBLEM WITH "volatile", which is 
+> _exactly_ what Linus is telling you NOT TO DO.
+> 
 
-Not sure what's the 15/..., but here's the content:
-% cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 9
-model name      : Intel(R) Pentium(R) M processor 1600MHz
-stepping        : 5
-cpu MHz         : 598.132
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov
-pat clflush dts acpi mmx fxsr sse sse2 tm pbe est tm2
-bogomips        : 1197.24
+BTW, I really don't mind if a given architecnture has to lock the bus or
+say a prayer to Budha to reload a variable. I want it to be reloaded at
+every (or a certain, in case of a (volatile)mtx cast) usage. The compiler
+is the responsible of knowing what to do. What if nextgen P4 Xeon do not
+need a bus lock ? Will you rewrite the kernel ?
 
-BTW, speedstep worked fine on my laptop with 2.6.12-rc5-git5 and
-earlier.
-
-> If it's not that, there is a pretty large delta in the ondemand
-> governor in this update, but I don't see anything blindlingly
-> obvious from looking over it.
-
-Well, is there some way of doing a bisection over these changes? As far
-as I know, the problem probably affects all Dell D600 owners, probably
-others.
-
-	Jean-Marc
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2007.0 (Cooker) for i586
+Linux 2.6.17-jam01 (gcc 4.1.1 20060518 (prerelease)) #2 SMP PREEMPT Wed

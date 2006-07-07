@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWGGRKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWGGRKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWGGRKc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 13:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWGGRKc
+	id S932196AbWGGRKE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 13:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWGGRKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 13:10:32 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:52969 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932197AbWGGRKb (ORCPT
+	Fri, 7 Jul 2006 13:10:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3740 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932196AbWGGRKD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 13:10:31 -0400
-Message-ID: <44AE9584.4040300@garzik.org>
-Date: Fri, 07 Jul 2006 13:10:28 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Fri, 7 Jul 2006 13:10:03 -0400
+Date: Fri, 7 Jul 2006 10:09:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [patch] spinlocks: remove 'volatile'
+In-Reply-To: <200607070623_MC3-1-C45A-2429@compuserve.com>
+Message-ID: <Pine.LNX.4.64.0607071003140.3869@g5.osdl.org>
+References: <200607070623_MC3-1-C45A-2429@compuserve.com>
 MIME-Version: 1.0
-To: ltuikov@yahoo.com
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sched.h: increment TASK_COMM_LEN to 20 bytes
-References: <20060707170029.18481.qmail@web31814.mail.mud.yahoo.com>
-In-Reply-To: <20060707170029.18481.qmail@web31814.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben Tuikov wrote:
-> Andrew,
+
+
+On Fri, 7 Jul 2006, Chuck Ebbert wrote:
 > 
-> If this patch is so much affecting Garzik, please drop it.
-> 
-> As to "merged users in the kernel" -- my code is GPL, and at one point
-> was in the -mm tree as maintained by yourself.
-> 
-> Currently it also implements a SAT-r08a complient SCSI/ATA Translation
-> Layer for a SAS Stack including SATA capabilities adjustment as advertized
-> by the protocol, NCQ, passthrough, etc, etc. (Garzik may see this as
-> objectionable as it is not "libata", but it cannot be due to architectural
-> hurdles.)
-> 
-> Anyway, kernel threads bear the name of STP/SATA bridge which is representable
-> in 16+1 ASCII chars (IEEE NAA Registered format identifier, 8 bytes), and thus
-> the last character (4 bits of the name) are chopped off in a 15+1 char array.
+> >  #define __raw_spin_unlock_string \
+> >       "movb $1,%0" \
+> > -             :"=m" (lock->slock) : : "memory"
+> > +             :"+m" (lock->slock) : : "memory"
+>  
+> This really is just an overwrite of whatever is there.  OTOH I can't see
+> how this change could hurt anything..
 
-Your patch increases the size of a key data structure -- task struct -- 
-for all users on all platforms, even when there are _no_ users currently 
-in the kernel.
+Yeah, I don't think any non-buggy sequence can make it matter.
 
-It is thus wasted space, for all users on all platforms.
+In theory, you could have something like
 
-Linux development doesn't work like this.  We don't know the future, 
-until it happens.
+ - create a spinlock already locked
+ - add the object that contains the spinlock to some global queues
+ - do some op on the object to finalize it
+ - unlock the spinlock 
 
-Thus, this patch is appropriate when there are real users in the kernel, 
-and not before.
+and then the "unlock" had better not optimize away the previous 
+initialization.
 
-	Jeff
+HOWEVER, it can't really do that anyway, since anything that made the 
+spinlock visible to anybody else would have had to serialize the lock 
+state for _that_, so if the "+m" vs "=m" makes a difference, you'd have 
+had a serious bug already for other reasons.
 
+I'll leave it with a "+m". I've tested it locally, and looking at the 
+patch it definitely fixes real bugs in the inline asms, but I still hope 
+other people will take a look before I commit it, in case there are any 
+other subtle cases.
 
+(A "+m" should always be safer than a "=m", so the patch should be very 
+safe, but hey, bugs happen to "obvious" code too)
+
+			Linus

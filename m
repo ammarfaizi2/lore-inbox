@@ -1,111 +1,729 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWGGT3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWGGTbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWGGT3W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 15:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWGGT3W
+	id S932248AbWGGTbm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 15:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWGGTbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 15:29:22 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:58517 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932282AbWGGT3V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 15:29:21 -0400
-Date: Fri, 7 Jul 2006 12:29:56 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: mingo@elte.hu
-Cc: oleg@tv-sign.ru, linux-kernel@vger.kernel.org, dino@us.ibm.com,
-       tytso@us.ibm.com, dvhltc@us.ibm.com
-Subject: [PATCH -rt] catch put_task_struct RCU handling up to mainline
-Message-ID: <20060707192955.GA2219@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 7 Jul 2006 15:31:42 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:6590 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932248AbWGGTbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 15:31:41 -0400
+From: hawkes@sgi.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+Cc: Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org,
+       Christoph Lameter <clameter@sgi.com>, hawkes@sgi.com,
+       Paul Jackson <pj@sgi.com>, John Hawkes <jrhawkes@yahoo.com>
+Date: Fri, 07 Jul 2006 12:31:07 -0700
+Message-Id: <20060707193107.2870.60825.sendpatchset@tomahawk.engr.sgi.com>
+Subject: re: [PATCH] build sched domains tracking cpusets
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Version #2, incorporating some of Nick Piggin's feedback.  Still only
+defined for CONFIG_CPUSETS.
 
-Due to the separate -rt and mainline evolution of RCU signal handling,
-the -rt patchset now makes each task struct go through two RCU grace
-periods, with one call_rcu() in release_task() and with another
-in put_task_struct().  Only the call_rcu() in release_task() is
-required, since this is the one that is associated with tearing down
-the task structure.
+Moderate-to-large single system image systems are often carved up into
+dynamic cpusets, and applications are individually assigned to specific
+cpusets.  The current CPU scheduler's find_busiest_cpu() load-balancing
+doesn't work well in this environment, as the busiest CPU may be busy
+with tasks that cannot migrate out of their constrained cpuset (because
+of the task->cpus_allowed), and this effectively stymies any passive
+load-balancing attempted by a CPU not in this busiest CPU's cpuset.
+This disabling of load-balancing has been observed by several SGI
+customers and can be a serious performance problem.
 
-This patch removes the extra call_rcu() in put_task_struct(), synching
-this up with mainline.  Tested lightly on i386.
+A lesser observed issue is inefficient load-balancing within (for
+example) a cpuset that spans one of those 16-node sched domains that are
+built for large NUMA systems.  The next broader sched domain is the
+all-CPUs domain, which load-balances across the 16-node sched domain
+boundaries relatively infrequently.
 
-CC: Oleg Nesterov <oleg@tv-sign.ru>
-Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
----
+This patch introduces the notion of dynamic sched domains (and sched
+groups) that track the creation and deletion of cpusets.  Up to eight of
+these dynamic sched domains can exist per CPU, which seems to handle the
+observed use of cpusets by one popular job manager.  Essentially, every
+new cpuset causes the creation of a new sched domain for the CPUs of
+that cpuset, and a deletion of the cpuset causes the destruction of that
+dynamic sched domain.  New sched domains are inserted into each CPU's
+list as appropriate.  The limit of 8/CPU (vs. unlimited) not only caps
+the upperbound of kmalloc memory being assigned to sched domain and
+sched group structs (thereby avoiding a potential denial-of-service
+attack by a runaway user creating cpusets), but it also caps the number
+of sched domains being searched by various algorithms in the scheduler.
 
- include/linux/sched.h |   10 ----------
- kernel/fork.c         |   21 ---------------------
- 2 files changed, 31 deletions(-)
+A "feature" of this implementation is that these dynamic sched domains
+build up until that limit of 8/CPU is reached, at which point no
+additional sched domains are created; or until a cpu-exclusive cpuset
+gets declared, at which point all the dynamically created sched domains
+in the affected CPUs get destroyed.  A more sophisticated algorithm in
+kernel/cpuset.c could redeclare the dynamic sched domains after a
+cpu-exclusive cpuset gets declared, but that is outside the scope of
+this simple patch's simple change to kernel/cpuset.c.
 
-diff -urpNa -X dontdiff linux-2.6.17-rt5/include/linux/sched.h linux-2.6.17-rt5-2RCU/include/linux/sched.h
---- linux-2.6.17-rt5/include/linux/sched.h	2006-07-02 12:37:14.000000000 -0700
-+++ linux-2.6.17-rt5-2RCU/include/linux/sched.h	2006-07-06 18:11:49.000000000 -0700
-@@ -1105,15 +1105,6 @@ static inline int pid_alive(struct task_
- extern void free_task(struct task_struct *tsk);
- #define get_task_struct(tsk) do { atomic_inc(&(tsk)->usage); } while(0)
+Signed-off-by: John Hawkes <hawkes@sgi.com>
+
+Index: linux/include/linux/sched.h
+===================================================================
+--- linux.orig/include/linux/sched.h	2006-06-17 18:49:35.000000000 -0700
++++ linux/include/linux/sched.h	2006-07-07 12:12:43.761129140 -0700
+@@ -550,14 +550,15 @@ enum idle_type
+ #ifdef CONFIG_SMP
+ #define SCHED_LOAD_SCALE	128UL	/* increase resolution of load */
  
--#ifdef CONFIG_PREEMPT_RT
--extern void __put_task_struct_cb(struct rcu_head *rhp);
--
--static inline void put_task_struct(struct task_struct *t)
--{
--	if (atomic_dec_and_test(&t->usage))
--		call_rcu(&t->rcu, __put_task_struct_cb);
--}
--#else
- extern void __put_task_struct(struct task_struct *t);
+-#define SD_LOAD_BALANCE		1	/* Do load balancing on this domain. */
+-#define SD_BALANCE_NEWIDLE	2	/* Balance when about to become idle */
+-#define SD_BALANCE_EXEC		4	/* Balance on exec */
+-#define SD_BALANCE_FORK		8	/* Balance on fork, clone */
+-#define SD_WAKE_IDLE		16	/* Wake to idle CPU on task wakeup */
+-#define SD_WAKE_AFFINE		32	/* Wake task to waking CPU */
+-#define SD_WAKE_BALANCE		64	/* Perform balancing at task wakeup */
+-#define SD_SHARE_CPUPOWER	128	/* Domain members share cpu power */
++#define SD_LOAD_BALANCE		0x00000001	/* Do load balancing */
++#define SD_BALANCE_NEWIDLE	0x00000002	/* Balance when becoming idle */
++#define SD_BALANCE_EXEC		0x00000004	/* Balance on exec */
++#define SD_BALANCE_FORK		0x00000008	/* Balance on fork, clone */
++#define SD_WAKE_IDLE		0x00000010	/* Balance to idle CPU on wakeup */
++#define SD_WAKE_AFFINE		0x00000020	/* Wake task to waking CPU */
++#define SD_WAKE_BALANCE		0x00000040	/* Balance at task wakeup */
++#define SD_SHARE_CPUPOWER	0x00000080	/* Domain members share cpu power */
++#define SD_TRACKS_CPUSET	0x00000100	/* Span matches non-exclusive cpuset */
  
- static inline void put_task_struct(struct task_struct *t)
-@@ -1121,7 +1112,6 @@ static inline void put_task_struct(struc
- 	if (atomic_dec_and_test(&t->usage))
- 		__put_task_struct(t);
- }
--#endif
+ struct sched_group {
+ 	struct sched_group *next;	/* Must be a circular list */
+@@ -630,6 +631,9 @@ struct sched_domain {
+ extern void partition_sched_domains(cpumask_t *partition1,
+ 				    cpumask_t *partition2);
  
++extern void add_sched_domain(const cpumask_t *cpu_map);
++extern void destroy_sched_domain(const cpumask_t *cpu_map);
++
  /*
-  * Per process flags
-diff -urpNa -X dontdiff linux-2.6.17-rt5/kernel/fork.c linux-2.6.17-rt5-2RCU/kernel/fork.c
---- linux-2.6.17-rt5/kernel/fork.c	2006-07-02 12:37:15.000000000 -0700
-+++ linux-2.6.17-rt5-2RCU/kernel/fork.c	2006-07-07 07:44:36.000000000 -0700
-@@ -120,26 +120,6 @@ void free_task(struct task_struct *tsk)
- }
- EXPORT_SYMBOL(free_task);
+  * Maximum cache size the migration-costs auto-tuning code will
+  * search from:
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c	2006-06-20 13:43:05.962860936 -0700
++++ linux/kernel/sched.c	2006-07-07 12:24:35.014038956 -0700
+@@ -4821,6 +4821,7 @@ static void sched_domain_debug(struct sc
+ 	do {
+ 		int i;
+ 		char str[NR_CPUS];
++		struct sched_domain *sd_prev;
+ 		struct sched_group *group = sd->groups;
+ 		cpumask_t groupmask;
  
--#ifdef CONFIG_PREEMPT_RT
--void __put_task_struct_cb(struct rcu_head *rhp)
--{
--	struct task_struct *tsk = container_of(rhp, struct task_struct, rcu);
--
--	BUG_ON(atomic_read(&tsk->usage));
--	WARN_ON(!(tsk->flags & PF_DEAD));
--	WARN_ON(!(tsk->exit_state & (EXIT_DEAD | EXIT_ZOMBIE)));
--	WARN_ON(tsk == current);
--
--	security_task_free(tsk);
--	free_uid(tsk->user);
--	put_group_info(tsk->group_info);
--
--	if (!profile_handoff_task(tsk))
--		free_task(tsk);
--}
--
--#else
--
- void __put_task_struct(struct task_struct *tsk)
- {
- 	WARN_ON(!(tsk->exit_state & (EXIT_DEAD | EXIT_ZOMBIE)));
-@@ -154,7 +134,6 @@ void __put_task_struct(struct task_struc
- 	if (!profile_handoff_task(tsk))
- 		free_task(tsk);
- }
--#endif
+@@ -4885,10 +4886,13 @@ static void sched_domain_debug(struct sc
+ 			printk(KERN_ERR "ERROR: groups don't span domain->span\n");
  
- void __init fork_init(unsigned long mempages)
+ 		level++;
++		sd_prev = sd;
+ 		sd = sd->parent;
+ 
+ 		if (sd) {
+-			if (!cpus_subset(groupmask, sd->span))
++			if (!(sd->flags & SD_TRACKS_CPUSET)		&&
++			    !(sd_prev->flags & SD_TRACKS_CPUSET)	&&
++			    !cpus_subset(groupmask, sd->span))
+ 				printk(KERN_ERR "ERROR: parent span is not a superset of domain->span\n");
+ 		}
+ 
+@@ -5677,6 +5681,316 @@ next_sg:
+ }
+ #endif
+ 
++#if defined(CONFIG_NUMA) || defined(CONFIG_CPUSETS)
++
++static void build_node_sched_groups(
++	struct sched_group **sched_groups_by_node,
++	const cpumask_t *cpu_map,
++	struct sched_domain *(*sd_for_cpu_fn)(int cpu))
++{
++	int node;
++
++	for (node = 0; node < MAX_NUMNODES; node++) {
++		struct sched_domain *sd;
++		struct sched_group *sg = NULL;
++		struct sched_group *prev;
++		cpumask_t nodemask = node_to_cpumask(node);
++		cpumask_t domainspan;
++		cpumask_t covered = CPU_MASK_NONE;
++		int j;
++
++		cpus_and(nodemask, nodemask, *cpu_map);
++		if (cpus_empty(nodemask)) {
++			sched_groups_by_node[node] = NULL;
++			continue;
++		}
++
++		domainspan = sched_domain_node_span(node);
++		cpus_and(domainspan, domainspan, *cpu_map);
++
++		sd = sd_for_cpu_fn(first_cpu(nodemask));
++		BUG_ON(!sd);
++		if (sd->groups)
++			continue;	/* previously built - all done */
++		sg = kmalloc_node(sizeof(struct sched_group), GFP_KERNEL, node);
++		sched_groups_by_node[node] = sg;
++
++		for_each_cpu_mask(j, nodemask) {
++			sd = sd_for_cpu_fn(j);
++			sd->groups = sg;
++			if (!sg) {
++				/* Turn off balancing if we have no groups */
++				sd->flags = 0;
++			}
++		}
++		if (!sg) {
++			printk(KERN_WARNING
++			"Can not alloc domain group for node %d\n", node);
++			continue;
++		}
++		sg->cpu_power = 0;
++		sg->cpumask = nodemask;
++		cpus_or(covered, covered, nodemask);
++		prev = sg;
++
++		for (j = 0; j < MAX_NUMNODES; j++) {
++			cpumask_t tmp, notcovered;
++			int n = (node + j) % MAX_NUMNODES;
++
++			cpus_complement(notcovered, covered);
++			cpus_and(tmp, notcovered, *cpu_map);
++			cpus_and(tmp, tmp, domainspan);
++			if (cpus_empty(tmp))
++				break;
++
++			nodemask = node_to_cpumask(n);
++			cpus_and(tmp, tmp, nodemask);
++			if (cpus_empty(tmp))
++				continue;
++
++			sg = kmalloc_node(sizeof(struct sched_group),
++					GFP_KERNEL, node);
++			if (!sg) {
++				printk(KERN_WARNING
++				"Can not alloc domain group for node %d\n", j);
++				break;
++			}
++			sg->cpu_power = 0;
++			sg->cpumask = tmp;
++			cpus_or(covered, covered, tmp);
++			prev->next = sg;
++			prev = sg;
++		}
++		prev->next = sched_groups_by_node[node];
++	}
++}
++
++static void free_node_sched_groups(
++	struct sched_group **sched_groups_by_node,
++	const cpumask_t *cpu_map)
++{
++	int node;
++
++	for (node = 0; node < MAX_NUMNODES; node++) {
++		cpumask_t nodemask = node_to_cpumask(node);
++		struct sched_group *oldsg, *sg = sched_groups_by_node[node];
++
++		cpus_and(nodemask, nodemask, *cpu_map);
++		if (cpus_empty(nodemask))
++			continue;
++
++		if (sg == NULL)
++			continue;
++		sg = sg->next;
++next_sg:
++		oldsg = sg;
++		sg = sg->next;
++		kfree(oldsg);
++		if (oldsg != sched_groups_by_node[node])
++			goto next_sg;
++	}
++}
++#endif
++
++#ifdef CONFIG_CPUSETS
++
++struct sched_domain_bundle {
++	struct sched_domain sd_cpuset;
++	struct sched_group **sg_cpuset_nodes;
++	int use_count;
++};
++#define SCHED_DOMAIN_CPUSET_MAX	8	/* power of 2 */
++static DEFINE_PER_CPU(long, sd_cpusets_used) = { 1UL <<SCHED_DOMAIN_CPUSET_MAX};
++static DEFINE_PER_CPU(struct sched_domain_bundle[SCHED_DOMAIN_CPUSET_MAX],
++		      sd_cpusets_bundle);
++
++static struct sched_domain *sched_domain_per_cpu[NR_CPUS];
++
++static struct sched_domain *find_sd_for_cpu_in_array(int cpu)
++{
++	return sched_domain_per_cpu[cpu];
++}
++
++static int find_existing_sched_domain_bundle(int cpu, const cpumask_t *cpu_map)
++{
++	int sd_idx;
++
++	for (sd_idx = 0; sd_idx < SCHED_DOMAIN_CPUSET_MAX; sd_idx++) {
++		struct sched_domain_bundle *sd_cpuset_bundle;
++		struct sched_domain *sd;
++
++		if (!test_bit(sd_idx, &per_cpu(sd_cpusets_used, cpu)))
++			continue;
++		sd_cpuset_bundle = &per_cpu(sd_cpusets_bundle[sd_idx], cpu);
++		sd = &sd_cpuset_bundle->sd_cpuset;
++		if (cpus_equal(*cpu_map, sd->span))
++			return sd_idx;
++	}
++
++	return SCHED_DOMAIN_CPUSET_MAX;
++}
++
++void add_sched_domain(const cpumask_t *cpu_map)
++{
++	int cpu, node, first_cpu_in_cpumap;
++	struct sched_group **sched_groups_by_node;
++	int allocsize = MAX_NUMNODES * sizeof(struct sched_group *);
++	struct sched_domain_bundle *sd_cpuset_bundle;
++	cpumask_t new_sd_cpu_map = CPU_MASK_NONE;
++	int new_sd_span = cpus_weight(*cpu_map);
++
++	if (new_sd_span <= 1)
++		return;
++
++	memset(sched_domain_per_cpu, 0, sizeof(sched_domain_per_cpu));
++
++	first_cpu_in_cpumap = first_cpu(*cpu_map);
++	sched_groups_by_node = kmalloc_node(allocsize, GFP_KERNEL,
++					    cpu_to_node(first_cpu_in_cpumap));
++	if (!sched_groups_by_node) {
++		printk(KERN_WARNING
++		"Cannot alloc sched group array for new domain\n");
++		goto clean_exit;
++	}
++	memset(sched_groups_by_node, 0, allocsize);
++
++	for_each_cpu_mask(cpu, *cpu_map) {
++		struct sched_domain *sd;
++		int sd_idx;
++
++		/* If this is redundant, then just bump the use_count;
++		 * otherwise, use another bundle slot
++		 */
++		if ((sd_idx = find_existing_sched_domain_bundle(cpu, cpu_map))
++						< SCHED_DOMAIN_CPUSET_MAX) {
++			sd_cpuset_bundle
++				= &per_cpu(sd_cpusets_bundle[sd_idx], cpu);
++			sd_cpuset_bundle->use_count++;
++			sched_domain_per_cpu[cpu]
++				= &sd_cpuset_bundle->sd_cpuset;
++			continue;	/* move on to next cpu in cpu_map */
++		}
++
++		sd_idx = ffz(per_cpu(sd_cpusets_used, cpu));
++		if (sd_idx >= SCHED_DOMAIN_CPUSET_MAX) {
++			if (cpu == first_cpu_in_cpumap)
++				goto failure_exit;
++			new_sd_span--;
++			continue;
++		}
++		set_bit(sd_idx, &per_cpu(sd_cpusets_used, cpu));
++		sd_cpuset_bundle = &per_cpu(sd_cpusets_bundle[sd_idx], cpu);
++		sd_cpuset_bundle->sg_cpuset_nodes
++		   = (cpu == first_cpu_in_cpumap) ? sched_groups_by_node : NULL;
++		sd_cpuset_bundle->use_count = 1;
++		sd = &sd_cpuset_bundle->sd_cpuset;
++		sched_domain_per_cpu[cpu] = sd;
++
++		/* tweak sched_domain params based upon domain size */
++		*sd = SD_CPUSET_INIT;
++		sd->max_interval = 8*(min(new_sd_span, 32));
++		sd->span = *cpu_map;
++		cpu_set(cpu, new_sd_cpu_map);
++	}
++	if (!new_sd_span)	/* sd_cpusets all previously allocated? */
++		goto failure_exit;
++
++	if (cpus_empty(new_sd_cpu_map)) {
++		kfree(sched_groups_by_node);
++		sched_groups_by_node = NULL;
++	} else {
++		build_node_sched_groups(sched_groups_by_node, cpu_map,
++					&find_sd_for_cpu_in_array);
++
++		for (node = 0; node < MAX_NUMNODES; node++)
++			init_numa_sched_groups_power(
++						sched_groups_by_node[node]);
++
++		/* Now carefully insert each new sched domain into the lists */
++		for_each_cpu_mask(cpu, new_sd_cpu_map) {
++			struct sched_domain *sd;
++			struct sched_domain *sd_new = sched_domain_per_cpu[cpu];
++
++			if (!sd_new)
++				continue;
++
++			for_each_domain(cpu, sd) {
++				struct sched_domain *sd_next = sd->parent;
++				if (!sd_next) {
++					sd->parent = sd_new;
++					break;
++				} else {
++					if (cpus_weight(sd_next->span)
++								> new_sd_span) {
++						sd_new->parent = sd_next;
++						wmb();
++						sd->parent = sd_new;
++						break;
++					}
++				}
++			}
++		}
++	}
++
++	goto clean_exit;
++
++failure_exit:
++	kfree(sched_groups_by_node);
++
++clean_exit:
++	return;
++}
++
++void destroy_sched_domain(const cpumask_t *cpu_map)
++{
++	int cpu, sd_idx;
++
++	if (cpus_weight(*cpu_map) <= 1)
++		return;
++
++	for_each_cpu_mask(cpu, *cpu_map) {
++		sd_idx = find_existing_sched_domain_bundle(cpu, cpu_map);
++		if (sd_idx < SCHED_DOMAIN_CPUSET_MAX) {
++			struct sched_domain *sd, *sd_list;
++			struct sched_group **sched_groups;
++			struct sched_domain_bundle *sd_bundle
++				= &per_cpu(sd_cpusets_bundle[sd_idx], cpu);
++			if (--sd_bundle->use_count)
++				continue;    /* still have another instance */
++			clear_bit(sd_idx, &per_cpu(sd_cpusets_used, cpu));
++			sd = &sd_bundle->sd_cpuset;
++
++			/* Find and detach sched domain from the list */
++			spin_lock_irq(&cpu_rq(cpu)->lock);
++			for_each_domain(cpu, sd_list) {
++				struct sched_domain *sd_next = sd_list->parent;
++				BUG_ON(!sd_next);
++				if (sd_next->flags & SD_TRACKS_CPUSET &&
++				    cpus_equal(sd_next->span,sd->span)){
++					sd_list->parent = sd_next->parent;
++					break;
++				}
++			}
++			spin_unlock_irq(&cpu_rq(cpu)->lock);
++
++			if (sd_bundle->sg_cpuset_nodes) {
++				sched_groups = sd_bundle->sg_cpuset_nodes;
++				free_node_sched_groups(sched_groups, cpu_map);
++				kfree(sched_groups);
++				sd_bundle->sg_cpuset_nodes = NULL;
++			}
++		}
++	}
++}
++#endif
++
++#ifdef CONFIG_NUMA
++static struct sched_domain *find_sd_for_cpu_in_percpu(int cpu)
++{
++	return &per_cpu(node_domains, cpu);
++}
++#endif
++
+ /*
+  * Build sched domains for a given set of cpus and attach the sched domains
+  * to the individual cpus
+@@ -5687,17 +6001,21 @@ void build_sched_domains(const cpumask_t
+ #ifdef CONFIG_NUMA
+ 	struct sched_group **sched_group_nodes = NULL;
+ 	struct sched_group *sched_group_allnodes = NULL;
++	int first_cpu_in_cpumap = first_cpu(*cpu_map);
++
++	memset(sched_domain_per_cpu, 0, sizeof(sched_domain_per_cpu));
+ 
+ 	/*
+ 	 * Allocate the per-node list of sched groups
+ 	 */
+-	sched_group_nodes = kmalloc(sizeof(struct sched_group*)*MAX_NUMNODES,
+-					   GFP_ATOMIC);
++	sched_group_nodes = kmalloc_node(
++				sizeof(struct sched_group*)*MAX_NUMNODES,
++				GFP_ATOMIC, cpu_to_node(first_cpu_in_cpumap));
+ 	if (!sched_group_nodes) {
+ 		printk(KERN_WARNING "Can not alloc sched group node list\n");
+ 		return;
+ 	}
+-	sched_group_nodes_bycpu[first_cpu(*cpu_map)] = sched_group_nodes;
++	sched_group_nodes_bycpu[first_cpu_in_cpumap] = sched_group_nodes;
+ #endif
+ 
+ 	/*
+@@ -5714,15 +6032,16 @@ void build_sched_domains(const cpumask_t
+ 		if (cpus_weight(*cpu_map)
+ 				> SD_NODES_PER_DOMAIN*cpus_weight(nodemask)) {
+ 			if (!sched_group_allnodes) {
+-				sched_group_allnodes
+-					= kmalloc(sizeof(struct sched_group)
+-							* MAX_NUMNODES,
+-						  GFP_KERNEL);
++				sched_group_allnodes = kmalloc_node(
++				    MAX_NUMNODES*sizeof(struct sched_group),
++				    GFP_KERNEL, cpu_to_node(i));
+ 				if (!sched_group_allnodes) {
+ 					printk(KERN_WARNING
+ 					"Can not alloc allnodes sched group\n");
+ 					break;
+ 				}
++				memset(sched_group_allnodes, 0,
++				       MAX_NUMNODES*sizeof(struct sched_group));
+ 				sched_group_allnodes_bycpu[i]
+ 						= sched_group_allnodes;
+ 			}
+@@ -5736,6 +6055,7 @@ void build_sched_domains(const cpumask_t
+ 			p = NULL;
+ 
+ 		sd = &per_cpu(node_domains, i);
++		sched_domain_per_cpu[i] = sd;
+ 		*sd = SD_NODE_INIT;
+ 		sd->span = sched_domain_node_span(cpu_to_node(i));
+ 		sd->parent = p;
+@@ -5817,73 +6137,8 @@ void build_sched_domains(const cpumask_t
+ 		init_sched_build_groups(sched_group_allnodes, *cpu_map,
+ 					&cpu_to_allnodes_group);
+ 
+-	for (i = 0; i < MAX_NUMNODES; i++) {
+-		/* Set up node groups */
+-		struct sched_group *sg, *prev;
+-		cpumask_t nodemask = node_to_cpumask(i);
+-		cpumask_t domainspan;
+-		cpumask_t covered = CPU_MASK_NONE;
+-		int j;
+-
+-		cpus_and(nodemask, nodemask, *cpu_map);
+-		if (cpus_empty(nodemask)) {
+-			sched_group_nodes[i] = NULL;
+-			continue;
+-		}
+-
+-		domainspan = sched_domain_node_span(i);
+-		cpus_and(domainspan, domainspan, *cpu_map);
+-
+-		sg = kmalloc(sizeof(struct sched_group), GFP_KERNEL);
+-		sched_group_nodes[i] = sg;
+-		for_each_cpu_mask(j, nodemask) {
+-			struct sched_domain *sd;
+-			sd = &per_cpu(node_domains, j);
+-			sd->groups = sg;
+-			if (sd->groups == NULL) {
+-				/* Turn off balancing if we have no groups */
+-				sd->flags = 0;
+-			}
+-		}
+-		if (!sg) {
+-			printk(KERN_WARNING
+-			"Can not alloc domain group for node %d\n", i);
+-			continue;
+-		}
+-		sg->cpu_power = 0;
+-		sg->cpumask = nodemask;
+-		cpus_or(covered, covered, nodemask);
+-		prev = sg;
+-
+-		for (j = 0; j < MAX_NUMNODES; j++) {
+-			cpumask_t tmp, notcovered;
+-			int n = (i + j) % MAX_NUMNODES;
+-
+-			cpus_complement(notcovered, covered);
+-			cpus_and(tmp, notcovered, *cpu_map);
+-			cpus_and(tmp, tmp, domainspan);
+-			if (cpus_empty(tmp))
+-				break;
+-
+-			nodemask = node_to_cpumask(n);
+-			cpus_and(tmp, tmp, nodemask);
+-			if (cpus_empty(tmp))
+-				continue;
+-
+-			sg = kmalloc(sizeof(struct sched_group), GFP_KERNEL);
+-			if (!sg) {
+-				printk(KERN_WARNING
+-				"Can not alloc domain group for node %d\n", j);
+-				break;
+-			}
+-			sg->cpu_power = 0;
+-			sg->cpumask = tmp;
+-			cpus_or(covered, covered, tmp);
+-			prev->next = sg;
+-			prev = sg;
+-		}
+-		prev->next = sched_group_nodes[i];
+-	}
++	build_node_sched_groups(sched_group_nodes, cpu_map,
++				&find_sd_for_cpu_in_percpu);
+ #endif
+ 
+ 	/* Calculate CPU power for physical packages and nodes */
+@@ -5926,7 +6181,9 @@ void build_sched_domains(const cpumask_t
+ 	for (i = 0; i < MAX_NUMNODES; i++)
+ 		init_numa_sched_groups_power(sched_group_nodes[i]);
+ 
+-	init_numa_sched_groups_power(sched_group_allnodes);
++	if (sched_group_allnodes)
++		init_numa_sched_groups_power(&sched_group_allnodes[
++				cpu_to_allnodes_group(first_cpu(*cpu_map))]);
+ #endif
+ 
+ 	/* Attach the domains */
+@@ -5965,44 +6222,47 @@ static void arch_init_sched_domains(cons
+ 
+ static void arch_destroy_sched_domains(const cpumask_t *cpu_map)
  {
+-#ifdef CONFIG_NUMA
+-	int i;
++#if defined(CONFIG_NUMA) || defined(CONFIG_CPUSETS)
+ 	int cpu;
+ 
+ 	for_each_cpu_mask(cpu, *cpu_map) {
++		struct sched_group **sched_group_nodes;
++#ifdef CONFIG_CPUSETS
++		int sd_idx;
++#endif
++#ifdef CONFIG_NUMA
+ 		struct sched_group *sched_group_allnodes
+ 			= sched_group_allnodes_bycpu[cpu];
+-		struct sched_group **sched_group_nodes
+-			= sched_group_nodes_bycpu[cpu];
+ 
+ 		if (sched_group_allnodes) {
+ 			kfree(sched_group_allnodes);
+ 			sched_group_allnodes_bycpu[cpu] = NULL;
+ 		}
+ 
+-		if (!sched_group_nodes)
+-			continue;
+-
+-		for (i = 0; i < MAX_NUMNODES; i++) {
+-			cpumask_t nodemask = node_to_cpumask(i);
+-			struct sched_group *oldsg, *sg = sched_group_nodes[i];
+-
+-			cpus_and(nodemask, nodemask, *cpu_map);
+-			if (cpus_empty(nodemask))
+-				continue;
+-
+-			if (sg == NULL)
++		sched_group_nodes = sched_group_nodes_bycpu[cpu];
++		if (sched_group_nodes) {
++			free_node_sched_groups(sched_group_nodes, cpu_map);
++			kfree(sched_group_nodes);
++			sched_group_nodes_bycpu[cpu] = NULL;
++		}
++#endif
++#ifdef CONFIG_CPUSETS
++		for (sd_idx = 0; sd_idx < SCHED_DOMAIN_CPUSET_MAX; sd_idx++) {
++			struct sched_domain_bundle *sd_bundle;
++			if (!test_bit(sd_idx, &per_cpu(sd_cpusets_used, cpu)))
+ 				continue;
+-			sg = sg->next;
+-next_sg:
+-			oldsg = sg;
+-			sg = sg->next;
+-			kfree(oldsg);
+-			if (oldsg != sched_group_nodes[i])
+-				goto next_sg;
++			sd_bundle = &per_cpu(sd_cpusets_bundle[sd_idx], cpu);
++			clear_bit(sd_idx, &per_cpu(sd_cpusets_used, cpu));
++			sched_group_nodes = sd_bundle->sg_cpuset_nodes;
++			if (sched_group_nodes) {
++				free_node_sched_groups(sched_group_nodes,
++						       cpu_map);
++				kfree(sched_group_nodes);
++				sd_bundle->sg_cpuset_nodes = NULL;
++			}
++			sd_bundle->use_count = 0;
+ 		}
+-		kfree(sched_group_nodes);
+-		sched_group_nodes_bycpu[cpu] = NULL;
++#endif
+ 	}
+ #endif
+ }
+Index: linux/include/linux/topology.h
+===================================================================
+--- linux.orig/include/linux/topology.h	2006-06-17 18:49:35.000000000 -0700
++++ linux/include/linux/topology.h	2006-07-07 12:24:23.589940459 -0700
+@@ -141,6 +141,34 @@
+ }
+ #endif
+ 
++/* Common values for Cpusets domain */
++#ifndef SD_CPUSET_INIT
++#define SD_CPUSET_INIT (struct sched_domain) {		\
++	.span			= CPU_MASK_NONE,	\
++	.parent			= NULL,			\
++	.groups			= NULL,			\
++	.min_interval		= 8,			\
++	.max_interval		= 8*(min(num_online_cpus(), 32)), \
++	.busy_factor		= 64,			\
++	.imbalance_pct		= 125,			\
++	.cache_nice_tries	= 2,			\
++	.busy_idx		= 3,			\
++	.idle_idx		= 2,			\
++	.newidle_idx		= 0, /* unused */	\
++	.wake_idx		= 1,			\
++	.forkexec_idx		= 1,			\
++	.per_cpu_gain		= 100,			\
++	.flags			= SD_TRACKS_CPUSET	\
++				| SD_LOAD_BALANCE	\
++				| SD_BALANCE_EXEC	\
++				| SD_BALANCE_FORK	\
++				| SD_WAKE_BALANCE,	\
++	.last_balance		= jiffies,		\
++	.balance_interval	= 64,			\
++	.nr_balance_failed	= 0,			\
++}
++#endif
++
+ /* sched_domains SD_ALLNODES_INIT for NUMA machines */
+ #define SD_ALLNODES_INIT (struct sched_domain) {	\
+ 	.span			= CPU_MASK_NONE,	\
+Index: linux/kernel/cpuset.c
+===================================================================
+--- linux.orig/kernel/cpuset.c	2006-07-05 15:51:38.873939805 -0700
++++ linux/kernel/cpuset.c	2006-07-05 16:01:14.892039725 -0700
+@@ -828,8 +828,12 @@ static int update_cpumask(struct cpuset 
+ 	mutex_lock(&callback_mutex);
+ 	cs->cpus_allowed = trialcs.cpus_allowed;
+ 	mutex_unlock(&callback_mutex);
+-	if (is_cpu_exclusive(cs) && !cpus_unchanged)
+-		update_cpu_domains(cs);
++	if (!cpus_unchanged) {
++		if (is_cpu_exclusive(cs))
++			update_cpu_domains(cs);
++		else
++			add_sched_domain(&cs->cpus_allowed);
++	}
+ 	return 0;
+ }
+ 
+@@ -1934,6 +1938,8 @@ static int cpuset_rmdir(struct inode *un
+ 	set_bit(CS_REMOVED, &cs->flags);
+ 	if (is_cpu_exclusive(cs))
+ 		update_cpu_domains(cs);
++	else
++		destroy_sched_domain(&cs->cpus_allowed);
+ 	list_del(&cs->sibling);	/* delete my sibling from parent->children */
+ 	spin_lock(&cs->dentry->d_lock);
+ 	d = dget(cs->dentry);

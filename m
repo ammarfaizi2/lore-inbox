@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWGGCmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWGGCqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWGGCmz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 22:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWGGCmz
+	id S1751151AbWGGCqM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 22:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWGGCqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 22:42:55 -0400
-Received: from mexforward.lss.emc.com ([128.222.32.20]:24967 "EHLO
-	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1751150AbWGGCmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 22:42:55 -0400
-Message-ID: <44ADCA0C.90401@emc.com>
-Date: Thu, 06 Jul 2006 22:42:20 -0400
-From: Ric Wheeler <ric@emc.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Thu, 6 Jul 2006 22:46:12 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:38621 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751151AbWGGCqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 22:46:11 -0400
+X-Sasl-enc: uXFFqPTmWdKuFaRPNhtvSGBxuldgdcng4jRcT8//t1f2 1152240371
+Date: Thu, 6 Jul 2006 23:46:04 -0300
+From: Henrique de Moraes Holschuh <hmh@debian.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Robert Hancock <hancockr@shaw.ca>, Pavel Machek <pavel@suse.cz>,
+       lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net, Stelian Pop <stelian@popies.net>,
+       Michael Hanselmann <linux-kernel@hansmi.ch>
+Subject: Re: Generic interface for accelerometers (AMS, HDAPS, ...)
+Message-ID: <20060707024603.GC22666@khazad-dum.debian.net>
+References: <fa.GOQkHC8inXir2wbg4bZayOWXzAY@ifi.uio.no> <fa.qLWuLxQd7Mhcnixy/TLVs/nPwig@ifi.uio.no> <44AC5261.9050708@shaw.ca> <20060706061930.GA6033@suse.cz>
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>	 <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com>	 <20060705125956.GA529@fieldses.org> <44AC2B56.8010703@tmr.com>	 <20060705214133.GA28487@fieldses.org>  <44AC7647.2080005@tmr.com> <1152189796.5689.17.camel@lade.trondhjem.org> <44ADC3CE.1030302@tmr.com>
-In-Reply-To: <44ADC3CE.1030302@tmr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.7.6.191432
-X-PerlMx-Spam: Gauge=, SPAM=2%, Reason='EMC_FROM_0+ -2, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060706061930.GA6033@suse.cz>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 06 Jul 2006, Vojtech Pavlik wrote:
+> > >We are investigating the ACPI global lock as a way to at least get the
+> > >SMBIOS to stay away from the EC while we talk to it, but we don't know if
+> > >the entire SMBIOS firmware respects that lock.
+> > 
+> > It had better, that is exactly what the ACPI Global Lock is supposed to 
+> > prevent (concurrent access to non-sharable resources between the OS and 
+> > SMI code). The ACPI DSDT contains information on whether or not the 
+> > machine requires the Global Lock in order to access the EC or whether it 
+> > is safe to access without locking.
+>  
+> Isn't that vaild only if you actully use ACPI to access the EC? (AFAIK
+> the HDAPS driver does direct port access.)
 
+It better be valid for any OS-side access to the EC, otherwise the ACPI
+global lock would be utterly useless.  The system vendor would have done its
+own "global-lock-like" functionality without the need for an ACPI global
+lock specification.
 
-Bill Davidsen wrote:
+What is not clear to me is whether an ACPI DSDT method is on the "OS side"
+or on the "SMM side" of the ACPI global lock.
 
-> Trond Myklebust wrote:
->
->> Nobody gives a rats arse about backups: those are infrequent and
->> can/should use more sophisticated techniques such as checksumming.
->>
-> Actually, those of us who do run production servers care vastly about 
-> backups. And beside being utterly unscalable (checksum 20 TB of files 
-> four times a day to find what changed???), you would have to remember 
-> the checksums for all those files.
->
-The point of using checksums (or digital signatures on files) is to be 
-able to detect when the on disk file has been corrupted - not to look 
-for updates.  With normal disks, even writes that are flagged as correct 
-will occasionally actually end up corrupt on disk.  The rate that you 
-need to validate the checksums is not at a 4 time a day rate.
-
-Buying a nice, high array can make this much less of a concern, but 
-those of us who get stuck using commodity disks should always have a way 
-of detecting corruption and a backup (either on tape or on another box).
-
-ric
-
-
-
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

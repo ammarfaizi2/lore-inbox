@@ -1,222 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWGGXQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWGGXRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWGGXQs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 19:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWGGXQs
+	id S932377AbWGGXRR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 19:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWGGXRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 19:16:48 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:29158 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932376AbWGGXQr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 19:16:47 -0400
-Date: Sat, 8 Jul 2006 01:16:29 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Uwe Bugla <uwe.bugla@gmx.de>
-Subject: Re: 2.6.17-mm2 hrtimer code wedges at boot?
-In-Reply-To: <1152223506.24656.173.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.64.0607070134020.12900@scrub.home>
-References: <20060624061914.202fbfb5.akpm@osdl.org> 
- <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu> 
- <Pine.LNX.4.64.0606271212150.17704@scrub.home> 
- <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu> 
- <Pine.LNX.4.64.0606271903320.12900@scrub.home>  <Pine.LNX.4.64.0606271919450.17704@scrub.home>
-  <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu> 
- <1151453231.24656.49.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.64.0606281218130.12900@scrub.home>
-  <Pine.LNX.4.64.0606281335380.17704@scrub.home> 
- <200606292307.k5TN7MGD011615@turing-police.cc.vt.edu> 
- <1151695569.5375.22.camel@localhost.localdomain> 
- <200606302104.k5UL41vs004400@turing-police.cc.vt.edu> 
- <Pine.LNX.4.64.0607030256581.17704@scrub.home> 
- <200607050429.k654TXUr012316@turing-police.cc.vt.edu> 
- <1152147114.24656.117.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.64.0607061912370.12900@scrub.home> <1152223506.24656.173.camel@cog.beaverton.ibm.com>
+	Fri, 7 Jul 2006 19:17:17 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2065 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932377AbWGGXRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 19:17:16 -0400
+Date: Sat, 8 Jul 2006 01:17:16 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Cc: alsa-devel@alsa-project.org, perex@suse.cz,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: OSS driver removal, 2nd round (v2)
+Message-ID: <20060707231716.GE26941@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 6 Jul 2006, john stultz wrote:
-
-> Yea. I've been trying to map your method to the PID concept as well
-> (when all you have is a hammer... ;) and they are similar, however the
-> "future error" aspect of yours makes it a little more difficult to
-> grasp, but it is more compact.
-
-Let's take a different example model - let's take two cars, where one car 
-tries to follow the other, but it's limited in how it can change the speed 
-(and sometimes the driver also falls asleep :) ).
-First we want to match of course the speed of both cars, so that the 
-distance between the cars increases as little as possible over time. 
-Second we want to decrease the distance between the cars. The problem is 
-to stop the correction when the distance is near zero, which is simple 
-when we know the next time, we can change the speed, but if we miss the 
-point we overshoot and the distance grows again.
-It's possible to keep these two parameters separate, but it's actually 
-simpler to look at them together, by simply looking some time ahead and 
-calculate the position of the car at this time and thus the speed of the 
-other car to reach this position.
-
-The adjustment code basically does just this by using the difference in 
-speed to calculate the upcoming error. The new patch now uses the current 
-error to decide by how much to look ahead, basically if we already have a 
-large error, we have to be more careful, but overshooting with a small 
-adjustment doesn't do much harm.
-In the patch below I left some debug prints, which are useful to check how 
-good the error adjustment works. It should be close to the final version 
-(minus the prints and plus some more comments).
-
-> > Regarding dynticks it would help a lot here to know how many ticks are 
-> > skipped so you can spread the error correction evenly over this period 
-> > until the next adjustment and the correction is stopped in time.
-> 
-> I've considered alternatives, where we use a constant gain with the
-> proportional component (so any proportional change would be spread over
-> one second), but to avoid constant offsets when the total error was
-> smaller then the gain factor, we could also calculate a non-gain'ed
-> adjustment w/ a limiter and include that. This would be more ideal in
-> your irregular ticks example, but I'm not sure its really that much more
-> beneficial from what I proposed.
-
-The problem is we have conflicting goals, adjusting for an unknown number 
-of lost ticks is bad for precise timekeeping. I prefer to assume that lost 
-ticks are the exceptions and we need the help from the dynticks code to 
-assure precise timekeeping.
-
-bye, Roman
+Now that I've sent the first round of actually removing the code for OSS 
+drivers where ALSA drivers without regressions exist for the same 
+hardware, it's time for a second round amongst the remaining drivers.
 
 
----
- kernel/timer.c |   89 +++++++++++++++++++++++++++++++++++----------------------
- 1 file changed, 56 insertions(+), 33 deletions(-)
+Removing OSS drivers where ALSA drivers for the same hardware exists has 
+two reasons:
 
-Index: linux-2.6-mm/kernel/timer.c
-===================================================================
---- linux-2.6-mm.orig/kernel/timer.c	2006-07-07 02:51:57.000000000 +0200
-+++ linux-2.6-mm/kernel/timer.c	2006-07-07 23:58:47.000000000 +0200
-@@ -1013,15 +1013,9 @@ device_initcall(timekeeping_init_device)
-  */
- static __always_inline int clocksource_bigadjust(int sign, s64 error, s64 *interval, s64 *offset)
- {
--	int adj;
-+	s64 e, i;
-+	int adj, mult;
- 
--	/*
--	 * As soon as the machine is synchronized to the external time
--	 * source this should be the common case.
--	 */
--	error >>= 2;
--	if (likely(sign > 0 ? error <= *interval : error >= *interval))
--		return sign;
- 
- 	/*
- 	 * An extra look ahead dampens the effect of the current error,
-@@ -1029,33 +1023,41 @@ static __always_inline int clocksource_b
- 	 * it would dominate the adjustment value and can lead to
- 	 * oscillation.
- 	 */
--	error += current_tick_length() >> (TICK_LENGTH_SHIFT - clock->shift + 1);
--	error -= clock->xtime_interval >> 1;
--
--	adj = 0;
--	while (1) {
--		error >>= 1;
--		if (sign > 0 ? error <= *interval : error >= *interval)
--			break;
--		adj++;
-+	e = (sign > 0 ? clock->error : -clock->error) >> (TICK_LENGTH_SHIFT + 20 - 2 * SHIFT_HZ);
-+	for (adj = 0; (e >>= 2) > 0; adj++)
-+		;
-+	error >>= adj;
-+	e = current_tick_length() >> (TICK_LENGTH_SHIFT - clock->shift);
-+	e -= clock->xtime_interval;
-+	error += e;
-+	error -= e >> (adj + 1);
-+
-+	i = *interval;
-+	mult = 1;
-+	if (error < 0) {
-+		error = -error;
-+		*interval = -*interval;
-+		*offset = -*offset;
-+		mult = -1;
-+	}
-+
-+	if (error <= i) {
-+		*interval = 0;
-+		*offset = 0;
-+		return 0;
- 	}
- 
--	/*
--	 * Add the current adjustments to the error and take the offset
--	 * into account, the latter can cause the error to be hardly
--	 * reduced at the next tick. Check the error again if there's
--	 * room for another adjustment, thus further reducing the error
--	 * which otherwise had to be corrected at the next update.
--	 */
--	error = (error << 1) - *interval + *offset;
--	if (sign > 0 ? error > *interval : error < *interval)
--		adj++;
-+	for (adj = 0; (error >>= 1) > i; adj++)
-+		;
- 
- 	*interval <<= adj;
- 	*offset <<= adj;
--	return sign << adj;
-+	return mult << adj;
- }
- 
-+static unsigned long next_print = INITIAL_JIFFIES;
-+static int big_cnt, one_cnt, zero_cnt;
-+
- /*
-  * Adjust the multiplier to reduce the error value,
-  * this is optimized for the most common adjustments of -1,0,1,
-@@ -1066,15 +1068,36 @@ static void clocksource_adjust(struct cl
- 	s64 error, interval = clock->cycle_interval;
- 	int adj;
- 
-+	if (time_after(jiffies, next_print)) {
-+		printk("adj: %d,%d,%d\n", zero_cnt, one_cnt, big_cnt);
-+		zero_cnt = one_cnt = big_cnt = 0;
-+		next_print = jiffies + 10 * HZ;
-+	}
- 	error = clock->error >> (TICK_LENGTH_SHIFT - clock->shift - 1);
- 	if (error > interval) {
--		adj = clocksource_bigadjust(1, error, &interval, &offset);
-+		error >>= 2;
-+		if (likely(error <= interval)) {
-+			one_cnt++;
-+			adj = 1;
-+		} else {
-+			big_cnt++;
-+			adj = clocksource_bigadjust(1, error, &interval, &offset);
-+		}
- 	} else if (error < -interval) {
--		interval = -interval;
--		offset = -offset;
--		adj = clocksource_bigadjust(-1, error, &interval, &offset);
--	} else
-+		error >>= 2;
-+		if (likely(error >= -interval)) {
-+			one_cnt++;
-+			adj = -1;
-+			interval = -interval;
-+			offset = -offset;
-+		} else {
-+			big_cnt++;
-+			adj = clocksource_bigadjust(-1, error, &interval, &offset);
-+		}
-+	} else {
-+		zero_cnt++;
- 		return;
-+	}
- 
- 	clock->mult += adj;
- 	clock->xtime_interval += interval;
+1. remove obsolete and mostly unmaintained code
+2. get bugs in the ALSA drivers reported that weren't previously
+   reported due to the possible workaround of using the OSS drivers
+
+
+The list below divides the OSS drivers into the following three
+categories:
+1. ALSA drivers for the same hardware
+2. ALSA drivers for the same hardware with known problems
+3. no ALSA drivers for the same hardware
+
+
+My proposed timeline is:
+- 2.6.18: let the drivers under 1. in the list below depend on
+          OSS_OBSOLETE_DRIVER
+- 2.6.20: remove the options depending on OSS_OBSOLETE_DRIVER
+- 2.6.22: remove the code for the drivers that were depending on
+          OSS_OBSOLETE_DRIVER from the kernel tree
+
+
+To make a long story short:
+
+If you are using an OSS driver because the ALSA driver doesn't work 
+equally well on your hardware listed under 1. below, send me an email 
+with a bug number in the ALSA bug tracking system now.
+
+
+A small FAQ:
+
+Q: But OSS is kewl and ALSA sucks!
+A: The decision for the OSS->ALSA move was four years ago.
+   If ALSA sucks, please help to improve ALSA.
+
+Q: What about the OSS emulation in ALSA?
+A: The OSS emulation in ALSA is not affected by my patches
+   (and it's not in any way scheduled for removal).
+
+
+Please review the following list:
+
+
+1. ALSA drivers for the same hardware
+
+DMASOUND_PMAC
+SOUND_ACI_MIXER and RADIO_MIROPCM20
+SOUND_AD1816
+SOUND_AD1889
+SOUND_ADLIB
+SOUND_FUSION
+SOUND_NM256
+SOUND_OPL3SA2
+
+2. ALSA drivers for the same hardware with known problems
+
+SOUND_CS4232
+- ALSA #1520 (Soundchip was not detected on HP Omnibook 5700 CTX)
+
+SOUND_EMU10K1
+- ALSA #1782 (really poor sound with my SB Live 1024 and ALSA)
+
+SOUND_ES1371
+- ALSA #1774 (missing joystick connector support for PCI Ensoniq ES1371)
+
+SOUND_ICH
+- ALSA #1764 (Recording signal quality is inacceptable (using OSS API))
+- Alan Cox:
+  ALSA driver lacks "support for AC97 wired touchscreens and the like"
+
+SOUND_SSCAPE
+- ALSA #2234 (driver does not find Soundscape Elite)
+
+SOUND_TRIDENT
+- ALSA #1293 (device supported by OSS but not by ALSA)
+- maintainer of the OSS driver wants his driver to stay
+
+SOUND_VIA82CXXX
+- ALSA #1906 (1-second overruns reported by arecord,
+              complete system hang with jackd -d alsa)
+
+
+3. no ALSA drivers for the same hardware
+
+DMASOUND_ATARI
+DMASOUND_PAULA
+DMASOUND_Q40
+SOUND_AEDSP16
+SOUND_AU1550_AC97
+SOUND_BCM_CS4297A
+SOUND_HAL2
+SOUND_KAHLUA
+SOUND_MSNDCLAS
+SOUND_MSNDPIN
+SOUND_MSS (also due to SOUND_PSS, SOUND_TRIX and perhaps SOUND_AEDSP16)
+SOUND_PAS
+SOUND_PSS
+SOUND_SB (also due to SOUND_KAHLUA, SOUND_PAS and perhaps SOUND_AEDSP16)
+SOUND_SH_DAC_AUDIO
+SOUND_TRIX
+SOUND_VIDC
+SOUND_VRC5477
+SOUND_VWSND
+SOUND_WAVEARTIST
+
+SOUND_IT8172
+Ralf Baechle: 
+Both board based on the ITE 8172 chipset are on my death list already; I
+will probably remove it after 2.6.18 is out unless against all expectation
+I receive patches.
+

@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWGGJ3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWGGJcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWGGJ3U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 05:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWGGJ3U
+	id S932084AbWGGJcN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 05:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWGGJcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 05:29:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53444 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932081AbWGGJ3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 05:29:19 -0400
-Subject: Re: linux-2.6.17-mm6: strange kobject message
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Drynoff <pauldrynoff@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060707022420.6f58b58c.akpm@osdl.org>
-References: <20060707125942.fe3d467b.pauldrynoff@gmail.com>
-	 <20060707022420.6f58b58c.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 07 Jul 2006 11:29:12 +0200
-Message-Id: <1152264552.3111.35.camel@laptopd505.fenrus.org>
+	Fri, 7 Jul 2006 05:32:13 -0400
+Received: from styx.suse.cz ([82.119.242.94]:61846 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932084AbWGGJcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 05:32:12 -0400
+Date: Fri, 7 Jul 2006 11:31:38 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Henrique de Moraes Holschuh <hmh@debian.org>
+Cc: Robert Hancock <hancockr@shaw.ca>, Pavel Machek <pavel@suse.cz>,
+       lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net, Stelian Pop <stelian@popies.net>,
+       Michael Hanselmann <linux-kernel@hansmi.ch>
+Subject: Re: Generic interface for accelerometers (AMS, HDAPS, ...)
+Message-ID: <20060707093138.GD11026@suse.cz>
+References: <fa.GOQkHC8inXir2wbg4bZayOWXzAY@ifi.uio.no> <fa.qLWuLxQd7Mhcnixy/TLVs/nPwig@ifi.uio.no> <44AC5261.9050708@shaw.ca> <20060706061930.GA6033@suse.cz> <20060707024603.GC22666@khazad-dum.debian.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060707024603.GC22666@khazad-dum.debian.net>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-07 at 02:24 -0700, Andrew Morton wrote:
+On Thu, Jul 06, 2006 at 11:46:04PM -0300, Henrique de Moraes Holschuh wrote:
+> On Thu, 06 Jul 2006, Vojtech Pavlik wrote:
+> > > >We are investigating the ACPI global lock as a way to at least get the
+> > > >SMBIOS to stay away from the EC while we talk to it, but we don't know if
+> > > >the entire SMBIOS firmware respects that lock.
+> > > 
+> > > It had better, that is exactly what the ACPI Global Lock is supposed to 
+> > > prevent (concurrent access to non-sharable resources between the OS and 
+> > > SMI code). The ACPI DSDT contains information on whether or not the 
+> > > machine requires the Global Lock in order to access the EC or whether it 
+> > > is safe to access without locking.
+> >  
+> > Isn't that vaild only if you actully use ACPI to access the EC? (AFAIK
+> > the HDAPS driver does direct port access.)
+> 
+> It better be valid for any OS-side access to the EC, otherwise the ACPI
+> global lock would be utterly useless.  The system vendor would have done its
+> own "global-lock-like" functionality without the need for an ACPI global
+> lock specification.
 
-> hm. 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/broken-out/lockdep-annotate-8390c-disable_irq.patch
-> didn't work.
+That's what I fear does happen on many systems.
 
--mm6 only had part 1; you also have part 2 now which should fix this one
+> What is not clear to me is whether an ACPI DSDT method is on the "OS side"
+> or on the "SMM side" of the ACPI global lock.
 
-> We've seen this reported a couple of times before.  It could be a race in
-> the tty layer where a newly-added vc has the same index as a going-away
-> one which still has its sysfs file.  Or it could be something else :(
+No idea, sorry.
 
-that'd be a bug in the tty layer; the VC shouldn't be allowed to go away
-until the sysfs file is gone (basic sysfs refcounting rules), and any
-person keeping such a file open can delay that.
-Now I can believe the tty layer having, ehm, suboptimal
-refcounting/locking; I believe Alan is still trying to get it sane....
-
+-- 
+Vojtech Pavlik
+Director SuSE Labs

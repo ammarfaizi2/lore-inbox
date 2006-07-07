@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWGGTsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWGGTuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWGGTsf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 15:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWGGTse
+	id S932291AbWGGTuO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 15:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWGGTuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 15:48:34 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:717 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932239AbWGGTse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 15:48:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=j2MqBoR/gntmblL55OnD3Xkkt/LDgicxMcZLtpZ8+G5lCvkNfgtd7QIUjw3v8676697zHnnqnWyup4eb9p382aDJIUIkgUO28K294vo4s64HiKQL/1s9EbqU+XIEw9tjcz97NnuBkfJzAJYM1BbeVmHQ50XteMuIHDcYlMq8kbw=
-Message-ID: <ab2fc2a60607071248w2d348daap2f21045f9f35f477@mail.gmail.com>
-Date: Fri, 7 Jul 2006 21:48:33 +0200
-From: "Paul Fleischer" <paul.fleischer@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: IPv6 Flow Labels and options headers under Linux
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 7 Jul 2006 15:50:14 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:46825 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932291AbWGGTuM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 15:50:12 -0400
+Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
+	transfers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sergei Organov <osv@javad.com>
+Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <87veq9cosq.fsf@javad.com>
+References: <1151646482.3285.410.camel@tahini.andynet.net>
+	 <20060630001021.2b49d4bd.akpm@osdl.org>  <87veq9cosq.fsf@javad.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Fri, 07 Jul 2006 21:07:11 +0100
+Message-Id: <1152302831.20883.63.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ar Gwe, 2006-07-07 am 21:23 +0400, ysgrifennodd Sergei Organov:
+> It seems that there is much worse problem here. The amount of data that
+> has been inserted by the tty_insert_flip_string() could be up to
+> URB_TRANSFER_BUFFER_SIZE (=4096 bytes) and may easily exceed
+> TTY_THRESHOLD_THROTTLE (=128 bytes) defined in the
+> char/n_tty.c. 
 
-I have been playing around with IPv6 flow labels on UDP under Linux.
-When using flow labels on a socket, I seem unable to set the per-hop
-options header on a per-packet basis. It works if I set the per-hop
-options header while acquiring the flow label from the kernel. I am
-wondering if Linux enforces the following from Appendix A of RFC2460:
+You may throttle late but that is always true as there is an implicit
+race between the hardware signals and the chip FIFO on all UART devices.
+The buffering should be taking care of it, and the tty layer taking care
+not to over stuff the ldisc which I thought Paul had fixed while doing
+the locking wizardry
 
-"
-   All packets belonging to the same flow must be sent with the same
-   source address, destination address, and flow label.  If any of those
-   packets includes a Hop-by-Hop Options header, then they all must be
-   originated with the same Hop-by-Hop Options header contents
-   (excluding the Next Header field of the Hop-by-Hop Options header).
-"
+Alan
 
-Does anyone know if that is the case?
 
-Regards,
-Paul Fleischer
+

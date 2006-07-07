@@ -1,82 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWGGRwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWGGSAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbWGGRwr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 13:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWGGRwr
+	id S932241AbWGGSAF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 14:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWGGSAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 13:52:47 -0400
-Received: from nsm.pl ([195.34.211.229]:39693 "EHLO nsm.pl")
-	by vger.kernel.org with ESMTP id S932237AbWGGRwr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 13:52:47 -0400
-Date: Fri, 7 Jul 2006 19:52:39 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: lost cpufreq (Re: Linux v2.6.18-rc1)
-Message-ID: <20060707175239.GB7648@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
+	Fri, 7 Jul 2006 14:00:05 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:19429 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932242AbWGGSAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 14:00:02 -0400
+Subject: Re: sound skips on 2.6.16.17
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: ocilent1@gmail.com, Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
+       Hugo Vanwoerkom <rociobarroso@att.net.mx>,
+       linux list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060707170045.GA23243@tuatara.stupidest.org>
+References: <200606181204.29626.ocilent1@gmail.com>
+	 <20060618044047.GA1261@tuatara.stupidest.org>
+	 <200606191154.33747.ocilent1@gmail.com> <1150752280.2754.38.camel@mindpipe>
+	 <20060619215023.GA1424@tuatara.stupidest.org>
+	 <1150828530.2754.135.camel@mindpipe>
+	 <20060620193620.GA24097@tuatara.stupidest.org>
+	 <1151447157.2899.137.camel@mindpipe>
+	 <20060627224845.GA25315@tuatara.stupidest.org>
+	 <1152289985.4736.86.camel@mindpipe>
+	 <20060707170045.GA23243@tuatara.stupidest.org>
+Content-Type: text/plain
+Date: Fri, 07 Jul 2006 14:00:33 -0400
+Message-Id: <1152295234.4736.93.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-07-07 at 10:00 -0700, Chris Wedgwood wrote:
+> On Fri, Jul 07, 2006 at 12:33:05PM -0400, Lee Revell wrote:
+> 
+> > Two more reports possibly related to this bug:
+> >
+> > https://bugtrack.alsa-project.org/alsa-bug/view.php?id=2248
+> > https://bugtrack.alsa-project.org/alsa-bug/view.php?id=2263
+> 
+> One is definately affected by this.
+> 
+> Can we get an lspci -n from both of these if we haven't seen them
+> before?
 
---6sX45UoQRIJXqkqR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+#2248 has lspci output attached already, and I requested it for #2263.
 
-On Wed, Jul 05, 2006 at 09:26:35PM -0700, Linus Torvalds wrote:
->=20
-> Ok,
->  the merge window for 2.6.18 is closed, and -rc1 is out there
+Lee
 
-  ... and cpufreq-nforce2.ko fails to work. Module can't be loaded:
-FATAL: Error inserting cpufreq_nforce2
-(/lib/modules/2.6.18-rc1/kernel/arch/i386/kernel/cpu/cpufreq/cpufreq-nforce=
-2.ko):
-Device or resource busy
-
-  Here's relevant difference between dmesg of 2.6.17 and 2.6.18-rc1:
-
-@@ -244,7 +240,6 @@
- lp: driver loaded but no devices found
- cpufreq: Detected nForce2 chipset revision C1
- cpufreq: FSB changing is maybe unstable and can lead to crashes and data l=
-oss.
--cpufreq: FSB currently at 165 MHz, FID 10.5
- usbcore: registered new driver usbfs
- usbcore: registered new driver hub
-
- Motherboard is Abit, NF7,NF7-V (nVidia-nForce2), Version: 2.X,1.0,
- (according to dmidecode).
-
-
-  Also alsactl restore didn't restore PCM volume and mute state. Some
-mixer elements changed name? Module is snd_intel8x0, chip is integrated
-in above mentioned motherboard.
-
---=20
-Tomasz Torcz                "Funeral in the morning, IDE hacking
-zdzichu@irc.-nie.spam-.pl    in the afternoon and evening." - Alan Cox
-
-
---6sX45UoQRIJXqkqR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
-
-iD8DBQFErp9nThhlKowQALQRAspTAJ9xo4VpYAYgWABNrYSmVYAh1eUGHQCbB+8j
-jla4fTu1GkUO0Gu0ajGjnm4=
-=e2yI
------END PGP SIGNATURE-----
-
---6sX45UoQRIJXqkqR--

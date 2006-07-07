@@ -1,34 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWGGKQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWGGKVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWGGKQG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 06:16:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWGGKQG
+	id S932116AbWGGKVP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 06:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWGGKVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 06:16:06 -0400
-Received: from postel.suug.ch ([194.88.212.233]:46497 "EHLO postel.suug.ch")
-	by vger.kernel.org with ESMTP id S932114AbWGGKQD (ORCPT
+	Fri, 7 Jul 2006 06:21:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55696 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932116AbWGGKVN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 06:16:03 -0400
-Date: Fri, 7 Jul 2006 12:16:23 +0200
-From: Thomas Graf <tgraf@suug.ch>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nagar@watson.ibm.com, jlan@sgi.com, pj@sgi.com, Valdis.Kletnieks@vt.edu,
-       balbir@in.ibm.com, csturtiv@sgi.com, linux-kernel@vger.kernel.org,
-       hadi@cyberus.ca, netdev@vger.kernel.org
-Subject: Re: [PATCH] per-task delay accounting taskstats interface: control exit data through cpumasks]
-Message-ID: <20060707101623.GB14627@postel.suug.ch>
-References: <44ACD7C3.5040008@watson.ibm.com> <20060706025633.cd4b1c1d.akpm@osdl.org> <1152185865.5986.15.camel@localhost.localdomain> <20060706120835.GY14627@postel.suug.ch> <20060706144808.1dd5fadf.akpm@osdl.org> <20060706224009.GA14627@postel.suug.ch> <20060706160557.6f0cdfa0.akpm@osdl.org>
+	Fri, 7 Jul 2006 06:21:13 -0400
+Date: Fri, 7 Jul 2006 03:20:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: dhowells@redhat.com, torvalds@osdl.org, bernds_cb1@t-online.de,
+       sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/6] FDPIC: Add coredump capability for the ELF-FDPIC
+ binfmt [try #3]
+Message-Id: <20060707032038.efb71d9d.akpm@osdl.org>
+In-Reply-To: <20538.1152266076@warthog.cambridge.redhat.com>
+References: <20060706105223.97b9a531.akpm@osdl.org>
+	<20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
+	<20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com>
+	<20538.1152266076@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060706160557.6f0cdfa0.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton <akpm@osdl.org> 2006-07-06 16:05
-> hm, nla_strlcpy() looks more complex than it needs to be.  We really need
-> nla_kstrndup() ;)
-> 
-> Oh well.  This?
+On Fri, 07 Jul 2006 10:54:36 +0100
+David Howells <dhowells@redhat.com> wrote:
 
-Looks good.
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > > +#define roundup(x, y)  ((((x) + ((y) - 1)) / (y)) * (y))
+> > 
+> > The GFS2 tree has 
+> > 
+> > ...
+> > +#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+> 
+> They aren't exactly equivalent.
+
+OK.
+
+I count 45 different implementations of this in the tree.  Ho hum.
+
+> In any case, we probably shouldn't be using divide, but should rather be using
+> shifts since the divisors are powers of two.  I wonder if the compiler will
+> make the substitution...
+> 
+
+It usually manages to.  iirc, less successfully if signed quantities are
+used.

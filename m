@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWGGLNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWGGLZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWGGLNG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 07:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWGGLNG
+	id S1751096AbWGGLZl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 07:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWGGLZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 07:13:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57758 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751000AbWGGLND (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 07:13:03 -0400
-Date: Fri, 7 Jul 2006 04:12:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: dhowells@redhat.com, torvalds@osdl.org, bernds_cb1@t-online.de,
-       sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/6] FDPIC: Add coredump capability for the ELF-FDPIC
- binfmt [try #3]
-Message-Id: <20060707041232.1ee6931c.akpm@osdl.org>
-In-Reply-To: <15239.1152270013@warthog.cambridge.redhat.com>
-References: <9736.1152269688@warthog.cambridge.redhat.com>
-	<20060706162731.577748e7.akpm@osdl.org>
-	<20060706105223.97b9a531.akpm@osdl.org>
-	<20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com>
-	<20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com>
-	<26133.1152211129@warthog.cambridge.redhat.com>
-	<15239.1152270013@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 7 Jul 2006 07:25:41 -0400
+Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:9146 "EHLO
+	idefix.homelinux.org") by vger.kernel.org with ESMTP
+	id S1751096AbWGGLZl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 07:25:41 -0400
+Subject: Re: Suspend to RAM regression tracked down
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk
+In-Reply-To: <44A80B20.1090702@goop.org>
+References: <1151837268.5358.10.camel@idefix.homelinux.org>
+	 <44A80B20.1090702@goop.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
+Date: Fri, 07 Jul 2006 21:25:37 +1000
+Message-Id: <1152271537.5163.4.camel@idefix.homelinux.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 Jul 2006 12:00:13 +0100
-David Howells <dhowells@redhat.com> wrote:
+> There was a race in ondemand and conservative which made them lock up on 
+> resume (possibly only on SMP systems though).  There's a patch for that 
+> in current -mm, but I suspect there's another problem (still haven't had 
+> any time to track it down).
 
-> David Howells <dhowells@redhat.com> wrote:
-> 
-> > That doesn't compile... you're lacking file arguments.
-> 
-> Even more fun:
-> 
-> warthog>grep -r DUMP_WRITE include/
-> include/asm/elf.h:              DUMP_WRITE(&phdr, sizeof(phdr));                     \
-> include/asm/elf.h:                      DUMP_WRITE((void *) vsyscall_phdrs[i].p_vaddr,        \
-> include/asm-um/elf-i386.h:              DUMP_WRITE(&phdr, sizeof(phdr));             \
-> include/asm-um/elf-i386.h:                      DUMP_WRITE((void *) phdrp[i].p_vaddr,                 \
-> include/asm-ia64/elf.h:         DUMP_WRITE(&phdr, sizeof(phdr));               \
-> include/asm-ia64/elf.h:                 DUMP_WRITE((void *) gate_phdrs[i].p_vaddr,            \
-> include/asm-i386/elf.h:         DUMP_WRITE(&phdr, sizeof(phdr));                     \
-> include/asm-i386/elf.h:                 DUMP_WRITE((void *) vsyscall_phdrs[i].p_vaddr,        \
-> 
+OK, I tried the patch with 2.6.17 and it didn't work. My laptop failed
+to resume on the first try, so it must be something else. Could someone
+actually have a look at the changes in 2.6.12-rc5-git6 (which happen to
+be cpufreq-related)? I spend months pinpointing the problem to that
+version (it's takes several days to reproduce). I'd appreciate if
+someone could at least have a look at what changed there and maybe fix
+it.
 
-all the world's an x86_64 ;)
+Thanks,
 
-Who inflicted this crap on us?  It looks like gcc code.
+	Jean-Marc
 
-> For another day, I think...
-
-Yeah.

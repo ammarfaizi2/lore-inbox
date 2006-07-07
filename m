@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWGGCLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWGGCIC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbWGGCLM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 22:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWGGCLM
+	id S1750827AbWGGCIC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 22:08:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWGGCIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 22:11:12 -0400
-Received: from mail.tmr.com ([64.65.253.246]:31404 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S1751061AbWGGCLL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 22:11:11 -0400
-Message-ID: <44ADC3CE.1030302@tmr.com>
-Date: Thu, 06 Jul 2006 22:15:42 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+	Thu, 6 Jul 2006 22:08:02 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:3363 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750827AbWGGCIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 22:08:00 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=UzsCXxkzNqwoWmb5bbHhEp1RXXgSPJ8uecOwwbOS4tdWFE/2sujE3uhk2mZ3BvqV9
+	JjOrRAoA5m6iH5MYdLqtQ==
+Message-ID: <44ADC1C3.1020106@google.com>
+Date: Thu, 06 Jul 2006 19:06:59 -0700
+From: Daniel Phillips <phillips@google.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>	 <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com>	 <20060705125956.GA529@fieldses.org> <44AC2B56.8010703@tmr.com>	 <20060705214133.GA28487@fieldses.org>  <44AC7647.2080005@tmr.com> <1152189796.5689.17.camel@lade.trondhjem.org>
-In-Reply-To: <1152189796.5689.17.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Chuck Ebbert <76306.1226@compuserve.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] i386: early pagefault handler
+References: <200607050745_MC3-1-C42B-9937@compuserve.com>
+In-Reply-To: <200607050745_MC3-1-C42B-9937@compuserve.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+Chuck Ebbert wrote:
+> +page_fault:
+> +	cld
 
->Nobody gives a rats arse about backups: those are infrequent and
->can/should use more sophisticated techniques such as checksumming.
->
-Actually, those of us who do run production servers care vastly about 
-backups. And beside being utterly unscalable (checksum 20 TB of files 
-four times a day to find what changed???), you would have to remember 
-the checksums for all those files.
+My i386 lore is getting a little rusty, can the direction flag actually be
+random here?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+Regards,
 
+Daniel

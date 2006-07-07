@@ -1,104 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWGGJjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWGGJi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWGGJjE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 05:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWGGJjD
+	id S932085AbWGGJi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 05:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWGGJi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 05:39:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2180 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932091AbWGGJjB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 05:39:01 -0400
-Date: Fri, 7 Jul 2006 02:38:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: pauldrynoff@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.17-mm6: strange kobject message
-Message-Id: <20060707023824.ded18f30.akpm@osdl.org>
-In-Reply-To: <1152264552.3111.35.camel@laptopd505.fenrus.org>
-References: <20060707125942.fe3d467b.pauldrynoff@gmail.com>
-	<20060707022420.6f58b58c.akpm@osdl.org>
-	<1152264552.3111.35.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jul 2006 05:38:56 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:47561 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932085AbWGGJiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 05:38:55 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: ext4 features
+To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Bill Davidsen <davidsen@tmr.com>,
+       "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Fri, 07 Jul 2006 11:38:01 +0200
+References: <6tVcC-1e1-79@gated-at.bofh.it> <6uXYv-3RG-1@gated-at.bofh.it> <6veG8-350-7@gated-at.bofh.it> <6vfiU-465-13@gated-at.bofh.it> <6vmNk-77r-23@gated-at.bofh.it> <6vnq7-7Tw-55@gated-at.bofh.it> <6vrN0-5Se-9@gated-at.bofh.it> <6vBsY-38p-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1Fymn1-0000g6-7s@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 Jul 2006 11:29:12 +0200
-Arjan van de Ven <arjan@infradead.org> wrote:
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> On Wed, 2006-07-05 at 22:32 -0400, Bill Davidsen wrote:
 
-> On Fri, 2006-07-07 at 02:24 -0700, Andrew Morton wrote:
+>> But with timestamps I need remember only one number, the time of my last
+>> backup. Skipping over the question of "who's idea of time" inherent in
+>> network filesystems. I compare all ctimes with the time of the last
+>> backup and do incremental on the newer ones. If we use versioning I have
+>> to remember the version for each file! In practice I really question if
+>> the benefit justified keeping all that metadata between backups. And if
+>> I delete a file and create another by the same name, what is it's version?
 > 
-> > hm. 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/broken-out/lockdep-annotate-8390c-disable_irq.patch
-> > didn't work.
-> 
-> -mm6 only had part 1; you also have part 2 now which should fix this one
+> You are completely missing the point. Our background is that all NFS
+> clients are required to use the mtime and ctime timestamps in order to
+> figure out if their cached data is valid. They need to do this extremely
+> frequently (in fact, every time you open() the file).
 
-OK, here it is:
+If the changes to these files are very infrequent compared to nanoseconds,
+you'll only need the version during some nanoseconds, and only during
+runtime. Having a second-change-within-one-timeframe-flag(*) instead of
+versions will be enough to make NFS mostly happy and only penalize your
+users for one nanosecond, and it won't force version-keeping into the
+filesystem. And besides that, all other filesystems will profit even
+without having nanosecond resolution nor versioning (but they'll suffer
+for up to a whole second).
 
-From: Arjan van de Ven <arjan@linux.intel.com>
 
-The ne2000 drivers use disable_irq as a poor mans locking construct; make
-sure lockdep knows about these.
+*) TODO: Create a nice name
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
-NOTE NOTE: the ne2000 driver calls these *from interrupt context*.  That's
-a new situation that needs to be analyzed for correctness still; it feels
-really wrong to me (but then again so does disable_irq() tricks in general)
-
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jeff Garzik <jeff@garzik.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- drivers/net/8390.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
-
-diff -puN drivers/net/8390.c~lockdep-annotate-8390c-disable_irq-2 drivers/net/8390.c
---- a/drivers/net/8390.c~lockdep-annotate-8390c-disable_irq-2
-+++ a/drivers/net/8390.c
-@@ -299,7 +299,7 @@ static int ei_start_xmit(struct sk_buff 
- 	 *	Slow phase with lock held.
- 	 */
- 	 
--	disable_irq_nosync(dev->irq);
-+	disable_irq_nosync_lockdep(dev->irq);
- 	
- 	spin_lock(&ei_local->page_lock);
- 	
-@@ -338,7 +338,7 @@ static int ei_start_xmit(struct sk_buff 
- 		netif_stop_queue(dev);
- 		outb_p(ENISR_ALL, e8390_base + EN0_IMR);
- 		spin_unlock(&ei_local->page_lock);
--		enable_irq(dev->irq);
-+		enable_irq_lockdep(dev->irq);
- 		ei_local->stat.tx_errors++;
- 		return 1;
- 	}
-@@ -379,7 +379,7 @@ static int ei_start_xmit(struct sk_buff 
- 	outb_p(ENISR_ALL, e8390_base + EN0_IMR);
- 	
- 	spin_unlock(&ei_local->page_lock);
--	enable_irq(dev->irq);
-+	enable_irq_lockdep(dev->irq);
- 
- 	dev_kfree_skb (skb);
- 	ei_local->stat.tx_bytes += send_length;
-@@ -505,9 +505,9 @@ irqreturn_t ei_interrupt(int irq, void *
- #ifdef CONFIG_NET_POLL_CONTROLLER
- void ei_poll(struct net_device *dev)
- {
--	disable_irq(dev->irq);
-+	disable_irq_lockdep(dev->irq);
- 	ei_interrupt(dev->irq, dev, NULL);
--	enable_irq(dev->irq);
-+	enable_irq_lockdep(dev->irq);
- }
- #endif
- 
-_
-
+http://david.woodhou.se/why-not-spf.html

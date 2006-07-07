@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWGGWYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWGGW1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbWGGWYu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 18:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWGGWYu
+	id S932344AbWGGW1t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 18:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWGGW1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 18:24:50 -0400
-Received: from horus.tecnoera.com ([200.24.235.2]:47747 "EHLO
-	horus.tecnoera.com") by vger.kernel.org with ESMTP id S932353AbWGGWYt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 18:24:49 -0400
-Subject: BUG: soft lockup detected
-From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Fri, 07 Jul 2006 18:24:41 -0400
-Message-Id: <1152311081.22174.151.camel@blackbird.tecnoera.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
+	Fri, 7 Jul 2006 18:27:49 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:44596 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932357AbWGGW1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 18:27:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=R0mQ8pyQ0qpmGFBCwqw/7aTBqCgLKyCZfpv+LC4E5YrufsFclNQf4vUXDTOAf5eG8R7ocgQ6IbJ9USBXlf7ETWP1bQI4/k6GqmTG/3FDHs7eJrJa91fik0DcO3bEH5c6bExaLw1rKKNe79FzLB8j+YCXfCBUDDxyE7RaA63OT9Y=
+Message-ID: <dda83e780607071527m346a2f90mdb0c7d9145208533@mail.gmail.com>
+Date: Fri, 7 Jul 2006 15:27:46 -0700
+From: "Bret Towe" <magnade@gmail.com>
+To: "Dave Jones" <davej@redhat.com>, "Bret Towe" <magnade@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1 bttv modprobe null pointer dereference
+In-Reply-To: <dda83e780607071004o75a9c764yd0e42802477e1b91@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <dda83e780607062051x220841c7ya88ff0aefd5d3071@mail.gmail.com>
+	 <20060706215225.290360bf.akpm@osdl.org>
+	 <dda83e780607062219q1db55c58ga7eb1d5438635dcc@mail.gmail.com>
+	 <20060707064610.GA27347@redhat.com>
+	 <dda83e780607071004o75a9c764yd0e42802477e1b91@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 7/7/06, Bret Towe <magnade@gmail.com> wrote:
+> On 7/6/06, Dave Jones <davej@redhat.com> wrote:
+> > On Thu, Jul 06, 2006 at 10:19:09PM -0700, Bret Towe wrote:
+> >  > ill be recompiling without it and seeing if anything looks odd
+> >  > and the mce i think has always been there as i recall seeing it
+> >  > when i did previous bug reports
+> >
+> > If you're getting recurring machine checks, that smells strongly
+> > like a hardware problem.  Have you tried running memtest on
+> > this box ?
+>
+> not for some time if the memory is bad its must not be very much
+> cause im not seeing any random effects id expect of memory failure
+> i will however run a test tho and see what turns up
 
-I am getting this error.. although the system works well. I don't know
-if I should ignore this error or what. Please advice me what to do:
+i had only time for 1 pass but it didnt turn up any errors at all
 
-Ending clean XFS mount for filesystem: loop0
-BUG: soft lockup detected on CPU#0!
-
-Call Trace: <IRQ> <ffffffff8024afa3>{softlockup_tick+210}
-       <ffffffff802324a8>{update_process_times+66}
-<ffffffff802144b4>{smp_local_timer_interrupt+35}
-       <ffffffff80214519>{smp_apic_timer_interrupt+65}
-<ffffffff8020a354>{apic_timer_interrupt+132} <EOI>
-       <ffffffff880a1cdb>{:serpent:serpent_encrypt+1695}
-<ffffffff802ef402>{cbc_process_encrypt+91}
-       <ffffffff880a163c>{:serpent:serpent_encrypt+0}
-<ffffffff802ef01f>{xor_128+0}
-       <ffffffff802ef1a2>{crypt+364} <ffffffff802228c7>{try_to_wake_up
-+955}
-       <ffffffff802ef39a>{crypt_iv_unaligned+138}
-<ffffffff802ef6d1>{cbc_encrypt_iv+64}
-       <ffffffff880a163c>{:serpent:serpent_encrypt+0}
-<ffffffff802ef3a7>{cbc_process_encrypt+0}
-       <ffffffff8809d291>{:cryptoloop:cryptoloop_transfer_cbc+222}
-       <ffffffff8027561c>{blkdev_get_block+30}
-<ffffffff802ef691>{cbc_encrypt_iv+0}
-       <ffffffff8809727f>{:loop:do_lo_send_aops+303}
-<ffffffff88097904>{:loop:loop_thread+609}
-       <ffffffff88097150>{:loop:do_lo_send_aops+0}
-<ffffffff804243b7>{_spin_unlock_irq+7}
-       <ffffffff8020a6aa>{child_rip+8}
-<ffffffff880976a3>{:loop:loop_thread+0}
-       <ffffffff8020a6a2>{child_rip+0}
-
-
-This is a Dual Opteron Dual-core, using cryptoloop to encrypt a device,
-using serpent, and XFS. 2.6.17.3 #1 SMP.
-
-Thank you.
-
+> >
+> >                 Dave
+> >
+> > --
+> > http://www.codemonkey.org.uk
+> >
+>

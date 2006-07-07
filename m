@@ -1,127 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWGGMtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWGGNAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbWGGMtp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 08:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWGGMto
+	id S1751159AbWGGNAp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 09:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWGGNAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 08:49:44 -0400
-Received: from lucidpixels.com ([66.45.37.187]:48872 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1750980AbWGGMtn (ORCPT
+	Fri, 7 Jul 2006 09:00:45 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:10765 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751159AbWGGNAo convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 08:49:43 -0400
-Date: Fri, 7 Jul 2006 08:49:43 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: linux-kernel@vger.kernel.org
-cc: linux-raid@vger.kernel.org
-Subject: Re: Kernel 2.6.17 and RAID5 Grow Problem (critical section backup)
-In-Reply-To: <Pine.LNX.4.64.0607070845280.2648@p34.internal.lan>
-Message-ID: <Pine.LNX.4.64.0607070849140.3010@p34.internal.lan>
-References: <Pine.LNX.4.64.0607070830450.2648@p34.internal.lan>
- <Pine.LNX.4.64.0607070845280.2648@p34.internal.lan>
+	Fri, 7 Jul 2006 09:00:44 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 07 Jul 2006 13:00:43.0152 (UTC) FILETIME=[5ADA4100:01C6A1C5]
+Content-class: urn:content-classes:message
+Subject: Re: Setting kernel thread priority
+Date: Fri, 7 Jul 2006 09:00:42 -0400
+Message-ID: <Pine.LNX.4.61.0607070857160.9025@chaos.analogic.com>
+In-Reply-To: <44AE572D.8000105@innomedia.soft.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Setting kernel thread priority
+thread-index: AcahxVr78XF5iQZORneh6+0x+nqadw==
+References: <44AE572D.8000105@innomedia.soft.net>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: <chinmaya@innomedia.soft.net>
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jul 2006, Justin Piszcz wrote:
 
-> On Fri, 7 Jul 2006, Justin Piszcz wrote:
->
->> p34:~# mdadm /dev/md3 -a /dev/hde1
->> mdadm: added /dev/hde1
->> 
->> p34:~# mdadm -D /dev/md3
->> /dev/md3:
->>        Version : 00.90.03
->>  Creation Time : Fri Jun 30 09:17:12 2006
->>     Raid Level : raid5
->>     Array Size : 1953543680 (1863.04 GiB 2000.43 GB)
->>    Device Size : 390708736 (372.61 GiB 400.09 GB)
->>   Raid Devices : 6
->>  Total Devices : 7
->> Preferred Minor : 3
->>    Persistence : Superblock is persistent
->>
->>    Update Time : Fri Jul  7 08:25:44 2006
->>          State : clean
->> Active Devices : 6
->> Working Devices : 7
->> Failed Devices : 0
->>  Spare Devices : 1
->>
->>         Layout : left-symmetric
->>     Chunk Size : 512K
->>
->>           UUID : e76e403c:7811eb65:73be2f3b:0c2fc2ce
->>         Events : 0.232940
->>
->>    Number   Major   Minor   RaidDevice State
->>       0      22        1        0      active sync   /dev/hdc1
->>       1      56        1        1      active sync   /dev/hdi1
->>       2       3        1        2      active sync   /dev/hda1
->>       3       8       49        3      active sync   /dev/sdd1
->>       4      88        1        4      active sync   /dev/hdm1
->>       5       8       33        5      active sync   /dev/sdc1
->>
->>       6      33        1        -      spare   /dev/hde1
->> p34:~# mdadm --grow /dev/md3 --raid-disks=7
->> mdadm: Need to backup 15360K of critical section..
->> mdadm: Cannot set device size/shape for /dev/md3: No space left on device
->> p34:~# mdadm --grow /dev/md3 --bitmap=internal --raid-disks=7
->> mdadm: can change at most one of size, raiddisks, bitmap, and layout
->> p34:~# umount /dev/md3
->> p34:~# mdadm --grow /dev/md3 --raid-disks=7
->> mdadm: Need to backup 15360K of critical section..
->> mdadm: Cannot set device size/shape for /dev/md3: No space left on device
->> p34:~#
->> 
->> The disk only has about 350GB of 1.8TB used, any idea why I get this error?
->> 
->> I searched google but could not find anything on this issue when trying to 
->> grow the array?
->> 
->> 
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> 
->
-> Is it because I use a 512kb chunksize?
->
-> Jul  7 08:44:59 p34 kernel: [4295845.933000] raid5: reshape: not enough 
-> stripes.  Needed 512
-> Jul  7 08:44:59 p34 kernel: [4295845.962000] md: couldn't update array info. 
-> -28
->
-> So the RAID5 reshape only works if you use a 128kb or smaller chunk size?
->
-> Justin.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+On Fri, 7 Jul 2006, Chinmaya Mishra wrote:
 
->From the source:
+> Hi,
+>
+> I am using linux kernel 2.6.10.
+> In a kernel module i am calling two functions in two
+> kernel threads using the api,
+>
+> kernel_thread((void *)funName, NULL, CLONE_KERNEL);
+>
+> Is there any procedure/apis available to set the thread priority?
+> Please help . . . . .
+>
+> Thanks in advance.
+> Chinmaya
 
-/* Can only proceed if there are plenty of stripe_heads.
-@@ -2599,30 +2593,48 @@ static int raid5_reshape(mddev_t *mddev,
-* If the chunk size is greater, user-space should request more
-* stripe_heads first.
-*/
-- if ((mddev->chunk_size / STRIPE_SIZE) * 4 > conf->max_nr_stripes) {
-+ if ((mddev->chunk_size / STRIPE_SIZE) * 4 > conf->max_nr_stripes ||
-+ (mddev->new_chunk / STRIPE_SIZE) * 4 > conf->max_nr_stripes) {
-printk(KERN_WARNING "raid5: reshape: not enough stripes. Needed %lu\n",
-(mddev->chunk_size / STRIPE_SIZE)*4);
-return -ENOSPC;
-}
+My a FAQ! Your kernel version uses:
+ 	set_user_nice(current, PRIORITY); from __inside__ the kernel
+thread (like one of the first things it does upon startup).
 
-I don't see anything that mentions one needs to use a certain chunk size?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
-Any idea what the problem is here?
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-Justin.
+Thank you.

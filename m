@@ -1,43 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWGGMmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWGGMqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWGGMmD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 08:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWGGMmB
+	id S932170AbWGGMqS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 08:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWGGMqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 08:42:01 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:50632 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S932157AbWGGMmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 08:42:00 -0400
-To: David Chinner <dgc@sgi.com>
-Cc: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] xfs: i_state of inode is changed after the inode is freed
-In-reply-to: <20060704204145.GU15160733@melbourne.sgi.com>
-Message-Id: <20060707214131m-saito@mail.aom.tnes.nec.co.jp>
-References: <20060704204145.GU15160733@melbourne.sgi.com>
-Mime-Version: 1.0
-X-Mailer: WeMail32[2.51] ID:1K0086
-From: Masayuki Saito <m-saito@tnes.nec.co.jp>
-Date: Fri, 7 Jul 2006 21:41:31 +0900
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jul 2006 08:46:18 -0400
+Received: from lucidpixels.com ([66.45.37.187]:57248 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S932162AbWGGMqP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 08:46:15 -0400
+Date: Fri, 7 Jul 2006 08:46:15 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: linux-kernel@vger.kernel.org
+cc: linux-raid@vger.kernel.org
+Subject: Re: Kernel 2.6.17 and RAID5 Grow Problem (critical section backup)
+In-Reply-To: <Pine.LNX.4.64.0607070830450.2648@p34.internal.lan>
+Message-ID: <Pine.LNX.4.64.0607070845280.2648@p34.internal.lan>
+References: <Pine.LNX.4.64.0607070830450.2648@p34.internal.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for comments.
+On Fri, 7 Jul 2006, Justin Piszcz wrote:
 
->You'd be talking about xfs_iunpin(), wouldn't you ;)
-Yes, of course.
-
->http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=714250879ea61cdb1a39bb96fe9d934ee0c669a2
+> p34:~# mdadm /dev/md3 -a /dev/hde1
+> mdadm: added /dev/hde1
 >
->This fixed the reproducable test case I had for the problem.
->Can you see if it fixes your problem as well?
-We applied the above TAKE to linux-2.6.17.1 and tested it.
-However, we confirm the case that i_state of the inode was changed
-when the inode was freed in xfs filesystem.
+> p34:~# mdadm -D /dev/md3
+> /dev/md3:
+>        Version : 00.90.03
+>  Creation Time : Fri Jun 30 09:17:12 2006
+>     Raid Level : raid5
+>     Array Size : 1953543680 (1863.04 GiB 2000.43 GB)
+>    Device Size : 390708736 (372.61 GiB 400.09 GB)
+>   Raid Devices : 6
+>  Total Devices : 7
+> Preferred Minor : 3
+>    Persistence : Superblock is persistent
+>
+>    Update Time : Fri Jul  7 08:25:44 2006
+>          State : clean
+> Active Devices : 6
+> Working Devices : 7
+> Failed Devices : 0
+>  Spare Devices : 1
+>
+>         Layout : left-symmetric
+>     Chunk Size : 512K
+>
+>           UUID : e76e403c:7811eb65:73be2f3b:0c2fc2ce
+>         Events : 0.232940
+>
+>    Number   Major   Minor   RaidDevice State
+>       0      22        1        0      active sync   /dev/hdc1
+>       1      56        1        1      active sync   /dev/hdi1
+>       2       3        1        2      active sync   /dev/hda1
+>       3       8       49        3      active sync   /dev/sdd1
+>       4      88        1        4      active sync   /dev/hdm1
+>       5       8       33        5      active sync   /dev/sdc1
+>
+>       6      33        1        -      spare   /dev/hde1
+> p34:~# mdadm --grow /dev/md3 --raid-disks=7
+> mdadm: Need to backup 15360K of critical section..
+> mdadm: Cannot set device size/shape for /dev/md3: No space left on device
+> p34:~# mdadm --grow /dev/md3 --bitmap=internal --raid-disks=7
+> mdadm: can change at most one of size, raiddisks, bitmap, and layout
+> p34:~# umount /dev/md3
+> p34:~# mdadm --grow /dev/md3 --raid-disks=7
+> mdadm: Need to backup 15360K of critical section..
+> mdadm: Cannot set device size/shape for /dev/md3: No space left on device
+> p34:~#
+>
+> The disk only has about 350GB of 1.8TB used, any idea why I get this error?
+>
+> I searched google but could not find anything on this issue when trying to 
+> grow the array?
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-We think that the TAKE reduces the occurrence only.
-And we think that our patch fixes the problem.
+Is it because I use a 512kb chunksize?
 
-Could you review our patch again?
+Jul  7 08:44:59 p34 kernel: [4295845.933000] raid5: reshape: not enough 
+stripes.  Needed 512
+Jul  7 08:44:59 p34 kernel: [4295845.962000] md: couldn't update array 
+info. -28
+
+So the RAID5 reshape only works if you use a 128kb or smaller chunk size?
+
+Justin.

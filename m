@@ -1,66 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWGGNAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWGGNIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWGGNAp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 09:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWGGNAp
+	id S1751029AbWGGNIs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 09:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWGGNIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 09:00:45 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:10765 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751159AbWGGNAo convert rfc822-to-8bit (ORCPT
+	Fri, 7 Jul 2006 09:08:48 -0400
+Received: from rtr.ca ([64.26.128.89]:27784 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751019AbWGGNIr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 09:00:44 -0400
+	Fri, 7 Jul 2006 09:08:47 -0400
+From: Mark Lord <liml@rtr.ca>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>, Sander <sander@humilis.net>
+Subject: Re: LibPATA code issues / 2.6.15.4
+Date: Fri, 7 Jul 2006 09:08:44 -0400
+User-Agent: KMail/1.9.3
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <20060219171651.GA8986@favonius> <Pine.LNX.4.64.0607061906550.5107@p34.internal.lan>
+In-Reply-To: <Pine.LNX.4.64.0607061906550.5107@p34.internal.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 07 Jul 2006 13:00:43.0152 (UTC) FILETIME=[5ADA4100:01C6A1C5]
-Content-class: urn:content-classes:message
-Subject: Re: Setting kernel thread priority
-Date: Fri, 7 Jul 2006 09:00:42 -0400
-Message-ID: <Pine.LNX.4.61.0607070857160.9025@chaos.analogic.com>
-In-Reply-To: <44AE572D.8000105@innomedia.soft.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Setting kernel thread priority
-thread-index: AcahxVr78XF5iQZORneh6+0x+nqadw==
-References: <44AE572D.8000105@innomedia.soft.net>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: <chinmaya@innomedia.soft.net>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607070908.44751.liml@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Justin Piszcz wrote:
+> Look at this:
+> 
+>> From smartctl, look at the correspondence:
+> 199 UDMA_CRC_Error_Count    0x000a   200   253   000    Old_age   Always 
+> -       4
+> 
+> [4301946.802000] ata4: translated ATA stat/err 0x51/04 to SCSI 
+> SK/ASC/ASCQ 0xb/00/00
+> [4301946.802000] ata4: status=0x51 { DriveReady SeekComplete Error }
+> [4301946.802000] ata4: error=0x04 { DriveStatusError }
+> [4302380.482000] ata4: translated ATA stat/err 0x51/04 to SCSI 
+> SK/ASC/ASCQ 0xb/00/00
+> [4302380.482000] ata4: status=0x51 { DriveReady SeekComplete Error }
+> [4302380.482000] ata4: error=0x04 { DriveStatusError }
+> [4302493.664000] ata4: no sense translation for status: 0x51
+> [4302493.664000] ata4: translated ATA stat/err 0x51/00 to SCSI 
+> SK/ASC/ASCQ 0xb/00/00
+> [4302493.664000] ata4: status=0x51 { DriveReady SeekComplete Error }
+> [4302863.673000] ata4: no sense translation for status: 0x51
+> [4302863.673000] ata4: translated ATA stat/err 0x51/00 to SCSI 
+> SK/ASC/ASCQ 0xb/00/00
+> [4302863.673000] ata4: status=0x51 { DriveReady SeekComplete Error }
+> 
+> different drive, different cable, same controller, but second port
+> 
+> So that Stat/err = UDMA_CRC_Error_Count!
 
-On Fri, 7 Jul 2006, Chinmaya Mishra wrote:
+No, I don't think it is -- there's a bit in the drive status
+for indicating CRC errors, and it is not showing up here.
 
-> Hi,
->
-> I am using linux kernel 2.6.10.
-> In a kernel module i am calling two functions in two
-> kernel threads using the api,
->
-> kernel_thread((void *)funName, NULL, CLONE_KERNEL);
->
-> Is there any procedure/apis available to set the thread priority?
-> Please help . . . . .
->
-> Thanks in advance.
-> Chinmaya
+I think it's still just libata sending some command that this
+drive does not implement.  You really need to dump out the failed
+ATA opcode.
 
-My a FAQ! Your kernel version uses:
- 	set_user_nice(current, PRIORITY); from __inside__ the kernel
-thread (like one of the first things it does upon startup).
+I *think* this (uncompiled, untested) patch may do it for you on 2.6.16/17:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+--- linux/drivers/scsi/libata-scsi.c.orig	2006-06-19 10:37:03.000000000 -0400
++++ linux/drivers/scsi/libata-scsi.c	2006-07-07 09:06:57.000000000 -0400
+@@ -542,6 +542,7 @@
+ 	struct ata_taskfile *tf = &qc->tf;
+ 	unsigned char *sb = cmd->sense_buffer;
+ 	unsigned char *desc = sb + 8;
++	unsigned char ata_op = tf->command;
+ 
+ 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
+ 
+@@ -558,6 +559,7 @@
+ 	 * onto sense key, asc & ascq.
+ 	 */
+ 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
++		printk(KERN_WARN "ata_gen_ata_desc_sense: failed ata_op=0x%02x\n", ata_op);
+ 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
+ 				   &sb[1], &sb[2], &sb[3]);
+ 		sb[1] &= 0x0f;

@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWGGVap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWGGVeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWGGVap (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 17:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWGGVap
+	id S1750834AbWGGVeF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 17:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWGGVeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 17:30:45 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37136 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932315AbWGGVao
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 17:30:44 -0400
-Date: Fri, 7 Jul 2006 21:30:31 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Bill Davidsen <davidsen@tmr.com>, Benny Amorsen <benny+usenet@amorsen.dk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-Message-ID: <20060707213030.GA5393@ucw.cz>
-References: <20060701181702.GC8763@irc.pl> <20060703202219.GA9707@aitel.hist.no> <20060703205523.GA17122@irc.pl> <1151960503.3108.55.camel@laptopd505.fenrus.org> <44A9904F.7060207@wolfmountaingroup.com> <20060703232547.2d54ab9b.diegocg@gmail.com> <m3r711u3yk.fsf@ursa.amorsen.dk> <44AB3E4C.2000407@tmr.com> <20060707141030.GC4239@ucw.cz> <m38xn58g26.fsf@defiant.localdomain>
+	Fri, 7 Jul 2006 17:34:05 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:4293 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750834AbWGGVeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 17:34:04 -0400
+Subject: Re: 2.6.17-mm6 libata stupid question...
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200607072122.k67LMjfL004124@turing-police.cc.vt.edu>
+References: <200607070428.k674S8Rf005209@turing-police.cc.vt.edu>
+	 <1152288721.20883.12.camel@localhost.localdomain>
+	 <200607072122.k67LMjfL004124@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 07 Jul 2006 22:51:36 +0100
+Message-Id: <1152309096.23012.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m38xn58g26.fsf@defiant.localdomain>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 07-07-06 19:45:21, Krzysztof Halasa wrote:
-> Pavel Machek <pavel@ucw.cz> writes:
+Ar Gwe, 2006-07-07 am 17:22 -0400, ysgrifennodd Valdis.Kletnieks@vt.edu:
+>         ap->cbl = ATA_CBL_PATA40;
 > 
-> > It *was* done. mc supports undelete on ext2.
-> 
-> How does it do that? Directly accessing the device?
+> Guess that explains that, unless the chipset actually *can* do 80-pin
+> and has an 80-pin cable (which would be surprising because apparently
+> none of the other piix variants can...)
 
-Yes. I used it once or twice, and was not happy when ext3 broke it.
+Thats a bug.  ich_pata_100: 3  should have port_ops of ich_port_ops. Try
+with that fixed.
 
--- 
-Thanks for all the (sleeping) penguins.
+Alan
+

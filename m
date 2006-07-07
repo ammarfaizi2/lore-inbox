@@ -1,40 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWGGVeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWGGVfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWGGVeF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 17:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWGGVeF
+	id S932288AbWGGVfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 17:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWGGVfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 17:34:05 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:4293 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750834AbWGGVeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 17:34:04 -0400
-Subject: Re: 2.6.17-mm6 libata stupid question...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Valdis.Kletnieks@vt.edu
+	Fri, 7 Jul 2006 17:35:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:65171 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751253AbWGGVfY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 17:35:24 -0400
+Date: Fri, 7 Jul 2006 14:38:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200607072122.k67LMjfL004124@turing-police.cc.vt.edu>
-References: <200607070428.k674S8Rf005209@turing-police.cc.vt.edu>
-	 <1152288721.20883.12.camel@localhost.localdomain>
-	 <200607072122.k67LMjfL004124@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Jul 2006 22:51:36 +0100
-Message-Id: <1152309096.23012.0.camel@localhost.localdomain>
+Subject: Re: 2.6.17-mm6
+Message-Id: <20060707143854.4a8fd106.akpm@osdl.org>
+In-Reply-To: <44AECEDD.201@reub.net>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<44AE268F.7080409@reub.net>
+	<20060707023518.f621bcf2.akpm@osdl.org>
+	<44AECEDD.201@reub.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-07-07 am 17:22 -0400, ysgrifennodd Valdis.Kletnieks@vt.edu:
->         ap->cbl = ATA_CBL_PATA40;
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>
 > 
-> Guess that explains that, unless the chipset actually *can* do 80-pin
-> and has an 80-pin cable (which would be surprising because apparently
-> none of the other piix variants can...)
+> > 
+> > The core slab data structures were wrecked.  For kmalloc(), no less. 
+> > Something secretly destroyed your kernel, and it could be anything.  Nice.
+> 
+> Having now turned on slab debugging, is it possibly related to this message 
+> which appeared in my log when I booting up earlier?
+> 
+> Jul  8 02:49:39 tornado kernel: EXT3-fs: mounted filesystem with ordered data mode.
+> Jul  8 02:49:39 tornado kernel: Adding 497972k swap on /dev/sdc9.  Priority:-1 
+> extents:1 across:497972k
+> Jul  8 02:49:40 tornado kernel: ip_tables: (C) 2000-2006 Netfilter Core Team
+> Jul  8 02:49:40 tornado kernel: Netfilter messages via NETLINK v0.30.
+> Jul  8 02:49:40 tornado kernel: ip_conntrack version 2.4 (4060 buckets, 32480 
+> max) - 288 bytes per conntrack
+> Jul  8 02:49:40 tornado kernel: Slab corruption: start=ffff81003efd7000, len=4096
+> Jul  8 02:49:40 tornado kernel: 170: ff ff ff ff 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b
+> Jul  8 02:49:40 tornado kernel: e1000: eth0: e1000_watchdog: NIC Link is Up 1000 
+> Mbps Full Duplex
+> Jul  8 02:49:40 tornado kernel: GRE over IPv4 tunneling driver
+> 
 
-Thats a bug.  ich_pata_100: 3  should have port_ops of ich_port_ops. Try
-with that fixed.
+Yikes!  Until we fix that there's no point in looking at anything else.
 
-Alan
+CONFIG_DEBUG_PAGEALLOC would nail this bug in a flash, but x86_64 doesn't
+implement the damn thing :(
+
+So if this is repeatable it would be of some value if you can work out what
+causes it - start by disabling netfilter.
+
+But to fix it for real we'll probably need to twiddle thumbs until an x86
+person can hit it.
 

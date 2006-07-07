@@ -1,101 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWGGVKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWGGVKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWGGVKE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 17:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWGGVKE
+	id S932277AbWGGVKl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 17:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWGGVKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 17:10:04 -0400
-Received: from smtp.ono.com ([62.42.230.12]:28518 "EHLO resmta04.ono.com")
-	by vger.kernel.org with ESMTP id S932239AbWGGVKB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 17:10:01 -0400
-Date: Fri, 7 Jul 2006 23:09:22 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm6
-Message-ID: <20060707230922.7c8739a1@werewolf.auna.net>
-In-Reply-To: <44AEC618.8040001@garzik.org>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	<20060705155602.6e0b4dce.akpm@osdl.org>
-	<20060706015706.37acb9af@werewolf.auna.net>
-	<20060705170228.9e595851.akpm@osdl.org>
-	<20060706163646.735f419f@werewolf.auna.net>
-	<20060706164802.6085d203@werewolf.auna.net>
-	<20060706234425.678cbc2f@werewolf.auna.net>
-	<20060706145752.64ceddd0.akpm@osdl.org>
-	<1152288168.20883.8.camel@localhost.localdomain>
-	<20060707175509.14ea9187@werewolf.auna.net>
-	<1152290643.20883.25.camel@localhost.localdomain>
-	<20060707093432.571af16e.rdunlap@xenotime.net>
-	<1152292196.20883.48.camel@localhost.localdomain>
-	<44AE966F.8090506@garzik.org>
-	<1152294245.20883.52.camel@localhost.localdomain>
-	<44AE9C67.7000204@garzik.org>
-	<1152302613.20883.58.camel@localhost.localdomain>
-	<44AEBD17.3080107@garzik.org>
-	<1152303822.20883.74.camel@localhost.localdomain>
-	<44AEC0BF.7090504@garzik.org>
-	<1152304961.20883.80.camel@localhost.localdomain>
-	<44AEC618.8040001@garzik.org>
-X-Mailer: Sylpheed-Claws 2.3.1cvs64 (GTK+ 2.10.0; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 7 Jul 2006 17:10:41 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:6835 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932277AbWGGVKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 17:10:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=V9GeL0CikfouTAq569w6BnOC6eglwHrH7/JEL3FI6ilWrpyf07rWYDR5ivmlacxXuW+jt9h1/3/tCWoorzFg1KOCd/6Bq4FUcO/kFt9ufKX2VAeUusCBEA40a1pIadqD6hiR2Sxz3BzUL6KFRy9rQ+TZzRZuc3dkm0xNrMwJ3gM=
+Message-ID: <9e0cf0bf0607071410y4c460a1ayb0ce925bacbc1881@mail.gmail.com>
+Date: Sat, 8 Jul 2006 00:10:38 +0300
+From: "Alon Bar-Lev" <alon.barlev@gmail.com>
+To: "Hua Zhong" <hzhong@gmail.com>
+Subject: Re: swsusp / suspend2 reliability
+Cc: "Jan Rychter" <jan@rychter.com>, linux-kernel@vger.kernel.org,
+       suspend2-devel@lists.suspend2.net
+In-Reply-To: <018b01c6a1fb$59f74b80$493d010a@nuitysystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <m2k66qzgri.fsf@tnuctip.rychter.com>
+	 <018b01c6a1fb$59f74b80$493d010a@nuitysystems.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 Jul 2006 16:37:44 -0400, Jeff Garzik <jeff@garzik.org> wrote:
+On 7/7/06, Hua Zhong <hzhong@gmail.com> wrote:
+> Greg had a good article on LWN: http://lwn.net/Articles/189467/. There you could find a more painful truth. You know what the real
+> reason is that suspend2 couldn't get merged? Not Nigel, not Pavel, but Linus, because he personally doesn't care. So if you want to
+> have a high-quality suspend-to-disk, your best bet is to convince Linus to use it. :-)
+>
 
-> Alan Cox wrote:
-> > Ar Gwe, 2006-07-07 am 16:14 -0400, ysgrifennodd Jeff Garzik:
-> >> I'm a bit surprised to see pata_sis and pata_via:  are you certain there 
-> >> is not confusion based on the fact that newer SiS, ULi and VIA 
-> >> controllers provide both SATA and PATA on the same controller?
-> > 
-> > Hard to be sure but it looks like some vendors briefly used marvell
-> > bridges of some form with a few generic PATA chipsets.
-> 
-> Yep.  The sata_xxx should cover most of the Marvell-SATA-bridge + PATA 
-> chip controllers already.
-> 
-> Pretty much everybody except Silicon Image used the Marvell bridge for 
-> their first generation SATA.
-> 
+True.
+That's right.
+In the past someone called it a lack of leadership...
 
-Dumb view from outside the ATA world: why dont assume all controllers
-can do both SATA and PATA, require some {p,s}ata_init(),
-{p,s}ata_enumerate_drives() and so on, and provide no-ops as default
-for them ? So SATA only can override sata_ ones, same for PATA and
-the weird (really ICH5 is so strange ?) ones override both.
+But reading the references you introduced, I've first realized in how
+deep problem we, the user community who want to use suspend-to-disk
+and not suspend-to-ram, are.
 
-So you can decide later about doing
+It is so pity that the whole suspend (ram AND disk) process is not
+addressed as a whole... Just because Linus does not care.
 
-for each controller
-	pata_init
-	sata_init
+And if suspend-to-disk is more complex, it should be solved first,
+since suspend-to-ram can be a subset of the process (Although people
+in the past dismissed this claim... :( ).
 
-or
+So I guess we will continue to use suspend2 for a long while... Since
+at least someone cares, and have a vision reacher than hay I can do
+this in userspace.
 
-for each controller
-	sata_init
-	pata_init
-
-or
-
-for each controller
-	sata_init
-for each controller
-	pata_init
-
-Just an idea. Good designed inheritance is good ;).
-
-AH, and all the drivers could be named as 'ata_xxxx'. Nice.
-
-
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.17-jam01 (gcc 4.1.1 20060518 (prerelease)) #2 SMP PREEMPT Wed
+Best Regards,
+Alon Bar-Lev.

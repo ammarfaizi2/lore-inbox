@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWGGS3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWGGSdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWGGS3c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 14:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWGGS3c
+	id S932162AbWGGSdt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 14:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWGGSdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 14:29:32 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:12553 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751222AbWGGS3b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 14:29:31 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Gregoire Favre <gregoire.favre@gmail.com>
-Subject: Re: Pata via ?
-Date: Fri, 7 Jul 2006 19:29:57 +0100
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060707180751.GA8891@gmail.com>
-In-Reply-To: <20060707180751.GA8891@gmail.com>
+	Fri, 7 Jul 2006 14:33:49 -0400
+Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:19227 "EHLO
+	outbound2-cpk-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1751224AbWGGSds convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 14:33:48 -0400
+X-BigFish: V
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
+Subject: RE: [discuss] Re: [PATCH] Allow all Opteron processors to
+ change pstate at same time
+Date: Fri, 7 Jul 2006 12:36:20 -0500
+Message-ID: <84EA05E2CA77634C82730353CBE3A84303218E99@SAUSEXMB1.amd.com>
+In-Reply-To: <p73fyhdpqe1.fsf@verdi.suse.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [discuss] Re: [PATCH] Allow all Opteron processors to
+ change pstate at same time
+Thread-Index: Acahvmrm3RpL0cJ7Qb+6QjSqeqjUbgALVEYQ
+From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+To: ak@suse.de
+cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       cpufreq@lists.linux.org.uk
+X-OriginalArrivalTime: 07 Jul 2006 17:36:21.0655 (UTC)
+ FILETIME=[DC918A70:01C6A1EB]
+X-WSS-ID: 68B0441F27K15869328-01-01
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607071929.57315.s0348365@sms.ed.ac.uk>
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 July 2006 19:07, Gregoire Favre wrote:
-> Hello,
->
-> at every rc kernels release I look to have pata_via.c included because
-> for me it works very well since a long time in mm kernels :-)
->
-> I have fetched libata-dev and even there, there is no pata_via...
->
-> Any reason for this ?
+> > the "powernow-k8.tscsync=1" options enables simeltameous 
+> transitions.  
+> > Other options are necessary to force the use of TSC as a 
+> gtod source.
+> > 
+> > This patch should apply cleanly to the 2.6.18-rc1 kernel.
+> 
+> Your patch seems to be ^M damaged.
 
-This is a patch from Alan; you're best using the broken out patches in -mm 
-(because Andrew maintains these) or the rebases Alan occasionally does 
-available here:
+I'll smack my mailer around again.  Sorry about that.
+ 
+> I'm still dubious if the result is really correct if the 
+> hardware wasn't designed to guarantee synchronous TSC operation.
+> 
+> Can you do the following test please? 
 
-http://zeniv.linux.org.uk/~alan/IDE/
+We'll try to have the results back by Monday evening.
 
--- 
-Cheers,
-Alistair.
+-Mark Langsdorf
+AMD, Inc.
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+

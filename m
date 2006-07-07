@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWGGKyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWGGKzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWGGKyY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 06:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWGGKyY
+	id S932123AbWGGKzA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 06:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWGGKzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 06:54:24 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56745 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932115AbWGGKyY (ORCPT
+	Fri, 7 Jul 2006 06:55:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8140 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932123AbWGGKy7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 06:54:24 -0400
-Date: Fri, 7 Jul 2006 12:54:07 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, stable@kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux 2.6.16.24
-Message-ID: <20060707105407.GA1654@elf.ucw.cz>
-References: <20060706222553.GA2946@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060706222553.GA2946@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 7 Jul 2006 06:54:59 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060706162731.577748e7.akpm@osdl.org> 
+References: <20060706162731.577748e7.akpm@osdl.org>  <20060706105223.97b9a531.akpm@osdl.org> <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com> <20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com> <26133.1152211129@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       bernds_cb1@t-online.de, sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/6] FDPIC: Add coredump capability for the ELF-FDPIC binfmt [try #3] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 07 Jul 2006 11:54:48 +0100
+Message-ID: <9736.1152269688@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrew Morton <akpm@osdl.org> wrote:
 
-> We (the -stable team) are announcing the release of the 2.6.16.24 kernel.
-> 
-> I'll also be replying to this message with a copy of the patch between
-> 2.6.16.23 and 2.6.16.24, as it is small enough to do so.
-> 
-> The updated 2.6.16.y git tree can be found at:
->  	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-> and can be browsed at the normal kernel.org git web browser:
-> 	www.kernel.org/git/
+> diff -puN fs/binfmt_elf.c~binfmt_elf-macro-cleanup fs/binfmt_elf.c
+> --- a/fs/binfmt_elf.c~binfmt_elf-macro-cleanup
+> +++ a/fs/binfmt_elf.c
+> ...
+> +	if (!dump_seek(roundup((unsigned long)file->f_pos, 4)))
+> +		goto err;
+> +	if (!dump_write(men->data, men->datasz))
+> +		goto err;
 
-Is it still okay to submit patches for 2.6.16-stable? I guess "dirty
-buffers flushing broken after resume" may count...
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+That doesn't compile... you're lacking file arguments.
+
+David

@@ -1,31 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWGGKeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWGGKfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbWGGKeN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 06:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWGGKeN
+	id S932105AbWGGKfr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 06:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWGGKfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 06:34:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38847 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750998AbWGGKeN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 06:34:13 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060707032038.efb71d9d.akpm@osdl.org> 
-References: <20060707032038.efb71d9d.akpm@osdl.org>  <20060706105223.97b9a531.akpm@osdl.org> <20060706124716.7098.5752.stgit@warthog.cambridge.redhat.com> <20060706124727.7098.44363.stgit@warthog.cambridge.redhat.com> <20538.1152266076@warthog.cambridge.redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       bernds_cb1@t-online.de, sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/6] FDPIC: Add coredump capability for the ELF-FDPIC binfmt [try #3] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 07 Jul 2006 11:34:02 +0100
-Message-ID: <32747.1152268442@warthog.cambridge.redhat.com>
+	Fri, 7 Jul 2006 06:35:47 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:44455 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932105AbWGGKfq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 06:35:46 -0400
+Subject: Re: Linux 2.6.17.4
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200607061824.46990.chase.venters@clientec.com>
+References: <20060706222704.GB2946@kroah.com>
+	 <20060706222841.GD2946@kroah.com>
+	 <200607061824.46990.chase.venters@clientec.com>
+Content-Type: text/plain
+Date: Fri, 07 Jul 2006 12:34:52 +0200
+Message-Id: <1152268492.3693.9.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+Hi Chase,
 
-> I count 45 different implementations of this in the tree.  Ho hum.
+> >  		case PR_SET_DUMPABLE:
+> > -			if (arg2 < 0 || arg2 > 2) {
+> > +			if (arg2 < 0 || arg2 > 1) {
+> >  				error = -EINVAL;
+> >  				break;
+> >  			}
+> 
+> Am I staring at this crooked, or not looking deep enough? My manual page for 
+> prctl says 2 is valid there. Specifically:
+> 
+>               Since  kernel 2.6.13, the value 2 is also permitted; this causes
+>               any binary which normally would not be dumped to be dumped read-
+>               able   by   root   only.    (See   also   the   description   of
+>               /proc/sys/fs/suid_dumpable in proc(5).)
+> 
+> ...has something changed, and my manpages don't reflect it? Did I miss a 
+> conversation about this?
 
-The roundup() macro could just be moved in as well.
+the manual page must change. This paragraph must be removed.
 
-David
+Regards
+
+Marcel
+
+

@@ -1,110 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWGGUpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWGGUtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWGGUpi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 16:45:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWGGUpi
+	id S932262AbWGGUtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 16:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWGGUtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 16:45:38 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15632 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751247AbWGGUpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 16:45:38 -0400
-Date: Fri, 7 Jul 2006 22:45:38 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/nfs/: make code static
-Message-ID: <20060707204538.GC26941@stusta.de>
+	Fri, 7 Jul 2006 16:49:16 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:22028 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751249AbWGGUtP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 16:49:15 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.17-mm6
+Date: Fri, 7 Jul 2006 21:48:08 +0100
+User-Agent: KMail/1.9.3
+Cc: john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20060703030355.420c7155.akpm@osdl.org> <200607062102.50284.s0348365@sms.ed.ac.uk> <20060706201108.GA493@kroah.com>
+In-Reply-To: <20060706201108.GA493@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200607072148.08567.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes needlessly global code static.
+On Thursday 06 July 2006 21:11, Greg KH wrote:
+> On Thu, Jul 06, 2006 at 09:02:50PM +0100, Alistair John Strachan wrote:
+> > On Thursday 06 July 2006 18:31, john stultz wrote:
+> > > On Wed, 2006-07-05 at 23:32 +0100, Alistair John Strachan wrote:
+> > > > On Wednesday 05 July 2006 21:46, Greg KH wrote:
+> > > > > On Wed, Jul 05, 2006 at 01:37:13PM -0700, john stultz wrote:
+> > > > > > On Tue, 2006-07-04 at 01:49 -0700, Andrew Morton wrote:
+> > > > > > > On Tue, 4 Jul 2006 09:34:14 +0100
+> > > > > > >
+> > > > > > > Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > > > > > > > > a tested version...
+> > > > > > > >
+> > > > > > > > This one worked, thanks. Try the same URL again, I've
+> > > > > > > > uploaded two better shots 6,7 that capture the first oops.
+> > > > > > > > Unfortunately, I have a pair of oopses that interchange every
+> > > > > > > > couple of boots, so I've included both ;-)
+> > > > > > >
+> > > > > > > OK, that's more like it.  Thanks again.
+> > > > > > >
+> > > > > > > http://devzero.co.uk/~alistair/oops-20060703/oops6.jpg
+> > > > > > > http://devzero.co.uk/~alistair/oops-20060703/oops7.jpg
+> > > > > > >
+> > > > > > > People cc'ed.  Help!
+> > > > > >
+> > > > > > Hmmm. No clue on this one from just looking at it.
+> > > > > >
+> > > > > > Greg, do you see anything wrong with the way I'm registering the
+> > > > > > timekeeping .resume hook in
+> > > > > > kernel/timer.c::timekeeping_init_device()? It looks the same as
+> > > > > > the other users to me.
+> > > > >
+> > > > > At first glance, no, it looks sane to me.
+> > > > >
+> > > > > Are you sure you aren't registering two things with the same name
+> > > > > somehow?
+> > >
+> > > Looking at it, I don't see how that could happen.
+> >
+> > I don't think it's John's code. I commented out the sysfs registration
+> > code from timekeeping_init_device() and the kernel gets further, where it
+> > crashes on kmem_cache_create. SLAB also complains about "losing its name"
+> > and being "of size 0".
+> >
+> > This happens identically on 2.6.18-rc1, and 2.6.17-mm6. Greg, could it be
+> > anything you've changed recently? I considered bisectioning -mm, but
+> > there's been a lot of RAID problems and I'm using RAID5.
+>
+> Please bisect 2.6.18-rc1 if you have git, as the problem is there, and
+> would be good to track down.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I tried this, but it's extremely difficult when the kernel boots successfully 
+one every four times. I've already been thrown off the scent twice, bringing 
+my bisection count to 25..
 
----
+I think I'll try an allnoconfig on this machine, hopefully that will boot, 
+then I just start enabling things again until it breaks.
 
-This patch was already sent on:
-- 29 Jun 2006
-- 22 Jun 2006
+-- 
+Cheers,
+Alistair.
 
- fs/nfs/namespace.c      |   12 +++++++++---
- fs/nfs/super.c          |    4 +++-
- include/linux/nfs_fs.h  |    4 ----
- include/linux/nfs_xdr.h |    1 -
- 4 files changed, 12 insertions(+), 9 deletions(-)
-
---- linux-2.6.17-rc4-mm1-full/include/linux/nfs_fs.h.old	2006-05-16 13:13:54.000000000 +0200
-+++ linux-2.6.17-rc4-mm1-full/include/linux/nfs_fs.h	2006-05-16 13:14:01.000000000 +0200
-@@ -312,10 +312,6 @@
- extern struct nfs_open_context *get_nfs_open_context(struct nfs_open_context *ctx);
- extern void put_nfs_open_context(struct nfs_open_context *ctx);
- extern struct nfs_open_context *nfs_find_open_context(struct inode *inode, struct rpc_cred *cred, int mode);
--extern struct vfsmount *nfs_do_submount(const struct vfsmount *mnt_parent,
--					const struct dentry *dentry,
--					struct nfs_fh *fh,
--					struct nfs_fattr *fattr);
- 
- /* linux/net/ipv4/ipconfig.c: trims ip addr off front of name, too. */
- extern u32 root_nfs_parse_addr(char *name); /*__init*/
---- linux-2.6.17-rc4-mm1-full/fs/nfs/namespace.c.old	2006-05-16 13:14:52.000000000 +0200
-+++ linux-2.6.17-rc4-mm1-full/fs/nfs/namespace.c	2006-05-16 13:14:33.000000000 +0200
-@@ -26,6 +26,11 @@
- static DECLARE_WORK(nfs_automount_task, nfs_expire_automounts, &nfs_automount_list);
- int nfs_mountpoint_expiry_timeout = 500 * HZ;
- 
-+static struct vfsmount *nfs_do_submount(const struct vfsmount *mnt_parent,
-+					const struct dentry *dentry,
-+					struct nfs_fh *fh,
-+					struct nfs_fattr *fattr);
-+
- /*
-  * nfs_path - reconstruct the path given an arbitrary dentry
-  * @base - arbitrary string to prepend to the path
-@@ -206,9 +211,10 @@
-  * @fattr - attributes for new root inode
-  *
-  */
--struct vfsmount *nfs_do_submount(const struct vfsmount *mnt_parent,
--		const struct dentry *dentry, struct nfs_fh *fh,
--		struct nfs_fattr *fattr)
-+static struct vfsmount *nfs_do_submount(const struct vfsmount *mnt_parent,
-+					const struct dentry *dentry,
-+					struct nfs_fh *fh,
-+					struct nfs_fattr *fattr)
- {
- 	struct nfs_clone_mount mountdata = {
- 		.sb = mnt_parent->mnt_sb,
-
---- linux-2.6.17-mm1-full/include/linux/nfs_xdr.h.old	2006-06-22 02:00:39.000000000 +0200
-+++ linux-2.6.17-mm1-full/include/linux/nfs_xdr.h	2006-06-22 02:00:47.000000000 +0200
-@@ -835,6 +835,5 @@
- extern struct rpc_version	nfs_version4;
- 
- extern struct rpc_version	nfsacl_version3;
--extern struct rpc_program	nfsacl_program;
- 
- #endif
---- linux-2.6.17-mm1-full/fs/nfs/super.c.old	2006-06-22 02:00:57.000000000 +0200
-+++ linux-2.6.17-mm1-full/fs/nfs/super.c	2006-06-22 02:13:26.000000000 +0200
-@@ -92,12 +92,14 @@
- 
- 
- #ifdef CONFIG_NFS_V3_ACL
-+static struct rpc_program	nfsacl_program;
-+
- static struct rpc_stat		nfsacl_rpcstat = { &nfsacl_program };
- static struct rpc_version *	nfsacl_version[] = {
- 	[3]			= &nfsacl_version3,
- };
- 
--struct rpc_program		nfsacl_program = {
-+static struct rpc_program	nfsacl_program = {
- 	.name =			"nfsacl",
- 	.number =		NFS_ACL_PROGRAM,
- 	.nrvers =		ARRAY_SIZE(nfsacl_version),
-
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,96 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWGGUjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWGGUpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWGGUjj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 16:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWGGUjj
+	id S1751248AbWGGUpm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 16:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWGGUpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 16:39:39 -0400
-Received: from khc.piap.pl ([195.187.100.11]:31687 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932231AbWGGUji (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 16:39:38 -0400
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Ingo Molnar" <mingo@elte.hu>,
-       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <arjan@infradead.org>
-Subject: Re: [patch] spinlocks: remove 'volatile'
-References: <20060705114630.GA3134@elte.hu>
-	<20060705101059.66a762bf.akpm@osdl.org>
-	<20060705193551.GA13070@elte.hu>
-	<20060705131824.52fa20ec.akpm@osdl.org>
-	<Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
-	<20060705204727.GA16615@elte.hu>
-	<Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
-	<20060705214502.GA27597@elte.hu>
-	<Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
-	<Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
-	<20060706081639.GA24179@elte.hu>
-	<Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
-	<Pine.LNX.4.64.0607060856080.12404@g5.osdl.org>
-	<Pine.LNX.4.64.0607060911530.12404@g5.osdl.org>
-	<Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com>
-	<m34pxt8emn.fsf@defiant.localdomain>
-	<Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Fri, 07 Jul 2006 22:39:35 +0200
-In-Reply-To: <Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com> (linux-os@analogic.com's message of "Fri, 7 Jul 2006 15:51:11 -0400")
-Message-ID: <m3odw16tfc.fsf@defiant.localdomain>
+	Fri, 7 Jul 2006 16:45:42 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16656 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751248AbWGGUpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 16:45:41 -0400
+Date: Fri, 7 Jul 2006 22:45:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] remove kernel/kthread.c:kthread_stop_sem()
+Message-ID: <20060707204541.GD26941@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
+This patch moves the otherwise unused kthread_stop_sem() into 
+kthread_stop().
 
->> 00000000 <funct>:
->>   0:   a1 00 00 00 00          mov    0x0,%eax
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->>   5:   55                      push   %ebp
->>   6:   89 e5                   mov    %esp,%ebp
->>   8:   85 c0                   test   %eax,%eax
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->>   a:   8d b6 00 00 00 00       lea    0x0(%esi),%esi
->>  10:   75 fe                   jne    10 <funct+0x10>
->>  12:   5d                      pop    %ebp
->>  13:   c3                      ret
->>
->> "0x0" is, of course, for relocation.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> So read the code; you have "10:   jne 10", jumping to itself
-> forever, without even doing anything else to set the flags, much
-> less reading a variable.
+---
 
-The variable is tested before entering the loop, of course. But
-it _is_ tested and the initial state doesn't matter.
-The "0x0" may be misleading so I added the note about relocation.
+This patch was already sent on:
+- 29 Jun 2006
 
-It _is_ BTW correct machine code.
+ include/linux/kthread.h |   12 ------------
+ kernel/kthread.c        |   14 ++------------
+ 2 files changed, 2 insertions(+), 24 deletions(-)
 
->> 00000000 <funct>:
->>   0:   55                      push   %ebp
->>   1:   89 e5                   mov    %esp,%ebp
->>   3:   a1 00 00 00 00          mov    0x0,%eax
->>   8:   85 c0                   test   %eax,%eax
->>   a:   75 f7                   jne    3 <funct+0x3>
->>   c:   5d                      pop    %ebp
->>   d:   c3                      ret
->
-> This is the only code that works. Guess why it worked? Because
-> you declared the variable volatile.
-
-Of course. But I don't see any address recalculations.
-
-> Now Linus declares that instead of declaring an object volatile
-> so that it is actually accessed every time it is referenced, he wants
-> to use a GNU-ism with assembly that tells the compiler to re-read
-> __every__ variable existing im memory, instead of just one. Go figure!
-
-That's probably overkill, I can think of more cases where "volatile"
-actually makes sense. Most are probably broken anyway, especially
-those that aren't (guaranteed to be) atomic but the author uses them
-as if they were.
-
-BTW: barrier() isn't a lock.
--- 
-Krzysztof Halasa
+--- linux-2.6.17-mm4-full/include/linux/kthread.h.old	2006-06-29 19:07:40.000000000 +0200
++++ linux-2.6.17-mm4-full/include/linux/kthread.h	2006-06-29 19:07:49.000000000 +0200
+@@ -28,7 +28,6 @@
+ 
+ void kthread_bind(struct task_struct *k, unsigned int cpu);
+ int kthread_stop(struct task_struct *k);
+-int kthread_stop_sem(struct task_struct *k, struct semaphore *s);
+ int kthread_should_stop(void);
+ 
+ #endif /* _LINUX_KTHREAD_H */
+--- linux-2.6.17-mm4-full/kernel/kthread.c.old	2006-06-29 19:08:00.000000000 +0200
++++ linux-2.6.17-mm4-full/kernel/kthread.c	2006-06-29 19:08:22.000000000 +0200
+@@ -216,23 +216,6 @@
+  */
+ int kthread_stop(struct task_struct *k)
+ {
+-	return kthread_stop_sem(k, NULL);
+-}
+-EXPORT_SYMBOL(kthread_stop);
+-
+-/**
+- * kthread_stop_sem - stop a thread created by kthread_create().
+- * @k: thread created by kthread_create().
+- * @s: semaphore that @k waits on while idle.
+- *
+- * Does essentially the same thing as kthread_stop() above, but wakes
+- * @k by calling up(@s).
+- *
+- * Returns the result of threadfn(), or %-EINTR if wake_up_process()
+- * was never called.
+- */
+-int kthread_stop_sem(struct task_struct *k, struct semaphore *s)
+-{
+ 	int ret;
+ 
+ 	mutex_lock(&kthread_stop_lock);
+@@ -246,10 +229,7 @@
+ 
+ 	/* Now set kthread_should_stop() to true, and wake it up. */
+ 	kthread_stop_info.k = k;
+-	if (s)
+-		up(s);
+-	else
+-		wake_up_process(k);
++	wake_up_process(k);
+ 	put_task_struct(k);
+ 
+ 	/* Once it dies, reset stop ptr, gather result and we're done. */
+@@ -260,7 +240,7 @@
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL(kthread_stop_sem);
++EXPORT_SYMBOL(kthread_stop);
+ 
+ static __init int helper_init(void)
+ {

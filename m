@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWGGLsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWGGLsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWGGLsP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 07:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWGGLrt
+	id S1750767AbWGGLsw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 07:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWGGLsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 07:47:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52969 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932111AbWGGLrs (ORCPT
+	Fri, 7 Jul 2006 07:48:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62697 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932132AbWGGLry (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 07:47:48 -0400
+	Fri, 7 Jul 2006 07:47:54 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 2/8] NOMMU: Fix execution off of ramfs with mmap() [try #4]
-Date: Fri, 07 Jul 2006 12:47:42 +0100
+Subject: [PATCH 5/8] FDPIC: Define SEEK_* constants in the Linux kernel headers [try #4]
+Date: Fri, 07 Jul 2006 12:47:49 +0100
 To: torvalds@osdl.org, akpm@osdl.org, bernds_cb1@t-online.de, sam@ravnborg.org
 Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
-Message-Id: <20060707114742.948.91683.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060707114749.948.57596.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060707114738.948.76567.stgit@warthog.cambridge.redhat.com>
 References: <20060707114738.948.76567.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,38 +25,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Fix execution through the FDPIC binfmt of programs stored on ramfs by
-preventing the ramfs mmap() returning successfully on a private mapping of a
-ramfs file.  This causes NOMMU mmap to make a copy of the mapped portion of the
-file and map that instead.
-
-This could be improved by granting direct mapping access to read-only private
-mappings for which the data is stored on a contiguous run of pages.  However,
-this is only likely to be the case if the file was extended with truncate
-before being written.
-
-ramfs is left to map the file directly for shared mappings so that SYSV IPC
-and POSIX shared memory both still work.
+Add definitions for SEEK_SET, SEEK_CUR and SEEK_END to the kernel header files.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/ramfs/file-nommu.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ include/linux/fs.h |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/fs/ramfs/file-nommu.c b/fs/ramfs/file-nommu.c
-index 99fffc9..677139b 100644
---- a/fs/ramfs/file-nommu.c
-+++ b/fs/ramfs/file-nommu.c
-@@ -283,9 +283,9 @@ unsigned long ramfs_nommu_get_unmapped_a
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 43aef9b..2561020 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -27,6 +27,10 @@ #define INR_OPEN 1024		/* Initial settin
+ #define BLOCK_SIZE_BITS 10
+ #define BLOCK_SIZE (1<<BLOCK_SIZE_BITS)
  
- /*****************************************************************************/
- /*
-- * set up a mapping
-+ * set up a mapping for shared memory segments
-  */
- int ramfs_nommu_mmap(struct file *file, struct vm_area_struct *vma)
- {
--	return 0;
-+	return vma->vm_flags & VM_SHARED ? 0 : -ENOSYS;
- }
++#define SEEK_SET	0	/* seek relative to beginning of file */
++#define SEEK_CUR	1	/* seek relative to current file position */
++#define SEEK_END	2	/* seek relative to end of file */
++
+ /* And dynamically-tunable limits and defaults: */
+ struct files_stat_struct {
+ 	int nr_files;		/* read only */

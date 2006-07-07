@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWGGXUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWGGXVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbWGGXUT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 19:20:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWGGXTr
+	id S932383AbWGGXVs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 19:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWGGXTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 19:19:47 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:65213 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932392AbWGGXTY (ORCPT
+	Fri, 7 Jul 2006 19:19:11 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52157 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932384AbWGGXSn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 19:19:24 -0400
-Date: Fri, 7 Jul 2006 16:19:01 -0700 (PDT)
+	Fri, 7 Jul 2006 19:18:43 -0400
+Date: Fri, 7 Jul 2006 16:18:25 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
@@ -17,113 +17,163 @@ Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
        Marcelo Tosatti <marcelo@kvack.org>,
        Arjan van de Ven <arjan@infradead.org>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Lameter <clameter@sgi.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Andi Kleen <ak@suse.de>
-Message-Id: <20060707231901.3790.43520.sendpatchset@schroedinger.engr.sgi.com>
+       Christoph Lameter <clameter@sgi.com>, Andi Kleen <ak@suse.de>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Message-Id: <20060707231825.3790.44243.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060707231810.3790.19313.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060707231810.3790.19313.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 10/11] Remove display of counters for unconfigured zones
+Subject: [PATCH 03/11] Fix MAX_NR_ZONES array initializations
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-eventcounters: Do not display counters for zones that are not available on an arch
+Fix array initialization in lots of arches
 
-Do not define or display counters for the DMA32 and the HIGHMEM zone
-if such zones were not configured.
+The number of zones may now be reduced from 4 to 2 for many arches. Fix the
+array initialization for the zones array for all architectures so that it
+is not initializing a fixed number of elements.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.17-mm6/include/linux/vmstat.h
+Index: linux-2.6.17-mm6/arch/sh64/mm/init.c
 ===================================================================
---- linux-2.6.17-mm6.orig/include/linux/vmstat.h	2006-07-04 09:24:16.598992964 -0700
-+++ linux-2.6.17-mm6/include/linux/vmstat.h	2006-07-04 10:29:07.430918443 -0700
-@@ -18,7 +18,19 @@
-  * generated will simply be the increment of a global address.
+--- linux-2.6.17-mm6.orig/arch/sh64/mm/init.c	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17-mm6/arch/sh64/mm/init.c	2006-07-03 14:30:12.661342570 -0700
+@@ -110,7 +110,7 @@ void show_mem(void)
   */
+ void __init paging_init(void)
+ {
+-	unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++	unsigned long zones_size[MAX_NR_ZONES] = {0, };
  
--#define FOR_ALL_ZONES(x) x##_DMA, x##_DMA32, x##_NORMAL, x##_HIGH
-+#ifdef CONFIG_ZONE_DMA32
-+#define DMA32_ZONE(xx) xx##_DMA32,
-+#else
-+#define DMA32_ZONE(xx)
-+#endif
-+
-+#ifdef CONFIG_HIGHMEM
-+#define HIGHMEM_ZONE(xx) , xx##_HIGH
-+#else
-+#define HIGHMEM_ZONE(xx)
-+#endif
-+
-+#define FOR_ALL_ZONES(xx) xx##_DMA, DMA32_ZONE(xx) xx##_NORMAL HIGHMEM_ZONE(xx)
- 
- enum vm_event_item { PGPGIN, PGPGOUT, PSWPIN, PSWPOUT,
- 		FOR_ALL_ZONES(PGALLOC),
-Index: linux-2.6.17-mm6/mm/vmstat.c
+ 	pgd_init((unsigned long)swapper_pg_dir);
+ 	pgd_init((unsigned long)swapper_pg_dir +
+Index: linux-2.6.17-mm6/arch/m32r/mm/init.c
 ===================================================================
---- linux-2.6.17-mm6.orig/mm/vmstat.c	2006-07-03 13:47:22.663933375 -0700
-+++ linux-2.6.17-mm6/mm/vmstat.c	2006-07-04 09:33:08.440126002 -0700
-@@ -381,6 +381,21 @@ struct seq_operations fragmentation_op =
- 	.show	= frag_show,
- };
+--- linux-2.6.17-mm6.orig/arch/m32r/mm/init.c	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17-mm6/arch/m32r/mm/init.c	2006-07-03 14:30:12.656460059 -0700
+@@ -100,7 +100,7 @@ void free_initrd_mem(unsigned long, unsi
+ #ifndef CONFIG_DISCONTIGMEM
+ unsigned long __init zone_sizes_init(void)
+ {
+-	unsigned long  zones_size[MAX_NR_ZONES] = {0, 0, 0};
++	unsigned long  zones_size[MAX_NR_ZONES] = {0, };
+ 	unsigned long  max_dma;
+ 	unsigned long  low;
+ 	unsigned long  start_pfn;
+Index: linux-2.6.17-mm6/arch/parisc/mm/init.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/parisc/mm/init.c	2006-07-03 13:47:13.329549726 -0700
++++ linux-2.6.17-mm6/arch/parisc/mm/init.c	2006-07-03 14:30:12.660366068 -0700
+@@ -809,7 +809,7 @@ void __init paging_init(void)
+ 	flush_tlb_all_local(NULL);
  
-+#ifdef CONFIG_ZONE_DMA32
-+#define TEXT_FOR_DMA32(xx) xx "_dma32",
-+#else
-+#define TEXT_FOR_DMA32(xx)
-+#endif
-+
-+#ifdef CONFIG_HIGHMEM
-+#define TEXT_FOR_HIGHMEM(xx) xx "_high",
-+#else
-+#define TEXT_FOR_HIGHMEM(xx)
-+#endif
-+
-+#define TEXTS_FOR_ZONES(xx) xx "_dma", TEXT_FOR_DMA32(xx) xx "_normal", \
-+					TEXT_FOR_HIGHMEM(xx)
-+
- static char *vmstat_text[] = {
- 	/* Zoned VM counters */
- 	"nr_anon_pages",
-@@ -408,10 +423,7 @@ static char *vmstat_text[] = {
- 	"pswpin",
- 	"pswpout",
+ 	for (i = 0; i < npmem_ranges; i++) {
+-		unsigned long zones_size[MAX_NR_ZONES] = { 0, 0, 0 };
++		unsigned long zones_size[MAX_NR_ZONES] = { 0, };
  
--	"pgalloc_dma",
--	"pgalloc_dma32",
--	"pgalloc_normal",
--	"pgalloc_high",
-+	TEXTS_FOR_ZONES("pgalloc")
+ 		/* We have an IOMMU, so all memory can go into a single
+ 		   ZONE_DMA zone. */
+Index: linux-2.6.17-mm6/arch/i386/kernel/setup.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/i386/kernel/setup.c	2006-07-03 13:47:12.664551790 -0700
++++ linux-2.6.17-mm6/arch/i386/kernel/setup.c	2006-07-03 14:31:05.813329367 -0700
+@@ -1201,7 +1201,7 @@ static unsigned long __init setup_memory
  
- 	"pgfree",
- 	"pgactivate",
-@@ -420,25 +432,10 @@ static char *vmstat_text[] = {
- 	"pgfault",
- 	"pgmajfault",
+ void __init zone_sizes_init(void)
+ {
+-	unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++	unsigned long zones_size[MAX_NR_ZONES] = { 0, };
+ 	unsigned int max_dma, low;
  
--	"pgrefill_dma",
--	"pgrefill_dma32",
--	"pgrefill_normal",
--	"pgrefill_high",
--
--	"pgsteal_dma",
--	"pgsteal_dma32",
--	"pgsteal_normal",
--	"pgsteal_high",
--
--	"pgscan_kswapd_dma",
--	"pgscan_kswapd_dma32",
--	"pgscan_kswapd_normal",
--	"pgscan_kswapd_high",
--
--	"pgscan_direct_dma",
--	"pgscan_direct_dma32",
--	"pgscan_direct_normal",
--	"pgscan_direct_high",
-+	TEXTS_FOR_ZONES("pgrefill")
-+	TEXTS_FOR_ZONES("pgsteal")
-+	TEXTS_FOR_ZONES("pgscan_kswapd")
-+	TEXTS_FOR_ZONES("pgscan_direct")
+ 	max_dma = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
+Index: linux-2.6.17-mm6/arch/m68knommu/mm/init.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/m68knommu/mm/init.c	2006-07-03 13:47:12.941878389 -0700
++++ linux-2.6.17-mm6/arch/m68knommu/mm/init.c	2006-07-03 14:30:12.657436561 -0700
+@@ -136,7 +136,7 @@ void paging_init(void)
+ #endif
  
- 	"pginodesteal",
- 	"slabs_scanned",
+ 	{
+-		unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++		unsigned long zones_size[MAX_NR_ZONES] = {0, };
+ 
+ 		zones_size[ZONE_DMA] = 0 >> PAGE_SHIFT;
+ 		zones_size[ZONE_NORMAL] = (end_mem - PAGE_OFFSET) >> PAGE_SHIFT;
+Index: linux-2.6.17-mm6/arch/mips/sgi-ip27/ip27-memory.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/mips/sgi-ip27/ip27-memory.c	2006-07-03 13:47:13.274865608 -0700
++++ linux-2.6.17-mm6/arch/mips/sgi-ip27/ip27-memory.c	2006-07-03 14:30:12.659389566 -0700
+@@ -508,7 +508,7 @@ extern unsigned long setup_zero_pages(vo
+ 
+ void __init paging_init(void)
+ {
+-	unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++	unsigned long zones_size[MAX_NR_ZONES] = {0, };
+ 	unsigned node;
+ 
+ 	pagetable_init();
+Index: linux-2.6.17-mm6/arch/frv/mm/init.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/frv/mm/init.c	2006-07-03 13:47:12.538583018 -0700
++++ linux-2.6.17-mm6/arch/frv/mm/init.c	2006-07-03 14:30:12.654507055 -0700
+@@ -98,7 +98,7 @@ void show_mem(void)
+  */
+ void __init paging_init(void)
+ {
+-	unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++	unsigned long zones_size[MAX_NR_ZONES] = {0, };
+ 
+ 	/* allocate some pages for kernel housekeeping tasks */
+ 	empty_bad_page_table	= (unsigned long) alloc_bootmem_pages(PAGE_SIZE);
+Index: linux-2.6.17-mm6/arch/h8300/mm/init.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/h8300/mm/init.c	2006-07-03 13:47:12.550301044 -0700
++++ linux-2.6.17-mm6/arch/h8300/mm/init.c	2006-07-03 14:30:12.655483557 -0700
+@@ -138,7 +138,7 @@ void paging_init(void)
+ #endif
+ 
+ 	{
+-		unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++		unsigned long zones_size[MAX_NR_ZONES] = {0, };
+ 
+ 		zones_size[ZONE_DMA]     = 0 >> PAGE_SHIFT;
+ 		zones_size[ZONE_NORMAL]  = (end_mem - PAGE_OFFSET) >> PAGE_SHIFT;
+Index: linux-2.6.17-mm6/arch/mips/mm/init.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/mips/mm/init.c	2006-07-03 13:47:13.195768937 -0700
++++ linux-2.6.17-mm6/arch/mips/mm/init.c	2006-07-03 14:30:12.658413063 -0700
+@@ -141,7 +141,7 @@ extern void pagetable_init(void);
+ 
+ void __init paging_init(void)
+ {
+-	unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++	unsigned long zones_size[MAX_NR_ZONES] = {0, };
+ 	unsigned long max_dma, high, low;
+ 
+ 	pagetable_init();
+Index: linux-2.6.17-mm6/arch/alpha/mm/init.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/alpha/mm/init.c	2006-07-03 13:47:11.897021133 -0700
++++ linux-2.6.17-mm6/arch/alpha/mm/init.c	2006-07-03 14:31:05.814305869 -0700
+@@ -270,7 +270,7 @@ callback_init(void * kernel_end)
+ void
+ paging_init(void)
+ {
+-	unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++	unsigned long zones_size[MAX_NR_ZONES] = {0, };
+ 	unsigned long dma_pfn, high_pfn;
+ 
+ 	dma_pfn = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
+Index: linux-2.6.17-mm6/arch/i386/mm/discontig.c
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/i386/mm/discontig.c	2006-07-03 13:47:12.735836444 -0700
++++ linux-2.6.17-mm6/arch/i386/mm/discontig.c	2006-07-03 14:31:05.815282371 -0700
+@@ -354,7 +354,7 @@ void __init zone_sizes_init(void)
+ 
+ 
+ 	for_each_online_node(nid) {
+-		unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
++		unsigned long zones_size[MAX_NR_ZONES] = {0, };
+ 		unsigned long *zholes_size;
+ 		unsigned int max_dma;
+ 

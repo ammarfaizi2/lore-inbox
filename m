@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWGGWq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWGGWsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWGGWq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 18:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWGGWq0
+	id S932369AbWGGWsy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 18:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWGGWsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 18:46:26 -0400
-Received: from bay0-omc1-s20.bay0.hotmail.com ([65.54.246.92]:1494 "EHLO
-	bay0-omc1-s20.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S932205AbWGGWqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 18:46:25 -0400
-Message-ID: <BAY101-F36134FF75230018F6F09A8B4740@phx.gbl>
-X-Originating-IP: [69.28.99.209]
-X-Originating-Email: [whothevella@hotmail.com]
-From: "Who Dunnit" <whothevella@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Upgrading kernel modules with a flash filesystem
-Date: Fri, 07 Jul 2006 15:46:23 -0700
+	Fri, 7 Jul 2006 18:48:54 -0400
+Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:53642 "EHLO
+	idefix.homelinux.org") by vger.kernel.org with ESMTP
+	id S932365AbWGGWsy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 18:48:54 -0400
+Subject: Re: Suspend to RAM regression tracked down
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+To: Dave Jones <davej@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk
+In-Reply-To: <20060707162152.GB3223@redhat.com>
+References: <1151837268.5358.10.camel@idefix.homelinux.org>
+	 <44A80B20.1090702@goop.org> <1152271537.5163.4.camel@idefix.homelinux.org>
+	 <20060707162152.GB3223@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
+Date: Sat, 08 Jul 2006 08:48:49 +1000
+Message-Id: <1152312530.14453.16.camel@idefix.homelinux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 07 Jul 2006 22:46:25.0213 (UTC) FILETIME=[2D2736D0:01C6A217]
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Le vendredi 07 juillet 2006 à 12:21 -0400, Dave Jones a écrit :
+> On Fri, Jul 07, 2006 at 09:25:37PM +1000, Jean-Marc Valin wrote:
+>  > > There was a race in ondemand and conservative which made them lock up on 
+>  > > resume (possibly only on SMP systems though).  There's a patch for that 
+>  > > in current -mm, but I suspect there's another problem (still haven't had 
+>  > > any time to track it down).
+>  > 
+>  > OK, I tried the patch with 2.6.17 and it didn't work. My laptop failed
+>  > to resume on the first try, so it must be something else. Could someone
+>  > actually have a look at the changes in 2.6.12-rc5-git6 (which happen to
+>  > be cpufreq-related)? I spend months pinpointing the problem to that
+>  > version (it's takes several days to reproduce). I'd appreciate if
+>  > someone could at least have a look at what changed there and maybe fix
+>  > it.
+> 
+> Can you show /proc/cpuinfo for the affected system ?
+> If it's 15/3/4 or 15/4/1, that would explain why this kernel,
+> as this was when support for those models got introduced to
+> speedstep-centrino.
 
-I was wondering if it is possible to have your kernel modules be stored in a 
-partition different from the one on which the kernel is. The intent is to 
-simply have /lib/modules/`uname -r` be a symbolic link to a directory on 
-another disk.
+Not sure what's the 15/..., but here's the content:
+% cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 9
+model name      : Intel(R) Pentium(R) M processor 1600MHz
+stepping        : 5
+cpu MHz         : 598.132
+cache size      : 1024 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov
+pat clflush dts acpi mmx fxsr sse sse2 tm pbe est tm2
+bogomips        : 1197.24
 
-I am using a 2.6 kernel and the /etc/inittab file seems to invoke 
-/etc/init.d/rc.udev before it mounts all the other partitions (say on other 
-disks). This leads to a case where udevstart (invoked from rc.udev) tries to 
-probe for modules that exist in a partition that hasn't been mounted yet 
-leading to a whole bunch of error messages.
+BTW, speedstep worked fine on my laptop with 2.6.12-rc5-git5 and
+earlier.
 
-Having the partition containing these modules be mounted before 
-/etc/init.d/rc.udev is invoked is not an option either since /dev hasn't 
-been populated yet.
+> If it's not that, there is a pretty large delta in the ondemand
+> governor in this update, but I don't see anything blindlingly
+> obvious from looking over it.
 
-Being able to point /lib/modules/`uname -r` to a directory in another 
-partition seems to be an easy way to "upgrade" modules in flash based 
-filesystems where you might not be comfortable erasing existing module files 
-before installing new ones for the reason that the whole process takes time 
-and any power failure during this time can be catastrophic. Being able to 
-download all your modules to a new partition and simply flip 
-/lib/modules/`uname -r` to point to a different directory in a new partition 
-for the upgrade to automatically happen seems like a nifty feature to have.
+Well, is there some way of doing a bisection over these changes? As far
+as I know, the problem probably affects all Dell D600 owners, probably
+others.
 
-Is it possible, using /etc/init.d/rc.udev to be able to only create a subset 
-of the final /dev tree so that this model can be made to work?
-
-Or maybe there is a whole different strategy on module upgrades for flash 
-based filesystems which, being a Linux novice, I am not aware of.
-
-Cheers!
-Vella
-
-_________________________________________________________________
-On the road to retirement? Check out MSN Life Events for advice on how to 
-get there! http://lifeevents.msn.com/category.aspx?cid=Retirement
-
+	Jean-Marc

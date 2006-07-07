@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWGGF07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWGGF3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWGGF07 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 01:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWGGF07
+	id S1751187AbWGGF3l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 01:29:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWGGF3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 01:26:59 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:47780 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751183AbWGGF06 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 01:26:58 -0400
-Date: Thu, 6 Jul 2006 22:26:32 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: suresh.b.siddha@intel.com, vatsa@in.ibm.com, nickpiggin@yahoo.com.au,
-       mingo@elte.hu, hawkes@sgi.com, dino@in.ibm.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH 2.6.16-mm1 2/2] sched_domains: Allocate sched_groups
- dynamically
-Message-Id: <20060706222632.2e403bd1.pj@sgi.com>
-In-Reply-To: <20060706173607.F13512@unix-os.sc.intel.com>
-References: <20060325082804.GB17011@in.ibm.com>
-	<20060706170151.cdb1dc6c.pj@sgi.com>
-	<20060706170824.E13512@unix-os.sc.intel.com>
-	<20060706173417.e7d1e39e.pj@sgi.com>
-	<20060706173607.F13512@unix-os.sc.intel.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jul 2006 01:29:41 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:12003 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751185AbWGGF3k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 01:29:40 -0400
+Date: Thu, 06 Jul 2006 23:28:55 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Generic interface for accelerometers (AMS, HDAPS, ...)
+In-reply-to: <20060707024603.GC22666@khazad-dum.debian.net>
+To: Henrique de Moraes Holschuh <hmh@debian.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
+       lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
+       hdaps-devel@lists.sourceforge.net, Stelian Pop <stelian@popies.net>,
+       Michael Hanselmann <linux-kernel@hansmi.ch>
+Message-id: <44ADF117.2060900@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.GOQkHC8inXir2wbg4bZayOWXzAY@ifi.uio.no>
+ <fa.qLWuLxQd7Mhcnixy/TLVs/nPwig@ifi.uio.no> <44AC5261.9050708@shaw.ca>
+ <20060706061930.GA6033@suse.cz> <20060707024603.GC22666@khazad-dum.debian.net>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suresh wrote:
-> It is quite possible that the kernel you are testing doesn't have multi-core
-> scheduler domain. If so, then you may not run into this issue.
+Henrique de Moraes Holschuh wrote:
+> On Thu, 06 Jul 2006, Vojtech Pavlik wrote:
+>>>> We are investigating the ACPI global lock as a way to at least get the
+>>>> SMBIOS to stay away from the EC while we talk to it, but we don't know if
+>>>> the entire SMBIOS firmware respects that lock.
+>>> It had better, that is exactly what the ACPI Global Lock is supposed to 
+>>> prevent (concurrent access to non-sharable resources between the OS and 
+>>> SMI code). The ACPI DSDT contains information on whether or not the 
+>>> machine requires the Global Lock in order to access the EC or whether it 
+>>> is safe to access without locking.
+>>  
+>> Isn't that vaild only if you actully use ACPI to access the EC? (AFAIK
+>> the HDAPS driver does direct port access.)
+> 
+> It better be valid for any OS-side access to the EC, otherwise the ACPI
+> global lock would be utterly useless.  The system vendor would have done its
+> own "global-lock-like" functionality without the need for an ACPI global
+> lock specification.
+> 
+> What is not clear to me is whether an ACPI DSDT method is on the "OS side"
+> or on the "SMM side" of the ACPI global lock.
 
-Aha - we have a winner.
-
-CONFIG_SCHED_MC was not enabled in this kernel.
-
-Now what I see matches what it should.
-
-    On a Hyper-Thread (but not Multi-Core) x86_64 system that I
-    tested with CONFIG_SCHED_MC enabled, your patch was required to
-    keep single-cpu cpu_exclusive cpusets from instantly locking
-    up the system.
-
-    On a Multi-Core (but not Hyper-Thread) IA64 Montecito system
-    that did -not- have CONFIG_SCHED_MC enabled, there is no
-    such problem with single-cpu cpu_exclusive cpusets in the
-    first place.  It worked ok, even without the patch.
-
-Thank-you.
+That would be on the OS side of the global lock.. However the OS still 
+needs to maintain its own synchronization between its accesses to the 
+controller, the global lock is not intended for that purpose. It doesn't 
+sound like the HDAPS driver and the ACPI code are necessarily 
+synchronizing their accesses (though I can't say I've looked at the code).
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

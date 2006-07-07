@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWGGUfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWGGUhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWGGUfh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 16:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWGGUfg
+	id S1751244AbWGGUhT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 16:37:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWGGUhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 16:35:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27321 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751245AbWGGUfg (ORCPT
+	Fri, 7 Jul 2006 16:37:19 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:8601 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751244AbWGGUhR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 16:35:36 -0400
-Date: Fri, 7 Jul 2006 16:35:31 -0400
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org, se.witt@gmx.de
-Subject: Re: lost cpufreq (Re: Linux v2.6.18-rc1)
-Message-ID: <20060707203531.GA3421@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, se.witt@gmx.de
-References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org> <20060707175239.GB7648@irc.pl> <20060707190739.GB5818@redhat.com> <20060707202706.GD7648@irc.pl>
+	Fri, 7 Jul 2006 16:37:17 -0400
+Date: Fri, 7 Jul 2006 22:36:58 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Bob Tracy <rct@gherkin.frus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1 build error (YACC): followup
+Message-ID: <20060707203658.GA16217@mars.ravnborg.org>
+References: <20060707202442.DA2AFDBA1@gherkin.frus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060707202706.GD7648@irc.pl>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060707202442.DA2AFDBA1@gherkin.frus.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 07, 2006 at 10:27:06PM +0200, Tomasz Torcz wrote:
- > On Fri, Jul 07, 2006 at 03:07:39PM -0400, Dave Jones wrote:
- > > On Fri, Jul 07, 2006 at 07:52:39PM +0200, Tomasz Torcz wrote:
- > >  > On Wed, Jul 05, 2006 at 09:26:35PM -0700, Linus Torvalds wrote:
- > >  > > 
- > >  > > Ok,
- > >  > >  the merge window for 2.6.18 is closed, and -rc1 is out there
- > >  > 
- > >  >   ... and cpufreq-nforce2.ko fails to work. Module can't be loaded:
- > >  > FATAL: Error inserting cpufreq_nforce2
- > >  > (/lib/modules/2.6.18-rc1/kernel/arch/i386/kernel/cpu/cpufreq/cpufreq-nforce2.ko):
- > >  > Device or resource busy
- > >  > 
- > >  >   Here's relevant difference between dmesg of 2.6.17 and 2.6.18-rc1:
- > >  > 
- > >  > @@ -244,7 +240,6 @@
- > >  >  lp: driver loaded but no devices found
- > >  >  cpufreq: Detected nForce2 chipset revision C1
- > >  >  cpufreq: FSB changing is maybe unstable and can lead to crashes and data loss.
- > >  > -cpufreq: FSB currently at 165 MHz, FID 10.5
- > >  >  usbcore: registered new driver usbfs
- > >  >  usbcore: registered new driver hub
- > > 
- > > Does it work again if you apply this patch with -R ?
- > 
- >   No.
+On Fri, Jul 07, 2006 at 03:24:42PM -0500, Bob Tracy wrote:
+> I wrote:
+> >$YACC now seems to be undefined when I do a "make bzImage" and the
+> >build process gets to drivers/scsi/aic7xxx/aicasm (with the aic7xxx
+> >driver configured as a built-in).  As a workaround, it's possible to
+> >"cd" into the indicated directory and run "make" directly.  Once the
+> >default build completes, restarting "make bzImage" from the kernel
+> >source root continues as expected.
+> 
+> Found it.  The main "Makefile" has "MAKEFLAGS += -rR" uncommented as
+> of 2.6.18-rc1.  The deleted comment about "possibly random breakage"
+> that used to be just above that line pretty much says it all :-).
+Translated: aic7xxx must supply its own definition of YACC or we should
+put it in the top-level Makefile.
 
-That's puzzling, as the only other changes to cpufreq-nforce are completely cosmetic
-(whitespace and the like).
+kbuild no longer rely on the predefined variables in make.
 
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+	Sam

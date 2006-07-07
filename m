@@ -1,90 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWGGVnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWGGVoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWGGVnl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 17:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWGGVnk
+	id S1751258AbWGGVoY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 17:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWGGVoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 17:43:40 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:14058 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1750785AbWGGVnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 17:43:39 -0400
-Date: Fri, 7 Jul 2006 18:43:34 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Andrew Morton <akpm@osdl.org>, "Michael Kerrisk" <mtk-manpages@gmx.net>,
-       axboe@suse.de, linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
-       vendor-sec@lst.de
-Subject: Re: splice/tee bugs?
-Message-ID: <20060707184334.5d71516f@doriath.conectiva>
-In-Reply-To: <20060707131310.0e382585@doriath.conectiva>
-References: <20060707070703.165520@gmx.net>
-	<20060707040749.97f8c1fc.akpm@osdl.org>
-	<20060707131310.0e382585@doriath.conectiva>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 2.4.0-rc2 (GTK+ 2.9.4; i586-mandriva-linux-gnu)
+	Fri, 7 Jul 2006 17:44:24 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:3796 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751258AbWGGVoX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 17:44:23 -0400
+Subject: Process events: Fix biarch compatibility
+From: Matt Helsley <matthltc@us.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 07 Jul 2006 14:38:52 -0700
+Message-Id: <1152308332.21787.2178.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jul 2006 13:13:10 -0300
-"Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
+Argh! I neglected to put linux-kernel on the cc list. Patch is
+unchanged.
 
-| On Fri, 7 Jul 2006 04:07:49 -0700
-| Andrew Morton <akpm@osdl.org> wrote:
-| 
-| | On Fri, 07 Jul 2006 09:07:03 +0200
-| | "Michael Kerrisk" <mtk-manpages@gmx.net> wrote:
-| | 
-| | > c) Occasionally the command line just hangs, producing no output.
-| | >    In this case I can't kill it with ^C or ^\.  This is a 
-| | >    hard-to-reproduce behaviour on my (x86) system, but I have 
-| | >    seen it several times by now.
-| | 
-| | aka local DoS.  Please capture sysrq-T output next time.
-| 
-|  If I run lots of them in parallel, I get the following OOPs in a few
-| seconds:
-| 
-| Jul  7 13:04:52 doriath kernel: [  105.041722] BUG: unable to handle kernel NULL pointer dereference at virtual address 00000018
-| Jul  7 13:04:52 doriath kernel: [  105.048885]  printing eip:
-| Jul  7 13:04:52 doriath kernel: [  105.056095] c01790c7
-| Jul  7 13:04:52 doriath kernel: [  105.056097] *pde = 00000000
-| Jul  7 13:04:52 doriath kernel: [  105.063516] Oops: 0000 [#1]
-| Jul  7 13:04:52 doriath kernel: [  105.071116] Modules linked in: ipv6 capability commoncap snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq via_rhine mii snd_pcm_oss snd_mixer_oss af_packet snd_via82xx gameport snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore rfcomm l2cap bluetooth ide_cd cdrom binfmt_misc loop sata_via libata scsi_mod video thermal processor fan container button battery asus_acpi ac amd64_agp agpgart ehci_hcd uhci_hcd usbcore xfs
-| Jul  7 13:04:52 doriath kernel: [  105.129492] CPU:    0
-| Jul  7 13:04:52 doriath kernel: [  105.129494] EIP:    0060:[sys_tee+371/924]    Not tainted VLI
-| Jul  7 13:04:52 doriath kernel: [  105.129494] EIP:    0060:[<c01790c7>]    Not tainted VLI
-| Jul  7 13:04:52 doriath kernel: [  105.129495] EFLAGS: 00010293   (2.6.18-rc1 #8) 
-| Jul  7 13:04:52 doriath kernel: [  105.170966] EIP is at sys_tee+0x173/0x39c
-| Jul  7 13:04:52 doriath kernel: [  105.185414] eax: d62bfa00   ebx: 00000000   ecx: 00000000   edx: d62bfa98
-| Jul  7 13:04:52 doriath kernel: [  105.200731] esi: d7434800   edi: d62bfa98   ebp: d5d5cfb4   esp: d5d5cf84
-| Jul  7 13:04:52 doriath kernel: [  105.216341] ds: 007b   es: 007b   ss: 0068
-| Jul  7 13:04:52 doriath kernel: [  105.232017] Process ktee (pid: 12605, ti=d5d5c000 task=d9cce0b0 task.ti=d5d5c000)
-| Jul  7 13:04:52 doriath kernel: [  105.233023] Stack: d5eede40 00000000 d827ac00 00000002 00000000 d62bfa00 00000000 00000000 
-| Jul  7 13:04:52 doriath kernel: [  105.250147]        00000000 00000000 00000000 b7f72920 d5d5c000 c0102b7d 00000000 00000001 
-| Jul  7 13:04:52 doriath kernel: [  105.267904]        7fffffff 00000000 b7f72920 bf8f37b8 0000013b 0000007b 0000007b 0000013b 
-| Jul  7 13:04:52 doriath kernel: [  105.286091] Call Trace:
-| Jul  7 13:04:52 doriath kernel: [  105.321546]  [show_stack_log_lvl+140/151] show_stack_log_lvl+0x8c/0x97
-| Jul  7 13:04:52 doriath kernel: [  105.321546]  [<c010422c>] show_stack_log_lvl+0x8c/0x97
-| Jul  7 13:04:52 doriath kernel: [  105.340519]  [show_registers+292/401] show_registers+0x124/0x191
-| Jul  7 13:04:52 doriath kernel: [  105.340519]  [<c0104397>] show_registers+0x124/0x191
-| Jul  7 13:04:52 doriath kernel: [  105.359642]  [die+332/617] die+0x14c/0x269
-| Jul  7 13:04:53 doriath kernel: [  105.359642]  [<c0104550>] die+0x14c/0x269
-| Jul  7 13:04:53 doriath kernel: [  105.378978]  [do_page_fault+1091/1310] do_page_fault+0x443/0x51e
-| Jul  7 13:04:53 doriath kernel: [  105.378978]  [<c02a6521>] do_page_fault+0x443/0x51e
-| Jul  7 13:04:53 doriath kernel: [  105.398696]  [error_code+57/64] error_code+0x39/0x40
-| Jul  7 13:04:53 doriath kernel: [  105.398696]  [<c0103d49>] error_code+0x39/0x40
-| Jul  7 13:04:53 doriath kernel: [  105.418612]  [sysenter_past_esp+86/121] sysenter_past_esp+0x56/0x79
-| Jul  7 13:04:54 doriath kernel: [  105.418612]  [<c0102b7d>] sysenter_past_esp+0x56/0x79
-| Jul  7 13:04:54 doriath kernel: [  105.438935] Code: 00 00 00 89 d0 8b 55 e4 03 42 6c 83 e0 0f 6b c0 14 8d 7c 10 70 8b 46 68 89 45 e0 83 f8 0f 77 5c 8b 4f 0c 8b 5e 6c 89 fa 8b 45 e4 <ff> 51 18 03 5d e0 83 e3 0f 89 fa 6b db 14 b9 14 00 00 00 8d 5c 
-| Jul  7 13:04:54 doriath kernel: [  105.506704] EIP: [sys_tee+371/924] sys_tee+0x173/0x39c SS:ESP 0068:d5d5cf84
-| Jul  7 13:04:54 doriath kernel: [  105.506704] EIP: [<c01790c7>] sys_tee+0x173/0x39c SS:ESP 0068:d5d5cf84
-| 
+Andrew, I'd like to revise my request and shoot for eventual inclusion
+in 2.6.18 if it's not too much to ask. What do you think?
 
- Reproducible with 2.6.17.4, can we get a CVE number for this?
+Cheers,
+	-Matt Helsley
 
--- 
-Luiz Fernando N. Capitulino
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Guillaume Thouvenin
+<guillaume.thouvenin@bull.net>, Albert Cahalan <acahalan@gmail.com>,
+Chandra S. Seetharaman <sekharan@us.ibm.com>
+Date: Thu, 06 Jul 2006 23:05:16 -0700
+Subject: Process events: Fix biarch compatibility
+
+Switch timestamp to two 32-bit scalars instead of two long fields of
+a timespec struct. This fixes an issue with biarch systems where the kernel was
+sending two 64-bit fields and a naive 32-bit userspace program was expecting
+two 32-bit fields. Naive userspace applications that used the timespec directly
+are broken. This allows more of the naieve apps to work correctly and all apps 
+that are correct to continue to work.
+
+I submitted a different solution as an RFC earlier and have since switched to
+the solution recommended by Evgeniy Polyakov.
+
+Compiles with linux-2.6.17-mm6, boots, and tested with and without -m32 on x86-64.
+
+Andrew, please consider this patch for inclusion in -mm.
+
+Thanks,
+	-Matt Helsley
+
+Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+---
+ drivers/connector/cn_proc.c |   10 ++++++++--
+ include/linux/cn_proc.h     |    3 ++-
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+Index: linux-2.6.17/include/linux/cn_proc.h
+===================================================================
+--- linux-2.6.17.orig/include/linux/cn_proc.h
++++ linux-2.6.17/include/linux/cn_proc.h
+@@ -55,11 +55,12 @@ struct proc_event {
+ 		/* "next" should be 0x00000400 */
+ 		/* "last" is the last process event: exit */
+ 		PROC_EVENT_EXIT = 0x80000000
+ 	} what;
+ 	__u32 cpu;
+-	struct timespec timestamp;
++	__u32 timestamp_sec;
++	__u32 timestamp_nsec;
+ 	union { /* must be last field of proc_event struct */
+ 		struct {
+ 			__u32 err;
+ 		} ack;
+ 
+Index: linux-2.6.17/drivers/connector/cn_proc.c
+===================================================================
+--- linux-2.6.17.orig/drivers/connector/cn_proc.c
++++ linux-2.6.17/drivers/connector/cn_proc.c
+@@ -102,18 +102,21 @@ static inline void proc_exit_connector(s
+ static void cn_proc_ack(int err, int rcvd_seq, int rcvd_ack)
+ {
+ 	struct cn_msg *msg;
+ 	struct proc_event *ev;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
++	struct timespec ts;
+ 
+ 	if (atomic_read(&proc_event_num_listeners) < 1)
+ 		return;
+ 
+ 	msg = (struct cn_msg*)buffer;
+ 	ev = (struct proc_event*)msg->data;
+ 	msg->seq = rcvd_seq;
+-	ktime_get_ts(&ev->timestamp);
++	ktime_get_ts(&ts);
++	ev->timestamp_sec = ts.tv_sec;
++	ev->timestamp_nsec = ts.tv_nsec;
+ 	ev->cpu = -1;
+ 	ev->what = PROC_EVENT_NONE;
+ 	ev->event_data.ack.err = err;
+ 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
+ 	msg->ack = rcvd_ack + 1;
+@@ -155,10 +158,11 @@ static void cn_proc_mcast_ctl(void *data
+  * generation function.
+  */
+ static int cn_proc_watch_task(struct notifier_block *nb, unsigned long val,
+ 			      void *t)
+ {
++	struct timespec ts;
+ 	struct task_struct *task = t;
+ 	struct cn_msg *msg;
+ 	struct proc_event *ev;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
+ 	int rc = NOTIFY_OK;
+@@ -189,11 +193,13 @@ static int cn_proc_watch_task(struct not
+ 		break;
+ 	}
+ 	if (rc != NOTIFY_OK)
+ 		return rc;
+ 	get_seq(&msg->seq, &ev->cpu);
+-	ktime_get_ts(&ev->timestamp); /* get high res monotonic timestamp */
++	ktime_get_ts(&ts); /* get high res monotonic timestamp */
++	ev->timestamp_sec = ts.tv_sec;
++	ev->timestamp_nsec = ts.tv_nsec;
+ 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
+ 	msg->ack = 0; /* not used */
+ 	msg->len = sizeof(*ev);
+ 	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
+ 	/* If cn_netlink_send() fails, drop data */
+
+

@@ -1,115 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWGGAUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWGGAaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbWGGAUy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 20:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWGGAUx
+	id S1750933AbWGGAaa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 20:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWGGAaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 20:20:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59098 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751105AbWGGAUw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 20:20:52 -0400
-Date: Thu, 6 Jul 2006 17:24:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Mr. Berkley Shands" <bshands@exegy.com>
-Cc: linux-kernel@vger.kernel.org, dlloyd@exegy.com
-Subject: Re: 2.6.17 x86_64 regression - reboot fails due to deadlock
-Message-Id: <20060706172424.01765d67.akpm@osdl.org>
-In-Reply-To: <44AD37C2.50601@exegy.com>
-References: <44AD37C2.50601@exegy.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 6 Jul 2006 20:30:30 -0400
+Received: from pimout4-ext.prodigy.net ([207.115.63.98]:52167 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750933AbWGGAa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 20:30:29 -0400
+X-ORBL: [64.216.106.128]
+Message-ID: <44ADAB1F.6040208@ksu.edu>
+Date: Thu, 06 Jul 2006 19:30:23 -0500
+From: "Scott J. Harmon" <harmon@ksu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060601)
+MIME-Version: 1.0
+To: Sergey Vlasov <vsu@altlinux.ru>
+CC: linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
+Subject: Re: acpi gets wrong interrupt for via sata in 2.6.16.17
+References: <449DE6BA.2050206@ksu.edu> <20060625132457.4b0922b4.vsu@altlinux.ru> <44A1C78C.4090401@ksu.edu>
+In-Reply-To: <44A1C78C.4090401@ksu.edu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mr. Berkley Shands" <bshands@exegy.com> wrote:
->
-> With a SuperMicro H8DC8 (nvidia chipset), Dual Opteron 285's, 16GB, 
-> Centos 4.3 -
+Scott J. Harmon wrote:
 > 
-> Under 2.6.16 both the tyan 2895 and the supermicro H8DC8 both will 
-> reboot corectly,
-> in kernel/sys.c machine_restart() gets called. But with the changes to 
-> sys.c under 2.6.17,
-> a new path is introduced, calling void kernel_restart_prepare(char *cmd)
-> which calls blocking_notifier_call_chain(&reboot_notifier_list, 
-> SYS_RESTART, cmd); (line 588)
-> Which looks at the first element of the notifier list, and blocks 
-> forever. But ONLY on the supermicro.
-> The tyan, a very similar motherboard does not deadlock. It returns and 
-> still calls machine_restart().
-> So neither reboot nor "shutdown -fh now" actually get to the bios calls.
+> Sergey Vlasov wrote:
+>> On Sat, 24 Jun 2006 20:28:26 -0500 Scott J. Harmon wrote:
+>>
+>>> The short: something that came in 2.6.16.17 has caused my sata to no
+>>> longer work correctly (by work correctly, I mean actually be able to
+>>> detect any drives).  I'm no expert, but it seems that it is getting the
+>>> wrong interrupt.  In 2.6.16.16 it works fine with the exact same config.
+>>>  It also works fine if I append 'pci=noacpi'.  This has still happens in
+>>> 2.6.17.
+>> I assume that your root filesystem is on a SATA disk, and therefore you
+>> don't have an easy way to extract dmesg from a broken kernel?
+>>
+>>> Here is the output of lspci:
+>>>
+>>> scott@amdg:~$ /sbin/lspci
+>>> 00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400/KT600 AGP]
+>>> Host Bridge (rev 80)
+>>> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
+>>> 00:07.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5705
+>>> Gigabit Ethernet (rev 03)
+>>> 00:0d.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host
+>>> Controller (rev 46)
+>>> 00:0e.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+>>> 00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID
+>>> Controller (rev 80)
+>>> 00:0f.1 IDE interface: VIA Technologies, Inc.
+>>> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+>>> 00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>>> Controller (rev 81)
+>>> 00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>>> Controller (rev 81)
+>>> 00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>>> Controller (rev 81)
+>>> 00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+>>> Controller (rev 81)
+>>> 00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+>>> 00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge
+>>> [KT600/K8T800/K8T890 South]
+>>> 01:00.0 VGA compatible controller: nVidia Corporation NV15DDR [GeForce2
+>>> Ti] (rev a4)
+>> Try to revert these patches:
+>>
+>> http://kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=commitdiff_plain;h=dc0f369552b491d1578e8a8c6f6512e17246241c
+>>
+>> http://kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=commitdiff_plain;h=c72493379d4aaac49ad3366987db1e118bb4f5ba
+>>
+>> (revert in the above order - these are two patches which depend on each
+>> other, you need to revert both).  You can try it both with 2.6.16.17
+>> and 2.6.17.
 > 
-> on the supermicro, (linux-2.6.17/kernel/sys.c)
+> Ok, reverting these two patches caused ACPI to function again here.  Let
+> me know if there is anything else you need from me to get this fixed in
+> mainline.
 > 
-> static int __kprobes notifier_call_chain(struct notifier_block **nl,
->                 unsigned long val, void *v)
-> {
->         int ret = NOTIFY_DONE;
->         struct notifier_block *nb;
+>> Chris: seems that the SATA subdevice (1106:3149) also needs the quirk,
+>> like EHCI, sound and builtin network.
 > 
->         nb = rcu_dereference(*nl);
->         while (nb) {
->                 ret = nb->notifier_call(nb, val, v);         /* this is 
-> the deadlock for the first entry */
->                 if ((ret & NOTIFY_STOP_MASK) == NOTIFY_STOP_MASK)
->                         break;
->                 nb = rcu_dereference(nb->next);
->         }
->         return ret;
-> }
+> Thanks,
 > 
-> I see that 2.6.18 reworks this code further.
-> 
-> If I want to hurt myself really, really badly, disabling the call to 
-> blocking_notifier_call_chain(&reboot_notifier_list,...
-> restores the reboot/power off functions.
-> 
-> In kdb, the system sits idle awaiting something to schedule, but nothing 
-> will schedule since there is
-> a deadlock on the supermicro. Any clues as to how to find which notifier 
-> is deadlocked?
-> 
+> Scott.
 
-Are you able to do sysrq-T when it's stuck?
+Is this going to be merged into 2.6.16.x and 2.6.17.x?
 
-Something like this...
-diff -puN kernel/sys.c~a kernel/sys.c
+Thanks,
 
---- a/kernel/sys.c~a
-+++ a/kernel/sys.c
-@@ -70,6 +70,8 @@
- int overflowuid = DEFAULT_OVERFLOWUID;
- int overflowgid = DEFAULT_OVERFLOWGID;
- 
-+static int foo;
-+
- #ifdef CONFIG_UID16
- EXPORT_SYMBOL(overflowuid);
- EXPORT_SYMBOL(overflowgid);
-@@ -141,6 +143,9 @@ static int __kprobes notifier_call_chain
- 	nb = rcu_dereference(*nl);
- 	while (nb) {
- 		next_nb = rcu_dereference(nb->next);
-+		if (foo)
-+			print_symbol("calling %s()\n",
-+				(unsigned long)nb->notifier_call);
- 		ret = nb->notifier_call(nb, val, v);
- 		if ((ret & NOTIFY_STOP_MASK) == NOTIFY_STOP_MASK)
- 			break;
-@@ -590,6 +595,7 @@ EXPORT_SYMBOL_GPL(emergency_restart);
- 
- static void kernel_restart_prepare(char *cmd)
- {
-+	foo = 1;
- 	blocking_notifier_call_chain(&reboot_notifier_list, SYS_RESTART, cmd);
- 	system_state = SYSTEM_RESTART;
- 	device_shutdown();
-_
-
-
-Be aware that there's a known lock_cpu_hotplug()-vs-cpufreq deadlock, but
-afaik it's only been reported during suspend.  Disabling CONFIG_HOTPLUG_CPU
-might make a difference.
+Scott.
+-- 
+"Computer Science is no more about computers than astronomy is about
+telescopes." - Edsger Dijkstra

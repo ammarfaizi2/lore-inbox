@@ -1,142 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWGGXRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWGGXSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWGGXRR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 19:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWGGXRR
+	id S932379AbWGGXSh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 19:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbWGGXSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 19:17:17 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2065 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932377AbWGGXRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 19:17:16 -0400
-Date: Sat, 8 Jul 2006 01:17:16 +0200
-From: Adrian Bunk <bunk@stusta.de>
+	Fri, 7 Jul 2006 19:18:37 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:61647 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932379AbWGGXSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 19:18:36 -0400
+Date: Fri, 7 Jul 2006 16:18:10 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
-Cc: alsa-devel@alsa-project.org, perex@suse.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: OSS driver removal, 2nd round (v2)
-Message-ID: <20060707231716.GE26941@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
+       Christoph Hellwig <hch@infradead.org>, Con Kolivas <kernel@kolivas.org>,
+       Marcelo Tosatti <marcelo@kvack.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Lameter <clameter@sgi.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Andi Kleen <ak@suse.de>
+Message-Id: <20060707231810.3790.19313.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 00/11] Reduce MAX_NR_ZONES V1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that I've sent the first round of actually removing the code for OSS 
-drivers where ALSA drivers without regressions exist for the same 
-hardware, it's time for a second round amongst the remaining drivers.
+I keep seeing zones on various platforms that are never used and wonder
+why we compile support for them into the kernel. Counters show up for HIGHMEM
+and DMA32 that are alway zero.
 
+This patch allows the removal of ZONE_DMA32 for non x86_64 architectures
+and it will get rid of ZONE_HIGHMEM for arches not using highmem
+(like 64 bit architectures). If an arch does not define CONFIG_HIGHMEM
+then ZONE_HIGHMEM will not be defined. Similarly if an arch does not
+define CONFIG_ZONE_DMA32 then ZONE_DMA32 will not be defined.
 
-Removing OSS drivers where ALSA drivers for the same hardware exists has 
-two reasons:
+No current architecture uses all the 4 zones (DMA,DMA32,NORMAL,HIGH) that we
+have now. The patchset will reduce the number of zones for all platforms.
 
-1. remove obsolete and mostly unmaintained code
-2. get bugs in the ALSA drivers reported that weren't previously
-   reported due to the possible workaround of using the OSS drivers
+On many platforms that do not have DMA32 or HIGHMEM this will reduce the number
+of zones by 50%. F.e. ia64 only uses DMA and NORMAL.
 
+Large amounts of memory can be saved for larger systemss that may have a
+few hundred NUMA nodes.
 
-The list below divides the OSS drivers into the following three
-categories:
-1. ALSA drivers for the same hardware
-2. ALSA drivers for the same hardware with known problems
-3. no ALSA drivers for the same hardware
+With ZONE_DMA32 and ZONE_HIGHMEM support optional MAX_NR_ZONES will be 2 for
+many non i386 platforms and even for i386 without CONFIG_HIGHMEM set.
 
+Tested on ia64, x86_64 and on i386 with and without highmem.
 
-My proposed timeline is:
-- 2.6.18: let the drivers under 1. in the list below depend on
-          OSS_OBSOLETE_DRIVER
-- 2.6.20: remove the options depending on OSS_OBSOLETE_DRIVER
-- 2.6.22: remove the code for the drivers that were depending on
-          OSS_OBSOLETE_DRIVER from the kernel tree
+The patchset consists of 11 patches that are following this message.
 
+One could go even further than this patchset and also make ZONE_DMA optional
+because some platforms do not need a separate DMA zone and can do DMA to all
+of memory. This could reduce MAX_NR_ZONES to 1. Such a patchset will hopefully follow
+soon.
 
-To make a long story short:
-
-If you are using an OSS driver because the ALSA driver doesn't work 
-equally well on your hardware listed under 1. below, send me an email 
-with a bug number in the ALSA bug tracking system now.
-
-
-A small FAQ:
-
-Q: But OSS is kewl and ALSA sucks!
-A: The decision for the OSS->ALSA move was four years ago.
-   If ALSA sucks, please help to improve ALSA.
-
-Q: What about the OSS emulation in ALSA?
-A: The OSS emulation in ALSA is not affected by my patches
-   (and it's not in any way scheduled for removal).
-
-
-Please review the following list:
-
-
-1. ALSA drivers for the same hardware
-
-DMASOUND_PMAC
-SOUND_ACI_MIXER and RADIO_MIROPCM20
-SOUND_AD1816
-SOUND_AD1889
-SOUND_ADLIB
-SOUND_FUSION
-SOUND_NM256
-SOUND_OPL3SA2
-
-2. ALSA drivers for the same hardware with known problems
-
-SOUND_CS4232
-- ALSA #1520 (Soundchip was not detected on HP Omnibook 5700 CTX)
-
-SOUND_EMU10K1
-- ALSA #1782 (really poor sound with my SB Live 1024 and ALSA)
-
-SOUND_ES1371
-- ALSA #1774 (missing joystick connector support for PCI Ensoniq ES1371)
-
-SOUND_ICH
-- ALSA #1764 (Recording signal quality is inacceptable (using OSS API))
-- Alan Cox:
-  ALSA driver lacks "support for AC97 wired touchscreens and the like"
-
-SOUND_SSCAPE
-- ALSA #2234 (driver does not find Soundscape Elite)
-
-SOUND_TRIDENT
-- ALSA #1293 (device supported by OSS but not by ALSA)
-- maintainer of the OSS driver wants his driver to stay
-
-SOUND_VIA82CXXX
-- ALSA #1906 (1-second overruns reported by arecord,
-              complete system hang with jackd -d alsa)
-
-
-3. no ALSA drivers for the same hardware
-
-DMASOUND_ATARI
-DMASOUND_PAULA
-DMASOUND_Q40
-SOUND_AEDSP16
-SOUND_AU1550_AC97
-SOUND_BCM_CS4297A
-SOUND_HAL2
-SOUND_KAHLUA
-SOUND_MSNDCLAS
-SOUND_MSNDPIN
-SOUND_MSS (also due to SOUND_PSS, SOUND_TRIX and perhaps SOUND_AEDSP16)
-SOUND_PAS
-SOUND_PSS
-SOUND_SB (also due to SOUND_KAHLUA, SOUND_PAS and perhaps SOUND_AEDSP16)
-SOUND_SH_DAC_AUDIO
-SOUND_TRIX
-SOUND_VIDC
-SOUND_VRC5477
-SOUND_VWSND
-SOUND_WAVEARTIST
-
-SOUND_IT8172
-Ralf Baechle: 
-Both board based on the ITE 8172 chipset are on my death list already; I
-will probably remove it after 2.6.18 is out unless against all expectation
-I receive patches.
+RFC->V1
+- Macro cleanup
+- Code cleanup
+- Modify GFP_ZONETYPES according to the number of zones.
+- Fix up i386 NUMA SRAT compile
+- Get rid of CONFIG_DMA_IS_DMA32 etc.
+- Resequence the patch so that the cleanup patches are first.
+- Remove invalid refernce to HIGHMEM in swap prefetch
+- Test and debug on i386
 

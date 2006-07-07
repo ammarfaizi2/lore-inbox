@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWGGVWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWGGVXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbWGGVWI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 17:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWGGVWI
+	id S932224AbWGGVXA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 17:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWGGVW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 17:22:08 -0400
-Received: from relay00.pair.com ([209.68.5.9]:54033 "HELO relay00.pair.com")
-	by vger.kernel.org with SMTP id S932303AbWGGVWH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 17:22:07 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Fri, 7 Jul 2006 16:21:54 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: "Abu M. Muttalib" <abum@aftek.com>
-cc: kernelnewbies@nl.linux.org, linux-newbie@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mm <linux-mm@kvack.org>
-Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
-In-Reply-To: <BKEKJNIHLJDCFGDBOHGMAEBKDCAA.abum@aftek.com>
-Message-ID: <Pine.LNX.4.64.0607071616540.23767@turbotaz.ourhouse>
-References: <BKEKJNIHLJDCFGDBOHGMAEBKDCAA.abum@aftek.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 7 Jul 2006 17:22:59 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:30908 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932224AbWGGVW6 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 17:22:58 -0400
+Message-Id: <200607072122.k67LMjfL004124@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6 libata stupid question...
+In-Reply-To: Your message of "Fri, 07 Jul 2006 17:12:01 BST."
+             <1152288721.20883.12.camel@localhost.localdomain>
+From: Valdis.Kletnieks@vt.edu
+References: <200607070428.k674S8Rf005209@turing-police.cc.vt.edu>
+            <1152288721.20883.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1152307365_2951P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 07 Jul 2006 17:22:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jul 2006, Abu M. Muttalib wrote:
+--==_Exmh_1152307365_2951P
+Content-Type: text/plain; charset=us-ascii
 
-> Hi,
->
-> I am getting the Out of memory.
->
-> To circumvent the problem, I have commented the call to "out_of_memory(),
-> and replaced "goto restart" with "goto nopage".
->
-> At "nopage:" lable I have added a call to "schedule()" and then "return
-> NULL" after "schedule()".
+On Fri, 07 Jul 2006 17:12:01 BST, Alan Cox said:
 
-I wouldn't recommend gutting the oom killer...
+> The fact you get the same response with drivers/ide rather suggests that
+> in this case the problem is cable detection. Tweak ata_piix to print out
+> the cable type it detects. If it thinks its a 40 pin cable you know
+> where to start
 
-> I tried the modified kernel with a test application, the test application is
-> mallocing memory in a loop. Unlike as expected the process gets killed. On
-> second run of the same application I am getting the page allocation failure
-> as expected but subsequently the system hangs.
->
-> I am attaching the test application and the log herewith.
->
-> I am getting this exception with kernel 2.6.13. With kernel
-> 2.4.19-rmka7-pxa1 there was no problem.
->
-> Why its so? What can I do to alleviate the OOM problem?
+I tried instrumenting ich_pata_cbl_detect(), but it turns out that
+the chipset is an ICH3M (lspci ID 8086:248A), which ends up down in
+piix_pata_prereset which forces a 40-pin:
 
-First you should know what is causing them. Is an application leaking 
-memory, or is the kernel leaking memory? "ps" can help you answer the 
-first question, while "watch cat /proc/meminfo" can help you answer the 
-second.
+        ap->cbl = ATA_CBL_PATA40;
 
-If kernel memory usage seems to be rising steadily over time, report it as 
-a bug. Otherwise, fix the broken application.
+Guess that explains that, unless the chipset actually *can* do 80-pin
+and has an 80-pin cable (which would be surprising because apparently
+none of the other piix variants can...)
 
-The reason for the "OOM killer" is because Linux does "VM overcommit". 
-Please read "Documentation/vm/overcommit-accounting" for more information, 
-including what you'll need if you want to disable "VM overcommit" to 
-hopefully stop the OOM killer from coming around.
 
-(When using VM overcommit, the OOM killer is very necessary for a healthy 
-system... sometimes the kernel _needs_ memory, and you can't tell it NO. 
-In those cases, the OOM killer is invoked to find something to 
-sacrifice...)
+--==_Exmh_1152307365_2951P
+Content-Type: application/pgp-signature
 
-> Thanks in anticipation and regards,
-> Abu.
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Thanks,
-Chase
+iD8DBQFErtClcC3lWbTT17ARAvpvAJ0TiIcIhTBlBEewB5QmIsZEArpn9gCg/JpB
+b0hSZLw6Om4iJ95SA0gg4kU=
+=hGHk
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1152307365_2951P--

@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWGGTkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbWGGTkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWGGTkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 15:40:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWGGTkJ
+	id S1751235AbWGGTkg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 15:40:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWGGTkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 15:40:09 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:15312 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750940AbWGGTkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 15:40:07 -0400
-Subject: Re: auro deadlock
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Miller <davem@davemloft.net>
-Cc: davej@redhat.com, akpm@osdl.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20060707.120936.98532669.davem@davemloft.net>
-References: <20060707171916.GA16343@redhat.com>
-	 <1152295989.3111.116.camel@laptopd505.fenrus.org>
-	 <20060707.120936.98532669.davem@davemloft.net>
-Content-Type: text/plain
-Date: Fri, 07 Jul 2006 21:39:55 +0200
-Message-Id: <1152301195.3111.146.camel@laptopd505.fenrus.org>
+	Fri, 7 Jul 2006 15:40:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53458 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751049AbWGGTke (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 15:40:34 -0400
+Date: Fri, 7 Jul 2006 12:40:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       linux-acpi@vger.kernel.org
+Subject: Re: [BUG] sleeping function called from invalid context during
+ resume
+Message-Id: <20060707124025.b7e9b2e2.akpm@osdl.org>
+In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6ECF5EB@hdsmsx411.amr.corp.intel.com>
+References: <CFF307C98FEABE47A452B27C06B85BB6ECF5EB@hdsmsx411.amr.corp.intel.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-07 at 12:09 -0700, David Miller wrote:
-> From: Arjan van de Ven <arjan@infradead.org>
-> Date: Fri, 07 Jul 2006 20:13:09 +0200
+On Fri, 7 Jul 2006 12:32:41 -0400
+"Brown, Len" <len.brown@intel.com> wrote:
+
+>  
+> >
+> >> I think we need to get rid of the acpi_in_resume hack
+> >> and use system_state != SYSTEM_RUNNING to address this.
+> >
+> >Well if hacks are OK it'd actually be reliable to do
+> >
+> >	/* comment goes here */
+> >	kmalloc(size, irqs_disabled() ? GFP_ATOMIC : GFP_KERNEL);
+> >
+> >because the irqs_disabled() thing happens for well-defined reasons. 
+> >Certainly that's better than looking at system_state (and I 
+> >don't think we
+> >leave SYSTEM_RUNNING during suspend/resume anyway).
 > 
-> > Now a question for netdev: what is the interrupt-or-softirq rules for
-> > the sk_receive_queue.lock?
-> > 
-> > Anyway, the patch below fixes this deadlock; it may or may not be the
-> > correct solution depending on the netdev answer, but the deadlock is
-> > gone ;)
+> If system_state != SYSTEM_RUNNING on resume, theen __might_sleep()
+> would not have spit out the dump_stack() above.
 > 
-> The lockdep fixes are starting to cause us to go in and start adding
-> hard IRQ protection to many socket layer objects and I want this
-> thinking to end quickly :)
-
-that's why I asked the question ;)
-
-
-> To reiterate, nothing socket or SKB level should be taking anything
-> deeper than software IRQ locking.
+> This is exactly like boot -- we are bringing up the system
+> and we need to configure interrupts, which runs AML,
+> which calls kmalloc in a variety of ways, all of which call
+> __might_sleep.
 > 
-> If drivers manage local SKB queues in hard IRQ context, they need to
-> use a seperate lockdep identifier for that queue's lock.
+> It seems simplest to have resume admit that it is like boot
+> and that the early allocations with interrupts off simply
+> must succeed or it is game-off.
+> 
 
-I'm not so sure that;s the case here, but.. if you have time today I
-hope you can take a look at this one with a wider "network view" than I
-can..
+No, we shouldn't expand the use of system_state.  Code continues to be
+merged which uses it.  If we also merge code which enhances its semantics
+then we're getting into quadratically-increasing nastiness rather than
+linearly-increasing.
 
+Callers should tell callees what to do.  Callees shouldn't be peeking at
+globals to work out what to do.
 
+Lacking any other caller-passed indication, it would be much better for
+acpi to look at irqs_disabled().  That's effectively a task-local,
+cpu-local argument which was passed down to callees.  It's hacky - it's
+like the PF_foo flags.  But it's heaps better than having all the kernel
+fight over the state of a global.

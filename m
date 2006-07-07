@@ -1,37 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWGGXuR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWGGXvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWGGXuR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 19:50:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWGGXuR
+	id S932413AbWGGXvK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 19:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWGGXvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 19:50:17 -0400
-Received: from ns2.suse.de ([195.135.220.15]:35266 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751137AbWGGXuP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 19:50:15 -0400
-To: Adrian Bunk <bunk@stusta.de>
-Cc: alsa-devel@alsa-project.org, perex@suse.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: OSS driver removal, 2nd round (v2)
-References: <20060707231716.GE26941@stusta.de>
-From: Andi Kleen <ak@suse.de>
-Date: 08 Jul 2006 01:50:00 +0200
-In-Reply-To: <20060707231716.GE26941@stusta.de>
-Message-ID: <p737j2potzr.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 7 Jul 2006 19:51:09 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:26521 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751243AbWGGXvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 19:51:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=DDELOh2HkOu2dLD2EgJ3bp8C/UeG3IUVfWQf371DncU0fxMrI3ifYvAifH6GujyXYbrv4QsVQRflEE/egmFANBvw8PNOZxrYWRFlKwzKbKN6qej1AjjOpfqOObgcrRcUDnDpIYTuTN1cIW1ISoZiAuwF+1JJWZIWSEMfy5Fx5OA=
+Message-ID: <2625b9520607071651g2678bf40u7c9b353942f262f9@mail.gmail.com>
+Date: Fri, 7 Jul 2006 16:51:06 -0700
+From: "Thushara Wijeratna" <thushw@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: pdflush taking CPU time during heavy NFS I/O
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
-> 
-> Q: What about the OSS emulation in ALSA?
-> A: The OSS emulation in ALSA is not affected by my patches
->    (and it's not in any way scheduled for removal).
+http://www.ussg.iu.edu/hypermail/linux/kernel/0404.3/1173.html
+describes a patch Anddrew Morton made to resolve this issue.
+Did this make it into 2.6.9-* kernel? I have a 2.6.9-11 kernel that exhibits
+similar symptoms.
 
-I again object to removing the old ICH sound driver.
-It does the same as the Alsa driver in much less code and is ideal
-for generic monolithic kernels
-
--Andi
+Thanks,
+Thushara

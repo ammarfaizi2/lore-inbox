@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWGGWGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWGGWJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWGGWGb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 18:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWGGWGa
+	id S932335AbWGGWJy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 18:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWGGWJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 18:06:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27549 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932340AbWGGWGa (ORCPT
+	Fri, 7 Jul 2006 18:09:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:64236 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932335AbWGGWJx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 18:06:30 -0400
-Date: Fri, 7 Jul 2006 15:06:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: Krzysztof Halasa <khc@pm.waw.pl>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-In-Reply-To: <Pine.LNX.4.64.0607071456430.3869@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0607071500150.3869@g5.osdl.org>
-References: <20060705114630.GA3134@elte.hu><20060705101059.66a762bf.akpm@osdl.org><20060705193551.GA13070@elte.hu><20060705131824.52fa20ec.akpm@osdl.org><Pine.LNX.4.64.0607051332430.12404@g5.osdl.org><20060705204727.GA16615@elte.hu><Pine.LNX.4.64.0607051411460.12404@g5.osdl.org><20060705214502.GA27597@elte.hu><Pine.LNX.4.64.0607051458200.12404@g5.osdl.org><Pine.LNX.4.64.0607051555140.12404@g5.osdl.org><20060706081639.GA24179@elte.hu><Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com><Pine.LNX.4.64.0607060856080.12404@g5.osdl.org><Pine.LNX.4.64.0607060911530.12404@g5.osdl.org><Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com>
- <m34pxt8emn.fsf@defiant.localdomain> <Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
- <Pine.LNX.4.64.0607071318570.3869@g5.osdl.org> <Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com>
- <Pine.LNX.4.64.0607071456430.3869@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 7 Jul 2006 18:09:53 -0400
+Date: Fri, 7 Jul 2006 18:09:51 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: framebuffer console code triggered might_sleep assertion.
+Message-ID: <20060707220951.GA3356@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Whilst printk'ing to both console and serial console, I got this...
+(2.6.18rc1)
+
+		Dave
 
 
-On Fri, 7 Jul 2006, Linus Torvalds wrote:
-> 
-> It still makes a difference for code generation, OF COURSE. But it's the 
-> wrong thing to use.
+BUG: sleeping function called from invalid context at kernel/sched.c:4438
+in_atomic():0, irqs_disabled():1
 
-And if you don't realize that my argument wasn't "bait-and-switch", it's 
-exactly the same thing. You pointed out a place where "volatile" would 
-make the code "work".
+Call Trace:
+ [<ffffffff80271db8>] show_trace+0xaa/0x23d
+ [<ffffffff80271f60>] dump_stack+0x15/0x17
+ [<ffffffff8020b9f8>] __might_sleep+0xb2/0xb4
+ [<ffffffff8029232e>] __cond_resched+0x15/0x55
+ [<ffffffff80267eb8>] cond_resched+0x3b/0x42
+ [<ffffffff80268c64>] console_conditional_schedule+0x12/0x14
+ [<ffffffff80368159>] fbcon_redraw+0xf6/0x160
+ [<ffffffff80369c58>] fbcon_scroll+0x5d9/0xb52
+ [<ffffffff803a43c4>] scrup+0x6b/0xd6
+ [<ffffffff803a4453>] lf+0x24/0x44
+ [<ffffffff803a7ff8>] vt_console_print+0x166/0x23d
+ [<ffffffff80295528>] __call_console_drivers+0x65/0x76
+ [<ffffffff80295597>] _call_console_drivers+0x5e/0x62
+ [<ffffffff80217e3f>] release_console_sem+0x14b/0x232
+ [<ffffffff8036acd6>] fb_flashcursor+0x279/0x2a6
+ [<ffffffff80251e3f>] run_workqueue+0xa8/0xfb
+ [<ffffffff8024e5e0>] worker_thread+0xef/0x122
+ [<ffffffff8023660f>] kthread+0x100/0x136
+ [<ffffffff8026419e>] child_rip+0x8/0x12
 
-AND I POINTED OUT THAT EVEN IN YOUR TRIVIAL EXAMPLE, VOLATILE WAS 
-ACTUALLY THE WRONG THING TO DO.
 
-And that's _exactly_ because the language environment (in this case the 
-CPU itself) has evolved past the point it was 30 years ago.
-
-And my point is that this is _always_ true. There are basically no valid 
-uses where you can use "volatile" today, where there isn't some reason why 
-you _should_ have done it another way entirely. Either you should have 
-used proper locking, or you should have used the proper IO accessor 
-functions, or you should have used something like "cpu_relax()", OR ANY 
-NUMBER OF OTHER MECHANISMS.
-
-(I did give a few examples of where "volatile" can be valid, but they are 
-very limited)
-
-Yes, "volatile" is convenient - at the cost of making the compiler 
-generate crap code even when it shouldn't need to. Yes, "volatile" 
-sometimes allows you to be lazy and not do the proper thing. Yes, 
-"volatile" can hide bugs when you _tried_ to do the proper thing but 
-screwed up.
-
-But can't you see that _none_ of those 'Yes, "volatile" ...' actually 
-means that you should _use_ "volatile". 
-
-			Linus
+-- 
+http://www.codemonkey.org.uk

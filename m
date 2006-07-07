@@ -1,22 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWGGW7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWGGXDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWGGW7e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 18:59:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWGGW7d
+	id S932293AbWGGXDU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 19:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWGGXDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 18:59:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63659 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932272AbWGGW7d (ORCPT
+	Fri, 7 Jul 2006 19:03:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28333 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932293AbWGGXDT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 18:59:33 -0400
-Date: Fri, 7 Jul 2006 16:00:00 -0700
+	Fri, 7 Jul 2006 19:03:19 -0400
+Date: Fri, 7 Jul 2006 16:06:50 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Process events: Fix biarch compatibility
-Message-Id: <20060707160000.45b9a9f0.akpm@osdl.org>
-In-Reply-To: <1152308332.21787.2178.camel@stark>
-References: <1152308332.21787.2178.camel@stark>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: reuben-lkml@reub.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6
+Message-Id: <20060707160650.44543c3a.akpm@osdl.org>
+In-Reply-To: <44AED530.8040802@mbligh.org>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	<44AE268F.7080409@reub.net>
+	<20060707023518.f621bcf2.akpm@osdl.org>
+	<44AECEDD.201@reub.net>
+	<20060707143854.4a8fd106.akpm@osdl.org>
+	<44AED530.8040802@mbligh.org>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,25 +29,25 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Helsley <matthltc@us.ibm.com> wrote:
+Martin Bligh <mbligh@mbligh.org> wrote:
 >
-> Andrew, I'd like to revise my request and shoot for eventual inclusion
-> in 2.6.18 if it's not too much to ask. What do you think?
+> 
+> > Yikes!  Until we fix that there's no point in looking at anything else.
+> > 
+> > CONFIG_DEBUG_PAGEALLOC would nail this bug in a flash, but x86_64 doesn't
+> > implement the damn thing :(
+> 
+> I have an implementation, but there's some bug in it I never fixed. If
+> you want it, I'll update it  and send it out ... maybe you can spot the
+> bug ;-(
+> 
 
-I'm not sure what you're referring to here.
+My bug-spotting rate doesn't seem so good lately.  But if the thing doesn't
+break the kernel when configged off then sure, let's put it in -mm with a
+big doesnt-work-yet warning on it and hopefully some clever person like
+Chuck will come along and fix it.
 
-The per-task-delay-accounting patches I'd like to get into 2.6.18, yes. 
-We've been dicking around for *years* with enhanced system accounting
-requirements and we now seem to have a roughly-agreed-upon way of doing
-that.  I think we just need to get it in there and get people using it for
-their various accounting needs.  I was planning on getting all this into
--rc1 but then we got derailed by the 1000-cpus-doing-1000-exits-per-second
-problem.
-
-The task-watchers patches I really like - it fixes the problem of more and
-more subsystems adding their little own little hooks all into the same
-places.  But I think it's much less urgent than per-task-delay-accounting
-and, given that (afaik) we haven't yet resolved whether task-watchers will
-use a single notifier chain or one per event, I'm inclined to hold that
-back until 2.6.19.
+That being said, we don't seem to be getting a lot of value from
+DEBUG_PAGEALLOC any more.  I guess we fixed a pile of long-standing
+problems when it first went in and the reintroduction rate is low.
 

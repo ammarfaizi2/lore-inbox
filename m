@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWGGABe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWGGACN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbWGGABe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jul 2006 20:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWGGABe
+	id S1751092AbWGGACN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jul 2006 20:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWGGACN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jul 2006 20:01:34 -0400
-Received: from ns.suse.de ([195.135.220.2]:38083 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750880AbWGGABd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jul 2006 20:01:33 -0400
-Date: Thu, 6 Jul 2006 16:57:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Implement class_device_update_dev() function
-Message-ID: <20060706235745.GA13548@kroah.com>
-References: <1152226792.29643.8.camel@localhost>
+	Thu, 6 Jul 2006 20:02:13 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:41170 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750881AbWGGACM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jul 2006 20:02:12 -0400
+Date: Thu, 6 Jul 2006 17:01:51 -0700
+From: Paul Jackson <pj@sgi.com>
+To: vatsa@in.ibm.com
+Cc: nickpiggin@yahoo.com.au, mingo@elte.hu, hawkes@sgi.com, dino@in.ibm.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, suresh.b.siddha@intel.com,
+       ak@suse.de
+Subject: Re: [PATCH 2.6.16-mm1 2/2] sched_domains: Allocate sched_groups
+ dynamically
+Message-Id: <20060706170151.cdb1dc6c.pj@sgi.com>
+In-Reply-To: <20060325082804.GB17011@in.ibm.com>
+References: <20060325082804.GB17011@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152226792.29643.8.camel@localhost>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 07, 2006 at 12:59:52AM +0200, Marcel Holtmann wrote:
-> Hi Greg,
+Several months ago, Srivatsa wrote:
+> I couldn't test this on a multi-core machine, since I don't think we
+> have one in our lab.
 > 
-> for the Bluetooth subsystem integration into the driver model it is
-> required that we can update the device of a class device at any time.
-
-You can?  Ick.
-
-That messes with my "get rid of struct class_device" plans a bit...
-
-> For the RFCOMM TTY device for example we create the TTY device and only
-> when it got opened we create the Bluetooth connection. Once this new
-> connection has been created we have a device to attach to the class
-> device of the TTY.
+> Suresh, would you mind testing the patch on a multi-core machine, in case you 
+> have access to one?
 > 
-> I came up with the attached patch and it worked fine with the Bluetooth
-> RFCOMM layer.
+> Basically you would need to do create a exclusive CPUset with one CPU in it 
+> (ensure that its sibling in the same core is not part of the same
+> CPUset). As soon as you make the CPUset exclusive, you would hit some
+> kind of hang. With this patch, the hang should go away.
 
-But userspace should also find out about this change, and this patch
-prevents that from happening.  What about just tearing down the class
-device and creating a new one?  That way userspace knows about the new
-linkage properly, and any device naming and permission issues can be
-handled anew?
 
-thanks,
+Summary: Where do we stand with multi-core and this bug?
 
-greg k-h
+
+I don't see a reply from Suresh on whether he could test on multi-core.
+
+I finally happened to be running on a hyper-threaded box last week,
+and stumbled over this bug that Srivatsa's patch fixes.  Hawkes
+remembered Srivatsa's patch, I tried it, and it worked.  Thanks!
+
+But now I'm quite confused as to the situation with multi-core.
+
+Details of my confusions, for the bored:
+
+    From Srivatsa's remark, I would have guessed that multi-core was
+    at risk for this bug too, but Srivatsa was hopeful that his patch
+    would fix that too.
+
+    Early this week, a couple of people who shall remain anonymous here
+    raised the question of whether we had the same problem with multi-core.
+    One of them believed that multi-core did have the same problem.
+
+    I got a little time on a multi-core system this morning to test it,
+    and while running what I -thought- was a kernel -without- Srivatsa's
+    patch, I could not find any problem.  I made a cpuset with just a
+    single logical cpu in it, and marked it cpu_exclusive, and the
+    system did not hang.
+
+    It will be another day before I can get on that multi-core system
+    again to verify my findings.
+
+    I was hoping that someone could actually -read- this code and state
+    with confidence that one of the following held:
+     * it was already working ok on multi-core (a one CPU cpu_exclusive cpuset),
+     * it was broken, but Srivatsa's patch fixes it, or
+     * it's still broken, even with Srivatsa's patch.
+
+    I tried a couple of times to read the code myself, but could not
+    make any headway there.
+
+So ... what's up with multi-core and this bug?
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

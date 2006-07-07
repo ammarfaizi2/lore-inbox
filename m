@@ -1,222 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWGGXGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWGGXIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbWGGXGm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 19:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWGGXGm
+	id S932306AbWGGXIl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 19:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWGGXIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 19:06:42 -0400
-Received: from mail.gmx.net ([213.165.64.21]:62438 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932249AbWGGXGl (ORCPT
+	Fri, 7 Jul 2006 19:08:41 -0400
+Received: from tornado.reub.net ([202.89.145.182]:56530 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S932306AbWGGXIk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 19:06:41 -0400
-X-Authenticated: #5039886
-Date: Sat, 8 Jul 2006 01:06:38 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-Message-ID: <20060707230638.GA30008@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
-	Krzysztof Halasa <khc@pm.waw.pl>,
-	Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	arjan@infradead.org
-References: <m34pxt8emn.fsf@defiant.localdomain> <Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
+	Fri, 7 Jul 2006 19:08:40 -0400
+Message-ID: <44AEE978.8090703@reub.net>
+Date: Sat, 08 Jul 2006 11:08:40 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 3.0a1 (Windows/20060707)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-Y-GMX-Trusted: 0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6
+References: <20060703030355.420c7155.akpm@osdl.org>	<44AE268F.7080409@reub.net>	<20060707023518.f621bcf2.akpm@osdl.org>	<44AECEDD.201@reub.net> <20060707143854.4a8fd106.akpm@osdl.org>
+In-Reply-To: <20060707143854.4a8fd106.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.07.07 15:51:11 -0400, linux-os (Dick Johnson) wrote:
+
+
+On 8/07/2006 9:38 a.m., Andrew Morton wrote:
+> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>>
+>>> The core slab data structures were wrecked.  For kmalloc(), no less. 
+>>> Something secretly destroyed your kernel, and it could be anything.  Nice.
+>> Having now turned on slab debugging, is it possibly related to this message 
+>> which appeared in my log when I booting up earlier?
+>>
+>> Jul  8 02:49:39 tornado kernel: EXT3-fs: mounted filesystem with ordered data mode.
+>> Jul  8 02:49:39 tornado kernel: Adding 497972k swap on /dev/sdc9.  Priority:-1 
+>> extents:1 across:497972k
+>> Jul  8 02:49:40 tornado kernel: ip_tables: (C) 2000-2006 Netfilter Core Team
+>> Jul  8 02:49:40 tornado kernel: Netfilter messages via NETLINK v0.30.
+>> Jul  8 02:49:40 tornado kernel: ip_conntrack version 2.4 (4060 buckets, 32480 
+>> max) - 288 bytes per conntrack
+>> Jul  8 02:49:40 tornado kernel: Slab corruption: start=ffff81003efd7000, len=4096
+>> Jul  8 02:49:40 tornado kernel: 170: ff ff ff ff 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b
+>> Jul  8 02:49:40 tornado kernel: e1000: eth0: e1000_watchdog: NIC Link is Up 1000 
+>> Mbps Full Duplex
+>> Jul  8 02:49:40 tornado kernel: GRE over IPv4 tunneling driver
+>>
 > 
-> On Fri, 7 Jul 2006, Krzysztof Halasa wrote:
+> Yikes!  Until we fix that there's no point in looking at anything else.
 > 
-> > "linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
-> >
-> >> extern int spinner;
-> >>
-> >> funct(){
-> >>      while(spinner)
-> >>          ;
-> >>
-> >> The 'C' compiler has no choice but to actually make that memory access
-> >> and read the variable because the variable is in another module (a.k.a.
-> >> file).
-> >
-> > defiant:/tmp/khc$ gcc --version
-> > gcc (GCC) 4.1.1 20060525 (Red Hat 4.1.1-1)
-> > defiant:/tmp/khc$ cat test.c
-> > extern int spinner;
-> >
-> > void funct(void)
-> > {
-> >     while(spinner)
-> >         ;
-> > }
-> > defiant:/tmp/khc$ gcc -Wall -O2 -c test.c
-> > defiant:/tmp/khc$ objdump -d test.o
-> >
-> > test.o:     file format elf32-i386
-> >
-> > Disassembly of section .text:
-> >
-> > 00000000 <funct>:
-> >   0:   a1 00 00 00 00          mov    0x0,%eax
-> >   5:   55                      push   %ebp
-> >   6:   89 e5                   mov    %esp,%ebp
-> >   8:   85 c0                   test   %eax,%eax
-> >   a:   8d b6 00 00 00 00       lea    0x0(%esi),%esi
-> >  10:   75 fe                   jne    10 <funct+0x10>
-> >  12:   5d                      pop    %ebp
-> >  13:   c3                      ret
-> >
-> > "0x0" is, of course, for relocation.
+> CONFIG_DEBUG_PAGEALLOC would nail this bug in a flash, but x86_64 doesn't
+> implement the damn thing :(
 > 
-> 
-> So read the code; you have "10:   jne 10", jumping to itself
-> forever, without even doing anything else to set the flags, much
-> less reading a variable.
+> So if this is repeatable it would be of some value if you can work out what
+> causes it - start by disabling netfilter.
 
-Well, you said that the compiler is forced to make the memory access,
-given the topic of this discussion probably noone assumed that you meant
-exactly one memory access. Of course that code is broken, but you seemed
-to say that it is not.
+It hasn't come back after a quick reboot, but I'll be more vigilant than usual 
+for it.  With that warning above and the nasty crash before that which maybe 
+related, I'm thinking that it's not just a one-off thing.
 
-> >> However, if I have the same code, but the variable is visible during
-> >> compile time, i.e.,
-> >>
-> >> int spinner=0;
-> >>
-> >> funct(){
-> >>      while(spinner)
-> >>          ;
-> >>
-> >> ... the compiler may eliminate that code altogether because it
-> >> 'knows' that spinner is FALSE, having initialized it to zero
-> >> itself.
-> >
-> > defiant:/tmp/khc$ cat test.c
-> > int spinner = 0;
-> >
-> > void funct(void)
-> > {
-> >     while(spinner)
-> >         ;
-> > }
-> > defiant:/tmp/khc$ gcc -Wall -O2 -c test.c
-> > defiant:/tmp/khc$ objdump -d test.o
-> >
-> > 00000000 <funct>:
-> >   0:   a1 00 00 00 00          mov    0x0,%eax
-> >   5:   55                      push   %ebp
-> >   6:   89 e5                   mov    %esp,%ebp
-> >   8:   85 c0                   test   %eax,%eax
-> >   a:   8d b6 00 00 00 00       lea    0x0(%esi),%esi
-> >  10:   75 fe                   jne    10 <funct+0x10>
-> >  12:   5d                      pop    %ebp
-> >  13:   c3                      ret
-> >
-> 
-> Then, you have exactly the same thing here:
->    10:   75 fe                   jne    10 <funct+0x10>
-> 
-> Same bad code.
-
-Which proves you wrong, you said the compiler would optimize it away o.O
-
-> >> Since spinner is global in scope, somebody surely could have
-> >> changed it before funct() was even called, but the current gcc
-> >> 'C' compiler doesn't care and may optimize it away entirely.
-> >
-> > Personally I don't think such C compiler even existed. HISOFT C
-> > on ZX Spectrum could be a good candidate but I think it didn't
-> > have any optimizer :-)
-> >
-> >> To
-> >> prevent this, you must declare the variable volatile. To do
-> >> otherwise is a bug.
-> >
-> > Nope. Volatile just means that every read (and write) must actually
-> > access the variable. Note that the compiler optimized out accesses
-> > to the variable in the loop - while it has to check at the beginning
-> > of funct(), it knows that the variable is constant through funct().
-> >
-> > Note that "volatile" is not exactly what we usually want, but it
-> > does the job (i.e., the program doesn't crash, but the code is
-> > probably suboptimal).
-> >
-> >> That said, I think that the current
-> >> implementation of 'volatile' is broken because the compiler
-> >> seems to believe that the variable has moved! It recalculates
-> >> the address of the variable as well as accessing its value.
-> >> This is what makes the code generation problematical.
-> >
-> > You must be using a heavily broken compiler:
-> >
-> > defiant:/tmp/khc$ cat test.c
-> > volatile int spinner = 0;
-> >
-> > void funct(void)
-> > {
-> >     while(spinner)
-> >         ;
-> > }
-> > defiant:/tmp/khc$ gcc -Wall -O2 -c test.c
-> > defiant:/tmp/khc$ objdump -d test.o
-> >
-> > 00000000 <funct>:
-> >   0:   55                      push   %ebp
-> >   1:   89 e5                   mov    %esp,%ebp
-> >   3:   a1 00 00 00 00          mov    0x0,%eax
-> >   8:   85 c0                   test   %eax,%eax
-> >   a:   75 f7                   jne    3 <funct+0x3>
-> >   c:   5d                      pop    %ebp
-> >   d:   c3                      ret
-> 
-> This is the only code that works. Guess why it worked? Because
-> you declared the variable volatile.
-
-The inline assembly works as well, it is made volatile and gcc will not
-mess with it.
-
-> Now Linus declares that instead of declaring an object volatile
-> so that it is actually accessed every time it is referenced, he wants
-> to use a GNU-ism with assembly that tells the compiler to re-read
-> __every__ variable existing im memory, instead of just one. Go figure!
-
-That wasn't Linus. Arjan suggested using barrier() in the right places.
-What Linus did was just pointing out that volatile is the wrong thing to
-use and that some inline assembly code had "=m" outputs instead of "+m".
-
-The memory clobber was already there for the locking primitives and
-AFAICT it is required.
-
-lock(foo_lock);
-foo = 5;
-unlock(foo_lock);
-
-// do something else
-
-lock(foo_lock);
-while (foo = 5);
-unlock(foo_lock);
-
-foo might have changed while the cpu was doing something else, but
-without the memory clobber, the compiler might assume that foo is
-unchanged. Making foo_lock volatile won't help here and making
-everything that requires a lock volatile will get you nothing but crappy
-code  (but hey, you can avoid the memory clobber!).
-
-> Reference:
-> /usr/src/linux-2.6.16.4/include/linux/compiler-gcc.h:
-> #define barrier() __asm__ __volatile__("": : :"memory")
-
-Björn
+reuben

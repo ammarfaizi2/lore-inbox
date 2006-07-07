@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWGGJfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWGGJjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWGGJfu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 05:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWGGJfu
+	id S932091AbWGGJjE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 05:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWGGJjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 05:35:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9091 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932089AbWGGJft (ORCPT
+	Fri, 7 Jul 2006 05:39:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2180 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932091AbWGGJjB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 05:35:49 -0400
-Date: Fri, 7 Jul 2006 02:35:18 -0700
+	Fri, 7 Jul 2006 05:39:01 -0400
+Date: Fri, 7 Jul 2006 02:38:24 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: linux-kernel@vger.kernel.org, neilb@suse.de
-Subject: Re: 2.6.17-mm6
-Message-Id: <20060707023518.f621bcf2.akpm@osdl.org>
-In-Reply-To: <44AE268F.7080409@reub.net>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	<44AE268F.7080409@reub.net>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: pauldrynoff@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.17-mm6: strange kobject message
+Message-Id: <20060707023824.ded18f30.akpm@osdl.org>
+In-Reply-To: <1152264552.3111.35.camel@laptopd505.fenrus.org>
+References: <20060707125942.fe3d467b.pauldrynoff@gmail.com>
+	<20060707022420.6f58b58c.akpm@osdl.org>
+	<1152264552.3111.35.camel@laptopd505.fenrus.org>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,72 +26,79 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 Jul 2006 21:17:03 +1200
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
+On Fri, 07 Jul 2006 11:29:12 +0200
+Arjan van de Ven <arjan@infradead.org> wrote:
 
+> On Fri, 2006-07-07 at 02:24 -0700, Andrew Morton wrote:
 > 
+> > hm. 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/broken-out/lockdep-annotate-8390c-disable_irq.patch
+> > didn't work.
 > 
-> On 3/07/2006 10:03 p.m., Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm6/
-> > 
-> > 
-> > - A major update to the e1000 driver.
-> > 
-> > - 1394 updates
-> 
-> This release has been working quite well after some initial hiccups (see -mm 
-> hotfix), but a couple of hours ago another bad thing (tm) happened.
-> 
-> At the time I was moving 100G of data from one partition on a non-raid partition 
-> to a new RAID-1 md that I had created earlier.  Both are ext3 partitions.
-> 
-> The word "barrier" of course comes to mind again, I'm not sure NeilB is the 
-> culprit this time either but I've cc'd him in just in case.
-> 
-> The file copy went on happily for quite a while (maybe 10 mins or so) under very 
-> high IO load before blowing up as below.  The terminal was spewing out constant 
-> traces but hopefully the right ones are here as these are the first few (if not, 
-> I have copied a bit more).
-> 
+> -mm6 only had part 1; you also have part 2 now which should fix this one
 
-Yes, the very first oops is by far the most important to capture.
+OK, here it is:
 
-You can add pause_on_oops=100000 to the kernel boot command line to make
-the machine freeze after outputting the first oops.  That'll certainly
-prevent the oops messages from getting to the log files, but it will also
-prevent it from scolling away or swamping your log device.
+From: Arjan van de Ven <arjan@linux.intel.com>
 
+The ne2000 drivers use disable_irq as a poor mans locking construct; make
+sure lockdep knows about these.
 
-> sh-3.1# mv /store-old/* /store/
-> Unable to handle kernel paging request at ffff81043e345490 RIP:
->   [<ffffffff802620f2>] memcpy+0x12/0xb0
-> PGD 8063 PUD 0
-> Oops: 0000 [1] SMP
-> last sysfs file: /kernel/uevent_seqnum
-> CPU 1
-> Modules linked in: binfmt_misc ide_cd iTCO_wdt i2c_i801 cdrom serio_raw ide_disk
-> Pid: 165, comm: pdflush Not tainted 2.6.17-mm6 #2
-> RIP: 0010:[<ffffffff802620f2>]  [<ffffffff802620f2>] memcpy+0x12/0xb0
-> RSP: 0018:ffff81003ed31828  EFLAGS: 00010002
-> RAX: ffff810001faec18 RBX: 0000000000000010 RCX: 0000000000000001
-> RDX: 0000000000000080 RSI: ffff81043e345490 RDI: ffff810001faec18
-> RBP: ffff81003ed31898 R08: ffff81003f66a800 R09: 0000000000000000
-> R10: ffff810029b364b0 R11: 0000000000000000 R12: ffff810001faec00
-> R13: ffff81003f6ff140 R14: ffff81003f6ea240 R15: 0000000000000010
-> FS:  0000000000000000(0000) GS:ffff810037ffe440(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: ffff81043e345490 CR3: 000000003dc32000 CR4: 00000000000006e0
-> Process pdflush (pid: 165, threadinfo ffff81003ed30000, task ffff810037f2b840)
-> Stack:  0000000000000010 ffffffff8025e9f0 ffff81003f66a800 0001120000000000
->   0000000000011200 000112003f650080 ffff81003eca39f0 ffff81003ed318c8
->   ffff81003ed31898 0000000000000246 ffff81003f6ff140 0000000000011200
-> Call Trace:
->   [<ffffffff8025e9f0>] cache_alloc_refill+0xc9/0x538
->   [<ffffffff802b96c6>] __kmalloc+0x86/0x96
->   [<ffffffff802ae460>] __kzalloc+0xf/0x2f
->   [<ffffffff8041d598>] r1bio_pool_alloc+0x21/0x3a
->   [<ffffffff802230e4>] mempool_alloc+0x44/0xfb
+NOTE NOTE: the ne2000 driver calls these *from interrupt context*.  That's
+a new situation that needs to be analyzed for correctness still; it feels
+really wrong to me (but then again so does disable_irq() tricks in general)
 
-The core slab data structures were wrecked.  For kmalloc(), no less. 
-Something secretly destroyed your kernel, and it could be anything.  Nice.
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jeff Garzik <jeff@garzik.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ drivers/net/8390.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+diff -puN drivers/net/8390.c~lockdep-annotate-8390c-disable_irq-2 drivers/net/8390.c
+--- a/drivers/net/8390.c~lockdep-annotate-8390c-disable_irq-2
++++ a/drivers/net/8390.c
+@@ -299,7 +299,7 @@ static int ei_start_xmit(struct sk_buff 
+ 	 *	Slow phase with lock held.
+ 	 */
+ 	 
+-	disable_irq_nosync(dev->irq);
++	disable_irq_nosync_lockdep(dev->irq);
+ 	
+ 	spin_lock(&ei_local->page_lock);
+ 	
+@@ -338,7 +338,7 @@ static int ei_start_xmit(struct sk_buff 
+ 		netif_stop_queue(dev);
+ 		outb_p(ENISR_ALL, e8390_base + EN0_IMR);
+ 		spin_unlock(&ei_local->page_lock);
+-		enable_irq(dev->irq);
++		enable_irq_lockdep(dev->irq);
+ 		ei_local->stat.tx_errors++;
+ 		return 1;
+ 	}
+@@ -379,7 +379,7 @@ static int ei_start_xmit(struct sk_buff 
+ 	outb_p(ENISR_ALL, e8390_base + EN0_IMR);
+ 	
+ 	spin_unlock(&ei_local->page_lock);
+-	enable_irq(dev->irq);
++	enable_irq_lockdep(dev->irq);
+ 
+ 	dev_kfree_skb (skb);
+ 	ei_local->stat.tx_bytes += send_length;
+@@ -505,9 +505,9 @@ irqreturn_t ei_interrupt(int irq, void *
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+ void ei_poll(struct net_device *dev)
+ {
+-	disable_irq(dev->irq);
++	disable_irq_lockdep(dev->irq);
+ 	ei_interrupt(dev->irq, dev, NULL);
+-	enable_irq(dev->irq);
++	enable_irq_lockdep(dev->irq);
+ }
+ #endif
+ 
+_
 

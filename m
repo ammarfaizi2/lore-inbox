@@ -1,202 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWGGRQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWGGRTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWGGRQV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 13:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWGGRQV
+	id S932211AbWGGRTU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 13:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWGGRTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 13:16:21 -0400
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:22200 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932200AbWGGRQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 13:16:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=mdiLFaiZ/ubnPQa4cfQaVUAHa3Eqv0KFy6VZKhpFNQBiXzcUaZoDIEvf5aWHAVRDDvx4gakOOxb3LVUU9tQFJAmOZOy+Sczi/8WGeXdH1j6PnIYOQHX7HfEEXQQcjH4SXzy1sCnlqLYkYup2hYtrBk/RCdBwFHpWMrRGQ+NOYGw=  ;
-Message-ID: <44AE1D89.20608@yahoo.com.au>
-Date: Fri, 07 Jul 2006 18:38:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: hawkes@sgi.com
-CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Jack Steiner <steiner@sgi.com>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org, John Hawkes <jrhawkes@yahoo.com>
-Subject: Re: [PATCH] build sched domains tracking cpusets
-References: <20060706234356.23106.60834.sendpatchset@tomahawk.engr.sgi.com>
-In-Reply-To: <20060706234356.23106.60834.sendpatchset@tomahawk.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jul 2006 13:19:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31894 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932193AbWGGRTS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 13:19:18 -0400
+Date: Fri, 7 Jul 2006 13:19:16 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: netdev@vger.kernel.org
+Subject: e100 lockdep irq lock inversion.
+Message-ID: <20060707171916.GA16343@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi John,
+Another one triggered by a Fedora-development user..
 
-cool patch. I have a few comments.
+e100: eth1: e100_watchdog: link up, 100Mbps, half-duplex
 
-hawkes@sgi.com wrote:
+=========================================================
+[ INFO: possible irq lock inversion dependency detected ]
+---------------------------------------------------------
+ipcalc/1671 just changed the state of lock:
+ (&skb_queue_lock_key){-+..}, at: [<c05ebe2f>] udp_ioctl+0x3b/0x6e
+but this lock was taken by another, hard-irq-safe lock in the past:
+ (&ai->aux_lock){+...}
 
-> This patch introduces the notion of dynamic sched domains (and sched
-> groups) that track the creation and deletion of cpusets.  Up to eight of
-> these dynamic sched domains can exist per CPU, which seems to handle the
-> observed use of cpusets by one popular job manager.  Essentially, every
-> new cpuset causes the creation of a new sched domain for the CPUs of
-> that cpuset, and a deletion of the cpuset causes the destruction of that
-> dynamic sched domain.  New sched domains are inserted into each CPU's
-> list as appropriate.  The limit of 8/CPU (vs. unlimited) not only caps
-> the upperbound of kmalloc memory being assigned to sched domain and
-> sched group structs (thereby avoiding a potential denial-of-service
-> attack by a runaway user creating cpusets), but it also caps the number
-> of sched domains being searched by various algorithms in the scheduler.
+and interrupts could create inverse lock ordering between them.
 
 
+other info that might help us debug this:
+no locks held by ipcalc/1671.
 
-> 
-> A "feature" of this implementation is that these dynamic sched domains
-> build up until that limit of 8/CPU is reached, at which point no
-> additional sched domains are created; or until a cpu-exclusive cpuset
-> gets declared, at which point all the dynamically created sched domains
-> in the affected CPUs get destroyed.  A more sophisticated algorithm in
-> kernel/cpuset.c could redeclare the dynamic sched domains after a
-> cpu-exclusive cpuset gets declared, but that is outside the scope of
-> this simple patch's simple change to kernel/cpuset.c.
-> 
-> Signed-off-by: John Hawkes <hawkes@sgi.com>
-> 
-> Index: linux/include/linux/sched.h
-> ===================================================================
-> --- linux.orig/include/linux/sched.h	2006-06-17 18:49:35.000000000 -0700
-> +++ linux/include/linux/sched.h	2006-06-20 13:50:19.092284572 -0700
-> @@ -558,6 +558,7 @@ enum idle_type
->  #define SD_WAKE_AFFINE		32	/* Wake task to waking CPU */
->  #define SD_WAKE_BALANCE		64	/* Perform balancing at task wakeup */
->  #define SD_SHARE_CPUPOWER	128	/* Domain members share cpu power */
-> +#define SD_TRACKS_CPUSET	4096	/* Spam matches non-exclusive cpuset */
+the first lock's dependencies:
+-> (&skb_queue_lock_key){-+..} ops: 0 {
+   initial-use  at:
+                        [<c043c546>] lock_acquire+0x4b/0x6d
+                        [<c060e5c7>] _spin_lock_irqsave+0x22/0x32
+                        [<c05b0d2d>] skb_queue_tail+0x14/0x32
+                        [<c05c8a53>] netlink_broadcast+0x1bf/0x28e
+                        [<c04e414b>] kobject_uevent+0x345/0x3b6
+                        [<c055080d>] class_device_add+0x2a7/0x3e6
+                        [<c0594d0c>] input_register_device+0x106/0x238
+                        [<c059947a>] psmouse_connect+0x162/0x20f
+                        [<c0590a09>] serio_connect_driver+0x1e/0x2e
+                        [<c0590a2f>] serio_driver_probe+0x16/0x18
+                        [<c054f9a6>] driver_probe_device+0x45/0x92
+                        [<c054fad3>] __driver_attach+0x68/0x93
+                        [<c054f420>] bus_for_each_dev+0x3a/0x5f
+                        [<c054f901>] driver_attach+0x14/0x17
+                        [<c054f0f7>] bus_add_driver+0x68/0x106
+                        [<c054fda1>] driver_register+0x9d/0xa2
+                        [<c0591522>] serio_thread+0x152/0x27c
+                        [<c04365dc>] kthread+0xc3/0xef
+                        [<c0402005>] kernel_thread_helper+0x5/0xb
+   in-softirq-W at:
+                        [<c043c546>] lock_acquire+0x4b/0x6d
+                        [<c060e5c7>] _spin_lock_irqsave+0x22/0x32
+                        [<c05b0d2d>] skb_queue_tail+0x14/0x32
+                        [<c05b05c4>] sock_queue_rcv_skb+0xe3/0x11f
+                        [<c060adae>] packet_rcv_spkt+0x120/0x136
+                        [<c05b5b86>] netif_receive_skb+0x1d4/0x26b
+                        [<e09fa8e8>] e100_poll+0x15a/0x2fc [e100]
+                        [<c05b7682>] net_rx_action+0xa6/0x1df
+                        [<c0429809>] __do_softirq+0x78/0xf2
+                        [<c04065ab>] do_softirq+0x5a/0xbe
+   hardirq-on-W at:
+                        [<c043c546>] lock_acquire+0x4b/0x6d
+                        [<c060e2c8>] _spin_lock_bh+0x1e/0x2d
+                        [<c05ebe2f>] udp_ioctl+0x3b/0x6e
+                        [<c05f08e7>] inet_ioctl+0x8c/0x91
+                        [<c05acabc>] sock_ioctl+0x1b5/0x1d3
+                        [<c0481e56>] do_ioctl+0x22/0x67
+                        [<c04820f3>] vfs_ioctl+0x258/0x26b
+                        [<c048214d>] sys_ioctl+0x47/0x62
+                        [<c0403f2f>] syscall_call+0x7/0xb
+ }
+ ... key      at: [<c09b0748>] skb_queue_lock_key+0x0/0x18
 
-I'd just use the next bit, and we should convert these to hex as
-well I guess... I don't know what I was thinking ;)
+the second lock's dependencies:
+-> (&ai->aux_lock){+...} ops: 0 {
+   initial-use  at:
+                        [<c043c546>] lock_acquire+0x4b/0x6d
+                        [<c060e5c7>] _spin_lock_irqsave+0x22/0x32
+                        [<e09b6cd8>] mpi_start_xmit+0x79/0xdd [airo]
+                        [<c05b5fc5>] dev_hard_start_xmit+0x19f/0x1fc
+                        [<c05c48d8>] __qdisc_run+0xdd/0x197
+                        [<c05b7a40>] dev_queue_xmit+0x12a/0x222
+                        [<c060a98a>] packet_sendmsg_spkt+0x172/0x199
+                        [<c05ac5df>] sock_sendmsg+0xe8/0x103
+                        [<c05ad7a7>] sys_sendto+0xbe/0xdc
+                        [<c05adf27>] sys_socketcall+0xfb/0x186
+                        [<c0403f2f>] syscall_call+0x7/0xb
+   in-hardirq-W at:
+                        [<c043c546>] lock_acquire+0x4b/0x6d
+                        [<c060e5c7>] _spin_lock_irqsave+0x22/0x32
+                        [<e09b7b6d>] airo_interrupt+0xe31/0xffb [airo]
+                        [<c0451020>] handle_IRQ_event+0x20/0x4d
+                        [<c04510e1>] __do_IRQ+0x94/0xef
+                        [<c04066c8>] do_IRQ+0xb9/0xcd
+                        [<c04049d1>] common_interrupt+0x25/0x2c
+                        [<c04030aa>] cpu_idle+0xa7/0xc1
+                        [<c0400591>] rest_init+0x23/0x26
+                        [<c07a7810>] start_kernel+0x3a1/0x3a9
+                        [<c0400210>] 0xc0400210
+ }
+ ... key      at: [<e09c2a80>] __key.24227+0x0/0xffff6704 [airo]
+  -> (&skb_queue_lock_key){-+..} ops: 0 {
+     initial-use  at:
+                      [<c043c546>] lock_acquire+0x4b/0x6d
+                      [<c060e5c7>] _spin_lock_irqsave+0x22/0x32
+                      [<c05b0d2d>] skb_queue_tail+0x14/0x32
+                      [<c05c8a53>] netlink_broadcast+0x1bf/0x28e
+                      [<c04e414b>] kobject_uevent+0x345/0x3b6
+                      [<c055080d>] class_device_add+0x2a7/0x3e6
+                      [<c0594d0c>] input_register_device+0x106/0x238
+                      [<c059947a>] psmouse_connect+0x162/0x20f
+                      [<c0590a09>] serio_connect_driver+0x1e/0x2e
+                      [<c0590a2f>] serio_driver_probe+0x16/0x18
+                      [<c054f9a6>] driver_probe_device+0x45/0x92
+                      [<c054fad3>] __driver_attach+0x68/0x93
+                      [<c054f420>] bus_for_each_dev+0x3a/0x5f
+                      [<c054f901>] driver_attach+0x14/0x17
+                      [<c054f0f7>] bus_add_driver+0x68/0x106
+                      [<c054fda1>] driver_register+0x9d/0xa2
+                      [<c0591522>] serio_thread+0x152/0x27c
+                      [<c04365dc>] kthread+0xc3/0xef
+                      [<c0402005>] kernel_thread_helper+0x5/0xb
+     in-softirq-W at:
+                      [<c043c546>] lock_acquire+0x4b/0x6d
+                      [<c060e5c7>] _spin_lock_irqsave+0x22/0x32
+                      [<c05b0d2d>] skb_queue_tail+0x14/0x32
+                      [<c05b05c4>] sock_queue_rcv_skb+0xe3/0x11f
+                      [<c060adae>] packet_rcv_spkt+0x120/0x136
+                      [<c05b5b86>] netif_receive_skb+0x1d4/0x26b
+                      [<e09fa8e8>] e100_poll+0x15a/0x2fc [e100]
+                      [<c05b7682>] net_rx_action+0xa6/0x1df
+                      [<c0429809>] __do_softirq+0x78/0xf2
+                      [<c04065ab>] do_softirq+0x5a/0xbe
+     hardirq-on-W at:
+                      [<c043c546>] lock_acquire+0x4b/0x6d
+                      [<c060e2c8>] _spin_lock_bh+0x1e/0x2d
+                      [<c05ebe2f>] udp_ioctl+0x3b/0x6e
+                      [<c05f08e7>] inet_ioctl+0x8c/0x91
+                      [<c05acabc>] sock_ioctl+0x1b5/0x1d3
+                      [<c0481e56>] do_ioctl+0x22/0x67
+                      [<c04820f3>] vfs_ioctl+0x258/0x26b
+                      [<c048214d>] sys_ioctl+0x47/0x62
+                      [<c0403f2f>] syscall_call+0x7/0xb
+   }
+   ... key      at: [<c09b0748>] skb_queue_lock_key+0x0/0x18
+ ... acquired at:
+   [<c043c546>] lock_acquire+0x4b/0x6d
+   [<c060e5c7>] _spin_lock_irqsave+0x22/0x32
+   [<c05b0d2d>] skb_queue_tail+0x14/0x32
+   [<e09b6ce8>] mpi_start_xmit+0x89/0xdd [airo]
+   [<c05b5fc5>] dev_hard_start_xmit+0x19f/0x1fc
+   [<c05c48d8>] __qdisc_run+0xdd/0x197
+   [<c05b7a40>] dev_queue_xmit+0x12a/0x222
+   [<c060a98a>] packet_sendmsg_spkt+0x172/0x199
+   [<c05ac5df>] sock_sendmsg+0xe8/0x103
+   [<c05ad7a7>] sys_sendto+0xbe/0xdc
+   [<c05adf27>] sys_socketcall+0xfb/0x186
+   [<c0403f2f>] syscall_call+0x7/0xb
 
->  
->  struct sched_group {
->  	struct sched_group *next;	/* Must be a circular list */
-> @@ -630,6 +631,9 @@ struct sched_domain {
->  extern void partition_sched_domains(cpumask_t *partition1,
->  				    cpumask_t *partition2);
->  
-> +extern void add_sched_domain(const cpumask_t *cpu_map);
-> +extern void destroy_sched_domain(const cpumask_t *cpu_map);
 
-Not a big deal, but I'd probably be happier with a single hook from
-the cpusets code, which does the right thing depending on whether it
-is exclusive or not.
-
-Hard to know which way around the layering should go, but I think that
-it is simply a hint to the balancer code to do something nice, and as
-such we should leave it completely to the scheduler.
-
-> +#ifdef CONFIG_CPUSETS
-
-CPUSETS only? Or do we want to try to help sched_setaffinity users as
-well?
-
-> +
-> +struct sched_domain_bundle {
-> +	struct sched_domain sd_cpuset;
-> +	struct sched_group **sg_cpuset_nodes;
-> +	int use_count;
-> +};
-
-Can you get away without using the bundle? Or does it make things easier?
-You could add a new use_count to struct sched_domain if you'd like.... does
-it make the setup/teardown too difficult?
-
-> +#define SCHED_DOMAIN_CPUSET_MAX	8	/* power of 2 */
-> +static DEFINE_PER_CPU(long, sd_cpusets_used) = { 1UL <<SCHED_DOMAIN_CPUSET_MAX};
-> +static DEFINE_PER_CPU(struct sched_domain_bundle[SCHED_DOMAIN_CPUSET_MAX],
-> +		      sd_cpusets_bundle);
-
-Do we need a limit of 8? If you're worried about memory, I guess there are
-lots of ways to DOS the system... if you're worried about scheduler balancing
-overhead, we could do a seperate traversal of these guys at a reduced
-interval (I guess that still leaves some places needing help, though)
-
-> +static int find_existing_sched_domain(int cpu, const cpumask_t *cpu_map)
-
-Probably some way to distinguish these guys as operating on your "bundle" stack
-would make it a bit clearer?
-
-> +{
-> +	int sd_idx;
-> +
-> +	for (sd_idx = 0; sd_idx < SCHED_DOMAIN_CPUSET_MAX; sd_idx++) {
-> +		struct sched_domain_bundle *sd_cpuset_bundle;
-> +		struct sched_domain *sd;
-> +
-> +		if (!test_bit(sd_idx, &per_cpu(sd_cpusets_used, cpu)))
-> +			continue;
-> +		sd_cpuset_bundle = &per_cpu(sd_cpusets_bundle[sd_idx], cpu);
-> +		sd = &sd_cpuset_bundle->sd_cpuset;
-> +		if (cpus_equal(*cpu_map, sd->span))
-> +			return sd_idx;
-> +	}
-> +
-> +	return SCHED_DOMAIN_CPUSET_MAX;
-> +}
-> +
-> +void add_sched_domain(const cpumask_t *cpu_map)
-> +{
-
-[...]
-
-> +		/* tweak sched_domain params based upon domain size */
-> +		*sd = SD_NODE_INIT;
-> +		sd->flags |= SD_TRACKS_CPUSET;
-> +		sd->max_interval = 8*(min(new_sd_span, 32));
-> +		sd->span = *cpu_map;
-> +		cpu_set(cpu, new_sd_cpu_map);
-
-Can we just have a new SD_xxx_INIT for these?
-
-
-> Index: linux/kernel/cpuset.c
-> ===================================================================
-> --- linux.orig/kernel/cpuset.c	2006-07-05 15:51:38.873939805 -0700
-> +++ linux/kernel/cpuset.c	2006-07-05 16:01:14.892039725 -0700
-> @@ -828,8 +828,12 @@ static int update_cpumask(struct cpuset 
->  	mutex_lock(&callback_mutex);
->  	cs->cpus_allowed = trialcs.cpus_allowed;
->  	mutex_unlock(&callback_mutex);
-> -	if (is_cpu_exclusive(cs) && !cpus_unchanged)
-> -		update_cpu_domains(cs);
-> +	if (!cpus_unchanged) {
-> +		if (is_cpu_exclusive(cs))
-> +			update_cpu_domains(cs);
-> +		else
-> +			add_sched_domain(&cs->cpus_allowed);
-> +	}
->  	return 0;
->  }
->  
-> @@ -1934,6 +1938,8 @@ static int cpuset_rmdir(struct inode *un
->  	set_bit(CS_REMOVED, &cs->flags);
->  	if (is_cpu_exclusive(cs))
->  		update_cpu_domains(cs);
-> +	else
-> +		destroy_sched_domain(&cs->cpus_allowed);
->  	list_del(&cs->sibling);	/* delete my sibling from parent->children */
->  	spin_lock(&cs->dentry->d_lock);
->  	d = dget(cs->dentry);
-> 
-
-So you're just doing the inside. What about the complement? That
-way you'd get a nice symmetric allocation on all cpus for each
-cpuset... but that probably would require making the limit greater
-than 8.
-
-And it would be probably required for good sched_setaffinity
-balancing too.
+stack backtrace:
+ [<c0405167>] show_trace_log_lvl+0x54/0xfd
+ [<c040571e>] show_trace+0xd/0x10
+ [<c040583d>] dump_stack+0x19/0x1b
+ [<c043aa70>] print_irq_inversion_bug+0xe1/0xee
+ [<c043ab6e>] check_usage_backwards+0x32/0x3b
+ [<c043ae49>] mark_lock+0x217/0x36a
+ [<c043ba86>] __lock_acquire+0x43e/0x98d
+ [<c043c546>] lock_acquire+0x4b/0x6d
+ [<c060e2c8>] _spin_lock_bh+0x1e/0x2d
+ [<c05ebe2f>] udp_ioctl+0x3b/0x6e
+ [<c05f08e7>] inet_ioctl+0x8c/0x91
+ [<c05acabc>] sock_ioctl+0x1b5/0x1d3
+ [<c0481e56>] do_ioctl+0x22/0x67
+ [<c04820f3>] vfs_ioctl+0x258/0x26b
+ [<c048214d>] sys_ioctl+0x47/0x62
+ [<c0403f2f>] syscall_call+0x7/0xb
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+http://www.codemonkey.org.uk

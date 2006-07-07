@@ -1,113 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWGGWFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWGGWFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWGGWFP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 18:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWGGWFP
+	id S932341AbWGGWFn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 18:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWGGWFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 18:05:15 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:56217 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932337AbWGGWFO (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 18:05:14 -0400
-Message-Id: <200607072205.k67M5B9W003595@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm6 libata stupid question...
-In-Reply-To: Your message of "Fri, 07 Jul 2006 22:51:36 BST."
-             <1152309096.23012.0.camel@localhost.localdomain>
-From: Valdis.Kletnieks@vt.edu
-References: <200607070428.k674S8Rf005209@turing-police.cc.vt.edu> <1152288721.20883.12.camel@localhost.localdomain> <200607072122.k67LMjfL004124@turing-police.cc.vt.edu>
-            <1152309096.23012.0.camel@localhost.localdomain>
+	Fri, 7 Jul 2006 18:05:43 -0400
+Received: from smtp.ono.com ([62.42.230.12]:34119 "EHLO resmta03.ono.com")
+	by vger.kernel.org with ESMTP id S932341AbWGGWFm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 18:05:42 -0400
+Date: Sat, 8 Jul 2006 00:05:31 +0200
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>,
+       "Linus Torvalds" <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Message-ID: <20060708000531.410cd672@werewolf.auna.net>
+In-Reply-To: <Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com>
+References: <20060705114630.GA3134@elte.hu>
+	<20060705101059.66a762bf.akpm@osdl.org>
+	<20060705193551.GA13070@elte.hu>
+	<20060705131824.52fa20ec.akpm@osdl.org>
+	<Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
+	<20060705204727.GA16615@elte.hu>
+	<Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
+	<20060705214502.GA27597@elte.hu>
+	<Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
+	<Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
+	<20060706081639.GA24179@elte.hu>
+	<Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
+	<Pine.LNX.4.64.0607060856080.12404@g5.osdl.org>
+	<Pine.LNX.4.64.0607060911530.12404@g5.osdl.org>
+	<Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com>
+	<m34pxt8emn.fsf@defiant.localdomain>
+	<Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
+	<Pine.LNX.4.64.0607071318570.3869@g5.osdl.org>
+	<Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com>
+X-Mailer: Sylpheed-Claws 2.3.1cvs64 (GTK+ 2.10.0; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152309911_2990P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Jul 2006 18:05:11 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152309911_2990P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 7 Jul 2006 17:22:31 -0400, "linux-os \(Dick Johnson\)" <linux-os@analogic.com> wrote:
 
-On Fri, 07 Jul 2006 22:51:36 BST, Alan Cox said:
-> Ar Gwe, 2006-07-07 am 17:22 -0400, ysgrifennodd Valdis.Kletnieks@vt.edu:
-> >         ap->cbl = ATA_CBL_PATA40;
-> > 
-> > Guess that explains that, unless the chipset actually *can* do 80-pin
-> > and has an 80-pin cable (which would be surprising because apparently
-> > none of the other piix variants can...)
 > 
-> Thats a bug.  ich_pata_100: 3  should have port_ops of ich_port_ops. Try
-> with that fixed.
+> On Fri, 7 Jul 2006, Linus Torvalds wrote:
+> 
+> >
+> >
+> > On Fri, 7 Jul 2006, linux-os (Dick Johnson) wrote:
+> >>
+> >> Now Linus declares that instead of declaring an object volatile
+> >> so that it is actually accessed every time it is referenced, he wants
+> >> to use a GNU-ism with assembly that tells the compiler to re-read
+> >> __every__ variable existing im memory, instead of just one. Go figure!
+> >
+> > Actually, it's not just me.
+> >
+> > Read things like the Intel CPU documentation.
+> >
+> > IT IS ACTIVELY WRONG to busy-loop on a variable. It will make the CPU
+> > potentially over-heat, causing degreaded performance, and you're simply
+> > not supposed to do it.
+> 
+> This is a bait and switch argument. The code was displayed to show
+> the compiler output, not an example of good coding practice.
+> 
 
-OK, now it thinks there is indeed an 80-pin there:
+volatile means what it means, is usefull and is right. If it is used
+in kernel for other things apart from what it was designed for it is
+kernel or programmer responsibility. It does not mention nothing about
+locking.
 
-[    8.447302] ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xBFA0 irq 14
-[    8.447959] scsi0 : ata_piix
-[    8.448598] in ich_pata_cbl_detect
-[    8.448912] controller has 80c support
-[    8.449256] ... and we found an 80-pin cable
-[    8.756113] ata1.00: configured for UDMA/33
-[    8.908139] ata1.01: configured for UDMA/33
-[    8.908657]   Vendor: ATA       Model: FUJITSU MHV2060A  Rev: 0000
-[    8.909770]   Type:   Direct-Access                      ANSI SCSI revision: 05
-[    8.913676]   Vendor: TOSHIBA   Model: CDRW/DVD SDR2102  Rev: 1D13
-[    8.914795]   Type:   CD-ROM                             ANSI SCSI revision: 05
+A more real example:
 
-so we're slowly getting there...
+#include <stdint.h>
 
-(If I get ambitious, I'll go back and see what the IDE speed detection issue
-was...)
+//volatile
+uint32_t spinvar = 1;
+uint32_t mtx;
 
---- linux-2.6.17-mm6/drivers/scsi/ata_piix.c.cable	2006-07-07 12:30:38.000000000 -0400
-+++ linux-2.6.17-mm6/drivers/scsi/ata_piix.c	2006-07-07 17:43:32.000000000 -0400
-@@ -432,7 +432,7 @@ static struct ata_port_info piix_port_in
- 		.pio_mask	= 0x1f,	/* pio0-4 */
- 		.mwdma_mask	= 0x06, /* mwdma1-2 */
- 		.udma_mask	= 0x3f, /* udma0-5 */
--		.port_ops	= &piix_pata_ops,
-+		.port_ops	= &ich_pata_ops,
- 	},
- 
- 	/* ich_pata_133: 4 	ICH with full UDMA6 */
-@@ -536,20 +536,24 @@ static void ich_pata_cbl_detect(struct a
- 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
- 	u8 tmp, mask;
- 
-+printk(KERN_INFO "in ich_pata_cbl_detect\n");
- 	/* no 80c support in host controller? */
- 	if ((ap->udma_mask & ~ATA_UDMA_MASK_40C) == 0)
- 		goto cbl40;
- 
-+printk(KERN_INFO "controller has 80c support\n");
- 	/* check BIOS cable detect results */
- 	mask = ap->hard_port_no == 0 ? PIIX_80C_PRI : PIIX_80C_SEC;
- 	pci_read_config_byte(pdev, PIIX_IOCFG, &tmp);
- 	if ((tmp & mask) == 0)
- 		goto cbl40;
- 
-+printk(KERN_INFO "... and we found an 80-pin cable\n");
- 	ap->cbl = ATA_CBL_PATA80;
- 	return;
- 
- cbl40:
-+printk(KERN_INFO "... and we defaulted to 40-pin\n");
- 	ap->cbl = ATA_CBL_PATA40;
- }
- 
+void lock(uint32_t* l)
+{   
+    *l = 1;
+}
 
+void unlock(uint32_t* l)
+{
+    *l = 0;
+}
 
---==_Exmh_1152309911_2990P
-Content-Type: application/pgp-signature
+void spin()
+{
+    uint32_t local;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+    for (;;)
+    {
+        lock(&mtx);
+        local = spinvar;
+        unlock(&mtx);
+        if (!local)
+            break;
+    }
+}
 
-iD8DBQFErtqXcC3lWbTT17ARAh1BAJ9D1G8I0M6tE8Px8APfG6f9hFeZRQCeKlK8
-zToCRGdwm8RiiHLGZRdm/Go=
-=DXas
------END PGP SIGNATURE-----
+without the volatile:
 
---==_Exmh_1152309911_2990P--
+spin:
+    pushl   %ebp
+    movl    spinvar, %eax
+    movl    %esp, %ebp
+    testl   %eax, %eax
+    je  .L7
+.L10:
+    jmp .L10
+.L7:
+    movl    $0, mtx
+    popl    %ebp
+    ret
+
+so the compiler did something like
+
+   local = spinvar;
+   if (local)
+	for (;;);
+
+(notice the dead lock/unlock inlined code elimination).
+
+With the volatile, the code is correct:
+
+spin:
+    pushl   %ebp
+    movl    %esp, %ebp
+    .p2align 4,,7
+.L7:
+    movl    spinvar, %eax
+    testl   %eax, %eax
+    jne .L7
+    movl    $0, mtx
+    popl    %ebp
+    ret
+
+So think about all you inlined spinlocks, mutexes and so on.
+
+And if you do
+
+void lock(volatile uint32_t* l)
+...
+void unlock(volatile uint32_t* l)
+...
+
+the code is even better:
+
+spin:
+    pushl   %ebp
+    movl    %esp, %ebp
+    .p2align 4,,7
+.L7:
+    movl    $1, mtx    <=========
+    movl    spinvar, %eax
+    movl    $0, mtx    <=========
+    testl   %eax, %eax
+    jne .L7
+    popl    %ebp
+    ret
+
+So volatile just means 'dont trust this does not change even you don't see
+why'.
+
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2007.0 (Cooker) for i586
+Linux 2.6.17-jam01 (gcc 4.1.1 20060518 (prerelease)) #2 SMP PREEMPT Wed

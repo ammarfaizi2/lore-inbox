@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWGGQwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWGGQ67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWGGQwj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 12:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWGGQwj
+	id S932185AbWGGQ67 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 12:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWGGQ67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 12:52:39 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:14506 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932183AbWGGQwj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 12:52:39 -0400
-Subject: Re: 2.6.17-mm6
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: jamagallon@ono.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060707093432.571af16e.rdunlap@xenotime.net>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	 <20060705234347.47ef2600@werewolf.auna.net>
-	 <20060705155602.6e0b4dce.akpm@osdl.org>
-	 <20060706015706.37acb9af@werewolf.auna.net>
-	 <20060705170228.9e595851.akpm@osdl.org>
-	 <20060706163646.735f419f@werewolf.auna.net>
-	 <20060706164802.6085d203@werewolf.auna.net>
-	 <20060706234425.678cbc2f@werewolf.auna.net>
-	 <20060706145752.64ceddd0.akpm@osdl.org>
-	 <1152288168.20883.8.camel@localhost.localdomain>
-	 <20060707175509.14ea9187@werewolf.auna.net>
-	 <1152290643.20883.25.camel@localhost.localdomain>
-	 <20060707093432.571af16e.rdunlap@xenotime.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Jul 2006 18:09:56 +0100
-Message-Id: <1152292196.20883.48.camel@localhost.localdomain>
+	Fri, 7 Jul 2006 12:58:59 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:24014 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932185AbWGGQ66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 12:58:58 -0400
+Date: Fri, 7 Jul 2006 12:58:51 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: "Brock, Anthony - NET" <Anthony.Brock@oregonstate.edu>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH 19/19] UML - Make mconsole version requestshappen in a process
+Message-ID: <20060707165851.GA5391@ccure.user-mode-linux.org>
+References: <200607070033.k670Xt1w008752@ccure.user-mode-linux.org> <7B4268E5ACB878429B58D4BE5B780E83010B6B42@NWS-EXCH2.nws.oregonstate.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7B4268E5ACB878429B58D4BE5B780E83010B6B42@NWS-EXCH2.nws.oregonstate.edu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-07-07 am 09:34 -0700, ysgrifennodd Randy.Dunlap:
-> For built-in drivers, the link order matters.
-> The the libata PATA drivers are sort of "randomly" mixed in
-> with the SATA drivers.
+On Fri, Jul 07, 2006 at 08:31:50AM -0700, Brock, Anthony - NET wrote:
+> I'm running UML on an SMP machine, but have never encountered the "hang"
+> issue. Is this text still accurate? 
 
-Mine are in alphabetical order but some of the early merges shuffled
-stuff a bit.
+No, it's ancient history.  No one ever figured out what the problem was,
+but it hasn't been seen in ages.
 
-The only case the link order matters here is with the generic and legacy
-drivers. No chip specific libata PATA/SATA driver has overlapping PCI
-identifiers between two drivers except for Jmicron, and that
-distinguishes precisely by the function number.
+> Also, can this command still be used
+>  to "wake up" a UML process? Is this still the recommended means for
+> verifying that a UML process if running?
 
-Also its dangerous to assume "pata_*" is a PATA driver, it may be SATA
-with a bridge chip, and in some cases like the ATI this is quite common.
+No, and no.
 
+				Jeff

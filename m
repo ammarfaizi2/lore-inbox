@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbWGGHrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWGGHtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750926AbWGGHrT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 03:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbWGGHrT
+	id S1750948AbWGGHtu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 03:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWGGHtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 03:47:19 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:2980 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1750923AbWGGHrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 03:47:19 -0400
-Date: Fri, 7 Jul 2006 09:45:25 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Lameter <christoph@lameter.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Gerald Schaefer <geraldsc@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [patch] vmstat: export all_vm_events()
-Message-ID: <20060707074525.GA9480@osiris.boeblingen.de.ibm.com>
+	Fri, 7 Jul 2006 03:49:50 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:47369 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750939AbWGGHtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 03:49:49 -0400
+Date: Fri, 7 Jul 2006 09:49:49 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Valdis.Kletnieks@vt.edu, kai@germaschewski.name,
+       linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>,
+       linux-arch@vger.kernel.org
+Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
+Message-ID: <20060707074949.GB26941@stusta.de>
+References: <20060706163728.GN26941@stusta.de> <20060707033630.GA15967@mars.ravnborg.org> <200607070502.k6752IqY007285@turing-police.cc.vt.edu> <20060707064218.GA29981@mars.ravnborg.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <20060707064218.GA29981@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Fri, Jul 07, 2006 at 08:42:18AM +0200, Sam Ravnborg wrote:
+>...
+> make -C /home/sam/kernel/kbuild.git O=/home/sam/kernel/osparc
+>   Using /home/sam/kernel/kbuild.git as source for kernel
+>   GEN     /home/sam/kernel/osparc/Makefile
+>   CHK     include/linux/version.h
+>   CHK     include/linux/utsrelease.h
+>   CHK     include/linux/compile.h
+>   CC      arch/sparc/mm/init.o
+> In file included from include2/asm/tlb.h:22,
+>                  from /home/sam/kernel/kbuild.git/arch/sparc/mm/init.c:32:
+> /home/sam/kernel/kbuild.git/include/asm-generic/tlb.h: In function `tlb_flush_mmu':
+> /home/sam/kernel/kbuild.git/include/asm-generic/tlb.h:76: error: implicit declaration of function `release_pages'
+> /home/sam/kernel/kbuild.git/include/asm-generic/tlb.h: In function `tlb_remove_page':
+> /home/sam/kernel/kbuild.git/include/asm-generic/tlb.h:105: error: implicit declaration of function `page_cache_release'
+> make[3]: *** [arch/sparc/mm/init.o] Error 1
+> make[2]: *** [arch/sparc/mm] Error 2
+> make[1]: *** [_all] Error 2
+> make: *** [all] Error 2
+>...
 
-Add missing EXPORT_SYMBOL for all_vm_events(). Git commit
-f8891e5e1f93a128c3900f82035e8541357896a7 caused this:
+OK, I tried starting with this one.
 
-  Building modules, stage 2.
-  MODPOST
-WARNING: "all_vm_events" [arch/s390/appldata/appldata_mem.ko] undefined!
-  CC      arch/s390/appldata/appldata_mem.mod.o
+The problem is that in the CONFIG_SWAP=n case, linux/swap.h uses these 
+functions.
 
-Cc: Christoph Lameter <christoph@lameter.com>
-Cc: Gerald Schaefer <geraldsc@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+These implicit declarations are bugs that should be fixed.
 
- mm/vmstat.c |    1 +
- 1 file changed, 1 insertion(+)
+I tried adding an #include <linux/pagemap.h> to linux/swap.h, but this 
+broke things faster than I could fix them.
 
-diff --git a/mm/vmstat.c b/mm/vmstat.c
-index 73b83d6..4701768 100644
---- a/mm/vmstat.c
-+++ b/mm/vmstat.c
-@@ -81,6 +81,7 @@ void all_vm_events(unsigned long *ret)
- {
- 	sum_vm_events(ret, &cpu_online_map);
- }
-+EXPORT_SYMBOL(all_vm_events);
- 
- #ifdef CONFIG_HOTPLUG
- /*
+Does anyone know our header mess good enough for being able to help me 
+with this issue?
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

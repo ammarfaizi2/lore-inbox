@@ -1,53 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWGGMpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWGGMtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbWGGMpy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 08:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWGGMpy
+	id S1751035AbWGGMtp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 08:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWGGMto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 08:45:54 -0400
-Received: from mail.gmx.net ([213.165.64.21]:9164 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932141AbWGGMpy (ORCPT
+	Fri, 7 Jul 2006 08:49:44 -0400
+Received: from lucidpixels.com ([66.45.37.187]:48872 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1750980AbWGGMtn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 08:45:54 -0400
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Content-Type: text/plain; charset="utf-8"
-Date: Fri, 07 Jul 2006 14:45:52 +0200
-From: "Uwe Bugla" <uwe.bugla@gmx.de>
-Message-ID: <20060707124552.9650@gmx.net>
+	Fri, 7 Jul 2006 08:49:43 -0400
+Date: Fri, 7 Jul 2006 08:49:43 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: linux-kernel@vger.kernel.org
+cc: linux-raid@vger.kernel.org
+Subject: Re: Kernel 2.6.17 and RAID5 Grow Problem (critical section backup)
+In-Reply-To: <Pine.LNX.4.64.0607070845280.2648@p34.internal.lan>
+Message-ID: <Pine.LNX.4.64.0607070849140.3010@p34.internal.lan>
+References: <Pine.LNX.4.64.0607070830450.2648@p34.internal.lan>
+ <Pine.LNX.4.64.0607070845280.2648@p34.internal.lan>
 MIME-Version: 1.0
-Subject: boot errors in kernels 2.6.17-mm6 plus 2.6.18-rc1
-To: zippel@linux-m68k.org
-X-Authenticated: #8359428
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roman, hi John Stultz,
-Andrew told me that you were working on that issue.
+On Fri, 7 Jul 2006, Justin Piszcz wrote:
 
-I use Debian Etch in connection with latest kernel-headers and kernels.
-My system is a Pentium 4, the graphics card is an ATI Rage 128 Pro with 32 MB RAM.
-When I compile both mentioned kernels, I can activate FB and FB_VESA.
-But if I add „vga=791“ to menu.lst (i. e. as an additional parameter for the kernel to boot) two bugs happen:
-1. The kernel takes an eternity to boot, taking about 4 long breaks to come up at all
-2. the AT keyboard (atkbd.c) is not functional (i. e. I type in one letter at boot prompt and this letter is being duplicated for about 50 times
+> On Fri, 7 Jul 2006, Justin Piszcz wrote:
+>
+>> p34:~# mdadm /dev/md3 -a /dev/hde1
+>> mdadm: added /dev/hde1
+>> 
+>> p34:~# mdadm -D /dev/md3
+>> /dev/md3:
+>>        Version : 00.90.03
+>>  Creation Time : Fri Jun 30 09:17:12 2006
+>>     Raid Level : raid5
+>>     Array Size : 1953543680 (1863.04 GiB 2000.43 GB)
+>>    Device Size : 390708736 (372.61 GiB 400.09 GB)
+>>   Raid Devices : 6
+>>  Total Devices : 7
+>> Preferred Minor : 3
+>>    Persistence : Superblock is persistent
+>>
+>>    Update Time : Fri Jul  7 08:25:44 2006
+>>          State : clean
+>> Active Devices : 6
+>> Working Devices : 7
+>> Failed Devices : 0
+>>  Spare Devices : 1
+>>
+>>         Layout : left-symmetric
+>>     Chunk Size : 512K
+>>
+>>           UUID : e76e403c:7811eb65:73be2f3b:0c2fc2ce
+>>         Events : 0.232940
+>>
+>>    Number   Major   Minor   RaidDevice State
+>>       0      22        1        0      active sync   /dev/hdc1
+>>       1      56        1        1      active sync   /dev/hdi1
+>>       2       3        1        2      active sync   /dev/hda1
+>>       3       8       49        3      active sync   /dev/sdd1
+>>       4      88        1        4      active sync   /dev/hdm1
+>>       5       8       33        5      active sync   /dev/sdc1
+>>
+>>       6      33        1        -      spare   /dev/hde1
+>> p34:~# mdadm --grow /dev/md3 --raid-disks=7
+>> mdadm: Need to backup 15360K of critical section..
+>> mdadm: Cannot set device size/shape for /dev/md3: No space left on device
+>> p34:~# mdadm --grow /dev/md3 --bitmap=internal --raid-disks=7
+>> mdadm: can change at most one of size, raiddisks, bitmap, and layout
+>> p34:~# umount /dev/md3
+>> p34:~# mdadm --grow /dev/md3 --raid-disks=7
+>> mdadm: Need to backup 15360K of critical section..
+>> mdadm: Cannot set device size/shape for /dev/md3: No space left on device
+>> p34:~#
+>> 
+>> The disk only has about 350GB of 1.8TB used, any idea why I get this error?
+>> 
+>> I searched google but could not find anything on this issue when trying to 
+>> grow the array?
+>> 
+>> 
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> 
+>
+> Is it because I use a 512kb chunksize?
+>
+> Jul  7 08:44:59 p34 kernel: [4295845.933000] raid5: reshape: not enough 
+> stripes.  Needed 512
+> Jul  7 08:44:59 p34 kernel: [4295845.962000] md: couldn't update array info. 
+> -28
+>
+> So the RAID5 reshape only works if you use a 128kb or smaller chunk size?
+>
+> Justin.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-If I leave out the kernel parameter (vga=791) evrything is working fine so far without any faults.
+>From the source:
 
-Would you please fix this in the above mentioned kernels, so that I can use my system again with a startup screen including the small little penguin at startup?
+/* Can only proceed if there are plenty of stripe_heads.
+@@ -2599,30 +2593,48 @@ static int raid5_reshape(mddev_t *mddev,
+* If the chunk size is greater, user-space should request more
+* stripe_heads first.
+*/
+- if ((mddev->chunk_size / STRIPE_SIZE) * 4 > conf->max_nr_stripes) {
++ if ((mddev->chunk_size / STRIPE_SIZE) * 4 > conf->max_nr_stripes ||
++ (mddev->new_chunk / STRIPE_SIZE) * 4 > conf->max_nr_stripes) {
+printk(KERN_WARNING "raid5: reshape: not enough stripes. Needed %lu\n",
+(mddev->chunk_size / STRIPE_SIZE)*4);
+return -ENOSPC;
+}
 
-Regards
+I don't see anything that mentions one needs to use a certain chunk size?
 
-Uwe
+Any idea what the problem is here?
 
-P. S. 1: This issue is not, as I thought first, a atkbd.c issue for Dmitry Torokhov, but a pure framebuffer issue.
-P. S. 2: Is that email OK so far or should I open an entry at kernel.bugzilla?
-
--- 
-
-
-Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!
-Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer
+Justin.

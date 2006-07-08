@@ -1,98 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWGHJMB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWGHJU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbWGHJMB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 05:12:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWGHJMB
+	id S1751264AbWGHJU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 05:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWGHJU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 05:12:01 -0400
-Received: from screech.rychter.com ([212.87.11.114]:64957 "EHLO
-	screech.rychter.com") by vger.kernel.org with ESMTP
-	id S1750962AbWGHJMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 05:12:00 -0400
-From: Jan Rychter <jan@rychter.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       suspend2-devel@lists.suspend2.net,
-       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
-       Avuton Olrich <avuton@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: uswsusp history lesson
-References: <20060627133321.GB3019@elf.ucw.cz>
-	<20060707215656.GA30353@dspnet.fr.eu.org>
-	<20060707232523.GC1746@elf.ucw.cz>
-	<200607080933.12372.ncunningham@linuxmail.org>
-	<20060708002826.GD1700@elf.ucw.cz>
-X-Spammers-Please: blackholeme@rychter.com
-Date: Sat, 08 Jul 2006 11:11:25 +0200
-In-Reply-To: <20060708002826.GD1700@elf.ucw.cz> (Pavel Machek's message of
-	"Sat, 8 Jul 2006 02:28:26 +0200")
-Message-ID: <m2d5cg1mwy.fsf@tnuctip.rychter.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.5-b27 (linux)
+	Sat, 8 Jul 2006 05:20:26 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:33797 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1751264AbWGHJUZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 05:20:25 -0400
+Message-ID: <44AF78CE.7060904@argo.co.il>
+Date: Sat, 08 Jul 2006 12:20:14 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Mark Lord <lkml@rtr.ca>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+References: <1152348696.3120.9.camel@laptopd505.fenrus.org>
+In-Reply-To: <1152348696.3120.9.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Jul 2006 09:20:21.0010 (UTC) FILETIME=[BC413F20:01C6A26F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
- Pavel> Hi!
- >> > > > So what Pavel wants can be translated as 'please use already
- >> > > > merged code, it can already do what you want without further
- >> > > > changing kernel'.
- >> > >
- >> > > Like we'd want to use unreviewed, extremely new and risky code
- >> > > for something that happily destroy filesystems.
- >> >
- >> > You can either use suspend2 (14000 lines of unreviewed kernel
- >> > code, old) or uswsusp (~500 lines of reviewed kernel code, ~2000
- >> > lines of unreviewed userspace code, new).
- >>
- >> I was going to keep quiet, but I have to say this: If Suspend2 can
- >> rightly be called unreviewed code, it's only because you've been too
- >> busy flaming etc to give it serious review. Personally, though, I
- >> don't think it's right
+Arjan van de Ven wrote:
+>
+> >
+> > It could be argued that gcc's implementation of volatile is wrong, and
+> > that gcc should add the appropriate serializing instructions before and
+> > after volatile accesses.
+> >
+> > Of course, that would make volatile even more suboptimal, but at least
+> > correct.
+>
+> with PCI, and the PCI posting rules, there is no "one" serializing
+> instruction, you need to know the specifics of the device in question to
+> cause the flush. So at least there is no universal possible
+> implementation of volatile as you suggest ;-)
+>
 
- Pavel> I really looked at suspend2 hard, year or so ago, when I was
- Pavel> pretty tired of the flamewars. At that point I decided it is way
- Pavel> too big to be acceptable to mainline, and got that crazy idea
- Pavel> about uswsusp, that surprisingly worked out at the end.
+A serializing volatile makes it possible to write portable code to 
+access pci mmio.  You'd just follow a write with a read or whatever the 
+rules say.
 
-I hate these kinds of discussions, but since no one else did, I'm going
-to say this very openly: I don't think you should be the one "deciding"
-this. I don't know who and why named you the maintainer of all software
-suspend solutions that might go into the mainline kernel, but facts are
-that after at least two years of your maintainership (or is it more?):
+Of course, it would still generate horrible code, and would still be 
+unable to express notions like atomic accesses, so there is not much 
+point in it.
 
-  -- we still don't have working software suspend in the kernel (listen
-     to the users),
-  -- we have two implementations in the kernel (swsusp and uswsusp),
-     none of which people are happy about,
-  -- the implementation that many people are very happy with is being
-     kept out because of your "decisions",
+One point which was raised, is that optimization barriers also somewhat 
+pessimize the code. I wonder how useful a partial memory clobber could be:
 
-Again, those are facts. Forget about hand waving, concentrate on the
-facts.
+  #define spin_lock_data(lock, lock_protected_data...) \
+      do { __spin_lock(lock); asm volatile ( "" : : : 
+"memory"(lock_protected_data) ); } while(0)
 
-Finally, I personally would hold kernel maintainers to higher
-standards. Not everyone has the right to say that something is "ugly"
-without providing alternate solutions. Read some of Linus' E-mails: if
-anyone has the right to wave hands without arguments it is him, but
-still if he says something is ugly, he always provides a better
-solution, sometimes also implementing it. And it works.
+Where __spin_lock has a partial memory clobber only on the lock variable 
+itself.
 
-Re-stating the obvious: I'd like to see a maintainer of software suspend
-that produces a working software suspend implementation.
+It would take a lot of work, but it can eliminate the instructions to 
+save and reload registers.
 
-I think most kernel developers underestimate how crucially important
-suspend is for notebook users. It is the lifeblood of a notebook user's
-life. Unless you develop the kernel and reboot your machine regularly,
-you want a stable system that you can suspend and resume at any time,
-reliably and predictably. This is way more important than new
-schedulers or faster filesystems. It's about basic stability.
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-I know several people who got tired of the constant fight to keep the
-machine running and switched to a Mac. I'm about to do the same as well.
-
-As I don't expect any new arguments to appear in this thread
-(unfortunately), and as I expect only more hand-waving from your side, I
-won't be bothering you all anymore. EOT from my side.
-
---J.

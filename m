@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWGHBtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWGHCLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbWGHBtb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 21:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWGHBtb
+	id S932481AbWGHCLi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 22:11:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWGHCLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 21:49:31 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:39408 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751297AbWGHBta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 21:49:30 -0400
-Message-ID: <001001c6a231$cef0c2a0$0201a8c0@OFFICEPC>
-From: "Accu-Tech" <Accu-Tech@Comcast.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: lock-free rcu-based ref-counting patent applications...
-Date: Fri, 7 Jul 2006 18:57:03 -0700
+	Fri, 7 Jul 2006 22:11:37 -0400
+Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:47013 "EHLO
+	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S932481AbWGHCLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 22:11:37 -0400
+Date: Fri, 7 Jul 2006 19:11:36 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: akpm@osdl.org
+cc: drepper@gmail.com, hpa@zytor.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove OPEN_MAX check from poll() syscall.
+Message-ID: <Pine.LNX.4.58.0607071904400.4243@shell2.speakeasy.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anybody know if there are any patent applications for any of the
-"existing" RCU-based reference counting techniques? In particular, any
-counting algorithms that have fine granularity and do not use any atomic-ops
-and/or membars... The existing RCU counting implementations that I have seen
-use a per-object counter adjusted with CAS/membar, or actually defer count
-adjustments until after sync epoch (rcu-grace)... Pretty expensive imho...
+Hi,
 
-The reason I ask is because I have a patent application out on another
-technique that gets around SMR's atomic-ops/membars and most of the caveats
-that come along with RCU read-side "critical-regions"... I was just
-wondering if anybody might be working on something similar... I remember
-scouring through RCU/SMR-based ref-counting patents and applications during 
-the
-patent-feasibility study I did a couple of years ago... I did find anything
-that was similar to my technique... 
+This patch removes the OPEN_MAX component of the 'nfds' validity check
+within the poll() system call implementation. Although this change will
+be visible to userspace, I'll quote Ulrich Drepper for the rationale
+behind its validity:
 
+<quote>
+[The requirement that EINVAL must be returned if nfds is greater than
+OPEN_MAX] must be treated the same way as the EMFILE error in open():
+ignore the OPEN_MAX limit if ulimit says so. The question is what to do
+if the ulimit < OPEN_MAX. POSIX does not require OPEN_MAX to be the
+exact limit.
+
+So, I think removing the OPEN_MAX comparison is the correct way to do
+this here. If somebody wants strict POSIX compliance they have to set
+ulimit -n to 256.
+</quote>
+
+Please apply.
+
+Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
+
+diff -Npru linux-2.6.18-rc1/fs/select.c linux-new/fs/select.c
+--- linux-2.6.18-rc1/fs/select.c	2006-07-06 20:21:05.000000000 -0700
++++ linux-new/fs/select.c	2006-07-06 20:22:58.000000000 -0700
+@@ -671,7 +671,7 @@ int do_sys_poll(struct pollfd __user *uf
+ 	fdt = files_fdtable(current->files);
+ 	max_fdset = fdt->max_fdset;
+ 	rcu_read_unlock();
+-	if (nfds > max_fdset && nfds > OPEN_MAX)
++	if (nfds > max_fdset)
+ 		return -EINVAL;
+
+ 	poll_initwait(&table);

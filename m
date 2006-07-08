@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWGHRTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWGHRU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbWGHRTI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 13:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWGHRTI
+	id S964907AbWGHRU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 13:20:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWGHRU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 13:19:08 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:26828 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964901AbWGHRTH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 13:19:07 -0400
-Subject: Re: pcmcia IDE broken in 2.6.18-rc1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060708145541.GA2079@elf.ucw.cz>
-References: <20060708145541.GA2079@elf.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 08 Jul 2006 18:36:39 +0100
-Message-Id: <1152380199.27368.9.camel@localhost.localdomain>
+	Sat, 8 Jul 2006 13:20:58 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16398 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964907AbWGHRU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 13:20:57 -0400
+Date: Sat, 8 Jul 2006 18:20:47 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mike Galbraith <efault@gmx.de>,
+       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Opinions on removing /proc/tty?
+Message-ID: <20060708172047.GA23882@flint.arm.linux.org.uk>
+Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Mike Galbraith <efault@gmx.de>,
+	Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com> <1152344452.7922.11.camel@Homer.TheSimpsons.net> <9e4733910607080712y248f61b9q7444b754516c4d6a@mail.gmail.com> <1152370102.27368.5.camel@localhost.localdomain> <9e4733910607080920t51957e28sa131f86876219891@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910607080920t51957e28sa131f86876219891@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sad, 2006-07-08 am 16:55 +0200, ysgrifennodd Pavel Machek:
-> ide2: I/O resource 0xF887E00E-0xF887E00E not free.
-> ide2: ports already in use, skipping probe
-> ide2: I/O resource 0xF887E01E-0xF887E01E not free.
-> ide2: ports already in use, skipping probe
+On Sat, Jul 08, 2006 at 12:20:06PM -0400, Jon Smirl wrote:
+> I'll put together a patch making it mountable. Is there any specific
+> info that needs to be added to sysfs?
 
+Adding info to the sysfs side of tty devices is rather fraught (or was
+last time I looked - I'd like to do exactly that with serial_core.)
 
-Looks like ioremap values not I/O ports. Probably the various IDE layer
-changes from 2.6.17-mm.
+Unfortunately, until it becomes easier (and maybe it recently has now
+that tty_register_device returns the class device struct), /proc/tty
+needs to stay.  But... I heard that Greg wants to remove struct
+class_device...
 
-My first guess would be the PCMCIA layer changes to use mmio ports are
-not setting hwif->mmio (I think its ->mmio) to 2 and doing their own
-resource management.
+So until this area gets sorted out I'm in no hurry to make any
+changes in this area.
 
-Alan
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

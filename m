@@ -1,82 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWGHRv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWGHR7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbWGHRv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 13:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWGHRv5
+	id S964928AbWGHR7j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 13:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWGHR7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 13:51:57 -0400
-Received: from mail.tmr.com ([64.65.253.246]:29366 "EHLO pixels.tmr.com")
-	by vger.kernel.org with ESMTP id S964889AbWGHRv4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 13:51:56 -0400
-Message-ID: <44AFF152.5050103@tmr.com>
-Date: Sat, 08 Jul 2006 13:54:26 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
-MIME-Version: 1.0
-To: Avi Kivity <avi@argo.co.il>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, Tomasz Torcz <zdzichu@irc.pl>,
-       Helge Hafting <helgehaf@aitel.hist.no>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features (checksums)
-References: <44ABAB2D.5050305@tmr.com> <44ABAE38.7080107@argo.co.il>
-In-Reply-To: <44ABAE38.7080107@argo.co.il>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 8 Jul 2006 13:59:39 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:50912 "EHLO
+	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S964928AbWGHR7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 13:59:38 -0400
+Date: Sat, 08 Jul 2006 11:59:34 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [RFC 0/8] Optional ZONE_DMA
+In-reply-to: <fa.3mXwB3pXW7L2KpeFW2PO8SBLhJA@ifi.uio.no>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo@kvack.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Bligh <mbligh@google.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Andi Kleen <ak@suse.de>
+Message-id: <44AFF286.6020601@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.3mXwB3pXW7L2KpeFW2PO8SBLhJA@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
-> Bill Davidsen wrote:
->>
->> > I believe that implementing RAID in the filesystem has many benefits 
->> too:
->> > - multiple RAID levels: store metadata in triple-mirror RAID 1, random
->> > write intensive data in RAID 1, bulk data in RAID 5/6
->> > - improved write throughput - since stripes can be variable size, any
->> > large enough write fills a whole stripe
->> >
->> I rather like the idea of allowing metadata to be on another device in
->> general, or at least the inodes. That way a very small chunk size can be
->> used for the inodes, to spread head motion, while a larger chunk size is
->> appropriate for data in some cases.
->>
+Christoph Lameter wrote:
+> Optional ZONE_DMA
 > 
-> If your workload is metadata intensive, your data disks are idle; if 
-> you're reading data, the inode device is gathering dust. You can run out 
-> of inodes before you run out of space and vice-versa. Very suboptimal.
+> ZONE_DMA is usually used for ISA DMA devices. Typically modern hardware
+> does not have any of these anymore. We frequently do not need
+> the zone anymore.
+> 
+> This patch allows to make the configuration of the kernel for
+> ZONE_DMA dependend on the user choosing to support ISA DMA.
+> If ISA DMA is not supported then i386 systems f.e. can be
+> configured using a single ZONE_NORMAL. The overhead of maintaining
+> multiple zones and balancing page use between the different
+> zone is then gone. My i386 system now runs with a single zone.
+> 
+> On x86_64 systems also usually we do not need ZONE_DMA since there
+> are barely any ISA DMA devices around (or are you still using a floppy?).
+> So for most cases the zone can be dropped. Also if the x86_64 systems
+> has less than 4G RAM or DMA controllers that actually can do 64 bit
+> then we also do not need ZONE_DMA32. My x86_64 system has 1G of
+> memory therefore I can run with a single zone.
 
-Using the correct resource for the job is very optimal, no RAID will 
-make big slow cheap drives fast for inodes, no fast drive is practical 
-in cost or heat for moderately large data.
-> 
-> A symmetric configuration allows full use of all resources for any 
-> workload, at the cost of increased complexity - every extent has its own 
-> RAID level and RAID component devices.
+Keep in mind that:
 
-Why would you want to use all your resources when only part of them are 
-at all suited to the job?
+-LPC devices like the floppy controller, maybe enhanced parallel, etc. 
+may have 24-bit DMA restrictions even if there is no physical ISA bus.
 
-Do consider the price and performance of 15k RPM Ultra320 drives (32GB) 
-vs. 750GB SATA before telling me that it doesn't work better to have 
-metadata on fast storage and application data on cheap drives. You can 
-use 10TB of 300kB avg files in random directories as a model. Figure 10% 
-churn every day, delete and create not rewrite, 27 creates/sec and 
-200-300 open for read/sec.
-> 
->> Larger max block sizes would be useful as well. Feel free to discuss the
->> actual value of "larger."
->>
-> 
-> Filesystems should use extents, not blocks, avoiding the block size 
-> tradeoff entirely.
-> 
+-Even in totally ISA and LPC-free systems, some PCI devices (like those 
+that were a quick hack of an ISA device onto PCI) still have 24-bit 
+address restrictions. There are other devices that have sub-32-bit DMA 
+capabilities, like Broadcom wireless chips that only address 31 bits 
+(although I think they are fixing this in the driver). Without the DMA 
+zone there is no way to ensure that these requests can be satisfied.
+
+So I don't think it is safe to make this conditional on ISA or even the 
+ISA DMA API. Only if all devices on the system have addressing 
+capability of a full 32 bits (or at least of all installed RAM) can this 
+zone be removed.
 
 -- 
-Bill Davidsen <davidsen@tmr.com>
-   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
-normal user and is setuid root, with the "vi" line edit mode selected,
-and the character set is "big5," an off-by-one errors occurs during
-wildcard (glob) expansion.
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

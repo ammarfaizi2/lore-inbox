@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWGHPta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWGHQCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbWGHPta (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 11:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbWGHPta
+	id S964876AbWGHQCI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 12:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWGHQCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 11:49:30 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:41834 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964875AbWGHPt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 11:49:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aNobryY8Ph3rA9hbUL93Klh3iF77kKjzQywimwzToAx57BfdZALoQdIqg4DT0xbcc57NuYv6RH8xgR6TVKoP/sAu3SPdPl5gJbkoDpYvnbOKRP0FTrOXszcz2vAZpFa2dQZjx8D5RgWyDod7ObCwavBpX8ijPbFtme8JPImL57c=
-Message-ID: <787b0d920607080849p322a6349g7a5fd98f78aa9f32@mail.gmail.com>
-Date: Sat, 8 Jul 2006 11:49:26 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: tglx@linutronix.de
-Subject: Re: [patch] spinlocks: remove 'volatile'
-Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org,
-       "Linus Torvalds" <torvalds@osdl.org>, linux-os@analogic.com,
-       khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org, arjan@infradead.org
-In-Reply-To: <1152354244.24611.312.camel@localhost.localdomain>
+	Sat, 8 Jul 2006 12:02:08 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:53778 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S964876AbWGHQCH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 12:02:07 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.17-mm6
+Date: Sat, 8 Jul 2006 17:02:16 +0100
+User-Agent: KMail/1.9.3
+Cc: john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20060703030355.420c7155.akpm@osdl.org> <20060706201108.GA493@kroah.com> <200607072148.08567.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200607072148.08567.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <787b0d920607072054i237eebf5g8109a100623a1070@mail.gmail.com>
-	 <20060708094556.GA13254@tsunami.ccur.com>
-	 <1152354244.24611.312.camel@localhost.localdomain>
+Message-Id: <200607081702.16589.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/8/06, Thomas Gleixner <tglx@linutronix.de> wrote:
-> On Sat, 2006-07-08 at 05:45 -0400, Joe Korty wrote:
-> > On Fri, Jul 07, 2006 at 11:54:10PM -0400, Albert Cahalan wrote:
-> > > That's all theoretical though. Today, gcc's volatile does
-> > > not follow the C standard on modern hardware. Bummer.
-> > > It'd be low-performance anyway though.
+On Friday 07 July 2006 21:48, Alistair John Strachan wrote:
+[snip]
+> > > I don't think it's John's code. I commented out the sysfs registration
+> > > code from timekeeping_init_device() and the kernel gets further, where
+> > > it crashes on kmem_cache_create. SLAB also complains about "losing its
+> > > name" and being "of size 0".
+> > >
+> > > This happens identically on 2.6.18-rc1, and 2.6.17-mm6. Greg, could it
+> > > be anything you've changed recently? I considered bisectioning -mm, but
+> > > there's been a lot of RAID problems and I'm using RAID5.
 > >
-> > But gcc would follow the standard if it emitted a 'lock'
-> > insn on every volatile reference.  It should at least
-> > have an option to do that.
-
-That would do for x86 without MMIO.
-
-> volatile works fine on trivial microcontrollers and for the basic C
-> course lesson, but there is no way for the compiler to decide which of
-> the 'lock' mechanisms should be used in complex situations.
+> > Please bisect 2.6.18-rc1 if you have git, as the problem is there, and
+> > would be good to track down.
 >
-> In low level system programming there is no fscking way for the compiler
-> to figure out if this is in context of a peripheral bus, cross CPU
-> memory or whatever. All those things have hardware dependend semantics
-> and the only way to get them straight is to enforce the correct handling
-> with handcrafted assembler code.
+> I tried this, but it's extremely difficult when the kernel boots
+> successfully one every four times. I've already been thrown off the scent
+> twice, bringing my bisection count to 25..
+>
+> I think I'll try an allnoconfig on this machine, hopefully that will boot,
+> then I just start enabling things again until it breaks.
 
-This can work. The compiler CALLS the assembly code.
-Nothing new here: see all the libgcc functions if you aren't
-used to the idea of the compiler calling functions behind
-your back.
+Sorry, this turned out to be my fault.
 
-So we have assembly functions somewhat like this:
+GCC had just recently been upgraded to 4.1.1, which apparently silently 
+generates bad kernels with the version of H. J. Lu's binutils I had 
+installed. I figured it out when going back to 2.6.17 didn't help. Why the 
+crashes were sporadic I will never truly understand.
 
-__volatile_read(void*dst, void*src, size_t size);
-__volatile_write(void*dst, void*src, size_t size);
+Going back to GNU binutils 2.17 and rebuilding GCC 4.1.1 fixed it. At least I 
+learnt how to use Git, which is a truly superb tool. I'm now happily 
+running -mm6.
 
-They probably have to look up the memory address to
-determine if it belongs to a PCI device or not, etc.
-For userspace code, they could even be system calls.
+-- 
+Cheers,
+Alistair.
 
-Without that, gcc just isn't correct on normal hardware.
-
-I'm not suggesting this is fast, of course. Probably the
-right answer is something like this:
-
--fvolatile=smp   # Add locks
--fvolatile=call   # Call custom functions
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

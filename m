@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWGHCvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWGHC4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932493AbWGHCvy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 22:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWGHCvy
+	id S932490AbWGHC4w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 22:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbWGHC4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 22:51:54 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:29089 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932493AbWGHCvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 22:51:53 -0400
+	Fri, 7 Jul 2006 22:56:52 -0400
+Received: from nz-out-0102.google.com ([64.233.162.201]:45335 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932490AbWGHC4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 22:56:52 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=XVWHZqQELDGZEntLuQhgRB6BJshQ48pab/RMI89U+cWum7mAhNxbxJEMzIydKgBmv9uWhDXZStL35cR7w6Gd7bPRNUzwSWa0RMB4N8Kj3NpmDJMW6yeRmiNB0FTS8vGAjhDLwwotpNgbcuiH3guJFAdwjpWAlYzuk5NiqQNVykA=
-Message-ID: <12c511ca0607071951p4fe7e1bfm7be5ad48ede895f1@mail.gmail.com>
-Date: Fri, 7 Jul 2006 19:51:52 -0700
-From: "Tony Luck" <tony.luck@intel.com>
-To: "Jeremy Higdon" <jeremy@sgi.com>
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
-Cc: "Arjan van de Ven" <arjan@infradead.org>, "Jes Sorensen" <jes@sgi.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "John Daiker" <jdaiker@osdl.org>,
-       "John Hawkes" <hawkes@sgi.com>, "Andrew Morton" <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Jack Steiner" <steiner@sgi.com>, "Dan Higgins" <djh@sgi.com>
-In-Reply-To: <20060708001427.GA723842@sgi.com>
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=inwJXYaPlJpq78bXYKSjug1CNl7/h67F3erdNQe82wO9q8upHnDGiWsLHarcS20KvANH3lduRF+V4hrKwG5KG3hvdaDTw0I6YTpuiTixGekqFM8bQzzzK2aXzCLnwupnEYBftS1GSCRLhEIm1Y+V0UzHt1zX9S+DILP2U/xzbpw=
+Message-ID: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com>
+Date: Fri, 7 Jul 2006 22:56:51 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Opinions on removing /proc/tty?
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
-	 <yq04py4i9p7.fsf@jaguar.mkp.net>
-	 <1151578928.23785.0.camel@localhost.localdomain>
-	 <44A3AFFB.2000203@sgi.com>
-	 <1151578513.3122.22.camel@laptopd505.fenrus.org>
-	 <20060708001427.GA723842@sgi.com>
-X-Google-Sender-Auth: 9c89f44541a6b0ed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So does i386 convert the return value of the times(2) call to user
-> hertz?  On IA64, it returns the value in internal clock ticks, and
-> then when a program uses the value in param.h, it gets it wrong now,
-> because internal HZ is now 250.
->
-> So is times() is broken in IA64, or is this an exception to Alan's
-> statement?
+Does anyone use the info in /proc/tty? The hard coded device names
+aren't compatible with udev's ability to rename things.
 
-The Linux man page for times(2) specifically says "ticks" and refers
-to sysconf for how to determine how long a "tick" is.  So ia64 matches
-the man page.  Dunno if that matches POSIX though.
+There also doesn't appear to be any useful info in the drivers portion
+that isn't already available in sysfs. I can add some code to make a
+list of registered line disciplines appear in sysfs.
 
--Tony
+Does anyone have a problem with deleting /proc/tty if ldisc enum
+support is added to sysfs?
+
+[root@jonsmirl tty]# cat drivers
+/dev/tty             /dev/tty        5       0 system:/dev/tty
+/dev/console         /dev/console    5       1 system:console
+/dev/ptmx            /dev/ptmx       5       2 system
+/dev/vc/0            /dev/vc/0       4       0 system:vtmaster
+serial               /dev/ttyS       4 64-67 serial
+pty_slave            /dev/pts      136 0-1048575 pty:slave
+pty_master           /dev/ptm      128 0-1048575 pty:master
+unknown              /dev/tty        4 1-63 console
+[root@jonsmirl tty]#
+
+[root@jonsmirl tty]# cat ldiscs
+n_tty       0
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

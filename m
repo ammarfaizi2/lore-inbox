@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWGHKS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWGHKPB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWGHKS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 06:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWGHKS0
+	id S932208AbWGHKPB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 06:15:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWGHKPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 06:18:26 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:28679 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932321AbWGHKSZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 06:18:25 -0400
-Message-ID: <44AF8668.2070306@argo.co.il>
-Date: Sat, 08 Jul 2006 13:18:16 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Mark Lord <lkml@rtr.ca>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-References: <1152352309.3120.15.camel@laptopd505.fenrus.org>
-In-Reply-To: <1152352309.3120.15.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 8 Jul 2006 06:15:01 -0400
+Received: from beauty.rexursive.com ([203.171.74.242]:39300 "EHLO
+	beauty.rexursive.com") by vger.kernel.org with ESMTP
+	id S932208AbWGHKPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 06:15:00 -0400
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+From: Bojan Smojver <bojan@rexursive.com>
+To: Jan Rychter <jan@rychter.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Avuton Olrich <avuton@gmail.com>,
+       linux-kernel@vger.kernel.org, Olivier Galibert <galibert@pobox.com>,
+       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+In-Reply-To: <m2d5cg1mwy.fsf@tnuctip.rychter.com>
+References: <20060627133321.GB3019@elf.ucw.cz>
+	 <20060707215656.GA30353@dspnet.fr.eu.org>
+	 <20060707232523.GC1746@elf.ucw.cz>
+	 <200607080933.12372.ncunningham@linuxmail.org>
+	 <20060708002826.GD1700@elf.ucw.cz>  <m2d5cg1mwy.fsf@tnuctip.rychter.com>
+Content-Type: text/plain
+Date: Sat, 08 Jul 2006 20:14:58 +1000
+Message-Id: <1152353698.2555.11.camel@coyote.rexursive.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Jul 2006 10:18:23.0542 (UTC) FILETIME=[D8017560:01C6A277]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->
-> >
-> > > with PCI, and the PCI posting rules, there is no "one" serializing
-> > > instruction, you need to know the specifics of the device in 
-> question to
-> > > cause the flush. So at least there is no universal possible
-> > > implementation of volatile as you suggest ;-)
-> > >
-> >
-> > A serializing volatile makes it possible to write portable code to
-> > access pci mmio.  You'd just follow a write with a read or whatever the
-> > rules say.
->
-> yeah except that the compiler cannot know what to read; reading back the
-> same memory location is NOT correct nor safe. It's device specific, for
-> some devices it'll be safe, for others you have to read some OTHER
-> location.
->
+On Sat, 2006-07-08 at 11:11 +0200, Jan Rychter wrote:
 
-I didn't suggest the compiler could or should do it, just that it would 
-be possible (for the _user_) to write portable ISO C code to access PCI 
-mmio registers, if volatile's implementation serialized access.
+> I hate these kinds of discussions, but since no one else did, I'm going
+> to say this very openly: I don't think you should be the one "deciding"
+> this.
 
-With the current implementation of volatile in gcc, it is impossible - 
-you need to resort to inline assembly for some architectures, which is 
-not an ISO C feature.
+ACK.
 
-And I'm not suggesting that it would be a good idea to use volatile even 
-if it was corrected - it would have to take a worst-case approach and 
-thus would generate very bad code.
+Given that:
+
+- this tie is permanent due to fundamental design disagreements
+
+- swsusp, uswsusp and Suspend2 can coexist in the same tree
+
+- Nigel has a track record of excellent support for his code
+
+Why not make another kernel subsystem (Suspend2) and make Nigel
+maintainer of it? Then all this nonsense can stop and distributions and
+users can pick what they really want.
+
+Andrew? Linus?
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+Bojan
 

@@ -1,159 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWGHAHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWGHAIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932428AbWGHAHw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 20:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWGHAF1
+	id S932434AbWGHAIT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 20:08:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWGHAHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 20:05:27 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:60370 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932426AbWGHAFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 20:05:24 -0400
-Date: Fri, 7 Jul 2006 17:05:12 -0700 (PDT)
+	Fri, 7 Jul 2006 20:07:53 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:12994 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932426AbWGHAF2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 20:05:28 -0400
+Date: Fri, 7 Jul 2006 17:05:17 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Hellwig <hch@infradead.org>,
+Cc: Martin Bligh <mbligh@google.com>, Christoph Hellwig <hch@infradead.org>,
        Marcelo Tosatti <marcelo@kvack.org>,
        Arjan van de Ven <arjan@infradead.org>,
-       Martin Bligh <mbligh@google.com>, Christoph Lameter <clameter@sgi.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Andi Kleen <ak@suse.de>
-Message-Id: <20060708000511.3829.66071.sendpatchset@schroedinger.engr.sgi.com>
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Lameter <clameter@sgi.com>, Andi Kleen <ak@suse.de>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Message-Id: <20060708000517.3829.30693.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC 2/8] slab allocator: Make DMA support configurable
+Subject: [RFC 3/8] eventcounters: Optional ZONE_DMA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Support slab without ZONE_SLAB.
+vmstat: Make ZONE_DMA support configurable
 
-If CONFIG_ZONE_DMA is not defined then drop support for ZONE_DMA from
-the slab allocator.
-
-Do not create the special DMA slab series for kmalloc and always
-return memory from ZONE_NORMAL.
+Do not display ZONE_DMA counters if no DMA zone is available.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.17-mm6/mm/slab.c
+Index: linux-2.6.17-mm6/include/linux/vmstat.h
 ===================================================================
---- linux-2.6.17-mm6.orig/mm/slab.c	2006-07-03 13:47:22.651238848 -0700
-+++ linux-2.6.17-mm6/mm/slab.c	2006-07-03 21:39:07.050259199 -0700
-@@ -650,11 +650,17 @@ EXPORT_SYMBOL(malloc_sizes);
- /* Must match cache_sizes above. Out of line to keep cache footprint low. */
- struct cache_names {
- 	char *name;
-+#ifdef CONFIG_ZONE_DMA
- 	char *name_dma;
-+#endif
- };
+--- linux-2.6.17-mm6.orig/include/linux/vmstat.h	2006-07-06 18:44:59.763286559 -0700
++++ linux-2.6.17-mm6/include/linux/vmstat.h	2006-07-06 19:59:53.254972797 -0700
+@@ -18,6 +18,12 @@
+  * generated will simply be the increment of a global address.
+  */
  
- static struct cache_names __initdata cache_names[] = {
 +#ifdef CONFIG_ZONE_DMA
- #define CACHE(x) { .name = "size-" #x, .name_dma = "size-" #x "(DMA)" },
++#define DMA_ZONE(xx) xx##_DMA,
 +#else
-+#define CACHE(x) { .name = "size-" #x },
++#define DMA_ZONE(xx)
 +#endif
- #include <linux/kmalloc_sizes.h>
- 	{NULL,}
- #undef CACHE
-@@ -729,7 +735,7 @@ static inline struct kmem_cache *__find_
++
+ #ifdef CONFIG_ZONE_DMA32
+ #define DMA32_ZONE(xx) xx##_DMA32,
+ #else
+@@ -30,7 +36,7 @@
+ #define HIGHMEM_ZONE(xx)
  #endif
- 	while (size > csizep->cs_size)
- 		csizep++;
--
+ 
+-#define FOR_ALL_ZONES(xx) xx##_DMA, DMA32_ZONE(xx) xx##_NORMAL HIGHMEM_ZONE(xx)
++#define FOR_ALL_ZONES(xx) DMA_ZONE(xx) DMA32_ZONE(xx) xx##_NORMAL HIGHMEM_ZONE(xx)
+ 
+ enum vm_event_item { PGPGIN, PGPGOUT, PSWPIN, PSWPOUT,
+ 		FOR_ALL_ZONES(PGALLOC),
+@@ -88,9 +94,13 @@ extern void vm_events_fold_cpu(int cpu);
+ 
+ #endif /* CONFIG_VM_EVENT_COUNTERS */
+ 
 +#ifdef CONFIG_ZONE_DMA
- 	/*
- 	 * Really subtle: The last entry with cs->cs_size==ULONG_MAX
- 	 * has cs_{dma,}cachep==NULL. Thus no special case
-@@ -737,6 +743,7 @@ static inline struct kmem_cache *__find_
- 	 */
- 	if (unlikely(gfpflags & GFP_DMA))
- 		return csizep->cs_dmacachep;
+ #define __count_zone_vm_events(item, zone, delta) \
+ 			__count_vm_events(item##_DMA + zone_idx(zone), delta)
+-
++#else
++#define __count_zone_vm_events(item, zone, delta) \
++			__count_vm_events(item##_NORMAL + zone_idx(zone), delta)
 +#endif
- 	return csizep->cs_cachep;
+ /*
+  * Zone based page accounting with per cpu differentials.
+  */
+@@ -136,14 +146,16 @@ static inline unsigned long node_page_st
+ 	struct zone *zones = NODE_DATA(node)->node_zones;
+ 
+ 	return
++#ifdef CONFIG_ZONE_DMA
++		zone_page_state(&zones[ZONE_DMA], item) +
++#endif
+ #ifdef CONFIG_ZONE_DMA32
+ 		zone_page_state(&zones[ZONE_DMA32], item) +
+ #endif
+-		zone_page_state(&zones[ZONE_NORMAL], item) +
+ #ifdef CONFIG_HIGHMEM
+ 		zone_page_state(&zones[ZONE_HIGHMEM], item) +
+ #endif
+-		zone_page_state(&zones[ZONE_DMA], item);
++		zone_page_state(&zones[ZONE_NORMAL], item);
  }
  
-@@ -1395,13 +1402,14 @@ void __init kmem_cache_init(void)
- 					ARCH_KMALLOC_FLAGS|SLAB_PANIC,
- 					NULL, NULL);
- 		}
--
-+#ifdef CONFIG_ZONE_DMA
- 		sizes->cs_dmacachep = kmem_cache_create(names->name_dma,
- 					sizes->cs_size,
- 					ARCH_KMALLOC_MINALIGN,
- 					ARCH_KMALLOC_FLAGS|SLAB_CACHE_DMA|
- 						SLAB_PANIC,
- 					NULL, NULL);
-+#endif
- 		sizes++;
- 		names++;
- 	}
-@@ -2179,8 +2187,10 @@ kmem_cache_create (const char *name, siz
- 	cachep->slab_size = slab_size;
- 	cachep->flags = flags;
- 	cachep->gfpflags = 0;
-+#ifdef CONFIG_ZONE_DMA
- 	if (flags & SLAB_CACHE_DMA)
- 		cachep->gfpflags |= GFP_DMA;
-+#endif
- 	cachep->buffer_size = size;
- 
- 	if (flags & CFLGS_OFF_SLAB)
-@@ -2498,10 +2508,12 @@ static void cache_init_objs(struct kmem_
- 
- static void kmem_flagcheck(struct kmem_cache *cachep, gfp_t flags)
- {
-+#ifdef CONFIG_ZONE_DMA
- 	if (flags & SLAB_DMA)
- 		BUG_ON(!(cachep->gfpflags & GFP_DMA));
- 	else
- 		BUG_ON(cachep->gfpflags & GFP_DMA);
-+#endif
- }
- 
- static void *slab_get_obj(struct kmem_cache *cachep, struct slab *slabp,
-Index: linux-2.6.17-mm6/include/linux/slab.h
+ extern void zone_statistics(struct zonelist *, struct zone *);
+Index: linux-2.6.17-mm6/mm/vmstat.c
 ===================================================================
---- linux-2.6.17-mm6.orig/include/linux/slab.h	2006-07-03 21:27:34.756012776 -0700
-+++ linux-2.6.17-mm6/include/linux/slab.h	2006-07-03 22:07:16.857980432 -0700
-@@ -72,7 +72,9 @@ extern const char *kmem_cache_name(kmem_
- struct cache_sizes {
- 	size_t		 cs_size;
- 	kmem_cache_t	*cs_cachep;
-+#ifdef CONFIG_ZONE_DMA
- 	kmem_cache_t	*cs_dmacachep;
-+#endif
+--- linux-2.6.17-mm6.orig/mm/vmstat.c	2006-07-06 18:44:59.764263061 -0700
++++ linux-2.6.17-mm6/mm/vmstat.c	2006-07-06 22:32:29.382408873 -0700
+@@ -381,6 +381,12 @@ struct seq_operations fragmentation_op =
+ 	.show	= frag_show,
  };
- extern struct cache_sizes malloc_sizes[];
  
-@@ -146,9 +148,13 @@ static inline void *kmalloc(size_t size,
- 			__you_cannot_kmalloc_that_much();
- 		}
- found:
 +#ifdef CONFIG_ZONE_DMA
- 		return kmem_cache_alloc((flags & GFP_DMA) ?
- 			malloc_sizes[i].cs_dmacachep :
- 			malloc_sizes[i].cs_cachep, flags);
++#define TEXT_FOR_DMA(xx) xx "_dma",
 +#else
-+		return kmem_cache_alloc(malloc_sizes[i].cs_cachep, flags);
++#define TEXT_FOR_DMA(xx)
 +#endif
- 	}
- 	return __kmalloc(size, flags);
- }
-@@ -176,9 +182,13 @@ static inline void *kzalloc(size_t size,
- 			__you_cannot_kzalloc_that_much();
- 		}
- found:
-+#ifdef CONFIG_ZONE_DMA
- 		return kmem_cache_zalloc((flags & GFP_DMA) ?
- 			malloc_sizes[i].cs_dmacachep :
- 			malloc_sizes[i].cs_cachep, flags);
-+#else
-+		return kmem_cache_zalloc(malloc_sizes[i].cs_cachep, flags);
-+#endif
- 	}
- 	return __kzalloc(size, flags);
- }
++
+ #ifdef CONFIG_ZONE_DMA32
+ #define TEXT_FOR_DMA32(xx) xx "_dma32",
+ #else
+@@ -393,7 +399,7 @@ struct seq_operations fragmentation_op =
+ #define TEXT_FOR_HIGHMEM(xx)
+ #endif
+ 
+-#define TEXTS_FOR_ZONES(xx) xx "_dma", TEXT_FOR_DMA32(xx) xx "_normal", \
++#define TEXTS_FOR_ZONES(xx) TEXT_FOR_DMA(xx) TEXT_FOR_DMA32(xx) xx "_normal", \
+ 					TEXT_FOR_HIGHMEM(xx)
+ 
+ static char *vmstat_text[] = {

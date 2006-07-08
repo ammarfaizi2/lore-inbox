@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWGHQru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWGHQuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbWGHQru (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 12:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWGHQru
+	id S964903AbWGHQuo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 12:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWGHQun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 12:47:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30145 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964902AbWGHQrt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 12:47:49 -0400
-Date: Sat, 8 Jul 2006 09:47:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia IDE broken in 2.6.18-rc1
-Message-Id: <20060708094746.943d8926.akpm@osdl.org>
-In-Reply-To: <20060708145541.GA2079@elf.ucw.cz>
-References: <20060708145541.GA2079@elf.ucw.cz>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sat, 8 Jul 2006 12:50:43 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:42182 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964903AbWGHQun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 12:50:43 -0400
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+From: Arjan van de Ven <arjan@infradead.org>
+To: Sunil Kumar <devsku@gmail.com>
+Cc: Bojan Smojver <bojan@rexursive.com>, Pavel Machek <pavel@ucw.cz>,
+       Avuton Olrich <avuton@gmail.com>, Olivier Galibert <galibert@pobox.com>,
+       Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org,
+       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+In-Reply-To: <ce9ef0d90607080942w685a6b60q7611278856c78ac0@mail.gmail.com>
+References: <20060627133321.GB3019@elf.ucw.cz>
+	 <20060707215656.GA30353@dspnet.fr.eu.org>
+	 <20060707232523.GC1746@elf.ucw.cz>
+	 <200607080933.12372.ncunningham@linuxmail.org>
+	 <20060708002826.GD1700@elf.ucw.cz> <m2d5cg1mwy.fsf@tnuctip.rychter.com>
+	 <1152353698.2555.11.camel@coyote.rexursive.com>
+	 <1152355318.3120.26.camel@laptopd505.fenrus.org>
+	 <ce9ef0d90607080942w685a6b60q7611278856c78ac0@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 08 Jul 2006 18:50:34 +0200
+Message-Id: <1152377434.3120.69.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Jul 2006 16:55:43 +0200
-Pavel Machek <pavel@ucw.cz> wrote:
+On Sat, 2006-07-08 at 09:42 -0700, Sunil Kumar wrote:
+>         Multiple all-half-working implementations is insane. It means
+>         bugs don't
+>         get fixed, it means there isn't going to be ANY implementation
+>         that is 
+>         good enough for a broad audience. People will just switch to
+>         another one
+>         rather than reporting and causing even the most simple bugs to
+>         get
+> 
+> you are afraid nobody is going to use uswsusp (because it doesn't work
+> or is not useful) and not going to report any bugs against it, and it
+> will cease to exist over time. I think that is very good. Survival of
+> the good. The winner will be decided by users automatically. Not by
+> someone who 
 
-> Hi!
-> 
-> When I insert the card, I get
-> 
-> pccard: PCMCIA card inserted into slot 0
-> cs: memory probe 0xe8000000-0xefffffff: excluding
-> 0xe8000000-0xefffffff
-> cs: memory probe 0xc0200000-0xcfffffff: excluding
-> 0xc0200000-0xc11fffff 0xc1a00000-0xc61fffff 0xc6a00000-0xc71fffff
-> 0xc7a00000-0xc81fffff 0xc8a00000-0xc91fffff 0xc9a00000-0xca1fffff
-> 0xcaa00000-0xcb1fffff 0xcba00000-0xcc1fffff 0xcca00000-0xcd1fffff
-> 0xcda00000-0xce1fffff 0xcea00000-0xcf1fffff 0xcfa00000-0xd01fffff
-> pcmcia: registering new device pcmcia0.0
-> PM: Adding info for pcmcia:0.0
-> ide2: I/O resource 0xF887E00E-0xF887E00E not free.
-> ide2: ports already in use, skipping probe
-> ide2: I/O resource 0xF887E01E-0xF887E01E not free.
-> ide2: ports already in use, skipping probe
-> ...
-> 
-> it ends with
-> 
-> ide-cs: ide_register() at 0xf999c000 & 0xf999c00e, irq 7 failed
-> 
-> :-(. Back to 2.6.17 once again, I'm afraid...
 
-Appears to be the same bug as http://lkml.org/lkml/2006/6/15/155
+note that I'm not picking sides. I don't care which ego gets to win.
+What do care about that Linux ends up with a good implementation,
+whatever that is. I have no idea is uswsusp will make it (in fact it
+feels fragile to me, but then again all sw suspend implementations
+including swsusp2 feel fragile to me). But for crying out loud
 
-That debugging effort dried up at "Can you do some more tracing on hwif."
+PICK ONE AND MAKE IT GOOD.
 
-You're our only hope.  Can you debug it a bit please?
+Bang heads together. Go for beer at OLS. I don't care how, but anything
+to prevent the insane thing of having multiple half working
+implementations.
+
+
+

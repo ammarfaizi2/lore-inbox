@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbWGHSaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWGHScR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964945AbWGHSaw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 14:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWGHSav
+	id S1030193AbWGHScR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 14:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbWGHScR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 14:30:51 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:8386 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964945AbWGHSav convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 14:30:51 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [RFC/PATCH] Introduce list_get() and list_get_tail()
-Date: Sat, 8 Jul 2006 20:31:17 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200607080124.21856.dtor@insightbb.com>
-In-Reply-To: <200607080124.21856.dtor@insightbb.com>
+	Sat, 8 Jul 2006 14:32:17 -0400
+Received: from wx-out-0102.google.com ([66.249.82.196]:26073 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964953AbWGHScQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 14:32:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WPTzf40Dp+JOMSA5XJheewaj/u5GeyvyJcHHnkdIkuKkzbbtdPw1tAAEaXE9c0yukPNJOHX0qoyBEKyOCyCYbsE/ho6sNN4AAZelldu4nsCiwty0H4yysXO1zvZr44Yezo8+bDJoWmQvacRDCGCwX5qjLTpQNcCPXjAY6Ql83So=
+Message-ID: <a4e6962a0607081132u4558473cgf89b8b25fcea317d@mail.gmail.com>
+Date: Sat, 8 Jul 2006 13:32:15 -0500
+From: "Eric Van Hensbergen" <ericvh@gmail.com>
+To: "Al Boldi" <a1426z@gawab.com>
+Subject: Re: [RFC] VFS: FS CoW using redirection
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200607082041.54489.a1426z@gawab.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607082031.17638.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+References: <200607082041.54489.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Saturday 08 July 2006 07:24 schrieb Dmitry Torokhov:
-> +/**
-> + * list_get - get first element in a list
-> + * @head: the head of your list
-> + */
-> +static inline struct list_head *list_get(struct list_head *head)
-> +{
-> +       return head->next;
-> +}
+On 7/8/06, Al Boldi <a1426z@gawab.com> wrote:
+>
+> Copy on Write is a neat way to quickly achieve a semi-clustered system, by
+> mounting any shared FS read-only and redirecting writes to some perClient
+> FS.
+>
+> Would this redirection be easy to implement into the VFS?
+>
 
-I would expect it to be more useful when combined with list_entry(),
-something like
+There are a variety of solutions that have been proposed or are
+available to do this sort of thing.  You may want to start by looking
+at unionfs and mapfs.  There are also folks looking at doing this from
+the block layer (look at the dm-userspace + cowd as well as evms and
+lvm snapshots).
 
-#define list_first_entry(list, type, member) \
-	container_of((list)->next, type, member)
-#define list_last_entry(list, type, member) \
-	container_of((list)->prev, type, member)
-
-	Arnd <><
+            -eric

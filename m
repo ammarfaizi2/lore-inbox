@@ -1,49 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWGHRU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWGHRVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbWGHRU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 13:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWGHRU6
+	id S964913AbWGHRVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 13:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbWGHRVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 13:20:58 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16398 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964907AbWGHRU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 13:20:57 -0400
-Date: Sat, 8 Jul 2006 18:20:47 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mike Galbraith <efault@gmx.de>,
-       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Opinions on removing /proc/tty?
-Message-ID: <20060708172047.GA23882@flint.arm.linux.org.uk>
-Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Mike Galbraith <efault@gmx.de>,
-	Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com> <1152344452.7922.11.camel@Homer.TheSimpsons.net> <9e4733910607080712y248f61b9q7444b754516c4d6a@mail.gmail.com> <1152370102.27368.5.camel@localhost.localdomain> <9e4733910607080920t51957e28sa131f86876219891@mail.gmail.com>
+	Sat, 8 Jul 2006 13:21:25 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:34223 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964909AbWGHRVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 13:21:24 -0400
+Date: Sat, 8 Jul 2006 18:21:20 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Quigley <dpquigl@tycho.nsa.gov>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Phillip Hellewell <phillip@hellewell.homeip.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 0/13: eCryptfs] eCryptfs Patch Set
+Message-ID: <20060708172120.GB27058@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Quigley <dpquigl@tycho.nsa.gov>,
+	Phillip Hellewell <phillip@hellewell.homeip.net>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org
+References: <20060513033742.GA18598@hellewell.homeip.net> <20060520095740.GA12237@infradead.org> <20060707115422.GA4705@infradead.org> <1152292929.3727.23.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e4733910607080920t51957e28sa131f86876219891@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1152292929.3727.23.camel@moss-terrapins.epoch.ncsc.mil>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 08, 2006 at 12:20:06PM -0400, Jon Smirl wrote:
-> I'll put together a patch making it mountable. Is there any specific
-> info that needs to be added to sysfs?
+On Fri, Jul 07, 2006 at 01:22:09PM -0400, David Quigley wrote:
+> This is actually an interesting thing. Due to certain issues, stackable
+> file systems normally do not allow people to modify the lower level
+> files from under the mounted stackable filesystem. Ideally you want to
+> be able to view a stack and make changes at each level. This is possible
+> but not without some changes to the kernel. If we go with the statement
+> that you should not modify lower level files except through eCryptfs
+> (which seams reasonable since its an encryption file system) then this
+> is not needed. We do not need to pass the lock down to the lower file
+> system since locking the upper level file is more than adequate. If we
+> decide to make the changes to the kernel to allow for modifications at
+> each layer of a stack then we do need this.
 
-Adding info to the sysfs side of tty devices is rather fraught (or was
-last time I looked - I'd like to do exactly that with serial_core.)
+Getting locking right if you want to allow access from above and below
+the stackable filesystems will be a pain.  Note that I can't see any
+way to exclude direct access to the underlying filesystem in ecryptfs.
 
-Unfortunately, until it becomes easier (and maybe it recently has now
-that tty_register_device returns the class device struct), /proc/tty
-needs to stay.  But... I heard that Greg wants to remove struct
-class_device...
+> > And a more general issue with implementing stackable filesystems:
+> > 
+> >   I think it's probably much better to not stack ontop of a part of the
+> >   existing namespace but rather let ecryptfs mount the underlying filesystem
+> >   internally using vfs_kern_mount.  This gets out of the way of possible
+> >   lock order problems when doing namespace operation involving both the
+> >   stacked and underlying filesystem aswell as allowing using a stackable
+> >   filesystem as the root filesystem.
+> > 
+> 
+> Could you actually explain this with an example? If it is what I think
+> you mean then we did look into this and we had some concerns with it
+> however I'll make sure its the same before we delve into it.
 
-So until this area gets sorted out I'm in no hurry to make any
-changes in this area.
+I don't think there's too much of example for the behaviour I want.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+But lets explain it a little better:
+
+ - The idea is to avoid having the underlying filesystem mounted in any
+   public namespace.
+
+ - Linux has the concept of mount points that only the kernel can use and
+   that aren't visible to any public namespace.  They can be created using
+   the *kern_mount family of APIs.
+
+ - I suggest to use this API to mount the underlying filesystems from
+   ecryptfs.  It will have a reference to the vfsmount * and thus all
+   important data for the underlying filesystem.  Because it is the only
+   user of that filesystem locking and other operations get a lot simpler.

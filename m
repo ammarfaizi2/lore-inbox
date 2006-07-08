@@ -1,156 +1,305 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWGHSxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWGHSyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030204AbWGHSxa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 14:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWGHSxa
+	id S964960AbWGHSyM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 14:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWGHSyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 14:53:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58588 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964960AbWGHSx3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 14:53:29 -0400
-Date: Sat, 8 Jul 2006 11:53:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-os@analogic.com, khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org,
-       arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-In-Reply-To: <44AF532B.4050504@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0607081125440.3869@g5.osdl.org>
-References: <787b0d920607072054i237eebf5g8109a100623a1070@mail.gmail.com>
- <Pine.LNX.4.64.0607072222540.3869@g5.osdl.org> <44AF532B.4050504@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 8 Jul 2006 14:54:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:53708 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030216AbWGHSyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 14:54:10 -0400
+Date: Sat, 8 Jul 2006 19:53:57 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, rmk+lkml@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] genirq: ARM dyntick cleanup
+Message-ID: <20060708185357.GA2517@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+References: <1151885928.24611.24.camel@localhost.localdomain> <20060702173527.cbdbf0e1.akpm@osdl.org> <1151908178.24611.39.camel@localhost.localdomain> <20060703065735.GA19780@elte.hu> <20060704115425.GA2313@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060704115425.GA2313@infradead.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 8 Jul 2006, Nick Piggin wrote:
+On Tue, Jul 04, 2006 at 12:54:25PM +0100, Christoph Hellwig wrote:
+> On Mon, Jul 03, 2006 at 08:57:35AM +0200, Ingo Molnar wrote:
+> > Christoph has had ideas for cleanups in the irq-header-files area for a 
+> > long time. My rough battleplan would be this:
+> > 
+> > - linux/interrupt.h should remain the highlevel driver API [which can be
+> >   used by both physical (genirq or non-genirq) or virtual platforms].
+> >   Only this file should be included by drivers.
 > 
-> The volatile casting in atomic_* and *_bit seems to be a good idea
-> (now that I think about it) [1].
-> 
-> Because if you had a barrier there, you'd have to reload everything
-> used after an atomic_read or set_bit, etc.
+> Yes.  Note that it's not quite there yet.  Non-genirq architectures currently
+> have things like enable_irq/disable_irq in asm/irq.h  We really need to have
+> those prototypes only in linux/interrupt.h.  Unfortunately at least m68k and
+> sparc had those as macros so they'll need some tweaking first.
 
-Yes and no. The problem _there_ is that we use the wrong inline asm 
-constraints.
+Here's the patch I have lying around for a while.  I rediffed it to current
+Linus' tree.  It still needs someone to test it on sparc32 and m68knommu
+(compile at least).
 
-The "+m" constraint is basically undocumented, and while I think it has 
-existed _internally_ in gcc for a long time (gcc inline asms are actually 
-fairly closely related to the internal gcc code generation templates, but 
-the internal templates generally have capabilities that the inline asms 
-don't have), I don't think it has been actually supported for inline asms 
-all that time.
 
-But "+m" means "I will both read and write from this memory location", 
-which is exactly what we want to have for things like atomic_add() and 
-friends.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-However, because it is badly documented, and because it didn't even exist 
-long ago, we have lots of code (and lots of people) that doesn't even 
-_know_ about "+m". So we have code that fakes out the "both read and 
-write" part by marking things either volatile, or doing 
-
-	...
-	:"=m" (*ptr)
-	:"m" (*ptr)
-	...
-
-in the constraints (or, in many cases, both).
-
-> [1] Even though I still can't tell the exact semantics of these
->     operations eg. why do we need volatile at all? why do we have
->     volatile in the double underscore (non-atomic) versions?
-
-So we tend to have "volatile" for a couple of different reasons:
-
- - the above kind of "we couldn't tell the inline assembly well enough 
-   what the instruction actually _does_, so we just tell gcc to not mess 
-   with it".
-
-   This _generally_ should be replaced with using "+m", so that gcc just 
-   knows that we both read and write to the location, and that allows gcc 
-   to generate the best possible code, while still generating _correct_ 
-   code because gcc knows what is going on and doesn't think the write 
-   totally clobbers the old value.
-
- - many functions are used with random data, and if the caller has a 
-   "volatile long array[]" (bad - but hey, it happens), then a function 
-   that _acts_ on that array, like the bitops functions, need to take a
-   an argument like "volatile long *".
-
-   So for example, "test_bit()", which can act both on volatile arrays 
-   _and_ on const arrays, will look like
-
-	int test_bit(int nr, const volatile void * addr);
-
-   which some people think is strange ("Both 'const' _and_ 'volatile'? 
-   Isn't that a contradiction in terms?"), but the fact is, it reflects 
-   the different callers, not necessarily test_bit() itself.
-
- - some functions actually really want the volatile access. The x86 IO 
-   functions are the best actual example of this:
-
-	static inline unsigned int readl(const volatile void __iomem *addr)
-	{
-		return *(volatile unsigned int __force *) addr;
-	}
-
-   which actually has a _combination_ of the above reason (the incoming 
-   argument is already marked "volatile" just because the _caller_ may 
-   have marked it that way) and the cast to volatile would be there 
-   _regardless_ of the calling convention "volatile", because in this case 
-   we actually use it as a way to avoid inline assembly (which a number of
-   other architectures need to do, and which x86 too needs to do for the 
-   PIO accesses, but we can avoid it in this case)
-
-So those are all real reasons to use volatile, although the first one is 
-obviously a case where we no longer should (but at least we have 
-reasonably good historical reasons for why we did).
-
-The thing to note that is all of the above reasons are basically 
-"volatile" markers on the _code_. We haven't really marked any _data_ 
-volatile, we're just saying that certain _code_ will want to act on 
-the data in a certain way.
-
-And I think that's generally a sign of "good" use of volatile - it's 
-making it obvious that certain specific _use_ of a data may have certain 
-rules. 
-
-As mentioned, there is _one_ case where it is valid to use "volatile" on 
-real data: it's when you have a "I don't care about locking, and I'm not 
-accessign IO memory or something else that may need special care" 
-situation.
-
-In the kernel, that _one_ special case used to basically be the "jiffies" 
-counter. There's nothing to "lock" there - it just keeps ticking. And it's 
-still obviously normal memory, so there's no question about any special 
-rules for accesses. And there are no SMP memory ordering issues for 
-reading it (for the low bits), since the "jiffies" counter is not really 
-tied to anything else, so there are no larger "coherency" rules either.
-
-So in that ONE case, "volatile" is actually fine. We really don't care if 
-we read the old value or the new value when it changes, and there's no 
-reason to try to synchronize with anythign else. 
-
-There _may_ be some other cases where that would be true, but quite 
-frankly, I can't think of any. If the CPU were to have a built-in random 
-number generator mapped into memory, that would fall under the same kind 
-of rules, but that's basically it.
-
-One final word: in user space, because of how signal handlers work, 
-"volatile" can still make sense for exactly the same reasons that 
-"jiffies" makes sense in the kernel. You may, for example, have a signal 
-handler that updates some flag in memory, and that would basically look 
-exactly like the "jiffies" case for your program. 
-
-(In fact, because signals are very expensive to block, you may have more 
-of a reason to use a "jiffies" like flag in user space than you have in 
-kernel. In the kernel, you'd tend to use a spinlock to protect things. In 
-user space, with signals, you may have to use some non-locking algorithm, 
-where the generation count etc migth well look like "jiffies").
-
-			Linus
+Index: linux-2.6/arch/arm26/kernel/irq.c
+===================================================================
+--- linux-2.6.orig/arch/arm26/kernel/irq.c	2006-07-08 17:44:19.000000000 +0200
++++ linux-2.6/arch/arm26/kernel/irq.c	2006-07-08 20:29:25.000000000 +0200
+@@ -86,7 +86,7 @@
+  *
+  *	This function may be called from IRQ context.
+  */
+-void disable_irq(unsigned int irq)
++void disable_irq_nosync(unsigned int irq)
+ {
+ 	struct irqdesc *desc = irq_desc + irq;
+ 	unsigned long flags;
+@@ -95,6 +95,12 @@
+ 		desc->enabled = 0;
+ 	spin_unlock_irqrestore(&irq_controller_lock, flags);
+ }
++EXPORT_SYMBOL(disable_irq_nosync);
++
++void disable_irq(unsigned int irq)
++{
++	return disable_irq_nosync(irq);
++}
+ 
+ /**
+  *	enable_irq - enable interrupt handling on an irq
+Index: linux-2.6/arch/h8300/kernel/ints.c
+===================================================================
+--- linux-2.6.orig/arch/h8300/kernel/ints.c	2006-07-08 17:44:19.000000000 +0200
++++ linux-2.6/arch/h8300/kernel/ints.c	2006-07-08 20:29:25.000000000 +0200
+@@ -208,11 +208,17 @@
+ 		IER_REGS |= 1 << (irq - EXT_IRQ0);
+ }
+ 
+-void disable_irq(unsigned int irq)
++void disable_irq_nosync(unsigned int irq)
+ {
+ 	if (irq >= EXT_IRQ0 && irq <= (EXT_IRQ0 + EXT_IRQS))
+ 		IER_REGS &= ~(1 << (irq - EXT_IRQ0));
+ }
++EXPORT_SYMBOL(disable_irq_nosync);
++
++void disable_irq(unsigned int irq)
++{
++	disable_irq_nosync(irq);
++}
+ 
+ asmlinkage void process_int(int irq, struct pt_regs *fp)
+ {
+Index: linux-2.6/arch/m68knommu/kernel/Makefile
+===================================================================
+--- linux-2.6.orig/arch/m68knommu/kernel/Makefile	2006-01-12 16:27:05.000000000 +0100
++++ linux-2.6/arch/m68knommu/kernel/Makefile	2006-07-08 20:29:25.000000000 +0200
+@@ -5,7 +5,7 @@
+ extra-y := vmlinux.lds
+ 
+ obj-y += dma.o entry.o init_task.o m68k_ksyms.o process.o ptrace.o semaphore.o \
+-	 setup.o signal.o syscalltable.o sys_m68k.o time.o traps.o
++	 setup.o signal.o syscalltable.o sys_m68k.o time.o traps.o irq.o
+ 
+ obj-$(CONFIG_MODULES)	+= module.o
+ obj-$(CONFIG_COMEMPCI)	+= comempci.o
+Index: linux-2.6/arch/m68knommu/kernel/irq.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6/arch/m68knommu/kernel/irq.c	2006-07-08 20:29:25.000000000 +0200
+@@ -0,0 +1,22 @@
++
++#include <linux/interrupt.h>
++
++/*
++ * Stubs for IRQ handling helpers.
++ * Seems wrong to me that these are no-ops on m68knommu.  --hch
++ */
++
++void disable_irq_nosync(unsigned int irq)
++{
++}
++EXPORT_SYMBOL(disable_irq_nosync);
++
++void disable_irq(unsigned int irq)
++{
++}
++EXPORT_SYMBOL(disable_irq);
++
++void enable_irq(unsigned int irq)
++{
++}
++EXPORT_SYMBOL(enable_irq);
+Index: linux-2.6/include/asm-arm26/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-arm26/irq.h	2006-07-08 17:44:35.000000000 +0200
++++ linux-2.6/include/asm-arm26/irq.h	2006-07-08 20:29:25.000000000 +0200
+@@ -22,12 +22,6 @@
+ #define NO_IRQ	((unsigned int)(-1))
+ #endif
+ 
+-struct irqaction;
+-
+-#define disable_irq_nosync(i) disable_irq(i)
+-
+-extern void disable_irq(unsigned int);
+-extern void enable_irq(unsigned int);
+ 
+ #define __IRQT_FALEDGE	(1 << 0)
+ #define __IRQT_RISEDGE	(1 << 1)
+Index: linux-2.6/include/asm-frv/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-frv/irq.h	2006-07-08 17:44:35.000000000 +0200
++++ linux-2.6/include/asm-frv/irq.h	2006-07-08 20:29:25.000000000 +0200
+@@ -35,9 +35,4 @@
+ 	return irq;
+ }
+ 
+-extern void disable_irq_nosync(unsigned int irq);
+-extern void disable_irq(unsigned int irq);
+-extern void enable_irq(unsigned int irq);
+-
+-
+ #endif /* _ASM_IRQ_H_ */
+Index: linux-2.6/include/asm-h8300/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-h8300/irq.h	2006-07-08 17:44:35.000000000 +0200
++++ linux-2.6/include/asm-h8300/irq.h	2006-07-08 20:29:25.000000000 +0200
+@@ -59,8 +59,4 @@
+ 	return irq;
+ }
+ 
+-extern void enable_irq(unsigned int);
+-extern void disable_irq(unsigned int);
+-#define disable_irq_nosync(x)	disable_irq(x)
+-
+ #endif /* _H8300_IRQ_H_ */
+Index: linux-2.6/include/asm-m68k/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-m68k/irq.h	2006-07-08 17:44:35.000000000 +0200
++++ linux-2.6/include/asm-m68k/irq.h	2006-07-08 20:29:42.000000000 +0200
+@@ -59,9 +59,6 @@
+ #define IRQ_USER	8
+ 
+ extern unsigned int irq_canonicalize(unsigned int irq);
+-extern void enable_irq(unsigned int);
+-extern void disable_irq(unsigned int);
+-#define disable_irq_nosync	disable_irq
+ 
+ struct pt_regs;
+ 
+Index: linux-2.6/include/asm-m68knommu/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-m68knommu/irq.h	2006-07-08 17:44:36.000000000 +0200
++++ linux-2.6/include/asm-m68knommu/irq.h	2006-07-08 20:30:04.000000000 +0200
+@@ -80,11 +80,4 @@
+ 
+ #endif /* CONFIG_M68360 */
+ 
+-/*
+- * Some drivers want these entry points
+- */
+-#define enable_irq(x)	do { } while (0)
+-#define disable_irq(x)	do { } while (0)
+-#define disable_irq_nosync(x)	disable_irq(x)
+-
+ #endif /* _M68K_IRQ_H_ */
+Index: linux-2.6/include/asm-sparc/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-sparc/irq.h	2006-07-08 20:27:38.000000000 +0200
++++ linux-2.6/include/asm-sparc/irq.h	2006-07-08 20:29:25.000000000 +0200
+@@ -36,10 +36,6 @@
+ BTFIXUPDEF_CALL(void, clear_profile_irq, int)
+ BTFIXUPDEF_CALL(void, load_profile_irq, int, unsigned int)
+ 
+-extern void disable_irq_nosync(unsigned int irq);
+-extern void disable_irq(unsigned int irq);
+-extern void enable_irq(unsigned int irq);
+-
+ static inline void disable_pil_irq(unsigned int irq)
+ {
+ 	BTFIXUP_CALL(disable_pil_irq)(irq);
+Index: linux-2.6/include/linux/interrupt.h
+===================================================================
+--- linux-2.6.orig/include/linux/interrupt.h	2006-07-08 17:44:36.000000000 +0200
++++ linux-2.6/include/linux/interrupt.h	2006-07-08 20:32:01.000000000 +0200
+@@ -99,11 +99,11 @@
+ # define local_irq_enable_in_hardirq()	local_irq_enable()
+ #endif
+ 
+-#ifdef CONFIG_GENERIC_HARDIRQS
+ extern void disable_irq_nosync(unsigned int irq);
+ extern void disable_irq(unsigned int irq);
+ extern void enable_irq(unsigned int irq);
+ 
++#ifdef CONFIG_GENERIC_HARDIRQS
+ /*
+  * Special lockdep variants of irq disabling/enabling.
+  * These should be used for locking constructs that
+Index: linux-2.6/arch/sparc/kernel/irq.c
+===================================================================
+--- linux-2.6.orig/arch/sparc/kernel/irq.c	2006-07-08 17:44:21.000000000 +0200
++++ linux-2.6/arch/sparc/kernel/irq.c	2006-07-08 20:27:38.000000000 +0200
+@@ -549,6 +549,25 @@
+ 
+ EXPORT_SYMBOL(request_irq);
+ 
++void disable_irq_nosync(unsigned int irq)
++{
++	BTFIXUP_CALL(disable_irq)(irq);
++}
++EXPORT_SYMBOL(disable_irq_nosync);
++
++void disable_irq(unsigned int irq)
++{
++	BTFIXUP_CALL(disable_irq)(irq);
++}
++EXPORT_SYMBOL(disable_irq);
++
++void enable_irq(unsigned int irq)
++{
++	BTFIXUP_CALL(enable_irq)(irq);
++}
++EXPORT_SYMBOL(enable_irq);
++
++
+ /* We really don't need these at all on the Sparc.  We only have
+  * stubs here because they are exported to modules.
+  */
+Index: linux-2.6/include/asm-sparc/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-sparc/irq.h	2006-07-08 17:44:36.000000000 +0200
++++ linux-2.6/include/asm-sparc/irq.h	2006-07-08 20:27:38.000000000 +0200
+@@ -36,20 +36,6 @@
+ BTFIXUPDEF_CALL(void, clear_profile_irq, int)
+ BTFIXUPDEF_CALL(void, load_profile_irq, int, unsigned int)
+ 
+-static inline void disable_irq_nosync(unsigned int irq)
+-{
+-	BTFIXUP_CALL(disable_irq)(irq);
+-}
+-
+-static inline void disable_irq(unsigned int irq)
+-{
+-	BTFIXUP_CALL(disable_irq)(irq);
+-}
+-
+-static inline void enable_irq(unsigned int irq)
+-{
+-	BTFIXUP_CALL(enable_irq)(irq);
+-}
+ 
+ static inline void disable_pil_irq(unsigned int irq)
+ {

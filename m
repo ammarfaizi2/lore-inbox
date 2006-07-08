@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWGHBtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWGHBtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWGHBtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 21:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWGHBtZ
+	id S932477AbWGHBtb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 21:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWGHBtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 21:49:25 -0400
-Received: from xenotime.net ([66.160.160.81]:10162 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751294AbWGHBtY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 21:49:24 -0400
-Date: Fri, 7 Jul 2006 18:52:09 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       paulkf@microgate.com, akpm@osdl.org
-Subject: Re: [PATCH] Ref counting for tty_struct and some locking clean up
-Message-Id: <20060707185209.939f31b8.rdunlap@xenotime.net>
-In-Reply-To: <9e4733910607071847l605c11d3xe67cae38cd54adb4@mail.gmail.com>
-References: <9e4733910607071737n1bd01042u92b895edaceb73db@mail.gmail.com>
-	<20060707183348.157cc272.rdunlap@xenotime.net>
-	<9e4733910607071833r3d2dcea0la7e26a6d0b60bd3@mail.gmail.com>
-	<20060707183909.6ea6d05c.rdunlap@xenotime.net>
-	<20060707184439.7927721d.rdunlap@xenotime.net>
-	<9e4733910607071847l605c11d3xe67cae38cd54adb4@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 7 Jul 2006 21:49:31 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:39408 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1751297AbWGHBta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 21:49:30 -0400
+Message-ID: <001001c6a231$cef0c2a0$0201a8c0@OFFICEPC>
+From: "Accu-Tech" <Accu-Tech@Comcast.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: lock-free rcu-based ref-counting patent applications...
+Date: Fri, 7 Jul 2006 18:57:03 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jul 2006 21:47:23 -0400 Jon Smirl wrote:
+Does anybody know if there are any patent applications for any of the
+"existing" RCU-based reference counting techniques? In particular, any
+counting algorithms that have fine granularity and do not use any atomic-ops
+and/or membars... The existing RCU counting implementations that I have seen
+use a per-object counter adjusted with CAS/membar, or actually defer count
+adjustments until after sync epoch (rcu-grace)... Pretty expensive imho...
 
-> That's not what I see. Here it is as an attachment.
+The reason I ask is because I have a patent application out on another
+technique that gets around SMR's atomic-ops/membars and most of the caveats
+that come along with RCU read-side "critical-regions"... I was just
+wondering if anybody might be working on something similar... I remember
+scouring through RCU/SMR-based ref-counting patents and applications during 
+the
+patent-feasibility study I did a couple of years ago... I did find anything
+that was similar to my technique... 
 
-Thanks, that applies cleanly.
-
----
-~Randy

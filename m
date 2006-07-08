@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWGHNL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWGHNTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbWGHNL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 09:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWGHNL2
+	id S964827AbWGHNTO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 09:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbWGHNTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 09:11:28 -0400
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:63391 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S964823AbWGHNL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 09:11:28 -0400
-To: linux-kernel@vger.kernel.org
-Subject: lockdep BUG: warning (2.6.18-rc1, TP T60)
-Date: Sat, 08 Jul 2006 14:11:21 +0100
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1FzCaf-0003OL-00@skye.ra.phy.cam.ac.uk>
+	Sat, 8 Jul 2006 09:19:14 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:47745 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964827AbWGHNTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 09:19:13 -0400
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+From: Arjan van de Ven <arjan@infradead.org>
+To: Bojan Smojver <bojan@rexursive.com>
+Cc: Jan Rychter <jan@rychter.com>, Pavel Machek <pavel@ucw.cz>,
+       Avuton Olrich <avuton@gmail.com>, linux-kernel@vger.kernel.org,
+       Olivier Galibert <galibert@pobox.com>,
+       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+In-Reply-To: <1152357077.2088.4.camel@beast.rexursive.com>
+References: <20060627133321.GB3019@elf.ucw.cz>
+	 <20060707215656.GA30353@dspnet.fr.eu.org>
+	 <20060707232523.GC1746@elf.ucw.cz>
+	 <200607080933.12372.ncunningham@linuxmail.org>
+	 <20060708002826.GD1700@elf.ucw.cz>  <m2d5cg1mwy.fsf@tnuctip.rychter.com>
+	 <1152353698.2555.11.camel@coyote.rexursive.com>
+	 <1152355318.3120.26.camel@laptopd505.fenrus.org>
+	 <1152357077.2088.4.camel@beast.rexursive.com>
+Content-Type: text/plain
+Date: Sat, 08 Jul 2006 15:19:03 +0200
+Message-Id: <1152364743.3120.42.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying 2.6.18-rc1 on a Thinkpad T60 (dual-core T2400, SATA hard
-drive) running Ubuntu 6.06.  The kernel is SMP and PREEMPT and has
-many lock validation options turned on.  During boot the lockdep
-checker reports good news:
+On Sat, 2006-07-08 at 21:11 +1000, Bojan Smojver wrote:
+> On Sat, 2006-07-08 at 12:41 +0200, Arjan van de Ven wrote:
+> 
+> > What is worse, these suspend systems will inevitable have
+> > different requirements on the rest of the kernel, and will thus
+> > complicate the heck out of it for the rest of the developers.
+> 
+> My (user level) understanding is that built in swsusp and Suspend2 use
+> the same (or almost the same) machinery in the rest of the kernel to do
+> the work.
 
-[   20.936404] Good, all 218 testcases passed! |
+so they're almost the same conceptually... That's even more reason to go
+for one unified approach.
 
-When I pressed Fn-F4 (for suspend-to-ram), it began to suspend,
-blanked the screen, and then came back right away to the X session.  I
-don't think it ever made it into suspend mode (I've reported the
-suspend problem to linux-acpi).  And this lockdep warning showed up:
 
-[  459.756000] BUG: warning at kernel/lockdep.c:1799/trace_hardirqs_on()
-[  459.756000]  [<c0105aeb>] show_trace+0x1b/0x20
-[  459.756000]  [<c0105b14>] dump_stack+0x24/0x30
-[  459.756000]  [<c013c186>] trace_hardirqs_on+0x166/0x180
-[  459.756000]  [<c010522d>] do_general_protection+0xcd/0x220
-[  459.756000]  [<c0103e01>] error_code+0x39/0x40
-
--Sanjoy
-
-`Never underestimate the evil of which men of power are capable.'
-         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

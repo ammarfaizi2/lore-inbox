@@ -1,66 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWGHAFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWGHAFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWGHAFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 20:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWGHAFQ
+	id S932424AbWGHAFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 20:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWGHAFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 20:05:16 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9154 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932423AbWGHAFO (ORCPT
+	Fri, 7 Jul 2006 20:05:24 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:10434 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932424AbWGHAFS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 20:05:14 -0400
-Date: Fri, 7 Jul 2006 17:05:01 -0700 (PDT)
+	Fri, 7 Jul 2006 20:05:18 -0400
+Date: Fri, 7 Jul 2006 17:05:06 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Hellwig <hch@infradead.org>,
+Cc: Martin Bligh <mbligh@google.com>, Christoph Hellwig <hch@infradead.org>,
        Marcelo Tosatti <marcelo@kvack.org>,
        Arjan van de Ven <arjan@infradead.org>,
-       Martin Bligh <mbligh@google.com>, Christoph Lameter <clameter@sgi.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Andi Kleen <ak@suse.de>
-Message-Id: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC 0/8] Optional ZONE_DMA
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Lameter <clameter@sgi.com>, Andi Kleen <ak@suse.de>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Message-Id: <20060708000506.3829.34340.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
+References: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [RFC 1/8] Add CONFIG_ZONE_DMA to all archesM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Optional ZONE_DMA
+Introduce CONFIG_ZONE_DMA
 
-ZONE_DMA is usually used for ISA DMA devices. Typically modern hardware
-does not have any of these anymore. We frequently do not need
-the zone anymore.
+CONFIG_ZONE_DMA can be defined in two ways depending on how
+an architecture handles ISA DMA.
 
-This patch allows to make the configuration of the kernel for
-ZONE_DMA dependend on the user choosing to support ISA DMA.
-If ISA DMA is not supported then i386 systems f.e. can be
-configured using a single ZONE_NORMAL. The overhead of maintaining
-multiple zones and balancing page use between the different
-zone is then gone. My i386 system now runs with a single zone.
+First when CONFIG_GENERIC_ISA_DMA is set by the arch then we know that
+the arch needs ZONE_DMA because ISA DMA devices are supported. The arch
+would need to be modified in order to allow switching ZONE_DMA off.
 
-On x86_64 systems also usually we do not need ZONE_DMA since there
-are barely any ISA DMA devices around (or are you still using a floppy?).
-So for most cases the zone can be dropped. Also if the x86_64 systems
-has less than 4G RAM or DMA controllers that actually can do 64 bit
-then we also do not need ZONE_DMA32. My x86_64 system has 1G of
-memory therefore I can run with a single zone.
+Second, arches may use ZONE_DMA in an unknown way. We set CONFIG_ZONE_DMA
+for all arches that do not set CONFIG_GENERIC_ISA_DMA in order to insure
+backwards compatibility. The arches may later undefine ZONE_DMA
+if their arch code has been modified to not depend on ZONE_DMA.
 
-SGI's ia64 systems only use one zone. A numa system with a single
-zone will have one zone per node which makes the association between
-nodes and zones simpler.
+As a result of this patch CONFIG_ZONE_DMA should be defined for every
+arch.
 
-This patchset is build on top of the "Reduce Zones" patchset V1 that was
-posted earlier today. It will make ZONE_DMA configurable like
-the other zones. Then it introduces a SINGLE_ZONE macro that is set
-if the system has only a single zone.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Single zone systems do no need the loops over all zones. We can also return
-constants for a lot of important VM macros. Finally the policy zone
-determination in the mempolicy layer becomes trivial.
-
-Note that this is an RFC only. In order for this to work cleanly we need to
-mark all device drives according to what type of DMA controller they support.
-If its a ISA DMA controller then we would need to enable ZONE_DMA. If its
-a 32 bit controller and we support >4G of memory then we need to enable ZONE_DMA32.
-
-This was tested on i386 and x86_64 in UP and SMP mode.
-
+Index: linux-2.6.17-mm6/mm/Kconfig
+===================================================================
+--- linux-2.6.17-mm6.orig/mm/Kconfig	2006-07-03 13:47:22.616084772 -0700
++++ linux-2.6.17-mm6/mm/Kconfig	2006-07-03 21:26:49.956038556 -0700
+@@ -134,6 +134,10 @@ config SPLIT_PTLOCK_CPUS
+ 	default "4096" if PARISC && !PA20
+ 	default "4"
+ 
++config ZONE_DMA
++	def_bool y
++	depends on GENERIC_ISA_DMA
++
+ #
+ # support for page migration
+ #
+Index: linux-2.6.17-mm6/arch/ia64/Kconfig
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/ia64/Kconfig	2006-07-03 21:26:38.944998185 -0700
++++ linux-2.6.17-mm6/arch/ia64/Kconfig	2006-07-03 21:35:54.270151176 -0700
+@@ -22,6 +22,10 @@ config 64BIT
+ 	bool
+ 	default y
+ 
++config ZONE_DMA
++	bool
++	default y
++
+ config MMU
+ 	bool
+ 	default y
+Index: linux-2.6.17-mm6/arch/cris/Kconfig
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/cris/Kconfig	2006-07-03 13:47:12.502452440 -0700
++++ linux-2.6.17-mm6/arch/cris/Kconfig	2006-07-03 21:34:53.678182903 -0700
+@@ -9,6 +9,10 @@ config MMU
+ 	bool
+ 	default y
+ 
++config ZONE_DMA
++	bool
++	default y
++
+ config RWSEM_GENERIC_SPINLOCK
+ 	bool
+ 	default y
+Index: linux-2.6.17-mm6/arch/s390/Kconfig
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/s390/Kconfig	2006-07-03 13:47:13.887132430 -0700
++++ linux-2.6.17-mm6/arch/s390/Kconfig	2006-07-03 21:34:30.527266107 -0700
+@@ -7,6 +7,10 @@ config MMU
+ 	bool
+ 	default y
+ 
++config ZONE_DMA
++	bool
++	default y
++
+ config LOCKDEP_SUPPORT
+ 	bool
+ 	default y
+Index: linux-2.6.17-mm6/arch/xtensa/Kconfig
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/xtensa/Kconfig	2006-07-03 13:47:14.333393893 -0700
++++ linux-2.6.17-mm6/arch/xtensa/Kconfig	2006-07-03 21:37:26.980256509 -0700
+@@ -7,6 +7,10 @@ config FRAME_POINTER
+ 	bool
+ 	default n
+ 
++config ZONE_DMA
++	bool
++	default y
++
+ config XTENSA
+ 	bool
+ 	default y
+Index: linux-2.6.17-mm6/arch/h8300/Kconfig
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/h8300/Kconfig	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17-mm6/arch/h8300/Kconfig	2006-07-03 21:35:38.346328043 -0700
+@@ -17,6 +17,10 @@ config SWAP
+ 	bool
+ 	default n
+ 
++config ZONE_DMA
++	bool
++	default y
++
+ config FPU
+ 	bool
+ 	default n
+Index: linux-2.6.17-mm6/arch/v850/Kconfig
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/v850/Kconfig	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17-mm6/arch/v850/Kconfig	2006-07-03 21:37:04.602729732 -0700
+@@ -10,6 +10,9 @@ mainmenu "uClinux/v850 (w/o MMU) Kernel 
+ config MMU
+        	bool
+ 	default n
++config ZONE_DMA
++	bool
++	default y
+ config RWSEM_GENERIC_SPINLOCK
+ 	bool
+ 	default y
+Index: linux-2.6.17-mm6/arch/sh/Kconfig
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/sh/Kconfig	2006-07-03 13:47:13.975017619 -0700
++++ linux-2.6.17-mm6/arch/sh/Kconfig	2006-07-03 21:36:39.118949095 -0700
+@@ -14,6 +14,10 @@ config SUPERH
+ 	  gaming console.  The SuperH port has a home page at
+ 	  <http://www.linux-sh.org/>.
+ 
++config ZONE_DMA
++	bool
++	default y
++
+ config RWSEM_GENERIC_SPINLOCK
+ 	bool
+ 	default y
+Index: linux-2.6.17-mm6/arch/frv/Kconfig
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/frv/Kconfig	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17-mm6/arch/frv/Kconfig	2006-07-03 21:35:16.328153984 -0700
+@@ -6,6 +6,10 @@ config FRV
+ 	bool
+ 	default y
+ 
++config ZONE_DMA
++	bool
++	default y
++
+ config RWSEM_GENERIC_SPINLOCK
+ 	bool
+ 	default y
+Index: linux-2.6.17-mm6/arch/m68knommu/Kconfig
+===================================================================
+--- linux-2.6.17-mm6.orig/arch/m68knommu/Kconfig	2006-07-03 13:47:12.932113368 -0700
++++ linux-2.6.17-mm6/arch/m68knommu/Kconfig	2006-07-03 21:36:19.860370626 -0700
+@@ -17,6 +17,10 @@ config FPU
+ 	bool
+ 	default n
+ 
++config ZONE_DMA
++	bool
++	default y
++
+ config RWSEM_GENERIC_SPINLOCK
+ 	bool
+ 	default y

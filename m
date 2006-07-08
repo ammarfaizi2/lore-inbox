@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWGHWNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWGHWTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWGHWNL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 18:13:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWGHWNL
+	id S1751241AbWGHWTa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 18:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWGHWTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 18:13:11 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:48305 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751239AbWGHWNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 18:13:09 -0400
-Subject: Re: Hang and Soft Lockup problems with generic time code
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <1152395222.8636.7.camel@localhost>
-References: <1152313879.3866.53.camel@mulgrave.il.steeleye.com>
-	 <1152315579.7493.9.camel@localhost.localdomain>
-	 <1152333404.3866.80.camel@mulgrave.il.steeleye.com>
-	 <1152395222.8636.7.camel@localhost>
-Content-Type: text/plain
-Date: Sat, 08 Jul 2006 17:13:05 -0500
-Message-Id: <1152396785.12020.33.camel@mulgrave.il.steeleye.com>
+	Sat, 8 Jul 2006 18:19:30 -0400
+Received: from tallyho.bytemark.co.uk ([80.68.81.166]:33477 "EHLO
+	tallyho.bytemark.co.uk") by vger.kernel.org with ESMTP
+	id S1751241AbWGHWTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 18:19:30 -0400
+Date: Sat, 8 Jul 2006 23:19:24 +0100
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
+To: Ask List <askthelist@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Runnable threads on run queue
+Message-ID: <20060708221923.GA1893@gallifrey>
+References: <loom.20060708T220409-206@post.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <loom.20060708T220409-206@post.gmane.org>
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.32 (i686)
+X-Uptime: 23:16:55 up 60 days, 11:29,  2 users,  load average: 0.88, 0.71, 0.50
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-08 at 14:47 -0700, john stultz wrote:
-> > Well, what I was seeing was that 
-> > 
-> > clocksource_read(clock) - clock->cycle_last
-> > 
-> > is returning a value about 200 x clock->cycle_interval
+* Ask List (askthelist@gmail.com) wrote:
+> Have an issue maybe someone on this list can help with. 
+
+<snip>
+
+> Please help.
 > 
-> That then would be ~200 ticks. Is this at HZ=1000 ? 
+> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+>  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+> 83  0   1328 301684  37868 1520632    0    0     0   264  400  1332 98  2  0  0
+> 17  0   1328 293936  37868 1520688    0    0     0     0  537   979 97  3  0  0
+> 73  0   1328 293688  37868 1520712    0    0     0     0  268  2643 98  2  0  0
+> 80  0   1328 277220  37868 1520756    0    0     0     0  351   824 98  2  0  0
+> 49  0   1328 262452  37868 1520800    0    0     0     0  393  1882 97  3  0  0
+> 45  0   1328 246796  37868 1520828    0    0     0   304  302  1631 96  4  0  0
+> 55  0   1328 243852  37868 1520872    0    0     0     0  356  1101 99  1  0  0
+> 17  0   1328 228672  37868 1520916    0    0     0     0  336   748 97  3  0  0
+>  0  0   1328 299948  37868 1520956    0    0     0     0  299   821 78  3 19  0
+>  0  0   1328 299184  37868 1520960    0    0     0     0  168    78  8  0 92  0
 
-no, 250.
+Could you also post the output of iostat -x 1  covering the same period?
+(You might need to restrict the set of devices if you have a lot)
+The pattern of bursts of output is something I've seen on apps
+just trying to do continuous large writes and I'm wondering
+what you are seeing there.
 
-> > According to the debugging printks I put into update_wall_time().  I was
-> > assuming this was caused by a jump in the TSC count, but I suppose it
-> > could also be cause by spurious alterations to cycle_last or other
-> > effects I haven't traced.
-> 
-> Since this issue effected both the TSC and ACPI PM timer, I'd more
-> likely suspect something is holding off the timer interrupt. This could
-> be some kernel code like a driver, or it could be something like an SMI
-> from the BIOS.
-
-The driver takes only ~10s to insert and these cycle jumps occur within
-that time frame, so it's not a real 200s.  The timer system has somehow
-manufactured the cycle jump.
-
-James
-
-
+Dave
+-- 
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

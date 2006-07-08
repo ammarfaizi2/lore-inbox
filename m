@@ -1,64 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWGHSX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbWGHS2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964942AbWGHSX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 14:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWGHSX2
+	id S964944AbWGHS2j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 14:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWGHS2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 14:23:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1238 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964938AbWGHSX2 (ORCPT
+	Sat, 8 Jul 2006 14:28:39 -0400
+Received: from www.osadl.org ([213.239.205.134]:14250 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S964944AbWGHS2i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 14:23:28 -0400
-Date: Sat, 8 Jul 2006 11:23:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: trajce nedev <trajcenedev@hotmail.com>
-cc: acahalan@gmail.com, linux-kernel@vger.kernel.org, linux-os@analogic.com,
-       khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org, arjan@infradead.org
+	Sat, 8 Jul 2006 14:28:38 -0400
 Subject: Re: [patch] spinlocks: remove 'volatile'
-In-Reply-To: <BAY110-F20F0B50886D0441B0B8989B8750@phx.gbl>
-Message-ID: <Pine.LNX.4.64.0607081115420.3869@g5.osdl.org>
-References: <BAY110-F20F0B50886D0441B0B8989B8750@phx.gbl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, linux-os@analogic.com,
+       khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org, arjan@infradead.org
+In-Reply-To: <787b0d920607080849p322a6349g7a5fd98f78aa9f32@mail.gmail.com>
+References: <787b0d920607072054i237eebf5g8109a100623a1070@mail.gmail.com>
+	 <20060708094556.GA13254@tsunami.ccur.com>
+	 <1152354244.24611.312.camel@localhost.localdomain>
+	 <787b0d920607080849p322a6349g7a5fd98f78aa9f32@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 08 Jul 2006 20:31:26 +0200
+Message-Id: <1152383487.24611.337.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 7 Jul 2006, trajce nedev wrote:
+On Sat, 2006-07-08 at 11:49 -0400, Albert Cahalan wrote:
+> On 7/8/06, Thomas Gleixner <tglx@linutronix.de> wrote:
+> > On Sat, 2006-07-08 at 05:45 -0400, Joe Korty wrote:
+> > > On Fri, Jul 07, 2006 at 11:54:10PM -0400, Albert Cahalan wrote:
+> > > > That's all theoretical though. Today, gcc's volatile does
+> > > > not follow the C standard on modern hardware. Bummer.
+> > > > It'd be low-performance anyway though.
+> > >
+> > > But gcc would follow the standard if it emitted a 'lock'
+> > > insn on every volatile reference.  It should at least
+> > > have an option to do that.
 > 
-> Incorrect.  I haven't been following this thread very closely [...]
+> That would do for x86 without MMIO.
 
-Right. And maybe you should have followed it a bit more closely.
+Great. And it still is not following the standard. The standard tells
+nothing about PCI, MMIO or whatever. volatile is _NOT_ about
+serialization.
 
-We're not talking about "asm volatile", which is a totally different use 
-of the same word. 
+> > volatile works fine on trivial microcontrollers and for the basic C
+> > course lesson, but there is no way for the compiler to decide which of
+> > the 'lock' mechanisms should be used in complex situations.
+> >
+> > In low level system programming there is no fscking way for the compiler
+> > to figure out if this is in context of a peripheral bus, cross CPU
+> > memory or whatever. All those things have hardware dependend semantics
+> > and the only way to get them straight is to enforce the correct handling
+> > with handcrafted assembler code.
+> 
+> This can work. The compiler CALLS the assembly code.
+> Nothing new here: see all the libgcc functions if you aren't
+> used to the idea of the compiler calling functions behind
+> your back.
+> 
+> So we have assembly functions somewhat like this:
+> 
+> __volatile_read(void*dst, void*src, size_t size);
+> __volatile_write(void*dst, void*src, size_t size);
+> 
+> They probably have to look up the memory address to
+> determine if it belongs to a PCI device or not, etc.
+> For userspace code, they could even be system calls.
+> 
+> Without that, gcc just isn't correct on normal hardware.
 
-We're not talking about pointers to volatile as arguments, which can be 
-required for a generic function to not complain about it's argument types.
+1. The volatile implementation of gcc is correct. The standard does not
+talk about busses, not even about SMP.
 
-We're not even talking about code like
+2. Who is going to define what normal hardware is and what not ?
+A committee perhaps, that would at least guarantee that this feature is
+never implemented.
 
-	#define writel(data, offset) \
-		*(volatile int *)(offset) = (data)
+> I'm not suggesting this is fast, of course. Probably the
+> right answer is something like this:
+> 
+> -fvolatile=smp   # Add locks
+> -fvolatile=call   # Call custom functions
 
-which is perfectly fine on some architectures (but realize that on other 
-archtiectures, you may need a _lot_ more than a single memory access to do 
-an IO write, so if you don't abstract it like the above, you're broken by 
-design.
+What a great idea! I can imagine the necessary framework, where you need
+to register the address spaces and related access functions and make
+every access to such variables burn thousands of CPU cycles.
 
-In short, we're not talking about "volatile" in _code_. That's usually 
-fine. We're talkign about "volatile" on data. IT'S WRONG.
+Again: The only thing volatile guarantees is that is does not optimize
+seemingly static variables. It reads back from memory. Nothing else.
+It's a punctual disabling of optimizations. And this is not something
+restricted to gcc. There are _NO_ compilers which solve something else
+than this.
 
-Btw, your spinlock (that uses "volatile") is _totally_ and _utterly_ 
-broken, exactly because it doesn't take things like memory ordering into 
-account. In other words, your spinlock WON'T WORK. It won't actually 
-protect the data accesses you have inside the spinlock.
+There is no reasonable automated solution for this problem, otherwise
+the compiler geeks would have implemented the
+--coded_with_brain_disabled option already.
 
-Which proves my point: people who think that "volatile" is good are 
-usually ignorant about the real needs of the code. To do a spinlock on 
-_any_ modern CPU, you need inline assembly. End of story. You need it to 
-make sure that you have told the CPU the right ordering constraints, 
-something that "volatile" simply does not (and _can_not) do.
+	tglx
 
-			Linus
+

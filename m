@@ -1,90 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030410AbWGHWot@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbWGHWuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030410AbWGHWot (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 18:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWGHWot
+	id S1030412AbWGHWuO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 18:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030413AbWGHWuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 18:44:49 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:13131 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751318AbWGHWos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 18:44:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:user-agent:cc:mime-version:content-disposition:date:content-type:content-transfer-encoding:message-id;
-        b=kkiOxG3YVjw1bnQtVbThCxPjOnD28VVH0NKxWXi7HVf57wpcY/hwliptMrxxuYeHiHdCeiYCqoTXafcwtKL0Cmi1VQ8M4H3aHA42vNWT9QBeYQbiP02cIHHhsrZrx1itPKPvtvj3jtpebJ0bYf16jysJOInXewIqnHpap7NxDbs=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][TRIVIAL][ACPI] Missing newline in acpi messes up dmesg output
-User-Agent: KMail/1.9.3
-Cc: Paul Diefenbaugh <paul.s.diefenbaugh@intel.com>,
-       Len Brown <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       akpm@osdl.org, Jesper Juhl <jesper.juhl@gmail.com>
-MIME-Version: 1.0
+	Sat, 8 Jul 2006 18:50:14 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:37093 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1030412AbWGHWuM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 18:50:12 -0400
+Date: Sat, 8 Jul 2006 23:50:10 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Message-ID: <20060708225009.GA30560@linux-mips.org>
+References: <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org> <20060706081639.GA24179@elte.hu> <Pine.LNX.4.64.0607061237300.3869@g5.osdl.org> <Pine.LNX.4.64.0607061333190.3869@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Date: Sun, 9 Jul 2006 00:43:26 +0200
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607090043.27121.jesper.juhl@gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0607061333190.3869@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(This was already send once on July 6'th but got no response, so resending)
+On Thu, Jul 06, 2006 at 01:34:14PM -0700, Linus Torvalds wrote:
 
-Hi,
+> On Thu, 6 Jul 2006, Linus Torvalds wrote:
+> > 
+> > So I _think_ that we should change the "=m" to the much more correct "+m" 
+> > at the same time (or before - it's really a bug-fix regardless) as 
+> > removing the "volatile".
+> 
+> Here's a first cut (UNTESTED!) for x86. I didn't check any other 
+> architectures, I bet they have similar problems.
 
-There's a tiny bug in 2.6.18-rc1.
-In drivers/acpi/bus.c::acpi_bus_set_power() there's a check to see if
-the device is power_manageable and if not then print a debug message
-and return -ENODEV. The debug printk() is missing a \n.
+I tried the same on MIPS, for lazyness sake at first only in atomic.h.  With
+gcc 3.3 the code size is exactly the same with both "=m" and "+m", so I
+didn't look into details of the generated code.  With gcc 4.1 "+m" results
+in a size increase of about 1K for the ip27_defconfig kernel.  For example:
 
-The printk statement looks like this : 
+<unlock_kernel>:
+       df830000        ld      v1,0(gp)
+       8c620028        lw      v0,40(v1)
+       04400014        bltz    v0,a80000000029944c <unlock_kernel+0x5c>
+       00000000        nop
+       2442ffff        subiu   v0,v0,1
+       ac620028        sw      v0,40(v1)	# current->lock_depth
+       8c630028        lw      v1,40(v1)	# current->lock_depth
+       0461000b        bgez    v1,a80000000029943c <unlock_kernel+0x4c>
 
-          printk(KERN_DEBUG "Device `[%s]' is not power manageable",
-                          device->kobj.name);
+The poinless load isn't generated with "=m".  The interesting thing is
+that in all the instances of bloat I looked at it was actually happening
+not as part of the asm statement itself, so maybe gcc's reload is getting
+a little confused.
 
-As you can see, there's no newline at the end, and that causes 
-problems for the next message to be printed.
-
-On my system the above results in this in dmesg : 
-
-...
-Device `[PEB1]' is not power manageable<6>ACPI: PCI Interrupt 0000:00:01.0[A] -> GSI 29 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:01.0 to 64
-Device `[PEB2]' is not power manageable<6>ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 34 (level, low) -> IRQ 17
-...
-
-Adding a newline (as the patch below does) turns this into
-
-...
-Device `[PEB1]' is not power manageable
-ACPI: PCI Interrupt 0000:00:01.0[A] -> GSI 29 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:01.0 to 64
-Device `[PEB2]' is not power manageable
-ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 34 (level, low) -> IRQ 17
-...
-
-Which is much nicer :-)
-
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- drivers/acpi/bus.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.18-rc1-orig/drivers/acpi/bus.c	2006-07-06 19:39:29.000000000 +0200
-+++ linux-2.6.18-rc1/drivers/acpi/bus.c	2006-07-06 23:23:12.000000000 +0200
-@@ -192,7 +192,7 @@ int acpi_bus_set_power(acpi_handle handl
- 	/* Make sure this is a valid target state */
- 
- 	if (!device->flags.power_manageable) {
--		printk(KERN_DEBUG "Device `[%s]' is not power manageable",
-+		printk(KERN_DEBUG "Device `[%s]' is not power manageable\n",
- 				device->kobj.name);
- 		return -ENODEV;
- 	}
-
-
-
+  Ralf

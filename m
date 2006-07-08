@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWGHEgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWGHEdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932509AbWGHEgw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 00:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWGHEgw
+	id S932446AbWGHEdN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 00:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWGHEdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 00:36:52 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:55693 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932509AbWGHEgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 00:36:51 -0400
-Subject: Re: Hang and Soft Lockup problems with generic time code
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <1152315579.7493.9.camel@localhost.localdomain>
-References: <1152313879.3866.53.camel@mulgrave.il.steeleye.com>
-	 <1152315579.7493.9.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 07 Jul 2006 23:36:44 -0500
-Message-Id: <1152333404.3866.80.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Sat, 8 Jul 2006 00:33:13 -0400
+Received: from wx-out-0102.google.com ([66.249.82.193]:48203 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932446AbWGHEdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 00:33:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UIQ133otOtgIwfxzxKYtW/3msv/xdW8nTaFka59S12P50tGE8yVISsdpLzdSJZTNzFsOvFi+vQDYGOhco6BhbZLjJZq+17tK2MWnKcJUzvA3d4zSNzyl+RkDh8h8BuPTZGMxbQvP6ngGQGcsdJXsIahI4pznlNAAGYujfq6+8TU=
+Message-ID: <3aa654a40607072133i55ffe0d1ke9f0905c6599864c@mail.gmail.com>
+Date: Fri, 7 Jul 2006 21:33:11 -0700
+From: "Avuton Olrich" <avuton@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
+Cc: "Nigel Cunningham" <ncunningham@linuxmail.org>,
+       suspend2-devel@lists.suspend2.net,
+       "Olivier Galibert" <galibert@pobox.com>, grundig <grundig@teleline.es>,
+       jan@rychter.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060708002826.GD1700@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060627133321.GB3019@elf.ucw.cz>
+	 <20060707215656.GA30353@dspnet.fr.eu.org>
+	 <20060707232523.GC1746@elf.ucw.cz>
+	 <200607080933.12372.ncunningham@linuxmail.org>
+	 <20060708002826.GD1700@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-07 at 16:39 -0700, john stultz wrote:
-> Yep. This has been seen where a large number of ticks are lost. Roman
-> and I are working on a solution for this (I sent a patch out to the
-> list
-> earlier today for it, and Roman *just* posted his version a moment ago
-> -
-> if you can give one or both of them a try it would be appreciated).
+On 7/7/06, Pavel Machek <pavel@ucw.cz> wrote:
+> Now... switching to uswsusp kernel parts will make it slightly harder
+> to install in the short term (messing with initrd). OTOH there's at
+> least _chance_ to get to the point where suspend "just works" in
+> Linux, in the long term...
 
-Well, the patch you posted here:
+Long term being the key words. When will uswsusp be concidered 'rock
+solid'? 2008+? Suspend2 is rock solid _today_. Imagine a world where
+Linux drivers were as reliable as swsusp (granted I tried to get
+uswsusp working and I gave up before messing with the initrd stuff).
+I'm not even talking about all the extra features of Suspend2.
 
-Message-ID: 1152298515.5330.12.camel () localhost ! localdomain
-
-Seems to work fine, thanks.  I'm not sure what I'm looking for for the
-other one.
-
-
-> Did you really mean jumps of 200 seconds? Hmmm. The issue Roman and I
-> have been looking into does occur when we lose a number of ticks and
-> that confuses the clocksource adjustment code. The fix we're working
-> on
-> corrects the adjustment confusion, but doesn't fix the lost ticks.
-> 
-> However 200 seconds of lost ticks sounds very off. Could the driver be
-> disabling interrupt for such a long period of time?
-
-Well, what I was seeing was that 
-
-clocksource_read(clock) - clock->cycle_last
-
-is returning a value about 200 x clock->cycle_interval
-
-According to the debugging printks I put into update_wall_time().  I was
-assuming this was caused by a jump in the TSC count, but I suppose it
-could also be cause by spurious alterations to cycle_last or other
-effects I haven't traced.
-
-James
-
-
+Maybe it's worth thinking about at least helping it get into -mm
+before complaining about lack of testing Suspend2 has had. Sounds like
+people are willing to do the work it would take to get it in, it
+appears there is no vehicle at this point.
+-- 
+avuton
+--
+ Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

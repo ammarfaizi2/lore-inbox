@@ -1,95 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWGHW2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWGHWcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbWGHW2i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 18:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWGHW2i
+	id S1751314AbWGHWcL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 18:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWGHWcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 18:28:38 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:47335 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751316AbWGHW2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 18:28:37 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
-Date: Sun, 9 Jul 2006 08:28:33 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, suspend2-devel@lists.suspend2.net,
-       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
-       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
-       linux-kernel@vger.kernel.org
-References: <20060627133321.GB3019@elf.ucw.cz> <200607082052.02557.rjw@sisk.pl> <20060708211003.GC2546@elf.ucw.cz>
-In-Reply-To: <20060708211003.GC2546@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1287899.4QS5MZ1oan";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sat, 8 Jul 2006 18:32:10 -0400
+Received: from beauty.rexursive.com ([203.171.74.242]:62666 "EHLO
+	beauty.rexursive.com") by vger.kernel.org with ESMTP
+	id S1751314AbWGHWcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 18:32:09 -0400
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+From: Bojan Smojver <bojan@rexursive.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Jan Rychter <jan@rychter.com>, Pavel Machek <pavel@ucw.cz>,
+       Avuton Olrich <avuton@gmail.com>, linux-kernel@vger.kernel.org,
+       Olivier Galibert <galibert@pobox.com>,
+       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+In-Reply-To: <1152364743.3120.42.camel@laptopd505.fenrus.org>
+References: <20060627133321.GB3019@elf.ucw.cz>
+	 <20060707215656.GA30353@dspnet.fr.eu.org>
+	 <20060707232523.GC1746@elf.ucw.cz>
+	 <200607080933.12372.ncunningham@linuxmail.org>
+	 <20060708002826.GD1700@elf.ucw.cz>  <m2d5cg1mwy.fsf@tnuctip.rychter.com>
+	 <1152353698.2555.11.camel@coyote.rexursive.com>
+	 <1152355318.3120.26.camel@laptopd505.fenrus.org>
+	 <1152357077.2088.4.camel@beast.rexursive.com>
+	 <1152364743.3120.42.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Sun, 09 Jul 2006 08:32:06 +1000
+Message-Id: <1152397926.2582.3.camel@coyote.rexursive.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200607090828.36834.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1287899.4QS5MZ1oan
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sat, 2006-07-08 at 15:19 +0200, Arjan van de Ven wrote:
 
-On Sunday 09 July 2006 07:10, Pavel Machek wrote:
-> > > It's only too slow on swsusp. With Suspend2, I regularly suspend 1GB
-> > > images on both my desktop and laptop machines. I agree that it might =
-be
-> > > slower on a
->
-> uswsusp is as fast as suspend2. It does same LZF compression.
+> so they're almost the same conceptually... That's even more reason to go
+> for one unified approach.
 
-I agree for uncompressed images - I tried timing the writing of the image=20
-yesterday. I'm not sure about LZF though, because I couldn't get it to=20
-resume. I'd be interested to see it really be as fast as suspend2 with=20
-compression.
+I couldn't agree more. Of course, we should have a better of the two
+in-kernel implementations: Suspend2. But that's the problem - it's not
+going to happen.
 
-> > > > Furthermore, I tried to measure how much time would actually be sav=
-ed
-> > > > if the images were greater than 50% of RAM (current swsusp's limit)
-> > > > and it turned out to be 10% at the very last, with compression (on a
-> > > > 256MB box with PII).
-> > >
-> > > I think you'll find that this depends very much on the kind of worklo=
-ad
-> > > you have, and how you try to compare apples with apples. If you're
-> > > running lots of memory intensive apps (say VMware with a couple of
-> > > hundred meg allocated, Open Office writer, Kmail, a couple of termina=
-ls
-> > > and so on - I'm just describing what I normally run), you'll miss that
-> > > extra memory more.
->
-> Do you think you could get some repeatable benchmark for Rafael? He
-> worked quite hard on feature only to find out it makes little difference.=
-=2E.
+-- 
+Bojan
 
-Sure, but it will mean more if all of the tests are run on the same system,=
- so=20
-I'll have another go at getting uswsusp to resume, when I get the chance.
-
-Regards,
-
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
-
---nextPart1287899.4QS5MZ1oan
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEsDGUN0y+n1M3mo0RAt/tAKCdl/QJni37I/JkIXJotHlQ0CMyyACgopWE
-F+5iHPHm0tcd1V2Zn+7zLh0=
-=A5gn
------END PGP SIGNATURE-----
-
---nextPart1287899.4QS5MZ1oan--

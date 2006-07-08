@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWGHB2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWGHBZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbWGHB2M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 21:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWGHB2L
+	id S1751276AbWGHBZo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 21:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWGHBZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 21:28:11 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:43793 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751287AbWGHB2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 21:28:10 -0400
-Date: Sat, 8 Jul 2006 03:28:05 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Samuel Ortiz <samuel@sortiz.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fix drivers/net/irda/ali-ircc.c:ali_ircc_init()
-Message-ID: <20060708012800.GH26941@stusta.de>
+	Fri, 7 Jul 2006 21:25:43 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:14553 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751276AbWGHBZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 21:25:43 -0400
+Date: Fri, 7 Jul 2006 18:25:22 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, Martin Bligh <mbligh@google.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo@kvack.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [RFC 5/8] x86_64 without ZONE_DMA
+In-Reply-To: <200607080300.16931.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0607071820570.4530@schroedinger.engr.sgi.com>
+References: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
+ <200607080220.39100.ak@suse.de> <Pine.LNX.4.64.0607071742060.4352@schroedinger.engr.sgi.com>
+ <200607080300.16931.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted, that from the changes from commit 
-898b1d16f8230fb912a0c2248df685735c6ceda3 the
-       if (ret)
-               platform_driver_unregister(&ali_ircc_driver);
-was dead code.
+On Sat, 8 Jul 2006, Andi Kleen wrote:
 
-This patch changes this function to what seems to have been the 
-intention.
+> > The savings are not only from the code paths. The VM itself is cleaner and 
+> > the balancing issues are not that troublesome anymore.
+> 
+> Doesn't help - it has to be fixed anyways for NUMA and other architectures.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- drivers/net/irda/ali-ircc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- linux-2.6.17-mm6-full/drivers/net/irda/ali-ircc.c.old	2006-07-08 01:44:53.000000000 +0200
-+++ linux-2.6.17-mm6-full/drivers/net/irda/ali-ircc.c	2006-07-08 01:46:46.000000000 +0200
-@@ -142,28 +142,29 @@
-  *    Initialize chip. Find out whay kinds of chips we are dealing with
-  *    and their configuation registers address
-  */
- static int __init ali_ircc_init(void)
- {
- 	ali_chip_t *chip;
- 	chipio_t info;
--	int ret = -ENODEV;
-+	int ret;
- 	int cfg, cfg_base;
- 	int reg, revision;
- 	int i = 0;
- 	
- 	IRDA_DEBUG(2, "%s(), ---------------- Start ----------------\n", __FUNCTION__);
+Some architectures like ours can run with a single zone since they have 
+DMA that works anywhere. Same thing is true for my machines are home and 
+at work.
  
- 	ret = platform_driver_register(&ali_ircc_driver);
-         if (ret) {
-                 IRDA_ERROR("%s, Can't register driver!\n",
- 			   ALI_IRCC_DRIVER_NAME);
-                 return ret;
-         }
- 
-+	ret = -ENODEV;
- 	
- 	/* Probe for all the ALi chipsets we know about */
- 	for (chip= chips; chip->name; chip++, i++) 
- 	{
- 		IRDA_DEBUG(2, "%s(), Probing for %s ...\n", __FUNCTION__, chip->name);
- 				
- 		/* Try all config registers for this chip */
+> Also in my experience empty zones are not a significant problem for VM
+> balancing.
 
+The problem is that the zones are not even empty! We keep 16M in some 
+weird ZONE_DMA that barely anyone one uses anymore and add slabs to it 
+that are only used by some confused device drivers.
+
+Also the empty zones are still a problem since they have to be scanned 
+repeatedly (potentially on each allocation). They waste cachelines and 
+result in loops where we could just have straight code.

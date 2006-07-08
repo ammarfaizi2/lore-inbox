@@ -1,241 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWGHSve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWGHSxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030203AbWGHSve (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 14:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWGHSve
+	id S1030204AbWGHSxa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 14:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWGHSxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 14:51:34 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:48574 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964960AbWGHSvd (ORCPT
+	Sat, 8 Jul 2006 14:53:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58588 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964960AbWGHSx3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 14:51:33 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
-Date: Sat, 8 Jul 2006 20:52:02 +0200
-User-Agent: KMail/1.9.3
-Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
-       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
-       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
-       linux-kernel@vger.kernel.org
-References: <20060627133321.GB3019@elf.ucw.cz> <200607081238.16753.rjw@sisk.pl> <200607082131.47832.ncunningham@linuxmail.org>
-In-Reply-To: <200607082131.47832.ncunningham@linuxmail.org>
+	Sat, 8 Jul 2006 14:53:29 -0400
+Date: Sat, 8 Jul 2006 11:53:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-os@analogic.com, khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org,
+       arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+In-Reply-To: <44AF532B.4050504@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0607081125440.3869@g5.osdl.org>
+References: <787b0d920607072054i237eebf5g8109a100623a1070@mail.gmail.com>
+ <Pine.LNX.4.64.0607072222540.3869@g5.osdl.org> <44AF532B.4050504@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607082052.02557.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Saturday 08 July 2006 13:31, Nigel Cunningham wrote:
-> On Saturday 08 July 2006 20:38, Rafael J. Wysocki wrote:
-> > On Saturday 08 July 2006 05:42, Nigel Cunningham wrote:
-> > > On Saturday 08 July 2006 10:28, Pavel Machek wrote:
-> > > > I really looked at suspend2 hard, year or so ago, when I was pretty
-> > > > tired of the flamewars. At that point I decided it is way too big to
-> > > > be acceptable to mainline, and got that crazy idea about uswsusp, that
-> > > > surprisingly worked out at the end.
-> > > >
-> > > > uswsusp makes suspend2 obsolete, and suspend2 now looks
-> > > > misdesigned. It puts too much stuff into the kernel, you know that
-> > > > already.
-> > >
-> > > No, I don't. From my point of view, uswsusp is misdesigned, but suspend2
-> > > isn't. Suspend2 keeps the stuff that ought to be done by the kernel in
-> > > the kernel. It doesn't shift data out to userspace, only to copy it
-> > > straight back to the kernel for I/O. It will keep working even if
-> > > userspace crashes and burns. It leverages support for compression and
-> > > encryption that's already in the kernel. It does a real image of memory,
-> > > not a half-pie attempt that causes lots of faulting of pages etc
-> > > post-resume.
-> >
-> > I must say I completely disagree with the last sentence here.  AFAICT,
-> > suspend2 does the following:
-> > a) save LRU pages in the hope they won't be accesses after the system
-> > has been snapshotted,
-> > b) create the memory snapshot using the, now saved, LRU pages as additional
-> > storage,
-> > c) save the snapshot image created in b).
-> >
-> > There are two problems here.  First, actually we are not sure if using LRU
-> > pages as additional storage in b) is correct.  At least I've not seen any
-> > argument supporting this except for "it has been tested for a long time
-> > and nobody's reported any problems with it".  Second, in fact suspend2
-> > saves two images, one consisting of LRU pages only and the second
-> > consisting of the rest of memory.  Moreover, extra care must be taken while
-> > saving LRU pages so that they don't get corrupted in the process and this
-> > makes things quite complicated.
-> 
-> LRU pages are only going to be modified if:
-> 
-> a) kswapd runs and frees some
-> b) memory allocation paths try to get memory freed.
-> c) Userspace processes with these LRU pages run.
 
-Not only then, it appears.  Some of them my be modified due to
-completions, timers, etc. and the modifications may be triggered
-from interrupt context.  At least that's what Andrew told me last time
-this was discussed and I just didn't have any good answer to that.
+On Sat, 8 Jul 2006, Nick Piggin wrote:
+> 
+> The volatile casting in atomic_* and *_bit seems to be a good idea
+> (now that I think about it) [1].
+> 
+> Because if you had a barrier there, you'd have to reload everything
+> used after an atomic_read or set_bit, etc.
 
-That's why the patch has not been applied.
+Yes and no. The problem _there_ is that we use the wrong inline asm 
+constraints.
 
-> We have kswapd frozen, hooks to stop other processes trying to free memory 
-> (yes, I'm going to switch to your method of taking the pages off the lists), 
-> and userspace processes are frozen or their pages are excluded from the list.
-> 
-> > However, if we are sure that we can use LRU pages as additional storage in
-> > b), they just can be included in the memory image without copying
-> > and we only need some extra room for the other data and code.
-> > If LRU pages take 50% of memory, this would allow us to create
-> > a signle snapshot image as big as 75% of RAM (on x86_64).  IMO the
-> > remaining 25% are not worth the increased complexity of suspend2,
-> > especially that on 1 GB machine 75% of RAM is too much to save
-> > for performance reasons (ie. the extra time you save by making the
-> > system more responsive after resume is lost for saving and restoring
-> > the image, even if compression is used).
-> 
-> It's only too slow on swsusp. With Suspend2, I regularly suspend 1GB images on 
-> both my desktop and laptop machines. I agree that it might be slower on a 
-> 4200RPM laptop drive, but you also have to balance this against faulting the 
-> pages back in post resume (which will be slower because they're not 
-> compressed and contiguous then, though maybe not not as noticable if you're 
-> saving 75% of memory).
-> 
-> > Furthermore, I tried to measure how much time would actually be saved if
-> > the images were greater than 50% of RAM (current swsusp's limit) and it
-> > turned out to be 10% at the very last, with compression (on a 256MB box
-> > with PII).
-> 
-> I think you'll find that this depends very much on the kind of workload you 
-> have, and how you try to compare apples with apples. If you're running lots 
-> of memory intensive apps (say VMware with a couple of hundred meg allocated, 
-> Open Office writer, Kmail, a couple of terminals and so on - I'm just 
-> describing what I normally run), you'll miss that extra memory more.
+The "+m" constraint is basically undocumented, and while I think it has 
+existed _internally_ in gcc for a long time (gcc inline asms are actually 
+fairly closely related to the internal gcc code generation templates, but 
+the internal templates generally have capabilities that the inline asms 
+don't have), I don't think it has been actually supported for inline asms 
+all that time.
 
-Well, I tried really hard to justify the patch that allowed swsusp to create
-bigger images and 10% was the greatest speedup I could get out of it
-and, let me repeat, _with_ compression and async I/O.  I tried to simulate
-different workloads etc., but I couldn't get more than 10% speedup
-(the biggest image I got was as big as 80% of RAM) - counting the time
-from issuing the suspend command to getting back _responsive_ system
-after resume.
+But "+m" means "I will both read and write from this memory location", 
+which is exactly what we want to have for things like atomic_add() and 
+friends.
 
-> > > If there's any misdesign in Suspend2, it's that I haven't made it a
-> > > special case of checkpointing. But, of course, there's no support for
-> > > checkpointing in the rest of the kernel at the moment anyway.
-> > >
-> > > > From your point of view, uswsusp is misdesigned, too. It is too damn
-> > > > hard to install. There's no way it could survive as a standalone patch
-> > > > -- the way suspend2 survives. Fortunately, from distro point of view,
-> > > > being hard to install does not matter that much. Distros already have
-> > > > their own initrds, etc. And in the long term, distros matter, and I'm
-> > > > quite confident I can make 90% distributions ship uswsusp + its
-> > > > userland; cleaner kernel code matters, too, and maybe you'll agree
-> > > > that if you only look at the kernel parts, uswsusp looks nicer.
-> > >
-> > > It looks simple, I agree. But that's only because it's doing the minimum
-> > > required.
-> >
-> > Again, I don't agree with this statement.  Moreover uswsusp (gosh, I _hate_
-> > this name) is being developed on a regular basis, so I think it'll be doing
-> > a bit more in the future.
-> 
-> I know how you feel about uswsusp :) That's why I tried to get suspend into 
-> use in it's place.
-> 
-> > > > Now, you are asking me to review 14000 lines of code. That's quite a
-> > > > lot of code, and you did not exactly make reviewer's life easy. Also
-> > > > reviews usually stop at first "fatal" problem, and you still drive
-> > > > user interface from kernel. (Yes, drawing is done in userland, but
-> > > > core user interface code is still in kernel). That is "fatal".
-> > >
-> > > I agree that I didn't do the best job of making the reviewer's life easy.
-> > > But let's give me some credit. I did all those patches because I
-> > > genuinely thought that's what was requested the last time I submitted
-> > > patches for review. I didn't like splitting up the files into all those
-> > > patches - it was a lot of work and took a lot of time. But I did it
-> > > because I wanted to do what was asked and wanted to do what was necessary
-> > > to get a good implementation into the vanilla kernel.
-> > >
-> > > Frankly, I'd rather be working on improving drivers and helping implement
-> > > the run-time power management than working on getting Suspend2 merged.
-> > > But for now, this is the immediate task.
-> >
-> > Why so?
-> 
-> Why the immediate task, or why would I prefer to work on other things? I'll 
-> assume the former. Because I like to finish one things before starting 
-> another, and I'm thinking Suspend2 isn't finished until it's merged. 
-> Developmentwise, I think it's finished - unless I want to go off in a new 
-> direction and start implementing checkpointing, but I have virtually zero 
-> impetus for that at the moment.
-> 
-> > > I don't know why you see the user interface code as a problem. All the
-> > > kernel is doing is telling the userspace program, via a netlink socket,
-> > > what's going on and receiving messages from the userspace program
-> > > sometimes.
-> > >
-> > > > (Greg mentioned /proc usage being "fatal", too).
-> > > >
-> > > > Now... moving user interface into userland, and removing /proc usage
-> > > > are big tasks, do you agree? And they will mean lot of changes, and
-> > > > lot of new testing.
-> > >
-> > > Removing /proc isn't a big task. It will affect the hibernate script far
-> > > more that the kernel code. The user interface is already in userland.
-> > >
-> > > > Perhaps at this point right solution is to just drop suspend2
-> > > > codebase, and do it again, this time in userland? Kernel
-> > > > infrastructure is already there, and even if you wanted to replace
-> > > > [u]swsusp by suspend2, you have to understand how the old code
-> > > > works. (Another point you may like is that forking suspend.sf.net code
-> > > > is relatively easy; so even if we disagree about coding style of the
-> > > > userland parts, I can't veto it or something. And given that your only
-> > > > problem is including all the possible features, I probably will not
-> > > > have reason to stop you or something -- having all the features is
-> > > > okay in userland).
-> > >
-> > > I don't want to fork anything. I didn't fork swsusp to start with, and I
-> > > don't want to start forking things now. (If you want to debate that
-> > > point, can you check the mailing list archives on Sourceforge, Berlios
-> > > and suspend2.net first? You'll find that I just carried on where Florent
-> > > left off).
-> > >
-> > > > Now... switching to uswsusp kernel parts will make it slightly harder
-> > > > to install in the short term (messing with initrd). OTOH there's at
-> > > > least _chance_ to get to the point where suspend "just works" in
-> > > > Linux, in the long term...
-> > > >
-> > > > (Of course, you can just ignore this and keep maintaining out-of-tree
-> > > > suspend2. We'll also get to the point where it "just works"... it will
-> > > > just take a little longer.)
-> > >
-> > > With your current design, I don't see how you're ever going to get to the
-> > > level of functionality that Suspend2 has. I'm of course thinking of a
-> > > full image of memory (although Rafael's patch a while back looked hopeful
-> > > there) and support for other-than-just-one-swap-partition.
-> >
-> > These are two different points.
-> >
-> > Actually, as I said above, as soon as we are _sure_ that LRU pages are not
-> > touched after the memory has been snapshotted, my patch will be mergeable
-> > and we'll get the ability to create bigger images without the added
-> > complexity.  [Apart from the fact that the whole memory image on a box with
-> > more that 512 MB of RAM wouldn't make much sense, IMHO.]  The _only_ thing
-> > needed here is an argument which you have to provide anyway to show that
-> > suspend2 does the right thing.
-> >
-> > As far as the support for ordinary files, swap files, etc. is concerned,
-> > there's nothing to worry about.  It's comming.
-> 
-> Great. It will be good to see that. Do you have some way around bmapping the 
-> files?
+However, because it is badly documented, and because it didn't even exist 
+long ago, we have lots of code (and lots of people) that doesn't even 
+_know_ about "+m". So we have code that fakes out the "both read and 
+write" part by marking things either volatile, or doing 
 
-No, I don't.
+	...
+	:"=m" (*ptr)
+	:"m" (*ptr)
+	...
 
-Greetings,
-Rafael
+in the constraints (or, in many cases, both).
+
+> [1] Even though I still can't tell the exact semantics of these
+>     operations eg. why do we need volatile at all? why do we have
+>     volatile in the double underscore (non-atomic) versions?
+
+So we tend to have "volatile" for a couple of different reasons:
+
+ - the above kind of "we couldn't tell the inline assembly well enough 
+   what the instruction actually _does_, so we just tell gcc to not mess 
+   with it".
+
+   This _generally_ should be replaced with using "+m", so that gcc just 
+   knows that we both read and write to the location, and that allows gcc 
+   to generate the best possible code, while still generating _correct_ 
+   code because gcc knows what is going on and doesn't think the write 
+   totally clobbers the old value.
+
+ - many functions are used with random data, and if the caller has a 
+   "volatile long array[]" (bad - but hey, it happens), then a function 
+   that _acts_ on that array, like the bitops functions, need to take a
+   an argument like "volatile long *".
+
+   So for example, "test_bit()", which can act both on volatile arrays 
+   _and_ on const arrays, will look like
+
+	int test_bit(int nr, const volatile void * addr);
+
+   which some people think is strange ("Both 'const' _and_ 'volatile'? 
+   Isn't that a contradiction in terms?"), but the fact is, it reflects 
+   the different callers, not necessarily test_bit() itself.
+
+ - some functions actually really want the volatile access. The x86 IO 
+   functions are the best actual example of this:
+
+	static inline unsigned int readl(const volatile void __iomem *addr)
+	{
+		return *(volatile unsigned int __force *) addr;
+	}
+
+   which actually has a _combination_ of the above reason (the incoming 
+   argument is already marked "volatile" just because the _caller_ may 
+   have marked it that way) and the cast to volatile would be there 
+   _regardless_ of the calling convention "volatile", because in this case 
+   we actually use it as a way to avoid inline assembly (which a number of
+   other architectures need to do, and which x86 too needs to do for the 
+   PIO accesses, but we can avoid it in this case)
+
+So those are all real reasons to use volatile, although the first one is 
+obviously a case where we no longer should (but at least we have 
+reasonably good historical reasons for why we did).
+
+The thing to note that is all of the above reasons are basically 
+"volatile" markers on the _code_. We haven't really marked any _data_ 
+volatile, we're just saying that certain _code_ will want to act on 
+the data in a certain way.
+
+And I think that's generally a sign of "good" use of volatile - it's 
+making it obvious that certain specific _use_ of a data may have certain 
+rules. 
+
+As mentioned, there is _one_ case where it is valid to use "volatile" on 
+real data: it's when you have a "I don't care about locking, and I'm not 
+accessign IO memory or something else that may need special care" 
+situation.
+
+In the kernel, that _one_ special case used to basically be the "jiffies" 
+counter. There's nothing to "lock" there - it just keeps ticking. And it's 
+still obviously normal memory, so there's no question about any special 
+rules for accesses. And there are no SMP memory ordering issues for 
+reading it (for the low bits), since the "jiffies" counter is not really 
+tied to anything else, so there are no larger "coherency" rules either.
+
+So in that ONE case, "volatile" is actually fine. We really don't care if 
+we read the old value or the new value when it changes, and there's no 
+reason to try to synchronize with anythign else. 
+
+There _may_ be some other cases where that would be true, but quite 
+frankly, I can't think of any. If the CPU were to have a built-in random 
+number generator mapped into memory, that would fall under the same kind 
+of rules, but that's basically it.
+
+One final word: in user space, because of how signal handlers work, 
+"volatile" can still make sense for exactly the same reasons that 
+"jiffies" makes sense in the kernel. You may, for example, have a signal 
+handler that updates some flag in memory, and that would basically look 
+exactly like the "jiffies" case for your program. 
+
+(In fact, because signals are very expensive to block, you may have more 
+of a reason to use a "jiffies" like flag in user space than you have in 
+kernel. In the kernel, you'd tend to use a spinlock to protect things. In 
+user space, with signals, you may have to use some non-locking algorithm, 
+where the generation count etc migth well look like "jiffies").
+
+			Linus

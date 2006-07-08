@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWGHGmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWGHGpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbWGHGmw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 02:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWGHGmw
+	id S1751302AbWGHGpT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 02:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWGHGpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 02:42:52 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:32948 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751301AbWGHGmv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 02:42:51 -0400
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jeremy Higdon <jeremy@sgi.com>
-Cc: Jes Sorensen <jes@sgi.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Luck, Tony" <tony.luck@intel.com>, John Daiker <jdaiker@osdl.org>,
-       John Hawkes <hawkes@sgi.com>, Tony Luck <tony.luck@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
-       Dan Higgins <djh@sgi.com>
-In-Reply-To: <20060708001427.GA723842@sgi.com>
-References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
-	 <yq04py4i9p7.fsf@jaguar.mkp.net>
-	 <1151578928.23785.0.camel@localhost.localdomain> <44A3AFFB.2000203@sgi.com>
-	 <1151578513.3122.22.camel@laptopd505.fenrus.org>
-	 <20060708001427.GA723842@sgi.com>
-Content-Type: text/plain
-Date: Sat, 08 Jul 2006 08:42:43 +0200
-Message-Id: <1152340963.3120.0.camel@laptopd505.fenrus.org>
+	Sat, 8 Jul 2006 02:45:18 -0400
+Received: from bay0-omc3-s31.bay0.hotmail.com ([65.54.246.231]:56951 "EHLO
+	bay0-omc3-s31.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1751302AbWGHGpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 02:45:17 -0400
+Message-ID: <BAY110-F352D1029C60425661175C9B8750@phx.gbl>
+X-Originating-IP: [198.123.50.95]
+X-Originating-Email: [trajcenedev@hotmail.com]
+In-Reply-To: <200607080119.52533.chase.venters@clientec.com>
+From: "trajce nedev" <trajcenedev@hotmail.com>
+To: chase.venters@clientec.com
+Cc: torvalds@osdl.org, acahalan@gmail.com, linux-kernel@vger.kernel.org,
+       linux-os@analogic.com, khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org,
+       arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Date: Fri, 07 Jul 2006 23:45:15 -0700
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 08 Jul 2006 06:45:17.0039 (UTC) FILETIME=[12A7EFF0:01C6A25A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 8 Jul 2006, Chase Venters wrote:
+>
+>Perhaps you should have followed this thread closely before composing your
+>assault on Linus. We're not talking about "asm volatile". We're talking 
+>about
+>the "volatile" keyword as applied to variables. 'volatile' as applied to
+>inline ASM is of course necessary in many cases -- no one is disputing 
+>that.
+>
 
+Ok, let's port a spinlock macro that spins instead of context switches 
+instead of using the pthread garbage on IA64 or AMD64:
 
-> So does i386 convert the return value of the times(2) call to user
-> hertz?  On IA64, it returns the value in internal clock ticks, and
-> then when a program uses the value in param.h, it gets it wrong now,
-> because internal HZ is now 250.
-> 
-> So is times() is broken in IA64, or is this an exception to Alan's
-> statement?
+#if ((defined (_M_IA64) || defined (_M_AMD64)) && !defined(NT_INTEREX))
+#include <windows.h>
+#pragma intrinsic (_InterlockedExchange)
 
-yes it's broken; it needs to convert it to the original HZ (1024) and
-make the sysconf() function also return 1024
+typedef volatile LONG lock_t[1];
 
+#define LockInit(v)	((v)[0] = 0)
+#define LockFree(v)	((v)[0] = 0)
+#define Unlock(v)	((v)[0] = 0)
+
+__forceinline void Lock(volatile LONG *hPtr)
+{
+	int iValue;
+
+	for (;;) {
+		iValue = _InterlockedExchange((LPLONG)hPtr, 1);
+		if (iValue == 0)
+			return;
+		while (*hPtr);
+	}
+}
+
+Please show me how I can write this to spinlock without using volatile.
+
+		Trajce Nedev
+		tnedev@mail.ru
+
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today - it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
 

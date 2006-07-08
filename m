@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWGHXqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWGHXzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030424AbWGHXqL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 19:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030425AbWGHXqL
+	id S1030420AbWGHXzE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 19:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWGHXzD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 19:46:11 -0400
-Received: from beauty.rexursive.com ([203.171.74.242]:42142 "EHLO
-	beauty.rexursive.com") by vger.kernel.org with ESMTP
-	id S1030424AbWGHXqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 19:46:10 -0400
-Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
-From: Bojan Smojver <bojan@rexursive.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Arjan van de Ven <arjan@infradead.org>, Sunil Kumar <devsku@gmail.com>,
-       Pavel Machek <pavel@ucw.cz>, Avuton Olrich <avuton@gmail.com>,
-       Olivier Galibert <galibert@pobox.com>, Jan Rychter <jan@rychter.com>,
-       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net,
-       grundig <grundig@teleline.es>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-In-Reply-To: <200607082125.12819.rjw@sisk.pl>
-References: <20060627133321.GB3019@elf.ucw.cz>
-	 <ce9ef0d90607080942w685a6b60q7611278856c78ac0@mail.gmail.com>
-	 <1152377434.3120.69.camel@laptopd505.fenrus.org>
-	 <200607082125.12819.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Sun, 09 Jul 2006 09:46:06 +1000
-Message-Id: <1152402366.2584.10.camel@coyote.rexursive.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Sat, 8 Jul 2006 19:55:03 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40594 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932345AbWGHXzB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 19:55:01 -0400
+Date: Sun, 9 Jul 2006 01:54:34 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, suspend2-devel@lists.suspend2.net,
+       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
+       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
+Message-ID: <20060708235434.GG2546@elf.ucw.cz>
+References: <20060627133321.GB3019@elf.ucw.cz> <200607082052.02557.rjw@sisk.pl> <20060708211003.GC2546@elf.ucw.cz> <200607090828.36834.ncunningham@linuxmail.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607090828.36834.ncunningham@linuxmail.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-08 at 21:25 +0200, Rafael J. Wysocki wrote:
+Hi!
 
-> Now there seem to be two possible ways to go:
-> 1) Drop the implementation that already is in the kernel and replace it with
-> the out-of-the-tree one.
-> 2) Improve the one that already is in the kernel incrementally, possibly
-> merging some code from the out-of-the-tree implementation, so that it's as
-> feature-rich as the other one.
+> > > > It's only too slow on swsusp. With Suspend2, I regularly suspend 1GB
+> > > > images on both my desktop and laptop machines. I agree that it might be
+> > > > slower on a
+> >
+> > uswsusp is as fast as suspend2. It does same LZF compression.
 > 
-> Apparently 1) is what Nigel is trying to make happen and 2) is what I'd like
-> to do.
+> I agree for uncompressed images - I tried timing the writing of the image 
+> yesterday. I'm not sure about LZF though, because I couldn't get it to 
+> resume. I'd be interested to see it really be as fast as suspend2 with 
+> compression.
 
-I didn't get the impression from 1) at all. If anything, Nigel has been
-busy making Suspend2 use swsusp machinery *more*, not less as of
-recently. If he wanted to drop swsusp completely, why would he do
-something like that?
+Is there any way to help you? I assume normal swsusp resumes okay so
+it is not driver problem?
 
-But, the confusing bit for me here is 2). Given that you're the man for
-uswsusp, why would you want to keep any of the in-kernel
-implementations? The only thing that crosses my mind right now is that
-uswsusp may be a bit heavy on setup, so Linux distros/users that may not
-have the luxury of doing all that would be left without a suspend/resume
-solution. Is that why you want to keep an in-kernel implementation as
-well? Or is there some other reason?
+> > Do you think you could get some repeatable benchmark for Rafael? He
+> > worked quite hard on feature only to find out it makes little difference...
+> 
+> Sure, but it will mean more if all of the tests are run on the same system, so 
+> I'll have another go at getting uswsusp to resume, when I get the chance.
 
+Thanks.
+									Pavel
 -- 
-Bojan
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

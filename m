@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWGHUUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbWGHUUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030326AbWGHUUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 16:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbWGHUUQ
+	id S1030328AbWGHUUq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 16:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbWGHUUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 16:20:16 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:55815 "HELO
+	Sat, 8 Jul 2006 16:20:44 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57863 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030326AbWGHUUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 16:20:11 -0400
-Date: Sat, 8 Jul 2006 22:20:11 +0200
+	id S1030328AbWGHUU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 16:20:26 -0400
+Date: Sat, 8 Jul 2006 22:20:26 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       Kirill Korotaev <dev@openvz.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.17-mm6: kernel/sysctl.c: PROC_FS=n compile error
-Message-ID: <20060708202011.GD5020@stusta.de>
-References: <20060703030355.420c7155.akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] X86_GX_SUSPMOD must depend on PCI
+Message-ID: <20060708202026.GF5020@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060703030355.420c7155.akpm@osdl.org>
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-namespaces-utsname-sysctl-hack.patch and ipc-namespace-sysctls.patch 
-cause the following compile error with CONFIG_PROC_FS=n:
+It seems commit 32ee8c3e470d86588b51dc42ed01e85c5fa0f180 accidentially 
+reverted cdc9cc1d740ffc3d8d8207fbf5df9bf05fcc9955, IOW, it reintroduced 
+the following compile error with CONFIG_PCI=n:
 
 <--  snip  -->
 
 ...
-  CC      kernel/sysctl.o
-kernel/sysctl.c:107: warning: #proc_do_ipc_string# used but never defined
-kernel/sysctl.c:150: warning: #proc_do_utsns_string# used but never defined
-kernel/sysctl.c:2465: warning: #proc_do_uts_string# defined but not used
-...
-  LD      .tmp_vmlinux1
-kernel/built-in.o:(.data+0x938): undefined reference to `proc_do_utsns_string'
-kernel/built-in.o:(.data+0x964): undefined reference to `proc_do_utsns_string'
-kernel/built-in.o:(.data+0x990): undefined reference to `proc_do_utsns_string'
-kernel/built-in.o:(.data+0x9bc): undefined reference to `proc_do_utsns_string'
-kernel/built-in.o:(.data+0x9e8): undefined reference to `proc_do_utsns_string'
-kernel/built-in.o:(.data+0xc24): undefined reference to `proc_do_ipc_string'
-kernel/built-in.o:(.data+0xc50): undefined reference to `proc_do_ipc_string'
-kernel/built-in.o:(.data+0xc7c): undefined reference to `proc_do_ipc_string'
-kernel/built-in.o:(.data+0xca8): undefined reference to `proc_do_ipc_string'
-kernel/built-in.o:(.data+0xcd4): undefined reference to `proc_do_ipc_string'
-kernel/built-in.o:(.data+0xd00): more undefined references to `proc_do_ipc_string' follow
-make: *** [.tmp_vmlinux1] Error 1
+  CC      arch/i386/kernel/cpu/cpufreq/gx-suspmod.o
+arch/i386/kernel/cpu/cpufreq/gx-suspmod.c: In function ‘gx_detect_chipset’:
+arch/i386/kernel/cpu/cpufreq/gx-suspmod.c:193: error: implicit declaration of function ‘pci_match_id’
+arch/i386/kernel/cpu/cpufreq/gx-suspmod.c:193: warning: comparison between pointer and integer
+make[3]: *** [arch/i386/kernel/cpu/cpufreq/gx-suspmod.o] Error 1
 
 <--  snip  -->
 
-cu
-Adrian
+This patch therefore re-adds the dependency of X86_GX_SUSPMOD on PCI.
 
--- 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- linux-2.6.17-mm6-full/arch/i386/kernel/cpu/cpufreq/Kconfig.old	2006-07-08 17:29:40.000000000 +0200
++++ linux-2.6.17-mm6-full/arch/i386/kernel/cpu/cpufreq/Kconfig	2006-07-08 17:29:53.000000000 +0200
+@@ -96,6 +96,7 @@
+ 
+ config X86_GX_SUSPMOD
+ 	tristate "Cyrix MediaGX/NatSemi Geode Suspend Modulation"
++	depends on PCI
+ 	help
+ 	 This add the CPUFreq driver for NatSemi Geode processors which
+ 	 support suspend modulation.
 

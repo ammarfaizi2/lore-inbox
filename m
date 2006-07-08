@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWGHUrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbWGHUsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030364AbWGHUrd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 16:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbWGHUrd
+	id S1030365AbWGHUsO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 16:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbWGHUsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 16:47:33 -0400
-Received: from relay01.pair.com ([209.68.5.15]:56075 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S1030364AbWGHUrd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 16:47:33 -0400
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: [patch] spinlocks: remove 'volatile'
-Date: Sat, 8 Jul 2006 15:47:06 -0500
-User-Agent: KMail/1.9.3
-Cc: "linux-os \\\\(Dick Johnson\\\\)" <linux-os@analogic.com>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org
-References: <20060705114630.GA3134@elte.hu> <m38xn3j1um.fsf@defiant.localdomain> <200607081541.07449.chase.venters@clientec.com>
-In-Reply-To: <200607081541.07449.chase.venters@clientec.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 8 Jul 2006 16:48:13 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50923
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030365AbWGHUsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 16:48:13 -0400
+Date: Sat, 08 Jul 2006 13:48:42 -0700 (PDT)
+Message-Id: <20060708.134842.78364391.davem@davemloft.net>
+To: hch@lst.de
+Cc: akpm@osdl.org, schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] disallow modular binfmt_elf32
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060708180554.GB7034@lst.de>
+References: <20060708180554.GB7034@lst.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607081547.29870.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 July 2006 15:40, Chase Venters wrote:
-> You need the barrier for both the CPU and the compiler. The CPU barrier
-> comes from an instruction like '*fence' on x86 (or a locked bus op), while
-> the compiler barrier comes from the memory clobber. Because the spinlocks
-> already _must_ have both of these (including the other constraints in the
-> inline asm), 'volatile' on the spinlock ctr is useless.
+From: Christoph Hellwig <hch@lst.de>
+Date: Sat, 8 Jul 2006 20:05:54 +0200
 
-Btw, perhaps what is going on here is a misunderstanding of 
-terminology? "Barrier" or "Memory barrier" can refer to both a hardware or 
-compiler barrier, which is why Documentation/memory-barriers.txt speaks of 
-both in the same file. Indeed, you often have both in the same spot, and the 
-names are even similar:
+> Currently most architectures either always build binfmt_elf32 in the
+> kernel image or make it a boolean option.  Only sparc64 and s390 allow
+> to build it modularly.  This patch turns the option into a boolean
+> aswell because elf requires various symbols that shouldn't be available
+> to modules.  The most urgent one is tasklist_lock whos export this patch
+> series kills, but there are others like force_sgi aswell.
+> 
+> Note that sparc doesn't allow a modular 32bit a.out handler either, and
+> that would be the more useful case as only few people want 32bit sunos
+> compatibility and 99.9% of all sparc64 users need 32bit linux native elf
+> support.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-barrier() -> compiler memory barrier
-wmb() -> write memory barrier
-...
+Yeah, I'm ok with this:
 
-Sometimes you'll see "optimization barrier", but you should remember that 
-barrier() boils down to:
-
-asm volatile ("" ::: "memory")
-
-...because it's preventing memory caching/reordering across the unpredictable 
-memory clobber.
-
-See?
-
->
-> Thanks,
-> Chase
+Signed-off-by: David S. Miller <davem@davemloft.net>

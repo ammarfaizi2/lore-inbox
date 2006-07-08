@@ -1,210 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWGHJWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWGHJ3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbWGHJWP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 05:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWGHJWP
+	id S1751201AbWGHJ3k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 05:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbWGHJ3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 05:22:15 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:26852
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S1751274AbWGHJWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 05:22:14 -0400
-Date: Sat, 8 Jul 2006 11:23:13 +0200
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       bunk@stusta.de, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060708092313.GD5135@opteron.random>
-References: <20060629192121.GC19712@stusta.de> <1151628246.22380.58.camel@mindpipe> <20060629180706.64a58f95.akpm@osdl.org> <20060629193525.af983237.rdunlap@xenotime.net> <1151679780.32444.21.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1151679780.32444.21.camel@mindpipe>
+	Sat, 8 Jul 2006 05:29:40 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:13240 "EHLO
+	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
+	id S1751201AbWGHJ3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 05:29:39 -0400
+Message-ID: <44AF7B00.9060108@bootc.net>
+Date: Sat, 08 Jul 2006 10:29:36 +0100
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+MIME-Version: 1.0
+To: kernel list <linux-kernel@vger.kernel.org>
+Cc: soekris-tech@lists.soekris.com
+Subject: [RFC][PATCH] LED Class support for Soekris net48xx
+Content-Type: multipart/mixed;
+ boundary="------------000903050209030401080506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 30, 2006 at 11:03:00AM -0400, Lee Revell wrote:
-> On Thu, 2006-06-29 at 19:35 -0700, Randy.Dunlap wrote:
-> > On Thu, 29 Jun 2006 18:07:06 -0700 Andrew Morton wrote:
-> > 
-> > > Lee Revell <rlrevell@joe-job.com> wrote:
-> > > >
-> > > > On Thu, 2006-06-29 at 21:21 +0200, Adrian Bunk wrote:
-> > > > > This patch was already sent on:
-> > > > > - 26 Jun 2006
-> > > > > - 27 Apr 2006
-> > > > > - 19 Apr 2006
-> > > > > - 11 Apr 2006
-> > > > > - 10 Mar 2006
-> > > > > - 29 Jan 2006
-> > > > > - 21 Jan 2006 
-> > > > 
-> > > > 3 days ago?  That seems a bit silly.  Why didn't you just ping Andrew on
-> > > > it?
-> > > > 
-> > > > Andrew, what's the status of this?  Can we get an ACK or a NACK before
-> > > > this starts getting reposted every day? ;-)
-> > > > 
-> > > 
-> > > I am stolidly letting the arch maintainers and the developer of this
-> > > feature work out what to do.
-> > 
-> > Bah, options that are not Required should default to n.
-> > I support Adrian's patch.
-> 
-> Agreed:
-> 
-> - Most people don't use it
-> - There's a performance hit
+This is a multi-part message in MIME format.
+--------------000903050209030401080506
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On x86-64 SECCOMP generates absoutely zero performance hit.
+Hi all,
 
-The original seccomp patch for x86 also generated absolutely zero
-performance hit, both pratically and theoretically too. _zero_ CPU
-cycles of difference, zero cachelines.
+After many years using Linux and hanging about on LKML without having done much 
+actual kernel hacking, I've decided to have a go! The module below adds LED 
+Class device support for the Soekris net48xx Error LED. Tested only on a 
+net4801, but should work on a net4826 as well. I'd love to find a way of 
+detecting a Soekris net48xx device but there is no DMI or any Soekris-specific 
+PCI devices.
 
-What generates a minuscle overhead is a feature I added later on top of
-SECCOMP, that disables TSC for SECCOMP tasks. I thought such minuscle
-overhead wouldn't be measurable compared to all other heavyweight work
-we do in the scheduler (note that unless you sell cpu through CPUShare
-actively this overhead consists in two cacheline touches per context
-switch), but anyway I agree it's good idea to make it optional so
-there will be absolutely no reason left to leave seccomp disabled by
-default anymore.
+The patch is attached because Thunderbird kills tabs.
 
-Andi thinks the feature is absolutely unnecessary, he's certainly right,
-and it has been there only for paranoid reasons.
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/
 
-	http://www.cpushare.com/blog/CPUShare/article/26/
+--------------000903050209030401080506
+Content-Type: text/x-patch;
+ name="leds-net48xx.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="leds-net48xx.patch"
 
-> Clearly should default to N.
-
-I think the best is to add a CONFIG_SECCOMP_DISABLE_TSC obviously
-defaulted to N, so seccomp returns absolutely zerocost and everybody
-will be happy (me included for sure, since I agree with Andi, except I
-can't be sure of it and that's the only reason why I developed the tsc
-disable feature).
-
-I strongly agree with leaving CONFIG_SECCOMP_DISABLE_TSC set to N by
-default.
-
--------------
-
-Make the TSC disable purely paranoid feature optional, so by default seccomp
-returns absolutely zerocost.
-
-Signed-off-by: Andrea Arcangeli <andrea@cpushare.com>
-
-diff -r 67137165b47d arch/i386/Kconfig
---- a/arch/i386/Kconfig	Thu Jul 06 19:45:01 2006 +0200
-+++ b/arch/i386/Kconfig	Sat Jul 08 11:06:49 2006 +0200
-@@ -734,6 +734,18 @@ config SECCOMP
- 	  defined by each seccomp mode.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 196a31c..c55f690 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2666,6 +2666,11 @@ M:	shemminger@osdl.org
+ L:	netdev@vger.kernel.org
+ S:	Maintained
  
- 	  If unsure, say Y. Only embedded should say N here.
++SOEKRIS NET48XX LED SUPPORT
++P:	Chris Boot
++M:	bootc@bootc.net
++S:	Maintained
 +
-+config SECCOMP_DISABLE_TSC
-+	bool "Disable the TSC for seccomp tasks"
-+	depends on SECCOMP
-+	default n
+ SPARC (sparc32):
+ P:	William L. Irwin
+ M:	wli@holomorphy.com
+diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+index 9650998..9c39b98 100644
+--- a/drivers/leds/Kconfig
++++ b/drivers/leds/Kconfig
+@@ -69,6 +69,13 @@ config LEDS_AMS_DELTA
+ 	help
+ 	  This option enables support for the LEDs on Amstrad Delta (E3).
+ 
++config LEDS_NET48XX
++	tristate "LED Support for Soekris net48xx series Error LED"
++	depends on LEDS_CLASS && SCx200_GPIO
 +	help
-+	  This feature mathematically prevents covert channels
-+	  for tasks running under SECCOMP. This can generate
-+	  a minuscule overhead in the scheduler.
++	  This option enables support for the Soekris net4801 and net4826 error
++	  LED.
 +
-+	  If you care most about performance say N. Say Y only if you're
-+	  paranoid about covert channels.
+ comment "LED Triggers"
  
- source kernel/Kconfig.hz
+ config LEDS_TRIGGERS
+diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+index 88d3b6e..6aa2aed 100644
+--- a/drivers/leds/Makefile
++++ b/drivers/leds/Makefile
+@@ -12,6 +12,7 @@ obj-$(CONFIG_LEDS_IXP4XX)		+= leds-ixp4x
+ obj-$(CONFIG_LEDS_TOSA)			+= leds-tosa.o
+ obj-$(CONFIG_LEDS_S3C24XX)		+= leds-s3c24xx.o
+ obj-$(CONFIG_LEDS_AMS_DELTA)		+= leds-ams-delta.o
++obj-$(CONFIG_LEDS_NET48XX)		+= leds-net48xx.o
  
-diff -r 67137165b47d arch/i386/kernel/process.c
---- a/arch/i386/kernel/process.c	Thu Jul 06 19:45:01 2006 +0200
-+++ b/arch/i386/kernel/process.c	Sat Jul 08 11:05:35 2006 +0200
-@@ -572,6 +572,7 @@ static inline void disable_tsc(struct ta
- static inline void disable_tsc(struct task_struct *prev_p,
- 			       struct task_struct *next_p)
- {
-+#ifdef CONFIG_SECCOMP_DISABLE_TSC
- 	struct thread_info *prev, *next;
- 
- 	/*
-@@ -590,6 +591,7 @@ static inline void disable_tsc(struct ta
- 			   has_secure_computing(next))
- 			write_cr4(read_cr4() | X86_CR4_TSD);
- 	}
-+#endif
- }
- 
- /*
-diff -r 67137165b47d arch/x86_64/Kconfig
---- a/arch/x86_64/Kconfig	Thu Jul 06 19:45:01 2006 +0200
-+++ b/arch/x86_64/Kconfig	Sat Jul 08 11:06:40 2006 +0200
-@@ -522,6 +522,18 @@ config SECCOMP
- 
- 	  If unsure, say Y. Only embedded should say N here.
- 
-+config SECCOMP_DISABLE_TSC
-+	bool "Disable the TSC for seccomp tasks"
-+	depends on SECCOMP
-+	default n
-+	help
-+	  This feature mathematically prevents covert channels
-+	  for tasks running under SECCOMP. This can generate
-+	  a minuscule overhead in the scheduler.
-+
-+	  If you care most about performance say N. Say Y only if you're
-+	  paranoid about covert channels.
-+
- source kernel/Kconfig.hz
- 
- config REORDER
-diff -r 67137165b47d arch/x86_64/kernel/process.c
---- a/arch/x86_64/kernel/process.c	Thu Jul 06 19:45:01 2006 +0200
-+++ b/arch/x86_64/kernel/process.c	Sat Jul 08 11:05:26 2006 +0200
-@@ -494,6 +494,35 @@ out:
- }
- 
- /*
-+ * This function selects if the context switch from prev to next
-+ * has to tweak the TSC disable bit in the cr4.
+ # LED Triggers
+ obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
+diff --git a/drivers/leds/leds-net48xx.c b/drivers/leds/leds-net48xx.c
+new file mode 100644
+index 0000000..157b561
+--- /dev/null
++++ b/drivers/leds/leds-net48xx.c
+@@ -0,0 +1,116 @@
++/*
++ * LEDs driver for Soekris net48xx
++ *
++ * Copyright (C) 2006 Chris Boot <bootc@bootc.net>
++ *
++ * Based on leds-ams-delta.c
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + */
-+static inline void disable_tsc(struct task_struct *prev_p,
-+			       struct task_struct *next_p)
++
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/platform_device.h>
++#include <linux/leds.h>
++#include <linux/err.h>
++#include <asm/io.h>
++#include <linux/scx200_gpio.h>
++
++#define NET48XX_ERROR_LED_GPIO	20
++
++static struct platform_device *pdev;
++
++static void net48xx_error_led_set(struct led_classdev *led_cdev,
++		enum led_brightness value)
 +{
-+#ifdef CONFIG_SECCOMP_DISABLE_TSC
-+	struct thread_info *prev, *next;
-+
-+	/*
-+	 * gcc should eliminate the ->thread_info dereference if
-+	 * has_secure_computing returns 0 at compile time (SECCOMP=n).
-+	 */
-+	prev = prev_p->thread_info;
-+	next = next_p->thread_info;
-+
-+	if (has_secure_computing(prev) || has_secure_computing(next)) {
-+		/* slow path here */
-+		if (has_secure_computing(prev) &&
-+		    !has_secure_computing(next)) {
-+			write_cr4(read_cr4() & ~X86_CR4_TSD);
-+		} else if (!has_secure_computing(prev) &&
-+			   has_secure_computing(next))
-+			write_cr4((read_cr4() | X86_CR4_TSD) & ~X86_CR4_PCE);
-+	}
-+#endif
++	if (value)
++		scx200_gpio_set_high(NET48XX_ERROR_LED_GPIO);
++	else
++		scx200_gpio_set_low(NET48XX_ERROR_LED_GPIO);
 +}
 +
-+/*
-  * This special macro can be used to load a debugging register
-  */
- #define loaddebug(thread,r) set_debugreg(thread->debugreg ## r, r)
-@@ -617,6 +646,8 @@ __switch_to(struct task_struct *prev_p, 
- 			memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
- 		}
- 	}
++static struct led_classdev net48xx_error_led = {
++	.name		= "net48xx:error",
++	.brightness_set	= net48xx_error_led_set,
++};
 +
-+	disable_tsc(prev_p, next_p);
- 
- 	return prev_p;
- }
++#ifdef CONFIG_PM
++static int net48xx_led_suspend(struct platform_device *dev,
++		pm_message_t state)
++{
++	return led_classdev_suspend(&net48xx_error_led);
++}
++
++static int net48xx_led_resume(struct platform_device *dev)
++{
++	return led_classdev_resume(&net48xx_error_led);
++}
++#else
++#define net48xx_led_suspend NULL
++#define net48xx_led_resume NULL
++#endif
++
++static int net48xx_led_probe(struct platform_device *pdev)
++{
++	if (!scx200_gpio_present())
++		return ENODEV;
++	
++	return led_classdev_register(&pdev->dev,
++		&net48xx_error_led);
++}
++
++static int net48xx_led_remove(struct platform_device *pdev)
++{
++	led_classdev_unregister(&net48xx_error_led);
++	return 0;
++}
++
++static struct platform_driver net48xx_led_driver = {
++	.probe		= net48xx_led_probe,
++	.remove		= net48xx_led_remove,
++	.suspend	= net48xx_led_suspend,
++	.resume		= net48xx_led_resume,
++	.driver		= {
++		.name = "net48xx-led",
++	},
++};
++
++static int __init net48xx_led_init(void)
++{
++	int ret;
++	
++	if (!scx200_gpio_present()) {
++		ret = ENODEV;
++		goto out;
++	}
++	
++	ret = platform_driver_register(&net48xx_led_driver);
++	if (ret < 0)
++		goto out;
++	
++	pdev = platform_device_register_simple("net48xx-led", -1, NULL, 0);
++	if (IS_ERR(pdev)) {
++		ret = PTR_ERR(pdev);
++		platform_driver_unregister(&net48xx_led_driver);
++		goto out;
++	}
++	
++out:
++	return ret;
++}
++
++static void __exit net48xx_led_exit(void)
++{
++	platform_device_unregister(pdev);
++	platform_driver_unregister(&net48xx_led_driver);
++}
++
++module_init(net48xx_led_init);
++module_exit(net48xx_led_exit);
++
++MODULE_AUTHOR("Chris Boot <bootc@bootc.net>");
++MODULE_DESCRIPTION("Soekris net48xx LED driver");
++MODULE_LICENSE("GPL");
++
 
+--------------000903050209030401080506--

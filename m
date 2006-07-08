@@ -1,107 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWGHNEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWGHNH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWGHNEU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 09:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWGHNEU
+	id S964819AbWGHNH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 09:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWGHNHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 09:04:20 -0400
-Received: from mail.gmx.net ([213.165.64.21]:33664 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964815AbWGHNET (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 09:04:19 -0400
-X-Authenticated: #2769515
-Date: Sat, 8 Jul 2006 15:09:38 +0200
-From: Martin Langer <martin-langer@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: bcm43xx-dev@lists.berlios.de
-Subject: [RFC][PATCH 2/2] firmware version management: bcm43xx example
-Message-ID: <20060708130938.GA3854@tuba>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 8 Jul 2006 09:07:25 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:28801 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964819AbWGHNHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 09:07:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=mZedzrBqJim9pA3KsSYCQG5i6k6pxVg/+lj6WsMHwmIL8RuTUf2NViuYmM8NzN6cWIZmjDZNRXFnHJ/cSSPg/YagrD1x5gJDRJ7hLaA9A6KwpZPpWIErYOKF5zz0RHmCVbMJViLLwm1UKQpZ29Vkv0bFWaObK8TxfTWSZpYYiL0=
+Message-ID: <ed5aea430607080607u67aeb05di963243c0e653e4f0@mail.gmail.com>
+Date: Sat, 8 Jul 2006 07:07:14 -0600
+From: "David Mosberger-Tang" <David.Mosberger@acm.org>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+Cc: "Jeremy Higdon" <jeremy@sgi.com>, "Jes Sorensen" <jes@sgi.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Luck, Tony" <tony.luck@intel.com>, "John Daiker" <jdaiker@osdl.org>,
+       "John Hawkes" <hawkes@sgi.com>, "Tony Luck" <tony.luck@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, "Jack Steiner" <steiner@sgi.com>,
+       "Dan Higgins" <djh@sgi.com>
+In-Reply-To: <1152340963.3120.0.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Public-Key-URL: http://www.langerland.de/martin/martinlanger.asc
-User-Agent: Mutt/1.5.9i
-X-Y-GMX-Trusted: 0
+References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
+	 <yq04py4i9p7.fsf@jaguar.mkp.net>
+	 <1151578928.23785.0.camel@localhost.localdomain>
+	 <44A3AFFB.2000203@sgi.com>
+	 <1151578513.3122.22.camel@laptopd505.fenrus.org>
+	 <20060708001427.GA723842@sgi.com>
+	 <1152340963.3120.0.camel@laptopd505.fenrus.org>
+X-Google-Sender-Auth: 3c1c9111234111a8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an example for using firmware version detection in the bcm43xx 
-driver. It's not a complete list of firmware blobs. More than 50 entries 
-are still missing in the tables, but it should be enough to get an 
-impresion of the idea.
+Nothing is broken.  Read Alan's statement carefully...
+
+  --david
+
+On 7/8/06, Arjan van de Ven <arjan@infradead.org> wrote:
+>
+>
+> > So does i386 convert the return value of the times(2) call to user
+> > hertz?  On IA64, it returns the value in internal clock ticks, and
+> > then when a program uses the value in param.h, it gets it wrong now,
+> > because internal HZ is now 250.
+> >
+> > So is times() is broken in IA64, or is this an exception to Alan's
+> > statement?
+>
+> yes it's broken; it needs to convert it to the original HZ (1024) and
+> make the sysconf() function also return 1024
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
 
---- ../linux-2.6.18rc1/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-07-07 13:41:10.000000000 +0200
-+++ drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-07-08 13:30:30.000000000 +0200
-@@ -150,6 +150,22 @@
- };
- MODULE_DEVICE_TABLE(pci, bcm43xx_pci_tbl);
- 
-+static struct firmware_files ucode_version_tbl[] = {
-+	{ { 0xed, 0x55, 0x26, 0xf9, 0x2e, 0xcb, 0x8f, 0x76, 0x90, 0x34, 0xa0, 
-+	    0xf1, 0x67, 0x33, 0x00, 0x5f }, BCM43xx_FW_VER(3, 130, 20, 0) },
-+	{ { 0x65, 0x1e, 0x4f, 0xc1, 0x92, 0xb6, 0xae, 0x16, 0xb2, 0xf6, 0x39,
-+	    0x56, 0xc5, 0x66, 0x8d, 0xbd }, BCM43xx_FW_VER(4, 10, 40, 0) },
-+	{},
-+};
-+
-+static struct firmware_files pcm_version_tbl[] = {
-+	{ { 0x2d, 0x0f, 0xd4, 0x02, 0x88, 0x9d, 0xf1, 0xd1, 0xf6, 0xb3, 0xdd,
-+	    0x8b, 0x4d, 0x37, 0xcc, 0x9a }, BCM43xx_FW_VER(3, 30, 15, 0) },
-+	{ { 0xff, 0x29, 0xcd, 0x07, 0x56, 0x75, 0xa5, 0x44, 0xbd, 0xc5, 0xd5,
-+	    0xae, 0x95, 0x3d, 0x96, 0x4a }, BCM43xx_FW_VER(3, 90, 7, 0) },
-+	{},
-+};
-+
- static void bcm43xx_ram_write(struct bcm43xx_private *bcm, u16 offset, u32 val)
- {
- 	u32 status;
-@@ -1946,6 +1962,7 @@
- {
- 	struct bcm43xx_phyinfo *phy = bcm43xx_current_phy(bcm);
- 	u8 rev = bcm->current_core->rev;
-+	u32 ver;
- 	int err = 0;
- 	int nr;
- 	char buf[22 + sizeof(modparam_fwpostfix) - 1] = { 0 };
-@@ -1961,6 +1978,14 @@
- 			        buf);
- 			goto error;
- 		}
-+
-+		ver = firmware_version(bcm->ucode, ucode_version_tbl);
-+		if (ver != 0) {
-+			printk(KERN_INFO PFX "FW: %s version %i.%i.%i.%i\n",
-+			       buf, BCM43xx_PRINT_FW_VER(ver));
-+		} else
-+			printk(KERN_INFO PFX "FW: %s detection failure.\n", 
-+			       buf);
- 	}
- 
- 	if (!bcm->pcm) {
-@@ -1975,6 +2000,14 @@
- 			       buf);
- 			goto error;
- 		}
-+
-+		ver = firmware_version(bcm->pcm, pcm_version_tbl);
-+		if (ver != 0) {
-+			printk(KERN_INFO PFX "FW: %s version %i.%i.%i.%i\n",
-+			       buf, BCM43xx_PRINT_FW_VER(ver));
-+		} else
-+			printk(KERN_INFO PFX "FW: %s detection failure.\n", 
-+			       buf);
- 	}
- 
- 	if (!bcm->initvals0) {
---- ../linux-2.6.18rc1/drivers/net/wireless/bcm43xx/bcm43xx.h	2006-07-07 13:41:10.000000000 +0200
-+++ drivers/net/wireless/bcm43xx/bcm43xx.h	2006-07-08 13:30:45.000000000 +0200
-@@ -973,4 +973,8 @@
- 				((u8*)(x))[2], ((u8*)(x))[3], \
- 				((u8*)(x))[4], ((u8*)(x))[5]
- 
-+/** Helpers to encode/decode firmware version */ 
-+#define BCM43xx_FW_VER(a, b, c, d) (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
-+#define BCM43xx_PRINT_FW_VER(u) (u>>24), (u>>16)&0xff, (u>>8)&0xff, (u)&0xff
-+
- #endif /* BCM43xx_H_ */
+-- 
+Mosberger Consulting LLC, http://www.mosberger-consulting.com/

@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWGHDHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWGHDXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbWGHDHR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 23:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWGHDHR
+	id S932500AbWGHDXw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 23:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWGHDXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 23:07:17 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:29195 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932495AbWGHDHQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 23:07:16 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: arjan@infradead.org (Arjan van de Ven)
-Subject: Re: auro deadlock  (was Re: e100 lockdep irq lock inversion.)
-Cc: davej@redhat.com, akpm@osdl.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Organization: Core
-In-Reply-To: <1152295989.3111.116.camel@laptopd505.fenrus.org>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1Fz39n-0007tC-00@gondolin.me.apana.org.au>
-Date: Sat, 08 Jul 2006 13:06:59 +1000
+	Fri, 7 Jul 2006 23:23:52 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:36327 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932500AbWGHDXv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 23:23:51 -0400
+Date: Sat, 8 Jul 2006 05:23:17 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Matthew Wilcox <matthew@wil.cx>
+cc: Sam Ravnborg <sam@ravnborg.org>, wookey@debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Support DOS line endings
+In-Reply-To: <20060707173458.GB1605@parisc-linux.org>
+Message-ID: <Pine.LNX.4.64.0607080513280.17704@scrub.home>
+References: <20060707173458.GB1605@parisc-linux.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> wrote:
-> 
-> Act 1
-> 
-> Enter the mpi_start_xmit() function, which is airo's xmit function.
-> This function takes the aux_lock first, with irq's off, then calls
-> skb_queue_tail(). skb_queue_tail takes the sk_receive_queue.lock (with
-> irqsave as well).
+Hi,
 
-Nope, make that ai->txq.
+On Fri, 7 Jul 2006, Matthew Wilcox wrote:
 
-> Act 2
-> 
-> Enter the ipcalc program. This program calls an ioctl, which ends up
-> calling udp_ioctl. udp_ioctl does
->   spin_lock_bh(&sk->sk_receive_queue.lock);
+> Kconfig doesn't currently handle config files with DOS line endings.
+> While these are, of course, an abomination, etc, etc, it can be handy
+> to not have to convert them first.  It's also a tiny patch and even adds
+> support for lines ending in just \r or even \n\r.
 
-Different queue.
+Did you try the latter? Unless you told fgets() about it I don't see how 
+it should work.
 
-So no deadlock.  Better luck next time :)
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+>  			if (p2)
+>  				*p2 = 0;
+> +			p2 = strchr(p, '\r');
+> +			if (p2)
+> +				*p2 = 0;
+
+I think something like this would be simpler:
+
+	if (p2[-1] == '\r')
+		p2[-1] = 0;
+
+bye, Roman

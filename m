@@ -1,95 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWGHTYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWGHTYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030260AbWGHTYT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 15:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWGHTYS
+	id S1030253AbWGHTYU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 15:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWGHTYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 8 Jul 2006 15:24:19 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:14533 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030245AbWGHTYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 8 Jul 2006 15:24:18 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:59284 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1030252AbWGHTYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 15:24:17 -0400
-Message-ID: <44B00653.3030303@t-online.de>
-Date: Sat, 08 Jul 2006 21:24:03 +0200
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060619)
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=RKGH6jjvOfdQmKaHMhtm9p4EnhrNHBfUc1BOKoyRcmv/IeCfHAiFd9MZIVmCGEKdlZIqeRHU4PwruVcCC6WQ3g2W9o0o6kVLko1qSYFnCSNj8GL4B+qBvjSd2rTYetOMmCgL2XMnkxxTVS9lPOu/j1cfpY3F/LBg8FyjE8GGD6U=
+Date: Sat, 8 Jul 2006 21:24:31 +0200
+From: Luca Tettamanti <kronos.it@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: len.brown@intel.com, linux-acpi@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] Add missing '\n' to printk in ACPI code
+Message-ID: <20060708192431.GA23511@dreamland.darkstar.lan>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.6.18-rc1: zd1211rw doesn't work yet?
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig824BBD34ADAE85A68D27EC26"
-X-ID: GQXCg4ZGYe08pk7DwZAMzp4Fd-FiQbKHKtabzeDguDFBzxK0GoCQY5
-X-TOI-MSGID: 9147f167-9ae1-412b-934d-11c3242d9376
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig824BBD34ADAE85A68D27EC26
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hi,
+I found out that a printk() in ACPI code is missing the newline; the
+next kernel message is then appended on the same line (and priority is
+not stripped), eg:
 
-Hi folks,
+Device `[FAN0]' is not power manageable<6>ACPI: Fan [FAN0] (on)
 
-I have used the "external" zd1211 driver for months without problems,
-but the integrated version in 2.6.18-rc1 does not work for me.
+This trivial patch (against 2.6.18-rc1) fixes it.
 
-iwconfig says:
+Signed-Off-By: Luca Tettamanti <kronos.it@gmail.com>
 
-wlan0     802.11g zd1211  ESSID:""
-          Mode:Managed  Frequency:2.412 GHz  Access Point: Invalid
-          Bit Rate=3D1 Mb/s
-          Encryption key:XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XX   Security mode=
-:open
-          Link Quality:0  Signal level:0  Noise level:0
-          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
-          Tx excessive retries:0  Invalid misc:0   Missed beacon:0
-
-I had expected something like this (running iwconfig for 2.6.17.3
-+ zd1211 rev80):
-
-wlan0     802.11b/g NIC  ESSID:"harrinet"
-          Mode:Managed  Frequency=3D2.432 GHz  Access Point: XX:XX:XX:XX:=
-XX:XX
-          Bit Rate:54 Mb/s
-          Retry:off   RTS thr=3D2432 B   Fragment thr:off
-          Encryption key:****-****-****-****-****-****-**   Security mode=
-:open
-          Power Management:off
-          Link Quality=3D84/100  Signal level=3D55/100  Noise level=3D0/1=
-00
-          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:44
-          Tx excessive retries:145  Invalid misc:0   Missed beacon:0
-
-Please note that there is no MAC for 2.6.18-rc1.
-
-???
-
-
-Any hint would be highly appreciated. Of course I would be glad to
-help debugging.
-
-
-Regards
-
-Harri
+--- a/drivers/acpi/bus.c	2006-07-08 15:12:32.855837715 +0200
++++ b/drivers/acpi/bus.c	2006-07-08 15:12:46.848712215 +0200
+@@ -192,7 +192,7 @@
+ 	/* Make sure this is a valid target state */
+ 
+ 	if (!device->flags.power_manageable) {
+-		printk(KERN_DEBUG "Device `[%s]' is not power manageable",
++		printk(KERN_DEBUG "Device `[%s]' is not power manageable\n",
+ 				device->kobj.name);
+ 		return -ENODEV;
+ 	}
 
 
 
-
---------------enig824BBD34ADAE85A68D27EC26
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEsAZZUTlbRTxpHjcRAtNwAKCA1oW6enowTR83xEKQbW2gQwXYZQCcC29E
-9bYmje+8M9GHK9x2Eqjbkk8=
-=grhM
------END PGP SIGNATURE-----
-
---------------enig824BBD34ADAE85A68D27EC26--
+Luca
+-- 
+Home: http://kronoz.cjb.net
+Il piu` bel momento dell'amore e` quando ci si illude che duri per 
+sempre; il piu` brutto, quando ci si accorge che dura da troppo.

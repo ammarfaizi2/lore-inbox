@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWGHNH0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWGHNL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbWGHNH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 09:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWGHNHZ
+	id S964823AbWGHNL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 09:11:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWGHNL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 09:07:25 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:28801 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964819AbWGHNHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 09:07:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=mZedzrBqJim9pA3KsSYCQG5i6k6pxVg/+lj6WsMHwmIL8RuTUf2NViuYmM8NzN6cWIZmjDZNRXFnHJ/cSSPg/YagrD1x5gJDRJ7hLaA9A6KwpZPpWIErYOKF5zz0RHmCVbMJViLLwm1UKQpZ29Vkv0bFWaObK8TxfTWSZpYYiL0=
-Message-ID: <ed5aea430607080607u67aeb05di963243c0e653e4f0@mail.gmail.com>
-Date: Sat, 8 Jul 2006 07:07:14 -0600
-From: "David Mosberger-Tang" <David.Mosberger@acm.org>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
-Cc: "Jeremy Higdon" <jeremy@sgi.com>, "Jes Sorensen" <jes@sgi.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Luck, Tony" <tony.luck@intel.com>, "John Daiker" <jdaiker@osdl.org>,
-       "John Hawkes" <hawkes@sgi.com>, "Tony Luck" <tony.luck@gmail.com>,
-       "Andrew Morton" <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, "Jack Steiner" <steiner@sgi.com>,
-       "Dan Higgins" <djh@sgi.com>
-In-Reply-To: <1152340963.3120.0.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
-	 <yq04py4i9p7.fsf@jaguar.mkp.net>
-	 <1151578928.23785.0.camel@localhost.localdomain>
-	 <44A3AFFB.2000203@sgi.com>
-	 <1151578513.3122.22.camel@laptopd505.fenrus.org>
-	 <20060708001427.GA723842@sgi.com>
-	 <1152340963.3120.0.camel@laptopd505.fenrus.org>
-X-Google-Sender-Auth: 3c1c9111234111a8
+	Sat, 8 Jul 2006 09:11:28 -0400
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:63391 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S964823AbWGHNL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 09:11:28 -0400
+To: linux-kernel@vger.kernel.org
+Subject: lockdep BUG: warning (2.6.18-rc1, TP T60)
+Date: Sat, 08 Jul 2006 14:11:21 +0100
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FzCaf-0003OL-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nothing is broken.  Read Alan's statement carefully...
+I'm trying 2.6.18-rc1 on a Thinkpad T60 (dual-core T2400, SATA hard
+drive) running Ubuntu 6.06.  The kernel is SMP and PREEMPT and has
+many lock validation options turned on.  During boot the lockdep
+checker reports good news:
 
-  --david
+[   20.936404] Good, all 218 testcases passed! |
 
-On 7/8/06, Arjan van de Ven <arjan@infradead.org> wrote:
->
->
-> > So does i386 convert the return value of the times(2) call to user
-> > hertz?  On IA64, it returns the value in internal clock ticks, and
-> > then when a program uses the value in param.h, it gets it wrong now,
-> > because internal HZ is now 250.
-> >
-> > So is times() is broken in IA64, or is this an exception to Alan's
-> > statement?
->
-> yes it's broken; it needs to convert it to the original HZ (1024) and
-> make the sysconf() function also return 1024
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+When I pressed Fn-F4 (for suspend-to-ram), it began to suspend,
+blanked the screen, and then came back right away to the X session.  I
+don't think it ever made it into suspend mode (I've reported the
+suspend problem to linux-acpi).  And this lockdep warning showed up:
 
+[  459.756000] BUG: warning at kernel/lockdep.c:1799/trace_hardirqs_on()
+[  459.756000]  [<c0105aeb>] show_trace+0x1b/0x20
+[  459.756000]  [<c0105b14>] dump_stack+0x24/0x30
+[  459.756000]  [<c013c186>] trace_hardirqs_on+0x166/0x180
+[  459.756000]  [<c010522d>] do_general_protection+0xcd/0x220
+[  459.756000]  [<c0103e01>] error_code+0x39/0x40
 
--- 
-Mosberger Consulting LLC, http://www.mosberger-consulting.com/
+-Sanjoy
+
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

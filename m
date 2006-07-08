@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWGHRB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWGHRBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964885AbWGHRB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 13:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWGHRB2
+	id S964896AbWGHRBd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 13:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWGHRBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 13:01:28 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:55302 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964885AbWGHRB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 13:01:28 -0400
-Date: Sat, 8 Jul 2006 19:01:28 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>
-Subject: [2.6 patch] i386 defconfig: set CONFIG_PM_STD_PARTITION=""
-Message-ID: <20060708170128.GI26941@stusta.de>
+	Sat, 8 Jul 2006 13:01:32 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:53181 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964896AbWGHRBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 13:01:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Hr9TaArTX7MYJMBXG18yCReqtZoUuwrkwJaihv/Feoh1IojifpZaA4/Jli05pOG1URv/WOr3tKbpuYaTLo0/d2nv5V9vNTUir53Re8YlExo9dHwOrjtkemNm4lXhf0pE+fvFU8JuiL0UD8BWQ4dG7mp+csFz8ZsN9RHTJvwgyVE=
+Message-ID: <9e0cf0bf0607081001x6ccbd080sbe64118965d90838@mail.gmail.com>
+Date: Sat, 8 Jul 2006 20:01:30 +0300
+From: "Alon Bar-Lev" <alon.barlev@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+Cc: "Olivier Galibert" <galibert@pobox.com>, "Pavel Machek" <pavel@ucw.cz>,
+       "Avuton Olrich" <avuton@gmail.com>, linux-kernel@vger.kernel.org,
+       "Jan Rychter" <jan@rychter.com>, suspend2-devel@lists.suspend2.net,
+       grundig <grundig@teleline.es>,
+       "Nigel Cunningham" <ncunningham@linuxmail.org>
+In-Reply-To: <1152377246.3120.65.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <20060627133321.GB3019@elf.ucw.cz>
+	 <20060707215656.GA30353@dspnet.fr.eu.org>
+	 <20060707232523.GC1746@elf.ucw.cz>
+	 <200607080933.12372.ncunningham@linuxmail.org>
+	 <20060708002826.GD1700@elf.ucw.cz>
+	 <m2d5cg1mwy.fsf@tnuctip.rychter.com>
+	 <1152353698.2555.11.camel@coyote.rexursive.com>
+	 <1152355318.3120.26.camel@laptopd505.fenrus.org>
+	 <20060708164312.GA36499@dspnet.fr.eu.org>
+	 <1152377246.3120.65.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox notified me that CONFIG_PM_STD_PARTITION="/dev/hda2" in 
-the i386 defconfig wasn't a good idea (especially since it prevented 
-booting for him due to another bug).
+On 7/8/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> Just take the alsa/OSS case. It's taken Adrian Bunk a LOT of effort to
+> get people to report bugs against alsa; unless you threaten to remove
+> the other driver they just won't and switch to the other driver. On the
+> one hand, that is choice. On the other, it's BAD. The user experience is
+> BAD. It means we end up with 2 half arsed cases (since the OSS driver
+> doesn't do other things) instead of one quite good one.
 
-This patch sets CONFIG_PM_STD_PARTITION="" in the i386 defconfig.
+Well...
+OSS->swsusp
+ALSA->Suspend2
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Merge them both, and see which wins.
+Anyway... Unlike the ALSA case, people opens bugs on suspen2 (The new
+system) and not on swsusp, since Nigel is much more receptive, and
+because of the large user community suspend2 works much better.
 
---- linux-2.6.17-mm6-full/arch/i386/defconfig.old	2006-07-08 18:52:13.000000000 +0200
-+++ linux-2.6.17-mm6-full/arch/i386/defconfig	2006-07-08 18:52:36.000000000 +0200
-@@ -197,7 +197,7 @@
- # CONFIG_PM_LEGACY is not set
- # CONFIG_PM_DEBUG is not set
- CONFIG_SOFTWARE_SUSPEND=y
--CONFIG_PM_STD_PARTITION="/dev/hda2"
-+CONFIG_PM_STD_PARTITION=""
- 
- #
- # ACPI (Advanced Configuration and Power Interface) Support
+Pavel and Refael beg people to open bugs agains swsusp/uswsusp... But
+people prefers to solve issues of the out-of-kernel solution...  The
+process is as follows:
 
+Try swsusp->It does not work/Not suited->Try suspend2->Works/does
+not->Get support from suspend2->Suspend2 works->Suspend2 better->User
+happy.
+
+Best Regards,
+Alon Bar-Lev.

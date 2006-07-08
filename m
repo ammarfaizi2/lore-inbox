@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbWGHUsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbWGHUtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030365AbWGHUsO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 16:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbWGHUsN
+	id S1030373AbWGHUtx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 16:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWGHUtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 16:48:13 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50923
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030365AbWGHUsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 16:48:13 -0400
-Date: Sat, 08 Jul 2006 13:48:42 -0700 (PDT)
-Message-Id: <20060708.134842.78364391.davem@davemloft.net>
-To: hch@lst.de
-Cc: akpm@osdl.org, schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] disallow modular binfmt_elf32
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060708180554.GB7034@lst.de>
-References: <20060708180554.GB7034@lst.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 8 Jul 2006 16:49:53 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11952 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030373AbWGHUtw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 16:49:52 -0400
+Date: Sat, 8 Jul 2006 22:49:25 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Krzysztof Halasa <khc@pm.waw.pl>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Message-ID: <20060708204925.GA5440@elf.ucw.cz>
+References: <m34pxt8emn.fsf@defiant.localdomain> <Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com> <Pine.LNX.4.64.0607071318570.3869@g5.osdl.org> <Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com> <Pine.LNX.4.64.0607071456430.3869@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607071456430.3869@g5.osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
-Date: Sat, 8 Jul 2006 20:05:54 +0200
+Hi!
 
-> Currently most architectures either always build binfmt_elf32 in the
-> kernel image or make it a boolean option.  Only sparc64 and s390 allow
-> to build it modularly.  This patch turns the option into a boolean
-> aswell because elf requires various symbols that shouldn't be available
-> to modules.  The most urgent one is tasklist_lock whos export this patch
-> series kills, but there are others like force_sgi aswell.
+> > This is a bait and switch argument. The code was displayed to show
+> > the compiler output, not an example of good coding practice.
 > 
-> Note that sparc doesn't allow a modular 32bit a.out handler either, and
-> that would be the more useful case as only few people want 32bit sunos
-> compatibility and 99.9% of all sparc64 users need 32bit linux native elf
-> support.
+> NO IT IS NOT.
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> The whole point of my argument is simple:
+> 
+> > > 	"'volatile' is useless. The things it did 30 years ago are much
+> > > 	 more complex these days, and need to be tied to much more
+> > > 	 detailed rules that depend on the actual particular problem,
+> > > 	 rather than one keyword to the compiler that doesn't actually
+> > > 	 give enough information for the compiler to do anything useful"
+> 
+> And dammit, if you cannot admit that, then you're not worth discussing 
+> with.
+> 
+> "volatile" is useless. It's a big hammer in a world where the nails aren't 
+> nails any more, they are screws, thumb-tacks, and spotwelding.
 
-Yeah, I'm ok with this:
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Actually, because volatile is big hammer, it can be used to work
+around compiler bugs. If compiler dies at internal error in function
+foo, just sprinkle few volatiles into it, and you can usually work
+around that compiler problem.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

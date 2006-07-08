@@ -1,24 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWGHTYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWGHTXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbWGHTYU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 15:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWGHTYT
+	id S964962AbWGHTXP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 15:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWGHTXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 15:24:19 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:14533 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030245AbWGHTYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 15:24:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=RKGH6jjvOfdQmKaHMhtm9p4EnhrNHBfUc1BOKoyRcmv/IeCfHAiFd9MZIVmCGEKdlZIqeRHU4PwruVcCC6WQ3g2W9o0o6kVLko1qSYFnCSNj8GL4B+qBvjSd2rTYetOMmCgL2XMnkxxTVS9lPOu/j1cfpY3F/LBg8FyjE8GGD6U=
-Date: Sat, 8 Jul 2006 21:24:31 +0200
-From: Luca Tettamanti <kronos.it@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: len.brown@intel.com, linux-acpi@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] Add missing '\n' to printk in ACPI code
-Message-ID: <20060708192431.GA23511@dreamland.darkstar.lan>
+	Sat, 8 Jul 2006 15:23:15 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34823 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964962AbWGHTXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 15:23:14 -0400
+Date: Sat, 8 Jul 2006 21:23:15 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] input: remove obsolete contact information
+Message-ID: <20060708192315.GA5020@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,33 +22,64 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I found out that a printk() in ACPI code is missing the newline; the
-next kernel message is then appended on the same line (and priority is
-not stripped), eg:
+This patch removes some obsolete contact information from 
+Documentation/input/{input,joystick}.txt .
 
-Device `[FAN0]' is not power manageable<6>ACPI: Fan [FAN0] (on)
+This patch fixes kernel Bugzilla #2804.
 
-This trivial patch (against 2.6.18-rc1) fixes it.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Signed-Off-By: Luca Tettamanti <kronos.it@gmail.com>
+---
 
---- a/drivers/acpi/bus.c	2006-07-08 15:12:32.855837715 +0200
-+++ b/drivers/acpi/bus.c	2006-07-08 15:12:46.848712215 +0200
-@@ -192,7 +192,7 @@
- 	/* Make sure this is a valid target state */
+ Documentation/input/input.txt    |   21 ---------------------
+ Documentation/input/joystick.txt |   11 -----------
+ 2 files changed, 32 deletions(-)
+
+--- linux-2.6.17-mm6-full/Documentation/input/input.txt.old	2006-07-08 21:15:58.000000000 +0200
++++ linux-2.6.17-mm6-full/Documentation/input/input.txt	2006-07-08 21:16:52.000000000 +0200
+@@ -289,24 +289,3 @@
+ EV_REL, absolute new value for EV_ABS (joysticks ...), or 0 for EV_KEY for
+ release, 1 for keypress and 2 for autorepeat.
  
- 	if (!device->flags.power_manageable) {
--		printk(KERN_DEBUG "Device `[%s]' is not power manageable",
-+		printk(KERN_DEBUG "Device `[%s]' is not power manageable\n",
- 				device->kobj.name);
- 		return -ENODEV;
- 	}
+-6. Contacts
+-~~~~~~~~~~~
+-  This effort has its home page at:
+-
+-	http://www.suse.cz/development/input/
+-
+-You'll find both the latest HID driver and the complete Input driver
+-there as well as information how to access the CVS repository for
+-latest revisions of the drivers.
+-
+-  There is also a mailing list for this:
+-
+-	majordomo@atrey.karlin.mff.cuni.cz
+-
+-Send "subscribe linux-input" to subscribe to it.
+-
+-The input changes are also being worked on as part of the LinuxConsole
+-project, see:
+-
+-	 http://sourceforge.net/projects/linuxconsole/
+-
+--- linux-2.6.17-mm6-full/Documentation/input/joystick.txt.old	2006-07-08 21:17:07.000000000 +0200
++++ linux-2.6.17-mm6-full/Documentation/input/joystick.txt	2006-07-08 21:17:45.000000000 +0200
+@@ -37,17 +37,6 @@
+ this driver can't make complete use of, I'm very interested in hearing about
+ them. Bug reports and success stories are also welcome.
+ 
+-  The input project website is at:
+-
+-	http://www.suse.cz/development/input/
+-	http://atrey.karlin.mff.cuni.cz/~vojtech/input/
+-
+-  There is also a mailing list for the driver at:
+-
+-	listproc@atrey.karlin.mff.cuni.cz
+-
+-send "subscribe linux-joystick Your Name" to subscribe to it.
+-
+ 2. Usage
+ ~~~~~~~~
+   For basic usage you just choose the right options in kernel config and
 
-
-
-Luca
--- 
-Home: http://kronoz.cjb.net
-Il piu` bel momento dell'amore e` quando ci si illude che duri per 
-sempre; il piu` brutto, quando ci si accorge che dura da troppo.

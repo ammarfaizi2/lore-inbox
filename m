@@ -1,80 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbWGHUJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbWGHULU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030311AbWGHUJL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 16:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030310AbWGHUJL
+	id S1030317AbWGHULU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 16:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbWGHULU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 16:09:11 -0400
-Received: from khc.piap.pl ([195.187.100.11]:1241 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S964966AbWGHUJK (ORCPT
+	Sat, 8 Jul 2006 16:11:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11136 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030317AbWGHULT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 16:09:10 -0400
-To: Chase Venters <chase.venters@clientec.com>
-Cc: "linux-os \\\\(Dick Johnson\\\\)" <linux-os@analogic.com>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org
+	Sat, 8 Jul 2006 16:11:19 -0400
+Date: Sat, 8 Jul 2006 13:11:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Albert Cahalan <acahalan@gmail.com>
+cc: tglx@linutronix.de, joe.korty@ccur.com, linux-kernel@vger.kernel.org,
+       linux-os@analogic.com, khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org,
+       arjan@infradead.org
 Subject: Re: [patch] spinlocks: remove 'volatile'
-References: <20060705114630.GA3134@elte.hu>
-	<Pine.LNX.4.64.0607071635130.23767@turbotaz.ourhouse>
-	<m3wtaoe7rk.fsf@defiant.localdomain>
-	<200607080841.38235.chase.venters@clientec.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sat, 08 Jul 2006 22:09:05 +0200
-In-Reply-To: <200607080841.38235.chase.venters@clientec.com> (Chase Venters's message of "Sat, 8 Jul 2006 08:41:14 -0500")
-Message-ID: <m38xn3j1um.fsf@defiant.localdomain>
+In-Reply-To: <787b0d920607081233w3e0e99a9n706ff510c3de458b@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0607081256170.3869@g5.osdl.org>
+References: <787b0d920607072054i237eebf5g8109a100623a1070@mail.gmail.com> 
+ <20060708094556.GA13254@tsunami.ccur.com>  <1152354244.24611.312.camel@localhost.localdomain>
+  <787b0d920607080849p322a6349g7a5fd98f78aa9f32@mail.gmail.com> 
+ <1152383487.24611.337.camel@localhost.localdomain>
+ <787b0d920607081233w3e0e99a9n706ff510c3de458b@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters <chase.venters@clientec.com> writes:
 
-> You're mincing my words. The reason "memory" is on the clobber list is
-> because 
-> a lock is supposed to synchronize all memory accesses up to that point. It's 
-> a fence / a barrier, because if the compiler re-orders your loads/stores 
-> across the lock, you're in trouble. That's exactly what I was pointing out.
 
-Sure, but a barrier alone isn't enough. You have to use assembler and
-it's beyond scope of C volatile.
+On Sat, 8 Jul 2006, Albert Cahalan wrote:
+> > 
+> > 1. The volatile implementation of gcc is correct. The standard does not
+> > talk about busses, not even about SMP.
+> 
+> The standard need not. An implementation must deal
+> with whatever odd hardware happens to be in use.
 
-> A volatile cast lets you prevent the compiler from always treating the 
-> variable as volatile.
+Not really.
 
-Yes, if that's what you really want.
+The fact is, "volatile" simply doesn't inform the compiler enough about 
+what the effect of an access could be under various different situations.
 
->> If the "volatile" is used the wrong way (which is probably true for most
->> cases), then volatile cast and barrier() will be wrong as well. You need
->> locks or atomic access, meaningful on hardware level.
->
-> No. Linus already described what some example invalid uses of "volatile"
-> are. 
-> One example is the very one this whole thread is about - using 'volatile' on 
-> the declaration of the spinlock counter. That usage is _wrong_, and
-> barrier() 
-> would not be.
+So the compiler really has no choice. It has to balance the fact that the 
+standard requires it to do _something_ different, with the fact that 
+there's really not a lot of information that the user gave, apart from the 
+one bit of "it's volatile".
 
-That's a special case, because you want to invalidate all variables,
-but you still need locking. I.e., barrier() alone doesn't buy you
-anything WRT to hardware.
+So the compiler really has no choice.
 
-> Volatile originally existed to tell the compiler a variable could change at 
-> will. Because of reordering, it's almost never sufficient with our modern 
-> compilers and CPUs. That's precisely where barrier() (and/or its hardware 
-> equivalents) help in places where 'volatile' is wrong.
+Btw, I think that the whole standard definition of "volatile" is pretty 
+weak and useless. The standard could be improved, and a way to improve the 
+definition of volatile would actually be to say something like
 
-How does barrier() help here? Some example, maybe?
-What do you consider a barrier() hardware equivalent?
-Don't you think you're mixing compiler optimization and operation of
-the hardware?
+	"volatile" implies that the access to that entity can alias with 
+	any other access.
 
-> Your statement is 
-> additionally wrong because one use-case of memory barriers is to safely
-> write 
-> lock-free code.
+That's actually a lot simpler for a compiler writer (a C compiler already 
+has to know about the notion of data aliasing), and gives a lot more 
+useful (and strict) semantics to the whole concept.
 
-You can't safely write lock-free code in C, if you have to deal
-with hardware or SMP. C don't know about hardware.
--- 
-Krzysztof Halasa
+So to look at the previous example of
+
+	extern int a;
+	extern int volatile b;
+
+	void testfn(void)
+	{
+		a++;
+		b++;
+	}
+
+_my_ definition of "volatile" is actually totally unambiguous, and not 
+just simpler than the current standard, it is also stronger. It would make 
+it clearly invalid to read the value of "b" until the value of "a" has 
+been written, because (by my definition), "b" may actually alias the value 
+of "a", so you clearly cannot read "b" until "a" has been updated.
+
+At the same time, there's no question that
+
+	addl $1,a
+	addl $1,b
+
+is a clearly valid instruction sequence by my simpler definition of 
+volatile. The fact that "b" can alias with itself is a tautology, and is 
+true of normal variables too, so any combination of ops on one variable 
+(any variable always aliases _itself_) is by definition clearly always 
+valid on a "volatile" variable too, and thus a compiler that can do the 
+combination of "load + increment + store" on a normal variable should 
+always do so on a volatile one too.
+
+In contrast, the current C standard definition of "volatile" is not only 
+cumbersome and inconvenient, it's also badly defined when it comes to 
+accesses to _other_ data, making it clearly less useful.
+
+I personally think that my simpler definition of volatile is actually a 
+perfectly valid implementation of the current definition of volatile, and 
+I suggested it to some gcc people as a better way to handle "volatile" 
+inside gcc while still being standards-conforming (ie the "can alias 
+anything" thing is not just clearer and simpler, it's strictly a subset of 
+what the C standard allows, meaning that I think you can adopt my 
+definition _without_ breaking any old programs or standards).
+
+But there really is no way to "fix" volatile. You will always invariably 
+need other things too (inline assembly with "lock" prefixes etc) to 
+actually create true lock primitives. The suggested "can alias anything" 
+semantics just clarify what it means, and thus make it less ambiguous. It 
+doesn't make it fundamentally more useful in general.
+
+			Linus

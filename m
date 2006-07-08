@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbWGHWuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030414AbWGHWyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030412AbWGHWuO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 18:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030413AbWGHWuO
+	id S1030414AbWGHWyf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 18:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbWGHWye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 18:50:14 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:37093 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1030412AbWGHWuM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 18:50:12 -0400
-Date: Sat, 8 Jul 2006 23:50:10 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-Message-ID: <20060708225009.GA30560@linux-mips.org>
-References: <20060705131824.52fa20ec.akpm@osdl.org> <Pine.LNX.4.64.0607051332430.12404@g5.osdl.org> <20060705204727.GA16615@elte.hu> <Pine.LNX.4.64.0607051411460.12404@g5.osdl.org> <20060705214502.GA27597@elte.hu> <Pine.LNX.4.64.0607051458200.12404@g5.osdl.org> <Pine.LNX.4.64.0607051555140.12404@g5.osdl.org> <20060706081639.GA24179@elte.hu> <Pine.LNX.4.64.0607061237300.3869@g5.osdl.org> <Pine.LNX.4.64.0607061333190.3869@g5.osdl.org>
+	Sat, 8 Jul 2006 18:54:34 -0400
+Received: from main.gmane.org ([80.91.229.2]:45764 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030414AbWGHWye (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 18:54:34 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ask List <askthelist@gmail.com>
+Subject: Re: Runnable threads on run queue
+Date: Sat, 8 Jul 2006 22:54:24 +0000 (UTC)
+Message-ID: <loom.20060709T005347-41@post.gmane.org>
+References: <loom.20060708T220409-206@post.gmane.org> <200607081618.42093.chase.venters@clientec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607061333190.3869@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 66.237.13.5 (Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 06, 2006 at 01:34:14PM -0700, Linus Torvalds wrote:
+Chase Venters <chase.venters <at> clientec.com> writes:
 
-> On Thu, 6 Jul 2006, Linus Torvalds wrote:
-> > 
-> > So I _think_ that we should change the "=m" to the much more correct "+m" 
-> > at the same time (or before - it's really a bug-fix regardless) as 
-> > removing the "volatile".
 > 
-> Here's a first cut (UNTESTED!) for x86. I didn't check any other 
-> architectures, I bet they have similar problems.
+> On Saturday 08 July 2006 15:18, Ask List wrote:
+> > Have an issue maybe someone on this list can help with.
+> >
+> > At times of very high load the number of processes on the run queue drops
+> > to 0 then jumps really high and then drops to 0 and back and forth. It
+> > seems to last 10 seconds or so. If you look at this vmstat you can see an
+> > example of what I mean. Now im not a linux kernel expert but i am thinking
+> > it has something to do with the scheduling algorithm and locking of the run
+> > queue. For this particular application I need all available threads to be
+> > processed as fast as possible. Is there a way for me to elimnate this
+> > behavior or at least minimize the window in which there are no threads on
+> > the run queue? Is there a sysctl parameter I can use?
+> 
+> If there's a runnable task on the system, the run queue should never empty 
+> except inside schedule(). The scheduler should then swap expired and active.
+> 
+> First question - what kernel are you running? Is it stock?
+> 
+> Second question - what's the application? Are you sure your threads just 
+> aren't falling into interruptible sleep due to an app bug of some sort? Are 
+> you observing misbehavior in the application (long pauses) or just in the 
+> reporting?
+> 
+> Thanks,
+> Chase
+> 
 
-I tried the same on MIPS, for lazyness sake at first only in atomic.h.  With
-gcc 3.3 the code size is exactly the same with both "=m" and "+m", so I
-didn't look into details of the generated code.  With gcc 4.1 "+m" results
-in a size increase of about 1K for the ip27_defconfig kernel.  For example:
+The kernel version is a debian kernel source version 2.4.27-3 and it was
+recompiled to support SMP, High Memory, etc. The application is SpamAssassin
+version 3.1.1. It is possible there may be an app bug, however I do not know
+this for certain. We have manipulated the configuration of the daemon to try and
+aleviate the symptoms to no avail. We experience the issues if we use a mysql
+backend for the bayes db or not. We are experiencing misbehavior in the
+application in the sense of the time it takes for messages to be processed. It
+normally takes tenths of a second to process incoming mail, however we notice
+the processing time jump to over 10 seconds each time the run queue drops to 0
+and then drops back down to tenths of a second when the queue fills back up.
 
-<unlock_kernel>:
-       df830000        ld      v1,0(gp)
-       8c620028        lw      v0,40(v1)
-       04400014        bltz    v0,a80000000029944c <unlock_kernel+0x5c>
-       00000000        nop
-       2442ffff        subiu   v0,v0,1
-       ac620028        sw      v0,40(v1)	# current->lock_depth
-       8c630028        lw      v1,40(v1)	# current->lock_depth
-       0461000b        bgez    v1,a80000000029943c <unlock_kernel+0x4c>
 
-The poinless load isn't generated with "=m".  The interesting thing is
-that in all the instances of bloat I looked at it was actually happening
-not as part of the asm statement itself, so maybe gcc's reload is getting
-a little confused.
-
-  Ralf

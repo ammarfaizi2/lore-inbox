@@ -1,25 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbWGHVd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030407AbWGHVn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030405AbWGHVd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 17:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbWGHVd0
+	id S1030407AbWGHVn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 17:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030408AbWGHVn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 17:33:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13969 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030405AbWGHVdZ (ORCPT
+	Sat, 8 Jul 2006 17:43:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50322 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030407AbWGHVn4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 17:33:25 -0400
-Date: Sat, 8 Jul 2006 14:26:53 -0700 (PDT)
+	Sat, 8 Jul 2006 17:43:56 -0400
+Date: Sat, 8 Jul 2006 14:43:34 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>,
-       Stephane Eranian <eranian@hpl.hp.com>
-cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] i386: use thread_info flags for debug regs and IO 
- bitmaps
-In-Reply-To: <200607071155_MC3-1-C45F-B7C2@compuserve.com>
-Message-ID: <Pine.LNX.4.64.0607081425430.3869@g5.osdl.org>
-References: <200607071155_MC3-1-C45F-B7C2@compuserve.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Krzysztof Halasa <khc@pm.waw.pl>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+In-Reply-To: <20060708204925.GA5440@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.64.0607081442440.3869@g5.osdl.org>
+References: <m34pxt8emn.fsf@defiant.localdomain>
+ <Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
+ <Pine.LNX.4.64.0607071318570.3869@g5.osdl.org> <Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com>
+ <Pine.LNX.4.64.0607071456430.3869@g5.osdl.org> <20060708204925.GA5440@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,21 +30,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 7 Jul 2006, Chuck Ebbert wrote:
->
-> From: Stephane Eranian <eranian@hpl.hp.com>
+On Sat, 8 Jul 2006, Pavel Machek wrote:
 > 
-> Use thread info flags to track use of debug registers and IO bitmaps.
->  
-> 	- add TIF_DEBUG to track when debug registers are active
->  	- add TIF_IO_BITMAP to track when I/O bitmap is used
->  	- modify __switch_to() to use the new TIF flags
+> Actually, because volatile is big hammer, it can be used to work
+> around compiler bugs. If compiler dies at internal error in function
+> foo, just sprinkle few volatiles into it, and you can usually work
+> around that compiler problem.
 
-Can you explain what the advantages of this are?
-
-I don't see it. It's just creating new state to describe state that we 
-already had, and as far as I can tell, it's just a way to potentially have 
-more new bugs thanks to the new state getting out of sync with the old 
-one?
+Heh. That's probably an even better use of "volatile" than using it for 
+hiding bugs in the sources. The bugs in the sources you'd be better off 
+just _fixing_, while the compiler problems you may have a much harder time 
+working around..
 
 		Linus

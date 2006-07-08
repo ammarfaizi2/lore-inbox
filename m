@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWGHSGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWGHSX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964933AbWGHSGn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 14:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbWGHSGb
+	id S964942AbWGHSX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 14:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWGHSX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 14:06:31 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:39230 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S964933AbWGHSGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 14:06:17 -0400
-Date: Sat, 08 Jul 2006 12:06:13 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
-In-reply-to: <fa.AmXizdwfdZtqgKFSMcRp3U0QZXI@ifi.uio.no>
-To: "Abu M. Muttalib" <abum@aftek.com>
-Cc: kernelnewbies@nl.linux.org, linux-newbie@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mm <linux-mm@kvack.org>
-Message-id: <44AFF415.2020305@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.AmXizdwfdZtqgKFSMcRp3U0QZXI@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Sat, 8 Jul 2006 14:23:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1238 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964938AbWGHSX2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 14:23:28 -0400
+Date: Sat, 8 Jul 2006 11:23:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: trajce nedev <trajcenedev@hotmail.com>
+cc: acahalan@gmail.com, linux-kernel@vger.kernel.org, linux-os@analogic.com,
+       khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+In-Reply-To: <BAY110-F20F0B50886D0441B0B8989B8750@phx.gbl>
+Message-ID: <Pine.LNX.4.64.0607081115420.3869@g5.osdl.org>
+References: <BAY110-F20F0B50886D0441B0B8989B8750@phx.gbl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Abu M. Muttalib wrote:
-> Hi,
-> 
-> I am getting the Out of memory.
-> 
-> To circumvent the problem, I have commented the call to "out_of_memory(),
-> and replaced "goto restart" with "goto nopage".
-> 
-> At "nopage:" lable I have added a call to "schedule()" and then "return
-> NULL" after "schedule()".
 
-Bad idea - in the configuration you have, the system may need the 
-out-of-memory killer to free up memory, otherwise the system can 
-deadlock due to all memory being exhausted.
 
+On Fri, 7 Jul 2006, trajce nedev wrote:
 > 
-> I tried the modified kernel with a test application, the test application is
-> mallocing memory in a loop. Unlike as expected the process gets killed. On
-> second run of the same application I am getting the page allocation failure
-> as expected but subsequently the system hangs.
-> 
-> I am attaching the test application and the log herewith.
-> 
-> I am getting this exception with kernel 2.6.13. With kernel
-> 2.4.19-rmka7-pxa1 there was no problem.
-> 
-> Why its so? What can I do to alleviate the OOM problem?
+> Incorrect.  I haven't been following this thread very closely [...]
 
-Please see Documentation/vm/overcommit-accounting in the kernel source tree.
+Right. And maybe you should have followed it a bit more closely.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+We're not talking about "asm volatile", which is a totally different use 
+of the same word. 
 
+We're not talking about pointers to volatile as arguments, which can be 
+required for a generic function to not complain about it's argument types.
+
+We're not even talking about code like
+
+	#define writel(data, offset) \
+		*(volatile int *)(offset) = (data)
+
+which is perfectly fine on some architectures (but realize that on other 
+archtiectures, you may need a _lot_ more than a single memory access to do 
+an IO write, so if you don't abstract it like the above, you're broken by 
+design.
+
+In short, we're not talking about "volatile" in _code_. That's usually 
+fine. We're talkign about "volatile" on data. IT'S WRONG.
+
+Btw, your spinlock (that uses "volatile") is _totally_ and _utterly_ 
+broken, exactly because it doesn't take things like memory ordering into 
+account. In other words, your spinlock WON'T WORK. It won't actually 
+protect the data accesses you have inside the spinlock.
+
+Which proves my point: people who think that "volatile" is good are 
+usually ignorant about the real needs of the code. To do a spinlock on 
+_any_ modern CPU, you need inline assembly. End of story. You need it to 
+make sure that you have told the CPU the right ordering constraints, 
+something that "volatile" simply does not (and _can_not) do.
+
+			Linus

@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbWGHSeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWGHSqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964955AbWGHSeH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 14:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWGHSeG
+	id S1750854AbWGHSqE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 14:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWGHSqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 14:34:06 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:40126 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964955AbWGHSeF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 14:34:05 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Bojan Smojver <bojan@rexursive.com>
-Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
-Date: Sat, 8 Jul 2006 20:34:59 +0200
-User-Agent: KMail/1.9.3
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>, Pavel Machek <pavel@ucw.cz>,
-       Avuton Olrich <avuton@gmail.com>, Olivier Galibert <galibert@pobox.com>,
-       jan@rychter.com, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>
-References: <20060627133321.GB3019@elf.ucw.cz> <200607081238.16753.rjw@sisk.pl> <1152357192.2088.6.camel@beast.rexursive.com>
-In-Reply-To: <1152357192.2088.6.camel@beast.rexursive.com>
+	Sat, 8 Jul 2006 14:46:04 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:57864 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1750854AbWGHSqC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 14:46:02 -0400
+Message-ID: <44AFFD61.1080407@argo.co.il>
+Date: Sat, 08 Jul 2006 21:45:53 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: Pavel Machek <pavel@ucw.cz>, Bill Davidsen <davidsen@tmr.com>,
+       Benny Amorsen <benny+usenet@amorsen.dk>, linux-kernel@vger.kernel.org
+Subject: Re: ext4 features
+References: <m364i8e42v.fsf@defiant.localdomain>
+In-Reply-To: <m364i8e42v.fsf@defiant.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607082034.59377.rjw@sisk.pl>
+X-OriginalArrivalTime: 08 Jul 2006 18:46:00.0614 (UTC) FILETIME=[C1D5D460:01C6A2BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 July 2006 13:13, Bojan Smojver wrote:
-> On Sat, 2006-07-08 at 12:38 +0200, Rafael J. Wysocki wrote:
-> 
-> > Actually, as I said above, as soon as we are _sure_ that LRU pages are not
-> > touched after the memory has been snapshotted, my patch will be mergeable
-> > and we'll get the ability to create bigger images without the added
-> > complexity.  [Apart from the fact that the whole memory image on a box with
-> > more that 512 MB of RAM wouldn't make much sense, IMHO.]  The _only_ thing
-> > needed here is an argument which you have to provide anyway to show that
-> > suspend2 does the right thing.
-> > 
-> > As far as the support for ordinary files, swap files, etc. is concerned,
-> > there's nothing to worry about.  It's comming.
-> 
-> This all sounds very encouraging. What's the rough timeframe for this?
+Krzysztof Halasa wrote:
+>
+> Pavel Machek <pavel@ucw.cz> writes:
+>
+> > Why not? You use libextfs or how is it called to read the file from
+> > the disk directly (read-only access), then you write it back using
+> > regular calls.
+> >
+> > Of course, you can end up with "deleted" data being corrupted if
+> > kernel reused the area before undelete, or while you were doing
+> > undelete... but that's expected. They were _deleted_, right?
+>
+> What if the "undeleted" file contained /etc/shadow because someone
+> was changing password at the time? :-)
+>
 
-Probably a month, but that depends on how much time I will have.
+As the undeleter already had read access to the raw device, /etc/shadow 
+was already compromised.
 
-Rafael
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWGHQnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWGHQrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbWGHQnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 12:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWGHQnQ
+	id S964897AbWGHQrW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 12:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWGHQrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 12:43:16 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:1808 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S964894AbWGHQnQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 12:43:16 -0400
-Date: Sat, 8 Jul 2006 18:43:12 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Bojan Smojver <bojan@rexursive.com>, Jan Rychter <jan@rychter.com>,
-       Pavel Machek <pavel@ucw.cz>, Avuton Olrich <avuton@gmail.com>,
-       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net,
-       grundig <grundig@teleline.es>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
-Message-ID: <20060708164312.GA36499@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Bojan Smojver <bojan@rexursive.com>, Jan Rychter <jan@rychter.com>,
-	Pavel Machek <pavel@ucw.cz>, Avuton Olrich <avuton@gmail.com>,
-	linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net,
-	grundig <grundig@teleline.es>,
-	Nigel Cunningham <ncunningham@linuxmail.org>
-References: <20060627133321.GB3019@elf.ucw.cz> <20060707215656.GA30353@dspnet.fr.eu.org> <20060707232523.GC1746@elf.ucw.cz> <200607080933.12372.ncunningham@linuxmail.org> <20060708002826.GD1700@elf.ucw.cz> <m2d5cg1mwy.fsf@tnuctip.rychter.com> <1152353698.2555.11.camel@coyote.rexursive.com> <1152355318.3120.26.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152355318.3120.26.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+	Sat, 8 Jul 2006 12:47:22 -0400
+Received: from mercury.realtime.net ([205.238.132.86]:49832 "EHLO
+	ruth.realtime.net") by vger.kernel.org with ESMTP id S964897AbWGHQrV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 12:47:21 -0400
+In-Reply-To: <20060708084713.GA8020@mars.ravnborg.org>
+References: <20060708084713.GA8020@mars.ravnborg.org>
+Mime-Version: 1.0 (Apple Message framework v624)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <b2ab6d298877aff62aa61e0430a16d3d@bga.com>
+Content-Transfer-Encoding: 7bit
+Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
+From: Milton Miller <miltonm@bga.com>
+Subject: Re: [RFC] Use target filename in BUG_ON and friends
+Date: Sat, 8 Jul 2006 11:45:49 -0500
+To: Sam Ravnborg <sam@ravnborg.org>
+X-Mailer: Apple Mail (2.624)
+X-Server: High Performance Mail Server - http://surgemail.com r=-1092531819
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 08, 2006 at 12:41:58PM +0200, Arjan van de Ven wrote:
-> Very often, choice is good. but for something this fundamental, it is
-> not. We also don't have 2 scsi layers for example.
+			
+On Jul 8, 2006, at 04:45:54 EST, Sam Ravnborg wrote:
+>  When building the kernel using make O=.. all uses of __FILE__ becomes
+>  filenames with absolute path resulting in increased text size.
+>  Following patch supply the target filename as a commandline define
+>  KBUILD_TARGET_FILE="mmslab.o"
 
-We have 2 ide layers, 2 usb-storage drivers, 2 sound systems and we
-have had 2 pcmcia subsystems and 2 usb subsystems.  At one point, it's
-the only way to find out what will work out.  Suspend2 and uswsusp
-have very different fundamental designs, and it's quite unclear at
-that point which one is the right one.
+Unfortunately this ignores the fact that __LINE__ is meaningless
+without __FILE__ because there are way too many BUGs in header
+files.
 
+Well, it does give us a hint as to which user of the header is
+the problem one without going to System.map or objdump.
 
-> Including well a defined and portable set of requirements on the kernel
-> and drivers, and done such that driver people who don't know the fine
-> details, can still get their drivers right.
+Even though it is hard on ccache, it is nice to be able to cut
+and paste the file name.
 
-The polarisation that is going on has resulted in nobody caring about
-that, sadly enough.  And in any case it's absolutely demented that
-non-disk drivers could have so much of an influence on the stability
-of suspend-to-disk.
+milton
 
-  OG.

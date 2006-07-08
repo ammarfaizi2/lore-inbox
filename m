@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWGHAHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWGHAHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbWGHAHA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 20:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWGHAGt
+	id S932428AbWGHAHw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 20:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWGHAF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 20:06:49 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:62162 "EHLO
+	Fri, 7 Jul 2006 20:05:27 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:60370 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932428AbWGHAFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 20:05:33 -0400
-Date: Fri, 7 Jul 2006 17:05:22 -0700 (PDT)
+	id S932426AbWGHAFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 20:05:24 -0400
+Date: Fri, 7 Jul 2006 17:05:12 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
@@ -19,117 +19,141 @@ Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
        Martin Bligh <mbligh@google.com>, Christoph Lameter <clameter@sgi.com>,
        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
        Andi Kleen <ak@suse.de>
-Message-Id: <20060708000522.3829.85832.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20060708000511.3829.66071.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC 4/8] page allocator: Optional ZONE_DMA
+Subject: [RFC 2/8] slab allocator: Make DMA support configurable
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make ZONE_DMA optional in the page allocator
+Support slab without ZONE_SLAB.
 
-- ifdef all code for ZONE_DMA and related definitions.
+If CONFIG_ZONE_DMA is not defined then drop support for ZONE_DMA from
+the slab allocator.
 
-- Without ZONE_DMA, ZONE_HIGHMEM and ZONE_DMA32 we fall back
-  to an empty GFP_ZONEMASK and a ZONES_SHIFT of zero (since there
-  is only one zone....).
-
-- We need to fix the use of ZONE_DMA in the memory policy layer.
-  ZONE_DMA is used there as the first zone so use 0 instead.
+Do not create the special DMA slab series for kmalloc and always
+return memory from ZONE_NORMAL.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.17-mm6/include/linux/mmzone.h
+Index: linux-2.6.17-mm6/mm/slab.c
 ===================================================================
---- linux-2.6.17-mm6.orig/include/linux/mmzone.h	2006-07-07 15:29:50.265384678 -0700
-+++ linux-2.6.17-mm6/include/linux/mmzone.h	2006-07-07 16:44:03.067357437 -0700
-@@ -88,6 +88,7 @@ struct per_cpu_pageset {
- #endif
+--- linux-2.6.17-mm6.orig/mm/slab.c	2006-07-03 13:47:22.651238848 -0700
++++ linux-2.6.17-mm6/mm/slab.c	2006-07-03 21:39:07.050259199 -0700
+@@ -650,11 +650,17 @@ EXPORT_SYMBOL(malloc_sizes);
+ /* Must match cache_sizes above. Out of line to keep cache footprint low. */
+ struct cache_names {
+ 	char *name;
++#ifdef CONFIG_ZONE_DMA
+ 	char *name_dma;
++#endif
+ };
  
- typedef enum {
+ static struct cache_names __initdata cache_names[] = {
++#ifdef CONFIG_ZONE_DMA
+ #define CACHE(x) { .name = "size-" #x, .name_dma = "size-" #x "(DMA)" },
++#else
++#define CACHE(x) { .name = "size-" #x },
++#endif
+ #include <linux/kmalloc_sizes.h>
+ 	{NULL,}
+ #undef CACHE
+@@ -729,7 +735,7 @@ static inline struct kmem_cache *__find_
+ #endif
+ 	while (size > csizep->cs_size)
+ 		csizep++;
+-
 +#ifdef CONFIG_ZONE_DMA
  	/*
- 	 * ZONE_DMA is used when there are devices that are not able
- 	 * to do DMA to all of addressable memory (ZONE_NORMAL). Then we
-@@ -108,6 +109,7 @@ typedef enum {
- 	 * 			<16M.
+ 	 * Really subtle: The last entry with cs->cs_size==ULONG_MAX
+ 	 * has cs_{dma,}cachep==NULL. Thus no special case
+@@ -737,6 +743,7 @@ static inline struct kmem_cache *__find_
  	 */
- 	ZONE_DMA,
+ 	if (unlikely(gfpflags & GFP_DMA))
+ 		return csizep->cs_dmacachep;
 +#endif
- #ifdef CONFIG_ZONE_DMA32
- 	/*
- 	 * x86_64 needs two ZONE_DMAs because it supports devices that are
-@@ -172,8 +174,13 @@ typedef enum {
- #define GFP_ZONEMASK		0x03
- #define	ZONES_SHIFT		2
- #else
-+#ifdef CONFIG_DMA
- #define GFP_ZONEMASK		0x01
- #define ZONES_SHIFT		1
-+#else
-+#define GFP_ZONEMASK		0x00
-+#define ZONES_SHIFT		0
+ 	return csizep->cs_cachep;
+ }
+ 
+@@ -1395,13 +1402,14 @@ void __init kmem_cache_init(void)
+ 					ARCH_KMALLOC_FLAGS|SLAB_PANIC,
+ 					NULL, NULL);
+ 		}
+-
++#ifdef CONFIG_ZONE_DMA
+ 		sizes->cs_dmacachep = kmem_cache_create(names->name_dma,
+ 					sizes->cs_size,
+ 					ARCH_KMALLOC_MINALIGN,
+ 					ARCH_KMALLOC_FLAGS|SLAB_CACHE_DMA|
+ 						SLAB_PANIC,
+ 					NULL, NULL);
 +#endif
- #endif
- #endif
+ 		sizes++;
+ 		names++;
+ 	}
+@@ -2179,8 +2187,10 @@ kmem_cache_create (const char *name, siz
+ 	cachep->slab_size = slab_size;
+ 	cachep->flags = flags;
+ 	cachep->gfpflags = 0;
++#ifdef CONFIG_ZONE_DMA
+ 	if (flags & SLAB_CACHE_DMA)
+ 		cachep->gfpflags |= GFP_DMA;
++#endif
+ 	cachep->buffer_size = size;
  
-@@ -464,7 +471,11 @@ static inline int is_dma32(struct zone *
+ 	if (flags & CFLGS_OFF_SLAB)
+@@ -2498,10 +2508,12 @@ static void cache_init_objs(struct kmem_
  
- static inline int is_dma(struct zone *zone)
+ static void kmem_flagcheck(struct kmem_cache *cachep, gfp_t flags)
  {
 +#ifdef CONFIG_ZONE_DMA
- 	return zone == zone->zone_pgdat->node_zones + ZONE_DMA;
+ 	if (flags & SLAB_DMA)
+ 		BUG_ON(!(cachep->gfpflags & GFP_DMA));
+ 	else
+ 		BUG_ON(cachep->gfpflags & GFP_DMA);
++#endif
+ }
+ 
+ static void *slab_get_obj(struct kmem_cache *cachep, struct slab *slabp,
+Index: linux-2.6.17-mm6/include/linux/slab.h
+===================================================================
+--- linux-2.6.17-mm6.orig/include/linux/slab.h	2006-07-03 21:27:34.756012776 -0700
++++ linux-2.6.17-mm6/include/linux/slab.h	2006-07-03 22:07:16.857980432 -0700
+@@ -72,7 +72,9 @@ extern const char *kmem_cache_name(kmem_
+ struct cache_sizes {
+ 	size_t		 cs_size;
+ 	kmem_cache_t	*cs_cachep;
++#ifdef CONFIG_ZONE_DMA
+ 	kmem_cache_t	*cs_dmacachep;
++#endif
+ };
+ extern struct cache_sizes malloc_sizes[];
+ 
+@@ -146,9 +148,13 @@ static inline void *kmalloc(size_t size,
+ 			__you_cannot_kmalloc_that_much();
+ 		}
+ found:
++#ifdef CONFIG_ZONE_DMA
+ 		return kmem_cache_alloc((flags & GFP_DMA) ?
+ 			malloc_sizes[i].cs_dmacachep :
+ 			malloc_sizes[i].cs_cachep, flags);
 +#else
-+	return 0;
++		return kmem_cache_alloc(malloc_sizes[i].cs_cachep, flags);
 +#endif
+ 	}
+ 	return __kmalloc(size, flags);
  }
- 
- /* These two functions are used to setup the per zone pages min values */
-Index: linux-2.6.17-mm6/mm/page_alloc.c
-===================================================================
---- linux-2.6.17-mm6.orig/mm/page_alloc.c	2006-07-07 15:29:50.265384678 -0700
-+++ linux-2.6.17-mm6/mm/page_alloc.c	2006-07-07 16:44:03.069310441 -0700
-@@ -69,7 +69,9 @@ static void __free_pages_ok(struct page 
-  * don't need any ZONE_NORMAL reservation
-  */
- int sysctl_lowmem_reserve_ratio[MAX_NR_ZONES-1] = {
+@@ -176,9 +182,13 @@ static inline void *kzalloc(size_t size,
+ 			__you_cannot_kzalloc_that_much();
+ 		}
+ found:
 +#ifdef CONFIG_ZONE_DMA
- 	 256,
+ 		return kmem_cache_zalloc((flags & GFP_DMA) ?
+ 			malloc_sizes[i].cs_dmacachep :
+ 			malloc_sizes[i].cs_cachep, flags);
++#else
++		return kmem_cache_zalloc(malloc_sizes[i].cs_cachep, flags);
 +#endif
- #ifdef CONFIG_ZONE_DMA32
- 	 256,
- #endif
-@@ -88,7 +90,9 @@ struct zone *zone_table[1 << ZONETABLE_S
- EXPORT_SYMBOL(zone_table);
- 
- static char *zone_names[MAX_NR_ZONES] = {
-+#ifdef CONFIG_ZONE_DMA
- 	 "DMA",
-+#endif
- #ifdef CONFIG_ZONE_DMA32
- 	 "DMA32",
- #endif
-@@ -1485,8 +1489,10 @@ static inline int highest_zone(int zone_
- 	if (zone_bits & (__force int)__GFP_DMA32)
- 		res = ZONE_DMA32;
- #endif
-+#ifdef CONFIG_ZONE_DMA
- 	if (zone_bits & (__force int)__GFP_DMA)
- 		res = ZONE_DMA;
-+#endif
- 	return res;
+ 	}
+ 	return __kzalloc(size, flags);
  }
- 
-Index: linux-2.6.17-mm6/mm/mempolicy.c
-===================================================================
---- linux-2.6.17-mm6.orig/mm/mempolicy.c	2006-07-06 11:46:23.152072668 -0700
-+++ linux-2.6.17-mm6/mm/mempolicy.c	2006-07-07 16:44:03.070286943 -0700
-@@ -105,7 +105,7 @@ static struct kmem_cache *sn_cache;
- 
- /* Highest zone. An specific allocation for a zone below that is not
-    policied. */
--int policy_zone = ZONE_DMA;
-+int policy_zone = 0;
- 
- struct mempolicy default_policy = {
- 	.refcnt = ATOMIC_INIT(1), /* never free it */

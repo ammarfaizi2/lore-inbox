@@ -1,61 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWGHWTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWGHWUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWGHWTa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 18:19:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWGHWTa
+	id S1751309AbWGHWUc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 18:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWGHWUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 18:19:30 -0400
-Received: from tallyho.bytemark.co.uk ([80.68.81.166]:33477 "EHLO
-	tallyho.bytemark.co.uk") by vger.kernel.org with ESMTP
-	id S1751241AbWGHWTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 18:19:30 -0400
-Date: Sat, 8 Jul 2006 23:19:24 +0100
-From: "Dr. David Alan Gilbert" <linux@treblig.org>
-To: Ask List <askthelist@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Runnable threads on run queue
-Message-ID: <20060708221923.GA1893@gallifrey>
-References: <loom.20060708T220409-206@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <loom.20060708T220409-206@post.gmane.org>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.32 (i686)
-X-Uptime: 23:16:55 up 60 days, 11:29,  2 users,  load average: 0.88, 0.71, 0.50
-User-Agent: Mutt/1.5.9i
+	Sat, 8 Jul 2006 18:20:32 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:60133 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1751309AbWGHWUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 18:20:32 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: "Sunil Kumar" <devsku@gmail.com>
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+Date: Sun, 9 Jul 2006 08:20:25 +1000
+User-Agent: KMail/1.9.1
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Bojan Smojver" <bojan@rexursive.com>, "Pavel Machek" <pavel@ucw.cz>,
+       "Avuton Olrich" <avuton@gmail.com>,
+       "Olivier Galibert" <galibert@pobox.com>,
+       "Jan Rychter" <jan@rychter.com>, linux-kernel@vger.kernel.org,
+       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>
+References: <20060627133321.GB3019@elf.ucw.cz> <200607082125.12819.rjw@sisk.pl> <ce9ef0d90607081248n1f2fc79fw199b493f3ca6313@mail.gmail.com>
+In-Reply-To: <ce9ef0d90607081248n1f2fc79fw199b493f3ca6313@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2285149.h3VDrzu2KN";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607090820.29989.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ask List (askthelist@gmail.com) wrote:
-> Have an issue maybe someone on this list can help with. 
+--nextPart2285149.h3VDrzu2KN
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-<snip>
+Hi.
 
-> Please help.
-> 
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
-> 83  0   1328 301684  37868 1520632    0    0     0   264  400  1332 98  2  0  0
-> 17  0   1328 293936  37868 1520688    0    0     0     0  537   979 97  3  0  0
-> 73  0   1328 293688  37868 1520712    0    0     0     0  268  2643 98  2  0  0
-> 80  0   1328 277220  37868 1520756    0    0     0     0  351   824 98  2  0  0
-> 49  0   1328 262452  37868 1520800    0    0     0     0  393  1882 97  3  0  0
-> 45  0   1328 246796  37868 1520828    0    0     0   304  302  1631 96  4  0  0
-> 55  0   1328 243852  37868 1520872    0    0     0     0  356  1101 99  1  0  0
-> 17  0   1328 228672  37868 1520916    0    0     0     0  336   748 97  3  0  0
->  0  0   1328 299948  37868 1520956    0    0     0     0  299   821 78  3 19  0
->  0  0   1328 299184  37868 1520960    0    0     0     0  168    78  8  0 92  0
+On Sunday 09 July 2006 05:48, Sunil Kumar wrote:
+> > Now there seem to be two possible ways to go:
+> > 1) Drop the implementation that already is in the kernel and replace it
+> > with
+> > the out-of-the-tree one.
+> > 2) Improve the one that already is in the kernel incrementally, possibly
+> > merging some code from the out-of-the-tree implementation, so that it's
+> > as feature-rich as the other one.
+> >
+> > Apparently 1) is what Nigel is trying to make happen and 2) is what I'd
+> > like
+> > to do.
+>
+> Is that really true, Nigel, that you want 1)?
 
-Could you also post the output of iostat -x 1  covering the same period?
-(You might need to restrict the set of devices if you have a lot)
-The pattern of bursts of output is something I've seen on apps
-just trying to do continuous large writes and I'm wondering
-what you are seeing there.
+I would be happy for suspend2 and swsusp to coexist for at least at while.=
+=20
+That's why I've made suspend2 play nicely with swsusp ever since I ported i=
+t=20
+to 2.6.
 
-Dave
--- 
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+> Is it really impossible to have the third possbility of both the
+> implementations in kernel at the same time? If Nigel has a patch against =
+mm
+> series, that means that he has taken care of all the conflicts. Are we
+> missing something here?
+
+I just about have one. I just have one issue (the removal of name_to_dev_t =
+by=20
+klibc) to address. A really simple or short-term solution would be to re-ad=
+d=20
+it, but I want to think the issue through more carefully first.
+
+Regards,
+
+Nigel
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
+
+--nextPart2285149.h3VDrzu2KN
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEsC+tN0y+n1M3mo0RAmGkAKDF2+PUxjSeEbYwFW4EabGsVKFnRACfQOhO
++Wk1B4m5RS3fvoTVUh4P+g8=
+=wiEK
+-----END PGP SIGNATURE-----
+
+--nextPart2285149.h3VDrzu2KN--

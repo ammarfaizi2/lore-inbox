@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWGHG6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWGHHfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWGHG6w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 02:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbWGHG6w
+	id S1750953AbWGHHfV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 03:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWGHHfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 02:58:52 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4067 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964811AbWGHG6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 02:58:51 -0400
-Subject: Re: [patch] spinlocks: remove 'volatile'
-From: Arjan van de Ven <arjan@infradead.org>
-To: trajce nedev <trajcenedev@hotmail.com>
-Cc: chase.venters@clientec.com, torvalds@osdl.org, acahalan@gmail.com,
-       linux-kernel@vger.kernel.org, linux-os@analogic.com, khc@pm.waw.pl,
-       mingo@elte.hu, akpm@osdl.org
-In-Reply-To: <BAY110-F352D1029C60425661175C9B8750@phx.gbl>
-References: <BAY110-F352D1029C60425661175C9B8750@phx.gbl>
+	Sat, 8 Jul 2006 03:35:21 -0400
+Received: from mail.gmx.net ([213.165.64.21]:39587 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750901AbWGHHfU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 03:35:20 -0400
+X-Authenticated: #14349625
+Subject: Re: Opinions on removing /proc/tty?
+From: Mike Galbraith <efault@gmx.de>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com>
+References: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com>
 Content-Type: text/plain
-Date: Sat, 08 Jul 2006 08:58:44 +0200
-Message-Id: <1152341924.3120.6.camel@laptopd505.fenrus.org>
+Date: Sat, 08 Jul 2006 09:40:52 +0200
+Message-Id: <1152344452.7922.11.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Fri, 2006-07-07 at 22:56 -0400, Jon Smirl wrote:
+> Does anyone use the info in /proc/tty? The hard coded device names
+> aren't compatible with udev's ability to rename things.
 > 
-> __forceinline void Lock(volatile LONG *hPtr)
-> {
-> 	int iValue;
+> There also doesn't appear to be any useful info in the drivers portion
+> that isn't already available in sysfs. I can add some code to make a
+> list of registered line disciplines appear in sysfs.
 > 
-> 	for (;;) {
-> 		iValue = _InterlockedExchange((LPLONG)hPtr, 1);
-> 		if (iValue == 0)
-> 			return;
-> 		while (*hPtr);
-> 	}
-> }
-> 
-> Please show me how I can write this to spinlock without using volatile.
+> Does anyone have a problem with deleting /proc/tty if ldisc enum
+> support is added to sysfs?
 
-this code is broken, at the very minimum that while (*hPtr); needs to be
-"while (*hPtr) cpu_relax();" for hardware reasons.
-At which point you can drop the volatile entirely without any change.
+ps uses /proc/tty/drivers, so some coordination would be needed.
 
-
+	-Mike
 

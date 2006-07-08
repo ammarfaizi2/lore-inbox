@@ -1,155 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWGHXIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030419AbWGHXLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030415AbWGHXIs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 19:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbWGHXIs
+	id S1030419AbWGHXLE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 19:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030420AbWGHXLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 19:08:48 -0400
-Received: from main.gmane.org ([80.91.229.2]:62399 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030415AbWGHXIr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 19:08:47 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ask List <askthelist@gmail.com>
-Subject: Re: Runnable threads on run queue
-Date: Sat, 8 Jul 2006 23:08:33 +0000 (UTC)
-Message-ID: <loom.20060709T005925-255@post.gmane.org>
-References: <loom.20060708T220409-206@post.gmane.org> <20060708221923.GA1893@gallifrey>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 8 Jul 2006 19:11:03 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:4624 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1030419AbWGHXLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 19:11:02 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] spinlocks: remove 'volatile'
+Date: Sat, 8 Jul 2006 16:10:54 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAEMHNAAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 66.237.13.5 (Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4)
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <787b0d920607081233w3e0e99a9n706ff510c3de458b@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Sat, 08 Jul 2006 16:06:15 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Sat, 08 Jul 2006 16:06:15 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I dont exactly have iostat -x 1 from the same time frame. But I do have the
-collected sar data from before and during our period of high load. Here is 
-a snippet before ...
 
-                 tps      rtps      wtps   bread/s   bwrtn/s
-11:46:00 PM      5.00      0.00      5.00      0.00    160.00
-11:46:01 PM      8.91      0.00      8.91      0.00    182.18
-11:46:02 PM     10.00      0.00     10.00      0.00    368.00
-11:46:03 PM      7.92      0.00      7.92      0.00    142.57
-11:46:04 PM     13.00      0.00     13.00      0.00    336.00
-11:46:05 PM      9.90      0.00      9.90      0.00    261.39
-11:46:06 PM      9.00      0.00      9.00      0.00    264.00
-11:46:07 PM      6.93      0.00      6.93      0.00    198.02
-11:46:08 PM      8.00      0.00      8.00      0.00    288.00
-11:46:09 PM     12.87      0.00     12.87      0.00    324.75
-11:46:10 PM      9.00      0.00      9.00      0.00    280.00
-11:46:11 PM      6.93      0.00      6.93      0.00    134.65
-11:46:12 PM     12.00      0.00     12.00      0.00    336.00
-11:46:13 PM     10.89      0.00     10.89      0.00    253.47
-11:46:14 PM     18.00      0.00     18.00      0.00    464.00
-11:46:15 PM      4.81      0.00      4.81      0.00     84.62
-11:46:16 PM     10.00      0.00     10.00      0.00    328.00
-11:46:17 PM     10.89      0.00     10.89      0.00    269.31
-11:46:18 PM     11.00      0.00     11.00      0.00    304.00
-11:46:19 PM     30.69      0.00     30.69      0.00    451.49
-11:46:20 PM      9.00      0.00      9.00      0.00    272.00
-11:46:21 PM      5.94      0.00      5.94      0.00     95.05
-11:46:22 PM     10.00      0.00     10.00      0.00    304.00
-11:46:23 PM      5.94      0.00      5.94      0.00    150.50
-11:46:24 PM     17.00      0.00     17.00      0.00    432.00
-11:46:25 PM      6.93      0.00      6.93      0.00    190.10
-11:46:26 PM     10.00      0.00     10.00      0.00    344.00
-11:46:27 PM      8.91      0.00      8.91      0.00    166.34
-11:46:28 PM      7.00      0.00      7.00      0.00    192.00
-11:46:29 PM     15.84      0.00     15.84      0.00    427.72
-11:46:30 PM      7.00      0.00      7.00      0.00    168.00
-11:46:31 PM      9.90      0.00      9.90      0.00    221.78
-11:46:32 PM     12.00      0.00     12.00      0.00    360.00
-11:46:33 PM     10.89      0.00     10.89      0.00    245.54
-11:46:34 PM     10.00      0.00     10.00      0.00    280.00
-11:46:35 PM      6.93      0.00      6.93      0.00    134.65
-11:46:36 PM     11.00      0.00     11.00      0.00    296.00
-11:46:37 PM      8.91      0.00      8.91      0.00    205.94
-11:46:38 PM     12.00      0.00     12.00      0.00    376.00
-11:46:39 PM     14.85      0.00     14.85      0.00    435.64
-11:46:40 PM      9.00      0.00      9.00      0.00    248.00
-11:46:41 PM      7.92      0.00      7.92      0.00    237.62
-11:46:42 PM     10.00      0.00     10.00      0.00    320.00
-11:46:43 PM      5.94      0.00      5.94      0.00     55.45
-11:46:44 PM     15.00      0.00     15.00      0.00    408.00
-11:46:45 PM      9.90      0.00      9.90      0.00    229.70
-11:46:46 PM     10.00      0.00     10.00      0.00    272.00
-11:46:47 PM     10.89      0.00     10.89      0.00    269.31
-11:46:48 PM     10.00      0.00     10.00      0.00    272.00
-11:46:49 PM     36.63      0.00     36.63      0.00    514.85
-11:46:50 PM     11.00      0.00     11.00      0.00    296.00
-11:46:51 PM      8.91      0.00      8.91      0.00    205.94
-11:46:52 PM     11.00      0.00     11.00      0.00    312.00
-11:46:53 PM      8.91      0.00      8.91      0.00    190.10
-11:46:54 PM     15.00      0.00     15.00      0.00    368.00
-11:46:55 PM      9.90      0.00      9.90      0.00    253.47
-11:46:56 PM     11.00      0.00     11.00      0.00    352.00
-11:46:57 PM      8.91      0.00      8.91      0.00    245.54
-11:46:58 PM      9.00      0.00      9.00      0.00    256.00
-11:46:59 PM     11.88      0.00     11.88      0.00    308.91
-11:47:00 PM      7.00      0.00      7.00      0.00    168.00
+> Damn right. This is the C standard requirement.
+> Not all code has Linux-like performance requirements,
+> and in any case, standards are standards.
 
-and here is a snippet during high load....
+	Umm, no it's not a C standard requirement. The C standard requires
+'volatile' to work in two specific cases (signals and longjmp) and further
+defines certain side-effects of 'volatile' accesses that must not be removed
+under any 'as-if' optimizations. GCC fully respects these three
+requirements.
 
-12:13:00 AM      6.00      0.00      6.00      0.00    224.00
-12:13:01 AM      8.06      0.00      8.06      0.00    180.65
-12:13:02 AM     18.00      0.00     18.00      0.00    544.00
-12:13:03 AM      8.00      0.00      8.00      0.00    192.00
-12:13:04 AM     47.00      0.00     47.00      0.00    856.00
-12:13:05 AM      8.91      0.00      8.91      0.00    229.70
-12:13:06 AM     15.00      0.00     15.00      0.00    392.00
-12:13:07 AM      9.90      0.00      9.90      0.00    229.70
-12:13:08 AM      8.00      0.00      8.00      0.00    232.00
-12:13:09 AM     15.52      0.00     15.52      0.00    379.31
-12:13:10 AM      6.98      0.00      6.98      0.00    198.45
-12:13:12 AM     12.96      0.00     12.96      0.00    348.15
-12:13:13 AM     17.00      0.00     17.00      0.00    424.00
-12:13:14 AM     28.74      0.00     28.74      0.00    526.95
-12:13:15 AM     13.46      0.00     13.46      0.00    361.54
-12:13:16 AM      9.40      0.00      9.40      0.00    225.64
-12:13:17 AM     15.00      0.00     15.00      0.00    488.00
-12:13:19 AM     14.91      0.00     14.91      0.00    377.64
-12:13:20 AM      9.00      0.00      9.00      0.00    296.00
-12:13:21 AM     12.15      0.00     12.15      0.00    366.36
-12:13:22 AM     26.00      0.00     26.00      0.00    784.00
-12:13:24 AM     11.06      0.00     11.06      0.00    324.42
-12:13:25 AM     14.81      0.00     14.81      0.00    333.33
-12:13:26 AM     25.47      0.00     25.47      0.00    777.36
-12:13:27 AM     19.00      0.00     19.00      0.00    480.00
-12:13:28 AM     20.79      0.00     20.79      0.00    538.61
-12:13:29 AM      5.00      0.00      5.00      0.00    136.00
-12:13:31 AM     12.73      0.00     12.73      0.00    298.18
-12:13:32 AM     23.00      0.00     23.00      0.00    632.00
-12:13:33 AM     36.79      0.00     36.79      0.00   1011.32
-12:13:34 AM     37.50      0.00     37.50      0.00    950.00
-12:13:35 AM      7.76      0.00      7.76      0.00    186.21
-12:13:36 AM     12.93      0.00     12.93      0.00    324.14
-12:13:38 AM      8.57      0.00      8.57      0.00    210.29
-12:13:39 AM     30.00      0.00     30.00      0.00    696.00
-12:13:40 AM      9.90      0.00      9.90      0.00    245.54
-12:13:41 AM     12.00      0.00     12.00      0.00    328.00
-12:13:42 AM      5.94      0.00      5.94      0.00     63.37
-12:13:43 AM      7.00      0.00      7.00      0.00    256.00
-12:13:44 AM     44.54      0.00     44.54      0.00    746.22
-12:13:45 AM      9.71      0.00      9.71      0.00    248.54
-12:13:46 AM     13.89      0.00     13.89      0.00    370.37
-12:13:47 AM     13.00      0.00     13.00      0.00    336.00
-12:13:48 AM     13.86      0.00     13.86      0.00    324.75
-12:13:49 AM     15.00      0.00     15.00      0.00    344.00
-12:13:50 AM      3.96      0.00      3.96      0.00     39.60
-12:13:51 AM     11.00      0.00     11.00      0.00    368.00
-12:13:52 AM      7.92      0.00      7.92      0.00    174.26
-12:13:54 AM     10.17      0.00     10.17      0.00    266.67
-12:13:55 AM      7.41      0.00      7.41      0.00    133.33
-12:13:56 AM     15.00      0.00     15.00      0.00    328.00
-12:13:57 AM      5.71      0.00      5.71      0.00     91.43
-12:13:58 AM      9.68      0.00      9.68      0.00    316.13
-12:13:59 AM     24.27      0.00     24.27      0.00    520.39
-12:14:00 AM     10.89      0.00     10.89      0.00    324.75
+	For anything else, if you cannot detect it in a compliant program, it is
+not a violation of the standard. Programs compliant with the C standard
+cannot access shared memory that may be modified by another process nor can
+they have multiple threads concurrently executing. So any proposed violation
+that can only be exposed under those circumstances is not actually a
+violation.
 
-... I hope this helps.
+	POSIX, for several good reasons, did not extend 'volatile' to provide any
+guarantees when used in conjunction with things like 'mmap' and pthreads.
+For one thing, it would have added senseless expensive overhead to programs
+that used 'volatile' legitimately.
+
+	Worse, it would have opened up the atomicity Pandora's box.
+
+	It's hard to imagine how 'volatile' could possibly be useful in an SMP
+context if it has no atomicity guarantees, and it has no atomicity
+guarantees. No standard, as far as I know, has ever expanded 'volatile' to
+include atomicity guarantees, so it's totally and completely useless in an
+SMP context. So can this argument die now?
+
+	DS
+
 

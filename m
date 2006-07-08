@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWGHNrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWGHNwX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWGHNrR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 09:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWGHNrR
+	id S964840AbWGHNwX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 09:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWGHNwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 09:47:17 -0400
-Received: from relay03.pair.com ([209.68.5.17]:17929 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S964835AbWGHNrQ (ORCPT
+	Sat, 8 Jul 2006 09:52:23 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9705 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964840AbWGHNwW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 09:47:16 -0400
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: "trajce nedev" <trajcenedev@hotmail.com>
-Subject: Re: [patch] spinlocks: remove 'volatile'
-Date: Sat, 8 Jul 2006 08:46:49 -0500
-User-Agent: KMail/1.9.3
-Cc: torvalds@osdl.org, acahalan@gmail.com, linux-kernel@vger.kernel.org,
-       linux-os@analogic.com, khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org,
-       arjan@infradead.org
-References: <BAY110-F352D1029C60425661175C9B8750@phx.gbl>
-In-Reply-To: <BAY110-F352D1029C60425661175C9B8750@phx.gbl>
+	Sat, 8 Jul 2006 09:52:22 -0400
+Date: Sat, 8 Jul 2006 15:51:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.6.18-rc1 broke resume from APM suspend on Latitude CPi
+Message-ID: <20060708135156.GA2912@elf.ucw.cz>
+References: <200607081338.k68Dcvux007655@harpo.it.uu.se>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607080847.12566.chase.venters@clientec.com>
+In-Reply-To: <200607081338.k68Dcvux007655@harpo.it.uu.se>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 July 2006 01:44, trajce nedev wrote:
-> On Sat, 8 Jul 2006, Chase Venters wrote:
-> >Perhaps you should have followed this thread closely before composing your
-> >assault on Linus. We're not talking about "asm volatile". We're talking
-> >about
-> >the "volatile" keyword as applied to variables. 'volatile' as applied to
-> >inline ASM is of course necessary in many cases -- no one is disputing
-> >that.
->
-> Ok, let's port a spinlock macro that spins instead of context switches
-> instead of using the pthread garbage on IA64 or AMD64:
->
-> #if ((defined (_M_IA64) || defined (_M_AMD64)) && !defined(NT_INTEREX))
-> #include <windows.h>
-> #pragma intrinsic (_InterlockedExchange)
->
-> typedef volatile LONG lock_t[1];
->
-> #define LockInit(v)	((v)[0] = 0)
-> #define LockFree(v)	((v)[0] = 0)
-> #define Unlock(v)	((v)[0] = 0)
->
-> __forceinline void Lock(volatile LONG *hPtr)
-> {
-> 	int iValue;
->
-> 	for (;;) {
-> 		iValue = _InterlockedExchange((LPLONG)hPtr, 1);
-> 		if (iValue == 0)
-> 			return;
-> 		while (*hPtr);
-> 	}
-> }
->
-> Please show me how I can write this to spinlock without using volatile.
+On Sat 2006-07-08 15:38:57, Mikael Pettersson wrote:
+> On Fri, 7 Jul 2006 21:47:37 +0000, Pavel Machek wrote:
+> >> Kernel 2.6.18-rc1 broke resume from APM suspend (to RAM)
+> >> on my old Dell Latitude CPi laptop. At resume the disk
+> >> spins up and the screen gets lit, but there is no response
+> >> to the keyboard, not even sysrq. All other system activity
+> >> also appears to be halted.
+> >> 
+> >> I did the obvious test of reverting apm.c to the 2.6.17
+> >> version and fixing up the fallout from the TIF_POLLING_NRFLAG
+> >> changes, but it made no difference. So the problem must be
+> >> somewhere else.
+> >
+> >driver model changes?
+> >
+> >Can you retry with minimum drivers loaded, init=/bin/bash?
+> 
+> Did that, no change.
 
-Please show me how that lock is safe without a compiler memory barrier! What's 
-to stop your compiler from moving loads and stores across your inlined lock 
-code?
+Too bad... Quite a lot of driver model changes were merged in -rc1...
 
-When you add the missing compiler memory barrier, the "volatile" classifier 
-becomes unnecessary.
+Can you remove device_*() calls from apm.c and see what happens?
+(First do it on 2.6.17 to confirm apm still works without driver
+model...)
 
-Actually, please just read the thread. We've been over this already. It's 
-starting to get really old.
-
-> 		Trajce Nedev
-> 		tnedev@mail.ru
-
-Thanks,
-Chase
+									Pavel-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

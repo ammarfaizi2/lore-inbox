@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWGHHfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWGHHky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750953AbWGHHfV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 03:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWGHHfV
+	id S1751263AbWGHHky (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 03:40:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWGHHky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 03:35:21 -0400
-Received: from mail.gmx.net ([213.165.64.21]:39587 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750901AbWGHHfU (ORCPT
+	Sat, 8 Jul 2006 03:40:54 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:11733 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751263AbWGHHkx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 03:35:20 -0400
-X-Authenticated: #14349625
-Subject: Re: Opinions on removing /proc/tty?
-From: Mike Galbraith <efault@gmx.de>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com>
-References: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com>
-Content-Type: text/plain
-Date: Sat, 08 Jul 2006 09:40:52 +0200
-Message-Id: <1152344452.7922.11.camel@Homer.TheSimpsons.net>
+	Sat, 8 Jul 2006 03:40:53 -0400
+Date: Sat, 8 Jul 2006 09:36:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Krzysztof Halasa <khc@pm.waw.pl>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Message-ID: <20060708073621.GA6788@elte.hu>
+References: <m34pxt8emn.fsf@defiant.localdomain> <Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com> <Pine.LNX.4.64.0607071318570.3869@g5.osdl.org> <Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com> <20060707220954.GA23651@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060707220954.GA23651@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-07 at 22:56 -0400, Jon Smirl wrote:
-> Does anyone use the info in /proc/tty? The hard coded device names
-> aren't compatible with udev's ability to rename things.
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> > [...] In fact, your spin-lock code already inserts "rep nops" and I 
+> > never implied that they should be removed. I said only that "volatile" 
+> > still needs to be used, not some macro that tells the compiler that 
+> > everything in memory probably got trashed. [...]
 > 
-> There also doesn't appear to be any useful info in the drivers portion
-> that isn't already available in sysfs. I can add some code to make a
-> list of registered line disciplines appear in sysfs.
-> 
-> Does anyone have a problem with deleting /proc/tty if ldisc enum
-> support is added to sysfs?
-
-ps uses /proc/tty/drivers, so some coordination would be needed.
-
-	-Mike
-
+> your position here does seem to make much sense to me, so please help me 
+                         ^--- not
+> understand it. You suggest that the assembly code should be left alone. 
+> But then why do you need the volatile keyword to begin with?

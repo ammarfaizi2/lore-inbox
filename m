@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWGHNwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbWGHNy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbWGHNwX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 09:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWGHNwX
+	id S964831AbWGHNy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 09:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964833AbWGHNy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 09:52:23 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9705 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964840AbWGHNwW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 09:52:22 -0400
-Date: Sat, 8 Jul 2006 15:51:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.6.18-rc1 broke resume from APM suspend on Latitude CPi
-Message-ID: <20060708135156.GA2912@elf.ucw.cz>
-References: <200607081338.k68Dcvux007655@harpo.it.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607081338.k68Dcvux007655@harpo.it.uu.se>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 8 Jul 2006 09:54:58 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:47021 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S964831AbWGHNy5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 09:54:57 -0400
+Subject: Re: [RFC][PATCH 1/2] firmware version management: add
+	firmware_version()
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Martin Langer <martin-langer@gmx.de>, linux-kernel@vger.kernel.org,
+       bcm43xx-dev@lists.berlios.de
+In-Reply-To: <1152365514.3120.46.camel@laptopd505.fenrus.org>
+References: <20060708130904.GA3819@tuba>
+	 <1152365514.3120.46.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Sat, 08 Jul 2006 15:49:57 +0200
+Message-Id: <1152366597.29506.13.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 2006-07-08 15:38:57, Mikael Pettersson wrote:
-> On Fri, 7 Jul 2006 21:47:37 +0000, Pavel Machek wrote:
-> >> Kernel 2.6.18-rc1 broke resume from APM suspend (to RAM)
-> >> on my old Dell Latitude CPi laptop. At resume the disk
-> >> spins up and the screen gets lit, but there is no response
-> >> to the keyboard, not even sysrq. All other system activity
-> >> also appears to be halted.
-> >> 
-> >> I did the obvious test of reverting apm.c to the 2.6.17
-> >> version and fixing up the fallout from the TIF_POLLING_NRFLAG
-> >> changes, but it made no difference. So the problem must be
-> >> somewhere else.
-> >
-> >driver model changes?
-> >
-> >Can you retry with minimum drivers loaded, init=/bin/bash?
+Hi Arjan,
+
+> > It would be good if a driver knows which firmware version will be 
+> > written to the hardware. I'm talking about external firmware files 
+> > claimed by request_firmware(). 
+> > 
+> > We know so many different firmware files for bcm43xx and it becomes 
+> > more and more complicated without some firmware version management.
+> > 
+> > This patch can create the md5sum of a firmware file. Then it looks into 
+> > a table to figure out which version number is assigned to the hashcode.
+> > That table is placed in the driver code and an example for bcm43xx comes 
+> > in my next mail. Any comments?
 > 
-> Did that, no change.
+> why does this have to happen on the kernel side? Isn't it a lot easier
+> and better to let the userspace side of things do this work, and even
+> have a userspace file with the md5->version mapping? Or are there some
+> practical considerations that make that hard to impossible?
 
-Too bad... Quite a lot of driver model changes were merged in -rc1...
+I fully agree that we shouldn't put firmware versioning into the kernel
+drivers. The pattern you give to request_firmware() can be mapped to any
+file on the file system. And you also have the link to the device object
+and I prefer you export a sysfs file for the version so that the helper
+application loading the firmware can pick the right file.
 
-Can you remove device_*() calls from apm.c and see what happens?
-(First do it on 2.6.17 to confirm apm still works without driver
-model...)
+Regards
 
-									Pavel-- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Marcel
+
+

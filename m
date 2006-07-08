@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWGHRML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWGHRTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbWGHRML (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 13:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWGHRML
+	id S964901AbWGHRTI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 13:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWGHRTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 13:12:11 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:14471 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964873AbWGHRMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 13:12:10 -0400
-Subject: Re: INFO: possible irq lock inversion dependency detected
-From: Arjan van de Ven <arjan@infradead.org>
-To: Arne Ahrend <aahrend@web.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <791933691@web.de>
-References: <791933691@web.de>
+	Sat, 8 Jul 2006 13:19:08 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:26828 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964901AbWGHRTH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 13:19:07 -0400
+Subject: Re: pcmcia IDE broken in 2.6.18-rc1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060708145541.GA2079@elf.ucw.cz>
+References: <20060708145541.GA2079@elf.ucw.cz>
 Content-Type: text/plain
-Date: Sat, 08 Jul 2006 19:12:08 +0200
-Message-Id: <1152378728.3120.75.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Date: Sat, 08 Jul 2006 18:36:39 +0100
+Message-Id: <1152380199.27368.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-08 at 18:25 +0200, Arne Ahrend wrote:
-> 2.6.17-mm6 produces the following warning, but appears to be working perfectly fine.
-> 
-> 
-> Cheers,
-
-Another private skb queue.. I'm starting to think that the patch below
-is going to be needed... Ingo ?
+Ar Sad, 2006-07-08 am 16:55 +0200, ysgrifennodd Pavel Machek:
+> ide2: I/O resource 0xF887E00E-0xF887E00E not free.
+> ide2: ports already in use, skipping probe
+> ide2: I/O resource 0xF887E01E-0xF887E01E not free.
+> ide2: ports already in use, skipping probe
 
 
-Arne: Can you try this patch and verify it makes the message go away?
+Looks like ioremap values not I/O ports. Probably the various IDE layer
+changes from 2.6.17-mm.
 
----
- include/linux/skbuff.h |    1 -
- 1 file changed, 1 deletion(-)
+My first guess would be the PCMCIA layer changes to use mmio ports are
+not setting hwif->mmio (I think its ->mmio) to 2 and doing their own
+resource management.
 
-Index: linux-2.6.17-mm6/include/linux/skbuff.h
-===================================================================
---- linux-2.6.17-mm6.orig/include/linux/skbuff.h
-+++ linux-2.6.17-mm6/include/linux/skbuff.h
-@@ -609,7 +609,6 @@ extern struct lock_class_key skb_queue_l
- static inline void skb_queue_head_init(struct sk_buff_head *list)
- {
- 	spin_lock_init(&list->lock);
--	lockdep_set_class(&list->lock, &skb_queue_lock_key);
- 	list->prev = list->next = (struct sk_buff *)list;
- 	list->qlen = 0;
- }
-
+Alan
 

@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbWGHUNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWGHUUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964968AbWGHUNm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 16:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWGHUNm
+	id S1030326AbWGHUUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 16:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbWGHUUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 16:13:42 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:10630 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964968AbWGHUNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 16:13:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=d2Zb9Qj2XWrw/4NanMg84+/OUsrPV42pVTIY/dLr+QefFfXHo1smotWvuws3xXvBIez+xgDyBUrSXDZpTnhErzHb8itOqDL/GVc2HwTjS3tFMu6UHSm72tr44WFvCwPjONjebwOCn760jCaz2+hDSYhF8oa7CD5qyK2Ra3Mh1u0=
-Message-ID: <9e0cf0bf0607081313m1a1874cbs22de11961103f36b@mail.gmail.com>
-Date: Sat, 8 Jul 2006 23:13:39 +0300
-From: "Alon Bar-Lev" <alon.barlev@gmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
-Cc: "Sunil Kumar" <devsku@gmail.com>, "Arjan van de Ven" <arjan@infradead.org>,
-       "Bojan Smojver" <bojan@rexursive.com>, "Pavel Machek" <pavel@ucw.cz>,
-       "Avuton Olrich" <avuton@gmail.com>,
-       "Olivier Galibert" <galibert@pobox.com>,
-       "Jan Rychter" <jan@rychter.com>, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>,
-       "Nigel Cunningham" <ncunningham@linuxmail.org>
-In-Reply-To: <200607082158.49013.rjw@sisk.pl>
+	Sat, 8 Jul 2006 16:20:16 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:55815 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030326AbWGHUUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 16:20:11 -0400
+Date: Sat, 8 Jul 2006 22:20:11 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       Kirill Korotaev <dev@openvz.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.17-mm6: kernel/sysctl.c: PROC_FS=n compile error
+Message-ID: <20060708202011.GD5020@stusta.de>
+References: <20060703030355.420c7155.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060627133321.GB3019@elf.ucw.cz> <200607082125.12819.rjw@sisk.pl>
-	 <ce9ef0d90607081248n1f2fc79fw199b493f3ca6313@mail.gmail.com>
-	 <200607082158.49013.rjw@sisk.pl>
+In-Reply-To: <20060703030355.420c7155.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/8/06, Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> Well, I'm not totally against that, at least as far as -mm is concerned,
-> but I meant "in the long run".
+namespaces-utsname-sysctl-hack.patch and ipc-namespace-sysctls.patch 
+cause the following compile error with CONFIG_PROC_FS=n:
 
-Hello,
+<--  snip  -->
 
-The fact that you are against that does not cancel this option. There
-are three of them...
-But can you please explain why you against that?
+...
+  CC      kernel/sysctl.o
+kernel/sysctl.c:107: warning: #proc_do_ipc_string# used but never defined
+kernel/sysctl.c:150: warning: #proc_do_utsns_string# used but never defined
+kernel/sysctl.c:2465: warning: #proc_do_uts_string# defined but not used
+...
+  LD      .tmp_vmlinux1
+kernel/built-in.o:(.data+0x938): undefined reference to `proc_do_utsns_string'
+kernel/built-in.o:(.data+0x964): undefined reference to `proc_do_utsns_string'
+kernel/built-in.o:(.data+0x990): undefined reference to `proc_do_utsns_string'
+kernel/built-in.o:(.data+0x9bc): undefined reference to `proc_do_utsns_string'
+kernel/built-in.o:(.data+0x9e8): undefined reference to `proc_do_utsns_string'
+kernel/built-in.o:(.data+0xc24): undefined reference to `proc_do_ipc_string'
+kernel/built-in.o:(.data+0xc50): undefined reference to `proc_do_ipc_string'
+kernel/built-in.o:(.data+0xc7c): undefined reference to `proc_do_ipc_string'
+kernel/built-in.o:(.data+0xca8): undefined reference to `proc_do_ipc_string'
+kernel/built-in.o:(.data+0xcd4): undefined reference to `proc_do_ipc_string'
+kernel/built-in.o:(.data+0xd00): more undefined references to `proc_do_ipc_string' follow
+make: *** [.tmp_vmlinux1] Error 1
 
-Alon.
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

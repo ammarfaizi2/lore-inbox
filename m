@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWGHWUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWGHWZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWGHWUc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 18:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWGHWUc
+	id S1751312AbWGHWZj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 18:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWGHWZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 18:20:32 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:60133 "HELO
+	Sat, 8 Jul 2006 18:25:39 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:65510 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751309AbWGHWUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 18:20:32 -0400
+	id S1751312AbWGHWZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 18:25:38 -0400
 From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: "Sunil Kumar" <devsku@gmail.com>
-Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
-Date: Sun, 9 Jul 2006 08:20:25 +1000
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
+Date: Sun, 9 Jul 2006 08:25:33 +1000
 User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Bojan Smojver" <bojan@rexursive.com>, "Pavel Machek" <pavel@ucw.cz>,
-       "Avuton Olrich" <avuton@gmail.com>,
-       "Olivier Galibert" <galibert@pobox.com>,
-       "Jan Rychter" <jan@rychter.com>, linux-kernel@vger.kernel.org,
-       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>
-References: <20060627133321.GB3019@elf.ucw.cz> <200607082125.12819.rjw@sisk.pl> <ce9ef0d90607081248n1f2fc79fw199b493f3ca6313@mail.gmail.com>
-In-Reply-To: <ce9ef0d90607081248n1f2fc79fw199b493f3ca6313@mail.gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, suspend2-devel@lists.suspend2.net,
+       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
+       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
+       linux-kernel@vger.kernel.org
+References: <20060627133321.GB3019@elf.ucw.cz> <200607082326.18237.ncunningham@linuxmail.org> <20060708210417.GB2546@elf.ucw.cz>
+In-Reply-To: <20060708210417.GB2546@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart2285149.h3VDrzu2KN";
+  boundary="nextPart3213195.AqUoUppLxI";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200607090820.29989.ncunningham@linuxmail.org>
+Message-Id: <200607090825.37855.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2285149.h3VDrzu2KN
+--nextPart3213195.AqUoUppLxI
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
 Hi.
 
-On Sunday 09 July 2006 05:48, Sunil Kumar wrote:
-> > Now there seem to be two possible ways to go:
-> > 1) Drop the implementation that already is in the kernel and replace it
-> > with
-> > the out-of-the-tree one.
-> > 2) Improve the one that already is in the kernel incrementally, possibly
-> > merging some code from the out-of-the-tree implementation, so that it's
-> > as feature-rich as the other one.
-> >
-> > Apparently 1) is what Nigel is trying to make happen and 2) is what I'd
-> > like
-> > to do.
+On Sunday 09 July 2006 07:04, Pavel Machek wrote:
+> > Some way to go without bmapping. I'm assuming you're going to have to a=
+dd
+> > some kernel code to at least do the bmapping. By the way, watch out for
+> > block sizes. Especially with XFS. It's the best test of whether your co=
+de
+> > is right because the blocksize XFS uses might not be the same as the
+> > underlying block device's blocksize.
 >
-> Is that really true, Nigel, that you want 1)?
+> Why is bmapping evil?
 
-I would be happy for suspend2 and swsusp to coexist for at least at while.=
+I didn't mean it's evil. I just mean it's complicated and potentially=20
+confusing because the result of bmap needs to modified by the number of=20
+blocks per sector to get the right value to pass to bio_submit. Maybe you'r=
+e=20
+more experienced in these things than me, so it will be simple for you, but=
 =20
-That's why I've made suspend2 play nicely with swsusp ever since I ported i=
-t=20
-to 2.6.
-
-> Is it really impossible to have the third possbility of both the
-> implementations in kernel at the same time? If Nigel has a patch against =
-mm
-> series, that means that he has taken care of all the conflicts. Are we
-> missing something here?
-
-I just about have one. I just have one issue (the removal of name_to_dev_t =
-by=20
-klibc) to address. A really simple or short-term solution would be to re-ad=
-d=20
-it, but I want to think the issue through more carefully first.
+it took a while for me to get right.
 
 Regards,
 
@@ -83,15 +66,15 @@ Nigel, Michelle and Alisdair Cunningham
 Cobden 3266
 Victoria, Australia
 
---nextPart2285149.h3VDrzu2KN
+--nextPart3213195.AqUoUppLxI
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQBEsC+tN0y+n1M3mo0RAmGkAKDF2+PUxjSeEbYwFW4EabGsVKFnRACfQOhO
-+Wk1B4m5RS3fvoTVUh4P+g8=
-=wiEK
+iD8DBQBEsDDhN0y+n1M3mo0RAkh5AKDnjEt/szUhr2zclnc65ADI3I5tGQCg3Din
+YcGhKduQUwdusVoYwjPsWWw=
+=LNGN
 -----END PGP SIGNATURE-----
 
---nextPart2285149.h3VDrzu2KN--
+--nextPart3213195.AqUoUppLxI--

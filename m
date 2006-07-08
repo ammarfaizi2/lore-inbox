@@ -1,85 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWGHJ7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWGHKAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbWGHJ7h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 05:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWGHJ7h
+	id S964773AbWGHKAV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 06:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWGHKAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 05:59:37 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:30727 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932316AbWGHJ7g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 05:59:36 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] spinlocks: remove 'volatile'
-Date: Sat, 8 Jul 2006 02:59:28 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEJONAAB.davids@webmaster.com>
+	Sat, 8 Jul 2006 06:00:21 -0400
+Received: from khc.piap.pl ([195.187.100.11]:37073 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S964773AbWGHKAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 06:00:18 -0400
+To: Chase Venters <chase.venters@clientec.com>
+Cc: "linux-os \\\\(Dick Johnson\\\\)" <linux-os@analogic.com>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+References: <20060705114630.GA3134@elte.hu>
+	<20060705101059.66a762bf.akpm@osdl.org>
+	<20060705193551.GA13070@elte.hu>
+	<20060705131824.52fa20ec.akpm@osdl.org>
+	<Pine.LNX.4.64.0607051332430.12404@g5.osdl.org>
+	<20060705204727.GA16615@elte.hu>
+	<Pine.LNX.4.64.0607051411460.12404@g5.osdl.org>
+	<20060705214502.GA27597@elte.hu>
+	<Pine.LNX.4.64.0607051458200.12404@g5.osdl.org>
+	<Pine.LNX.4.64.0607051555140.12404@g5.osdl.org>
+	<20060706081639.GA24179@elte.hu>
+	<Pine.LNX.4.61.0607060756050.8312@chaos.analogic.com>
+	<Pine.LNX.4.64.0607060856080.12404@g5.osdl.org>
+	<Pine.LNX.4.64.0607060911530.12404@g5.osdl.org>
+	<Pine.LNX.4.61.0607061333450.11071@chaos.analogic.com>
+	<m34pxt8emn.fsf@defiant.localdomain>
+	<Pine.LNX.4.61.0607071535020.13007@chaos.analogic.com>
+	<Pine.LNX.4.64.0607071318570.3869@g5.osdl.org>
+	<Pine.LNX.4.61.0607071657580.15580@chaos.analogic.com>
+	<Pine.LNX.4.64.0607071635130.23767@turbotaz.ourhouse>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 08 Jul 2006 12:00:15 +0200
+In-Reply-To: <Pine.LNX.4.64.0607071635130.23767@turbotaz.ourhouse> (Chase Venters's message of "Fri, 7 Jul 2006 16:48:56 -0500 (CDT)")
+Message-ID: <m3wtaoe7rk.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20060708094556.GA13254@tsunami.ccur.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Sat, 08 Jul 2006 02:54:46 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sat, 08 Jul 2006 02:54:48 -0700
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chase Venters <chase.venters@clientec.com> writes:
 
-> On Fri, Jul 07, 2006 at 11:54:10PM -0400, Albert Cahalan wrote:
-> > That's all theoretical though. Today, gcc's volatile does
-> > not follow the C standard on modern hardware. Bummer.
-> > It'd be low-performance anyway though.
+> Locks are supposed to be syncronization points, which is why they
+> ALREADY HAVE "memory" on the clobber list! "memory" IS NECESSARY. The
+> fact that "=m" is changing to "+m" in Linus's patches is because "=m"
+> is in fact insufficient, because it would let the compiler believe
+> we're just going to over-write the value. "volatile" merely hides that
+> bug -- once that bug is _fixed_ (by going to "+m"), "volatile" is no
+> longer useful.
 
-> But gcc would follow the standard if it emitted a 'lock'
-> insn on every volatile reference.  It should at least
-> have an option to do that.
+This is a completely different story. "volatile", barrier() and "+m"/"=m"
+aren't sync points. If the variable access isn't atomic you must use
+locking even with volatiles, barriers etc.
 
-	The premise is wrong, therefore so is the conclusion. GCC does follow the C
-standard on modern hardware. The 'volatile' keyword imposes the minimum
-amount of pain necessary to get the two guarantees that 'volatile' is
-supposed to provide. It has no special semantics on multiple CPUs, and was
-never intended to have any.
+> If "volatile" is in use elsewhere (other than locks), it's still
+> probably wrong. In these cases, you can use a barrier, a volatile
+> cast, or an inline asm with a specific clobber.
 
-	The problem is that the C standard's definition of volatile is meaningless
-on modern hardware (because there is no one clear true right place for
-accesses to be visible, accesses occur in more than one place). All you can
-do is make the cases where 'volatile has guaranteed semantics work.
+A volatile cast is just a volatile, moved from data declaration to
+all access points. It doesn't buy you anything.
+barrier() is basically "all-volatile". All of them operate on the same,
+compiler level.
 
-	There would be absolutely no point in having GCC have an option to emit a
-locked instruction on every volatile reference because there would still be
-no way to know what the right thing to lock is. For example:
-
-volatile int i;
-i=i+1;
-
-	Should this be a locked read, an increment in a register, followed by a
-locked write? Or must this be a locked increment?
-
-	If you cannot explain in platform-independent terms the *semantics* the
-option is supposed to give, then it's probably wrong. What happens when the
-next CPU requires something different to get the same effect?
-
-	If you need atomic 32-bit loads, you know how to get them. If you need
-atomic increments, you know how to get them. If you need memory optimization
-barriers, you have them. Why ask for something new with vague,
-poorly-defined semantics based on what 'lock' happens to do on current
-processors? That just makes it easier to write non-portable code.
-
-	Now if you had asked for portable atomic loads, increments, stores, and the
-like, that would be a sensible thing. It makes sense because you define what
-behavior that function is supposed to give.
-
-	DS
-
-
+If the "volatile" is used the wrong way (which is probably true for most
+cases), then volatile cast and barrier() will be wrong as well. You need
+locks or atomic access, meaningful on hardware level.
+-- 
+Krzysztof Halasa

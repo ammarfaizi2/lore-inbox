@@ -1,61 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWGHNAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWGHNDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964807AbWGHNAe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 09:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWGHNAe
+	id S964810AbWGHNDn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 09:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWGHNDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 09:00:34 -0400
-Received: from soundwarez.org ([217.160.171.123]:6811 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S964807AbWGHNAd (ORCPT
+	Sat, 8 Jul 2006 09:03:43 -0400
+Received: from mail.gmx.de ([213.165.64.21]:58001 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964810AbWGHNDm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 09:00:33 -0400
-Subject: Re: Implement class_device_update_dev() function
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1152350840.29506.2.camel@localhost>
-References: <1152226792.29643.8.camel@localhost>
-	 <20060706235745.GA13548@kroah.com>  <1152258152.3693.8.camel@localhost>
-	 <1152318397.3266.130.camel@pim.off.vrfy.org>
-	 <1152350840.29506.2.camel@localhost>
-Content-Type: text/plain
-Date: Sat, 08 Jul 2006 15:00:34 +0200
-Message-Id: <1152363634.3408.3.camel@pim.off.vrfy.org>
+	Sat, 8 Jul 2006 09:03:42 -0400
+X-Authenticated: #2769515
+Date: Sat, 8 Jul 2006 15:09:04 +0200
+From: Martin Langer <martin-langer@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: bcm43xx-dev@lists.berlios.de
+Subject: [RFC][PATCH 1/2] firmware version management: add firmware_version() 
+Message-ID: <20060708130904.GA3819@tuba>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Public-Key-URL: http://www.langerland.de/martin/martinlanger.asc
+User-Agent: Mutt/1.5.9i
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-08 at 11:27 +0200, Marcel Holtmann wrote:
-> > > > But userspace should also find out about this change, and this patch
-> > > > prevents that from happening.  What about just tearing down the class
-> > > > device and creating a new one?  That way userspace knows about the new
-> > > > linkage properly, and any device naming and permission issues can be
-> > > > handled anew?
-> > > 
-> > > This won't work for Bluetooth. We create the TTY and its class device
-> > > with tty_register_device() and then the device node is present. Then at
-> > > some point later we open that device and the Bluetooth connection gets
-> > > established. Only when the connection has been established we know the
-> > > device that represents it. So tearing down the class device and creating
-> > > a new one will screw up the application that is using this device node.
-> > > 
-> > > Would reissuing the uevent of the class device help here?
-> > 
-> > How about KOBJ_ONLINE/OFFLINE?
-> 
-> I am not that familiar with the internals of kobject. Can you give me an
-> example on how to do that?
+It would be good if a driver knows which firmware version will be 
+written to the hardware. I'm talking about external firmware files 
+claimed by request_firmware(). 
 
-Just send another event (but not add or remove), for the already created
-object. CPU hotplug uses ONLINE/OFFLINE, and we also use it to get
-notified when the device mapper table is set up (not upstream). Udev is
-able to update symlinks, or run actions on "online" events if asked
-for. 
+We know so many different firmware files for bcm43xx and it becomes 
+more and more complicated without some firmware version management.
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=52674323b14da5724bfdc4ffee830609f116d248;hb=HEAD;f=drivers/acpi/processor_core.c#l714
+This patch can create the md5sum of a firmware file. Then it looks into 
+a table to figure out which version number is assigned to the hashcode.
+That table is placed in the driver code and an example for bcm43xx comes 
+in my next mail. Any comments?
 
 
-Kay
+Signed-off-by: Martin Langer <martin-langer@gmx.de>
 
+
+--- ../linux-2.6.18rc1/drivers/base/firmware_class.c	2006-07-07 13:41:01.000000000 +0200
++++ drivers/base/firmware_class.c	2006-07-07 14:39:15.000000000 +0200
+@@ -16,6 +16,8 @@
+ #include <linux/interrupt.h>
+ #include <linux/bitops.h>
+ #include <linux/mutex.h>
++#include <linux/scatterlist.h>
++#include <linux/crypto.h>
+ 
+ #include <linux/firmware.h>
+ #include "base.h"
+@@ -48,6 +50,32 @@
+ 	struct timer_list timeout;
+ };
+ 
++u32 firmware_version(const struct firmware *fw, struct firmware_files *elmnt)
++{
++	struct scatterlist sg;
++	struct crypto_tfm *tfm;
++	char sig[16];
++
++	tfm = crypto_alloc_tfm("md5", 0);
++	if (tfm == NULL)
++		return 0;
++
++	sg_init_one(&sg, fw->data, fw->size);
++
++	crypto_digest_init(tfm);
++	crypto_digest_update(tfm, &sg, 1);
++	crypto_digest_final(tfm, sig);
++	crypto_free_tfm(tfm);
++
++	while (elmnt->version) {
++		if (memcmp(sig, elmnt->signature, sizeof(sig)) == 0)
++			return elmnt->version;
++		elmnt++;
++	}
++
++	return 0;
++}
++
+ static void
+ fw_load_abort(struct firmware_priv *fw_priv)
+ {
+@@ -605,6 +633,7 @@
+ module_init(firmware_class_init);
+ module_exit(firmware_class_exit);
+ 
++EXPORT_SYMBOL(firmware_version);
+ EXPORT_SYMBOL(release_firmware);
+ EXPORT_SYMBOL(request_firmware);
+ EXPORT_SYMBOL(request_firmware_nowait);
+--- ../linux-2.6.18rc1/include/linux/firmware.h	2006-06-18 03:49:35.000000000 +0200
++++ include/linux/firmware.h	2006-07-08 13:36:36.000000000 +0200
+@@ -10,7 +10,12 @@
+ 	size_t size;
+ 	u8 *data;
+ };
++struct firmware_files {
++	u8 signature[16];
++	u32 version;
++};
+ struct device;
++u32 firmware_version(const struct firmware *fw, struct firmware_files *elmnt);
+ int request_firmware(const struct firmware **fw, const char *name,
+ 		     struct device *device);
+ int request_firmware_nowait(
+--- ../linux-2.6.18rc1/drivers/base/Kconfig	2006-07-07 13:41:01.000000000 +0200
++++ drivers/base/Kconfig	2006-07-07 14:34:23.000000000 +0200
+@@ -21,6 +21,7 @@
+ config FW_LOADER
+ 	tristate "Userspace firmware loading support"
+ 	select HOTPLUG
++	select CRYPTO_MD5
+ 	---help---
+ 	  This option is provided for the case where no in-kernel-tree modules
+ 	  require userspace firmware loading support, but a module built outside

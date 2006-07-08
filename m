@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWGHNA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWGHNAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964802AbWGHNA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 09:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWGHNA3
+	id S964807AbWGHNAe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 09:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWGHNAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 09:00:29 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37022 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964807AbWGHNA2 (ORCPT
+	Sat, 8 Jul 2006 09:00:34 -0400
+Received: from soundwarez.org ([217.160.171.123]:6811 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S964807AbWGHNAd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 09:00:28 -0400
-Date: Sat, 8 Jul 2006 15:00:15 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sharpsl_pm refactor
-Message-ID: <20060708130015.GB1762@elf.ucw.cz>
-References: <20060707114818.GA5423@elf.ucw.cz> <1152274600.5548.67.camel@localhost.localdomain> <20060707140148.GB4239@ucw.cz> <1152285850.5548.102.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152285850.5548.102.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 8 Jul 2006 09:00:33 -0400
+Subject: Re: Implement class_device_update_dev() function
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1152350840.29506.2.camel@localhost>
+References: <1152226792.29643.8.camel@localhost>
+	 <20060706235745.GA13548@kroah.com>  <1152258152.3693.8.camel@localhost>
+	 <1152318397.3266.130.camel@pim.off.vrfy.org>
+	 <1152350840.29506.2.camel@localhost>
+Content-Type: text/plain
+Date: Sat, 08 Jul 2006 15:00:34 +0200
+Message-Id: <1152363634.3408.3.camel@pim.off.vrfy.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > I'm unconvinced as to why collie needs an ifdef in there and looking at
-> > > what I think you're leading to, its ugly. Perhaps you could change the 2
-> > > to a variable set by the machine instead or something, depending upon
-> > > your intention.
+On Sat, 2006-07-08 at 11:27 +0200, Marcel Holtmann wrote:
+> > > > But userspace should also find out about this change, and this patch
+> > > > prevents that from happening.  What about just tearing down the class
+> > > > device and creating a new one?  That way userspace knows about the new
+> > > > linkage properly, and any device naming and permission issues can be
+> > > > handled anew?
+> > > 
+> > > This won't work for Bluetooth. We create the TTY and its class device
+> > > with tty_register_device() and then the device node is present. Then at
+> > > some point later we open that device and the Bluetooth connection gets
+> > > established. Only when the connection has been established we know the
+> > > device that represents it. So tearing down the class device and creating
+> > > a new one will screw up the application that is using this device node.
+> > > 
+> > > Would reissuing the uevent of the class device help here?
 > > 
-> > Well, I hate the if/else maze -- IMO returns are more readable. Anyway
-> > collie needs both count and time checks disabled, AFAICT.
+> > How about KOBJ_ONLINE/OFFLINE?
 > 
-> To me it looks much worse after you changed it as I can understand it at
-> the moment and afterwards with the ifdefs in, I can't.
+> I am not that familiar with the internals of kobject. Can you give me an
+> example on how to do that?
 
-Well, maybe you'll not get the ifdefs after all... They were just
-handy in my tree and code with returns (vs. code with if/else maze)
-looked better to me.
+Just send another event (but not add or remove), for the already created
+object. CPU hotplug uses ONLINE/OFFLINE, and we also use it to get
+notified when the device mapper table is set up (not upstream). Udev is
+able to update symlinks, or run actions on "online" events if asked
+for. 
 
-> Ignoring that issue, why does collie need them disabled? Do they break
-> collie somehow or is this just because the sharp driver didn't do
-> it?
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=52674323b14da5724bfdc4ffee830609f116d248;hb=HEAD;f=drivers/acpi/processor_core.c#l714
 
-Sharp driver did not do it, and forcing charge 3 times when charger
-tells me that it is done seems a bit cruel. What is worse, if I get
-charge-too-fast timeout too long, it will keep charging battery
-over-and-over-and-over-and-over. 
 
-> I'd prefer to keep the charging techniques the same across as many of
-> the devices as we can and I can't see how this technique causes a
-> problem. The charging hardware and the battery is very similar across
-> the models (although you wouldn't believe it looking at the charging
-> driver).
+Kay
 
-Okay, you may be right here. I am just trying to be careful -- hot
-lithium scares me a bit ;-).
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

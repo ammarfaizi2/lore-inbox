@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030419AbWGHXLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWGHXqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030419AbWGHXLE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 19:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030420AbWGHXLD
+	id S1030424AbWGHXqL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 19:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030425AbWGHXqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 19:11:03 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:4624 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1030419AbWGHXLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 19:11:02 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] spinlocks: remove 'volatile'
-Date: Sat, 8 Jul 2006 16:10:54 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEMHNAAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sat, 8 Jul 2006 19:46:11 -0400
+Received: from beauty.rexursive.com ([203.171.74.242]:42142 "EHLO
+	beauty.rexursive.com") by vger.kernel.org with ESMTP
+	id S1030424AbWGHXqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 19:46:10 -0400
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+From: Bojan Smojver <bojan@rexursive.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Arjan van de Ven <arjan@infradead.org>, Sunil Kumar <devsku@gmail.com>,
+       Pavel Machek <pavel@ucw.cz>, Avuton Olrich <avuton@gmail.com>,
+       Olivier Galibert <galibert@pobox.com>, Jan Rychter <jan@rychter.com>,
+       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net,
+       grundig <grundig@teleline.es>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+In-Reply-To: <200607082125.12819.rjw@sisk.pl>
+References: <20060627133321.GB3019@elf.ucw.cz>
+	 <ce9ef0d90607080942w685a6b60q7611278856c78ac0@mail.gmail.com>
+	 <1152377434.3120.69.camel@laptopd505.fenrus.org>
+	 <200607082125.12819.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Sun, 09 Jul 2006 09:46:06 +1000
+Message-Id: <1152402366.2584.10.camel@coyote.rexursive.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <787b0d920607081233w3e0e99a9n706ff510c3de458b@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Sat, 08 Jul 2006 16:06:15 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sat, 08 Jul 2006 16:06:15 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2006-07-08 at 21:25 +0200, Rafael J. Wysocki wrote:
 
-> Damn right. This is the C standard requirement.
-> Not all code has Linux-like performance requirements,
-> and in any case, standards are standards.
+> Now there seem to be two possible ways to go:
+> 1) Drop the implementation that already is in the kernel and replace it with
+> the out-of-the-tree one.
+> 2) Improve the one that already is in the kernel incrementally, possibly
+> merging some code from the out-of-the-tree implementation, so that it's as
+> feature-rich as the other one.
+> 
+> Apparently 1) is what Nigel is trying to make happen and 2) is what I'd like
+> to do.
 
-	Umm, no it's not a C standard requirement. The C standard requires
-'volatile' to work in two specific cases (signals and longjmp) and further
-defines certain side-effects of 'volatile' accesses that must not be removed
-under any 'as-if' optimizations. GCC fully respects these three
-requirements.
+I didn't get the impression from 1) at all. If anything, Nigel has been
+busy making Suspend2 use swsusp machinery *more*, not less as of
+recently. If he wanted to drop swsusp completely, why would he do
+something like that?
 
-	For anything else, if you cannot detect it in a compliant program, it is
-not a violation of the standard. Programs compliant with the C standard
-cannot access shared memory that may be modified by another process nor can
-they have multiple threads concurrently executing. So any proposed violation
-that can only be exposed under those circumstances is not actually a
-violation.
+But, the confusing bit for me here is 2). Given that you're the man for
+uswsusp, why would you want to keep any of the in-kernel
+implementations? The only thing that crosses my mind right now is that
+uswsusp may be a bit heavy on setup, so Linux distros/users that may not
+have the luxury of doing all that would be left without a suspend/resume
+solution. Is that why you want to keep an in-kernel implementation as
+well? Or is there some other reason?
 
-	POSIX, for several good reasons, did not extend 'volatile' to provide any
-guarantees when used in conjunction with things like 'mmap' and pthreads.
-For one thing, it would have added senseless expensive overhead to programs
-that used 'volatile' legitimately.
-
-	Worse, it would have opened up the atomicity Pandora's box.
-
-	It's hard to imagine how 'volatile' could possibly be useful in an SMP
-context if it has no atomicity guarantees, and it has no atomicity
-guarantees. No standard, as far as I know, has ever expanded 'volatile' to
-include atomicity guarantees, so it's totally and completely useless in an
-SMP context. So can this argument die now?
-
-	DS
-
+-- 
+Bojan
 

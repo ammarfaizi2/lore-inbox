@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWGHO46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWGHPKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbWGHO46 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 10:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWGHO46
+	id S964865AbWGHPKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 11:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWGHPKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 10:56:58 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19910 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964860AbWGHO46 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 10:56:58 -0400
-Date: Sat, 8 Jul 2006 16:55:43 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-Subject: pcmcia IDE broken in 2.6.18-rc1
-Message-ID: <20060708145541.GA2079@elf.ucw.cz>
+	Sat, 8 Jul 2006 11:10:16 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:24408 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964865AbWGHPKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 11:10:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=f6rD8PtWQVVNKIQsNY+InGdLMoKYFcnYbwNCEheFWcW4NNntUI6I/BbscLsiDsookowY6/X52KB1gd/4mUkXXM+8pcrsf3nOfKV2oP7U2cmPc2Batus/zFJkOnTCbrwqb8mRj4WnlvpXjYP56L5KNJoaaTPUsWzcC59LYkJD06A=
+Message-ID: <44AFCADA.6050805@gmail.com>
+Date: Sat, 08 Jul 2006 09:10:18 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Chris Boot <bootc@bootc.net>
+CC: kernel list <linux-kernel@vger.kernel.org>, soekris-tech@lists.soekris.com
+Subject: Re: [Soekris] [RFC][PATCH] LED Class support for Soekris net48xx
+References: <44AF7B00.9060108@bootc.net>
+In-Reply-To: <44AF7B00.9060108@bootc.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Chris Boot wrote:
+> Hi all,
+>
+> After many years using Linux and hanging about on LKML without having 
+> done much actual kernel hacking, I've decided to have a go! The module 
+> below adds LED Class device support for the Soekris net48xx Error LED. 
+> Tested only on a net4801, but should work on a net4826 as well. I'd 
+> love to find a way of detecting a Soekris net48xx device but there is 
+> no DMI or any Soekris-specific PCI devices.
+>
+> The patch is attached because Thunderbird kills tabs.
+>
+FWIW, the vintage scx200_gpio driver manipulates the LED just fine.
 
-When I insert the card, I get
+# cat /etc/modprobe.d/gpio
+# assign last 2 dynamic devnums to gpio (255..240)
+options scx200_gpio major=240
+options pc8736x_gpio major=241
 
-pccard: PCMCIA card inserted into slot 0
-cs: memory probe 0xe8000000-0xefffffff: excluding
-0xe8000000-0xefffffff
-cs: memory probe 0xc0200000-0xcfffffff: excluding
-0xc0200000-0xc11fffff 0xc1a00000-0xc61fffff 0xc6a00000-0xc71fffff
-0xc7a00000-0xc81fffff 0xc8a00000-0xc91fffff 0xc9a00000-0xca1fffff
-0xcaa00000-0xcb1fffff 0xcba00000-0xcc1fffff 0xcca00000-0xcd1fffff
-0xcda00000-0xce1fffff 0xcea00000-0xcf1fffff 0xcfa00000-0xd01fffff
-pcmcia: registering new device pcmcia0.0
-PM: Adding info for pcmcia:0.0
-ide2: I/O resource 0xF887E00E-0xF887E00E not free.
-ide2: ports already in use, skipping probe
-ide2: I/O resource 0xF887E01E-0xF887E01E not free.
-ide2: ports already in use, skipping probe
-...
+soekris:~# ll /dev/led
+crw-r--r-- 1 root root 240, 20 Jun 24  2005 /dev/led
 
-it ends with
+echo 1 > /dev/led
 
-ide-cs: ide_register() at 0xf999c000 & 0xf999c00e, irq 7 failed
 
-:-(. Back to 2.6.17 once again, I'm afraid...
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Is this insufficient ?

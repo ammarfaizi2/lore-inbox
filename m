@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWGHAnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWGHApl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWGHAnG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 20:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWGHAnG
+	id S932467AbWGHApl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 20:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWGHApl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 20:43:06 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:31429 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932463AbWGHAnF (ORCPT
+	Fri, 7 Jul 2006 20:45:41 -0400
+Received: from mx2.rowland.org ([192.131.102.7]:9235 "HELO mx2.rowland.org")
+	by vger.kernel.org with SMTP id S932464AbWGHApk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 20:43:05 -0400
-Date: Fri, 7 Jul 2006 17:42:53 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, Martin Bligh <mbligh@google.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Marcelo Tosatti <marcelo@kvack.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [RFC 5/8] x86_64 without ZONE_DMA
-In-Reply-To: <200607080220.39100.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0607071742060.4352@schroedinger.engr.sgi.com>
-References: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
- <20060708000527.3829.58852.sendpatchset@schroedinger.engr.sgi.com>
- <200607080220.39100.ak@suse.de>
+	Fri, 7 Jul 2006 20:45:40 -0400
+Date: Fri, 7 Jul 2006 20:45:37 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Pavel Machek <pavel@ucw.cz>
+cc: "Brown, Len" <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
+       <johnstul@us.ibm.com>, <linux-pm@lists.osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
+Subject: Re: [linux-pm] [BUG] sleeping function called from invalid context
+ during resume
+In-Reply-To: <20060708003003.GE1700@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44L0.0607072043150.16856-100000@netrider.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Jul 2006, Andi Kleen wrote:
+On Sat, 8 Jul 2006, Pavel Machek wrote:
 
-> I don't think the savings from this are enough to bother
-> the user with such an obscure config option.
+> > I didn't propose that kmalloc callers peek at system_state.
+> > I proposed that system_state be set properly on resume
+> > exactly like it is set on boot -- SYSTEM_RUNNING means
+> > we are up with interrupts enabled.
+> > 
+> > Note that this issue is not specific to ACPI, any other code
+> > that calls kmalloc during resume will hit __might_sleep().
+> > This is taken care of by system_state in the case of boot
+> > and the callers don't know anything about it -- resume
+> > is the same case and should work the same way.
+> 
+> I'd agree with Andrew here -- lets not mess with system_state. It is
+> broken by design, anyway.
+> 
+> Part of code would prefer SYSTEM_BOOTING during resume (because we are
+> initializing the devices), but I'm pretty sure some other piece of
+> code will get confused by that.
 
-The savings are not only from the code paths. The VM itself is cleaner and 
-the balancing issues are not that troublesome anymore.
+Whichever way you guys decide this should go, let me know.  I'm sitting on 
+a patch for ACPI (a couple of routines that make blocking calls with 
+interrupts disabled) and I'd like to know what to do with it.  Should I 
+just send it to Len and linux-acpi as is?
+
+Alan Stern
+

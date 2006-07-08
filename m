@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbWGHU50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWGHVCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030329AbWGHU50 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 16:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbWGHU50
+	id S1030337AbWGHVCO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 17:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbWGHVCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 16:57:26 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:27062 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1030329AbWGHU50 (ORCPT
+	Sat, 8 Jul 2006 17:02:14 -0400
+Received: from main.gmane.org ([80.91.229.2]:51880 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030337AbWGHVCN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 16:57:26 -0400
-Date: Sat, 8 Jul 2006 22:57:07 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Milton Miller <miltonm@bga.com>
-Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Use target filename in BUG_ON and friends
-Message-ID: <20060708205707.GB13124@mars.ravnborg.org>
-References: <20060708084713.GA8020@mars.ravnborg.org> <b2ab6d298877aff62aa61e0430a16d3d@bga.com>
+	Sat, 8 Jul 2006 17:02:13 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: ext4 features
+Date: Sat, 08 Jul 2006 17:04:47 -0400
+Message-ID: <44B01DEF.9070607@tmr.com>
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>	 <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com>	 <20060705125956.GA529@fieldses.org>	 <1152128033.22345.17.camel@lade.trondhjem.org>  <44AC2D9A.7020401@tmr.com> <1152135740.22345.42.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b2ab6d298877aff62aa61e0430a16d3d@bga.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Gmane-NNTP-Posting-Host: mail.tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
+In-Reply-To: <1152135740.22345.42.camel@lade.trondhjem.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 08, 2006 at 11:45:49AM -0500, Milton Miller wrote:
-> 			
-> On Jul 8, 2006, at 04:45:54 EST, Sam Ravnborg wrote:
-> > When building the kernel using make O=.. all uses of __FILE__ becomes
-> > filenames with absolute path resulting in increased text size.
-> > Following patch supply the target filename as a commandline define
-> > KBUILD_TARGET_FILE="mmslab.o"
+Trond Myklebust wrote:
+> On Wed, 2006-07-05 at 17:22 -0400, Bill Davidsen wrote:
+>> Consider the case where the build machine reads source from one network 
+>> filesystem and write the binary result to another on another machine. If 
+>> you know that I have the kernel source on a file server, do the compiles 
+>> on a compute server, and store the binaries on three test machines for 
+>> evaluation, you might guess this really can happen. Just increasing the 
+>> timestamp may not solve the problem, unless you have a system call to 
+>> set timestamp over network f/s, like a high resolution touch.
 > 
-> Unfortunately this ignores the fact that __LINE__ is meaningless
-> without __FILE__ because there are way too many BUGs in header
-> files.
+> If you are running 'touch' manually on all your files, you can always
+> arrange to set the timestamp to something more recent. You don't
+> normally need a high resolution version of utimes() (and SuSv3 won't
+> provide you with one).
 
-__LINE__ gives a very precise hint of the offending .h file.
-For x86_64 there are only one line-number clash in include/ for uses of
-__FILE__.
+No, I didn't quite mean a manual touch, but a system call to "close and 
+set time to high resolution" for files where time uniformity is 
+important. Consider that in most cases the inodes times are set by the 
+host machine clock, which I close the change reflects the fileserving 
+host idea of time. If there were a call to close a file and set the 
+times like touch, then that could be used, for both local and network files.
 
-"git grep -n __FILE__ | grep line-number" is your friend.
+Clearly if multiple clients are changing the same file that doesn't 
+work, and I doubt that any solution is going to avoid at least some 
+undesired side effects.
 
-	Sam
+-- 
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.
+

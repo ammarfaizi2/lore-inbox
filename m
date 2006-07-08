@@ -1,119 +1,284 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWGHN0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWGHN2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbWGHN0X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 09:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbWGHN0X
+	id S964828AbWGHN2O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 09:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWGHN2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 09:26:23 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:55020 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S964826AbWGHN0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 09:26:22 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
-Date: Sat, 8 Jul 2006 23:26:13 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, suspend2-devel@lists.suspend2.net,
-       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
-       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
-       linux-kernel@vger.kernel.org
-References: <20060627133321.GB3019@elf.ucw.cz> <200607082131.47832.ncunningham@linuxmail.org> <20060708125200.GA1762@elf.ucw.cz>
-In-Reply-To: <20060708125200.GA1762@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1626254.vUINjjB3HL";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607082326.18237.ncunningham@linuxmail.org>
+	Sat, 8 Jul 2006 09:28:14 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:38829 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S964828AbWGHN2N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 09:28:13 -0400
+Subject: Re: Implement class_device_update_dev() function
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1152363634.3408.3.camel@pim.off.vrfy.org>
+References: <1152226792.29643.8.camel@localhost>
+	 <20060706235745.GA13548@kroah.com>  <1152258152.3693.8.camel@localhost>
+	 <1152318397.3266.130.camel@pim.off.vrfy.org>
+	 <1152350840.29506.2.camel@localhost>
+	 <1152363634.3408.3.camel@pim.off.vrfy.org>
+Content-Type: multipart/mixed; boundary="=-W2nuZ6shDx243t1DkNsh"
+Date: Sat, 08 Jul 2006 15:28:21 +0200
+Message-Id: <1152365301.29506.9.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1626254.vUINjjB3HL
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-'ello.
+--=-W2nuZ6shDx243t1DkNsh
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Saturday 08 July 2006 22:52, Pavel Machek wrote:
-> > > > Frankly, I'd rather be working on improving drivers and helping
-> > > > implement the run-time power management than working on getting
-> > > > Suspend2 merged.
-> > Developmentwise, I think it's finished - unless I want to go off in a n=
-ew
->
-> I'd say that suspend2 already done its job -- forced me to do
-> uswsusp. I do not think it is mergeable without major refactoring.
+Hi Kay,
 
-I'm sorry, Pavel, but it if uswsusp is going to be an acceptable replacemen=
-t=20
-for Suspend2, it has to actually have the features suspend2 has implemented=
-,=20
-not just have the promise of them appearing at some stage. Rafael is doing=
-=20
-admirable work in that direction, but he's not there yet.
+> > > > > But userspace should also find out about this change, and this patch
+> > > > > prevents that from happening.  What about just tearing down the class
+> > > > > device and creating a new one?  That way userspace knows about the new
+> > > > > linkage properly, and any device naming and permission issues can be
+> > > > > handled anew?
+> > > > 
+> > > > This won't work for Bluetooth. We create the TTY and its class device
+> > > > with tty_register_device() and then the device node is present. Then at
+> > > > some point later we open that device and the Bluetooth connection gets
+> > > > established. Only when the connection has been established we know the
+> > > > device that represents it. So tearing down the class device and creating
+> > > > a new one will screw up the application that is using this device node.
+> > > > 
+> > > > Would reissuing the uevent of the class device help here?
+> > > 
+> > > How about KOBJ_ONLINE/OFFLINE?
+> > 
+> > I am not that familiar with the internals of kobject. Can you give me an
+> > example on how to do that?
+> 
+> Just send another event (but not add or remove), for the already created
+> object. CPU hotplug uses ONLINE/OFFLINE, and we also use it to get
+> notified when the device mapper table is set up (not upstream). Udev is
+> able to update symlinks, or run actions on "online" events if asked
+> for. 
 
-On the day when I feel like I can switch from suspend2 to swsusp with no lo=
-ss,=20
-and am convinced that my users can do the same, I'll happily switch. I've=20
-said all along, I'm just a user who wanted to suspend. I'm still a user who=
-=20
-wants to suspend. I'm not committed come hell or high water to getting=20
-Suspend2 merged. But I am committed to having a good, usable implementation=
-=20
-that just works. If you can get there with uswsusp, feel free. In the=20
-meantime, though, I have an implementation that I and many other people are=
-=20
-happy with and I'm not convinced that you will be able to do all you're=20
-promising, so I'll have a go at getting Suspend2 merged. If Andrew and Linu=
-s=20
-don't want it, well it's no biggy to keep maintaining it out of tree. I'll =
-be=20
-saddened for the people who miss out in the meantime, but I'll still sleep =
-at=20
-night.
+the attached patch sends ONLINE when a device has been attached to a
+class device and OFFLINE when it has been removed.
 
-> Helping with runtime power management would be more welcome than
-> resubmitting same code over and over. Good news is that you can now do
-> what you prefer :-).
+Regards
 
-> > > As far as the support for ordinary files, swap files, etc. is
-> > > concerned, there's nothing to worry about.  It's comming.
-> >
-> > Great. It will be good to see that. Do you have some way around bmapping
-> > the files?
->
-> You mean "some way to go without bmapping" or "did you get bmapping to
-> work" ?
+Marcel
 
-Some way to go without bmapping. I'm assuming you're going to have to add s=
-ome=20
-kernel code to at least do the bmapping. By the way, watch out for block=20
-sizes. Especially with XFS. It's the best test of whether your code is righ=
-t=20
-because the blocksize XFS uses might not be the same as the underlying bloc=
-k=20
-device's blocksize.
 
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
+--=-W2nuZ6shDx243t1DkNsh
+Content-Disposition: attachment; filename=patch-class-device-update-dev
+Content-Type: text/plain; name=patch-class-device-update-dev; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
---nextPart1626254.vUINjjB3HL
-Content-Type: application/pgp-signature
+[PATCH] Allow dynamically changing the device of a class device
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+This patch implements the class_device_update_dev() function which
+allows to change the device of a class device after its creation.
 
-iD8DBQBEr7J6N0y+n1M3mo0RApEUAJ9q3/zN7ovrCTPw8NA3H4k/kJskBQCfd7nL
-ymLBTt9JujsThIB1GUHCd5U=
-=cz8Z
------END PGP SIGNATURE-----
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 
---nextPart1626254.vUINjjB3HL--
+---
+commit 97372f657bbb68ee1c4119bb21642fc700317ce3
+tree bd46b493dd75b09515897eb0d12b2fd30a234e3c
+parent 120bda20c6f64b32e8bfbdd7b34feafaa5f5332e
+author Marcel Holtmann <marcel@holtmann.org> Sat, 08 Jul 2006 15:24:15 +0200
+committer Marcel Holtmann <marcel@holtmann.org> Sat, 08 Jul 2006 15:24:15 +0200
+
+ drivers/base/class.c   |   98 ++++++++++++++++++++++++++++++++++--------------
+ include/linux/device.h |    1 
+ 2 files changed, 71 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/base/class.c b/drivers/base/class.c
+index de89083..1789a6b 100644
+--- a/drivers/base/class.c
++++ b/drivers/base/class.c
+@@ -485,6 +485,48 @@ static void class_device_remove_groups(s
+ 	}
+ }
+ 
++static int class_device_add_dev(struct class_device *class_dev)
++{
++	char *class_name = NULL;
++	int error = 0;
++
++	if (class_dev->dev) {
++		class_name = make_class_name(class_dev->class->name,
++					     &class_dev->kobj);
++		error = sysfs_create_link(&class_dev->kobj,
++					  &class_dev->dev->kobj, "device");
++		if (error)
++			goto out;
++
++		error = sysfs_create_link(&class_dev->dev->kobj,
++					  &class_dev->kobj, class_name);
++		if (error) {
++			sysfs_remove_link(&class_dev->kobj, "device");
++			goto out;
++		}
++
++		kobject_uevent(&class_dev->kobj, KOBJ_ONLINE);
++	}
++
++ out:
++	kfree(class_name);
++	return error;
++}
++
++static void class_device_remove_dev(struct class_device *class_dev)
++{
++	char *class_name;
++
++	if (class_dev->dev) {
++		class_name = make_class_name(class_dev->class->name,
++					     &class_dev->kobj);
++		sysfs_remove_link(&class_dev->kobj, "device");
++		sysfs_remove_link(&class_dev->dev->kobj, class_name);
++		kobject_uevent(&class_dev->kobj, KOBJ_OFFLINE);
++		kfree(class_name);
++	}
++}
++
+ static ssize_t show_dev(struct class_device *class_dev, char *buf)
+ {
+ 	return print_dev_t(buf, class_dev->devt);
+@@ -526,7 +568,6 @@ int class_device_add(struct class_device
+ 	struct class *parent_class = NULL;
+ 	struct class_device *parent_class_dev = NULL;
+ 	struct class_interface *class_intf;
+-	char *class_name = NULL;
+ 	int error = -EINVAL;
+ 
+ 	class_dev = class_device_get(class_dev);
+@@ -593,22 +634,13 @@ int class_device_add(struct class_device
+ 	if (error)
+ 		goto out5;
+ 
+-	if (class_dev->dev) {
+-		class_name = make_class_name(class_dev->class->name,
+-					     &class_dev->kobj);
+-		error = sysfs_create_link(&class_dev->kobj,
+-					  &class_dev->dev->kobj, "device");
+-		if (error)
+-			goto out6;
+-		error = sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
+-					  class_name);
+-		if (error)
+-			goto out7;
+-	}
++	error = class_device_add_dev(class_dev);
++	if (error)
++		goto out6;
+ 
+ 	error = class_device_add_groups(class_dev);
+ 	if (error)
+-		goto out8;
++		goto out7;
+ 
+ 	kobject_uevent(&class_dev->kobj, KOBJ_ADD);
+ 
+@@ -623,12 +655,8 @@ int class_device_add(struct class_device
+ 
+ 	goto out1;
+ 
+- out8:
+-	if (class_dev->dev)
+-		sysfs_remove_link(&class_dev->kobj, class_name);
+  out7:
+-	if (class_dev->dev)
+-		sysfs_remove_link(&class_dev->kobj, "device");
++	class_device_remove_dev(class_dev);
+  out6:
+ 	class_device_remove_attrs(class_dev);
+  out5:
+@@ -644,7 +672,6 @@ int class_device_add(struct class_device
+ 	class_put(parent_class);
+  out1:
+ 	class_device_put(class_dev);
+-	kfree(class_name);
+ 	return error;
+ }
+ 
+@@ -720,7 +747,6 @@ void class_device_del(struct class_devic
+ 	struct class *parent_class = class_dev->class;
+ 	struct class_device *parent_device = class_dev->parent;
+ 	struct class_interface *class_intf;
+-	char *class_name = NULL;
+ 
+ 	if (parent_class) {
+ 		down(&parent_class->sem);
+@@ -731,12 +757,7 @@ void class_device_del(struct class_devic
+ 		up(&parent_class->sem);
+ 	}
+ 
+-	if (class_dev->dev) {
+-		class_name = make_class_name(class_dev->class->name,
+-					     &class_dev->kobj);
+-		sysfs_remove_link(&class_dev->kobj, "device");
+-		sysfs_remove_link(&class_dev->dev->kobj, class_name);
+-	}
++	class_device_remove_dev(class_dev);
+ 	sysfs_remove_link(&class_dev->kobj, "subsystem");
+ 	class_device_remove_file(class_dev, &class_dev->uevent_attr);
+ 	if (class_dev->devt_attr)
+@@ -749,7 +770,6 @@ void class_device_del(struct class_devic
+ 
+ 	class_device_put(parent_device);
+ 	class_put(parent_class);
+-	kfree(class_name);
+ }
+ 
+ void class_device_unregister(struct class_device *class_dev)
+@@ -821,6 +841,27 @@ int class_device_rename(struct class_dev
+ 	return error;
+ }
+ 
++int class_device_update_dev(struct class_device *class_dev, struct device *dev)
++{
++	int error = 0;
++
++	class_dev = class_device_get(class_dev);
++	if (!class_dev)
++		return -EINVAL;
++
++	if (class_dev->dev != dev) {
++		class_device_remove_dev(class_dev);
++
++		class_dev->dev = dev;
++
++		error = class_device_add_dev(class_dev);
++	}
++
++	class_device_put(class_dev);
++
++	return error;
++}
++
+ struct class_device * class_device_get(struct class_device *class_dev)
+ {
+ 	if (class_dev)
+@@ -911,6 +952,7 @@ EXPORT_SYMBOL_GPL(class_device_get);
+ EXPORT_SYMBOL_GPL(class_device_put);
+ EXPORT_SYMBOL_GPL(class_device_create);
+ EXPORT_SYMBOL_GPL(class_device_destroy);
++EXPORT_SYMBOL_GPL(class_device_update_dev);
+ EXPORT_SYMBOL_GPL(class_device_create_file);
+ EXPORT_SYMBOL_GPL(class_device_remove_file);
+ EXPORT_SYMBOL_GPL(class_device_create_bin_file);
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 1e5f30d..d76072b 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -249,6 +249,7 @@ extern int class_device_add(struct class
+ extern void class_device_del(struct class_device *);
+ 
+ extern int class_device_rename(struct class_device *, char *);
++extern int class_device_update_dev(struct class_device *, struct device *);
+ 
+ extern struct class_device * class_device_get(struct class_device *);
+ extern void class_device_put(struct class_device *);
+
+--=-W2nuZ6shDx243t1DkNsh--
+

@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWGHA0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWGHA2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbWGHA0j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 20:26:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWGHA0j
+	id S932449AbWGHA2X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 20:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWGHA2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 20:26:39 -0400
-Received: from soundwarez.org ([217.160.171.123]:21656 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S932444AbWGHA0i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 20:26:38 -0400
-Subject: Re: Implement class_device_update_dev() function
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1152258152.3693.8.camel@localhost>
-References: <1152226792.29643.8.camel@localhost>
-	 <20060706235745.GA13548@kroah.com>  <1152258152.3693.8.camel@localhost>
+	Fri, 7 Jul 2006 20:28:22 -0400
+Received: from beauty.rexursive.com ([203.171.74.242]:1973 "EHLO
+	beauty.rexursive.com") by vger.kernel.org with ESMTP
+	id S932447AbWGHA2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 20:28:22 -0400
+Subject: Re: [Suspend2-devel] Re: swsusp / suspend2 reliability
+From: Bojan Smojver <bojan@rexursive.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
+       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
+       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net
+In-Reply-To: <20060707232523.GC1746@elf.ucw.cz>
+References: <20060627133321.GB3019@elf.ucw.cz>
+	 <44A14D3D.8060003@wasp.net.au>
+	 <20060627154130.GA31351@rhlx01.fht-esslingen.de>
+	 <20060627222234.GP29199@elf.ucw.cz> <m2k66qzgri.fsf@tnuctip.rychter.com>
+	 <3aa654a40607070819v1359fb69l5d617f029940cc0e@mail.gmail.com>
+	 <20060707180310.ef7186d7.grundig@teleline.es>
+	 <20060707174424.GA9913@dspnet.fr.eu.org> <20060707213916.GC5393@ucw.cz>
+	 <20060707215656.GA30353@dspnet.fr.eu.org>
+	 <20060707232523.GC1746@elf.ucw.cz>
 Content-Type: text/plain
-Date: Sat, 08 Jul 2006 02:26:37 +0200
-Message-Id: <1152318397.3266.130.camel@pim.off.vrfy.org>
+Date: Sat, 08 Jul 2006 10:28:14 +1000
+Message-Id: <1152318494.15651.11.camel@coyote.rexursive.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-07 at 09:42 +0200, Marcel Holtmann wrote:
-> Hi Greg,
-> 
-> > > for the Bluetooth subsystem integration into the driver model it is
-> > > required that we can update the device of a class device at any time.
-> > 
-> > You can?  Ick.
-> > 
-> > That messes with my "get rid of struct class_device" plans a bit...
-> 
-> this must not be a class device, but at the moment TTY, network and
-> input are still class devices. The Bluetooth subsystem moved away from
-> using class devices.
-> 
-> > > For the RFCOMM TTY device for example we create the TTY device and only
-> > > when it got opened we create the Bluetooth connection. Once this new
-> > > connection has been created we have a device to attach to the class
-> > > device of the TTY.
-> > > 
-> > > I came up with the attached patch and it worked fine with the Bluetooth
-> > > RFCOMM layer.
-> > 
-> > But userspace should also find out about this change, and this patch
-> > prevents that from happening.  What about just tearing down the class
-> > device and creating a new one?  That way userspace knows about the new
-> > linkage properly, and any device naming and permission issues can be
-> > handled anew?
-> 
-> This won't work for Bluetooth. We create the TTY and its class device
-> with tty_register_device() and then the device node is present. Then at
-> some point later we open that device and the Bluetooth connection gets
-> established. Only when the connection has been established we know the
-> device that represents it. So tearing down the class device and creating
-> a new one will screw up the application that is using this device node.
-> 
-> Would reissuing the uevent of the class device help here?
+On Sat, 2006-07-08 at 01:25 +0200, Pavel Machek wrote:
 
-How about KOBJ_ONLINE/OFFLINE?
+> You can either use suspend2 (14000 lines of unreviewed kernel code,
+> old) or uswsusp (~500 lines of reviewed kernel code, ~2000 lines of
+> unreviewed userspace code, new).
+> 
+> Of course, you can also use swsusp (~2000 lines of reviewed kernel
+> code, pretty old) if stability matters to you more than graphical
+> progress bar.
 
-Thanks,
-Kay
+I've been using Suspend2 on my notebook for a long, long time now and
+the code is not unstable. In fact, I never reboot my system unless there
+is a kernel upgrade from Fedora. And I do suspend/resume many times
+every day, sometimes on AC power, sometimes on battery. And I never lost
+one bit of information on my file system as a result of Suspend2 stuff
+up.
+
+Also, Suspend2 can do many things that neither swsusp or even uswsusp
+can do, like suspending to regular files, swap files or combination of
+swap, swapfiles and regular files. It is also *much* faster than swsusp,
+to the point that it takes less time to resume *full* image of memory
+with Suspend2 than it takes half memory with swsusp. It easy to confuse
+people by comparing apples and oranges, so let's not do that.
+
+So, the code may be "unreviewed", but it is sure field tested. And by
+many, not just me.
+
+-- 
+Bojan
 

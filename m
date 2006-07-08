@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWGHAFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWGHAFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbWGHAFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 20:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWGHAFY
+	id S1751290AbWGHAFz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 20:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWGHAFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 20:05:24 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:10434 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932424AbWGHAFS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 20:05:18 -0400
-Date: Fri, 7 Jul 2006 17:05:06 -0700 (PDT)
+	Fri, 7 Jul 2006 20:05:54 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:1235 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751276AbWGHAFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 20:05:49 -0400
+Date: Fri, 7 Jul 2006 17:05:37 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: Martin Bligh <mbligh@google.com>, Christoph Hellwig <hch@infradead.org>,
@@ -18,178 +18,226 @@ Cc: Martin Bligh <mbligh@google.com>, Christoph Hellwig <hch@infradead.org>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
        Christoph Lameter <clameter@sgi.com>, Andi Kleen <ak@suse.de>,
        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Message-Id: <20060708000506.3829.34340.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20060708000537.3829.77811.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC 1/8] Add CONFIG_ZONE_DMA to all archesM
+Subject: [RFC 7/8] Single zone optimizations
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce CONFIG_ZONE_DMA
+Single Zone Optimizations
 
-CONFIG_ZONE_DMA can be defined in two ways depending on how
-an architecture handles ISA DMA.
+If we only have a single zone then various macros can be optimized.
 
-First when CONFIG_GENERIC_ISA_DMA is set by the arch then we know that
-the arch needs ZONE_DMA because ISA DMA devices are supported. The arch
-would need to be modified in order to allow switching ZONE_DMA off.
-
-Second, arches may use ZONE_DMA in an unknown way. We set CONFIG_ZONE_DMA
-for all arches that do not set CONFIG_GENERIC_ISA_DMA in order to insure
-backwards compatibility. The arches may later undefine ZONE_DMA
-if their arch code has been modified to not depend on ZONE_DMA.
-
-As a result of this patch CONFIG_ZONE_DMA should be defined for every
-arch.
+We do not need to protect higher zones etc etc.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.17-mm6/mm/Kconfig
+Index: linux-2.6.17-mm6/mm/vmstat.c
 ===================================================================
---- linux-2.6.17-mm6.orig/mm/Kconfig	2006-07-03 13:47:22.616084772 -0700
-+++ linux-2.6.17-mm6/mm/Kconfig	2006-07-03 21:26:49.956038556 -0700
-@@ -134,6 +134,10 @@ config SPLIT_PTLOCK_CPUS
- 	default "4096" if PARISC && !PA20
- 	default "4"
+--- linux-2.6.17-mm6.orig/mm/vmstat.c	2006-07-07 16:50:18.434774588 -0700
++++ linux-2.6.17-mm6/mm/vmstat.c	2006-07-07 16:51:50.428110300 -0700
+@@ -496,7 +496,7 @@ static int zoneinfo_show(struct seq_file
+ 		for (i = 0; i < NR_VM_ZONE_STAT_ITEMS; i++)
+ 			seq_printf(m, "\n    %-12s %lu", vmstat_text[i],
+ 					zone_page_state(zone, i));
+-
++#ifndef SINGLE_ZONE
+ 		seq_printf(m,
+ 			   "\n        protection: (%lu",
+ 			   zone->lowmem_reserve[0]);
+@@ -505,6 +505,7 @@ static int zoneinfo_show(struct seq_file
+ 		seq_printf(m,
+ 			   ")"
+ 			   "\n  pagesets");
++#endif
+ 		for_each_online_cpu(i) {
+ 			struct per_cpu_pageset *pageset;
+ 			int j;
+Index: linux-2.6.17-mm6/mm/page_alloc.c
+===================================================================
+--- linux-2.6.17-mm6.orig/mm/page_alloc.c	2006-07-07 16:50:18.788268357 -0700
++++ linux-2.6.17-mm6/mm/page_alloc.c	2006-07-07 16:51:50.430063305 -0700
+@@ -57,6 +57,7 @@ int percpu_pagelist_fraction;
  
-+config ZONE_DMA
-+	def_bool y
-+	depends on GENERIC_ISA_DMA
-+
- #
- # support for page migration
- #
-Index: linux-2.6.17-mm6/arch/ia64/Kconfig
-===================================================================
---- linux-2.6.17-mm6.orig/arch/ia64/Kconfig	2006-07-03 21:26:38.944998185 -0700
-+++ linux-2.6.17-mm6/arch/ia64/Kconfig	2006-07-03 21:35:54.270151176 -0700
-@@ -22,6 +22,10 @@ config 64BIT
- 	bool
- 	default y
+ static void __free_pages_ok(struct page *page, unsigned int order);
  
-+config ZONE_DMA
-+	bool
-+	default y
-+
- config MMU
- 	bool
- 	default y
-Index: linux-2.6.17-mm6/arch/cris/Kconfig
-===================================================================
---- linux-2.6.17-mm6.orig/arch/cris/Kconfig	2006-07-03 13:47:12.502452440 -0700
-+++ linux-2.6.17-mm6/arch/cris/Kconfig	2006-07-03 21:34:53.678182903 -0700
-@@ -9,6 +9,10 @@ config MMU
- 	bool
- 	default y
++#ifndef SINGLE_ZONE
+ /*
+  * results with 256, 32 in the lowmem_reserve sysctl:
+  *	1G machine -> (16M dma, 800M-16M normal, 1G-800M high)
+@@ -79,6 +80,7 @@ int sysctl_lowmem_reserve_ratio[MAX_NR_Z
+ 	 32
+ #endif
+ };
++#endif
  
-+config ZONE_DMA
-+	bool
-+	default y
-+
- config RWSEM_GENERIC_SPINLOCK
- 	bool
- 	default y
-Index: linux-2.6.17-mm6/arch/s390/Kconfig
-===================================================================
---- linux-2.6.17-mm6.orig/arch/s390/Kconfig	2006-07-03 13:47:13.887132430 -0700
-+++ linux-2.6.17-mm6/arch/s390/Kconfig	2006-07-03 21:34:30.527266107 -0700
-@@ -7,6 +7,10 @@ config MMU
- 	bool
- 	default y
+ EXPORT_SYMBOL(totalram_pages);
  
-+config ZONE_DMA
-+	bool
-+	default y
-+
- config LOCKDEP_SUPPORT
- 	bool
- 	default y
-Index: linux-2.6.17-mm6/arch/xtensa/Kconfig
-===================================================================
---- linux-2.6.17-mm6.orig/arch/xtensa/Kconfig	2006-07-03 13:47:14.333393893 -0700
-+++ linux-2.6.17-mm6/arch/xtensa/Kconfig	2006-07-03 21:37:26.980256509 -0700
-@@ -7,6 +7,10 @@ config FRAME_POINTER
- 	bool
- 	default n
+@@ -878,8 +880,11 @@ int zone_watermark_ok(struct zone *z, in
+ 		min -= min / 2;
+ 	if (alloc_flags & ALLOC_HARDER)
+ 		min -= min / 4;
+-
++#ifdef SINGLE_ZONE
++	if (free_pages <= min)
++#else
+ 	if (free_pages <= min + z->lowmem_reserve[classzone_idx])
++#endif
+ 		return 0;
+ 	for (o = 0; o < order; o++) {
+ 		/* At the next order, this order's pages become unavailable */
+@@ -1424,10 +1429,12 @@ void show_free_areas(void)
+ 			zone->pages_scanned,
+ 			(zone->all_unreclaimable ? "yes" : "no")
+ 			);
++#ifndef SINGLE_ZONE
+ 		printk("lowmem_reserve[]:");
+ 		for (i = 0; i < MAX_NR_ZONES; i++)
+ 			printk(" %lu", zone->lowmem_reserve[i]);
+ 		printk("\n");
++#endif
+ 	}
  
-+config ZONE_DMA
-+	bool
-+	default y
-+
- config XTENSA
- 	bool
- 	default y
-Index: linux-2.6.17-mm6/arch/h8300/Kconfig
-===================================================================
---- linux-2.6.17-mm6.orig/arch/h8300/Kconfig	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17-mm6/arch/h8300/Kconfig	2006-07-03 21:35:38.346328043 -0700
-@@ -17,6 +17,10 @@ config SWAP
- 	bool
- 	default n
+ 	for_each_zone(zone) {
+@@ -2243,12 +2250,13 @@ static void calculate_totalreserve_pages
+ 			struct zone *zone = pgdat->node_zones + i;
+ 			unsigned long max = 0;
  
-+config ZONE_DMA
-+	bool
-+	default y
-+
- config FPU
- 	bool
- 	default n
-Index: linux-2.6.17-mm6/arch/v850/Kconfig
-===================================================================
---- linux-2.6.17-mm6.orig/arch/v850/Kconfig	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17-mm6/arch/v850/Kconfig	2006-07-03 21:37:04.602729732 -0700
-@@ -10,6 +10,9 @@ mainmenu "uClinux/v850 (w/o MMU) Kernel 
- config MMU
-        	bool
- 	default n
-+config ZONE_DMA
-+	bool
-+	default y
- config RWSEM_GENERIC_SPINLOCK
- 	bool
- 	default y
-Index: linux-2.6.17-mm6/arch/sh/Kconfig
-===================================================================
---- linux-2.6.17-mm6.orig/arch/sh/Kconfig	2006-07-03 13:47:13.975017619 -0700
-+++ linux-2.6.17-mm6/arch/sh/Kconfig	2006-07-03 21:36:39.118949095 -0700
-@@ -14,6 +14,10 @@ config SUPERH
- 	  gaming console.  The SuperH port has a home page at
- 	  <http://www.linux-sh.org/>.
++#ifndef SINGLE_ZONE
+ 			/* Find valid and maximum lowmem_reserve in the zone */
+ 			for (j = i; j < MAX_NR_ZONES; j++) {
+ 				if (zone->lowmem_reserve[j] > max)
+ 					max = zone->lowmem_reserve[j];
+ 			}
+-
++#endif
+ 			/* we treat pages_high as reserved pages. */
+ 			max += zone->pages_high;
  
-+config ZONE_DMA
-+	bool
-+	default y
-+
- config RWSEM_GENERIC_SPINLOCK
- 	bool
- 	default y
-Index: linux-2.6.17-mm6/arch/frv/Kconfig
-===================================================================
---- linux-2.6.17-mm6.orig/arch/frv/Kconfig	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17-mm6/arch/frv/Kconfig	2006-07-03 21:35:16.328153984 -0700
-@@ -6,6 +6,10 @@ config FRV
- 	bool
- 	default y
+@@ -2268,6 +2276,7 @@ static void calculate_totalreserve_pages
+  */
+ static void setup_per_zone_lowmem_reserve(void)
+ {
++#ifndef SINGLE_ZONE
+ 	struct pglist_data *pgdat;
+ 	int j, idx;
  
-+config ZONE_DMA
-+	bool
-+	default y
-+
- config RWSEM_GENERIC_SPINLOCK
- 	bool
- 	default y
-Index: linux-2.6.17-mm6/arch/m68knommu/Kconfig
-===================================================================
---- linux-2.6.17-mm6.orig/arch/m68knommu/Kconfig	2006-07-03 13:47:12.932113368 -0700
-+++ linux-2.6.17-mm6/arch/m68knommu/Kconfig	2006-07-03 21:36:19.860370626 -0700
-@@ -17,6 +17,10 @@ config FPU
- 	bool
- 	default n
+@@ -2294,6 +2303,7 @@ static void setup_per_zone_lowmem_reserv
  
-+config ZONE_DMA
-+	bool
-+	default y
-+
- config RWSEM_GENERIC_SPINLOCK
- 	bool
- 	default y
+ 	/* update totalreserve_pages */
+ 	calculate_totalreserve_pages();
++#endif
+ }
+ 
+ /*
+@@ -2427,6 +2437,7 @@ int sysctl_min_unmapped_ratio_sysctl_han
+ }
+ #endif
+ 
++#ifndef SINGLE_ZONE
+ /*
+  * lowmem_reserve_ratio_sysctl_handler - just a wrapper around
+  *	proc_dointvec() so that we can call setup_per_zone_lowmem_reserve()
+@@ -2443,6 +2454,7 @@ int lowmem_reserve_ratio_sysctl_handler(
+ 	setup_per_zone_lowmem_reserve();
+ 	return 0;
+ }
++#endif
+ 
+ /*
+  * percpu_pagelist_fraction - changes the pcp->high for each zone on each
+Index: linux-2.6.17-mm6/kernel/sysctl.c
+===================================================================
+--- linux-2.6.17-mm6.orig/kernel/sysctl.c	2006-07-03 13:47:22.500857523 -0700
++++ linux-2.6.17-mm6/kernel/sysctl.c	2006-07-07 16:51:50.432016309 -0700
+@@ -903,6 +903,7 @@ static ctl_table vm_table[] = {
+ 		.proc_handler	= &proc_dointvec,
+ 	 },
+ #endif
++#ifndef SINGLE_ZONE
+ 	{
+ 		.ctl_name	= VM_LOWMEM_RESERVE_RATIO,
+ 		.procname	= "lowmem_reserve_ratio",
+@@ -912,6 +913,7 @@ static ctl_table vm_table[] = {
+ 		.proc_handler	= &lowmem_reserve_ratio_sysctl_handler,
+ 		.strategy	= &sysctl_intvec,
+ 	},
++#endif
+ 	{
+ 		.ctl_name	= VM_DROP_PAGECACHE,
+ 		.procname	= "drop_caches",
+Index: linux-2.6.17-mm6/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.17-mm6.orig/include/linux/mmzone.h	2006-07-07 16:50:18.787291855 -0700
++++ linux-2.6.17-mm6/include/linux/mmzone.h	2006-07-07 16:51:50.432992811 -0700
+@@ -180,6 +180,7 @@ typedef enum {
+ #else
+ #define GFP_ZONEMASK		0x00
+ #define ZONES_SHIFT		0
++#define SINGLE_ZONE		1
+ #endif
+ #endif
+ #endif
+@@ -188,6 +189,7 @@ struct zone {
+ 	/* Fields commonly accessed by the page allocator */
+ 	unsigned long		free_pages;
+ 	unsigned long		pages_min, pages_low, pages_high;
++#ifndef SINGLE_ZONE
+ 	/*
+ 	 * We don't know if the memory that we're going to allocate will be freeable
+ 	 * or/and it will be released eventually, so to avoid totally wasting several
+@@ -197,6 +199,7 @@ struct zone {
+ 	 * sysctl_lowmem_reserve_ratio sysctl changes.
+ 	 */
+ 	unsigned long		lowmem_reserve[MAX_NR_ZONES];
++#endif
+ 
+ #ifdef CONFIG_NUMA
+ 	/*
+@@ -419,7 +422,11 @@ unsigned long __init node_memmap_size_by
+ /*
+  * zone_idx() returns 0 for the ZONE_DMA zone, 1 for the ZONE_NORMAL zone, etc.
+  */
++#ifndef SINGLE_ZONE
+ #define zone_idx(zone)		((zone) - (zone)->zone_pgdat->node_zones)
++#else
++#define zone_idx(zone)		ZONE_NORMAL
++#endif
+ 
+ static inline int populated_zone(struct zone *zone)
+ {
+@@ -437,7 +444,11 @@ static inline int is_highmem_idx(zones_t
+ 
+ static inline int is_normal_idx(zones_t idx)
+ {
++#ifndef SINGLE_ZONE
+ 	return (idx == ZONE_NORMAL);
++#else
++	return 1;
++#endif
+ }
+ 
+ /**
+@@ -457,7 +468,9 @@ static inline int is_highmem(struct zone
+ 
+ static inline int is_normal(struct zone *zone)
+ {
++#ifndef SINGLE_ZONE
+ 	return zone == zone->zone_pgdat->node_zones + ZONE_NORMAL;
++#endif
+ }
+ 
+ static inline int is_dma32(struct zone *zone)
+@@ -483,9 +496,11 @@ struct ctl_table;
+ struct file;
+ int min_free_kbytes_sysctl_handler(struct ctl_table *, int, struct file *, 
+ 					void __user *, size_t *, loff_t *);
++#ifndef SINGLE_ZONE
+ extern int sysctl_lowmem_reserve_ratio[MAX_NR_ZONES-1];
+ int lowmem_reserve_ratio_sysctl_handler(struct ctl_table *, int, struct file *,
+ 					void __user *, size_t *, loff_t *);
++#endif
+ int percpu_pagelist_fraction_sysctl_handler(struct ctl_table *, int, struct file *,
+ 					void __user *, size_t *, loff_t *);
+ int sysctl_min_unmapped_ratio_sysctl_handler(struct ctl_table *, int,

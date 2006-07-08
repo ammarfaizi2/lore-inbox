@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWGHKzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWGHLLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWGHKzs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 06:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWGHKzs
+	id S1751308AbWGHLLW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 07:11:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWGHLLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 06:55:48 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45785 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751303AbWGHKzs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 06:55:48 -0400
-Date: Sat, 8 Jul 2006 12:55:32 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Bill Davidsen <davidsen@tmr.com>, Benny Amorsen <benny+usenet@amorsen.dk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext4 features
-Message-ID: <20060708105532.GH1700@elf.ucw.cz>
-References: <20060703205523.GA17122@irc.pl> <1151960503.3108.55.camel@laptopd505.fenrus.org> <44A9904F.7060207@wolfmountaingroup.com> <20060703232547.2d54ab9b.diegocg@gmail.com> <m3r711u3yk.fsf@ursa.amorsen.dk> <44AB3E4C.2000407@tmr.com> <20060707141030.GC4239@ucw.cz> <m38xn58g26.fsf@defiant.localdomain> <20060707213030.GA5393@ucw.cz> <m3odw0e5cu.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3odw0e5cu.fsf@defiant.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 8 Jul 2006 07:11:22 -0400
+Received: from beauty.rexursive.com ([203.171.74.242]:26285 "EHLO
+	beauty.rexursive.com") by vger.kernel.org with ESMTP
+	id S1751308AbWGHLLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 07:11:21 -0400
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+From: Bojan Smojver <bojan@rexursive.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Jan Rychter <jan@rychter.com>, Pavel Machek <pavel@ucw.cz>,
+       Avuton Olrich <avuton@gmail.com>, linux-kernel@vger.kernel.org,
+       Olivier Galibert <galibert@pobox.com>,
+       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+In-Reply-To: <1152355318.3120.26.camel@laptopd505.fenrus.org>
+References: <20060627133321.GB3019@elf.ucw.cz>
+	 <20060707215656.GA30353@dspnet.fr.eu.org>
+	 <20060707232523.GC1746@elf.ucw.cz>
+	 <200607080933.12372.ncunningham@linuxmail.org>
+	 <20060708002826.GD1700@elf.ucw.cz>  <m2d5cg1mwy.fsf@tnuctip.rychter.com>
+	 <1152353698.2555.11.camel@coyote.rexursive.com>
+	 <1152355318.3120.26.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: Rexursive
+Date: Sat, 08 Jul 2006 21:11:17 +1000
+Message-Id: <1152357077.2088.4.camel@beast.rexursive.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 2006-07-08 12:52:17, Krzysztof Halasa wrote:
-> Pavel Machek <pavel@ucw.cz> writes:
-> 
-> >> > It *was* done. mc supports undelete on ext2.
-> >> 
-> >> How does it do that? Directly accessing the device?
-> >
-> > Yes. I used it once or twice, and was not happy when ext3 broke it.
-> 
-> I'd say it had to be broken from the beginning. Doing such things
-> on live, mounted filesystem...
+On Sat, 2006-07-08 at 12:41 +0200, Arjan van de Ven wrote:
 
-Why not? You use libextfs or how is it called to read the file from
-the disk directly (read-only access), then you write it back using
-regular calls.
+> What is worse, these suspend systems will inevitable have
+> different requirements on the rest of the kernel, and will thus
+> complicate the heck out of it for the rest of the developers.
 
-Of course, you can end up with "deleted" data being corrupted if
-kernel reused the area before undelete, or while you were doing
-undelete... but that's expected. They were _deleted_, right?
+My (user level) understanding is that built in swsusp and Suspend2 use
+the same (or almost the same) machinery in the rest of the kernel to do
+the work. I'm sure Nigel, Pavel and others can confirm or deny this.
 
-								Pavel
+> No fancy shnazy GUI inside the kernel, but SIMPLE.
+
+AFAIK, none of the solutions have GUI inside the kernel.
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Bojan
+

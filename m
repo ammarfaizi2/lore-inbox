@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWGHR7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbWGHSAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbWGHR7j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 13:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWGHR7j
+	id S964925AbWGHSAH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 14:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWGHSAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 13:59:39 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:50912 "EHLO
-	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S964928AbWGHR7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 13:59:38 -0400
-Date: Sat, 08 Jul 2006 11:59:34 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: [RFC 0/8] Optional ZONE_DMA
-In-reply-to: <fa.3mXwB3pXW7L2KpeFW2PO8SBLhJA@ifi.uio.no>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Hellwig <hch@infradead.org>,
-       Marcelo Tosatti <marcelo@kvack.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martin Bligh <mbligh@google.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Andi Kleen <ak@suse.de>
-Message-id: <44AFF286.6020601@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.3mXwB3pXW7L2KpeFW2PO8SBLhJA@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Sat, 8 Jul 2006 14:00:07 -0400
+Received: from mail.tmr.com ([64.65.253.246]:59872 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S964925AbWGHSAF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 14:00:05 -0400
+Message-ID: <44AFF332.6040505@tmr.com>
+Date: Sat, 08 Jul 2006 14:02:26 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
+MIME-Version: 1.0
+To: Avi Kivity <avi@argo.co.il>
+CC: Helge Hafting <helgehaf@aitel.hist.no>, Neil Brown <neilb@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, Tomasz Torcz <zdzichu@irc.pl>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features (checksums)
+References: <44ABAA0E.4000907@tmr.com> <44ABAC20.5090902@argo.co.il>
+In-Reply-To: <44ABAC20.5090902@argo.co.il>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> Optional ZONE_DMA
+Avi Kivity wrote:
+> Bill Davidsen wrote:
+>>
+>>
+>> > Not syncing unused area is possible, if there was a way for raid resync
+>> > to ask the fs what blocks are not in use.  I.e. get the
+>> > free block list in disk block order.  Then raid resync could skip 
+>> those.
+>> >
+>> Current RAID code supports having a bitmap of dirty stripes, and can
+>> just sync those during recovery. I'm sure Neil could explain it better,
+>> but this is available without worrying about fs type. Now. Today.
+>>
 > 
-> ZONE_DMA is usually used for ISA DMA devices. Typically modern hardware
-> does not have any of these anymore. We frequently do not need
-> the zone anymore.
+> This is only when the you reconstruct a disk that was once part of the 
+> RAID.  If you are adding a brand new disk, all stripes are dirty.
+
+I will leave Neil to explain this to you, it appears to be a totally 
+different case for reconfiguration, but I don't pretend to understand 
+the code well enough to clarify it.
 > 
-> This patch allows to make the configuration of the kernel for
-> ZONE_DMA dependend on the user choosing to support ISA DMA.
-> If ISA DMA is not supported then i386 systems f.e. can be
-> configured using a single ZONE_NORMAL. The overhead of maintaining
-> multiple zones and balancing page use between the different
-> zone is then gone. My i386 system now runs with a single zone.
+> This happens in two scenarios: an unclean RAID shutdown, and when you 
+> have a remote mirror which can be disconnected by network problems.
 > 
-> On x86_64 systems also usually we do not need ZONE_DMA since there
-> are barely any ISA DMA devices around (or are you still using a floppy?).
-> So for most cases the zone can be dropped. Also if the x86_64 systems
-> has less than 4G RAM or DMA controllers that actually can do 64 bit
-> then we also do not need ZONE_DMA32. My x86_64 system has 1G of
-> memory therefore I can run with a single zone.
-
-Keep in mind that:
-
--LPC devices like the floppy controller, maybe enhanced parallel, etc. 
-may have 24-bit DMA restrictions even if there is no physical ISA bus.
-
--Even in totally ISA and LPC-free systems, some PCI devices (like those 
-that were a quick hack of an ISA device onto PCI) still have 24-bit 
-address restrictions. There are other devices that have sub-32-bit DMA 
-capabilities, like Broadcom wireless chips that only address 31 bits 
-(although I think they are fixing this in the driver). Without the DMA 
-zone there is no way to ensure that these requests can be satisfied.
-
-So I don't think it is safe to make this conditional on ISA or even the 
-ISA DMA API. Only if all devices on the system have addressing 
-capability of a full 32 bits (or at least of all installed RAM) can this 
-zone be removed.
+> If the RAID is integrated in the filesystem (or into an object storage 
+> system), you can handle the new disk case too.
+> 
+I'm not sure that building the RAID into the filesystem is ever a good 
+idea, it certainly seems likely to either prevent certain RAID devices 
+from being used, or make them perform suboptimally. There are times when 
+  being able to move a filesystem to a new device is REALLY useful, and 
+byte copy is more practical than file by file copy.
 
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.

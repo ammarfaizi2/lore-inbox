@@ -1,88 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWGHAWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWGHAXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbWGHAWf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 20:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWGHAWf
+	id S932439AbWGHAXY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 20:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWGHAXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 20:22:35 -0400
-Received: from mga02.intel.com ([134.134.136.20]:20061 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932433AbWGHAWe convert rfc822-to-8bit (ORCPT
+	Fri, 7 Jul 2006 20:23:23 -0400
+Received: from ns.suse.de ([195.135.220.2]:52632 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932439AbWGHAXX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 20:22:34 -0400
-X-IronPort-AV: i="4.06,219,1149490800"; 
-   d="scan'208"; a="62148089:sNHT15488998"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 7 Jul 2006 20:23:23 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [RFC 7/8] Single zone optimizations
+Date: Sat, 8 Jul 2006 02:19:11 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Martin Bligh <mbligh@google.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo@kvack.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com> <20060708000537.3829.77811.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20060708000537.3829.77811.sendpatchset@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [BUG] sleeping function called from invalid context during resume
-Date: Fri, 7 Jul 2006 20:21:55 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6ECF8BD@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG] sleeping function called from invalid context during resume
-Thread-Index: Acah/Tmstkt0ybTgQNyfw82ZNL83qgAIRWEw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <johnstul@us.ibm.com>, <linux-kernel@vger.kernel.org>, <pavel@suse.cz>,
-       <linux-acpi@vger.kernel.org>, <linux-pm@lists.osdl.org>
-X-OriginalArrivalTime: 08 Jul 2006 00:22:33.0311 (UTC) FILETIME=[9B351EF0:01C6A224]
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607080219.11049.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 08 July 2006 02:05, Christoph Lameter wrote:
+> Single Zone Optimizations
+> 
+> If we only have a single zone then various macros can be optimized.
+> 
+> We do not need to protect higher zones etc etc.
 
->> >> I think we need to get rid of the acpi_in_resume hack
->> >> and use system_state != SYSTEM_RUNNING to address this.
->> >
->> >Well if hacks are OK it'd actually be reliable to do
->> >
->> >	/* comment goes here */
->> >	kmalloc(size, irqs_disabled() ? GFP_ATOMIC : GFP_KERNEL);
->> >
->> >because the irqs_disabled() thing happens for well-defined reasons. 
->> >Certainly that's better than looking at system_state (and I 
->> >don't think we
->> >leave SYSTEM_RUNNING during suspend/resume anyway).
->> 
->> If system_state != SYSTEM_RUNNING on resume, theen __might_sleep()
->> would not have spit out the dump_stack() above.
->> 
->> This is exactly like boot -- we are bringing up the system
->> and we need to configure interrupts, which runs AML,
->> which calls kmalloc in a variety of ways, all of which call
->> __might_sleep.
->> 
->> It seems simplest to have resume admit that it is like boot
->> and that the early allocations with interrupts off simply
->> must succeed or it is game-off.
->> 
->
->No, we shouldn't expand the use of system_state.  Code continues to be
->merged which uses it.  If we also merge code which enhances 
->its semantics then we're getting into quadratically-increasing
->nastiness rather than linearly-increasing.
->
->Callers should tell callees what to do.  Callees shouldn't be 
->peeking at globals to work out what to do.
->
->Lacking any other caller-passed indication, it would be much better for
->acpi to look at irqs_disabled().  That's effectively a task-local,
->cpu-local argument which was passed down to callees.  It's hacky - it's
->like the PF_foo flags.  But it's heaps better than having all 
->the kernel fight over the state of a global.
+Nearly all the stuff you remove is slow path and even __init
+where neither performance nor code size matter much.
+The ifdefs look ugly. 
 
-I didn't propose that kmalloc callers peek at system_state.
-I proposed that system_state be set properly on resume
-exactly like it is set on boot -- SYSTEM_RUNNING means
-we are up with interrupts enabled.
+I have my doubts they are worth it.
 
-Note that this issue is not specific to ACPI, any other code
-that calls kmalloc during resume will hit __might_sleep().
-This is taken care of by system_state in the case of boot
-and the callers don't know anything about it -- resume
-is the same case and should work the same way.
+-Andi
 
--Len
+
+> 

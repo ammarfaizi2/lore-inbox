@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWGHQrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWGHQrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964897AbWGHQrW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 12:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWGHQrW
+	id S964899AbWGHQrl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 12:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWGHQrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 12:47:22 -0400
-Received: from mercury.realtime.net ([205.238.132.86]:49832 "EHLO
-	ruth.realtime.net") by vger.kernel.org with ESMTP id S964897AbWGHQrV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 12:47:21 -0400
-In-Reply-To: <20060708084713.GA8020@mars.ravnborg.org>
-References: <20060708084713.GA8020@mars.ravnborg.org>
-Mime-Version: 1.0 (Apple Message framework v624)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <b2ab6d298877aff62aa61e0430a16d3d@bga.com>
+	Sat, 8 Jul 2006 12:47:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:56450 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964903AbWGHQrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 12:47:40 -0400
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+From: Arjan van de Ven <arjan@infradead.org>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Bojan Smojver <bojan@rexursive.com>, Jan Rychter <jan@rychter.com>,
+       Pavel Machek <pavel@ucw.cz>, Avuton Olrich <avuton@gmail.com>,
+       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net,
+       grundig <grundig@teleline.es>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+In-Reply-To: <20060708164312.GA36499@dspnet.fr.eu.org>
+References: <20060627133321.GB3019@elf.ucw.cz>
+	 <20060707215656.GA30353@dspnet.fr.eu.org>
+	 <20060707232523.GC1746@elf.ucw.cz>
+	 <200607080933.12372.ncunningham@linuxmail.org>
+	 <20060708002826.GD1700@elf.ucw.cz> <m2d5cg1mwy.fsf@tnuctip.rychter.com>
+	 <1152353698.2555.11.camel@coyote.rexursive.com>
+	 <1152355318.3120.26.camel@laptopd505.fenrus.org>
+	 <20060708164312.GA36499@dspnet.fr.eu.org>
+Content-Type: text/plain
+Date: Sat, 08 Jul 2006 18:47:26 +0200
+Message-Id: <1152377246.3120.65.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
-From: Milton Miller <miltonm@bga.com>
-Subject: Re: [RFC] Use target filename in BUG_ON and friends
-Date: Sat, 8 Jul 2006 11:45:49 -0500
-To: Sam Ravnborg <sam@ravnborg.org>
-X-Mailer: Apple Mail (2.624)
-X-Server: High Performance Mail Server - http://surgemail.com r=-1092531819
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-			
-On Jul 8, 2006, at 04:45:54 EST, Sam Ravnborg wrote:
->  When building the kernel using make O=.. all uses of __FILE__ becomes
->  filenames with absolute path resulting in increased text size.
->  Following patch supply the target filename as a commandline define
->  KBUILD_TARGET_FILE="mmslab.o"
+On Sat, 2006-07-08 at 18:43 +0200, Olivier Galibert wrote:
+> On Sat, Jul 08, 2006 at 12:41:58PM +0200, Arjan van de Ven wrote:
+> > Very often, choice is good. but for something this fundamental, it is
+> > not. We also don't have 2 scsi layers for example.
+> 
+> We have 2 ide layers, 2 usb-storage drivers, 2 sound systems and we
+> have had 2 pcmcia subsystems and 2 usb subsystems. 
 
-Unfortunately this ignores the fact that __LINE__ is meaningless
-without __FILE__ because there are way too many BUGs in header
-files.
+well not sure about all of them... but it sucks.
 
-Well, it does give us a hint as to which user of the header is
-the problem one without going to System.map or objdump.
+Just take the alsa/OSS case. It's taken Adrian Bunk a LOT of effort to
+get people to report bugs against alsa; unless you threaten to remove
+the other driver they just won't and switch to the other driver. On the
+one hand, that is choice. On the other, it's BAD. The user experience is
+BAD. It means we end up with 2 half arsed cases (since the OSS driver
+doesn't do other things) instead of one quite good one.
 
-Even though it is hard on ccache, it is nice to be able to cut
-and paste the file name.
-
-milton
 

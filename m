@@ -1,84 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWGHNlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWGHNq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWGHNlx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 09:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWGHNlx
+	id S964832AbWGHNq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 09:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWGHNq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 09:41:53 -0400
-Received: from relay03.pair.com ([209.68.5.17]:50184 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S964830AbWGHNlw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 09:41:52 -0400
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: [patch] spinlocks: remove 'volatile'
-Date: Sat, 8 Jul 2006 08:41:14 -0500
-User-Agent: KMail/1.9.3
-Cc: "linux-os \\\\(Dick Johnson\\\\)" <linux-os@analogic.com>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org
-References: <20060705114630.GA3134@elte.hu> <Pine.LNX.4.64.0607071635130.23767@turbotaz.ourhouse> <m3wtaoe7rk.fsf@defiant.localdomain>
-In-Reply-To: <m3wtaoe7rk.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 8 Jul 2006 09:46:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:31437 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964832AbWGHNq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 09:46:28 -0400
+Date: Sat, 8 Jul 2006 14:46:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, davej@redhat.com, mingo@elte.hu,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: starting mc triggers lockdep
+Message-ID: <20060708134621.GA10549@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Herbert Xu <herbert@gondor.apana.org.au>, davej@redhat.com,
+	mingo@elte.hu, akpm@osdl.org, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org
+References: <E1Fz33I-0006vG-00@gondolin.me.apana.org.au> <1152352400.3120.19.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607080841.38235.chase.venters@clientec.com>
+In-Reply-To: <1152352400.3120.19.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 July 2006 04:59, Krzysztof Halasa wrote:
-> Chase Venters <chase.venters@clientec.com> writes:
-> > Locks are supposed to be syncronization points, which is why they
-> > ALREADY HAVE "memory" on the clobber list! "memory" IS NECESSARY. The
-> > fact that "=m" is changing to "+m" in Linus's patches is because "=m"
-> > is in fact insufficient, because it would let the compiler believe
-> > we're just going to over-write the value. "volatile" merely hides that
-> > bug -- once that bug is _fixed_ (by going to "+m"), "volatile" is no
-> > longer useful.
->
-> This is a completely different story. "volatile", barrier() and "+m"/"=m"
-> aren't sync points. If the variable access isn't atomic you must use
-> locking even with volatiles, barriers etc.
+On Sat, Jul 08, 2006 at 11:53:20AM +0200, Arjan van de Ven wrote:
+> > Did I miss something?
+> 
+> is it not possible to nfs export /sys, and then mount it over loopback?
 
-You're mincing my words. The reason "memory" is on the clobber list is because 
-a lock is supposed to synchronize all memory accesses up to that point. It's 
-a fence / a barrier, because if the compiler re-orders your loads/stores 
-across the lock, you're in trouble. That's exactly what I was pointing out. 
+No, it's not.  A filesystem needs dedicated routines to support nfs
+exporting and sysfs doesn't have those.
 
-> > If "volatile" is in use elsewhere (other than locks), it's still
-> > probably wrong. In these cases, you can use a barrier, a volatile
-> > cast, or an inline asm with a specific clobber.
->
-> A volatile cast is just a volatile, moved from data declaration to
-> all access points. It doesn't buy you anything.
-> barrier() is basically "all-volatile". All of them operate on the same,
-> compiler level.
-
-A volatile cast lets you prevent the compiler from always treating the 
-variable as volatile.
-
-> If the "volatile" is used the wrong way (which is probably true for most
-> cases), then volatile cast and barrier() will be wrong as well. You need
-> locks or atomic access, meaningful on hardware level.
-
-No. Linus already described what some example invalid uses of "volatile" are. 
-One example is the very one this whole thread is about - using 'volatile' on 
-the declaration of the spinlock counter. That usage is _wrong_, and barrier() 
-would not be. (Of course, it doesn't directly apply here, because barrier() 
-already existed, by necessity, due to the "memory" clobber. And the lock's 
-not done in pure C.)
-
-Volatile originally existed to tell the compiler a variable could change at 
-will. Because of reordering, it's almost never sufficient with our modern 
-compilers and CPUs. That's precisely where barrier() (and/or its hardware 
-equivalents) help in places where 'volatile' is wrong. Your statement is 
-additionally wrong because one use-case of memory barriers is to safely write 
-lock-free code.
-
-Thanks,
-Chase

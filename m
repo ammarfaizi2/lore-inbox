@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWGHQrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWGHQru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbWGHQrl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 12:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWGHQrl
+	id S964902AbWGHQru (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 12:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWGHQru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 12:47:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:56450 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964903AbWGHQrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 12:47:40 -0400
-Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
-From: Arjan van de Ven <arjan@infradead.org>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: Bojan Smojver <bojan@rexursive.com>, Jan Rychter <jan@rychter.com>,
-       Pavel Machek <pavel@ucw.cz>, Avuton Olrich <avuton@gmail.com>,
-       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net,
-       grundig <grundig@teleline.es>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-In-Reply-To: <20060708164312.GA36499@dspnet.fr.eu.org>
-References: <20060627133321.GB3019@elf.ucw.cz>
-	 <20060707215656.GA30353@dspnet.fr.eu.org>
-	 <20060707232523.GC1746@elf.ucw.cz>
-	 <200607080933.12372.ncunningham@linuxmail.org>
-	 <20060708002826.GD1700@elf.ucw.cz> <m2d5cg1mwy.fsf@tnuctip.rychter.com>
-	 <1152353698.2555.11.camel@coyote.rexursive.com>
-	 <1152355318.3120.26.camel@laptopd505.fenrus.org>
-	 <20060708164312.GA36499@dspnet.fr.eu.org>
-Content-Type: text/plain
-Date: Sat, 08 Jul 2006 18:47:26 +0200
-Message-Id: <1152377246.3120.65.camel@laptopd505.fenrus.org>
+	Sat, 8 Jul 2006 12:47:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30145 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964902AbWGHQrt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 12:47:49 -0400
+Date: Sat, 8 Jul 2006 09:47:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pcmcia IDE broken in 2.6.18-rc1
+Message-Id: <20060708094746.943d8926.akpm@osdl.org>
+In-Reply-To: <20060708145541.GA2079@elf.ucw.cz>
+References: <20060708145541.GA2079@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-08 at 18:43 +0200, Olivier Galibert wrote:
-> On Sat, Jul 08, 2006 at 12:41:58PM +0200, Arjan van de Ven wrote:
-> > Very often, choice is good. but for something this fundamental, it is
-> > not. We also don't have 2 scsi layers for example.
+On Sat, 8 Jul 2006 16:55:43 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
+
+> Hi!
 > 
-> We have 2 ide layers, 2 usb-storage drivers, 2 sound systems and we
-> have had 2 pcmcia subsystems and 2 usb subsystems. 
+> When I insert the card, I get
+> 
+> pccard: PCMCIA card inserted into slot 0
+> cs: memory probe 0xe8000000-0xefffffff: excluding
+> 0xe8000000-0xefffffff
+> cs: memory probe 0xc0200000-0xcfffffff: excluding
+> 0xc0200000-0xc11fffff 0xc1a00000-0xc61fffff 0xc6a00000-0xc71fffff
+> 0xc7a00000-0xc81fffff 0xc8a00000-0xc91fffff 0xc9a00000-0xca1fffff
+> 0xcaa00000-0xcb1fffff 0xcba00000-0xcc1fffff 0xcca00000-0xcd1fffff
+> 0xcda00000-0xce1fffff 0xcea00000-0xcf1fffff 0xcfa00000-0xd01fffff
+> pcmcia: registering new device pcmcia0.0
+> PM: Adding info for pcmcia:0.0
+> ide2: I/O resource 0xF887E00E-0xF887E00E not free.
+> ide2: ports already in use, skipping probe
+> ide2: I/O resource 0xF887E01E-0xF887E01E not free.
+> ide2: ports already in use, skipping probe
+> ...
+> 
+> it ends with
+> 
+> ide-cs: ide_register() at 0xf999c000 & 0xf999c00e, irq 7 failed
+> 
+> :-(. Back to 2.6.17 once again, I'm afraid...
 
-well not sure about all of them... but it sucks.
+Appears to be the same bug as http://lkml.org/lkml/2006/6/15/155
 
-Just take the alsa/OSS case. It's taken Adrian Bunk a LOT of effort to
-get people to report bugs against alsa; unless you threaten to remove
-the other driver they just won't and switch to the other driver. On the
-one hand, that is choice. On the other, it's BAD. The user experience is
-BAD. It means we end up with 2 half arsed cases (since the OSS driver
-doesn't do other things) instead of one quite good one.
+That debugging effort dried up at "Can you do some more tracing on hwif."
 
-
+You're our only hope.  Can you debug it a bit please?

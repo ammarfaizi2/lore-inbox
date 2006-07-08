@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWGHC2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWGHCvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbWGHC2E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jul 2006 22:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWGHC2D
+	id S932493AbWGHCvy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jul 2006 22:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWGHCvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jul 2006 22:28:03 -0400
-Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:45013 "EHLO
-	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932488AbWGHC2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jul 2006 22:28:02 -0400
-Date: Fri, 7 Jul 2006 22:22:25 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: ext4 features
-To: Theodore Tso <tytso@mit.edu>
-Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       "J. Bruce Fields" <bfields@fieldses.org>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200607072225_MC3-1-C46B-34C5@compuserve.com>
+	Fri, 7 Jul 2006 22:51:54 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:29089 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932493AbWGHCvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jul 2006 22:51:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=XVWHZqQELDGZEntLuQhgRB6BJshQ48pab/RMI89U+cWum7mAhNxbxJEMzIydKgBmv9uWhDXZStL35cR7w6Gd7bPRNUzwSWa0RMB4N8Kj3NpmDJMW6yeRmiNB0FTS8vGAjhDLwwotpNgbcuiH3guJFAdwjpWAlYzuk5NiqQNVykA=
+Message-ID: <12c511ca0607071951p4fe7e1bfm7be5ad48ede895f1@mail.gmail.com>
+Date: Fri, 7 Jul 2006 19:51:52 -0700
+From: "Tony Luck" <tony.luck@intel.com>
+To: "Jeremy Higdon" <jeremy@sgi.com>
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+Cc: "Arjan van de Ven" <arjan@infradead.org>, "Jes Sorensen" <jes@sgi.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "John Daiker" <jdaiker@osdl.org>,
+       "John Hawkes" <hawkes@sgi.com>, "Andrew Morton" <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Jack Steiner" <steiner@sgi.com>, "Dan Higgins" <djh@sgi.com>
+In-Reply-To: <20060708001427.GA723842@sgi.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
 Content-Disposition: inline
+References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
+	 <yq04py4i9p7.fsf@jaguar.mkp.net>
+	 <1151578928.23785.0.camel@localhost.localdomain>
+	 <44A3AFFB.2000203@sgi.com>
+	 <1151578513.3122.22.camel@laptopd505.fenrus.org>
+	 <20060708001427.GA723842@sgi.com>
+X-Google-Sender-Auth: 9c89f44541a6b0ed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060707195223.GA12301@thunk.org>
+> So does i386 convert the return value of the times(2) call to user
+> hertz?  On IA64, it returns the value in internal clock ticks, and
+> then when a program uses the value in param.h, it gets it wrong now,
+> because internal HZ is now 250.
+>
+> So is times() is broken in IA64, or is this an exception to Alan's
+> statement?
 
-On Fri, 7 Jul 2006 15:52:23 -0400, Theodore Tso wrote:
+The Linux man page for times(2) specifically says "ticks" and refers
+to sysconf for how to determine how long a "tick" is.  So ia64 matches
+the man page.  Dunno if that matches POSIX though.
 
-> Not four times a day, but probably once a month or two it would be a
-> *very* good idea to do periodic sweeps of files to make sure the hard
-> drive hasn't corrupted the files out from under you.  If you have 20+
-> TB of data, the probability of silent data corruption starts going up.
-> That would be justification for storing the checksum in the inode or
-> in the EA of the file, with the kernel automatically clearing it if
-> the file was *deliberately* changed.  The goal is to detect the disk
-> silently changing the data for you, free of charge....
-
-Per-extent checksums on ext4 might work better.
-
-        -  If you only changed a small part of a file the majority of
-           checksums would still be valid.
-
-        -  On a file with 31K of data in a 128K extent, checksumming
-           the wasted space might cause false positives but it would be
-           OK because that would still be actual on-disk corruption.
-
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+-Tony

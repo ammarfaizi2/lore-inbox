@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161164AbWGIVVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWGIVZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161164AbWGIVVD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 17:21:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161166AbWGIVVB
+	id S932232AbWGIVZm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 17:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWGIVZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 17:21:01 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:17573 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161164AbWGIVVA (ORCPT
+	Sun, 9 Jul 2006 17:25:42 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:54703 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932232AbWGIVZm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 17:21:00 -0400
-Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
+	Sun, 9 Jul 2006 17:25:42 -0400
+Subject: Re: [PATCH] adjust clock for lost ticks
 From: john stultz <johnstul@us.ibm.com>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz
-In-Reply-To: <200607092058.k69KwVxN026427@harpo.it.uu.se>
-References: <200607092058.k69KwVxN026427@harpo.it.uu.se>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Uwe Bugla <uwe.bugla@gmx.de>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+In-Reply-To: <Pine.LNX.4.64.0607082151400.12900@scrub.home>
+References: <20060624061914.202fbfb5.akpm@osdl.org>
+	 <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.64.0606271212150.17704@scrub.home>
+	 <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.64.0606271903320.12900@scrub.home>
+	 <Pine.LNX.4.64.0606271919450.17704@scrub.home>
+	 <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu>
+	 <1151453231.24656.49.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0606281218130.12900@scrub.home>
+	 <Pine.LNX.4.64.0606281335380.17704@scrub.home>
+	 <200606292307.k5TN7MGD011615@turing-police.cc.vt.edu>
+	 <1151695569.5375.22.camel@localhost.localdomain>
+	 <200606302104.k5UL41vs004400@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.64.0607030256581.17704@scrub.home>
+	 <200607050429.k654TXUr012316@turing-police.cc.vt.edu>
+	 <1152147114.24656.117.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0607061912370.12900@scrub.home>
+	 <1152223506.24656.173.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0607082151400.12900@scrub.home>
 Content-Type: text/plain
-Date: Sun, 09 Jul 2006 14:20:56 -0700
-Message-Id: <1152480056.21576.11.camel@localhost>
+Date: Sun, 09 Jul 2006 14:25:37 -0700
+Message-Id: <1152480337.21576.17.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-09 at 22:58 +0200, Mikael Pettersson wrote:
-> On Fri, 7 Jul 2006 21:01:26 +0200 (MEST), I wrote:
-> >Kernel 2.6.18-rc1 broke resume from APM suspend (to RAM)
-> >on my old Dell Latitude CPi laptop. At resume the disk
-> >spins up and the screen gets lit, but there is no response
-> >to the keyboard, not even sysrq. All other system activity
-> >also appears to be halted.
-> >
-> >I did the obvious test of reverting apm.c to the 2.6.17
-> >version and fixing up the fallout from the TIF_POLLING_NRFLAG
-> >changes, but it made no difference. So the problem must be
-> >somewhere else.
+On Sat, 2006-07-08 at 22:02 +0200, Roman Zippel wrote:
+> A large number of lost ticks can cause an overadjustment of the clock.
+> To compensate for this we look at the current error and the larger the
+> error already is the more careful we are at adjusting the error.
+> As small extra fix reset the error when the clock is set.
 > 
-> I've traced the cause of this problem to the i386 time-keeping
-> changes in kernel 2.6.17-git11. What happens is that:
-> - The kernel autoselects TSC as my clocksource, which is
->   reasonable since it's a PentiumII. 2.6.17 also chose the TSC.
-> - Immediately after APM resumes (arch/i386/kernel/apm.c line
->   1231 in 2.6.18-rc1) there is an interrupt from the PIT,
->   which takes us to kernel/timer.c:update_wall_time().
-> - update_wall_time() does a clocksource_read() and computes
->   the offset from the previous read. However, the TSC was
->   reset by HW or BIOS during the APM suspend/resume cycle and
->   is now smaller than it was at the prevous read. On my machine,
->   the offset is 0xffffffd598e0a566 at this point, which appears
->   to throw update_wall_time() into a very very long loop.
+> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
-Huh. It seems you're getting an interrupt before timekeeping_resume()
-runs (which resets cycle_last). I'll look over the code and see if I can
-sort out why it works w/ ACPI suspend, but not APM, or if the
-resume/interrupt-enablement bit is just racy in general.
+Roman, 
+	Spent the weekend testing this, dropping 99/100 ticks, and was able to
+hold decent sync w/ ntpd. Also the softlockup hang appears resolved as
+well (confirmed by Vladis). Thanks for sending this out.
 
-Thanks for the bug report!
+I know its already in -mm, but:
+Acked-by: John Stultz <johnstul@us.ibm.com>
+
 -john
-
 

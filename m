@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161149AbWGIVHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161155AbWGIVIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161149AbWGIVHB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 17:07:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161152AbWGIVHB
+	id S1161155AbWGIVIA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 17:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161152AbWGIVH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 17:07:01 -0400
-Received: from mx2.rowland.org ([192.131.102.7]:65041 "HELO mx2.rowland.org")
-	by vger.kernel.org with SMTP id S1161149AbWGIVG7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 17:06:59 -0400
-Date: Sun, 9 Jul 2006 17:06:57 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: linux-input@atrey.karlin.mff.cuni.cz,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Magic Alt-SysRq change in 2.6.18-rc1
-Message-ID: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 9 Jul 2006 17:07:59 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:25772 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161155AbWGIVH6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 17:07:58 -0400
+Subject: Re: [RFC][PATCH 1/2] firmware version management: add
+	firmware_version()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Martin Langer <martin-langer@gmx.de>,
+       Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org,
+       bcm43xx-dev@lists.berlios.de
+In-Reply-To: <200607092109.02707.mb@bu3sch.de>
+References: <20060708130904.GA3819@tuba>
+	 <1152457310.3255.58.camel@laptopd505.fenrus.org>
+	 <20060709152516.GB3678@tuba>  <200607092109.02707.mb@bu3sch.de>
+Content-Type: text/plain
+Date: Sun, 09 Jul 2006 23:07:53 +0200
+Message-Id: <1152479273.3255.67.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry:
+On Sun, 2006-07-09 at 21:09 +0200, Michael Buesch wrote:
+> On Sunday 09 July 2006 17:25, you wrote:
+> > > yes it does. bcm43xx asks userspace to upload firmware (via
+> > > request_firmware() ) and a userspace app (udev most of the time) will
+> > > upload it. That app, eg udev, can do the md5sum and checking it against
+> > > a list of "known good" firmwares. Voila problem solved ;)
+> > 
+> > I see. It's an interesting way that I didn't noticed. 
+> > Thanks for the guidance.
+> 
+> Nono, stop. Not too fast. :)
+> Where is this "list of "known good" firmwares" actually stored?
+> In userspace (udev)? That would be guaranteed to be out of sync
+> with the driver.
 
-Are you the right person to handle changes in the behavior of Alt-SysRq?
+for all I care it's part of the kernel tarbal somehow
 
-Before 2.6.18-rc1, I used to be able to use it as follows:
-
-	Press and hold an Alt key,
-	Press and hold the SysRq key,
-	Release the Alt key,
-	Press and release some hot key like S or T or 7,
-	Repeat the previous step as many times as desired,
-	Release the SysRq key.
-
-This scheme doesn't work any more, or if it does, the timing requirements
-are now much stricter.  In practice I have to hold down all three keys at
-the same time; I can't release the Alt key before pressing the hot key.
-
-This makes thinks very awkward on my laptop machine.  Its keyboard
-controller doesn't seem to like having three keys pressed simultaneously.  
-Instead of the expected hotkey behavior, I usually got an error message
-from atkbd warning about too many keys being pressed.  Getting it to work
-as desired is hit-and-miss.
-
-I would really appreciate going back to the old behavior, where only two 
-keys needed to be held down at any time.
-
-Alan Stern
+but a real file, not some in kernel memory eating thing
 

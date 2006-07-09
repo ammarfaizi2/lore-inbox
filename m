@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbWGIU0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161123AbWGIU1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161122AbWGIU0o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 16:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbWGIU0o
+	id S1161123AbWGIU1f (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 16:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161125AbWGIU1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 16:26:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21121 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161122AbWGIU0n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 16:26:43 -0400
-Date: Sun, 9 Jul 2006 13:21:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: 2.6.18-rc1-mm1 oops on x86_64
-Message-Id: <20060709132135.6c786cfb.akpm@osdl.org>
-In-Reply-To: <44B12C74.9090104@fr.ibm.com>
-References: <20060709021106.9310d4d1.akpm@osdl.org>
-	<44B12C74.9090104@fr.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 9 Jul 2006 16:27:35 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:25312 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161123AbWGIU1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 16:27:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LzwXj7iabhgm38tRwhT86WkK8lVDRNuSYGk+FaBn2wSEjUs8KBjW2WEDvxX/DV+MKIWclhvPDzeRFnntj7ffIILrWJBp3MywSeRmU243+MUDFKQ/iUDnX8MQ8UCUeiMlUXcca/rMWjDzy3r/6sVB3aMn66uMZJiD6NmT1ajgjx4=
+Message-ID: <e1e1d5f40607091327y3db1cbdco89ebdb04cda60ce0@mail.gmail.com>
+Date: Sun, 9 Jul 2006 16:27:33 -0400
+From: "Daniel Bonekeeper" <thehazard@gmail.com>
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Subject: Re: Automatic Kernel Bug Report
+Cc: "Adrian Bunk" <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200607092019.k69KJt66005527@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com>
+	 <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com>
+	 <e1e1d5f40607090329i25f6b1b2s3db2c2001230932c@mail.gmail.com>
+	 <20060709125805.GF13938@stusta.de>
+	 <e1e1d5f40607091146s2f8e6431v33923f38c6d10539@mail.gmail.com>
+	 <20060709191107.GN13938@stusta.de>
+	 <e1e1d5f40607091301j723b92bje147932a4395775c@mail.gmail.com>
+	 <200607092019.k69KJt66005527@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 09 Jul 2006 18:19:00 +0200
-Cedric Le Goater <clg@fr.ibm.com> wrote:
+On 7/9/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> On Sun, 09 Jul 2006 16:01:58 EDT, Daniel Bonekeeper said:
+>
+> > Sometimes the user may be just somebody that just started using linux,
+> > or is in an industry that has nothing related to computers. He doesn't
+> > even know that syslog exists, and even if he did, he could not even
+> > care about it.
+>
+> This user will do whatever his distro tells him to do, which is almost
+> certainly something *other* than what a kernel.org kernel should do.
+> If he's running Ubuntu, it should do whatever Ubuntu does.  If he's
+> on Fedora Core, it should poke the RedHat bugzilla, and so on.
+>
+> If he's running a kernel.org kernel, it's probably safe to assume *some*
+> level of clue
+>
 
-> Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/
-> 
-> Kernel BUG at ...home/legoater/linux/2.6.18-rc1-mm1/mm/page_alloc.c:252
+This was actually just an example circunstance of why somebody would
+not report a bug. Dozens of other circunstances may be given, and it
+just illustrates why would be good to have those bug reports without
+user interaction. Of course I can go to bugzilla and fill a report
+upon a bug, but I wouldn't care to have bug reports being sent from my
+servers automatically, if it's an option. This would ensure that even
+bug report from non-caring users are, well, reported.
 
-	VM_BUG_ON((gfp_flags & (__GFP_WAIT | __GFP_HIGHMEM)) == __GFP_HIGHMEM);
-
-With your config, __GFP_HIGHMEM=0, so wham.
-
-I dunno, Christoph.  I think those patches are going to significantly
-increase the number of works-with-my-config, doesnt-with-yours scenarios.
-
-We're going to hurt ourselves if we do this.
+Daniel
+-- 
+What this world needs is a good five-dollar plasma weapon.

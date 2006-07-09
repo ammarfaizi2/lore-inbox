@@ -1,171 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbWGIBTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWGIBvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161031AbWGIBTP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 21:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161032AbWGIBTP
+	id S1161041AbWGIBvz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 21:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWGIBvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 21:19:15 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:17289 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161031AbWGIBTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 21:19:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=kX2p8opjc3x0Ozkt6Ozb6/hM6vOpN6q1ifSYpfhUZMSqfE/0tWNATOq5pCw++19n7pGqo+SUyGzWgJqLwX/N857W4iNz0AlaIOws0zCGovWj5SMrCFN4iyzYfCvHK7i9Hwr79C6kdYMyL+79Xvby+9cZV6ZQpy7ooavdT4saq/w=
-Message-ID: <abcd72470607081819j30e775cdx6cc8841e43f49373@mail.gmail.com>
-Date: Sat, 8 Jul 2006 18:19:13 -0700
-From: "Avinash Ramanath" <avinashr@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Zeroing data blocks
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 8 Jul 2006 21:51:55 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:13295 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1161041AbWGIBvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 21:51:54 -0400
+Subject: Re: tasklet_unlock_wait() causes soft lockup with -rt and ieee1394
+	audio
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Pieter Palmers <pieterp@joow.be>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1152371924.4736.169.camel@mindpipe>
+References: <1152371924.4736.169.camel@mindpipe>
+Content-Type: text/plain
+Date: Sat, 08 Jul 2006 21:51:34 -0400
+Message-Id: <1152409894.32734.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to zero data blocks whenever an unlink is invoked as part
-of a secure delete filesystem.
-I tried to zero the file by writing a buffer (of file size) with
-zeroes onto the file.
-But the system hangs.
-I see the printk "In page_left loop" being printed, but nothing after that.
-Could someone let me know what might be happening with the code below?
-Also could you recommend me what is the best operation for writing
-zeroes onto a file?
+Hi Lee,
 
-Thanks,
-Avinash.
+Sorry, I've been quiet, and will be again soon.  I'm in a process of
+changing jobs, and I am now employed by Red Hat and will soon be working
+on Xen.
 
-I saw that the file size is 12, with page_number being 0 and page_left 12.
+Anyway, I'll take a look at what you got and see if I can help at all.
 
-Code:
-=====
+On Sat, 2006-07-08 at 11:18 -0400, Lee Revell wrote:
+> Pieter has found this bug in -rt:
+> 
+> We are experiencing 'soft' deadlocks when running our code (Freebob, 
+> i.e. userspace lib for firewire audio) on RT kernels. After a few 
+> seconds of system freeze, I get a kernel panic message that signals a soft lockup.
+> 
+> I've uploaded the photo's of the panic here:
+> http://freebob.sourceforge.net/old/img_3378.jpg (without flash)
 
-int overwrite(dentry_t *dentry, int overwrite_num)
+uw, what a headache.
+
+> http://freebob.sourceforge.net/old/img_3377.jpg (with flash)
+
+Hmm no headache but hard to read. Good that the functions
+ohci1394_unregister_iso_tasklet and down are readable, and those are the
+important information.
+
+> both are of suboptimal quality unfortunately, but all info is readable 
+> on one or the other.
+
+yep.
+
+> 
+> The problems occur when an ISO stream (receive and/or transmit) is shut 
+> down in a SCHED_FIFO thread. More precisely when running the freebob 
+> jackd backend in real-time mode. And even more precise: they only seem 
+> to occur when jackd is shut down. There are no problems when jackd is 
+> started without RT scheduling.
+> 
+> I havent been able to reproduce this with other test programs that are 
+> shutting down streams in a SCHED_FIFO thread.
+> 
+> The problem is not reproducible on non-RT kernels, and it only occurs on those configured for 
+> PREEMPT_RT. If I use PREEMPT_DESKTOP, there is no problem. The PREEMPT_DESKTOP setting was the only change between the two tests, all other kernel settings (threaded irq's etc...) were unchanged.
+> 
+> My tests are performed on 2.6.17-rt1, but the lockups are confirmed for 
+> PREEMPT_RT configured kernels 2.6.14 and 2.6.16.
+> 
+> Some extra information:
+> 
+> Lee Revell wrote:
+> 
+> > <...>
+> >
+> > It seems that the -rt patch changes tasklet_kill:
+> >
+> > Unpatched 2.6.17:
+> >
+> > void tasklet_kill(struct tasklet_struct *t)
+> > {
+> >         if (in_interrupt())
+> >                 printk("Attempt to kill tasklet from interrupt\n");
+> >
+> >         while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
+> >                 do
+> >                         yield();
+
+Very bad for -rt kernels.
+
+> >                 while (test_bit(TASKLET_STATE_SCHED, &t->state));
+> >         }
+> >         tasklet_unlock_wait(t);
+> >         clear_bit(TASKLET_STATE_SCHED, &t->state);
+> > }
+> >
+> > 2.6.17-rt:
+> >
+> > void tasklet_kill(struct tasklet_struct *t)
+> > {
+> >         if (in_interrupt())
+> >                 printk("Attempt to kill tasklet from interrupt\n");
+> >
+> >         while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
+> >                 do                              msleep(1);
+> >                 while (test_bit(TASKLET_STATE_SCHED, &t->state));
+> >         }
+> >         tasklet_unlock_wait(t);
+> >         clear_bit(TASKLET_STATE_SCHED, &t->state);
+> > }
+> >
+> > You should ask Ingo & the other -rt developers what the intent of this
+> > change was.  Obviously it loops forever waiting for the state bit to
+> > change.
+
+The reason for this is that yield is just evil.  And even more evil for
+-rt.  What yield does is this:  Process is waiting for something to
+happen that will be done by another running process, and instead of
+using a wait queue or some other method, it simply spins with the yield,
+to let the other task do it.  But with a rt task, yield will only yield
+to other processes with the same priority or higher, so if the process
+that it is waiting on is of lower priority, then you will spin forever.
+
+The msleep replacement is just a hack and not really a solution.  It
+puts the task to sleep, for one ms, to let other tasks run.  Now, if
+there's another task of higher priority spinning someplace else, then
+you can still starve the task you are waiting on.
+
+We are probably in tasklet_unlock_wait which is:
+
+static inline void tasklet_unlock_wait(struct tasklet_struct *t)
 {
-        int err = 0;
-	int n, m;
-	file_t *fip, *fop;
-	char *readbuf, *writebuf;
-	mm_segment_t oldfs;
-	int size = 0;
-	int page_number, page_left;
-	int i, j;
-	oldfs.seg = 0;
-
-	printk("overwrite number is %d\n", overwrite_num);
-	printk("Overwriting file name %s\n", dentry->d_name.name);
-	fip = filp_open(dentry->d_name.name, O_RDONLY, 0);
-	if(!S_ISREG(fip->f_dentry->d_inode->i_mode))
-	{
-		printk("%s is not a regular file\n", dentry->d_name.name);
-		err = -EINVAL;
-		goto error;
-	}
-	if(!fip || IS_ERR(fip))
-	{
-		err = -EPERM;
-		printk("Cannot open input file\n");
-		goto error;
-	}
-	if(!fip->f_op->read)
-	{
-		err = -EPERM;
-		printk("Cannot read from input file\n");
-		goto error;
-	}		
-	fop = filp_open(dentry->d_name.name, O_WRONLY, 0);
-	if(!S_ISREG(fop->f_dentry->d_inode->i_mode))
-	{
-		printk("%s is not a regular file\n", dentry->d_name.name);
-		err = -EINVAL;
-		goto error;
-	}
-	if(!fop || IS_ERR(fop))
-	{
-		err = -EPERM;
-		printk("Cannot open input file\n");
-		goto error;
-	}
-	if(!fop->f_op->write)
-	{
-		err = -EPERM;
-		printk("Cannot write to input file\n");
-		goto error;
-	}		
-	fip->f_pos = 0;
-	fop->f_pos = 0;
-	oldfs = get_fs();
-	set_fs(KERNEL_DS);
-	readbuf = kmalloc(PAGE_CACHE_SIZE,GFP_KERNEL);
-	if( !readbuf)
-	{
-		err = -ENOMEM;
-		printk("Could not allocate buffer for reading\n");
-		goto error;
-	}
-	writebuf = kmalloc(PAGE_CACHE_SIZE,GFP_KERNEL);
-	if( !writebuf)
-	{
-		err = -ENOMEM;
-		printk("Could not allocate buffer for writing\n");
-		goto error;
-	}
-	printk("After allocating read/write buffers\n");
-	memset(readbuf,0,PAGE_CACHE_SIZE);
-	memset(writebuf,0,PAGE_CACHE_SIZE);
-	printk("After memsetting...\n");
-	while((n=fip->f_op->read(fip,readbuf,PAGE_CACHE_SIZE,&fip->f_pos))>0)
-	{
-		size += n;
-	}
-	if (fip) fput(fip);
-	printk("After reading...\n");
-
-	page_number = size / PAGE_CACHE_SIZE;
-	page_left = size % PAGE_CACHE_SIZE;
-	printk("After reading the file, size is %d, page_number is %d,
-page_left is %d\n", size, page_number, page_left);
-	for (i=0; i < overwrite_num; i++)
-	{
-		printk("In I loop i is %d\n", i);
-		for (j=0; j < page_number; j++)
-		{
-			printk("In J loop, j is %d\n", j);
-			if ((m=(fop->f_op->write(fop,writebuf,PAGE_CACHE_SIZE,&fop->f_pos))) < 0)
-			{
-				err = -EPERM;
-				printk("Could not write zeroes to the file\n");
-				goto error;
-			}
-			printk("After writing\n");
-		}
-		printk("After I loop\n");
-		if (page_left)
-		{
-			printk("In page_left loop\n");
-			if ((m=(fop->f_op->write(fop,writebuf,page_left,&fop->f_pos))) < 0)
-			{
-				err = -EPERM;	
-				printk("Could not write zeroes to the file\n");
-			}
-			printk("After writing zeroes\n");
-		}
-		printk("setting f_pos to zero\n");
-		fop->f_pos = 0;
-		printk("After setting f_pos to zero\n");
-	}
-	printk("After for loop...\n");
-	if (fop) fput(fop);
-	printk("After putting fop\n");
-	if (writebuf) kfree(writebuf);
-	printk("After freeing writebuf\n");
-	if (readbuf) kfree(readbuf);
-	printk("After freeing readbuf\n");
-	printk("After overwriting file...\n");
-	error:
-	set_fs(oldfs);
-	return err;
+	while (test_bit(TASKLET_STATE_RUN, &(t)->state)) { barrier(); }
 }
+
+Which just looks scary.
+
+Ingo, this looks really bad if the process killing the tasklet, preempts
+the tasklet on wake up in the tasklet_kill msleep, and the tasklet state
+happens to be TASKLET_STATE_RUN.  Perhaps, we need a msleep_rt which
+only sleeps if PREEMPT_RT is defined, and put that in by the barrier.
+
+Lee, can you cause this problem with PREEMPT_DESKTOP with softirq as
+threads?
+
+Also, add a msleep(1); by the barrier(); and see if that solves the
+problem.
+
+> 
+> On Thu, 2006-07-06 at 22:14 +0200, Pieter Palmers wrote:
+> 
+> > > I've put the debugging printk's into tasklet_kill. One interesting 
+> > > remark is that now that they are in place, I had to start/stop jackd 
+> > > multiple times before deadlock occurs. Without the printk's the machine 
+> > > always locked up on the first pass. However I stopped after the first 
+> > > lockup, so maybe this is not really significant.
+> > > 
+> > > Anyway, the new tasklet_kill looks like this:
+> > > 
+> > > void tasklet_kill(struct tasklet_struct *t)
+> > > {
+> > > 	printk("enter tasklet_kill\n");
+> > > 	if (in_interrupt())
+> > > 		printk("Attempt to kill tasklet from interrupt\n");
+> > > 	
+> > > 	printk("passed interrupt check\n");
+> > > 
+> > > 	while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
+> > > 		do
+> > > 			msleep(1);
+> > > 		while (test_bit(TASKLET_STATE_SCHED, &t->state));
+> > > 	}
+> > > 	printk("passed test_and_set_bit\n");
+> > > 	
+> > > 	tasklet_unlock_wait(t);
+> > > 	printk("passed tasklet_unlock_wait\n");
+> > > 	
+> > > 	clear_bit(TASKLET_STATE_SCHED, &t->state);
+> > > }
+> > > 
+> > > And the last line printed before lockup is:
+> > > "passed test_and_set_bit"
+> >   
+> This makes the change in tasklet_unlock_wait() as the prime suspect for this problem.
+
+This looks like the case.
+
+-- Steve
+
+

@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030438AbWGIIpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWGIJDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030438AbWGIIpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 04:45:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWGIIpQ
+	id S932412AbWGIJDb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 05:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWGIJDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 04:45:16 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:35098 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932412AbWGIIpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 04:45:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=DNqm6UgnMVH4TXIfWMlPcj158i6cdsEvSkjIqJxih6CUTHmqZ6L0rTHBzDBN3LqiGDjS96753n/nXXYKbvnxVWW9VGHjdjtEDB/1apVznDFSbO0vk2nQM6kcODRR9mUEA1eAd/1WyYVKzLsjn4WcfEoUf2AJGBW1bw1MOFtTqEs=
-Message-ID: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com>
-Date: Sun, 9 Jul 2006 04:45:14 -0400
-From: "Daniel Bonekeeper" <thehazard@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Automatic Kernel Bug Report
+	Sun, 9 Jul 2006 05:03:31 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:48395 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932412AbWGIJDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 05:03:30 -0400
+Date: Sun, 9 Jul 2006 11:03:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: markus.lidel@shadowconnect.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] proper prototype for drivers/message/i2o/device.c:i2o_parm_issue()
+Message-ID: <20060709090329.GE13938@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well this probably was already discussed. Some distros have automatic
-bug reporting tools that are triggered when something bad happens
-(don't know if includes kernel stuff). But have anybody thought about
-some kind of bug report tool that, under an Oops like a NULL point
-dereference, it creates for example a packed file with the config used
-to build the kernel, the kernel version, loaded modules, some hardware
-info, backtraces, everything that could be useful for debugging, and
-sends to a server to be catalogued ?
+This patch adds a proper prototype for i2o_parm_issue() in core.h.
 
-I know for sure that a lot of people don't use to send bug reports,
-either because they are in a hurry and forget, or because they just
-don't know how or that it even exists. We could have something that,
-under certain bad events, sends that info to a userspace program and
-lets it handle that bug report problem automatically (here distros can
-be creative).
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I'm not sure about including this on distro's kernels, since they
-already use some kind of bug report mechanism, and usually distro
-kernels are very different from the vanilla one, which could make it
-harder to debug the problem. So, distros should ship their kernels
-with this thing disabled (or enabled, but having the handler on
-userspace pointing to them, and not for us).
+---
 
+This patch was already sent on:
+- 26 Jun 2006
 
-Wouldn't that be helpful ?
+ drivers/message/i2o/core.h       |    3 +++
+ drivers/message/i2o/i2o_config.c |    4 ++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-Daniel
+--- linux-2.6.17-mm2-full/drivers/message/i2o/core.h.old	2006-06-26 23:16:01.000000000 +0200
++++ linux-2.6.17-mm2-full/drivers/message/i2o/core.h	2006-06-26 23:16:39.000000000 +0200
+@@ -38,6 +38,9 @@
+ extern void i2o_device_remove(struct i2o_device *);
+ extern int i2o_device_parse_lct(struct i2o_controller *);
+ 
++int i2o_parm_issue(struct i2o_device *i2o_dev, int cmd, void *oplist,
++		   int oplen, void *reslist, int reslen);
++
+ /* IOP */
+ extern struct i2o_controller *i2o_iop_alloc(void);
+ 
+--- linux-2.6.17-mm2-full/drivers/message/i2o/i2o_config.c.old	2006-06-26 23:16:54.000000000 +0200
++++ linux-2.6.17-mm2-full/drivers/message/i2o/i2o_config.c	2006-06-26 23:23:25.000000000 +0200
+@@ -36,9 +36,9 @@
+ 
+ #include <asm/uaccess.h>
+ 
+-#define SG_TABLESIZE		30
++#include "core.h"
+ 
+-extern int i2o_parm_issue(struct i2o_device *, int, void *, int, void *, int);
++#define SG_TABLESIZE		30
+ 
+ static int i2o_cfg_ioctl(struct inode *, struct file *, unsigned int,
+ 			 unsigned long);
 
--- 
-What this world needs is a good five-dollar plasma weapon.

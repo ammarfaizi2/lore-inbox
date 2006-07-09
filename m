@@ -1,45 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbWGIF2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWGIFbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964995AbWGIF2S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 01:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWGIF2S
+	id S964998AbWGIFbA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 01:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWGIFbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 01:28:18 -0400
-Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:25575 "EHLO
-	idefix.homelinux.org") by vger.kernel.org with ESMTP
-	id S964995AbWGIF2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 01:28:17 -0400
-Subject: Re: Suspend to RAM regression tracked down
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-To: Dave Jones <davej@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk
-In-Reply-To: <20060709032103.GA31395@redhat.com>
-References: <1151837268.5358.10.camel@idefix.homelinux.org>
-	 <44A80B20.1090702@goop.org> <1152271537.5163.4.camel@idefix.homelinux.org>
-	 <20060707162152.GB3223@redhat.com>
-	 <1152312530.14453.16.camel@idefix.homelinux.org>
-	 <20060708062345.GB3356@redhat.com>
-	 <1152399303.14453.29.camel@idefix.homelinux.org>
-	 <20060709032103.GA31395@redhat.com>
-Content-Type: text/plain
+	Sun, 9 Jul 2006 01:31:00 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:21320 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964998AbWGIFa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 01:30:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=PEQSYmycr8PiVRwaxcCTvJAldCB7ctjWQRZzuHaMOKzK0YoL8U/6Scq/GrAQ+ttzM4ZTVkS3SjiAqsQenceCxwD0rXTNb31ZxU2HskyCxzZmQkcix1id8v/iubVv/4NXNeAfJFAvSAM2e0V1wDprnkqtBJuqPq7yBxAfYi6w68Y=
+Message-ID: <787b0d920607082230w676ddc62u57962f1fc08cf009@mail.gmail.com>
+Date: Sun, 9 Jul 2006 01:30:58 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: rmk+lkml@arm.linux.org.uk, jonsmirl@gmail.com, alan@lxorguk.ukuu.org.uk,
+       efault@gmx.de, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: Opinions on removing /proc/tty?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
-Date: Sun, 09 Jul 2006 15:28:15 +1000
-Message-Id: <1152422895.14453.32.camel@idefix.homelinux.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Actually, before deep diving into chasing bugs in ondemand, we should
-> probably confirm that the same behaviour doesn't happen with a different
-> governor.  Can you try that ?   Try setting it to userspace, and then
-> running a userspace app like cpuspeed/powernowd etc.
+Jon Smirl writes:
+> On 7/8/06, Mike Galbraith <efault@gmx.de> wrote:
+>> On Fri, 2006-07-07 at 22:56 -0400, Jon Smirl wrote:
 
-Well, that's the thing here. I tried userspace and couldn't get it to
-crash (for several weeks in a row). However, someone I know with the
-same laptop model (not sure it's the exact same revision) told me it
-would crash on him with userspace as well.
+>>> Does anyone use the info in /proc/tty? The hard coded device
+>>> names aren't compatible with udev's ability to rename things.
+>>>
+>>> There also doesn't appear to be any useful info in the drivers
+>>> portion that isn't already available in sysfs. I can add some code
+>>> to make a list of registered line disciplines appear in sysfs.
+>>>
+>>> Does anyone have a problem with deleting /proc/tty if
+>>> ldisc enum support is added to sysfs?
+>>
+>> ps uses /proc/tty/drivers, so some coordination would be needed.
+>
+> Greg, I just looked at the source for ps and it has a bunch
+> of fixed code for turning major/minor into /dev/name.  Isn't
+> that something udevinfo should be doing? But looking at the
+> help for udevinfo I don't see any way to turn a major/minor
+> into /dev/name. The altermative seems to be search /dev
+> looking for the right device node.
 
-	Jean-Marc
+By far, the best thing for procps (ps, top, etc.) would
+be /proc/*/tty links. Code that, give everybody a year
+to upgrade, and then... maybe.
+
+There is no way I'm going to have the procps run a "udevinfo"
+program, and I very much dislike relying on oddball libraries.
+Reliability and performance matter; this isn't some GNOME/KDE
+thing that can break just because 1 of 200 libraries changed.
+
+In order, the procps code tries:
+
+1. /proc/*/tty symlink (effectively commented out)
+2. /proc/tty/drivers
+3. /proc/*/fd/2 symlink
+4. hard-coded guess
+5. /proc/*/fd/255 symlink
+6. "?"
+
+Long ago, procps would search /dev for the mapping. This was
+too slow to be done directly when ps ran, so a binary file in
+/etc was used to cache the data. Keeping that file updated
+was a major problem.
+
+BTW, cruft gets ripped out some time after Debian-obsolete no
+longer supports the old kernels.

@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932522AbWGIXRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161214AbWGIXTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932522AbWGIXRj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 19:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWGIXRj
+	id S1161214AbWGIXTN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 19:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWGIXTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 19:17:39 -0400
-Received: from ns2.suse.de ([195.135.220.15]:52650 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932522AbWGIXRi (ORCPT
+	Sun, 9 Jul 2006 19:19:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16266 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932524AbWGIXTM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 19:17:38 -0400
-From: Andi Kleen <ak@suse.de>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Linux v2.6.18-rc1
-Date: Mon, 10 Jul 2006 01:17:30 +0200
-User-Agent: KMail/1.9.3
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org> <p73irm8nolj.fsf@verdi.suse.de> <20060708160233.GA4923@kroah.com>
-In-Reply-To: <20060708160233.GA4923@kroah.com>
+	Sun, 9 Jul 2006 19:19:12 -0400
+From: Nigel Cunningham <ncunning@redhat.com>
+Reply-To: ncunning@redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ACPI_DOCK bug: noone cares
+Date: Mon, 10 Jul 2006 09:15:45 +1000
+User-Agent: KMail/1.9.1
+Cc: "Brown, Len" <len.brown@intel.com>, Adrian Bunk <bunk@stusta.de>,
+       "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, gregkh@suse.de,
+       linux-acpi@vger.kernel.org, Miles Lane <miles.lane@gmail.com>
+References: <CFF307C98FEABE47A452B27C06B85BB6ECF9E5@hdsmsx411.amr.corp.intel.com> <Pine.LNX.4.64.0607091538470.5623@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607091538470.5623@g5.osdl.org>
+Organization: Redhat
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart1390042.nXZ53GH5X9";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607100117.30052.ak@suse.de>
+Message-Id: <200607100916.19736.ncunning@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 July 2006 18:02, Greg KH wrote:
-> On Sat, Jul 08, 2006 at 04:44:08PM +0200, Andi Kleen wrote:
-> > Greg KH <greg@kroah.com> writes:
-> > > 
-> > > Perhaps, that is odd.  The scanner should default to the logged in user,
-> > > right?  Please file a bug at bugzilla.novell.com and the SuSE people can
-> > > work on it there.
-> > 
-> > I have a similar problem with my printer. But /dev/usblp0,
-> > /dev/usb/lp0 don't even appear, no matter what the permissions are.
-> 
-> What version of udev are you using?  It works fine for me here with a
-> USB printer (that's what I tested the changes with.)
+--nextPart1390042.nXZ53GH5X9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-udev-068git20050831-9 (from SUSE 10.0 I think) 
+Hi.
 
--Andi
+On Monday 10 July 2006 08:38, Linus Torvalds wrote:
+> On Sun, 9 Jul 2006, Brown, Len wrote:
+> > So I ask you.  If I fix the Kconfig issue today, will you accept
+> > a push that restores this driver to 2.6.18?
+>
+> Sure.
+
+Great! Sorry Linus from me too - I've been assigned to watch this for Redha=
+t=20
+and completely missed the feedback as well. We have an open bug that we're=
+=20
+hoping it will fix, and would like to see it in vanilla.
+
+Regards,
+
+Nigel
+
+--nextPart1390042.nXZ53GH5X9
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEsY5DN0y+n1M3mo0RAn1iAKDbue+yjrPFJjsEoe0+xEfvO+uMwgCg2Cst
+Ms7s1h8DlB3hlAy+5JHtU6Q=
+=0y9m
+-----END PGP SIGNATURE-----
+
+--nextPart1390042.nXZ53GH5X9--

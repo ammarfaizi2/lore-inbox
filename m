@@ -1,118 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161075AbWGID3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161079AbWGID3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161075AbWGID3H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 23:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161077AbWGID3H
+	id S1161079AbWGID3c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 23:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161077AbWGID3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 23:29:07 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:41231 "EHLO
-	asav02.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S1161075AbWGID3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 23:29:06 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Aa4HANYUsESBTA
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [RFC/PATCH] Introduce list_get() and list_get_tail()
-Date: Sat, 8 Jul 2006 23:28:47 -0400
-User-Agent: KMail/1.9.3
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-References: <200607080124.21856.dtor@insightbb.com> <p73wtaonqow.fsf@verdi.suse.de> <1152368186.3120.50.camel@laptopd505.fenrus.org>
-In-Reply-To: <1152368186.3120.50.camel@laptopd505.fenrus.org>
+	Sat, 8 Jul 2006 23:29:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5598 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161078AbWGID3a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 23:29:30 -0400
+Date: Sat, 8 Jul 2006 20:29:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile' 
+In-Reply-To: <31410.1152414469@ocs3.ocs.com.au>
+Message-ID: <Pine.LNX.4.64.0607082019180.5623@g5.osdl.org>
+References: <31410.1152414469@ocs3.ocs.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607082328.48575.dtor@insightbb.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 July 2006 10:16, Arjan van de Ven wrote:
-> On Sat, 2006-07-08 at 15:58 +0200, Andi Kleen wrote:
-> > Dmitry Torokhov <dtor@insightbb.com> writes:
-> > 
-> > > From: Dmitry Torokhov <dtor@mail.ru>
-> > > 
-> > > Add primitives to access first and last elements of a list instead
-> > > of accessng pointers directly.
-> > 
-> > Wouldn't that be beter named list_first() and list_last() then?
-> > _get is like _do and usually not very descriptive.
+
+
+On Sun, 9 Jul 2006, Keith Owens wrote:
 > 
-> and _get tends to imply a reference count as well; I'm with Andi on
-> this.. list_first() and list_last() 
+> This disagrees with the gcc (4.1.0) docs.  info --index-search='Extended Asm' gcc
 > 
+>   The ordinary output operands must be write-only; GCC will assume
+>   that the values in these operands before the instruction are dead and
+>   need not be generated.  Extended asm supports input-output or
+>   read-write operands.  Use the constraint character `+' to indicate
+>   such an operand and list it with the output operands.  You should
+>   only use read-write operands when the constraints for the operand (or
+>   the operand in which only some of the bits are to be changed) allow a
+>   register.
 
-OK, so what about the following:
+I'm fairly sure the docs are outdated (but may well be correct for older 
+gcc versions - as I already discussed elsewhere, that "+" thing was not 
+historically useful).
 
-Subject: Introduce primitives to get first and last list elements
+We've been using "+m" for some time in the kernel on several 
+architectures.
 
-Introduce list_first() and list_last(); list_first_entry() and
-list_last_entry().
+git aficionados can do
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+	git grep -1 '"+m"' v2.6.17
 
- include/linux/list.h |   40 ++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 40 insertions(+)
+to see the pre-existing usage of this (most of them go back a lot further, 
+although some of them are newer - the <asm-i386/bitops.h> ones were added 
+in January.
 
-Index: work/include/linux/list.h
-===================================================================
---- work.orig/include/linux/list.h
-+++ work/include/linux/list.h
-@@ -343,6 +343,26 @@ static inline void list_splice_init(stru
- 	container_of(ptr, type, member)
- 
- /**
-+ * list_first_entry - get the struct for the first entry
-+ * @head:	the &struct list_head pointer.
-+ * @type:	the type of the struct this is embedded in.
-+ * @member:	the name of the list_struct within the struct.
-+ */
-+#define list_first_entry(head, type, member) \
-+	list_entry((head)->next, type, member)
-+#define list_next_entry list_first_entry
-+
-+/**
-+ * list_last_entry - get the struct for the last entry
-+ * @head:	the &struct list_head pointer.
-+ * @type:	the type of the struct this is embedded in.
-+ * @member:	the name of the list_struct within the struct.
-+ */
-+#define list_last_entry(head, type, member) \
-+	list_entry((head)->prev, type, member)
-+#define list_prev_entry list_last_entry
-+
-+/**
-  * list_for_each	-	iterate over a list
-  * @pos:	the &struct list_head to use as a loop cursor.
-  * @head:	the head for your list.
-@@ -571,6 +591,26 @@ static inline void list_splice_init(stru
- 		prefetch(rcu_dereference((pos))->next), (pos) != (head); \
-         	(pos) = (pos)->next)
- 
-+/**
-+ * list_first - get first element in a list
-+ * @head: the head of your list
-+ */
-+#define list_next list_first
-+static inline struct list_head *list_first(struct list_head *head)
-+{
-+	return head->next;
-+}
-+
-+/**
-+ * list_last - get last element in a list
-+ * @head: the head of your list
-+ */
-+#define list_prev list_last
-+static inline struct list_head *list_last(struct list_head *head)
-+{
-+	return head->prev;
-+}
-+
- /*
-  * Double linked lists with a single pointer list head.
-  * Mostly useful for hash tables where the two pointer list head is
+So if "+m" didn't work, we've been in trouble for at least the last year.
+
+			Linus

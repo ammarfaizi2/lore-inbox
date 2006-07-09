@@ -1,34 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbWGITNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161066AbWGITQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161064AbWGITNE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 15:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161062AbWGITNE
+	id S1161066AbWGITQR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 15:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161067AbWGITQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 15:13:04 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31716
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1161061AbWGITNC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 15:13:02 -0400
-Date: Sun, 09 Jul 2006 12:13:38 -0700 (PDT)
-Message-Id: <20060709.121338.15426828.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: shemminger@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       chas@cmf.nrl.navy.mil, linux-atm-general@lists.sourceforge.n
-Subject: Re: [2.6 patch] net/atm/clip.c: fix PROC_FS=n compile
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060708202000.GC5020@stusta.de>
-References: <20060708202000.GC5020@stusta.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sun, 9 Jul 2006 15:16:17 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:48390 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1161066AbWGITQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 15:16:16 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] spinlocks: remove 'volatile'
+Date: Sun, 9 Jul 2006 12:16:15 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <44B0FAD5.7050002@argo.co.il>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Sun, 09 Jul 2006 12:11:32 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Sun, 09 Jul 2006 12:11:33 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Sat, 8 Jul 2006 22:20:01 +0200
 
-> This patch fixes the following compile error with CONFIG_PROC_FS=n by 
-> reverting commit dcdb02752ff13a64433c36f2937a58d93ae7a19e:
+> Volatile is useful for non device driver work, for example VJ-style
+> channels.  A portable volatile can help to code such things in a
+> compiler-neutral and platform-neutral way.  Linux doesn't care about
+> compiler neutrality, being coded in GNU C, and about platform
+> neutrality, having a per-arch abstraction layer, but other programs may
+> wish to run on multiple compilers and multiple platforms without
+> per-platform glue layers.
 
-Applied, thanks Adrian.
+	There is a portable volatile, it's called 'pthread_mutex_lock'. It allows
+you to code such things in a compiler-neutral and platform-neutral way. You
+don't have to worry about what the compiler might do, what the hardware
+might do, what atomic operations the CPU supports, or anything like that.
+The atomicity issues I've mentioned in my other posts make any attempt at
+creating a 'portable volatile' for shared memory more or less doomed from
+the start.
+
+	DS
+
+

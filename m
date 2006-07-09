@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161270AbWGJAEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161269AbWGJAER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161270AbWGJAEU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 20:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161271AbWGJAET
+	id S1161269AbWGJAER (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 20:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161270AbWGJAER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 20:04:19 -0400
-Received: from mail.suse.de ([195.135.220.2]:25016 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161270AbWGJAET (ORCPT
+	Sun, 9 Jul 2006 20:04:17 -0400
+Received: from ns.suse.de ([195.135.220.2]:23736 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161269AbWGJAEQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 20:04:19 -0400
+	Sun, 9 Jul 2006 20:04:16 -0400
 From: Andi Kleen <ak@suse.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [RFC] Use target filename in BUG_ON and friends
-Date: Mon, 10 Jul 2006 02:03:07 +0200
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] i386: use thread_info flags for debug regs and IO  bitmaps
+Date: Mon, 10 Jul 2006 01:59:44 +0200
 User-Agent: KMail/1.9.3
-Cc: Milton Miller <miltonm@bga.com>, LKML <linux-kernel@vger.kernel.org>
-References: <20060708084713.GA8020@mars.ravnborg.org> <b2ab6d298877aff62aa61e0430a16d3d@bga.com> <20060708205707.GB13124@mars.ravnborg.org>
-In-Reply-To: <20060708205707.GB13124@mars.ravnborg.org>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Stephane Eranian <eranian@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200607071155_MC3-1-C45F-B7C2@compuserve.com> <Pine.LNX.4.64.0607081425430.3869@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607081425430.3869@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607100203.07206.ak@suse.de>
+Message-Id: <200607100159.44625.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 July 2006 22:57, Sam Ravnborg wrote:
-> On Sat, Jul 08, 2006 at 11:45:49AM -0500, Milton Miller wrote:
-> > 			
-> > On Jul 8, 2006, at 04:45:54 EST, Sam Ravnborg wrote:
-> > > When building the kernel using make O=.. all uses of __FILE__ becomes
-> > > filenames with absolute path resulting in increased text size.
-> > > Following patch supply the target filename as a commandline define
-> > > KBUILD_TARGET_FILE="mmslab.o"
-> > 
-> > Unfortunately this ignores the fact that __LINE__ is meaningless
-> > without __FILE__ because there are way too many BUGs in header
-> > files.
+On Saturday 08 July 2006 23:26, Linus Torvalds wrote:
 > 
-> __LINE__ gives a very precise hint of the offending .h file.
-> For x86_64 there are only one line-number clash in include/ for uses of
-> __FILE__.
+> On Fri, 7 Jul 2006, Chuck Ebbert wrote:
+> >
+> > From: Stephane Eranian <eranian@hpl.hp.com>
+> > 
+> > Use thread info flags to track use of debug registers and IO bitmaps.
+> >  
+> > 	- add TIF_DEBUG to track when debug registers are active
+> >  	- add TIF_IO_BITMAP to track when I/O bitmap is used
+> >  	- modify __switch_to() to use the new TIF flags
+> 
+> Can you explain what the advantages of this are?
+> 
+> I don't see it. It's just creating new state to describe state that we 
+> already had, and as far as I can tell, it's just a way to potentially have 
+> more new bugs thanks to the new state getting out of sync with the old 
+> one?
 
+It turns two checks in context switch into a single one. With some luck
+it will even touch one cache line less.
 
-It's a nasty encoding. Maybe you could add a script to resolve them? 
+I requested this for x86-64 because Stephane wants to add more state to check
+(performance counters) in there for his perfmon2 patches, and with that 
+infrastructure in place it can be added without adding more cost for the 
+common case.
+
+Chuck ported the x86-64 version to i386.
 
 -Andi
-

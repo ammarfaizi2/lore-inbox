@@ -1,129 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbWGIUQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbWGIUWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161119AbWGIUQV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 16:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbWGIUQV
+	id S1161117AbWGIUWk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 16:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbWGIUWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 16:16:21 -0400
-Received: from lucidpixels.com ([66.45.37.187]:23510 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1161115AbWGIUQU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 16:16:20 -0400
-Date: Sun, 9 Jul 2006 16:16:19 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Mark Lord <liml@rtr.ca>
-cc: Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: LibPATA code issues / 2.6.15.4
-In-Reply-To: <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
-Message-ID: <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <44AEB3CA.8080606@pobox.com>
- <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan> <200607091224.31451.liml@rtr.ca>
- <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 9 Jul 2006 16:22:40 -0400
+Received: from pool-71-254-66-150.ronkva.east.verizon.net ([71.254.66.150]:60357
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1161117AbWGIUWj (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 16:22:39 -0400
+Message-Id: <200607092019.k69KJt66005527@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Daniel Bonekeeper <thehazard@gmail.com>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: Automatic Kernel Bug Report
+In-Reply-To: Your message of "Sun, 09 Jul 2006 16:01:58 EDT."
+             <e1e1d5f40607091301j723b92bje147932a4395775c@mail.gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com> <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com> <e1e1d5f40607090329i25f6b1b2s3db2c2001230932c@mail.gmail.com> <20060709125805.GF13938@stusta.de> <e1e1d5f40607091146s2f8e6431v33923f38c6d10539@mail.gmail.com> <20060709191107.GN13938@stusta.de>
+            <e1e1d5f40607091301j723b92bje147932a4395775c@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1152476360_3401P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 09 Jul 2006 16:19:21 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jul 2006, Justin Piszcz wrote:
+--==_Exmh_1152476360_3401P
+Content-Type: text/plain; charset=us-ascii
 
->
->
-> On Sun, 9 Jul 2006, Mark Lord wrote:
->
->> Mmm.. there are two main paths into those messages,
->> and my current patch only caught one of them.
->> 
->> Here's a reworked version that catches the ata_op on both paths.
->> Maybe this will dump out the info we need to diagnose Justin's system.
->> 
->> Compiles & links fine on 2.6.17, but not tested.
->> 
->> Cheers
->> 
->> --- linux/drivers/scsi/libata-scsi.c.orig	2006-06-23 13:38:37.000000000 
->> -0400
->> +++ linux/drivers/scsi/libata-scsi.c	2006-07-09 12:19:52.000000000 -0400
->> @@ -542,6 +542,7 @@
->> 	struct ata_taskfile *tf = &qc->tf;
->> 	unsigned char *sb = cmd->sense_buffer;
->> 	unsigned char *desc = sb + 8;
->> +	unsigned char ata_op = tf->command;
->>
->> 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
->> 
->> @@ -558,6 +559,7 @@
->> 	 * onto sense key, asc & ascq.
->> 	 */
->> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
->> +		printk(KERN_WARNING "ata_gen_ata_desc_sense: failed 
->> ata_op=0x%02x\n", ata_op);
->> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
->> 				   &sb[1], &sb[2], &sb[3]);
->> 		sb[1] &= 0x0f;
->> @@ -617,6 +619,7 @@
->> 	struct scsi_cmnd *cmd = qc->scsicmd;
->> 	struct ata_taskfile *tf = &qc->tf;
->> 	unsigned char *sb = cmd->sense_buffer;
->> +	unsigned char ata_op = tf->command;
->>
->> 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
->> 
->> @@ -633,6 +636,7 @@
->> 	 * onto sense key, asc & ascq.
->> 	 */
->> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
->> +		printk(KERN_WARNING "ata_gen_fixed_sense: failed 
->> ata_op=0x%02x\n", ata_op);
->> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
->> 				   &sb[2], &sb[12], &sb[13]);
->> 		sb[2] &= 0x0f;
->> 
->
-> Thanks Mark!
->
-> Applying now.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+On Sun, 09 Jul 2006 16:01:58 EDT, Daniel Bonekeeper said:
 
-Mark,
+> Sometimes the user may be just somebody that just started using linux,
+> or is in an industry that has nothing related to computers. He doesn't
+> even know that syslog exists, and even if he did, he could not even
+> care about it.
 
-Check line 519, this is where it is printing the error (I believe) and 
-the patch does not print the ata_op here.
+This user will do whatever his distro tells him to do, which is almost
+certainly something *other* than what a kernel.org kernel should do.
+If he's running Ubuntu, it should do whatever Ubuntu does.  If he's
+on Fedora Core, it should poke the RedHat bugzilla, and so on.
 
-It is in the ata_to_sense_error() function.
+If he's running a kernel.org kernel, it's probably safe to assume *some*
+level of clue
 
-I've already patched, as you can see, recompiled, etc..
+--==_Exmh_1152476360_3401P
+Content-Type: application/pgp-signature
 
-# patch -p0 < /tmp/b
-patching file linux/drivers/scsi/libata-scsi.c
-Reversed (or previously applied) patch detected!  Assume -R? [n]
-#
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Jul  9 15:22:57 p34 kernel: [4300704.724000] ata3: translated ATA stat/err 
-0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
-Jul  9 15:22:57 p34 kernel: [4300704.724000] ata3: status=0x51 { 
-DriveReady SeekComplete Error }
-Jul  9 15:22:57 p34 kernel: [4300704.724000] ata3: error=0x04 { 
-DriveStatusError }
+iD8DBQFEsWTIcC3lWbTT17ARArU5AKCwxd4Utej4o4PAdjvPS/zGIjPRKgCguyXJ
+greIDmnhvSQvh5mGbNmJmUw=
+=C8sC
+-----END PGP SIGNATURE-----
 
-This part needs the ata_op:
-
-     519  translate_done:
-     520         printk(KERN_ERR "ata%u: translated ATA stat/err 0x%02x/%02x to "
-     521                "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, drv_stat, drv_err,
-     522                *sk, *asc, *ascq);
-
-
-Justin.
-
-
-
+--==_Exmh_1152476360_3401P--

@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161223AbWGIXkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161221AbWGIXwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161223AbWGIXkI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 19:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161224AbWGIXkH
+	id S1161221AbWGIXwr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 19:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161224AbWGIXwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 19:40:07 -0400
-Received: from liaag2ae.mx.compuserve.com ([149.174.40.156]:56752 "EHLO
-	liaag2ae.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1161223AbWGIXkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 19:40:06 -0400
-Date: Sun, 9 Jul 2006 19:34:04 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: use thread_info flags for debug regs and IO
-   bitmaps
-To: Linus Torvalds <torvalds@osdl.org>, Stephane Eranian <eranian@hpl.hp.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Message-ID: <200607091936_MC3-1-C489-B862@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Sun, 9 Jul 2006 19:52:47 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:666 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1161221AbWGIXwq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 19:52:46 -0400
+Date: Mon, 10 Jul 2006 01:52:35 +0200 (MEST)
+Message-Id: <200607092352.k69NqZuJ029196@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: johnstul@us.ibm.com, mikpe@it.uu.se
+Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
+Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <Pine.LNX.4.64.0607081425430.3869@g5.osdl.org>
+On Sun, 09 Jul 2006 14:20:56 -0700, john stultz wrote:
+>> I've traced the cause of this problem to the i386 time-keeping
+>> changes in kernel 2.6.17-git11. What happens is that:
+>> - The kernel autoselects TSC as my clocksource, which is
+>>   reasonable since it's a PentiumII. 2.6.17 also chose the TSC.
+>> - Immediately after APM resumes (arch/i386/kernel/apm.c line
+>>   1231 in 2.6.18-rc1) there is an interrupt from the PIT,
+>>   which takes us to kernel/timer.c:update_wall_time().
+>> - update_wall_time() does a clocksource_read() and computes
+>>   the offset from the previous read. However, the TSC was
+>>   reset by HW or BIOS during the APM suspend/resume cycle and
+>>   is now smaller than it was at the prevous read. On my machine,
+>>   the offset is 0xffffffd598e0a566 at this point, which appears
+>>   to throw update_wall_time() into a very very long loop.
+>
+>Huh. It seems you're getting an interrupt before timekeeping_resume()
+>runs (which resets cycle_last). I'll look over the code and see if I can
+>sort out why it works w/ ACPI suspend, but not APM, or if the
+>resume/interrupt-enablement bit is just racy in general.
 
-On Sat, 8 Jul 2006 14:26:53 -0700, Linus Torvalds wrote:
-> 
-> On Fri, 7 Jul 2006, Chuck Ebbert wrote:
-> >
-> > From: Stephane Eranian <eranian@hpl.hp.com>
-> > 
-> > Use thread info flags to track use of debug registers and IO bitmaps.
-> >  
-> >     - add TIF_DEBUG to track when debug registers are active
-> >     - add TIF_IO_BITMAP to track when I/O bitmap is used
-> >     - modify __switch_to() to use the new TIF flags
-> 
-> Can you explain what the advantages of this are?
+I forgot to mention this, but I had a debug printk() in apm.c
+which showed that irqs_disabled() == 0 at the point when APM
+resumes the kernel.
 
-Stephane's perfmon2 patch adds yet another special-case to the
-switch_to() code, so Andi suggested this change.  It will allow
-the perfmon2 patch to have no performance impact on normal
-task-switching, since it will just use another flag.
-
-After I saw a ~7% gain in task-switch performance, I like it now
-even without perfmon2 in there.
-
-> I don't see it. It's just creating new state to describe state that we 
-> already had, and as far as I can tell, it's just a way to potentially have 
-> more new bugs thanks to the new state getting out of sync with the old 
-> one?
-
-Well yeah, there is that.  But Andi and I both reviewed it and he's
-already put the x86_64 version into his tree.  Testing in -mm should
-show whether there are any problems.
-
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+/Mikael

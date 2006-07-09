@@ -1,131 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbWGIWDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161178AbWGIWI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161180AbWGIWDI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 18:03:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161178AbWGIWDI
+	id S1161178AbWGIWI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 18:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161179AbWGIWIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 18:03:08 -0400
-Received: from lucidpixels.com ([66.45.37.187]:4322 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1161177AbWGIWDH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 18:03:07 -0400
-Date: Sun, 9 Jul 2006 18:03:06 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Mark Lord <liml@rtr.ca>
-cc: Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: LibPATA code issues / 2.6.15.4 (found the opcode=0x35)!
-In-Reply-To: <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>
-Message-ID: <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <44AEB3CA.8080606@pobox.com>
- <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan> <200607091224.31451.liml@rtr.ca>
- <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
- <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>
- <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>
- <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>
- <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>
+	Sun, 9 Jul 2006 18:08:25 -0400
+Received: from wr-out-0506.google.com ([64.233.184.239]:61422 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1161178AbWGIWIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 18:08:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=e2fO39XGnUJJ8Z17YDMcAPLZRkAMs46DfJ/w77vjqjbN5y8gYC5cy6P7QCrNenz4fGJ5ntHv0l96NA7ofAV0I0U4LRetPu/ZzRY46XOq+Ti/JU5KEqSA2yJzDXMnh8YPJIBH5Bvk+rtKOjXaGutu7Byxru6ad5pQlq2JmfQivvw=
+Message-ID: <44B0CE8A.3090401@gmail.com>
+Date: Sun, 09 Jul 2006 15:08:18 +0530
+From: "Om.Turyx" <om.turyx@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: regarding mem_map in NUMA
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[4294810.556000] ata_gen_ata_desc_sense: failed ata_op=0x51
-[4294810.556000] ata4: status=0x51 { DriveReady SeekComplete Error }
-[4294810.556000] ata4: error=0x04 { DriveStatusError }
-[4295514.668000] ata_gen_fixed_sense: failed ata_op=0x35
-[4295514.668000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-0xb/00/00
-[4295514.668000] ata_gen_ata_desc_sense: failed ata_op=0x51
-[4295514.668000] ata3: status=0x51 { DriveReady SeekComplete Error }
-[4295514.668000] ata3: error=0x04 { DriveStatusError }
-[4297033.649000] ata_gen_fixed_sense: failed ata_op=0xca
-[4297033.649000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-0xb/00/00
-[4297033.649000] ata_gen_ata_desc_sense: failed ata_op=0x51
-[4297033.649000] ata4: status=0x51 { DriveReady SeekComplete Error }
-[4297033.649000] ata4: error=0x04 { DriveStatusError }
-[4297741.057000] ata_gen_fixed_sense: failed ata_op=0x35
-[4297741.057000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-0xb/00/00
-[4297741.057000] ata_gen_ata_desc_sense: failed ata_op=0x51
-[4297741.057000] ata4: status=0x51 { DriveReady SeekComplete Error }
-[4297741.057000] ata4: error=0x04 { DriveStatusError }
+Hi,
+While going through Mel gorman's book, I read that mem_map for NUMA
+systems is  treated as a virtual array at PAGE_OFFSET. I could 
+understand the the explanation  as follows.
 
-Also got a 0xca.
+mem_map[pfn] should not be accessed as it is. calculate the actual
+node corresponding to pfn and access the page as
+pglist_data[A]->node_zonelists[B]->zone_mem_map[C], where,
+A : node_id, calculated using pfn,
+B : offset in the zonelist calculated using pfn and,
+C : offset in the local mem_map calculated using pfn.
+
+Searching google resulted in http://lwn.net/Articles/9188/ Under other 
+memory management work, it states mem_map[x] is not recommended in NUMA. 
+Instead pfn_to_page() must be used.
+from include/asm-i386/mmzone.h,
+#define pfn_to_page(pfn)                        \
+({\
+    unsigned long __pfn = pfn;\
+    int __node  = pfn_to_nid(__pfn);\
+    &NODE_DATA(__node)->node_mem_map[node_localnr(__pfn,__node)];\
+})
+Means, pfn is used to traverse nodeid, and node_mem_map.
+But even now I have not found where mem_map is initialized to 
+PAGE_OFFSET, neither the significance of it.
+
+Now, why should the mem_map be initialized to PAGE_OFFSET? Where is it
+done? In page_alloc.c, I found mem_map = NODE_DATA(0)->node_mem_map;
+when CONFIG_FLAT_NODE_MEM_MAP  is defined (non numa case).  If my
+understanding is correct, this case should hold for NUMA as well.
 
 
-On Sun, 9 Jul 2006, Justin Piszcz wrote:
-
->
->
-> On Sun, 9 Jul 2006, Justin Piszcz wrote:
->
->> 
->> 
->> On Sun, 9 Jul 2006, Justin Piszcz wrote:
->> 
->>> I made my own patch (following Mark's example) but also added that printk 
->>> in that function.
->>> 
->>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_fixed_sense: failed 
->>> ata_op=0x35
->>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: translated ATA stat/err 
->>> 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
->>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_ata_desc_sense: 
->>> failed ata_op=0x51
->>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: status=0x51 { 
->>> DriveReady SeekComplete Error }
->>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: error=0x04 { 
->>> DriveStatusError }
->>> 
->>> Now that we have found the ata_op code of 0x35, what does this mean?  Is 
->>> it generated from a bad FUA/unsupported command from the kernel/SATA 
->>> driver?
->>> 
->>> Justin.
->>> 
->>> -
->>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>> Please read the FAQ at  http://www.tux.org/lkml/
->>> 
->> 
->> In /usr/src/linux/include/linux/ata.h:
->>
->>  ATA_CMD_WRITE_EXT = 0x35,
->> 
->> Perhaps these drives do not support this command or do not support it 
->> properly?
->> 
->> Any idea, Jeff/Alan?
->> 
->> Justin.
->> 
->> 
->
-> Here are all the errors (when reading/writing heavily):
->
-> [4294810.556000] ata_gen_fixed_sense: failed ata_op=0x35
-> [4294810.556000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-> 0xb/00/00
-> [4294810.556000] ata_gen_ata_desc_sense: failed ata_op=0x51
-> [4294810.556000] ata4: status=0x51 { DriveReady SeekComplete Error }
-> [4294810.556000] ata4: error=0x04 { DriveStatusError }
-> [4295514.668000] ata_gen_fixed_sense: failed ata_op=0x35
-> [4295514.668000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-> 0xb/00/00
-> [4295514.668000] ata_gen_ata_desc_sense: failed ata_op=0x51
-> [4295514.668000] ata3: status=0x51 { DriveReady SeekComplete Error }
-> [4295514.668000] ata3: error=0x04 { DriveStatusError }
->
-> Jeff/Mark, from these errors can we reach a consensus as to the cause of 
-> these errors and how to eliminate the problem?
->
-> Thanks,
->
-> Justin.
->
+Regards,
+Om.

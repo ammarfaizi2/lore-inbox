@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbWGIP2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWGIP2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161027AbWGIP2E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 11:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWGIP2E
+	id S1161029AbWGIP2o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 11:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161032AbWGIP2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 11:28:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2730 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161027AbWGIP2C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 11:28:02 -0400
-Date: Sun, 9 Jul 2006 08:27:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Keith Owens <kaos@ocs.com.au>, Andi Kleen <ak@suse.de>,
-       Jan Hubicka <jh@suse.cz>, "David S. Miller" <davem@davemloft.net>,
-       Richard Henderson <rth@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile' 
-In-Reply-To: <Pine.LNX.4.64.0607091618220.17704@scrub.home>
-Message-ID: <Pine.LNX.4.64.0607090825380.5623@g5.osdl.org>
-References: <31410.1152414469@ocs3.ocs.com.au> <Pine.LNX.4.64.0607082041400.5623@g5.osdl.org>
- <Pine.LNX.4.64.0607091618220.17704@scrub.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 9 Jul 2006 11:28:44 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:21706 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161029AbWGIP2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 11:28:43 -0400
+Subject: Re: memory barriers and dma_sync_single_for_*
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44B11861.3070703@s5r6.in-berlin.de>
+References: <44B11861.3070703@s5r6.in-berlin.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 09 Jul 2006 16:46:27 +0100
+Message-Id: <1152459987.27368.64.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 9 Jul 2006, Roman Zippel wrote:
+Ar Sul, 2006-07-09 am 16:53 +0200, ysgrifennodd Stefan Richter:
+> My question: Do I need wmb() within the following code?
 > 
-> On Sat, 8 Jul 2006, Linus Torvalds wrote:
-> > 
-> > but we've been using that "+m" format for a long time already (and I 
-> > _think_ we did so at the suggestion of gcc people), and it would be much 
-> > better if the gcc documentation was just fixed here.
+> 	dma_sync_single_for_cpu(..., DMA_TO_DEVICE);
+> 	area->a = new_val_a;
+> 	wmb();  /* necessary? */
+> 	area->b = new_val_b;
+
+Yes. Otherwise on some processors the I/O may be re-ordered
+
+> 	dma_sync_single_for_device(..., DMA_TO_DEVICE);
 > 
-> IIRC early 4.0 had problems with "+m" and did what the documentation says, 
-> but that got quickly fixed.
-> Here is the old thread http://marc.theaimsgroup.com/?t=108384517900001&r=1&w=2
+> Or are all changes to the area hidden from the device between 
+> dma_sync_single_for_cpu and _for_device, thereby making the write order 
+> a non-issue? Thanks,
 
-Thanks. That one implies that we had some strange warnings (but it 
-apparently still worked) with 3.4, and it's since gotten fixed. Goodie. 
+Depends on the processor and setup. On x86-32 for example dma_sync_.. is
+generally a NOP. In other environments nothing will be visible until the
+sync.
 
-I'll leave the "+m" alone then, both the old and the new ones.
+Alan
 
-		Linus

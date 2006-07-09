@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWGITbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161085AbWGITlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161071AbWGITbo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 15:31:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161085AbWGITbo
+	id S1161085AbWGITlE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 15:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161087AbWGITlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 15:31:44 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30483 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1161071AbWGITbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 15:31:43 -0400
-Date: Sun, 9 Jul 2006 20:31:33 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: ray-gmail@madrabbit.org, Jon Smirl <jonsmirl@gmail.com>,
-       Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk, efault@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Opinions on removing /proc/tty?
-Message-ID: <20060709193133.GA32457@flint.arm.linux.org.uk>
-Mail-Followup-To: Albert Cahalan <acahalan@gmail.com>,
-	ray-gmail@madrabbit.org, Jon Smirl <jonsmirl@gmail.com>,
-	Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk, efault@gmx.de,
-	linux-kernel@vger.kernel.org
-References: <787b0d920607082230w676ddc62u57962f1fc08cf009@mail.gmail.com> <9e4733910607090704r68602194h3d2a1a91a4909984@mail.gmail.com> <787b0d920607090923p65c417f2v71c8e72bf786f995@mail.gmail.com> <2c0942db0607091000m259c1ed5m960821eb5237c4b0@mail.gmail.com> <787b0d920607091226sb1db56dg9c0267f6ae8e2dc7@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <787b0d920607091226sb1db56dg9c0267f6ae8e2dc7@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 9 Jul 2006 15:41:03 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:30938 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S1161085AbWGITlB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 15:41:01 -0400
+Message-ID: <44B15BCB.5000306@vc.cvut.cz>
+Date: Sun, 09 Jul 2006 21:40:59 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.13) Gecko/20060620 Debian/1.7.13-0.2
+X-Accept-Language: cs, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>
+Subject: Re: Revert "ACPI: dock driver"
+References: <200607091559.k69Fx2h0029447@hera.kernel.org>
+In-Reply-To: <200607091559.k69Fx2h0029447@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 03:26:19PM -0400, Albert Cahalan wrote:
-> There are 16 tty major numbers (as of the Linux 1.1 kernel,
-> or thereabouts) with 256 minors each, and the names are 8
-> characters long. That makes for a 32 KiB file; procps will
-> verify the length. Major numbers are to be stored in the
-> following order:
+Linux Kernel Mailing List wrote:
+> commit 953969ddf5b049361ed1e8471cc43dc4134d2a6f
+> tree e4b84effa78a7e34d516142ee8ad1441906e33de
+> parent b862f3b099f3ea672c7438c0b282ce8201d39dfc
+> author Linus Torvalds <torvalds@g5.osdl.org> Sun, 09 Jul 2006 22:47:46 -0700
+> committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 09 Jul 2006 22:47:46 -0700
 > 
-> 2,3,4,5,19,20,22,23,24,25,32,33,46,47,48,49
+> Revert "ACPI: dock driver"
 > 
-> The structure is thus like this:
+> This reverts commit a5e1b94008f2a96abf4a0c0371a55a56b320c13e.
 > 
-> char psdevtab[16][256][8]
+> Adrian Bunk points out that it has build errors, and apparently no
+> maintenance. Throw it out.
 
-So it basically breaks on 2.x kernels because (eg) you don't include major
-204 as a tty major.  Plus, if you insist that there are only N tty major
-numbers, you break as soon as another tty major gets added.
+Erm, what do I miss?  Code certainly builds, just before that checkin.
 
-Try again.
+ppc:~$ ls -la /usr/src/linus/linux-2.6.18-rc1-b862/drivers/acpi/dock*
+-rw-r--r-- 1 root root  19474 Jul  9 17:04 
+/usr/src/linus/linux-2.6.18-rc1-b862/drivers/acpi/dock.c
+-rw-r--r-- 1 root root 148519 Jul  9 17:33 
+/usr/src/linus/linux-2.6.18-rc1-b862/drivers/acpi/dock.o
+ppc:~$ uname -a
+Linux ppc 2.6.18-rc1-b862 #1 SMP PREEMPT Sun Jul 9 17:53:48 CEST 2006 x86_64 
+GNU/Linux
+ppc:~$
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+						Thanks,
+							Petr Vandrovec
+

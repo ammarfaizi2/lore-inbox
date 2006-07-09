@@ -1,109 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWGIEev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161083AbWGIEjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWGIEev (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 00:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWGIEev
+	id S1161083AbWGIEjr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 00:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161084AbWGIEjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 00:34:51 -0400
-Received: from xenotime.net ([66.160.160.81]:34275 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964969AbWGIEeu (ORCPT
+	Sun, 9 Jul 2006 00:39:47 -0400
+Received: from gw.goop.org ([64.81.55.164]:35975 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1161083AbWGIEjr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 00:34:50 -0400
-Date: Sat, 8 Jul 2006 21:37:34 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mreuther@umich.edu, linux-kernel@vger.kernel.org
-Subject: Re: Compile Error on 2.6.17-mm6
-Message-Id: <20060708213734.a204a044.rdunlap@xenotime.net>
-In-Reply-To: <20060708204448.6914aaf9.akpm@osdl.org>
-References: <200607072222.31586.mreuther@umich.edu>
-	<20060708174347.76391c7b.akpm@osdl.org>
-	<20060708203424.281400d2.rdunlap@xenotime.net>
-	<20060708204448.6914aaf9.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 9 Jul 2006 00:39:47 -0400
+Message-ID: <44B0888C.5010201@goop.org>
+Date: Sat, 08 Jul 2006 21:39:40 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: acpi-devel@kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kristen Accardi <kristen.c.accardi@intel.com>
+Subject: 2.6.17-mm6: BUG: spinlock wrong CPU on CPU#1, kacpid_notify/7105
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Jul 2006 20:44:48 -0700 Andrew Morton wrote:
+I just got this while undocking my machine.  Thinkpad X60, Core Duo CPU.
 
-> On Sat, 8 Jul 2006 20:34:24 -0700
-> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-> 
-> > On Sat, 8 Jul 2006 17:43:47 -0700 Andrew Morton wrote:
-> > 
-> > > On Fri, 7 Jul 2006 22:22:16 -0400
-> > > Matt Reuther <mreuther@umich.edu> wrote:
-> > > 
-> > > > Here is the error:
-> > > >   CHK     include/linux/compile.h
-> > > >   UPD     include/linux/compile.h
-> > > >   CC      init/version.o
-> > > >   LD      init/built-in.o
-> > > >   LD      .tmp_vmlinux1
-> > > > arch/i386/kernel/built-in.o(.text+0xe282): In function 
-> > > > `cpu_request_microcode':
-> > > > arch/i386/kernel/microcode.c:544: undefined reference to `request_firmware'
-> > > > arch/i386/kernel/built-in.o(.text+0xe304):arch/i386/kernel/microcode.c:573: 
-> > > > undefined reference to `release_firmware'
-> > > 
-> > > CONFIG_FW_LOADER=m
-> > > CONFIG_MICROCODE=y
-> > > 
-> > > So
-> > > 
-> > > config MICROCODE
-> > > 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
-> > > 	depends on FW_LOADER
-> > > 
-> > > is not sufficient.  There's a fix for this, but I cannot remember what it
-> > > is.  Help.
-> > 
-> > That 1-line depends patch fixes the problem for me (on x86-64,
-> > but they are the same in this area).
-> > 
-> 
-> What patch is that?
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4d74] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4d60] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4d4c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4d38] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4d24] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4d10] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4cfc] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4ce8] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4cd4] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4cc0] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4cac] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4c98] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4c84] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec55b8] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed0fa4] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed0f90] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed0f7c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4c5c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4c48] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4c34] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec4c20] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec575c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec5748] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec5734] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec5720] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec570c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec56f8] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec56e4] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec56d0] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec56bc] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec55a4] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed0f68] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed0f54] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed0f40] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed0f2c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec56a8] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec884c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ec8fe0] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbb80] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbb6c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbb58] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbb44] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbb30] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbb1c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbb08] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbaf4] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbae0] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbacc] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbab8] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecbaa4] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecba90] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecf48c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed9658] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed9644] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed9630] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed961c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ed9608] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd504] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecf450] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd388] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecf43c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd93c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd928] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd914] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd900] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd8ec] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd8d8] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd8c4] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd8b0] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd89c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd888] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd874] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd860] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd84c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd838] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd824] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd810] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd7fc] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd7e8] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd7d4] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd7c0] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd7ac] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd798] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd784] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecd770] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdfe0] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdfcc] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdfb8] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdfa4] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdf68] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdf54] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdf40] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdf2c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdf18] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdf04] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdef0] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdedc] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdec8] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdeb4] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecdea0] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecde8c] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecde78] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecde64] [20060623]
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [f7ecde50] [20060623]
+BUG: spinlock wrong CPU on CPU#1, kacpid_notify/7105
+ lock: f7e9ad9c, .magic: dead4ead, .owner: kacpid_notify/7105, .owner_cpu: 0
+ [<c01d6ee8>] _raw_spin_unlock+0x5d/0x70
+ [<c020d52a>] hotplug_dock_devices+0x8a/0x91
+ [<c01f302c>] acpi_os_execute_thread+0x0/0x1a
+ [<c020d638>] dock_notify+0xd2/0x15d
+ [<c020b2f5>] acpi_bus_notify+0x17/0x46
+ [<c01f85aa>] acpi_ev_notify_dispatch+0x4c/0x55
+ [<c01f3038>] acpi_os_execute_thread+0xc/0x1a
+ [<c01301bc>] kthread+0xc2/0xed
+ [<c01300fa>] kthread+0x0/0xed
+ [<c0101005>] kernel_thread_helper+0x5/0xb
+ACPI: undocking
 
-My -mm6 does not have "depends on FW_LOADER" like you wrote above,
-so I thought that you had added that 1-line as a patch.
 
 
-
-From: Randy Dunlap <rdunlap@xenotime.net>
-
-MICROCODE needs FW_LOADER functions.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- arch/i386/Kconfig   |    1 +
- arch/x86_64/Kconfig |    1 +
- 2 files changed, 2 insertions(+)
-
---- linux-2617-mm6.orig/arch/x86_64/Kconfig
-+++ linux-2617-mm6/arch/x86_64/Kconfig
-@@ -159,6 +159,7 @@ config X86_GOOD_APIC
- 
- config MICROCODE
- 	tristate "/dev/cpu/microcode - Intel CPU microcode support"
-+	depends on FW_LOADER
- 	---help---
- 	  If you say Y here the 'File systems' section, you will be
- 	  able to update the microcode on Intel processors. You will
---- linux-2617-mm6.orig/arch/i386/Kconfig
-+++ linux-2617-mm6/arch/i386/Kconfig
-@@ -399,6 +399,7 @@ config X86_REBOOTFIXUPS
- 
- config MICROCODE
- 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
-+	depends on FW_LOADER
- 	---help---
- 	  If you say Y here and also to "/dev file system support" in the
- 	  'File systems' section, you will be able to update the microcode on
-
-
-
----

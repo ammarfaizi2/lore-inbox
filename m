@@ -1,93 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbWGIRzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWGISQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161014AbWGIRzW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 13:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbWGIRzW
+	id S932260AbWGISQe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 14:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWGISQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 13:55:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:33284 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1161014AbWGIRzV (ORCPT
+	Sun, 9 Jul 2006 14:16:34 -0400
+Received: from mail.gmx.de ([213.165.64.21]:56996 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932260AbWGISQe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 13:55:21 -0400
-Date: Sun, 9 Jul 2006 19:57:44 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Andrew Morton <akpm@osdl.org>, Michael Kerrisk <mtk-manpages@gmx.net>,
-       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
-       vendor-sec@lst.de
-Subject: Re: splice/tee bugs?
-Message-ID: <20060709175744.GZ4188@suse.de>
-References: <20060707070703.165520@gmx.net> <20060707040749.97f8c1fc.akpm@osdl.org> <20060707131310.0e382585@doriath.conectiva> <20060708064131.GG4188@suse.de> <20060708180926.00b1c0f8@home.brethil> <20060709103606.GU4188@suse.de> <20060709111629.GV4188@suse.de> <20060709134703.0aa5bc41@home.brethil>
+	Sun, 9 Jul 2006 14:16:34 -0400
+X-Authenticated: #14349625
+Subject: 2.6.18-rc1-mm1:  /sys/class/net/ethN becoming symlink befuddled
+	/sbin/ifup
+From: Mike Galbraith <efault@gmx.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 09 Jul 2006 20:22:09 +0200
+Message-Id: <1152469329.9254.15.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060709134703.0aa5bc41@home.brethil>
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09 2006, Luiz Fernando N. Capitulino wrote:
-> On Sun, 9 Jul 2006 13:16:29 +0200
-> Jens Axboe <axboe@suse.de> wrote:
-> 
-> | On Sun, Jul 09 2006, Jens Axboe wrote:
-> | > On Sat, Jul 08 2006, Luiz Fernando N. Capitulino wrote:
-> | > > 
-> | > >  Hi Jens,
-> | > > 
-> | > > On Sat, 8 Jul 2006 08:41:32 +0200
-> | > > Jens Axboe <axboe@suse.de> wrote:
-> | > > 
-> | > > | On Fri, Jul 07 2006, Luiz Fernando N. Capitulino wrote:
-> | > > | > On Fri, 7 Jul 2006 04:07:49 -0700
-> | > > | > Andrew Morton <akpm@osdl.org> wrote:
-> | > > | > 
-> | > > | > | On Fri, 07 Jul 2006 09:07:03 +0200
-> | > > | > | "Michael Kerrisk" <mtk-manpages@gmx.net> wrote:
-> | > > | > | 
-> | > > | > | > c) Occasionally the command line just hangs, producing no output.
-> | > > | > | >    In this case I can't kill it with ^C or ^\.  This is a 
-> | > > | > | >    hard-to-reproduce behaviour on my (x86) system, but I have 
-> | > > | > | >    seen it several times by now.
-> | > > | > | 
-> | > > | > | aka local DoS.  Please capture sysrq-T output next time.
-> | > > | > 
-> | > > | >  If I run lots of them in parallel, I get the following OOPs in a few
-> | > > | > seconds:
-> | > > | 
-> | > > | With the patch posted? You need the i vs nrbufs fix.
-> | > > 
-> | > >  Yes, it fixes the problem. I didn't try it before because I thought
-> | > > you were going to double check it [1].
-> | > 
-> | > Yeah the patch needs reworking, however the isolated i vs nrbufs fix is
-> | > safe enough on its own. I'll post a full patch for inclusion, I'm afraid
-> | > I wont be able to fully test it enough for submitting it until tomorrow
-> | > though.
-> | 
-> | Something like this, testing would be appreciated! Michael, can you
-> | repeat your testing as well? Thanks.
-> 
->  Yeah, it fixes the problem for 2.6.18-rc1.
-> 
->  But doesn't compile for 2.6.17.4:
-> 
->   CC      fs/splice.o
-> fs/splice.c: In function `link_pipe':
-> fs/splice.c:1378: warning: implicit declaration of function `mutex_lock_nested'
-> fs/splice.c:1378: error: `I_MUTEX_PARENT' undeclared (first use in this function)
-> fs/splice.c:1378: error: (Each undeclared identifier is reported only once
-> fs/splice.c:1378: error: for each function it appears in.)
-> fs/splice.c:1379: error: `I_MUTEX_CHILD' undeclared (first use in this function)
-> make[1]: ** [fs/splice.o] Erro 1
-> make: ** [fs] Erro 2
-> 
->  Should we use the first patch for it? It does work too.
+Greetings,
 
-No, I'll rebase the patch for 2.6.17.x - basically you just need to
-change the two mutex_lock_nested() to mutex_lock() and that is it. But
-first I'd like Michael to retest as well (and more importantly, I'll do
-some testing myself too).
+As $subject says, up-to-date SuSE 10.0 /sbin/ifup became confused...
 
--- 
-Jens Axboe
+-[pid  8191] lstat64("/sys/class/net/eth1", {st_mode=S_IFLNK|0777, st_size=0, ...}) = 0
+-[pid  8191] lstat64("/sys/block/eth1", 0xafec0f9c) = -1 ENOENT (No such file or directory)
+
+...and wandered off into lala-land.
+
+It used to do...
+
++[pid  8905] lstat64("/sys/class/net/eth1", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
++[pid  8905] readlink("/sys/class/net/eth1/device", "../../../devices/pci0000:00/0000:00:1e.0/0000:02:09.0", 255) = 53
++[pid  8905] readlink("/sys/class/net/eth1/device", "../../../devices/pci0000:00/0000:00:1e.0/0000:02:09.0", 255) = 53
+
+...and made working network interface.
+
+	-Mike
 

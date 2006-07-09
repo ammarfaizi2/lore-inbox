@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161168AbWGIVmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161169AbWGIVpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161168AbWGIVmE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 17:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161171AbWGIVmE
+	id S1161169AbWGIVpI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 17:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161171AbWGIVpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 17:42:04 -0400
-Received: from pool-72-66-195-15.ronkva.east.verizon.net ([72.66.195.15]:36803
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1161168AbWGIVmD (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 17:42:03 -0400
-Message-Id: <200607092133.k69LXBuA008132@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+	Sun, 9 Jul 2006 17:45:08 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36798 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161169AbWGIVpG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 17:45:06 -0400
+Date: Sun, 9 Jul 2006 23:44:39 +0200
+From: Pavel Machek <pavel@ucw.cz>
 To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com, pavel@ucw.cz
+Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com
 Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
-In-Reply-To: Your message of "Sun, 09 Jul 2006 22:58:31 +0200."
-             <200607092058.k69KwVxN026427@harpo.it.uu.se>
-From: Valdis.Kletnieks@vt.edu
+Message-ID: <20060709214439.GC2495@elf.ucw.cz>
 References: <200607092058.k69KwVxN026427@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152480699_7106P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 09 Jul 2006 17:31:39 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607092058.k69KwVxN026427@harpo.it.uu.se>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152480699_7106P
-Content-Type: text/plain; charset=us-ascii
-
-On Sun, 09 Jul 2006 22:58:31 +0200, Mikael Pettersson said:
-
+On Sun 2006-07-09 22:58:31, Mikael Pettersson wrote:
+> On Fri, 7 Jul 2006 21:01:26 +0200 (MEST), I wrote:
+> >Kernel 2.6.18-rc1 broke resume from APM suspend (to RAM)
+> >on my old Dell Latitude CPi laptop. At resume the disk
+> >spins up and the screen gets lit, but there is no response
+> >to the keyboard, not even sysrq. All other system activity
+> >also appears to be halted.
+> >
+> >I did the obvious test of reverting apm.c to the 2.6.17
+> >version and fixing up the fallout from the TIF_POLLING_NRFLAG
+> >changes, but it made no difference. So the problem must be
+> >somewhere else.
+> 
 > I've traced the cause of this problem to the i386 time-keeping
 > changes in kernel 2.6.17-git11. What happens is that:
 > - The kernel autoselects TSC as my clocksource, which is
@@ -45,22 +52,10 @@ On Sun, 09 Jul 2006 22:58:31 +0200, Mikael Pettersson said:
 >   the offset is 0xffffffd598e0a566 at this point, which appears
 >   to throw update_wall_time() into a very very long loop.
 
-Does applying this patch make it work?
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/broken-out/adjust-clock-for-lost-ticks.patch
-
-Or is this a different breakage?
-
---==_Exmh_1152480699_7106P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEsXW7cC3lWbTT17ARAhn+AJ9Y2LqrJTFZwDvlXAeD2KdE0pir+gCg+Tm9
-QzkKPA5tCdZurT2o4NoUUL4=
-=Kneg
------END PGP SIGNATURE-----
-
---==_Exmh_1152480699_7106P--
+Step 0: could we get some sanity checks into that loop? I'm pretty
+sure we'll face some TSCs going backwards... panic-king the box at
+that point is okay, but infinite loop is not...
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

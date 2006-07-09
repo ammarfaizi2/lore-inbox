@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161081AbWGID7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbWGIETg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161081AbWGID7N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 23:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161082AbWGID7N
+	id S964967AbWGIETg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 00:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWGIETg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 23:59:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49381 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161081AbWGID7N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 23:59:13 -0400
-Date: Sat, 8 Jul 2006 20:58:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Keith Owens <kaos@ocs.com.au>, Andi Kleen <ak@suse.de>,
-       Jan Hubicka <jh@suse.cz>, "David S. Miller" <davem@davemloft.net>,
-       Richard Henderson <rth@redhat.com>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile' 
-In-Reply-To: <31410.1152414469@ocs3.ocs.com.au>
-Message-ID: <Pine.LNX.4.64.0607082041400.5623@g5.osdl.org>
-References: <31410.1152414469@ocs3.ocs.com.au>
+	Sun, 9 Jul 2006 00:19:36 -0400
+Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:33514 "EHLO
+	mail.aftek.com") by vger.kernel.org with ESMTP id S964967AbWGIETf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 00:19:35 -0400
+X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
+X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(59.95.16.109):SA:0(-102.4/1.7):. Processed in 4.556827 secs Process 18767)
+From: "Abu M. Muttalib" <abum@aftek.com>
+To: "Robert Hancock" <hancockr@shaw.ca>, <chase.venters@clientec.com>
+Cc: <kernelnewbies@nl.linux.org>, <linux-newbie@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, "linux-mm" <linux-mm@kvack.org>
+Subject: RE: Commenting out out_of_memory() function in __alloc_pages()
+Date: Sun, 9 Jul 2006 09:53:46 +0530
+Message-ID: <BKEKJNIHLJDCFGDBOHGMCEEGDCAA.abum@aftek.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+In-reply-to: <44AFF415.2020305@shaw.ca>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+I tried with the /proc/sys/vm/overcommit_memory=2 and the system refused to
+load the program altogether.
+
+In this scenario is making overcommit_memory=2 a good idea?
+
+Regards,
+Abu.
+
+-----Original Message-----
+From: Robert Hancock [mailto:hancockr@shaw.ca]
+Sent: Saturday, July 08, 2006 11:36 PM
+To: Abu M. Muttalib
+Cc: kernelnewbies@nl.linux.org; linux-newbie@vger.kernel.org;
+linux-kernel@vger.kernel.org; linux-mm
+Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
 
 
-On Sun, 9 Jul 2006, Keith Owens wrote:
-> 
->   			 "... Extended asm supports input-output or
->   read-write operands.  Use the constraint character `+' to indicate
->   such an operand and list it with the output operands.  You should
->   only use read-write operands when the constraints for the operand (or
->   the operand in which only some of the bits are to be changed) allow a
->   register."
+Abu M. Muttalib wrote:
+> Hi,
+>
+> I am getting the Out of memory.
+>
+> To circumvent the problem, I have commented the call to "out_of_memory(),
+> and replaced "goto restart" with "goto nopage".
+>
+> At "nopage:" lable I have added a call to "schedule()" and then "return
+> NULL" after "schedule()".
 
-Btw, gcc-4.1.1 docs seem to also have this language, although when you 
-actually go to the "Constraint Modifier Characters" section, that thing 
-doesn't actually say anything about "only for registers".
+Bad idea - in the configuration you have, the system may need the
+out-of-memory killer to free up memory, otherwise the system can
+deadlock due to all memory being exhausted.
 
-It would be good to have the gcc docs fixed. As mentioned, we've been 
-using "+m" for at least a year (most of our current "+m" usage was there 
-in 2.6.13), and some of those uses have actually been added by people that 
-are at least active on the gcc development lists (eg Andi Kleen).
+>
+> I tried the modified kernel with a test application, the test application
+is
+> mallocing memory in a loop. Unlike as expected the process gets killed. On
+> second run of the same application I am getting the page allocation
+failure
+> as expected but subsequently the system hangs.
+>
+> I am attaching the test application and the log herewith.
+>
+> I am getting this exception with kernel 2.6.13. With kernel
+> 2.4.19-rmka7-pxa1 there was no problem.
+>
+> Why its so? What can I do to alleviate the OOM problem?
 
-But let's add a few more people who are more deeply involved with gcc. 
-Jan? Richard? Davem? Who would be the right person to check this out?
+Please see Documentation/vm/overcommit-accounting in the kernel source tree.
 
-We can certainly write
+--
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-	...
-	:"=m" (*ptr)
-	:"m" (*ptr)
-	...
 
-instead of the much simpler
-
-	:"+m" (*ptr)
-
-but we've been using that "+m" format for a long time already (and I 
-_think_ we did so at the suggestion of gcc people), and it would be much 
-better if the gcc documentation was just fixed here.
-
-			Linus

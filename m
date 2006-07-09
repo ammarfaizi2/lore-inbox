@@ -1,44 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161159AbWGIVKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161157AbWGIVKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161159AbWGIVKX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 17:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161158AbWGIVKX
+	id S1161157AbWGIVKv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 17:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161154AbWGIVKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 17:10:23 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:21699 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161156AbWGIVKV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 17:10:21 -0400
-Subject: Re: 2.6.18-rc1-mm1
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Reuben Farrelly <reuben-lkml@reub.net>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, linux-acpi@vger.kernel.org,
-       rdunlap@xenotime.net, greg@kroah.com, Andi Kleen <ak@muc.de>
-In-Reply-To: <20060709052252.8c95202a.akpm@osdl.org>
-References: <20060709021106.9310d4d1.akpm@osdl.org>
-	 <44B0E6E6.6070904@reub.net>  <20060709052252.8c95202a.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 09 Jul 2006 14:10:14 -0700
-Message-Id: <1152479414.21576.2.camel@localhost>
+	Sun, 9 Jul 2006 17:10:51 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58129 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161158AbWGIVKu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 17:10:50 -0400
+Date: Sun, 9 Jul 2006 21:10:24 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Albert Cahalan <acahalan@gmail.com>, tglx@linutronix.de,
+       joe.korty@ccur.com, linux-kernel@vger.kernel.org, linux-os@analogic.com,
+       khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Message-ID: <20060709211023.GC5759@ucw.cz>
+References: <787b0d920607072054i237eebf5g8109a100623a1070@mail.gmail.com> <20060708094556.GA13254@tsunami.ccur.com> <1152354244.24611.312.camel@localhost.localdomain> <787b0d920607080849p322a6349g7a5fd98f78aa9f32@mail.gmail.com> <1152383487.24611.337.camel@localhost.localdomain> <787b0d920607081233w3e0e99a9n706ff510c3de458b@mail.gmail.com> <Pine.LNX.4.64.0607081256170.3869@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607081256170.3869@g5.osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-09 at 05:22 -0700, Andrew Morton wrote:
-> On Sun, 09 Jul 2006 23:22:14 +1200
-> Reuben Farrelly <reuben-lkml@reub.net> wrote:
-> > Note also the message midway through about losing some ticks, which if I recall 
-> > correctly is not new to this -mm release.  I'm not sure who to cc about this.
+Hi!
+
+> Btw, I think that the whole standard definition of "volatile" is pretty 
+> weak and useless. The standard could be improved, and a way to improve the 
+> definition of volatile would actually be to say something like
 > 
-> John stuff.  I suspect it's natural and normal, if the IDE error handling
-> did something rude with interrupt holdoff.
+> 	"volatile" implies that the access to that entity can alias with 
+> 	any other access.
+> 
+> That's actually a lot simpler for a compiler writer (a C compiler already 
+> has to know about the notion of data aliasing), and gives a lot more 
+> useful (and strict) semantics to the whole concept.
+> 
+> So to look at the previous example of
+> 
+> 	extern int a;
+> 	extern int volatile b;
+> 
+> 	void testfn(void)
+> 	{
+> 		a++;
+> 		b++;
+> 	}
+> 
+> _my_ definition of "volatile" is actually totally unambiguous, and not 
+> just simpler than the current standard, it is also stronger. It would make 
+> it clearly invalid to read the value of "b" until the value of "a" has 
+> been written, because (by my definition), "b" may actually alias the value 
+> of "a", so you clearly cannot read "b" until "a" has been updated.
+...
+> In contrast, the current C standard definition of "volatile" is not only 
+> cumbersome and inconvenient, it's also badly defined when it comes to 
+> accesses to _other_ data, making it clearly less useful.
+> 
+> I personally think that my simpler definition of volatile is actually a 
+> perfectly valid implementation of the current definition of volatile, and 
+> I suggested it to some gcc people as a better way to handle "volatile" 
+> inside gcc while still being standards-conforming (ie the "can alias 
+> anything" thing is not just clearer and simpler, it's strictly a subset of 
+> what the C standard allows, meaning that I think you can adopt my 
+> definition _without_ breaking any old programs or standards).
 
-Actually that's an x86-64 system, so the timekeeping changes shouldn't
-really being affecting it.
+Are you sure?
 
-thanks
--john
+volatile int a; a=1; a=2;
 
+...under old definition, there's nothing to optimize but AFAICT, your
+definition allows optimizing out a=1.
+
+						Pavel
+-- 
+Thanks for all the (sleeping) penguins.

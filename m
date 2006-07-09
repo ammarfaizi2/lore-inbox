@@ -1,56 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWGIRxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbWGIRzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbWGIRxL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 13:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWGIRxL
+	id S1161014AbWGIRzW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 13:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbWGIRzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 13:53:11 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18191 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030245AbWGIRxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 13:53:10 -0400
-Date: Sun, 9 Jul 2006 19:53:08 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, rafalbilski@interia.pl,
-       Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-Subject: [-mm patch] make arch/i386/kernel/cpu/cpufreq/longhaul.c:longhaul_walk_callback() static
-Message-ID: <20060709175308.GJ13938@stusta.de>
-References: <20060709021106.9310d4d1.akpm@osdl.org>
-MIME-Version: 1.0
+	Sun, 9 Jul 2006 13:55:22 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:33284 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1161014AbWGIRzV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 13:55:21 -0400
+Date: Sun, 9 Jul 2006 19:57:44 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: Andrew Morton <akpm@osdl.org>, Michael Kerrisk <mtk-manpages@gmx.net>,
+       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
+       vendor-sec@lst.de
+Subject: Re: splice/tee bugs?
+Message-ID: <20060709175744.GZ4188@suse.de>
+References: <20060707070703.165520@gmx.net> <20060707040749.97f8c1fc.akpm@osdl.org> <20060707131310.0e382585@doriath.conectiva> <20060708064131.GG4188@suse.de> <20060708180926.00b1c0f8@home.brethil> <20060709103606.GU4188@suse.de> <20060709111629.GV4188@suse.de> <20060709134703.0aa5bc41@home.brethil>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <20060709134703.0aa5bc41@home.brethil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 02:11:06AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.17-mm6:
->...
->  git-cpufreq.patch
->...
->  git trees
->...
+On Sun, Jul 09 2006, Luiz Fernando N. Capitulino wrote:
+> On Sun, 9 Jul 2006 13:16:29 +0200
+> Jens Axboe <axboe@suse.de> wrote:
+> 
+> | On Sun, Jul 09 2006, Jens Axboe wrote:
+> | > On Sat, Jul 08 2006, Luiz Fernando N. Capitulino wrote:
+> | > > 
+> | > >  Hi Jens,
+> | > > 
+> | > > On Sat, 8 Jul 2006 08:41:32 +0200
+> | > > Jens Axboe <axboe@suse.de> wrote:
+> | > > 
+> | > > | On Fri, Jul 07 2006, Luiz Fernando N. Capitulino wrote:
+> | > > | > On Fri, 7 Jul 2006 04:07:49 -0700
+> | > > | > Andrew Morton <akpm@osdl.org> wrote:
+> | > > | > 
+> | > > | > | On Fri, 07 Jul 2006 09:07:03 +0200
+> | > > | > | "Michael Kerrisk" <mtk-manpages@gmx.net> wrote:
+> | > > | > | 
+> | > > | > | > c) Occasionally the command line just hangs, producing no output.
+> | > > | > | >    In this case I can't kill it with ^C or ^\.  This is a 
+> | > > | > | >    hard-to-reproduce behaviour on my (x86) system, but I have 
+> | > > | > | >    seen it several times by now.
+> | > > | > | 
+> | > > | > | aka local DoS.  Please capture sysrq-T output next time.
+> | > > | > 
+> | > > | >  If I run lots of them in parallel, I get the following OOPs in a few
+> | > > | > seconds:
+> | > > | 
+> | > > | With the patch posted? You need the i vs nrbufs fix.
+> | > > 
+> | > >  Yes, it fixes the problem. I didn't try it before because I thought
+> | > > you were going to double check it [1].
+> | > 
+> | > Yeah the patch needs reworking, however the isolated i vs nrbufs fix is
+> | > safe enough on its own. I'll post a full patch for inclusion, I'm afraid
+> | > I wont be able to fully test it enough for submitting it until tomorrow
+> | > though.
+> | 
+> | Something like this, testing would be appreciated! Michael, can you
+> | repeat your testing as well? Thanks.
+> 
+>  Yeah, it fixes the problem for 2.6.18-rc1.
+> 
+>  But doesn't compile for 2.6.17.4:
+> 
+>   CC      fs/splice.o
+> fs/splice.c: In function `link_pipe':
+> fs/splice.c:1378: warning: implicit declaration of function `mutex_lock_nested'
+> fs/splice.c:1378: error: `I_MUTEX_PARENT' undeclared (first use in this function)
+> fs/splice.c:1378: error: (Each undeclared identifier is reported only once
+> fs/splice.c:1378: error: for each function it appears in.)
+> fs/splice.c:1379: error: `I_MUTEX_CHILD' undeclared (first use in this function)
+> make[1]: ** [fs/splice.o] Erro 1
+> make: ** [fs] Erro 2
+> 
+>  Should we use the first patch for it? It does work too.
 
-This patch makes the needlessly global longhaul_walk_callback() static.
+No, I'll rebase the patch for 2.6.17.x - basically you just need to
+change the two mutex_lock_nested() to mutex_lock() and that is it. But
+first I'd like Michael to retest as well (and more importantly, I'll do
+some testing myself too).
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.18-rc1-mm1-full/arch/i386/kernel/cpu/cpufreq/longhaul.c.old	2006-07-09 16:29:54.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/arch/i386/kernel/cpu/cpufreq/longhaul.c	2006-07-09 16:30:11.000000000 +0200
-@@ -524,9 +524,9 @@
- 	return calc_speed(longhaul_get_cpu_mult());
- }
- 
--acpi_status longhaul_walk_callback(acpi_handle obj_handle,
--				  u32 nesting_level,
--				  void *context, void **return_value)
-+static acpi_status longhaul_walk_callback(acpi_handle obj_handle,
-+					  u32 nesting_level,
-+					  void *context, void **return_value)
- {
- 	struct acpi_device *d;
- 
+-- 
+Jens Axboe
 

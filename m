@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161141AbWGIUqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161139AbWGIUvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161141AbWGIUqW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 16:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161140AbWGIUqW
+	id S1161139AbWGIUvx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 16:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161140AbWGIUvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 16:46:22 -0400
-Received: from lucidpixels.com ([66.45.37.187]:20438 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1161138AbWGIUqV (ORCPT
+	Sun, 9 Jul 2006 16:51:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25736 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161139AbWGIUvw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 16:46:21 -0400
-Date: Sun, 9 Jul 2006 16:46:20 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Mark Lord <liml@rtr.ca>
-cc: Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: LibPATA code issues / 2.6.15.4 (found the opcode=0x35)!
-In-Reply-To: <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>
-Message-ID: <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <44AEB3CA.8080606@pobox.com>
- <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan> <200607091224.31451.liml@rtr.ca>
- <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
- <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>
- <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 9 Jul 2006 16:51:52 -0400
+Date: Sun, 9 Jul 2006 13:51:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1:  /sys/class/net/ethN becoming symlink befuddled
+ /sbin/ifup
+Message-Id: <20060709135148.60561e69.akpm@osdl.org>
+In-Reply-To: <1152469329.9254.15.camel@Homer.TheSimpsons.net>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	<1152469329.9254.15.camel@Homer.TheSimpsons.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 09 Jul 2006 20:22:09 +0200
+Mike Galbraith <efault@gmx.de> wrote:
 
+> Greetings,
+> 
+> As $subject says, up-to-date SuSE 10.0 /sbin/ifup became confused...
+> 
+> -[pid  8191] lstat64("/sys/class/net/eth1", {st_mode=S_IFLNK|0777, st_size=0, ...}) = 0
+> -[pid  8191] lstat64("/sys/block/eth1", 0xafec0f9c) = -1 ENOENT (No such file or directory)
+> 
+> ...and wandered off into lala-land.
 
-On Sun, 9 Jul 2006, Justin Piszcz wrote:
+Well that's amusing.  Ethernet-over-scsi?
 
-> I made my own patch (following Mark's example) but also added that printk in 
-> that function.
->
-> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_fixed_sense: failed 
-> ata_op=0x35
-> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: translated ATA stat/err 
-> 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
-> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_ata_desc_sense: failed 
-> ata_op=0x51
-> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: status=0x51 { DriveReady 
-> SeekComplete Error }
-> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: error=0x04 { 
-> DriveStatusError }
->
-> Now that we have found the ata_op code of 0x35, what does this mean?  Is it 
-> generated from a bad FUA/unsupported command from the kernel/SATA driver?
->
-> Justin.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> It used to do...
+> 
+> +[pid  8905] lstat64("/sys/class/net/eth1", {st_mode=S_IFDIR|0755, st_size=0, ...}) = 0
+> +[pid  8905] readlink("/sys/class/net/eth1/device", "../../../devices/pci0000:00/0000:00:1e.0/0000:02:09.0", 255) = 53
+> +[pid  8905] readlink("/sys/class/net/eth1/device", "../../../devices/pci0000:00/0000:00:1e.0/0000:02:09.0", 255) = 53
+> 
+> ...and made working network interface.
+> 
 
-In /usr/src/linux/include/linux/ata.h:
+I'd be suspecting
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/broken-out/gregkh-driver-network-class_device-to-device.patch.
 
-   ATA_CMD_WRITE_EXT = 0x35,
-
-Perhaps these drives do not support this command or do not support it 
-properly?
-
-Any idea, Jeff/Alan?
-
-Justin.
-
+If you could do a `patch -R' of that one it'd really help, thanks.

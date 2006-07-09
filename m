@@ -1,57 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbWGIMla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbWGIMqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030475AbWGIMla (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 08:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbWGIMla
+	id S1030476AbWGIMqy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 08:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbWGIMqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 08:41:30 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59547 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030475AbWGIMl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 08:41:29 -0400
-Subject: Re: 2.6.18-rc1-mm1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Sun, 9 Jul 2006 08:46:54 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:19083 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030476AbWGIMqx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 08:46:53 -0400
+Date: Sun, 9 Jul 2006 14:46:40 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Reuben Farrelly <reuben-lkml@reub.net>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, rdunlap@xenotime.net, greg@kroah.com,
-       john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@muc.de>
-In-Reply-To: <20060709052252.8c95202a.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: modpost error about size inconsitency
+Message-ID: <20060709124640.GA23306@mars.ravnborg.org>
 References: <20060709021106.9310d4d1.akpm@osdl.org>
-	 <44B0E6E6.6070904@reub.net>  <20060709052252.8c95202a.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 09 Jul 2006 13:56:45 +0100
-Message-Id: <1152449805.27368.57.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-07-09 am 05:22 -0700, ysgrifennodd Andrew Morton:
-> > ata5: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0x30B0 irq 14
-> > scsi4 : ata_piix
-> > ata5.00: ATAPI, max UDMA/66
-> > ata5.00: configured for UDMA/66
+> - You'll probably see these:
+> 
+> 	WARNING: drivers/net/3c59x ids 36 bad size (each on 16)
+> 	WARNING: drivers/net/depca ids 24 bad size (each on 16)
+> 	WARNING: drivers/net/dgrs ids 24 bad size (each on 16)
+> 	WARNING: drivers/net/hp100 ids 84 bad size (each on 16)
+> 	WARNING: drivers/net/ne3210 ids 36 bad size (each on 16)
+> 	WARNING: drivers/net/tulip/de4x5 ids 24 bad size (each on 16)
+> 	WARNING: drivers/scsi/aha1740 ids 60 bad size (each on 16)
+> 	WARNING: drivers/scsi/aic7xxx/aic7xxx ids 84 bad size (each on 16)
+> 
+>   They're triggered by eisa-bus-modalias-attributes-support-1.patch but I
+>   don't know where the error lies.  But I love the error message!  Would be
+>   good to see on a tee shirt.
 
-More ATAPI devices getting uppity about mode setting.
+Following does make the errormessage more descriptive. Will be pushed to
+kbuild.git soon.
+Sample error message (not for real - I provoked it):
 
-> John stuff.  I suspect it's natural and normal, if the IDE error handling
-> did something rude with interrupt holdoff.
-
-The new libata should be more polite than that, although since the ATA
-drive can stall the CPU indefinitely you lose anyway 8(
-
-> > Jul  2 12:03:28 tornado kernel: hda: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 
-> > 2000kB Cache, UDMA(66)
-
-Can you send me the full hdparm identify stuff for this ?
+FATAL: drivers/net/s2io: sizeof(struct pci_device_id)=33 is not a modulo of the
+size of section __mod_pci_device_table=160.
+Fix definition of struct pci_device_id in mod_devicetable.h
 
 
-The old drivers/ide code uses much longer delays than the spec for some
-ATAPI commands, and it looks as if there is a good reason for doing
-so ...
+The error is now fatal.
 
-That or I've got a mistuning case I've missed.
+	Sam
 
-Alan
-
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index 37f67c2..c522f16 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -52,6 +52,23 @@ do {                                    
+                 sprintf(str + strlen(str), "*");                \
+ } while(0)
+ 
++/**
++ * Check that sizeof(device_id type) are consistent with size of section
++ * in .o file. If in-consistent then userspace and kernel does not agree
++ * on actual size which is a bug.
++ **/
++static void device_id_size_check(const char *modname, const char *device_id,
++				 unsigned long size, unsigned long id_size)
++{
++	if (size % id_size || size < id_size) {
++		fatal("%s: sizeof(struct %s_device_id)=%lu is not a modulo "
++		      "of the size of section __mod_%s_device_table=%lu.\n"
++		      "Fix definition of struct %s_device_id "
++		      "in mod_devicetable.h\n",
++		      modname, device_id, id_size, device_id, size, device_id);
++	}
++}
++
+ /* USB is special because the bcdDevice can be matched against a numeric range */
+ /* Looks like "usb:vNpNdNdcNdscNdpNicNiscNipN" */
+ static void do_usb_entry(struct usb_device_id *id,
+@@ -152,10 +169,8 @@ static void do_usb_table(void *symval, u
+ 	unsigned int i;
+ 	const unsigned long id_size = sizeof(struct usb_device_id);
+ 
+-	if (size % id_size || size < id_size) {
+-		warn("%s ids %lu bad size "
+-		     "(each on %lu)\n", mod->name, size, id_size);
+-	}
++	device_id_size_check(mod->name, "usb", size, id_size);
++
+ 	/* Leave last one: it's the terminator. */
+ 	size -= id_size;
+ 
+@@ -434,6 +449,7 @@ static inline int sym_is(const char *sym
+ 
+ static void do_table(void *symval, unsigned long size,
+ 		     unsigned long id_size,
++		     const char *device_id,
+ 		     void *function,
+ 		     struct module *mod)
+ {
+@@ -441,10 +457,7 @@ static void do_table(void *symval, unsig
+ 	char alias[500];
+ 	int (*do_entry)(const char *, void *entry, char *alias) = function;
+ 
+-	if (size % id_size || size < id_size) {
+-		warn("%s ids %lu bad size "
+-		     "(each on %lu)\n", mod->name, size, id_size);
+-	}
++	device_id_size_check(mod->name, device_id, size, id_size);
+ 	/* Leave last one: it's the terminator. */
+ 	size -= id_size;
+ 
+@@ -476,40 +489,51 @@ void handle_moddevtable(struct module *m
+ 		+ sym->st_value;
+ 
+ 	if (sym_is(symname, "__mod_pci_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct pci_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct pci_device_id), "pci",
+ 			 do_pci_entry, mod);
+ 	else if (sym_is(symname, "__mod_usb_device_table"))
+ 		/* special case to handle bcdDevice ranges */
+ 		do_usb_table(symval, sym->st_size, mod);
+ 	else if (sym_is(symname, "__mod_ieee1394_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct ieee1394_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct ieee1394_device_id), "ieee1394",
+ 			 do_ieee1394_entry, mod);
+ 	else if (sym_is(symname, "__mod_ccw_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct ccw_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct ccw_device_id), "ccw",
+ 			 do_ccw_entry, mod);
+ 	else if (sym_is(symname, "__mod_serio_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct serio_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct serio_device_id), "serio",
+ 			 do_serio_entry, mod);
+ 	else if (sym_is(symname, "__mod_pnp_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct pnp_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct pnp_device_id), "pnp",
+ 			 do_pnp_entry, mod);
+ 	else if (sym_is(symname, "__mod_pnp_card_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct pnp_card_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct pnp_card_device_id), "pnp_card",
+ 			 do_pnp_card_entry, mod);
+ 	else if (sym_is(symname, "__mod_pcmcia_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct pcmcia_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct pcmcia_device_id), "pcmia",
+ 			 do_pcmcia_entry, mod);
+         else if (sym_is(symname, "__mod_of_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct of_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct of_device_id), "of",
+ 			 do_of_entry, mod);
+         else if (sym_is(symname, "__mod_vio_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct vio_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct vio_device_id), "vio",
+ 			 do_vio_entry, mod);
+ 	else if (sym_is(symname, "__mod_i2c_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct i2c_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct i2c_device_id), "i2c",
+ 			 do_i2c_entry, mod);
+ 	else if (sym_is(symname, "__mod_input_device_table"))
+-		do_table(symval, sym->st_size, sizeof(struct input_device_id),
++		do_table(symval, sym->st_size,
++			 sizeof(struct input_device_id), "input",
+ 			 do_input_entry, mod);
+ }
+ 

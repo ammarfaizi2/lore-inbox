@@ -1,111 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWGIFS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWGIFYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964986AbWGIFS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 01:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWGIFS5
+	id S964978AbWGIFYe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 01:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWGIFYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 01:18:57 -0400
-Received: from relay01.pair.com ([209.68.5.15]:25607 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S964986AbWGIFS4 (ORCPT
+	Sun, 9 Jul 2006 01:24:34 -0400
+Received: from xenotime.net ([66.160.160.81]:51074 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964995AbWGIFYe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 01:18:56 -0400
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: "Abu M. Muttalib" <abum@aftek.com>
-Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
-Date: Sun, 9 Jul 2006 00:18:22 -0500
-User-Agent: KMail/1.9.3
-Cc: "Robert Hancock" <hancockr@shaw.ca>, kernelnewbies@nl.linux.org,
-       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "linux-mm" <linux-mm@kvack.org>
-References: <BKEKJNIHLJDCFGDBOHGMCEEGDCAA.abum@aftek.com>
-In-Reply-To: <BKEKJNIHLJDCFGDBOHGMCEEGDCAA.abum@aftek.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 9 Jul 2006 01:24:34 -0400
+Date: Sat, 8 Jul 2006 22:27:19 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, adaplas@gmail.com
+Subject: Re: Opinions on removing /proc/tty?
+Message-Id: <20060708222719.36c8fbb7.rdunlap@xenotime.net>
+In-Reply-To: <9e4733910607082220v754a000ak7e75ae4042a5e595@mail.gmail.com>
+References: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com>
+	<20060707223043.31488bca.rdunlap@xenotime.net>
+	<9e4733910607072256q65188526uc5cb706ec3ecbaee@mail.gmail.com>
+	<20060708220414.c8f1476e.rdunlap@xenotime.net>
+	<9e4733910607082220v754a000ak7e75ae4042a5e595@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607090018.45972.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 July 2006 23:23, Abu M. Muttalib wrote:
-> Hi,
->
-> I tried with the /proc/sys/vm/overcommit_memory=2 and the system refused to
-> load the program altogether.
->
-> In this scenario is making overcommit_memory=2 a good idea?
+On Sun, 9 Jul 2006 01:20:12 -0400 Jon Smirl wrote:
 
-(Good mailing list practices ask you not to top-post - that is, make your 
-reply text follow the text you are replying other than appearing before it, 
-as I demonstrate here:)
-
-Well, how much memory do you have? Does the application actually need more 
-memory than your system can provide? If this is the case, there isn't going 
-to be any fix except add more memory. Your choices are:
-
-1. Let the OOM killer sacrifice processes because you don't have enough memory
-2. Disable VM overcommit so that the OOM killer doesn't get engaged (rather, 
-the application's attempt to grab the memory will fail)
-3. Add more memory, don't mess with the overcommit sysctl, and watch things 
-work nicely :P
-
-Are you sure it's not a memory leak? Does the application work on a freshly 
-booted system?
-
-> Regards,
-> Abu.
-
-Thanks,
-Chase
-
-> -----Original Message-----
-> From: Robert Hancock [mailto:hancockr@shaw.ca]
-> Sent: Saturday, July 08, 2006 11:36 PM
-> To: Abu M. Muttalib
-> Cc: kernelnewbies@nl.linux.org; linux-newbie@vger.kernel.org;
-> linux-kernel@vger.kernel.org; linux-mm
-> Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
->
-> Abu M. Muttalib wrote:
-> > Hi,
+> On 7/9/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> > On Sat, 8 Jul 2006 01:56:02 -0400 Jon Smirl wrote:
 > >
-> > I am getting the Out of memory.
+> > > On 7/8/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> > > > I don't know how well this is an answer to your question,
+> > > > but I would like to be able to find a list of registered "consoles,"
+> > > > whether they be serial, usbserial, netconsole, lp, or whatever.
+> > > > /proc/tty/drivers does that partially.
+> > >
+> > > Console is an overloaded word. Do you want to know where it is legal
+> > > to send system log output to, or do you want to know where you can log
+> > > in from? There was a thread earlier that talked a little about
+> > > controlling this.
 > >
-> > To circumvent the problem, I have commented the call to "out_of_memory(),
-> > and replaced "goto restart" with "goto nopage".
+> > I have a working definition:
+> > I want to see a list of drivers that have called register_console().
 > >
-> > At "nopage:" lable I have added a call to "schedule()" and then "return
-> > NULL" after "schedule()".
->
-> Bad idea - in the configuration you have, the system may need the
-> out-of-memory killer to free up memory, otherwise the system can
-> deadlock due to all memory being exhausted.
->
-> > I tried the modified kernel with a test application, the test application
->
-> is
->
-> > mallocing memory in a loop. Unlike as expected the process gets killed.
-> > On second run of the same application I am getting the page allocation
->
-> failure
->
-> > as expected but subsequently the system hangs.
+> > > > I have a patch that also does it in /proc/consoles:
+> > > >   http://www.xenotime.net/linux/patches/consoles-list.patch
+> > > > Is somewhere in /sys the right place to find a list of all consoles?
+> > >
+> > > /sys is the right place for this info but a class does not exist for it yet.
 > >
-> > I am attaching the test application and the log herewith.
+> > I want a list of registered consoles.  How would I express that in /sys ?
+> 
+> You could make the list appear as an attribute in
+> /sys/class/tty/console. You will need to all a little sysfs code after
+> the console tty device is created.
+> 
 > >
-> > I am getting this exception with kernel 2.6.13. With kernel
-> > 2.4.19-rmka7-pxa1 there was no problem.
+> > > Your patch isn't printing correctly. It is supposed to write the
+> > > output to seq_file, not use printk.
 > >
-> > Why its so? What can I do to alleviate the OOM problem?
->
-> Please see Documentation/vm/overcommit-accounting in the kernel source
-> tree.
->
-> --
-> Robert Hancock      Saskatoon, SK, Canada
-> To email, remove "nospam" from hancockr@nospamshaw.ca
-> Home Page: http://www.roberthancock.com/
+> > Pray tell where does it call printk()?
+> >
+> 
+> +	for (con = console_drivers; con; con = con->next)
+> +		printk("%d: %-8s %c:%c:%c flags:%s%s%s%s%s\n",
+> +			con->index, con->name,
+> +			con->read ? 'R' : 'x',
+
+Ack, don't know how I missed that.
+
+---
+~Randy

@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWGIVds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWGIVg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWGIVds (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 17:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWGIVds
+	id S932382AbWGIVg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 17:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWGIVg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 17:33:48 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26896 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932375AbWGIVdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 17:33:47 -0400
-Date: Sun, 9 Jul 2006 23:33:45 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: miles.lane@gmail.com, vandrove@vc.cvut.cz, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: Revert "ACPI: dock driver"
-Message-ID: <20060709213345.GR13938@stusta.de>
-References: <200607091559.k69Fx2h0029447@hera.kernel.org> <44B15BCB.5000306@vc.cvut.cz> <20060709203310.GP13938@stusta.de> <20060709135852.9515371f.rdunlap@xenotime.net>
+	Sun, 9 Jul 2006 17:36:29 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:12486 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932382AbWGIVg2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 17:36:28 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+Date: Sun, 9 Jul 2006 23:36:43 +0200
+User-Agent: KMail/1.9.3
+Cc: Bojan Smojver <bojan@rexursive.com>, Pavel Machek <pavel@ucw.cz>,
+       Arjan van de Ven <arjan@infradead.org>, Sunil Kumar <devsku@gmail.com>,
+       Avuton Olrich <avuton@gmail.com>, Olivier Galibert <galibert@pobox.com>,
+       Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org,
+       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>
+References: <20060627133321.GB3019@elf.ucw.cz> <200607091551.18456.rjw@sisk.pl> <200607100706.45789.ncunningham@linuxmail.org>
+In-Reply-To: <200607100706.45789.ncunningham@linuxmail.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060709135852.9515371f.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200607092336.44208.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 01:58:52PM -0700, Randy.Dunlap wrote:
-> On Sun, 9 Jul 2006 22:33:10 +0200 Adrian Bunk wrote:
+On Sunday 09 July 2006 23:06, Nigel Cunningham wrote:
+]-- snip --[
+> > Now there's the separate problem that we have to share _some_ code.
+> > To an absolute minimum, we have to share the freezer code and the
+> > code that handles devices, because it's also shared by suspend-to-RAM.
+> > The code that handles devices is already shared, but we also _have_ _to_
+> > share the freezer code.  Therefore, as long as suspend2 adds some code
+> > to the freezer, it's not even close to be considerable for merging.
 > 
-> > On Sun, Jul 09, 2006 at 09:40:59PM +0200, Petr Vandrovec wrote:
-> > > Linux Kernel Mailing List wrote:
-> > > >commit 953969ddf5b049361ed1e8471cc43dc4134d2a6f
-> > > >tree e4b84effa78a7e34d516142ee8ad1441906e33de
-> > > >parent b862f3b099f3ea672c7438c0b282ce8201d39dfc
-> > > >author Linus Torvalds <torvalds@g5.osdl.org> Sun, 09 Jul 2006 22:47:46 
-> > > >-0700
-> > > >committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 09 Jul 2006 22:47:46 
-> > > >-0700
-> > > >
-> > > >Revert "ACPI: dock driver"
-> > > >
-> > > >This reverts commit a5e1b94008f2a96abf4a0c0371a55a56b320c13e.
-> > > >
-> > > >Adrian Bunk points out that it has build errors, and apparently no
-> > > >maintenance. Throw it out.
-> > > 
-> > > Erm, what do I miss?  Code certainly builds, just before that checkin.
-> > >...
-> > 
-> > Not with all .config's:
-> > 
-> > http://lkml.org/lkml/2006/6/25/126
-> > http://lkml.org/lkml/2006/6/25/134
-> 
-> I set ACPI_DOCK=m and it builds OK.  I think that I used the
-> other config options from Miles's email.
-> and it still builds OK for me.
->...
+> If Suspend2 added code in a way that broke swsusp, I would agree. But it 
+> doesn't.
 
-ACPI_DOCK=m, HOTPLUG_PCI_ACPI=y is the problematic configuration.
+This is not a matter of any breakage or lack thereof.  The problem is that the
+freezer is _not_ _an_ _swsusp-only_ _code_.  It is used by someone else too,
+and having two different freezers in the tree would be _insane_, because too
+many things depend on that.  This would be like having two different memory
+management systems, but at a smaller scale.
 
-> ~Randy
+As far as I'm concerned, we _must_ find a way to have _one_ common freezer,
+before we can _think_ of anything more.  Still that's not even complicated,
+because your freezer changes are quite well separeted, so please resubmit
+them and we'll discuss them again.  Perhaps we'll be able to reach an
+agreement on what's mergeable and what's not and why.  Then, I'll do my
+best to get the mergeable stuff merged, and when it gets merged, you will
+drop the non-mergeable freezer changes.  I hope this is fair enough.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Rafael

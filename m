@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbWGIMI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbWGIMKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030463AbWGIMI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 08:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030466AbWGIMI7
+	id S1030459AbWGIMKi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 08:10:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030466AbWGIMKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 08:08:59 -0400
-Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:51663 "EHLO
-	mail.aftek.com") by vger.kernel.org with ESMTP id S1030463AbWGIMI5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 08:08:57 -0400
-X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(59.95.0.168):SA:0(-102.4/1.7):. Processed in 1.074717 secs Process 32113)
-From: "Abu M. Muttalib" <abum@aftek.com>
-To: "Willy Tarreau" <w@1wt.eu>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Robert Hancock" <hancockr@shaw.ca>,
-       <chase.venters@clientec.com>, <kernelnewbies@nl.linux.org>,
-       <linux-newbie@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       "linux-mm" <linux-mm@kvack.org>
-Subject: RE: Commenting out out_of_memory() function in __alloc_pages()
-Date: Sun, 9 Jul 2006 17:43:11 +0530
-Message-ID: <BKEKJNIHLJDCFGDBOHGMCEFFDCAA.abum@aftek.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Sun, 9 Jul 2006 08:10:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7148 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030459AbWGIMKh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 08:10:37 -0400
+Date: Sun, 9 Jul 2006 05:10:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Vladimir V. Saveliev" <vs@namesys.com>
+Subject: Re: 2.6.18-rc1-mm1
+Message-Id: <20060709051030.a73f832c.akpm@osdl.org>
+In-Reply-To: <6bffcb0e0607090402m1f6c09c7hc9abc380bf36d460@mail.gmail.com>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	<6bffcb0e0607090402m1f6c09c7hc9abc380bf36d460@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-In-reply-to: <20060709120138.GC2037@1wt.eu>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Willy for your reply..
+On Sun, 9 Jul 2006 13:02:48 +0200
+"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
 
-In this context will you please help me understand/give some pointer to
-understand the various field in the output of /proc/meminfo!!
+> TP hangs on
+> 
+> <<<test_output>>>
+> setrlimit01    1  PASS  :  RLIMIT_NOFILE functionality is correct
+> setrlimit01    0  WARN  :  caught signal 2, not SIGSEGV
+> <<<execution_status>>>
+> duration=1071 termination_type=driver_interrupt termination_id=1 corefile=no
+> cutime=0 cstime=1
+> <<<test_end>>>
 
-Anticipation and regards,
-Abu.
+Yep, thanks.
+
+
+RLIMIT_FSIZE can cause generic_write_checks() to reduce `count'.  So we cannot
+assume that `count' is equal to the total length size of the incoming iovec.
+
+--- a/mm/filemap.c~add-address_space_operationsbatch_write-fix
++++ a/mm/filemap.c
+@@ -2205,9 +2205,9 @@ generic_file_buffered_write(struct kiocb
+ 	do {
+ 		/* do not walk over current segment */
+ 		desc.buf = cur_iov->iov_base + iov_base;
+-		desc.count = cur_iov->iov_len - iov_base;
++		desc.count = min(count, cur_iov->iov_len - iov_base);
+ 		if (desc.count > 0)
+-			status = batch_write(file, &desc, &copied);
++			status = (*batch_write)(file, &desc, &copied);
+ 		else {
+ 			copied = 0;
+ 			status = 0;
+_
 

@@ -1,97 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161118AbWGIUZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbWGIU0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161118AbWGIUZl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 16:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbWGIUZl
+	id S1161122AbWGIU0o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 16:26:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbWGIU0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 16:25:41 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:9777 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161118AbWGIUZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 16:25:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=psgO2l2Swn7WN23mTjodeMUibz4UqfyL6t3NN7uMu679FrArvGJ5fOiKbCHrrVMRBz6tJanCjcgHMFpm4kYsO4zTQvZqMKSpfW47gfLpd+zSnN4/MeUraS2RNzbM2d6uSyy9vyioS7SJUCD5eQaVksto4e9xZLEFHn3SPvJzLZo=
-Message-ID: <9a8748490607091325q7c4bed0etffb15fda227c6232@mail.gmail.com>
-Date: Sun, 9 Jul 2006 22:25:38 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Daniel Bonekeeper" <thehazard@gmail.com>
-Subject: Re: Automatic Kernel Bug Report
-Cc: "Adrian Bunk" <bunk@stusta.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <e1e1d5f40607091301j723b92bje147932a4395775c@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 9 Jul 2006 16:26:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21121 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161122AbWGIU0n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 16:26:43 -0400
+Date: Sun, 9 Jul 2006 13:21:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: 2.6.18-rc1-mm1 oops on x86_64
+Message-Id: <20060709132135.6c786cfb.akpm@osdl.org>
+In-Reply-To: <44B12C74.9090104@fr.ibm.com>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	<44B12C74.9090104@fr.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com>
-	 <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com>
-	 <e1e1d5f40607090329i25f6b1b2s3db2c2001230932c@mail.gmail.com>
-	 <20060709125805.GF13938@stusta.de>
-	 <e1e1d5f40607091146s2f8e6431v33923f38c6d10539@mail.gmail.com>
-	 <20060709191107.GN13938@stusta.de>
-	 <e1e1d5f40607091301j723b92bje147932a4395775c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/07/06, Daniel Bonekeeper <thehazard@gmail.com> wrote:
-...
->
-> Hopefully, in some bugs where nothing is printed (i.e., syslog died,
-> is not running, or we are in kernel context and never get back to user
-> mode), having a notifier on the kernel may ensure that the bug report
-> is sent (since we don't need userspace interaction to get it working).
->
-...
+On Sun, 09 Jul 2006 18:19:00 +0200
+Cedric Le Goater <clg@fr.ibm.com> wrote:
 
-Have you considered the privacy implications of this?
+> Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/
+> 
+> Kernel BUG at ...home/legoater/linux/2.6.18-rc1-mm1/mm/page_alloc.c:252
 
-If you implement something like this it most definately needs to be
-configurable and default to *OFF* and need explicit user intervention
-to turn on.
-Also consider that any data transmitted should probably be encrypted
-during transmission - not something you want to start doing after you
-just Oops'ed.
+	VM_BUG_ON((gfp_flags & (__GFP_WAIT | __GFP_HIGHMEM)) == __GFP_HIGHMEM);
 
-I for one certainly do *NOT* want my kernel to "phone home" and
-disclose information about my computer without my concent - that, in
-my book, is called spyware.
+With your config, __GFP_HIGHMEM=0, so wham.
 
-Consider this :
+I dunno, Christoph.  I think those patches are going to significantly
+increase the number of works-with-my-config, doesnt-with-yours scenarios.
 
-If my machine connects to some off-site location and submits an Oops
-at least the following information about me will (or may) be disclosed
-:
-
-- My IP address.
-- My OS.
-- Portions of memory on my machine that may contain sensitive info
-(encryption keys for instance or personal data).
-- Name(s) of applications I have running.
-- gcc version of the compiler I used to build the kernel.
-- Details of hardware I have in the box (architecture etc).
-
-and probably a lot more that I've forgotten to include.
-
-I consider the above info privileged and personal and something that
-requires my explicit concent to release. It's *NOT* something I want
-my computer to submit off-site without me knowing about it.
-
-Also consider that I may be using a labtop and be connected to a
-network where I may not be allowed to connect off-site except under a
-specific set of circumstances. This thing could make me violate such a
-policy without knowing about it.
-
-I may also be connected to a network where the firewall logs all my
-outgoing connections and I may not want people to know I'm running
-Linux. A Linux kernel Oops from my machine showing up in the firewall
-logs would certainly disclose that fact.
-
-There are more things to consider than just "would this be useful for
-kernel development" - privacy in this case is a major issue.
-
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+We're going to hurt ourselves if we do this.

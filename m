@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWGIJpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWGIJuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751318AbWGIJpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 05:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWGIJpI
+	id S1751322AbWGIJuq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 05:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWGIJuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 05:45:08 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:62045 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751318AbWGIJpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 05:45:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m8cOGAf90MyFEjILZ/v+syoGAQhE4XlqRSKXgCOJ04fLTPuiLVtBxJrUkFSifExzQdwUe7pg3TDeW4tZsG4pFQSYX8EtYp+LMr9Uf20uI+6BItY53WO7FJPExQHA/eNVkGckr5d3fHr9fTZzzkEtHpz6LDqXOiBzHzR5tIdJynM=
-Message-ID: <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com>
-Date: Sun, 9 Jul 2006 11:45:06 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Daniel Bonekeeper" <thehazard@gmail.com>
-Subject: Re: Automatic Kernel Bug Report
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com>
+	Sun, 9 Jul 2006 05:50:46 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:61656 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751322AbWGIJuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 05:50:46 -0400
+Date: Sun, 9 Jul 2006 11:50:12 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: 7eggert@gmx.de, Bill Davidsen <davidsen@tmr.com>,
+       "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+In-Reply-To: <1152283049.5726.26.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.58.0607091141450.2600@be1.lrz>
+References: <6tVcC-1e1-79@gated-at.bofh.it> <6uXYv-3RG-1@gated-at.bofh.it> 
+ <6veG8-350-7@gated-at.bofh.it> <6vfiU-465-13@gated-at.bofh.it> 
+ <6vmNk-77r-23@gated-at.bofh.it> <6vnq7-7Tw-55@gated-at.bofh.it> 
+ <6vrN0-5Se-9@gated-at.bofh.it> <6vBsY-38p-9@gated-at.bofh.it> 
+ <E1Fymn1-0000g6-7s@be1.lrz> <1152283049.5726.26.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Daniel,
+On Fri, 7 Jul 2006, Trond Myklebust wrote:
+> On Fri, 2006-07-07 at 11:38 +0200, Bodo Eggert wrote:
 
-On 09/07/06, Daniel Bonekeeper <thehazard@gmail.com> wrote:
-> Well this probably was already discussed. Some distros have automatic
-> bug reporting tools that are triggered when something bad happens
-> (don't know if includes kernel stuff). But have anybody thought about
-> some kind of bug report tool that, under an Oops like a NULL point
-> dereference, it creates for example a packed file with the config used
-> to build the kernel, the kernel version, loaded modules, some hardware
-> info, backtraces, everything that could be useful for debugging, and
-> sends to a server to be catalogued ?
+> > If the changes to these files are very infrequent compared to nanoseconds,
+> > you'll only need the version during some nanoseconds, and only during
+> > runtime. Having a second-change-within-one-timeframe-flag(*) instead of
+> > versions will be enough to make NFS mostly happy and only penalize your
+> > users for one nanosecond, and it won't force version-keeping into the
+> > filesystem. And besides that, all other filesystems will profit even
+> > without having nanosecond resolution nor versioning (but they'll suffer
+> > for up to a whole second).
+> 
+> NFS never required file versioning. You're talking to the wrong person.
+> It does, however, need a change attribute that logs all changes to the
+> file. The above flag does not suffice to provide that.
 
-How about oops reporting tool?
-http://www.stardust.webpages.pl/files/ort/
-
-[snip]
->
-> Wouldn't that be helpful ?
->
-> Daniel
->
-
-Regards,
-Michal
-
+ACK, that's why I'm suggesting this doublechange-flag.
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+In the beginning, God created the earth and rested.
+Then God created Man and rested.
+Then God created Woman.
+Since then, neither God nor Man has rested.

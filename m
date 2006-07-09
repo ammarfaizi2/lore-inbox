@@ -1,47 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbWGIKgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWGIKlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030446AbWGIKgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 06:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030447AbWGIKgQ
+	id S932425AbWGIKlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 06:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWGIKlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 06:36:16 -0400
-Received: from gate.crashing.org ([63.228.1.57]:10138 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030446AbWGIKgQ (ORCPT
+	Sun, 9 Jul 2006 06:41:07 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:45197 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S932154AbWGIKlF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 06:36:16 -0400
-Subject: Re: Linux v2.6.18-rc1
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Steve Fox <drfickle@us.ibm.com>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <pan.2006.07.07.15.41.35.528827@us.ibm.com>
-References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
-	 <pan.2006.07.07.15.41.35.528827@us.ibm.com>
-Content-Type: text/plain
-Date: Sun, 09 Jul 2006 20:34:02 +1000
-Message-Id: <1152441242.4128.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Jul 2006 06:41:05 -0400
+Date: Sun, 9 Jul 2006 12:40:58 +0200 (MEST)
+Message-Id: <200607091040.k69AewNu019891@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: davem@davemloft.net
+Subject: 2.6.18-rc1 fails to boot on Ultra 5
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-07 at 10:41 -0500, Steve Fox wrote:
-> We've got a ppc64 machine that won't boot with this due to an IDE error.
+2.6.17-git7 was the last development kernel to boot on my U5.
+2.6.17-git8 to -git15 all hang immediately after being loaded.
+2.6.17-git16 to 2.6.18-rc1 partially boot but crash and burn in
+different places depending on kernel configuration: my standard
+config got alignment exceptions in the floppy driver followed by
+(sabre?) PCI errors and a hang; a minimal kernel gets further but
+fails "su" probe and then oopses hard when the /dev/hda partition
+table is about to be printed.
 
-What machine precisely ?
+I'll try to capture the kernel messages soon, but I don't have
+a null-modem serial cable to the U5 yet, and my attempts to use
+a digital camera only resulted in blurry pictures of the screen :-(
 
-> [snip]
-> Freeing unused kernel memory: 256k freed
->  running (1:2) /init autobench_args: ABAT:1152213829
-> 
-> creating device nodes .hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
-> 
-
+/Mikael

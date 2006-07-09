@@ -1,67 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbWGINYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030496AbWGINYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030499AbWGINYT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 09:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030496AbWGINYT
+	id S1030496AbWGINYe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 09:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030498AbWGINYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 09:24:19 -0400
-Received: from 1wt.eu ([62.212.114.60]:1802 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S1030492AbWGINYR (ORCPT
+	Sun, 9 Jul 2006 09:24:34 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:31386 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1030496AbWGINYb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 09:24:17 -0400
-Date: Sun, 9 Jul 2006 15:23:52 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: "Abu M. Muttalib" <abum@aftek.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Hancock <hancockr@shaw.ca>,
-       chase.venters@clientec.com, kernelnewbies@nl.linux.org,
-       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
-Message-ID: <20060709132352.GA23263@1wt.eu>
-References: <20060709121511.GD2037@1wt.eu> <BKEKJNIHLJDCFGDBOHGMCEFIDCAA.abum@aftek.com>
+	Sun, 9 Jul 2006 09:24:31 -0400
+Date: Sun, 9 Jul 2006 17:24:29 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Subject: [RFC 0/4] kevent: generic kernel event processing subsystem.
+Message-ID: <20060709132426.GA29435@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <BKEKJNIHLJDCFGDBOHGMCEFIDCAA.abum@aftek.com>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 09 Jul 2006 17:24:32 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 06:42:23PM +0530, Abu M. Muttalib wrote:
-> >It's explained in Documentation/filesystems/proc.txt. This file know far
-> >ore things than me :-)
-> 
-> I tried with overcommit_ratio=100 and overcommit_memory=2 in that sequence.
-> 
-> but the applications were killed. :-(
+Hello developers.
 
-If you set it too high, the system will never fail a malloc() and the memory
-will quickly be grabbed by memory eaters, thus quickly resulting in OOM. This
-is the default behaviour.
+I'm pleased to announce in linux-kernel@ mail list kevent subsystem 
+which incorporates several AIO/kqueue design notes and ideas.
+Kevent can be used both for edge and level notifications. It supports
+socket notifications, network AIO (aio_send(), aio_recv() and
+aio_sendfile()), inode notifications (create/remove),
+generic poll()/select() notifications and timer notifications.
 
-If you set it too low, the system will fail malloc() calls eventhough there
-might be enough memory left, so you cannot start new processes.
+Short implementation details.
+storage - each source of events (socket, inode, timer, aio) 
+has structure kevent_storage incorporated into it, which is 
+basically a list of registered interests for this source of events.
+user - it is abstraction which holds all requested kevents. 
+It is similar to FreeBSD's kqueue.
 
-Setting it to an intermediate value helps the system manage its ressources
-and helps applications know that they must be smart with their memory usage.
-For instance, if your application has something like a garbage collector or
-can automatically reduce its buffers when memory becomes scarce, then it
-will be helped by a lower overcommit_ratio. If your application does not
-run as root, you might also try to play with ulimit -v before starting it.
-I use this in my load balancing reverse proxy to restrain memory usage
-without impacting the rest of the system.
+kevent - set of interests for given source of events or storage.
 
-Memory tuning in constrainted environments is like rocket science. You need
-some evaluations then to make a lot of experimentations. There is no rule
-which will work for everyone. But it seems to me that your application is
-not very resistant in those environments. Maybe 2.4.19 was very close to
-the ressource limit and now 2.6.13 has crossed the boundary. You can also
-try to play with the -tiny patches (merged around 2.6.15 IIRC) to reduce
-the kernel's memory usage.
+Each kevent now is queued into three lists:
 
-> Regards,
-> Abu.
+    * kevent_user->kevent_list - list of all registered kevents.
+    * kevent_user->ready_list - list of ready kevents.
+    * kevent_storage->list - list of all interests for given kevent_storage.
 
-Regards,
-Willy
+When kevent is queued into storage, it will live there until 
+removed by kevent_dequeue(). When some activity is noticed in 
+given storage, it scans it's kevent_storage->list for kevents 
+which match activity event. If kevents are found and they are 
+not already in the kevent_user->ready_list, they will be added 
+there at the end.
 
+It is possible wait until either requested number of kevents are 
+ready or timeout elapsed or at least one kevent is ready, 
+it's behaviour depends on parameters.
+
+Any event can be added/removed/modified by ioctl or one control syscall.
+
+It was tested against FreeBSD kqueue and Linux epoll and showed
+very noticeble performance win.
+
+Network asynchronous IO operations were tested against Linux synchronous
+socket code and showed noticeble performance win.
+
+I would like to hear some comments about the overall design,
+implementation and plans about it's usefullness for generic kernel.
+Kevent patches were discussed several times already (project was created 
+quite long time ago), and there were present no major negative feedback
+except some high-level API changes. The latest discussion can be found 
+at [4].
+
+Design notes, patches, userspace application and perfomance tests can be
+found at project's homepages.
+
+1. Kevent subsystem.
+http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent
+
+2. Network AIO.
+http://tservice.net.ru/~s0mbre/old/?section=projects&item=naio
+
+3. LWN article about kevent.
+http://lwn.net/Articles/172844/
+
+4. The latest discussion in netdev@ mail list.
+http://thread.gmane.org/gmane.linux.network/37595/focus=37673
+
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+
+-- 
+	Evgeniy Polyakov

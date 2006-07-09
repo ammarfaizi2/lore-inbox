@@ -1,60 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbWGITHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161060AbWGITLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161056AbWGITHX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 15:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbWGITHX
+	id S1161060AbWGITLK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 15:11:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161061AbWGITLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 15:07:23 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:2245
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1161056AbWGITHX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 15:07:23 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Martin Langer <martin-langer@gmx.de>
-Subject: Re: [RFC][PATCH 1/2] firmware version management: add firmware_version()
-Date: Sun, 9 Jul 2006 21:09:02 +0200
-User-Agent: KMail/1.9.1
-References: <20060708130904.GA3819@tuba> <1152457310.3255.58.camel@laptopd505.fenrus.org> <20060709152516.GB3678@tuba>
-In-Reply-To: <20060709152516.GB3678@tuba>
-Cc: Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de, Arjan van de Ven <arjan@infradead.org>
+	Sun, 9 Jul 2006 15:11:10 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40719 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161060AbWGITLJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 15:11:09 -0400
+Date: Sun, 9 Jul 2006 21:11:08 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Daniel Bonekeeper <thehazard@gmail.com>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Automatic Kernel Bug Report
+Message-ID: <20060709191107.GN13938@stusta.de>
+References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com> <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com> <e1e1d5f40607090329i25f6b1b2s3db2c2001230932c@mail.gmail.com> <20060709125805.GF13938@stusta.de> <e1e1d5f40607091146s2f8e6431v33923f38c6d10539@mail.gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607092109.02707.mb@bu3sch.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <e1e1d5f40607091146s2f8e6431v33923f38c6d10539@mail.gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 July 2006 17:25, you wrote:
-> > yes it does. bcm43xx asks userspace to upload firmware (via
-> > request_firmware() ) and a userspace app (udev most of the time) will
-> > upload it. That app, eg udev, can do the md5sum and checking it against
-> > a list of "known good" firmwares. Voila problem solved ;)
+On Sun, Jul 09, 2006 at 02:46:28PM -0400, Daniel Bonekeeper wrote:
+> >I'm sorry for being so negative, but it seems you are overdesigning a
+> >solution for a non-existing problem:
+> >
+> >There are cases where the machine is simply dead with exactly zero
+> >information. These are the really hard ones.
 > 
-> I see. It's an interesting way that I didn't noticed. 
-> Thanks for the guidance.
+> Then really there isn't anything that we can do, except to expect the
+> kindness of the user in taking a picture of his screen and posting on
+> the kernel's bugzilla.
 
-Nono, stop. Not too fast. :)
-Where is this "list of "known good" firmwares" actually stored?
-In userspace (udev)? That would be guaranteed to be out of sync
-with the driver.
-As said previously, we need to tie a specific driver version to
-one or more firmware versions. So the only sane place to put the
-MD5 sums (or whatever) in, is the driver. Otherwise it will not
-be in sync.
+No, I'm talking about freezes without anything printed.
 
-So, if we want to verify the checksum in userspace, we must
-export a list of known good checksums to userspace.
-Could be done through a sysfs file with a list of checksums.
+As soon as anything is printed, it becomes easier.
 
-cat /sys/foo/device/acceptable_firmwares
-MD5: cbd8320a2a458d1cfad5420c6fa6a823
-MD5: b812d7dd3d3b88fbc113e0bbf7e07c8d
+> >Then there are cases where the kernel is able to print a BUG() or Oops
+> >to a log file. Or the error message is printed to the screen and the
+> >user uses a digital camera and sends the photo.
+> 
+> Then again, users may just continue using the machine (without even
+> noticing the Oops), or notice but never care to report it, or forgets,
+> etc.
 
-That would also allow other hash algorithms in future
-while providing backward compat.
+If the user doesn't notice what is written into his logs, the solution 
+is to change this (e.g. via logcheck).
+
+And if the user doesn't care, there's no reason for getting the bug 
+report - a bug report from a not responsive user is worse than no bug 
+report.
+
+> >The message is usually enough for starting to debug the problem or
+> >asking the user for additional information.
+> >
+> >But most important, the problem lies in a completely different area:
+> >
+> >Interaction between kernel devlopers and users is not a real problem.
+> >The real problem is the missing developer manpower for handling bug
+> >reports.
+> 
+> Well Adrian, this is the other side of the problem. We don't actually
+> need a kernel monkey to keep looking for bugs that comes (even thought
+> would be good, but as you stated, there is not enough manpower to do
+> that), even more after having something that automatically sends Oops
+> reports to the server, where we could expect thousands of bug reports
+> daily... but I also believe that not having somebody to look at them
+> is not an excuse for not having this bug taken account for. For
+>...
+> In resume, don't being able to investigate each report isn't a reason
+> for not being acknowledged of its existance, and even we don't
+> investigate it, having it for statistical purposes is already a great
+> deal.
+
+I'm still sure the important points are
+- developer manpower and
+- responsive bug submitters,
+and your proposal doesn't help with any of these.
+
+But this is open source, so feel free to send a patch implementing your 
+ideas and prove me wrong.
+
+> Daniel
+
+cu
+Adrian
 
 -- 
-Greetings Michael.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

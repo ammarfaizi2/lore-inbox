@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWGIQFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWGIQI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932516AbWGIQFV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 12:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWGIQFV
+	id S932210AbWGIQI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 12:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWGIQI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 12:05:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36786 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932503AbWGIQFU (ORCPT
+	Sun, 9 Jul 2006 12:08:26 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:42258 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S932210AbWGIQI0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 12:05:20 -0400
-Date: Sun, 9 Jul 2006 09:01:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Kristen Accardi <kristen.c.accardi@intel.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, gregkh@suse.de,
-       len.brown@intel.com, linux-acpi@vger.kernel.org,
-       Miles Lane <miles.lane@gmail.com>
-Subject: Re: ACPI_DOCK bug: noone cares
-In-Reply-To: <20060709000601.GA13938@stusta.de>
-Message-ID: <Pine.LNX.4.64.0607090857440.5623@g5.osdl.org>
-References: <a44ae5cd0606251256m74182e7fw4eb2692c89b0e2f8@mail.gmail.com>
- <20060625200953.GF23314@stusta.de> <a44ae5cd0606251313n5e7654f3t652df65e811325b5@mail.gmail.com>
- <20060625204039.GG23314@stusta.de> <20060709000601.GA13938@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 9 Jul 2006 12:08:26 -0400
+Date: Sun, 9 Jul 2006 18:08:25 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       alsa-devel@alsa-project.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       perex@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
+Message-ID: <20060709160825.GA54787@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Lee Revell <rlrevell@joe-job.com>, Andi Kleen <ak@suse.de>,
+	Adrian Bunk <bunk@stusta.de>, alsa-devel@alsa-project.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, perex@suse.cz,
+	linux-kernel@vger.kernel.org
+References: <20060707231716.GE26941@stusta.de> <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152458300.28129.45.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 09, 2006 at 11:18:19AM -0400, Lee Revell wrote:
+> It doesn't do the same thing - software mixing is impossible with OSS.
 
+It's exactly as impossible with OSS as it is with ALSA.  Just stop
+considering the OSS API support the problem child of the family and
+these removals will go *much* easier, you know?
 
-On Sun, 9 Jul 2006, Adrian Bunk wrote:
-> 
-> Two weeks ago, we had:
-> - a bug report
-> - a detailed description how to possibly fix this issue
-> 
-> What we did NOT have was:
-> - any reaction by the patch author or any maintainer
->   (although with the exception of Linus, the recipients of the problem
->    description were exactly the same as the ones in this email)
-> 
-> A few days later, the patch that includes this bug was included in 
-> Linus' tree.
-> 
-> Two weeks later, the bug is still present in both latest -mm and Linus' 
-> tree.
-> 
-> Linus, please do a
->   git-revert a5e1b94008f2a96abf4a0c0371a55a56b320c13e
-
-Fair enough. Reverted.
-
-I think I'll stop accepting any ACPI patches at all that add new features, 
-as long as there doesn't seem to be anybody who reacts to bug-reports. We 
-don't need ACPI features.
-
-We need somebody who answers when people like Andrew asks about patches to 
-support things like memory hotplug (which was also a problem over the last 
-weeks). Here's a quote from Andrew from a week or so ago: "repeat seven 
-times over three months with zero response.".
-
-It's not worth it to accept new stuff if we know it's not going to get any 
-attention ever afterwards.
-
-			Linus
+  OG.

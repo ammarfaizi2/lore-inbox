@@ -1,90 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161185AbWGIWgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161206AbWGIWk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161185AbWGIWgf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 18:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161206AbWGIWgf
+	id S1161206AbWGIWk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 18:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161207AbWGIWk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 18:36:35 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:47558 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1161185AbWGIWgf (ORCPT
+	Sun, 9 Jul 2006 18:40:29 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31691 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161206AbWGIWk2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 18:36:35 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18-rc1-mm1 fails on amd64 (smp_call_function_single)
-Date: Mon, 10 Jul 2006 00:37:14 +0200
-User-Agent: KMail/1.9.3
-Cc: gregoire.favre@gmail.com, linux-kernel@vger.kernel.org, ak@suse.de,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <20060709021106.9310d4d1.akpm@osdl.org> <200607092239.48065.rjw@sisk.pl> <20060709140322.fc5afac1.akpm@osdl.org>
-In-Reply-To: <20060709140322.fc5afac1.akpm@osdl.org>
+	Sun, 9 Jul 2006 18:40:28 -0400
+Date: Mon, 10 Jul 2006 00:35:38 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick <mccpat@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.17.4] Halting process powers-off HDD twice
+Message-ID: <20060709223538.GA1807@elf.ucw.cz>
+References: <9834b6670607071625w7bbf7721i26b90d23e94bac75@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607100037.14958.rjw@sisk.pl>
+In-Reply-To: <9834b6670607071625w7bbf7721i26b90d23e94bac75@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 July 2006 23:03, Andrew Morton wrote:
-> On Sun, 9 Jul 2006 22:39:48 +0200
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+On Fri 2006-07-07 19:25:48, Patrick wrote:
+> I'm using the 2.6.17.4 kernel. As of the 2.6.17 release, whenever I
+> shutdown my system (using the 'halt' command... I didn't change the
+> 'halt' version since the update), my hard-drive powers off, powers
+> back on, powers off, and then the system is powered down. Usually (<=
+> 2.6.16), the hard-drive would be turned off once, and then the system
+> powered off.
 > 
-> > On Sunday 09 July 2006 13:49, Gregoire Favre wrote:
-> > > Hello,
-> > > 
-> > > can't compil it :
-> > > 
-> > >   CHK     include/linux/compile.h
-> > >   UPD     include/linux/compile.h
-> > >   CC      init/version.o
-> > >   LD      init/built-in.o
-> > >   LD      .tmp_vmlinux1
-> > > arch/x86_64/kernel/built-in.o: In function `vsyscall_set_cpu':
-> > > (.init.text+0x1e87): undefined reference to `smp_call_function_single'
-> > > make: *** [.tmp_vmlinux1] Error 1
-> > 
-> > This is because of x86_64-mm-getcpu-vsyscall.patch which breaks
-> > compilation without SMP and is not obviously fixable.
-> 
-> Is it not as simple as adding a !SMP implementation of
-> smp_call_function_single(), which just calls the thing?
+> The hard-drive this problem is occuring on is an IDE Maxtor 6B300R0
+> hard drive. My .config is attached. Please CC me, as I'm not
+> subscribed to the list.
 
-Like this:
-
- arch/x86_64/kernel/vsyscall.c |    6 ++++++
- 1 files changed, 6 insertions(+)
-
-Index: linux-2.6.18-rc1-mm1/arch/x86_64/kernel/vsyscall.c
-===================================================================
---- linux-2.6.18-rc1-mm1.orig/arch/x86_64/kernel/vsyscall.c
-+++ linux-2.6.18-rc1-mm1/arch/x86_64/kernel/vsyscall.c
-@@ -241,10 +241,12 @@ static ctl_table kernel_root_table2[] = 
- 
- #endif
- 
-+#ifdef CONFIG_SMP
- static void __cpuinit write_rdtscp_cb(void *info)
- {
- 	write_rdtscp_aux((unsigned long)info);
- }
-+#endif
- 
- void __cpuinit vsyscall_set_cpu(int cpu)
- {
-@@ -254,10 +256,14 @@ void __cpuinit vsyscall_set_cpu(int cpu)
- 	node = cpu_to_node[cpu];
- #endif
- 	if (cpu_has(&cpu_data[cpu], X86_FEATURE_RDTSCP)) {
-+#ifdef CONFIG_SMP
- 		/* the notifier is unfortunately not executed on the
- 		   target CPU */
- 		void *info = (void *)((node << 12) | cpu);
- 		smp_call_function_single(cpu, write_rdtscp_cb, info, 0, 1);
-+#else
-+		write_rdtscp_aux(0);
-+#endif
- 	}
- 
- 	/* Store cpu number in limit so that it can be loaded quickly
+Can you add WARN_ON(1) to the spindown code and get tracebacks to
+see who is causing this?
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWGIXNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWGIXRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbWGIXNo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 19:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWGIXNo
+	id S932485AbWGIXRR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 19:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWGIXRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 19:13:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39596 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932523AbWGIXNn (ORCPT
+	Sun, 9 Jul 2006 19:17:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5549 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932485AbWGIXRQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 19:13:43 -0400
-Date: Sun, 9 Jul 2006 16:13:30 -0700
+	Sun, 9 Jul 2006 19:17:16 -0400
+Date: Sun, 9 Jul 2006 16:17:12 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       Thomas Kleffel <tk@maintech.de>,
-       Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: Re: pcmcia IDE broken in 2.6.18-rc1
-Message-Id: <20060709161330.9fda040d.akpm@osdl.org>
-In-Reply-To: <20060709224700.GA1707@elf.ucw.cz>
-References: <20060708145541.GA2079@elf.ucw.cz>
-	<1152380199.27368.9.camel@localhost.localdomain>
-	<20060708104100.af5dcbd8.akpm@osdl.org>
-	<20060709224700.GA1707@elf.ucw.cz>
+To: Tilman Schmidt <tilman@imap.cc>
+Cc: linux-kernel@vger.kernel.org, efault@gmx.de
+Subject: Re: 2.6.18-rc1-mm1: /sys/class/net/ethN becoming symlink befuddled
+ /sbin/ifup
+Message-Id: <20060709161712.c6d2aecb.akpm@osdl.org>
+In-Reply-To: <44B189D3.4090303@imap.cc>
+References: <6wDCq-5xj-25@gated-at.bofh.it>
+	<6wM2X-1lt-7@gated-at.bofh.it>
+	<6wOxP-4QN-5@gated-at.bofh.it>
+	<44B189D3.4090303@imap.cc>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -29,33 +28,33 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jul 2006 00:47:08 +0200
-Pavel Machek <pavel@ucw.cz> wrote:
+On Mon, 10 Jul 2006 00:57:23 +0200
+Tilman Schmidt <tilman@imap.cc> wrote:
 
-> Hi!
+> On 09.07.2006 23:00, Andrew Morton wrote:
 > 
-> > > > ide2: I/O resource 0xF887E00E-0xF887E00E not free.
-> > > > ide2: ports already in use, skipping probe
-> > > > ide2: I/O resource 0xF887E01E-0xF887E01E not free.
-> > > > ide2: ports already in use, skipping probe
-> > > 
-> > > 
-> > > Looks like ioremap values not I/O ports. Probably the various IDE layer
-> > > changes from 2.6.17-mm.
-> > > 
-> > > My first guess would be the PCMCIA layer changes to use mmio ports are
-> > > not setting hwif->mmio (I think its ->mmio) to 2 and doing their own
-> > > resource management.
-> > > 
+> > On Sun, 09 Jul 2006 20:22:09 +0200
+> > Mike Galbraith <efault@gmx.de> wrote:
 > > 
-> > 5040cb8b7e61b7a03e8837920b9eb2c839bb1947 looks like a good one to try
-> > reverting.
+> >>As $subject says, up-to-date SuSE 10.0 /sbin/ifup became confused...
 > 
-> 2.6.18-rc1-mm1 works okay. Is that enough, or do you want me to try
-> reverting just this patch?
+> Same here.
+> 
+> > I'd be suspecting
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/broken-out/gregkh-driver-network-class_device-to-device.patch.
+> > 
+> > If you could do a `patch -R' of that one it'd really help, thanks.
+> 
+> Tried that, but failed with:
+> 
+>   LD      .tmp_vmlinux1
+> net/built-in.o: In function `dev_change_name':
+> : undefined reference to `class_device_rename'
+> 
+> Not sure whether that's an unclean patch reversal because of conflicts
+> with other patches (had a few "fuzz" and "offset" messages during the
+> patch -R), will have a look tomorrow.
+> 
 
-Nope, that's fine, thanks.  I think we can say that
-5040cb8b7e61b7a03e8837920b9eb2c839bb1947 is busted.
-
-Let's give Thomas and Dominik a few days to think about it before we do the
-deed..
+drat, you'll also need to revert
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/broken-out/gregkh-driver-class_device_rename-remove.patch

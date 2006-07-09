@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbWGITSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161062AbWGITZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161068AbWGITSW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 15:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWGITSW
+	id S1161062AbWGITZb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 15:25:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161063AbWGITZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 15:18:22 -0400
-Received: from mga02.intel.com ([134.134.136.20]:50076 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1161063AbWGITSV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 15:18:21 -0400
-X-IronPort-AV: i="4.06,221,1149490800"; 
-   d="scan'208"; a="62615462:sNHT19510848"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Subject: RE: [PATCH] ia64: change usermode HZ to 250
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Date: Sun, 9 Jul 2006 12:18:21 -0700
-Message-ID: <617E1C2C70743745A92448908E030B2A34B9BD@scsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] ia64: change usermode HZ to 250
-Thread-Index: AcaiWbsVhQ8fcROeQCasys0cDwEElwBMaBfA
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Arjan van de Ven" <arjan@infradead.org>, "Jeremy Higdon" <jeremy@sgi.com>
-Cc: "Jes Sorensen" <jes@sgi.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "John Daiker" <jdaiker@osdl.org>, "John Hawkes" <hawkes@sgi.com>,
-       "Tony Luck" <tony.luck@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       "Jack Steiner" <steiner@sgi.com>, "Dan Higgins" <djh@sgi.com>
-X-OriginalArrivalTime: 09 Jul 2006 19:18:20.0293 (UTC) FILETIME=[70631B50:01C6A38C]
+	Sun, 9 Jul 2006 15:25:31 -0400
+Received: from pool-71-254-66-150.ronkva.east.verizon.net ([71.254.66.150]:44740
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1161062AbWGITZb (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 15:25:31 -0400
+Message-Id: <200607091924.k69JOuaw004252@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Roman Zippel <zippel@linux-m68k.org>, john stultz <johnstul@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1
+In-Reply-To: Your message of "Sun, 09 Jul 2006 02:11:06 PDT."
+             <20060709021106.9310d4d1.akpm@osdl.org>
+From: Valdis.Kletnieks@vt.edu
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1152473096_3401P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 09 Jul 2006 15:24:56 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So is times() is broken in IA64, or is this an exception to Alan's
-> > statement?
+--==_Exmh_1152473096_3401P
+Content-Type: text/plain; charset=us-ascii
 
-> yes it's broken; it needs to convert it to the original HZ (1024) and
+On Sun, 09 Jul 2006 02:11:06 PDT, Andrew Morton said:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/
 
+Congrats to all the maintainers I've hassled the last few -mm's (in particular,
+Alan Cox, Roman Zippel, and John Stultz) - this one came up basically OK..
 
-http://www.opengroup.org/onlinepubs/007908799/xsh/times.html
+1) The timer issues with booting with 'vga=794' causing slow console output
+and confusing the error correcting seem resolved - the problem section of
+early userspace is back to the 2-3 seconds it used to be, rather than 2-3 mins.
 
-In which there is a typo: 
+2) libata is now setting the speeds sanely for both IDE devices:
 
-"Applications should use to determine the number of clock ticks
- per second as it may vary from system to system"
+[    7.808637] libata version 2.00 loaded.
+[    7.808888] ata_piix 0000:00:1f.1: version 2.00ac5
+[    7.808908] PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+[    7.810374] ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
+[    7.810910] ACPI: PCI Interrupt 0000:00:1f.1[A] -> Link [LNKA] -> GSI 11 (level, low) -> IRQ 11
+[    7.811767] PCI: Setting latency timer of device 0000:00:1f.1 to 64
+[    7.811855] ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xBFA0 irq 14
+[    7.812510] scsi0 : ata_piix
+[    7.964218] ata1.00: ATA-6, max UDMA/100, 117210240 sectors: LBA 
+[    7.964790] ata1.00: ata1: dev 0 multi count 8
+[    8.116060] ata1.01: ATAPI, max UDMA/33
+[    8.121104] ata1.00: configured for UDMA/100
+[    8.272621] ata1.01: configured for UDMA/33
+[    8.273139]   Vendor: ATA       Model: FUJITSU MHV2060A  Rev: 0000
+[    8.274258]   Type:   Direct-Access                      ANSI SCSI revision:05
+[    8.277954]   Vendor: TOSHIBA   Model: CDRW/DVD SDR2102  Rev: 1D13
+[    8.279074]   Type:   CD-ROM                             ANSI SCSI revision:05
 
-Clearly the word "sysconf" is missing between "use" and "to" (sysconf()
-*is* listed in the SEE ALSO section).
+(Alan - I *did* have to apply the piix_pata_ops to ich_pata_ops one-liner,
+that didn't seem to be in -rc1-mm1).
 
-I thought that part of the reason Linus raised HZ from 100 to 1000
-on x86 was to help flush out pre-historic programs that didn't
-know about sysconf() [With the hope that results that are off by
-an order of magnitude would be absurd enough to get notice].
+--==_Exmh_1152473096_3401P
+Content-Type: application/pgp-signature
 
-> make the sysconf() function also return 1024
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Making sysconf lie about the actual system tick sounds such a
-bad idea on so many levels!
+iD8DBQFEsVgIcC3lWbTT17ARAp5XAJ9/easa6YIy1T8Xm4N4X2Pg2CrvLgCg1vAf
+NPbxcbSS/mU66KexMHvNbdA=
+=0ApM
+-----END PGP SIGNATURE-----
 
--Tony
+--==_Exmh_1152473096_3401P--

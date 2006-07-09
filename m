@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030495AbWGINTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbWGINYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030495AbWGINTh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 09:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbWGINTh
+	id S1030499AbWGINYT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 09:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030496AbWGINYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 09:19:37 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:60596 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030493AbWGINTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 09:19:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=gBAUt7YXxF0V46nN/gT1Nxxl0kbEGBCvha/8iP7TMBHKDQx8pjQBbABKe5myMQHxh1d7WH/oSas3WttLxd3zxINXUUozmzHkhx9V7YZ3UMZPdqz5Quh+sSGDBd2KhwD9Di3nioewTPUdZ2tIEEaZe2RHYvTeNAQJPX7gHwht9DA=
-Date: Sun, 9 Jul 2006 15:19:55 +0200
-From: Luca Tettamanti <kronos.it@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Subject: [PATCH] Add try_to_freeze() to rt-test kthreads
-Message-ID: <20060709131955.GA24459@dreamland.darkstar.lan>
-MIME-Version: 1.0
+	Sun, 9 Jul 2006 09:24:19 -0400
+Received: from 1wt.eu ([62.212.114.60]:1802 "EHLO 1wt.eu") by vger.kernel.org
+	with ESMTP id S1030492AbWGINYR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 09:24:17 -0400
+Date: Sun, 9 Jul 2006 15:23:52 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: "Abu M. Muttalib" <abum@aftek.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Hancock <hancockr@shaw.ca>,
+       chase.venters@clientec.com, kernelnewbies@nl.linux.org,
+       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
+Message-ID: <20060709132352.GA23263@1wt.eu>
+References: <20060709121511.GD2037@1wt.eu> <BKEKJNIHLJDCFGDBOHGMCEFIDCAA.abum@aftek.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <BKEKJNIHLJDCFGDBOHGMCEFIDCAA.abum@aftek.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm running kernel 2.6.18-rc1. When CONFIG_RT_MUTEX_TESTER is enabled
-kernel refuses to suspend the machine because it's unable to freeze the
-rt-test-* threads. This patch adds try_to_freeze() after schedule() so
-that the threads will be freezed correctly; I've tested the patch and it
-lets the notebook suspends and resumes nicely.
+On Sun, Jul 09, 2006 at 06:42:23PM +0530, Abu M. Muttalib wrote:
+> >It's explained in Documentation/filesystems/proc.txt. This file know far
+> >ore things than me :-)
+> 
+> I tried with overcommit_ratio=100 and overcommit_memory=2 in that sequence.
+> 
+> but the applications were killed. :-(
 
-Signed-off-by: Luca Tettamanti <kronos.it@gmail.com>
+If you set it too high, the system will never fail a malloc() and the memory
+will quickly be grabbed by memory eaters, thus quickly resulting in OOM. This
+is the default behaviour.
 
---- a/kernel/rtmutex-tester.c	2006-07-09 15:15:08.540456698 +0200
-+++ b/kernel/rtmutex-tester.c	2006-07-09 14:39:26.653218497 +0200
-@@ -275,6 +275,7 @@
- 
- 		/* Wait for the next command to be executed */
- 		schedule();
-+		try_to_freeze();
- 
- 		if (signal_pending(current))
- 			flush_signals(current);
+If you set it too low, the system will fail malloc() calls eventhough there
+might be enough memory left, so you cannot start new processes.
 
+Setting it to an intermediate value helps the system manage its ressources
+and helps applications know that they must be smart with their memory usage.
+For instance, if your application has something like a garbage collector or
+can automatically reduce its buffers when memory becomes scarce, then it
+will be helped by a lower overcommit_ratio. If your application does not
+run as root, you might also try to play with ulimit -v before starting it.
+I use this in my load balancing reverse proxy to restrain memory usage
+without impacting the rest of the system.
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-"La mia teoria scientifica preferita e` quella secondo la quale gli 
- anelli di Saturno sarebbero interamente composti dai bagagli andati 
- persi nei viaggi aerei." -- Mark Russel
+Memory tuning in constrainted environments is like rocket science. You need
+some evaluations then to make a lot of experimentations. There is no rule
+which will work for everyone. But it seems to me that your application is
+not very resistant in those environments. Maybe 2.4.19 was very close to
+the ressource limit and now 2.6.13 has crossed the boundary. You can also
+try to play with the -tiny patches (merged around 2.6.15 IIRC) to reduce
+the kernel's memory usage.
+
+> Regards,
+> Abu.
+
+Regards,
+Willy
+

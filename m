@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161013AbWGIBF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbWGIBFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161013AbWGIBF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 21:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161014AbWGIBF5
+	id S1030437AbWGIBFe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 21:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWGIBFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 21:05:57 -0400
-Received: from beauty.rexursive.com ([203.171.74.242]:17314 "EHLO
-	beauty.rexursive.com") by vger.kernel.org with ESMTP
-	id S1161013AbWGIBF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 21:05:56 -0400
-Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
-From: Bojan Smojver <bojan@rexursive.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Arjan van de Ven <arjan@infradead.org>,
-       Sunil Kumar <devsku@gmail.com>, Avuton Olrich <avuton@gmail.com>,
-       Olivier Galibert <galibert@pobox.com>, Jan Rychter <jan@rychter.com>,
-       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net,
-       grundig <grundig@teleline.es>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-In-Reply-To: <20060709003230.GA1753@elf.ucw.cz>
-References: <20060627133321.GB3019@elf.ucw.cz>
-	 <ce9ef0d90607080942w685a6b60q7611278856c78ac0@mail.gmail.com>
-	 <1152377434.3120.69.camel@laptopd505.fenrus.org>
-	 <200607082125.12819.rjw@sisk.pl>
-	 <1152402366.2584.10.camel@coyote.rexursive.com>
-	 <20060708235336.GF2546@elf.ucw.cz>
-	 <1152404338.2584.14.camel@coyote.rexursive.com>
-	 <20060709003230.GA1753@elf.ucw.cz>
-Content-Type: text/plain
-Date: Sun, 09 Jul 2006 11:05:48 +1000
-Message-Id: <1152407148.2598.10.camel@coyote.rexursive.com>
+	Sat, 8 Jul 2006 21:05:34 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:36833 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751321AbWGIBFd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 21:05:33 -0400
+Date: Sun, 9 Jul 2006 11:04:59 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: David Chinner <dgc@sgi.com>, xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [xfs-masters] Re: fs/xfs/xfs_vnodeops.c:xfs_readdir(): NULL variable dereferenced
+Message-ID: <20060709110459.F1640104@wobbly.melbourne.sgi.com>
+References: <20060706211320.GW26941@stusta.de> <20060706233246.GB15160733@melbourne.sgi.com> <20060708194609.GB5020@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060708194609.GB5020@stusta.de>; from bunk@stusta.de on Sat, Jul 08, 2006 at 09:46:09PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-09 at 02:32 +0200, Pavel Machek wrote:
+On Sat, Jul 08, 2006 at 09:46:09PM +0200, Adrian Bunk wrote:
+> On Fri, Jul 07, 2006 at 09:32:46AM +1000, David Chinner wrote:
+> > > Coverity checker found a way how tp might be dereferenced four function 
+> > > calls later).
 
-> I wanted to point out that delay between "okay, I want this gone" and
-> the code disappearing from kernel tarball is about a year.
+Keyword being "might". ;)
 
-OK, so the period for this kind of solution(s) to completely go away is
-even longer.
+> > Then the bug is probably in the function call that uses tp without
+> > first checking whether it's null. Can you tell us where that dereference
+> > occurs?
+> 
+> xfs_readdir()
+>   xfs_dir_getdents()
+>     xfs_dir2_leaf_getdents()
+>       xfs_bmapi()
+>         xfs_trans_log_inode()
+>           tp->t_flags |= XFS_TRANS_DIRTY;
 
-Which brings me to my point. Given that with my proposal you would have
-zero involvement with Suspend2 code (i.e. you would not be obligated to
-fix/touch/do anything in *any way*), why not give Nigel a go? The man is
-obviously willing to do stuff on his own and it won't cost you anything.
-And if it doesn't work out - well, though luck for Nigel.
+This actually cant happen due to the flags passed into xfs_bmapi (ie.
+request for a extent map _read_, which wont result in the inode being
+logged, which means no transaction dirtying).
 
-So, how about it?
+That suggestion to remove the local "tp" variable was valid though,
+we may as well do that (will do).
+
+cheers.
 
 -- 
-Bojan
-
+Nathan

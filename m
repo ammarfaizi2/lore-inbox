@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbWGIPTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161016AbWGIPRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161023AbWGIPTs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 11:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbWGIPTs
+	id S1161016AbWGIPRj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 11:17:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161023AbWGIPRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 11:19:48 -0400
-Received: from mail.gmx.de ([213.165.64.21]:61396 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1161023AbWGIPTr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 11:19:47 -0400
-X-Authenticated: #2769515
-Date: Sun, 9 Jul 2006 17:25:16 +0200
-From: Martin Langer <martin-langer@gmx.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de
-Subject: Re: [RFC][PATCH 1/2] firmware version management: add firmware_version()
-Message-ID: <20060709152516.GB3678@tuba>
-References: <20060708130904.GA3819@tuba> <1152365514.3120.46.camel@laptopd505.fenrus.org> <1152366597.29506.13.camel@localhost> <20060709122118.GA3678@tuba> <1152457310.3255.58.camel@laptopd505.fenrus.org>
+	Sun, 9 Jul 2006 11:17:39 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:35280 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1161016AbWGIPRi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 11:17:38 -0400
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Adrian Bunk <bunk@stusta.de>, alsa-devel@alsa-project.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, perex@suse.cz,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <p737j2potzr.fsf@verdi.suse.de>
+References: <20060707231716.GE26941@stusta.de>
+	 <p737j2potzr.fsf@verdi.suse.de>
+Content-Type: text/plain
+Date: Sun, 09 Jul 2006 11:18:19 -0400
+Message-Id: <1152458300.28129.45.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152457310.3255.58.camel@laptopd505.fenrus.org>
-X-Public-Key-URL: http://www.langerland.de/martin/martinlanger.asc
-User-Agent: Mutt/1.5.9i
-X-Y-GMX-Trusted: 0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 05:01:49PM +0200, Arjan van de Ven wrote:
-> On Sun, 2006-07-09 at 14:21 +0200, Martin Langer wrote:
-> > On Sat, Jul 08, 2006 at 03:49:57PM +0200, Marcel Holtmann wrote:
-> > > Hi Arjan,
-> > > 
-> > > > > It would be good if a driver knows which firmware version will be 
-> > > > > written to the hardware. I'm talking about external firmware files 
-> > > > > claimed by request_firmware(). 
-> > > > > 
-> > > > > We know so many different firmware files for bcm43xx and it becomes 
-> > > > > more and more complicated without some firmware version management.
-> > > > > 
-> > > > > This patch can create the md5sum of a firmware file. Then it looks into 
-> > > > > a table to figure out which version number is assigned to the hashcode.
-> > > > > That table is placed in the driver code and an example for bcm43xx comes 
-> > > > > in my next mail. Any comments?
-> > > > 
-> > > > why does this have to happen on the kernel side? Isn't it a lot easier
-> > > > and better to let the userspace side of things do this work, and even
-> > > > have a userspace file with the md5->version mapping? Or are there some
-> > > > practical considerations that make that hard to impossible?
-> > > 
-> > > I fully agree that we shouldn't put firmware versioning into the kernel
-> > > drivers. The pattern you give to request_firmware() can be mapped to any
-> > > file on the file system. And you also have the link to the device object
-> > > and I prefer you export a sysfs file for the version so that the helper
-> > > application loading the firmware can pick the right file.
+On Sat, 2006-07-08 at 01:50 +0200, Andi Kleen wrote:
+> Adrian Bunk <bunk@stusta.de> writes:
 > > 
-> > Bcm43xx has no helper application to upload the firmware. 
+> > Q: What about the OSS emulation in ALSA?
+> > A: The OSS emulation in ALSA is not affected by my patches
+> >    (and it's not in any way scheduled for removal).
 > 
-> yes it does. bcm43xx asks userspace to upload firmware (via
-> request_firmware() ) and a userspace app (udev most of the time) will
-> upload it. That app, eg udev, can do the md5sum and checking it against
-> a list of "known good" firmwares. Voila problem solved ;)
+> I again object to removing the old ICH sound driver.
+> It does the same as the Alsa driver in much less code and is ideal
+> for generic monolithic kernels
 
-I see. It's an interesting way that I didn't noticed. 
-Thanks for the guidance.
+It doesn't do the same thing - software mixing is impossible with OSS.
 
-Martin
+Lee
+

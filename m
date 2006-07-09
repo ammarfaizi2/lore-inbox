@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWGIJDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWGIJLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbWGIJDb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 05:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWGIJDb
+	id S932420AbWGIJLz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 05:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWGIJLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 05:03:31 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:48395 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932412AbWGIJDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 05:03:30 -0400
-Date: Sun, 9 Jul 2006 11:03:29 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: markus.lidel@shadowconnect.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] proper prototype for drivers/message/i2o/device.c:i2o_parm_issue()
-Message-ID: <20060709090329.GE13938@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+	Sun, 9 Jul 2006 05:11:55 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:33180 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964982AbWGIJLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 05:11:54 -0400
+Subject: Re: [2.6 patch] make drivers/mtd/cmdlinepart.c:mtdpart_setup()
+	static
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+       juha.yrjola@solidboot.com, jlavi@iki.fi
+In-Reply-To: <20060629173206.GF19712@stusta.de>
+References: <20060626220215.GI23314@stusta.de>
+	 <1151416141.17609.140.camel@hades.cambridge.redhat.com>
+	 <20060629173206.GF19712@stusta.de>
+Content-Type: text/plain
+Date: Sun, 09 Jul 2006 10:12:12 +0100
+Message-Id: <1152436332.25567.12.camel@shinybook.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a proper prototype for i2o_parm_issue() in core.h.
+On Thu, 2006-06-29 at 19:32 +0200, Adrian Bunk wrote:
+> On Tue, Jun 27, 2006 at 02:49:00PM +0100, David Woodhouse wrote:
+> > On Tue, 2006-06-27 at 00:02 +0200, Adrian Bunk wrote:
+> > > This patch makes the needlessly global mtdpart_setup() static.
+> > > 
+> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > > 
+> > > --- linux-2.6.17-mm2-full/drivers/mtd/cmdlinepart.c.old 2006-06-26 23:18:39.000000000 +0200
+> > > +++ linux-2.6.17-mm2-full/drivers/mtd/cmdlinepart.c     2006-06-26 23:18:51.000000000 +0200
+> > > @@ -346,7 +346,7 @@
+> > >   *
+> > >   * This function needs to be visible for bootloaders.
+> > >   */
+> > > -int mtdpart_setup(char *s)
+> > > +static int mtdpart_setup(char *s) 
+> > 
+> > Patch lacks sufficient explanation. Explain the relevance of the comment
+> > immediately above the function declaration, in the context of your
+> > patch. Explain your decision to change the behaviour, but not change the
+> > comment itself.
+> 
+> My explanation regarding the relevance of the comment is that it seems 
+> to be nonsense.
+> 
+> Do I miss something, or why and how should a bootloader access 
+> in-kernel functions? 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I'm not entirely sure, but allegedly it does -- Juha, can you elaborate?
 
----
-
-This patch was already sent on:
-- 26 Jun 2006
-
- drivers/message/i2o/core.h       |    3 +++
- drivers/message/i2o/i2o_config.c |    4 ++--
- 2 files changed, 5 insertions(+), 2 deletions(-)
-
---- linux-2.6.17-mm2-full/drivers/message/i2o/core.h.old	2006-06-26 23:16:01.000000000 +0200
-+++ linux-2.6.17-mm2-full/drivers/message/i2o/core.h	2006-06-26 23:16:39.000000000 +0200
-@@ -38,6 +38,9 @@
- extern void i2o_device_remove(struct i2o_device *);
- extern int i2o_device_parse_lct(struct i2o_controller *);
- 
-+int i2o_parm_issue(struct i2o_device *i2o_dev, int cmd, void *oplist,
-+		   int oplen, void *reslist, int reslen);
-+
- /* IOP */
- extern struct i2o_controller *i2o_iop_alloc(void);
- 
---- linux-2.6.17-mm2-full/drivers/message/i2o/i2o_config.c.old	2006-06-26 23:16:54.000000000 +0200
-+++ linux-2.6.17-mm2-full/drivers/message/i2o/i2o_config.c	2006-06-26 23:23:25.000000000 +0200
-@@ -36,9 +36,9 @@
- 
- #include <asm/uaccess.h>
- 
--#define SG_TABLESIZE		30
-+#include "core.h"
- 
--extern int i2o_parm_issue(struct i2o_device *, int, void *, int, void *, int);
-+#define SG_TABLESIZE		30
- 
- static int i2o_cfg_ioctl(struct inode *, struct file *, unsigned int,
- 			 unsigned long);
+-- 
+dwmw2
 

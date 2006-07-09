@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWGIHzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWGIIZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030430AbWGIHzk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 03:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWGIHzk
+	id S1030433AbWGIIZu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 04:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWGIIZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 03:55:40 -0400
-Received: from relay01.pair.com ([209.68.5.15]:47117 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S1030427AbWGIHzj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 03:55:39 -0400
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: "Abu M. Muttalib" <abum@aftek.com>
-Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
-Date: Sun, 9 Jul 2006 02:55:10 -0500
-User-Agent: KMail/1.9.3
-Cc: "Robert Hancock" <hancockr@shaw.ca>, kernelnewbies@nl.linux.org,
-       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "linux-mm" <linux-mm@kvack.org>
-References: <BKEKJNIHLJDCFGDBOHGMGEEJDCAA.abum@aftek.com>
-In-Reply-To: <BKEKJNIHLJDCFGDBOHGMGEEJDCAA.abum@aftek.com>
+	Sun, 9 Jul 2006 04:25:49 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33035 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030433AbWGIIZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 04:25:49 -0400
+Date: Sun, 9 Jul 2006 10:25:46 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Matt Reuther <mreuther@umich.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Compile Error on 2.6.17-mm6
+Message-ID: <20060709082546.GB13938@stusta.de>
+References: <200607072222.31586.mreuther@umich.edu> <20060708174347.76391c7b.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607090255.34452.chase.venters@clientec.com>
+In-Reply-To: <20060708174347.76391c7b.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 July 2006 01:10, Abu M. Muttalib wrote:
-> I have a total of 16 MB RAM. My main concern is that I was running the same
-> set of applications earlier on linux-2.4.19-rmk7-pxa1 and didn't get any
-> out of memory. I am running the same application and get the OOM, though
-> the appearance is not uniform, at times it comes on a freshly booted system
-> and at times it didn't come when the system is on overnight.... Why I am
-> getting here??? Is there any problem with linux-2.6.13?
+On Sat, Jul 08, 2006 at 05:43:47PM -0700, Andrew Morton wrote:
+> On Fri, 7 Jul 2006 22:22:16 -0400
+> Matt Reuther <mreuther@umich.edu> wrote:
+> 
+> > Here is the error:
+> >   CHK     include/linux/compile.h
+> >   UPD     include/linux/compile.h
+> >   CC      init/version.o
+> >   LD      init/built-in.o
+> >   LD      .tmp_vmlinux1
+> > arch/i386/kernel/built-in.o(.text+0xe282): In function 
+> > `cpu_request_microcode':
+> > arch/i386/kernel/microcode.c:544: undefined reference to `request_firmware'
+> > arch/i386/kernel/built-in.o(.text+0xe304):arch/i386/kernel/microcode.c:573: 
+> > undefined reference to `release_firmware'
+> 
+> CONFIG_FW_LOADER=m
+> CONFIG_MICROCODE=y
+> 
+> So
+> 
+> config MICROCODE
+> 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
+> 	depends on FW_LOADER
+> 
+> is not sufficient.
 
-I'm just guessing now, but it's possible that the default thresholds have 
-changed from 2.4.19 to 2.6.13 (indeed, the amount of progress between those 
-two versions is more than some OS kernels have seen in their lifetime).
+This should be sufficient and prevent the above problem (it was only a 
+problem if MICROCODE was a bool).
 
-You might look at Documentation/sysctl/vm.txt and check those settings on 
-2.4.19 versus 2.6.13.
+> There's a fix for this, but I cannot remember what it
+> is.  Help.
 
-What application are you having trouble with?
+The above dependency is technically correct, but since FW_LOADER is only 
+an internal helper variable the more user friendly solution is:
 
-> I have tried to check the application for memory leak with no success.
-> There seems to be no memory leak.
->
-> >Thanks,
-> >Chase
->
-> Regards,
-> Abu.
+config MICROCODE
+	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
+	select FW_LOADER
 
-Thanks,
-Chase
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

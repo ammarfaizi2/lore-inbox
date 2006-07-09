@@ -1,251 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWGIFIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWGIFS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbWGIFIT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 01:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbWGIFIT
+	id S964986AbWGIFS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 01:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWGIFS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 01:08:19 -0400
-Received: from gw.goop.org ([64.81.55.164]:11493 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S964983AbWGIFIS (ORCPT
+	Sun, 9 Jul 2006 01:18:57 -0400
+Received: from relay01.pair.com ([209.68.5.15]:25607 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S964986AbWGIFS4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 01:08:18 -0400
-Message-ID: <44B08F3F.1080704@goop.org>
-Date: Sat, 08 Jul 2006 22:08:15 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Sun, 9 Jul 2006 01:18:56 -0400
+X-pair-Authenticated: 71.197.50.189
+From: Chase Venters <chase.venters@clientec.com>
+Organization: Clientec, Inc.
+To: "Abu M. Muttalib" <abum@aftek.com>
+Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
+Date: Sun, 9 Jul 2006 00:18:22 -0500
+User-Agent: KMail/1.9.3
+Cc: "Robert Hancock" <hancockr@shaw.ca>, kernelnewbies@nl.linux.org,
+       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "linux-mm" <linux-mm@kvack.org>
+References: <BKEKJNIHLJDCFGDBOHGMCEEGDCAA.abum@aftek.com>
+In-Reply-To: <BKEKJNIHLJDCFGDBOHGMCEEGDCAA.abum@aftek.com>
 MIME-Version: 1.0
-To: linux-acpi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kristen Accardi <kristen.c.accardi@intel.com>
-Subject: 2.6.17-mm6: BUG: spinlock wrong CPU on CPU#1, kacpid_notify/7105
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607090018.45972.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Repost: got linux-acpi's address wrong. ]
+On Saturday 08 July 2006 23:23, Abu M. Muttalib wrote:
+> Hi,
+>
+> I tried with the /proc/sys/vm/overcommit_memory=2 and the system refused to
+> load the program altogether.
+>
+> In this scenario is making overcommit_memory=2 a good idea?
 
-I just got this while undocking my machine.  Thinkpad X60, Core Duo CPU.
+(Good mailing list practices ask you not to top-post - that is, make your 
+reply text follow the text you are replying other than appearing before it, 
+as I demonstrate here:)
 
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4d74] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4d60] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4d4c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4d38] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4d24] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4d10] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4cfc] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4ce8] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4cd4] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4cc0] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4cac] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4c98] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4c84] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec55b8] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed0fa4] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed0f90] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed0f7c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4c5c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4c48] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4c34] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec4c20] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec575c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec5748] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec5734] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec5720] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec570c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec56f8] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec56e4] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec56d0] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec56bc] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec55a4] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed0f68] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed0f54] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed0f40] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed0f2c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec56a8] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec884c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ec8fe0] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbb80] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbb6c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbb58] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbb44] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbb30] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbb1c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbb08] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbaf4] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbae0] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbacc] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbab8] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecbaa4] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecba90] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecf48c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed9658] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed9644] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed9630] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed961c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ed9608] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd504] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecf450] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd388] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecf43c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd93c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd928] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd914] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd900] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd8ec] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd8d8] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd8c4] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd8b0] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd89c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd888] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd874] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd860] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd84c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd838] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd824] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd810] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd7fc] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd7e8] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd7d4] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd7c0] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd7ac] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd798] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd784] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecd770] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdfe0] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdfcc] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdfb8] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdfa4] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdf68] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdf54] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdf40] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdf2c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdf18] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdf04] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdef0] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdedc] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdec8] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdeb4] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecdea0] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecde8c] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecde78] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecde64] [20060623]
-ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object 
-[f7ecde50] [20060623]
-BUG: spinlock wrong CPU on CPU#1, kacpid_notify/7105
-lock: f7e9ad9c, .magic: dead4ead, .owner: kacpid_notify/7105, .owner_cpu: 0
-[<c01d6ee8>] _raw_spin_unlock+0x5d/0x70
-[<c020d52a>] hotplug_dock_devices+0x8a/0x91
-[<c01f302c>] acpi_os_execute_thread+0x0/0x1a
-[<c020d638>] dock_notify+0xd2/0x15d
-[<c020b2f5>] acpi_bus_notify+0x17/0x46
-[<c01f85aa>] acpi_ev_notify_dispatch+0x4c/0x55
-[<c01f3038>] acpi_os_execute_thread+0xc/0x1a
-[<c01301bc>] kthread+0xc2/0xed
-[<c01300fa>] kthread+0x0/0xed
-[<c0101005>] kernel_thread_helper+0x5/0xb
-ACPI: undocking
+Well, how much memory do you have? Does the application actually need more 
+memory than your system can provide? If this is the case, there isn't going 
+to be any fix except add more memory. Your choices are:
 
+1. Let the OOM killer sacrifice processes because you don't have enough memory
+2. Disable VM overcommit so that the OOM killer doesn't get engaged (rather, 
+the application's attempt to grab the memory will fail)
+3. Add more memory, don't mess with the overcommit sysctl, and watch things 
+work nicely :P
+
+Are you sure it's not a memory leak? Does the application work on a freshly 
+booted system?
+
+> Regards,
+> Abu.
+
+Thanks,
+Chase
+
+> -----Original Message-----
+> From: Robert Hancock [mailto:hancockr@shaw.ca]
+> Sent: Saturday, July 08, 2006 11:36 PM
+> To: Abu M. Muttalib
+> Cc: kernelnewbies@nl.linux.org; linux-newbie@vger.kernel.org;
+> linux-kernel@vger.kernel.org; linux-mm
+> Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
+>
+> Abu M. Muttalib wrote:
+> > Hi,
+> >
+> > I am getting the Out of memory.
+> >
+> > To circumvent the problem, I have commented the call to "out_of_memory(),
+> > and replaced "goto restart" with "goto nopage".
+> >
+> > At "nopage:" lable I have added a call to "schedule()" and then "return
+> > NULL" after "schedule()".
+>
+> Bad idea - in the configuration you have, the system may need the
+> out-of-memory killer to free up memory, otherwise the system can
+> deadlock due to all memory being exhausted.
+>
+> > I tried the modified kernel with a test application, the test application
+>
+> is
+>
+> > mallocing memory in a loop. Unlike as expected the process gets killed.
+> > On second run of the same application I am getting the page allocation
+>
+> failure
+>
+> > as expected but subsequently the system hangs.
+> >
+> > I am attaching the test application and the log herewith.
+> >
+> > I am getting this exception with kernel 2.6.13. With kernel
+> > 2.4.19-rmka7-pxa1 there was no problem.
+> >
+> > Why its so? What can I do to alleviate the OOM problem?
+>
+> Please see Documentation/vm/overcommit-accounting in the kernel source
+> tree.
+>
+> --
+> Robert Hancock      Saskatoon, SK, Canada
+> To email, remove "nospam" from hancockr@nospamshaw.ca
+> Home Page: http://www.roberthancock.com/

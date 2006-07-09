@@ -1,197 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWGIBvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161044AbWGICEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161041AbWGIBvz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 21:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWGIBvz
+	id S1161044AbWGICEg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 22:04:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWGICEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 21:51:55 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:13295 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161041AbWGIBvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 21:51:54 -0400
-Subject: Re: tasklet_unlock_wait() causes soft lockup with -rt and ieee1394
-	audio
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Pieter Palmers <pieterp@joow.be>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1152371924.4736.169.camel@mindpipe>
-References: <1152371924.4736.169.camel@mindpipe>
-Content-Type: text/plain
-Date: Sat, 08 Jul 2006 21:51:34 -0400
-Message-Id: <1152409894.32734.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 8 Jul 2006 22:04:36 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:16831 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1161044AbWGICEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 22:04:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=E+LtlRCgz7NBUcNlTKCHVI8w1ucrDWVbvxqWsCI+fQ4kBmPfPzoNJn3TPBZPqsyk7XiY4HkDN1FR/njbW95hJlRtHqHttbOiCtwQnQkT9B+eT03x+F5EEeWskClcsgv+F2N+MKTqP5D6pzOc5/9XPrIwcnVqQpye5gjBWD+sM6k=
+Message-ID: <a790ea7a0607081904o61ac9158k74d476503ab26367@mail.gmail.com>
+Date: Sun, 9 Jul 2006 04:04:34 +0200
+From: "Antonio Mignolli" <antoniomignolli@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: BUG report
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Lee,
+I'm on a Slackware with kernel 2.6.17.3 obtained by applying patch-2.6.17.3
+to kernel 2.6.17.
+I plugged a Pinnacle pctv 50e USB tv card.
+It works correctly, I was trying it.
+After a while, I disconnected it and after very few seconds
+I plugged an external USB hard drive.
+For a couple of minutes, USB hub seemed to be not working.
+No messages on dmesg indicating a new device (usually /dev/sda,
+I have all the modules for that.)
+After about two minutes, the USB hub woke up (/dev/sda created, USB
+mouse working)
+and on syslog and on every terminal on my
+desktop appeared some messages.
 
-Sorry, I've been quiet, and will be again soon.  I'm in a process of
-changing jobs, and I am now employed by Red Hat and will soon be working
-on Xen.
+TERMINAL MESSAGES:
 
-Anyway, I'll take a look at what you got and see if I can help at all.
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: Oops: 0002 [#1]
 
-On Sat, 2006-07-08 at 11:18 -0400, Lee Revell wrote:
-> Pieter has found this bug in -rt:
-> 
-> We are experiencing 'soft' deadlocks when running our code (Freebob, 
-> i.e. userspace lib for firewire audio) on RT kernels. After a few 
-> seconds of system freeze, I get a kernel panic message that signals a soft lockup.
-> 
-> I've uploaded the photo's of the panic here:
-> http://freebob.sourceforge.net/old/img_3378.jpg (without flash)
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: PREEMPT
 
-uw, what a headache.
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: CPU:    0
 
-> http://freebob.sourceforge.net/old/img_3377.jpg (with flash)
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: EIP is at __fput+0xab/0x140
 
-Hmm no headache but hard to read. Good that the functions
-ohci1394_unregister_iso_tasklet and down are readable, and those are the
-important information.
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: eax: 00000007   ebx: d613c000   ecx: d61cc030   edx: c01ebbf7
 
-> both are of suboptimal quality unfortunately, but all info is readable 
-> on one or the other.
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: esi: d3ba2780   edi: d9548184   ebp: d94ede14   esp: d613df6c
 
-yep.
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: ds: 007b   es: 007b   ss: 0068
 
-> 
-> The problems occur when an ISO stream (receive and/or transmit) is shut 
-> down in a SCHED_FIFO thread. More precisely when running the freebob 
-> jackd backend in real-time mode. And even more precise: they only seem 
-> to occur when jackd is shut down. There are no problems when jackd is 
-> started without RT scheduling.
-> 
-> I havent been able to reproduce this with other test programs that are 
-> shutting down streams in a SCHED_FIFO thread.
-> 
-> The problem is not reproducible on non-RT kernels, and it only occurs on those configured for 
-> PREEMPT_RT. If I use PREEMPT_DESKTOP, there is no problem. The PREEMPT_DESKTOP setting was the only change between the two tests, all other kernel settings (threaded irq's etc...) were unchanged.
-> 
-> My tests are performed on 2.6.17-rt1, but the lockups are confirmed for 
-> PREEMPT_RT configured kernels 2.6.14 and 2.6.16.
-> 
-> Some extra information:
-> 
-> Lee Revell wrote:
-> 
-> > <...>
-> >
-> > It seems that the -rt patch changes tasklet_kill:
-> >
-> > Unpatched 2.6.17:
-> >
-> > void tasklet_kill(struct tasklet_struct *t)
-> > {
-> >         if (in_interrupt())
-> >                 printk("Attempt to kill tasklet from interrupt\n");
-> >
-> >         while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
-> >                 do
-> >                         yield();
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: Process firefox-bin (pid: 5500, threadinfo=d613c000
+task=d61cc030)
 
-Very bad for -rt kernels.
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: Stack: df7c4f40 d3ba2780 df68c5c0 00000000 d613c000
+c0147fda d3ba2780 df68c5c0
 
-> >                 while (test_bit(TASKLET_STATE_SCHED, &t->state));
-> >         }
-> >         tasklet_unlock_wait(t);
-> >         clear_bit(TASKLET_STATE_SCHED, &t->state);
-> > }
-> >
-> > 2.6.17-rt:
-> >
-> > void tasklet_kill(struct tasklet_struct *t)
-> > {
-> >         if (in_interrupt())
-> >                 printk("Attempt to kill tasklet from interrupt\n");
-> >
-> >         while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
-> >                 do                              msleep(1);
-> >                 while (test_bit(TASKLET_STATE_SCHED, &t->state));
-> >         }
-> >         tasklet_unlock_wait(t);
-> >         clear_bit(TASKLET_STATE_SCHED, &t->state);
-> > }
-> >
-> > You should ask Ingo & the other -rt developers what the intent of this
-> > change was.  Obviously it loops forever waiting for the state bit to
-> > change.
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel:        d3ba2780 df68c5c0 d613c000 df68c5c0 d3ba2780
+c014803c d3ba2780 df68c5c0
 
-The reason for this is that yield is just evil.  And even more evil for
--rt.  What yield does is this:  Process is waiting for something to
-happen that will be done by another running process, and instead of
-using a wait queue or some other method, it simply spins with the yield,
-to let the other task do it.  But with a rt task, yield will only yield
-to other processes with the same priority or higher, so if the process
-that it is waiting on is of lower priority, then you will spin forever.
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel:        00000030 00000002 09557fb0 c01025d7 00000030
+00000000 b68c7600 00000002
 
-The msleep replacement is just a hack and not really a solution.  It
-puts the task to sleep, for one ms, to let other tasks run.  Now, if
-there's another task of higher priority spinning someplace else, then
-you can still starve the task you are waiting on.
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: Call Trace:
 
-We are probably in tasklet_unlock_wait which is:
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel:  <c0147fda> filp_close+0x4c/0x55  <c014803c> sys_close+0x59/0x7c
 
-static inline void tasklet_unlock_wait(struct tasklet_struct *t)
-{
-	while (test_bit(TASKLET_STATE_RUN, &(t)->state)) { barrier(); }
-}
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel:  <c01025d7> syscall_call+0x7/0xb
 
-Which just looks scary.
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: Code: 38 58 5a 8b 87 f4 00 00 00 85 c0 74 07 50 e8 6a
+6e 00 00 58 8b 46 10 85 c0
+ 74 35 8b 00 85 c0 74 2f bb 00 e0 ff ff 21 e3 ff 43 14 <ff> 88 00 01
+00 00 83 38 02 75 0b 8b 80
+ 88 01 00 00 e8 08 67 fc
 
-Ingo, this looks really bad if the process killing the tasklet, preempts
-the tasklet on wake up in the tasklet_kill msleep, and the tasklet state
-happens to be TASKLET_STATE_RUN.  Perhaps, we need a msleep_rt which
-only sleeps if PREEMPT_RT is defined, and put that in by the barrier.
-
-Lee, can you cause this problem with PREEMPT_DESKTOP with softirq as
-threads?
-
-Also, add a msleep(1); by the barrier(); and see if that solves the
-problem.
-
-> 
-> On Thu, 2006-07-06 at 22:14 +0200, Pieter Palmers wrote:
-> 
-> > > I've put the debugging printk's into tasklet_kill. One interesting 
-> > > remark is that now that they are in place, I had to start/stop jackd 
-> > > multiple times before deadlock occurs. Without the printk's the machine 
-> > > always locked up on the first pass. However I stopped after the first 
-> > > lockup, so maybe this is not really significant.
-> > > 
-> > > Anyway, the new tasklet_kill looks like this:
-> > > 
-> > > void tasklet_kill(struct tasklet_struct *t)
-> > > {
-> > > 	printk("enter tasklet_kill\n");
-> > > 	if (in_interrupt())
-> > > 		printk("Attempt to kill tasklet from interrupt\n");
-> > > 	
-> > > 	printk("passed interrupt check\n");
-> > > 
-> > > 	while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
-> > > 		do
-> > > 			msleep(1);
-> > > 		while (test_bit(TASKLET_STATE_SCHED, &t->state));
-> > > 	}
-> > > 	printk("passed test_and_set_bit\n");
-> > > 	
-> > > 	tasklet_unlock_wait(t);
-> > > 	printk("passed tasklet_unlock_wait\n");
-> > > 	
-> > > 	clear_bit(TASKLET_STATE_SCHED, &t->state);
-> > > }
-> > > 
-> > > And the last line printed before lockup is:
-> > > "passed test_and_set_bit"
-> >   
-> This makes the change in tasklet_unlock_wait() as the prime suspect for this problem.
-
-This looks like the case.
-
--- Steve
+Message from syslogd@slacky at Wed Jul  5 23:38:39 2006 ...
+slacky kernel: EIP: [<c01493c9>] __fput+0xab/0x140 SS:ESP 0068:d613df6c
 
 
+SYSLOG MESSAGES:
+
+Jul  5 23:38:39 slacky kernel: BUG: unable to handle kernel NULL
+pointer dereference at virtual
+ address 00000107
+Jul  5 23:38:39 slacky kernel:  printing eip:
+Jul  5 23:38:39 slacky kernel: c01493c9
+Jul  5 23:38:39 slacky kernel: *pde = 00000000
+Jul  5 23:38:39 slacky kernel: Oops: 0002 [#1]
+Jul  5 23:38:39 slacky kernel: PREEMPT
+Jul  5 23:38:39 slacky kernel: Modules linked in: vfat fat snd_pcm_oss
+snd_mixer_oss snd_usb_au
+dio snd_usb_lib snd_rawmidi snd_seq_device snd_hwdep tda9887 tuner
+saa7115 em28xx compat_ioctl3
+2 v4l1_compat v4l2_common ir_common videodev tveeprom i2c_core eth1394
+snd_intel8x0 snd_intel8x
+0m snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd snd_page_alloc
+yenta_socket rsrc_nonstatic
+ pcmcia_core ohci1394 b44 joydev fuse evdev
+Jul  5 23:38:39 slacky kernel: CPU:    0
+Jul  5 23:38:39 slacky kernel: EIP:    0060:[<c01493c9>]    Not tainted VLI
+Jul  5 23:38:39 slacky kernel: EFLAGS: 00010202   (2.6.17.3 #7)
+Jul  5 23:38:39 slacky kernel: EIP is at __fput+0xab/0x140
+Jul  5 23:38:39 slacky kernel: eax: 00000007   ebx: d613c000   ecx:
+d61cc030   edx: c01ebbf7
+Jul  5 23:38:39 slacky kernel: esi: d3ba2780   edi: d9548184   ebp:
+d94ede14   esp: d613df6c
+Jul  5 23:38:39 slacky kernel: ds: 007b   es: 007b   ss: 0068
+Jul  5 23:38:39 slacky kernel: Process firefox-bin (pid: 5500,
+threadinfo=d613c000 task=d61cc03
+0)
+Jul  5 23:38:39 slacky kernel: Stack: df7c4f40 d3ba2780 df68c5c0
+00000000 d613c000 c0147fda d3b
+a2780 df68c5c0
+Jul  5 23:38:39 slacky kernel:        d3ba2780 df68c5c0 d613c000
+df68c5c0 d3ba2780 c014803c d3b
+a2780 df68c5c0
+Jul  5 23:38:39 slacky kernel:        00000030 00000002 09557fb0
+c01025d7 00000030 00000000 b68
+c7600 00000002
+Jul  5 23:38:39 slacky kernel: Call Trace:
+Jul  5 23:38:39 slacky kernel:  <c0147fda> filp_close+0x4c/0x55
+<c014803c> sys_close+0x59/0x7c
+Jul  5 23:38:39 slacky kernel:  <c01025d7> syscall_call+0x7/0xb
+Jul  5 23:38:39 slacky kernel: Code: 38 58 5a 8b 87 f4 00 00 00 85 c0
+74 07 50 e8 6a 6e 00 00 5
+8 8b 46 10 85 c0 74 35 8b 00 85 c0 74 2f bb 00 e0 ff ff 21 e3 ff 43 14
+<ff> 88 00 01 00 00 83 3
+8 02 75 0b 8b 80 88 01 00 00 e8 08 67 fc
+Jul  5 23:38:39 slacky kernel: EIP: [<c01493c9>] __fput+0xab/0x140
+SS:ESP 0068:d613df6c
+Jul  5 23:38:39 slacky kernel:  <6>note: firefox-bin[5500] exited with
+preempt_count 1
+Jul  5 23:38:39 slacky kernel: hub 1-0:1.0: over-current change on port 2
+Jul  5 23:38:39 slacky kernel: hub 2-0:1.0: over-current change on port 1
+Jul  5 23:38:39 slacky kernel: hub 2-0:1.0: over-current change on port 2
+Jul  5 23:38:40 slacky kernel: hub 1-0:1.0: over-current change on port 1
+Jul  5 23:40:37 slacky kernel: hub 1-0:1.0: over-current change on port 1
+Jul  5 23:40:37 slacky kernel: hub 2-0:1.0: over-current change on port 1
+Jul  5 23:40:44 slacky kernel: sda: assuming drive cache: write through
+Jul  5 23:40:44 slacky kernel: sda: assuming drive cache: write through
+
+
+
+Hope it helps.
+Bye.

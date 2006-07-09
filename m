@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161201AbWGIWYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161200AbWGIWaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161201AbWGIWYu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 18:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161198AbWGIWYu
+	id S1161200AbWGIWaO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 18:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161202AbWGIWaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 18:24:50 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:36062 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1161201AbWGIWYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 18:24:49 -0400
-Subject: [2.6.17-mm3] reiser4 breakage
-From: PrXenoN <prx@cinatas.ath.cx>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Thu, 29 Jun 2006 06:27:01 +0200
-Message-Id: <1151555221.7088.9.camel@prxenon>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Sun, 9 Jul 2006 18:30:14 -0400
+Received: from fmmailgate05.web.de ([217.72.192.243]:62643 "EHLO
+	fmmailgate05.web.de") by vger.kernel.org with ESMTP
+	id S1161200AbWGIWaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 18:30:13 -0400
+Reveived: from web.de 
+	by fmmailgate05.web.de (Postfix) with SMTP id D45564AD65;
+	Mon, 10 Jul 2006 00:30:11 +0200 (CEST)
+Date: Mon, 10 Jul 2006 00:30:11 +0200
+Message-Id: <793840896@web.de>
+MIME-Version: 1.0
+From: Arne Ahrend <aahrend@web.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, marcel@holtmann.org,
+       maxk@qualcomm.com, mingo@elte.hu
+Subject: Re: INFO: inconsistent lock state
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:80ab310fced15248f8e2da3e2d36cb52
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2006-07-09 at 12:28 +0200, Arjan van de Ven wrote:
+> I think this is a real bug, well in fact there seem to be 2:
+>
+> there are 2 locks that have dodgy locking, one is a spinlock one is a
+> rwlock. Both are used in softirq context, but neither had the proper _bh
+> marking. The patch below corrects this
 
-for me reiser4 seems broken since 2.6.17-mm3. During bootup of the
-system i reach the initscripts, but then complains about FS problems. I
-did fsck.reiser4 and even rebuild my fs with it (as was suggested by the
-tool). Some errors were found and fixed, but i still cannot bring the
-system up.
+The patch has been working very well so far, and the informational error message has
+not resurfaced over a couple of restarts.
 
-After the line
+Many thanks!
 
-reiser4 panicked cowardly: reiser4[pcscd(6982)]: commit_current_atom
-(fs/reiser4/txnmgr.c:1062) [zam-597]
 
-follows a kernel panic showing that line once more.
-No further data is displayed.
+Arne
 
-Are there any debug options worth setting?
-Please let me know if you need more information.
-
-kind regards
-prx
+______________________________________________________________
+Verschicken Sie romantische, coole und witzige Bilder per SMS!
+Jetzt bei WEB.DE FreeMail: http://f.web.de/?mc=021193
 

@@ -1,88 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWGIDIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbWGIDV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964918AbWGIDIF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 23:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbWGIDIF
+	id S1161073AbWGIDV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 23:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWGIDV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 23:08:05 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:50475 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S964918AbWGIDIE (ORCPT
+	Sat, 8 Jul 2006 23:21:28 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:26349 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161073AbWGIDV1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 23:08:04 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile' 
-In-reply-to: Your message of "Thu, 06 Jul 2006 13:34:14 MST."
-             <Pine.LNX.4.64.0607061333190.3869@g5.osdl.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 09 Jul 2006 13:07:49 +1000
-Message-ID: <31410.1152414469@ocs3.ocs.com.au>
+	Sat, 8 Jul 2006 23:21:27 -0400
+Date: Sat, 8 Jul 2006 20:21:08 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Robert Hancock <hancockr@shaw.ca>
+cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo@kvack.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Bligh <mbligh@google.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [RFC 0/8] Optional ZONE_DMA
+In-Reply-To: <44AFF286.6020601@shaw.ca>
+Message-ID: <Pine.LNX.4.64.0607082016360.24311@schroedinger.engr.sgi.com>
+References: <fa.3mXwB3pXW7L2KpeFW2PO8SBLhJA@ifi.uio.no> <44AFF286.6020601@shaw.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds (on Thu, 6 Jul 2006 13:34:14 -0700 (PDT)) wrote:
->
->
->On Thu, 6 Jul 2006, Linus Torvalds wrote:
->> 
->> So I _think_ that we should change the "=m" to the much more correct "+m" 
->> at the same time (or before - it's really a bug-fix regardless) as 
->> removing the "volatile".
->
->Here's a first cut (UNTESTED!) for x86. I didn't check any other 
->architectures, I bet they have similar problems.
->
->		Linus
->
->----
->diff --git a/include/asm-i386/atomic.h b/include/asm-i386/atomic.h
->index 4f061fa..51a1662 100644
->--- a/include/asm-i386/atomic.h
->+++ b/include/asm-i386/atomic.h
->@@ -46,8 +46,8 @@ static __inline__ void atomic_add(int i,
-> {
-> 	__asm__ __volatile__(
-> 		LOCK_PREFIX "addl %1,%0"
->-		:"=m" (v->counter)
->-		:"ir" (i), "m" (v->counter));
->+		:"+m" (v->counter)
->+		:"ir" (i));
-> }
+On Sat, 8 Jul 2006, Robert Hancock wrote:
 
-This disagrees with the gcc (4.1.0) docs.  info --index-search='Extended Asm' gcc
+> -LPC devices like the floppy controller, maybe enhanced parallel, etc. may
+> have 24-bit DMA restrictions even if there is no physical ISA bus.
 
-  The ordinary output operands must be write-only; GCC will assume
-  that the values in these operands before the instruction are dead and
-  need not be generated.  Extended asm supports input-output or
-  read-write operands.  Use the constraint character `+' to indicate
-  such an operand and list it with the output operands.  You should
-  only use read-write operands when the constraints for the operand (or
-  the operand in which only some of the bits are to be changed) allow a
-  register.
+Yes, I noticed that the floppy drivers has no dependency set but fails 
+to build if GENERIC_ISA_DMA is not set.
 
-All spinlocks must be in memory, which conflicts with the "allow a
-register" above.  I hope that the gcc docs are wrong, and read/write
-operands can be used on memory as well as registers.  I would hate for
-a future gcc to be more strict about this check and break the spinlock
-code.  It is interesting that the next paragraph has no such
-restriction.
+> -Even in totally ISA and LPC-free systems, some PCI devices (like those that
+> were a quick hack of an ISA device onto PCI) still have 24-bit address
+> restrictions. There are other devices that have sub-32-bit DMA capabilities,
+> like Broadcom wireless chips that only address 31 bits (although I think they
+> are fixing this in the driver). Without the DMA zone there is no way to ensure
+> that these requests can be satisfied.
 
-  You may, as an alternative, logically split its function into two
-  separate operands, one input operand and one write-only output
-  operand.  The connection between them is expressed by constraints
-  which say they need to be in the same location when the instruction
-  executes.  You can use the same C expression for both operands, or
-  different expressions.  For example, here we write the (fictitious)
-  `combine' instruction with `bar' as its read-only source operand and
-  `foo' as its read-write destination:
+These all have to use GFP_DMA and/or GFP_DMA. So if I leave that flag 
+undefined then it will be obvious if something is amiss and we can leave 
+this experimental for awhile.
 
-     asm ("combine %2,%0" : "=r" (foo) : "0" (foo), "g" (bar));
+> So I don't think it is safe to make this conditional on ISA or even the ISA
+> DMA API. Only if all devices on the system have addressing capability of a
+> full 32 bits (or at least of all installed RAM) can this zone be removed.
 
-  The constraint `"0"' for operand 1 says that it must occupy the same
-  location as operand 0.  A number in constraint is allowed only in an
-  input operand and it must refer to an output operand.
+Its safe in the sense that compilation/linking will fail (ISA dma chip 
+control functions are not present). Some of the dependencies set right now 
+do not correctly express these dependencies. But this could be fixed.
 
+The question is though: Is it worth to do now? Or do we do this later? At 
+some point the legacy DMA I/O will become too much of a bother.

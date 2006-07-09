@@ -1,61 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161169AbWGIVpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161171AbWGIVqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161169AbWGIVpI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 17:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161171AbWGIVpI
+	id S1161171AbWGIVqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 17:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161173AbWGIVqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 17:45:08 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36798 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161169AbWGIVpG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 17:45:06 -0400
-Date: Sun, 9 Jul 2006 23:44:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
-Message-ID: <20060709214439.GC2495@elf.ucw.cz>
-References: <200607092058.k69KwVxN026427@harpo.it.uu.se>
+	Sun, 9 Jul 2006 17:46:25 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:22474 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1161171AbWGIVqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 17:46:25 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+Date: Mon, 10 Jul 2006 07:46:20 +1000
+User-Agent: KMail/1.9.1
+Cc: Bojan Smojver <bojan@rexursive.com>, Pavel Machek <pavel@ucw.cz>,
+       Arjan van de Ven <arjan@infradead.org>, Sunil Kumar <devsku@gmail.com>,
+       Avuton Olrich <avuton@gmail.com>, Olivier Galibert <galibert@pobox.com>,
+       Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org,
+       suspend2-devel@lists.suspend2.net, grundig <grundig@teleline.es>
+References: <20060627133321.GB3019@elf.ucw.cz> <200607100706.45789.ncunningham@linuxmail.org> <200607092336.44208.rjw@sisk.pl>
+In-Reply-To: <200607092336.44208.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607092058.k69KwVxN026427@harpo.it.uu.se>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: multipart/signed;
+  boundary="nextPart1556384.FS70y7KZMn";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607100746.25043.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun 2006-07-09 22:58:31, Mikael Pettersson wrote:
-> On Fri, 7 Jul 2006 21:01:26 +0200 (MEST), I wrote:
-> >Kernel 2.6.18-rc1 broke resume from APM suspend (to RAM)
-> >on my old Dell Latitude CPi laptop. At resume the disk
-> >spins up and the screen gets lit, but there is no response
-> >to the keyboard, not even sysrq. All other system activity
-> >also appears to be halted.
-> >
-> >I did the obvious test of reverting apm.c to the 2.6.17
-> >version and fixing up the fallout from the TIF_POLLING_NRFLAG
-> >changes, but it made no difference. So the problem must be
-> >somewhere else.
-> 
-> I've traced the cause of this problem to the i386 time-keeping
-> changes in kernel 2.6.17-git11. What happens is that:
-> - The kernel autoselects TSC as my clocksource, which is
->   reasonable since it's a PentiumII. 2.6.17 also chose the TSC.
-> - Immediately after APM resumes (arch/i386/kernel/apm.c line
->   1231 in 2.6.18-rc1) there is an interrupt from the PIT,
->   which takes us to kernel/timer.c:update_wall_time().
-> - update_wall_time() does a clocksource_read() and computes
->   the offset from the previous read. However, the TSC was
->   reset by HW or BIOS during the APM suspend/resume cycle and
->   is now smaller than it was at the prevous read. On my machine,
->   the offset is 0xffffffd598e0a566 at this point, which appears
->   to throw update_wall_time() into a very very long loop.
+--nextPart1556384.FS70y7KZMn
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Step 0: could we get some sanity checks into that loop? I'm pretty
-sure we'll face some TSCs going backwards... panic-king the box at
-that point is okay, but infinite loop is not...
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Hi.
+
+On Monday 10 July 2006 07:36, Rafael J. Wysocki wrote:
+> On Sunday 09 July 2006 23:06, Nigel Cunningham wrote:
+> ]-- snip --[
+>
+> > > Now there's the separate problem that we have to share _some_ code.
+> > > To an absolute minimum, we have to share the freezer code and the
+> > > code that handles devices, because it's also shared by suspend-to-RAM.
+> > > The code that handles devices is already shared, but we also _have_
+> > > _to_ share the freezer code.  Therefore, as long as suspend2 adds some
+> > > code to the freezer, it's not even close to be considerable for
+> > > merging.
+> >
+> > If Suspend2 added code in a way that broke swsusp, I would agree. But it
+> > doesn't.
+>
+> This is not a matter of any breakage or lack thereof.  The problem is that
+> the freezer is _not_ _an_ _swsusp-only_ _code_.  It is used by someone el=
+se
+> too, and having two different freezers in the tree would be _insane_,
+> because too many things depend on that.  This would be like having two
+> different memory management systems, but at a smaller scale.
+
+Please don't start doing what Pavel does, imputing to me motives and ideas=
+=20
+that are clearly false. You know that I don't want to have two freezer=20
+implementations - I've never suggested the idea or even thought of it until=
+=20
+you suggested it. My desire all along has been to improve what's already=20
+there, and I still want to do that.
+
+I'm sorry that I'm not submitting and resubmitting things as fast as you'd=
+=20
+like. Please try to remember that I'm not a full time programmer. I'm worki=
+ng=20
+for Redhat one day a week and the congregation I serve four days a week.=20
+Anything I do beyond the one day is purely my time, and I have plenty of=20
+other things to do too. It's not, therefore, that I want to drag my heels.=
+=20
+Rather, I simply don't have the time to get things done as quickly as you a=
+nd=20
+Pavel seem to be able to.
+
+Regards,
+
+Nigel
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
+
+--nextPart1556384.FS70y7KZMn
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEsXkxN0y+n1M3mo0RAqWdAJ9vUTjaViihnlwoYurJyWLSh6Nv8ACfdgZw
+FKVSRrIz/r/PALuqYTJoZgA=
+=e/Ko
+-----END PGP SIGNATURE-----
+
+--nextPart1556384.FS70y7KZMn--

@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbWGIDVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbWGID0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161074AbWGIDVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 23:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161073AbWGIDVZ
+	id S1161076AbWGID0K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 23:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWGID0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 23:21:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42721 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161074AbWGIDVY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 23:21:24 -0400
-Date: Sat, 8 Jul 2006 23:21:03 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk
-Subject: Re: Suspend to RAM regression tracked down
-Message-ID: <20060709032103.GA31395@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	cpufreq@lists.linux.org.uk
-References: <1151837268.5358.10.camel@idefix.homelinux.org> <44A80B20.1090702@goop.org> <1152271537.5163.4.camel@idefix.homelinux.org> <20060707162152.GB3223@redhat.com> <1152312530.14453.16.camel@idefix.homelinux.org> <20060708062345.GB3356@redhat.com> <1152399303.14453.29.camel@idefix.homelinux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152399303.14453.29.camel@idefix.homelinux.org>
-User-Agent: Mutt/1.4.2.1i
+	Sat, 8 Jul 2006 23:26:10 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:12479 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964923AbWGID0J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 23:26:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ekdqOSNki1K8wDxrHwzYkzPj1nR58YQCr9mWxmDAQ+c0m+o6KZJXhZGppo+LiL2ExsMRXpIKBYt/Ti6/cp3dOmuoT1ajQQApX2nlg6Hl6XZH8kxU7mItvD/ZG1FkJAi1sBDosSsiZtahBolIoKcCuHkp1K6RsPsVX3Z/znEp3VY=  ;
+Message-ID: <44B0774E.5010103@yahoo.com.au>
+Date: Sun, 09 Jul 2006 13:26:06 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marc Singer <elf@buici.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: DMA memory, split_page, BUG_ON(PageCompound()), sound
+References: <20060709000703.GA9806@cerise.buici.com>
+In-Reply-To: <20060709000703.GA9806@cerise.buici.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 08:55:02AM +1000, Jean-Marc Valin wrote:
- > > If you're prepared to play around with 'git bisect' a little, it shouldn't
- > > take that many iterations, as you've already narrowed it down quite a lot.
- > > 
- > > $ git bisect start drivers/cpufreq/cpufreq_ondemand.c
- > > $ git bisect bad
- > > $ git bisect good v2.6.12-rc5
- > > 
- > > should get you most of the way there.
- > > 
- > > http://www.kernel.org/pub/software/scm/git/docs/git-bisect.html
- > > has more info.
- > 
- > Could you give me a bit more info, since I've never used git before (I
- > only downloaded the git snapshots)? Also, if I understand correctly,
- > cpufreq_ondemand.c is the only file that could cause the problem. Is
- > that right? Also, is it possible to use an old version of it on a new
- > kernel?
+Marc Singer wrote:
+> I'm investigating why I am triggering a BUG_ON in split_page() when I
+> use the sound subsystems dma memory allocation aide.
+> 
+> The crux of the problem appears to be that snd_malloc_dev_pages()
+> passes __GFP_COMP into dma_alloc_coherent().  On the ARM and several
+> other architectures, the dma allocation code calls split_page () with
+> pages allocated with this flag which, in turn, triggers the BUG_ON()
+> check for the CompoundPage flag.
+> 
+> So, the questions are these: Who is doing the wrong thing?  Should the
+> snd_malloc_dev_pages() call drop the __GFP_COMP flag?  Should
+> split_page() allow the page to be compound?  Should __GFP_COMP be 0 on
+> ARM and other architectures that don't support compound pages?
 
-Actually, before deep diving into chasing bugs in ondemand, we should
-probably confirm that the same behaviour doesn't happen with a different
-governor.  Can you try that ?   Try setting it to userspace, and then
-running a userspace app like cpuspeed/powernowd etc.
+I personally never liked the explicit __GFP_COMP going in everywhere,
+and would have much preferred a GFP_USERMAP, which the architecture /
+allocator could satisfy as they liked.
 
-		Dave
+As a hack, you can make arm's dma_alloc_coherent() drop __GFP_COMP,
+which should work.
 
 -- 
-http://www.codemonkey.org.uk
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

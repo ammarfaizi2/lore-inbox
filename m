@@ -1,65 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWGIDow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161078AbWGIDnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbWGIDow (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 23:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbWGIDow
+	id S1161078AbWGIDnm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 23:43:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161081AbWGIDnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 23:44:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35297 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964939AbWGIDov (ORCPT
+	Sat, 8 Jul 2006 23:43:42 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:7468 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1161078AbWGIDnl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 23:44:51 -0400
-Date: Sat, 8 Jul 2006 20:44:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: mreuther@umich.edu, linux-kernel@vger.kernel.org
-Subject: Re: Compile Error on 2.6.17-mm6
-Message-Id: <20060708204448.6914aaf9.akpm@osdl.org>
-In-Reply-To: <20060708203424.281400d2.rdunlap@xenotime.net>
-References: <200607072222.31586.mreuther@umich.edu>
-	<20060708174347.76391c7b.akpm@osdl.org>
-	<20060708203424.281400d2.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sat, 8 Jul 2006 23:43:41 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch] spinlocks: remove 'volatile' 
+In-reply-to: Your message of "Sat, 08 Jul 2006 20:29:12 MST."
+             <Pine.LNX.4.64.0607082019180.5623@g5.osdl.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 09 Jul 2006 13:43:27 +1000
+Message-ID: <4234.1152416607@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Jul 2006 20:34:24 -0700
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+Linus Torvalds (on Sat, 8 Jul 2006 20:29:12 -0700 (PDT)) wrote:
+>
+>
+>On Sun, 9 Jul 2006, Keith Owens wrote:
+>> 
+>> This disagrees with the gcc (4.1.0) docs.  info --index-search='Extended Asm' gcc
+>> 
+>>   The ordinary output operands must be write-only; GCC will assume
+>>   that the values in these operands before the instruction are dead and
+>>   need not be generated.  Extended asm supports input-output or
+>>   read-write operands.  Use the constraint character `+' to indicate
+>>   such an operand and list it with the output operands.  You should
+>>   only use read-write operands when the constraints for the operand (or
+>>   the operand in which only some of the bits are to be changed) allow a
+>>   register.
+>
+>I'm fairly sure the docs are outdated (but may well be correct for older 
+>gcc versions - as I already discussed elsewhere, that "+" thing was not 
+>historically useful).
+>
+>We've been using "+m" for some time in the kernel on several 
+>architectures.
+>
+>git aficionados can do
+>
+>	git grep -1 '"+m"' v2.6.17
+>
+>to see the pre-existing usage of this (most of them go back a lot further, 
+>although some of them are newer - the <asm-i386/bitops.h> ones were added 
+>in January.
+>
+>So if "+m" didn't work, we've been in trouble for at least the last year.
 
-> On Sat, 8 Jul 2006 17:43:47 -0700 Andrew Morton wrote:
-> 
-> > On Fri, 7 Jul 2006 22:22:16 -0400
-> > Matt Reuther <mreuther@umich.edu> wrote:
-> > 
-> > > Here is the error:
-> > >   CHK     include/linux/compile.h
-> > >   UPD     include/linux/compile.h
-> > >   CC      init/version.o
-> > >   LD      init/built-in.o
-> > >   LD      .tmp_vmlinux1
-> > > arch/i386/kernel/built-in.o(.text+0xe282): In function 
-> > > `cpu_request_microcode':
-> > > arch/i386/kernel/microcode.c:544: undefined reference to `request_firmware'
-> > > arch/i386/kernel/built-in.o(.text+0xe304):arch/i386/kernel/microcode.c:573: 
-> > > undefined reference to `release_firmware'
-> > 
-> > CONFIG_FW_LOADER=m
-> > CONFIG_MICROCODE=y
-> > 
-> > So
-> > 
-> > config MICROCODE
-> > 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
-> > 	depends on FW_LOADER
-> > 
-> > is not sufficient.  There's a fix for this, but I cannot remember what it
-> > is.  Help.
-> 
-> That 1-line depends patch fixes the problem for me (on x86-64,
-> but they are the same in this area).
-> 
+The oldest gcc I can access quickly is 3.2.3 (May 2005) which has
+significantly different wording.
 
-What patch is that?
+  The ordinary output operands must be write-only; GCC will assume that
+  the values in these operands before the instruction are dead and need
+  not be generated.  Extended asm supports input-output or read-write
+  operands.  Use the constraint character `+' to indicate such an
+  operand and list it with the output operands.
+
+  When the constraints for the read-write operand (or the operand in
+  which only some of the bits are to be changed) allows a register, you
+  may, as an alternative, logically split its function into two
+  separate operands, one input operand and one write-only output
+  operand.  The connection between them is expressed by constraints
+  which say they need to be in the same location when the instruction
+  executes.
+
+In 3.2.3, the '+' form allows any constraint, only the split notation
+requires that the operand be in a register.  In 4.1.0, the docs now say
+that the '+' form requires a register.  I suspect that you are right
+and the gcc docs are incorrect, but it does not hurt to check.  Would
+anybody from the gcc team like to pipe up and give an opinion?
+

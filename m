@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWGIOak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWGIOij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbWGIOak (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 10:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWGIOak
+	id S932464AbWGIOij (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 10:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWGIOij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 10:30:40 -0400
-Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:11746 "EHLO
-	mail.aftek.com") by vger.kernel.org with ESMTP id S932458AbWGIOai
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 10:30:38 -0400
-X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(59.95.0.168):SA:0(-102.4/1.7):. Processed in 1.562339 secs Process 16603)
-From: "Abu M. Muttalib" <abum@aftek.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Robert Hancock" <hancockr@shaw.ca>, <chase.venters@clientec.com>,
-       <kernelnewbies@nl.linux.org>, <linux-newbie@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, "linux-mm" <linux-mm@kvack.org>
-Subject: RE: Commenting out out_of_memory() function in __alloc_pages()
-Date: Sun, 9 Jul 2006 20:04:52 +0530
-Message-ID: <BKEKJNIHLJDCFGDBOHGMIEFJDCAA.abum@aftek.com>
+	Sun, 9 Jul 2006 10:38:39 -0400
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:28818 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932464AbWGIOii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 10:38:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=F7OgebyJrzyDyJHG8RDnH7/l5D3nmSklMaoWWCJXkV57aTJ9zhyF9Wif2krM99UsZ5zXi5mMR/lRssACX9y1qn/qnDt2idv+kVo/vWkViUclPL8hqCPekD0Nx3xZk7qR59xIUBnHpp0RuWl4HQuhbEwBQb4HAD0SD9JBdnl9tCw=  ;
+Message-ID: <44B0FCC9.8010508@yahoo.com.au>
+Date: Sun, 09 Jul 2006 22:55:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>
+CC: Fabio Comolli <fabio.comolli@gmail.com>, mingo@redhat.com,
+       linux-kernel@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: 2.6.18-rc1-mm1
+References: <20060709021106.9310d4d1.akpm@osdl.org>	<b637ec0b0607090326w5a1702d1l9b7619fba7e4bc41@mail.gmail.com> <20060709034509.c4652caa.akpm@osdl.org> <44B0F87F.70503@yahoo.com.au>
+In-Reply-To: <44B0F87F.70503@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-In-reply-to: <44B0F0AA.20708@yahoo.com.au>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Abu, I guess you have turned on CONFIG_EMBEDDED and disabled everything
->you don't need, turned off full sized data structures, removed everything
->else you don't need from the kernel config, turned off kernel debugging
->(especially slab debugging).
+Nick Piggin wrote:
+> Andrew Morton wrote:
 
-Do you mean that I have configured kernel with CONFIG_EMBEDDED option??
+>>
+>> - If a piece of kernel code is dealing with per-cpu data and cannot run
+>>   atomically then it should have its own cpu hotplug handlers anyway.  It
+>>   is up to that code (ie: cpufreq) to provide its own locking against its
+>>   own CPU hotplug callback.
+> 
+> 
+> This still does not solve this cpufreq problem where it is trying to
+> take the same lock twice down the same call path. Whether it is the
+> lock_cpu_hotplug mutex or another one, the code must be just busted.
+> 
 
->If you still have problems, what does /proc/slabinfo tell you when running
->your application under both 2.4 and 2.6?
+Err...
 
-Will find out the differences..
+s/twice down the same call path/inverted with another lock
 
-Regards,
-Abu.
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

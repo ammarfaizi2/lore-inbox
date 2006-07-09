@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161055AbWGISzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbWGITAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161055AbWGISzV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 14:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161056AbWGISzV
+	id S1161052AbWGITAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 15:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161056AbWGITAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 14:55:21 -0400
-Received: from mail.gmx.net ([213.165.64.21]:30139 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1161055AbWGISzU (ORCPT
+	Sun, 9 Jul 2006 15:00:09 -0400
+Received: from mail.cs.umn.edu ([128.101.32.202]:19661 "EHLO mail.cs.umn.edu")
+	by vger.kernel.org with ESMTP id S1161052AbWGITAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 14:55:20 -0400
-X-Authenticated: #14349625
-Subject: Re: 2.6.18-rc1-mm1:  /sys/class/net/ethN becoming symlink
-	befuddled /sbin/ifup
-From: Mike Galbraith <efault@gmx.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1152469329.9254.15.camel@Homer.TheSimpsons.net>
-References: <20060709021106.9310d4d1.akpm@osdl.org>
-	 <1152469329.9254.15.camel@Homer.TheSimpsons.net>
-Content-Type: text/plain
-Date: Sun, 09 Jul 2006 21:01:02 +0200
-Message-Id: <1152471662.8448.6.camel@Homer.TheSimpsons.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Sun, 9 Jul 2006 15:00:07 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Message-ID: <17585.20765.134453.441965@hound.rchland.ibm.com>
+Date: Sun, 9 Jul 2006 13:55:25 -0500
+To: "Avinash Ramanath" <avinashr@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Zeroing data blocks
+In-Reply-To: <abcd72470607081819j30e775cdx6cc8841e43f49373@mail.gmail.com>
+References: <abcd72470607081819j30e775cdx6cc8841e43f49373@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+From: boutcher@cs.umn.edu (Dave Boutcher)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-09 at 20:22 +0200, Mike Galbraith wrote:
-> Greetings,
+On Sat, 8 Jul 2006 18:19:13 -0700, "Avinash Ramanath" <avinashr@gmail.com> said:
 > 
-> As $subject says, up-to-date SuSE 10.0 /sbin/ifup became confused...
-> 
-> -[pid  8191] lstat64("/sys/class/net/eth1", {st_mode=S_IFLNK|0777, st_size=0, ...}) = 0
-> -[pid  8191] lstat64("/sys/block/eth1", 0xafec0f9c) = -1 ENOENT (No such file or directory)
+> I am trying to zero data blocks whenever an unlink is invoked as part
+> of a secure delete filesystem.
+> I tried to zero the file by writing a buffer (of file size) with
+> zeroes onto the file.
 
-Slight correction:  it's /sbin/getcfg that did the above, resulting in
-ipup failing.
+Hmm...you may want to look at
+https://www.redhat.com/archives/ext3-users/2006-April/msg00004.html
+for a slightly cleaner approach.  I just used that patch on a 
+2.6.17 and it worked fine.
 
+Dave B

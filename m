@@ -1,130 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbWGIK2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbWGIKaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030395AbWGIK2W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 06:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbWGIK2W
+	id S1030421AbWGIKaa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 06:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbWGIKaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 06:28:22 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:29066 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030395AbWGIK2V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 06:28:21 -0400
-Subject: Re: INFO: inconsistent lock state
-From: Arjan van de Ven <arjan@infradead.org>
-To: Arne Ahrend <aahrend@web.de>
-Cc: marcel@holtmann.org, maxk@qualcomm.com, akpm@osdl.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <793057896@web.de>
-References: <793057896@web.de>
-Content-Type: text/plain
-Date: Sun, 09 Jul 2006 12:28:11 +0200
-Message-Id: <1152440891.3255.49.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 9 Jul 2006 06:30:30 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:38034 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030421AbWGIKa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 06:30:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=E1cHm6EYoAzmSKukPNIS7KJLzXgD9Yhyun30iG+FlCq5ZfkZ5McOWBBS/mt3fvVmOv2SMpN18B2k4fQBI7WoKgNaut1x2mZnghP45MNtXPiE0/wWablUXOH9k923QpmrsstmCOZji/Xxkf5FglJf3cSH3efJ5SiFh8ddCKy0Nlg=
+Message-ID: <e1e1d5f40607090329i25f6b1b2s3db2c2001230932c@mail.gmail.com>
+Date: Sun, 9 Jul 2006 06:29:55 -0400
+From: "Daniel Bonekeeper" <thehazard@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: Automatic Kernel Bug Report
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com>
+	 <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-09 at 12:02 +0200, Arne Ahrend wrote:
-> On Sat, 2006-07-08 at 19:12 +0200, Arjan van de Ven wrote:
-> > Arne: Can you try this patch and verify it makes the message go away?
-> > [...]
-> > --- linux-2.6.17-mm6.orig/include/linux/skbuff.h
-> > +++ linux-2.6.17-mm6/include/linux/skbuff.h
-> > @@ -609,7 +609,6 @@ extern struct lock_class_key skb_queue_l
-> >  static inline void skb_queue_head_init(struct sk_buff_head *list)
-> >  {
-> >  	spin_lock_init(&list->lock);
-> > -	lockdep_set_class(&list->lock, &skb_queue_lock_key);
-> >  	list->prev = list->next = (struct sk_buff *)list;
-> >  	list->qlen = 0;
-> >  }
-> 
-> With this patch the message at boot goes away. However, I have had one
-> instance of the following message at shutdown, but not always.
-> This particular one happened with the above patch applied.
-> 
+On 7/9/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> Hi Daniel,
+>
+> On 09/07/06, Daniel Bonekeeper <thehazard@gmail.com> wrote:
+> > Well this probably was already discussed. Some distros have automatic
+> > bug reporting tools that are triggered when something bad happens
+> > (don't know if includes kernel stuff). But have anybody thought about
+> > some kind of bug report tool that, under an Oops like a NULL point
+> > dereference, it creates for example a packed file with the config used
+> > to build the kernel, the kernel version, loaded modules, some hardware
+> > info, backtraces, everything that could be useful for debugging, and
+> > sends to a server to be catalogued ?
+>
+> How about oops reporting tool?
+> http://www.stardust.webpages.pl/files/ort/
+>
+> [snip]
+> >
+> > Wouldn't that be helpful ?
+> >
+> > Daniel
+> >
+>
+> Regards,
+> Michal
+>
 
-I think this is a real bug, well in fact there seem to be 2:
+Hello Michal.
 
-there are 2 locks that have dodgy locking, one is a spinlock one is a
-rwlock. Both are used in softirq context, but neither had the proper _bh
-marking. The patch below corrects this
+Yes, something like that =)
 
----
- net/bluetooth/l2cap.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+Maybe less verbal. Another problem is that, depending on the
+situation, the problem may be serious enough to not allow a program in
+userspace to work (and therefore, not acknowledge the Oops nor send a
+bug report). Also, important information may not be available for
+userspace (imagine a machine where the kernel wasn't compiled with
+debug stuff, so those details are not exposed to userspace, but
+available at kernelspace). As far as I understood your script, it
+requires interactivity to work (so if we have a bunch of servers in a
+datacenter at 1k miles, we got a problem). My first idea was:
 
-Index: linux-2.6.17-mm6/net/bluetooth/l2cap.c
-===================================================================
---- linux-2.6.17-mm6.orig/net/bluetooth/l2cap.c
-+++ linux-2.6.17-mm6/net/bluetooth/l2cap.c
-@@ -167,9 +167,9 @@ static int l2cap_conn_del(struct hci_con
- static inline void l2cap_chan_add(struct l2cap_conn *conn, struct sock *sk, struct sock *parent)
- {
- 	struct l2cap_chan_list *l = &conn->chan_list;
--	write_lock(&l->lock);
-+	write_lock_bh(&l->lock);
- 	__l2cap_chan_add(conn, sk, parent);
--	write_unlock(&l->lock);
-+	write_unlock_bh(&l->lock);
- }
- 
- static inline u8 l2cap_get_ident(struct l2cap_conn *conn)
-@@ -182,14 +182,14 @@ static inline u8 l2cap_get_ident(struct 
- 	 *  200 - 254 are used by utilities like l2ping, etc.
- 	 */
- 
--	spin_lock(&conn->lock);
-+	spin_lock_bh(&conn->lock);
- 
- 	if (++conn->tx_ident > 128)
- 		conn->tx_ident = 1;
- 
- 	id = conn->tx_ident;
- 
--	spin_unlock(&conn->lock);
-+	spin_unlock_bh(&conn->lock);
- 
- 	return id;
- }
-@@ -1006,7 +1006,7 @@ static inline void l2cap_chan_unlink(str
- {
- 	struct sock *next = l2cap_pi(sk)->next_c, *prev = l2cap_pi(sk)->prev_c;
- 
--	write_lock(&l->lock);
-+	write_lock_bh(&l->lock);
- 	if (sk == l->head)
- 		l->head = next;
- 
-@@ -1014,7 +1014,7 @@ static inline void l2cap_chan_unlink(str
- 		l2cap_pi(next)->prev_c = prev;
- 	if (prev)
- 		l2cap_pi(prev)->next_c = next;
--	write_unlock(&l->lock);
-+	write_unlock_bh(&l->lock);
- 
- 	__sock_put(sk);
- }
-@@ -1424,7 +1424,7 @@ static inline int l2cap_connect_req(stru
- 	if (!sk)
- 		goto response;
- 
--	write_lock(&list->lock);
-+	write_lock_bh(&list->lock);
- 
- 	/* Check if we already have channel with that dcid */
- 	if (__l2cap_get_chan_by_dcid(list, scid)) {
-@@ -1466,7 +1466,7 @@ static inline int l2cap_connect_req(stru
- 	result = status = 0;
- 
- done:
--	write_unlock(&list->lock);
-+	write_unlock_bh(&list->lock);
- 
- response:
- 	bh_unlock_sock(parent);
+1) At kernelspace we have some kind of function that is called at the
+end of the bug handler (BUG_ON for example) or more generically in
+another place. This function just adds the current bug description
+(probably the output used on printk (that is currently segmented over
+the code)) and adds it to a list of structs that holds bug
+descriptions inside the bug report system.
 
+2a) The bug report system can export those bug descriptors to
+userspace via sysfs, for example, where a tool there can do the rest.
 
+2b) We could provide a device like /dev/oops which just returns the
+content of the bug report lists (in ASCII so shell scripts can read
+it). By having a device, we can actually know if something on the
+userspace cares about bug reporting (if we have a process with
+/dev/oops open (and blocked, waiting for new oops reports), we let it
+handle that). Again, something serious can happen and the userspace
+notifier won't run. Something simple as  easy-to-parse e-mails could
+be used to KISS it.
+
+2c) Just have the notifier on the kernel. Maybe this won't be
+possible, but I thought about something very rude: at boot time,
+initrd scripts tell the kernel where to send the bug report to (using
+UDP, may be a machine inside their LAN where the admin can also have
+information about those Oops, or point directly to servers at vger or
+any place else). When the Oops occur, a notifier function inside the
+kernel uses the (if available) network stuff to send a simple UDP
+packet containing the info. Maybe this will be enough to overcome very
+bad situations where everything on userspace locks, but the kernel
+still runnable.
+
+3) At the central bug report server, we get the bugs routed. Here we
+put a hold on bugs that may not be worth to look at (for example
+tainted stuff), and the useful ones (let's say, stuff that just came
+out) are routed to maintainers, or just kept on the server where
+everybody can have free access to it.
+
+In any circunstance, I think that user interactivity should be
+avoided. At the boot time, the initrd specifies to the kernel what to
+do upon a bug (device/call a binary in userspace/send dump via UDP,
+etc), and have some kind of contact information, so the system at the
+other side, after receiving the bug report, can put the bug in a
+catalog, assign an ID to it, and notify the admin of the server
+(probably via e-mail) about the bug, asking for details that may be
+helpful. The process may seem complex at a first glance, but I think
+that this is worth of having (imagine how many bugs actually are
+triggered every single day, but not reported...). This would also end
+up as a quality meter (just imagine the current discussion about
+uswsusp and suspend2... we would know which one of them have higher
+rates of problems, statistics over the time, so we can see if the rate
+of problems with them are getting higher or not, etc). Maybe we could
+just incorporate Mozilla's bug report tool, if it's currently
+available (and not hard to do at kernel side, if it's a good idea at
+all).
+
+Daniel
+
+-- 
+What this world needs is a good five-dollar plasma weapon.

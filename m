@@ -1,108 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbWGIXMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWGIXNo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932520AbWGIXMV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 19:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWGIXMV
+	id S932523AbWGIXNo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 19:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWGIXNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 19:12:21 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:273 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932520AbWGIXMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 19:12:20 -0400
-Date: Mon, 10 Jul 2006 01:12:18 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Miles Lane <miles.lane@gmail.com>,
-       "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, gregkh@suse.de,
-       linux-acpi@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.17-mm2 -- drivers/built-in.o: In function `is_pci_dock_device':acpiphp_glue.c:(.text+0x12364): undefined reference to `is_dock_device'
-Message-ID: <20060709231218.GU13938@stusta.de>
-References: <CFF307C98FEABE47A452B27C06B85BB6ECF9E7@hdsmsx411.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6ECF9E7@hdsmsx411.amr.corp.intel.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Sun, 9 Jul 2006 19:13:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39596 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932523AbWGIXNn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 19:13:43 -0400
+Date: Sun, 9 Jul 2006 16:13:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       Thomas Kleffel <tk@maintech.de>,
+       Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: Re: pcmcia IDE broken in 2.6.18-rc1
+Message-Id: <20060709161330.9fda040d.akpm@osdl.org>
+In-Reply-To: <20060709224700.GA1707@elf.ucw.cz>
+References: <20060708145541.GA2079@elf.ucw.cz>
+	<1152380199.27368.9.camel@localhost.localdomain>
+	<20060708104100.af5dcbd8.akpm@osdl.org>
+	<20060709224700.GA1707@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 07:03:23PM -0400, Brown, Len wrote:
+On Mon, 10 Jul 2006 00:47:08 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
+
+> Hi!
 > 
-> >It would be a solution to let HOTPLUG_PCI_ACPI depend on
-> >(ACPI_DOCK || ACPI_DOCK=n), or the #if in 
-> >include/acpi/acpi_drivers.h could be changed to
-> >#if defined(CONFIG_ACPI_DOCK) || 
-> >(defined(CONFIG_ACPI_DOCK_MODULE) && defined(MODULE))
+> > > > ide2: I/O resource 0xF887E00E-0xF887E00E not free.
+> > > > ide2: ports already in use, skipping probe
+> > > > ide2: I/O resource 0xF887E01E-0xF887E01E not free.
+> > > > ide2: ports already in use, skipping probe
+> > > 
+> > > 
+> > > Looks like ioremap values not I/O ports. Probably the various IDE layer
+> > > changes from 2.6.17-mm.
+> > > 
+> > > My first guess would be the PCMCIA layer changes to use mmio ports are
+> > > not setting hwif->mmio (I think its ->mmio) to 2 and doing their own
+> > > resource management.
+> > > 
+> > 
+> > 5040cb8b7e61b7a03e8837920b9eb2c839bb1947 looks like a good one to try
+> > reverting.
 > 
-> CONFIG_HOTPLUG_PCI_ACPI requires CONFIG_ACPI_DOCK.
-> There are 9 combinations.
-> 
-> DOCK	HPA
-> n	n	ok
-> n	y	illegal
-> n	m	illegal
-> y	n	ok
-> y	y	ok
-> y	m	ok
-> m	n	ok
-> m	y	illegal (subject of this thread)
-> m	m	ok
-> 
-> The patch below handles all these cases:
-> 
-> DOCK	HPA
-> n	n	builds
-> n	y	-> y,y
-> n	m	-> m,m
-> y	n	builds
-> y	y	builds
-> y	m	builds
-> m	n	builds
-> m	y	-> m,y
-> m	m	builds
-> 
-> okay?
+> 2.6.18-rc1-mm1 works okay. Is that enough, or do you want me to try
+> reverting just this patch?
 
-This patch looks wrong since it allows the illegal configuration
-ACPI_IBM_DOCK=y, HOTPLUG_PCI_ACPI=y/m, ACPI_DOCK=y/m.
+Nope, that's fine, thanks.  I think we can say that
+5040cb8b7e61b7a03e8837920b9eb2c839bb1947 is busted.
 
-If you select something, you have to ensure the dependencies of what you 
-are select'ing are fulfilled.
-
-config HOTPLUG_PCI_ACPI
-	tristate "ACPI PCI Hotplug driver"
-	depends on ACPI && HOTPLUG_PCI
-	depends on !ACPI_IBM_DOCK
-	select ACPI_DOCK
-	help
-	  ...
-
-> -Len
-> 
-> diff --git a/drivers/pci/hotplug/Kconfig b/drivers/pci/hotplug/Kconfig
-> index 222a1cc..e7c955b 100644
-> --- a/drivers/pci/hotplug/Kconfig
-> +++ b/drivers/pci/hotplug/Kconfig
-> @@ -78,6 +78,7 @@ config HOTPLUG_PCI_IBM
->  config HOTPLUG_PCI_ACPI
->  	tristate "ACPI PCI Hotplug driver"
->  	depends on ACPI && HOTPLUG_PCI
-> +	select ACPI_DOCK
->  	help
->  	  Say Y here if you have a system that supports PCI Hotplug
-> using
->  	  ACPI.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Let's give Thomas and Dominik a few days to think about it before we do the
+deed..

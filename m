@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161019AbWGIPCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbWGIPIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161019AbWGIPCq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 11:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161021AbWGIPCq
+	id S1161025AbWGIPIf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 11:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbWGIPIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 11:02:46 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:62142 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1161019AbWGIPCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 11:02:45 -0400
-Subject: Re: [RFC][PATCH -mm] lockdep.c likely
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <44B0F7D9.8040203@gmail.com>
-References: <44B0F7D9.8040203@gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 09 Jul 2006 17:02:33 +0200
-Message-Id: <1152457353.3255.60.camel@laptopd505.fenrus.org>
+	Sun, 9 Jul 2006 11:08:35 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:6086 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1161021AbWGIPIe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 11:08:34 -0400
+Date: Sun, 9 Jul 2006 19:08:20 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+Message-ID: <20060709150819.GB15071@2ka.mipt.ru>
+References: <20060709132446.GB29435@2ka.mipt.ru> <84144f020607090759o176f35edg603a26cb9c752e6e@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <84144f020607090759o176f35edg603a26cb9c752e6e@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 09 Jul 2006 19:08:23 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-09 at 14:34 +0200, Michal Piotrowski wrote:
-> Hi,
+On Sun, Jul 09, 2006 at 05:59:42PM +0300, Pekka Enberg (penberg@cs.helsinki.fi) wrote:
+> On 7/9/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> >+struct kevent *kevent_alloc(gfp_t mask)
+> >+{
+> >+       struct kevent *k;
+> >+
+> >+       if (kevent_cache)
+> >+               k = kmem_cache_alloc(kevent_cache, mask);
+> >+       else
+> >+               k = kzalloc(sizeof(struct kevent), mask);
+> >+
+> >+       return k;
+> >+}
 > 
-> I have noticed this
-> 
-> +unlikely | 53202934|    80576  trace_softirqs_on()@:/usr/src/linux-mm/kernel/lockdep.c@1861
-> [..]
-> +unlikely | 53202350|    80542  trace_softirqs_off()@:/usr/src/linux-mm/kernel/lockdep.c@1895
-> [..]
-> +unlikely |272060329|  3784394  trace_hardirqs_on()@:/usr/src/linux-mm/kernel/lockdep.c@1787
-> [..]
-> +unlikely |361155686|  2959425  check_unlock()@:/usr/src/linux-mm/kernel/lockdep.c@2197
-> [..]
-> +unlikely |  1821294|  1140788  __lock_acquire()@:/usr/src/linux-mm/kernel/lockdep.c@1977
->  unlikely |        0|  2962331  __lock_acquire()@:/usr/src/linux-mm/kernel/lockdep.c@1965
->  unlikely |        0|  2962035  __lock_acquire()@:/usr/src/linux-mm/kernel/lockdep.c@1962
-> +unlikely |361188304|  2961749  __lock_acquire()@:/usr/src/linux-mm/kernel/lockdep.c@1959
-> [..]
-> +unlikely | 14528808|   413114  debug_check_no_locks_freed()@:/usr/src/linux-mm/kernel/lockdep.c@2607
->  likely   |    92394|      156  lock_kernel()@:/usr/src/linux-mm/lib/kernel_lock.c@70
->  unlikely |        0|   305177  lockdep_init_map()@:/usr/src/linux-mm/kernel/lockdep.c@1927
->  unlikely |        0|   305177  lockdep_init_map()@:/usr/src/linux-mm/kernel/lockdep.c@1925
-> +unlikely |  2156369|   305176  lockdep_init_map()@:/usr/src/linux-mm/kernel/lockdep.c@1922
->  unlikely |        0|  4412613  trace_hardirqs_off()@:/usr/src/linux-mm/kernel/lockdep.c@1837
-> +unlikely |319757688|  4409721  trace_hardirqs_off()@:/usr/src/linux-mm/kernel/lockdep.c@1834
-> 
-> in /proc/likely_prof
-> 
-> I'm not sure of it, but patch below should optimalize it.
+> What's this for? Why would kevent_cache be NULL? Note that you can use
+> kmem_cache_zalloc() for fixed size allocations that need to be zeroed.
 
+It can work without cache at all, i.e. if cache creation fails.
+Well, it can be removed of course, since it does not hurt anything.
 
-this is only likely after you've hit a lockdep message though..
+> On 7/9/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> >+
+> >+void kevent_free(struct kevent *k)
+> >+{
+> >+       memset(k, 0xab, sizeof(struct kevent));
+> 
+> Why is slab poisoning not sufficient?
 
+Since that pointer is always known to be poisoned no matter if kernel
+debugging option is turned on or off.
+
+-- 
+	Evgeniy Polyakov

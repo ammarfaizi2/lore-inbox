@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWGIK5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWGILCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbWGIK5X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 06:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWGIK5W
+	id S932440AbWGILCu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 07:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWGILCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 06:57:22 -0400
-Received: from khc.piap.pl ([195.187.100.11]:56448 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932312AbWGIK5W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 06:57:22 -0400
-To: Chase Venters <chase.venters@clientec.com>
-Cc: "linux-os \\\\(Dick Johnson\\\\)" <linux-os@analogic.com>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-References: <20060705114630.GA3134@elte.hu>
-	<200607080841.38235.chase.venters@clientec.com>
-	<m38xn3j1um.fsf@defiant.localdomain>
-	<200607081541.07449.chase.venters@clientec.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sun, 09 Jul 2006 12:57:19 +0200
-In-Reply-To: <200607081541.07449.chase.venters@clientec.com> (Chase Venters's message of "Sat, 8 Jul 2006 15:40:44 -0500")
-Message-ID: <m3odvz3v1s.fsf@defiant.localdomain>
+	Sun, 9 Jul 2006 07:02:50 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:45750 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932440AbWGILCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 07:02:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PflvCvN6JK59eXNeJ4lFWBv/Krd1uTLSSncbcFHwgfGmmsQiUEDb5zMKf9smQk+aSmsQgS8/j+VLj6Zy4f5ccC8Xq2NSnFhQBxFQnazhml6Qs4GIqfEnePh0UBirFwvL7DJnRtJzl99/MCVrtoj4ue1QTuKVTO4YiTY6q7ynRds=
+Message-ID: <6bffcb0e0607090402m1f6c09c7hc9abc380bf36d460@mail.gmail.com>
+Date: Sun, 9 Jul 2006 13:02:48 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.18-rc1-mm1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060709021106.9310d4d1.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters <chase.venters@clientec.com> writes:
-
->> Sure, but a barrier alone isn't enough. You have to use assembler and
->> it's beyond scope of C volatile.
+On 09/07/06, Andrew Morton <akpm@osdl.org> wrote:
 >
-> Right, which is why volatile is wrong.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/
+>
 
-In this case (and not only this). Of course. But not always.
+LTP hangs on
 
-> You need the barrier for both the CPU and the compiler.
+<<<test_output>>>
+setrlimit01    1  PASS  :  RLIMIT_NOFILE functionality is correct
+setrlimit01    0  WARN  :  caught signal 2, not SIGSEGV
+<<<execution_status>>>
+duration=1071 termination_type=driver_interrupt termination_id=1 corefile=no
+cutime=0 cstime=1
+<<<test_end>>>
 
-For spinlocks, yes.
+[michal@ltg01-fedora linux-mm]$ ps aux | grep setr
+root      5155 99.1  0.0   1612   188 pts/0    R    12:39  20:30 setrlimit01
 
-For other things... Sometimes you need a barrier for the compiler
-only. Sometimes you don't need any general barrier, you only need
-to make sure a single variable isn't being cached (by the compiler).
-That's what volatile is for.
+sudo kill -9 5155
 
-Saying that volatile is always wrong looks to me like saying that goto
-is always wrong :-) And yes, there are people who say that every single
-goto in the universe is wrong.
+[michal@ltg01-fedora linux-mm]$ ps aux | grep setr
+root      5155 99.0  0.0   1612   188 pts/0    R    12:39  20:57 setrlimit01
+
+unkillable process? I'll try to strace this.
+
+Regards,
+Michal
+
 -- 
-Krzysztof Halasa
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

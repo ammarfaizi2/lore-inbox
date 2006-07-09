@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161219AbWGIXhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161222AbWGIXiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161219AbWGIXhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 19:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbWGIXhP
+	id S1161222AbWGIXiy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 19:38:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161224AbWGIXiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 19:37:15 -0400
-Received: from mail.kroah.org ([69.55.234.183]:5563 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161219AbWGIXhO (ORCPT
+	Sun, 9 Jul 2006 19:38:54 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:7838 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1161222AbWGIXiy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 19:37:14 -0400
-Date: Sun, 9 Jul 2006 16:36:01 -0700
-From: Greg KH <greg@kroah.com>
-To: Andi Kleen <ak@suse.de>, Kay Sievers <kay.sievers@vrfy.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.18-rc1
-Message-ID: <20060709233601.GA4646@kroah.com>
-References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org> <p73irm8nolj.fsf@verdi.suse.de> <20060708160233.GA4923@kroah.com> <200607100117.30052.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607100117.30052.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Sun, 9 Jul 2006 19:38:54 -0400
+Message-Id: <200607092338.k69NccHx006950@laptop11.inf.utfsm.cl>
+To: Mike Galbraith <efault@gmx.de>
+cc: Ask List <askthelist@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Runnable threads on run queue 
+In-Reply-To: Message from Mike Galbraith <efault@gmx.de> 
+   of "Sun, 09 Jul 2006 09:20:26 +0200." <1152429626.9711.34.camel@Homer.TheSimpsons.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Sun, 09 Jul 2006 19:38:37 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Sun, 09 Jul 2006 19:38:47 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 01:17:30AM +0200, Andi Kleen wrote:
-> On Saturday 08 July 2006 18:02, Greg KH wrote:
-> > On Sat, Jul 08, 2006 at 04:44:08PM +0200, Andi Kleen wrote:
-> > > Greg KH <greg@kroah.com> writes:
-> > > > 
-> > > > Perhaps, that is odd.  The scanner should default to the logged in user,
-> > > > right?  Please file a bug at bugzilla.novell.com and the SuSE people can
-> > > > work on it there.
-> > > 
-> > > I have a similar problem with my printer. But /dev/usblp0,
-> > > /dev/usb/lp0 don't even appear, no matter what the permissions are.
-> > 
-> > What version of udev are you using?  It works fine for me here with a
-> > USB printer (that's what I tested the changes with.)
-> 
-> udev-068git20050831-9 (from SUSE 10.0 I think) 
+Mike Galbraith <efault@gmx.de> wrote:
+> On Sat, 2006-07-08 at 20:18 +0000, Ask List wrote:
+> > procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+> >  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
 
-That's the issue, look in Documentation/Changes for the proper version
-of udev for the past few kernel versions to handle this kind of issue
-(again, it was a stupid libsysfs problem, which caused us to finally
-drop that piece of crud from udev...)  This has been documented as such
-since last October, see commit ad7e14a55ed7648d02a4df8e460e291d80a18c98.
+[...]
 
-It was necessary to do this for the input drivers to get them to all
-work properly, please see the old archives for details as to the
-necessity of it.
+> Looking at the interrupts column, I suspect you have a network problem,
+> not a scheduler problem.  Looks to me like your SpamAssasins are simply
+> running out of work to do because your network traffic comes in bursts.
 
-Also, that change caused the creation of Documentation/ABI/ which
-describes the rules that programs that look at sysfs class stuff, must
-be able to handle a symlink there.
+spamassassin acted up here some time ago. With personal training and some
+messages it went to a loop and the load went through the roof. Couldn't
+find a cure, plus some hundred users with large personalized rule files
+were causing problems anyway, so we axed that.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 
-That older version of udev in 10.0 can't handle the symlink, but I think
-that Kay had a version somewhere that was patched to handle it.  I'd
-just recommend upgrading to 10.1 :)
-
-thanks,
-
-greg k-h

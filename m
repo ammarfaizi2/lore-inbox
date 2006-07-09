@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030434AbWGIIdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030438AbWGIIpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030434AbWGIIdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 04:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbWGIIdZ
+	id S1030438AbWGIIpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 04:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWGIIpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 04:33:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25815 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030434AbWGIIdY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 04:33:24 -0400
-Message-ID: <44B0BF4F.7070102@redhat.com>
-Date: Sun, 09 Jul 2006 04:33:19 -0400
-From: Rik van Riel <riel@redhat.com>
-Organization: Red Hat, Inc
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Sun, 9 Jul 2006 04:45:16 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:35098 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932412AbWGIIpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 04:45:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=DNqm6UgnMVH4TXIfWMlPcj158i6cdsEvSkjIqJxih6CUTHmqZ6L0rTHBzDBN3LqiGDjS96753n/nXXYKbvnxVWW9VGHjdjtEDB/1apVznDFSbO0vk2nQM6kcODRR9mUEA1eAd/1WyYVKzLsjn4WcfEoUf2AJGBW1bw1MOFtTqEs=
+Message-ID: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com>
+Date: Sun, 9 Jul 2006 04:45:14 -0400
+From: "Daniel Bonekeeper" <thehazard@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Automatic Kernel Bug Report
 MIME-Version: 1.0
-To: Ask List <askthelist@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Runnable threads on run queue
-References: <loom.20060708T220409-206@post.gmane.org>
-In-Reply-To: <loom.20060708T220409-206@post.gmane.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ask List wrote:
-> Have an issue maybe someone on this list can help with. 
-> 
-> At times of very high load the number of processes on the run queue drops to
->  0 then jumps really high and then drops to 0 and back and forth. It seems to
-> last 10 seconds or so.
+Well this probably was already discussed. Some distros have automatic
+bug reporting tools that are triggered when something bad happens
+(don't know if includes kernel stuff). But have anybody thought about
+some kind of bug report tool that, under an Oops like a NULL point
+dereference, it creates for example a packed file with the config used
+to build the kernel, the kernel version, loaded modules, some hardware
+info, backtraces, everything that could be useful for debugging, and
+sends to a server to be catalogued ?
 
-Are you using sendmail by any chance? :)
+I know for sure that a lot of people don't use to send bug reports,
+either because they are in a hurry and forget, or because they just
+don't know how or that it even exists. We could have something that,
+under certain bad events, sends that info to a userspace program and
+lets it handle that bug report problem automatically (here distros can
+be creative).
 
-We start out with a low load averag, so sendmail forks as many
-spamassassins as it can...
+I'm not sure about including this on distro's kernels, since they
+already use some kind of bug report mechanism, and usually distro
+kernels are very different from the vanilla one, which could make it
+harder to debug the problem. So, distros should ship their kernels
+with this thing disabled (or enabled, but having the handler on
+userspace pointing to them, and not for us).
 
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
-> 83  0   1328 301684  37868 1520632    0    0     0   264  400  1332 98  2  0  0
-> 17  0   1328 293936  37868 1520688    0    0     0     0  537   979 97  3  0  0
-> 73  0   1328 293688  37868 1520712    0    0     0     0  268  2643 98  2  0  0
-> 80  0   1328 277220  37868 1520756    0    0     0     0  351   824 98  2  0  0
-> 49  0   1328 262452  37868 1520800    0    0     0     0  393  1882 97  3  0  0
-> 45  0   1328 246796  37868 1520828    0    0     0   304  302  1631 96  4  0  0
-> 55  0   1328 243852  37868 1520872    0    0     0     0  356  1101 99  1  0  0
-> 17  0   1328 228672  37868 1520916    0    0     0     0  336   748 97  3  0  0
->  0  0   1328 299948  37868 1520956    0    0     0     0  299   821 78  3 19  0
->  0  0   1328 299184  37868 1520960    0    0     0     0  168    78  8  0 92  0
 
-... and guess what?
+Wouldn't that be helpful ?
 
-The load average went through the roof, so sendmail stops forking
-spamassassins.  Now nothing is running, and sendmail will not start
-forking new spamassassins again until after the load average has
-decayed to an acceptable level.
-
-After that, it will fork way too many at once again, and the load
-average will go through the roof.  Lather, rinse, repeat.
-
-You'd probably be better off limiting the number of simultaneous
-local mail deliveries to something reasonable, so the load average
-always stays at an acceptable level - and more importantly, all of
-the CPU capacity could be used if needed...
+Daniel
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+What this world needs is a good five-dollar plasma weapon.

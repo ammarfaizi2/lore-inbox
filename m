@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbWGIUkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161133AbWGIUkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161132AbWGIUkL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 16:40:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161133AbWGIUkK
+	id S1161133AbWGIUkx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 16:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161135AbWGIUkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 16:40:10 -0400
-Received: from post-25.mail.nl.demon.net ([194.159.73.195]:29937 "EHLO
-	post-25.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id S1161132AbWGIUkJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 16:40:09 -0400
-Date: Sun, 9 Jul 2006 22:40:06 +0200
-From: Rutger Nijlunsing <rutger@nospam.com>
-To: Theodore Tso <tytso@mit.edu>, David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: [OT] 'volatile' in userspace
-Message-ID: <20060709204006.GA5242@nospam.com>
-Reply-To: linux-kernel@tux.tmfweb.nl
-References: <44B0FAD5.7050002@argo.co.il> <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com> <20060709195114.GB17128@thunk.org>
+	Sun, 9 Jul 2006 16:40:53 -0400
+Received: from lucidpixels.com ([66.45.37.187]:52425 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1161133AbWGIUkw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 16:40:52 -0400
+Date: Sun, 9 Jul 2006 16:40:49 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Mark Lord <liml@rtr.ca>
+cc: Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: LibPATA code issues / 2.6.15.4 (found the opcode=0x35)!
+In-Reply-To: <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>
+Message-ID: <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <44AEB3CA.8080606@pobox.com>
+ <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan> <200607091224.31451.liml@rtr.ca>
+ <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
+ <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060709195114.GB17128@thunk.org>
-Organization: M38c
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 03:51:14PM -0400, Theodore Tso wrote:
-> On Sun, Jul 09, 2006 at 12:16:15PM -0700, David Schwartz wrote:
-> > > Volatile is useful for non device driver work, for example VJ-style
-> > > channels.  A portable volatile can help to code such things in a
-> > > compiler-neutral and platform-neutral way.  Linux doesn't care about
-> > > compiler neutrality, being coded in GNU C, and about platform
-> > > neutrality, having a per-arch abstraction layer, but other programs may
-> > > wish to run on multiple compilers and multiple platforms without
-> > > per-platform glue layers.
-> > 
-> > 	There is a portable volatile, it's called 'pthread_mutex_lock'. It allows
-> > you to code such things in a compiler-neutral and platform-neutral way. You
-> > don't have to worry about what the compiler might do, what the hardware
-> > might do, what atomic operations the CPU supports, or anything like that.
-> > The atomicity issues I've mentioned in my other posts make any attempt at
-> > creating a 'portable volatile' for shared memory more or less doomed from
-> > the start.
-> 
-> The other thing to add here is that if you're outside of the kernel,
-> you *don't* want to be implementing your own spinlock if for no other
-> reason than it's a performance disaster.  The scheduler doesn't know
-> that you are spinning waiting for a lock, so you will be scheduled and
-> burning cpu time (and energy, and heat budget) while waiting for the
-> the lock.  I once spent over a week on-site at a customer complaining
-> about Linux performance problems, and it turned out the reason why was
-> because they thought they were being "smart" by implementing their own
-> spinlock in userspace.  Bad bad bad.
-> 
-> So if a userspace progam ever uses volatile, it's almost certainly a
-> bug, one way or another.
+I made my own patch (following Mark's example) but also added that printk 
+in that function.
 
-Without 'volatile' and disabling optimizations altogether, how do we
-prevent gcc from optimizing away pointers? As can be seen on
-http://wiki.rubygarden.org/Ruby/page/show/GCAndExtensions (at
-'Compiler over-optimisations and "volatile"'), volatile is used to
-prevent a specific type of optimization. This is because of the
-garbage collector, which scans the stack and registers to find
-referenced objects. So you don't want local variables containing
-references to objects optimized away.
+Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_fixed_sense: failed 
+ata_op=0x35
+Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: translated ATA stat/err 
+0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_ata_desc_sense: 
+failed ata_op=0x51
+Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: status=0x51 { 
+DriveReady SeekComplete Error }
+Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: error=0x04 { 
+DriveStatusError }
 
-While it is again a side-effect of volatile which is being (mis)used,
-it is sometimes the only (easy & known) way to achieve this intented
-effect...
+Now that we have found the ata_op code of 0x35, what does this mean?  Is 
+it generated from a bad FUA/unsupported command from the kernel/SATA 
+driver?
 
--- 
-Rutger Nijlunsing ---------------------------------- eludias ed dse.nl
-never attribute to a conspiracy which can be explained by incompetence
-----------------------------------------------------------------------
+Justin.
+

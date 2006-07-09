@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbWGIUWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbWGIUYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161117AbWGIUWk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 16:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbWGIUWk
+	id S1161120AbWGIUYL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 16:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbWGIUYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 16:22:40 -0400
-Received: from pool-71-254-66-150.ronkva.east.verizon.net ([71.254.66.150]:60357
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1161117AbWGIUWj (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 16:22:39 -0400
-Message-Id: <200607092019.k69KJt66005527@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Daniel Bonekeeper <thehazard@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: Automatic Kernel Bug Report
-In-Reply-To: Your message of "Sun, 09 Jul 2006 16:01:58 EDT."
-             <e1e1d5f40607091301j723b92bje147932a4395775c@mail.gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com> <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com> <e1e1d5f40607090329i25f6b1b2s3db2c2001230932c@mail.gmail.com> <20060709125805.GF13938@stusta.de> <e1e1d5f40607091146s2f8e6431v33923f38c6d10539@mail.gmail.com> <20060709191107.GN13938@stusta.de>
-            <e1e1d5f40607091301j723b92bje147932a4395775c@mail.gmail.com>
+	Sun, 9 Jul 2006 16:24:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50048 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161120AbWGIUYJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 16:24:09 -0400
+Date: Sun, 9 Jul 2006 13:24:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: linux-kernel@vger.kernel.org,
+       Mauro Carvalho Chehab <mchehab@infradead.org>, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.18-rc1-mm1
+Message-Id: <20060709132400.a7f6e358.akpm@osdl.org>
+In-Reply-To: <200607091928.07179.dominik.karall@gmx.net>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	<200607091928.07179.dominik.karall@gmx.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152476360_3401P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sun, 09 Jul 2006 16:19:21 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152476360_3401P
-Content-Type: text/plain; charset=us-ascii
+On Sun, 9 Jul 2006 19:28:07 +0200
+Dominik Karall <dominik.karall@gmx.net> wrote:
 
-On Sun, 09 Jul 2006 16:01:58 EDT, Daniel Bonekeeper said:
+> On Sunday, 9. July 2006 11:11, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1
+> >8-rc1/2.6.18-rc1-mm1/
+> 
+> There are stil problems with initializing the bt878 chip. I'm not sure 
+> if it is the same bug, but I had problems with all -mm versions since 
+> 2.6.17-mm1
+> Screenshot: 
+> http://stud4.tuwien.ac.at/~e0227135/kernel/060709_190546.jpg
+> 
 
-> Sometimes the user may be just somebody that just started using linux,
-> or is in an industry that has nothing related to computers. He doesn't
-> even know that syslog exists, and even if he did, he could not even
-> care about it.
+Right - this is one of those mysterious crashes deep in sysfs from calling
+code which basically hasn't changed.  Mauro and Greg are vacationing or
+otherwise offline so not much is likely to happen short-term.
 
-This user will do whatever his distro tells him to do, which is almost
-certainly something *other* than what a kernel.org kernel should do.
-If he's running Ubuntu, it should do whatever Ubuntu does.  If he's
-on Fedora Core, it should poke the RedHat bugzilla, and so on.
-
-If he's running a kernel.org kernel, it's probably safe to assume *some*
-level of clue
-
---==_Exmh_1152476360_3401P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEsWTIcC3lWbTT17ARArU5AKCwxd4Utej4o4PAdjvPS/zGIjPRKgCguyXJ
-greIDmnhvSQvh5mGbNmJmUw=
-=C8sC
------END PGP SIGNATURE-----
-
---==_Exmh_1152476360_3401P--
+Is 2.6.18-rc1 OK?

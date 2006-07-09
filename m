@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWGICMB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161072AbWGICxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161045AbWGICMB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 22:12:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161046AbWGICMA
+	id S1161072AbWGICxl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 22:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161070AbWGICxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 22:12:00 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:2715 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1161045AbWGICMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 22:12:00 -0400
-Subject: Re: tasklet_unlock_wait() causes soft lockup with -rt and ieee1394
-	audio
-From: Lee Revell <rlrevell@joe-job.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Pieter Palmers <pieterp@joow.be>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1152409894.32734.27.camel@localhost.localdomain>
-References: <1152371924.4736.169.camel@mindpipe>
-	 <1152409894.32734.27.camel@localhost.localdomain>
+	Sat, 8 Jul 2006 22:53:40 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:16625 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id S1161069AbWGICxk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jul 2006 22:53:40 -0400
+Subject: Re: [RFC] VFS: FS CoW using redirection
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200607082041.54489.a1426z@gawab.com>
+References: <200607082041.54489.a1426z@gawab.com>
 Content-Type: text/plain
-Date: Sat, 08 Jul 2006 22:12:48 -0400
-Message-Id: <1152411169.28129.24.camel@mindpipe>
+Date: Sat, 08 Jul 2006 22:53:30 -0400
+Message-Id: <1152413610.19065.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.7.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-08 at 21:51 -0400, Steven Rostedt wrote:
-> Lee, can you cause this problem with PREEMPT_DESKTOP with softirq as
-> threads?
+On Sat, 2006-07-08 at 20:41 +0300, Al Boldi wrote:
+> Copy on Write is a neat way to quickly achieve a semi-clustered system, by 
+> mounting any shared FS read-only and redirecting writes to some perClient 
+> FS.
 > 
+> Would this redirection be easy to implement into the VFS?
 
-I am just posting this for Pieter - all followups should be directed to
-him.  (I don't even have the hardware to reproduce this)
-
-IIRC the problem could only be reproduced with PREEMPT_RT.  Pieter, can
-you confirm?
-
-Lee
+I've used unionfs that way.
 

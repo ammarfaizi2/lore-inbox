@@ -1,149 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161175AbWGIV65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbWGIWDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161175AbWGIV65 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 17:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161176AbWGIV65
+	id S1161180AbWGIWDI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 18:03:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161178AbWGIWDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 17:58:57 -0400
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:62856 "HELO
-	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161175AbWGIV65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 17:58:57 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>, tglx@linutronix.de,
-       mingo@redhat.com
-Subject: [patch 2.6.18-rc1] genirq: {en,dis}able_irq_wake() need refcounting too
-Date: Sun, 9 Jul 2006 14:58:51 -0700
-User-Agent: KMail/1.7.1
-Cc: Andrew Victor <andrew@sanpeople.com>,
-       Alessandro Zummo <alessandro.zummo@towertech.it>
+	Sun, 9 Jul 2006 18:03:08 -0400
+Received: from lucidpixels.com ([66.45.37.187]:4322 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1161177AbWGIWDH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 18:03:07 -0400
+Date: Sun, 9 Jul 2006 18:03:06 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Mark Lord <liml@rtr.ca>
+cc: Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: LibPATA code issues / 2.6.15.4 (found the opcode=0x35)!
+In-Reply-To: <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>
+Message-ID: <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <44AEB3CA.8080606@pobox.com>
+ <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan> <200607091224.31451.liml@rtr.ca>
+ <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
+ <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>
+ <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>
+ <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>
+ <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_cwXsELzE/28piPz"
-Message-Id: <200607091458.52298.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_cwXsELzE/28piPz
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+[4294810.556000] ata_gen_ata_desc_sense: failed ata_op=0x51
+[4294810.556000] ata4: status=0x51 { DriveReady SeekComplete Error }
+[4294810.556000] ata4: error=0x04 { DriveStatusError }
+[4295514.668000] ata_gen_fixed_sense: failed ata_op=0x35
+[4295514.668000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4295514.668000] ata_gen_ata_desc_sense: failed ata_op=0x51
+[4295514.668000] ata3: status=0x51 { DriveReady SeekComplete Error }
+[4295514.668000] ata3: error=0x04 { DriveStatusError }
+[4297033.649000] ata_gen_fixed_sense: failed ata_op=0xca
+[4297033.649000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4297033.649000] ata_gen_ata_desc_sense: failed ata_op=0x51
+[4297033.649000] ata4: status=0x51 { DriveReady SeekComplete Error }
+[4297033.649000] ata4: error=0x04 { DriveStatusError }
+[4297741.057000] ata_gen_fixed_sense: failed ata_op=0x35
+[4297741.057000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4297741.057000] ata_gen_ata_desc_sense: failed ata_op=0x51
+[4297741.057000] ata4: status=0x51 { DriveReady SeekComplete Error }
+[4297741.057000] ata4: error=0x04 { DriveStatusError }
 
-It's not just "normal" mode operation that needs refcounting for the
-{en,dis}able_irq() calls ... "wakeup" mode calls need it too, for the
-very same reasons.
-
-This patch adds that refcounting.  I expect that some ARM drivers will
-be triggering the new warning, but this call isn't yet widely used.
-(Which is probably why the bug has lingered this long...)
-
-- Dave
-
-
---Boundary-00=_cwXsELzE/28piPz
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="irqwake.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="irqwake.patch"
-
-IRQs need refcounting and a state flag to track whether the the IRQ should
-be enabled or disabled as a "normal IRQ" source after a series of calls to
-disable_irq() and enable_irq().  For shared IRQs, the IRQ must be enabled
-so long as at least one driver needs it active.
-
-Likewise, IRQs need the same support to track whether the IRQ should be
-enabled or disabled as a "wakeup event" source after a series of calls to
-enable_irq_wake() and disable_irq_wake().  For shared IRQs, the IRQ must
-be wakeup-enabled so long as at least one driver needs it.
-
-But right now they don't have that refcounting ... which means sharing
-wakeup-capable IRQs can't work correctly in some configurations.  This
-patch adds the refcount and flag mechanisms to set_irq_wake(), and a
-minimal description of what an irq wake mechanism is.
-
-Drivers relying on the older (broken) "toggle" semantics will trigger a
-warning; that'll be a handful of drivers on ARM systems.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Also got a 0xca.
 
 
-Index: at91/include/linux/irq.h
-===================================================================
---- at91.orig/include/linux/irq.h	2006-07-09 13:46:34.000000000 -0700
-+++ at91/include/linux/irq.h	2006-07-09 13:57:35.000000000 -0700
-@@ -58,6 +58,7 @@
- #define IRQ_NOREQUEST		0x04000000	/* IRQ cannot be requested */
- #define IRQ_NOAUTOEN		0x08000000	/* IRQ will not be enabled on request irq */
- #define IRQ_DELAYED_DISABLE	0x10000000	/* IRQ disable (masking) happens delayed. */
-+#define IRQ_WAKEUP		0x20000000	/* IRQ triggers system wakeup */
- 
- struct proc_dir_entry;
- 
-@@ -124,6 +125,7 @@ struct irq_chip {
-  * @action:		the irq action chain
-  * @status:		status information
-  * @depth:		disable-depth, for nested irq_disable() calls
-+ * @wake_depth:		enable depth, for multiple set_irq_wake() callers
-  * @irq_count:		stats field to detect stalled irqs
-  * @irqs_unhandled:	stats field for spurious unhandled interrupts
-  * @lock:		locking for SMP
-@@ -147,6 +149,7 @@ struct irq_desc {
- 	unsigned int		status;		/* IRQ status */
- 
- 	unsigned int		depth;		/* nested irq disables */
-+	unsigned int		wake_depth;	/* nested wake enables */
- 	unsigned int		irq_count;	/* For detecting broken IRQs */
- 	unsigned int		irqs_unhandled;
- 	spinlock_t		lock;
-Index: at91/kernel/irq/manage.c
-===================================================================
---- at91.orig/kernel/irq/manage.c	2006-07-09 13:46:34.000000000 -0700
-+++ at91/kernel/irq/manage.c	2006-07-09 13:57:35.000000000 -0700
-@@ -137,16 +137,40 @@ EXPORT_SYMBOL(enable_irq);
-  *	@irq:	interrupt to control
-  *	@on:	enable/disable power management wakeup
-  *
-- *	Enable/disable power management wakeup mode
-+ *	Enable/disable power management wakeup mode, which is
-+ *	disabled by default.  Enables and disables must match,
-+ *	just as they match for non-wakeup mode support.
-+ *
-+ *	Wakeup mode lets this IRQ wake the system from sleep
-+ *	states like "suspend to RAM".
-  */
- int set_irq_wake(unsigned int irq, unsigned int on)
- {
- 	struct irq_desc *desc = irq_desc + irq;
- 	unsigned long flags;
- 	int ret = -ENXIO;
-+	int (*set_wake)(unsigned, unsigned) = desc->chip->set_wake;
- 
-+	/* wakeup-capable irqs can be shared between drivers that
-+	 * don't need to have the same sleep mode behaviors.
-+	 */
- 	spin_lock_irqsave(&desc->lock, flags);
--	if (desc->chip->set_wake)
-+	if (on) {
-+		if (desc->wake_depth++ == 0)
-+			desc->status |= IRQ_WAKEUP;
-+		else
-+			set_wake = NULL;
-+	} else {
-+		if (desc->wake_depth == 0) {
-+			printk(KERN_WARNING "Unbalanced IRQ %d "
-+					"wake disable\n", irq);
-+			WARN_ON(1);
-+		} else if (--desc->wake_depth == 0)
-+			desc->status &= ~IRQ_WAKEUP;
-+		else
-+			set_wake = NULL;
-+	}
-+	if (set_wake)
- 		ret = desc->chip->set_wake(irq, on);
- 	spin_unlock_irqrestore(&desc->lock, flags);
- 	return ret;
+On Sun, 9 Jul 2006, Justin Piszcz wrote:
 
---Boundary-00=_cwXsELzE/28piPz--
+>
+>
+> On Sun, 9 Jul 2006, Justin Piszcz wrote:
+>
+>> 
+>> 
+>> On Sun, 9 Jul 2006, Justin Piszcz wrote:
+>> 
+>>> I made my own patch (following Mark's example) but also added that printk 
+>>> in that function.
+>>> 
+>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_fixed_sense: failed 
+>>> ata_op=0x35
+>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: translated ATA stat/err 
+>>> 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_ata_desc_sense: 
+>>> failed ata_op=0x51
+>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: status=0x51 { 
+>>> DriveReady SeekComplete Error }
+>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: error=0x04 { 
+>>> DriveStatusError }
+>>> 
+>>> Now that we have found the ata_op code of 0x35, what does this mean?  Is 
+>>> it generated from a bad FUA/unsupported command from the kernel/SATA 
+>>> driver?
+>>> 
+>>> Justin.
+>>> 
+>>> -
+>>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>> Please read the FAQ at  http://www.tux.org/lkml/
+>>> 
+>> 
+>> In /usr/src/linux/include/linux/ata.h:
+>>
+>>  ATA_CMD_WRITE_EXT = 0x35,
+>> 
+>> Perhaps these drives do not support this command or do not support it 
+>> properly?
+>> 
+>> Any idea, Jeff/Alan?
+>> 
+>> Justin.
+>> 
+>> 
+>
+> Here are all the errors (when reading/writing heavily):
+>
+> [4294810.556000] ata_gen_fixed_sense: failed ata_op=0x35
+> [4294810.556000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+> 0xb/00/00
+> [4294810.556000] ata_gen_ata_desc_sense: failed ata_op=0x51
+> [4294810.556000] ata4: status=0x51 { DriveReady SeekComplete Error }
+> [4294810.556000] ata4: error=0x04 { DriveStatusError }
+> [4295514.668000] ata_gen_fixed_sense: failed ata_op=0x35
+> [4295514.668000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+> 0xb/00/00
+> [4295514.668000] ata_gen_ata_desc_sense: failed ata_op=0x51
+> [4295514.668000] ata3: status=0x51 { DriveReady SeekComplete Error }
+> [4295514.668000] ata3: error=0x04 { DriveStatusError }
+>
+> Jeff/Mark, from these errors can we reach a consensus as to the cause of 
+> these errors and how to eliminate the problem?
+>
+> Thanks,
+>
+> Justin.
+>

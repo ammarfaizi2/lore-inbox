@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161190AbWGIWTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161196AbWGIWYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161190AbWGIWTS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 18:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161192AbWGIWTS
+	id S1161196AbWGIWYL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 18:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161195AbWGIWYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 18:19:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13471 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161190AbWGIWTS (ORCPT
+	Sun, 9 Jul 2006 18:24:11 -0400
+Received: from mga03.intel.com ([143.182.124.21]:6457 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1161194AbWGIWYK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 18:19:18 -0400
-Date: Sun, 9 Jul 2006 15:18:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-cc: Albert Cahalan <acahalan@gmail.com>, tglx@linutronix.de,
-       joe.korty@ccur.com, linux-kernel@vger.kernel.org, linux-os@analogic.com,
-       khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org, arjan@infradead.org
-Subject: Re: [patch] spinlocks: remove 'volatile'
-In-Reply-To: <20060709211023.GC5759@ucw.cz>
-Message-ID: <Pine.LNX.4.64.0607091506250.5623@g5.osdl.org>
-References: <787b0d920607072054i237eebf5g8109a100623a1070@mail.gmail.com>
- <20060708094556.GA13254@tsunami.ccur.com> <1152354244.24611.312.camel@localhost.localdomain>
- <787b0d920607080849p322a6349g7a5fd98f78aa9f32@mail.gmail.com>
- <1152383487.24611.337.camel@localhost.localdomain>
- <787b0d920607081233w3e0e99a9n706ff510c3de458b@mail.gmail.com>
- <Pine.LNX.4.64.0607081256170.3869@g5.osdl.org> <20060709211023.GC5759@ucw.cz>
+	Sun, 9 Jul 2006 18:24:10 -0400
+X-IronPort-AV: i="4.06,221,1149490800"; 
+   d="scan'208"; a="63380917:sNHT17517689"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: ACPI_DOCK bug: noone cares
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Date: Sun, 9 Jul 2006 18:24:07 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6ECF9E5@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ACPI_DOCK bug: noone cares
+Thread-Index: Acajo9cboWRhfcbhQfyOiJx/NXt3LAAAMVJQ
+From: "Brown, Len" <len.brown@intel.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Cc: "Adrian Bunk" <bunk@stusta.de>,
+       "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
+       "Dave Hansen" <haveblue@us.ibm.com>, "Andrew Morton" <akpm@osdl.org>,
+       "LKML" <linux-kernel@vger.kernel.org>, <gregkh@suse.de>,
+       <linux-acpi@vger.kernel.org>, "Miles Lane" <miles.lane@gmail.com>
+X-OriginalArrivalTime: 09 Jul 2006 22:24:08.0637 (UTC) FILETIME=[655166D0:01C6A3A6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> >Fair enough. Reverted.
+>> 
+>> I disagree with this decision, and would like to know what
+>> is necessary to reverse it.
+>
+>Mistakes happen. Fair enough. They happen all the time. This 
+>time around, for the 2.6.18-rc1 thing, I had heard more than
+>the usual "nobody even reacted", as Andrew had held up two
+>patch-series of his because of that issue..
 
+Dependencies happen too, and that was the case with the memhotplug
+patches.  Memhotplug, PCI-hotplug, docking -- these things all
+have dependencies between multiple sub-systems, and we don't
+really have a good process for making things flow smoothly.
+Andrew has set himself up to be the clearing house, and he is
+so successful that I think that sometimes we tend to
+over-use him for that purpose.
 
-On Sun, 9 Jul 2006, Pavel Machek wrote:
-> 
-> volatile int a; a=1; a=2;
-> 
-> ...under old definition, there's nothing to optimize but AFAICT, your
-> definition allows optimizing out a=1.
+>So that makes me like it even less than usual when I'm told 
+>that a problem with something I merged was apparently known
+>BEFORE IT WAS MERGED.
+>
+>So Adrian's report on its own wouldn't have caused a revert. 
+>
+>> If you address me directly when you are asking me to do something,
+>> that would really help me help you.
+>
+>As far as I can tell, you were cc'd on all of these things, along with 
+>the linux-acpi mailing list.
 
-If 'a' can alias anything, then by definition the first 'a=1' could have 
-changed something else than the second one. Otherwise, it couldn't have 
-aliased "anything", it would have aliased only something _particular_. 
+Yes, you are right, I was cc'd.  My inbox knew about this issue
+and I hadn't noticed it.  It was my mistake to assume a few days later
+that the latest driver needed a patch.
 
-IOW, you can think of "aliasing anything" as being equivalent to saying 
-"the address is indeterminate". Two writes could literally go to two 
-different things.
+So I ask you.  If I fix the Kconfig issue today, will you accept
+a push that restores this driver to 2.6.18?
 
-But yeah, maybe that's not really perfect either. It leaves the 
-read-vs-read orderign still open.
-
-			Linus
+thanks,
+-Len

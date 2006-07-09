@@ -1,86 +1,68 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161049AbWGISs1 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 9 Jul 2006 14:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161053AbWGISs1
+	id S1161059AbWGITke (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 9 Jul 2006 15:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161085AbWGITke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 14:48:27 -0400
-Received: from 71-38-5-146.clsp.qwest.net ([71.38.5.146]:44553 "EHLO
-	mdrpress.com") by vger.kernel.org with ESMTP id S1161049AbWGISs1
+	Sun, 9 Jul 2006 15:40:34 -0400
+Received: from ip-62-2-100-238.vtz.net ([62.2.100.238]:42275 "EHLO
+	mail.vtz.net") by vger.kernel.org with ESMTP id S1161059AbWGITkd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 14:48:27 -0400
-Message-ID: <20060709124820.DCC8683C9FCA8CBE@mdrpress.com>
-From: tempusfugit@mdrpress.com
-To: linux-kernel@vger.kernel.org
-Subject: Tempus Fugit: Founding Fathers in Modern America
-Date: 09 Jul 2006 12:48:21 -0600
+	Sun, 9 Jul 2006 15:40:33 -0400
+Date: Sun, 09 Jul 2006 12:38:44 -0800
+From: "Herman Hull" <garciaupricea@adamjeeinsurance.com>
+To: <mail@padma.ch>
+Subject: Re:Quality r'eplica watches, R'0|ex , Cartier and much more SnlOxSb
+Message-ID: <UcLyW_okBf4X5b6Yb5K3yL6@adamjeeinsurance.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1161049AbWGISs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1161059AbWGITke@vger.kernel.org>
 
-Tempus Fugit: A Novel
-Available at Amazon.com, BN.com, Powells.com and lawrencerowe.com
-=20
+Wear Real Class on Your Wrist and Impress
 
-What would our Founding Fathers do if they suddenly found themselves in=
- the=20
-present-day United States? Would they be pleased with the current state=
- of=20
-America?
+We carry all major top-name brands, at terrific prices you can ONLY find Online! 
+These watches will dignify any wrist and add class to any outfit. 
+Browse our extensive online store for more great deals on MENS and LADIES watches.
 
-Journey with our Founders as they discover airplanes, Constitutional=20
-amendments, World Wars, and the Kennedy Assassination. Watch CNN and Je=
-rry=20
-Springer with George Washington, meet emancipated African Americans wit=
-h=20
-Thomas Jefferson, surf the web with Benjamin Franklin.
+Goto Our Website makanjj.info
 
-The exciting new novel Tempus Fugit is a fast-paced, profound, often=20
-hilarious story that brings Washington, Franklin and Jefferson back to=20
-life. After reading it, you will view our Founders and our republic in =
-a=20
-different light.
+***SPECIAL THIS WEEK ONLY***
 
-For more information about Tempus Fugit, please visit: lawrencerowe.com
+This week we are offering great deals on SWISS R0lex watches. These watches are GENUINE CLASS.
+* Swiss 25 Jewel ETA automatic movement
+* Serial number (accurate) and model number engraved between the lugs
+* Genuine sapphire crystal
+* Band is linked by threaded screws, not cheap pins
+* Solid back with green R0lex holographic sticker and model number
+* Diamond turning bezel
+* One-piece solid screw down crown with R0lex engraving, trip-lock, with rubber seal
+* Waterproof (to 30M), fully pressure tested
+* Perfect weight and feel
 
-For a limited time, visitors to the site can purchase an autographed co=
-py=20
-of the novel for only $15.95 - 20% off the cover price =96 and receive =
-free=20
-shipping anywhere in the continental United States!
+Browse our collection of SWISS R0lex -- these watches are on special for THIS WEEK ONLY. 
+These watches retail for $1500 - $1800 in stores, but you can get them at major discounts online!
 
 
->From the Author
+We also offer a wide variety of other name brand watches at great prices. 
+Looking for a gift? 
+We supply MENS and LADIES WATCHES: R0lex, Beitling, Bvlgari, Cartier, Chanel, Tag Heuer, and lots more! 
+Shop around and see why we are THE BEST ONLINE DISTRIBUTOR of fine jewelry at great prices.
 
-I spent years getting to know our founders. Most men are diminished by =
-such=20
-scrutiny, but in this case respect grew with understanding. As I read o=
-ur=20
-forefathers=92 words, I realized they overcame or foresaw most of our c=
-urrent=20
-problems.
-
-What would our founders think of America today?
-
-The answers are more conclusive than you might think.
-
-Lawrence Lee Rowe Jr.
+Our Shop:
+http://www.makanjj.info
 
 
-Tempus Fugit
-(Time Flies)
-A Novel
-Some Men Would Be Great In Any Time
-ISBN: 0976766809
 
-To exclude yourself from future mailings, please reply to this e-mail a=
-nd=20
-place the word =93liberty=94 in the subject line.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
+The Internet has a rising star whose name isn't Google. 
+Just over 2 years old, MySpace now has 21/2 times the traffic of Inc.
+and it quickly eclipsed Friendster as the top social-networking site where users 
+build larger and larger circles of friends. 
+"It's like being at a giant music conference 24 hours a day every day," 
+said Greg McIntosh, 27, guitarist for Ann Arbor, Michigan-based Great Lakes Myth Society.
+  

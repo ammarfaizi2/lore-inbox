@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030488AbWGINIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030493AbWGINTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030488AbWGINIL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 09:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030490AbWGINIL
+	id S1030493AbWGINTy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 09:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030496AbWGINTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 09:08:11 -0400
-Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:40663 "EHLO
-	mail.aftek.com") by vger.kernel.org with ESMTP id S1030488AbWGINIJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 09:08:09 -0400
-X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(59.95.0.168):SA:0(-102.4/1.7):. Processed in 1.131264 secs Process 7304)
-From: "Abu M. Muttalib" <abum@aftek.com>
-To: "Willy Tarreau" <w@1wt.eu>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Robert Hancock" <hancockr@shaw.ca>,
-       <chase.venters@clientec.com>, <kernelnewbies@nl.linux.org>,
-       <linux-newbie@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       "linux-mm" <linux-mm@kvack.org>
-Subject: RE: Commenting out out_of_memory() function in __alloc_pages()
-Date: Sun, 9 Jul 2006 18:42:23 +0530
-Message-ID: <BKEKJNIHLJDCFGDBOHGMCEFIDCAA.abum@aftek.com>
+	Sun, 9 Jul 2006 09:19:54 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:42103 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030494AbWGINTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 09:19:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ArnhEmea4Qw1wLxNUSG1jl+OEa7ZDS6/Pps/JeSSziffNdiGoJySip7tr6+VkYd+ob0o4ovcjvvKjEcDt/KDiafJEx8YCHccPAKcyXQ/lH2MjFLEaCeTeb30pGfRvgNLLNsVWXrlLAosbiJi8Wta7YYUNqT3ouqF4KTrajlAjzc=
+Message-ID: <6bffcb0e0607090619j39540482w46f9c17cd862e002@mail.gmail.com>
+Date: Sun, 9 Jul 2006 15:19:52 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.18-rc1-mm1
+Cc: linux-kernel@vger.kernel.org, "Vladimir V. Saveliev" <vs@namesys.com>
+In-Reply-To: <20060709051030.a73f832c.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-In-reply-to: <20060709121511.GD2037@1wt.eu>
-Importance: Normal
+Content-Disposition: inline
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	 <6bffcb0e0607090402m1f6c09c7hc9abc380bf36d460@mail.gmail.com>
+	 <20060709051030.a73f832c.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It's explained in Documentation/filesystems/proc.txt. This file know far
->ore things than me :-)
+On 09/07/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Sun, 9 Jul 2006 13:02:48 +0200
+> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+>
+> > TP hangs on
+> >
+> > <<<test_output>>>
+> > setrlimit01    1  PASS  :  RLIMIT_NOFILE functionality is correct
+> > setrlimit01    0  WARN  :  caught signal 2, not SIGSEGV
+> > <<<execution_status>>>
+> > duration=1071 termination_type=driver_interrupt termination_id=1 corefile=no
+> > cutime=0 cstime=1
+> > <<<test_end>>>
+>
+> Yep, thanks.
+>
+>
+> RLIMIT_FSIZE can cause generic_write_checks() to reduce `count'.  So we cannot
+> assume that `count' is equal to the total length size of the incoming iovec.
+>
 
-I tried with overcommit_ratio=100 and overcommit_memory=2 in that sequence.
-
-but the applications were killed. :-(
+Problem solved, thanks.
 
 Regards,
-Abu.
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

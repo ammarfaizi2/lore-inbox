@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWGIR1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWGIR10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbWGIR1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 13:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbWGIR1Y
+	id S964898AbWGIR10 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 13:27:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWGIR10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 13:27:24 -0400
-Received: from lucidpixels.com ([66.45.37.187]:35476 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S964880AbWGIR1X (ORCPT
+	Sun, 9 Jul 2006 13:27:26 -0400
+Received: from mail.gmx.de ([213.165.64.21]:2694 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964898AbWGIR1Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 13:27:23 -0400
-Date: Sun, 9 Jul 2006 13:27:21 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Mark Lord <liml@rtr.ca>
-cc: Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: LibPATA code issues / 2.6.15.4
-In-Reply-To: <200607091224.31451.liml@rtr.ca>
-Message-ID: <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <44AEB3CA.8080606@pobox.com>
- <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan> <200607091224.31451.liml@rtr.ca>
+	Sun, 9 Jul 2006 13:27:24 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18-rc1-mm1
+Date: Sun, 9 Jul 2006 19:28:07 +0200
+User-Agent: KMail/1.9.3
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607091928.07179.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday, 9. July 2006 11:11, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1
+>8-rc1/2.6.18-rc1-mm1/
 
+There are stil problems with initializing the bt878 chip. I'm not sure 
+if it is the same bug, but I had problems with all -mm versions since 
+2.6.17-mm1
+Screenshot: 
+http://stud4.tuwien.ac.at/~e0227135/kernel/060709_190546.jpg
 
-On Sun, 9 Jul 2006, Mark Lord wrote:
+I'm sorry about the quality, but I have only a mobile here.
 
-> Mmm.. there are two main paths into those messages,
-> and my current patch only caught one of them.
->
-> Here's a reworked version that catches the ata_op on both paths.
-> Maybe this will dump out the info we need to diagnose Justin's system.
->
-> Compiles & links fine on 2.6.17, but not tested.
->
-> Cheers
->
-> --- linux/drivers/scsi/libata-scsi.c.orig	2006-06-23 13:38:37.000000000 -0400
-> +++ linux/drivers/scsi/libata-scsi.c	2006-07-09 12:19:52.000000000 -0400
-> @@ -542,6 +542,7 @@
-> 	struct ata_taskfile *tf = &qc->tf;
-> 	unsigned char *sb = cmd->sense_buffer;
-> 	unsigned char *desc = sb + 8;
-> +	unsigned char ata_op = tf->command;
->
-> 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
->
-> @@ -558,6 +559,7 @@
-> 	 * onto sense key, asc & ascq.
-> 	 */
-> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
-> +		printk(KERN_WARNING "ata_gen_ata_desc_sense: failed ata_op=0x%02x\n", ata_op);
-> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
-> 				   &sb[1], &sb[2], &sb[3]);
-> 		sb[1] &= 0x0f;
-> @@ -617,6 +619,7 @@
-> 	struct scsi_cmnd *cmd = qc->scsicmd;
-> 	struct ata_taskfile *tf = &qc->tf;
-> 	unsigned char *sb = cmd->sense_buffer;
-> +	unsigned char ata_op = tf->command;
->
-> 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
->
-> @@ -633,6 +636,7 @@
-> 	 * onto sense key, asc & ascq.
-> 	 */
-> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
-> +		printk(KERN_WARNING "ata_gen_fixed_sense: failed ata_op=0x%02x\n", ata_op);
-> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
-> 				   &sb[2], &sb[12], &sb[13]);
-> 		sb[2] &= 0x0f;
->
-
-Thanks Mark!
-
-Applying now.
-
+hth,
+dominik

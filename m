@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161066AbWGITQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbWGITSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161066AbWGITQR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 15:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161067AbWGITQR
+	id S1161068AbWGITSW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 15:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWGITSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 15:16:17 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:48390 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1161066AbWGITQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 15:16:16 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] spinlocks: remove 'volatile'
-Date: Sun, 9 Jul 2006 12:16:15 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com>
+	Sun, 9 Jul 2006 15:18:22 -0400
+Received: from mga02.intel.com ([134.134.136.20]:50076 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1161063AbWGITSV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 15:18:21 -0400
+X-IronPort-AV: i="4.06,221,1149490800"; 
+   d="scan'208"; a="62615462:sNHT19510848"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <44B0FAD5.7050002@argo.co.il>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Sun, 09 Jul 2006 12:11:32 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sun, 09 Jul 2006 12:11:33 -0700
+Content-Type: text/plain; charset=US-ASCII
+Subject: RE: [PATCH] ia64: change usermode HZ to 250
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Date: Sun, 9 Jul 2006 12:18:21 -0700
+Message-ID: <617E1C2C70743745A92448908E030B2A34B9BD@scsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] ia64: change usermode HZ to 250
+Thread-Index: AcaiWbsVhQ8fcROeQCasys0cDwEElwBMaBfA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Arjan van de Ven" <arjan@infradead.org>, "Jeremy Higdon" <jeremy@sgi.com>
+Cc: "Jes Sorensen" <jes@sgi.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "John Daiker" <jdaiker@osdl.org>, "John Hawkes" <hawkes@sgi.com>,
+       "Tony Luck" <tony.luck@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       "Jack Steiner" <steiner@sgi.com>, "Dan Higgins" <djh@sgi.com>
+X-OriginalArrivalTime: 09 Jul 2006 19:18:20.0293 (UTC) FILETIME=[70631B50:01C6A38C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > So is times() is broken in IA64, or is this an exception to Alan's
+> > statement?
 
-> Volatile is useful for non device driver work, for example VJ-style
-> channels.  A portable volatile can help to code such things in a
-> compiler-neutral and platform-neutral way.  Linux doesn't care about
-> compiler neutrality, being coded in GNU C, and about platform
-> neutrality, having a per-arch abstraction layer, but other programs may
-> wish to run on multiple compilers and multiple platforms without
-> per-platform glue layers.
-
-	There is a portable volatile, it's called 'pthread_mutex_lock'. It allows
-you to code such things in a compiler-neutral and platform-neutral way. You
-don't have to worry about what the compiler might do, what the hardware
-might do, what atomic operations the CPU supports, or anything like that.
-The atomicity issues I've mentioned in my other posts make any attempt at
-creating a 'portable volatile' for shared memory more or less doomed from
-the start.
-
-	DS
+> yes it's broken; it needs to convert it to the original HZ (1024) and
 
 
+http://www.opengroup.org/onlinepubs/007908799/xsh/times.html
+
+In which there is a typo: 
+
+"Applications should use to determine the number of clock ticks
+ per second as it may vary from system to system"
+
+Clearly the word "sysconf" is missing between "use" and "to" (sysconf()
+*is* listed in the SEE ALSO section).
+
+I thought that part of the reason Linus raised HZ from 100 to 1000
+on x86 was to help flush out pre-historic programs that didn't
+know about sysconf() [With the hope that results that are off by
+an order of magnitude would be absurd enough to get notice].
+
+> make the sysconf() function also return 1024
+
+Making sysconf lie about the actual system tick sounds such a
+bad idea on so many levels!
+
+-Tony

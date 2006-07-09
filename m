@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWGILNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbWGILR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbWGILNS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 07:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWGILNS
+	id S1030442AbWGILR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 07:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWGILR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 07:13:18 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:46275 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932443AbWGILNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 07:13:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sby3VRcvU4qlMvxBkWkyS3h0m/idCESy6q6MAm00EasExuyRUb1KQUSGnu1ZjN06WozBYbB0GN6e5CD7V+1SIvA42HzOQtVL2+p3vgilHLioXoiNDOO8hZJHj5yCKxdPm1RTSwT69M2Y+u0Kv7temQwDCl1wikjCkfS7wctEqLI=
-Message-ID: <6bffcb0e0607090413q1686a68awbd92a39e02b6c6ed@mail.gmail.com>
-Date: Sun, 9 Jul 2006 13:13:16 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.18-rc1-mm1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0607090402m1f6c09c7hc9abc380bf36d460@mail.gmail.com>
+	Sun, 9 Jul 2006 07:17:58 -0400
+Received: from oola.is.scarlet.be ([193.74.71.23]:51348 "EHLO
+	oola.is.scarlet.be") by vger.kernel.org with ESMTP id S1030442AbWGILR5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 07:17:57 -0400
+Message-ID: <44B0E5E4.2090902@joow.be>
+Date: Sun, 09 Jul 2006 13:17:56 +0200
+From: Pieter Palmers <pieterp@joow.be>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: tasklet_unlock_wait() causes soft lockup with -rt and ieee1394
+ audio
+References: <1152371924.4736.169.camel@mindpipe>	 <1152409894.32734.27.camel@localhost.localdomain> <1152411169.28129.24.camel@mindpipe>
+In-Reply-To: <1152411169.28129.24.camel@mindpipe>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060709021106.9310d4d1.akpm@osdl.org>
-	 <6bffcb0e0607090402m1f6c09c7hc9abc380bf36d460@mail.gmail.com>
+X-DCC-scarlet.be-Metrics: oola 2020; Body=5 Fuz1=5 Fuz2=5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> On 09/07/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/
-> >
->
-> LTP hangs on
->
-> <<<test_output>>>
-> setrlimit01    1  PASS  :  RLIMIT_NOFILE functionality is correct
-> setrlimit01    0  WARN  :  caught signal 2, not SIGSEGV
-> <<<execution_status>>>
-> duration=1071 termination_type=driver_interrupt termination_id=1 corefile=no
-> cutime=0 cstime=1
-> <<<test_end>>>
->
-> [michal@ltg01-fedora linux-mm]$ ps aux | grep setr
-> root      5155 99.1  0.0   1612   188 pts/0    R    12:39  20:30 setrlimit01
->
-> sudo kill -9 5155
->
-> [michal@ltg01-fedora linux-mm]$ ps aux | grep setr
-> root      5155 99.0  0.0   1612   188 pts/0    R    12:39  20:57 setrlimit01
->
-> unkillable process? I'll try to strace this.
->
+Lee Revell wrote:
+> On Sat, 2006-07-08 at 21:51 -0400, Steven Rostedt wrote:
+>> Lee, can you cause this problem with PREEMPT_DESKTOP with softirq as
+>> threads?
+>>
+> 
+> I am just posting this for Pieter - all followups should be directed to
+> him.  (I don't even have the hardware to reproduce this)
+> 
+> IIRC the problem could only be reproduced with PREEMPT_RT.  Pieter, can
+> you confirm?
 
-Here is a strace output
-http://www.stardust.webpages.pl/files/mm/2.6.18-rc1-mm1/strace.txt
+It can only be reproduced with PREEMPT_RT. And the test kernel is 
+configured with irq threading, I haven't tried it without irq threading.
 
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Pieter

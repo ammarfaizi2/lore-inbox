@@ -1,90 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbWGIVFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161150AbWGIVF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161148AbWGIVFL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 17:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161147AbWGIVFK
+	id S1161150AbWGIVF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 17:05:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161152AbWGIVF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 17:05:10 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:4033 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1161148AbWGIVFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 17:05:09 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
-Date: Mon, 10 Jul 2006 07:04:59 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Arjan van de Ven <arjan@infradead.org>,
-       Sunil Kumar <devsku@gmail.com>, Bojan Smojver <bojan@rexursive.com>,
-       Pavel Machek <pavel@ucw.cz>, Avuton Olrich <avuton@gmail.com>,
-       Olivier Galibert <galibert@pobox.com>, Jan Rychter <jan@rychter.com>,
-       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net,
-       grundig <grundig@teleline.es>
-References: <20060627133321.GB3019@elf.ucw.cz> <200607082125.12819.rjw@sisk.pl> <20060709121545.GA2736@srcf.ucam.org>
-In-Reply-To: <20060709121545.GA2736@srcf.ucam.org>
+	Sun, 9 Jul 2006 17:05:57 -0400
+Received: from lucidpixels.com ([66.45.37.187]:10420 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1161147AbWGIVF4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 17:05:56 -0400
+Date: Sun, 9 Jul 2006 17:05:55 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Mark Lord <liml@rtr.ca>
+cc: Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: LibPATA code issues / 2.6.15.4 (found the opcode=0x35)!
+In-Reply-To: <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>
+Message-ID: <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <44AEB3CA.8080606@pobox.com>
+ <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan> <200607091224.31451.liml@rtr.ca>
+ <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
+ <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>
+ <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>
+ <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1312810.m4sKxKAnvZ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607100705.08374.ncunningham@linuxmail.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1312810.m4sKxKAnvZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Hi.
 
-On Sunday 09 July 2006 22:15, Matthew Garrett wrote:
-> On Sat, Jul 08, 2006 at 09:25:12PM +0200, Rafael J. Wysocki wrote:
-> > Now there seem to be two possible ways to go:
-> > 1) Drop the implementation that already is in the kernel and replace it
-> > with the out-of-the-tree one.
+On Sun, 9 Jul 2006, Justin Piszcz wrote:
+
 >
-> This would break existing interfaces to some extent, right? suspend2
-> doesn't have the same set of tunables. I'm not sure whether this is
-> something we especially care about, but it would potentially break some
-> existing userland code.
+>
+> On Sun, 9 Jul 2006, Justin Piszcz wrote:
+>
+>> I made my own patch (following Mark's example) but also added that printk 
+>> in that function.
+>> 
+>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_fixed_sense: failed 
+>> ata_op=0x35
+>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: translated ATA stat/err 
+>> 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_ata_desc_sense: failed 
+>> ata_op=0x51
+>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: status=0x51 { DriveReady 
+>> SeekComplete Error }
+>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: error=0x04 { 
+>> DriveStatusError }
+>> 
+>> Now that we have found the ata_op code of 0x35, what does this mean?  Is it 
+>> generated from a bad FUA/unsupported command from the kernel/SATA driver?
+>> 
+>> Justin.
+>> 
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>> 
+>
+> In /usr/src/linux/include/linux/ata.h:
+>
+>  ATA_CMD_WRITE_EXT = 0x35,
+>
+> Perhaps these drives do not support this command or do not support it 
+> properly?
+>
+> Any idea, Jeff/Alan?
+>
+> Justin.
+>
+>
 
-I don't want to go this way immediately, but if we did, it doesn't need to=
-=20
-mean breakage for userland. Suspend2 could replace the tunables that swsusp=
-=20
-uses, so it could be a transparent replacement for swsusp, assuming that th=
-e=20
-filewriter was turned off by default. (I say this because if the filewriter=
-=20
-and swapwriter are both compiled in, the format for resume2 is
+Here are all the errors (when reading/writing heavily):
 
-resume2=3D[swap|file]:/dev/<whatever><:offset>
+[4294810.556000] ata_gen_fixed_sense: failed ata_op=0x35
+[4294810.556000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4294810.556000] ata_gen_ata_desc_sense: failed ata_op=0x51
+[4294810.556000] ata4: status=0x51 { DriveReady SeekComplete Error }
+[4294810.556000] ata4: error=0x04 { DriveStatusError }
+[4295514.668000] ata_gen_fixed_sense: failed ata_op=0x35
+[4295514.668000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4295514.668000] ata_gen_ata_desc_sense: failed ata_op=0x51
+[4295514.668000] ata3: status=0x51 { DriveReady SeekComplete Error }
+[4295514.668000] ata3: error=0x04 { DriveStatusError }
 
-But with only the swapwriter or only the filewriter, the "swap" or "file" i=
-s=20
-optional.
+Jeff/Mark, from these errors can we reach a consensus as to the cause of 
+these errors and how to eliminate the problem?
 
-Regards,
+Thanks,
 
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
-
---nextPart1312810.m4sKxKAnvZ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEsW+EN0y+n1M3mo0RAjlEAKDDXBVCeRaY7bTY1VzqFt4zLLLcPQCgmKIr
-XvEWwm+3jGQePwKrKIVLID4=
-=y7RI
------END PGP SIGNATURE-----
-
---nextPart1312810.m4sKxKAnvZ--
+Justin.

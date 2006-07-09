@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbWGIDV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbWGIDVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161073AbWGIDV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 23:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWGIDV2
+	id S1161074AbWGIDVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 23:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161073AbWGIDVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 23:21:28 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:26349 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161073AbWGIDV1 (ORCPT
+	Sat, 8 Jul 2006 23:21:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42721 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161074AbWGIDVY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 23:21:27 -0400
-Date: Sat, 8 Jul 2006 20:21:08 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Robert Hancock <hancockr@shaw.ca>
-cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Hellwig <hch@infradead.org>,
-       Marcelo Tosatti <marcelo@kvack.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martin Bligh <mbligh@google.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [RFC 0/8] Optional ZONE_DMA
-In-Reply-To: <44AFF286.6020601@shaw.ca>
-Message-ID: <Pine.LNX.4.64.0607082016360.24311@schroedinger.engr.sgi.com>
-References: <fa.3mXwB3pXW7L2KpeFW2PO8SBLhJA@ifi.uio.no> <44AFF286.6020601@shaw.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 8 Jul 2006 23:21:24 -0400
+Date: Sat, 8 Jul 2006 23:21:03 -0400
+From: Dave Jones <davej@redhat.com>
+To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, cpufreq@lists.linux.org.uk
+Subject: Re: Suspend to RAM regression tracked down
+Message-ID: <20060709032103.GA31395@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>,
+	Jeremy Fitzhardinge <jeremy@goop.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	cpufreq@lists.linux.org.uk
+References: <1151837268.5358.10.camel@idefix.homelinux.org> <44A80B20.1090702@goop.org> <1152271537.5163.4.camel@idefix.homelinux.org> <20060707162152.GB3223@redhat.com> <1152312530.14453.16.camel@idefix.homelinux.org> <20060708062345.GB3356@redhat.com> <1152399303.14453.29.camel@idefix.homelinux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152399303.14453.29.camel@idefix.homelinux.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Jul 2006, Robert Hancock wrote:
+On Sun, Jul 09, 2006 at 08:55:02AM +1000, Jean-Marc Valin wrote:
+ > > If you're prepared to play around with 'git bisect' a little, it shouldn't
+ > > take that many iterations, as you've already narrowed it down quite a lot.
+ > > 
+ > > $ git bisect start drivers/cpufreq/cpufreq_ondemand.c
+ > > $ git bisect bad
+ > > $ git bisect good v2.6.12-rc5
+ > > 
+ > > should get you most of the way there.
+ > > 
+ > > http://www.kernel.org/pub/software/scm/git/docs/git-bisect.html
+ > > has more info.
+ > 
+ > Could you give me a bit more info, since I've never used git before (I
+ > only downloaded the git snapshots)? Also, if I understand correctly,
+ > cpufreq_ondemand.c is the only file that could cause the problem. Is
+ > that right? Also, is it possible to use an old version of it on a new
+ > kernel?
 
-> -LPC devices like the floppy controller, maybe enhanced parallel, etc. may
-> have 24-bit DMA restrictions even if there is no physical ISA bus.
+Actually, before deep diving into chasing bugs in ondemand, we should
+probably confirm that the same behaviour doesn't happen with a different
+governor.  Can you try that ?   Try setting it to userspace, and then
+running a userspace app like cpuspeed/powernowd etc.
 
-Yes, I noticed that the floppy drivers has no dependency set but fails 
-to build if GENERIC_ISA_DMA is not set.
+		Dave
 
-> -Even in totally ISA and LPC-free systems, some PCI devices (like those that
-> were a quick hack of an ISA device onto PCI) still have 24-bit address
-> restrictions. There are other devices that have sub-32-bit DMA capabilities,
-> like Broadcom wireless chips that only address 31 bits (although I think they
-> are fixing this in the driver). Without the DMA zone there is no way to ensure
-> that these requests can be satisfied.
-
-These all have to use GFP_DMA and/or GFP_DMA. So if I leave that flag 
-undefined then it will be obvious if something is amiss and we can leave 
-this experimental for awhile.
-
-> So I don't think it is safe to make this conditional on ISA or even the ISA
-> DMA API. Only if all devices on the system have addressing capability of a
-> full 32 bits (or at least of all installed RAM) can this zone be removed.
-
-Its safe in the sense that compilation/linking will fail (ISA dma chip 
-control functions are not present). Some of the dependencies set right now 
-do not correctly express these dependencies. But this could be fixed.
-
-The question is though: Is it worth to do now? Or do we do this later? At 
-some point the legacy DMA I/O will become too much of a bother.
+-- 
+http://www.codemonkey.org.uk

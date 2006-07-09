@@ -1,106 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWGIOv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWGIOyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWGIOv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 10:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWGIOv3
+	id S932479AbWGIOyp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 10:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWGIOyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 10:51:29 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:54818 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932478AbWGIOv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 10:51:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=f0dJSh8gGjtgepMFHbjeLVlqvaey0QmgtEhfvToDS3NRHGakH4GfTEOpzh0PjlWfgq+43pEUjSC7u98xFEgq+Cy5IEhGnLIbeprQWxVNSvzxJSVDZwC6MQGxtFgBx7iGudt6FODXo2pTdKH51KOdM/A4M9AlP1H+jJr9XkZdA58=
-Message-ID: <9e4733910607090751t29882cb6n961495dad426bdd8@mail.gmail.com>
-Date: Sun, 9 Jul 2006 10:51:26 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Martin Langer" <martin-langer@gmx.de>
-Subject: Re: [RFC][PATCH 1/2] firmware version management: add firmware_version()
-Cc: "Marcel Holtmann" <marcel@holtmann.org>,
-       "Arjan van de Ven" <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de
-In-Reply-To: <20060709122118.GA3678@tuba>
+	Sun, 9 Jul 2006 10:54:45 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:28069 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932479AbWGIOyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 10:54:44 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44B11861.3070703@s5r6.in-berlin.de>
+Date: Sun, 09 Jul 2006 16:53:21 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: memory barriers and dma_sync_single_for_*
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060708130904.GA3819@tuba>
-	 <1152365514.3120.46.camel@laptopd505.fenrus.org>
-	 <1152366597.29506.13.camel@localhost> <20060709122118.GA3678@tuba>
+X-Spam-Score: (-0.014) AWL,BAYES_40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/9/06, Martin Langer <martin-langer@gmx.de> wrote:
-> On Sat, Jul 08, 2006 at 03:49:57PM +0200, Marcel Holtmann wrote:
-> > Hi Arjan,
-> >
-> > > > It would be good if a driver knows which firmware version will be
-> > > > written to the hardware. I'm talking about external firmware files
-> > > > claimed by request_firmware().
-> > > >
-> > > > We know so many different firmware files for bcm43xx and it becomes
-> > > > more and more complicated without some firmware version management.
-> > > >
-> > > > This patch can create the md5sum of a firmware file. Then it looks into
-> > > > a table to figure out which version number is assigned to the hashcode.
-> > > > That table is placed in the driver code and an example for bcm43xx comes
-> > > > in my next mail. Any comments?
-> > >
-> > > why does this have to happen on the kernel side? Isn't it a lot easier
-> > > and better to let the userspace side of things do this work, and even
-> > > have a userspace file with the md5->version mapping? Or are there some
-> > > practical considerations that make that hard to impossible?
-> >
-> > I fully agree that we shouldn't put firmware versioning into the kernel
-> > drivers. The pattern you give to request_firmware() can be mapped to any
-> > file on the file system. And you also have the link to the device object
-> > and I prefer you export a sysfs file for the version so that the helper
-> > application loading the firmware can pick the right file.
->
-> Bcm43xx has no helper application to upload the firmware. This is done
-> in the driver. It's RAM based hardware without a Flash-ROM. The driver
-> has to upload the firmware in the init phase after each reset.
+Hi all,
 
-When your driver does request_firmware() I believe udev is triggering
-the /sbin/firmware_helper app.
+I have a memory area which is written by the CPU and concurrently read 
+by a DMA capable device, multiple times.
 
-rules.d/05-udev-early.rules:ACTION=="add", SUBSYSTEM=="firmware",
-ENV{FIRMWARE}=="*", RUN="/sbin/firmware_helper", OPTIONS="last_rule"
+Among else there are two fields in the memory area, both are 32 bits 
+wide. Whenever the CPU updates the fields, I have to make sure that the 
+device does not get to see a new value in field B before I updated field 
+A. Conversely, it is safe to update field A anytime before field B. The 
+driver has no way to know when the device is going to read any of the 
+fields.
 
-This app could be made smarter and set a version/checksum into two
-more sysfs attributes.
+My question: Do I need wmb() within the following code?
 
-I also though that the firmware loader was going to be modified to
-load the firmware via a firmware attribute located in the device node
-instead of a global firmware attribute. But it doesn't look like that
-change has been made. If the loading were done inside the device node
-adding the version/checksum attributes would be more obvious.
-/sbin/firmware_helper could set these attributes while loading the
-file.
+	dma_sync_single_for_cpu(..., DMA_TO_DEVICE);
+	area->a = new_val_a;
+	wmb();  /* necessary? */
+	area->b = new_val_b;
+	dma_sync_single_for_device(..., DMA_TO_DEVICE);
 
-> The driver gets a firmware file from /lib/firmware/ without knowing
-> which version this is. It's not possible to say enable this in the
-> driver if you find a firmware x and disable that if it's only version
-> y. That was my motivation to start thinking about firmware versioning.
->
-> But in the meantime I think it's a security issue, too. A driver
-> should only accept firmware files with certified checksums. I guess it
-> would be really difficult to enter a machine by firmware hijacking. So,
-> I'm still in hope that this is only a paranoia on my side. But it's
-> worth to think about it.
->
->
-> Martin
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+Or are all changes to the area hidden from the device between 
+dma_sync_single_for_cpu and _for_device, thereby making the write order 
+a non-issue? Thanks,
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Stefan Richter
+-=====-=-==- -=== -=--=
+http://arcgraph.de/sr/

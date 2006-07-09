@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWGIVZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWGIVds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWGIVZm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 17:25:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWGIVZm
+	id S932375AbWGIVds (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 17:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWGIVds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 17:25:42 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:54703 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932232AbWGIVZm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 17:25:42 -0400
-Subject: Re: [PATCH] adjust clock for lost ticks
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Uwe Bugla <uwe.bugla@gmx.de>,
-       James Bottomley <James.Bottomley@SteelEye.com>
-In-Reply-To: <Pine.LNX.4.64.0607082151400.12900@scrub.home>
-References: <20060624061914.202fbfb5.akpm@osdl.org>
-	 <200606262141.k5QLf7wi004164@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0606271212150.17704@scrub.home>
-	 <200606271643.k5RGh9ZQ004498@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0606271903320.12900@scrub.home>
-	 <Pine.LNX.4.64.0606271919450.17704@scrub.home>
-	 <200606271907.k5RJ7kdg003953@turing-police.cc.vt.edu>
-	 <1151453231.24656.49.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0606281218130.12900@scrub.home>
-	 <Pine.LNX.4.64.0606281335380.17704@scrub.home>
-	 <200606292307.k5TN7MGD011615@turing-police.cc.vt.edu>
-	 <1151695569.5375.22.camel@localhost.localdomain>
-	 <200606302104.k5UL41vs004400@turing-police.cc.vt.edu>
-	 <Pine.LNX.4.64.0607030256581.17704@scrub.home>
-	 <200607050429.k654TXUr012316@turing-police.cc.vt.edu>
-	 <1152147114.24656.117.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0607061912370.12900@scrub.home>
-	 <1152223506.24656.173.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0607082151400.12900@scrub.home>
-Content-Type: text/plain
-Date: Sun, 09 Jul 2006 14:25:37 -0700
-Message-Id: <1152480337.21576.17.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Jul 2006 17:33:48 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26896 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932375AbWGIVdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 17:33:47 -0400
+Date: Sun, 9 Jul 2006 23:33:45 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: miles.lane@gmail.com, vandrove@vc.cvut.cz, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: Revert "ACPI: dock driver"
+Message-ID: <20060709213345.GR13938@stusta.de>
+References: <200607091559.k69Fx2h0029447@hera.kernel.org> <44B15BCB.5000306@vc.cvut.cz> <20060709203310.GP13938@stusta.de> <20060709135852.9515371f.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060709135852.9515371f.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-08 at 22:02 +0200, Roman Zippel wrote:
-> A large number of lost ticks can cause an overadjustment of the clock.
-> To compensate for this we look at the current error and the larger the
-> error already is the more careful we are at adjusting the error.
-> As small extra fix reset the error when the clock is set.
+On Sun, Jul 09, 2006 at 01:58:52PM -0700, Randy.Dunlap wrote:
+> On Sun, 9 Jul 2006 22:33:10 +0200 Adrian Bunk wrote:
 > 
-> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+> > On Sun, Jul 09, 2006 at 09:40:59PM +0200, Petr Vandrovec wrote:
+> > > Linux Kernel Mailing List wrote:
+> > > >commit 953969ddf5b049361ed1e8471cc43dc4134d2a6f
+> > > >tree e4b84effa78a7e34d516142ee8ad1441906e33de
+> > > >parent b862f3b099f3ea672c7438c0b282ce8201d39dfc
+> > > >author Linus Torvalds <torvalds@g5.osdl.org> Sun, 09 Jul 2006 22:47:46 
+> > > >-0700
+> > > >committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 09 Jul 2006 22:47:46 
+> > > >-0700
+> > > >
+> > > >Revert "ACPI: dock driver"
+> > > >
+> > > >This reverts commit a5e1b94008f2a96abf4a0c0371a55a56b320c13e.
+> > > >
+> > > >Adrian Bunk points out that it has build errors, and apparently no
+> > > >maintenance. Throw it out.
+> > > 
+> > > Erm, what do I miss?  Code certainly builds, just before that checkin.
+> > >...
+> > 
+> > Not with all .config's:
+> > 
+> > http://lkml.org/lkml/2006/6/25/126
+> > http://lkml.org/lkml/2006/6/25/134
+> 
+> I set ACPI_DOCK=m and it builds OK.  I think that I used the
+> other config options from Miles's email.
+> and it still builds OK for me.
+>...
 
-Roman, 
-	Spent the weekend testing this, dropping 99/100 ticks, and was able to
-hold decent sync w/ ntpd. Also the softlockup hang appears resolved as
-well (confirmed by Vladis). Thanks for sending this out.
+ACPI_DOCK=m, HOTPLUG_PCI_ACPI=y is the problematic configuration.
 
-I know its already in -mm, but:
-Acked-by: John Stultz <johnstul@us.ibm.com>
+> ~Randy
 
--john
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

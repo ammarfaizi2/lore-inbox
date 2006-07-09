@@ -1,151 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbWGIMe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbWGIMla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030472AbWGIMe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 08:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWGIMe0
+	id S1030475AbWGIMla (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 08:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbWGIMla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 08:34:26 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:7742 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030472AbWGIMe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 08:34:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=q1vZGxfgp1TS9F0OKmwtp15v3Ow+bcXPVE7UQzBfZu/lHPzRd0PAZSQSE1cqiIpt+aeWSKFdL4Aabfs8nWM95z4RgGMBuZEoYNEnK1SXdrEky1lsmMctODnAdX6kX61wfIBT0hf6Uu0v5rXu92rAd0+C5eMacb+lpuRu3On5i5I=
-Message-ID: <44B0F7D9.8040203@gmail.com>
-Date: Sun, 09 Jul 2006 14:34:33 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@linux.intel.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH -mm] lockdep.c likely 
-Content-Type: text/plain; charset=ISO-8859-2
+	Sun, 9 Jul 2006 08:41:30 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59547 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030475AbWGIMl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 08:41:29 -0400
+Subject: Re: 2.6.18-rc1-mm1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Reuben Farrelly <reuben-lkml@reub.net>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, rdunlap@xenotime.net, greg@kroah.com,
+       john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@muc.de>
+In-Reply-To: <20060709052252.8c95202a.akpm@osdl.org>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	 <44B0E6E6.6070904@reub.net>  <20060709052252.8c95202a.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sun, 09 Jul 2006 13:56:45 +0100
+Message-Id: <1152449805.27368.57.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ar Sul, 2006-07-09 am 05:22 -0700, ysgrifennodd Andrew Morton:
+> > ata5: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0x30B0 irq 14
+> > scsi4 : ata_piix
+> > ata5.00: ATAPI, max UDMA/66
+> > ata5.00: configured for UDMA/66
 
-I have noticed this
+More ATAPI devices getting uppity about mode setting.
 
-+unlikely | 53202934|    80576  trace_softirqs_on()@:/usr/src/linux-mm/kernel/lockdep.c@1861
-[..]
-+unlikely | 53202350|    80542  trace_softirqs_off()@:/usr/src/linux-mm/kernel/lockdep.c@1895
-[..]
-+unlikely |272060329|  3784394  trace_hardirqs_on()@:/usr/src/linux-mm/kernel/lockdep.c@1787
-[..]
-+unlikely |361155686|  2959425  check_unlock()@:/usr/src/linux-mm/kernel/lockdep.c@2197
-[..]
-+unlikely |  1821294|  1140788  __lock_acquire()@:/usr/src/linux-mm/kernel/lockdep.c@1977
- unlikely |        0|  2962331  __lock_acquire()@:/usr/src/linux-mm/kernel/lockdep.c@1965
- unlikely |        0|  2962035  __lock_acquire()@:/usr/src/linux-mm/kernel/lockdep.c@1962
-+unlikely |361188304|  2961749  __lock_acquire()@:/usr/src/linux-mm/kernel/lockdep.c@1959
-[..]
-+unlikely | 14528808|   413114  debug_check_no_locks_freed()@:/usr/src/linux-mm/kernel/lockdep.c@2607
- likely   |    92394|      156  lock_kernel()@:/usr/src/linux-mm/lib/kernel_lock.c@70
- unlikely |        0|   305177  lockdep_init_map()@:/usr/src/linux-mm/kernel/lockdep.c@1927
- unlikely |        0|   305177  lockdep_init_map()@:/usr/src/linux-mm/kernel/lockdep.c@1925
-+unlikely |  2156369|   305176  lockdep_init_map()@:/usr/src/linux-mm/kernel/lockdep.c@1922
- unlikely |        0|  4412613  trace_hardirqs_off()@:/usr/src/linux-mm/kernel/lockdep.c@1837
-+unlikely |319757688|  4409721  trace_hardirqs_off()@:/usr/src/linux-mm/kernel/lockdep.c@1834
+> John stuff.  I suspect it's natural and normal, if the IDE error handling
+> did something rude with interrupt holdoff.
 
-in /proc/likely_prof
+The new libata should be more polite than that, although since the ATA
+drive can stall the CPU indefinitely you lose anyway 8(
 
-I'm not sure of it, but patch below should optimalize it.
+> > Jul  2 12:03:28 tornado kernel: hda: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 
+> > 2000kB Cache, UDMA(66)
 
-Regards,
-Michal
+Can you send me the full hdparm identify stuff for this ?
 
---
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
 
-Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+The old drivers/ide code uses much longer delays than the spec for some
+ATAPI commands, and it looks as if there is a good reason for doing
+so ...
 
-diff -uprN -X linux-mm/Documentation/dontdiff linux-mm-clean/kernel/lockdep.c linux-mm/kernel/lockdep.c
---- linux-mm-clean/kernel/lockdep.c	2006-07-09 12:07:15.000000000 +0200
-+++ linux-mm/kernel/lockdep.c	2006-07-09 14:09:31.000000000 +0200
-@@ -1784,7 +1784,7 @@ void trace_hardirqs_on(void)
- 	struct task_struct *curr = current;
- 	unsigned long ip;
+That or I've got a mistuning case I've missed.
 
--	if (unlikely(!debug_locks || current->lockdep_recursion))
-+	if (likely(!debug_locks || current->lockdep_recursion))
- 		return;
+Alan
 
- 	if (DEBUG_LOCKS_WARN_ON(unlikely(!early_boot_irqs_enabled)))
-@@ -1831,7 +1831,7 @@ void trace_hardirqs_off(void)
- {
- 	struct task_struct *curr = current;
-
--	if (unlikely(!debug_locks || current->lockdep_recursion))
-+	if (likely(!debug_locks || current->lockdep_recursion))
- 		return;
-
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
-@@ -1858,7 +1858,7 @@ void trace_softirqs_on(unsigned long ip)
- {
- 	struct task_struct *curr = current;
-
--	if (unlikely(!debug_locks))
-+	if (likely(!debug_locks))
- 		return;
-
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
-@@ -1892,7 +1892,7 @@ void trace_softirqs_off(unsigned long ip
- {
- 	struct task_struct *curr = current;
-
--	if (unlikely(!debug_locks))
-+	if (likely(!debug_locks))
- 		return;
-
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
-@@ -1919,7 +1919,7 @@ void trace_softirqs_off(unsigned long ip
- void lockdep_init_map(struct lockdep_map *lock, const char *name,
- 		      struct lock_class_key *key)
- {
--	if (unlikely(!debug_locks))
-+	if (likely(!debug_locks))
- 		return;
-
- 	if (DEBUG_LOCKS_WARN_ON(!key))
-@@ -1956,7 +1956,7 @@ static int __lock_acquire(struct lockdep
- 	int chain_head = 0;
- 	u64 chain_key;
-
--	if (unlikely(!debug_locks))
-+	if (likely(!debug_locks))
- 		return 0;
-
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
-@@ -1974,7 +1974,7 @@ static int __lock_acquire(struct lockdep
- 	/*
- 	 * Not cached yet or subclass?
- 	 */
--	if (unlikely(!class)) {
-+	if (likely(!class)) {
- 		class = register_lock_class(lock, subclass);
- 		if (!class)
- 			return 0;
-@@ -2194,7 +2194,7 @@ print_unlock_inbalance_bug(struct task_s
- static int check_unlock(struct task_struct *curr, struct lockdep_map *lock,
- 			unsigned long ip)
- {
--	if (unlikely(!debug_locks))
-+	if (likely(!debug_locks))
- 		return 0;
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
- 		return 0;
-@@ -2604,7 +2604,7 @@ void debug_check_no_locks_freed(const vo
- 	unsigned long flags;
- 	int i;
-
--	if (unlikely(!debug_locks))
-+	if (likely(!debug_locks))
- 		return;
-
- 	local_irq_save(flags);

@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbWGIHu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWGIHzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030302AbWGIHu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 03:50:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWGIHu1
+	id S1030430AbWGIHzk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 03:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWGIHzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 03:50:27 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:49109 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932402AbWGIHu0 (ORCPT
+	Sun, 9 Jul 2006 03:55:40 -0400
+Received: from relay01.pair.com ([209.68.5.15]:47117 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S1030427AbWGIHzj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 03:50:26 -0400
-Date: Sun, 9 Jul 2006 09:45:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Joseph Fannin <jfannin@gmail.com>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org, John Stultz <johnstul@us.ibm.com>
-Subject: Re: [LOCKDEP] 2.6.18-rc1: inconsistent {hardirq-on-W} -> {in-hardirq-W} usage
-Message-ID: <20060709074543.GA4444@elte.hu>
-References: <20060709050525.GA1149@nineveh.rivenstone.net> <20060708232512.12b59269.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 9 Jul 2006 03:55:39 -0400
+X-pair-Authenticated: 71.197.50.189
+From: Chase Venters <chase.venters@clientec.com>
+Organization: Clientec, Inc.
+To: "Abu M. Muttalib" <abum@aftek.com>
+Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
+Date: Sun, 9 Jul 2006 02:55:10 -0500
+User-Agent: KMail/1.9.3
+Cc: "Robert Hancock" <hancockr@shaw.ca>, kernelnewbies@nl.linux.org,
+       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "linux-mm" <linux-mm@kvack.org>
+References: <BKEKJNIHLJDCFGDBOHGMGEEJDCAA.abum@aftek.com>
+In-Reply-To: <BKEKJNIHLJDCFGDBOHGMGEEJDCAA.abum@aftek.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060708232512.12b59269.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200607090255.34452.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 09 July 2006 01:10, Abu M. Muttalib wrote:
+> I have a total of 16 MB RAM. My main concern is that I was running the same
+> set of applications earlier on linux-2.4.19-rmk7-pxa1 and didn't get any
+> out of memory. I am running the same application and get the OOM, though
+> the appearance is not uniform, at times it comes on a freshly booted system
+> and at times it didn't come when the system is on overnight.... Why I am
+> getting here??? Is there any problem with linux-2.6.13?
 
-* Andrew Morton <akpm@osdl.org> wrote:
+I'm just guessing now, but it's possible that the default thresholds have 
+changed from 2.4.19 to 2.6.13 (indeed, the amount of progress between those 
+two versions is more than some OS kernels have seen in their lifetime).
 
-> yup, thanks, bug.
-> 
-> --- a/arch/i386/kernel/time.c~get_cmos_time-locking-fix
-> +++ a/arch/i386/kernel/time.c
-> @@ -206,15 +206,16 @@ irqreturn_t timer_interrupt(int irq, voi
->  unsigned long get_cmos_time(void)
->  {
->  	unsigned long retval;
-> +	unsigned long flags;
->  
-> -	spin_lock(&rtc_lock);
-> +	spin_lock_irqsave(&rtc_lock, flags);
+You might look at Documentation/sysctl/vm.txt and check those settings on 
+2.4.19 versus 2.6.13.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+What application are you having trouble with?
 
-this bug has been in the upstream kernel for a couple of years: it was
-apparently introduced as part of HPET support, via the late_time_init()
-hook/hack in init/main.c. The lockup window is open once, during bootup.
+> I have tried to check the application for memory leak with no success.
+> There seems to be no memory leak.
+>
+> >Thanks,
+> >Chase
+>
+> Regards,
+> Abu.
 
-	Ingo
+Thanks,
+Chase

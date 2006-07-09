@@ -1,94 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWGIQnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWGIQnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbWGIQnE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 12:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWGIQnE
+	id S1751328AbWGIQnY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 12:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWGIQnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 12:43:04 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:25282 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1751319AbWGIQnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 12:43:02 -0400
-Date: Sun, 9 Jul 2006 13:47:03 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Michael Kerrisk <mtk-manpages@gmx.net>,
-       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
-       vendor-sec@lst.de
-Subject: Re: splice/tee bugs?
-Message-ID: <20060709134703.0aa5bc41@home.brethil>
-In-Reply-To: <20060709111629.GV4188@suse.de>
-References: <20060707070703.165520@gmx.net>
-	<20060707040749.97f8c1fc.akpm@osdl.org>
-	<20060707131310.0e382585@doriath.conectiva>
-	<20060708064131.GG4188@suse.de>
-	<20060708180926.00b1c0f8@home.brethil>
-	<20060709103606.GU4188@suse.de>
-	<20060709111629.GV4188@suse.de>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
+	Sun, 9 Jul 2006 12:43:24 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:43745 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1751328AbWGIQnY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 12:43:24 -0400
+Date: Mon, 10 Jul 2006 02:43:15 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "Albert Cahalan" <acahalan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, device@lanana.org
+Subject: Re: devices.txt errors
+Message-Id: <20060710024315.7dacd7f9.sfr@canb.auug.org.au>
+In-Reply-To: <787b0d920607082349h59ec36f7nc477e3cc9f9b6c77@mail.gmail.com>
+References: <787b0d920607082349h59ec36f7nc477e3cc9f9b6c77@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Mon__10_Jul_2006_02_43_15_+1000_Q5o=PDH=CivDWV/K"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jul 2006 13:16:29 +0200
-Jens Axboe <axboe@suse.de> wrote:
+--Signature=_Mon__10_Jul_2006_02_43_15_+1000_Q5o=PDH=CivDWV/K
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-| On Sun, Jul 09 2006, Jens Axboe wrote:
-| > On Sat, Jul 08 2006, Luiz Fernando N. Capitulino wrote:
-| > > 
-| > >  Hi Jens,
-| > > 
-| > > On Sat, 8 Jul 2006 08:41:32 +0200
-| > > Jens Axboe <axboe@suse.de> wrote:
-| > > 
-| > > | On Fri, Jul 07 2006, Luiz Fernando N. Capitulino wrote:
-| > > | > On Fri, 7 Jul 2006 04:07:49 -0700
-| > > | > Andrew Morton <akpm@osdl.org> wrote:
-| > > | > 
-| > > | > | On Fri, 07 Jul 2006 09:07:03 +0200
-| > > | > | "Michael Kerrisk" <mtk-manpages@gmx.net> wrote:
-| > > | > | 
-| > > | > | > c) Occasionally the command line just hangs, producing no output.
-| > > | > | >    In this case I can't kill it with ^C or ^\.  This is a 
-| > > | > | >    hard-to-reproduce behaviour on my (x86) system, but I have 
-| > > | > | >    seen it several times by now.
-| > > | > | 
-| > > | > | aka local DoS.  Please capture sysrq-T output next time.
-| > > | > 
-| > > | >  If I run lots of them in parallel, I get the following OOPs in a few
-| > > | > seconds:
-| > > | 
-| > > | With the patch posted? You need the i vs nrbufs fix.
-| > > 
-| > >  Yes, it fixes the problem. I didn't try it before because I thought
-| > > you were going to double check it [1].
-| > 
-| > Yeah the patch needs reworking, however the isolated i vs nrbufs fix is
-| > safe enough on its own. I'll post a full patch for inclusion, I'm afraid
-| > I wont be able to fully test it enough for submitting it until tomorrow
-| > though.
-| 
-| Something like this, testing would be appreciated! Michael, can you
-| repeat your testing as well? Thanks.
+On Sun, 9 Jul 2006 02:49:19 -0400 "Albert Cahalan" <acahalan@gmail.com> wro=
+te:
+>
+> Some names, like "/dev/iseries/vtty%d", are too damn big.
 
- Yeah, it fixes the problem for 2.6.18-rc1.
+As far as I know they were never used and certainly aren't now.  We did
+once use /dev/viocons/%d, but that went away a long time ago (before the
+code was in the mainline kernel).  Major 229 is now used by the pSeries
+Hypervisor consoles (/dev/hvc%d) and hopefully soon by a new iSeries
+hypervisor console with the same name.
 
- But doesn't compile for 2.6.17.4:
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-  CC      fs/splice.o
-fs/splice.c: In function `link_pipe':
-fs/splice.c:1378: warning: implicit declaration of function `mutex_lock_nested'
-fs/splice.c:1378: error: `I_MUTEX_PARENT' undeclared (first use in this function)
-fs/splice.c:1378: error: (Each undeclared identifier is reported only once
-fs/splice.c:1378: error: for each function it appears in.)
-fs/splice.c:1379: error: `I_MUTEX_CHILD' undeclared (first use in this function)
-make[1]: ** [fs/splice.o] Erro 1
-make: ** [fs] Erro 2
+--Signature=_Mon__10_Jul_2006_02_43_15_+1000_Q5o=PDH=CivDWV/K
+Content-Type: application/pgp-signature
 
- Should we use the first patch for it? It does work too.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
--- 
-Luiz Fernando N. Capitulino
+iD8DBQFEsTIjFdBgD/zoJvwRAkINAJ9v1T0D4b4ipys7D/8dAPORvi0ZVwCfU2kw
+IBjp/lHzv2F0MhKelaf1VXk=
+=e884
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__10_Jul_2006_02_43_15_+1000_Q5o=PDH=CivDWV/K--

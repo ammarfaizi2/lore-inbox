@@ -1,81 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161216AbWGIXdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161219AbWGIXhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161216AbWGIXdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 19:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161221AbWGIXdY
+	id S1161219AbWGIXhP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 19:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbWGIXhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 19:33:24 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10257 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161218AbWGIXdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 19:33:22 -0400
-Date: Mon, 10 Jul 2006 01:33:21 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Sam Vilain <sam.vilain@catalyst.net.nz>,
-       Kirill Korotaev <dev@openvz.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm6: kernel/sysctl.c: PROC_FS=n compile error
-Message-ID: <20060709233321.GY13938@stusta.de>
-References: <20060703030355.420c7155.akpm@osdl.org> <20060708202011.GD5020@stusta.de> <20060709185228.GB14100@sergelap.austin.ibm.com>
-MIME-Version: 1.0
+	Sun, 9 Jul 2006 19:37:15 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5563 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161219AbWGIXhO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 19:37:14 -0400
+Date: Sun, 9 Jul 2006 16:36:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Andi Kleen <ak@suse.de>, Kay Sievers <kay.sievers@vrfy.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.18-rc1
+Message-ID: <20060709233601.GA4646@kroah.com>
+References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org> <p73irm8nolj.fsf@verdi.suse.de> <20060708160233.GA4923@kroah.com> <200607100117.30052.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060709185228.GB14100@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <200607100117.30052.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 01:52:28PM -0500, Serge E. Hallyn wrote:
-> Quoting Adrian Bunk (bunk@stusta.de):
-> > namespaces-utsname-sysctl-hack.patch and ipc-namespace-sysctls.patch 
-> > cause the following compile error with CONFIG_PROC_FS=n:
+On Mon, Jul 10, 2006 at 01:17:30AM +0200, Andi Kleen wrote:
+> On Saturday 08 July 2006 18:02, Greg KH wrote:
+> > On Sat, Jul 08, 2006 at 04:44:08PM +0200, Andi Kleen wrote:
+> > > Greg KH <greg@kroah.com> writes:
+> > > > 
+> > > > Perhaps, that is odd.  The scanner should default to the logged in user,
+> > > > right?  Please file a bug at bugzilla.novell.com and the SuSE people can
+> > > > work on it there.
+> > > 
+> > > I have a similar problem with my printer. But /dev/usblp0,
+> > > /dev/usb/lp0 don't even appear, no matter what the permissions are.
 > > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   CC      kernel/sysctl.o
-> > kernel/sysctl.c:107: warning: #proc_do_ipc_string# used but never defined
-> > kernel/sysctl.c:150: warning: #proc_do_utsns_string# used but never defined
-> > kernel/sysctl.c:2465: warning: #proc_do_uts_string# defined but not used
-> > ...
-> >   LD      .tmp_vmlinux1
-> > kernel/built-in.o:(.data+0x938): undefined reference to `proc_do_utsns_string'
-> > kernel/built-in.o:(.data+0x964): undefined reference to `proc_do_utsns_string'
-> > kernel/built-in.o:(.data+0x990): undefined reference to `proc_do_utsns_string'
-> > kernel/built-in.o:(.data+0x9bc): undefined reference to `proc_do_utsns_string'
-> > kernel/built-in.o:(.data+0x9e8): undefined reference to `proc_do_utsns_string'
-> > kernel/built-in.o:(.data+0xc24): undefined reference to `proc_do_ipc_string'
-> > kernel/built-in.o:(.data+0xc50): undefined reference to `proc_do_ipc_string'
-> > kernel/built-in.o:(.data+0xc7c): undefined reference to `proc_do_ipc_string'
-> > kernel/built-in.o:(.data+0xca8): undefined reference to `proc_do_ipc_string'
-> > kernel/built-in.o:(.data+0xcd4): undefined reference to `proc_do_ipc_string'
-> > kernel/built-in.o:(.data+0xd00): more undefined references to `proc_do_ipc_string' follow
-> > make: *** [.tmp_vmlinux1] Error 1
+> > What version of udev are you using?  It works fine for me here with a
+> > USB printer (that's what I tested the changes with.)
 > 
-> Does the below patch fix this for you?  Took me awhile to get a valid
+> udev-068git20050831-9 (from SUSE 10.0 I think) 
 
-I can confirm this patch fixes the compilation for me.
+That's the issue, look in Documentation/Changes for the proper version
+of udev for the past few kernel versions to handle this kind of issue
+(again, it was a stupid libsysfs problem, which caused us to finally
+drop that piece of crud from udev...)  This has been documented as such
+since last October, see commit ad7e14a55ed7648d02a4df8e460e291d80a18c98.
 
-> CONFIG_PROC_FS=n .config, and I'm having other -mm s390 build failures
-> which I'll look into tomorrow, but this seems to fix the problem.
+It was necessary to do this for the input drivers to get them to all
+work properly, please see the old archives for details as to the
+necessity of it.
 
-CONFIG_EMBEDDED=y is required for CONFIG_PROC_FS=n, but apart from this 
-there was no problem for me.
+Also, that change caused the creation of Documentation/ABI/ which
+describes the rules that programs that look at sysfs class stuff, must
+be able to handle a symlink there.
 
-Did you observe any other problems (besides a small ATM compile error 
-Dave has just merged my patch for) with CONFIG_PROC_FS=n?
+That older version of udev in 10.0 can't handle the symlink, but I think
+that Kay had a version somewhere that was patched to handle it.  I'd
+just recommend upgrading to 10.1 :)
 
-> thanks,
-> -serge
->...
+thanks,
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+greg k-h

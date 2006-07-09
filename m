@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161140AbWGIU4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161142AbWGIU6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161140AbWGIU4I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 16:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161142AbWGIU4I
+	id S1161142AbWGIU6k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 16:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161143AbWGIU6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 16:56:08 -0400
-Received: from xenotime.net ([66.160.160.81]:36833 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161140AbWGIU4H (ORCPT
+	Sun, 9 Jul 2006 16:58:40 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:16374 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1161142AbWGIU6k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 16:56:07 -0400
-Date: Sun, 9 Jul 2006 13:58:52 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Adrian Bunk <bunk@stusta.de>, miles.lane@gmail.com
-Cc: vandrove@vc.cvut.cz, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: Revert "ACPI: dock driver"
-Message-Id: <20060709135852.9515371f.rdunlap@xenotime.net>
-In-Reply-To: <20060709203310.GP13938@stusta.de>
-References: <200607091559.k69Fx2h0029447@hera.kernel.org>
-	<44B15BCB.5000306@vc.cvut.cz>
-	<20060709203310.GP13938@stusta.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Jul 2006 16:58:40 -0400
+Date: Sun, 9 Jul 2006 22:58:31 +0200 (MEST)
+Message-Id: <200607092058.k69KwVxN026427@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
+Cc: johnstul@us.ibm.com, pavel@ucw.cz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jul 2006 22:33:10 +0200 Adrian Bunk wrote:
+On Fri, 7 Jul 2006 21:01:26 +0200 (MEST), I wrote:
+>Kernel 2.6.18-rc1 broke resume from APM suspend (to RAM)
+>on my old Dell Latitude CPi laptop. At resume the disk
+>spins up and the screen gets lit, but there is no response
+>to the keyboard, not even sysrq. All other system activity
+>also appears to be halted.
+>
+>I did the obvious test of reverting apm.c to the 2.6.17
+>version and fixing up the fallout from the TIF_POLLING_NRFLAG
+>changes, but it made no difference. So the problem must be
+>somewhere else.
 
-> On Sun, Jul 09, 2006 at 09:40:59PM +0200, Petr Vandrovec wrote:
-> > Linux Kernel Mailing List wrote:
-> > >commit 953969ddf5b049361ed1e8471cc43dc4134d2a6f
-> > >tree e4b84effa78a7e34d516142ee8ad1441906e33de
-> > >parent b862f3b099f3ea672c7438c0b282ce8201d39dfc
-> > >author Linus Torvalds <torvalds@g5.osdl.org> Sun, 09 Jul 2006 22:47:46 
-> > >-0700
-> > >committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 09 Jul 2006 22:47:46 
-> > >-0700
-> > >
-> > >Revert "ACPI: dock driver"
-> > >
-> > >This reverts commit a5e1b94008f2a96abf4a0c0371a55a56b320c13e.
-> > >
-> > >Adrian Bunk points out that it has build errors, and apparently no
-> > >maintenance. Throw it out.
-> > 
-> > Erm, what do I miss?  Code certainly builds, just before that checkin.
-> >...
-> 
-> Not with all .config's:
-> 
-> http://lkml.org/lkml/2006/6/25/126
-> http://lkml.org/lkml/2006/6/25/134
+I've traced the cause of this problem to the i386 time-keeping
+changes in kernel 2.6.17-git11. What happens is that:
+- The kernel autoselects TSC as my clocksource, which is
+  reasonable since it's a PentiumII. 2.6.17 also chose the TSC.
+- Immediately after APM resumes (arch/i386/kernel/apm.c line
+  1231 in 2.6.18-rc1) there is an interrupt from the PIT,
+  which takes us to kernel/timer.c:update_wall_time().
+- update_wall_time() does a clocksource_read() and computes
+  the offset from the previous read. However, the TSC was
+  reset by HW or BIOS during the APM suspend/resume cycle and
+  is now smaller than it was at the prevous read. On my machine,
+  the offset is 0xffffffd598e0a566 at this point, which appears
+  to throw update_wall_time() into a very very long loop.
 
-I set ACPI_DOCK=m and it builds OK.  I think that I used the
-other config options from Miles's email.
-and it still builds OK for me.
+Hacks around the problem:
+- echo jiffies>/sys/devices/system/clocksource/clocksource0/current_clocksource
+  before suspending eliminates the hang. (Note: this doesn't affect
+  the i386 delay loop implementation. Is that a bug or a feature?)
+- Hacking apm.c to set a flag just before suspending and clear
+  it only after all resume actions are done, and to have update_wall_time()
+  return immediately when this flag is set also eliminates the hang.
 
-Miles, can I get your full failing .config file, please?
+I guess the appropriate fix would be to augment either the
+TSC clocksource driver or the clocksource API to deal with
+pseudo-monotonic clocks that get reset at suspend.
 
----
-~Randy
+/Mikael

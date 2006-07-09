@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWGIKHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWGIKUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbWGIKHn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 06:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWGIKHn
+	id S965003AbWGIKUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 06:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWGIKUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 06:07:43 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:6776 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964892AbWGIKHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 06:07:42 -0400
+	Sun, 9 Jul 2006 06:20:25 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:48712 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965003AbWGIKUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 06:20:24 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=m+2NG6VnKG4spQPMTpqbgFVNgOIc6phob9obW36McLFEFycRyUjhY7uvNiqNhBCfRh8vPF2bkjKjBGX0hsDxGEbB40GuGJVCRT6lUMjpXJ29ViM564NTGHjl+0XdqlaVJVkzWTGhFZjyjutyGE00QcDdh3+Dcy/6if5C2ykqOd4=
-Message-ID: <44B0D55D.2010400@gmail.com>
-Date: Sun, 09 Jul 2006 18:07:25 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+        b=VJQcgOrAEyMJPzUW5GvOteThlAS2SRPU3FF0gvgeB8QkYFc36dVXRsOHzZ6DojfUhUgdJfiyadF+Ty8Jb9X0a7W9cikZ+kfBWVRhfGmNxKK5Anp+XTpuUOucFgdDwdq5ggzjopEMVvAW/pBCP62tjSUkArRSC5HeTM58erR7vBs=
+Message-ID: <44B0D86E.3060408@gmail.com>
+Date: Sun, 09 Jul 2006 12:20:30 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: Opinions on removing /proc/tty?
-References: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com>	 <20060707223043.31488bca.rdunlap@xenotime.net>	 <9e4733910607072256q65188526uc5cb706ec3ecbaee@mail.gmail.com>	 <20060708220414.c8f1476e.rdunlap@xenotime.net> <9e4733910607082220v754a000ak7e75ae4042a5e595@mail.gmail.com>
-In-Reply-To: <9e4733910607082220v754a000ak7e75ae4042a5e595@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: 2.6.18-rc1-mm1
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 7/9/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
->> On Sat, 8 Jul 2006 01:56:02 -0400 Jon Smirl wrote:
->>
->> > On 7/8/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
->> > > I don't know how well this is an answer to your question,
->> > > but I would like to be able to find a list of registered "consoles,"
->> > > whether they be serial, usbserial, netconsole, lp, or whatever.
->> > > /proc/tty/drivers does that partially.
->> >
->> > Console is an overloaded word. Do you want to know where it is legal
->> > to send system log output to, or do you want to know where you can log
->> > in from? There was a thread earlier that talked a little about
->> > controlling this.
->>
->> I have a working definition:
->> I want to see a list of drivers that have called register_console().
->>
->> > > I have a patch that also does it in /proc/consoles:
->> > >   http://www.xenotime.net/linux/patches/consoles-list.patch
->> > > Is somewhere in /sys the right place to find a list of all consoles?
->> >
->> > /sys is the right place for this info but a class does not exist for
->> it yet.
->>
->> I want a list of registered consoles.  How would I express that in /sys ?
+Hi,
+
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/
 > 
-> You could make the list appear as an attribute in
-> /sys/class/tty/console. You will need to all a little sysfs code after
-> the console tty device is created.
-> 
+[snip]
+> - When reporting bugs, please try to Cc: the relevant maintainer and mailing
+>   list on any email.
 
-That would violate the one file, one value rule and GregKH will drop
-it like a hot potato.
+make headers_install gives the following error
 
-A better solution is to have /sys/class/console.
+  INSTALL include/linux/wavefront.h
+sed: can't read /usr/src/linux-mm/include/linux/wavefront.h: No such file or directory
+make[3]: *** [wavefront.h] Error 2
+make[2]: *** [linux] Error 2
+make[1]: *** [headers_install] Error 2
+make: *** [headers_install] Error 2
 
-Tony
+We don't use this file anymore.
+
+
+Regards,
+Michal
+
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)
+
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+
+diff -uprN -X linux-mm/Documentation/dontdiff linux-mm-clean/include/linux/Kbuild linux-mm/include/linux/Kbuild
+--- linux-mm-clean/include/linux/Kbuild	2006-07-09 12:07:15.000000000 +0200
++++ linux-mm/include/linux/Kbuild	2006-07-09 12:04:46.000000000 +0200
+@@ -28,7 +28,7 @@ header-y += affs_fs.h affs_hardblocks.h
+ 	sockios.h som.h sound.h stddef.h synclink.h telephony.h		\
+ 	termios.h ticable.h times.h tiocl.h tipc.h toshiba.h		\
+ 	ultrasound.h un.h utime.h utsname.h video_decoder.h		\
+-	video_encoder.h videotext.h vt.h wavefront.h wireless.h xattr.h	\
++	video_encoder.h videotext.h vt.h wireless.h xattr.h	\
+ 	x25.h zorro_ids.h
+
+ unifdef-y += acct.h adb.h adfs_fs.h agpgart.h apm_bios.h atalk.h	\

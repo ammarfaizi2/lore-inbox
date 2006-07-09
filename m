@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030454AbWGILnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030455AbWGILqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030454AbWGILnx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 07:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbWGILnx
+	id S1030455AbWGILqE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 07:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbWGILqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 07:43:53 -0400
-Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:54730 "EHLO
-	mail.aftek.com") by vger.kernel.org with ESMTP id S1030458AbWGILnw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 07:43:52 -0400
-X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(59.95.0.168):SA:0(-102.4/1.7):. Processed in 1.809383 secs Process 28211)
-From: "Abu M. Muttalib" <abum@aftek.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Robert Hancock" <hancockr@shaw.ca>, <chase.venters@clientec.com>,
-       <kernelnewbies@nl.linux.org>, <linux-newbie@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, "linux-mm" <linux-mm@kvack.org>
-Subject: RE: Commenting out out_of_memory() function in __alloc_pages()
-Date: Sun, 9 Jul 2006 17:18:06 +0530
-Message-ID: <BKEKJNIHLJDCFGDBOHGMAEFDDCAA.abum@aftek.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sun, 9 Jul 2006 07:46:04 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:58470 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030455AbWGILqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 07:46:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=HU50V/xquhnXgy07t6SU6BqqjoBicqCnel06ZAIL0mCMuaftfDz4jXEA5PY9a2moSbLUBHznB0Oj9qBCS+q8M5l8ORAe02F9Rf5iM4N17wqHrid+LV/ZPRr5rwLsr9Rfqsy73hh+Ntam+Tfh+sAuvkxNfOf7CtEklNv5sONwOLg=
+Date: Sun, 9 Jul 2006 15:52:33 +0400
+From: Paul Drynoff <pauldrynoff@gmail.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: linux-2.6.17-mm6: can not stop machine: bad spinlock magic
+Message-Id: <20060709155233.6dfe61bd.pauldrynoff@gmail.com>
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.12; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-In-reply-to: <1152446107.27368.45.camel@localhost.localdomain>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It will refuse to load the program if that would use enough memory that
->the system cannot be sure it will not run out of memory having done so.
->You probably need a lot more swap.
+I saw this bug only on linux-2.6.17-mm6, not on 2.6.18-rc1-mm1.
 
-thanks for ur reply..
+But this bug happened very rare, and may be I'll see it later,
+so I report it just in case:
 
-but I am running the application on an embedded device and have no swap..
-
-what do I need to do in this case??
-
-Regards,
-Abu.
-
-
-
+$sudo /sbin/poweroff
+...
+* Stopping syslog-ng
+BUG: soft lockup detected on CPU#0!
+show_trace
+dump_stack
+softlockup_tick
+run_local_timers
+update_process_times
+timer_interrupt
+handle_IRQ_event
+handle_level_irq
+do_IRQ
+common_interrupt
+ktime_get_ts
+copy_process
+do_fork
+sys_fork

@@ -1,79 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161062AbWGITZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161063AbWGIT0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161062AbWGITZb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 15:25:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161063AbWGITZb
+	id S1161063AbWGIT0W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 15:26:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWGIT0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 15:25:31 -0400
-Received: from pool-71-254-66-150.ronkva.east.verizon.net ([71.254.66.150]:44740
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1161062AbWGITZb (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 15:25:31 -0400
-Message-Id: <200607091924.k69JOuaw004252@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Roman Zippel <zippel@linux-m68k.org>, john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm1
-In-Reply-To: Your message of "Sun, 09 Jul 2006 02:11:06 PDT."
-             <20060709021106.9310d4d1.akpm@osdl.org>
-From: Valdis.Kletnieks@vt.edu
-References: <20060709021106.9310d4d1.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152473096_3401P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sun, 9 Jul 2006 15:26:21 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:41297 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161063AbWGIT0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 15:26:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cnZWlnTZx2q7vPu5VdgWqm7IdJh76Pr6L3Aa0JQV0FakMf6Vo2FHrv4NFMQyBQBBi1ZstyJgA1qVvJD9yG7e1GDrlHXWV88tucAcTYf2L6f1sFZfdeDA+6VLQWJ3VeMwaZOroCTWjnGXZZrJUWBC6grhWOrdrYniRy2IHWsFaCw=
+Message-ID: <787b0d920607091226sb1db56dg9c0267f6ae8e2dc7@mail.gmail.com>
+Date: Sun, 9 Jul 2006 15:26:19 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: ray-gmail@madrabbit.org
+Subject: Re: Opinions on removing /proc/tty?
+Cc: "Jon Smirl" <jonsmirl@gmail.com>, "Greg KH" <greg@kroah.com>,
+       rmk+lkml@arm.linux.org.uk, alan@lxorguk.ukuu.org.uk, efault@gmx.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <2c0942db0607091000m259c1ed5m960821eb5237c4b0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sun, 09 Jul 2006 15:24:56 -0400
+Content-Disposition: inline
+References: <787b0d920607082230w676ddc62u57962f1fc08cf009@mail.gmail.com>
+	 <9e4733910607090704r68602194h3d2a1a91a4909984@mail.gmail.com>
+	 <787b0d920607090923p65c417f2v71c8e72bf786f995@mail.gmail.com>
+	 <2c0942db0607091000m259c1ed5m960821eb5237c4b0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152473096_3401P
-Content-Type: text/plain; charset=us-ascii
+On 7/9/06, Ray Lee <madrabbit@gmail.com> wrote:
+> On 7/9/06, Albert Cahalan <acahalan@gmail.com> wrote:
+> > In any case, I'm NOT running a udevinfo program or linking
+> > to a screwball library. Random failures are not OK.
+>
+> Complete agreement, but it seems like there's a third option here.
+> We're talking about nothing more complicated than a table lookup here.
+> Having a `udevinfo` invocation would indeed be overkill (and slower
+> than just stating the entire /dev hierarchy, I'm sure), but
+> Greg's/Jon's point that udev is the original authoritative source of
+> the data remains.
+>
+> A simple solution would be for udev to just maintain a list in a flat
+> file (e.g., /dev/.mappings) that could be read (very quickly) by ps
+> upon startup. This could be yet another strategy somewhere in your
+> list of heroic efforts to derive a /dev/ node :-).
+>
+> Having anyone other than udev try to maintain that mappings cache file
+> is doomed to failure, as you already noted.
 
-On Sun, 09 Jul 2006 02:11:06 PDT, Andrew Morton said:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/
+BSD just uses devname(3) in libc, which asks the kernel via
+the kern.devname sysctl. So, /proc/sys/kern/devname for us.
+This is essentially what /proc/tty/drivers is today, except
+that FreeBSD standardized on a fully functional devfs.
 
-Congrats to all the maintainers I've hassled the last few -mm's (in particular,
-Alan Cox, Roman Zippel, and John Stultz) - this one came up basically OK..
+Solaris uses _ttyname_dev(dev_t,buf,bufsize), also in libc.
+This is horribly slow, involving a recursive search of
+directories listed in the /etc/ttysrch file. The interface
+is nice though. You get: ttyname, ttyname_r, _ttyname_dev.
 
-1) The timer issues with booting with 'vga=794' causing slow console output
-and confusing the error correcting seem resolved - the problem section of
-early userspace is back to the 2-3 seconds it used to be, rather than 2-3 mins.
+Note that our glibc is often defective, not always upgraded,
+and not even the only C library. I won't be relying on it
+even if _ttyname_dev() or devname() gets implemented.
 
-2) libata is now setting the speeds sanely for both IDE devices:
+If you insist on bringing back the dead though...
 
-[    7.808637] libata version 2.00 loaded.
-[    7.808888] ata_piix 0000:00:1f.1: version 2.00ac5
-[    7.808908] PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
-[    7.810374] ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
-[    7.810910] ACPI: PCI Interrupt 0000:00:1f.1[A] -> Link [LNKA] -> GSI 11 (level, low) -> IRQ 11
-[    7.811767] PCI: Setting latency timer of device 0000:00:1f.1 to 64
-[    7.811855] ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xBFA0 irq 14
-[    7.812510] scsi0 : ata_piix
-[    7.964218] ata1.00: ATA-6, max UDMA/100, 117210240 sectors: LBA 
-[    7.964790] ata1.00: ata1: dev 0 multi count 8
-[    8.116060] ata1.01: ATAPI, max UDMA/33
-[    8.121104] ata1.00: configured for UDMA/100
-[    8.272621] ata1.01: configured for UDMA/33
-[    8.273139]   Vendor: ATA       Model: FUJITSU MHV2060A  Rev: 0000
-[    8.274258]   Type:   Direct-Access                      ANSI SCSI revision:05
-[    8.277954]   Vendor: TOSHIBA   Model: CDRW/DVD SDR2102  Rev: 1D13
-[    8.279074]   Type:   CD-ROM                             ANSI SCSI revision:05
+I already have code, probably written in 1996 by Charles Blake.
+Use /etc/psdevtab for the filename.
 
-(Alan - I *did* have to apply the piix_pata_ops to ich_pata_ops one-liner,
-that didn't seem to be in -rc1-mm1).
+File format:
 
---==_Exmh_1152473096_3401P
-Content-Type: application/pgp-signature
+There are 16 tty major numbers (as of the Linux 1.1 kernel,
+or thereabouts) with 256 minors each, and the names are 8
+characters long. That makes for a 32 KiB file; procps will
+verify the length. Major numbers are to be stored in the
+following order:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+2,3,4,5,19,20,22,23,24,25,32,33,46,47,48,49
 
-iD8DBQFEsVgIcC3lWbTT17ARAp5XAJ9/easa6YIy1T8Xm4N4X2Pg2CrvLgCg1vAf
-NPbxcbSS/mU66KexMHvNbdA=
-=0ApM
------END PGP SIGNATURE-----
+The structure is thus like this:
 
---==_Exmh_1152473096_3401P--
+char psdevtab[16][256][8]
+
+Names should be zero-padded, not zero-terminated.
+
+(seriously, a binary file with a tree structure is best)

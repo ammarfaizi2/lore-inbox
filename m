@@ -1,61 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161099AbWGIGtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161103AbWGIGte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161099AbWGIGtV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 02:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161100AbWGIGtV
+	id S1161103AbWGIGte (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 02:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161104AbWGIGte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 02:49:21 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:40829 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161099AbWGIGtU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 02:49:20 -0400
+	Sun, 9 Jul 2006 02:49:34 -0400
+Received: from web50204.mail.yahoo.com ([206.190.38.45]:36008 "HELO
+	web50204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1161102AbWGIGtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 02:49:33 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=oDyQ9Al6PoWaH0/ocWqjlvIymgbMODaNAlsP/k7RhV0znlvFRp2sA+lRlAwrQ4mnMfp0B0jmKxatI9vEpWZydfxI3U2Rx65QIXN9e1KihQhH8KJsbKzIECyQuK2PkWCHB9yUNBjMRm5/zDXL/rujXiTUUfWTsyRCv776EGHt83Q=
-Message-ID: <787b0d920607082349h59ec36f7nc477e3cc9f9b6c77@mail.gmail.com>
-Date: Sun, 9 Jul 2006 02:49:19 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: linux-kernel@vger.kernel.org, device@lanana.org
-Subject: devices.txt errors
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=iiUrGgtdOR/Ax8tBJ/cN3q8q6rEjadscye1SQ19MuXIFeweRtKefmS9/vAtIurWiOGezflzzY8l150wu/XO3SIkyrc3cAxsjFZLB2m+eenJ5K9TG30W6Gsiejxzhd6yv9iXSSlIaly61zrqv3mkoNbouJpGXiYafoJznqUH5oxQ=  ;
+Message-ID: <20060709064932.77080.qmail@web50204.mail.yahoo.com>
+Date: Sat, 8 Jul 2006 23:49:32 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: [REPOST: PATCH] Fix panic when reinserting Adaptec PCMCIA SCSI card.
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Major 216 was ttyUB%d (looks normal), but is now rfcomm%d instead?
-The description claims that the device is a tty, yet it no longer
-has a tty name?
+This is a resubmit of a patch that was submitted 2 weeks ago. To date, no feedback
+has been received.
 
-Char major 204, the low-density serial ports, has some
-sort of problem with the /dev/ttyCPM%d devices. Depending
-on how I read things, there are 2, 4, or 6 of these.
+Please cc: me as I am not subscribed.
 
-Minors claimed: 46, 47
-Minors available: 46, 47, 48, 49
-Names claimed:  0, 1, 2, 3, 4, 5
-The description:  0, 1, 2, 3, 4, 5
+===========================================================================
+If the card is re-inserted 2 or more times, we access elements
+past the end of the aha152x_host array.
 
-Here it is in context:
+Also correct spelling errors.
 
-44 = /dev/ttyMM0               Marvell MPSC - port 0
-45 = /dev/ttyMM1               Marvell MPSC - port 1
-46 = /dev/ttyCPM0              PPC CPM (SCC or SMC) - port 0
-   ...
-47 = /dev/ttyCPM5              PPC CPM (SCC or SMC) - port 5
-50 = /dev/ttyIOC0              Altix serial card
-   ...
-81 = /dev/ttyIOC31             Altix serial card
-82 = /dev/ttyVR0               NEC VR4100 series SIU
-83 = /dev/ttyVR1               NEC VR4100 series DSIU
+Signed-off-by Alex Davis <alex14641 at yahoo dot com>
+=========================================================================
+diff -u linux-2.6.17.1-orig/drivers/scsi/aha152x.c linux-2.6.17.1/drivers/scsi/aha152x.c
+--- linux-2.6.17.1-orig/drivers/scsi/aha152x.c	2006-06-17 21:49:35.000000000 -0400
++++ linux-2.6.17.1/drivers/scsi/aha152x.c	2006-06-25 20:06:05.000000000 -0400
+@@ -766,7 +766,7 @@
+ 	struct Scsi_Host *shpnt = lookup_irq(irqno);
+ 
+ 	if (!shpnt) {
+-        	printk(KERN_ERR "aha152x: catched software interrupt %d for unknown controller.\n",
+irqno);
++        	printk(KERN_ERR "aha152x: caught software interrupt %d for unknown controller.\n",
+irqno);
+ 		return IRQ_NONE;
+ 	}
+ 
+@@ -779,6 +779,7 @@
+ struct Scsi_Host *aha152x_probe_one(struct aha152x_setup *setup)
+ {
+ 	struct Scsi_Host *shpnt;
++	int i;
+ 
+ 	shpnt = scsi_host_alloc(&aha152x_driver_template, sizeof(struct aha152x_hostdata));
+ 	if (!shpnt) {
+@@ -787,6 +788,22 @@
+ 	}
+ 
+ 	/* need to have host registered before triggering any interrupt */
++
++	/* find an empty slot. */
++	for ( i = 0; i < ARRAY_SIZE(aha152x_host); ++i ) {
++		if ( aha152x_host[i] == NULL ) {
++			break;
++		}
++	}
++
++	/* no empty slots? */
++	if ( i >= ARRAY_SIZE(aha152x_host) ) {
++		printk(KERN_ERR "aha152x: too many hosts: %d\n", i + 1);
++		return NULL;
++	}
++
++	registered_count = i;
++
+ 	aha152x_host[registered_count] = shpnt;
+ 
+ 	memset(HOSTDATA(shpnt), 0, sizeof *HOSTDATA(shpnt));
+@@ -915,6 +932,8 @@
+ 
+ void aha152x_release(struct Scsi_Host *shpnt)
+ {
++	int i;
++
+ 	if(!shpnt)
+ 		return;
+ 
+@@ -933,6 +952,12 @@
+ 
+ 	scsi_remove_host(shpnt);
+ 	scsi_host_put(shpnt);
++	for ( i = 0; i < ARRAY_SIZE(aha152x_host); ++i ) {
++		if ( aha152x_host[i] == shpnt ) {
++			aha152x_host[i] = NULL;
++			break;
++		}
++	}
+ }
+ 
+ 
+@@ -1458,7 +1483,7 @@
+ 	unsigned char rev, dmacntrl0;
+ 
+ 	if (!shpnt) {
+-		printk(KERN_ERR "aha152x: catched interrupt %d for unknown controller.\n", irqno);
++		printk(KERN_ERR "aha152x: caught interrupt %d for unknown controller.\n", irqno);
+ 		return IRQ_NONE;
+ 	}
+ 
+@@ -2976,6 +3001,9 @@
+ 	Scsi_Cmnd *ptr;
+ 	unsigned long flags;
+ 
++	if(!shpnt)
++		return;
++
+ 	DO_LOCK(flags);
+ 	printk(KERN_DEBUG "\nqueue status:\nissue_SC:\n");
+ 	for (ptr = ISSUE_SC; ptr; ptr = SCNEXT(ptr))
+@@ -3941,7 +3969,6 @@
+ 
+ 	for(i=0; i<ARRAY_SIZE(setup); i++) {
+ 		aha152x_release(aha152x_host[i]);
+-		aha152x_host[i]=NULL;
+ 	}
+ }
 
-Less serious:
 
-Major 78 and major 112 claim the same name.
+I code, therefore I am
 
-Some names, like "/dev/iseries/vtty%d", are too damn big.
-Keeping things to "/dev/tty?????" would be appreciated.
-
-Last I checked, ttyD%d didn't match the code.
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
